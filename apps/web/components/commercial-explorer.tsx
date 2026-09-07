@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import type { DataMode } from "@/lib/data/commercial";
 import type { CommercialRow, ItemRole } from "@/lib/demo-data";
 
 function roleTone(role: ItemRole) {
@@ -15,7 +16,7 @@ function roleTone(role: ItemRole) {
   return "neutral" as const;
 }
 
-export function CommercialExplorer({ rows }: { rows: CommercialRow[] }) {
+export function CommercialExplorer({ rows, mode }: { rows: CommercialRow[]; mode: DataMode }) {
   const [query, setQuery] = useState("");
   const [role, setRole] = useState<ItemRole | "all">("all");
   const [grade, setGrade] = useState("all");
@@ -48,7 +49,7 @@ export function CommercialExplorer({ rows }: { rows: CommercialRow[] }) {
           <Input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Cerca 406 x 6,3, S355J2H, Bronifer..."
+            placeholder="Cerca 406 x 6,3, S355J2H..."
             aria-label="Cerca nel Commercial Explorer"
           />
           <select
@@ -85,9 +86,15 @@ export function CommercialExplorer({ rows }: { rows: CommercialRow[] }) {
         </div>
       </Card>
 
-      <div className="flex items-center justify-between text-xs text-slate-500">
-        <span>{filtered.length} risultati nel campione MVP</span>
-        <span>Filtri live lato client · DB query nella fase app-facing</span>
+      <div className="flex items-center justify-between gap-4 text-xs text-slate-500">
+        <span>{filtered.length} risultati</span>
+        <span>
+          {mode === "live"
+            ? "Supabase live · RLS owner-scoped"
+            : mode === "empty"
+              ? "Supabase collegato · dataset non assegnato"
+              : "Modalità demo"}
+        </span>
       </div>
 
       <div className="space-y-3">
@@ -106,7 +113,7 @@ export function CommercialExplorer({ rows }: { rows: CommercialRow[] }) {
                 </p>
               </div>
               <div>
-                <p className="text-xs text-slate-400">Azienda</p>
+                <p className="text-xs text-slate-400">Origine</p>
                 <p className="mt-1 text-sm font-medium text-slate-800">{row.company}</p>
               </div>
               <div>
@@ -125,8 +132,14 @@ export function CommercialExplorer({ rows }: { rows: CommercialRow[] }) {
 
         {filtered.length === 0 ? (
           <Card className="p-10 text-center">
-            <p className="font-semibold text-slate-800">Nessun risultato</p>
-            <p className="mt-2 text-sm text-slate-500">Modifica i filtri o la ricerca.</p>
+            <p className="font-semibold text-slate-800">
+              {mode === "empty" ? "Dataset non ancora assegnato" : "Nessun risultato"}
+            </p>
+            <p className="mt-2 text-sm text-slate-500">
+              {mode === "empty"
+                ? "Dopo il primo accesso Auth assegneremo il dataset validato a questo utente."
+                : "Modifica i filtri o la ricerca."}
+            </p>
           </Card>
         ) : null}
       </div>
