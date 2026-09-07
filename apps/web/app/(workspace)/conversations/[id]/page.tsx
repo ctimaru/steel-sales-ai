@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { conversations } from "@/lib/demo-data";
+import { getConversationDetail } from "@/lib/data/commercial";
 
 export default async function ConversationPage({
   params,
@@ -11,7 +11,7 @@ export default async function ConversationPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const conversation = conversations[id as keyof typeof conversations];
+  const conversation = await getConversationDetail(id);
 
   if (!conversation) {
     notFound();
@@ -32,7 +32,7 @@ export default async function ConversationPage({
             {conversation.subject}
           </h1>
           <p className="mt-2 text-sm text-slate-500">
-            Thread commerciale ricostruito con provenienza per ogni osservazione.
+            Thread commerciale ricostruito con provenienza e confidence per ogni osservazione.
           </p>
         </div>
       </div>
@@ -77,6 +77,13 @@ export default async function ConversationPage({
           </Card>
         ))}
       </div>
+
+      {conversation.events.length === 0 ? (
+        <Card className="mt-8 p-10 text-center">
+          <p className="font-semibold text-slate-800">Nessuna osservazione nel thread</p>
+          <p className="mt-2 text-sm text-slate-500">Il thread esiste ma non contiene osservazioni app-facing.</p>
+        </Card>
+      ) : null}
     </div>
   );
 }
