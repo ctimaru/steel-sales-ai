@@ -10,7 +10,7 @@ export type CommercialRow = {
   standard: string;
   role: ItemRole;
   price?: string;
-  availability?: "stock" | "production" | "unknown";
+  availability?: "stock" | "production" | "unavailable" | "unknown";
   confidence: number;
 };
 
