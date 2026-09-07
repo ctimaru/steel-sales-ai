@@ -3,10 +3,10 @@ import Link from "next/link";
 import { KpiCard } from "@/components/kpi-card";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { archiveMetrics, commercialRows } from "@/lib/demo-data";
+import { getDashboardData } from "@/lib/commercial-data";
 
-export default function DashboardPage() {
-  const recent = commercialRows.slice(0, 4);
+export default async function DashboardPage() {
+  const { metrics, recent, mode } = await getDashboardData();
 
   return (
     <div className="mx-auto max-w-7xl space-y-8">
@@ -17,8 +17,7 @@ export default function DashboardPage() {
             Dashboard commerciale
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-            Vista operativa sull’archivio elaborato dal parser v3.1. I KPI diventano live
-            appena il dataset viene promosso nelle tabelle app-facing con RLS.
+            KPI e attività commerciale letti dalle superfici app-facing protette da RLS.
           </p>
         </div>
         <Link
@@ -29,11 +28,18 @@ export default function DashboardPage() {
         </Link>
       </div>
 
+      {mode === "awaiting_assignment" ? (
+        <Card className="border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          Il dataset validato è già nelle tabelle app-facing, ma non è ancora assegnato a un utente Auth.
+          I valori mostrati restano il riferimento validato finché non completiamo il primo accesso.
+        </Card>
+      ) : null}
+
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard label="Email archiviate" value={archiveMetrics.emails} note="Periodo 2024-12-17 → 2026-09-04" />
-        <KpiCard label="Thread ricostruiti" value={archiveMetrics.threads} note={`${archiveMetrics.messages} messaggi/segmenti deduplicati`} />
-        <KpiCard label="Osservazioni" value={archiveMetrics.observations.toLocaleString("it-IT")} note="Richieste, offerte, ordini e consegne" />
-        <KpiCard label="Confidenza media" value={`${archiveMetrics.avgConfidence}%`} note={`${archiveMetrics.reviewFlags} record ancora in review`} />
+        <KpiCard label="Email archiviate" value={metrics.emails} note="Archivio Zimbra validato" />
+        <KpiCard label="Thread ricostruiti" value={metrics.threads} note={`${metrics.messages} messaggi/segmenti ricostruiti`} />
+        <KpiCard label="Osservazioni" value={metrics.observations.toLocaleString("it-IT")} note="Richieste, offerte, ordini e consegne" />
+        <KpiCard label="Confidenza media" value={`${metrics.avgConfidence.toFixed(1)}%`} note={`${metrics.reviewFlags} record ancora in review`} />
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
@@ -42,11 +48,11 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-base font-semibold text-slate-950">Attività commerciale recente</h2>
-                <p className="mt-1 text-xs text-slate-500">Campione MVP dal dataset validato localmente.</p>
+                <p className="mt-1 text-xs text-slate-500">
+                  {mode === "live" ? "Dati live dal database." : "Riferimento validato del dataset."}
+                </p>
               </div>
-              <Link href="/explorer" className="text-xs font-semibold text-slate-700">
-                Vedi tutto →
-              </Link>
+              <Link href="/explorer" className="text-xs font-semibold text-slate-700">Vedi tutto →</Link>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -58,15 +64,11 @@ export default function DashboardPage() {
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <Badge tone={row.role === "offered" ? "green" : row.role === "requested" ? "blue" : "violet"}>
-                      {row.role}
-                    </Badge>
+                    <Badge tone={row.role === "offered" ? "green" : row.role === "requested" ? "blue" : "violet"}>{row.role}</Badge>
                     <span className="text-xs text-slate-400">{row.date}</span>
                   </div>
                   <p className="mt-2 text-sm font-semibold text-slate-900">{row.product}</p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    {row.grade} · {row.standard} · {row.company}
-                  </p>
+                  <p className="mt-1 line-clamp-1 text-xs text-slate-500">{row.grade} · {row.standard} · {row.company}</p>
                 </div>
                 <div className="text-left sm:text-right">
                   <p className="text-sm font-semibold text-slate-900">{row.price ?? "—"}</p>
@@ -80,17 +82,17 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <h2 className="text-base font-semibold text-slate-950">Distribuzione item_role</h2>
-            <p className="mt-1 text-xs text-slate-500">1.349 osservazioni commerciali.</p>
+            <p className="mt-1 text-xs text-slate-500">{metrics.observations.toLocaleString("it-IT")} osservazioni commerciali.</p>
           </CardHeader>
           <CardContent className="space-y-5">
             {[
-              ["Requested", archiveMetrics.requested, "bg-blue-500"],
-              ["Offered", archiveMetrics.offered, "bg-emerald-500"],
-              ["Ordered", archiveMetrics.ordered, "bg-violet-500"],
-              ["Delivered", archiveMetrics.delivered, "bg-slate-600"],
+              ["Requested", metrics.requested, "bg-blue-500"],
+              ["Offered", metrics.offered, "bg-emerald-500"],
+              ["Ordered", metrics.ordered, "bg-violet-500"],
+              ["Delivered", metrics.delivered, "bg-slate-600"],
             ].map(([label, value, color]) => {
               const numeric = Number(value);
-              const width = `${(numeric / archiveMetrics.observations) * 100}%`;
+              const width = metrics.observations ? `${(numeric / metrics.observations) * 100}%` : "0%";
               return (
                 <div key={String(label)}>
                   <div className="flex justify-between text-xs">
