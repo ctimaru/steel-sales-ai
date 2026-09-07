@@ -39,7 +39,7 @@ export type ConversationData = {
   subject: string;
   company: string;
   status: string;
-  events: Array<{
+  events: ReadonlyArray<{
     role: ItemRole;
     at: string;
     title: string;
