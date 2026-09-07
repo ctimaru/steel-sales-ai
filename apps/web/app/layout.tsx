@@ -1,8 +1,14 @@
-import type { ReactNode } from 'react';
+import type { Metadata } from "next";
+import type { ReactNode } from "react";
 
-export const metadata = {
-  title: 'Steel Sales AI',
-  description: 'Commercial intelligence for steel sales',
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: {
+    default: "Steel Sales AI",
+    template: "%s · Steel Sales AI",
+  },
+  description: "Commercial intelligence workspace for steel sales.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
