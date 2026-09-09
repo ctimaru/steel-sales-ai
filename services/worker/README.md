@@ -7,23 +7,50 @@ Python/FastAPI service for document ingestion and commercial extraction.
 - ZIP / EML / PDF / XLS / XLSX upload through POST /v1/uploads
 - private Supabase Storage bucket: commercial-uploads
 - 25 MB upload limit
-- job status through GET /v1/jobs/{job_id}
+- durable job status through Supabase `worker_jobs`
+- extracted staging rows through Supabase `worker_staging_observations`
 - parser v3.1 input classification boundary
 - structured latest-price query through POST /v1/ai/latest-price
+- Railway-ready Docker deployment
 
-## Required production environment
+## Configuration
 
-- SUPABASE_URL
-- SUPABASE_SERVICE_ROLE_KEY (server-side only; never expose to the browser)
-- SUPABASE_UPLOAD_BUCKET=commercial-uploads
-- WORKER_INTERNAL_TOKEN
+Required production environment:
 
-For local tests, set WORKER_STORAGE_MODE=memory.
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY` (server-side only; never expose to the browser)
+- `SUPABASE_UPLOAD_BUCKET=commercial-uploads`
+- `WORKER_INTERNAL_TOKEN`
 
-## Next implementation slice
+The worker uses durable Supabase mode by default. For local tests only, set:
 
-1. Replace the in-memory job registry with a durable jobs table.
-2. Invoke the existing parser v3.1 implementation for each classified input.
-3. Persist staging output and expose Review Queue records.
-4. Add authenticated frontend upload route.
-5. Deploy privately on Railway with the environment variables above.
+```text
+WORKER_STORAGE_MODE=memory
+```
+
+The web app calls the worker through the server-side variables:
+
+- `WORKER_URL`
+- `WORKER_INTERNAL_TOKEN`
+
+The token must be configured in Railway and Vercel, never in client-side code.
+
+## Railway
+
+Create a Railway service from the repository root. Railway uses `railway.json` and `services/worker/Dockerfile`, exposes the `/health` endpoint, and supplies the public `PORT`.
+
+Set the production variables above, deploy, then verify:
+
+```text
+GET https://<worker-domain>/health
+```
+
+After deployment set `WORKER_URL` in the web deployment to the worker's HTTPS URL and redeploy the web app.
+
+## Local checks
+
+```bash
+cd services/worker
+pip install -e '.[test]'
+WORKER_STORAGE_MODE=memory pytest
+```
