@@ -50,9 +50,10 @@ def test_upload_rejects_oversized_file() -> None:
 
 
 def test_job_status_can_be_read() -> None:
+    eml = b"Subject: Offer\\n\\nOffro 406,4x6,3x12000 S235JR EUR 61,50/mt"
     created = client.post(
         "/v1/uploads",
-        files={"upload": ("offer.pdf", BytesIO(b"406,4x6,3x12000 S235JR EUR 61,50/mt"), "application/pdf")},
+        files={"upload": ("offer.eml", BytesIO(eml), "message/rfc822")},
     )
     job_id = created.json()["job_id"]
 
