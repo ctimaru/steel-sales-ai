@@ -1,8 +1,11 @@
+import os
 from io import BytesIO
 
 from fastapi.testclient import TestClient
 
-from app.main import MAX_UPLOAD_BYTES, app, jobs
+os.environ["WORKER_STORAGE_MODE"] = "memory"
+
+from app.main import MAX_UPLOAD_BYTES, app, jobs  # noqa: E402
 
 client = TestClient(app)
 
@@ -54,9 +57,23 @@ def test_job_status_can_be_read() -> None:
 
     response = client.get(f"/v1/jobs/{job_id}")
     assert response.status_code == 200
-    assert response.json()["status"] == "queued"
+    assert response.json()["status"] == "completed"
+    assert response.json()["storage_path"].startswith("memory://")
+    assert response.json()["result"]["parser_version"] == "v3.1"
 
 
 def test_unknown_job_returns_404() -> None:
     response = client.get("/v1/jobs/00000000-0000-0000-0000-000000000000")
     assert response.status_code == 404
+
+
+def test_internal_token_is_enforced_when_configured(monkeypatch) -> None:
+    monkeypatch.setenv("WORKER_INTERNAL_TOKEN", "test-token")
+    response = client.get("/v1/jobs/00000000-0000-0000-0000-000000000000")
+    assert response.status_code == 401
+    response = client.get(
+        "/v1/jobs/00000000-0000-0000-0000-000000000000",
+        headers={"x-worker-token": "test-token"},
+    )
+    assert response.status_code == 404
+    monkeypatch.delenv("WORKER_INTERNAL_TOKEN")
