@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { getReviewItems } from "@/lib/commercial-data";
 
 import { ReviewConfirmForm } from "@/components/review-confirm-form";
+import { ReviewCorrectForm } from "@/components/review-correct-form";
 
 export default async function ReviewPage() {
   const { mode, items } = await getReviewItems();
@@ -55,7 +56,7 @@ export default async function ReviewPage() {
                 ) : (
                   <button disabled className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white opacity-40">Conferma</button>
                 )}
-                <button disabled className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 opacity-50" title="Editing strutturato nel prossimo incremento">Correggi</button>
+                <ReviewCorrectForm id={flag.id} reviewed={flag.reviewStatus !== "pending"} />
               </div>
             </CardContent>
           </Card>
