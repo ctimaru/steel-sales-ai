@@ -13,6 +13,11 @@ from pydantic import BaseModel, ConfigDict
 
 from .parser_v31 import ParserInput, ParserV31Adapter
 from .queries import latest_price
+from .repository import (
+    RepositoryConfigurationError,
+    RepositoryError,
+    WorkerRepository,
+)
 from .storage import StorageConfigurationError, upload_private_object
 
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024
@@ -68,12 +73,19 @@ class Job:
 
 
 jobs: dict[UUID, Job] = {}
-
 app = FastAPI(
     title="Steel Sales AI Worker",
     version="0.1.0",
     description="Upload and asynchronous processing boundary for commercial documents.",
 )
+
+
+def durable_mode() -> bool:
+    return os.getenv("WORKER_STORAGE_MODE", "supabase") != "memory"
+
+
+def repository() -> WorkerRepository:
+    return WorkerRepository()
 
 
 def response_for(job: Job) -> JobResponse:
@@ -104,8 +116,14 @@ async def read_upload(upload: UploadFile) -> bytes:
 
 async def process_job(job_id: UUID) -> None:
     job = jobs[job_id]
+    repo = repository() if durable_mode() else None
     job.status = JobStatus.PROCESSING
     try:
+        if repo:
+            await repo.update_job(
+                job_id,
+                {"status": "processing", "started_at": datetime.now(UTC).isoformat()},
+            )
         if os.getenv("WORKER_STORAGE_MODE", "supabase") == "memory":
             job.storage_path = f"memory://{job.job_id}/{job.filename}"
         else:
@@ -131,12 +149,42 @@ async def process_job(job_id: UUID) -> None:
             "processing_status": prepared.status,
             "storage_path": prepared.storage_path,
             "extraction_count": len(prepared.observations),
-            "observations": prepared.observations,
         }
+        if repo:
+            await repo.insert_observations(
+                job_id=job.job_id,
+                observations=prepared.observations,
+            )
+            await repo.update_job(
+                job_id,
+                {
+                    "status": "completed",
+                    "storage_path": job.storage_path,
+                    "parser_version": prepared.parser_version,
+                    "input_kind": prepared.input_kind,
+                    "extraction_count": len(prepared.observations),
+                    "completed_at": datetime.now(UTC).isoformat(),
+                },
+            )
         job.status = JobStatus.COMPLETED
-    except (StorageConfigurationError, ValueError, RuntimeError, KeyError) as exc:
+    except (
+        RepositoryConfigurationError,
+        RepositoryError,
+        StorageConfigurationError,
+        ValueError,
+        RuntimeError,
+        KeyError,
+    ) as exc:
         job.status = JobStatus.FAILED
         job.error = str(exc)
+        if repo:
+            try:
+                await repo.update_job(
+                    job_id,
+                    {"status": "failed", "error": job.error, "completed_at": datetime.now(UTC).isoformat()},
+                )
+            except RepositoryError:
+                pass
 
 
 def require_worker_token(x_worker_token: str | None) -> None:
@@ -175,6 +223,17 @@ async def create_upload(
         created_at=datetime.now(UTC),
         _content=content,
     )
+    if durable_mode():
+        try:
+            await repository().create_job(
+                job_id=job.job_id,
+                filename=job.filename,
+                extension=job.extension,
+                size_bytes=job.size_bytes,
+                created_at=job.created_at,
+            )
+        except (RepositoryConfigurationError, RepositoryError) as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
     jobs[job.job_id] = job
     background_tasks.add_task(process_job, job.job_id)
     return response_for(job)
@@ -187,6 +246,28 @@ async def get_job(
 ) -> JobResponse:
     require_worker_token(x_worker_token)
     job = jobs.get(job_id)
+    if job is None and durable_mode():
+        try:
+            row = await repository().get_job(job_id)
+        except (RepositoryConfigurationError, RepositoryError) as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        if row:
+            job = Job(
+                job_id=UUID(row["id"]),
+                filename=row["filename"],
+                extension=row["extension"],
+                size_bytes=row["size_bytes"],
+                created_at=datetime.fromisoformat(row["created_at"].replace("Z", "+00:00")),
+                status=JobStatus(row["status"]),
+                storage_path=row.get("storage_path"),
+                error=row.get("error"),
+                result={
+                    "parser_version": row.get("parser_version"),
+                    "input_kind": row.get("input_kind"),
+                    "extraction_count": row.get("extraction_count", 0),
+                },
+            )
+            jobs[job_id] = job
     if job is None:
         raise HTTPException(status_code=404, detail="Job not found.")
     return response_for(job)

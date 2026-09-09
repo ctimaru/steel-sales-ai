@@ -7,6 +7,7 @@ const nav = [
   { href: "/dashboard", label: "Dashboard", key: "D" },
   { href: "/explorer", label: "Commercial Explorer", key: "C" },
   { href: "/review", label: "Review Queue", key: "R" },
+  { href: "/uploads", label: "Upload documenti", key: "U" },
 ];
 
 export function AppShell({
