@@ -63,16 +63,19 @@ def _document_text(filename: str, payload: bytes) -> str:
         return _message_text(payload)
     if extension == "zip":
         parts: list[str] = []
-        with zipfile.ZipFile(BytesIO(payload)) as archive:
-            for member in archive.infolist():
-                if member.is_dir():
-                    continue
-                name = member.filename.lower()
-                content = archive.read(member)
-                if name.endswith(".eml"):
-                    parts.append(_message_text(content))
-                elif name.endswith((".txt", ".csv", ".md")):
-                    parts.append(content.decode("utf-8", errors="replace"))
+        try:
+            with zipfile.ZipFile(BytesIO(payload)) as archive:
+                for member in archive.infolist():
+                    if member.is_dir():
+                        continue
+                    name = member.filename.lower()
+                    content = archive.read(member)
+                    if name.endswith(".eml"):
+                        parts.append(_message_text(content))
+                    elif name.endswith((".txt", ".csv", ".md")):
+                        parts.append(content.decode("utf-8", errors="replace"))
+        except zipfile.BadZipFile as exc:
+            raise ValueError("Invalid ZIP archive.") from exc
         return "\n".join(parts)
     if extension == "pdf":
         try:
@@ -81,6 +84,8 @@ def _document_text(filename: str, payload: bytes) -> str:
             return "\n".join(page.extract_text() or "" for page in PdfReader(BytesIO(payload)).pages)
         except ImportError as exc:
             raise RuntimeError("PDF parsing requires the pypdf dependency.") from exc
+        except Exception as exc:
+            raise ValueError("Invalid PDF document.") from exc
     if extension == "xlsx":
         try:
             from openpyxl import load_workbook
@@ -94,6 +99,8 @@ def _document_text(filename: str, payload: bytes) -> str:
             )
         except ImportError as exc:
             raise RuntimeError("XLSX parsing requires the openpyxl dependency.") from exc
+        except Exception as exc:
+            raise ValueError("Invalid XLSX document.") from exc
     if extension == "xls":
         try:
             import xlrd
@@ -106,6 +113,8 @@ def _document_text(filename: str, payload: bytes) -> str:
             )
         except ImportError as exc:
             raise RuntimeError("XLS parsing requires the xlrd dependency.") from exc
+        except Exception as exc:
+            raise ValueError("Invalid XLS document.") from exc
     return payload.decode("utf-8", errors="replace")
 
 
@@ -153,7 +162,7 @@ def extract_observations(text: str, source_filename: str) -> list[dict[str, Any]
             "source_text": line,
             "item_role": _role(line, price_match is not None),
             "grade": grade_match.group(0).upper() if grade_match else None,
-            "standard": standard_match.group(0).upper().replace(" ", " ") if standard_match else None,
+            "standard": standard_match.group(0).upper() if standard_match else None,
             "availability_status": _availability(line),
             "confidence": 0.98 if dimensions and grade_match else 0.88 if dimensions else 0.72,
         }
