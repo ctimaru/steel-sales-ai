@@ -35,6 +35,9 @@ jobs:
             npm install --no-audit --no-fund
           fi
 
+      - name: Test review confirmation
+        run: npm test
+
       - name: Typecheck
         run: npm run typecheck
 

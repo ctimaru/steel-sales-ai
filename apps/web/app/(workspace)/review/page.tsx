@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getReviewItems } from "@/lib/commercial-data";
 
-import { confirmReviewItem } from "./actions";
+import { ReviewConfirmForm } from "@/components/review-confirm-form";
 
 export default async function ReviewPage() {
   const { mode, items } = await getReviewItems();
@@ -50,11 +50,8 @@ export default async function ReviewPage() {
                 <div className="rounded-lg border border-slate-200 px-3 py-2 text-center text-xs font-semibold text-slate-600">
                   {Math.round(flag.confidence * 100)}% confidence
                 </div>
-                {mode === "live" && flag.reviewStatus === "pending" ? (
-                  <form action={confirmReviewItem}>
-                    <input type="hidden" name="id" value={flag.id} />
-                    <button className="w-full rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white">Conferma</button>
-                  </form>
+                {mode === "live" ? (
+                  <ReviewConfirmForm id={flag.id} reviewed={flag.reviewStatus !== "pending"} />
                 ) : (
                   <button disabled className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white opacity-40">Conferma</button>
                 )}
