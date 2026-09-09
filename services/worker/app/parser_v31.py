@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import PurePosixPath
+from typing import Any
+
+from .extractor_v31 import parse_document
 
 
 @dataclass(frozen=True)
@@ -18,16 +21,11 @@ class ParserResult:
     input_kind: str
     status: str
     storage_path: str
+    observations: list[dict[str, Any]]
 
 
 class ParserV31Adapter:
-    """Boundary for the validated parser v3.1 pipeline.
-
-    The existing v3.1 run is the source of truth for extraction behavior.
-    This adapter keeps upload orchestration separate from extraction and is
-    intentionally explicit about the next integration seam for the parser
-    package.
-    """
+    """Validated line-scoped commercial extraction parser."""
 
     parser_version = "v3.1"
 
@@ -40,12 +38,14 @@ class ParserV31Adapter:
             ".xlsx": "spreadsheet",
         }[extension]
 
-    def prepare(self, item: ParserInput) -> ParserResult:
+    def prepare(self, item: ParserInput, payload: bytes) -> ParserResult:
         if not PurePosixPath(item.filename).suffix:
             raise ValueError("Parser input must have a file extension.")
+        observations = parse_document(item.filename, payload)
         return ParserResult(
             parser_version=self.parser_version,
             input_kind=self.classify(item.extension),
-            status="staged",
+            status="extracted",
             storage_path=item.storage_path,
+            observations=observations,
         )
