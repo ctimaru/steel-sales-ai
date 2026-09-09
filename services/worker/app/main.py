@@ -122,16 +122,19 @@ async def process_job(job_id: UUID) -> None:
                 extension=job.extension,
                 size_bytes=job.size_bytes,
                 storage_path=job.storage_path,
-            )
+            ),
+            job._content,
         )
         job.result = {
             "parser_version": prepared.parser_version,
             "input_kind": prepared.input_kind,
             "processing_status": prepared.status,
             "storage_path": prepared.storage_path,
+            "extraction_count": len(prepared.observations),
+            "observations": prepared.observations,
         }
         job.status = JobStatus.COMPLETED
-    except (StorageConfigurationError, ValueError, RuntimeError) as exc:
+    except (StorageConfigurationError, ValueError, RuntimeError, KeyError) as exc:
         job.status = JobStatus.FAILED
         job.error = str(exc)
 
