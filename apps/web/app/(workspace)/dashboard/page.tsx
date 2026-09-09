@@ -5,108 +5,224 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getDashboardData } from "@/lib/commercial-data";
 
+function roleTone(role: string) {
+  if (role === "offered") return "green" as const;
+  if (role === "requested") return "blue" as const;
+  if (role === "ordered") return "violet" as const;
+  return "neutral" as const;
+}
+
 export default async function DashboardPage() {
   const { metrics, recent, mode } = await getDashboardData();
+  const cleanRate = metrics.observations
+    ? ((metrics.observations - metrics.reviewFlags) / metrics.observations) * 100
+    : 100;
+
+  const roleDistribution = [
+    { label: "Richieste", key: "requested", value: metrics.requested, bar: "bg-sky-500" },
+    { label: "Offerte", key: "offered", value: metrics.offered, bar: "bg-emerald-500" },
+    { label: "Ordini", key: "ordered", value: metrics.ordered, bar: "bg-violet-500" },
+    { label: "Consegne", key: "delivered", value: metrics.delivered, bar: "bg-slate-700" },
+  ];
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8">
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-        <div>
-          <p className="text-sm font-semibold text-slate-500">M2 · Frontend MVP</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">
-            Dashboard commerciale
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-            KPI e attività commerciale letti dalle superfici app-facing protette da RLS.
-          </p>
+    <div className="mx-auto max-w-[1440px] space-y-7">
+      <section className="overflow-hidden rounded-[24px] border border-slate-200/80 bg-white shadow-[0_12px_40px_rgba(15,23,42,0.04)]">
+        <div className="grid gap-8 px-6 py-7 sm:px-8 lg:grid-cols-[1fr_auto] lg:items-end lg:px-9 lg:py-8">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
+                Commercial Intelligence
+              </span>
+              <span className="h-1 w-1 rounded-full bg-slate-300" />
+              <span className={`rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider ${mode === "live" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+                {mode === "live" ? "Live data" : "Preview data"}
+              </span>
+            </div>
+            <h1 className="mt-4 max-w-3xl text-[32px] font-semibold leading-[1.08] tracking-[-0.035em] text-slate-950 sm:text-[38px]">
+              La memoria commerciale,
+              <span className="text-slate-400"> pronta da interrogare.</span>
+            </h1>
+            <p className="mt-4 max-w-2xl text-[13px] leading-6 text-slate-500">
+              Richieste, offerte, ordini e consegne ricostruiti dall’archivio email con tracciabilità fino alla fonte.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-2 lg:justify-end">
+            <Link
+              href="/review"
+              className="inline-flex h-10 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+            >
+              Review Queue
+              <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-[9px] font-bold text-amber-700">
+                {metrics.reviewFlags}
+              </span>
+            </Link>
+            <Link
+              href="/explorer"
+              className="inline-flex h-10 items-center justify-center rounded-xl bg-[#0b1725] px-4 text-xs font-semibold text-white shadow-sm transition hover:bg-[#13283f]"
+            >
+              Apri Commercial Explorer
+              <span className="ml-2 text-slate-400">→</span>
+            </Link>
+          </div>
         </div>
-        <Link
-          href="/explorer"
-          className="inline-flex h-10 items-center justify-center rounded-lg bg-slate-950 px-4 text-sm font-semibold text-white"
-        >
-          Apri Commercial Explorer
-        </Link>
-      </div>
+
+        <div className="grid border-t border-slate-100 bg-slate-50/60 sm:grid-cols-3">
+          <div className="border-b border-slate-100 px-6 py-4 sm:border-b-0 sm:border-r sm:px-8">
+            <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-slate-400">Archivio</p>
+            <p className="mt-1.5 text-xs font-semibold text-slate-700">
+              {metrics.emails} email · {metrics.threads} thread
+            </p>
+          </div>
+          <div className="border-b border-slate-100 px-6 py-4 sm:border-b-0 sm:border-r sm:px-8">
+            <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-slate-400">Parser</p>
+            <p className="mt-1.5 text-xs font-semibold text-slate-700">
+              v3.1 · {metrics.avgConfidence.toFixed(1)}% confidence media
+            </p>
+          </div>
+          <div className="px-6 py-4 sm:px-8">
+            <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-slate-400">Qualità dati</p>
+            <p className="mt-1.5 text-xs font-semibold text-slate-700">
+              {cleanRate.toFixed(1)}% senza warning · {metrics.reviewFlags} review
+            </p>
+          </div>
+        </div>
+      </section>
 
       {mode === "awaiting_assignment" ? (
-        <Card className="border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          Il dataset validato è già nelle tabelle app-facing, ma non è ancora assegnato a un utente Auth.
-          I valori mostrati restano il riferimento validato finché non completiamo il primo accesso.
-        </Card>
+        <div className="flex items-start gap-3 rounded-2xl border border-amber-200/80 bg-amber-50 px-4 py-3.5 text-xs leading-5 text-amber-900">
+          <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-amber-400" />
+          <div>
+            <span className="font-semibold">Dataset pronto.</span> Le tabelle app-facing sono già popolate; manca solo l’assegnazione al primo utente Supabase Auth per passare dalla preview alla lettura live.
+          </div>
+        </div>
       ) : null}
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard label="Email archiviate" value={metrics.emails} note="Archivio Zimbra validato" />
-        <KpiCard label="Thread ricostruiti" value={metrics.threads} note={`${metrics.messages} messaggi/segmenti ricostruiti`} />
-        <KpiCard label="Osservazioni" value={metrics.observations.toLocaleString("it-IT")} note="Richieste, offerte, ordini e consegne" />
-        <KpiCard label="Confidenza media" value={`${metrics.avgConfidence.toFixed(1)}%`} note={`${metrics.reviewFlags} record ancora in review`} />
+        <KpiCard
+          label="Email archiviate"
+          value={metrics.emails}
+          note={`${metrics.messages} messaggi e segmenti ricostruiti`}
+        />
+        <KpiCard
+          label="Thread commerciali"
+          value={metrics.threads}
+          note="Conversazioni ricostruite e deduplicate"
+        />
+        <KpiCard
+          label="Osservazioni"
+          value={metrics.observations.toLocaleString("it-IT")}
+          note="Prodotti, quantità, prezzi e disponibilità"
+        />
+        <KpiCard
+          label="Confidence media"
+          value={`${metrics.avgConfidence.toFixed(1)}%`}
+          note={`${metrics.reviewFlags} warning residui da verificare`}
+        />
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.55fr)]">
+        <Card className="overflow-hidden border-slate-200/80 shadow-[0_8px_30px_rgba(15,23,42,0.035)]">
+          <CardHeader className="border-b border-slate-100 p-5 sm:p-6">
+            <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-base font-semibold text-slate-950">Attività commerciale recente</h2>
-                <p className="mt-1 text-xs text-slate-500">
-                  {mode === "live" ? "Dati live dal database." : "Riferimento validato del dataset."}
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">Timeline commerciale</p>
+                <h2 className="mt-2 text-[17px] font-semibold tracking-tight text-slate-950">Attività recente</h2>
+                <p className="mt-1 text-[11px] text-slate-500">
+                  {mode === "live" ? "Ultimi record disponibili nel database." : "Campione rappresentativo del dataset validato."}
                 </p>
               </div>
-              <Link href="/explorer" className="text-xs font-semibold text-slate-700">Vedi tutto →</Link>
+              <Link href="/explorer" className="shrink-0 text-[11px] font-semibold text-slate-500 transition hover:text-slate-950">
+                Vedi tutto →
+              </Link>
             </div>
           </CardHeader>
-          <CardContent className="space-y-3">
+
+          <div className="divide-y divide-slate-100">
             {recent.map((row) => (
               <Link
                 href={`/conversations/${row.conversationId}`}
                 key={row.id}
-                className="flex flex-col gap-3 rounded-xl border border-slate-100 p-4 transition hover:border-slate-300 sm:flex-row sm:items-center sm:justify-between"
+                className="grid gap-4 px-5 py-4 transition hover:bg-slate-50/80 sm:grid-cols-[minmax(0,1fr)_140px_110px] sm:items-center sm:px-6"
               >
-                <div>
-                  <div className="flex items-center gap-2">
-                    <Badge tone={row.role === "offered" ? "green" : row.role === "requested" ? "blue" : "violet"}>{row.role}</Badge>
-                    <span className="text-xs text-slate-400">{row.date}</span>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge tone={roleTone(row.role)}>{row.role}</Badge>
+                    {row.availability && row.availability !== "unknown" ? (
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                        {row.availability}
+                      </span>
+                    ) : null}
                   </div>
-                  <p className="mt-2 text-sm font-semibold text-slate-900">{row.product}</p>
-                  <p className="mt-1 line-clamp-1 text-xs text-slate-500">{row.grade} · {row.standard} · {row.company}</p>
+                  <p className="mt-2.5 truncate text-[13px] font-semibold text-slate-900">{row.product}</p>
+                  <p className="mt-1 truncate text-[10px] text-slate-400">
+                    {row.grade} · {row.standard} · {row.company}
+                  </p>
                 </div>
-                <div className="text-left sm:text-right">
-                  <p className="text-sm font-semibold text-slate-900">{row.price ?? "—"}</p>
-                  <p className="mt-1 text-xs text-slate-400">{Math.round(row.confidence * 100)}% confidence</p>
+                <div>
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Prezzo</p>
+                  <p className="mt-1.5 text-xs font-semibold text-slate-800">{row.price ?? "—"}</p>
+                </div>
+                <div className="sm:text-right">
+                  <p className="text-[10px] text-slate-400">{row.date}</p>
+                  <p className="mt-1.5 text-[10px] font-semibold text-slate-500">
+                    {Math.round(row.confidence * 100)}% confidence
+                  </p>
                 </div>
               </Link>
             ))}
-          </CardContent>
+          </div>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <h2 className="text-base font-semibold text-slate-950">Distribuzione item_role</h2>
-            <p className="mt-1 text-xs text-slate-500">{metrics.observations.toLocaleString("it-IT")} osservazioni commerciali.</p>
-          </CardHeader>
-          <CardContent className="space-y-5">
-            {[
-              ["Requested", metrics.requested, "bg-blue-500"],
-              ["Offered", metrics.offered, "bg-emerald-500"],
-              ["Ordered", metrics.ordered, "bg-violet-500"],
-              ["Delivered", metrics.delivered, "bg-slate-600"],
-            ].map(([label, value, color]) => {
-              const numeric = Number(value);
-              const width = metrics.observations ? `${(numeric / metrics.observations) * 100}%` : "0%";
-              return (
-                <div key={String(label)}>
-                  <div className="flex justify-between text-xs">
-                    <span className="font-semibold text-slate-700">{label}</span>
-                    <span className="text-slate-400">{numeric}</span>
+        <div className="space-y-4">
+          <Card className="border-slate-200/80 shadow-[0_8px_30px_rgba(15,23,42,0.035)]">
+            <CardHeader className="p-5 pb-0 sm:p-6 sm:pb-0">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">Dataset mix</p>
+              <h2 className="mt-2 text-[17px] font-semibold tracking-tight text-slate-950">Flusso commerciale</h2>
+            </CardHeader>
+            <CardContent className="space-y-5 p-5 sm:p-6">
+              {roleDistribution.map((item) => {
+                const width = metrics.observations ? `${(item.value / metrics.observations) * 100}%` : "0%";
+                return (
+                  <div key={item.key}>
+                    <div className="flex items-end justify-between gap-4">
+                      <div>
+                        <p className="text-[11px] font-semibold text-slate-700">{item.label}</p>
+                        <p className="mt-0.5 text-[9px] uppercase tracking-wider text-slate-400">{item.key}</p>
+                      </div>
+                      <p className="text-sm font-semibold tracking-tight text-slate-900">{item.value}</p>
+                    </div>
+                    <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                      <div className={`h-full rounded-full ${item.bar}`} style={{ width }} />
+                    </div>
                   </div>
-                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
-                    <div className={`h-full rounded-full ${color}`} style={{ width }} />
-                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+
+          <Card className="overflow-hidden border-[#d8e3ee] bg-[#eef4f8] shadow-none">
+            <CardContent className="p-5 sm:p-6">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#55718a]">Next focus</p>
+                  <h3 className="mt-2 text-sm font-semibold text-[#17324d]">Commercial Explorer</h3>
+                  <p className="mt-2 text-[11px] leading-5 text-[#5f7488]">
+                    Cerca dimensioni, qualità e norme per ricostruire l’intero percorso richiesta → offerta → ordine.
+                  </p>
                 </div>
-              );
-            })}
-          </CardContent>
-        </Card>
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-sm font-semibold text-[#17324d] shadow-sm">→</span>
+              </div>
+              <Link
+                href="/explorer"
+                className="mt-4 inline-flex text-[11px] font-bold text-[#17324d] hover:underline"
+              >
+                Esplora lo storico commerciale
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
       </section>
     </div>
   );
