@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Annotated
 from uuid import UUID, uuid4
 
-from fastapi import BackgroundTasks, FastAPI, File, Header, HTTPException, UploadFile, status
+from fastapi import BackgroundTasks, FastAPI, File, Form, Header, HTTPException, UploadFile, status
 from pydantic import BaseModel, ConfigDict
 
 from .parser_v31 import ParserInput, ParserV31Adapter
@@ -200,13 +200,13 @@ def require_worker_token(x_worker_token: str | None) -> None:
         raise HTTPException(status_code=401, detail="Invalid worker token.")
 
 
-def parse_owner_id(x_owner_id: str | None) -> UUID | None:
+def parse_owner_id(owner_context: str | None) -> UUID | None:
     if not durable_mode():
-        return UUID(x_owner_id) if x_owner_id else None
-    if not x_owner_id:
+        return UUID(owner_context) if owner_context else None
+    if not owner_context:
         raise HTTPException(status_code=400, detail="Missing authenticated owner context.")
     try:
-        return UUID(x_owner_id)
+        return UUID(owner_context)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail="Invalid owner context.") from exc
 
@@ -220,11 +220,12 @@ async def health() -> dict[str, str]:
 async def create_upload(
     background_tasks: BackgroundTasks,
     upload: Annotated[UploadFile, File(...)],
+    owner_id: Annotated[str | None, Form()] = None,
     x_worker_token: Annotated[str | None, Header()] = None,
     x_owner_id: Annotated[str | None, Header()] = None,
 ) -> UploadResponse:
     require_worker_token(x_worker_token)
-    owner_id = parse_owner_id(x_owner_id)
+    authenticated_owner_id = parse_owner_id(owner_id or x_owner_id)
     filename = Path(upload.filename or "").name
     extension = Path(filename).suffix.lower()
     if not filename or extension not in ALLOWED_EXTENSIONS:
@@ -241,15 +242,15 @@ async def create_upload(
         extension=extension,
         size_bytes=len(content),
         created_at=datetime.now(UTC),
-        owner_id=owner_id,
+        owner_id=authenticated_owner_id,
         _content=content,
     )
     if durable_mode():
-        assert owner_id is not None
+        assert authenticated_owner_id is not None
         try:
             await repository().create_job(
                 job_id=job.job_id,
-                owner_id=owner_id,
+                owner_id=authenticated_owner_id,
                 filename=job.filename,
                 extension=job.extension,
                 size_bytes=job.size_bytes,
