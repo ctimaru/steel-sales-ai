@@ -51,6 +51,7 @@ class JobResponse(UploadResponse):
 
 
 class LatestPriceRequest(BaseModel):
+    owner_id: UUID
     grade: str | None = None
     outer_diameter_mm: float | None = None
     thickness_mm: float | None = None
