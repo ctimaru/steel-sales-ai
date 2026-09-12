@@ -45,19 +45,37 @@ function priceLabel(observation: PriceObservation): string {
   return `${formatted}${unit}`;
 }
 
-function commercialDate(value: string | null): string {
+function commercialDate(value: string | null, includeTime = true): string {
   if (!value) return "Data non disponibile";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("it-IT", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(date);
+  return new Intl.DateTimeFormat("it-IT", includeTime
+    ? { dateStyle: "medium", timeStyle: "short" }
+    : { dateStyle: "medium" }).format(date);
+}
+
+function sizeLabel(observation: PriceObservation): string {
+  if (observation.outer_diameter_mm !== null) {
+    const thickness = observation.thickness_mm !== null
+      ? ` × ${numberLabel(observation.thickness_mm)}`
+      : "";
+    return `Ø ${numberLabel(observation.outer_diameter_mm)}${thickness}`;
+  }
+  if (observation.width_mm !== null && observation.height_mm !== null) {
+    const thickness = observation.thickness_mm !== null
+      ? ` × ${numberLabel(observation.thickness_mm)}`
+      : "";
+    return `${numberLabel(observation.width_mm)} × ${numberLabel(observation.height_mm)}${thickness}`;
+  }
+  return observation.thickness_mm !== null
+    ? `sp. ${numberLabel(observation.thickness_mm)} mm`
+    : "—";
 }
 
 export function PriceIntelligenceForm() {
   const [state, formAction, pending] = useActionState(lookupLatestPrice, initialState);
   const observation = state.observation ?? null;
+  const history = state.history ?? [];
 
   return (
     <div className="space-y-6">
@@ -119,10 +137,10 @@ export function PriceIntelligenceForm() {
             disabled={pending}
             className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-wait disabled:opacity-60"
           >
-            {pending ? "Ricerca..." : "Trova ultimo prezzo"}
+            {pending ? "Ricerca..." : "Cerca prezzi"}
           </button>
           <p className="text-xs text-slate-500">
-            La data è quella commerciale del thread, non la data di importazione nel database.
+            Risultati ordinati per data commerciale del thread, non per data di importazione.
           </p>
         </div>
       </form>
@@ -164,12 +182,12 @@ export function PriceIntelligenceForm() {
             {[
               ["Qualità", observation.grade ?? "—"],
               ["Norma", observation.standard ?? "—"],
-              ["Diametro", observation.outer_diameter_mm !== null ? `${numberLabel(observation.outer_diameter_mm)} mm` : "—"],
-              ["Spessore", observation.thickness_mm !== null ? `${numberLabel(observation.thickness_mm)} mm` : "—"],
+              ["Dimensione", sizeLabel(observation)],
               ["Lunghezza", observation.length_mm !== null ? `${numberLabel(observation.length_mm)} mm` : "—"],
               ["Quantità", observation.quantity !== null ? `${numberLabel(observation.quantity)} ${observation.quantity_unit ?? ""}`.trim() : "—"],
               ["File sorgente", observation.source_filename ?? "—"],
               ["Confidenza", observation.confidence !== null ? `${Math.round(Number(observation.confidence) * 100)}%` : "—"],
+              ["Storico prezzi", `${history.length} ${history.length === 1 ? "rilevazione" : "rilevazioni"}`],
             ].map(([label, value]) => (
               <div key={label} className="bg-white px-5 py-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</p>
@@ -186,6 +204,62 @@ export function PriceIntelligenceForm() {
             <p className="mt-2 rounded-xl bg-slate-50 p-4 text-sm leading-6 text-slate-600">
               {observation.source_text ?? "Testo sorgente non disponibile."}
             </p>
+          </div>
+        </section>
+      ) : null}
+
+      {history.length > 0 ? (
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-100 px-6 py-4">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600">Storico prodotto</p>
+            <h2 className="mt-1 text-xl font-semibold text-slate-950">Storico prezzi offerti</h2>
+            <p className="mt-1 text-sm text-slate-500">
+              Fino a 50 offerte compatibili, dalla più recente alla più vecchia.
+            </p>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200 text-sm">
+              <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th className="px-5 py-3">Data</th>
+                  <th className="px-5 py-3">Prodotto</th>
+                  <th className="px-5 py-3">Norma</th>
+                  <th className="px-5 py-3">Prezzo</th>
+                  <th className="px-5 py-3">Quantità</th>
+                  <th className="px-5 py-3">Trattativa</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {history.map((row) => (
+                  <tr key={row.id} className="align-top hover:bg-slate-50/70">
+                    <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+                      {commercialDate(row.commercial_at, false)}
+                    </td>
+                    <td className="px-5 py-4">
+                      <p className="font-semibold text-slate-950">{row.grade ?? "—"}</p>
+                      <p className="mt-1 whitespace-nowrap text-xs text-slate-500">{sizeLabel(row)}</p>
+                    </td>
+                    <td className="px-5 py-4 text-slate-600">{row.standard ?? "—"}</td>
+                    <td className="whitespace-nowrap px-5 py-4 font-semibold text-slate-950">
+                      {priceLabel(row)}
+                    </td>
+                    <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+                      {row.quantity !== null
+                        ? `${numberLabel(row.quantity)} ${row.quantity_unit ?? ""}`.trim()
+                        : "—"}
+                    </td>
+                    <td className="px-5 py-4">
+                      <Link
+                        href={`/conversations/${row.thread_id}`}
+                        className="font-semibold text-indigo-600 hover:text-indigo-800"
+                      >
+                        {row.thread_subject ?? "Apri thread"}
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </section>
       ) : null}

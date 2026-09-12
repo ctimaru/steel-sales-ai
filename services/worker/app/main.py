@@ -9,10 +9,10 @@ from typing import Annotated
 from uuid import UUID, uuid4
 
 from fastapi import BackgroundTasks, FastAPI, File, Form, Header, HTTPException, UploadFile, status
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from .parser_v31 import ParserInput, ParserV31Adapter
-from .queries import latest_price
+from .queries import latest_price, offers_without_order, price_history
 from .repository import (
     RepositoryConfigurationError,
     RepositoryError,
@@ -50,13 +50,28 @@ class JobResponse(UploadResponse):
     result: dict[str, object] | None = None
 
 
-class LatestPriceRequest(BaseModel):
+class ProductQueryRequest(BaseModel):
     owner_id: UUID
     grade: str | None = None
     outer_diameter_mm: float | None = None
     thickness_mm: float | None = None
     width_mm: float | None = None
     height_mm: float | None = None
+
+
+class LatestPriceRequest(ProductQueryRequest):
+    pass
+
+
+class PriceHistoryRequest(ProductQueryRequest):
+    limit: int = Field(default=50, ge=1, le=200)
+
+
+class OffersWithoutOrderRequest(BaseModel):
+    owner_id: UUID
+    grade: str | None = None
+    since: datetime | None = None
+    limit: int = Field(default=100, ge=1, le=200)
 
 
 @dataclass
@@ -313,3 +328,39 @@ async def latest_price_query(
     except RuntimeError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     return {"found": observation is not None, "observation": observation}
+
+
+@app.post("/v1/ai/price-history")
+async def price_history_query(
+    request: PriceHistoryRequest,
+    x_worker_token: Annotated[str | None, Header()] = None,
+) -> dict[str, object]:
+    require_worker_token(x_worker_token)
+    try:
+        observations = await price_history(**request.model_dump(exclude_none=True))
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return {
+        "found": bool(observations),
+        "count": len(observations),
+        "observations": observations,
+    }
+
+
+@app.post("/v1/ai/offers-without-order")
+async def offers_without_order_query(
+    request: OffersWithoutOrderRequest,
+    x_worker_token: Annotated[str | None, Header()] = None,
+) -> dict[str, object]:
+    require_worker_token(x_worker_token)
+    try:
+        observations = await offers_without_order(**request.model_dump(exclude_none=True))
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    thread_ids = {row.get("thread_id") for row in observations if row.get("thread_id")}
+    return {
+        "found": bool(observations),
+        "count": len(observations),
+        "thread_count": len(thread_ids),
+        "observations": observations,
+    }

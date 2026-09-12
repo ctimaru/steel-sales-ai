@@ -7,6 +7,7 @@ const nav = [
   { href: "/dashboard", label: "Dashboard", key: "D" },
   { href: "/explorer", label: "Commercial Explorer", key: "C" },
   { href: "/price-intelligence", label: "Price Intelligence", key: "P" },
+  { href: "/unconverted-offers", label: "Offerte senza ordine", key: "O" },
   { href: "/review", label: "Review Queue", key: "R" },
   { href: "/uploads", label: "Upload documenti", key: "U" },
 ];
@@ -65,12 +66,14 @@ export function AppShell({
               <p className="text-sm font-semibold text-slate-950">Steel Sales AI</p>
               <p className="text-xs text-slate-500">Commercial intelligence</p>
             </div>
-            <div className="flex items-center gap-2 lg:hidden">
+            <div className="flex items-center gap-1.5 lg:hidden">
               {nav.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-700"
+                  aria-label={item.label}
+                  title={item.label}
+                  className="rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-semibold text-slate-700"
                 >
                   {item.key}
                 </Link>

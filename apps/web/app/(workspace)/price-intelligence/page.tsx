@@ -11,9 +11,9 @@ export default function PriceIntelligencePage() {
           Price Intelligence
         </h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-          Cerca l&apos;ultimo prezzo realmente offerto per qualità e dimensioni. Il risultato è
-          ricavato dallo storico commerciale strutturato e mantiene la provenienza fino al thread
-          e al testo sorgente.
+          Cerca l&apos;ultimo prezzo realmente offerto e lo storico prezzi per qualità e dimensioni.
+          I risultati sono ordinati sulla data commerciale del thread e mantengono la provenienza
+          fino alla trattativa e al testo sorgente.
         </p>
       </div>
 
