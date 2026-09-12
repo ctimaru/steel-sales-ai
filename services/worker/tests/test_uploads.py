@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 
 os.environ["WORKER_STORAGE_MODE"] = "memory"
 
+import app.main as main_module  # noqa: E402
 from app.extractor_v31 import extract_observations  # noqa: E402
 from app.main import MAX_UPLOAD_BYTES, app, jobs  # noqa: E402
 from app.repository import normalize_observation  # noqa: E402
@@ -162,3 +163,60 @@ def test_staging_rows_have_stable_bulk_insert_shape() -> None:
     assert second["grade"] is None
     assert first["metadata"] == {}
     assert second["metadata"] == {"source": "regression"}
+
+
+def test_price_history_endpoint_preserves_owner_scope(monkeypatch) -> None:
+    owner_id = UUID("f45fab6e-3da8-41aa-8711-fc1b337a7dde")
+
+    async def fake_price_history(**kwargs):
+        assert kwargs["owner_id"] == owner_id
+        assert kwargs["grade"] == "P265GH"
+        assert kwargs["outer_diameter_mm"] == 406.4
+        assert kwargs["limit"] == 25
+        return [
+            {
+                "id": 2,
+                "thread_id": "da7ab7e1-1bb4-481f-ae22-7a5136f97da4",
+                "price_value": 68.38,
+                "price_unit": "M",
+            }
+        ]
+
+    monkeypatch.setattr(main_module, "price_history", fake_price_history)
+    response = client.post(
+        "/v1/ai/price-history",
+        json={
+            "owner_id": str(owner_id),
+            "grade": "P265GH",
+            "outer_diameter_mm": 406.4,
+            "limit": 25,
+        },
+    )
+    assert response.status_code == 200
+    assert response.json()["found"] is True
+    assert response.json()["count"] == 1
+    assert response.json()["observations"][0]["price_value"] == 68.38
+
+
+def test_offers_without_order_endpoint_returns_thread_count(monkeypatch) -> None:
+    owner_id = UUID("f45fab6e-3da8-41aa-8711-fc1b337a7dde")
+
+    async def fake_offers_without_order(**kwargs):
+        assert kwargs["owner_id"] == owner_id
+        assert kwargs["grade"] == "S355"
+        assert kwargs["limit"] == 100
+        return [
+            {"id": 1, "thread_id": "00000000-0000-0000-0000-000000000001"},
+            {"id": 2, "thread_id": "00000000-0000-0000-0000-000000000001"},
+            {"id": 3, "thread_id": "00000000-0000-0000-0000-000000000002"},
+        ]
+
+    monkeypatch.setattr(main_module, "offers_without_order", fake_offers_without_order)
+    response = client.post(
+        "/v1/ai/offers-without-order",
+        json={"owner_id": str(owner_id), "grade": "S355", "limit": 100},
+    )
+    assert response.status_code == 200
+    assert response.json()["found"] is True
+    assert response.json()["count"] == 3
+    assert response.json()["thread_count"] == 2
