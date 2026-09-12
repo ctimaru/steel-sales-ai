@@ -40,10 +40,15 @@ STAGING_OBSERVATION_FIELDS = (
 
 def normalize_observation(job_id: UUID, observation: dict[str, Any]) -> dict[str, Any]:
     """Return a stable PostgREST row shape for bulk staging inserts."""
-    return {
+    row = {
         "job_id": str(job_id),
         **{field: observation.get(field) for field in STAGING_OBSERVATION_FIELDS},
     }
+    # public.worker_staging_observations.metadata is NOT NULL with default {}.
+    # PostgREST only applies the default when the key is omitted; our stable bulk
+    # shape includes the key, so missing metadata must be normalized explicitly.
+    row["metadata"] = observation.get("metadata") or {}
+    return row
 
 
 class WorkerRepository:
@@ -129,8 +134,10 @@ class WorkerRepository:
                 json=json,
             )
         if response.is_error:
+            detail = response.text.strip()
+            suffix = f" Response: {detail[:500]}" if detail else ""
             raise RepositoryError(
-                f"Supabase worker persistence failed with HTTP {response.status_code}."
+                f"Supabase worker persistence failed with HTTP {response.status_code}.{suffix}"
             )
         if not response.content:
             return None
