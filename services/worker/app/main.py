@@ -11,6 +11,7 @@ from uuid import UUID, uuid4
 from fastapi import BackgroundTasks, FastAPI, File, Form, Header, HTTPException, UploadFile, status
 from pydantic import BaseModel, ConfigDict, Field
 
+from .assistant import answer_assistant
 from .parser_v31 import ParserInput, ParserV31Adapter
 from .queries import latest_price, offers_without_order, price_history
 from .repository import (
@@ -72,6 +73,11 @@ class OffersWithoutOrderRequest(BaseModel):
     grade: str | None = None
     since: datetime | None = None
     limit: int = Field(default=100, ge=1, le=200)
+
+
+class AssistantRequest(BaseModel):
+    owner_id: UUID
+    query: str = Field(min_length=2, max_length=500)
 
 
 @dataclass
@@ -364,3 +370,15 @@ async def offers_without_order_query(
         "thread_count": len(thread_ids),
         "observations": observations,
     }
+
+
+@app.post("/v1/ai/assistant")
+async def assistant_query(
+    request: AssistantRequest,
+    x_worker_token: Annotated[str | None, Header()] = None,
+) -> dict[str, object]:
+    require_worker_token(x_worker_token)
+    try:
+        return await answer_assistant(owner_id=request.owner_id, query=request.query)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
