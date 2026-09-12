@@ -16,6 +16,36 @@ class RepositoryError(RuntimeError):
     pass
 
 
+STAGING_OBSERVATION_FIELDS = (
+    "source_filename",
+    "source_text",
+    "item_role",
+    "grade",
+    "standard",
+    "outer_diameter_mm",
+    "width_mm",
+    "height_mm",
+    "thickness_mm",
+    "length_mm",
+    "quantity",
+    "quantity_unit",
+    "price_value",
+    "price_unit",
+    "currency",
+    "availability_status",
+    "confidence",
+    "metadata",
+)
+
+
+def normalize_observation(job_id: UUID, observation: dict[str, Any]) -> dict[str, Any]:
+    """Return a stable PostgREST row shape for bulk staging inserts."""
+    return {
+        "job_id": str(job_id),
+        **{field: observation.get(field) for field in STAGING_OBSERVATION_FIELDS},
+    }
+
+
 class WorkerRepository:
     def __init__(self) -> None:
         self.base_url = os.getenv("SUPABASE_URL", "").rstrip("/")
@@ -65,7 +95,7 @@ class WorkerRepository:
     ) -> None:
         if not observations:
             return
-        rows = [{"job_id": str(job_id), **observation} for observation in observations]
+        rows = [normalize_observation(job_id, observation) for observation in observations]
         await self._request(
             "POST",
             "/rest/v1/worker_staging_observations",

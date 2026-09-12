@@ -1,5 +1,6 @@
 import os
 from io import BytesIO
+from uuid import UUID
 
 from fastapi.testclient import TestClient
 
@@ -7,6 +8,7 @@ os.environ["WORKER_STORAGE_MODE"] = "memory"
 
 from app.extractor_v31 import extract_observations  # noqa: E402
 from app.main import MAX_UPLOAD_BYTES, app, jobs  # noqa: E402
+from app.repository import normalize_observation  # noqa: E402
 
 client = TestClient(app)
 
@@ -97,6 +99,7 @@ def test_parser_is_line_scoped_and_preserves_roles() -> None:
     assert rows[1]["item_role"] == "offered"
     assert rows[1]["outer_diameter_mm"] == 406.4
     assert rows[1]["price_value"] == 68.38
+    assert rows[1]["price_unit"] == "M"
     assert rows[1]["standard"] == "EN 10224"
     assert rows[2]["availability_status"] == "unavailable"
     assert rows[2]["grade"] == "L275"
@@ -109,3 +112,25 @@ def test_parser_does_not_leak_grade_between_lines() -> None:
     )
     assert rows[0]["grade"] == "P265GH"
     assert rows[1]["grade"] is None
+
+
+def test_staging_rows_have_stable_bulk_insert_shape() -> None:
+    job_id = UUID("00000000-0000-0000-0000-000000000001")
+    first = normalize_observation(
+        job_id,
+        {"source_filename": "test.eml", "item_role": "requested", "grade": "P265GH"},
+    )
+    second = normalize_observation(
+        job_id,
+        {
+            "source_filename": "test.eml",
+            "item_role": "offered",
+            "price_value": 68.38,
+            "price_unit": "M",
+            "currency": "EUR",
+        },
+    )
+
+    assert first.keys() == second.keys()
+    assert first["price_value"] is None
+    assert second["grade"] is None

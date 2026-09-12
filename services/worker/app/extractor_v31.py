@@ -184,7 +184,8 @@ def extract_observations(text: str, source_filename: str) -> list[dict[str, Any]
             row["quantity_unit"] = "T" if unit in ("t", "ton", "tonnellate") else unit.upper()
         if price_match:
             row["price_value"] = scalar(number(price_match.group("value")))
-            row["price_unit"] = (price_match.group("unit") or "M").upper()
+            unit = (price_match.group("unit") or "m").lower()
+            row["price_unit"] = "M" if unit in ("m", "mt") else unit.upper()
             row["currency"] = "EUR"
         observations.append(row)
     return observations
