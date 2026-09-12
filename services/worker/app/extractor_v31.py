@@ -22,7 +22,15 @@ PRICE_SUFFIX_RE = re.compile(
     rf"(?P<value>{NUMBER})\s*(?:€|EUR)\s*(?:/\s*)?(?P<unit>mt|m|kg)?",
     re.IGNORECASE,
 )
-QUANTITY_RE = re.compile(rf"(?P<value>{NUMBER})\s*(?P<unit>ton(?:nellate)?|t|kg)\b", re.IGNORECASE)
+LABELED_QUANTITY_RE = re.compile(
+    rf"\bquantit(?:à|a)\s*[:=]?\s*(?P<value>{NUMBER})\s*"
+    rf"(?P<unit>mt|m|metro|metri|ton(?:nellate)?|t|kg|pz|pezz[oi])\b",
+    re.IGNORECASE,
+)
+QUANTITY_RE = re.compile(
+    rf"(?P<value>{NUMBER})\s*(?P<unit>ton(?:nellate)?|t|kg|pz|pezz[oi])\b",
+    re.IGNORECASE,
+)
 LENGTH_RE = re.compile(rf"(?P<value>{NUMBER})\s*(?P<unit>mm|mt|m)\b", re.IGNORECASE)
 
 NEGATIVE_AVAILABILITY = (
@@ -142,6 +150,17 @@ def _availability(line: str) -> str | None:
     return None
 
 
+def _quantity_unit(unit: str) -> str:
+    normalized = unit.lower()
+    if normalized in ("m", "mt", "metro", "metri"):
+        return "M"
+    if normalized in ("t", "ton", "tonnellate"):
+        return "T"
+    if normalized in ("pz", "pezzo", "pezzi"):
+        return "PZ"
+    return normalized.upper()
+
+
 def extract_observations(text: str, source_filename: str) -> list[dict[str, Any]]:
     observations: list[dict[str, Any]] = []
     for raw_line in text.splitlines():
@@ -152,7 +171,8 @@ def extract_observations(text: str, source_filename: str) -> list[dict[str, Any]
         grade_match = GRADE_RE.search(line)
         standard_match = STANDARD_RE.search(line)
         price_match = PRICE_RE.search(line) or PRICE_SUFFIX_RE.search(line)
-        quantity_match = QUANTITY_RE.search(line)
+        labeled_quantity_match = LABELED_QUANTITY_RE.search(line)
+        quantity_match = labeled_quantity_match or QUANTITY_RE.search(line)
         length_match = LENGTH_RE.search(line)
         if not any((dimensions, grade_match, standard_match, price_match, quantity_match)):
             continue
@@ -175,13 +195,22 @@ def extract_observations(text: str, source_filename: str) -> list[dict[str, Any]
                 row.update(outer_diameter_mm=scalar(first), thickness_mm=scalar(second))
                 if third is not None:
                     row["length_mm"] = scalar(third)
-        if length_match and "length_mm" not in row:
+        quantity_consumes_length = bool(
+            labeled_quantity_match
+            and length_match
+            and labeled_quantity_match.start() <= length_match.start()
+            and length_match.end() <= labeled_quantity_match.end()
+        )
+        if length_match and "length_mm" not in row and not quantity_consumes_length:
             length = number(length_match.group("value"))
-            row["length_mm"] = scalar(length * 1000 if length_match.group("unit").lower() in ("m", "mt") and length < 100 else length)
+            row["length_mm"] = scalar(
+                length * 1000
+                if length_match.group("unit").lower() in ("m", "mt") and length < 100
+                else length
+            )
         if quantity_match:
             row["quantity"] = scalar(number(quantity_match.group("value")))
-            unit = quantity_match.group("unit").lower()
-            row["quantity_unit"] = "T" if unit in ("t", "ton", "tonnellate") else unit.upper()
+            row["quantity_unit"] = _quantity_unit(quantity_match.group("unit"))
         if price_match:
             row["price_value"] = scalar(number(price_match.group("value")))
             unit = (price_match.group("unit") or "m").lower()

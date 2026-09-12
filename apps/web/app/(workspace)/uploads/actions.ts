@@ -31,8 +31,9 @@ export async function uploadCommercialDocument(
 
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
+  const ownerId = typeof data?.claims?.sub === "string" ? data.claims.sub : null;
 
-  if (!data?.claims) {
+  if (!ownerId) {
     return { status: "error", message: "Sessione scaduta. Accedi di nuovo." };
   }
 
@@ -44,7 +45,9 @@ export async function uploadCommercialDocument(
   const upload = new FormData();
   upload.append("upload", file, file.name);
 
-  const headers: HeadersInit = {};
+  const headers: HeadersInit = {
+    "x-owner-id": ownerId,
+  };
   if (process.env.WORKER_INTERNAL_TOKEN) {
     headers["x-worker-token"] = process.env.WORKER_INTERNAL_TOKEN;
   }
@@ -70,7 +73,7 @@ export async function uploadCommercialDocument(
 
     return {
       status: "success",
-      message: "Upload accettato. Il worker sta elaborando il documento.",
+      message: "Upload accettato. Il worker sta elaborando e pubblicando i dati commerciali.",
       jobId: payload.job_id,
     };
   } catch {
