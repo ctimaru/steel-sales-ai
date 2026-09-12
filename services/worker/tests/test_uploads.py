@@ -128,9 +128,12 @@ def test_staging_rows_have_stable_bulk_insert_shape() -> None:
             "price_value": 68.38,
             "price_unit": "M",
             "currency": "EUR",
+            "metadata": {"source": "regression"},
         },
     )
 
     assert first.keys() == second.keys()
     assert first["price_value"] is None
     assert second["grade"] is None
+    assert first["metadata"] == {}
+    assert second["metadata"] == {"source": "regression"}
