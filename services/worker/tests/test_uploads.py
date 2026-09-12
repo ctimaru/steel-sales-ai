@@ -35,6 +35,18 @@ def test_upload_accepts_supported_documents() -> None:
         assert payload["status"] == "queued"
 
 
+def test_upload_accepts_owner_context_in_multipart_form() -> None:
+    owner_id = UUID("f45fab6e-3da8-41aa-8711-fc1b337a7dde")
+    response = client.post(
+        "/v1/uploads",
+        data={"owner_id": str(owner_id)},
+        files={"upload": ("message.eml", BytesIO(b"Subject: Test\n\nP265GH 406x6,3"), "message/rfc822")},
+    )
+    assert response.status_code == 202
+    job_id = UUID(response.json()["job_id"])
+    assert jobs[job_id].owner_id == owner_id
+
+
 def test_upload_rejects_unsupported_extension() -> None:
     response = client.post(
         "/v1/uploads",
