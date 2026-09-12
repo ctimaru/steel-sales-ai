@@ -6,6 +6,7 @@ import { logout } from "@/app/(workspace)/actions";
 const nav = [
   { href: "/dashboard", label: "Dashboard", key: "D" },
   { href: "/explorer", label: "Commercial Explorer", key: "C" },
+  { href: "/price-intelligence", label: "Price Intelligence", key: "P" },
   { href: "/review", label: "Review Queue", key: "R" },
   { href: "/uploads", label: "Upload documenti", key: "U" },
 ];
