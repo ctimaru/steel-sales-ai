@@ -44,9 +44,6 @@ def normalize_observation(job_id: UUID, observation: dict[str, Any]) -> dict[str
         "job_id": str(job_id),
         **{field: observation.get(field) for field in STAGING_OBSERVATION_FIELDS},
     }
-    # public.worker_staging_observations.metadata is NOT NULL with default {}.
-    # PostgREST only applies the default when the key is omitted; our stable bulk
-    # shape includes the key, so missing metadata must be normalized explicitly.
     row["metadata"] = observation.get("metadata") or {}
     return row
 
@@ -69,6 +66,7 @@ class WorkerRepository:
         self,
         *,
         job_id: UUID,
+        owner_id: UUID,
         filename: str,
         extension: str,
         size_bytes: int,
@@ -76,13 +74,19 @@ class WorkerRepository:
     ) -> None:
         payload = {
             "id": str(job_id),
+            "owner_id": str(owner_id),
             "filename": filename,
             "extension": extension,
             "size_bytes": size_bytes,
             "status": "queued",
             "created_at": created_at.isoformat(),
         }
-        await self._request("POST", "/rest/v1/worker_jobs", json=payload, prefer="return=minimal")
+        await self._request(
+            "POST",
+            "/rest/v1/worker_jobs",
+            json=payload,
+            prefer="return=minimal",
+        )
 
     async def update_job(self, job_id: UUID, values: dict[str, Any]) -> None:
         await self._request(
@@ -107,6 +111,16 @@ class WorkerRepository:
             json=rows,
             prefer="return=minimal",
         )
+
+    async def promote_job(self, job_id: UUID) -> dict[str, Any]:
+        result = await self._request(
+            "POST",
+            "/rest/v1/rpc/promote_worker_job",
+            json={"target_job_id": str(job_id)},
+        )
+        if not isinstance(result, dict):
+            raise RepositoryError("Supabase worker promotion returned an invalid payload.")
+        return result
 
     async def get_job(self, job_id: UUID) -> dict[str, Any] | None:
         rows = await self._request(

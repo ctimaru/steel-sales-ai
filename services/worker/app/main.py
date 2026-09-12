@@ -65,6 +65,7 @@ class Job:
     extension: str
     size_bytes: int
     created_at: datetime
+    owner_id: UUID | None = None
     status: JobStatus = JobStatus.QUEUED
     storage_path: str | None = None
     error: str | None = None
@@ -155,6 +156,8 @@ async def process_job(job_id: UUID) -> None:
                 job_id=job.job_id,
                 observations=prepared.observations,
             )
+            promotion = await repo.promote_job(job.job_id)
+            job.result["promotion"] = promotion
             await repo.update_job(
                 job_id,
                 {
@@ -181,7 +184,11 @@ async def process_job(job_id: UUID) -> None:
             try:
                 await repo.update_job(
                     job_id,
-                    {"status": "failed", "error": job.error, "completed_at": datetime.now(UTC).isoformat()},
+                    {
+                        "status": "failed",
+                        "error": job.error,
+                        "completed_at": datetime.now(UTC).isoformat(),
+                    },
                 )
             except RepositoryError:
                 pass
@@ -191,6 +198,17 @@ def require_worker_token(x_worker_token: str | None) -> None:
     expected = os.getenv("WORKER_INTERNAL_TOKEN")
     if expected and x_worker_token != expected:
         raise HTTPException(status_code=401, detail="Invalid worker token.")
+
+
+def parse_owner_id(x_owner_id: str | None) -> UUID | None:
+    if not durable_mode():
+        return UUID(x_owner_id) if x_owner_id else None
+    if not x_owner_id:
+        raise HTTPException(status_code=400, detail="Missing authenticated owner context.")
+    try:
+        return UUID(x_owner_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="Invalid owner context.") from exc
 
 
 @app.get("/health")
@@ -203,8 +221,10 @@ async def create_upload(
     background_tasks: BackgroundTasks,
     upload: Annotated[UploadFile, File(...)],
     x_worker_token: Annotated[str | None, Header()] = None,
+    x_owner_id: Annotated[str | None, Header()] = None,
 ) -> UploadResponse:
     require_worker_token(x_worker_token)
+    owner_id = parse_owner_id(x_owner_id)
     filename = Path(upload.filename or "").name
     extension = Path(filename).suffix.lower()
     if not filename or extension not in ALLOWED_EXTENSIONS:
@@ -221,12 +241,15 @@ async def create_upload(
         extension=extension,
         size_bytes=len(content),
         created_at=datetime.now(UTC),
+        owner_id=owner_id,
         _content=content,
     )
     if durable_mode():
+        assert owner_id is not None
         try:
             await repository().create_job(
                 job_id=job.job_id,
+                owner_id=owner_id,
                 filename=job.filename,
                 extension=job.extension,
                 size_bytes=job.size_bytes,
@@ -258,6 +281,7 @@ async def get_job(
                 extension=row["extension"],
                 size_bytes=row["size_bytes"],
                 created_at=datetime.fromisoformat(row["created_at"].replace("Z", "+00:00")),
+                owner_id=UUID(row["owner_id"]) if row.get("owner_id") else None,
                 status=JobStatus(row["status"]),
                 storage_path=row.get("storage_path"),
                 error=row.get("error"),
@@ -265,6 +289,9 @@ async def get_job(
                     "parser_version": row.get("parser_version"),
                     "input_kind": row.get("input_kind"),
                     "extraction_count": row.get("extraction_count", 0),
+                    "dataset_id": row.get("dataset_id"),
+                    "thread_id": row.get("thread_id"),
+                    "promoted_observation_count": row.get("promoted_observation_count", 0),
                 },
             )
             jobs[job_id] = job

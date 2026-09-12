@@ -52,7 +52,7 @@ def test_upload_rejects_oversized_file() -> None:
 
 
 def test_job_status_can_be_read() -> None:
-    eml = b"Subject: Offer\\n\\nOffro 406,4x6,3x12000 S235JR EUR 61,50/mt"
+    eml = b"Subject: Offer\n\nOffro 406,4x6,3x12000 S235JR EUR 61,50/mt"
     created = client.post(
         "/v1/uploads",
         files={"upload": ("offer.eml", BytesIO(eml), "message/rfc822")},
@@ -103,6 +103,19 @@ def test_parser_is_line_scoped_and_preserves_roles() -> None:
     assert rows[1]["standard"] == "EN 10224"
     assert rows[2]["availability_status"] == "unavailable"
     assert rows[2]["grade"] == "L275"
+
+
+def test_parser_extracts_labeled_meter_quantity_without_confusing_length() -> None:
+    rows = extract_observations(
+        "P265GH 406,4x6,3 - certificabile EN 10224 L275 - quantità 10 mt - € 68,38/mt",
+        "offer.eml",
+    )
+    assert len(rows) == 1
+    assert rows[0]["quantity"] == 10
+    assert rows[0]["quantity_unit"] == "M"
+    assert "length_mm" not in rows[0]
+    assert rows[0]["price_value"] == 68.38
+    assert rows[0]["price_unit"] == "M"
 
 
 def test_parser_does_not_leak_grade_between_lines() -> None:
