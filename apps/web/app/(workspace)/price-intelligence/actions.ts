@@ -28,6 +28,7 @@ export type PriceLookupState = {
   status: "idle" | "success" | "error";
   message: string;
   observation?: PriceObservation | null;
+  history?: PriceObservation[];
 };
 
 function textValue(formData: FormData, name: string): string | undefined {
@@ -82,7 +83,7 @@ export async function lookupLatestPrice(
   }
 
   try {
-    const response = await fetch(`${workerUrl}/v1/ai/latest-price`, {
+    const response = await fetch(`${workerUrl}/v1/ai/price-history`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -92,12 +93,13 @@ export async function lookupLatestPrice(
         thickness_mm: thickness,
         width_mm: width,
         height_mm: height,
+        limit: 50,
       }),
       cache: "no-store",
     });
 
     const payload = (await response.json().catch(() => null)) as
-      | { found?: boolean; observation?: PriceObservation | null; detail?: string }
+      | { found?: boolean; count?: number; observations?: PriceObservation[]; detail?: string }
       | null;
 
     if (!response.ok) {
@@ -107,18 +109,23 @@ export async function lookupLatestPrice(
       };
     }
 
-    if (!payload?.found || !payload.observation) {
+    const history = payload?.observations ?? [];
+    if (!payload?.found || history.length === 0) {
       return {
         status: "success",
         message: "Nessuna offerta con prezzo trovata per i criteri indicati.",
         observation: null,
+        history: [],
       };
     }
 
     return {
       status: "success",
-      message: "Ultimo prezzo trovato nel tuo storico commerciale.",
-      observation: payload.observation,
+      message: history.length === 1
+        ? "Trovata 1 offerta con prezzo nel tuo storico commerciale."
+        : `Trovate ${history.length} offerte con prezzo nel tuo storico commerciale.`,
+      observation: history[0],
+      history,
     };
   } catch {
     return { status: "error", message: "Worker non raggiungibile." };
