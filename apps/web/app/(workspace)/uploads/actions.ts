@@ -44,8 +44,13 @@ export async function uploadCommercialDocument(
 
   const upload = new FormData();
   upload.append("upload", file, file.name);
+  // The owner UUID is derived from a verified Supabase session on the server.
+  // Send it inside the server-to-server multipart body so proxies cannot drop
+  // the authorization context carried in a custom header.
+  upload.append("owner_id", ownerId);
 
   const headers: HeadersInit = {
+    // Retain the header as a backwards-compatible fallback for older workers.
     "x-owner-id": ownerId,
   };
   if (process.env.WORKER_INTERNAL_TOKEN) {
