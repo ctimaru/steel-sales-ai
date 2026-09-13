@@ -11,9 +11,9 @@ export default function AssistantPage() {
           AI Assistant
         </h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-          Interroga il tuo storico commerciale in linguaggio naturale. Questa prima versione è
-          grounded: riconosce richieste su ultimo prezzo, storico prezzi e offerte senza ordine,
-          poi usa esclusivamente query strutturate owner-scoped e fonti verificabili.
+          Interroga lo storico commerciale in linguaggio naturale e continua con domande di follow-up.
+          L&apos;assistente mantiene il contesto del prodotto, interpreta filtri su richieste, offerte,
+          ordini e consegne e usa esclusivamente query owner-scoped con fonti verificabili.
         </p>
       </div>
 
