@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Annotated
 from uuid import UUID, uuid4
 
+import httpx
 from fastapi import BackgroundTasks, FastAPI, File, Form, Header, HTTPException, UploadFile, status
 from pydantic import BaseModel, ConfigDict, Field
 
