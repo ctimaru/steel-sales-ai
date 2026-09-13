@@ -24,11 +24,51 @@ export type PriceObservation = {
   thread_subject: string | null;
 };
 
+export type PriceMarketOverlayPoint = {
+  observation_id: number | null;
+  thread_id: string | null;
+  commercial_at: string | null;
+  price_value: number | null;
+  price_unit: string | null;
+  currency: string | null;
+  market_period: string | null;
+  market_value: number | null;
+  market_change_to_latest_pct: number | null;
+  market_has_newer_data: boolean;
+  price_change_from_first_pct: number | null;
+  market_change_from_first_pct: number | null;
+};
+
+export type PriceMarketOverlay = {
+  reference_price_unit: string | null;
+  reference_currency: string | null;
+  comparable_price_count: number;
+  market_source: {
+    key: string | null;
+    name: string | null;
+    provider: string | null;
+    source_url: string | null;
+    unit: string | null;
+    display_unit: string | null;
+    latest_period: string | null;
+    latest_value: number | null;
+  };
+  summary: {
+    price_change_pct: number | null;
+    market_change_same_window_pct: number | null;
+    divergence_pct_points: number | null;
+    market_change_since_latest_offer_pct: number | null;
+    latest_offer_market_period: string | null;
+  };
+  points: PriceMarketOverlayPoint[];
+};
+
 export type PriceLookupState = {
   status: "idle" | "success" | "error";
   message: string;
   observation?: PriceObservation | null;
   history?: PriceObservation[];
+  overlay?: PriceMarketOverlay | null;
 };
 
 function textValue(formData: FormData, name: string): string | undefined {
@@ -83,7 +123,7 @@ export async function lookupLatestPrice(
   }
 
   try {
-    const response = await fetch(`${workerUrl}/v1/ai/price-history`, {
+    const response = await fetch(`${workerUrl}/v1/market/price-overlay`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -99,7 +139,13 @@ export async function lookupLatestPrice(
     });
 
     const payload = (await response.json().catch(() => null)) as
-      | { found?: boolean; count?: number; observations?: PriceObservation[]; detail?: string }
+      | {
+          found?: boolean;
+          count?: number;
+          observations?: PriceObservation[];
+          overlay?: PriceMarketOverlay;
+          detail?: string;
+        }
       | null;
 
     if (!response.ok) {
@@ -116,6 +162,7 @@ export async function lookupLatestPrice(
         message: "Nessuna offerta con prezzo trovata per i criteri indicati.",
         observation: null,
         history: [],
+        overlay: payload?.overlay ?? null,
       };
     }
 
@@ -126,6 +173,7 @@ export async function lookupLatestPrice(
         : `Trovate ${history.length} offerte con prezzo nel tuo storico commerciale.`,
       observation: history[0],
       history,
+      overlay: payload?.overlay ?? null,
     };
   } catch {
     return { status: "error", message: "Worker non raggiungibile." };

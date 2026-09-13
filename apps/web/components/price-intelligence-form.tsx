@@ -6,6 +6,7 @@ import { useActionState } from "react";
 import {
   lookupLatestPrice,
   type PriceLookupState,
+  type PriceMarketOverlay,
   type PriceObservation,
 } from "@/app/(workspace)/price-intelligence/actions";
 
@@ -22,27 +23,39 @@ function numberLabel(value: number | string | null): string {
     : String(value);
 }
 
+function unitSuffix(unit: string | null): string {
+  if (unit === "M") return "/m";
+  if (unit === "T") return "/t";
+  return unit ? `/${unit}` : "";
+}
+
+function rawPriceLabel(value: number | null, currency: string | null, unit: string | null): string {
+  if (value === null || !Number.isFinite(value)) return "—";
+  const formatted = new Intl.NumberFormat("it-IT", {
+    style: "currency",
+    currency: currency ?? "EUR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+  return `${formatted}${unitSuffix(unit)}`;
+}
+
 function priceLabel(observation: PriceObservation): string {
   const amount = Number(observation.price_value);
-  const currency = observation.currency ?? "EUR";
-  const formatted = Number.isFinite(amount)
-    ? new Intl.NumberFormat("it-IT", {
-        style: "currency",
-        currency,
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(amount)
-    : String(observation.price_value);
+  return rawPriceLabel(
+    Number.isFinite(amount) ? amount : null,
+    observation.currency ?? "EUR",
+    observation.price_unit,
+  );
+}
 
-  const unit = observation.price_unit === "M"
-    ? "/m"
-    : observation.price_unit === "T"
-      ? "/t"
-      : observation.price_unit
-        ? `/${observation.price_unit}`
-        : "";
-
-  return `${formatted}${unit}`;
+function percentLabel(value: number | null, suffix = "%"): string {
+  if (value === null || !Number.isFinite(value)) return "—";
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${new Intl.NumberFormat("it-IT", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value)}${suffix}`;
 }
 
 function commercialDate(value: string | null, includeTime = true): string {
@@ -52,6 +65,13 @@ function commercialDate(value: string | null, includeTime = true): string {
   return new Intl.DateTimeFormat("it-IT", includeTime
     ? { dateStyle: "medium", timeStyle: "short" }
     : { dateStyle: "medium" }).format(date);
+}
+
+function monthLabel(value: string | null): string {
+  if (!value) return "—";
+  const date = new Date(`${value.slice(0, 10)}T12:00:00Z`);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("it-IT", { month: "short", year: "numeric" }).format(date);
 }
 
 function sizeLabel(observation: PriceObservation): string {
@@ -72,10 +92,120 @@ function sizeLabel(observation: PriceObservation): string {
     : "—";
 }
 
+function MarketOverlay({ overlay }: { overlay: PriceMarketOverlay }) {
+  const summary = overlay.summary;
+  const source = overlay.market_source;
+  const comparableUnit = `${overlay.reference_currency ?? "EUR"}${unitSuffix(overlay.reference_price_unit)}`;
+
+  return (
+    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="border-b border-slate-100 bg-slate-950 px-6 py-5 text-white">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-300">
+              Market overlay
+            </p>
+            <h2 className="mt-1 text-xl font-semibold">Prezzi offerti vs mercato</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
+              Confronto su variazioni percentuali. I prezzi commerciali restano in {comparableUnit};
+              il mercato resta espresso come {source.display_unit ?? source.unit ?? "indice"}.
+              I due valori non vengono convertiti né sommati tra loro.
+            </p>
+          </div>
+          {source.source_url ? (
+            <a
+              href={source.source_url}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-xl border border-white/20 px-3 py-2 text-xs font-semibold text-white transition hover:bg-white/10"
+            >
+              Fonte {source.provider ?? "ufficiale"}
+            </a>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="grid gap-px bg-slate-200 sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          ["Variazione nostri prezzi", percentLabel(summary.price_change_pct), "Prima → ultima offerta comparabile"],
+          ["Variazione mercato", percentLabel(summary.market_change_same_window_pct), "Eurostat nella stessa finestra"],
+          ["Divergenza", percentLabel(summary.divergence_pct_points, " p.p."), "Prezzi meno indice mercato"],
+          ["Mercato dopo ultima offerta", percentLabel(summary.market_change_since_latest_offer_pct), "Solo se esistono dati successivi"],
+        ].map(([label, value, helper]) => (
+          <div key={label} className="bg-white px-5 py-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</p>
+            <p className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">{value}</p>
+            <p className="mt-1 text-xs leading-5 text-slate-500">{helper}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="border-t border-slate-100 px-6 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+          <p className="text-slate-600">
+            <span className="font-semibold text-slate-900">{overlay.comparable_price_count}</span>{" "}
+            {overlay.comparable_price_count === 1 ? "offerta comparabile" : "offerte comparabili"} con stessa valuta e unità.
+          </p>
+          <p className="text-xs text-slate-500">
+            Ultimo dato mercato: {monthLabel(source.latest_period)} · {numberLabel(source.latest_value)} {source.display_unit ?? source.unit ?? ""}
+          </p>
+        </div>
+      </div>
+
+      {overlay.points.length > 0 ? (
+        <div className="overflow-x-auto border-t border-slate-100">
+          <table className="min-w-full divide-y divide-slate-200 text-sm">
+            <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <tr>
+                <th className="px-5 py-3">Offerta</th>
+                <th className="px-5 py-3">Prezzo</th>
+                <th className="px-5 py-3">Δ prezzo</th>
+                <th className="px-5 py-3">Periodo mercato</th>
+                <th className="px-5 py-3">Indice</th>
+                <th className="px-5 py-3">Δ mercato</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {overlay.points.map((point, index) => (
+                <tr key={`${point.observation_id ?? "point"}-${index}`} className="hover:bg-slate-50/70">
+                  <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+                    {commercialDate(point.commercial_at, false)}
+                  </td>
+                  <td className="whitespace-nowrap px-5 py-4 font-semibold text-slate-950">
+                    {rawPriceLabel(point.price_value, point.currency, point.price_unit)}
+                  </td>
+                  <td className="whitespace-nowrap px-5 py-4 text-slate-700">
+                    {percentLabel(point.price_change_from_first_pct)}
+                  </td>
+                  <td className="whitespace-nowrap px-5 py-4 text-slate-600">
+                    {monthLabel(point.market_period)}
+                  </td>
+                  <td className="whitespace-nowrap px-5 py-4 font-semibold text-slate-950">
+                    {numberLabel(point.market_value)}
+                  </td>
+                  <td className="whitespace-nowrap px-5 py-4 text-slate-700">
+                    {percentLabel(point.market_change_from_first_pct)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+
+      <div className="border-t border-amber-100 bg-amber-50 px-6 py-4 text-xs leading-5 text-amber-900">
+        L&apos;indice C242 è un indicatore aggregato di mercato, non una quotazione diretta del singolo tubo.
+        Serve per leggere direzione e intensità del movimento, non per calcolare automaticamente un prezzo di vendita.
+      </div>
+    </section>
+  );
+}
+
 export function PriceIntelligenceForm() {
   const [state, formAction, pending] = useActionState(lookupLatestPrice, initialState);
   const observation = state.observation ?? null;
   const history = state.history ?? [];
+  const overlay = state.overlay ?? null;
 
   return (
     <div className="space-y-6">
@@ -140,7 +270,7 @@ export function PriceIntelligenceForm() {
             {pending ? "Ricerca..." : "Cerca prezzi"}
           </button>
           <p className="text-xs text-slate-500">
-            Risultati ordinati per data commerciale del thread, non per data di importazione.
+            La ricerca include ora anche il confronto con il mercato Eurostat C242.
           </p>
         </div>
       </form>
@@ -207,6 +337,8 @@ export function PriceIntelligenceForm() {
           </div>
         </section>
       ) : null}
+
+      {overlay && overlay.comparable_price_count > 0 ? <MarketOverlay overlay={overlay} /> : null}
 
       {history.length > 0 ? (
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">

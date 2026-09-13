@@ -16,6 +16,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from .assistant import answer_assistant
 from .market import MarketConfigurationError, MarketDataError, get_market_overview
+from .market_overlay import get_price_market_overlay
 from .parser_v31 import ParserInput, ParserV31Adapter
 from .queries import latest_price, offers_without_order, price_history
 from .repository import (
@@ -71,6 +72,10 @@ class LatestPriceRequest(ProductQueryRequest):
 
 
 class PriceHistoryRequest(ProductQueryRequest):
+    limit: int = Field(default=50, ge=1, le=200)
+
+
+class MarketPriceOverlayRequest(ProductQueryRequest):
     limit: int = Field(default=50, ge=1, le=200)
 
 
@@ -424,10 +429,20 @@ async def market_overview_query(
     x_worker_token: Annotated[str | None, Header()] = None,
 ) -> dict[str, object]:
     require_worker_token(x_worker_token)
-    # owner_id is intentionally part of the request contract: the web app derives it
-    # server-side from a verified Supabase Auth session before reaching this endpoint.
     _ = request.owner_id
     try:
         return await get_market_overview(refresh=request.refresh, force=request.force)
     except (MarketConfigurationError, MarketDataError, httpx.HTTPError) as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.post("/v1/market/price-overlay")
+async def market_price_overlay_query(
+    request: MarketPriceOverlayRequest,
+    x_worker_token: Annotated[str | None, Header()] = None,
+) -> dict[str, object]:
+    require_worker_token(x_worker_token)
+    try:
+        return await get_price_market_overlay(**request.model_dump(exclude_none=True))
+    except (MarketConfigurationError, MarketDataError, RuntimeError) as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
