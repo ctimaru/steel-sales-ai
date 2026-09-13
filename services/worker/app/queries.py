@@ -111,3 +111,37 @@ async def offers_without_order(
             "target_limit": limit,
         },
     )
+
+
+async def commercial_search(
+    *,
+    owner_id: UUID,
+    role: str | None = None,
+    grade: str | None = None,
+    outer_diameter_mm: float | None = None,
+    min_outer_diameter_mm: float | None = None,
+    max_outer_diameter_mm: float | None = None,
+    thickness_mm: float | None = None,
+    width_mm: float | None = None,
+    height_mm: float | None = None,
+    since: datetime | None = None,
+    limit: int = 100,
+) -> list[dict[str, Any]]:
+    """Search owner-scoped commercial observations with provenance and commercial dates."""
+
+    return await _rpc_rows(
+        "commercial_observation_search_for_owner",
+        {
+            "target_owner_id": str(owner_id),
+            "target_role": role,
+            "target_grade": grade,
+            "target_outer_diameter_mm": outer_diameter_mm,
+            "target_min_outer_diameter_mm": min_outer_diameter_mm,
+            "target_max_outer_diameter_mm": max_outer_diameter_mm,
+            "target_thickness_mm": thickness_mm,
+            "target_width_mm": width_mm,
+            "target_height_mm": height_mm,
+            "target_since": since.isoformat() if since else None,
+            "target_limit": limit,
+        },
+    )
