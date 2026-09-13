@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+import logging
 import os
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -27,6 +29,8 @@ MAX_UPLOAD_BYTES = 25 * 1024 * 1024
 ALLOWED_EXTENSIONS = {".zip", ".eml", ".pdf", ".xls", ".xlsx"}
 UPLOAD_CHUNK_SIZE = 1024 * 1024
 parser = ParserV31Adapter()
+logger = logging.getLogger(__name__)
+startup_tasks: set[asyncio.Task[None]] = set()
 
 
 class JobStatus(StrEnum):
@@ -240,6 +244,23 @@ def parse_owner_id(owner_context: str | None) -> UUID | None:
         return UUID(owner_context)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail="Invalid owner context.") from exc
+
+
+async def warm_market_cache() -> None:
+    """Best-effort cache warm-up that never blocks worker health checks."""
+    try:
+        await get_market_overview(refresh=True, force=False)
+    except (MarketConfigurationError, MarketDataError, httpx.HTTPError) as exc:
+        logger.warning("Market cache warm-up failed: %s", exc)
+
+
+@app.on_event("startup")
+async def schedule_market_cache_warmup() -> None:
+    if not durable_mode():
+        return
+    task = asyncio.create_task(warm_market_cache())
+    startup_tasks.add(task)
+    task.add_done_callback(startup_tasks.discard)
 
 
 @app.get("/health")
