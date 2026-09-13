@@ -12,6 +12,7 @@ from fastapi import BackgroundTasks, FastAPI, File, Form, Header, HTTPException,
 from pydantic import BaseModel, ConfigDict, Field
 
 from .assistant import answer_assistant
+from .market import MarketConfigurationError, MarketDataError, get_market_overview
 from .parser_v31 import ParserInput, ParserV31Adapter
 from .queries import latest_price, offers_without_order, price_history
 from .repository import (
@@ -79,6 +80,12 @@ class AssistantRequest(BaseModel):
     owner_id: UUID
     query: str = Field(min_length=2, max_length=500)
     context: dict[str, object] | None = None
+
+
+class MarketOverviewRequest(BaseModel):
+    owner_id: UUID
+    refresh: bool = True
+    force: bool = False
 
 
 @dataclass
@@ -386,4 +393,19 @@ async def assistant_query(
             context=request.context,
         )
     except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@app.post("/v1/market/overview")
+async def market_overview_query(
+    request: MarketOverviewRequest,
+    x_worker_token: Annotated[str | None, Header()] = None,
+) -> dict[str, object]:
+    require_worker_token(x_worker_token)
+    # owner_id is intentionally part of the request contract: the web app derives it
+    # server-side from a verified Supabase Auth session before reaching this endpoint.
+    _ = request.owner_id
+    try:
+        return await get_market_overview(refresh=request.refresh, force=request.force)
+    except (MarketConfigurationError, MarketDataError, httpx.HTTPError) as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
