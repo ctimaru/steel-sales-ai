@@ -78,6 +78,7 @@ class OffersWithoutOrderRequest(BaseModel):
 class AssistantRequest(BaseModel):
     owner_id: UUID
     query: str = Field(min_length=2, max_length=500)
+    context: dict[str, object] | None = None
 
 
 @dataclass
@@ -379,6 +380,10 @@ async def assistant_query(
 ) -> dict[str, object]:
     require_worker_token(x_worker_token)
     try:
-        return await answer_assistant(owner_id=request.owner_id, query=request.query)
+        return await answer_assistant(
+            owner_id=request.owner_id,
+            query=request.query,
+            context=request.context,
+        )
     except RuntimeError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
