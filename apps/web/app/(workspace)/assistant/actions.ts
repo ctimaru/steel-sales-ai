@@ -2,9 +2,34 @@
 
 import { createClient } from "@/lib/supabase/server";
 
+export type AssistantIntent =
+  | "latest_price"
+  | "price_history"
+  | "offers_without_order"
+  | "commercial_search"
+  | "unsupported";
+
+export type AssistantFilters = {
+  grade?: string | null;
+  outer_diameter_mm?: number | null;
+  min_outer_diameter_mm?: number | null;
+  max_outer_diameter_mm?: number | null;
+  thickness_mm?: number | null;
+  width_mm?: number | null;
+  height_mm?: number | null;
+  days?: number | null;
+  role?: "requested" | "offered" | "ordered" | "delivered" | null;
+};
+
+export type AssistantContext = {
+  intent: Exclude<AssistantIntent, "unsupported">;
+  filters: AssistantFilters;
+};
+
 export type AssistantObservation = {
   id: number;
   thread_id: string;
+  item_role?: string | null;
   grade: string | null;
   standard: string | null;
   outer_diameter_mm: number | string | null;
@@ -26,19 +51,20 @@ export type AssistantObservation = {
 };
 
 export type AssistantPayload = {
-  intent: "latest_price" | "price_history" | "offers_without_order" | "unsupported";
+  intent: AssistantIntent;
   found: boolean;
   answer: string;
-  filters: {
-    grade?: string | null;
-    outer_diameter_mm?: number | null;
-    thickness_mm?: number | null;
-    width_mm?: number | null;
-    height_mm?: number | null;
-    days?: number | null;
-  };
+  filters: AssistantFilters;
+  context?: AssistantContext | null;
   thread_count?: number;
   observations: AssistantObservation[];
+};
+
+export type AssistantTurn = {
+  query: string;
+  message: string;
+  status: "success" | "error";
+  payload?: AssistantPayload | null;
 };
 
 export type AssistantState = {
@@ -46,32 +72,57 @@ export type AssistantState = {
   query: string;
   message: string;
   payload?: AssistantPayload | null;
+  context?: AssistantContext | null;
+  turns: AssistantTurn[];
 };
 
+function appendTurn(
+  previousState: AssistantState,
+  turn: AssistantTurn,
+): AssistantTurn[] {
+  return [...(previousState.turns ?? []), turn].slice(-8);
+}
+
 export async function askCommercialAssistant(
-  _previousState: AssistantState,
+  previousState: AssistantState,
   formData: FormData,
 ): Promise<AssistantState> {
   const raw = formData.get("query");
   const query = typeof raw === "string" ? raw.trim() : "";
   if (query.length < 2) {
-    return { status: "error", query, message: "Scrivi una domanda commerciale.", payload: null };
+    const message = "Scrivi una domanda commerciale.";
+    return {
+      ...previousState,
+      status: "error",
+      query,
+      message,
+      turns: appendTurn(previousState, { query, message, status: "error", payload: null }),
+    };
   }
 
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   const ownerId = typeof data?.claims?.sub === "string" ? data.claims.sub : null;
   if (!ownerId) {
-    return { status: "error", query, message: "Sessione scaduta. Accedi di nuovo.", payload: null };
+    const message = "Sessione scaduta. Accedi di nuovo.";
+    return {
+      ...previousState,
+      status: "error",
+      query,
+      message,
+      turns: appendTurn(previousState, { query, message, status: "error", payload: null }),
+    };
   }
 
   const workerUrl = process.env.WORKER_URL?.replace(/\/$/, "");
   if (!workerUrl) {
+    const message = "Worker non configurato nell'ambiente web.";
     return {
+      ...previousState,
       status: "error",
       query,
-      message: "Worker non configurato nell'ambiente web.",
-      payload: null,
+      message,
+      turns: appendTurn(previousState, { query, message, status: "error", payload: null }),
     };
   }
 
@@ -84,32 +135,53 @@ export async function askCommercialAssistant(
     const response = await fetch(`${workerUrl}/v1/ai/assistant`, {
       method: "POST",
       headers,
-      body: JSON.stringify({ owner_id: ownerId, query }),
+      body: JSON.stringify({
+        owner_id: ownerId,
+        query,
+        context: previousState.context ?? previousState.payload?.context ?? undefined,
+      }),
       cache: "no-store",
     });
-    const payload = (await response.json().catch(() => null)) as
+    const rawPayload = (await response.json().catch(() => null)) as
       | AssistantPayload
       | { detail?: string }
       | null;
 
-    if (!response.ok || !payload || !("answer" in payload)) {
+    if (!response.ok || !rawPayload || !("answer" in rawPayload)) {
+      const message = rawPayload && "detail" in rawPayload && rawPayload.detail
+        ? rawPayload.detail
+        : "La domanda non è stata elaborata.";
       return {
+        ...previousState,
         status: "error",
         query,
-        message: payload && "detail" in payload && payload.detail
-          ? payload.detail
-          : "La domanda non è stata elaborata.",
-        payload: null,
+        message,
+        turns: appendTurn(previousState, { query, message, status: "error", payload: null }),
       };
     }
 
+    const payload: AssistantPayload = {
+      ...rawPayload,
+      observations: (rawPayload.observations ?? []).slice(0, 12),
+    };
+    const message = payload.answer;
+    const turn: AssistantTurn = { query, message, status: "success", payload };
     return {
       status: "success",
       query,
-      message: payload.answer,
+      message,
       payload,
+      context: payload.context ?? previousState.context ?? null,
+      turns: appendTurn(previousState, turn),
     };
   } catch {
-    return { status: "error", query, message: "Worker non raggiungibile.", payload: null };
+    const message = "Worker non raggiungibile.";
+    return {
+      ...previousState,
+      status: "error",
+      query,
+      message,
+      turns: appendTurn(previousState, { query, message, status: "error", payload: null }),
+    };
   }
 }
