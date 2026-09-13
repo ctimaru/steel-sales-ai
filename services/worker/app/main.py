@@ -14,7 +14,7 @@ import httpx
 from fastapi import BackgroundTasks, FastAPI, File, Form, Header, HTTPException, UploadFile, status
 from pydantic import BaseModel, ConfigDict, Field
 
-from .assistant import answer_assistant
+from .assistant_market import answer_assistant
 from .market import MarketConfigurationError, MarketDataError, get_market_overview
 from .market_overlay import get_price_market_overlay
 from .parser_v31 import ParserInput, ParserV31Adapter

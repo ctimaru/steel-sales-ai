@@ -23,12 +23,14 @@ const initialState: AssistantState = {
 
 const initialSuggestions = [
   "Qual è l'ultimo prezzo del P265GH 406,4x6,3?",
+  "Come si è mosso il mercato rispetto al nostro ultimo prezzo P265GH 406,4x6,3?",
   "Mostrami lo storico prezzi del P265GH 406,4x6,3",
   "Quali offerte sono senza ordine?",
   "Mostrami le richieste S355J2H con diametro superiore a 300 negli ultimi 12 mesi",
 ];
 
 const followupSuggestions = [
+  "e il mercato?",
   "e per spessore 7,1?",
   "e lo storico?",
   "solo negli ultimi 12 mesi",
@@ -41,6 +43,23 @@ function numberLabel(value: number | string | null | undefined): string {
   return Number.isFinite(number)
     ? new Intl.NumberFormat("it-IT", { maximumFractionDigits: 3 }).format(number)
     : String(value);
+}
+
+function percentLabel(value: number | null | undefined, suffix = "%"): string {
+  if (value === null || value === undefined || !Number.isFinite(Number(value))) return "n.d.";
+  const number = Number(value);
+  const sign = number > 0 ? "+" : "";
+  return `${sign}${new Intl.NumberFormat("it-IT", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(number)}${suffix}`;
+}
+
+function monthLabel(value: string | null | undefined): string {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("it-IT", { month: "long", year: "numeric" }).format(date);
 }
 
 function priceLabel(row: AssistantObservation): string {
@@ -92,6 +111,7 @@ function intentLabel(intent: AssistantIntent): string {
   if (intent === "price_history") return "Storico prezzi";
   if (intent === "offers_without_order") return "Offerte senza ordine";
   if (intent === "commercial_search") return "Ricerca commerciale";
+  if (intent === "market_comparison") return "Prezzo vs mercato";
   return "Richiesta non supportata";
 }
 
@@ -162,8 +182,8 @@ export function CommercialAssistant() {
                 Grounded multi-turn assistant
               </p>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-                Puoi continuare la conversazione senza ripetere prodotto e filtri. Il contesto serve solo
-                a costruire query commerciali strutturate: prezzi e risultati arrivano sempre dal database.
+                Puoi continuare la conversazione senza ripetere prodotto e filtri. Prezzi, risultati e segnali
+                di mercato arrivano da query strutturate e fonti tracciate, non da valori generati dal modello.
               </p>
             </div>
             {state.turns.length > 0 ? (
@@ -202,8 +222,8 @@ export function CommercialAssistant() {
               maxLength={500}
               placeholder={
                 state.turns.length > 0
-                  ? "Continua: es. e per spessore 7,1?"
-                  : "Es. Qual è l'ultimo prezzo del P265GH 406,4x6,3?"
+                  ? "Continua: es. e il mercato?"
+                  : "Es. Come si è mosso il mercato rispetto al nostro ultimo prezzo P265GH 406,4x6,3?"
               }
               className="w-full resize-none rounded-2xl border border-slate-300 px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
             />
@@ -224,7 +244,7 @@ export function CommercialAssistant() {
 
           <div className="flex items-center justify-between gap-4">
             <p className="text-xs text-slate-500">
-              Supporta anche richieste, offerte, ordini e consegne con qualità, dimensioni e periodo.
+              Supporta prezzi, mercato, richieste, offerte, ordini e consegne con qualità, dimensioni e periodo.
             </p>
             <button
               type="submit"
@@ -250,6 +270,9 @@ export function CommercialAssistant() {
             const payload = turn.payload ?? null;
             const rows = sourceRows(payload);
             const labels = payload ? filterLabels(payload.filters) : [];
+            const market = payload?.market ?? null;
+            const marketSource = market?.source ?? null;
+            const marketSummary = market?.summary ?? null;
             return (
               <div key={`${index}-${turn.query}`} className="space-y-3">
                 <div className="flex justify-end">
@@ -282,6 +305,49 @@ export function CommercialAssistant() {
                             {filter}
                           </span>
                         ))}
+                      </div>
+                    ) : null}
+
+                    {payload?.intent === "market_comparison" && marketSource ? (
+                      <div className="mt-5 rounded-2xl border border-indigo-100 bg-indigo-50/40 p-4">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">Segnale di mercato</p>
+                            <p className="mt-1 text-sm font-semibold text-slate-950">
+                              {marketSource.provider ?? "Eurostat"} · {marketSource.name ?? "Indice C242"}
+                            </p>
+                            <p className="mt-1 text-xs text-slate-500">
+                              Ultimo dato {monthLabel(marketSource.latest_period)} · {numberLabel(marketSource.latest_value)} {marketSource.display_unit ?? marketSource.unit ?? ""}
+                            </p>
+                          </div>
+                          {marketSource.source_url ? (
+                            <a
+                              href={marketSource.source_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="rounded-xl border border-indigo-200 bg-white px-3 py-2 text-xs font-semibold text-indigo-700 transition hover:border-indigo-300"
+                            >
+                              Fonte ufficiale
+                            </a>
+                          ) : null}
+                        </div>
+
+                        <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                          {[
+                            ["Prezzi interni", percentLabel(marketSummary?.price_change_pct)],
+                            ["Indice C242", percentLabel(marketSummary?.market_change_same_window_pct)],
+                            ["Divergenza", percentLabel(marketSummary?.divergence_pct_points, " p.p.")],
+                            ["Mercato dopo offerta", percentLabel(marketSummary?.market_change_since_latest_offer_pct)],
+                          ].map(([label, value]) => (
+                            <div key={label} className="rounded-xl border border-white bg-white px-3 py-3">
+                              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">{label}</p>
+                              <p className="mt-1 text-lg font-semibold text-slate-950">{value}</p>
+                            </div>
+                          ))}
+                        </div>
+                        <p className="mt-3 text-xs leading-5 text-slate-500">
+                          L&apos;indice e i prezzi interni restano unità separate. Il confronto riguarda esclusivamente le variazioni relative.
+                        </p>
                       </div>
                     ) : null}
                   </div>

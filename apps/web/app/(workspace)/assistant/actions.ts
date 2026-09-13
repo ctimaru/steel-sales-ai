@@ -7,6 +7,7 @@ export type AssistantIntent =
   | "price_history"
   | "offers_without_order"
   | "commercial_search"
+  | "market_comparison"
   | "unsupported";
 
 export type AssistantFilters = {
@@ -50,6 +51,46 @@ export type AssistantObservation = {
   thread_subject: string | null;
 };
 
+export type AssistantMarketSource = {
+  key?: string | null;
+  name?: string | null;
+  provider?: string | null;
+  source_url?: string | null;
+  unit?: string | null;
+  display_unit?: string | null;
+  latest_period?: string | null;
+  latest_value?: number | null;
+};
+
+export type AssistantMarketSummary = {
+  price_change_pct?: number | null;
+  market_change_same_window_pct?: number | null;
+  divergence_pct_points?: number | null;
+  market_change_since_latest_offer_pct?: number | null;
+  latest_offer_market_period?: string | null;
+};
+
+export type AssistantMarketPoint = {
+  observation_id?: number | null;
+  thread_id?: string | null;
+  commercial_at?: string | null;
+  price_value?: number | null;
+  price_unit?: string | null;
+  currency?: string | null;
+  market_period?: string | null;
+  market_value?: number | null;
+  market_change_to_latest_pct?: number | null;
+};
+
+export type AssistantMarketContext = {
+  source?: AssistantMarketSource | null;
+  summary?: AssistantMarketSummary | null;
+  points?: AssistantMarketPoint[];
+  reference_price_unit?: string | null;
+  reference_currency?: string | null;
+  comparable_price_count?: number;
+};
+
 export type AssistantPayload = {
   intent: AssistantIntent;
   found: boolean;
@@ -58,6 +99,7 @@ export type AssistantPayload = {
   context?: AssistantContext | null;
   thread_count?: number;
   observations: AssistantObservation[];
+  market?: AssistantMarketContext | null;
 };
 
 export type AssistantTurn = {
