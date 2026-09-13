@@ -8,6 +8,7 @@ const nav = [
   { href: "/assistant", label: "AI Assistant", key: "A" },
   { href: "/explorer", label: "Commercial Explorer", key: "C" },
   { href: "/price-intelligence", label: "Price Intelligence", key: "P" },
+  { href: "/market-intelligence", label: "Market Intelligence", key: "M" },
   { href: "/unconverted-offers", label: "Offerte senza ordine", key: "O" },
   { href: "/review", label: "Review Queue", key: "R" },
   { href: "/uploads", label: "Upload documenti", key: "U" },
@@ -62,19 +63,19 @@ export function AppShell({
 
       <div className="lg:pl-64">
         <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
-          <div className="flex h-16 items-center justify-between px-5 sm:px-8">
-            <div>
+          <div className="flex h-16 items-center justify-between gap-3 px-5 sm:px-8">
+            <div className="shrink-0">
               <p className="text-sm font-semibold text-slate-950">Steel Sales AI</p>
               <p className="text-xs text-slate-500">Commercial intelligence</p>
             </div>
-            <div className="flex items-center gap-1.5 lg:hidden">
+            <div className="flex max-w-[68vw] items-center gap-1.5 overflow-x-auto lg:hidden">
               {nav.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   aria-label={item.label}
                   title={item.label}
-                  className="rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-semibold text-slate-700"
+                  className="shrink-0 rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-semibold text-slate-700"
                 >
                   {item.key}
                 </Link>
