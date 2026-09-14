@@ -189,6 +189,48 @@ class WorkerRepository:
             raise RepositoryError("Embedding model lookup returned an invalid payload.")
         return rows[0] if rows else None
 
+    async def get_active_embedding_model(self) -> dict[str, Any] | None:
+        rows = await self._request(
+            "GET",
+            "/rest/v1/knowledge_embedding_models"
+            "?status=eq.active&select=model_key,model_name,dimensions,normalized,config,status&limit=2",
+        )
+        if not isinstance(rows, list):
+            raise RepositoryError("Active embedding model lookup returned an invalid payload.")
+        if len(rows) > 1:
+            raise RepositoryError("Multiple active embedding models are configured.")
+        return rows[0] if rows else None
+
+    async def hybrid_search_knowledge(
+        self,
+        *,
+        owner_id: UUID,
+        query_text: str,
+        query_embedding: list[float],
+        match_count: int,
+        candidate_count: int,
+        entity_filters: dict[str, list[str]],
+        commercial_filters: dict[str, object],
+        rrf_k: int = 60,
+    ) -> list[dict[str, Any]]:
+        result = await self._request(
+            "POST",
+            "/rest/v1/rpc/hybrid_search_knowledge",
+            json={
+                "p_owner_id": str(owner_id),
+                "p_query_text": query_text,
+                "p_query_embedding": query_embedding,
+                "p_match_count": match_count,
+                "p_candidate_count": candidate_count,
+                "p_entity_filters": entity_filters,
+                "p_commercial_filters": commercial_filters,
+                "p_rrf_k": rrf_k,
+            },
+        )
+        if not isinstance(result, list):
+            raise RepositoryError("Hybrid knowledge search returned an invalid payload.")
+        return result
+
     async def get_embedding_benchmark_cases(self, *, limit: int) -> list[dict[str, Any]]:
         result = await self._request(
             "POST",
