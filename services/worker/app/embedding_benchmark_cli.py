@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
-from dataclasses import asdict
 
 from .embedding_benchmark import run_embedding_benchmark_suite
 from .embeddings import run_embedding_batch
