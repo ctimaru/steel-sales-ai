@@ -219,6 +219,16 @@ class WorkerRepository:
             raise RepositoryError("Embedding benchmark search returned an invalid payload.")
         return result
 
+    async def activate_embedding_model(self, model_key: str) -> dict[str, Any]:
+        result = await self._request(
+            "POST",
+            "/rest/v1/rpc/activate_embedding_model",
+            json={"p_model_key": model_key},
+        )
+        if not isinstance(result, dict):
+            raise RepositoryError("Embedding model activation returned an invalid payload.")
+        return result
+
     async def _request(
         self,
         method: str,
