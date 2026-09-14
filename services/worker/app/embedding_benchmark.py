@@ -131,10 +131,10 @@ def recommend_embedding_model(
     quality_margin: float = 0.03,
 ) -> str | None:
     """Prefer the smallest model that remains within the quality margin of the best."""
-    if not results:
-        return None
     if quality_margin < 0 or quality_margin > 1:
         raise ValueError("quality_margin must be between 0 and 1.")
+    if not results:
+        return None
 
     best_recall = max(result.recall_at_5 for result in results)
     best_mrr = max(result.mrr_at_10 for result in results)
