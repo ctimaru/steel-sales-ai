@@ -20,6 +20,7 @@ from .embeddings import (
     EmbeddingProviderError,
     run_embedding_batch,
 )
+from .knowledge_ingest import build_knowledge_document
 from .market import MarketConfigurationError, MarketDataError, get_market_overview
 from .market_overlay import get_price_market_overlay
 from .parser_v31 import ParserInput, ParserV31Adapter
@@ -202,10 +203,23 @@ async def process_job(job_id: UUID) -> None:
             "extraction_count": len(prepared.observations),
         }
         if repo:
+            assert job.owner_id is not None
             await repo.insert_observations(
                 job_id=job.job_id,
                 observations=prepared.observations,
             )
+            knowledge_document = build_knowledge_document(
+                filename=job.filename,
+                payload=job._content,
+                storage_path=job.storage_path or "",
+                document_type=prepared.input_kind,
+                extraction_version=f"{prepared.parser_version}+knowledge-v1",
+            )
+            knowledge = await repo.ingest_knowledge_upload(
+                owner_id=job.owner_id,
+                document=knowledge_document,
+            )
+            job.result["knowledge"] = knowledge
             promotion = await repo.promote_job(job.job_id)
             job.result["promotion"] = promotion
             await repo.update_job(
@@ -216,6 +230,9 @@ async def process_job(job_id: UUID) -> None:
                     "parser_version": prepared.parser_version,
                     "input_kind": prepared.input_kind,
                     "extraction_count": len(prepared.observations),
+                    "knowledge_document_id": knowledge.get("document_id"),
+                    "knowledge_chunk_count": knowledge.get("chunk_count", 0),
+                    "knowledge_deduplicated": knowledge.get("deduplicated"),
                     "completed_at": datetime.now(UTC).isoformat(),
                 },
             )
@@ -360,6 +377,9 @@ async def get_job(
                     "dataset_id": row.get("dataset_id"),
                     "thread_id": row.get("thread_id"),
                     "promoted_observation_count": row.get("promoted_observation_count", 0),
+                    "knowledge_document_id": row.get("knowledge_document_id"),
+                    "knowledge_chunk_count": row.get("knowledge_chunk_count", 0),
+                    "knowledge_deduplicated": row.get("knowledge_deduplicated"),
                 },
             )
             jobs[job_id] = job
