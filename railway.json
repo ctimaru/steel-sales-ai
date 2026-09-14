@@ -5,6 +5,9 @@
     "dockerfilePath": "services/worker/Dockerfile"
   },
   "deploy": {
+    "preDeployCommand": [
+      "python -m app.embedding_benchmark_cli --fill --batch-size 64 --max-batches 64 --case-limit 40 --match-count 10 --quality-margin 0.03 --include-cases --activate-recommended"
+    ],
     "healthcheckPath": "/health",
     "healthcheckTimeout": 30,
     "restartPolicyType": "ON_FAILURE",
