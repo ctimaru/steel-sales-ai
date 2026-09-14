@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import math
 import os
 from dataclasses import dataclass
 from typing import Any, Protocol
@@ -54,8 +55,20 @@ class EmbeddingBatchResult:
         }
 
 
+def _normalize_vector(vector: list[float]) -> list[float]:
+    norm = math.sqrt(sum(value * value for value in vector))
+    if not math.isfinite(norm) or norm <= 0.0:
+        raise EmbeddingProviderError("Embedding provider returned a zero or invalid vector.")
+    return [value / norm for value in vector]
+
+
 class HuggingFaceEmbeddingProvider:
-    """Feature-extraction adapter for Hugging Face Inference Providers."""
+    """Feature-extraction adapter for Hugging Face Inference Providers.
+
+    Provider backends do not expose a uniform `normalize` request argument. We therefore
+    request raw sentence embeddings and enforce L2 normalization locally when the model
+    contract requires normalized cosine vectors.
+    """
 
     def __init__(self) -> None:
         token = os.getenv("HF_TOKEN", "").strip()
@@ -78,7 +91,6 @@ class HuggingFaceEmbeddingProvider:
                 self.client.feature_extraction,
                 texts,
                 model=model_name,
-                normalize=normalize,
             )
         except Exception as exc:  # provider SDK exposes several transport-specific errors
             raise EmbeddingProviderError(f"Embedding inference failed: {exc}") from exc
@@ -86,14 +98,18 @@ class HuggingFaceEmbeddingProvider:
         converted = output.tolist() if hasattr(output, "tolist") else output
         if not isinstance(converted, list):
             raise EmbeddingProviderError("Embedding provider returned an invalid payload.")
+        if converted and isinstance(converted[0], (int, float)):
+            converted = [converted]
         if converted and converted[0] and isinstance(converted[0][0], list):
             raise EmbeddingProviderError(
                 "Embedding provider returned token-level vectors instead of sentence vectors."
             )
         try:
-            return [[float(value) for value in vector] for vector in converted]
+            vectors = [[float(value) for value in vector] for vector in converted]
         except (TypeError, ValueError) as exc:
             raise EmbeddingProviderError("Embedding vectors contain invalid values.") from exc
+
+        return [_normalize_vector(vector) for vector in vectors] if normalize else vectors
 
 
 def _prepare_text(content: str, config: dict[str, Any]) -> str:
