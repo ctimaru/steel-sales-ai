@@ -16,6 +16,10 @@ from .repository import WorkerRepository
 class EmbeddingBenchmarkRepository(Protocol):
     async def get_embedding_model(self, model_key: str) -> dict[str, Any] | None: ...
 
+    async def get_chunks_needing_embedding(
+        self, *, model_key: str, limit: int
+    ) -> list[dict[str, Any]]: ...
+
     async def get_embedding_benchmark_cases(self, *, limit: int) -> list[dict[str, Any]]: ...
 
     async def search_embedding_benchmark(
@@ -172,6 +176,13 @@ async def run_embedding_benchmark(
     model = await repo.get_embedding_model(model_key)
     if not model:
         raise ValueError(f"Unknown embedding model: {model_key}.")
+
+    incomplete = await repo.get_chunks_needing_embedding(model_key=model_key, limit=1)
+    if incomplete:
+        raise RuntimeError(
+            f"Embedding benchmark requires complete embeddings for {model_key}; "
+            "at least one chunk is missing or stale."
+        )
 
     cases = await repo.get_embedding_benchmark_cases(limit=case_limit)
     if not cases:
