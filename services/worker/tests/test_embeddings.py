@@ -2,7 +2,11 @@ import asyncio
 
 import pytest
 
-from app.embeddings import EmbeddingProviderError, run_embedding_batch
+from app.embeddings import (
+    EmbeddingProviderError,
+    HuggingFaceEmbeddingProvider,
+    run_embedding_batch,
+)
 
 
 class FakeRepository:
@@ -27,6 +31,16 @@ class FakeProvider:
     async def embed(self, texts, *, model_name: str, normalize: bool):
         self.calls.append((texts, model_name, normalize))
         return self.vectors
+
+
+class FakeInferenceClient:
+    def __init__(self, output):
+        self.output = output
+        self.calls = []
+
+    def feature_extraction(self, texts, **kwargs):
+        self.calls.append((texts, kwargs))
+        return self.output
 
 
 def sample_rows():
@@ -55,6 +69,42 @@ def sample_rows():
             "content_checksum": "checksum-b",
         },
     ]
+
+
+def test_huggingface_provider_normalizes_locally_without_provider_flag() -> None:
+    provider = object.__new__(HuggingFaceEmbeddingProvider)
+    client = FakeInferenceClient([[3.0, 4.0]])
+    provider.client = client
+
+    vectors = asyncio.run(
+        provider.embed(["steel tube"], model_name="example/model", normalize=True)
+    )
+
+    assert vectors == pytest.approx([[0.6, 0.8]])
+    assert client.calls == [(["steel tube"], {"model": "example/model"})]
+
+
+def test_huggingface_provider_keeps_raw_vectors_when_normalization_disabled() -> None:
+    provider = object.__new__(HuggingFaceEmbeddingProvider)
+    client = FakeInferenceClient([[3.0, 4.0]])
+    provider.client = client
+
+    vectors = asyncio.run(
+        provider.embed(["steel tube"], model_name="example/model", normalize=False)
+    )
+
+    assert vectors == [[3.0, 4.0]]
+    assert client.calls == [(["steel tube"], {"model": "example/model"})]
+
+
+def test_huggingface_provider_rejects_zero_vector_when_normalizing() -> None:
+    provider = object.__new__(HuggingFaceEmbeddingProvider)
+    provider.client = FakeInferenceClient([[0.0, 0.0]])
+
+    with pytest.raises(EmbeddingProviderError, match="zero or invalid vector"):
+        asyncio.run(
+            provider.embed(["steel tube"], model_name="example/model", normalize=True)
+        )
 
 
 def test_embedding_batch_is_incremental_and_persists_checksum() -> None:
