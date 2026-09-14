@@ -15,6 +15,11 @@ from fastapi import BackgroundTasks, FastAPI, File, Form, Header, HTTPException,
 from pydantic import BaseModel, ConfigDict, Field
 
 from .assistant_market import answer_assistant
+from .embeddings import (
+    EmbeddingConfigurationError,
+    EmbeddingProviderError,
+    run_embedding_batch,
+)
 from .market import MarketConfigurationError, MarketDataError, get_market_overview
 from .market_overlay import get_price_market_overlay
 from .parser_v31 import ParserInput, ParserV31Adapter
@@ -96,6 +101,11 @@ class MarketOverviewRequest(BaseModel):
     owner_id: UUID
     refresh: bool = True
     force: bool = False
+
+
+class EmbeddingBatchRequest(BaseModel):
+    model_key: str = Field(min_length=1, max_length=120)
+    limit: int = Field(default=32, ge=1, le=128)
 
 
 @dataclass
@@ -356,6 +366,31 @@ async def get_job(
     if job is None:
         raise HTTPException(status_code=404, detail="Job not found.")
     return response_for(job)
+
+
+@app.post("/v1/knowledge/embeddings/run")
+async def embedding_batch_query(
+    request: EmbeddingBatchRequest,
+    x_worker_token: Annotated[str | None, Header()] = None,
+) -> dict[str, object]:
+    require_worker_token(x_worker_token)
+    if not durable_mode():
+        raise HTTPException(status_code=409, detail="Embedding batches require durable mode.")
+    try:
+        result = await run_embedding_batch(
+            model_key=request.model_key,
+            limit=request.limit,
+        )
+    except (
+        EmbeddingConfigurationError,
+        EmbeddingProviderError,
+        RepositoryConfigurationError,
+        RepositoryError,
+        RuntimeError,
+        ValueError,
+    ) as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return result.as_dict()
 
 
 @app.post("/v1/ai/latest-price")
