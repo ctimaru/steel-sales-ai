@@ -80,7 +80,7 @@ def test_huggingface_provider_normalizes_locally_without_provider_flag() -> None
         provider.embed(["steel tube"], model_name="example/model", normalize=True)
     )
 
-    assert vectors == pytest.approx([[0.6, 0.8]])
+    assert vectors[0] == pytest.approx([0.6, 0.8])
     assert client.calls == [(["steel tube"], {"model": "example/model"})]
 
 
