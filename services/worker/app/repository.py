@@ -129,6 +129,34 @@ class WorkerRepository:
         )
         return rows[0] if rows else None
 
+    async def ingest_knowledge_upload(
+        self,
+        *,
+        owner_id: UUID,
+        document: dict[str, Any],
+    ) -> dict[str, Any]:
+        result = await self._request(
+            "POST",
+            "/rest/v1/rpc/ingest_knowledge_upload",
+            json={
+                "p_owner_id": str(owner_id),
+                "p_external_id": document["external_id"],
+                "p_document_type": document["document_type"],
+                "p_title": document["title"],
+                "p_filename": document["filename"],
+                "p_mime_type": document["mime_type"],
+                "p_storage_path": document["storage_path"],
+                "p_content_checksum": document["content_checksum"],
+                "p_extraction_method": document["extraction_method"],
+                "p_extraction_version": document["extraction_version"],
+                "p_language_code": document["language_code"],
+                "p_chunks": document["chunks"],
+            },
+        )
+        if not isinstance(result, dict):
+            raise RepositoryError("Knowledge ingestion returned an invalid payload.")
+        return result
+
     async def get_chunks_needing_embedding(
         self, *, model_key: str, limit: int
     ) -> list[dict[str, Any]]:
