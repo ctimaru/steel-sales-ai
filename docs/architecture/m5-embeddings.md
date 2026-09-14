@@ -15,13 +15,15 @@ The embedding column is intentionally dimension-agnostic. Each candidate has its
 
 ## Candidate set
 
-The first benchmark gate compares three commercially usable multilingual baselines:
+The operational benchmark gate compares three commercially usable multilingual models that are actually available through Hugging Face Inference Providers for the `feature-extraction` task:
 
 | model key | model | dims | role |
 | --- | --- | ---: | --- |
-| `baai-bge-m3-v1` | `BAAI/bge-m3` | 1024 | quality / long-context challenger |
-| `multilingual-e5-base-v1` | `intfloat/multilingual-e5-base` | 768 | balanced retrieval candidate |
-| `multilingual-minilm-l12-v2` | `sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2` | 384 | latency / low-resource candidate |
+| `baai-bge-m3-v1` | `BAAI/bge-m3` | 1024 | established quality / long-context challenger |
+| `multilingual-e5-large-instruct-v1` | `intfloat/multilingual-e5-large-instruct` | 1024 | instruction-aware quality challenger |
+| `harrier-oss-v1-270m-v1` | `microsoft/harrier-oss-v1-270m` | 640 | compact multilingual challenger |
+
+The earlier `multilingual-e5-base-v1` and `multilingual-minilm-l12-v2` registry rows are retained as `retired` provenance records. Their public model repositories support embedding use, but the available Hugging Face Inference Provider mappings expose them as sentence-similarity rather than `feature-extraction`, so they cannot be benchmarked through the same production inference path.
 
 Jina Embeddings v3 is not in the default candidate set because its Hugging Face model card is CC BY-NC 4.0; Steel Sales AI is a commercial project and should not silently depend on a non-commercial model license.
 
@@ -41,6 +43,8 @@ Minimum query families:
 Record at least Recall@5, MRR@10, latency per query, model memory footprint and embedding throughput. Prefer the smallest model whose retrieval quality stays within the accepted quality margin of the best candidate.
 
 The initial M5.2 harness builds deterministic bilingual benchmark cases from real `commercial_observations` linked back to `knowledge_chunks`. The runner records standard Recall@5, MRR@10, Hit@5, query-embedding throughput, mean/p95 vector-search latency and estimated total query latency. A default quality margin of 0.03 is used when recommending the smallest acceptable model.
+
+Instruction-aware candidates store their retrieval instruction as `query_prefix` in the model registry. Passage embeddings remain unprefixed for E5-large-instruct and Harrier, matching their retrieval guidance.
 
 ## Operational benchmark command
 

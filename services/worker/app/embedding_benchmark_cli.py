@@ -11,8 +11,8 @@ from .repository import WorkerRepository
 
 DEFAULT_MODELS = (
     "baai-bge-m3-v1",
-    "multilingual-e5-base-v1",
-    "multilingual-minilm-l12-v2",
+    "multilingual-e5-large-instruct-v1",
+    "harrier-oss-v1-270m-v1",
 )
 
 
