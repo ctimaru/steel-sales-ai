@@ -36,6 +36,11 @@ class FakeRepository:
             "status": "candidate",
         }
 
+    async def get_chunks_needing_embedding(self, *, model_key, limit):
+        assert model_key == "test-model"
+        assert limit == 1
+        return []
+
     async def get_embedding_benchmark_cases(self, *, limit):
         assert limit == 2
         return [
@@ -71,6 +76,11 @@ class FakeRepository:
         ]
 
 
+class IncompleteRepository(FakeRepository):
+    async def get_chunks_needing_embedding(self, *, model_key, limit):
+        return [{"chunk_id": str(TARGET_A)}]
+
+
 def test_embedding_benchmark_calculates_recall_and_mrr() -> None:
     result = asyncio.run(
         run_embedding_benchmark(
@@ -89,6 +99,19 @@ def test_embedding_benchmark_calculates_recall_and_mrr() -> None:
     assert result.dimensions == 3
     assert result.embedding_throughput_qps > 0
     assert result.estimated_total_latency_ms_per_query >= 0
+
+
+def test_embedding_benchmark_rejects_incomplete_model_index() -> None:
+    with pytest.raises(RuntimeError, match="requires complete embeddings"):
+        asyncio.run(
+            run_embedding_benchmark(
+                model_key="test-model",
+                case_limit=2,
+                match_count=10,
+                repository=IncompleteRepository(),
+                provider=FakeProvider(),
+            )
+        )
 
 
 def _result(
