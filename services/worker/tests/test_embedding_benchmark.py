@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from uuid import UUID
 
 import pytest
@@ -70,14 +71,15 @@ class FakeRepository:
         ]
 
 
-@pytest.mark.asyncio
-async def test_embedding_benchmark_calculates_recall_and_mrr() -> None:
-    result = await run_embedding_benchmark(
-        model_key="test-model",
-        case_limit=2,
-        match_count=10,
-        repository=FakeRepository(),
-        provider=FakeProvider(),
+def test_embedding_benchmark_calculates_recall_and_mrr() -> None:
+    result = asyncio.run(
+        run_embedding_benchmark(
+            model_key="test-model",
+            case_limit=2,
+            match_count=10,
+            repository=FakeRepository(),
+            provider=FakeProvider(),
+        )
     )
 
     assert result.case_count == 2
