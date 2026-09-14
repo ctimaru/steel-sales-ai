@@ -129,6 +129,28 @@ class WorkerRepository:
         )
         return rows[0] if rows else None
 
+    async def get_chunks_needing_embedding(
+        self, *, model_key: str, limit: int
+    ) -> list[dict[str, Any]]:
+        result = await self._request(
+            "POST",
+            "/rest/v1/rpc/get_chunks_needing_embedding",
+            json={"target_model_key": model_key, "batch_limit": limit},
+        )
+        if not isinstance(result, list):
+            raise RepositoryError("Embedding batch selector returned an invalid payload.")
+        return result
+
+    async def upsert_chunk_embeddings(self, rows: list[dict[str, Any]]) -> None:
+        if not rows:
+            return
+        await self._request(
+            "POST",
+            "/rest/v1/knowledge_chunk_embeddings?on_conflict=chunk_id,model_id",
+            json=rows,
+            prefer="resolution=merge-duplicates,return=minimal",
+        )
+
     async def _request(
         self,
         method: str,
