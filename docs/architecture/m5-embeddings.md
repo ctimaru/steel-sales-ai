@@ -40,6 +40,25 @@ Minimum query families:
 
 Record at least Recall@5, MRR@10, latency per query, model memory footprint and embedding throughput. Prefer the smallest model whose retrieval quality stays within the accepted quality margin of the best candidate.
 
+The initial M5.2 harness builds deterministic bilingual benchmark cases from real `commercial_observations` linked back to `knowledge_chunks`. The runner records standard Recall@5, MRR@10, Hit@5, query-embedding throughput, mean/p95 vector-search latency and estimated total query latency. A default quality margin of 0.03 is used when recommending the smallest acceptable model.
+
+## Operational benchmark command
+
+The worker exposes the benchmark as a module CLI so it can run only in the trusted server environment where Supabase service-role and provider credentials are available:
+
+```bash
+python -m app.embedding_benchmark_cli \
+  --fill \
+  --case-limit 40 \
+  --match-count 10 \
+  --quality-margin 0.03 \
+  --include-cases
+```
+
+`--fill` repeatedly calls the incremental embedding pipeline before evaluation. The default candidate list is the three models above. `HF_TOKEN` must be configured server-side; it must never be exposed to the browser. A final run may add `--activate-recommended`, which uses the service-role-only `activate_embedding_model` RPC to atomically promote the recommendation after the benchmark completes. Do not activate a model from incomplete embeddings or a partial benchmark run.
+
+Provider-hosted inference means worker memory is not a meaningful proxy for model resident memory. For the remote-provider benchmark, record dimensions, provider latency and throughput; if Steel Sales AI later self-hosts an embedding model, add measured resident memory/GPU memory to the same evaluation record.
+
 ## Incremental and re-embedding semantics
 
 For model `M`, a chunk needs embedding when no `(chunk_id, M)` row exists or when the stored `content_checksum` differs from the current chunk checksum. This makes normal ingestion idempotent and supports controlled re-embedding.

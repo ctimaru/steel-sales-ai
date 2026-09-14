@@ -179,6 +179,56 @@ class WorkerRepository:
             prefer="resolution=merge-duplicates,return=minimal",
         )
 
+    async def get_embedding_model(self, model_key: str) -> dict[str, Any] | None:
+        rows = await self._request(
+            "GET",
+            "/rest/v1/knowledge_embedding_models"
+            f"?model_key=eq.{model_key}&select=model_key,model_name,dimensions,normalized,config,status",
+        )
+        if not isinstance(rows, list):
+            raise RepositoryError("Embedding model lookup returned an invalid payload.")
+        return rows[0] if rows else None
+
+    async def get_embedding_benchmark_cases(self, *, limit: int) -> list[dict[str, Any]]:
+        result = await self._request(
+            "POST",
+            "/rest/v1/rpc/get_embedding_benchmark_cases",
+            json={"p_limit": limit},
+        )
+        if not isinstance(result, list):
+            raise RepositoryError("Embedding benchmark case lookup returned an invalid payload.")
+        return result
+
+    async def search_embedding_benchmark(
+        self,
+        *,
+        model_key: str,
+        query_embedding: list[float],
+        match_count: int,
+    ) -> list[dict[str, Any]]:
+        result = await self._request(
+            "POST",
+            "/rest/v1/rpc/search_embedding_benchmark",
+            json={
+                "p_model_key": model_key,
+                "p_query_embedding": query_embedding,
+                "p_match_count": match_count,
+            },
+        )
+        if not isinstance(result, list):
+            raise RepositoryError("Embedding benchmark search returned an invalid payload.")
+        return result
+
+    async def activate_embedding_model(self, model_key: str) -> dict[str, Any]:
+        result = await self._request(
+            "POST",
+            "/rest/v1/rpc/activate_embedding_model",
+            json={"p_model_key": model_key},
+        )
+        if not isinstance(result, dict):
+            raise RepositoryError("Embedding model activation returned an invalid payload.")
+        return result
+
     async def _request(
         self,
         method: str,
