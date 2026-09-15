@@ -50,6 +50,7 @@ export type KnowledgeSearchState = {
     rrf_k: number;
     entity_filters: Record<string, string[]>;
     commercial_filters: Record<string, string | number>;
+    document_filters: Record<string, string>;
   };
 };
 
@@ -68,6 +69,11 @@ function positiveNumber(formData: FormData, key: string) {
 function listValue(formData: FormData, key: string) {
   const value = textValue(formData, key);
   return value ? [value] : [];
+}
+
+function optionalText(formData: FormData, key: string) {
+  const value = textValue(formData, key);
+  return value || undefined;
 }
 
 export async function searchKnowledge(
@@ -134,6 +140,17 @@ export async function searchKnowledge(
     if (value !== undefined) commercialFilters[key] = value;
   }
 
+  const documentFilters = Object.fromEntries(
+    [
+      ["source_class", optionalText(formData, "source_class")],
+      ["source_type", optionalText(formData, "source_type")],
+      ["document_type", optionalText(formData, "document_type")],
+      ["document_query", optionalText(formData, "document_query")],
+      ["date_from", optionalText(formData, "date_from")],
+      ["date_to", optionalText(formData, "date_to")],
+    ].filter((entry): entry is [string, string] => Boolean(entry[1])),
+  );
+
   const limitRaw = Number(textValue(formData, "limit") || "12");
   const limit = [10, 12, 20, 30].includes(limitRaw) ? limitRaw : 12;
 
@@ -154,6 +171,7 @@ export async function searchKnowledge(
         infer_item_role: !allowedRoles.has(role),
         entity_filters: entityFilters,
         commercial_filters: commercialFilters,
+        document_filters: documentFilters,
       }),
       cache: "no-store",
     });
