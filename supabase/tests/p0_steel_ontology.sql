@@ -127,6 +127,13 @@ begin
     raise exception 'Incomplete rectangular geometry must not receive a canonical ID';
   end if;
 
+  if public.canonical_tube_product_id(
+    'rectangular_tube', 'S355J2', null, null,
+    null, 300, 100, 0, null
+  ) is not null then
+    raise exception 'Zero wall thickness must be rejected as invalid geometry';
+  end if;
+
   select count(*) into v_column_count
   from information_schema.columns
   where table_schema = 'public'
@@ -139,34 +146,23 @@ begin
 end;
 $$;
 
--- The production archive baseline must be canonicalizable without changing
--- tenant boundaries. This query is a no-op on an empty local database.
+-- Parser-produced rows with physically valid, complete tube geometry must resolve.
+-- Invalid source geometry (for example wall thickness = 0) intentionally stays
+-- uncanonicalized so P0.6 can route it through validation/error taxonomy.
 do $$
-declare
-  v_invalid bigint;
 begin
-  select count(*) into v_invalid
-  from public.commercial_observations
-  where canonical_product_id is null
-    and (
-      (outer_diameter_mm is not null and thickness_mm is not null)
-      or (width_mm is not null and height_mm is not null and thickness_mm is not null)
-    );
-
-  -- A missing canonical ID for a complete geometry is allowed only when the
-  -- family cannot be inferred; parser-produced tube rows must be inferable.
   if exists (
     select 1
     from public.commercial_observations
     where canonical_product_id is null
       and product_type in ('round_tube', 'square_tube', 'rectangular_tube')
-      and thickness_mm is not null
+      and thickness_mm > 0
       and (
-        outer_diameter_mm is not null
-        or (width_mm is not null and height_mm is not null)
+        (outer_diameter_mm > 0)
+        or (width_mm > 0 and height_mm > 0)
       )
   ) then
-    raise exception 'Parser-produced complete tube geometry failed canonicalization';
+    raise exception 'Parser-produced valid complete tube geometry failed canonicalization';
   end if;
 end;
 $$;
