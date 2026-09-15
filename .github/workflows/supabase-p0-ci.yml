@@ -72,6 +72,18 @@ jobs:
             --set ON_ERROR_STOP=1 \
             --file supabase/tests/p0_parser_contract_v4.sql
 
+      - name: Run P0 entity resolution acceptance test
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql \
+            --host 127.0.0.1 \
+            --port 54322 \
+            --username postgres \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            --file supabase/tests/p0_entity_resolution.sql
+
       - name: Verify tenant helper exists
         env:
           PGPASSWORD: postgres
