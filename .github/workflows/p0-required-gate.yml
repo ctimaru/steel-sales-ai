@@ -50,7 +50,7 @@ jobs:
           grep -Eq '^(apps/web/|\.github/workflows/frontend-ci\.yml)$' /tmp/changed-files.txt && WEB=true || WEB=false
           grep -Eq '^(services/worker/|railway\.json|\.github/workflows/worker-ci\.yml)$' /tmp/changed-files.txt && WORKER=true || WORKER=false
           grep -Eq '^(supabase/|\.github/workflows/supabase-p0-ci\.yml)$' /tmp/changed-files.txt && SUPABASE=true || SUPABASE=false
-          grep -Eq '^(\.github/workflows/p0-required-gate\.yml|docs/p0-11-|apps/web/vercel\.json)$' /tmp/changed-files.txt && ALL=true || ALL=false
+          grep -Eq '^\.github/workflows/p0-required-gate\.yml$' /tmp/changed-files.txt && ALL=true || ALL=false
 
           echo "web=$WEB" >> "$GITHUB_OUTPUT"
           echo "worker=$WORKER" >> "$GITHUB_OUTPUT"
