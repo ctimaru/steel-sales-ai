@@ -5,8 +5,10 @@ from typing import Any
 from uuid import UUID
 
 from app.evaluation import (
+    _rag_summary,
     quality_gates,
     retrieval_case_metrics,
+    row_matches_relevance,
     run_golden_evaluation,
     unsupported_prompt_literals,
 )
@@ -32,6 +34,8 @@ def make_case(
     query: str,
     expected_match: bool | None,
     target: UUID | None,
+    relevance_mode: str = "targets",
+    relevance_criteria: dict[str, Any] | None = None,
 ) -> GoldenQueryCase:
     return GoldenQueryCase(
         case_id=case_id,
@@ -59,6 +63,8 @@ def make_case(
         target_chunk_ids=(target,) if target else (),
         target_document_ids=(DOC_ID,) if target else (),
         notes=None,
+        relevance_mode=relevance_mode,
+        relevance_criteria=relevance_criteria or {},
     )
 
 
@@ -80,7 +86,10 @@ def result_row(chunk_id: UUID, *, strong: bool = True) -> dict[str, Any]:
         "lexical_score": 0.3 if strong else None,
         "entity_match_count": 2 if strong else 0,
         "rrf_score": 0.05,
-        "matched_entities": [],
+        "matched_entities": [
+            {"entity_type": "grade", "canonical_name": "S355J2H"},
+            {"entity_type": "standard", "canonical_name": "EN 10219"},
+        ],
     }
 
 
@@ -103,6 +112,71 @@ def test_retrieval_metrics_capture_rank_recall_and_provenance() -> None:
     assert metrics.provenance_completeness == 1.0
 
 
+def test_criteria_relevance_accepts_any_valid_broad_document_match() -> None:
+    case = make_case(
+        case_id=SEMANTIC_CASE_ID,
+        case_key="semantic:bologna",
+        case_type="semantic",
+        language="it",
+        query="Cosa dicono gli ordini per Bologna?",
+        expected_match=True,
+        target=SEMANTIC_CHUNK,
+        relevance_mode="criteria",
+        relevance_criteria={"document_query": "Bologna"},
+    )
+    row = result_row(UUID("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"))
+    row["title"] = "Ordine materiale destinazione Bologna"
+    assert row_matches_relevance(case, row) is True
+    metrics = retrieval_case_metrics(case, [row])
+    assert metrics.hit_at_10 is True
+    assert metrics.recall_at_10 == 1.0
+    assert metrics.relevance_mode == "criteria"
+
+
+def test_criteria_relevance_rejects_wrong_document() -> None:
+    case = make_case(
+        case_id=SEMANTIC_CASE_ID,
+        case_key="semantic:bologna",
+        case_type="semantic",
+        language="en",
+        query="What do Bologna orders say?",
+        expected_match=True,
+        target=SEMANTIC_CHUNK,
+        relevance_mode="criteria",
+        relevance_criteria={"document_query": "Bologna"},
+    )
+    assert row_matches_relevance(case, result_row(SEMANTIC_CHUNK)) is False
+
+
+def test_extractive_fallback_with_source_ids_is_valid_grounding() -> None:
+    case = make_case(
+        case_id=SEMANTIC_CASE_ID,
+        case_key="semantic:fallback",
+        case_type="semantic",
+        language="en",
+        query="What do the emails say?",
+        expected_match=True,
+        target=SEMANTIC_CHUNK,
+    )
+    evidence = result_row(SEMANTIC_CHUNK)
+    evidence["citation_id"] = "S1"
+    payload, passed, failures = _rag_summary(
+        case,
+        {
+            "found": True,
+            "answer": "First source sentence. Second source sentence [S1].",
+            "evidence": [evidence],
+            "grounding": {
+                "status": "extractive_fallback",
+                "fallback_reason": "citation_validation_failed",
+            },
+        },
+    )
+    assert payload["citation_valid"] is True
+    assert passed is True
+    assert failures == []
+
+
 def test_security_literal_detection_flags_unsupported_percentage() -> None:
     evidence = [{"content": "The source does not state an agreed discount."}]
     assert unsupported_prompt_literals(
@@ -118,6 +192,7 @@ def test_quality_gates_include_hard_safety_checks() -> None:
         "positive_mrr_at_10": 1.0,
         "cross_language_recall10_delta": 0.0,
         "provenance_completeness_rate": 1.0,
+        "semantic_rag_supported_rate": 1.0,
         "negative_fail_closed_rate": 1.0,
         "citation_validity_rate": 1.0,
         "security_detected_fabrication_rate": 0.0,
@@ -196,6 +271,8 @@ class FakeRepository:
                 "expected_entities": case.expected_entities,
                 "expected_filters": case.expected_filters,
                 "expected_grounding_status": case.expected_grounding_status,
+                "relevance_mode": case.relevance_mode,
+                "relevance_criteria": case.relevance_criteria,
                 "target_chunk_ids": [str(value) for value in case.target_chunk_ids],
                 "target_document_ids": [str(value) for value in case.target_document_ids],
                 "notes": case.notes,
@@ -238,7 +315,6 @@ class FakeRepository:
         return [result_row(STRUCTURED_CHUNK)]
 
 
-
 def test_full_harness_batches_embeddings_and_checks_retrieval_rag_security() -> None:
     result = asyncio.run(
         run_golden_evaluation(
@@ -251,6 +327,7 @@ def test_full_harness_batches_embeddings_and_checks_retrieval_rag_security() -> 
     )
     assert result.metrics["positive_hit_at_10_rate"] == 1.0
     assert result.metrics["positive_mrr_at_10"] == 1.0
+    assert result.metrics["semantic_rag_supported_rate"] == 1.0
     assert result.metrics["negative_fail_closed_rate"] == 1.0
     assert result.metrics["citation_validity_rate"] == 1.0
     assert result.metrics["security_detected_fabrication_rate"] == 0.0
