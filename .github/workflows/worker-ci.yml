@@ -1,15 +1,7 @@
-name: Worker CI
+name: Worker CI (manual)
 
 on:
-  pull_request:
-    paths:
-      - "services/worker/**"
-      - ".github/workflows/worker-ci.yml"
-  push:
-    branches: [main]
-    paths:
-      - "services/worker/**"
-      - ".github/workflows/worker-ci.yml"
+  workflow_dispatch:
 
 jobs:
   test:
@@ -22,6 +14,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: services/worker/pyproject.toml
       - run: python -m pip install --upgrade pip
       - run: pip install -e '.[test]'
       - run: pytest -q

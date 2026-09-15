@@ -1,11 +1,6 @@
-name: Supabase P0 Foundation CI
+name: Supabase P0 Foundation CI (manual)
 
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - "supabase/**"
-      - ".github/workflows/supabase-p0-ci.yml"
   workflow_dispatch:
 
 permissions:
@@ -15,129 +10,50 @@ jobs:
   p0-foundation:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Supabase CLI
-        uses: supabase/setup-cli@v1
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
         with:
           version: latest
-
       - name: Inject CI-only historical baselines
         run: |
           cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
           cp supabase/ci/p0_staging_baseline.sql supabase/migrations/20260908000001_ci_staging_baseline.sql
-
-      - name: Start local Supabase and apply migration chain
-        run: supabase start
-
-      - name: Rebuild database from migrations
-        run: supabase db reset --local
-
-      - name: Run P0 tenant isolation acceptance test
+      - run: supabase start
+      - run: supabase db reset --local
+      - name: Run P0 acceptance suite
         env:
           PGPASSWORD: postgres
         run: |
-          psql \
-            --host 127.0.0.1 \
-            --port 54322 \
-            --username postgres \
-            --dbname postgres \
-            --set ON_ERROR_STOP=1 \
-            --file supabase/tests/p0_tenant_isolation.sql
-
-      - name: Run P0 steel ontology acceptance test
+          set -euo pipefail
+          for test in \
+            p0_tenant_isolation.sql \
+            p0_steel_ontology.sql \
+            p0_parser_contract_v4.sql \
+            p0_entity_resolution.sql \
+            p0_observability.sql \
+            p0_data_lifecycle.sql; do
+            psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
+              --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
+          done
+      - name: Verify tenant helper and lint
         env:
           PGPASSWORD: postgres
         run: |
-          psql \
-            --host 127.0.0.1 \
-            --port 54322 \
-            --username postgres \
-            --dbname postgres \
-            --set ON_ERROR_STOP=1 \
-            --file supabase/tests/p0_steel_ontology.sql
-
-      - name: Run P0 parser v4 contract acceptance test
-        env:
-          PGPASSWORD: postgres
-        run: |
-          psql \
-            --host 127.0.0.1 \
-            --port 54322 \
-            --username postgres \
-            --dbname postgres \
-            --set ON_ERROR_STOP=1 \
-            --file supabase/tests/p0_parser_contract_v4.sql
-
-      - name: Run P0 entity resolution acceptance test
-        env:
-          PGPASSWORD: postgres
-        run: |
-          psql \
-            --host 127.0.0.1 \
-            --port 54322 \
-            --username postgres \
-            --dbname postgres \
-            --set ON_ERROR_STOP=1 \
-            --file supabase/tests/p0_entity_resolution.sql
-
-      - name: Run P0 observability acceptance test
-        env:
-          PGPASSWORD: postgres
-        run: |
-          psql \
-            --host 127.0.0.1 \
-            --port 54322 \
-            --username postgres \
-            --dbname postgres \
-            --set ON_ERROR_STOP=1 \
-            --file supabase/tests/p0_observability.sql
-
-      - name: Run P0 data lifecycle acceptance test
-        env:
-          PGPASSWORD: postgres
-        run: |
-          psql \
-            --host 127.0.0.1 \
-            --port 54322 \
-            --username postgres \
-            --dbname postgres \
-            --set ON_ERROR_STOP=1 \
-            --file supabase/tests/p0_data_lifecycle.sql
-
-      - name: Verify tenant helper exists
-        env:
-          PGPASSWORD: postgres
-        run: |
-          psql \
-            --host 127.0.0.1 \
-            --port 54322 \
-            --username postgres \
-            --dbname postgres \
-            --set ON_ERROR_STOP=1 \
-            --command "select public.default_organization_for_user(null::uuid);"
-
-      - name: Lint local database
-        run: supabase db lint --local --level warning
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+          psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
+            --set ON_ERROR_STOP=1 --command "select public.default_organization_for_user(null::uuid);"
+          supabase db lint --local --level warning
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Install worker test dependencies
+          cache: pip
+          cache-dependency-path: services/worker/pyproject.toml
+      - name: Run worker/RAG regression suite
         working-directory: services/worker
         run: |
           python -m pip install --upgrade pip
           pip install -e '.[test]'
-
-      - name: Run worker and RAG regression suite
-        working-directory: services/worker
-        run: pytest -q
-
+          pytest -q
       - name: Stop local Supabase
         if: always()
         run: supabase stop --no-backup
