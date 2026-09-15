@@ -8,6 +8,7 @@ export type AssistantIntent =
   | "offers_without_order"
   | "commercial_search"
   | "market_comparison"
+  | "knowledge_rag"
   | "unsupported";
 
 export type AssistantFilters = {
@@ -25,6 +26,7 @@ export type AssistantFilters = {
 export type AssistantContext = {
   intent: Exclude<AssistantIntent, "unsupported">;
   filters: AssistantFilters;
+  knowledge_query?: string | null;
 };
 
 export type AssistantObservation = {
@@ -49,6 +51,46 @@ export type AssistantObservation = {
   commercial_at?: string | null;
   offered_at?: string | null;
   thread_subject: string | null;
+};
+
+export type AssistantEvidence = {
+  citation_id: string;
+  chunk_id: string;
+  source_id: string;
+  document_id: string;
+  content: string;
+  language_code?: string | null;
+  title?: string | null;
+  filename?: string | null;
+  document_type?: string | null;
+  source_name?: string | null;
+  source_class?: string | null;
+  source_uri?: string | null;
+  page_start?: number | null;
+  page_end?: number | null;
+  section_path?: string[] | null;
+  source_locator?: Record<string, unknown> | null;
+  vector_similarity?: number | null;
+  lexical_score?: number | null;
+  entity_match_count?: number;
+  rrf_score?: number | null;
+  matched_entities?: Array<{
+    entity_id?: string;
+    entity_type?: string;
+    canonical_name?: string;
+  }>;
+};
+
+export type AssistantGrounding = {
+  mode: "structured_query" | "structured_market" | "knowledge_rag" | string;
+  status: "grounded" | "extractive_fallback" | "insufficient_evidence" | "no_data" | string;
+  generator?: string | null;
+  model?: string | null;
+  fallback_reason?: string | null;
+  evidence_count?: number;
+  citations?: string[];
+  retrieval?: Record<string, unknown> | null;
+  embedding_model?: Record<string, unknown> | null;
 };
 
 export type AssistantMarketSource = {
@@ -99,6 +141,8 @@ export type AssistantPayload = {
   context?: AssistantContext | null;
   thread_count?: number;
   observations: AssistantObservation[];
+  evidence?: AssistantEvidence[];
+  grounding?: AssistantGrounding | null;
   market?: AssistantMarketContext | null;
 };
 
@@ -205,6 +249,7 @@ export async function askCommercialAssistant(
     const payload: AssistantPayload = {
       ...rawPayload,
       observations: (rawPayload.observations ?? []).slice(0, 12),
+      evidence: (rawPayload.evidence ?? []).slice(0, 8),
     };
     const message = payload.answer;
     const turn: AssistantTurn = { query, message, status: "success", payload };
