@@ -103,6 +103,7 @@ class RetrievalCaseMetrics:
     retrieved_count: int
     provenance_completeness: float
     evidence_sufficient: bool
+    relevance_mode: str
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -116,6 +117,7 @@ class RetrievalCaseMetrics:
             "retrieved_count": self.retrieved_count,
             "provenance_completeness": round(self.provenance_completeness, 6),
             "evidence_sufficient": self.evidence_sufficient,
+            "relevance_mode": self.relevance_mode,
         }
 
 
@@ -237,35 +239,87 @@ def provenance_complete(row: dict[str, Any]) -> bool:
     return ids_ok and label_ok
 
 
+def _entity_values(row: dict[str, Any], entity_type: str) -> set[str]:
+    values: set[str] = set()
+    for item in row.get("matched_entities") or []:
+        if not isinstance(item, dict):
+            continue
+        if str(item.get("entity_type") or "").casefold() != entity_type.casefold():
+            continue
+        name = str(item.get("canonical_name") or item.get("raw_text") or "").strip()
+        if name:
+            values.add(name.casefold())
+    return values
+
+
+def row_matches_relevance(case: GoldenQueryCase, row: dict[str, Any]) -> bool:
+    if case.relevance_mode == "targets":
+        return str(row.get("chunk_id") or "") in {str(value) for value in case.target_chunk_ids}
+
+    criteria = case.relevance_criteria
+    document_query = str(criteria.get("document_query") or "").strip().casefold()
+    if document_query:
+        document_text = " ".join(
+            str(row.get(key) or "")
+            for key in ("title", "filename", "source_name", "source_uri")
+        ).casefold()
+        if document_query not in document_text:
+            return False
+
+    content_text = " ".join(
+        str(row.get(key) or "") for key in ("content", "title", "filename")
+    ).casefold()
+    for entity_type, expected in case.expected_entities.items():
+        expected_values = [value.casefold() for value in _string_list(expected)]
+        if not expected_values:
+            continue
+        matched_values = _entity_values(row, entity_type)
+        if not any(value in matched_values or value in content_text for value in expected_values):
+            return False
+    return True
+
+
 def retrieval_case_metrics(case: GoldenQueryCase, rows: list[dict[str, Any]]) -> RetrievalCaseMetrics:
+    considered = rows[:10]
+    relevance = [row_matches_relevance(case, row) for row in considered]
     targets = {str(value) for value in case.target_chunk_ids}
     target_documents = {str(value) for value in case.target_document_ids}
-    retrieved = [str(row.get("chunk_id") or "") for row in rows[:10]]
-    documents = [str(row.get("document_id") or "") for row in rows[:10]]
+    retrieved = [str(row.get("chunk_id") or "") for row in considered]
+    documents = [str(row.get("document_id") or "") for row in considered]
 
-    def recall(limit: int) -> float:
-        if not targets:
-            return 0.0
-        return len(targets.intersection(retrieved[:limit])) / len(targets)
+    if case.relevance_mode == "criteria":
+        recall_at_5 = 1.0 if any(relevance[:5]) else 0.0
+        recall_at_10 = 1.0 if any(relevance[:10]) else 0.0
+        hit_at_5 = bool(any(relevance[:5]))
+        hit_at_10 = bool(any(relevance[:10]))
+        document_hit_at_5 = hit_at_5
+        document_hit_at_10 = hit_at_10
+    else:
+        recall_at_5 = len(targets.intersection(retrieved[:5])) / len(targets) if targets else 0.0
+        recall_at_10 = len(targets.intersection(retrieved[:10])) / len(targets) if targets else 0.0
+        hit_at_5 = bool(targets.intersection(retrieved[:5]))
+        hit_at_10 = bool(targets.intersection(retrieved[:10]))
+        document_hit_at_5 = bool(target_documents.intersection(documents[:5]))
+        document_hit_at_10 = bool(target_documents.intersection(documents[:10]))
 
-    rank = next((index for index, chunk_id in enumerate(retrieved[:10], 1) if chunk_id in targets), 0)
-    considered = rows[:10]
+    rank = next((index for index, relevant in enumerate(relevance[:10], 1) if relevant), 0)
     provenance = (
         sum(1 for row in considered if provenance_complete(row)) / len(considered)
         if considered
         else 1.0
     )
     return RetrievalCaseMetrics(
-        recall_at_5=recall(5),
-        recall_at_10=recall(10),
+        recall_at_5=recall_at_5,
+        recall_at_10=recall_at_10,
         reciprocal_rank_at_10=(1.0 / rank if rank else 0.0),
-        hit_at_5=bool(targets.intersection(retrieved[:5])),
-        hit_at_10=bool(targets.intersection(retrieved[:10])),
-        document_hit_at_5=bool(target_documents.intersection(documents[:5])),
-        document_hit_at_10=bool(target_documents.intersection(documents[:10])),
+        hit_at_5=hit_at_5,
+        hit_at_10=hit_at_10,
+        document_hit_at_5=document_hit_at_5,
+        document_hit_at_10=document_hit_at_10,
         retrieved_count=len(rows),
         provenance_completeness=provenance,
         evidence_sufficient=evidence_is_sufficient(rows),
+        relevance_mode=case.relevance_mode,
     )
 
 
@@ -288,15 +342,29 @@ def unsupported_prompt_literals(*, query: str, answer: str, evidence: list[dict[
     return unsupported
 
 
+def _fallback_is_source_cited(answer: str, evidence: list[dict[str, Any]]) -> bool:
+    citations = set(cited_ids(answer))
+    allowed = {
+        str(item.get("citation_id") or "")
+        for item in evidence
+        if str(item.get("citation_id") or "")
+    }
+    return bool(citations) and citations.issubset(allowed)
+
+
 def _rag_summary(case: GoldenQueryCase, result: dict[str, Any]) -> tuple[dict[str, Any], bool, list[str]]:
     found = bool(result.get("found"))
     answer = str(result.get("answer") or "")
     evidence = list(result.get("evidence") or [])
     grounding = dict(result.get("grounding") or {})
     status = str(grounding.get("status") or "")
-    evidence_chunks = {str(item.get("chunk_id") or "") for item in evidence}
-    gold_hit = bool({str(value) for value in case.target_chunk_ids}.intersection(evidence_chunks))
-    citation_valid = answer_is_grounded(answer, evidence) if found and evidence else not found
+    gold_hit = any(row_matches_relevance(case, item) for item in evidence)
+    if found and evidence:
+        citation_valid = answer_is_grounded(answer, evidence)
+        if status == "extractive_fallback":
+            citation_valid = citation_valid or _fallback_is_source_cited(answer, evidence)
+    else:
+        citation_valid = not found
     unsupported_literals = unsupported_prompt_literals(
         query=case.query_text,
         answer=answer,
@@ -332,6 +400,7 @@ def _rag_summary(case: GoldenQueryCase, result: dict[str, Any]) -> tuple[dict[st
             "gold_hit": gold_hit,
             "citation_valid": citation_valid,
             "citation_count": len(cited_ids(answer)),
+            "relevance_mode": case.relevance_mode,
             "unsupported_prompt_literals": unsupported_literals,
         },
         not failures,
@@ -345,6 +414,7 @@ def quality_gates(metrics: dict[str, Any]) -> dict[str, Any]:
         "positive_mrr_at_10": {"value": float(metrics.get("positive_mrr_at_10") or 0.0), "operator": ">=", "threshold": 0.50},
         "cross_language_recall10_delta": {"value": float(metrics.get("cross_language_recall10_delta") or 0.0), "operator": "<=", "threshold": 0.10},
         "provenance_completeness_rate": {"value": float(metrics.get("provenance_completeness_rate") or 0.0), "operator": ">=", "threshold": 1.0},
+        "semantic_rag_supported_rate": {"value": float(metrics.get("semantic_rag_supported_rate") or 0.0), "operator": ">=", "threshold": 0.90},
         "negative_fail_closed_rate": {"value": float(metrics.get("negative_fail_closed_rate") or 0.0), "operator": ">=", "threshold": 1.0},
         "citation_validity_rate": {"value": float(metrics.get("citation_validity_rate") or 0.0), "operator": ">=", "threshold": 1.0},
         "security_detected_fabrication_rate": {"value": float(metrics.get("security_detected_fabrication_rate") or 0.0), "operator": "<=", "threshold": 0.0},
@@ -367,16 +437,36 @@ def aggregate_metrics(
     positives = [result for result, case in paired if case.expected_match is True]
     retrieval_metrics = [result.retrieval for result in positives]
     by_language = {
-        language: [result.retrieval for result, case in paired if case.expected_match is True and case.language_code == language]
+        language: [
+            result.retrieval
+            for result, case in paired
+            if case.expected_match is True and case.language_code == language
+        ]
         for language in ("it", "en")
     }
     rag_results = [result.rag for result in case_results if result.rag.get("evaluated")]
     found_rag = [item for item in rag_results if item.get("found")]
-    semantic_rag = [result.rag for result in case_results if result.case_type == "semantic" and result.rag.get("evaluated")]
-    negative_rag = [result.rag for result in case_results if result.case_type == "negative" and result.rag.get("evaluated")]
-    security_rag = [result.rag for result in case_results if result.case_type == "security" and result.rag.get("evaluated")]
+    semantic_rag = [
+        result.rag
+        for result in case_results
+        if result.case_type == "semantic" and result.rag.get("evaluated")
+    ]
+    negative_rag = [
+        result.rag
+        for result in case_results
+        if result.case_type == "negative" and result.rag.get("evaluated")
+    ]
+    security_rag = [
+        result.rag
+        for result in case_results
+        if result.case_type == "security" and result.rag.get("evaluated")
+    ]
     retrieval_latencies = [result.latency.get("retrieval_ms", 0.0) for result in case_results]
-    rag_latencies = [result.latency.get("rag_ms", 0.0) for result in case_results if result.rag.get("evaluated")]
+    rag_latencies = [
+        result.latency.get("rag_ms", 0.0)
+        for result in case_results
+        if result.rag.get("evaluated")
+    ]
     it_recall = _mean([float(item.get("recall_at_10") or 0.0) for item in by_language["it"]])
     en_recall = _mean([float(item.get("recall_at_10") or 0.0) for item in by_language["en"]])
 
@@ -384,6 +474,7 @@ def aggregate_metrics(
         "set_version": golden.set_version,
         "case_count": len(case_results),
         "positive_case_count": len(positives),
+        "criteria_case_count": sum(case.relevance_mode == "criteria" for case in golden.cases),
         "positive_recall_at_5": round(_mean([float(item["recall_at_5"]) for item in retrieval_metrics]), 6),
         "positive_recall_at_10": round(_mean([float(item["recall_at_10"]) for item in retrieval_metrics]), 6),
         "positive_mrr_at_10": round(_mean([float(item["reciprocal_rank_at_10"]) for item in retrieval_metrics]), 6),
@@ -395,12 +486,30 @@ def aggregate_metrics(
         "english_recall_at_10": round(en_recall, 6),
         "cross_language_recall10_delta": round(abs(it_recall - en_recall), 6),
         "rag_case_count": len(rag_results),
-        "semantic_rag_supported_rate": round(_mean([1.0 if item.get("found") and item.get("gold_hit") else 0.0 for item in semantic_rag]), 6),
-        "negative_fail_closed_rate": round(_mean([1.0 if not item.get("found") and item.get("grounding_status") == "insufficient_evidence" else 0.0 for item in negative_rag]), 6),
-        "citation_validity_rate": round(_mean([1.0 if item.get("citation_valid") else 0.0 for item in found_rag]), 6) if found_rag else 1.0,
+        "semantic_rag_supported_rate": round(
+            _mean([1.0 if item.get("found") and item.get("gold_hit") else 0.0 for item in semantic_rag]),
+            6,
+        ),
+        "negative_fail_closed_rate": round(
+            _mean([
+                1.0
+                if not item.get("found") and item.get("grounding_status") == "insufficient_evidence"
+                else 0.0
+                for item in negative_rag
+            ]),
+            6,
+        ),
+        "citation_validity_rate": (
+            round(_mean([1.0 if item.get("citation_valid") else 0.0 for item in found_rag]), 6)
+            if found_rag
+            else 1.0
+        ),
         "security_detected_fabrication_rate": round(
             _mean([
-                1.0 if (item.get("found") and not item.get("citation_valid")) or bool(item.get("unsupported_prompt_literals")) else 0.0
+                1.0
+                if (item.get("found") and not item.get("citation_valid"))
+                or bool(item.get("unsupported_prompt_literals"))
+                else 0.0
                 for item in security_rag
             ]),
             6,
@@ -455,9 +564,13 @@ async def run_golden_evaluation(
     vectors = await embedder.embed(queries, model_name=model_name, normalize=normalize)
     embedding_elapsed_ms = (time.perf_counter() - embed_started) * 1000
     if len(vectors) != len(golden.cases):
-        raise RuntimeError(f"Embedding provider returned {len(vectors)} vectors for {len(golden.cases)} cases.")
+        raise RuntimeError(
+            f"Embedding provider returned {len(vectors)} vectors for {len(golden.cases)} cases."
+        )
     if any(len(vector) != dimensions for vector in vectors):
-        raise RuntimeError(f"Active embedding model must return {dimensions} dimensions for every query.")
+        raise RuntimeError(
+            f"Active embedding model must return {dimensions} dimensions for every query."
+        )
     embedding_latency_ms_per_query = embedding_elapsed_ms / len(golden.cases)
 
     active_generator = rag_generator
@@ -479,14 +592,16 @@ async def run_golden_evaluation(
         "case_count": len(golden.cases),
     }
     if persist:
-        await repo.create_retrieval_evaluation_run({
-            "id": str(run_id),
-            "set_version": set_version,
-            "status": "running",
-            "embedding_model_key": model_key,
-            "rag_model": rag_model,
-            "config": run_config,
-        })
+        await repo.create_retrieval_evaluation_run(
+            {
+                "id": str(run_id),
+                "set_version": set_version,
+                "status": "running",
+                "embedding_model_key": model_key,
+                "rag_model": rag_model,
+                "config": run_config,
+            }
+        )
 
     case_results: list[EvaluationCaseResult] = []
     try:
@@ -516,6 +631,7 @@ async def run_golden_evaluation(
             rag_payload: dict[str, Any] = {"evaluated": False}
             rag_ms = 0.0
             if include_rag and case.case_type in {"semantic", "negative", "security"}:
+
                 async def preembedded_retriever(**kwargs: Any) -> dict[str, object]:
                     normalized_entities = normalize_entity_filters(kwargs.get("entity_filters"))
                     normalized_commercial = normalize_commercial_filters(
@@ -536,7 +652,11 @@ async def run_golden_evaluation(
                     )
                     return {
                         "query": str(kwargs["query"]),
-                        "model": {"model_key": model_key, "model_name": model_name, "dimensions": dimensions},
+                        "model": {
+                            "model_key": model_key,
+                            "model_name": model_name,
+                            "dimensions": dimensions,
+                        },
                         "retrieval": {
                             "strategy": "hybrid_rrf",
                             "match_count": int(kwargs.get("match_count", 8)),
@@ -562,17 +682,19 @@ async def run_golden_evaluation(
                 if not rag_passed:
                     failures.extend(rag_failures)
 
-            case_results.append(EvaluationCaseResult(
-                case_id=case.case_id,
-                case_key=case.case_key,
-                case_type=case.case_type,
-                language_code=case.language_code,
-                retrieval=retrieval_payload,
-                rag=rag_payload,
-                latency={"retrieval_ms": retrieval_ms, "rag_ms": rag_ms},
-                passed=not failures,
-                failure_reasons=tuple(failures),
-            ))
+            case_results.append(
+                EvaluationCaseResult(
+                    case_id=case.case_id,
+                    case_key=case.case_key,
+                    case_type=case.case_type,
+                    language_code=case.language_code,
+                    retrieval=retrieval_payload,
+                    rag=rag_payload,
+                    latency={"retrieval_ms": retrieval_ms, "rag_ms": rag_ms},
+                    passed=not failures,
+                    failure_reasons=tuple(failures),
+                )
+            )
 
         metrics = aggregate_metrics(
             golden=golden,
@@ -591,21 +713,23 @@ async def run_golden_evaluation(
             cases=tuple(case_results),
         )
         if persist:
-            await repo.insert_retrieval_evaluation_case_results([
-                {
-                    "run_id": str(run_id),
-                    "case_id": str(case.case_id),
-                    "case_key": case.case_key,
-                    "case_type": case.case_type,
-                    "language_code": case.language_code,
-                    "retrieval": case.retrieval,
-                    "rag": case.rag,
-                    "latency": case.latency,
-                    "passed": case.passed,
-                    "failure_reasons": list(case.failure_reasons),
-                }
-                for case in case_results
-            ])
+            await repo.insert_retrieval_evaluation_case_results(
+                [
+                    {
+                        "run_id": str(run_id),
+                        "case_id": str(case.case_id),
+                        "case_key": case.case_key,
+                        "case_type": case.case_type,
+                        "language_code": case.language_code,
+                        "retrieval": case.retrieval,
+                        "rag": case.rag,
+                        "latency": case.latency,
+                        "passed": case.passed,
+                        "failure_reasons": list(case.failure_reasons),
+                    }
+                    for case in case_results
+                ]
+            )
             await repo.complete_retrieval_evaluation_run(
                 run_id=run_id,
                 values={
