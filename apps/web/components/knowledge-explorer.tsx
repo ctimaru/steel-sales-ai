@@ -126,38 +126,73 @@ export function KnowledgeExplorer() {
             <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-slate-800">
               Filtri strutturati
             </summary>
-            <div className="grid gap-3 border-t border-slate-200 p-4 sm:grid-cols-2 lg:grid-cols-4">
-              <Input name="company" placeholder="Azienda" />
-              <Input name="grade" placeholder="Qualità / materiale" />
-              <Input name="standard" placeholder="Norma, es. EN 10219" />
-              <Input name="product_family" placeholder="Famiglia prodotto" />
-              <Input name="country" placeholder="Paese" />
-              <select
-                name="item_role"
-                defaultValue=""
-                className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700"
-              >
-                <option value="">Ruolo automatico</option>
-                <option value="requested">Requested</option>
-                <option value="offered">Offered</option>
-                <option value="ordered">Ordered</option>
-                <option value="delivered">Delivered</option>
-              </select>
-              <Input name="outer_diameter_mm" inputMode="decimal" placeholder="Diametro mm" />
-              <Input name="thickness_mm" inputMode="decimal" placeholder="Spessore mm" />
-              <Input name="width_mm" inputMode="decimal" placeholder="Larghezza mm" />
-              <Input name="height_mm" inputMode="decimal" placeholder="Altezza mm" />
-              <Input name="length_mm" inputMode="decimal" placeholder="Lunghezza mm" />
-              <select
-                name="limit"
-                defaultValue="12"
-                className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700"
-              >
-                <option value="10">10 risultati</option>
-                <option value="12">12 risultati</option>
-                <option value="20">20 risultati</option>
-                <option value="30">30 risultati</option>
-              </select>
+            <div className="space-y-4 border-t border-slate-200 p-4">
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Entità e dati commerciali
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <Input name="company" placeholder="Azienda" />
+                  <Input name="grade" placeholder="Qualità / materiale" />
+                  <Input name="standard" placeholder="Norma, es. EN 10219" />
+                  <Input name="product_family" placeholder="Famiglia prodotto" />
+                  <Input name="country" placeholder="Paese" />
+                  <select
+                    name="item_role"
+                    defaultValue=""
+                    className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700"
+                  >
+                    <option value="">Ruolo automatico</option>
+                    <option value="requested">Requested</option>
+                    <option value="offered">Offered</option>
+                    <option value="ordered">Ordered</option>
+                    <option value="delivered">Delivered</option>
+                  </select>
+                  <Input name="outer_diameter_mm" inputMode="decimal" placeholder="Diametro mm" />
+                  <Input name="thickness_mm" inputMode="decimal" placeholder="Spessore mm" />
+                  <Input name="width_mm" inputMode="decimal" placeholder="Larghezza mm" />
+                  <Input name="height_mm" inputMode="decimal" placeholder="Altezza mm" />
+                  <Input name="length_mm" inputMode="decimal" placeholder="Lunghezza mm" />
+                </div>
+              </div>
+
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Fonte e documento
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <Input name="source_class" placeholder="Classe fonte, es. internal" />
+                  <Input name="source_type" placeholder="Tipo fonte" />
+                  <Input name="document_type" placeholder="Tipo documento" />
+                  <Input name="document_query" placeholder="Titolo / filename" />
+                  <label className="text-xs font-medium text-slate-500">
+                    Da data
+                    <input
+                      name="date_from"
+                      type="date"
+                      className="mt-1 block h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700"
+                    />
+                  </label>
+                  <label className="text-xs font-medium text-slate-500">
+                    A data
+                    <input
+                      name="date_to"
+                      type="date"
+                      className="mt-1 block h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700"
+                    />
+                  </label>
+                  <select
+                    name="limit"
+                    defaultValue="12"
+                    className="h-10 self-end rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700"
+                  >
+                    <option value="10">10 risultati</option>
+                    <option value="12">12 risultati</option>
+                    <option value="20">20 risultati</option>
+                    <option value="30">30 risultati</option>
+                  </select>
+                </div>
+              </div>
             </div>
           </details>
         </form>
@@ -180,7 +215,7 @@ export function KnowledgeExplorer() {
                 {groups.length.toLocaleString("it-IT")} documenti · modello {state.model?.model_name ?? "active"}
               </p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex max-w-3xl flex-wrap justify-end gap-2">
               {Object.entries(state.retrieval?.entity_filters ?? {}).flatMap(([key, values]) =>
                 values.map((value) => (
                   <Badge key={`${key}-${value}`} tone="blue">
@@ -189,7 +224,12 @@ export function KnowledgeExplorer() {
                 )),
               )}
               {Object.entries(state.retrieval?.commercial_filters ?? {}).map(([key, value]) => (
-                <Badge key={key} tone="violet">
+                <Badge key={`commercial-${key}`} tone="violet">
+                  {key}: {String(value)}
+                </Badge>
+              ))}
+              {Object.entries(state.retrieval?.document_filters ?? {}).map(([key, value]) => (
+                <Badge key={`document-${key}`} tone="amber">
                   {key}: {String(value)}
                 </Badge>
               ))}
@@ -200,7 +240,7 @@ export function KnowledgeExplorer() {
             const lead = results[0];
             const target = sourceTarget(lead);
             return (
-              <Card key={lead.document_id} className="overflow-hidden">
+              <Card key={lead.document_id || lead.chunk_id} className="overflow-hidden">
                 <div className="flex flex-col gap-3 border-b border-slate-100 bg-slate-50/70 p-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
@@ -314,9 +354,9 @@ export function KnowledgeExplorer() {
             </p>
           </Card>
           <Card className="p-5">
-            <p className="text-sm font-semibold text-slate-900">Filtri tecnici</p>
+            <p className="text-sm font-semibold text-slate-900">Filtri tecnici e documentali</p>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Combina grade, norme, aziende, ruoli commerciali e dimensioni del tubo.
+              Combina grade, norme, aziende, ruoli, dimensioni, fonte, documento e intervallo date.
             </p>
           </Card>
           <Card className="p-5">
