@@ -1,0 +1,60 @@
+name: Supabase P0 Tenant Isolation CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "supabase/**"
+      - ".github/workflows/supabase-p0-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tenant-isolation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start local Supabase
+        run: supabase start
+
+      - name: Rebuild database from migrations
+        run: supabase db reset --local
+
+      - name: Run P0 tenant isolation acceptance test
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql \
+            --host 127.0.0.1 \
+            --port 54322 \
+            --username postgres \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            --file supabase/tests/p0_tenant_isolation.sql
+
+      - name: Verify organization columns populated for private tenant tables
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql \
+            --host 127.0.0.1 \
+            --port 54322 \
+            --username postgres \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            --command "select public.organization_for_user(auth.uid());"
+
+      - name: Stop local Supabase
+        if: always()
+        run: supabase stop --no-backup
