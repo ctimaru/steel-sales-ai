@@ -96,6 +96,18 @@ jobs:
             --set ON_ERROR_STOP=1 \
             --file supabase/tests/p0_observability.sql
 
+      - name: Run P0 data lifecycle acceptance test
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql \
+            --host 127.0.0.1 \
+            --port 54322 \
+            --username postgres \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            --file supabase/tests/p0_data_lifecycle.sql
+
       - name: Verify tenant helper exists
         env:
           PGPASSWORD: postgres
