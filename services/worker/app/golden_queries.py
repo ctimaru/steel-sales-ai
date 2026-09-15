@@ -55,6 +55,8 @@ class GoldenQueryCase:
     expected_entities: dict[str, Any]
     expected_filters: dict[str, Any]
     expected_grounding_status: str | None
+    relevance_mode: str
+    relevance_criteria: dict[str, Any]
     target_chunk_ids: tuple[UUID, ...]
     target_document_ids: tuple[UUID, ...]
     notes: str | None
@@ -76,7 +78,11 @@ class GoldenQueryCase:
                 if row.get("expected_grounding_status") is not None
                 else None
             ),
-            target_chunk_ids=tuple(UUID(str(value)) for value in (row.get("target_chunk_ids") or [])),
+            relevance_mode=str(row.get("relevance_mode") or "targets"),
+            relevance_criteria=dict(row.get("relevance_criteria") or {}),
+            target_chunk_ids=tuple(
+                UUID(str(value)) for value in (row.get("target_chunk_ids") or [])
+            ),
             target_document_ids=tuple(
                 UUID(str(value)) for value in (row.get("target_document_ids") or [])
             ),
@@ -101,6 +107,7 @@ class GoldenQuerySet:
             "english_case_count": sum(case.language_code == "en" for case in self.cases),
             "structured_case_count": sum(case.case_type == "structured" for case in self.cases),
             "semantic_case_count": sum(case.case_type == "semantic" for case in self.cases),
+            "criteria_case_count": sum(case.relevance_mode == "criteria" for case in self.cases),
             "target_link_count": sum(len(case.target_chunk_ids) for case in self.cases),
         }
 
@@ -121,10 +128,14 @@ def validate_golden_query_set(golden: GoldenQuerySet) -> None:
             raise ValueError(f"Unsupported golden case type: {case.case_type}.")
         if case.language_code not in {"it", "en"}:
             raise ValueError(f"Unsupported golden case language: {case.language_code}.")
+        if case.relevance_mode not in {"targets", "criteria"}:
+            raise ValueError(f"Unsupported relevance mode for {case.case_key}: {case.relevance_mode}.")
+        if case.relevance_mode == "criteria" and not case.relevance_criteria:
+            raise ValueError(f"Criteria-based golden case {case.case_key} has no relevance criteria.")
         if not case.query_text.strip():
             raise ValueError(f"Golden case {case.case_key} has an empty query.")
 
-        if case.expected_match is True and not case.target_chunk_ids:
+        if case.expected_match is True and not case.target_chunk_ids and case.relevance_mode != "criteria":
             raise ValueError(f"Positive golden case {case.case_key} has no target chunks.")
         if case.expected_match is False and case.target_chunk_ids:
             raise ValueError(f"Negative golden case {case.case_key} unexpectedly has target chunks.")
