@@ -11,9 +11,10 @@ export default function AssistantPage() {
           AI Assistant
         </h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-          Interroga lo storico commerciale in linguaggio naturale e continua con domande di follow-up.
-          L&apos;assistente mantiene il contesto del prodotto, interpreta filtri su richieste, offerte,
-          ordini e consegne e usa esclusivamente query owner-scoped con fonti verificabili.
+          Interroga dati commerciali e knowledge layer in linguaggio naturale. Prezzi e metriche restano
+          deterministici e owner-scoped; le domande su email e documenti usano retrieval semantico con
+          evidence, citazioni e collegamenti alla fonte. Se le fonti non bastano, l&apos;assistente lo dichiara
+          invece di completare la risposta con informazioni non verificate.
         </p>
       </div>
 

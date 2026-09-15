@@ -13,6 +13,7 @@ from .assistant import (
     parse_assistant_query,
 )
 from .market_overlay import get_price_market_overlay
+from .rag import answer_knowledge_rag, is_knowledge_request
 
 MARKET_INTENT = "market_comparison"
 _MARKET_TERMS = (
@@ -213,14 +214,40 @@ def _market_answer(filters: dict[str, Any], result: dict[str, Any]) -> str:
     return " ".join(lines)
 
 
+def _structured_grounding(result: dict[str, Any], *, mode: str) -> dict[str, Any]:
+    observations = list(result.get("observations") or [])
+    return {
+        **result,
+        "evidence": [],
+        "grounding": {
+            "mode": mode,
+            "status": "grounded" if result.get("found") else "no_data",
+            "generator": "deterministic",
+            "model": None,
+            "evidence_count": len(observations),
+            "citations": [],
+        },
+    }
+
+
 async def answer_assistant(
     *,
     owner_id: UUID,
     query: str,
     context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    # Document/source questions always use the M5 knowledge layer. RAG follow-ups stay on
+    # the same path instead of being misrouted to legacy commercial intent parsing.
+    if is_knowledge_request(query, context):
+        return await answer_knowledge_rag(owner_id=owner_id, query=query, context=context)
+
     if not _is_market_request(query, context):
-        return await answer_commercial_assistant(owner_id=owner_id, query=query, context=context)
+        structured = await answer_commercial_assistant(owner_id=owner_id, query=query, context=context)
+        if structured.get("intent") != "unsupported":
+            return _structured_grounding(structured, mode="structured_query")
+        # Unknown natural-language questions get one owner-scoped semantic retrieval attempt.
+        # The RAG layer fails closed when evidence is missing or cannot support the answer.
+        return await answer_knowledge_rag(owner_id=owner_id, query=query, context=context)
 
     parsed = parse_assistant_query(query, context=_commercial_context(context))
     filters = dict(parsed.get("filters") or {})
@@ -228,15 +255,18 @@ async def answer_assistant(
     resolved_context = {"intent": MARKET_INTENT, "filters": filters.copy()}
 
     if not product_filters:
-        return {
-            "intent": MARKET_INTENT,
-            "found": False,
-            "answer": "Indicami almeno qualità o dimensioni del prodotto per confrontare mercato e prezzi interni.",
-            "filters": filters,
-            "context": resolved_context,
-            "observations": [],
-            "market": None,
-        }
+        return _structured_grounding(
+            {
+                "intent": MARKET_INTENT,
+                "found": False,
+                "answer": "Indicami almeno qualità o dimensioni del prodotto per confrontare mercato e prezzi interni.",
+                "filters": filters,
+                "context": resolved_context,
+                "observations": [],
+                "market": None,
+            },
+            mode="structured_market",
+        )
 
     result = await get_price_market_overlay(
         owner_id=owner_id,
@@ -245,19 +275,22 @@ async def answer_assistant(
     )
     result = _filter_result_by_days(result, filters.get("days"))
     overlay = dict(result.get("overlay") or {})
-    return {
-        "intent": MARKET_INTENT,
-        "found": bool(result.get("found")),
-        "answer": _market_answer(filters, result),
-        "filters": filters,
-        "context": resolved_context,
-        "observations": list(result.get("observations") or []),
-        "market": {
-            "source": overlay.get("market_source"),
-            "summary": overlay.get("summary"),
-            "points": overlay.get("points") or [],
-            "reference_price_unit": overlay.get("reference_price_unit"),
-            "reference_currency": overlay.get("reference_currency"),
-            "comparable_price_count": overlay.get("comparable_price_count", 0),
+    return _structured_grounding(
+        {
+            "intent": MARKET_INTENT,
+            "found": bool(result.get("found")),
+            "answer": _market_answer(filters, result),
+            "filters": filters,
+            "context": resolved_context,
+            "observations": list(result.get("observations") or []),
+            "market": {
+                "source": overlay.get("market_source"),
+                "summary": overlay.get("summary"),
+                "points": overlay.get("points") or [],
+                "reference_price_unit": overlay.get("reference_price_unit"),
+                "reference_currency": overlay.get("reference_currency"),
+                "comparable_price_count": overlay.get("comparable_price_count", 0),
+            },
         },
-    }
+        mode="structured_market",
+    )
