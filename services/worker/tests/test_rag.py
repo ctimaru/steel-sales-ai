@@ -163,8 +163,45 @@ def test_rag_followup_expands_previous_knowledge_query() -> None:
         )
     )
 
-    assert captured["query"] == "Cosa dicono le email su S355J2H?. e per Bologna?"
+    assert captured["query"] == "Cosa dicono le email su S355J2H? e per Bologna?"
     assert result["context"]["knowledge_query"] == captured["query"]
+    assert generator.calls[0]["question"] == captured["query"]
+
+
+def test_structured_product_context_is_inherited_when_switching_to_documents() -> None:
+    captured: dict[str, Any] = {}
+
+    async def fake_retriever(**kwargs: Any) -> dict[str, object]:
+        captured.update(kwargs)
+        return retrieval_payload()
+
+    context = {
+        "intent": "latest_price",
+        "filters": {
+            "grade": "P265GH",
+            "outer_diameter_mm": 406.4,
+            "thickness_mm": 6.3,
+        },
+    }
+    generator = FakeGenerator("La fonte contiene la specifica richiesta. [S1]")
+    result = asyncio.run(
+        answer_knowledge_rag(
+            owner_id=OWNER_ID,
+            query="e cosa dicono le email?",
+            context=context,
+            retriever=fake_retriever,
+            generator=generator,
+        )
+    )
+
+    assert captured["entity_filters"] == {"grade": ["P265GH"]}
+    assert captured["commercial_filters"] == {
+        "outer_diameter_mm": 406.4,
+        "thickness_mm": 6.3,
+    }
+    assert result["filters"]["grade"] == "P265GH"
+    assert result["filters"]["outer_diameter_mm"] == 406.4
+    assert result["filters"]["thickness_mm"] == 6.3
 
 
 def test_weak_retrieval_fails_closed_without_calling_generator() -> None:
