@@ -20,7 +20,9 @@ set relevance_mode = 'criteria',
 where set_version = 'v1'
   and case_key in ('semantic:bologna-orders-it', 'semantic:bologna-orders-en');
 
-create or replace function public.get_retrieval_golden_queries(
+drop function public.get_retrieval_golden_queries(text, integer);
+
+create function public.get_retrieval_golden_queries(
   p_set_version text default 'v1',
   p_limit integer default 200
 )
