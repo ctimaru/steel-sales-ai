@@ -1,4 +1,4 @@
-name: Supabase P0 Tenant Isolation CI
+name: Supabase P0 Foundation CI
 
 on:
   pull_request:
@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 jobs:
-  tenant-isolation:
+  p0-foundation:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -47,6 +47,18 @@ jobs:
             --dbname postgres \
             --set ON_ERROR_STOP=1 \
             --file supabase/tests/p0_tenant_isolation.sql
+
+      - name: Run P0 steel ontology acceptance test
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql \
+            --host 127.0.0.1 \
+            --port 54322 \
+            --username postgres \
+            --dbname postgres \
+            --set ON_ERROR_STOP=1 \
+            --file supabase/tests/p0_steel_ontology.sql
 
       - name: Verify tenant helper exists
         env:
