@@ -384,4 +384,4 @@ def install_observability(app: FastAPI) -> None:
         finally:
             reset_trace(tokens)
 
-    app.add_event_handler("shutdown", flush_pending_events)
+    app.on_event("shutdown")(flush_pending_events)
