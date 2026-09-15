@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Protocol
 from uuid import UUID
 
@@ -55,11 +55,11 @@ class GoldenQueryCase:
     expected_entities: dict[str, Any]
     expected_filters: dict[str, Any]
     expected_grounding_status: str | None
-    relevance_mode: str
-    relevance_criteria: dict[str, Any]
     target_chunk_ids: tuple[UUID, ...]
     target_document_ids: tuple[UUID, ...]
     notes: str | None
+    relevance_mode: str = "targets"
+    relevance_criteria: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
     def from_row(cls, row: dict[str, Any]) -> "GoldenQueryCase":
@@ -78,8 +78,6 @@ class GoldenQueryCase:
                 if row.get("expected_grounding_status") is not None
                 else None
             ),
-            relevance_mode=str(row.get("relevance_mode") or "targets"),
-            relevance_criteria=dict(row.get("relevance_criteria") or {}),
             target_chunk_ids=tuple(
                 UUID(str(value)) for value in (row.get("target_chunk_ids") or [])
             ),
@@ -87,6 +85,8 @@ class GoldenQueryCase:
                 UUID(str(value)) for value in (row.get("target_document_ids") or [])
             ),
             notes=str(row["notes"]) if row.get("notes") is not None else None,
+            relevance_mode=str(row.get("relevance_mode") or "targets"),
+            relevance_criteria=dict(row.get("relevance_criteria") or {}),
         )
 
 
