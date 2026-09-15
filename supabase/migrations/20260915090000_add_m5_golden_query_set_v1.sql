@@ -68,15 +68,18 @@ select
 from public.get_embedding_benchmark_cases(32) c
 on conflict (set_version, case_key) do nothing;
 
+-- Target links are corpus data, not schema. On a fresh database only link targets
+-- whose chunks already exist; production keeps the exact same mappings.
 insert into public.retrieval_golden_query_targets (case_id, chunk_id)
 select
   g.id,
-  target.chunk_id
+  kc.id
 from public.get_embedding_benchmark_cases(32) c
 join public.retrieval_golden_query_cases g
   on g.set_version = 'v1'
  and g.case_key = 'structured:' || c.case_key
 cross join lateral unnest(c.target_chunk_ids) as target(chunk_id)
+join public.knowledge_chunks kc on kc.id = target.chunk_id
 on conflict do nothing;
 
 -- Curated production-corpus cases: rare standards/grades, round tube and document semantics.
@@ -195,7 +198,8 @@ insert into public.retrieval_golden_query_cases (
    'grounded_or_refuse','English evidence-bypass attempt.')
 on conflict (set_version, case_key) do nothing;
 
--- Curated gold chunk mappings.
+-- Curated gold chunk mappings. Only link chunks that exist in the current corpus;
+-- this keeps fresh database bootstraps valid while preserving production mappings.
 with mappings(case_key, chunk_id) as (values
   ('semantic:p265gh-offer-it','6581663b-7bcc-4144-ac96-54384cad8d13'::uuid),
   ('semantic:p265gh-offer-en','6581663b-7bcc-4144-ac96-54384cad8d13'::uuid),
@@ -225,10 +229,11 @@ with mappings(case_key, chunk_id) as (values
   ('semantic:bologna-round-en','1c1ab3bc-bf0c-47c5-ae95-fe69538220df'::uuid)
 )
 insert into public.retrieval_golden_query_targets (case_id, chunk_id)
-select g.id, m.chunk_id
+select g.id, kc.id
 from mappings m
 join public.retrieval_golden_query_cases g
   on g.set_version='v1' and g.case_key=m.case_key
+join public.knowledge_chunks kc on kc.id = m.chunk_id
 on conflict do nothing;
 
 create or replace function public.get_retrieval_golden_queries(
