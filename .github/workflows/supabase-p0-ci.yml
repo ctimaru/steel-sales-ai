@@ -25,7 +25,10 @@ jobs:
         with:
           version: latest
 
-      - name: Start local Supabase
+      - name: Inject CI-only pre-worker baseline
+        run: cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+
+      - name: Start local Supabase and apply migration chain
         run: supabase start
 
       - name: Rebuild database from migrations
@@ -43,7 +46,7 @@ jobs:
             --set ON_ERROR_STOP=1 \
             --file supabase/tests/p0_tenant_isolation.sql
 
-      - name: Verify organization columns populated for private tenant tables
+      - name: Verify tenant helper exists
         env:
           PGPASSWORD: postgres
         run: |
@@ -53,7 +56,7 @@ jobs:
             --username postgres \
             --dbname postgres \
             --set ON_ERROR_STOP=1 \
-            --command "select public.organization_for_user(auth.uid());"
+            --command "select public.default_organization_for_user(null::uuid);"
 
       - name: Stop local Supabase
         if: always()
