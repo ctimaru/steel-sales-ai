@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from datetime import date
 from typing import Annotated, Literal
 from uuid import UUID
 
@@ -32,6 +33,16 @@ class CommercialFilters(BaseModel):
     length_mm: float | None = Field(default=None, gt=0)
 
 
+class DocumentFilters(BaseModel):
+    source_class: str | None = Field(default=None, max_length=80)
+    source_type: str | None = Field(default=None, max_length=80)
+    document_type: str | None = Field(default=None, max_length=120)
+    document_id: UUID | None = None
+    document_query: str | None = Field(default=None, max_length=255)
+    date_from: date | None = None
+    date_to: date | None = None
+
+
 class HybridSearchRequest(BaseModel):
     owner_id: UUID
     query: str = Field(min_length=2, max_length=1000)
@@ -41,6 +52,7 @@ class HybridSearchRequest(BaseModel):
     infer_item_role: bool = True
     entity_filters: EntityFilters = Field(default_factory=EntityFilters)
     commercial_filters: CommercialFilters = Field(default_factory=CommercialFilters)
+    document_filters: DocumentFilters = Field(default_factory=DocumentFilters)
 
 
 router = APIRouter(prefix="/v1/knowledge", tags=["knowledge"])
@@ -65,6 +77,12 @@ async def hybrid_search_query(
             status_code=422,
             detail="candidate_count must be greater than or equal to limit.",
         )
+    if request.document_filters.date_from and request.document_filters.date_to:
+        if request.document_filters.date_from > request.document_filters.date_to:
+            raise HTTPException(
+                status_code=422,
+                detail="date_from must be before or equal to date_to.",
+            )
 
     try:
         return await search_knowledge(
@@ -74,6 +92,9 @@ async def hybrid_search_query(
             candidate_count=request.candidate_count,
             entity_filters=request.entity_filters.model_dump(exclude_defaults=True),
             commercial_filters=request.commercial_filters.model_dump(exclude_none=True),
+            document_filters=request.document_filters.model_dump(
+                mode="json", exclude_none=True
+            ),
             infer_role=request.infer_item_role,
             rrf_k=request.rrf_k,
         )
