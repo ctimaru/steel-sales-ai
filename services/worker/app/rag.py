@@ -63,13 +63,42 @@ def _resolved_query(query: str, context: dict[str, Any] | None) -> str:
         and str((context or {}).get("intent") or "") == RAG_INTENT
         and text.casefold().startswith(_FOLLOWUP_PREFIXES)
     ):
-        text = f"{previous}. {text}"
+        separator = " " if previous.endswith((".", "?", "!", ":", ";")) else ". "
+        text = f"{previous}{separator}{text}"
     return text[:1000]
 
 
-def _retrieval_filters(query: str) -> tuple[dict[str, list[str]], dict[str, object], dict[str, Any]]:
+def _merged_filters(query: str, context: dict[str, Any] | None) -> dict[str, Any]:
     parsed = parse_assistant_query(query)
-    filters = dict(parsed.get("filters") or {})
+    parsed_filters = dict(parsed.get("filters") or {})
+    context_filters = (context or {}).get("filters")
+    if not isinstance(context_filters, dict):
+        return parsed_filters
+
+    # A document follow-up can switch from a deterministic commercial answer to RAG.
+    # Reuse only technical/product filters that were already resolved from the authenticated
+    # conversation. Explicit values in the new question always win.
+    inherited_keys = {
+        "grade",
+        "outer_diameter_mm",
+        "width_mm",
+        "height_mm",
+        "thickness_mm",
+        "length_mm",
+        "role",
+        "days",
+    }
+    for key in inherited_keys:
+        if parsed_filters.get(key) is None and context_filters.get(key) is not None:
+            parsed_filters[key] = context_filters[key]
+    return parsed_filters
+
+
+def _retrieval_filters(
+    query: str,
+    context: dict[str, Any] | None,
+) -> tuple[dict[str, list[str]], dict[str, object], dict[str, Any]]:
+    filters = _merged_filters(query, context)
     entity_filters: dict[str, list[str]] = {}
     commercial_filters: dict[str, object] = {}
 
@@ -136,10 +165,17 @@ def _float(value: object) -> float | None:
         return None
 
 
+def _minimum_vector_similarity() -> float:
+    try:
+        return float(os.getenv("RAG_MIN_VECTOR_SIMILARITY", "0.55"))
+    except ValueError:
+        return 0.55
+
+
 def evidence_is_sufficient(rows: list[dict[str, Any]]) -> bool:
     if not rows:
         return False
-    threshold = float(os.getenv("RAG_MIN_VECTOR_SIMILARITY", "0.55"))
+    threshold = _minimum_vector_similarity()
     for row in rows[:3]:
         if int(row.get("entity_match_count") or 0) > 0:
             return True
@@ -231,22 +267,42 @@ def answer_is_grounded(answer: str, evidence: list[dict[str, Any]]) -> bool:
     citations = cited_ids(answer)
     if not citations or any(citation not in allowed for citation in citations):
         return False
-    segments = [segment.strip() for segment in re.split(r"(?<=[.!?])\s+|\n+", answer) if segment.strip()]
+
+    # Models often render `fact. [S1]` even when instructed to render `fact [S1].`.
+    # Normalize that equivalent layout before validating each substantive sentence.
+    normalized = re.sub(r"([.!?])\s+(\[S\d+\])", r" \2\1", answer)
+    segments = [
+        segment.strip()
+        for segment in re.split(r"(?<=[.!?])\s+|\n+", normalized)
+        if segment.strip()
+    ]
     for segment in segments:
         if len(segment) >= 12 and not _CITATION_RE.search(segment):
             return False
     return True
 
 
-def extractive_fallback(evidence: list[dict[str, Any]]) -> str:
+def _looks_english(text: str) -> bool:
+    lower = text.casefold()
+    english = sum(word in lower for word in ("what ", "which ", "does ", "documents", "emails", "about "))
+    italian = sum(word in lower for word in ("cosa ", "quali ", "dice ", "dicono", "documenti", "email", "su "))
+    return english > italian
+
+
+def extractive_fallback(evidence: list[dict[str, Any]], *, question: str = "") -> str:
     parts: list[str] = []
     for item in evidence[:3]:
         snippet = _compact(item.get("content"), 320)
         if snippet:
             parts.append(f"{snippet} [{item['citation_id']}]")
     if not parts:
-        return "Non ho evidence sufficiente nel knowledge layer per rispondere in modo verificabile."
-    return "Dalle evidence recuperate: " + " ".join(parts)
+        return (
+            "I do not have enough evidence in the knowledge layer to answer reliably."
+            if _looks_english(question)
+            else "Non ho evidence sufficiente nel knowledge layer per rispondere in modo verificabile."
+        )
+    prefix = "From the retrieved evidence: " if _looks_english(question) else "Dalle evidence recuperate: "
+    return prefix + " ".join(parts)
 
 
 async def answer_knowledge_rag(
@@ -258,7 +314,7 @@ async def answer_knowledge_rag(
     generator: RagGenerator | None = None,
 ) -> dict[str, Any]:
     retrieval_query = _resolved_query(query, context)
-    entity_filters, commercial_filters, parsed_filters = _retrieval_filters(retrieval_query)
+    entity_filters, commercial_filters, parsed_filters = _retrieval_filters(retrieval_query, context)
     search = retriever or search_knowledge
     result = await search(
         owner_id=owner_id,
@@ -282,7 +338,11 @@ async def answer_knowledge_rag(
         return {
             "intent": RAG_INTENT,
             "found": False,
-            "answer": "Non ho evidence sufficiente nel knowledge layer per rispondere in modo verificabile.",
+            "answer": (
+                "I do not have enough evidence in the knowledge layer to answer reliably."
+                if _looks_english(query)
+                else "Non ho evidence sufficiente nel knowledge layer per rispondere in modo verificabile."
+            ),
             "filters": parsed_filters,
             "context": resolved_context,
             "observations": [],
@@ -310,15 +370,19 @@ async def answer_knowledge_rag(
     answer: str
     generator_name: str | None = getattr(active_generator, "model_name", None) if active_generator else None
     if active_generator is None:
-        answer = extractive_fallback(evidence)
+        answer = extractive_fallback(evidence, question=query)
     else:
         try:
-            generated = await active_generator.generate(question=query, evidence=evidence)
+            generated = await active_generator.generate(question=retrieval_query, evidence=evidence)
             if generated.strip() == INSUFFICIENT_TOKEN:
                 return {
                     "intent": RAG_INTENT,
                     "found": False,
-                    "answer": "Le evidence recuperate sono pertinenti, ma non supportano una risposta affidabile alla domanda.",
+                    "answer": (
+                        "The retrieved evidence is relevant, but it does not support a reliable answer."
+                        if _looks_english(query)
+                        else "Le evidence recuperate sono pertinenti, ma non supportano una risposta affidabile alla domanda."
+                    ),
                     "filters": parsed_filters,
                     "context": resolved_context,
                     "observations": [],
@@ -336,12 +400,12 @@ async def answer_knowledge_rag(
                 }
             if not answer_is_grounded(generated, evidence):
                 fallback_reason = "citation_validation_failed"
-                answer = extractive_fallback(evidence)
+                answer = extractive_fallback(evidence, question=query)
             else:
                 answer = generated
         except RagGenerationError:
             fallback_reason = "generation_unavailable"
-            answer = extractive_fallback(evidence)
+            answer = extractive_fallback(evidence, question=query)
 
     citations = cited_ids(answer)
     return {
