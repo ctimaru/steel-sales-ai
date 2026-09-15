@@ -4,10 +4,12 @@ import asyncio
 import math
 import os
 from dataclasses import dataclass
+from time import perf_counter
 from typing import Any, Protocol
 
 from huggingface_hub import InferenceClient
 
+from .observability import estimate_hf_embedding_cost, record_provider_event
 from .repository import WorkerRepository
 
 
@@ -75,6 +77,7 @@ class HuggingFaceEmbeddingProvider:
         if not token:
             raise EmbeddingConfigurationError("HF_TOKEN is required for embedding inference.")
         provider = os.getenv("HF_INFERENCE_PROVIDER", "auto").strip() or "auto"
+        self.provider_name = provider
         self.client = InferenceClient(api_key=token, provider=provider)
 
     async def embed(
@@ -86,30 +89,70 @@ class HuggingFaceEmbeddingProvider:
     ) -> list[list[float]]:
         if not texts:
             return []
+
+        input_chars = sum(len(text) for text in texts)
+        backend = str(getattr(self, "provider_name", os.getenv("HF_INFERENCE_PROVIDER", "auto") or "auto"))
+        started = perf_counter()
         try:
-            output = await asyncio.to_thread(
-                self.client.feature_extraction,
-                texts,
+            try:
+                output = await asyncio.to_thread(
+                    self.client.feature_extraction,
+                    texts,
+                    model=model_name,
+                )
+            except Exception as exc:  # provider SDK exposes several transport-specific errors
+                raise EmbeddingProviderError(f"Embedding inference failed: {exc}") from exc
+
+            converted = output.tolist() if hasattr(output, "tolist") else output
+            if not isinstance(converted, list):
+                raise EmbeddingProviderError("Embedding provider returned an invalid payload.")
+            if converted and isinstance(converted[0], (int, float)):
+                converted = [converted]
+            if converted and converted[0] and isinstance(converted[0][0], list):
+                raise EmbeddingProviderError(
+                    "Embedding provider returned token-level vectors instead of sentence vectors."
+                )
+            try:
+                vectors = [[float(value) for value in vector] for vector in converted]
+            except (TypeError, ValueError) as exc:
+                raise EmbeddingProviderError("Embedding vectors contain invalid values.") from exc
+
+            result = [_normalize_vector(vector) for vector in vectors] if normalize else vectors
+        except EmbeddingProviderError as exc:
+            record_provider_event(
+                operation="embedding.feature_extraction",
+                provider="huggingface",
                 model=model_name,
+                status="error",
+                duration_ms=(perf_counter() - started) * 1000,
+                usage_quantity=input_chars,
+                usage_unit="input_chars",
+                estimated_cost_usd=estimate_hf_embedding_cost(input_chars),
+                error=exc,
+                metadata={
+                    "inference_provider": backend,
+                    "text_count": len(texts),
+                    "normalize": normalize,
+                },
             )
-        except Exception as exc:  # provider SDK exposes several transport-specific errors
-            raise EmbeddingProviderError(f"Embedding inference failed: {exc}") from exc
+            raise
 
-        converted = output.tolist() if hasattr(output, "tolist") else output
-        if not isinstance(converted, list):
-            raise EmbeddingProviderError("Embedding provider returned an invalid payload.")
-        if converted and isinstance(converted[0], (int, float)):
-            converted = [converted]
-        if converted and converted[0] and isinstance(converted[0][0], list):
-            raise EmbeddingProviderError(
-                "Embedding provider returned token-level vectors instead of sentence vectors."
-            )
-        try:
-            vectors = [[float(value) for value in vector] for vector in converted]
-        except (TypeError, ValueError) as exc:
-            raise EmbeddingProviderError("Embedding vectors contain invalid values.") from exc
-
-        return [_normalize_vector(vector) for vector in vectors] if normalize else vectors
+        record_provider_event(
+            operation="embedding.feature_extraction",
+            provider="huggingface",
+            model=model_name,
+            status="ok",
+            duration_ms=(perf_counter() - started) * 1000,
+            usage_quantity=input_chars,
+            usage_unit="input_chars",
+            estimated_cost_usd=estimate_hf_embedding_cost(input_chars),
+            metadata={
+                "inference_provider": backend,
+                "text_count": len(texts),
+                "normalize": normalize,
+            },
+        )
+        return result
 
 
 def _prepare_text(content: str, config: dict[str, Any]) -> str:
