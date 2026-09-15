@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 os.environ["WORKER_STORAGE_MODE"] = "memory"
 
 import app.main as main_module  # noqa: E402
-from app.extractor_v31 import extract_observations  # noqa: E402
+from app.extractor_v4 import extract_observations  # noqa: E402
 from app.main import MAX_UPLOAD_BYTES, app, jobs  # noqa: E402
 from app.repository import normalize_observation  # noqa: E402
 
@@ -76,7 +76,7 @@ def test_job_status_can_be_read() -> None:
     assert response.status_code == 200
     assert response.json()["status"] == "completed"
     assert response.json()["storage_path"].startswith("memory://")
-    assert response.json()["result"]["parser_version"] == "v3.1"
+    assert response.json()["result"]["parser_version"] == "v4"
     assert response.json()["result"]["extraction_count"] == 1
 
 
