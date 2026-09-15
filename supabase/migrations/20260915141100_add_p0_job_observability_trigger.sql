@@ -40,9 +40,14 @@ begin
     when new.error is null then null
     else left(
       regexp_replace(
-        regexp_replace(new.error, '(?i)(bearer\\s+)[A-Za-z0-9._~+/=-]+', '\\1[REDACTED]', 'g'),
-        '(?i)((?:api[_-]?key|token|secret|password)\\s*[=:]\\s*)[^\\s,;]+',
-        '\\1[REDACTED]',
+        regexp_replace(
+          new.error,
+          '(?i)bearer[[:space:]]+[A-Za-z0-9._~+/=-]+',
+          '[REDACTED]',
+          'g'
+        ),
+        '(?i)(api[_-]?key|token|secret|password)[[:space:]]*[=:][[:space:]]*[^[:space:],;]+',
+        '[REDACTED]',
         'g'
       ),
       500
