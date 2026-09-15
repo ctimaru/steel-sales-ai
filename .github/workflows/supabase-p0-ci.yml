@@ -25,8 +25,10 @@ jobs:
         with:
           version: latest
 
-      - name: Inject CI-only pre-worker baseline
-        run: cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+      - name: Inject CI-only historical baselines
+        run: |
+          cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          cp supabase/ci/p0_staging_baseline.sql supabase/migrations/20260908000001_ci_staging_baseline.sql
 
       - name: Start local Supabase and apply migration chain
         run: supabase start
