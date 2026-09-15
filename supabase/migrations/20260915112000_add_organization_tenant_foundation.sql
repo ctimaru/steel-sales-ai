@@ -503,7 +503,7 @@ as $$
   left join public.commercial_observations o
     on o.dataset_id = d.id
    and o.organization_id = d.organization_id
-  group by d.id,d.email_count,d.thread_count,d.message_count,d.extraction_count;
+  group by d.id,d.email_count,d.thread_count,d.message_count,d.extraction_count,d.organization_id;
 $$;
 
 -- Compatibility RPCs: signatures remain owner-based for the current worker, but
