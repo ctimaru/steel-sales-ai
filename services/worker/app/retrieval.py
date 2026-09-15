@@ -32,6 +32,16 @@ COMMERCIAL_FILTER_KEYS = {
     "length_mm",
 }
 
+DOCUMENT_FILTER_KEYS = {
+    "source_class",
+    "source_type",
+    "document_type",
+    "document_id",
+    "document_query",
+    "date_from",
+    "date_to",
+}
+
 _ROLE_PATTERNS: dict[str, tuple[re.Pattern[str], ...]] = {
     "offered": (
         re.compile(r"\boffert(?:a|e|o|i)?\b", re.IGNORECASE),
@@ -68,6 +78,7 @@ class HybridRetrievalRepository(Protocol):
         candidate_count: int,
         entity_filters: dict[str, list[str]],
         commercial_filters: dict[str, object],
+        document_filters: dict[str, object],
         rrf_k: int = 60,
     ) -> list[dict[str, Any]]: ...
 
@@ -125,6 +136,32 @@ def normalize_commercial_filters(
     return output
 
 
+def normalize_document_filters(
+    filters: dict[str, object] | None,
+) -> dict[str, object]:
+    unsupported = set(filters or {}) - DOCUMENT_FILTER_KEYS
+    if unsupported:
+        raise ValueError(
+            f"Unsupported document filter(s): {', '.join(sorted(unsupported))}."
+        )
+
+    output: dict[str, object] = {}
+    for key, value in (filters or {}).items():
+        if value is None:
+            continue
+        if isinstance(value, str):
+            value = value.strip()
+            if not value:
+                continue
+        output[key] = value
+
+    date_from = output.get("date_from")
+    date_to = output.get("date_to")
+    if date_from and date_to and str(date_from) > str(date_to):
+        raise ValueError("date_from must be before or equal to date_to.")
+    return output
+
+
 async def search_knowledge(
     *,
     owner_id: UUID,
@@ -133,6 +170,7 @@ async def search_knowledge(
     candidate_count: int = 60,
     entity_filters: dict[str, list[str]] | None = None,
     commercial_filters: dict[str, object] | None = None,
+    document_filters: dict[str, object] | None = None,
     infer_role: bool = True,
     rrf_k: int = 60,
     repository: HybridRetrievalRepository | None = None,
@@ -158,6 +196,7 @@ async def search_knowledge(
         commercial_filters,
         infer_role=infer_role,
     )
+    normalized_documents = normalize_document_filters(document_filters)
 
     repo = repository or WorkerRepository()
     model = await repo.get_active_embedding_model()
@@ -196,6 +235,7 @@ async def search_knowledge(
         candidate_count=candidate_count,
         entity_filters=normalized_entities,
         commercial_filters=normalized_commercial,
+        document_filters=normalized_documents,
         rrf_k=rrf_k,
     )
 
@@ -213,6 +253,7 @@ async def search_knowledge(
             "rrf_k": rrf_k,
             "entity_filters": normalized_entities,
             "commercial_filters": normalized_commercial,
+            "document_filters": normalized_documents,
         },
         "count": len(rows),
         "results": rows,
