@@ -211,11 +211,12 @@ class WorkerRepository:
         candidate_count: int,
         entity_filters: dict[str, list[str]],
         commercial_filters: dict[str, object],
+        document_filters: dict[str, object],
         rrf_k: int = 60,
     ) -> list[dict[str, Any]]:
         result = await self._request(
             "POST",
-            "/rest/v1/rpc/hybrid_search_knowledge",
+            "/rest/v1/rpc/hybrid_search_knowledge_filtered",
             json={
                 "p_owner_id": str(owner_id),
                 "p_query_text": query_text,
@@ -224,6 +225,7 @@ class WorkerRepository:
                 "p_candidate_count": candidate_count,
                 "p_entity_filters": entity_filters,
                 "p_commercial_filters": commercial_filters,
+                "p_document_filters": document_filters,
                 "p_rrf_k": rrf_k,
             },
         )

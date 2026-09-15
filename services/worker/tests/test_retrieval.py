@@ -91,6 +91,7 @@ def test_search_knowledge_uses_active_model_prefix_and_inferred_role() -> None:
     assert repo.search_args["owner_id"] == OWNER_ID
     assert repo.search_args["query_embedding"] == [0.1, 0.2, 0.3]
     assert repo.search_args["commercial_filters"] == {"item_role": "offered"}
+    assert repo.search_args["document_filters"] == {}
     assert repo.search_args["entity_filters"] == {
         "grade": ["S355J2H"],
         "standard": ["EN 10219"],
@@ -98,6 +99,7 @@ def test_search_knowledge_uses_active_model_prefix_and_inferred_role() -> None:
     assert result["count"] == 1
     assert result["model"]["model_key"] == "test-e5"
     assert result["retrieval"]["strategy"] == "hybrid_rrf"
+    assert result["retrieval"]["document_filters"] == {}
 
 
 def test_explicit_commercial_role_overrides_inference() -> None:
@@ -118,6 +120,55 @@ def test_explicit_commercial_role_overrides_inference() -> None:
         "item_role": "ordered",
         "thickness_mm": 8.0,
     }
+
+
+def test_document_filters_are_normalized_and_forwarded() -> None:
+    repo = FakeRepository()
+    provider = FakeProvider()
+
+    result = asyncio.run(
+        search_knowledge(
+            owner_id=OWNER_ID,
+            query="S355J2H Bologna",
+            document_filters={
+                "source_class": " internal ",
+                "document_query": " Bologna ",
+                "date_from": "2026-09-01",
+                "date_to": "2026-09-30",
+            },
+            repository=repo,
+            provider=provider,
+        )
+    )
+
+    expected = {
+        "source_class": "internal",
+        "document_query": "Bologna",
+        "date_from": "2026-09-01",
+        "date_to": "2026-09-30",
+    }
+    assert repo.search_args["document_filters"] == expected
+    assert result["retrieval"]["document_filters"] == expected
+
+
+def test_document_date_range_must_be_ordered() -> None:
+    try:
+        asyncio.run(
+            search_knowledge(
+                owner_id=OWNER_ID,
+                query="S355J2H",
+                document_filters={
+                    "date_from": "2026-09-30",
+                    "date_to": "2026-09-01",
+                },
+                repository=FakeRepository(),
+                provider=FakeProvider(),
+            )
+        )
+    except ValueError as exc:
+        assert "date_from" in str(exc)
+    else:
+        raise AssertionError("Expected document date validation to fail")
 
 
 def test_candidate_count_must_cover_result_limit() -> None:

@@ -41,6 +41,12 @@ def test_hybrid_search_endpoint_forwards_typed_filters(monkeypatch) -> None:
                 "standard": ["EN 10219"],
             },
             "commercial_filters": {"thickness_mm": 8},
+            "document_filters": {
+                "source_class": "internal",
+                "document_query": "Bologna",
+                "date_from": "2026-09-01",
+                "date_to": "2026-09-30",
+            },
         },
     )
 
@@ -53,6 +59,12 @@ def test_hybrid_search_endpoint_forwards_typed_filters(monkeypatch) -> None:
         "grade": ["S355J2H"],
     }
     assert captured["commercial_filters"] == {"thickness_mm": 8.0}
+    assert captured["document_filters"] == {
+        "source_class": "internal",
+        "document_query": "Bologna",
+        "date_from": "2026-09-01",
+        "date_to": "2026-09-30",
+    }
 
 
 def test_hybrid_search_endpoint_rejects_candidate_pool_smaller_than_limit(monkeypatch) -> None:
@@ -70,3 +82,23 @@ def test_hybrid_search_endpoint_rejects_candidate_pool_smaller_than_limit(monkey
     )
 
     assert response.status_code == 422
+
+
+def test_hybrid_search_endpoint_rejects_inverted_document_dates(monkeypatch) -> None:
+    monkeypatch.setenv("WORKER_STORAGE_MODE", "supabase")
+    monkeypatch.delenv("WORKER_INTERNAL_TOKEN", raising=False)
+
+    response = client.post(
+        "/v1/knowledge/search",
+        json={
+            "owner_id": "f45fab6e-3da8-41aa-8711-fc1b337a7dde",
+            "query": "S355J2H",
+            "document_filters": {
+                "date_from": "2026-09-30",
+                "date_to": "2026-09-01",
+            },
+        },
+    )
+
+    assert response.status_code == 422
+    assert "date_from" in response.json()["detail"]
