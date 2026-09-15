@@ -138,7 +138,7 @@ select pg_temp.assert_true(
   'retention dry-run must see terminal-job staging'
 );
 select pg_temp.assert_true(
-  exists (select 1 from public.companies where id='30000000-0000-0000-000000001001'),
+  exists (select 1 from public.companies where id='30000000-0000-0000-0000-000000001001'),
   'retention dry-run must preserve authoritative tenant data'
 );
 
@@ -158,7 +158,7 @@ select pg_temp.assert_true(
   'retention apply must purge old observability'
 );
 select pg_temp.assert_true(
-  exists (select 1 from public.companies where id='30000000-0000-0000-000000001001'),
+  exists (select 1 from public.companies where id='30000000-0000-0000-0000-000000001001'),
   'retention apply must preserve authoritative tenant data'
 );
 
