@@ -128,7 +128,15 @@ export type Product360Payload = {
   access?: { membership_verified?: boolean; role?: string | null } | null;
 };
 
+function supabaseConfigured(): boolean {
+  return Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+  );
+}
+
 async function actorUserId(): Promise<string | null> {
+  if (!supabaseConfigured()) return null;
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
   return !error && data.user?.id ? data.user.id : null;
@@ -157,6 +165,13 @@ export async function loadProductCatalog(query?: string): Promise<{
   results: ProductCatalogItem[];
   error?: string;
 }> {
+  if (!supabaseConfigured()) {
+    return {
+      total: 0,
+      results: [],
+      error: "Product 360 non è disponibile in modalità demo: collega Supabase per interrogare la Commercial Memory.",
+    };
+  }
   const actor = await actorUserId();
   if (!actor) return { total: 0, results: [], error: "Sessione non valida o scaduta." };
   try {
@@ -172,6 +187,12 @@ export async function loadProductCatalog(query?: string): Promise<{
 }
 
 export async function loadProduct360(productId: string): Promise<Product360Payload & { error?: string }> {
+  if (!supabaseConfigured()) {
+    return {
+      found: false,
+      error: "Product 360 non è disponibile in modalità demo: collega Supabase per interrogare la Commercial Memory.",
+    };
+  }
   const actor = await actorUserId();
   if (!actor) return { found: false, error: "Sessione non valida o scaduta." };
   try {

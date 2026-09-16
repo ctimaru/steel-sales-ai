@@ -15,6 +15,14 @@ test("Product 360 derives actor from verified server session and uses worker bou
   assert.doesNotMatch(actions, /SUPABASE_SERVICE_ROLE_KEY/);
 });
 
+test("Product 360 fails closed into a structured demo state before creating Supabase client", () => {
+  assert.match(actions, /function supabaseConfigured\(\)/);
+  assert.match(actions, /NEXT_PUBLIC_SUPABASE_URL/);
+  assert.match(actions, /NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY/);
+  assert.match(actions, /if \(!supabaseConfigured\(\)\) return null/);
+  assert.match(actions, /non è disponibile in modalità demo/);
+});
+
 test("Product catalog exposes canonical lifecycle counts and latest price", () => {
   assert.match(catalog, /Product 360/);
   for (const label of ["RFQ", "Offerte", "Ordini", "Consegne", "ultimo prezzo offerto"]) {
