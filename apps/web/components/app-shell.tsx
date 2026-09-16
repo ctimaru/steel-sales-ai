@@ -6,10 +6,11 @@ import { logout } from "@/app/(workspace)/actions";
 const nav = [
   { href: "/dashboard", label: "Dashboard", key: "D" },
   { href: "/search", label: "Global Search", key: "G" },
+  { href: "/products", label: "Product 360", key: "P" },
   { href: "/assistant", label: "AI Assistant", key: "A" },
   { href: "/knowledge-explorer", label: "Knowledge Explorer", key: "K" },
   { href: "/explorer", label: "Commercial Explorer", key: "C" },
-  { href: "/price-intelligence", label: "Price Intelligence", key: "P" },
+  { href: "/price-intelligence", label: "Price Intelligence", key: "€" },
   { href: "/market-intelligence", label: "Market Intelligence", key: "M" },
   { href: "/unconverted-offers", label: "Offerte senza ordine", key: "O" },
   { href: "/review", label: "Review Queue", key: "R" },
