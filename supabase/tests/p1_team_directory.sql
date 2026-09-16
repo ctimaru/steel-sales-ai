@@ -116,4 +116,51 @@ begin
   end if;
 end $$;
 
+-- Performance Advisor contract: a single permissive authenticated SELECT policy
+-- must serve both self-view and admin tenant-view, and every P1.1 auth-user FK
+-- must have a covering index.
+do $$
+declare
+  membership_select_policy_count integer;
+  membership_select_qual text;
+  missing_index_count integer;
+begin
+  select count(*), max(qual)
+  into membership_select_policy_count, membership_select_qual
+  from pg_policies
+  where schemaname = 'public'
+    and tablename = 'organization_memberships'
+    and cmd = 'SELECT'
+    and 'authenticated' = any(roles);
+
+  if membership_select_policy_count <> 1 then
+    raise exception 'P1.1 organization_memberships must have exactly one authenticated SELECT policy';
+  end if;
+  if position('auth.uid' in membership_select_qual) = 0
+     or position('private.is_organization_admin' in membership_select_qual) = 0 then
+    raise exception 'P1.1 consolidated membership policy must preserve self + admin access';
+  end if;
+
+  select count(*) into missing_index_count
+  from (values
+    ('public.organization_invitations'::regclass, 'auth_user_id'::name),
+    ('public.organization_invitations'::regclass, 'invited_by'::name),
+    ('public.organizations'::regclass, 'onboarding_updated_by'::name)
+  ) as expected(table_oid, column_name)
+  where not exists (
+    select 1
+    from pg_index i
+    join pg_attribute a
+      on a.attrelid = i.indrelid
+     and a.attnum = any(i.indkey)
+    where i.indrelid = expected.table_oid
+      and i.indisvalid
+      and a.attname = expected.column_name
+  );
+
+  if missing_index_count <> 0 then
+    raise exception 'P1.1 auth-user foreign keys must have covering indexes';
+  end if;
+end $$;
+
 rollback;
