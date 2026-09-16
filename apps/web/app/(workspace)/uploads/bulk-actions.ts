@@ -44,7 +44,7 @@ function workerConfig(): { url: string; headers: HeadersInit } | null {
   return { url, headers };
 }
 
-async function postWorker<T>(path: string, body: object): Promise<BulkActionResult<T>> {
+async function postWorker<T extends object>(path: string, body: object): Promise<BulkActionResult<T>> {
   const config = workerConfig();
   if (!config) return { ok: false, error: "Worker non configurato nell'ambiente web." };
 
