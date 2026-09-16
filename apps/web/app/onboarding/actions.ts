@@ -20,7 +20,7 @@ async function origin() {
   return `${proto}://${host}`;
 }
 
-function onboardingRedirect(message: string, kind: "message" | "error" = "message") {
+function onboardingRedirect(message: string, kind: "message" | "error" = "message"): never {
   redirect(`/onboarding?${kind}=${encodeURIComponent(message)}`);
 }
 
