@@ -153,7 +153,7 @@ jobs:
         run: |
           supabase start
           supabase db reset --local
-      - name: Run P0 acceptance suite
+      - name: Run Foundation + P1 acceptance suite
         env:
           PGPASSWORD: postgres
         run: |
@@ -164,7 +164,9 @@ jobs:
             p0_parser_contract_v4.sql \
             p0_entity_resolution.sql \
             p0_observability.sql \
-            p0_data_lifecycle.sql; do
+            p0_data_lifecycle.sql \
+            p1_tenant_onboarding.sql \
+            p1_team_directory.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done

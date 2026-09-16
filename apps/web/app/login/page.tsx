@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { Input } from "@/components/ui/input";
 
-import { login } from "./actions";
+import { login, signup } from "./actions";
 
 export const metadata: Metadata = {
   title: "Accedi",
@@ -11,9 +11,9 @@ export const metadata: Metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; message?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, message } = await searchParams;
 
   return (
     <main className="grid min-h-screen lg:grid-cols-[1.1fr_0.9fr]">
@@ -26,12 +26,11 @@ export default async function LoginPage({
             La memoria commerciale del tuo business siderurgico.
           </h1>
           <p className="mt-6 max-w-lg text-lg leading-8 text-slate-400">
-            Ricerca richieste, offerte, ordini e consegne con tracciabilità fino alla
-            mail sorgente.
+            Importa email e documenti, ritrova offerte e prezzi storici e interroga le fonti con evidenza verificabile.
           </p>
         </div>
         <p className="text-sm text-slate-500">
-          MVP · Database Supabase · Parser v3.1 · 504 email archiviate
+          P1 · Commercial Memory · Parser v4 · Knowledge Graph con provenance
         </p>
       </section>
 
@@ -42,12 +41,17 @@ export default async function LoginPage({
             Accedi al workspace
           </h2>
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            Usa l’utente Supabase Auth associato all’app.
+            Accedi oppure crea il primo account della tua azienda. Gli utenti invitati usano la stessa schermata dopo aver impostato la password.
           </p>
 
           {error ? (
             <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
+            </div>
+          ) : null}
+          {message ? (
+            <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+              {message}
             </div>
           ) : null}
 
@@ -63,6 +67,7 @@ export default async function LoginPage({
                 name="password"
                 type="password"
                 autoComplete="current-password"
+                minLength={8}
                 required
               />
             </label>
@@ -72,11 +77,17 @@ export default async function LoginPage({
             >
               Accedi
             </button>
+            <button
+              type="submit"
+              formAction={signup}
+              className="h-11 w-full rounded-lg border border-slate-200 bg-white text-sm font-semibold text-slate-800 transition hover:border-slate-400"
+            >
+              Crea un nuovo workspace
+            </button>
           </form>
 
           <p className="mt-6 text-xs leading-5 text-slate-400">
-            In ambiente locale senza chiavi Supabase puoi usare direttamente /dashboard
-            in modalità demo.
+            La creazione del workspace parte dopo la verifica email. I ruoli e i permessi sono applicati lato database tramite RLS.
           </p>
         </div>
       </section>
