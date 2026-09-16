@@ -132,7 +132,7 @@ export async function loadDataSourceCenter(
             : "Impossibile caricare il Data source center.",
       };
     }
-    return { ok: true, data: payload };
+    return { ok: true, data: payload as DataSourceCenterPayload };
   } catch {
     return { ok: false, error: "Worker Data source center non raggiungibile." };
   }
