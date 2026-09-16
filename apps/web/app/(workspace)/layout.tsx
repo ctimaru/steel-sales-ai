@@ -14,14 +14,28 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
 
   if (configured) {
     const supabase = await createClient();
-    const { data } = await supabase.auth.getClaims();
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) redirect("/login");
 
-    if (!data?.claims) {
-      redirect("/login");
+    viewerLabel = data.user.email ?? "Utente autenticato";
+    await supabase.rpc("claim_pending_organization_invitations");
+
+    const { data: memberships } = await supabase
+      .from("organization_memberships")
+      .select("organization_id,is_default,status")
+      .eq("user_id", data.user.id)
+      .eq("status", "active");
+    const membership = memberships?.find((row) => row.is_default) ?? memberships?.[0];
+    if (!membership) redirect("/onboarding");
+
+    const { data: organization } = await supabase
+      .from("organizations")
+      .select("onboarding_status")
+      .eq("id", membership.organization_id)
+      .maybeSingle();
+    if (!organization || organization.onboarding_status !== "completed") {
+      redirect("/onboarding");
     }
-
-    viewerLabel =
-      typeof data.claims.email === "string" ? data.claims.email : "Utente autenticato";
   }
 
   return (
