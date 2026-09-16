@@ -13,6 +13,7 @@ dependencies = [
   "uvicorn[standard]>=0.34,<1",
   "python-multipart>=0.0.20,<1",
   "pydantic-settings>=2.7,<3",
+  "supabase>=2.31,<3",
   "xlrd>=2.0,<3",
 ]
 
