@@ -30,6 +30,9 @@ COMMERCIAL_FILTER_KEYS = {
     "height_mm",
     "thickness_mm",
     "length_mm",
+    "price_min",
+    "price_max",
+    "currency",
 }
 
 DOCUMENT_FILTER_KEYS = {
@@ -38,6 +41,7 @@ DOCUMENT_FILTER_KEYS = {
     "document_type",
     "document_id",
     "document_query",
+    "source_query",
     "date_from",
     "date_to",
 }
@@ -133,6 +137,18 @@ def normalize_commercial_filters(
         inferred = infer_item_role(query)
         if inferred:
             output["item_role"] = inferred
+    price_min = output.get("price_min")
+    price_max = output.get("price_max")
+    if price_min is not None and price_max is not None:
+        if float(price_min) > float(price_max):
+            raise ValueError("price_min must be lower than or equal to price_max.")
+    currency = output.get("currency")
+    if currency is not None:
+        cleaned_currency = str(currency).strip().upper()
+        if cleaned_currency:
+            output["currency"] = cleaned_currency
+        else:
+            output.pop("currency", None)
     return output
 
 
