@@ -229,15 +229,31 @@ select public.set_organization_member_role(
   '00000000-0000-0000-0000-0000000011a1'::uuid,
   'member'
 );
+
+-- After the handoff the former admin intentionally loses the admin-only team
+-- view and can only see their own membership through the P0 self-select RLS
+-- policy. Validate their own demotion under authenticated RLS first.
+select pg_temp.assert_true(
+  exists (
+    select 1 from public.organization_memberships
+    where organization_id = current_setting('p1.test_org_id')::uuid
+      and user_id = '00000000-0000-0000-0000-0000000011a1'
+      and role = 'member' and status = 'active'
+  ),
+  'former admin must remain an active member after handoff'
+);
+
+-- Validate the surviving admin from the privileged CI fixture context, because
+-- the former admin is no longer authorized to inspect another user's row.
+reset role;
 select pg_temp.assert_true(
   exists (
     select 1 from public.organization_memberships
     where organization_id = current_setting('p1.test_org_id')::uuid
       and user_id = '00000000-0000-0000-0000-0000000011b1'
-      and role = 'admin'
+      and role = 'admin' and status = 'active'
   ),
   'admin handoff must preserve at least one active admin'
 );
 
-reset role;
 rollback;
