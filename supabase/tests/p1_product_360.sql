@@ -67,6 +67,14 @@ select pg_temp.p17_assert(
   ((public.p1_product_catalog('00000000-0000-0000-0000-0000000017f1', 'P265GH', 50)->'results'->0->>'event_count')::int) = 3,
   'catalog event count must exclude tenant B'
 );
+select pg_temp.p17_assert(
+  ((public.p1_product_catalog('00000000-0000-0000-0000-0000000017f1', '68.38', 50)->'results'->0->>'event_count')::int) = 3,
+  'narrow old-price query must aggregate the complete product history'
+);
+select pg_temp.p17_assert(
+  ((public.p1_product_catalog('00000000-0000-0000-0000-0000000017f1', '68.38', 50)->'results'->0->'latest_price'->>'value')::numeric) = 72.00,
+  'narrow old-price query must still report the true latest offered price'
+);
 
 select pg_temp.p17_assert(
   ((public.p1_product_360(
