@@ -12,7 +12,8 @@ const nav = [
   { href: "/market-intelligence", label: "Market Intelligence", key: "M" },
   { href: "/unconverted-offers", label: "Offerte senza ordine", key: "O" },
   { href: "/review", label: "Review Queue", key: "R" },
-  { href: "/uploads", label: "Upload documenti", key: "U" },
+  { href: "/data-sources", label: "Data sources", key: "S" },
+  { href: "/uploads", label: "Import documenti", key: "U" },
 ];
 
 export function AppShell({
