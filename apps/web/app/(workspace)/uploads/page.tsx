@@ -1,5 +1,7 @@
 import { BulkUploadForm } from "@/components/bulk-upload-form";
 
+export const dynamic = "force-dynamic";
+
 export default function UploadsPage() {
   return (
     <div className="space-y-8">
