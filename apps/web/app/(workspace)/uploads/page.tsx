@@ -1,4 +1,6 @@
-import { UploadForm } from "@/components/upload-form";
+import { BulkUploadForm } from "@/components/bulk-upload-form";
+
+export const dynamic = "force-dynamic";
 
 export default function UploadsPage() {
   return (
@@ -8,15 +10,15 @@ export default function UploadsPage() {
           Ingestion
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
-          Upload documenti
+          Import multiplo
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-          Invia un archivio o un documento commerciale al worker per l&apos;estrazione
-          strutturata e la successiva revisione.
+          Carica insieme email, PDF ed Excel. Ogni file viene tracciato singolarmente,
+          con progresso persistente, deduplicazione e retry selettivo in caso di errore.
         </p>
       </div>
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <UploadForm />
+        <BulkUploadForm />
       </div>
     </div>
   );
