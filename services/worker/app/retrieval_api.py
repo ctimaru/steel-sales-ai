@@ -6,7 +6,7 @@ from typing import Annotated, Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Header, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from .embeddings import EmbeddingConfigurationError, EmbeddingProviderError
 from .repository import RepositoryConfigurationError, RepositoryError
@@ -31,6 +31,16 @@ class CommercialFilters(BaseModel):
     height_mm: float | None = Field(default=None, gt=0)
     thickness_mm: float | None = Field(default=None, gt=0)
     length_mm: float | None = Field(default=None, gt=0)
+    price_min: float | None = Field(default=None, ge=0)
+    price_max: float | None = Field(default=None, ge=0)
+    currency: str | None = Field(default=None, min_length=3, max_length=3)
+
+    @model_validator(mode="after")
+    def validate_price_range(self) -> "CommercialFilters":
+        if self.price_min is not None and self.price_max is not None:
+            if self.price_min > self.price_max:
+                raise ValueError("price_min must be lower than or equal to price_max")
+        return self
 
 
 class DocumentFilters(BaseModel):
@@ -39,6 +49,7 @@ class DocumentFilters(BaseModel):
     document_type: str | None = Field(default=None, max_length=120)
     document_id: UUID | None = None
     document_query: str | None = Field(default=None, max_length=255)
+    source_query: str | None = Field(default=None, max_length=255)
     date_from: date | None = None
     date_to: date | None = None
 

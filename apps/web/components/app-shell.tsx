@@ -5,6 +5,7 @@ import { logout } from "@/app/(workspace)/actions";
 
 const nav = [
   { href: "/dashboard", label: "Dashboard", key: "D" },
+  { href: "/search", label: "Global Search", key: "G" },
   { href: "/assistant", label: "AI Assistant", key: "A" },
   { href: "/knowledge-explorer", label: "Knowledge Explorer", key: "K" },
   { href: "/explorer", label: "Commercial Explorer", key: "C" },
