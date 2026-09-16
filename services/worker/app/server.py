@@ -7,6 +7,7 @@ from .global_search import router as global_search_router
 from .main import app
 from .observability import install_observability, router as observability_router
 from .p1_assistant import router as p1_assistant_router
+from .product_360 import router as product_360_router
 from .retrieval_api import router as retrieval_router
 from .semantic_index import install_semantic_indexer
 from .tenant_admin import router as tenant_admin_router
@@ -14,6 +15,7 @@ from .tenant_admin import router as tenant_admin_router
 app.include_router(retrieval_router)
 app.include_router(global_search_router)
 app.include_router(p1_assistant_router)
+app.include_router(product_360_router)
 app.include_router(observability_router)
 app.include_router(data_lifecycle_router)
 app.include_router(tenant_admin_router)
