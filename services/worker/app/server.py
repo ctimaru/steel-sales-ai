@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .bulk_import import router as bulk_import_router
+from .bulk_import_api import router as bulk_import_router
 from .data_lifecycle import router as data_lifecycle_router
 from .main import app
 from .observability import install_observability, router as observability_router
