@@ -5,12 +5,12 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
-from app import bulk_import
+from app import bulk_import, bulk_import_api
 from app.bulk_import import BulkFileDescriptor, PrepareBatchRequest
 
 
 app = FastAPI()
-app.include_router(bulk_import.router)
+app.include_router(bulk_import_api.router)
 client = TestClient(app)
 
 
@@ -66,13 +66,14 @@ def test_prepare_endpoint_enforces_internal_token(monkeypatch) -> None:
     monkeypatch.delenv("WORKER_INTERNAL_TOKEN")
 
 
-def test_prepare_endpoint_returns_persistent_batch_contract(monkeypatch) -> None:
+def test_prepare_endpoint_preserves_typed_file_descriptors(monkeypatch) -> None:
     configure_service(monkeypatch)
     batch_id = UUID("00000000-0000-0000-0000-000000000010")
     item_id = UUID("00000000-0000-0000-0000-000000000011")
 
     async def fake_prepare(self, *, actor_user_id, files):
         assert actor_user_id == UUID("00000000-0000-0000-0000-000000000001")
+        assert isinstance(files[0], BulkFileDescriptor)
         assert files[0].filename == "offer.eml"
         return {
             "batch_id": batch_id,
