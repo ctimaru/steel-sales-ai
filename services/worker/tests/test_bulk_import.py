@@ -1,4 +1,3 @@
-import os
 from uuid import UUID
 
 import pytest
@@ -17,6 +16,11 @@ client = TestClient(app)
 
 def descriptor(name: str = "offer.eml", checksum: str = "a" * 64, size: int = 100):
     return {"filename": name, "size_bytes": size, "content_checksum": checksum}
+
+
+def configure_service(monkeypatch) -> None:
+    monkeypatch.setenv("SUPABASE_URL", "https://example.supabase.co")
+    monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "test-service-key-not-a-real-secret")
 
 
 def test_prepare_contract_accepts_supported_bulk_types() -> None:
@@ -63,6 +67,7 @@ def test_prepare_endpoint_enforces_internal_token(monkeypatch) -> None:
 
 
 def test_prepare_endpoint_returns_persistent_batch_contract(monkeypatch) -> None:
+    configure_service(monkeypatch)
     batch_id = UUID("00000000-0000-0000-0000-000000000010")
     item_id = UUID("00000000-0000-0000-0000-000000000011")
 
@@ -99,6 +104,7 @@ def test_prepare_endpoint_returns_persistent_batch_contract(monkeypatch) -> None
 
 
 def test_start_and_retry_forward_selective_item_ids(monkeypatch) -> None:
+    configure_service(monkeypatch)
     batch_id = UUID("00000000-0000-0000-0000-000000000010")
     actor_id = UUID("00000000-0000-0000-0000-000000000001")
     item_id = UUID("00000000-0000-0000-0000-000000000011")
