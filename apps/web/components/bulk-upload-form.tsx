@@ -130,6 +130,7 @@ export function BulkUploadForm() {
     setBatch(null);
     setProgress(null);
     setItems([]);
+    let activeBatchId: string | null = null;
 
     try {
       const descriptors: BulkFileDescriptor[] = await Promise.all(
@@ -145,6 +146,7 @@ export function BulkUploadForm() {
         setMessage(prepared.error);
         return;
       }
+      activeBatchId = prepared.data.batch_id;
       setBatch(prepared.data);
 
       const uploadItemIds: string[] = [];
@@ -177,7 +179,7 @@ export function BulkUploadForm() {
       beginPolling(prepared.data.batch_id);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Import non riuscito.");
-      if (batch?.batch_id) beginPolling(batch.batch_id);
+      if (activeBatchId) beginPolling(activeBatchId);
     } finally {
       setBusy(false);
     }
