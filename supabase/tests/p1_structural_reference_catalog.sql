@@ -42,24 +42,21 @@ select pg_temp.p115_struct_assert(
 
 -- Canonical material identities are independent from geometry/source rows.
 select pg_temp.p115_struct_assert(
-  exists (
-    select 1 from public.steel_material_grades
-    where standard_system='EN' and designation='S355J2H' and material_number='1.0576'
-  ),
+  (select count(*) = 1 from public.steel_material_grades
+   where standard_system_key='en' and designation_key='s355j2h'
+     and material_number_key=public.canonical_steel_token('1.0576')),
   'S355J2H / 1.0576 must exist'
 );
 select pg_temp.p115_struct_assert(
-  exists (
-    select 1 from public.steel_material_grades
-    where standard_system='EN' and designation='S355NH' and material_number='1.0539'
-  ),
+  (select count(*) = 1 from public.steel_material_grades
+   where standard_system_key='en' and designation_key='s355nh'
+     and material_number_key=public.canonical_steel_token('1.0539')),
   'S355NH / 1.0539 must exist'
 );
 select pg_temp.p115_struct_assert(
-  exists (
-    select 1 from public.steel_material_grades
-    where standard_system='EN' and designation='S355NLH' and material_number='1.0549'
-  ),
+  (select count(*) = 1 from public.steel_material_grades
+   where standard_system_key='en' and designation_key='s355nlh'
+     and material_number_key=public.canonical_steel_token('1.0549')),
   'S355NLH / 1.0549 must exist'
 );
 
@@ -180,17 +177,32 @@ select pg_temp.p115_struct_assert(
 
 reset role;
 
--- EN 10210 hot-finished manufacturer availability: controlled CHS + SHS geometry tranche.
+-- EN 10210 hot-finished manufacturer availability. Canonical geometries may already
+-- exist from EN 10219, so availability links — not geometry-row ownership — define the tranche.
 select pg_temp.p115_struct_assert(
-  (select count(*) = 16 from public.steel_geometries
-   where product_family='round_tube' and metadata->>'seed'='sk4.2-en10210'),
-  'EN 10210 hot CHS tranche must contain 16 canonical geometries'
+  (select count(*) = 16
+   from public.steel_standard_dimension_applicability a
+   join public.steel_standards s on s.id=a.standard_id
+   join public.steel_geometries g on g.id=a.geometry_id
+   where s.code_key='en10210'
+     and g.product_family='round_tube'
+     and a.applicability_type='manufacturer_range'
+     and a.manufacturing_process='hot_finished'
+     and not a.is_normative_complete),
+  'EN 10210 hot CHS tranche must contain 16 manufacturer-range geometry links'
 );
 
 select pg_temp.p115_struct_assert(
-  (select count(*) = 16 from public.steel_geometries
-   where product_family='square_tube' and metadata->>'seed'='sk4.2-en10210'),
-  'EN 10210 hot SHS tranche must contain 16 canonical geometries'
+  (select count(*) = 16
+   from public.steel_standard_dimension_applicability a
+   join public.steel_standards s on s.id=a.standard_id
+   join public.steel_geometries g on g.id=a.geometry_id
+   where s.code_key='en10210'
+     and g.product_family='square_tube'
+     and a.applicability_type='manufacturer_range'
+     and a.manufacturing_process='hot_finished'
+     and not a.is_normative_complete),
+  'EN 10210 hot SHS tranche must contain 16 manufacturer-range geometry links'
 );
 
 select pg_temp.p115_struct_assert(
@@ -210,7 +222,7 @@ select pg_temp.p115_struct_assert(
    from public.steel_weight_references w
    join public.steel_geometries g on g.id=w.geometry_id
    where g.product_family='round_tube'
-     and g.metadata->>'seed'='sk4.2-en10210'
+     and w.knowledge_source_id='10210000-0000-4000-8000-000000000011'::uuid
      and w.weight_method='calculated'
      and w.formula_version='round-annulus-density-7850-v1'
      and w.density_kg_m3=7850
@@ -224,7 +236,6 @@ select pg_temp.p115_struct_assert(
    from public.steel_weight_references w
    join public.steel_geometries g on g.id=w.geometry_id
    where g.product_family='square_tube'
-     and g.metadata->>'seed'='sk4.2-en10210'
      and w.knowledge_source_id='10210000-0000-4000-8000-000000000010'::uuid),
   'EN 10210 hot SHS must not invent kg/m before a published source is loaded'
 );
