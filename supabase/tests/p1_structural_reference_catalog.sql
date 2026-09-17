@@ -29,14 +29,14 @@ select pg_temp.p115_struct_assert(
 select pg_temp.p115_struct_assert(
   (select count(*) = 1
    from public.steel_standards
-   where code_key = 'en10210-2' and edition = '2019' and part_number = '2' and status = 'active'),
+   where code_key = 'en102102' and edition = '2019' and part_number = '2' and status = 'active'),
   'EN 10210-2:2019 metadata record must exist'
 );
 
 select pg_temp.p115_struct_assert(
   (select count(*) = 1
    from public.steel_standards
-   where code_key = 'en10219-2' and edition = '2019' and part_number = '2' and status = 'active'),
+   where code_key = 'en102192' and edition = '2019' and part_number = '2' and status = 'active'),
   'EN 10219-2:2019 metadata record must exist'
 );
 
