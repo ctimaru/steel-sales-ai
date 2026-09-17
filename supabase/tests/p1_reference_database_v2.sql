@@ -42,37 +42,55 @@ select pg_temp.p115_v2_assert(
 );
 
 select pg_temp.p115_v2_assert(
-  (select count(*) = 3 from public.steel_geometries),
+  (
+    select count(distinct d.geometry_id) = 3
+    from public.steel_dimensional_rows d
+    join public.steel_standards s on s.id = d.standard_id
+    where s.code_key = public.canonical_steel_token('EN 10224')
+      and d.geometry_id is not null
+  ),
   'three existing EN 10224 rows must become three reusable canonical geometries'
 );
 
 select pg_temp.p115_v2_assert(
   (
     select count(*) = 3
-    from public.steel_dimensional_rows
-    where geometry_id is not null
+    from public.steel_dimensional_rows d
+    join public.steel_standards s on s.id = d.standard_id
+    where s.code_key = public.canonical_steel_token('EN 10224')
+      and d.geometry_id is not null
   ),
-  'all legacy dimensional rows must point to canonical geometry'
+  'all legacy EN 10224 dimensional rows must point to canonical geometry'
 );
 
 select pg_temp.p115_v2_assert(
   (
     select count(*) = 3
-    from public.steel_standard_dimension_applicability
-    where applicability_type = 'manufacturer_range'
-      and not is_normative_complete
+    from public.steel_standard_dimension_applicability a
+    join public.steel_standards s on s.id = a.standard_id
+    where s.code_key = public.canonical_steel_token('EN 10224')
+      and a.applicability_type = 'manufacturer_range'
+      and not a.is_normative_complete
   ),
-  'legacy manufacturer rows must remain explicitly non-normative-complete'
+  'legacy EN 10224 manufacturer rows must remain explicitly non-normative-complete'
 );
 
 select pg_temp.p115_v2_assert(
   (
     select count(*) = 3
-    from public.steel_weight_references
-    where weight_method = 'published'
-      and is_canonical
+    from public.steel_weight_references w
+    where w.weight_method = 'published'
+      and w.is_canonical
+      and exists (
+        select 1
+        from public.steel_dimensional_rows d
+        join public.steel_standards s on s.id = d.standard_id
+        where s.code_key = public.canonical_steel_token('EN 10224')
+          and d.geometry_id = w.geometry_id
+          and d.knowledge_source_id = w.knowledge_source_id
+      )
   ),
-  'legacy published kg/m values must be promoted into weight references'
+  'legacy EN 10224 published kg/m values must be promoted into weight references'
 );
 
 -- The old SK4 RPC remains a compatibility contract while the v2 API evolves.
