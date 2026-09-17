@@ -29,10 +29,10 @@ insert into public.steel_standards (
   status, knowledge_source_id
 ) values (
   '00000000-0000-0000-0000-000000001511',
-  'EN 10224',
-  'Steel tube reference test',
-  'Short operational explanation for CI.',
-  'Round tube dimensional reference used only in acceptance tests.',
+  'SSA TEST 10224',
+  'Synthetic steel tube reference test',
+  'Synthetic short operational explanation for CI.',
+  'Synthetic round tube dimensional reference used only in acceptance tests.',
   'CI',
   'test-edition',
   'active',
@@ -43,7 +43,7 @@ insert into public.steel_standard_product_families (standard_id, product_family)
 values ('00000000-0000-0000-0000-000000001511', 'round_tube');
 
 insert into public.steel_standard_grades (standard_id, grade, material_number)
-values ('00000000-0000-0000-0000-000000001511', 'L275', null);
+values ('00000000-0000-0000-0000-000000001511', 'TEST275', null);
 
 insert into public.steel_dimensional_rows (
   id, standard_id, product_family, outer_diameter_mm, thickness_mm,
@@ -89,7 +89,7 @@ select pg_temp.p115_assert(
 );
 
 select pg_temp.p115_assert(
-  (select code_key = 'en10224' from public.steel_standards where id = '00000000-0000-0000-0000-000000001511'),
+  (select code_key = 'ssatest10224' from public.steel_standards where id = '00000000-0000-0000-0000-000000001511'),
   'standard canonical key must normalize deterministically'
 );
 select pg_temp.p115_assert(
@@ -100,24 +100,24 @@ select pg_temp.p115_assert(
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000015a1', true);
 select pg_temp.p115_assert(
-  (select count(*) = 1 from public.steel_standards where code_key = 'en10224'),
-  'tenant A must see the shared standard'
+  (select count(*) = 1 from public.steel_standards where code_key = 'ssatest10224'),
+  'tenant A must see the synthetic shared standard'
 );
 select pg_temp.p115_assert(
   (select count(*) = 1 from public.steel_dimensional_rows where standard_id = '00000000-0000-0000-0000-000000001511'),
-  'tenant A must see the shared dimensional row'
+  'tenant A must see the synthetic shared dimensional row'
 );
 
 reset role;
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000015b1', true);
 select pg_temp.p115_assert(
-  (select count(*) = 1 from public.steel_standards where code_key = 'en10224'),
-  'tenant B must see the same shared standard independently of tenant membership'
+  (select count(*) = 1 from public.steel_standards where code_key = 'ssatest10224'),
+  'tenant B must see the same synthetic shared standard independently of tenant membership'
 );
 select pg_temp.p115_assert(
   (select count(*) = 1 from public.steel_dimensional_rows where standard_id = '00000000-0000-0000-0000-000000001511'),
-  'tenant B must see the same shared dimensional row independently of tenant membership'
+  'tenant B must see the same synthetic shared dimensional row independently of tenant membership'
 );
 
 reset role;
