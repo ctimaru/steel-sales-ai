@@ -3,19 +3,17 @@ import type { ReactNode } from "react";
 
 import { logout } from "@/app/(workspace)/actions";
 
-const nav = [
-  { href: "/dashboard", label: "Dashboard", key: "D" },
-  { href: "/search", label: "Global Search", key: "G" },
-  { href: "/products", label: "Product 360", key: "P" },
-  { href: "/assistant", label: "AI Assistant", key: "A" },
-  { href: "/knowledge-explorer", label: "Knowledge Explorer", key: "K" },
-  { href: "/explorer", label: "Commercial Explorer", key: "C" },
-  { href: "/price-intelligence", label: "Price Intelligence", key: "€" },
-  { href: "/market-intelligence", label: "Market Intelligence", key: "M" },
-  { href: "/unconverted-offers", label: "Offerte senza ordine", key: "O" },
-  { href: "/review", label: "Review Queue", key: "R" },
-  { href: "/data-sources", label: "Data sources", key: "S" },
-  { href: "/uploads", label: "Import documenti", key: "U" },
+const primaryNav = [
+  { href: "/dashboard", label: "Home", key: "H" },
+  { href: "/search", label: "Cerca", key: "C" },
+  { href: "/products", label: "Storico prodotti", key: "P" },
+  { href: "/assistant", label: "Assistente", key: "A" },
+  { href: "/uploads", label: "Importa", key: "I" },
+];
+
+const secondaryNav = [
+  { href: "/review", label: "Correzioni" },
+  { href: "/data-sources", label: "Fonti e import" },
 ];
 
 export function AppShell({
@@ -32,28 +30,51 @@ export function AppShell({
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-slate-200 bg-slate-950 text-slate-300 lg:block">
         <div className="flex h-full flex-col">
           <div className="border-b border-white/10 p-5">
-            <p className="text-xs font-bold tracking-[0.18em] text-slate-500">STEEL SALES</p>
-            <p className="mt-1 text-lg font-semibold text-white">AI Workspace</p>
+            <p className="text-xs font-bold tracking-[0.18em] text-slate-500">STEEL SALES AI</p>
+            <p className="mt-1 text-lg font-semibold text-white">Commercial Memory</p>
           </div>
-          <nav className="space-y-1 p-3">
-            {nav.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition hover:bg-white/10 hover:text-white"
-              >
-                <span className="grid h-7 w-7 place-items-center rounded-lg bg-white/10 text-xs font-bold">
-                  {item.key}
-                </span>
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-          <div className="mt-auto border-t border-white/10 p-4">
+
+          <div className="flex-1 overflow-y-auto p-3">
+            <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">
+              Lavoro quotidiano
+            </p>
+            <nav className="space-y-1">
+              {primaryNav.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition hover:bg-white/10 hover:text-white"
+                >
+                  <span className="grid h-7 w-7 place-items-center rounded-lg bg-white/10 text-xs font-bold">
+                    {item.key}
+                  </span>
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+
+            <div className="my-4 border-t border-white/10" />
+            <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">
+              Gestione dati
+            </p>
+            <nav className="space-y-1">
+              {secondaryNav.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="block rounded-xl px-3 py-2 text-sm font-medium text-slate-400 transition hover:bg-white/10 hover:text-white"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          <div className="border-t border-white/10 p-4">
             <div className="rounded-xl bg-white/5 p-3">
               <p className="truncate text-xs font-semibold text-slate-200">{viewerLabel}</p>
               <p className="mt-1 text-[11px] text-slate-500">
-                {demoMode ? "Modalità demo" : "Supabase Auth"}
+                {demoMode ? "Modalità demo" : "Workspace connesso"}
               </p>
             </div>
             <form action={logout}>
@@ -67,24 +88,26 @@ export function AppShell({
 
       <div className="lg:pl-64">
         <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
-          <div className="flex h-16 items-center justify-between gap-3 px-5 sm:px-8">
-            <div className="shrink-0">
+          <div className="flex h-16 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+            <Link href="/dashboard" className="shrink-0">
               <p className="text-sm font-semibold text-slate-950">Steel Sales AI</p>
-              <p className="text-xs text-slate-500">Commercial intelligence</p>
-            </div>
-            <div className="flex max-w-[68vw] items-center gap-1.5 overflow-x-auto lg:hidden">
-              {nav.map((item) => (
+              <p className="text-xs text-slate-500">La memoria commerciale del tuo team</p>
+            </Link>
+
+            <div className="flex max-w-[64vw] items-center gap-1.5 overflow-x-auto lg:hidden">
+              {primaryNav.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   aria-label={item.label}
                   title={item.label}
-                  className="shrink-0 rounded-lg border border-slate-200 px-2 py-1.5 text-xs font-semibold text-slate-700"
+                  className="shrink-0 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700"
                 >
                   {item.key}
                 </Link>
               ))}
             </div>
+
             <div className="hidden items-center gap-2 sm:flex">
               {demoMode ? (
                 <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
@@ -92,14 +115,14 @@ export function AppShell({
                 </span>
               ) : (
                 <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                  Connected
+                  Connesso
                 </span>
               )}
             </div>
           </div>
         </header>
 
-        <main className="p-5 sm:p-8">{children}</main>
+        <main className="p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );

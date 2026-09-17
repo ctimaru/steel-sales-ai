@@ -39,7 +39,7 @@ test("Product detail exposes killer use case and verifiable source history", () 
   assert.match(detail, /nessuna inferenza dal testo/i);
 });
 
-test("Product 360 is first-class workspace navigation", () => {
+test("product history is first-class sales navigation", () => {
   assert.match(shell, /href: "\/products"/);
-  assert.match(shell, /label: "Product 360"/);
+  assert.match(shell, /label: "Storico prodotti"/);
 });

@@ -7,10 +7,12 @@ export default function GlobalSearchPage() {
     <div className="mx-auto max-w-7xl">
       <div>
         <p className="text-sm font-semibold text-indigo-600">Commercial Memory</p>
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">Global Search</h1>
+        <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">
+          Cerca nello storico commerciale
+        </h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-          Ricerca unica structured + semantic su documenti, prodotti, aziende ed eventi commerciali,
-          con filtri tecnici specifici per il settore siderurgico.
+          Trova prodotti, clienti, richieste, offerte, ordini e documenti con una sola ricerca.
+          Usa i filtri tecnici solo quando servono per restringere i risultati.
         </p>
       </div>
       <div className="mt-7">
