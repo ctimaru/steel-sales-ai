@@ -176,7 +176,8 @@ jobs:
             p1_shared_steel_seed.sql \
             p1_shared_steel_reference_api.sql \
             p1_reference_database_v2.sql \
-            p1_structural_reference_catalog.sql; do
+            p1_structural_reference_catalog.sql \
+            p1_pressure_reference_catalog.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
