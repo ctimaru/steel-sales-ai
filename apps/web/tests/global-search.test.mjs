@@ -41,9 +41,9 @@ test("global search exposes P1.4 result families and steel filters", () => {
   }
 });
 
-test("global search route is first-class workspace navigation", () => {
-  assert.match(page, /Global Search/);
-  assert.match(page, /structured \+ semantic/);
+test("commercial search is first-class sales navigation", () => {
+  assert.match(page, /Cerca nello storico commerciale/);
+  assert.match(page, /Trova prodotti, clienti, richieste, offerte, ordini e documenti/);
   assert.match(shell, /href: "\/search"/);
-  assert.match(shell, /label: "Global Search"/);
+  assert.match(shell, /label: "Cerca"/);
 });
