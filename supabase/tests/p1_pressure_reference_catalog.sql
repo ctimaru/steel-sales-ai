@@ -110,6 +110,8 @@ select pg_temp.p115_pressure_assert(
 );
 
 -- Source-backed grade applicability stays separate from normative equivalence.
+-- Scope this regression to the two original SK4.3 grade sources so later
+-- independent supplier evidence can coexist without invalidating the baseline.
 select pg_temp.p115_pressure_assert(
   (select count(*) = 6
    from public.steel_standard_grade_applicability a
@@ -117,8 +119,12 @@ select pg_temp.p115_pressure_assert(
    where s.code_key='en102162'
      and a.product_family='round_tube'
      and a.manufacturing_process='seamless'
-     and a.applicability_type='supplier_range'),
-  'EN 10216-2 must have six controlled supplier-backed grade/process links'
+     and a.applicability_type='supplier_range'
+     and a.knowledge_source_id in (
+       '10216000-0000-4000-8000-000000000010'::uuid,
+       '10216000-0000-4000-8000-000000000012'::uuid
+     )),
+  'EN 10216-2 must retain six original controlled supplier-backed grade/process links'
 );
 
 select pg_temp.p115_pressure_assert(
