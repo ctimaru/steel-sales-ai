@@ -188,6 +188,7 @@ begin
     'reference_price'::text as price_semantic,
     coalesce(
       nullif(d.metadata ->> 'provenance_class', ''),
+      nullif(d.metadata ->> 'dataset_scope', ''),
       case d.weight_method
         when 'published' then 'published_reference'
         when 'calculated' then 'calculated_reference'
