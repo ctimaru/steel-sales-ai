@@ -173,7 +173,8 @@ jobs:
             p1_product_360.sql \
             p1_price_history.sql \
             p1_shared_steel_knowledge.sql \
-            p1_shared_steel_seed.sql; do
+            p1_shared_steel_seed.sql \
+            p1_shared_steel_reference_api.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
