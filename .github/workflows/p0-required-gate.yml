@@ -171,7 +171,8 @@ jobs:
             p1_data_source_center.sql \
             p1_global_search.sql \
             p1_product_360.sql \
-            p1_price_history.sql; do
+            p1_price_history.sql \
+            p1_shared_steel_knowledge.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
@@ -184,7 +185,7 @@ jobs:
           supabase db lint --local --level warning
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
           cache: pip
           cache-dependency-path: services/worker/pyproject.toml
       - name: Run worker/RAG regression suite against foundation
