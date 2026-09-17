@@ -1,4 +1,4 @@
--- P1.15 / SK4.3b — EN 10217 range-envelope acceptance test.
+-- P1.15 / SK4.3b-c — EN 10217 range-envelope + discrete-matrix acceptance test.
 -- Disposable CI database only.
 
 begin;
@@ -148,6 +148,145 @@ select pg_temp.p115_en10217_assert(
       and coalesce((e.metadata->>'not_all_cells_implied')::boolean,false)
   ),
   'series-level EN 10217 matrix envelope must not imply every cell exists'
+);
+
+-- SK4.3c: controlled discrete matrix sample.
+select pg_temp.p115_en10217_assert(
+  exists (
+    select 1
+    from public.steel_standards s
+    where s.code_key=public.canonical_steel_token('EN 10217')
+      and s.status='active'
+      and s.metadata->>'dataset_role'='manufacturer_range_umbrella'
+      and coalesce((s.metadata->>'not_normative_complete')::boolean,false)
+      and coalesce((s.metadata->>'no_part_specific_inference')::boolean,false)
+  ),
+  'EN 10217 manufacturer-range umbrella must exist without part-specific inference'
+);
+
+select pg_temp.p115_en10217_assert(
+  (select count(*)=10
+   from public.steel_standard_dimension_applicability a
+   join public.steel_standards s on s.id=a.standard_id
+   where s.code_key=public.canonical_steel_token('EN 10217')
+     and a.knowledge_source_id='10217000-0000-4000-8000-000000000020'::uuid
+     and a.applicability_type='manufacturer_range'
+     and not a.is_normative_complete
+     and coalesce((a.metadata->>'matrix_cell_verified')::boolean,false)),
+  'exactly 10 visually verified ArcelorMittal matrix cells must be promoted'
+);
+
+select pg_temp.p115_en10217_assert(
+  (select count(*)=5
+   from public.steel_standard_dimension_applicability a
+   join public.steel_standards s on s.id=a.standard_id
+   where s.code_key=public.canonical_steel_token('EN 10217')
+     and a.knowledge_source_id='10217000-0000-4000-8000-000000000020'::uuid
+     and a.manufacturing_process='hot_stretch_reduced'),
+  'sample must contain five hot-stretch-reduced cells'
+);
+
+select pg_temp.p115_en10217_assert(
+  (select count(*)=5
+   from public.steel_standard_dimension_applicability a
+   join public.steel_standards s on s.id=a.standard_id
+   where s.code_key=public.canonical_steel_token('EN 10217')
+     and a.knowledge_source_id='10217000-0000-4000-8000-000000000020'::uuid
+     and a.manufacturing_process='cold_formed'),
+  'sample must contain five cold-formed cells'
+);
+
+select pg_temp.p115_en10217_assert(
+  not exists (
+    select 1
+    from public.steel_standard_dimension_applicability a
+    join public.steel_standards s on s.id=a.standard_id
+    where s.code_key in (
+      public.canonical_steel_token('EN 10217-1'),
+      public.canonical_steel_token('EN 10217-2'),
+      public.canonical_steel_token('EN 10217-3')
+    )
+      and a.knowledge_source_id='10217000-0000-4000-8000-000000000020'::uuid
+      and coalesce((a.metadata->>'matrix_cell_verified')::boolean,false)
+  ),
+  'series-level matrix cells must not be inferred as part-specific dimensions'
+);
+
+select pg_temp.p115_en10217_assert(
+  (select count(*)=10
+   from public.steel_weight_references w
+   where w.knowledge_source_id='10217000-0000-4000-8000-000000000020'::uuid
+     and w.weight_method='calculated'
+     and w.formula_version='round-annulus-density-7850-v1'
+     and w.density_kg_m3=7850
+     and not w.is_canonical
+     and coalesce((w.metadata->>'not_published_mass')::boolean,false)
+     and coalesce((w.metadata->>'matrix_cell_verified')::boolean,false)),
+  '10 non-canonical calculated weight references must exist with explicit formula semantics'
+);
+
+select pg_temp.p115_en10217_assert(
+  exists (
+    select 1
+    from public.steel_weight_references w
+    join public.steel_geometries g on g.id=w.geometry_id
+    where g.geometry_key='round|od=60.3|t=4.5'
+      and w.knowledge_source_id='10217000-0000-4000-8000-000000000020'::uuid
+      and w.weight_method='calculated'
+      and w.weight_kg_m=6.1925
+  ),
+  '60.3 x 4.5 calculated mass must be 6.1925 kg/m'
+);
+
+select pg_temp.p115_en10217_assert(
+  exists (
+    select 1
+    from public.steel_weight_references w
+    join public.steel_geometries g on g.id=w.geometry_id
+    where g.geometry_key='round|od=219.1|t=8'
+      and w.knowledge_source_id='10217000-0000-4000-8000-000000000020'::uuid
+      and w.weight_method='calculated'
+      and w.weight_kg_m=41.6483
+  ),
+  '219.1 x 8 calculated mass must be 41.6483 kg/m'
+);
+
+select pg_temp.p115_en10217_assert(
+  (select count(*)=10
+   from public.steel_dimensional_rows d
+   join public.steel_standards s on s.id=d.standard_id
+   where s.code_key=public.canonical_steel_token('EN 10217')
+     and d.knowledge_source_id='10217000-0000-4000-8000-000000000020'::uuid
+     and d.weight_method='calculated'
+     and d.weight_formula_version='round-annulus-density-7850-v1'
+     and coalesce((d.metadata->>'not_published_mass')::boolean,false)),
+  'legacy SK4 projection must expose all 10 rows as calculated, not published weights'
+);
+
+select pg_temp.p115_en10217_assert(
+  exists (
+    select 1
+    from public.p1_shared_steel_dimensions(
+      'EN 10217','round_tube',219.1,8,1000,12,50,0
+    ) d
+    where d.theoretical_weight_kg_m=41.6483
+      and d.reference_price_eur_m=41.6483
+      and d.reference_price_eur_piece=499.7796
+      and d.price_semantic='reference_price'
+      and d.not_normative_complete
+  ),
+  'SK4 RPC must calculate reference €/m and €/piece from the discrete EN 10217 row'
+);
+
+select pg_temp.p115_en10217_assert(
+  (select count(*)=10
+   from public.steel_reference_observations o
+   where o.knowledge_source_id='10217000-0000-4000-8000-000000000020'::uuid
+     and o.observed_standard_code='EN 10217'
+     and o.observation_type='dimension'
+     and o.promotion_status='promoted'
+     and coalesce((o.metadata->>'human_visual_reviewed_seed')::boolean,false)),
+  '10 promoted visual matrix observations must preserve raw provenance'
 );
 
 -- Regression: prior P265GH EN 10216-2 controlled dataset remains untouched.
