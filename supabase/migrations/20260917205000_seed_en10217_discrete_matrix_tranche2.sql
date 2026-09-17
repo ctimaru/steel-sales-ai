@@ -4,11 +4,45 @@
 -- Adds only a second small set of visually verified matrix cells.
 -- No normative completeness is claimed and no cell is assigned to a concrete EN 10217 part.
 --
+-- Provenance semantics:
+--   * tranche 2 is represented as a review/extraction batch linked to the same primary PDF;
+--   * it is explicitly NOT independent corroboration of the parent ArcelorMittal source;
+--   * this preserves stable acceptance counts for tranche 1 without pretending a second source exists.
+--
 -- Weight semantics:
 --   * manufacturer matrix proves OD x wall availability / process;
 --   * kg/m is CALCULATED, not published by the source;
 --   * formula_version = round-annulus-density-7850-v1;
 --   * calculated weights are non-canonical reference values.
+
+insert into public.knowledge_sources (
+  id, owner_id, access_scope, source_key, source_type, source_class,
+  name, provider, source_uri, language_code, trust_score, metadata, organization_id
+) values (
+  '10217000-0000-4000-8000-000000000023'::uuid,
+  null,
+  'global',
+  'derived:arcelormittal:en10217-product-range:review-batch-2',
+  'manufacturer_catalog_review_batch',
+  'primary',
+  'ArcelorMittal EN 10217 product range — reviewed matrix batch 2',
+  'ArcelorMittal',
+  'https://constructalia.arcelormittal.com/files/EN%20Welded%20steel%20tubes%20for%20pressure%20purposes--7f7156c483b35d1754278e30839d8133.pdf',
+  'en',
+  0.95,
+  jsonb_build_object(
+    'reference_purpose','reviewed_discrete_matrix_batch',
+    'parent_source_key','primary:arcelormittal:en10217-product-range',
+    'independence_group','arcelormittal-en10217-product-range-pdf',
+    'independent_corroboration',false,
+    'dataset_scope','manufacturer_product_range',
+    'not_normative_complete',true,
+    'human_visual_reviewed_seed',true,
+    'verified_on','2026-09-17'
+  ),
+  null
+)
+on conflict do nothing;
 
 create temporary table sk43d_en10217_cells (
   outer_diameter_mm numeric not null,
@@ -62,18 +96,20 @@ select
   'manufacturer_range',
   false,
   'Visually verified discrete cell from the ArcelorMittal EN 10217 product-range matrix — tranche 2.',
-  '10217000-0000-4000-8000-000000000020'::uuid,
+  '10217000-0000-4000-8000-000000000023'::uuid,
   jsonb_build_object(
     'page',1,
     'section','Dimensions matrix',
-    'legend_process',c.manufacturing_process
+    'legend_process',c.manufacturing_process,
+    'parent_source_key','primary:arcelormittal:en10217-product-range'
   ),
   jsonb_build_object(
     'seed','sk4.3d-en10217-discrete-matrix-2',
     'matrix_cell_verified',true,
     'human_visual_reviewed_seed',true,
     'not_normative_complete',true,
-    'no_part_specific_inference',true
+    'no_part_specific_inference',true,
+    'independent_corroboration',false
   )
 from sk43d_en10217_cells c
 join public.steel_geometries g
@@ -96,11 +132,12 @@ select
   7850,
   'round-annulus-density-7850-v1',
   false,
-  '10217000-0000-4000-8000-000000000020'::uuid,
+  '10217000-0000-4000-8000-000000000023'::uuid,
   jsonb_build_object(
     'page',1,
     'section','Dimensions matrix',
-    'formula','pi/4*(D^2-(D-2t)^2)*1e-6*density'
+    'formula','pi/4*(D^2-(D-2t)^2)*1e-6*density',
+    'parent_source_key','primary:arcelormittal:en10217-product-range'
   ),
   jsonb_build_object(
     'seed','sk4.3d-en10217-discrete-matrix-2',
@@ -109,7 +146,8 @@ select
     'human_visual_reviewed_seed',true,
     'not_published_mass',true,
     'not_normative_complete',true,
-    'price_safe_reference',true
+    'price_safe_reference',true,
+    'independent_corroboration',false
   )
 from sk43d_en10217_cells c
 join public.steel_geometries g
@@ -140,11 +178,12 @@ select
   ) * 1e-6 * 7850)::numeric, 4),
   'calculated',
   'round-annulus-density-7850-v1',
-  '10217000-0000-4000-8000-000000000020'::uuid,
+  '10217000-0000-4000-8000-000000000023'::uuid,
   jsonb_build_object(
     'page',1,
     'section','Dimensions matrix',
-    'legend_process',c.manufacturing_process
+    'legend_process',c.manufacturing_process,
+    'parent_source_key','primary:arcelormittal:en10217-product-range'
   ),
   jsonb_build_object(
     'dataset_scope','manufacturer_product_range',
@@ -153,7 +192,8 @@ select
     'matrix_cell_verified',true,
     'manufacturing_process',c.manufacturing_process,
     'not_published_mass',true,
-    'not_normative_complete',true
+    'not_normative_complete',true,
+    'independent_corroboration',false
   ),
   g.id
 from sk43d_en10217_cells c
@@ -177,8 +217,12 @@ insert into public.steel_reference_observations (
   raw_payload, content_checksum, promotion_status, reviewed_at, metadata
 )
 select
-  '10217000-0000-4000-8000-000000000020'::uuid,
-  jsonb_build_object('page',1,'section','Dimensions matrix'),
+  '10217000-0000-4000-8000-000000000023'::uuid,
+  jsonb_build_object(
+    'page',1,
+    'section','Dimensions matrix',
+    'parent_source_key','primary:arcelormittal:en10217-product-range'
+  ),
   'dimension',
   'EN 10217',
   'round_tube',
@@ -196,7 +240,8 @@ select
   jsonb_build_object(
     'seed','sk4.3d-en10217-discrete-matrix-2',
     'human_visual_reviewed_seed',true,
-    'not_normative_complete',true
+    'not_normative_complete',true,
+    'independent_corroboration',false
   )
 from sk43d_en10217_cells c
 join public.steel_geometries g
@@ -204,5 +249,55 @@ join public.steel_geometries g
     ||'|t='||public.canonical_mm_value(c.thickness_mm)
 cross join std
 on conflict do nothing;
+
+-- Seed-integrity assertions run in CI and production migration execution.
+do $$
+begin
+  if (
+    select count(*)
+    from public.steel_standard_dimension_applicability a
+    where a.knowledge_source_id='10217000-0000-4000-8000-000000000023'::uuid
+      and a.metadata->>'seed'='sk4.3d-en10217-discrete-matrix-2'
+      and coalesce((a.metadata->>'matrix_cell_verified')::boolean,false)
+  ) <> 10 then
+    raise exception 'SK4.3d expected exactly 10 promoted matrix cells';
+  end if;
+
+  if (
+    select count(*)
+    from public.steel_standard_dimension_applicability a
+    where a.knowledge_source_id='10217000-0000-4000-8000-000000000023'::uuid
+      and a.metadata->>'seed'='sk4.3d-en10217-discrete-matrix-2'
+      and a.manufacturing_process='hot_stretch_reduced'
+  ) <> 5 then
+    raise exception 'SK4.3d expected five hot-stretch-reduced cells';
+  end if;
+
+  if (
+    select count(*)
+    from public.steel_standard_dimension_applicability a
+    where a.knowledge_source_id='10217000-0000-4000-8000-000000000023'::uuid
+      and a.metadata->>'seed'='sk4.3d-en10217-discrete-matrix-2'
+      and a.manufacturing_process='cold_formed'
+  ) <> 5 then
+    raise exception 'SK4.3d expected five cold-formed cells';
+  end if;
+
+  if not exists (
+    select 1
+    from public.steel_weight_references w
+    join public.steel_geometries g on g.id=w.geometry_id
+    where w.knowledge_source_id='10217000-0000-4000-8000-000000000023'::uuid
+      and g.geometry_key='round|od=219.1|t=7.1'
+      and w.weight_method='calculated'
+      and w.formula_version='round-annulus-density-7850-v1'
+      and w.weight_kg_m=37.1205
+      and not w.is_canonical
+      and coalesce((w.metadata->>'not_published_mass')::boolean,false)
+  ) then
+    raise exception 'SK4.3d expected 219.1 x 7.1 calculated mass 37.1205 kg/m';
+  end if;
+end
+$$;
 
 drop table sk43d_en10217_cells;
