@@ -110,7 +110,7 @@ select pg_temp.p115_api_assert(
 
 reset role;
 
--- Validation must reject commercially nonsensical input rather than returning misleading values.
+-- Validation must reject commercially nonsensical or unsupported input rather than returning misleading values.
 do $$
 begin
   set local role authenticated;
@@ -123,6 +123,16 @@ begin
       'EN 10224', null, null, null, -1, null, 250, 0
     );
     raise exception 'negative price unexpectedly accepted';
+  exception
+    when sqlstate '22023' then null;
+  end;
+
+  begin
+    perform *
+    from public.p1_shared_steel_dimensions(
+      'EN 10224', 'plate', null, null, null, null, 250, 0
+    );
+    raise exception 'unsupported product family unexpectedly accepted';
   exception
     when sqlstate '22023' then null;
   end;
