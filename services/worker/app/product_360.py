@@ -21,6 +21,12 @@ class Product360Request(BaseModel):
     limit: int = Field(default=200, ge=1, le=500)
 
 
+class PriceHistoryRequest(BaseModel):
+    actor_user_id: UUID
+    limit: int = Field(default=250, ge=1, le=500)
+    comparable_limit: int = Field(default=20, ge=1, le=50)
+
+
 class Product360Error(RuntimeError):
     pass
 
@@ -85,6 +91,28 @@ class Product360Service:
             "access": {"membership_verified": True, "role": membership.get("role")},
         }
 
+    async def prices(self, product_id: UUID, request: PriceHistoryRequest) -> dict[str, object]:
+        membership = await self._active_membership(request.actor_user_id)
+        organization_id = membership.get("organization_id")
+        if not organization_id:
+            raise Product360Error("Active organization is missing from membership.")
+        raw = await self.repo._request(
+            "POST",
+            "/rest/v1/rpc/p1_price_history",
+            json={
+                "p_organization_id": str(organization_id),
+                "p_product_id": str(product_id),
+                "p_limit": request.limit,
+                "p_comparable_limit": request.comparable_limit,
+            },
+        )
+        if not isinstance(raw, dict):
+            raise Product360Error("Price History returned an invalid payload.")
+        return {
+            **raw,
+            "access": {"membership_verified": True, "role": membership.get("role")},
+        }
+
 
 router = APIRouter(prefix="/v1/products", tags=["product-360"])
 
@@ -110,5 +138,18 @@ async def product_360(
     require_worker_token(x_worker_token)
     try:
         return await Product360Service().detail(product_id, request)
+    except (RepositoryConfigurationError, RepositoryError, Product360Error, RuntimeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/{product_id}/prices")
+async def price_history(
+    product_id: UUID,
+    request: PriceHistoryRequest,
+    x_worker_token: Annotated[str | None, Header()] = None,
+) -> dict[str, object]:
+    require_worker_token(x_worker_token)
+    try:
+        return await Product360Service().prices(product_id, request)
     except (RepositoryConfigurationError, RepositoryError, Product360Error, RuntimeError, ValueError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc

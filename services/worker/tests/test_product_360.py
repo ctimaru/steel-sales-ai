@@ -100,6 +100,44 @@ def test_product_360_uses_verified_tenant_and_product_uuid(monkeypatch) -> None:
     assert response.json()["summary"]["offered_count"] == 2
 
 
+def test_price_history_uses_verified_tenant_and_separates_rpc_contract(monkeypatch) -> None:
+    configure_service(monkeypatch)
+    actor_id = UUID("00000000-0000-0000-0000-000000000001")
+    product_id = UUID("00000000-0000-0000-0000-000000000020")
+
+    async def fake_request(self, method, path, *, json=None, prefer=None):
+        if path.startswith("/rest/v1/organization_memberships"):
+            return [membership(actor_id)]
+        if path == "/rest/v1/rpc/p1_price_history":
+            assert json == {
+                "p_organization_id": "00000000-0000-0000-0000-000000000010",
+                "p_product_id": str(product_id),
+                "p_limit": 250,
+                "p_comparable_limit": 20,
+            }
+            return {
+                "found": True,
+                "product": {"canonical_product_id": str(product_id), "theoretical_weight_kg_m": 17.7096},
+                "latest_quote": {"value": 12, "unit": "M", "currency": "EUR"},
+                "latest_order": {"value": 900, "unit": "T", "currency": "EUR"},
+                "trend": {"quote": {"delta_pct": 20}, "order": None},
+                "history": [],
+                "comparables": [],
+            }
+        raise AssertionError(f"unexpected path: {path}")
+
+    monkeypatch.setattr(product_360.WorkerRepository, "_request", fake_request)
+    response = client.post(
+        f"/v1/products/{product_id}/prices",
+        json={"actor_user_id": str(actor_id)},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["latest_quote"]["value"] == 12
+    assert body["latest_order"]["value"] == 900
+    assert body["access"]["membership_verified"] is True
+
+
 def test_product_360_rejects_actor_without_active_membership(monkeypatch) -> None:
     configure_service(monkeypatch)
 
