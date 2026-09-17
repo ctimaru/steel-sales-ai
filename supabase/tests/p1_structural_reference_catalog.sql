@@ -42,21 +42,24 @@ select pg_temp.p115_struct_assert(
 
 -- Canonical material identities are independent from geometry/source rows.
 select pg_temp.p115_struct_assert(
-  (select count(*) = 1 from public.steel_material_grades
-   where standard_system_key='en' and designation_key='s355j2h'
-     and material_number_key=public.canonical_steel_token('1.0576')),
+  exists (
+    select 1 from public.steel_material_grades
+    where standard_system='EN' and designation='S355J2H' and material_number='1.0576'
+  ),
   'S355J2H / 1.0576 must exist'
 );
 select pg_temp.p115_struct_assert(
-  (select count(*) = 1 from public.steel_material_grades
-   where standard_system_key='en' and designation_key='s355nh'
-     and material_number_key=public.canonical_steel_token('1.0539')),
+  exists (
+    select 1 from public.steel_material_grades
+    where standard_system='EN' and designation='S355NH' and material_number='1.0539'
+  ),
   'S355NH / 1.0539 must exist'
 );
 select pg_temp.p115_struct_assert(
-  (select count(*) = 1 from public.steel_material_grades
-   where standard_system_key='en' and designation_key='s355nlh'
-     and material_number_key=public.canonical_steel_token('1.0549')),
+  exists (
+    select 1 from public.steel_material_grades
+    where standard_system='EN' and designation='S355NLH' and material_number='1.0549'
+  ),
   'S355NLH / 1.0549 must exist'
 );
 
