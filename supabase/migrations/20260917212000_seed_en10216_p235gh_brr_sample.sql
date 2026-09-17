@@ -248,11 +248,8 @@ on conflict do nothing;
 
 -- Raw/promoted provenance observations.
 with ctx as (
-  select s.id as standard_id,g.id as grade_id
+  select s.id as standard_id
   from public.steel_standards s
-  join public.steel_material_grades g
-    on g.designation_key=public.canonical_steel_token('P235GH')
-   and g.material_number_key=public.canonical_steel_token('1.0345')
   where s.code_key=public.canonical_steel_token('EN 10216-2')
     and s.status='active'
   limit 1
@@ -260,7 +257,7 @@ with ctx as (
 insert into public.steel_reference_observations (
   knowledge_source_id, source_locator, observation_type,
   observed_standard_code, observed_grade, observed_product_family,
-  normalized_standard_id, normalized_grade_id, normalized_geometry_id,
+  normalized_standard_id, normalized_geometry_id,
   raw_payload, content_checksum, promotion_status, reviewed_at, metadata
 )
 select
@@ -271,12 +268,12 @@ select
   'P235GH',
   'round_tube',
   ctx.standard_id,
-  ctx.grade_id,
   geo.id,
   jsonb_build_object(
     'outer_diameter_mm',x.outer_diameter_mm,
     'thickness_mm',x.thickness_mm,
     'published_weight_kg_m',x.published_weight_kg_m,
+    'material_number','1.0345',
     'test_class','TC1'
   ),
   md5(concat_ws('|','BRR','EN10216-2','P235GH',x.outer_diameter_mm::text,x.thickness_mm::text,x.published_weight_kg_m::text)),
@@ -284,6 +281,7 @@ select
   now(),
   jsonb_build_object(
     'seed','sk4.3e-en10216-p235gh-brr',
+    'material_number','1.0345',
     'independent_corroboration',true,
     'not_normative_complete',true
   )
