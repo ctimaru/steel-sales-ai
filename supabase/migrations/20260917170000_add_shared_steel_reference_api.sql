@@ -136,6 +136,13 @@ begin
       message = 'p_standard_code is required';
   end if;
 
+  if p_product_family is not null
+     and p_product_family not in ('round_tube', 'square_tube', 'rectangular_tube') then
+    raise exception using
+      errcode = '22023',
+      message = 'p_product_family is not supported';
+  end if;
+
   if p_base_price_eur_t is not null and p_base_price_eur_t < 0 then
     raise exception using
       errcode = '22023',
