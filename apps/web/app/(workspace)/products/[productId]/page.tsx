@@ -70,6 +70,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Ultimo prezzo</p>
             <p className="mt-1 text-2xl font-semibold">{priceLabel(payload.latest_price)}</p>
             <p className="mt-1 text-xs text-slate-400">{dateLabel(payload.latest_price?.at)}</p>
+            <Link href={`/products/${productId}/prices`} className="mt-3 inline-flex text-xs font-semibold text-indigo-300 hover:text-white">Apri Price History →</Link>
           </div>
         </div>
       </div>
@@ -93,7 +94,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       <section className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <h2 className="text-lg font-semibold text-slate-950">Storico prezzi</h2>
-          <p className="mt-1 text-xs text-slate-500">Solo prezzi realmente estratti da eventi con ruolo offerta.</p>
+          <p className="mt-1 text-xs text-slate-500">Solo prezzi realmente estratti da eventi con ruolo offerta. Per quote/order, trend e comparabili usa Price History.</p>
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[620px] text-left text-sm">
               <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-400">

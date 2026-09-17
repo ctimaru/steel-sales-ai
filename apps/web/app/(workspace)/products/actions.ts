@@ -128,6 +128,108 @@ export type Product360Payload = {
   access?: { membership_verified?: boolean; role?: string | null } | null;
 };
 
+export type PriceHistoryRow = {
+  observation_id: number;
+  item_role: string;
+  price_kind: "quote" | "order" | "rfq_reference" | "delivery_reference" | "reference";
+  at: string | null;
+  value: number | null;
+  unit: string | null;
+  currency: string | null;
+  normalized_per_m: number | null;
+  normalized_per_tonne: number | null;
+  normalization_method: string;
+  quantity: number | null;
+  quantity_unit: string | null;
+  discount_percentage?: number | null;
+  delivery_term: string | null;
+  delivery_term_status: string;
+  payment_terms?: string | null;
+  thread_id: string | null;
+  thread_subject: string | null;
+  source_filename: string | null;
+  source_text: string | null;
+  confidence?: number | null;
+  company?: ProductCounterparty | null;
+};
+
+export type PriceTrend = {
+  sample_count: number;
+  currency: string | null;
+  normalized_unit: string;
+  latest_value: number | null;
+  previous_value: number | null;
+  delta_value: number | null;
+  delta_pct: number | null;
+  direction: "up" | "down" | "flat" | "insufficient_data";
+};
+
+export type ComparablePrice = {
+  canonical_product_id: string;
+  canonical_product_key: string;
+  product_type: string | null;
+  grade: string | null;
+  standard: string | null;
+  outer_diameter_mm: number | null;
+  width_mm: number | null;
+  height_mm: number | null;
+  thickness_mm: number | null;
+  price_kind: "quote" | "order";
+  at: string | null;
+  value: number | null;
+  unit: string | null;
+  currency: string | null;
+  normalized_per_tonne: number | null;
+  theoretical_weight_kg_m: number | null;
+  quantity: number | null;
+  quantity_unit: string | null;
+  comparability_score: number;
+  comparability_tier: "high" | "medium" | "contextual";
+  reasons: string[];
+  difference_vs_target_pct: number | null;
+  thread_id: string | null;
+  thread_subject: string | null;
+  source_filename: string | null;
+  source_text: string | null;
+  company?: ProductCounterparty | null;
+};
+
+export type PriceHistoryPayload = {
+  found: boolean;
+  product?: {
+    canonical_product_id: string;
+    canonical_product_key: string;
+    product_type: string | null;
+    grade: string | null;
+    standard: string | null;
+    material_number: string | null;
+    outer_diameter_mm: number | null;
+    width_mm: number | null;
+    height_mm: number | null;
+    thickness_mm: number | null;
+    theoretical_weight_kg_m: number | null;
+    weight_method: string;
+  } | null;
+  latest_quote?: PriceHistoryRow | null;
+  latest_order?: PriceHistoryRow | null;
+  trend?: { quote?: PriceTrend | null; order?: PriceTrend | null };
+  history?: PriceHistoryRow[];
+  stats?: Array<{
+    price_kind: string;
+    currency: string;
+    sample_count: number;
+    min_per_tonne: number | null;
+    max_per_tonne: number | null;
+    avg_per_tonne: number | null;
+    first_price_at: string | null;
+    latest_price_at: string | null;
+  }>;
+  comparables?: ComparablePrice[];
+  comparability_policy?: Record<string, unknown> | null;
+  data_quality?: Record<string, string> | null;
+  access?: { membership_verified?: boolean; role?: string | null } | null;
+};
+
 function supabaseConfigured(): boolean {
   return Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
@@ -202,5 +304,25 @@ export async function loadProduct360(productId: string): Promise<Product360Paylo
     });
   } catch (error) {
     return { found: false, error: error instanceof Error ? error.message : "Product 360 non disponibile." };
+  }
+}
+
+export async function loadPriceHistory(productId: string): Promise<PriceHistoryPayload & { error?: string }> {
+  if (!supabaseConfigured()) {
+    return {
+      found: false,
+      error: "Price History non è disponibile in modalità demo: collega Supabase per interrogare la Commercial Memory.",
+    };
+  }
+  const actor = await actorUserId();
+  if (!actor) return { found: false, error: "Sessione non valida o scaduta." };
+  try {
+    return await workerCall<PriceHistoryPayload>(`/v1/products/${encodeURIComponent(productId)}/prices`, {
+      actor_user_id: actor,
+      limit: 250,
+      comparable_limit: 20,
+    });
+  } catch (error) {
+    return { found: false, error: error instanceof Error ? error.message : "Price History non disponibile." };
   }
 }
