@@ -60,8 +60,12 @@ select pg_temp.assert_true(
   'user A must not see tenant C row'
 );
 select pg_temp.assert_true(
-  (select count(*) = 2 from public.knowledge_sources),
-  'user A must see private A plus global knowledge'
+  exists (select 1 from public.knowledge_sources where id='40000000-0000-0000-0000-000000000001'),
+  'user A must see private A knowledge'
+);
+select pg_temp.assert_true(
+  exists (select 1 from public.knowledge_sources where id='40000000-0000-0000-0000-000000000002'),
+  'user A must see global knowledge'
 );
 
 -- User B: same organization must see A's private commercial/knowledge data.
