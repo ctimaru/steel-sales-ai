@@ -42,37 +42,55 @@ select pg_temp.p115_v2_assert(
 );
 
 select pg_temp.p115_v2_assert(
-  (select count(*) = 3 from public.steel_geometries),
+  (
+    select count(distinct d.geometry_id) = 3
+    from public.steel_dimensional_rows d
+    join public.steel_standards s on s.id = d.standard_id
+    where s.code_key = public.canonical_steel_token('EN 10224')
+      and d.geometry_id is not null
+  ),
   'three existing EN 10224 rows must become three reusable canonical geometries'
 );
 
 select pg_temp.p115_v2_assert(
   (
     select count(*) = 3
-    from public.steel_dimensional_rows
-    where geometry_id is not null
+    from public.steel_dimensional_rows d
+    join public.steel_standards s on s.id = d.standard_id
+    where s.code_key = public.canonical_steel_token('EN 10224')
+      and d.geometry_id is not null
   ),
-  'all legacy dimensional rows must point to canonical geometry'
+  'all legacy EN 10224 dimensional rows must point to canonical geometry'
 );
 
 select pg_temp.p115_v2_assert(
   (
     select count(*) = 3
-    from public.steel_standard_dimension_applicability
-    where applicability_type = 'manufacturer_range'
-      and not is_normative_complete
+    from public.steel_standard_dimension_applicability a
+    join public.steel_standards s on s.id = a.standard_id
+    where s.code_key = public.canonical_steel_token('EN 10224')
+      and a.applicability_type = 'manufacturer_range'
+      and not a.is_normative_complete
   ),
-  'legacy manufacturer rows must remain explicitly non-normative-complete'
+  'legacy EN 10224 manufacturer rows must remain explicitly non-normative-complete'
 );
 
 select pg_temp.p115_v2_assert(
   (
     select count(*) = 3
-    from public.steel_weight_references
-    where weight_method = 'published'
-      and is_canonical
+    from public.steel_weight_references w
+    where w.weight_method = 'published'
+      and w.is_canonical
+      and exists (
+        select 1
+        from public.steel_dimensional_rows d
+        join public.steel_standards s on s.id = d.standard_id
+        where s.code_key = public.canonical_steel_token('EN 10224')
+          and d.geometry_id = w.geometry_id
+          and d.knowledge_source_id = w.knowledge_source_id
+      )
   ),
-  'legacy published kg/m values must be promoted into weight references'
+  'legacy EN 10224 published kg/m values must be promoted into weight references'
 );
 
 -- The old SK4 RPC remains a compatibility contract while the v2 API evolves.
@@ -93,28 +111,29 @@ select pg_temp.p115_v2_assert(
 reset role;
 
 -- Canonical geometries are standard-independent and cover CHS / SHS / RHS.
+-- Deliberately unusual values keep these CI fixtures outside real catalog ranges.
 insert into public.steel_geometries (
   id, product_family, outer_diameter_mm, width_mm, height_mm, thickness_mm, metadata
 ) values
   (
     'a4110000-0000-4000-8000-000000000001'::uuid,
-    'round_tube', 168.3, null, null, 7.1,
+    'round_tube', 987.6, null, null, 12.34,
     jsonb_build_object('test_fixture', true)
   ),
   (
     'a4110000-0000-4000-8000-000000000002'::uuid,
-    'square_tube', null, 100, 100, 5,
+    'square_tube', null, 101.1, 101.1, 5.1,
     jsonb_build_object('test_fixture', true)
   ),
   (
     'a4110000-0000-4000-8000-000000000003'::uuid,
-    'rectangular_tube', null, 200, 100, 8,
+    'rectangular_tube', null, 201.1, 101.1, 8.1,
     jsonb_build_object('test_fixture', true)
   );
 
 select pg_temp.p115_v2_assert(
   (
-    select geometry_key = 'round|od=168.3|t=7.1'
+    select geometry_key = 'round|od=987.6|t=12.34'
     from public.steel_geometries
     where id = 'a4110000-0000-4000-8000-000000000001'::uuid
   ),
@@ -123,7 +142,7 @@ select pg_temp.p115_v2_assert(
 
 select pg_temp.p115_v2_assert(
   (
-    select geometry_key = 'rect|200x100|t=8'
+    select geometry_key = 'rect|201.1x101.1|t=8.1'
     from public.steel_geometries
     where id = 'a4110000-0000-4000-8000-000000000003'::uuid
   ),
@@ -135,7 +154,7 @@ begin
   begin
     insert into public.steel_geometries (
       product_family, width_mm, height_mm, thickness_mm
-    ) values ('rectangular_tube', 100, 200, 8);
+    ) values ('rectangular_tube', 101.1, 201.1, 8.1);
     raise exception 'reversed RHS orientation unexpectedly created a duplicate';
   exception
     when unique_violation then null;
@@ -277,7 +296,7 @@ insert into public.steel_dimension_designations (
 
 select pg_temp.p115_v2_assert(
   (
-    select g.outer_diameter_mm = 168.3
+    select g.outer_diameter_mm = 987.6
       and d.nps = 6
       and d.dn = 150
       and d.schedule = 'TEST40'
