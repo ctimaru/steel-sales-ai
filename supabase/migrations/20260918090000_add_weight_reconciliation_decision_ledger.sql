@@ -183,4 +183,4 @@ begin
   delete from public.steel_weight_reconciliation_decisions where id=v_decision.id;
   delete from auth.users where id=v_actor and email='sk45c-ci@example.invalid';
 end
-$;
+$$;
