@@ -129,10 +129,18 @@ begin
     raise exception 'SK4.5c baseline candidate missing';
   end if;
 
-  select id into v_actor from auth.users order by created_at limit 1;
-  if v_actor is null then
-    raise exception 'SK4.5c CI baseline requires one auth user';
-  end if;
+  -- Fresh CI rebuilds intentionally have no auth users. Create a transaction-local
+  -- synthetic actor only for this migration assertion, then remove it below.
+  insert into auth.users (
+    instance_id,id,aud,role,email,encrypted_password,email_confirmed_at,
+    raw_app_meta_data,raw_user_meta_data,created_at,updated_at
+  ) values (
+    '00000000-0000-0000-0000-000000000000'::uuid,
+    '45c50000-0000-4000-8000-000000000001'::uuid,
+    'authenticated','authenticated','sk45c-ci@example.invalid','',now(),
+    '{"provider":"email","providers":["email"]}'::jsonb,'{}'::jsonb,now(),now()
+  ) on conflict (id) do nothing;
+  v_actor := '45c50000-0000-4000-8000-000000000001'::uuid;
 
   select count(*) filter(where is_canonical), count(*) filter(where weight_method='verified')
   into v_before_canonical,v_before_verified
@@ -172,7 +180,7 @@ begin
     raise exception 'SK4.5c decision writer must be service-role only';
   end if;
 
-  delete from public.steel_weight_reconciliation_decisions
-  where id=v_decision.id;
+  delete from public.steel_weight_reconciliation_decisions where id=v_decision.id;
+  delete from auth.users where id=v_actor and email='sk45c-ci@example.invalid';
 end
-$$;
+$;
