@@ -76,6 +76,11 @@ function technicalFacts(result: GlobalSearchResult) {
   ].filter(Boolean) as string[];
 }
 
+function sharedReference(result: GlobalSearchResult) {
+  const value = result.metadata?.shared_reference;
+  return value && typeof value === "object" ? value as Record<string, unknown> : null;
+}
+
 function sourceTarget(result: GlobalSearchResult) {
   if (result.thread_id) return `/conversations/${result.thread_id}`;
   const sourceUri = result.metadata?.source_uri;
@@ -199,6 +204,10 @@ export function GlobalSearch() {
             const facts = technicalFacts(result);
             const date = formatDate(result.event_at);
             const target = sourceTarget(result);
+            const reference = sharedReference(result);
+            const referenceStatus = typeof reference?.resolution_status === "string"
+              ? reference.resolution_status
+              : null;
             return (
               <Card key={result.result_id} className="p-5">
                 <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
@@ -207,6 +216,15 @@ export function GlobalSearch() {
                       <Badge tone={typeTone(result.result_type)}>{typeLabel(result.result_type)}</Badge>
                       {result.role ? <Badge tone="neutral">{result.role}</Badge> : null}
                       {date ? <span className="text-xs text-slate-400">{date}</span> : null}
+                      {referenceStatus ? (
+                        <Badge tone={referenceStatus === "matched" ? "green" : referenceStatus === "matched_canonical_missing" ? "amber" : "neutral"}>
+                          {referenceStatus === "matched"
+                            ? "Reference match"
+                            : referenceStatus === "matched_canonical_missing"
+                              ? "Reference · peso da completare"
+                              : "Reference · verifica"}
+                        </Badge>
+                      ) : null}
                     </div>
                     <h3 className="mt-3 text-base font-semibold text-slate-950">{result.title}</h3>
                     {result.subtitle ? <p className="mt-1 text-sm text-slate-500">{result.subtitle}</p> : null}
