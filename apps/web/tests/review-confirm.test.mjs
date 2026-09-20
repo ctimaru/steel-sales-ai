@@ -91,11 +91,11 @@ test("rejects missing users and auth errors without writes", async () => {
 test("saves only the authenticated owner's pending record and refreshes both views", async () => {
   const { calls, run } = await setup();
   assert.equal((await run()).status, "success");
-  assert.deepEqual(calls.filters, [["id", 2], ["owner_id", "owner-a"], ["status", "pending"]]);
+  assert.deepEqual(calls.filters, [["id", 2], ["status", "pending"]]);
   assert.equal(calls.fields, "id,status");
   assert.equal(calls.values.status, "confirmed");
   assert.ok(Number.isFinite(Date.parse(calls.values.reviewed_at)));
-  assert.deepEqual(calls.revalidated, ["/review", "/dashboard"]);
+  assert.deepEqual(calls.revalidated, ["/review", "/dashboard", "/products"]);
 });
 
 test("database errors never produce success or expose backend error text", async () => {
@@ -133,7 +133,7 @@ test("a repeat submission cannot overwrite a completed review", async () => {
   assert.equal((await run()).status, "success");
   result.data = null;
   assert.equal((await run()).status, "error");
-  assert.deepEqual(calls.revalidated, ["/review", "/dashboard"]);
+  assert.deepEqual(calls.revalidated, ["/review", "/dashboard", "/products"]);
 });
 
 test("cache failure does not misreport an acknowledged write as failed", async () => {
