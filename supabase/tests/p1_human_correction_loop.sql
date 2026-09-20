@@ -56,7 +56,6 @@ insert into public.worker_jobs(
   id,filename,extension,size_bytes,status,parser_version,
   owner_id,organization_id,dataset_id
 ) values (
-  911001,
   '00000000-0000-0000-0000-0000000011d1',
   'p111.txt','.txt',128,'completed','v4',
   '00000000-0000-0000-0000-0000000011a1',
@@ -69,6 +68,7 @@ insert into public.worker_staging_observations(
   outer_diameter_mm,thickness_mm,length_mm,price_value,price_unit,currency,
   confidence,metadata
 ) values (
+  911001,
   '00000000-0000-0000-0000-0000000011d1',
   'p111.txt',
   'P265GH 168.3 x 7.11 x 12000 EN 10216-2 EUR 999/T',
@@ -128,7 +128,7 @@ insert into public.commercial_review_queue(
   '00000000-0000-0000-0000-0000000011e1',
   911002,
   'p111_fixture','warning','fixture','pending',911002
-);;
+);
 
 set local role authenticated;
 select set_config(
@@ -317,7 +317,7 @@ begin
       null;
   end;
 end
-$$;;
+$;
 
 reset role;
 
