@@ -16,7 +16,7 @@ export default async function ReviewPage() {
           <p className="text-sm font-semibold text-slate-500">Data Quality</p>
           <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">Review Queue</h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-            Warning residui del parser v3.1, letti dalla superficie app-facing RLS.
+            Casi che richiedono verifica umana. Conferme e correzioni alimentano il feedback loop tenant-safe e, quando correggi un dato, la memoria commerciale viene aggiornata immediatamente.
           </p>
         </div>
         <Badge tone="amber">{pending} da verificare</Badge>
@@ -64,7 +64,7 @@ export default async function ReviewPage() {
       </div>
 
       <p className="mt-5 text-xs leading-5 text-slate-400">
-        “Conferma” aggiorna solo la tabella app-facing tramite la sessione autenticata e RLS. Lo schema staging resta non esposto.
+        “Conferma” registra il feedback senza alterare l’estrazione originale. “Correggi” promuove solo i campi consentiti nella memoria commerciale, conserva before/after e autore nel ledger append-only; lo staging parser resta immutato.
       </p>
     </div>
   );
