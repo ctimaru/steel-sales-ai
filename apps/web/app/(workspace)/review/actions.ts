@@ -45,20 +45,23 @@ function correctedValues(formData: FormData) {
     return { values: null, note: "", error: "Snapshot iniziale non valido. Aggiorna la pagina e riprova." };
   }
 
-  const values: Record<string, string | number> = {};
+  const values: Record<string, string | number | null> = {};
   for (const key of textFields) {
     const value = String(formData.get(key) ?? "").trim();
     const before = original[key] == null ? "" : String(original[key]).trim();
-    if (value && value !== before) values[key] = value;
+    if (value !== before) values[key] = value || null;
   }
   for (const key of numericFields) {
     const raw = String(formData.get(key) ?? "").trim().replace(",", ".");
-    if (!raw) continue;
+    const before = original[key] == null || original[key] === "" ? null : Number(original[key]);
+    if (!raw) {
+      if (before !== null && Number.isFinite(before)) values[key] = null;
+      continue;
+    }
     const value = Number(raw);
     if (!Number.isFinite(value)) {
       return { values: null, note: "", error: `Valore numerico non valido: ${key}.` };
     }
-    const before = original[key] == null || original[key] === "" ? null : Number(original[key]);
     if (before === null || !Number.isFinite(before) || value !== before) values[key] = value;
   }
 
