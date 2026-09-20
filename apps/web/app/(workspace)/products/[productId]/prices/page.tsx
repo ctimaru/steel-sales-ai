@@ -84,6 +84,7 @@ export default async function PriceHistoryPage({ params }: { params: Promise<{ p
   }
 
   const product = payload.product;
+  const reference = payload.shared_reference;
   const quoteTrend = payload.trend?.quote;
   const orderTrend = payload.trend?.order;
 
@@ -102,9 +103,19 @@ export default async function PriceHistoryPage({ params }: { params: Promise<{ p
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">Offerte, ordini e comparabili verificabili. I prezzi grezzi restano autoritativi; la normalizzazione €/m ↔ €/t è evidenziata come teorica.</p>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Peso teorico</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-950">{product.theoretical_weight_kg_m !== null ? `${numberLabel(product.theoretical_weight_kg_m, 3)} kg/m` : "Non disponibile"}</p>
-            <p className="mt-1 text-xs text-slate-400">sezione semplificata · no tolleranze/raggi d'angolo</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Peso reference</p>
+            <p className="mt-1 text-2xl font-semibold text-slate-950">
+              {reference?.effective_weight_kg_m != null
+                ? `${numberLabel(reference.effective_weight_kg_m, 3)} kg/m`
+                : product.theoretical_weight_kg_m !== null
+                  ? `${numberLabel(product.theoretical_weight_kg_m, 3)} kg/m`
+                  : "Non disponibile"}
+            </p>
+            <p className="mt-1 text-xs text-slate-400">
+              {reference?.resolution_status === "matched"
+                ? `canonical · ${reference.effective_source_key ?? "Shared Steel Knowledge"}`
+                : "fallback informativo: peso teorico della sezione"}
+            </p>
           </div>
         </div>
       </header>
@@ -221,7 +232,7 @@ export default async function PriceHistoryPage({ params }: { params: Promise<{ p
 
       <aside className="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-950">
         <p className="font-semibold">Come leggere la normalizzazione</p>
-        <p className="mt-1">Il prezzo originale estratto dal documento non viene mai sostituito. La conversione tra €/m e €/t usa il peso teorico della sezione (densità acciaio 7,85 g/cm³); per tubi quadri/rettangolari non corregge raggi d'angolo o tolleranze produttive. Valute diverse non vengono convertite. Cliente/fornitore e Incoterm/resa sono mostrati solo quando esistono campi strutturati.</p>
+        <p className="mt-1">Il prezzo originale estratto dal documento non viene mai sostituito. Shared Steel Knowledge valida norma, grado e geometria e rende visibile il peso canonical quando disponibile. Le normalizzazioni storiche già persistite restano etichettate secondo il loro metodo; non vengono riscritte retroattivamente. Valute diverse non vengono convertite. Cliente/fornitore e Incoterm/resa sono mostrati solo quando esistono campi strutturati.</p>
       </aside>
     </div>
   );
