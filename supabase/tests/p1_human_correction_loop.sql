@@ -92,8 +92,7 @@ insert into public.commercial_observations(
   id,owner_id,organization_id,dataset_id,thread_id,source_extraction_id,
   source_conversation_id,item_role,product_type,grade,standard,
   outer_diameter_mm,thickness_mm,length_mm,price_value,price_unit,currency,
-  source_filename,source_text,source_clause,confidence,flags,search_text,
-  canonical_product_key,canonical_product_id
+  source_filename,source_text,source_clause,confidence,flags,search_text
 ) values (
   911002,
   '00000000-0000-0000-0000-0000000011a1',
@@ -108,13 +107,7 @@ insert into public.commercial_observations(
   'P265GH 168.3 x 7.11 x 12000 EN 10216-2 EUR 999/T',
   'P265GH 168.3 x 7.11 x 12000 EN 10216-2 EUR 999/T',
   0.75,'[]'::jsonb,
-  'p265gh 168.3 7.11 12000 en 10216-2 999 t eur',
-  public.canonical_tube_product_key(
-    'round_tube','P265GH','EN 10216-2',null,168.3,null,null,7.11,null
-  ),
-  public.canonical_tube_product_id(
-    'round_tube','P265GH','EN 10216-2',null,168.3,null,null,7.11,null
-  )
+  'p265gh 168.3 7.11 12000 en 10216-2 999 t eur'
 );
 
 insert into public.commercial_review_queue(
