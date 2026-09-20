@@ -294,7 +294,7 @@ begin
     cross join lateral (
       select
         count(*) filter (where x.is_canonical)::integer as scope_canonical_count,
-        min(x.id) filter (where x.is_canonical) as current_canonical_reference_id,
+        (min(x.id::text) filter (where x.is_canonical))::uuid as current_canonical_reference_id,
         min(x.weight_kg_m) filter (where x.is_canonical) as current_canonical_weight_kg_m,
         min(x.weight_method) filter (where x.is_canonical) as current_canonical_weight_method,
         coalesce(bool_or(x.weight_method='verified') filter (where x.is_canonical),false)
