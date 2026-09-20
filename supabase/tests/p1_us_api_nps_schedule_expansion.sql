@@ -27,11 +27,17 @@ select pg_temp.sk44c_assert(
    from public.steel_dimension_designations
    where dimensional_system_id='a5440000-0000-4000-8000-000000000201'::uuid
      and nps in (8,10,12)
-     and dn is null
+     and dn=case nps
+       when 8 then 200
+       when 10 then 250
+       when 12 then 300
+     end
+     and metadata->>'dn_mapping_source_key'='primary:victaulic:17.09-nps-dn-map-2026'
+     and coalesce((metadata->>'dn_mapping_not_normative_equivalence')::boolean,false)
      and metadata->>'microblock'='SK4.4c'
      and coalesce((metadata->>'manufacturer_designation_only')::boolean,false)
      and coalesce((metadata->>'not_asme_normative_mapping')::boolean,false)),
-  'NPS 8/10/12 designations must remain manufacturer-scoped and DN-free'
+  'NPS 8/10/12 designations must preserve manufacturer facts and source-backed DN mapping'
 );
 
 select pg_temp.sk44c_assert(
