@@ -31,6 +31,7 @@ from .repository import (
     WorkerRepository,
 )
 from .storage import StorageConfigurationError, upload_private_object
+from .shared_reference import validate_parser_observations_with_shared_reference
 
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024
 ALLOWED_EXTENSIONS = {".zip", ".eml", ".pdf", ".xls", ".xlsx"}
@@ -195,18 +196,22 @@ async def process_job(job_id: UUID) -> None:
             ),
             job._content,
         )
+        observations = prepared.observations
+        if repo:
+            observations = await validate_parser_observations_with_shared_reference(repo, observations)
+
         job.result = {
             "parser_version": prepared.parser_version,
             "input_kind": prepared.input_kind,
             "processing_status": prepared.status,
             "storage_path": prepared.storage_path,
-            "extraction_count": len(prepared.observations),
+            "extraction_count": len(observations),
         }
         if repo:
             assert job.owner_id is not None
             await repo.insert_observations(
                 job_id=job.job_id,
-                observations=prepared.observations,
+                observations=observations,
             )
             knowledge_document = build_knowledge_document(
                 filename=job.filename,
