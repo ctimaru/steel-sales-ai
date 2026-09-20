@@ -33,10 +33,12 @@ select pg_temp.sk44b_assert(
        public.canonical_steel_token('120'),
        public.canonical_steel_token('160')
      )
-     and dd.dn is null
+     and dd.dn=150
+     and dd.metadata->>'dn_mapping_source_key'='primary:victaulic:17.09-nps-dn-map-2026'
+     and coalesce((dd.metadata->>'dn_mapping_not_normative_equivalence')::boolean,false)
      and coalesce((dd.metadata->>'manufacturer_designation_only')::boolean,false)
      and coalesce((dd.metadata->>'not_asme_normative_mapping')::boolean,false)),
-  'NPS 6 schedule designations must remain source-scoped manufacturer facts'
+  'NPS 6 schedule designations must preserve manufacturer facts and source-backed DN mapping'
 );
 
 select pg_temp.sk44b_assert(
