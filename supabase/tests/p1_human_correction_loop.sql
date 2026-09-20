@@ -98,6 +98,8 @@ select canonical_product_id,canonical_product_key
 from public.commercial_observations
 where id=911101;
 
+grant select on p111_before to authenticated;
+
 -- A teammate in the same tenant resolves the owner's review.
 set local role authenticated;
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000111b1',true);
