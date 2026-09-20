@@ -18,8 +18,8 @@ select pg_temp.sk44a_assert(
     where code_key=public.canonical_steel_token('API Spec 5L')
       and edition='47th Edition (2026)'
       and status='active'
-      and standard_system_key is null
-  ) is not false,
+      and standard_system='API'
+  ),
   'API Spec 5L 47th edition standard must exist'
 );
 
