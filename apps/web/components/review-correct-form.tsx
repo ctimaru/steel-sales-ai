@@ -19,13 +19,27 @@ export function ReviewCorrectForm({ id, reviewed }: { id: string; reviewed: bool
         <input type="hidden" name="id" value={id} />
         <input name="grade" placeholder="Qualità (es. S355J2H)" disabled={pending || reviewed} className="w-full rounded border border-slate-200 px-2 py-1.5 text-xs" />
         <input name="standard" placeholder="Norma (es. EN 10219)" disabled={pending || reviewed} className="w-full rounded border border-slate-200 px-2 py-1.5 text-xs" />
+        <input name="material_number" placeholder="Materiale / numero materiale" disabled={pending || reviewed} className="w-full rounded border border-slate-200 px-2 py-1.5 text-xs" />
+        <div className="grid grid-cols-2 gap-2">
+          <input name="outer_diameter_mm" inputMode="decimal" placeholder="Diametro mm" disabled={pending || reviewed} className="w-full rounded border border-slate-200 px-2 py-1.5 text-xs" />
+          <input name="thickness_mm" inputMode="decimal" placeholder="Spessore mm" disabled={pending || reviewed} className="w-full rounded border border-slate-200 px-2 py-1.5 text-xs" />
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <input name="width_mm" inputMode="decimal" placeholder="Larghezza mm" disabled={pending || reviewed} className="w-full rounded border border-slate-200 px-2 py-1.5 text-xs" />
+          <input name="height_mm" inputMode="decimal" placeholder="Altezza mm" disabled={pending || reviewed} className="w-full rounded border border-slate-200 px-2 py-1.5 text-xs" />
+        </div>
         <div className="grid grid-cols-2 gap-2">
           <input name="length_mm" inputMode="decimal" placeholder="Lunghezza mm" disabled={pending || reviewed} className="w-full rounded border border-slate-200 px-2 py-1.5 text-xs" />
           <input name="quantity" inputMode="decimal" placeholder="Quantità" disabled={pending || reviewed} className="w-full rounded border border-slate-200 px-2 py-1.5 text-xs" />
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <input name="quantity_unit" placeholder="Unità (T/PZ)" disabled={pending || reviewed} className="w-full rounded border border-slate-200 px-2 py-1.5 text-xs" />
+          <input name="quantity_unit" placeholder="Unità quantità (T/PZ)" disabled={pending || reviewed} className="w-full rounded border border-slate-200 px-2 py-1.5 text-xs" />
           <input name="availability_status" placeholder="Disponibilità" disabled={pending || reviewed} className="w-full rounded border border-slate-200 px-2 py-1.5 text-xs" />
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          <input name="price_value" inputMode="decimal" placeholder="Prezzo" disabled={pending || reviewed} className="w-full rounded border border-slate-200 px-2 py-1.5 text-xs" />
+          <input name="price_unit" placeholder="€/T / €/M" disabled={pending || reviewed} className="w-full rounded border border-slate-200 px-2 py-1.5 text-xs" />
+          <input name="currency" placeholder="EUR" disabled={pending || reviewed} className="w-full rounded border border-slate-200 px-2 py-1.5 text-xs" />
         </div>
         <textarea name="note" placeholder="Nota della revisione" rows={2} disabled={pending || reviewed} className="w-full rounded border border-slate-200 px-2 py-1.5 text-xs" />
         <button type="submit" disabled={pending || saved || reviewed} className="w-full rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
