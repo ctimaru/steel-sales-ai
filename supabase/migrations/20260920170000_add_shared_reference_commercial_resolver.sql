@@ -302,22 +302,22 @@ begin
   from public.worker_staging_observations s
   where s.id=new.source_extraction_id;
 
-  select issue into v_issue
+  select x.value into v_issue
   from jsonb_array_elements(
     case
       when jsonb_typeof(v_metadata #> '{validation,issues}')='array'
         then v_metadata #> '{validation,issues}'
       else '[]'::jsonb
     end
-  ) issue
-  where issue->>'code' in (
+  ) as x(value)
+  where x.value->>'code' in (
     'reference_standard_not_found',
     'reference_grade_not_found',
     'reference_geometry_not_found',
     'reference_standard_grade_not_applicable',
     'reference_standard_dimension_not_applicable'
   )
-  order by case issue->>'severity' when 'error' then 1 else 2 end
+  order by case x.value->>'severity' when 'error' then 1 else 2 end
   limit 1;
 
   if v_issue is null then
