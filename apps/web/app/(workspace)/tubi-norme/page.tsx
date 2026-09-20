@@ -16,6 +16,25 @@ type EffectiveWeightRow = {
   effective_weight_method: string | null;
 };
 
+type DimensionLink = {
+  geometry_id: string;
+  material_grade_id: string | null;
+  is_normative_complete: boolean;
+  applicability_type: string;
+};
+
+type CanonicalReference = {
+  id: string;
+  knowledge_source_id: string | null;
+};
+
+type KnowledgeSource = {
+  id: string;
+  source_key: string;
+  provider: string;
+  source_class: string;
+};
+
 function numberOrNull(value: string | undefined) {
   if (!value) return null;
   const normalized = value.replace(",", ".");
@@ -77,7 +96,7 @@ export default async function TubesStandardsPage({
   const [{ data: standards }, { data: readiness }] = await Promise.all([
     supabase
       .from("steel_standards")
-      .select("id,code,title,standard_system,application_category")
+      .select("id,code,title,short_explanation,scope_summary,standard_system,application_category")
       .eq("status", "active")
       .order("standard_system")
       .order("code"),
@@ -89,9 +108,10 @@ export default async function TubesStandardsPage({
 
   let gradeIds: string[] = [];
   let geometryIds: string[] = [];
+  let dimensionLinks: DimensionLink[] = [];
 
   if (selectedStandardId) {
-    const [{ data: gradeLinks }, { data: dimensionLinks }] = await Promise.all([
+    const [{ data: gradeLinks }, { data: dimensionData }] = await Promise.all([
       supabase
         .from("steel_standard_grade_applicability")
         .select("material_grade_id")
@@ -102,8 +122,9 @@ export default async function TubesStandardsPage({
         .eq("standard_id", selectedStandardId),
     ]);
 
+    dimensionLinks = (dimensionData ?? []) as DimensionLink[];
     gradeIds = [...new Set((gradeLinks ?? []).map((row) => row.material_grade_id))];
-    geometryIds = [...new Set((dimensionLinks ?? []).map((row) => row.geometry_id))];
+    geometryIds = [...new Set(dimensionLinks.map((row) => row.geometry_id))];
   }
 
   const [{ data: grades }, { data: geometries }, { data: effectiveRows }] = await Promise.all([
@@ -142,6 +163,42 @@ export default async function TubesStandardsPage({
     ]),
   );
 
+  const canonicalReferenceIds = [
+    ...new Set(
+      ((effectiveRows ?? []) as EffectiveWeightRow[])
+        .map((row) => row.effective_reference_id)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+
+  const { data: canonicalReferencesData } = canonicalReferenceIds.length
+    ? await supabase
+        .from("steel_weight_references")
+        .select("id,knowledge_source_id")
+        .in("id", canonicalReferenceIds)
+    : { data: [] };
+
+  const canonicalReferences = (canonicalReferencesData ?? []) as CanonicalReference[];
+  const sourceIds = [
+    ...new Set(
+      canonicalReferences
+        .map((row) => row.knowledge_source_id)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+
+  const { data: sourcesData } = sourceIds.length
+    ? await supabase
+        .from("knowledge_sources")
+        .select("id,source_key,provider,source_class")
+        .in("id", sourceIds)
+    : { data: [] };
+
+  const sourceById = new Map(
+    ((sourcesData ?? []) as KnowledgeSource[]).map((source) => [source.id, source]),
+  );
+  const referenceById = new Map(canonicalReferences.map((reference) => [reference.id, reference]));
+
   const rows = (geometries ?? []).map((geometry) => {
     const key = `${geometry.id}|${selectedGradeId}`;
     const effective = effectiveMap.get(key);
@@ -153,12 +210,23 @@ export default async function TubesStandardsPage({
     const pricePerPiece =
       pricePerMeter != null && lengthM != null ? pricePerMeter * lengthM : null;
 
+    const dimensionEvidence = dimensionLinks.filter((link) => link.geometry_id === geometry.id);
+    const isNormativeComplete = dimensionEvidence.some((link) => link.is_normative_complete);
+    const canonicalReference = effective?.effective_reference_id
+      ? referenceById.get(effective.effective_reference_id)
+      : undefined;
+    const source = canonicalReference?.knowledge_source_id
+      ? sourceById.get(canonicalReference.knowledge_source_id)
+      : undefined;
+
     return {
       geometry,
       effective,
       weight,
       pricePerMeter,
       pricePerPiece,
+      isNormativeComplete,
+      source,
     };
   });
 
@@ -265,6 +333,9 @@ export default async function TubesStandardsPage({
           <p className="mt-1 text-xs text-slate-500">
             {selectedStandard?.application_category?.replaceAll("_", " ") ?? "—"}
           </p>
+          <p className="mt-2 text-xs leading-5 text-slate-500">
+            {selectedStandard?.short_explanation ?? selectedStandard?.scope_summary ?? selectedStandard?.title ?? "—"}
+          </p>
         </div>
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
           <p className="text-xs font-semibold text-emerald-700">Canonical disponibili</p>
@@ -298,13 +369,15 @@ export default async function TubesStandardsPage({
                 <th className="px-4 py-3 font-semibold">Dimensione</th>
                 <th className="px-4 py-3 font-semibold">Peso kg/m</th>
                 <th className="px-4 py-3 font-semibold">Metodo</th>
+                <th className="px-4 py-3 font-semibold">Copertura</th>
+                <th className="px-4 py-3 font-semibold">Fonte</th>
                 <th className="px-4 py-3 font-semibold">€/m</th>
                 <th className="px-4 py-3 font-semibold">€/pezzo</th>
                 <th className="px-4 py-3 font-semibold">Stato</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {rows.map(({ geometry, effective, weight, pricePerMeter, pricePerPiece }) => {
+              {rows.map(({ geometry, effective, weight, pricePerMeter, pricePerPiece, isNormativeComplete, source }) => {
                 const available = effective?.effective_status === "canonical_available";
                 return (
                   <tr key={geometry.id} className="align-top">
@@ -316,6 +389,23 @@ export default async function TubesStandardsPage({
                     </td>
                     <td className="px-4 py-3.5 text-slate-500">
                       {effective?.effective_weight_method ?? "—"}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span className={
+                        isNormativeComplete
+                          ? "inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700"
+                          : "inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600"
+                      }>
+                        {isNormativeComplete ? "Normativa completa" : "Source-scoped"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 text-xs text-slate-500">
+                      {source ? (
+                        <>
+                          <p className="font-semibold text-slate-700">{source.provider}</p>
+                          <p className="mt-0.5">{source.source_class} · {source.source_key}</p>
+                        </>
+                      ) : "—"}
                     </td>
                     <td className="px-4 py-3.5 font-medium text-slate-900">
                       {pricePerTonne == null ? "Inserisci €/t" : formatNumber(pricePerMeter, 4)}
@@ -339,7 +429,7 @@ export default async function TubesStandardsPage({
               })}
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-sm text-slate-500">
+                  <td colSpan={8} className="px-4 py-10 text-center text-sm text-slate-500">
                     Nessuna geometria collegata a questa norma nel catalogo corrente.
                   </td>
                 </tr>
