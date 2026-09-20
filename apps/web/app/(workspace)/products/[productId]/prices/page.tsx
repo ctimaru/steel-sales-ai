@@ -103,7 +103,7 @@ export default async function PriceHistoryPage({ params }: { params: Promise<{ p
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">Offerte, ordini e comparabili verificabili. I prezzi grezzi restano autoritativi; la normalizzazione €/m ↔ €/t è evidenziata come teorica.</p>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Peso reference</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Peso teorico / reference</p>
             <p className="mt-1 text-2xl font-semibold text-slate-950">
               {reference?.effective_weight_kg_m != null
                 ? `${numberLabel(reference.effective_weight_kg_m, 3)} kg/m`
@@ -232,7 +232,7 @@ export default async function PriceHistoryPage({ params }: { params: Promise<{ p
 
       <aside className="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-950">
         <p className="font-semibold">Come leggere la normalizzazione</p>
-        <p className="mt-1">Il prezzo originale estratto dal documento non viene mai sostituito. Shared Steel Knowledge valida norma, grado e geometria e rende visibile il peso canonical quando disponibile. Le normalizzazioni storiche già persistite restano etichettate secondo il loro metodo; non vengono riscritte retroattivamente. Valute diverse non vengono convertite. Cliente/fornitore e Incoterm/resa sono mostrati solo quando esistono campi strutturati.</p>
+        <p className="mt-1">Il prezzo originale estratto dal documento non viene mai sostituito. Shared Steel Knowledge valida norma, grado e geometria e rende visibile il peso canonical quando disponibile. Le normalizzazioni storiche €/m ↔ €/t già persistite usano il peso teorico della sezione secondo il metodo originario; restano etichettate secondo quel metodo e non vengono riscritte retroattivamente. Valute diverse non vengono convertite. Cliente/fornitore e Incoterm/resa sono mostrati solo quando esistono campi strutturati.</p>
       </aside>
     </div>
   );
