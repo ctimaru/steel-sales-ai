@@ -56,6 +56,7 @@ insert into public.worker_jobs(
   id,filename,extension,size_bytes,status,parser_version,
   owner_id,organization_id,dataset_id
 ) values (
+  911001,
   '00000000-0000-0000-0000-0000000011d1',
   'p111.txt','.txt',128,'completed','v4',
   '00000000-0000-0000-0000-0000000011a1',
@@ -64,7 +65,7 @@ insert into public.worker_jobs(
 );
 
 insert into public.worker_staging_observations(
-  job_id,source_filename,source_text,item_role,grade,standard,
+  id,job_id,source_filename,source_text,item_role,grade,standard,
   outer_diameter_mm,thickness_mm,length_mm,price_value,price_unit,currency,
   confidence,metadata
 ) values (
@@ -87,57 +88,47 @@ insert into public.commercial_threads(
   'P1.11 fixture','offer',now(),now(),0
 );
 
-do $$
-declare
-  v_staging_id bigint;
-  v_observation_id bigint;
-begin
-  select id into v_staging_id
-  from public.worker_staging_observations
-  where job_id='00000000-0000-0000-0000-0000000011d1'::uuid
-  limit 1;
+insert into public.commercial_observations(
+  id,owner_id,organization_id,dataset_id,thread_id,source_extraction_id,
+  source_conversation_id,item_role,product_type,grade,standard,
+  outer_diameter_mm,thickness_mm,length_mm,price_value,price_unit,currency,
+  source_filename,source_text,source_clause,confidence,flags,search_text,
+  canonical_product_key,canonical_product_id
+) values (
+  911002,
+  '00000000-0000-0000-0000-0000000011a1',
+  '00000000-0000-0000-0000-0000000011f1',
+  '00000000-0000-0000-0000-0000000011c1',
+  '00000000-0000-0000-0000-0000000011e1',
+  911001,
+  '00000000-0000-0000-0000-0000000011d1',
+  'offered','round_tube','P265GH','EN 10216-2',
+  168.3,7.11,12000,999,'T','EUR',
+  'p111.txt',
+  'P265GH 168.3 x 7.11 x 12000 EN 10216-2 EUR 999/T',
+  'P265GH 168.3 x 7.11 x 12000 EN 10216-2 EUR 999/T',
+  0.75,'[]'::jsonb,
+  'p265gh 168.3 7.11 12000 en 10216-2 999 t eur',
+  public.canonical_tube_product_key(
+    'round_tube','P265GH','EN 10216-2',null,168.3,null,null,7.11,null
+  ),
+  public.canonical_tube_product_id(
+    'round_tube','P265GH','EN 10216-2',null,168.3,null,null,7.11,null
+  )
+);
 
-  insert into public.commercial_observations(
-    owner_id,organization_id,dataset_id,thread_id,source_extraction_id,
-    source_conversation_id,item_role,product_type,grade,standard,
-    outer_diameter_mm,thickness_mm,length_mm,price_value,price_unit,currency,
-    source_filename,source_text,source_clause,confidence,flags,search_text,
-    canonical_product_key,canonical_product_id
-  ) values (
-    '00000000-0000-0000-0000-0000000011a1',
-    '00000000-0000-0000-0000-0000000011f1',
-    '00000000-0000-0000-0000-0000000011c1',
-    '00000000-0000-0000-0000-0000000011e1',
-    v_staging_id,
-    '00000000-0000-0000-0000-0000000011d1',
-    'offered','round_tube','P265GH','EN 10216-2',
-    168.3,7.11,12000,999,'T','EUR',
-    'p111.txt',
-    'P265GH 168.3 x 7.11 x 12000 EN 10216-2 EUR 999/T',
-    'P265GH 168.3 x 7.11 x 12000 EN 10216-2 EUR 999/T',
-    0.75,'[]'::jsonb,
-    'p265gh 168.3 7.11 12000 en 10216-2 999 t eur',
-    public.canonical_tube_product_key(
-      'round_tube','P265GH','EN 10216-2',null,168.3,null,null,7.11,null
-    ),
-    public.canonical_tube_product_id(
-      'round_tube','P265GH','EN 10216-2',null,168.3,null,null,7.11,null
-    )
-  ) returning id into v_observation_id;
-
-  insert into public.commercial_review_queue(
-    owner_id,organization_id,dataset_id,thread_id,source_review_id,
-    reason,severity,source_text,status,observation_id
-  ) values (
-    '00000000-0000-0000-0000-0000000011a1',
-    '00000000-0000-0000-0000-0000000011f1',
-    '00000000-0000-0000-0000-0000000011c1',
-    '00000000-0000-0000-0000-0000000011e1',
-    v_observation_id,
-    'p111_fixture','warning','fixture','pending',v_observation_id
-  );
-end
-$$;
+insert into public.commercial_review_queue(
+  id,owner_id,organization_id,dataset_id,thread_id,source_review_id,
+  reason,severity,source_text,status,observation_id
+) values (
+  911003,
+  '00000000-0000-0000-0000-0000000011a1',
+  '00000000-0000-0000-0000-0000000011f1',
+  '00000000-0000-0000-0000-0000000011c1',
+  '00000000-0000-0000-0000-0000000011e1',
+  911002,
+  'p111_fixture','warning','fixture','pending',911002
+);;
 
 set local role authenticated;
 select set_config(
@@ -153,10 +144,7 @@ declare
   v_result jsonb;
   v_repeat jsonb;
 begin
-  select id into v_review_id
-  from public.commercial_review_queue
-  where organization_id='00000000-0000-0000-0000-0000000011f1'::uuid
-    and reason='p111_fixture';
+  v_review_id := 911003;
 
   v_result := public.p1_apply_commercial_review_correction(
     v_review_id,
@@ -316,26 +304,10 @@ select pg_temp.p111_assert(
 );
 
 do $$
-declare
-  v_review_id bigint;
 begin
-  reset role;
-  select id into v_review_id
-  from public.commercial_review_queue
-  where organization_id='00000000-0000-0000-0000-0000000011f1'::uuid
-    and reason='p111_fixture';
-
-  execute 'set local role authenticated';
-  perform set_config(
-    'request.jwt.claim.sub',
-    '00000000-0000-0000-0000-0000000011b1',
-    true
-  );
-  perform set_config('request.jwt.claim.role','authenticated',true);
-
   begin
     perform public.p1_apply_commercial_review_correction(
-      v_review_id,
+      911003,
       jsonb_build_object('grade','P235GH'),
       'cross tenant attempt'
     );
@@ -345,7 +317,7 @@ begin
       null;
   end;
 end
-$$;
+$$;;
 
 reset role;
 
