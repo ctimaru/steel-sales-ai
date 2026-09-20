@@ -2,7 +2,25 @@
 
 import { useActionState, useId } from "react";
 import { correctReviewItem, type ReviewActionState } from "@/app/(workspace)/review/actions";
-import type { ReviewCorrectionValues } from "@/lib/commercial-data";
+type ReviewCorrectionValues = {
+  item_role?: string | null;
+  product_type?: string | null;
+  grade?: string | null;
+  standard?: string | null;
+  material_number?: string | null;
+  outer_diameter_mm?: number | null;
+  width_mm?: number | null;
+  height_mm?: number | null;
+  thickness_mm?: number | null;
+  length_mm?: number | null;
+  quantity?: number | null;
+  quantity_unit?: string | null;
+  price_value?: number | null;
+  price_unit?: string | null;
+  currency?: string | null;
+  discount_percentage?: number | null;
+  availability_status?: string | null;
+};
 
 const initialState: ReviewActionState = { status: "idle", message: "" };
 
