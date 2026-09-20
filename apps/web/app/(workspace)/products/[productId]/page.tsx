@@ -48,6 +48,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
   const product = payload.product;
   const summary = payload.summary;
+  const reference = payload.shared_reference;
   const title = product.product_type === "round_tube"
     ? `Ø ${numberLabel(product.outer_diameter_mm)} × ${numberLabel(product.thickness_mm)} mm`
     : `${numberLabel(product.width_mm)} × ${numberLabel(product.height_mm)} × ${numberLabel(product.thickness_mm)} mm`;
@@ -62,6 +63,15 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               {product.grade ? <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700">{product.grade}</span> : null}
               {product.standard ? <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{product.standard}</span> : null}
               <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">Tenant verified</span>
+              {reference ? (
+                <span className={
+                  reference.resolution_status === "matched"
+                    ? "rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700"
+                    : "rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700"
+                }>
+                  {reference.resolution_status === "matched" ? "Reference match" : "Reference da verificare"}
+                </span>
+              ) : null}
             </div>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">{title}</h1>
             <p className="mt-2 max-w-3xl break-all text-xs leading-5 text-slate-400">{product.canonical_product_key}</p>
@@ -74,6 +84,31 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           </div>
         </div>
       </div>
+
+      {reference ? (
+        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Shared Steel Knowledge</p>
+              <p className="mt-1 text-sm font-semibold text-slate-950">
+                {reference.standard_code ?? product.standard ?? "Norma n/d"} · {reference.material_grade ?? product.grade ?? "grado n/d"}
+              </p>
+              <p className="mt-1 text-xs text-slate-500">
+                {reference.geometry_key ?? "geometria non risolta"}
+              </p>
+            </div>
+            <div className="sm:text-right">
+              <p className="text-xs text-slate-500">Peso canonical</p>
+              <p className="mt-1 text-lg font-semibold text-slate-950">
+                {reference.effective_weight_kg_m != null ? `${numberLabel(reference.effective_weight_kg_m)} kg/m` : "Non disponibile"}
+              </p>
+              <p className="mt-1 text-xs text-slate-400">
+                {reference.effective_source_key ?? reference.resolution_status}
+              </p>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
         {[
