@@ -35,10 +35,21 @@ function correctedValues(formData: FormData) {
     "discount_percentage",
   ] as const;
 
+  let original: Record<string, unknown> = {};
+  try {
+    const parsed = JSON.parse(String(formData.get("original_values") ?? "{}"));
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      original = parsed as Record<string, unknown>;
+    }
+  } catch {
+    return { values: null, note: "", error: "Snapshot iniziale non valido. Aggiorna la pagina e riprova." };
+  }
+
   const values: Record<string, string | number> = {};
   for (const key of textFields) {
     const value = String(formData.get(key) ?? "").trim();
-    if (value) values[key] = value;
+    const before = original[key] == null ? "" : String(original[key]).trim();
+    if (value && value !== before) values[key] = value;
   }
   for (const key of numericFields) {
     const raw = String(formData.get(key) ?? "").trim().replace(",", ".");
@@ -47,7 +58,8 @@ function correctedValues(formData: FormData) {
     if (!Number.isFinite(value)) {
       return { values: null, note: "", error: `Valore numerico non valido: ${key}.` };
     }
-    values[key] = value;
+    const before = original[key] == null || original[key] === "" ? null : Number(original[key]);
+    if (before === null || !Number.isFinite(before) || value !== before) values[key] = value;
   }
 
   return {
