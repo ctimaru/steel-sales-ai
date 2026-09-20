@@ -1,4 +1,4 @@
-import pytest
+import asyncio
 
 from app.shared_reference import (
     enrich_records_with_shared_reference,
@@ -17,8 +17,7 @@ class FakeRepo:
         return dict(self.payload)
 
 
-@pytest.mark.asyncio
-async def test_reference_enrichment_caches_identical_signatures():
+def test_reference_enrichment_caches_identical_signatures():
     repo = FakeRepo({
         "resolution_status": "matched",
         "matched": True,
@@ -42,15 +41,14 @@ async def test_reference_enrichment_caches_identical_signatures():
         },
     ]
 
-    enriched = await enrich_records_with_shared_reference(repo, records)
+    enriched = asyncio.run(enrich_records_with_shared_reference(repo, records))
 
     assert len(repo.calls) == 1
     assert enriched[0]["metadata"]["shared_reference"]["resolution_status"] == "matched"
     assert enriched[1]["metadata"]["existing"] is True
 
 
-@pytest.mark.asyncio
-async def test_reference_conflict_becomes_parser_validation_issue():
+def test_reference_conflict_becomes_parser_validation_issue():
     repo = FakeRepo({
         "resolution_status": "standard_dimension_not_applicable",
         "matched": False,
@@ -68,7 +66,7 @@ async def test_reference_conflict_becomes_parser_validation_issue():
         },
     }]
 
-    enriched = await validate_parser_observations_with_shared_reference(repo, observations)
+    enriched = asyncio.run(validate_parser_observations_with_shared_reference(repo, observations))
     metadata = enriched[0]["metadata"]
 
     assert metadata["validation"]["status"] == "invalid"
@@ -76,8 +74,7 @@ async def test_reference_conflict_becomes_parser_validation_issue():
     assert metadata["validation"]["issues"][0]["severity"] == "error"
 
 
-@pytest.mark.asyncio
-async def test_canonical_missing_is_visible_but_not_a_hard_conflict():
+def test_canonical_missing_is_visible_but_not_a_hard_conflict():
     repo = FakeRepo({
         "resolution_status": "matched_canonical_missing",
         "matched": True,
@@ -95,7 +92,7 @@ async def test_canonical_missing_is_visible_but_not_a_hard_conflict():
         },
     }]
 
-    enriched = await validate_parser_observations_with_shared_reference(repo, observations)
+    enriched = asyncio.run(validate_parser_observations_with_shared_reference(repo, observations))
     metadata = enriched[0]["metadata"]
 
     assert metadata["shared_reference"]["resolution_status"] == "matched_canonical_missing"
