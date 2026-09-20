@@ -16,9 +16,17 @@ function correctedValues(formData: FormData) {
   const fields = [
     ["grade", "Qualità"],
     ["standard", "Norma"],
+    ["material_number", "Materiale"],
+    ["outer_diameter_mm", "Diametro"],
+    ["width_mm", "Larghezza"],
+    ["height_mm", "Altezza"],
+    ["thickness_mm", "Spessore"],
     ["length_mm", "Lunghezza"],
     ["quantity", "Quantità"],
     ["quantity_unit", "Unità quantità"],
+    ["price_value", "Prezzo"],
+    ["price_unit", "Unità prezzo"],
+    ["currency", "Valuta"],
     ["availability_status", "Disponibilità"],
     ["note", "Nota"],
   ] as const;
@@ -87,38 +95,58 @@ export async function correctReviewItem(
   const rawId = formData.get("id");
   if (!validId(rawId)) return { status: "error", message: "Record non valido. Aggiorna la pagina e riprova." };
   const values = correctedValues(formData);
-  if (!Object.keys(values).length) {
-    return { status: "error", message: "Inserisci almeno un valore corretto prima di salvare." };
+  const promotable = Object.keys(values).filter((key) => key !== "note");
+  if (!promotable.length) {
+    return { status: "error", message: "Inserisci almeno un valore commerciale corretto prima di salvare." };
   }
 
   try {
     const auth = await authenticatedClient();
-    if (!auth.client) return { status: "error", message: auth.error ?? "Sessione non valida." };
-    const { data, error } = await auth.client
-      .from("commercial_review_queue")
-      .update({
-        status: "corrected",
-        corrected_values: values,
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq("id", Number(rawId))
-      .eq("owner_id", auth.user?.id)
-      .eq("status", "pending")
-      .select("id,status,corrected_values")
-      .maybeSingle();
+    if (!auth.client || !auth.user) return { status: "error", message: auth.error ?? "Sessione non valida." };
 
-    if (error) return { status: "error", message: "Correzione non salvata. Riprova tra poco." };
-    if (!data || data.id !== Number(rawId) || data.status !== "corrected") {
-      return { status: "error", message: "Nessuna correzione salvata: il record non è disponibile o è già stato revisionato." };
+    const workerUrl = process.env.WORKER_URL?.replace(/\/$/, "");
+    if (!workerUrl) {
+      return { status: "error", message: "Worker non configurato nell'ambiente web." };
     }
+
+    const headers: HeadersInit = { "content-type": "application/json" };
+    if (process.env.WORKER_INTERNAL_TOKEN) headers["x-worker-token"] = process.env.WORKER_INTERNAL_TOKEN;
+
+    const response = await fetch(`${workerUrl}/v1/reviews/${encodeURIComponent(rawId)}/correct`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        actor_user_id: auth.user.id,
+        corrected_values: values,
+      }),
+      cache: "no-store",
+    });
+    const payload = (await response.json().catch(() => null)) as
+      | { applied?: boolean; idempotent?: boolean; detail?: string }
+      | null;
+
+    if (!response.ok || !payload?.applied) {
+      return {
+        status: "error",
+        message: payload?.detail ?? "Correzione non applicata. Riprova tra poco.",
+      };
+    }
+
     try {
       revalidatePath("/review");
       revalidatePath("/dashboard");
+      revalidatePath("/search");
+      revalidatePath("/products");
     } catch {
-      return { status: "success", message: "Correzione salvata. Aggiorna la pagina per aggiornare i conteggi." };
+      return { status: "success", message: "Correzione applicata. Aggiorna la pagina per vedere tutti i dati aggiornati." };
     }
-    return { status: "success", message: "Correzione salvata nella Review Queue." };
+    return {
+      status: "success",
+      message: payload.idempotent
+        ? "Correzione già applicata."
+        : "Correzione applicata alla Commercial Memory.",
+    };
   } catch {
-    return { status: "error", message: "Non è stato possibile verificare il salvataggio. Aggiorna la pagina prima di riprovare." };
+    return { status: "error", message: "Non è stato possibile verificare la correzione. Aggiorna la pagina prima di riprovare." };
   }
 }

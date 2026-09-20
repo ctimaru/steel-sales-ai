@@ -180,6 +180,7 @@ jobs:
             p1_pressure_reference_catalog.sql \
             p1_en10217_range_envelopes.sql \
             p1_shared_private_e2e.sql \
+            p1_human_correction_promotion.sql \
             p1_us_api_reference_foundation.sql \
             p1_us_api_nps_schedule_sample.sql \
             p1_us_api_nps_schedule_expansion.sql \
