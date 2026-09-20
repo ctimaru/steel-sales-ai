@@ -332,7 +332,7 @@ export async function getReviewItems(): Promise<{ mode: DataMode; items: ReviewI
   if (!isConfigured()) {
     return {
       mode: "demo",
-      items: demoReviewFlags.map((flag) => ({ ...flag, reviewStatus: "pending" as const })),
+      items: demoReviewFlags.map((flag) => ({ ...flag, reviewStatus: "pending" as const, current: {} })),
     };
   }
 
