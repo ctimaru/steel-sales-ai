@@ -371,24 +371,52 @@ insert into public.steel_grade_cross_references (
   from_material_grade_id,
   to_material_grade_id,
   relation_type,
+  evidence_class,
   notes,
+  knowledge_source_id,
   metadata
 ) values (
   'a4110000-0000-4000-8000-000000000020'::uuid,
   'a4110000-0000-4000-8000-000000000021'::uuid,
   'commercially_comparable',
+  'supplier_reference',
   'CI fixture proving relationship semantics.',
+  (
+    select id
+    from public.knowledge_sources
+    where source_class in ('primary','secondary')
+    order by source_key
+    limit 1
+  ),
   jsonb_build_object('test_fixture', true)
 );
 
 select pg_temp.p115_v2_assert(
   (
     select relation_type = 'commercially_comparable'
+      and evidence_class = 'supplier_reference'
     from public.steel_grade_cross_references
     where from_material_grade_id = 'a4110000-0000-4000-8000-000000000020'::uuid
       and to_material_grade_id = 'a4110000-0000-4000-8000-000000000021'::uuid
   ),
-  'grade cross-reference must retain explicit relation semantics'
+  'grade cross-reference must retain explicit relation and evidence semantics'
+);
+
+select pg_temp.p115_v2_assert(
+  (
+    select commercial_comparison_allowed
+      and weak_relation
+      and not normative_equivalence
+      and not normative_substitution_allowed
+    from public.p1_shared_steel_grade_cross_reference_policy(
+      'a4110000-0000-4000-8000-000000000020'::uuid,
+      'commercial_comparability',
+      100,
+      0
+    )
+    where to_material_grade_id = 'a4110000-0000-4000-8000-000000000021'::uuid
+  ),
+  'commercial grade relationship must never imply normative substitution'
 );
 
 -- Security: promoted canonical reference is shared read-only; raw observation staging is service-only.
