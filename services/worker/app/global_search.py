@@ -11,6 +11,7 @@ from .embeddings import EmbeddingConfigurationError, EmbeddingProviderError
 from .repository import RepositoryConfigurationError, RepositoryError, WorkerRepository
 from .retrieval import search_knowledge
 from .retrieval_api import require_worker_token
+from .shared_reference import enrich_records_with_shared_reference
 
 GlobalResultType = Literal[
     "document",
@@ -253,6 +254,8 @@ class GlobalSearchService:
         structured_results = structured_payload.get("results", [])
         if not isinstance(structured_results, list):
             structured_results = []
+        structured_dicts = [row for row in structured_results if isinstance(row, dict)]
+        structured_results = await enrich_records_with_shared_reference(self.repo, structured_dicts)
         results = [*document_results, *structured_results]
         results.sort(
             key=lambda item: (

@@ -76,6 +76,15 @@ def test_global_search_resolves_tenant_and_combines_semantic_structured(monkeypa
                     "metadata": {},
                 }],
             }
+        if path == "/rest/v1/rpc/p1_resolve_shared_steel_reference":
+            return {
+                "resolution_status": "matched",
+                "matched": True,
+                "effective_status": "canonical_available",
+                "calculation_allowed": True,
+                "effective_weight_kg_m": 93.27,
+                "contract_version": 1,
+            }
         raise AssertionError(f"unexpected path: {path}")
 
     async def fake_semantic(**kwargs):
@@ -126,6 +135,9 @@ def test_global_search_resolves_tenant_and_combines_semantic_structured(monkeypa
     assert body["results"][0]["result_type"] == "document"
     assert calls[0][1].startswith("/rest/v1/organization_memberships")
     assert calls[1][1] == "/rest/v1/rpc/p1_global_structured_search"
+    offer = next(row for row in body["results"] if row["result_type"] == "offer")
+    assert offer["metadata"]["shared_reference"]["resolution_status"] == "matched"
+    assert offer["metadata"]["shared_reference"]["calculation_allowed"] is True
 
 
 def test_document_only_search_skips_structured_rpc(monkeypatch) -> None:
