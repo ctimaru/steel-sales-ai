@@ -71,7 +71,6 @@ export async function confirmReviewItem(
       revalidatePath("/review");
       revalidatePath("/dashboard");
       revalidatePath("/products", "layout");
-      revalidatePath("/products", "layout");
     } catch {
       return { status: "success", message: "Conferma salvata. Aggiorna la pagina per aggiornare i conteggi." };
     }
@@ -114,6 +113,7 @@ export async function correctReviewItem(
     try {
       revalidatePath("/review");
       revalidatePath("/dashboard");
+      revalidatePath("/products", "layout");
     } catch {
       return { status: "success", message: "Correzione salvata. Aggiorna la pagina per aggiornare i conteggi." };
     }
