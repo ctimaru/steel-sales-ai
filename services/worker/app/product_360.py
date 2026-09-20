@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 
 from .repository import RepositoryConfigurationError, RepositoryError, WorkerRepository
 from .retrieval_api import require_worker_token
+from .shared_reference import resolve_shared_reference
 
 
 class ProductCatalogRequest(BaseModel):
@@ -86,6 +87,9 @@ class Product360Service:
         )
         if not isinstance(raw, dict):
             raise Product360Error("Product 360 returned an invalid payload.")
+        product = raw.get("product")
+        if isinstance(product, dict):
+            raw["shared_reference"] = await resolve_shared_reference(self.repo, product)
         return {
             **raw,
             "access": {"membership_verified": True, "role": membership.get("role")},
@@ -108,6 +112,9 @@ class Product360Service:
         )
         if not isinstance(raw, dict):
             raise Product360Error("Price History returned an invalid payload.")
+        product = raw.get("product")
+        if isinstance(product, dict):
+            raw["shared_reference"] = await resolve_shared_reference(self.repo, product)
         return {
             **raw,
             "access": {"membership_verified": True, "role": membership.get("role")},
