@@ -13,21 +13,63 @@ function validId(value: FormDataEntryValue | null): value is string {
 }
 
 function correctedValues(formData: FormData) {
-  const fields = [
-    ["grade", "Qualità"],
-    ["standard", "Norma"],
-    ["length_mm", "Lunghezza"],
-    ["quantity", "Quantità"],
-    ["quantity_unit", "Unità quantità"],
-    ["availability_status", "Disponibilità"],
-    ["note", "Nota"],
+  const textFields = [
+    "item_role",
+    "product_type",
+    "grade",
+    "standard",
+    "material_number",
+    "quantity_unit",
+    "price_unit",
+    "currency",
+    "availability_status",
   ] as const;
-  const values: Record<string, string> = {};
-  for (const [key] of fields) {
-    const value = String(formData.get(key) ?? "").trim();
-    if (value) values[key] = value;
+  const numericFields = [
+    "outer_diameter_mm",
+    "width_mm",
+    "height_mm",
+    "thickness_mm",
+    "length_mm",
+    "quantity",
+    "price_value",
+    "discount_percentage",
+  ] as const;
+
+  let original: Record<string, unknown> = {};
+  try {
+    const parsed = JSON.parse(String(formData.get("original_values") ?? "{}"));
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      original = parsed as Record<string, unknown>;
+    }
+  } catch {
+    return { values: null, note: "", error: "Snapshot iniziale non valido. Aggiorna la pagina e riprova." };
   }
-  return values;
+
+  const values: Record<string, string | number | null> = {};
+  for (const key of textFields) {
+    const value = String(formData.get(key) ?? "").trim();
+    const before = original[key] == null ? "" : String(original[key]).trim();
+    if (value !== before) values[key] = value || null;
+  }
+  for (const key of numericFields) {
+    const raw = String(formData.get(key) ?? "").trim().replace(",", ".");
+    const before = original[key] == null || original[key] === "" ? null : Number(original[key]);
+    if (!raw) {
+      if (before !== null && Number.isFinite(before)) values[key] = null;
+      continue;
+    }
+    const value = Number(raw);
+    if (!Number.isFinite(value)) {
+      return { values: null, note: "", error: `Valore numerico non valido: ${key}.` };
+    }
+    if (before === null || !Number.isFinite(before) || value !== before) values[key] = value;
+  }
+
+  return {
+    values,
+    note: String(formData.get("note") ?? "").trim(),
+    error: null,
+  };
 }
 
 function configured() {
@@ -86,39 +128,49 @@ export async function correctReviewItem(
 ): Promise<ReviewActionState> {
   const rawId = formData.get("id");
   if (!validId(rawId)) return { status: "error", message: "Record non valido. Aggiorna la pagina e riprova." };
-  const values = correctedValues(formData);
-  if (!Object.keys(values).length) {
+
+  const correction = correctedValues(formData);
+  if (correction.error || !correction.values) {
+    return { status: "error", message: correction.error ?? "Correzione non valida." };
+  }
+  if (!Object.keys(correction.values).length) {
     return { status: "error", message: "Inserisci almeno un valore corretto prima di salvare." };
   }
 
   try {
     const auth = await authenticatedClient();
     if (!auth.client) return { status: "error", message: auth.error ?? "Sessione non valida." };
-    const { data, error } = await auth.client
-      .from("commercial_review_queue")
-      .update({
-        status: "corrected",
-        corrected_values: values,
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq("id", Number(rawId))
-      .eq("owner_id", auth.user?.id)
-      .eq("status", "pending")
-      .select("id,status,corrected_values")
-      .maybeSingle();
 
-    if (error) return { status: "error", message: "Correzione non salvata. Riprova tra poco." };
-    if (!data || data.id !== Number(rawId) || data.status !== "corrected") {
-      return { status: "error", message: "Nessuna correzione salvata: il record non è disponibile o è già stato revisionato." };
+    const { data, error } = await auth.client.rpc("p1_apply_commercial_review_correction", {
+      p_review_id: Number(rawId),
+      p_corrected_values: correction.values,
+      p_note: correction.note || null,
+    });
+
+    if (error) return { status: "error", message: "Correzione non applicata. Controlla i valori e riprova." };
+
+    const payload = data as Record<string, unknown> | null;
+    if (!payload || !["corrected", "already_corrected"].includes(String(payload.status ?? ""))) {
+      return { status: "error", message: "La correzione non è stata confermata dal database." };
     }
+
     try {
       revalidatePath("/review");
       revalidatePath("/dashboard");
+      revalidatePath("/explorer");
+      revalidatePath("/search");
+      revalidatePath("/products");
     } catch {
-      return { status: "success", message: "Correzione salvata. Aggiorna la pagina per aggiornare i conteggi." };
+      return { status: "success", message: "Correzione applicata. Aggiorna la pagina per vedere tutti i dati aggiornati." };
     }
-    return { status: "success", message: "Correzione salvata nella Review Queue." };
+
+    return {
+      status: "success",
+      message: payload.status === "already_corrected"
+        ? "Correzione già applicata."
+        : "Correzione applicata a Search e Product History.",
+    };
   } catch {
-    return { status: "error", message: "Non è stato possibile verificare il salvataggio. Aggiorna la pagina prima di riprovare." };
+    return { status: "error", message: "Non è stato possibile verificare la correzione. Aggiorna la pagina prima di riprovare." };
   }
 }

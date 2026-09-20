@@ -16,7 +16,7 @@ export default async function ReviewPage() {
           <p className="text-sm font-semibold text-slate-500">Data Quality</p>
           <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">Review Queue</h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-            Warning residui del parser v3.1, letti dalla superficie app-facing RLS.
+            Correggi i dati estratti mantenendo intatta la fonte originale. Le correzioni applicate aggiornano Search e Product History con audit trail append-only.
           </p>
         </div>
         <Badge tone="amber">{pending} da verificare</Badge>
@@ -56,7 +56,7 @@ export default async function ReviewPage() {
                 ) : (
                   <button disabled className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white opacity-40">Conferma</button>
                 )}
-                <ReviewCorrectForm id={flag.id} reviewed={flag.reviewStatus !== "pending"} />
+                <ReviewCorrectForm id={flag.id} reviewed={flag.reviewStatus !== "pending"} current={flag.current} />
               </div>
             </CardContent>
           </Card>
@@ -64,7 +64,7 @@ export default async function ReviewPage() {
       </div>
 
       <p className="mt-5 text-xs leading-5 text-slate-400">
-        “Conferma” aggiorna solo la tabella app-facing tramite la sessione autenticata e RLS. Lo schema staging resta non esposto.
+        “Conferma” chiude il warning senza cambiare il dato. “Correggi” aggiorna solo l’osservazione app-facing tramite il contratto P1.11; staging e fonte originale restano immutati.
       </p>
     </div>
   );
