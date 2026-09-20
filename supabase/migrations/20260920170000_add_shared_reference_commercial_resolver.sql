@@ -277,3 +277,81 @@ begin
   end if;
 end
 $$;
+
+
+-- Route parser/reference conflicts to the existing commercial Review Queue even
+-- when syntactic parser confidence is high. Canonical-weight coverage gaps are
+-- deliberately not review-routed: they are catalog coverage, not parser errors.
+create or replace function public.route_shared_reference_conflict_to_review()
+returns trigger
+language plpgsql
+security invoker
+set search_path=''
+as $$
+declare
+  v_metadata jsonb;
+  v_issue jsonb;
+  v_reason text;
+  v_severity text;
+begin
+  if new.source_extraction_id is null then
+    return new;
+  end if;
+
+  select s.metadata into v_metadata
+  from public.worker_staging_observations s
+  where s.id=new.source_extraction_id;
+
+  select issue into v_issue
+  from jsonb_array_elements(
+    case
+      when jsonb_typeof(v_metadata #> '{validation,issues}')='array'
+        then v_metadata #> '{validation,issues}'
+      else '[]'::jsonb
+    end
+  ) issue
+  where issue->>'code' in (
+    'reference_standard_not_found',
+    'reference_grade_not_found',
+    'reference_geometry_not_found',
+    'reference_standard_grade_not_applicable',
+    'reference_standard_dimension_not_applicable'
+  )
+  order by case issue->>'severity' when 'error' then 1 else 2 end
+  limit 1;
+
+  if v_issue is null then
+    return new;
+  end if;
+
+  v_reason := v_issue->>'code';
+  v_severity := case when v_issue->>'severity'='error' then 'error' else 'warning' end;
+
+  insert into public.commercial_review_queue (
+    owner_id,organization_id,dataset_id,thread_id,source_review_id,
+    source_extraction_ordinal,reason,severity,source_text,status,observation_id
+  ) values (
+    new.owner_id,new.organization_id,new.dataset_id,new.thread_id,new.id,
+    null,v_reason,v_severity,new.source_text,'pending',new.id
+  )
+  on conflict (owner_id,dataset_id,source_review_id) do nothing;
+
+  return new;
+end
+$$;
+
+drop trigger if exists commercial_observations_shared_reference_review
+  on public.commercial_observations;
+
+create trigger commercial_observations_shared_reference_review
+after insert on public.commercial_observations
+for each row
+execute function public.route_shared_reference_conflict_to_review();
+
+revoke execute on function public.route_shared_reference_conflict_to_review()
+  from public,anon,authenticated;
+grant execute on function public.route_shared_reference_conflict_to_review()
+  to service_role;
+
+comment on function public.route_shared_reference_conflict_to_review() is
+  'SK6 routes high-confidence parser observations with Shared Steel Knowledge identity/applicability conflicts into the existing tenant-scoped review queue.';
