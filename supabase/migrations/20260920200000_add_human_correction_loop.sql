@@ -9,7 +9,7 @@
 
 create table if not exists public.commercial_correction_events (
   id uuid primary key default gen_random_uuid(),
-  organization_id uuid not null references public.organizations(id) on delete cascade,
+  organization_id uuid not null references public.organizations(id) on delete restrict,
   review_id bigint not null references public.commercial_review_queue(id) on delete restrict,
   observation_id bigint not null references public.commercial_observations(id) on delete restrict,
   source_extraction_id bigint references public.worker_staging_observations(id) on delete set null,
@@ -156,6 +156,21 @@ begin
       using errcode='22023';
   end if;
 
+  select * into v_review
+  from public.commercial_review_queue
+  where id=p_review_id
+  for update;
+
+  if not found then
+    raise exception 'Review item not found' using errcode='P0002';
+  end if;
+
+  if v_review.organization_id is null
+     or not public.is_organization_member(v_review.organization_id,true) then
+    raise exception 'Not authorized for review organization'
+      using errcode='42501';
+  end if;
+
   select * into v_existing
   from public.commercial_correction_events
   where review_id=p_review_id;
@@ -175,23 +190,8 @@ begin
       using errcode='22023';
   end if;
 
-  select * into v_review
-  from public.commercial_review_queue
-  where id=p_review_id
-  for update;
-
-  if not found then
-    raise exception 'Review item not found' using errcode='P0002';
-  end if;
-
   if v_review.status <> 'pending' then
     raise exception 'Review item is not pending' using errcode='22023';
-  end if;
-
-  if v_review.organization_id is null
-     or not public.is_organization_member(v_review.organization_id,true) then
-    raise exception 'Not authorized for review organization'
-      using errcode='42501';
   end if;
 
   if v_review.observation_id is null then
@@ -398,6 +398,10 @@ begin
     availability_status=v_availability_status,
     canonical_product_key=v_key,
     canonical_product_id=v_product_id,
+    flags=case
+      when flags @> '["human_corrected"]'::jsonb then flags
+      else flags || '["human_corrected"]'::jsonb
+    end,
     search_text=lower(concat_ws(' ',
       source_text,
       v_item_role,
