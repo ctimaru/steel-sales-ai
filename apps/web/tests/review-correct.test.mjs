@@ -122,6 +122,20 @@ test("unchanged form does not call correction RPC", async () => {
   assert.equal(calls.rpc, 0);
 });
 
+test("clearing an existing value sends an explicit null correction", async () => {
+  const { calls, run } = await setup();
+  const state = await run({ grade: "" });
+  assert.equal(state.status, "success");
+  assert.equal(calls.args.p_corrected_values.grade, null);
+});
+
+test("clearing an existing numeric value sends an explicit null correction", async () => {
+  const { calls, run } = await setup();
+  const state = await run({ length_mm: "" });
+  assert.equal(state.status, "success");
+  assert.equal(calls.args.p_corrected_values.length_mm, null);
+});
+
 test("invalid numeric corrections are rejected before RPC", async () => {
   const { calls, run } = await setup();
   const state = await run({ price_value: "not-a-number" });
