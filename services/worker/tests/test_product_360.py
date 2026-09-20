@@ -49,6 +49,8 @@ def test_product_catalog_resolves_tenant_before_rpc(monkeypatch) -> None:
             assert json["p_organization_id"] == "00000000-0000-0000-0000-000000000010"
             assert json["p_query"] == "P265GH"
             return {"total": 1, "results": [{"canonical_product_id": "00000000-0000-0000-0000-000000000020"}]}
+        if path == "/rest/v1/rpc/p1_resolve_shared_steel_reference":
+            return {"resolution_status": "matched", "matched": True, "calculation_allowed": True, "effective_weight_kg_m": 28.26}
         raise AssertionError(f"unexpected path: {path}")
 
     monkeypatch.setattr(product_360.WorkerRepository, "_request", fake_request)
@@ -60,6 +62,7 @@ def test_product_catalog_resolves_tenant_before_rpc(monkeypatch) -> None:
     body = response.json()
     assert body["total"] == 1
     assert body["access"]["membership_verified"] is True
+    assert body["shared_reference"]["effective_weight_kg_m"] == 28.26
     assert calls[0][1].startswith("/rest/v1/organization_memberships")
     assert calls[1][1] == "/rest/v1/rpc/p1_product_catalog"
 
@@ -98,6 +101,7 @@ def test_product_360_uses_verified_tenant_and_product_uuid(monkeypatch) -> None:
     assert response.status_code == 200
     assert response.json()["product"]["grade"] == "P265GH"
     assert response.json()["summary"]["offered_count"] == 2
+    assert response.json()["shared_reference"]["resolution_status"] == "matched"
 
 
 def test_price_history_uses_verified_tenant_and_separates_rpc_contract(monkeypatch) -> None:
