@@ -179,7 +179,8 @@ jobs:
             p1_structural_reference_catalog.sql \
             p1_pressure_reference_catalog.sql \
             p1_en10217_range_envelopes.sql \
-            p1_shared_private_e2e.sql; do
+            p1_shared_private_e2e.sql \
+            p1_us_api_reference_foundation.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
