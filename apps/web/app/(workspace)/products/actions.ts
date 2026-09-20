@@ -2,6 +2,22 @@
 
 import { createClient } from "@/lib/supabase/server";
 
+export type SharedSteelReference = {
+  resolution_status: string;
+  matched?: boolean;
+  standard_code?: string | null;
+  material_grade?: string | null;
+  material_number?: string | null;
+  geometry_key?: string | null;
+  effective_status?: string | null;
+  calculation_allowed?: boolean;
+  effective_reference_id?: string | null;
+  effective_weight_kg_m?: number | null;
+  effective_weight_method?: string | null;
+  effective_source_key?: string | null;
+  contract_version?: number;
+};
+
 export type ProductPrice = {
   value: number | null;
   unit: string | null;
@@ -125,6 +141,7 @@ export type Product360Payload = {
   timeline?: ProductTimelineEvent[];
   counterparties?: ProductCounterparty[];
   documents?: ProductDocument[];
+  shared_reference?: SharedSteelReference | null;
   access?: { membership_verified?: boolean; role?: string | null } | null;
 };
 
@@ -227,6 +244,7 @@ export type PriceHistoryPayload = {
   comparables?: ComparablePrice[];
   comparability_policy?: Record<string, unknown> | null;
   data_quality?: Record<string, string> | null;
+  shared_reference?: SharedSteelReference | null;
   access?: { membership_verified?: boolean; role?: string | null } | null;
 };
 
