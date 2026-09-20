@@ -50,6 +50,26 @@ export type ConversationData = {
   }>;
 };
 
+export type ReviewCorrectionValues = {
+  item_role?: string | null;
+  product_type?: string | null;
+  grade?: string | null;
+  standard?: string | null;
+  material_number?: string | null;
+  outer_diameter_mm?: number | null;
+  width_mm?: number | null;
+  height_mm?: number | null;
+  thickness_mm?: number | null;
+  length_mm?: number | null;
+  quantity?: number | null;
+  quantity_unit?: string | null;
+  price_value?: number | null;
+  price_unit?: string | null;
+  currency?: string | null;
+  discount_percentage?: number | null;
+  availability_status?: string | null;
+};
+
 export type ReviewItem = {
   id: string;
   subject: string;
@@ -59,6 +79,7 @@ export type ReviewItem = {
   source: string;
   confidence: number;
   reviewStatus: "pending" | "confirmed" | "corrected";
+  current: ReviewCorrectionValues;
 };
 
 function isConfigured() {
@@ -319,7 +340,7 @@ export async function getReviewItems(): Promise<{ mode: DataMode; items: ReviewI
   const { data, error } = await supabase
     .from("commercial_review_queue")
     .select(
-      "id,reason,severity,source_text,status,commercial_threads(subject),commercial_observations(product_type,outer_diameter_mm,width_mm,height_mm,thickness_mm,length_mm,availability_status,confidence)",
+      "id,reason,severity,source_text,status,commercial_threads(subject),commercial_observations(item_role,product_type,grade,standard,material_number,outer_diameter_mm,width_mm,height_mm,thickness_mm,length_mm,quantity,quantity_unit,price_value,price_unit,currency,discount_percentage,availability_status,confidence)",
     )
     .order("id", { ascending: true });
 
@@ -345,6 +366,25 @@ export async function getReviewItems(): Promise<{ mode: DataMode; items: ReviewI
         source: String(row.source_text ?? "Fonte non disponibile"),
         confidence: Number(observation.confidence ?? 0),
         reviewStatus: (row.status as ReviewItem["reviewStatus"]) ?? "pending",
+        current: {
+          item_role: observation.item_role as string | null,
+          product_type: observation.product_type as string | null,
+          grade: observation.grade as string | null,
+          standard: observation.standard as string | null,
+          material_number: observation.material_number as string | null,
+          outer_diameter_mm: observation.outer_diameter_mm == null ? null : Number(observation.outer_diameter_mm),
+          width_mm: observation.width_mm == null ? null : Number(observation.width_mm),
+          height_mm: observation.height_mm == null ? null : Number(observation.height_mm),
+          thickness_mm: observation.thickness_mm == null ? null : Number(observation.thickness_mm),
+          length_mm: observation.length_mm == null ? null : Number(observation.length_mm),
+          quantity: observation.quantity == null ? null : Number(observation.quantity),
+          quantity_unit: observation.quantity_unit as string | null,
+          price_value: observation.price_value == null ? null : Number(observation.price_value),
+          price_unit: observation.price_unit as string | null,
+          currency: observation.currency as string | null,
+          discount_percentage: observation.discount_percentage == null ? null : Number(observation.discount_percentage),
+          availability_status: observation.availability_status as string | null,
+        },
       };
     }),
   };
