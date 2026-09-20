@@ -108,8 +108,6 @@ declare
   v_discount_percentage numeric;
   v_availability_status text;
   v_item_role text;
-  v_key text;
-  v_product_id uuid;
   v_before_json jsonb;
   v_after_json jsonb;
 begin
@@ -331,30 +329,6 @@ begin
     raise exception 'Invalid product_type' using errcode='22023';
   end if;
 
-  v_key := public.canonical_tube_product_key(
-    v_product_type,
-    v_grade,
-    v_standard,
-    v_material_number,
-    v_outer_diameter_mm,
-    v_width_mm,
-    v_height_mm,
-    v_thickness_mm,
-    null
-  );
-
-  v_product_id := public.canonical_tube_product_id(
-    v_product_type,
-    v_grade,
-    v_standard,
-    v_material_number,
-    v_outer_diameter_mm,
-    v_width_mm,
-    v_height_mm,
-    v_thickness_mm,
-    null
-  );
-
   v_before_json := jsonb_build_object(
     'item_role',v_before.item_role,
     'product_type',v_before.product_type,
@@ -396,8 +370,6 @@ begin
     currency=v_currency,
     discount_percentage=v_discount_percentage,
     availability_status=v_availability_status,
-    canonical_product_key=v_key,
-    canonical_product_id=v_product_id,
     flags=case
       when flags @> '["human_corrected"]'::jsonb then flags
       else flags || '["human_corrected"]'::jsonb
