@@ -7,6 +7,15 @@ type SearchParams = Promise<{
   length?: string;
 }>;
 
+type EffectiveWeightRow = {
+  geometry_id: string;
+  material_grade_id: string | null;
+  effective_status: "canonical_available" | "canonical_missing";
+  effective_reference_id: string | null;
+  effective_weight_kg_m: number | string | null;
+  effective_weight_method: string | null;
+};
+
 function numberOrNull(value: string | undefined) {
   if (!value) return null;
   const normalized = value.replace(",", ".");
@@ -127,7 +136,7 @@ export default async function TubesStandardsPage({
   const lengthM = numberOrNull(params.length) ?? 12;
 
   const effectiveMap = new Map(
-    (effectiveRows ?? []).map((row) => [
+    ((effectiveRows ?? []) as EffectiveWeightRow[]).map((row: EffectiveWeightRow) => [
       `${row.geometry_id}|${row.material_grade_id ?? ""}`,
       row,
     ]),
