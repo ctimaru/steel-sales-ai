@@ -59,7 +59,6 @@ export async function confirmReviewItem(
       .from("commercial_review_queue")
       .update({ status: "confirmed", reviewed_at: new Date().toISOString() })
       .eq("id", Number(rawId))
-      .eq("owner_id", auth.user?.id)
       .eq("status", "pending")
       .select("id,status")
       .maybeSingle();
@@ -71,10 +70,12 @@ export async function confirmReviewItem(
     try {
       revalidatePath("/review");
       revalidatePath("/dashboard");
+      revalidatePath("/products", "layout");
+      revalidatePath("/products", "layout");
     } catch {
       return { status: "success", message: "Conferma salvata. Aggiorna la pagina per aggiornare i conteggi." };
     }
-    return { status: "success", message: "Conferma salvata." };
+    return { status: "success", message: "Conferma salvata nel feedback loop." };
   } catch {
     return { status: "error", message: "Non è stato possibile verificare il salvataggio. Aggiorna la pagina prima di riprovare." };
   }
@@ -102,7 +103,6 @@ export async function correctReviewItem(
         reviewed_at: new Date().toISOString(),
       })
       .eq("id", Number(rawId))
-      .eq("owner_id", auth.user?.id)
       .eq("status", "pending")
       .select("id,status,corrected_values")
       .maybeSingle();
@@ -117,7 +117,7 @@ export async function correctReviewItem(
     } catch {
       return { status: "success", message: "Correzione salvata. Aggiorna la pagina per aggiornare i conteggi." };
     }
-    return { status: "success", message: "Correzione salvata nella Review Queue." };
+    return { status: "success", message: "Correzione applicata alla memoria commerciale." };
   } catch {
     return { status: "error", message: "Non è stato possibile verificare il salvataggio. Aggiorna la pagina prima di riprovare." };
   }
