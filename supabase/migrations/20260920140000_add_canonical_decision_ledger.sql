@@ -106,6 +106,17 @@ create index steel_weight_canonical_decisions_scope_idx
 create index steel_weight_canonical_decisions_decided_by_idx
   on public.steel_weight_canonical_decisions (decided_by);
 
+create index steel_weight_canonical_decisions_material_grade_idx
+  on public.steel_weight_canonical_decisions (material_grade_id)
+  where material_grade_id is not null;
+
+create index steel_weight_canonical_decisions_verification_decision_idx
+  on public.steel_weight_canonical_decisions (verification_decision_id);
+
+create index steel_weight_canonical_decisions_current_canonical_idx
+  on public.steel_weight_canonical_decisions (observed_current_canonical_reference_id)
+  where observed_current_canonical_reference_id is not null;
+
 create unique index steel_weight_canonical_decisions_supersedes_uq
   on public.steel_weight_canonical_decisions (supersedes_decision_id)
   where supersedes_decision_id is not null;
