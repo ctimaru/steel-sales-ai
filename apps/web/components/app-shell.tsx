@@ -8,6 +8,7 @@ const primaryNav = [
   { href: "/search", label: "Cerca", key: "C" },
   { href: "/products", label: "Storico prodotti", key: "P" },
   { href: "/assistant", label: "Assistente", key: "A" },
+  { href: "/tubi-norme", label: "Tubi & Norme", key: "N" },
   { href: "/uploads", label: "Importa", key: "I" },
 ];
 
