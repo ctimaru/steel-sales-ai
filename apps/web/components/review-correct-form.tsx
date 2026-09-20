@@ -31,6 +31,7 @@ export function ReviewCorrectForm({
       </summary>
       <form action={action} className="space-y-2 border-t border-slate-100 p-3" aria-busy={pending}>
         <input type="hidden" name="id" value={id} />
+        <input type="hidden" name="original_values" value={JSON.stringify(current)} />
 
         <div className="grid grid-cols-2 gap-2">
           <select name="item_role" defaultValue={value(current.item_role)} disabled={disabled} className="w-full rounded border border-slate-200 px-2 py-1.5 text-xs">
