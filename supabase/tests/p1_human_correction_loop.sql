@@ -172,14 +172,14 @@ select pg_temp.p111_assert(
     from (
       select public.p1_global_structured_search(
         '00000000-0000-0000-0000-0000000111f1',
-        'P235GH',
+        null,
         array['offer']::text[],
-        '{}'::jsonb,
+        jsonb_build_object('grade','P235GH'),
         20
       ) as payload
     ) s
   ),
-  'structured search must immediately find corrected grade'
+  'structured grade filter must immediately find corrected grade'
 );
 
 select pg_temp.p111_assert(
@@ -188,14 +188,14 @@ select pg_temp.p111_assert(
     from (
       select public.p1_global_structured_search(
         '00000000-0000-0000-0000-0000000111f1',
-        'P265GH',
+        null,
         array['offer']::text[],
-        '{}'::jsonb,
+        jsonb_build_object('grade','P265GH'),
         20
       ) as payload
     ) s
   ),
-  'structured search must stop matching old grade when source text does not carry it as a structured match'
+  'structured grade filter must stop matching the old parsed grade while source evidence remains immutable'
 );
 
 select pg_temp.p111_assert(
