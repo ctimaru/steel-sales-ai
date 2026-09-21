@@ -31,8 +31,7 @@ insert into public.commercial_observations (
   id,owner_id,dataset_id,thread_id,source_conversation_id,item_role,direction,
   product_type,grade,standard,outer_diameter_mm,thickness_mm,length_mm,
   quantity,quantity_unit,price_value,price_unit,currency,availability_status,
-  source_filename,source_text,confidence,search_text,organization_id,
-  canonical_product_key,canonical_product_id
+  source_filename,source_text,confidence,search_text,organization_id
 ) values (
   18001,
   '00000000-0000-0000-0000-0000000018a1',
@@ -43,9 +42,7 @@ insert into public.commercial_observations (
   10,'PZ',900,'T','EUR','available',
   'correction-a.eml','Documento originale: P235GH 168,3 x 7,11',0.98,
   'p235gh en10216-2 168.3 7.11 12000 10 pz 900 t eur available',
-  '00000000-0000-0000-0000-0000000018f1',
-  public.canonical_tube_product_key('round_tube','P235GH','EN 10216-2',null,168.3,null,null,7.11,null),
-  public.canonical_tube_product_id('round_tube','P235GH','EN 10216-2',null,168.3,null,null,7.11,null)
+  '00000000-0000-0000-0000-0000000018f1'
 );
 
 insert into public.commercial_review_queue (
