@@ -224,9 +224,8 @@ select pg_temp.assert_true(
 );
 
 reset role;
-set local role service_role;
 
--- Even privileged service paths cannot mutate rows normally; trigger enforces append-only.
+-- Table-owner context still cannot mutate rows because the trigger enforces append-only.
 select pg_temp.assert_raises(
   format(
     'update public.commercial_entity_promotions set basis=%L where id=%s',
