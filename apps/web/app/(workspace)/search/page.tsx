@@ -2,7 +2,13 @@ import { GlobalSearch } from "@/components/global-search";
 
 export const dynamic = "force-dynamic";
 
-export default function GlobalSearchPage() {
+export default async function GlobalSearchPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const params = await searchParams;
+  const initialQuery = typeof params.q === "string" ? params.q.trim() : "";
   return (
     <div className="mx-auto max-w-7xl">
       <div>
@@ -16,7 +22,7 @@ export default function GlobalSearchPage() {
         </p>
       </div>
       <div className="mt-7">
-        <GlobalSearch />
+        <GlobalSearch initialQuery={initialQuery} />
       </div>
     </div>
   );
