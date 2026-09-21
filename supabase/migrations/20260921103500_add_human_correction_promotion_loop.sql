@@ -31,6 +31,9 @@ create index if not exists commercial_correction_events_org_created_idx
 create index if not exists commercial_correction_events_observation_idx
   on public.commercial_correction_events (observation_id, created_at desc);
 
+create index if not exists commercial_correction_events_corrected_by_idx
+  on public.commercial_correction_events (corrected_by, created_at desc);
+
 alter table public.commercial_correction_events enable row level security;
 
 revoke all on public.commercial_correction_events from public,anon,authenticated;
