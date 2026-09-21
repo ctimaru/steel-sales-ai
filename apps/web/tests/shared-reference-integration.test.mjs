@@ -34,7 +34,7 @@ test("Product 360 exposes canonical reference identity and weight", () => {
 });
 
 test("Price History keeps historical normalization semantics while showing canonical reference", () => {
-  assert.match(prices, /Peso teorico \/ reference/);
+  assert.match(prices, /Peso teorico di riferimento/);
   assert.match(prices, /Riferimento verificato/);
   assert.match(prices, /non vengono riscritte retroattivamente/);
   assert.match(prices, /Peso teorico della sezione/);
