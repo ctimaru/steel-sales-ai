@@ -42,7 +42,7 @@ def test_global_search_resolves_tenant_and_combines_semantic_structured(monkeypa
                 "is_default": True,
                 "created_at": "2026-09-16T00:00:00+00:00",
             }]
-        if path == "/rest/v1/rpc/p1_global_structured_search":
+        if path == "/rest/v1/rpc/p1_global_structured_search_bridge":
             assert json["p_organization_id"] == organization_id
             assert json["p_filters"]["price_min"] == 60.0
             assert json["p_filters"]["outer_diameter_mm"] == 406.4
@@ -134,7 +134,7 @@ def test_global_search_resolves_tenant_and_combines_semantic_structured(monkeypa
     assert body["counts"]["offer"] == 1
     assert body["results"][0]["result_type"] == "document"
     assert calls[0][1].startswith("/rest/v1/organization_memberships")
-    assert calls[1][1] == "/rest/v1/rpc/p1_global_structured_search"
+    assert calls[1][1] == "/rest/v1/rpc/p1_global_structured_search_bridge"
     offer = next(row for row in body["results"] if row["result_type"] == "offer")
     assert offer["metadata"]["shared_reference"]["resolution_status"] == "matched"
     assert offer["metadata"]["shared_reference"]["calculation_allowed"] is True
