@@ -82,9 +82,14 @@ function sharedReference(result: GlobalSearchResult) {
 }
 
 function sourceTarget(result: GlobalSearchResult) {
-  if (result.thread_id) return `/conversations/${result.thread_id}`;
+  const observationId = result.metadata?.observation_id;
+  if (typeof observationId === "number" && Number.isInteger(observationId) && observationId > 0) {
+    return `/evidence/${observationId}`;
+  }
   const sourceUri = result.metadata?.source_uri;
-  return typeof sourceUri === "string" && /^https?:\/\//i.test(sourceUri) ? sourceUri : null;
+  if (typeof sourceUri === "string" && /^https?:\/\//i.test(sourceUri)) return sourceUri;
+  if (result.thread_id) return `/conversations/${result.thread_id}`;
+  return null;
 }
 
 export function GlobalSearch() {
@@ -242,7 +247,9 @@ export function GlobalSearch() {
                       target.startsWith("http") ? (
                         <a href={target} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700">Apri fonte ↗</a>
                       ) : (
-                        <Link href={target} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700">Apri thread →</Link>
+                        <Link href={target} target={target.startsWith("/evidence/") ? "_blank" : undefined} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700">
+                          {target.startsWith("/evidence/") ? "Apri originale ↗" : "Apri thread →"}
+                        </Link>
                       )
                     ) : null}
                   </div>
