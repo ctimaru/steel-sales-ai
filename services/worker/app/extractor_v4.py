@@ -26,6 +26,14 @@ STANDARD_RE_V4 = re.compile(
     r"\b(?:EN\s*\d{4,5}(?:[-:]\d+)?(?:\s*[A-Z]\d+)?|API\s*5L)\b",
     re.IGNORECASE,
 )
+PACK_QUANTITY_RE_V4 = re.compile(
+    rf"\b(?P<value>{NUMBER})\s*(?P<unit>pacc(?:o|hi))\b",
+    re.IGNORECASE,
+)
+BARE_LENGTH_RE_V4 = re.compile(
+    rf"\b(?:a|l(?:unghezza)?\.?)[\s:=]*(?P<value>{NUMBER})\b",
+    re.IGNORECASE,
+)
 
 HIGH_CONFIDENCE = 0.90
 MEDIUM_CONFIDENCE = 0.75
@@ -206,20 +214,58 @@ def _validation_status(issues: list[dict[str, str]]) -> str:
     return "valid"
 
 
-def extract_observations(text: str, source_filename: str) -> list[dict[str, Any]]:
-    observations: list[dict[str, Any]] = []
-    for raw_line in text.splitlines():
-        line = " ".join(raw_line.split()).strip()
-        if not line:
+def _cohesive_lines(text: str) -> list[str]:
+    lines = [" ".join(raw_line.split()).strip() for raw_line in text.splitlines()]
+    lines = [line for line in lines if line]
+    cohesive: list[str] = []
+    consumed: set[int] = set()
+
+    for index, line in enumerate(lines):
+        if index in consumed:
+            continue
+        if not DIMENSIONS_RE.search(line):
+            cohesive.append(line)
             continue
 
+        parts = [line]
+        for offset in (1, 2):
+            follower_index = index + offset
+            if follower_index >= len(lines):
+                break
+            follower = lines[follower_index]
+            if DIMENSIONS_RE.search(follower):
+                break
+            continuation_signal = any(
+                (
+                    GRADE_RE_V4.search(follower),
+                    STANDARD_RE_V4.search(follower),
+                    PACK_QUANTITY_RE_V4.search(follower),
+                    LABELED_QUANTITY_RE.search(follower),
+                    QUANTITY_RE.search(follower),
+                )
+            )
+            if not continuation_signal:
+                break
+            parts.append(follower)
+            consumed.add(follower_index)
+
+        cohesive.append(" | ".join(parts))
+
+    return cohesive
+
+
+def extract_observations(text: str, source_filename: str) -> list[dict[str, Any]]:
+    observations: list[dict[str, Any]] = []
+    for line in _cohesive_lines(text):
         dimensions = DIMENSIONS_RE.search(line)
         grade_match = GRADE_RE_V4.search(line)
         standard_match = STANDARD_RE_V4.search(line)
         price_match = PRICE_RE.search(line) or PRICE_SUFFIX_RE.search(line)
         labeled_quantity_match = LABELED_QUANTITY_RE.search(line)
-        quantity_match = labeled_quantity_match or QUANTITY_RE.search(line)
+        pack_quantity_match = PACK_QUANTITY_RE_V4.search(line)
+        quantity_match = labeled_quantity_match or pack_quantity_match or QUANTITY_RE.search(line)
         length_match = LENGTH_RE.search(line)
+        bare_length_match = BARE_LENGTH_RE_V4.search(line)
 
         if not any((dimensions, grade_match, standard_match, price_match, quantity_match)):
             continue
@@ -251,10 +297,17 @@ def extract_observations(text: str, source_filename: str) -> list[dict[str, Any]
                 if length_match.group("unit").lower() in ("m", "mt") and length < 100
                 else length
             )
+        elif bare_length_match and "length_mm" not in row:
+            bare_length = number(bare_length_match.group("value"))
+            if 1000 <= bare_length <= 30000:
+                row["length_mm"] = scalar(bare_length)
 
         if quantity_match:
             row["quantity"] = scalar(number(quantity_match.group("value")))
-            row["quantity_unit"] = _quantity_unit(quantity_match.group("unit"))
+            if pack_quantity_match and quantity_match is pack_quantity_match:
+                row["quantity_unit"] = "PACCHI"
+            else:
+                row["quantity_unit"] = _quantity_unit(quantity_match.group("unit"))
 
         if price_match:
             row["price_value"] = scalar(number(price_match.group("value")))
