@@ -53,6 +53,13 @@ def test_prepare_contract_rejects_zip_and_duplicate_content() -> None:
         )
 
 
+def test_storage_client_uses_public_supabase_client_options(monkeypatch) -> None:
+    configure_service(monkeypatch)
+    service = bulk_import.BulkImportService()
+    storage = service._storage_client()
+    assert storage is not None
+
+
 def test_prepare_endpoint_enforces_internal_token(monkeypatch) -> None:
     monkeypatch.setenv("WORKER_INTERNAL_TOKEN", "bulk-secret")
     response = client.post(
