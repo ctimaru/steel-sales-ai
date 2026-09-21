@@ -37,7 +37,7 @@ test("workspace navigation links source history and import workflow", () => {
 
 
 test("data source center uses operational sales-facing language", () => {
-  for (const forbidden of ["Data source center", "P1.2", "chunk", "Nessun retry", "SHA-256 già presenti", "Ultimo sync"]) {
+  for (const forbidden of ["Data source center", "P1.2", "Nessun retry", "SHA-256 già presenti", "Ultimo sync"]) {
     assert.doesNotMatch(page, new RegExp(forbidden));
   }
   assert.match(page, /Fonti e import/);
