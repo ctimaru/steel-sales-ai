@@ -47,9 +47,9 @@ async function sha256(file: File): Promise<string> {
 
 function validateFiles(files: File[]): string | null {
   if (!files.length) return "Seleziona almeno un file.";
-  if (files.length > MAX_FILES) return `Puoi importare al massimo ${MAX_FILES} file per batch.`;
+  if (files.length > MAX_FILES) return `Puoi importare al massimo ${MAX_FILES} file alla volta.`;
   const total = files.reduce((sum, file) => sum + file.size, 0);
-  if (total > MAX_BATCH_BYTES) return "Il batch supera il limite complessivo di 100 MB.";
+  if (total > MAX_BATCH_BYTES) return "I file selezionati superano il limite complessivo di 100 MB.";
   for (const file of files) {
     const extension = file.name.split(".").pop()?.toLowerCase();
     if (!extension || !ALLOWED.has(extension)) {
@@ -97,7 +97,7 @@ export function BulkUploadForm() {
       return null;
     }
     if (itemsResult.error) {
-      setMessage(`Impossibile leggere i file del batch: ${itemsResult.error.message}`);
+      setMessage(`Impossibile leggere lo stato dei file: ${itemsResult.error.message}`);
       return null;
     }
 
@@ -126,7 +126,7 @@ export function BulkUploadForm() {
     }
 
     setBusy(true);
-    setMessage("Calcolo impronte SHA-256 e preparo il batch...");
+    setMessage("Preparo i file per l’importazione...");
     setBatch(null);
     setProgress(null);
     setItems([]);
@@ -173,8 +173,8 @@ export function BulkUploadForm() {
 
       setMessage(
         uploadItemIds.length
-          ? "Batch avviato. Il progresso viene aggiornato automaticamente."
-          : "Tutti i file erano già presenti: batch completato per deduplicazione.",
+          ? "Importazione avviata. L’avanzamento viene aggiornato automaticamente."
+          : "Tutti i file erano già presenti nello storico: nessun duplicato è stato creato.",
       );
       beginPolling(prepared.data.batch_id);
     } catch (error) {
@@ -188,7 +188,7 @@ export function BulkUploadForm() {
   async function handleRetry(itemIds: string[]) {
     if (!batch || !itemIds.length) return;
     setBusy(true);
-    setMessage("Retry selettivo in avvio...");
+    setMessage("Nuovo tentativo in avvio...");
     const result = await retryBulkImport(batch.batch_id, itemIds);
     if (!result.ok) {
       setMessage(result.error);
@@ -196,7 +196,7 @@ export function BulkUploadForm() {
       return;
     }
     setMessage(
-      `Retry avviato: ${result.data.accepted_items} file; ${result.data.reconciled_items} già riconciliati senza duplicazione.`,
+      `Nuovo tentativo avviato per ${result.data.accepted_items} file; ${result.data.reconciled_items} erano già presenti nello storico.`,
     );
     setBusy(false);
     beginPolling(batch.batch_id);
@@ -231,7 +231,7 @@ export function BulkUploadForm() {
           className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 file:mr-4 file:rounded-lg file:border-0 file:bg-slate-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white"
         />
         <p className="text-xs text-slate-500">
-          EML, PDF, XLS o XLSX · max 25 file · 25 MB/file · 100 MB/batch
+          EML, PDF, XLS o XLSX · max 25 file · 25 MB/file · 100 MB totali
         </p>
         {files.length ? (
           <p className="text-xs font-medium text-slate-700">
@@ -246,7 +246,7 @@ export function BulkUploadForm() {
         disabled={busy || !files.length || (!!progress && !terminal)}
         className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-wait disabled:opacity-60"
       >
-        {busy ? "Preparazione..." : "Avvia import multiplo"}
+        {busy ? "Preparazione..." : "Avvia importazione"}
       </button>
 
       {message ? (
@@ -259,9 +259,9 @@ export function BulkUploadForm() {
         <div className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold text-slate-950">Batch {progress.status}</p>
+              <p className="text-sm font-semibold text-slate-950">Importazione {progress.status}</p>
               <p className="text-xs text-slate-500">
-                {progress.completed_items}/{progress.total_items} completati · {progress.failed_items} errori · {progress.deduplicated_items} deduplicati
+                {progress.completed_items}/{progress.total_items} completati · {progress.failed_items} errori · {progress.deduplicated_items} già presenti
               </p>
             </div>
             <span className="text-sm font-semibold text-slate-700">{percent}%</span>
@@ -276,7 +276,7 @@ export function BulkUploadForm() {
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-slate-900">{item.filename}</p>
                   <p className="text-xs text-slate-500">
-                    {item.status} · tentativi {item.attempt_count}{item.deduplicated ? " · già presente" : ""}
+                    {item.status} · tentativi: {item.attempt_count}{item.deduplicated ? " · già presente nello storico" : ""}
                   </p>
                   {item.last_error ? <p className="mt-1 text-xs text-rose-700">{item.last_error}</p> : null}
                 </div>
