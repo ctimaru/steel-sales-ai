@@ -14,11 +14,21 @@ function validId(value: FormDataEntryValue | null): value is string {
 
 function correctedValues(formData: FormData) {
   const fields = [
+    ["product_type", "Tipo prodotto"],
     ["grade", "Qualità"],
     ["standard", "Norma"],
+    ["material_number", "Material number"],
+    ["outer_diameter_mm", "Diametro esterno"],
+    ["width_mm", "Larghezza"],
+    ["height_mm", "Altezza"],
+    ["thickness_mm", "Spessore"],
     ["length_mm", "Lunghezza"],
     ["quantity", "Quantità"],
     ["quantity_unit", "Unità quantità"],
+    ["price_value", "Prezzo"],
+    ["price_unit", "Unità prezzo"],
+    ["currency", "Valuta"],
+    ["discount_percentage", "Sconto"],
     ["availability_status", "Disponibilità"],
     ["note", "Nota"],
   ] as const;
