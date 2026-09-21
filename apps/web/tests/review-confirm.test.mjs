@@ -142,3 +142,15 @@ test("cache failure does not misreport an acknowledged write as failed", async (
   assert.equal(state.status, "success");
   assert.match(state.message, /Aggiorna la pagina/);
 });
+
+
+test("review page uses sales-facing correction language", async () => {
+  const page = await readFile(new URL("../app/(workspace)/review/page.tsx", import.meta.url), "utf8");
+  for (const forbidden of ["Data Quality", "Review Queue", "parser v3.1", "app-facing RLS", "% confidence", "schema staging"]) {
+    assert.doesNotMatch(page, new RegExp(forbidden));
+  }
+  assert.match(page, /Controllo dati/);
+  assert.match(page, /Correzioni/);
+  assert.match(page, /affidabilità/);
+  assert.match(page, /Ogni modifica viene registrata nello storico/);
+});

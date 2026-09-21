@@ -13,10 +13,10 @@ export default async function ReviewPage() {
     <div className="mx-auto max-w-6xl">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-sm font-semibold text-slate-500">Data Quality</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">Review Queue</h1>
+          <p className="text-sm font-semibold text-slate-500">Controllo dati</p>
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">Correzioni</h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-            Warning residui del parser v3.1, letti dalla superficie app-facing RLS.
+            Controlla solo i casi in cui i dati estratti richiedono una verifica o una correzione.
           </p>
         </div>
         <Badge tone="amber">{pending} da verificare</Badge>
@@ -24,7 +24,7 @@ export default async function ReviewPage() {
 
       {mode === "awaiting_assignment" ? (
         <Card className="mt-7 border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          La Review Queue live è pronta, ma il dataset deve ancora essere assegnato al primo utente Auth.
+          Le correzioni sono disponibili, ma lo storico deve ancora essere associato al primo utente del workspace.
         </Card>
       ) : null}
 
@@ -49,7 +49,7 @@ export default async function ReviewPage() {
 
               <div className="flex flex-col gap-2">
                 <div className="rounded-lg border border-slate-200 px-3 py-2 text-center text-xs font-semibold text-slate-600">
-                  {Math.round(flag.confidence * 100)}% confidence
+                  {Math.round(flag.confidence * 100)}% affidabilità
                 </div>
                 {mode === "live" ? (
                   <ReviewConfirmForm id={flag.id} reviewed={flag.reviewStatus !== "pending"} />
@@ -64,7 +64,7 @@ export default async function ReviewPage() {
       </div>
 
       <p className="mt-5 text-xs leading-5 text-slate-400">
-        “Conferma” aggiorna solo la tabella app-facing tramite la sessione autenticata e RLS. Lo schema staging resta non esposto.
+        Conferma un dato quando è corretto, oppure correggilo prima di proseguire. Ogni modifica viene registrata nello storico.
       </p>
     </div>
   );
