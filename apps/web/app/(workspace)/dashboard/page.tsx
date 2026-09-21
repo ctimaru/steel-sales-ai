@@ -66,7 +66,7 @@ export default async function DashboardPage() {
             <p className="mt-1 text-sm text-slate-500">I tre percorsi principali dell’MVP.</p>
           </div>
         </div>
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2">
           <Link
             href="/uploads"
             className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-400 hover:shadow-sm"
@@ -87,18 +87,26 @@ export default async function DashboardPage() {
               Ricostruisci prezzi, richieste, offerte e comparabili per prodotto canonico.
             </p>
           </Link>
-          <Link
-            href="/review"
-            className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-400 hover:shadow-sm"
-          >
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">03</p>
-            <h3 className="mt-3 font-semibold text-slate-950">Correggi i dati</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-500">
-              Verifica i casi dubbi e correggi ciò che il sistema ha interpretato male.
-            </p>
-          </Link>
         </div>
       </section>
+
+      {metrics.reviewFlags > 0 ? (
+        <Link
+          href="/review"
+          className="flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-5 transition hover:border-amber-300 hover:bg-amber-100/70 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-amber-700">Richiede attenzione</p>
+            <h2 className="mt-1 text-base font-semibold text-amber-950">
+              {metrics.reviewFlags.toLocaleString("it-IT")} {metrics.reviewFlags === 1 ? "elemento da verificare" : "elementi da verificare"}
+            </h2>
+            <p className="mt-1 text-sm text-amber-800">
+              Controlla solo i casi che il sistema non considera ancora abbastanza affidabili.
+            </p>
+          </div>
+          <span className="shrink-0 text-sm font-semibold text-amber-900">Apri correzioni →</span>
+        </Link>
+      ) : null}
 
       <section className="grid gap-3 sm:grid-cols-3">
         <Card className="p-4">
