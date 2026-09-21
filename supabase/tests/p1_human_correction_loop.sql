@@ -109,11 +109,19 @@ update public.commercial_review_queue
 set
   status='corrected',
   corrected_values=jsonb_build_object(
+    'product_type','round_tube',
     'grade','P235GH',
     'standard','EN 10216-2',
+    'material_number','1.0345',
+    'outer_diameter_mm','168.3',
+    'thickness_mm','8.0',
     'length_mm','6000',
     'quantity','12.5',
     'quantity_unit','T',
+    'price_value','825',
+    'price_unit','T',
+    'currency','eur',
+    'discount_percentage','2.5',
     'availability_status','stock',
     'note','Corrected by teammate after checking source PDF.'
   ),
@@ -138,11 +146,19 @@ select pg_temp.p111_assert(
     from public.commercial_observations o
     cross join p111_before b
     where o.id=911101
+      and o.product_type='round_tube'
       and o.grade='P235GH'
       and o.standard='EN 10216-2'
+      and o.material_number='1.0345'
+      and o.outer_diameter_mm=168.3
+      and o.thickness_mm=8.0
       and o.length_mm=6000
       and o.quantity=12.5
       and o.quantity_unit='T'
+      and o.price_value=825
+      and o.price_unit='T'
+      and o.currency='EUR'
+      and o.discount_percentage=2.5
       and o.availability_status='stock'
       and o.flags @> '["human_corrected"]'::jsonb
       and o.canonical_product_id is distinct from b.canonical_product_id
@@ -162,12 +178,19 @@ select pg_temp.p111_assert(
       and e.corrected_values->>'note'='Corrected by teammate after checking source PDF.'
       and e.before_observation->>'grade'='P265GH'
       and e.after_observation->>'grade'='P235GH'
+      and (e.after_observation->>'thickness_mm')::numeric=8.0
+      and (e.after_observation->>'price_value')::numeric=825
+      and e.after_observation->>'currency'='EUR'
       and e.before_observation->>'canonical_product_id'
           is distinct from e.after_observation->>'canonical_product_id'
   ),
   'append-only review event must preserve actor and before/after correction evidence'
 );
 
+reset role;
+
+-- Search/Product APIs are intentionally service-side. Validate the immediate
+-- post-correction read model without widening their authenticated grants.
 select pg_temp.p111_assert(
   (
     select coalesce((payload->>'total')::integer,0)>0
@@ -217,7 +240,11 @@ select pg_temp.p111_assert(
 );
 
 -- Completed reviews cannot be altered.
-do $$
+set local role authenticated;
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000111b1',true);
+select set_config('request.jwt.claim.role','authenticated',true);
+
+do $
 begin
   begin
     update public.commercial_review_queue
@@ -287,4 +314,17 @@ select pg_temp.p111_assert(
 );
 
 reset role;
+
+do $
+begin
+  begin
+    update public.commercial_review_events
+    set reason='tampered'
+    where review_id=911201;
+    raise exception 'append-only event mutation unexpectedly succeeded';
+  exception
+    when sqlstate '22023' then null;
+  end;
+end
+$;
 rollback;
