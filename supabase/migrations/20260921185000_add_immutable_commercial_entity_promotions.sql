@@ -84,13 +84,13 @@ returns trigger
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $promotion_immutable$
 begin
   raise exception using
     errcode = '55000',
     message = 'commercial_entity_promotions is append-only';
 end;
-$;
+$promotion_immutable$;
 
 revoke execute on function private.prevent_commercial_entity_promotion_mutation()
   from public, anon, authenticated;
