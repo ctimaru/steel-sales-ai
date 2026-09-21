@@ -26,5 +26,22 @@ test("P1 assistant exposes inline citations and a dedicated evidence drawer", ()
 
 test("assistant page renders the grounded P1 experience", () => {
   assert.match(page, /GroundedAssistant/);
-  assert.match(page, /evidence/i);
+  assert.match(page, /storico commerciale/i);
+});
+
+
+test("assistant is positioned as secondary support for core sales workflows", () => {
+  assert.match(page, /Supporto commerciale/);
+  assert.match(page, /Assistente/);
+  assert.match(page, /href="\/search"/);
+  assert.match(page, /href="\/products"/);
+  assert.match(page, /Cerca nello storico/);
+  assert.match(page, /Apri storico prodotti/);
+  assert.match(component, /Assistente con fonti/);
+  assert.match(component, /Usa l’assistente per approfondire lo storico/);
+  assert.match(component, /Accesso verificato/);
+  assert.doesNotMatch(page + component, /AI Assistant/);
+  assert.doesNotMatch(page + component, /Tenant verified/);
+  assert.doesNotMatch(page + component, /service role/);
+  assert.doesNotMatch(page + component, /Evidence-first assistant/);
 });
