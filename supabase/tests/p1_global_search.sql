@@ -70,6 +70,11 @@ select pg_temp.p14_assert(
   (public.p1_global_structured_search('00000000-0000-0000-0000-0000000014f1', 'S355J2H', array['rfq'], '{"width_mm":80,"height_mm":80,"thickness_mm":8}'::jsonb, 50)->>'total')::int = 1,
   'steel geometry filters must match the RFQ observation'
 );
+
+select pg_temp.p14_assert(
+  (public.p1_global_structured_search('00000000-0000-0000-0000-0000000014f1', 'S355J2H 80x80x8', array['rfq'], '{}'::jsonb, 50)->>'total')::int = 1,
+  'multi-term query must match all tokens within the same RFQ observation regardless of token order'
+);
 select pg_temp.p14_assert(
   (public.p1_global_structured_search('00000000-0000-0000-0000-0000000014f1', 'Acciai', array['company'], '{}'::jsonb, 50)->>'total')::int = 1,
   'normalized company rows must participate in Global Search when available'
