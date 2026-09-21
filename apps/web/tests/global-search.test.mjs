@@ -62,3 +62,17 @@ test("structured global search opens verified original evidence in one click", (
   assert.match(evidenceRoute, /WORKER_INTERNAL_TOKEN/);
   assert.doesNotMatch(evidenceRoute, /SUPABASE_SERVICE_ROLE_KEY/);
 });
+
+
+test("sales-first navigation keeps only core workflows primary and uses readable mobile labels", () => {
+  assert.match(shell, /shortLabel: "Home"/);
+  assert.match(shell, /shortLabel: "Cerca"/);
+  assert.match(shell, /shortLabel: "Prodotti"/);
+  assert.match(shell, /const secondaryNav = \[/);
+  for (const label of ["Assistente", "Correzioni", "Importa", "Tubi & Norme", "Fonti e import"]) {
+    assert.match(shell, new RegExp(`label: "${label.replace(/[.*+?^$\{\}()|[\]\\]/g, "\\$&")}"`));
+  }
+  assert.doesNotMatch(shell, /key: "H"/);
+  assert.doesNotMatch(shell, /key: "C"/);
+  assert.doesNotMatch(shell, /key: "P"/);
+});
