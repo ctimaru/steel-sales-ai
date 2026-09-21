@@ -162,6 +162,11 @@ select pg_temp.p111_assert(
   'append-only correction event must preserve before/request/result lineage'
 );
 
+-- Search/Product 360 are intentionally service-role-only. The worker resolves
+-- the authenticated tenant first, then calls these RPCs with organization_id.
+reset role;
+set local role service_role;
+
 select pg_temp.p111_assert(
   (public.p1_global_structured_search(
     '00000000-0000-0000-0000-0000000018f1',
@@ -200,7 +205,12 @@ select pg_temp.p111_assert(
 );
 
 -- Correction is one-shot/idempotency-safe through pending status.
-do $$
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000018a1',true);
+select set_config('request.jwt.claim.role','authenticated',true);
+
+do $
 begin
   begin
     perform public.p1_apply_commercial_review_correction(
