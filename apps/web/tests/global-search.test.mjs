@@ -12,6 +12,10 @@ const page = fs.readFileSync(
 );
 const component = fs.readFileSync(new URL("../components/global-search.tsx", import.meta.url), "utf8");
 const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
+const evidenceRoute = fs.readFileSync(
+  new URL("../app/evidence/[observationId]/route.ts", import.meta.url),
+  "utf8",
+);
 
 test("global search derives actor server-side and calls tenant-safe worker endpoint", () => {
   assert.match(actions, /supabase\.auth\.getClaims\(\)/);
@@ -46,4 +50,15 @@ test("commercial search is first-class sales navigation", () => {
   assert.match(page, /Trova prodotti, clienti, richieste, offerte, ordini e documenti/);
   assert.match(shell, /href: "\/search"/);
   assert.match(shell, /label: "Cerca"/);
+});
+
+
+test("structured global search opens verified original evidence in one click", () => {
+  assert.match(component, /metadata\?\.observation_id/);
+  assert.match(component, /\/evidence\/\$\{observationId\}/);
+  assert.match(component, /Apri originale/);
+  assert.match(evidenceRoute, /supabase\.auth\.getUser\(\)/);
+  assert.match(evidenceRoute, /\/v1\/evidence\//);
+  assert.match(evidenceRoute, /WORKER_INTERNAL_TOKEN/);
+  assert.doesNotMatch(evidenceRoute, /SUPABASE_SERVICE_ROLE_KEY/);
 });

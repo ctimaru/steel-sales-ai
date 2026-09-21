@@ -142,7 +142,13 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                     <td className="font-semibold text-slate-950">{priceLabel(row)}</td>
                     <td className="text-slate-600">{row.quantity !== null && row.quantity !== undefined ? `${numberLabel(row.quantity)} ${row.quantity_unit ?? ""}` : "—"}</td>
                     <td className="max-w-[220px] truncate text-slate-500">{row.source_filename ?? row.thread_subject ?? "—"}</td>
-                    <td className="text-right">{row.thread_id ? <Link href={`/conversations/${row.thread_id}`} className="font-semibold text-indigo-600">Apri thread →</Link> : null}</td>
+                    <td className="text-right">
+                      {row.observation_id ? (
+                        <Link href={`/evidence/${row.observation_id}`} target="_blank" className="font-semibold text-indigo-600">Originale ↗</Link>
+                      ) : row.thread_id ? (
+                        <Link href={`/conversations/${row.thread_id}`} className="font-semibold text-indigo-600">Apri thread →</Link>
+                      ) : null}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -197,7 +203,10 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                   {event.company_name ? <span>{event.company_name}</span> : null}
                 </div>
               </div>
-              {event.thread_id ? <Link href={`/conversations/${event.thread_id}`} className="text-xs font-semibold text-indigo-600">Evidence →</Link> : null}
+              <div className="flex flex-col items-start gap-2 md:items-end">
+                <Link href={`/evidence/${event.observation_id}`} target="_blank" className="text-xs font-semibold text-indigo-600">Originale ↗</Link>
+                {event.thread_id ? <Link href={`/conversations/${event.thread_id}`} className="text-xs font-semibold text-slate-500">Thread →</Link> : null}
+              </div>
             </div>
           ))}
         </div>
