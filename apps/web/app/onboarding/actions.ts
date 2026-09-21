@@ -122,3 +122,20 @@ export async function changeMemberRole(formData: FormData) {
   revalidatePath("/onboarding");
   onboardingRedirect("Ruolo aggiornato.");
 }
+
+
+export async function changeMemberBusinessRole(formData: FormData) {
+  const { supabase } = await currentUser();
+  const organizationId = String(formData.get("organization_id") ?? "");
+  const userId = String(formData.get("user_id") ?? "");
+  const businessRole = String(formData.get("business_role") ?? "").trim();
+
+  const { error } = await supabase.rpc("set_organization_member_business_role", {
+    p_organization_id: organizationId,
+    p_user_id: userId,
+    p_business_role: businessRole || null,
+  });
+  if (error) onboardingRedirect(error.message, "error");
+  revalidatePath("/onboarding");
+  onboardingRedirect("Ruolo commerciale aggiornato.");
+}
