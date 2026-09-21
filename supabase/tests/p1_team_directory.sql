@@ -65,7 +65,7 @@ select public.set_organization_member_business_role(
   'operations'
 );
 
-do $
+do $business_role_check$
 begin
   if not exists (
     select 1
@@ -77,14 +77,14 @@ begin
   ) then
     raise exception 'PA2.2a business role update must not change permission role';
   end if;
-end $;
+end $business_role_check$;
 
 reset role;
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000012b1', true);
 select set_config('request.jwt.claim.role', 'authenticated', true);
 
-do $
+do $business_role_deny$
 begin
   begin
     perform public.set_organization_member_business_role(
@@ -98,7 +98,7 @@ begin
       raise;
     end if;
   end;
-end $;
+end $business_role_deny$;
 
 reset role;
 
