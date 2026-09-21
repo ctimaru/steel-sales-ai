@@ -453,13 +453,13 @@ returns trigger
 language plpgsql
 security invoker
 set search_path=''
-as $
+as $$
 begin
   raise exception using
     errcode='22023',
     message='Commercial review feedback events are append-only.';
 end
-$;
+$$;
 
 revoke all on function private.guard_commercial_review_event_immutability()
   from public,anon,authenticated;
