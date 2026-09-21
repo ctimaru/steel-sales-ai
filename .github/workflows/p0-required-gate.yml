@@ -185,7 +185,8 @@ jobs:
             p1_us_api_nps_schedule_expansion.sql \
             p1_us_api_sa_dn_designations.sql \
             p1_human_correction_loop.sql \
-            pa2_org_safe_fk_foundation.sql; do
+            pa2_org_safe_fk_foundation.sql \
+            pa2_rfq_relationship_foundation.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
