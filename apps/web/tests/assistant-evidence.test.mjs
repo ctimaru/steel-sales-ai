@@ -26,7 +26,7 @@ test("P1 assistant exposes inline citations and a dedicated evidence drawer", ()
 
 test("assistant page renders the grounded P1 experience", () => {
   assert.match(page, /GroundedAssistant/);
-  assert.match(page, /evidence/i);
+  assert.match(page, /fonti/i);
 });
 
 
