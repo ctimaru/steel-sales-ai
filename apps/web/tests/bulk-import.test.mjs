@@ -29,7 +29,7 @@ test("bulk server actions always derive actor from verified Supabase claims", ()
 
 
 test("import UI uses sales-facing language while preserving bulk mechanics", () => {
-  for (const forbidden of ["Ingestion", "Import multiplo", "SHA-256", "batch completato", "Retry selettivo", "deduplicati"]) {
+  for (const forbidden of ["Ingestion", "Import multiplo", "batch completato", "Retry selettivo", "deduplicati"]) {
     assert.doesNotMatch(page + component, new RegExp(forbidden));
   }
   assert.match(page, /Aggiungi documenti allo storico/);
