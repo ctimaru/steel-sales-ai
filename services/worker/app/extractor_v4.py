@@ -7,6 +7,7 @@ from .extractor_v31 import (
     DIMENSIONS_RE,
     LABELED_QUANTITY_RE,
     LENGTH_RE,
+    NUMBER,
     PRICE_RE,
     PRICE_SUFFIX_RE,
     QUANTITY_RE,
