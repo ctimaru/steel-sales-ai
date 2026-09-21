@@ -247,8 +247,20 @@ select pg_temp.p111_assert(
   'correction must never move an observation across tenants'
 );
 
--- Audit is append-only.
-do $$
+-- Audit is append-only at both permission and trigger layers.
+select pg_temp.p111_assert(
+  not has_table_privilege(
+    'authenticated',
+    'public.commercial_correction_events',
+    'UPDATE,DELETE'
+  ),
+  'authenticated role must not mutate correction audit'
+);
+
+reset role;
+set local role service_role;
+
+do $
 begin
   begin
     update public.commercial_correction_events
@@ -259,7 +271,7 @@ begin
     when sqlstate '55000' then null;
   end;
 end
-$$;
+$;
 
 reset role;
 rollback;
