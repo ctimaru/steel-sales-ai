@@ -4,12 +4,13 @@ import { redirect } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/server";
 
-import { changeMemberRole, completeOnboarding, createOrganization, inviteMember } from "./actions";
+import { changeMemberBusinessRole, changeMemberRole, completeOnboarding, createOrganization, inviteMember } from "./actions";
 
 type TeamMember = {
   user_id: string;
   email: string | null;
   role: string;
+  business_role: string | null;
   status: string;
   is_default: boolean;
 };
@@ -27,7 +28,7 @@ export default async function OnboardingPage({
   await supabase.rpc("claim_pending_organization_invitations");
   const { data: memberships } = await supabase
     .from("organization_memberships")
-    .select("organization_id,role,status,is_default")
+    .select("organization_id,role,business_role,status,is_default")
     .eq("user_id", auth.user.id)
     .eq("status", "active");
 
@@ -86,7 +87,8 @@ export default async function OnboardingPage({
       <OnboardingShell step="Pronto" title={`Benvenuto in ${organization.name}`} description="Il tuo account è collegato al workspace. I permessi sono già applicati in base al ruolo assegnato dall’admin.">
         <Feedback message={params.invited ? "Invito accettato e membership attivata." : params.message} error={params.error} />
         <div className="mt-8 rounded-xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-700">
-          Ruolo: <strong>{membership.role}</strong>
+          <div>Permesso: <strong>{membership.role}</strong></div>
+          <div className="mt-1">Ruolo commerciale: <strong>{membership.business_role ?? "Non assegnato"}</strong></div>
         </div>
         <Link href="/dashboard" className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-lg bg-slate-950 text-sm font-semibold text-white">
           Entra in Steel Sales AI
@@ -175,19 +177,40 @@ export default async function OnboardingPage({
                 <h2 className="text-lg font-semibold text-slate-950">Ruoli utente</h2>
                 <div className="mt-4 space-y-3">
                   {team.map((member) => (
-                    <form action={changeMemberRole} key={member.user_id} className="rounded-xl bg-slate-50 p-3">
-                      <input type="hidden" name="organization_id" value={organization.id} />
-                      <input type="hidden" name="user_id" value={member.user_id} />
+                    <div key={member.user_id} className="rounded-xl bg-slate-50 p-3">
                       <p className="truncate text-sm font-medium text-slate-800">{member.email ?? member.user_id}</p>
-                      <div className="mt-2 flex gap-2">
-                        <select name="role" defaultValue={member.role} className="h-9 flex-1 rounded-lg border border-slate-200 bg-white px-2 text-xs">
-                          <option value="admin">Admin</option>
-                          <option value="member">Member</option>
-                          <option value="viewer">Viewer</option>
-                        </select>
-                        <button className="rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold">Salva</button>
-                      </div>
-                    </form>
+                      <form action={changeMemberRole} className="mt-3">
+                        <input type="hidden" name="organization_id" value={organization.id} />
+                        <input type="hidden" name="user_id" value={member.user_id} />
+                        <label className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                          Permesso
+                          <div className="mt-1 flex gap-2">
+                            <select name="role" defaultValue={member.role} className="h-9 flex-1 rounded-lg border border-slate-200 bg-white px-2 text-xs normal-case tracking-normal">
+                              <option value="admin">Admin</option>
+                              <option value="member">Member</option>
+                              <option value="viewer">Viewer</option>
+                            </select>
+                            <button className="rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold normal-case tracking-normal">Salva</button>
+                          </div>
+                        </label>
+                      </form>
+                      <form action={changeMemberBusinessRole} className="mt-3">
+                        <input type="hidden" name="organization_id" value={organization.id} />
+                        <input type="hidden" name="user_id" value={member.user_id} />
+                        <label className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                          Ruolo commerciale
+                          <div className="mt-1 flex gap-2">
+                            <select name="business_role" defaultValue={member.business_role ?? ""} className="h-9 flex-1 rounded-lg border border-slate-200 bg-white px-2 text-xs normal-case tracking-normal">
+                              <option value="">Non assegnato</option>
+                              <option value="sales_director">Sales Director</option>
+                              <option value="salesperson">Commerciale</option>
+                              <option value="operations">Operations</option>
+                            </select>
+                            <button className="rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold normal-case tracking-normal">Salva</button>
+                          </div>
+                        </label>
+                      </form>
+                    </div>
                   ))}
                 </div>
               </div>
