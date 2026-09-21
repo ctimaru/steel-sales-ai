@@ -94,30 +94,32 @@ export async function correctReviewItem(
   try {
     const auth = await authenticatedClient();
     if (!auth.client) return { status: "error", message: auth.error ?? "Sessione non valida." };
-    const { data, error } = await auth.client
-      .from("commercial_review_queue")
-      .update({
-        status: "corrected",
-        corrected_values: values,
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq("id", Number(rawId))
-      .eq("owner_id", auth.user?.id)
-      .eq("status", "pending")
-      .select("id,status,corrected_values")
-      .maybeSingle();
+    const { data, error } = await auth.client.rpc(
+      "p1_apply_commercial_review_correction",
+      {
+        p_review_id: Number(rawId),
+        p_corrected_values: values,
+      },
+    );
 
     if (error) return { status: "error", message: "Correzione non salvata. Riprova tra poco." };
-    if (!data || data.id !== Number(rawId) || data.status !== "corrected") {
-      return { status: "error", message: "Nessuna correzione salvata: il record non è disponibile o è già stato revisionato." };
+    if (
+      !data ||
+      typeof data !== "object" ||
+      Number((data as { review_id?: unknown }).review_id) !== Number(rawId) ||
+      (data as { status?: unknown }).status !== "corrected"
+    ) {
+      return { status: "error", message: "Nessuna correzione promossa: il record non è disponibile o è già stato revisionato." };
     }
     try {
       revalidatePath("/review");
       revalidatePath("/dashboard");
+      revalidatePath("/search");
+      revalidatePath("/products");
     } catch {
-      return { status: "success", message: "Correzione salvata. Aggiorna la pagina per aggiornare i conteggi." };
+      return { status: "success", message: "Correzione applicata ai dati commerciali. Aggiorna la pagina per vedere i dati aggiornati." };
     }
-    return { status: "success", message: "Correzione salvata nella Review Queue." };
+    return { status: "success", message: "Correzione applicata: Search e Product History useranno subito il dato aggiornato." };
   } catch {
     return { status: "error", message: "Non è stato possibile verificare il salvataggio. Aggiorna la pagina prima di riprovare." };
   }
