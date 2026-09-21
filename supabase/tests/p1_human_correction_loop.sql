@@ -280,7 +280,7 @@ select pg_temp.p111_assert(
 reset role;
 set local role service_role;
 
-do $
+do $p111audit$
 begin
   begin
     update public.commercial_correction_events
@@ -291,7 +291,7 @@ begin
     when sqlstate '55000' then null;
   end;
 end
-$;
+$p111audit$;
 
 reset role;
 rollback;
