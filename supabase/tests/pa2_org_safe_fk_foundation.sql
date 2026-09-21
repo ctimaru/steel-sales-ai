@@ -88,6 +88,26 @@ values
   ('00000000-0000-0000-0000-0000000022f1', 'PA22B Org A', 'pa22b-org-a', '00000000-0000-0000-0000-0000000022a1', 'completed'),
   ('00000000-0000-0000-0000-0000000022f2', 'PA22B Org B', 'pa22b-org-b', '00000000-0000-0000-0000-0000000022b1', 'completed');
 
+insert into public.organization_memberships (
+  organization_id, user_id, role, business_role, status, is_default
+) values
+  (
+    '00000000-0000-0000-0000-0000000022f1',
+    '00000000-0000-0000-0000-0000000022a1',
+    'admin',
+    'sales_director',
+    'active',
+    true
+  ),
+  (
+    '00000000-0000-0000-0000-0000000022f2',
+    '00000000-0000-0000-0000-0000000022b1',
+    'admin',
+    'sales_director',
+    'active',
+    true
+  );
+
 insert into public.companies (id, owner_id, organization_id, name, company_type)
 values
   ('00000000-0000-0000-0000-000000002201', '00000000-0000-0000-0000-0000000022a1', '00000000-0000-0000-0000-0000000022f1', 'Customer A', 'customer'),
