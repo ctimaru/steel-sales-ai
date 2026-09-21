@@ -24,13 +24,26 @@ test("data source center exposes required P1.3 operational states", () => {
   assert.match(page, /Indicizzati/);
   assert.match(page, /Duplicati/);
   assert.match(page, /Errori \/ scartati/);
-  assert.match(page, /Ultimo sync/);
-  assert.match(page, /Import history/);
-  assert.match(page, /File ed email storici e nuovi batch P1\.2/);
+  assert.match(page, /Ultimo aggiornamento/);
+  assert.match(page, /Storico importazioni/);
+  assert.match(page, /File ed email importati/);
 });
 
 test("workspace navigation links source history and import workflow", () => {
   assert.match(shell, /href: "\/data-sources"/);
   assert.match(shell, /href: "\/uploads"/);
   assert.match(page, /href="\/uploads"/);
+});
+
+
+test("data source center uses operational sales-facing language", () => {
+  for (const forbidden of ["Data source center", "P1.2", "chunk", "Nessun retry", "SHA-256 già presenti", "Ultimo sync"]) {
+    assert.doesNotMatch(page, new RegExp(forbidden));
+  }
+  assert.match(page, /Fonti e import/);
+  assert.match(page, /Documenti importati/);
+  assert.match(page, /Storico importazioni/);
+  assert.match(page, /parti disponibili alla ricerca/);
+  assert.match(page, /Nessun nuovo tentativo/);
+  assert.match(page, /Contenuti già presenti/);
 });
