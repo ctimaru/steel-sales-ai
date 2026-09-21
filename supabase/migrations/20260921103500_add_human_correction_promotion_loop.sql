@@ -235,15 +235,6 @@ begin
     raise exception using errcode='22023',message='discount percentage must be between 0 and 100';
   end if;
 
-  v_key := public.canonical_tube_product_key(
-    v_product_type,v_grade,v_standard,v_material_number,
-    v_od,v_width,v_height,v_thickness,null
-  );
-  v_product_id := public.canonical_tube_product_id(
-    v_product_type,v_grade,v_standard,v_material_number,
-    v_od,v_width,v_height,v_thickness,null
-  );
-
   v_original := jsonb_build_object(
     'product_type',v_obs.product_type,
     'grade',v_obs.grade,
@@ -281,14 +272,17 @@ begin
     currency=v_currency,
     discount_percentage=v_discount,
     availability_status=v_availability,
-    canonical_product_key=v_key,
-    canonical_product_id=v_product_id,
     search_text=lower(concat_ws(' ',
       v_product_type,v_grade,v_standard,v_material_number,
       v_od::text,v_width::text,v_height::text,v_thickness::text,v_length::text,
       v_quantity::text,v_quantity_unit,v_price::text,v_price_unit,v_currency,
       v_availability
     ))
+  where id=v_obs.id;
+
+  select canonical_product_key,canonical_product_id
+  into v_key,v_product_id
+  from public.commercial_observations
   where id=v_obs.id;
 
   v_result := jsonb_build_object(
