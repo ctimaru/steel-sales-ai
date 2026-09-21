@@ -40,7 +40,7 @@ observations as (
       p.q is null
       or not exists (
         select 1
-        from regexp_split_to_table(p.q, E'\\s+') as token(value)
+        from regexp_split_to_table(p.q, '[[:space:]]+') as token(value)
         where btrim(token.value) <> ''
           and position(
             lower(token.value)
@@ -228,7 +228,7 @@ company_rows as (
       p.q is null
       or not exists (
         select 1
-        from regexp_split_to_table(p.q, E'\\s+') as token(value)
+        from regexp_split_to_table(p.q, '[[:space:]]+') as token(value)
         where btrim(token.value) <> ''
           and position(
             lower(token.value)
