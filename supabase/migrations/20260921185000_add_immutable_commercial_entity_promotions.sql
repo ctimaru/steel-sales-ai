@@ -79,6 +79,29 @@ create unique index if not exists commercial_entity_promotions_idempotency_uq
     coalesce(source_review_id, -1::bigint)
   );
 
+create or replace function private.prevent_commercial_entity_promotion_mutation()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $
+begin
+  raise exception using
+    errcode = '55000',
+    message = 'commercial_entity_promotions is append-only';
+end;
+$;
+
+revoke execute on function private.prevent_commercial_entity_promotion_mutation()
+  from public, anon, authenticated;
+
+drop trigger if exists commercial_entity_promotions_immutable
+  on public.commercial_entity_promotions;
+create trigger commercial_entity_promotions_immutable
+before update or delete on public.commercial_entity_promotions
+for each row
+execute function private.prevent_commercial_entity_promotion_mutation();
+
 alter table public.commercial_entity_promotions enable row level security;
 
 drop policy if exists commercial_entity_promotions_select_member
