@@ -10,6 +10,10 @@ const page = fs.readFileSync(
   new URL("../app/(workspace)/search/page.tsx", import.meta.url),
   "utf8",
 );
+const dashboard = fs.readFileSync(
+  new URL("../app/(workspace)/dashboard/page.tsx", import.meta.url),
+  "utf8",
+);
 const component = fs.readFileSync(new URL("../components/global-search.tsx", import.meta.url), "utf8");
 const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
 const evidenceRoute = fs.readFileSync(
@@ -75,4 +79,18 @@ test("sales-first navigation keeps only core workflows primary and uses readable
   assert.doesNotMatch(shell, /key: "H"/);
   assert.doesNotMatch(shell, /key: "C"/);
   assert.doesNotMatch(shell, /key: "P"/);
+});
+
+
+test("Home is a quick-search entry point while Search owns the advanced workspace", () => {
+  assert.match(dashboard, /action="\/search"/);
+  assert.match(dashboard, /name="q"/);
+  assert.match(dashboard, /Cerca nello storico/);
+  assert.match(dashboard, /Apri ricerca avanzata/);
+  assert.doesNotMatch(dashboard, /<GlobalSearch/);
+  assert.match(page, /searchParams/);
+  assert.match(page, /initialQuery/);
+  assert.match(page, /<GlobalSearch initialQuery=\{initialQuery\}/);
+  assert.match(component, /initialQuery = ""/);
+  assert.match(component, /useState\(initialQuery\)/);
 });
