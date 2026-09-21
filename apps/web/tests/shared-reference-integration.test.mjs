@@ -18,6 +18,10 @@ const actions = fs.readFileSync(
   new URL("../app/(workspace)/products/actions.ts", import.meta.url),
   "utf8",
 );
+const tubes = fs.readFileSync(
+  new URL("../app/(workspace)/tubi-norme/page.tsx", import.meta.url),
+  "utf8",
+);
 
 test("Search surfaces Shared Steel Knowledge resolution", () => {
   assert.match(search, /shared_reference/);
@@ -38,4 +42,24 @@ test("Price History keeps historical normalization semantics while showing canon
   assert.match(prices, /Riferimento verificato/);
   assert.match(prices, /non vengono riscritte retroattivamente/);
   assert.match(prices, /Peso teorico della sezione/);
+});
+
+
+test("Tubi & Norme is positioned as a specialist tool with sales-facing terminology", () => {
+  for (const forbidden of [
+    "Shared Steel Knowledge",
+    "Reference DB",
+    "Grade-neutral",
+    "Canonical disponibili",
+    "Canonical mancanti",
+    "Source-scoped",
+    "scoped partial catalog",
+  ]) {
+    assert.doesNotMatch(tubes, new RegExp(forbidden));
+  }
+  assert.match(tubes, /Riferimenti tecnici/);
+  assert.match(tubes, /Pesi disponibili/);
+  assert.match(tubes, /Pesi da completare/);
+  assert.match(tubes, /Copertura parziale/);
+  assert.match(tubes, /solo dopo verifica/);
 });
