@@ -247,7 +247,7 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000018a1',true);
 select set_config('request.jwt.claim.role','authenticated',true);
 
-do $
+do $p111$
 begin
   begin
     perform public.p1_apply_commercial_review_correction(
@@ -259,7 +259,7 @@ begin
     when sqlstate '22023' then null;
   end;
 end
-$;
+$p111$;
 
 select pg_temp.p111_assert(
   (select organization_id='00000000-0000-0000-0000-0000000018f1'
