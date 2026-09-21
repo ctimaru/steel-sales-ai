@@ -152,10 +152,10 @@ export function GroundedAssistant() {
     <div className="space-y-6">
       <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
         <div className="bg-slate-950 px-5 py-5 text-white sm:px-6">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-300">Evidence-first assistant</p>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-300">Assistente con fonti</p>
           <h2 className="mt-2 text-xl font-semibold">Chiedi alla tua Commercial Memory</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-300">
-            Le risposte sensibili sono collegate a evidence verificabili. Tocca una citazione [S#] per aprire lo snippet e la fonte originale.
+            Le risposte restano collegate alle fonti usate. Tocca una citazione [S#] per vedere il passaggio e aprire il documento o la conversazione originale.
           </p>
         </div>
         <form action={formAction} className="space-y-4 p-5 sm:p-6">
@@ -176,9 +176,9 @@ export function GroundedAssistant() {
             ))}
           </div>
           <div className="flex items-center justify-between gap-4">
-            <p className="text-xs text-slate-500">Tenant verificato lato worker · nessun service role nel browser.</p>
+            <p className="text-xs text-slate-500">Usa l’assistente per approfondire lo storico; per ricerche dirette usa Cerca o Storico prodotti.</p>
             <button type="submit" disabled={pending || query.trim().length < 2} className="rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
-              {pending ? "Cerco le evidence..." : state.turns.length ? "Continua" : "Chiedi"}
+              {pending ? "Cerco nelle fonti..." : state.turns.length ? "Continua" : "Chiedi"}
             </button>
           </div>
         </form>
@@ -187,7 +187,7 @@ export function GroundedAssistant() {
       {state.turns.length === 0 ? (
         <section className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center">
           <p className="text-sm font-semibold text-slate-700">Le risposte compariranno qui con le relative fonti.</p>
-          <p className="mt-1 text-xs text-slate-500">Se le evidence non bastano, l'assistente lo dichiara senza completare i dati mancanti.</p>
+          <p className="mt-1 text-xs text-slate-500">Se le fonti non bastano, l'assistente lo dichiara senza completare i dati mancanti.</p>
         </section>
       ) : (
         <section className="space-y-5">
@@ -206,7 +206,7 @@ export function GroundedAssistant() {
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600">Steel Sales AI</span>
                         {payload?.grounding?.status ? <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-600">{payload.grounding.status}</span> : null}
-                        {payload?.access?.membership_verified ? <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">Tenant verified</span> : null}
+                        {payload?.access?.membership_verified ? <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">Accesso verificato</span> : null}
                       </div>
                       <AnswerWithCitations text={turn.message} evidence={evidence} onOpen={setSelectedEvidence} />
                     </div>
@@ -215,8 +215,8 @@ export function GroundedAssistant() {
                       <div className="mt-5">
                         <div className="flex items-center justify-between gap-3">
                           <div>
-                            <h3 className="text-sm font-semibold text-slate-950">Evidence</h3>
-                            <p className="mt-1 text-xs text-slate-500">Snippet, documento/thread e provenienza della risposta.</p>
+                            <h3 className="text-sm font-semibold text-slate-950">Fonti</h3>
+                            <p className="mt-1 text-xs text-slate-500">Passaggi e documenti usati per costruire la risposta.</p>
                           </div>
                           <span className="text-xs font-semibold text-slate-400">{evidence.length} fonti</span>
                         </div>
@@ -234,13 +234,13 @@ export function GroundedAssistant() {
                         </div>
                       </div>
                     ) : payload?.grounding?.status === "insufficient_evidence" ? (
-                      <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">Evidence insufficiente: nessuna fonte viene presentata come conferma.</div>
+                      <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">Fonti insufficienti: nessun documento viene presentato come conferma.</div>
                     ) : null}
                   </div>
 
                   {observations.length ? (
                     <div className="border-t border-slate-100 px-5 py-5 sm:px-6">
-                      <h3 className="text-sm font-semibold text-slate-950">Dati strutturati usati</h3>
+                      <h3 className="text-sm font-semibold text-slate-950">Dati commerciali usati</h3>
                       <div className="mt-3 grid gap-2 lg:grid-cols-2">
                         {observations.slice(0, 6).map((row, index) => {
                           const body = (
