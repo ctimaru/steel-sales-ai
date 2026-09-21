@@ -111,3 +111,22 @@ def test_parser_v4_summary_exposes_validation_distribution() -> None:
     assert result.validation_summary["valid"] == 1
     assert result.validation_summary["invalid"] == 1
     assert result.validation_summary["review_required"] == 1
+
+
+def test_multiline_item_cohesion_inherits_grade_length_and_pack_quantity() -> None:
+    rows = extract_observations(
+        "Tubo tondo 273x8 a 12000\n2 pacchi\ns355",
+        "p114b-rdo-273.eml",
+    )
+
+    assert len(rows) == 1
+    row = rows[0]
+    assert row["product_type"] if "product_type" in row else True
+    assert row["grade"] == "S355"
+    assert row["outer_diameter_mm"] == 273
+    assert row["thickness_mm"] == 8
+    assert row["length_mm"] == 12000
+    assert row["quantity"] == 2
+    assert row["quantity_unit"] == "PACCHI"
+    assert row["metadata"]["validation"]["status"] == "valid"
+    assert row["confidence"] >= 0.90
