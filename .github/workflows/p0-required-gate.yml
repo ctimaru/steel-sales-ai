@@ -189,7 +189,8 @@ jobs:
             pa2_rfq_relationship_foundation.sql \
             pa2_offer_order_relationship_foundation.sql \
             pa2_immutable_promotion_ledger.sql \
-            pa2_normalized_chain_e2e.sql; do
+            pa2_normalized_chain_e2e.sql \
+            pa23_controlled_read_bridge.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
