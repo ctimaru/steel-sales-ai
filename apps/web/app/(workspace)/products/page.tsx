@@ -44,8 +44,8 @@ export default async function ProductsPage({
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">Commercial Memory</p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Product 360</h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-          Un prodotto canonico, tutta la sua storia: richieste, offerte, ordini, consegne, prezzi, quantità,
-          thread e documenti originali.
+          Un prodotto, tutta la sua storia: richieste, offerte, ordini, consegne, prezzi, quantità,
+          conversazioni e documenti originali.
         </p>
       </div>
 
@@ -62,7 +62,7 @@ export default async function ProductsPage({
           </button>
         </form>
         <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-4 text-xs text-slate-500">
-          <span>{catalog.total} prodotti canonici{query ? ` per “${query}”` : ""}</span>
+          <span>{catalog.total} prodotti{query ? ` per “${query}”` : ""}</span>
           {query ? <Link href="/products" className="font-semibold text-indigo-600">Azzera ricerca</Link> : null}
         </div>
       </section>
@@ -71,7 +71,7 @@ export default async function ProductsPage({
         <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">{catalog.error}</div>
       ) : catalog.results.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center text-sm text-slate-500">
-          Nessun prodotto canonico trovato con questi criteri.
+          Nessun prodotto trovato con questi criteri.
         </div>
       ) : (
         <section className="grid gap-4 xl:grid-cols-2">
@@ -88,7 +88,7 @@ export default async function ProductsPage({
                     {item.standard ? <span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">{item.standard}</span> : null}
                   </div>
                   <h2 className="mt-3 text-lg font-semibold text-slate-950">{productLabel(item)}</h2>
-                  <p className="mt-1 text-xs text-slate-400">{item.event_count} eventi · {item.thread_count} thread</p>
+                  <p className="mt-1 text-xs text-slate-400">{item.event_count} attività · {item.thread_count} conversazioni</p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-semibold text-slate-950">{priceLabel(item)}</p>
