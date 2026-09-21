@@ -92,9 +92,9 @@ function sourceTarget(result: GlobalSearchResult) {
   return null;
 }
 
-export function GlobalSearch() {
+export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
   const [state, formAction, pending] = useActionState(globalSearch, initialState);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
 
   return (
     <div className="space-y-6">
