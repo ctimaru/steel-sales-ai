@@ -11,8 +11,7 @@ from uuid import UUID, uuid4
 
 from fastapi import APIRouter, BackgroundTasks, Header, HTTPException, status
 from pydantic import BaseModel, Field, model_validator
-from supabase import create_client
-from supabase.lib.client_options import ClientOptions
+from supabase import ClientOptions, create_client
 
 from .knowledge_ingest import build_knowledge_document
 from .parser_v31 import ParserInput, ParserV31Adapter
