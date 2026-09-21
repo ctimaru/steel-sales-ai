@@ -82,9 +82,9 @@ export default async function TubesStandardsPage({
       <div className="mx-auto max-w-7xl">
         <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6 text-amber-950">
           <p className="text-sm font-semibold">Tubi &amp; Norme</p>
-          <h1 className="mt-2 text-2xl font-semibold">Reference DB non connesso in modalità demo.</h1>
+          <h1 className="mt-2 text-2xl font-semibold">Archivio tecnico non disponibile in modalità demo.</h1>
           <p className="mt-2 text-sm text-amber-800">
-            Configura Supabase per consultare standard, dimensioni e pesi canonical.
+            Collega il workspace per consultare norme, dimensioni e pesi di riferimento.
           </p>
         </div>
       </div>
@@ -241,24 +241,23 @@ export default async function TubesStandardsPage({
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7 lg:p-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
-            <p className="text-sm font-semibold text-indigo-600">Shared Steel Knowledge</p>
+            <p className="text-sm font-semibold text-indigo-600">Riferimenti tecnici</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
               Tubi &amp; Norme
             </h1>
             <p className="mt-3 text-sm leading-6 text-slate-500 sm:text-base">
-              Consulta standard, gradi, dimensioni e pesi canonical. I calcoli commerciali sono
-              disponibili solo quando lo scope ha un peso canonical esplicito.
+              Consulta norme, qualità, dimensioni e pesi di riferimento. I calcoli commerciali sono disponibili solo quando esiste un peso verificato per quella combinazione.
             </p>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-            <p className="text-xs font-semibold text-slate-500">Reference DB</p>
+            <p className="text-xs font-semibold text-slate-500">Copertura dati</p>
             <p className="mt-1 text-sm font-semibold text-slate-900">
               {readinessRow?.sk5_gate_status === "ready_scoped_partial_catalog"
                 ? "Copertura parziale controllata"
                 : readinessRow?.sk5_gate_status ?? "Stato non disponibile"}
             </p>
             <p className="mt-1 text-xs text-slate-500">
-              {readinessRow?.canonical_scope_count ?? 0} scope canonical ·{" "}
+              {readinessRow?.canonical_scope_count ?? 0} riferimenti verificati ·{" "}
               {readinessRow?.missing_canonical_scope_count ?? 0} da completare
             </p>
           </div>
@@ -288,7 +287,7 @@ export default async function TubesStandardsPage({
             defaultValue={selectedGradeId}
             className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900"
           >
-            <option value="">Grade-neutral</option>
+            <option value="">Senza qualità specifica</option>
             {(grades ?? []).map((grade) => (
               <option key={grade.id} value={grade.id}>
                 {grade.designation} · {grade.material_number}
@@ -338,16 +337,16 @@ export default async function TubesStandardsPage({
           </p>
         </div>
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-          <p className="text-xs font-semibold text-emerald-700">Canonical disponibili</p>
+          <p className="text-xs font-semibold text-emerald-700">Pesi disponibili</p>
           <p className="mt-1 text-2xl font-semibold text-emerald-950">{availableCount}</p>
           <p className="mt-1 text-xs text-emerald-700">
             utilizzabili per peso e calcolo commerciale
           </p>
         </div>
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
-          <p className="text-xs font-semibold text-amber-700">Canonical mancanti</p>
+          <p className="text-xs font-semibold text-amber-700">Pesi da completare</p>
           <p className="mt-1 text-2xl font-semibold text-amber-950">{missingCount}</p>
-          <p className="mt-1 text-xs text-amber-700">nessun fallback automatico</p>
+          <p className="mt-1 text-xs text-amber-700">nessun valore stimato automaticamente</p>
         </div>
       </section>
 
@@ -357,7 +356,7 @@ export default async function TubesStandardsPage({
           <p className="mt-1 text-xs text-slate-500">
             {selectedGrade
               ? `${selectedGrade.designation} · ${selectedGrade.material_number}`
-              : "Scope grade-neutral"}{" "}
+              : "Senza qualità specifica"}{" "}
             · {rows.length} geometrie collegate
           </p>
         </div>
@@ -396,7 +395,7 @@ export default async function TubesStandardsPage({
                           ? "inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700"
                           : "inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600"
                       }>
-                        {isNormativeComplete ? "Normativa completa" : "Source-scoped"}
+                        {isNormativeComplete ? "Normativa completa" : "Copertura parziale"}
                       </span>
                     </td>
                     <td className="px-4 py-3.5 text-xs text-slate-500">
@@ -440,9 +439,7 @@ export default async function TubesStandardsPage({
       </section>
 
       <p className="px-1 text-xs leading-5 text-slate-500">
-        Il catalogo è attualmente in modalità scoped partial catalog: una relazione dimensionale o
-        un peso non canonical può essere mostrato come conoscenza, ma non viene usato per calcoli
-        commerciali finché non supera il percorso di verifica e canonicalizzazione.
+        La copertura tecnica è ancora parziale: una dimensione o un peso possono essere mostrati come riferimento, ma vengono usati nei calcoli commerciali solo dopo verifica.
       </p>
     </div>
   );
