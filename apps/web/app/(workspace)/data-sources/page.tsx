@@ -118,7 +118,7 @@ export default async function DataSourcesPage({
       <div className="space-y-6">
         <PageHeader />
         <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-800">
-          <p className="font-semibold">Data source center non disponibile</p>
+          <p className="font-semibold">Fonti e import non disponibili</p>
           <p className="mt-1">{result.error}</p>
         </div>
       </div>
@@ -144,16 +144,16 @@ export default async function DataSourcesPage({
       <PageHeader />
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-        <Metric label="Import totali" value={summary.total} detail={`${summary.processing} in elaborazione`} />
+        <Metric label="Documenti importati" value={summary.total} detail={`${summary.processing} in elaborazione`} />
         <Metric
           label="Indicizzati"
           value={summary.indexed}
-          detail={summary.active_model_key ? `Modello ${summary.active_model_key}` : "Modello non attivo"}
+          detail={summary.active_model_key ? `Ricerca attiva: ${summary.active_model_key}` : "Ricerca non attiva"}
         />
-        <Metric label="Da indicizzare" value={summary.indexing} detail="Pending + parziali" />
-        <Metric label="Duplicati" value={summary.duplicates} detail="SHA-256 già presenti" />
+        <Metric label="Da indicizzare" value={summary.indexing} detail="In attesa o incompleti" />
+        <Metric label="Duplicati" value={summary.duplicates} detail="Contenuti già presenti" />
         <Metric label="Errori / scartati" value={summary.errors + summary.discarded} detail={`${summary.errors} errori · ${summary.discarded} scartati`} />
-        <Metric label="Ultimo sync" value={formatDate(summary.last_sync_at)} detail="Ultimo aggiornamento fonte" compact />
+        <Metric label="Ultimo aggiornamento" value={formatDate(summary.last_sync_at)} detail="Aggiornamento più recente" compact />
       </section>
 
       <section className="space-y-3">
@@ -165,7 +165,7 @@ export default async function DataSourcesPage({
             </p>
           </div>
           {summary.active_model_name ? (
-            <p className="text-xs text-slate-500">Indice semantico: {summary.active_model_name}</p>
+            <p className="text-xs text-slate-500">Motore di ricerca: {summary.active_model_name}</p>
           ) : null}
         </div>
         {sources.length ? (
@@ -201,7 +201,7 @@ export default async function DataSourcesPage({
                     <p className="mt-1 font-semibold text-slate-800">{source.error_items}</p>
                   </div>
                 </div>
-                <p className="mt-4 text-xs text-slate-500">Ultimo sync {formatDate(source.last_sync_at)}</p>
+                <p className="mt-4 text-xs text-slate-500">Aggiornato {formatDate(source.last_sync_at)}</p>
               </Link>
             ))}
           </div>
@@ -216,9 +216,9 @@ export default async function DataSourcesPage({
         <div className="border-b border-slate-200 p-5">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-slate-950">Import history</h2>
+              <h2 className="text-lg font-semibold text-slate-950">Storico importazioni</h2>
               <p className="mt-1 text-sm text-slate-500">
-                File ed email storici e nuovi batch P1.2 in un'unica timeline.
+                File ed email importati, con stato, fonte ed eventuali errori in un’unica cronologia.
               </p>
             </div>
             <p className="text-xs font-semibold text-slate-500">{totalFiltered} risultati</p>
@@ -278,7 +278,7 @@ export default async function DataSourcesPage({
                   <th className="px-5 py-3">Import</th>
                   <th className="px-5 py-3">Indicizzazione</th>
                   <th className="px-5 py-3">Dettagli</th>
-                  <th className="px-5 py-3">Ultimo sync</th>
+                  <th className="px-5 py-3">Ultimo aggiornamento</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -317,12 +317,12 @@ export default async function DataSourcesPage({
                       </span>
                       {item.chunk_count > 0 ? (
                         <p className="mt-2 text-xs text-slate-500">
-                          {item.embedded_count}/{item.chunk_count} chunk
+                          {item.embedded_count}/{item.chunk_count} parti disponibili alla ricerca
                         </p>
                       ) : null}
                     </td>
                     <td className="px-5 py-4 text-xs text-slate-500">
-                      <p>{item.attempt_count ? `${item.attempt_count} tentativ${item.attempt_count === 1 ? "o" : "i"}` : "Nessun retry"}</p>
+                      <p>{item.attempt_count ? `${item.attempt_count} tentativ${item.attempt_count === 1 ? "o" : "i"}` : "Nessun nuovo tentativo"}</p>
                       {item.deduplicated ? <p className="mt-1 font-medium text-violet-700">Contenuto già acquisito</p> : null}
                     </td>
                     <td className="whitespace-nowrap px-5 py-4 text-xs text-slate-500">
@@ -367,15 +367,14 @@ function PageHeader() {
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">Commercial memory</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Data source center</h1>
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">Fonti e import</p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Fonti e import</h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-          Vista centralizzata di file ed email importati, copertura dell'indice semantico, duplicati,
-          scarti, errori e ultimo sincronismo per fonte.
+          Controlla da dove arrivano i documenti, quali sono disponibili nella ricerca, quali erano già presenti e quali richiedono attenzione.
         </p>
       </div>
       <Link href="/uploads" className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800">
-        Nuovo import
+        Importa documenti
       </Link>
     </div>
   );
