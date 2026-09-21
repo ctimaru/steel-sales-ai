@@ -1,3 +1,4 @@
+import asyncio
 from uuid import UUID
 
 import pytest
@@ -15,8 +16,7 @@ def configure(monkeypatch) -> None:
     monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "test-service-key-not-a-real-secret")
 
 
-@pytest.mark.asyncio
-async def test_original_evidence_requires_matching_tenant_lineage(monkeypatch) -> None:
+def test_original_evidence_requires_matching_tenant_lineage(monkeypatch) -> None:
     configure(monkeypatch)
     service = EvidenceService()
 
@@ -53,14 +53,13 @@ async def test_original_evidence_requires_matching_tenant_lineage(monkeypatch) -
     monkeypatch.setattr(service.repo, "_request", fake_request)
     monkeypatch.setattr(service, "_storage_client", lambda: FakeStorage())
 
-    result = await service.resolve(1537, ACTOR_ID)
+    result = asyncio.run(service.resolve(1537, ACTOR_ID))
     assert result["filename"] == "offer.eml"
     assert result["expires_in"] == 120
     assert result["signed_url"].startswith("https://")
 
 
-@pytest.mark.asyncio
-async def test_original_evidence_rejects_cross_tenant_storage_path(monkeypatch) -> None:
+def test_original_evidence_rejects_cross_tenant_storage_path(monkeypatch) -> None:
     configure(monkeypatch)
     service = EvidenceService()
 
@@ -83,4 +82,4 @@ async def test_original_evidence_rejects_cross_tenant_storage_path(monkeypatch) 
     monkeypatch.setattr(service.repo, "_request", fake_request)
 
     with pytest.raises(EvidenceError, match="tenant validation"):
-        await service.resolve(1537, ACTOR_ID)
+        asyncio.run(service.resolve(1537, ACTOR_ID))
