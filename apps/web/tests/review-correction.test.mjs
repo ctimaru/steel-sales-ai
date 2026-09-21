@@ -63,7 +63,12 @@ test("correction writes only review resolution fields and relies on tenant RLS, 
   const { calls, run } = await setup();
   const state = await run({
     grade: " P235GH ",
+    outer_diameter_mm: "168.3",
+    thickness_mm: "7.11",
     quantity: "12.5",
+    price_value: "825",
+    price_unit: "T",
+    currency: " eur ",
     note: "Checked against source PDF",
   });
 
@@ -73,7 +78,12 @@ test("correction writes only review resolution fields and relies on tenant RLS, 
   assert.equal(calls.values.status, "corrected");
   assert.deepEqual(calls.values.corrected_values, {
     grade: "P235GH",
+    outer_diameter_mm: "168.3",
+    thickness_mm: "7.11",
     quantity: "12.5",
+    price_value: "825",
+    price_unit: "T",
+    currency: "eur",
     note: "Checked against source PDF",
   });
   assert.ok(Number.isFinite(Date.parse(calls.values.reviewed_at)));
