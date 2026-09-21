@@ -21,21 +21,21 @@ const actions = fs.readFileSync(
 
 test("Search surfaces Shared Steel Knowledge resolution", () => {
   assert.match(search, /shared_reference/);
-  assert.match(search, /Reference match/);
-  assert.match(search, /Reference · peso da completare/);
+  assert.match(search, /Riferimento verificato/);
+  assert.match(search, /Riferimento · peso da completare/);
 });
 
 test("Product 360 exposes canonical reference identity and weight", () => {
   assert.match(actions, /SharedSteelReference/);
-  assert.match(product, /Shared Steel Knowledge/);
-  assert.match(product, /Peso canonical/);
+  assert.match(product, /Riferimento tecnico/);
+  assert.match(product, /Peso di riferimento/);
   assert.match(product, /effective_weight_kg_m/);
   assert.match(product, /effective_source_key/);
 });
 
 test("Price History keeps historical normalization semantics while showing canonical reference", () => {
-  assert.match(prices, /Peso teorico \/ reference/);
-  assert.match(prices, /canonical/);
+  assert.match(prices, /Peso teorico di riferimento/);
+  assert.match(prices, /Riferimento verificato/);
   assert.match(prices, /non vengono riscritte retroattivamente/);
-  assert.match(prices, /fallback informativo: peso teorico della sezione/);
+  assert.match(prices, /Peso teorico della sezione/);
 });

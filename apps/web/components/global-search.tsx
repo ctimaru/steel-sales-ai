@@ -100,10 +100,10 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
     <div className="space-y-6">
       <Card className="overflow-hidden border-slate-200 bg-white">
         <div className="border-b border-white/10 bg-slate-950 px-5 py-5 text-white sm:px-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Structured + semantic</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Ricerca commerciale</p>
           <h2 className="mt-2 text-xl font-semibold">Cerca in tutta la Commercial Memory</h2>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-300">
-            Un'unica ricerca combina documenti indicizzati, prodotti canonici ed eventi commerciali con filtri tecnici steel.
+            Un'unica ricerca combina documenti, prodotti e attività commerciali con filtri per qualità, norma, dimensioni, prezzo e fonte.
           </p>
         </div>
 
@@ -142,7 +142,7 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
           </div>
 
           <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Tipi di risultato · nessuna selezione = tutti</p>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Mostra solo · nessuna selezione = tutti</p>
             <div className="flex flex-wrap gap-2">
               {resultTypes.map((entry) => (
                 <label key={entry.value} className="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700">
@@ -154,11 +154,11 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
           </div>
 
           <details className="rounded-xl border border-slate-200 bg-slate-50/70">
-            <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-slate-800">Filtri steel avanzati</summary>
+            <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-slate-800">Filtri avanzati</summary>
             <div className="space-y-4 border-t border-slate-200 p-4">
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <Input name="company" placeholder="Cliente / azienda" />
-                <Input name="grade" placeholder="Grade, es. P265GH" />
+                <Input name="grade" placeholder="Qualità, es. P265GH" />
                 <Input name="standard" placeholder="Norma, es. EN 10224" />
                 <Input name="product_family" placeholder="Famiglia prodotto" />
                 <Input name="outer_diameter_mm" inputMode="decimal" placeholder="Diametro mm" />
@@ -169,7 +169,7 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
                 <Input name="price_min" inputMode="decimal" placeholder="Prezzo minimo" />
                 <Input name="price_max" inputMode="decimal" placeholder="Prezzo massimo" />
                 <Input name="currency" maxLength={3} placeholder="Valuta, es. EUR" />
-                <Input name="source" placeholder="Fonte / filename" />
+                <Input name="source" placeholder="Fonte / nome file" />
                 <Input name="source_type" placeholder="Tipo fonte" />
                 <Input name="document_type" placeholder="Tipo documento" />
                 <select name="item_role" defaultValue="" className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700">
@@ -195,7 +195,7 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
             <div>
               <p className="text-sm font-semibold text-slate-950">{(state.count ?? 0).toLocaleString("it-IT")} risultati restituiti</p>
               <p className="mt-1 text-xs text-slate-500">
-                {state.model?.model_name ? `Semantic index: ${state.model.model_name}` : "Ricerca strutturata"}
+                {state.model?.model_name ? `Ricerca su tutta la memoria commerciale` : "Ricerca commerciale"}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -224,10 +224,10 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
                       {referenceStatus ? (
                         <Badge tone={referenceStatus === "matched" ? "green" : referenceStatus === "matched_canonical_missing" ? "amber" : "neutral"}>
                           {referenceStatus === "matched"
-                            ? "Reference match"
+                            ? "Riferimento verificato"
                             : referenceStatus === "matched_canonical_missing"
-                              ? "Reference · peso da completare"
-                              : "Reference · verifica"}
+                              ? "Riferimento · peso da completare"
+                              : "Riferimento da verificare"}
                         </Badge>
                       ) : null}
                     </div>
@@ -242,7 +242,7 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
                     {result.source_filename ? <p className="mt-3 truncate text-xs text-slate-400">Fonte: {result.source_filename}</p> : null}
                   </div>
                   <div className="flex shrink-0 flex-row items-start gap-2 lg:flex-col lg:items-end">
-                    <span className="rounded-lg bg-slate-950 px-2.5 py-1.5 text-xs font-semibold text-white">score {Number(result.score ?? 0).toFixed(4)}</span>
+                    <span className="rounded-lg bg-slate-950 px-2.5 py-1.5 text-xs font-semibold text-white">Rilevanza {Number(result.score ?? 0).toFixed(4)}</span>
                     {target ? (
                       target.startsWith("http") ? (
                         <a href={target} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700">Apri fonte ↗</a>
@@ -269,9 +269,9 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
 
       {state.status === "idle" ? (
         <div className="grid gap-4 md:grid-cols-3">
-          <Card className="p-5"><p className="font-semibold text-slate-900">Una query, più oggetti</p><p className="mt-2 text-sm leading-6 text-slate-500">Documenti, prodotti, RFQ, offerte, ordini e aziende confluiscono nella stessa ricerca.</p></Card>
-          <Card className="p-5"><p className="font-semibold text-slate-900">Filtri steel nativi</p><p className="mt-2 text-sm leading-6 text-slate-500">Diametro, spessore, dimensioni, grade, standard, prezzo, data e fonte.</p></Card>
-          <Card className="p-5"><p className="font-semibold text-slate-900">Evidence preservata</p><p className="mt-2 text-sm leading-6 text-slate-500">I risultati semantici mantengono chunk, documento, provenance e collegamento al thread originale.</p></Card>
+          <Card className="p-5"><p className="font-semibold text-slate-900">Una ricerca, tutto lo storico</p><p className="mt-2 text-sm leading-6 text-slate-500">Documenti, prodotti, RFQ, offerte, ordini e aziende confluiscono nella stessa ricerca.</p></Card>
+          <Card className="p-5"><p className="font-semibold text-slate-900">Filtri prodotto</p><p className="mt-2 text-sm leading-6 text-slate-500">Diametro, spessore, dimensioni, grade, standard, prezzo, data e fonte.</p></Card>
+          <Card className="p-5"><p className="font-semibold text-slate-900">Fonte sempre disponibile</p><p className="mt-2 text-sm leading-6 text-slate-500">Ogni risultato mantiene il collegamento al documento o alla conversazione da cui proviene.</p></Card>
         </div>
       ) : null}
     </div>

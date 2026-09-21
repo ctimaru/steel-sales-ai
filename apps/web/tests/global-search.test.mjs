@@ -103,3 +103,24 @@ test("Home exposes corrections contextually only when review work exists", () =>
   assert.match(dashboard, /href="\/review"/);
   assert.doesNotMatch(dashboard, /<h3 className="mt-3 font-semibold text-slate-950">Correggi i dati<\/h3>/);
 });
+
+
+test("sales surfaces avoid infrastructure terminology", () => {
+  for (const forbidden of [
+    "Structured + semantic",
+    "Semantic index:",
+    "Reference match",
+    "Evidence preservata",
+    "provenance",
+    "review queue",
+    "prodotto canonico",
+  ]) {
+    assert.doesNotMatch(component + dashboard, new RegExp(forbidden));
+  }
+  assert.match(component, /Ricerca commerciale/);
+  assert.match(component, /Fonte sempre disponibile/);
+  assert.match(component, /Riferimento verificato/);
+  assert.match(component, /Rilevanza/);
+  assert.match(dashboard, /conversazioni commerciali/);
+  assert.match(dashboard, /casi in attesa di verifica/);
+});

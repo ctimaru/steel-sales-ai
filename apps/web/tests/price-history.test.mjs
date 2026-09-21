@@ -22,11 +22,11 @@ test("P1.8 exposes quote vs order, normalized values, trend and evidence", () =>
   assert.match(prices, /trendText/);
   assert.match(prices, /comparability_score/);
   assert.match(prices, /\/conversations\/\$\{row\.thread_id\}/);
-  assert.match(prices, /Non strutturato/);
+  assert.match(prices, /Non disponibile/);
   assert.match(prices, /Valute diverse non vengono convertite/);
 });
 
 test("Product 360 links to the dedicated Price History surface", () => {
   assert.match(detail, /\/products\/\$\{productId\}\/prices/);
-  assert.match(detail, /Apri Price History/);
+  assert.match(detail, /Apri storico prezzi/);
 });

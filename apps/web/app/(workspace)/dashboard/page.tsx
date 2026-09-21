@@ -63,7 +63,7 @@ export default async function DashboardPage() {
         <div className="mb-3 flex items-end justify-between gap-4">
           <div>
             <h2 className="text-base font-semibold text-slate-950">Azioni rapide</h2>
-            <p className="mt-1 text-sm text-slate-500">I tre percorsi principali dell’MVP.</p>
+            <p className="mt-1 text-sm text-slate-500">Le azioni più comuni per lavorare sullo storico commerciale.</p>
           </div>
         </div>
         <div className="grid gap-3 md:grid-cols-2">
@@ -84,7 +84,7 @@ export default async function DashboardPage() {
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">02</p>
             <h3 className="mt-3 font-semibold text-slate-950">Apri lo storico prodotto</h3>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Ricostruisci prezzi, richieste, offerte e comparabili per prodotto canonico.
+              Ricostruisci prezzi, richieste, offerte e comparabili per prodotto.
             </p>
           </Link>
         </div>
@@ -114,21 +114,21 @@ export default async function DashboardPage() {
           <p className="mt-1 text-2xl font-semibold text-slate-950">
             {metrics.observations.toLocaleString("it-IT")}
           </p>
-          <p className="mt-1 text-xs text-slate-400">osservazioni commerciali</p>
+          <p className="mt-1 text-xs text-slate-400">elementi commerciali</p>
         </Card>
         <Card className="p-4">
           <p className="text-xs font-semibold text-slate-500">Conversazioni ricostruite</p>
           <p className="mt-1 text-2xl font-semibold text-slate-950">
             {metrics.threads.toLocaleString("it-IT")}
           </p>
-          <p className="mt-1 text-xs text-slate-400">thread commerciali</p>
+          <p className="mt-1 text-xs text-slate-400">conversazioni commerciali</p>
         </Card>
         <Card className="p-4">
           <p className="text-xs font-semibold text-slate-500">Da verificare</p>
           <p className="mt-1 text-2xl font-semibold text-slate-950">
             {metrics.reviewFlags.toLocaleString("it-IT")}
           </p>
-          <p className="mt-1 text-xs text-slate-400">elementi nella review queue</p>
+          <p className="mt-1 text-xs text-slate-400">casi in attesa di verifica</p>
         </Card>
       </section>
 
@@ -138,7 +138,7 @@ export default async function DashboardPage() {
             <div>
               <h2 className="text-base font-semibold text-slate-950">Attività commerciale recente</h2>
               <p className="mt-1 text-xs text-slate-500">
-                {mode === "live" ? "Dati live dal workspace." : "Riferimento validato del corpus."}
+                {mode === "live" ? "Dati aggiornati dal workspace." : "Dati disponibili nello storico."}
               </p>
             </div>
             <Link href="/search" className="text-xs font-semibold text-slate-700">

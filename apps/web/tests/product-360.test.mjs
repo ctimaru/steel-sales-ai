@@ -39,10 +39,31 @@ test("Product detail exposes killer use case and verifiable source history", () 
   assert.match(detail, /\/evidence\/\$\{event\.observation_id\}/);
   assert.match(detail, /Originale ↗/);
   assert.match(detail, /\/conversations\/\$\{event\.thread_id\}/);
-  assert.match(detail, /nessuna inferenza dal testo/i);
+  assert.match(detail, /nessuna deduzione automatica dal testo/i);
 });
 
 test("product history is first-class sales navigation", () => {
   assert.match(shell, /href: "\/products"/);
   assert.match(shell, /label: "Storico prodotti"/);
+});
+
+
+test("Product 360 uses sales-facing terminology instead of internal identity language", () => {
+  for (const forbidden of [
+    "prodotto canonico",
+    "prodotti canonici",
+    "Tenant verified",
+    "Reference match",
+    "Shared Steel Knowledge",
+    "Peso canonical",
+    "Price History",
+    "Product catalog",
+  ]) {
+    assert.doesNotMatch(catalog + detail, new RegExp(forbidden));
+  }
+  assert.match(detail, /Dati verificati/);
+  assert.match(detail, /Riferimento tecnico/);
+  assert.match(detail, /Peso di riferimento/);
+  assert.match(detail, /Apri storico prezzi/);
+  assert.match(detail, /Conversazioni/);
 });
