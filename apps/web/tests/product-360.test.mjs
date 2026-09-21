@@ -35,7 +35,10 @@ test("Product detail exposes killer use case and verifiable source history", () 
   for (const label of ["Ultimo prezzo", "Storico prezzi", "Timeline commerciale", "Documenti sorgente", "Clienti \/ fornitori collegati"]) {
     assert.match(detail, new RegExp(label));
   }
-  assert.match(detail, /\/conversations\/\$\{row\.thread_id\}/);
+  assert.match(detail, /\/evidence\/\$\{row\.observation_id\}/);
+  assert.match(detail, /\/evidence\/\$\{event\.observation_id\}/);
+  assert.match(detail, /Originale ↗/);
+  assert.match(detail, /\/conversations\/\$\{event\.thread_id\}/);
   assert.match(detail, /nessuna inferenza dal testo/i);
 });
 
