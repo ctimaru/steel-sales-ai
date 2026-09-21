@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { GlobalSearch } from "@/components/global-search";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getDashboardData } from "@/lib/commercial-data";
@@ -30,9 +29,28 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        <div className="mt-7">
-          <GlobalSearch />
-        </div>
+        <form action="/search" method="get" className="mt-7">
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <input
+              name="q"
+              required
+              minLength={2}
+              placeholder="Es. S355 273x8 12000 oppure P265GH 406,4 x 6,3"
+              className="h-12 flex-1 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+            />
+            <button className="h-12 rounded-xl bg-indigo-600 px-6 text-sm font-semibold text-white transition hover:bg-indigo-500">
+              Cerca nello storico
+            </button>
+          </div>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs text-slate-500">
+              Ricerca rapida per prodotto, qualità, norma, cliente o documento.
+            </p>
+            <Link href="/search" className="text-xs font-semibold text-indigo-600">
+              Apri ricerca avanzata →
+            </Link>
+          </div>
+        </form>
       </section>
 
       {mode === "awaiting_assignment" ? (
