@@ -259,7 +259,7 @@ begin
     when sqlstate '22023' then null;
   end;
 end
-$$;
+$;
 
 select pg_temp.p111_assert(
   (select organization_id='00000000-0000-0000-0000-0000000018f1'
