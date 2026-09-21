@@ -121,11 +121,21 @@ begin
   select key into v_unknown_key
   from jsonb_object_keys(new.corrected_values) as x(key)
   where key not in (
+    'product_type',
     'grade',
     'standard',
+    'material_number',
+    'outer_diameter_mm',
+    'width_mm',
+    'height_mm',
+    'thickness_mm',
     'length_mm',
     'quantity',
     'quantity_unit',
+    'price_value',
+    'price_unit',
+    'currency',
+    'discount_percentage',
     'availability_status',
     'note'
   )
@@ -138,11 +148,29 @@ begin
   end if;
 
   -- Cast validation happens before the privileged promotion trigger.
+  if new.corrected_values ? 'outer_diameter_mm' then
+    perform nullif(btrim(new.corrected_values->>'outer_diameter_mm'),'')::numeric;
+  end if;
+  if new.corrected_values ? 'width_mm' then
+    perform nullif(btrim(new.corrected_values->>'width_mm'),'')::numeric;
+  end if;
+  if new.corrected_values ? 'height_mm' then
+    perform nullif(btrim(new.corrected_values->>'height_mm'),'')::numeric;
+  end if;
+  if new.corrected_values ? 'thickness_mm' then
+    perform nullif(btrim(new.corrected_values->>'thickness_mm'),'')::numeric;
+  end if;
   if new.corrected_values ? 'length_mm' then
     perform nullif(btrim(new.corrected_values->>'length_mm'),'')::numeric;
   end if;
   if new.corrected_values ? 'quantity' then
     perform nullif(btrim(new.corrected_values->>'quantity'),'')::numeric;
+  end if;
+  if new.corrected_values ? 'price_value' then
+    perform nullif(btrim(new.corrected_values->>'price_value'),'')::numeric;
+  end if;
+  if new.corrected_values ? 'discount_percentage' then
+    perform nullif(btrim(new.corrected_values->>'discount_percentage'),'')::numeric;
   end if;
 
   return new;
@@ -198,11 +226,21 @@ begin
 
     v_before_json := jsonb_build_object(
       'id',v_observation.id,
+      'product_type',v_observation.product_type,
       'grade',v_observation.grade,
       'standard',v_observation.standard,
+      'material_number',v_observation.material_number,
+      'outer_diameter_mm',v_observation.outer_diameter_mm,
+      'width_mm',v_observation.width_mm,
+      'height_mm',v_observation.height_mm,
+      'thickness_mm',v_observation.thickness_mm,
       'length_mm',v_observation.length_mm,
       'quantity',v_observation.quantity,
       'quantity_unit',v_observation.quantity_unit,
+      'price_value',v_observation.price_value,
+      'price_unit',v_observation.price_unit,
+      'currency',v_observation.currency,
+      'discount_percentage',v_observation.discount_percentage,
       'availability_status',v_observation.availability_status,
       'canonical_product_key',v_observation.canonical_product_key,
       'canonical_product_id',v_observation.canonical_product_id,
@@ -212,6 +250,11 @@ begin
     if new.status='corrected' then
       update public.commercial_observations o
       set
+        product_type=case
+          when new.corrected_values ? 'product_type'
+            then nullif(btrim(new.corrected_values->>'product_type'),'')
+          else o.product_type
+        end,
         grade=case
           when new.corrected_values ? 'grade'
             then nullif(btrim(new.corrected_values->>'grade'),'')
@@ -221,6 +264,31 @@ begin
           when new.corrected_values ? 'standard'
             then nullif(btrim(new.corrected_values->>'standard'),'')
           else o.standard
+        end,
+        material_number=case
+          when new.corrected_values ? 'material_number'
+            then nullif(btrim(new.corrected_values->>'material_number'),'')
+          else o.material_number
+        end,
+        outer_diameter_mm=case
+          when new.corrected_values ? 'outer_diameter_mm'
+            then nullif(btrim(new.corrected_values->>'outer_diameter_mm'),'')::numeric
+          else o.outer_diameter_mm
+        end,
+        width_mm=case
+          when new.corrected_values ? 'width_mm'
+            then nullif(btrim(new.corrected_values->>'width_mm'),'')::numeric
+          else o.width_mm
+        end,
+        height_mm=case
+          when new.corrected_values ? 'height_mm'
+            then nullif(btrim(new.corrected_values->>'height_mm'),'')::numeric
+          else o.height_mm
+        end,
+        thickness_mm=case
+          when new.corrected_values ? 'thickness_mm'
+            then nullif(btrim(new.corrected_values->>'thickness_mm'),'')::numeric
+          else o.thickness_mm
         end,
         length_mm=case
           when new.corrected_values ? 'length_mm'
@@ -237,6 +305,26 @@ begin
             then nullif(btrim(new.corrected_values->>'quantity_unit'),'')
           else o.quantity_unit
         end,
+        price_value=case
+          when new.corrected_values ? 'price_value'
+            then nullif(btrim(new.corrected_values->>'price_value'),'')::numeric
+          else o.price_value
+        end,
+        price_unit=case
+          when new.corrected_values ? 'price_unit'
+            then nullif(btrim(new.corrected_values->>'price_unit'),'')
+          else o.price_unit
+        end,
+        currency=case
+          when new.corrected_values ? 'currency'
+            then upper(nullif(btrim(new.corrected_values->>'currency'),''))
+          else o.currency
+        end,
+        discount_percentage=case
+          when new.corrected_values ? 'discount_percentage'
+            then nullif(btrim(new.corrected_values->>'discount_percentage'),'')::numeric
+          else o.discount_percentage
+        end,
         availability_status=case
           when new.corrected_values ? 'availability_status'
             then nullif(btrim(new.corrected_values->>'availability_status'),'')
@@ -247,6 +335,16 @@ begin
             then coalesce(o.flags,'[]'::jsonb)
           else coalesce(o.flags,'[]'::jsonb) || '["human_corrected"]'::jsonb
         end
+      where o.id=new.observation_id;
+
+      update public.commercial_observations o
+      set search_text=lower(concat_ws(' ',
+        o.source_text,o.grade,o.standard,o.material_number,
+        o.outer_diameter_mm::text,o.width_mm::text,o.height_mm::text,
+        o.thickness_mm::text,o.length_mm::text,
+        o.quantity::text,o.quantity_unit,
+        o.price_value::text,o.price_unit,o.currency
+      ))
       where o.id=new.observation_id
       returning * into v_after;
     else
@@ -255,11 +353,21 @@ begin
 
     v_after_json := jsonb_build_object(
       'id',v_after.id,
+      'product_type',v_after.product_type,
       'grade',v_after.grade,
       'standard',v_after.standard,
+      'material_number',v_after.material_number,
+      'outer_diameter_mm',v_after.outer_diameter_mm,
+      'width_mm',v_after.width_mm,
+      'height_mm',v_after.height_mm,
+      'thickness_mm',v_after.thickness_mm,
       'length_mm',v_after.length_mm,
       'quantity',v_after.quantity,
       'quantity_unit',v_after.quantity_unit,
+      'price_value',v_after.price_value,
+      'price_unit',v_after.price_unit,
+      'currency',v_after.currency,
+      'discount_percentage',v_after.discount_percentage,
       'availability_status',v_after.availability_status,
       'canonical_product_key',v_after.canonical_product_key,
       'canonical_product_id',v_after.canonical_product_id,
@@ -339,6 +447,31 @@ after update of status,corrected_values,reviewed_at
 on public.commercial_review_queue
 for each row
 execute function private.apply_commercial_review_resolution();
+
+create or replace function private.guard_commercial_review_event_immutability()
+returns trigger
+language plpgsql
+security invoker
+set search_path=''
+as $
+begin
+  raise exception using
+    errcode='22023',
+    message='Commercial review feedback events are append-only.';
+end
+$;
+
+revoke all on function private.guard_commercial_review_event_immutability()
+  from public,anon,authenticated;
+
+drop trigger if exists commercial_review_events_immutable
+  on public.commercial_review_events;
+
+create trigger commercial_review_events_immutable
+before update or delete
+on public.commercial_review_events
+for each row
+execute function private.guard_commercial_review_event_immutability();
 
 comment on table public.commercial_review_events is
   'P1.11 append-only human review feedback ledger. Captures confirmation/correction actor, provenance and observation before/after snapshots.';
