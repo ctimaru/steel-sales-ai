@@ -225,6 +225,11 @@ end
 $$;
 
 -- Unsupported immutable fields must fail before mutation.
+-- Review Queue is service-populated by design: create the fixture with the
+-- service role, then return to the authenticated actor for the correction RPC.
+reset role;
+set local role service_role;
+
 insert into public.commercial_review_queue (
   id,owner_id,dataset_id,thread_id,source_review_id,reason,severity,source_text,status,
   observation_id,organization_id
@@ -237,7 +242,12 @@ insert into public.commercial_review_queue (
   18001,'00000000-0000-0000-0000-0000000018f1'
 );
 
-do $$
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000018a1',true);
+select set_config('request.jwt.claim.role','authenticated',true);
+
+do $
 begin
   begin
     perform public.p1_apply_commercial_review_correction(
