@@ -62,7 +62,7 @@ insert into public.commercial_observations (
   id,owner_id,dataset_id,thread_id,source_conversation_id,item_role,direction,
   product_type,grade,outer_diameter_mm,thickness_mm,length_mm,quantity,quantity_unit,
   price_value,price_unit,currency,source_filename,source_text,confidence,search_text,
-  organization_id,canonical_product_id,canonical_product_key
+  organization_id
 ) values
 (
   26001,
@@ -73,9 +73,7 @@ insert into public.commercial_observations (
   'requested','inbound','round_tube','S355',273,8,12000,2,'PACCHI',
   null,null,null,'pa22f-flow.eml','Tubo tondo 273x8 a 12000 | 2 pacchi | s355',0.95,
   's355 273 8 12000 2 pacchi',
-  '00000000-0000-0000-0000-0000000026f1',
-  '33333333-3333-3333-3333-333333333333',
-  'tube:v1|family=round_tube|grade=s355|standard=_|material=_|geom=od:273|t=8|process=_'
+  '00000000-0000-0000-0000-0000000026f1'
 ),
 (
   26002,
@@ -86,9 +84,7 @@ insert into public.commercial_observations (
   'offered','outbound','round_tube','S355',273,8,12000,100,'MT',
   68.38,'MT','EUR','pa22f-flow.eml','Offerta S355 273x8 12000 - EUR/MT 68,38',0.97,
   's355 273 8 12000 100 mt 68.38 eur',
-  '00000000-0000-0000-0000-0000000026f1',
-  '33333333-3333-3333-3333-333333333333',
-  'tube:v1|family=round_tube|grade=s355|standard=_|material=_|geom=od:273|t=8|process=_'
+  '00000000-0000-0000-0000-0000000026f1'
 ),
 (
   26003,
@@ -99,9 +95,7 @@ insert into public.commercial_observations (
   'ordered','inbound','round_tube','S355',273,8,12000,100,'MT',
   68.38,'MT','EUR','pa22f-flow.eml','Ordine confermato S355 273x8 12000 - 100 MT',0.99,
   's355 273 8 12000 100 mt order',
-  '00000000-0000-0000-0000-0000000026f1',
-  '33333333-3333-3333-3333-333333333333',
-  'tube:v1|family=round_tube|grade=s355|standard=_|material=_|geom=od:273|t=8|process=_'
+  '00000000-0000-0000-0000-0000000026f1'
 );
 
 insert into public.companies (
