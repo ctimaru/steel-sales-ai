@@ -4,16 +4,16 @@ import type { ReactNode } from "react";
 import { logout } from "@/app/(workspace)/actions";
 
 const primaryNav = [
-  { href: "/dashboard", label: "Home", key: "H" },
-  { href: "/search", label: "Cerca", key: "C" },
-  { href: "/products", label: "Storico prodotti", key: "P" },
-  { href: "/assistant", label: "Assistente", key: "A" },
-  { href: "/tubi-norme", label: "Tubi & Norme", key: "N" },
-  { href: "/uploads", label: "Importa", key: "I" },
+  { href: "/dashboard", label: "Home", shortLabel: "Home" },
+  { href: "/search", label: "Cerca", shortLabel: "Cerca" },
+  { href: "/products", label: "Storico prodotti", shortLabel: "Prodotti" },
 ];
 
 const secondaryNav = [
+  { href: "/assistant", label: "Assistente" },
   { href: "/review", label: "Correzioni" },
+  { href: "/uploads", label: "Importa" },
+  { href: "/tubi-norme", label: "Tubi & Norme" },
   { href: "/data-sources", label: "Fonti e import" },
 ];
 
@@ -46,9 +46,7 @@ export function AppShell({
                   href={item.href}
                   className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition hover:bg-white/10 hover:text-white"
                 >
-                  <span className="grid h-7 w-7 place-items-center rounded-lg bg-white/10 text-xs font-bold">
-                    {item.key}
-                  </span>
+                  <span className="h-2 w-2 rounded-full bg-white/30" aria-hidden="true" />
                   {item.label}
                 </Link>
               ))}
@@ -56,7 +54,7 @@ export function AppShell({
 
             <div className="my-4 border-t border-white/10" />
             <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">
-              Gestione dati
+              Strumenti
             </p>
             <nav className="space-y-1">
               {secondaryNav.map((item) => (
@@ -102,9 +100,9 @@ export function AppShell({
                   href={item.href}
                   aria-label={item.label}
                   title={item.label}
-                  className="shrink-0 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700"
+                  className="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700"
                 >
-                  {item.key}
+                  {item.shortLabel}
                 </Link>
               ))}
             </div>
