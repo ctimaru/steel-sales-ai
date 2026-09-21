@@ -13,10 +13,10 @@ values (
   'completed'
 );
 
-insert into public.organization_memberships (organization_id, user_id, role, status, is_default)
+insert into public.organization_memberships (organization_id, user_id, role, business_role, status, is_default)
 values
-  ('00000000-0000-0000-0000-0000000012f1', '00000000-0000-0000-0000-0000000012a1', 'admin', 'active', true),
-  ('00000000-0000-0000-0000-0000000012f1', '00000000-0000-0000-0000-0000000012b1', 'viewer', 'active', true);
+  ('00000000-0000-0000-0000-0000000012f1', '00000000-0000-0000-0000-0000000012a1', 'admin', 'sales_director', 'active', true),
+  ('00000000-0000-0000-0000-0000000012f1', '00000000-0000-0000-0000-0000000012b1', 'viewer', 'salesperson', 'active', true);
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000012a1', true);
@@ -29,9 +29,11 @@ begin
   end if;
   if not exists (
     select 1 from public.organization_team_members('00000000-0000-0000-0000-0000000012f1')
-    where email = 'viewer@p1-team.example' and role = 'viewer'
+    where email = 'viewer@p1-team.example'
+      and role = 'viewer'
+      and business_role = 'salesperson'
   ) then
-    raise exception 'P1.1 team directory must expose email + role to admin';
+    raise exception 'P1.1 team directory must expose email + permission role + business role to admin';
   end if;
 end $$;
 
@@ -51,6 +53,52 @@ begin
     end if;
   end;
 end $$;
+
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000012a1', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
+
+select public.set_organization_member_business_role(
+  '00000000-0000-0000-0000-0000000012f1',
+  '00000000-0000-0000-0000-0000000012b1',
+  'operations'
+);
+
+do $
+begin
+  if not exists (
+    select 1
+    from public.organization_memberships
+    where organization_id = '00000000-0000-0000-0000-0000000012f1'
+      and user_id = '00000000-0000-0000-0000-0000000012b1'
+      and role = 'viewer'
+      and business_role = 'operations'
+  ) then
+    raise exception 'PA2.2a business role update must not change permission role';
+  end if;
+end $;
+
+reset role;
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000012b1', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
+
+do $
+begin
+  begin
+    perform public.set_organization_member_business_role(
+      '00000000-0000-0000-0000-0000000012f1',
+      '00000000-0000-0000-0000-0000000012b1',
+      'sales_director'
+    );
+    raise exception 'PA2.2a viewer unexpectedly changed business role';
+  exception when others then
+    if position('Organization admin role required' in sqlerrm) = 0 then
+      raise;
+    end if;
+  end;
+end $;
 
 reset role;
 
@@ -73,6 +121,7 @@ begin
       'is_organization_admin',
       'organization_team_members',
       'set_organization_member_role',
+      'set_organization_member_business_role',
       'update_organization_onboarding'
     )
     and p.prosecdef;
@@ -91,9 +140,10 @@ begin
       'is_organization_admin',
       'organization_team_members_impl',
       'set_organization_member_role_impl',
+      'set_organization_member_business_role_impl',
       'update_organization_onboarding_impl'
     );
-  if private_impl_count <> 6 or private_definer_count <> 6 then
+  if private_impl_count <> 7 or private_definer_count <> 7 then
     raise exception 'P1.1 privileged implementations must exist only as private SECURITY DEFINER helpers';
   end if;
 
