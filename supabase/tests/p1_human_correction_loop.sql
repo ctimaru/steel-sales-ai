@@ -210,7 +210,7 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000018a1',true);
 select set_config('request.jwt.claim.role','authenticated',true);
 
-do $
+do $$
 begin
   begin
     perform public.p1_apply_commercial_review_correction(
