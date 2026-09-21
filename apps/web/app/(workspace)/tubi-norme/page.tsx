@@ -23,7 +23,7 @@ type DimensionLink = {
   applicability_type: string;
 };
 
-type VerificatoReference = {
+type CanonicalReference = {
   id: string;
   knowledge_source_id: string | null;
 };
