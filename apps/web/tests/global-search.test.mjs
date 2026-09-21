@@ -94,3 +94,12 @@ test("Home is a quick-search entry point while Search owns the advanced workspac
   assert.match(component, /initialQuery = ""/);
   assert.match(component, /useState\(initialQuery\)/);
 });
+
+
+test("Home exposes corrections contextually only when review work exists", () => {
+  assert.match(dashboard, /metrics\.reviewFlags > 0/);
+  assert.match(dashboard, /Richiede attenzione/);
+  assert.match(dashboard, /Apri correzioni/);
+  assert.match(dashboard, /href="\/review"/);
+  assert.doesNotMatch(dashboard, /<h3 className="mt-3 font-semibold text-slate-950">Correggi i dati<\/h3>/);
+});
