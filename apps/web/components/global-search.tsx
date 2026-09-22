@@ -81,6 +81,17 @@ function sharedReference(result: GlobalSearchResult) {
   return value && typeof value === "object" ? value as Record<string, unknown> : null;
 }
 
+function companyTarget(result: GlobalSearchResult) {
+  const companyId = result.metadata?.company_id;
+  if (
+    typeof companyId === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(companyId)
+  ) {
+    return `/customers/${companyId}`;
+  }
+  return null;
+}
+
 function sourceTarget(result: GlobalSearchResult) {
   const observationId = result.metadata?.observation_id;
   if (typeof observationId === "number" && Number.isInteger(observationId) && observationId > 0) {
@@ -209,6 +220,7 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
             const facts = technicalFacts(result);
             const date = formatDate(result.event_at);
             const target = sourceTarget(result);
+            const customerTarget = companyTarget(result);
             const reference = sharedReference(result);
             const referenceStatus = typeof reference?.resolution_status === "string"
               ? reference.resolution_status
@@ -243,6 +255,14 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
                   </div>
                   <div className="flex shrink-0 flex-row items-start gap-2 lg:flex-col lg:items-end">
                     <span className="rounded-lg bg-slate-950 px-2.5 py-1.5 text-xs font-semibold text-white">Rilevanza {Number(result.score ?? 0).toFixed(4)}</span>
+                    {customerTarget ? (
+                      <Link
+                        href={customerTarget}
+                        className="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100"
+                      >
+                        Apri azienda →
+                      </Link>
+                    ) : null}
                     {target ? (
                       target.startsWith("http") ? (
                         <a href={target} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700">Apri fonte ↗</a>
