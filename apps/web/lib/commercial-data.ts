@@ -269,11 +269,28 @@ export async function getConversationData(id: string): Promise<ConversationData 
   }
 
   const supabase = await createClient();
-  const { data: thread } = await supabase
+  let { data: thread } = await supabase
     .from("commercial_threads")
     .select("id,subject,classification,last_activity_at,source_conversation_id")
     .eq("id", id)
     .maybeSingle();
+
+  if (!thread && /^[0-9a-f-]{36}$/i.test(id)) {
+    const { data: normalizedRouteConversation } = await supabase
+      .from("conversations")
+      .select("external_thread_id")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (normalizedRouteConversation?.external_thread_id) {
+      const resolved = await supabase
+        .from("commercial_threads")
+        .select("id,subject,classification,last_activity_at,source_conversation_id")
+        .eq("source_conversation_id", normalizedRouteConversation.external_thread_id)
+        .maybeSingle();
+      thread = resolved.data;
+    }
+  }
 
   if (!thread) return null;
 
