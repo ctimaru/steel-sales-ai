@@ -63,9 +63,9 @@ async function loadNormalizedOffersWithoutOrder(grade: string) {
       offered_at: row.offered_at,
       status: row.status,
       company_id: row.company_id,
-      company_name: Array.isArray(row.companies) ? row.companies[0]?.name ?? null : row.companies?.name ?? null,
+      company_name: Array.isArray(row.companies) ? row.companies[0]?.name ?? null : null,
       conversation_id: row.conversation_id,
-      external_thread_id: Array.isArray(row.conversations) ? row.conversations[0]?.external_thread_id ?? null : row.conversations?.external_thread_id ?? null,
+      external_thread_id: Array.isArray(row.conversations) ? row.conversations[0]?.external_thread_id ?? null : null,
       line_count: row.offer_lines?.length ?? 0,
     }));
   return { rows, error: null as string | null };
