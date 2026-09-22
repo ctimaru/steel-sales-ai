@@ -198,7 +198,8 @@ jobs:
             pa27_structured_message_identity.sql \
             pa28_exact_email_contact_resolution.sql \
             pa29_verified_company_identity.sql \
-            pa210_identity_confirmation_workflow.sql; do
+            pa210_identity_confirmation_workflow.sql \
+            pa211_company_360.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
