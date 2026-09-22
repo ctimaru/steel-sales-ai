@@ -191,7 +191,7 @@ select pg_temp.assert_true(
    ='00000000-0000-0000-0000-000000003601'
   and
   (select conversation_id from public.rfqs
-   where id='00000000-0000-0000-000000003641')
+   where id='00000000-0000-0000-0000-000000003641')
    ='00000000-0000-0000-0000-000000003602',
   'normalized entities must receive only the expected Conversation IDs'
 );
