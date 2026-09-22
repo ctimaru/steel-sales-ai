@@ -28,6 +28,9 @@ export default async function OfferRecoveryPage() {
           è un duplicato shadow di una riga completa con la stessa identità prodotto e quantità. Nessun prodotto
           unico incompleto può essere escluso automaticamente.
         </p>
+        <Link href="/review/offer-remediation" className="mt-3 inline-block text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+          Apri Offer Evidence Remediation →
+        </Link>
       </div>
 
       {result.error || !data ? (
