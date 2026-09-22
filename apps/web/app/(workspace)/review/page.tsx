@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getReviewItems } from "@/lib/commercial-data";
@@ -19,7 +20,15 @@ export default async function ReviewPage() {
             Controlla solo i casi in cui i dati estratti richiedono una verifica o una correzione.
           </p>
         </div>
-        <Badge tone="amber">{pending} da verificare</Badge>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge tone="amber">{pending} da verificare</Badge>
+          <Link
+            href="/review/identities"
+            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-950"
+          >
+            Identità aziendali
+          </Link>
+        </div>
       </div>
 
       {mode === "awaiting_assignment" ? (
