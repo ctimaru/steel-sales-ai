@@ -24,6 +24,13 @@ export type CompanyDirectoryPayload = {
   error?: string;
 };
 
+export type CompanyActivationStatus = {
+  unresolvedContacts: number;
+  verifiedCompanies: number;
+  requiresExplicitConfirmation: boolean;
+  error?: string;
+};
+
 export type Company360Payload = {
   company: {
     company_id: string;
@@ -202,6 +209,43 @@ export async function loadCompanyDirectory(query?: string): Promise<CompanyDirec
   return {
     total: Number(payload.total ?? 0),
     companies: Array.isArray(payload.companies) ? payload.companies as CompanyDirectoryItem[] : [],
+  };
+}
+
+export async function loadCompanyActivationStatus(): Promise<CompanyActivationStatus> {
+  const context = await activeOrganizationId();
+  if (!context.client || !context.organizationId) {
+    return {
+      unresolvedContacts: 0,
+      verifiedCompanies: 0,
+      requiresExplicitConfirmation: true,
+      error: context.error ?? "Dati non disponibili.",
+    };
+  }
+
+  const { data, error } = await context.client.rpc("p1_identity_confirmation_queue", {
+    p_organization_id: context.organizationId,
+    p_limit: 1,
+  });
+
+  if (error || !data || typeof data !== "object") {
+    return {
+      unresolvedContacts: 0,
+      verifiedCompanies: 0,
+      requiresExplicitConfirmation: true,
+      error: "Impossibile caricare lo stato delle identità aziendali.",
+    };
+  }
+
+  const payload = data as {
+    summary?: { unresolved_contacts?: unknown; verified_companies?: unknown };
+    policy?: { requires_explicit_user_confirmation?: unknown };
+  };
+
+  return {
+    unresolvedContacts: Number(payload.summary?.unresolved_contacts ?? 0),
+    verifiedCompanies: Number(payload.summary?.verified_companies ?? 0),
+    requiresExplicitConfirmation: payload.policy?.requires_explicit_user_confirmation !== false,
   };
 }
 
