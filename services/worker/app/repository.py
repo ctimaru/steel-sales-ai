@@ -304,6 +304,40 @@ class WorkerRepository:
             raise RepositoryError("Embedding model activation returned an invalid payload.")
         return result
 
+    async def claim_offer_source_reparse_run(self, run_id: int) -> dict[str, Any]:
+        result = await self._request(
+            "POST",
+            "/rest/v1/rpc/p1_claim_offer_source_reparse_run",
+            json={"p_run_id": run_id},
+        )
+        if not isinstance(result, dict):
+            raise RepositoryError("Offer source reparse claim returned an invalid payload.")
+        return result
+
+    async def complete_offer_source_reparse_run(
+        self, *, run_id: int, candidates: list[dict[str, Any]]
+    ) -> dict[str, Any]:
+        result = await self._request(
+            "POST",
+            "/rest/v1/rpc/p1_complete_offer_source_reparse_run",
+            json={"p_run_id": run_id, "p_candidates": candidates},
+        )
+        if not isinstance(result, dict):
+            raise RepositoryError("Offer source reparse completion returned an invalid payload.")
+        return result
+
+    async def fail_offer_source_reparse_run(
+        self, *, run_id: int, error: str
+    ) -> dict[str, Any]:
+        result = await self._request(
+            "POST",
+            "/rest/v1/rpc/p1_fail_offer_source_reparse_run",
+            json={"p_run_id": run_id, "p_error": error},
+        )
+        if not isinstance(result, dict):
+            raise RepositoryError("Offer source reparse failure update returned an invalid payload.")
+        return result
+
     async def _request(
         self,
         method: str,
