@@ -165,16 +165,23 @@ def test_parser_v4_captures_structured_rfc822_identity() -> None:
     }
 
 
-def test_parser_v4_non_email_has_no_message_identity() -> None:
+def test_parser_v4_plain_text_email_without_message_id_keeps_partial_identity() -> None:
     parser = ParserV4Adapter()
-    payload = b"S355 273x8 12000"
+    payload = (
+        b"From: buyer@example.com\r\n"
+        b"To: sales@steel.example\r\n"
+        b"Subject: RFQ\r\n\r\n"
+        b"S355 273x8 12000\r\n"
+    )
     result = parser.prepare(
         ParserInput(
-            filename="rfq.pdf",
-            extension=".pdf",
+            filename="rfq.eml",
+            extension=".eml",
             size_bytes=len(payload),
-            storage_path="memory://rfq.pdf",
+            storage_path="memory://rfq.eml",
         ),
         payload,
     )
-    assert result.message_identity is None
+    assert result.message_identity is not None
+    assert result.message_identity["source_message_id"] is None
+    assert result.message_identity["sender_email"] == "buyer@example.com"
