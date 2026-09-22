@@ -55,3 +55,38 @@ def test_readiness_requires_membership(monkeypatch):
     )
     assert response.status_code == 400
     assert "organization access" in response.json()["detail"]
+
+
+def test_grouped_readiness_calls_group_rpc(monkeypatch):
+    configure(monkeypatch)
+    calls = []
+
+    async def fake_request(self, method, path, *, json=None, prefer=None):
+        calls.append((method, path, json))
+        if path.startswith("/rest/v1/organization_memberships"):
+            return [{"organization_id": "00000000-0000-0000-0000-000000000010"}]
+        if path == "/rest/v1/rpc/p1_grouped_rfq_readiness":
+            return {
+                "summary": {"multi_line_threads": 2, "ready": 1, "blocked": 1},
+                "threads": [
+                    {
+                        "thread_id": "00000000-0000-0000-0000-000000000020",
+                        "readiness_status": "ready",
+                        "line_count": 2,
+                        "reasons": [],
+                    }
+                ],
+                "policy": {"minimum_lines": 2},
+            }
+        raise AssertionError(path)
+
+    monkeypatch.setattr(promotion_readiness.WorkerRepository, "_request", fake_request)
+
+    response = client.post(
+        "/v1/promotions/group-readiness",
+        json={"actor_user_id": "00000000-0000-0000-0000-000000000001", "limit": 10},
+    )
+    assert response.status_code == 200
+    assert response.json()["summary"]["ready"] == 1
+    assert calls[1][1] == "/rest/v1/rpc/p1_grouped_rfq_readiness"
+    assert calls[1][2]["p_limit"] == 10
