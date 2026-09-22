@@ -169,7 +169,7 @@ export default async function DashboardPage() {
         <CardContent className="space-y-3">
           {recent.map((row) => (
             <Link
-              href={`/conversations/${row.conversationId}`}
+              href={row.operationalHref ?? `/conversations/${row.conversationId}`}
               key={row.id}
               className="flex flex-col gap-3 rounded-xl border border-slate-100 p-4 transition hover:border-slate-300 sm:flex-row sm:items-center sm:justify-between"
             >
