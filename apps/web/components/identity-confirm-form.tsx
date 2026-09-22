@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useId } from "react";
 
 import {
@@ -66,6 +67,15 @@ export function IdentityConfirmForm({
       >
         {pending ? "Salvataggio e propagazione in corso…" : state.message}
       </p>
+
+      {state.status === "success" && state.companyId ? (
+        <Link
+          href={`/customers/${state.companyId}`}
+          className="block w-full rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-center text-xs font-semibold text-emerald-800 hover:bg-emerald-100"
+        >
+          Apri Company 360 →
+        </Link>
+      ) : null}
     </form>
   );
 }

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 export type IdentityConfirmState = {
   status: "idle" | "success" | "error";
   message: string;
+  companyId?: string;
 };
 
 function validUuid(value: FormDataEntryValue | null): value is string {
@@ -52,13 +53,16 @@ export async function confirmIdentityMapping(
     revalidatePath("/review");
     revalidatePath("/search");
     revalidatePath("/dashboard");
+    revalidatePath("/customers");
+    revalidatePath(`/customers/${companyId}`);
 
     const linkedRfqs = Number((data as { linked_rfqs?: unknown }).linked_rfqs ?? 0);
     return {
       status: "success",
       message: linkedRfqs > 0
-        ? `Identità confermata e propagata a ${linkedRfqs} RFQ.`
-        : "Identità confermata e propagata ai messaggi collegati.",
+        ? `Identità confermata e propagata a ${linkedRfqs} RFQ. Company 360 aggiornata.`
+        : "Identità confermata e propagata ai messaggi collegati. Company 360 aggiornata.",
+      companyId,
     };
   } catch {
     return { status: "error", message: "Non è stato possibile completare la conferma." };
