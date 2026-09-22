@@ -5,6 +5,8 @@ export type CommercialRow = {
   conversationId: string;
   date: string;
   company: string;
+  companyId?: string | null;
+  sourceKind?: "normalized" | "legacy_evidence";
   product: string;
   grade: string;
   standard: string;

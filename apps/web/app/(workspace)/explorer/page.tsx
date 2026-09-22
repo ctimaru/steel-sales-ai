@@ -35,8 +35,8 @@ export default async function ExplorerPage({
           Commercial Explorer
         </h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-          Cerca nell’archivio commerciale per prodotto, qualità, norma e ruolo. I filtri sono
-          eseguiti server-side sulle tabelle app-facing protette da RLS.
+          Workspace operativo normalizzato per prodotto, qualità, norma e ruolo. RFQ, offerte e ordini
+          diventano la fonte operativa; le osservazioni storiche restano evidenza e provenienza.
         </p>
       </div>
       <div className="mt-7">
