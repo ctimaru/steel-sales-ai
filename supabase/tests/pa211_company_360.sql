@@ -11,7 +11,8 @@ end;
 $$;
 
 insert into auth.users(id,email) values
-('00000000-0000-0000-0000-0000000036a1','pa211@example.com');
+('00000000-0000-0000-0000-0000000036a1','pa211@example.com'),
+('00000000-0000-0000-0000-0000000036a2','pa211-other@example.com');
 
 insert into public.organizations(id,name,slug,created_by,onboarding_status)
 values
@@ -20,9 +21,15 @@ values
 
 insert into public.organization_memberships(
 organization_id,user_id,role,business_role,status,is_default
-) values(
+) values
+(
 '00000000-0000-0000-0000-0000000036f1',
 '00000000-0000-0000-0000-0000000036a1',
+'admin','sales_director','active',true
+),
+(
+'00000000-0000-0000-0000-0000000036f2',
+'00000000-0000-0000-0000-0000000036a2',
 'admin','sales_director','active',true
 );
 
@@ -30,7 +37,7 @@ insert into public.companies(
 id,owner_id,organization_id,name,company_type,country,vat_number
 ) values
 ('00000000-0000-0000-0000-000000003601','00000000-0000-0000-0000-0000000036a1','00000000-0000-0000-0000-0000000036f1','PA211 Customer','customer','IT','IT11111111111'),
-('00000000-0000-0000-0000-000000003602','00000000-0000-0000-0000-0000000036a1','00000000-0000-0000-0000-0000000036f2','Other Tenant Co','customer','IT','IT22222222222');
+('00000000-0000-0000-0000-000000003602','00000000-0000-0000-0000-0000000036a2','00000000-0000-0000-0000-0000000036f2','Other Tenant Co','customer','IT','IT22222222222');
 
 insert into public.commercial_company_identity_verifications(
 organization_id,company_id,identity_type,identity_value,verification_basis,verified_by
