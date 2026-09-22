@@ -17,6 +17,8 @@ const company360 = fs.readFileSync(
 
 test("conversation customer context is resolved only from normalized entities", () => {
   assert.match(commercialData, /source_conversation_id/);
+  assert.match(commercialData, /normalizedRouteConversation/);
+  assert.match(commercialData, /external_thread_id/);
   assert.match(commercialData, /from\("conversations"\)/);
   assert.match(commercialData, /from\("rfqs"\)/);
   assert.match(commercialData, /from\("offers"\)/);
