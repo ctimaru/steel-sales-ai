@@ -84,42 +84,50 @@ export function CommercialExplorer({
 
       <div className="space-y-3">
         {rows.map((row) => (
-          <Link href={`/conversations/${row.conversationId}`} key={row.id}>
-            <Card className="grid gap-4 p-4 transition hover:border-slate-400 md:grid-cols-[1.5fr_1fr_0.7fr_0.55fr] md:items-center">
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge tone={roleTone(row.role)}>{row.role}</Badge>
-                  {row.availability === "stock" ? <Badge tone="green">stock</Badge> : null}
-                  {row.availability === "production" ? <Badge tone="amber">production</Badge> : null}
-                  {row.sourceKind === "normalized" ? <Badge tone="neutral">normalizzato</Badge> : null}
-                </div>
+          <Card key={row.id} className="grid gap-4 p-4 transition hover:border-slate-400 md:grid-cols-[1.5fr_1fr_0.7fr_0.55fr] md:items-center">
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge tone={roleTone(row.role)}>{row.role}</Badge>
+                {row.availability === "stock" ? <Badge tone="green">stock</Badge> : null}
+                {row.availability === "production" ? <Badge tone="amber">production</Badge> : null}
+                {row.sourceKind === "normalized" ? <Badge tone="neutral">normalizzato</Badge> : null}
+              </div>
+              {row.operationalHref ? (
+                <Link href={row.operationalHref} className="mt-2 block font-semibold text-slate-950 hover:text-indigo-700">
+                  {row.product} · Apri dettaglio →
+                </Link>
+              ) : (
                 <p className="mt-2 font-semibold text-slate-950">{row.product}</p>
-                <p className="mt-1 text-xs text-slate-500">{row.grade} · {row.standard}</p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-400">Cliente</p>
-                {row.companyId ? (
-                  <Link
-                    href={`/customers/${row.companyId}`}
-                    onClick={(event) => event.stopPropagation()}
-                    className="mt-1 block line-clamp-2 text-sm font-semibold text-indigo-600 hover:text-indigo-800"
-                  >
-                    {row.company} · Company 360 →
-                  </Link>
-                ) : (
-                  <p className="mt-1 line-clamp-2 text-sm font-medium text-amber-700">{row.company}</p>
-                )}
-              </div>
-              <div>
-                <p className="text-xs text-slate-400">Prezzo</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">{row.price ?? "—"}</p>
-              </div>
-              <div className="md:text-right">
-                <p className="text-xs text-slate-400">{row.date}</p>
-                <p className="mt-1 text-xs font-semibold text-slate-600">{Math.round(row.confidence * 100)}% confidence</p>
-              </div>
-            </Card>
-          </Link>
+              )}
+              <p className="mt-1 text-xs text-slate-500">{row.grade} · {row.standard}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Cliente</p>
+              {row.companyId ? (
+                <Link
+                  href={`/customers/${row.companyId}`}
+                  className="mt-1 block line-clamp-2 text-sm font-semibold text-indigo-600 hover:text-indigo-800"
+                >
+                  {row.company} · Company 360 →
+                </Link>
+              ) : (
+                <p className="mt-1 line-clamp-2 text-sm font-medium text-amber-700">{row.company}</p>
+              )}
+              {row.conversationId ? (
+                <Link href={`/conversations/${row.conversationId}`} className="mt-2 block text-[11px] font-semibold text-slate-400 hover:text-slate-700">
+                  Conversation / provenance →
+                </Link>
+              ) : null}
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Prezzo</p>
+              <p className="mt-1 text-sm font-semibold text-slate-900">{row.price ?? "—"}</p>
+            </div>
+            <div className="md:text-right">
+              <p className="text-xs text-slate-400">{row.date}</p>
+              <p className="mt-1 text-xs font-semibold text-slate-600">{Math.round(row.confidence * 100)}% confidence</p>
+            </div>
+          </Card>
         ))}
 
         {rows.length === 0 ? (
