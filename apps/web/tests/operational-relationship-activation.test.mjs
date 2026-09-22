@@ -11,7 +11,7 @@ test("PA2.21 loads relationship readiness from the controlled RPC", () => {
   assert.match(actions, /p1_operational_relationship_readiness/);
   assert.match(actions, /p_organization_id/);
   assert.match(page, /shared normalized conversation/i);
-  assert.match(page, /exact product multiset/i);
+  assert.match(page, /exact product\s+multiset/i);
   assert.match(page, /candidato unico/i);
 });
 
