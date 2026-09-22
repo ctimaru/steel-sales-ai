@@ -41,6 +41,35 @@ export type ExplorerData = {
   pageSize: number;
 };
 
+export type OperationalEntityKind = "rfq" | "offer" | "order";
+
+export type OperationalEntityData = {
+  mode: DataMode;
+  kind: OperationalEntityKind;
+  id: string;
+  status: string;
+  occurredAt: string;
+  company: string;
+  companyId: string | null;
+  conversationHref: string | null;
+  conversationLabel: string | null;
+  relationshipLinks: Array<{ label: string; href: string }>;
+  metadata: Array<{ label: string; value: string }>;
+  lines: Array<{
+    id: string;
+    product: string;
+    grade: string;
+    standard: string;
+    quantity: string;
+    price: string;
+    availability: string;
+    confidence: number;
+    sourceObservationId: number | null;
+    sourceFilename: string | null;
+    sourceText: string | null;
+  }>;
+};
+
 export type ConversationData = {
   mode: DataMode;
   subject: string;
@@ -309,6 +338,12 @@ export async function getExplorerData(filters: ExplorerFilters): Promise<Explore
     company: String(row.company_name ?? "Cliente non attribuito"),
     companyId: typeof row.company_id === "string" ? row.company_id : null,
     sourceKind: "normalized",
+    operationalHref:
+      row.role === "requested"
+        ? `/rfqs/${String(row.entity_id)}`
+        : row.role === "offered"
+          ? `/offers/${String(row.entity_id)}`
+          : `/orders/${String(row.entity_id)}`,
     product: String(row.product_text ?? row.canonical_product_key ?? "Prodotto steel"),
     grade: String(row.grade ?? "—"),
     standard: String(row.standard ?? "—"),
@@ -327,6 +362,145 @@ export async function getExplorerData(filters: ExplorerFilters): Promise<Explore
     total: Number(payload.total ?? 0),
     page,
     pageSize,
+  };
+}
+
+export async function getOperationalEntityData(
+  kind: OperationalEntityKind,
+  id: string,
+): Promise<OperationalEntityData | null> {
+  if (!isConfigured() || !/^[0-9a-f-]{36}$/i.test(id)) return null;
+
+  const supabase = await createClient();
+  const config = {
+    rfq: {
+      parentTable: "rfqs",
+      lineTable: "rfq_lines",
+      parentSelect: "id,status,requested_at,due_at,priority,notes,company_id,conversation_id,companies(name),conversations(external_thread_id)",
+      lineSelect: "id,rfq_id,requested_quantity,quantity_unit,requested_grade,requested_standard,raw_spec_text,canonical_product_key,source_observation_id",
+      parentFk: "rfq_id",
+    },
+    offer: {
+      parentTable: "offers",
+      lineTable: "offer_lines",
+      parentSelect: "id,status,offered_at,valid_until,currency,delivery_term,payment_terms,notes,company_id,conversation_id,rfq_id,companies(name),conversations(external_thread_id)",
+      lineSelect: "id,offer_id,quantity,quantity_unit,price_value,price_unit,availability_status,raw_spec_text,source_text,confidence,canonical_product_key,source_observation_id,rfq_line_id",
+      parentFk: "offer_id",
+    },
+    order: {
+      parentTable: "orders",
+      lineTable: "order_lines",
+      parentSelect: "id,status,ordered_at,customer_order_ref,notes,company_id,conversation_id,rfq_id,offer_id,companies(name),conversations(external_thread_id)",
+      lineSelect: "id,order_id,quantity,quantity_unit,unit_price,price_unit,promised_date,raw_spec_text,canonical_product_key,source_observation_id,offer_line_id",
+      parentFk: "order_id",
+    },
+  }[kind];
+
+  const [{ data: parent, error: parentError }, { data: lines, error: linesError }] = await Promise.all([
+    supabase.from(config.parentTable).select(config.parentSelect).eq("id", id).maybeSingle(),
+    supabase.from(config.lineTable).select(config.lineSelect).eq(config.parentFk, id).order("created_at", { ascending: true }),
+  ]);
+
+  if (parentError || linesError || !parent) return null;
+
+  const parentRow = parent as Record<string, unknown>;
+  const rawLines = (lines ?? []) as Array<Record<string, unknown>>;
+  const sourceIds = rawLines
+    .map((line) => Number(line.source_observation_id))
+    .filter((value) => Number.isSafeInteger(value) && value > 0);
+
+  const { data: observations } = sourceIds.length
+    ? await supabase
+        .from("commercial_observations")
+        .select("id,thread_id,source_filename,source_text,confidence,grade,standard,currency,availability_status")
+        .in("id", sourceIds)
+    : { data: [] };
+
+  const observationMap = new Map(
+    (observations ?? []).map((row) => [Number(row.id), row as Record<string, unknown>]),
+  );
+
+  const company = nestedThread(parentRow.companies);
+  const conversation = nestedThread(parentRow.conversations);
+  const fallbackThreadId = sourceIds.length
+    ? observationMap.get(sourceIds[0])?.thread_id
+    : null;
+  const conversationId =
+    typeof conversation?.external_thread_id === "string"
+      ? conversation.external_thread_id
+      : typeof fallbackThreadId === "string"
+        ? fallbackThreadId
+        : null;
+
+  const relationshipLinks: Array<{ label: string; href: string }> = [];
+  if (kind !== "rfq" && typeof parentRow.rfq_id === "string") {
+    relationshipLinks.push({ label: "RFQ collegata", href: `/rfqs/${parentRow.rfq_id}` });
+  }
+  if (kind === "order" && typeof parentRow.offer_id === "string") {
+    relationshipLinks.push({ label: "Offer collegata", href: `/offers/${parentRow.offer_id}` });
+  }
+
+  const occurredRaw =
+    kind === "rfq" ? parentRow.requested_at : kind === "offer" ? parentRow.offered_at : parentRow.ordered_at;
+
+  const metadata =
+    kind === "rfq"
+      ? [
+          { label: "Priorità", value: String(parentRow.priority ?? "normal") },
+          { label: "Scadenza", value: formatDate(parentRow.due_at) },
+        ]
+      : kind === "offer"
+        ? [
+            { label: "Validità", value: formatDate(parentRow.valid_until) },
+            { label: "Valuta", value: String(parentRow.currency ?? "—") },
+            { label: "Resa", value: String(parentRow.delivery_term ?? "—") },
+            { label: "Pagamento", value: String(parentRow.payment_terms ?? "—") },
+          ]
+        : [
+            { label: "Rif. ordine cliente", value: String(parentRow.customer_order_ref ?? "—") },
+          ];
+
+  return {
+    mode: "live",
+    kind,
+    id,
+    status: String(parentRow.status ?? "—"),
+    occurredAt: formatDate(occurredRaw),
+    company: String(company?.name ?? "Cliente non attribuito"),
+    companyId: typeof parentRow.company_id === "string" ? parentRow.company_id : null,
+    conversationHref: conversationId ? `/conversations/${conversationId}` : null,
+    conversationLabel: conversationId ? "Apri conversation/provenance" : null,
+    relationshipLinks,
+    metadata,
+    lines: rawLines.map((line) => {
+      const sourceId = Number(line.source_observation_id);
+      const obs = Number.isSafeInteger(sourceId) ? observationMap.get(sourceId) : undefined;
+      const quantityValue =
+        line.requested_quantity ?? line.quantity;
+      const quantityUnit = line.quantity_unit;
+      const priceValue = line.price_value ?? line.unit_price;
+      const priceUnit = line.price_unit;
+      const currency = parentRow.currency ?? obs?.currency;
+      return {
+        id: String(line.id),
+        product: String(line.raw_spec_text ?? line.source_text ?? line.canonical_product_key ?? "Prodotto steel"),
+        grade: String(line.requested_grade ?? obs?.grade ?? "—"),
+        standard: String(line.requested_standard ?? obs?.standard ?? "—"),
+        quantity:
+          quantityValue !== null && quantityValue !== undefined
+            ? `${decimal(quantityValue)} ${String(quantityUnit ?? "")}`.trim()
+            : "—",
+        price:
+          priceValue !== null && priceValue !== undefined
+            ? formatPrice({ price_value: priceValue, price_unit: priceUnit, currency }) ?? "—"
+            : "—",
+        availability: String(line.availability_status ?? obs?.availability_status ?? "unknown"),
+        confidence: Number(line.confidence ?? obs?.confidence ?? 1),
+        sourceObservationId: Number.isSafeInteger(sourceId) ? sourceId : null,
+        sourceFilename: typeof obs?.source_filename === "string" ? obs.source_filename : null,
+        sourceText: typeof obs?.source_text === "string" ? obs.source_text : null,
+      };
+    }),
   };
 }
 
