@@ -404,8 +404,8 @@ export async function getOperationalEntityData(
 
   if (parentError || linesError || !parent) return null;
 
-  const parentRow = parent as Record<string, unknown>;
-  const rawLines = (lines ?? []) as Array<Record<string, unknown>>;
+  const parentRow = parent as unknown as Record<string, unknown>;
+  const rawLines = (lines ?? []) as unknown as Array<Record<string, unknown>>;
   const sourceIds = rawLines
     .map((line) => Number(line.source_observation_id))
     .filter((value) => Number.isSafeInteger(value) && value > 0);
