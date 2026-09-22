@@ -7,6 +7,7 @@ const primaryNav = [
   { href: "/dashboard", label: "Home", shortLabel: "Home" },
   { href: "/search", label: "Cerca", shortLabel: "Cerca" },
   { href: "/products", label: "Storico prodotti", shortLabel: "Prodotti" },
+  { href: "/customers", label: "Clienti / aziende", shortLabel: "Clienti" },
 ];
 
 const secondaryNav = [
