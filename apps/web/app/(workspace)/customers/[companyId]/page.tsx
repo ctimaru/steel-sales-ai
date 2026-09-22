@@ -195,7 +195,17 @@ export default async function Company360Page({
                     {event.source_message_id ? " · fonte messaggio collegata" : ""}
                   </p>
                 </div>
-                <div className="text-xs text-slate-400">Provenienza normalizzata</div>
+                <div className="flex flex-col items-start gap-1 text-xs">
+                  {event.provenance?.conversation_id ? (
+                    <Link
+                      href={`/conversations/${String(event.provenance.conversation_id)}`}
+                      className="font-semibold text-indigo-600 hover:text-indigo-800"
+                    >
+                      Apri conversazione →
+                    </Link>
+                  ) : null}
+                  <span className="text-slate-400">Provenienza normalizzata</span>
+                </div>
               </div>
             ))}
             {payload.timeline.length === 0 ? (
