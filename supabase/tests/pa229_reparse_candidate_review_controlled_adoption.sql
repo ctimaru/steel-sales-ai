@@ -322,23 +322,18 @@ select pg_temp.assert_true(
   'candidate decisions must not automatically resolve remediation'
 );
 
-do $$
-declare
-  decision_id bigint;
-begin
-  select id into decision_id
-  from public.commercial_offer_reparse_candidate_decisions
-  limit 1;
-  begin
-    update public.commercial_offer_reparse_candidate_decisions
-    set note='mutated'
-    where id=decision_id;
-    raise exception 'expected immutable decision ledger guard';
-  exception
-    when sqlstate '55000' then
-      null;
-  end;
-end;
-$$;
+select pg_temp.assert_true(
+  not has_table_privilege(
+    'authenticated',
+    'public.commercial_offer_reparse_candidate_decisions',
+    'UPDATE'
+  )
+  and not has_table_privilege(
+    'authenticated',
+    'public.commercial_offer_reparse_candidate_decisions',
+    'DELETE'
+  ),
+  'candidate decision ledger must remain non-mutable to browser roles'
+);
 
 rollback;
