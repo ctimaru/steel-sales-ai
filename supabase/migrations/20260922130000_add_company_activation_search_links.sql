@@ -1,6 +1,122 @@
 -- PA2.12 — Company 360 activation + deterministic search links.
--- Preserves the PA2.3 fallback model. Only normalized RFQ/Offer/Order parents
--- may expose company_id; legacy observation fallback remains without customer attribution.
+-- 1) Identity queue summary counts the full unresolved backlog independently of row limit.
+-- 2) Only normalized RFQ/Offer/Order parents may expose company_id to Global Search.
+-- Legacy observation fallback remains without customer attribution.
+
+create or replace function public.p1_identity_confirmation_queue(
+  p_organization_id uuid,
+  p_limit integer default 100
+)
+returns jsonb
+language sql
+stable
+security invoker
+set search_path=''
+as $$
+with access_check as (
+  select public.is_organization_member(p_organization_id,false) as allowed
+),
+unresolved_contacts_base as (
+  select
+    c.id,
+    c.full_name,
+    c.email_normalized,
+    c.created_at,
+    count(distinct m.id)::int as message_count,
+    count(distinct r.id)::int as rfq_count
+  from public.contacts c
+  left join public.messages m
+    on m.organization_id=c.organization_id
+   and (
+     m.sender_contact_id=c.id
+     or (
+       m.sender_contact_id is null
+       and lower(btrim(coalesce(m.sender_email,'')))=c.email_normalized
+     )
+   )
+  left join public.rfqs r
+    on r.organization_id=c.organization_id
+   and r.contact_id=c.id
+  where c.organization_id=p_organization_id
+    and c.company_id is null
+    and c.email_normalized is not null
+    and c.email_normalized<>''
+    and (select allowed from access_check)
+  group by c.id,c.full_name,c.email_normalized,c.created_at
+  having count(distinct m.id)>0 or count(distinct r.id)>0
+),
+unresolved_contacts as (
+  select *
+  from unresolved_contacts_base
+  order by created_at desc
+  limit greatest(1,least(coalesce(p_limit,100),500))
+),
+verified_companies as (
+  select
+    c.id,
+    c.name,
+    c.company_type,
+    c.country,
+    c.vat_number_normalized,
+    min(v.created_at) as verified_at,
+    jsonb_agg(
+      distinct jsonb_build_object(
+        'identity_type',v.identity_type,
+        'identity_value',v.identity_value,
+        'verification_basis',v.verification_basis
+      )
+    ) as identities
+  from public.companies c
+  join public.commercial_company_identity_verifications v
+    on v.organization_id=c.organization_id
+   and v.company_id=c.id
+  where c.organization_id=p_organization_id
+    and (select allowed from access_check)
+  group by c.id,c.name,c.company_type,c.country,c.vat_number_normalized
+  order by c.name
+)
+select jsonb_build_object(
+  'summary',jsonb_build_object(
+    'unresolved_contacts',(select count(*) from unresolved_contacts_base),
+    'verified_companies',(select count(*) from verified_companies)
+  ),
+  'contacts',coalesce((
+    select jsonb_agg(jsonb_build_object(
+      'contact_id',id,
+      'full_name',full_name,
+      'email',email_normalized,
+      'message_count',message_count,
+      'rfq_count',rfq_count
+    ))
+    from unresolved_contacts
+  ),'[]'::jsonb),
+  'verified_companies',coalesce((
+    select jsonb_agg(jsonb_build_object(
+      'company_id',id,
+      'name',name,
+      'company_type',company_type,
+      'country',country,
+      'vat_number',vat_number_normalized,
+      'verified_at',verified_at,
+      'identities',identities
+    ))
+    from verified_companies
+  ),'[]'::jsonb),
+  'policy',jsonb_build_object(
+    'requires_explicit_user_confirmation',true,
+    'requires_verified_company',true,
+    'domain_inference',false
+  )
+);
+$$;
+
+revoke execute on function public.p1_identity_confirmation_queue(uuid,integer)
+from public,anon;
+grant execute on function public.p1_identity_confirmation_queue(uuid,integer)
+to authenticated,service_role;
+
+comment on function public.p1_identity_confirmation_queue(uuid,integer) is
+  'PA2.12 controlled identity queue: exact unresolved summary count with a separately limited review row set; no domain inference.';
 
 create or replace function public.p1_global_structured_search_bridge(
   p_organization_id uuid,
