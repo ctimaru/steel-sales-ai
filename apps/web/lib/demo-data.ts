@@ -7,6 +7,7 @@ export type CommercialRow = {
   company: string;
   companyId?: string | null;
   sourceKind?: "normalized" | "legacy_evidence";
+  operationalHref?: string;
   product: string;
   grade: string;
   standard: string;
