@@ -16,6 +16,13 @@ export type DashboardData = {
   mode: DataMode;
   metrics: typeof archiveMetrics;
   recent: CommercialRow[];
+  operational: {
+    rfqs: number;
+    offers: number;
+    orders: number;
+    normalizedLines: number;
+    legacyEvidence: number;
+  };
 };
 
 export type ExplorerFilters = {
@@ -159,7 +166,12 @@ function mapObservation(row: Record<string, unknown>): CommercialRow {
 
 export async function getDashboardData(): Promise<DashboardData> {
   if (!isConfigured()) {
-    return { mode: "demo", metrics: archiveMetrics, recent: demoCommercialRows.slice(0, 4) };
+    return {
+      mode: "demo",
+      metrics: archiveMetrics,
+      recent: demoCommercialRows.slice(0, 4),
+      operational: { rfqs: 0, offers: 0, orders: 0, normalizedLines: 0, legacyEvidence: archiveMetrics.observations },
+    };
   }
 
   const supabase = await createClient();
@@ -172,17 +184,44 @@ export async function getDashboardData(): Promise<DashboardData> {
       mode: "awaiting_assignment",
       metrics: archiveMetrics,
       recent: demoCommercialRows.slice(0, 4),
+      operational: { rfqs: 0, offers: 0, orders: 0, normalizedLines: 0, legacyEvidence: archiveMetrics.observations },
     };
   }
 
   const metric = metricRows[0] as Record<string, unknown>;
-  const { data: recentRows } = await supabase
-    .from("commercial_observations")
-    .select(
-      "id,thread_id,item_role,product_type,grade,standard,outer_diameter_mm,width_mm,height_mm,thickness_mm,length_mm,price_value,price_unit,currency,availability_status,confidence,source_filename,commercial_threads(subject,last_activity_at)",
-    )
-    .order("id", { ascending: false })
-    .limit(4);
+  const [{ data: recentRfqLines }, { count: rfqCount }, { count: offerCount }, { count: orderCount }, { count: legacyEvidence }] =
+    await Promise.all([
+      supabase
+        .from("rfq_lines")
+        .select("id,rfq_id,requested_grade,requested_standard,raw_spec_text,source_observation_id,rfqs!inner(requested_at,company_id,conversation_id,companies(name),conversations(external_thread_id))")
+        .order("created_at", { ascending: false })
+        .limit(4),
+      supabase.from("rfqs").select("id", { count: "exact", head: true }),
+      supabase.from("offers").select("id", { count: "exact", head: true }),
+      supabase.from("orders").select("id", { count: "exact", head: true }),
+      supabase.from("commercial_observations").select("id", { count: "exact", head: true }),
+    ]);
+
+  const recent = (recentRfqLines ?? []).map((raw) => {
+    const row = raw as Record<string, unknown>;
+    const rfq = nestedThread(row.rfqs) ?? {};
+    const company = nestedThread(rfq.companies);
+    const conversation = nestedThread(rfq.conversations);
+    return {
+      id: String(row.id),
+      conversationId: String(conversation?.external_thread_id ?? rfq.conversation_id ?? ""),
+      date: formatDate(rfq.requested_at),
+      company: String(company?.name ?? "Cliente non attribuito"),
+      companyId: typeof rfq.company_id === "string" ? rfq.company_id : null,
+      sourceKind: "normalized" as const,
+      product: String(row.raw_spec_text ?? "Prodotto steel"),
+      grade: String(row.requested_grade ?? "—"),
+      standard: String(row.requested_standard ?? "—"),
+      role: "requested" as const,
+      availability: "unknown" as const,
+      confidence: 1,
+    };
+  });
 
   return {
     mode: "live",
@@ -198,7 +237,14 @@ export async function getDashboardData(): Promise<DashboardData> {
       reviewFlags: Number(metric.review_pending ?? 0),
       avgConfidence: Number(metric.avg_confidence ?? 0) * 100,
     },
-    recent: (recentRows ?? []).map((row) => mapObservation(row as Record<string, unknown>)),
+    recent,
+    operational: {
+      rfqs: rfqCount ?? 0,
+      offers: offerCount ?? 0,
+      orders: orderCount ?? 0,
+      normalizedLines: recentRfqLines?.length ?? 0,
+      legacyEvidence: legacyEvidence ?? 0,
+    },
   };
 }
 
@@ -218,17 +264,19 @@ export async function getExplorerData(filters: ExplorerFilters): Promise<Explore
 
   const supabase = await createClient();
   let query = supabase
-    .from("commercial_observations")
+    .from("rfq_lines")
     .select(
-      "id,thread_id,item_role,product_type,grade,standard,outer_diameter_mm,width_mm,height_mm,thickness_mm,length_mm,price_value,price_unit,currency,availability_status,confidence,source_filename,commercial_threads(subject,last_activity_at)",
+      "id,rfq_id,requested_grade,requested_standard,raw_spec_text,source_observation_id,rfqs!inner(requested_at,company_id,conversation_id,companies(name),conversations(external_thread_id))",
       { count: "exact" },
     )
-    .order("id", { ascending: false });
+    .order("created_at", { ascending: false });
 
-  if (filters.role && filters.role !== "all") query = query.eq("item_role", filters.role);
-  if (filters.grade && filters.grade !== "all") query = query.eq("grade", filters.grade);
-  if (filters.standard && filters.standard !== "all") query = query.eq("standard", filters.standard);
-  if (filters.q?.trim()) query = query.ilike("search_text", `%${normalizeSearch(filters.q)}%`);
+  if (filters.role && filters.role !== "all" && filters.role !== "requested") {
+    return { mode: "live", rows: [], total: 0, page, pageSize };
+  }
+  if (filters.grade && filters.grade !== "all") query = query.eq("requested_grade", filters.grade);
+  if (filters.standard && filters.standard !== "all") query = query.eq("requested_standard", filters.standard);
+  if (filters.q?.trim()) query = query.ilike("raw_spec_text", `%${filters.q.trim()}%`);
 
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
@@ -238,22 +286,28 @@ export async function getExplorerData(filters: ExplorerFilters): Promise<Explore
     return { mode: "awaiting_assignment", rows: [], total: 0, page, pageSize };
   }
 
-  if ((count ?? 0) === 0) {
-    const { count: datasetCount } = await supabase
-      .from("commercial_datasets")
-      .select("id", { count: "exact", head: true });
-    if (!datasetCount) {
-      return { mode: "awaiting_assignment", rows: [], total: 0, page, pageSize };
-    }
-  }
+  const rows: CommercialRow[] = (data ?? []).map((raw) => {
+    const row = raw as Record<string, unknown>;
+    const rfq = nestedThread(row.rfqs) ?? {};
+    const company = nestedThread(rfq.companies);
+    const conversation = nestedThread(rfq.conversations);
+    return {
+      id: String(row.id),
+      conversationId: String(conversation?.external_thread_id ?? rfq.conversation_id ?? ""),
+      date: formatDate(rfq.requested_at),
+      company: String(company?.name ?? "Cliente non attribuito"),
+      companyId: typeof rfq.company_id === "string" ? rfq.company_id : null,
+      sourceKind: "normalized",
+      product: String(row.raw_spec_text ?? "Prodotto steel"),
+      grade: String(row.requested_grade ?? "—"),
+      standard: String(row.requested_standard ?? "—"),
+      role: "requested",
+      availability: "unknown",
+      confidence: 1,
+    };
+  });
 
-  return {
-    mode: "live",
-    rows: (data ?? []).map((row) => mapObservation(row as Record<string, unknown>)),
-    total: count ?? 0,
-    page,
-    pageSize,
-  };
+  return { mode: "live", rows, total: count ?? 0, page, pageSize };
 }
 
 export async function getConversationData(id: string): Promise<ConversationData | null> {
