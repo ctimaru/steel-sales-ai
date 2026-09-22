@@ -60,3 +60,25 @@ async def upload_private_object(
             f"Supabase Storage upload failed with HTTP {response.status_code}."
         )
     return path
+
+
+async def download_private_object(*, storage_path: str) -> bytes:
+    supabase_url = os.getenv("SUPABASE_URL", "").rstrip("/")
+    service_role_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+    if not supabase_url or not service_role_key:
+        raise StorageConfigurationError(
+            "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for Storage downloads."
+        )
+
+    endpoint = f"{supabase_url}/storage/v1/object/{BUCKET_NAME}/{storage_path}"
+    headers = {
+        "Authorization": f"Bearer {service_role_key}",
+        "apikey": service_role_key,
+    }
+    async with httpx.AsyncClient(timeout=30) as client:
+        response = await client.get(endpoint, headers=headers)
+    if response.is_error:
+        raise StorageUploadError(
+            f"Supabase Storage download failed with HTTP {response.status_code}."
+        )
+    return response.content
