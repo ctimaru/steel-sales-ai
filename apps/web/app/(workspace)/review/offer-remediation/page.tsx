@@ -27,9 +27,14 @@ export default async function OfferRemediationPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <div>
-        <Link href="/review/offer-recovery" className="text-xs font-semibold text-slate-500 hover:text-slate-900">
-          ← Offer recovery
-        </Link>
+        <div className="flex flex-wrap gap-3">
+          <Link href="/review/offer-recovery" className="text-xs font-semibold text-slate-500 hover:text-slate-900">
+            ← Offer recovery
+          </Link>
+          <Link href="/review/offer-reparse" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+            Candidate reparse →
+          </Link>
+        </div>
 
         <p className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">
           PA2.26 · Offer Evidence Remediation Readiness

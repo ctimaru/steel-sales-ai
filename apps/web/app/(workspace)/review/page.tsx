@@ -34,6 +34,12 @@ export default async function ReviewPage() {
           >
             Identità aziendali
           </Link>
+          <Link
+            href="/review/offer-reparse"
+            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-950"
+          >
+            Candidate reparse
+          </Link>
         </div>
       </div>
 
