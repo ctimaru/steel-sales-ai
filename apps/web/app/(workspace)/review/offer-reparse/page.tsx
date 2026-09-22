@@ -38,7 +38,7 @@ export default async function OfferReparseReviewPage() {
         </h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
           Confronta le candidate prodotte dal reparse con le observation Offer esistenti. Nessun target viene
-          scelto automaticamente. PA2.29 governa l'adozione dei campi mancanti; PA2.30 chiude la remediation
+          scelto automaticamente. PA2.29 può adottare soltanto campi oggi mancanti; PA2.30 chiude la remediation
           solo dopo decisioni terminali, recupero completo dei gap richiesti e assenza di conflitti non-null.
           Nessuna chiusura è automatica.
         </p>
