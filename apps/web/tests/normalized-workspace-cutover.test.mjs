@@ -8,7 +8,7 @@ const followup = fs.readFileSync(new URL("../app/(workspace)/unconverted-offers/
 const dashboard = fs.readFileSync(new URL("../app/(workspace)/dashboard/page.tsx", import.meta.url), "utf8");
 
 test("dashboard and explorer use normalized business entities as operational read path", () => {
-  const explorerBlock = data.slice(data.indexOf("export async function getExplorerData"), data.indexOf("export async function getConversationData"));
+  const explorerBlock = data.slice(data.indexOf("export async function getExplorerData"), data.indexOf("export async function getOperationalEntityData"));
   assert.match(explorerBlock, /p1_normalized_commercial_explorer/);
   assert.doesNotMatch(explorerBlock, /from\("commercial_observations"\)/);
   assert.doesNotMatch(explorerBlock, /from\("rfq_lines"\)/);
