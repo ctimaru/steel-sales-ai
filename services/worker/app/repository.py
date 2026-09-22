@@ -122,6 +122,37 @@ class WorkerRepository:
             raise RepositoryError("Supabase worker promotion returned an invalid payload.")
         return result
 
+
+    async def persist_message_identity(
+        self,
+        *,
+        job_id: UUID,
+        identity: dict[str, Any] | None,
+    ) -> None:
+        if not identity:
+            return
+        await self.update_job(
+            job_id,
+            {
+                "source_message_id": identity.get("source_message_id"),
+                "source_thread_id": identity.get("source_thread_id"),
+                "sender_email": identity.get("sender_email"),
+                "recipient_emails": identity.get("recipient_emails") or [],
+                "sent_at": identity.get("sent_at"),
+                "email_subject": identity.get("email_subject"),
+            },
+        )
+
+    async def materialize_message_identity(self, job_id: UUID) -> dict[str, Any]:
+        result = await self._request(
+            "POST",
+            "/rest/v1/rpc/materialize_worker_message_identity",
+            json={"p_job_id": str(job_id)},
+        )
+        if not isinstance(result, dict):
+            raise RepositoryError("Message identity materialization returned an invalid payload.")
+        return result
+
     async def get_job(self, job_id: UUID) -> dict[str, Any] | None:
         rows = await self._request(
             "GET",
