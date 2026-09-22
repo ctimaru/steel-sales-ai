@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { loadNormalizationCoverage } from "./actions";
+import { PromotionButton } from "./promotion-button";
 
 const reasonLabels: Record<string,string> = {
   pending_review: "review pendente",
@@ -22,10 +23,10 @@ export default async function NormalizationCoveragePage() {
   return (
     <div className="mx-auto max-w-7xl space-y-7">
       <div>
-        <p className="text-sm font-semibold text-indigo-600">PA2.15 · Controlled backlog</p>
+        <p className="text-sm font-semibold text-indigo-600">PA2.16 · Controlled RFQ promotion</p>
         <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">Copertura di normalizzazione</h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-          Misura il passaggio dalle evidenze legacy alle entità RFQ, Offer e Order. Questa vista non promuove automaticamente nessun dato.
+          Misura il passaggio dalle evidenze legacy alle entità RFQ, Offer e Order. Questa vista non promuove automaticamente nessun dato. Le RFQ ready possono essere promosse solo una alla volta, con azione esplicita e nuova validazione server-side.
         </p>
       </div>
 
@@ -86,6 +87,9 @@ export default async function NormalizationCoveragePage() {
                   </div>
                   <div className="max-w-xl text-xs text-slate-500">
                     {row.reasons.length ? row.reasons.map((reason) => reasonLabels[reason] ?? reason).join(" · ") : "Pronta per il percorso di promozione controllata"}
+                    {row.item_role === "requested" && row.backlog_status === "ready" ? (
+                      <PromotionButton observationId={row.observation_id} />
+                    ) : null}
                   </div>
                 </div>
               </Card>

@@ -67,3 +67,41 @@ export async function loadNormalizationCoverage(): Promise<{ data: CoveragePaylo
   }
   return { data: data as unknown as CoveragePayload };
 }
+
+
+export async function promoteReadyRfqObservation(
+  observationId: number,
+): Promise<{ ok: boolean; status?: string; rfqId?: string; error?: string }> {
+  if (!Number.isSafeInteger(observationId) || observationId <= 0) {
+    return { ok: false, error: "Osservazione non valida." };
+  }
+
+  const client = await createClient();
+  const { data: { user }, error: userError } = await client.auth.getUser();
+  if (userError || !user) return { ok: false, error: "Sessione non valida." };
+
+  const { data: memberships } = await client
+    .from("organization_memberships")
+    .select("organization_id,is_default,status")
+    .eq("user_id", user.id)
+    .eq("status", "active");
+
+  const membership = memberships?.find((row) => row.is_default) ?? memberships?.[0];
+  if (!membership) return { ok: false, error: "Workspace non disponibile." };
+
+  const { data, error } = await client.rpc("p1_promote_ready_rfq_observation", {
+    p_organization_id: membership.organization_id,
+    p_observation_id: observationId,
+  });
+
+  if (error || !data || typeof data !== "object") {
+    return { ok: false, error: error?.message ?? "Promozione RFQ non riuscita." };
+  }
+
+  const result = data as Record<string, unknown>;
+  return {
+    ok: result.status === "promoted" || result.status === "already_promoted",
+    status: typeof result.status === "string" ? result.status : undefined,
+    rfqId: typeof result.rfq_id === "string" ? result.rfq_id : undefined,
+  };
+}
