@@ -50,6 +50,17 @@ class PromotionReadinessService:
             raise PromotionReadinessError("Promotion readiness returned an invalid payload.")
         return payload
 
+    async def grouped_readiness(self, request: PromotionReadinessRequest) -> dict[str, object]:
+        organization_id = await self._organization_id(request.actor_user_id)
+        payload = await self.repo._request(
+            "POST",
+            "/rest/v1/rpc/p1_grouped_rfq_readiness",
+            json={"p_organization_id": organization_id, "p_limit": request.limit},
+        )
+        if not isinstance(payload, dict):
+            raise PromotionReadinessError("Grouped RFQ readiness returned an invalid payload.")
+        return payload
+
 
 router = APIRouter(prefix="/v1/promotions", tags=["promotions"])
 
@@ -62,6 +73,24 @@ async def promotion_readiness(
     require_worker_token(x_worker_token)
     try:
         return await PromotionReadinessService().readiness(request)
+    except (
+        PromotionReadinessError,
+        RepositoryConfigurationError,
+        RepositoryError,
+        RuntimeError,
+        ValueError,
+    ) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/group-readiness")
+async def grouped_promotion_readiness(
+    request: PromotionReadinessRequest,
+    x_worker_token: Annotated[str | None, Header()] = None,
+) -> dict[str, object]:
+    require_worker_token(x_worker_token)
+    try:
+        return await PromotionReadinessService().grouped_readiness(request)
     except (
         PromotionReadinessError,
         RepositoryConfigurationError,
