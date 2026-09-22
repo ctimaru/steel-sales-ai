@@ -30,7 +30,7 @@ begin
   from public.commercial_observations
   where organization_id=p_organization_id
     and id=p_observation_id
-  for share;
+  ;
 
   if not found then
     raise exception 'Observation not found in organization';
