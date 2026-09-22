@@ -207,7 +207,8 @@ jobs:
             pa218_controlled_order_promotion.sql \
             pa219_normalized_commercial_explorer.sql \
             pa221_operational_relationship_activation.sql \
-            pa222_conversation_backfill_readiness.sql; do
+            pa222_conversation_backfill_readiness.sql \
+            pa223_structured_conversation_coverage_expansion.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
