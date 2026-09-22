@@ -13,7 +13,7 @@ function roleLabel(role: string) {
 }
 
 export default async function DashboardPage() {
-  const { metrics, recent, mode } = await getDashboardData();
+  const { metrics, recent, mode, operational } = await getDashboardData();
 
   return (
     <div className="mx-auto max-w-7xl space-y-8">
@@ -108,6 +108,26 @@ export default async function DashboardPage() {
         </Link>
       ) : null}
 
+      <section className="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-5">
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">Workspace normalizzato</p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-4">
+          {[
+            ["RFQ", operational.rfqs],
+            ["Offerte", operational.offers],
+            ["Ordini", operational.orders],
+            ["Evidenze legacy", operational.legacyEvidence],
+          ].map(([label, value]) => (
+            <div key={String(label)}>
+              <p className="text-2xl font-semibold text-slate-950">{Number(value).toLocaleString("it-IT")}</p>
+              <p className="text-xs text-slate-500">{label}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-xs leading-5 text-slate-500">
+          Le attività operative recenti provengono dalle entità normalizzate. Le osservazioni legacy restano disponibili come evidenza e provenienza.
+        </p>
+      </section>
+
       <section className="grid gap-3 sm:grid-cols-3">
         <Card className="p-4">
           <p className="text-xs font-semibold text-slate-500">Storico disponibile</p>
@@ -164,6 +184,9 @@ export default async function DashboardPage() {
                 <p className="mt-1 line-clamp-1 text-xs text-slate-500">
                   {row.grade} · {row.standard} · {row.company}
                 </p>
+                {row.sourceKind === "normalized" ? (
+                  <p className="mt-1 text-[11px] font-semibold text-indigo-600">Entità normalizzata</p>
+                ) : null}
               </div>
               <div className="text-left sm:text-right">
                 <p className="text-sm font-semibold text-slate-900">{row.price ?? "—"}</p>
