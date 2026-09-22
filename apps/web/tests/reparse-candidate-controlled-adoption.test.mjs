@@ -16,22 +16,22 @@ const page = fs.readFileSync(
 );
 
 test("PA2.29 candidate review uses controlled adoption RPCs", () => {
-  assert.match(actions, /p1_offer_reparse_candidate_review/);
-  assert.match(actions, /p1_adopt_offer_reparse_candidate/);
-  assert.match(actions, /p1_reject_offer_reparse_candidate/);
+  assert.ok(actions.includes("p1_offer_reparse_candidate_review"));
+  assert.ok(actions.includes("p1_adopt_offer_reparse_candidate"));
+  assert.ok(actions.includes("p1_reject_offer_reparse_candidate"));
 });
 
 test("PA2.29 never preselects a target or fields", () => {
-  assert.match(card, /useState\("")/);
-  assert.match(card, /useState<string\[\]>\(\[\]\)/);
-  assert.match(card, /Seleziona observation target/);
-  assert.match(card, /selectedFields\.length/);
+  assert.ok(card.includes('useState("")'));
+  assert.ok(card.includes("useState<string[]>([])"));
+  assert.ok(card.includes("Seleziona observation target"));
+  assert.ok(card.includes("selectedFields.length"));
 });
 
 test("PA2.29 makes conflict and overwrite policy visible", () => {
-  assert.match(card, /Conflitti non adottabili in PA2\.29/);
-  assert.match(page, /Nessun target viene/);
-  assert.match(page, /soltanto campi oggi mancanti/);
-  assert.match(page, /no overwrite/);
-  assert.match(page, /no auto-resolution/);
+  assert.ok(card.includes("Conflitti non adottabili in PA2.29"));
+  assert.ok(page.includes("Nessun target viene"));
+  assert.ok(page.includes("soltanto campi oggi mancanti"));
+  assert.ok(page.includes("no overwrite"));
+  assert.ok(page.includes("no auto-resolution"));
 });
