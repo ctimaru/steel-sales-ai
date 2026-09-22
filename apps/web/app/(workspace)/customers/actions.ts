@@ -225,7 +225,7 @@ export async function loadCompanyActivationStatus(): Promise<CompanyActivationSt
 
   const { data, error } = await context.client.rpc("p1_identity_confirmation_queue", {
     p_organization_id: context.organizationId,
-    p_limit: 1,
+    p_limit: 500,
   });
 
   if (error || !data || typeof data !== "object") {
