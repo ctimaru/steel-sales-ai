@@ -24,6 +24,53 @@ type OfferObservation = {
   thread_subject: string | null;
 };
 
+type NormalizedOfferRow = {
+  offer_id: string;
+  offered_at: string | null;
+  status: string | null;
+  company_id: string | null;
+  company_name: string | null;
+  conversation_id: string | null;
+  external_thread_id: string | null;
+  line_count: number;
+};
+
+async function loadNormalizedOffersWithoutOrder(grade: string) {
+  const supabase = await createClient();
+  let query = supabase
+    .from("offers")
+    .select("id,offered_at,status,company_id,conversation_id,companies(name),conversations(external_thread_id),offer_lines(id,raw_spec_text,canonical_product_key)");
+  const { data, error } = await query.order("offered_at", { ascending: false }).limit(200);
+  if (error) return { rows: [] as NormalizedOfferRow[], error: "Impossibile caricare le offerte normalizzate." };
+
+  const offers = data ?? [];
+  const offerIds = offers.map((row) => row.id);
+  const { data: ordered } = offerIds.length
+    ? await supabase.from("orders").select("offer_id").in("offer_id", offerIds)
+    : { data: [] };
+  const orderedIds = new Set((ordered ?? []).map((row) => row.offer_id).filter(Boolean));
+
+  const rows = offers
+    .filter((row) => !orderedIds.has(row.id))
+    .filter((row) => {
+      if (!grade) return true;
+      return (row.offer_lines ?? []).some((line) =>
+        String(line.raw_spec_text ?? line.canonical_product_key ?? "").toUpperCase().includes(grade),
+      );
+    })
+    .map((row) => ({
+      offer_id: row.id,
+      offered_at: row.offered_at,
+      status: row.status,
+      company_id: row.company_id,
+      company_name: Array.isArray(row.companies) ? row.companies[0]?.name ?? null : row.companies?.name ?? null,
+      conversation_id: row.conversation_id,
+      external_thread_id: Array.isArray(row.conversations) ? row.conversations[0]?.external_thread_id ?? null : row.conversations?.external_thread_id ?? null,
+      line_count: row.offer_lines?.length ?? 0,
+    }));
+  return { rows, error: null as string | null };
+}
+
 type OffersPayload = {
   found?: boolean;
   count?: number;
@@ -150,7 +197,10 @@ export default async function UnconvertedOffersPage({
   const grade = (read("grade") ?? "").trim().toUpperCase();
   const monthsValue = Number(read("months") ?? 0);
   const months = [0, 3, 6, 12, 24].includes(monthsValue) ? monthsValue : 0;
-  const data = await loadOffersWithoutOrder(grade, months);
+  const normalized = await loadNormalizedOffersWithoutOrder(grade);
+  const data = normalized.rows.length > 0
+    ? { error: normalized.error, rows: [] as OfferObservation[], count: 0, threadCount: normalized.rows.length }
+    : await loadOffersWithoutOrder(grade, months);
   const pricedRows = data.rows.filter((row) => row.price_value !== null).length;
   const latestDate = data.rows[0]?.offered_at ?? null;
 
@@ -198,7 +248,33 @@ export default async function UnconvertedOffersPage({
         </button>
       </form>
 
-      {data.error ? (
+      {normalized.rows.length > 0 ? (
+        <section className="rounded-2xl border border-indigo-100 bg-white p-6 shadow-sm">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-950">Offerte normalizzate senza ordine</h2>
+              <p className="mt-1 text-sm text-slate-500">Fonte operativa primaria: Offer → Order normalizzati. Nessuna inferenza da thread legacy.</p>
+            </div>
+            <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">{normalized.rows.length} aperte</span>
+          </div>
+          <div className="mt-5 space-y-3">
+            {normalized.rows.map((row) => (
+              <div key={row.offer_id} className="flex flex-col justify-between gap-3 rounded-xl border border-slate-200 p-4 sm:flex-row sm:items-center">
+                <div>
+                  <p className="text-sm font-semibold text-slate-950">{dateLabel(row.offered_at)} · {row.status ?? "—"}</p>
+                  <p className="mt-1 text-xs text-slate-500">{row.line_count} righe · {row.company_name ?? "Cliente non attribuito"}</p>
+                </div>
+                <div className="flex gap-3 text-xs font-semibold">
+                  {row.company_id ? <Link href={`/customers/${row.company_id}`} className="text-indigo-600">Company 360 →</Link> : null}
+                  {row.external_thread_id || row.conversation_id ? (
+                    <Link href={`/conversations/${row.external_thread_id ?? row.conversation_id}`} className="text-indigo-600">Conversazione →</Link>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : data.error ? (
         <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
           {data.error}
         </div>
