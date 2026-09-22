@@ -202,7 +202,8 @@ jobs:
             pa211_company_360.sql \
             pa212_company_activation.sql \
             pa215_normalization_coverage.sql \
-            pa216_controlled_rfq_backlog_promotion.sql; do
+            pa216_controlled_rfq_backlog_promotion.sql \
+            pa217_controlled_offer_promotion.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done

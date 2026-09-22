@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { loadNormalizationCoverage } from "./actions";
+import { loadNormalizationCoverage, loadOfferPromotionReadiness } from "./actions";
 import { PromotionButton } from "./promotion-button";
+import { OfferPromotionButton } from "./offer-promotion-button";
 
 const reasonLabels: Record<string,string> = {
   pending_review: "review pendente",
@@ -17,16 +18,20 @@ const reasonLabels: Record<string,string> = {
 };
 
 export default async function NormalizationCoveragePage() {
-  const result = await loadNormalizationCoverage();
+  const [result, offerResult] = await Promise.all([
+    loadNormalizationCoverage(),
+    loadOfferPromotionReadiness(),
+  ]);
   const data = result.data;
+  const offerData = offerResult.data;
 
   return (
     <div className="mx-auto max-w-7xl space-y-7">
       <div>
-        <p className="text-sm font-semibold text-indigo-600">PA2.16 · Controlled RFQ promotion</p>
+        <p className="text-sm font-semibold text-indigo-600">PA2.17 · Controlled Offer promotion</p>
         <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">Copertura di normalizzazione</h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-          Misura il passaggio dalle evidenze legacy alle entità RFQ, Offer e Order. Questa vista non promuove automaticamente nessun dato. Le RFQ ready possono essere promosse solo una alla volta, con azione esplicita e nuova validazione server-side.
+          Misura il passaggio dalle evidenze legacy alle entità RFQ, Offer e Order. Questa vista non promuove automaticamente nessun dato. Le RFQ ready possono essere promosse solo una alla volta. Le Offer vengono promosse solo come thread completo, outbound e coerente, con nuova validazione server-side.
         </p>
       </div>
 
@@ -59,10 +64,49 @@ export default async function NormalizationCoveragePage() {
                 <p className="text-sm text-slate-600">Delivery evidence <b>{data.summary.evidence_only}</b></p>
               </div>
               <p className="mt-4 text-xs leading-5 text-slate-500">
-                Offer e Order restano bloccati finché non esiste il relativo servizio di promozione controllata. Bulk auto-promotion: disabilitata.
+                Offer promotion: abilitata solo per thread completi e outbound. Order resta bloccato finché non esiste il relativo servizio controllato. Bulk auto-promotion: disabilitata.
               </p>
             </CardContent>
           </Card>
+
+          <section className="space-y-3">
+            <div>
+              <h2 className="font-semibold text-slate-950">Readiness Offer</h2>
+              <p className="mt-1 text-xs text-slate-500">
+                Una Offer è promuovibile solo se tutte le righe offered dello stesso thread sono outbound, complete, senza review pendente e con una sola valuta.
+              </p>
+            </div>
+            {offerResult.error || !offerData ? (
+              <Card className="border-amber-200 bg-amber-50 p-4 text-xs text-amber-900">{offerResult.error ?? "Readiness Offer non disponibile."}</Card>
+            ) : (
+              <>
+                <Card className="p-4">
+                  <div className="grid gap-3 sm:grid-cols-4">
+                    <p className="text-sm text-slate-600">Thread Offer <b>{offerData.summary.offer_threads}</b></p>
+                    <p className="text-sm text-slate-600">Thread ready <b>{offerData.summary.ready_threads}</b></p>
+                    <p className="text-sm text-slate-600">Thread bloccati <b>{offerData.summary.blocked_threads}</b></p>
+                    <p className="text-sm text-slate-600">Già promossi <b>{offerData.summary.already_promoted_threads}</b></p>
+                  </div>
+                  <p className="mt-3 text-xs text-slate-500">Company inference: disabilitata · RFQ inference: disabilitata · promozione parziale: vietata.</p>
+                </Card>
+                {offerData.threads.filter((thread) => thread.readiness_status === "ready").map((thread) => (
+                  <Card key={thread.thread_id} className="p-4">
+                    <div className="flex flex-col justify-between gap-3 md:flex-row">
+                      <div>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge tone="green">ready</Badge>
+                          <Badge tone="neutral">{thread.line_count} righe</Badge>
+                        </div>
+                        <p className="mt-2 text-sm font-semibold text-slate-900">{thread.source_filename ?? thread.thread_id}</p>
+                        <p className="mt-1 text-xs text-slate-500">Tutte le righe saranno create nella stessa Offer normalizzata.</p>
+                      </div>
+                      <OfferPromotionButton threadId={thread.thread_id} />
+                    </div>
+                  </Card>
+                ))}
+              </>
+            )}
+          </section>
 
           <section className="space-y-3">
             <div className="flex items-end justify-between">
