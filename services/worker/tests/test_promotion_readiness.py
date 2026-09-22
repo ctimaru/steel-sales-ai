@@ -90,3 +90,43 @@ def test_grouped_readiness_calls_group_rpc(monkeypatch):
     assert response.json()["summary"]["ready"] == 1
     assert calls[1][1] == "/rest/v1/rpc/p1_grouped_rfq_readiness"
     assert calls[1][2]["p_limit"] == 10
+
+
+def test_identity_readiness_calls_identity_rpc(monkeypatch):
+    configure(monkeypatch)
+    calls = []
+
+    async def fake_request(self, method, path, *, json=None, prefer=None):
+        calls.append((method, path, json))
+        if path.startswith("/rest/v1/organization_memberships"):
+            return [{"organization_id": "00000000-0000-0000-0000-000000000010"}]
+        if path == "/rest/v1/rpc/p1_rfq_identity_readiness":
+            return {
+                "summary": {
+                    "promoted_rfqs": 1,
+                    "conversation_ready": 1,
+                    "conversation_linked": 0,
+                    "message_linked": 0,
+                    "company_linked": 0,
+                    "contact_linked": 0,
+                },
+                "rfqs": [
+                    {
+                        "rfq_id": "00000000-0000-0000-0000-000000000020",
+                        "conversation_status": "ready",
+                        "message_status": "blocked_missing_message_evidence",
+                    }
+                ],
+            }
+        raise AssertionError(path)
+
+    monkeypatch.setattr(promotion_readiness.WorkerRepository, "_request", fake_request)
+
+    response = client.post(
+        "/v1/promotions/identity-readiness",
+        json={"actor_user_id": "00000000-0000-0000-0000-000000000001", "limit": 10},
+    )
+    assert response.status_code == 200
+    assert response.json()["summary"]["conversation_ready"] == 1
+    assert calls[1][1] == "/rest/v1/rpc/p1_rfq_identity_readiness"
+    assert calls[1][2]["p_limit"] == 10
