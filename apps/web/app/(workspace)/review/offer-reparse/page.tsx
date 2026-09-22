@@ -3,12 +3,20 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 
-import { loadOfferReparseCandidateReview } from "./actions";
+import {
+  loadOfferReparseCandidateReview,
+  loadOfferReparseRemediationClosureReadiness,
+} from "./actions";
 import { ReparseCandidateReviewCard } from "./reparse-candidate-review-card";
+import { ReparseRemediationClosureCard } from "./reparse-remediation-closure-card";
 
 export default async function OfferReparseReviewPage() {
-  const result = await loadOfferReparseCandidateReview();
+  const [result, closureResult] = await Promise.all([
+    loadOfferReparseCandidateReview(),
+    loadOfferReparseRemediationClosureReadiness(),
+  ]);
   const data = result.data;
+  const closure = closureResult.data;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -23,17 +31,77 @@ export default async function OfferReparseReviewPage() {
         </div>
 
         <p className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">
-          PA2.29 · Reparse Candidate Review & Controlled Adoption
+          PA2.29–PA2.30 · Candidate Review & Remediation Closure
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
           Candidate evidence review
         </h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-          Confronta le candidate prodotte dal reparse con le observation Offer esistenti. Nessun target viene
-          scelto automaticamente e PA2.29 può adottare soltanto campi oggi mancanti: i conflitti restano
-          esplicitamente fuori da questa fase.
+          Confronta le candidate prodotte dal reparse con le observation Offer esistenti. PA2.29 governa
+          l'adozione dei campi mancanti; PA2.30 chiude la remediation solo dopo decisioni terminali, recupero
+          completo dei gap richiesti e assenza di conflitti non-null. Nessuna chiusura è automatica.
         </p>
       </div>
+
+      {closureResult.error || !closure ? (
+        <Card className="border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          {closureResult.error ?? "Closure readiness non disponibile."}
+        </Card>
+      ) : (
+        <>
+          <Card className="p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">
+              PA2.30 · Reparse Remediation Resolution & Decision Closure
+            </p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-4 lg:grid-cols-8">
+              <div>
+                <p className="text-xs text-slate-400">Remediation</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-950">{closure.summary.remediation_count}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Resolve ready</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-950">{closure.summary.ready_resolve}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Dismiss ready</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-950">{closure.summary.ready_dismiss}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Waiting run</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-950">{closure.summary.waiting_on_run}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Decisioni pending</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-950">{closure.summary.candidate_decisions_pending}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Conflitti</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-950">{closure.summary.conflict_review_required}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Gap residui</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-950">{closure.summary.residual_evidence_gap}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Chiuse</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-950">{closure.summary.already_closed}</p>
+              </div>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Badge tone="blue">explicit close</Badge>
+              <Badge tone="green">terminal decisions required</Badge>
+              <Badge tone="amber">conflicts block closure</Badge>
+              <Badge tone="neutral">no auto-closure</Badge>
+            </div>
+          </Card>
+
+          <div className="space-y-4">
+            {closure.items.map((item) => (
+              <ReparseRemediationClosureCard key={item.remediation_queue_id} item={item} />
+            ))}
+          </div>
+        </>
+      )}
 
       {result.error || !data ? (
         <Card className="border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
