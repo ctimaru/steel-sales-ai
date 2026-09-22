@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
-import { loadCompany360 } from "../actions";
+import { loadCompany360, loadCompanyActivationStatus } from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +38,10 @@ export default async function Company360Page({
   params: Promise<{ companyId: string }>;
 }) {
   const { companyId } = await params;
-  const result = await loadCompany360(companyId);
+  const [result, activation] = await Promise.all([
+    loadCompany360(companyId),
+    loadCompanyActivationStatus(),
+  ]);
 
   if (result.error) {
     return (
@@ -111,6 +114,9 @@ export default async function Company360Page({
               <p className="text-sm font-semibold text-amber-950">Company verificata, ma nessun Contact ancora confermato</p>
               <p className="mt-1 text-sm text-amber-800">
                 Le attività non vengono attribuite a questa Company finché il rapporto Contact→Company non viene confermato.
+                {activation.unresolvedContacts > 0
+                  ? ` Nel workspace ci sono ${activation.unresolvedContacts} identità in attesa di conferma.`
+                  : ""}
               </p>
             </div>
             <Link
