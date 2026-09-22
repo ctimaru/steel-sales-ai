@@ -209,7 +209,8 @@ jobs:
             pa221_operational_relationship_activation.sql \
             pa222_conversation_backfill_readiness.sql \
             pa223_structured_conversation_coverage_expansion.sql \
-            pa225_relationship_gap_offer_recovery.sql; do
+            pa225_relationship_gap_offer_recovery.sql \
+            pa226_offer_evidence_remediation_readiness.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
