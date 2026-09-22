@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
-import { loadCompanyDirectory } from "./actions";
+import { loadCompanyActivationStatus, loadCompanyDirectory } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +21,10 @@ export default async function CustomersPage({
 }) {
   const params = await searchParams;
   const query = typeof params.q === "string" ? params.q.trim() : "";
-  const directory = await loadCompanyDirectory(query || undefined);
+  const [directory, activation] = await Promise.all([
+    loadCompanyDirectory(query || undefined),
+    loadCompanyActivationStatus(),
+  ]);
 
   return (
     <div className="mx-auto max-w-7xl space-y-7">
@@ -35,6 +38,28 @@ export default async function CustomersPage({
       </div>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <div className="mb-5 flex flex-col justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:flex-row sm:items-center">
+          <div>
+            <p className="text-sm font-semibold text-slate-950">
+              {activation.unresolvedContacts > 0
+                ? `${activation.unresolvedContacts} identità aziendali da confermare`
+                : "Nessuna identità aziendale in attesa"}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-slate-500">
+              Le attività entrano nella Company 360 solo dopo una conferma Contact→Company esplicita.
+            </p>
+          </div>
+          {activation.unresolvedContacts > 0 ? (
+            <Link
+              href="/review/identities"
+              className="shrink-0 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800 hover:bg-amber-100"
+            >
+              Apri identità aziendali →
+            </Link>
+          ) : (
+            <Badge tone="green">Identità allineate</Badge>
+          )}
+        </div>
         <form method="get" className="flex flex-col gap-3 sm:flex-row">
           <input
             name="q"
