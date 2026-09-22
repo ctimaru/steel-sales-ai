@@ -60,7 +60,7 @@ groups as (
     bool_or(r.quantity is null or r.quantity_unit is null) as has_missing_quantity,
     bool_or(r.length_mm is null) as has_missing_length,
     bool_or(nullif(btrim(coalesce(r.source_text,'')),'') is null) as has_missing_source_text,
-    min(r.promoted_rfq_id) filter (where r.promoted_rfq_id is not null) as promoted_rfq_id
+    min(r.promoted_rfq_id::text) filter (where r.promoted_rfq_id is not null)::uuid as promoted_rfq_id
   from requested r
   group by r.organization_id,r.thread_id
   having count(*)>1
@@ -228,7 +228,7 @@ begin
     )::int,
     count(*) filter (where p.id is not null)::int,
     count(distinct rl.rfq_id) filter (where rl.rfq_id is not null)::int,
-    min(rl.rfq_id) filter (where rl.rfq_id is not null),
+    min(rl.rfq_id::text) filter (where rl.rfq_id is not null)::uuid,
     min(o.created_at)
   into
     line_count,
