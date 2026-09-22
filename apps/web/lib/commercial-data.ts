@@ -243,6 +243,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       company: String(company?.name ?? "Cliente non attribuito"),
       companyId: typeof rfq.company_id === "string" ? rfq.company_id : null,
       sourceKind: "normalized" as const,
+      operationalHref: `/rfqs/${String(rfq.id ?? row.rfq_id)}`,
       product: String(row.raw_spec_text ?? "Prodotto steel"),
       grade: String(row.requested_grade ?? "—"),
       standard: String(row.requested_standard ?? "—"),
