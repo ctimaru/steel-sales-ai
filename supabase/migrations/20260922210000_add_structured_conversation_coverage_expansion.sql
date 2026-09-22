@@ -18,10 +18,10 @@ create table if not exists public.commercial_conversation_expansions (
   metadata jsonb not null default '{}'::jsonb,
   unique (organization_id,commercial_thread_id),
   unique (organization_id,conversation_id),
-  foreign key (organization_id,commercial_thread_id)
-    references public.commercial_threads(organization_id,id),
-  foreign key (organization_id,conversation_id)
-    references public.conversations(organization_id,id)
+  foreign key (commercial_thread_id)
+    references public.commercial_threads(id),
+  foreign key (conversation_id)
+    references public.conversations(id)
 );
 
 alter table public.commercial_conversation_expansions enable row level security;
