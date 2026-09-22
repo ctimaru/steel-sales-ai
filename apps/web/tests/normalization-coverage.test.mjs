@@ -14,6 +14,6 @@ test("coverage workspace calls the tenant-scoped normalization RPC", () => {
 test("coverage workspace makes controlled policy explicit", () => {
   assert.match(page, /Questa vista non promuove automaticamente nessun dato/);
   assert.match(page, /Bulk auto-promotion: disabilitata/);
-  assert.match(page, /Offer promotion: abilitata solo per thread completi e outbound/);
+  assert.match(page, /Offer promotion: thread completi e outbound/);
   assert.match(page, /Backlog controllato/);
 });
