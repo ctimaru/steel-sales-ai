@@ -26,7 +26,7 @@ export default async function NormalizationCoveragePage() {
         <p className="text-sm font-semibold text-indigo-600">PA2.16 · Controlled RFQ promotion</p>
         <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">Copertura di normalizzazione</h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-          Misura il passaggio dalle evidenze legacy alle entità RFQ, Offer e Order. Le RFQ ready possono essere promosse solo una alla volta, con azione esplicita e nuova validazione server-side.
+          Misura il passaggio dalle evidenze legacy alle entità RFQ, Offer e Order. Questa vista non promuove automaticamente nessun dato. Le RFQ ready possono essere promosse solo una alla volta, con azione esplicita e nuova validazione server-side.
         </p>
       </div>
 
