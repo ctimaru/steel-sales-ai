@@ -60,7 +60,7 @@ export function CommercialExplorer({
             <option value="requested">Requested</option>
             <option value="offered">Offered</option>
             <option value="ordered">Ordered</option>
-            <option value="delivered">Delivered</option>
+            <option value="delivered" disabled>Delivered · evidence only</option>
           </select>
           <Input name="grade" defaultValue={filters.grade === "all" ? "" : filters.grade ?? ""} placeholder="Qualità, es. S355J2H" />
           <Input name="standard" defaultValue={filters.standard === "all" ? "" : filters.standard ?? ""} placeholder="Norma, es. EN 10219" />
@@ -78,7 +78,7 @@ export function CommercialExplorer({
       ) : null}
 
       <div className="flex flex-col justify-between gap-1 text-xs text-slate-500 sm:flex-row">
-        <span>{total.toLocaleString("it-IT")} risultati {mode === "live" ? "nel database live" : "in modalità demo"}</span>
+        <span>{total.toLocaleString("it-IT")} risultati {mode === "live" ? "nel modello normalizzato RFQ / Offer / Order" : "in modalità demo"}</span>
         <span>Pagina {page} di {totalPages} · max {pageSize} righe</span>
       </div>
 
