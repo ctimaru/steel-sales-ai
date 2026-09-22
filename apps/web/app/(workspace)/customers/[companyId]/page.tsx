@@ -62,6 +62,7 @@ export default async function Company360Page({
   const payload = result.data;
   const company = payload.company;
   const summary = payload.summary;
+  const unresolvedIdentityCount = result.unresolvedIdentityCount;
 
   return (
     <div className="mx-auto max-w-7xl space-y-7">
@@ -87,6 +88,27 @@ export default async function Company360Page({
           </div>
         </div>
       </div>
+
+      {unresolvedIdentityCount !== null && unresolvedIdentityCount > 0 ? (
+        <Card className="border-amber-200 bg-amber-50">
+          <CardContent className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+            <div>
+              <p className="text-sm font-semibold text-amber-950">
+                {unresolvedIdentityCount} identità aziendali ancora da confermare nel workspace
+              </p>
+              <p className="mt-1 text-sm text-amber-800">
+                Il conteggio è globale al workspace: nessun contatto viene attribuito a questa Company senza conferma esplicita.
+              </p>
+            </div>
+            <Link
+              href="/review/identities"
+              className="shrink-0 rounded-lg bg-amber-900 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-800"
+            >
+              Apri identità aziendali
+            </Link>
+          </CardContent>
+        </Card>
+      ) : null}
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
         {[
