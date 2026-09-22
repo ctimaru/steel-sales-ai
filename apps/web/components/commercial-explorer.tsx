@@ -91,13 +91,24 @@ export function CommercialExplorer({
                   <Badge tone={roleTone(row.role)}>{row.role}</Badge>
                   {row.availability === "stock" ? <Badge tone="green">stock</Badge> : null}
                   {row.availability === "production" ? <Badge tone="amber">production</Badge> : null}
+                  {row.sourceKind === "normalized" ? <Badge tone="neutral">normalizzato</Badge> : null}
                 </div>
                 <p className="mt-2 font-semibold text-slate-950">{row.product}</p>
                 <p className="mt-1 text-xs text-slate-500">{row.grade} · {row.standard}</p>
               </div>
               <div>
-                <p className="text-xs text-slate-400">Thread / fonte</p>
-                <p className="mt-1 line-clamp-2 text-sm font-medium text-slate-800">{row.company}</p>
+                <p className="text-xs text-slate-400">Cliente</p>
+                {row.companyId ? (
+                  <Link
+                    href={`/customers/${row.companyId}`}
+                    onClick={(event) => event.stopPropagation()}
+                    className="mt-1 block line-clamp-2 text-sm font-semibold text-indigo-600 hover:text-indigo-800"
+                  >
+                    {row.company} · Company 360 →
+                  </Link>
+                ) : (
+                  <p className="mt-1 line-clamp-2 text-sm font-medium text-amber-700">{row.company}</p>
+                )}
               </div>
               <div>
                 <p className="text-xs text-slate-400">Prezzo</p>
