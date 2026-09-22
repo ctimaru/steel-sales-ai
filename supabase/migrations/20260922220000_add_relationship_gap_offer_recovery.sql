@@ -90,7 +90,7 @@ begin
             and p.entity_type='offer_line'
             and p.status='applied'
         ) already_promoted,
-        (
+        coalesce((
           coalesce(o.confidence,0)>=0.90
           and o.direction='outbound'
           and o.canonical_product_id is not null
@@ -107,7 +107,7 @@ begin
               and q.observation_id=o.id
               and q.status='pending'
           )
-        ) complete_line
+        ),false) complete_line
       from public.commercial_observations o
       where o.organization_id=p_organization_id
         and o.item_role='offered'
