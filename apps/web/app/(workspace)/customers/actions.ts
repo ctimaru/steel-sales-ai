@@ -21,6 +21,7 @@ export type CompanyDirectoryItem = {
 export type CompanyDirectoryPayload = {
   total: number;
   companies: CompanyDirectoryItem[];
+  unresolved_identity_count: number | null;
   error?: string;
 };
 
@@ -185,50 +186,104 @@ async function activeOrganizationId() {
 export async function loadCompanyDirectory(query?: string): Promise<CompanyDirectoryPayload> {
   const context = await activeOrganizationId();
   if (!context.client || !context.organizationId) {
-    return { total: 0, companies: [], error: context.error ?? "Dati non disponibili." };
+    return {
+      total: 0,
+      companies: [],
+      unresolved_identity_count: null,
+      error: context.error ?? "Dati non disponibili.",
+    };
   }
 
-  const { data, error } = await context.client.rpc("p1_company_directory", {
-    p_organization_id: context.organizationId,
-    p_query: query?.trim() || null,
-    p_limit: 100,
-  });
+  const [directoryResult, identityResult] = await Promise.all([
+    context.client.rpc("p1_company_directory", {
+      p_organization_id: context.organizationId,
+      p_query: query?.trim() || null,
+      p_limit: 100,
+    }),
+    context.client.rpc("p1_identity_confirmation_queue", {
+      p_organization_id: context.organizationId,
+      p_limit: 100,
+    }),
+  ]);
 
+  const { data, error } = directoryResult;
   if (error || !data || typeof data !== "object") {
-    return { total: 0, companies: [], error: "Impossibile caricare le aziende del workspace." };
+    return {
+      total: 0,
+      companies: [],
+      unresolved_identity_count: null,
+      error: "Impossibile caricare le aziende del workspace.",
+    };
   }
 
   const payload = data as { total?: unknown; companies?: unknown };
+  const identityPayload = identityResult.data && typeof identityResult.data === "object"
+    ? identityResult.data as { summary?: { unresolved_contacts?: unknown } }
+    : null;
+  const unresolvedCount = Number(identityPayload?.summary?.unresolved_contacts);
+
   return {
     total: Number(payload.total ?? 0),
     companies: Array.isArray(payload.companies) ? payload.companies as CompanyDirectoryItem[] : [],
+    unresolved_identity_count: !identityResult.error && Number.isFinite(unresolvedCount)
+      ? unresolvedCount
+      : null,
   };
 }
 
 export async function loadCompany360(companyId: string): Promise<{
   found: boolean;
   data: Company360Payload | null;
+  unresolvedIdentityCount: number | null;
   error?: string;
 }> {
   if (!/^[0-9a-f-]{36}$/i.test(companyId)) {
-    return { found: false, data: null };
+    return { found: false, data: null, unresolvedIdentityCount: null };
   }
 
   const context = await activeOrganizationId();
-  if (!context.client) {
-    return { found: false, data: null, error: context.error ?? "Dati non disponibili." };
+  if (!context.client || !context.organizationId) {
+    return {
+      found: false,
+      data: null,
+      unresolvedIdentityCount: null,
+      error: context.error ?? "Dati non disponibili.",
+    };
   }
 
-  const { data, error } = await context.client.rpc("p1_company_360", {
-    p_company_id: companyId,
-  });
+  const [companyResult, identityResult] = await Promise.all([
+    context.client.rpc("p1_company_360", {
+      p_company_id: companyId,
+    }),
+    context.client.rpc("p1_identity_confirmation_queue", {
+      p_organization_id: context.organizationId,
+      p_limit: 100,
+    }),
+  ]);
 
+  const { data, error } = companyResult;
   if (error) {
-    return { found: false, data: null, error: "Impossibile caricare lo storico dell'azienda." };
+    return {
+      found: false,
+      data: null,
+      unresolvedIdentityCount: null,
+      error: "Impossibile caricare lo storico dell'azienda.",
+    };
   }
   if (!data || typeof data !== "object") {
-    return { found: false, data: null };
+    return { found: false, data: null, unresolvedIdentityCount: null };
   }
 
-  return { found: true, data: data as Company360Payload };
+  const identityPayload = identityResult.data && typeof identityResult.data === "object"
+    ? identityResult.data as { summary?: { unresolved_contacts?: unknown } }
+    : null;
+  const unresolvedCount = Number(identityPayload?.summary?.unresolved_contacts);
+
+  return {
+    found: true,
+    data: data as Company360Payload,
+    unresolvedIdentityCount: !identityResult.error && Number.isFinite(unresolvedCount)
+      ? unresolvedCount
+      : null,
+  };
 }

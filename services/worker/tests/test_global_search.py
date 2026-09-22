@@ -73,9 +73,25 @@ def test_global_search_resolves_tenant_and_combines_semantic_structured(monkeypa
                     "source_filename": "offer.eml",
                     "thread_id": "00000000-0000-0000-0000-000000000020",
                     "score": 0.9,
-                    "metadata": {},
+                    "metadata": {
+                        "source_model": "normalized_promoted",
+                        "normalized_entity_type": "offer_line",
+                        "normalized_entity_id": "00000000-0000-0000-0000-000000000040",
+                    },
                 }],
             }
+        if path.startswith("/rest/v1/offer_lines?"):
+            assert f"organization_id=eq.{organization_id}" in path
+            return [{
+                "id": "00000000-0000-0000-0000-000000000040",
+                "offer_id": "00000000-0000-0000-0000-000000000041",
+            }]
+        if path.startswith("/rest/v1/offers?"):
+            assert f"organization_id=eq.{organization_id}" in path
+            return [{
+                "id": "00000000-0000-0000-0000-000000000041",
+                "company_id": "00000000-0000-0000-0000-000000000042",
+            }]
         if path == "/rest/v1/rpc/p1_resolve_shared_steel_reference":
             return {
                 "resolution_status": "matched",
@@ -138,6 +154,8 @@ def test_global_search_resolves_tenant_and_combines_semantic_structured(monkeypa
     offer = next(row for row in body["results"] if row["result_type"] == "offer")
     assert offer["metadata"]["shared_reference"]["resolution_status"] == "matched"
     assert offer["metadata"]["shared_reference"]["calculation_allowed"] is True
+    assert offer["metadata"]["company_id"] == "00000000-0000-0000-0000-000000000042"
+    assert offer["metadata"]["company_link_source"] == "normalized_business_entity"
 
 
 def test_document_only_search_skips_structured_rpc(monkeypatch) -> None:

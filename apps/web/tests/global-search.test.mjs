@@ -124,3 +124,11 @@ test("sales surfaces avoid infrastructure terminology", () => {
   assert.match(dashboard, /conversazioni commerciali/);
   assert.match(dashboard, /casi in attesa di verifica/);
 });
+
+
+test("normalized search results expose deterministic Company 360 navigation only from company_id", () => {
+  assert.match(component, /metadata\?\.company_id/);
+  assert.match(component, /\/customers\/\$\{companyId\}/);
+  assert.match(component, /Apri Company 360/);
+  assert.doesNotMatch(component, /domain.*companyTarget|companyTarget.*domain/is);
+});

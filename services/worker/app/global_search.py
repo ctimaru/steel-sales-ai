@@ -91,6 +91,97 @@ class GlobalSearchService:
         cleaned = value.strip()
         return cleaned or None
 
+    async def _attach_normalized_company_ids(
+        self,
+        organization_id: str,
+        rows: list[dict[str, object]],
+    ) -> list[dict[str, object]]:
+        targets: dict[str, set[str]] = {
+            "rfq_line": set(),
+            "offer_line": set(),
+            "order_line": set(),
+        }
+        for row in rows:
+            metadata = row.get("metadata")
+            if not isinstance(metadata, dict):
+                continue
+            if metadata.get("source_model") != "normalized_promoted":
+                continue
+            entity_type = metadata.get("normalized_entity_type")
+            entity_id = metadata.get("normalized_entity_id")
+            if entity_type in targets and isinstance(entity_id, str):
+                targets[entity_type].add(entity_id)
+
+        company_by_entity: dict[tuple[str, str], str] = {}
+        configs = {
+            "rfq_line": ("rfq_lines", "rfq_id", "rfqs"),
+            "offer_line": ("offer_lines", "offer_id", "offers"),
+            "order_line": ("order_lines", "order_id", "orders"),
+        }
+
+        for entity_type, entity_ids in targets.items():
+            if not entity_ids:
+                continue
+            line_table, parent_key, parent_table = configs[entity_type]
+            entity_csv = ",".join(sorted(entity_ids))
+            line_rows = await self.repo._request(
+                "GET",
+                f"/rest/v1/{line_table}?organization_id=eq.{organization_id}"
+                f"&id=in.({entity_csv})&select=id,{parent_key}",
+            )
+            if not isinstance(line_rows, list):
+                continue
+
+            parent_by_entity: dict[str, str] = {}
+            parent_ids: set[str] = set()
+            for line_row in line_rows:
+                if not isinstance(line_row, dict):
+                    continue
+                entity_id = line_row.get("id")
+                parent_id = line_row.get(parent_key)
+                if isinstance(entity_id, str) and isinstance(parent_id, str):
+                    parent_by_entity[entity_id] = parent_id
+                    parent_ids.add(parent_id)
+
+            if not parent_ids:
+                continue
+            parent_csv = ",".join(sorted(parent_ids))
+            parent_rows = await self.repo._request(
+                "GET",
+                f"/rest/v1/{parent_table}?organization_id=eq.{organization_id}"
+                f"&id=in.({parent_csv})&select=id,company_id",
+            )
+            if not isinstance(parent_rows, list):
+                continue
+            company_by_parent = {
+                str(parent.get("id")): str(parent.get("company_id"))
+                for parent in parent_rows
+                if isinstance(parent, dict)
+                and parent.get("id")
+                and parent.get("company_id")
+            }
+            for entity_id, parent_id in parent_by_entity.items():
+                company_id = company_by_parent.get(parent_id)
+                if company_id:
+                    company_by_entity[(entity_type, entity_id)] = company_id
+
+        for row in rows:
+            metadata = row.get("metadata")
+            if not isinstance(metadata, dict):
+                continue
+            entity_type = metadata.get("normalized_entity_type")
+            entity_id = metadata.get("normalized_entity_id")
+            if not isinstance(entity_type, str) or not isinstance(entity_id, str):
+                continue
+            company_id = company_by_entity.get((entity_type, entity_id))
+            if company_id:
+                row["metadata"] = {
+                    **metadata,
+                    "company_id": company_id,
+                    "company_link_source": "normalized_business_entity",
+                }
+        return rows
+
     async def search(self, request: GlobalSearchRequest) -> dict[str, object]:
         membership = await self._active_membership(request.actor_user_id)
         organization_id = membership.get("organization_id")
@@ -255,6 +346,10 @@ class GlobalSearchService:
         if not isinstance(structured_results, list):
             structured_results = []
         structured_dicts = [row for row in structured_results if isinstance(row, dict)]
+        structured_dicts = await self._attach_normalized_company_ids(
+            str(organization_id),
+            structured_dicts,
+        )
         structured_results = await enrich_records_with_shared_reference(self.repo, structured_dicts)
         results = [*document_results, *structured_results]
         results.sort(

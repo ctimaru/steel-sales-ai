@@ -22,6 +22,7 @@ const shell = fs.readFileSync(
 test("Company 360 uses normalized read-model RPCs", () => {
   assert.match(actions, /p1_company_directory/);
   assert.match(actions, /p1_company_360/);
+  assert.match(actions, /p1_identity_confirmation_queue/);
   assert.match(actions, /organization_memberships/);
 });
 
@@ -45,4 +46,12 @@ test("Company 360 exposes commercial chain and provenance surfaces", () => {
 test("customers are a primary navigation destination", () => {
   assert.match(shell, /href: "\/customers"/);
   assert.match(shell, /Clienti \/ aziende/);
+});
+
+
+test("customer surfaces expose workspace identity backlog without assigning unresolved Contacts", () => {
+  assert.match(directory, /identità aziendali da confermare nel workspace/);
+  assert.match(detail, /conteggio è globale al workspace/);
+  assert.match(detail, /nessun contatto viene attribuito a questa Company senza conferma esplicita/);
+  assert.match(directory + detail, /\/review\/identities/);
 });
