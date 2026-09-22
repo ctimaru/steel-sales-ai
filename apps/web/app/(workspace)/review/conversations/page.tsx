@@ -39,6 +39,9 @@ export default async function ConversationBackfillPage() {
           Collega RFQ, Offer e Order a Conversation normalizzate solo tramite identità strutturate esatte.
           Nessuna inferenza da oggetto email, cliente, dominio, testo libero o somiglianza del thread legacy.
         </p>
+        <Link href="/review/conversation-coverage" className="mt-3 inline-block text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+          Apri Structured Conversation coverage →
+        </Link>
       </div>
 
       {result.error || !data ? (
