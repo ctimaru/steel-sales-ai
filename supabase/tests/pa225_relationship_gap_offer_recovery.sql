@@ -75,7 +75,7 @@ insert into public.commercial_observations(
 id,owner_id,dataset_id,thread_id,source_conversation_id,item_role,direction,
 product_type,grade,outer_diameter_mm,thickness_mm,quantity,quantity_unit,
 price_value,price_unit,currency,source_filename,source_text,confidence,search_text,
-organization_id,canonical_product_key,canonical_product_id
+organization_id
 ) values
 (38001,'00000000-0000-0000-0000-0000000038a1','00000000-0000-0000-0000-000000003801',
  '00000000-0000-0000-0000-000000003821','00000000-0000-0000-0000-000000003831',
