@@ -130,3 +130,58 @@ def test_multiline_item_cohesion_inherits_grade_length_and_pack_quantity() -> No
     assert row["quantity_unit"] == "PACCHI"
     assert row["metadata"]["validation"]["status"] == "valid"
     assert row["confidence"] >= 0.90
+
+
+def test_parser_v4_captures_structured_rfc822_identity() -> None:
+    parser = ParserV4Adapter()
+    payload = (
+        b"From: Buyer Example <buyer@example.com>\r\n"
+        b"To: Sales <sales@steel.example>\r\n"
+        b"Cc: Purchasing <purchasing@example.com>\r\n"
+        b"Date: Tue, 22 Sep 2026 08:15:00 +0200\r\n"
+        b"Message-ID: <rfq-273@example.com>\r\n"
+        b"X-Conversation-ID: crm-thread-123\r\n"
+        b"Subject: RFQ S355 273x8\r\n"
+        b"\r\n"
+        b"Richiesta S355 273x8 a 12000 2 pacchi\r\n"
+    )
+    result = parser.prepare(
+        ParserInput(
+            filename="rfq.eml",
+            extension=".eml",
+            size_bytes=len(payload),
+            storage_path="memory://rfq.eml",
+        ),
+        payload,
+    )
+
+    assert result.message_identity == {
+        "source_message_id": "<rfq-273@example.com>",
+        "source_thread_id": "crm-thread-123",
+        "sender_email": "buyer@example.com",
+        "recipient_emails": ["sales@steel.example", "purchasing@example.com"],
+        "sent_at": "2026-09-22T06:15:00+00:00",
+        "email_subject": "RFQ S355 273x8",
+    }
+
+
+def test_parser_v4_plain_text_email_without_message_id_keeps_partial_identity() -> None:
+    parser = ParserV4Adapter()
+    payload = (
+        b"From: buyer@example.com\r\n"
+        b"To: sales@steel.example\r\n"
+        b"Subject: RFQ\r\n\r\n"
+        b"S355 273x8 12000\r\n"
+    )
+    result = parser.prepare(
+        ParserInput(
+            filename="rfq.eml",
+            extension=".eml",
+            size_bytes=len(payload),
+            storage_path="memory://rfq.eml",
+        ),
+        payload,
+    )
+    assert result.message_identity is not None
+    assert result.message_identity["source_message_id"] is None
+    assert result.message_identity["sender_email"] == "buyer@example.com"

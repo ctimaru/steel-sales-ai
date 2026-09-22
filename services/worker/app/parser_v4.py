@@ -5,6 +5,7 @@ from pathlib import PurePosixPath
 from typing import Any
 
 from .extractor_v4 import parse_document
+from .message_identity import extract_message_identity
 
 
 @dataclass(frozen=True)
@@ -23,6 +24,7 @@ class ParserResult:
     storage_path: str
     observations: list[dict[str, Any]]
     validation_summary: dict[str, int]
+    message_identity: dict[str, Any] | None
 
 
 class ParserV4Adapter:
@@ -58,4 +60,5 @@ class ParserV4Adapter:
             storage_path=item.storage_path,
             observations=observations,
             validation_summary=summary,
+            message_identity=extract_message_identity(item.filename, payload),
         )

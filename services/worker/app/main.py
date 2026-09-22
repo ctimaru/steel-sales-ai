@@ -213,6 +213,10 @@ async def process_job(job_id: UUID) -> None:
                 job_id=job.job_id,
                 observations=observations,
             )
+            await repo.persist_message_identity(
+                job_id=job.job_id,
+                identity=prepared.message_identity,
+            )
             knowledge_document = build_knowledge_document(
                 filename=job.filename,
                 payload=job._content,
@@ -227,6 +231,8 @@ async def process_job(job_id: UUID) -> None:
             job.result["knowledge"] = knowledge
             promotion = await repo.promote_job(job.job_id)
             job.result["promotion"] = promotion
+            if prepared.message_identity:
+                job.result["message_identity"] = await repo.materialize_message_identity(job.job_id)
             await repo.update_job(
                 job_id,
                 {
