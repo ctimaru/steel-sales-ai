@@ -23,6 +23,12 @@ export default async function ReviewPage() {
         <div className="flex flex-wrap items-center gap-2">
           <Badge tone="amber">{pending} da verificare</Badge>
           <Link
+            href="/review/coverage"
+            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-950"
+          >
+            Copertura normalizzazione
+          </Link>
+          <Link
             href="/review/identities"
             className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-950"
           >
