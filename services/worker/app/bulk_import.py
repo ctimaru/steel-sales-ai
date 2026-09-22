@@ -526,6 +526,10 @@ class BulkImportService:
                 job_id=job_id,
                 observations=prepared.observations,
             )
+            await self.repo.persist_message_identity(
+                job_id=job_id,
+                identity=prepared.message_identity,
+            )
             knowledge_document = build_knowledge_document(
                 filename=filename,
                 payload=content,
@@ -538,6 +542,9 @@ class BulkImportService:
                 document=knowledge_document,
             )
             promotion = await self.repo.promote_job(job_id)
+            message_identity = None
+            if prepared.message_identity:
+                message_identity = await self.repo.materialize_message_identity(job_id)
             completed_at = datetime.now(UTC).isoformat()
             await self.repo.update_job(
                 job_id,
@@ -565,7 +572,7 @@ class BulkImportService:
                 },
                 prefer="return=minimal",
             )
-            _ = promotion
+            _ = (promotion, message_identity)
         except Exception as exc:
             message = str(exc).strip() or exc.__class__.__name__
             message = message[:1000]
