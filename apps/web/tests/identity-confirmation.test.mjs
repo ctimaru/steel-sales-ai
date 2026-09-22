@@ -10,6 +10,10 @@ const page = fs.readFileSync(
   new URL("../app/(workspace)/review/identities/page.tsx", import.meta.url),
   "utf8",
 );
+const form = fs.readFileSync(
+  new URL("../components/identity-confirm-form.tsx", import.meta.url),
+  "utf8",
+);
 
 test("identity confirmation uses the controlled workflow RPC", () => {
   assert.match(actions, /confirm_contact_company_mapping/);
@@ -30,4 +34,8 @@ test("successful identity confirmation refreshes related commercial surfaces", (
   assert.match(actions, /revalidatePath\("\/review"\)/);
   assert.match(actions, /revalidatePath\("\/search"\)/);
   assert.match(actions, /revalidatePath\("\/dashboard"\)/);
+  assert.match(actions, /revalidatePath\("\/customers"\)/);
+  assert.match(actions, /revalidatePath\(`\/customers\/\$\{companyId\}`\)/);
+  assert.match(form, /Apri Company 360/);
+  assert.match(form, /\/customers\/\$\{state\.companyId\}/);
 });
