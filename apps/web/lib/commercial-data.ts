@@ -38,6 +38,13 @@ export type ConversationData = {
   mode: DataMode;
   subject: string;
   company: string;
+  companyId: string | null;
+  customerContext: "normalized_company" | "unresolved";
+  normalized: {
+    rfqs: number;
+    offers: number;
+    orders: number;
+  };
   status: string;
   events: ReadonlyArray<{
     role: ItemRole;
@@ -252,17 +259,67 @@ export async function getExplorerData(filters: ExplorerFilters): Promise<Explore
 export async function getConversationData(id: string): Promise<ConversationData | null> {
   if (!isConfigured()) {
     const demo = demoConversations[id as keyof typeof demoConversations];
-    return demo ? { mode: "demo", ...demo } : null;
+    return demo ? {
+      mode: "demo",
+      ...demo,
+      companyId: null,
+      customerContext: "unresolved",
+      normalized: { rfqs: 0, offers: 0, orders: 0 },
+    } : null;
   }
 
   const supabase = await createClient();
   const { data: thread } = await supabase
     .from("commercial_threads")
-    .select("id,subject,classification,last_activity_at")
+    .select("id,subject,classification,last_activity_at,source_conversation_id")
     .eq("id", id)
     .maybeSingle();
 
   if (!thread) return null;
+
+  const sourceConversationId = thread.source_conversation_id ? String(thread.source_conversation_id) : null;
+  const { data: normalizedConversation } = sourceConversationId
+    ? await supabase
+        .from("conversations")
+        .select("id,company_id")
+        .eq("external_thread_id", sourceConversationId)
+        .maybeSingle()
+    : { data: null };
+
+  const normalizedConversationId =
+    normalizedConversation && typeof normalizedConversation.id === "string"
+      ? normalizedConversation.id
+      : null;
+
+  const [{ data: rfqs }, { data: offers }, { data: orders }] = normalizedConversationId
+    ? await Promise.all([
+        supabase
+          .from("rfqs")
+          .select("id,company_id")
+          .eq("conversation_id", normalizedConversationId),
+        supabase
+          .from("offers")
+          .select("id,company_id")
+          .eq("conversation_id", normalizedConversationId),
+        supabase
+          .from("orders")
+          .select("id,company_id")
+          .eq("conversation_id", normalizedConversationId),
+      ])
+    : [{ data: [] }, { data: [] }, { data: [] }];
+
+  const companyIds = new Set(
+    [
+      normalizedConversation?.company_id,
+      ...(rfqs ?? []).map((row) => row.company_id),
+      ...(offers ?? []).map((row) => row.company_id),
+      ...(orders ?? []).map((row) => row.company_id),
+    ].filter((value): value is string => typeof value === "string" && value.length > 0),
+  );
+  const companyId = companyIds.size === 1 ? [...companyIds][0] : null;
+  const { data: normalizedCompany } = companyId
+    ? await supabase.from("companies").select("id,name").eq("id", companyId).maybeSingle()
+    : { data: null };
 
   const { data: observations } = await supabase
     .from("commercial_observations")
@@ -275,7 +332,14 @@ export async function getConversationData(id: string): Promise<ConversationData 
   return {
     mode: "live",
     subject: thread.subject ?? "Thread commerciale",
-    company: "Archivio commerciale",
+    company: normalizedCompany?.name ?? "Cliente non attribuito",
+    companyId,
+    customerContext: companyId ? "normalized_company" : "unresolved",
+    normalized: {
+      rfqs: rfqs?.length ?? 0,
+      offers: offers?.length ?? 0,
+      orders: orders?.length ?? 0,
+    },
     status: thread.classification ?? "open",
     events: (observations ?? []).map((raw) => {
       const row = raw as Record<string, unknown>;
