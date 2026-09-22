@@ -33,9 +33,14 @@ export default async function RelationshipReviewPage() {
           hanno lo stesso multiset di prodotti canonici e il candidato è univoco. Nessuna inferenza da cliente,
           dominio email, nome o somiglianza di thread legacy.
         </p>
-        <Link href="/review/conversations" className="mt-3 inline-block text-xs font-semibold text-indigo-600 hover:text-indigo-800">
-          Apri Conversation backfill readiness →
-        </Link>
+        <div className="mt-3 flex flex-wrap gap-4">
+          <Link href="/review/conversations" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+            Apri Conversation backfill readiness →
+          </Link>
+          <Link href="/review/offer-recovery" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+            Apri Relationship Gap & Offer Recovery →
+          </Link>
+        </div>
       </div>
 
       {result.error || !data ? (
