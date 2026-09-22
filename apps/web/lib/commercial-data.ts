@@ -262,52 +262,72 @@ export async function getExplorerData(filters: ExplorerFilters): Promise<Explore
     };
   }
 
-  const supabase = await createClient();
-  let query = supabase
-    .from("rfq_lines")
-    .select(
-      "id,rfq_id,requested_grade,requested_standard,raw_spec_text,source_observation_id,rfqs!inner(requested_at,company_id,conversation_id,companies(name),conversations(external_thread_id))",
-      { count: "exact" },
-    )
-    .order("created_at", { ascending: false });
-
-  if (filters.role && filters.role !== "all" && filters.role !== "requested") {
+  if (filters.role === "delivered") {
     return { mode: "live", rows: [], total: 0, page, pageSize };
   }
-  if (filters.grade && filters.grade !== "all") query = query.eq("requested_grade", filters.grade);
-  if (filters.standard && filters.standard !== "all") query = query.eq("requested_standard", filters.standard);
-  if (filters.q?.trim()) query = query.ilike("raw_spec_text", `%${filters.q.trim()}%`);
 
-  const from = (page - 1) * pageSize;
-  const to = from + pageSize - 1;
-  const { data, count, error } = await query.range(from, to);
-
-  if (error) {
+  const supabase = await createClient();
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError || !user) {
     return { mode: "awaiting_assignment", rows: [], total: 0, page, pageSize };
   }
 
-  const rows: CommercialRow[] = (data ?? []).map((raw) => {
-    const row = raw as Record<string, unknown>;
-    const rfq = nestedThread(row.rfqs) ?? {};
-    const company = nestedThread(rfq.companies);
-    const conversation = nestedThread(rfq.conversations);
-    return {
-      id: String(row.id),
-      conversationId: String(conversation?.external_thread_id ?? rfq.conversation_id ?? ""),
-      date: formatDate(rfq.requested_at),
-      company: String(company?.name ?? "Cliente non attribuito"),
-      companyId: typeof rfq.company_id === "string" ? rfq.company_id : null,
-      sourceKind: "normalized",
-      product: String(row.raw_spec_text ?? "Prodotto steel"),
-      grade: String(row.requested_grade ?? "—"),
-      standard: String(row.requested_standard ?? "—"),
-      role: "requested",
-      availability: "unknown",
-      confidence: 1,
-    };
+  const { data: memberships } = await supabase
+    .from("organization_memberships")
+    .select("organization_id,is_default,status")
+    .eq("user_id", user.id)
+    .eq("status", "active");
+
+  const membership = memberships?.find((row) => row.is_default) ?? memberships?.[0];
+  if (!membership) {
+    return { mode: "awaiting_assignment", rows: [], total: 0, page, pageSize };
+  }
+
+  const { data, error } = await supabase.rpc("p1_normalized_commercial_explorer", {
+    p_organization_id: membership.organization_id,
+    p_query: filters.q?.trim() || null,
+    p_role: filters.role && filters.role !== "all" ? filters.role : null,
+    p_grade: filters.grade && filters.grade !== "all" ? filters.grade : null,
+    p_standard: filters.standard && filters.standard !== "all" ? filters.standard : null,
+    p_limit: pageSize,
+    p_offset: (page - 1) * pageSize,
   });
 
-  return { mode: "live", rows, total: count ?? 0, page, pageSize };
+  if (error || !data || typeof data !== "object") {
+    return { mode: "awaiting_assignment", rows: [], total: 0, page, pageSize };
+  }
+
+  const payload = data as {
+    total?: number;
+    rows?: Array<Record<string, unknown>>;
+  };
+
+  const rows: CommercialRow[] = (payload.rows ?? []).map((row) => ({
+    id: String(row.id),
+    conversationId: String(row.conversation_id ?? ""),
+    date: formatDate(row.occurred_at),
+    company: String(row.company_name ?? "Cliente non attribuito"),
+    companyId: typeof row.company_id === "string" ? row.company_id : null,
+    sourceKind: "normalized",
+    product: String(row.product_text ?? row.canonical_product_key ?? "Prodotto steel"),
+    grade: String(row.grade ?? "—"),
+    standard: String(row.standard ?? "—"),
+    role: row.role as ItemRole,
+    price: formatPrice(row),
+    availability:
+      row.availability_status === "stock" || row.availability_status === "production"
+        ? row.availability_status
+        : "unknown",
+    confidence: Number(row.confidence ?? 1),
+  }));
+
+  return {
+    mode: "live",
+    rows,
+    total: Number(payload.total ?? 0),
+    page,
+    pageSize,
+  };
 }
 
 export async function getConversationData(id: string): Promise<ConversationData | null> {
