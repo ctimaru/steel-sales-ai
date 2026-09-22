@@ -250,7 +250,7 @@ select public.p1_adopt_offer_reparse_candidate(
   43001,
   array['quantity','quantity_unit','price_value','price_unit','currency'],
   'Recover missing commercial evidence'
-) as resolve_adopt \\gset
+) as resolve_adopt \gset
 
 select pg_temp.assert_true(
   :'resolve_adopt'::jsonb->>'status'='adopted',
@@ -264,7 +264,7 @@ select public.p1_reject_offer_reparse_candidate(
     where thread_id='00000000-0000-0000-0000-000000004322'
   ),
   'Source line is not usable'
-) as dismiss_reject \\gset
+) as dismiss_reject \gset
 
 select pg_temp.assert_true(
   :'dismiss_reject'::jsonb->>'status'='rejected',
@@ -280,7 +280,7 @@ select public.p1_adopt_offer_reparse_candidate(
   43003,
   array['quantity','quantity_unit','price_value','price_unit','currency'],
   'Recover missing fields but preserve conflicting grade'
-) as conflict_adopt \\gset
+) as conflict_adopt \gset
 
 select pg_temp.assert_true(
   :'conflict_adopt'::jsonb->>'status'='adopted',
@@ -289,7 +289,7 @@ select pg_temp.assert_true(
 
 select public.p1_offer_reparse_remediation_closure_readiness(
   '00000000-0000-0000-0000-0000000043f1',100
-) as closure_payload \\gset
+) as closure_payload \gset
 
 select pg_temp.assert_true(
   (:'closure_payload'::jsonb#>>'{summary,ready_resolve}')::int=1
@@ -318,7 +318,7 @@ select public.p1_close_offer_reparse_remediation(
     where thread_id='00000000-0000-0000-0000-000000004321'
   ),
   null
-) as resolve_close \\gset
+) as resolve_close \gset
 
 select pg_temp.assert_true(
   :'resolve_close'::jsonb->>'status'='resolved'
@@ -339,7 +339,7 @@ select public.p1_close_offer_reparse_remediation(
     where thread_id='00000000-0000-0000-0000-000000004322'
   ),
   null
-) as dismiss_without_note \\gset
+) as dismiss_without_note \gset
 
 select pg_temp.assert_true(
   :'dismiss_without_note'::jsonb->>'status'='blocked'
@@ -354,7 +354,7 @@ select public.p1_close_offer_reparse_remediation(
     where thread_id='00000000-0000-0000-0000-000000004322'
   ),
   'Original source did not yield recoverable Offer evidence'
-) as dismiss_close \\gset
+) as dismiss_close \gset
 
 select pg_temp.assert_true(
   :'dismiss_close'::jsonb->>'status'='dismissed'
@@ -376,7 +376,7 @@ select public.p1_close_offer_reparse_remediation(
     where thread_id='00000000-0000-0000-0000-000000004323'
   ),
   'Attempt to close conflict'
-) as conflict_close \\gset
+) as conflict_close \gset
 
 select pg_temp.assert_true(
   :'conflict_close'::jsonb->>'status'='blocked'
