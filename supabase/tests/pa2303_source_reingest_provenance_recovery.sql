@@ -121,7 +121,7 @@ select public.p1_invalidate_offer_reparse_run(
    where thread_id='00000000-0000-0000-0000-000000004521'),
   'source_job_not_thread_bound',
   'PA2.30.3 test quarantine'
-) as invalidation \\gset
+) as invalidation \gset
 
 select pg_temp.assert_true(
   :'invalidation'::jsonb->>'status'='quarantined',
@@ -130,7 +130,7 @@ select pg_temp.assert_true(
 
 select public.p1_offer_source_reingest_readiness(
   '00000000-0000-0000-0000-0000000045f1',100
-) as ready_before \\gset
+) as ready_before \gset
 
 select pg_temp.assert_true(
   (:'ready_before'::jsonb#>>'{summary,needs_reingest}')::int=1
@@ -142,7 +142,7 @@ select public.p1_request_offer_source_reingest(
   '00000000-0000-0000-0000-0000000045f1',
   '00000000-0000-0000-0000-000000004521',
   'recover original EML'
-) as request_result \\gset
+) as request_result \gset
 
 select pg_temp.assert_true(
   :'request_result'::jsonb->>'status'='requested'
@@ -162,7 +162,7 @@ set local role service_role;
 select public.p1_claim_offer_source_reingest(
   (:'request_result'::jsonb->>'reingest_id')::bigint,
   '00000000-0000-0000-0000-0000000045a1'
-) as claim_result \\gset
+) as claim_result \gset
 
 select pg_temp.assert_true(
   :'claim_result'::jsonb->>'status'='claimed'
@@ -178,7 +178,7 @@ select public.p1_complete_offer_source_reingest(
   '2026/09/23/original-406x63.eml',
   repeat('b',64),
   512
-) as complete_result \\gset
+) as complete_result \gset
 
 select pg_temp.assert_true(
   :'complete_result'::jsonb->>'status'='consumed'
@@ -235,7 +235,7 @@ set local role authenticated;
 
 select public.p1_offer_source_reingest_readiness(
   '00000000-0000-0000-0000-0000000045f1',100
-) as ready_after \\gset
+) as ready_after \gset
 
 select pg_temp.assert_true(
   (:'ready_after'::jsonb#>>'{summary,recovered}')::int=1
@@ -250,7 +250,7 @@ select pg_temp.assert_true(
 
 select public.p1_offer_reparse_remediation_closure_readiness(
   '00000000-0000-0000-0000-0000000045f1',100
-) as closure_after \\gset
+) as closure_after \gset
 
 select pg_temp.assert_true(
   (:'closure_after'::jsonb#>>'{summary,waiting_on_run}')::int=1
