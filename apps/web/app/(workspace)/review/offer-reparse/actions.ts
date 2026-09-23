@@ -317,6 +317,7 @@ export type SourceReingestItem = {
   successor_run_id: number | null;
   filename: string | null;
   error: string | null;
+  expected_source_filenames: string[];
   action_status:
     | "not_required"
     | "needs_reingest"
