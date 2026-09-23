@@ -11,6 +11,7 @@ import {
 import { ReparseCandidateReviewCard } from "./reparse-candidate-review-card";
 import { ReparseRemediationClosureCard } from "./reparse-remediation-closure-card";
 import { SourceReingestCard } from "./source-reingest-card";
+import { SourceReingestArchiveCard } from "./source-reingest-archive-card";
 
 export default async function OfferReparseReviewPage() {
   const [result, closureResult, recoveryResult] = await Promise.all([
@@ -90,6 +91,11 @@ export default async function OfferReparseReviewPage() {
               Il recovery non crea né promuove observation.
             </p>
           </Card>
+
+          <SourceReingestArchiveCard
+            autoReady={recovery.summary.batch_auto_match_ready}
+            ambiguous={recovery.summary.batch_ambiguous}
+          />
 
           <div className="space-y-4">
             {recovery.items

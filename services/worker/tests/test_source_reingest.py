@@ -1,4 +1,6 @@
 import hashlib
+import json
+import zipfile
 from io import BytesIO
 from uuid import UUID
 
@@ -148,3 +150,126 @@ def test_pa2303_rejects_eml_from_another_thread_history(monkeypatch):
     assert repo.completed == []
     assert repo.failed
     assert "source history" in repo.failed[0][1]
+
+
+def test_pa2303b_manifest_rejects_duplicate_reingest_ids():
+    try:
+        source_reingest._parse_manifest(
+            json.dumps(
+                [
+                    {"reingest_id": 1, "expected_source_filename": "Inbox/a.eml"},
+                    {"reingest_id": 1, "expected_source_filename": "Inbox/b.eml"},
+                ]
+            )
+        )
+        assert False, "duplicate re-ingest ids must fail closed"
+    except ValueError:
+        pass
+
+
+def test_pa2303b_bulk_archive_recovers_only_exact_manifest_paths(monkeypatch):
+    class BatchRepo(FakeRepo):
+        async def claim_offer_source_reingest(self, *, reingest_id, owner_id):
+            expected = {
+                21: "Inbox/2.1 BRONIFER 13131/a-offer.eml",
+                22: "Inbox/2.1 BRONIFER 13131/b-offer.eml",
+            }[reingest_id]
+            return {
+                "status": "claimed",
+                "reingest_id": reingest_id,
+                "owner_id": str(owner_id),
+                "thread_id": f"00000000-0000-0000-0000-0000000000{reingest_id}",
+                "source_only": True,
+                "expected_source_filenames": [expected],
+                "offered_source_filenames": [expected],
+                "preferred_source_filename": expected,
+                "source_selection_status": "unique_offered_source",
+            }
+
+        async def complete_offer_source_reingest(self, **kwargs):
+            result = await super().complete_offer_source_reingest(**kwargs)
+            result["successor_run_id"] = 100 + kwargs["reingest_id"]
+            return result
+
+    repo = BatchRepo()
+    monkeypatch.setattr(source_reingest, "WorkerRepository", lambda: repo)
+
+    async def fake_upload(**kwargs):
+        return f"2026/09/23/{kwargs['job_id']}-{kwargs['filename']}"
+
+    async def fake_reparse(run_id):
+        return {"status": "completed", "run_id": run_id, "extraction_count": 1}
+
+    monkeypatch.setattr(source_reingest, "upload_private_object", fake_upload)
+    monkeypatch.setattr(source_reingest, "execute_offer_source_reparse", fake_reparse)
+
+    archive_buffer = BytesIO()
+    with zipfile.ZipFile(archive_buffer, "w") as archive:
+        archive.writestr("Inbox/2.1 BRONIFER 13131/a-offer.eml", b"Subject: A\n\nEUR 10/mt")
+        archive.writestr("Inbox/2.1 BRONIFER 13131/b-offer.eml", b"Subject: B\n\nEUR 20/mt")
+        archive.writestr("Inbox/2.1 BRONIFER 13131/unrelated.eml", b"ignore")
+    archive_buffer.seek(0)
+
+    manifest = [
+        {
+            "reingest_id": 21,
+            "expected_source_filename": "Inbox/2.1 BRONIFER 13131/a-offer.eml",
+        },
+        {
+            "reingest_id": 22,
+            "expected_source_filename": "Inbox/2.1 BRONIFER 13131/b-offer.eml",
+        },
+    ]
+
+    client = TestClient(app)
+    response = client.post(
+        "/v1/remediation/offer-source-reingest-batch",
+        data={
+            "owner_id": "f45fab6e-3da8-41aa-8711-fc1b337a7dde",
+            "manifest": json.dumps(manifest),
+        },
+        files={"upload": ("archive.zip", archive_buffer, "application/zip")},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "completed"
+    assert body["recovered"] == 2
+    assert body["missing"] == 0
+    assert body["failed"] == 0
+    assert body["automatic_ambiguous_selection"] is False
+    assert len(repo.completed) == 2
+
+
+def test_pa2303b_missing_archive_member_is_not_claimed(monkeypatch):
+    class NoClaimRepo(FakeRepo):
+        async def claim_offer_source_reingest(self, *, reingest_id, owner_id):
+            raise AssertionError("missing archive members must not be claimed")
+
+    monkeypatch.setattr(source_reingest, "WorkerRepository", lambda: NoClaimRepo())
+
+    archive_buffer = BytesIO()
+    with zipfile.ZipFile(archive_buffer, "w") as archive:
+        archive.writestr("Inbox/other.eml", b"other")
+    archive_buffer.seek(0)
+
+    client = TestClient(app)
+    response = client.post(
+        "/v1/remediation/offer-source-reingest-batch",
+        data={
+            "owner_id": "f45fab6e-3da8-41aa-8711-fc1b337a7dde",
+            "manifest": json.dumps(
+                [
+                    {
+                        "reingest_id": 31,
+                        "expected_source_filename": "Inbox/missing.eml",
+                    }
+                ]
+            ),
+        },
+        files={"upload": ("archive.zip", archive_buffer, "application/zip")},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["missing"] == 1
+    assert response.json()["recovered"] == 0
