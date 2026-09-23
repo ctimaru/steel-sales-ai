@@ -235,11 +235,12 @@ select pg_temp.assert_true(
   'worker claim must carry the explicit source selection'
 );
 
-do $$
+create or replace function pg_temp.assert_selected_source_rejects_wrong_file(p_reingest_id bigint)
+returns void language plpgsql as $
 begin
   begin
     perform public.p1_complete_offer_source_reingest(
-      (:'selected_request'::jsonb->>'reingest_id')::bigint,
+      p_reingest_id,
       '00000000-0000-0000-0000-000000004742',
       'offer-a.eml',
       '2026/09/23/offer-a.eml',
@@ -254,7 +255,11 @@ begin
       end if;
   end;
 end;
-$$;
+$;
+
+select pg_temp.assert_selected_source_rejects_wrong_file(
+  (:'selected_request'::jsonb->>'reingest_id')::bigint
+);
 
 select pg_temp.assert_true(
   not exists(
