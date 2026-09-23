@@ -471,14 +471,14 @@ from public,anon;
 grant execute on function public.p1_request_offer_source_reparse(uuid,uuid)
 to authenticated,service_role;
 
-create or replace function public.p1_offer_source_reparse_readiness(
+create or replace function private.offer_source_reparse_readiness_guarded_impl(
   p_organization_id uuid,
   p_limit integer default 100
 )
 returns jsonb
 language plpgsql
 stable
-security invoker
+security definer
 set search_path=''
 as $$
 begin
@@ -584,6 +584,26 @@ begin
   );
 end;
 $$;
+
+revoke all on function private.offer_source_reparse_readiness_guarded_impl(uuid,integer)
+from public,anon;
+grant execute on function private.offer_source_reparse_readiness_guarded_impl(uuid,integer)
+to authenticated,service_role;
+
+create or replace function public.p1_offer_source_reparse_readiness(
+  p_organization_id uuid,
+  p_limit integer default 100
+)
+returns jsonb
+language sql
+stable
+security invoker
+set search_path=''
+as $
+  select private.offer_source_reparse_readiness_guarded_impl(
+    p_organization_id,p_limit
+  );
+$;
 
 revoke all on function public.p1_offer_source_reparse_readiness(uuid,integer)
 from public,anon;
