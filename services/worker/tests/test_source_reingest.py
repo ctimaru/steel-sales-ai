@@ -20,6 +20,7 @@ class FakeRepo:
             "owner_id": str(owner_id),
             "thread_id": "00000000-0000-0000-0000-000000000031",
             "source_only": True,
+            "expected_source_filenames": ["Inbox/2.1 BRONIFER 13131/original.eml"],
         }
 
     async def complete_offer_source_reingest(
@@ -130,3 +131,20 @@ def test_pa2303_owner_mismatch_is_not_claimable(monkeypatch):
     )
 
     assert response.status_code == 409
+
+
+def test_pa2303_rejects_eml_from_another_thread_history(monkeypatch):
+    repo = FakeRepo()
+    monkeypatch.setattr(source_reingest, "WorkerRepository", lambda: repo)
+
+    client = TestClient(app)
+    response = client.post(
+        "/v1/remediation/offer-source-reingest/15",
+        data={"owner_id": "f45fab6e-3da8-41aa-8711-fc1b337a7dde"},
+        files={"upload": ("other-thread.eml", BytesIO(b"Subject: wrong"), "message/rfc822")},
+    )
+
+    assert response.status_code == 422
+    assert repo.completed == []
+    assert repo.failed
+    assert "source history" in repo.failed[0][1]
