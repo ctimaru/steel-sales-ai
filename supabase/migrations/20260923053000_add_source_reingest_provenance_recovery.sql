@@ -433,7 +433,7 @@ begin
     extraction_count,created_at,started_at,completed_at,owner_id,dataset_id,thread_id,
     promoted_observation_count,organization_id,content_checksum,source_thread_id,email_subject
   ) values (
-    p_source_job_id,p_filename,'.eml',p_size_bytes,p_storage_path,'completed',null,'source_reingest',
+    p_source_job_id,p_filename,'.eml',p_size_bytes,p_storage_path,'completed','v4','source_reingest',
     0,now(),now(),now(),s.requested_by,t.dataset_id,s.thread_id,
     0,s.organization_id,p_content_checksum,t.source_conversation_id::text,t.subject
   );
