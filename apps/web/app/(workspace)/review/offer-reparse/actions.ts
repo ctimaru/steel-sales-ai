@@ -368,6 +368,89 @@ export type SourceReingestActionState = {
   successorRunId?: number;
 };
 
+export type RecoveryMatchingTarget = {
+  observation_id: number;
+  source_text: string | null;
+  identity_equal_count: number;
+  identity_conflict_count: number;
+  identity_equal_fields: string[];
+  identity_conflicting_fields: string[];
+  recoverable_gap_fields: string[];
+  recoverable_gap_count: number;
+  compatible: boolean;
+  identity_anchored: boolean;
+};
+
+export type RecoveryMatchingReadinessItem = {
+  candidate_id: number;
+  run_id: number;
+  reingest_id: number;
+  thread_id: string;
+  candidate_index: number;
+  source_text: string | null;
+  candidate_evidence: Record<string, unknown>;
+  review_status: string;
+  source_binding_status: string;
+  matching_status: string;
+  offered_target_count: number;
+  anchored_compatible_target_count: number;
+  nonconflicting_target_count: number;
+  gap_fill_target_count: number;
+  target_observations: RecoveryMatchingTarget[];
+};
+
+export type RecoveryMatchingReadinessPayload = {
+  summary: {
+    candidate_count: number;
+    single_anchored_compatible_target: number;
+    multiple_anchored_compatible_targets: number;
+    single_unanchored_nonconflicting_target: number;
+    multiple_unanchored_nonconflicting_targets: number;
+    no_compatible_target: number;
+    no_offered_target: number;
+  };
+  items: RecoveryMatchingReadinessItem[];
+  policy: {
+    recovery_successor_only: boolean;
+    offered_candidates_only: boolean;
+    offered_observations_only: boolean;
+    identity_conflict_blocks_compatibility: boolean;
+    identity_anchor_requires_equal_identity_field: boolean;
+    single_compatible_target_is_not_automatic_match: boolean;
+    explicit_target_selection_required: boolean;
+    explicit_field_selection_required: boolean;
+    automatic_candidate_match: boolean;
+    automatic_candidate_adoption: boolean;
+    automatic_remediation_closure: boolean;
+    control_phase: string;
+  };
+};
+
+export async function loadOfferRecoveryMatchingReadiness(): Promise<{
+  data: RecoveryMatchingReadinessPayload | null;
+  error?: string;
+}> {
+  const { client, organizationId } = await activeOrganization();
+  if (!organizationId) return { data: null, error: "Workspace non disponibile." };
+
+  const { data, error } = await client.rpc(
+    "p1_offer_recovery_matching_readiness",
+    {
+      p_organization_id: organizationId,
+      p_limit: 200,
+    },
+  );
+
+  if (error || !data || typeof data !== "object") {
+    return {
+      data: null,
+      error: error?.message ?? "Matching readiness recovery non disponibile.",
+    };
+  }
+
+  return { data: data as unknown as RecoveryMatchingReadinessPayload };
+}
+
 export type RecoveryCandidateReentryItem = {
   remediation_queue_id: number;
   thread_id: string;
