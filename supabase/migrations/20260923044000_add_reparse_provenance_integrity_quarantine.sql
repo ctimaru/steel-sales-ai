@@ -27,6 +27,8 @@ create table if not exists public.commercial_offer_reparse_run_invalidations (
 
 create index if not exists commercial_offer_reparse_run_invalidations_org_idx
   on public.commercial_offer_reparse_run_invalidations(organization_id,invalidated_at desc);
+create index if not exists commercial_offer_reparse_run_invalidations_remediation_idx
+  on public.commercial_offer_reparse_run_invalidations(remediation_queue_id);
 create index if not exists commercial_offer_reparse_run_invalidations_thread_idx
   on public.commercial_offer_reparse_run_invalidations(thread_id);
 create index if not exists commercial_offer_reparse_run_invalidations_source_job_idx
@@ -597,14 +599,14 @@ from public,anon,authenticated;
 grant execute on function public.p1_offer_reparse_candidate_review_pa229(uuid,integer)
 to service_role;
 
-create or replace function public.p1_offer_reparse_candidate_review(
+create or replace function private.offer_reparse_candidate_review_guarded_impl(
   p_organization_id uuid,
   p_limit integer default 100
 )
 returns jsonb
 language plpgsql
 stable
-security invoker
+security definer
 set search_path=''
 as $$
 declare
@@ -661,6 +663,26 @@ begin
     )
   );
 end;
+$$;
+
+revoke all on function private.offer_reparse_candidate_review_guarded_impl(uuid,integer)
+from public,anon;
+grant execute on function private.offer_reparse_candidate_review_guarded_impl(uuid,integer)
+to authenticated,service_role;
+
+create or replace function public.p1_offer_reparse_candidate_review(
+  p_organization_id uuid,
+  p_limit integer default 100
+)
+returns jsonb
+language sql
+stable
+security invoker
+set search_path=''
+as $$
+  select private.offer_reparse_candidate_review_guarded_impl(
+    p_organization_id,p_limit
+  );
 $$;
 
 revoke all on function public.p1_offer_reparse_candidate_review(uuid,integer)
