@@ -204,7 +204,14 @@ begin
         sr.source_job_id,
         sr.successor_run_id,
         sr.filename,
-        sr.error
+        sr.error,
+        (
+          select coalesce(jsonb_agg(distinct o.source_filename order by o.source_filename),'[]'::jsonb)
+          from public.commercial_observations o
+          where o.organization_id=q.organization_id
+            and o.thread_id=q.thread_id
+            and o.source_filename is not null
+        ) expected_source_filenames
       from public.commercial_offer_remediation_queue q
       join public.commercial_threads t
         on t.organization_id=q.organization_id and t.id=q.thread_id
@@ -251,6 +258,7 @@ begin
           'successor_run_id',x.successor_run_id,
           'filename',x.filename,
           'error',x.error,
+          'expected_source_filenames',x.expected_source_filenames,
           'action_status',case
             when x.invalidated_run_id is null then 'not_required'
             when x.reingest_status='consumed' then 'recovered'
@@ -293,6 +301,7 @@ as $$
 declare
   s public.commercial_offer_source_reingests%rowtype;
   t public.commercial_threads%rowtype;
+  expected_source_filenames jsonb;
 begin
   select * into s
   from public.commercial_offer_source_reingests
@@ -314,6 +323,20 @@ begin
   from public.commercial_threads
   where organization_id=s.organization_id and id=s.thread_id;
 
+  select coalesce(jsonb_agg(distinct o.source_filename order by o.source_filename),'[]'::jsonb)
+  into expected_source_filenames
+  from public.commercial_observations o
+  where o.organization_id=s.organization_id
+    and o.thread_id=s.thread_id
+    and o.source_filename is not null;
+
+  if jsonb_array_length(expected_source_filenames)=0 then
+    return jsonb_build_object(
+      'status','blocked',
+      'reason','source_filename_evidence_missing'
+    );
+  end if;
+
   update public.commercial_offer_source_reingests
   set status='uploading',started_at=now(),error=null
   where id=s.id;
@@ -328,6 +351,7 @@ begin
     'dataset_id',t.dataset_id,
     'source_conversation_id',t.source_conversation_id,
     'subject',t.subject,
+    'expected_source_filenames',expected_source_filenames,
     'allowed_extensions',jsonb_build_array('.eml'),
     'source_only',true
   );
@@ -386,6 +410,18 @@ begin
   end if;
   if p_size_bytes is null or p_size_bytes<=0 then
     raise exception 'positive source size required' using errcode='22023';
+  end if;
+
+  if not exists (
+    select 1
+    from public.commercial_observations o
+    where o.organization_id=s.organization_id
+      and o.thread_id=s.thread_id
+      and o.source_filename is not null
+      and lower(regexp_replace(o.source_filename,'^.*/',''))=lower(p_filename)
+  ) then
+    raise exception 'uploaded EML filename is not part of the target thread source history'
+      using errcode='22023';
   end if;
 
   select * into t
