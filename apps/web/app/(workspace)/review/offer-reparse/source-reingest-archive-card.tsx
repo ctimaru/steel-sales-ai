@@ -64,7 +64,7 @@ export function SourceReingestArchiveCard({
           disabled={isPending || autoReady === 0}
           className="rounded-lg bg-indigo-700 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isPending ? "Recovery bulk in corso…" : \`Recupera \${autoReady} sorgenti univoche\`}
+          {isPending ? "Recovery bulk in corso…" : `Recupera ${autoReady} sorgenti univoche`}
         </button>
       </form>
 
