@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import asyncio
 import hashlib
+import logging
+import os
 from pathlib import PurePosixPath
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, FastAPI, Header, HTTPException
 
 from .main import require_worker_token
 from .parser_v4 import ParserInput, ParserV4Adapter
@@ -13,6 +16,8 @@ from .storage import StorageConfigurationError, StorageUploadError, download_pri
 
 router = APIRouter(prefix="/v1/remediation", tags=["remediation"])
 parser = ParserV4Adapter()
+logger = logging.getLogger(__name__)
+bootstrap_tasks: set[asyncio.Task[None]] = set()
 
 
 def _source_identity(claim: dict[str, Any]) -> tuple[str, str, int]:
@@ -83,6 +88,68 @@ async def execute_offer_source_reparse(run_id: int) -> dict[str, Any]:
         except (RepositoryConfigurationError, RepositoryError):
             pass
         raise
+
+
+def _bootstrap_run_ids(raw: str | None) -> list[int]:
+    if not raw or not raw.strip():
+        return []
+    ids: list[int] = []
+    seen: set[int] = set()
+    for token in raw.split(","):
+        value = token.strip()
+        if not value:
+            continue
+        if not value.isdigit():
+            raise ValueError("OFFER_REPARSE_BOOTSTRAP_RUN_IDS must contain positive integer run ids.")
+        run_id = int(value)
+        if run_id <= 0:
+            raise ValueError("OFFER_REPARSE_BOOTSTRAP_RUN_IDS must contain positive integer run ids.")
+        if run_id not in seen:
+            ids.append(run_id)
+            seen.add(run_id)
+    if len(ids) > 100:
+        raise ValueError("OFFER_REPARSE_BOOTSTRAP_RUN_IDS is limited to 100 explicit run ids.")
+    return ids
+
+
+async def execute_explicit_offer_reparse_batch(run_ids: list[int]) -> None:
+    for run_id in run_ids:
+        try:
+            result = await execute_offer_source_reparse(run_id)
+            logger.info(
+                "PA2.30.1 explicit offer reparse run=%s status=%s extraction_count=%s",
+                run_id,
+                result.get("status"),
+                result.get("extraction_count"),
+            )
+        except (
+            RepositoryConfigurationError,
+            RepositoryError,
+            StorageConfigurationError,
+            StorageUploadError,
+            ValueError,
+            RuntimeError,
+            KeyError,
+        ) as exc:
+            logger.error("PA2.30.1 explicit offer reparse run=%s failed: %s", run_id, exc)
+
+
+def install_offer_reparse_bootstrap(app: FastAPI) -> None:
+    @app.on_event("startup")
+    async def schedule_explicit_offer_reparse_batch() -> None:
+        raw = os.getenv("OFFER_REPARSE_BOOTSTRAP_RUN_IDS")
+        try:
+            run_ids = _bootstrap_run_ids(raw)
+        except ValueError as exc:
+            logger.error("PA2.30.1 bootstrap configuration rejected: %s", exc)
+            return
+        if not run_ids:
+            return
+
+        logger.info("PA2.30.1 scheduling explicit offer reparse runs: %s", run_ids)
+        task = asyncio.create_task(execute_explicit_offer_reparse_batch(run_ids))
+        bootstrap_tasks.add(task)
+        task.add_done_callback(bootstrap_tasks.discard)
 
 
 @router.post("/offer-reparse/{run_id}")

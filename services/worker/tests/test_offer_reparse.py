@@ -98,3 +98,37 @@ def test_pa228_nonclaimable_run_does_not_touch_storage(monkeypatch):
     assert result["status"] == "not_claimable"
     assert repo.completed == []
     assert repo.failed == []
+
+
+def test_pa2301_bootstrap_run_ids_are_explicit_unique_and_bounded():
+    assert offer_reparse._bootstrap_run_ids(None) == []
+    assert offer_reparse._bootstrap_run_ids("") == []
+    assert offer_reparse._bootstrap_run_ids("3,4,4, 5") == [3, 4, 5]
+
+    for raw in ("0", "-1", "3,nope"):
+        try:
+            offer_reparse._bootstrap_run_ids(raw)
+            assert False, "invalid explicit run ids must fail closed"
+        except ValueError:
+            pass
+
+    try:
+        offer_reparse._bootstrap_run_ids(",".join(str(i) for i in range(1, 102)))
+        assert False, "bootstrap batch must remain bounded"
+    except ValueError:
+        pass
+
+
+def test_pa2301_explicit_batch_continues_after_one_run_fails(monkeypatch):
+    calls = []
+
+    async def fake_execute(run_id):
+        calls.append(run_id)
+        if run_id == 4:
+            raise ValueError("synthetic failure")
+        return {"status": "completed", "run_id": run_id, "extraction_count": 1}
+
+    monkeypatch.setattr(offer_reparse, "execute_offer_source_reparse", fake_execute)
+    asyncio.run(offer_reparse.execute_explicit_offer_reparse_batch([3, 4, 5]))
+
+    assert calls == [3, 4, 5]
