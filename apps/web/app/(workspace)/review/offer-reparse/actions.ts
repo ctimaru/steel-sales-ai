@@ -393,6 +393,83 @@ export type RecoveryCandidateReentryItem = {
   reentry_status: string;
 };
 
+export type RecoveryOutcomeReconciliationItem = {
+  remediation_queue_id: number;
+  thread_id: string;
+  subject: string | null;
+  remediation_status: string;
+  reingest_id: number | null;
+  reingest_status: string | null;
+  selected_source_filename: string | null;
+  source_selection_mode: string | null;
+  successor_run_id: number | null;
+  successor_status: string | null;
+  successor_binding_status: string | null;
+  successor_invalidation_id: number | null;
+  candidate_count: number;
+  offered_candidate_count: number;
+  original_gap_counts: { price: number; currency: number; quantity: number };
+  recovered_signal_counts: { price: number; currency: number; quantity: number };
+  required_evidence_types: { price: boolean; currency: boolean; quantity: boolean };
+  recovered_evidence_types: { price: boolean; currency: boolean; quantity: boolean };
+  required_evidence_type_count: number;
+  recovered_evidence_type_count: number;
+  reconciliation_status: string;
+};
+
+export type RecoveryOutcomeReconciliationPayload = {
+  summary: {
+    target_threads: number;
+    recovery_not_started: number;
+    recovery_in_progress: number;
+    recovery_failed: number;
+    completed_no_candidates: number;
+    completed_no_offered_candidates: number;
+    no_required_evidence_recovered: number;
+    partial_required_evidence_recovered: number;
+    all_required_evidence_types_present: number;
+    total_successor_candidates: number;
+    total_offered_successor_candidates: number;
+  };
+  items: RecoveryOutcomeReconciliationItem[];
+  policy: {
+    evidence_type_presence_is_not_gap_resolution: boolean;
+    candidate_observation_matching_required_before_resolution: boolean;
+    offered_candidates_only_for_recovery_signals: boolean;
+    invalidated_successor_evidence_allowed: boolean;
+    automatic_candidate_adoption: boolean;
+    automatic_remediation_closure: boolean;
+    observation_mutation: boolean;
+    promotion_mutation: boolean;
+    control_phase: string;
+  };
+};
+
+export async function loadOfferRecoveryOutcomeReconciliation(): Promise<{
+  data: RecoveryOutcomeReconciliationPayload | null;
+  error?: string;
+}> {
+  const { client, organizationId } = await activeOrganization();
+  if (!organizationId) return { data: null, error: "Workspace non disponibile." };
+
+  const { data, error } = await client.rpc(
+    "p1_offer_recovery_outcome_reconciliation",
+    {
+      p_organization_id: organizationId,
+      p_limit: 200,
+    },
+  );
+
+  if (error || !data || typeof data !== "object") {
+    return {
+      data: null,
+      error: error?.message ?? "Riconciliazione recovery non disponibile.",
+    };
+  }
+
+  return { data: data as unknown as RecoveryOutcomeReconciliationPayload };
+}
+
 export type RecoveryCandidateReentryPayload = {
   summary: {
     target_threads: number;
