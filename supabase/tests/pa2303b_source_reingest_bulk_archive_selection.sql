@@ -205,8 +205,14 @@ select public.p1_request_offer_source_reingest(
 select public.p1_request_offer_source_reingest(
   '00000000-0000-0000-0000-0000000046f1',
   '00000000-0000-0000-0000-000000004622',
-  'ambiguous manual request'
+  'ambiguous generic request'
 ) as ambiguous_request \gset
+
+select pg_temp.assert_true(
+  :'ambiguous_request'::jsonb->>'status'='blocked'
+  and :'ambiguous_request'::jsonb->>'reason'='ambiguous_source_selection_required',
+  'ambiguous offered sources must never enter generic or bulk recovery'
+);
 
 set local role service_role;
 
@@ -215,23 +221,11 @@ select public.p1_claim_offer_source_reingest(
   '00000000-0000-0000-0000-0000000046a1'
 ) as unique_claim \gset
 
-select public.p1_claim_offer_source_reingest(
-  (:'ambiguous_request'::jsonb->>'reingest_id')::bigint,
-  '00000000-0000-0000-0000-0000000046a1'
-) as ambiguous_claim \gset
-
 select pg_temp.assert_true(
   :'unique_claim'::jsonb->>'source_selection_status'='unique_offered_source'
   and :'unique_claim'::jsonb->>'preferred_source_filename'='Inbox/unique-offer.eml'
   and jsonb_array_length(:'unique_claim'::jsonb->'offered_source_filenames')=1,
   'worker claim must carry the database-selected unique offered source'
-);
-
-select pg_temp.assert_true(
-  :'ambiguous_claim'::jsonb->>'source_selection_status'='ambiguous_offered_source'
-  and (:'ambiguous_claim'::jsonb->>'preferred_source_filename') is null
-  and jsonb_array_length(:'ambiguous_claim'::jsonb->'offered_source_filenames')=2,
-  'ambiguous offered sources must never receive an automatic preferred source'
 );
 
 rollback;
