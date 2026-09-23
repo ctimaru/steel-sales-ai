@@ -304,6 +304,54 @@ class WorkerRepository:
             raise RepositoryError("Embedding model activation returned an invalid payload.")
         return result
 
+    async def prepare_offer_source_recovery_bootstrap(
+        self,
+        *,
+        organization_id: UUID,
+        actor_id: UUID,
+        transfer_id: str,
+        expected_unique_count: int,
+        expected_ambiguous_count: int,
+    ) -> dict[str, Any]:
+        result = await self._request(
+            "POST",
+            "/rest/v1/rpc/p1_prepare_offer_source_recovery_bootstrap",
+            json={
+                "p_organization_id": str(organization_id),
+                "p_actor_id": str(actor_id),
+                "p_transfer_id": transfer_id,
+                "p_expected_unique_count": expected_unique_count,
+                "p_expected_ambiguous_count": expected_ambiguous_count,
+            },
+        )
+        if not isinstance(result, dict):
+            raise RepositoryError("Offer recovery bootstrap preparation returned an invalid payload.")
+        return result
+
+    async def get_offer_source_recovery_transfer(
+        self, *, transfer_id: str
+    ) -> dict[str, Any]:
+        result = await self._request(
+            "POST",
+            "/rest/v1/rpc/p1_offer_source_recovery_transfer_payload",
+            json={"p_transfer_id": transfer_id},
+        )
+        if not isinstance(result, dict):
+            raise RepositoryError("Offer recovery transfer lookup returned an invalid payload.")
+        return result
+
+    async def cleanup_offer_source_recovery_transfer(
+        self, *, transfer_id: str
+    ) -> dict[str, Any]:
+        result = await self._request(
+            "POST",
+            "/rest/v1/rpc/p1_cleanup_offer_source_recovery_transfer",
+            json={"p_transfer_id": transfer_id},
+        )
+        if not isinstance(result, dict):
+            raise RepositoryError("Offer recovery transfer cleanup returned an invalid payload.")
+        return result
+
     async def claim_offer_source_reingest(
         self, *, reingest_id: int, owner_id: UUID
     ) -> dict[str, Any]:
