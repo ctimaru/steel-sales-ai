@@ -318,6 +318,12 @@ export type SourceReingestItem = {
   filename: string | null;
   error: string | null;
   expected_source_filenames: string[];
+  offered_source_filenames: string[];
+  preferred_source_filename: string | null;
+  source_selection_status:
+    | "unique_offered_source"
+    | "ambiguous_offered_source"
+    | "missing_offered_source";
   action_status:
     | "not_required"
     | "needs_reingest"
@@ -335,6 +341,8 @@ export type SourceReingestPayload = {
     uploading: number;
     recovered: number;
     failed: number;
+    batch_auto_match_ready: number;
+    batch_ambiguous: number;
   };
   items: SourceReingestItem[];
   policy: {
@@ -345,6 +353,9 @@ export type SourceReingestPayload = {
     observation_mutation: boolean;
     automatic_promotion: boolean;
     successor_run_candidate_only: boolean;
+    bulk_archive_extension: string;
+    batch_auto_match_requires_unique_offered_source: boolean;
+    ambiguous_source_requires_manual_selection: boolean;
   };
 };
 
@@ -484,6 +495,162 @@ export async function reingestOfferSource(
     return {
       status: "error",
       message: "Connessione al worker di source recovery non riuscita.",
+    };
+  }
+}
+
+
+export type BulkSourceReingestActionState = {
+  status: "idle" | "success" | "error";
+  message: string;
+  recovered?: number;
+  missing?: number;
+  failed?: number;
+  ambiguousSkipped?: number;
+};
+
+export async function bulkReingestOfferSources(
+  _previousState: BulkSourceReingestActionState,
+  formData: FormData,
+): Promise<BulkSourceReingestActionState> {
+  const archive = formData.get("archive");
+  if (!(archive instanceof File) || archive.size === 0) {
+    return { status: "error", message: "Seleziona l’archivio ZIP originale." };
+  }
+  if (!archive.name.toLowerCase().endsWith(".zip")) {
+    return { status: "error", message: "Il recovery bulk richiede un archivio ZIP." };
+  }
+  if (archive.size > 50 * 1024 * 1024) {
+    return { status: "error", message: "L’archivio supera il limite di 50 MB." };
+  }
+
+  const { client, organizationId, userId } = await activeOrganization();
+  if (!organizationId || !userId) {
+    return { status: "error", message: "Workspace o sessione non disponibile." };
+  }
+
+  const { data: readinessData, error: readinessError } = await client.rpc(
+    "p1_offer_source_reingest_readiness",
+    { p_organization_id: organizationId, p_limit: 200 },
+  );
+  if (readinessError || !readinessData || typeof readinessData !== "object") {
+    return {
+      status: "error",
+      message: readinessError?.message ?? "Readiness del recovery bulk non disponibile.",
+    };
+  }
+
+  const readiness = readinessData as unknown as SourceReingestPayload;
+  const candidates = readiness.items.filter(
+    (item) =>
+      item.invalidated_run_id !== null &&
+      item.source_selection_status === "unique_offered_source" &&
+      typeof item.preferred_source_filename === "string" &&
+      ["needs_reingest", "retry_allowed", "awaiting_upload"].includes(item.action_status),
+  );
+
+  if (!candidates.length) {
+    return {
+      status: "error",
+      message: "Non ci sono thread con una sorgente offered univoca recuperabile automaticamente.",
+      ambiguousSkipped: readiness.summary.batch_ambiguous,
+    };
+  }
+
+  const manifest: Array<{ reingest_id: number; expected_source_filename: string }> = [];
+  for (const item of candidates) {
+    const { data: requestData, error: requestError } = await client.rpc(
+      "p1_request_offer_source_reingest",
+      {
+        p_organization_id: organizationId,
+        p_thread_id: item.thread_id,
+        p_note: "PA2.30.3b bulk archive provenance recovery",
+      },
+    );
+    if (requestError || !requestData || typeof requestData !== "object") continue;
+    const request = requestData as Record<string, unknown>;
+    const requestStatus = typeof request.status === "string" ? request.status : "";
+    const reingestId =
+      typeof request.reingest_id === "number" ? request.reingest_id : null;
+    if (
+      reingestId &&
+      ["requested", "already_requested"].includes(requestStatus) &&
+      item.preferred_source_filename
+    ) {
+      manifest.push({
+        reingest_id: reingestId,
+        expected_source_filename: item.preferred_source_filename,
+      });
+    }
+  }
+
+  if (!manifest.length) {
+    return {
+      status: "error",
+      message: "Nessun source re-ingest è stato aperto per il batch.",
+      ambiguousSkipped: readiness.summary.batch_ambiguous,
+    };
+  }
+
+  const workerUrl = process.env.WORKER_URL?.replace(/\/$/, "");
+  const workerToken = process.env.WORKER_INTERNAL_TOKEN;
+  if (!workerUrl || !workerToken) {
+    return { status: "error", message: "Worker di recovery non configurato." };
+  }
+
+  const upload = new FormData();
+  upload.append("upload", archive, archive.name);
+  upload.append("owner_id", userId);
+  upload.append("manifest", JSON.stringify(manifest));
+
+  try {
+    const response = await fetch(
+      `${workerUrl}/v1/remediation/offer-source-reingest-batch`,
+      {
+        method: "POST",
+        headers: { "x-worker-token": workerToken },
+        body: upload,
+        cache: "no-store",
+      },
+    );
+    const payload = (await response.json().catch(() => null)) as
+      | {
+          detail?: string;
+          status?: string;
+          recovered?: number;
+          missing?: number;
+          failed?: number;
+        }
+      | null;
+
+    if (!response.ok || payload?.status !== "completed") {
+      return {
+        status: "error",
+        message: payload?.detail ?? "Recovery bulk non completato dal worker.",
+        ambiguousSkipped: readiness.summary.batch_ambiguous,
+      };
+    }
+
+    revalidatePath("/review/offer-reparse");
+    revalidatePath("/review/offer-remediation");
+    revalidatePath("/review");
+
+    return {
+      status: "success",
+      recovered: payload.recovered ?? 0,
+      missing: payload.missing ?? 0,
+      failed: payload.failed ?? 0,
+      ambiguousSkipped: readiness.summary.batch_ambiguous,
+      message:
+        `Recovery bulk completato: ${payload.recovered ?? 0} recuperati, ` +
+        `${payload.missing ?? 0} mancanti nell’archivio, ${payload.failed ?? 0} falliti. ` +
+        `${readiness.summary.batch_ambiguous} thread ambigui lasciati alla review manuale.`,
+    };
+  } catch {
+    return {
+      status: "error",
+      message: "Connessione al worker di recovery bulk non riuscita.",
+      ambiguousSkipped: readiness.summary.batch_ambiguous,
     };
   }
 }
