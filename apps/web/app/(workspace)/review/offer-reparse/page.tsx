@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import {
   loadOfferReparseCandidateReview,
   loadOfferReparseRemediationClosureReadiness,
+  loadOfferRecoveryCandidateReentryAudit,
   loadOfferSourceReingestReadiness,
 } from "./actions";
 import { ReparseCandidateReviewCard } from "./reparse-candidate-review-card";
@@ -14,14 +15,16 @@ import { SourceReingestCard } from "./source-reingest-card";
 import { SourceReingestArchiveCard } from "./source-reingest-archive-card";
 
 export default async function OfferReparseReviewPage() {
-  const [result, closureResult, recoveryResult] = await Promise.all([
+  const [result, closureResult, recoveryResult, reentryResult] = await Promise.all([
     loadOfferReparseCandidateReview(),
     loadOfferReparseRemediationClosureReadiness(),
     loadOfferSourceReingestReadiness(),
+    loadOfferRecoveryCandidateReentryAudit(),
   ]);
   const data = result.data;
   const closure = closureResult.data;
   const recovery = recoveryResult.data;
+  const reentry = reentryResult.data;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -105,6 +108,51 @@ export default async function OfferReparseReviewPage() {
               ))}
           </div>
         </>
+      )}
+
+      {reentryResult.error || !reentry ? (
+        <Card className="border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          {reentryResult.error ?? "Candidate re-entry audit non disponibile."}
+        </Card>
+      ) : (
+        <Card className="p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">
+            PA2.30.5 · Controlled Recovery & Candidate Re-entry Audit
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            <div>
+              <p className="text-xs text-slate-400">Recovery non avviati</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{reentry.summary.reingest_not_started}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Scelta ambigua</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{reentry.summary.ambiguous_selection_required}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Successor attivi</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{reentry.summary.successor_in_progress}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Review ready</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{reentry.summary.candidate_review_ready}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Candidate successor</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{reentry.summary.total_successor_candidates}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Recovery failure</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{reentry.summary.recovery_failed}</p>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Badge tone="green">consumed re-ingest required</Badge>
+            <Badge tone="green">valid thread binding required</Badge>
+            <Badge tone="blue">successor chain verified</Badge>
+            <Badge tone="amber">no auto-adoption</Badge>
+            <Badge tone="neutral">old candidates stay quarantined</Badge>
+          </div>
+        </Card>
       )}
 
       {closureResult.error || !closure ? (
