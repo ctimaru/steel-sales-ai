@@ -7,6 +7,7 @@ import {
   loadOfferReparseCandidateReview,
   loadOfferReparseRemediationClosureReadiness,
   loadOfferRecoveryCandidateReentryAudit,
+  loadOfferRecoveryOutcomeReconciliation,
   loadOfferSourceReingestReadiness,
 } from "./actions";
 import { ReparseCandidateReviewCard } from "./reparse-candidate-review-card";
@@ -15,16 +16,18 @@ import { SourceReingestCard } from "./source-reingest-card";
 import { SourceReingestArchiveCard } from "./source-reingest-archive-card";
 
 export default async function OfferReparseReviewPage() {
-  const [result, closureResult, recoveryResult, reentryResult] = await Promise.all([
+  const [result, closureResult, recoveryResult, reentryResult, reconciliationResult] = await Promise.all([
     loadOfferReparseCandidateReview(),
     loadOfferReparseRemediationClosureReadiness(),
     loadOfferSourceReingestReadiness(),
     loadOfferRecoveryCandidateReentryAudit(),
+    loadOfferRecoveryOutcomeReconciliation(),
   ]);
   const data = result.data;
   const closure = closureResult.data;
   const recovery = recoveryResult.data;
   const reentry = reentryResult.data;
+  const reconciliation = reconciliationResult.data;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -151,6 +154,50 @@ export default async function OfferReparseReviewPage() {
             <Badge tone="blue">successor chain verified</Badge>
             <Badge tone="amber">no auto-adoption</Badge>
             <Badge tone="neutral">old candidates stay quarantined</Badge>
+          </div>
+        </Card>
+      )}
+
+      {reconciliationResult.error || !reconciliation ? (
+        <Card className="border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          {reconciliationResult.error ?? "Recovery reconciliation non disponibile."}
+        </Card>
+      ) : (
+        <Card className="p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">
+            PA2.30.6 · Recovery Outcome Reconciliation
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            <div>
+              <p className="text-xs text-slate-400">Non avviati</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{reconciliation.summary.recovery_not_started}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">In corso</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{reconciliation.summary.recovery_in_progress}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Failure</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{reconciliation.summary.recovery_failed}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Parziali</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{reconciliation.summary.partial_required_evidence_recovered}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Tutti i tipi presenti</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{reconciliation.summary.all_required_evidence_types_present}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Candidate offered</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{reconciliation.summary.total_offered_successor_candidates}</p>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Badge tone="blue">descriptive reconciliation</Badge>
+            <Badge tone="green">offered candidates only</Badge>
+            <Badge tone="amber">presence ≠ resolution</Badge>
+            <Badge tone="neutral">no auto-close</Badge>
           </div>
         </Card>
       )}
