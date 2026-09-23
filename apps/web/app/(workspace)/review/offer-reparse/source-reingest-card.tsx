@@ -30,6 +30,17 @@ export function SourceReingestCard({ item }: { item: SourceReingestItem }) {
         </div>
       </div>
 
+      {item.expected_source_filenames?.length ? (
+        <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
+          <p className="font-semibold text-slate-700">EML attesi per questo thread</p>
+          <ul className="mt-2 space-y-1">
+            {item.expected_source_filenames.map((name) => (
+              <li key={name} className="break-all">{name.split("/").pop()}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
       {recovered ? (
         <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">
           Sorgente recuperata e legata al thread. Il successor reparse è stato creato senza promuovere observation.
