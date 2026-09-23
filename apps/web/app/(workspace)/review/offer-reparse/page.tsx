@@ -6,17 +6,21 @@ import { Card } from "@/components/ui/card";
 import {
   loadOfferReparseCandidateReview,
   loadOfferReparseRemediationClosureReadiness,
+  loadOfferSourceReingestReadiness,
 } from "./actions";
 import { ReparseCandidateReviewCard } from "./reparse-candidate-review-card";
 import { ReparseRemediationClosureCard } from "./reparse-remediation-closure-card";
+import { SourceReingestCard } from "./source-reingest-card";
 
 export default async function OfferReparseReviewPage() {
-  const [result, closureResult] = await Promise.all([
+  const [result, closureResult, recoveryResult] = await Promise.all([
     loadOfferReparseCandidateReview(),
     loadOfferReparseRemediationClosureReadiness(),
+    loadOfferSourceReingestReadiness(),
   ]);
   const data = result.data;
   const closure = closureResult.data;
+  const recovery = recoveryResult.data;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -43,6 +47,59 @@ export default async function OfferReparseReviewPage() {
           Nessuna chiusura è automatica.
         </p>
       </div>
+
+      {recoveryResult.error || !recovery ? (
+        <Card className="border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          {recoveryResult.error ?? "Source recovery non disponibile."}
+        </Card>
+      ) : (
+        <>
+          <Card className="p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">
+              PA2.30.3 · Source Re-ingest & Provenance Recovery
+            </p>
+            <div className="mt-4 grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
+              <div>
+                <p className="text-xs text-slate-400">Thread target</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-950">{recovery.summary.target_threads}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Da recuperare</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-950">{recovery.summary.needs_reingest}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Richiesti</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-950">{recovery.summary.requested}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Upload</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-950">{recovery.summary.uploading}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Recuperati</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-950">{recovery.summary.recovered}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Falliti</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-950">{recovery.summary.failed}</p>
+              </div>
+            </div>
+            <p className="mt-4 max-w-4xl text-sm leading-6 text-slate-500">
+              Il re-ingest accetta esclusivamente l’EML originale. La sorgente viene salvata nel bucket privato,
+              legata direttamente al thread e usata per creare un nuovo reparse che supersede il run quarantinato.
+              Il recovery non crea né promuove observation.
+            </p>
+          </Card>
+
+          <div className="space-y-4">
+            {recovery.items
+              .filter((item) => item.invalidated_run_id !== null)
+              .map((item) => (
+                <SourceReingestCard key={item.remediation_queue_id} item={item} />
+              ))}
+          </div>
+        </>
+      )}
 
       {closureResult.error || !closure ? (
         <Card className="border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
