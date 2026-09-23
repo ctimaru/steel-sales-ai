@@ -12,10 +12,10 @@ security definer
 set search_path=''
 as $$
 declare
-  transfer_id text := nullif(btrim(coalesce(p_transfer_id,'')),'');
+  v_transfer_id text := nullif(btrim(coalesce(p_transfer_id,'')),'');
   payload text := nullif(coalesce(p_payload_base64,''),'');
 begin
-  if transfer_id is null then
+  if v_transfer_id is null then
     return jsonb_build_object('status','blocked','reason','transfer_id_required');
   end if;
   if p_part_no is null or p_part_no<0 then
@@ -30,13 +30,13 @@ begin
 
   insert into private.commercial_offer_recovery_transfer_chunks(
     transfer_id,part_no,payload_base64
-  ) values (transfer_id,p_part_no,payload)
+) values (v_transfer_id,p_part_no,payload)
   on conflict (transfer_id,part_no)
   do update set payload_base64=excluded.payload_base64,created_at=now();
 
   return jsonb_build_object(
     'status','stored',
-    'transfer_id',transfer_id,
+    'transfer_id',v_transfer_id,
     'part_no',p_part_no,
     'payload_length',length(payload),
     'control_phase','PA2.30.10'
