@@ -8,7 +8,9 @@ import { reingestOfferSource } from "./actions";
 export function SourceReingestCard({ item }: { item: SourceReingestItem }) {
   const [file, setFile] = useState<File | null>(null);
   const [selectedSourceFilename, setSelectedSourceFilename] = useState(
-    item.selected_source_filename ?? item.preferred_source_filename ?? "",
+    item.source_selection_status === "ambiguous_offered_source"
+      ? item.selected_source_filename ?? ""
+      : "",
   );
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -96,7 +98,7 @@ export function SourceReingestCard({ item }: { item: SourceReingestItem }) {
             }
             const formData = new FormData();
             formData.append("thread_id", item.thread_id);
-            if (selectedSourceFilename) {
+            if (ambiguous && selectedSourceFilename) {
               formData.append("selected_source_filename", selectedSourceFilename);
             }
             formData.append("file", file, file.name);
