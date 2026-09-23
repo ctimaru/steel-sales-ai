@@ -212,4 +212,20 @@ select pg_temp.assert_true(
   'cleanup must remove transfer payload'
 );
 
+select public.p1_store_offer_source_recovery_transfer_chunk(
+  'pa23010-writer-test',0,'YWJjZA=='
+) as stored \gset
+
+select pg_temp.assert_true(
+  :'stored'::jsonb->>'status'='stored'
+  and exists(
+    select 1
+    from private.commercial_offer_recovery_transfer_chunks
+    where transfer_id='pa23010-writer-test'
+      and part_no=0
+      and payload_base64='YWJjZA=='
+  ),
+  'service-role upload bridge must store an explicit base64 transfer chunk'
+);
+
 rollback;

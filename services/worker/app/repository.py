@@ -328,6 +328,26 @@ class WorkerRepository:
             raise RepositoryError("Offer recovery bootstrap preparation returned an invalid payload.")
         return result
 
+    async def store_offer_source_recovery_transfer_chunk(
+        self,
+        *,
+        transfer_id: str,
+        part_no: int,
+        payload_base64: str,
+    ) -> dict[str, Any]:
+        result = await self._request(
+            "POST",
+            "/rest/v1/rpc/p1_store_offer_source_recovery_transfer_chunk",
+            json={
+                "p_transfer_id": transfer_id,
+                "p_part_no": part_no,
+                "p_payload_base64": payload_base64,
+            },
+        )
+        if not isinstance(result, dict):
+            raise RepositoryError("Offer recovery transfer chunk writer returned an invalid payload.")
+        return result
+
     async def get_offer_source_recovery_transfer(
         self, *, transfer_id: str
     ) -> dict[str, Any]:
