@@ -7,10 +7,14 @@ import { reingestOfferSource } from "./actions";
 
 export function SourceReingestCard({ item }: { item: SourceReingestItem }) {
   const [file, setFile] = useState<File | null>(null);
+  const [selectedSourceFilename, setSelectedSourceFilename] = useState(
+    item.selected_source_filename ?? item.preferred_source_filename ?? "",
+  );
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const recovered = item.action_status === "recovered";
+  const ambiguous = item.source_selection_status === "ambiguous_offered_source";
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -41,6 +45,38 @@ export function SourceReingestCard({ item }: { item: SourceReingestItem }) {
         </div>
       ) : null}
 
+      {ambiguous && !recovered ? (
+        <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
+          <label className="block text-xs font-semibold text-amber-900">
+            Sorgente offered da recuperare
+          </label>
+          <p className="mt-1 text-xs leading-5 text-amber-800">
+            Questo thread contiene più EML offered. La scelta è esplicita: nessuna sorgente viene selezionata automaticamente.
+          </p>
+          <select
+            value={selectedSourceFilename}
+            disabled={
+              isPending ||
+              item.action_status === "uploading" ||
+              (ambiguous && !selectedSourceFilename)
+            }
+            onChange={(event) => {
+              setSelectedSourceFilename(event.target.value);
+              setFile(null);
+              setMessage(null);
+            }}
+            className="mt-3 block w-full rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm text-slate-700"
+          >
+            <option value="">Seleziona un EML offered…</option>
+            {item.offered_source_filenames.map((name) => (
+              <option key={name} value={name}>
+                {name.split("/").pop()}
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : null}
+
       {recovered ? (
         <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">
           Sorgente recuperata e legata al thread. Il successor reparse è stato creato senza promuovere observation.
@@ -50,12 +86,19 @@ export function SourceReingestCard({ item }: { item: SourceReingestItem }) {
           className="mt-4 space-y-3"
           onSubmit={(event) => {
             event.preventDefault();
+            if (ambiguous && !selectedSourceFilename) {
+              setMessage("Seleziona prima la sorgente offered da recuperare.");
+              return;
+            }
             if (!file) {
               setMessage("Seleziona il file EML originale.");
               return;
             }
             const formData = new FormData();
             formData.append("thread_id", item.thread_id);
+            if (selectedSourceFilename) {
+              formData.append("selected_source_filename", selectedSourceFilename);
+            }
             formData.append("file", file, file.name);
             setMessage(null);
             startTransition(async () => {
@@ -74,7 +117,11 @@ export function SourceReingestCard({ item }: { item: SourceReingestItem }) {
             <input
               type="file"
               accept=".eml,message/rfc822"
-              disabled={isPending || item.action_status === "uploading"}
+              disabled={
+                isPending ||
+                item.action_status === "uploading" ||
+                (ambiguous && !selectedSourceFilename)
+              }
               onChange={(event) => setFile(event.target.files?.[0] ?? null)}
               className="mt-2 block w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700"
             />
