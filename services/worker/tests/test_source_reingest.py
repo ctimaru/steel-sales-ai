@@ -273,3 +273,92 @@ def test_pa2303b_missing_archive_member_is_not_claimed(monkeypatch):
     assert response.status_code == 200
     assert response.json()["missing"] == 1
     assert response.json()["recovered"] == 0
+
+
+def test_pa2304_manual_selected_source_rejects_other_offered_file(monkeypatch):
+    class SelectedRepo(FakeRepo):
+        async def claim_offer_source_reingest(self, *, reingest_id, owner_id):
+            return {
+                "status": "claimed",
+                "reingest_id": reingest_id,
+                "owner_id": str(owner_id),
+                "thread_id": "00000000-0000-0000-0000-000000000041",
+                "source_only": True,
+                "expected_source_filenames": [
+                    "Inbox/offer-a.eml",
+                    "Inbox/offer-b.eml",
+                ],
+                "offered_source_filenames": [
+                    "Inbox/offer-a.eml",
+                    "Inbox/offer-b.eml",
+                ],
+                "preferred_source_filename": "Inbox/offer-b.eml",
+                "selected_source_filename": "Inbox/offer-b.eml",
+                "source_selection_mode": "manual_offered_source",
+                "source_selection_status": "manually_selected_offered_source",
+            }
+
+    repo = SelectedRepo()
+    monkeypatch.setattr(source_reingest, "WorkerRepository", lambda: repo)
+
+    client = TestClient(app)
+    response = client.post(
+        "/v1/remediation/offer-source-reingest/41",
+        data={"owner_id": "f45fab6e-3da8-41aa-8711-fc1b337a7dde"},
+        files={"upload": ("offer-a.eml", BytesIO(b"Subject: A"), "message/rfc822")},
+    )
+
+    assert response.status_code == 422
+    assert repo.completed == []
+    assert repo.failed
+    assert "explicitly selected offered source" in repo.failed[0][1]
+
+
+def test_pa2304_manual_selected_source_executes_exact_file(monkeypatch):
+    class SelectedRepo(FakeRepo):
+        async def claim_offer_source_reingest(self, *, reingest_id, owner_id):
+            return {
+                "status": "claimed",
+                "reingest_id": reingest_id,
+                "owner_id": str(owner_id),
+                "thread_id": "00000000-0000-0000-0000-000000000042",
+                "source_only": True,
+                "expected_source_filenames": [
+                    "Inbox/offer-a.eml",
+                    "Inbox/offer-b.eml",
+                ],
+                "offered_source_filenames": [
+                    "Inbox/offer-a.eml",
+                    "Inbox/offer-b.eml",
+                ],
+                "preferred_source_filename": "Inbox/offer-b.eml",
+                "selected_source_filename": "Inbox/offer-b.eml",
+                "source_selection_mode": "manual_offered_source",
+                "source_selection_status": "manually_selected_offered_source",
+            }
+
+    repo = SelectedRepo()
+    monkeypatch.setattr(source_reingest, "WorkerRepository", lambda: repo)
+
+    async def fake_upload(**kwargs):
+        return "2026/09/23/selected-offer-b.eml"
+
+    async def fake_reparse(run_id):
+        assert run_id == 44
+        return {"status": "completed", "run_id": 44, "extraction_count": 1}
+
+    monkeypatch.setattr(source_reingest, "upload_private_object", fake_upload)
+    monkeypatch.setattr(source_reingest, "execute_offer_source_reparse", fake_reparse)
+
+    client = TestClient(app)
+    response = client.post(
+        "/v1/remediation/offer-source-reingest/42",
+        data={"owner_id": "f45fab6e-3da8-41aa-8711-fc1b337a7dde"},
+        files={"upload": ("offer-b.eml", BytesIO(b"Subject: B"), "message/rfc822")},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "consumed"
+    assert len(repo.completed) == 1
+    assert repo.completed[0]["filename"] == "offer-b.eml"
+    assert repo.failed == []

@@ -153,6 +153,14 @@ async def execute_offer_source_reingest_bytes(
         if expected_basenames and filename.lower() not in expected_basenames:
             raise ValueError("Uploaded EML filename does not match the target thread source history.")
 
+        selected_source_filename = claim.get("selected_source_filename")
+        if isinstance(selected_source_filename, str) and selected_source_filename:
+            selected_basename = Path(selected_source_filename).name.lower()
+            if filename.lower() != selected_basename:
+                raise ValueError(
+                    "Uploaded EML filename does not match the explicitly selected offered source."
+                )
+
         if expected_source_path is not None:
             preferred = claim.get("preferred_source_filename")
             selection_status = claim.get("source_selection_status")
