@@ -214,7 +214,8 @@ jobs:
             pa227_offer_source_reparse_contract.sql \
             pa228_controlled_offer_source_reparse_execution.sql \
             pa229_reparse_candidate_review_controlled_adoption.sql \
-            pa230_reparse_remediation_resolution_closure.sql; do
+            pa230_reparse_remediation_resolution_closure.sql \
+            pa2302_reparse_provenance_integrity_quarantine.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
