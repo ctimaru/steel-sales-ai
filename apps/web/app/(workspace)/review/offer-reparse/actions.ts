@@ -320,9 +320,12 @@ export type SourceReingestItem = {
   expected_source_filenames: string[];
   offered_source_filenames: string[];
   preferred_source_filename: string | null;
+  selected_source_filename?: string | null;
+  source_selection_mode?: "unique_offered_source" | "manual_offered_source" | null;
   source_selection_status:
     | "unique_offered_source"
     | "ambiguous_offered_source"
+    | "manually_selected_offered_source"
     | "missing_offered_source";
   action_status:
     | "not_required"
@@ -391,6 +394,7 @@ export async function reingestOfferSource(
   formData: FormData,
 ): Promise<SourceReingestActionState> {
   const threadId = String(formData.get("thread_id") ?? "").trim();
+  const selectedSourceFilename = String(formData.get("selected_source_filename") ?? "").trim();
   const file = formData.get("file");
 
   if (!threadId) {
@@ -411,13 +415,35 @@ export async function reingestOfferSource(
     return { status: "error", message: "Workspace o sessione non disponibile." };
   }
 
+  const requestRpc = selectedSourceFilename
+    ? "p1_request_offer_source_reingest_selection"
+    : "p1_request_offer_source_reingest";
+  const requestArgs = selectedSourceFilename
+    ? {
+        p_organization_id: organizationId,
+        p_thread_id: threadId,
+        p_source_filename: selectedSourceFilename,
+        p_note: "PA2.30.4 explicit ambiguous source selection",
+      }
+    : {
+        p_organization_id: organizationId,
+        p_thread_id: threadId,
+        p_note: "PA2.30.3 source provenance recovery",
+      };
+
+  if (
+    selectedSourceFilename &&
+    file.name.toLowerCase() !== selectedSourceFilename.split("/").pop()?.toLowerCase()
+  ) {
+    return {
+      status: "error",
+      message: "Il file EML caricato non corrisponde alla sorgente offered selezionata.",
+    };
+  }
+
   const { data: requestData, error: requestError } = await client.rpc(
-    "p1_request_offer_source_reingest",
-    {
-      p_organization_id: organizationId,
-      p_thread_id: threadId,
-      p_note: "PA2.30.3 source provenance recovery",
-    },
+    requestRpc,
+    requestArgs,
   );
 
   if (requestError || !requestData || typeof requestData !== "object") {
