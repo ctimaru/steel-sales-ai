@@ -210,7 +210,7 @@ begin
           'source_text',c.source_text,
           'candidate_evidence',c.candidate_evidence,
           'review_status',c.review_status,
-          'source_binding_status',c.source_binding_status,
+          'source_binding_status',c.source_binding->>'binding_status',
           'matching_status',c.matching_status,
           'offered_target_count',c.offered_target_count,
           'anchored_compatible_target_count',c.anchored_compatible_target_count,
