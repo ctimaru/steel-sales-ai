@@ -236,7 +236,7 @@ select pg_temp.assert_true(
 );
 
 create or replace function pg_temp.assert_selected_source_rejects_wrong_file(p_reingest_id bigint)
-returns void language plpgsql as $
+returns void language plpgsql as $$
 begin
   begin
     perform public.p1_complete_offer_source_reingest(
@@ -255,7 +255,7 @@ begin
       end if;
   end;
 end;
-$;
+$$;
 
 select pg_temp.assert_selected_source_rejects_wrong_file(
   (:'selected_request'::jsonb->>'reingest_id')::bigint
