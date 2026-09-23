@@ -59,12 +59,28 @@ async def offer_source_reingest(
 
     filename = Path(upload.filename or "").name
     extension = Path(filename).suffix.lower()
+    expected_source_filenames = claim.get("expected_source_filenames") or []
+    expected_basenames = {
+        Path(str(source_filename)).name.lower()
+        for source_filename in expected_source_filenames
+        if source_filename
+    }
     if not filename or extension != ".eml":
         await repo.fail_offer_source_reingest(
             reingest_id=reingest_id,
             error="PA2.30.3 source recovery requires an .eml original source.",
         )
         raise HTTPException(status_code=415, detail="Per questo recovery è richiesto il file EML originale.")
+
+    if expected_basenames and filename.lower() not in expected_basenames:
+        await repo.fail_offer_source_reingest(
+            reingest_id=reingest_id,
+            error="Uploaded EML filename does not match the target thread source history.",
+        )
+        raise HTTPException(
+            status_code=422,
+            detail="Il nome del file EML non corrisponde alle sorgenti storiche del thread.",
+        )
 
     try:
         content = await _read_source(upload)
