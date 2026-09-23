@@ -70,6 +70,24 @@ insert into public.worker_jobs(
   repeat('a',64),'Wrong source'
 );
 
+insert into public.commercial_observations(
+  id,owner_id,dataset_id,thread_id,source_conversation_id,item_role,direction,
+  product_type,grade,outer_diameter_mm,thickness_mm,length_mm,
+  quantity,quantity_unit,price_value,price_unit,currency,
+  source_filename,source_text,confidence,search_text,organization_id
+) values(
+  45001,
+  '00000000-0000-0000-0000-0000000045a1',
+  '00000000-0000-0000-0000-000000004501',
+  '00000000-0000-0000-0000-000000004521',
+  '00000000-0000-0000-0000-000000004531',
+  'offered','outbound','round_tube','P265GH',406.4,6.3,12000,
+  null,null,null,null,null,
+  'Inbox/2.1 BRONIFER 13131/original-406x63.eml',
+  'P265GH 406,4x6,3x12000',0.97,'pa2303 baseline',
+  '00000000-0000-0000-0000-0000000045f1'
+);
+
 insert into public.commercial_offer_remediation_queue(
   organization_id,thread_id,category,recommended_action,status,evidence_snapshot,enrolled_by
 ) values(
@@ -202,10 +220,15 @@ select pg_temp.assert_true(
 
 select pg_temp.assert_true(
   (select count(*) from public.commercial_observations
-   where thread_id='00000000-0000-0000-0000-000000004521')=0
+   where thread_id='00000000-0000-0000-0000-000000004521')=1
+  and exists(
+    select 1 from public.commercial_observations
+    where id=45001
+      and quantity is null and price_value is null and currency is null
+  )
   and (select count(*) from public.worker_staging_observations
        where job_id='00000000-0000-0000-0000-000000004542')=0,
-  'source-only recovery must not create observations or staging evidence'
+  'source-only recovery must not create or mutate observations or staging evidence'
 );
 
 set local role authenticated;
