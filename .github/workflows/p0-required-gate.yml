@@ -221,7 +221,8 @@ jobs:
             pa2304_ambiguous_source_selection.sql \
             pa2305_recovery_candidate_reentry_audit.sql \
             pa2306_recovery_outcome_reconciliation.sql \
-            pa2307_recovery_matching_readiness.sql; do
+            pa2307_recovery_matching_readiness.sql \
+            pa2308_recovery_adoption_guard.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
