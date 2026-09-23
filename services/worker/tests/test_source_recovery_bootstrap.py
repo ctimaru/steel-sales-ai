@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import hashlib
 import io
@@ -16,8 +17,7 @@ def _archive_bytes(path: str, content: bytes) -> bytes:
     return buffer.getvalue()
 
 
-@pytest.mark.asyncio
-async def test_pa23010_bootstrap_recovers_exact_unique_manifest(monkeypatch):
+def test_pa23010_bootstrap_recovers_exact_unique_manifest(monkeypatch):
     source_path = "Inbox/unique.eml"
     archive_payload = _archive_bytes(source_path, b"Subject: Test\n\nEUR 10/mt")
     actor = UUID("f45fab6e-3da8-41aa-8711-fc1b337a7dde")
@@ -70,13 +70,12 @@ async def test_pa23010_bootstrap_recovers_exact_unique_manifest(monkeypatch):
         hashlib.sha256(archive_payload).hexdigest(),
     )
 
-    await bootstrap.execute_offer_source_recovery_bootstrap()
+    asyncio.run(bootstrap.execute_offer_source_recovery_bootstrap())
 
     assert calls == {"cleanup": 1, "recover": 1}
 
 
-@pytest.mark.asyncio
-async def test_pa23010_checksum_mismatch_fails_before_recovery(monkeypatch):
+def test_pa23010_checksum_mismatch_fails_before_recovery(monkeypatch):
     archive_payload = _archive_bytes("Inbox/unique.eml", b"payload")
     calls = {"cleanup": 0, "recover": 0}
 
@@ -123,6 +122,6 @@ async def test_pa23010_checksum_mismatch_fails_before_recovery(monkeypatch):
     monkeypatch.setenv("OFFER_SOURCE_RECOVERY_BOOTSTRAP_ARCHIVE_SHA256", "0" * 64)
 
     with pytest.raises(ValueError, match="checksum mismatch"):
-        await bootstrap.execute_offer_source_recovery_bootstrap()
+        asyncio.run(bootstrap.execute_offer_source_recovery_bootstrap())
 
     assert calls == {"cleanup": 0, "recover": 0}
