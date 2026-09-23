@@ -1,4 +1,5 @@
 -- PA2.30.11 — Recovery Candidate Review & Decision Cutover acceptance.
+-- Covers role-scope preservation and the explicit offered-decision boundary.
 begin;
 
 create or replace function pg_temp.assert_true(ok boolean, message text)
