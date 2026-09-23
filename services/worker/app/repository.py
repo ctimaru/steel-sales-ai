@@ -304,6 +304,57 @@ class WorkerRepository:
             raise RepositoryError("Embedding model activation returned an invalid payload.")
         return result
 
+    async def claim_offer_source_reingest(
+        self, *, reingest_id: int, owner_id: UUID
+    ) -> dict[str, Any]:
+        result = await self._request(
+            "POST",
+            "/rest/v1/rpc/p1_claim_offer_source_reingest",
+            json={"p_reingest_id": reingest_id, "p_owner_id": str(owner_id)},
+        )
+        if not isinstance(result, dict):
+            raise RepositoryError("Offer source re-ingest claim returned an invalid payload.")
+        return result
+
+    async def complete_offer_source_reingest(
+        self,
+        *,
+        reingest_id: int,
+        source_job_id: UUID,
+        filename: str,
+        storage_path: str,
+        content_checksum: str,
+        size_bytes: int,
+    ) -> dict[str, Any]:
+        result = await self._request(
+            "POST",
+            "/rest/v1/rpc/p1_complete_offer_source_reingest",
+            json={
+                "p_reingest_id": reingest_id,
+                "p_source_job_id": str(source_job_id),
+                "p_filename": filename,
+                "p_storage_path": storage_path,
+                "p_content_checksum": content_checksum,
+                "p_size_bytes": size_bytes,
+            },
+        )
+        if not isinstance(result, dict):
+            raise RepositoryError("Offer source re-ingest completion returned an invalid payload.")
+        return result
+
+    async def fail_offer_source_reingest(
+        self, *, reingest_id: int, error: str
+    ) -> dict[str, Any]:
+        result = await self._request(
+            "POST",
+            "/rest/v1/rpc/p1_fail_offer_source_reingest",
+            json={"p_reingest_id": reingest_id, "p_error": error},
+        )
+        if not isinstance(result, dict):
+            raise RepositoryError("Offer source re-ingest failure returned an invalid payload.")
+        return result
+
+
     async def claim_offer_source_reparse_run(self, run_id: int) -> dict[str, Any]:
         result = await self._request(
             "POST",
