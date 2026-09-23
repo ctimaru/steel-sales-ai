@@ -6,6 +6,8 @@ import zipfile
 from uuid import UUID
 
 import pytest
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
 
 from app import source_recovery_bootstrap as bootstrap
 
@@ -125,3 +127,36 @@ def test_pa23010_checksum_mismatch_fails_before_recovery(monkeypatch):
         asyncio.run(bootstrap.execute_offer_source_recovery_bootstrap())
 
     assert calls == {"cleanup": 0, "recover": 0}
+
+
+def test_pa23010_upload_bridge_rejects_wrong_token_before_persistence(monkeypatch):
+    app = FastAPI()
+    bootstrap.install_offer_source_recovery_bootstrap(app)
+    monkeypatch.setenv("PA23010_UPLOAD_TOKEN", "correct-token")
+    client = TestClient(app)
+
+    response = client.post(
+        "/v1/remediation/pa23010-upload",
+        data={"token": "wrong-token"},
+        files={"upload": ("recovery.zip", b"not-used", "application/zip")},
+    )
+
+    assert response.status_code == 403
+
+
+def test_pa23010_upload_bridge_rejects_checksum_mismatch_before_persistence(monkeypatch):
+    app = FastAPI()
+    bootstrap.install_offer_source_recovery_bootstrap(app)
+    monkeypatch.setenv("PA23010_UPLOAD_TOKEN", "correct-token")
+    monkeypatch.setenv("OFFER_SOURCE_RECOVERY_BOOTSTRAP_ARCHIVE_SHA256", "0" * 64)
+    archive_payload = _archive_bytes("Inbox/unique.eml", b"payload")
+    client = TestClient(app)
+
+    response = client.post(
+        "/v1/remediation/pa23010-upload",
+        data={"token": "correct-token"},
+        files={"upload": ("recovery.zip", archive_payload, "application/zip")},
+    )
+
+    assert response.status_code == 422
+    assert response.json()["detail"] == "Recovery archive checksum mismatch."
