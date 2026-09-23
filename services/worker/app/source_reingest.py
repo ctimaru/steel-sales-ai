@@ -24,6 +24,13 @@ MAX_ARCHIVE_MEMBERS = 5000
 UPLOAD_CHUNK_SIZE = 1024 * 1024
 
 
+class SourceReingestClaimError(ValueError):
+    def __init__(self, status: str, reason: str | None = None) -> None:
+        self.status = status
+        self.reason = reason or status
+        super().__init__(self.reason)
+
+
 async def _read_upload(upload: UploadFile, *, max_bytes: int, label: str) -> bytes:
     content = bytearray()
     while chunk := await upload.read(UPLOAD_CHUNK_SIZE):
@@ -123,7 +130,10 @@ async def execute_offer_source_reingest_bytes(
         owner_id=owner_id,
     )
     if claim.get("status") != "claimed":
-        raise ValueError(str(claim.get("reason") or claim.get("status") or "re-ingest not claimable"))
+        raise SourceReingestClaimError(
+            str(claim.get("status") or "not_claimable"),
+            str(claim.get("reason") or claim.get("status") or "re-ingest not claimable"),
+        )
 
     expected_source_filenames = claim.get("expected_source_filenames") or []
     expected_basenames = {
@@ -226,6 +236,9 @@ async def offer_source_reingest(
             filename=filename,
             content=content,
         )
+    except SourceReingestClaimError as exc:
+        code = 404 if exc.status == "not_found" else 409
+        raise HTTPException(status_code=code, detail=exc.reason) from exc
     except (StorageConfigurationError, StorageUploadError) as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
     except (RepositoryConfigurationError, RepositoryError) as exc:
