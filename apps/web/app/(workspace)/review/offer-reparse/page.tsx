@@ -8,6 +8,7 @@ import {
   loadOfferReparseRemediationClosureReadiness,
   loadOfferRecoveryCandidateReentryAudit,
   loadOfferRecoveryMatchingReadiness,
+  loadOfferRecoveryCandidateDecisionReadiness,
   loadOfferRecoveryOutcomeReconciliation,
   loadOfferSourceReingestReadiness,
 } from "./actions";
@@ -17,13 +18,14 @@ import { SourceReingestCard } from "./source-reingest-card";
 import { SourceReingestArchiveCard } from "./source-reingest-archive-card";
 
 export default async function OfferReparseReviewPage() {
-  const [result, closureResult, recoveryResult, reentryResult, reconciliationResult, matchingResult] = await Promise.all([
+  const [result, closureResult, recoveryResult, reentryResult, reconciliationResult, matchingResult, decisionResult] = await Promise.all([
     loadOfferReparseCandidateReview(),
     loadOfferReparseRemediationClosureReadiness(),
     loadOfferSourceReingestReadiness(),
     loadOfferRecoveryCandidateReentryAudit(),
     loadOfferRecoveryOutcomeReconciliation(),
     loadOfferRecoveryMatchingReadiness(),
+    loadOfferRecoveryCandidateDecisionReadiness(),
   ]);
   const data = result.data;
   const closure = closureResult.data;
@@ -31,6 +33,10 @@ export default async function OfferReparseReviewPage() {
   const reentry = reentryResult.data;
   const reconciliation = reconciliationResult.data;
   const matching = matchingResult.data;
+  const decisionReadiness = decisionResult.data;
+  const decisionByCandidate = new Map(
+    (decisionReadiness?.items ?? []).map((item) => [item.candidate_id, item.decision_readiness]),
+  );
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -249,6 +255,51 @@ export default async function OfferReparseReviewPage() {
         </Card>
       )}
 
+      {decisionResult.error || !decisionReadiness ? (
+        <Card className="border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          {decisionResult.error ?? "Decision readiness recovery non disponibile."}
+        </Card>
+      ) : (
+        <Card className="p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">
+            PA2.30.11 · Recovery Candidate Review & Decision Cutover
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            <div>
+              <p className="text-xs text-slate-400">Candidate successor</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{decisionReadiness.summary.candidate_count}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">In scope Offer</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{decisionReadiness.summary.offered_candidate_count}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Preservate fuori scope</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{decisionReadiness.summary.out_of_scope_role_count}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Decisione esplicita ready</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{decisionReadiness.summary.offered_explicit_decision_ready}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Conferma manuale</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{decisionReadiness.summary.offered_manual_confirmation_required}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Scelta target manuale</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{decisionReadiness.summary.offered_manual_target_selection}</p>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Badge tone="green">offered-only decision scope</Badge>
+            <Badge tone="blue">out-of-scope evidence preserved</Badge>
+            <Badge tone="amber">no auto reject</Badge>
+            <Badge tone="amber">no auto adopt</Badge>
+            <Badge tone="neutral">no auto close</Badge>
+          </div>
+        </Card>
+      )}
+
       {closureResult.error || !closure ? (
         <Card className="border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
           {closureResult.error ?? "Closure readiness non disponibile."}
@@ -347,7 +398,11 @@ export default async function OfferReparseReviewPage() {
           {data.items.length ? (
             <div className="space-y-4">
               {data.items.map((item) => (
-                <ReparseCandidateReviewCard key={item.candidate_id} item={item} />
+                <ReparseCandidateReviewCard
+                  key={item.candidate_id}
+                  item={item}
+                  decisionReadiness={decisionByCandidate.get(item.candidate_id)}
+                />
               ))}
             </div>
           ) : (

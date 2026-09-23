@@ -922,3 +922,99 @@ export async function bulkReingestOfferSources(
     };
   }
 }
+
+
+export type RecoveryCandidateDecisionTarget = {
+  observation_id: number;
+  source_text: string | null;
+  identity_equal_count: number;
+  identity_conflict_count: number;
+  identity_anchored: boolean;
+  compatible: boolean;
+  fields_available_to_adopt: string[];
+};
+
+export type RecoveryCandidateDecisionReadinessItem = {
+  candidate_id: number;
+  run_id: number;
+  remediation_queue_id: number;
+  reingest_id: number;
+  thread_id: string;
+  candidate_index: number;
+  source_text: string | null;
+  item_role: string | null;
+  candidate_evidence: Record<string, unknown>;
+  review_status: string;
+  decision_readiness:
+    | "decision_terminal"
+    | "preserved_out_of_scope_role"
+    | "offered_no_target"
+    | "offered_explicit_decision_ready"
+    | "offered_manual_target_selection"
+    | "offered_manual_confirmation_required"
+    | "offered_no_compatible_target";
+  source_binding_status: string;
+  offered_target_count: number;
+  anchored_target_count: number;
+  nonconflicting_target_count: number;
+  decision: {
+    id: number;
+    decision: string;
+    target_observation_id: number | null;
+    selected_fields: string[];
+    decided_at: string;
+  } | null;
+  target_observations: RecoveryCandidateDecisionTarget[];
+};
+
+export type RecoveryCandidateDecisionReadinessPayload = {
+  summary: {
+    candidate_count: number;
+    offered_candidate_count: number;
+    out_of_scope_role_count: number;
+    decision_terminal: number;
+    offered_explicit_decision_ready: number;
+    offered_manual_confirmation_required: number;
+    offered_manual_target_selection: number;
+    offered_no_target: number;
+    offered_no_compatible_target: number;
+  };
+  items: RecoveryCandidateDecisionReadinessItem[];
+  policy: {
+    recovery_successor_only: boolean;
+    offer_decision_scope_role: string;
+    out_of_scope_roles_are_preserved: boolean;
+    out_of_scope_roles_are_not_rejected: boolean;
+    explicit_target_selection_required: boolean;
+    explicit_field_selection_required: boolean;
+    automatic_candidate_adoption: boolean;
+    automatic_candidate_rejection: boolean;
+    automatic_remediation_closure: boolean;
+    control_phase: string;
+  };
+};
+
+export async function loadOfferRecoveryCandidateDecisionReadiness(): Promise<{
+  data: RecoveryCandidateDecisionReadinessPayload | null;
+  error?: string;
+}> {
+  const { client, organizationId } = await activeOrganization();
+  if (!organizationId) return { data: null, error: "Workspace non disponibile." };
+
+  const { data, error } = await client.rpc(
+    "p1_offer_recovery_candidate_decision_readiness",
+    {
+      p_organization_id: organizationId,
+      p_limit: 200,
+    },
+  );
+
+  if (error || !data || typeof data !== "object") {
+    return {
+      data: null,
+      error: error?.message ?? "Decision readiness recovery non disponibile.",
+    };
+  }
+
+  return { data: data as unknown as RecoveryCandidateDecisionReadinessPayload };
+}
