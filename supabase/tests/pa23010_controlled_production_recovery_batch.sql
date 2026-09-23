@@ -214,7 +214,7 @@ select pg_temp.assert_true(
 
 select public.p1_store_offer_source_recovery_transfer_chunk(
   'pa23010-writer-test',0,'YWJjZA=='
-) as stored \\gset
+) as stored \gset
 
 select pg_temp.assert_true(
   :'stored'::jsonb->>'status'='stored'
