@@ -497,9 +497,14 @@ stable
 security definer
 set search_path=''
 as $$
-declare latest_run_id bigint; invalid_reason text; invalidated_at timestamptz;
+declare
+  latest_run_id bigint;
+  latest_thread_id uuid;
+  latest_status text;
+  invalid_reason text;
+  invalidated_at timestamptz;
 begin
-  select r.id into latest_run_id
+  select r.id,r.thread_id,r.status into latest_run_id,latest_thread_id,latest_status
   from public.commercial_offer_reparse_runs r
   where r.organization_id=p_organization_id
     and r.remediation_queue_id=p_remediation_queue_id
@@ -512,8 +517,25 @@ begin
     if found then
       return jsonb_build_object(
         'remediation_queue_id',p_remediation_queue_id,
+        'thread_id',latest_thread_id,
+        'remediation_status',(
+          select q.status
+          from public.commercial_offer_remediation_queue q
+          where q.organization_id=p_organization_id and q.id=p_remediation_queue_id
+        ),
         'run_id',latest_run_id,
+        'run_status',latest_status,
+        'candidate_count',0,
+        'pending_candidate_count',0,
+        'accepted_count',0,
+        'rejected_count',0,
+        'decision_count',0,
+        'residual_gaps',jsonb_build_object('quantity',0,'price',0,'currency',0),
+        'unresolved_conflict_count',0,
+        'unresolved_conflicts','[]'::jsonb,
         'closure_status','run_provenance_invalid',
+        'recommended_outcome',null,
+        'resolution_reason',null,
         'invalidation_reason',invalid_reason,
         'invalidated_at',invalidated_at,
         'reingest_required',true,
