@@ -15,7 +15,13 @@ function valueLabel(value: unknown) {
   return String(value);
 }
 
-export function ReparseCandidateReviewCard({ item }: { item: ReparseCandidateReviewItem }) {
+export function ReparseCandidateReviewCard({
+  item,
+  decisionReadiness,
+}: {
+  item: ReparseCandidateReviewItem;
+  decisionReadiness?: string;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [targetId, setTargetId] = useState("");
@@ -29,6 +35,7 @@ export function ReparseCandidateReviewCard({ item }: { item: ReparseCandidateRev
   );
 
   const terminal = item.review_status !== "pending_review";
+  const recoveryOutOfScope = decisionReadiness === "preserved_out_of_scope_role";
 
   function toggleField(field: string) {
     setSelectedFields((current) =>
@@ -72,7 +79,18 @@ export function ReparseCandidateReviewCard({ item }: { item: ReparseCandidateRev
         </div>
 
         <div className="rounded-2xl bg-slate-50 p-4">
-          {terminal ? (
+          {recoveryOutOfScope ? (
+            <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
+                PA2.30.11 · Preserved out of scope
+              </p>
+              <p className="mt-2 text-sm leading-6 text-blue-900">
+                Questa candidate appartiene al ruolo <strong>{item.item_role ?? "unknown"}</strong>.
+                Non è una decisione Offer: resta preservata per il workflow nativo e non può essere rifiutata
+                dal percorso di recovery dell’offerta.
+              </p>
+            </div>
+          ) : terminal ? (
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Decisione</p>
               <p className="mt-2 text-sm font-semibold text-slate-900">
