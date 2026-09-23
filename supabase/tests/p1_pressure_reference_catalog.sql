@@ -262,7 +262,7 @@ select pg_temp.p115_pressure_assert(
   'all 56 P265GH NPS labels must remain explicitly non-ASME supplier designations'
 );
 
--- Existing SK4 read/pricing contract must expose pressure rows without new API code.
+-- SK4.5j grade-aware read/pricing contract must expose pressure rows only from the exact material-grade canonical scope.
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000a431', true);
 select set_config('request.jwt.claim.role', 'authenticated', true);
@@ -270,18 +270,20 @@ select set_config('request.jwt.claim.role', 'authenticated', true);
 select pg_temp.p115_pressure_assert(
   exists (
     select 1
-    from public.p1_shared_steel_dimensions(
-      'EN 10216-2','round_tube',323.9,9.53,850,12,100,0
+    from public.p1_shared_steel_effective_dimensions(
+      'EN 10216-2','P265GH','round_tube',323.9,9.53,850,12,100,0
     ) r
     where r.outer_diameter_mm=323.9
       and r.thickness_mm=9.53
-      and r.theoretical_weight_kg_m=73.88
+      and r.material_grade='P265GH'
+      and r.grade_scope='grade_specific'
+      and r.effective_weight_kg_m=73.88
+      and r.effective_weight_status='canonical_available'
       and r.reference_price_eur_m=62.7980
       and r.reference_price_eur_piece=753.5760
-      and r.price_semantic='reference_price'
-      and r.not_normative_complete
+      and r.price_semantic='canonical_reference_price'
   ),
-  'SK4 RPC must expose P265GH supplier row and deterministic EUR/m and EUR/piece'
+  'SK4.5j API must expose P265GH exact-scope canonical weight and deterministic EUR/m and EUR/piece'
 );
 
 select pg_temp.p115_pressure_assert(
