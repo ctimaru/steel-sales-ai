@@ -109,7 +109,7 @@ export type ReparseRemediationClosurePayload = {
 async function activeOrganization() {
   const client = await createClient();
   const { data: { user } } = await client.auth.getUser();
-  if (!user) return { client, organizationId: null as string | null };
+  if (!user) return { client, organizationId: null as string | null, userId: null as string | null };
 
   const { data: memberships } = await client
     .from("organization_memberships")
@@ -118,7 +118,11 @@ async function activeOrganization() {
     .eq("status", "active");
 
   const membership = memberships?.find((row) => row.is_default) ?? memberships?.[0];
-  return { client, organizationId: membership?.organization_id ?? null };
+  return {
+    client,
+    organizationId: membership?.organization_id ?? null,
+    userId: user.id,
+  };
 }
 
 export async function loadOfferReparseCandidateReview(): Promise<{
@@ -298,4 +302,187 @@ export async function closeOfferReparseRemediation(input: {
     reason,
     error: ok ? undefined : reason ?? "Remediation non chiudibile.",
   };
+}
+
+
+export type SourceReingestItem = {
+  remediation_queue_id: number;
+  thread_id: string;
+  subject: string | null;
+  source_conversation_id: string | null;
+  invalidated_run_id: number | null;
+  reingest_id: number | null;
+  reingest_status: "requested" | "uploading" | "consumed" | "failed" | null;
+  source_job_id: string | null;
+  successor_run_id: number | null;
+  filename: string | null;
+  error: string | null;
+  action_status:
+    | "not_required"
+    | "needs_reingest"
+    | "awaiting_upload"
+    | "uploading"
+    | "recovered"
+    | "retry_allowed";
+};
+
+export type SourceReingestPayload = {
+  summary: {
+    target_threads: number;
+    needs_reingest: number;
+    requested: number;
+    uploading: number;
+    recovered: number;
+    failed: number;
+  };
+  items: SourceReingestItem[];
+  policy: {
+    allowed_extensions: string[];
+    source_only: boolean;
+    thread_binding_required: boolean;
+    checksum_required: boolean;
+    observation_mutation: boolean;
+    automatic_promotion: boolean;
+    successor_run_candidate_only: boolean;
+  };
+};
+
+export type SourceReingestActionState = {
+  status: "idle" | "success" | "error";
+  message: string;
+  successorRunId?: number;
+};
+
+export async function loadOfferSourceReingestReadiness(): Promise<{
+  data: SourceReingestPayload | null;
+  error?: string;
+}> {
+  const { client, organizationId } = await activeOrganization();
+  if (!organizationId) return { data: null, error: "Workspace non disponibile." };
+
+  const { data, error } = await client.rpc("p1_offer_source_reingest_readiness", {
+    p_organization_id: organizationId,
+    p_limit: 200,
+  });
+
+  if (error || !data || typeof data !== "object") {
+    return {
+      data: null,
+      error: error?.message ?? "Recovery delle sorgenti non disponibile.",
+    };
+  }
+  return { data: data as unknown as SourceReingestPayload };
+}
+
+export async function reingestOfferSource(
+  _previousState: SourceReingestActionState,
+  formData: FormData,
+): Promise<SourceReingestActionState> {
+  const threadId = String(formData.get("thread_id") ?? "").trim();
+  const file = formData.get("file");
+
+  if (!threadId) {
+    return { status: "error", message: "Thread non valido." };
+  }
+  if (!(file instanceof File) || file.size === 0) {
+    return { status: "error", message: "Seleziona il file EML originale." };
+  }
+  if (!file.name.toLowerCase().endsWith(".eml")) {
+    return { status: "error", message: "PA2.30.3 accetta solo il file EML originale." };
+  }
+  if (file.size > 25 * 1024 * 1024) {
+    return { status: "error", message: "Il file supera il limite di 25 MB." };
+  }
+
+  const { client, organizationId, userId } = await activeOrganization();
+  if (!organizationId || !userId) {
+    return { status: "error", message: "Workspace o sessione non disponibile." };
+  }
+
+  const { data: requestData, error: requestError } = await client.rpc(
+    "p1_request_offer_source_reingest",
+    {
+      p_organization_id: organizationId,
+      p_thread_id: threadId,
+      p_note: "PA2.30.3 source provenance recovery",
+    },
+  );
+
+  if (requestError || !requestData || typeof requestData !== "object") {
+    return {
+      status: "error",
+      message: requestError?.message ?? "Impossibile aprire il source re-ingest.",
+    };
+  }
+
+  const request = requestData as Record<string, unknown>;
+  const requestStatus = typeof request.status === "string" ? request.status : "";
+  const reingestId =
+    typeof request.reingest_id === "number" ? request.reingest_id : null;
+
+  if (!reingestId || !["requested", "already_requested"].includes(requestStatus)) {
+    return {
+      status: "error",
+      message:
+        typeof request.reason === "string"
+          ? request.reason
+          : "Il thread non è eleggibile per il source re-ingest.",
+    };
+  }
+
+  const workerUrl = process.env.WORKER_URL?.replace(/\/$/, "");
+  const workerToken = process.env.WORKER_INTERNAL_TOKEN;
+  if (!workerUrl || !workerToken) {
+    return { status: "error", message: "Worker di recovery non configurato." };
+  }
+
+  const upload = new FormData();
+  upload.append("upload", file, file.name);
+  upload.append("owner_id", userId);
+
+  try {
+    const response = await fetch(
+      `${workerUrl}/v1/remediation/offer-source-reingest/${reingestId}`,
+      {
+        method: "POST",
+        headers: { "x-worker-token": workerToken },
+        body: upload,
+        cache: "no-store",
+      },
+    );
+    const payload = (await response.json().catch(() => null)) as
+      | {
+          detail?: string;
+          status?: string;
+          successor_run_id?: number;
+          reparse?: { status?: string; extraction_count?: number };
+        }
+      | null;
+
+    if (!response.ok || payload?.status !== "consumed" || !payload.successor_run_id) {
+      return {
+        status: "error",
+        message: payload?.detail ?? "Il worker non ha completato il source recovery.",
+      };
+    }
+
+    revalidatePath("/review/offer-reparse");
+    revalidatePath("/review/offer-remediation");
+    revalidatePath("/review");
+
+    const extracted = payload.reparse?.extraction_count;
+    return {
+      status: "success",
+      successorRunId: payload.successor_run_id,
+      message:
+        typeof extracted === "number"
+          ? `Sorgente recuperata. Nuovo run #${payload.successor_run_id}: ${extracted} candidate estratte.`
+          : `Sorgente recuperata. Nuovo run #${payload.successor_run_id} creato.`,
+    };
+  } catch {
+    return {
+      status: "error",
+      message: "Connessione al worker di source recovery non riuscita.",
+    };
+  }
 }
