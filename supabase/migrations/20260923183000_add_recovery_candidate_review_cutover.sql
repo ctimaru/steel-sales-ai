@@ -225,11 +225,11 @@ grant execute on function public.p1_offer_recovery_candidate_decision_readiness(
 to authenticated,service_role;
 
 alter function private.reject_offer_reparse_candidate_impl(uuid,bigint,text)
-rename to reject_offer_reparse_candidate_impl_pa229;
+rename to reject_offer_reparse_candidate_impl_pa2302;
 
-revoke all on function private.reject_offer_reparse_candidate_impl_pa229(uuid,bigint,text)
+revoke all on function private.reject_offer_reparse_candidate_impl_pa2302(uuid,bigint,text)
 from public,anon,authenticated;
-grant execute on function private.reject_offer_reparse_candidate_impl_pa229(uuid,bigint,text)
+grant execute on function private.reject_offer_reparse_candidate_impl_pa2302(uuid,bigint,text)
 to service_role;
 
 create or replace function private.reject_offer_reparse_candidate_impl(
@@ -279,7 +279,7 @@ begin
     );
   end if;
 
-  return private.reject_offer_reparse_candidate_impl_pa229(
+  return private.reject_offer_reparse_candidate_impl_pa2302(
     p_organization_id,p_candidate_id,p_note
   );
 end;
