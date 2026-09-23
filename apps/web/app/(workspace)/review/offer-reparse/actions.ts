@@ -368,6 +368,88 @@ export type SourceReingestActionState = {
   successorRunId?: number;
 };
 
+export type RecoveryCandidateReentryItem = {
+  remediation_queue_id: number;
+  thread_id: string;
+  subject: string | null;
+  remediation_status: string;
+  invalidated_predecessor_run_id: number | null;
+  reingest_id: number | null;
+  reingest_status: string | null;
+  requested_from_run_id: number | null;
+  selected_source_filename: string | null;
+  source_selection_mode: string | null;
+  offered_source_filenames: string[];
+  successor_run_id: number | null;
+  successor_status: string | null;
+  successor_source_job_id: string | null;
+  successor_binding_status: string | null;
+  successor_invalidation_id: number | null;
+  successor_invalidation_reason: string | null;
+  candidate_count: number;
+  offered_candidate_count: number;
+  pending_review_count: number;
+  decision_count: number;
+  reentry_status: string;
+};
+
+export type RecoveryCandidateReentryPayload = {
+  summary: {
+    target_threads: number;
+    reingest_not_started: number;
+    ambiguous_selection_required: number;
+    reingest_in_progress: number;
+    recovery_failed: number;
+    successor_in_progress: number;
+    completed_no_candidates: number;
+    candidate_review_ready: number;
+    candidate_review_terminal: number;
+    candidate_review_incomplete: number;
+    total_successor_candidates: number;
+    total_pending_review_candidates: number;
+  };
+  items: RecoveryCandidateReentryItem[];
+  policy: {
+    reentry_requires_consumed_reingest: boolean;
+    reentry_requires_completed_successor: boolean;
+    reentry_requires_valid_thread_binding: boolean;
+    reentry_requires_successor_chain_match: boolean;
+    reentry_requires_source_job_match: boolean;
+    invalidated_successor_review_allowed: boolean;
+    invalidated_predecessor_candidates_remain_quarantined: boolean;
+    automatic_candidate_adoption: boolean;
+    automatic_remediation_closure: boolean;
+    observation_mutation: boolean;
+    promotion_mutation: boolean;
+    control_phase: string;
+  };
+};
+
+export async function loadOfferRecoveryCandidateReentryAudit(): Promise<{
+  data: RecoveryCandidateReentryPayload | null;
+  error?: string;
+}> {
+  const { client, organizationId } = await activeOrganization();
+  if (!organizationId) return { data: null, error: "Workspace non disponibile." };
+
+  const { data, error } = await client.rpc(
+    "p1_offer_recovery_candidate_reentry_audit",
+    {
+      p_organization_id: organizationId,
+      p_limit: 200,
+    },
+  );
+
+  if (error || !data || typeof data !== "object") {
+    return {
+      data: null,
+      error: error?.message ?? "Audit del candidate re-entry non disponibile.",
+    };
+  }
+
+  return { data: data as unknown as RecoveryCandidateReentryPayload };
+}
+
 export async function loadOfferSourceReingestReadiness(): Promise<{
   data: SourceReingestPayload | null;
   error?: string;
