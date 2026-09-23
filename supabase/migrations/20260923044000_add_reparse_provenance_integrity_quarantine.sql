@@ -599,11 +599,11 @@ language sql
 stable
 security invoker
 set search_path=''
-as $
+as $$
   select private.offer_source_reparse_readiness_guarded_impl(
     p_organization_id,p_limit
   );
-$;
+$$;
 
 revoke all on function public.p1_offer_source_reparse_readiness(uuid,integer)
 from public,anon;
