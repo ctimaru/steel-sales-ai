@@ -2,6 +2,8 @@
 -- Separates offer-remediation decision scope from other candidate roles.
 -- Recovery successor candidates with roles other than 'offered' are preserved
 -- for their native workflow and cannot be rejected through the offer-reparse path.
+-- The existing PA2.30.2 provenance-quarantine rejection wrapper is retained as
+-- the delegated base so PA2.30.11 adds scope protection without weakening quarantine.
 
 create or replace function public.p1_offer_recovery_candidate_decision_readiness(
   p_organization_id uuid,
