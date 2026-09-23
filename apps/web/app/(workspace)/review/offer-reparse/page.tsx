@@ -7,6 +7,7 @@ import {
   loadOfferReparseCandidateReview,
   loadOfferReparseRemediationClosureReadiness,
   loadOfferRecoveryCandidateReentryAudit,
+  loadOfferRecoveryMatchingReadiness,
   loadOfferRecoveryOutcomeReconciliation,
   loadOfferSourceReingestReadiness,
 } from "./actions";
@@ -16,18 +17,20 @@ import { SourceReingestCard } from "./source-reingest-card";
 import { SourceReingestArchiveCard } from "./source-reingest-archive-card";
 
 export default async function OfferReparseReviewPage() {
-  const [result, closureResult, recoveryResult, reentryResult, reconciliationResult] = await Promise.all([
+  const [result, closureResult, recoveryResult, reentryResult, reconciliationResult, matchingResult] = await Promise.all([
     loadOfferReparseCandidateReview(),
     loadOfferReparseRemediationClosureReadiness(),
     loadOfferSourceReingestReadiness(),
     loadOfferRecoveryCandidateReentryAudit(),
     loadOfferRecoveryOutcomeReconciliation(),
+    loadOfferRecoveryMatchingReadiness(),
   ]);
   const data = result.data;
   const closure = closureResult.data;
   const recovery = recoveryResult.data;
   const reentry = reentryResult.data;
   const reconciliation = reconciliationResult.data;
+  const matching = matchingResult.data;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -198,6 +201,50 @@ export default async function OfferReparseReviewPage() {
             <Badge tone="green">offered candidates only</Badge>
             <Badge tone="amber">presence ≠ resolution</Badge>
             <Badge tone="neutral">no auto-close</Badge>
+          </div>
+        </Card>
+      )}
+
+      {matchingResult.error || !matching ? (
+        <Card className="border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          {matchingResult.error ?? "Matching readiness recovery non disponibile."}
+        </Card>
+      ) : (
+        <Card className="p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">
+            PA2.30.7 · Candidate-to-Observation Matching Readiness
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            <div>
+              <p className="text-xs text-slate-400">Candidate recovery</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{matching.summary.candidate_count}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">1 target ancorato</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{matching.summary.single_anchored_compatible_target}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Target multipli</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{matching.summary.multiple_anchored_compatible_targets}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Unanchored</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{matching.summary.single_unanchored_nonconflicting_target + matching.summary.multiple_unanchored_nonconflicting_targets}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Conflitto</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{matching.summary.no_compatible_target}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Nessun target</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{matching.summary.no_offered_target}</p>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Badge tone="green">identity conflicts block</Badge>
+            <Badge tone="blue">identity anchors visible</Badge>
+            <Badge tone="amber">single target ≠ auto-match</Badge>
+            <Badge tone="neutral">explicit target required</Badge>
           </div>
         </Card>
       )}
