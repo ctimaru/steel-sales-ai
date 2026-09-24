@@ -10,6 +10,7 @@ import {
   loadOfferRecoveryMatchingReadiness,
   loadOfferRecoveryCandidateDecisionReadiness,
   loadOfferRecoveryRemediationDispositionReadiness,
+  loadOfferRecoveryDispositionBatchHistory,
   loadOfferRecoveryOutcomeReconciliation,
   loadOfferSourceReingestReadiness,
 } from "./actions";
@@ -17,9 +18,10 @@ import { ReparseCandidateReviewCard } from "./reparse-candidate-review-card";
 import { ReparseRemediationClosureCard } from "./reparse-remediation-closure-card";
 import { SourceReingestCard } from "./source-reingest-card";
 import { SourceReingestArchiveCard } from "./source-reingest-archive-card";
+import { RecoveryDispositionBatchCard } from "./recovery-disposition-batch-card";
 
 export default async function OfferReparseReviewPage() {
-  const [result, closureResult, recoveryResult, reentryResult, reconciliationResult, matchingResult, decisionResult, dispositionResult] = await Promise.all([
+  const [result, closureResult, recoveryResult, reentryResult, reconciliationResult, matchingResult, decisionResult, dispositionResult, dispositionHistoryResult] = await Promise.all([
     loadOfferReparseCandidateReview(),
     loadOfferReparseRemediationClosureReadiness(),
     loadOfferSourceReingestReadiness(),
@@ -28,6 +30,7 @@ export default async function OfferReparseReviewPage() {
     loadOfferRecoveryMatchingReadiness(),
     loadOfferRecoveryCandidateDecisionReadiness(),
     loadOfferRecoveryRemediationDispositionReadiness(),
+    loadOfferRecoveryDispositionBatchHistory(),
   ]);
   const data = result.data;
   const closure = closureResult.data;
@@ -37,6 +40,7 @@ export default async function OfferReparseReviewPage() {
   const matching = matchingResult.data;
   const decisionReadiness = decisionResult.data;
   const dispositionReadiness = dispositionResult.data;
+  const dispositionHistory = dispositionHistoryResult.data;
   const decisionByCandidate = new Map(
     (decisionReadiness?.items ?? []).map((item) => [item.candidate_id, item.decision_readiness]),
   );
@@ -346,6 +350,13 @@ export default async function OfferReparseReviewPage() {
           </div>
         </Card>
       )}
+
+      {dispositionReadiness ? (
+        <RecoveryDispositionBatchCard
+          items={dispositionReadiness.items}
+          history={dispositionHistory?.items ?? []}
+        />
+      ) : null}
 
       {closureResult.error || !closure ? (
         <Card className="border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
