@@ -1097,3 +1097,119 @@ export async function loadOfferRecoveryRemediationDispositionReadiness(): Promis
 
   return { data: data as unknown as RecoveryRemediationDispositionPayload };
 }
+
+
+export type RecoveryDispositionBatchResult = {
+  status: "completed" | "completed_with_blocks" | string;
+  batch_id?: string;
+  requested_count?: number;
+  dismissed_count?: number;
+  already_closed_count?: number;
+  blocked_count?: number;
+  items?: Array<Record<string, unknown>>;
+};
+
+export async function executeOfferRecoveryDispositionBatch(input: {
+  remediationQueueIds: number[];
+  confirmedCount: number;
+  note: string;
+}): Promise<{
+  ok: boolean;
+  result?: RecoveryDispositionBatchResult;
+  error?: string;
+}> {
+  const ids = input.remediationQueueIds.filter(
+    (id) => Number.isInteger(id) && id > 0,
+  );
+  const uniqueIds = [...new Set(ids)];
+  const note = input.note.trim();
+
+  if (!uniqueIds.length || uniqueIds.length !== input.remediationQueueIds.length) {
+    return { ok: false, error: "La selezione remediation non è valida o contiene duplicati." };
+  }
+  if (uniqueIds.length > 100) {
+    return { ok: false, error: "Il batch può contenere al massimo 100 remediation." };
+  }
+  if (input.confirmedCount !== uniqueIds.length) {
+    return { ok: false, error: "Il conteggio confermato non coincide con la selezione." };
+  }
+  if (!note) {
+    return { ok: false, error: "Inserisci una nota obbligatoria per il batch." };
+  }
+
+  const { client, organizationId } = await activeOrganization();
+  if (!organizationId) return { ok: false, error: "Workspace non disponibile." };
+
+  const { data, error } = await client.rpc(
+    "p1_execute_offer_recovery_disposition_batch",
+    {
+      p_organization_id: organizationId,
+      p_remediation_queue_ids: uniqueIds,
+      p_confirmed_count: input.confirmedCount,
+      p_note: note,
+    },
+  );
+
+  if (error || !data || typeof data !== "object") {
+    return {
+      ok: false,
+      error: error?.message ?? "Esecuzione batch disposition non riuscita.",
+    };
+  }
+
+  const result = data as unknown as RecoveryDispositionBatchResult;
+  const ok = ["completed", "completed_with_blocks"].includes(result.status);
+
+  if (ok) {
+    revalidatePath("/review/offer-reparse");
+    revalidatePath("/review/offer-remediation");
+    revalidatePath("/review");
+  }
+
+  return {
+    ok,
+    result,
+    error: ok ? undefined : "Il batch non è stato completato.",
+  };
+}
+
+export type RecoveryDispositionBatchHistoryItem = {
+  batch_id: string;
+  requested_by: string;
+  requested_remediation_ids: number[];
+  confirmed_count: number;
+  requested_count: number;
+  dismissed_count: number;
+  already_closed_count: number;
+  blocked_count: number;
+  note: string;
+  result_snapshot: Record<string, unknown>;
+  created_at: string;
+};
+
+export async function loadOfferRecoveryDispositionBatchHistory(): Promise<{
+  data: { items: RecoveryDispositionBatchHistoryItem[] } | null;
+  error?: string;
+}> {
+  const { client, organizationId } = await activeOrganization();
+  if (!organizationId) return { data: null, error: "Workspace non disponibile." };
+
+  const { data, error } = await client.rpc(
+    "p1_offer_recovery_disposition_batch_history",
+    {
+      p_organization_id: organizationId,
+      p_limit: 20,
+    },
+  );
+
+  if (error || !data || typeof data !== "object") {
+    return {
+      data: null,
+      error: error?.message ?? "Storico batch disposition non disponibile.",
+    };
+  }
+
+  return {
+    data: data as unknown as { items: RecoveryDispositionBatchHistoryItem[] },
+  };
+}
