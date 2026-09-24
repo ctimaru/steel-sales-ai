@@ -228,7 +228,8 @@ jobs:
             pa23011_recovery_candidate_review_cutover.sql \
             pa23012_recovery_remediation_disposition_cutover.sql \
             pa23013_controlled_recovery_disposition_execution.sql \
-            pa23014_controlled_residual_offer_candidate_resolution.sql; do
+            pa23014_controlled_residual_offer_candidate_resolution.sql \
+            pa23015_residual_evidence_gap_reconciliation.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
