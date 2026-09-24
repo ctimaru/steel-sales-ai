@@ -131,6 +131,33 @@ begin
   from public.commercial_threads
   where organization_id=p_organization_id and id=q.thread_id;
 
+  if r.status<>'completed' then
+    return jsonb_build_object(
+      'remediation_queue_id',q.id,
+      'thread_id',q.thread_id,
+      'subject',thread_subject,
+      'remediation_status',q.status,
+      'run_id',r.id,
+      'run_status',r.status,
+      'candidate_count',0,
+      'offered_candidate_count',0,
+      'out_of_scope_candidate_count',0,
+      'pending_candidate_count',0,
+      'accepted_count',0,
+      'rejected_count',0,
+      'decision_count',0,
+      'decision_scope_role','offered',
+      'out_of_scope_candidates_preserved',true,
+      'disposition_status','recovery_in_progress',
+      'closure_status','run_'||r.status,
+      'recommended_outcome',null,
+      'resolution_reason',null,
+      'requires_explicit_close',false,
+      'automatic_closure',false,
+      'control_phase','PA2.30.12'
+    );
+  end if;
+
   select
     count(*) filter(where c.item_role='offered')::int,
     count(*) filter(where c.item_role is distinct from 'offered')::int,
@@ -333,6 +360,7 @@ begin
       'summary',jsonb_build_object(
         'remediation_count',(select count(*) from states),
         'recovery_not_ready',(select count(*) from states where state->>'disposition_status'='recovery_not_ready'),
+        'recovery_in_progress',(select count(*) from states where state->>'disposition_status'='recovery_in_progress'),
         'ready_dismiss_no_offered_evidence',(select count(*) from states where state->>'disposition_status'='ready_dismiss_no_offered_evidence'),
         'offer_decision_required',(select count(*) from states where state->>'disposition_status'='offer_decision_required'),
         'offer_decisions_incomplete',(select count(*) from states where state->>'disposition_status'='offer_decisions_incomplete'),
