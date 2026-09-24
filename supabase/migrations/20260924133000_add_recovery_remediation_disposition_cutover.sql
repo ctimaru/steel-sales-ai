@@ -47,6 +47,11 @@ begin
       using errcode='22023';
   end if;
 
+  if (select auth.uid()) is not null
+     and not public.is_organization_member(p_organization_id,false) then
+    raise exception 'organization access denied' using errcode='42501';
+  end if;
+
   handoff := private.offer_recovery_closure_handoff_state(
     p_organization_id,p_remediation_queue_id
   );
@@ -257,9 +262,9 @@ end;
 $$;
 
 revoke all on function private.offer_recovery_remediation_disposition_state(uuid,bigint)
-from public,anon,authenticated;
+from public,anon;
 grant execute on function private.offer_recovery_remediation_disposition_state(uuid,bigint)
-to service_role;
+to authenticated,service_role;
 
 create or replace function public.p1_offer_recovery_remediation_disposition_readiness(
   p_organization_id uuid,
