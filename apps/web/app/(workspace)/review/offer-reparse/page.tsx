@@ -12,6 +12,7 @@ import {
   loadOfferRecoveryRemediationDispositionReadiness,
   loadOfferRecoveryDispositionBatchHistory,
   loadOfferRecoveryResidualCandidateResolutionReadiness,
+  loadOfferRecoveryResidualGapReconciliationReadiness,
   loadOfferRecoveryOutcomeReconciliation,
   loadOfferSourceReingestReadiness,
 } from "./actions";
@@ -23,7 +24,7 @@ import { RecoveryDispositionBatchCard } from "./recovery-disposition-batch-card"
 import { ResidualOfferResolutionCard } from "./residual-offer-resolution-card";
 
 export default async function OfferReparseReviewPage() {
-  const [result, closureResult, recoveryResult, reentryResult, reconciliationResult, matchingResult, decisionResult, dispositionResult, dispositionHistoryResult, residualResolutionResult] = await Promise.all([
+  const [result, closureResult, recoveryResult, reentryResult, reconciliationResult, matchingResult, decisionResult, dispositionResult, dispositionHistoryResult, residualResolutionResult, residualGapResult] = await Promise.all([
     loadOfferReparseCandidateReview(),
     loadOfferReparseRemediationClosureReadiness(),
     loadOfferSourceReingestReadiness(),
@@ -34,6 +35,7 @@ export default async function OfferReparseReviewPage() {
     loadOfferRecoveryRemediationDispositionReadiness(),
     loadOfferRecoveryDispositionBatchHistory(),
     loadOfferRecoveryResidualCandidateResolutionReadiness(),
+    loadOfferRecoveryResidualGapReconciliationReadiness(),
   ]);
   const data = result.data;
   const closure = closureResult.data;
@@ -45,6 +47,7 @@ export default async function OfferReparseReviewPage() {
   const dispositionReadiness = dispositionResult.data;
   const dispositionHistory = dispositionHistoryResult.data;
   const residualResolution = residualResolutionResult.data;
+  const residualGap = residualGapResult.data;
   const decisionByCandidate = new Map(
     (decisionReadiness?.items ?? []).map((item) => [item.candidate_id, item.decision_readiness]),
   );
@@ -373,6 +376,46 @@ export default async function OfferReparseReviewPage() {
           ))}
         </div>
       ) : null}
+
+      {residualGapResult.error || !residualGap ? (
+        <Card className="border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          {residualGapResult.error ?? "Readiness PA2.30.15 non disponibile."}
+        </Card>
+      ) : (
+        <Card className="p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">
+            PA2.30.15 · Residual Evidence Gap Reconciliation
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div>
+              <p className="text-xs text-slate-400">Remediation</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{residualGap.summary.remediation_count}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Finalizzabili · no price</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{residualGap.summary.ready_finalize_no_price_present}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Finalizzabili · evidence</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{residualGap.summary.ready_finalize_recovered_evidence}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Bloccate</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{residualGap.summary.blocked}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Già chiuse</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{residualGap.summary.already_closed}</p>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Badge tone="green">thread-level evidence</Badge>
+            <Badge tone="blue">no synthetic price/currency</Badge>
+            <Badge tone="amber">explicit note required</Badge>
+            <Badge tone="neutral">no auto-close</Badge>
+          </div>
+        </Card>
+      )}
 
       {closureResult.error || !closure ? (
         <Card className="border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
