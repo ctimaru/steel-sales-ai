@@ -69,6 +69,54 @@ def _manifest() -> list[dict[str, object]]:
     return items
 
 
+async def _stage_archive_payload(
+    *,
+    payload: bytes,
+    transfer_id: str,
+    expected_sha: str,
+) -> dict[str, object]:
+    actual_sha = hashlib.sha256(payload).hexdigest()
+    if actual_sha != expected_sha:
+        raise ValueError(f"PA2.30.16 archive checksum mismatch: {actual_sha}.")
+
+    archive, _ = _archive_members(payload)
+    try:
+        eml_members = [
+            info.filename for info in archive.infolist()
+            if not info.is_dir() and PurePosixPath(info.filename).suffix.lower() == ".eml"
+        ]
+        if len(eml_members) != 2:
+            raise ValueError("PA2.30.16 archive must contain exactly two EML sources.")
+    finally:
+        archive.close()
+
+    repo = WorkerRepository()
+    encoded = base64.b64encode(payload).decode("ascii")
+    chunk_chars = 150000
+    stored_parts = 0
+    for part_no, offset in enumerate(range(0, len(encoded), chunk_chars)):
+        stored = await repo.store_offer_source_recovery_transfer_chunk(
+            transfer_id=transfer_id,
+            part_no=part_no,
+            payload_base64=encoded[offset:offset + chunk_chars],
+        )
+        if stored.get("status") != "stored":
+            raise RuntimeError(f"PA2.30.16 transfer chunk {part_no} was not stored.")
+        stored_parts += 1
+
+    return {
+        "status": "staged",
+        "transfer_id": transfer_id,
+        "archive_sha256": actual_sha,
+        "archive_bytes": len(payload),
+        "part_count": stored_parts,
+        "eml_count": len(eml_members),
+        "automatic_source_selection": False,
+        "reingest_executed": False,
+        "control_phase": "PA2.30.16c",
+    }
+
+
 async def execute_offer_source_ambiguous_recovery_bootstrap() -> dict[str, object]:
     transfer_id = _required_env("OFFER_SOURCE_AMBIGUOUS_RECOVERY_BOOTSTRAP_TRANSFER_ID")
     actor_id = UUID(_required_env("OFFER_SOURCE_AMBIGUOUS_RECOVERY_BOOTSTRAP_ACTOR_ID"))
@@ -204,52 +252,44 @@ def install_offer_source_ambiguous_recovery_bootstrap(app: FastAPI) -> None:
             max_bytes=MAX_ARCHIVE_BYTES,
             label="PA2.30.16 selected-source archive",
         )
-        actual_sha = hashlib.sha256(payload).hexdigest()
-        if actual_sha != expected_sha:
-            raise HTTPException(status_code=422, detail="PA2.30.16 archive checksum mismatch.")
-
-        archive, members = _archive_members(payload)
         try:
-            eml_members = [
-                info.filename for info in archive.infolist()
-                if not info.is_dir() and PurePosixPath(info.filename).suffix.lower() == ".eml"
-            ]
-            if len(eml_members) != 2:
-                raise HTTPException(
-                    status_code=422,
-                    detail="PA2.30.16 archive must contain exactly two EML sources.",
-                )
-        finally:
-            archive.close()
-
-        repo = WorkerRepository()
-        encoded = base64.b64encode(payload).decode("ascii")
-        chunk_chars = 150000
-        stored_parts = 0
-        for part_no, offset in enumerate(range(0, len(encoded), chunk_chars)):
-            stored = await repo.store_offer_source_recovery_transfer_chunk(
+            return await _stage_archive_payload(
+                payload=payload,
                 transfer_id=transfer_id,
-                part_no=part_no,
-                payload_base64=encoded[offset:offset + chunk_chars],
+                expected_sha=expected_sha,
             )
-            if stored.get("status") != "stored":
-                raise HTTPException(
-                    status_code=503,
-                    detail=f"PA2.30.16 transfer chunk {part_no} was not stored.",
-                )
-            stored_parts += 1
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        except RuntimeError as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
 
-        return {
-            "status": "staged",
-            "transfer_id": transfer_id,
-            "archive_sha256": actual_sha,
-            "archive_bytes": len(payload),
-            "part_count": stored_parts,
-            "eml_count": len(eml_members),
-            "automatic_source_selection": False,
-            "reingest_executed": False,
-            "control_phase": "PA2.30.16c",
-        }
+    @app.on_event("startup")
+    async def stage_pa23016_from_env() -> None:
+        raw_parts = os.getenv("PA23016_STAGE_ARCHIVE_B64_PARTS", "").strip()
+        if not raw_parts:
+            return
+        transfer_id = os.getenv("PA23016_STAGE_TRANSFER_ID", "").strip()
+        expected_sha = os.getenv("PA23016_STAGE_ARCHIVE_SHA256", "").strip().lower()
+        if not transfer_id or len(expected_sha) != 64:
+            logger.error("PA2.30.16 env staging configuration rejected.")
+            return
+        try:
+            part_count = int(raw_parts)
+            if part_count <= 0 or part_count > 20:
+                raise ValueError("invalid part count")
+            encoded = "".join(
+                _required_env(f"PA23016_STAGE_ARCHIVE_B64_PART_{index}")
+                for index in range(part_count)
+            )
+            payload = base64.b64decode(encoded, validate=True)
+            result = await _stage_archive_payload(
+                payload=payload,
+                transfer_id=transfer_id,
+                expected_sha=expected_sha,
+            )
+            logger.info("PA2.30.16 env staging completed: %s", result)
+        except (ValueError, RuntimeError, RepositoryConfigurationError, RepositoryError) as exc:
+            logger.error("PA2.30.16 env staging failed: %s", exc)
 
     @app.on_event("startup")
     async def schedule_pa23016_bootstrap() -> None:
