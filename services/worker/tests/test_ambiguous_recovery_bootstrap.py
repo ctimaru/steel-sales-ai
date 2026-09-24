@@ -312,6 +312,10 @@ def test_pa23016c_env_staging_writes_transfer_without_reingest(monkeypatch):
     app = FastAPI()
     bootstrap.install_offer_source_ambiguous_recovery_bootstrap(app)
 
-    asyncio.run(app.router.startup())
+    handler = next(
+        h for h in app.router.on_startup
+        if h.__name__ == "stage_pa23016_from_env"
+    )
+    asyncio.run(handler())
 
     assert calls["stored"] == 1
