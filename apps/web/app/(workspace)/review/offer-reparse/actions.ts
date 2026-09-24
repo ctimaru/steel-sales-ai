@@ -1018,3 +1018,82 @@ export async function loadOfferRecoveryCandidateDecisionReadiness(): Promise<{
 
   return { data: data as unknown as RecoveryCandidateDecisionReadinessPayload };
 }
+
+
+export type RecoveryRemediationDispositionItem = {
+  remediation_queue_id: number;
+  thread_id?: string;
+  subject?: string | null;
+  remediation_status?: string;
+  run_id?: number | null;
+  run_status?: string | null;
+  offered_candidate_count?: number;
+  out_of_scope_candidate_count?: number;
+  pending_candidate_count?: number;
+  accepted_count?: number;
+  rejected_count?: number;
+  decision_count?: number;
+  decision_scope_role?: string;
+  out_of_scope_candidates_preserved?: boolean;
+  disposition_status: string;
+  closure_status: string;
+  recommended_outcome?: string | null;
+  resolution_reason?: string | null;
+  requires_explicit_close?: boolean;
+  automatic_closure?: boolean;
+};
+
+export type RecoveryRemediationDispositionPayload = {
+  summary: {
+    remediation_count: number;
+    recovery_not_ready: number;
+    recovery_in_progress: number;
+    ready_dismiss_no_offered_evidence: number;
+    offer_decision_required: number;
+    offer_decisions_incomplete: number;
+    ready_resolve: number;
+    ready_dismiss_no_recovery: number;
+    residual_evidence_gap: number;
+    conflict_review_required: number;
+    already_closed: number;
+    total_offered_candidates: number;
+    total_preserved_out_of_scope_candidates: number;
+  };
+  items: RecoveryRemediationDispositionItem[];
+  policy: {
+    recovery_successor_required: boolean;
+    decision_scope_role: string;
+    out_of_scope_candidates_preserved: boolean;
+    out_of_scope_candidates_do_not_block_offer_disposition: boolean;
+    no_offered_candidate_recovery_requires_explicit_dismissal: boolean;
+    dismissal_note_required: boolean;
+    automatic_candidate_rejection: boolean;
+    automatic_remediation_closure: boolean;
+    control_phase: string;
+  };
+};
+
+export async function loadOfferRecoveryRemediationDispositionReadiness(): Promise<{
+  data: RecoveryRemediationDispositionPayload | null;
+  error?: string;
+}> {
+  const { client, organizationId } = await activeOrganization();
+  if (!organizationId) return { data: null, error: "Workspace non disponibile." };
+
+  const { data, error } = await client.rpc(
+    "p1_offer_recovery_remediation_disposition_readiness",
+    {
+      p_organization_id: organizationId,
+      p_limit: 200,
+    },
+  );
+
+  if (error || !data || typeof data !== "object") {
+    return {
+      data: null,
+      error: error?.message ?? "Disposition readiness recovery non disponibile.",
+    };
+  }
+
+  return { data: data as unknown as RecoveryRemediationDispositionPayload };
+}

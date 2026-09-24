@@ -9,6 +9,7 @@ import {
   loadOfferRecoveryCandidateReentryAudit,
   loadOfferRecoveryMatchingReadiness,
   loadOfferRecoveryCandidateDecisionReadiness,
+  loadOfferRecoveryRemediationDispositionReadiness,
   loadOfferRecoveryOutcomeReconciliation,
   loadOfferSourceReingestReadiness,
 } from "./actions";
@@ -18,7 +19,7 @@ import { SourceReingestCard } from "./source-reingest-card";
 import { SourceReingestArchiveCard } from "./source-reingest-archive-card";
 
 export default async function OfferReparseReviewPage() {
-  const [result, closureResult, recoveryResult, reentryResult, reconciliationResult, matchingResult, decisionResult] = await Promise.all([
+  const [result, closureResult, recoveryResult, reentryResult, reconciliationResult, matchingResult, decisionResult, dispositionResult] = await Promise.all([
     loadOfferReparseCandidateReview(),
     loadOfferReparseRemediationClosureReadiness(),
     loadOfferSourceReingestReadiness(),
@@ -26,6 +27,7 @@ export default async function OfferReparseReviewPage() {
     loadOfferRecoveryOutcomeReconciliation(),
     loadOfferRecoveryMatchingReadiness(),
     loadOfferRecoveryCandidateDecisionReadiness(),
+    loadOfferRecoveryRemediationDispositionReadiness(),
   ]);
   const data = result.data;
   const closure = closureResult.data;
@@ -34,6 +36,7 @@ export default async function OfferReparseReviewPage() {
   const reconciliation = reconciliationResult.data;
   const matching = matchingResult.data;
   const decisionReadiness = decisionResult.data;
+  const dispositionReadiness = dispositionResult.data;
   const decisionByCandidate = new Map(
     (decisionReadiness?.items ?? []).map((item) => [item.candidate_id, item.decision_readiness]),
   );
@@ -296,6 +299,50 @@ export default async function OfferReparseReviewPage() {
             <Badge tone="amber">no auto reject</Badge>
             <Badge tone="amber">no auto adopt</Badge>
             <Badge tone="neutral">no auto close</Badge>
+          </div>
+        </Card>
+      )}
+
+      {dispositionResult.error || !dispositionReadiness ? (
+        <Card className="border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          {dispositionResult.error ?? "Disposition readiness recovery non disponibile."}
+        </Card>
+      ) : (
+        <Card className="p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">
+            PA2.30.12 · Recovery Remediation Disposition Cutover
+          </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            <div>
+              <p className="text-xs text-slate-400">Recovery non pronti</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{dispositionReadiness.summary.recovery_not_ready}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Dismiss esplicito ready</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{dispositionReadiness.summary.ready_dismiss_no_offered_evidence}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Decisione Offer richiesta</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{dispositionReadiness.summary.offer_decision_required}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Resolve ready</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{dispositionReadiness.summary.ready_resolve}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Candidate Offer</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{dispositionReadiness.summary.total_offered_candidates}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-400">Preservate fuori scope</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{dispositionReadiness.summary.total_preserved_out_of_scope_candidates}</p>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Badge tone="green">offered-only closure scope</Badge>
+            <Badge tone="blue">requested evidence preserved</Badge>
+            <Badge tone="amber">explicit dismissal + note</Badge>
+            <Badge tone="neutral">no auto-close</Badge>
           </div>
         </Card>
       )}
