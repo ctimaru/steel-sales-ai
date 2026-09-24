@@ -197,3 +197,81 @@ def test_pa23016_missing_member_preserves_transfer_for_retry(monkeypatch):
     assert result["status"] == "partial_failure"
     assert result["failed"] == 1
     assert calls["cleanup"] == 0
+
+
+def test_pa23016c_stage_bridge_stores_without_execution(monkeypatch):
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    archive_payload = _archive_bytes({
+        "Inbox/a.eml": b"Subject: A\n\nbody",
+        "Inbox/b.eml": b"Subject: B\n\nbody",
+    })
+    calls = {"stored": 0}
+
+    class FakeRepo:
+        async def store_offer_source_recovery_transfer_chunk(
+            self, *, transfer_id, part_no, payload_base64
+        ):
+            assert transfer_id == "pa23016-stage-test"
+            assert part_no == 0
+            assert payload_base64
+            calls["stored"] += 1
+            return {"status": "stored"}
+
+    monkeypatch.setattr(bootstrap, "WorkerRepository", FakeRepo)
+    monkeypatch.setenv("PA23016_STAGE_TOKEN", "stage-token")
+    monkeypatch.setenv("PA23016_STAGE_TRANSFER_ID", "pa23016-stage-test")
+    monkeypatch.setenv(
+        "PA23016_STAGE_ARCHIVE_SHA256",
+        hashlib.sha256(archive_payload).hexdigest(),
+    )
+
+    app = FastAPI()
+    bootstrap.install_offer_source_ambiguous_recovery_bootstrap(app)
+    client = TestClient(app)
+
+    response = client.post(
+        "/v1/remediation/pa23016-stage",
+        data={"token": "stage-token"},
+        files={"upload": ("selected.zip", archive_payload, "application/zip")},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "staged"
+    assert body["eml_count"] == 2
+    assert body["reingest_executed"] is False
+    assert body["automatic_source_selection"] is False
+    assert calls["stored"] == 1
+
+
+def test_pa23016c_stage_bridge_rejects_checksum_before_storage(monkeypatch):
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    archive_payload = _archive_bytes({
+        "Inbox/a.eml": b"a",
+        "Inbox/b.eml": b"b",
+    })
+
+    class FakeRepo:
+        async def store_offer_source_recovery_transfer_chunk(self, **kwargs):
+            raise AssertionError("checksum mismatch must fail before persistence")
+
+    monkeypatch.setattr(bootstrap, "WorkerRepository", FakeRepo)
+    monkeypatch.setenv("PA23016_STAGE_TOKEN", "stage-token")
+    monkeypatch.setenv("PA23016_STAGE_TRANSFER_ID", "pa23016-stage-test")
+    monkeypatch.setenv("PA23016_STAGE_ARCHIVE_SHA256", "0" * 64)
+
+    app = FastAPI()
+    bootstrap.install_offer_source_ambiguous_recovery_bootstrap(app)
+    client = TestClient(app)
+
+    response = client.post(
+        "/v1/remediation/pa23016-stage",
+        data={"token": "stage-token"},
+        files={"upload": ("selected.zip", archive_payload, "application/zip")},
+    )
+
+    assert response.status_code == 422
