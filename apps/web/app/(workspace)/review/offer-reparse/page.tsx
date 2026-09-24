@@ -11,6 +11,7 @@ import {
   loadOfferRecoveryCandidateDecisionReadiness,
   loadOfferRecoveryRemediationDispositionReadiness,
   loadOfferRecoveryDispositionBatchHistory,
+  loadOfferRecoveryResidualCandidateResolutionReadiness,
   loadOfferRecoveryOutcomeReconciliation,
   loadOfferSourceReingestReadiness,
 } from "./actions";
@@ -19,9 +20,10 @@ import { ReparseRemediationClosureCard } from "./reparse-remediation-closure-car
 import { SourceReingestCard } from "./source-reingest-card";
 import { SourceReingestArchiveCard } from "./source-reingest-archive-card";
 import { RecoveryDispositionBatchCard } from "./recovery-disposition-batch-card";
+import { ResidualOfferResolutionCard } from "./residual-offer-resolution-card";
 
 export default async function OfferReparseReviewPage() {
-  const [result, closureResult, recoveryResult, reentryResult, reconciliationResult, matchingResult, decisionResult, dispositionResult, dispositionHistoryResult] = await Promise.all([
+  const [result, closureResult, recoveryResult, reentryResult, reconciliationResult, matchingResult, decisionResult, dispositionResult, dispositionHistoryResult, residualResolutionResult] = await Promise.all([
     loadOfferReparseCandidateReview(),
     loadOfferReparseRemediationClosureReadiness(),
     loadOfferSourceReingestReadiness(),
@@ -31,6 +33,7 @@ export default async function OfferReparseReviewPage() {
     loadOfferRecoveryCandidateDecisionReadiness(),
     loadOfferRecoveryRemediationDispositionReadiness(),
     loadOfferRecoveryDispositionBatchHistory(),
+    loadOfferRecoveryResidualCandidateResolutionReadiness(),
   ]);
   const data = result.data;
   const closure = closureResult.data;
@@ -41,6 +44,7 @@ export default async function OfferReparseReviewPage() {
   const decisionReadiness = decisionResult.data;
   const dispositionReadiness = dispositionResult.data;
   const dispositionHistory = dispositionHistoryResult.data;
+  const residualResolution = residualResolutionResult.data;
   const decisionByCandidate = new Map(
     (decisionReadiness?.items ?? []).map((item) => [item.candidate_id, item.decision_readiness]),
   );
@@ -356,6 +360,18 @@ export default async function OfferReparseReviewPage() {
           items={dispositionReadiness.items}
           history={dispositionHistory?.items ?? []}
         />
+      ) : null}
+
+      {residualResolutionResult.error || !residualResolution ? (
+        <Card className="border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          {residualResolutionResult.error ?? "Readiness PA2.30.14 non disponibile."}
+        </Card>
+      ) : residualResolution.items.length ? (
+        <div className="space-y-4">
+          {residualResolution.items.map((item) => (
+            <ResidualOfferResolutionCard key={item.candidate_id} item={item} />
+          ))}
+        </div>
       ) : null}
 
       {closureResult.error || !closure ? (

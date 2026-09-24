@@ -1213,3 +1213,136 @@ export async function loadOfferRecoveryDispositionBatchHistory(): Promise<{
     data: data as unknown as { items: RecoveryDispositionBatchHistoryItem[] },
   };
 }
+
+
+export type ResidualOfferResolutionItem = {
+  status: string;
+  reason?: string | null;
+  candidate_id: number;
+  run_id: number;
+  remediation_queue_id: number;
+  thread_id: string;
+  candidate_source_text: string;
+  candidate_source_filename: string;
+  target_observation_id: number;
+  target_source_text: string;
+  target_source_filename_basename: string;
+  source_text_containment_anchor: boolean;
+  source_filename_anchor: boolean;
+  adoption_guard_status: string;
+  adoption_guard_identity_anchored: boolean;
+  adoptable_fields: string[];
+  explicit_target_confirmation_required: boolean;
+  explicit_field_confirmation_required: boolean;
+  automatic_candidate_adoption: boolean;
+  automatic_remediation_closure: boolean;
+  control_phase: string;
+};
+
+export type ResidualOfferResolutionPayload = {
+  summary: {
+    candidate_count: number;
+    source_provenance_target_ready: number;
+    blocked: number;
+    terminal: number;
+  };
+  items: ResidualOfferResolutionItem[];
+  policy: {
+    same_thread_required: boolean;
+    same_source_filename_required: boolean;
+    candidate_text_containment_required: boolean;
+    unique_source_target_required: boolean;
+    pa2308_adoption_guard_required: boolean;
+    explicit_target_confirmation_required: boolean;
+    explicit_field_confirmation_required: boolean;
+    automatic_candidate_adoption: boolean;
+    automatic_remediation_closure: boolean;
+    control_phase: string;
+  };
+};
+
+export async function loadOfferRecoveryResidualCandidateResolutionReadiness(): Promise<{
+  data: ResidualOfferResolutionPayload | null;
+  error?: string;
+}> {
+  const { client, organizationId } = await activeOrganization();
+  if (!organizationId) return { data: null, error: "Workspace non disponibile." };
+
+  const { data, error } = await client.rpc(
+    "p1_offer_recovery_residual_candidate_resolution_readiness",
+    {
+      p_organization_id: organizationId,
+      p_limit: 100,
+    },
+  );
+
+  if (error || !data || typeof data !== "object") {
+    return {
+      data: null,
+      error: error?.message ?? "Readiness PA2.30.14 non disponibile.",
+    };
+  }
+
+  return { data: data as unknown as ResidualOfferResolutionPayload };
+}
+
+export async function resolveOfferRecoveryResidualCandidate(input: {
+  candidateId: number;
+  targetObservationId: number;
+  selectedFields: string[];
+  note: string;
+}): Promise<{ ok: boolean; status?: string; error?: string }> {
+  if (!Number.isInteger(input.candidateId) || input.candidateId <= 0) {
+    return { ok: false, error: "Candidate non valida." };
+  }
+  if (!Number.isInteger(input.targetObservationId) || input.targetObservationId <= 0) {
+    return { ok: false, error: "Observation target non valida." };
+  }
+  if (!input.selectedFields.length) {
+    return { ok: false, error: "Seleziona i campi da adottare." };
+  }
+  if (!input.note.trim()) {
+    return { ok: false, error: "Inserisci una nota di conferma obbligatoria." };
+  }
+
+  const { client, organizationId } = await activeOrganization();
+  if (!organizationId) return { ok: false, error: "Workspace non disponibile." };
+
+  const { data, error } = await client.rpc(
+    "p1_resolve_offer_recovery_residual_candidate",
+    {
+      p_organization_id: organizationId,
+      p_candidate_id: input.candidateId,
+      p_target_observation_id: input.targetObservationId,
+      p_selected_fields: input.selectedFields,
+      p_note: input.note.trim(),
+    },
+  );
+
+  if (error || !data || typeof data !== "object") {
+    return {
+      ok: false,
+      error: error?.message ?? "Risoluzione PA2.30.14 non riuscita.",
+    };
+  }
+
+  const result = data as Record<string, unknown>;
+  const status = typeof result.status === "string" ? result.status : undefined;
+  const ok = status === "adopted" || status === "already_decided";
+
+  if (ok) {
+    revalidatePath("/review/offer-reparse");
+    revalidatePath("/review/offer-remediation");
+    revalidatePath("/review");
+  }
+
+  return {
+    ok,
+    status,
+    error: ok
+      ? undefined
+      : typeof result.reason === "string"
+        ? result.reason
+        : "Candidate residuale non risolvibile.",
+  };
+}
