@@ -164,12 +164,19 @@ async def execute_offer_source_reingest_bytes(
         if expected_source_path is not None:
             preferred = claim.get("preferred_source_filename")
             selection_status = claim.get("source_selection_status")
-            if selection_status != "unique_offered_source" or not isinstance(preferred, str):
-                raise ValueError("Bulk recovery requires one unique offered source.")
+            if selection_status not in {
+                "unique_offered_source",
+                "manually_selected_offered_source",
+            } or not isinstance(preferred, str):
+                raise ValueError(
+                    "Bulk recovery requires a database-selected offered source."
+                )
             if _normalize_archive_path(preferred).casefold() != _normalize_archive_path(
                 expected_source_path
             ).casefold():
-                raise ValueError("Bulk recovery manifest does not match the database-selected source.")
+                raise ValueError(
+                    "Bulk recovery manifest does not match the database-selected source."
+                )
 
         checksum = hashlib.sha256(content).hexdigest()
         source_job_id = uuid4()
