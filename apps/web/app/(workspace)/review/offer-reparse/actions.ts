@@ -1047,6 +1047,7 @@ export type RecoveryRemediationDispositionPayload = {
   summary: {
     remediation_count: number;
     recovery_not_ready: number;
+    recovery_in_progress: number;
     ready_dismiss_no_offered_evidence: number;
     offer_decision_required: number;
     offer_decisions_incomplete: number;
