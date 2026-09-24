@@ -275,3 +275,43 @@ def test_pa23016c_stage_bridge_rejects_checksum_before_storage(monkeypatch):
     )
 
     assert response.status_code == 422
+
+
+def test_pa23016c_env_staging_writes_transfer_without_reingest(monkeypatch):
+    archive_payload = _archive_bytes({
+        "Inbox/a.eml": b"Subject: A\n\nbody",
+        "Inbox/b.eml": b"Subject: B\n\nbody",
+    })
+    encoded = base64.b64encode(archive_payload).decode("ascii")
+    midpoint = len(encoded) // 2
+    calls = {"stored": 0}
+
+    class FakeRepo:
+        async def store_offer_source_recovery_transfer_chunk(
+            self, *, transfer_id, part_no, payload_base64
+        ):
+            assert transfer_id == "pa23016-env-stage"
+            calls["stored"] += 1
+            return {"status": "stored"}
+
+    monkeypatch.setattr(bootstrap, "WorkerRepository", FakeRepo)
+    monkeypatch.setenv("PA23016_STAGE_TRANSFER_ID", "pa23016-env-stage")
+    monkeypatch.setenv(
+        "PA23016_STAGE_ARCHIVE_SHA256",
+        hashlib.sha256(archive_payload).hexdigest(),
+    )
+    monkeypatch.setenv("PA23016_STAGE_ARCHIVE_B64_PARTS", "2")
+    monkeypatch.setenv("PA23016_STAGE_ARCHIVE_B64_PART_0", encoded[:midpoint])
+    monkeypatch.setenv("PA23016_STAGE_ARCHIVE_B64_PART_1", encoded[midpoint:])
+    monkeypatch.delenv(
+        "OFFER_SOURCE_AMBIGUOUS_RECOVERY_BOOTSTRAP_TRANSFER_ID",
+        raising=False,
+    )
+
+    from fastapi import FastAPI
+    app = FastAPI()
+    bootstrap.install_offer_source_ambiguous_recovery_bootstrap(app)
+
+    asyncio.run(app.router.startup())
+
+    assert calls["stored"] == 1
