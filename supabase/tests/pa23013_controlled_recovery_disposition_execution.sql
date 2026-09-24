@@ -273,26 +273,17 @@ select pg_temp.assert_true(
   'closure ledger must record only the eligible batch member'
 );
 
-select pg_temp.assert_true(
-  exists(
-    select 1
-    from private.commercial_offer_recovery_disposition_batches b
-    where b.organization_id='00000000-0000-0000-0000-0000000056f1'
-      and b.id=(:'batch_result'::jsonb->>'batch_id')::uuid
-      and b.requested_count=2
-      and b.dismissed_count=1
-      and b.blocked_count=1
-      and b.result_snapshot->>'control_phase'='PA2.30.13'
-  ),
-  'batch ledger must durably capture requested ids and results'
-);
-
 select public.p1_offer_recovery_disposition_batch_history(
   '00000000-0000-0000-0000-0000000056f1',20
 ) as history \gset
 
 select pg_temp.assert_true(
   jsonb_array_length(:'history'::jsonb->'items')=1
+  and (:'history'::jsonb#>>'{items,0,batch_id}')::uuid=(:'batch_result'::jsonb->>'batch_id')::uuid
+  and (:'history'::jsonb#>>'{items,0,requested_count}')::int=2
+  and (:'history'::jsonb#>>'{items,0,dismissed_count}')::int=1
+  and (:'history'::jsonb#>>'{items,0,blocked_count}')::int=1
+  and (:'history'::jsonb#>>'{items,0,result_snapshot,control_phase}')='PA2.30.13'
   and (:'history'::jsonb#>>'{policy,explicit_id_selection_required}')::boolean=true
   and (:'history'::jsonb#>>'{policy,state_revalidated_per_item}')::boolean=true,
   'authorized history must expose the append-only batch audit'
