@@ -1,4 +1,4 @@
--- PA2.30.14 — Controlled Residual Offer Candidate Resolution acceptance.
+-- PA2.30.15 — Residual Evidence Gap Reconciliation & Remediation Finalization Readiness acceptance.
 begin;
 
 create or replace function pg_temp.assert_true(ok boolean, message text)
@@ -246,7 +246,74 @@ select pg_temp.assert_true(
   (select status='pending'
    from public.commercial_offer_remediation_queue
    where organization_id='00000000-0000-0000-0000-0000000057f1'),
-  'candidate resolution must never auto-close the remediation; later phases may change readiness only'
+  'candidate resolution must not auto-close the remediation before explicit finalization'
+);
+
+
+select public.p1_offer_recovery_residual_gap_reconciliation_readiness(
+  '00000000-0000-0000-0000-0000000057f1',100
+) as pa23015_readiness \gset
+
+select pg_temp.assert_true(
+  (:'pa23015_readiness'::jsonb#>>'{summary,ready_finalize_no_price_present}')::int=1
+  and (:'pa23015_readiness'::jsonb#>>'{items,0,status}')='ready_finalize_no_price_present'
+  and (:'pa23015_readiness'::jsonb#>>'{items,0,thread_evidence,quantity_status}')='satisfied'
+  and (:'pa23015_readiness'::jsonb#>>'{items,0,thread_evidence,price_status}')='not_applicable_absent_from_source'
+  and (:'pa23015_readiness'::jsonb#>>'{items,0,thread_evidence,currency_status}')='not_applicable_absent_from_source',
+  'source-level reconciliation must distinguish absent price evidence from a recoverable missing value'
+);
+
+select public.p1_close_offer_reparse_remediation(
+  '00000000-0000-0000-0000-0000000057f1',
+  (select id from public.commercial_offer_remediation_queue
+   where organization_id='00000000-0000-0000-0000-0000000057f1'),
+  null
+) as close_without_note \gset
+
+select pg_temp.assert_true(
+  :'close_without_note'::jsonb->>'status'='blocked'
+  and :'close_without_note'::jsonb->>'reason'='reconciliation_note_required',
+  'reconciled finalization must require an explicit note'
+);
+
+select public.p1_close_offer_reparse_remediation(
+  '00000000-0000-0000-0000-0000000057f1',
+  (select id from public.commercial_offer_remediation_queue
+   where organization_id='00000000-0000-0000-0000-0000000057f1'),
+  'PA2.30.15 explicit finalization: recovered source contains quantity evidence and no price evidence.'
+) as final_close \gset
+
+select pg_temp.assert_true(
+  :'final_close'::jsonb->>'status'='resolved'
+  and :'final_close'::jsonb->>'resolution_reason'='source_evidence_reconciled_no_price_present'
+  and :'final_close'::jsonb->>'control_phase'='PA2.30.15',
+  'explicit reconciliation finalization must resolve the remediation'
+);
+
+select pg_temp.assert_true(
+  (select status='resolved'
+   from public.commercial_offer_remediation_queue
+   where organization_id='00000000-0000-0000-0000-0000000057f1')
+  and
+  (select review_status='accepted'
+   from public.commercial_offer_reparse_candidates where id=5711)
+  and
+  (select price_value is null and currency is null
+   from public.commercial_observations where id=57002),
+  'finalization must not fabricate absent price/currency evidence or alter the accepted candidate decision'
+);
+
+select pg_temp.assert_true(
+  exists(
+    select 1
+    from public.commercial_offer_reparse_remediation_closure_events e
+    where e.organization_id='00000000-0000-0000-0000-0000000057f1'
+      and e.outcome='resolved'
+      and e.resolution_reason='source_evidence_reconciled_no_price_present'
+      and e.closure_snapshot->>'reconciliation_control_phase'='PA2.30.15'
+      and e.note is not null
+  ),
+  'closure ledger must preserve reconciliation evidence and explicit note'
 );
 
 rollback;

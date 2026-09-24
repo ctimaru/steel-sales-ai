@@ -1346,3 +1346,90 @@ export async function resolveOfferRecoveryResidualCandidate(input: {
         : "Candidate residuale non risolvibile.",
   };
 }
+
+
+export type ResidualGapReconciliationItem = {
+  status: string;
+  reason?: string | null;
+  remediation_queue_id: number;
+  thread_id?: string;
+  run_id?: number;
+  offered_candidate_count?: number;
+  pending_offered_candidate_count?: number;
+  accepted_offered_candidate_count?: number;
+  rejected_offered_candidate_count?: number;
+  decision_count?: number;
+  thread_evidence?: {
+    quantity_evidence_count: number;
+    price_evidence_count: number;
+    currency_evidence_count: number;
+    source_quantity_marker_count: number;
+    source_price_marker_count: number;
+    quantity_status: string;
+    price_status: string;
+    currency_status: string;
+    price_marker_samples: Array<Record<string, unknown>>;
+    quantity_marker_samples: Array<Record<string, unknown>>;
+  };
+  raw_observation_gap_snapshot?: {
+    quantity?: number;
+    price?: number;
+    currency?: number;
+  };
+  source_exhaustion_confirmed?: boolean;
+  per_observation_completeness_not_required_for_finalization?: boolean;
+  explicit_finalization_required?: boolean;
+  finalization_note_required?: boolean;
+  automatic_observation_fill?: boolean;
+  automatic_remediation_closure?: boolean;
+  control_phase?: string;
+};
+
+export type ResidualGapReconciliationPayload = {
+  summary: {
+    remediation_count: number;
+    ready_finalize_no_price_present: number;
+    ready_finalize_recovered_evidence: number;
+    blocked: number;
+    already_closed: number;
+  };
+  items: ResidualGapReconciliationItem[];
+  policy: {
+    thread_level_evidence_reconciliation: boolean;
+    per_observation_completeness_not_required: boolean;
+    price_required_only_when_source_marker_present: boolean;
+    currency_required_only_when_price_source_marker_present: boolean;
+    quantity_required_when_source_quantity_evidence_present: boolean;
+    accepted_offer_candidate_required: boolean;
+    explicit_finalization_required: boolean;
+    finalization_note_required: boolean;
+    automatic_observation_fill: boolean;
+    automatic_remediation_closure: boolean;
+    control_phase: string;
+  };
+};
+
+export async function loadOfferRecoveryResidualGapReconciliationReadiness(): Promise<{
+  data: ResidualGapReconciliationPayload | null;
+  error?: string;
+}> {
+  const { client, organizationId } = await activeOrganization();
+  if (!organizationId) return { data: null, error: "Workspace non disponibile." };
+
+  const { data, error } = await client.rpc(
+    "p1_offer_recovery_residual_gap_reconciliation_readiness",
+    {
+      p_organization_id: organizationId,
+      p_limit: 100,
+    },
+  );
+
+  if (error || !data || typeof data !== "object") {
+    return {
+      data: null,
+      error: error?.message ?? "Readiness PA2.30.15 non disponibile.",
+    };
+  }
+
+  return { data: data as unknown as ResidualGapReconciliationPayload };
+}

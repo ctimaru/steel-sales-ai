@@ -38,7 +38,9 @@ export function ReparseRemediationClosureCard({
     item.closure_status === "ready_dismiss_no_candidates" ||
     item.closure_status === "ready_dismiss_no_recovery";
   const dismissal = item.recommended_outcome === "dismissed";
-  const noteRequired = dismissal;
+  const reconciledNoPrice =
+    item.resolution_reason === "source_evidence_reconciled_no_price_present";
+  const noteRequired = dismissal || reconciledNoPrice;
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
@@ -95,9 +97,11 @@ export function ReparseRemediationClosureCard({
           </p>
           <p className="mt-2 text-xs leading-5 text-slate-600">
             {ready
-              ? item.recommended_outcome === "resolved"
-                ? "I requisiti PA2.30 sono soddisfatti. La chiusura resta comunque esplicita."
-                : "Il reparse non ha prodotto evidenza recuperabile. Per archiviare è obbligatoria una nota."
+              ? reconciledNoPrice
+                ? "PA2.30.15 ha riconciliato i gap a livello sorgente: quantità presente, nessuna evidenza esplicita di prezzo/valuta. La finalizzazione resta esplicita e richiede una nota."
+                : item.recommended_outcome === "resolved"
+                  ? "I requisiti PA2.30 sono soddisfatti. La chiusura resta comunque esplicita."
+                  : "Il reparse non ha prodotto evidenza recuperabile. Per archiviare è obbligatoria una nota."
               : "La remediation resta aperta finché tutti i prerequisiti PA2.30 non sono soddisfatti."}
           </p>
 
@@ -108,9 +112,11 @@ export function ReparseRemediationClosureCard({
                 disabled={pending}
                 onChange={(event) => setNote(event.target.value)}
                 placeholder={
-                  noteRequired
-                    ? "Motivazione obbligatoria per archiviare la remediation"
-                    : "Nota opzionale sulla chiusura"
+                  reconciledNoPrice
+                    ? "Nota obbligatoria: conferma che la sorgente non contiene prezzo/valuta"
+                    : noteRequired
+                      ? "Motivazione obbligatoria per archiviare la remediation"
+                      : "Nota opzionale sulla chiusura"
                 }
                 className="mt-3 min-h-20 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800"
               />
