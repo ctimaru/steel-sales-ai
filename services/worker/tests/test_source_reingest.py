@@ -362,3 +362,74 @@ def test_pa2304_manual_selected_source_executes_exact_file(monkeypatch):
     assert len(repo.completed) == 1
     assert repo.completed[0]["filename"] == "offer-b.eml"
     assert repo.failed == []
+
+
+def test_pa23016_bulk_archive_accepts_exact_manual_offered_selection(monkeypatch):
+    class ManualBatchRepo(FakeRepo):
+        async def claim_offer_source_reingest(self, *, reingest_id, owner_id):
+            expected = "Inbox/2.1 BRONIFER 13131/manual-offer.eml"
+            return {
+                "status": "claimed",
+                "reingest_id": reingest_id,
+                "owner_id": str(owner_id),
+                "thread_id": "00000000-0000-0000-0000-000000000052",
+                "source_only": True,
+                "expected_source_filenames": [
+                    expected,
+                    "Inbox/2.1 BRONIFER 13131/other-offer.eml",
+                ],
+                "offered_source_filenames": [
+                    expected,
+                    "Inbox/2.1 BRONIFER 13131/other-offer.eml",
+                ],
+                "preferred_source_filename": expected,
+                "selected_source_filename": expected,
+                "source_selection_mode": "manual_offered_source",
+                "source_selection_status": "manually_selected_offered_source",
+            }
+
+    repo = ManualBatchRepo()
+    monkeypatch.setattr(source_reingest, "WorkerRepository", lambda: repo)
+
+    async def fake_upload(**kwargs):
+        return "2026/09/24/manual-offer.eml"
+
+    async def fake_reparse(run_id):
+        assert run_id == 44
+        return {"status": "completed", "run_id": 44, "extraction_count": 1}
+
+    monkeypatch.setattr(source_reingest, "upload_private_object", fake_upload)
+    monkeypatch.setattr(source_reingest, "execute_offer_source_reparse", fake_reparse)
+
+    archive_buffer = BytesIO()
+    with zipfile.ZipFile(archive_buffer, "w") as archive:
+        archive.writestr(
+            "Inbox/2.1 BRONIFER 13131/manual-offer.eml",
+            b"Subject: Manual selected offer\n\nDisponibile",
+        )
+    archive_buffer.seek(0)
+
+    client = TestClient(app)
+    response = client.post(
+        "/v1/remediation/offer-source-reingest-batch",
+        data={
+            "owner_id": "f45fab6e-3da8-41aa-8711-fc1b337a7dde",
+            "manifest": json.dumps(
+                [
+                    {
+                        "reingest_id": 52,
+                        "expected_source_filename":
+                            "Inbox/2.1 BRONIFER 13131/manual-offer.eml",
+                    }
+                ]
+            ),
+        },
+        files={"upload": ("archive.zip", archive_buffer, "application/zip")},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["recovered"] == 1
+    assert body["failed"] == 0
+    assert body["automatic_ambiguous_selection"] is False
+    assert repo.completed[0]["filename"] == "manual-offer.eml"
