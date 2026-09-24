@@ -3,6 +3,19 @@
 -- Non-offered recovery candidates remain preserved for their native workflows and
 -- never block offer-remediation disposition.
 
+alter table public.commercial_offer_reparse_remediation_closure_events
+  drop constraint if exists commercial_offer_reparse_remediation_cl_resolution_reason_check;
+
+alter table public.commercial_offer_reparse_remediation_closure_events
+  add constraint commercial_offer_reparse_remediation_cl_resolution_reason_check
+  check (resolution_reason in (
+    'recovered_required_evidence',
+    'no_candidates_from_reparse',
+    'all_candidates_rejected',
+    'recovery_completed_no_offered_candidates',
+    'all_offered_candidates_rejected'
+  ));
+
 create or replace function private.offer_recovery_remediation_disposition_state(
   p_organization_id uuid,
   p_remediation_queue_id bigint
