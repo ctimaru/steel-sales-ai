@@ -6,15 +6,18 @@ import hashlib
 import json
 import logging
 import os
+import secrets
 from pathlib import PurePosixPath
 from uuid import UUID
 
-from fastapi import FastAPI
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 
 from .repository import RepositoryConfigurationError, RepositoryError, WorkerRepository
 from .source_reingest import (
     SourceReingestClaimError,
+    MAX_ARCHIVE_BYTES,
     _archive_members,
+    _read_upload,
     execute_offer_source_reingest_bytes,
 )
 from .storage import StorageConfigurationError, StorageUploadError
@@ -182,6 +185,72 @@ async def execute_offer_source_ambiguous_recovery_bootstrap() -> dict[str, objec
 
 
 def install_offer_source_ambiguous_recovery_bootstrap(app: FastAPI) -> None:
+    @app.post("/v1/remediation/pa23016-stage")
+    async def pa23016_stage(
+        upload: UploadFile = File(...),
+        token: str = Form(...),
+    ) -> dict[str, object]:
+        expected_token = os.getenv("PA23016_STAGE_TOKEN", "")
+        if not expected_token or not secrets.compare_digest(token, expected_token):
+            raise HTTPException(status_code=403, detail="Invalid PA2.30.16 staging token.")
+
+        transfer_id = os.getenv("PA23016_STAGE_TRANSFER_ID", "").strip()
+        expected_sha = os.getenv("PA23016_STAGE_ARCHIVE_SHA256", "").strip().lower()
+        if not transfer_id or len(expected_sha) != 64:
+            raise HTTPException(status_code=503, detail="PA2.30.16 staging is not configured.")
+
+        payload = await _read_upload(
+            upload,
+            max_bytes=MAX_ARCHIVE_BYTES,
+            label="PA2.30.16 selected-source archive",
+        )
+        actual_sha = hashlib.sha256(payload).hexdigest()
+        if actual_sha != expected_sha:
+            raise HTTPException(status_code=422, detail="PA2.30.16 archive checksum mismatch.")
+
+        archive, members = _archive_members(payload)
+        try:
+            eml_members = [
+                info.filename for info in archive.infolist()
+                if not info.is_dir() and PurePosixPath(info.filename).suffix.lower() == ".eml"
+            ]
+            if len(eml_members) != 2:
+                raise HTTPException(
+                    status_code=422,
+                    detail="PA2.30.16 archive must contain exactly two EML sources.",
+                )
+        finally:
+            archive.close()
+
+        repo = WorkerRepository()
+        encoded = base64.b64encode(payload).decode("ascii")
+        chunk_chars = 150000
+        stored_parts = 0
+        for part_no, offset in enumerate(range(0, len(encoded), chunk_chars)):
+            stored = await repo.store_offer_source_recovery_transfer_chunk(
+                transfer_id=transfer_id,
+                part_no=part_no,
+                payload_base64=encoded[offset:offset + chunk_chars],
+            )
+            if stored.get("status") != "stored":
+                raise HTTPException(
+                    status_code=503,
+                    detail=f"PA2.30.16 transfer chunk {part_no} was not stored.",
+                )
+            stored_parts += 1
+
+        return {
+            "status": "staged",
+            "transfer_id": transfer_id,
+            "archive_sha256": actual_sha,
+            "archive_bytes": len(payload),
+            "part_count": stored_parts,
+            "eml_count": len(eml_members),
+            "automatic_source_selection": False,
+            "reingest_executed": False,
+            "control_phase": "PA2.30.16c",
+        }
+
     @app.on_event("startup")
     async def schedule_pa23016_bootstrap() -> None:
         if not os.getenv("OFFER_SOURCE_AMBIGUOUS_RECOVERY_BOOTSTRAP_TRANSFER_ID", "").strip():
