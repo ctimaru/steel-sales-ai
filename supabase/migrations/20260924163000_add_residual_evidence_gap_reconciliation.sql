@@ -42,6 +42,14 @@ alter table public.commercial_offer_reparse_remediation_closure_events
     )
   );
 
+alter function private.offer_reparse_remediation_closure_state(uuid,bigint)
+rename to offer_reparse_remediation_closure_state_pa23015_base;
+
+revoke all on function private.offer_reparse_remediation_closure_state_pa23015_base(uuid,bigint)
+from public,anon,authenticated;
+grant execute on function private.offer_reparse_remediation_closure_state_pa23015_base(uuid,bigint)
+to service_role;
+
 create or replace function private.offer_recovery_residual_gap_reconciliation_state(
   p_organization_id uuid,
   p_remediation_queue_id bigint
@@ -98,7 +106,7 @@ begin
     );
   end if;
 
-  base_state := private.offer_reparse_remediation_closure_state(
+  base_state := private.offer_reparse_remediation_closure_state_pa23015_base(
     p_organization_id,p_remediation_queue_id
   );
 
@@ -376,14 +384,6 @@ revoke all on function public.p1_offer_recovery_residual_gap_reconciliation_read
 from public,anon;
 grant execute on function public.p1_offer_recovery_residual_gap_reconciliation_readiness(uuid,integer)
 to authenticated,service_role;
-
-alter function private.offer_reparse_remediation_closure_state(uuid,bigint)
-rename to offer_reparse_remediation_closure_state_pa23015_base;
-
-revoke all on function private.offer_reparse_remediation_closure_state_pa23015_base(uuid,bigint)
-from public,anon,authenticated;
-grant execute on function private.offer_reparse_remediation_closure_state_pa23015_base(uuid,bigint)
-to service_role;
 
 create or replace function private.offer_reparse_remediation_closure_state(
   p_organization_id uuid,
