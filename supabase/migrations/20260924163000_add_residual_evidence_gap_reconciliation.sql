@@ -459,6 +459,9 @@ declare
   actor_id uuid := (select auth.uid());
   state jsonb;
   note_value text := left(nullif(btrim(coalesce(p_note,'')),''),2000);
+  q public.commercial_offer_remediation_queue%rowtype;
+  existing public.commercial_offer_reparse_remediation_closure_events%rowtype;
+  event_id bigint;
 begin
   if actor_id is null then
     raise exception 'authentication required' using errcode='28000';
@@ -471,8 +474,13 @@ begin
     p_organization_id,p_remediation_queue_id
   );
 
-  if state->>'resolution_reason'='source_evidence_reconciled_no_price_present'
-     and note_value is null then
+  if state->>'resolution_reason'<>'source_evidence_reconciled_no_price_present' then
+    return private.close_offer_reparse_remediation_impl_pa23015_base(
+      p_organization_id,p_remediation_queue_id,p_note
+    );
+  end if;
+
+  if note_value is null then
     return jsonb_build_object(
       'status','blocked',
       'reason','reconciliation_note_required',
@@ -481,8 +489,106 @@ begin
     );
   end if;
 
-  return private.close_offer_reparse_remediation_impl_pa23015_base(
-    p_organization_id,p_remediation_queue_id,p_note
+  if state->>'closure_status'<>'ready_resolve'
+     or state->>'recommended_outcome'<>'resolved' then
+    return jsonb_build_object(
+      'status','blocked',
+      'reason',coalesce(state->>'closure_status','not_ready'),
+      'remediation_queue_id',p_remediation_queue_id,
+      'closure_state',state
+    );
+  end if;
+
+  perform pg_advisory_xact_lock(hashtextextended(
+    'offer-reparse-close:'||p_organization_id::text||':'||p_remediation_queue_id::text,0
+  ));
+
+  select * into q
+  from public.commercial_offer_remediation_queue
+  where id=p_remediation_queue_id
+    and organization_id=p_organization_id
+    and category='source_reparse_required'
+    and recommended_action='source_email_reparse'
+  for update;
+
+  if not found then
+    return jsonb_build_object('status','blocked','reason','remediation_not_found');
+  end if;
+
+  select * into existing
+  from public.commercial_offer_reparse_remediation_closure_events
+  where organization_id=p_organization_id
+    and remediation_queue_id=q.id;
+
+  if found then
+    return jsonb_build_object(
+      'status','already_closed',
+      'closure_event_id',existing.id,
+      'outcome',existing.outcome,
+      'resolution_reason',existing.resolution_reason,
+      'remediation_queue_id',q.id
+    );
+  end if;
+
+  -- Re-evaluate after locking to prevent stale finalization.
+  state := private.offer_reparse_remediation_closure_state(
+    p_organization_id,p_remediation_queue_id
+  );
+
+  if state->>'closure_status'<>'ready_resolve'
+     or state->>'recommended_outcome'<>'resolved'
+     or state->>'resolution_reason'<>'source_evidence_reconciled_no_price_present' then
+    return jsonb_build_object(
+      'status','blocked',
+      'reason','reconciliation_state_changed',
+      'remediation_queue_id',q.id,
+      'closure_state',state
+    );
+  end if;
+
+  insert into public.commercial_offer_reparse_remediation_closure_events(
+    organization_id,remediation_queue_id,run_id,thread_id,
+    outcome,resolution_reason,candidate_count,accepted_count,rejected_count,
+    decision_count,residual_gap_snapshot,conflict_snapshot,closure_snapshot,
+    closed_by,note
+  ) values (
+    p_organization_id,
+    q.id,
+    (state->>'run_id')::bigint,
+    q.thread_id,
+    'resolved',
+    'source_evidence_reconciled_no_price_present',
+    coalesce((state->>'candidate_count')::int,0),
+    coalesce((state->>'accepted_count')::int,0),
+    coalesce((state->>'rejected_count')::int,0),
+    coalesce((state->>'decision_count')::int,0),
+    coalesce(state->'residual_gaps','{}'::jsonb),
+    coalesce(state->'unresolved_conflicts','[]'::jsonb),
+    state,
+    actor_id,
+    note_value
+  )
+  returning id into event_id;
+
+  update public.commercial_offer_remediation_queue
+  set
+    status='resolved',
+    resolved_by=actor_id,
+    resolved_at=now(),
+    resolution_notes=note_value
+  where id=q.id;
+
+  return jsonb_build_object(
+    'status','resolved',
+    'resolution_reason','source_evidence_reconciled_no_price_present',
+    'closure_event_id',event_id,
+    'remediation_queue_id',q.id,
+    'thread_id',q.thread_id,
+    'residual_gap_reconciliation',state->'residual_gap_reconciliation',
+    'observation_mutation',false,
+    'promotion_mutation',false,
+    'automatic_closure',false,
+    'control_phase','PA2.30.15'
   );
 end;
 $$;
