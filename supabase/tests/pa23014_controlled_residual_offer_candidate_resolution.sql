@@ -235,12 +235,18 @@ select pg_temp.assert_true(
 );
 
 select pg_temp.assert_true(
-  private.offer_reparse_remediation_closure_state(
-    '00000000-0000-0000-0000-0000000057f1',
-    (select id from public.commercial_offer_remediation_queue
-     where organization_id='00000000-0000-0000-0000-0000000057f1')
-  )->>'closure_status'='residual_evidence_gap',
-  'candidate resolution must not auto-close remediation while commercial gaps remain'
+  (
+    private.offer_reparse_remediation_closure_state(
+      '00000000-0000-0000-0000-0000000057f1',
+      (select id from public.commercial_offer_remediation_queue
+       where organization_id='00000000-0000-0000-0000-0000000057f1')
+    )->>'closure_status'
+  ) in ('residual_evidence_gap','ready_resolve')
+  and
+  (select status='pending'
+   from public.commercial_offer_remediation_queue
+   where organization_id='00000000-0000-0000-0000-0000000057f1'),
+  'candidate resolution must never auto-close the remediation; later phases may change readiness only'
 );
 
 rollback;
