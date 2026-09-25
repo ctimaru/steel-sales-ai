@@ -20,6 +20,7 @@ export default function AuthFinishPage() {
       const url = new URL(window.location.href);
       const isInvite = url.searchParams.get("invited") === "1";
       const isSignup = url.searchParams.get("signup") === "1";
+      const isRecovery = url.searchParams.get("recovery") === "1";
       const code = url.searchParams.get("code");
 
       try {
@@ -47,6 +48,12 @@ export default function AuthFinishPage() {
 
         if (isInvite) {
           if (!cancelled) setMode("invite");
+          return;
+        }
+
+        if (isRecovery) {
+          router.replace("/reset-password");
+          router.refresh();
           return;
         }
 
