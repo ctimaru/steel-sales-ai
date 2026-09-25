@@ -446,6 +446,7 @@ def test_pa23016c3c_console_contains_staging_only_controls():
 
     response = client.get("/v1/remediation/pa23016-stage-console")
     assert response.status_code == 200
-    assert "/v1/remediation/pa23016-stage-chunk" in response.text
-    assert "/v1/remediation/pa23016-stage-finalize" in response.text
-    assert "No re-ingest or promotion is reachable" in response.text
+    assert 'action="/v1/remediation/pa23016-stage"' in response.text
+    assert 'enctype="multipart/form-data"' in response.text
+    assert 'name="upload"' in response.text
+    assert "Nessun re-ingest o promotion viene avviato" in response.text

@@ -317,22 +317,33 @@ def install_offer_source_ambiguous_recovery_bootstrap(app: FastAPI) -> None:
     async def pa23016_stage_console() -> str:
         return """
         <!doctype html>
-        <html>
-          <head><meta charset="utf-8"><title>PA2.30.16c.3c staging</title></head>
+        <html lang="it">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Upload Steel Sales AI</title>
+            <style>
+              body { font-family: Arial, sans-serif; max-width: 560px; margin: 48px auto; padding: 0 20px; }
+              .card { border: 1px solid #ddd; border-radius: 14px; padding: 24px; }
+              label { display: block; margin-top: 16px; font-weight: 600; }
+              input { width: 100%; box-sizing: border-box; margin-top: 6px; padding: 12px; }
+              button { width: 100%; margin-top: 22px; padding: 14px; font-size: 16px; cursor: pointer; }
+              .note { color: #555; font-size: 14px; margin-top: 14px; }
+            </style>
+          </head>
           <body>
-            <h1>PA2.30.16c.3c — staging only</h1>
-            <form method="post" action="/v1/remediation/pa23016-stage-chunk">
-              <label>Token <input name="token" type="password"></label><br>
-              <label>Part <input name="part_no" type="number" min="0" max="19"></label><br>
-              <label>Base64 chunk<br><textarea name="payload_base64" rows="8" cols="100"></textarea></label><br>
-              <button type="submit">Store chunk</button>
-            </form>
-            <hr>
-            <form method="post" action="/v1/remediation/pa23016-stage-finalize">
-              <label>Token <input name="token" type="password"></label><br>
-              <button type="submit">Verify staged archive</button>
-            </form>
-            <p>No re-ingest or promotion is reachable from this console.</p>
+            <div class="card">
+              <h1>Carica il file ZIP</h1>
+              <p>Seleziona il file e premi Carica. Questa pagina esegue solo lo staging controllato.</p>
+              <form method="post" action="/v1/remediation/pa23016-stage" enctype="multipart/form-data">
+                <label>Token</label>
+                <input name="token" type="password" required autocomplete="off">
+                <label>File ZIP</label>
+                <input name="upload" type="file" accept=".zip,application/zip" required>
+                <button type="submit">Carica</button>
+              </form>
+              <p class="note">Nessun re-ingest o promotion viene avviato da questa pagina.</p>
+            </div>
           </body>
         </html>
         """
