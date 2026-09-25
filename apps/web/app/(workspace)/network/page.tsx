@@ -47,12 +47,20 @@ export default async function NetworkDirectoryPage({
               I dati della Commercial Memory privata non vengono mostrati qui.
             </p>
           </div>
-          <Link
-            href="/network/manage"
-            className="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white"
-          >
-            Gestisci profilo azienda
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/network/saved"
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700"
+            >
+              Aziende salvate
+            </Link>
+            <Link
+              href="/network/manage"
+              className="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white"
+            >
+              Gestisci profilo azienda
+            </Link>
+          </div>
         </div>
       </section>
 

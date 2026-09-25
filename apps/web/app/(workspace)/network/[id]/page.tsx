@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-import { requestNetworkClaim } from "@/app/(workspace)/network/actions";
+import {
+  removeSavedNetworkCompany,
+  requestNetworkClaim,
+  saveNetworkCompany,
+} from "@/app/(workspace)/network/actions";
 import { getNetworkProfile } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { createClient } from "@/lib/supabase/server";
@@ -31,17 +35,35 @@ export default async function NetworkCompanyProfilePage({
   const { data: authData } = await supabase.auth.getUser();
   const userId = authData.user?.id;
   let organizationId: string | null = null;
+  let adminOrganizationId: string | null = null;
+  let isSaved = false;
 
   if (userId) {
     const { data: memberships } = await supabase
       .from("organization_memberships")
       .select("organization_id,is_default,role,status")
       .eq("user_id", userId)
-      .eq("status", "active")
-      .eq("role", "admin");
+      .eq("status", "active");
 
     const membership = memberships?.find((row) => row.is_default) ?? memberships?.[0];
     organizationId = membership?.organization_id ?? null;
+
+    const adminMembership =
+      memberships?.find((row) => row.is_default && row.role === "admin") ??
+      memberships?.find((row) => row.role === "admin");
+    adminOrganizationId = adminMembership?.organization_id ?? null;
+
+    if (organizationId) {
+      const { data: saved } = await supabase
+        .from("network_saved_companies")
+        .select("id")
+        .eq("organization_id", organizationId)
+        .eq("user_id", userId)
+        .eq("network_company_id", profile.company.id)
+        .maybeSingle();
+
+      isSaved = Boolean(saved);
+    }
   }
 
   return (
@@ -78,10 +100,19 @@ export default async function NetworkCompanyProfilePage({
               </a>
             ) : null}
 
-            {profile.company.claimed_status === "unclaimed" && organizationId ? (
+            {organizationId ? (
+              <form action={isSaved ? removeSavedNetworkCompany : saveNetworkCompany}>
+                <input type="hidden" name="network_company_id" value={profile.company.id} />
+                <button className="h-10 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700">
+                  {isSaved ? "Rimuovi dai salvati" : "Salva azienda"}
+                </button>
+              </form>
+            ) : null}
+
+            {profile.company.claimed_status === "unclaimed" && adminOrganizationId ? (
               <form action={requestNetworkClaim}>
                 <input type="hidden" name="network_company_id" value={profile.company.id} />
-                <input type="hidden" name="organization_id" value={organizationId} />
+                <input type="hidden" name="organization_id" value={adminOrganizationId} />
                 <button className="h-10 w-full rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white">
                   Richiedi gestione profilo
                 </button>

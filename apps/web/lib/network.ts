@@ -140,3 +140,39 @@ export async function getManagedNetworkCompany() {
   if (error) throw new Error(error.message);
   return (data as ManagedNetworkCompany | null) ?? null;
 }
+
+
+export type SavedNetworkCompany = {
+  network_company_id: string;
+  created_at: string;
+  company: {
+    id: string;
+    legal_name: string;
+    trading_name: string | null;
+    country_code: string;
+    website_url: string | null;
+    verification_status: string;
+    claimed_status: string;
+    publication_status: string;
+  };
+};
+
+export async function getSavedNetworkCompanies() {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("network_saved_companies")
+    .select(
+      "network_company_id,created_at,network_companies!inner(id,legal_name,trading_name,country_code,website_url,verification_status,claimed_status,publication_status)",
+    )
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+
+  return (data ?? []).map((row) => ({
+    network_company_id: row.network_company_id,
+    created_at: row.created_at,
+    company: Array.isArray(row.network_companies)
+      ? row.network_companies[0]
+      : row.network_companies,
+  })) as SavedNetworkCompany[];
+}
