@@ -21,6 +21,16 @@ type UsageSummary = {
 
 type Criterion = { target: number; actual: number | null; passed: boolean };
 
+type ActivePilot = {
+  id: string;
+  status: "active";
+  label: string;
+  started_at: string;
+  ended_at: string | null;
+  baseline_event_count: number;
+  protocol_version: string;
+};
+
 type Readiness = {
   metrics: {
     active_days: number;
@@ -50,6 +60,14 @@ function percent(value: number | null) {
 
 function integer(value: number | null | undefined) {
   return Number(value ?? 0).toLocaleString("it-IT");
+}
+
+function formatDateTime(value: string) {
+  return new Intl.DateTimeFormat("it-IT", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Europe/Rome",
+  }).format(new Date(value));
 }
 
 const criteriaLabels: Record<keyof Readiness["criteria"], { label: string; help: string; format?: "percent" }> = {
@@ -91,20 +109,51 @@ export default async function PilotAnalyticsPage() {
   if (!membership?.organization_id) redirect("/onboarding");
 
   const organizationId = membership.organization_id as string;
-  const since30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-  const since7 = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { data: pilotData, error: pilotError } = await supabase.rpc("p1_active_pilot_run", {
+    p_organization_id: organizationId,
+  });
+
+  if (pilotError) {
+    return (
+      <div className="mx-auto max-w-6xl">
+        <Card className="border-rose-200 bg-rose-50 p-6">
+          <h1 className="text-xl font-semibold text-rose-950">Pilot analytics non disponibile</h1>
+          <p className="mt-2 text-sm text-rose-800">Il marker di pilot controllato non è leggibile dal workspace.</p>
+        </Card>
+      </div>
+    );
+  }
+
+  const pilot = (pilotData ?? null) as ActivePilot | null;
+  if (!pilot) {
+    return (
+      <div className="mx-auto max-w-6xl">
+        <Card className="border-amber-200 bg-amber-50 p-6">
+          <h1 className="text-xl font-semibold text-amber-950">Pilot controllato non avviato</h1>
+          <p className="mt-2 text-sm text-amber-800">
+            La telemetria è pronta, ma manca ancora un kickoff ufficiale per delimitare l'evidenza reale.
+          </p>
+        </Card>
+      </div>
+    );
+  }
+
+  const pilotStartedAt = new Date(pilot.started_at);
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const sincePilot = pilot.started_at;
+  const since7 = (pilotStartedAt > sevenDaysAgo ? pilotStartedAt : sevenDaysAgo).toISOString();
 
   const [
-    { data: summary30Data, error: summary30Error },
+    { data: summaryPilotData, error: summaryPilotError },
     { data: summary7Data, error: summary7Error },
     { data: readinessData, error: readinessError },
   ] = await Promise.all([
-    supabase.rpc("p1_pilot_usage_summary", { p_organization_id: organizationId, p_since: since30 }),
+    supabase.rpc("p1_pilot_usage_summary", { p_organization_id: organizationId, p_since: sincePilot }),
     supabase.rpc("p1_pilot_usage_summary", { p_organization_id: organizationId, p_since: since7 }),
-    supabase.rpc("p1_pilot_exit_readiness", { p_organization_id: organizationId, p_since: since30 }),
+    supabase.rpc("p1_pilot_exit_readiness", { p_organization_id: organizationId, p_since: sincePilot }),
   ]);
 
-  if (summary30Error || summary7Error || readinessError || !summary30Data || !summary7Data || !readinessData) {
+  if (summaryPilotError || summary7Error || readinessError || !summaryPilotData || !summary7Data || !readinessData) {
     return (
       <div className="mx-auto max-w-6xl">
         <Card className="border-rose-200 bg-rose-50 p-6">
@@ -115,10 +164,10 @@ export default async function PilotAnalyticsPage() {
     );
   }
 
-  const summary30 = summary30Data as UsageSummary;
+  const summaryPilot = summaryPilotData as UsageSummary;
   const summary7 = summary7Data as UsageSummary;
   const readiness = readinessData as Readiness;
-  const noPilotData = summary30.event_count === 0;
+  const noPilotData = summaryPilot.event_count === 0;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -138,7 +187,7 @@ export default async function PilotAnalyticsPage() {
             {readiness.pilot_evidence_ready
               ? "Evidenza pilot sufficiente"
               : noPilotData
-                ? "Pilot non ancora iniziato"
+                ? "Pilot attivo · raccolta avviata"
                 : String(readiness.criteria_passed_count) + "/" + String(readiness.criteria_total) + " criteri"}
           </Badge>
         </div>
@@ -146,9 +195,9 @@ export default async function PilotAnalyticsPage() {
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             ["WAU", summary7.weekly_active_users, "utenti attivi negli ultimi 7 giorni"],
-            ["Ricerche · 30 gg", summary30.searches, "ricerche commerciali completate"],
-            ["Successo ricerca", percent(summary30.search_success_rate), "ricerche con almeno un risultato"],
-            ["Eventi pilot", summary30.event_count, "azioni misurate negli ultimi 30 giorni"],
+            ["Ricerche · dal kickoff", summaryPilot.searches, "ricerche commerciali completate"],
+            ["Successo ricerca", percent(summaryPilot.search_success_rate), "ricerche con almeno un risultato"],
+            ["Eventi pilot", summaryPilot.event_count, "azioni misurate dal kickoff"],
           ].map(([label, value, help]) => (
             <div key={String(label)} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
               <p className="text-xs font-semibold text-slate-500">{label}</p>
@@ -159,15 +208,35 @@ export default async function PilotAnalyticsPage() {
         </div>
       </section>
 
-      {noPilotData ? (
-        <Card className="border-indigo-100 bg-indigo-50/60 p-6">
-          <p className="text-base font-semibold text-slate-950">Baseline pronta: il pilot reale può iniziare</p>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Il contatore è volutamente a zero. Le prossime ricerche, aperture di Product/Company 360,
-            consultazioni prezzi, evidenze, correzioni e import alimenteranno questa pagina automaticamente.
+      <Card className="border-indigo-100 bg-indigo-50/60 p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-base font-semibold text-slate-950">Pilot controllato attivo</p>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Avviato il {formatDateTime(pilot.started_at)}. Tutti i KPI di questa pagina sono calcolati
+              esclusivamente dagli eventi raccolti dopo questo kickoff.
+            </p>
+          </div>
+          <Badge tone="blue">{pilot.protocol_version}</Badge>
+        </div>
+        {noPilotData ? (
+          <p className="mt-4 rounded-xl bg-white/80 p-3 text-xs leading-5 text-indigo-800">
+            Nessuna attività reale ancora registrata dopo il kickoff. È corretto: non vengono inseriti eventi sintetici.
           </p>
-        </Card>
-      ) : null}
+        ) : null}
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <h2 className="text-base font-semibold text-slate-950">Protocollo operativo del pilot</h2>
+        </CardHeader>
+        <CardContent className="grid gap-3 text-sm text-slate-600 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-xl bg-slate-50 p-3"><strong className="text-slate-900">Lavora normalmente.</strong><p className="mt-1 text-xs leading-5">Usa Steel Sales AI solo quando serve davvero nel lavoro commerciale.</p></div>
+          <div className="rounded-xl bg-slate-50 p-3"><strong className="text-slate-900">Non inseguire i KPI.</strong><p className="mt-1 text-xs leading-5">Le soglie servono a valutare il pilot, non a generare click artificiali.</p></div>
+          <div className="rounded-xl bg-slate-50 p-3"><strong className="text-slate-900">Correggi solo casi reali.</strong><p className="mt-1 text-xs leading-5">Review e correzioni devono riflettere problemi effettivamente incontrati.</p></div>
+          <div className="rounded-xl bg-slate-50 p-3"><strong className="text-slate-900">Annota il tempo umano.</strong><p className="mt-1 text-xs leading-5">Per alcuni casi confronta mentalmente quanto avresti impiegato con email/Excel.</p></div>
+        </CardContent>
+      </Card>
 
       <section>
         <div className="mb-3">
@@ -202,17 +271,17 @@ export default async function PilotAnalyticsPage() {
       <section className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <h2 className="text-base font-semibold text-slate-950">Uso delle superfici commerciali · 30 giorni</h2>
+            <h2 className="text-base font-semibold text-slate-950">Uso delle superfici commerciali · dal kickoff</h2>
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2">
             {[
-              ["Product 360", summary30.product_views],
-              ["Company 360", summary30.company_views],
-              ["Price History", summary30.price_history_views],
-              ["Evidenze originali", summary30.evidence_opens],
-              ["Correzioni aperte", summary30.review_views],
-              ["Correzioni completate", summary30.corrections_completed],
-              ["Import completati", summary30.uploads_completed],
+              ["Product 360", summaryPilot.product_views],
+              ["Company 360", summaryPilot.company_views],
+              ["Price History", summaryPilot.price_history_views],
+              ["Evidenze originali", summaryPilot.evidence_opens],
+              ["Correzioni aperte", summaryPilot.review_views],
+              ["Correzioni completate", summaryPilot.corrections_completed],
+              ["Import completati", summaryPilot.uploads_completed],
             ].map(([label, value]) => (
               <div key={String(label)} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
                 <p className="text-lg font-semibold text-slate-950">{integer(Number(value))}</p>
