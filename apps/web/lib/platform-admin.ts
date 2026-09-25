@@ -16,6 +16,7 @@ export type RegistrationQueueItem = {
   reviewed_at: string | null;
   reviewed_by: string | null;
   activated_organization_id: string | null;
+  matched_network_company_id: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -113,4 +114,31 @@ export async function getRegistrationDetail(applicationId: string) {
     application: payload.application,
     events: payload.events ?? [],
   };
+}
+
+
+export type RegistrationNetworkCandidate = {
+  network_company_id: string;
+  legal_name: string;
+  country_code: string;
+  website_domain: string | null;
+  publication_status: string;
+  verification_status: string;
+  signals: string[];
+  match_score: number;
+};
+
+export async function getRegistrationNetworkCandidates(applicationId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("m7_registration_network_candidates", {
+    p_application_id: applicationId,
+  });
+
+  if (error) {
+    if (error.code === "42501") redirect("/dashboard");
+    throw new Error(error.message);
+  }
+
+  const payload = (data ?? {}) as { candidates?: RegistrationNetworkCandidate[] };
+  return payload.candidates ?? [];
 }
