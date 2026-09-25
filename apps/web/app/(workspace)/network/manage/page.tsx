@@ -1,13 +1,16 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { updateManagedNetworkProfile } from "@/app/(workspace)/network/actions";
 import { getManagedNetworkCompany } from "@/lib/network";
+import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 
 export default async function ManagedNetworkProfilePage({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string; message?: string }>;
 }) {
+  if (!isNetworkFrontendEnabled()) redirect("/dashboard");
   const { error, message } = await searchParams;
   const managed = await getManagedNetworkCompany();
 

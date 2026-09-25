@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 
 import { AppShell } from "@/components/app-shell";
+import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function WorkspaceLayout({ children }: { children: ReactNode }) {
@@ -14,6 +15,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
   let alertNeedsAttention = false;
   let alertActiveCount = 0;
   let platformSuperadmin = false;
+  const networkEnabled = isNetworkFrontendEnabled();
 
   if (configured) {
     const supabase = await createClient();
@@ -64,6 +66,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
       alertNeedsAttention={alertNeedsAttention}
       alertActiveCount={alertActiveCount}
       platformSuperadmin={platformSuperadmin}
+      networkEnabled={networkEnabled}
     >
       {children}
     </AppShell>

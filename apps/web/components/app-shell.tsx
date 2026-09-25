@@ -28,6 +28,7 @@ export function AppShell({
   alertNeedsAttention,
   alertActiveCount,
   platformSuperadmin,
+  networkEnabled,
 }: {
   children: ReactNode;
   viewerLabel: string;
@@ -35,7 +36,12 @@ export function AppShell({
   alertNeedsAttention: boolean;
   alertActiveCount: number;
   platformSuperadmin: boolean;
+  networkEnabled: boolean;
 }) {
+  const visiblePrimaryNav = networkEnabled
+    ? primaryNav
+    : primaryNav.filter((item) => item.href !== "/network");
+
   const toolsNav = platformSuperadmin
     ? [...secondaryNav, { href: "/admin/registrations", label: "Platform admin" }]
     : secondaryNav;
@@ -54,7 +60,7 @@ export function AppShell({
               Lavoro quotidiano
             </p>
             <nav className="space-y-1">
-              {primaryNav.map((item) => (
+              {visiblePrimaryNav.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
@@ -122,7 +128,7 @@ export function AppShell({
             </Link>
 
             <div className="flex max-w-[64vw] items-center gap-1.5 overflow-x-auto lg:hidden">
-              {primaryNav.map((item) => (
+              {visiblePrimaryNav.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
