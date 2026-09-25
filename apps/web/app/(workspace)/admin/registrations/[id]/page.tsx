@@ -65,10 +65,11 @@ export default async function AdminRegistrationDetailPage({
   if (!detail) notFound();
 
   const { application, events } = detail;
+  const networkEnabled = isNetworkFrontendEnabled();
   const canReview = application.application_status === "pending_review";
   const canActivate = application.application_status === "approved";
   const canBridge =
-    application.application_status === "activated" && !application.matched_network_company_id;
+    networkEnabled && application.application_status === "activated" && !application.matched_network_company_id;
   const networkCandidates = canBridge ? await getRegistrationNetworkCandidates(application.id) : [];
 
   return (
