@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { getNetworkTaxonomy, searchNetwork } from "@/lib/network";
+import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 
 function selectClass() {
   return "h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none";
@@ -19,6 +21,7 @@ export default async function NetworkDirectoryPage({
     error?: string;
   }>;
 }) {
+  if (!isNetworkFrontendEnabled()) redirect("/dashboard");
   const params = await searchParams;
   const [taxonomy, results] = await Promise.all([
     getNetworkTaxonomy(),
