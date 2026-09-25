@@ -1,11 +1,16 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { getRegistrationDetail, requirePlatformSuperadmin } from "@/lib/platform-admin";
+import {
+  getRegistrationDetail,
+  getRegistrationNetworkCandidates,
+  requirePlatformSuperadmin,
+} from "@/lib/platform-admin";
 
 import {
   activateRegistrationApplication,
   approveRegistrationApplication,
+  bridgeRegistrationToNetwork,
   rejectRegistrationApplication,
   requestRegistrationInformation,
 } from "../actions";
@@ -37,6 +42,8 @@ const EVENT_LABELS: Record<string, string> = {
   activation_started: "Activation avviata",
   organization_created: "Organization creata",
   activation_completed: "Activation completata",
+  network_company_linked: "Network Company collegata",
+  claim_created: "Claim Network creato",
 };
 
 function display(value: string | null | undefined) {
@@ -60,6 +67,9 @@ export default async function AdminRegistrationDetailPage({
   const { application, events } = detail;
   const canReview = application.application_status === "pending_review";
   const canActivate = application.application_status === "approved";
+  const canBridge =
+    application.application_status === "activated" && !application.matched_network_company_id;
+  const networkCandidates = canBridge ? await getRegistrationNetworkCandidates(application.id) : [];
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -248,7 +258,7 @@ export default async function AdminRegistrationDetailPage({
             <section className="rounded-2xl border border-indigo-200 bg-indigo-50 p-5">
               <h2 className="font-semibold text-indigo-950">Attiva workspace</h2>
               <p className="mt-1 text-sm leading-6 text-indigo-800">
-                Crea l’organization e assegna l’applicant come Organization Admin. Il link Network resterà pending fino a M2/M4.
+                Crea l’organization e assegna l’applicant come Organization Admin. Dopo l’attivazione completa il Registration Bridge verso il Network.
               </p>
               <form action={activateRegistrationApplication} className="mt-4">
                 <input type="hidden" name="application_id" value={application.id} />
@@ -259,7 +269,56 @@ export default async function AdminRegistrationDetailPage({
             </section>
           ) : null}
 
-          {!canReview && !canActivate ? (
+          {canBridge ? (
+            <section className="rounded-2xl border border-indigo-200 bg-indigo-50 p-5">
+              <h2 className="font-semibold text-indigo-950">Registration Bridge Network</h2>
+              <p className="mt-1 text-sm leading-6 text-indigo-800">
+                Collega l’organization a una Network Company. Se esistono candidate, la selezione è obbligatoria:
+                M7 non crea duplicati automaticamente.
+              </p>
+
+              <div className="mt-4 space-y-3">
+                {networkCandidates.length ? (
+                  networkCandidates.map((candidate) => (
+                    <form
+                      key={candidate.network_company_id}
+                      action={bridgeRegistrationToNetwork}
+                      className="rounded-xl border border-indigo-200 bg-white p-3"
+                    >
+                      <input type="hidden" name="application_id" value={application.id} />
+                      <input type="hidden" name="network_company_id" value={candidate.network_company_id} />
+                      <p className="text-sm font-semibold text-slate-900">{candidate.legal_name}</p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {candidate.country_code} · score {Number(candidate.match_score).toFixed(2)} · {candidate.signals.join(", ")}
+                      </p>
+                      <button className="mt-3 h-9 w-full rounded-lg bg-indigo-700 px-3 text-xs font-semibold text-white">
+                        Collega questa Network Company
+                      </button>
+                    </form>
+                  ))
+                ) : (
+                  <form action={bridgeRegistrationToNetwork}>
+                    <input type="hidden" name="application_id" value={application.id} />
+                    <button className="h-10 w-full rounded-xl bg-indigo-700 px-4 text-sm font-semibold text-white">
+                      Crea nuova Network Company e completa bridge
+                    </button>
+                  </form>
+                )}
+              </div>
+            </section>
+          ) : null}
+
+          {application.matched_network_company_id ? (
+            <section className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+              <h2 className="font-semibold text-emerald-950">Network bridge completato</h2>
+              <p className="mt-2 break-all text-xs text-emerald-800">{application.matched_network_company_id}</p>
+              <p className="mt-2 text-sm text-emerald-800">
+                Organization link e claim approvato sono registrati. La verification resta un processo separato.
+              </p>
+            </section>
+          ) : null}
+
+          {!canReview && !canActivate && !canBridge && !application.matched_network_company_id ? (
             <section className="rounded-2xl border border-slate-200 bg-white p-5">
               <h2 className="font-semibold text-slate-950">Nessuna azione disponibile</h2>
               <p className="mt-1 text-sm leading-6 text-slate-500">
