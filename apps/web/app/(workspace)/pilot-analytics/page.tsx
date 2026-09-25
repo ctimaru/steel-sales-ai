@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { HumanTimeEvidenceForm } from "@/components/human-time-evidence-form";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
@@ -29,6 +30,23 @@ type ActivePilot = {
   ended_at: string | null;
   baseline_event_count: number;
   protocol_version: string;
+};
+
+type Checkpoint = {
+  checkpoint_ready: boolean;
+  human_evidence: {
+    sample_count: number;
+    task_type_count: number;
+    faster_count: number;
+    same_count: number;
+    slower_count: number;
+    median_steel_sales_seconds: number | null;
+    median_previous_method_seconds: number | null;
+    median_improvement_percent: number | null;
+    minimum_samples_target: number;
+    minimum_task_types_target: number;
+    evidence_sufficient: boolean;
+  };
 };
 
 type Readiness = {
@@ -147,13 +165,15 @@ export default async function PilotAnalyticsPage() {
     { data: summaryPilotData, error: summaryPilotError },
     { data: summary7Data, error: summary7Error },
     { data: readinessData, error: readinessError },
+    { data: checkpointData, error: checkpointError },
   ] = await Promise.all([
     supabase.rpc("p1_pilot_usage_summary", { p_organization_id: organizationId, p_since: sincePilot }),
     supabase.rpc("p1_pilot_usage_summary", { p_organization_id: organizationId, p_since: since7 }),
     supabase.rpc("p1_pilot_exit_readiness", { p_organization_id: organizationId, p_since: sincePilot }),
+    supabase.rpc("p1_pilot_checkpoint", { p_organization_id: organizationId }),
   ]);
 
-  if (summaryPilotError || summary7Error || readinessError || !summaryPilotData || !summary7Data || !readinessData) {
+  if (summaryPilotError || summary7Error || readinessError || checkpointError || !summaryPilotData || !summary7Data || !readinessData || !checkpointData) {
     return (
       <div className="mx-auto max-w-6xl">
         <Card className="border-rose-200 bg-rose-50 p-6">
@@ -167,6 +187,7 @@ export default async function PilotAnalyticsPage() {
   const summaryPilot = summaryPilotData as UsageSummary;
   const summary7 = summary7Data as UsageSummary;
   const readiness = readinessData as Readiness;
+  const checkpoint = checkpointData as Checkpoint;
   const noPilotData = summaryPilot.event_count === 0;
 
   return (
@@ -238,6 +259,54 @@ export default async function PilotAnalyticsPage() {
         </CardContent>
       </Card>
 
+      <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+        <Card>
+          <CardHeader>
+            <h2 className="text-base font-semibold text-slate-950">Tempo umano · registra solo casi reali</h2>
+            <p className="mt-1 text-xs leading-5 text-slate-500">
+              Inserisci il confronto subito dopo un'attività concreta. Non serve farlo ogni volta:
+              per il checkpoint bastano almeno 3 casi distribuiti su 2 tipi di attività.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <HumanTimeEvidenceForm />
+          </CardContent>
+        </Card>
+
+        <Card className={checkpoint.human_evidence.evidence_sufficient ? "border-emerald-200" : "border-slate-200"}>
+          <CardHeader>
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-base font-semibold text-slate-950">Evidenza umana raccolta</h2>
+              <Badge tone={checkpoint.human_evidence.evidence_sufficient ? "green" : "neutral"}>
+                {checkpoint.human_evidence.sample_count}/{checkpoint.human_evidence.minimum_samples_target} casi
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-slate-600">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl bg-slate-50 p-3">
+                <p className="text-xl font-semibold text-slate-950">{checkpoint.human_evidence.task_type_count}</p>
+                <p className="text-xs text-slate-500">tipi di attività / {checkpoint.human_evidence.minimum_task_types_target}</p>
+              </div>
+              <div className="rounded-xl bg-slate-50 p-3">
+                <p className="text-xl font-semibold text-slate-950">
+                  {checkpoint.human_evidence.median_improvement_percent === null ? "—" : checkpoint.human_evidence.median_improvement_percent.toLocaleString("it-IT") + "%"}
+                </p>
+                <p className="text-xs text-slate-500">differenza mediana stimata</p>
+              </div>
+            </div>
+            <p>
+              Più veloce: <strong className="text-slate-900">{checkpoint.human_evidence.faster_count}</strong>
+              {" · "}uguale: <strong className="text-slate-900">{checkpoint.human_evidence.same_count}</strong>
+              {" · "}più lento: <strong className="text-slate-900">{checkpoint.human_evidence.slower_count}</strong>
+            </p>
+            <p className="rounded-xl bg-amber-50 p-3 text-xs leading-5 text-amber-800">
+              Questi tempi sono stime auto-riferite: servono come evidenza pratica del pilot, non come misurazione causale precisa.
+            </p>
+          </CardContent>
+        </Card>
+      </section>
+
       <section>
         <div className="mb-3">
           <h2 className="text-lg font-semibold text-slate-950">Criteri P1.12</h2>
@@ -301,6 +370,12 @@ export default async function PilotAnalyticsPage() {
               {readiness.pilot_evidence_ready
                 ? "i cinque criteri minimi risultano soddisfatti."
                 : "sono soddisfatti " + String(readiness.criteria_passed_count) + " criteri su " + String(readiness.criteria_total) + "."}
+            </p>
+            <p>
+              <strong className="text-slate-900">Checkpoint complessivo:</strong>{" "}
+              {checkpoint.checkpoint_ready
+                ? "readiness quantitativa ed evidenza umana risultano entrambe sufficienti."
+                : "non ancora pronto: devono risultare sufficienti sia i KPI automatici sia l'evidenza umana."}
             </p>
             <p>
               <strong className="text-slate-900">Latenza tecnica ricerca:</strong>{" "}
