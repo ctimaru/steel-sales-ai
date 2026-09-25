@@ -92,3 +92,27 @@ export async function activateRegistrationApplication(formData: FormData) {
   revalidatePath(`/admin/registrations/${id}`);
   redirect(detailPath(id, "message", "Workspace aziendale attivato."));
 }
+
+
+export async function bridgeRegistrationToNetwork(formData: FormData) {
+  const id = applicationId(formData);
+  const networkCompanyId = String(formData.get("network_company_id") ?? "").trim();
+
+  if (!id) redirect("/admin/registrations?error=Application%20non%20valida");
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("m7_bridge_registration", {
+    p_application_id: id,
+    p_network_company_id: networkCompanyId || null,
+  });
+
+  if (error) {
+    redirect(detailPath(id, "error", error.message));
+  }
+
+  revalidatePath("/admin/registrations");
+  revalidatePath("/network");
+  revalidatePath("/network/manage");
+  revalidatePath("/admin/registrations/" + id);
+  redirect(detailPath(id, "message", "Registration bridge Network completato."));
+}
