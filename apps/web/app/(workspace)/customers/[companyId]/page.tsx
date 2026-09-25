@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PilotEvent } from "@/components/pilot-event";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -67,7 +68,9 @@ export default async function Company360Page({
   const summary = payload.summary;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-7">
+    <>
+      <PilotEvent eventName="company_viewed" entityType="company" entityId={companyId} metadata={{ surface: "company_360" }} />
+      <div className="mx-auto max-w-7xl space-y-7">
       <div>
         <Link href="/customers" className="text-xs font-semibold text-indigo-600">← Clienti / aziende</Link>
         <div className="mt-3 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
@@ -353,6 +356,7 @@ export default async function Company360Page({
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 }
