@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { recordPilotUsageEvent } from "@/app/(workspace)/telemetry/actions";
 
 export type GlobalResultType =
   | "document"
@@ -74,6 +75,7 @@ export async function globalSearch(
   _previous: GlobalSearchState,
   formData: FormData,
 ): Promise<GlobalSearchState> {
+  const startedAt = Date.now();
   const query = text(formData, "query") ?? "";
   if (query.length < 2) {
     return { status: "error", message: "Inserisci almeno 2 caratteri per la ricerca." };
@@ -165,11 +167,21 @@ export async function globalSearch(
       };
     }
 
+    const resultCount = payload?.count ?? 0;
+    await recordPilotUsageEvent({
+      eventName: "search_completed",
+      entityType: "search",
+      outcome: resultCount > 0 ? "success" : "empty",
+      resultCount,
+      durationMs: Date.now() - startedAt,
+      metadata: { surface: "global_search" },
+    });
+
     return {
       status: "success",
-      message: (payload?.count ?? 0) ? "Ricerca completata." : "Nessun risultato con i criteri selezionati.",
+      message: resultCount ? "Ricerca completata." : "Nessun risultato con i criteri selezionati.",
       query: payload?.query ?? query,
-      count: payload?.count ?? 0,
+      count: resultCount,
       counts: payload?.counts ?? {},
       results: payload?.results ?? [],
       filters: payload?.filters ?? filters,

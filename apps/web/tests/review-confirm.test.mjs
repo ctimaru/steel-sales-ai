@@ -36,10 +36,14 @@ async function setup(options = {}) {
   const db = new SyntheticModule(["createClient"], function () {
     this.setExport("createClient", async () => client);
   });
+  const telemetry = new SyntheticModule(["recordPilotUsageEvent"], function () {
+    this.setExport("recordPilotUsageEvent", async () => ({ ok: true }));
+  });
   const mod = new SourceTextModule(source);
   await mod.link((specifier) => {
     if (specifier === "next/cache") return cache;
     if (specifier === "@/lib/supabase/server") return db;
+    if (specifier === "@/app/(workspace)/telemetry/actions") return telemetry;
     throw new Error("Unexpected import: " + specifier);
   });
   await mod.evaluate();

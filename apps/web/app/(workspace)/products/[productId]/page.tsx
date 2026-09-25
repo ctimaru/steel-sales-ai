@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PilotEvent } from "@/components/pilot-event";
 
 import { loadProduct360, type ProductPrice, type ProductTimelineEvent } from "../actions";
 
@@ -54,7 +55,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     : `${numberLabel(product.width_mm)} × ${numberLabel(product.height_mm)} × ${numberLabel(product.thickness_mm)} mm`;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-7">
+    <>
+      <PilotEvent eventName="product_viewed" entityType="product" entityId={productId} metadata={{ surface: "product_360" }} />
+      <div className="mx-auto max-w-7xl space-y-7">
       <div>
         <Link href="/products" className="text-xs font-semibold text-indigo-600">← Storico prodotti</Link>
         <div className="mt-3 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
@@ -259,6 +262,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 }

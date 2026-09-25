@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PilotEvent } from "@/components/pilot-event";
 
 import {
   loadPriceHistory,
@@ -89,7 +90,9 @@ export default async function PriceHistoryPage({ params }: { params: Promise<{ p
   const orderTrend = payload.trend?.order;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-7">
+    <>
+      <PilotEvent eventName="price_history_viewed" entityType="product" entityId={productId} metadata={{ surface: "price_history" }} />
+      <div className="mx-auto max-w-7xl space-y-7">
       <header>
         <Link href={`/products/${productId}`} className="text-xs font-semibold text-indigo-600">← Torna al prodotto</Link>
         <div className="mt-3 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
@@ -234,6 +237,7 @@ export default async function PriceHistoryPage({ params }: { params: Promise<{ p
         <p className="font-semibold">Come leggere la normalizzazione</p>
         <p className="mt-1">Il prezzo originale estratto dal documento non viene mai sostituito. Il riferimento tecnico valida norma, grado e geometria e rende visibile il peso di riferimento quando disponibile. Le normalizzazioni storiche €/m ↔ €/t già persistite usano il peso teorico della sezione secondo il metodo originario; restano etichettate secondo quel metodo e non vengono riscritte retroattivamente. Valute diverse non vengono convertite. Cliente/fornitore e Incoterm/resa sono mostrati solo quando esistono campi strutturati.</p>
       </aside>
-    </div>
+      </div>
+    </>
   );
 }

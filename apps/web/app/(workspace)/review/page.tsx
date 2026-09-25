@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getReviewItems } from "@/lib/commercial-data";
+import { PilotEvent } from "@/components/pilot-event";
 
 import { ReviewConfirmForm } from "@/components/review-confirm-form";
 import { ReviewCorrectForm } from "@/components/review-correct-form";
@@ -11,7 +12,9 @@ export default async function ReviewPage() {
   const pending = items.filter((item) => item.reviewStatus === "pending").length;
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <>
+      <PilotEvent eventName="review_viewed" entityType="review" metadata={{ surface: "review" }} />
+      <div className="mx-auto max-w-6xl">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <p className="text-sm font-semibold text-slate-500">Controllo dati</p>
@@ -87,6 +90,7 @@ export default async function ReviewPage() {
       <p className="mt-5 text-xs leading-5 text-slate-400">
         Conferma un dato quando è corretto, oppure correggilo prima di proseguire. Ogni modifica viene registrata nello storico.
       </p>
-    </div>
+      </div>
+    </>
   );
 }

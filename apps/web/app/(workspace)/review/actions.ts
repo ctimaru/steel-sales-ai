@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { recordPilotUsageEvent } from "@/app/(workspace)/telemetry/actions";
 
 export type ReviewActionState = {
   status: "idle" | "success" | "error";
@@ -120,6 +121,13 @@ export async function correctReviewItem(
     ) {
       return { status: "error", message: "Nessuna correzione promossa: il record non è disponibile o è già stato revisionato." };
     }
+    await recordPilotUsageEvent({
+      eventName: "correction_completed",
+      entityType: "review",
+      entityId: String(rawId),
+      outcome: "success",
+      metadata: { surface: "review" },
+    });
     try {
       revalidatePath("/review");
       revalidatePath("/dashboard");

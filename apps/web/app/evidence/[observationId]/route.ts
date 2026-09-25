@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
+import { recordPilotUsageEvent } from "@/app/(workspace)/telemetry/actions";
 
 export async function GET(
   request: Request,
@@ -47,6 +48,14 @@ export async function GET(
       { status: response.status === 404 ? 404 : 502 },
     );
   }
+
+  await recordPilotUsageEvent({
+    eventName: "evidence_opened",
+    entityType: "observation",
+    entityId: String(parsedObservationId),
+    outcome: "success",
+    metadata: { surface: "evidence" },
+  });
 
   return NextResponse.redirect(payload.signed_url);
 }
