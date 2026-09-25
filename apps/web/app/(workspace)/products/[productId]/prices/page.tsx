@@ -97,7 +97,7 @@ export default async function PriceHistoryPage({ params }: { params: Promise<{ p
             <div className="flex flex-wrap gap-2">
               {product.grade ? <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700">{product.grade}</span> : null}
               {product.standard ? <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{product.standard}</span> : null}
-              <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">Dati verificati</span>
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">Dati commerciali</span>
             </div>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">Storico prezzi · {productLabel(product)}</h1>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">Offerte, ordini e comparabili verificabili. I prezzi grezzi restano autoritativi; la normalizzazione €/m ↔ €/t è evidenziata come teorica.</p>
@@ -184,7 +184,7 @@ export default async function PriceHistoryPage({ params }: { params: Promise<{ p
                     {row.payment_terms ? <p className="mt-0.5 text-xs text-slate-400">Pagamento: {row.payment_terms}</p> : null}
                   </td>
                   <td className="max-w-[180px] truncate text-slate-500">{row.source_filename ?? row.thread_subject ?? "—"}</td>
-                  <td className="text-right">{row.thread_id ? <Link href={`/conversations/${row.thread_id}`} className="font-semibold text-indigo-600">Apri fonte →</Link> : null}</td>
+                  <td className="text-right">{row.observation_id ? <Link href={`/evidence/${row.observation_id}`} target="_blank" className="font-semibold text-indigo-600">Originale ↗</Link> : row.thread_id ? <Link href={`/conversations/${row.thread_id}`} className="font-semibold text-indigo-600">Apri thread →</Link> : null}</td>
                 </tr>
               ))}
             </tbody>
@@ -221,7 +221,7 @@ export default async function PriceHistoryPage({ params }: { params: Promise<{ p
                   </td>
                   <td className="max-w-[310px] text-xs leading-5 text-slate-500">{row.reasons?.join(" · ") || "—"}</td>
                   <td className="font-medium text-slate-700">{row.difference_vs_target_pct === null ? "—" : `${row.difference_vs_target_pct > 0 ? "+" : ""}${numberLabel(row.difference_vs_target_pct)}%`}</td>
-                  <td className="text-right">{row.thread_id ? <Link href={`/conversations/${row.thread_id}`} className="font-semibold text-indigo-600">Apri fonte →</Link> : null}</td>
+                  <td className="text-right">{row.thread_id ? <Link href={`/conversations/${row.thread_id}`} className="font-semibold text-indigo-600">Apri thread →</Link> : null}</td>
                 </tr>
               ))}
             </tbody>
