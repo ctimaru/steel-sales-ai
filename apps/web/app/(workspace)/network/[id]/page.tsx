@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { requestNetworkClaim } from "@/app/(workspace)/network/actions";
 import { getNetworkProfile } from "@/lib/network";
+import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { createClient } from "@/lib/supabase/server";
 
 function badge(value: string) {
@@ -20,6 +21,7 @@ export default async function NetworkCompanyProfilePage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ error?: string; message?: string }>;
 }) {
+  if (!isNetworkFrontendEnabled()) redirect("/dashboard");
   const { id } = await params;
   const { error, message } = await searchParams;
   const profile = await getNetworkProfile(id);
