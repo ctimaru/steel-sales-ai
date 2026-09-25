@@ -11,6 +11,8 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
   );
 
   let viewerLabel = "demo@steel-sales-ai.local";
+  let alertNeedsAttention = false;
+  let alertActiveCount = 0;
 
   if (configured) {
     const supabase = await createClient();
@@ -36,10 +38,25 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
     if (!organization || organization.onboarding_status !== "completed") {
       redirect("/onboarding");
     }
+
+    const { data: alertSummary } = await supabase.rpc("p1_operational_alerts_summary", {
+      p_organization_id: membership.organization_id,
+    });
+
+    if (alertSummary && typeof alertSummary === "object") {
+      const summary = alertSummary as { needs_attention?: unknown; active_count?: unknown };
+      alertNeedsAttention = summary.needs_attention === true;
+      alertActiveCount = Math.max(0, Number(summary.active_count ?? 0) || 0);
+    }
   }
 
   return (
-    <AppShell viewerLabel={viewerLabel} demoMode={!configured}>
+    <AppShell
+      viewerLabel={viewerLabel}
+      demoMode={!configured}
+      alertNeedsAttention={alertNeedsAttention}
+      alertActiveCount={alertActiveCount}
+    >
       {children}
     </AppShell>
   );

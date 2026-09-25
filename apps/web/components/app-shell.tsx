@@ -13,6 +13,7 @@ const primaryNav = [
 const secondaryNav = [
   { href: "/assistant", label: "Assistente" },
   { href: "/review", label: "Correzioni" },
+  { href: "/alerts", label: "Alert operativi" },
   { href: "/uploads", label: "Importa" },
   { href: "/tubi-norme", label: "Tubi & Norme" },
   { href: "/data-sources", label: "Fonti e import" },
@@ -22,10 +23,14 @@ export function AppShell({
   children,
   viewerLabel,
   demoMode,
+  alertNeedsAttention,
+  alertActiveCount,
 }: {
   children: ReactNode;
   viewerLabel: string;
   demoMode: boolean;
+  alertNeedsAttention: boolean;
+  alertActiveCount: number;
 }) {
   return (
     <div className="min-h-screen bg-slate-50">
@@ -62,9 +67,14 @@ export function AppShell({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="block rounded-xl px-3 py-2 text-sm font-medium text-slate-400 transition hover:bg-white/10 hover:text-white"
+                  className="flex items-center justify-between rounded-xl px-3 py-2 text-sm font-medium text-slate-400 transition hover:bg-white/10 hover:text-white"
                 >
-                  {item.label}
+                  <span>{item.label}</span>
+                  {item.href === "/alerts" && alertActiveCount > 0 ? (
+                    <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] font-bold text-red-300">
+                      {alertActiveCount}
+                    </span>
+                  ) : null}
                 </Link>
               ))}
             </nav>
@@ -109,6 +119,14 @@ export function AppShell({
             </div>
 
             <div className="hidden items-center gap-2 sm:flex">
+              {alertNeedsAttention ? (
+                <Link
+                  href="/alerts"
+                  className="rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-700"
+                >
+                  {alertActiveCount > 0 ? `Alert · ${alertActiveCount}` : "Alert"}
+                </Link>
+              ) : null}
               {demoMode ? (
                 <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
                   Demo data
