@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
@@ -36,6 +37,15 @@ type BatchItem = {
   last_error: string | null;
   deduplicated: boolean;
 };
+
+function statusLabel(status: BatchProgress["status"] | BatchItem["status"]) {
+  if (status === "queued") return "In coda";
+  if (status === "processing") return "In elaborazione";
+  if (status === "completed") return "Completata";
+  if (status === "partial") return "Completata con errori";
+  if (status === "failed") return "Non riuscita";
+  return status;
+}
 
 async function sha256(file: File): Promise<string> {
   const buffer = await file.arrayBuffer();
@@ -259,7 +269,7 @@ export function BulkUploadForm() {
         <div className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold text-slate-950">Importazione {progress.status}</p>
+              <p className="text-sm font-semibold text-slate-950">Importazione · {statusLabel(progress.status)}</p>
               <p className="text-xs text-slate-500">
                 {progress.completed_items}/{progress.total_items} completati · {progress.failed_items} errori · {progress.deduplicated_items} già presenti
               </p>
@@ -276,7 +286,7 @@ export function BulkUploadForm() {
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-slate-900">{item.filename}</p>
                   <p className="text-xs text-slate-500">
-                    {item.status} · tentativi: {item.attempt_count}{item.deduplicated ? " · già presente nello storico" : ""}
+                    {statusLabel(item.status)} · tentativi: {item.attempt_count}{item.deduplicated ? " · già presente nello storico" : ""}
                   </p>
                   {item.last_error ? <p className="mt-1 text-xs text-rose-700">{item.last_error}</p> : null}
                 </div>
@@ -303,6 +313,17 @@ export function BulkUploadForm() {
             >
               Riprova tutti gli errori
             </button>
+          ) : null}
+
+          {terminal ? (
+            <div className="flex flex-wrap gap-2 border-t border-slate-200 pt-4">
+              <Link href="/search" className="rounded-lg bg-slate-950 px-3 py-2 text-xs font-semibold text-white">
+                Cerca i dati importati →
+              </Link>
+              <Link href="/data-sources" className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700">
+                Vedi dettaglio import
+              </Link>
+            </div>
           ) : null}
         </div>
       ) : null}
