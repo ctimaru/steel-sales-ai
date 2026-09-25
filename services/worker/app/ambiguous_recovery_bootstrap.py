@@ -11,6 +11,7 @@ from pathlib import PurePosixPath
 from uuid import UUID
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.responses import HTMLResponse
 
 from .repository import RepositoryConfigurationError, RepositoryError, WorkerRepository
 from .source_reingest import (
@@ -75,20 +76,9 @@ async def _stage_archive_payload(
     transfer_id: str,
     expected_sha: str,
 ) -> dict[str, object]:
-    actual_sha = hashlib.sha256(payload).hexdigest()
-    if actual_sha != expected_sha:
-        raise ValueError(f"PA2.30.16 archive checksum mismatch: {actual_sha}.")
-
-    archive, _ = _archive_members(payload)
-    try:
-        eml_members = [
-            info.filename for info in archive.infolist()
-            if not info.is_dir() and PurePosixPath(info.filename).suffix.lower() == ".eml"
-        ]
-        if len(eml_members) != 2:
-            raise ValueError("PA2.30.16 archive must contain exactly two EML sources.")
-    finally:
-        archive.close()
+    verified = _verify_stage_payload(payload=payload, expected_sha=expected_sha)
+    actual_sha = str(verified["archive_sha256"])
+    eml_count = int(verified["eml_count"])
 
     repo = WorkerRepository()
     encoded = base64.b64encode(payload).decode("ascii")
@@ -110,10 +100,62 @@ async def _stage_archive_payload(
         "archive_sha256": actual_sha,
         "archive_bytes": len(payload),
         "part_count": stored_parts,
-        "eml_count": len(eml_members),
+        "eml_count": eml_count,
         "automatic_source_selection": False,
         "reingest_executed": False,
         "control_phase": "PA2.30.16c",
+    }
+
+
+def _expected_stage_members() -> set[str]:
+    raw = os.getenv("PA23016_STAGE_EXPECTED_MEMBERS", "").strip()
+    if not raw:
+        raise ValueError("PA23016_STAGE_EXPECTED_MEMBERS is required.")
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise ValueError("PA23016_STAGE_EXPECTED_MEMBERS must be valid JSON.") from exc
+    if not isinstance(payload, list) or len(payload) != 2:
+        raise ValueError("PA23016_STAGE_EXPECTED_MEMBERS must contain exactly two paths.")
+    members: set[str] = set()
+    for value in payload:
+        if not isinstance(value, str) or not value.strip():
+            raise ValueError("PA23016_STAGE_EXPECTED_MEMBERS contains an invalid path.")
+        normalized = PurePosixPath(value.strip().replace("\\", "/")).as_posix()
+        if normalized.startswith("/") or ".." in PurePosixPath(normalized).parts:
+            raise ValueError("PA23016_STAGE_EXPECTED_MEMBERS contains an unsafe path.")
+        if PurePosixPath(normalized).suffix.lower() != ".eml":
+            raise ValueError("PA23016_STAGE_EXPECTED_MEMBERS may reference only EML files.")
+        members.add(normalized.casefold())
+    if len(members) != 2:
+        raise ValueError("PA23016_STAGE_EXPECTED_MEMBERS must contain two distinct paths.")
+    return members
+
+
+def _verify_stage_payload(*, payload: bytes, expected_sha: str) -> dict[str, object]:
+    actual_sha = hashlib.sha256(payload).hexdigest()
+    if actual_sha != expected_sha:
+        raise ValueError(f"PA2.30.16 archive checksum mismatch: {actual_sha}.")
+
+    expected_members = _expected_stage_members()
+    archive, _ = _archive_members(payload)
+    try:
+        eml_members = [
+            PurePosixPath(info.filename.replace("\\", "/")).as_posix()
+            for info in archive.infolist()
+            if not info.is_dir() and PurePosixPath(info.filename).suffix.lower() == ".eml"
+        ]
+        if len(eml_members) != 2:
+            raise ValueError("PA2.30.16 archive must contain exactly two EML sources.")
+        if {member.casefold() for member in eml_members} != expected_members:
+            raise ValueError("PA2.30.16 archive EML members do not match the selected sources.")
+    finally:
+        archive.close()
+
+    return {
+        "archive_sha256": actual_sha,
+        "archive_bytes": len(payload),
+        "eml_count": len(eml_members),
     }
 
 
@@ -262,6 +304,98 @@ def install_offer_source_ambiguous_recovery_bootstrap(app: FastAPI) -> None:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
         except RuntimeError as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+    @app.get("/v1/remediation/pa23016-stage-console", response_class=HTMLResponse)
+    async def pa23016_stage_console() -> str:
+        return """
+        <!doctype html>
+        <html>
+          <head><meta charset="utf-8"><title>PA2.30.16c.3c staging</title></head>
+          <body>
+            <h1>PA2.30.16c.3c — staging only</h1>
+            <form method="post" action="/v1/remediation/pa23016-stage-chunk">
+              <label>Token <input name="token" type="password"></label><br>
+              <label>Part <input name="part_no" type="number" min="0" max="19"></label><br>
+              <label>Base64 chunk<br><textarea name="payload_base64" rows="8" cols="100"></textarea></label><br>
+              <button type="submit">Store chunk</button>
+            </form>
+            <hr>
+            <form method="post" action="/v1/remediation/pa23016-stage-finalize">
+              <label>Token <input name="token" type="password"></label><br>
+              <button type="submit">Verify staged archive</button>
+            </form>
+            <p>No re-ingest or promotion is reachable from this console.</p>
+          </body>
+        </html>
+        """
+
+    @app.post("/v1/remediation/pa23016-stage-chunk")
+    async def pa23016_stage_chunk(
+        token: str = Form(...),
+        part_no: int = Form(...),
+        payload_base64: str = Form(...),
+    ) -> dict[str, object]:
+        expected_token = os.getenv("PA23016_STAGE_TOKEN", "")
+        if not expected_token or not secrets.compare_digest(token, expected_token):
+            raise HTTPException(status_code=403, detail="Invalid PA2.30.16 staging token.")
+        transfer_id = os.getenv("PA23016_STAGE_TRANSFER_ID", "").strip()
+        if not transfer_id:
+            raise HTTPException(status_code=503, detail="PA2.30.16 staging is not configured.")
+        if part_no < 0 or part_no > 19:
+            raise HTTPException(status_code=400, detail="Invalid PA2.30.16 staging part number.")
+        chunk = payload_base64.strip()
+        if not chunk or len(chunk) > 150000:
+            raise HTTPException(status_code=413, detail="Invalid PA2.30.16 staging chunk size.")
+        try:
+            base64.b64decode(chunk, validate=True)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail="Invalid base64 staging chunk.") from exc
+
+        repo = WorkerRepository()
+        stored = await repo.store_offer_source_recovery_transfer_chunk(
+            transfer_id=transfer_id,
+            part_no=part_no,
+            payload_base64=chunk,
+        )
+        if stored.get("status") != "stored":
+            raise HTTPException(status_code=503, detail="PA2.30.16 staging chunk was not stored.")
+        return {
+            "status": "stored",
+            "transfer_id": transfer_id,
+            "part_no": part_no,
+            "encoded_chars": len(chunk),
+            "reingest_executed": False,
+            "control_phase": "PA2.30.16c.3c",
+        }
+
+    @app.post("/v1/remediation/pa23016-stage-finalize")
+    async def pa23016_stage_finalize(token: str = Form(...)) -> dict[str, object]:
+        expected_token = os.getenv("PA23016_STAGE_TOKEN", "")
+        if not expected_token or not secrets.compare_digest(token, expected_token):
+            raise HTTPException(status_code=403, detail="Invalid PA2.30.16 staging token.")
+        transfer_id = os.getenv("PA23016_STAGE_TRANSFER_ID", "").strip()
+        expected_sha = os.getenv("PA23016_STAGE_ARCHIVE_SHA256", "").strip().lower()
+        if not transfer_id or len(expected_sha) != 64:
+            raise HTTPException(status_code=503, detail="PA2.30.16 staging is not configured.")
+
+        repo = WorkerRepository()
+        transfer = await repo.get_offer_source_recovery_transfer(transfer_id=transfer_id)
+        if transfer.get("status") != "ready":
+            raise HTTPException(status_code=409, detail="PA2.30.16 transfer is not ready.")
+        try:
+            payload = base64.b64decode(str(transfer["payload_base64"]), validate=True)
+            verified = _verify_stage_payload(payload=payload, expected_sha=expected_sha)
+        except (KeyError, ValueError) as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+        return {
+            "status": "verified_staged",
+            "transfer_id": transfer_id,
+            **verified,
+            "automatic_source_selection": False,
+            "reingest_executed": False,
+            "control_phase": "PA2.30.16c.3c",
+        }
 
     @app.on_event("startup")
     async def stage_pa23016_from_env() -> None:
