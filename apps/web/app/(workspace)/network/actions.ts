@@ -115,3 +115,112 @@ export async function removeSavedNetworkCompany(formData: FormData) {
   revalidatePath("/network/saved");
   redirect("/network/saved?message=Azienda%20rimossa%20dai%20salvati");
 }
+
+
+export async function submitNetworkInquiry(formData: FormData) {
+  const companyId = textValue(formData, "network_company_id");
+  const organizationId = textValue(formData, "organization_id");
+  const subject = textValue(formData, "subject");
+  const body = textValue(formData, "body");
+
+  if (!companyId || !organizationId) {
+    redirect("/network?error=Inquiry%20non%20valida");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p4_submit_inquiry", {
+    p_sender_organization_id: organizationId,
+    p_recipient_network_company_id: companyId,
+    p_subject: subject,
+    p_body: body,
+  });
+
+  if (error) {
+    redirect("/network/" + companyId + "/inquiry?error=" + encodeURIComponent(error.message));
+  }
+
+  revalidatePath("/network/inquiries");
+  redirect("/network/inquiries?box=sent&message=Inquiry%20inviata");
+}
+
+export async function transitionNetworkInquiry(formData: FormData) {
+  const inquiryId = textValue(formData, "inquiry_id");
+  const organizationId = textValue(formData, "organization_id");
+  const newStatus = textValue(formData, "new_status");
+  const box = textValue(formData, "box") === "sent" ? "sent" : "received";
+
+  if (!inquiryId || !organizationId || !newStatus) {
+    redirect("/network/inquiries?error=Transizione%20non%20valida");
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p4_transition_inquiry", {
+    p_inquiry_id: inquiryId,
+    p_actor_organization_id: organizationId,
+    p_new_status: newStatus,
+  });
+
+  if (error) {
+    redirect("/network/inquiries?box=" + box + "&error=" + encodeURIComponent(error.message));
+  }
+
+  revalidatePath("/network/inquiries");
+  redirect("/network/inquiries?box=" + box + "&message=Stato%20inquiry%20aggiornato");
+}
+
+export async function reportNetworkInquiry(formData: FormData) {
+  const inquiryId = textValue(formData, "inquiry_id");
+  const organizationId = textValue(formData, "organization_id");
+  const reason = textValue(formData, "reason");
+  const details = textValue(formData, "details");
+  const box = textValue(formData, "box") === "sent" ? "sent" : "received";
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p4_report_inquiry", {
+    p_inquiry_id: inquiryId,
+    p_reporter_organization_id: organizationId,
+    p_reason: reason,
+    p_details: details || null,
+  });
+
+  if (error) {
+    redirect("/network/inquiries?box=" + box + "&error=" + encodeURIComponent(error.message));
+  }
+
+  redirect("/network/inquiries?box=" + box + "&message=Segnalazione%20inviata");
+}
+
+export async function setInquiryPreferences(formData: FormData) {
+  const organizationId = textValue(formData, "organization_id");
+  const enabled = textValue(formData, "inquiries_enabled") === "true";
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p4_set_inquiry_preferences", {
+    p_organization_id: organizationId,
+    p_inquiries_enabled: enabled,
+  });
+
+  if (error) {
+    redirect("/network/manage?error=" + encodeURIComponent(error.message));
+  }
+
+  revalidatePath("/network/manage");
+  redirect("/network/manage?message=Preferenze%20inquiry%20aggiornate");
+}
+
+export async function blockInquirySenderOrganization(formData: FormData) {
+  const blockingOrganizationId = textValue(formData, "blocking_organization_id");
+  const blockedOrganizationId = textValue(formData, "blocked_organization_id");
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p4_block_organization", {
+    p_blocking_organization_id: blockingOrganizationId,
+    p_blocked_organization_id: blockedOrganizationId,
+  });
+
+  if (error) {
+    redirect("/network/inquiries?box=received&error=" + encodeURIComponent(error.message));
+  }
+
+  redirect("/network/inquiries?box=received&message=Organizzazione%20bloccata");
+}
