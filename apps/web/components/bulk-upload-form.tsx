@@ -11,6 +11,7 @@ import {
   type PreparedBulkBatch,
 } from "@/app/(workspace)/uploads/bulk-actions";
 import { createClient } from "@/lib/supabase/client";
+import { recordPilotUsageEvent } from "@/app/(workspace)/telemetry/actions";
 
 const MAX_FILES = 25;
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
@@ -80,6 +81,7 @@ export function BulkUploadForm() {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const reportedBatchRef = useRef<string | null>(null);
 
   const stopPolling = () => {
     if (pollRef.current) clearInterval(pollRef.current);
@@ -87,6 +89,20 @@ export function BulkUploadForm() {
   };
 
   useEffect(() => () => stopPolling(), []);
+
+  useEffect(() => {
+    if (!batch || !progress || !["completed", "partial", "failed"].includes(progress.status)) return;
+    if (reportedBatchRef.current === batch.batch_id) return;
+    reportedBatchRef.current = batch.batch_id;
+    void recordPilotUsageEvent({
+      eventName: "upload_completed",
+      entityType: "import_batch",
+      entityId: batch.batch_id,
+      outcome: progress.status === "completed" ? "success" : progress.status === "partial" ? "empty" : "error",
+      resultCount: progress.completed_items,
+      metadata: { surface: "uploads" },
+    });
+  }, [batch, progress]);
 
   async function refresh(batchId: string): Promise<BatchProgress | null> {
     const [batchResult, itemsResult] = await Promise.all([
@@ -237,6 +253,7 @@ export function BulkUploadForm() {
             setProgress(null);
             setItems([]);
             stopPolling();
+            reportedBatchRef.current = null;
           }}
           className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-700 file:mr-4 file:rounded-lg file:border-0 file:bg-slate-900 file:px-3 file:py-2 file:text-xs file:font-semibold file:text-white"
         />
