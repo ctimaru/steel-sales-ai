@@ -170,7 +170,7 @@ class GlobalSearchService:
         if not requested_types or structured_types:
             raw = await self.repo._request(
                 "POST",
-                "/rest/v1/rpc/p1_global_structured_search_bridge",
+                "/rest/v1/rpc/p1_global_structured_search_bridge_v2",
                 json={
                     "p_organization_id": str(organization_id),
                     "p_query": request.query.strip(),

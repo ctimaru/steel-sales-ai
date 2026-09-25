@@ -16,9 +16,18 @@ function correctedValues(formData: FormData) {
   const fields = [
     ["grade", "Qualità"],
     ["standard", "Norma"],
+    ["material_number", "Numero materiale"],
+    ["outer_diameter_mm", "Diametro"],
+    ["width_mm", "Larghezza"],
+    ["height_mm", "Altezza"],
+    ["thickness_mm", "Spessore"],
     ["length_mm", "Lunghezza"],
     ["quantity", "Quantità"],
     ["quantity_unit", "Unità quantità"],
+    ["price_value", "Prezzo"],
+    ["price_unit", "Unità prezzo"],
+    ["currency", "Valuta"],
+    ["discount_percentage", "Sconto"],
     ["availability_status", "Disponibilità"],
     ["note", "Nota"],
   ] as const;
