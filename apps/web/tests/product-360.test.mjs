@@ -61,7 +61,7 @@ test("Product 360 uses sales-facing terminology instead of internal identity lan
   ]) {
     assert.doesNotMatch(catalog + detail, new RegExp(forbidden));
   }
-  assert.match(detail, /Dati verificati/);
+  assert.match(detail, /Dati commerciali/);
   assert.match(detail, /Riferimento tecnico/);
   assert.match(detail, /Peso di riferimento/);
   assert.match(detail, /Apri storico prezzi/);
