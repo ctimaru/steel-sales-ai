@@ -26,13 +26,19 @@ export function AppShell({
   demoMode,
   alertNeedsAttention,
   alertActiveCount,
+  platformSuperadmin,
 }: {
   children: ReactNode;
   viewerLabel: string;
   demoMode: boolean;
   alertNeedsAttention: boolean;
   alertActiveCount: number;
+  platformSuperadmin: boolean;
 }) {
+  const toolsNav = platformSuperadmin
+    ? [...secondaryNav, { href: "/admin/registrations", label: "Platform admin" }]
+    : secondaryNav;
+
   return (
     <div className="min-h-screen bg-slate-50">
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 border-r border-slate-200 bg-slate-950 text-slate-300 lg:block">
@@ -64,7 +70,7 @@ export function AppShell({
               Strumenti
             </p>
             <nav className="space-y-1">
-              {secondaryNav.map((item) => (
+              {toolsNav.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
@@ -76,6 +82,11 @@ export function AppShell({
                       {alertActiveCount}
                     </span>
                   ) : null}
+                  {item.href === "/admin/registrations" ? (
+                    <span className="rounded-full bg-indigo-500/20 px-2 py-0.5 text-[10px] font-bold text-indigo-300">
+                      ADMIN
+                    </span>
+                  ) : null}
                 </Link>
               ))}
             </nav>
@@ -85,7 +96,11 @@ export function AppShell({
             <div className="rounded-xl bg-white/5 p-3">
               <p className="truncate text-xs font-semibold text-slate-200">{viewerLabel}</p>
               <p className="mt-1 text-[11px] text-slate-500">
-                {demoMode ? "Modalità demo" : "Workspace connesso"}
+                {platformSuperadmin
+                  ? "Platform Superadmin"
+                  : demoMode
+                    ? "Modalità demo"
+                    : "Workspace connesso"}
               </p>
             </div>
             <form action={logout}>
@@ -122,7 +137,7 @@ export function AppShell({
                   Altro
                 </summary>
                 <div className="fixed left-4 right-4 top-16 z-40 grid grid-cols-2 gap-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl sm:left-auto sm:right-6 sm:w-80">
-                  {secondaryNav.map((item) => (
+                  {toolsNav.map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
@@ -134,6 +149,11 @@ export function AppShell({
                           {alertActiveCount}
                         </span>
                       ) : null}
+                      {item.href === "/admin/registrations" ? (
+                        <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-700">
+                          ADMIN
+                        </span>
+                      ) : null}
                     </Link>
                   ))}
                 </div>
@@ -141,6 +161,14 @@ export function AppShell({
             </div>
 
             <div className="hidden items-center gap-2 sm:flex">
+              {platformSuperadmin ? (
+                <Link
+                  href="/admin/registrations"
+                  className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700"
+                >
+                  Superadmin
+                </Link>
+              ) : null}
               {alertNeedsAttention ? (
                 <Link
                   href="/alerts"
