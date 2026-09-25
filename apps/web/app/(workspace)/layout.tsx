@@ -13,6 +13,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
   let viewerLabel = "demo@steel-sales-ai.local";
   let alertNeedsAttention = false;
   let alertActiveCount = 0;
+  let platformSuperadmin = false;
 
   if (configured) {
     const supabase = await createClient();
@@ -22,11 +23,17 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
     viewerLabel = data.user.email ?? "Utente autenticato";
     await supabase.rpc("claim_pending_organization_invitations");
 
-    const { data: memberships } = await supabase
-      .from("organization_memberships")
-      .select("organization_id,is_default,status")
-      .eq("user_id", data.user.id)
-      .eq("status", "active");
+    const [{ data: memberships }, { data: superadminFlag }] = await Promise.all([
+      supabase
+        .from("organization_memberships")
+        .select("organization_id,is_default,status")
+        .eq("user_id", data.user.id)
+        .eq("status", "active"),
+      supabase.rpc("is_platform_superadmin"),
+    ]);
+
+    platformSuperadmin = superadminFlag === true;
+
     const membership = memberships?.find((row) => row.is_default) ?? memberships?.[0];
     if (!membership) redirect("/onboarding");
 
@@ -56,6 +63,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
       demoMode={!configured}
       alertNeedsAttention={alertNeedsAttention}
       alertActiveCount={alertActiveCount}
+      platformSuperadmin={platformSuperadmin}
     >
       {children}
     </AppShell>
