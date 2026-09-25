@@ -1,0 +1,256 @@
+import { redirect } from "next/navigation";
+
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { createClient } from "@/lib/supabase/server";
+
+type UsageSummary = {
+  weekly_active_users: number;
+  active_users: number;
+  searches: number;
+  search_success_rate: number | null;
+  product_views: number;
+  company_views: number;
+  price_history_views: number;
+  evidence_opens: number;
+  review_views: number;
+  corrections_completed: number;
+  uploads_completed: number;
+  event_count: number;
+};
+
+type Criterion = { target: number; actual: number | null; passed: boolean };
+
+type Readiness = {
+  metrics: {
+    active_days: number;
+    searches: number;
+    search_success_rate: number | null;
+    core_surface_count: number;
+    successful_uploads: number;
+    event_count: number;
+    avg_search_duration_ms: number | null;
+  };
+  criteria: {
+    active_days: Criterion;
+    searches: Criterion;
+    search_success_rate: Criterion;
+    core_surface_count: Criterion;
+    successful_uploads: Criterion;
+  };
+  criteria_passed_count: number;
+  criteria_total: number;
+  pilot_evidence_ready: boolean;
+};
+
+function percent(value: number | null) {
+  if (value === null || Number.isNaN(value)) return "—";
+  return new Intl.NumberFormat("it-IT", { style: "percent", maximumFractionDigits: 0 }).format(value);
+}
+
+function integer(value: number | null | undefined) {
+  return Number(value ?? 0).toLocaleString("it-IT");
+}
+
+const criteriaLabels: Record<keyof Readiness["criteria"], { label: string; help: string; format?: "percent" }> = {
+  active_days: { label: "Giorni attivi", help: "Uso reale distribuito su più giornate, non una singola sessione di test." },
+  searches: { label: "Ricerche completate", help: "Volume minimo per valutare il comportamento della ricerca commerciale." },
+  search_success_rate: { label: "Ricerche con risultato", help: "Quota di ricerche che restituiscono almeno un risultato.", format: "percent" },
+  core_surface_count: { label: "Superfici core utilizzate", help: "Product, Company, Price History, Evidence e Review." },
+  successful_uploads: { label: "Import riusciti", help: "Almeno un ciclo reale di acquisizione dati completato con successo." },
+};
+
+export default async function PilotAnalyticsPage() {
+  const configured = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+  );
+
+  if (!configured) {
+    return (
+      <div className="mx-auto max-w-6xl">
+        <Card className="p-6">
+          <h1 className="text-xl font-semibold text-slate-950">Pilot analytics</h1>
+          <p className="mt-2 text-sm text-slate-500">Disponibile quando il workspace è connesso a Supabase.</p>
+        </Card>
+      </div>
+    );
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: memberships } = await supabase
+    .from("organization_memberships")
+    .select("organization_id,is_default,status")
+    .eq("user_id", user.id)
+    .eq("status", "active");
+
+  const membership = memberships?.find((row) => row.is_default) ?? memberships?.[0];
+  if (!membership?.organization_id) redirect("/onboarding");
+
+  const organizationId = membership.organization_id as string;
+  const since30 = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const since7 = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  const [
+    { data: summary30Data, error: summary30Error },
+    { data: summary7Data, error: summary7Error },
+    { data: readinessData, error: readinessError },
+  ] = await Promise.all([
+    supabase.rpc("p1_pilot_usage_summary", { p_organization_id: organizationId, p_since: since30 }),
+    supabase.rpc("p1_pilot_usage_summary", { p_organization_id: organizationId, p_since: since7 }),
+    supabase.rpc("p1_pilot_exit_readiness", { p_organization_id: organizationId, p_since: since30 }),
+  ]);
+
+  if (summary30Error || summary7Error || readinessError || !summary30Data || !summary7Data || !readinessData) {
+    return (
+      <div className="mx-auto max-w-6xl">
+        <Card className="border-rose-200 bg-rose-50 p-6">
+          <h1 className="text-xl font-semibold text-rose-950">Pilot analytics non disponibile</h1>
+          <p className="mt-2 text-sm text-rose-800">Il read model P1.12 non è al momento leggibile dal workspace.</p>
+        </Card>
+      </div>
+    );
+  }
+
+  const summary30 = summary30Data as UsageSummary;
+  const summary7 = summary7Data as UsageSummary;
+  const readiness = readinessData as Readiness;
+  const noPilotData = summary30.event_count === 0;
+
+  return (
+    <div className="mx-auto max-w-7xl space-y-6">
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">P1.12 · Pilot Analytics</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
+              Il pilot sta producendo evidenza sufficiente?
+            </h1>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500">
+              Misuriamo utilizzo reale, qualità della ricerca e copertura del workflow commerciale.
+              La telemetria non salva query, nomi cliente, prezzi o contenuto dei documenti.
+            </p>
+          </div>
+          <Badge tone={readiness.pilot_evidence_ready ? "green" : noPilotData ? "neutral" : "amber"}>
+            {readiness.pilot_evidence_ready
+              ? "Evidenza pilot sufficiente"
+              : noPilotData
+                ? "Pilot non ancora iniziato"
+                : String(readiness.criteria_passed_count) + "/" + String(readiness.criteria_total) + " criteri"}
+          </Badge>
+        </div>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            ["WAU", summary7.weekly_active_users, "utenti attivi negli ultimi 7 giorni"],
+            ["Ricerche · 30 gg", summary30.searches, "ricerche commerciali completate"],
+            ["Successo ricerca", percent(summary30.search_success_rate), "ricerche con almeno un risultato"],
+            ["Eventi pilot", summary30.event_count, "azioni misurate negli ultimi 30 giorni"],
+          ].map(([label, value, help]) => (
+            <div key={String(label)} className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+              <p className="text-xs font-semibold text-slate-500">{label}</p>
+              <p className="mt-1 text-2xl font-semibold text-slate-950">{String(value)}</p>
+              <p className="mt-1 text-xs leading-5 text-slate-400">{help}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {noPilotData ? (
+        <Card className="border-indigo-100 bg-indigo-50/60 p-6">
+          <p className="text-base font-semibold text-slate-950">Baseline pronta: il pilot reale può iniziare</p>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Il contatore è volutamente a zero. Le prossime ricerche, aperture di Product/Company 360,
+            consultazioni prezzi, evidenze, correzioni e import alimenteranno questa pagina automaticamente.
+          </p>
+        </Card>
+      ) : null}
+
+      <section>
+        <div className="mb-3">
+          <h2 className="text-lg font-semibold text-slate-950">Criteri P1.12</h2>
+          <p className="mt-1 text-sm text-slate-500">
+            Soglie minime per considerare il pilot quantitativamente informativo, non un test occasionale.
+          </p>
+        </div>
+        <div className="grid gap-3 lg:grid-cols-5">
+          {(Object.entries(readiness.criteria) as Array<[keyof Readiness["criteria"], Criterion]>).map(([key, criterion]) => {
+            const meta = criteriaLabels[key];
+            const actual = meta.format === "percent" ? percent(criterion.actual) : integer(criterion.actual);
+            const target = meta.format === "percent" ? percent(criterion.target) : integer(criterion.target);
+            return (
+              <Card key={key} className={criterion.passed ? "border-emerald-200" : "border-slate-200"}>
+                <CardContent className="p-4">
+                  <Badge tone={criterion.passed ? "green" : "neutral"}>
+                    {criterion.passed ? "Raggiunto" : "Da raggiungere"}
+                  </Badge>
+                  <p className="mt-3 text-sm font-semibold text-slate-950">{meta.label}</p>
+                  <p className="mt-2 text-xl font-semibold text-slate-950">
+                    {actual} <span className="text-xs font-medium text-slate-400">/ {target}</span>
+                  </p>
+                  <p className="mt-2 text-xs leading-5 text-slate-500">{meta.help}</p>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <h2 className="text-base font-semibold text-slate-950">Uso delle superfici commerciali · 30 giorni</h2>
+          </CardHeader>
+          <CardContent className="grid gap-3 sm:grid-cols-2">
+            {[
+              ["Product 360", summary30.product_views],
+              ["Company 360", summary30.company_views],
+              ["Price History", summary30.price_history_views],
+              ["Evidenze originali", summary30.evidence_opens],
+              ["Correzioni aperte", summary30.review_views],
+              ["Correzioni completate", summary30.corrections_completed],
+              ["Import completati", summary30.uploads_completed],
+            ].map(([label, value]) => (
+              <div key={String(label)} className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                <p className="text-lg font-semibold text-slate-950">{integer(Number(value))}</p>
+                <p className="text-xs text-slate-500">{label}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <h2 className="text-base font-semibold text-slate-950">Interpretazione dell'exit P1</h2>
+          </CardHeader>
+          <CardContent className="space-y-4 text-sm leading-6 text-slate-600">
+            <p>
+              <strong className="text-slate-900">Readiness quantitativa:</strong>{" "}
+              {readiness.pilot_evidence_ready
+                ? "i cinque criteri minimi risultano soddisfatti."
+                : "sono soddisfatti " + String(readiness.criteria_passed_count) + " criteri su " + String(readiness.criteria_total) + "."}
+            </p>
+            <p>
+              <strong className="text-slate-900">Latenza tecnica ricerca:</strong>{" "}
+              {readiness.metrics.avg_search_duration_ms === null
+                ? "nessun campione ancora disponibile."
+                : integer(readiness.metrics.avg_search_duration_ms) + " ms medi."}
+            </p>
+            <p>
+              <strong className="text-slate-900">Tempo umano per trovare un'informazione:</strong>{" "}
+              resta una evidenza separata. La latenza tecnica non viene usata come proxy del tempo realmente
+              risparmiato dal commerciale.
+            </p>
+            <p className="rounded-xl bg-amber-50 p-3 text-xs text-amber-800">
+              La chiusura P1 richiederà sia criteri quantitativi pilot sufficienti sia una breve
+              acceptance umana sul time-to-answer rispetto al metodo precedente.
+            </p>
+          </CardContent>
+        </Card>
+      </section>
+    </div>
+  );
+}
