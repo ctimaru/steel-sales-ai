@@ -319,3 +319,133 @@ def test_pa23016c_env_staging_writes_transfer_without_reingest(monkeypatch):
     asyncio.run(handler())
 
     assert calls["stored"] == 1
+
+
+def test_pa23016c3c_chunk_bridge_and_finalize_verify_without_reingest(monkeypatch):
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    expected_members = [
+        "Inbox/2.1 BRONIFER 13131/0000018497-R_ rdo tubo.eml",
+        "Inbox/2.1 BRONIFER 13131/0000126901-R_ tubo 406x6,3 a 13600.eml",
+    ]
+    archive_payload = _archive_bytes({
+        expected_members[0]: b"Subject: A\n\nbody",
+        expected_members[1]: b"Subject: B\n\nbody",
+    })
+    encoded = base64.b64encode(archive_payload).decode("ascii")
+    midpoint = len(encoded) // 2
+    midpoint -= midpoint % 4
+    chunks = [encoded[:midpoint], encoded[midpoint:]]
+    stored_parts = {}
+
+    class FakeRepo:
+        async def store_offer_source_recovery_transfer_chunk(
+            self, *, transfer_id, part_no, payload_base64
+        ):
+            assert transfer_id == "pa23016-c3c-test"
+            stored_parts[part_no] = payload_base64
+            return {"status": "stored"}
+
+        async def get_offer_source_recovery_transfer(self, *, transfer_id):
+            assert transfer_id == "pa23016-c3c-test"
+            return {
+                "status": "ready",
+                "payload_base64": "".join(stored_parts[index] for index in sorted(stored_parts)),
+            }
+
+    monkeypatch.setattr(bootstrap, "WorkerRepository", FakeRepo)
+    monkeypatch.setenv("PA23016_STAGE_TOKEN", "stage-token")
+    monkeypatch.setenv("PA23016_STAGE_TRANSFER_ID", "pa23016-c3c-test")
+    monkeypatch.setenv(
+        "PA23016_STAGE_ARCHIVE_SHA256",
+        hashlib.sha256(archive_payload).hexdigest(),
+    )
+    monkeypatch.setenv("PA23016_STAGE_EXPECTED_MEMBERS", json.dumps(expected_members))
+    monkeypatch.delenv(
+        "OFFER_SOURCE_AMBIGUOUS_RECOVERY_BOOTSTRAP_TRANSFER_ID",
+        raising=False,
+    )
+
+    app = FastAPI()
+    bootstrap.install_offer_source_ambiguous_recovery_bootstrap(app)
+    client = TestClient(app)
+
+    for part_no, chunk in enumerate(chunks):
+        response = client.post(
+            "/v1/remediation/pa23016-stage-chunk",
+            data={
+                "token": "stage-token",
+                "part_no": str(part_no),
+                "payload_base64": chunk,
+            },
+        )
+        assert response.status_code == 200
+        assert response.json()["reingest_executed"] is False
+
+    response = client.post(
+        "/v1/remediation/pa23016-stage-finalize",
+        data={"token": "stage-token"},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "verified_staged"
+    assert body["archive_sha256"] == hashlib.sha256(archive_payload).hexdigest()
+    assert body["eml_count"] == 2
+    assert body["reingest_executed"] is False
+    assert body["automatic_source_selection"] is False
+
+
+def test_pa23016c3c_finalize_rejects_wrong_selected_members(monkeypatch):
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    archive_payload = _archive_bytes({
+        "Inbox/a.eml": b"a",
+        "Inbox/b.eml": b"b",
+    })
+
+    class FakeRepo:
+        async def get_offer_source_recovery_transfer(self, *, transfer_id):
+            return {
+                "status": "ready",
+                "payload_base64": base64.b64encode(archive_payload).decode("ascii"),
+            }
+
+    monkeypatch.setattr(bootstrap, "WorkerRepository", FakeRepo)
+    monkeypatch.setenv("PA23016_STAGE_TOKEN", "stage-token")
+    monkeypatch.setenv("PA23016_STAGE_TRANSFER_ID", "pa23016-c3c-test")
+    monkeypatch.setenv(
+        "PA23016_STAGE_ARCHIVE_SHA256",
+        hashlib.sha256(archive_payload).hexdigest(),
+    )
+    monkeypatch.setenv(
+        "PA23016_STAGE_EXPECTED_MEMBERS",
+        json.dumps(["Inbox/selected-a.eml", "Inbox/selected-b.eml"]),
+    )
+
+    app = FastAPI()
+    bootstrap.install_offer_source_ambiguous_recovery_bootstrap(app)
+    client = TestClient(app)
+
+    response = client.post(
+        "/v1/remediation/pa23016-stage-finalize",
+        data={"token": "stage-token"},
+    )
+    assert response.status_code == 422
+    assert "do not match the selected sources" in response.json()["detail"]
+
+
+def test_pa23016c3c_console_contains_staging_only_controls():
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    app = FastAPI()
+    bootstrap.install_offer_source_ambiguous_recovery_bootstrap(app)
+    client = TestClient(app)
+
+    response = client.get("/v1/remediation/pa23016-stage-console")
+    assert response.status_code == 200
+    assert "/v1/remediation/pa23016-stage-chunk" in response.text
+    assert "/v1/remediation/pa23016-stage-finalize" in response.text
+    assert "No re-ingest or promotion is reachable" in response.text
