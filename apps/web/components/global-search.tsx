@@ -92,6 +92,29 @@ function companyTarget(result: GlobalSearchResult) {
   return null;
 }
 
+function entityTarget(result: GlobalSearchResult) {
+  const canonicalProductId = result.metadata?.canonical_product_id;
+  if (
+    result.result_type === "product" &&
+    typeof canonicalProductId === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(canonicalProductId)
+  ) {
+    return { href: `/products/${canonicalProductId}`, label: "Apri prodotto →" };
+  }
+
+  const normalizedEntityId = result.metadata?.normalized_entity_id;
+  if (
+    typeof normalizedEntityId === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(normalizedEntityId)
+  ) {
+    if (result.result_type === "rfq") return { href: `/rfqs/${normalizedEntityId}`, label: "Apri RFQ →" };
+    if (result.result_type === "offer") return { href: `/offers/${normalizedEntityId}`, label: "Apri offerta →" };
+    if (result.result_type === "order") return { href: `/orders/${normalizedEntityId}`, label: "Apri ordine →" };
+  }
+
+  return null;
+}
+
 function sourceTarget(result: GlobalSearchResult) {
   const observationId = result.metadata?.observation_id;
   if (typeof observationId === "number" && Number.isInteger(observationId) && observationId > 0) {
@@ -221,6 +244,7 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
             const date = formatDate(result.event_at);
             const target = sourceTarget(result);
             const customerTarget = companyTarget(result);
+            const entity = entityTarget(result);
             const reference = sharedReference(result);
             const referenceStatus = typeof reference?.resolution_status === "string"
               ? reference.resolution_status
@@ -261,6 +285,14 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
                         className="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100"
                       >
                         Apri azienda →
+                      </Link>
+                    ) : null}
+                    {entity ? (
+                      <Link
+                        href={entity.href}
+                        className="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100"
+                      >
+                        {entity.label}
                       </Link>
                     ) : null}
                     {target ? (
