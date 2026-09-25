@@ -116,6 +116,27 @@ export function AppShell({
                   {item.shortLabel}
                 </Link>
               ))}
+              <details className="relative shrink-0">
+                <summary className="cursor-pointer list-none rounded-lg border border-slate-200 bg-slate-950 px-3 py-1.5 text-xs font-semibold text-white">
+                  Altro
+                </summary>
+                <div className="fixed left-4 right-4 top-16 z-40 grid grid-cols-2 gap-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl sm:left-auto sm:right-6 sm:w-80">
+                  {secondaryNav.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 text-xs font-semibold text-slate-700"
+                    >
+                      <span>{item.label}</span>
+                      {item.href === "/alerts" && alertActiveCount > 0 ? (
+                        <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold text-red-700">
+                          {alertActiveCount}
+                        </span>
+                      ) : null}
+                    </Link>
+                  ))}
+                </div>
+              </details>
             </div>
 
             <div className="hidden items-center gap-2 sm:flex">
