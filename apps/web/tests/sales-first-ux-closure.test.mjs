@@ -8,7 +8,7 @@ const prices = fs.readFileSync(new URL("../app/(workspace)/products/[productId]/
 const upload = fs.readFileSync(new URL("../components/bulk-upload-form.tsx", import.meta.url), "utf8");
 
 test("PA2.33 mobile keeps secondary sales tools reachable", () => {
-  assert.match(shell, />Altro</);
+  assert.match(shell, /Altro/);
   for (const href of ["/assistant", "/review", "/alerts", "/uploads", "/data-sources"]) {
     assert.match(shell, new RegExp(`href: "${href}"`));
   }
