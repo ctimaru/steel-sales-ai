@@ -6,6 +6,7 @@ import {
   getRegistrationNetworkCandidates,
   requirePlatformSuperadmin,
 } from "@/lib/platform-admin";
+import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 
 import {
   activateRegistrationApplication,
