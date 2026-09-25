@@ -8,6 +8,7 @@ const primaryNav = [
   { href: "/search", label: "Cerca", shortLabel: "Cerca" },
   { href: "/products", label: "Storico prodotti", shortLabel: "Prodotti" },
   { href: "/customers", label: "Clienti / aziende", shortLabel: "Clienti" },
+  { href: "/network", label: "Industry Network", shortLabel: "Network" },
 ];
 
 const secondaryNav = [
@@ -45,7 +46,7 @@ export function AppShell({
         <div className="flex h-full flex-col">
           <div className="border-b border-white/10 p-5">
             <p className="text-xs font-bold tracking-[0.18em] text-slate-500">STEEL SALES AI</p>
-            <p className="mt-1 text-lg font-semibold text-white">Commercial Memory</p>
+            <p className="mt-1 text-lg font-semibold text-white">Commercial Memory + Network</p>
           </div>
 
           <div className="flex-1 overflow-y-auto p-3">
@@ -117,7 +118,7 @@ export function AppShell({
           <div className="flex h-16 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
             <Link href="/dashboard" className="shrink-0">
               <p className="text-sm font-semibold text-slate-950">Steel Sales AI</p>
-              <p className="text-xs text-slate-500">La memoria commerciale del tuo team</p>
+              <p className="text-xs text-slate-500">Commercial Memory privata · Industry Network condiviso</p>
             </Link>
 
             <div className="flex max-w-[64vw] items-center gap-1.5 overflow-x-auto lg:hidden">
