@@ -98,3 +98,24 @@ export async function signup(formData: FormData) {
 
   redirect("/register?message=Controlla%20la%20tua%20email%20per%20confermare%20l%27account");
 }
+
+export async function requestPasswordReset(formData: FormData) {
+  ensureSupabaseConfigured();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+
+  if (!email) {
+    redirect("/forgot-password?error=Inserisci%20il%20tuo%20indirizzo%20email");
+  }
+
+  const supabase = await createClient();
+  const origin = await appOrigin();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/finish?recovery=1`,
+  });
+
+  if (error) {
+    redirect("/forgot-password?error=Non%20%C3%A8%20stato%20possibile%20inviare%20il%20link%20di%20recupero");
+  }
+
+  redirect("/forgot-password?message=Se%20l%27account%20esiste%2C%20riceverai%20un%20link%20per%20reimpostare%20la%20password");
+}
