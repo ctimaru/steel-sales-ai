@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { Input } from "@/components/ui/input";
 
-import { login, signup } from "./actions";
+import { login } from "./actions";
 
 export const metadata: Metadata = {
   title: "Accedi",
@@ -16,32 +17,44 @@ export default async function LoginPage({
   const { error, message } = await searchParams;
 
   return (
-    <main className="grid min-h-screen lg:grid-cols-[1.1fr_0.9fr]">
+    <main className="grid min-h-screen bg-white lg:grid-cols-[1.08fr_0.92fr]">
       <section className="hidden bg-slate-950 p-12 text-white lg:flex lg:flex-col lg:justify-between">
         <div>
           <div className="inline-flex rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold tracking-[0.16em] text-slate-300">
             STEEL SALES AI
           </div>
           <h1 className="mt-16 max-w-xl text-5xl font-semibold leading-[1.05]">
-            La memoria commerciale del tuo business siderurgico.
+            Il sistema operativo commerciale per il settore siderurgico.
           </h1>
           <p className="mt-6 max-w-lg text-lg leading-8 text-slate-400">
-            Importa email e documenti, ritrova offerte e prezzi storici e interroga le fonti con evidenza verificabile.
+            Memoria commerciale privata, storico prezzi, ricerca con evidenza e un network industriale costruito per produttori, commercianti, terzisti e utilizzatori.
           </p>
         </div>
-        <p className="text-sm text-slate-500">
-          P1 · Commercial Memory · Parser v4 · Knowledge Graph con provenance
-        </p>
+
+        <div className="grid gap-3 text-sm text-slate-400 sm:grid-cols-2">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p className="font-semibold text-slate-200">Commercial Memory</p>
+            <p className="mt-1 leading-6">Email, offerte, prezzi, ordini e documenti ricercabili.</p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p className="font-semibold text-slate-200">Steel Industry Network</p>
+            <p className="mt-1 leading-6">Profili azienda, capability e discovery industriale.</p>
+          </div>
+        </div>
       </section>
 
-      <section className="flex items-center justify-center p-6 sm:p-12">
-        <div className="w-full max-w-sm">
-          <p className="text-sm font-semibold text-slate-500">Steel Sales AI</p>
+      <section className="flex items-center justify-center px-6 py-10 sm:px-10 lg:px-14">
+        <div className="w-full max-w-md">
+          <div className="lg:hidden">
+            <p className="text-xs font-bold tracking-[0.16em] text-slate-400">STEEL SALES AI</p>
+          </div>
+
+          <p className="mt-6 text-sm font-semibold text-slate-500 lg:mt-0">Bentornato</p>
           <h2 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
-            Accedi al workspace
+            Accedi al tuo workspace
           </h2>
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            Accedi oppure crea il primo account della tua azienda. Gli utenti invitati usano la stessa schermata dopo aver impostato la password.
+          <p className="mt-3 text-sm leading-6 text-slate-500">
+            Usa le credenziali della tua azienda. I nuovi account aziendali seguono un flusso di registrazione e approvazione separato.
           </p>
 
           {error ? (
@@ -58,12 +71,12 @@ export default async function LoginPage({
           <form action={login} className="mt-8 space-y-5">
             <label className="block text-sm font-medium text-slate-700">
               Email
-              <Input className="mt-2" name="email" type="email" autoComplete="email" required />
+              <Input className="mt-2 h-11" name="email" type="email" autoComplete="email" required />
             </label>
             <label className="block text-sm font-medium text-slate-700">
               Password
               <Input
-                className="mt-2"
+                className="mt-2 h-11"
                 name="password"
                 type="password"
                 autoComplete="current-password"
@@ -71,24 +84,31 @@ export default async function LoginPage({
                 required
               />
             </label>
+            <div className="flex justify-end">
+              <Link href="/forgot-password" className="text-xs font-semibold text-slate-500 underline underline-offset-4 hover:text-slate-900">
+                Password dimenticata?
+              </Link>
+            </div>
             <button
               type="submit"
-              className="h-11 w-full rounded-lg bg-slate-950 text-sm font-semibold text-white transition hover:bg-slate-800"
+              className="h-11 w-full rounded-xl bg-slate-950 text-sm font-semibold text-white transition hover:bg-slate-800"
             >
               Accedi
             </button>
-            <button
-              type="submit"
-              formAction={signup}
-              className="h-11 w-full rounded-lg border border-slate-200 bg-white text-sm font-semibold text-slate-800 transition hover:border-slate-400"
-            >
-              Crea un nuovo workspace
-            </button>
           </form>
 
-          <p className="mt-6 text-xs leading-5 text-slate-400">
-            La creazione del workspace parte dopo la verifica email. I ruoli e i permessi sono applicati lato database tramite RLS.
-          </p>
+          <div className="mt-8 border-t border-slate-200 pt-6">
+            <p className="text-sm font-semibold text-slate-900">La tua azienda non è ancora su Steel Sales AI?</p>
+            <p className="mt-1 text-sm leading-6 text-slate-500">
+              Crea il tuo account e invia la richiesta di registrazione aziendale. L’accesso al workspace viene attivato dopo approvazione.
+            </p>
+            <Link
+              href="/register"
+              className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-xl border border-slate-300 bg-white text-sm font-semibold text-slate-900 transition hover:border-slate-500"
+            >
+              Registra la tua azienda
+            </Link>
+          </div>
         </div>
       </section>
     </main>

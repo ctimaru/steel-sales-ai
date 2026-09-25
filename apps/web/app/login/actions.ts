@@ -32,7 +32,14 @@ async function routeAfterAuthentication() {
 
   const membership = memberships?.find((row) => row.is_default) ?? memberships?.[0];
   if (!membership) {
-    redirect("/onboarding");
+    const { data: application } = await supabase
+      .from("company_registration_applications")
+      .select("id,application_status")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    redirect(application ? "/registration/status" : "/register");
   }
 
   const { data: organization } = await supabase
@@ -68,7 +75,7 @@ export async function signup(formData: FormData) {
   const password = String(formData.get("password") ?? "");
 
   if (!email || password.length < 8) {
-    redirect("/login?error=Per%20creare%20un%20account%20usa%20una%20password%20di%20almeno%208%20caratteri");
+    redirect("/register?error=Usa%20una%20password%20di%20almeno%208%20caratteri");
   }
 
   const supabase = await createClient();
@@ -82,12 +89,33 @@ export async function signup(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/login?error=${encodeURIComponent(error.message)}`);
+    redirect(`/register?error=${encodeURIComponent(error.message)}`);
   }
 
   if (data.session) {
-    await routeAfterAuthentication();
+    redirect("/register");
   }
 
-  redirect("/login?message=Controlla%20la%20tua%20email%20per%20confermare%20l%27account");
+  redirect("/register?message=Controlla%20la%20tua%20email%20per%20confermare%20l%27account");
+}
+
+export async function requestPasswordReset(formData: FormData) {
+  ensureSupabaseConfigured();
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+
+  if (!email) {
+    redirect("/forgot-password?error=Inserisci%20il%20tuo%20indirizzo%20email");
+  }
+
+  const supabase = await createClient();
+  const origin = await appOrigin();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origin}/auth/finish?recovery=1`,
+  });
+
+  if (error) {
+    redirect("/forgot-password?error=Non%20%C3%A8%20stato%20possibile%20inviare%20il%20link%20di%20recupero");
+  }
+
+  redirect("/forgot-password?message=Se%20l%27account%20esiste%2C%20riceverai%20un%20link%20per%20reimpostare%20la%20password");
 }
