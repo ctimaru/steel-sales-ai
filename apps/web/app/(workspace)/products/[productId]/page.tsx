@@ -62,7 +62,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <div className="flex flex-wrap gap-2">
               {product.grade ? <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700">{product.grade}</span> : null}
               {product.standard ? <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{product.standard}</span> : null}
-              <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">Dati verificati</span>
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">Dati commerciali</span>
               {reference ? (
                 <span className={
                   reference.resolution_status === "matched"
@@ -232,12 +232,29 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
           <h2 className="text-lg font-semibold text-slate-950">Clienti / fornitori collegati</h2>
           <p className="mt-1 text-xs text-slate-500">Mostrati solo quando esiste un collegamento aziendale verificato; nessuna deduzione automatica dal testo.</p>
           <div className="mt-4 space-y-3">
-            {(payload.counterparties ?? []).map((company) => (
-              <div key={company.company_id ?? company.id ?? company.company_name ?? company.name} className="rounded-2xl border border-slate-200 p-4">
-                <p className="text-sm font-semibold text-slate-900">{company.company_name ?? company.name ?? "Azienda"}</p>
-                <p className="mt-1 text-xs text-slate-500">{company.company_type ?? company.type ?? "tipo non classificato"}{company.company_country ?? company.country ? ` · ${company.company_country ?? company.country}` : ""}</p>
-              </div>
-            ))}
+            {(payload.counterparties ?? []).map((company) => {
+              const companyId = company.company_id ?? company.id;
+              const content = (
+                <>
+                  <p className="text-sm font-semibold text-slate-900">{company.company_name ?? company.name ?? "Azienda"}</p>
+                  <p className="mt-1 text-xs text-slate-500">{company.company_type ?? company.type ?? "tipo non classificato"}{company.company_country ?? company.country ? ` · ${company.company_country ?? company.country}` : ""}</p>
+                </>
+              );
+              return companyId ? (
+                <Link
+                  key={companyId}
+                  href={`/customers/${companyId}`}
+                  className="block rounded-2xl border border-slate-200 p-4 transition hover:border-indigo-200 hover:bg-indigo-50/40"
+                >
+                  {content}
+                  <p className="mt-2 text-xs font-semibold text-indigo-600">Apri azienda →</p>
+                </Link>
+              ) : (
+                <div key={company.company_name ?? company.name} className="rounded-2xl border border-slate-200 p-4">
+                  {content}
+                </div>
+              );
+            })}
             {(payload.counterparties ?? []).length === 0 ? <p className="text-sm text-slate-500">Nessun cliente o fornitore collegato disponibile al momento.</p> : null}
           </div>
         </div>
