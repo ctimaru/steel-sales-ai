@@ -14,6 +14,7 @@ const secondaryNav = [
   { href: "/assistant", label: "Assistente" },
   { href: "/review", label: "Correzioni" },
   { href: "/alerts", label: "Alert operativi" },
+  { href: "/pilot-analytics", label: "Pilot analytics" },
   { href: "/uploads", label: "Importa" },
   { href: "/tubi-norme", label: "Tubi & Norme" },
   { href: "/data-sources", label: "Fonti e import" },
