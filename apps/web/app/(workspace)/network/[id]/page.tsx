@@ -6,7 +6,7 @@ import {
   requestNetworkClaim,
   saveNetworkCompany,
 } from "@/app/(workspace)/network/actions";
-import { getNetworkProfile } from "@/lib/network";
+import { getInquiryEligibility, getNetworkProfile } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { createClient } from "@/lib/supabase/server";
 
@@ -37,6 +37,7 @@ export default async function NetworkCompanyProfilePage({
   let organizationId: string | null = null;
   let adminOrganizationId: string | null = null;
   let isSaved = false;
+  let inquiryEligible = false;
 
   if (userId) {
     const { data: memberships } = await supabase
@@ -63,6 +64,9 @@ export default async function NetworkCompanyProfilePage({
         .maybeSingle();
 
       isSaved = Boolean(saved);
+
+      const eligibility = await getInquiryEligibility(organizationId, profile.company.id);
+      inquiryEligible = eligibility.eligible;
     }
   }
 
@@ -107,6 +111,15 @@ export default async function NetworkCompanyProfilePage({
                   {isSaved ? "Rimuovi dai salvati" : "Salva azienda"}
                 </button>
               </form>
+            ) : null}
+
+            {inquiryEligible ? (
+              <Link
+                href={"/network/" + profile.company.id + "/inquiry"}
+                className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white"
+              >
+                Invia inquiry
+              </Link>
             ) : null}
 
             {profile.company.claimed_status === "unclaimed" && adminOrganizationId ? (
