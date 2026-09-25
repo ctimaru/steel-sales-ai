@@ -64,6 +64,8 @@ revoke all on function public.is_platform_superadmin() from public;
 revoke all on function public.is_platform_superadmin() from anon;
 grant execute on function public.is_platform_superadmin() to authenticated, service_role;
 
+-- Environment-safe founder bootstrap:
+-- production already contains this auth user; clean local/CI databases may not.
 insert into public.platform_user_roles (
   user_id,
   role,
@@ -71,13 +73,14 @@ insert into public.platform_user_roles (
   granted_by,
   reason
 )
-values (
-  'f45fab6e-3da8-41aa-8711-fc1b337a7dde'::uuid,
+select
+  u.id,
   'platform_superadmin',
   'active',
   null,
   'P0A.1 initial sole platform superadmin bootstrap'
-)
+from auth.users u
+where u.id = 'f45fab6e-3da8-41aa-8711-fc1b337a7dde'::uuid
 on conflict (user_id, role) do update
 set
   status = 'active',
