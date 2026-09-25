@@ -132,12 +132,17 @@ def _expected_stage_members() -> set[str]:
     return members
 
 
-def _verify_stage_payload(*, payload: bytes, expected_sha: str) -> dict[str, object]:
+def _verify_stage_payload(
+    *,
+    payload: bytes,
+    expected_sha: str,
+    require_expected_members: bool = False,
+) -> dict[str, object]:
     actual_sha = hashlib.sha256(payload).hexdigest()
     if actual_sha != expected_sha:
         raise ValueError(f"PA2.30.16 archive checksum mismatch: {actual_sha}.")
 
-    expected_members = _expected_stage_members()
+    expected_members = _expected_stage_members() if require_expected_members else None
     archive, _ = _archive_members(payload)
     try:
         eml_members = [
@@ -147,7 +152,10 @@ def _verify_stage_payload(*, payload: bytes, expected_sha: str) -> dict[str, obj
         ]
         if len(eml_members) != 2:
             raise ValueError("PA2.30.16 archive must contain exactly two EML sources.")
-        if {member.casefold() for member in eml_members} != expected_members:
+        if (
+            expected_members is not None
+            and {member.casefold() for member in eml_members} != expected_members
+        ):
             raise ValueError("PA2.30.16 archive EML members do not match the selected sources.")
     finally:
         archive.close()
@@ -384,7 +392,11 @@ def install_offer_source_ambiguous_recovery_bootstrap(app: FastAPI) -> None:
             raise HTTPException(status_code=409, detail="PA2.30.16 transfer is not ready.")
         try:
             payload = base64.b64decode(str(transfer["payload_base64"]), validate=True)
-            verified = _verify_stage_payload(payload=payload, expected_sha=expected_sha)
+            verified = _verify_stage_payload(
+                payload=payload,
+                expected_sha=expected_sha,
+                require_expected_members=True,
+            )
         except (KeyError, ValueError) as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
 
