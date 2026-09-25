@@ -19,6 +19,7 @@ export default function AuthFinishPage() {
       const supabase = createClient();
       const url = new URL(window.location.href);
       const isInvite = url.searchParams.get("invited") === "1";
+      const isSignup = url.searchParams.get("signup") === "1";
       const code = url.searchParams.get("code");
 
       try {
@@ -46,6 +47,12 @@ export default function AuthFinishPage() {
 
         if (isInvite) {
           if (!cancelled) setMode("invite");
+          return;
+        }
+
+        if (isSignup) {
+          router.replace("/register");
+          router.refresh();
           return;
         }
 
@@ -103,14 +110,18 @@ export default function AuthFinishPage() {
         {mode === "loading" ? (
           <>
             <h1 className="mt-4 text-2xl font-semibold text-slate-950">Verifica account</h1>
-            <p className="mt-2 text-sm leading-6 text-slate-500">Stiamo completando la sessione e collegando il tuo account al workspace corretto.</p>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Stiamo completando la sessione e preparando il prossimo passaggio.
+            </p>
           </>
         ) : null}
 
         {mode === "invite" ? (
           <>
             <h1 className="mt-4 text-2xl font-semibold text-slate-950">Completa il tuo invito</h1>
-            <p className="mt-2 text-sm leading-6 text-slate-500">Imposta una password personale. Il ruolo e l’azienda sono già determinati dall’invito e verranno applicati lato database.</p>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Imposta una password personale. Il ruolo e l’azienda sono già determinati dall’invito e verranno applicati lato database.
+            </p>
             <form onSubmit={completeInvitation} className="mt-6 space-y-4">
               <label className="block text-sm font-medium text-slate-700">
                 Nuova password
