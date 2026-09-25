@@ -84,6 +84,11 @@ export default async function LoginPage({
                 required
               />
             </label>
+            <div className="flex justify-end">
+              <Link href="/forgot-password" className="text-xs font-semibold text-slate-500 underline underline-offset-4 hover:text-slate-900">
+                Password dimenticata?
+              </Link>
+            </div>
             <button
               type="submit"
               className="h-11 w-full rounded-xl bg-slate-950 text-sm font-semibold text-white transition hover:bg-slate-800"
