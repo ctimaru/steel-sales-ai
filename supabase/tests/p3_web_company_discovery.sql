@@ -10,7 +10,7 @@ begin
 end;
 $$;
 
-do $
+do $p32$
 begin
   if not exists (
     select 1 from public.platform_user_roles
@@ -29,7 +29,7 @@ begin
     );
   end if;
 end;
-$;
+$p32$;
 
 select user_id as superadmin_id
 from public.platform_user_roles
