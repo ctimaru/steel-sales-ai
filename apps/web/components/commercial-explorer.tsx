@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import type { DataMode, ExplorerFilters } from "@/lib/commercial-data";
 import type { CommercialRow, ItemRole } from "@/lib/demo-data";
+import { appRoutes } from "@/lib/routes";
 
 function roleTone(role: ItemRole) {
   if (role === "requested") return "blue" as const;
@@ -105,7 +106,7 @@ export function CommercialExplorer({
               <p className="text-xs text-slate-400">Cliente</p>
               {row.companyId ? (
                 <Link
-                  href={`/customers/${row.companyId}`}
+                  href={appRoutes.commercial.company(row.companyId)}
                   className="mt-1 block line-clamp-2 text-sm font-semibold text-indigo-600 hover:text-indigo-800"
                 >
                   {row.company} · Company 360 →
@@ -114,7 +115,7 @@ export function CommercialExplorer({
                 <p className="mt-1 line-clamp-2 text-sm font-medium text-amber-700">{row.company}</p>
               )}
               {row.conversationId ? (
-                <Link href={`/conversations/${row.conversationId}`} className="mt-2 block text-[11px] font-semibold text-slate-400 hover:text-slate-700">
+                <Link href={appRoutes.commercial.conversation(row.conversationId)} className="mt-2 block text-[11px] font-semibold text-slate-400 hover:text-slate-700">
                   Conversation / provenance →
                 </Link>
               ) : null}

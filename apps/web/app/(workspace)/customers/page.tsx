@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { appRoutes } from "@/lib/routes";
 
 import { loadCompanyActivationStatus, loadCompanyDirectory } from "./actions";
 
@@ -51,7 +52,7 @@ export default async function CustomersPage({
           </div>
           {activation.unresolvedContacts > 0 ? (
             <Link
-              href="/review/identities"
+              href={appRoutes.operations.reviewIdentities}
               className="shrink-0 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800 hover:bg-amber-100"
             >
               Apri identità aziendali →
@@ -73,7 +74,7 @@ export default async function CustomersPage({
         </form>
         <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-4 text-xs text-slate-500">
           <span>{directory.total} aziende{query ? ` per “${query}”` : ""}</span>
-          {query ? <Link href="/customers" className="font-semibold text-indigo-600">Azzera ricerca</Link> : null}
+          {query ? <Link href={appRoutes.commercial.companies} className="font-semibold text-indigo-600">Azzera ricerca</Link> : null}
         </div>
       </section>
 
@@ -93,7 +94,7 @@ export default async function CustomersPage({
           {directory.companies.map((company) => (
             <Link
               key={company.company_id}
-              href={`/customers/${company.company_id}`}
+              href={appRoutes.commercial.company(company.company_id)}
               className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md"
             >
               <div className="flex items-start justify-between gap-4">

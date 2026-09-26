@@ -8,6 +8,7 @@ import {
   type CommercialRow,
   type ItemRole,
 } from "@/lib/demo-data";
+import { appRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
 
 export type DataMode = "demo" | "live" | "awaiting_assignment";
@@ -243,7 +244,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       company: String(company?.name ?? "Cliente non attribuito"),
       companyId: typeof rfq.company_id === "string" ? rfq.company_id : null,
       sourceKind: "normalized" as const,
-      operationalHref: `/rfqs/${String(rfq.id ?? row.rfq_id)}`,
+      operationalHref: appRoutes.commercial.rfq(String(rfq.id ?? row.rfq_id)),
       product: String(row.raw_spec_text ?? "Prodotto steel"),
       grade: String(row.requested_grade ?? "—"),
       standard: String(row.requested_standard ?? "—"),
@@ -341,10 +342,10 @@ export async function getExplorerData(filters: ExplorerFilters): Promise<Explore
     sourceKind: "normalized",
     operationalHref:
       row.role === "requested"
-        ? `/rfqs/${String(row.entity_id)}`
+        ? appRoutes.commercial.rfq(String(row.entity_id))
         : row.role === "offered"
-          ? `/offers/${String(row.entity_id)}`
-          : `/orders/${String(row.entity_id)}`,
+          ? appRoutes.commercial.offer(String(row.entity_id))
+          : appRoutes.commercial.order(String(row.entity_id)),
     product: String(row.product_text ?? row.canonical_product_key ?? "Prodotto steel"),
     grade: String(row.grade ?? "—"),
     standard: String(row.standard ?? "—"),
@@ -435,10 +436,10 @@ export async function getOperationalEntityData(
 
   const relationshipLinks: Array<{ label: string; href: string }> = [];
   if (kind !== "rfq" && typeof parentRow.rfq_id === "string") {
-    relationshipLinks.push({ label: "RFQ collegata", href: `/rfqs/${parentRow.rfq_id}` });
+    relationshipLinks.push({ label: "RFQ collegata", href: appRoutes.commercial.rfq(String(parentRow.rfq_id)) });
   }
   if (kind === "order" && typeof parentRow.offer_id === "string") {
-    relationshipLinks.push({ label: "Offer collegata", href: `/offers/${parentRow.offer_id}` });
+    relationshipLinks.push({ label: "Offer collegata", href: appRoutes.commercial.offer(String(parentRow.offer_id)) });
   }
 
   const occurredRaw =
@@ -469,7 +470,7 @@ export async function getOperationalEntityData(
     occurredAt: formatDate(occurredRaw),
     company: String(company?.name ?? "Cliente non attribuito"),
     companyId: typeof parentRow.company_id === "string" ? parentRow.company_id : null,
-    conversationHref: conversationId ? `/conversations/${conversationId}` : null,
+    conversationHref: conversationId ? appRoutes.commercial.conversation(conversationId) : null,
     conversationLabel: conversationId ? "Apri conversation/provenance" : null,
     relationshipLinks,
     metadata,

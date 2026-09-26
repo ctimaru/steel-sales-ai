@@ -36,6 +36,6 @@ test("legacy observations remain evidence but no longer label a customer", () =>
 
 test("Company 360 can navigate back to normalized commercial conversation context", () => {
   assert.match(company360, /event\.provenance\?\.conversation_id/);
-  assert.match(company360, /\/conversations\/\$\{String\(event\.provenance\.conversation_id\)\}/);
+  assert.match(company360, /appRoutes\.commercial\.conversation\(String\(event\.provenance\.conversation_id\)\)/);
   assert.match(company360, /Apri conversazione →/);
 });

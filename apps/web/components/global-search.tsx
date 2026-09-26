@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { appRoutes } from "@/lib/routes";
 
 const initialState: GlobalSearchState = { status: "idle", message: "", results: [], count: 0, counts: {} };
 
@@ -87,7 +88,7 @@ function companyTarget(result: GlobalSearchResult) {
     typeof companyId === "string" &&
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(companyId)
   ) {
-    return `/customers/${companyId}`;
+    return appRoutes.commercial.company(companyId);
   }
   return null;
 }
@@ -99,7 +100,7 @@ function entityTarget(result: GlobalSearchResult) {
     typeof canonicalProductId === "string" &&
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(canonicalProductId)
   ) {
-    return { href: `/products/${canonicalProductId}`, label: "Apri prodotto →" };
+    return { href: appRoutes.commercial.product(canonicalProductId), label: "Apri prodotto →" };
   }
 
   const normalizedEntityId = result.metadata?.normalized_entity_id;
@@ -107,9 +108,9 @@ function entityTarget(result: GlobalSearchResult) {
     typeof normalizedEntityId === "string" &&
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(normalizedEntityId)
   ) {
-    if (result.result_type === "rfq") return { href: `/rfqs/${normalizedEntityId}`, label: "Apri RFQ →" };
-    if (result.result_type === "offer") return { href: `/offers/${normalizedEntityId}`, label: "Apri offerta →" };
-    if (result.result_type === "order") return { href: `/orders/${normalizedEntityId}`, label: "Apri ordine →" };
+    if (result.result_type === "rfq") return { href: appRoutes.commercial.rfq(normalizedEntityId), label: "Apri RFQ →" };
+    if (result.result_type === "offer") return { href: appRoutes.commercial.offer(normalizedEntityId), label: "Apri offerta →" };
+    if (result.result_type === "order") return { href: appRoutes.commercial.order(normalizedEntityId), label: "Apri ordine →" };
   }
 
   return null;
@@ -122,7 +123,7 @@ function sourceTarget(result: GlobalSearchResult) {
   }
   const sourceUri = result.metadata?.source_uri;
   if (typeof sourceUri === "string" && /^https?:\/\//i.test(sourceUri)) return sourceUri;
-  if (result.thread_id) return `/conversations/${result.thread_id}`;
+  if (result.thread_id) return appRoutes.commercial.conversation(result.thread_id);
   return null;
 }
 

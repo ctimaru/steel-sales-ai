@@ -19,9 +19,9 @@ test("PA2.20 exposes normalized RFQ Offer Order detail routes", () => {
 
 test("Explorer primary navigation targets normalized operational entities", () => {
   assert.match(data, /operationalHref:/);
-  assert.match(data, /\/rfqs\//);
-  assert.match(data, /\/offers\//);
-  assert.match(data, /\/orders\//);
+  assert.match(data, /appRoutes\.commercial\.rfq/);
+  assert.match(data, /appRoutes\.commercial\.offer/);
+  assert.match(data, /appRoutes\.commercial\.order/);
   assert.match(explorer, /row\.operationalHref/);
   assert.match(explorer, /Apri dettaglio/);
   assert.match(explorer, /Conversation \/ provenance/);

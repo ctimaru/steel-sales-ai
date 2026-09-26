@@ -30,8 +30,8 @@ test("data source center exposes required P1.3 operational states", () => {
 });
 
 test("workspace navigation links source history and import workflow", () => {
-  assert.match(shell, /href: "\/data-sources"/);
-  assert.match(shell, /href: "\/uploads"/);
+  assert.match(shell, /href: appRoutes\.company\.dataSources/);
+  assert.match(shell, /href: appRoutes\.operations\.uploads/);
   assert.match(page, /href="\/uploads"/);
 });
 

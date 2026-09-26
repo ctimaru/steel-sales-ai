@@ -12,7 +12,7 @@ const shell = fs.readFileSync(
 );
 
 test("Tubi & Norme is first-class workspace navigation", () => {
-  assert.match(shell, /href: "\/tubi-norme"/);
+  assert.match(shell, /href: appRoutes\.company\.tubesStandards/);
   assert.match(shell, /label: "Tubi & Norme"/);
   assert.match(page, /Riferimenti tecnici/);
   assert.match(page, /Tabella dimensionale/);

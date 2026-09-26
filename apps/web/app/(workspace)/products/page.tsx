@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { appRoutes } from "@/lib/routes";
+
 import { loadProductCatalog, type ProductCatalogItem } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -63,7 +65,7 @@ export default async function ProductsPage({
         </form>
         <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-4 text-xs text-slate-500">
           <span>{catalog.total} prodotti{query ? ` per “${query}”` : ""}</span>
-          {query ? <Link href="/products" className="font-semibold text-indigo-600">Azzera ricerca</Link> : null}
+          {query ? <Link href={appRoutes.commercial.products} className="font-semibold text-indigo-600">Azzera ricerca</Link> : null}
         </div>
       </section>
 
@@ -78,7 +80,7 @@ export default async function ProductsPage({
           {catalog.results.map((item) => (
             <Link
               key={item.canonical_product_id}
-              href={`/products/${item.canonical_product_id}`}
+              href={appRoutes.commercial.product(item.canonical_product_id)}
               className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md"
             >
               <div className="flex items-start justify-between gap-4">

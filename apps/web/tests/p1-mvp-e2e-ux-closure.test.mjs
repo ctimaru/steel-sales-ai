@@ -17,11 +17,11 @@ const correctionForm = fs.readFileSync(
 
 test("PA2.32 Search links normalized commercial entities into the daily workflow", () => {
   assert.match(globalSearch, /canonical_product_id/);
-  assert.match(globalSearch, /\/products\/\$\{canonicalProductId\}/);
+  assert.match(globalSearch, /appRoutes\.commercial\.product\(canonicalProductId\)/);
   assert.match(globalSearch, /normalized_entity_id/);
-  assert.match(globalSearch, /\/rfqs\/\$\{normalizedEntityId\}/);
-  assert.match(globalSearch, /\/offers\/\$\{normalizedEntityId\}/);
-  assert.match(globalSearch, /\/orders\/\$\{normalizedEntityId\}/);
+  assert.match(globalSearch, /appRoutes\.commercial\.rfq\(normalizedEntityId\)/);
+  assert.match(globalSearch, /appRoutes\.commercial\.offer\(normalizedEntityId\)/);
+  assert.match(globalSearch, /appRoutes\.commercial\.order\(normalizedEntityId\)/);
   assert.match(globalSearch, /Apri prodotto/);
 });
 

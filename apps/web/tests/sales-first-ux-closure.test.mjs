@@ -9,8 +9,14 @@ const upload = fs.readFileSync(new URL("../components/bulk-upload-form.tsx", imp
 
 test("PA2.33 mobile keeps secondary sales tools reachable", () => {
   assert.match(shell, /Altro/);
-  for (const href of ["/assistant", "/review", "/alerts", "/uploads", "/data-sources"]) {
-    assert.match(shell, new RegExp(`href: "${href}"`));
+  for (const routeRef of [
+    "appRoutes.commercial.assistant",
+    "appRoutes.operations.review",
+    "appRoutes.operations.alerts",
+    "appRoutes.operations.uploads",
+    "appRoutes.company.dataSources",
+  ]) {
+    assert.ok(shell.includes(routeRef), `missing mobile route reference ${routeRef}`);
   }
 });
 

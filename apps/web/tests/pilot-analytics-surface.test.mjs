@@ -16,7 +16,7 @@ const migration = fs.readFileSync(
 );
 
 test("PA2.35 exposes the pilot analytics surface and read models", () => {
-  assert.match(shell, /href: "\/pilot-analytics"/);
+  assert.match(shell, /href: appRoutes\.company\.pilotAnalytics/);
   assert.match(shell, /Pilot analytics/);
   assert.match(page, /p1_pilot_usage_summary/);
   assert.match(page, /p1_pilot_exit_readiness/);

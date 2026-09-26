@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { logout } from "@/app/(workspace)/actions";
+import { appRoutes } from "@/lib/routes";
 
 type NavItem = {
   href: string;
@@ -12,10 +13,10 @@ type NavItem = {
 };
 
 const commercialNav: NavItem[] = [
-  { href: "/search", label: "Cerca nello storico", shortLabel: "Cerca" },
-  { href: "/products", label: "Storico prodotti", shortLabel: "Prodotti" },
-  { href: "/customers", label: "Aziende commerciali", shortLabel: "Commerciale" },
-  { href: "/assistant", label: "Assistente" },
+  { href: appRoutes.commercial.search, label: "Cerca nello storico", shortLabel: "Cerca" },
+  { href: appRoutes.commercial.products, label: "Storico prodotti", shortLabel: "Prodotti" },
+  { href: appRoutes.commercial.companies, label: "Aziende commerciali", shortLabel: "Commerciale" },
+  { href: appRoutes.commercial.assistant, label: "Assistente" },
 ];
 
 const networkNav: NavItem[] = [
@@ -23,20 +24,20 @@ const networkNav: NavItem[] = [
   { href: "/network/saved", label: "Aziende salvate" },
   { href: "/network/following", label: "Aziende seguite" },
   { href: "/network/activity", label: "Activity" },
-  { href: "/network/inquiries", label: "Inquiry" },
+  { href: appRoutes.network.inquiries, label: "Inquiry" },
 ];
 
 const operationsNav: NavItem[] = [
-  { href: "/uploads", label: "Importa documenti", writeRole: true },
-  { href: "/review", label: "Correzioni", writeRole: true },
-  { href: "/alerts", label: "Alert operativi" },
+  { href: appRoutes.operations.uploads, label: "Importa documenti", writeRole: true },
+  { href: appRoutes.operations.review, label: "Correzioni", writeRole: true },
+  { href: appRoutes.operations.alerts, label: "Alert operativi" },
 ];
 
 const companyToolsNav: NavItem[] = [
-  { href: "/network/manage", label: "Profilo azienda", adminOnly: true },
-  { href: "/data-sources", label: "Fonti e import", adminOnly: true },
-  { href: "/pilot-analytics", label: "Pilot analytics", adminOnly: true },
-  { href: "/tubi-norme", label: "Tubi & Norme" },
+  { href: appRoutes.company.profile, label: "Profilo azienda", adminOnly: true },
+  { href: appRoutes.company.dataSources, label: "Fonti e import", adminOnly: true },
+  { href: appRoutes.company.pilotAnalytics, label: "Pilot analytics", adminOnly: true },
+  { href: appRoutes.company.tubesStandards, label: "Tubi & Norme" },
 ];
 
 function roleLabel(role: string) {
@@ -78,7 +79,7 @@ function NavSection({
             className="flex items-center justify-between rounded-xl px-3 py-2 text-sm font-medium text-slate-400 transition hover:bg-white/10 hover:text-white"
           >
             <span>{item.label}</span>
-            {item.href === "/alerts" && alertActiveCount > 0 ? (
+            {item.href === appRoutes.operations.alerts && alertActiveCount > 0 ? (
               <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] font-bold text-red-300">
                 {alertActiveCount}
               </span>
@@ -114,11 +115,11 @@ export function AppShell({
   const networkItems = networkEnabled ? networkNav : [];
 
   const mobilePrimary = [
-    { href: "/dashboard", label: "Home" },
-    { href: "/search", label: "Cerca" },
+    { href: appRoutes.home, label: "Home" },
+    { href: appRoutes.commercial.search, label: "Cerca" },
     ...(networkEnabled
       ? [
-          { href: "/network", label: "Network" },
+          { href: appRoutes.network.directory, label: "Network" },
           { href: "/network/inquiries", label: "Inquiry" },
         ]
       : []),
@@ -137,7 +138,7 @@ export function AppShell({
           {platformSuperadmin ? (
             <div className="border-b border-white/10 p-3">
               <Link
-                href="/platform"
+                href={appRoutes.platform.home}
                 className="flex items-center justify-between rounded-xl border border-indigo-400/20 bg-indigo-500/10 px-3 py-2.5 text-sm font-semibold text-indigo-200 transition hover:bg-indigo-500/20"
               >
                 <span>Apri Platform Console</span>
@@ -153,7 +154,7 @@ export function AppShell({
               </p>
               <nav>
                 <Link
-                  href="/dashboard"
+                  href={appRoutes.home}
                   className="flex items-center rounded-xl px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
                   Home azienda
@@ -186,7 +187,7 @@ export function AppShell({
       <div className="lg:pl-72">
         <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
           <div className="flex min-h-16 items-center justify-between gap-3 px-4 py-2 sm:px-6 lg:px-8">
-            <Link href="/dashboard" className="min-w-0 shrink">
+            <Link href={appRoutes.home} className="min-w-0 shrink">
               <p className="truncate text-sm font-semibold text-slate-950">{organizationName}</p>
               <p className="truncate text-xs text-slate-500">
                 Company Workspace · {roleLabel(organizationRole)}
@@ -224,7 +225,7 @@ export function AppShell({
               </details>
               {platformSuperadmin ? (
                 <Link
-                  href="/platform"
+                  href={appRoutes.platform.home}
                   className="shrink-0 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white"
                 >
                   Platform
@@ -235,7 +236,7 @@ export function AppShell({
             <div className="hidden items-center gap-2 sm:flex">
               {platformSuperadmin ? (
                 <Link
-                  href="/platform"
+                  href={appRoutes.platform.home}
                   className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700"
                 >
                   Platform Console
@@ -243,7 +244,7 @@ export function AppShell({
               ) : null}
               {alertNeedsAttention ? (
                 <Link
-                  href="/alerts"
+                  href={appRoutes.operations.alerts}
                   className="rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-700"
                 >
                   {alertActiveCount > 0 ? `Alert · ${alertActiveCount}` : "Alert"}

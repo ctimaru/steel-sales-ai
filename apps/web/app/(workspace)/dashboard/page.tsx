@@ -10,6 +10,7 @@ import {
   getSavedNetworkCompanies,
 } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
+import { appRoutes } from "@/lib/routes";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 
 function roleLabel(role: string) {
@@ -60,7 +61,7 @@ export default async function DashboardPage() {
           <div className="flex flex-wrap gap-2">
             {context.platformSuperadmin ? (
               <Link
-                href="/platform"
+                href={appRoutes.platform.home}
                 className="inline-flex h-10 items-center rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white"
               >
                 Platform Console
@@ -68,7 +69,7 @@ export default async function DashboardPage() {
             ) : null}
             {isAdmin && networkEnabled ? (
               <Link
-                href="/network/manage"
+                href={appRoutes.company.profile}
                 className="inline-flex h-10 items-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700"
               >
                 Gestisci profilo azienda
@@ -78,25 +79,25 @@ export default async function DashboardPage() {
         </div>
 
         <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Link href="/review" className="rounded-2xl bg-amber-50 p-4">
+          <Link href={appRoutes.operations.review} className="rounded-2xl bg-amber-50 p-4">
             <p className="text-2xl font-semibold text-amber-950">{metrics.reviewFlags}</p>
             <p className="mt-1 text-xs font-semibold text-amber-800">Elementi da verificare</p>
           </Link>
-          <Link href="/network/inquiries?box=received" className="rounded-2xl bg-indigo-50 p-4">
+          <Link href={appRoutes.network.inquiries + "?box=received"} className="rounded-2xl bg-indigo-50 p-4">
             <p className="text-2xl font-semibold text-indigo-950">{received.total}</p>
             <p className="mt-1 text-xs font-semibold text-indigo-700">Inquiry ricevute</p>
           </Link>
-          <Link href="/network/activity?unread=1" className="rounded-2xl bg-sky-50 p-4">
+          <Link href={appRoutes.network.activity + "?unread=1"} className="rounded-2xl bg-sky-50 p-4">
             <p className="text-2xl font-semibold text-sky-950">{activity.unread}</p>
             <p className="mt-1 text-xs font-semibold text-sky-700">Activity non lette</p>
           </Link>
-          <Link href="/alerts" className="rounded-2xl bg-slate-100 p-4">
+          <Link href={appRoutes.operations.alerts} className="rounded-2xl bg-slate-100 p-4">
             <p className="text-2xl font-semibold text-slate-950">{operational.rfqs + operational.offers + operational.orders}</p>
             <p className="mt-1 text-xs font-semibold text-slate-600">Entità commerciali operative</p>
           </Link>
         </div>
 
-        <form action="/search" method="get" className="mt-7">
+        <form action={appRoutes.commercial.search} method="get" className="mt-7">
           <div className="flex flex-col gap-2 sm:flex-row">
             <input
               name="q"
@@ -110,7 +111,7 @@ export default async function DashboardPage() {
             </button>
           </div>
           <div className="mt-3 flex justify-end">
-            <Link href="/search" className="text-xs font-semibold text-indigo-600">
+            <Link href={appRoutes.commercial.search} className="text-xs font-semibold text-indigo-600">
               Apri ricerca avanzata →
             </Link>
           </div>
@@ -119,7 +120,7 @@ export default async function DashboardPage() {
 
       {metrics.reviewFlags > 0 ? (
         <Link
-          href="/review"
+          href={appRoutes.operations.review}
           className="flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-5 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
@@ -141,14 +142,14 @@ export default async function DashboardPage() {
           <p className="mt-1 text-sm text-slate-500">Le attività più utili per il tuo ruolo nel workspace.</p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Link href="/search" className="rounded-2xl border border-slate-200 bg-white p-5 hover:border-indigo-300">
+          <Link href={appRoutes.commercial.search} className="rounded-2xl border border-slate-200 bg-white p-5 hover:border-indigo-300">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">Commercial Memory</p>
             <h3 className="mt-3 font-semibold text-slate-950">Cerca nello storico</h3>
             <p className="mt-2 text-sm leading-6 text-slate-500">Prodotti, prezzi, richieste, offerte e fonti originali.</p>
           </Link>
 
           {networkEnabled ? (
-            <Link href="/network" className="rounded-2xl border border-slate-200 bg-white p-5 hover:border-indigo-300">
+            <Link href={appRoutes.network.directory} className="rounded-2xl border border-slate-200 bg-white p-5 hover:border-indigo-300">
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">Steel Network</p>
               <h3 className="mt-3 font-semibold text-slate-950">Trova aziende</h3>
               <p className="mt-2 text-sm leading-6 text-slate-500">Esplora profili pubblicati, prodotti, capability e mercati.</p>
@@ -156,7 +157,7 @@ export default async function DashboardPage() {
           ) : null}
 
           {canWrite ? (
-            <Link href="/uploads" className="rounded-2xl border border-slate-200 bg-white p-5 hover:border-indigo-300">
+            <Link href={appRoutes.operations.uploads} className="rounded-2xl border border-slate-200 bg-white p-5 hover:border-indigo-300">
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Operations</p>
               <h3 className="mt-3 font-semibold text-slate-950">Importa documenti</h3>
               <p className="mt-2 text-sm leading-6 text-slate-500">Aggiungi email, PDF ed Excel alla memoria commerciale.</p>
@@ -164,7 +165,7 @@ export default async function DashboardPage() {
           ) : null}
 
           {networkEnabled ? (
-            <Link href="/network/inquiries" className="rounded-2xl border border-slate-200 bg-white p-5 hover:border-indigo-300">
+            <Link href={appRoutes.network.inquiries} className="rounded-2xl border border-slate-200 bg-white p-5 hover:border-indigo-300">
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">B2B Interaction</p>
               <h3 className="mt-3 font-semibold text-slate-950">Apri Inquiry</h3>
               <p className="mt-2 text-sm leading-6 text-slate-500">{sent.total} inviate · {received.total} ricevute.</p>
@@ -181,18 +182,18 @@ export default async function DashboardPage() {
                 <h2 className="font-semibold text-slate-950">Il tuo Network</h2>
                 <p className="mt-1 text-sm text-slate-500">Interesse privato e aggiornamenti pubblicati.</p>
               </div>
-              <Link href="/network" className="text-xs font-semibold text-indigo-600">Apri Network →</Link>
+              <Link href={appRoutes.network.directory} className="text-xs font-semibold text-indigo-600">Apri Network →</Link>
             </div>
             <div className="mt-5 grid grid-cols-3 gap-3">
-              <Link href="/network/saved" className="rounded-xl bg-slate-50 p-3 text-center">
+              <Link href={appRoutes.network.saved} className="rounded-xl bg-slate-50 p-3 text-center">
                 <p className="text-xl font-semibold text-slate-950">{saved.length}</p>
                 <p className="mt-1 text-[11px] text-slate-500">Salvate</p>
               </Link>
-              <Link href="/network/following" className="rounded-xl bg-slate-50 p-3 text-center">
+              <Link href={appRoutes.network.following} className="rounded-xl bg-slate-50 p-3 text-center">
                 <p className="text-xl font-semibold text-slate-950">{followed.total}</p>
                 <p className="mt-1 text-[11px] text-slate-500">Seguite</p>
               </Link>
-              <Link href="/network/activity" className="rounded-xl bg-slate-50 p-3 text-center">
+              <Link href={appRoutes.network.activity} className="rounded-xl bg-slate-50 p-3 text-center">
                 <p className="text-xl font-semibold text-slate-950">{activity.unread}</p>
                 <p className="mt-1 text-[11px] text-slate-500">Non lette</p>
               </Link>
@@ -205,7 +206,7 @@ export default async function DashboardPage() {
                 <h2 className="font-semibold text-slate-950">Inquiry B2B</h2>
                 <p className="mt-1 text-sm text-slate-500">Conversazioni strutturate tra organizzazioni.</p>
               </div>
-              <Link href="/network/inquiries" className="text-xs font-semibold text-indigo-600">Gestisci →</Link>
+              <Link href={appRoutes.network.inquiries} className="text-xs font-semibold text-indigo-600">Gestisci →</Link>
             </div>
             <div className="mt-5 grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-indigo-50 p-4">
@@ -235,7 +236,7 @@ export default async function DashboardPage() {
             <h2 className="mt-2 text-lg font-semibold text-slate-950">Memoria commerciale privata</h2>
             <p className="mt-1 text-sm text-slate-500">Questi dati appartengono esclusivamente al tuo workspace aziendale.</p>
           </div>
-          <Link href="/search" className="text-sm font-semibold text-indigo-700">Cerca nello storico →</Link>
+          <Link href={appRoutes.commercial.search} className="text-sm font-semibold text-indigo-700">Cerca nello storico →</Link>
         </div>
         <div className="mt-5 grid gap-3 sm:grid-cols-4">
           {[
@@ -259,13 +260,13 @@ export default async function DashboardPage() {
               <h2 className="text-base font-semibold text-slate-950">Attività commerciale recente</h2>
               <p className="mt-1 text-xs text-slate-500">Dati privati del workspace.</p>
             </div>
-            <Link href="/search" className="text-xs font-semibold text-slate-700">Apri storico →</Link>
+            <Link href={appRoutes.commercial.search} className="text-xs font-semibold text-slate-700">Apri storico →</Link>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
           {recent.map((row) => (
             <Link
-              href={row.operationalHref ?? `/conversations/${row.conversationId}`}
+              href={row.operationalHref ?? appRoutes.commercial.conversation(row.conversationId)}
               key={row.id}
               className="flex flex-col gap-3 rounded-xl border border-slate-100 p-4 transition hover:border-slate-300 sm:flex-row sm:items-center sm:justify-between"
             >

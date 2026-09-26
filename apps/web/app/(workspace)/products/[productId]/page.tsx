@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PilotEvent } from "@/components/pilot-event";
+import { appRoutes } from "@/lib/routes";
 
 import { loadProduct360, type ProductPrice, type ProductTimelineEvent } from "../actions";
 
@@ -42,7 +43,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     return (
       <div className="space-y-4">
         <p className="text-sm text-slate-600">Prodotto non trovato nello storico commerciale del tuo workspace.</p>
-        <Link href="/products" className="text-sm font-semibold text-indigo-600">← Torna ai prodotti</Link>
+        <Link href={appRoutes.commercial.products} className="text-sm font-semibold text-indigo-600">← Torna ai prodotti</Link>
       </div>
     );
   }
@@ -59,7 +60,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       <PilotEvent eventName="product_viewed" entityType="product" entityId={productId} metadata={{ surface: "product_360" }} />
       <div className="mx-auto max-w-7xl space-y-7">
       <div>
-        <Link href="/products" className="text-xs font-semibold text-indigo-600">← Storico prodotti</Link>
+        <Link href={appRoutes.commercial.products} className="text-xs font-semibold text-indigo-600">← Storico prodotti</Link>
         <div className="mt-3 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
           <div>
             <div className="flex flex-wrap gap-2">
@@ -82,7 +83,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Ultimo prezzo</p>
             <p className="mt-1 text-2xl font-semibold">{priceLabel(payload.latest_price)}</p>
             <p className="mt-1 text-xs text-slate-400">{dateLabel(payload.latest_price?.at)}</p>
-            <Link href={`/products/${productId}/prices`} className="mt-3 inline-flex text-xs font-semibold text-indigo-300 hover:text-white">Apri storico prezzi →</Link>
+            <Link href={appRoutes.commercial.productPrices(productId)} className="mt-3 inline-flex text-xs font-semibold text-indigo-300 hover:text-white">Apri storico prezzi →</Link>
           </div>
         </div>
       </div>
@@ -148,7 +149,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                       {row.observation_id ? (
                         <Link href={`/evidence/${row.observation_id}`} target="_blank" className="font-semibold text-indigo-600">Originale ↗</Link>
                       ) : row.thread_id ? (
-                        <Link href={`/conversations/${row.thread_id}`} className="font-semibold text-indigo-600">Apri thread →</Link>
+                        <Link href={appRoutes.commercial.conversation(row.thread_id)} className="font-semibold text-indigo-600">Apri thread →</Link>
                       ) : null}
                     </td>
                   </tr>
@@ -207,7 +208,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               </div>
               <div className="flex flex-col items-start gap-2 md:items-end">
                 <Link href={`/evidence/${event.observation_id}`} target="_blank" className="text-xs font-semibold text-indigo-600">Originale ↗</Link>
-                {event.thread_id ? <Link href={`/conversations/${event.thread_id}`} className="text-xs font-semibold text-slate-500">Thread →</Link> : null}
+                {event.thread_id ? <Link href={appRoutes.commercial.conversation(event.thread_id)} className="text-xs font-semibold text-slate-500">Thread →</Link> : null}
               </div>
             </div>
           ))}
@@ -225,7 +226,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                   <p className="truncate text-sm font-semibold text-slate-900">{doc.source_filename}</p>
                   <p className="mt-1 text-xs text-slate-400">{doc.observation_count} elementi · {doc.roles?.join(", ")}</p>
                 </div>
-                {doc.sample_thread_id ? <Link href={`/conversations/${doc.sample_thread_id}`} className="shrink-0 text-xs font-semibold text-indigo-600">Apri →</Link> : null}
+                {doc.sample_thread_id ? <Link href={appRoutes.commercial.conversation(doc.sample_thread_id)} className="shrink-0 text-xs font-semibold text-indigo-600">Apri →</Link> : null}
               </div>
             ))}
           </div>
@@ -246,7 +247,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               return companyId ? (
                 <Link
                   key={companyId}
-                  href={`/customers/${companyId}`}
+                  href={appRoutes.commercial.company(String(companyId))}
                   className="block rounded-2xl border border-slate-200 p-4 transition hover:border-indigo-200 hover:bg-indigo-50/40"
                 >
                   {content}

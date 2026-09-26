@@ -38,12 +38,12 @@ test("Product detail exposes killer use case and verifiable source history", () 
   assert.match(detail, /\/evidence\/\$\{row\.observation_id\}/);
   assert.match(detail, /\/evidence\/\$\{event\.observation_id\}/);
   assert.match(detail, /Originale ↗/);
-  assert.match(detail, /\/conversations\/\$\{event\.thread_id\}/);
+  assert.match(detail, /appRoutes\.commercial\.conversation\(event\.thread_id\)/);
   assert.match(detail, /nessuna deduzione automatica dal testo/i);
 });
 
 test("product history is first-class sales navigation", () => {
-  assert.match(shell, /href: "\/products"/);
+  assert.match(shell, /href: appRoutes\.commercial\.products/);
   assert.match(shell, /label: "Storico prodotti"/);
 });
 
