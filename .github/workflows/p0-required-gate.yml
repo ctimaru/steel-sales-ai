@@ -193,6 +193,7 @@ jobs:
             p2_conversion_confirmation_hook.sql \
             p2_cross_thread_relationship_evidence.sql \
             p3_italy_tube_network_seed.sql \
+            p3_web_company_discovery.sql \
             pa2_org_safe_fk_foundation.sql \
             pa2_rfq_relationship_foundation.sql \
             pa2_offer_order_relationship_foundation.sql \
