@@ -10,18 +10,33 @@ begin
 end;
 $$;
 
-insert into auth.users(id,email)
-values ('00000000-0000-0000-0000-0000000032a1','p32-superadmin@example.com');
+do $
+begin
+  if not exists (
+    select 1 from public.platform_user_roles
+    where role='platform_superadmin' and status='active'
+  ) then
+    insert into auth.users(id,email)
+    values ('00000000-0000-0000-0000-0000000032a1','p32-superadmin@example.com')
+    on conflict (id) do nothing;
 
-insert into public.platform_user_roles(user_id,role,status,granted_by,reason)
-values (
-  '00000000-0000-0000-0000-0000000032a1',
-  'platform_superadmin','active',
-  '00000000-0000-0000-0000-0000000032a1',
-  'P3.2 acceptance'
-);
+    insert into public.platform_user_roles(user_id,role,status,granted_by,reason)
+    values (
+      '00000000-0000-0000-0000-0000000032a1',
+      'platform_superadmin','active',
+      null,
+      'P3.2 acceptance fallback superadmin'
+    );
+  end if;
+end;
+$;
 
-select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000032a1',true);
+select user_id as superadmin_id
+from public.platform_user_roles
+where role='platform_superadmin' and status='active'
+limit 1 \gset
+
+select set_config('request.jwt.claim.sub',:'superadmin_id',true);
 select set_config('request.jwt.claim.role','authenticated',true);
 set local role authenticated;
 
