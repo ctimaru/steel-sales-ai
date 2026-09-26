@@ -36,6 +36,25 @@ type QueuePayload = {
   };
 };
 
+type RecoveryPayload = {
+  summary?: {
+    recovered_messages?: number;
+    recovered_conversations?: number;
+    unattributed_rfqs?: number;
+    missing_legacy_message?: number;
+    pending_company_confirmation?: number;
+    pending_contact_resolution?: number;
+    blocked_identity_conflict?: number;
+  };
+  policy?: {
+    exact_header_only?: boolean;
+    email_domain_inference?: boolean;
+    filename_inference?: boolean;
+    multi_message_company_requires_consensus?: boolean;
+    materialize_then_finalize?: boolean;
+  };
+};
+
 function configured() {
   return Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
@@ -72,12 +91,20 @@ export default async function IdentityReviewPage() {
   const canConfirm = membership?.role === "admin" || membership?.role === "member";
 
   let payload: QueuePayload = {};
+  let recovery: RecoveryPayload = {};
   if (membership) {
-    const { data } = await supabase.rpc("p1_identity_confirmation_queue", {
-      p_organization_id: membership.organization_id,
-      p_limit: 100,
-    });
-    if (data && typeof data === "object") payload = data as QueuePayload;
+    const [{ data: queueData }, { data: recoveryData }] = await Promise.all([
+      supabase.rpc("p1_identity_confirmation_queue", {
+        p_organization_id: membership.organization_id,
+        p_limit: 100,
+      }),
+      supabase.rpc("p2_rfq_attribution_recovery_status", {
+        p_organization_id: membership.organization_id,
+        p_limit: 100,
+      }),
+    ]);
+    if (queueData && typeof queueData === "object") payload = queueData as QueuePayload;
+    if (recoveryData && typeof recoveryData === "object") recovery = recoveryData as RecoveryPayload;
   }
 
   const contacts = payload.contacts ?? [];
@@ -87,6 +114,13 @@ export default async function IdentityReviewPage() {
     name: company.name,
     vatNumber: company.vat_number,
   }));
+  const recoverySummary = recovery.summary ?? {};
+  const recoveredMessages = Number(recoverySummary.recovered_messages ?? 0);
+  const recoveredConversations = Number(recoverySummary.recovered_conversations ?? 0);
+  const unattributedRfqs = Number(recoverySummary.unattributed_rfqs ?? 0);
+  const pendingCompanyRfqs = Number(recoverySummary.pending_company_confirmation ?? 0);
+  const missingLegacyMessages = Number(recoverySummary.missing_legacy_message ?? 0);
+  const identityConflicts = Number(recoverySummary.blocked_identity_conflict ?? 0);
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -107,6 +141,54 @@ export default async function IdentityReviewPage() {
           <Badge tone="green">{companies.length} Company verificate</Badge>
         </div>
       </div>
+
+      <Card className="mt-7 border-[#3c8192]/20 bg-[#eef5f6]">
+        <CardContent>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#3c8192]">
+                P2.3 · Legacy identity recovery
+              </p>
+              <p className="mt-2 text-sm font-semibold text-[#17343f]">
+                {recoveredMessages} header legacy recuperati · {recoveredConversations} conversazioni
+              </p>
+              <p className="mt-1 max-w-3xl text-sm leading-6 text-[#45636d]">
+                Il recovery usa esclusivamente sender, timestamp e content hash strutturati.
+                Dominio email, filename, subject e body non vengono usati per dedurre la Company.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Badge tone={unattributedRfqs > 0 ? "amber" : "green"}>
+                {unattributedRfqs} RFQ senza Company
+              </Badge>
+              <Badge tone={pendingCompanyRfqs > 0 ? "amber" : "green"}>
+                {pendingCompanyRfqs} RFQ da confermare
+              </Badge>
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-xl border border-white/70 bg-white/70 p-3">
+              <p className="text-lg font-semibold text-[#0b171e]">{contacts.length}</p>
+              <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                Contatti da mappare
+              </p>
+            </div>
+            <div className="rounded-xl border border-white/70 bg-white/70 p-3">
+              <p className="text-lg font-semibold text-[#0b171e]">{missingLegacyMessages}</p>
+              <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                Header mancanti
+              </p>
+            </div>
+            <div className="rounded-xl border border-white/70 bg-white/70 p-3">
+              <p className="text-lg font-semibold text-[#0b171e]">{identityConflicts}</p>
+              <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                Conflitti identità
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {!canConfirm && membership ? (
         <Card className="mt-7 border-amber-200 bg-amber-50">
