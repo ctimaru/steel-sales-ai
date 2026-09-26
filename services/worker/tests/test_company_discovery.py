@@ -131,7 +131,7 @@ def test_evidence_redacts_contact_channels() -> None:
             meta_description=None,
             h1="Privacy Safe Tubes",
             text=(
-                "Privacy Safe Tubes S.r.l. produce tubi saldati in acciaio. "
+                "Privacy Safe Tubes S.r.l. produzione di tubi saldati in acciaio. "
                 "Scrivi a mario.rossi@example.com o chiama +39 011 12345678."
             ),
             links=(),
