@@ -1,0 +1,1 @@
+-- Production corrective migration consolidated into 20260926122823_p4_7_follow_activity_foundation.sql for clean rebuilds.\n-- Retained to preserve production migration history.\n
