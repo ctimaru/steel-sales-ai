@@ -10,7 +10,17 @@ export type PilotEventName =
   | "evidence_opened"
   | "review_viewed"
   | "correction_completed"
-  | "upload_completed";
+  | "upload_completed"
+  | "network_directory_viewed"
+  | "network_profile_viewed"
+  | "network_saved_created"
+  | "network_saved_removed"
+  | "network_follow_created"
+  | "network_follow_removed"
+  | "network_activity_feed_opened"
+  | "network_activity_item_opened"
+  | "network_inquiry_submitted"
+  | "network_inquiry_state_changed";
 
 export type PilotEventInput = {
   eventName: PilotEventName;
