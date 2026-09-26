@@ -42,9 +42,10 @@ test("UX1.5 server guards derive from the same central policy", () => {
 });
 
 test("UX1.5 direct-route boundaries protect write and company-admin surfaces", () => {
-  const combined = guardedLayouts.join("\n");
-  assert.equal((combined.match(/requireWorkspaceWriteRole/g) ?? []).length, 3);
-  assert.equal((combined.match(/requireWorkspaceAdmin/g) ?? []).length, 3);
+  const writeGuarded = guardedLayouts.slice(0, 2).concat(guardedLayouts.slice(5));
+  const adminGuarded = guardedLayouts.slice(2, 5);
+  for (const source of writeGuarded) assert.match(source, /requireWorkspaceWriteRole/);
+  for (const source of adminGuarded) assert.match(source, /requireWorkspaceAdmin/);
 });
 
 test("UX1.5 Viewer is read-only on Network interaction surfaces", () => {
