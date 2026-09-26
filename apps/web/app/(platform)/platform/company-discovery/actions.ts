@@ -66,8 +66,9 @@ export async function startCompanyDiscovery(formData: FormData) {
     );
   }
 
+  let response: Response;
   try {
-    const response = await fetch(`${workerUrl}/v1/network/discovery/crawl`, {
+    response = await fetch(`${workerUrl}/v1/network/discovery/crawl`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -77,15 +78,6 @@ export async function startCompanyDiscovery(formData: FormData) {
       cache: "no-store",
     });
 
-    if (!response.ok) {
-      const body = await response.text();
-      redirect(
-        discoveryPath(
-          "error",
-          `Run creato ma crawler non avviato: ${body.slice(0, 240)}`,
-        ),
-      );
-    }
   } catch (error) {
     redirect(
       discoveryPath(
@@ -93,6 +85,16 @@ export async function startCompanyDiscovery(formData: FormData) {
         `Run creato ma worker non raggiungibile: ${
           error instanceof Error ? error.message : "errore sconosciuto"
         }`,
+      ),
+    );
+  }
+
+  if (!response.ok) {
+    const body = await response.text();
+    redirect(
+      discoveryPath(
+        "error",
+        `Run creato ma crawler non avviato: ${body.slice(0, 240)}`,
       ),
     );
   }
