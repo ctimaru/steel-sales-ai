@@ -69,3 +69,27 @@ export async function requirePlatformContext() {
     viewerLabel: user.email ?? "Platform Superadmin",
   };
 }
+
+
+export type WorkspaceRole = "admin" | "member" | "viewer";
+
+export async function requireWorkspaceRole(
+  allowedRoles: WorkspaceRole[],
+  fallback = "/dashboard",
+): Promise<WorkspaceContext> {
+  const context = await getWorkspaceContext();
+  if (!allowedRoles.includes(context.role as WorkspaceRole)) redirect(fallback);
+  return context;
+}
+
+export async function requireWorkspaceWriteRole(
+  fallback = "/dashboard",
+): Promise<WorkspaceContext> {
+  return requireWorkspaceRole(["admin", "member"], fallback);
+}
+
+export async function requireWorkspaceAdmin(
+  fallback = "/dashboard",
+): Promise<WorkspaceContext> {
+  return requireWorkspaceRole(["admin"], fallback);
+}
