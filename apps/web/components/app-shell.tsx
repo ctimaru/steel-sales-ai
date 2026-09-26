@@ -203,6 +203,25 @@ export function AppShell({
                   {item.label}
                 </Link>
               ))}
+              <details className="relative shrink-0">
+                <summary className="cursor-pointer list-none rounded-lg border border-slate-200 bg-slate-950 px-3 py-1.5 text-xs font-semibold text-white">
+                  Altro
+                </summary>
+                <div className="fixed left-4 right-4 top-16 z-40 grid grid-cols-2 gap-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl sm:left-auto sm:right-6 sm:w-96">
+                  {[...commercialNav, ...networkItems, ...operationsNav, ...companyToolsNav]
+                    .filter((item) => canSee(item, organizationRole))
+                    .filter((item) => !mobilePrimary.some((primary) => primary.href === item.href))
+                    .map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 text-xs font-semibold text-slate-700"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                </div>
+              </details>
               {platformSuperadmin ? (
                 <Link
                   href="/platform"
