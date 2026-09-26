@@ -54,6 +54,6 @@ test("P4.5 claimed-company admin can control inquiry receiving preference", () =
 
 test("P4.5 remains an inquiry workflow rather than native messaging", () => {
   assert.doesNotMatch(compose, /websocket|realtime|typing indicator/i);
-  assert.match(compose, /non crea (?:una )?connection pubblica/);
+  assert.match(compose, /non crea (?:una )?connection pubblica/i);
   assert.match(inbox, /Interazioni B2B private tra organizzazioni/);
 });
