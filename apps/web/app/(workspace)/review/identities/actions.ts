@@ -55,6 +55,10 @@ export async function confirmIdentityMapping(
     revalidatePath("/dashboard");
     revalidatePath("/customers");
     revalidatePath(`/customers/${companyId}`);
+    revalidatePath("/commercial/companies");
+    revalidatePath(`/commercial/companies/${companyId}`);
+    revalidatePath("/commercial/demand");
+    revalidatePath("/commercial/reengagement");
 
     const linkedRfqs = Number((data as { linked_rfqs?: unknown }).linked_rfqs ?? 0);
     return {
