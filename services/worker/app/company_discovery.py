@@ -287,11 +287,16 @@ def _priority_links(home: CrawledPage) -> list[str]:
 
 
 def _redact_personal_channels(value: str) -> str:
-    return re.sub(
+    value = re.sub(
         r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b",
         "[email removed]",
         value,
         flags=re.IGNORECASE,
+    )
+    return re.sub(
+        r"(?<![A-Za-z0-9])\+?\d[\d\s()./-]{7,}\d(?![A-Za-z0-9])",
+        "[phone removed]",
+        value,
     )
 
 
@@ -361,9 +366,6 @@ def classify_company(text: str) -> tuple[list[str], list[str], list[dict[str, st
         roles.append("processor_service_provider")
     if end_user:
         roles.append("end_user")
-    if not roles:
-        roles.append("trader_distributor")
-
     subtypes: list[str] = []
     if producer and _has_any(lowered, tube_terms):
         subtypes.append("tube_pipe_producer")
@@ -415,7 +417,7 @@ def extract_candidate(pages: list[CrawledPage], country_code: str) -> dict[str, 
     domain = canonical_domain(pages[0].url)
     combined = "\n".join(page.text for page in pages)
     roles, subtypes, product_relations = classify_company(combined)
-    if not any(item["key"] == "tubes_pipes" for item in product_relations):
+    if not roles or not any(item["key"] == "tubes_pipes" for item in product_relations):
         return None
 
     legal_name = _candidate_name(pages, domain)
@@ -425,7 +427,9 @@ def extract_candidate(pages: list[CrawledPage], country_code: str) -> dict[str, 
         None,
     )
     if not description:
-        description = " ".join(combined.split())[:600] or None
+        description = _redact_personal_channels(" ".join(combined.split()))[:600] or None
+    elif description:
+        description = _redact_personal_channels(description)
 
     confidence = 0.45
     confidence += 0.15 if roles else 0
@@ -660,6 +664,8 @@ async def _company_discovery_queue_loop() -> None:
         poll_seconds = 10
 
     while True:
+        claimed_run_id: UUID | None = None
+        service: CompanyDiscoveryService | None = None
         try:
             service = CompanyDiscoveryService()
             claimed = await service.claim_next()
@@ -667,8 +673,8 @@ async def _company_discovery_queue_loop() -> None:
                 await asyncio.sleep(poll_seconds)
                 continue
 
-            run_id = UUID(str(claimed["run_id"]))
-            result = await service.crawl(run_id, already_claimed=True)
+            claimed_run_id = UUID(str(claimed["run_id"]))
+            result = await service.crawl(claimed_run_id, already_claimed=True)
             logger.info("Company discovery run completed: %s", result.model_dump())
         except asyncio.CancelledError:
             raise
@@ -680,6 +686,18 @@ async def _company_discovery_queue_loop() -> None:
             ValueError,
             KeyError,
         ) as exc:
+            if service is not None and claimed_run_id is not None:
+                try:
+                    await service._mark_run(
+                        claimed_run_id,
+                        {
+                            "status": "failed",
+                            "completed_at": datetime.now(UTC).isoformat(),
+                            "error": str(exc)[:4000],
+                        },
+                    )
+                except (RepositoryConfigurationError, RepositoryError):
+                    pass
             logger.warning("Company discovery queue pass failed; it will retry: %s", exc)
             await asyncio.sleep(poll_seconds)
 
