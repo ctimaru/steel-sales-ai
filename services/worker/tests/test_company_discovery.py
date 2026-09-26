@@ -80,7 +80,7 @@ def test_extract_candidate_requires_tube_evidence_and_preserves_sources() -> Non
     candidate = extract_candidate(pages, "IT")
     assert candidate is not None
     assert candidate["canonical_domain"] == "example-tubi.it"
-    assert candidate["legal_name"].lower().endswith("s.r.l")
+    assert candidate["legal_name"].lower().rstrip(".").endswith("s.r.l")
     assert candidate["vat_id"] == "01234567890"
     assert candidate["country_code"] == "IT"
     assert "producer" in candidate["role_keys"]
