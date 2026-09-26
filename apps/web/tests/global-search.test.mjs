@@ -68,17 +68,17 @@ test("structured global search opens verified original evidence in one click", (
 });
 
 
-test("sales-first navigation keeps only core workflows primary and uses readable mobile labels", () => {
-  assert.match(shell, /shortLabel: "Home"/);
+test("sales-first navigation is grouped by product domain and remains complete on mobile", () => {
+  assert.match(shell, /Commercial Memory/);
+  assert.match(shell, /Steel Network/);
+  assert.match(shell, /Operations/);
+  assert.match(shell, /Company/);
   assert.match(shell, /shortLabel: "Cerca"/);
   assert.match(shell, /shortLabel: "Prodotti"/);
-  assert.match(shell, /const secondaryNav = \[/);
-  for (const label of ["Assistente", "Correzioni", "Importa", "Tubi & Norme", "Fonti e import"]) {
-    assert.match(shell, new RegExp(`label: "${label.replace(/[.*+?^$\{\}()|[\]\\]/g, "\\$&")}"`));
+  assert.match(shell, /Altro/);
+  for (const label of ["Assistente", "Correzioni", "Importa documenti", "Tubi & Norme", "Fonti e import"]) {
+    assert.match(shell, new RegExp(label));
   }
-  assert.doesNotMatch(shell, /key: "H"/);
-  assert.doesNotMatch(shell, /key: "C"/);
-  assert.doesNotMatch(shell, /key: "P"/);
 });
 
 
@@ -121,6 +121,6 @@ test("sales surfaces avoid infrastructure terminology", () => {
   assert.match(component, /Fonte sempre disponibile/);
   assert.match(component, /Riferimento verificato/);
   assert.match(component, /Rilevanza/);
-  assert.match(dashboard, /conversazioni commerciali/);
+  assert.match(dashboard, /conversazioni commerciali/i);
   assert.match(dashboard, /casi in attesa di verifica/);
 });

@@ -10,14 +10,14 @@ function applicationId(formData: FormData) {
 }
 
 function detailPath(id: string, key: "error" | "message", value: string) {
-  return `/admin/registrations/${id}?${key}=${encodeURIComponent(value)}`;
+  return `/platform/registrations/${id}?${key}=${encodeURIComponent(value)}`;
 }
 
 export async function requestRegistrationInformation(formData: FormData) {
   const id = applicationId(formData);
   const note = String(formData.get("note") ?? "").trim();
 
-  if (!id) redirect("/admin/registrations?error=Application%20non%20valida");
+  if (!id) redirect("/platform/registrations?error=Application%20non%20valida");
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("p0a_request_registration_information", {
@@ -29,14 +29,14 @@ export async function requestRegistrationInformation(formData: FormData) {
     redirect(detailPath(id, "error", "Non è stato possibile richiedere altre informazioni."));
   }
 
-  revalidatePath("/admin/registrations");
-  revalidatePath(`/admin/registrations/${id}`);
+  revalidatePath("/platform/registrations");
+  revalidatePath(`/platform/registrations/${id}`);
   redirect(detailPath(id, "message", "Richiesta di integrazione inviata."));
 }
 
 export async function approveRegistrationApplication(formData: FormData) {
   const id = applicationId(formData);
-  if (!id) redirect("/admin/registrations?error=Application%20non%20valida");
+  if (!id) redirect("/platform/registrations?error=Application%20non%20valida");
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("p0a_approve_registration_application", {
@@ -47,8 +47,8 @@ export async function approveRegistrationApplication(formData: FormData) {
     redirect(detailPath(id, "error", "Non è stato possibile approvare la richiesta."));
   }
 
-  revalidatePath("/admin/registrations");
-  revalidatePath(`/admin/registrations/${id}`);
+  revalidatePath("/platform/registrations");
+  revalidatePath(`/platform/registrations/${id}`);
   redirect(detailPath(id, "message", "Richiesta approvata. Ora puoi attivare il workspace."));
 }
 
@@ -57,7 +57,7 @@ export async function rejectRegistrationApplication(formData: FormData) {
   const reasonCode = String(formData.get("reason_code") ?? "").trim();
   const note = String(formData.get("note") ?? "").trim();
 
-  if (!id) redirect("/admin/registrations?error=Application%20non%20valida");
+  if (!id) redirect("/platform/registrations?error=Application%20non%20valida");
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("p0a_reject_registration_application", {
@@ -70,14 +70,14 @@ export async function rejectRegistrationApplication(formData: FormData) {
     redirect(detailPath(id, "error", "Non è stato possibile rifiutare la richiesta."));
   }
 
-  revalidatePath("/admin/registrations");
-  revalidatePath(`/admin/registrations/${id}`);
+  revalidatePath("/platform/registrations");
+  revalidatePath(`/platform/registrations/${id}`);
   redirect(detailPath(id, "message", "Richiesta rifiutata."));
 }
 
 export async function activateRegistrationApplication(formData: FormData) {
   const id = applicationId(formData);
-  if (!id) redirect("/admin/registrations?error=Application%20non%20valida");
+  if (!id) redirect("/platform/registrations?error=Application%20non%20valida");
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("p0a_activate_registration_application", {
@@ -88,8 +88,8 @@ export async function activateRegistrationApplication(formData: FormData) {
     redirect(detailPath(id, "error", "Non è stato possibile attivare il workspace."));
   }
 
-  revalidatePath("/admin/registrations");
-  revalidatePath(`/admin/registrations/${id}`);
+  revalidatePath("/platform/registrations");
+  revalidatePath(`/platform/registrations/${id}`);
   redirect(detailPath(id, "message", "Workspace aziendale attivato."));
 }
 
@@ -98,7 +98,7 @@ export async function bridgeRegistrationToNetwork(formData: FormData) {
   const id = applicationId(formData);
   const networkCompanyId = String(formData.get("network_company_id") ?? "").trim();
 
-  if (!id) redirect("/admin/registrations?error=Application%20non%20valida");
+  if (!id) redirect("/platform/registrations?error=Application%20non%20valida");
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("m7_bridge_registration", {
@@ -110,9 +110,9 @@ export async function bridgeRegistrationToNetwork(formData: FormData) {
     redirect(detailPath(id, "error", error.message));
   }
 
-  revalidatePath("/admin/registrations");
+  revalidatePath("/platform/registrations");
   revalidatePath("/network");
   revalidatePath("/network/manage");
-  revalidatePath("/admin/registrations/" + id);
+  revalidatePath("/platform/registrations/" + id);
   redirect(detailPath(id, "message", "Registration bridge Network completato."));
 }

@@ -23,7 +23,7 @@ const managed = fs.readFileSync(
   "utf8",
 );
 const adminRegistration = fs.readFileSync(
-  new URL("../app/(workspace)/admin/registrations/[id]/page.tsx", import.meta.url),
+  new URL("../app/(platform)/platform/registrations/[id]/page.tsx", import.meta.url),
   "utf8",
 );
 
@@ -34,7 +34,7 @@ test("M8 rollback flag defaults enabled and has an explicit false kill switch", 
 
 test("M8 rollback flag removes Network navigation and disables all Network routes", () => {
   assert.match(shell, /networkEnabled/);
-  assert.match(shell, /item\.href !== "\/network"/);
+  assert.match(shell, /const networkItems = networkEnabled \? networkNav : \[\]/);
 
   for (const source of [directory, profile, managed]) {
     assert.match(source, /isNetworkFrontendEnabled/);
