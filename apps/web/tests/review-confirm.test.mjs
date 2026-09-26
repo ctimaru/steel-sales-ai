@@ -39,11 +39,15 @@ async function setup(options = {}) {
   const telemetry = new SyntheticModule(["recordPilotUsageEvent"], function () {
     this.setExport("recordPilotUsageEvent", async () => ({ ok: true }));
   });
+  const workspaceContext = new SyntheticModule(["requireWorkspaceWriteRole"], function () {
+    this.setExport("requireWorkspaceWriteRole", async () => ({ role: "member" }));
+  });
   const mod = new SourceTextModule(source);
   await mod.link((specifier) => {
     if (specifier === "next/cache") return cache;
     if (specifier === "@/lib/supabase/server") return db;
     if (specifier === "@/app/(workspace)/telemetry/actions") return telemetry;
+    if (specifier === "@/lib/workspace-context") return workspaceContext;
     throw new Error("Unexpected import: " + specifier);
   });
   await mod.evaluate();
