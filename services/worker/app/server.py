@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from .bulk_import_api import router as bulk_import_router
+from .company_discovery import router as company_discovery_router
 from .data_lifecycle import router as data_lifecycle_router
 from .data_source_center import router as data_source_center_router
 from .evidence import router as evidence_router
@@ -29,6 +30,7 @@ app.include_router(observability_router)
 app.include_router(data_lifecycle_router)
 app.include_router(tenant_admin_router)
 app.include_router(bulk_import_router)
+app.include_router(company_discovery_router)
 app.include_router(data_source_center_router)
 app.include_router(evidence_router)
 app.include_router(offer_reparse_router)
