@@ -5,6 +5,7 @@ import ipaddress
 import re
 import socket
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from html.parser import HTMLParser
 from typing import Annotated
 from urllib.parse import quote, urljoin, urlsplit, urlunsplit
@@ -12,7 +13,7 @@ from urllib.robotparser import RobotFileParser
 from uuid import UUID
 
 import httpx
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Header, HTTPException, status
 from pydantic import BaseModel
 
 from .bulk_import import _require_worker_token
@@ -532,7 +533,7 @@ class CompanyDiscoveryService:
 
         await self._mark_run(run_id, {
             "status": "running",
-            "started_at": "now()",
+            "started_at": datetime.now(UTC).isoformat(),
             "completed_at": None,
             "error": None,
         })
@@ -570,7 +571,7 @@ class CompanyDiscoveryService:
         await self._mark_run(run_id, {
             "status": status,
             "candidate_count": candidate_count,
-            "completed_at": "now()",
+            "completed_at": datetime.now(UTC).isoformat(),
             "error": "\n".join(errors)[:4000] or None,
         })
 
@@ -583,14 +584,56 @@ class CompanyDiscoveryService:
         )
 
 
-@router.post("/crawl", response_model=DiscoveryCrawlResponse)
+async def _crawl_background(run_id: UUID) -> None:
+    try:
+        await CompanyDiscoveryService().crawl(run_id)
+    except (
+        CompanyDiscoveryError,
+        RepositoryConfigurationError,
+        RepositoryError,
+        httpx.HTTPError,
+        ValueError,
+    ) as exc:
+        try:
+            service = CompanyDiscoveryService()
+            run = await service._run(run_id)
+            if run.get("status") in {"queued", "running"}:
+                await service._mark_run(
+                    run_id,
+                    {
+                        "status": "failed",
+                        "started_at": run.get("started_at") or datetime.now(UTC).isoformat(),
+                        "completed_at": datetime.now(UTC).isoformat(),
+                        "error": str(exc)[:4000],
+                    },
+                )
+        except (CompanyDiscoveryError, RepositoryConfigurationError, RepositoryError):
+            pass
+
+
+@router.post(
+    "/crawl",
+    response_model=DiscoveryCrawlResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+)
 async def crawl_company_discovery(
+    background_tasks: BackgroundTasks,
     request: DiscoveryCrawlRequest,
     x_worker_token: Annotated[str | None, Header()] = None,
 ) -> DiscoveryCrawlResponse:
     _require_worker_token(x_worker_token)
     try:
-        return await CompanyDiscoveryService().crawl(request.run_id)
+        run = await CompanyDiscoveryService()._run(request.run_id)
+        if run.get("status") not in {"queued", "failed"}:
+            raise CompanyDiscoveryError("Discovery run is not crawlable from its current state.")
+        background_tasks.add_task(_crawl_background, request.run_id)
+        return DiscoveryCrawlResponse(
+            run_id=request.run_id,
+            status="queued",
+            candidate_count=0,
+            skipped_count=0,
+            error_count=0,
+        )
     except (
         CompanyDiscoveryError,
         RepositoryConfigurationError,
