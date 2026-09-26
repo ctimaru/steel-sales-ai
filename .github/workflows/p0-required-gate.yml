@@ -187,6 +187,7 @@ jobs:
             p1_human_correction_loop.sql \
             p2_reengagement_signals.sql \
             p2_demand_signals.sql \
+            p2_legacy_identity_recovery.sql \
             pa2_org_safe_fk_foundation.sql \
             pa2_rfq_relationship_foundation.sql \
             pa2_offer_order_relationship_foundation.sql \
