@@ -14,6 +14,7 @@ import {
   getNetworkProfile,
 } from "@/lib/network";
 import { PilotEvent } from "@/components/pilot-event";
+import { canInteractWithNetwork } from "@/lib/access-policy";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { createClient } from "@/lib/supabase/server";
 
@@ -43,6 +44,7 @@ export default async function NetworkCompanyProfilePage({
   const userId = authData.user?.id;
   let organizationId: string | null = null;
   let adminOrganizationId: string | null = null;
+  let canInteract = false;
   let isSaved = false;
   let inquiryEligible = false;
   let isFollowed = false;
@@ -56,6 +58,7 @@ export default async function NetworkCompanyProfilePage({
 
     const membership = memberships?.find((row) => row.is_default) ?? memberships?.[0];
     organizationId = membership?.organization_id ?? null;
+    canInteract = membership ? canInteractWithNetwork(membership.role) : false;
 
     const adminMembership =
       memberships?.find((row) => row.is_default && row.role === "admin") ??
@@ -122,7 +125,7 @@ export default async function NetworkCompanyProfilePage({
               </a>
             ) : null}
 
-            {organizationId ? (
+            {organizationId && canInteract ? (
               <form action={isSaved ? removeSavedNetworkCompany : saveNetworkCompany}>
                 <input type="hidden" name="network_company_id" value={profile.company.id} />
                 <button className="h-10 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700">
@@ -131,7 +134,7 @@ export default async function NetworkCompanyProfilePage({
               </form>
             ) : null}
 
-            {organizationId ? (
+            {organizationId && canInteract ? (
               <form action={isFollowed ? unfollowNetworkCompany : followNetworkCompany}>
                 <input type="hidden" name="network_company_id" value={profile.company.id} />
                 <button className="h-10 w-full rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-semibold text-indigo-700">
@@ -140,7 +143,7 @@ export default async function NetworkCompanyProfilePage({
               </form>
             ) : null}
 
-            {inquiryEligible ? (
+            {inquiryEligible && canInteract ? (
               <Link
                 href={"/network/" + profile.company.id + "/inquiry"}
                 className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-indigo-600 px-4 text-sm font-semibold text-white"

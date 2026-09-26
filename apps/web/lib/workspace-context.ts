@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { canAdministerCompany, canWriteWorkspace, type OrganizationRole } from "@/lib/access-policy";
 import { createClient } from "@/lib/supabase/server";
 
 export type WorkspaceContext = {
@@ -68,4 +69,30 @@ export async function requirePlatformContext() {
     userId: user.id,
     viewerLabel: user.email ?? "Platform Superadmin",
   };
+}
+
+
+export async function requireWorkspaceRole(
+  allowedRoles: OrganizationRole[],
+  fallback = "/dashboard",
+): Promise<WorkspaceContext> {
+  const context = await getWorkspaceContext();
+  if (!allowedRoles.includes(context.role as OrganizationRole)) redirect(fallback);
+  return context;
+}
+
+export async function requireWorkspaceWriteRole(
+  fallback = "/dashboard",
+): Promise<WorkspaceContext> {
+  const context = await getWorkspaceContext();
+  if (!canWriteWorkspace(context.role)) redirect(fallback);
+  return context;
+}
+
+export async function requireWorkspaceAdmin(
+  fallback = "/dashboard",
+): Promise<WorkspaceContext> {
+  const context = await getWorkspaceContext();
+  if (!canAdministerCompany(context.role)) redirect(fallback);
+  return context;
 }

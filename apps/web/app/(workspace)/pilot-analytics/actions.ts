@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
+import { requireWorkspaceAdmin } from "@/lib/workspace-context";
 
 export type HumanEvidenceState = {
   status: "idle" | "success" | "error";
@@ -24,6 +25,7 @@ export async function recordHumanTimeEvidence(
   _previousState: HumanEvidenceState,
   formData: FormData,
 ): Promise<HumanEvidenceState> {
+  await requireWorkspaceAdmin();
   const taskType = text(formData, "task_type");
   const comparison = text(formData, "comparison");
   const confidence = text(formData, "confidence") || "medium";

@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { requireWorkspaceWriteRole } from "@/lib/workspace-context";
 
 export type UploadState = {
   status: "idle" | "success" | "error";
@@ -12,6 +13,7 @@ export async function uploadCommercialDocument(
   _previousState: UploadState,
   formData: FormData,
 ): Promise<UploadState> {
+  await requireWorkspaceWriteRole();
   const file = formData.get("file");
 
   if (!(file instanceof File) || file.size === 0) {

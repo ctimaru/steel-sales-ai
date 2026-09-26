@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { requireWorkspaceWriteRole } from "@/lib/workspace-context";
 import { recordPilotUsageEvent } from "@/app/(workspace)/telemetry/actions";
 
 export type ReviewActionState = {
@@ -59,6 +60,7 @@ export async function confirmReviewItem(
   _previousState: ReviewActionState,
   formData: FormData,
 ): Promise<ReviewActionState> {
+  await requireWorkspaceWriteRole();
   const rawId = formData.get("id");
   if (!validId(rawId)) return { status: "error", message: "Record non valido. Aggiorna la pagina e riprova." };
 
@@ -94,6 +96,7 @@ export async function correctReviewItem(
   _previousState: ReviewActionState,
   formData: FormData,
 ): Promise<ReviewActionState> {
+  await requireWorkspaceWriteRole();
   const rawId = formData.get("id");
   if (!validId(rawId)) return { status: "error", message: "Record non valido. Aggiorna la pagina e riprova." };
   const values = correctedValues(formData);
