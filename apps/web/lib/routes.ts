@@ -12,6 +12,7 @@ export const appRoutes = {
     reengagement: "/commercial/reengagement",
     demand: "/commercial/demand",
     conversion: "/commercial/conversion",
+    crossThreadRelationships: "/commercial/conversion/relationships",
     assistant: "/commercial/assistant",
     rfq: (id: string) => `/commercial/rfqs/${id}`,
     offer: (id: string) => `/commercial/offers/${id}`,
