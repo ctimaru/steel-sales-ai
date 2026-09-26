@@ -140,6 +140,8 @@ select pg_temp.p33_assert(
   'bulk review may close exact duplicates but must never merge'
 );
 
+reset role;
+
 select pg_temp.p33_assert(
   (select review_status from public.network_company_discovery_candidates
    where id='00000000-0000-0000-0000-0000000033c2')='duplicate_existing'
@@ -149,5 +151,4 @@ select pg_temp.p33_assert(
   'bulk exact duplicate closure must leave non-matching candidates untouched'
 );
 
-reset role;
 rollback;
