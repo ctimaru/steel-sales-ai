@@ -11,6 +11,7 @@ export const appRoutes = {
     company: (companyId: string) => `/commercial/companies/${companyId}`,
     reengagement: "/commercial/reengagement",
     demand: "/commercial/demand",
+    conversion: "/commercial/conversion",
     assistant: "/commercial/assistant",
     rfq: (id: string) => `/commercial/rfqs/${id}`,
     offer: (id: string) => `/commercial/offers/${id}`,
