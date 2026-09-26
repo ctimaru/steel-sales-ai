@@ -55,55 +55,14 @@ export async function startCompanyDiscovery(formData: FormData) {
     redirect(discoveryPath("error", "Run di discovery non creato."));
   }
 
-  const workerUrl = String(process.env.WORKER_URL ?? "").replace(/\/$/, "");
-  const workerToken = String(process.env.WORKER_INTERNAL_TOKEN ?? "");
-  if (!workerUrl || !workerToken) {
-    redirect(
-      discoveryPath(
-        "error",
-        "Crawler non configurato: WORKER_URL o WORKER_INTERNAL_TOKEN mancante.",
-      ),
-    );
-  }
-
-  let response: Response;
-  try {
-    response = await fetch(`${workerUrl}/v1/network/discovery/crawl`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-worker-token": workerToken,
-      },
-      body: JSON.stringify({ run_id: runId }),
-      cache: "no-store",
-    });
-
-  } catch (error) {
-    redirect(
-      discoveryPath(
-        "error",
-        `Run creato ma worker non raggiungibile: ${
-          error instanceof Error ? error.message : "errore sconosciuto"
-        }`,
-      ),
-    );
-  }
-
-  if (!response.ok) {
-    const body = await response.text();
-    redirect(
-      discoveryPath(
-        "error",
-        `Run creato ma crawler non avviato: ${body.slice(0, 240)}`,
-      ),
-    );
-  }
+  // The Railway worker polls the durable Supabase queue autonomously.
+  // No worker secret is exposed to or required by the Vercel frontend.
 
   revalidatePath("/platform/company-discovery");
   redirect(
     discoveryPath(
       "message",
-      `Discovery avviata su ${seedUrls.length} seed. Run ${runId.slice(0, 8)}.`,
+      `Discovery accodata su ${seedUrls.length} seed. Run ${runId.slice(0, 8)}.`,
     ),
   );
 }
