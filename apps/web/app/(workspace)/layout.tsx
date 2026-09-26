@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
-import { redirect } from "next/navigation";
 
 import { AppShell } from "@/components/app-shell";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { createClient } from "@/lib/supabase/server";
+import { getWorkspaceContext } from "@/lib/workspace-context";
 
 export default async function WorkspaceLayout({ children }: { children: ReactNode }) {
   const configured = Boolean(
@@ -12,44 +12,23 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
   );
 
   let viewerLabel = "demo@steel-sales-ai.local";
+  let organizationName = "Demo Company";
+  let organizationRole = "admin";
   let alertNeedsAttention = false;
   let alertActiveCount = 0;
   let platformSuperadmin = false;
   const networkEnabled = isNetworkFrontendEnabled();
 
   if (configured) {
+    const context = await getWorkspaceContext();
+    viewerLabel = context.viewerLabel;
+    organizationName = context.organizationName;
+    organizationRole = context.role;
+    platformSuperadmin = context.platformSuperadmin;
+
     const supabase = await createClient();
-    const { data } = await supabase.auth.getUser();
-    if (!data.user) redirect("/login");
-
-    viewerLabel = data.user.email ?? "Utente autenticato";
-    await supabase.rpc("claim_pending_organization_invitations");
-
-    const [{ data: memberships }, { data: superadminFlag }] = await Promise.all([
-      supabase
-        .from("organization_memberships")
-        .select("organization_id,is_default,status")
-        .eq("user_id", data.user.id)
-        .eq("status", "active"),
-      supabase.rpc("is_platform_superadmin"),
-    ]);
-
-    platformSuperadmin = superadminFlag === true;
-
-    const membership = memberships?.find((row) => row.is_default) ?? memberships?.[0];
-    if (!membership) redirect("/onboarding");
-
-    const { data: organization } = await supabase
-      .from("organizations")
-      .select("onboarding_status")
-      .eq("id", membership.organization_id)
-      .maybeSingle();
-    if (!organization || organization.onboarding_status !== "completed") {
-      redirect("/onboarding");
-    }
-
     const { data: alertSummary } = await supabase.rpc("p1_operational_alerts_summary", {
-      p_organization_id: membership.organization_id,
+      p_organization_id: context.organizationId,
     });
 
     if (alertSummary && typeof alertSummary === "object") {
@@ -62,6 +41,8 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
   return (
     <AppShell
       viewerLabel={viewerLabel}
+      organizationName={organizationName}
+      organizationRole={organizationRole}
       demoMode={!configured}
       alertNeedsAttention={alertNeedsAttention}
       alertActiveCount={alertActiveCount}
