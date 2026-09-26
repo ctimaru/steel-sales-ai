@@ -2,11 +2,17 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import {
+  followNetworkCompany,
   removeSavedNetworkCompany,
   requestNetworkClaim,
   saveNetworkCompany,
+  unfollowNetworkCompany,
 } from "@/app/(workspace)/network/actions";
-import { getInquiryEligibility, getNetworkProfile } from "@/lib/network";
+import {
+  getInquiryEligibility,
+  getNetworkFollowState,
+  getNetworkProfile,
+} from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { createClient } from "@/lib/supabase/server";
 
@@ -38,6 +44,7 @@ export default async function NetworkCompanyProfilePage({
   let adminOrganizationId: string | null = null;
   let isSaved = false;
   let inquiryEligible = false;
+  let isFollowed = false;
 
   if (userId) {
     const { data: memberships } = await supabase
@@ -65,8 +72,12 @@ export default async function NetworkCompanyProfilePage({
 
       isSaved = Boolean(saved);
 
-      const eligibility = await getInquiryEligibility(organizationId, profile.company.id);
+      const [eligibility, followState] = await Promise.all([
+        getInquiryEligibility(organizationId, profile.company.id),
+        getNetworkFollowState(organizationId, profile.company.id),
+      ]);
       inquiryEligible = eligibility.eligible;
+      isFollowed = followState.followed;
     }
   }
 
@@ -109,6 +120,15 @@ export default async function NetworkCompanyProfilePage({
                 <input type="hidden" name="network_company_id" value={profile.company.id} />
                 <button className="h-10 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700">
                   {isSaved ? "Rimuovi dai salvati" : "Salva azienda"}
+                </button>
+              </form>
+            ) : null}
+
+            {organizationId ? (
+              <form action={isFollowed ? unfollowNetworkCompany : followNetworkCompany}>
+                <input type="hidden" name="network_company_id" value={profile.company.id} />
+                <button className="h-10 w-full rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-semibold text-indigo-700">
+                  {isFollowed ? "Non seguire più" : "Segui aggiornamenti"}
                 </button>
               </form>
             ) : null}

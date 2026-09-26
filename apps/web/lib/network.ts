@@ -271,3 +271,98 @@ export async function getInquiryPreferences(organizationId: string) {
     inquiries_enabled: boolean;
   };
 }
+
+
+export type NetworkFollowState = {
+  organization_id: string;
+  network_company_id: string;
+  followed: boolean;
+  followed_at: string | null;
+};
+
+export type FollowedNetworkCompany = {
+  network_company_id: string;
+  followed_at: string;
+  legal_name: string;
+  trading_name: string | null;
+  country_code: string;
+  website_url: string | null;
+  verification_status: string;
+  claimed_status: string;
+};
+
+export type NetworkActivityItem = {
+  activity_event_id: string;
+  network_company_id: string;
+  company_name: string;
+  legal_name: string;
+  activity_type: string;
+  entity_type: string | null;
+  entity_id: string | null;
+  summary: string;
+  payload: Record<string, unknown>;
+  occurred_at: string;
+  read_at: string | null;
+  is_unread: boolean;
+};
+
+export async function getNetworkFollowState(
+  organizationId: string,
+  networkCompanyId: string,
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p4_follow_state", {
+    p_organization_id: organizationId,
+    p_network_company_id: networkCompanyId,
+  });
+
+  if (error) throw new Error(error.message);
+  return (data ?? {
+    organization_id: organizationId,
+    network_company_id: networkCompanyId,
+    followed: false,
+    followed_at: null,
+  }) as NetworkFollowState;
+}
+
+export async function getFollowedNetworkCompanies(organizationId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p4_list_followed_companies", {
+    p_organization_id: organizationId,
+    p_limit: 100,
+    p_offset: 0,
+  });
+
+  if (error) throw new Error(error.message);
+  const payload = (data ?? {}) as { items?: FollowedNetworkCompany[]; total?: number };
+  return {
+    items: payload.items ?? [],
+    total: Number(payload.total ?? 0),
+  };
+}
+
+export async function getNetworkActivityFeed(
+  organizationId: string,
+  unreadOnly = false,
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p4_list_activity_feed", {
+    p_organization_id: organizationId,
+    p_unread_only: unreadOnly,
+    p_limit: 100,
+    p_offset: 0,
+  });
+
+  if (error) throw new Error(error.message);
+  const payload = (data ?? {}) as {
+    items?: NetworkActivityItem[];
+    total?: number;
+    unread?: number;
+  };
+
+  return {
+    items: payload.items ?? [],
+    total: Number(payload.total ?? 0),
+    unread: Number(payload.unread ?? 0),
+  };
+}

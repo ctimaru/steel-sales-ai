@@ -49,6 +49,18 @@ export default async function NetworkDirectoryPage({
           </div>
           <div className="flex flex-wrap gap-2">
             <Link
+              href="/network/activity"
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-semibold text-indigo-700"
+            >
+              Activity
+            </Link>
+            <Link
+              href="/network/following"
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700"
+            >
+              Seguite
+            </Link>
+            <Link
               href="/network/inquiries"
               className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700"
             >

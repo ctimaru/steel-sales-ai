@@ -224,3 +224,78 @@ export async function blockInquirySenderOrganization(formData: FormData) {
 
   redirect("/network/inquiries?box=received&message=Organizzazione%20bloccata");
 }
+
+
+export async function followNetworkCompany(formData: FormData) {
+  const companyId = textValue(formData, "network_company_id");
+  if (!companyId) redirect("/network?error=Azienda%20non%20valida");
+
+  const { supabase, organizationId } = await activeOrganizationId();
+  const { error } = await supabase.rpc("p4_follow_company", {
+    p_organization_id: organizationId,
+    p_network_company_id: companyId,
+  });
+
+  if (error) {
+    redirect("/network/" + companyId + "?error=" + encodeURIComponent(error.message));
+  }
+
+  revalidatePath("/network/" + companyId);
+  revalidatePath("/network/following");
+  revalidatePath("/network/activity");
+  redirect("/network/" + companyId + "?message=Azienda%20seguita");
+}
+
+export async function unfollowNetworkCompany(formData: FormData) {
+  const companyId = textValue(formData, "network_company_id");
+  if (!companyId) redirect("/network/following?error=Azienda%20non%20valida");
+
+  const { supabase, organizationId } = await activeOrganizationId();
+  const { error } = await supabase.rpc("p4_unfollow_company", {
+    p_organization_id: organizationId,
+    p_network_company_id: companyId,
+  });
+
+  if (error) {
+    redirect("/network/following?error=" + encodeURIComponent(error.message));
+  }
+
+  revalidatePath("/network/" + companyId);
+  revalidatePath("/network/following");
+  revalidatePath("/network/activity");
+  redirect("/network/following?message=Follow%20rimosso");
+}
+
+export async function markNetworkActivityRead(formData: FormData) {
+  const activityEventId = textValue(formData, "activity_event_id");
+  const companyId = textValue(formData, "network_company_id");
+  if (!activityEventId) redirect("/network/activity?error=Activity%20non%20valida");
+
+  const { supabase, organizationId } = await activeOrganizationId();
+  const { error } = await supabase.rpc("p4_mark_activity_read", {
+    p_organization_id: organizationId,
+    p_activity_event_id: activityEventId,
+  });
+
+  if (error) {
+    redirect("/network/activity?error=" + encodeURIComponent(error.message));
+  }
+
+  revalidatePath("/network/activity");
+  if (companyId) redirect("/network/" + companyId);
+  redirect("/network/activity");
+}
+
+export async function markAllNetworkActivityRead() {
+  const { supabase, organizationId } = await activeOrganizationId();
+  const { error } = await supabase.rpc("p4_mark_all_activity_read", {
+    p_organization_id: organizationId,
+  });
+
+  if (error) {
+    redirect("/network/activity?error=" + encodeURIComponent(error.message));
+  }
+
+  revalidatePath("/network/activity");
+  redirect("/network/activity?message=Activity%20segnate%20come%20lette");
+}
