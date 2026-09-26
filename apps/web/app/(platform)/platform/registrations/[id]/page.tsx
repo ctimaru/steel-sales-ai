@@ -14,7 +14,7 @@ import {
   bridgeRegistrationToNetwork,
   rejectRegistrationApplication,
   requestRegistrationInformation,
-} from "@/app/(workspace)/platform/registrations/actions";
+} from "@/app/(workspace)/admin/registrations/actions";
 
 const TYPE_LABELS: Record<string, string> = {
   producer: "Produttore",
