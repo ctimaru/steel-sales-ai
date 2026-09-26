@@ -109,6 +109,11 @@ export default async function DashboardPage() {
               Cerca nello storico
             </button>
           </div>
+          <div className="mt-3 flex justify-end">
+            <Link href="/search" className="text-xs font-semibold text-indigo-600">
+              Apri ricerca avanzata →
+            </Link>
+          </div>
         </form>
       </section>
 
@@ -122,7 +127,9 @@ export default async function DashboardPage() {
             <p className="mt-1 text-base font-semibold text-amber-950">
               {metrics.reviewFlags} {metrics.reviewFlags === 1 ? "elemento da verificare" : "elementi da verificare"}
             </p>
-            <p className="mt-1 text-sm text-amber-800">Apri le correzioni solo quando il sistema richiede una verifica.</p>
+            <p className="mt-1 text-sm text-amber-800">
+              Apri le correzioni solo quando il sistema richiede una verifica: questi sono i casi in attesa di verifica.
+            </p>
           </div>
           <span className="text-sm font-semibold text-amber-900">Apri correzioni →</span>
         </Link>
