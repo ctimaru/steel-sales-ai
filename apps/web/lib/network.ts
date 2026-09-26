@@ -176,3 +176,98 @@ export async function getSavedNetworkCompanies() {
       : row.network_companies,
   })) as SavedNetworkCompany[];
 }
+
+
+export type ActiveOrganizationContext = {
+  organization_id: string;
+  role: string;
+  is_default: boolean;
+};
+
+export type NetworkInquiryItem = {
+  id: string;
+  sender_organization_id: string;
+  sender_organization_name: string;
+  sender_user_id: string;
+  recipient_network_company_id: string;
+  recipient_organization_id: string;
+  recipient_company_name: string;
+  subject: string;
+  body: string;
+  status: string;
+  submitted_at: string;
+  last_activity_at: string;
+};
+
+export async function getActiveOrganizationContext() {
+  const supabase = await createClient();
+  const { data: authData } = await supabase.auth.getUser();
+  const userId = authData.user?.id;
+  if (!userId) return null;
+
+  const { data, error } = await supabase
+    .from("organization_memberships")
+    .select("organization_id,role,is_default,status")
+    .eq("user_id", userId)
+    .eq("status", "active");
+
+  if (error) throw new Error(error.message);
+  const membership = data?.find((row) => row.is_default) ?? data?.[0];
+  if (!membership) return null;
+
+  return {
+    organization_id: membership.organization_id,
+    role: membership.role,
+    is_default: membership.is_default,
+  } as ActiveOrganizationContext;
+}
+
+export async function getInquiryEligibility(
+  senderOrganizationId: string,
+  recipientNetworkCompanyId: string,
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p4_inquiry_eligibility", {
+    p_sender_organization_id: senderOrganizationId,
+    p_recipient_network_company_id: recipientNetworkCompanyId,
+  });
+
+  if (error) throw new Error(error.message);
+  return (data ?? { eligible: false, reason: "recipient_unavailable" }) as {
+    eligible: boolean;
+    reason: string;
+  };
+}
+
+export async function getNetworkInquiries(
+  organizationId: string,
+  box: "received" | "sent",
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p4_list_inquiries", {
+    p_organization_id: organizationId,
+    p_box: box,
+    p_limit: 100,
+    p_offset: 0,
+  });
+
+  if (error) throw new Error(error.message);
+  const payload = (data ?? {}) as { items?: NetworkInquiryItem[]; total?: number };
+  return {
+    items: payload.items ?? [],
+    total: Number(payload.total ?? 0),
+  };
+}
+
+export async function getInquiryPreferences(organizationId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p4_get_inquiry_preferences", {
+    p_organization_id: organizationId,
+  });
+
+  if (error) throw new Error(error.message);
+  return (data ?? { organization_id: organizationId, inquiries_enabled: true }) as {
+    organization_id: string;
+    inquiries_enabled: boolean;
+  };
+}

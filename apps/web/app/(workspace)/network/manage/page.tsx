@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { updateManagedNetworkProfile } from "@/app/(workspace)/network/actions";
-import { getManagedNetworkCompany } from "@/lib/network";
+import {
+  setInquiryPreferences,
+  updateManagedNetworkProfile,
+} from "@/app/(workspace)/network/actions";
+import { getInquiryPreferences, getManagedNetworkCompany } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 
 export default async function ManagedNetworkProfilePage({
@@ -13,6 +16,9 @@ export default async function ManagedNetworkProfilePage({
   if (!isNetworkFrontendEnabled()) redirect("/dashboard");
   const { error, message } = await searchParams;
   const managed = await getManagedNetworkCompany();
+  const inquiryPreferences = managed
+    ? await getInquiryPreferences(managed.organization_id)
+    : null;
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -57,6 +63,36 @@ export default async function ManagedNetworkProfilePage({
               Puoi modificare solo i campi company-managed. Ragione sociale, paese, verification,
               publication state e claim restano sotto governance della piattaforma.
             </p>
+          </section>
+
+          <section className="rounded-2xl border border-slate-200 bg-white p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="font-semibold text-slate-950">Ricezione inquiry</h2>
+                <p className="mt-1 text-sm leading-6 text-slate-500">
+                  Controlla se altri membri del Network possono inviare nuove inquiry alla tua organizzazione.
+                  La modifica non cancella lo storico esistente.
+                </p>
+              </div>
+              <form action={setInquiryPreferences}>
+                <input type="hidden" name="organization_id" value={managed.organization_id} />
+                <input
+                  type="hidden"
+                  name="inquiries_enabled"
+                  value={inquiryPreferences?.inquiries_enabled ? "false" : "true"}
+                />
+                <button
+                  className={
+                    "h-10 rounded-xl px-4 text-sm font-semibold " +
+                    (inquiryPreferences?.inquiries_enabled
+                      ? "border border-slate-200 bg-white text-slate-700"
+                      : "bg-indigo-600 text-white")
+                  }
+                >
+                  {inquiryPreferences?.inquiries_enabled ? "Disabilita inquiry" : "Abilita inquiry"}
+                </button>
+              </form>
+            </div>
           </section>
 
           <form action={updateManagedNetworkProfile} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6">
