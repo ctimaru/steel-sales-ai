@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { Input } from "@/components/ui/input";
+import { ProductBrand } from "@/components/product-brand";
 import { createClient } from "@/lib/supabase/server";
 import { signup } from "@/app/login/actions";
 
@@ -24,17 +25,17 @@ export default async function RegisterPage({
 
   if (!user) {
     return (
-      <main className="min-h-screen bg-slate-50 px-5 py-8 sm:px-8 sm:py-12">
-        <div className="mx-auto grid max-w-5xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm lg:grid-cols-[0.9fr_1.1fr]">
-          <section className="bg-slate-950 p-8 text-white sm:p-10">
-            <p className="text-xs font-bold tracking-[0.16em] text-slate-400">STEEL SALES AI</p>
+      <main className="min-h-screen bg-[#f3f5f7] px-5 py-8 sm:px-8 sm:py-12">
+        <div className="mx-auto grid max-w-5xl overflow-hidden rounded-3xl border border-[#d9e0e4] bg-white shadow-sm lg:grid-cols-[0.9fr_1.1fr]">
+          <section className="bg-[#0b171e] p-8 text-white sm:p-10">
+            <ProductBrand href="/" inverse />
             <h1 className="mt-10 text-3xl font-semibold tracking-tight sm:text-4xl">
               Registra la tua azienda.
             </h1>
-            <p className="mt-4 text-sm leading-7 text-slate-400">
+            <p className="mt-4 text-sm leading-7 text-[#8fa1a9]">
               Crea prima il tuo account personale. Dopo la verifica email potrai completare il profilo aziendale e inviarlo per approvazione.
             </p>
-            <div className="mt-10 space-y-4 text-sm text-slate-300">
+            <div className="mt-10 space-y-4 text-sm text-[#b6c3c8]">
               <p>1. Crea e verifica il tuo account</p>
               <p>2. Compila i dati dell’azienda</p>
               <p>3. Invia la richiesta</p>
@@ -43,9 +44,9 @@ export default async function RegisterPage({
           </section>
 
           <section className="p-7 sm:p-10">
-            <p className="text-sm font-semibold text-slate-500">Passaggio 1 di 2</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">Crea il tuo account</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-500">
+            <p className="text-sm font-semibold text-[#66737d]">Passaggio 1 di 2</p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#17232d]">Crea il tuo account</h2>
+            <p className="mt-2 text-sm leading-6 text-[#66737d]">
               Usa un indirizzo email aziendale a cui hai accesso.
             </p>
 
@@ -57,11 +58,11 @@ export default async function RegisterPage({
             ) : null}
 
             <form action={signup} className="mt-7 space-y-5">
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-[#33454e]">
                 Email
                 <Input className="mt-2 h-11" name="email" type="email" autoComplete="email" required />
               </label>
-              <label className="block text-sm font-medium text-slate-700">
+              <label className="block text-sm font-medium text-[#33454e]">
                 Password
                 <Input
                   className="mt-2 h-11"
@@ -72,14 +73,14 @@ export default async function RegisterPage({
                   required
                 />
               </label>
-              <button className="h-11 w-full rounded-xl bg-slate-950 text-sm font-semibold text-white">
+              <button className="h-11 w-full rounded-xl bg-[#1b4c5d] text-sm font-semibold text-white hover:bg-[#153542]">
                 Crea account
               </button>
             </form>
 
-            <p className="mt-6 text-sm text-slate-500">
+            <p className="mt-6 text-sm text-[#66737d]">
               Hai già un account?{" "}
-              <Link href="/login" className="font-semibold text-slate-900 underline underline-offset-4">
+              <Link href="/login" className="font-semibold text-[#22313a] underline underline-offset-4">
                 Accedi
               </Link>
             </p>
@@ -113,21 +114,21 @@ export default async function RegisterPage({
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-7 sm:px-6 sm:py-10">
-      <div className="mx-auto max-w-3xl rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-9">
+    <main className="min-h-screen bg-[#f3f5f7] px-4 py-7 sm:px-6 sm:py-10">
+      <div className="mx-auto max-w-3xl rounded-3xl border border-[#d9e0e4] bg-white p-6 shadow-sm sm:p-9">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-bold tracking-[0.16em] text-slate-400">STEEL SALES AI</p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">
+            <ProductBrand href="/" compact />
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#17232d]">
               {application?.application_status === "needs_information"
                 ? "Completa le informazioni richieste"
                 : "Profilo aziendale"}
             </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#66737d]">
               Inserisci i dati essenziali della tua azienda. Potrai arricchire il profilo Network dopo l’attivazione.
             </p>
           </div>
-          <Link href="/login" className="text-sm font-semibold text-slate-500 hover:text-slate-950">
+          <Link href="/login" className="text-sm font-semibold text-[#66737d] hover:text-[#17232d]">
             Esci
           </Link>
         </div>
