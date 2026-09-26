@@ -144,6 +144,7 @@ select pg_temp.p26_assert(
       )->'candidates'
     ) x
     where x->>'source_entity_id'='00000000-0000-0000-0000-000000002781'
+      and x->>'relationship_type'='order_offer'
   ),
   'same Contact + exact geometry + short chronology must produce strong_review without pretending canonical equality'
 );
@@ -158,6 +159,7 @@ select pg_temp.p26_assert(
       )->'candidates'
     ) x
     where x->>'source_entity_id'='00000000-0000-0000-0000-000000002782'
+      and x->>'relationship_type'='order_offer'
   ),
   'same verified Company with different Contact remains review, never strong'
 );
