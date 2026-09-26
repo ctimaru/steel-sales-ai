@@ -61,7 +61,6 @@ export async function confirmReviewItem(
   formData: FormData,
 ): Promise<ReviewActionState> {
   await requireWorkspaceWriteRole();
-  await requireWorkspaceWriteRole();
   const rawId = formData.get("id");
   if (!validId(rawId)) return { status: "error", message: "Record non valido. Aggiorna la pagina e riprova." };
 
@@ -97,6 +96,7 @@ export async function correctReviewItem(
   _previousState: ReviewActionState,
   formData: FormData,
 ): Promise<ReviewActionState> {
+  await requireWorkspaceWriteRole();
   const rawId = formData.get("id");
   if (!validId(rawId)) return { status: "error", message: "Record non valido. Aggiorna la pagina e riprova." };
   const values = correctedValues(formData);
