@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { requireWorkspaceAdmin } from "@/lib/workspace-context";
 
 export type DataSourceState =
   | "all"
@@ -88,6 +89,7 @@ export type DataSourceCenterQuery = {
 export async function loadDataSourceCenter(
   query: DataSourceCenterQuery = {},
 ): Promise<DataSourceCenterResult> {
+  await requireWorkspaceAdmin();
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   const actorUserId = typeof data?.claims?.sub === "string" ? data.claims.sub : null;
