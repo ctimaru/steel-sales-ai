@@ -3,6 +3,7 @@ import { PilotEvent } from "@/components/pilot-event";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { appRoutes } from "@/lib/routes";
 
 import { loadCompany360, loadCompanyActivationStatus } from "../actions";
 
@@ -58,7 +59,7 @@ export default async function Company360Page({
     return (
       <div className="mx-auto max-w-7xl space-y-4">
         <p className="text-sm text-slate-600">Azienda non trovata nel workspace.</p>
-        <Link href="/customers" className="text-sm font-semibold text-indigo-600">← Torna a Clienti / aziende</Link>
+        <Link href={appRoutes.commercial.companies} className="text-sm font-semibold text-indigo-600">← Torna a Clienti / aziende</Link>
       </div>
     );
   }
@@ -72,7 +73,7 @@ export default async function Company360Page({
       <PilotEvent eventName="company_viewed" entityType="company" entityId={companyId} metadata={{ surface: "company_360" }} />
       <div className="mx-auto max-w-7xl space-y-7">
       <div>
-        <Link href="/customers" className="text-xs font-semibold text-indigo-600">← Clienti / aziende</Link>
+        <Link href={appRoutes.commercial.companies} className="text-xs font-semibold text-indigo-600">← Clienti / aziende</Link>
         <div className="mt-3 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
           <div>
             <div className="flex flex-wrap gap-2">
@@ -123,7 +124,7 @@ export default async function Company360Page({
               </p>
             </div>
             <Link
-              href="/review/identities"
+              href={appRoutes.operations.reviewIdentities}
               className="shrink-0 rounded-lg bg-amber-900 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-800"
             >
               Apri identità aziendali
@@ -201,7 +202,7 @@ export default async function Company360Page({
                 <div className="flex flex-col items-start gap-1 text-xs">
                   {event.provenance?.conversation_id ? (
                     <Link
-                      href={`/conversations/${String(event.provenance.conversation_id)}`}
+                      href={appRoutes.commercial.conversation(String(event.provenance.conversation_id))}
                       className="font-semibold text-indigo-600 hover:text-indigo-800"
                     >
                       Apri conversazione →
@@ -243,7 +244,7 @@ export default async function Company360Page({
                     </p>
                   </div>
                   {product.canonical_product_id ? (
-                    <Link href={`/products/${product.canonical_product_id}`} className="text-xs font-semibold text-indigo-600">
+                    <Link href={appRoutes.commercial.product(product.canonical_product_id)} className="text-xs font-semibold text-indigo-600">
                       Product 360 →
                     </Link>
                   ) : null}
