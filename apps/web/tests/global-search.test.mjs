@@ -52,7 +52,7 @@ test("global search exposes P1.4 result families and steel filters", () => {
 test("commercial search is first-class sales navigation", () => {
   assert.match(page, /Cerca nello storico commerciale/);
   assert.match(page, /Trova prodotti, clienti, richieste, offerte, ordini e documenti/);
-  assert.match(shell, /href: "\/search"/);
+  assert.match(shell, /href: appRoutes\.commercial\.search/);
   assert.match(shell, /label: "Cerca"/);
 });
 
@@ -83,7 +83,7 @@ test("sales-first navigation is grouped by product domain and remains complete o
 
 
 test("Home is a quick-search entry point while Search owns the advanced workspace", () => {
-  assert.match(dashboard, /action="\/search"/);
+  assert.match(dashboard, /action=\{appRoutes\.commercial\.search\}/);
   assert.match(dashboard, /name="q"/);
   assert.match(dashboard, /Cerca nello storico/);
   assert.match(dashboard, /Apri ricerca avanzata/);
@@ -100,7 +100,7 @@ test("Home exposes corrections contextually only when review work exists", () =>
   assert.match(dashboard, /metrics\.reviewFlags > 0/);
   assert.match(dashboard, /Richiede attenzione/);
   assert.match(dashboard, /Apri correzioni/);
-  assert.match(dashboard, /href="\/review"/);
+  assert.match(dashboard, /href=\{appRoutes\.operations\.review\}/);
   assert.doesNotMatch(dashboard, /<h3 className="mt-3 font-semibold text-slate-950">Correggi i dati<\/h3>/);
 });
 
