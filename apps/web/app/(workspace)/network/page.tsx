@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { getNetworkTaxonomy, searchNetwork } from "@/lib/network";
+import { PilotEvent } from "@/components/pilot-event";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 
 function selectClass() {
@@ -37,6 +38,7 @@ export default async function NetworkDirectoryPage({
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
+      <PilotEvent eventName="network_directory_viewed" metadata={{ surface: "network_directory" }} />
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600">Steel Industry Network</p>
         <div className="mt-2 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -48,6 +50,12 @@ export default async function NetworkDirectoryPage({
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <Link
+              href="/network/pilot-readiness"
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 px-4 text-sm font-semibold text-amber-800"
+            >
+              P5 readiness
+            </Link>
             <Link
               href="/network/activity"
               className="inline-flex h-11 items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-semibold text-indigo-700"

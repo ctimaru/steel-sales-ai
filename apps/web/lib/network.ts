@@ -366,3 +366,82 @@ export async function getNetworkActivityFeed(
     unread: Number(payload.unread ?? 0),
   };
 }
+
+
+export type InteractionPilotRun = {
+  id: string;
+  organization_id: string;
+  status: string;
+  label: string;
+  protocol_version: string;
+  started_at: string;
+};
+
+export type InteractionPilotSummary = {
+  contract: string;
+  started_at: string;
+  generated_at: string;
+  active_days: number;
+  active_users: number;
+  directory_views: number;
+  profile_views: number;
+  saves_created: number;
+  saves_removed: number;
+  follows_created: number;
+  follows_removed: number;
+  persistent_intent_signals: number;
+  activity_feed_opens: number;
+  activity_item_opens: number;
+  inquiries_submitted: number;
+  distinct_recipient_organizations: number;
+  recipient_engaged_inquiries: number;
+};
+
+export type P5ReadinessCriterion = {
+  actual: number;
+  target: number;
+  passed: boolean;
+};
+
+export type P5Readiness = {
+  contract: string;
+  evidence_ready: boolean;
+  criteria_passed_count: number;
+  criteria_total: number;
+  criteria: {
+    multi_day_use: P5ReadinessCriterion;
+    profile_discovery: P5ReadinessCriterion;
+    persistent_intent: P5ReadinessCriterion;
+    b2b_inquiries: P5ReadinessCriterion;
+    recipient_engagement: P5ReadinessCriterion;
+  };
+  summary: InteractionPilotSummary;
+  interpretation: string;
+};
+
+export async function getActiveInteractionPilot(organizationId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p4_active_interaction_pilot", {
+    p_organization_id: organizationId,
+  });
+  if (error) throw new Error(error.message);
+  return (data as InteractionPilotRun | null) ?? null;
+}
+
+export async function getInteractionPilotSummary(organizationId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p4_interaction_pilot_summary", {
+    p_organization_id: organizationId,
+  });
+  if (error) throw new Error(error.message);
+  return (data as InteractionPilotSummary | null) ?? null;
+}
+
+export async function getP5Readiness(organizationId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p5_readiness", {
+    p_organization_id: organizationId,
+  });
+  if (error) throw new Error(error.message);
+  return (data as P5Readiness | null) ?? null;
+}

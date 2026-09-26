@@ -6,6 +6,7 @@ import {
   markNetworkActivityRead,
 } from "@/app/(workspace)/network/actions";
 import { getActiveOrganizationContext, getNetworkActivityFeed } from "@/lib/network";
+import { PilotEvent } from "@/components/pilot-event";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 
 function formatWhen(value: string) {
@@ -31,6 +32,7 @@ export default async function NetworkActivityPage({
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
+      <PilotEvent eventName="network_activity_feed_opened" metadata={{ surface: "network_activity" }} />
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <Link href="/network" className="text-sm font-semibold text-slate-500 hover:text-slate-950">

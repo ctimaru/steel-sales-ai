@@ -13,6 +13,7 @@ import {
   getNetworkFollowState,
   getNetworkProfile,
 } from "@/lib/network";
+import { PilotEvent } from "@/components/pilot-event";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { createClient } from "@/lib/supabase/server";
 
@@ -83,6 +84,12 @@ export default async function NetworkCompanyProfilePage({
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
+      <PilotEvent
+        eventName="network_profile_viewed"
+        entityType="network_company"
+        entityId={profile.company.id}
+        metadata={{ surface: "network_company_profile" }}
+      />
       <Link href="/network" className="text-sm font-semibold text-slate-500 hover:text-slate-950">
         ← Torna alla directory
       </Link>
