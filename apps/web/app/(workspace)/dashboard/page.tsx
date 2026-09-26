@@ -95,7 +95,38 @@ export default async function DashboardPage() {
             <p className="mt-1 text-xs font-semibold text-slate-600">Entità commerciali operative</p>
           </Link>
         </div>
+
+        <form action="/search" method="get" className="mt-7">
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <input
+              name="q"
+              required
+              minLength={2}
+              placeholder="Cerca prodotto, qualità, norma, cliente o documento"
+              className="h-12 flex-1 rounded-xl border border-slate-300 bg-white px-4 text-base text-slate-950 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50"
+            />
+            <button className="h-12 rounded-xl bg-slate-950 px-6 text-sm font-semibold text-white">
+              Cerca nello storico
+            </button>
+          </div>
+        </form>
       </section>
+
+      {metrics.reviewFlags > 0 ? (
+        <Link
+          href="/review"
+          className="flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-5 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-amber-700">Richiede attenzione</p>
+            <p className="mt-1 text-base font-semibold text-amber-950">
+              {metrics.reviewFlags} {metrics.reviewFlags === 1 ? "elemento da verificare" : "elementi da verificare"}
+            </p>
+            <p className="mt-1 text-sm text-amber-800">Apri le correzioni solo quando il sistema richiede una verifica.</p>
+          </div>
+          <span className="text-sm font-semibold text-amber-900">Apri correzioni →</span>
+        </Link>
+      ) : null}
 
       <section>
         <div className="mb-3">
@@ -190,7 +221,8 @@ export default async function DashboardPage() {
       ) : null}
 
       <section className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-5">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">Workspace normalizzato</p>
+        <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">Commercial Memory</p>
             <h2 className="mt-2 text-lg font-semibold text-slate-950">Memoria commerciale privata</h2>
@@ -203,7 +235,7 @@ export default async function DashboardPage() {
             ["RFQ", operational.rfqs],
             ["Offerte", operational.offers],
             ["Ordini", operational.orders],
-            ["Evidenze", operational.legacyEvidence],
+            ["Conversazioni commerciali", metrics.threads],
           ].map(([label, value]) => (
             <div key={String(label)} className="rounded-xl bg-white/80 p-3">
               <p className="text-2xl font-semibold text-slate-950">{Number(value).toLocaleString("it-IT")}</p>
