@@ -10,6 +10,7 @@ export const appRoutes = {
     companies: "/commercial/companies",
     company: (companyId: string) => `/commercial/companies/${companyId}`,
     reengagement: "/commercial/reengagement",
+    demand: "/commercial/demand",
     assistant: "/commercial/assistant",
     rfq: (id: string) => `/commercial/rfqs/${id}`,
     offer: (id: string) => `/commercial/offers/${id}`,
