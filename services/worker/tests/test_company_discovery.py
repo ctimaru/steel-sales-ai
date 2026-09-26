@@ -144,3 +144,76 @@ def test_evidence_redacts_contact_channels() -> None:
     assert "[email removed]" in str(candidate["description"])
     assert "[phone removed]" in str(candidate["description"])
     assert "mario.rossi@example.com" not in str(candidate["evidence"])
+
+
+
+def test_p33_identity_prefers_domain_aligned_legal_name() -> None:
+    pages = [
+        CrawledPage(
+            url="https://generaltubi.com/",
+            title="Generaltubi S.p.A. - Tubi in acciaio",
+            site_name="Generaltubi",
+            meta_description="Commercio e produzione di tubi.",
+            h1="Generaltubi",
+            text=(
+                "Produzione La nostra produzione Generaltubi S.p.A. "
+                "Distribuzione di tubi, stock di tubi e produzione di tubi di precisione."
+            ),
+            links=(),
+        )
+    ]
+    candidate = extract_candidate(pages, "IT")
+    assert candidate is not None
+    assert candidate["legal_name"] == "Generaltubi S.p.A."
+    assert candidate["identity_quality"]["source"] in {"title", "page_text_legal_suffix"}
+    assert "identity_domain_fallback" not in candidate["quality_flags"]
+
+
+def test_p33_domain_fallback_strips_company_suffix_noise() -> None:
+    pages = [
+        CrawledPage(
+            url="https://morandispa.it/",
+            title="Home",
+            site_name=None,
+            meta_description="Distribuzione e lavorazione tubi.",
+            h1="Soluzioni per tubi in acciaio",
+            text=(
+                "Distribuzione di tubi. Ampio stock. Centro servizi con taglio laser tubo."
+            ),
+            links=(),
+        )
+    ]
+    candidate = extract_candidate(pages, "IT")
+    assert candidate is not None
+    assert candidate["legal_name"] == "Morandi"
+    assert candidate["identity_quality"]["source"] == "domain_fallback"
+    assert "identity_domain_fallback" in candidate["quality_flags"]
+
+
+def test_p33_generic_production_does_not_create_false_producer_role() -> None:
+    roles, subtypes, products, scores, flags = classify_company(
+        """
+        Distributore di tubi in acciaio con ampio stock e pronta consegna.
+        Centro servizi per lavorazione tubi e taglio laser.
+        La produzione dei nostri fornitori copre numerose qualità di acciaio.
+        """
+    )
+    assert "producer" not in roles
+    assert "trader_distributor" in roles
+    assert "processor_service_provider" in roles
+    assert scores["producer"] < 0.5
+    assert {"key": "tubes_pipes", "relationship_type": "distributes"} in products
+    assert {"key": "tubes_pipes", "relationship_type": "processes"} in products
+
+
+def test_p33_direct_tube_manufacturing_remains_producer() -> None:
+    roles, subtypes, products, scores, flags = classify_company(
+        """
+        Siamo produttori di tubi saldati in acciaio. Produzione di tubi tondi,
+        quadri e rettangolari per applicazioni industriali.
+        """
+    )
+    assert "producer" in roles
+    assert "tube_pipe_producer" in subtypes
+    assert scores["producer"] >= 0.5
+    assert {"key": "tubes_pipes", "relationship_type": "produces"} in products
