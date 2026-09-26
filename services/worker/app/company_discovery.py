@@ -303,7 +303,9 @@ def _redact_personal_channels(value: str) -> str:
 
 def _domain_identity_stem(domain: str) -> str:
     stem = domain.split(".")[0].replace("-", " ").replace("_", " ").strip()
-    stem = re.sub(r"(?i)(?:\s|^)(?:spa|srl|sas|snc)$", "", stem).strip()
+    # Company domains frequently concatenate the Italian legal form to the brand
+    # (e.g. morandispa.it). Remove it only as a terminal domain suffix.
+    stem = re.sub(r"(?i)(?:spa|srl|sas|snc)$", "", stem).strip()
     return " ".join(stem.split())
 
 
