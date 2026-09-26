@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PilotEvent } from "@/components/pilot-event";
+import { appRoutes } from "@/lib/routes";
 
 import {
   loadPriceHistory,
@@ -79,7 +80,7 @@ export default async function PriceHistoryPage({ params }: { params: Promise<{ p
     return (
       <div className="space-y-4">
         <p className="text-sm text-slate-600">Nessuno storico prezzi trovato per questo prodotto nel tuo workspace.</p>
-        <Link href={`/products/${productId}`} className="text-sm font-semibold text-indigo-600">← Torna al prodotto</Link>
+        <Link href={appRoutes.commercial.product(productId)} className="text-sm font-semibold text-indigo-600">← Torna al prodotto</Link>
       </div>
     );
   }
@@ -94,7 +95,7 @@ export default async function PriceHistoryPage({ params }: { params: Promise<{ p
       <PilotEvent eventName="price_history_viewed" entityType="product" entityId={productId} metadata={{ surface: "price_history" }} />
       <div className="mx-auto max-w-7xl space-y-7">
       <header>
-        <Link href={`/products/${productId}`} className="text-xs font-semibold text-indigo-600">← Torna al prodotto</Link>
+        <Link href={appRoutes.commercial.product(productId)} className="text-xs font-semibold text-indigo-600">← Torna al prodotto</Link>
         <div className="mt-3 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
           <div>
             <div className="flex flex-wrap gap-2">
@@ -187,7 +188,7 @@ export default async function PriceHistoryPage({ params }: { params: Promise<{ p
                     {row.payment_terms ? <p className="mt-0.5 text-xs text-slate-400">Pagamento: {row.payment_terms}</p> : null}
                   </td>
                   <td className="max-w-[180px] truncate text-slate-500">{row.source_filename ?? row.thread_subject ?? "—"}</td>
-                  <td className="text-right">{row.observation_id ? <Link href={`/evidence/${row.observation_id}`} target="_blank" className="font-semibold text-indigo-600">Originale ↗</Link> : row.thread_id ? <Link href={`/conversations/${row.thread_id}`} className="font-semibold text-indigo-600">Apri thread →</Link> : null}</td>
+                  <td className="text-right">{row.observation_id ? <Link href={`/evidence/${row.observation_id}`} target="_blank" className="font-semibold text-indigo-600">Originale ↗</Link> : row.thread_id ? <Link href={appRoutes.commercial.conversation(row.thread_id)} className="font-semibold text-indigo-600">Apri thread →</Link> : null}</td>
                 </tr>
               ))}
             </tbody>
@@ -224,7 +225,7 @@ export default async function PriceHistoryPage({ params }: { params: Promise<{ p
                   </td>
                   <td className="max-w-[310px] text-xs leading-5 text-slate-500">{row.reasons?.join(" · ") || "—"}</td>
                   <td className="font-medium text-slate-700">{row.difference_vs_target_pct === null ? "—" : `${row.difference_vs_target_pct > 0 ? "+" : ""}${numberLabel(row.difference_vs_target_pct)}%`}</td>
-                  <td className="text-right">{row.thread_id ? <Link href={`/conversations/${row.thread_id}`} className="font-semibold text-indigo-600">Apri thread →</Link> : null}</td>
+                  <td className="text-right">{row.thread_id ? <Link href={appRoutes.commercial.conversation(row.thread_id)} className="font-semibold text-indigo-600">Apri thread →</Link> : null}</td>
                 </tr>
               ))}
             </tbody>
