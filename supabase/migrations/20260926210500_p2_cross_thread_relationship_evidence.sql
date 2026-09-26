@@ -889,10 +889,10 @@ $$;
 
 revoke execute on function private.p2_decide_cross_thread_relationship_impl(
   uuid,text,uuid,uuid,text,text
-) from public,anon,authenticated;
+) from public,anon;
 grant execute on function private.p2_decide_cross_thread_relationship_impl(
   uuid,text,uuid,uuid,text,text
-) to service_role;
+) to authenticated,service_role;
 
 create or replace function public.p2_decide_cross_thread_relationship(
   p_organization_id uuid,
