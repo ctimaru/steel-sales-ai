@@ -64,14 +64,18 @@ export async function confirmIdentityMapping(
       linked_rfqs?: unknown;
       activated_conversations?: unknown;
       resolved_messages?: unknown;
+      outcome_offers_attributed?: unknown;
+      outcome_orders_attributed?: unknown;
     };
     const linkedRfqs = Number(result.linked_rfqs ?? 0);
     const activatedConversations = Number(result.activated_conversations ?? 0);
     const resolvedMessages = Number(result.resolved_messages ?? 0);
+    const attributedOffers = Number(result.outcome_offers_attributed ?? 0);
+    const attributedOrders = Number(result.outcome_orders_attributed ?? 0);
 
     return {
       status: "success",
-      message: `Identità confermata: ${resolvedMessages} messaggi, ${activatedConversations} conversazioni e ${linkedRfqs} RFQ attivate. Company 360 e intelligence aggiornate.`,
+      message: `Identità confermata: ${resolvedMessages} messaggi, ${activatedConversations} conversazioni, ${linkedRfqs} RFQ, ${attributedOffers} offerte e ${attributedOrders} ordini attivati. Company 360 e intelligence aggiornate.`,
       companyId,
     };
   } catch {
