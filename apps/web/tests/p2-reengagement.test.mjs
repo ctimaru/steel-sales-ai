@@ -26,7 +26,7 @@ test("P2.1 exposes explainable re-engagement signals without predictive scoring"
   assert.match(page, /reason_codes/);
   assert.match(page, /Apri evidenza/);
   assert.match(page, /Apri Company 360/);
-  assert.match(page, /non crea segnali sintetici/i);
+  assert.match(page, /non\s+crea segnali sintetici/i);
 });
 
 test("P2.1 is wired into canonical Commercial Intelligence navigation", () => {
