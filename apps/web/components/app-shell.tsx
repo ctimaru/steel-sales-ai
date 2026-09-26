@@ -116,8 +116,12 @@ export function AppShell({
   const mobilePrimary = [
     { href: "/dashboard", label: "Home" },
     { href: "/search", label: "Cerca" },
-    ...(networkEnabled ? [{ href: "/network", label: "Network" }] : []),
-    { href: "/network/inquiries", label: "Inquiry" },
+    ...(networkEnabled
+      ? [
+          { href: "/network", label: "Network" },
+          { href: "/network/inquiries", label: "Inquiry" },
+        ]
+      : []),
   ];
 
   return (
