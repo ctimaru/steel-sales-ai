@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { logout } from "@/app/(workspace)/actions";
 import { canAdministerCompany, canWriteWorkspace } from "@/lib/access-policy";
+import { ProductBrand } from "@/components/product-brand";
 import { appRoutes } from "@/lib/routes";
 
 type NavItem = {
@@ -69,7 +70,7 @@ function NavSection({
 
   return (
     <div>
-      <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">
+      <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#52636c]">
         {title}
       </p>
       <nav className="space-y-1">
@@ -77,7 +78,7 @@ function NavSection({
           <Link
             key={item.href}
             href={item.href}
-            className="flex items-center justify-between rounded-xl px-3 py-2 text-sm font-medium text-slate-400 transition hover:bg-white/10 hover:text-white"
+            className="flex items-center justify-between rounded-xl px-3 py-2 text-sm font-medium text-[#8fa1a9] transition hover:bg-white/[0.07] hover:text-white"
           >
             <span>{item.label}</span>
             {item.href === appRoutes.operations.alerts && alertActiveCount > 0 ? (
@@ -127,20 +128,22 @@ export function AppShell({
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-slate-200 bg-slate-950 text-slate-300 lg:block">
+    <div className="min-h-screen bg-[#f3f5f7]">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-[#d9e0e4] bg-[#0b171e] text-[#b6c3c8] lg:block">
         <div className="flex h-full flex-col">
           <div className="border-b border-white/10 p-5">
-            <p className="text-xs font-bold tracking-[0.18em] text-slate-500">STEEL SALES AI</p>
-            <p className="mt-1 truncate text-lg font-semibold text-white">{organizationName}</p>
-            <p className="mt-1 text-xs text-slate-500">Company Workspace</p>
+            <ProductBrand href={appRoutes.home} inverse />
+            <div className="mt-5 rounded-xl border border-white/8 bg-white/[0.035] px-3 py-3">
+              <p className="truncate text-sm font-semibold text-white">{organizationName}</p>
+              <p className="mt-1 text-[11px] font-medium text-[#71858e]">Company Workspace</p>
+            </div>
           </div>
 
           {platformSuperadmin ? (
             <div className="border-b border-white/10 p-3">
               <Link
                 href={appRoutes.platform.home}
-                className="flex items-center justify-between rounded-xl border border-indigo-400/20 bg-indigo-500/10 px-3 py-2.5 text-sm font-semibold text-indigo-200 transition hover:bg-indigo-500/20"
+                className="flex items-center justify-between rounded-xl border border-[#6e9eab]/20 bg-[#28677a]/15 px-3 py-2.5 text-sm font-semibold text-[#bcd3da] transition hover:bg-[#28677a]/25"
               >
                 <span>Apri Platform Console</span>
                 <span>↗</span>
@@ -148,15 +151,15 @@ export function AppShell({
             </div>
           ) : null}
 
-          <div className="flex-1 space-y-5 overflow-y-auto p-3">
+          <div className="sidebar-scroll flex-1 space-y-5 overflow-y-auto p-3">
             <div>
-              <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">
+              <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#52636c]">
                 Workspace
               </p>
               <nav>
                 <Link
                   href={appRoutes.home}
-                  className="flex items-center rounded-xl px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="flex items-center rounded-xl border border-[#3c8192]/15 bg-[#28677a]/10 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-[#28677a]/20"
                 >
                   Home azienda
                 </Link>
@@ -177,7 +180,7 @@ export function AppShell({
               </p>
             </div>
             <form action={logout}>
-              <button className="mt-3 w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-slate-400 hover:bg-white/10 hover:text-white">
+              <button className="mt-3 w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-[#8fa1a9] hover:bg-white/[0.07] hover:text-white">
                 Esci
               </button>
             </form>
@@ -186,10 +189,10 @@ export function AppShell({
       </aside>
 
       <div className="lg:pl-72">
-        <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
+        <header className="sticky top-0 z-20 border-b border-[#d9e0e4] bg-white/95 backdrop-blur">
           <div className="flex min-h-16 items-center justify-between gap-3 px-4 py-2 sm:px-6 lg:px-8">
             <Link href={appRoutes.home} className="min-w-0 shrink">
-              <p className="truncate text-sm font-semibold text-slate-950">{organizationName}</p>
+              <p className="truncate text-sm font-semibold text-[#17232d]">{organizationName}</p>
               <p className="truncate text-xs text-slate-500">
                 Company Workspace · {roleLabel(organizationRole)}
               </p>
@@ -200,16 +203,16 @@ export function AppShell({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700"
+                  className="shrink-0 rounded-xl border border-[#d9e0e4] bg-white px-3 py-1.5 text-xs font-semibold text-[#33454e] shadow-[0_1px_1px_rgba(11,23,30,0.03)]"
                 >
                   {item.label}
                 </Link>
               ))}
               <details className="relative shrink-0">
-                <summary className="cursor-pointer list-none rounded-lg border border-slate-200 bg-slate-950 px-3 py-1.5 text-xs font-semibold text-white">
+                <summary className="cursor-pointer list-none rounded-lg border border-[#d9e0e4] bg-[#0b171e] px-3 py-1.5 text-xs font-semibold text-white">
                   Altro
                 </summary>
-                <div className="fixed left-4 right-4 top-16 z-40 grid grid-cols-2 gap-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl sm:left-auto sm:right-6 sm:w-96">
+                <div className="fixed left-4 right-4 top-16 z-40 grid grid-cols-2 gap-2 rounded-2xl border border-[#d9e0e4] bg-white p-3 shadow-xl sm:left-auto sm:right-6 sm:w-96">
                   {[...commercialNav, ...networkItems, ...operationsNav, ...companyToolsNav]
                     .filter((item) => canSee(item, organizationRole))
                     .filter((item) => !mobilePrimary.some((primary) => primary.href === item.href))
@@ -217,7 +220,7 @@ export function AppShell({
                       <Link
                         key={item.href}
                         href={item.href}
-                        className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 text-xs font-semibold text-slate-700"
+                        className="rounded-xl border border-slate-100 bg-[#f3f5f7] px-3 py-2.5 text-xs font-semibold text-[#33454e]"
                       >
                         {item.label}
                       </Link>
@@ -227,7 +230,7 @@ export function AppShell({
               {platformSuperadmin ? (
                 <Link
                   href={appRoutes.platform.home}
-                  className="shrink-0 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white"
+                  className="shrink-0 rounded-lg bg-[#1b4c5d] px-3 py-1.5 text-xs font-semibold text-white"
                 >
                   Platform
                 </Link>
@@ -238,7 +241,7 @@ export function AppShell({
               {platformSuperadmin ? (
                 <Link
                   href={appRoutes.platform.home}
-                  className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700"
+                  className="rounded-full bg-[#eef5f6] px-3 py-1 text-xs font-semibold text-[#1b4c5d]"
                 >
                   Platform Console
                 </Link>
