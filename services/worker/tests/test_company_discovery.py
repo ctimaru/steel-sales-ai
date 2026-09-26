@@ -31,7 +31,7 @@ def test_discovery_normalizes_public_seed_url() -> None:
 
 
 def test_classifier_keeps_multi_role_tube_company() -> None:
-    roles, subtypes, products = classify_company(
+    roles, subtypes, products, scores, flags = classify_company(
         """
         Siamo produttori di tubi saldati in acciaio.
         Ampio stock e distribuzione con pronta consegna.
