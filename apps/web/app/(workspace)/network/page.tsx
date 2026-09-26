@@ -51,6 +51,12 @@ export default async function NetworkDirectoryPage({
           </div>
           <div className="flex flex-wrap gap-2">
             <Link
+              href="/network/pilot-readiness"
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 px-4 text-sm font-semibold text-amber-800"
+            >
+              P5 readiness
+            </Link>
+            <Link
               href="/network/activity"
               className="inline-flex h-11 items-center justify-center rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-semibold text-indigo-700"
             >
