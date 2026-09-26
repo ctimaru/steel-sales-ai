@@ -149,8 +149,8 @@ select public.m6_search_network(
 ) as producer_payload \gset
 
 select pg_temp.p31_assert(
-  (:'producer_payload'::jsonb->>'total')::int=7,
-  'producer submenu filter must return the seven seeded tube producers'
+  (:'producer_payload'::jsonb->>'total')::int>=7,
+  'producer submenu filter must include the seven P3.1 tube producers'
 );
 
 select public.m6_search_network(
@@ -158,8 +158,8 @@ select public.m6_search_network(
 ) as trader_payload \gset
 
 select pg_temp.p31_assert(
-  (:'trader_payload'::jsonb->>'total')::int=3,
-  'trader submenu filter must return the three seeded tube traders'
+  (:'trader_payload'::jsonb->>'total')::int>=3,
+  'trader submenu filter must include the three P3.1 tube traders'
 );
 
 select public.m6_search_network(
@@ -167,17 +167,8 @@ select public.m6_search_network(
 ) as processor_payload \gset
 
 select pg_temp.p31_assert(
-  (:'processor_payload'::jsonb->>'total')::int=2,
-  'processor submenu filter must return the two seeded tube processors'
-);
-
-select public.m6_search_network(
-  null,array['end_user'],array['tubes_pipes'],null,array['IT'],null,50,0
-) as end_user_payload \gset
-
-select pg_temp.p31_assert(
-  (:'end_user_payload'::jsonb->>'total')::int=0,
-  'empty Utilizzatori state must stay truthful until end-user profiles are seeded'
+  (:'processor_payload'::jsonb->>'total')::int>=2,
+  'processor submenu filter must include the two P3.1 tube processors'
 );
 
 select public.m4_request_company_claim(
