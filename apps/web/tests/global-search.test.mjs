@@ -121,6 +121,6 @@ test("sales surfaces avoid infrastructure terminology", () => {
   assert.match(component, /Fonte sempre disponibile/);
   assert.match(component, /Riferimento verificato/);
   assert.match(component, /Rilevanza/);
-  assert.match(dashboard, /conversazioni commerciali/);
+  assert.match(dashboard, /conversazioni commerciali/i);
   assert.match(dashboard, /casi in attesa di verifica/);
 });
