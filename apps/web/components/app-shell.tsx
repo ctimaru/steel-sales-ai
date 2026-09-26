@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { logout } from "@/app/(workspace)/actions";
+import { canAdministerCompany, canWriteWorkspace } from "@/lib/access-policy";
 import { appRoutes } from "@/lib/routes";
 
 type NavItem = {
@@ -47,8 +48,8 @@ function roleLabel(role: string) {
 }
 
 function canSee(item: NavItem, role: string) {
-  if (item.adminOnly && role !== "admin") return false;
-  if (item.writeRole && role === "viewer") return false;
+  if (item.adminOnly && !canAdministerCompany(role)) return false;
+  if (item.writeRole && !canWriteWorkspace(role)) return false;
   return true;
 }
 
