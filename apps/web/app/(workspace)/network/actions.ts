@@ -5,12 +5,14 @@ import { redirect } from "next/navigation";
 
 import { recordPilotUsageEvent } from "@/app/(workspace)/telemetry/actions";
 import { createClient } from "@/lib/supabase/server";
+import { requireWorkspaceAdmin, requireWorkspaceWriteRole } from "@/lib/workspace-context";
 
 function textValue(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
 }
 
 export async function requestNetworkClaim(formData: FormData) {
+  await requireWorkspaceAdmin();
   const companyId = textValue(formData, "network_company_id");
   const organizationId = textValue(formData, "organization_id");
 
@@ -33,6 +35,7 @@ export async function requestNetworkClaim(formData: FormData) {
 }
 
 export async function updateManagedNetworkProfile(formData: FormData) {
+  await requireWorkspaceAdmin();
   const companyId = textValue(formData, "network_company_id");
   if (!companyId) redirect("/network/manage?error=Profilo%20non%20valido");
 
@@ -55,6 +58,7 @@ export async function updateManagedNetworkProfile(formData: FormData) {
 
 
 async function activeOrganizationId() {
+  await requireWorkspaceWriteRole();
   const supabase = await createClient();
   const { data: authData } = await supabase.auth.getUser();
   const userId = authData.user?.id;
@@ -131,6 +135,7 @@ export async function removeSavedNetworkCompany(formData: FormData) {
 
 
 export async function submitNetworkInquiry(formData: FormData) {
+  await requireWorkspaceWriteRole();
   const companyId = textValue(formData, "network_company_id");
   const organizationId = textValue(formData, "organization_id");
   const subject = textValue(formData, "subject");
@@ -163,6 +168,7 @@ export async function submitNetworkInquiry(formData: FormData) {
 }
 
 export async function transitionNetworkInquiry(formData: FormData) {
+  await requireWorkspaceWriteRole();
   const inquiryId = textValue(formData, "inquiry_id");
   const organizationId = textValue(formData, "organization_id");
   const newStatus = textValue(formData, "new_status");
@@ -194,6 +200,7 @@ export async function transitionNetworkInquiry(formData: FormData) {
 }
 
 export async function reportNetworkInquiry(formData: FormData) {
+  await requireWorkspaceWriteRole();
   const inquiryId = textValue(formData, "inquiry_id");
   const organizationId = textValue(formData, "organization_id");
   const reason = textValue(formData, "reason");
@@ -216,6 +223,7 @@ export async function reportNetworkInquiry(formData: FormData) {
 }
 
 export async function setInquiryPreferences(formData: FormData) {
+  await requireWorkspaceAdmin();
   const organizationId = textValue(formData, "organization_id");
   const enabled = textValue(formData, "inquiries_enabled") === "true";
 
@@ -234,6 +242,7 @@ export async function setInquiryPreferences(formData: FormData) {
 }
 
 export async function blockInquirySenderOrganization(formData: FormData) {
+  await requireWorkspaceWriteRole();
   const blockingOrganizationId = textValue(formData, "blocking_organization_id");
   const blockedOrganizationId = textValue(formData, "blocked_organization_id");
 
