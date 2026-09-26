@@ -42,9 +42,6 @@ PRIORITY_PATH_HINTS = (
     "servizi",
     "capabilities",
     "lavorazioni",
-    "contact",
-    "contacts",
-    "contatti",
 )
 
 LEGAL_SUFFIX_RE = re.compile(
@@ -285,6 +282,15 @@ def _priority_links(home: CrawledPage) -> list[str]:
     return output
 
 
+def _redact_personal_channels(value: str) -> str:
+    return re.sub(
+        r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b",
+        "[email removed]",
+        value,
+        flags=re.IGNORECASE,
+    )
+
+
 def _candidate_name(pages: list[CrawledPage], domain: str) -> str:
     combined = "\n".join(page.text[:12000] for page in pages)
     legal_matches = [match.group(1).strip(" -|,.;") for match in LEGAL_SUFFIX_RE.finditer(combined)]
@@ -427,7 +433,7 @@ def extract_candidate(pages: list[CrawledPage], country_code: str) -> dict[str, 
 
     evidence = []
     for page in pages:
-        snippet = " ".join(page.text.split())[:1200]
+        snippet = _redact_personal_channels(" ".join(page.text.split()))[:1200]
         evidence.append({
             "url": page.url,
             "title": page.title,
