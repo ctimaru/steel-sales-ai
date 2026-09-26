@@ -60,12 +60,18 @@ export async function confirmIdentityMapping(
     revalidatePath("/commercial/demand");
     revalidatePath("/commercial/reengagement");
 
-    const linkedRfqs = Number((data as { linked_rfqs?: unknown }).linked_rfqs ?? 0);
+    const result = data as {
+      linked_rfqs?: unknown;
+      activated_conversations?: unknown;
+      resolved_messages?: unknown;
+    };
+    const linkedRfqs = Number(result.linked_rfqs ?? 0);
+    const activatedConversations = Number(result.activated_conversations ?? 0);
+    const resolvedMessages = Number(result.resolved_messages ?? 0);
+
     return {
       status: "success",
-      message: linkedRfqs > 0
-        ? `Identità confermata e propagata a ${linkedRfqs} RFQ. Company 360 aggiornata.`
-        : "Identità confermata e propagata ai messaggi collegati. Company 360 aggiornata.",
+      message: `Identità confermata: ${resolvedMessages} messaggi, ${activatedConversations} conversazioni e ${linkedRfqs} RFQ attivate. Company 360 e intelligence aggiornate.`,
       companyId,
     };
   } catch {

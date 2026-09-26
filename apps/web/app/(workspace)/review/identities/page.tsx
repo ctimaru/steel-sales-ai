@@ -55,6 +55,37 @@ type RecoveryPayload = {
   };
 };
 
+type ActivationContact = {
+  contact_id: string;
+  full_name: string | null;
+  email: string;
+  message_count: number;
+  conversation_count: number;
+  rfq_count: number;
+  unattributed_rfq_count: number;
+  assigned_conversation_count: number;
+  existing_conversation_company_ids: string[];
+  existing_rfq_company_ids: string[];
+};
+
+type ActivationPayload = {
+  summary?: {
+    pending_contacts?: number;
+    affected_messages?: number;
+    affected_conversations?: number;
+    affected_rfqs?: number;
+    unattributed_rfqs?: number;
+  };
+  contacts?: ActivationContact[];
+  policy?: {
+    human_confirmation_required?: boolean;
+    verified_company_required?: boolean;
+    email_domain_inference?: boolean;
+    conversation_company_requires_consensus?: boolean;
+    conflicting_existing_company_blocks_confirmation?: boolean;
+  };
+};
+
 function configured() {
   return Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
@@ -92,8 +123,13 @@ export default async function IdentityReviewPage() {
 
   let payload: QueuePayload = {};
   let recovery: RecoveryPayload = {};
+  let activation: ActivationPayload = {};
   if (membership) {
-    const [{ data: queueData }, { data: recoveryData }] = await Promise.all([
+    const [
+      { data: queueData },
+      { data: recoveryData },
+      { data: activationData },
+    ] = await Promise.all([
       supabase.rpc("p1_identity_confirmation_queue", {
         p_organization_id: membership.organization_id,
         p_limit: 100,
@@ -102,9 +138,14 @@ export default async function IdentityReviewPage() {
         p_organization_id: membership.organization_id,
         p_limit: 100,
       }),
+      supabase.rpc("p2_identity_activation_readiness", {
+        p_organization_id: membership.organization_id,
+        p_limit: 100,
+      }),
     ]);
     if (queueData && typeof queueData === "object") payload = queueData as QueuePayload;
     if (recoveryData && typeof recoveryData === "object") recovery = recoveryData as RecoveryPayload;
+    if (activationData && typeof activationData === "object") activation = activationData as ActivationPayload;
   }
 
   const contacts = payload.contacts ?? [];
@@ -121,6 +162,15 @@ export default async function IdentityReviewPage() {
   const pendingCompanyRfqs = Number(recoverySummary.pending_company_confirmation ?? 0);
   const missingLegacyMessages = Number(recoverySummary.missing_legacy_message ?? 0);
   const identityConflicts = Number(recoverySummary.blocked_identity_conflict ?? 0);
+  const activationSummary = activation.summary ?? {};
+  const pendingActivationContacts = Number(activationSummary.pending_contacts ?? 0);
+  const affectedActivationMessages = Number(activationSummary.affected_messages ?? 0);
+  const affectedActivationConversations = Number(activationSummary.affected_conversations ?? 0);
+  const affectedActivationRfqs = Number(activationSummary.affected_rfqs ?? 0);
+  const unattributedActivationRfqs = Number(activationSummary.unattributed_rfqs ?? 0);
+  const activationByContact = new Map(
+    (activation.contacts ?? []).map((contact) => [contact.contact_id, contact]),
+  );
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -190,6 +240,49 @@ export default async function IdentityReviewPage() {
         </CardContent>
       </Card>
 
+      <Card className="mt-4 border-[#c36e32]/20 bg-[#fff8f2]">
+        <CardContent>
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#9a572b]">
+                P2.4 · Intelligence activation
+              </p>
+              <p className="mt-2 text-sm font-semibold text-[#3f2b1f]">
+                {pendingActivationContacts} contatti richiedono una decisione umana
+              </p>
+              <p className="mt-1 max-w-3xl text-sm leading-6 text-[#6f584a]">
+                Prima della conferma puoi vedere l&apos;impatto deterministico. La Company non viene proposta
+                automaticamente e l&apos;attivazione viene bloccata se esiste un conflitto con dati già attribuiti.
+              </p>
+            </div>
+            <Badge tone={unattributedActivationRfqs > 0 ? "amber" : "green"}>
+              {unattributedActivationRfqs} RFQ da attribuire
+            </Badge>
+          </div>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <div className="rounded-xl border border-white/80 bg-white/75 p-3">
+              <p className="text-lg font-semibold text-[#0b171e]">{affectedActivationMessages}</p>
+              <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                Messaggi coinvolti
+              </p>
+            </div>
+            <div className="rounded-xl border border-white/80 bg-white/75 p-3">
+              <p className="text-lg font-semibold text-[#0b171e]">{affectedActivationConversations}</p>
+              <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                Conversazioni da attivare
+              </p>
+            </div>
+            <div className="rounded-xl border border-white/80 bg-white/75 p-3">
+              <p className="text-lg font-semibold text-[#0b171e]">{affectedActivationRfqs}</p>
+              <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                RFQ coinvolte
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {!canConfirm && membership ? (
         <Card className="mt-7 border-amber-200 bg-amber-50">
           <CardContent className="text-sm text-amber-900">
@@ -220,7 +313,10 @@ export default async function IdentityReviewPage() {
             </CardContent>
           </Card>
         ) : (
-          contacts.map((contact) => (
+          contacts.map((contact) => {
+            const activationImpact = activationByContact.get(contact.contact_id);
+
+            return (
             <Card key={contact.contact_id}>
               <CardContent className="grid gap-5 lg:grid-cols-[1fr_1fr_300px] lg:items-center">
                 <div>
@@ -236,13 +332,19 @@ export default async function IdentityReviewPage() {
 
                 <div className="rounded-xl bg-slate-50 p-4">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                    Collegamenti già deterministici
+                    Impatto della conferma
                   </p>
-                  <p className="mt-2 text-sm text-slate-700">
-                    {contact.message_count} messaggi · {contact.rfq_count} RFQ
+                  <p className="mt-2 text-sm font-semibold text-slate-800">
+                    {activationImpact?.message_count ?? contact.message_count} messaggi ·{" "}
+                    {activationImpact?.conversation_count ?? 0} conversazioni ·{" "}
+                    {activationImpact?.unattributed_rfq_count ?? contact.rfq_count} RFQ da attribuire
                   </p>
                   <p className="mt-2 text-xs leading-5 text-slate-500">
-                    La conferma creerà un audit Contact→Company e rilancerà la propagazione sui messaggi e sulle RFQ collegate.
+                    La conferma crea un audit Contact→Company, verifica il consenso della conversation e aggiorna
+                    Company 360, Demand e Re-engagement nello stesso flusso.
+                  </p>
+                  <p className="mt-2 text-[11px] font-medium leading-5 text-[#9a572b]">
+                    La Company non viene proposta automaticamente: devi selezionare esplicitamente una Company già verificata.
                   </p>
                 </div>
 
@@ -253,7 +355,8 @@ export default async function IdentityReviewPage() {
                 />
               </CardContent>
             </Card>
-          ))
+            );
+          })
         )}
       </div>
 

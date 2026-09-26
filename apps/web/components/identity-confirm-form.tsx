@@ -57,7 +57,7 @@ export function IdentityConfirmForm({
         aria-describedby={state.message ? messageId : undefined}
         className="w-full rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
       >
-        {pending ? "Conferma in corso…" : state.status === "success" ? "Confermata" : "Conferma associazione"}
+        {pending ? "Attivazione in corso…" : state.status === "success" ? "Attivata" : "Conferma e attiva"}
       </button>
 
       <p
@@ -65,7 +65,7 @@ export function IdentityConfirmForm({
         role={state.status === "error" ? "alert" : "status"}
         className={`text-xs leading-5 ${state.status === "error" ? "text-red-700" : "text-emerald-700"}`}
       >
-        {pending ? "Salvataggio e propagazione in corso…" : state.message}
+        {pending ? "Salvataggio, verifica consenso e attivazione in corso…" : state.message}
       </p>
 
       {state.status === "success" && state.companyId ? (
