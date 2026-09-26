@@ -294,7 +294,7 @@ begin
     select
       c.id,c.run_id,c.legal_name,c.trading_name,c.country_code,
       c.website_url,c.canonical_domain,c.description,
-      c.role_keys,c.subtype_keys,c.product_relations,c.source_urls,
+      c.role_keys,c.subtype_keys,c.product_relations,c.evidence,c.source_urls,
       c.match_company_id,c.match_signals,c.confidence,c.review_status,
       c.reviewed_at,c.review_note,c.promoted_company_id,c.created_at
     from public.network_company_discovery_candidates c
