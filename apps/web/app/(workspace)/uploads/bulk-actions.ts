@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { requireWorkspaceWriteRole } from "@/lib/workspace-context";
 
 export type BulkFileDescriptor = {
   filename: string;
@@ -72,6 +73,7 @@ async function postWorker<T extends object>(path: string, body: object): Promise
 export async function prepareBulkImport(
   files: BulkFileDescriptor[],
 ): Promise<BulkActionResult<PreparedBulkBatch>> {
+  await requireWorkspaceWriteRole();
   const actorUserId = await ownerId();
   if (!actorUserId) return { ok: false, error: "Sessione scaduta. Accedi di nuovo." };
   return postWorker<PreparedBulkBatch>("/v1/import-batches/prepare", {
@@ -84,6 +86,7 @@ export async function startBulkImport(
   batchId: string,
   itemIds: string[],
 ): Promise<BulkActionResult<{ batch_id: string; accepted_items: number; skipped_items: number }>> {
+  await requireWorkspaceWriteRole();
   const actorUserId = await ownerId();
   if (!actorUserId) return { ok: false, error: "Sessione scaduta. Accedi di nuovo." };
   return postWorker(`/v1/import-batches/${batchId}/start`, {
@@ -103,6 +106,7 @@ export async function retryBulkImport(
     skipped_items: number;
   }>
 > {
+  await requireWorkspaceWriteRole();
   const actorUserId = await ownerId();
   if (!actorUserId) return { ok: false, error: "Sessione scaduta. Accedi di nuovo." };
   return postWorker(`/v1/import-batches/${batchId}/retry`, {
