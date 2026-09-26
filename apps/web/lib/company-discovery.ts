@@ -25,6 +25,10 @@ export type CompanyDiscoveryCandidate = {
   match_company_id: string | null;
   match_signals: string[];
   confidence: number;
+  extraction_version: string;
+  identity_quality: Record<string, unknown>;
+  classification_scores: Record<string, number>;
+  quality_flags: string[];
   review_status: string;
   reviewed_at: string | null;
   review_note: string | null;
@@ -48,11 +52,53 @@ export async function getCompanyDiscoveryQueue(status?: string | null) {
     items?: CompanyDiscoveryCandidate[];
     total?: number;
     limit?: number;
+    quality?: {
+      flagged?: number;
+      exact_identity_matches?: number;
+    };
   };
 
   return {
     items: payload.items ?? [],
     total: Number(payload.total ?? 0),
     limit: Number(payload.limit ?? 150),
+    quality: {
+      flagged: Number(payload.quality?.flagged ?? 0),
+      exact_identity_matches: Number(payload.quality?.exact_identity_matches ?? 0),
+    },
   };
+}
+
+export type CompanyDiscoveryRun = {
+  id: string;
+  label: string | null;
+  source_type: string;
+  source_reference: string | null;
+  country_code: string;
+  status: string;
+  seed_count: number;
+  candidate_count: number;
+  skipped_count: number;
+  error_count: number;
+  exact_match_count: number;
+  extraction_version: string;
+  stats: Record<string, unknown>;
+  error: string | null;
+  started_at: string | null;
+  completed_at: string | null;
+  created_at: string;
+};
+
+export async function getCompanyDiscoveryRuns(): Promise<CompanyDiscoveryRun[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p3_admin_discovery_runs", {
+    p_limit: 12,
+  });
+
+  if (error) {
+    if (error.code === "42501") redirect("/dashboard");
+    throw new Error(error.message);
+  }
+
+  return Array.isArray(data) ? (data as CompanyDiscoveryRun[]) : [];
 }
