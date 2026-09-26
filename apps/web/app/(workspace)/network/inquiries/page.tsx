@@ -6,6 +6,7 @@ import {
   reportNetworkInquiry,
   transitionNetworkInquiry,
 } from "@/app/(workspace)/network/actions";
+import { canInteractWithNetwork } from "@/lib/access-policy";
 import { getActiveOrganizationContext, getNetworkInquiries } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 
@@ -34,6 +35,7 @@ export default async function NetworkInquiriesPage({
   if (!context) redirect("/network?error=Nessuna%20organization%20attiva");
 
   const result = await getNetworkInquiries(context.organization_id, box);
+  const canInteract = canInteractWithNetwork(context.role);
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -96,9 +98,9 @@ export default async function NetworkInquiriesPage({
         <div className="space-y-4">
           {result.items.map((inquiry) => {
             const canRecipientAct =
-              box === "received" && ["submitted", "read"].includes(inquiry.status);
-            const canWithdraw = box === "sent" && inquiry.status === "submitted";
-            const canClose = ["submitted", "read", "responded", "declined"].includes(inquiry.status);
+              canInteract && box === "received" && ["submitted", "read"].includes(inquiry.status);
+            const canWithdraw = canInteract && box === "sent" && inquiry.status === "submitted";
+            const canClose = canInteract && ["submitted", "read", "responded", "declined"].includes(inquiry.status);
 
             return (
               <article key={inquiry.id} className="rounded-2xl border border-slate-200 bg-white p-5">
@@ -122,7 +124,7 @@ export default async function NetworkInquiriesPage({
                 <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-slate-600">{inquiry.body}</p>
 
                 <div className="mt-5 flex flex-wrap gap-2">
-                  {box === "received" && inquiry.status === "submitted" ? (
+                  {canInteract && box === "received" && inquiry.status === "submitted" ? (
                     <form action={transitionNetworkInquiry}>
                       <input type="hidden" name="inquiry_id" value={inquiry.id} />
                       <input type="hidden" name="organization_id" value={context.organization_id} />
@@ -182,7 +184,7 @@ export default async function NetworkInquiriesPage({
                   ) : null}
                 </div>
 
-                <details className="mt-5 rounded-xl border border-slate-100 bg-slate-50 p-3">
+                {canInteract ? <details className="mt-5 rounded-xl border border-slate-100 bg-slate-50 p-3">
                   <summary className="cursor-pointer text-xs font-semibold text-slate-600">Sicurezza e moderazione</summary>
                   <div className="mt-3 space-y-3">
                     <form action={reportNetworkInquiry} className="grid gap-2 sm:grid-cols-[160px_1fr_auto]">
@@ -216,7 +218,7 @@ export default async function NetworkInquiriesPage({
                       </form>
                     ) : null}
                   </div>
-                </details>
+                </details> : null}
               </article>
             );
           })}
