@@ -190,6 +190,7 @@ jobs:
             p2_legacy_identity_recovery.sql \
             p2_identity_intelligence_activation.sql \
             p2_commercial_conversion_foundation.sql \
+            p2_conversion_confirmation_hook.sql \
             pa2_org_safe_fk_foundation.sql \
             pa2_rfq_relationship_foundation.sql \
             pa2_offer_order_relationship_foundation.sql \
