@@ -105,3 +105,42 @@ def test_extract_candidate_skips_non_tube_company() -> None:
         )
     ]
     assert extract_candidate(pages, "IT") is None
+
+
+def test_extract_candidate_skips_tube_site_without_clear_company_role() -> None:
+    pages = [
+        CrawledPage(
+            url="https://ambiguous-tube.example/",
+            title="Tube Directory",
+            site_name="Tube Directory",
+            meta_description="Informazioni generali sui tubi in acciaio.",
+            h1="Tubi in acciaio",
+            text="Tubi in acciaio, dimensioni e normative per il settore industriale.",
+            links=(),
+        )
+    ]
+    assert extract_candidate(pages, "IT") is None
+
+
+def test_evidence_redacts_contact_channels() -> None:
+    pages = [
+        CrawledPage(
+            url="https://privacy-safe.example/",
+            title="Privacy Safe Tubes S.r.l.",
+            site_name="Privacy Safe Tubes",
+            meta_description=None,
+            h1="Privacy Safe Tubes",
+            text=(
+                "Privacy Safe Tubes S.r.l. produce tubi saldati in acciaio. "
+                "Scrivi a mario.rossi@example.com o chiama +39 011 12345678."
+            ),
+            links=(),
+        )
+    ]
+    candidate = extract_candidate(pages, "IT")
+    assert candidate is not None
+    assert "mario.rossi@example.com" not in str(candidate["description"])
+    assert "011 12345678" not in str(candidate["description"])
+    assert "[email removed]" in str(candidate["description"])
+    assert "[phone removed]" in str(candidate["description"])
+    assert "mario.rossi@example.com" not in str(candidate["evidence"])
