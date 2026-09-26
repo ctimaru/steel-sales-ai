@@ -9,6 +9,42 @@ function selectClass() {
   return "h-11 rounded-xl border border-[#d9e0e4] bg-white px-3 text-sm text-[#2b3d46] outline-none";
 }
 
+const companyTypeDoors = [
+  {
+    key: "",
+    label: "Tutte",
+    description: "Tutta la filiera",
+  },
+  {
+    key: "producer",
+    label: "Produttori",
+    description: "Tubifici e produttori",
+  },
+  {
+    key: "trader_distributor",
+    label: "Commercianti",
+    description: "Distributori e stockholder",
+  },
+  {
+    key: "processor_service_provider",
+    label: "Carpenterie & terzisti",
+    description: "Lavorazione tubo e service center",
+  },
+  {
+    key: "end_user",
+    label: "Utilizzatori",
+    description: "OEM, EPC e industria",
+  },
+] as const;
+
+function companyTypeHref(role: string) {
+  const query = new URLSearchParams();
+  if (role) query.set("role", role);
+  query.set("product", "tubes_pipes");
+  query.set("country", "IT");
+  return `/network?${query.toString()}`;
+}
+
 export default async function NetworkDirectoryPage({
   searchParams,
 }: {
@@ -90,6 +126,43 @@ export default async function NetworkDirectoryPage({
         </div>
       </section>
 
+      <section className="space-y-3">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#3c8192]">
+              Directory per tipologia
+            </p>
+            <h2 className="mt-1 text-lg font-semibold text-[#17232d]">
+              Esplora la filiera del tubo
+            </h2>
+          </div>
+          <p className="hidden text-xs text-[#8fa1a9] sm:block">
+            Italia · Tubes & Pipes
+          </p>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+          {companyTypeDoors.map((door) => {
+            const active = (params.role ?? "") === door.key;
+            return (
+              <Link
+                key={door.key || "all"}
+                href={companyTypeHref(door.key)}
+                className={`rounded-2xl border p-4 transition ${
+                  active
+                    ? "border-[#1b4c5d] bg-[#0b171e] text-white shadow-sm"
+                    : "border-[#d9e0e4] bg-white text-[#17232d] hover:border-[#8fa1a9]"
+                }`}
+              >
+                <p className="text-sm font-semibold">{door.label}</p>
+                <p className={`mt-1 text-xs ${active ? "text-[#b6c3c8]" : "text-[#66737d]"}`}>
+                  {door.description}
+                </p>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
       <form className="grid gap-3 rounded-2xl border border-[#d9e0e4] bg-white p-4 sm:grid-cols-2 lg:grid-cols-6">
         <input
           name="q"
@@ -163,9 +236,16 @@ export default async function NetworkDirectoryPage({
                     <h2 className="mt-1 text-lg font-semibold text-[#17232d]">{company.legal_name}</h2>
                     {company.trading_name ? <p className="mt-1 text-sm text-[#66737d]">{company.trading_name}</p> : null}
                   </div>
-                  <span className="rounded-full bg-[#edf1f3] px-2.5 py-1 text-[11px] font-bold text-[#33454e]">
-                    {company.verification_status}
-                  </span>
+                  <div className="flex flex-col items-end gap-1.5">
+                    <span className="rounded-full bg-[#edf1f3] px-2.5 py-1 text-[11px] font-bold text-[#33454e]">
+                      {company.verification_status}
+                    </span>
+                    {company.claimed_status === "unclaimed" ? (
+                      <span className="rounded-full bg-[#fff4e8] px-2.5 py-1 text-[11px] font-bold text-[#9a4e22]">
+                        Profilo rivendicabile
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {company.roles.slice(0, 3).map((role) => (
