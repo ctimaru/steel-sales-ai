@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { appRoutes } from "@/lib/routes";
 
 import { loadConversionFoundation, type ConversionOutcome } from "./actions";
+import { loadCrossThreadRelationshipEvidence } from "./relationships/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,10 @@ function entityHref(outcome: ConversionOutcome) {
 }
 
 export default async function ConversionFoundationPage() {
-  const payload = await loadConversionFoundation();
+  const [payload, crossThread] = await Promise.all([
+    loadConversionFoundation(),
+    loadCrossThreadRelationshipEvidence(),
+  ]);
   const summary = payload.summary;
   const totalOutcomes = summary.offer_count + summary.order_count;
   const attributedOutcomes = summary.attributed_offer_count + summary.attributed_order_count;
@@ -66,6 +70,33 @@ export default async function ConversionFoundationPage() {
           scoring sintetico.
         </p>
       </header>
+
+      {crossThread.summary.pending_total > 0 ? (
+        <Card className="border-amber-200 bg-amber-50">
+          <CardContent className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+            <div>
+              <div className="flex flex-wrap gap-2">
+                <Badge tone="amber">P2.6 · Evidence cross-thread</Badge>
+                {crossThread.summary.strong_review_count > 0 ? (
+                  <Badge tone="green">{crossThread.summary.strong_review_count} strong review</Badge>
+                ) : null}
+              </div>
+              <p className="mt-3 text-sm font-semibold text-[#0b171e]">
+                {crossThread.summary.pending_total} relazioni richiedono una decisione umana
+              </p>
+              <p className="mt-1 text-sm leading-6 text-slate-600">
+                Sono candidati spiegabili tra thread distinti, non link automatici.
+              </p>
+            </div>
+            <Link
+              href={appRoutes.commercial.crossThreadRelationships}
+              className="inline-flex shrink-0 rounded-lg bg-[#1b4c5d] px-3 py-2 text-xs font-semibold text-white"
+            >
+              Revisiona evidence →
+            </Link>
+          </CardContent>
+        </Card>
+      ) : null}
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <Card>
@@ -147,9 +178,13 @@ export default async function ConversionFoundationPage() {
                   Revisione identità →
                 </Link>
               ) : null}
-              {relationshipGaps > 0 ? (
+              {crossThread.summary.pending_total > 0 ? (
+                <Link href={appRoutes.commercial.crossThreadRelationships} className="text-[#9a4e22]">
+                  {crossThread.summary.pending_total} evidence cross-thread →
+                </Link>
+              ) : relationshipGaps > 0 ? (
                 <Link href={appRoutes.operations.reviewRelationships} className="text-[#9a4e22]">
-                  Revisione relazioni →
+                  Revisione relazioni same-thread →
                 </Link>
               ) : null}
             </div>

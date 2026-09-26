@@ -25,6 +25,7 @@ const intelligenceNav: NavItem[] = [
   { href: appRoutes.commercial.reengagement, label: "Riattivazione commerciale", shortLabel: "Riattivazione" },
   { href: appRoutes.commercial.demand, label: "Segnali di domanda", shortLabel: "Domanda" },
   { href: appRoutes.commercial.conversion, label: "Esiti & conversione", shortLabel: "Conversione" },
+  { href: appRoutes.commercial.crossThreadRelationships, label: "Relazioni cross-thread", shortLabel: "Relazioni" },
 ];
 
 const networkNav: NavItem[] = [
