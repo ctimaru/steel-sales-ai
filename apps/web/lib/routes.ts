@@ -9,6 +9,7 @@ export const appRoutes = {
     productPrices: (productId: string) => `/commercial/products/${productId}/prices`,
     companies: "/commercial/companies",
     company: (companyId: string) => `/commercial/companies/${companyId}`,
+    reengagement: "/commercial/reengagement",
     assistant: "/commercial/assistant",
     rfq: (id: string) => `/commercial/rfqs/${id}`,
     offer: (id: string) => `/commercial/offers/${id}`,

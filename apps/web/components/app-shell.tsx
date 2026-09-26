@@ -21,6 +21,10 @@ const commercialNav: NavItem[] = [
   { href: appRoutes.commercial.assistant, label: "Assistente" },
 ];
 
+const intelligenceNav: NavItem[] = [
+  { href: appRoutes.commercial.reengagement, label: "Riattivazione commerciale", shortLabel: "Riattivazione" },
+];
+
 const networkNav: NavItem[] = [
   { href: "/network", label: "Esplora Steel Network", shortLabel: "Network" },
   { href: "/network/saved", label: "Aziende salvate" },
@@ -167,6 +171,7 @@ export function AppShell({
             </div>
 
             <NavSection title="Commercial Memory" items={commercialNav} role={organizationRole} alertActiveCount={alertActiveCount} />
+            <NavSection title="Commercial Intelligence" items={intelligenceNav} role={organizationRole} alertActiveCount={alertActiveCount} />
             <NavSection title="Steel Network" items={networkItems} role={organizationRole} alertActiveCount={alertActiveCount} />
             <NavSection title="Operations" items={operationsNav} role={organizationRole} alertActiveCount={alertActiveCount} />
             <NavSection title="Company" items={companyToolsNav} role={organizationRole} alertActiveCount={alertActiveCount} />
@@ -213,7 +218,7 @@ export function AppShell({
                   Altro
                 </summary>
                 <div className="fixed left-4 right-4 top-16 z-40 grid grid-cols-2 gap-2 rounded-2xl border border-[#d9e0e4] bg-white p-3 shadow-xl sm:left-auto sm:right-6 sm:w-96">
-                  {[...commercialNav, ...networkItems, ...operationsNav, ...companyToolsNav]
+                  {[...commercialNav, ...intelligenceNav, ...networkItems, ...operationsNav, ...companyToolsNav]
                     .filter((item) => canSee(item, organizationRole))
                     .filter((item) => !mobilePrimary.some((primary) => primary.href === item.href))
                     .map((item) => (
