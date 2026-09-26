@@ -27,12 +27,13 @@ test("P3.2 exposes Company Discovery only in Platform control plane", () => {
   assert.match(page, /Rifiuta/);
 });
 
-test("P3.2 discovery action queues crawler work through protected worker boundary", () => {
+test("P3.2 discovery action queues durable work without exposing worker secrets", () => {
   assert.match(actions, /p3_start_company_discovery/);
-  assert.match(actions, /WORKER_URL/);
-  assert.match(actions, /WORKER_INTERNAL_TOKEN/);
-  assert.match(actions, /x-worker-token/);
-  assert.match(actions, /\/v1\/network\/discovery\/crawl/);
+  assert.doesNotMatch(actions, /WORKER_INTERNAL_TOKEN/);
+  assert.doesNotMatch(actions, /x-worker-token/);
+  assert.match(actions, /Railway worker polls the durable Supabase queue/);
+  assert.match(migration, /p3_claim_next_company_discovery/);
+  assert.match(migration, /for update skip locked/);
 });
 
 test("P3.2 promotion remains explicit and separates claim from verification", () => {
