@@ -221,7 +221,11 @@ select pg_temp.p26_assert(
 select pg_temp.p26_assert(
   (public.p2_cross_thread_relationship_evidence(
     '00000000-0000-0000-0000-0000000027f1',90,100,0
-  )#>>'{summary,pending_total}')::int=0
+  )#>>'{summary,order_offer_pending}')::int=0
+  and
+  (public.p2_cross_thread_relationship_evidence(
+    '00000000-0000-0000-0000-0000000027f1',90,100,0
+  )#>>'{summary,order_rfq_pending}')::int=2
   and
   (public.p2_cross_thread_relationship_evidence(
     '00000000-0000-0000-0000-0000000027f1',90,100,0
@@ -230,7 +234,7 @@ select pg_temp.p26_assert(
   (public.p2_cross_thread_relationship_evidence(
     '00000000-0000-0000-0000-0000000027f1',90,100,0
   )#>>'{summary,rejected_total}')::int=1,
-  'decisions must remove candidates from pending and remain audit-visible'
+  'decisions must close only the selected relationship type; no implicit Order→RFQ cascade is allowed'
 );
 
 select pg_temp.p26_assert(
