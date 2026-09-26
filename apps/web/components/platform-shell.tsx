@@ -7,6 +7,7 @@ import { ProductBrand } from "@/components/product-brand";
 const platformNav = [
   { href: "/platform", label: "Platform Home" },
   { href: "/platform/registrations", label: "Registrazioni aziende" },
+  { href: "/platform/company-discovery", label: "Company Discovery" },
 ];
 
 export function PlatformShell({

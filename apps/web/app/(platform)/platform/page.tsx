@@ -64,13 +64,16 @@ export default async function PlatformHomePage() {
           </p>
         </Link>
 
-        <div className="rounded-2xl border border-dashed border-[#c8d2d7] bg-white p-6">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#8fa1a9]">Network governance</p>
-          <h2 className="mt-3 text-lg font-semibold text-[#17232d]">Prossima superficie Control Plane</h2>
+        <Link
+          href="/platform/company-discovery"
+          className="rounded-2xl border border-[#d9e0e4] bg-white p-6 transition hover:border-[#8fb7c1] hover:shadow-sm"
+        >
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#28677a]">Network population</p>
+          <h2 className="mt-3 text-lg font-semibold text-[#17232d]">Company Discovery</h2>
           <p className="mt-2 text-sm leading-6 text-[#66737d]">
-            Claims, verification, identity conflicts, moderation e taxonomy verranno raccolti qui invece di essere mescolati al Company Workspace.
+            Avvia crawl di siti pubblici, revisiona classificazione ed evidenze, gestisci duplicati e promuovi profili claimable nel Network.
           </p>
-        </div>
+        </Link>
       </section>
     </div>
   );
