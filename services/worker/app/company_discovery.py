@@ -318,8 +318,21 @@ def _clean_identity_candidate(value: str) -> str:
         r"la\s+nostra\s+produzione|our\s+production)\s*[:|\-–—]*\s*",
         "",
         candidate,
-    ).strip(" -|,.;:")
-    candidate = re.sub(r"\s{2,}", " ", candidate)
+    ).strip(" -|,;:")
+    candidate = re.sub(r"\s{2,}", " ", candidate).strip()
+
+    # Normalize common Italian legal suffixes so identity matching remains stable.
+    suffixes = (
+        (r"(?i)\bS\.?\s*P\.?\s*A\.?$", "S.p.A."),
+        (r"(?i)\bS\.?\s*R\.?\s*L\.?$", "S.r.l."),
+        (r"(?i)\bS\.?\s*A\.?\s*S\.?$", "S.a.s."),
+        (r"(?i)\bS\.?\s*N\.?\s*C\.?$", "S.n.c."),
+    )
+    for pattern, replacement in suffixes:
+        if re.search(pattern, candidate):
+            candidate = re.sub(pattern, replacement, candidate)
+            break
+
     return candidate[:255]
 
 
@@ -353,9 +366,15 @@ def _candidate_identity(
     for candidate, source, base_score in candidates:
         normalized = _normalize_identity(candidate)
         score = base_score
-        if normalized_domain and normalized_domain in normalized:
+        domain_aligned = bool(normalized_domain and normalized_domain in normalized)
+        legal_suffix_present = bool(LEGAL_SUFFIX_RE.search(candidate))
+        if domain_aligned:
             score += 8
-        if LEGAL_SUFFIX_RE.search(candidate):
+        elif not legal_suffix_present:
+            # Generic headings such as "Soluzioni per tubi in acciaio" are
+            # descriptions, not identities. Prefer a clean domain fallback.
+            score -= 10
+        if legal_suffix_present:
             score += 5
         token_count = len(candidate.split())
         if 1 <= token_count <= 8:
@@ -373,21 +392,22 @@ def _candidate_identity(
     if scored:
         scored.sort(reverse=True)
         score, _, candidate, source = scored[0]
-        quality_flags: list[str] = []
-        if not LEGAL_SUFFIX_RE.search(candidate):
-            quality_flags.append("identity_no_legal_suffix")
-        if normalized_domain and normalized_domain not in _normalize_identity(candidate):
-            quality_flags.append("identity_domain_mismatch")
-        return (
-            candidate,
-            {
-                "source": source,
-                "score": score,
-                "domain_stem": domain_stem,
-                "legal_suffix_present": bool(LEGAL_SUFFIX_RE.search(candidate)),
-            },
-            quality_flags,
-        )
+        if score >= 3:
+            quality_flags: list[str] = []
+            if not LEGAL_SUFFIX_RE.search(candidate):
+                quality_flags.append("identity_no_legal_suffix")
+            if normalized_domain and normalized_domain not in _normalize_identity(candidate):
+                quality_flags.append("identity_domain_mismatch")
+            return (
+                candidate,
+                {
+                    "source": source,
+                    "score": score,
+                    "domain_stem": domain_stem,
+                    "legal_suffix_present": bool(LEGAL_SUFFIX_RE.search(candidate)),
+                },
+                quality_flags,
+            )
 
     fallback = domain_stem.title() or domain
     return (
