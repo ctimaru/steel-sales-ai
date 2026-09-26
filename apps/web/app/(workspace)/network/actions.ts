@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { recordPilotUsageEvent } from "@/app/(workspace)/telemetry/actions";
 import { createClient } from "@/lib/supabase/server";
 
 function textValue(formData: FormData, key: string) {
@@ -90,6 +91,12 @@ export async function saveNetworkCompany(formData: FormData) {
     redirect("/network/" + companyId + "?error=" + encodeURIComponent(error.message));
   }
 
+  await recordPilotUsageEvent({
+    eventName: "network_saved_created",
+    entityType: "network_company",
+    entityId: companyId,
+    metadata: { surface: "network_company_profile" },
+  });
   revalidatePath("/network/" + companyId);
   revalidatePath("/network/saved");
   redirect("/network/" + companyId + "?message=Azienda%20salvata");
@@ -111,6 +118,12 @@ export async function removeSavedNetworkCompany(formData: FormData) {
     redirect("/network/saved?error=" + encodeURIComponent(error.message));
   }
 
+  await recordPilotUsageEvent({
+    eventName: "network_saved_removed",
+    entityType: "network_company",
+    entityId: companyId,
+    metadata: { surface: "network_saved_companies" },
+  });
   revalidatePath("/network/" + companyId);
   revalidatePath("/network/saved");
   redirect("/network/saved?message=Azienda%20rimossa%20dai%20salvati");
@@ -139,6 +152,12 @@ export async function submitNetworkInquiry(formData: FormData) {
     redirect("/network/" + companyId + "/inquiry?error=" + encodeURIComponent(error.message));
   }
 
+  await recordPilotUsageEvent({
+    eventName: "network_inquiry_submitted",
+    entityType: "network_company",
+    entityId: companyId,
+    metadata: { surface: "network_inquiry_compose" },
+  });
   revalidatePath("/network/inquiries");
   redirect("/network/inquiries?box=sent&message=Inquiry%20inviata");
 }
@@ -164,6 +183,12 @@ export async function transitionNetworkInquiry(formData: FormData) {
     redirect("/network/inquiries?box=" + box + "&error=" + encodeURIComponent(error.message));
   }
 
+  await recordPilotUsageEvent({
+    eventName: "network_inquiry_state_changed",
+    entityType: "network_inquiry",
+    entityId: inquiryId,
+    metadata: { surface: "network_inquiries" },
+  });
   revalidatePath("/network/inquiries");
   redirect("/network/inquiries?box=" + box + "&message=Stato%20inquiry%20aggiornato");
 }
@@ -240,6 +265,12 @@ export async function followNetworkCompany(formData: FormData) {
     redirect("/network/" + companyId + "?error=" + encodeURIComponent(error.message));
   }
 
+  await recordPilotUsageEvent({
+    eventName: "network_follow_created",
+    entityType: "network_company",
+    entityId: companyId,
+    metadata: { surface: "network_company_profile" },
+  });
   revalidatePath("/network/" + companyId);
   revalidatePath("/network/following");
   revalidatePath("/network/activity");
@@ -260,6 +291,12 @@ export async function unfollowNetworkCompany(formData: FormData) {
     redirect("/network/following?error=" + encodeURIComponent(error.message));
   }
 
+  await recordPilotUsageEvent({
+    eventName: "network_follow_removed",
+    entityType: "network_company",
+    entityId: companyId,
+    metadata: { surface: "network_following" },
+  });
   revalidatePath("/network/" + companyId);
   revalidatePath("/network/following");
   revalidatePath("/network/activity");
@@ -282,7 +319,15 @@ export async function markNetworkActivityRead(formData: FormData) {
   }
 
   revalidatePath("/network/activity");
-  if (companyId) redirect("/network/" + companyId);
+  if (companyId) {
+    await recordPilotUsageEvent({
+      eventName: "network_activity_item_opened",
+      entityType: "network_company",
+      entityId: companyId,
+      metadata: { surface: "network_activity" },
+    });
+    redirect("/network/" + companyId);
+  }
   redirect("/network/activity");
 }
 
