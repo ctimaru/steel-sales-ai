@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { productIdentity } from "@/lib/product-identity";
+
 export function BrandMark({ compact = false }: { compact?: boolean }) {
   return (
     <span
@@ -40,11 +42,11 @@ export function ProductBrand({
             (inverse ? " text-white" : " text-slate-950")
           }
         >
-          Steel Sales AI
+          {productIdentity.name}
         </span>
         {!compact ? (
           <span className={"mt-0.5 block text-[10px] font-semibold uppercase tracking-[0.15em] " + (inverse ? "text-[#7fa8b3]" : "text-slate-400")}>
-            Steel intelligence workspace
+            {productIdentity.descriptor}
           </span>
         ) : null}
       </span>
