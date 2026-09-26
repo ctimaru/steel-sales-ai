@@ -2,8 +2,11 @@ from __future__ import annotations
 
 import asyncio
 import ipaddress
+import logging
+import os
 import re
 import socket
+from contextlib import suppress
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from html.parser import HTMLParser
@@ -13,13 +16,14 @@ from urllib.robotparser import RobotFileParser
 from uuid import UUID
 
 import httpx
-from fastapi import APIRouter, BackgroundTasks, Header, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, FastAPI, Header, HTTPException, status
 from pydantic import BaseModel
 
 from .bulk_import import _require_worker_token
 from .repository import RepositoryConfigurationError, RepositoryError, WorkerRepository
 
 router = APIRouter(prefix="/v1/network/discovery", tags=["network-discovery"])
+logger = logging.getLogger(__name__)
 
 USER_AGENT = "SteelSalesAI-CompanyDiscovery/1.0 (+public-company-profile-crawler)"
 MAX_PAGES_PER_DOMAIN = 5
@@ -511,6 +515,18 @@ class CompanyDiscoveryService:
                 return str(rows[0]["id"]), [signal]
         return None, []
 
+    async def claim_next(self) -> dict[str, object] | None:
+        payload = await self.repo._request(
+            "POST",
+            "/rest/v1/rpc/p3_claim_next_company_discovery",
+            json={},
+        )
+        if payload is None:
+            return None
+        if not isinstance(payload, dict):
+            raise CompanyDiscoveryError("Discovery queue claim returned an invalid payload.")
+        return payload
+
     async def _stage_candidate(self, run_id: UUID, candidate: dict[str, object]) -> None:
         match_company_id, match_signals = await self._existing_match(candidate)
         payload = {
@@ -527,9 +543,15 @@ class CompanyDiscoveryService:
             prefer="resolution=merge-duplicates,return=minimal",
         )
 
-    async def crawl(self, run_id: UUID) -> DiscoveryCrawlResponse:
+    async def crawl(
+        self,
+        run_id: UUID,
+        *,
+        already_claimed: bool = False,
+    ) -> DiscoveryCrawlResponse:
         run = await self._run(run_id)
-        if run.get("status") not in {"queued", "failed"}:
+        allowed = {"running"} if already_claimed else {"queued", "failed"}
+        if run.get("status") not in allowed:
             raise CompanyDiscoveryError("Discovery run is not crawlable from its current state.")
 
         seeds = run.get("seed_urls")
@@ -537,12 +559,13 @@ class CompanyDiscoveryService:
             raise CompanyDiscoveryError("Discovery run has no seed URLs.")
         country_code = str(run.get("country_code") or "IT").upper()
 
-        await self._mark_run(run_id, {
-            "status": "running",
-            "started_at": datetime.now(UTC).isoformat(),
-            "completed_at": None,
-            "error": None,
-        })
+        if not already_claimed:
+            await self._mark_run(run_id, {
+                "status": "running",
+                "started_at": datetime.now(UTC).isoformat(),
+                "completed_at": None,
+                "error": None,
+            })
 
         candidate_count = 0
         skipped_count = 0
@@ -615,6 +638,73 @@ async def _crawl_background(run_id: UUID) -> None:
                 )
         except (CompanyDiscoveryError, RepositoryConfigurationError, RepositoryError):
             pass
+
+
+
+
+def company_discovery_poller_enabled() -> bool:
+    if os.getenv("WORKER_STORAGE_MODE", "supabase") == "memory":
+        return False
+    return os.getenv("COMPANY_DISCOVERY_ENABLED", "true").lower() not in {
+        "0",
+        "false",
+        "no",
+    }
+
+
+async def _company_discovery_queue_loop() -> None:
+    raw_poll = os.getenv("COMPANY_DISCOVERY_POLL_SECONDS", "10").strip()
+    try:
+        poll_seconds = min(max(int(raw_poll), 5), 300)
+    except ValueError:
+        poll_seconds = 10
+
+    while True:
+        try:
+            service = CompanyDiscoveryService()
+            claimed = await service.claim_next()
+            if claimed is None:
+                await asyncio.sleep(poll_seconds)
+                continue
+
+            run_id = UUID(str(claimed["run_id"]))
+            result = await service.crawl(run_id, already_claimed=True)
+            logger.info("Company discovery run completed: %s", result.model_dump())
+        except asyncio.CancelledError:
+            raise
+        except (
+            CompanyDiscoveryError,
+            RepositoryConfigurationError,
+            RepositoryError,
+            httpx.HTTPError,
+            ValueError,
+            KeyError,
+        ) as exc:
+            logger.warning("Company discovery queue pass failed; it will retry: %s", exc)
+            await asyncio.sleep(poll_seconds)
+
+
+def install_company_discovery_poller(app: FastAPI) -> None:
+    if getattr(app.state, "company_discovery_poller_installed", False):
+        return
+    app.state.company_discovery_poller_installed = True
+
+    @app.on_event("startup")
+    async def start_company_discovery_poller() -> None:
+        if not company_discovery_poller_enabled():
+            return
+        app.state.company_discovery_task = asyncio.create_task(
+            _company_discovery_queue_loop()
+        )
+
+    @app.on_event("shutdown")
+    async def stop_company_discovery_poller() -> None:
+        task = getattr(app.state, "company_discovery_task", None)
+        if task is None:
+            return
+        task.cancel()
+        with suppress(asyncio.CancelledError):
+            await task
 
 
 @router.post(
