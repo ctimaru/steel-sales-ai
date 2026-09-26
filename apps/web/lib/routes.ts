@@ -28,6 +28,15 @@ export const appRoutes = {
   operations: {
     uploads: "/operations/uploads",
     review: "/operations/review",
+    reviewConversationCoverage: "/operations/review/conversation-coverage",
+    reviewConversations: "/operations/review/conversations",
+    reviewCoverage: "/operations/review/coverage",
+    reviewIdentities: "/operations/review/identities",
+    reviewOfferRecovery: "/operations/review/offer-recovery",
+    reviewOfferRemediation: "/operations/review/offer-remediation",
+    reviewOfferReparse: "/operations/review/offer-reparse",
+    reviewRelationships: "/operations/review/relationships",
+    reviewUnconvertedOffers: "/operations/review/unconverted-offers",
     alerts: "/operations/alerts",
   },
 
