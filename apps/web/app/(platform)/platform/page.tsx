@@ -16,10 +16,10 @@ export default async function PlatformHomePage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <section className="rounded-3xl bg-slate-950 p-6 text-white shadow-sm sm:p-8">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-300">Platform Control Plane</p>
+      <section className="rounded-3xl bg-[#0b171e] p-6 text-white shadow-sm sm:p-8">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#8fb7c1]">Platform Control Plane</p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Governance della piattaforma</h1>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400">
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-[#8fa1a9]">
           Questo contesto gestisce registrazioni, activation e governance globale. La Commercial Memory dei tenant resta nel rispettivo Company Workspace.
         </p>
       </section>
@@ -31,9 +31,9 @@ export default async function PlatformHomePage() {
           ["Approvate da attivare", counts.approved ?? 0],
           ["Tenant attivati", counts.activated ?? 0],
         ].map(([label, value]) => (
-          <div key={String(label)} className="rounded-2xl border border-slate-200 bg-white p-5">
-            <p className="text-3xl font-semibold text-slate-950">{Number(value)}</p>
-            <p className="mt-1 text-xs font-semibold text-slate-500">{label}</p>
+          <div key={String(label)} className="rounded-2xl border border-[#d9e0e4] bg-white p-5">
+            <p className="metric-number text-3xl font-semibold text-[#17232d]">{Number(value)}</p>
+            <p className="mt-1 text-xs font-semibold text-[#66737d]">{label}</p>
           </div>
         ))}
       </section>
@@ -55,19 +55,19 @@ export default async function PlatformHomePage() {
       <section className="grid gap-4 lg:grid-cols-2">
         <Link
           href="/platform/registrations"
-          className="rounded-2xl border border-slate-200 bg-white p-6 transition hover:border-indigo-300 hover:shadow-sm"
+          className="rounded-2xl border border-[#d9e0e4] bg-white p-6 transition hover:border-[#8fb7c1] hover:shadow-sm"
         >
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-indigo-600">Companies</p>
-          <h2 className="mt-3 text-lg font-semibold text-slate-950">Registrazioni aziende</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-500">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#28677a]">Companies</p>
+          <h2 className="mt-3 text-lg font-semibold text-[#17232d]">Registrazioni aziende</h2>
+          <p className="mt-2 text-sm leading-6 text-[#66737d]">
             Revisiona identity, approva, attiva il tenant e completa il Registration Bridge verso il Network.
           </p>
         </Link>
 
-        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Network governance</p>
-          <h2 className="mt-3 text-lg font-semibold text-slate-950">Prossima superficie Control Plane</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-500">
+        <div className="rounded-2xl border border-dashed border-[#c8d2d7] bg-white p-6">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#8fa1a9]">Network governance</p>
+          <h2 className="mt-3 text-lg font-semibold text-[#17232d]">Prossima superficie Control Plane</h2>
+          <p className="mt-2 text-sm leading-6 text-[#66737d]">
             Claims, verification, identity conflicts, moderation e taxonomy verranno raccolti qui invece di essere mescolati al Company Workspace.
           </p>
         </div>
