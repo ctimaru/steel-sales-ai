@@ -52,9 +52,13 @@ select pg_temp.p32_assert(
 
 reset role;
 
-update public.network_company_discovery_runs
-set status='running',started_at=now()
-where id=:'run_id'::uuid;
+set local role service_role;
+select public.p3_claim_next_company_discovery() as claim_payload \gset
+select pg_temp.p32_assert(
+  :'claim_payload'::jsonb->>'run_id'=:'run_id',
+  'service-role worker must atomically claim the queued discovery run'
+);
+reset role;
 
 insert into public.network_company_discovery_candidates(
   id,run_id,source_url,canonical_domain,website_url,legal_name,country_code,
@@ -165,9 +169,13 @@ select (public.p3_start_company_discovery(
 )->>'run_id') as duplicate_run_id \gset
 reset role;
 
-update public.network_company_discovery_runs
-set status='running',started_at=now()
-where id=:'duplicate_run_id'::uuid;
+set local role service_role;
+select public.p3_claim_next_company_discovery() as duplicate_claim_payload \gset
+select pg_temp.p32_assert(
+  :'duplicate_claim_payload'::jsonb->>'run_id'=:'duplicate_run_id',
+  'service-role worker must atomically claim the rediscovery run'
+);
+reset role;
 
 insert into public.network_company_discovery_candidates(
   id,run_id,source_url,canonical_domain,website_url,legal_name,country_code,
@@ -233,6 +241,20 @@ select pg_temp.p32_assert(
   not has_table_privilege('authenticated','public.network_company_discovery_runs','SELECT')
   and not has_table_privilege('authenticated','public.network_company_discovery_candidates','SELECT'),
   'authenticated users must not have raw staging-table access'
+);
+
+select pg_temp.p32_assert(
+  not has_function_privilege(
+    'authenticated',
+    'public.p3_claim_next_company_discovery()',
+    'EXECUTE'
+  )
+  and has_function_privilege(
+    'service_role',
+    'public.p3_claim_next_company_discovery()',
+    'EXECUTE'
+  ),
+  'only service_role may claim discovery work from the durable queue'
 );
 
 reset role;
