@@ -9,7 +9,7 @@ const actions = fs.readFileSync(new URL("../app/(workspace)/alerts/actions.ts", 
 
 test("PA2.30.27 wires tenant-safe alert read model into the workspace shell", () => {
   assert.match(layout, /p1_operational_alerts_summary/);
-  assert.match(shell, /\/alerts/);
+  assert.match(shell, /appRoutes\.operations\.alerts/);
   assert.match(shell, /alertNeedsAttention/);
   assert.match(page, /p1_operational_alerts_read/);
   assert.match(page, /p1_operational_alerts_summary/);
