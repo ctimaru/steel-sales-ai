@@ -41,9 +41,12 @@ export async function startCompanyDiscovery(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("p3_start_company_discovery", {
+  const { data, error } = await supabase.rpc("p3_start_company_discovery_batch", {
     p_country_code: countryCode,
     p_seed_urls: seedUrls,
+    p_source_type: "manual_url",
+    p_source_reference: "Platform Company Discovery form",
+    p_label: "Manual Company Discovery",
   });
 
   if (error) {
@@ -103,6 +106,32 @@ export async function reviewCompanyDiscovery(formData: FormData) {
         : decision === "duplicate_existing"
           ? "Candidato segnato come identità già esistente. Nessun merge eseguito."
           : "Candidato rifiutato.",
+    ),
+  );
+}
+
+
+export async function closeExactDiscoveryDuplicates() {
+  await requirePlatformContext();
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p3_close_exact_discovery_duplicates", {
+    p_note: "P3.3 explicit bulk review from Platform Control Plane.",
+  });
+
+  if (error) {
+    redirect(discoveryPath("error", error.message));
+  }
+
+  const closed = Number(
+    (data as { closed_count?: number } | null)?.closed_count ?? 0,
+  );
+
+  revalidatePath("/platform/company-discovery");
+  redirect(
+    discoveryPath(
+      "message",
+      `${closed} exact identity match chiusi come duplicati. Nessun merge eseguito.`,
     ),
   );
 }

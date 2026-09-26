@@ -1,8 +1,12 @@
 import Link from "next/link";
 
-import { getCompanyDiscoveryQueue } from "@/lib/company-discovery";
+import {
+  getCompanyDiscoveryQueue,
+  getCompanyDiscoveryRuns,
+} from "@/lib/company-discovery";
 
 import {
+  closeExactDiscoveryDuplicates,
   reviewCompanyDiscovery,
   startCompanyDiscovery,
 } from "./actions";
@@ -27,7 +31,11 @@ export default async function CompanyDiscoveryPage({
     )
       ? params.status
       : "pending_review";
-  const queue = await getCompanyDiscoveryQueue(status);
+  const [queue, runs] = await Promise.all([
+    getCompanyDiscoveryQueue(status),
+    getCompanyDiscoveryRuns(),
+  ]);
+  const latestRun = runs[0] ?? null;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -104,6 +112,43 @@ export default async function CompanyDiscoveryPage({
         </div>
       </section>
 
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          ["In coda", queue.total],
+          ["Con quality flags", queue.quality.flagged],
+          ["Exact identity match", queue.quality.exact_identity_matches],
+          ["Ultimo batch", latestRun ? `${latestRun.candidate_count}/${latestRun.seed_count}` : "—"],
+        ].map(([label, value]) => (
+          <div key={String(label)} className="rounded-2xl border border-[#d9e0e4] bg-white p-4">
+            <p className="text-2xl font-semibold text-[#17232d]">{String(value)}</p>
+            <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-[#8fa1a9]">
+              {label}
+            </p>
+          </div>
+        ))}
+      </section>
+
+      {latestRun ? (
+        <section className="rounded-2xl border border-[#d9e0e4] bg-white p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#3c8192]">
+                Ultimo run · {latestRun.extraction_version}
+              </p>
+              <p className="mt-2 text-sm font-semibold text-[#17232d]">
+                {latestRun.label ?? latestRun.source_type}
+              </p>
+              <p className="mt-1 text-xs text-[#66737d]">
+                {latestRun.seed_count} seed · {latestRun.candidate_count} candidati · {latestRun.skipped_count} skip · {latestRun.error_count} errori · {latestRun.exact_match_count} exact match
+              </p>
+            </div>
+            <span className="rounded-full bg-[#eef5f6] px-3 py-1.5 text-xs font-semibold text-[#1b4c5d]">
+              {latestRun.status}
+            </span>
+          </div>
+        </section>
+      ) : null}
+
       <section className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -114,7 +159,14 @@ export default async function CompanyDiscoveryPage({
               {queue.total} candidati · {status.replaceAll("_", " ")}
             </h2>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {status === "pending_review" && queue.quality.exact_identity_matches > 0 ? (
+              <form action={closeExactDiscoveryDuplicates}>
+                <button className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 ring-1 ring-inset ring-amber-200">
+                  Chiudi {queue.quality.exact_identity_matches} exact match
+                </button>
+              </form>
+            ) : null}
             {[
               ["pending_review", "Da revisionare"],
               ["published", "Pubblicati"],
@@ -162,6 +214,14 @@ export default async function CompanyDiscoveryPage({
                       <span className="rounded-full bg-[#edf1f3] px-2.5 py-1 text-[11px] font-semibold text-[#52636c]">
                         {Math.round(Number(candidate.confidence) * 100)}% confidence
                       </span>
+                      {candidate.quality_flags.map((flag) => (
+                        <span
+                          key={flag}
+                          className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-800"
+                        >
+                          {flag.replaceAll("_", " ")}
+                        </span>
+                      ))}
                     </div>
                     <a
                       href={candidate.website_url}
@@ -210,12 +270,15 @@ export default async function CompanyDiscoveryPage({
                   </div>
                   <div>
                     <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#8fa1a9]">
-                      Identity match
+                      Identity & quality
                     </p>
                     <p className="mt-2 text-sm text-[#52636c]">
                       {candidate.match_company_id
                         ? `Possibile profilo esistente · ${candidate.match_signals.join(", ")}`
                         : "Nessun exact match rilevato"}
+                    </p>
+                    <p className="mt-2 text-xs leading-5 text-[#8fa1a9]">
+                      extraction {candidate.extraction_version} · producer {Math.round((candidate.classification_scores.producer ?? 0) * 100)}% · trader {Math.round((candidate.classification_scores.trader_distributor ?? 0) * 100)}% · processor {Math.round((candidate.classification_scores.processor_service_provider ?? 0) * 100)}%
                     </p>
                   </div>
                 </div>

@@ -26,6 +26,7 @@ router = APIRouter(prefix="/v1/network/discovery", tags=["network-discovery"])
 logger = logging.getLogger(__name__)
 
 USER_AGENT = "SteelSalesAI-CompanyDiscovery/1.0 (+public-company-profile-crawler)"
+EXTRACTION_VERSION = "p3.3-v2"
 MAX_PAGES_PER_DOMAIN = 5
 MAX_RESPONSE_BYTES = 1_500_000
 MAX_TEXT_CHARS_PER_PAGE = 24_000
@@ -300,22 +301,127 @@ def _redact_personal_channels(value: str) -> str:
     )
 
 
-def _candidate_name(pages: list[CrawledPage], domain: str) -> str:
-    combined = "\n".join(page.text[:12000] for page in pages)
-    legal_matches = [match.group(1).strip(" -|,.;") for match in LEGAL_SUFFIX_RE.finditer(combined)]
-    if legal_matches:
-        legal_matches.sort(key=lambda value: (len(value) > 100, len(value)))
-        return legal_matches[0][:255]
+def _domain_identity_stem(domain: str) -> str:
+    stem = domain.split(".")[0].replace("-", " ").replace("_", " ").strip()
+    # Company domains frequently concatenate the Italian legal form to the brand
+    # (e.g. morandispa.it). Remove it only as a terminal domain suffix.
+    stem = re.sub(r"(?i)(?:spa|srl|sas|snc)$", "", stem).strip()
+    return " ".join(stem.split())
+
+
+def _normalize_identity(value: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "", value.lower())
+
+
+def _clean_identity_candidate(value: str) -> str:
+    candidate = re.split(r"\s+[|–—]\s+|\s+-\s+", value, maxsplit=1)[0].strip()
+    candidate = re.sub(
+        r"(?i)^(?:home|chi\s+siamo|azienda|company|produzione|production|"
+        r"la\s+nostra\s+produzione|our\s+production)\s*[:|\-–—]*\s*",
+        "",
+        candidate,
+    ).strip(" -|,;:")
+    candidate = re.sub(r"\s{2,}", " ", candidate).strip()
+
+    # Normalize common Italian legal suffixes so identity matching remains stable.
+    suffixes = (
+        (r"(?i)\bS\.?\s*P\.?\s*A\.?$", "S.p.A."),
+        (r"(?i)\bS\.?\s*R\.?\s*L\.?$", "S.r.l."),
+        (r"(?i)\bS\.?\s*A\.?\s*S\.?$", "S.a.s."),
+        (r"(?i)\bS\.?\s*N\.?\s*C\.?$", "S.n.c."),
+    )
+    for pattern, replacement in suffixes:
+        if re.search(pattern, candidate):
+            candidate = re.sub(pattern, replacement, candidate)
+            break
+
+    return candidate[:255]
+
+
+def _candidate_identity(
+    pages: list[CrawledPage],
+    domain: str,
+) -> tuple[str, dict[str, object], list[str]]:
+    domain_stem = _domain_identity_stem(domain)
+    normalized_domain = _normalize_identity(domain_stem)
+    candidates: list[tuple[str, str, int]] = []
 
     for page in pages:
-        for value in (page.site_name, page.h1, page.title):
+        for source, value, base_score in (
+            ("site_name", page.site_name, 7),
+            ("title", page.title, 6),
+            ("h1", page.h1, 5),
+        ):
             if not value:
                 continue
-            candidate = re.split(r"\s+[|–—]\s+|\s+-\s+", value, maxsplit=1)[0].strip()
-            if 2 < len(candidate) <= 120:
-                return candidate
-    return domain.split(".")[0].replace("-", " ").title()[:255]
+            cleaned = _clean_identity_candidate(value)
+            if 2 < len(cleaned) <= 255:
+                candidates.append((cleaned, source, base_score))
 
+    for page in pages:
+        for match in LEGAL_SUFFIX_RE.finditer(page.text[:16000]):
+            cleaned = _clean_identity_candidate(match.group(1))
+            if 2 < len(cleaned) <= 255:
+                candidates.append((cleaned, "page_text_legal_suffix", 4))
+
+    scored: list[tuple[int, int, str, str]] = []
+    for candidate, source, base_score in candidates:
+        normalized = _normalize_identity(candidate)
+        score = base_score
+        domain_aligned = bool(normalized_domain and normalized_domain in normalized)
+        legal_suffix_present = bool(LEGAL_SUFFIX_RE.search(candidate))
+        if domain_aligned:
+            score += 8
+        elif not legal_suffix_present:
+            # Generic headings such as "Soluzioni per tubi in acciaio" are
+            # descriptions, not identities. Prefer a clean domain fallback.
+            score -= 10
+        if legal_suffix_present:
+            score += 5
+        token_count = len(candidate.split())
+        if 1 <= token_count <= 8:
+            score += 2
+        if token_count > 12:
+            score -= 5
+        if re.search(
+            r"(?i)\b(?:produzione|production|prodotti|products|servizi|services|"
+            r"lavorazioni|solutions|homepage|welcome)\b",
+            candidate,
+        ):
+            score -= 5
+        scored.append((score, -len(candidate), candidate, source))
+
+    if scored:
+        scored.sort(reverse=True)
+        score, _, candidate, source = scored[0]
+        if score >= 3:
+            quality_flags: list[str] = []
+            if not LEGAL_SUFFIX_RE.search(candidate):
+                quality_flags.append("identity_no_legal_suffix")
+            if normalized_domain and normalized_domain not in _normalize_identity(candidate):
+                quality_flags.append("identity_domain_mismatch")
+            return (
+                candidate,
+                {
+                    "source": source,
+                    "score": score,
+                    "domain_stem": domain_stem,
+                    "legal_suffix_present": bool(LEGAL_SUFFIX_RE.search(candidate)),
+                },
+                quality_flags,
+            )
+
+    fallback = domain_stem.title() or domain
+    return (
+        fallback[:255],
+        {
+            "source": "domain_fallback",
+            "score": 1,
+            "domain_stem": domain_stem,
+            "legal_suffix_present": False,
+        },
+        ["identity_domain_fallback", "identity_no_legal_suffix"],
+    )
 
 def _vat_id(text: str) -> str | None:
     for pattern in VAT_PATTERNS:
@@ -334,58 +440,167 @@ def _has_any(text: str, terms: tuple[str, ...]) -> bool:
     return any(term in text for term in terms)
 
 
-def classify_company(text: str) -> tuple[list[str], list[str], list[dict[str, str]]]:
+def _weighted_signal_score(text: str, signals: tuple[tuple[str, float], ...]) -> float:
     lowered = " ".join(text.lower().split())
-    tube_terms = ("tubi", "tubo ", "tubes", "tube ", "pipes", "pipe ", "tubolare", "tubolari")
-    hollow_terms = ("hollow section", "profilati cavi", "tubi quadri", "tubi rettangolari", "square tube", "rectangular tube")
+    score = 0.0
+    for phrase, weight in signals:
+        if phrase in lowered:
+            score += weight
+    return score
 
-    producer = _has_any(lowered, (
-        "produzione", "produttore", "manufacturer", "manufacturing", "tubificio",
-        "produciamo", "production of", "welded tube", "welded pipe", "seamless tube", "seamless pipe",
-    ))
-    trader = _has_any(lowered, (
-        "distributore", "distribuzione", "commercializzazione", "stockholder", "stockist",
-        "stock di", "ampio stock", "magazzino", "pronta consegna", "distributor", "wholesale",
-    ))
-    processor = _has_any(lowered, (
-        "service center", "centro servizi", "taglio laser", "laser cutting", "taglio tubo",
-        "lavorazione tubo", "lavorazioni tubi", "tube processing", "piegatura", "bending",
-        "saldatura", "welding", "carpenteria", "fabrication", "lavorazioni meccaniche",
-    ))
-    end_user = _has_any(lowered, (
-        "oem", "epc contractor", "costruzione macchine", "machinery manufacturer",
-        "impianti industriali", "industrial equipment manufacturer",
-    )) and not (producer or trader or processor)
 
-    roles: list[str] = []
-    if producer:
-        roles.append("producer")
-    if trader:
-        roles.append("trader_distributor")
-    if processor:
-        roles.append("processor_service_provider")
-    if end_user:
+def classify_company(
+    text: str,
+) -> tuple[
+    list[str],
+    list[str],
+    list[dict[str, str]],
+    dict[str, float],
+    list[str],
+]:
+    lowered = " ".join(text.lower().split())
+    tube_terms = (
+        "tubi", "tubo ", "tubes", "tube ", "pipes", "pipe ",
+        "tubolare", "tubolari", "tubing",
+    )
+    hollow_terms = (
+        "hollow section", "profilati cavi", "tubi quadri", "tubi rettangolari",
+        "square tube", "rectangular tube",
+    )
+    has_tube = _has_any(lowered, tube_terms)
+    if not has_tube:
+        return [], [], [], {
+            "producer": 0.0,
+            "trader_distributor": 0.0,
+            "processor_service_provider": 0.0,
+            "end_user": 0.0,
+        }, ["classification_no_tube_evidence"]
+
+    producer_raw = _weighted_signal_score(lowered, (
+        ("tubificio", 6.0),
+        ("produttore di tubi", 6.0),
+        ("produttori di tubi", 6.0),
+        ("produzione di tubi", 5.0),
+        ("produciamo tubi", 6.0),
+        ("fabbricazione di tubi", 5.0),
+        ("tube manufacturer", 6.0),
+        ("manufacturer of tubes", 6.0),
+        ("manufacturer of steel tubes", 7.0),
+        ("manufactures steel tubes", 7.0),
+        ("welded tube manufacturer", 7.0),
+        ("seamless tube manufacturer", 7.0),
+        ("welded pipe manufacturer", 7.0),
+        ("seamless pipe manufacturer", 7.0),
+        ("production of steel tubes", 6.0),
+        ("produzione", 0.5),
+        ("manufacturing", 0.5),
+    ))
+    trader_raw = _weighted_signal_score(lowered, (
+        ("stockholder", 6.0),
+        ("stockist", 6.0),
+        ("distributore di tubi", 6.0),
+        ("distribuzione di tubi", 5.0),
+        ("tube distributor", 6.0),
+        ("pipe distributor", 6.0),
+        ("stock di tubi", 5.0),
+        ("magazzino tubi", 4.0),
+        ("ampio stock", 3.0),
+        ("pronta consegna", 2.0),
+        ("commercializzazione", 2.0),
+        ("wholesale", 2.0),
+    ))
+    processor_raw = _weighted_signal_score(lowered, (
+        ("lavorazione tubi", 6.0),
+        ("lavorazioni tubi", 6.0),
+        ("lavorazione tubo", 6.0),
+        ("tube processing", 6.0),
+        ("taglio laser tubo", 7.0),
+        ("taglio laser tubi", 7.0),
+        ("tube laser cutting", 7.0),
+        ("piegatura tubi", 6.0),
+        ("tube bending", 6.0),
+        ("service center", 4.0),
+        ("centro servizi", 4.0),
+        ("carpenteria", 2.5),
+        ("fabrication", 2.5),
+        ("saldatura", 1.0),
+        ("welding", 1.0),
+    ))
+    end_user_raw = _weighted_signal_score(lowered, (
+        ("costruzione macchine", 5.0),
+        ("machinery manufacturer", 5.0),
+        ("industrial equipment manufacturer", 6.0),
+        ("epc contractor", 5.0),
+        ("impianti industriali", 3.0),
+        ("oem", 3.0),
+    ))
+
+    role_thresholds = {
+        "producer": 4.0,
+        "trader_distributor": 4.0,
+        "processor_service_provider": 4.0,
+        "end_user": 5.0,
+    }
+    raw_scores = {
+        "producer": producer_raw,
+        "trader_distributor": trader_raw,
+        "processor_service_provider": processor_raw,
+        "end_user": end_user_raw,
+    }
+    scores = {
+        role: round(min(raw / max(role_thresholds[role] * 1.75, 1.0), 1.0), 3)
+        for role, raw in raw_scores.items()
+    }
+
+    roles = [
+        role
+        for role in (
+            "producer",
+            "trader_distributor",
+            "processor_service_provider",
+        )
+        if raw_scores[role] >= role_thresholds[role]
+    ]
+    if not roles and end_user_raw >= role_thresholds["end_user"]:
         roles.append("end_user")
+
+    quality_flags: list[str] = []
+    if len(roles) >= 3:
+        quality_flags.append("classification_multi_role")
+    ranked = sorted(scores.values(), reverse=True)
+    if len(ranked) >= 2 and ranked[0] > 0 and ranked[0] - ranked[1] < 0.12:
+        quality_flags.append("classification_low_margin")
+    if not roles:
+        quality_flags.append("classification_insufficient_role_evidence")
+
     subtypes: list[str] = []
-    if producer and _has_any(lowered, tube_terms):
+    if "producer" in roles:
         subtypes.append("tube_pipe_producer")
-    if trader:
-        if _has_any(lowered, ("stockholder", "stockist", "stock di", "ampio stock", "magazzino", "pronta consegna")):
+    if "trader_distributor" in roles:
+        if _has_any(lowered, (
+            "stockholder", "stockist", "stock di tubi", "magazzino tubi",
+            "ampio stock", "pronta consegna",
+        )):
             subtypes.append("stockholder")
         else:
             subtypes.append("distributor")
-    if processor:
+    if "processor_service_provider" in roles:
         if _has_any(lowered, ("service center", "centro servizi")):
             subtypes.append("steel_service_center")
-        if _has_any(lowered, ("taglio laser", "laser cutting", "taglio tubo", "cutting")):
+        if _has_any(lowered, (
+            "taglio laser", "laser cutting", "taglio tubo", "tube cutting", "cutting",
+        )):
             subtypes.append("cutting_specialist")
-        if _has_any(lowered, ("carpenteria", "fabrication", "saldatura", "welding", "piegatura", "bending")):
+        if _has_any(lowered, (
+            "carpenteria", "fabrication", "saldatura", "welding",
+            "piegatura", "bending",
+        )):
             subtypes.append("fabricator")
-    if end_user:
+    if "end_user" in roles:
         subtypes.append("mechanical_engineering")
 
     product_relations: list[dict[str, str]] = []
-    if _has_any(lowered, tube_terms):
+    if roles:
         for role in roles:
             relation = {
                 "producer": "produces",
@@ -393,34 +608,33 @@ def classify_company(text: str) -> tuple[list[str], list[str], list[dict[str, st
                 "processor_service_provider": "processes",
                 "end_user": "uses",
             }[role]
-            item = {"key": "tubes_pipes", "relationship_type": relation}
-            if item not in product_relations:
-                product_relations.append(item)
-    if _has_any(lowered, hollow_terms):
-        for role in roles:
-            relation = {
-                "producer": "produces",
-                "trader_distributor": "distributes",
-                "processor_service_provider": "processes",
-                "end_user": "uses",
-            }[role]
-            item = {"key": "hollow_sections", "relationship_type": relation}
-            if item not in product_relations:
-                product_relations.append(item)
+            product_relations.append({
+                "key": "tubes_pipes",
+                "relationship_type": relation,
+            })
+            if _has_any(lowered, hollow_terms):
+                product_relations.append({
+                    "key": "hollow_sections",
+                    "relationship_type": relation,
+                })
 
-    return roles, list(dict.fromkeys(subtypes)), product_relations
+    deduped_products: list[dict[str, str]] = []
+    for item in product_relations:
+        if item not in deduped_products:
+            deduped_products.append(item)
 
+    return roles, list(dict.fromkeys(subtypes)), deduped_products, scores, quality_flags
 
 def extract_candidate(pages: list[CrawledPage], country_code: str) -> dict[str, object] | None:
     if not pages:
         return None
     domain = canonical_domain(pages[0].url)
     combined = "\n".join(page.text for page in pages)
-    roles, subtypes, product_relations = classify_company(combined)
+    roles, subtypes, product_relations, classification_scores, class_flags = classify_company(combined)
     if not roles or not any(item["key"] == "tubes_pipes" for item in product_relations):
         return None
 
-    legal_name = _candidate_name(pages, domain)
+    legal_name, identity_quality, identity_flags = _candidate_identity(pages, domain)
     vat_id = _vat_id(combined)
     description = next(
         (page.meta_description for page in pages if page.meta_description),
@@ -428,16 +642,19 @@ def extract_candidate(pages: list[CrawledPage], country_code: str) -> dict[str, 
     )
     if not description:
         description = _redact_personal_channels(" ".join(combined.split()))[:600] or None
-    elif description:
+    else:
         description = _redact_personal_channels(description)
 
-    confidence = 0.45
-    confidence += 0.15 if roles else 0
-    confidence += 0.15 if product_relations else 0
-    confidence += 0.08 if LEGAL_SUFFIX_RE.search(legal_name) else 0
-    confidence += 0.05 if vat_id else 0
-    confidence += min(len(pages), MAX_PAGES_PER_DOMAIN) * 0.02
-    confidence = min(confidence, 0.98)
+    quality_flags = list(dict.fromkeys(identity_flags + class_flags))
+    identity_score = float(identity_quality.get("score", 0))
+    role_score = max(classification_scores.values(), default=0.0)
+    confidence = 0.28
+    confidence += min(identity_score / 20.0, 0.28)
+    confidence += role_score * 0.28
+    confidence += 0.07 if vat_id else 0
+    confidence += min(len(pages), MAX_PAGES_PER_DOMAIN) * 0.015
+    confidence -= min(len(quality_flags), 4) * 0.025
+    confidence = max(0.0, min(confidence, 0.98))
 
     evidence = []
     for page in pages:
@@ -464,6 +681,10 @@ def extract_candidate(pages: list[CrawledPage], country_code: str) -> dict[str, 
         "evidence": evidence,
         "source_urls": [page.url for page in pages],
         "confidence": round(confidence, 4),
+        "extraction_version": EXTRACTION_VERSION,
+        "identity_quality": identity_quality,
+        "classification_scores": classification_scores,
+        "quality_flags": quality_flags,
     }
 
 
@@ -531,7 +752,11 @@ class CompanyDiscoveryService:
             raise CompanyDiscoveryError("Discovery queue claim returned an invalid payload.")
         return payload
 
-    async def _stage_candidate(self, run_id: UUID, candidate: dict[str, object]) -> None:
+    async def _stage_candidate(
+        self,
+        run_id: UUID,
+        candidate: dict[str, object],
+    ) -> tuple[str | None, list[str]]:
         match_company_id, match_signals = await self._existing_match(candidate)
         payload = {
             "run_id": str(run_id),
@@ -546,6 +771,7 @@ class CompanyDiscoveryService:
             json=payload,
             prefer="resolution=merge-duplicates,return=minimal",
         )
+        return match_company_id, match_signals
 
     async def crawl(
         self,
@@ -574,6 +800,9 @@ class CompanyDiscoveryService:
         candidate_count = 0
         skipped_count = 0
         error_count = 0
+        exact_match_count = 0
+        quality_flag_count = 0
+        role_counts: dict[str, int] = {}
         errors: list[str] = []
 
         timeout = httpx.Timeout(REQUEST_TIMEOUT_SECONDS)
@@ -594,8 +823,16 @@ class CompanyDiscoveryService:
                     if candidate is None:
                         skipped_count += 1
                         continue
-                    await self._stage_candidate(run_id, candidate)
+                    match_company_id, match_signals = await self._stage_candidate(run_id, candidate)
                     candidate_count += 1
+                    if match_company_id and any(
+                        signal in {"website_domain_exact", "country_vat_exact"}
+                        for signal in match_signals
+                    ):
+                        exact_match_count += 1
+                    quality_flag_count += len(candidate.get("quality_flags", []))
+                    for role in candidate.get("role_keys", []):
+                        role_counts[str(role)] = role_counts.get(str(role), 0) + 1
                 except (CompanyDiscoveryError, httpx.HTTPError, RepositoryError, ValueError) as exc:
                     error_count += 1
                     errors.append(f"{str(raw_seed)[:160]}: {str(exc)[:300]}")
@@ -604,6 +841,19 @@ class CompanyDiscoveryService:
         await self._mark_run(run_id, {
             "status": status,
             "candidate_count": candidate_count,
+            "skipped_count": skipped_count,
+            "error_count": error_count,
+            "exact_match_count": exact_match_count,
+            "extraction_version": EXTRACTION_VERSION,
+            "stats": {
+                "seed_count": len(seeds),
+                "candidate_count": candidate_count,
+                "skipped_count": skipped_count,
+                "error_count": error_count,
+                "exact_match_count": exact_match_count,
+                "quality_flag_count": quality_flag_count,
+                "role_counts": role_counts,
+            },
             "completed_at": datetime.now(UTC).isoformat(),
             "error": "\n".join(errors)[:4000] or None,
         })
