@@ -100,12 +100,12 @@ select pg_temp.p34_assert(
 );
 
 select public.p3_close_exact_discovery_duplicates('P3.4 acceptance bulk close') as bulk_close \gset
+select public.p3_admin_discovery_queue('pending_review',100) as queue_after_bulk \gset
 select pg_temp.p34_assert(
   (:'bulk_close'::jsonb->>'closed_count')::integer=0
   and exists (
-    select 1 from public.network_company_discovery_candidates
-    where id='00000000-0000-0000-0000-0000000034c1'
-      and review_status='pending_review'
+    select 1 from jsonb_array_elements(:'queue_after_bulk'::jsonb->'items') x
+    where x->>'id'='00000000-0000-0000-0000-0000000034c1'
   ),
   'bulk duplicate closure must preserve enrichment-ready exact matches'
 );
