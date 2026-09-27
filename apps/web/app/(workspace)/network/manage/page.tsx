@@ -529,7 +529,7 @@ export default async function ManagedNetworkProfilePage({
         <SectionHeader
           id="products"
           eyebrow="03 · Products"
-          title="Prodotti e scope tecnico"
+          title="Prodotti e relazione commerciale"
           description="Definisci cosa produce, distribuisce o tiene a stock l'azienda e, dove disponibile, collega norme, gradi/materiali e range dimensionali canonici. Questo scope prepara il profilo al matching Marketplace."
         />
 
