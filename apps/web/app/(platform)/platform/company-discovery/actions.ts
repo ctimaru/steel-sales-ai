@@ -21,6 +21,11 @@ export async function startCompanyDiscovery(formData: FormData) {
     .trim()
     .toUpperCase();
   const rawSeeds = String(formData.get("seed_urls") ?? "");
+  const sourceType = String(formData.get("source_type") ?? "manual_url").trim();
+  const label = String(formData.get("label") ?? "").trim() || "Manual Company Discovery";
+  const sourceReference =
+    String(formData.get("source_reference") ?? "").trim() ||
+    "Platform Company Discovery form";
   const seedUrls = Array.from(
     new Set(
       rawSeeds
@@ -39,14 +44,32 @@ export async function startCompanyDiscovery(formData: FormData) {
   if (seedUrls.some((value) => !/^https?:\/\//i.test(value))) {
     redirect(discoveryPath("error", "Ogni seed deve essere un URL http(s) assoluto."));
   }
+  if (
+    ![
+      "manual_url",
+      "web_search_curated",
+      "industry_directory",
+      "association",
+      "registry",
+      "other",
+    ].includes(sourceType)
+  ) {
+    redirect(discoveryPath("error", "Tipo fonte discovery non valido."));
+  }
+  if (label.length > 255) {
+    redirect(discoveryPath("error", "Etichetta campagna troppo lunga."));
+  }
+  if (sourceReference.length > 2000) {
+    redirect(discoveryPath("error", "Riferimento fonte troppo lungo."));
+  }
 
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("p3_start_company_discovery_batch", {
     p_country_code: countryCode,
     p_seed_urls: seedUrls,
-    p_source_type: "manual_url",
-    p_source_reference: "Platform Company Discovery form",
-    p_label: "Manual Company Discovery",
+    p_source_type: sourceType,
+    p_source_reference: sourceReference,
+    p_label: label,
   });
 
   if (error) {
@@ -65,7 +88,7 @@ export async function startCompanyDiscovery(formData: FormData) {
   redirect(
     discoveryPath(
       "message",
-      `Discovery accodata su ${seedUrls.length} seed. Run ${runId.slice(0, 8)}.`,
+      `${label}: discovery accodata su ${seedUrls.length} seed. Run ${runId.slice(0, 8)}.`,
     ),
   );
 }
