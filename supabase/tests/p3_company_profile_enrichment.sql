@@ -186,4 +186,39 @@ select pg_temp.p34_assert(
   'enriched candidates must close without being promoted as new companies'
 );
 
+-- Shared corporate domains are not sufficient for enrichment because they can
+-- represent multiple legal entities. Re-open the candidate only inside this
+-- rollback-only acceptance transaction and assert that the decision is blocked.
+insert into public.network_companies(
+  id,legal_name,country_code,website_url,website_domain,
+  publication_status,claimed_status,verification_status
+)
+values(
+  '00000000-0000-0000-0000-0000000034c2',
+  'P34 Existing Tubes Holding S.p.A.','IT',
+  'https://p34-existing.example/','p34-existing.example',
+  'published','unclaimed','unverified'
+);
+
+update public.network_company_discovery_candidates
+set review_status='pending_review',reviewed_by=null,reviewed_at=null,review_note=null
+where id='00000000-0000-0000-0000-0000000034c1';
+
+set local role authenticated;
+do $
+begin
+  begin
+    perform public.p3_enrich_existing_company_discovery(
+      '00000000-0000-0000-0000-0000000034c1',
+      '00000000-0000-0000-0000-0000000034c0',
+      'ambiguous-domain acceptance'
+    );
+    raise exception 'expected ambiguous-domain enrichment rejection';
+  exception
+    when invalid_parameter_value then null;
+  end;
+end;
+$;
+reset role;
+
 rollback;
