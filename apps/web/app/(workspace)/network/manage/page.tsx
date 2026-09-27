@@ -209,7 +209,8 @@ export default async function ManagedNetworkProfilePage({
       <section className="rounded-3xl border border-[#dfe7f1] bg-white p-6 shadow-sm sm:p-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#2f6fed]">Company Profile Manager · P3.7D</p>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#2f6fed]">Company Profile Manager · P3.7B</p>
+            <p className="mt-1 text-xs font-semibold text-[#718197]">P3.7D · Identity & Public Contacts</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1e2b45] sm:text-4xl">
               {state.company.trading_name || state.company.legal_name}
             </h1>
