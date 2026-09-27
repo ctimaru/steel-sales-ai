@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import pytest
 
 from app.company_discovery import (
@@ -242,8 +243,7 @@ def test_p33_legal_name_trims_generic_prefix_before_domain_identity() -> None:
 
 
 
-@pytest.mark.asyncio
-async def test_p33_existing_match_handles_commas_without_postgrest_logic_tree() -> None:
+def test_p33_existing_match_handles_commas_without_postgrest_logic_tree() -> None:
     seen_paths: list[str] = []
 
     class FakeRepository:
@@ -255,14 +255,14 @@ async def test_p33_existing_match_handles_commas_without_postgrest_logic_tree() 
     service = CompanyDiscoveryService()
     service.repo = FakeRepository()
 
-    await service._existing_match(
+    asyncio.run(service._existing_match(
         {
             "canonical_domain": "lasertubi.it",
             "country_code": "IT",
             "legal_name": "Taglio Laser Tubi, Lamiera, Carpenteria S.r.l.",
             "vat_id": None,
         }
-    )
+    ))
 
     assert len(seen_paths) >= 2
     assert all("and=(" not in path for path in seen_paths)
