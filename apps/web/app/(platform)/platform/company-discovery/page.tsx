@@ -113,11 +113,12 @@ export default async function CompanyDiscoveryPage({
         </div>
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {[
           ["In coda", queue.total],
+          ["Con quality flags", queue.quality.flagged],
           ["Enrichment ready", queue.quality.enrichment_ready],
-          ["Exact senza enrichment", queue.quality.exact_identity_matches],
+          ["Exact identity match (senza enrichment)", queue.quality.exact_identity_matches],
           ["Ultimo batch", latestRun ? `${latestRun.candidate_count}/${latestRun.seed_count}` : "—"],
         ].map(([label, value]) => (
           <div key={String(label)} className="rounded-2xl border border-[#d9e0e4] bg-white p-4">
@@ -164,7 +165,7 @@ export default async function CompanyDiscoveryPage({
             {status === "pending_review" && queue.quality.exact_identity_matches > 0 ? (
               <form action={closeExactDiscoveryDuplicates}>
                 <button className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 ring-1 ring-inset ring-amber-200">
-                  Chiudi {queue.quality.exact_identity_matches} exact senza enrichment
+                  Chiudi {queue.quality.exact_identity_matches} exact match senza enrichment
                 </button>
               </form>
             ) : null}
