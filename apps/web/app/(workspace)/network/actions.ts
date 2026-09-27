@@ -287,6 +287,148 @@ export async function removeManagedCertification(formData: FormData) {
 }
 
 
+const COMPANY_LOGO_BUCKET = "network-company-media";
+const COMPANY_LOGO_MAX_BYTES = 2 * 1024 * 1024;
+const COMPANY_LOGO_MIME_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
+
+export async function uploadManagedCompanyLogo(formData: FormData) {
+  await requireWorkspaceAdmin();
+  const companyId = textValue(formData, "network_company_id");
+  const file = formData.get("logo");
+
+  if (!companyId) redirect(managedProfilePath("error", "Profilo non valido."));
+  if (!file || typeof file === "string" || file.size === 0) {
+    redirect(managedProfilePath("error", "Seleziona un file immagine."));
+  }
+  if (!COMPANY_LOGO_MIME_TYPES.has(file.type)) {
+    redirect(managedProfilePath("error", "Formato logo non supportato. Usa PNG, JPEG o WebP."));
+  }
+  if (file.size > COMPANY_LOGO_MAX_BYTES) {
+    redirect(managedProfilePath("error", "Il logo non può superare 2 MB."));
+  }
+
+  const supabase = await createClient();
+  const logoPath = companyId + "/logo";
+  const bytes = await file.arrayBuffer();
+
+  const { error: uploadError } = await supabase.storage
+    .from(COMPANY_LOGO_BUCKET)
+    .upload(logoPath, bytes, {
+      contentType: file.type,
+      upsert: true,
+      cacheControl: "3600",
+    });
+
+  if (uploadError) {
+    redirect(managedProfilePath("error", uploadError.message));
+  }
+
+  const { error: profileError } = await supabase.rpc("p3_7d_set_logo_path", {
+    p_network_company_id: companyId,
+    p_logo_path: logoPath,
+  });
+
+  if (profileError) {
+    await supabase.storage.from(COMPANY_LOGO_BUCKET).remove([logoPath]);
+    redirect(managedProfilePath("error", profileError.message));
+  }
+
+  revalidateManagedProfile(companyId);
+  redirect(managedProfilePath("message", "Logo aziendale aggiornato."));
+}
+
+export async function removeManagedCompanyLogo(formData: FormData) {
+  await requireWorkspaceAdmin();
+  const companyId = textValue(formData, "network_company_id");
+  const logoPath = textValue(formData, "logo_path");
+
+  if (!companyId) redirect(managedProfilePath("error", "Profilo non valido."));
+
+  const supabase = await createClient();
+  const { error: profileError } = await supabase.rpc("p3_7d_set_logo_path", {
+    p_network_company_id: companyId,
+    p_logo_path: null,
+  });
+
+  if (profileError) redirect(managedProfilePath("error", profileError.message));
+
+  if (logoPath) {
+    const { error: removeError } = await supabase.storage
+      .from(COMPANY_LOGO_BUCKET)
+      .remove([logoPath]);
+
+    if (removeError) {
+      revalidateManagedProfile(companyId);
+      redirect(
+        managedProfilePath(
+          "message",
+          "Logo rimosso dal profilo. La pulizia del file storage richiede una verifica tecnica.",
+        ),
+      );
+    }
+  }
+
+  revalidateManagedProfile(companyId);
+  redirect(managedProfilePath("message", "Logo aziendale rimosso."));
+}
+
+export async function upsertManagedPublicContact(formData: FormData) {
+  await requireWorkspaceAdmin();
+  const companyId = textValue(formData, "network_company_id");
+  const contactId = textValue(formData, "contact_id") || null;
+
+  if (!companyId) redirect(managedProfilePath("error", "Profilo non valido."));
+
+  const payload = {
+    contact_type: textValue(formData, "contact_type"),
+    display_name: textValue(formData, "display_name") || null,
+    email: textValue(formData, "email") || null,
+    phone: textValue(formData, "phone") || null,
+    website_url: textValue(formData, "website_url") || null,
+    facility_id: textValue(formData, "facility_id") || null,
+    publication_status: textValue(formData, "publication_status") || "published",
+  };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p3_7d_upsert_contact", {
+    p_network_company_id: companyId,
+    p_contact_id: contactId,
+    p_payload: payload,
+  });
+
+  if (error) redirect(managedProfilePath("error", error.message));
+
+  revalidateManagedProfile(companyId);
+  redirect(
+    managedProfilePath(
+      "message",
+      contactId ? "Contatto pubblico aggiornato." : "Contatto pubblico aggiunto.",
+    ),
+  );
+}
+
+export async function archiveManagedPublicContact(formData: FormData) {
+  await requireWorkspaceAdmin();
+  const companyId = textValue(formData, "network_company_id");
+  const contactId = textValue(formData, "contact_id");
+
+  if (!companyId || !contactId) {
+    redirect(managedProfilePath("error", "Contatto pubblico non valido."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p3_7d_archive_contact", {
+    p_network_company_id: companyId,
+    p_contact_id: contactId,
+  });
+
+  if (error) redirect(managedProfilePath("error", error.message));
+
+  revalidateManagedProfile(companyId);
+  redirect(managedProfilePath("message", "Contatto pubblico archiviato."));
+}
+
+
 async function activeOrganizationId() {
   await requireWorkspaceWriteRole();
   const supabase = await createClient();
