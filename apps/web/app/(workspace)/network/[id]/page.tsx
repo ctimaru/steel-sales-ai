@@ -29,6 +29,14 @@ const relationshipLabels: Record<string, string> = {
   uses: "Utilizza",
 };
 
+const technicalDimensionLabels: Record<string, string> = {
+  outer_diameter: "Ø esterno",
+  width: "Larghezza",
+  height: "Altezza",
+  wall_thickness: "Spessore",
+  length: "Lunghezza",
+};
+
 function provenanceLabel(kind: PublicProfileProvenanceKind) {
   if (kind === "platform_verified") return "Verificato dalla piattaforma";
   if (kind === "company_declared") return "Dichiarato dall'azienda";
@@ -454,18 +462,116 @@ export default async function NetworkCompanyProfilePage({
               title="Prodotti e disponibilità industriale"
               description="Le relazioni prodotto distinguono ciò che l'azienda produce, distribuisce, tiene a stock, trasforma o utilizza."
             />
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <div className="mt-5 grid gap-4 lg:grid-cols-2">
               {profile.products.length ? (
                 profile.products.map((product, index) => {
                   const facility = profile.facilities.find((item) => item.id === product.facility_id);
+                  const hasTechnicalScope =
+                    product.technical_scope.standards.length > 0 ||
+                    product.technical_scope.grades.length > 0 ||
+                    product.technical_scope.dimensions.length > 0;
+
                   return (
-                    <article key={product.key + product.relationship_type + String(product.facility_id) + index} className="rounded-2xl border border-[#e1e8f2] bg-[#fbfcfe] p-4">
-                      <p className="font-semibold text-[#2f4059]">{product.name}</p>
-                      <p className="mt-1 text-sm text-[#67778d]">
-                        {relationshipLabels[product.relationship_type] || product.relationship_type}
-                        {facility ? " · " + facility.name : ""}
-                      </p>
-                      <div className="mt-3"><ProvenanceBadge kind={product.provenance_kind} /></div>
+                    <article
+                      key={product.key + product.relationship_type + String(product.facility_id) + index}
+                      className="rounded-2xl border border-[#e1e8f2] bg-[#fbfcfe] p-5"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="font-semibold text-[#2f4059]">{product.name}</p>
+                          <p className="mt-1 text-sm text-[#67778d]">
+                            {relationshipLabels[product.relationship_type] || product.relationship_type}
+                            {facility ? " · " + facility.name : ""}
+                          </p>
+                        </div>
+                        <ProvenanceBadge kind={product.provenance_kind} />
+                      </div>
+
+                      {hasTechnicalScope ? (
+                        <div className="mt-5 space-y-4 border-t border-[#e5ecf5] pt-4">
+                          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#2f6fed]">
+                            Technical scope
+                          </p>
+
+                          {product.technical_scope.standards.length ? (
+                            <div>
+                              <p className="text-xs font-semibold text-[#718197]">Norme</p>
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                {product.technical_scope.standards.map((standard) => (
+                                  <div
+                                    key={standard.standard_id}
+                                    className="rounded-xl border border-[#dfe7f1] bg-white px-3 py-2"
+                                    title={standard.title}
+                                  >
+                                    <p className="text-sm font-semibold text-[#40516a]">{standard.code}</p>
+                                    <div className="mt-1.5 flex flex-wrap gap-1.5">
+                                      <VerificationBadge status={standard.verification_status} />
+                                      <ProvenanceBadge kind={standard.provenance_kind} />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ) : null}
+
+                          {product.technical_scope.grades.length ? (
+                            <div>
+                              <p className="text-xs font-semibold text-[#718197]">Gradi / materiali</p>
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                {product.technical_scope.grades.map((grade) => (
+                                  <div
+                                    key={grade.standard_id + ":" + grade.material_grade_id}
+                                    className="rounded-xl border border-[#dfe7f1] bg-white px-3 py-2"
+                                  >
+                                    <p className="text-sm font-semibold text-[#40516a]">{grade.designation}</p>
+                                    <p className="mt-0.5 text-[11px] text-[#7f8da0]">
+                                      {grade.standard_code}
+                                      {grade.material_number ? " · " + grade.material_number : ""}
+                                    </p>
+                                    <div className="mt-1.5 flex flex-wrap gap-1.5">
+                                      <VerificationBadge status={grade.verification_status} />
+                                      <ProvenanceBadge kind={grade.provenance_kind} />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ) : null}
+
+                          {product.technical_scope.dimensions.length ? (
+                            <div>
+                              <p className="text-xs font-semibold text-[#718197]">Range dichiarati</p>
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                {product.technical_scope.dimensions.map((dimension) => (
+                                  <div
+                                    key={dimension.dimension_type}
+                                    className="rounded-xl border border-[#dfe7f1] bg-white px-3 py-2"
+                                  >
+                                    <p className="text-xs font-semibold text-[#40516a]">
+                                      {technicalDimensionLabels[dimension.dimension_type] || dimension.dimension_type}
+                                    </p>
+                                    <p className="mt-1 text-sm font-semibold text-[#2f4059]">
+                                      {dimension.min_mm}–{dimension.max_mm} mm
+                                    </p>
+                                    <div className="mt-1.5 flex flex-wrap gap-1.5">
+                                      <VerificationBadge status={dimension.verification_status} />
+                                      <ProvenanceBadge kind={dimension.provenance_kind} />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ) : null}
+
+                          <p className="text-[11px] leading-5 text-[#8795a7]">
+                            Lo scope tecnico indica ciò che l&apos;azienda dichiara di trattare; la verifica Platform resta un segnale separato.
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="mt-4 border-t border-[#e5ecf5] pt-4 text-xs leading-5 text-[#8a98aa]">
+                          Scope tecnico non ancora dichiarato.
+                        </p>
+                      )}
                     </article>
                   );
                 })

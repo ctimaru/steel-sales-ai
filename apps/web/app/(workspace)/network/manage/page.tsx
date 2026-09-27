@@ -6,15 +6,19 @@ import {
   archiveManagedPublicContact,
   removeManagedCertification,
   removeManagedCompanyLogo,
+  removeManagedProductDimensionScope,
   setInquiryPreferences,
   setManagedCompanyMarket,
   setManagedCompanyProduct,
   setManagedCompanyRole,
   setManagedCompanySubtype,
   setManagedFacilityCapability,
+  setManagedProductGradeScope,
+  setManagedProductStandardScope,
   updateManagedNetworkProfile,
   uploadManagedCompanyLogo,
   upsertManagedCertification,
+  upsertManagedProductDimensionScope,
   upsertManagedFacility,
   upsertManagedPublicContact,
 } from "@/app/(workspace)/network/actions";
@@ -116,6 +120,43 @@ function VerificationBadge({ status }: { status: string }) {
       }
     >
       {verified ? "Verificato" : status === "pending" ? "Verifica in corso" : "Non verificato"}
+    </span>
+  );
+}
+
+const technicalDimensionLabels: Record<string, string> = {
+  outer_diameter: "Diametro esterno",
+  width: "Larghezza",
+  height: "Altezza",
+  wall_thickness: "Spessore parete",
+  length: "Lunghezza",
+};
+
+function ScopeProvenanceBadge({
+  kind,
+}: {
+  kind: "platform_verified" | "company_declared" | "public_web" | "platform_curated";
+}) {
+  return (
+    <span
+      className={
+        "rounded-full px-2.5 py-1 text-[11px] font-semibold " +
+        (kind === "platform_verified"
+          ? "bg-emerald-50 text-emerald-700"
+          : kind === "company_declared"
+            ? "bg-[#eef5ff] text-[#2f6fed]"
+            : kind === "public_web"
+              ? "bg-[#f2f5f8] text-[#66768d]"
+              : "bg-violet-50 text-violet-700")
+      }
+    >
+      {kind === "platform_verified"
+        ? "Platform verified"
+        : kind === "company_declared"
+          ? "Dichiarato dall'azienda"
+          : kind === "public_web"
+            ? "Da fonte pubblica"
+            : "Curato dalla piattaforma"}
     </span>
   );
 }
@@ -489,15 +530,47 @@ export default async function ManagedNetworkProfilePage({
           id="products"
           eyebrow="03 · Products"
           title="Prodotti e relazione commerciale"
-          description="Indica cosa produce, distribuisce, tiene a stock, trasforma o utilizza l'azienda. Questi dati diventeranno fondamentali per discovery e matching Marketplace."
+          description="Definisci cosa produce, distribuisce o tiene a stock l'azienda e, dove disponibile, collega norme, gradi/materiali e range dimensionali canonici. Questo scope prepara il profilo al matching Marketplace."
         />
 
-        <div className="grid gap-3 lg:grid-cols-2">
+        <div className="space-y-4">
           {state.products.map((product) => {
             const facility = state.facilities.find((item) => item.id === product.facility_id);
+            const productStandards = state.technical_scope.standard_scopes.filter(
+              (scope) => scope.company_product_id === product.id,
+            );
+            const productGrades = state.technical_scope.grade_scopes.filter(
+              (scope) => scope.company_product_id === product.id,
+            );
+            const productDimensions = state.technical_scope.dimension_scopes.filter(
+              (scope) => scope.company_product_id === product.id,
+            );
+            const selectedStandardIds = new Set(productStandards.map((scope) => scope.standard_id));
+            const selectedGradeIds = new Set(productGrades.map((scope) => scope.material_grade_id));
+            const availableStandards = state.technical_scope.taxonomy.standards.filter(
+              (standard) =>
+                standard.network_product_keys.includes(product.key) &&
+                !selectedStandardIds.has(standard.id),
+            );
+            const availableGrades = state.technical_scope.taxonomy.grades.filter(
+              (grade) =>
+                selectedStandardIds.has(grade.standard_id) &&
+                !selectedGradeIds.has(grade.material_grade_id),
+            );
+            const dimensionTypes =
+              product.key === "tubes_pipes"
+                ? ["outer_diameter", "wall_thickness", "length"]
+                : product.key === "hollow_sections"
+                  ? ["outer_diameter", "width", "height", "wall_thickness", "length"]
+                  : [];
+            const hasTechnicalScope =
+              productStandards.length > 0 ||
+              productGrades.length > 0 ||
+              productDimensions.length > 0;
+
             return (
-              <div key={product.id} className="rounded-2xl border border-[#e1e8f2] bg-[#fbfcfe] p-4">
-                <div className="flex items-start justify-between gap-3">
+              <article key={product.id} className="rounded-2xl border border-[#dfe7f1] bg-[#fbfcfe] p-5">
+                <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="font-semibold text-[#2f4059]">{product.name}</p>
                     <p className="mt-1 text-sm text-[#6f7f93]">
@@ -506,19 +579,212 @@ export default async function ManagedNetworkProfilePage({
                     </p>
                     <div className="mt-2"><ProvenanceBadge item={product} /></div>
                   </div>
-                  <form action={setManagedCompanyProduct}>
-                    <input type="hidden" name="network_company_id" value={companyId} />
-                    <input type="hidden" name="product_key" value={product.key} />
-                    <input type="hidden" name="relationship_type" value={product.relationship_type} />
-                    <input type="hidden" name="facility_id" value={product.facility_id ?? ""} />
-                    <input type="hidden" name="enabled" value="false" />
-                    <button className={dangerButton}>Rimuovi</button>
-                  </form>
+                  <div className="text-right">
+                    <form action={setManagedCompanyProduct}>
+                      <input type="hidden" name="network_company_id" value={companyId} />
+                      <input type="hidden" name="product_key" value={product.key} />
+                      <input type="hidden" name="relationship_type" value={product.relationship_type} />
+                      <input type="hidden" name="facility_id" value={product.facility_id ?? ""} />
+                      <input type="hidden" name="enabled" value="false" />
+                      <button className={dangerButton} disabled={hasTechnicalScope}>
+                        Rimuovi prodotto
+                      </button>
+                    </form>
+                    {hasTechnicalScope ? (
+                      <p className="mt-1 max-w-48 text-[11px] leading-4 text-[#8a98aa]">
+                        Rimuovi prima norme, gradi e range tecnici.
+                      </p>
+                    ) : null}
+                  </div>
                 </div>
-              </div>
+
+                <div className="mt-5 border-t border-[#e5ecf5] pt-5">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#2f6fed]">
+                        Technical / Marketplace scope
+                      </p>
+                      <p className="mt-1 text-xs leading-5 text-[#718197]">
+                        Dati tecnici dichiarati dall&apos;azienda e collegati alla Steel Knowledge canonica.
+                      </p>
+                    </div>
+                    {availableStandards.length === 0 && productStandards.length === 0 ? (
+                      <span className="rounded-full bg-[#f2f5f8] px-2.5 py-1 text-[11px] font-semibold text-[#718197]">
+                        Catalogo tecnico non ancora disponibile
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <div className="mt-4 grid gap-4 xl:grid-cols-3">
+                    <div className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
+                      <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Norme</p>
+                      <div className="mt-3 space-y-2">
+                        {productStandards.map((scope) => (
+                          <div key={scope.id} className="rounded-xl border border-[#e7edf5] p-3">
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <p className="text-sm font-semibold text-[#40516a]">{scope.standard_code}</p>
+                                <p className="mt-1 line-clamp-2 text-xs leading-5 text-[#7a899d]">{scope.standard_title}</p>
+                              </div>
+                              {scope.verification_status === "unverified" &&
+                              !productGrades.some((grade) => grade.standard_id === scope.standard_id) ? (
+                                <form action={setManagedProductStandardScope}>
+                                  <input type="hidden" name="network_company_id" value={companyId} />
+                                  <input type="hidden" name="company_product_id" value={product.id} />
+                                  <input type="hidden" name="standard_id" value={scope.standard_id} />
+                                  <input type="hidden" name="enabled" value="false" />
+                                  <button className="text-xs font-semibold text-rose-700">Rimuovi</button>
+                                </form>
+                              ) : null}
+                            </div>
+                            <div className="mt-2 flex flex-wrap gap-1.5">
+                              <ScopeProvenanceBadge kind={scope.provenance_kind} />
+                              <VerificationBadge status={scope.verification_status} />
+                            </div>
+                          </div>
+                        ))}
+                        {productStandards.length === 0 ? (
+                          <p className="text-sm text-[#8a98aa]">Nessuna norma dichiarata.</p>
+                        ) : null}
+                      </div>
+                      {availableStandards.length ? (
+                        <form action={setManagedProductStandardScope} className="mt-3 space-y-3">
+                          <input type="hidden" name="network_company_id" value={companyId} />
+                          <input type="hidden" name="company_product_id" value={product.id} />
+                          <input type="hidden" name="enabled" value="true" />
+                          <select name="standard_id" required className={inputClass}>
+                            <option value="">Aggiungi norma</option>
+                            {availableStandards.map((standard) => (
+                              <option key={standard.id} value={standard.id}>{standard.code}</option>
+                            ))}
+                          </select>
+                          <button className={secondaryButton}>Aggiungi norma</button>
+                        </form>
+                      ) : null}
+                    </div>
+
+                    <div className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
+                      <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Gradi / materiali</p>
+                      <div className="mt-3 space-y-2">
+                        {productGrades.map((scope) => (
+                          <div key={scope.id} className="rounded-xl border border-[#e7edf5] p-3">
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <p className="text-sm font-semibold text-[#40516a]">{scope.designation}</p>
+                                <p className="mt-1 text-xs text-[#7a899d]">
+                                  {scope.standard_code}
+                                  {scope.material_number ? " · " + scope.material_number : ""}
+                                </p>
+                              </div>
+                              {scope.verification_status === "unverified" ? (
+                                <form action={setManagedProductGradeScope}>
+                                  <input type="hidden" name="network_company_id" value={companyId} />
+                                  <input type="hidden" name="company_product_id" value={product.id} />
+                                  <input type="hidden" name="standard_id" value={scope.standard_id} />
+                                  <input type="hidden" name="material_grade_id" value={scope.material_grade_id} />
+                                  <input type="hidden" name="enabled" value="false" />
+                                  <button className="text-xs font-semibold text-rose-700">Rimuovi</button>
+                                </form>
+                              ) : null}
+                            </div>
+                            <div className="mt-2 flex flex-wrap gap-1.5">
+                              <ScopeProvenanceBadge kind={scope.provenance_kind} />
+                              <VerificationBadge status={scope.verification_status} />
+                            </div>
+                          </div>
+                        ))}
+                        {productGrades.length === 0 ? (
+                          <p className="text-sm text-[#8a98aa]">Nessun grado dichiarato.</p>
+                        ) : null}
+                      </div>
+                      {availableGrades.length ? (
+                        <form action={setManagedProductGradeScope} className="mt-3 space-y-3">
+                          <input type="hidden" name="network_company_id" value={companyId} />
+                          <input type="hidden" name="company_product_id" value={product.id} />
+                          <input type="hidden" name="enabled" value="true" />
+                          <select
+                            name="grade_scope"
+                            required
+                            className={inputClass}
+                          >
+                            <option value="">Seleziona grado</option>
+                            {availableGrades.map((grade) => (
+                              <option
+                                key={grade.standard_id + ":" + grade.material_grade_id}
+                                value={grade.standard_id + ":" + grade.material_grade_id}
+                              >
+                                {grade.designation} · {grade.standard_code}
+                              </option>
+                            ))}
+                          </select>
+                          <p className="text-[11px] leading-4 text-[#8a98aa]">
+                            Il salvataggio usa standard e materiale canonici associati.
+                          </p>
+                        </form>
+                      ) : null}
+                    </div>
+
+                    <div className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
+                      <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Range dimensionali</p>
+                      <div className="mt-3 space-y-2">
+                        {productDimensions.map((scope) => (
+                          <div key={scope.id} className="rounded-xl border border-[#e7edf5] p-3">
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <p className="text-sm font-semibold text-[#40516a]">
+                                  {technicalDimensionLabels[scope.dimension_type] || scope.dimension_type}
+                                </p>
+                                <p className="mt-1 text-xs text-[#7a899d]">
+                                  {scope.min_mm}–{scope.max_mm} mm
+                                </p>
+                              </div>
+                              {scope.verification_status === "unverified" ? (
+                                <form action={removeManagedProductDimensionScope}>
+                                  <input type="hidden" name="network_company_id" value={companyId} />
+                                  <input type="hidden" name="company_product_id" value={product.id} />
+                                  <input type="hidden" name="dimension_type" value={scope.dimension_type} />
+                                  <button className="text-xs font-semibold text-rose-700">Rimuovi</button>
+                                </form>
+                              ) : null}
+                            </div>
+                            <div className="mt-2 flex flex-wrap gap-1.5">
+                              <ScopeProvenanceBadge kind={scope.provenance_kind} />
+                              <VerificationBadge status={scope.verification_status} />
+                            </div>
+                          </div>
+                        ))}
+                        {productDimensions.length === 0 ? (
+                          <p className="text-sm text-[#8a98aa]">
+                            {dimensionTypes.length ? "Nessun range dichiarato." : "Range non previsto per questa famiglia."}
+                          </p>
+                        ) : null}
+                      </div>
+                      {dimensionTypes.length ? (
+                        <form action={upsertManagedProductDimensionScope} className="mt-3 grid gap-3">
+                          <input type="hidden" name="network_company_id" value={companyId} />
+                          <input type="hidden" name="company_product_id" value={product.id} />
+                          <select name="dimension_type" required className={inputClass}>
+                            <option value="">Tipo dimensione</option>
+                            {dimensionTypes.map((type) => (
+                              <option key={type} value={type}>{technicalDimensionLabels[type]}</option>
+                            ))}
+                          </select>
+                          <div className="grid grid-cols-2 gap-2">
+                            <input type="number" step="0.01" min="0.01" name="min_mm" required placeholder="Min mm" className={inputClass} />
+                            <input type="number" step="0.01" min="0.01" name="max_mm" required placeholder="Max mm" className={inputClass} />
+                          </div>
+                          <button className={secondaryButton}>Salva range</button>
+                        </form>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              </article>
             );
           })}
-          {state.products.length === 0 ? <p className="text-sm text-[#8a98aa]">Nessun prodotto pubblicato.</p> : null}
+          {state.products.length === 0 ? (
+            <p className="text-sm text-[#8a98aa]">Nessun prodotto pubblicato.</p>
+          ) : null}
         </div>
 
         <form action={setManagedCompanyProduct} className="grid gap-3 rounded-2xl border border-dashed border-[#cfdae8] bg-[#fafcff] p-4 sm:grid-cols-2 lg:grid-cols-4 lg:items-end">

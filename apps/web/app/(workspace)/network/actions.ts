@@ -145,6 +145,123 @@ export async function setManagedCompanyProduct(formData: FormData) {
   redirect(managedProfilePath("message", enabled ? "Prodotto aggiunto al profilo." : "Relazione prodotto rimossa."));
 }
 
+export async function setManagedProductStandardScope(formData: FormData) {
+  await requireWorkspaceAdmin();
+  const companyId = textValue(formData, "network_company_id");
+  const companyProductId = textValue(formData, "company_product_id");
+  const standardId = textValue(formData, "standard_id");
+  const enabled = textValue(formData, "enabled") !== "false";
+
+  if (!companyId || !companyProductId || !standardId) {
+    redirect(managedProfilePath("error", "Norma tecnica non valida."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p3_7e_set_product_standard", {
+    p_company_product_id: companyProductId,
+    p_standard_id: standardId,
+    p_enabled: enabled,
+  });
+
+  if (error) redirect(managedProfilePath("error", error.message));
+  revalidateManagedProfile(companyId);
+  redirect(
+    managedProfilePath(
+      "message",
+      enabled ? "Norma aggiunta allo scope tecnico." : "Norma rimossa dallo scope tecnico.",
+    ),
+  );
+}
+
+export async function setManagedProductGradeScope(formData: FormData) {
+  await requireWorkspaceAdmin();
+  const companyId = textValue(formData, "network_company_id");
+  const companyProductId = textValue(formData, "company_product_id");
+  let standardId = textValue(formData, "standard_id");
+  let materialGradeId = textValue(formData, "material_grade_id");
+  const combinedScope = textValue(formData, "grade_scope");
+  const enabled = textValue(formData, "enabled") !== "false";
+
+  if ((!standardId || !materialGradeId) && combinedScope.includes(":")) {
+    [standardId, materialGradeId] = combinedScope.split(":", 2);
+  }
+
+  if (!companyId || !companyProductId || !standardId || !materialGradeId) {
+    redirect(managedProfilePath("error", "Grado materiale non valido."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p3_7e_set_product_grade", {
+    p_company_product_id: companyProductId,
+    p_standard_id: standardId,
+    p_material_grade_id: materialGradeId,
+    p_enabled: enabled,
+  });
+
+  if (error) redirect(managedProfilePath("error", error.message));
+  revalidateManagedProfile(companyId);
+  redirect(
+    managedProfilePath(
+      "message",
+      enabled ? "Grado aggiunto allo scope tecnico." : "Grado rimosso dallo scope tecnico.",
+    ),
+  );
+}
+
+export async function upsertManagedProductDimensionScope(formData: FormData) {
+  await requireWorkspaceAdmin();
+  const companyId = textValue(formData, "network_company_id");
+  const companyProductId = textValue(formData, "company_product_id");
+  const dimensionType = textValue(formData, "dimension_type");
+  const minMm = Number(textValue(formData, "min_mm"));
+  const maxMm = Number(textValue(formData, "max_mm"));
+
+  if (
+    !companyId ||
+    !companyProductId ||
+    !dimensionType ||
+    !Number.isFinite(minMm) ||
+    !Number.isFinite(maxMm) ||
+    minMm <= 0 ||
+    maxMm < minMm
+  ) {
+    redirect(managedProfilePath("error", "Range dimensionale non valido."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p3_7e_upsert_product_dimension", {
+    p_company_product_id: companyProductId,
+    p_dimension_type: dimensionType,
+    p_min_mm: minMm,
+    p_max_mm: maxMm,
+  });
+
+  if (error) redirect(managedProfilePath("error", error.message));
+  revalidateManagedProfile(companyId);
+  redirect(managedProfilePath("message", "Range dimensionale aggiornato."));
+}
+
+export async function removeManagedProductDimensionScope(formData: FormData) {
+  await requireWorkspaceAdmin();
+  const companyId = textValue(formData, "network_company_id");
+  const companyProductId = textValue(formData, "company_product_id");
+  const dimensionType = textValue(formData, "dimension_type");
+
+  if (!companyId || !companyProductId || !dimensionType) {
+    redirect(managedProfilePath("error", "Range dimensionale non valido."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p3_7e_remove_product_dimension", {
+    p_company_product_id: companyProductId,
+    p_dimension_type: dimensionType,
+  });
+
+  if (error) redirect(managedProfilePath("error", error.message));
+  revalidateManagedProfile(companyId);
+  redirect(managedProfilePath("message", "Range dimensionale rimosso."));
+}
+
 export async function upsertManagedFacility(formData: FormData) {
   await requireWorkspaceAdmin();
   const companyId = textValue(formData, "network_company_id");
