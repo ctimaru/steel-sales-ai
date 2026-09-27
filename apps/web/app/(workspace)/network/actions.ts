@@ -67,6 +67,226 @@ export async function updateManagedNetworkProfile(formData: FormData) {
 }
 
 
+function managedProfilePath(key: "message" | "error", value: string) {
+  return "/network/manage?" + key + "=" + encodeURIComponent(value);
+}
+
+function revalidateManagedProfile(companyId: string) {
+  revalidatePath("/network/manage");
+  revalidatePath("/network/" + companyId);
+  revalidatePath("/network");
+}
+
+export async function setManagedCompanyRole(formData: FormData) {
+  await requireWorkspaceAdmin();
+  const companyId = textValue(formData, "network_company_id");
+  const roleKey = textValue(formData, "role_key");
+  const enabled = textValue(formData, "enabled") !== "false";
+  const isPrimary = textValue(formData, "is_primary") === "true";
+
+  if (!companyId || !roleKey) redirect(managedProfilePath("error", "Ruolo non valido."));
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p3_7b_set_role", {
+    p_network_company_id: companyId,
+    p_role_key: roleKey,
+    p_enabled: enabled,
+    p_is_primary: isPrimary,
+  });
+
+  if (error) redirect(managedProfilePath("error", error.message));
+  revalidateManagedProfile(companyId);
+  redirect(managedProfilePath("message", enabled ? "Ruolo aziendale aggiornato." : "Ruolo rimosso."));
+}
+
+export async function setManagedCompanySubtype(formData: FormData) {
+  await requireWorkspaceAdmin();
+  const companyId = textValue(formData, "network_company_id");
+  const subtypeKey = textValue(formData, "subtype_key");
+  const enabled = textValue(formData, "enabled") !== "false";
+
+  if (!companyId || !subtypeKey) redirect(managedProfilePath("error", "Sottotipo non valido."));
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p3_7b_set_subtype", {
+    p_network_company_id: companyId,
+    p_subtype_key: subtypeKey,
+    p_enabled: enabled,
+  });
+
+  if (error) redirect(managedProfilePath("error", error.message));
+  revalidateManagedProfile(companyId);
+  redirect(managedProfilePath("message", enabled ? "Sottotipo aggiunto." : "Sottotipo rimosso."));
+}
+
+export async function setManagedCompanyProduct(formData: FormData) {
+  await requireWorkspaceAdmin();
+  const companyId = textValue(formData, "network_company_id");
+  const productKey = textValue(formData, "product_key");
+  const relationshipType = textValue(formData, "relationship_type");
+  const facilityId = textValue(formData, "facility_id") || null;
+  const enabled = textValue(formData, "enabled") !== "false";
+
+  if (!companyId || !productKey || !relationshipType) {
+    redirect(managedProfilePath("error", "Relazione prodotto non valida."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p3_7b_set_product", {
+    p_network_company_id: companyId,
+    p_product_key: productKey,
+    p_relationship_type: relationshipType,
+    p_facility_id: facilityId,
+    p_enabled: enabled,
+  });
+
+  if (error) redirect(managedProfilePath("error", error.message));
+  revalidateManagedProfile(companyId);
+  redirect(managedProfilePath("message", enabled ? "Prodotto aggiunto al profilo." : "Relazione prodotto rimossa."));
+}
+
+export async function upsertManagedFacility(formData: FormData) {
+  await requireWorkspaceAdmin();
+  const companyId = textValue(formData, "network_company_id");
+  const facilityId = textValue(formData, "facility_id") || null;
+
+  if (!companyId) redirect(managedProfilePath("error", "Profilo non valido."));
+
+  const payload = {
+    name: textValue(formData, "name"),
+    facility_type: textValue(formData, "facility_type"),
+    address_line_1: textValue(formData, "address_line_1") || null,
+    address_line_2: textValue(formData, "address_line_2") || null,
+    postal_code: textValue(formData, "postal_code") || null,
+    city: textValue(formData, "city") || null,
+    region: textValue(formData, "region") || null,
+    country_code: textValue(formData, "country_code").toUpperCase(),
+    website_url: textValue(formData, "website_url") || null,
+    publication_status: textValue(formData, "publication_status") || "published",
+  };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p3_7b_upsert_facility", {
+    p_network_company_id: companyId,
+    p_facility_id: facilityId,
+    p_payload: payload,
+  });
+
+  if (error) redirect(managedProfilePath("error", error.message));
+  revalidateManagedProfile(companyId);
+  redirect(managedProfilePath("message", facilityId ? "Sede aggiornata." : "Sede aggiunta al profilo."));
+}
+
+export async function archiveManagedFacility(formData: FormData) {
+  await requireWorkspaceAdmin();
+  const companyId = textValue(formData, "network_company_id");
+  const facilityId = textValue(formData, "facility_id");
+  if (!companyId || !facilityId) redirect(managedProfilePath("error", "Sede non valida."));
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p3_7b_archive_facility", {
+    p_network_company_id: companyId,
+    p_facility_id: facilityId,
+  });
+
+  if (error) redirect(managedProfilePath("error", error.message));
+  revalidateManagedProfile(companyId);
+  redirect(managedProfilePath("message", "Sede archiviata."));
+}
+
+export async function setManagedFacilityCapability(formData: FormData) {
+  await requireWorkspaceAdmin();
+  const companyId = textValue(formData, "network_company_id");
+  const facilityId = textValue(formData, "facility_id");
+  const capabilityKey = textValue(formData, "capability_key");
+  const enabled = textValue(formData, "enabled") !== "false";
+
+  if (!companyId || !facilityId || !capabilityKey) {
+    redirect(managedProfilePath("error", "Capability non valida."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p3_7b_set_facility_capability", {
+    p_network_company_id: companyId,
+    p_facility_id: facilityId,
+    p_capability_key: capabilityKey,
+    p_enabled: enabled,
+  });
+
+  if (error) redirect(managedProfilePath("error", error.message));
+  revalidateManagedProfile(companyId);
+  redirect(managedProfilePath("message", enabled ? "Capability aggiunta." : "Capability rimossa."));
+}
+
+export async function setManagedCompanyMarket(formData: FormData) {
+  await requireWorkspaceAdmin();
+  const companyId = textValue(formData, "network_company_id");
+  const marketKey = textValue(formData, "market_key");
+  const enabled = textValue(formData, "enabled") !== "false";
+
+  if (!companyId || !marketKey) redirect(managedProfilePath("error", "Mercato non valido."));
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p3_7b_set_market", {
+    p_network_company_id: companyId,
+    p_market_key: marketKey,
+    p_enabled: enabled,
+  });
+
+  if (error) redirect(managedProfilePath("error", error.message));
+  revalidateManagedProfile(companyId);
+  redirect(managedProfilePath("message", enabled ? "Mercato aggiunto." : "Mercato rimosso."));
+}
+
+export async function upsertManagedCertification(formData: FormData) {
+  await requireWorkspaceAdmin();
+  const companyId = textValue(formData, "network_company_id");
+  const certificationId = textValue(formData, "certification_id") || null;
+  if (!companyId) redirect(managedProfilePath("error", "Profilo non valido."));
+
+  const payload = {
+    certification_type_key: textValue(formData, "certification_type_key"),
+    facility_id: textValue(formData, "facility_id") || null,
+    issuer: textValue(formData, "issuer") || null,
+    certificate_identifier: textValue(formData, "certificate_identifier") || null,
+    valid_from: textValue(formData, "valid_from") || null,
+    valid_to: textValue(formData, "valid_to") || null,
+    scope_text: textValue(formData, "scope_text") || null,
+    evidence_reference: textValue(formData, "evidence_reference") || null,
+  };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p3_7b_upsert_certification", {
+    p_network_company_id: companyId,
+    p_certification_id: certificationId,
+    p_payload: payload,
+  });
+
+  if (error) redirect(managedProfilePath("error", error.message));
+  revalidateManagedProfile(companyId);
+  redirect(managedProfilePath("message", certificationId ? "Certificazione aggiornata." : "Certificazione aggiunta."));
+}
+
+export async function removeManagedCertification(formData: FormData) {
+  await requireWorkspaceAdmin();
+  const companyId = textValue(formData, "network_company_id");
+  const certificationId = textValue(formData, "certification_id");
+  if (!companyId || !certificationId) {
+    redirect(managedProfilePath("error", "Certificazione non valida."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p3_7b_remove_certification", {
+    p_network_company_id: companyId,
+    p_certification_id: certificationId,
+  });
+
+  if (error) redirect(managedProfilePath("error", error.message));
+  revalidateManagedProfile(companyId);
+  redirect(managedProfilePath("message", "Certificazione rimossa."));
+}
+
+
 async function activeOrganizationId() {
   await requireWorkspaceWriteRole();
   const supabase = await createClient();
