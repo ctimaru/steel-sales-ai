@@ -56,7 +56,8 @@ test("P3.7D governs logo and public-contact mutations with provenance and audit"
 });
 
 test("P3.7D Company Profile Manager exposes logo and public-contact management", () => {
-  assert.match(manage, /Company Profile Manager · P3\.7D/);
+  assert.match(manage, /Company Profile Manager · P3\.7B/);
+  assert.match(manage, /P3\.7D · Identity & Public Contacts/);
   assert.match(manage, /Logo aziendale/);
   assert.match(manage, /Contatti pubblici/);
   assert.match(manage, /Commercial Memory restano completamente separati/);
