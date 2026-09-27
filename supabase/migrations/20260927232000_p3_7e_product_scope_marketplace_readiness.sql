@@ -903,3 +903,250 @@ comment on table public.network_company_product_grade_scopes is
   'P3.7E company-declared material-grade scope, always tied to a selected canonical standard.';
 comment on table public.network_company_product_dimension_scopes is
   'P3.7E declared supplier dimensional envelope in millimetres for tubes/hollow-sections product relationships.';
+
+
+-- P3.7E hardening: enforce technical semantics at the table boundary and
+-- expose only published-company scope through public/Marketplace projections.
+
+grant select,insert,update,delete on table public.network_product_family_steel_mappings to service_role;
+grant select,insert,update,delete on table public.network_company_product_standard_scopes to service_role;
+grant select,insert,update,delete on table public.network_company_product_grade_scopes to service_role;
+grant select,insert,update,delete on table public.network_company_product_dimension_scopes to service_role;
+
+create or replace function private.p3_7e_dimension_scope_semantics_guard()
+returns trigger
+language plpgsql
+security invoker
+set search_path=''
+as $function$
+declare
+  v_product_key text;
+begin
+  select pf.canonical_key into v_product_key
+  from public.network_company_products cp
+  join public.network_product_families pf on pf.id=cp.product_family_id
+  where cp.id=new.company_product_id;
+
+  if v_product_key='tubes_pipes'
+     and new.dimension_type not in ('outer_diameter','wall_thickness','length') then
+    raise exception 'dimension type is not valid for tubes & pipes'
+      using errcode='22023';
+  end if;
+
+  if v_product_key='hollow_sections'
+     and new.dimension_type not in (
+       'outer_diameter','width','height','wall_thickness','length'
+     ) then
+    raise exception 'dimension type is not valid for hollow sections'
+      using errcode='22023';
+  end if;
+
+  if v_product_key not in ('tubes_pipes','hollow_sections') then
+    raise exception 'dimension scope is currently available for tubes and hollow sections only'
+      using errcode='22023';
+  end if;
+
+  return new;
+end;
+$function$;
+
+drop trigger if exists network_company_product_dimension_semantics_guard
+on public.network_company_product_dimension_scopes;
+create trigger network_company_product_dimension_semantics_guard
+before insert or update on public.network_company_product_dimension_scopes
+for each row execute function private.p3_7e_dimension_scope_semantics_guard();
+
+create or replace function private.p3_7e_grade_scope_semantics_guard()
+returns trigger
+language plpgsql
+security invoker
+set search_path=''
+as $function$
+begin
+  if not exists(
+    select 1
+    from public.network_company_products cp
+    join public.network_product_family_steel_mappings map
+      on map.network_product_family_id=cp.product_family_id
+    where cp.id=new.company_product_id
+      and (
+        exists(
+          select 1
+          from public.steel_standard_grade_applicability a
+          where a.standard_id=new.standard_id
+            and a.material_grade_id=new.material_grade_id
+            and a.product_family=map.steel_product_family
+        )
+        or (
+          exists(
+            select 1
+            from public.steel_standard_grades sg
+            where sg.standard_id=new.standard_id
+              and sg.material_grade_id=new.material_grade_id
+          )
+          and exists(
+            select 1
+            from public.steel_standard_product_families spf
+            where spf.standard_id=new.standard_id
+              and spf.product_family=map.steel_product_family
+          )
+        )
+      )
+  ) then
+    raise exception 'material grade is not applicable to this Network product family'
+      using errcode='22023';
+  end if;
+
+  return new;
+end;
+$function$;
+
+drop trigger if exists network_company_product_grade_semantics_guard
+on public.network_company_product_grade_scopes;
+create trigger network_company_product_grade_semantics_guard
+before insert or update on public.network_company_product_grade_scopes
+for each row execute function private.p3_7e_grade_scope_semantics_guard();
+
+create or replace function private.p3_7e_public_product_scope_impl(
+  p_network_company_id uuid
+)
+returns jsonb
+language sql
+stable
+security definer
+set search_path=''
+as $function$
+select case
+  when not exists(
+    select 1
+    from public.network_companies c
+    where c.id=p_network_company_id
+      and c.publication_status='published'
+  ) then null
+  else jsonb_build_object(
+    'contract','P3.7E-public-v1',
+    'products',coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'company_product_id',cp.id,
+        'key',pf.canonical_key,
+        'relationship_type',cp.relationship_type,
+        'facility_id',cp.facility_id,
+        'standards',coalesce((
+          select jsonb_agg(jsonb_build_object(
+            'standard_id',s.id,
+            'code',s.code,
+            'title',s.title,
+            'verification_status',sc.verification_status,
+            'provenance_kind',private.p3_7e_provenance_kind(
+              sc.source_assertion_id,sc.verification_status
+            )
+          ) order by s.code)
+          from public.network_company_product_standard_scopes sc
+          join public.steel_standards s on s.id=sc.standard_id
+          where sc.company_product_id=cp.id
+        ),'[]'::jsonb),
+        'grades',coalesce((
+          select jsonb_agg(jsonb_build_object(
+            'standard_id',gs.standard_id,
+            'standard_code',s.code,
+            'material_grade_id',mg.id,
+            'designation',mg.designation,
+            'material_number',mg.material_number,
+            'verification_status',gs.verification_status,
+            'provenance_kind',private.p3_7e_provenance_kind(
+              gs.source_assertion_id,gs.verification_status
+            )
+          ) order by s.code,mg.designation)
+          from public.network_company_product_grade_scopes gs
+          join public.steel_standards s on s.id=gs.standard_id
+          join public.steel_material_grades mg on mg.id=gs.material_grade_id
+          where gs.company_product_id=cp.id
+        ),'[]'::jsonb),
+        'dimensions',coalesce((
+          select jsonb_agg(jsonb_build_object(
+            'dimension_type',ds.dimension_type,
+            'min_mm',ds.min_mm,
+            'max_mm',ds.max_mm,
+            'verification_status',ds.verification_status,
+            'provenance_kind',private.p3_7e_provenance_kind(
+              ds.source_assertion_id,ds.verification_status
+            )
+          ) order by ds.dimension_type)
+          from public.network_company_product_dimension_scopes ds
+          where ds.company_product_id=cp.id
+        ),'[]'::jsonb)
+      ) order by pf.sort_order,pf.display_name,cp.relationship_type,cp.id)
+      from public.network_company_products cp
+      join public.network_product_families pf on pf.id=cp.product_family_id
+      where cp.company_id=p_network_company_id
+    ),'[]'::jsonb)
+  )
+end;
+$function$;
+
+revoke all on function private.p3_7e_public_product_scope_impl(uuid)
+from public;
+grant execute on function private.p3_7e_public_product_scope_impl(uuid)
+to anon,authenticated,service_role;
+
+create or replace function public.p3_7e_public_product_scope(
+  p_network_company_id uuid
+)
+returns jsonb
+language sql
+stable
+security invoker
+set search_path=''
+as $function$
+  select private.p3_7e_public_product_scope_impl(p_network_company_id);
+$function$;
+
+revoke all on function public.p3_7e_public_product_scope(uuid)
+from public;
+grant execute on function public.p3_7e_public_product_scope(uuid)
+to anon,authenticated,service_role;
+
+create or replace function private.p3_7e_marketplace_supplier_scope_impl(
+  p_network_company_id uuid
+)
+returns jsonb
+language sql
+stable
+security definer
+set search_path=''
+as $function$
+select case
+  when private.p3_7e_public_product_scope_impl(p_network_company_id) is null then null
+  else jsonb_build_object(
+    'contract','P3.7E-marketplace-v1',
+    'network_company_id',p_network_company_id,
+    'products',
+      private.p3_7e_public_product_scope_impl(p_network_company_id)->'products'
+  )
+end;
+$function$;
+
+revoke all on function private.p3_7e_marketplace_supplier_scope_impl(uuid)
+from public,anon;
+grant execute on function private.p3_7e_marketplace_supplier_scope_impl(uuid)
+to authenticated,service_role;
+
+create or replace function public.p3_7e_marketplace_supplier_scope(
+  p_network_company_id uuid
+)
+returns jsonb
+language sql
+stable
+security invoker
+set search_path=''
+as $function$
+  select private.p3_7e_marketplace_supplier_scope_impl(p_network_company_id);
+$function$;
+
+revoke all on function public.p3_7e_marketplace_supplier_scope(uuid)
+from public,anon;
+grant execute on function public.p3_7e_marketplace_supplier_scope(uuid)
+to authenticated,service_role;
+
+comment on function public.p3_7e_marketplace_supplier_scope(uuid) is
+  'P3.7E matching-ready supplier read model: public company-product scope linked to canonical Steel Knowledge standards, material grades and dimensional envelopes.';
