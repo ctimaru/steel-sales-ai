@@ -14,6 +14,7 @@ import {
   getNetworkProfile,
 } from "@/lib/network";
 import { PilotEvent } from "@/components/pilot-event";
+import { getMyCompanyClaim, type CompanyClaimState } from "@/lib/company-claims";
 import { canInteractWithNetwork } from "@/lib/access-policy";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { createClient } from "@/lib/supabase/server";
@@ -48,6 +49,7 @@ export default async function NetworkCompanyProfilePage({
   let isSaved = false;
   let inquiryEligible = false;
   let isFollowed = false;
+  let claimState: CompanyClaimState | null = null;
 
   if (userId) {
     const { data: memberships } = await supabase
@@ -64,6 +66,9 @@ export default async function NetworkCompanyProfilePage({
       memberships?.find((row) => row.is_default && row.role === "admin") ??
       memberships?.find((row) => row.role === "admin");
     adminOrganizationId = adminMembership?.organization_id ?? null;
+    if (adminOrganizationId) {
+      claimState = await getMyCompanyClaim(profile.company.id, adminOrganizationId);
+    }
 
     if (organizationId) {
       const { data: saved } = await supabase
@@ -152,12 +157,36 @@ export default async function NetworkCompanyProfilePage({
               </Link>
             ) : null}
 
-            {profile.company.claimed_status === "unclaimed" && adminOrganizationId ? (
+            {claimState && ["requested", "under_review"].includes(claimState.status) ? (
+              <div className="rounded-xl border border-[#d7e5ff] bg-[#eef5ff] px-4 py-3 text-xs text-[#40516a]">
+                <p className="font-semibold text-[#1e2b45]">Claim in verifica</p>
+                <p className="mt-1">
+                  {claimState.proof_status === "verified"
+                    ? "Ownership verificata · in attesa approvazione Superadmin"
+                    : claimState.proof_status === "rejected"
+                      ? "Ownership proof rifiutata · serve revisione"
+                      : "Ownership da verificare · controllo Superadmin richiesto"}
+                </p>
+              </div>
+            ) : null}
+
+            {claimState?.status === "approved" ? (
+              <Link
+                href="/network/manage"
+                className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-[#2f6fed] px-4 text-sm font-semibold text-white hover:bg-[#245ed1]"
+              >
+                Gestisci profilo azienda
+              </Link>
+            ) : null}
+
+            {["unclaimed", "revoked"].includes(profile.company.claimed_status) &&
+            adminOrganizationId &&
+            !claimState ? (
               <form action={requestNetworkClaim}>
                 <input type="hidden" name="network_company_id" value={profile.company.id} />
                 <input type="hidden" name="organization_id" value={adminOrganizationId} />
-                <button className="h-10 w-full rounded-xl bg-[#1b4c5d] px-4 text-sm font-semibold text-white">
-                  Richiedi gestione profilo
+                <button className="h-10 w-full rounded-xl bg-[#2f6fed] px-4 text-sm font-semibold text-white hover:bg-[#245ed1]">
+                  Rivendica questo profilo
                 </button>
               </form>
             ) : null}
