@@ -90,25 +90,54 @@ export default async function CompanyDiscoveryPage({
             </p>
           </div>
           <form action={startCompanyDiscovery} className="space-y-3">
-            <div className="grid gap-3 sm:grid-cols-[110px_1fr]">
+            <div className="grid gap-3 sm:grid-cols-[110px_1fr_1.2fr]">
               <input
                 name="country_code"
                 defaultValue="IT"
                 maxLength={2}
-                className="h-11 rounded-xl border border-[#e1e8f2] px-3 text-sm uppercase outline-none"
+                className="h-11 rounded-xl border border-[#e1e8f2] px-3 text-sm uppercase outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
                 aria-label="Paese"
               />
-              <textarea
-                name="seed_urls"
-                required
-                rows={6}
-                placeholder={"https://azienda1.it/\nhttps://azienda2.it/"}
-                className="w-full rounded-xl border border-[#e1e8f2] px-3 py-3 text-sm outline-none"
+              <select
+                name="source_type"
+                defaultValue="manual_url"
+                className="h-11 rounded-xl border border-[#e1e8f2] bg-white px-3 text-sm text-[#40516a] outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+              >
+                <option value="manual_url">URL manuali</option>
+                <option value="web_search_curated">Web search curata</option>
+                <option value="industry_directory">Directory industriale</option>
+                <option value="association">Associazione</option>
+                <option value="registry">Registro pubblico</option>
+                <option value="other">Altra fonte</option>
+              </select>
+              <input
+                name="label"
+                maxLength={255}
+                placeholder="Etichetta campagna, es. P3.5 Italy Tube Coverage B"
+                className="h-11 rounded-xl border border-[#e1e8f2] px-3 text-sm outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
               />
             </div>
-            <button className="platform-primary h-11 rounded-xl px-5 text-sm font-semibold">
-              Avvia discovery
-            </button>
+            <input
+              name="source_reference"
+              maxLength={2000}
+              placeholder="Riferimento/provenance della coorte"
+              className="h-11 w-full rounded-xl border border-[#e1e8f2] px-3 text-sm outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+            />
+            <textarea
+              name="seed_urls"
+              required
+              rows={6}
+              placeholder={"https://azienda1.it/\nhttps://azienda2.it/"}
+              className="w-full rounded-xl border border-[#e1e8f2] px-3 py-3 text-sm outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+            />
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-xs leading-5 text-[#7a899d]">
+                P3.5: usa label e provenance per separare le campagne di coverage dalle revalidation e dagli enrichment batch.
+              </p>
+              <button className="platform-primary h-11 shrink-0 rounded-xl px-5 text-sm font-semibold">
+                Avvia discovery
+              </button>
+            </div>
           </form>
         </div>
       </section>
@@ -147,6 +176,61 @@ export default async function CompanyDiscoveryPage({
             <span className="rounded-full bg-[#eef5f6] px-3 py-1.5 text-xs font-semibold text-[#1b4c5d]">
               {latestRun.status}
             </span>
+          </div>
+        </section>
+      ) : null}
+
+      {runs.length ? (
+        <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">
+                Coverage telemetry
+              </p>
+              <h2 className="mt-1 text-lg font-semibold text-[#1e2b45]">Batch discovery recenti</h2>
+            </div>
+            <p className="hidden text-xs text-[#91a0b2] sm:block">seed → candidati → review</p>
+          </div>
+          <div className="mt-4 overflow-x-auto">
+            <table className="min-w-full text-left text-xs">
+              <thead className="text-[#91a0b2]">
+                <tr className="border-b border-[#edf1f6]">
+                  <th className="pb-2 pr-4 font-semibold">Campagna</th>
+                  <th className="pb-2 pr-4 font-semibold">Fonte</th>
+                  <th className="pb-2 pr-4 font-semibold">Seed</th>
+                  <th className="pb-2 pr-4 font-semibold">Candidati</th>
+                  <th className="pb-2 pr-4 font-semibold">Yield</th>
+                  <th className="pb-2 pr-4 font-semibold">Skip / errori</th>
+                  <th className="pb-2 font-semibold">Stato</th>
+                </tr>
+              </thead>
+              <tbody>
+                {runs.slice(0, 8).map((run) => {
+                  const yieldPct =
+                    run.seed_count > 0
+                      ? Math.round((run.candidate_count / run.seed_count) * 100)
+                      : 0;
+                  return (
+                    <tr key={run.id} className="border-b border-[#f0f3f7] last:border-0">
+                      <td className="py-3 pr-4 font-semibold text-[#34445c]">
+                        <p>{run.label ?? "Senza etichetta"}</p>
+                        <p className="mt-0.5 font-normal text-[#91a0b2]">run {run.id.slice(0, 8)}</p>
+                      </td>
+                      <td className="py-3 pr-4 text-[#68788e]">{run.source_type.replaceAll("_", " ")}</td>
+                      <td className="py-3 pr-4 text-[#40516a]">{run.seed_count}</td>
+                      <td className="py-3 pr-4 text-[#40516a]">{run.candidate_count}</td>
+                      <td className="py-3 pr-4 font-semibold text-[#2f6fed]">{yieldPct}%</td>
+                      <td className="py-3 pr-4 text-[#68788e]">{run.skipped_count} / {run.error_count}</td>
+                      <td className="py-3">
+                        <span className="rounded-full bg-[#f1f5fa] px-2.5 py-1 font-semibold text-[#53637a]">
+                          {run.status}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </section>
       ) : null}
