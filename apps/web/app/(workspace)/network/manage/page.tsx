@@ -3,7 +3,9 @@ import { redirect } from "next/navigation";
 
 import {
   archiveManagedFacility,
+  archiveManagedPublicContact,
   removeManagedCertification,
+  removeManagedCompanyLogo,
   setInquiryPreferences,
   setManagedCompanyMarket,
   setManagedCompanyProduct,
@@ -11,13 +13,16 @@ import {
   setManagedCompanySubtype,
   setManagedFacilityCapability,
   updateManagedNetworkProfile,
+  uploadManagedCompanyLogo,
   upsertManagedCertification,
   upsertManagedFacility,
+  upsertManagedPublicContact,
 } from "@/app/(workspace)/network/actions";
 import {
   getInquiryPreferences,
   getManagedNetworkCompany,
   getManagedNetworkProfileState,
+  getNetworkCompanyLogoUrl,
   type ManagedProfileRelationMeta,
 } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
@@ -174,6 +179,10 @@ export default async function ManagedNetworkProfilePage({
   const roleKeys = new Set(state.roles.map((item) => item.key));
   const availableSubtypes = state.taxonomy.subtypes.filter((item) => roleKeys.has(item.role_key));
   const completeness = state.completeness.sections;
+  const logoUrl = getNetworkCompanyLogoUrl(
+    state.company.logo_path,
+    state.company.logo_updated_at,
+  );
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-16">
@@ -200,7 +209,7 @@ export default async function ManagedNetworkProfilePage({
       <section className="rounded-3xl border border-[#dfe7f1] bg-white p-6 shadow-sm sm:p-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#2f6fed]">Company Profile Manager · P3.7B</p>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#2f6fed]">Company Profile Manager · P3.7D</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1e2b45] sm:text-4xl">
               {state.company.trading_name || state.company.legal_name}
             </h1>
@@ -258,6 +267,7 @@ export default async function ManagedNetworkProfilePage({
             ["facilities", "Sedi & capability"],
             ["markets", "Mercati"],
             ["certifications", "Certificazioni"],
+            ["contacts", "Contatti pubblici"],
             ["inquiries", "Inquiry"],
           ].map(([href, label]) => (
             <a
@@ -278,6 +288,58 @@ export default async function ManagedNetworkProfilePage({
           title="Identità commerciale"
           description="I dati legali restano governati dalla piattaforma. Qui puoi gestire la presentazione commerciale del profilo."
         />
+
+        <div className="grid gap-5 rounded-2xl border border-[#dfe7f1] bg-[#fbfcfe] p-5 lg:grid-cols-[180px_1fr] lg:items-center">
+          <div className="flex h-36 w-full items-center justify-center overflow-hidden rounded-2xl border border-[#dbe5f1] bg-white">
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt={"Logo " + (state.company.trading_name || state.company.legal_name)}
+                className="max-h-28 max-w-[140px] object-contain"
+              />
+            ) : (
+              <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#eef5ff] text-2xl font-bold text-[#2f6fed]">
+                {(state.company.trading_name || state.company.legal_name)
+                  .split(/\\s+/)
+                  .filter(Boolean)
+                  .slice(0, 2)
+                  .map((part) => part[0]?.toUpperCase())
+                  .join("") || "SS"}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <h3 className="font-semibold text-[#34445c]">Logo aziendale</h3>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-[#718197]">
+              PNG, JPEG o WebP fino a 2 MB. Il logo è pubblico nel Network ma non modifica lo stato di verifica dell&apos;azienda.
+            </p>
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
+              <form action={uploadManagedCompanyLogo} encType="multipart/form-data" className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-end">
+                <input type="hidden" name="network_company_id" value={companyId} />
+                <div className="min-w-0 flex-1">
+                  <FieldLabel>File logo</FieldLabel>
+                  <input
+                    type="file"
+                    name="logo"
+                    accept="image/png,image/jpeg,image/webp"
+                    required
+                    className="mt-2 block w-full rounded-xl border border-[#dbe5f1] bg-white px-3 py-2 text-sm text-[#52637a] file:mr-3 file:rounded-lg file:border-0 file:bg-[#eef5ff] file:px-3 file:py-2 file:text-xs file:font-semibold file:text-[#2f6fed]"
+                  />
+                </div>
+                <button className={primaryButton}>Carica logo</button>
+              </form>
+
+              {state.company.logo_path ? (
+                <form action={removeManagedCompanyLogo}>
+                  <input type="hidden" name="network_company_id" value={companyId} />
+                  <input type="hidden" name="logo_path" value={state.company.logo_path} />
+                  <button className={dangerButton}>Rimuovi logo</button>
+                </form>
+              ) : null}
+            </div>
+          </div>
+        </div>
 
         <div className="grid gap-4 rounded-2xl border border-[#edf1f6] bg-[#fafbfd] p-4 sm:grid-cols-2 lg:grid-cols-4">
           <div>
@@ -761,8 +823,154 @@ export default async function ManagedNetworkProfilePage({
 
       <section className="space-y-5 rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
         <SectionHeader
+          id="contacts"
+          eyebrow="07 · Public contacts"
+          title="Contatti pubblici"
+          description="Pubblica solo riferimenti che l'azienda vuole rendere visibili nel Network. I contatti della Commercial Memory restano completamente separati."
+        />
+
+        <div className="space-y-4">
+          {state.contacts.map((contact) => {
+            const editable =
+              contact.ownership_type === "company_managed" &&
+              contact.verification_status !== "verified";
+
+            return (
+              <article key={contact.id} className="rounded-2xl border border-[#e1e8f2] bg-[#fbfcfe] p-5">
+                <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-semibold text-[#34445c]">
+                      {contact.display_name || contact.contact_type}
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <ProvenanceBadge
+                        item={{
+                          ownership_type: contact.ownership_type || "platform_curated",
+                          source_type: contact.source_type || "platform_curated",
+                          review_state: contact.review_state || "accepted",
+                        }}
+                      />
+                      <VerificationBadge status={contact.verification_status} />
+                      <span className="rounded-full bg-[#f2f5f8] px-2.5 py-1 text-[11px] font-semibold text-[#66768d]">
+                        {contact.publication_status === "published" ? "Pubblico" : "Bozza"}
+                      </span>
+                    </div>
+                  </div>
+                  {editable ? (
+                    <form action={archiveManagedPublicContact}>
+                      <input type="hidden" name="network_company_id" value={companyId} />
+                      <input type="hidden" name="contact_id" value={contact.id} />
+                      <button className={dangerButton}>Archivia</button>
+                    </form>
+                  ) : null}
+                </div>
+
+                {editable ? (
+                  <form action={upsertManagedPublicContact} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <input type="hidden" name="network_company_id" value={companyId} />
+                    <input type="hidden" name="contact_id" value={contact.id} />
+                    <div>
+                      <FieldLabel>Tipo</FieldLabel>
+                      <select name="contact_type" defaultValue={contact.contact_type} required className={inputClass}>
+                        <option value="general">Generale</option>
+                        <option value="sales">Commerciale</option>
+                        <option value="purchasing">Acquisti</option>
+                        <option value="technical">Tecnico</option>
+                        <option value="quality">Qualità</option>
+                        <option value="logistics">Logistica</option>
+                      </select>
+                    </div>
+                    <div><FieldLabel>Nome / reparto</FieldLabel><input name="display_name" defaultValue={contact.display_name ?? ""} maxLength={200} className={inputClass} /></div>
+                    <div><FieldLabel>Email</FieldLabel><input type="email" name="email" defaultValue={contact.email ?? ""} maxLength={320} className={inputClass} /></div>
+                    <div><FieldLabel>Telefono</FieldLabel><input name="phone" defaultValue={contact.phone ?? ""} maxLength={100} className={inputClass} /></div>
+                    <div className="sm:col-span-2"><FieldLabel>URL pubblico</FieldLabel><input type="url" name="website_url" defaultValue={contact.website_url ?? ""} maxLength={500} className={inputClass} /></div>
+                    <div>
+                      <FieldLabel>Sede</FieldLabel>
+                      <select name="facility_id" defaultValue={contact.facility_id ?? ""} className={inputClass}>
+                        <option value="">Intera azienda</option>
+                        {state.facilities.map((facility) => (
+                          <option key={facility.id} value={facility.id}>{facility.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <FieldLabel>Visibilità</FieldLabel>
+                      <select name="publication_status" defaultValue={contact.publication_status} className={inputClass}>
+                        <option value="published">Pubblico</option>
+                        <option value="draft">Bozza</option>
+                      </select>
+                    </div>
+                    <div className="sm:col-span-2 lg:col-span-4">
+                      <button className={primaryButton}>Salva contatto</button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="grid gap-2 text-sm text-[#66778c] sm:grid-cols-2">
+                    {contact.email ? <p><span className="font-semibold text-[#45566e]">Email:</span> {contact.email}</p> : null}
+                    {contact.phone ? <p><span className="font-semibold text-[#45566e]">Telefono:</span> {contact.phone}</p> : null}
+                    {contact.website_url ? <p className="sm:col-span-2"><span className="font-semibold text-[#45566e]">URL:</span> {contact.website_url}</p> : null}
+                    <p className="sm:col-span-2 text-xs text-[#8594a7]">
+                      Questo contatto proviene da Platform/crawler o ha una verifica attiva e non può essere sovrascritto direttamente dall&apos;azienda.
+                    </p>
+                  </div>
+                )}
+              </article>
+            );
+          })}
+          {state.contacts.length === 0 ? (
+            <p className="text-sm text-[#8a98aa]">Nessun contatto pubblico configurato.</p>
+          ) : null}
+        </div>
+
+        <div className="rounded-2xl border border-dashed border-[#c7d5e7] bg-[#fafcff] p-5">
+          <h3 className="font-semibold text-[#34445c]">Aggiungi contatto pubblico</h3>
+          <p className="mt-1 text-sm text-[#718197]">
+            Inserisci almeno uno tra email, telefono o URL. Il dato sarà trattato come dichiarazione pubblica dell&apos;azienda.
+          </p>
+          <form action={upsertManagedPublicContact} className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <input type="hidden" name="network_company_id" value={companyId} />
+            <div>
+              <FieldLabel>Tipo</FieldLabel>
+              <select name="contact_type" defaultValue="general" required className={inputClass}>
+                <option value="general">Generale</option>
+                <option value="sales">Commerciale</option>
+                <option value="purchasing">Acquisti</option>
+                <option value="technical">Tecnico</option>
+                <option value="quality">Qualità</option>
+                <option value="logistics">Logistica</option>
+              </select>
+            </div>
+            <div><FieldLabel>Nome / reparto</FieldLabel><input name="display_name" maxLength={200} placeholder="Es. Ufficio commerciale" className={inputClass} /></div>
+            <div><FieldLabel>Email</FieldLabel><input type="email" name="email" maxLength={320} className={inputClass} /></div>
+            <div><FieldLabel>Telefono</FieldLabel><input name="phone" maxLength={100} className={inputClass} /></div>
+            <div className="sm:col-span-2"><FieldLabel>URL pubblico</FieldLabel><input type="url" name="website_url" maxLength={500} className={inputClass} /></div>
+            <div>
+              <FieldLabel>Sede</FieldLabel>
+              <select name="facility_id" className={inputClass}>
+                <option value="">Intera azienda</option>
+                {state.facilities.map((facility) => (
+                  <option key={facility.id} value={facility.id}>{facility.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <FieldLabel>Visibilità</FieldLabel>
+              <select name="publication_status" defaultValue="published" className={inputClass}>
+                <option value="published">Pubblico</option>
+                <option value="draft">Bozza</option>
+              </select>
+            </div>
+            <div className="sm:col-span-2 lg:col-span-4">
+              <button className={primaryButton}>Aggiungi contatto</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section className="space-y-5 rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
+        <SectionHeader
           id="inquiries"
-          eyebrow="07 · Network availability"
+          eyebrow="08 · Network availability"
           title="Ricezione inquiry"
           description="Decidi se gli altri membri del Network possono contattare l'organizzazione dal profilo. La modifica non cancella lo storico."
         />
