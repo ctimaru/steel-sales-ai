@@ -64,7 +64,7 @@ export default async function DashboardPage() {
             {context.platformSuperadmin ? (
               <Link
                 href={appRoutes.platform.home}
-                className="inline-flex h-10 items-center rounded-xl bg-[#1b4c5d] px-4 text-sm font-semibold text-white shadow-[0_1px_1px_rgba(11,23,30,0.12)] hover:bg-[#153542]"
+                className="inline-flex h-10 items-center rounded-xl bg-[#2f6fed] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#245ed1]"
               >
                 Platform Console
               </Link>
