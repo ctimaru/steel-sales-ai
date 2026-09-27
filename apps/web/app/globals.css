@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f3f5f7;
-  --foreground: #17232d;
+  --background: #f5f7fb;
+  --foreground: #1e2b45;
   --card: #ffffff;
-  --muted: #edf1f3;
-  --muted-foreground: #66737d;
-  --border: #d9e0e4;
+  --muted: #eef3fa;
+  --muted-foreground: #6b7a90;
+  --border: #e3eaf5;
 
   --brand-950: #0b171e;
   --brand-900: #10232c;
@@ -27,8 +27,8 @@
   --success: #18725d;
   --warning: #a96616;
   --danger: #b42318;
-  --focus: #6e9eab;
-  --primary: var(--brand-700);
+  --focus: #2f6fed;
+  --primary: #2f6fed;
 }
 
 * {
@@ -44,7 +44,7 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    linear-gradient(180deg, rgba(11, 23, 30, 0.015), transparent 180px),
+    radial-gradient(circle at 85% -10%, rgba(47, 111, 237, 0.06), transparent 28rem),
     var(--background);
   color: var(--foreground);
   font-family:
@@ -98,8 +98,8 @@ textarea {
 }
 
 ::selection {
-  background: #cde2e7;
-  color: #0b171e;
+  background: #dbe9ff;
+  color: #17396f;
 }
 
 .metric-number {
@@ -124,12 +124,12 @@ textarea {
 }
 
 .brand-button {
-  background: var(--brand-700);
+  background: #2f6fed;
   color: white;
 }
 
 .brand-button:hover {
-  background: var(--brand-800);
+  background: #245ed1;
 }
 
 .copper-accent {
@@ -138,5 +138,43 @@ textarea {
 
 .sidebar-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #324751 transparent;
+  scrollbar-color: #c7d3e3 transparent;
+}
+
+
+.platform-surface {
+  border: 1px solid #e3eaf5;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(30, 43, 69, 0.025), 0 10px 28px rgba(30, 43, 69, 0.035);
+}
+
+.platform-kicker {
+  color: #2f6fed;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.platform-primary {
+  border: 1px solid #2f6fed;
+  background: #2f6fed;
+  color: #ffffff;
+}
+
+.platform-primary:hover {
+  border-color: #245ed1;
+  background: #245ed1;
+}
+
+.platform-secondary {
+  border: 1px solid #dbe5f1;
+  background: #ffffff;
+  color: #40516a;
+}
+
+.platform-secondary:hover {
+  border-color: #bdd1f4;
+  background: #f3f7ff;
+  color: #2f6fed;
 }
