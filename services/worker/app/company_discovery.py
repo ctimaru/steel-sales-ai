@@ -928,6 +928,7 @@ class CompanyDiscoveryService:
         country = str(candidate["country_code"])
         legal_name = " ".join(str(candidate["legal_name"]).lower().split())
         vat_id = candidate.get("vat_id")
+        ambiguity_signals: list[str] = []
 
         filters: list[tuple[str, str]] = [
             (
@@ -952,11 +953,15 @@ class CompanyDiscoveryService:
                 "GET",
                 "/rest/v1/network_companies"
                 f"?{filter_value}&publication_status=neq.archived"
-                "&select=id,website_domain,vat_id,normalized_legal_name,country_code&limit=1",
+                "&select=id,website_domain,vat_id,normalized_legal_name,country_code&limit=2",
             )
-            if isinstance(rows, list) and rows:
-                return str(rows[0]["id"]), [signal]
-        return None, []
+            if not isinstance(rows, list) or not rows:
+                continue
+            if len(rows) > 1:
+                ambiguity_signals.append(signal.replace("_exact", "_ambiguous"))
+                continue
+            return str(rows[0]["id"]), [*ambiguity_signals, signal]
+        return None, ambiguity_signals
 
     async def claim_next(self) -> dict[str, object] | None:
         payload = await self.repo._request(
