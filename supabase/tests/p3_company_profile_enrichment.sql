@@ -86,9 +86,9 @@ values(
   0.9400,
   'p3.4-v1',
   '[{"name":"P34 Torino Plant","facility_type":"plant","address_line_1":"Via Acciaio 34","postal_code":"10100","city":"Torino","region":"Piemonte","country_code":"IT","website_url":"https://p34-existing.example/","source_url":"https://p34-existing.example/"}]'::jsonb,
-  array['laser_cutting'],
-  array['automotive'],
-  '{"structured_facility_count":1,"capability_count":1,"market_count":1}'::jsonb
+  array['laser_cutting','welding_fabrication'],
+  array['automotive','marine'],
+  '{"structured_facility_count":1,"capability_count":2,"market_count":2}'::jsonb
 );
 
 set local role authenticated;
@@ -110,10 +110,13 @@ select pg_temp.p34_assert(
   'bulk duplicate closure must preserve enrichment-ready exact matches'
 );
 
-select public.p3_enrich_existing_company_discovery(
+select public.p3_enrich_existing_company_discovery_selected(
   '00000000-0000-0000-0000-0000000034c1',
   '00000000-0000-0000-0000-0000000034c0',
-  'P3.4 accepted public-web enrichment'
+  'P3.4 selective accepted public-web enrichment',
+  true,
+  array['laser_cutting'],
+  array['automotive']
 ) as enriched \gset
 
 select pg_temp.p34_assert(
@@ -164,6 +167,43 @@ select pg_temp.p34_assert(
   'accepted market evidence must materialize on the existing company'
 );
 
+
+select pg_temp.p34_assert(
+  not exists (
+    select 1
+    from public.network_facility_capabilities fc
+    join public.network_facilities f on f.id=fc.facility_id
+    join public.network_capabilities c on c.id=fc.capability_id
+    where f.company_id='00000000-0000-0000-0000-0000000034c0'
+      and c.canonical_key='welding_fabrication'
+  ),
+  'unselected capability must not materialize'
+);
+
+select pg_temp.p34_assert(
+  not exists (
+    select 1
+    from public.network_company_markets cm
+    join public.network_markets m on m.id=cm.market_id
+    where cm.company_id='00000000-0000-0000-0000-0000000034c0'
+      and m.canonical_key='marine'
+  ),
+  'unselected market must not materialize'
+);
+
+select pg_temp.p34_assert(
+  exists (
+    select 1
+    from public.network_data_assertions a
+    where a.entity_type='company'
+      and a.entity_id='00000000-0000-0000-0000-0000000034c0'
+      and a.field_path='p3_4_public_web_enrichment'
+      and a.asserted_value->'approved'->'capability_keys' ? 'laser_cutting'
+      and not (a.asserted_value->'approved'->'capability_keys' ? 'welding_fabrication')
+  ),
+  'assertion must preserve the selective review decision'
+);
+
 select pg_temp.p34_assert(
   exists (
     select 1 from public.network_data_assertions a
@@ -208,10 +248,13 @@ set local role authenticated;
 do $p34amb$
 begin
   begin
-    perform public.p3_enrich_existing_company_discovery(
+    perform public.p3_enrich_existing_company_discovery_selected(
       '00000000-0000-0000-0000-0000000034c1',
       '00000000-0000-0000-0000-0000000034c0',
-      'ambiguous-domain acceptance'
+      'ambiguous-domain acceptance',
+      true,
+      array['laser_cutting'],
+      array['automotive']
     );
     raise exception 'expected ambiguous-domain enrichment rejection';
   exception
