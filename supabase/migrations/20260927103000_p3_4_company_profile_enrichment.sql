@@ -253,6 +253,7 @@ declare
   v_market_count integer:=0;
   v_capability_count integer:=0;
   v_existing_facility_count integer:=0;
+  v_identity_count integer:=0;
 begin
   v_user_id:=(select auth.uid());
   if v_user_id is null or not private.is_platform_superadmin() then
@@ -292,6 +293,43 @@ begin
 
   if not found then
     raise exception 'existing Network company not found' using errcode='P0002';
+  end if;
+
+  -- Enrichment writes new governed Network data, so an exact signal must resolve
+  -- to one and only one legal entity at decision time. Shared corporate domains
+  -- (for example multiple subsidiaries on one website) are never sufficient.
+  if v_candidate.match_signals ? 'country_vat_exact' then
+    select count(*)::integer into v_identity_count
+    from public.network_companies c
+    where c.publication_status<>'archived'
+      and c.country_code=v_candidate.country_code
+      and upper(c.vat_id)=upper(v_candidate.vat_id);
+
+    if v_identity_count<>1 or not exists (
+      select 1 from public.network_companies c
+      where c.id=v_company_id
+        and c.publication_status<>'archived'
+        and c.country_code=v_candidate.country_code
+        and upper(c.vat_id)=upper(v_candidate.vat_id)
+    ) then
+      raise exception 'VAT identity signal is not unique for enrichment' using errcode='22023';
+    end if;
+  elsif v_candidate.match_signals ? 'website_domain_exact' then
+    select count(*)::integer into v_identity_count
+    from public.network_companies c
+    where c.publication_status<>'archived'
+      and lower(c.website_domain)=lower(v_candidate.canonical_domain);
+
+    if v_identity_count<>1 or not exists (
+      select 1 from public.network_companies c
+      where c.id=v_company_id
+        and c.publication_status<>'archived'
+        and lower(c.website_domain)=lower(v_candidate.canonical_domain)
+    ) then
+      raise exception 'website domain is ambiguous for enrichment' using errcode='22023';
+    end if;
+  else
+    raise exception 'hard exact identity match required for enrichment' using errcode='22023';
   end if;
 
   if jsonb_array_length(v_candidate.facility_candidates)=0
