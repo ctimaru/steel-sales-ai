@@ -7,6 +7,7 @@ const platformNav = [
   { href: "/platform", label: "Platform Home", icon: "home" },
   { href: "/platform/registrations", label: "Registrazioni aziende", icon: "registrations" },
   { href: "/platform/company-discovery", label: "Company Discovery", icon: "discovery" },
+  { href: "/platform/company-claims", label: "Company Claims", icon: "claims" },
 ] as const;
 
 function NavIcon({ name }: { name: (typeof platformNav)[number]["icon"] }) {
@@ -24,6 +25,15 @@ function NavIcon({ name }: { name: (typeof platformNav)[number]["icon"] }) {
       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
         <path d="M4 20.25V8.5L12 4l8 4.5v11.75" />
         <path d="M8 20.25v-6h8v6M8 10h.01M12 10h.01M16 10h.01" />
+      </svg>
+    );
+  }
+
+  if (name === "claims") {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M12 3.75 19 6.5v5.75c0 4.4-2.8 6.9-7 8-4.2-1.1-7-3.6-7-8V6.5L12 3.75Z" />
+        <path d="m9 12 2 2 4-4" />
       </svg>
     );
   }

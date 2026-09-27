@@ -19,19 +19,29 @@ export async function requestNetworkClaim(formData: FormData) {
   if (!companyId || !organizationId) redirect("/network?error=Claim%20non%20valido");
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("m4_request_company_claim", {
+  const { data, error } = await supabase.rpc("p3_6_request_company_claim", {
     p_network_company_id: companyId,
     p_organization_id: organizationId,
-    p_note: "Requested from M8 Network profile",
+    p_note: "Requested from Network company profile",
   });
 
   if (error) {
     redirect("/network/" + companyId + "?error=" + encodeURIComponent(error.message));
   }
 
+  const result = (data ?? {}) as {
+    proof_status?: string;
+    proof_method?: string;
+  };
+  const message =
+    result.proof_status === "verified"
+      ? "Claim inviato. Ownership verificata tramite email aziendale; in attesa approvazione Superadmin."
+      : "Claim inviato. Ownership da verificare; in attesa controllo Superadmin.";
+
   revalidatePath("/network/" + companyId);
   revalidatePath("/network/manage");
-  redirect("/network/" + companyId + "?message=" + encodeURIComponent("Claim inviato al Platform Superadmin."));
+  revalidatePath("/platform/company-claims");
+  redirect("/network/" + companyId + "?message=" + encodeURIComponent(message));
 }
 
 export async function updateManagedNetworkProfile(formData: FormData) {
