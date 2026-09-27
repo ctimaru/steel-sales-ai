@@ -142,6 +142,99 @@ export async function getManagedNetworkCompany() {
 }
 
 
+export type ManagedProfileRelationMeta = {
+  id: string;
+  key: string;
+  name: string;
+  source_assertion_id: string;
+  source_type: string;
+  ownership_type: string;
+  review_state: string;
+};
+
+export type ManagedNetworkProfileState = {
+  contract: {
+    version: string;
+    canonical_profile_model: string;
+    principles: string[];
+    sections: Record<string, unknown>;
+    provenance: Record<string, string>;
+  };
+  organization_id: string;
+  company: ManagedNetworkCompany["company"] & {
+    registration_id: string | null;
+    vat_id: string | null;
+    website_domain: string | null;
+  };
+  roles: (ManagedProfileRelationMeta & { is_primary: boolean })[];
+  subtypes: (ManagedProfileRelationMeta & { role_key: string })[];
+  products: (ManagedProfileRelationMeta & {
+    relationship_type: string;
+    facility_id: string | null;
+  })[];
+  facilities: {
+    id: string;
+    name: string;
+    facility_type: string;
+    address_line_1: string | null;
+    address_line_2: string | null;
+    postal_code: string | null;
+    city: string | null;
+    region: string | null;
+    country_code: string;
+    website_url: string | null;
+    publication_status: string;
+    verification_status: string;
+    capabilities: (ManagedProfileRelationMeta & {
+      verification_status: string;
+    })[];
+  }[];
+  markets: ManagedProfileRelationMeta[];
+  certifications: (ManagedProfileRelationMeta & {
+    facility_id: string | null;
+    issuer: string | null;
+    certificate_identifier: string | null;
+    valid_from: string | null;
+    valid_to: string | null;
+    scope_text: string | null;
+    verification_status: string;
+    evidence_reference: string | null;
+  })[];
+  taxonomy: {
+    roles: { key: string; name: string }[];
+    subtypes: { key: string; name: string; role_key: string }[];
+    products: { key: string; name: string }[];
+    capabilities: { key: string; name: string }[];
+    markets: { key: string; name: string }[];
+    certifications: { key: string; name: string }[];
+  };
+  completeness: {
+    version: string;
+    passed_sections: number;
+    total_sections: number;
+    percentage: number;
+    sections: {
+      identity: boolean;
+      products: boolean;
+      facilities: boolean;
+      capabilities: boolean;
+      markets: boolean;
+      certifications: boolean;
+      inquiry_readiness: boolean;
+    };
+  };
+};
+
+export async function getManagedNetworkProfileState(networkCompanyId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p3_7_managed_profile_state", {
+    p_network_company_id: networkCompanyId,
+  });
+  if (error) throw new Error(error.message);
+  return (data as ManagedNetworkProfileState | null) ?? null;
+}
+
+
 export type SavedNetworkCompany = {
   network_company_id: string;
   created_at: string;
