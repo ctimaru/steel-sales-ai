@@ -46,16 +46,16 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-7">
-      <section className="overflow-hidden rounded-3xl border border-[#d9e0e4] bg-white shadow-[0_1px_2px_rgba(11,23,30,0.035),0_12px_36px_rgba(11,23,30,0.03)]">
-        <div className="h-1 bg-[#1b4c5d]" />
+      <section className="overflow-hidden rounded-3xl border border-[#e1e8f2] bg-white shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)]">
+        <div className="h-1 bg-[#2f6fed]" />
         <div className="p-6 sm:p-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#28677a]">Company Workspace</p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#17232d] sm:text-4xl">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#2f6fed]">Company Workspace</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1e2b45] sm:text-4xl">
               {context.organizationName}
             </h1>
-            <p className="mt-2 text-sm text-[#66737d]">
+            <p className="mt-2 text-sm text-[#68788e]">
               {workspaceRoleLabel(context.role)} · Commercial Memory privata + Steel Network condiviso
             </p>
           </div>
@@ -72,7 +72,7 @@ export default async function DashboardPage() {
             {isAdmin && networkEnabled ? (
               <Link
                 href={appRoutes.company.profile}
-                className="inline-flex h-10 items-center rounded-xl border border-[#d9e0e4] bg-white px-4 text-sm font-semibold text-[#33454e]"
+                className="inline-flex h-10 items-center rounded-xl border border-[#e1e8f2] bg-white px-4 text-sm font-semibold text-[#33454e]"
               >
                 Gestisci profilo azienda
               </Link>
@@ -85,17 +85,17 @@ export default async function DashboardPage() {
             <p className="metric-number text-2xl font-semibold text-amber-950">{metrics.reviewFlags}</p>
             <p className="mt-1 text-xs font-semibold text-amber-800">Elementi da verificare</p>
           </Link>
-          <Link href={appRoutes.network.inquiries + "?box=received"} className="rounded-2xl bg-[#eef5f6] p-4">
-            <p className="metric-number text-2xl font-semibold text-[#153542]">{received.total}</p>
-            <p className="mt-1 text-xs font-semibold text-[#1b4c5d]">Inquiry ricevute</p>
+          <Link href={appRoutes.network.inquiries + "?box=received"} className="rounded-2xl bg-[#eef5ff] p-4">
+            <p className="metric-number text-2xl font-semibold text-[#173468]">{received.total}</p>
+            <p className="mt-1 text-xs font-semibold text-[#2f6fed]">Inquiry ricevute</p>
           </Link>
           <Link href={appRoutes.network.activity + "?unread=1"} className="rounded-2xl bg-sky-50 p-4">
             <p className="metric-number text-2xl font-semibold text-sky-950">{activity.unread}</p>
             <p className="mt-1 text-xs font-semibold text-sky-700">Activity non lette</p>
           </Link>
-          <Link href={appRoutes.operations.alerts} className="rounded-2xl bg-[#edf1f3] p-4">
-            <p className="metric-number text-2xl font-semibold text-[#17232d]">{operational.rfqs + operational.offers + operational.orders}</p>
-            <p className="mt-1 text-xs font-semibold text-[#52636c]">Entità commerciali operative</p>
+          <Link href={appRoutes.operations.alerts} className="rounded-2xl bg-[#f2f5f9] p-4">
+            <p className="metric-number text-2xl font-semibold text-[#1e2b45]">{operational.rfqs + operational.offers + operational.orders}</p>
+            <p className="mt-1 text-xs font-semibold text-[#5f7088]">Entità commerciali operative</p>
           </Link>
         </div>
 
@@ -106,14 +106,14 @@ export default async function DashboardPage() {
               required
               minLength={2}
               placeholder="Cerca prodotto, qualità, norma, cliente o documento"
-              className="h-12 flex-1 rounded-xl border border-slate-300 bg-white px-4 text-base text-[#17232d] outline-none transition focus:border-[#6e9eab] focus:ring-4 focus:ring-[#eef5f6]"
+              className="h-12 flex-1 rounded-xl border border-slate-300 bg-white px-4 text-base text-[#1e2b45] outline-none transition focus:border-[#6e9eab] focus:ring-4 focus:ring-[#eef5f6]"
             />
-            <button className="h-12 rounded-xl bg-slate-950 px-6 text-sm font-semibold text-white">
+            <button className="h-12 rounded-xl bg-[#2f6fed] px-6 text-sm font-semibold text-white shadow-sm hover:bg-[#245ed1]">
               Cerca nello storico
             </button>
           </div>
           <div className="mt-3 flex justify-end">
-            <Link href={appRoutes.commercial.search} className="text-xs font-semibold text-[#28677a]">
+            <Link href={appRoutes.commercial.search} className="text-xs font-semibold text-[#2f6fed]">
               Apri ricerca avanzata →
             </Link>
           </div>
@@ -141,37 +141,37 @@ export default async function DashboardPage() {
 
       <section>
         <div className="mb-3">
-          <h2 className="text-base font-semibold text-[#17232d]">Azioni rapide</h2>
-          <p className="mt-1 text-sm text-[#66737d]">Le attività più utili per il tuo ruolo nel workspace.</p>
+          <h2 className="text-base font-semibold text-[#1e2b45]">Azioni rapide</h2>
+          <p className="mt-1 text-sm text-[#68788e]">Le attività più utili per il tuo ruolo nel workspace.</p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Link href={appRoutes.commercial.search} className="rounded-2xl border border-[#d9e0e4] bg-white p-5 hover:border-[#8fb7c1]">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#28677a]">Commercial Memory</p>
-            <h3 className="mt-3 font-semibold text-[#17232d]">Cerca nello storico</h3>
-            <p className="mt-2 text-sm leading-6 text-[#66737d]">Prodotti, prezzi, richieste, offerte e fonti originali.</p>
+          <Link href={appRoutes.commercial.search} className="rounded-2xl border border-[#e1e8f2] bg-white p-5 hover:border-[#bdd1f4]">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Commercial Memory</p>
+            <h3 className="mt-3 font-semibold text-[#1e2b45]">Cerca nello storico</h3>
+            <p className="mt-2 text-sm leading-6 text-[#68788e]">Prodotti, prezzi, richieste, offerte e fonti originali.</p>
           </Link>
 
           {networkEnabled ? (
-            <Link href={appRoutes.network.directory} className="rounded-2xl border border-[#d9e0e4] bg-white p-5 hover:border-[#8fb7c1]">
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#28677a]">Steel Network</p>
-              <h3 className="mt-3 font-semibold text-[#17232d]">Trova aziende</h3>
-              <p className="mt-2 text-sm leading-6 text-[#66737d]">Esplora profili pubblicati, prodotti, capability e mercati.</p>
+            <Link href={appRoutes.network.directory} className="rounded-2xl border border-[#e1e8f2] bg-white p-5 hover:border-[#bdd1f4]">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Steel Network</p>
+              <h3 className="mt-3 font-semibold text-[#1e2b45]">Trova aziende</h3>
+              <p className="mt-2 text-sm leading-6 text-[#68788e]">Esplora profili pubblicati, prodotti, capability e mercati.</p>
             </Link>
           ) : null}
 
           {canWrite ? (
-            <Link href={appRoutes.operations.uploads} className="rounded-2xl border border-[#d9e0e4] bg-white p-5 hover:border-[#8fb7c1]">
+            <Link href={appRoutes.operations.uploads} className="rounded-2xl border border-[#e1e8f2] bg-white p-5 hover:border-[#bdd1f4]">
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#8b9aa1]">Operations</p>
-              <h3 className="mt-3 font-semibold text-[#17232d]">Importa documenti</h3>
-              <p className="mt-2 text-sm leading-6 text-[#66737d]">Aggiungi email, PDF ed Excel alla memoria commerciale.</p>
+              <h3 className="mt-3 font-semibold text-[#1e2b45]">Importa documenti</h3>
+              <p className="mt-2 text-sm leading-6 text-[#68788e]">Aggiungi email, PDF ed Excel alla memoria commerciale.</p>
             </Link>
           ) : null}
 
           {networkEnabled ? (
-            <Link href={appRoutes.network.inquiries} className="rounded-2xl border border-[#d9e0e4] bg-white p-5 hover:border-[#8fb7c1]">
+            <Link href={appRoutes.network.inquiries} className="rounded-2xl border border-[#e1e8f2] bg-white p-5 hover:border-[#bdd1f4]">
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#8b9aa1]">B2B Interaction</p>
-              <h3 className="mt-3 font-semibold text-[#17232d]">Apri Inquiry</h3>
-              <p className="mt-2 text-sm leading-6 text-[#66737d]">{sent.total} inviate · {received.total} ricevute.</p>
+              <h3 className="mt-3 font-semibold text-[#1e2b45]">Apri Inquiry</h3>
+              <p className="mt-2 text-sm leading-6 text-[#68788e]">{sent.total} inviate · {received.total} ricevute.</p>
             </Link>
           ) : null}
         </div>
@@ -179,46 +179,46 @@ export default async function DashboardPage() {
 
       {networkEnabled ? (
         <section className="grid gap-4 lg:grid-cols-2">
-          <div className="rounded-2xl border border-[#d9e0e4] bg-white p-5">
+          <div className="rounded-2xl border border-[#e1e8f2] bg-white p-5">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <h2 className="font-semibold text-[#17232d]">Il tuo Network</h2>
-                <p className="mt-1 text-sm text-[#66737d]">Interesse privato e aggiornamenti pubblicati.</p>
+                <h2 className="font-semibold text-[#1e2b45]">Il tuo Network</h2>
+                <p className="mt-1 text-sm text-[#68788e]">Interesse privato e aggiornamenti pubblicati.</p>
               </div>
-              <Link href={appRoutes.network.directory} className="text-xs font-semibold text-[#28677a]">Apri Network →</Link>
+              <Link href={appRoutes.network.directory} className="text-xs font-semibold text-[#2f6fed]">Apri Network →</Link>
             </div>
             <div className="mt-5 grid grid-cols-3 gap-3">
-              <Link href={appRoutes.network.saved} className="rounded-xl bg-[#f7f9fa] p-3 text-center">
-                <p className="metric-number text-xl font-semibold text-[#17232d]">{saved.length}</p>
-                <p className="mt-1 text-[11px] text-[#66737d]">Salvate</p>
+              <Link href={appRoutes.network.saved} className="rounded-xl bg-[#f8fafd] p-3 text-center">
+                <p className="metric-number text-xl font-semibold text-[#1e2b45]">{saved.length}</p>
+                <p className="mt-1 text-[11px] text-[#68788e]">Salvate</p>
               </Link>
-              <Link href={appRoutes.network.following} className="rounded-xl bg-[#f7f9fa] p-3 text-center">
-                <p className="metric-number text-xl font-semibold text-[#17232d]">{followed.total}</p>
-                <p className="mt-1 text-[11px] text-[#66737d]">Seguite</p>
+              <Link href={appRoutes.network.following} className="rounded-xl bg-[#f8fafd] p-3 text-center">
+                <p className="metric-number text-xl font-semibold text-[#1e2b45]">{followed.total}</p>
+                <p className="mt-1 text-[11px] text-[#68788e]">Seguite</p>
               </Link>
-              <Link href={appRoutes.network.activity} className="rounded-xl bg-[#f7f9fa] p-3 text-center">
-                <p className="metric-number text-xl font-semibold text-[#17232d]">{activity.unread}</p>
-                <p className="mt-1 text-[11px] text-[#66737d]">Non lette</p>
+              <Link href={appRoutes.network.activity} className="rounded-xl bg-[#f8fafd] p-3 text-center">
+                <p className="metric-number text-xl font-semibold text-[#1e2b45]">{activity.unread}</p>
+                <p className="mt-1 text-[11px] text-[#68788e]">Non lette</p>
               </Link>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-[#d9e0e4] bg-white p-5">
+          <div className="rounded-2xl border border-[#e1e8f2] bg-white p-5">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <h2 className="font-semibold text-[#17232d]">Inquiry B2B</h2>
-                <p className="mt-1 text-sm text-[#66737d]">Conversazioni strutturate tra organizzazioni.</p>
+                <h2 className="font-semibold text-[#1e2b45]">Inquiry B2B</h2>
+                <p className="mt-1 text-sm text-[#68788e]">Conversazioni strutturate tra organizzazioni.</p>
               </div>
-              <Link href={appRoutes.network.inquiries} className="text-xs font-semibold text-[#28677a]">Gestisci →</Link>
+              <Link href={appRoutes.network.inquiries} className="text-xs font-semibold text-[#2f6fed]">Gestisci →</Link>
             </div>
             <div className="mt-5 grid grid-cols-2 gap-3">
-              <div className="rounded-xl bg-[#eef5f6] p-4">
-                <p className="metric-number text-2xl font-semibold text-[#153542]">{received.total}</p>
-                <p className="mt-1 text-xs text-[#1b4c5d]">Ricevute</p>
+              <div className="rounded-xl bg-[#eef5ff] p-4">
+                <p className="metric-number text-2xl font-semibold text-[#173468]">{received.total}</p>
+                <p className="mt-1 text-xs text-[#2f6fed]">Ricevute</p>
               </div>
-              <div className="rounded-xl bg-[#f7f9fa] p-4">
-                <p className="metric-number text-2xl font-semibold text-[#17232d]">{sent.total}</p>
-                <p className="mt-1 text-xs text-[#66737d]">Inviate</p>
+              <div className="rounded-xl bg-[#f8fafd] p-4">
+                <p className="metric-number text-2xl font-semibold text-[#1e2b45]">{sent.total}</p>
+                <p className="mt-1 text-xs text-[#68788e]">Inviate</p>
               </div>
             </div>
           </div>
@@ -231,15 +231,15 @@ export default async function DashboardPage() {
         </Card>
       ) : null}
 
-      <section className="rounded-2xl border border-[#c8dce1] bg-[#eef5f6]/50 p-5">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#28677a]">Workspace normalizzato</p>
+      <section className="rounded-2xl border border-[#d7e5ff] bg-[#eef5ff]/50 p-5">
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Workspace normalizzato</p>
         <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#28677a]">Commercial Memory</p>
-            <h2 className="mt-2 text-lg font-semibold text-[#17232d]">Memoria commerciale privata</h2>
-            <p className="mt-1 text-sm text-[#66737d]">Questi dati appartengono esclusivamente al tuo workspace aziendale.</p>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Commercial Memory</p>
+            <h2 className="mt-2 text-lg font-semibold text-[#1e2b45]">Memoria commerciale privata</h2>
+            <p className="mt-1 text-sm text-[#68788e]">Questi dati appartengono esclusivamente al tuo workspace aziendale.</p>
           </div>
-          <Link href={appRoutes.commercial.search} className="text-sm font-semibold text-[#1b4c5d]">Cerca nello storico →</Link>
+          <Link href={appRoutes.commercial.search} className="text-sm font-semibold text-[#2f6fed]">Cerca nello storico →</Link>
         </div>
         <div className="mt-5 grid gap-3 sm:grid-cols-4">
           {[
@@ -249,8 +249,8 @@ export default async function DashboardPage() {
             ["Conversazioni commerciali", metrics.threads],
           ].map(([label, value]) => (
             <div key={String(label)} className="rounded-xl bg-white/80 p-3">
-              <p className="metric-number text-2xl font-semibold text-[#17232d]">{Number(value).toLocaleString("it-IT")}</p>
-              <p className="text-xs text-[#66737d]">{label}</p>
+              <p className="metric-number text-2xl font-semibold text-[#1e2b45]">{Number(value).toLocaleString("it-IT")}</p>
+              <p className="text-xs text-[#68788e]">{label}</p>
             </div>
           ))}
         </div>
@@ -260,8 +260,8 @@ export default async function DashboardPage() {
         <CardHeader>
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-base font-semibold text-[#17232d]">Attività commerciale recente</h2>
-              <p className="mt-1 text-xs text-[#66737d]">Dati privati del workspace.</p>
+              <h2 className="text-base font-semibold text-[#1e2b45]">Attività commerciale recente</h2>
+              <p className="mt-1 text-xs text-[#68788e]">Dati privati del workspace.</p>
             </div>
             <Link href={appRoutes.commercial.search} className="text-xs font-semibold text-[#33454e]">Apri storico →</Link>
           </div>
@@ -281,7 +281,7 @@ export default async function DashboardPage() {
                   <span className="text-xs text-[#8b9aa1]">{row.date}</span>
                 </div>
                 <p className="mt-2 text-sm font-semibold text-[#22313a]">{row.product}</p>
-                <p className="mt-1 line-clamp-1 text-xs text-[#66737d]">{row.grade} · {row.standard} · {row.company}</p>
+                <p className="mt-1 line-clamp-1 text-xs text-[#68788e]">{row.grade} · {row.standard} · {row.company}</p>
               </div>
               <div className="text-left sm:text-right">
                 <p className="text-sm font-semibold text-[#22313a]">{row.price ?? "—"}</p>
