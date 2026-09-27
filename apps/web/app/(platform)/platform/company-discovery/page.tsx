@@ -377,7 +377,10 @@ export default async function CompanyDiscoveryPage({
                     (candidate.facility_candidates.length > 0 ||
                       candidate.capability_keys.length > 0 ||
                       candidate.market_keys.length > 0) ? (
-                      <form action={reviewCompanyDiscovery}>
+                      <form
+                        action={reviewCompanyDiscovery}
+                        className="w-full rounded-xl border border-cyan-100 bg-cyan-50/50 p-4"
+                      >
                         <input type="hidden" name="candidate_id" value={candidate.id} />
                         <input type="hidden" name="decision" value="enrich_existing" />
                         <input
@@ -385,9 +388,96 @@ export default async function CompanyDiscoveryPage({
                           name="existing_company_id"
                           value={candidate.match_company_id}
                         />
-                        <button className="h-10 rounded-xl bg-cyan-700 px-4 text-sm font-semibold text-white">
-                          Arricchisci profilo esistente
-                        </button>
+                        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                          <div className="grid flex-1 gap-4 md:grid-cols-3">
+                            <div>
+                              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-cyan-800">
+                                Approva facility
+                              </p>
+                              {candidate.facility_candidates.length > 0 ? (
+                                <label className="mt-2 flex cursor-pointer items-start gap-2 text-sm text-[#334852]">
+                                  <input
+                                    type="checkbox"
+                                    name="include_facilities"
+                                    className="mt-1 h-4 w-4"
+                                  />
+                                  <span>
+                                    {candidate.facility_candidates.length} location strutturat
+                                    {candidate.facility_candidates.length === 1 ? "a" : "e"}
+                                  </span>
+                                </label>
+                              ) : (
+                                <p className="mt-2 text-sm text-[#8fa1a9]">
+                                  Nessuna proposta
+                                </p>
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-cyan-800">
+                                Approva capability
+                              </p>
+                              <div className="mt-2 space-y-1.5">
+                                {candidate.capability_keys.length > 0 ? (
+                                  candidate.capability_keys.map((key) => (
+                                    <label
+                                      key={key}
+                                      className="flex cursor-pointer items-start gap-2 text-sm text-[#334852]"
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        name="capability_key"
+                                        value={key}
+                                        className="mt-1 h-4 w-4"
+                                      />
+                                      <span>{key.replaceAll("_", " ")}</span>
+                                    </label>
+                                  ))
+                                ) : (
+                                  <p className="text-sm text-[#8fa1a9]">Nessuna proposta</p>
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-cyan-800">
+                                Approva mercati
+                              </p>
+                              <div className="mt-2 space-y-1.5">
+                                {candidate.market_keys.length > 0 ? (
+                                  candidate.market_keys.map((key) => (
+                                    <label
+                                      key={key}
+                                      className="flex cursor-pointer items-start gap-2 text-sm text-[#334852]"
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        name="market_key"
+                                        value={key}
+                                        className="mt-1 h-4 w-4"
+                                      />
+                                      <span>{key.replaceAll("_", " ")}</span>
+                                    </label>
+                                  ))
+                                ) : (
+                                  <p className="text-sm text-[#8fa1a9]">Nessuna proposta</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="min-w-[220px] space-y-2">
+                            <input
+                              name="note"
+                              placeholder="Nota review (opzionale)"
+                              className="h-10 w-full rounded-xl border border-cyan-200 bg-white px-3 text-sm outline-none"
+                            />
+                            <button className="h-10 w-full rounded-xl bg-cyan-700 px-4 text-sm font-semibold text-white">
+                              Approva selezione
+                            </button>
+                          </div>
+                        </div>
+                        <p className="mt-3 text-xs leading-5 text-cyan-900/70">
+                          Nessun elemento è preselezionato: l&apos;enrichment richiede
+                          approvazione esplicita del singolo dato.
+                        </p>
                       </form>
                     ) : null}
                     {candidate.match_company_id ? (

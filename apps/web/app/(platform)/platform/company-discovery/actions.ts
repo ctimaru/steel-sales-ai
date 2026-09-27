@@ -78,19 +78,52 @@ export async function reviewCompanyDiscovery(formData: FormData) {
   const existingCompanyId =
     String(formData.get("existing_company_id") ?? "").trim() || null;
   const note = String(formData.get("note") ?? "").trim() || null;
+  const includeFacilities = formData.get("include_facilities") === "on";
+  const capabilityKeys = Array.from(
+    new Set(
+      formData
+        .getAll("capability_key")
+        .map((value) => String(value).trim())
+        .filter(Boolean),
+    ),
+  );
+  const marketKeys = Array.from(
+    new Set(
+      formData
+        .getAll("market_key")
+        .map((value) => String(value).trim())
+        .filter(Boolean),
+    ),
+  );
 
   if (!id) redirect(discoveryPath("error", "Candidato non valido."));
   if (!["publish_new", "reject", "duplicate_existing", "enrich_existing"].includes(decision)) {
     redirect(discoveryPath("error", "Decisione non valida."));
   }
+  if (
+    decision === "enrich_existing" &&
+    !includeFacilities &&
+    capabilityKeys.length === 0 &&
+    marketKeys.length === 0
+  ) {
+    redirect(
+      discoveryPath(
+        "error",
+        "Seleziona almeno una facility, capability o mercato da approvare.",
+      ),
+    );
+  }
 
   const supabase = await createClient();
   const result =
     decision === "enrich_existing"
-      ? await supabase.rpc("p3_enrich_existing_company_discovery", {
+      ? await supabase.rpc("p3_enrich_existing_company_discovery_selected", {
           p_candidate_id: id,
           p_existing_company_id: existingCompanyId,
           p_note: note,
+          p_include_facilities: includeFacilities,
+          p_capability_keys: capabilityKeys,
+          p_market_keys: marketKeys,
         })
       : await supabase.rpc("p3_review_company_discovery", {
           p_candidate_id: id,
