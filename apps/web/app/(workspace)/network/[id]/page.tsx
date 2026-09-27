@@ -181,7 +181,7 @@ export default async function NetworkCompanyProfilePage({
 
             {["unclaimed", "revoked"].includes(profile.company.claimed_status) &&
             adminOrganizationId &&
-            !claimState ? (
+            (!claimState || ["rejected", "revoked"].includes(claimState.status)) ? (
               <form action={requestNetworkClaim}>
                 <input type="hidden" name="network_company_id" value={profile.company.id} />
                 <input type="hidden" name="organization_id" value={adminOrganizationId} />
