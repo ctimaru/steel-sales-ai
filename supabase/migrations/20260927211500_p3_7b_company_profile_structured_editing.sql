@@ -1,3 +1,24 @@
+insert into public.network_certification_types(
+  canonical_key,display_name,status,launch_scope,sort_order,searchable,notes
+)
+values
+  ('iso_9001','ISO 9001','active','MVP',10,true,'Quality management system'),
+  ('iso_14001','ISO 14001','active','MVP',20,true,'Environmental management system'),
+  ('iso_45001','ISO 45001','active','MVP',30,true,'Occupational health and safety management'),
+  ('en_1090','EN 1090','active','MVP',40,true,'Execution of steel and aluminium structures'),
+  ('ped_2014_68_eu','PED 2014/68/EU','active','MVP',50,true,'Pressure Equipment Directive'),
+  ('ad_2000_w0','AD 2000-Merkblatt W0','active','MVP',60,true,'Materials manufacturer approval for pressure equipment'),
+  ('api_5l','API 5L','active','MVP',70,true,'Line pipe manufacturing / supply certification'),
+  ('iso_3834_2','ISO 3834-2','active','Later',80,true,'Comprehensive quality requirements for fusion welding')
+on conflict (canonical_key) do update
+set display_name=excluded.display_name,
+    status=excluded.status,
+    launch_scope=excluded.launch_scope,
+    sort_order=excluded.sort_order,
+    searchable=excluded.searchable,
+    notes=excluded.notes,
+    updated_at=now();
+
 create or replace function private.p3_7b_require_manage_access(
   p_network_company_id uuid
 )
@@ -91,6 +112,7 @@ declare
   v_assertion_id uuid;
   v_source_ownership text;
   v_requested_primary boolean;
+  v_assignment_exists boolean := false;
   v_other record;
 begin
   v_user := private.p3_7b_require_manage_access(p_network_company_id);
@@ -109,6 +131,7 @@ begin
   where r.company_id=p_network_company_id
     and r.role_id=v_role.id
   for update;
+  v_assignment_exists := found;
 
   if coalesce(p_enabled,false) then
     v_requested_primary := coalesce(p_is_primary,false)
@@ -124,7 +147,7 @@ begin
         join public.network_data_assertions a on a.id=r.source_assertion_id
         where r.company_id=p_network_company_id
           and r.is_primary
-          and (not found or r.id<>v_assignment.id)
+          and (not v_assignment_exists or r.id<>v_assignment.id)
         for update of r
       loop
         v_assertion_id := private.p3_7b_create_assertion(
@@ -152,7 +175,7 @@ begin
       end loop;
     end if;
 
-    if found then
+    if v_assignment_exists then
       if v_assignment.is_primary is distinct from v_requested_primary then
         v_assertion_id := private.p3_7b_create_assertion(
           p_network_company_id,
@@ -235,7 +258,7 @@ begin
     );
   end if;
 
-  if not found then
+  if not v_assignment_exists then
     return jsonb_build_object('enabled',false,'idempotent',true);
   end if;
 
