@@ -34,7 +34,7 @@ test("P3.4 surfaces additive enrichment proposals", () => {
   assert.match(page, /Facility proposte/);
   assert.match(page, /Capability/);
   assert.match(page, /Mercati/);
-  assert.match(page, /Arricchisci profilo esistente/);
+  assert.match(page, /Approva selezione/);
   assert.match(lib, /facility_candidates/);
   assert.match(lib, /capability_keys/);
   assert.match(lib, /market_keys/);
