@@ -14,13 +14,17 @@ const shell = fs.readFileSync(
   new URL("../components/platform-shell.tsx", import.meta.url),
   "utf8",
 );
+const platformNavigation = fs.readFileSync(
+  new URL("../components/platform-navigation.tsx", import.meta.url),
+  "utf8",
+);
 const migration = fs.readFileSync(
   new URL("../../../supabase/migrations/20260926223500_p3_web_company_discovery.sql", import.meta.url),
   "utf8",
 );
 
 test("P3.2 exposes Company Discovery only in Platform control plane", () => {
-  assert.match(shell, /\/platform\/company-discovery/);
+  assert.match(platformNavigation, /\/platform\/company-discovery/);
   assert.match(page, /Company Discovery/);
   assert.match(page, /Pubblica nuovo profilo/);
   assert.match(page, /Segna duplicato/);

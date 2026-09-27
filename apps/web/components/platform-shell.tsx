@@ -2,13 +2,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { logout } from "@/app/(workspace)/actions";
+import { PlatformNavigation } from "@/components/platform-navigation";
 import { ProductBrand } from "@/components/product-brand";
-
-const platformNav = [
-  { href: "/platform", label: "Platform Home" },
-  { href: "/platform/registrations", label: "Registrazioni aziende" },
-  { href: "/platform/company-discovery", label: "Company Discovery" },
-];
 
 export function PlatformShell({
   children,
@@ -18,58 +13,48 @@ export function PlatformShell({
   viewerLabel: string;
 }) {
   return (
-    <div className="min-h-screen bg-[#f3f5f7]">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 bg-[#0b171e] text-[#b6c3c8] lg:block">
+    <div className="min-h-screen bg-[#f5f7fb] text-[#1e2b45]">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-[#e3eaf5] bg-[#f8fafd] lg:block">
         <div className="flex h-full flex-col">
-          <div className="border-b border-white/10 p-5">
-            <ProductBrand href="/platform" inverse />
-            <div className="mt-5 rounded-xl border border-white/8 bg-white/[0.035] px-3 py-3">
-              <p className="text-sm font-semibold text-white">Platform Console</p>
-              <p className="mt-1 text-[11px] font-medium text-[#71858e]">Global control plane</p>
+          <div className="border-b border-[#e8eef7] p-5">
+            <ProductBrand href="/platform" />
+            <div className="mt-5 rounded-2xl border border-[#e3eaf5] bg-white px-4 py-3 shadow-[0_1px_2px_rgba(30,43,69,0.03)]">
+              <p className="text-sm font-semibold text-[#1e2b45]">Platform Console</p>
+              <p className="mt-1 text-[11px] font-medium text-[#8a98aa]">Global control plane</p>
             </div>
           </div>
 
-          <div className="border-b border-white/10 p-3">
+          <div className="border-b border-[#e8eef7] p-3">
             <Link
               href="/dashboard"
-              className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-semibold text-slate-200 hover:bg-white/10"
+              className="flex items-center justify-between rounded-xl border border-[#dbe5f1] bg-white px-3 py-2.5 text-sm font-semibold text-[#42516a] shadow-[0_1px_2px_rgba(30,43,69,0.025)] hover:border-[#c7d8f5] hover:bg-[#f3f7ff] hover:text-[#2f6fed]"
             >
               <span>Apri Company Workspace</span>
-              <span>↗</span>
+              <span className="text-[#7f8da3]">↗</span>
             </Link>
           </div>
 
-          <div className="flex-1 p-3">
-            <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">
+          <div className="sidebar-scroll flex-1 overflow-y-auto p-3">
+            <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#9ba8b9]">
               Platform
             </p>
-            <nav className="space-y-1">
-              {platformNav.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="block rounded-xl px-3 py-2.5 text-sm font-medium text-[#b6c3c8] transition hover:bg-white/10 hover:text-white"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
+            <PlatformNavigation />
 
-            <div className="mt-6 rounded-2xl border border-indigo-400/10 bg-[#eef5f6]0/5 p-4">
-              <p className="text-xs font-semibold text-[#bcd3da]">Separazione dei contesti</p>
-              <p className="mt-2 text-xs leading-5 text-[#71858e]">
+            <div className="mt-6 rounded-2xl border border-[#e1e9f4] bg-white/80 p-4">
+              <p className="text-xs font-semibold text-[#44546b]">Separazione dei contesti</p>
+              <p className="mt-2 text-xs leading-5 text-[#7a899d]">
                 La Platform Console gestisce governance e onboarding globale. Non apre automaticamente la Commercial Memory privata dei tenant.
               </p>
             </div>
           </div>
 
-          <div className="border-t border-white/10 p-4">
-            <div className="rounded-xl bg-white/5 p-3">
-              <p className="truncate text-xs font-semibold text-slate-200">{viewerLabel}</p>
-              <p className="mt-1 text-[11px] text-[#8fb7c1]">Platform Superadmin</p>
+          <div className="border-t border-[#e8eef7] p-4">
+            <div className="rounded-xl border border-[#e3eaf5] bg-white p-3">
+              <p className="truncate text-xs font-semibold text-[#34445c]">{viewerLabel}</p>
+              <p className="mt-1 text-[11px] font-medium text-[#6c7e96]">Platform Superadmin</p>
             </div>
             <form action={logout}>
-              <button className="mt-3 w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-[#8fa1a9] hover:bg-white/10 hover:text-white">
+              <button className="mt-3 w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-[#65758b] hover:bg-[#eef3fa] hover:text-[#2b3a52]">
                 Esci
               </button>
             </form>
@@ -78,20 +63,20 @@ export function PlatformShell({
       </aside>
 
       <div className="lg:pl-72">
-        <header className="sticky top-0 z-20 border-b border-[#d9e0e4] bg-white/95 backdrop-blur">
-          <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-            <Link href="/platform">
-              <p className="text-sm font-semibold text-[#17232d]">Steel Sales AI · Platform</p>
-              <p className="text-xs text-[#71858e]">Control Plane</p>
+        <header className="sticky top-0 z-20 border-b border-[#e3eaf5] bg-white/92 backdrop-blur-xl">
+          <div className="flex h-16 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+            <Link href="/platform" className="min-w-0">
+              <p className="truncate text-sm font-semibold text-[#1e2b45]">Steel Sales AI · Platform</p>
+              <p className="text-xs text-[#8795a8]">Control Plane</p>
             </Link>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
               <Link
                 href="/dashboard"
-                className="rounded-full border border-[#d9e0e4] bg-white px-3 py-1.5 text-xs font-semibold text-[#33454e]"
+                className="hidden rounded-full border border-[#dbe5f1] bg-white px-3.5 py-2 text-xs font-semibold text-[#40516a] hover:border-[#bdd1f4] hover:bg-[#f3f7ff] hover:text-[#2f6fed] sm:inline-flex"
               >
                 Company Workspace
               </Link>
-              <span className="rounded-full bg-[#eef5f6] px-3 py-1.5 text-xs font-semibold text-[#1b4c5d]">
+              <span className="rounded-full bg-[#eaf2ff] px-3.5 py-2 text-xs font-semibold text-[#2f6fed]">
                 Superadmin
               </span>
             </div>

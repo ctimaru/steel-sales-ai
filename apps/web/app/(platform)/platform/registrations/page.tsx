@@ -28,6 +28,19 @@ const STATUS_LABELS: Record<string, string> = {
   suspended: "Sospesa",
 };
 
+function statusClass(status: string) {
+  if (status === "approved" || status === "activated") {
+    return "border border-emerald-200 bg-emerald-50 text-emerald-700";
+  }
+  if (status === "rejected") {
+    return "border border-rose-200 bg-rose-50 text-rose-700";
+  }
+  if (status === "needs_information") {
+    return "border border-amber-200 bg-amber-50 text-amber-800";
+  }
+  return "border border-[#d7e5ff] bg-[#eaf2ff] text-[#2f6fed]";
+}
+
 export default async function AdminRegistrationsPage({
   searchParams,
 }: {
@@ -40,36 +53,53 @@ export default async function AdminRegistrationsPage({
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600">Platform control plane</p>
-        <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <section className="platform-surface rounded-3xl p-6 sm:p-8">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-950">Registrazioni aziende</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-              Revisiona le richieste aziendali, richiedi integrazioni, approva o rifiuta e attiva il workspace dopo l’approvazione.
+            <p className="platform-kicker">Platform control plane</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#18263d] sm:text-4xl">
+              Registrazioni aziende
+            </h1>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66768d]">
+              Revisiona le richieste aziendali, richiedi integrazioni, approva o rifiuta e attiva il workspace dopo l&apos;approvazione.
             </p>
           </div>
-          <div className="rounded-2xl bg-slate-950 px-4 py-3 text-white">
-            <p className="text-xs text-slate-400">Richieste visualizzate</p>
-            <p className="mt-1 text-2xl font-semibold">{queue.count}</p>
+
+          <div className="min-w-[180px] rounded-2xl border border-[#dbe7f7] bg-[#f1f6ff] px-5 py-4">
+            <div className="flex items-center justify-between gap-5">
+              <div>
+                <p className="text-xs font-semibold text-[#71819a]">Richieste visualizzate</p>
+                <p className="metric-number mt-1 text-3xl font-semibold text-[#173468]">{queue.count}</p>
+              </div>
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#4d8cf1] shadow-sm" aria-hidden="true">
+                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path d="M5 20V8l7-4 7 4v12M8 20v-5h8v5M8 10h.01M12 10h.01M16 10h.01" />
+                </svg>
+              </span>
+            </div>
           </div>
         </div>
       </section>
 
       {error ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
+          {error}
+        </div>
       ) : null}
 
-      <nav className="flex gap-2 overflow-x-auto pb-1">
+      <nav className="flex gap-2 overflow-x-auto pb-1" aria-label="Filtri registrazioni">
         {FILTERS.map(([value, label]) => {
           const selected = (activeStatus ?? "all") === value;
           return (
             <Link
               key={value}
               href={value === "all" ? "/platform/registrations" : `/platform/registrations?status=${value}`}
+              aria-current={selected ? "page" : undefined}
               className={[
-                "shrink-0 rounded-full px-4 py-2 text-xs font-semibold",
-                selected ? "bg-slate-950 text-white" : "border border-slate-200 bg-white text-slate-600",
+                "shrink-0 rounded-full border px-4 py-2.5 text-xs font-semibold shadow-[0_1px_2px_rgba(30,43,69,0.02)]",
+                selected
+                  ? "border-[#2f6fed] bg-[#2f6fed] text-white hover:border-[#245ed1] hover:bg-[#245ed1]"
+                  : "border-[#dbe5f1] bg-white text-[#40516a] hover:border-[#bdd1f4] hover:bg-[#f3f7ff] hover:text-[#2f6fed]",
               ].join(" ")}
             >
               {label}
@@ -80,42 +110,47 @@ export default async function AdminRegistrationsPage({
 
       <section className="space-y-3">
         {queue.applications.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center">
-            <p className="font-semibold text-slate-900">Nessuna richiesta in questa vista</p>
-            <p className="mt-2 text-sm text-slate-500">Le nuove application compariranno automaticamente qui.</p>
+          <div className="rounded-3xl border border-dashed border-[#cfdbea] bg-white/80 px-6 py-12 text-center">
+            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef5ff] text-[#5b95ef]" aria-hidden="true">
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M5 20V8l7-4 7 4v12M8 20v-5h8v5M8 10h.01M12 10h.01M16 10h.01" />
+              </svg>
+            </span>
+            <p className="mt-4 font-semibold text-[#1e2b45]">Nessuna richiesta in questa vista</p>
+            <p className="mt-2 text-sm text-[#7a899d]">Le nuove application compariranno automaticamente qui.</p>
           </div>
         ) : (
           queue.applications.map((application) => (
             <Link
               key={application.id}
               href={`/platform/registrations/${application.id}`}
-              className="block rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-400 hover:shadow-sm"
+              className="block rounded-2xl border border-[#e1e8f2] bg-white p-5 shadow-[0_1px_2px_rgba(30,43,69,0.025)] hover:border-[#bdd1f4] hover:shadow-[0_8px_24px_rgba(30,43,69,0.055)]"
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-700">
+                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${statusClass(application.application_status)}`}>
                       {STATUS_LABELS[application.application_status] ?? application.application_status}
                     </span>
-                    <span className="text-xs text-slate-400">{application.country_code}</span>
+                    <span className="text-xs font-medium text-[#8b98aa]">{application.country_code}</span>
                   </div>
-                  <h2 className="mt-3 text-lg font-semibold text-slate-950">{application.legal_name}</h2>
-                  <p className="mt-1 text-sm text-slate-500">
+                  <h2 className="mt-3 text-lg font-semibold text-[#1e2b45]">{application.legal_name}</h2>
+                  <p className="mt-1 text-sm text-[#68788e]">
                     {TYPE_LABELS[application.primary_company_type] ?? application.primary_company_type} · {application.applicant_email}
                   </p>
                   {application.vat_id ? (
-                    <p className="mt-1 text-xs text-slate-400">VAT / P.IVA: {application.vat_id}</p>
+                    <p className="mt-1 text-xs text-[#91a0b2]">VAT / P.IVA: {application.vat_id}</p>
                   ) : null}
                 </div>
                 <div className="text-left sm:text-right">
-                  <p className="text-xs text-slate-400">Aggiornata</p>
-                  <p className="mt-1 text-sm font-medium text-slate-700">
+                  <p className="text-xs text-[#91a0b2]">Aggiornata</p>
+                  <p className="mt-1 text-sm font-medium text-[#42516a]">
                     {new Intl.DateTimeFormat("it-IT", {
                       dateStyle: "medium",
                       timeStyle: "short",
                     }).format(new Date(application.updated_at))}
                   </p>
-                  <p className="mt-3 text-xs font-semibold text-indigo-600">Apri dettaglio →</p>
+                  <p className="mt-3 text-xs font-semibold text-[#2f6fed]">Apri dettaglio →</p>
                 </div>
               </div>
             </Link>

@@ -10,13 +10,15 @@ const companyShell = fs.readFileSync(new URL("../components/app-shell.tsx", impo
 const platformShell = fs.readFileSync(new URL("../components/platform-shell.tsx", import.meta.url), "utf8");
 const dashboard = fs.readFileSync(new URL("../app/(workspace)/dashboard/page.tsx", import.meta.url), "utf8");
 
-test("UI1 freezes the industrial graphite / steel-blue / copper token system", () => {
+test("UI1 preserves industrial brand tokens while X2.1 defines the light application canvas", () => {
   for (const token of [
     "--brand-950: #0b171e",
     "--brand-700: #1b4c5d",
     "--brand-500: #3c8192",
     "--copper-500: #c36e32",
-    "--background: #f3f5f7",
+    "--background: #f5f7fb",
+    "--foreground: #1e2b45",
+    "--primary: #2f6fed",
   ]) assert.ok(globals.includes(token), `missing token ${token}`);
 });
 

@@ -16,10 +16,10 @@ export default async function PlatformHomePage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <section className="rounded-3xl bg-[#0b171e] p-6 text-white shadow-sm sm:p-8">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#8fb7c1]">Platform Control Plane</p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">Governance della piattaforma</h1>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-[#8fa1a9]">
+      <section className="platform-surface rounded-3xl p-6 sm:p-8">
+        <p className="platform-kicker">Platform Control Plane</p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#18263d] sm:text-4xl">Governance della piattaforma</h1>
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66768d]">
           Questo contesto gestisce registrazioni, activation e governance globale. La Commercial Memory dei tenant resta nel rispettivo Company Workspace.
         </p>
       </section>
@@ -31,9 +31,9 @@ export default async function PlatformHomePage() {
           ["Approvate da attivare", counts.approved ?? 0],
           ["Tenant attivati", counts.activated ?? 0],
         ].map(([label, value]) => (
-          <div key={String(label)} className="rounded-2xl border border-[#d9e0e4] bg-white p-5">
-            <p className="metric-number text-3xl font-semibold text-[#17232d]">{Number(value)}</p>
-            <p className="mt-1 text-xs font-semibold text-[#66737d]">{label}</p>
+          <div key={String(label)} className="rounded-2xl border border-[#e1e8f2] bg-white p-5">
+            <p className="metric-number text-3xl font-semibold text-[#1e2b45]">{Number(value)}</p>
+            <p className="mt-1 text-xs font-semibold text-[#68788e]">{label}</p>
           </div>
         ))}
       </section>
@@ -55,22 +55,22 @@ export default async function PlatformHomePage() {
       <section className="grid gap-4 lg:grid-cols-2">
         <Link
           href="/platform/registrations"
-          className="rounded-2xl border border-[#d9e0e4] bg-white p-6 transition hover:border-[#8fb7c1] hover:shadow-sm"
+          className="rounded-2xl border border-[#e1e8f2] bg-white p-6 transition hover:border-[#bdd1f4] hover:shadow-sm"
         >
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#28677a]">Companies</p>
-          <h2 className="mt-3 text-lg font-semibold text-[#17232d]">Registrazioni aziende</h2>
-          <p className="mt-2 text-sm leading-6 text-[#66737d]">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Companies</p>
+          <h2 className="mt-3 text-lg font-semibold text-[#1e2b45]">Registrazioni aziende</h2>
+          <p className="mt-2 text-sm leading-6 text-[#68788e]">
             Revisiona identity, approva, attiva il tenant e completa il Registration Bridge verso il Network.
           </p>
         </Link>
 
         <Link
           href="/platform/company-discovery"
-          className="rounded-2xl border border-[#d9e0e4] bg-white p-6 transition hover:border-[#8fb7c1] hover:shadow-sm"
+          className="rounded-2xl border border-[#e1e8f2] bg-white p-6 transition hover:border-[#bdd1f4] hover:shadow-sm"
         >
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#28677a]">Network population</p>
-          <h2 className="mt-3 text-lg font-semibold text-[#17232d]">Company Discovery</h2>
-          <p className="mt-2 text-sm leading-6 text-[#66737d]">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Network population</p>
+          <h2 className="mt-3 text-lg font-semibold text-[#1e2b45]">Company Discovery</h2>
+          <p className="mt-2 text-sm leading-6 text-[#68788e]">
             Avvia crawl di siti pubblici, revisiona classificazione ed evidenze, gestisci duplicati e promuovi profili claimable nel Network.
           </p>
         </Link>
