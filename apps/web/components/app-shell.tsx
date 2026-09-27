@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { logout } from "@/app/(workspace)/actions";
 import { canAdministerCompany, canWriteWorkspace } from "@/lib/access-policy";
 import { ProductBrand } from "@/components/product-brand";
+import { WorkspaceHomeLink, WorkspaceNavSection } from "@/components/workspace-navigation";
 import { appRoutes } from "@/lib/routes";
 
 type NavItem = {
@@ -61,43 +62,10 @@ function canSee(item: NavItem, role: string) {
   return true;
 }
 
-function NavSection({
-  title,
-  items,
-  role,
-  alertActiveCount,
-}: {
-  title: string;
-  items: NavItem[];
-  role: string;
-  alertActiveCount: number;
-}) {
-  const visible = items.filter((item) => canSee(item, role));
-  if (!visible.length) return null;
-
-  return (
-    <div>
-      <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#52636c]">
-        {title}
-      </p>
-      <nav className="space-y-1">
-        {visible.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="flex items-center justify-between rounded-xl px-3 py-2 text-sm font-medium text-[#8fa1a9] transition hover:bg-white/[0.07] hover:text-white"
-          >
-            <span>{item.label}</span>
-            {item.href === appRoutes.operations.alerts && alertActiveCount > 0 ? (
-              <span className="rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] font-bold text-red-300">
-                {alertActiveCount}
-              </span>
-            ) : null}
-          </Link>
-        ))}
-      </nav>
-    </div>
-  );
+function visibleItems(items: NavItem[], role: string) {
+  return items
+    .filter((item) => canSee(item, role))
+    .map(({ href, label }) => ({ href, label }));
 }
 
 export function AppShell({
@@ -135,22 +103,22 @@ export function AppShell({
   ];
 
   return (
-    <div className="min-h-screen bg-[#f3f5f7]">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-[#d9e0e4] bg-[#0b171e] text-[#b6c3c8] lg:block">
+    <div className="min-h-screen bg-[#f5f7fb] text-[#1e2b45]">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-[#e3eaf5] bg-[#f8fafd] lg:block">
         <div className="flex h-full flex-col">
-          <div className="border-b border-white/10 p-5">
-            <ProductBrand href={appRoutes.home} inverse />
-            <div className="mt-5 rounded-xl border border-white/8 bg-white/[0.035] px-3 py-3">
-              <p className="truncate text-sm font-semibold text-white">{organizationName}</p>
-              <p className="mt-1 text-[11px] font-medium text-[#71858e]">Company Workspace</p>
+          <div className="border-b border-[#e8eef7] p-5">
+            <ProductBrand href={appRoutes.home} />
+            <div className="mt-5 rounded-2xl border border-[#e3eaf5] bg-white px-4 py-3 shadow-[0_1px_2px_rgba(30,43,69,0.03)]">
+              <p className="truncate text-sm font-semibold text-[#1e2b45]">{organizationName}</p>
+              <p className="mt-1 text-[11px] font-medium text-[#8090a5]">Company Workspace</p>
             </div>
           </div>
 
           {platformSuperadmin ? (
-            <div className="border-b border-white/10 p-3">
+            <div className="border-b border-[#e8eef7] p-3">
               <Link
                 href={appRoutes.platform.home}
-                className="flex items-center justify-between rounded-xl border border-[#6e9eab]/20 bg-[#28677a]/15 px-3 py-2.5 text-sm font-semibold text-[#bcd3da] transition hover:bg-[#28677a]/25"
+                className="flex items-center justify-between rounded-xl border border-[#d7e5ff] bg-[#eef5ff] px-3 py-2.5 text-sm font-semibold text-[#2f6fed] transition hover:border-[#bdd1f4] hover:bg-[#e4efff]"
               >
                 <span>Apri Platform Console</span>
                 <span>↗</span>
@@ -160,35 +128,49 @@ export function AppShell({
 
           <div className="sidebar-scroll flex-1 space-y-5 overflow-y-auto p-3">
             <div>
-              <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#52636c]">
+              <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#9ba8b9]">
                 Workspace
               </p>
-              <nav>
-                <Link
-                  href={appRoutes.home}
-                  className="flex items-center rounded-xl border border-[#3c8192]/15 bg-[#28677a]/10 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-[#28677a]/20"
-                >
-                  Home azienda
-                </Link>
-              </nav>
+              <WorkspaceHomeLink href={appRoutes.home} label="Home azienda" />
             </div>
 
-            <NavSection title="Commercial Memory" items={commercialNav} role={organizationRole} alertActiveCount={alertActiveCount} />
-            <NavSection title="Commercial Intelligence" items={intelligenceNav} role={organizationRole} alertActiveCount={alertActiveCount} />
-            <NavSection title="Steel Network" items={networkItems} role={organizationRole} alertActiveCount={alertActiveCount} />
-            <NavSection title="Operations" items={operationsNav} role={organizationRole} alertActiveCount={alertActiveCount} />
-            <NavSection title="Company" items={companyToolsNav} role={organizationRole} alertActiveCount={alertActiveCount} />
+            <WorkspaceNavSection
+              title="Commercial Memory"
+              items={visibleItems(commercialNav, organizationRole)}
+              alertActiveCount={alertActiveCount}
+            />
+            <WorkspaceNavSection
+              title="Commercial Intelligence"
+              items={visibleItems(intelligenceNav, organizationRole)}
+              alertActiveCount={alertActiveCount}
+            />
+            <WorkspaceNavSection
+              title="Steel Network"
+              items={visibleItems(networkItems, organizationRole)}
+              alertActiveCount={alertActiveCount}
+            />
+            <WorkspaceNavSection
+              title="Operations"
+              items={visibleItems(operationsNav, organizationRole)}
+              alertHref={appRoutes.operations.alerts}
+              alertActiveCount={alertActiveCount}
+            />
+            <WorkspaceNavSection
+              title="Company"
+              items={visibleItems(companyToolsNav, organizationRole)}
+              alertActiveCount={alertActiveCount}
+            />
           </div>
 
-          <div className="border-t border-white/10 p-4">
-            <div className="rounded-xl bg-white/5 p-3">
-              <p className="truncate text-xs font-semibold text-slate-200">{viewerLabel}</p>
-              <p className="mt-1 text-[11px] text-slate-500">
+          <div className="border-t border-[#e8eef7] p-4">
+            <div className="rounded-xl border border-[#e3eaf5] bg-white p-3">
+              <p className="truncate text-xs font-semibold text-[#34445c]">{viewerLabel}</p>
+              <p className="mt-1 text-[11px] text-[#7e8da1]">
                 {demoMode ? "Modalità demo" : roleLabel(organizationRole)}
               </p>
             </div>
             <form action={logout}>
-              <button className="mt-3 w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-[#8fa1a9] hover:bg-white/[0.07] hover:text-white">
+              <button className="mt-3 w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-[#65758b] hover:bg-[#eef3fa] hover:text-[#2b3a52]">
                 Esci
               </button>
             </form>
@@ -197,11 +179,11 @@ export function AppShell({
       </aside>
 
       <div className="lg:pl-72">
-        <header className="sticky top-0 z-20 border-b border-[#d9e0e4] bg-white/95 backdrop-blur">
+        <header className="sticky top-0 z-20 border-b border-[#e3eaf5] bg-white/92 backdrop-blur-xl">
           <div className="flex min-h-16 items-center justify-between gap-3 px-4 py-2 sm:px-6 lg:px-8">
             <Link href={appRoutes.home} className="min-w-0 shrink">
-              <p className="truncate text-sm font-semibold text-[#17232d]">{organizationName}</p>
-              <p className="truncate text-xs text-slate-500">
+              <p className="truncate text-sm font-semibold text-[#1e2b45]">{organizationName}</p>
+              <p className="truncate text-xs text-[#7e8da1]">
                 Company Workspace · {roleLabel(organizationRole)}
               </p>
             </Link>
@@ -211,16 +193,16 @@ export function AppShell({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="shrink-0 rounded-xl border border-[#d9e0e4] bg-white px-3 py-1.5 text-xs font-semibold text-[#33454e] shadow-[0_1px_1px_rgba(11,23,30,0.03)]"
+                  className="shrink-0 rounded-xl border border-[#dbe5f1] bg-white px-3 py-1.5 text-xs font-semibold text-[#40516a] shadow-[0_1px_1px_rgba(30,43,69,0.025)] hover:border-[#bdd1f4] hover:bg-[#f3f7ff] hover:text-[#2f6fed]"
                 >
                   {item.label}
                 </Link>
               ))}
               <details className="relative shrink-0">
-                <summary className="cursor-pointer list-none rounded-lg border border-[#d9e0e4] bg-[#0b171e] px-3 py-1.5 text-xs font-semibold text-white">
+                <summary className="cursor-pointer list-none rounded-xl border border-[#d7e5ff] bg-[#eaf2ff] px-3 py-1.5 text-xs font-semibold text-[#2f6fed]">
                   Altro
                 </summary>
-                <div className="fixed left-4 right-4 top-16 z-40 grid grid-cols-2 gap-2 rounded-2xl border border-[#d9e0e4] bg-white p-3 shadow-xl sm:left-auto sm:right-6 sm:w-96">
+                <div className="fixed left-4 right-4 top-16 z-40 grid grid-cols-2 gap-2 rounded-2xl border border-[#e3eaf5] bg-white p-3 shadow-xl sm:left-auto sm:right-6 sm:w-96">
                   {[...commercialNav, ...intelligenceNav, ...networkItems, ...operationsNav, ...companyToolsNav]
                     .filter((item) => canSee(item, organizationRole))
                     .filter((item) => !mobilePrimary.some((primary) => primary.href === item.href))
@@ -228,7 +210,7 @@ export function AppShell({
                       <Link
                         key={item.href}
                         href={item.href}
-                        className="rounded-xl border border-slate-100 bg-[#f3f5f7] px-3 py-2.5 text-xs font-semibold text-[#33454e]"
+                        className="rounded-xl border border-[#e7edf5] bg-[#f8fafd] px-3 py-2.5 text-xs font-semibold text-[#40516a] hover:border-[#c7d8f5] hover:bg-[#eef5ff] hover:text-[#2f6fed]"
                       >
                         {item.label}
                       </Link>
@@ -238,7 +220,7 @@ export function AppShell({
               {platformSuperadmin ? (
                 <Link
                   href={appRoutes.platform.home}
-                  className="shrink-0 rounded-lg bg-[#1b4c5d] px-3 py-1.5 text-xs font-semibold text-white"
+                  className="shrink-0 rounded-xl bg-[#2f6fed] px-3 py-1.5 text-xs font-semibold text-white"
                 >
                   Platform
                 </Link>
@@ -249,7 +231,7 @@ export function AppShell({
               {platformSuperadmin ? (
                 <Link
                   href={appRoutes.platform.home}
-                  className="rounded-full bg-[#eef5f6] px-3 py-1 text-xs font-semibold text-[#1b4c5d]"
+                  className="rounded-full border border-[#d7e5ff] bg-[#eaf2ff] px-3 py-1.5 text-xs font-semibold text-[#2f6fed]"
                 >
                   Platform Console
                 </Link>
@@ -257,7 +239,7 @@ export function AppShell({
               {alertNeedsAttention ? (
                 <Link
                   href={appRoutes.operations.alerts}
-                  className="rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-700"
+                  className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700"
                 >
                   {alertActiveCount > 0 ? `Alert · ${alertActiveCount}` : "Alert"}
                 </Link>

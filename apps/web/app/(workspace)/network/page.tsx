@@ -6,7 +6,7 @@ import { PilotEvent } from "@/components/pilot-event";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 
 function selectClass() {
-  return "h-11 rounded-xl border border-[#d9e0e4] bg-white px-3 text-sm text-[#2b3d46] outline-none";
+  return "h-11 rounded-xl border border-[#e1e8f2] bg-white px-3 text-sm text-[#2b3d46] outline-none";
 }
 
 const companyTypeDoors = [
@@ -75,12 +75,12 @@ export default async function NetworkDirectoryPage({
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <PilotEvent eventName="network_directory_viewed" metadata={{ surface: "network_directory" }} />
-      <section className="rounded-3xl border border-[#d9e0e4] bg-white p-6 shadow-[0_1px_2px_rgba(11,23,30,0.035),0_10px_30px_rgba(11,23,30,0.025)] sm:p-8">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#28677a]">Steel Industry Network</p>
+      <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 shadow-[0_1px_2px_rgba(11,23,30,0.035),0_10px_30px_rgba(11,23,30,0.025)] sm:p-8">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#2f6fed]">Steel Industry Network</p>
         <div className="mt-2 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight text-[#17232d]">Directory aziende</h1>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66737d]">
+            <h1 className="text-3xl font-semibold tracking-tight text-[#1e2b45]">Directory aziende</h1>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-[#68788e]">
               Cerca aziende pubblicate nel Network per ruolo, prodotto, capability, paese e mercato servito.
               I dati della Commercial Memory privata non vengono mostrati qui.
             </p>
@@ -94,31 +94,31 @@ export default async function NetworkDirectoryPage({
             </Link>
             <Link
               href="/network/activity"
-              className="inline-flex h-11 items-center justify-center rounded-xl border border-[#c8dce1] bg-[#eef5f6] px-4 text-sm font-semibold text-[#1b4c5d]"
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-[#c8dce1] bg-[#eef5ff] px-4 text-sm font-semibold text-[#2f6fed]"
             >
               Activity
             </Link>
             <Link
               href="/network/following"
-              className="inline-flex h-11 items-center justify-center rounded-xl border border-[#d9e0e4] bg-white px-4 text-sm font-semibold text-[#33454e]"
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-[#e1e8f2] bg-white px-4 text-sm font-semibold text-[#33454e]"
             >
               Seguite
             </Link>
             <Link
               href="/network/inquiries"
-              className="inline-flex h-11 items-center justify-center rounded-xl border border-[#d9e0e4] bg-white px-4 text-sm font-semibold text-[#33454e]"
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-[#e1e8f2] bg-white px-4 text-sm font-semibold text-[#33454e]"
             >
               Inquiry
             </Link>
             <Link
               href="/network/saved"
-              className="inline-flex h-11 items-center justify-center rounded-xl border border-[#d9e0e4] bg-white px-4 text-sm font-semibold text-[#33454e]"
+              className="inline-flex h-11 items-center justify-center rounded-xl border border-[#e1e8f2] bg-white px-4 text-sm font-semibold text-[#33454e]"
             >
               Aziende salvate
             </Link>
             <Link
               href="/network/manage"
-              className="inline-flex h-11 items-center justify-center rounded-xl bg-[#0b171e] px-4 text-sm font-semibold text-white"
+              className="inline-flex h-11 items-center justify-center rounded-xl bg-[#2f6fed] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#245ed1]"
             >
               Gestisci profilo azienda
             </Link>
@@ -132,7 +132,7 @@ export default async function NetworkDirectoryPage({
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#3c8192]">
               Directory per tipologia
             </p>
-            <h2 className="mt-1 text-lg font-semibold text-[#17232d]">
+            <h2 className="mt-1 text-lg font-semibold text-[#1e2b45]">
               Esplora la filiera del tubo
             </h2>
           </div>
@@ -149,12 +149,12 @@ export default async function NetworkDirectoryPage({
                 href={companyTypeHref(door.key)}
                 className={`rounded-2xl border p-4 transition ${
                   active
-                    ? "border-[#1b4c5d] bg-[#0b171e] text-white shadow-sm"
-                    : "border-[#d9e0e4] bg-white text-[#17232d] hover:border-[#8fa1a9]"
+                    ? "border-[#2f6fed] bg-[#2f6fed] text-white shadow-sm"
+                    : "border-[#e1e8f2] bg-white text-[#1e2b45] hover:border-[#bdd1f4] hover:bg-[#f7faff]"
                 }`}
               >
                 <p className="text-sm font-semibold">{door.label}</p>
-                <p className={`mt-1 text-xs ${active ? "text-[#b6c3c8]" : "text-[#66737d]"}`}>
+                <p className={`mt-1 text-xs ${active ? "text-[#dce8ff]" : "text-[#68788e]"}`}>
                   {door.description}
                 </p>
               </Link>
@@ -163,12 +163,12 @@ export default async function NetworkDirectoryPage({
         </div>
       </section>
 
-      <form className="grid gap-3 rounded-2xl border border-[#d9e0e4] bg-white p-4 sm:grid-cols-2 lg:grid-cols-6">
+      <form className="grid gap-3 rounded-2xl border border-[#e1e8f2] bg-white p-4 sm:grid-cols-2 lg:grid-cols-6">
         <input
           name="q"
           defaultValue={params.q ?? ""}
           placeholder="Azienda o dominio"
-          className="h-11 rounded-xl border border-[#d9e0e4] px-3 text-sm outline-none sm:col-span-2"
+          className="h-11 rounded-xl border border-[#e1e8f2] px-3 text-sm outline-none sm:col-span-2"
         />
         <select name="role" defaultValue={params.role ?? ""} className={selectClass()}>
           <option value="">Tutti i ruoli</option>
@@ -199,11 +199,11 @@ export default async function NetworkDirectoryPage({
           defaultValue={params.country ?? ""}
           maxLength={2}
           placeholder="Paese (IT)"
-          className="h-11 rounded-xl border border-[#d9e0e4] px-3 text-sm uppercase outline-none"
+          className="h-11 rounded-xl border border-[#e1e8f2] px-3 text-sm uppercase outline-none"
         />
         <div className="flex gap-2 lg:col-span-5">
-          <button className="h-11 rounded-xl bg-[#1b4c5d] px-5 text-sm font-semibold text-white">Cerca nel Network</button>
-          <Link href="/network" className="inline-flex h-11 items-center rounded-xl border border-[#d9e0e4] px-4 text-sm font-semibold text-[#52636c]">
+          <button className="h-11 rounded-xl bg-[#2f6fed] px-5 text-sm font-semibold text-white hover:bg-[#245ed1]">Cerca nel Network</button>
+          <Link href="/network" className="inline-flex h-11 items-center rounded-xl border border-[#e1e8f2] px-4 text-sm font-semibold text-[#5f7088]">
             Azzera filtri
           </Link>
         </div>
@@ -218,7 +218,7 @@ export default async function NetworkDirectoryPage({
         {results.items.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-[#c8d2d7] bg-white p-10 text-center">
             <p className="font-semibold text-[#22313a]">Nessun profilo pubblico corrisponde ai filtri</p>
-            <p className="mt-2 text-sm text-[#66737d]">
+            <p className="mt-2 text-sm text-[#68788e]">
               I profili pending review, sospesi o privati restano esclusi dal read model.
             </p>
           </div>
@@ -228,13 +228,13 @@ export default async function NetworkDirectoryPage({
               <Link
                 key={company.id}
                 href={"/network/" + company.id}
-                className="rounded-2xl border border-[#d9e0e4] bg-white p-5 transition hover:border-[#8fa1a9] hover:shadow-sm"
+                className="rounded-2xl border border-[#e1e8f2] bg-white p-5 transition hover:border-[#bdd1f4] hover:shadow-sm"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-xs font-semibold text-[#8fa1a9]">{company.country_code}</p>
-                    <h2 className="mt-1 text-lg font-semibold text-[#17232d]">{company.legal_name}</h2>
-                    {company.trading_name ? <p className="mt-1 text-sm text-[#66737d]">{company.trading_name}</p> : null}
+                    <h2 className="mt-1 text-lg font-semibold text-[#1e2b45]">{company.legal_name}</h2>
+                    {company.trading_name ? <p className="mt-1 text-sm text-[#68788e]">{company.trading_name}</p> : null}
                   </div>
                   <div className="flex flex-col items-end gap-1.5">
                     <span className="rounded-full bg-[#edf1f3] px-2.5 py-1 text-[11px] font-bold text-[#33454e]">
@@ -249,17 +249,17 @@ export default async function NetworkDirectoryPage({
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {company.roles.slice(0, 3).map((role) => (
-                    <span key={role.key} className="rounded-full bg-[#eef5f6] px-2.5 py-1 text-xs font-semibold text-[#1b4c5d]">
+                    <span key={role.key} className="rounded-full bg-[#eef5ff] px-2.5 py-1 text-xs font-semibold text-[#2f6fed]">
                       {role.name}
                     </span>
                   ))}
                   {company.products.slice(0, 3).map((product) => (
-                    <span key={product.key + product.relationship_type} className="rounded-full bg-[#edf1f3] px-2.5 py-1 text-xs text-[#52636c]">
+                    <span key={product.key + product.relationship_type} className="rounded-full bg-[#edf1f3] px-2.5 py-1 text-xs text-[#5f7088]">
                       {product.name}
                     </span>
                   ))}
                 </div>
-                <p className="mt-4 text-xs font-semibold text-[#28677a]">Apri profilo Network →</p>
+                <p className="mt-4 text-xs font-semibold text-[#2f6fed]">Apri profilo Network →</p>
               </Link>
             ))}
           </div>

@@ -23,7 +23,7 @@ export default async function ManagedNetworkProfilePage({
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <Link href="/network" className="text-sm font-semibold text-slate-500 hover:text-slate-950">
+        <Link href="/network" className="text-sm font-semibold text-[#68788e] hover:text-[#1e2b45]">
           ← Torna alla directory
         </Link>
       </div>
@@ -32,44 +32,44 @@ export default async function ManagedNetworkProfilePage({
       {message ? <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{message}</div> : null}
 
       {!managed ? (
-        <section className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600">Managed Network profile</p>
-          <h1 className="mt-2 text-2xl font-semibold text-slate-950">Nessun profilo azienda gestibile</h1>
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-500">
+        <section className="rounded-3xl border border-[#e1e8f2] bg-white p-8 text-center shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#2f6fed]">Managed Network profile</p>
+          <h1 className="mt-2 text-2xl font-semibold text-[#1e2b45]">Nessun profilo azienda gestibile</h1>
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#68788e]">
             Per modificare un profilo Network servono contemporaneamente Organization Admin attivo,
             link organizzazione-azienda attivo e claim approvato.
           </p>
-          <Link href="/network" className="mt-5 inline-flex h-10 items-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white">
+          <Link href="/network" className="mt-5 inline-flex h-10 items-center rounded-xl bg-[#2f6fed] px-4 text-sm font-semibold text-white hover:bg-[#245ed1]">
             Cerca la tua azienda
           </Link>
         </section>
       ) : (
         <>
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600">Managed Network profile</p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">{managed.company.legal_name}</h1>
+          <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 shadow-sm sm:p-8">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#2f6fed]">Managed Network profile</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1e2b45]">{managed.company.legal_name}</h1>
             <div className="mt-4 flex flex-wrap gap-2">
               <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
                 Claim {managed.claim_status}
               </span>
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+              <span className="rounded-full bg-[#eef3fa] px-3 py-1 text-xs font-semibold text-[#4a5b72]">
                 Publication {managed.company.publication_status}
               </span>
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+              <span className="rounded-full bg-[#eef3fa] px-3 py-1 text-xs font-semibold text-[#4a5b72]">
                 Verification {managed.company.verification_status}
               </span>
             </div>
-            <p className="mt-4 text-sm leading-6 text-slate-500">
+            <p className="mt-4 text-sm leading-6 text-[#68788e]">
               Puoi modificare solo i campi company-managed. Ragione sociale, paese, verification,
               publication state e claim restano sotto governance della piattaforma.
             </p>
           </section>
 
-          <section className="rounded-2xl border border-slate-200 bg-white p-6">
+          <section className="rounded-2xl border border-[#e1e8f2] bg-white p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="font-semibold text-slate-950">Ricezione inquiry</h2>
-                <p className="mt-1 text-sm leading-6 text-slate-500">
+                <h2 className="font-semibold text-[#1e2b45]">Ricezione inquiry</h2>
+                <p className="mt-1 text-sm leading-6 text-[#68788e]">
                   Controlla se altri membri del Network possono inviare nuove inquiry alla tua organizzazione.
                   La modifica non cancella lo storico esistente.
                 </p>
@@ -85,8 +85,8 @@ export default async function ManagedNetworkProfilePage({
                   className={
                     "h-10 rounded-xl px-4 text-sm font-semibold " +
                     (inquiryPreferences?.inquiries_enabled
-                      ? "border border-slate-200 bg-white text-slate-700"
-                      : "bg-indigo-600 text-white")
+                      ? "border border-[#e1e8f2] bg-white text-[#4a5b72]"
+                      : "bg-[#2f6fed] text-white")
                   }
                 >
                   {inquiryPreferences?.inquiries_enabled ? "Disabilita inquiry" : "Abilita inquiry"}
@@ -95,37 +95,37 @@ export default async function ManagedNetworkProfilePage({
             </div>
           </section>
 
-          <form action={updateManagedNetworkProfile} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6">
+          <form action={updateManagedNetworkProfile} className="space-y-5 rounded-2xl border border-[#e1e8f2] bg-white p-6">
             <input type="hidden" name="network_company_id" value={managed.network_company_id} />
             <div>
-              <label className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Nome commerciale</label>
+              <label className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Nome commerciale</label>
               <input
                 name="trading_name"
                 defaultValue={managed.company.trading_name ?? ""}
                 maxLength={255}
-                className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none"
+                className="mt-2 h-11 w-full rounded-xl border border-[#e1e8f2] px-3 text-sm outline-none"
               />
             </div>
             <div>
-              <label className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Sito web</label>
+              <label className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Sito web</label>
               <input
                 name="website_url"
                 defaultValue={managed.company.website_url ?? ""}
                 maxLength={500}
-                className="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none"
+                className="mt-2 h-11 w-full rounded-xl border border-[#e1e8f2] px-3 text-sm outline-none"
               />
             </div>
             <div>
-              <label className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">Descrizione azienda</label>
+              <label className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Descrizione azienda</label>
               <textarea
                 name="description"
                 defaultValue={managed.company.description ?? ""}
                 maxLength={4000}
                 rows={7}
-                className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-3 text-sm leading-6 outline-none"
+                className="mt-2 w-full rounded-xl border border-[#e1e8f2] px-3 py-3 text-sm leading-6 outline-none"
               />
             </div>
-            <button className="h-11 rounded-xl bg-indigo-600 px-5 text-sm font-semibold text-white">
+            <button className="h-11 rounded-xl bg-[#2f6fed] px-5 text-sm font-semibold text-white">
               Salva profilo Network
             </button>
           </form>
