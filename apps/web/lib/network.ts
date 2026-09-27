@@ -18,7 +18,14 @@ export type NetworkSearchItem = {
   facility_countries: string[];
 };
 
+export type PublicProfileProvenanceKind =
+  | "platform_verified"
+  | "company_declared"
+  | "public_web"
+  | "platform_curated";
+
 export type NetworkProfile = {
+  contract: string;
   company: {
     id: string;
     legal_name: string;
@@ -29,21 +36,73 @@ export type NetworkProfile = {
     description: string | null;
     verification_status: string;
     claimed_status: string;
+    provenance_kind: PublicProfileProvenanceKind;
   };
-  roles: { key: string; name: string; is_primary: boolean }[];
-  subtypes: { key: string; name: string }[];
-  products: { key: string; name: string; relationship_type: string; facility_id: string | null }[];
-  markets: { key: string; name: string }[];
+  trust: {
+    claimed: boolean;
+    verified: boolean;
+    verified_facilities: number;
+    verified_capabilities: number;
+    verified_certifications: number;
+  };
+  completeness: {
+    version: string;
+    passed_sections: number;
+    total_sections: number;
+    percentage: number;
+    sections: {
+      identity: boolean;
+      positioning: boolean;
+      products: boolean;
+      facilities: boolean;
+      capabilities: boolean;
+      markets: boolean;
+      certifications: boolean;
+    };
+  };
+  roles: {
+    key: string;
+    name: string;
+    is_primary: boolean;
+    provenance_kind: PublicProfileProvenanceKind;
+  }[];
+  subtypes: {
+    key: string;
+    name: string;
+    role_key: string;
+    provenance_kind: PublicProfileProvenanceKind;
+  }[];
+  products: {
+    key: string;
+    name: string;
+    relationship_type: string;
+    facility_id: string | null;
+    provenance_kind: PublicProfileProvenanceKind;
+  }[];
+  markets: {
+    key: string;
+    name: string;
+    provenance_kind: PublicProfileProvenanceKind;
+  }[];
   facilities: {
     id: string;
     name: string;
     facility_type: string;
+    address_line_1: string | null;
+    address_line_2: string | null;
+    postal_code: string | null;
     city: string | null;
     region: string | null;
     country_code: string;
     website_url: string | null;
     verification_status: string;
-    capabilities: { key: string; name: string; verification_status: string }[];
+    provenance_kind: PublicProfileProvenanceKind;
+    capabilities: {
+      key: string;
+      name: string;
+      verification_status: string;
+      provenance_kind: PublicProfileProvenanceKind;
+    }[];
   }[];
   contacts: {
     id: string;
@@ -56,14 +115,17 @@ export type NetworkProfile = {
   }[];
   certifications: {
     id: string;
+    facility_id: string | null;
     certification_type_key: string;
     certification_type_name: string;
     issuer: string | null;
     certificate_identifier: string | null;
     valid_from: string | null;
     valid_to: string | null;
+    scope_text: string | null;
     verification_status: string;
-    evidence_reference: string | null;
+    validity_state: "valid" | "expired" | "not_yet_valid" | "unknown";
+    provenance_kind: PublicProfileProvenanceKind;
   }[];
 };
 
@@ -129,7 +191,9 @@ export async function searchNetwork(filters: {
 
 export async function getNetworkProfile(id: string) {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("m6_network_company_profile", { p_company_id: id });
+  const { data, error } = await supabase.rpc("p3_7c_public_company_profile", {
+    p_company_id: id,
+  });
   if (error) throw new Error(error.message);
   return (data as NetworkProfile | null) ?? null;
 }
