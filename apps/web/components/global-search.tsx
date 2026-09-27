@@ -134,10 +134,10 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
   return (
     <div className="space-y-6">
       <Card className="overflow-hidden border-slate-200 bg-white">
-        <div className="border-b border-white/10 bg-slate-950 px-5 py-5 text-white sm:px-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Ricerca commerciale</p>
-          <h2 className="mt-2 text-xl font-semibold">Cerca in tutta la Commercial Memory</h2>
-          <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-300">
+        <div className="border-b border-[#e3eaf5] bg-[#f7faff] px-5 py-5 sm:px-6">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#2f6fed]">Ricerca commerciale</p>
+          <h2 className="mt-2 text-xl font-semibold text-[#1e2b45]">Cerca in tutta la Commercial Memory</h2>
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-[#68788e]">
             Un'unica ricerca combina documenti, prodotti e attività commerciali con filtri per qualità, norma, dimensioni, prezzo e fonte.
           </p>
         </div>
@@ -157,7 +157,7 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
             <button
               type="submit"
               disabled={pending || query.trim().length < 2}
-              className="h-12 rounded-xl bg-indigo-600 px-6 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-wait disabled:opacity-50"
+              className="h-12 rounded-xl bg-[#2f6fed] px-6 text-sm font-semibold text-white transition hover:bg-[#245ed1] disabled:cursor-wait disabled:opacity-50"
             >
               {pending ? "Ricerca..." : "Cerca"}
             </button>
@@ -169,7 +169,7 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
                 key={example}
                 type="button"
                 onClick={() => setQuery(example)}
-                className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-white"
+                className="rounded-full border border-[#e1e8f2] bg-[#f8fafd] px-3 py-1.5 text-xs font-medium text-[#5f7088] hover:bg-white"
               >
                 {example}
               </button>
@@ -177,10 +177,10 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
           </div>
 
           <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Mostra solo · nessuna selezione = tutti</p>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#91a0b2]">Mostra solo · nessuna selezione = tutti</p>
             <div className="flex flex-wrap gap-2">
               {resultTypes.map((entry) => (
-                <label key={entry.value} className="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700">
+                <label key={entry.value} className="flex cursor-pointer items-center gap-2 rounded-lg border border-[#e1e8f2] bg-white px-3 py-2 text-xs font-medium text-[#4a5b72]">
                   <input name="types" value={entry.value} type="checkbox" className="h-3.5 w-3.5 rounded" />
                   {entry.label}
                 </label>
@@ -188,8 +188,8 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
             </div>
           </div>
 
-          <details className="rounded-xl border border-slate-200 bg-slate-50/70">
-            <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-slate-800">Filtri avanzati</summary>
+          <details className="rounded-xl border border-[#e1e8f2] bg-[#f8fafd]/70">
+            <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-[#34445c]">Filtri avanzati</summary>
             <div className="space-y-4 border-t border-slate-200 p-4">
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <Input name="company" placeholder="Cliente / azienda" />
@@ -207,15 +207,15 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
                 <Input name="source" placeholder="Fonte / nome file" />
                 <Input name="source_type" placeholder="Tipo fonte" />
                 <Input name="document_type" placeholder="Tipo documento" />
-                <select name="item_role" defaultValue="" className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700">
+                <select name="item_role" defaultValue="" className="h-10 rounded-lg border border-[#e1e8f2] bg-white px-3 text-sm text-[#4a5b72]">
                   <option value="">Qualsiasi ruolo</option>
                   <option value="requested">Richiesto</option>
                   <option value="offered">Offerto</option>
                   <option value="ordered">Ordinato</option>
                   <option value="delivered">Consegnato</option>
                 </select>
-                <label className="text-xs font-medium text-slate-500">Da data<input name="date_from" type="date" className="mt-1 block h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm" /></label>
-                <label className="text-xs font-medium text-slate-500">A data<input name="date_to" type="date" className="mt-1 block h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm" /></label>
+                <label className="text-xs font-medium text-[#68788e]">Da data<input name="date_from" type="date" className="mt-1 block h-10 w-full rounded-lg border border-[#e1e8f2] bg-white px-3 text-sm" /></label>
+                <label className="text-xs font-medium text-[#68788e]">A data<input name="date_to" type="date" className="mt-1 block h-10 w-full rounded-lg border border-[#e1e8f2] bg-white px-3 text-sm" /></label>
               </div>
             </div>
           </details>
@@ -228,8 +228,8 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
         <div className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-slate-950">{(state.count ?? 0).toLocaleString("it-IT")} risultati restituiti</p>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="text-sm font-semibold text-[#1e2b45]">{(state.count ?? 0).toLocaleString("it-IT")} risultati restituiti</p>
+              <p className="mt-1 text-xs text-[#68788e]">
                 {state.model?.model_name ? `Ricerca su tutta la memoria commerciale` : "Ricerca commerciale"}
               </p>
             </div>
@@ -257,7 +257,7 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge tone={typeTone(result.result_type)}>{typeLabel(result.result_type)}</Badge>
                       {result.role ? <Badge tone="neutral">{result.role}</Badge> : null}
-                      {date ? <span className="text-xs text-slate-400">{date}</span> : null}
+                      {date ? <span className="text-xs text-[#91a0b2]">{date}</span> : null}
                       {referenceStatus ? (
                         <Badge tone={referenceStatus === "matched" ? "green" : referenceStatus === "matched_canonical_missing" ? "amber" : "neutral"}>
                           {referenceStatus === "matched"
@@ -268,18 +268,18 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
                         </Badge>
                       ) : null}
                     </div>
-                    <h3 className="mt-3 text-base font-semibold text-slate-950">{result.title}</h3>
-                    {result.subtitle ? <p className="mt-1 text-sm text-slate-500">{result.subtitle}</p> : null}
+                    <h3 className="mt-3 text-base font-semibold text-[#1e2b45]">{result.title}</h3>
+                    {result.subtitle ? <p className="mt-1 text-sm text-[#68788e]">{result.subtitle}</p> : null}
                     {facts.length ? (
                       <div className="mt-3 flex flex-wrap gap-2">
                         {facts.map((fact) => <Badge key={fact} tone="blue">{fact}</Badge>)}
                       </div>
                     ) : null}
-                    {result.snippet ? <p className="mt-4 line-clamp-4 whitespace-pre-line text-sm leading-6 text-slate-700">{result.snippet}</p> : null}
-                    {result.source_filename ? <p className="mt-3 truncate text-xs text-slate-400">Fonte: {result.source_filename}</p> : null}
+                    {result.snippet ? <p className="mt-4 line-clamp-4 whitespace-pre-line text-sm leading-6 text-[#4a5b72]">{result.snippet}</p> : null}
+                    {result.source_filename ? <p className="mt-3 truncate text-xs text-[#91a0b2]">Fonte: {result.source_filename}</p> : null}
                   </div>
                   <div className="flex shrink-0 flex-row items-start gap-2 lg:flex-col lg:items-end">
-                    <span className="rounded-lg bg-slate-950 px-2.5 py-1.5 text-xs font-semibold text-white">Rilevanza {Number(result.score ?? 0).toFixed(4)}</span>
+                    <span className="rounded-lg border border-[#d7e5ff] bg-[#eaf2ff] px-2.5 py-1.5 text-xs font-semibold text-[#2f6fed]">Rilevanza {Number(result.score ?? 0).toFixed(4)}</span>
                     {customerTarget ? (
                       <Link
                         href={customerTarget}
@@ -298,9 +298,9 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
                     ) : null}
                     {target ? (
                       target.startsWith("http") ? (
-                        <a href={target} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700">Apri fonte ↗</a>
+                        <a href={target} target="_blank" rel="noreferrer" className="rounded-lg border border-[#e1e8f2] px-3 py-2 text-xs font-semibold text-[#4a5b72]">Apri fonte ↗</a>
                       ) : (
-                        <Link href={target} target={target.startsWith("/evidence/") ? "_blank" : undefined} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700">
+                        <Link href={target} target={target.startsWith("/evidence/") ? "_blank" : undefined} className="rounded-lg border border-[#e1e8f2] px-3 py-2 text-xs font-semibold text-[#4a5b72]">
                           {target.startsWith("/evidence/") ? "Apri originale ↗" : "Apri thread →"}
                         </Link>
                       )
@@ -313,8 +313,8 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
 
           {(state.results ?? []).length === 0 ? (
             <Card className="p-10 text-center">
-              <p className="font-semibold text-slate-800">Nessun risultato</p>
-              <p className="mt-2 text-sm text-slate-500">Prova una query più ampia oppure rimuovi uno dei filtri steel.</p>
+              <p className="font-semibold text-[#34445c]">Nessun risultato</p>
+              <p className="mt-2 text-sm text-[#68788e]">Prova una query più ampia oppure rimuovi uno dei filtri steel.</p>
             </Card>
           ) : null}
         </div>
@@ -322,9 +322,9 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
 
       {state.status === "idle" ? (
         <div className="grid gap-4 md:grid-cols-3">
-          <Card className="p-5"><p className="font-semibold text-slate-900">Una ricerca, tutto lo storico</p><p className="mt-2 text-sm leading-6 text-slate-500">Documenti, prodotti, RFQ, offerte, ordini e aziende confluiscono nella stessa ricerca.</p></Card>
-          <Card className="p-5"><p className="font-semibold text-slate-900">Filtri prodotto</p><p className="mt-2 text-sm leading-6 text-slate-500">Diametro, spessore, dimensioni, grade, standard, prezzo, data e fonte.</p></Card>
-          <Card className="p-5"><p className="font-semibold text-slate-900">Fonte sempre disponibile</p><p className="mt-2 text-sm leading-6 text-slate-500">Ogni risultato mantiene il collegamento al documento o alla conversazione da cui proviene.</p></Card>
+          <Card className="p-5"><p className="font-semibold text-[#273750]">Una ricerca, tutto lo storico</p><p className="mt-2 text-sm leading-6 text-[#68788e]">Documenti, prodotti, RFQ, offerte, ordini e aziende confluiscono nella stessa ricerca.</p></Card>
+          <Card className="p-5"><p className="font-semibold text-[#273750]">Filtri prodotto</p><p className="mt-2 text-sm leading-6 text-[#68788e]">Diametro, spessore, dimensioni, grade, standard, prezzo, data e fonte.</p></Card>
+          <Card className="p-5"><p className="font-semibold text-[#273750]">Fonte sempre disponibile</p><p className="mt-2 text-sm leading-6 text-[#68788e]">Ogni risultato mantiene il collegamento al documento o alla conversazione da cui proviene.</p></Card>
         </div>
       ) : null}
     </div>
