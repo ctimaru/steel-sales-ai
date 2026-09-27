@@ -85,22 +85,31 @@ insert into public.network_companies(
   'https://p37d.example.test',
   'p37d.example.test',
   'Identity and public contacts acceptance',
-  'published','claimed','unverified'
-);
-
-insert into public.organization_network_company_links(
-  id,organization_id,network_company_id,link_status,linked_by
-) values (
-  '00000000-0000-0000-0000-0000000037d4',
-  '00000000-0000-0000-0000-0000000037d2',
-  '00000000-0000-0000-0000-0000000037d3',
-  'active',
-  :'superadmin_id'::uuid
+  'published','unclaimed','unverified'
 );
 
 select set_config('request.jwt.claim.sub',:'superadmin_id',true);
 select set_config('request.jwt.claim.role','authenticated',true);
 set local role authenticated;
+
+select (
+  public.p3_6_request_company_claim(
+    '00000000-0000-0000-0000-0000000037d3',
+    '00000000-0000-0000-0000-0000000037d2',
+    'P3.7D identity acceptance claim'
+  )->>'claim_id'
+) as claim_id \gset
+
+select public.p3_6_review_claim_proof(
+  :'claim_id'::uuid,
+  'verified',
+  'P3.7D ownership acceptance'
+);
+select public.m4_review_company_claim(
+  :'claim_id'::uuid,
+  'approved',
+  'P3.7D claim acceptance'
+);
 
 select public.p3_7d_set_logo_path(
   '00000000-0000-0000-0000-0000000037d3',
