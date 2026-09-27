@@ -43,7 +43,10 @@ create table if not exists public.network_company_product_grade_scopes (
   verification_status text not null default 'unverified'
     check (verification_status in ('unverified','pending','verified','rejected')),
   created_at timestamptz not null default now(),
-  unique(company_product_id,standard_id,material_grade_id)
+  unique(company_product_id,standard_id,material_grade_id),
+  foreign key(company_product_id,standard_id)
+    references public.network_company_product_standard_scopes(company_product_id,standard_id)
+    on delete restrict
 );
 
 create table if not exists public.network_company_product_dimension_scopes (
@@ -761,14 +764,21 @@ begin
         select coalesce(jsonb_agg(to_jsonb(q) order by q.standard_code,q.designation),'[]'::jsonb)
         from (
           select distinct
-            a.standard_id,
+            links.standard_id,
             s.code as standard_code,
             mg.id as material_grade_id,
             mg.designation,
             mg.material_number
-          from public.steel_standard_grade_applicability a
-          join public.steel_standards s on s.id=a.standard_id and s.status='active'
-          join public.steel_material_grades mg on mg.id=a.material_grade_id
+          from (
+            select a.standard_id,a.material_grade_id
+            from public.steel_standard_grade_applicability a
+            union
+            select sg.standard_id,sg.material_grade_id
+            from public.steel_standard_grades sg
+            where sg.material_grade_id is not null
+          ) links
+          join public.steel_standards s on s.id=links.standard_id and s.status='active'
+          join public.steel_material_grades mg on mg.id=links.material_grade_id
           where exists(
             select 1
             from public.steel_standard_product_families spf
