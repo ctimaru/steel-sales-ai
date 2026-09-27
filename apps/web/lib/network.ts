@@ -24,6 +24,33 @@ export type PublicProfileProvenanceKind =
   | "public_web"
   | "platform_curated";
 
+export type PublicProductTechnicalScope = {
+  standards: {
+    standard_id: string;
+    code: string;
+    title: string;
+    verification_status: string;
+    provenance_kind: PublicProfileProvenanceKind;
+    technical_scope: PublicProductTechnicalScope;
+  }[];
+  grades: {
+    standard_id: string;
+    standard_code: string;
+    material_grade_id: string;
+    designation: string;
+    material_number: string | null;
+    verification_status: string;
+    provenance_kind: PublicProfileProvenanceKind;
+  }[];
+  dimensions: {
+    dimension_type: string;
+    min_mm: number;
+    max_mm: number;
+    verification_status: string;
+    provenance_kind: PublicProfileProvenanceKind;
+  }[];
+};
+
 export type NetworkProfile = {
   contract: string;
   company: {
@@ -106,6 +133,7 @@ export type NetworkProfile = {
       provenance_kind: PublicProfileProvenanceKind;
     }[];
   }[];
+  technical_scope: ManagedProductTechnicalScopeState;
   contacts: {
     id: string;
     facility_id: string | null;
@@ -195,31 +223,70 @@ export async function searchNetwork(filters: {
 
 export async function getNetworkProfile(id: string) {
   const supabase = await createClient();
-  const [profileResult, identityResult] = await Promise.all([
+  const [profileResult, identityResult, productScopeResult] = await Promise.all([
     supabase.rpc("p3_7c_public_company_profile", { p_company_id: id }),
     supabase.rpc("p3_7d_public_identity_contacts", { p_network_company_id: id }),
+    supabase.rpc("p3_7e_public_product_scope", { p_network_company_id: id }),
   ]);
 
   if (profileResult.error) throw new Error(profileResult.error.message);
   if (identityResult.error) throw new Error(identityResult.error.message);
+  if (productScopeResult.error) throw new Error(productScopeResult.error.message);
 
   const profile = (profileResult.data as NetworkProfile | null) ?? null;
   if (!profile) return null;
 
-  const extension = (identityResult.data ?? {}) as {
+  const identityExtension = (identityResult.data ?? {}) as {
     logo_path?: string | null;
     logo_updated_at?: string | null;
     contacts?: NetworkProfile["contacts"];
+  };
+
+  const scopeExtension = (productScopeResult.data ?? {}) as {
+    products?: {
+      key: string;
+      relationship_type: string;
+      facility_id: string | null;
+      standards: PublicProductTechnicalScope["standards"];
+      grades: PublicProductTechnicalScope["grades"];
+      dimensions: PublicProductTechnicalScope["dimensions"];
+    }[];
+  };
+
+  const technicalScopeFor = (
+    key: string,
+    relationshipType: string,
+    facilityId: string | null,
+  ): PublicProductTechnicalScope => {
+    const scope = scopeExtension.products?.find(
+      (item) =>
+        item.key === key &&
+        item.relationship_type === relationshipType &&
+        item.facility_id === facilityId,
+    );
+    return {
+      standards: scope?.standards ?? [],
+      grades: scope?.grades ?? [],
+      dimensions: scope?.dimensions ?? [],
+    };
   };
 
   return {
     ...profile,
     company: {
       ...profile.company,
-      logo_path: extension.logo_path ?? null,
-      logo_updated_at: extension.logo_updated_at ?? null,
+      logo_path: identityExtension.logo_path ?? null,
+      logo_updated_at: identityExtension.logo_updated_at ?? null,
     },
-    contacts: extension.contacts ?? profile.contacts,
+    products: profile.products.map((product) => ({
+      ...product,
+      technical_scope: technicalScopeFor(
+        product.key,
+        product.relationship_type,
+        product.facility_id,
+      ),
+    })),
+    contacts: identityExtension.contacts ?? profile.contacts,
   } as NetworkProfile;
 }
 
@@ -250,6 +317,56 @@ export type ManagedProfileRelationMeta = {
   source_type: string;
   ownership_type: string;
   review_state: string;
+};
+
+export type ManagedProductTechnicalScopeState = {
+  standard_scopes: {
+    id: string;
+    company_product_id: string;
+    standard_id: string;
+    standard_code: string;
+    standard_title: string;
+    verification_status: string;
+    source_assertion_id: string;
+    provenance_kind: PublicProfileProvenanceKind;
+  }[];
+  grade_scopes: {
+    id: string;
+    company_product_id: string;
+    standard_id: string;
+    standard_code: string;
+    material_grade_id: string;
+    designation: string;
+    material_number: string | null;
+    verification_status: string;
+    source_assertion_id: string;
+    provenance_kind: PublicProfileProvenanceKind;
+  }[];
+  dimension_scopes: {
+    id: string;
+    company_product_id: string;
+    dimension_type: string;
+    min_mm: number;
+    max_mm: number;
+    verification_status: string;
+    source_assertion_id: string;
+    provenance_kind: PublicProfileProvenanceKind;
+  }[];
+  taxonomy: {
+    standards: {
+      id: string;
+      code: string;
+      title: string;
+      network_product_keys: string[];
+    }[];
+    grades: {
+      standard_id: string;
+      standard_code: string;
+      material_grade_id: string;
+      designation: string;
+      material_number: string | null;
+    }[];
+  };
 };
 
 export type ManagedNetworkProfileState = {
@@ -344,35 +461,47 @@ export type ManagedNetworkProfileState = {
 
 export async function getManagedNetworkProfileState(networkCompanyId: string) {
   const supabase = await createClient();
-  const [stateResult, identityResult] = await Promise.all([
+  const [stateResult, identityResult, productScopeResult] = await Promise.all([
     supabase.rpc("p3_7_managed_profile_state", {
       p_network_company_id: networkCompanyId,
     }),
     supabase.rpc("p3_7d_managed_identity_contacts", {
       p_network_company_id: networkCompanyId,
     }),
+    supabase.rpc("p3_7e_managed_product_scope", {
+      p_network_company_id: networkCompanyId,
+    }),
   ]);
 
   if (stateResult.error) throw new Error(stateResult.error.message);
   if (identityResult.error) throw new Error(identityResult.error.message);
+  if (productScopeResult.error) throw new Error(productScopeResult.error.message);
 
   const state = (stateResult.data as ManagedNetworkProfileState | null) ?? null;
   if (!state) return null;
 
-  const extension = (identityResult.data ?? {}) as {
+  const identityExtension = (identityResult.data ?? {}) as {
     logo_path?: string | null;
     logo_updated_at?: string | null;
     contacts?: ManagedNetworkProfileState["contacts"];
   };
 
+  const productScope = (productScopeResult.data ?? {
+    standard_scopes: [],
+    grade_scopes: [],
+    dimension_scopes: [],
+    taxonomy: { standards: [], grades: [] },
+  }) as ManagedProductTechnicalScopeState;
+
   return {
     ...state,
     company: {
       ...state.company,
-      logo_path: extension.logo_path ?? null,
-      logo_updated_at: extension.logo_updated_at ?? null,
+      logo_path: identityExtension.logo_path ?? null,
+      logo_updated_at: identityExtension.logo_updated_at ?? null,
     },
-    contacts: extension.contacts ?? [],
+    technical_scope: productScope,
+    contacts: identityExtension.contacts ?? [],
   } as ManagedNetworkProfileState;
 }
 
