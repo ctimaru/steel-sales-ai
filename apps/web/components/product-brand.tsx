@@ -7,17 +7,17 @@ export function BrandMark({ compact = false }: { compact?: boolean }) {
     <span
       aria-hidden="true"
       className={
-        "relative inline-flex shrink-0 items-center justify-center rounded-full border-2 border-[#6e9eab] bg-[#122630] shadow-[inset_0_0_0_3px_#0b171e] " +
+        "relative inline-flex shrink-0 items-center justify-center rounded-full border-2 border-[#5aa8ff] bg-white shadow-[inset_0_0_0_3px_#dcecff] " +
         (compact ? "h-7 w-7" : "h-9 w-9")
       }
     >
       <span
         className={
-          "rounded-full border border-[#d5e4e8]/80 bg-[#0b171e] " +
+          "rounded-full border border-[#8fc2ff] bg-[#2f6fed] " +
           (compact ? "h-3 w-3" : "h-4 w-4")
         }
       />
-      <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-sm bg-[#c36e32] shadow-[0_0_0_2px_#0b171e]" />
+      <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-sm bg-[#ff6b5f] shadow-[0_0_0_2px_#ffffff]" />
     </span>
   );
 }
