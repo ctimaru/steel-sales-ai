@@ -277,7 +277,7 @@ export default async function NetworkCompanyProfilePage({
                 <form action={isFollowed ? unfollowNetworkCompany : followNetworkCompany}>
                   <input type="hidden" name="network_company_id" value={profile.company.id} />
                   <button className="h-10 w-full rounded-xl border border-[#cbdcf7] bg-[#eef5ff] px-4 text-sm font-semibold text-[#2f6fed] transition hover:bg-[#e5efff]">
-                    {isFollowed ? "Non seguire più" : "Segui azienda"}
+                    {isFollowed ? "Non seguire più" : "Segui aggiornamenti"}
                   </button>
                 </form>
               ) : null}
@@ -379,7 +379,7 @@ export default async function NetworkCompanyProfilePage({
             <input type="hidden" name="network_company_id" value={profile.company.id} />
             <input type="hidden" name="organization_id" value={adminOrganizationId} />
             <button className="h-10 rounded-xl bg-[#2f6fed] px-4 text-sm font-semibold text-white hover:bg-[#245ed1]">
-              Rivendica profilo
+              Rivendica questo profilo
             </button>
           </form>
         </section>
