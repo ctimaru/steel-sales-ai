@@ -43,7 +43,7 @@ export function PlatformShell({
             <div className="mt-6 rounded-2xl border border-[#e1e9f4] bg-white/80 p-4">
               <p className="text-xs font-semibold text-[#44546b]">Separazione dei contesti</p>
               <p className="mt-2 text-xs leading-5 text-[#7a899d]">
-                La Platform Console gestisce governance e onboarding globale. La Commercial Memory privata resta nel Company Workspace del tenant.
+                La Platform Console gestisce governance e onboarding globale. Non apre automaticamente la Commercial Memory privata dei tenant.
               </p>
             </div>
           </div>
