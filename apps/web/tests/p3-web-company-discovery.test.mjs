@@ -58,3 +58,17 @@ test("P3.2 raw discovery staging is not granted to authenticated users", () => {
     /revoke all on table public\.network_company_discovery_candidates from public,anon,authenticated/,
   );
 });
+
+
+test("P3.5 exposes repeatable labelled coverage campaigns and batch telemetry", () => {
+  assert.match(page, /Coverage telemetry/);
+  assert.match(page, /Batch discovery recenti/);
+  assert.match(page, /name="source_type"/);
+  assert.match(page, /name="label"/);
+  assert.match(page, /name="source_reference"/);
+  assert.match(actions, /web_search_curated/);
+  assert.match(actions, /p_source_type: sourceType/);
+  assert.match(actions, /p_source_reference: sourceReference/);
+  assert.match(actions, /p_label: label/);
+  assert.doesNotMatch(actions, /WORKER_INTERNAL_TOKEN/);
+});
