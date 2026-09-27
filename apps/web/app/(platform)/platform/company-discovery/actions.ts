@@ -80,20 +80,27 @@ export async function reviewCompanyDiscovery(formData: FormData) {
   const note = String(formData.get("note") ?? "").trim() || null;
 
   if (!id) redirect(discoveryPath("error", "Candidato non valido."));
-  if (!["publish_new", "reject", "duplicate_existing"].includes(decision)) {
+  if (!["publish_new", "reject", "duplicate_existing", "enrich_existing"].includes(decision)) {
     redirect(discoveryPath("error", "Decisione non valida."));
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("p3_review_company_discovery", {
-    p_candidate_id: id,
-    p_decision: decision,
-    p_existing_company_id: existingCompanyId,
-    p_note: note,
-  });
+  const result =
+    decision === "enrich_existing"
+      ? await supabase.rpc("p3_enrich_existing_company_discovery", {
+          p_candidate_id: id,
+          p_existing_company_id: existingCompanyId,
+          p_note: note,
+        })
+      : await supabase.rpc("p3_review_company_discovery", {
+          p_candidate_id: id,
+          p_decision: decision,
+          p_existing_company_id: existingCompanyId,
+          p_note: note,
+        });
 
-  if (error) {
-    redirect(discoveryPath("error", error.message));
+  if (result.error) {
+    redirect(discoveryPath("error", result.error.message));
   }
 
   revalidatePath("/platform/company-discovery");
@@ -103,9 +110,11 @@ export async function reviewCompanyDiscovery(formData: FormData) {
       "message",
       decision === "publish_new"
         ? "Profilo pubblicato nel Network come unclaimed + unverified."
-        : decision === "duplicate_existing"
-          ? "Candidato segnato come identità già esistente. Nessun merge eseguito."
-          : "Candidato rifiutato.",
+        : decision === "enrich_existing"
+          ? "Profilo esistente arricchito con evidenza pubblica. Nessun merge o overwrite eseguito."
+          : decision === "duplicate_existing"
+            ? "Candidato segnato come identità già esistente. Nessun merge eseguito."
+            : "Candidato rifiutato.",
     ),
   );
 }
@@ -116,7 +125,7 @@ export async function closeExactDiscoveryDuplicates() {
 
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("p3_close_exact_discovery_duplicates", {
-    p_note: "P3.3 explicit bulk review from Platform Control Plane.",
+    p_note: "P3.4 explicit bulk review of exact matches without enrichment payload.",
   });
 
   if (error) {
