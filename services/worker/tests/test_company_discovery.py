@@ -342,3 +342,31 @@ def test_p34_extracts_structured_facility_capability_and_market() -> None:
     assert facility["address_line_1"] == "Via Acciaio 34"
     assert facility["source_kind"] == "json_ld_postal_address"
     assert candidate["enrichment_quality"]["structured_facility_count"] == 1
+
+
+
+def test_p34_existing_match_marks_shared_domain_ambiguous() -> None:
+    class FakeRepository:
+        async def _request(self, method: str, path: str, **kwargs):
+            assert method == "GET"
+            if "website_domain=ilike.shared.example" in path:
+                return [
+                    {"id": "company-a"},
+                    {"id": "company-b"},
+                ]
+            return []
+
+    service = CompanyDiscoveryService.__new__(CompanyDiscoveryService)
+    service.repo = FakeRepository()
+
+    company_id, signals = asyncio.run(service._existing_match(
+        {
+            "canonical_domain": "shared.example",
+            "country_code": "IT",
+            "legal_name": "Shared Group",
+            "vat_id": None,
+        }
+    ))
+
+    assert company_id is None
+    assert "website_domain_ambiguous" in signals
