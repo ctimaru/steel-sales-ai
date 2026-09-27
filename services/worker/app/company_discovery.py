@@ -160,7 +160,7 @@ class _PublicHTMLParser(HTMLParser):
 
 
 JSON_LD_SCRIPT_RE = re.compile(
-    r"<script\\b[^>]*type=[\\\"']application/ld\\+json[\\\"'][^>]*>(.*?)</script\\s*>",
+    r"""<script\b[^>]*type=["']application/ld\+json["'][^>]*>(.*?)</script\s*>""",
     re.IGNORECASE | re.DOTALL,
 )
 
