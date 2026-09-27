@@ -217,3 +217,24 @@ def test_p33_direct_tube_manufacturing_remains_producer() -> None:
     assert "tube_pipe_producer" in subtypes
     assert scores["producer"] >= 0.5
     assert {"key": "tubes_pipes", "relationship_type": "produces"} in products
+
+
+
+def test_p33_legal_name_trims_generic_prefix_before_domain_identity() -> None:
+    pages = [
+        CrawledPage(
+            url="https://generaltubi.com/",
+            title="Generaltubi S.p.A. - Tubi in acciaio",
+            site_name="Generaltubi",
+            meta_description="Commercio e produzione di tubi.",
+            h1="Generaltubi",
+            text=(
+                "Magazzini Operatività senza limiti Generaltubi S.p.A. "
+                "Distribuzione e produzione di tubi di precisione."
+            ),
+            links=(),
+        )
+    ]
+    candidate = extract_candidate(pages, "IT")
+    assert candidate is not None
+    assert candidate["legal_name"] == "Generaltubi S.p.A."
