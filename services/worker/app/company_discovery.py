@@ -722,14 +722,25 @@ class CompanyDiscoveryService:
         legal_name = " ".join(str(candidate["legal_name"]).lower().split())
         vat_id = candidate.get("vat_id")
 
-        filters = [
-            f"website_domain=ilike.{quote(domain, safe='')}",
-            f"and=(country_code.eq.{quote(country)},normalized_legal_name.eq.{quote(legal_name, safe='')})",
+        filters: list[tuple[str, str]] = [
+            (
+                "website_domain_exact",
+                f"website_domain=ilike.{quote(domain, safe='')}",
+            ),
+            (
+                "country_normalized_legal_name_exact",
+                f"country_code=eq.{quote(country, safe='')}"
+                f"&normalized_legal_name=eq.{quote(legal_name, safe='')}",
+            ),
         ]
         if vat_id:
-            filters.append(f"and=(country_code.eq.{quote(country)},vat_id.eq.{quote(str(vat_id), safe='')})")
+            filters.append((
+                "country_vat_exact",
+                f"country_code=eq.{quote(country, safe='')}"
+                f"&vat_id=eq.{quote(str(vat_id), safe='')}",
+            ))
 
-        for index, filter_value in enumerate(filters):
+        for signal, filter_value in filters:
             rows = await self.repo._request(
                 "GET",
                 "/rest/v1/network_companies"
@@ -737,13 +748,6 @@ class CompanyDiscoveryService:
                 "&select=id,website_domain,vat_id,normalized_legal_name,country_code&limit=1",
             )
             if isinstance(rows, list) and rows:
-                signal = (
-                    "website_domain_exact"
-                    if index == 0
-                    else "country_normalized_legal_name_exact"
-                    if index == 1
-                    else "country_vat_exact"
-                )
                 return str(rows[0]["id"]), [signal]
         return None, []
 
