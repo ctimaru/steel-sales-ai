@@ -116,22 +116,15 @@ select (
 
 reset role;
 
-with grade_links as (
-  select a.standard_id,a.material_grade_id
-  from public.steel_standard_grade_applicability a
-  union
-  select sg.standard_id,sg.material_grade_id
-  from public.steel_standard_grades sg
-  where sg.material_grade_id is not null
-)
 select
   s.id as standard_id,
-  gl.material_grade_id
+  a.material_grade_id
 from public.steel_standards s
 join public.steel_standard_product_families spf
   on spf.standard_id=s.id and spf.product_family='round_tube'
-join grade_links gl on gl.standard_id=s.id
-join public.steel_material_grades mg on mg.id=gl.material_grade_id
+join public.steel_standard_grade_applicability a
+  on a.standard_id=s.id and a.product_family='round_tube'
+join public.steel_material_grades mg on mg.id=a.material_grade_id
 where s.status='active'
 order by s.code,mg.designation
 limit 1 \gset
@@ -175,6 +168,10 @@ select public.p3_7e_public_product_scope(
   '00000000-0000-0000-0000-0000000037e3'
 ) as public_scope \gset
 
+select public.p3_7e_marketplace_supplier_scope(
+  '00000000-0000-0000-0000-0000000037e3'
+) as marketplace_scope \gset
+
 reset role;
 
 select pg_temp.p37e_assert(
@@ -185,11 +182,18 @@ select pg_temp.p37e_assert(
 );
 
 select pg_temp.p37e_assert(
-  jsonb_array_length(:'public_scope'::jsonb->'products')=1
+  :'public_scope'::jsonb->>'contract'='P3.7E-public-v1'
+  and jsonb_array_length(:'public_scope'::jsonb->'products')=1
   and jsonb_array_length(:'public_scope'::jsonb->'products'->0->'standards')=1
   and jsonb_array_length(:'public_scope'::jsonb->'products'->0->'grades')=1
   and jsonb_array_length(:'public_scope'::jsonb->'products'->0->'dimensions')=2,
   'public product scope must compose matching-ready technical signals'
+);
+
+select pg_temp.p37e_assert(
+  :'marketplace_scope'::jsonb->>'contract'='P3.7E-marketplace-v1'
+  and jsonb_array_length(:'marketplace_scope'::jsonb->'products')=1,
+  'Marketplace supplier read model must expose the same governed public product scope'
 );
 
 select pg_temp.p37e_assert(
@@ -239,6 +243,16 @@ select pg_temp.p37e_assert(
 set local role authenticated;
 select set_config('request.jwt.claim.sub',:'superadmin_id',true);
 select set_config('request.jwt.claim.role','authenticated',true);
+
+select pg_temp.p37e_assert_raises(
+  format(
+    $sql$select public.p3_7e_upsert_product_dimension(
+      %L::uuid,'width',50,100
+    )$sql$,
+    :'company_product_id'
+  ),
+  'not valid for tubes & pipes'
+);
 
 select pg_temp.p37e_assert_raises(
   format(
@@ -355,6 +369,17 @@ select pg_temp.p37e_assert(
     'SELECT'
   ),
   'authenticated users must not receive direct technical-scope table access'
+);
+
+update public.network_companies
+set publication_status='draft'
+where id='00000000-0000-0000-0000-0000000037e3';
+
+select pg_temp.p37e_assert(
+  public.p3_7e_public_product_scope(
+    '00000000-0000-0000-0000-0000000037e3'
+  ) is null,
+  'public technical scope must not expose non-published companies'
 );
 
 rollback;
