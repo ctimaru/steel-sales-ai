@@ -367,6 +367,13 @@ def _candidate_identity(
     scored: list[tuple[int, int, str, str]] = []
     for candidate, source, base_score in candidates:
         normalized = _normalize_identity(candidate)
+        if normalized_domain and normalized_domain in normalized:
+            domain_token = re.sub(r"[^A-Za-z0-9]+", ".*?", re.escape(domain_stem), flags=re.IGNORECASE)
+            suffix = r"(?:S\.?\s*p\.?\s*A\.?|S\.?\s*r\.?\s*l\.?|S\.?\s*a\.?\s*s\.?|S\.?\s*n\.?\s*c\.?|Società\s+per\s+Azioni|Limited|Ltd\.?|GmbH|AG)"
+            match = re.search(rf"(?i)({domain_token}\s*{suffix})", candidate)
+            if match:
+                candidate = match.group(1).strip()
+                normalized = _normalize_identity(candidate)
         score = base_score
         domain_aligned = bool(normalized_domain and normalized_domain in normalized)
         legal_suffix_present = bool(LEGAL_SUFFIX_RE.search(candidate))
