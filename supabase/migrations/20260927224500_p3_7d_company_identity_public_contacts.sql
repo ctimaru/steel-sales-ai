@@ -212,7 +212,7 @@ begin
   v_new_path := nullif(btrim(coalesce(p_logo_path,'')),'');
 
   if v_new_path is not null
-     and v_new_path <> p_network_company_id::text || '/logo' then
+     and v_new_path <> (p_network_company_id::text || '/logo') then
     raise exception 'invalid company logo path' using errcode='22023';
   end if;
 
