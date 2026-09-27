@@ -200,6 +200,7 @@ jobs:
             p3_7b_company_profile_manager.sql \
             p3_7c_public_company_profile.sql \
             p3_7d_company_identity_contacts.sql \
+            p3_7e_product_scope_marketplace_readiness.sql \
             pa2_org_safe_fk_foundation.sql \
             pa2_rfq_relationship_foundation.sql \
             pa2_offer_order_relationship_foundation.sql \
