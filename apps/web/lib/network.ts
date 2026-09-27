@@ -31,7 +31,6 @@ export type PublicProductTechnicalScope = {
     title: string;
     verification_status: string;
     provenance_kind: PublicProfileProvenanceKind;
-    technical_scope: PublicProductTechnicalScope;
   }[];
   grades: {
     standard_id: string;
@@ -107,6 +106,7 @@ export type NetworkProfile = {
     relationship_type: string;
     facility_id: string | null;
     provenance_kind: PublicProfileProvenanceKind;
+    technical_scope: PublicProductTechnicalScope;
   }[];
   markets: {
     key: string;
@@ -133,7 +133,6 @@ export type NetworkProfile = {
       provenance_kind: PublicProfileProvenanceKind;
     }[];
   }[];
-  technical_scope: ManagedProductTechnicalScopeState;
   contacts: {
     id: string;
     facility_id: string | null;
@@ -419,6 +418,7 @@ export type ManagedNetworkProfileState = {
     verification_status: string;
     evidence_reference: string | null;
   })[];
+  technical_scope: ManagedProductTechnicalScopeState;
   contacts: {
     id: string;
     facility_id: string | null;
