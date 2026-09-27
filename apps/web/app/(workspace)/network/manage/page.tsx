@@ -706,7 +706,6 @@ export default async function ManagedNetworkProfilePage({
                             name="grade_scope"
                             required
                             className={inputClass}
-                            onChange={undefined}
                           >
                             <option value="">Seleziona grado</option>
                             {availableGrades.map((grade) => (
