@@ -205,7 +205,7 @@ set review_status='pending_review',reviewed_by=null,reviewed_at=null,review_note
 where id='00000000-0000-0000-0000-0000000034c1';
 
 set local role authenticated;
-do $
+do $p34amb$
 begin
   begin
     perform public.p3_enrich_existing_company_discovery(
@@ -218,7 +218,7 @@ begin
     when invalid_parameter_value then null;
   end;
 end;
-$;
+$p34amb$;
 reset role;
 
 rollback;
