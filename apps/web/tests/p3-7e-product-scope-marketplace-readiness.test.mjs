@@ -58,7 +58,7 @@ test("P3.7E governs standards, grades and dimensional envelopes", () => {
 });
 
 test("P3.7E Company Profile Manager exposes matching-ready technical product scope", () => {
-  assert.match(manage, /Prodotti e relazione commerciale/);
+  assert.match(manage, /Prodotti e scope tecnico/);
   assert.match(manage, /Technical \/ Marketplace scope/);
   assert.match(manage, /Norme/);
   assert.match(manage, /Gradi \/ materiali/);
