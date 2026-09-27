@@ -5,6 +5,7 @@ import pytest
 from app.company_discovery import (
     CrawledPage,
     CompanyDiscoveryError,
+    CompanyDiscoveryService,
     canonicalize_seed_url,
     classify_company,
     extract_candidate,
@@ -238,3 +239,35 @@ def test_p33_legal_name_trims_generic_prefix_before_domain_identity() -> None:
     candidate = extract_candidate(pages, "IT")
     assert candidate is not None
     assert candidate["legal_name"] == "Generaltubi S.p.A."
+
+
+
+@pytest.mark.asyncio
+async def test_p33_existing_match_handles_commas_without_postgrest_logic_tree() -> None:
+    seen_paths: list[str] = []
+
+    class FakeRepository:
+        async def _request(self, method: str, path: str, **kwargs):
+            assert method == "GET"
+            seen_paths.append(path)
+            return []
+
+    service = CompanyDiscoveryService()
+    service.repo = FakeRepository()
+
+    await service._existing_match(
+        {
+            "canonical_domain": "lasertubi.it",
+            "country_code": "IT",
+            "legal_name": "Taglio Laser Tubi, Lamiera, Carpenteria S.r.l.",
+            "vat_id": None,
+        }
+    )
+
+    assert len(seen_paths) >= 2
+    assert all("and=(" not in path for path in seen_paths)
+    legal_name_path = next(
+        path for path in seen_paths if "normalized_legal_name=eq." in path
+    )
+    assert "%2C" in legal_name_path
+    assert "country_code=eq.IT&normalized_legal_name=eq." in legal_name_path
