@@ -7,6 +7,7 @@ from app.company_discovery import (
     CrawledPage,
     CompanyDiscoveryError,
     CompanyDiscoveryService,
+    _extract_structured_data,
     canonicalize_seed_url,
     classify_company,
     extract_candidate,
@@ -271,3 +272,101 @@ def test_p33_existing_match_handles_commas_without_postgrest_logic_tree() -> Non
     )
     assert "%2C" in legal_name_path
     assert "country_code=eq.IT&normalized_legal_name=eq." in legal_name_path
+
+
+
+def test_p34_reads_json_ld_postal_address() -> None:
+    structured = _extract_structured_data(
+        """
+        <html><head>
+        <script type="application/ld+json">
+        {
+          "@type": "Organization",
+          "name": "P34 JSON-LD Tubes",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Via Tubo 4",
+            "addressLocality": "Brescia",
+            "addressCountry": "IT"
+          }
+        }
+        </script>
+        </head><body></body></html>
+        """
+    )
+    assert len(structured) == 1
+    assert structured[0]["name"] == "P34 JSON-LD Tubes"
+
+
+def test_p34_extracts_structured_facility_capability_and_market() -> None:
+    pages = [
+        CrawledPage(
+            url="https://p34-tubi.example/",
+            title="P34 Tubi S.r.l. | Lavorazione tubi",
+            site_name="P34 Tubi",
+            meta_description="Taglio laser tubi per il settore automotive.",
+            h1="P34 Tubi",
+            text=(
+                "P34 Tubi S.r.l. lavorazione tubi e taglio laser tubi "
+                "per clienti automotive."
+            ),
+            links=(),
+            structured_data=(
+                {
+                    "@type": "Organization",
+                    "name": "P34 Tubi S.r.l.",
+                    "url": "https://p34-tubi.example/",
+                    "address": {
+                        "@type": "PostalAddress",
+                        "streetAddress": "Via Acciaio 34",
+                        "postalCode": "10100",
+                        "addressLocality": "Torino",
+                        "addressRegion": "Piemonte",
+                        "addressCountry": "IT",
+                    },
+                },
+            ),
+        )
+    ]
+
+    candidate = extract_candidate(pages, "IT")
+    assert candidate is not None
+    assert candidate["extraction_version"] == "p3.4-v1"
+    assert candidate["capability_keys"] == ["laser_cutting"]
+    assert candidate["market_keys"] == ["automotive"]
+    assert len(candidate["facility_candidates"]) == 1
+    facility = candidate["facility_candidates"][0]
+    assert facility["city"] == "Torino"
+    assert facility["region"] == "Piemonte"
+    assert facility["country_code"] == "IT"
+    assert facility["address_line_1"] == "Via Acciaio 34"
+    assert facility["source_kind"] == "json_ld_postal_address"
+    assert candidate["enrichment_quality"]["structured_facility_count"] == 1
+
+
+
+def test_p34_existing_match_marks_shared_domain_ambiguous() -> None:
+    class FakeRepository:
+        async def _request(self, method: str, path: str, **kwargs):
+            assert method == "GET"
+            if "website_domain=ilike.shared.example" in path:
+                return [
+                    {"id": "company-a"},
+                    {"id": "company-b"},
+                ]
+            return []
+
+    service = CompanyDiscoveryService.__new__(CompanyDiscoveryService)
+    service.repo = FakeRepository()
+
+    company_id, signals = asyncio.run(service._existing_match(
+        {
+            "canonical_domain": "shared.example",
+            "country_code": "IT",
+            "legal_name": "Shared Group",
+            "vat_id": None,
+        }
+    ))
+
+    assert company_id is None
+    assert "website_domain_ambiguous" in signals

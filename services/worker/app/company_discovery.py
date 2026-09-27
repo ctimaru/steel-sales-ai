@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import ipaddress
+import json
 import logging
 import os
 import re
@@ -26,7 +27,7 @@ router = APIRouter(prefix="/v1/network/discovery", tags=["network-discovery"])
 logger = logging.getLogger(__name__)
 
 USER_AGENT = "SteelSalesAI-CompanyDiscovery/1.0 (+public-company-profile-crawler)"
-EXTRACTION_VERSION = "p3.3-v2"
+EXTRACTION_VERSION = "p3.4-v1"
 MAX_PAGES_PER_DOMAIN = 5
 MAX_RESPONSE_BYTES = 1_500_000
 MAX_TEXT_CHARS_PER_PAGE = 24_000
@@ -86,6 +87,7 @@ class CrawledPage:
     h1: str | None
     text: str
     links: tuple[str, ...]
+    structured_data: tuple[dict[str, object], ...] = ()
 
 
 class _PublicHTMLParser(HTMLParser):
@@ -137,7 +139,11 @@ class _PublicHTMLParser(HTMLParser):
         elif self._tag == "h1" and len(" ".join(self._h1)) < 500:
             self._h1.append(value)
 
-    def result(self, url: str) -> CrawledPage:
+    def result(
+        self,
+        url: str,
+        structured_data: tuple[dict[str, object], ...] = (),
+    ) -> CrawledPage:
         title = " ".join(self._title).strip()[:500] or None
         h1 = " ".join(self._h1).strip()[:500] or None
         text = " ".join(self._text)
@@ -149,7 +155,32 @@ class _PublicHTMLParser(HTMLParser):
             h1=h1,
             text=text[:MAX_TEXT_CHARS_PER_PAGE],
             links=tuple(self._links[:500]),
+            structured_data=structured_data,
         )
+
+
+JSON_LD_SCRIPT_RE = re.compile(
+    r"""<script\b[^>]*type=["']application/ld\+json["'][^>]*>(.*?)</script\s*>""",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def _extract_structured_data(html: str) -> tuple[dict[str, object], ...]:
+    output: list[dict[str, object]] = []
+    for raw in JSON_LD_SCRIPT_RE.findall(html[:MAX_RESPONSE_BYTES]):
+        if len(raw) > 256_000:
+            continue
+        try:
+            payload = json.loads(raw.strip())
+        except (json.JSONDecodeError, TypeError, ValueError):
+            continue
+        values = payload if isinstance(payload, list) else [payload]
+        for value in values:
+            if isinstance(value, dict):
+                output.append(value)
+                if len(output) >= 24:
+                    return tuple(output)
+    return tuple(output)
 
 
 def canonical_domain(url: str) -> str:
@@ -260,9 +291,10 @@ async def _fetch_page(client: httpx.AsyncClient, url: str, base_url: str) -> Cra
     content_type = (response.headers.get("content-type") or "").lower()
     if "html" not in content_type and "xhtml" not in content_type:
         return None
+    structured_data = _extract_structured_data(response.text)
     parser = _PublicHTMLParser()
     parser.feed(response.text)
-    return parser.result(final_url)
+    return parser.result(final_url, structured_data)
 
 
 def _priority_links(home: CrawledPage) -> list[str]:
@@ -299,6 +331,170 @@ def _redact_personal_channels(value: str) -> str:
         "[phone removed]",
         value,
     )
+
+
+def _walk_structured_nodes(value: object):
+    if isinstance(value, dict):
+        yield value
+        graph = value.get("@graph")
+        if isinstance(graph, list):
+            for item in graph:
+                yield from _walk_structured_nodes(item)
+        for key in ("department", "subOrganization", "location"):
+            nested = value.get(key)
+            if isinstance(nested, (dict, list)):
+                yield from _walk_structured_nodes(nested)
+    elif isinstance(value, list):
+        for item in value:
+            yield from _walk_structured_nodes(item)
+
+
+def _normalize_country_code(value: object, fallback: str) -> str:
+    if isinstance(value, dict):
+        value = value.get("name") or value.get("@id") or ""
+    text = str(value or "").strip()
+    normalized = text.upper()
+    aliases = {
+        "ITALIA": "IT",
+        "ITALY": "IT",
+        "ITALIEN": "IT",
+    }
+    if normalized in aliases:
+        return aliases[normalized]
+    if re.fullmatch(r"[A-Z]{2}", normalized):
+        return normalized
+    return fallback.upper()
+
+
+def _structured_facilities(
+    pages: list[CrawledPage],
+    country_code: str,
+) -> list[dict[str, object]]:
+    facilities: list[dict[str, object]] = []
+    seen: set[tuple[str, str, str, str, str]] = set()
+
+    for page in pages:
+        for root in page.structured_data:
+            for node in _walk_structured_nodes(root):
+                address = node.get("address")
+                if not isinstance(address, dict):
+                    continue
+                address_type = str(address.get("@type") or "").lower()
+                if address_type and "postaladdress" not in address_type:
+                    continue
+
+                street = str(address.get("streetAddress") or "").strip() or None
+                city = str(address.get("addressLocality") or "").strip() or None
+                region = str(address.get("addressRegion") or "").strip() or None
+                postal = str(address.get("postalCode") or "").strip() or None
+                country = _normalize_country_code(
+                    address.get("addressCountry"),
+                    country_code,
+                )
+                if street is None and city is None:
+                    continue
+
+                node_name = str(node.get("name") or "").strip()
+                node_type = node.get("@type")
+                if isinstance(node_type, list):
+                    type_text = " ".join(str(item) for item in node_type)
+                else:
+                    type_text = str(node_type or "")
+                facility_type = (
+                    "plant"
+                    if re.search(r"(?i)factory|manufacturing|plant", type_text)
+                    else "public_business_location"
+                )
+                website_url = str(node.get("url") or page.url).strip() or page.url
+                name = node_name[:255] if node_name else None
+
+                key = (
+                    (name or "").lower(),
+                    (street or "").lower(),
+                    (city or "").lower(),
+                    postal or "",
+                    country,
+                )
+                if key in seen:
+                    continue
+                seen.add(key)
+                facilities.append({
+                    "name": name,
+                    "facility_type": facility_type,
+                    "address_line_1": street,
+                    "address_line_2": None,
+                    "postal_code": postal,
+                    "city": city,
+                    "region": region,
+                    "country_code": country,
+                    "website_url": website_url[:500],
+                    "source_url": page.url,
+                    "source_kind": "json_ld_postal_address",
+                })
+                if len(facilities) >= 12:
+                    return facilities
+    return facilities
+
+
+CAPABILITY_SIGNALS: dict[str, tuple[str, ...]] = {
+    "laser_cutting": (
+        "taglio laser tubo", "taglio laser tubi", "taglio laser",
+        "tube laser cutting", "laser cutting",
+    ),
+    "bending_forming": (
+        "piegatura tubi", "piegatura tubo", "curvatura tubi",
+        "tube bending", "bending",
+    ),
+    "welding_fabrication": (
+        "saldatura", "carpenteria", "welding", "fabrication",
+    ),
+    "sawing": ("segatura", "sawing"),
+    "stockholding": (
+        "stockholder", "stockist", "stock di tubi", "magazzino tubi",
+        "ampio stock", "pronta consegna",
+    ),
+    "galvanizing": ("zincatura", "galvanizing", "hot dip galvanizing"),
+    "painting_coating": (
+        "verniciatura", "painting", "powder coating", "coating",
+    ),
+    "cut_to_length": ("taglio a misura", "cut to length", "cut-to-length"),
+    "slitting": ("slitting", "taglio nastri"),
+    "heat_treatment": ("trattamento termico", "heat treatment"),
+    "testing_ndt": (
+        "prove non distruttive", "non destructive testing",
+        "non-destructive testing", "ultrasonic testing", "ndt",
+    ),
+}
+
+MARKET_SIGNALS: dict[str, tuple[str, ...]] = {
+    "automotive": ("automotive", "automobilistico", "automobilistica"),
+    "energy": ("oil & gas", "oil and gas", "energy sector", "settore energia"),
+    "hvac": ("hvac", "heating", "ventilation", "climatizzazione"),
+    "construction_infrastructure": (
+        "construction", "costruzioni", "infrastructure", "infrastrutture",
+    ),
+    "agri_machinery": (
+        "agricultural machinery", "macchine agricole", "agricoltura",
+    ),
+    "mechanical_engineering_market": (
+        "mechanical engineering", "meccanica", "macchine industriali",
+    ),
+    "marine": ("marine sector", "settore navale", "navale"),
+    "appliances": ("appliances", "elettrodomestici"),
+}
+
+
+def _classify_enrichment(text: str) -> tuple[list[str], list[str]]:
+    lowered = " ".join(text.lower().split())
+
+    def matched(mapping: dict[str, tuple[str, ...]]) -> list[str]:
+        return [
+            key
+            for key, phrases in mapping.items()
+            if any(phrase in lowered for phrase in phrases)
+        ]
+
+    return matched(CAPABILITY_SIGNALS), matched(MARKET_SIGNALS)
 
 
 def _domain_identity_stem(domain: str) -> str:
@@ -643,6 +839,8 @@ def extract_candidate(pages: list[CrawledPage], country_code: str) -> dict[str, 
 
     legal_name, identity_quality, identity_flags = _candidate_identity(pages, domain)
     vat_id = _vat_id(combined)
+    facility_candidates = _structured_facilities(pages, country_code)
+    capability_keys, market_keys = _classify_enrichment(combined)
     description = next(
         (page.meta_description for page in pages if page.meta_description),
         None,
@@ -692,6 +890,15 @@ def extract_candidate(pages: list[CrawledPage], country_code: str) -> dict[str, 
         "identity_quality": identity_quality,
         "classification_scores": classification_scores,
         "quality_flags": quality_flags,
+        "facility_candidates": facility_candidates,
+        "capability_keys": capability_keys,
+        "market_keys": market_keys,
+        "enrichment_quality": {
+            "structured_facility_count": len(facility_candidates),
+            "capability_count": len(capability_keys),
+            "market_count": len(market_keys),
+            "facility_extraction": "json_ld_postal_address_only",
+        },
     }
 
 
@@ -721,6 +928,7 @@ class CompanyDiscoveryService:
         country = str(candidate["country_code"])
         legal_name = " ".join(str(candidate["legal_name"]).lower().split())
         vat_id = candidate.get("vat_id")
+        ambiguity_signals: list[str] = []
 
         filters: list[tuple[str, str]] = [
             (
@@ -745,11 +953,15 @@ class CompanyDiscoveryService:
                 "GET",
                 "/rest/v1/network_companies"
                 f"?{filter_value}&publication_status=neq.archived"
-                "&select=id,website_domain,vat_id,normalized_legal_name,country_code&limit=1",
+                "&select=id,website_domain,vat_id,normalized_legal_name,country_code&limit=2",
             )
-            if isinstance(rows, list) and rows:
-                return str(rows[0]["id"]), [signal]
-        return None, []
+            if not isinstance(rows, list) or not rows:
+                continue
+            if len(rows) > 1:
+                ambiguity_signals.append(signal.replace("_exact", "_ambiguous"))
+                continue
+            return str(rows[0]["id"]), [*ambiguity_signals, signal]
+        return None, ambiguity_signals
 
     async def claim_next(self) -> dict[str, object] | None:
         payload = await self.repo._request(
@@ -814,6 +1026,9 @@ class CompanyDiscoveryService:
         exact_match_count = 0
         quality_flag_count = 0
         role_counts: dict[str, int] = {}
+        facility_candidate_count = 0
+        capability_proposal_count = 0
+        market_proposal_count = 0
         errors: list[str] = []
 
         timeout = httpx.Timeout(REQUEST_TIMEOUT_SECONDS)
@@ -844,6 +1059,9 @@ class CompanyDiscoveryService:
                     quality_flag_count += len(candidate.get("quality_flags", []))
                     for role in candidate.get("role_keys", []):
                         role_counts[str(role)] = role_counts.get(str(role), 0) + 1
+                    facility_candidate_count += len(candidate.get("facility_candidates", []))
+                    capability_proposal_count += len(candidate.get("capability_keys", []))
+                    market_proposal_count += len(candidate.get("market_keys", []))
                 except (CompanyDiscoveryError, httpx.HTTPError, RepositoryError, ValueError) as exc:
                     error_count += 1
                     errors.append(f"{str(raw_seed)[:160]}: {str(exc)[:300]}")
@@ -863,6 +1081,9 @@ class CompanyDiscoveryService:
                 "error_count": error_count,
                 "exact_match_count": exact_match_count,
                 "quality_flag_count": quality_flag_count,
+                "facility_candidate_count": facility_candidate_count,
+                "capability_proposal_count": capability_proposal_count,
+                "market_proposal_count": market_proposal_count,
                 "role_counts": role_counts,
             },
             "completed_at": datetime.now(UTC).isoformat(),

@@ -15,6 +15,7 @@ function badgeClass(value: string) {
   if (value === "published") return "bg-emerald-50 text-emerald-700";
   if (value === "rejected") return "bg-rose-50 text-rose-700";
   if (value === "duplicate_existing") return "bg-amber-50 text-amber-800";
+  if (value === "enriched_existing") return "bg-cyan-50 text-cyan-800";
   return "bg-[#eef5f6] text-[#1b4c5d]";
 }
 
@@ -26,7 +27,7 @@ export default async function CompanyDiscoveryPage({
   const params = await searchParams;
   const status =
     params.status &&
-    ["pending_review", "published", "rejected", "duplicate_existing"].includes(
+    ["pending_review", "published", "rejected", "duplicate_existing", "enriched_existing"].includes(
       params.status,
     )
       ? params.status
@@ -112,11 +113,12 @@ export default async function CompanyDiscoveryPage({
         </div>
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {[
           ["In coda", queue.total],
           ["Con quality flags", queue.quality.flagged],
-          ["Exact identity match", queue.quality.exact_identity_matches],
+          ["Enrichment ready", queue.quality.enrichment_ready],
+          ["Exact identity match (senza enrichment)", queue.quality.exact_identity_matches],
           ["Ultimo batch", latestRun ? `${latestRun.candidate_count}/${latestRun.seed_count}` : "—"],
         ].map(([label, value]) => (
           <div key={String(label)} className="rounded-2xl border border-[#d9e0e4] bg-white p-4">
@@ -163,7 +165,7 @@ export default async function CompanyDiscoveryPage({
             {status === "pending_review" && queue.quality.exact_identity_matches > 0 ? (
               <form action={closeExactDiscoveryDuplicates}>
                 <button className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 ring-1 ring-inset ring-amber-200">
-                  Chiudi {queue.quality.exact_identity_matches} exact match
+                  Chiudi {queue.quality.exact_identity_matches} exact match senza enrichment
                 </button>
               </form>
             ) : null}
@@ -171,6 +173,7 @@ export default async function CompanyDiscoveryPage({
               ["pending_review", "Da revisionare"],
               ["published", "Pubblicati"],
               ["duplicate_existing", "Duplicati"],
+              ["enriched_existing", "Arricchiti"],
               ["rejected", "Rifiutati"],
             ].map(([key, label]) => (
               <Link
@@ -283,6 +286,63 @@ export default async function CompanyDiscoveryPage({
                   </div>
                 </div>
 
+                {(candidate.facility_candidates.length > 0 ||
+                  candidate.capability_keys.length > 0 ||
+                  candidate.market_keys.length > 0) ? (
+                  <div className="mt-4 grid gap-3 rounded-xl border border-cyan-100 bg-cyan-50/40 p-4 lg:grid-cols-3">
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-cyan-800">
+                        Facility proposte
+                      </p>
+                      <div className="mt-2 space-y-1 text-sm text-[#52636c]">
+                        {candidate.facility_candidates.length > 0 ? (
+                          candidate.facility_candidates.map((facility, index) => (
+                            <p key={`${facility.source_url}-${index}`}>
+                              {[facility.name, facility.city, facility.region, facility.country_code]
+                                .filter(Boolean)
+                                .join(" · ")}
+                            </p>
+                          ))
+                        ) : (
+                          <p>Nessuna facility strutturata</p>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-cyan-800">
+                        Capability
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {candidate.capability_keys.length > 0 ? (
+                          candidate.capability_keys.map((key) => (
+                            <span key={key} className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-[#1b4c5d]">
+                              {key.replaceAll("_", " ")}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-sm text-[#66737d]">Nessuna</span>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-cyan-800">
+                        Mercati
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {candidate.market_keys.length > 0 ? (
+                          candidate.market_keys.map((key) => (
+                            <span key={key} className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-[#1b4c5d]">
+                              {key.replaceAll("_", " ")}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-sm text-[#66737d]">Nessuno</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
                 {candidate.evidence?.[0]?.snippet ? (
                   <div className="mt-4 rounded-xl bg-[#f6f8f9] p-4">
                     <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#8fa1a9]">
@@ -304,13 +364,32 @@ export default async function CompanyDiscoveryPage({
 
                 {candidate.review_status === "pending_review" ? (
                   <div className="mt-4 flex flex-wrap gap-2 border-t border-[#edf1f3] pt-4">
-                    <form action={reviewCompanyDiscovery}>
-                      <input type="hidden" name="candidate_id" value={candidate.id} />
-                      <input type="hidden" name="decision" value="publish_new" />
-                      <button className="h-10 rounded-xl bg-[#0b171e] px-4 text-sm font-semibold text-white">
-                        Pubblica nuovo profilo
-                      </button>
-                    </form>
+                    {!candidate.match_company_id ? (
+                      <form action={reviewCompanyDiscovery}>
+                        <input type="hidden" name="candidate_id" value={candidate.id} />
+                        <input type="hidden" name="decision" value="publish_new" />
+                        <button className="h-10 rounded-xl bg-[#0b171e] px-4 text-sm font-semibold text-white">
+                          Pubblica nuovo profilo
+                        </button>
+                      </form>
+                    ) : null}
+                    {candidate.match_company_id &&
+                    (candidate.facility_candidates.length > 0 ||
+                      candidate.capability_keys.length > 0 ||
+                      candidate.market_keys.length > 0) ? (
+                      <form action={reviewCompanyDiscovery}>
+                        <input type="hidden" name="candidate_id" value={candidate.id} />
+                        <input type="hidden" name="decision" value="enrich_existing" />
+                        <input
+                          type="hidden"
+                          name="existing_company_id"
+                          value={candidate.match_company_id}
+                        />
+                        <button className="h-10 rounded-xl bg-cyan-700 px-4 text-sm font-semibold text-white">
+                          Arricchisci profilo esistente
+                        </button>
+                      </form>
+                    ) : null}
                     {candidate.match_company_id ? (
                       <form action={reviewCompanyDiscovery}>
                         <input type="hidden" name="candidate_id" value={candidate.id} />

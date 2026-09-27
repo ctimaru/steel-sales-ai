@@ -8,6 +8,20 @@ export type CompanyDiscoveryEvidence = {
   snippet?: string | null;
 };
 
+export type CompanyDiscoveryFacilityCandidate = {
+  name: string | null;
+  facility_type: string;
+  address_line_1: string | null;
+  address_line_2: string | null;
+  postal_code: string | null;
+  city: string | null;
+  region: string | null;
+  country_code: string;
+  website_url: string | null;
+  source_url: string;
+  source_kind?: string;
+};
+
 export type CompanyDiscoveryCandidate = {
   id: string;
   run_id: string;
@@ -29,6 +43,10 @@ export type CompanyDiscoveryCandidate = {
   identity_quality: Record<string, unknown>;
   classification_scores: Record<string, number>;
   quality_flags: string[];
+  facility_candidates: CompanyDiscoveryFacilityCandidate[];
+  capability_keys: string[];
+  market_keys: string[];
+  enrichment_quality: Record<string, unknown>;
   review_status: string;
   reviewed_at: string | null;
   review_note: string | null;
@@ -55,6 +73,7 @@ export async function getCompanyDiscoveryQueue(status?: string | null) {
     quality?: {
       flagged?: number;
       exact_identity_matches?: number;
+      enrichment_ready?: number;
     };
   };
 
@@ -65,6 +84,7 @@ export async function getCompanyDiscoveryQueue(status?: string | null) {
     quality: {
       flagged: Number(payload.quality?.flagged ?? 0),
       exact_identity_matches: Number(payload.quality?.exact_identity_matches ?? 0),
+      enrichment_ready: Number(payload.quality?.enrichment_ready ?? 0),
     },
   };
 }
