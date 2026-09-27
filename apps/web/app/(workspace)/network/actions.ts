@@ -177,9 +177,14 @@ export async function setManagedProductGradeScope(formData: FormData) {
   await requireWorkspaceAdmin();
   const companyId = textValue(formData, "network_company_id");
   const companyProductId = textValue(formData, "company_product_id");
-  const standardId = textValue(formData, "standard_id");
-  const materialGradeId = textValue(formData, "material_grade_id");
+  let standardId = textValue(formData, "standard_id");
+  let materialGradeId = textValue(formData, "material_grade_id");
+  const combinedScope = textValue(formData, "grade_scope");
   const enabled = textValue(formData, "enabled") !== "false";
+
+  if ((!standardId || !materialGradeId) && combinedScope.includes(":")) {
+    [standardId, materialGradeId] = combinedScope.split(":", 2);
+  }
 
   if (!companyId || !companyProductId || !standardId || !materialGradeId) {
     redirect(managedProfilePath("error", "Grado materiale non valido."));
