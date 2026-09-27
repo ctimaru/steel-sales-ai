@@ -37,6 +37,8 @@ export type NetworkProfile = {
     verification_status: string;
     claimed_status: string;
     provenance_kind: PublicProfileProvenanceKind;
+    logo_path: string | null;
+    logo_updated_at: string | null;
   };
   trust: {
     claimed: boolean;
@@ -112,6 +114,8 @@ export type NetworkProfile = {
     email: string | null;
     phone: string | null;
     website_url: string | null;
+    verification_status: string;
+    provenance_kind: PublicProfileProvenanceKind;
   }[];
   certifications: {
     id: string;
@@ -191,11 +195,43 @@ export async function searchNetwork(filters: {
 
 export async function getNetworkProfile(id: string) {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("p3_7c_public_company_profile", {
-    p_company_id: id,
-  });
-  if (error) throw new Error(error.message);
-  return (data as NetworkProfile | null) ?? null;
+  const [profileResult, identityResult] = await Promise.all([
+    supabase.rpc("p3_7c_public_company_profile", { p_company_id: id }),
+    supabase.rpc("p3_7d_public_identity_contacts", { p_network_company_id: id }),
+  ]);
+
+  if (profileResult.error) throw new Error(profileResult.error.message);
+  if (identityResult.error) throw new Error(identityResult.error.message);
+
+  const profile = (profileResult.data as NetworkProfile | null) ?? null;
+  if (!profile) return null;
+
+  const extension = (identityResult.data ?? {}) as {
+    logo_path?: string | null;
+    logo_updated_at?: string | null;
+    contacts?: NetworkProfile["contacts"];
+  };
+
+  return {
+    ...profile,
+    company: {
+      ...profile.company,
+      logo_path: extension.logo_path ?? null,
+      logo_updated_at: extension.logo_updated_at ?? null,
+    },
+    contacts: extension.contacts ?? profile.contacts,
+  } as NetworkProfile;
+}
+
+export function getNetworkCompanyLogoUrl(
+  logoPath: string | null | undefined,
+  logoUpdatedAt?: string | null,
+) {
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
+  if (!base || !logoPath) return null;
+  const encodedPath = logoPath.split("/").map(encodeURIComponent).join("/");
+  const version = logoUpdatedAt ? "?v=" + encodeURIComponent(logoUpdatedAt) : "";
+  return base + "/storage/v1/object/public/network-company-media/" + encodedPath + version;
 }
 
 export async function getManagedNetworkCompany() {
@@ -229,6 +265,8 @@ export type ManagedNetworkProfileState = {
     registration_id: string | null;
     vat_id: string | null;
     website_domain: string | null;
+    logo_path: string | null;
+    logo_updated_at: string | null;
   };
   roles: (ManagedProfileRelationMeta & { is_primary: boolean })[];
   subtypes: (ManagedProfileRelationMeta & { role_key: string })[];
@@ -264,6 +302,21 @@ export type ManagedNetworkProfileState = {
     verification_status: string;
     evidence_reference: string | null;
   })[];
+  contacts: {
+    id: string;
+    facility_id: string | null;
+    contact_type: string;
+    display_name: string | null;
+    email: string | null;
+    phone: string | null;
+    website_url: string | null;
+    publication_status: string;
+    verification_status: string;
+    source_assertion_id: string | null;
+    source_type: string | null;
+    ownership_type: string | null;
+    review_state: string | null;
+  }[];
   taxonomy: {
     roles: { key: string; name: string }[];
     subtypes: { key: string; name: string; role_key: string }[];
@@ -291,11 +344,36 @@ export type ManagedNetworkProfileState = {
 
 export async function getManagedNetworkProfileState(networkCompanyId: string) {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("p3_7_managed_profile_state", {
-    p_network_company_id: networkCompanyId,
-  });
-  if (error) throw new Error(error.message);
-  return (data as ManagedNetworkProfileState | null) ?? null;
+  const [stateResult, identityResult] = await Promise.all([
+    supabase.rpc("p3_7_managed_profile_state", {
+      p_network_company_id: networkCompanyId,
+    }),
+    supabase.rpc("p3_7d_managed_identity_contacts", {
+      p_network_company_id: networkCompanyId,
+    }),
+  ]);
+
+  if (stateResult.error) throw new Error(stateResult.error.message);
+  if (identityResult.error) throw new Error(identityResult.error.message);
+
+  const state = (stateResult.data as ManagedNetworkProfileState | null) ?? null;
+  if (!state) return null;
+
+  const extension = (identityResult.data ?? {}) as {
+    logo_path?: string | null;
+    logo_updated_at?: string | null;
+    contacts?: ManagedNetworkProfileState["contacts"];
+  };
+
+  return {
+    ...state,
+    company: {
+      ...state.company,
+      logo_path: extension.logo_path ?? null,
+      logo_updated_at: extension.logo_updated_at ?? null,
+    },
+    contacts: extension.contacts ?? [],
+  } as ManagedNetworkProfileState;
 }
 
 
