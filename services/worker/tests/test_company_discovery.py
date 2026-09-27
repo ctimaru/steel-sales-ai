@@ -7,6 +7,7 @@ from app.company_discovery import (
     CrawledPage,
     CompanyDiscoveryError,
     CompanyDiscoveryService,
+    _extract_structured_data,
     canonicalize_seed_url,
     classify_company,
     extract_candidate,
@@ -272,6 +273,29 @@ def test_p33_existing_match_handles_commas_without_postgrest_logic_tree() -> Non
     assert "%2C" in legal_name_path
     assert "country_code=eq.IT&normalized_legal_name=eq." in legal_name_path
 
+
+
+def test_p34_reads_json_ld_postal_address() -> None:
+    structured = _extract_structured_data(
+        """
+        <html><head>
+        <script type="application/ld+json">
+        {
+          "@type": "Organization",
+          "name": "P34 JSON-LD Tubes",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Via Tubo 4",
+            "addressLocality": "Brescia",
+            "addressCountry": "IT"
+          }
+        }
+        </script>
+        </head><body></body></html>
+        """
+    )
+    assert len(structured) == 1
+    assert structured[0]["name"] == "P34 JSON-LD Tubes"
 
 
 def test_p34_extracts_structured_facility_capability_and_market() -> None:
