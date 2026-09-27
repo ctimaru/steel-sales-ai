@@ -13,6 +13,7 @@ import { canInteractWithNetwork } from "@/lib/access-policy";
 import { getMyCompanyClaim, type CompanyClaimState } from "@/lib/company-claims";
 import {
   getInquiryEligibility,
+  getNetworkCompanyLogoUrl,
   getNetworkFollowState,
   getNetworkProfile,
   type PublicProfileProvenanceKind,
@@ -176,6 +177,10 @@ export default async function NetworkCompanyProfilePage({
   }
 
   const displayName = profile.company.trading_name || profile.company.legal_name;
+  const logoUrl = getNetworkCompanyLogoUrl(
+    profile.company.logo_path,
+    profile.company.logo_updated_at,
+  );
   const primaryRole = profile.roles.find((role) => role.is_primary);
   const verifiedAssetCount =
     profile.trust.verified_facilities +
@@ -210,7 +215,17 @@ export default async function NetworkCompanyProfilePage({
         <div className="border-b border-[#e8eef6] bg-gradient-to-r from-[#f8fbff] to-white p-6 sm:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div className="flex min-w-0 gap-4 sm:gap-5">
-              <CompanyMonogram name={displayName} />
+              {logoUrl ? (
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#dce7f5] bg-white p-2 sm:h-20 sm:w-20">
+                  <img
+                    src={logoUrl}
+                    alt={"Logo " + displayName}
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
+              ) : (
+                <CompanyMonogram name={displayName} />
+              )}
               <div className="min-w-0">
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#2f6fed]">
                   Steel Industry Network
@@ -605,16 +620,27 @@ export default async function NetworkCompanyProfilePage({
               {profile.contacts.length ? (
                 profile.contacts.map((contact) => (
                   <div key={contact.id} className="border-b border-[#edf1f6] pb-4 last:border-0 last:pb-0">
-                    <p className="text-sm font-semibold text-[#34445c]">
-                      {contact.display_name ?? contact.contact_type}
-                    </p>
-                    {contact.email ? <p className="mt-1 break-all text-xs text-[#68788e]">{contact.email}</p> : null}
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div>
+                        <p className="text-sm font-semibold text-[#34445c]">
+                          {contact.display_name ?? contact.contact_type}
+                        </p>
+                        <p className="mt-0.5 text-[11px] uppercase tracking-wide text-[#95a2b3]">
+                          {contact.contact_type}
+                        </p>
+                      </div>
+                      <VerificationBadge status={contact.verification_status} />
+                    </div>
+                    {contact.email ? <p className="mt-2 break-all text-xs text-[#68788e]">{contact.email}</p> : null}
                     {contact.phone ? <p className="mt-1 text-xs text-[#68788e]">{contact.phone}</p> : null}
                     {contact.website_url ? (
                       <a href={contact.website_url} target="_blank" rel="noreferrer" className="mt-2 inline-flex text-xs font-semibold text-[#2f6fed]">
                         Apri riferimento ↗
                       </a>
                     ) : null}
+                    <div className="mt-2">
+                      <ProvenanceBadge kind={contact.provenance_kind} />
+                    </div>
                   </div>
                 ))
               ) : (
