@@ -252,7 +252,7 @@ def test_p33_existing_match_handles_commas_without_postgrest_logic_tree() -> Non
             seen_paths.append(path)
             return []
 
-    service = CompanyDiscoveryService()
+    service = CompanyDiscoveryService.__new__(CompanyDiscoveryService)
     service.repo = FakeRepository()
 
     asyncio.run(service._existing_match(
