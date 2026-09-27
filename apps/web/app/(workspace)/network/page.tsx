@@ -149,8 +149,8 @@ export default async function NetworkDirectoryPage({
                 href={companyTypeHref(door.key)}
                 className={`rounded-2xl border p-4 transition ${
                   active
-                    ? "border-[#1b4c5d] bg-[#0b171e] text-white shadow-sm"
-                    : "border-[#d9e0e4] bg-white text-[#1e2b45] hover:border-[#bdd1f4]"
+                    ? "border-[#2f6fed] bg-[#2f6fed] text-white shadow-sm"
+                    : "border-[#e1e8f2] bg-white text-[#1e2b45] hover:border-[#bdd1f4] hover:bg-[#f7faff]"
                 }`}
               >
                 <p className="text-sm font-semibold">{door.label}</p>
