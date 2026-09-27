@@ -196,6 +196,7 @@ jobs:
             p3_web_company_discovery.sql \
             p3_discovery_quality_scale.sql \
             p3_company_profile_enrichment.sql \
+            p3_7a_profile_data_ownership.sql \
             pa2_org_safe_fk_foundation.sql \
             pa2_rfq_relationship_foundation.sql \
             pa2_offer_order_relationship_foundation.sql \
