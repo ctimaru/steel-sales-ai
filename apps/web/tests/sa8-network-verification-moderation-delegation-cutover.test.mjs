@@ -87,7 +87,7 @@ test("SA8 UI gates every privileged Network Trust operation independently", () =
       ),
     );
   }
-  assert.match(page, /confirmed.*match[\s\S]*?nessun merge/i);
+  assert.match(page, /Confermare un match[\s\S]*?nessun merge/i);
   assert.match(page, /Commercial Memory/i);
 });
 
