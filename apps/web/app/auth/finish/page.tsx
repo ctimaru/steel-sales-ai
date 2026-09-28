@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 export default function AuthFinishPage() {
   const router = useRouter();
   const [mode, setMode] = useState<"loading" | "invite" | "error">("loading");
+  const [inviteKind, setInviteKind] = useState<"organization" | "platform">("organization");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -19,6 +20,7 @@ export default function AuthFinishPage() {
       const supabase = createClient();
       const url = new URL(window.location.href);
       const isInvite = url.searchParams.get("invited") === "1";
+      const isStaffInvite = url.searchParams.get("staff") === "1";
       const isSignup = url.searchParams.get("signup") === "1";
       const isRecovery = url.searchParams.get("recovery") === "1";
       const code = url.searchParams.get("code");
@@ -47,7 +49,10 @@ export default function AuthFinishPage() {
         }
 
         if (isInvite) {
-          if (!cancelled) setMode("invite");
+          if (!cancelled) {
+            setInviteKind(isStaffInvite ? "platform" : "organization");
+            setMode("invite");
+          }
           return;
         }
 
@@ -99,6 +104,28 @@ export default function AuthFinishPage() {
       return;
     }
 
+    if (inviteKind === "platform") {
+      const { data: claimData, error: claimError } = await supabase.rpc(
+        "sa2_claim_platform_staff_invitation",
+      );
+      if (claimError) {
+        setError(claimError.message);
+        setSubmitting(false);
+        return;
+      }
+
+      const payload = (claimData ?? {}) as { claimed?: boolean };
+      if (payload.claimed !== true) {
+        setError("Invito Platform Staff non trovato, scaduto o già utilizzato.");
+        setSubmitting(false);
+        return;
+      }
+
+      router.replace("/staff/access?activated=1");
+      router.refresh();
+      return;
+    }
+
     const { error: claimError } = await supabase.rpc("claim_pending_organization_invitations");
     if (claimError) {
       setError(claimError.message);
@@ -125,9 +152,13 @@ export default function AuthFinishPage() {
 
         {mode === "invite" ? (
           <>
-            <h1 className="mt-4 text-2xl font-semibold text-slate-950">Completa il tuo invito</h1>
+            <h1 className="mt-4 text-2xl font-semibold text-slate-950">
+              {inviteKind === "platform" ? "Attiva il tuo accesso Platform" : "Completa il tuo invito"}
+            </h1>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Imposta una password personale. Il ruolo e l’azienda sono già determinati dall’invito e verranno applicati lato database.
+              {inviteKind === "platform"
+                ? "Imposta una password personale. I role template scelti dal Platform Owner verranno applicati solo dopo la verifica della tua identità."
+                : "Imposta una password personale. Il ruolo e l’azienda sono già determinati dall’invito e verranno applicati lato database."}
             </p>
             <form onSubmit={completeInvitation} className="mt-6 space-y-4">
               <label className="block text-sm font-medium text-slate-700">
@@ -136,7 +167,11 @@ export default function AuthFinishPage() {
               </label>
               {error ? <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p> : null}
               <button disabled={submitting} className="h-11 w-full rounded-lg bg-slate-950 text-sm font-semibold text-white disabled:opacity-50">
-                {submitting ? "Salvataggio…" : "Entra nel workspace"}
+                {submitting
+                  ? "Salvataggio…"
+                  : inviteKind === "platform"
+                    ? "Attiva accesso Platform"
+                    : "Entra nel workspace"}
               </button>
             </form>
           </>
