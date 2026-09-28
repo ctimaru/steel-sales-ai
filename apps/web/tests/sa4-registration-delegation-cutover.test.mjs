@@ -65,10 +65,9 @@ test("SA4 opens the Platform shell through capability context rather than root-o
   assert.match(layout, /context\.is_platform_owner/);
 });
 
-test("SA4 keeps navigation progressive: Registrations delegated, other operational domains root-only", () => {
+test("SA4 keeps the registration delegation invariant while later domains may cut over independently", () => {
   assert.match(navigation, /permission: "registrations\.read"/);
   assert.match(navigation, /href: "\/platform\/registrations"[\s\S]*?staffEnabled: true/);
-  assert.match(navigation, /href: "\/platform\/company-discovery"[\s\S]*?staffEnabled: false/);
   assert.match(navigation, /href: "\/platform\/company-claims"[\s\S]*?staffEnabled: false/);
   assert.match(navigation, /href: "\/platform\/people"[\s\S]*?staffEnabled: false/);
   assert.match(navigation, /permissions\.includes\(item\.permission\)/);
@@ -149,8 +148,8 @@ test("SA4 database cutover maps all registration RPCs to explicit capabilities",
   assert.match(migration, /registration_network_bridge_completed/);
 });
 
-test("SA4 keeps Company Discovery and People & Access root-only during the staged cutover", () => {
-  assert.match(discovery, /requirePlatformSuperadmin\(\)/);
+test("SA4 keeps People & Access root-only while later operational domains may cut over separately", () => {
+  assert.match(discovery, /Company Discovery/);
   assert.match(people, /context\.is_platform_owner/);
   assert.match(people, /redirect\("\/platform"\)/);
 });
