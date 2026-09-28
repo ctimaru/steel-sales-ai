@@ -8,15 +8,15 @@
   --muted-foreground: #6b7a90;
   --border: #e3eaf5;
 
-  --brand-950: #0b171e;
-  --brand-900: #10232c;
-  --brand-800: #153542;
-  --brand-700: #1b4c5d;
-  --brand-600: #28677a;
-  --brand-500: #3c8192;
-  --brand-200: #bcd3da;
-  --brand-100: #deeaed;
-  --brand-50: #eef5f6;
+  --brand-950: #14233f;
+  --brand-900: #173468;
+  --brand-800: #1f4c93;
+  --brand-700: #245ed1;
+  --brand-600: #2f6fed;
+  --brand-500: #4b82ee;
+  --brand-200: #bdd1f4;
+  --brand-100: #d7e5ff;
+  --brand-50: #eef5ff;
 
   --copper-700: #9a4e22;
   --copper-600: #b55f29;
@@ -116,7 +116,7 @@ textarea {
 }
 
 .product-kicker {
-  color: var(--brand-600);
+  color: var(--primary);
   font-size: 0.6875rem;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -174,6 +174,54 @@ textarea {
 }
 
 .platform-secondary:hover {
+  border-color: #bdd1f4;
+  background: #f3f7ff;
+  color: #2f6fed;
+}
+
+
+/* UX2 — unified application surfaces */
+.app-surface {
+  border: 1px solid #e1e8f2;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(30, 43, 69, 0.025), 0 8px 24px rgba(30, 43, 69, 0.025);
+}
+
+.app-muted-surface {
+  border: 1px solid #dbe7f7;
+  background: #f8fbff;
+}
+
+.app-kicker {
+  color: #2f6fed;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.app-copy {
+  color: #68788e;
+}
+
+.app-primary {
+  border: 1px solid #2f6fed;
+  background: #2f6fed;
+  color: #ffffff;
+}
+
+.app-primary:hover {
+  border-color: #245ed1;
+  background: #245ed1;
+}
+
+.app-secondary {
+  border: 1px solid #dbe5f1;
+  background: #ffffff;
+  color: #40516a;
+}
+
+.app-secondary:hover {
   border-color: #bdd1f4;
   background: #f3f7ff;
   color: #2f6fed;
