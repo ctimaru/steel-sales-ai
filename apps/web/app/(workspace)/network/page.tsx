@@ -13,7 +13,7 @@ const companyTypeDoors = [
   {
     key: "",
     label: "Tutta la filiera",
-    description: "Tubo · Italia",
+    description: "Italia · Tubes & Pipes",
   },
   {
     key: "producer",
@@ -27,8 +27,8 @@ const companyTypeDoors = [
   },
   {
     key: "processor_service_provider",
-    label: "Carpenterie & service",
-    description: "Lavorazione tubo e terzisti",
+    label: "Carpenterie & terzisti",
+    description: "Lavorazione tubo e service center",
   },
   {
     key: "end_user",
