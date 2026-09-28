@@ -121,7 +121,20 @@ export default function AuthFinishPage() {
         return;
       }
 
-      router.replace("/staff/access?activated=1");
+      const { data: platformContext } = await supabase.rpc("platform_access_context");
+      const authority = (platformContext ?? {}) as {
+        staff_status?: string | null;
+        permissions?: string[];
+      };
+
+      if (
+        authority.staff_status === "active" &&
+        authority.permissions?.includes("platform.console.access")
+      ) {
+        router.replace("/platform");
+      } else {
+        router.replace("/staff/access?activated=1");
+      }
       router.refresh();
       return;
     }
