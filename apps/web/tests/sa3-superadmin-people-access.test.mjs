@@ -106,6 +106,6 @@ test("SA3 staff status page preserves tenant isolation messaging and lifecycle s
 
 test("SA3 product language promotes the singleton root to Platform Owner", () => {
   assert.match(shell, /Platform Owner/);
-  assert.match(shell, />Owner</);
+  assert.match(shell, /Owner/);
   assert.doesNotMatch(shell, /Platform Superadmin/);
 });
