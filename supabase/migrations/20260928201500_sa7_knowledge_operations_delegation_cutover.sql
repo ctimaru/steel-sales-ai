@@ -713,6 +713,10 @@ begin
       raise exception 'Knowledge standard page not found' using errcode='P0002';
     end if;
 
+    if v_before->>'workflow_status'='in_review' then
+      raise exception 'Knowledge draft is frozen while in review' using errcode='22023';
+    end if;
+
     update public.steel_knowledge_standard_pages
     set draft_payload=v_payload,
         workflow_status='draft',
@@ -745,6 +749,10 @@ begin
 
     if v_before is null then
       raise exception 'Knowledge grade page not found' using errcode='P0002';
+    end if;
+
+    if v_before->>'workflow_status'='in_review' then
+      raise exception 'Knowledge draft is frozen while in review' using errcode='22023';
     end if;
 
     update public.steel_knowledge_grade_pages
@@ -849,6 +857,11 @@ begin
 
   if v_payload is null then
     raise exception 'Knowledge page not found' using errcode='P0002';
+  end if;
+
+  if v_status not in ('draft','changes_requested') then
+    raise exception 'Knowledge review submission requires draft or changes_requested state'
+      using errcode='22023';
   end if;
 
   v_blockers:=private.sa7_knowledge_payload_blockers(v_type,v_payload);
