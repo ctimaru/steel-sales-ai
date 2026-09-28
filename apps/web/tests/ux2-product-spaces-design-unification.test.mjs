@@ -6,7 +6,8 @@ const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta
 const nav = fs.readFileSync(new URL("../components/workspace-navigation.tsx", import.meta.url), "utf8");
 const dashboard = fs.readFileSync(new URL("../app/(workspace)/dashboard/page.tsx", import.meta.url), "utf8");
 const marketplace = fs.readFileSync(new URL("../app/(workspace)/marketplace/page.tsx", import.meta.url), "utf8");
-const knowledge = fs.readFileSync(new URL("../app/(workspace)/knowledge/page.tsx", import.meta.url), "utf8");
+const knowledge = fs.readFileSync(new URL("../app/(public)/knowledge/page.tsx", import.meta.url), "utf8");
+const knowledgeLayout = fs.readFileSync(new URL("../app/(public)/knowledge/layout.tsx", import.meta.url), "utf8");
 const routes = fs.readFileSync(new URL("../lib/routes.ts", import.meta.url), "utf8");
 const globals = fs.readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 const button = fs.readFileSync(new URL("../components/ui/button.tsx", import.meta.url), "utf8");
@@ -18,6 +19,7 @@ test("UX2 defines four distinct product spaces", () => {
   }
   assert.match(nav, /Privato/);
   assert.match(nav, /Condiviso/);
+  assert.match(nav, /Pubblico/);
   assert.match(routes, /marketplace:\s*\{/);
   assert.match(routes, /knowledge:\s*\{/);
 });
@@ -43,13 +45,15 @@ test("UX2 Marketplace is visible but cannot imply a live transaction workflow", 
   assert.match(marketplace, /Nessuna richiesta viene pubblicata o sbloccata/);
 });
 
-test("UX2 Knowledge is a shared technical surface with explicit coverage limits", () => {
-  assert.match(knowledge, /Steel Knowledge/);
+test("K1 Knowledge is a public technical discovery surface", () => {
+  assert.match(knowledge, /Conoscenza tecnica per chi lavora con acciaio e tubi/);
   assert.match(knowledge, /Norme & gradi/);
   assert.match(knowledge, /Pesi & dimensioni/);
-  assert.match(knowledge, /Tolleranze/);
-  assert.match(knowledge, /non esiste ancora un master catalog/);
-  assert.match(knowledge, /appRoutes\.knowledge\.tubes/);
+  assert.match(knowledge, /Guide tecniche/);
+  assert.match(knowledge, /Pubblico/);
+  assert.match(knowledgeLayout, /Accedi/);
+  assert.match(knowledgeLayout, /Registra azienda/);
+  assert.doesNotMatch(knowledge + knowledgeLayout, /getWorkspaceContext|requireWorkspace|redirect\("\/login"\)/);
 });
 
 test("UX2 propagates the light steel-blue system through shared primitives", () => {
