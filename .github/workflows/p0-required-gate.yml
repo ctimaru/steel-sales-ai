@@ -255,7 +255,8 @@ jobs:
             k5_public_tube_weight_calculator.sql \
             k6_indexable_dimension_pages.sql \
             k7_knowledge_seo_clusters.sql \
-            k8_organic_discovery_quality.sql; do
+            k8_organic_discovery_quality.sql \
+            sa2_platform_rbac_foundation.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done

@@ -1,6 +1,37 @@
 import { redirect } from "next/navigation";
 
+import type { PlatformPermissionKey, PlatformStaffRoleKey } from "@/lib/platform-access-contract";
 import { createClient } from "@/lib/supabase/server";
+
+export type PlatformAccessContext = {
+  user_id: string;
+  authority_type: "platform_owner" | "platform_staff" | "none";
+  is_platform_owner: boolean;
+  is_platform_staff: boolean;
+  staff_status: "active" | "suspended" | "revoked" | null;
+  roles: Array<PlatformStaffRoleKey | "platform_owner">;
+  permissions: PlatformPermissionKey[];
+};
+
+export async function hasPlatformPermission(permission: PlatformPermissionKey) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("has_platform_permission", {
+    p_permission_key: permission,
+  });
+  return !error && data === true;
+}
+
+export async function getPlatformAccessContext() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("platform_access_context");
+  if (error || !data) return null;
+  return data as PlatformAccessContext;
+}
+
+export async function requirePlatformPermission(permission: PlatformPermissionKey) {
+  const allowed = await hasPlatformPermission(permission);
+  if (!allowed) redirect("/dashboard");
+}
 
 export type RegistrationQueueItem = {
   id: string;
