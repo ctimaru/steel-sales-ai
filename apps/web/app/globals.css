@@ -1,22 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f5f7fb;
-  --foreground: #1e2b45;
+  --background: #f2f4f3;
+  --foreground: #1d2824;
   --card: #ffffff;
-  --muted: #eef3fa;
-  --muted-foreground: #6b7a90;
-  --border: #e3eaf5;
+  --muted: #ecefed;
+  --muted-foreground: #68736f;
+  --border: #dce2df;
 
-  --brand-950: #14233f;
-  --brand-900: #173468;
-  --brand-800: #1f4c93;
-  --brand-700: #245ed1;
-  --brand-600: #2f6fed;
-  --brand-500: #4b82ee;
-  --brand-200: #bdd1f4;
-  --brand-100: #d7e5ff;
-  --brand-50: #eef5ff;
+  --brand-950: #0b2f27;
+  --brand-900: #123d34;
+  --brand-800: #1a5144;
+  --brand-700: #226657;
+  --brand-600: #2d7967;
+  --brand-500: #438d7a;
+  --brand-200: #b8d2c8;
+  --brand-100: #d9e8e2;
+  --brand-50: #edf5f2;
 
   --copper-700: #9a4e22;
   --copper-600: #b55f29;
@@ -24,11 +24,11 @@
   --copper-100: #f5ddcf;
   --copper-50: #fbf0e9;
 
-  --success: #18725d;
+  --success: #1f6b58;
   --warning: #a96616;
   --danger: #b42318;
-  --focus: #2f6fed;
-  --primary: #2f6fed;
+  --focus: #1a5144;
+  --primary: #1a5144;
 }
 
 * {
@@ -44,7 +44,7 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at 85% -10%, rgba(47, 111, 237, 0.06), transparent 28rem),
+    radial-gradient(circle at 85% -10%, rgba(26, 81, 68, 0.07), transparent 28rem),
     var(--background);
   color: var(--foreground);
   font-family:
@@ -98,8 +98,8 @@ textarea {
 }
 
 ::selection {
-  background: #dbe9ff;
-  color: #17396f;
+  background: #d9e8e2;
+  color: #123d34;
 }
 
 .metric-number {
@@ -124,12 +124,12 @@ textarea {
 }
 
 .brand-button {
-  background: #2f6fed;
+  background: #1a5144;
   color: white;
 }
 
 .brand-button:hover {
-  background: #245ed1;
+  background: #226657;
 }
 
 .copper-accent {
@@ -138,18 +138,18 @@ textarea {
 
 .sidebar-scroll {
   scrollbar-width: thin;
-  scrollbar-color: #c7d3e3 transparent;
+  scrollbar-color: #b8c3be transparent;
 }
 
 
 .platform-surface {
-  border: 1px solid #e3eaf5;
+  border: 1px solid #dce2df;
   background: #ffffff;
   box-shadow: 0 1px 2px rgba(30, 43, 69, 0.025), 0 10px 28px rgba(30, 43, 69, 0.035);
 }
 
 .platform-kicker {
-  color: #2f6fed;
+  color: #1a5144;
   font-size: 0.6875rem;
   font-weight: 800;
   letter-spacing: 0.15em;
@@ -157,43 +157,43 @@ textarea {
 }
 
 .platform-primary {
-  border: 1px solid #2f6fed;
-  background: #2f6fed;
+  border: 1px solid #1a5144;
+  background: #1a5144;
   color: #ffffff;
 }
 
 .platform-primary:hover {
-  border-color: #245ed1;
-  background: #245ed1;
+  border-color: #226657;
+  background: #226657;
 }
 
 .platform-secondary {
-  border: 1px solid #dbe5f1;
+  border: 1px solid #d7dfdb;
   background: #ffffff;
-  color: #40516a;
+  color: #43524c;
 }
 
 .platform-secondary:hover {
-  border-color: #bdd1f4;
-  background: #f3f7ff;
-  color: #2f6fed;
+  border-color: #b8d2c8;
+  background: #f0f4f2;
+  color: #1a5144;
 }
 
 
 /* UX2 — unified application surfaces */
 .app-surface {
-  border: 1px solid #e1e8f2;
+  border: 1px solid #dce2df;
   background: #ffffff;
   box-shadow: 0 1px 2px rgba(30, 43, 69, 0.025), 0 8px 24px rgba(30, 43, 69, 0.025);
 }
 
 .app-muted-surface {
-  border: 1px solid #dbe7f7;
-  background: #f8fbff;
+  border: 1px solid #d9e1dd;
+  background: #f6f8f7;
 }
 
 .app-kicker {
-  color: #2f6fed;
+  color: #1a5144;
   font-size: 0.6875rem;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -201,28 +201,62 @@ textarea {
 }
 
 .app-copy {
-  color: #68788e;
+  color: #66736e;
 }
 
 .app-primary {
-  border: 1px solid #2f6fed;
-  background: #2f6fed;
+  border: 1px solid #1a5144;
+  background: #1a5144;
   color: #ffffff;
 }
 
 .app-primary:hover {
-  border-color: #245ed1;
-  background: #245ed1;
+  border-color: #226657;
+  background: #226657;
 }
 
 .app-secondary {
-  border: 1px solid #dbe5f1;
+  border: 1px solid #d7dfdb;
   background: #ffffff;
-  color: #40516a;
+  color: #43524c;
 }
 
 .app-secondary:hover {
-  border-color: #bdd1f4;
-  background: #f3f7ff;
-  color: #2f6fed;
+  border-color: #b8d2c8;
+  background: #f0f4f2;
+  color: #1a5144;
+}
+
+
+/* UXA1 — legacy accent compatibility
+   Keeps older Tailwind-indigo surfaces inside the new forest palette while
+   feature pages are progressively moved onto semantic app/platform classes. */
+.text-indigo-600,
+.text-indigo-700 {
+  color: var(--brand-800) !important;
+}
+
+.bg-indigo-600 {
+  background-color: var(--brand-800) !important;
+}
+
+.border-indigo-300 {
+  border-color: var(--brand-200) !important;
+}
+
+.hover\:text-indigo-700:hover {
+  color: var(--brand-800) !important;
+}
+
+.hover\:bg-indigo-500:hover,
+.hover\:bg-indigo-600:hover {
+  background-color: var(--brand-700) !important;
+}
+
+.focus\:border-indigo-400:focus {
+  border-color: var(--brand-500) !important;
+}
+
+.focus\:ring-indigo-50:focus {
+  --tw-ring-color: rgba(67, 141, 122, 0.12) !important;
 }

@@ -60,7 +60,7 @@ export function WorkspaceNavSection({
 
   return (
     <div>
-      <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#9ba8b9]">
+      <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#8b9792]">
         {title}
       </p>
       <nav className="space-y-1">
@@ -74,8 +74,8 @@ export function WorkspaceNavSection({
               className={[
                 "flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold transition",
                 selected
-                  ? "bg-[#eaf2ff] text-[#2f6fed] shadow-[inset_0_0_0_1px_#d7e5ff]"
-                  : "text-[#5f7088] hover:bg-white hover:text-[#1e2b45]",
+                  ? "bg-[#e1ece8] text-[#173f35] shadow-[inset_0_0_0_1px_#d9e8e2]"
+                  : "text-[#5d6a65] hover:bg-white hover:text-[#1d2824]",
               ].join(" ")}
             >
               <span>{item.label}</span>
@@ -109,8 +109,8 @@ export function WorkspaceHomeLink({
       className={[
         "flex items-center rounded-xl px-3 py-2.5 text-sm font-semibold transition",
         selected
-          ? "bg-[#eaf2ff] text-[#2f6fed] shadow-[inset_0_0_0_1px_#d7e5ff]"
-          : "text-[#5f7088] hover:bg-white hover:text-[#1e2b45]",
+          ? "bg-[#e1ece8] text-[#173f35] shadow-[inset_0_0_0_1px_#d9e8e2]"
+          : "text-[#5d6a65] hover:bg-white hover:text-[#1d2824]",
       ].join(" ")}
     >
       {label}
@@ -183,7 +183,7 @@ export function WorkspaceSpaceNavigation({
   return (
     <div className="space-y-5">
       <div>
-        <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#9ba8b9]">
+        <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#8b9792]">
           Spazi
         </p>
         <nav className="space-y-1.5">
@@ -197,36 +197,36 @@ export function WorkspaceSpaceNavigation({
                 className={[
                   "block rounded-2xl border px-3.5 py-3 transition",
                   selected
-                    ? "border-[#cfe0ff] bg-[#eaf2ff] shadow-[0_1px_2px_rgba(47,111,237,0.06)]"
-                    : "border-transparent bg-transparent hover:border-[#e3eaf5] hover:bg-white",
+                    ? "border-[#c7ddd5] bg-[#e1ece8] shadow-[0_1px_2px_rgba(23,63,53,0.07)]"
+                    : "border-transparent bg-transparent hover:border-[#dce2df] hover:bg-white",
                 ].join(" ")}
               >
                 <div className="flex items-center justify-between gap-3">
-                  <span className={selected ? "text-sm font-semibold text-[#2f6fed]" : "text-sm font-semibold text-[#34445c]"}>
+                  <span className={selected ? "text-sm font-semibold text-[#173f35]" : "text-sm font-semibold text-[#3e4a45]"}>
                     {item.label}
                   </span>
                   <span
                     className={[
                       "rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em]",
                       item.scope === "Privato"
-                        ? "bg-[#f2f5f9] text-[#64748b]"
-                        : "bg-[#eef5ff] text-[#2f6fed]",
+                        ? "bg-[#ecefed] text-[#65716c]"
+                        : "bg-[#edf5f2] text-[#173f35]",
                     ].join(" ")}
                   >
                     {item.scope}
                   </span>
                 </div>
-                <p className="mt-1 text-[11px] leading-4 text-[#7e8da1]">{item.description}</p>
+                <p className="mt-1 text-[11px] leading-4 text-[#78857f]">{item.description}</p>
               </Link>
             );
           })}
         </nav>
       </div>
 
-      <div className="border-t border-[#e8eef7] pt-4">
+      <div className="border-t border-[#dfe5e2] pt-4">
         {space === "workspace" ? (
           <div className="space-y-5">
-            <p className="px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#9ba8b9]">
+            <p className="px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#8b9792]">
               Workspace privato
             </p>
             {workspaceGroups.map((group) => (
@@ -242,10 +242,10 @@ export function WorkspaceSpaceNavigation({
         ) : (
           <div className="space-y-4">
             <div className="px-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#9ba8b9]">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8b9792]">
                 {space === "network" ? "Steel Network" : space === "marketplace" ? "Marketplace" : "Steel Knowledge"}
               </p>
-              <p className="mt-1 text-[11px] leading-4 text-[#8090a5]">
+              <p className="mt-1 text-[11px] leading-4 text-[#78857f]">
                 {space === "network"
                   ? "Superficie condivisa tra organizzazioni."
                   : space === "marketplace"
@@ -274,8 +274,8 @@ export function WorkspaceHeaderContext({
   if (space === "network") {
     return (
       <Link href={appRoutes.network.directory} className="min-w-0 shrink">
-        <p className="truncate text-sm font-semibold text-[#1e2b45]">Steel Network</p>
-        <p className="truncate text-xs text-[#7e8da1]">Spazio condiviso tra aziende</p>
+        <p className="truncate text-sm font-semibold text-[#1d2824]">Steel Network</p>
+        <p className="truncate text-xs text-[#78857f]">Spazio condiviso tra aziende</p>
       </Link>
     );
   }
@@ -283,8 +283,8 @@ export function WorkspaceHeaderContext({
   if (space === "marketplace") {
     return (
       <Link href={appRoutes.marketplace.home} className="min-w-0 shrink">
-        <p className="truncate text-sm font-semibold text-[#1e2b45]">Marketplace</p>
-        <p className="truncate text-xs text-[#7e8da1]">Spazio condiviso · domanda e opportunità</p>
+        <p className="truncate text-sm font-semibold text-[#1d2824]">Marketplace</p>
+        <p className="truncate text-xs text-[#78857f]">Spazio condiviso · domanda e opportunità</p>
       </Link>
     );
   }
@@ -292,16 +292,16 @@ export function WorkspaceHeaderContext({
   if (space === "knowledge") {
     return (
       <Link href={appRoutes.knowledge.home} className="min-w-0 shrink">
-        <p className="truncate text-sm font-semibold text-[#1e2b45]">Steel Knowledge</p>
-        <p className="truncate text-xs text-[#7e8da1]">Base tecnica pubblica</p>
+        <p className="truncate text-sm font-semibold text-[#1d2824]">Steel Knowledge</p>
+        <p className="truncate text-xs text-[#78857f]">Base tecnica pubblica</p>
       </Link>
     );
   }
 
   return (
     <Link href={appRoutes.home} className="min-w-0 shrink">
-      <p className="truncate text-sm font-semibold text-[#1e2b45]">{organizationName}</p>
-      <p className="truncate text-xs text-[#7e8da1]">Workspace privato · {roleLabel}</p>
+      <p className="truncate text-sm font-semibold text-[#1d2824]">{organizationName}</p>
+      <p className="truncate text-xs text-[#78857f]">Workspace privato · {roleLabel}</p>
     </Link>
   );
 }
@@ -326,8 +326,8 @@ export function WorkspaceMobileSpaceTabs({ networkEnabled }: { networkEnabled: b
           className={[
             "shrink-0 rounded-xl border px-3 py-1.5 text-xs font-semibold",
             item.key === space
-              ? "border-[#cfe0ff] bg-[#eaf2ff] text-[#2f6fed]"
-              : "border-[#dbe5f1] bg-white text-[#40516a]",
+              ? "border-[#c7ddd5] bg-[#e1ece8] text-[#173f35]"
+              : "border-[#d7dfdb] bg-white text-[#43524c]",
           ].join(" ")}
         >
           {item.label}

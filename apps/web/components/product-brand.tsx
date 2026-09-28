@@ -7,17 +7,17 @@ export function BrandMark({ compact = false }: { compact?: boolean }) {
     <span
       aria-hidden="true"
       className={
-        "relative inline-flex shrink-0 items-center justify-center rounded-full border-2 border-[#5aa8ff] bg-white shadow-[inset_0_0_0_3px_#dcecff] " +
+        "relative inline-flex shrink-0 items-center justify-center rounded-full border-2 border-[#4f7d70] bg-white shadow-[inset_0_0_0_3px_#dce9e4] " +
         (compact ? "h-7 w-7" : "h-9 w-9")
       }
     >
       <span
         className={
-          "rounded-full border border-[#8fc2ff] bg-[#2f6fed] " +
+          "rounded-full border border-[#86a99e] bg-[#173f35] " +
           (compact ? "h-3 w-3" : "h-4 w-4")
         }
       />
-      <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-sm bg-[#ff6b5f] shadow-[0_0_0_2px_#ffffff]" />
+      <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-sm bg-[#b86b42] shadow-[0_0_0_2px_#ffffff]" />
     </span>
   );
 }
@@ -45,7 +45,7 @@ export function ProductBrand({
           {productIdentity.name}
         </span>
         {!compact ? (
-          <span className={"mt-0.5 block text-[10px] font-semibold uppercase tracking-[0.15em] " + (inverse ? "text-[#7fa8b3]" : "text-slate-400")}>
+          <span className={"mt-0.5 block text-[10px] font-semibold uppercase tracking-[0.15em] " + (inverse ? "text-[#9fb9b0]" : "text-[#7b8782]")}>
             {productIdentity.descriptor}
           </span>
         ) : null}

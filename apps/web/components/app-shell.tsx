@@ -27,6 +27,13 @@ const commercialMemoryNav: NavItem[] = [
   { href: appRoutes.commercial.search, label: "Ricerca nello storico", shortLabel: "Cerca" },
 ];
 
+const analysisToolsNav: NavItem[] = [
+  { href: appRoutes.commercial.explorer, label: "Commercial Explorer", shortLabel: "Explorer" },
+  { href: appRoutes.commercial.priceIntelligence, label: "Price Intelligence", shortLabel: "Prezzi" },
+  { href: appRoutes.commercial.marketIntelligence, label: "Market Intelligence", shortLabel: "Mercato" },
+  { href: appRoutes.commercial.knowledgeExplorer, label: "Knowledge Explorer", shortLabel: "Knowledge" },
+];
+
 const intelligenceNav: NavItem[] = [
   { href: appRoutes.commercial.reengagement, label: "Riattivazione commerciale", shortLabel: "Riattivazione" },
   { href: appRoutes.commercial.demand, label: "Segnali di domanda", shortLabel: "Domanda" },
@@ -62,6 +69,7 @@ const operationsNav: NavItem[] = [
 const companyNav: NavItem[] = [
   { href: appRoutes.company.profile, label: "Profilo azienda", adminOnly: true },
   { href: appRoutes.company.dataSources, label: "Fonti e import", adminOnly: true },
+  { href: appRoutes.company.tubesStandards, label: "Strumenti tubi & norme" },
   { href: appRoutes.company.pilotAnalytics, label: "Pilot analytics", adminOnly: true },
 ];
 
@@ -114,6 +122,10 @@ export function AppShell({
       items: visibleItems(commercialMemoryNav, organizationRole),
     },
     {
+      title: "Analisi & strumenti",
+      items: visibleItems(analysisToolsNav, organizationRole),
+    },
+    {
       title: "Commercial Intelligence",
       items: visibleItems(intelligenceNav, organizationRole),
     },
@@ -130,6 +142,7 @@ export function AppShell({
 
   const mobileMore = [
     ...commercialMemoryNav,
+    ...analysisToolsNav,
     ...intelligenceNav,
     ...operationsNav,
     ...companyNav,
@@ -140,22 +153,22 @@ export function AppShell({
     .filter((item, index, items) => items.findIndex((candidate) => candidate.href === item.href) === index);
 
   return (
-    <div className="min-h-screen bg-[#f5f7fb] text-[#1e2b45]">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-[#e3eaf5] bg-[#f8fafd] lg:block">
+    <div className="min-h-screen bg-[#f2f4f3] text-[#1d2824]">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-[#dce2df] bg-[#eef1ef] lg:block">
         <div className="flex h-full flex-col">
-          <div className="border-b border-[#e8eef7] p-5">
+          <div className="border-b border-[#dfe5e2] p-5">
             <ProductBrand href={appRoutes.home} />
-            <div className="mt-5 rounded-2xl border border-[#e3eaf5] bg-white px-4 py-3 shadow-[0_1px_2px_rgba(30,43,69,0.03)]">
-              <p className="truncate text-sm font-semibold text-[#1e2b45]">{organizationName}</p>
-              <p className="mt-1 text-[11px] font-medium text-[#8090a5]">Company Workspace</p>
+            <div className="mt-5 rounded-2xl border border-[#dce2df] bg-white px-4 py-3 shadow-[0_1px_2px_rgba(30,43,69,0.03)]">
+              <p className="truncate text-sm font-semibold text-[#1d2824]">{organizationName}</p>
+              <p className="mt-1 text-[11px] font-medium text-[#78857f]">Company Workspace</p>
             </div>
           </div>
 
           {platformSuperadmin ? (
-            <div className="border-b border-[#e8eef7] p-3">
+            <div className="border-b border-[#dfe5e2] p-3">
               <Link
                 href={appRoutes.platform.home}
-                className="flex items-center justify-between rounded-xl border border-[#d7e5ff] bg-[#eef5ff] px-3 py-2.5 text-sm font-semibold text-[#2f6fed] transition hover:border-[#bdd1f4] hover:bg-[#e4efff]"
+                className="flex items-center justify-between rounded-xl border border-[#d9e8e2] bg-[#edf5f2] px-3 py-2.5 text-sm font-semibold text-[#173f35] transition hover:border-[#b8d2c8] hover:bg-[#e3efea]"
               >
                 <span>Apri Platform Console</span>
                 <span>↗</span>
@@ -174,15 +187,15 @@ export function AppShell({
             />
           </div>
 
-          <div className="border-t border-[#e8eef7] p-4">
-            <div className="rounded-xl border border-[#e3eaf5] bg-white p-3">
-              <p className="truncate text-xs font-semibold text-[#34445c]">{viewerLabel}</p>
-              <p className="mt-1 text-[11px] text-[#7e8da1]">
+          <div className="border-t border-[#dfe5e2] p-4">
+            <div className="rounded-xl border border-[#dce2df] bg-white p-3">
+              <p className="truncate text-xs font-semibold text-[#3e4a45]">{viewerLabel}</p>
+              <p className="mt-1 text-[11px] text-[#78857f]">
                 {demoMode ? "Modalità demo" : roleLabel(organizationRole)}
               </p>
             </div>
             <form action={logout}>
-              <button className="mt-3 w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-[#65758b] hover:bg-[#eef3fa] hover:text-[#2b3a52]">
+              <button className="mt-3 w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-[#65716c] hover:bg-[#e9eeeb] hover:text-[#2d3934]">
                 Esci
               </button>
             </form>
@@ -191,7 +204,7 @@ export function AppShell({
       </aside>
 
       <div className="lg:pl-72">
-        <header className="sticky top-0 z-20 border-b border-[#e3eaf5] bg-white/92 backdrop-blur-xl">
+        <header className="sticky top-0 z-20 border-b border-[#dce2df] bg-white/92 backdrop-blur-xl">
           <div className="flex min-h-16 items-center justify-between gap-3 px-4 py-2 sm:px-6 lg:px-8">
             <WorkspaceHeaderContext
               organizationName={organizationName}
@@ -201,15 +214,15 @@ export function AppShell({
             <div className="flex max-w-[72vw] items-center gap-1.5 overflow-x-auto lg:hidden">
               <WorkspaceMobileSpaceTabs networkEnabled={networkEnabled} />
               <details className="relative shrink-0">
-                <summary className="cursor-pointer list-none rounded-xl border border-[#dbe5f1] bg-white px-3 py-1.5 text-xs font-semibold text-[#40516a]">
+                <summary className="cursor-pointer list-none rounded-xl border border-[#d7dfdb] bg-white px-3 py-1.5 text-xs font-semibold text-[#43524c]">
                   Altro
                 </summary>
-                <div className="fixed left-4 right-4 top-16 z-40 grid max-h-[70vh] grid-cols-2 gap-2 overflow-y-auto rounded-2xl border border-[#e3eaf5] bg-white p-3 shadow-xl sm:left-auto sm:right-6 sm:w-96">
+                <div className="fixed left-4 right-4 top-16 z-40 grid max-h-[70vh] grid-cols-2 gap-2 overflow-y-auto rounded-2xl border border-[#dce2df] bg-white p-3 shadow-xl sm:left-auto sm:right-6 sm:w-96">
                   {mobileMore.map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
-                      className="rounded-xl border border-[#e7edf5] bg-[#f8fafd] px-3 py-2.5 text-xs font-semibold text-[#40516a] hover:border-[#c7d8f5] hover:bg-[#eef5ff] hover:text-[#2f6fed]"
+                      className="rounded-xl border border-[#e2e7e4] bg-[#eef1ef] px-3 py-2.5 text-xs font-semibold text-[#43524c] hover:border-[#b9cfc7] hover:bg-[#edf5f2] hover:text-[#173f35]"
                     >
                       {item.label}
                     </Link>
@@ -219,7 +232,7 @@ export function AppShell({
               {platformSuperadmin ? (
                 <Link
                   href={appRoutes.platform.home}
-                  className="shrink-0 rounded-xl bg-[#2f6fed] px-3 py-1.5 text-xs font-semibold text-white"
+                  className="shrink-0 rounded-xl bg-[#173f35] px-3 py-1.5 text-xs font-semibold text-white"
                 >
                   Platform
                 </Link>
@@ -238,7 +251,7 @@ export function AppShell({
               {platformSuperadmin ? (
                 <Link
                   href={appRoutes.platform.home}
-                  className="rounded-full border border-[#d7e5ff] bg-[#eaf2ff] px-3 py-1.5 text-xs font-semibold text-[#2f6fed]"
+                  className="rounded-full border border-[#d9e8e2] bg-[#e1ece8] px-3 py-1.5 text-xs font-semibold text-[#173f35]"
                 >
                   Platform Console
                 </Link>

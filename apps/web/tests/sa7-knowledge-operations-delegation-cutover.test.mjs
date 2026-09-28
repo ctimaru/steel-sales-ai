@@ -40,7 +40,7 @@ const migration = fs.readFileSync(
 test("SA7 exposes Knowledge Operations through knowledge.read_drafts", () => {
   assert.match(
     navigation,
-    /href: "\/platform\/knowledge"[\s\S]*?permission: "knowledge\.read_drafts"[\s\S]*?staffEnabled: true/,
+    /href: appRoutes\.platform\.knowledge[\s\S]*?permission: "knowledge\.read_drafts"[\s\S]*?staffEnabled: true/,
   );
   assert.match(home, /canReadKnowledge/);
   assert.match(

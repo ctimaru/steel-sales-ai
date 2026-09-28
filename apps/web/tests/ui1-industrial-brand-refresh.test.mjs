@@ -10,15 +10,15 @@ const companyShell = fs.readFileSync(new URL("../components/app-shell.tsx", impo
 const platformShell = fs.readFileSync(new URL("../components/platform-shell.tsx", import.meta.url), "utf8");
 const dashboard = fs.readFileSync(new URL("../app/(workspace)/dashboard/page.tsx", import.meta.url), "utf8");
 
-test("UX2 keeps industrial identity but aligns application tokens to the light steel-blue system", () => {
+test("UXA1 keeps industrial identity while aligning application tokens to the forest-neutral system", () => {
   for (const token of [
-    "--brand-950: #14233f",
-    "--brand-700: #245ed1",
-    "--brand-500: #4b82ee",
+    "--brand-950: #0b2f27",
+    "--brand-700: #226657",
+    "--brand-500: #438d7a",
     "--copper-500: #c36e32",
-    "--background: #f5f7fb",
-    "--foreground: #1e2b45",
-    "--primary: #2f6fed",
+    "--background: #f2f4f3",
+    "--foreground: #1d2824",
+    "--primary: #1a5144",
   ]) assert.ok(globals.includes(token), `missing token ${token}`);
   assert.match(globals, /\.app-surface/);
   assert.match(globals, /\.app-primary/);

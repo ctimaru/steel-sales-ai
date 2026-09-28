@@ -14,6 +14,10 @@ export const appRoutes = {
     conversion: "/commercial/conversion",
     crossThreadRelationships: "/commercial/conversion/relationships",
     assistant: "/commercial/assistant",
+    explorer: "/explorer",
+    priceIntelligence: "/price-intelligence",
+    marketIntelligence: "/market-intelligence",
+    knowledgeExplorer: "/knowledge-explorer",
     rfq: (id: string) => `/commercial/rfqs/${id}`,
     offer: (id: string) => `/commercial/offers/${id}`,
     order: (id: string) => `/commercial/orders/${id}`,
@@ -70,7 +74,10 @@ export const appRoutes = {
 
   platform: {
     home: "/platform",
+    people: "/platform/people",
     registrations: "/platform/registrations",
+    discovery: "/platform/company-discovery",
+    claims: "/platform/company-claims",
     registration: (id: string) => `/platform/registrations/${id}`,
     knowledge: "/platform/knowledge",
     knowledgePage: (type: "standard" | "grade", id: string) =>
