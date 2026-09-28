@@ -192,3 +192,28 @@ export async function getPublicGrade(slug: string) {
   });
   return rows[0] ?? null;
 }
+
+
+export type PublicTubeWeightReference = {
+  reference_id: string;
+  geometry_id: string;
+  product_family: "round_tube" | "square_tube" | "rectangular_tube";
+  outer_diameter_mm: number | null;
+  width_mm: number | null;
+  height_mm: number | null;
+  thickness_mm: number;
+  weight_kg_m: number;
+  weight_method: string;
+  density_kg_m3: number | null;
+  source_provider: string | null;
+  source_name: string | null;
+  source_url: string | null;
+};
+
+export async function listPublicTubeWeightReferences(productFamily?: string) {
+  return rpcRows<PublicTubeWeightReference>("k5_public_tube_weight_references", {
+    p_product_family: productFamily?.trim() || null,
+    p_limit: 500,
+    p_offset: 0,
+  });
+}
