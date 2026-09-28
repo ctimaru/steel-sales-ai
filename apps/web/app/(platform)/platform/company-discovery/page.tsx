@@ -63,7 +63,7 @@ export default async function CompanyDiscoveryPage({
             <h1 className="text-3xl font-semibold tracking-tight text-[#18263d] sm:text-4xl">
               Company Discovery
             </h1>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66768d]">
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66736e]">
               Scansiona siti aziendali pubblici, classifica il ruolo nella filiera e
               porta i risultati in review. Il crawler non pubblica e non unisce mai
               automaticamente un&apos;azienda.
@@ -92,16 +92,16 @@ export default async function CompanyDiscoveryPage({
       ) : null}
 
       {canRun ? (
-              <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5 sm:p-6">
+              <section className="rounded-2xl border border-[#dce2df] bg-white p-5 sm:p-6">
                 <div className="grid gap-6 lg:grid-cols-[1fr_2fr]">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#2f6fed]">
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">
                       Nuova scansione
                     </p>
-                    <h2 className="mt-2 text-xl font-semibold text-[#1e2b45]">
+                    <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
                       Seed URL → candidati
                     </h2>
-                    <p className="mt-2 text-sm leading-6 text-[#68788e]">
+                    <p className="mt-2 text-sm leading-6 text-[#66736e]">
                       Un URL per riga. Il worker visita solo pagine pubbliche dello stesso
                       dominio, applica limiti, robots.txt e blocco delle reti private.
                     </p>
@@ -112,13 +112,13 @@ export default async function CompanyDiscoveryPage({
                         name="country_code"
                         defaultValue="IT"
                         maxLength={2}
-                        className="h-11 rounded-xl border border-[#e1e8f2] px-3 text-sm uppercase outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                        className="h-11 rounded-xl border border-[#dce2df] px-3 text-sm uppercase outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#e1ece8]"
                         aria-label="Paese"
                       />
                       <select
                         name="source_type"
                         defaultValue="manual_url"
-                        className="h-11 rounded-xl border border-[#e1e8f2] bg-white px-3 text-sm text-[#40516a] outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                        className="h-11 rounded-xl border border-[#dce2df] bg-white px-3 text-sm text-[#43524c] outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#e1ece8]"
                       >
                         <option value="manual_url">URL manuali</option>
                         <option value="web_search_curated">Web search curata</option>
@@ -131,21 +131,21 @@ export default async function CompanyDiscoveryPage({
                         name="label"
                         maxLength={255}
                         placeholder="Etichetta campagna, es. P3.5 Italy Tube Coverage B"
-                        className="h-11 rounded-xl border border-[#e1e8f2] px-3 text-sm outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                        className="h-11 rounded-xl border border-[#dce2df] px-3 text-sm outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#e1ece8]"
                       />
                     </div>
                     <input
                       name="source_reference"
                       maxLength={2000}
                       placeholder="Riferimento/provenance della coorte"
-                      className="h-11 w-full rounded-xl border border-[#e1e8f2] px-3 text-sm outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                      className="h-11 w-full rounded-xl border border-[#dce2df] px-3 text-sm outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#e1ece8]"
                     />
                     <textarea
                       name="seed_urls"
                       required
                       rows={6}
                       placeholder={"https://azienda1.it/\nhttps://azienda2.it/"}
-                      className="w-full rounded-xl border border-[#e1e8f2] px-3 py-3 text-sm outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                      className="w-full rounded-xl border border-[#dce2df] px-3 py-3 text-sm outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#e1ece8]"
                     />
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <p className="text-xs leading-5 text-[#7a899d]">
@@ -159,14 +159,14 @@ export default async function CompanyDiscoveryPage({
                 </div>
               </section>
       ) : (
-        <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5 sm:p-6">
+        <section className="rounded-2xl border border-[#dce2df] bg-white p-5 sm:p-6">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#71819a]">
             Accesso in sola lettura
           </p>
-          <h2 className="mt-2 text-lg font-semibold text-[#1e2b45]">
+          <h2 className="mt-2 text-lg font-semibold text-[#1d2824]">
             Discovery run non disponibile per questo ruolo
           </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#68788e]">
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
             Puoi consultare run, candidati ed evidenze. L&apos;avvio di nuove scansioni richiede la permission discovery.run.
           </p>
         </section>
@@ -180,8 +180,8 @@ export default async function CompanyDiscoveryPage({
           ["Exact identity match (senza enrichment)", queue.quality.exact_identity_matches],
           ["Ultimo batch", latestRun ? `${latestRun.candidate_count}/${latestRun.seed_count}` : "—"],
         ].map(([label, value]) => (
-          <div key={String(label)} className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
-            <p className="text-2xl font-semibold text-[#1e2b45]">{String(value)}</p>
+          <div key={String(label)} className="rounded-2xl border border-[#dce2df] bg-white p-4">
+            <p className="text-2xl font-semibold text-[#1d2824]">{String(value)}</p>
             <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-[#8fa1a9]">
               {label}
             </p>
@@ -190,16 +190,16 @@ export default async function CompanyDiscoveryPage({
       </section>
 
       {latestRun ? (
-        <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5">
+        <section className="rounded-2xl border border-[#dce2df] bg-white p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#3c8192]">
                 Ultimo run · {latestRun.extraction_version}
               </p>
-              <p className="mt-2 text-sm font-semibold text-[#1e2b45]">
+              <p className="mt-2 text-sm font-semibold text-[#1d2824]">
                 {latestRun.label ?? latestRun.source_type}
               </p>
-              <p className="mt-1 text-xs text-[#68788e]">
+              <p className="mt-1 text-xs text-[#66736e]">
                 {latestRun.seed_count} seed · {latestRun.candidate_count} candidati · {latestRun.skipped_count} skip · {latestRun.error_count} errori · {latestRun.exact_match_count} exact match
               </p>
             </div>
@@ -211,20 +211,20 @@ export default async function CompanyDiscoveryPage({
       ) : null}
 
       {runs.length ? (
-        <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5">
+        <section className="rounded-2xl border border-[#dce2df] bg-white p-5">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
                 Coverage telemetry
               </p>
-              <h2 className="mt-1 text-lg font-semibold text-[#1e2b45]">Batch discovery recenti</h2>
+              <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Batch discovery recenti</h2>
             </div>
-            <p className="hidden text-xs text-[#91a0b2] sm:block">seed → candidati → review</p>
+            <p className="hidden text-xs text-[#87938e] sm:block">seed → candidati → review</p>
           </div>
           <div className="mt-4 overflow-x-auto">
             <table className="min-w-full text-left text-xs">
-              <thead className="text-[#91a0b2]">
-                <tr className="border-b border-[#edf1f6]">
+              <thead className="text-[#87938e]">
+                <tr className="border-b border-[#e6ebe8]">
                   <th className="pb-2 pr-4 font-semibold">Campagna</th>
                   <th className="pb-2 pr-4 font-semibold">Fonte</th>
                   <th className="pb-2 pr-4 font-semibold">Seed</th>
@@ -244,13 +244,13 @@ export default async function CompanyDiscoveryPage({
                     <tr key={run.id} className="border-b border-[#f0f3f7] last:border-0">
                       <td className="py-3 pr-4 font-semibold text-[#34445c]">
                         <p>{run.label ?? "Senza etichetta"}</p>
-                        <p className="mt-0.5 font-normal text-[#91a0b2]">run {run.id.slice(0, 8)}</p>
+                        <p className="mt-0.5 font-normal text-[#87938e]">run {run.id.slice(0, 8)}</p>
                       </td>
-                      <td className="py-3 pr-4 text-[#68788e]">{run.source_type.replaceAll("_", " ")}</td>
-                      <td className="py-3 pr-4 text-[#40516a]">{run.seed_count}</td>
-                      <td className="py-3 pr-4 text-[#40516a]">{run.candidate_count}</td>
-                      <td className="py-3 pr-4 font-semibold text-[#2f6fed]">{yieldPct}%</td>
-                      <td className="py-3 pr-4 text-[#68788e]">{run.skipped_count} / {run.error_count}</td>
+                      <td className="py-3 pr-4 text-[#66736e]">{run.source_type.replaceAll("_", " ")}</td>
+                      <td className="py-3 pr-4 text-[#43524c]">{run.seed_count}</td>
+                      <td className="py-3 pr-4 text-[#43524c]">{run.candidate_count}</td>
+                      <td className="py-3 pr-4 font-semibold text-[#1a5144]">{yieldPct}%</td>
+                      <td className="py-3 pr-4 text-[#66736e]">{run.skipped_count} / {run.error_count}</td>
                       <td className="py-3">
                         <span className="rounded-full bg-[#f1f5fa] px-2.5 py-1 font-semibold text-[#53637a]">
                           {run.status}
@@ -271,7 +271,7 @@ export default async function CompanyDiscoveryPage({
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#3c8192]">
               Review queue
             </p>
-            <h2 className="mt-1 text-xl font-semibold text-[#1e2b45]">
+            <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">
               {queue.total} candidati · {status.replaceAll("_", " ")}
             </h2>
           </div>
@@ -297,8 +297,8 @@ export default async function CompanyDiscoveryPage({
                 href={`/platform/company-discovery?status=${key}`}
                 className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
                   status === key
-                    ? "border border-[#2f6fed] bg-[#2f6fed] text-white"
-                    : "border border-[#dbe5f1] bg-white text-[#40516a] hover:border-[#bdd1f4] hover:bg-[#f3f7ff] hover:text-[#2f6fed]"
+                    ? "border border-[#1a5144] bg-[#1a5144] text-white"
+                    : "border border-[#d7dfdb] bg-white text-[#43524c] hover:border-[#b8d2c8] hover:bg-[#f0f4f2] hover:text-[#1a5144]"
                 }`}
               >
                 {label}
@@ -310,7 +310,7 @@ export default async function CompanyDiscoveryPage({
         {queue.items.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-[#c8d2d7] bg-white p-10 text-center">
             <p className="font-semibold text-[#22313a]">Nessun candidato in questa coda</p>
-            <p className="mt-2 text-sm text-[#68788e]">
+            <p className="mt-2 text-sm text-[#66736e]">
               Avvia una discovery oppure cambia filtro.
             </p>
           </div>
@@ -319,12 +319,12 @@ export default async function CompanyDiscoveryPage({
             {queue.items.map((candidate) => (
               <article
                 key={candidate.id}
-                className="rounded-2xl border border-[#e1e8f2] bg-white p-5"
+                className="rounded-2xl border border-[#dce2df] bg-white p-5"
               >
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-lg font-semibold text-[#1e2b45]">
+                      <h3 className="text-lg font-semibold text-[#1d2824]">
                         {candidate.legal_name}
                       </h3>
                       <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${badgeClass(candidate.review_status)}`}>
@@ -346,12 +346,12 @@ export default async function CompanyDiscoveryPage({
                       href={candidate.website_url}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-1 block truncate text-sm font-medium text-[#2f6fed]"
+                      className="mt-1 block truncate text-sm font-medium text-[#1a5144]"
                     >
                       {candidate.canonical_domain} ↗
                     </a>
                     {candidate.description ? (
-                      <p className="mt-3 max-w-4xl text-sm leading-6 text-[#68788e]">
+                      <p className="mt-3 max-w-4xl text-sm leading-6 text-[#66736e]">
                         {candidate.description}
                       </p>
                     ) : null}
@@ -436,7 +436,7 @@ export default async function CompanyDiscoveryPage({
                             </span>
                           ))
                         ) : (
-                          <span className="text-sm text-[#68788e]">Nessuna</span>
+                          <span className="text-sm text-[#66736e]">Nessuna</span>
                         )}
                       </div>
                     </div>
@@ -452,7 +452,7 @@ export default async function CompanyDiscoveryPage({
                             </span>
                           ))
                         ) : (
-                          <span className="text-sm text-[#68788e]">Nessuno</span>
+                          <span className="text-sm text-[#66736e]">Nessuno</span>
                         )}
                       </div>
                     </div>
@@ -471,7 +471,7 @@ export default async function CompanyDiscoveryPage({
                       href={candidate.evidence[0].url}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-2 inline-block text-xs font-semibold text-[#2f6fed]"
+                      className="mt-2 inline-block text-xs font-semibold text-[#1a5144]"
                     >
                       Apri fonte ↗
                     </a>
@@ -615,7 +615,7 @@ export default async function CompanyDiscoveryPage({
                       <form action={reviewCompanyDiscovery}>
                         <input type="hidden" name="candidate_id" value={candidate.id} />
                         <input type="hidden" name="decision" value="reject" />
-                        <button className="h-10 rounded-xl border border-[#e1e8f2] bg-white px-4 text-sm font-semibold text-[#53637a]">
+                        <button className="h-10 rounded-xl border border-[#dce2df] bg-white px-4 text-sm font-semibold text-[#53637a]">
                           Rifiuta
                         </button>
                       </form>
