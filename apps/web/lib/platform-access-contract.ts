@@ -8,6 +8,7 @@ export type PlatformPermissionDefinition = {
     | "discovery"
     | "claims"
     | "knowledge"
+    | "network_trust"
     | "tenant_access";
   action: string;
   risk: PlatformPermissionRisk;
@@ -238,6 +239,62 @@ export const PLATFORM_PERMISSIONS = [
   },
 
   {
+    key: "network_trust.read",
+    area: "network_trust",
+    action: "read",
+    risk: "low",
+    description:
+      "Read Network verification evidence, current verification state, change reviews and identity-resolution candidates.",
+  },
+  {
+    key: "network_trust.assert",
+    area: "network_trust",
+    action: "assert",
+    risk: "medium",
+    description:
+      "Create append-only Platform evidence assertions from approved public or manual-review sources.",
+  },
+  {
+    key: "network_trust.verify",
+    area: "network_trust",
+    action: "verify",
+    risk: "high",
+    description:
+      "Record a current Network verification outcome backed by a matching evidence assertion.",
+  },
+  {
+    key: "network_trust.revoke",
+    area: "network_trust",
+    action: "revoke",
+    risk: "high",
+    description: "Revoke or expire a current Network verification.",
+  },
+  {
+    key: "network_trust.review_changes",
+    area: "network_trust",
+    action: "review_changes",
+    risk: "high",
+    description:
+      "Open and decide Network provenance conflicts without silently overwriting source evidence.",
+  },
+  {
+    key: "network_trust.identity_refresh",
+    area: "network_trust",
+    action: "identity_refresh",
+    risk: "medium",
+    description:
+      "Refresh deterministic Network identity-resolution candidates without performing merges.",
+  },
+  {
+    key: "network_trust.identity_review",
+    area: "network_trust",
+    action: "identity_review",
+    risk: "high",
+    description:
+      "Confirm or dismiss identity-resolution candidates; confirmed matches never merge automatically.",
+  },
+
+  {
     key: "tenant_access.break_glass",
     area: "tenant_access",
     action: "break_glass",
@@ -255,6 +312,7 @@ export type PlatformStaffRoleKey =
   | "claims_verification_admin"
   | "knowledge_editor"
   | "knowledge_publisher"
+  | "network_trust_admin"
   | "platform_auditor";
 
 export type PlatformStaffRoleTemplate = {
@@ -298,8 +356,9 @@ export const PLATFORM_STAFF_ROLE_TEMPLATES = [
   },
   {
     key: "claims_verification_admin",
-    label: "Claims & Verification Admin",
-    description: "Processes company ownership proofs and claim lifecycle decisions.",
+    label: "Claims & Ownership Admin",
+    description:
+      "Processes company ownership proofs and claim lifecycle decisions; Network verification is a separate Trust role.",
     permissions: [
       CONSOLE_ACCESS,
       "claims.read",
@@ -334,6 +393,22 @@ export const PLATFORM_STAFF_ROLE_TEMPLATES = [
     ],
   },
   {
+    key: "network_trust_admin",
+    label: "Network Trust Admin",
+    description:
+      "Reviews public Network evidence, verification states, provenance conflicts and identity candidates without tenant-private access or automatic merges.",
+    permissions: [
+      CONSOLE_ACCESS,
+      "network_trust.read",
+      "network_trust.assert",
+      "network_trust.verify",
+      "network_trust.revoke",
+      "network_trust.review_changes",
+      "network_trust.identity_refresh",
+      "network_trust.identity_review",
+    ],
+  },
+  {
     key: "platform_auditor",
     label: "Platform Auditor",
     description: "Read-only platform oversight across operational queues and privileged-action audit.",
@@ -346,6 +421,7 @@ export const PLATFORM_STAFF_ROLE_TEMPLATES = [
       "claims.read",
       "knowledge.read_drafts",
       "knowledge.quality_audit",
+      "network_trust.read",
     ],
   },
 ] as const satisfies readonly PlatformStaffRoleTemplate[];
@@ -366,6 +442,7 @@ export const PLATFORM_ROUTE_PERMISSION_CONTRACT = [
   { route: "/platform/company-discovery", permission: "discovery.read" },
   { route: "/platform/company-claims", permission: "claims.read" },
   { route: "/platform/knowledge", permission: "knowledge.read_drafts" },
+  { route: "/platform/network-trust", permission: "network_trust.read" },
 ] as const satisfies readonly {
   route: string;
   permission: PlatformPermissionKey;
@@ -390,4 +467,11 @@ export const PLATFORM_ACTION_PERMISSION_CONTRACT = {
   submitKnowledgeReview: "knowledge.edit",
   reviewKnowledgeDraft: "knowledge.review",
   publishKnowledgePage: "knowledge.publish",
+  createNetworkTrustAssertion: "network_trust.assert",
+  recordNetworkVerification: "network_trust.verify",
+  revokeNetworkVerification: "network_trust.revoke",
+  openNetworkChangeReview: "network_trust.review_changes",
+  decideNetworkChangeReview: "network_trust.review_changes",
+  refreshNetworkIdentityCandidates: "network_trust.identity_refresh",
+  reviewNetworkIdentityCandidate: "network_trust.identity_review",
 } as const satisfies Record<string, PlatformPermissionKey>;
