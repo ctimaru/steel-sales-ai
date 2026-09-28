@@ -23,7 +23,7 @@ test("K2 defines stable public URL families for standards and grades", () => {
 
 test("K2 indexes are useful without exposing internal catalog state", () => {
   assert.match(standardsIndex, /Cosa tratta ogni norma/);
-  assert.match(standardsIndex, /tipo di evidenza/);
+  assert.match(standardsIndex, /relazioni di applicabilità/);
   assert.match(gradesIndex, /Cosa significano le sigle dei gradi di acciaio/);
   assert.match(gradesIndex, /evitando equivalenze automatiche/);
   assert.doesNotMatch(standardsIndex + gradesIndex, /service_role|source_locator|knowledge_source_id|page_status/);
