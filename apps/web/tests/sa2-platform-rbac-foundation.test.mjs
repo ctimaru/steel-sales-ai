@@ -89,10 +89,10 @@ test("SA2 exposes typed web permission and access-context helpers", () => {
   assert.match(platformAdmin, /PlatformPermissionKey/);
 });
 
-test("SA2 does not cut over existing Platform routes before delegated-domain acceptance", () => {
-  assert.match(platformLayout, /requirePlatformContext/);
+test("SA2 root compatibility remains while later domain cutovers use the capability context", () => {
+  assert.match(platformLayout, /requirePlatformConsoleContext/);
   assert.match(workspaceContext, /rpc\("is_platform_superadmin"\)/);
-  assert.doesNotMatch(platformLayout, /requirePlatformPermission/);
+  assert.doesNotMatch(platformLayout, /getWorkspaceContext/);
 });
 
 test("SA2 database seed remains aligned with the SA1 contract", () => {
