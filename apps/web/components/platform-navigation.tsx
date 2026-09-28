@@ -126,6 +126,22 @@ function NavIcon({ name }: { name: (typeof platformNav)[number]["icon"] }) {
   );
 }
 
+function visiblePlatformItems(
+  permissions: PlatformPermissionKey[],
+  isPlatformOwner: boolean,
+) {
+  return platformNav.filter((item) => {
+    if (!permissions.includes(item.permission)) return false;
+    return isPlatformOwner || item.staffEnabled;
+  });
+}
+
+function isPlatformSelected(pathname: string, href: string) {
+  return href === "/platform"
+    ? pathname === "/platform"
+    : pathname === href || pathname.startsWith(href + "/");
+}
+
 export function PlatformNavigation({
   permissions,
   isPlatformOwner,
@@ -134,19 +150,12 @@ export function PlatformNavigation({
   isPlatformOwner: boolean;
 }) {
   const pathname = usePathname();
-
-  const visibleItems = platformNav.filter((item) => {
-    if (!permissions.includes(item.permission)) return false;
-    return isPlatformOwner || item.staffEnabled;
-  });
+  const visibleItems = visiblePlatformItems(permissions, isPlatformOwner);
 
   return (
     <nav className="space-y-1">
       {visibleItems.map((item) => {
-        const selected =
-          item.href === "/platform"
-            ? pathname === "/platform"
-            : pathname === item.href || pathname.startsWith(item.href + "/");
+        const selected = isPlatformSelected(pathname, item.href);
 
         return (
           <Link
@@ -156,11 +165,11 @@ export function PlatformNavigation({
             className={[
               "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition",
               selected
-                ? "bg-[#eaf2ff] text-[#2f6fed] shadow-[inset_0_0_0_1px_#d7e5ff]"
-                : "text-[#53637a] hover:bg-white hover:text-[#1e2b45]",
+                ? "bg-[#e1ece8] text-[#173f35] shadow-[inset_0_0_0_1px_#d9e8e2]"
+                : "text-[#596761] hover:bg-white hover:text-[#1d2824]",
             ].join(" ")}
           >
-            <span className={selected ? "text-[#2f6fed]" : "text-[#7d8da4]"}>
+            <span className={selected ? "text-[#173f35]" : "text-[#7b8882]"}>
               <NavIcon name={item.icon} />
             </span>
             <span>{item.label}</span>
@@ -168,5 +177,60 @@ export function PlatformNavigation({
         );
       })}
     </nav>
+  );
+}
+
+
+export function PlatformMobileNavigation({
+  permissions,
+  isPlatformOwner,
+}: {
+  permissions: PlatformPermissionKey[];
+  isPlatformOwner: boolean;
+}) {
+  const pathname = usePathname();
+  const visibleItems = visiblePlatformItems(permissions, isPlatformOwner);
+
+  return (
+    <details className="relative lg:hidden">
+      <summary className="cursor-pointer list-none rounded-xl border border-[#d7dfdb] bg-white px-3 py-2 text-xs font-semibold text-[#43524c] shadow-sm">
+        Menu
+      </summary>
+      <div className="fixed left-4 right-4 top-16 z-50 max-h-[72vh] overflow-y-auto rounded-2xl border border-[#dce2df] bg-white p-3 shadow-2xl sm:left-auto sm:right-6 sm:w-96">
+        <div className="mb-2 flex items-center justify-between px-2 py-1">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#87938e]">
+              Platform Console
+            </p>
+            <p className="mt-1 text-xs text-[#66736e]">
+              Navigazione globale
+            </p>
+          </div>
+        </div>
+        <nav className="grid gap-2 sm:grid-cols-2">
+          {visibleItems.map((item) => {
+            const selected = isPlatformSelected(pathname, item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={selected ? "page" : undefined}
+                className={[
+                  "flex items-center gap-3 rounded-xl border px-3 py-3 text-sm font-semibold transition",
+                  selected
+                    ? "border-[#c7ddd5] bg-[#e1ece8] text-[#173f35]"
+                    : "border-[#e2e7e4] bg-[#f7f8f7] text-[#4f5d57] hover:border-[#c9d7d1] hover:bg-[#eef3f0]",
+                ].join(" ")}
+              >
+                <span className={selected ? "text-[#173f35]" : "text-[#7b8882]"}>
+                  <NavIcon name={item.icon} />
+                </span>
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
+    </details>
   );
 }
