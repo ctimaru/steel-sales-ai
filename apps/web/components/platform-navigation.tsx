@@ -32,7 +32,7 @@ const platformNav = [
     label: "Company Discovery",
     icon: "discovery",
     permission: "discovery.read",
-    staffEnabled: false,
+    staffEnabled: true,
   },
   {
     href: "/platform/company-claims",
