@@ -4,6 +4,7 @@ import {
   getCompanyDiscoveryQueue,
   getCompanyDiscoveryRuns,
 } from "@/lib/company-discovery";
+import { requirePlatformSuperadmin } from "@/lib/platform-admin";
 
 import {
   closeExactDiscoveryDuplicates,
@@ -24,6 +25,7 @@ export default async function CompanyDiscoveryPage({
 }: {
   searchParams: Promise<{ status?: string; message?: string; error?: string }>;
 }) {
+  await requirePlatformSuperadmin();
   const params = await searchParams;
   const status =
     params.status &&
