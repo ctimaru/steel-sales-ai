@@ -114,22 +114,38 @@ as $$
   select
     'dimension'::text,
     count(*)::integer,
-    count(*)::integer,
     count(*) filter (
-      where nullif(btrim(coalesce(d.source_url,'')),'') is null
-         or nullif(btrim(coalesce(d.source_provider,'')),'') is null
+      where nullif(btrim(coalesce(ks.source_uri,'')),'') is not null
+        and nullif(btrim(coalesce(ks.provider,'')),'') is not null
+    )::integer,
+    count(*) filter (
+      where nullif(btrim(coalesce(ks.source_uri,'')),'') is null
+         or nullif(btrim(coalesce(ks.provider,'')),'') is null
     )::integer,
     0::integer,
     0::integer,
-    (count(*) - count(distinct d.dimension_slug))::integer,
+    (
+      count(*) -
+      count(distinct public.k6_dimension_slug(
+        g.product_family,
+        g.outer_diameter_mm,
+        g.width_mm,
+        g.height_mm,
+        g.thickness_mm
+      ))
+    )::integer,
     jsonb_build_object(
-      'families',count(distinct d.product_family),
+      'families',count(distinct g.product_family),
       'source_complete',count(*) filter (
-        where nullif(btrim(coalesce(d.source_url,'')),'') is not null
-          and nullif(btrim(coalesce(d.source_provider,'')),'') is not null
+        where nullif(btrim(coalesce(ks.source_uri,'')),'') is not null
+          and nullif(btrim(coalesce(ks.provider,'')),'') is not null
       )
     )
-  from public.k6_public_tube_dimension_pages(null,500,0) d
+  from public.steel_weight_references w
+  join public.steel_geometries g on g.id=w.geometry_id
+  left join public.knowledge_sources ks on ks.id=w.knowledge_source_id
+  where w.is_canonical=true
+    and g.product_family in ('round_tube','square_tube','rectangular_tube')
 
   union all
 
