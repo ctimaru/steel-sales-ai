@@ -346,11 +346,26 @@ join public.network_certification_types ct on ct.canonical_key=s.certification_k
 on conflict (id) do nothing;
 
 -- Technical scope: standards.
-with standard_seed(scope_id,assertion_id,company_product_id,standard_code,source_url) as (
+with standard_source(
+  scope_id,assertion_id,company_id,product_key,relationship_type,standard_code,source_url
+) as (
   values
-    ('37f10000-0000-4000-8000-000000000701'::uuid,'37f10000-0000-4000-8000-000000000161'::uuid,'18bf74bf-f34c-4080-8e55-1f0ee2d91122'::uuid,'EN 10217-1','https://acciaitubi.it/en/tubes/welded-boiler-tubes-en-10217-1/'),
-    ('37f10000-0000-4000-8000-000000000702'::uuid,'37f10000-0000-4000-8000-000000000162'::uuid,'107b4a40-d955-4a71-a87b-305eb0f954ee'::uuid,'EN 10219','https://www.morandispa.it/prodotti/tubi-per-impieghi-strutturali/'),
-    ('37f10000-0000-4000-8000-000000000703'::uuid,'37f10000-0000-4000-8000-000000000163'::uuid,'107b4a40-d955-4a71-a87b-305eb0f954ee'::uuid,'EN 10210','https://www.morandispa.it/prodotti/tubi-per-impieghi-strutturali/')
+    ('37f10000-0000-4000-8000-000000000701'::uuid,'37f10000-0000-4000-8000-000000000161'::uuid,'51100000-0000-5000-8000-000000000001'::uuid,'tubes_pipes','produces','EN 10217-1','https://acciaitubi.it/en/tubes/welded-boiler-tubes-en-10217-1/'),
+    ('37f10000-0000-4000-8000-000000000702'::uuid,'37f10000-0000-4000-8000-000000000162'::uuid,'51100000-0000-5000-8000-000000000005'::uuid,'hollow_sections','stocks','EN 10219','https://www.morandispa.it/prodotti/tubi-per-impieghi-strutturali/'),
+    ('37f10000-0000-4000-8000-000000000703'::uuid,'37f10000-0000-4000-8000-000000000163'::uuid,'51100000-0000-5000-8000-000000000005'::uuid,'hollow_sections','stocks','EN 10210','https://www.morandispa.it/prodotti/tubi-per-impieghi-strutturali/')
+),
+standard_seed as (
+  select
+    s.scope_id,s.assertion_id,cp.id as company_product_id,
+    s.standard_code,s.source_url
+  from standard_source s
+  join public.network_product_families pf
+    on pf.canonical_key=s.product_key
+  join public.network_company_products cp
+    on cp.company_id=s.company_id
+   and cp.product_family_id=pf.id
+   and cp.relationship_type=s.relationship_type
+   and cp.facility_id is null
 ),
 assertions as (
   insert into public.network_data_assertions(
@@ -375,11 +390,26 @@ join public.steel_standards st on st.code=s.standard_code
 on conflict (company_product_id,standard_id) do nothing;
 
 -- Technical scope: grades/materials.
-with grade_seed(scope_id,assertion_id,company_product_id,standard_code,designation,source_url) as (
+with grade_source(
+  scope_id,assertion_id,company_id,product_key,relationship_type,standard_code,designation,source_url
+) as (
   values
-    ('37f10000-0000-4000-8000-000000000801'::uuid,'37f10000-0000-4000-8000-000000000171'::uuid,'18bf74bf-f34c-4080-8e55-1f0ee2d91122'::uuid,'EN 10217-1','P235TR1','https://acciaitubi.it/en/tubes/welded-boiler-tubes-en-10217-1/'),
-    ('37f10000-0000-4000-8000-000000000802'::uuid,'37f10000-0000-4000-8000-000000000172'::uuid,'107b4a40-d955-4a71-a87b-305eb0f954ee'::uuid,'EN 10219','S355J2H','https://www.morandispa.it/prodotti/tubi-per-impieghi-strutturali/'),
-    ('37f10000-0000-4000-8000-000000000803'::uuid,'37f10000-0000-4000-8000-000000000173'::uuid,'107b4a40-d955-4a71-a87b-305eb0f954ee'::uuid,'EN 10210','S355J2H','https://www.morandispa.it/prodotti/tubi-per-impieghi-strutturali/')
+    ('37f10000-0000-4000-8000-000000000801'::uuid,'37f10000-0000-4000-8000-000000000171'::uuid,'51100000-0000-5000-8000-000000000001'::uuid,'tubes_pipes','produces','EN 10217-1','P235TR1','https://acciaitubi.it/en/tubes/welded-boiler-tubes-en-10217-1/'),
+    ('37f10000-0000-4000-8000-000000000802'::uuid,'37f10000-0000-4000-8000-000000000172'::uuid,'51100000-0000-5000-8000-000000000005'::uuid,'hollow_sections','stocks','EN 10219','S355J2H','https://www.morandispa.it/prodotti/tubi-per-impieghi-strutturali/'),
+    ('37f10000-0000-4000-8000-000000000803'::uuid,'37f10000-0000-4000-8000-000000000173'::uuid,'51100000-0000-5000-8000-000000000005'::uuid,'hollow_sections','stocks','EN 10210','S355J2H','https://www.morandispa.it/prodotti/tubi-per-impieghi-strutturali/')
+),
+grade_seed as (
+  select
+    s.scope_id,s.assertion_id,cp.id as company_product_id,
+    s.standard_code,s.designation,s.source_url
+  from grade_source s
+  join public.network_product_families pf
+    on pf.canonical_key=s.product_key
+  join public.network_company_products cp
+    on cp.company_id=s.company_id
+   and cp.product_family_id=pf.id
+   and cp.relationship_type=s.relationship_type
+   and cp.facility_id is null
 ),
 assertions as (
   insert into public.network_data_assertions(
@@ -405,17 +435,31 @@ join public.steel_material_grades mg on mg.designation=s.designation
 on conflict (company_product_id,standard_id,material_grade_id) do nothing;
 
 -- Technical scope: dimensional envelopes.
-with dimension_seed(
-  scope_id,assertion_id,company_product_id,dimension_type,min_mm,max_mm,source_url
+with dimension_source(
+  scope_id,assertion_id,company_id,product_key,relationship_type,
+  dimension_type,min_mm,max_mm,source_url
 ) as (
   values
-    ('37f10000-0000-4000-8000-000000000901'::uuid,'37f10000-0000-4000-8000-000000000181'::uuid,'18bf74bf-f34c-4080-8e55-1f0ee2d91122'::uuid,'outer_diameter',21.3::numeric,219.1::numeric,'https://acciaitubi.it/en/tubes/welded-boiler-tubes-en-10217-1/'),
-    ('37f10000-0000-4000-8000-000000000902'::uuid,'37f10000-0000-4000-8000-000000000182'::uuid,'18bf74bf-f34c-4080-8e55-1f0ee2d91122'::uuid,'wall_thickness',1.6::numeric,6.3::numeric,'https://www.acciaitubi.it/files/pages/12/Acciaitubi-catalogo-2024-it.pdf'),
-    ('37f10000-0000-4000-8000-000000000903'::uuid,'37f10000-0000-4000-8000-000000000183'::uuid,'107b4a40-d955-4a71-a87b-305eb0f954ee'::uuid,'outer_diameter',33.7::numeric,610::numeric,'https://www.morandispa.it/prodotti/tubi-per-impieghi-strutturali/strutturale-laminato-a-freddo-en-10219/'),
-    ('37f10000-0000-4000-8000-000000000904'::uuid,'37f10000-0000-4000-8000-000000000184'::uuid,'107b4a40-d955-4a71-a87b-305eb0f954ee'::uuid,'width',30::numeric,500::numeric,'https://www.morandispa.it/prodotti/tubi-per-impieghi-strutturali/strutturale-laminato-a-freddo-en-10219/'),
-    ('37f10000-0000-4000-8000-000000000905'::uuid,'37f10000-0000-4000-8000-000000000185'::uuid,'107b4a40-d955-4a71-a87b-305eb0f954ee'::uuid,'height',30::numeric,500::numeric,'https://www.morandispa.it/prodotti/tubi-per-impieghi-strutturali/strutturale-laminato-a-freddo-en-10219/'),
-    ('37f10000-0000-4000-8000-000000000906'::uuid,'37f10000-0000-4000-8000-000000000186'::uuid,'107b4a40-d955-4a71-a87b-305eb0f954ee'::uuid,'wall_thickness',3::numeric,20::numeric,'https://www.morandispa.it/prodotti/tubi-per-impieghi-strutturali/strutturale-laminato-a-freddo-en-10219/'),
-    ('37f10000-0000-4000-8000-000000000907'::uuid,'37f10000-0000-4000-8000-000000000187'::uuid,'76c3e9a7-ed65-4e6b-93a6-1bf7842f1a5a'::uuid,'outer_diameter',21.3::numeric,1560::numeric,'https://www.copromet.it/')
+    ('37f10000-0000-4000-8000-000000000901'::uuid,'37f10000-0000-4000-8000-000000000181'::uuid,'51100000-0000-5000-8000-000000000001'::uuid,'tubes_pipes','produces','outer_diameter',21.3::numeric,219.1::numeric,'https://acciaitubi.it/en/tubes/welded-boiler-tubes-en-10217-1/'),
+    ('37f10000-0000-4000-8000-000000000902'::uuid,'37f10000-0000-4000-8000-000000000182'::uuid,'51100000-0000-5000-8000-000000000001'::uuid,'tubes_pipes','produces','wall_thickness',1.6::numeric,6.3::numeric,'https://www.acciaitubi.it/files/pages/12/Acciaitubi-catalogo-2024-it.pdf'),
+    ('37f10000-0000-4000-8000-000000000903'::uuid,'37f10000-0000-4000-8000-000000000183'::uuid,'51100000-0000-5000-8000-000000000005'::uuid,'hollow_sections','stocks','outer_diameter',33.7::numeric,610::numeric,'https://www.morandispa.it/prodotti/tubi-per-impieghi-strutturali/strutturale-laminato-a-freddo-en-10219/'),
+    ('37f10000-0000-4000-8000-000000000904'::uuid,'37f10000-0000-4000-8000-000000000184'::uuid,'51100000-0000-5000-8000-000000000005'::uuid,'hollow_sections','stocks','width',30::numeric,500::numeric,'https://www.morandispa.it/prodotti/tubi-per-impieghi-strutturali/strutturale-laminato-a-freddo-en-10219/'),
+    ('37f10000-0000-4000-8000-000000000905'::uuid,'37f10000-0000-4000-8000-000000000185'::uuid,'51100000-0000-5000-8000-000000000005'::uuid,'hollow_sections','stocks','height',30::numeric,500::numeric,'https://www.morandispa.it/prodotti/tubi-per-impieghi-strutturali/strutturale-laminato-a-freddo-en-10219/'),
+    ('37f10000-0000-4000-8000-000000000906'::uuid,'37f10000-0000-4000-8000-000000000186'::uuid,'51100000-0000-5000-8000-000000000005'::uuid,'hollow_sections','stocks','wall_thickness',3::numeric,20::numeric,'https://www.morandispa.it/prodotti/tubi-per-impieghi-strutturali/strutturale-laminato-a-freddo-en-10219/'),
+    ('37f10000-0000-4000-8000-000000000907'::uuid,'37f10000-0000-4000-8000-000000000187'::uuid,'51100000-0000-5000-8000-000000000006'::uuid,'tubes_pipes','stocks','outer_diameter',21.3::numeric,1560::numeric,'https://www.copromet.it/')
+),
+dimension_seed as (
+  select
+    s.scope_id,s.assertion_id,cp.id as company_product_id,
+    s.dimension_type,s.min_mm,s.max_mm,s.source_url
+  from dimension_source s
+  join public.network_product_families pf
+    on pf.canonical_key=s.product_key
+  join public.network_company_products cp
+    on cp.company_id=s.company_id
+   and cp.product_family_id=pf.id
+   and cp.relationship_type=s.relationship_type
+   and cp.facility_id is null
 ),
 assertions as (
   insert into public.network_data_assertions(
