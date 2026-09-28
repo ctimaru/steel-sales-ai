@@ -45,7 +45,7 @@ test("K5 calculator produces commercial-friendly mass outputs without turning es
   assert.match(calculator, /Peso totale/);
   assert.match(calculator, /totalKg \/ 1000/);
   assert.match(calculator, /Nessun peso pubblicato per questa geometria/);
-  assert.match(calculator, /non viene trasformato in un riferimento normativo\s+o in un peso verificato/);
+  assert.match(calculator, /Non viene trasformato in un riferimento normativo\s+o in un peso verificato/);
   assert.match(calculator, /Riferimento tecnico trovato/);
 });
 
