@@ -6,9 +6,10 @@ import {
   listPublicStandards,
   type PublicKnowledgeStandardSummary,
 } from "@/lib/public-knowledge";
+import { robotsForParameterizedPage } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   title: "Norme per tubi e acciaio",
   description:
     "Catalogo pubblico delle principali norme per tubi e acciaio: EN 10210, EN 10219, EN 10216, EN 10217, EN 10224 e altre guide tecniche.",
@@ -23,6 +24,18 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  return {
+    ...baseMetadata,
+    robots: robotsForParameterizedPage(Boolean(params.q?.trim())),
+  };
+}
 
 const categoryOrder = [
   "structural_hollow_sections",
