@@ -67,7 +67,7 @@ export async function requirePlatformContext() {
 
   return {
     userId: user.id,
-    viewerLabel: user.email ?? "Platform Superadmin",
+    viewerLabel: user.email ?? "Platform Owner",
   };
 }
 
