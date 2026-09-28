@@ -4,7 +4,10 @@ import {
   getCompanyDiscoveryQueue,
   getCompanyDiscoveryRuns,
 } from "@/lib/company-discovery";
-import { requirePlatformSuperadmin } from "@/lib/platform-admin";
+import {
+  getPlatformAccessContext,
+  requirePlatformPermission,
+} from "@/lib/platform-admin";
 
 import {
   closeExactDiscoveryDuplicates,
@@ -25,7 +28,16 @@ export default async function CompanyDiscoveryPage({
 }: {
   searchParams: Promise<{ status?: string; message?: string; error?: string }>;
 }) {
-  await requirePlatformSuperadmin();
+  await requirePlatformPermission("discovery.read");
+  const access = await getPlatformAccessContext();
+  const permissions = access?.permissions ?? [];
+  const canRun = permissions.includes("discovery.run");
+  const canReview = permissions.includes("discovery.review");
+  const canPublish =
+    canReview && permissions.includes("discovery.publish");
+  const canEnrich =
+    canReview && permissions.includes("discovery.enrich");
+  const canCloseDuplicates = permissions.includes("discovery.close_duplicates");
   const params = await searchParams;
   const status =
     params.status &&
@@ -57,12 +69,14 @@ export default async function CompanyDiscoveryPage({
               automaticamente un&apos;azienda.
             </p>
           </div>
-          <Link
-            href="/network"
-            className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
-          >
-            Apri Network ↗
-          </Link>
+          {access?.is_platform_owner ? (
+            <Link
+              href="/network"
+              className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
+            >
+              Apri Network ↗
+            </Link>
+          ) : null}
         </div>
       </section>
 
@@ -77,72 +91,86 @@ export default async function CompanyDiscoveryPage({
         </div>
       ) : null}
 
-      <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5 sm:p-6">
-        <div className="grid gap-6 lg:grid-cols-[1fr_2fr]">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#2f6fed]">
-              Nuova scansione
-            </p>
-            <h2 className="mt-2 text-xl font-semibold text-[#1e2b45]">
-              Seed URL → candidati
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-[#68788e]">
-              Un URL per riga. Il worker visita solo pagine pubbliche dello stesso
-              dominio, applica limiti, robots.txt e blocco delle reti private.
-            </p>
-          </div>
-          <form action={startCompanyDiscovery} className="space-y-3">
-            <div className="grid gap-3 sm:grid-cols-[110px_1fr_1.2fr]">
-              <input
-                name="country_code"
-                defaultValue="IT"
-                maxLength={2}
-                className="h-11 rounded-xl border border-[#e1e8f2] px-3 text-sm uppercase outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
-                aria-label="Paese"
-              />
-              <select
-                name="source_type"
-                defaultValue="manual_url"
-                className="h-11 rounded-xl border border-[#e1e8f2] bg-white px-3 text-sm text-[#40516a] outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
-              >
-                <option value="manual_url">URL manuali</option>
-                <option value="web_search_curated">Web search curata</option>
-                <option value="industry_directory">Directory industriale</option>
-                <option value="association">Associazione</option>
-                <option value="registry">Registro pubblico</option>
-                <option value="other">Altra fonte</option>
-              </select>
-              <input
-                name="label"
-                maxLength={255}
-                placeholder="Etichetta campagna, es. P3.5 Italy Tube Coverage B"
-                className="h-11 rounded-xl border border-[#e1e8f2] px-3 text-sm outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
-              />
-            </div>
-            <input
-              name="source_reference"
-              maxLength={2000}
-              placeholder="Riferimento/provenance della coorte"
-              className="h-11 w-full rounded-xl border border-[#e1e8f2] px-3 text-sm outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
-            />
-            <textarea
-              name="seed_urls"
-              required
-              rows={6}
-              placeholder={"https://azienda1.it/\nhttps://azienda2.it/"}
-              className="w-full rounded-xl border border-[#e1e8f2] px-3 py-3 text-sm outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
-            />
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-xs leading-5 text-[#7a899d]">
-                P3.5: usa label e provenance per separare le campagne di coverage dalle revalidation e dagli enrichment batch.
-              </p>
-              <button className="platform-primary h-11 shrink-0 rounded-xl px-5 text-sm font-semibold">
-                Avvia discovery
-              </button>
-            </div>
-          </form>
-        </div>
-      </section>
+      {canRun ? (
+              <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5 sm:p-6">
+                <div className="grid gap-6 lg:grid-cols-[1fr_2fr]">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#2f6fed]">
+                      Nuova scansione
+                    </p>
+                    <h2 className="mt-2 text-xl font-semibold text-[#1e2b45]">
+                      Seed URL → candidati
+                    </h2>
+                    <p className="mt-2 text-sm leading-6 text-[#68788e]">
+                      Un URL per riga. Il worker visita solo pagine pubbliche dello stesso
+                      dominio, applica limiti, robots.txt e blocco delle reti private.
+                    </p>
+                  </div>
+                  <form action={startCompanyDiscovery} className="space-y-3">
+                    <div className="grid gap-3 sm:grid-cols-[110px_1fr_1.2fr]">
+                      <input
+                        name="country_code"
+                        defaultValue="IT"
+                        maxLength={2}
+                        className="h-11 rounded-xl border border-[#e1e8f2] px-3 text-sm uppercase outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                        aria-label="Paese"
+                      />
+                      <select
+                        name="source_type"
+                        defaultValue="manual_url"
+                        className="h-11 rounded-xl border border-[#e1e8f2] bg-white px-3 text-sm text-[#40516a] outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                      >
+                        <option value="manual_url">URL manuali</option>
+                        <option value="web_search_curated">Web search curata</option>
+                        <option value="industry_directory">Directory industriale</option>
+                        <option value="association">Associazione</option>
+                        <option value="registry">Registro pubblico</option>
+                        <option value="other">Altra fonte</option>
+                      </select>
+                      <input
+                        name="label"
+                        maxLength={255}
+                        placeholder="Etichetta campagna, es. P3.5 Italy Tube Coverage B"
+                        className="h-11 rounded-xl border border-[#e1e8f2] px-3 text-sm outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                      />
+                    </div>
+                    <input
+                      name="source_reference"
+                      maxLength={2000}
+                      placeholder="Riferimento/provenance della coorte"
+                      className="h-11 w-full rounded-xl border border-[#e1e8f2] px-3 text-sm outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                    />
+                    <textarea
+                      name="seed_urls"
+                      required
+                      rows={6}
+                      placeholder={"https://azienda1.it/\nhttps://azienda2.it/"}
+                      className="w-full rounded-xl border border-[#e1e8f2] px-3 py-3 text-sm outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                    />
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <p className="text-xs leading-5 text-[#7a899d]">
+                        P3.5: usa label e provenance per separare le campagne di coverage dalle revalidation e dagli enrichment batch.
+                      </p>
+                      <button className="platform-primary h-11 shrink-0 rounded-xl px-5 text-sm font-semibold">
+                        Avvia discovery
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </section>
+      ) : (
+        <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5 sm:p-6">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#71819a]">
+            Accesso in sola lettura
+          </p>
+          <h2 className="mt-2 text-lg font-semibold text-[#1e2b45]">
+            Discovery run non disponibile per questo ruolo
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#68788e]">
+            Puoi consultare run, candidati ed evidenze. L&apos;avvio di nuove scansioni richiede la permission discovery.run.
+          </p>
+        </section>
+      )}
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {[
@@ -248,7 +276,9 @@ export default async function CompanyDiscoveryPage({
             </h2>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            {status === "pending_review" && queue.quality.exact_identity_matches > 0 ? (
+            {status === "pending_review" &&
+            canCloseDuplicates &&
+            queue.quality.exact_identity_matches > 0 ? (
               <form action={closeExactDiscoveryDuplicates}>
                 <button className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 ring-1 ring-inset ring-amber-200">
                   Chiudi {queue.quality.exact_identity_matches} exact match senza enrichment
@@ -450,7 +480,7 @@ export default async function CompanyDiscoveryPage({
 
                 {candidate.review_status === "pending_review" ? (
                   <div className="mt-4 flex flex-wrap gap-2 border-t border-[#edf1f3] pt-4">
-                    {!candidate.match_company_id ? (
+                    {!candidate.match_company_id && canPublish ? (
                       <form action={reviewCompanyDiscovery}>
                         <input type="hidden" name="candidate_id" value={candidate.id} />
                         <input type="hidden" name="decision" value="publish_new" />
@@ -460,6 +490,7 @@ export default async function CompanyDiscoveryPage({
                       </form>
                     ) : null}
                     {candidate.match_company_id &&
+                    canEnrich &&
                     (candidate.facility_candidates.length > 0 ||
                       candidate.capability_keys.length > 0 ||
                       candidate.market_keys.length > 0) ? (
@@ -566,7 +597,7 @@ export default async function CompanyDiscoveryPage({
                         </p>
                       </form>
                     ) : null}
-                    {candidate.match_company_id ? (
+                    {candidate.match_company_id && canReview ? (
                       <form action={reviewCompanyDiscovery}>
                         <input type="hidden" name="candidate_id" value={candidate.id} />
                         <input type="hidden" name="decision" value="duplicate_existing" />
@@ -580,13 +611,15 @@ export default async function CompanyDiscoveryPage({
                         </button>
                       </form>
                     ) : null}
-                    <form action={reviewCompanyDiscovery}>
-                      <input type="hidden" name="candidate_id" value={candidate.id} />
-                      <input type="hidden" name="decision" value="reject" />
-                      <button className="h-10 rounded-xl border border-[#e1e8f2] bg-white px-4 text-sm font-semibold text-[#53637a]">
-                        Rifiuta
-                      </button>
-                    </form>
+                    {canReview ? (
+                      <form action={reviewCompanyDiscovery}>
+                        <input type="hidden" name="candidate_id" value={candidate.id} />
+                        <input type="hidden" name="decision" value="reject" />
+                        <button className="h-10 rounded-xl border border-[#e1e8f2] bg-white px-4 text-sm font-semibold text-[#53637a]">
+                          Rifiuta
+                        </button>
+                      </form>
+                    ) : null}
                   </div>
                 ) : null}
               </article>
