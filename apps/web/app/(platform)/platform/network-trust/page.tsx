@@ -308,7 +308,8 @@ export default async function PlatformNetworkTrustPage({
                     <pre className="mt-3 max-h-32 overflow-auto rounded-xl bg-white p-3 text-xs leading-5 text-[#40516a]">
                       {pretty(item.asserted_value)}
                     </pre>
-                    {/^https?:///i.test(item.source_reference) ? (
+                    {item.source_reference.startsWith("http://") ||
+                    item.source_reference.startsWith("https://") ? (
                       <a
                         href={item.source_reference}
                         target="_blank"
