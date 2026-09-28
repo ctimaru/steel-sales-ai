@@ -45,7 +45,7 @@ test("UI1 keeps the public landing fast and asset-light", () => {
 });
 
 test("UX2 preserves task-dense Company Home behavior without making search the hero", () => {
-  assert.match(dashboard, /Home Workspace/);
+  assert.match(dashboard, /Il centro operativo della tua azienda/);
   assert.match(dashboard, /Oggi nel workspace/);
   assert.match(dashboard, /Commercial Memory/);
   assert.match(dashboard, /Spazi condivisi/);
