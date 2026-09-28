@@ -60,12 +60,12 @@ export default async function PlatformHomePage() {
             ].map(([label, value]) => (
               <div
                 key={String(label)}
-                className="rounded-2xl border border-[#e1e8f2] bg-white p-5"
+                className="rounded-2xl border border-[#dce2df] bg-white p-5"
               >
-                <p className="metric-number text-3xl font-semibold text-[#1e2b45]">
+                <p className="metric-number text-3xl font-semibold text-[#1d2824]">
                   {Number(value)}
                 </p>
-                <p className="mt-1 text-xs font-semibold text-[#68788e]">
+                <p className="mt-1 text-xs font-semibold text-[#66736e]">
                   {label}
                 </p>
               </div>
@@ -100,15 +100,15 @@ export default async function PlatformHomePage() {
         {context.is_platform_owner ? (
           <Link
             href="/platform/people"
-            className="rounded-2xl border border-[#e1e8f2] bg-white p-6 transition hover:border-[#bdd1f4] hover:shadow-sm"
+            className="rounded-2xl border border-[#dce2df] bg-white p-6 transition hover:border-[#b8d2c8] hover:shadow-sm"
           >
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#173f35]">
               Governance
             </p>
-            <h2 className="mt-3 text-lg font-semibold text-[#1e2b45]">
+            <h2 className="mt-3 text-lg font-semibold text-[#1d2824]">
               People &amp; Access
             </h2>
-            <p className="mt-2 text-sm leading-6 text-[#68788e]">
+            <p className="mt-2 text-sm leading-6 text-[#66736e]">
               Invita amministratori delegati, assegna role template prestabiliti e governa sospensione o revoca degli accessi.
             </p>
           </Link>
@@ -117,15 +117,15 @@ export default async function PlatformHomePage() {
         {canReadRegistrations ? (
           <Link
             href="/platform/registrations"
-            className="rounded-2xl border border-[#e1e8f2] bg-white p-6 transition hover:border-[#bdd1f4] hover:shadow-sm"
+            className="rounded-2xl border border-[#dce2df] bg-white p-6 transition hover:border-[#b8d2c8] hover:shadow-sm"
           >
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#173f35]">
               Companies
             </p>
-            <h2 className="mt-3 text-lg font-semibold text-[#1e2b45]">
+            <h2 className="mt-3 text-lg font-semibold text-[#1d2824]">
               Registrazioni aziende
             </h2>
-            <p className="mt-2 text-sm leading-6 text-[#68788e]">
+            <p className="mt-2 text-sm leading-6 text-[#66736e]">
               Revisiona le nuove aziende e completa le sole azioni consentite dal tuo profilo Platform.
             </p>
           </Link>
@@ -134,15 +134,15 @@ export default async function PlatformHomePage() {
         {canReadDiscovery ? (
           <Link
             href="/platform/company-discovery"
-            className="rounded-2xl border border-[#e1e8f2] bg-white p-6 transition hover:border-[#bdd1f4] hover:shadow-sm"
+            className="rounded-2xl border border-[#dce2df] bg-white p-6 transition hover:border-[#b8d2c8] hover:shadow-sm"
           >
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#173f35]">
               Network population
             </p>
-            <h2 className="mt-3 text-lg font-semibold text-[#1e2b45]">
+            <h2 className="mt-3 text-lg font-semibold text-[#1d2824]">
               Company Discovery
             </h2>
-            <p className="mt-2 text-sm leading-6 text-[#68788e]">
+            <p className="mt-2 text-sm leading-6 text-[#66736e]">
               Avvia o revisiona discovery pubbliche secondo le permission del tuo role template, senza accesso ai dati commerciali dei tenant.
             </p>
           </Link>
@@ -151,15 +151,15 @@ export default async function PlatformHomePage() {
         {canReadClaims ? (
           <Link
             href="/platform/company-claims"
-            className="rounded-2xl border border-[#e1e8f2] bg-white p-6 transition hover:border-[#bdd1f4] hover:shadow-sm"
+            className="rounded-2xl border border-[#dce2df] bg-white p-6 transition hover:border-[#b8d2c8] hover:shadow-sm"
           >
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#173f35]">
               Trust &amp; ownership
             </p>
-            <h2 className="mt-3 text-lg font-semibold text-[#1e2b45]">
+            <h2 className="mt-3 text-lg font-semibold text-[#1d2824]">
               Company Claims
             </h2>
-            <p className="mt-2 text-sm leading-6 text-[#68788e]">
+            <p className="mt-2 text-sm leading-6 text-[#66736e]">
               {claimQueue?.proofPending ?? 0} ownership proof da verificare su {claimQueue?.total ?? 0} claim visibili.
             </p>
           </Link>
@@ -168,15 +168,15 @@ export default async function PlatformHomePage() {
         {canReadKnowledge ? (
           <Link
             href="/platform/knowledge"
-            className="rounded-2xl border border-[#e1e8f2] bg-white p-6 transition hover:border-[#bdd1f4] hover:shadow-sm"
+            className="rounded-2xl border border-[#dce2df] bg-white p-6 transition hover:border-[#b8d2c8] hover:shadow-sm"
           >
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#173f35]">
               Public Knowledge
             </p>
-            <h2 className="mt-3 text-lg font-semibold text-[#1e2b45]">
+            <h2 className="mt-3 text-lg font-semibold text-[#1d2824]">
               Knowledge Operations
             </h2>
-            <p className="mt-2 text-sm leading-6 text-[#68788e]">
+            <p className="mt-2 text-sm leading-6 text-[#66736e]">
               {knowledgeQueue?.inReview ?? 0} in revisione · {knowledgeQueue?.approved ?? 0} approvati · {knowledgeQueue?.published ?? 0} live.
             </p>
           </Link>
@@ -185,15 +185,15 @@ export default async function PlatformHomePage() {
         {canReadNetworkTrust ? (
           <Link
             href="/platform/network-trust"
-            className="rounded-2xl border border-[#e1e8f2] bg-white p-6 transition hover:border-[#bdd1f4] hover:shadow-sm"
+            className="rounded-2xl border border-[#dce2df] bg-white p-6 transition hover:border-[#b8d2c8] hover:shadow-sm"
           >
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#173f35]">
               Trust &amp; moderation
             </p>
-            <h2 className="mt-3 text-lg font-semibold text-[#1e2b45]">
+            <h2 className="mt-3 text-lg font-semibold text-[#1d2824]">
               Network Trust
             </h2>
-            <p className="mt-2 text-sm leading-6 text-[#68788e]">
+            <p className="mt-2 text-sm leading-6 text-[#66736e]">
               {networkTrustQueue?.counts.open_identity_candidates ?? 0} identity candidate · {networkTrustQueue?.counts.open_change_reviews ?? 0} change review · {networkTrustQueue?.counts.current_verifications ?? 0} verification correnti.
             </p>
           </Link>
@@ -202,7 +202,7 @@ export default async function PlatformHomePage() {
 
       {!context.is_platform_owner && !canReadRegistrations && !canReadDiscovery && !canReadClaims && !canReadKnowledge && !canReadNetworkTrust ? (
         <section className="rounded-3xl border border-dashed border-[#cfdbea] bg-white/80 px-6 py-10 text-center">
-          <p className="font-semibold text-[#1e2b45]">
+          <p className="font-semibold text-[#1d2824]">
             Nessun modulo operativo ancora abilitato
           </p>
           <p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-[#7a899d]">
