@@ -226,3 +226,37 @@ textarea {
   background: #f0f4f2;
   color: #1a5144;
 }
+
+
+/* UXA1 — legacy accent compatibility
+   Keeps older Tailwind-indigo surfaces inside the new forest palette while
+   feature pages are progressively moved onto semantic app/platform classes. */
+.text-indigo-600,
+.text-indigo-700 {
+  color: var(--brand-800) !important;
+}
+
+.bg-indigo-600 {
+  background-color: var(--brand-800) !important;
+}
+
+.border-indigo-300 {
+  border-color: var(--brand-200) !important;
+}
+
+.hover\:text-indigo-700:hover {
+  color: var(--brand-800) !important;
+}
+
+.hover\:bg-indigo-500:hover,
+.hover\:bg-indigo-600:hover {
+  background-color: var(--brand-700) !important;
+}
+
+.focus\:border-indigo-400:focus {
+  border-color: var(--brand-500) !important;
+}
+
+.focus\:ring-indigo-50:focus {
+  --tw-ring-color: rgba(67, 141, 122, 0.12) !important;
+}
