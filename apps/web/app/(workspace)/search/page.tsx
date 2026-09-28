@@ -12,11 +12,11 @@ export default async function GlobalSearchPage({
   return (
     <div className="mx-auto max-w-7xl">
       <div>
-        <p className="text-sm font-semibold text-[#2f6fed]">Commercial Memory</p>
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight text-[#1e2b45]">
+        <p className="text-sm font-semibold text-[#1a5144]">Commercial Memory</p>
+        <h1 className="mt-1 text-3xl font-semibold tracking-tight text-[#1d2824]">
           Cerca nello storico commerciale
         </h1>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-[#68788e]">
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
           Trova prodotti, clienti, richieste, offerte, ordini e documenti con una sola ricerca.
           Usa i filtri tecnici solo quando servono per restringere i risultati.
         </p>
