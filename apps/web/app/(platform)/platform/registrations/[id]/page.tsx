@@ -94,7 +94,7 @@ export default async function AdminRegistrationDetailPage({
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <div>
-        <Link href="/platform/registrations" className="text-sm font-semibold text-[#68788e] hover:text-[#1e2b45]">
+        <Link href="/platform/registrations" className="text-sm font-semibold text-[#66736e] hover:text-[#1d2824]">
           ← Torna alle registrazioni
         </Link>
       </div>
@@ -106,17 +106,17 @@ export default async function AdminRegistrationDetailPage({
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{message}</div>
       ) : null}
 
-      <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 shadow-sm sm:p-8">
+      <section className="rounded-3xl border border-[#dce2df] bg-white p-6 shadow-sm sm:p-8">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-[#2f6fed] bg-[#2f6fed] px-3 py-1 text-xs font-semibold text-white">
+              <span className="rounded-full border border-[#1a5144] bg-[#1a5144] px-3 py-1 text-xs font-semibold text-white">
                 {STATUS_LABELS[application.application_status] ?? application.application_status}
               </span>
-              <span className="text-xs text-[#91a0b2]">{application.country_code}</span>
+              <span className="text-xs text-[#87938e]">{application.country_code}</span>
             </div>
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#1e2b45]">{application.legal_name}</h1>
-            <p className="mt-2 text-sm text-[#68788e]">
+            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#1d2824]">{application.legal_name}</h1>
+            <p className="mt-2 text-sm text-[#66736e]">
               {TYPE_LABELS[application.primary_company_type] ?? application.primary_company_type}
             </p>
           </div>
@@ -132,8 +132,8 @@ export default async function AdminRegistrationDetailPage({
 
       <div className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr]">
         <div className="space-y-6">
-          <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5 sm:p-6">
-            <h2 className="text-base font-semibold text-[#1e2b45]">Dati azienda</h2>
+          <section className="rounded-2xl border border-[#dce2df] bg-white p-5 sm:p-6">
+            <h2 className="text-base font-semibold text-[#1d2824]">Dati azienda</h2>
             <dl className="mt-5 grid gap-x-6 gap-y-5 sm:grid-cols-2">
               {[
                 ["Ragione sociale", application.legal_name],
@@ -148,7 +148,7 @@ export default async function AdminRegistrationDetailPage({
                 ["Email verificata", application.email_verified_at ? "Sì" : "No"],
               ].map(([label, value]) => (
                 <div key={label}>
-                  <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-[#91a0b2]">{label}</dt>
+                  <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-[#87938e]">{label}</dt>
                   <dd className="mt-1 break-words text-sm font-medium text-slate-800">{display(value)}</dd>
                 </div>
               ))}
@@ -156,7 +156,7 @@ export default async function AdminRegistrationDetailPage({
 
             {application.secondary_company_types?.length ? (
               <div className="mt-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#91a0b2]">Attività secondarie</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#87938e]">Attività secondarie</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {application.secondary_company_types.map((type) => (
                     <span key={type} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
@@ -169,14 +169,14 @@ export default async function AdminRegistrationDetailPage({
 
             {application.short_description ? (
               <div className="mt-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#91a0b2]">Descrizione</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#87938e]">Descrizione</p>
                 <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-slate-600">{application.short_description}</p>
               </div>
             ) : null}
           </section>
 
-          <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5 sm:p-6">
-            <h2 className="text-base font-semibold text-[#1e2b45]">Timeline audit</h2>
+          <section className="rounded-2xl border border-[#dce2df] bg-white p-5 sm:p-6">
+            <h2 className="text-base font-semibold text-[#1d2824]">Timeline audit</h2>
             <div className="mt-5 space-y-4">
               {events.map((event) => (
                 <div key={event.id} className="relative border-l-2 border-slate-200 pl-5">
@@ -185,14 +185,14 @@ export default async function AdminRegistrationDetailPage({
                     <p className="text-sm font-semibold text-slate-900">
                       {EVENT_LABELS[event.event_type] ?? event.event_type}
                     </p>
-                    <p className="text-xs text-[#91a0b2]">
+                    <p className="text-xs text-[#87938e]">
                       {new Intl.DateTimeFormat("it-IT", {
                         dateStyle: "medium",
                         timeStyle: "short",
                       }).format(new Date(event.occurred_at))}
                     </p>
                   </div>
-                  <p className="mt-1 text-xs text-[#68788e]">
+                  <p className="mt-1 text-xs text-[#66736e]">
                     {event.actor_type}
                     {event.from_status || event.to_status
                       ? ` · ${event.from_status ?? "—"} → ${event.to_status ?? "—"}`
@@ -310,7 +310,7 @@ export default async function AdminRegistrationDetailPage({
                       <input type="hidden" name="application_id" value={application.id} />
                       <input type="hidden" name="network_company_id" value={candidate.network_company_id} />
                       <p className="text-sm font-semibold text-slate-900">{candidate.legal_name}</p>
-                      <p className="mt-1 text-xs text-[#68788e]">
+                      <p className="mt-1 text-xs text-[#66736e]">
                         {candidate.country_code} · score {Number(candidate.match_score).toFixed(2)} · {candidate.signals.join(", ")}
                       </p>
                       <button className="mt-3 h-9 w-full rounded-lg bg-indigo-700 px-3 text-xs font-semibold text-white">
@@ -341,9 +341,9 @@ export default async function AdminRegistrationDetailPage({
           ) : null}
 
           {!hasAvailableAction && !application.matched_network_company_id ? (
-            <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5">
-              <h2 className="font-semibold text-[#1e2b45]">Nessuna azione disponibile</h2>
-              <p className="mt-1 text-sm leading-6 text-[#68788e]">
+            <section className="rounded-2xl border border-[#dce2df] bg-white p-5">
+              <h2 className="font-semibold text-[#1d2824]">Nessuna azione disponibile</h2>
+              <p className="mt-1 text-sm leading-6 text-[#66736e]">
                 Lo stato attuale o il tuo ruolo non prevedono decisioni manuali in questo pannello.
               </p>
             </section>
