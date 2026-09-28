@@ -478,7 +478,7 @@ export default async function CompanyDiscoveryPage({
                   </div>
                 ) : null}
 
-                {candidate.review_status === "pending_review" ? (
+                {candidate.review_status === "pending_review" && canReview ? (
                   <div className="mt-4 flex flex-wrap gap-2 border-t border-[#edf1f3] pt-4">
                     {!candidate.match_company_id && canPublish ? (
                       <form action={reviewCompanyDiscovery}>
