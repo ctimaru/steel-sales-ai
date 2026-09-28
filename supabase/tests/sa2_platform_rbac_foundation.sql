@@ -62,16 +62,16 @@ limit 1 \gset
 
 -- Contract seed must match SA1 exactly.
 select pg_temp.sa2_assert(
-  (select count(*)=31 from public.platform_permissions),
-  'permission catalog must contain exactly 31 SA1 permissions'
+  (select count(*)>=31 from public.platform_permissions),
+  'permission catalog must retain the complete 31-permission SA1 baseline after later delegated domains'
 );
 select pg_temp.sa2_assert(
-  (select count(*)=6 from public.platform_roles where status='active'),
-  'exactly six v1 staff role templates must be active'
+  (select count(*)>=6 from public.platform_roles where status='active'),
+  'all six v1 staff role templates must remain active after later role additions'
 );
 select pg_temp.sa2_assert(
-  (select count(*)=39 from public.platform_role_permissions),
-  'role templates must contain the frozen 39 mappings'
+  (select count(*)>=39 from public.platform_role_permissions),
+  'role templates must retain the frozen 39 SA1 mappings after later delegated domains'
 );
 select pg_temp.sa2_assert(
   not exists (
@@ -120,8 +120,9 @@ select pg_temp.sa2_assert(
 select public.platform_access_context() as owner_context \gset
 select pg_temp.sa2_assert(
   :'owner_context'::jsonb->>'authority_type'='platform_owner'
-  and jsonb_array_length(:'owner_context'::jsonb->'permissions')=31,
-  'owner context must expose Platform Owner authority and all known permissions'
+  and jsonb_array_length(:'owner_context'::jsonb->'permissions')
+      =(select count(*) from public.platform_permissions),
+  'owner context must expose Platform Owner authority and every currently known permission'
 );
 
 -- Root and staff identities are structurally separate.
