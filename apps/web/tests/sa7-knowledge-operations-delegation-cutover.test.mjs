@@ -74,7 +74,7 @@ test("SA7 route and detail resolve the effective Knowledge capability set", () =
   assert.match(detail, /canEdit/);
   assert.match(detail, /canReview/);
   assert.match(detail, /canPublish/);
-  assert.match(detail, /copia pubblica/);
+  assert.match(detail, /pagina pubblica/);
   assert.match(detail, /knowledge\.publish/);
 });
 
