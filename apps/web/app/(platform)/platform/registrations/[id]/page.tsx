@@ -2,9 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
+  getPlatformAccessContext,
   getRegistrationDetail,
   getRegistrationNetworkCandidates,
-  requirePlatformSuperadmin,
+  requirePlatformPermission,
 } from "@/lib/platform-admin";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 
@@ -58,7 +59,8 @@ export default async function AdminRegistrationDetailPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ error?: string; message?: string }>;
 }) {
-  await requirePlatformSuperadmin();
+  await requirePlatformPermission("registrations.read");
+  const access = await getPlatformAccessContext();
   const { id } = await params;
   const { error, message } = await searchParams;
   const detail = await getRegistrationDetail(id);
@@ -67,11 +69,27 @@ export default async function AdminRegistrationDetailPage({
 
   const { application, events } = detail;
   const networkEnabled = isNetworkFrontendEnabled();
-  const canReview = application.application_status === "pending_review";
-  const canActivate = application.application_status === "approved";
+  const permissions = access?.permissions ?? [];
+  const pendingReview = application.application_status === "pending_review";
+  const canRequestInformation =
+    pendingReview && permissions.includes("registrations.request_information");
+  const canApprove =
+    pendingReview && permissions.includes("registrations.approve");
+  const canReject =
+    pendingReview && permissions.includes("registrations.reject");
+  const canActivate =
+    application.application_status === "approved" &&
+    permissions.includes("registrations.activate");
   const canBridge =
-    networkEnabled && application.application_status === "activated" && !application.matched_network_company_id;
-  const networkCandidates = canBridge ? await getRegistrationNetworkCandidates(application.id) : [];
+    networkEnabled &&
+    application.application_status === "activated" &&
+    !application.matched_network_company_id &&
+    permissions.includes("registrations.bridge_network");
+  const networkCandidates = canBridge
+    ? await getRegistrationNetworkCandidates(application.id)
+    : [];
+  const hasAvailableAction =
+    canRequestInformation || canApprove || canReject || canActivate || canBridge;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -187,8 +205,7 @@ export default async function AdminRegistrationDetailPage({
         </div>
 
         <aside className="space-y-4">
-          {canReview ? (
-            <>
+          {canRequestInformation ? (
               <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
                 <h2 className="font-semibold text-amber-950">Richiedi integrazione</h2>
                 <p className="mt-1 text-sm leading-6 text-amber-800">
@@ -209,7 +226,9 @@ export default async function AdminRegistrationDetailPage({
                   </button>
                 </form>
               </section>
+          ) : null}
 
+          {canApprove ? (
               <section className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
                 <h2 className="font-semibold text-emerald-950">Approva</h2>
                 <p className="mt-1 text-sm leading-6 text-emerald-800">
@@ -222,7 +241,9 @@ export default async function AdminRegistrationDetailPage({
                   </button>
                 </form>
               </section>
+          ) : null}
 
+          {canReject ? (
               <section className="rounded-2xl border border-red-200 bg-red-50 p-5">
                 <h2 className="font-semibold text-red-950">Rifiuta</h2>
                 <form action={rejectRegistrationApplication} className="mt-4 space-y-3">
@@ -253,7 +274,6 @@ export default async function AdminRegistrationDetailPage({
                   </button>
                 </form>
               </section>
-            </>
           ) : null}
 
           {canActivate ? (
@@ -320,11 +340,11 @@ export default async function AdminRegistrationDetailPage({
             </section>
           ) : null}
 
-          {!canReview && !canActivate && !canBridge && !application.matched_network_company_id ? (
+          {!hasAvailableAction && !application.matched_network_company_id ? (
             <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5">
               <h2 className="font-semibold text-[#1e2b45]">Nessuna azione disponibile</h2>
               <p className="mt-1 text-sm leading-6 text-[#68788e]">
-                Lo stato attuale non prevede decisioni manuali in questo pannello.
+                Lo stato attuale o il tuo ruolo non prevedono decisioni manuali in questo pannello.
               </p>
             </section>
           ) : null}

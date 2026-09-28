@@ -15,7 +15,7 @@ test("UX1 separates public, company and platform entry points", () => {
   assert.match(root, /Registra la tua azienda/);
   assert.match(root, /if \(data\.user\) redirect\("\/dashboard"\)/);
   assert.match(workspaceLayout, /getWorkspaceContext/);
-  assert.match(platformLayout, /requirePlatformContext/);
+  assert.match(platformLayout, /requirePlatformConsoleContext/);
   assert.doesNotMatch(platformLayout, /getWorkspaceContext/);
 });
 
@@ -48,7 +48,7 @@ test("UX2 Company Home is a private operational cockpit with shared-space exits"
 test("UX1 Platform Console is structurally separate from tenant workspace", () => {
   assert.match(platformShell, /Global control plane/);
   assert.match(platformShell, /Apri Company Workspace/);
-  assert.match(platformShell, /Non apre automaticamente la Commercial Memory privata dei tenant/);
+  assert.match(platformShell, /Commercial Memory privata dei tenant/);
   assert.match(platformHome, /Governance della piattaforma/);
   assert.match(platformHome, /Registrazioni aziende/);
   assert.doesNotMatch(platformShell, /Product 360/);

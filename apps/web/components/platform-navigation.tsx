@@ -3,13 +3,51 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import type { PlatformPermissionKey } from "@/lib/platform-access-contract";
+
 const platformNav = [
-  { href: "/platform", label: "Platform Home", icon: "home" },
-  { href: "/platform/people", label: "People & Access", icon: "people" },
-  { href: "/platform/registrations", label: "Registrazioni aziende", icon: "registrations" },
-  { href: "/platform/company-discovery", label: "Company Discovery", icon: "discovery" },
-  { href: "/platform/company-claims", label: "Company Claims", icon: "claims" },
-] as const;
+  {
+    href: "/platform",
+    label: "Platform Home",
+    icon: "home",
+    permission: "platform.console.access",
+    staffEnabled: true,
+  },
+  {
+    href: "/platform/people",
+    label: "People & Access",
+    icon: "people",
+    permission: "platform.staff.read",
+    staffEnabled: false,
+  },
+  {
+    href: "/platform/registrations",
+    label: "Registrazioni aziende",
+    icon: "registrations",
+    permission: "registrations.read",
+    staffEnabled: true,
+  },
+  {
+    href: "/platform/company-discovery",
+    label: "Company Discovery",
+    icon: "discovery",
+    permission: "discovery.read",
+    staffEnabled: false,
+  },
+  {
+    href: "/platform/company-claims",
+    label: "Company Claims",
+    icon: "claims",
+    permission: "claims.read",
+    staffEnabled: false,
+  },
+] as const satisfies readonly {
+  href: string;
+  label: string;
+  icon: "home" | "people" | "registrations" | "discovery" | "claims";
+  permission: PlatformPermissionKey;
+  staffEnabled: boolean;
+}[];
 
 function NavIcon({ name }: { name: (typeof platformNav)[number]["icon"] }) {
   if (name === "people") {
@@ -56,12 +94,23 @@ function NavIcon({ name }: { name: (typeof platformNav)[number]["icon"] }) {
   );
 }
 
-export function PlatformNavigation() {
+export function PlatformNavigation({
+  permissions,
+  isPlatformOwner,
+}: {
+  permissions: PlatformPermissionKey[];
+  isPlatformOwner: boolean;
+}) {
   const pathname = usePathname();
+
+  const visibleItems = platformNav.filter((item) => {
+    if (!permissions.includes(item.permission)) return false;
+    return isPlatformOwner || item.staffEnabled;
+  });
 
   return (
     <nav className="space-y-1">
-      {platformNav.map((item) => {
+      {visibleItems.map((item) => {
         const selected =
           item.href === "/platform"
             ? pathname === "/platform"

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { requirePlatformPermission } from "@/lib/platform-admin";
 import { createClient } from "@/lib/supabase/server";
 
 function applicationId(formData: FormData) {
@@ -14,6 +15,7 @@ function detailPath(id: string, key: "error" | "message", value: string) {
 }
 
 export async function requestRegistrationInformation(formData: FormData) {
+  await requirePlatformPermission("registrations.request_information");
   const id = applicationId(formData);
   const note = String(formData.get("note") ?? "").trim();
 
@@ -35,6 +37,7 @@ export async function requestRegistrationInformation(formData: FormData) {
 }
 
 export async function approveRegistrationApplication(formData: FormData) {
+  await requirePlatformPermission("registrations.approve");
   const id = applicationId(formData);
   if (!id) redirect("/platform/registrations?error=Application%20non%20valida");
 
@@ -53,6 +56,7 @@ export async function approveRegistrationApplication(formData: FormData) {
 }
 
 export async function rejectRegistrationApplication(formData: FormData) {
+  await requirePlatformPermission("registrations.reject");
   const id = applicationId(formData);
   const reasonCode = String(formData.get("reason_code") ?? "").trim();
   const note = String(formData.get("note") ?? "").trim();
@@ -76,6 +80,7 @@ export async function rejectRegistrationApplication(formData: FormData) {
 }
 
 export async function activateRegistrationApplication(formData: FormData) {
+  await requirePlatformPermission("registrations.activate");
   const id = applicationId(formData);
   if (!id) redirect("/platform/registrations?error=Application%20non%20valida");
 
@@ -95,6 +100,7 @@ export async function activateRegistrationApplication(formData: FormData) {
 
 
 export async function bridgeRegistrationToNetwork(formData: FormData) {
+  await requirePlatformPermission("registrations.bridge_network");
   const id = applicationId(formData);
   const networkCompanyId = String(formData.get("network_company_id") ?? "").trim();
 

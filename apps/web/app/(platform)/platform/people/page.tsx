@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import {
   PLATFORM_PERMISSIONS,
   PLATFORM_STAFF_ROLE_TEMPLATES,
@@ -6,8 +7,8 @@ import {
 import {
   getPlatformStaffDirectory,
   getPlatformStaffInvitations,
+  requirePlatformConsoleContext,
 } from "@/lib/platform-admin";
-import { requirePlatformContext } from "@/lib/workspace-context";
 
 import {
   createPlatformStaffInvitation,
@@ -105,7 +106,8 @@ export default async function PlatformPeoplePage({
     error?: string;
   }>;
 }) {
-  const context = await requirePlatformContext();
+  const context = await requirePlatformConsoleContext();
+  if (!context.is_platform_owner) redirect("/platform");
   const [{ message, warning, error }, staff, invitations] = await Promise.all([
     searchParams,
     getPlatformStaffDirectory(),

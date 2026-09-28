@@ -49,6 +49,7 @@ export default async function StaffAccessPage({
     is_platform_staff: boolean;
     staff_status: "active" | "suspended" | "revoked" | null;
     roles: PlatformStaffRoleKey[];
+    permissions: string[];
   };
 
   if (context.is_platform_owner) {
@@ -58,6 +59,8 @@ export default async function StaffAccessPage({
   const active = context.staff_status === "active";
   const suspended = context.staff_status === "suspended";
   const revoked = context.staff_status === "revoked";
+  const canOpenPlatform =
+    active && context.permissions.includes("platform.console.access");
 
   return (
     <main className="min-h-screen bg-[#f5f7fb] px-5 py-8 sm:px-8 sm:py-12">
@@ -151,9 +154,16 @@ export default async function StaffAccessPage({
                   <p className="mt-2 text-sm leading-6 text-[#5f718a]">
                     Il tuo account amministrativo è separato dai workspace
                     aziendali e non concede accesso automatico ai dati commerciali
-                    privati dei tenant. Le aree operative appariranno nella
-                    Platform Console quando vengono abilitate per il tuo ruolo.
+                    privati dei tenant.
                   </p>
+                  {canOpenPlatform ? (
+                    <Link
+                      href="/platform"
+                      className="mt-4 inline-flex h-10 items-center rounded-xl bg-[#2f6fed] px-4 text-sm font-semibold text-white hover:bg-[#245ed1]"
+                    >
+                      Apri Platform Console
+                    </Link>
+                  ) : null}
                 </div>
               ) : suspended ? (
                 <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-5">

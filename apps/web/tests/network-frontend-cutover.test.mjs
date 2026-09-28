@@ -45,5 +45,5 @@ test("M8 rollback flag removes Network navigation and disables all Network route
 
 test("M8 rollback flag disables the Superadmin registration bridge UI", () => {
   assert.match(adminRegistration, /isNetworkFrontendEnabled/);
-  assert.match(adminRegistration, /networkEnabled && application\.application_status === "activated"/);
+  assert.match(adminRegistration, /networkEnabled[\s\S]*application\.application_status === "activated"/);
 });

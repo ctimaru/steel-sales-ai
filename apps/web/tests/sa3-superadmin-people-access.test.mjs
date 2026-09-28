@@ -18,6 +18,10 @@ const shell = fs.readFileSync(
   new URL("../components/platform-shell.tsx", import.meta.url),
   "utf8",
 );
+const platformLayout = fs.readFileSync(
+  new URL("../app/(platform)/platform/layout.tsx", import.meta.url),
+  "utf8",
+);
 const authFinish = fs.readFileSync(
   new URL("../app/auth/finish/page.tsx", import.meta.url),
   "utf8",
@@ -105,7 +109,7 @@ test("SA3 staff status page preserves tenant isolation messaging and lifecycle s
 });
 
 test("SA3 product language promotes the singleton root to Platform Owner", () => {
-  assert.match(shell, /Platform Owner/);
-  assert.match(shell, /Owner/);
+  assert.match(platformLayout, /Platform Owner/);
+  assert.match(shell, /authorityLabel/);
   assert.doesNotMatch(shell, /Platform Superadmin/);
 });
