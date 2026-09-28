@@ -34,12 +34,12 @@ select pg_temp.k2_assert(
   not exists (
     select 1
     from public.steel_knowledge_standard_pages
-    where slug !~ '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+    where slug !~ '^[a-z0-9]+(-[a-z0-9]+)*$'
   )
   and not exists (
     select 1
     from public.steel_knowledge_grade_pages
-    where slug !~ '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+    where slug !~ '^[a-z0-9]+(-[a-z0-9]+)*$'
   ),
   'all public slugs must satisfy the stable URL contract'
 );
