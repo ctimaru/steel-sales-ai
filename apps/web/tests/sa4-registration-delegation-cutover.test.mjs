@@ -68,7 +68,6 @@ test("SA4 opens the Platform shell through capability context rather than root-o
 test("SA4 keeps the registration delegation invariant while later domains may cut over independently", () => {
   assert.match(navigation, /permission: "registrations\.read"/);
   assert.match(navigation, /href: "\/platform\/registrations"[\s\S]*?staffEnabled: true/);
-  assert.match(navigation, /href: "\/platform\/company-claims"[\s\S]*?staffEnabled: false/);
   assert.match(navigation, /href: "\/platform\/people"[\s\S]*?staffEnabled: false/);
   assert.match(navigation, /permissions\.includes\(item\.permission\)/);
 });
