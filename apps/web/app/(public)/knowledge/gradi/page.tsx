@@ -6,9 +6,10 @@ import {
   listPublicGrades,
   type PublicKnowledgeGradeSummary,
 } from "@/lib/public-knowledge";
+import { robotsForParameterizedPage } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   title: "Gradi di acciaio e materiali",
   description:
     "Catalogo pubblico dei principali gradi di acciaio per tubi e profilati: P235GH, P265GH, 16Mo3, P235TR1/TR2, P265TR1/TR2, S355J2H, S355NH e S355NLH.",
@@ -23,6 +24,18 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  return {
+    ...baseMetadata,
+    robots: robotsForParameterizedPage(Boolean(params.q?.trim())),
+  };
+}
 
 const gradeGroups = [
   {

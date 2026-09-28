@@ -7,11 +7,11 @@ import {
   listPublicTubeFamilyHubs,
   listPublicTubeSizeHubs,
 } from "@/lib/public-knowledge";
+import { finalizePublicSitemap, newestDate } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
-  const [standards, grades, dimensions, familyHubs, sizeHubs] = await Promise.all([
+    const [standards, grades, dimensions, familyHubs, sizeHubs] = await Promise.all([
     listPublicStandards(),
     listPublicGrades(),
     listPublicTubeDimensionPages(),
@@ -19,34 +19,47 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     listPublicTubeSizeHubs(),
   ]);
 
+  const standardsLastModified = newestDate(standards.map((item) => item.last_reviewed_at));
+  const gradesLastModified = newestDate(grades.map((item) => item.last_reviewed_at));
+  const tubesLastModified = newestDate([
+    ...dimensions.map((item) => item.published_at),
+    ...familyHubs.map((item) => item.published_at),
+    ...sizeHubs.map((item) => item.published_at),
+  ]);
+  const knowledgeLastModified = newestDate([
+    standardsLastModified,
+    gradesLastModified,
+    tubesLastModified,
+  ]);
+
   const staticEntries: MetadataRoute.Sitemap = [
     {
       url: absoluteUrl("/"),
-      lastModified: now,
+      lastModified: knowledgeLastModified,
       changeFrequency: "weekly",
       priority: 1,
     },
     {
       url: absoluteUrl("/knowledge"),
-      lastModified: now,
+      lastModified: knowledgeLastModified,
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
       url: absoluteUrl("/knowledge/norme"),
-      lastModified: now,
+      lastModified: standardsLastModified,
       changeFrequency: "weekly",
       priority: 0.85,
     },
     {
       url: absoluteUrl("/knowledge/gradi"),
-      lastModified: now,
+      lastModified: gradesLastModified,
       changeFrequency: "weekly",
       priority: 0.85,
     },
     {
       url: absoluteUrl("/knowledge/tubes"),
-      lastModified: now,
+      lastModified: tubesLastModified,
       changeFrequency: "monthly",
       priority: 0.8,
     },
@@ -54,14 +67,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const standardEntries: MetadataRoute.Sitemap = standards.map((standard) => ({
     url: absoluteUrl(`/knowledge/norme/${standard.slug}`),
-    lastModified: new Date(standard.published_at),
+    lastModified: new Date(standard.last_reviewed_at + "T00:00:00Z"),
     changeFrequency: "monthly",
     priority: 0.75,
   }));
 
   const gradeEntries: MetadataRoute.Sitemap = grades.map((grade) => ({
     url: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
-    lastModified: new Date(grade.published_at),
+    lastModified: new Date(grade.last_reviewed_at + "T00:00:00Z"),
     changeFrequency: "monthly",
     priority: 0.75,
   }));
@@ -87,12 +100,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [
+  return finalizePublicSitemap([
     ...staticEntries,
     ...standardEntries,
     ...gradeEntries,
     ...familyHubEntries,
     ...sizeHubEntries,
     ...dimensionEntries,
-  ];
+  ]);
 }

@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/app-shell";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
+import { privateNoIndexRobots } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 import { getWorkspaceContext } from "@/lib/workspace-context";
+
+export const metadata: Metadata = {
+  robots: privateNoIndexRobots,
+};
 
 export default async function WorkspaceLayout({ children }: { children: ReactNode }) {
   const configured = Boolean(

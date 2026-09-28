@@ -3,9 +3,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
+import { privateNoIndexRobots } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Stato registrazione",
+  robots: privateNoIndexRobots,
 };
 
 const STATUS_COPY: Record<string, { title: string; body: string; tone: string }> = {

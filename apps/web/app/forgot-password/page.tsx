@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Input } from "@/components/ui/input";
+import { privateNoIndexRobots } from "@/lib/seo";
 
 import { requestPasswordReset } from "@/app/login/actions";
 
 export const metadata: Metadata = {
   title: "Recupera password",
+  robots: privateNoIndexRobots,
 };
 
 export default async function ForgotPasswordPage({

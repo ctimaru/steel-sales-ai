@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Input } from "@/components/ui/input";
+import { privateNoIndexRobots } from "@/lib/seo";
 import { ProductBrand } from "@/components/product-brand";
 
 import { login } from "./actions";
 
 export const metadata: Metadata = {
   title: "Accedi",
+  robots: privateNoIndexRobots,
 };
 
 export default async function LoginPage({

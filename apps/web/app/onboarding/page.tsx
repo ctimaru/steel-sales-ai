@@ -1,10 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { privateNoIndexRobots } from "@/lib/seo";
 
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/server";
 
 import { changeMemberBusinessRole, changeMemberRole, completeOnboarding, createOrganization, inviteMember } from "./actions";
+
+export const metadata: Metadata = {
+  title: "Onboarding",
+  robots: privateNoIndexRobots,
+};
 
 type TeamMember = {
   user_id: string;

@@ -9,13 +9,14 @@ import {
   listPublicTubeDimensionPages,
   listPublicTubeFamilyHubs,
 } from "@/lib/public-knowledge";
+import { robotsForParameterizedPage } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
 import {
   getTubeFamilyBySlug,
   tubeFamilyHubPath,
 } from "@/lib/tube-seo";
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   title: "Calcolo peso tubo acciaio: kg/m, barra e tonnellate",
   description:
     "Calcolatore pubblico per il peso teorico di tubi tondi, profili quadri e rettangolari in acciaio. Calcola kg/m, peso barra e tonnellate e confronta i risultati con riferimenti tecnici pubblicati.",
@@ -30,6 +31,19 @@ export const metadata: Metadata = {
     type: "article",
   },
 };
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const hasParameters = Object.values(params).some((value) => Boolean(value?.trim()));
+  return {
+    ...baseMetadata,
+    robots: robotsForParameterizedPage(hasParameters),
+  };
+}
 
 const faq = [
   {

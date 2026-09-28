@@ -152,8 +152,8 @@ export default function KnowledgeHomePage() {
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Pesi & dimensioni</p>
             <h2 className="mt-2 text-xl font-semibold text-[#1e2b45]">Base tecnica tubi</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[#68788e]">
-              La sezione pubblica dedicata a dimensioni e pesi è il punto di partenza per il futuro calcolatore
-              di peso al metro, peso per barra e tonnellaggio.
+              La sezione pubblica dedicata a dimensioni e pesi include il calcolatore, i riferimenti canonici
+              e i cluster per famiglia, dimensione esterna e spessore.
             </p>
           </div>
           <Link
