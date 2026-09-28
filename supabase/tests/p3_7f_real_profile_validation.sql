@@ -4,13 +4,34 @@
 begin;
 
 create or replace function pg_temp.p37f_assert(ok boolean,message text)
-returns void language plpgsql as $$
+returns void language plpgsql as $
 begin
   if not coalesce(ok,false) then
     raise exception 'P3.7F assertion failed: %',message;
   end if;
 end;
-$$;
+$;
+
+
+create or replace function pg_temp.p37f_product_id(
+  p_company_id uuid,
+  p_product_key text,
+  p_relationship_type text
+)
+returns uuid
+language sql
+stable
+as $
+  select cp.id
+  from public.network_company_products cp
+  join public.network_product_families pf on pf.id=cp.product_family_id
+  where cp.company_id=p_company_id
+    and pf.canonical_key=p_product_key
+    and cp.relationship_type=p_relationship_type
+    and cp.facility_id is null
+  order by cp.id
+  limit 1;
+$;
 
 select pg_temp.p37f_assert(
   (
@@ -75,7 +96,7 @@ select pg_temp.p37f_assert(
     select 1
     from public.network_company_product_standard_scopes ps
     join public.steel_standards s on s.id=ps.standard_id
-    where ps.company_product_id='18bf74bf-f34c-4080-8e55-1f0ee2d91122'
+    where ps.company_product_id=pg_temp.p37f_product_id('51100000-0000-5000-8000-000000000001','tubes_pipes','produces')
       and s.code='EN 10217-1'
       and ps.verification_status='unverified'
   )
@@ -83,14 +104,14 @@ select pg_temp.p37f_assert(
     select 1
     from public.network_company_product_grade_scopes pg
     join public.steel_material_grades mg on mg.id=pg.material_grade_id
-    where pg.company_product_id='18bf74bf-f34c-4080-8e55-1f0ee2d91122'
+    where pg.company_product_id=pg_temp.p37f_product_id('51100000-0000-5000-8000-000000000001','tubes_pipes','produces')
       and mg.designation='P235TR1'
       and pg.verification_status='unverified'
   )
   and (
     select count(*)
     from public.network_company_product_dimension_scopes d
-    where d.company_product_id='18bf74bf-f34c-4080-8e55-1f0ee2d91122'
+    where d.company_product_id=pg_temp.p37f_product_id('51100000-0000-5000-8000-000000000001','tubes_pipes','produces')
       and d.dimension_type in ('outer_diameter','wall_thickness')
   )=2,
   'Acciaitubi must expose canonical EN 10217-1 / P235TR1 and dimensional scope'
@@ -121,20 +142,20 @@ select pg_temp.p37f_assert(
     select count(distinct s.code)
     from public.network_company_product_standard_scopes ps
     join public.steel_standards s on s.id=ps.standard_id
-    where ps.company_product_id='107b4a40-d955-4a71-a87b-305eb0f954ee'
+    where ps.company_product_id=pg_temp.p37f_product_id('51100000-0000-5000-8000-000000000005','hollow_sections','stocks')
       and s.code in ('EN 10219','EN 10210')
   )=2
   and (
     select count(*)
     from public.network_company_product_grade_scopes pg
     join public.steel_material_grades mg on mg.id=pg.material_grade_id
-    where pg.company_product_id='107b4a40-d955-4a71-a87b-305eb0f954ee'
+    where pg.company_product_id=pg_temp.p37f_product_id('51100000-0000-5000-8000-000000000005','hollow_sections','stocks')
       and mg.designation='S355J2H'
   )=2
   and (
     select count(*)
     from public.network_company_product_dimension_scopes d
-    where d.company_product_id='107b4a40-d955-4a71-a87b-305eb0f954ee'
+    where d.company_product_id=pg_temp.p37f_product_id('51100000-0000-5000-8000-000000000005','hollow_sections','stocks')
       and d.dimension_type in ('outer_diameter','width','height','wall_thickness')
   )=4,
   'Morandi must expose EN 10219 / EN 10210, S355J2H and structural ranges'
@@ -156,7 +177,7 @@ select pg_temp.p37f_assert(
   and exists(
     select 1
     from public.network_company_product_dimension_scopes d
-    where d.company_product_id='76c3e9a7-ed65-4e6b-93a6-1bf7842f1a5a'
+    where d.company_product_id=pg_temp.p37f_product_id('51100000-0000-5000-8000-000000000006','tubes_pipes','stocks')
       and d.dimension_type='outer_diameter'
       and d.min_mm=21.3
       and d.max_mm=1560
