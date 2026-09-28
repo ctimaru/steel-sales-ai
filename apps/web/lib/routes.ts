@@ -40,6 +40,7 @@ export const appRoutes = {
     grades: "/knowledge/gradi",
     grade: (slug: string) => `/knowledge/gradi/${slug}`,
     tubes: "/knowledge/tubes",
+    tubeDimension: (slug: string) => `/knowledge/tubes/${slug}`,
   },
 
   operations: {
