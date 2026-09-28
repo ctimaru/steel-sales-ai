@@ -66,8 +66,8 @@ test("UX1.5 sensitive Server Actions fail closed by role", () => {
   assert.match(networkActions, /await requireWorkspaceAdmin\(\)/);
 });
 
-test("UX1.5 Platform Superadmin remains independent from tenant membership", () => {
-  assert.match(platformLayout, /requirePlatformContext/);
+test("UX1.5 Platform authority remains independent from tenant membership", () => {
+  assert.match(platformLayout, /requirePlatformConsoleContext/);
   assert.doesNotMatch(platformLayout, /getWorkspaceContext/);
-  assert.match(context, /if \(error \|\| data !== true\) redirect\("\/dashboard"\)/);
+  assert.match(context, /rpc\("is_platform_superadmin"\)/);
 });
