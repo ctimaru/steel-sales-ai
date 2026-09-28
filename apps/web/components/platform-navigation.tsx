@@ -4,52 +4,53 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import type { PlatformPermissionKey } from "@/lib/platform-access-contract";
+import { appRoutes } from "@/lib/routes";
 
 const platformNav = [
   {
-    href: "/platform",
+    href: appRoutes.platform.home,
     label: "Platform Home",
     icon: "home",
     permission: "platform.console.access",
     staffEnabled: true,
   },
   {
-    href: "/platform/people",
+    href: appRoutes.platform.people,
     label: "People & Access",
     icon: "people",
     permission: "platform.staff.read",
     staffEnabled: false,
   },
   {
-    href: "/platform/registrations",
+    href: appRoutes.platform.registrations,
     label: "Registrazioni aziende",
     icon: "registrations",
     permission: "registrations.read",
     staffEnabled: true,
   },
   {
-    href: "/platform/company-discovery",
+    href: appRoutes.platform.discovery,
     label: "Company Discovery",
     icon: "discovery",
     permission: "discovery.read",
     staffEnabled: true,
   },
   {
-    href: "/platform/company-claims",
+    href: appRoutes.platform.claims,
     label: "Company Claims",
     icon: "claims",
     permission: "claims.read",
     staffEnabled: true,
   },
   {
-    href: "/platform/knowledge",
+    href: appRoutes.platform.knowledge,
     label: "Knowledge Operations",
     icon: "knowledge",
     permission: "knowledge.read_drafts",
     staffEnabled: true,
   },
   {
-    href: "/platform/network-trust",
+    href: appRoutes.platform.networkTrust,
     label: "Network Trust",
     icon: "trust",
     permission: "network_trust.read",
@@ -137,8 +138,8 @@ function visiblePlatformItems(
 }
 
 function isPlatformSelected(pathname: string, href: string) {
-  return href === "/platform"
-    ? pathname === "/platform"
+  return href === appRoutes.platform.home
+    ? pathname === appRoutes.platform.home
     : pathname === href || pathname.startsWith(href + "/");
 }
 
