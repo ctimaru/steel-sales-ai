@@ -24,6 +24,16 @@ async function appOrigin() {
 async function routeAfterAuthentication() {
   const supabase = await createClient();
   await supabase.rpc("claim_pending_organization_invitations");
+  await supabase.rpc("sa2_claim_platform_staff_invitation");
+
+  const { data: platformContext } = await supabase.rpc("platform_access_context");
+  const authority = (platformContext ?? {}) as {
+    is_platform_staff?: boolean;
+    staff_status?: string | null;
+  };
+  if (authority.is_platform_staff) {
+    redirect("/staff/access");
+  }
 
   const { data: memberships } = await supabase
     .from("organization_memberships")

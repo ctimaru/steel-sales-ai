@@ -33,6 +33,51 @@ export async function requirePlatformPermission(permission: PlatformPermissionKe
   if (!allowed) redirect("/dashboard");
 }
 
+export type PlatformStaffDirectoryItem = {
+  user_id: string;
+  email: string;
+  status: "active" | "suspended" | "revoked";
+  roles: PlatformStaffRoleKey[];
+  activated_at: string;
+  suspended_at: string | null;
+  revoked_at: string | null;
+  updated_at: string;
+};
+
+export type PlatformStaffInvitationItem = {
+  invitation_id: string;
+  email: string;
+  status: "pending" | "accepted" | "revoked" | "expired";
+  roles: PlatformStaffRoleKey[];
+  invited_by: string;
+  created_at: string;
+  expires_at: string;
+  accepted_at: string | null;
+  revoked_at: string | null;
+  expired_at: string | null;
+  reason: string | null;
+};
+
+export async function getPlatformStaffDirectory() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("sa2_platform_staff_directory");
+  if (error) {
+    if (error.code === "42501") redirect("/dashboard");
+    throw new Error(error.message);
+  }
+  return (data ?? []) as PlatformStaffDirectoryItem[];
+}
+
+export async function getPlatformStaffInvitations() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("sa2_platform_staff_invitation_queue");
+  if (error) {
+    if (error.code === "42501") redirect("/dashboard");
+    throw new Error(error.message);
+  }
+  return (data ?? []) as PlatformStaffInvitationItem[];
+}
+
 export type RegistrationQueueItem = {
   id: string;
   applicant_user_id: string;

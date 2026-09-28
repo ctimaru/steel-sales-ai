@@ -5,12 +5,22 @@ import { usePathname } from "next/navigation";
 
 const platformNav = [
   { href: "/platform", label: "Platform Home", icon: "home" },
+  { href: "/platform/people", label: "People & Access", icon: "people" },
   { href: "/platform/registrations", label: "Registrazioni aziende", icon: "registrations" },
   { href: "/platform/company-discovery", label: "Company Discovery", icon: "discovery" },
   { href: "/platform/company-claims", label: "Company Claims", icon: "claims" },
 ] as const;
 
 function NavIcon({ name }: { name: (typeof platformNav)[number]["icon"] }) {
+  if (name === "people") {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M8.25 11.25a3.25 3.25 0 1 0 0-6.5 3.25 3.25 0 0 0 0 6.5ZM15.75 10.25a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+        <path d="M2.75 19.25c.45-3.35 2.3-5.25 5.5-5.25s5.05 1.9 5.5 5.25M13.25 13.25c.7-.4 1.55-.6 2.5-.6 2.95 0 4.75 1.75 5.15 4.85" />
+      </svg>
+    );
+  }
+
   if (name === "registrations") {
     return (
       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
