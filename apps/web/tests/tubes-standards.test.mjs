@@ -10,15 +10,21 @@ const shell = fs.readFileSync(
   new URL("../components/app-shell.tsx", import.meta.url),
   "utf8",
 );
-const knowledgeRoute = fs.readFileSync(
-  new URL("../app/(workspace)/knowledge/tubes/page.tsx", import.meta.url),
+const publicKnowledgeRoute = fs.readFileSync(
+  new URL("../app/(public)/knowledge/tubes/page.tsx", import.meta.url),
+  "utf8",
+);
+const privateToolRoute = fs.readFileSync(
+  new URL("../app/(workspace)/company/tools/tubi-norme/page.tsx", import.meta.url),
   "utf8",
 );
 
-test("Tubi & Norme belongs to the shared Knowledge space", () => {
+test("K1 separates the public tube Knowledge hub from the authenticated reference tool", () => {
   assert.match(shell, /href: appRoutes\.knowledge\.tubes/);
   assert.match(shell, /label: "Tubi, norme & pesi"/);
-  assert.match(knowledgeRoute, /tubi-norme\/page/);
+  assert.match(publicKnowledgeRoute, /Pesi e dimensioni dei tubi in acciaio/);
+  assert.match(publicKnowledgeRoute, /futuro calcolatore/);
+  assert.match(privateToolRoute, /tubi-norme\/page/);
   assert.match(page, /Steel Knowledge/);
   assert.match(page, /Tabella dimensionale/);
 });
