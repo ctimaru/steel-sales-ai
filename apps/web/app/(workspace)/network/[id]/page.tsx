@@ -575,52 +575,6 @@ export default async function NetworkCompanyProfilePage({
         <div className="space-y-6">
           <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-7">
             <SectionHeader
-              eyebrow="Industrial positioning"
-              title="Ruolo nella filiera"
-              description="Ruoli e specializzazioni descrivono come l'azienda opera all'interno del mercato siderurgico."
-            />
-
-            <div className="mt-5 grid gap-5 md:grid-cols-2">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Ruoli</p>
-                <div className="mt-3 space-y-2">
-                  {profile.roles.length ? (
-                    profile.roles.map((role) => (
-                      <div key={role.key} className="rounded-2xl border border-[#e4eaf2] bg-[#fbfcfe] p-3.5">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <p className="text-sm font-semibold text-[#34445c]">
-                            {role.name}{role.is_primary ? " · principale" : ""}
-                          </p>
-                          <ProvenanceBadge kind={role.provenance_kind} />
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-[#91a0b2]">Nessun ruolo pubblicato.</p>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Specializzazioni</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {profile.subtypes.length ? (
-                    profile.subtypes.map((subtype) => (
-                      <div key={subtype.key} className="rounded-xl border border-[#e4eaf2] bg-white px-3 py-2">
-                        <p className="text-sm font-semibold text-[#4a5b72]">{subtype.name}</p>
-                        <div className="mt-1.5"><ProvenanceBadge kind={subtype.provenance_kind} /></div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-[#91a0b2]">Nessuna specializzazione pubblicata.</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-7">
-            <SectionHeader
               eyebrow="Products"
               title="Prodotti e disponibilità industriale"
               description="Ogni famiglia prodotto è presentata una sola volta. Stock, distribuzione, produzione e lavorazioni vengono accorpati per rendere immediata la lettura commerciale."
@@ -759,6 +713,52 @@ export default async function NetworkCompanyProfilePage({
 
           <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-7">
             <SectionHeader
+              eyebrow="Industrial positioning"
+              title="Ruolo nella filiera"
+              description="Ruoli e specializzazioni descrivono come l'azienda opera all'interno del mercato siderurgico."
+            />
+
+            <div className="mt-5 grid gap-5 md:grid-cols-2">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Ruoli</p>
+                <div className="mt-3 space-y-2">
+                  {profile.roles.length ? (
+                    profile.roles.map((role) => (
+                      <div key={role.key} className="rounded-2xl border border-[#e4eaf2] bg-[#fbfcfe] p-3.5">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <p className="text-sm font-semibold text-[#34445c]">
+                            {role.name}{role.is_primary ? " · principale" : ""}
+                          </p>
+                          <ProvenanceBadge kind={role.provenance_kind} />
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-[#91a0b2]">Nessun ruolo pubblicato.</p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Specializzazioni</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {profile.subtypes.length ? (
+                    profile.subtypes.map((subtype) => (
+                      <div key={subtype.key} className="rounded-xl border border-[#e4eaf2] bg-white px-3 py-2">
+                        <p className="text-sm font-semibold text-[#4a5b72]">{subtype.name}</p>
+                        <div className="mt-1.5"><ProvenanceBadge kind={subtype.provenance_kind} /></div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-[#91a0b2]">Nessuna specializzazione pubblicata.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-7">
+            <SectionHeader
               eyebrow="Industrial footprint"
               title="Sedi e capability"
               description="Stabilimenti, magazzini e service center mostrano dove opera l'azienda e quali capacità industriali dichiara o ha verificato."
@@ -816,8 +816,8 @@ export default async function NetworkCompanyProfilePage({
           <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-7">
             <SectionHeader
               eyebrow="Markets"
-              title="Mercati serviti"
-              description="Settori applicativi e mercati nei quali l'azienda dichiara di operare."
+              title="Mercati e applicazioni"
+              description="Settori applicativi supportati dalle evidenze pubbliche, aziendali o verificate disponibili nel Network."
             />
             <div className="mt-5 flex flex-wrap gap-2">
               {profile.markets.length ? (
@@ -836,8 +836,8 @@ export default async function NetworkCompanyProfilePage({
           <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-7">
             <SectionHeader
               eyebrow="Trust"
-              title="Certificazioni"
-              description="La piattaforma distingue sempre tra certificazioni dichiarate e certificazioni verificate."
+              title="Certificazioni pubblicate"
+              description="Le certificazioni presenti nel profilo mantengono fonte e stato di verifica separati: pubblicato non significa automaticamente verificato dalla Platform."
             />
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               {profile.certifications.length ? (
@@ -940,6 +940,9 @@ export default async function NetworkCompanyProfilePage({
             </p>
             <p className="mt-2 text-xs leading-5 text-[#718197]">
               Un profilo rivendicato indica chi lo gestisce. La verifica indica invece controlli eseguiti dalla piattaforma su azienda o singoli elementi.
+            </p>
+            <p className="mt-3 text-xs font-semibold text-[#52637a]">
+              {verifiedAssetCount} elementi strutturati verificati
             </p>
           </section>
         </aside>
