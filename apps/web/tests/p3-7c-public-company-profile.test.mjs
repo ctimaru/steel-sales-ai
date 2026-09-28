@@ -44,5 +44,6 @@ test("P3.7C keeps the unified forest-neutral design and readable selected action
   assert.match(page, /text-white/);
   assert.match(page, /bg-\[#f3f6f4\]/);
   assert.doesNotMatch(page, /bg-\[#1b4c5d\]/);
-  assert.doesNotMatch(page, /text-\[#1b4c5d\]/);\n  assert.doesNotMatch(page, /#2f6fed|#245ed1/i);
+  assert.doesNotMatch(page, /text-\[#1b4c5d\]/);
+  assert.doesNotMatch(page, /#2f6fed|#245ed1/i);
 });
