@@ -23,6 +23,12 @@ export default async function PublicHomePage() {
           <ProductBrand href="/" />
           <div className="flex items-center gap-2">
             <Link
+              href="/knowledge"
+              className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#5f7088] hover:bg-[#f5f8fc] hover:text-[#2f6fed] sm:inline-flex"
+            >
+              Steel Knowledge
+            </Link>
+            <Link
               href="/login"
               className="rounded-xl border border-[#dbe5f1] bg-white px-4 py-2 text-sm font-semibold text-[#40516a] hover:border-[#bdd1f4] hover:bg-[#f3f7ff] hover:text-[#2f6fed]"
             >
@@ -50,8 +56,8 @@ export default async function PublicHomePage() {
             </h1>
 
             <p className="mt-6 max-w-2xl text-base leading-7 text-[#68788e] sm:text-lg">
-              Una Commercial Memory privata per il tuo lavoro quotidiano, collegata a Network, Marketplace e
-              Steel Knowledge condivisi senza esporre i dati commerciali del team.
+              Una Commercial Memory privata per il tuo lavoro quotidiano, collegata a Network e Marketplace
+              condivisi e a Steel Knowledge pubblico senza esporre i dati commerciali del team.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -72,7 +78,7 @@ export default async function PublicHomePage() {
             <div className="mt-10 flex flex-wrap gap-x-6 gap-y-3 border-t border-[#e3eaf5] pt-5 text-xs font-medium text-[#7e8da1]">
               <span>Commercial Memory privata</span>
               <span>Network condiviso</span>
-              <span>Knowledge condivisa</span>
+              <span>Knowledge pubblica</span>
               <span>Governance & provenance</span>
             </div>
           </div>
@@ -82,7 +88,7 @@ export default async function PublicHomePage() {
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Product architecture</p>
               <h2 className="mt-2 text-lg font-semibold text-[#1e2b45]">Quattro spazi, un solo prodotto</h2>
               <p className="mt-2 text-sm leading-6 text-[#68788e]">
-                Il confine tra dati privati e superfici comuni rimane esplicito in ogni momento.
+                Il confine tra dati privati, spazi condivisi e contenuti pubblici rimane esplicito in ogni momento.
               </p>
             </div>
 
@@ -91,7 +97,7 @@ export default async function PublicHomePage() {
                 ["Home Workspace", "Commercial Memory · intelligence · operations", "PRIVATE"],
                 ["Steel Network", "aziende · profili · capability · inquiry", "SHARED"],
                 ["Marketplace", "domanda · opportunità · futuro unlock", "SHARED"],
-                ["Steel Knowledge", "norme · gradi · dimensioni · pesi", "SHARED"],
+                ["Steel Knowledge", "norme · gradi · dimensioni · pesi", "PUBLIC"],
               ].map(([title, body, tag]) => (
                 <div key={title} className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
                   <div className="flex items-start justify-between gap-3">

@@ -6,6 +6,10 @@ const routes = fs.readFileSync(new URL("../lib/routes.ts", import.meta.url), "ut
 const config = fs.readFileSync(new URL("../next.config.ts", import.meta.url), "utf8");
 const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
 const dashboard = fs.readFileSync(new URL("../app/(workspace)/dashboard/page.tsx", import.meta.url), "utf8");
+const publicKnowledge = fs.readFileSync(new URL("../app/(public)/knowledge/page.tsx", import.meta.url), "utf8");
+const publicKnowledgeLayout = fs.readFileSync(new URL("../app/(public)/knowledge/layout.tsx", import.meta.url), "utf8");
+const publicKnowledgeTubes = fs.readFileSync(new URL("../app/(public)/knowledge/tubes/page.tsx", import.meta.url), "utf8");
+const privateSteelTool = fs.readFileSync(new URL("../app/(workspace)/company/tools/tubi-norme/page.tsx", import.meta.url), "utf8");
 
 const aliases = [
   "../app/(workspace)/commercial/search/page.tsx",
@@ -18,7 +22,6 @@ const aliases = [
   "../app/(workspace)/company/profile/page.tsx",
   "../app/(workspace)/company/data-sources/page.tsx",
   "../app/(workspace)/company/pilot-analytics/page.tsx",
-  "../app/(workspace)/knowledge/tubes/page.tsx",
 ].map((path) => fs.readFileSync(new URL(path, import.meta.url), "utf8"));
 
 test("UX2 freezes canonical route families", () => {
@@ -58,11 +61,20 @@ test("UX2 Company shell and Home use the canonical space contract", () => {
   assert.doesNotMatch(dashboard, /action=\{appRoutes\.commercial\.search\}/);
 });
 
-test("UX2 canonical route modules reuse stable domain pages during cutover", () => {
+test("UX2 canonical private route modules reuse stable domain pages during cutover", () => {
   for (const source of aliases) assert.match(source, /export \{ default \} from "@\/app\/\(workspace\)\//);
 });
 
-test("UX2 legacy URLs redirect to canonical families without permanent browser caching", () => {
+test("K1 moves Knowledge to a standalone public route family", () => {
+  assert.match(publicKnowledge, /Steel Knowledge/);
+  assert.match(publicKnowledgeTubes, /Pesi e dimensioni dei tubi in acciaio/);
+  assert.match(publicKnowledgeLayout, /ProductBrand/);
+  assert.doesNotMatch(publicKnowledgeLayout, /getWorkspaceContext|requireWorkspace/);
+  assert.match(privateSteelTool, /export \{ default \} from "@\/app\/\(workspace\)\/tubi-norme\/page"/);
+  assert.match(routes, /tubesStandards: "\/company\/tools\/tubi-norme"/);
+});
+
+test("UX2 legacy commercial URLs redirect without permanent browser caching", () => {
   for (const fragment of [
     'source: "/search", destination: "/commercial/search"',
     'source: "/products", destination: "/commercial/products"',
@@ -72,9 +84,9 @@ test("UX2 legacy URLs redirect to canonical families without permanent browser c
     'source: "/alerts", destination: "/operations/alerts"',
     'source: "/network/manage", destination: "/company/profile"',
     'source: "/data-sources", destination: "/company/data-sources"',
-    'source: "/tubi-norme", destination: "/knowledge/tubes"',
-    'source: "/company/tools/tubi-norme", destination: "/knowledge/tubes"',
   ]) assert.ok(config.includes(fragment), `missing redirect ${fragment}`);
+  assert.doesNotMatch(config, /source: "\/tubi-norme", destination: "\/knowledge\/tubes"/);
+  assert.doesNotMatch(config, /source: "\/company\/tools\/tubi-norme", destination: "\/knowledge\/tubes"/);
   assert.match(config, /permanent: false/);
 });
 

@@ -58,7 +58,7 @@ export const appRoutes = {
     dataSources: "/company/data-sources",
     pilotAnalytics: "/company/pilot-analytics",
     tools: "/company/tools",
-    tubesStandards: "/knowledge/tubes",
+    tubesStandards: "/company/tools/tubi-norme",
   },
 
   platform: {

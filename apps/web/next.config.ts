@@ -72,8 +72,6 @@ const nextConfig: NextConfig = {
       { source: "/network/manage", destination: "/company/profile", permanent: false },
       { source: "/data-sources", destination: "/company/data-sources", permanent: false },
       { source: "/pilot-analytics", destination: "/company/pilot-analytics", permanent: false },
-      { source: "/tubi-norme", destination: "/knowledge/tubes", permanent: false },
-      { source: "/company/tools/tubi-norme", destination: "/knowledge/tubes", permanent: false },
     ];
   },
 };
