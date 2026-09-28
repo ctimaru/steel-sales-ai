@@ -145,17 +145,34 @@ set name=excluded.name,
     publication_status='published',
     updated_at=now();
 
-update public.network_facilities
-set name='Sede e magazzino — Fiorenzuola d''Arda',
-    address_line_1='Via Paullo Barabasca, 489/b',
-    postal_code='29017',
-    city='Fiorenzuola d''Arda',
-    region='Emilia-Romagna',
-    country_code='IT',
-    website_url='https://www.copromet.it/',
+insert into public.network_facilities(
+  id,company_id,name,facility_type,address_line_1,postal_code,city,region,country_code,
+  website_url,publication_status,verification_status
+) values (
+  '3518c835-d809-4b0e-b6d0-b6bdcfd86fbc',
+  '51100000-0000-5000-8000-000000000006',
+  'Sede e magazzino — Fiorenzuola d''Arda',
+  'public_business_location',
+  'Via Paullo Barabasca, 489/b',
+  '29017',
+  'Fiorenzuola d''Arda',
+  'Emilia-Romagna',
+  'IT',
+  'https://www.copromet.it/',
+  'published',
+  'unverified'
+)
+on conflict (id) do update
+set name=excluded.name,
+    facility_type=excluded.facility_type,
+    address_line_1=excluded.address_line_1,
+    postal_code=excluded.postal_code,
+    city=excluded.city,
+    region=excluded.region,
+    country_code=excluded.country_code,
+    website_url=excluded.website_url,
     publication_status='published',
-    updated_at=now()
-where id='3518c835-d809-4b0e-b6d0-b6bdcfd86fbc';
+    updated_at=now();
 
 -- Public contacts.
 insert into public.network_data_assertions(
