@@ -201,13 +201,19 @@ begin
     raise exception 'invalid claim decision' using errcode='22023';
   end if;
 
-  v_permission:=case p_decision
-    when 'under_review' then 'claims.review_proof'
-    when 'approved' then 'claims.approve'
-    when 'rejected' then 'claims.reject'
-    when 'revoked' then 'claims.revoke'
-  end;
-  perform private.require_platform_permission(v_permission);
+  if p_decision='under_review' then
+    v_permission:='claims.review_proof';
+    perform private.require_platform_permission('claims.review_proof');
+  elsif p_decision='approved' then
+    v_permission:='claims.approve';
+    perform private.require_platform_permission('claims.approve');
+  elsif p_decision='rejected' then
+    v_permission:='claims.reject';
+    perform private.require_platform_permission('claims.reject');
+  else
+    v_permission:='claims.revoke';
+    perform private.require_platform_permission('claims.revoke');
+  end if;
 
   v_note:=nullif(btrim(p_note),'');
   if v_note is not null and char_length(v_note)>2000 then
