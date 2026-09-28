@@ -15,7 +15,7 @@ const data = fs.readFileSync(
   "utf8",
 );
 const migration = fs.readFileSync(
-  new URL("../../supabase/migrations/20260928121000_k3_public_standards_catalog.sql", import.meta.url),
+  new URL("../../../supabase/migrations/20260928121000_k3_public_standards_catalog.sql", import.meta.url),
   "utf8",
 );
 
