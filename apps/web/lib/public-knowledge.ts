@@ -93,6 +93,15 @@ export type PublicKnowledgeGradeSummary = {
   seo_description: string;
   related_standard_count: number;
   published_at: string;
+  last_reviewed_at: string;
+};
+
+export type PublicKnowledgeRelatedGradePage = {
+  slug: string;
+  designation: string;
+  material_number: string | null;
+  material_family: string | null;
+  seo_title: string;
 };
 
 export type PublicKnowledgeRelatedStandard = {
@@ -123,7 +132,10 @@ export type PublicKnowledgeGrade = {
   editorial_sections: KnowledgeEditorialSection[];
   faq: KnowledgeFaqItem[];
   related_standards: PublicKnowledgeRelatedStandard[];
+  source_references: KnowledgeSourceReference[];
+  related_grade_pages: PublicKnowledgeRelatedGradePage[];
   published_at: string;
+  last_reviewed_at: string;
 };
 
 function isConfigured() {
