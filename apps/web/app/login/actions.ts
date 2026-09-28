@@ -30,8 +30,15 @@ async function routeAfterAuthentication() {
   const authority = (platformContext ?? {}) as {
     is_platform_staff?: boolean;
     staff_status?: string | null;
+    permissions?: string[];
   };
   if (authority.is_platform_staff) {
+    if (
+      authority.staff_status === "active" &&
+      authority.permissions?.includes("platform.console.access")
+    ) {
+      redirect("/platform");
+    }
     redirect("/staff/access");
   }
 
