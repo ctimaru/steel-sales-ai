@@ -582,9 +582,9 @@ as $$
         )
         order by rs.code
       )
-      from unnest(p.related_standard_slugs) rel_slug
+      from unnest(p.related_standard_slugs) as rel(slug)
       join public.steel_knowledge_standard_pages rp
-        on rp.slug=rel_slug
+        on rp.slug=rel.slug
        and rp.page_status='published'
       join public.steel_standards rs
         on rs.id=rp.standard_id
