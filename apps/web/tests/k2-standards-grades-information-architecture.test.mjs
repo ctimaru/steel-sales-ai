@@ -35,7 +35,7 @@ test("K2 detail templates preserve applicability semantics", () => {
   assert.match(standardDetail, /gamma produttore o fornitore non viene/);
   assert.match(gradeDetail, /applicabilityLabel/);
   assert.match(gradeDetail, /standard\.is_normative/);
-  assert.match(gradeDetail, /non equivale automaticamente a sostituibilità/);
+  assert.match(gradeDetail, /non implica sostituibilità/);
   assert.match(gradeDetail, /Stesso numero materiale/);
 });
 
