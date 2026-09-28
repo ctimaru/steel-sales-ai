@@ -1,7 +1,10 @@
 import Link from "next/link";
 
 import { getAdminCompanyClaimQueue } from "@/lib/company-claims";
-import { requirePlatformSuperadmin } from "@/lib/platform-admin";
+import {
+  getPlatformAccessContext,
+  requirePlatformPermission,
+} from "@/lib/platform-admin";
 
 import { reviewCompanyClaim, reviewCompanyClaimProof } from "./actions";
 
@@ -25,7 +28,14 @@ export default async function CompanyClaimsPage({
 }: {
   searchParams: Promise<{ status?: string; message?: string; error?: string }>;
 }) {
-  await requirePlatformSuperadmin();
+  await requirePlatformPermission("claims.read");
+  const access = await getPlatformAccessContext();
+  const permissions = access?.permissions ?? [];
+  const canReviewProof = permissions.includes("claims.review_proof");
+  const canApprove = permissions.includes("claims.approve");
+  const canReject = permissions.includes("claims.reject");
+  const canRevoke = permissions.includes("claims.revoke");
+  const hasMutationAccess = canReviewProof || canApprove || canReject || canRevoke;
   const params = await searchParams;
   const activeStatus =
     params.status && params.status !== "all"
@@ -93,6 +103,12 @@ export default async function CompanyClaimsPage({
         })}
       </nav>
 
+      {!hasMutationAccess ? (
+        <div className="rounded-2xl border border-[#dbe5f1] bg-[#f8fafd] p-4 text-sm text-[#68788e]">
+          Accesso in sola lettura: puoi ispezionare claim e ownership proof, ma non modificarne lo stato.
+        </div>
+      ) : null}
+
       <section className="space-y-4">
         {queue.items.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-[#cfdbea] bg-white p-10 text-center">
@@ -143,7 +159,7 @@ export default async function CompanyClaimsPage({
               </div>
 
               <div className="mt-5 grid gap-3 lg:grid-cols-2">
-                {claim.proof_status === "pending" && ["requested", "under_review"].includes(claim.status) ? (
+                {claim.proof_status === "pending" && ["requested", "under_review"].includes(claim.status) && canReviewProof ? (
                   <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-4">
                     <p className="text-sm font-semibold text-amber-900">Ownership proof</p>
                     <p className="mt-1 text-xs leading-5 text-amber-800">
@@ -188,22 +204,22 @@ export default async function CompanyClaimsPage({
                       className="h-10 w-full rounded-xl border border-[#dbe5f1] px-3 text-sm outline-none"
                     />
                     <div className="flex flex-wrap gap-2">
-                      {claim.status === "requested" ? (
+                      {claim.status === "requested" && canReviewProof ? (
                         <button name="decision" value="under_review" className="rounded-xl border border-[#dbe5f1] bg-white px-3 py-2 text-xs font-semibold text-[#40516a]">
                           Prendi in revisione
                         </button>
                       ) : null}
-                      {["requested", "under_review"].includes(claim.status) && claim.proof_status === "verified" ? (
+                      {["requested", "under_review"].includes(claim.status) && claim.proof_status === "verified" && canApprove ? (
                         <button name="decision" value="approved" className="rounded-xl bg-[#2f6fed] px-3 py-2 text-xs font-semibold text-white">
                           Approva claim
                         </button>
                       ) : null}
-                      {["requested", "under_review"].includes(claim.status) ? (
+                      {["requested", "under_review"].includes(claim.status) && canReject ? (
                         <button name="decision" value="rejected" className="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">
                           Rifiuta claim
                         </button>
                       ) : null}
-                      {claim.status === "approved" ? (
+                      {claim.status === "approved" && canRevoke ? (
                         <button name="decision" value="revoked" className="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">
                           Revoca controllo
                         </button>
