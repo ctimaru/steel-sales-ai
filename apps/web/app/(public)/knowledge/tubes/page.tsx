@@ -68,8 +68,8 @@ export default function PublicTubeWeightsPage() {
           In K5 questa pagina riceverà il calcolatore per tubo tondo, quadro e rettangolare. L&apos;attuale archivio
           tecnico autenticato rimane disponibile nel workspace durante la transizione.
         </p>
-        <Link href="/login" className="mt-4 inline-flex text-sm font-semibold text-[#2f6fed]">
-          Accedi al workspace →
+        <Link href="/company/tools/tubi-norme" className="mt-4 inline-flex text-sm font-semibold text-[#2f6fed]">
+          Apri l&apos;archivio tecnico nel workspace →
         </Link>
       </section>
     </div>
