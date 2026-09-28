@@ -19,24 +19,30 @@ test("UX1 separates public, company and platform entry points", () => {
   assert.doesNotMatch(platformLayout, /getWorkspaceContext/);
 });
 
-test("UX1 Company Workspace exposes explicit product domains and role context", () => {
+test("UX2 Company Workspace exposes explicit private and shared product spaces", () => {
   assert.match(companyShell, /Company Workspace/);
   assert.match(companyShell, /Commercial Memory/);
-  assert.match(companyShell, /Steel Network/);
+  assert.match(companyShell, /Commercial Intelligence/);
   assert.match(companyShell, /Operations/);
   assert.match(companyShell, /Company/);
+  assert.match(companyShell, /Marketplace/);
+  assert.match(companyShell, /Knowledge/);
+  assert.match(companyShell, /WorkspaceSpaceNavigation/);
   assert.match(companyShell, /organizationRole/);
   assert.match(companyShell, /Apri Platform Console/);
   assert.match(companyShell, /adminOnly/);
   assert.match(companyShell, /writeRole/);
 });
 
-test("UX1 Company Home combines private Commercial Memory and shared Network context", () => {
-  assert.match(companyHome, /Commercial Memory privata \+ Steel Network condiviso/);
-  assert.match(companyHome, /Il tuo Network/);
-  assert.match(companyHome, /Inquiry B2B/);
-  assert.match(companyHome, /Memoria commerciale privata/);
+test("UX2 Company Home is a private operational cockpit with shared-space exits", () => {
+  assert.match(companyHome, /Home Workspace/);
+  assert.match(companyHome, /Commercial Memory privata/);
+  assert.match(companyHome, /Oggi nel workspace/);
+  assert.match(companyHome, /Spazi condivisi/);
+  assert.match(companyHome, /Marketplace/);
+  assert.match(companyHome, /Knowledge/);
   assert.match(companyHome, /getWorkspaceContext/);
+  assert.doesNotMatch(companyHome, /<form action=\{appRoutes\.commercial\.search\}/);
 });
 
 test("UX1 Platform Console is structurally separate from tenant workspace", () => {
@@ -45,7 +51,7 @@ test("UX1 Platform Console is structurally separate from tenant workspace", () =
   assert.match(platformShell, /Non apre automaticamente la Commercial Memory privata dei tenant/);
   assert.match(platformHome, /Governance della piattaforma/);
   assert.match(platformHome, /Registrazioni aziende/);
-  assert.doesNotMatch(platformShell, /Storico prodotti/);
+  assert.doesNotMatch(platformShell, /Product 360/);
   assert.doesNotMatch(platformShell, /Importa documenti/);
 });
 
