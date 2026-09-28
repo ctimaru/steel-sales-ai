@@ -29,6 +29,15 @@ export const appRoutes = {
     manage: "/company/profile",
   },
 
+  marketplace: {
+    home: "/marketplace",
+  },
+
+  knowledge: {
+    home: "/knowledge",
+    tubes: "/knowledge/tubes",
+  },
+
   operations: {
     uploads: "/operations/uploads",
     review: "/operations/review",
@@ -49,7 +58,7 @@ export const appRoutes = {
     dataSources: "/company/data-sources",
     pilotAnalytics: "/company/pilot-analytics",
     tools: "/company/tools",
-    tubesStandards: "/company/tools/tubi-norme",
+    tubesStandards: "/knowledge/tubes",
   },
 
   platform: {
