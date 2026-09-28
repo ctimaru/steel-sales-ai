@@ -22,9 +22,9 @@ function roleLabel(role: string) {
 }
 
 function workspaceRoleLabel(role: string) {
-  if (role === "admin") return "Organization Admin";
-  if (role === "viewer") return "Viewer";
-  return "Member";
+  if (role === "admin") return "Amministratore aziendale";
+  if (role === "viewer") return "Sola lettura";
+  return "Membro";
 }
 
 export default async function DashboardPage() {
@@ -57,60 +57,47 @@ export default async function DashboardPage() {
       <section className="overflow-hidden rounded-3xl border border-[#dce7f7] bg-white shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)]">
         <div className="h-1 bg-[#2f6fed]" />
         <div className="p-6 sm:p-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="max-w-3xl">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-[#eef5ff] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#2f6fed]">
-                  Home Workspace
-                </span>
-                <span className="rounded-full bg-[#f2f5f9] px-3 py-1 text-[11px] font-semibold text-[#64748b]">
-                  Privato
-                </span>
-              </div>
-              <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#1e2b45] sm:text-4xl">
-                {context.organizationName}
-              </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#68788e] sm:text-base">
-                Il centro operativo della tua azienda: Commercial Memory, intelligence, documenti,
-                correzioni e attività recenti. I dati commerciali restano separati dagli spazi condivisi.
-              </p>
-              <p className="mt-3 text-xs font-semibold text-[#7e8da1]">
-                {workspaceRoleLabel(context.role)} · Commercial Memory privata
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-[#eef5ff] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#2f6fed]">
+              Workspace
+            </span>
+            <span className="rounded-full bg-[#f2f5f9] px-3 py-1 text-[11px] font-semibold text-[#64748b]">
+              Privato
+            </span>
+          </div>
+
+          <div className="mt-4 max-w-4xl">
+            <h1 className="text-3xl font-semibold tracking-tight text-[#1e2b45] sm:text-4xl">
+              Il centro operativo della tua azienda
+            </h1>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-[#68788e] sm:text-base">
+              Questa pagina riunisce ciò che richiede attenzione, la memoria commerciale privata,
+              le attività recenti e l’accesso agli spazi condivisi. È il punto di partenza per capire
+              subito cosa sta succedendo e dove intervenire.
+            </p>
+            <p className="mt-3 text-xs font-semibold text-[#7e8da1]">
+              {workspaceRoleLabel(context.role)} · Area privata aziendale
+            </p>
+          </div>
+
+          <div className="mt-6 grid gap-3 md:grid-cols-3">
+            <div className="rounded-2xl border border-[#e6edf7] bg-[#f8fbff] p-4">
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#2f6fed]">Priorità operative</p>
+              <p className="mt-2 text-sm leading-6 text-[#5f7087]">
+                Correzioni, inquiry e segnali che richiedono la tua attenzione.
               </p>
             </div>
-
-            <div className="flex flex-wrap gap-2">
-              {canWrite ? (
-                <Link
-                  href={appRoutes.operations.uploads}
-                  className="inline-flex h-11 items-center rounded-xl bg-[#2f6fed] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#245ed1]"
-                >
-                  Importa documenti
-                </Link>
-              ) : (
-                <Link
-                  href={appRoutes.commercial.products}
-                  className="inline-flex h-11 items-center rounded-xl bg-[#2f6fed] px-5 text-sm font-semibold text-white shadow-sm hover:bg-[#245ed1]"
-                >
-                  Apri Commercial Memory
-                </Link>
-              )}
-              {isAdmin && networkEnabled ? (
-                <Link
-                  href={appRoutes.company.profile}
-                  className="inline-flex h-11 items-center rounded-xl border border-[#dbe5f1] bg-white px-5 text-sm font-semibold text-[#40516a] hover:border-[#bdd1f4] hover:bg-[#f3f7ff] hover:text-[#2f6fed]"
-                >
-                  Gestisci profilo azienda
-                </Link>
-              ) : null}
-              {context.platformSuperadmin ? (
-                <Link
-                  href={appRoutes.platform.home}
-                  className="inline-flex h-11 items-center rounded-xl border border-[#d7e5ff] bg-[#eef5ff] px-5 text-sm font-semibold text-[#2f6fed]"
-                >
-                  Platform Console
-                </Link>
-              ) : null}
+            <div className="rounded-2xl border border-[#e6edf7] bg-[#f8fbff] p-4">
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#2f6fed]">Commercial Memory</p>
+              <p className="mt-2 text-sm leading-6 text-[#5f7087]">
+                RFQ, offerte, ordini, aziende, conversazioni e storico normalizzato.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-[#e6edf7] bg-[#f8fbff] p-4">
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#2f6fed]">Ecosistema condiviso</p>
+              <p className="mt-2 text-sm leading-6 text-[#5f7087]">
+                Network, Marketplace e Knowledge, separati dai dati commerciali privati.
+              </p>
             </div>
           </div>
         </div>
@@ -122,61 +109,17 @@ export default async function DashboardPage() {
           <h2 className="mt-1 text-xl font-semibold text-[#1e2b45]">Cosa richiede attenzione</h2>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Link href={appRoutes.operations.review} className="rounded-2xl border border-[#e1e8f2] bg-white p-5 hover:border-amber-300">
+          <Link
+            href={appRoutes.operations.review}
+            className={`rounded-2xl border p-5 transition ${
+              metrics.reviewFlags > 0
+                ? "border-amber-200 bg-amber-50 hover:border-amber-300"
+                : "border-[#e1e8f2] bg-white hover:border-[#bdd1f4]"
+            }`}
+          >
             <p className="metric-number text-3xl font-semibold text-[#1e2b45]">{metrics.reviewFlags}</p>
             <p className="mt-1 text-xs font-semibold text-[#68788e]">Elementi da verificare</p>
-          </Link>
-
-          {networkEnabled ? (
-            <Link href={appRoutes.network.inquiries + "?box=received"} className="rounded-2xl border border-[#e1e8f2] bg-white p-5 hover:border-[#bdd1f4]">
-              <p className="metric-number text-3xl font-semibold text-[#1e2b45]">{received.total}</p>
-              <p className="mt-1 text-xs font-semibold text-[#68788e]">Inquiry ricevute</p>
-            </Link>
-          ) : (
-            <Link href={appRoutes.commercial.products} className="rounded-2xl border border-[#e1e8f2] bg-white p-5 hover:border-[#bdd1f4]">
-              <p className="metric-number text-3xl font-semibold text-[#1e2b45]">{operational.offers}</p>
-              <p className="mt-1 text-xs font-semibold text-[#68788e]">Offerte normalizzate</p>
-            </Link>
-          )}
-
-          {networkEnabled ? (
-            <Link href={appRoutes.network.activity + "?unread=1"} className="rounded-2xl border border-[#e1e8f2] bg-white p-5 hover:border-[#bdd1f4]">
-              <p className="metric-number text-3xl font-semibold text-[#1e2b45]">{activity.unread}</p>
-              <p className="mt-1 text-xs font-semibold text-[#68788e]">Activity Network non letta</p>
-            </Link>
-          ) : (
-            <Link href={appRoutes.commercial.companies} className="rounded-2xl border border-[#e1e8f2] bg-white p-5 hover:border-[#bdd1f4]">
-              <p className="metric-number text-3xl font-semibold text-[#1e2b45]">{metrics.threads}</p>
-              <p className="mt-1 text-xs font-semibold text-[#68788e]">Conversazioni commerciali</p>
-            </Link>
-          )}
-
-          <Link href={appRoutes.commercial.products} className="rounded-2xl border border-[#e1e8f2] bg-white p-5 hover:border-[#bdd1f4]">
-            <p className="metric-number text-3xl font-semibold text-[#1e2b45]">{operational.orders}</p>
-            <p className="mt-1 text-xs font-semibold text-[#68788e]">Ordini normalizzati</p>
-          </Link>
-        </div>
-      </section>
-
-      {metrics.reviewFlags > 0 ? (
-        <Link
-          href={appRoutes.operations.review}
-          className="flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-5 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-amber-700">Richiede attenzione</p>
-            <p className="mt-1 text-base font-semibold text-amber-950">
-              {metrics.reviewFlags} {metrics.reviewFlags === 1 ? "elemento da verificare" : "elementi da verificare"}
-            </p>
-            <p className="mt-1 text-sm text-amber-800">
-              Apri le correzioni solo sui casi in cui il sistema richiede una decisione umana.
-            </p>
-          </div>
-          <span className="text-sm font-semibold text-amber-900">Apri correzioni →</span>
-        </Link>
-      ) : null}
-
-      <section className="rounded-3xl border border-[#dbe7f7] bg-[#f8fbff] p-6 sm:p-7">
+            <section className="rounded-3xl border border-[#dbe7f7] bg-[#f8fbff] p-6 sm:p-7">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Commercial Memory</p>
