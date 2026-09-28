@@ -24,6 +24,8 @@ const applicabilityLabels: Record<string, string> = {
 };
 
 const manufacturingProcessLabels: Record<string, string> = {
+  hot_finished: "Finito a caldo",
+  cold_formed: "Formato a freddo",
   seamless: "Senza saldatura",
   welded: "Saldato",
   electric_welded: "Saldato elettricamente",
