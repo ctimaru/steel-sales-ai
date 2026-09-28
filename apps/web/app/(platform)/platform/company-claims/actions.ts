@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { requirePlatformContext } from "@/lib/workspace-context";
+import { requirePlatformPermission } from "@/lib/platform-admin";
 import { createClient } from "@/lib/supabase/server";
 
 function value(formData: FormData, key: string) {
@@ -15,7 +15,7 @@ function claimsPath(key: "message" | "error", message: string) {
 }
 
 export async function reviewCompanyClaimProof(formData: FormData) {
-  await requirePlatformContext();
+  await requirePlatformPermission("claims.review_proof");
   const claimId = value(formData, "claim_id");
   const decision = value(formData, "decision");
   const note = value(formData, "note") || null;
@@ -45,7 +45,6 @@ export async function reviewCompanyClaimProof(formData: FormData) {
 }
 
 export async function reviewCompanyClaim(formData: FormData) {
-  await requirePlatformContext();
   const claimId = value(formData, "claim_id");
   const decision = value(formData, "decision");
   const note = value(formData, "note") || null;
@@ -53,6 +52,16 @@ export async function reviewCompanyClaim(formData: FormData) {
   if (!claimId || !["under_review", "approved", "rejected", "revoked"].includes(decision)) {
     redirect(claimsPath("error", "Decisione claim non valida."));
   }
+
+  const permission =
+    decision === "under_review"
+      ? "claims.review_proof"
+      : decision === "approved"
+        ? "claims.approve"
+        : decision === "rejected"
+          ? "claims.reject"
+          : "claims.revoke";
+  await requirePlatformPermission(permission);
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("m4_review_company_claim", {
