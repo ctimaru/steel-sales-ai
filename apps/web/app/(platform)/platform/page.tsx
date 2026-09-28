@@ -52,7 +52,18 @@ export default async function PlatformHomePage() {
         </Link>
       ) : null}
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="grid gap-4 lg:grid-cols-3">
+        <Link
+          href="/platform/people"
+          className="rounded-2xl border border-[#e1e8f2] bg-white p-6 transition hover:border-[#bdd1f4] hover:shadow-sm"
+        >
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Governance</p>
+          <h2 className="mt-3 text-lg font-semibold text-[#1e2b45]">People &amp; Access</h2>
+          <p className="mt-2 text-sm leading-6 text-[#68788e]">
+            Invita amministratori delegati, assegna role template prestabiliti e governa sospensione o revoca degli accessi.
+          </p>
+        </Link>
+
         <Link
           href="/platform/registrations"
           className="rounded-2xl border border-[#e1e8f2] bg-white p-6 transition hover:border-[#bdd1f4] hover:shadow-sm"
