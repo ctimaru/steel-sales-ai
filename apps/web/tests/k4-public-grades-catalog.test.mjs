@@ -60,7 +60,7 @@ test("K4 grade pages expose trust, freshness and related grades", () => {
 
 test("K4 grade pages preserve evidence semantics and structured SEO", () => {
   assert.match(detailPage, /applicabilityLabel/);
-  assert.match(detailPage, /Gamma produttore o fornitore/);
+  assert.match(detailPage, /gamma produttore o fornitore/i);
   assert.match(detailPage, /FAQPage/);
   assert.match(detailPage, /TechArticle/);
   assert.match(detailPage, /dateModified/);
