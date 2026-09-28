@@ -4,15 +4,19 @@ import {
   listPublicGrades,
   listPublicStandards,
   listPublicTubeDimensionPages,
+  listPublicTubeFamilyHubs,
+  listPublicTubeSizeHubs,
 } from "@/lib/public-knowledge";
 import { absoluteUrl } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  const [standards, grades, dimensions] = await Promise.all([
+  const [standards, grades, dimensions, familyHubs, sizeHubs] = await Promise.all([
     listPublicStandards(),
     listPublicGrades(),
     listPublicTubeDimensionPages(),
+    listPublicTubeFamilyHubs(),
+    listPublicTubeSizeHubs(),
   ]);
 
   const staticEntries: MetadataRoute.Sitemap = [
@@ -62,6 +66,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.75,
   }));
 
+  const familyHubEntries: MetadataRoute.Sitemap = familyHubs.map((hub) => ({
+    url: absoluteUrl(`/knowledge/tubes/${hub.family_slug}`),
+    lastModified: new Date(hub.published_at),
+    changeFrequency: "monthly",
+    priority: 0.78,
+  }));
+
+  const sizeHubEntries: MetadataRoute.Sitemap = sizeHubs.map((hub) => ({
+    url: absoluteUrl(`/knowledge/tubes/${hub.family_slug}/${hub.size_slug}`),
+    lastModified: new Date(hub.published_at),
+    changeFrequency: "monthly",
+    priority: 0.74,
+  }));
+
   const dimensionEntries: MetadataRoute.Sitemap = dimensions.map((dimension) => ({
     url: absoluteUrl(`/knowledge/tubes/${dimension.dimension_slug}`),
     lastModified: new Date(dimension.published_at),
@@ -69,5 +87,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticEntries, ...standardEntries, ...gradeEntries, ...dimensionEntries];
+  return [
+    ...staticEntries,
+    ...standardEntries,
+    ...gradeEntries,
+    ...familyHubEntries,
+    ...sizeHubEntries,
+    ...dimensionEntries,
+  ];
 }
