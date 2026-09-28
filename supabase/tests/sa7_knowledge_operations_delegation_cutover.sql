@@ -168,15 +168,16 @@ select pg_temp.sa7_assert(
   'saving a Knowledge draft must not change the public K2 live copy'
 );
 
+select public.sa7_knowledge_page(
+  'standard',
+  :'page_id'::uuid
+) as post_save_page \gset
+
 select pg_temp.sa7_assert(
-  exists (
-    select 1
-    from public.steel_knowledge_standard_pages
-    where id=:'page_id'::uuid
-      and page_status='published'
-      and intro=:'original_live_intro'
-      and draft_payload->>'intro'='SA7 delegated draft intro — not live until Publisher approval'
-  ),
+  :'post_save_page'::jsonb->>'page_status'='published'
+  and :'post_save_page'::jsonb->'live_payload'->>'intro'=:'original_live_intro'
+  and :'post_save_page'::jsonb->'draft_payload'->>'intro'
+      ='SA7 delegated draft intro — not live until Publisher approval',
   'live fields and isolated draft must coexist after delegated edit'
 );
 
@@ -273,15 +274,17 @@ select pg_temp.sa7_assert(
   'knowledge.publish must atomically promote the approved draft to the public copy'
 );
 
+select public.sa7_knowledge_page(
+  'standard',
+  :'page_id'::uuid
+) as post_publish_page \gset
+
 select pg_temp.sa7_assert(
-  exists (
-    select 1
-    from public.steel_knowledge_standard_pages
-    where id=:'page_id'::uuid
-      and page_status='published'
-      and editorial_version=draft_version
-      and intro='SA7 delegated draft intro — not live until Publisher approval'
-  ),
+  :'post_publish_page'::jsonb->>'page_status'='published'
+  and (:'post_publish_page'::jsonb->>'live_version')::integer
+      =(:'post_publish_page'::jsonb->>'draft_version')::integer
+  and :'post_publish_page'::jsonb->'live_payload'->>'intro'
+      ='SA7 delegated draft intro — not live until Publisher approval',
   'published live version must equal the approved draft version'
 );
 
