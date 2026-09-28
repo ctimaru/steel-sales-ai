@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { getRegistrationQueue, requirePlatformSuperadmin } from "@/lib/platform-admin";
+import { getRegistrationQueue, requirePlatformPermission } from "@/lib/platform-admin";
 
 const FILTERS = [
   ["all", "Tutte"],
@@ -46,7 +46,7 @@ export default async function AdminRegistrationsPage({
 }: {
   searchParams: Promise<{ status?: string; error?: string }>;
 }) {
-  await requirePlatformSuperadmin();
+  await requirePlatformPermission("registrations.read");
   const { status, error } = await searchParams;
   const activeStatus = status && status !== "all" ? status : null;
   const queue = await getRegistrationQueue(activeStatus);
