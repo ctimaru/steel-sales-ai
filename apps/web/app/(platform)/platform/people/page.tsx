@@ -139,14 +139,14 @@ export default async function PlatformPeoplePage({
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#18263d] sm:text-4xl">
               People &amp; Access
             </h1>
-            <p className="mt-3 text-sm leading-6 text-[#66768d]">
+            <p className="mt-3 text-sm leading-6 text-[#66736e]">
               Crea e governa gli account amministrativi delegati della piattaforma.
               Ogni persona usa una propria identità, riceve solo role template
               prestabiliti e non ottiene automaticamente accesso alla Commercial
               Memory privata dei tenant.
             </p>
           </div>
-          <div className="rounded-2xl border border-[#dbe7f7] bg-[#f1f6ff] px-5 py-4">
+          <div className="rounded-2xl border border-[#d9e1dd] bg-[#f1f6ff] px-5 py-4">
             <p className="text-xs font-semibold text-[#71819a]">
               Root authority
             </p>
@@ -185,12 +185,12 @@ export default async function PlatformPeoplePage({
         ].map(([label, value]) => (
           <div
             key={String(label)}
-            className="rounded-2xl border border-[#e1e8f2] bg-white p-5"
+            className="rounded-2xl border border-[#dce2df] bg-white p-5"
           >
-            <p className="metric-number text-3xl font-semibold text-[#1e2b45]">
+            <p className="metric-number text-3xl font-semibold text-[#1d2824]">
               {Number(value)}
             </p>
-            <p className="mt-1 text-xs font-semibold text-[#68788e]">
+            <p className="mt-1 text-xs font-semibold text-[#66736e]">
               {label}
             </p>
           </div>
@@ -198,20 +198,20 @@ export default async function PlatformPeoplePage({
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
-        <div className="rounded-3xl border border-[#e1e8f2] bg-white p-6">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">
+        <div className="rounded-3xl border border-[#dce2df] bg-white p-6">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
             Nuovo account amministrativo
           </p>
-          <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">
+          <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">
             Invita Platform Staff
           </h2>
-          <p className="mt-2 text-sm leading-6 text-[#68788e]">
+          <p className="mt-2 text-sm leading-6 text-[#66736e]">
             L&apos;invito dura 7 giorni. L&apos;utente deve usare esattamente
             l&apos;email invitata e verificare il proprio account.
           </p>
 
           <form action={createPlatformStaffInvitation} className="mt-6 space-y-5">
-            <label className="block text-sm font-semibold text-[#40516a]">
+            <label className="block text-sm font-semibold text-[#43524c]">
               Email
               <input
                 name="email"
@@ -219,12 +219,12 @@ export default async function PlatformPeoplePage({
                 required
                 autoComplete="email"
                 placeholder="nome@azienda.it"
-                className="mt-2 h-11 w-full rounded-xl border border-[#dbe5f1] bg-white px-3 text-sm outline-none focus:border-[#9bbcf0]"
+                className="mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm outline-none focus:border-[#9bbcf0]"
               />
             </label>
 
             <fieldset>
-              <legend className="text-sm font-semibold text-[#40516a]">
+              <legend className="text-sm font-semibold text-[#43524c]">
                 Ruoli iniziali
               </legend>
               <p className="mt-1 text-xs leading-5 text-[#7a899d]">
@@ -235,7 +235,7 @@ export default async function PlatformPeoplePage({
                 {PLATFORM_STAFF_ROLE_TEMPLATES.map((role) => (
                   <label
                     key={role.key}
-                    className="flex cursor-pointer gap-3 rounded-2xl border border-[#e1e8f2] p-4 hover:border-[#bdd1f4] hover:bg-[#f8fbff]"
+                    className="flex cursor-pointer gap-3 rounded-2xl border border-[#dce2df] p-4 hover:border-[#b8d2c8] hover:bg-[#f6f8f7]"
                   >
                     <input
                       type="checkbox"
@@ -244,10 +244,10 @@ export default async function PlatformPeoplePage({
                       className="mt-1 h-4 w-4 rounded border-[#b9c8dc]"
                     />
                     <span className="min-w-0">
-                      <span className="block text-sm font-semibold text-[#1e2b45]">
+                      <span className="block text-sm font-semibold text-[#1d2824]">
                         {ROLE_COPY[role.key].title}
                       </span>
-                      <span className="mt-1 block text-xs leading-5 text-[#68788e]">
+                      <span className="mt-1 block text-xs leading-5 text-[#66736e]">
                         {ROLE_COPY[role.key].description}
                       </span>
                       <span className="mt-2 flex flex-wrap gap-1.5">
@@ -266,29 +266,29 @@ export default async function PlatformPeoplePage({
               </div>
             </fieldset>
 
-            <label className="block text-sm font-semibold text-[#40516a]">
+            <label className="block text-sm font-semibold text-[#43524c]">
               Nota interna
               <input
                 name="reason"
                 placeholder="Es. supporto operativo onboarding aziende"
-                className="mt-2 h-11 w-full rounded-xl border border-[#dbe5f1] bg-white px-3 text-sm outline-none focus:border-[#9bbcf0]"
+                className="mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm outline-none focus:border-[#9bbcf0]"
               />
             </label>
 
-            <button className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#2f6fed] px-4 text-sm font-semibold text-white hover:bg-[#245ed1]">
+            <button className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657]">
               Crea invito e invia email
             </button>
           </form>
         </div>
 
-        <div className="rounded-3xl border border-[#e1e8f2] bg-white p-6">
+        <div className="rounded-3xl border border-[#dce2df] bg-white p-6">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">
             Authority model
           </p>
-          <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">
+          <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">
             Role template disponibili
           </h2>
-          <p className="mt-2 text-sm leading-6 text-[#68788e]">
+          <p className="mt-2 text-sm leading-6 text-[#66736e]">
             Nessun template può contenere permission root-only. La gestione
             staff e le impostazioni globali restano esclusivamente al Platform
             Owner.
@@ -305,19 +305,19 @@ export default async function PlatformPeoplePage({
               return (
                 <details
                   key={role.key}
-                  className="rounded-2xl border border-[#e1e8f2] bg-[#f8fbff] p-4"
+                  className="rounded-2xl border border-[#dce2df] bg-[#f6f8f7] p-4"
                 >
                   <summary className="cursor-pointer list-none">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-sm font-semibold text-[#1e2b45]">
+                        <p className="text-sm font-semibold text-[#1d2824]">
                           {ROLE_COPY[role.key].title}
                         </p>
-                        <p className="mt-1 text-xs leading-5 text-[#68788e]">
+                        <p className="mt-1 text-xs leading-5 text-[#66736e]">
                           {ROLE_COPY[role.key].description}
                         </p>
                       </div>
-                      <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[10px] font-semibold text-[#68788e]">
+                      <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[10px] font-semibold text-[#66736e]">
                         {permissions.length} permessi
                       </span>
                     </div>
@@ -335,7 +335,7 @@ export default async function PlatformPeoplePage({
                           className="flex items-center justify-between gap-3 rounded-xl bg-white px-3 py-2"
                         >
                           <span className="min-w-0">
-                            <span className="block truncate text-xs font-semibold text-[#40516a]">
+                            <span className="block truncate text-xs font-semibold text-[#43524c]">
                               {permission.key}
                             </span>
                             <span className="mt-0.5 block text-[11px] text-[#8290a4]">
@@ -356,26 +356,26 @@ export default async function PlatformPeoplePage({
         </div>
       </section>
 
-      <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
+      <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
               Root account
             </p>
-            <h2 className="mt-2 text-xl font-semibold text-[#1e2b45]">
+            <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
               Platform Owner
             </h2>
           </div>
-          <span className="rounded-full border border-[#d7e5ff] bg-[#eaf2ff] px-3 py-1.5 text-xs font-semibold text-[#2f6fed]">
+          <span className="rounded-full border border-[#d9e8e2] bg-[#e1ece8] px-3 py-1.5 text-xs font-semibold text-[#1a5144]">
             Non delegabile
           </span>
         </div>
         <div className="mt-5 grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center">
           <div>
-            <p className="text-sm font-semibold text-[#1e2b45]">
+            <p className="text-sm font-semibold text-[#1d2824]">
               {context.viewerLabel}
             </p>
-            <p className="mt-1 text-xs leading-5 text-[#68788e]">
+            <p className="mt-1 text-xs leading-5 text-[#66736e]">
               Bypass su tutte le permission conosciute. Non può essere sospeso,
               revocato o trasformato in Platform Staff da questa console.
             </p>
@@ -391,10 +391,10 @@ export default async function PlatformPeoplePage({
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">
             Delegated administration
           </p>
-          <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">
+          <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">
             Platform Staff
           </h2>
-          <p className="mt-1 text-sm text-[#68788e]">
+          <p className="mt-1 text-sm text-[#66736e]">
             {staff.length
               ? String(staff.length) + " identità amministrative registrate."
               : "Nessun account Platform Staff è stato ancora attivato."}
@@ -404,7 +404,7 @@ export default async function PlatformPeoplePage({
         {staff.map((member) => (
           <article
             key={member.user_id}
-            className="rounded-2xl border border-[#e1e8f2] bg-white p-5"
+            className="rounded-2xl border border-[#dce2df] bg-white p-5"
           >
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="min-w-0">
@@ -420,13 +420,13 @@ export default async function PlatformPeoplePage({
                   {member.roles.map((role) => (
                     <span
                       key={role}
-                      className="rounded-full border border-[#dce6f3] bg-[#f8fbff] px-2.5 py-1 text-[11px] font-semibold text-[#5f718a]"
+                      className="rounded-full border border-[#dce6f3] bg-[#f6f8f7] px-2.5 py-1 text-[11px] font-semibold text-[#5f718a]"
                     >
                       {roleLabel(role)}
                     </span>
                   ))}
                 </div>
-                <h3 className="mt-3 break-all text-base font-semibold text-[#1e2b45]">
+                <h3 className="mt-3 break-all text-base font-semibold text-[#1d2824]">
                   {member.email}
                 </h3>
                 <p className="mt-1 text-xs text-[#8290a4]">
@@ -438,12 +438,12 @@ export default async function PlatformPeoplePage({
               {member.status !== "revoked" ? (
                 <div className="flex flex-wrap gap-2">
                   <details className="relative">
-                    <summary className="cursor-pointer list-none rounded-xl border border-[#dbe5f1] bg-white px-3 py-2 text-xs font-semibold text-[#40516a] hover:border-[#bdd1f4]">
+                    <summary className="cursor-pointer list-none rounded-xl border border-[#d7dfdb] bg-white px-3 py-2 text-xs font-semibold text-[#43524c] hover:border-[#b8d2c8]">
                       Modifica ruoli
                     </summary>
                     <form
                       action={updatePlatformStaffRoles}
-                      className="mt-2 w-full min-w-[300px] rounded-2xl border border-[#dbe5f1] bg-[#f8fbff] p-4 shadow-sm sm:w-[420px]"
+                      className="mt-2 w-full min-w-[300px] rounded-2xl border border-[#d7dfdb] bg-[#f6f8f7] p-4 shadow-sm sm:w-[420px]"
                     >
                       <input
                         type="hidden"
@@ -467,7 +467,7 @@ export default async function PlatformPeoplePage({
                               className="mt-0.5 h-4 w-4"
                             />
                             <span>
-                              <span className="block text-xs font-semibold text-[#40516a]">
+                              <span className="block text-xs font-semibold text-[#43524c]">
                                 {ROLE_COPY[role.key].title}
                               </span>
                               <span className="mt-0.5 block text-[11px] text-[#8290a4]">
@@ -481,19 +481,19 @@ export default async function PlatformPeoplePage({
                         name="reason"
                         required
                         placeholder="Motivazione modifica ruoli"
-                        className="mt-3 h-10 w-full rounded-xl border border-[#dbe5f1] bg-white px-3 text-xs outline-none"
+                        className="mt-3 h-10 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-xs outline-none"
                       />
-                      <button className="mt-3 w-full rounded-xl bg-[#2f6fed] px-3 py-2.5 text-xs font-semibold text-white">
+                      <button className="mt-3 w-full rounded-xl bg-[#1a5144] px-3 py-2.5 text-xs font-semibold text-white">
                         Salva ruoli
                       </button>
                     </form>
                   </details>
 
                   <details>
-                    <summary className="cursor-pointer list-none rounded-xl border border-[#dbe5f1] bg-white px-3 py-2 text-xs font-semibold text-[#40516a] hover:border-[#bdd1f4]">
+                    <summary className="cursor-pointer list-none rounded-xl border border-[#d7dfdb] bg-white px-3 py-2 text-xs font-semibold text-[#43524c] hover:border-[#b8d2c8]">
                       Accesso
                     </summary>
-                    <div className="mt-2 min-w-[280px] rounded-2xl border border-[#dbe5f1] bg-[#f8fbff] p-4">
+                    <div className="mt-2 min-w-[280px] rounded-2xl border border-[#d7dfdb] bg-[#f6f8f7] p-4">
                       {member.status === "suspended" ? (
                         <form action={setPlatformStaffStatus}>
                           <input
@@ -506,7 +506,7 @@ export default async function PlatformPeoplePage({
                             name="reason"
                             required
                             placeholder="Motivazione riattivazione"
-                            className="h-10 w-full rounded-xl border border-[#dbe5f1] bg-white px-3 text-xs outline-none"
+                            className="h-10 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-xs outline-none"
                           />
                           <button className="mt-2 w-full rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-xs font-semibold text-emerald-700">
                             Riattiva accesso
@@ -528,7 +528,7 @@ export default async function PlatformPeoplePage({
                             name="reason"
                             required
                             placeholder="Motivazione sospensione"
-                            className="h-10 w-full rounded-xl border border-[#dbe5f1] bg-white px-3 text-xs outline-none"
+                            className="h-10 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-xs outline-none"
                           />
                           <button className="mt-2 w-full rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs font-semibold text-amber-800">
                             Sospendi accesso
@@ -565,17 +565,17 @@ export default async function PlatformPeoplePage({
         ))}
       </section>
 
-      <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
+      <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">
               Invitation lifecycle
             </p>
-            <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">
+            <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">
               Inviti pendenti
             </h2>
           </div>
-          <span className="rounded-full bg-[#f1f5fa] px-3 py-1.5 text-xs font-semibold text-[#68788e]">
+          <span className="rounded-full bg-[#f1f5fa] px-3 py-1.5 text-xs font-semibold text-[#66736e]">
             {pendingInvitations.length}
           </span>
         </div>
@@ -589,18 +589,18 @@ export default async function PlatformPeoplePage({
             pendingInvitations.map((invitation) => (
               <article
                 key={invitation.invitation_id}
-                className="rounded-2xl border border-[#e1e8f2] bg-[#f8fbff] p-4"
+                className="rounded-2xl border border-[#dce2df] bg-[#f6f8f7] p-4"
               >
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div>
-                    <p className="font-semibold text-[#1e2b45]">
+                    <p className="font-semibold text-[#1d2824]">
                       {invitation.email}
                     </p>
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {invitation.roles.map((role) => (
                         <span
                           key={role}
-                          className="rounded-full bg-white px-2.5 py-1 text-[10px] font-semibold text-[#68788e]"
+                          className="rounded-full bg-white px-2.5 py-1 text-[10px] font-semibold text-[#66736e]"
                         >
                           {roleLabel(role)}
                         </span>
@@ -619,7 +619,7 @@ export default async function PlatformPeoplePage({
                         name="email"
                         value={invitation.email}
                       />
-                      <button className="w-full rounded-xl border border-[#dbe5f1] bg-white px-3 py-2 text-xs font-semibold text-[#40516a] hover:border-[#bdd1f4]">
+                      <button className="w-full rounded-xl border border-[#d7dfdb] bg-white px-3 py-2 text-xs font-semibold text-[#43524c] hover:border-[#b8d2c8]">
                         Reinvia email
                       </button>
                     </form>
@@ -638,7 +638,7 @@ export default async function PlatformPeoplePage({
                         required
                         aria-label="Motivazione revoca invito"
                         placeholder="Motivazione"
-                        className="h-9 min-w-0 rounded-xl border border-[#dbe5f1] bg-white px-3 text-xs outline-none"
+                        className="h-9 min-w-0 rounded-xl border border-[#d7dfdb] bg-white px-3 text-xs outline-none"
                       />
                       <button className="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">
                         Revoca
@@ -653,7 +653,7 @@ export default async function PlatformPeoplePage({
 
         {invitationHistory.length ? (
           <details className="mt-5 border-t border-[#e8eef7] pt-5">
-            <summary className="cursor-pointer text-sm font-semibold text-[#40516a]">
+            <summary className="cursor-pointer text-sm font-semibold text-[#43524c]">
               Storico inviti ({invitationHistory.length})
             </summary>
             <div className="mt-3 space-y-2">
@@ -662,7 +662,7 @@ export default async function PlatformPeoplePage({
                   key={invitation.invitation_id}
                   className="flex flex-col gap-1 rounded-xl bg-[#f8fafc] px-4 py-3 text-xs sm:flex-row sm:items-center sm:justify-between"
                 >
-                  <span className="font-semibold text-[#40516a]">
+                  <span className="font-semibold text-[#43524c]">
                     {invitation.email}
                   </span>
                   <span className="text-[#8290a4]">
