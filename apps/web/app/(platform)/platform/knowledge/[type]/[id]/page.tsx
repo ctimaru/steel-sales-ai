@@ -35,10 +35,10 @@ function publicHref(type: KnowledgeContentType, slug: string) {
 function readonlyField(label: string, value: string | null | undefined) {
   return (
     <div>
-      <p className="text-xs font-bold uppercase tracking-wide text-[#91a0b2]">
+      <p className="text-xs font-bold uppercase tracking-wide text-[#87938e]">
         {label}
       </p>
-      <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-[#40516a]">
+      <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-[#43524c]">
         {value || "—"}
       </p>
     </div>
@@ -68,26 +68,26 @@ function DraftReadOnly({
         : null}
       {readonlyField("Applicazioni tipiche", payload.typical_applications)}
       <div>
-        <p className="text-xs font-bold uppercase tracking-wide text-[#91a0b2]">
+        <p className="text-xs font-bold uppercase tracking-wide text-[#87938e]">
           Sezioni editoriali
         </p>
-        <pre className="mt-2 overflow-x-auto rounded-xl bg-[#f6f8fb] p-4 text-xs leading-5 text-[#40516a]">
+        <pre className="mt-2 overflow-x-auto rounded-xl bg-[#f6f8fb] p-4 text-xs leading-5 text-[#43524c]">
           {pretty(payload.editorial_sections)}
         </pre>
       </div>
       <div>
-        <p className="text-xs font-bold uppercase tracking-wide text-[#91a0b2]">
+        <p className="text-xs font-bold uppercase tracking-wide text-[#87938e]">
           FAQ
         </p>
-        <pre className="mt-2 overflow-x-auto rounded-xl bg-[#f6f8fb] p-4 text-xs leading-5 text-[#40516a]">
+        <pre className="mt-2 overflow-x-auto rounded-xl bg-[#f6f8fb] p-4 text-xs leading-5 text-[#43524c]">
           {pretty(payload.faq)}
         </pre>
       </div>
       <div>
-        <p className="text-xs font-bold uppercase tracking-wide text-[#91a0b2]">
+        <p className="text-xs font-bold uppercase tracking-wide text-[#87938e]">
           Fonti
         </p>
-        <pre className="mt-2 overflow-x-auto rounded-xl bg-[#f6f8fb] p-4 text-xs leading-5 text-[#40516a]">
+        <pre className="mt-2 overflow-x-auto rounded-xl bg-[#f6f8fb] p-4 text-xs leading-5 text-[#43524c]">
           {pretty(payload.source_references)}
         </pre>
       </div>
@@ -142,7 +142,7 @@ export default async function PlatformKnowledgeDetailPage({
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <Link
           href="/platform/knowledge"
-          className="text-xs font-semibold text-[#2f6fed]"
+          className="text-xs font-semibold text-[#1a5144]"
         >
           ← Knowledge Operations
         </Link>
@@ -154,7 +154,7 @@ export default async function PlatformKnowledgeDetailPage({
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#18263d] sm:text-4xl">
               {page.label}
             </h1>
-            <p className="mt-2 text-sm text-[#66768d]">
+            <p className="mt-2 text-sm text-[#66736e]">
               {page.subtitle || page.slug}
             </p>
           </div>
@@ -188,9 +188,9 @@ export default async function PlatformKnowledgeDetailPage({
         ].map(([label, value]) => (
           <div
             key={String(label)}
-            className="rounded-2xl border border-[#e1e8f2] bg-white p-4"
+            className="rounded-2xl border border-[#dce2df] bg-white p-4"
           >
-            <p className="text-lg font-semibold text-[#1e2b45]">
+            <p className="text-lg font-semibold text-[#1d2824]">
               {String(value)}
             </p>
             <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-[#8fa1a9]">
@@ -217,16 +217,16 @@ export default async function PlatformKnowledgeDetailPage({
       ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.55fr)]">
-        <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5 sm:p-6">
+        <section className="rounded-2xl border border-[#dce2df] bg-white p-5 sm:p-6">
           <div className="mb-5">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
               Draft v{page.draft_version}
             </p>
-            <h2 className="mt-2 text-xl font-semibold text-[#1e2b45]">
+            <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
               Copia editoriale
             </h2>
             {page.workflow_status === "in_review" ? (
-              <p className="mt-2 text-sm text-[#68788e]">
+              <p className="mt-2 text-sm text-[#66736e]">
                 Bozza congelata in revisione. Un Editor potrà modificarla di nuovo
                 dopo una richiesta di modifiche oppure dopo la pubblicazione del
                 ciclo corrente.
@@ -246,7 +246,7 @@ export default async function PlatformKnowledgeDetailPage({
                 <input
                   name="seo_title"
                   defaultValue={text(page.draft_payload.seo_title)}
-                  className="mt-2 h-11 w-full rounded-xl border border-[#dbe5f1] px-3 text-sm outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                  className="mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] px-3 text-sm outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#e1ece8]"
                 />
               </label>
 
@@ -258,7 +258,7 @@ export default async function PlatformKnowledgeDetailPage({
                   name="seo_description"
                   rows={3}
                   defaultValue={text(page.draft_payload.seo_description)}
-                  className="mt-2 w-full rounded-xl border border-[#dbe5f1] px-3 py-2 text-sm leading-6 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                  className="mt-2 w-full rounded-xl border border-[#d7dfdb] px-3 py-2 text-sm leading-6 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#e1ece8]"
                 />
               </label>
 
@@ -270,7 +270,7 @@ export default async function PlatformKnowledgeDetailPage({
                   name="intro"
                   rows={6}
                   defaultValue={text(page.draft_payload.intro)}
-                  className="mt-2 w-full rounded-xl border border-[#dbe5f1] px-3 py-2 text-sm leading-6 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                  className="mt-2 w-full rounded-xl border border-[#d7dfdb] px-3 py-2 text-sm leading-6 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#e1ece8]"
                 />
               </label>
 
@@ -284,7 +284,7 @@ export default async function PlatformKnowledgeDetailPage({
                       name="what_it_covers"
                       rows={7}
                       defaultValue={text(page.draft_payload.what_it_covers)}
-                      className="mt-2 w-full rounded-xl border border-[#dbe5f1] px-3 py-2 text-sm leading-6 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                      className="mt-2 w-full rounded-xl border border-[#d7dfdb] px-3 py-2 text-sm leading-6 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#e1ece8]"
                     />
                   </label>
                   <label className="block">
@@ -295,7 +295,7 @@ export default async function PlatformKnowledgeDetailPage({
                       name="how_to_read"
                       rows={6}
                       defaultValue={text(page.draft_payload.how_to_read)}
-                      className="mt-2 w-full rounded-xl border border-[#dbe5f1] px-3 py-2 text-sm leading-6 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                      className="mt-2 w-full rounded-xl border border-[#d7dfdb] px-3 py-2 text-sm leading-6 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#e1ece8]"
                     />
                   </label>
                 </>
@@ -310,7 +310,7 @@ export default async function PlatformKnowledgeDetailPage({
                     defaultValue={text(
                       page.draft_payload.designation_explanation,
                     )}
-                    className="mt-2 w-full rounded-xl border border-[#dbe5f1] px-3 py-2 text-sm leading-6 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                    className="mt-2 w-full rounded-xl border border-[#d7dfdb] px-3 py-2 text-sm leading-6 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#e1ece8]"
                   />
                 </label>
               )}
@@ -323,7 +323,7 @@ export default async function PlatformKnowledgeDetailPage({
                   name="typical_applications"
                   rows={5}
                   defaultValue={text(page.draft_payload.typical_applications)}
-                  className="mt-2 w-full rounded-xl border border-[#dbe5f1] px-3 py-2 text-sm leading-6 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                  className="mt-2 w-full rounded-xl border border-[#d7dfdb] px-3 py-2 text-sm leading-6 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#e1ece8]"
                 />
               </label>
 
@@ -335,7 +335,7 @@ export default async function PlatformKnowledgeDetailPage({
                   name="editorial_sections_json"
                   rows={12}
                   defaultValue={pretty(page.draft_payload.editorial_sections)}
-                  className="mt-2 w-full rounded-xl border border-[#dbe5f1] px-3 py-2 font-mono text-xs leading-5 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                  className="mt-2 w-full rounded-xl border border-[#d7dfdb] px-3 py-2 font-mono text-xs leading-5 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#e1ece8]"
                 />
               </label>
 
@@ -347,7 +347,7 @@ export default async function PlatformKnowledgeDetailPage({
                   name="faq_json"
                   rows={10}
                   defaultValue={pretty(page.draft_payload.faq)}
-                  className="mt-2 w-full rounded-xl border border-[#dbe5f1] px-3 py-2 font-mono text-xs leading-5 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                  className="mt-2 w-full rounded-xl border border-[#d7dfdb] px-3 py-2 font-mono text-xs leading-5 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#e1ece8]"
                 />
               </label>
 
@@ -359,7 +359,7 @@ export default async function PlatformKnowledgeDetailPage({
                   name="source_references_json"
                   rows={9}
                   defaultValue={pretty(page.draft_payload.source_references)}
-                  className="mt-2 w-full rounded-xl border border-[#dbe5f1] px-3 py-2 font-mono text-xs leading-5 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                  className="mt-2 w-full rounded-xl border border-[#d7dfdb] px-3 py-2 font-mono text-xs leading-5 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#e1ece8]"
                 />
               </label>
 
@@ -373,7 +373,7 @@ export default async function PlatformKnowledgeDetailPage({
                   defaultValue={(page.draft_payload.related_slugs ?? []).join(
                     "\n",
                   )}
-                  className="mt-2 w-full rounded-xl border border-[#dbe5f1] px-3 py-2 font-mono text-xs leading-5 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                  className="mt-2 w-full rounded-xl border border-[#d7dfdb] px-3 py-2 font-mono text-xs leading-5 outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#e1ece8]"
                 />
               </label>
 
@@ -384,13 +384,13 @@ export default async function PlatformKnowledgeDetailPage({
                 <input
                   name="note"
                   placeholder="Motivo o contesto della revisione"
-                  className="mt-2 h-11 w-full rounded-xl border border-[#dbe5f1] px-3 text-sm outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#eaf2ff]"
+                  className="mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] px-3 text-sm outline-none focus:border-[#7aa7f6] focus:ring-4 focus:ring-[#e1ece8]"
                 />
               </label>
 
               <button
                 type="submit"
-                className="rounded-xl bg-[#2f6fed] px-4 py-2.5 text-sm font-semibold text-white"
+                className="rounded-xl bg-[#1a5144] px-4 py-2.5 text-sm font-semibold text-white"
               >
                 Salva bozza
               </button>
@@ -401,16 +401,16 @@ export default async function PlatformKnowledgeDetailPage({
         </section>
 
         <aside className="space-y-4">
-          <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">
+          <section className="rounded-2xl border border-[#dce2df] bg-white p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
               Workflow
             </p>
-            <h2 className="mt-2 text-lg font-semibold text-[#1e2b45]">
+            <h2 className="mt-2 text-lg font-semibold text-[#1d2824]">
               Controlli editoriali
             </h2>
 
             {page.review_note ? (
-              <div className="mt-4 rounded-xl bg-[#f8fafd] p-3 text-xs leading-5 text-[#68788e]">
+              <div className="mt-4 rounded-xl bg-[#f8fafd] p-3 text-xs leading-5 text-[#66736e]">
                 <strong>Ultima nota review:</strong> {page.review_note}
               </div>
             ) : null}
@@ -422,7 +422,7 @@ export default async function PlatformKnowledgeDetailPage({
                 <input
                   name="note"
                   placeholder="Nota per il reviewer"
-                  className="h-10 w-full rounded-xl border border-[#dbe5f1] px-3 text-sm outline-none"
+                  className="h-10 w-full rounded-xl border border-[#d7dfdb] px-3 text-sm outline-none"
                 />
                 <button className="w-full rounded-xl bg-cyan-700 px-3 py-2.5 text-sm font-semibold text-white">
                   Invia in revisione
@@ -438,7 +438,7 @@ export default async function PlatformKnowledgeDetailPage({
                   name="note"
                   rows={3}
                   placeholder="Nota di revisione"
-                  className="w-full rounded-xl border border-[#dbe5f1] px-3 py-2 text-sm outline-none"
+                  className="w-full rounded-xl border border-[#d7dfdb] px-3 py-2 text-sm outline-none"
                 />
                 <div className="grid gap-2">
                   <button
@@ -467,12 +467,12 @@ export default async function PlatformKnowledgeDetailPage({
                 <input
                   name="note"
                   placeholder="Nota pubblicazione"
-                  className="h-10 w-full rounded-xl border border-[#dbe5f1] px-3 text-sm outline-none"
+                  className="h-10 w-full rounded-xl border border-[#d7dfdb] px-3 text-sm outline-none"
                 />
                 <button
                   name="action"
                   value="publish"
-                  className="w-full rounded-xl bg-[#2f6fed] px-3 py-2.5 text-sm font-semibold text-white"
+                  className="w-full rounded-xl bg-[#1a5144] px-3 py-2.5 text-sm font-semibold text-white"
                 >
                   Pubblica draft v{page.draft_version}
                 </button>
@@ -510,11 +510,11 @@ export default async function PlatformKnowledgeDetailPage({
             ) : null}
           </section>
 
-          <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5">
+          <section className="rounded-2xl border border-[#dce2df] bg-white p-5">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7a899d]">
               Versioning
             </p>
-            <dl className="mt-3 space-y-2 text-sm text-[#68788e]">
+            <dl className="mt-3 space-y-2 text-sm text-[#66736e]">
               <div className="flex justify-between gap-3">
                 <dt>Draft</dt>
                 <dd className="font-semibold text-[#34445c]">
