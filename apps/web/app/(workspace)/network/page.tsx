@@ -299,7 +299,7 @@ export default async function NetworkDirectoryPage({
                     ) : null}
                     {company.claimed_status === "unclaimed" ? (
                       <span className="rounded-full bg-[#fff4e8] px-2.5 py-1 text-[10px] font-bold text-[#9a4e22]">
-                        Rivendicabile
+                        Profilo rivendicabile
                       </span>
                     ) : null}
                   </div>
