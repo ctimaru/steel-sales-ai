@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { requirePlatformContext } from "@/lib/workspace-context";
+import { requirePlatformPermission } from "@/lib/platform-admin";
 import { createClient } from "@/lib/supabase/server";
 
 function discoveryPath(key: "message" | "error", value: string) {
@@ -15,7 +15,7 @@ function candidateId(formData: FormData) {
 }
 
 export async function startCompanyDiscovery(formData: FormData) {
-  await requirePlatformContext();
+  await requirePlatformPermission("discovery.run");
 
   const countryCode = String(formData.get("country_code") ?? "IT")
     .trim()
@@ -94,10 +94,16 @@ export async function startCompanyDiscovery(formData: FormData) {
 }
 
 export async function reviewCompanyDiscovery(formData: FormData) {
-  await requirePlatformContext();
-
   const id = candidateId(formData);
   const decision = String(formData.get("decision") ?? "").trim();
+
+  await requirePlatformPermission("discovery.review");
+  if (decision === "publish_new") {
+    await requirePlatformPermission("discovery.publish");
+  }
+  if (decision === "enrich_existing") {
+    await requirePlatformPermission("discovery.enrich");
+  }
   const existingCompanyId =
     String(formData.get("existing_company_id") ?? "").trim() || null;
   const note = String(formData.get("note") ?? "").trim() || null;
@@ -177,7 +183,7 @@ export async function reviewCompanyDiscovery(formData: FormData) {
 
 
 export async function closeExactDiscoveryDuplicates() {
-  await requirePlatformContext();
+  await requirePlatformPermission("discovery.close_duplicates");
 
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("p3_close_exact_discovery_duplicates", {
