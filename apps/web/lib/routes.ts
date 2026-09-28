@@ -74,7 +74,10 @@ export const appRoutes = {
 
   platform: {
     home: "/platform",
+    people: "/platform/people",
     registrations: "/platform/registrations",
+    discovery: "/platform/company-discovery",
+    claims: "/platform/company-claims",
     registration: (id: string) => `/platform/registrations/${id}`,
     knowledge: "/platform/knowledge",
     knowledgePage: (type: "standard" | "grade", id: string) =>
