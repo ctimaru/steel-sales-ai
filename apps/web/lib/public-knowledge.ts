@@ -163,6 +163,38 @@ async function rpcRows<T>(
   return Array.isArray(data) ? (data as T[]) : [];
 }
 
+async function rpcPagedRows<T>(
+  functionName: string,
+  baseArgs: Record<string, unknown>,
+  pageSize = 500,
+  maxPages = 100,
+): Promise<T[]> {
+  if (!isConfigured()) return [];
+
+  const supabase = createPublicSupabaseClient();
+  if (!supabase) return [];
+
+  const rows: T[] = [];
+  for (let page = 0; page < maxPages; page += 1) {
+    const { data, error } = await supabase.rpc(functionName, {
+      ...baseArgs,
+      p_limit: pageSize,
+      p_offset: page * pageSize,
+    });
+
+    if (error) {
+      console.error(`Public Knowledge RPC ${functionName} failed:`, error.message);
+      return rows;
+    }
+
+    const chunk = Array.isArray(data) ? (data as T[]) : [];
+    rows.push(...chunk);
+    if (chunk.length < pageSize) break;
+  }
+
+  return rows;
+}
+
 export async function listPublicStandards(query?: string) {
   return rpcRows<PublicKnowledgeStandardSummary>("k2_public_knowledge_standards", {
     p_query: query?.trim() || null,
@@ -252,16 +284,78 @@ export type PublicTubeDimension = PublicTubeDimensionSummary & {
 };
 
 export async function listPublicTubeDimensionPages(productFamily?: string) {
-  return rpcRows<PublicTubeDimensionSummary>("k6_public_tube_dimension_pages", {
+  return rpcPagedRows<PublicTubeDimensionSummary>("k6_public_tube_dimension_pages", {
     p_product_family: productFamily?.trim() || null,
-    p_limit: 500,
-    p_offset: 0,
   });
 }
 
 export async function getPublicTubeDimension(slug: string) {
   const rows = await rpcRows<PublicTubeDimension>("k6_public_tube_dimension_page", {
     p_slug: slug,
+  });
+  return rows[0] ?? null;
+}
+
+
+export type PublicTubeFamilyHub = {
+  family_slug: "tondo" | "quadro" | "rettangolare";
+  product_family: PublicTubeDimensionSummary["product_family"];
+  dimension_count: number;
+  size_hub_count: number;
+  min_thickness_mm: number;
+  max_thickness_mm: number;
+  min_weight_kg_m: number;
+  max_weight_kg_m: number;
+  source_count: number;
+  published_at: string;
+};
+
+export type PublicTubeSizeHubSummary = {
+  family_slug: PublicTubeFamilyHub["family_slug"];
+  product_family: PublicTubeDimensionSummary["product_family"];
+  size_slug: string;
+  outer_diameter_mm: number | null;
+  width_mm: number | null;
+  height_mm: number | null;
+  variant_count: number;
+  min_thickness_mm: number;
+  max_thickness_mm: number;
+  min_weight_kg_m: number;
+  max_weight_kg_m: number;
+  source_count: number;
+  published_at: string;
+};
+
+export type PublicTubeSizeVariant = {
+  dimension_slug: string;
+  thickness_mm: number;
+  weight_kg_m: number;
+  weight_method: string;
+  density_kg_m3: number | null;
+  source_provider: string;
+  source_name: string | null;
+  source_url: string;
+  published_at: string;
+};
+
+export type PublicTubeSizeHub = PublicTubeSizeHubSummary & {
+  variants: PublicTubeSizeVariant[];
+};
+
+export async function listPublicTubeFamilyHubs() {
+  return rpcRows<PublicTubeFamilyHub>("k7_public_tube_family_hubs", {});
+}
+
+export async function listPublicTubeSizeHubs(familySlug?: string) {
+  return rpcRows<PublicTubeSizeHubSummary>("k7_public_tube_size_hubs", {
+    p_family_slug: familySlug?.trim() || null,
+  });
+}
+
+export async function getPublicTubeSizeHub(familySlug: string, sizeSlug: string) {
+  const rows = await rpcRows<PublicTubeSizeHub>("k7_public_tube_size_hub", {
+    p_family_slug: familySlug,
+    p_size_slug: sizeSlug,
   });
   return rows[0] ?? null;
 }
