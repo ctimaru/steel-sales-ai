@@ -47,7 +47,7 @@ export function PlatformShell({
           ) : null}
 
           <div className="sidebar-scroll flex-1 overflow-y-auto p-3">
-            <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#9ba8b9]">
+            <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#8b9792]">
               Platform
             </p>
             <PlatformNavigation
@@ -55,7 +55,7 @@ export function PlatformShell({
               isPlatformOwner={isPlatformOwner}
             />
 
-            <div className="mt-6 rounded-2xl border border-[#e1e9f4] bg-white/80 p-4">
+            <div className="mt-6 rounded-2xl border border-[#dfe5e2] bg-white/80 p-4">
               <p className="text-xs font-semibold text-[#47554f]">Separazione dei contesti</p>
               <p className="mt-2 text-xs leading-5 text-[#74817c]">
                 La Platform Console gestisce governance e processi globali. L&apos;autorità Platform non apre automaticamente la Commercial Memory privata dei tenant.
@@ -92,7 +92,7 @@ export function PlatformShell({
               {isPlatformOwner ? (
                 <Link
                   href="/dashboard"
-                  className="hidden rounded-full border border-[#d7dfdb] bg-white px-3.5 py-2 text-xs font-semibold text-[#40516a] hover:border-[#b8d2c8] hover:bg-[#f0f4f2] hover:text-[#173f35] sm:inline-flex"
+                  className="hidden rounded-full border border-[#d7dfdb] bg-white px-3.5 py-2 text-xs font-semibold text-[#43524c] hover:border-[#b8d2c8] hover:bg-[#f0f4f2] hover:text-[#173f35] sm:inline-flex"
                 >
                   Company Workspace
                 </Link>
