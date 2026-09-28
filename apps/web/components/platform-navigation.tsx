@@ -48,10 +48,17 @@ const platformNav = [
     permission: "knowledge.read_drafts",
     staffEnabled: true,
   },
+  {
+    href: "/platform/network-trust",
+    label: "Network Trust",
+    icon: "trust",
+    permission: "network_trust.read",
+    staffEnabled: true,
+  },
 ] as const satisfies readonly {
   href: string;
   label: string;
-  icon: "home" | "people" | "registrations" | "discovery" | "claims" | "knowledge";
+  icon: "home" | "people" | "registrations" | "discovery" | "claims" | "knowledge" | "trust";
   permission: PlatformPermissionKey;
   staffEnabled: boolean;
 }[];
@@ -98,6 +105,15 @@ function NavIcon({ name }: { name: (typeof platformNav)[number]["icon"] }) {
       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
         <path d="M5 4.25h10.25A2.75 2.75 0 0 1 18 7v12.75H7.75A2.75 2.75 0 0 1 5 17V4.25Z" />
         <path d="M7.75 16.75H18M8.5 8h6M8.5 11h6" />
+      </svg>
+    );
+  }
+
+  if (name === "trust") {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M12 3.5 19 6.25v5.5c0 4.45-2.8 7.05-7 8.25-4.2-1.2-7-3.8-7-8.25v-5.5L12 3.5Z" />
+        <path d="M9 12.25 11 14l4.25-4.5M12 6.75v1.5" />
       </svg>
     );
   }
