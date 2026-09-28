@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { getAdminCompanyClaimQueue } from "@/lib/company-claims";
+import { getPlatformKnowledgeQueue } from "@/lib/platform-knowledge";
 import {
   getRegistrationQueue,
   requirePlatformConsoleContext,
@@ -11,8 +12,10 @@ export default async function PlatformHomePage() {
   const canReadRegistrations = context.permissions.includes("registrations.read");
   const canReadDiscovery = context.permissions.includes("discovery.read");
   const canReadClaims = context.permissions.includes("claims.read");
+  const canReadKnowledge = context.permissions.includes("knowledge.read_drafts");
   const queue = canReadRegistrations ? await getRegistrationQueue() : null;
   const claimQueue = canReadClaims ? await getAdminCompanyClaimQueue() : null;
+  const knowledgeQueue = canReadKnowledge ? await getPlatformKnowledgeQueue() : null;
   const counts = (queue?.applications ?? []).reduce<Record<string, number>>(
     (acc, application) => {
       acc[application.application_status] =
@@ -158,9 +161,26 @@ export default async function PlatformHomePage() {
             </p>
           </Link>
         ) : null}
+
+        {canReadKnowledge ? (
+          <Link
+            href="/platform/knowledge"
+            className="rounded-2xl border border-[#e1e8f2] bg-white p-6 transition hover:border-[#bdd1f4] hover:shadow-sm"
+          >
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">
+              Public Knowledge
+            </p>
+            <h2 className="mt-3 text-lg font-semibold text-[#1e2b45]">
+              Knowledge Operations
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[#68788e]">
+              {knowledgeQueue?.inReview ?? 0} in revisione · {knowledgeQueue?.approved ?? 0} approvati · {knowledgeQueue?.published ?? 0} live.
+            </p>
+          </Link>
+        ) : null}
       </section>
 
-      {!context.is_platform_owner && !canReadRegistrations && !canReadDiscovery && !canReadClaims ? (
+      {!context.is_platform_owner && !canReadRegistrations && !canReadDiscovery && !canReadClaims && !canReadKnowledge ? (
         <section className="rounded-3xl border border-dashed border-[#cfdbea] bg-white/80 px-6 py-10 text-center">
           <p className="font-semibold text-[#1e2b45]">
             Nessun modulo operativo ancora abilitato

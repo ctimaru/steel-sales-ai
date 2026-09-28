@@ -386,4 +386,8 @@ export const PLATFORM_ACTION_PERMISSION_CONTRACT = {
   approveCompanyClaim: "claims.approve",
   rejectCompanyClaim: "claims.reject",
   revokeCompanyClaim: "claims.revoke",
+  saveKnowledgeDraft: "knowledge.edit",
+  submitKnowledgeReview: "knowledge.edit",
+  reviewKnowledgeDraft: "knowledge.review",
+  publishKnowledgePage: "knowledge.publish",
 } as const satisfies Record<string, PlatformPermissionKey>;
