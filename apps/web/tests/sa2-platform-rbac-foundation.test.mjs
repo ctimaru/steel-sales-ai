@@ -18,6 +18,10 @@ const platformLayout = fs.readFileSync(
   new URL("../app/(platform)/platform/layout.tsx", import.meta.url),
   "utf8",
 );
+const workspaceContext = fs.readFileSync(
+  new URL("../lib/workspace-context.ts", import.meta.url),
+  "utf8",
+);
 
 test("SA2 implements the RBAC schema without turning Platform Owner into a staff role", () => {
   assert.match(migration, /create table public\.platform_permissions/);
@@ -86,7 +90,8 @@ test("SA2 exposes typed web permission and access-context helpers", () => {
 });
 
 test("SA2 does not cut over existing Platform routes before delegated-domain acceptance", () => {
-  assert.match(platformLayout, /requirePlatformSuperadmin/);
+  assert.match(platformLayout, /requirePlatformContext/);
+  assert.match(workspaceContext, /rpc\("is_platform_superadmin"\)/);
   assert.doesNotMatch(platformLayout, /requirePlatformPermission/);
 });
 
