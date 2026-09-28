@@ -471,6 +471,8 @@ $function$;
 
 revoke all on function private.sa7_knowledge_queue_impl(text,integer)
   from public,anon,authenticated;
+grant execute on function private.sa7_knowledge_queue_impl(text,integer)
+  to authenticated,service_role;
 
 create or replace function public.sa7_knowledge_queue(
   p_workflow_status text default null,
@@ -591,6 +593,8 @@ $function$;
 
 revoke all on function private.sa7_knowledge_page_impl(text,uuid)
   from public,anon,authenticated;
+grant execute on function private.sa7_knowledge_page_impl(text,uuid)
+  to authenticated,service_role;
 
 create or replace function public.sa7_knowledge_page(
   p_content_type text,
@@ -654,6 +658,8 @@ $function$;
 
 revoke all on function private.sa7_knowledge_quality_audit_impl()
   from public,anon,authenticated;
+grant execute on function private.sa7_knowledge_quality_audit_impl()
+  to authenticated,service_role;
 
 create or replace function public.sa7_knowledge_quality_audit()
 returns jsonb
@@ -793,6 +799,8 @@ $function$;
 
 revoke all on function private.sa7_save_knowledge_draft_impl(text,uuid,jsonb,text)
   from public,anon,authenticated;
+grant execute on function private.sa7_save_knowledge_draft_impl(text,uuid,jsonb,text)
+  to authenticated,service_role;
 
 create or replace function public.sa7_save_knowledge_draft(
   p_content_type text,
@@ -915,6 +923,8 @@ $function$;
 
 revoke all on function private.sa7_submit_knowledge_review_impl(text,uuid,text)
   from public,anon,authenticated;
+grant execute on function private.sa7_submit_knowledge_review_impl(text,uuid,text)
+  to authenticated,service_role;
 
 create or replace function public.sa7_submit_knowledge_review(
   p_content_type text,
@@ -1046,6 +1056,8 @@ $function$;
 
 revoke all on function private.sa7_review_knowledge_draft_impl(text,uuid,text,text)
   from public,anon,authenticated;
+grant execute on function private.sa7_review_knowledge_draft_impl(text,uuid,text,text)
+  to authenticated,service_role;
 
 create or replace function public.sa7_review_knowledge_draft(
   p_content_type text,
@@ -1251,6 +1263,8 @@ $function$;
 
 revoke all on function private.sa7_publish_knowledge_page_impl(text,uuid,text,text)
   from public,anon,authenticated;
+grant execute on function private.sa7_publish_knowledge_page_impl(text,uuid,text,text)
+  to authenticated,service_role;
 
 create or replace function public.sa7_publish_knowledge_page(
   p_content_type text,
