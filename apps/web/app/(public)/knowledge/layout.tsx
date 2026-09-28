@@ -44,8 +44,20 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
               Knowledge
             </Link>
             <Link
-              href="/knowledge/tubes"
+              href="/knowledge/norme"
               className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#5f7088] hover:bg-[#f5f8fc] hover:text-[#2f6fed] md:inline-flex"
+            >
+              Norme
+            </Link>
+            <Link
+              href="/knowledge/gradi"
+              className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#5f7088] hover:bg-[#f5f8fc] hover:text-[#2f6fed] md:inline-flex"
+            >
+              Gradi
+            </Link>
+            <Link
+              href="/knowledge/tubes"
+              className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#5f7088] hover:bg-[#f5f8fc] hover:text-[#2f6fed] lg:inline-flex"
             >
               Pesi & dimensioni
             </Link>

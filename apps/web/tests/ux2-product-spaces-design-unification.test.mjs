@@ -47,8 +47,11 @@ test("UX2 Marketplace is visible but cannot imply a live transaction workflow", 
 
 test("K1 Knowledge is a public technical discovery surface", () => {
   assert.match(knowledge, /Conoscenza tecnica per chi lavora con acciaio e tubi/);
-  assert.match(knowledge, /Norme & gradi/);
+  assert.match(knowledge, /Norme/);
+  assert.match(knowledge, /Gradi di acciaio/);
   assert.match(knowledge, /Pesi & dimensioni/);
+  assert.match(knowledge, /href: "\/knowledge\/norme"/);
+  assert.match(knowledge, /href: "\/knowledge\/gradi"/);
   assert.match(knowledge, /Guide tecniche/);
   assert.match(knowledge, /Pubblico/);
   assert.match(knowledgeLayout, /Accedi/);

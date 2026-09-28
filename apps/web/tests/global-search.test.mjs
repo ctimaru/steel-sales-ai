@@ -82,7 +82,7 @@ test("sales navigation is grouped by private workspace and shared product spaces
   assert.match(shell, /shortLabel: "Cerca"/);
   assert.match(shell, /shortLabel: "Prodotti"/);
   assert.match(shell, /Altro/);
-  for (const label of ["Assistente", "Correzioni", "Importa documenti", "Tubi, norme & pesi", "Fonti e import"]) {
+  for (const label of ["Assistente", "Correzioni", "Importa documenti", "Norme", "Gradi di acciaio", "Pesi & dimensioni", "Fonti e import"]) {
     assert.match(shell, new RegExp(label));
   }
 });

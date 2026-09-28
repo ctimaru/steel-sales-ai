@@ -43,6 +43,8 @@ test("UX2 freezes canonical route families", () => {
     "/network",
     "/marketplace",
     "/knowledge",
+    "/knowledge/norme",
+    "/knowledge/gradi",
     "/knowledge/tubes",
   ]) assert.ok(routes.includes(route), `missing canonical route ${route}`);
 });
@@ -54,6 +56,8 @@ test("UX2 Company shell and Home use the canonical space contract", () => {
   assert.match(shell, /appRoutes\.company\.profile/);
   assert.match(shell, /appRoutes\.marketplace\.home/);
   assert.match(shell, /appRoutes\.knowledge\.home/);
+  assert.match(shell, /appRoutes\.knowledge\.standards/);
+  assert.match(shell, /appRoutes\.knowledge\.grades/);
   assert.match(shell, /appRoutes\.knowledge\.tubes/);
   assert.match(dashboard, /appRoutes\.commercial\.products/);
   assert.match(dashboard, /appRoutes\.marketplace\.home/);
