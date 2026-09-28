@@ -75,6 +75,7 @@ export const appRoutes = {
     knowledge: "/platform/knowledge",
     knowledgePage: (type: "standard" | "grade", id: string) =>
       `/platform/knowledge/${type}/${id}`,
+    networkTrust: "/platform/network-trust",
   },
 } as const;
 
