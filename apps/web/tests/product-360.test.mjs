@@ -44,7 +44,7 @@ test("Product detail exposes killer use case and verifiable source history", () 
 
 test("product history is first-class sales navigation", () => {
   assert.match(shell, /href: appRoutes\.commercial\.products/);
-  assert.match(shell, /label: "Storico prodotti"/);
+  assert.match(shell, /label: "Product 360"/);
 });
 
 
