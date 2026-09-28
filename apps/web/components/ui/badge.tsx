@@ -8,8 +8,8 @@ type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
 
 export function Badge({ className, tone = "neutral", ...props }: BadgeProps) {
   const tones = {
-    neutral: "bg-[#f2f5f9] text-[#5f7088]",
-    blue: "bg-[#eef5ff] text-[#2f6fed]",
+    neutral: "bg-[#ecefed] text-[#5d6a65]",
+    blue: "bg-[#edf5f2] text-[#1a5144]",
     green: "bg-emerald-50 text-emerald-700",
     amber: "bg-amber-50 text-amber-800",
     red: "bg-red-50 text-red-700",
