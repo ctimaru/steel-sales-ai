@@ -54,16 +54,16 @@ test("K1 Knowledge is a public technical discovery surface", () => {
   assert.match(knowledge, /href: "\/knowledge\/gradi"/);
   assert.match(knowledge, /Guide tecniche/);
   assert.match(knowledge, /Pubblico/);
-  assert.match(knowledgeLayout, /Accedi/);
+  assert.match(knowledgeLayout, /Apri workspace/);
   assert.match(knowledgeLayout, /Registra azienda/);
   assert.doesNotMatch(knowledge + knowledgeLayout, /getWorkspaceContext|requireWorkspace|redirect\("\/login"\)/);
 });
 
-test("UX2 propagates the light steel-blue system through shared primitives", () => {
-  assert.match(globals, /--primary: #2f6fed/);
-  assert.match(globals, /--brand-700: #245ed1/);
-  assert.match(button, /bg-\[#2f6fed\]/);
-  assert.match(button, /hover:bg-\[#245ed1\]/);
-  assert.match(input, /border-\[#dbe5f1\]/);
-  assert.match(input, /focus:ring-4 focus:ring-\[#eaf2ff\]/);
+test("UXA1 propagates the forest-neutral system through shared primitives", () => {
+  assert.match(globals, /--primary: #1a5144/);
+  assert.match(globals, /--brand-700: #226657/);
+  assert.match(button, /bg-\[#1a5144\]/);
+  assert.match(button, /hover:bg-\[#226657\]/);
+  assert.match(input, /border-\[#d7dfdb\]/);
+  assert.match(input, /focus:ring-4 focus:ring-\[#e1ece8\]/);
 });
