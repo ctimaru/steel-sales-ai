@@ -35,6 +35,10 @@ export const appRoutes = {
 
   knowledge: {
     home: "/knowledge",
+    standards: "/knowledge/norme",
+    standard: (slug: string) => `/knowledge/norme/${slug}`,
+    grades: "/knowledge/gradi",
+    grade: (slug: string) => `/knowledge/gradi/${slug}`,
     tubes: "/knowledge/tubes",
   },
 
