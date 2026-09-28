@@ -50,8 +50,8 @@ as $$
   end;
 $$;
 
-revoke all on function public.k6_slug_number(numeric) from public;
-revoke all on function public.k6_dimension_slug(text,numeric,numeric,numeric,numeric) from public;
+revoke all on function public.k6_slug_number(numeric) from public, anon, authenticated, service_role;
+revoke all on function public.k6_dimension_slug(text,numeric,numeric,numeric,numeric) from public, anon, authenticated, service_role;
 
 create or replace function public.k6_public_tube_dimension_pages(
   p_product_family text default null,
