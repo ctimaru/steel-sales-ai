@@ -28,9 +28,32 @@ export async function getPlatformAccessContext() {
   return data as PlatformAccessContext;
 }
 
-export async function requirePlatformPermission(permission: PlatformPermissionKey) {
+export async function requirePlatformPermission(
+  permission: PlatformPermissionKey,
+  fallback = "/platform",
+) {
   const allowed = await hasPlatformPermission(permission);
-  if (!allowed) redirect("/dashboard");
+  if (!allowed) redirect(fallback);
+}
+
+export async function requirePlatformConsoleContext() {
+  const supabase = await createClient();
+  const { data: authData } = await supabase.auth.getUser();
+  const user = authData.user;
+  if (!user) redirect("/login");
+
+  const { data, error } = await supabase.rpc("platform_access_context");
+  if (error || !data) redirect("/dashboard");
+
+  const context = data as PlatformAccessContext;
+  if (!context.permissions.includes("platform.console.access")) {
+    redirect(context.is_platform_staff ? "/staff/access" : "/dashboard");
+  }
+
+  return {
+    ...context,
+    viewerLabel: user.email ?? "Platform user",
+  };
 }
 
 export type PlatformStaffDirectoryItem = {
@@ -142,9 +165,9 @@ export async function isPlatformSuperadmin() {
   return !error && data === true;
 }
 
-export async function requirePlatformSuperadmin() {
+export async function requirePlatformSuperadmin(fallback = "/platform") {
   const allowed = await isPlatformSuperadmin();
-  if (!allowed) redirect("/dashboard");
+  if (!allowed) redirect(fallback);
 }
 
 export async function getRegistrationQueue(status?: string | null) {
