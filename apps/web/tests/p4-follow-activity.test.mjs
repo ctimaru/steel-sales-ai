@@ -22,6 +22,10 @@ const directory = fs.readFileSync(
   new URL("../app/(workspace)/network/page.tsx", import.meta.url),
   "utf8",
 );
+const shell = fs.readFileSync(
+  new URL("../components/app-shell.tsx", import.meta.url),
+  "utf8",
+);
 const networkLib = fs.readFileSync(
   new URL("../lib/network.ts", import.meta.url),
   "utf8",
@@ -53,7 +57,10 @@ test("P4.7 activity feed exposes only Network activity semantics and read contro
   assert.match(networkLib, /p4_list_activity_feed/);
 });
 
-test("P4.7 directory exposes follow and activity surfaces", () => {
-  assert.match(directory, /href="\/network\/activity"/);
-  assert.match(directory, /href="\/network\/following"/);
+test("P4.7 Network navigation exposes follow and activity without duplicating them in the directory hero", () => {
+  assert.match(shell, /href: appRoutes\.network\.activity/);
+  assert.match(shell, /href: appRoutes\.network\.following/);
+  assert.match(directory, /quelle seguite e i loro aggiornamenti sono sempre nel menu Network/);
+  assert.doesNotMatch(directory, /href="\/network\/activity"/);
+  assert.doesNotMatch(directory, /href="\/network\/following"/);
 });
