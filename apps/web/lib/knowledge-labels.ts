@@ -23,6 +23,13 @@ const applicabilityLabels: Record<string, string> = {
   reference: "Riferimento",
 };
 
+const materialFamilyLabels: Record<string, string> = {
+  pressure_carbon_steel: "Acciaio al carbonio per pressione",
+  pressure_alloy_steel: "Acciaio legato per pressione",
+  structural_carbon_steel: "Acciaio strutturale",
+  fine_grain_structural_steel: "Acciaio strutturale a grano fine",
+};
+
 const manufacturingProcessLabels: Record<string, string> = {
   hot_finished: "Finito a caldo",
   cold_formed: "Formato a freddo",
@@ -47,4 +54,9 @@ export function applicabilityLabel(value: string) {
 
 export function manufacturingProcessLabel(value: string) {
   return manufacturingProcessLabels[value] ?? value.replaceAll("_", " ");
+}
+
+export function materialFamilyLabel(value: string | null | undefined) {
+  if (!value) return null;
+  return materialFamilyLabels[value] ?? value.replaceAll("_", " ");
 }
