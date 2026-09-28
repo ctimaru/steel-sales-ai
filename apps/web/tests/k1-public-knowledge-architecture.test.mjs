@@ -67,6 +67,7 @@ test("K1 makes public Knowledge discoverable from the product while preserving p
 
 test("K1 avoids exposing authenticated reference tables directly to the public surface", () => {
   assert.doesNotMatch(publicKnowledge + publicTubeWeights, /steel_standards|steel_material_grades|steel_weight_references|service_role/);
-  assert.match(publicTubeWeights, /futuro calcolatore/);
-  assert.match(publicTubeWeights, /archivio tecnico nel workspace/);
+  assert.match(publicTubeWeights, /Calcolo peso tubo acciaio/);
+  assert.match(publicTubeWeights, /PublicTubeWeightCalculator/);
+  assert.doesNotMatch(publicTubeWeights, /company\/tools\/tubi-norme/);
 });
