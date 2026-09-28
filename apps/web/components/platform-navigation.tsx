@@ -41,10 +41,17 @@ const platformNav = [
     permission: "claims.read",
     staffEnabled: true,
   },
+  {
+    href: "/platform/knowledge",
+    label: "Knowledge Operations",
+    icon: "knowledge",
+    permission: "knowledge.read_drafts",
+    staffEnabled: true,
+  },
 ] as const satisfies readonly {
   href: string;
   label: string;
-  icon: "home" | "people" | "registrations" | "discovery" | "claims";
+  icon: "home" | "people" | "registrations" | "discovery" | "claims" | "knowledge";
   permission: PlatformPermissionKey;
   staffEnabled: boolean;
 }[];
@@ -82,6 +89,15 @@ function NavIcon({ name }: { name: (typeof platformNav)[number]["icon"] }) {
       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
         <path d="M12 3.75 19 6.5v5.75c0 4.4-2.8 6.9-7 8-4.2-1.1-7-3.6-7-8V6.5L12 3.75Z" />
         <path d="m9 12 2 2 4-4" />
+      </svg>
+    );
+  }
+
+  if (name === "knowledge") {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M5 4.25h10.25A2.75 2.75 0 0 1 18 7v12.75H7.75A2.75 2.75 0 0 1 5 17V4.25Z" />
+        <path d="M7.75 16.75H18M8.5 8h6M8.5 11h6" />
       </svg>
     );
   }
