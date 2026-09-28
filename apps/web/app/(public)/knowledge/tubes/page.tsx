@@ -5,8 +5,15 @@ import {
   PublicTubeWeightCalculator,
   type PublicTubeCalculatorInitialValues,
 } from "@/components/public-tube-weight-calculator";
-import { listPublicTubeDimensionPages } from "@/lib/public-knowledge";
+import {
+  listPublicTubeDimensionPages,
+  listPublicTubeFamilyHubs,
+} from "@/lib/public-knowledge";
 import { absoluteUrl } from "@/lib/site";
+import {
+  getTubeFamilyBySlug,
+  tubeFamilyHubPath,
+} from "@/lib/tube-seo";
 
 export const metadata: Metadata = {
   title: "Calcolo peso tubo acciaio: kg/m, barra e tonnellate",
@@ -64,7 +71,10 @@ export default async function PublicTubeWeightsPage({
   searchParams: SearchParams;
 }) {
   const params = await searchParams;
-  const references = await listPublicTubeDimensionPages();
+  const [references, familyHubs] = await Promise.all([
+    listPublicTubeDimensionPages(),
+    listPublicTubeFamilyHubs(),
+  ]);
   const supportedFamilies = new Set(["round_tube", "square_tube", "rectangular_tube"]);
   const initialValues: PublicTubeCalculatorInitialValues = {
     family: supportedFamilies.has(params.family ?? "")
@@ -152,6 +162,37 @@ export default async function PublicTubeWeightsPage({
           Il calcolo teorico resta sempre distinto dai pesi tecnici pubblicati presenti nel catalogo.
         </p>
       </header>
+
+      <section aria-label="Esplora il catalogo per famiglia">
+        <div className="mb-4 max-w-3xl">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">Catalogo dimensionale</p>
+          <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">Esplora per famiglia e dimensione esterna</h2>
+          <p className="mt-2 text-sm leading-6 text-[#68788e]">
+            Usa gli hub per confrontare più spessori della stessa sezione; usa il calcolatore quando vuoi partire da
+            una misura libera.
+          </p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {familyHubs.map((hub) => {
+            const family = getTubeFamilyBySlug(hub.family_slug);
+            if (!family) return null;
+            return (
+              <Link
+                key={hub.family_slug}
+                href={tubeFamilyHubPath(hub.family_slug)}
+                className="rounded-2xl border border-[#dbe7f7] bg-[#f8fbff] p-5 transition hover:border-[#bdd1f4] hover:bg-white"
+              >
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#2f6fed]">
+                  {hub.size_hub_count} gruppi confrontabili
+                </p>
+                <h3 className="mt-2 text-lg font-semibold text-[#1e2b45]">{family.label}</h3>
+                <p className="mt-2 text-sm leading-6 text-[#68788e]">{family.shortDescription}</p>
+                <p className="mt-4 text-xs font-semibold text-[#2f6fed]">Esplora la famiglia →</p>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
 
       <PublicTubeWeightCalculator references={references} initialValues={initialValues} />
 

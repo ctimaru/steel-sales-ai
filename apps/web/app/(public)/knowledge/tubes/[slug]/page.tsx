@@ -5,10 +5,17 @@ import { cache } from "react";
 
 import {
   getPublicTubeDimension,
+  listPublicTubeSizeHubs,
   type PublicTubeDimension,
   type PublicTubeRelatedDimension,
 } from "@/lib/public-knowledge";
 import { absoluteUrl } from "@/lib/site";
+import {
+  getTubeFamilyByProductFamily,
+  tubeFamilyHubPath,
+  tubeSizeHubPath,
+  tubeSizeSlug,
+} from "@/lib/tube-seo";
 
 const loadDimension = cache(getPublicTubeDimension);
 
@@ -141,6 +148,10 @@ export default async function TubeDimensionPage({
 
   const size = dimensionLabel(dimension);
   const product = familyName(dimension.product_family);
+  const family = getTubeFamilyByProductFamily(dimension.product_family);
+  const sizeSlug = tubeSizeSlug(dimension);
+  const sizeHubs = family ? await listPublicTubeSizeHubs(family.slug) : [];
+  const sizeHub = sizeHubs.find((item) => item.size_slug === sizeSlug) ?? null;
   const theoretical = theoreticalWeight(dimension);
   const deltaPercent =
     theoretical.kgM !== 0
@@ -228,9 +239,35 @@ export default async function TubeDimensionPage({
         name: "Pesi & dimensioni",
         item: absoluteUrl("/knowledge/tubes"),
       },
+      ...(family
+        ? [
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: family.label,
+              item: absoluteUrl(tubeFamilyHubPath(family.slug)),
+            },
+          ]
+        : []),
+      ...(family && sizeHub
+        ? [
+            {
+              "@type": "ListItem",
+              position: 4,
+              name:
+                dimension.product_family === "round_tube"
+                  ? "Ø " + formatNumber(dimension.outer_diameter_mm ?? 0) + " mm"
+                  : formatNumber(dimension.width_mm ?? 0) +
+                    " × " +
+                    formatNumber(dimension.height_mm ?? 0) +
+                    " mm",
+              item: absoluteUrl(tubeSizeHubPath(family.slug, sizeHub.size_slug)),
+            },
+          ]
+        : []),
       {
         "@type": "ListItem",
-        position: 3,
+        position: family && sizeHub ? 5 : family ? 4 : 3,
         name: size,
         item: absoluteUrl("/knowledge/tubes/" + dimension.dimension_slug),
       },
@@ -256,6 +293,25 @@ export default async function TubeDimensionPage({
         <Link href="/knowledge" className="hover:text-[#2f6fed]">Steel Knowledge</Link>
         <span className="mx-2">/</span>
         <Link href="/knowledge/tubes" className="hover:text-[#2f6fed]">Pesi &amp; dimensioni</Link>
+        {family ? (
+          <>
+            <span className="mx-2">/</span>
+            <Link href={tubeFamilyHubPath(family.slug)} className="hover:text-[#2f6fed]">{family.label}</Link>
+          </>
+        ) : null}
+        {family && sizeHub ? (
+          <>
+            <span className="mx-2">/</span>
+            <Link href={tubeSizeHubPath(family.slug, sizeHub.size_slug)} className="hover:text-[#2f6fed]">
+              {dimension.product_family === "round_tube"
+                ? "Ø " + formatNumber(dimension.outer_diameter_mm ?? 0) + " mm"
+                : formatNumber(dimension.width_mm ?? 0) +
+                  " × " +
+                  formatNumber(dimension.height_mm ?? 0) +
+                  " mm"}
+            </Link>
+          </>
+        ) : null}
         <span className="mx-2">/</span>
         <span>{size}</span>
       </nav>
@@ -368,6 +424,21 @@ export default async function TubeDimensionPage({
           {dimension.source_name ?? dimension.source_provider} ↗
         </a>
       </section>
+
+      {family && sizeHub ? (
+        <section className="rounded-3xl border border-[#dbe7f7] bg-[#f8fbff] p-5 sm:p-6">
+          <p className="text-sm font-semibold text-[#1e2b45]">Vuoi confrontare tutti gli spessori?</p>
+          <p className="mt-1 text-sm leading-6 text-[#68788e]">
+            Questa dimensione esterna ha {sizeHub.variant_count} riferimenti canonici nello stesso cluster.
+          </p>
+          <Link
+            href={tubeSizeHubPath(family.slug, sizeHub.size_slug)}
+            className="mt-3 inline-flex text-sm font-semibold text-[#2f6fed]"
+          >
+            Apri il confronto per spessore →
+          </Link>
+        </section>
+      ) : null}
 
       {dimension.related_dimensions.length ? (
         <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
