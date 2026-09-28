@@ -33,9 +33,9 @@ const ROLE_COPY: Record<
       "Gestisce Company Discovery, review, pubblicazione controllata ed enrichment dei profili Network.",
   },
   claims_verification_admin: {
-    title: "Claims & Verification Admin",
+    title: "Claims & Ownership Admin",
     description:
-      "Gestisce prove di ownership, approvazione, rifiuto e revoca dei company claim.",
+      "Gestisce prove di ownership, approvazione, rifiuto e revoca dei company claim; la Network verification resta separata.",
   },
   knowledge_editor: {
     title: "Knowledge Editor",
@@ -46,6 +46,11 @@ const ROLE_COPY: Record<
     title: "Knowledge Publisher",
     description:
       "Revisiona e pubblica contenuti Knowledge pronti, senza editing di default.",
+  },
+  network_trust_admin: {
+    title: "Network Trust Admin",
+    description:
+      "Gestisce evidence pubbliche, Network verification, provenance review e identity resolution senza merge automatici né accesso tenant.",
   },
   platform_auditor: {
     title: "Platform Auditor",
