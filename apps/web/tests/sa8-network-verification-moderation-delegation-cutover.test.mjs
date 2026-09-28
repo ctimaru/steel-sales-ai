@@ -58,7 +58,7 @@ test("SA8 adds a distinct Network Trust role and capability family", () => {
 test("SA8 exposes Network Trust only through network_trust.read", () => {
   assert.match(
     navigation,
-    /href: "\/platform\/network-trust"[\s\S]*?permission: "network_trust\.read"[\s\S]*?staffEnabled: true/,
+    /href: appRoutes\.platform\.networkTrust[\s\S]*?permission: "network_trust\.read"[\s\S]*?staffEnabled: true/,
   );
   assert.match(home, /canReadNetworkTrust/);
   assert.match(
