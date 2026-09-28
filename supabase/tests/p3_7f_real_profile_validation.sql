@@ -4,13 +4,13 @@
 begin;
 
 create or replace function pg_temp.p37f_assert(ok boolean,message text)
-returns void language plpgsql as $
+returns void language plpgsql as $p37f_assert$
 begin
   if not coalesce(ok,false) then
     raise exception 'P3.7F assertion failed: %',message;
   end if;
 end;
-$;
+$p37f_assert$;
 
 
 create or replace function pg_temp.p37f_product_id(
@@ -21,7 +21,7 @@ create or replace function pg_temp.p37f_product_id(
 returns uuid
 language sql
 stable
-as $
+as $p37f_product$
   select cp.id
   from public.network_company_products cp
   join public.network_product_families pf on pf.id=cp.product_family_id
@@ -31,7 +31,7 @@ as $
     and cp.facility_id is null
   order by cp.id
   limit 1;
-$;
+$p37f_product$;
 
 select pg_temp.p37f_assert(
   (
