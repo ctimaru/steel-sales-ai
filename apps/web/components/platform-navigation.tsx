@@ -39,7 +39,7 @@ const platformNav = [
     label: "Company Claims",
     icon: "claims",
     permission: "claims.read",
-    staffEnabled: false,
+    staffEnabled: true,
   },
 ] as const satisfies readonly {
   href: string;
