@@ -107,11 +107,11 @@ export default async function GradesIndexPage({
   const grouped = gradeGroups
     .map((group) => ({
       ...group,
-      grades: grades.filter((grade) => group.slugs.includes(grade.slug as never)),
+      grades: grades.filter((grade) => group.slugs.some((slug) => slug === grade.slug)),
     }))
     .filter((group) => group.grades.length > 0);
 
-  const groupedSlugs = new Set(gradeGroups.flatMap((group) => [...group.slugs]));
+  const groupedSlugs = new Set<string>(gradeGroups.flatMap((group) => [...group.slugs]));
   const uncategorized = grades.filter((grade) => !groupedSlugs.has(grade.slug));
 
   const jsonLd = {
@@ -156,7 +156,7 @@ export default async function GradesIndexPage({
       {!query ? (
         <section className="grid gap-4 md:grid-cols-3" aria-label="Percorsi del catalogo gradi">
           {gradeGroups.map((group) => {
-            const count = grades.filter((grade) => group.slugs.includes(grade.slug as never)).length;
+            const count = grades.filter((grade) => group.slugs.some((slug) => slug === grade.slug)).length;
             return (
               <a
                 key={group.key}
