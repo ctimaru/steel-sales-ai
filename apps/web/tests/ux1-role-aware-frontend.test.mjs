@@ -35,8 +35,8 @@ test("UX2 Company Workspace exposes explicit private and shared product spaces",
 });
 
 test("UX2 Company Home is a private operational cockpit with shared-space exits", () => {
-  assert.match(companyHome, /Home Workspace/);
-  assert.match(companyHome, /Commercial Memory privata/);
+  assert.match(companyHome, /Il centro operativo della tua azienda/);
+  assert.match(companyHome, /Area privata aziendale/);
   assert.match(companyHome, /Oggi nel workspace/);
   assert.match(companyHome, /Spazi condivisi/);
   assert.match(companyHome, /Marketplace/);
