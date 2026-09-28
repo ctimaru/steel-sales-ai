@@ -14,6 +14,15 @@ import { absoluteUrl } from "@/lib/site";
 
 const loadStandard = cache(getPublicStandard);
 
+function formatReviewDate(value: string) {
+  return new Intl.DateTimeFormat("it-IT", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${value}T00:00:00Z`));
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -40,6 +49,8 @@ export async function generateMetadata({
       description: standard.seo_description,
       url: absoluteUrl(`/knowledge/norme/${standard.slug}`),
       type: "article",
+      publishedTime: standard.published_at,
+      modifiedTime: `${standard.last_reviewed_at}T00:00:00Z`,
     },
   };
 }
@@ -53,25 +64,48 @@ export default async function StandardDetailPage({
   const standard = await loadStandard(slug);
   if (!standard) notFound();
 
-  const jsonLd = {
+  const articleJsonLd = {
     "@context": "https://schema.org",
     "@type": "TechArticle",
     headline: standard.seo_title,
     description: standard.seo_description,
     datePublished: standard.published_at,
+    dateModified: standard.last_reviewed_at,
     mainEntityOfPage: absoluteUrl(`/knowledge/norme/${standard.slug}`),
     author: {
       "@type": "Organization",
       name: "Steel Sales AI",
     },
+    citation: standard.source_references.map((source) => source.url),
   };
+
+  const faqJsonLd = standard.faq.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: standard.faq.map((item) => ({
+          "@type": "Question",
+          name: item.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: item.answer,
+          },
+        })),
+      }
+    : null;
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
+      {faqJsonLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      ) : null}
 
       <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
         <Link href="/knowledge" className="hover:text-[#2f6fed]">Steel Knowledge</Link>
@@ -92,9 +126,12 @@ export default async function StandardDetailPage({
                 {applicationCategoryLabel(standard.application_category)}
               </span>
             ) : null}
+            <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">
+              Revisione editoriale {formatReviewDate(standard.last_reviewed_at)}
+            </span>
           </div>
           <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#1e2b45] sm:text-5xl">
-            {standard.code}: {standard.title}
+            {standard.seo_title.replace(/ · Steel Knowledge.*$/i, "")}
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-7 text-[#68788e]">
             {standard.intro}
@@ -104,13 +141,13 @@ export default async function StandardDetailPage({
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {standard.issuing_body ? (
             <div className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
-              <p className="text-xs font-semibold text-[#7e8da1]">Ente</p>
+              <p className="text-xs font-semibold text-[#7e8da1]">Ente / riferimento</p>
               <p className="mt-1 text-sm font-semibold text-[#1e2b45]">{standard.issuing_body}</p>
             </div>
           ) : null}
           {standard.edition ? (
             <div className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
-              <p className="text-xs font-semibold text-[#7e8da1]">Edizione / riferimento</p>
+              <p className="text-xs font-semibold text-[#7e8da1]">Edizione / stato</p>
               <p className="mt-1 text-sm font-semibold text-[#1e2b45]">{standard.edition}</p>
             </div>
           ) : null}
@@ -160,6 +197,30 @@ export default async function StandardDetailPage({
             <p className="mt-3 whitespace-pre-line text-sm leading-7 text-[#68788e]">{section.body}</p>
           </section>
         ))}
+
+        {standard.related_standard_pages.length ? (
+          <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">Norme correlate</p>
+            <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">Confronta il riferimento vicino</h2>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {standard.related_standard_pages.map((related) => (
+                <Link
+                  key={related.slug}
+                  href={`/knowledge/norme/${related.slug}`}
+                  className="rounded-2xl border border-[#e1e8f2] bg-[#f8fbff] p-4 transition hover:border-[#bdd1f4]"
+                >
+                  <p className="font-semibold text-[#1e2b45]">{related.code}</p>
+                  <p className="mt-1 line-clamp-2 text-xs leading-5 text-[#68788e]">{related.title}</p>
+                  {related.application_category ? (
+                    <p className="mt-3 text-xs font-semibold text-[#2f6fed]">
+                      {applicationCategoryLabel(related.application_category)}
+                    </p>
+                  ) : null}
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         {standard.related_grades.length ? (
           <section className="rounded-3xl border border-[#dbe7f7] bg-[#f8fbff] p-6 sm:p-8">
@@ -213,6 +274,10 @@ export default async function StandardDetailPage({
                 );
               })}
             </div>
+
+            <Link href="/knowledge/gradi" className="mt-5 inline-flex text-sm font-semibold text-[#2f6fed]">
+              Esplora il catalogo gradi →
+            </Link>
           </section>
         ) : null}
 
@@ -230,13 +295,58 @@ export default async function StandardDetailPage({
           </section>
         ) : null}
 
+        <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">Fonti</p>
+              <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">Riferimenti ufficiali consultati</h2>
+            </div>
+            <p className="text-xs text-[#8a99ac]">Ultima revisione: {formatReviewDate(standard.last_reviewed_at)}</p>
+          </div>
+          <div className="mt-5 space-y-3">
+            {standard.source_references.map((source) => (
+              <a
+                key={source.url}
+                href={source.url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-start justify-between gap-4 rounded-2xl border border-[#e1e8f2] bg-[#f8fbff] p-4 transition hover:border-[#bdd1f4]"
+              >
+                <div>
+                  <p className="text-sm font-semibold text-[#1e2b45]">{source.label}</p>
+                  <p className="mt-1 text-xs text-[#68788e]">
+                    {source.publisher}{source.status ? ` · ${source.status}` : ""}
+                  </p>
+                </div>
+                <span className="shrink-0 text-sm font-semibold text-[#2f6fed]">Apri ↗</span>
+              </a>
+            ))}
+          </div>
+        </section>
+
         <aside className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
           <p className="text-sm font-semibold text-amber-950">Nota sull&apos;uso delle norme tecniche</p>
           <p className="mt-2 text-sm leading-6 text-amber-800">
-            Questa pagina è una guida editoriale. Per requisiti di conformità, acquisto, collaudo o certificazione
-            fa fede il testo ufficiale della norma applicabile e la relativa edizione.
+            Questa pagina è una guida editoriale e non riproduce il contenuto normativo completo. Per requisiti di
+            conformità, acquisto, collaudo o certificazione fa fede il testo ufficiale della norma applicabile,
+            nella corretta edizione e con gli eventuali aggiornamenti.
           </p>
         </aside>
+
+        <section className="grid gap-4 sm:grid-cols-2">
+          <Link
+            href="/knowledge/norme"
+            className="rounded-2xl border border-[#e1e8f2] bg-white p-5 text-sm font-semibold text-[#2f6fed] hover:border-[#bdd1f4]"
+          >
+            ← Torna al catalogo norme
+          </Link>
+          <Link
+            href="/knowledge/tubes"
+            className="rounded-2xl border border-[#d7e5ff] bg-[#eef5ff] p-5 text-sm font-semibold text-[#2f6fed] hover:border-[#bdd1f4]"
+          >
+            Continua con pesi & dimensioni →
+          </Link>
+        </section>
       </article>
     </div>
   );
