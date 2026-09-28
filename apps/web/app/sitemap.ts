@@ -1,13 +1,18 @@
 import type { MetadataRoute } from "next";
 
-import { listPublicGrades, listPublicStandards } from "@/lib/public-knowledge";
+import {
+  listPublicGrades,
+  listPublicStandards,
+  listPublicTubeDimensionPages,
+} from "@/lib/public-knowledge";
 import { absoluteUrl } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  const [standards, grades] = await Promise.all([
+  const [standards, grades, dimensions] = await Promise.all([
     listPublicStandards(),
     listPublicGrades(),
+    listPublicTubeDimensionPages(),
   ]);
 
   const staticEntries: MetadataRoute.Sitemap = [
@@ -57,5 +62,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.75,
   }));
 
-  return [...staticEntries, ...standardEntries, ...gradeEntries];
+  const dimensionEntries: MetadataRoute.Sitemap = dimensions.map((dimension) => ({
+    url: absoluteUrl(`/knowledge/tubes/${dimension.dimension_slug}`),
+    lastModified: new Date(dimension.published_at),
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
+
+  return [...staticEntries, ...standardEntries, ...gradeEntries, ...dimensionEntries];
 }

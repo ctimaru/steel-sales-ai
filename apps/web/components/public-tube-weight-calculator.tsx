@@ -1,10 +1,22 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import type { PublicTubeWeightReference } from "@/lib/public-knowledge";
+import type { PublicTubeDimensionSummary } from "@/lib/public-knowledge";
 
-type TubeFamily = PublicTubeWeightReference["product_family"];
+type TubeFamily = PublicTubeDimensionSummary["product_family"];
+
+export type PublicTubeCalculatorInitialValues = {
+  family?: TubeFamily;
+  outerDiameter?: string;
+  width?: string;
+  height?: string;
+  thickness?: string;
+  length?: string;
+  quantity?: string;
+  density?: string;
+};
 
 const familyOptions: Array<{ value: TubeFamily; label: string; short: string }> = [
   { value: "round_tube", label: "Tubo tondo", short: "Tondo" },
@@ -30,7 +42,7 @@ function near(a: number | null, b: number | null, tolerance = 0.005) {
   return Math.abs(a - b) <= tolerance;
 }
 
-function referenceLabel(reference: PublicTubeWeightReference) {
+function referenceLabel(reference: PublicTubeDimensionSummary) {
   if (reference.product_family === "round_tube") {
     return `Ø ${formatNumber(reference.outer_diameter_mm ?? 0)} × ${formatNumber(reference.thickness_mm)} mm`;
   }
@@ -42,17 +54,19 @@ function referenceLabel(reference: PublicTubeWeightReference) {
 
 export function PublicTubeWeightCalculator({
   references,
+  initialValues,
 }: {
-  references: PublicTubeWeightReference[];
+  references: PublicTubeDimensionSummary[];
+  initialValues?: PublicTubeCalculatorInitialValues;
 }) {
-  const [family, setFamily] = useState<TubeFamily>("round_tube");
-  const [outerDiameter, setOuterDiameter] = useState("168,3");
-  const [width, setWidth] = useState("100");
-  const [height, setHeight] = useState("60");
-  const [thickness, setThickness] = useState("6,3");
-  const [length, setLength] = useState("12");
-  const [quantity, setQuantity] = useState("1");
-  const [density, setDensity] = useState("7850");
+  const [family, setFamily] = useState<TubeFamily>(initialValues?.family ?? "round_tube");
+  const [outerDiameter, setOuterDiameter] = useState(initialValues?.outerDiameter ?? "168,3");
+  const [width, setWidth] = useState(initialValues?.width ?? "100");
+  const [height, setHeight] = useState(initialValues?.height ?? "60");
+  const [thickness, setThickness] = useState(initialValues?.thickness ?? "6,3");
+  const [length, setLength] = useState(initialValues?.length ?? "12");
+  const [quantity, setQuantity] = useState(initialValues?.quantity ?? "1");
+  const [density, setDensity] = useState(initialValues?.density ?? "7850");
   const [referenceQuery, setReferenceQuery] = useState("");
 
   const values = useMemo(() => {
@@ -340,7 +354,14 @@ export function PublicTubeWeightCalculator({
             <tbody className="divide-y divide-[#edf1f6]">
               {familyReferences.map((reference) => (
                 <tr key={reference.reference_id}>
-                  <td className="px-2 py-3 font-medium text-[#2f4059]">{referenceLabel(reference)}</td>
+                  <td className="px-2 py-3 font-medium">
+                    <Link
+                      href={`/knowledge/tubes/${reference.dimension_slug}`}
+                      className="text-[#2f4059] underline decoration-[#c7d8f5] underline-offset-4 hover:text-[#2f6fed]"
+                    >
+                      {referenceLabel(reference)}
+                    </Link>
+                  </td>
                   <td className="px-2 py-3 text-[#40516a]">{formatNumber(reference.weight_kg_m, 3)} kg/m</td>
                   <td className="px-2 py-3 text-[#68788e]">
                     {reference.weight_method === "published" ? "Pubblicato" : "Verificato"}
