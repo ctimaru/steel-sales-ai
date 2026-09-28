@@ -5,12 +5,14 @@ import { redirect } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { ProductBrand } from "@/components/product-brand";
 import { createClient } from "@/lib/supabase/server";
+import { privateNoIndexRobots } from "@/lib/seo";
 import { signup } from "@/app/login/actions";
 
 import { CompanyRegistrationForm } from "./registration-form";
 
 export const metadata: Metadata = {
   title: "Registra la tua azienda",
+  robots: privateNoIndexRobots,
 };
 
 export default async function RegisterPage({
