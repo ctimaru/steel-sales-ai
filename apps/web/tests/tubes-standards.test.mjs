@@ -10,11 +10,16 @@ const shell = fs.readFileSync(
   new URL("../components/app-shell.tsx", import.meta.url),
   "utf8",
 );
+const knowledgeRoute = fs.readFileSync(
+  new URL("../app/(workspace)/knowledge/tubes/page.tsx", import.meta.url),
+  "utf8",
+);
 
-test("Tubi & Norme is first-class workspace navigation", () => {
-  assert.match(shell, /href: appRoutes\.company\.tubesStandards/);
-  assert.match(shell, /label: "Tubi & Norme"/);
-  assert.match(page, /Riferimenti tecnici/);
+test("Tubi & Norme belongs to the shared Knowledge space", () => {
+  assert.match(shell, /href: appRoutes\.knowledge\.tubes/);
+  assert.match(shell, /label: "Tubi, norme & pesi"/);
+  assert.match(knowledgeRoute, /tubi-norme\/page/);
+  assert.match(page, /Steel Knowledge/);
   assert.match(page, /Tabella dimensionale/);
 });
 

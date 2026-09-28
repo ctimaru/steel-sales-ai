@@ -2,9 +2,14 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { logout } from "@/app/(workspace)/actions";
-import { canAdministerCompany, canWriteWorkspace } from "@/lib/access-policy";
 import { ProductBrand } from "@/components/product-brand";
-import { WorkspaceHomeLink, WorkspaceNavSection } from "@/components/workspace-navigation";
+import {
+  WorkspaceHeaderContext,
+  WorkspaceMobileSpaceTabs,
+  WorkspaceSpaceNavigation,
+  type WorkspaceNavGroup,
+} from "@/components/workspace-navigation";
+import { canAdministerCompany, canWriteWorkspace } from "@/lib/access-policy";
 import { appRoutes } from "@/lib/routes";
 
 type NavItem = {
@@ -15,11 +20,11 @@ type NavItem = {
   writeRole?: boolean;
 };
 
-const commercialNav: NavItem[] = [
-  { href: appRoutes.commercial.search, label: "Cerca nello storico", shortLabel: "Cerca" },
-  { href: appRoutes.commercial.products, label: "Storico prodotti", shortLabel: "Prodotti" },
-  { href: appRoutes.commercial.companies, label: "Aziende commerciali", shortLabel: "Commerciale" },
+const commercialMemoryNav: NavItem[] = [
+  { href: appRoutes.commercial.products, label: "Product 360", shortLabel: "Prodotti" },
+  { href: appRoutes.commercial.companies, label: "Aziende commerciali", shortLabel: "Aziende" },
   { href: appRoutes.commercial.assistant, label: "Assistente" },
+  { href: appRoutes.commercial.search, label: "Ricerca nello storico", shortLabel: "Cerca" },
 ];
 
 const intelligenceNav: NavItem[] = [
@@ -30,11 +35,20 @@ const intelligenceNav: NavItem[] = [
 ];
 
 const networkNav: NavItem[] = [
-  { href: "/network", label: "Esplora Steel Network", shortLabel: "Network" },
-  { href: "/network/saved", label: "Aziende salvate" },
-  { href: "/network/following", label: "Aziende seguite" },
-  { href: "/network/activity", label: "Activity" },
-  { href: appRoutes.network.inquiries, label: "Inquiry" },
+  { href: appRoutes.network.directory, label: "Directory aziende", shortLabel: "Directory" },
+  { href: appRoutes.network.saved, label: "Aziende salvate" },
+  { href: appRoutes.network.following, label: "Aziende seguite" },
+  { href: appRoutes.network.activity, label: "Activity" },
+  { href: appRoutes.network.inquiries, label: "Inquiry B2B" },
+];
+
+const marketplaceNav: NavItem[] = [
+  { href: appRoutes.marketplace.home, label: "Marketplace Home", shortLabel: "Marketplace" },
+];
+
+const knowledgeNav: NavItem[] = [
+  { href: appRoutes.knowledge.home, label: "Knowledge Home", shortLabel: "Knowledge" },
+  { href: appRoutes.knowledge.tubes, label: "Tubi, norme & pesi", shortLabel: "Norme & pesi" },
 ];
 
 const operationsNav: NavItem[] = [
@@ -43,11 +57,10 @@ const operationsNav: NavItem[] = [
   { href: appRoutes.operations.alerts, label: "Alert operativi" },
 ];
 
-const companyToolsNav: NavItem[] = [
+const companyNav: NavItem[] = [
   { href: appRoutes.company.profile, label: "Profilo azienda", adminOnly: true },
   { href: appRoutes.company.dataSources, label: "Fonti e import", adminOnly: true },
   { href: appRoutes.company.pilotAnalytics, label: "Pilot analytics", adminOnly: true },
-  { href: appRoutes.company.tubesStandards, label: "Tubi & Norme" },
 ];
 
 function roleLabel(role: string) {
@@ -89,18 +102,40 @@ export function AppShell({
   platformSuperadmin: boolean;
   networkEnabled: boolean;
 }) {
-  const networkItems = networkEnabled ? networkNav : [];
+  const networkItems = networkEnabled ? visibleItems(networkNav, organizationRole) : [];
+  const marketplaceItems = networkEnabled ? visibleItems(marketplaceNav, organizationRole) : [];
+  const knowledgeItems = visibleItems(knowledgeNav, organizationRole);
 
-  const mobilePrimary = [
-    { href: appRoutes.home, label: "Home" },
-    { href: appRoutes.commercial.search, label: "Cerca" },
-    ...(networkEnabled
-      ? [
-          { href: appRoutes.network.directory, label: "Network" },
-          { href: "/network/inquiries", label: "Inquiry" },
-        ]
-      : []),
+  const workspaceGroups: WorkspaceNavGroup[] = [
+    {
+      title: "Commercial Memory",
+      items: visibleItems(commercialMemoryNav, organizationRole),
+    },
+    {
+      title: "Commercial Intelligence",
+      items: visibleItems(intelligenceNav, organizationRole),
+    },
+    {
+      title: "Operations",
+      items: visibleItems(operationsNav, organizationRole),
+      alertHref: appRoutes.operations.alerts,
+    },
+    {
+      title: "Company",
+      items: visibleItems(companyNav, organizationRole),
+    },
   ];
+
+  const mobileMore = [
+    ...commercialMemoryNav,
+    ...intelligenceNav,
+    ...operationsNav,
+    ...companyNav,
+    ...(networkEnabled ? networkNav : []),
+    ...knowledgeNav,
+  ]
+    .filter((item) => canSee(item, organizationRole))
+    .filter((item, index, items) => items.findIndex((candidate) => candidate.href === item.href) === index);
 
   return (
     <div className="min-h-screen bg-[#f5f7fb] text-[#1e2b45]">
@@ -126,39 +161,14 @@ export function AppShell({
             </div>
           ) : null}
 
-          <div className="sidebar-scroll flex-1 space-y-5 overflow-y-auto p-3">
-            <div>
-              <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#9ba8b9]">
-                Workspace
-              </p>
-              <WorkspaceHomeLink href={appRoutes.home} label="Home azienda" />
-            </div>
-
-            <WorkspaceNavSection
-              title="Commercial Memory"
-              items={visibleItems(commercialNav, organizationRole)}
+          <div className="sidebar-scroll flex-1 overflow-y-auto p-3">
+            <WorkspaceSpaceNavigation
+              workspaceGroups={workspaceGroups}
+              networkItems={networkItems}
+              marketplaceItems={marketplaceItems}
+              knowledgeItems={knowledgeItems}
               alertActiveCount={alertActiveCount}
-            />
-            <WorkspaceNavSection
-              title="Commercial Intelligence"
-              items={visibleItems(intelligenceNav, organizationRole)}
-              alertActiveCount={alertActiveCount}
-            />
-            <WorkspaceNavSection
-              title="Steel Network"
-              items={visibleItems(networkItems, organizationRole)}
-              alertActiveCount={alertActiveCount}
-            />
-            <WorkspaceNavSection
-              title="Operations"
-              items={visibleItems(operationsNav, organizationRole)}
-              alertHref={appRoutes.operations.alerts}
-              alertActiveCount={alertActiveCount}
-            />
-            <WorkspaceNavSection
-              title="Company"
-              items={visibleItems(companyToolsNav, organizationRole)}
-              alertActiveCount={alertActiveCount}
+              networkEnabled={networkEnabled}
             />
           </div>
 
@@ -181,40 +191,27 @@ export function AppShell({
       <div className="lg:pl-72">
         <header className="sticky top-0 z-20 border-b border-[#e3eaf5] bg-white/92 backdrop-blur-xl">
           <div className="flex min-h-16 items-center justify-between gap-3 px-4 py-2 sm:px-6 lg:px-8">
-            <Link href={appRoutes.home} className="min-w-0 shrink">
-              <p className="truncate text-sm font-semibold text-[#1e2b45]">{organizationName}</p>
-              <p className="truncate text-xs text-[#7e8da1]">
-                Company Workspace · {roleLabel(organizationRole)}
-              </p>
-            </Link>
+            <WorkspaceHeaderContext
+              organizationName={organizationName}
+              roleLabel={roleLabel(organizationRole)}
+            />
 
-            <div className="flex max-w-[68vw] items-center gap-1.5 overflow-x-auto lg:hidden">
-              {mobilePrimary.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="shrink-0 rounded-xl border border-[#dbe5f1] bg-white px-3 py-1.5 text-xs font-semibold text-[#40516a] shadow-[0_1px_1px_rgba(30,43,69,0.025)] hover:border-[#bdd1f4] hover:bg-[#f3f7ff] hover:text-[#2f6fed]"
-                >
-                  {item.label}
-                </Link>
-              ))}
+            <div className="flex max-w-[72vw] items-center gap-1.5 overflow-x-auto lg:hidden">
+              <WorkspaceMobileSpaceTabs networkEnabled={networkEnabled} />
               <details className="relative shrink-0">
-                <summary className="cursor-pointer list-none rounded-xl border border-[#d7e5ff] bg-[#eaf2ff] px-3 py-1.5 text-xs font-semibold text-[#2f6fed]">
+                <summary className="cursor-pointer list-none rounded-xl border border-[#dbe5f1] bg-white px-3 py-1.5 text-xs font-semibold text-[#40516a]">
                   Altro
                 </summary>
-                <div className="fixed left-4 right-4 top-16 z-40 grid grid-cols-2 gap-2 rounded-2xl border border-[#e3eaf5] bg-white p-3 shadow-xl sm:left-auto sm:right-6 sm:w-96">
-                  {[...commercialNav, ...intelligenceNav, ...networkItems, ...operationsNav, ...companyToolsNav]
-                    .filter((item) => canSee(item, organizationRole))
-                    .filter((item) => !mobilePrimary.some((primary) => primary.href === item.href))
-                    .map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className="rounded-xl border border-[#e7edf5] bg-[#f8fafd] px-3 py-2.5 text-xs font-semibold text-[#40516a] hover:border-[#c7d8f5] hover:bg-[#eef5ff] hover:text-[#2f6fed]"
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
+                <div className="fixed left-4 right-4 top-16 z-40 grid max-h-[70vh] grid-cols-2 gap-2 overflow-y-auto rounded-2xl border border-[#e3eaf5] bg-white p-3 shadow-xl sm:left-auto sm:right-6 sm:w-96">
+                  {mobileMore.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="rounded-xl border border-[#e7edf5] bg-[#f8fafd] px-3 py-2.5 text-xs font-semibold text-[#40516a] hover:border-[#c7d8f5] hover:bg-[#eef5ff] hover:text-[#2f6fed]"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
                 </div>
               </details>
               {platformSuperadmin ? (
@@ -228,20 +225,20 @@ export function AppShell({
             </div>
 
             <div className="hidden items-center gap-2 sm:flex">
-              {platformSuperadmin ? (
-                <Link
-                  href={appRoutes.platform.home}
-                  className="rounded-full border border-[#d7e5ff] bg-[#eaf2ff] px-3 py-1.5 text-xs font-semibold text-[#2f6fed]"
-                >
-                  Platform Console
-                </Link>
-              ) : null}
               {alertNeedsAttention ? (
                 <Link
                   href={appRoutes.operations.alerts}
                   className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700"
                 >
                   {alertActiveCount > 0 ? `Alert · ${alertActiveCount}` : "Alert"}
+                </Link>
+              ) : null}
+              {platformSuperadmin ? (
+                <Link
+                  href={appRoutes.platform.home}
+                  className="rounded-full border border-[#d7e5ff] bg-[#eaf2ff] px-3 py-1.5 text-xs font-semibold text-[#2f6fed]"
+                >
+                  Platform Console
                 </Link>
               ) : null}
             </div>

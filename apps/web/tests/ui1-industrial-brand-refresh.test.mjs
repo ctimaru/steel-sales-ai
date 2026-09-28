@@ -10,16 +10,18 @@ const companyShell = fs.readFileSync(new URL("../components/app-shell.tsx", impo
 const platformShell = fs.readFileSync(new URL("../components/platform-shell.tsx", import.meta.url), "utf8");
 const dashboard = fs.readFileSync(new URL("../app/(workspace)/dashboard/page.tsx", import.meta.url), "utf8");
 
-test("UI1 preserves industrial brand tokens while X2.1 defines the light application canvas", () => {
+test("UX2 keeps industrial identity but aligns application tokens to the light steel-blue system", () => {
   for (const token of [
-    "--brand-950: #0b171e",
-    "--brand-700: #1b4c5d",
-    "--brand-500: #3c8192",
+    "--brand-950: #14233f",
+    "--brand-700: #245ed1",
+    "--brand-500: #4b82ee",
     "--copper-500: #c36e32",
     "--background: #f5f7fb",
     "--foreground: #1e2b45",
     "--primary: #2f6fed",
   ]) assert.ok(globals.includes(token), `missing token ${token}`);
+  assert.match(globals, /\.app-surface/);
+  assert.match(globals, /\.app-primary/);
 });
 
 test("UI1 brand remains lightweight and rebrandable from one identity contract", () => {
@@ -42,10 +44,13 @@ test("UI1 keeps the public landing fast and asset-light", () => {
   assert.match(publicHome, /B2B intelligence for steel & tube/);
 });
 
-test("UI1 preserves task-dense Company Home behavior while changing presentation", () => {
-  assert.match(dashboard, /Cerca nello storico/);
-  assert.match(dashboard, /Azioni rapide/);
-  assert.match(dashboard, /Il tuo Network/);
+test("UX2 preserves task-dense Company Home behavior without making search the hero", () => {
+  assert.match(dashboard, /Home Workspace/);
+  assert.match(dashboard, /Oggi nel workspace/);
   assert.match(dashboard, /Commercial Memory/);
+  assert.match(dashboard, /Spazi condivisi/);
+  assert.match(dashboard, /Marketplace/);
+  assert.match(dashboard, /Knowledge/);
   assert.match(dashboard, /metric-number/);
+  assert.doesNotMatch(dashboard, /<form action=\{appRoutes\.commercial\.search\}/);
 });

@@ -16,6 +16,7 @@ const dashboard = fs.readFileSync(
 );
 const component = fs.readFileSync(new URL("../components/global-search.tsx", import.meta.url), "utf8");
 const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
+const navigation = fs.readFileSync(new URL("../components/workspace-navigation.tsx", import.meta.url), "utf8");
 const evidenceRoute = fs.readFileSync(
   new URL("../app/evidence/[observationId]/route.ts", import.meta.url),
   "utf8",
@@ -53,7 +54,8 @@ test("commercial search is first-class sales navigation", () => {
   assert.match(page, /Cerca nello storico commerciale/);
   assert.match(page, /Trova prodotti, clienti, richieste, offerte, ordini e documenti/);
   assert.match(shell, /href: appRoutes\.commercial\.search/);
-  assert.match(shell, /label: "Cerca"/);
+  assert.match(shell, /label: "Ricerca nello storico"/);
+  assert.match(shell, /shortLabel: "Cerca"/);
 });
 
 
@@ -68,25 +70,31 @@ test("structured global search opens verified original evidence in one click", (
 });
 
 
-test("sales-first navigation is grouped by product domain and remains complete on mobile", () => {
+test("sales navigation is grouped by private workspace and shared product spaces on desktop and mobile", () => {
   assert.match(shell, /Commercial Memory/);
-  assert.match(shell, /Steel Network/);
+  assert.match(shell, /Commercial Intelligence/);
   assert.match(shell, /Operations/);
   assert.match(shell, /Company/);
+  assert.match(navigation, /Home Workspace/);
+  assert.match(navigation, /Steel Network/);
+  assert.match(navigation, /Marketplace/);
+  assert.match(navigation, /Steel Knowledge/);
   assert.match(shell, /shortLabel: "Cerca"/);
   assert.match(shell, /shortLabel: "Prodotti"/);
   assert.match(shell, /Altro/);
-  for (const label of ["Assistente", "Correzioni", "Importa documenti", "Tubi & Norme", "Fonti e import"]) {
+  for (const label of ["Assistente", "Correzioni", "Importa documenti", "Tubi, norme & pesi", "Fonti e import"]) {
     assert.match(shell, new RegExp(label));
   }
 });
 
 
-test("Home is a quick-search entry point while Search owns the advanced workspace", () => {
-  assert.match(dashboard, /action=\{appRoutes\.commercial\.search\}/);
-  assert.match(dashboard, /name="q"/);
-  assert.match(dashboard, /Cerca nello storico/);
-  assert.match(dashboard, /Apri ricerca avanzata/);
+test("Home is an operational cockpit while Search owns the dedicated search workspace", () => {
+  assert.match(dashboard, /Home Workspace/);
+  assert.match(dashboard, /Oggi nel workspace/);
+  assert.match(dashboard, /href=\{appRoutes\.commercial\.search\}/);
+  assert.match(dashboard, /Ricerca nello storico/);
+  assert.doesNotMatch(dashboard, /action=\{appRoutes\.commercial\.search\}/);
+  assert.doesNotMatch(dashboard, /name="q"/);
   assert.doesNotMatch(dashboard, /<GlobalSearch/);
   assert.match(page, /searchParams/);
   assert.match(page, /initialQuery/);
@@ -122,5 +130,5 @@ test("sales surfaces avoid infrastructure terminology", () => {
   assert.match(component, /Riferimento verificato/);
   assert.match(component, /Rilevanza/);
   assert.match(dashboard, /conversazioni commerciali/i);
-  assert.match(dashboard, /casi in attesa di verifica/);
+  assert.match(dashboard, /casi in cui il sistema richiede una decisione umana/);
 });

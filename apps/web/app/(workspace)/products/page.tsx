@@ -105,7 +105,7 @@ export default async function ProductsPage({
                   ["Consegne", item.delivered_count],
                 ].map(([label, value]) => (
                   <div key={String(label)} className="rounded-xl bg-[#f8fafd] px-2 py-2">
-                    <p className="text-base font-semibold text-[#273750]">{String(value)}</p>
+                    <p className="text-base font-semibold text-[#34445c]">{String(value)}</p>
                     <p className="text-[10px] uppercase tracking-wide text-[#91a0b2]">{label}</p>
                   </div>
                 ))}

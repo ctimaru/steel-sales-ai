@@ -14,9 +14,9 @@ export function Button({
   ...props
 }: ButtonProps) {
   const variants = {
-    default: "bg-[#1b4c5d] text-white shadow-[0_1px_1px_rgba(11,23,30,0.12)] hover:bg-[#153542]",
-    secondary: "border border-[#d9e0e4] bg-white text-[#273640] hover:border-[#bcd3da] hover:bg-[#f7fafb]",
-    ghost: "text-[#66737d] hover:bg-[#edf1f3] hover:text-[#17232d]",
+    default: "bg-[#2f6fed] text-white shadow-sm hover:bg-[#245ed1]",
+    secondary: "border border-[#dbe5f1] bg-white text-[#40516a] hover:border-[#bdd1f4] hover:bg-[#f3f7ff] hover:text-[#2f6fed]",
+    ghost: "text-[#68788e] hover:bg-[#eef3fa] hover:text-[#1e2b45]",
     danger: "bg-red-600 text-white hover:bg-red-700",
   };
 

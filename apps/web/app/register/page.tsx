@@ -25,17 +25,17 @@ export default async function RegisterPage({
 
   if (!user) {
     return (
-      <main className="min-h-screen bg-[#f3f5f7] px-5 py-8 sm:px-8 sm:py-12">
-        <div className="mx-auto grid max-w-5xl overflow-hidden rounded-3xl border border-[#d9e0e4] bg-white shadow-sm lg:grid-cols-[0.9fr_1.1fr]">
-          <section className="bg-[#0b171e] p-8 text-white sm:p-10">
-            <ProductBrand href="/" inverse />
+      <main className="min-h-screen bg-[#f5f7fb] px-5 py-8 sm:px-8 sm:py-12">
+        <div className="mx-auto grid max-w-5xl overflow-hidden rounded-3xl border border-[#e1e8f2] bg-white shadow-sm lg:grid-cols-[0.9fr_1.1fr]">
+          <section className="border-r border-[#e3eaf5] bg-[#f8fbff] p-8 text-[#1e2b45] sm:p-10">
+            <ProductBrand href="/" />
             <h1 className="mt-10 text-3xl font-semibold tracking-tight sm:text-4xl">
               Registra la tua azienda.
             </h1>
-            <p className="mt-4 text-sm leading-7 text-[#8fa1a9]">
+            <p className="mt-4 text-sm leading-7 text-[#68788e]">
               Crea prima il tuo account personale. Dopo la verifica email potrai completare il profilo aziendale e inviarlo per approvazione.
             </p>
-            <div className="mt-10 space-y-4 text-sm text-[#b6c3c8]">
+            <div className="mt-10 space-y-4 text-sm text-[#68788e]">
               <p>1. Crea e verifica il tuo account</p>
               <p>2. Compila i dati dell’azienda</p>
               <p>3. Invia la richiesta</p>
@@ -44,9 +44,9 @@ export default async function RegisterPage({
           </section>
 
           <section className="p-7 sm:p-10">
-            <p className="text-sm font-semibold text-[#66737d]">Passaggio 1 di 2</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#17232d]">Crea il tuo account</h2>
-            <p className="mt-2 text-sm leading-6 text-[#66737d]">
+            <p className="text-sm font-semibold text-[#68788e]">Passaggio 1 di 2</p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#1e2b45]">Crea il tuo account</h2>
+            <p className="mt-2 text-sm leading-6 text-[#68788e]">
               Usa un indirizzo email aziendale a cui hai accesso.
             </p>
 
@@ -58,11 +58,11 @@ export default async function RegisterPage({
             ) : null}
 
             <form action={signup} className="mt-7 space-y-5">
-              <label className="block text-sm font-medium text-[#33454e]">
+              <label className="block text-sm font-medium text-[#40516a]">
                 Email
                 <Input className="mt-2 h-11" name="email" type="email" autoComplete="email" required />
               </label>
-              <label className="block text-sm font-medium text-[#33454e]">
+              <label className="block text-sm font-medium text-[#40516a]">
                 Password
                 <Input
                   className="mt-2 h-11"
@@ -73,14 +73,14 @@ export default async function RegisterPage({
                   required
                 />
               </label>
-              <button className="h-11 w-full rounded-xl bg-[#1b4c5d] text-sm font-semibold text-white hover:bg-[#153542]">
+              <button className="h-11 w-full rounded-xl bg-[#2f6fed] text-sm font-semibold text-white hover:bg-[#245ed1]">
                 Crea account
               </button>
             </form>
 
-            <p className="mt-6 text-sm text-[#66737d]">
+            <p className="mt-6 text-sm text-[#68788e]">
               Hai già un account?{" "}
-              <Link href="/login" className="font-semibold text-[#22313a] underline underline-offset-4">
+              <Link href="/login" className="font-semibold text-[#2f4059] underline underline-offset-4">
                 Accedi
               </Link>
             </p>
@@ -114,21 +114,21 @@ export default async function RegisterPage({
   }
 
   return (
-    <main className="min-h-screen bg-[#f3f5f7] px-4 py-7 sm:px-6 sm:py-10">
-      <div className="mx-auto max-w-3xl rounded-3xl border border-[#d9e0e4] bg-white p-6 shadow-sm sm:p-9">
+    <main className="min-h-screen bg-[#f5f7fb] px-4 py-7 sm:px-6 sm:py-10">
+      <div className="mx-auto max-w-3xl rounded-3xl border border-[#e1e8f2] bg-white p-6 shadow-sm sm:p-9">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <ProductBrand href="/" compact />
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#17232d]">
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#1e2b45]">
               {application?.application_status === "needs_information"
                 ? "Completa le informazioni richieste"
                 : "Profilo aziendale"}
             </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#66737d]">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#68788e]">
               Inserisci i dati essenziali della tua azienda. Potrai arricchire il profilo Network dopo l’attivazione.
             </p>
           </div>
-          <Link href="/login" className="text-sm font-semibold text-[#66737d] hover:text-[#17232d]">
+          <Link href="/login" className="text-sm font-semibold text-[#68788e] hover:text-[#1e2b45]">
             Esci
           </Link>
         </div>

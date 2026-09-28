@@ -18,14 +18,16 @@ const aliases = [
   "../app/(workspace)/company/profile/page.tsx",
   "../app/(workspace)/company/data-sources/page.tsx",
   "../app/(workspace)/company/pilot-analytics/page.tsx",
-  "../app/(workspace)/company/tools/tubi-norme/page.tsx",
+  "../app/(workspace)/knowledge/tubes/page.tsx",
 ].map((path) => fs.readFileSync(new URL(path, import.meta.url), "utf8"));
 
-test("UX1.4 freezes canonical route families", () => {
+test("UX2 freezes canonical route families", () => {
   assert.match(routes, /commercial:/);
   assert.match(routes, /operations:/);
   assert.match(routes, /company:/);
   assert.match(routes, /network:/);
+  assert.match(routes, /marketplace:/);
+  assert.match(routes, /knowledge:/);
   assert.match(routes, /platform:/);
   for (const route of [
     "/commercial/search",
@@ -35,23 +37,32 @@ test("UX1.4 freezes canonical route families", () => {
     "/operations/review",
     "/company/profile",
     "/company/data-sources",
+    "/network",
+    "/marketplace",
+    "/knowledge",
+    "/knowledge/tubes",
   ]) assert.ok(routes.includes(route), `missing canonical route ${route}`);
 });
 
-test("UX1.4 Company shell and Home use the canonical route contract", () => {
-  assert.match(shell, /appRoutes\.commercial\.search/);
+test("UX2 Company shell and Home use the canonical space contract", () => {
   assert.match(shell, /appRoutes\.commercial\.products/);
+  assert.match(shell, /appRoutes\.commercial\.search/);
   assert.match(shell, /appRoutes\.operations\.uploads/);
   assert.match(shell, /appRoutes\.company\.profile/);
-  assert.match(dashboard, /action=\{appRoutes\.commercial\.search\}/);
-  assert.match(dashboard, /appRoutes\.network\.inquiries/);
+  assert.match(shell, /appRoutes\.marketplace\.home/);
+  assert.match(shell, /appRoutes\.knowledge\.home/);
+  assert.match(shell, /appRoutes\.knowledge\.tubes/);
+  assert.match(dashboard, /appRoutes\.commercial\.products/);
+  assert.match(dashboard, /appRoutes\.marketplace\.home/);
+  assert.match(dashboard, /appRoutes\.knowledge\.home/);
+  assert.doesNotMatch(dashboard, /action=\{appRoutes\.commercial\.search\}/);
 });
 
-test("UX1.4 canonical route modules reuse stable domain pages during cutover", () => {
+test("UX2 canonical route modules reuse stable domain pages during cutover", () => {
   for (const source of aliases) assert.match(source, /export \{ default \} from "@\/app\/\(workspace\)\//);
 });
 
-test("UX1.4 legacy URLs redirect to canonical families without permanent browser caching", () => {
+test("UX2 legacy URLs redirect to canonical families without permanent browser caching", () => {
   for (const fragment of [
     'source: "/search", destination: "/commercial/search"',
     'source: "/products", destination: "/commercial/products"',
@@ -61,6 +72,8 @@ test("UX1.4 legacy URLs redirect to canonical families without permanent browser
     'source: "/alerts", destination: "/operations/alerts"',
     'source: "/network/manage", destination: "/company/profile"',
     'source: "/data-sources", destination: "/company/data-sources"',
+    'source: "/tubi-norme", destination: "/knowledge/tubes"',
+    'source: "/company/tools/tubi-norme", destination: "/knowledge/tubes"',
   ]) assert.ok(config.includes(fragment), `missing redirect ${fragment}`);
   assert.match(config, /permanent: false/);
 });

@@ -57,7 +57,7 @@ test("Tubi & Norme is positioned as a specialist tool with sales-facing terminol
   ]) {
     assert.doesNotMatch(tubes, new RegExp(forbidden));
   }
-  assert.match(tubes, /Riferimenti tecnici/);
+  assert.match(tubes, /Steel Knowledge/);
   assert.match(tubes, /Pesi disponibili/);
   assert.match(tubes, /Pesi da completare/);
   assert.match(tubes, /Copertura parziale/);

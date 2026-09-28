@@ -238,25 +238,28 @@ export default async function TubesStandardsPage({
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7 lg:p-8">
+      <section className="rounded-3xl border border-[#e1e8f2] bg-white p-5 shadow-sm sm:p-7 lg:p-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
-            <p className="text-sm font-semibold text-indigo-600">Riferimenti tecnici</p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-[#eef5ff] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#2f6fed]">Steel Knowledge</span>
+              <span className="rounded-full bg-[#f2f5f9] px-3 py-1 text-[11px] font-semibold text-[#64748b]">Condiviso</span>
+            </div>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1e2b45]">
               Tubi &amp; Norme
             </h1>
-            <p className="mt-3 text-sm leading-6 text-slate-500 sm:text-base">
+            <p className="mt-3 text-sm leading-6 text-[#68788e] sm:text-base">
               Consulta norme, qualità, dimensioni e pesi di riferimento. I calcoli commerciali sono disponibili solo quando esiste un peso verificato per quella combinazione.
             </p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-            <p className="text-xs font-semibold text-slate-500">Copertura dati</p>
-            <p className="mt-1 text-sm font-semibold text-slate-900">
+          <div className="rounded-2xl border border-[#e1e8f2] bg-[#f8fafd] px-4 py-3">
+            <p className="text-xs font-semibold text-[#68788e]">Copertura dati</p>
+            <p className="mt-1 text-sm font-semibold text-[#2f4059]">
               {readinessRow?.sk5_gate_status === "ready_scoped_partial_catalog"
                 ? "Copertura parziale controllata"
                 : readinessRow?.sk5_gate_status ?? "Stato non disponibile"}
             </p>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-[#68788e]">
               {readinessRow?.canonical_scope_count ?? 0} riferimenti verificati ·{" "}
               {readinessRow?.missing_canonical_scope_count ?? 0} da completare
             </p>
@@ -264,13 +267,13 @@ export default async function TubesStandardsPage({
         </div>
       </section>
 
-      <form className="grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-2 xl:grid-cols-4">
-        <label className="text-xs font-semibold text-slate-600">
+      <form className="grid gap-3 rounded-2xl border border-[#e1e8f2] bg-white p-4 shadow-sm md:grid-cols-2 xl:grid-cols-4">
+        <label className="text-xs font-semibold text-[#5f7088]">
           Norma
           <select
             name="standard"
             defaultValue={selectedStandardId}
-            className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900"
+            className="mt-1.5 w-full rounded-xl border border-[#e1e8f2] bg-white px-3 py-2.5 text-sm text-[#2f4059]"
           >
             {(standards ?? []).map((standard) => (
               <option key={standard.id} value={standard.id}>
@@ -280,12 +283,12 @@ export default async function TubesStandardsPage({
           </select>
         </label>
 
-        <label className="text-xs font-semibold text-slate-600">
+        <label className="text-xs font-semibold text-[#5f7088]">
           Grado
           <select
             name="grade"
             defaultValue={selectedGradeId}
-            className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900"
+            className="mt-1.5 w-full rounded-xl border border-[#e1e8f2] bg-white px-3 py-2.5 text-sm text-[#2f4059]"
           >
             <option value="">Senza qualità specifica</option>
             {(grades ?? []).map((grade) => (
@@ -296,43 +299,43 @@ export default async function TubesStandardsPage({
           </select>
         </label>
 
-        <label className="text-xs font-semibold text-slate-600">
+        <label className="text-xs font-semibold text-[#5f7088]">
           Prezzo €/t
           <input
             name="price"
             inputMode="decimal"
             defaultValue={params.price ?? ""}
             placeholder="es. 850"
-            className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900"
+            className="mt-1.5 w-full rounded-xl border border-[#e1e8f2] bg-white px-3 py-2.5 text-sm text-[#2f4059]"
           />
         </label>
 
         <div className="flex gap-2">
-          <label className="min-w-0 flex-1 text-xs font-semibold text-slate-600">
+          <label className="min-w-0 flex-1 text-xs font-semibold text-[#5f7088]">
             Lunghezza m
             <input
               name="length"
               inputMode="decimal"
               defaultValue={params.length ?? "12"}
-              className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900"
+              className="mt-1.5 w-full rounded-xl border border-[#e1e8f2] bg-white px-3 py-2.5 text-sm text-[#2f4059]"
             />
           </label>
-          <button className="mt-[22px] rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800">
+          <button className="mt-[22px] rounded-xl bg-[#2f6fed] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#245ed1]">
             Applica
           </button>
         </div>
       </form>
 
       <section className="grid gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl border border-slate-200 bg-white p-4">
-          <p className="text-xs font-semibold text-slate-500">Standard selezionato</p>
-          <p className="mt-1 text-lg font-semibold text-slate-950">
+        <div className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
+          <p className="text-xs font-semibold text-[#68788e]">Standard selezionato</p>
+          <p className="mt-1 text-lg font-semibold text-[#1e2b45]">
             {selectedStandard?.code ?? "—"}
           </p>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-[#68788e]">
             {selectedStandard?.application_category?.replaceAll("_", " ") ?? "—"}
           </p>
-          <p className="mt-2 text-xs leading-5 text-slate-500">
+          <p className="mt-2 text-xs leading-5 text-[#68788e]">
             {selectedStandard?.short_explanation ?? selectedStandard?.scope_summary ?? selectedStandard?.title ?? "—"}
           </p>
         </div>
@@ -350,10 +353,10 @@ export default async function TubesStandardsPage({
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 px-4 py-4 sm:px-5">
-          <h2 className="font-semibold text-slate-950">Tabella dimensionale</h2>
-          <p className="mt-1 text-xs text-slate-500">
+      <section className="overflow-hidden rounded-2xl border border-[#e1e8f2] bg-white shadow-sm">
+        <div className="border-b border-[#e1e8f2] px-4 py-4 sm:px-5">
+          <h2 className="font-semibold text-[#1e2b45]">Tabella dimensionale</h2>
+          <p className="mt-1 text-xs text-[#68788e]">
             {selectedGrade
               ? `${selectedGrade.designation} · ${selectedGrade.material_number}`
               : "Senza qualità specifica"}{" "}
@@ -363,7 +366,7 @@ export default async function TubesStandardsPage({
 
         <div className="overflow-x-auto">
           <table className="min-w-full text-left text-sm">
-            <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+            <thead className="bg-[#f8fafd] text-xs uppercase tracking-wide text-[#68788e]">
               <tr>
                 <th className="px-4 py-3 font-semibold">Dimensione</th>
                 <th className="px-4 py-3 font-semibold">Peso kg/m</th>
@@ -380,36 +383,36 @@ export default async function TubesStandardsPage({
                 const available = effective?.effective_status === "canonical_available";
                 return (
                   <tr key={geometry.id} className="align-top">
-                    <td className="px-4 py-3.5 font-medium text-slate-900">
+                    <td className="px-4 py-3.5 font-medium text-[#2f4059]">
                       {geometryLabel(geometry)}
                     </td>
-                    <td className="px-4 py-3.5 text-slate-700">
+                    <td className="px-4 py-3.5 text-[#40516a]">
                       {formatNumber(weight, 4)}
                     </td>
-                    <td className="px-4 py-3.5 text-slate-500">
+                    <td className="px-4 py-3.5 text-[#68788e]">
                       {effective?.effective_weight_method ?? "—"}
                     </td>
                     <td className="px-4 py-3.5">
                       <span className={
                         isNormativeComplete
-                          ? "inline-flex rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700"
-                          : "inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600"
+                          ? "inline-flex rounded-full bg-[#eef5ff] px-2.5 py-1 text-xs font-semibold text-[#2f6fed]"
+                          : "inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-[#5f7088]"
                       }>
                         {isNormativeComplete ? "Normativa completa" : "Copertura parziale"}
                       </span>
                     </td>
-                    <td className="px-4 py-3.5 text-xs text-slate-500">
+                    <td className="px-4 py-3.5 text-xs text-[#68788e]">
                       {source ? (
                         <>
-                          <p className="font-semibold text-slate-700">{source.provider}</p>
+                          <p className="font-semibold text-[#40516a]">{source.provider}</p>
                           <p className="mt-0.5">{source.source_class} · {source.source_key}</p>
                         </>
                       ) : "—"}
                     </td>
-                    <td className="px-4 py-3.5 font-medium text-slate-900">
+                    <td className="px-4 py-3.5 font-medium text-[#2f4059]">
                       {pricePerTonne == null ? "Inserisci €/t" : formatNumber(pricePerMeter, 4)}
                     </td>
-                    <td className="px-4 py-3.5 font-medium text-slate-900">
+                    <td className="px-4 py-3.5 font-medium text-[#2f4059]">
                       {pricePerTonne == null ? "Inserisci €/t" : formatNumber(pricePerPiece, 2)}
                     </td>
                     <td className="px-4 py-3.5">
@@ -428,7 +431,7 @@ export default async function TubesStandardsPage({
               })}
               {rows.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-10 text-center text-sm text-slate-500">
+                  <td colSpan={8} className="px-4 py-10 text-center text-sm text-[#68788e]">
                     Nessuna geometria collegata a questa norma nel catalogo corrente.
                   </td>
                 </tr>
@@ -438,7 +441,7 @@ export default async function TubesStandardsPage({
         </div>
       </section>
 
-      <p className="px-1 text-xs leading-5 text-slate-500">
+      <p className="px-1 text-xs leading-5 text-[#68788e]">
         La copertura tecnica è ancora parziale: una dimensione o un peso possono essere mostrati come riferimento, ma vengono usati nei calcoli commerciali solo dopo verifica.
       </p>
     </div>
