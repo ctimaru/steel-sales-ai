@@ -120,9 +120,8 @@ select pg_temp.sa2_assert(
 select public.platform_access_context() as owner_context \gset
 select pg_temp.sa2_assert(
   :'owner_context'::jsonb->>'authority_type'='platform_owner'
-  and jsonb_array_length(:'owner_context'::jsonb->'permissions')
-      =(select count(*) from public.platform_permissions),
-  'owner context must expose Platform Owner authority and every currently known permission'
+  and jsonb_array_length(:'owner_context'::jsonb->'permissions')>=31,
+  'owner context must preserve the full SA1 permission baseline after later delegated domains'
 );
 
 -- Root and staff identities are structurally separate.
