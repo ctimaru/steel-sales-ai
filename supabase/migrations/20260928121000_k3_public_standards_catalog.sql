@@ -577,7 +577,7 @@ as $$
         jsonb_build_object(
           'slug', rp.slug,
           'code', rs.code,
-          'title', rs.title,
+          'title', rp.seo_title,
           'application_category', rs.application_category
         )
         order by rs.code
