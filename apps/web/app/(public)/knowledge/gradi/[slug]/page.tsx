@@ -6,11 +6,21 @@ import { cache } from "react";
 import {
   applicabilityLabel,
   manufacturingProcessLabel,
+  materialFamilyLabel,
 } from "@/lib/knowledge-labels";
 import { getPublicGrade } from "@/lib/public-knowledge";
 import { absoluteUrl } from "@/lib/site";
 
 const loadGrade = cache(getPublicGrade);
+
+function formatReviewDate(value: string) {
+  return new Intl.DateTimeFormat("it-IT", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${value}T00:00:00Z`));
+}
 
 export async function generateMetadata({
   params,
@@ -38,6 +48,8 @@ export async function generateMetadata({
       description: grade.seo_description,
       url: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
       type: "article",
+      publishedTime: grade.published_at,
+      modifiedTime: `${grade.last_reviewed_at}T00:00:00Z`,
     },
   };
 }
@@ -51,25 +63,48 @@ export default async function GradeDetailPage({
   const grade = await loadGrade(slug);
   if (!grade) notFound();
 
-  const jsonLd = {
+  const articleJsonLd = {
     "@context": "https://schema.org",
     "@type": "TechArticle",
     headline: grade.seo_title,
     description: grade.seo_description,
     datePublished: grade.published_at,
+    dateModified: grade.last_reviewed_at,
     mainEntityOfPage: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
     author: {
       "@type": "Organization",
       name: "Steel Sales AI",
     },
+    citation: grade.source_references.map((source) => source.url),
   };
+
+  const faqJsonLd = grade.faq.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: grade.faq.map((item) => ({
+          "@type": "Question",
+          name: item.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: item.answer,
+          },
+        })),
+      }
+    : null;
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
+      {faqJsonLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      ) : null}
 
       <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
         <Link href="/knowledge" className="hover:text-[#2f6fed]">Steel Knowledge</Link>
@@ -87,12 +122,15 @@ export default async function GradeDetailPage({
             </span>
             {grade.material_family ? (
               <span className="rounded-full bg-[#f2f5f9] px-3 py-1 text-[11px] font-semibold text-[#68788e]">
-                {grade.material_family.replaceAll("_", " ")}
+                {materialFamilyLabel(grade.material_family)}
               </span>
             ) : null}
+            <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">
+              Revisione editoriale {formatReviewDate(grade.last_reviewed_at)}
+            </span>
           </div>
           <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#1e2b45] sm:text-5xl">
-            {grade.designation}: significato, norme e applicazioni
+            {grade.seo_title}
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-7 text-[#68788e]">{grade.intro}</p>
         </header>
@@ -107,10 +145,11 @@ export default async function GradeDetailPage({
             <p className="mt-1 text-lg font-semibold text-[#1e2b45]">{grade.material_number ?? "—"}</p>
           </div>
           <div className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
-            <p className="text-xs font-semibold text-[#7e8da1]">Densità di riferimento</p>
+            <p className="text-xs font-semibold text-[#7e8da1]">Densità usata nei riferimenti</p>
             <p className="mt-1 text-lg font-semibold text-[#1e2b45]">
               {grade.density_kg_m3 ? `${grade.density_kg_m3.toLocaleString("it-IT")} kg/m³` : "—"}
             </p>
+            <p className="mt-1 text-[11px] leading-4 text-[#8a99ac]">Valore di riferimento del catalogo, non tolleranza di fornitura.</p>
           </div>
         </section>
 
@@ -138,6 +177,36 @@ export default async function GradeDetailPage({
           </section>
         ))}
 
+        {grade.related_grade_pages.length ? (
+          <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">Gradi correlati</p>
+            <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">Materiali utili da confrontare</h2>
+            <p className="mt-2 text-sm leading-6 text-[#68788e]">
+              Il collegamento serve a orientare la ricerca. Un materiale correlato non è automaticamente equivalente
+              o sostituibile.
+            </p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {grade.related_grade_pages.map((related) => (
+                <Link
+                  key={related.slug}
+                  href={`/knowledge/gradi/${related.slug}`}
+                  className="rounded-2xl border border-[#e1e8f2] bg-[#f8fbff] p-4 transition hover:border-[#bdd1f4]"
+                >
+                  <p className="font-semibold text-[#1e2b45]">{related.designation}</p>
+                  {related.material_number ? (
+                    <p className="mt-1 text-xs text-[#7e8da1]">Materiale {related.material_number}</p>
+                  ) : null}
+                  {related.material_family ? (
+                    <p className="mt-3 text-xs font-semibold text-[#2f6fed]">
+                      {materialFamilyLabel(related.material_family)}
+                    </p>
+                  ) : null}
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
         {grade.related_standards.length ? (
           <section className="rounded-3xl border border-[#dbe7f7] bg-[#f8fbff] p-6 sm:p-8">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Norme collegate</p>
@@ -145,8 +214,8 @@ export default async function GradeDetailPage({
               Dove compare {grade.designation}
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#68788e]">
-              Una relazione con una norma non equivale automaticamente a sostituibilità o equivalenza normativa.
-              Steel Knowledge conserva il tipo di evidenza disponibile.
+              Il tipo di evidenza resta visibile. Una gamma produttore o fornitore non viene presentata come
+              applicabilità normativa e una relazione con una norma non implica sostituibilità.
             </p>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -188,6 +257,10 @@ export default async function GradeDetailPage({
                 );
               })}
             </div>
+
+            <Link href="/knowledge/norme" className="mt-5 inline-flex text-sm font-semibold text-[#2f6fed]">
+              Esplora il catalogo norme →
+            </Link>
           </section>
         ) : null}
 
@@ -205,13 +278,62 @@ export default async function GradeDetailPage({
           </section>
         ) : null}
 
+        <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">Fonti</p>
+              <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">Riferimenti consultati</h2>
+            </div>
+            <p className="text-xs text-[#8a99ac]">Ultima revisione: {formatReviewDate(grade.last_reviewed_at)}</p>
+          </div>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#68788e]">
+            Le fonti di produttori e fornitori documentano gamme osservate; i riferimenti UNI definiscono il
+            contesto della norma. Nessuna fonte commerciale viene elevata a prova normativa completa.
+          </p>
+          <div className="mt-5 space-y-3">
+            {grade.source_references.map((source) => (
+              <a
+                key={source.url}
+                href={source.url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-start justify-between gap-4 rounded-2xl border border-[#e1e8f2] bg-[#f8fbff] p-4 transition hover:border-[#bdd1f4]"
+              >
+                <div>
+                  <p className="text-sm font-semibold text-[#1e2b45]">{source.label}</p>
+                  <p className="mt-1 text-xs text-[#68788e]">
+                    {source.publisher}{source.status ? ` · ${source.status}` : ""}
+                  </p>
+                </div>
+                <span className="shrink-0 text-sm font-semibold text-[#2f6fed]">Apri ↗</span>
+              </a>
+            ))}
+          </div>
+        </section>
+
         <aside className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
           <p className="text-sm font-semibold text-amber-950">Equivalenze e sostituzioni</p>
           <p className="mt-2 text-sm leading-6 text-amber-800">
-            Stesso numero materiale, somiglianza commerciale o una cross-reference di fornitore non autorizzano
-            automaticamente una sostituzione normativa. Per la conformità fa fede la documentazione applicabile.
+            Stesso numero materiale, sigla simile, grado correlato o cross-reference commerciale non autorizzano
+            automaticamente una sostituzione. Per conformità e progetto fanno fede norma applicabile,
+            documentazione del materiale e requisiti contrattuali.
           </p>
         </aside>
+
+        <section className="grid gap-4 sm:grid-cols-2">
+          <Link
+            href="/knowledge/gradi"
+            className="rounded-2xl border border-[#e1e8f2] bg-white p-5 text-sm font-semibold text-[#2f6fed] hover:border-[#bdd1f4]"
+          >
+            ← Torna al catalogo gradi
+          </Link>
+          <Link
+            href="/knowledge/tubes"
+            className="rounded-2xl border border-[#d7e5ff] bg-[#eef5ff] p-5 text-sm font-semibold text-[#2f6fed] hover:border-[#bdd1f4]"
+          >
+            Continua con pesi & dimensioni →
+          </Link>
+        </section>
       </article>
     </div>
   );
