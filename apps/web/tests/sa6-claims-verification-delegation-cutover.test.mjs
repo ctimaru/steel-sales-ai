@@ -29,7 +29,7 @@ const migration = fs.readFileSync(
 test("SA6 exposes Company Claims to authorized Platform Staff", () => {
   assert.match(
     navigation,
-    /href: "\/platform\/company-claims"[\s\S]*?permission: "claims\.read"[\s\S]*?staffEnabled: true/,
+    /href: appRoutes\.platform\.claims[\s\S]*?permission: "claims\.read"[\s\S]*?staffEnabled: true/,
   );
   assert.match(home, /canReadClaims/);
   assert.match(home, /context\.permissions\.includes\("claims\.read"\)/);
