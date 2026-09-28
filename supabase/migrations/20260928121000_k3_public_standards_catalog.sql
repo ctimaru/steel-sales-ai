@@ -273,7 +273,7 @@ where s.id=p.standard_id
 update public.steel_knowledge_standard_pages p
 set
   page_status='published',
-  seo_title='EN 10217-2: tubi saldati per pressione ad alta temperatura',
+  seo_title='EN 10217-2: tubi saldati per pressione a temperatura elevata',
   seo_description='Guida alla EN 10217-2: tubi saldati elettricamente per pressione con proprietà a temperatura elevata, materiali e confronto con EN 10216-2.',
   intro='EN 10217-2 riguarda tubi saldati elettricamente per impieghi in pressione con proprietà specificate a temperatura elevata. È il riferimento della serie EN 10217 da leggere quando il servizio richiede prestazioni del materiale in temperatura e il processo di fabbricazione è saldato elettricamente.',
   what_it_covers='L’edizione 2019 specifica condizioni tecniche di fornitura, in due categorie di prova, per tubi saldati elettricamente di sezione circolare. Il campo comprende acciai non legati di qualità e acciai legati speciali con proprietà specificate a temperatura elevata.',
