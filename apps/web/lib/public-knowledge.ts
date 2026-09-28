@@ -217,3 +217,51 @@ export async function listPublicTubeWeightReferences(productFamily?: string) {
     p_offset: 0,
   });
 }
+
+
+export type PublicTubeDimensionSummary = {
+  dimension_slug: string;
+  reference_id: string;
+  geometry_id: string;
+  product_family: "round_tube" | "square_tube" | "rectangular_tube";
+  outer_diameter_mm: number | null;
+  width_mm: number | null;
+  height_mm: number | null;
+  thickness_mm: number;
+  weight_kg_m: number;
+  weight_method: string;
+  density_kg_m3: number | null;
+  source_provider: string;
+  source_name: string | null;
+  source_url: string;
+  published_at: string;
+};
+
+export type PublicTubeRelatedDimension = {
+  dimension_slug: string;
+  product_family: PublicTubeDimensionSummary["product_family"];
+  outer_diameter_mm: number | null;
+  width_mm: number | null;
+  height_mm: number | null;
+  thickness_mm: number;
+  weight_kg_m: number;
+};
+
+export type PublicTubeDimension = PublicTubeDimensionSummary & {
+  related_dimensions: PublicTubeRelatedDimension[];
+};
+
+export async function listPublicTubeDimensionPages(productFamily?: string) {
+  return rpcRows<PublicTubeDimensionSummary>("k6_public_tube_dimension_pages", {
+    p_product_family: productFamily?.trim() || null,
+    p_limit: 500,
+    p_offset: 0,
+  });
+}
+
+export async function getPublicTubeDimension(slug: string) {
+  const rows = await rpcRows<PublicTubeDimension>("k6_public_tube_dimension_page", {
+    p_slug: slug,
+  });
+  return rows[0] ?? null;
+}
