@@ -48,7 +48,9 @@ const marketplaceNav: NavItem[] = [
 
 const knowledgeNav: NavItem[] = [
   { href: appRoutes.knowledge.home, label: "Knowledge Home", shortLabel: "Knowledge" },
-  { href: appRoutes.knowledge.tubes, label: "Tubi, norme & pesi", shortLabel: "Norme & pesi" },
+  { href: appRoutes.knowledge.standards, label: "Norme" },
+  { href: appRoutes.knowledge.grades, label: "Gradi di acciaio", shortLabel: "Gradi" },
+  { href: appRoutes.knowledge.tubes, label: "Pesi & dimensioni", shortLabel: "Pesi" },
 ];
 
 const operationsNav: NavItem[] = [
