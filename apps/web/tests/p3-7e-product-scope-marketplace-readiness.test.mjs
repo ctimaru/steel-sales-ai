@@ -74,8 +74,8 @@ test("P3.7E public Company Profile presents scope without claiming verification"
   assert.match(network, /technical_scope: PublicProductTechnicalScope/);
   assert.match(network, /p3_7e_public_product_scope/);
   assert.match(profile, /Technical scope/);
-  assert.match(profile, /Range dichiarati/);
-  assert.match(profile, /Lo scope tecnico indica ciò che l&apos;azienda dichiara di trattare/);
+  assert.match(profile, /Range pubblicati/);
+  assert.match(profile, /Lo scope tecnico può derivare da fonti pubbliche/);
   assert.match(profile, /VerificationBadge status=\{standard\.verification_status\}/);
   assert.match(profile, /ProvenanceBadge kind=\{standard\.provenance_kind\}/);
 });

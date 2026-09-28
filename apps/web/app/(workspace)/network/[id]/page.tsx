@@ -16,6 +16,7 @@ import {
   getNetworkCompanyLogoUrl,
   getNetworkFollowState,
   getNetworkProfile,
+  type PublicProductTechnicalScope,
   type PublicProfileProvenanceKind,
 } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
@@ -118,6 +119,17 @@ function validityLabel(state: "valid" | "expired" | "not_yet_valid" | "unknown")
   return "Validità non indicata";
 }
 
+
+function uniqueBy<T>(items: T[], keyFor: (item: T) => string) {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = keyFor(item);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 export default async function NetworkCompanyProfilePage({
   params,
   searchParams,
@@ -194,6 +206,81 @@ export default async function NetworkCompanyProfilePage({
     profile.trust.verified_facilities +
     profile.trust.verified_capabilities +
     profile.trust.verified_certifications;
+
+  const productGroupMap = new Map<
+    string,
+    {
+      key: string;
+      name: string;
+      facility_id: string | null;
+      relationships: string[];
+      provenanceKinds: PublicProfileProvenanceKind[];
+      technical_scope: PublicProductTechnicalScope;
+    }
+  >();
+
+  for (const product of profile.products) {
+    const groupKey = product.key + "|" + (product.facility_id ?? "");
+    const existing = productGroupMap.get(groupKey);
+    if (!existing) {
+      productGroupMap.set(groupKey, {
+        key: product.key,
+        name: product.name,
+        facility_id: product.facility_id,
+        relationships: [product.relationship_type],
+        provenanceKinds: [product.provenance_kind],
+        technical_scope: {
+          standards: [...product.technical_scope.standards],
+          grades: [...product.technical_scope.grades],
+          dimensions: [...product.technical_scope.dimensions],
+        },
+      });
+      continue;
+    }
+
+    existing.relationships = uniqueBy(
+      [...existing.relationships, product.relationship_type],
+      (item) => item,
+    );
+    existing.provenanceKinds = uniqueBy(
+      [...existing.provenanceKinds, product.provenance_kind],
+      (item) => item,
+    );
+    existing.technical_scope = {
+      standards: uniqueBy(
+        [...existing.technical_scope.standards, ...product.technical_scope.standards],
+        (item) => item.standard_id,
+      ),
+      grades: uniqueBy(
+        [...existing.technical_scope.grades, ...product.technical_scope.grades],
+        (item) => item.standard_id + "|" + item.material_grade_id,
+      ),
+      dimensions: uniqueBy(
+        [...existing.technical_scope.dimensions, ...product.technical_scope.dimensions],
+        (item) => item.dimension_type,
+      ),
+    };
+  }
+
+  const productGroups = Array.from(productGroupMap.values());
+  const technicalStandards = uniqueBy(
+    productGroups.flatMap((product) => product.technical_scope.standards),
+    (item) => item.standard_id,
+  );
+  const technicalGrades = uniqueBy(
+    productGroups.flatMap((product) => product.technical_scope.grades),
+    (item) => item.standard_id + "|" + item.material_grade_id,
+  );
+  const capabilities = uniqueBy(
+    profile.facilities.flatMap((facility) => facility.capabilities),
+    (item) => item.key,
+  );
+  const locationLabels = uniqueBy(
+    profile.facilities
+      .map((facility) => [facility.city, facility.country_code].filter(Boolean).join(", "))
+      .filter(Boolean),
+    (item) => item,
+  );
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-16">
@@ -333,33 +420,31 @@ export default async function NetworkCompanyProfilePage({
 
         <div className="grid gap-px bg-[#e8eef6] sm:grid-cols-2 lg:grid-cols-4">
           <div className="bg-white p-5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#92a0b1]">Profilo</p>
-            <p className="mt-2 text-2xl font-semibold text-[#1e2b45]">{profile.completeness.percentage}%</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#92a0b1]">Prodotti</p>
+            <p className="mt-2 text-2xl font-semibold text-[#1e2b45]">{productGroups.length}</p>
             <p className="mt-1 text-xs text-[#718197]">
-              completezza dati · {profile.completeness.passed_sections}/{profile.completeness.total_sections} sezioni
+              famiglie · {profile.products.length} relazioni commerciali
             </p>
           </div>
           <div className="bg-white p-5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#92a0b1]">Ownership</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#92a0b1]">Technical scope</p>
             <p className="mt-2 text-base font-semibold text-[#1e2b45]">
-              {profile.trust.claimed ? "Gestito dall'azienda" : "Non rivendicato"}
+              {technicalStandards.length} norme · {technicalGrades.length} gradi
             </p>
-            <p className="mt-1 text-xs text-[#718197]">Claim e verifica sono stati separati.</p>
+            <p className="mt-1 text-xs text-[#718197]">Collegati alla Steel Knowledge canonica.</p>
           </div>
           <div className="bg-white p-5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#92a0b1]">Verification</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#92a0b1]">Servizi industriali</p>
+            <p className="mt-2 text-2xl font-semibold text-[#1e2b45]">{capabilities.length}</p>
+            <p className="mt-1 text-xs text-[#718197]">capability pubblicate sulle sedi.</p>
+          </div>
+          <div className="bg-white p-5">
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#92a0b1]">Presenza</p>
             <p className="mt-2 text-base font-semibold text-[#1e2b45]">
-              {profile.trust.verified ? "Company verified" : "Non verificata"}
+              {profile.facilities.length} sedi · {profile.markets.length} mercati
             </p>
             <p className="mt-1 text-xs text-[#718197]">
-              {verifiedAssetCount} elementi strutturati verificati
-            </p>
-          </div>
-          <div className="bg-white p-5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#92a0b1]">Industrial footprint</p>
-            <p className="mt-2 text-base font-semibold text-[#1e2b45]">{profile.facilities.length} sedi pubblicate</p>
-            <p className="mt-1 text-xs text-[#718197]">
-              {profile.facilities.reduce((count, facility) => count + facility.capabilities.length, 0)} capability
+              {profile.certifications.length} certificazioni pubblicate
             </p>
           </div>
         </div>
@@ -408,63 +493,95 @@ export default async function NetworkCompanyProfilePage({
         </section>
       ) : null}
 
+      <section className="rounded-3xl border border-[#dbe7f7] bg-[#f8fbff] p-6 sm:p-7">
+        <SectionHeader
+          eyebrow="Commercial snapshot"
+          title="Quello che serve sapere a colpo d'occhio"
+          description="Sintesi commerciale costruita dai dati pubblici, dichiarati o verificati presenti nel Network. Le fonti e il livello di trust restano visibili nelle sezioni di dettaglio."
+        />
+        <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-2xl border border-[#dfe7f1] bg-white p-4">
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Posizionamento</p>
+            <p className="mt-2 text-sm font-semibold text-[#2f4059]">
+              {primaryRole?.name ?? "Ruolo non definito"}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {profile.subtypes.slice(0, 4).map((subtype) => (
+                <span key={subtype.key} className="rounded-full bg-[#f2f5f8] px-2.5 py-1 text-[11px] font-semibold text-[#65758a]">
+                  {subtype.name}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[#dfe7f1] bg-white p-4">
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Prodotti</p>
+            <div className="mt-2 space-y-2">
+              {productGroups.slice(0, 4).map((product) => (
+                <div key={product.key + String(product.facility_id)}>
+                  <p className="text-sm font-semibold text-[#2f4059]">{product.name}</p>
+                  <p className="mt-0.5 text-xs text-[#718197]">
+                    {product.relationships
+                      .map((relationship) => relationshipLabels[relationship] || relationship)
+                      .join(" · ")}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[#dfe7f1] bg-white p-4">
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Norme e materiali</p>
+            {technicalStandards.length || technicalGrades.length ? (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {technicalStandards.slice(0, 5).map((standard) => (
+                  <span key={standard.standard_id} className="rounded-lg border border-[#d8e5f8] bg-[#f6f9ff] px-2.5 py-1.5 text-xs font-semibold text-[#2f6fed]">
+                    {standard.code}
+                  </span>
+                ))}
+                {technicalGrades.slice(0, 5).map((grade) => (
+                  <span key={grade.standard_id + grade.material_grade_id} className="rounded-lg border border-[#e1e8f2] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#4b5d74]">
+                    {grade.designation}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-2 text-sm leading-6 text-[#8a98aa]">Scope tecnico non ancora pubblicato.</p>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-[#dfe7f1] bg-white p-4">
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Servizi e mercati</p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {capabilities.slice(0, 5).map((capability) => (
+                <span key={capability.key} className="rounded-full bg-[#eef5ff] px-2.5 py-1 text-[11px] font-semibold text-[#2f6fed]">
+                  {capability.name}
+                </span>
+              ))}
+              {profile.markets.slice(0, 4).map((market) => (
+                <span key={market.key} className="rounded-full bg-[#f2f5f8] px-2.5 py-1 text-[11px] font-semibold text-[#65758a]">
+                  {market.name}
+                </span>
+              ))}
+            </div>
+            {locationLabels.length ? (
+              <p className="mt-3 text-xs leading-5 text-[#718197]">{locationLabels.join(" · ")}</p>
+            ) : null}
+          </div>
+        </div>
+      </section>
+
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-6">
           <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-7">
             <SectionHeader
-              eyebrow="Industrial positioning"
-              title="Ruolo nella filiera"
-              description="Ruoli e specializzazioni descrivono come l'azienda opera all'interno del mercato siderurgico."
-            />
-
-            <div className="mt-5 grid gap-5 md:grid-cols-2">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Ruoli</p>
-                <div className="mt-3 space-y-2">
-                  {profile.roles.length ? (
-                    profile.roles.map((role) => (
-                      <div key={role.key} className="rounded-2xl border border-[#e4eaf2] bg-[#fbfcfe] p-3.5">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <p className="text-sm font-semibold text-[#34445c]">
-                            {role.name}{role.is_primary ? " · principale" : ""}
-                          </p>
-                          <ProvenanceBadge kind={role.provenance_kind} />
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-[#91a0b2]">Nessun ruolo pubblicato.</p>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Specializzazioni</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {profile.subtypes.length ? (
-                    profile.subtypes.map((subtype) => (
-                      <div key={subtype.key} className="rounded-xl border border-[#e4eaf2] bg-white px-3 py-2">
-                        <p className="text-sm font-semibold text-[#4a5b72]">{subtype.name}</p>
-                        <div className="mt-1.5"><ProvenanceBadge kind={subtype.provenance_kind} /></div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-[#91a0b2]">Nessuna specializzazione pubblicata.</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-7">
-            <SectionHeader
               eyebrow="Products"
               title="Prodotti e disponibilità industriale"
-              description="Le relazioni prodotto distinguono ciò che l'azienda produce, distribuisce, tiene a stock, trasforma o utilizza."
+              description="Ogni famiglia prodotto è presentata una sola volta. Stock, distribuzione, produzione e lavorazioni vengono accorpati per rendere immediata la lettura commerciale."
             />
             <div className="mt-5 grid gap-4 lg:grid-cols-2">
-              {profile.products.length ? (
-                profile.products.map((product, index) => {
+              {productGroups.length ? (
+                productGroups.map((product) => {
                   const facility = profile.facilities.find((item) => item.id === product.facility_id);
                   const hasTechnicalScope =
                     product.technical_scope.standards.length > 0 ||
@@ -473,18 +590,31 @@ export default async function NetworkCompanyProfilePage({
 
                   return (
                     <article
-                      key={product.key + product.relationship_type + String(product.facility_id) + index}
-                      className="rounded-2xl border border-[#e1e8f2] bg-[#fbfcfe] p-5"
+                      key={product.key + String(product.facility_id)}
+                      className="rounded-2xl border border-[#dfe7f1] bg-[#fbfcfe] p-5"
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                          <p className="font-semibold text-[#2f4059]">{product.name}</p>
-                          <p className="mt-1 text-sm text-[#67778d]">
-                            {relationshipLabels[product.relationship_type] || product.relationship_type}
-                            {facility ? " · " + facility.name : ""}
-                          </p>
+                          <p className="text-lg font-semibold text-[#2f4059]">{product.name}</p>
+                          {facility ? (
+                            <p className="mt-1 text-xs text-[#7b8a9d]">{facility.name}</p>
+                          ) : null}
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {product.relationships.map((relationship) => (
+                              <span
+                                key={relationship}
+                                className="rounded-full border border-[#d8e5f8] bg-[#f4f8ff] px-2.5 py-1 text-[11px] font-semibold text-[#2f6fed]"
+                              >
+                                {relationshipLabels[relationship] || relationship}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                        <ProvenanceBadge kind={product.provenance_kind} />
+                        <div className="flex flex-wrap justify-end gap-1.5">
+                          {product.provenanceKinds.map((kind) => (
+                            <ProvenanceBadge key={kind} kind={kind} />
+                          ))}
+                        </div>
                       </div>
 
                       {hasTechnicalScope ? (
@@ -540,7 +670,7 @@ export default async function NetworkCompanyProfilePage({
 
                           {product.technical_scope.dimensions.length ? (
                             <div>
-                              <p className="text-xs font-semibold text-[#718197]">Range dichiarati</p>
+                              <p className="text-xs font-semibold text-[#718197]">Range pubblicati</p>
                               <div className="mt-2 flex flex-wrap gap-2">
                                 {product.technical_scope.dimensions.map((dimension) => (
                                   <div
@@ -564,12 +694,12 @@ export default async function NetworkCompanyProfilePage({
                           ) : null}
 
                           <p className="text-[11px] leading-5 text-[#8795a7]">
-                            Lo scope tecnico indica ciò che l&apos;azienda dichiara di trattare; la verifica Platform resta un segnale separato.
+                            Lo scope tecnico può derivare da fonti pubbliche, dichiarazioni aziendali o verifiche Platform; i badge indicano sempre l'origine e il livello di trust.
                           </p>
                         </div>
                       ) : (
                         <p className="mt-4 border-t border-[#e5ecf5] pt-4 text-xs leading-5 text-[#8a98aa]">
-                          Scope tecnico non ancora dichiarato.
+                          Scope tecnico non ancora pubblicato.
                         </p>
                       )}
                     </article>
@@ -578,6 +708,52 @@ export default async function NetworkCompanyProfilePage({
               ) : (
                 <p className="text-sm text-[#91a0b2]">Nessun prodotto pubblicato.</p>
               )}
+            </div>
+          </section>
+
+          <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-7">
+            <SectionHeader
+              eyebrow="Industrial positioning"
+              title="Ruolo nella filiera"
+              description="Ruoli e specializzazioni descrivono come l'azienda opera all'interno del mercato siderurgico."
+            />
+
+            <div className="mt-5 grid gap-5 md:grid-cols-2">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Ruoli</p>
+                <div className="mt-3 space-y-2">
+                  {profile.roles.length ? (
+                    profile.roles.map((role) => (
+                      <div key={role.key} className="rounded-2xl border border-[#e4eaf2] bg-[#fbfcfe] p-3.5">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <p className="text-sm font-semibold text-[#34445c]">
+                            {role.name}{role.is_primary ? " · principale" : ""}
+                          </p>
+                          <ProvenanceBadge kind={role.provenance_kind} />
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-[#91a0b2]">Nessun ruolo pubblicato.</p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Specializzazioni</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {profile.subtypes.length ? (
+                    profile.subtypes.map((subtype) => (
+                      <div key={subtype.key} className="rounded-xl border border-[#e4eaf2] bg-white px-3 py-2">
+                        <p className="text-sm font-semibold text-[#4a5b72]">{subtype.name}</p>
+                        <div className="mt-1.5"><ProvenanceBadge kind={subtype.provenance_kind} /></div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-[#91a0b2]">Nessuna specializzazione pubblicata.</p>
+                  )}
+                </div>
+              </div>
             </div>
           </section>
 
@@ -640,8 +816,8 @@ export default async function NetworkCompanyProfilePage({
           <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-7">
             <SectionHeader
               eyebrow="Markets"
-              title="Mercati serviti"
-              description="Settori applicativi e mercati nei quali l'azienda dichiara di operare."
+              title="Mercati e applicazioni"
+              description="Settori applicativi supportati dalle evidenze pubbliche, aziendali o verificate disponibili nel Network."
             />
             <div className="mt-5 flex flex-wrap gap-2">
               {profile.markets.length ? (
@@ -660,8 +836,8 @@ export default async function NetworkCompanyProfilePage({
           <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-7">
             <SectionHeader
               eyebrow="Trust"
-              title="Certificazioni"
-              description="La piattaforma distingue sempre tra certificazioni dichiarate e certificazioni verificate."
+              title="Certificazioni pubblicate"
+              description="Le certificazioni presenti nel profilo mantengono fonte e stato di verifica separati: pubblicato non significa automaticamente verificato dalla Platform."
             />
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               {profile.certifications.length ? (
@@ -764,6 +940,9 @@ export default async function NetworkCompanyProfilePage({
             </p>
             <p className="mt-2 text-xs leading-5 text-[#718197]">
               Un profilo rivendicato indica chi lo gestisce. La verifica indica invece controlli eseguiti dalla piattaforma su azienda o singoli elementi.
+            </p>
+            <p className="mt-3 text-xs font-semibold text-[#52637a]">
+              {verifiedAssetCount} elementi strutturati verificati
             </p>
           </section>
         </aside>

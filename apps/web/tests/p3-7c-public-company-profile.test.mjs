@@ -33,7 +33,7 @@ test("P3.7C composes trust, provenance and industrial sections on the public pro
   assert.match(page, /Ruolo nella filiera/);
   assert.match(page, /Prodotti e disponibilità industriale/);
   assert.match(page, /Sedi e capability/);
-  assert.match(page, /Mercati serviti/);
+  assert.match(page, /Mercati e applicazioni/);
   assert.match(page, /Certificazioni/);
   assert.match(page, /Dichiarato dall'azienda/);
   assert.match(page, /La completezza indica solo la presenza delle sezioni del profilo/);
