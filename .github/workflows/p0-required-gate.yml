@@ -253,7 +253,8 @@ jobs:
             k3_public_standards_catalog.sql \
             k4_public_grades_catalog.sql \
             k5_public_tube_weight_calculator.sql \
-            k6_indexable_dimension_pages.sql; do
+            k6_indexable_dimension_pages.sql \
+            k7_knowledge_seo_clusters.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
