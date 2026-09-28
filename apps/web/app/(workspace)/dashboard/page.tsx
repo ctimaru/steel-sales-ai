@@ -107,6 +107,9 @@ export default async function DashboardPage() {
         <div className="mb-3">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">Oggi nel workspace</p>
           <h2 className="mt-1 text-xl font-semibold text-[#1e2b45]">Cosa richiede attenzione</h2>
+          <p className="mt-1 text-sm text-[#68788e]">
+            Una lettura rapida delle priorità operative e dei segnali più recenti.
+          </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Link
@@ -119,7 +122,58 @@ export default async function DashboardPage() {
           >
             <p className="metric-number text-3xl font-semibold text-[#1e2b45]">{metrics.reviewFlags}</p>
             <p className="mt-1 text-xs font-semibold text-[#68788e]">Elementi da verificare</p>
-            <section className="rounded-3xl border border-[#dbe7f7] bg-[#f8fbff] p-6 sm:p-7">
+            {metrics.reviewFlags > 0 ? (
+              <p className="mt-2 text-[11px] font-semibold text-amber-700">Richiede decisione umana →</p>
+            ) : null}
+          </Link>
+
+          {networkEnabled ? (
+            <Link
+              href={appRoutes.network.inquiries + "?box=received"}
+              className="rounded-2xl border border-[#e1e8f2] bg-white p-5 transition hover:border-[#bdd1f4]"
+            >
+              <p className="metric-number text-3xl font-semibold text-[#1e2b45]">{received.total}</p>
+              <p className="mt-1 text-xs font-semibold text-[#68788e]">Inquiry ricevute</p>
+            </Link>
+          ) : (
+            <Link
+              href={appRoutes.commercial.products}
+              className="rounded-2xl border border-[#e1e8f2] bg-white p-5 transition hover:border-[#bdd1f4]"
+            >
+              <p className="metric-number text-3xl font-semibold text-[#1e2b45]">{operational.offers}</p>
+              <p className="mt-1 text-xs font-semibold text-[#68788e]">Offerte normalizzate</p>
+            </Link>
+          )}
+
+          {networkEnabled ? (
+            <Link
+              href={appRoutes.network.activity + "?unread=1"}
+              className="rounded-2xl border border-[#e1e8f2] bg-white p-5 transition hover:border-[#bdd1f4]"
+            >
+              <p className="metric-number text-3xl font-semibold text-[#1e2b45]">{activity.unread}</p>
+              <p className="mt-1 text-xs font-semibold text-[#68788e]">Activity Network non letta</p>
+            </Link>
+          ) : (
+            <Link
+              href={appRoutes.commercial.companies}
+              className="rounded-2xl border border-[#e1e8f2] bg-white p-5 transition hover:border-[#bdd1f4]"
+            >
+              <p className="metric-number text-3xl font-semibold text-[#1e2b45]">{metrics.threads}</p>
+              <p className="mt-1 text-xs font-semibold text-[#68788e]">Conversazioni commerciali</p>
+            </Link>
+          )}
+
+          <Link
+            href={appRoutes.commercial.products}
+            className="rounded-2xl border border-[#e1e8f2] bg-white p-5 transition hover:border-[#bdd1f4]"
+          >
+            <p className="metric-number text-3xl font-semibold text-[#1e2b45]">{operational.orders}</p>
+            <p className="mt-1 text-xs font-semibold text-[#68788e]">Ordini normalizzati</p>
+          </Link>
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-[#dbe7f7] bg-[#f8fbff] p-6 sm:p-7">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Commercial Memory</p>
