@@ -89,7 +89,7 @@ test("sales navigation is grouped by private workspace and shared product spaces
 
 
 test("Home is an operational cockpit while Search owns the dedicated search workspace", () => {
-  assert.match(dashboard, /Home Workspace/);
+  assert.match(dashboard, /Il centro operativo della tua azienda/);
   assert.match(dashboard, /Oggi nel workspace/);
   assert.match(dashboard, /href=\{appRoutes\.commercial\.search\}/);
   assert.match(dashboard, /Ricerca nello storico/);
@@ -106,8 +106,8 @@ test("Home is an operational cockpit while Search owns the dedicated search work
 
 test("Home exposes corrections contextually only when review work exists", () => {
   assert.match(dashboard, /metrics\.reviewFlags > 0/);
-  assert.match(dashboard, /Richiede attenzione/);
-  assert.match(dashboard, /Apri correzioni/);
+  assert.match(dashboard, /Richiede decisione umana/);
+  assert.match(dashboard, /Elementi da verificare/);
   assert.match(dashboard, /href=\{appRoutes\.operations\.review\}/);
   assert.doesNotMatch(dashboard, /<h3 className="mt-3 font-semibold text-slate-950">Correggi i dati<\/h3>/);
 });
@@ -130,5 +130,5 @@ test("sales surfaces avoid infrastructure terminology", () => {
   assert.match(component, /Riferimento verificato/);
   assert.match(component, /Rilevanza/);
   assert.match(dashboard, /conversazioni commerciali/i);
-  assert.match(dashboard, /casi in cui il sistema richiede una decisione umana/);
+  assert.match(dashboard, /Richiede decisione umana/);
 });
