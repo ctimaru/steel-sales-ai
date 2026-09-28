@@ -21,11 +21,20 @@ export const metadata: Metadata = {
 
 const knowledgeAreas = [
   {
-    eyebrow: "Norme & gradi",
-    title: "Capire standard e materiali",
+    eyebrow: "Norme",
+    title: "Capire cosa disciplina ogni standard",
     description:
-      "Spiegazioni chiare su cosa disciplina ogni norma, quali prodotti copre e come leggere le sigle dei principali gradi di acciaio.",
-    status: "Prossimo blocco",
+      "Ambito, prodotti coperti, processi e collegamenti ai gradi con il tipo di evidenza sempre esplicito.",
+    status: "Catalogo",
+    href: "/knowledge/norme",
+  },
+  {
+    eyebrow: "Gradi di acciaio",
+    title: "Leggere designazioni e materiali",
+    description:
+      "Significato delle sigle, numeri materiale, applicazioni e norme collegate senza equivalenze automatiche.",
+    status: "Catalogo",
+    href: "/knowledge/gradi",
   },
   {
     eyebrow: "Pesi & dimensioni",
@@ -81,7 +90,7 @@ export default function KnowledgeHomePage() {
           </p>
         </div>
 
-        <div className="mt-6 grid gap-4 lg:grid-cols-3">
+        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {knowledgeAreas.map((area) => {
             const body = (
               <>
@@ -96,7 +105,7 @@ export default function KnowledgeHomePage() {
                 {"href" in area ? (
                   <p className="mt-5 text-xs font-semibold text-[#2f6fed]">Apri sezione →</p>
                 ) : (
-                  <p className="mt-5 text-xs font-semibold text-[#8a99ac]">Contenuti strutturati nel prossimo blocco</p>
+                  <p className="mt-5 text-xs font-semibold text-[#8a99ac]">Guide in preparazione</p>
                 )}
               </>
             );
