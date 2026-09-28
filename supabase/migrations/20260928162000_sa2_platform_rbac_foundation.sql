@@ -1134,7 +1134,7 @@ begin
   return query
   select
     ps.user_id,
-    u.email,
+    u.email::text,
     ps.status,
     private.sa2_active_role_keys(ps.user_id),
     ps.activated_at,
