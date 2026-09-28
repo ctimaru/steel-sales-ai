@@ -8,6 +8,7 @@ import {
 export default async function PlatformHomePage() {
   const context = await requirePlatformConsoleContext();
   const canReadRegistrations = context.permissions.includes("registrations.read");
+  const canReadDiscovery = context.permissions.includes("discovery.read");
   const queue = canReadRegistrations ? await getRegistrationQueue() : null;
   const counts = (queue?.applications ?? []).reduce<Record<string, number>>(
     (acc, application) => {
@@ -121,7 +122,7 @@ export default async function PlatformHomePage() {
           </Link>
         ) : null}
 
-        {context.is_platform_owner ? (
+        {canReadDiscovery ? (
           <Link
             href="/platform/company-discovery"
             className="rounded-2xl border border-[#e1e8f2] bg-white p-6 transition hover:border-[#bdd1f4] hover:shadow-sm"
@@ -133,13 +134,13 @@ export default async function PlatformHomePage() {
               Company Discovery
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#68788e]">
-              Area ancora root-only in SA4. Il cutover dello staff Network avverrà in un passaggio dedicato.
+              Avvia o revisiona discovery pubbliche secondo le permission del tuo role template, senza accesso ai dati commerciali dei tenant.
             </p>
           </Link>
         ) : null}
       </section>
 
-      {!context.is_platform_owner && !canReadRegistrations ? (
+      {!context.is_platform_owner && !canReadRegistrations && !canReadDiscovery ? (
         <section className="rounded-3xl border border-dashed border-[#cfdbea] bg-white/80 px-6 py-10 text-center">
           <p className="font-semibold text-[#1e2b45]">
             Nessun modulo operativo ancora abilitato
