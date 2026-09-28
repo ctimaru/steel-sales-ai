@@ -49,7 +49,7 @@ create table public.steel_knowledge_standard_pages (
   published_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  check (slug ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$'),
+  check (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
   check (
     page_status <> 'published'
     or (
@@ -83,7 +83,7 @@ create table public.steel_knowledge_grade_pages (
   published_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  check (slug ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$'),
+  check (slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$'),
   check (
     page_status <> 'published'
     or (
