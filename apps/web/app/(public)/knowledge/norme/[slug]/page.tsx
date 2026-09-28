@@ -142,10 +142,10 @@ export default async function StandardDetailPage({
           {standard.issuing_body ? (
             <div className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
               <p className="text-xs font-semibold text-[#7e8da1]">Ente / riferimento</p>
-              <p className="mt-1 text-sm font-semibold text-[#1e2b45]">{standard.issuing_body}</p>
+              <p className="mt-1 text-sm font-semibold text-[#1e2b45]">{standard.issuing_body.split(";")[0]}</p>
             </div>
           ) : null}
-          {standard.edition ? (
+          {standard.edition && !standard.edition.includes("manufacturer-reference") ? (
             <div className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
               <p className="text-xs font-semibold text-[#7e8da1]">Edizione / stato</p>
               <p className="mt-1 text-sm font-semibold text-[#1e2b45]">{standard.edition}</p>
