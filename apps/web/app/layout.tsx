@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
+import { googleSiteVerification } from "@/lib/seo";
 import { siteUrl } from "@/lib/site";
 
 import "./globals.css";
@@ -17,6 +18,9 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+  },
+  verification: {
+    google: googleSiteVerification(),
   },
 };
 
