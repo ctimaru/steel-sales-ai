@@ -48,7 +48,7 @@ test("P3.6 claim workflow is available to company admins and Platform Superadmin
   assert.match(networkActions, /p3_6_request_company_claim/);
   assert.match(profile, /Rivendica questo profilo/);
   assert.match(profile, /Ownership verificata/);
-  assert.match(platformNavigation, /\/platform\/company-claims/);
+  assert.match(platformNavigation, /appRoutes\.platform\.claims/);
   assert.match(platformClaims, /Company Claims/);
   assert.match(platformClaims, /Approva claim/);
   assert.match(platformClaimActions, /p3_6_review_claim_proof/);
