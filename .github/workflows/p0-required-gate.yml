@@ -251,7 +251,8 @@ jobs:
             p4_8_interaction_p5_readiness.sql \
             k2_public_knowledge_information_architecture.sql \
             k3_public_standards_catalog.sql \
-            k4_public_grades_catalog.sql; do
+            k4_public_grades_catalog.sql \
+            k5_public_tube_weight_calculator.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
