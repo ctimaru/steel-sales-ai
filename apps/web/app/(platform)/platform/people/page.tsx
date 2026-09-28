@@ -6,8 +6,8 @@ import {
 import {
   getPlatformStaffDirectory,
   getPlatformStaffInvitations,
+  requirePlatformSuperadmin,
 } from "@/lib/platform-admin";
-import { requirePlatformContext } from "@/lib/workspace-context";
 
 import {
   createPlatformStaffInvitation,
@@ -105,7 +105,8 @@ export default async function PlatformPeoplePage({
     error?: string;
   }>;
 }) {
-  const context = await requirePlatformContext();
+  await requirePlatformSuperadmin();
+  const context = { viewerLabel: "Platform Owner" };
   const [{ message, warning, error }, staff, invitations] = await Promise.all([
     searchParams,
     getPlatformStaffDirectory(),
