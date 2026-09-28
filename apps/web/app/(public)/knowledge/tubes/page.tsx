@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { PublicTubeWeightCalculator } from "@/components/public-tube-weight-calculator";
-import { listPublicTubeWeightReferences } from "@/lib/public-knowledge";
+import {
+  PublicTubeWeightCalculator,
+  type PublicTubeCalculatorInitialValues,
+} from "@/components/public-tube-weight-calculator";
+import { listPublicTubeDimensionPages } from "@/lib/public-knowledge";
 import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -44,8 +47,37 @@ const faq = [
   },
 ];
 
-export default async function PublicTubeWeightsPage() {
-  const references = await listPublicTubeWeightReferences();
+type SearchParams = Promise<{
+  family?: string;
+  od?: string;
+  width?: string;
+  height?: string;
+  thickness?: string;
+  length?: string;
+  quantity?: string;
+  density?: string;
+}>;
+
+export default async function PublicTubeWeightsPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const params = await searchParams;
+  const references = await listPublicTubeDimensionPages();
+  const supportedFamilies = new Set(["round_tube", "square_tube", "rectangular_tube"]);
+  const initialValues: PublicTubeCalculatorInitialValues = {
+    family: supportedFamilies.has(params.family ?? "")
+      ? (params.family as PublicTubeCalculatorInitialValues["family"])
+      : undefined,
+    outerDiameter: params.od,
+    width: params.width,
+    height: params.height,
+    thickness: params.thickness,
+    length: params.length,
+    quantity: params.quantity,
+    density: params.density,
+  };
 
   const calculatorJsonLd = {
     "@context": "https://schema.org",
@@ -121,7 +153,7 @@ export default async function PublicTubeWeightsPage() {
         </p>
       </header>
 
-      <PublicTubeWeightCalculator references={references} />
+      <PublicTubeWeightCalculator references={references} initialValues={initialValues} />
 
       <article className="grid gap-6 lg:grid-cols-[1fr_0.82fr]">
         <div className="space-y-6">
