@@ -51,7 +51,7 @@ export function PlatformShell({
           <div className="border-t border-[#e8eef7] p-4">
             <div className="rounded-xl border border-[#e3eaf5] bg-white p-3">
               <p className="truncate text-xs font-semibold text-[#34445c]">{viewerLabel}</p>
-              <p className="mt-1 text-[11px] font-medium text-[#6c7e96]">Platform Superadmin</p>
+              <p className="mt-1 text-[11px] font-medium text-[#6c7e96]">Platform Owner</p>
             </div>
             <form action={logout}>
               <button className="mt-3 w-full rounded-xl px-3 py-2 text-left text-xs font-semibold text-[#65758b] hover:bg-[#eef3fa] hover:text-[#2b3a52]">
