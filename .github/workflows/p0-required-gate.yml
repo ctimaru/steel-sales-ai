@@ -257,7 +257,8 @@ jobs:
             k7_knowledge_seo_clusters.sql \
             k8_organic_discovery_quality.sql \
             sa2_platform_rbac_foundation.sql \
-            sa3_people_access.sql; do
+            sa3_people_access.sql \
+            sa4_registration_delegation_cutover.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
