@@ -114,7 +114,7 @@ values
   'requested','SA6 rejection fixture','manual_review','pending'
 );
 
--- Claims & Verification Admin gets the claims capability set only.
+-- Claims & Ownership Admin gets the claims capability set only.
 set local role authenticated;
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-00000000a601',true);
 select set_config('request.jwt.claim.role','authenticated',true);
@@ -126,7 +126,7 @@ select pg_temp.sa6_assert(
   and public.has_platform_permission('claims.approve')
   and public.has_platform_permission('claims.reject')
   and public.has_platform_permission('claims.revoke'),
-  'Claims & Verification Admin must receive the complete Company Claims capability set'
+  'Claims & Ownership Admin must receive the complete Company Claims capability set'
 );
 
 select pg_temp.sa6_assert(
@@ -134,7 +134,7 @@ select pg_temp.sa6_assert(
   and not public.has_platform_permission('discovery.read')
   and not public.has_platform_permission('knowledge.read_drafts')
   and not public.has_platform_permission('platform.staff.read'),
-  'Claims & Verification Admin must remain outside Registrations, Discovery, Knowledge and staff governance'
+  'Claims & Ownership Admin must remain outside Registrations, Discovery, Knowledge and staff governance'
 );
 
 select public.p3_6_admin_claim_queue(null,100) as initial_queue \gset
@@ -145,7 +145,7 @@ select pg_temp.sa6_assert(
     from jsonb_array_elements(:'initial_queue'::jsonb->'items') item
     where item->>'claim_id'='00000000-0000-0000-0000-00000000a630'
   ),
-  'Claims & Verification Admin must read the claims queue'
+  'Claims & Ownership Admin must read the claims queue'
 );
 
 -- Approval remains impossible until ownership proof is verified.
@@ -214,10 +214,11 @@ select pg_temp.sa6_assert(
     select 1 from public.organization_memberships
     where user_id='00000000-0000-0000-0000-00000000a601'::uuid
   ),
-  'Claims & Verification Admin must not gain tenant membership'
+  'Claims & Ownership Admin must not gain tenant membership'
 );
 
--- Network verification remains Platform Owner-only.
+-- Network verification remains outside the Claims role. SA8 may delegate it to
+-- a distinct Network Trust role, but Claims & Ownership Admin never inherits it.
 set local role authenticated;
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-00000000a601',true);
 select set_config('request.jwt.claim.role','authenticated',true);
@@ -231,7 +232,7 @@ select pg_temp.sa6_assert_raises(
       null,
       'SA6 must not allow this'
     )$$,
-  'platform superadmin required'
+  'Platform permission required: network_trust.verify'
 );
 
 -- Proof rejection + claim rejection are also delegated and audited.

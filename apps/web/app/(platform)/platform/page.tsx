@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { getAdminCompanyClaimQueue } from "@/lib/company-claims";
 import { getPlatformKnowledgeQueue } from "@/lib/platform-knowledge";
+import { getNetworkTrustQueue } from "@/lib/platform-network-trust";
 import {
   getRegistrationQueue,
   requirePlatformConsoleContext,
@@ -13,9 +14,11 @@ export default async function PlatformHomePage() {
   const canReadDiscovery = context.permissions.includes("discovery.read");
   const canReadClaims = context.permissions.includes("claims.read");
   const canReadKnowledge = context.permissions.includes("knowledge.read_drafts");
+  const canReadNetworkTrust = context.permissions.includes("network_trust.read");
   const queue = canReadRegistrations ? await getRegistrationQueue() : null;
   const claimQueue = canReadClaims ? await getAdminCompanyClaimQueue() : null;
   const knowledgeQueue = canReadKnowledge ? await getPlatformKnowledgeQueue() : null;
+  const networkTrustQueue = canReadNetworkTrust ? await getNetworkTrustQueue() : null;
   const counts = (queue?.applications ?? []).reduce<Record<string, number>>(
     (acc, application) => {
       acc[application.application_status] =
@@ -178,9 +181,26 @@ export default async function PlatformHomePage() {
             </p>
           </Link>
         ) : null}
+
+        {canReadNetworkTrust ? (
+          <Link
+            href="/platform/network-trust"
+            className="rounded-2xl border border-[#e1e8f2] bg-white p-6 transition hover:border-[#bdd1f4] hover:shadow-sm"
+          >
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">
+              Trust &amp; moderation
+            </p>
+            <h2 className="mt-3 text-lg font-semibold text-[#1e2b45]">
+              Network Trust
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[#68788e]">
+              {networkTrustQueue?.counts.open_identity_candidates ?? 0} identity candidate · {networkTrustQueue?.counts.open_change_reviews ?? 0} change review · {networkTrustQueue?.counts.current_verifications ?? 0} verification correnti.
+            </p>
+          </Link>
+        ) : null}
       </section>
 
-      {!context.is_platform_owner && !canReadRegistrations && !canReadDiscovery && !canReadClaims && !canReadKnowledge ? (
+      {!context.is_platform_owner && !canReadRegistrations && !canReadDiscovery && !canReadClaims && !canReadKnowledge && !canReadNetworkTrust ? (
         <section className="rounded-3xl border border-dashed border-[#cfdbea] bg-white/80 px-6 py-10 text-center">
           <p className="font-semibold text-[#1e2b45]">
             Nessun modulo operativo ancora abilitato
