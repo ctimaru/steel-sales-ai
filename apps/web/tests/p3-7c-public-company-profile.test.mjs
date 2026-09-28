@@ -39,10 +39,11 @@ test("P3.7C composes trust, provenance and industrial sections on the public pro
   assert.match(page, /La completezza indica solo la presenza delle sezioni del profilo/);
 });
 
-test("P3.7C keeps the unified light blue design and readable selected actions", () => {
-  assert.match(page, /bg-\[#2f6fed\]/);
+test("P3.7C keeps the unified forest-neutral design and readable selected actions", () => {
+  assert.match(page, /bg-\[#1a5144\]/);
   assert.match(page, /text-white/);
-  assert.match(page, /bg-\[#f6f9ff\]/);
+  assert.match(page, /bg-\[#f3f6f4\]/);
   assert.doesNotMatch(page, /bg-\[#1b4c5d\]/);
   assert.doesNotMatch(page, /text-\[#1b4c5d\]/);
+  assert.doesNotMatch(page, /#2f6fed|#245ed1/i);
 });

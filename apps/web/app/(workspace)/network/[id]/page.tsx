@@ -47,8 +47,8 @@ function provenanceLabel(kind: PublicProfileProvenanceKind) {
 
 function provenanceClass(kind: PublicProfileProvenanceKind) {
   if (kind === "platform_verified") return "bg-emerald-50 text-emerald-700";
-  if (kind === "company_declared") return "bg-[#eef5ff] text-[#2f6fed]";
-  if (kind === "public_web") return "bg-[#f2f5f8] text-[#65758a]";
+  if (kind === "company_declared") return "bg-[#edf5f2] text-[#1a5144]";
+  if (kind === "public_web") return "bg-[#ecefed] text-[#65758a]";
   return "bg-violet-50 text-violet-700";
 }
 
@@ -66,7 +66,7 @@ function VerificationBadge({ status }: { status: string }) {
     <span
       className={
         "rounded-full px-2.5 py-1 text-[11px] font-semibold " +
-        (verified ? "bg-emerald-50 text-emerald-700" : "bg-[#f2f5f8] text-[#66768d]")
+        (verified ? "bg-emerald-50 text-emerald-700" : "bg-[#ecefed] text-[#66736e]")
       }
     >
       {verified ? "Verificato" : "Non verificato"}
@@ -85,8 +85,8 @@ function SectionHeader({
 }) {
   return (
     <div>
-      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#2f6fed]">{eyebrow}</p>
-      <h2 className="mt-1 text-xl font-semibold text-[#1e2b45]">{title}</h2>
+      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#1a5144]">{eyebrow}</p>
+      <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">{title}</h2>
       {description ? <p className="mt-2 max-w-3xl text-sm leading-6 text-[#6f7f93]">{description}</p> : null}
     </div>
   );
@@ -101,7 +101,7 @@ function CompanyMonogram({ name }: { name: string }) {
     .join("");
 
   return (
-    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-[#dce7f5] bg-[#f3f7ff] text-xl font-bold text-[#2f6fed] sm:h-20 sm:w-20">
+    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-[#dce7f5] bg-[#f0f4f2] text-xl font-bold text-[#1a5144] sm:h-20 sm:w-20">
       {initials || "SS"}
     </div>
   );
@@ -291,7 +291,7 @@ export default async function NetworkCompanyProfilePage({
         metadata={{ surface: "network_company_profile" }}
       />
 
-      <Link href="/network" className="text-sm font-semibold text-[#68788e] hover:text-[#2f6fed]">
+      <Link href="/network" className="text-sm font-semibold text-[#66736e] hover:text-[#1a5144]">
         ← Torna alla directory
       </Link>
 
@@ -307,7 +307,7 @@ export default async function NetworkCompanyProfilePage({
       ) : null}
 
       <section className="overflow-hidden rounded-3xl border border-[#dfe7f1] bg-white shadow-sm">
-        <div className="border-b border-[#e8eef6] bg-gradient-to-r from-[#f8fbff] to-white p-6 sm:p-8">
+        <div className="border-b border-[#e8eef6] bg-gradient-to-r from-[#f6f8f7] to-white p-6 sm:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div className="flex min-w-0 gap-4 sm:gap-5">
               {logoUrl ? (
@@ -322,26 +322,26 @@ export default async function NetworkCompanyProfilePage({
                 <CompanyMonogram name={displayName} />
               )}
               <div className="min-w-0">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#2f6fed]">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">
                   Steel Industry Network
                 </p>
-                <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1e2b45] sm:text-4xl">
+                <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-4xl">
                   {displayName}
                 </h1>
                 {profile.company.trading_name ? (
                   <p className="mt-1 text-sm text-[#78879a]">{profile.company.legal_name}</p>
                 ) : null}
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <span className="rounded-full border border-[#dbe5f1] bg-white px-3 py-1 text-xs font-semibold text-[#52637a]">
+                  <span className="rounded-full border border-[#d7dfdb] bg-white px-3 py-1 text-xs font-semibold text-[#52637a]">
                     {profile.company.country_code}
                   </span>
                   {primaryRole ? (
-                    <span className="rounded-full bg-[#eef5ff] px-3 py-1 text-xs font-semibold text-[#2f6fed]">
+                    <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-xs font-semibold text-[#1a5144]">
                       {primaryRole.name}
                     </span>
                   ) : null}
                   {profile.trust.claimed ? (
-                    <span className="rounded-full bg-[#eef5ff] px-3 py-1 text-xs font-semibold text-[#2f6fed]">
+                    <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-xs font-semibold text-[#1a5144]">
                       Profilo rivendicato
                     </span>
                   ) : (
@@ -368,7 +368,7 @@ export default async function NetworkCompanyProfilePage({
                   href={profile.company.website_url}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex h-10 items-center justify-center rounded-xl border border-[#dbe5f1] bg-white px-4 text-sm font-semibold text-[#40516a] transition hover:border-[#bcd0ed] hover:bg-[#f7faff] hover:text-[#2f6fed]"
+                  className="inline-flex h-10 items-center justify-center rounded-xl border border-[#d7dfdb] bg-white px-4 text-sm font-semibold text-[#43524c] transition hover:border-[#bcd0ed] hover:bg-[#f7faff] hover:text-[#1a5144]"
                 >
                   Visita il sito
                 </a>
@@ -377,7 +377,7 @@ export default async function NetworkCompanyProfilePage({
               {organizationId && canInteract ? (
                 <form action={isSaved ? removeSavedNetworkCompany : saveNetworkCompany}>
                   <input type="hidden" name="network_company_id" value={profile.company.id} />
-                  <button className="h-10 w-full rounded-xl border border-[#dbe5f1] bg-white px-4 text-sm font-semibold text-[#40516a] transition hover:border-[#bcd0ed] hover:bg-[#f7faff] hover:text-[#2f6fed]">
+                  <button className="h-10 w-full rounded-xl border border-[#d7dfdb] bg-white px-4 text-sm font-semibold text-[#43524c] transition hover:border-[#bcd0ed] hover:bg-[#f7faff] hover:text-[#1a5144]">
                     {isSaved ? "Rimuovi dai salvati" : "Salva azienda"}
                   </button>
                 </form>
@@ -386,7 +386,7 @@ export default async function NetworkCompanyProfilePage({
               {organizationId && canInteract ? (
                 <form action={isFollowed ? unfollowNetworkCompany : followNetworkCompany}>
                   <input type="hidden" name="network_company_id" value={profile.company.id} />
-                  <button className="h-10 w-full rounded-xl border border-[#cbdcf7] bg-[#eef5ff] px-4 text-sm font-semibold text-[#2f6fed] transition hover:bg-[#e5efff]">
+                  <button className="h-10 w-full rounded-xl border border-[#cbdcf7] bg-[#edf5f2] px-4 text-sm font-semibold text-[#1a5144] transition hover:bg-[#e5efff]">
                     {isFollowed ? "Non seguire più" : "Segui aggiornamenti"}
                   </button>
                 </form>
@@ -395,7 +395,7 @@ export default async function NetworkCompanyProfilePage({
               {inquiryEligible && canInteract ? (
                 <Link
                   href={"/network/" + profile.company.id + "/inquiry"}
-                  className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-[#2f6fed] px-4 text-sm font-semibold text-white transition hover:bg-[#245ed1]"
+                  className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white transition hover:bg-[#226657]"
                 >
                   Invia inquiry
                 </Link>
@@ -408,7 +408,7 @@ export default async function NetworkCompanyProfilePage({
               {profile.company.description}
             </p>
           ) : (
-            <p className="mt-6 text-sm text-[#91a0b2]">
+            <p className="mt-6 text-sm text-[#87938e]">
               Descrizione aziendale non ancora disponibile.
             </p>
           )}
@@ -421,26 +421,26 @@ export default async function NetworkCompanyProfilePage({
         <div className="grid gap-px bg-[#e8eef6] sm:grid-cols-2 lg:grid-cols-4">
           <div className="bg-white p-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#92a0b1]">Prodotti</p>
-            <p className="mt-2 text-2xl font-semibold text-[#1e2b45]">{productGroups.length}</p>
+            <p className="mt-2 text-2xl font-semibold text-[#1d2824]">{productGroups.length}</p>
             <p className="mt-1 text-xs text-[#718197]">
               famiglie · {profile.products.length} relazioni commerciali
             </p>
           </div>
           <div className="bg-white p-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#92a0b1]">Technical scope</p>
-            <p className="mt-2 text-base font-semibold text-[#1e2b45]">
+            <p className="mt-2 text-base font-semibold text-[#1d2824]">
               {technicalStandards.length} norme · {technicalGrades.length} gradi
             </p>
             <p className="mt-1 text-xs text-[#718197]">Collegati alla Steel Knowledge canonica.</p>
           </div>
           <div className="bg-white p-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#92a0b1]">Servizi industriali</p>
-            <p className="mt-2 text-2xl font-semibold text-[#1e2b45]">{capabilities.length}</p>
+            <p className="mt-2 text-2xl font-semibold text-[#1d2824]">{capabilities.length}</p>
             <p className="mt-1 text-xs text-[#718197]">capability pubblicate sulle sedi.</p>
           </div>
           <div className="bg-white p-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#92a0b1]">Presenza</p>
-            <p className="mt-2 text-base font-semibold text-[#1e2b45]">
+            <p className="mt-2 text-base font-semibold text-[#1d2824]">
               {profile.facilities.length} sedi · {profile.markets.length} mercati
             </p>
             <p className="mt-1 text-xs text-[#718197]">
@@ -451,8 +451,8 @@ export default async function NetworkCompanyProfilePage({
       </section>
 
       {claimState && ["requested", "under_review"].includes(claimState.status) ? (
-        <section className="rounded-2xl border border-[#d7e5ff] bg-[#eef5ff] p-4 text-sm text-[#40516a]">
-          <p className="font-semibold text-[#1e2b45]">Claim in verifica</p>
+        <section className="rounded-2xl border border-[#d9e8e2] bg-[#edf5f2] p-4 text-sm text-[#43524c]">
+          <p className="font-semibold text-[#1d2824]">Claim in verifica</p>
           <p className="mt-1">
             {claimState.proof_status === "verified"
               ? "Ownership verificata · in attesa approvazione Superadmin."
@@ -464,12 +464,12 @@ export default async function NetworkCompanyProfilePage({
       ) : null}
 
       {claimState?.status === "approved" ? (
-        <section className="flex flex-col gap-3 rounded-2xl border border-[#d7e5ff] bg-[#f6f9ff] p-5 sm:flex-row sm:items-center sm:justify-between">
+        <section className="flex flex-col gap-3 rounded-2xl border border-[#d9e8e2] bg-[#f3f6f4] p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="font-semibold text-[#1e2b45]">Questo profilo è gestito dalla tua organizzazione</p>
-            <p className="mt-1 text-sm text-[#6e7e92]">Aggiorna prodotti, sedi, capability, mercati e certificazioni dal Company Profile Manager.</p>
+            <p className="font-semibold text-[#1d2824]">Questo profilo è gestito dalla tua organizzazione</p>
+            <p className="mt-1 text-sm text-[#66736e]">Aggiorna prodotti, sedi, capability, mercati e certificazioni dal Company Profile Manager.</p>
           </div>
-          <Link href="/network/manage" className="inline-flex h-10 items-center justify-center rounded-xl bg-[#2f6fed] px-4 text-sm font-semibold text-white hover:bg-[#245ed1]">
+          <Link href="/network/manage" className="inline-flex h-10 items-center justify-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657]">
             Gestisci profilo
           </Link>
         </section>
@@ -480,20 +480,20 @@ export default async function NetworkCompanyProfilePage({
       (!claimState || ["rejected", "revoked"].includes(claimState.status)) ? (
         <section className="flex flex-col gap-3 rounded-2xl border border-[#dfe7f1] bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="font-semibold text-[#1e2b45]">Rappresenti questa azienda?</p>
-            <p className="mt-1 text-sm text-[#6e7e92]">Rivendica il profilo per gestire direttamente i dati industriali pubblicati.</p>
+            <p className="font-semibold text-[#1d2824]">Rappresenti questa azienda?</p>
+            <p className="mt-1 text-sm text-[#66736e]">Rivendica il profilo per gestire direttamente i dati industriali pubblicati.</p>
           </div>
           <form action={requestNetworkClaim}>
             <input type="hidden" name="network_company_id" value={profile.company.id} />
             <input type="hidden" name="organization_id" value={adminOrganizationId} />
-            <button className="h-10 rounded-xl bg-[#2f6fed] px-4 text-sm font-semibold text-white hover:bg-[#245ed1]">
+            <button className="h-10 rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657]">
               Rivendica questo profilo
             </button>
           </form>
         </section>
       ) : null}
 
-      <section className="rounded-3xl border border-[#dbe7f7] bg-[#f8fbff] p-6 sm:p-7">
+      <section className="rounded-3xl border border-[#d9e1dd] bg-[#f6f8f7] p-6 sm:p-7">
         <SectionHeader
           eyebrow="Commercial snapshot"
           title="Quello che serve sapere a colpo d'occhio"
@@ -501,13 +501,13 @@ export default async function NetworkCompanyProfilePage({
         />
         <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-2xl border border-[#dfe7f1] bg-white p-4">
-            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Posizionamento</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#87938e]">Posizionamento</p>
             <p className="mt-2 text-sm font-semibold text-[#2f4059]">
               {primaryRole?.name ?? "Ruolo non definito"}
             </p>
             <div className="mt-3 flex flex-wrap gap-1.5">
               {profile.subtypes.slice(0, 4).map((subtype) => (
-                <span key={subtype.key} className="rounded-full bg-[#f2f5f8] px-2.5 py-1 text-[11px] font-semibold text-[#65758a]">
+                <span key={subtype.key} className="rounded-full bg-[#ecefed] px-2.5 py-1 text-[11px] font-semibold text-[#65758a]">
                   {subtype.name}
                 </span>
               ))}
@@ -515,7 +515,7 @@ export default async function NetworkCompanyProfilePage({
           </div>
 
           <div className="rounded-2xl border border-[#dfe7f1] bg-white p-4">
-            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Prodotti</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#87938e]">Prodotti</p>
             <div className="mt-2 space-y-2">
               {productGroups.slice(0, 4).map((product) => (
                 <div key={product.key + String(product.facility_id)}>
@@ -531,16 +531,16 @@ export default async function NetworkCompanyProfilePage({
           </div>
 
           <div className="rounded-2xl border border-[#dfe7f1] bg-white p-4">
-            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Norme e materiali</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#87938e]">Norme e materiali</p>
             {technicalStandards.length || technicalGrades.length ? (
               <div className="mt-2 flex flex-wrap gap-2">
                 {technicalStandards.slice(0, 5).map((standard) => (
-                  <span key={standard.standard_id} className="rounded-lg border border-[#d8e5f8] bg-[#f6f9ff] px-2.5 py-1.5 text-xs font-semibold text-[#2f6fed]">
+                  <span key={standard.standard_id} className="rounded-lg border border-[#d8e5f8] bg-[#f3f6f4] px-2.5 py-1.5 text-xs font-semibold text-[#1a5144]">
                     {standard.code}
                   </span>
                 ))}
                 {technicalGrades.slice(0, 5).map((grade) => (
-                  <span key={grade.standard_id + grade.material_grade_id} className="rounded-lg border border-[#e1e8f2] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#4b5d74]">
+                  <span key={grade.standard_id + grade.material_grade_id} className="rounded-lg border border-[#dce2df] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#4b5d74]">
                     {grade.designation}
                   </span>
                 ))}
@@ -551,15 +551,15 @@ export default async function NetworkCompanyProfilePage({
           </div>
 
           <div className="rounded-2xl border border-[#dfe7f1] bg-white p-4">
-            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Servizi e mercati</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#87938e]">Servizi e mercati</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {capabilities.slice(0, 5).map((capability) => (
-                <span key={capability.key} className="rounded-full bg-[#eef5ff] px-2.5 py-1 text-[11px] font-semibold text-[#2f6fed]">
+                <span key={capability.key} className="rounded-full bg-[#edf5f2] px-2.5 py-1 text-[11px] font-semibold text-[#1a5144]">
                   {capability.name}
                 </span>
               ))}
               {profile.markets.slice(0, 4).map((market) => (
-                <span key={market.key} className="rounded-full bg-[#f2f5f8] px-2.5 py-1 text-[11px] font-semibold text-[#65758a]">
+                <span key={market.key} className="rounded-full bg-[#ecefed] px-2.5 py-1 text-[11px] font-semibold text-[#65758a]">
                   {market.name}
                 </span>
               ))}
@@ -573,7 +573,7 @@ export default async function NetworkCompanyProfilePage({
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="space-y-6">
-          <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-7">
+          <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-7">
             <SectionHeader
               eyebrow="Products"
               title="Prodotti e disponibilità industriale"
@@ -591,7 +591,7 @@ export default async function NetworkCompanyProfilePage({
                   return (
                     <article
                       key={product.key + String(product.facility_id)}
-                      className="rounded-2xl border border-[#dfe7f1] bg-[#fbfcfe] p-5"
+                      className="rounded-2xl border border-[#dfe7f1] bg-[#fafbfa] p-5"
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
@@ -603,7 +603,7 @@ export default async function NetworkCompanyProfilePage({
                             {product.relationships.map((relationship) => (
                               <span
                                 key={relationship}
-                                className="rounded-full border border-[#d8e5f8] bg-[#f4f8ff] px-2.5 py-1 text-[11px] font-semibold text-[#2f6fed]"
+                                className="rounded-full border border-[#d8e5f8] bg-[#f4f8ff] px-2.5 py-1 text-[11px] font-semibold text-[#1a5144]"
                               >
                                 {relationshipLabels[relationship] || relationship}
                               </span>
@@ -619,7 +619,7 @@ export default async function NetworkCompanyProfilePage({
 
                       {hasTechnicalScope ? (
                         <div className="mt-5 space-y-4 border-t border-[#e5ecf5] pt-4">
-                          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#2f6fed]">
+                          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
                             Technical scope
                           </p>
 
@@ -633,7 +633,7 @@ export default async function NetworkCompanyProfilePage({
                                     className="rounded-xl border border-[#dfe7f1] bg-white px-3 py-2"
                                     title={standard.title}
                                   >
-                                    <p className="text-sm font-semibold text-[#40516a]">{standard.code}</p>
+                                    <p className="text-sm font-semibold text-[#43524c]">{standard.code}</p>
                                     <div className="mt-1.5 flex flex-wrap gap-1.5">
                                       <VerificationBadge status={standard.verification_status} />
                                       <ProvenanceBadge kind={standard.provenance_kind} />
@@ -653,7 +653,7 @@ export default async function NetworkCompanyProfilePage({
                                     key={grade.standard_id + ":" + grade.material_grade_id}
                                     className="rounded-xl border border-[#dfe7f1] bg-white px-3 py-2"
                                   >
-                                    <p className="text-sm font-semibold text-[#40516a]">{grade.designation}</p>
+                                    <p className="text-sm font-semibold text-[#43524c]">{grade.designation}</p>
                                     <p className="mt-0.5 text-[11px] text-[#7f8da0]">
                                       {grade.standard_code}
                                       {grade.material_number ? " · " + grade.material_number : ""}
@@ -677,7 +677,7 @@ export default async function NetworkCompanyProfilePage({
                                     key={dimension.dimension_type}
                                     className="rounded-xl border border-[#dfe7f1] bg-white px-3 py-2"
                                   >
-                                    <p className="text-xs font-semibold text-[#40516a]">
+                                    <p className="text-xs font-semibold text-[#43524c]">
                                       {technicalDimensionLabels[dimension.dimension_type] || dimension.dimension_type}
                                     </p>
                                     <p className="mt-1 text-sm font-semibold text-[#2f4059]">
@@ -706,12 +706,12 @@ export default async function NetworkCompanyProfilePage({
                   );
                 })
               ) : (
-                <p className="text-sm text-[#91a0b2]">Nessun prodotto pubblicato.</p>
+                <p className="text-sm text-[#87938e]">Nessun prodotto pubblicato.</p>
               )}
             </div>
           </section>
 
-          <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-7">
+          <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-7">
             <SectionHeader
               eyebrow="Industrial positioning"
               title="Ruolo nella filiera"
@@ -720,11 +720,11 @@ export default async function NetworkCompanyProfilePage({
 
             <div className="mt-5 grid gap-5 md:grid-cols-2">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Ruoli</p>
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#87938e]">Ruoli</p>
                 <div className="mt-3 space-y-2">
                   {profile.roles.length ? (
                     profile.roles.map((role) => (
-                      <div key={role.key} className="rounded-2xl border border-[#e4eaf2] bg-[#fbfcfe] p-3.5">
+                      <div key={role.key} className="rounded-2xl border border-[#e4eaf2] bg-[#fafbfa] p-3.5">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <p className="text-sm font-semibold text-[#34445c]">
                             {role.name}{role.is_primary ? " · principale" : ""}
@@ -734,13 +734,13 @@ export default async function NetworkCompanyProfilePage({
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-[#91a0b2]">Nessun ruolo pubblicato.</p>
+                    <p className="text-sm text-[#87938e]">Nessun ruolo pubblicato.</p>
                   )}
                 </div>
               </div>
 
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Specializzazioni</p>
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#87938e]">Specializzazioni</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {profile.subtypes.length ? (
                     profile.subtypes.map((subtype) => (
@@ -750,14 +750,14 @@ export default async function NetworkCompanyProfilePage({
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-[#91a0b2]">Nessuna specializzazione pubblicata.</p>
+                    <p className="text-sm text-[#87938e]">Nessuna specializzazione pubblicata.</p>
                   )}
                 </div>
               </div>
             </div>
           </section>
 
-          <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-7">
+          <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-7">
             <SectionHeader
               eyebrow="Industrial footprint"
               title="Sedi e capability"
@@ -766,7 +766,7 @@ export default async function NetworkCompanyProfilePage({
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               {profile.facilities.length ? (
                 profile.facilities.map((facility) => (
-                  <article key={facility.id} className="rounded-2xl border border-[#dfe7f1] bg-[#fbfcfe] p-5">
+                  <article key={facility.id} className="rounded-2xl border border-[#dfe7f1] bg-[#fafbfa] p-5">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <p className="font-semibold text-[#2d3f58]">{facility.name}</p>
@@ -788,7 +788,7 @@ export default async function NetworkCompanyProfilePage({
                     <div className="mt-3"><ProvenanceBadge kind={facility.provenance_kind} /></div>
 
                     <div className="mt-5 border-t border-[#e6edf6] pt-4">
-                      <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Capability</p>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#87938e]">Capability</p>
                       <div className="mt-3 space-y-2">
                         {facility.capabilities.length ? (
                           facility.capabilities.map((capability) => (
@@ -801,19 +801,19 @@ export default async function NetworkCompanyProfilePage({
                             </div>
                           ))
                         ) : (
-                          <p className="text-sm text-[#91a0b2]">Nessuna capability pubblicata.</p>
+                          <p className="text-sm text-[#87938e]">Nessuna capability pubblicata.</p>
                         )}
                       </div>
                     </div>
                   </article>
                 ))
               ) : (
-                <p className="text-sm text-[#91a0b2]">Nessuna sede pubblicata.</p>
+                <p className="text-sm text-[#87938e]">Nessuna sede pubblicata.</p>
               )}
             </div>
           </section>
 
-          <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-7">
+          <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-7">
             <SectionHeader
               eyebrow="Markets"
               title="Mercati e applicazioni"
@@ -822,18 +822,18 @@ export default async function NetworkCompanyProfilePage({
             <div className="mt-5 flex flex-wrap gap-2">
               {profile.markets.length ? (
                 profile.markets.map((market) => (
-                  <div key={market.key} className="rounded-2xl border border-[#e1e8f2] bg-[#fbfcfe] px-3.5 py-2.5">
-                    <p className="text-sm font-semibold text-[#40516a]">{market.name}</p>
+                  <div key={market.key} className="rounded-2xl border border-[#dce2df] bg-[#fafbfa] px-3.5 py-2.5">
+                    <p className="text-sm font-semibold text-[#43524c]">{market.name}</p>
                     <div className="mt-1.5"><ProvenanceBadge kind={market.provenance_kind} /></div>
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-[#91a0b2]">Nessun mercato pubblicato.</p>
+                <p className="text-sm text-[#87938e]">Nessun mercato pubblicato.</p>
               )}
             </div>
           </section>
 
-          <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-7">
+          <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-7">
             <SectionHeader
               eyebrow="Trust"
               title="Certificazioni pubblicate"
@@ -844,7 +844,7 @@ export default async function NetworkCompanyProfilePage({
                 profile.certifications.map((certification) => {
                   const facility = profile.facilities.find((item) => item.id === certification.facility_id);
                   return (
-                    <article key={certification.id} className="rounded-2xl border border-[#dfe7f1] bg-[#fbfcfe] p-5">
+                    <article key={certification.id} className="rounded-2xl border border-[#dfe7f1] bg-[#fafbfa] p-5">
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
                           <p className="font-semibold text-[#2d3f58]">{certification.certification_type_name}</p>
@@ -873,18 +873,18 @@ export default async function NetworkCompanyProfilePage({
                   );
                 })
               ) : (
-                <p className="text-sm text-[#91a0b2]">Nessuna certificazione pubblicata.</p>
+                <p className="text-sm text-[#87938e]">Nessuna certificazione pubblicata.</p>
               )}
             </div>
           </section>
         </div>
 
         <aside className="space-y-5 lg:sticky lg:top-4 lg:self-start">
-          <section className="rounded-3xl border border-[#e1e8f2] bg-white p-5">
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Stato del profilo</p>
+          <section className="rounded-3xl border border-[#dce2df] bg-white p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#87938e]">Stato del profilo</p>
             <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#e6edf6]">
               <div
-                className="h-full rounded-full bg-[#2f6fed]"
+                className="h-full rounded-full bg-[#1a5144]"
                 style={{ width: Math.max(4, profile.completeness.percentage) + "%" }}
               />
             </div>
@@ -896,12 +896,12 @@ export default async function NetworkCompanyProfilePage({
             </p>
           </section>
 
-          <section className="rounded-3xl border border-[#e1e8f2] bg-white p-5">
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Contatti pubblici</p>
+          <section className="rounded-3xl border border-[#dce2df] bg-white p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#87938e]">Contatti pubblici</p>
             <div className="mt-4 space-y-4">
               {profile.contacts.length ? (
                 profile.contacts.map((contact) => (
-                  <div key={contact.id} className="border-b border-[#edf1f6] pb-4 last:border-0 last:pb-0">
+                  <div key={contact.id} className="border-b border-[#e6ebe8] pb-4 last:border-0 last:pb-0">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div>
                         <p className="text-sm font-semibold text-[#34445c]">
@@ -913,10 +913,10 @@ export default async function NetworkCompanyProfilePage({
                       </div>
                       <VerificationBadge status={contact.verification_status} />
                     </div>
-                    {contact.email ? <p className="mt-2 break-all text-xs text-[#68788e]">{contact.email}</p> : null}
-                    {contact.phone ? <p className="mt-1 text-xs text-[#68788e]">{contact.phone}</p> : null}
+                    {contact.email ? <p className="mt-2 break-all text-xs text-[#66736e]">{contact.email}</p> : null}
+                    {contact.phone ? <p className="mt-1 text-xs text-[#66736e]">{contact.phone}</p> : null}
                     {contact.website_url ? (
-                      <a href={contact.website_url} target="_blank" rel="noreferrer" className="mt-2 inline-flex text-xs font-semibold text-[#2f6fed]">
+                      <a href={contact.website_url} target="_blank" rel="noreferrer" className="mt-2 inline-flex text-xs font-semibold text-[#1a5144]">
                         Apri riferimento ↗
                       </a>
                     ) : null}
@@ -933,8 +933,8 @@ export default async function NetworkCompanyProfilePage({
             </div>
           </section>
 
-          <section className="rounded-3xl border border-[#d7e5ff] bg-[#f6f9ff] p-5">
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#2f6fed]">Network trust</p>
+          <section className="rounded-3xl border border-[#d9e8e2] bg-[#f3f6f4] p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Network trust</p>
             <p className="mt-2 text-sm font-semibold text-[#34445c]">
               Claim e verifica sono segnali distinti
             </p>

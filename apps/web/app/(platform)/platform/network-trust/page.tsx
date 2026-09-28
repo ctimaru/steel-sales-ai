@@ -60,7 +60,7 @@ export default async function PlatformNetworkTrustPage({
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#18263d] sm:text-4xl">
           Verification &amp; Moderation
         </h1>
-        <p className="mt-3 max-w-4xl text-sm leading-6 text-[#66768d]">
+        <p className="mt-3 max-w-4xl text-sm leading-6 text-[#66736e]">
           Governa evidenze pubbliche, verification state, conflitti di
           provenance e identity resolution. Un match confermato resta solo
           evidenza: SA8 non esegue merge automatici e non concede accesso alla
@@ -89,9 +89,9 @@ export default async function PlatformNetworkTrustPage({
         ].map(([label, value]) => (
           <div
             key={String(label)}
-            className="rounded-2xl border border-[#e1e8f2] bg-white p-4"
+            className="rounded-2xl border border-[#dce2df] bg-white p-4"
           >
-            <p className="text-2xl font-semibold text-[#1e2b45]">
+            <p className="text-2xl font-semibold text-[#1d2824]">
               {String(value)}
             </p>
             <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-[#8fa1a9]">
@@ -101,7 +101,7 @@ export default async function PlatformNetworkTrustPage({
         ))}
       </section>
 
-      <section className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
+      <section className="rounded-2xl border border-[#dce2df] bg-white p-4">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7a899d]">
           Autorità effettiva
         </p>
@@ -119,8 +119,8 @@ export default async function PlatformNetworkTrustPage({
               className={[
                 "rounded-full px-3 py-1.5 text-xs font-semibold",
                 enabled
-                  ? "bg-[#eaf2ff] text-[#2f6fed]"
-                  : "bg-[#f1f4f8] text-[#91a0b2]",
+                  ? "bg-[#e1ece8] text-[#1a5144]"
+                  : "bg-[#f1f4f8] text-[#87938e]",
               ].join(" ")}
             >
               {label}: {enabled ? "abilitato" : "no"}
@@ -130,21 +130,21 @@ export default async function PlatformNetworkTrustPage({
       </section>
 
       {readOnly ? (
-        <div className="rounded-2xl border border-[#dbe5f1] bg-[#f8fafd] p-4 text-sm text-[#68788e]">
+        <div className="rounded-2xl border border-[#d7dfdb] bg-[#f8fafd] p-4 text-sm text-[#66736e]">
           Accesso in sola lettura: puoi ispezionare evidence, verification,
           provenance review e identity candidate, ma non modificarne lo stato.
         </div>
       ) : null}
 
       {canAssert ? (
-        <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5 sm:p-6">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">
+        <section className="rounded-2xl border border-[#dce2df] bg-white p-5 sm:p-6">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
             Evidence ledger
           </p>
-          <h2 className="mt-2 text-xl font-semibold text-[#1e2b45]">
+          <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
             Aggiungi evidenza verificabile
           </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#68788e]">
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
             L&apos;assertion è append-only. Lo staff può usare soltanto fonti
             pubbliche, documentali, platform-curated o manual-review.
           </p>
@@ -158,7 +158,7 @@ export default async function PlatformNetworkTrustPage({
               </span>
               <select
                 name="entity_type"
-                className="mt-2 h-11 w-full rounded-xl border border-[#dbe5f1] bg-white px-3 text-sm"
+                className="mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm"
                 defaultValue="company"
               >
                 <option value="company">Company</option>
@@ -177,7 +177,7 @@ export default async function PlatformNetworkTrustPage({
                 name="entity_id"
                 required
                 placeholder="UUID target"
-                className="mt-2 h-11 w-full rounded-xl border border-[#dbe5f1] px-3 text-sm"
+                className="mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] px-3 text-sm"
               />
             </label>
             <label>
@@ -188,7 +188,7 @@ export default async function PlatformNetworkTrustPage({
                 name="field_path"
                 required
                 placeholder="legal_name, website_domain, certification..."
-                className="mt-2 h-11 w-full rounded-xl border border-[#dbe5f1] px-3 text-sm"
+                className="mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] px-3 text-sm"
               />
             </label>
             <label>
@@ -202,7 +202,7 @@ export default async function PlatformNetworkTrustPage({
                 max="1"
                 step="0.0001"
                 placeholder="0.95"
-                className="mt-2 h-11 w-full rounded-xl border border-[#dbe5f1] px-3 text-sm"
+                className="mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] px-3 text-sm"
               />
             </label>
             <label className="lg:col-span-2">
@@ -214,7 +214,7 @@ export default async function PlatformNetworkTrustPage({
                 required
                 rows={4}
                 placeholder={'"Example value"'}
-                className="mt-2 w-full rounded-xl border border-[#dbe5f1] px-3 py-2 font-mono text-xs"
+                className="mt-2 w-full rounded-xl border border-[#d7dfdb] px-3 py-2 font-mono text-xs"
               />
             </label>
             <label className="lg:col-span-2">
@@ -225,7 +225,7 @@ export default async function PlatformNetworkTrustPage({
                 name="source_reference"
                 required
                 placeholder="https://... oppure riferimento documento"
-                className="mt-2 h-11 w-full rounded-xl border border-[#dbe5f1] px-3 text-sm"
+                className="mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] px-3 text-sm"
               />
             </label>
             <label>
@@ -235,7 +235,7 @@ export default async function PlatformNetworkTrustPage({
               <select
                 name="source_type"
                 defaultValue="public_web"
-                className="mt-2 h-11 w-full rounded-xl border border-[#dbe5f1] bg-white px-3 text-sm"
+                className="mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm"
               >
                 <option value="public_web">Public web</option>
                 <option value="document">Document</option>
@@ -250,7 +250,7 @@ export default async function PlatformNetworkTrustPage({
               <select
                 name="review_state"
                 defaultValue="accepted"
-                className="mt-2 h-11 w-full rounded-xl border border-[#dbe5f1] bg-white px-3 text-sm"
+                className="mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm"
               >
                 <option value="accepted">Accepted</option>
                 <option value="pending">Pending</option>
@@ -270,11 +270,11 @@ export default async function PlatformNetworkTrustPage({
         </section>
       ) : null}
 
-      <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5 sm:p-6">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">
+      <section className="rounded-2xl border border-[#dce2df] bg-white p-5 sm:p-6">
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
           Verification evidence
         </p>
-        <h2 className="mt-2 text-xl font-semibold text-[#1e2b45]">
+        <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
           Evidenze accettate
         </h2>
         <div className="mt-5 space-y-3">
@@ -291,21 +291,21 @@ export default async function PlatformNetworkTrustPage({
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap gap-2">
-                      <span className="rounded-full bg-[#eaf2ff] px-2.5 py-1 text-[11px] font-bold uppercase text-[#2f6fed]">
+                      <span className="rounded-full bg-[#e1ece8] px-2.5 py-1 text-[11px] font-bold uppercase text-[#1a5144]">
                         {item.verification_scope}
                       </span>
-                      <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-[#68788e]">
+                      <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-[#66736e]">
                         {item.target_verification_status || "unverified"}
                       </span>
                     </div>
-                    <h3 className="mt-3 font-semibold text-[#1e2b45]">
+                    <h3 className="mt-3 font-semibold text-[#1d2824]">
                       {item.target_label}
                     </h3>
                     <p className="mt-1 text-xs text-[#7a899d]">
                       {item.field_path} · {item.source_type} · confidence{" "}
                       {formatScore(item.confidence)}
                     </p>
-                    <pre className="mt-3 max-h-32 overflow-auto rounded-xl bg-white p-3 text-xs leading-5 text-[#40516a]">
+                    <pre className="mt-3 max-h-32 overflow-auto rounded-xl bg-white p-3 text-xs leading-5 text-[#43524c]">
                       {pretty(item.asserted_value)}
                     </pre>
                     {item.source_reference.startsWith("http://") ||
@@ -314,7 +314,7 @@ export default async function PlatformNetworkTrustPage({
                         href={item.source_reference}
                         target="_blank"
                         rel="noreferrer"
-                        className="mt-2 inline-block break-all text-xs font-semibold text-[#2f6fed]"
+                        className="mt-2 inline-block break-all text-xs font-semibold text-[#1a5144]"
                       >
                         Apri fonte ↗
                       </a>
@@ -328,7 +328,7 @@ export default async function PlatformNetworkTrustPage({
                   {canVerify ? (
                     <form
                       action={recordNetworkVerification}
-                      className="w-full shrink-0 space-y-2 rounded-xl border border-[#dbe5f1] bg-white p-3 xl:w-72"
+                      className="w-full shrink-0 space-y-2 rounded-xl border border-[#d7dfdb] bg-white p-3 xl:w-72"
                     >
                       <input
                         type="hidden"
@@ -348,7 +348,7 @@ export default async function PlatformNetworkTrustPage({
                       <select
                         name="status"
                         defaultValue="verified"
-                        className="h-10 w-full rounded-xl border border-[#dbe5f1] bg-white px-3 text-sm"
+                        className="h-10 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm"
                       >
                         <option value="verified">Verified</option>
                         <option value="rejected">Rejected</option>
@@ -357,12 +357,12 @@ export default async function PlatformNetworkTrustPage({
                       <input
                         name="note"
                         placeholder="Nota verification"
-                        className="h-10 w-full rounded-xl border border-[#dbe5f1] px-3 text-sm"
+                        className="h-10 w-full rounded-xl border border-[#d7dfdb] px-3 text-sm"
                       />
                       <input
                         name="expires_at"
                         type="datetime-local"
-                        className="h-10 w-full rounded-xl border border-[#dbe5f1] px-3 text-sm"
+                        className="h-10 w-full rounded-xl border border-[#d7dfdb] px-3 text-sm"
                       />
                       <button className="w-full rounded-xl bg-emerald-600 px-3 py-2.5 text-sm font-semibold text-white">
                         Registra stato
@@ -376,11 +376,11 @@ export default async function PlatformNetworkTrustPage({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5 sm:p-6">
+      <section className="rounded-2xl border border-[#dce2df] bg-white p-5 sm:p-6">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7a899d]">
           Current verification state
         </p>
-        <h2 className="mt-2 text-xl font-semibold text-[#1e2b45]">
+        <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
           Verification correnti
         </h2>
         <div className="mt-5 grid gap-3 lg:grid-cols-2">
@@ -396,10 +396,10 @@ export default async function PlatformNetworkTrustPage({
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-xs font-bold uppercase text-[#2f6fed]">
+                    <p className="text-xs font-bold uppercase text-[#1a5144]">
                       {item.scope} · {item.status}
                     </p>
-                    <h3 className="mt-2 font-semibold text-[#1e2b45]">
+                    <h3 className="mt-2 font-semibold text-[#1d2824]">
                       {item.target_label}
                     </h3>
                     <p className="mt-1 text-xs text-[#7a899d]">
@@ -438,14 +438,14 @@ export default async function PlatformNetworkTrustPage({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5 sm:p-6">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">
+      <section className="rounded-2xl border border-[#dce2df] bg-white p-5 sm:p-6">
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
           Provenance moderation
         </p>
-        <h2 className="mt-2 text-xl font-semibold text-[#1e2b45]">
+        <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
           Change review
         </h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-[#68788e]">
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
           Una decisione accettata registra il giudizio di governance ma non
           sovrascrive silenziosamente l&apos;evidence originale.
         </p>
@@ -459,19 +459,19 @@ export default async function PlatformNetworkTrustPage({
               name="network_company_id"
               required
               placeholder="Network company UUID"
-              className="h-10 rounded-xl border border-[#dbe5f1] px-3 text-sm"
+              className="h-10 rounded-xl border border-[#d7dfdb] px-3 text-sm"
             />
             <input
               name="assertion_id"
               required
               placeholder="Company assertion UUID"
-              className="h-10 rounded-xl border border-[#dbe5f1] px-3 text-sm"
+              className="h-10 rounded-xl border border-[#d7dfdb] px-3 text-sm"
             />
             <input
               name="field_path"
               required
               placeholder="Field path"
-              className="h-10 rounded-xl border border-[#dbe5f1] px-3 text-sm"
+              className="h-10 rounded-xl border border-[#d7dfdb] px-3 text-sm"
             />
             <div />
             <textarea
@@ -479,17 +479,17 @@ export default async function PlatformNetworkTrustPage({
               required
               rows={4}
               placeholder='Previous value JSON, es. "old"'
-              className="rounded-xl border border-[#dbe5f1] px-3 py-2 font-mono text-xs"
+              className="rounded-xl border border-[#d7dfdb] px-3 py-2 font-mono text-xs"
             />
             <textarea
               name="proposed_value_json"
               required
               rows={4}
               placeholder='Proposed value JSON, es. "new"'
-              className="rounded-xl border border-[#dbe5f1] px-3 py-2 font-mono text-xs"
+              className="rounded-xl border border-[#d7dfdb] px-3 py-2 font-mono text-xs"
             />
             <div className="lg:col-span-2">
-              <button className="rounded-xl bg-[#2f6fed] px-4 py-2.5 text-sm font-semibold text-white">
+              <button className="rounded-xl bg-[#1a5144] px-4 py-2.5 text-sm font-semibold text-white">
                 Apri change review
               </button>
             </div>
@@ -507,7 +507,7 @@ export default async function PlatformNetworkTrustPage({
                 key={review.review_id}
                 className="rounded-xl border border-[#e6ecf4] bg-[#f9fbfd] p-4"
               >
-                <p className="text-xs font-bold uppercase text-[#2f6fed]">
+                <p className="text-xs font-bold uppercase text-[#1a5144]">
                   {review.company_legal_name} · {review.field_path}
                 </p>
                 <div className="mt-3 grid gap-3 md:grid-cols-2">
@@ -534,7 +534,7 @@ export default async function PlatformNetworkTrustPage({
                     <input
                       name="note"
                       placeholder="Nota review"
-                      className="h-10 flex-1 rounded-xl border border-[#dbe5f1] px-3 text-sm"
+                      className="h-10 flex-1 rounded-xl border border-[#d7dfdb] px-3 text-sm"
                     />
                     <button
                       name="decision"
@@ -565,16 +565,16 @@ export default async function PlatformNetworkTrustPage({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-[#e1e8f2] bg-white p-5 sm:p-6">
+      <section className="rounded-2xl border border-[#dce2df] bg-white p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
               Identity moderation
             </p>
-            <h2 className="mt-2 text-xl font-semibold text-[#1e2b45]">
+            <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
               Identity resolution candidates
             </h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-[#68788e]">
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
               Il motore usa segnali deterministici. Confermare un match produce
               solo evidenza per una futura resolution: <strong>nessun merge viene
               eseguito da SA8</strong>.
@@ -602,7 +602,7 @@ export default async function PlatformNetworkTrustPage({
               >
                 <div className="grid gap-4 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
                   <div>
-                    <p className="font-semibold text-[#1e2b45]">
+                    <p className="font-semibold text-[#1d2824]">
                       {candidate.company_a_legal_name}
                     </p>
                     <p className="mt-1 text-xs text-[#7a899d]">
@@ -610,15 +610,15 @@ export default async function PlatformNetworkTrustPage({
                     </p>
                   </div>
                   <div className="text-center">
-                    <p className="text-2xl font-semibold text-[#2f6fed]">
+                    <p className="text-2xl font-semibold text-[#1a5144]">
                       {formatScore(candidate.match_score)}
                     </p>
-                    <p className="mt-1 text-[11px] uppercase text-[#91a0b2]">
+                    <p className="mt-1 text-[11px] uppercase text-[#87938e]">
                       {candidate.signals.join(" · ")}
                     </p>
                   </div>
                   <div className="lg:text-right">
-                    <p className="font-semibold text-[#1e2b45]">
+                    <p className="font-semibold text-[#1d2824]">
                       {candidate.company_b_legal_name}
                     </p>
                     <p className="mt-1 text-xs text-[#7a899d]">
@@ -640,19 +640,19 @@ export default async function PlatformNetworkTrustPage({
                     <input
                       name="note"
                       placeholder="Nota identity review"
-                      className="h-10 flex-1 rounded-xl border border-[#dbe5f1] bg-white px-3 text-sm"
+                      className="h-10 flex-1 rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm"
                     />
                     <button
                       name="decision"
                       value="confirmed_match"
-                      className="rounded-xl bg-[#2f6fed] px-4 py-2 text-sm font-semibold text-white"
+                      className="rounded-xl bg-[#1a5144] px-4 py-2 text-sm font-semibold text-white"
                     >
                       Conferma match
                     </button>
                     <button
                       name="decision"
                       value="dismissed"
-                      className="rounded-xl border border-[#dbe5f1] bg-white px-4 py-2 text-sm font-semibold text-[#53637a]"
+                      className="rounded-xl border border-[#d7dfdb] bg-white px-4 py-2 text-sm font-semibold text-[#53637a]"
                     >
                       Dismiss
                     </button>

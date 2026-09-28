@@ -32,13 +32,13 @@ import {
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 
 const inputClass =
-  "mt-2 h-11 w-full rounded-xl border border-[#dbe5f1] bg-white px-3 text-sm text-[#24354e] outline-none transition focus:border-[#9bb9ee] focus:ring-2 focus:ring-[#e8f0ff]";
+  "mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#2d3934] outline-none transition focus:border-[#86a99e] focus:ring-2 focus:ring-[#e5efeb]";
 const textareaClass =
-  "mt-2 w-full rounded-xl border border-[#dbe5f1] bg-white px-3 py-3 text-sm leading-6 text-[#24354e] outline-none transition focus:border-[#9bb9ee] focus:ring-2 focus:ring-[#e8f0ff]";
+  "mt-2 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 py-3 text-sm leading-6 text-[#2d3934] outline-none transition focus:border-[#86a99e] focus:ring-2 focus:ring-[#e5efeb]";
 const primaryButton =
-  "inline-flex h-10 items-center justify-center rounded-xl bg-[#2f6fed] px-4 text-sm font-semibold text-white transition hover:bg-[#245ed1]";
+  "inline-flex h-10 items-center justify-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white transition hover:bg-[#226657]";
 const secondaryButton =
-  "inline-flex h-10 items-center justify-center rounded-xl border border-[#dbe5f1] bg-white px-4 text-sm font-semibold text-[#40516a] transition hover:border-[#bdd1f4] hover:bg-[#f5f8ff] hover:text-[#2f6fed]";
+  "inline-flex h-10 items-center justify-center rounded-xl border border-[#d7dfdb] bg-white px-4 text-sm font-semibold text-[#43524c] transition hover:border-[#b8d2c8] hover:bg-[#f3f6f4] hover:text-[#1a5144]";
 const dangerButton =
   "inline-flex h-9 items-center justify-center rounded-xl border border-rose-200 bg-white px-3 text-xs font-semibold text-rose-700 transition hover:bg-rose-50";
 
@@ -52,7 +52,7 @@ const relationshipLabels: Record<string, string> = {
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">
+    <label className="text-xs font-bold uppercase tracking-[0.12em] text-[#87938e]">
       {children}
     </label>
   );
@@ -71,9 +71,9 @@ function SectionHeader({
 }) {
   return (
     <div id={id} className="scroll-mt-28">
-      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#2f6fed]">{eyebrow}</p>
-      <h2 className="mt-1 text-xl font-semibold text-[#1e2b45]">{title}</h2>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-[#68788e]">{description}</p>
+      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#1a5144]">{eyebrow}</p>
+      <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">{title}</h2>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">{description}</p>
     </div>
   );
 }
@@ -89,10 +89,10 @@ function ProvenanceBadge({
       className={
         "rounded-full px-2.5 py-1 text-[11px] font-semibold " +
         (managed
-          ? "bg-[#eef5ff] text-[#2f6fed]"
+          ? "bg-[#edf5f2] text-[#1a5144]"
           : item.ownership_type === "platform_verified"
             ? "bg-emerald-50 text-emerald-700"
-            : "bg-[#f2f5f8] text-[#66768d]")
+            : "bg-[#ecefed] text-[#66736e]")
       }
     >
       {item.ownership_type === "platform_verified"
@@ -116,7 +116,7 @@ function VerificationBadge({ status }: { status: string }) {
           ? "bg-emerald-50 text-emerald-700"
           : status === "pending"
             ? "bg-amber-50 text-amber-800"
-            : "bg-[#f2f5f8] text-[#66768d]")
+            : "bg-[#ecefed] text-[#66736e]")
       }
     >
       {verified ? "Verificato" : status === "pending" ? "Verifica in corso" : "Non verificato"}
@@ -144,9 +144,9 @@ function ScopeProvenanceBadge({
         (kind === "platform_verified"
           ? "bg-emerald-50 text-emerald-700"
           : kind === "company_declared"
-            ? "bg-[#eef5ff] text-[#2f6fed]"
+            ? "bg-[#edf5f2] text-[#1a5144]"
             : kind === "public_web"
-              ? "bg-[#f2f5f8] text-[#66768d]"
+              ? "bg-[#ecefed] text-[#66736e]"
               : "bg-violet-50 text-violet-700")
       }
     >
@@ -169,9 +169,9 @@ function CompletenessItem({
   complete: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-xl border border-[#edf1f6] bg-[#fbfcfe] px-3 py-2.5">
-      <span className="text-sm text-[#4f6077]">{label}</span>
-      <span className={complete ? "text-xs font-bold text-emerald-700" : "text-xs font-bold text-[#9aa7b7]"}>
+    <div className="flex items-center justify-between rounded-xl border border-[#e6ebe8] bg-[#fafbfa] px-3 py-2.5">
+      <span className="text-sm text-[#4f5d57]">{label}</span>
+      <span className={complete ? "text-xs font-bold text-emerald-700" : "text-xs font-bold text-[#8b9792]"}>
         {complete ? "Completo" : "Da completare"}
       </span>
     </div>
@@ -191,13 +191,13 @@ export default async function ManagedNetworkProfilePage({
   if (!managed) {
     return (
       <div className="mx-auto max-w-5xl space-y-6">
-        <Link href="/network" className="text-sm font-semibold text-[#68788e] hover:text-[#1e2b45]">
+        <Link href="/network" className="text-sm font-semibold text-[#66736e] hover:text-[#1d2824]">
           ← Torna alla directory
         </Link>
-        <section className="rounded-3xl border border-[#e1e8f2] bg-white p-8 text-center shadow-sm">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#2f6fed]">Company Profile Manager</p>
-          <h1 className="mt-2 text-2xl font-semibold text-[#1e2b45]">Nessun profilo azienda gestibile</h1>
-          <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#68788e]">
+        <section className="rounded-3xl border border-[#dce2df] bg-white p-8 text-center shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">Company Profile Manager</p>
+          <h1 className="mt-2 text-2xl font-semibold text-[#1d2824]">Nessun profilo azienda gestibile</h1>
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#66736e]">
             Per gestire un profilo Network servono Organization Admin attivo, link organizzazione-azienda
             attivo e claim approvato.
           </p>
@@ -228,7 +228,7 @@ export default async function ManagedNetworkProfilePage({
   return (
     <div className="mx-auto max-w-7xl space-y-6 pb-16">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Link href="/network" className="text-sm font-semibold text-[#68788e] hover:text-[#1e2b45]">
+        <Link href="/network" className="text-sm font-semibold text-[#66736e] hover:text-[#1d2824]">
           ← Torna alla directory
         </Link>
         <Link href={"/network/" + companyId} className={secondaryButton}>
@@ -250,9 +250,9 @@ export default async function ManagedNetworkProfilePage({
       <section className="rounded-3xl border border-[#dfe7f1] bg-white p-6 shadow-sm sm:p-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#2f6fed]">Company Profile Manager · P3.7B</p>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">Company Profile Manager · P3.7B</p>
             <p className="mt-1 text-xs font-semibold text-[#718197]">P3.7D · Identity & Public Contacts</p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1e2b45] sm:text-4xl">
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-4xl">
               {state.company.trading_name || state.company.legal_name}
             </h1>
             <p className="mt-2 text-sm text-[#7a899d]">{state.company.legal_name}</p>
@@ -265,7 +265,7 @@ export default async function ManagedNetworkProfilePage({
                 {state.company.country_code}
               </span>
             </div>
-            <p className="mt-5 max-w-3xl text-sm leading-6 text-[#68788e]">
+            <p className="mt-5 max-w-3xl text-sm leading-6 text-[#66736e]">
               Gestisci il profilo industriale che il Network utilizzerà per directory, discovery e in futuro
               per il matching Marketplace. Le dichiarazioni aziendali restano distinte dalle verifiche della piattaforma.
             </p>
@@ -275,7 +275,7 @@ export default async function ManagedNetworkProfilePage({
             <div className="flex items-end justify-between gap-3">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#8291a5]">Completezza profilo</p>
-                <p className="mt-1 text-3xl font-semibold text-[#1e2b45]">{state.completeness.percentage}%</p>
+                <p className="mt-1 text-3xl font-semibold text-[#1d2824]">{state.completeness.percentage}%</p>
               </div>
               <p className="text-xs font-semibold text-[#7b8ba1]">
                 {state.completeness.passed_sections}/{state.completeness.total_sections}
@@ -283,7 +283,7 @@ export default async function ManagedNetworkProfilePage({
             </div>
             <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#e4ebf5]">
               <div
-                className="h-full rounded-full bg-[#2f6fed]"
+                className="h-full rounded-full bg-[#1a5144]"
                 style={{ width: Math.max(4, state.completeness.percentage) + "%" }}
               />
             </div>
@@ -300,7 +300,7 @@ export default async function ManagedNetworkProfilePage({
         </div>
       </section>
 
-      <nav className="sticky top-3 z-10 overflow-x-auto rounded-2xl border border-[#e1e8f2] bg-white/95 p-2 shadow-sm backdrop-blur">
+      <nav className="sticky top-3 z-10 overflow-x-auto rounded-2xl border border-[#dce2df] bg-white/95 p-2 shadow-sm backdrop-blur">
         <div className="flex min-w-max gap-1">
           {[
             ["overview", "Overview"],
@@ -315,7 +315,7 @@ export default async function ManagedNetworkProfilePage({
             <a
               key={href}
               href={"#" + href}
-              className="rounded-xl px-3 py-2 text-xs font-semibold text-[#5d6e85] hover:bg-[#f1f5fb] hover:text-[#2f6fed]"
+              className="rounded-xl px-3 py-2 text-xs font-semibold text-[#5d6e85] hover:bg-[#f1f5fb] hover:text-[#1a5144]"
             >
               {label}
             </a>
@@ -323,7 +323,7 @@ export default async function ManagedNetworkProfilePage({
         </div>
       </nav>
 
-      <section className="space-y-5 rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
+      <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="overview"
           eyebrow="01 · Overview"
@@ -331,8 +331,8 @@ export default async function ManagedNetworkProfilePage({
           description="I dati legali restano governati dalla piattaforma. Qui puoi gestire la presentazione commerciale del profilo."
         />
 
-        <div className="grid gap-5 rounded-2xl border border-[#dfe7f1] bg-[#fbfcfe] p-5 lg:grid-cols-[180px_1fr] lg:items-center">
-          <div className="flex h-36 w-full items-center justify-center overflow-hidden rounded-2xl border border-[#dbe5f1] bg-white">
+        <div className="grid gap-5 rounded-2xl border border-[#dfe7f1] bg-[#fafbfa] p-5 lg:grid-cols-[180px_1fr] lg:items-center">
+          <div className="flex h-36 w-full items-center justify-center overflow-hidden rounded-2xl border border-[#d7dfdb] bg-white">
             {logoUrl ? (
               <img
                 src={logoUrl}
@@ -340,7 +340,7 @@ export default async function ManagedNetworkProfilePage({
                 className="max-h-28 max-w-[140px] object-contain"
               />
             ) : (
-              <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#eef5ff] text-2xl font-bold text-[#2f6fed]">
+              <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-[#edf5f2] text-2xl font-bold text-[#1a5144]">
                 {(state.company.trading_name || state.company.legal_name)
                   .split(/\\s+/)
                   .filter(Boolean)
@@ -366,7 +366,7 @@ export default async function ManagedNetworkProfilePage({
                     name="logo"
                     accept="image/png,image/jpeg,image/webp"
                     required
-                    className="mt-2 block w-full rounded-xl border border-[#dbe5f1] bg-white px-3 py-2 text-sm text-[#52637a] file:mr-3 file:rounded-lg file:border-0 file:bg-[#eef5ff] file:px-3 file:py-2 file:text-xs file:font-semibold file:text-[#2f6fed]"
+                    className="mt-2 block w-full rounded-xl border border-[#d7dfdb] bg-white px-3 py-2 text-sm text-[#52637a] file:mr-3 file:rounded-lg file:border-0 file:bg-[#edf5f2] file:px-3 file:py-2 file:text-xs file:font-semibold file:text-[#1a5144]"
                   />
                 </div>
                 <button className={primaryButton}>Carica logo</button>
@@ -383,7 +383,7 @@ export default async function ManagedNetworkProfilePage({
           </div>
         </div>
 
-        <div className="grid gap-4 rounded-2xl border border-[#edf1f6] bg-[#fafbfd] p-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 rounded-2xl border border-[#e6ebe8] bg-[#fafbfd] p-4 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-wide text-[#96a3b4]">Ragione sociale</p>
             <p className="mt-1 text-sm font-semibold text-[#34445c]">{state.company.legal_name}</p>
@@ -422,7 +422,7 @@ export default async function ManagedNetworkProfilePage({
         </form>
       </section>
 
-      <section className="space-y-6 rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
+      <section className="space-y-6 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="positioning"
           eyebrow="02 · Company type"
@@ -434,7 +434,7 @@ export default async function ManagedNetworkProfilePage({
           <h3 className="text-sm font-semibold text-[#34445c]">Ruoli aziendali</h3>
           <div className="mt-3 flex flex-wrap gap-2">
             {state.roles.map((role) => (
-              <div key={role.id} className="flex items-center gap-2 rounded-2xl border border-[#e1e8f2] bg-[#fbfcfe] px-3 py-2">
+              <div key={role.id} className="flex items-center gap-2 rounded-2xl border border-[#dce2df] bg-[#fafbfa] px-3 py-2">
                 <div>
                   <p className="text-sm font-semibold text-[#34445c]">
                     {role.name}{role.is_primary ? " · principale" : ""}
@@ -450,7 +450,7 @@ export default async function ManagedNetworkProfilePage({
                       <input type="hidden" name="role_key" value={role.key} />
                       <input type="hidden" name="enabled" value="true" />
                       <input type="hidden" name="is_primary" value="true" />
-                      <button className="rounded-lg border border-[#dbe5f1] bg-white px-2.5 py-1.5 text-[11px] font-semibold text-[#53657c]">
+                      <button className="rounded-lg border border-[#d7dfdb] bg-white px-2.5 py-1.5 text-[11px] font-semibold text-[#53657c]">
                         Rendi principale
                       </button>
                     </form>
@@ -480,7 +480,7 @@ export default async function ManagedNetworkProfilePage({
                 ))}
               </select>
             </div>
-            <label className="flex h-11 items-center gap-2 rounded-xl border border-[#dbe5f1] bg-white px-3 text-sm text-[#53657c]">
+            <label className="flex h-11 items-center gap-2 rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#53657c]">
               <input type="checkbox" name="is_primary" value="true" />
               Principale
             </label>
@@ -488,13 +488,13 @@ export default async function ManagedNetworkProfilePage({
           </form>
         </div>
 
-        <div className="border-t border-[#edf1f6] pt-5">
+        <div className="border-t border-[#e6ebe8] pt-5">
           <h3 className="text-sm font-semibold text-[#34445c]">Sottotipi</h3>
           <div className="mt-3 flex flex-wrap gap-2">
             {state.subtypes.map((subtype) => (
-              <div key={subtype.id} className="flex items-center gap-2 rounded-xl border border-[#e1e8f2] bg-white px-3 py-2">
+              <div key={subtype.id} className="flex items-center gap-2 rounded-xl border border-[#dce2df] bg-white px-3 py-2">
                 <div>
-                  <p className="text-sm font-semibold text-[#40516a]">{subtype.name}</p>
+                  <p className="text-sm font-semibold text-[#43524c]">{subtype.name}</p>
                   <div className="mt-1"><ProvenanceBadge item={subtype} /></div>
                 </div>
                 <form action={setManagedCompanySubtype}>
@@ -525,7 +525,7 @@ export default async function ManagedNetworkProfilePage({
         </div>
       </section>
 
-      <section className="space-y-5 rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
+      <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="products"
           eyebrow="03 · Products"
@@ -569,7 +569,7 @@ export default async function ManagedNetworkProfilePage({
               productDimensions.length > 0;
 
             return (
-              <article key={product.id} className="rounded-2xl border border-[#dfe7f1] bg-[#fbfcfe] p-5">
+              <article key={product.id} className="rounded-2xl border border-[#dfe7f1] bg-[#fafbfa] p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="font-semibold text-[#2f4059]">{product.name}</p>
@@ -601,7 +601,7 @@ export default async function ManagedNetworkProfilePage({
                 <div className="mt-5 border-t border-[#e5ecf5] pt-5">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#2f6fed]">
+                      <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
                         Technical / Marketplace scope
                       </p>
                       <p className="mt-1 text-xs leading-5 text-[#718197]">
@@ -609,21 +609,21 @@ export default async function ManagedNetworkProfilePage({
                       </p>
                     </div>
                     {availableStandards.length === 0 && productStandards.length === 0 ? (
-                      <span className="rounded-full bg-[#f2f5f8] px-2.5 py-1 text-[11px] font-semibold text-[#718197]">
+                      <span className="rounded-full bg-[#ecefed] px-2.5 py-1 text-[11px] font-semibold text-[#718197]">
                         Catalogo tecnico non ancora disponibile
                       </span>
                     ) : null}
                   </div>
 
                   <div className="mt-4 grid gap-4 xl:grid-cols-3">
-                    <div className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
-                      <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Norme</p>
+                    <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
+                      <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#87938e]">Norme</p>
                       <div className="mt-3 space-y-2">
                         {productStandards.map((scope) => (
                           <div key={scope.id} className="rounded-xl border border-[#e7edf5] p-3">
                             <div className="flex items-start justify-between gap-2">
                               <div>
-                                <p className="text-sm font-semibold text-[#40516a]">{scope.standard_code}</p>
+                                <p className="text-sm font-semibold text-[#43524c]">{scope.standard_code}</p>
                                 <p className="mt-1 line-clamp-2 text-xs leading-5 text-[#7a899d]">{scope.standard_title}</p>
                               </div>
                               {scope.verification_status === "unverified" &&
@@ -663,14 +663,14 @@ export default async function ManagedNetworkProfilePage({
                       ) : null}
                     </div>
 
-                    <div className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
-                      <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Gradi / materiali</p>
+                    <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
+                      <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#87938e]">Gradi / materiali</p>
                       <div className="mt-3 space-y-2">
                         {productGrades.map((scope) => (
                           <div key={scope.id} className="rounded-xl border border-[#e7edf5] p-3">
                             <div className="flex items-start justify-between gap-2">
                               <div>
-                                <p className="text-sm font-semibold text-[#40516a]">{scope.designation}</p>
+                                <p className="text-sm font-semibold text-[#43524c]">{scope.designation}</p>
                                 <p className="mt-1 text-xs text-[#7a899d]">
                                   {scope.standard_code}
                                   {scope.material_number ? " · " + scope.material_number : ""}
@@ -724,14 +724,14 @@ export default async function ManagedNetworkProfilePage({
                       ) : null}
                     </div>
 
-                    <div className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
-                      <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Range dimensionali</p>
+                    <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
+                      <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#87938e]">Range dimensionali</p>
                       <div className="mt-3 space-y-2">
                         {productDimensions.map((scope) => (
                           <div key={scope.id} className="rounded-xl border border-[#e7edf5] p-3">
                             <div className="flex items-start justify-between gap-2">
                               <div>
-                                <p className="text-sm font-semibold text-[#40516a]">
+                                <p className="text-sm font-semibold text-[#43524c]">
                                   {technicalDimensionLabels[scope.dimension_type] || scope.dimension_type}
                                 </p>
                                 <p className="mt-1 text-xs text-[#7a899d]">
@@ -820,7 +820,7 @@ export default async function ManagedNetworkProfilePage({
         </form>
       </section>
 
-      <section className="space-y-6 rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
+      <section className="space-y-6 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="facilities"
           eyebrow="04 · Facilities"
@@ -832,7 +832,7 @@ export default async function ManagedNetworkProfilePage({
           {state.facilities.map((facility) => {
             const locked = facility.verification_status !== "unverified";
             return (
-              <article key={facility.id} className="rounded-2xl border border-[#dfe7f1] bg-[#fbfcfe] p-5">
+              <article key={facility.id} className="rounded-2xl border border-[#dfe7f1] bg-[#fafbfa] p-5">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <h3 className="font-semibold text-[#2d3f58]">{facility.name}</h3>
@@ -866,12 +866,12 @@ export default async function ManagedNetworkProfilePage({
                 )}
 
                 <div className="mt-5 border-t border-[#e7edf5] pt-4">
-                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#91a0b2]">Capability</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#87938e]">Capability</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {facility.capabilities.map((capability) => (
                       <div key={capability.id} className="flex items-center gap-2 rounded-xl border border-[#dfe7f1] bg-white px-3 py-2">
                         <div>
-                          <p className="text-sm font-semibold text-[#40516a]">{capability.name}</p>
+                          <p className="text-sm font-semibold text-[#43524c]">{capability.name}</p>
                           <div className="mt-1 flex flex-wrap gap-1.5">
                             <ProvenanceBadge item={capability} />
                             <VerificationBadge status={capability.verification_status} />
@@ -941,7 +941,7 @@ export default async function ManagedNetworkProfilePage({
         </div>
       </section>
 
-      <section className="space-y-5 rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
+      <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="markets"
           eyebrow="05 · Markets"
@@ -950,9 +950,9 @@ export default async function ManagedNetworkProfilePage({
         />
         <div className="flex flex-wrap gap-2">
           {state.markets.map((market) => (
-            <div key={market.id} className="flex items-center gap-2 rounded-xl border border-[#e1e8f2] bg-[#fbfcfe] px-3 py-2">
+            <div key={market.id} className="flex items-center gap-2 rounded-xl border border-[#dce2df] bg-[#fafbfa] px-3 py-2">
               <div>
-                <p className="text-sm font-semibold text-[#40516a]">{market.name}</p>
+                <p className="text-sm font-semibold text-[#43524c]">{market.name}</p>
                 <div className="mt-1"><ProvenanceBadge item={market} /></div>
               </div>
               <form action={setManagedCompanyMarket}>
@@ -981,7 +981,7 @@ export default async function ManagedNetworkProfilePage({
         </form>
       </section>
 
-      <section className="space-y-5 rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
+      <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="certifications"
           eyebrow="06 · Certifications"
@@ -993,7 +993,7 @@ export default async function ManagedNetworkProfilePage({
           {state.certifications.map((certification) => {
             const locked = certification.verification_status !== "unverified";
             return (
-              <article key={certification.id} className="rounded-2xl border border-[#e1e8f2] bg-[#fbfcfe] p-5">
+              <article key={certification.id} className="rounded-2xl border border-[#dce2df] bg-[#fafbfa] p-5">
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <h3 className="font-semibold text-[#2d3f58]">{certification.name}</h3>
@@ -1088,7 +1088,7 @@ export default async function ManagedNetworkProfilePage({
         </div>
       </section>
 
-      <section className="space-y-5 rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
+      <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="contacts"
           eyebrow="07 · Public contacts"
@@ -1103,7 +1103,7 @@ export default async function ManagedNetworkProfilePage({
               contact.verification_status !== "verified";
 
             return (
-              <article key={contact.id} className="rounded-2xl border border-[#e1e8f2] bg-[#fbfcfe] p-5">
+              <article key={contact.id} className="rounded-2xl border border-[#dce2df] bg-[#fafbfa] p-5">
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="font-semibold text-[#34445c]">
@@ -1118,7 +1118,7 @@ export default async function ManagedNetworkProfilePage({
                         }}
                       />
                       <VerificationBadge status={contact.verification_status} />
-                      <span className="rounded-full bg-[#f2f5f8] px-2.5 py-1 text-[11px] font-semibold text-[#66768d]">
+                      <span className="rounded-full bg-[#ecefed] px-2.5 py-1 text-[11px] font-semibold text-[#66736e]">
                         {contact.publication_status === "published" ? "Pubblico" : "Bozza"}
                       </span>
                     </div>
@@ -1234,14 +1234,14 @@ export default async function ManagedNetworkProfilePage({
         </div>
       </section>
 
-      <section className="space-y-5 rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
+      <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="inquiries"
           eyebrow="08 · Network availability"
           title="Ricezione inquiry"
           description="Decidi se gli altri membri del Network possono contattare l'organizzazione dal profilo. La modifica non cancella lo storico."
         />
-        <div className="flex flex-col gap-4 rounded-2xl border border-[#edf1f6] bg-[#fbfcfe] p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 rounded-2xl border border-[#e6ebe8] bg-[#fafbfa] p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="font-semibold text-[#34445c]">
               {inquiryPreferences.inquiries_enabled ? "Inquiry abilitate" : "Inquiry disabilitate"}
@@ -1262,9 +1262,9 @@ export default async function ManagedNetworkProfilePage({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-[#dbe5f1] bg-[#f8faff] p-5">
+      <section className="rounded-2xl border border-[#d7dfdb] bg-[#f8faff] p-5">
         <p className="text-sm font-semibold text-[#33445e]">Governance del profilo</p>
-        <p className="mt-2 text-sm leading-6 text-[#68788e]">
+        <p className="mt-2 text-sm leading-6 text-[#66736e]">
           Le modifiche effettuate qui sono registrate come dichiarazioni dell&apos;azienda e conservano la provenance.
           Claim, identità legale e verification restano indipendenti e sotto controllo della piattaforma.
         </p>

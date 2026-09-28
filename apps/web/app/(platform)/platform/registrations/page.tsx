@@ -38,7 +38,7 @@ function statusClass(status: string) {
   if (status === "needs_information") {
     return "border border-amber-200 bg-amber-50 text-amber-800";
   }
-  return "border border-[#d7e5ff] bg-[#eaf2ff] text-[#2f6fed]";
+  return "border border-[#d9e8e2] bg-[#e1ece8] text-[#1a5144]";
 }
 
 export default async function AdminRegistrationsPage({
@@ -60,12 +60,12 @@ export default async function AdminRegistrationsPage({
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#18263d] sm:text-4xl">
               Registrazioni aziende
             </h1>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66768d]">
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
               Revisiona le richieste aziendali, richiedi integrazioni, approva o rifiuta e attiva il workspace dopo l&apos;approvazione.
             </p>
           </div>
 
-          <div className="min-w-[180px] rounded-2xl border border-[#dbe7f7] bg-[#f1f6ff] px-5 py-4">
+          <div className="min-w-[180px] rounded-2xl border border-[#d9e1dd] bg-[#f1f6ff] px-5 py-4">
             <div className="flex items-center justify-between gap-5">
               <div>
                 <p className="text-xs font-semibold text-[#71819a]">Richieste visualizzate</p>
@@ -98,8 +98,8 @@ export default async function AdminRegistrationsPage({
               className={[
                 "shrink-0 rounded-full border px-4 py-2.5 text-xs font-semibold shadow-[0_1px_2px_rgba(30,43,69,0.02)]",
                 selected
-                  ? "border-[#2f6fed] bg-[#2f6fed] text-white hover:border-[#245ed1] hover:bg-[#245ed1]"
-                  : "border-[#dbe5f1] bg-white text-[#40516a] hover:border-[#bdd1f4] hover:bg-[#f3f7ff] hover:text-[#2f6fed]",
+                  ? "border-[#1a5144] bg-[#1a5144] text-white hover:border-[#226657] hover:bg-[#226657]"
+                  : "border-[#d7dfdb] bg-white text-[#43524c] hover:border-[#b8d2c8] hover:bg-[#f0f4f2] hover:text-[#1a5144]",
               ].join(" ")}
             >
               {label}
@@ -111,12 +111,12 @@ export default async function AdminRegistrationsPage({
       <section className="space-y-3">
         {queue.applications.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-[#cfdbea] bg-white/80 px-6 py-12 text-center">
-            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eef5ff] text-[#5b95ef]" aria-hidden="true">
+            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#edf5f2] text-[#5b95ef]" aria-hidden="true">
               <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <path d="M5 20V8l7-4 7 4v12M8 20v-5h8v5M8 10h.01M12 10h.01M16 10h.01" />
               </svg>
             </span>
-            <p className="mt-4 font-semibold text-[#1e2b45]">Nessuna richiesta in questa vista</p>
+            <p className="mt-4 font-semibold text-[#1d2824]">Nessuna richiesta in questa vista</p>
             <p className="mt-2 text-sm text-[#7a899d]">Le nuove application compariranno automaticamente qui.</p>
           </div>
         ) : (
@@ -124,7 +124,7 @@ export default async function AdminRegistrationsPage({
             <Link
               key={application.id}
               href={`/platform/registrations/${application.id}`}
-              className="block rounded-2xl border border-[#e1e8f2] bg-white p-5 shadow-[0_1px_2px_rgba(30,43,69,0.025)] hover:border-[#bdd1f4] hover:shadow-[0_8px_24px_rgba(30,43,69,0.055)]"
+              className="block rounded-2xl border border-[#dce2df] bg-white p-5 shadow-[0_1px_2px_rgba(30,43,69,0.025)] hover:border-[#b8d2c8] hover:shadow-[0_8px_24px_rgba(30,43,69,0.055)]"
             >
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
@@ -134,23 +134,23 @@ export default async function AdminRegistrationsPage({
                     </span>
                     <span className="text-xs font-medium text-[#8b98aa]">{application.country_code}</span>
                   </div>
-                  <h2 className="mt-3 text-lg font-semibold text-[#1e2b45]">{application.legal_name}</h2>
-                  <p className="mt-1 text-sm text-[#68788e]">
+                  <h2 className="mt-3 text-lg font-semibold text-[#1d2824]">{application.legal_name}</h2>
+                  <p className="mt-1 text-sm text-[#66736e]">
                     {TYPE_LABELS[application.primary_company_type] ?? application.primary_company_type} · {application.applicant_email}
                   </p>
                   {application.vat_id ? (
-                    <p className="mt-1 text-xs text-[#91a0b2]">VAT / P.IVA: {application.vat_id}</p>
+                    <p className="mt-1 text-xs text-[#87938e]">VAT / P.IVA: {application.vat_id}</p>
                   ) : null}
                 </div>
                 <div className="text-left sm:text-right">
-                  <p className="text-xs text-[#91a0b2]">Aggiornata</p>
+                  <p className="text-xs text-[#87938e]">Aggiornata</p>
                   <p className="mt-1 text-sm font-medium text-[#42516a]">
                     {new Intl.DateTimeFormat("it-IT", {
                       dateStyle: "medium",
                       timeStyle: "short",
                     }).format(new Date(application.updated_at))}
                   </p>
-                  <p className="mt-3 text-xs font-semibold text-[#2f6fed]">Apri dettaglio →</p>
+                  <p className="mt-3 text-xs font-semibold text-[#1a5144]">Apri dettaglio →</p>
                 </div>
               </div>
             </Link>
