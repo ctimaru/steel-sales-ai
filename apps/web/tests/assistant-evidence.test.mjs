@@ -33,8 +33,8 @@ test("assistant page renders the grounded P1 experience", () => {
 test("assistant is positioned as secondary support for core sales workflows", () => {
   assert.match(page, /Supporto commerciale/);
   assert.match(page, /Assistente/);
-  assert.match(page, /href="\/search"/);
-  assert.match(page, /href="\/products"/);
+  assert.match(page, /appRoutes\.commercial\.search/);
+  assert.match(page, /appRoutes\.commercial\.products/);
   assert.match(page, /Cerca nello storico/);
   assert.match(page, /Apri storico prodotti/);
   assert.match(component, /Assistente con fonti/);
