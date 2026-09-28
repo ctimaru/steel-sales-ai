@@ -166,8 +166,8 @@ export function WorkspaceSpaceNavigation({
       key: "knowledge" as const,
       href: appRoutes.knowledge.home,
       label: "Knowledge",
-      scope: "Condiviso",
-      description: "Norme, pesi e riferimenti tecnici",
+      scope: "Pubblico",
+      description: "Norme, gradi, pesi e strumenti tecnici",
     },
   ];
 
@@ -250,7 +250,7 @@ export function WorkspaceSpaceNavigation({
                   ? "Superficie condivisa tra organizzazioni."
                   : space === "marketplace"
                     ? "Superficie comune per domanda e opportunità."
-                    : "Riferimenti tecnici comuni e riutilizzabili."}
+                    : "Base tecnica pubblica e indicizzabile."}
               </p>
             </div>
             <WorkspaceNavSection title="Navigazione" items={contextItems} alertActiveCount={alertActiveCount} />
@@ -293,7 +293,7 @@ export function WorkspaceHeaderContext({
     return (
       <Link href={appRoutes.knowledge.home} className="min-w-0 shrink">
         <p className="truncate text-sm font-semibold text-[#1e2b45]">Steel Knowledge</p>
-        <p className="truncate text-xs text-[#7e8da1]">Base tecnica condivisa</p>
+        <p className="truncate text-xs text-[#7e8da1]">Base tecnica pubblica</p>
       </Link>
     );
   }
