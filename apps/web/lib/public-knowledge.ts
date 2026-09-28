@@ -23,6 +23,21 @@ export type PublicKnowledgeStandardSummary = {
   product_families: string[];
   related_grade_count: number;
   published_at: string;
+  last_reviewed_at: string;
+};
+
+export type KnowledgeSourceReference = {
+  label: string;
+  publisher: string;
+  url: string;
+  status?: string;
+};
+
+export type PublicKnowledgeRelatedStandardPage = {
+  slug: string;
+  code: string;
+  title: string;
+  application_category: string | null;
 };
 
 export type PublicKnowledgeRelatedGrade = {
@@ -60,7 +75,10 @@ export type PublicKnowledgeStandard = {
   faq: KnowledgeFaqItem[];
   product_families: string[];
   related_grades: PublicKnowledgeRelatedGrade[];
+  source_references: KnowledgeSourceReference[];
+  related_standard_pages: PublicKnowledgeRelatedStandardPage[];
   published_at: string;
+  last_reviewed_at: string;
 };
 
 export type PublicKnowledgeGradeSummary = {

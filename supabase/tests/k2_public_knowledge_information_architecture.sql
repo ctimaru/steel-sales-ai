@@ -119,10 +119,12 @@ set local role anon;
 
 select count(*) as public_standard_count
 from public.k2_public_knowledge_standards('10216-2',100,0)
+where slug='en-10216-2'
 \gset
 
 select count(*) as archived_standard_count
 from public.k2_public_knowledge_standards('10216-1',100,0)
+where slug='en-10216-1'
 \gset
 
 select to_jsonb(x) as standard_detail
