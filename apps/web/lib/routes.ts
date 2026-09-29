@@ -94,6 +94,7 @@ export const appRoutes = {
   platform: {
     home: "/platform",
     people: "/platform/people",
+    pilot: "/platform/pilot",
     registrations: "/platform/registrations",
     discovery: "/platform/company-discovery",
     claims: "/platform/company-claims",
