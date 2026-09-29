@@ -265,6 +265,9 @@ select pg_temp.p56a_assert(
   'ready buyer and supplier must activate'
 );
 
+-- Inspect protected ledgers only from the privileged SQL harness.
+reset role;
+
 select pg_temp.p56a_assert(
   exists(
     select 1
@@ -286,6 +289,10 @@ select pg_temp.p56a_assert(
   ),
   'cohort activation must never create an opportunity unlock'
 );
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub',:'superadmin_id',true);
+select set_config('request.jwt.claim.role','authenticated',true);
 
 select pg_temp.p56a_assert_raises(
   format(
@@ -317,6 +324,8 @@ select public.p5_6a_transition_participant(
   (:'supplier_candidate'::jsonb->>'participant_id')::uuid,'pause'
 ) as supplier_paused \gset
 
+reset role;
+
 select pg_temp.p56a_assert(
   :'supplier_paused'::jsonb->>'status'='paused'
   and exists(
@@ -331,6 +340,10 @@ select pg_temp.p56a_assert(
   'pausing an active supplier must revoke the pilot marketplace_access entitlement'
 );
 
+set local role authenticated;
+select set_config('request.jwt.claim.sub',:'superadmin_id',true);
+select set_config('request.jwt.claim.role','authenticated',true);
+
 select public.p5_6a_transition_participant(
   (:'supplier_candidate'::jsonb->>'participant_id')::uuid,'resume'
 ) as supplier_resumed \gset
@@ -341,6 +354,8 @@ select pg_temp.p56a_assert(
   'resume must revalidate readiness and use a new entitlement cycle'
 );
 
+reset role;
+
 select pg_temp.p56a_assert(
   (
     select array_agg(event_type order by event_sequence)
@@ -349,8 +364,6 @@ select pg_temp.p56a_assert(
   ) = array['candidate_added','activated','paused','resumed']::text[],
   'participant event ledger must preserve deterministic lifecycle order'
 );
-
-reset role;
 
 select pg_temp.p56a_assert_raises(
   format(
