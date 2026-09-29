@@ -170,11 +170,15 @@ set search_path=''
 as $function$
 declare
   v_user uuid := (select auth.uid());
-  v_role text := coalesce((select auth.jwt()->>'role'),'');
+  v_role text := coalesce(
+    (select auth.jwt()->>'role'),
+    nullif(current_setting('request.jwt.claim.role',true),''),
+    ''
+  );
 begin
   if v_role='service_role' then
     return jsonb_build_object(
-      'actor_user_id',v_user,
+      'actor_user_id',null,
       'actor_authority_type','service'
     );
   end if;
