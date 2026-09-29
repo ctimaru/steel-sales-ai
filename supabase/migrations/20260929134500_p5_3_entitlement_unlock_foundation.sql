@@ -199,7 +199,8 @@ to authenticated,service_role;
 create or replace function private.p5_3_validate_entitlement_target(
   p_supplier_organization_id uuid,
   p_entitlement_key text,
-  p_request_id uuid
+  p_request_id uuid,
+  p_require_open boolean default true
 )
 returns void
 language plpgsql
@@ -249,16 +250,19 @@ begin
       using errcode='22023';
   end if;
 
-  if v_request.status<>'published'
-     or v_request.opens_at>now()
-     or v_request.closes_at<=now() then
+  if p_require_open
+     and (
+       v_request.status<>'published'
+       or v_request.opens_at>now()
+       or v_request.closes_at<=now()
+     ) then
     raise exception 'opportunity_unlock requires an open published Marketplace request'
       using errcode='22023';
   end if;
 end;
 $function$;
 
-revoke all on function private.p5_3_validate_entitlement_target(uuid,text,uuid)
+revoke all on function private.p5_3_validate_entitlement_target(uuid,text,uuid,boolean)
 from public,anon,authenticated;
 
 create or replace function private.p5_3_grant_entitlement_impl(
@@ -315,7 +319,7 @@ begin
   end if;
 
   perform private.p5_3_validate_entitlement_target(
-    p_supplier_organization_id,v_key,p_request_id
+    p_supplier_organization_id,v_key,p_request_id,true
   );
 
   select * into v_event
@@ -471,7 +475,7 @@ begin
   end if;
 
   perform private.p5_3_validate_entitlement_target(
-    p_supplier_organization_id,v_key,p_request_id
+    p_supplier_organization_id,v_key,p_request_id,false
   );
 
   select * into v_event
