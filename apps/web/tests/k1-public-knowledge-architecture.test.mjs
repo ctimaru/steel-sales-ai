@@ -22,6 +22,7 @@ const robots = fs.readFileSync(new URL("../app/robots.ts", import.meta.url), "ut
 const sitemap = fs.readFileSync(new URL("../app/sitemap.ts", import.meta.url), "utf8");
 const root = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
 const nav = fs.readFileSync(new URL("../components/workspace-navigation.tsx", import.meta.url), "utf8");
+const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
 const routes = fs.readFileSync(new URL("../lib/routes.ts", import.meta.url), "utf8");
 
 test("K1 public Knowledge does not depend on tenant workspace context", () => {
@@ -59,8 +60,9 @@ test("K1 establishes metadata and canonical URLs for public Knowledge", () => {
 test("K1 makes public Knowledge discoverable from the product while preserving private data boundaries", () => {
   assert.match(root, /href="\/knowledge"/);
   assert.match(root, /Knowledge pubblica/);
-  assert.match(nav, /appRoutes\.knowledge\.home/);
-  assert.match(nav, /Catalogo pubblico/);
+  assert.match(shell, /appRoutes\.knowledge\.home/);
+  assert.match(shell, /Catalogo pubblico/);
+  assert.match(nav, /label: "Knowledge"/);
   assert.match(publicKnowledge, /consultabile senza account/);
   assert.match(publicKnowledge, /separato dai dati commerciali privati/);
   assert.match(routes, /tubesStandards: "\/company\/tools\/tubi-norme"/);
