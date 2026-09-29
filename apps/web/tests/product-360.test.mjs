@@ -6,6 +6,7 @@ const actions = fs.readFileSync(new URL("../app/(workspace)/products/actions.ts"
 const catalog = fs.readFileSync(new URL("../app/(workspace)/products/page.tsx", import.meta.url), "utf8");
 const detail = fs.readFileSync(new URL("../app/(workspace)/products/[productId]/page.tsx", import.meta.url), "utf8");
 const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
+const commercialHome = fs.readFileSync(new URL("../app/(workspace)/commercial/page.tsx", import.meta.url), "utf8");
 
 test("Product 360 derives actor from verified server session and uses worker boundary", () => {
   assert.match(actions, /supabase\.auth\.getUser\(\)/);
@@ -44,7 +45,8 @@ test("Product detail exposes killer use case and verifiable source history", () 
 
 test("product history is first-class sales navigation", () => {
   assert.match(shell, /href: appRoutes\.commercial\.products/);
-  assert.match(shell, /label: "Product 360"/);
+  assert.match(shell, /label: "Prodotti"/);
+  assert.match(commercialHome, /Product 360/);
 });
 
 
