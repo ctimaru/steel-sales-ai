@@ -5,7 +5,7 @@ import test from "node:test";
 const routes = fs.readFileSync(new URL("../lib/routes.ts", import.meta.url), "utf8");
 const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
 const nav = fs.readFileSync(new URL("../components/workspace-navigation.tsx", import.meta.url), "utf8");
-const home = fs.readFileSync(new URL("../app/(workspace)/marketplace/page.tsx", import.meta.url), "utf8");
+const buyerWorkspace = fs.readFileSync(new URL("../app/(workspace)/marketplace/requests/page.tsx", import.meta.url), "utf8");
 const createPage = fs.readFileSync(new URL("../app/(workspace)/marketplace/new/page.tsx", import.meta.url), "utf8");
 const detailPage = fs.readFileSync(new URL("../app/(workspace)/marketplace/[id]/page.tsx", import.meta.url), "utf8");
 const actions = fs.readFileSync(new URL("../app/(workspace)/marketplace/actions.ts", import.meta.url), "utf8");
@@ -19,20 +19,20 @@ test("P5.1 exposes canonical Marketplace buyer routes and local navigation", () 
   assert.match(routes, /newRequest: "\/marketplace\/new"/);
   assert.match(routes, /request: \(id: string\)/);
   assert.match(routes, /\/marketplace\/\$\{id\}/);
+  assert.match(shell, /label: "Le mie ricerche"/);
   assert.match(shell, /label: "Nuova ricerca"/);
   assert.match(shell, /writeRole: true/);
   assert.match(nav, /current === "marketplace"/);
   assert.match(shell, /marketplaceItems=\{marketplaceItems\}/);
 });
 
-test("P5.1 Marketplace home is a buyer demand workspace, not a fake supplier feed", () => {
-  assert.match(home, /P5\.1 · Demand Listing/);
-  assert.match(home, /\+ Nuova ricerca/);
-  assert.match(home, /RFQ private della[\s\S]*?Commercial Memory/);
-  assert.match(home, /feed supplier.*P5\.2/i);
-  assert.match(home, /getMyMarketplaceRequests/);
-  assert.match(home, /canWriteWorkspace/);
-  assert.doesNotMatch(home, /paywall/i);
+test("P5.1 buyer demand workspace remains explicit and separate from Commercial Memory", () => {
+  assert.match(buyerWorkspace, /Buyer workspace/);
+  assert.match(buyerWorkspace, /\+ Nuova ricerca/);
+  assert.match(buyerWorkspace, /RFQ private della[\s\S]*?Commercial Memory/);
+  assert.match(buyerWorkspace, /getMyMarketplaceRequests/);
+  assert.match(buyerWorkspace, /canWriteWorkspace/);
+  assert.doesNotMatch(buyerWorkspace, /paywall/i);
 });
 
 test("P5.1 creation is explicit and never imports Commercial Memory", () => {
@@ -70,7 +70,7 @@ test("P5.1 publish and withdraw remain buyer-governed and server-side", () => {
   assert.match(actions, /p5_1_withdraw_request/);
   assert.match(actions, /duration_days/);
   assert.match(actions, /Date\.now\(\) \+ durationDays/);
-  assert.match(detailPage, /Feed supplier P5\.2/);
+  assert.match(detailPage, /Teaser live P5\.2/);
 });
 
 test("P5.1 data access uses RPC read models, not raw marketplace tables", () => {

@@ -27,6 +27,7 @@ export const appRoutes = {
 
   network: {
     directory: "/network",
+    company: (id: string) => `/network/${id}`,
     saved: "/network/saved",
     following: "/network/following",
     activity: "/network/activity",
@@ -36,8 +37,10 @@ export const appRoutes = {
 
   marketplace: {
     home: "/marketplace",
+    myRequests: "/marketplace/requests",
     newRequest: "/marketplace/new",
     request: (id: string) => `/marketplace/${id}`,
+    opportunity: (id: string) => `/marketplace/opportunities/${id}`,
   },
 
   knowledge: {

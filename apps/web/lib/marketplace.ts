@@ -103,3 +103,98 @@ export async function getMarketplaceTaxonomy() {
     grades: [],
   }) as MarketplaceTaxonomy;
 }
+
+export type MarketplaceFeedTeaserLine = {
+  line_number: number;
+  product_family_key: string;
+  product_family_name: string;
+  manufacturing_process?: string;
+  quantity_band: string;
+  delivery_country_code: string;
+  delivery_region?: string;
+  has_standard: boolean;
+  has_grade: boolean;
+  has_dimensions: boolean;
+  has_certification: boolean;
+};
+
+export type MarketplaceFeedBuyer =
+  | {
+      visibility_mode: "anonymous";
+    }
+  | {
+      visibility_mode: "named";
+      network_company_id?: string;
+      display_name?: string;
+      country_code?: string;
+      verification_status?: string;
+      claimed_status?: string;
+      profile_available?: boolean;
+    };
+
+export type MarketplaceFeedItem = {
+  request_id: string;
+  visibility_mode: "named" | "anonymous";
+  effective_status: "open" | "closing_soon";
+  opens_at: string;
+  closes_at: string;
+  seconds_remaining: number;
+  buyer: MarketplaceFeedBuyer;
+  line_count: number;
+  teaser_lines: MarketplaceFeedTeaserLine[];
+};
+
+export type MarketplaceFeedResponse = {
+  contract: "P5.2-feed-v1";
+  generated_at: string;
+  items: MarketplaceFeedItem[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
+export async function getMarketplaceFeed(
+  viewerOrganizationId: string,
+  filters?: {
+    productKey?: string;
+    countryCode?: string;
+    closingWithinHours?: number;
+    limit?: number;
+    offset?: number;
+  },
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p5_2_marketplace_feed", {
+    p_viewer_organization_id: viewerOrganizationId,
+    p_product_keys: filters?.productKey ? [filters.productKey] : null,
+    p_country_codes: filters?.countryCode
+      ? [filters.countryCode.toUpperCase()]
+      : null,
+    p_closing_within_hours: filters?.closingWithinHours ?? null,
+    p_limit: filters?.limit ?? 25,
+    p_offset: filters?.offset ?? 0,
+  });
+  if (error) throw new Error(error.message);
+  return (data ?? {
+    contract: "P5.2-feed-v1",
+    generated_at: new Date().toISOString(),
+    items: [],
+    total: 0,
+    limit: filters?.limit ?? 25,
+    offset: filters?.offset ?? 0,
+  }) as MarketplaceFeedResponse;
+}
+
+export async function getMarketplaceTeaser(
+  viewerOrganizationId: string,
+  requestId: string,
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p5_2_marketplace_teaser", {
+    p_viewer_organization_id: viewerOrganizationId,
+    p_request_id: requestId,
+  });
+  if (error) throw new Error(error.message);
+  return (data as MarketplaceFeedItem | null) ?? null;
+}
+

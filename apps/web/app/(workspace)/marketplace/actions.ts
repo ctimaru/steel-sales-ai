@@ -42,6 +42,7 @@ export async function createMarketplaceRequest(formData: FormData) {
   if (!requestId) redirect(marketplaceError(appRoutes.marketplace.home, "Richiesta non creata."));
 
   revalidatePath(appRoutes.marketplace.home);
+  revalidatePath(appRoutes.marketplace.myRequests);
   redirect(appRoutes.marketplace.request(requestId) + "?message=" + encodeURIComponent("Bozza creata. Aggiungi almeno una linea prodotto."));
 }
 
@@ -64,6 +65,7 @@ export async function updateMarketplaceRequest(formData: FormData) {
   if (error) redirect(marketplaceError(path, error.message));
   revalidatePath(path);
   revalidatePath(appRoutes.marketplace.home);
+  revalidatePath(appRoutes.marketplace.myRequests);
   redirect(path + "?message=" + encodeURIComponent("Bozza aggiornata."));
 }
 
@@ -102,6 +104,7 @@ export async function addMarketplaceRequestLine(formData: FormData) {
   if (error) redirect(marketplaceError(path, error.message));
   revalidatePath(path);
   revalidatePath(appRoutes.marketplace.home);
+  revalidatePath(appRoutes.marketplace.myRequests);
   redirect(path + "?message=" + encodeURIComponent("Linea prodotto aggiunta."));
 }
 
@@ -122,6 +125,7 @@ export async function removeMarketplaceRequestLine(formData: FormData) {
   if (error) redirect(marketplaceError(path, error.message));
   revalidatePath(path);
   revalidatePath(appRoutes.marketplace.home);
+  revalidatePath(appRoutes.marketplace.myRequests);
   redirect(path + "?message=" + encodeURIComponent("Linea rimossa."));
 }
 
@@ -145,7 +149,8 @@ export async function publishMarketplaceRequest(formData: FormData) {
   if (error) redirect(marketplaceError(path, error.message));
   revalidatePath(path);
   revalidatePath(appRoutes.marketplace.home);
-  redirect(path + "?message=" + encodeURIComponent("Ricerca pubblicata. Il feed supplier arriverà con P5.2."));
+  revalidatePath(appRoutes.marketplace.myRequests);
+  redirect(path + "?message=" + encodeURIComponent("Ricerca pubblicata. Il teaser è ora disponibile nel feed supplier P5.2."));
 }
 
 export async function withdrawMarketplaceRequest(formData: FormData) {
@@ -163,5 +168,6 @@ export async function withdrawMarketplaceRequest(formData: FormData) {
   if (error) redirect(marketplaceError(path, error.message));
   revalidatePath(path);
   revalidatePath(appRoutes.marketplace.home);
+  revalidatePath(appRoutes.marketplace.myRequests);
   redirect(path + "?message=" + encodeURIComponent("Ricerca ritirata."));
 }
