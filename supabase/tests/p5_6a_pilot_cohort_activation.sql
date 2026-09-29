@@ -401,4 +401,20 @@ select pg_temp.p56a_assert(
   'P5.6A tables must remain RPC-only'
 );
 
+select pg_temp.p56a_assert(
+  (
+    select count(*)
+    from pg_indexes
+    where schemaname='public'
+      and indexname in (
+        'marketplace_pilot_runs_started_by_idx',
+        'marketplace_pilot_participants_network_company_idx',
+        'marketplace_pilot_participants_added_by_idx',
+        'marketplace_pilot_participant_events_organization_idx',
+        'marketplace_pilot_participant_events_actor_idx'
+      )
+  )=5,
+  'P5.6A foreign-key hardening indexes must exist'
+);
+
 rollback;
