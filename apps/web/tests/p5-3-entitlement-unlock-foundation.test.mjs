@@ -84,7 +84,7 @@ test("P5.3 entitlement state is locked entitled or expired and never grants resp
   assert.match(migration, /'state','expired'/);
   assert.match(migration, /'can_view_locked_detail',true/);
   assert.match(migration, /'can_respond',false/);
-  assert.match(migration, /v_request\.organization_id<>p_supplier_organization_id/);
+  assert.match(migration, /r\.organization_id<>p_supplier_organization_id/);
 });
 
 test("P5.3 anonymous unlocked detail withholds buyer identity title and free-text notes", () => {
