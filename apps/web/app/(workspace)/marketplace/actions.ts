@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 import { appRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
-import { requireWorkspaceWriteRole } from "@/lib/workspace-context";
+import { getWorkspaceContext, requireWorkspaceWriteRole } from "@/lib/workspace-context";
 
 function textValue(formData: FormData, key: string) {
   return String(formData.get(key) ?? "").trim();
@@ -365,4 +365,50 @@ export async function transitionMarketplaceBuyerResponse(formData: FormData) {
         ? "Risposta declinata."
         : "Risposta chiusa.";
   redirect(path + "?message=" + encodeURIComponent(label));
+}
+
+export async function openMarketplaceNotification(formData: FormData) {
+  const notificationId = textValue(formData, "notification_id");
+  const requestId = textValue(formData, "request_id");
+  const context = await getWorkspaceContext();
+  const fallback = appRoutes.marketplace.notifications;
+
+  if (!notificationId || !requestId) {
+    redirect(marketplaceError(fallback, "Notifica Marketplace non valida."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p5_5_notification_action", {
+    p_recipient_organization_id: context.organizationId,
+    p_notification_id: notificationId,
+    p_action: "read",
+  });
+
+  if (error) redirect(marketplaceError(fallback, error.message));
+
+  revalidatePath(fallback);
+  redirect(appRoutes.marketplace.opportunity(requestId));
+}
+
+export async function dismissMarketplaceNotification(formData: FormData) {
+  const notificationId = textValue(formData, "notification_id");
+  const context = await getWorkspaceContext();
+  const path = appRoutes.marketplace.notifications;
+
+  if (!notificationId) {
+    redirect(marketplaceError(path, "Notifica Marketplace non valida."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p5_5_notification_action", {
+    p_recipient_organization_id: context.organizationId,
+    p_notification_id: notificationId,
+    p_action: "dismiss",
+  });
+
+  if (error) redirect(marketplaceError(path, error.message));
+
+  revalidatePath(path);
+  revalidatePath(appRoutes.marketplace.home);
+  redirect(path + "?message=" + encodeURIComponent("Opportunità rimossa da Per te."));
 }
