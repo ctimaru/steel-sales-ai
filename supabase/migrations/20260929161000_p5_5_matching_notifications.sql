@@ -898,9 +898,17 @@ as $function$
 declare
   v_company_id uuid;
 begin
-  v_company_id := coalesce(new.network_company_id,old.network_company_id);
+  v_company_id := case
+    when tg_op='DELETE' then old.network_company_id
+    else new.network_company_id
+  end;
+
   perform private.p5_5_sync_company_linkage(v_company_id);
-  return coalesce(new,old);
+
+  if tg_op='DELETE' then
+    return old;
+  end if;
+  return new;
 end;
 $function$;
 
