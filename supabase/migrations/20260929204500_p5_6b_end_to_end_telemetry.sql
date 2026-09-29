@@ -662,7 +662,11 @@ begin
       'unlocks',c.unlocks,
       'open_to_unlock_rate',
         case when c.opportunities_opened=0 then null
-        else round(c.unlocks::numeric/c.opportunities_opened,4) end,
+        else round(
+          (select count(*)::numeric from open_unlock_latency)
+          / c.opportunities_opened,
+          4
+        ) end,
       'response_drafts',c.response_drafts,
       'unlock_to_draft_rate',
         case when c.unlocks=0 then null
