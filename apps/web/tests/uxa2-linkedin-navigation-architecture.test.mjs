@@ -19,7 +19,7 @@ const commercialHome = fs.readFileSync(
   "utf8",
 );
 const knowledgeHome = fs.readFileSync(
-  new URL("../app/(workspace)/knowledge-center/page.tsx", import.meta.url),
+  new URL("../app/(workspace)/school/page.tsx", import.meta.url),
   "utf8",
 );
 const globals = fs.readFileSync(
@@ -37,7 +37,7 @@ test("UXA2 replaces the global sidebar with LinkedIn-inspired primary navigation
 });
 
 test("UXA2 freezes five primary macro destinations when Network is enabled", () => {
-  for (const label of ["Home", "Commerciale", "Network", "Marketplace", "Knowledge"]) {
+  for (const label of ["Home", "Commerciale", "Network", "Marketplace", "Scuola"]) {
     assert.match(nav, new RegExp(`label: "${label}"`));
   }
 
@@ -87,7 +87,7 @@ test("UXA2 makes Commerciale a first-class landing instead of a random child rou
   assert.match(commercialHome, /Company 360/);
   assert.match(commercialHome, /Price Intelligence/);
   assert.match(commercialHome, /Market Intelligence/);
-  assert.match(knowledgeHome, /Conoscenza aziendale e Steel Knowledge/);
+  assert.match(knowledgeHome, /Formazione e conoscenza tecnica/);
   assert.match(knowledgeHome, /Knowledge Explorer/);
   assert.match(knowledgeHome, /Steel Knowledge/);
 });
