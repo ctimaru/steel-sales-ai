@@ -119,7 +119,7 @@ export default async function MarketplaceRequestPage({
               {request.status === "draft"
                 ? "Completa le linee prodotto e pubblica esplicitamente quando la ricerca è pronta."
                 : request.status === "published"
-                  ? "La ricerca ha superato il lifecycle buyer. In P5.1 non è ancora visibile nel feed supplier."
+                  ? "La ricerca è pubblicata. In P5.2 i supplier vedono solo il teaser privacy-safe; i dettagli completi restano locked."
                   : "La ricerca è stata ritirata e resta conservata nello storico audit."}
             </p>
           </div>
@@ -169,7 +169,7 @@ export default async function MarketplaceRequestPage({
             <h2 className="mt-2 text-lg font-semibold text-[#1d2824]">Imposta la durata</h2>
             <p className="mt-2 text-sm leading-6 text-[#66736e]">
               Il countdown è autoritativo lato database. P5.1 consente da 1 a 30 giorni;
-              il feed esterno verrà attivato in P5.2.
+              il feed supplier usa il teaser privacy-safe P5.2; unlock e dettagli completi arrivano in P5.3.
             </p>
             <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
               <div className="flex-1">
