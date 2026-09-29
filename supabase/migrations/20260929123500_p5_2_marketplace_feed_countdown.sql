@@ -289,7 +289,9 @@ end;
 $function$;
 
 revoke all on function private.p5_2_marketplace_feed_impl(uuid,text[],text[],integer,integer,integer)
-from public,anon,authenticated;
+from public,anon;
+grant execute on function private.p5_2_marketplace_feed_impl(uuid,text[],text[],integer,integer,integer)
+to authenticated,service_role;
 
 create or replace function public.p5_2_marketplace_feed(
   p_viewer_organization_id uuid,
@@ -353,7 +355,9 @@ end;
 $function$;
 
 revoke all on function private.p5_2_marketplace_teaser_impl(uuid,uuid)
-from public,anon,authenticated;
+from public,anon;
+grant execute on function private.p5_2_marketplace_teaser_impl(uuid,uuid)
+to authenticated,service_role;
 
 create or replace function public.p5_2_marketplace_teaser(
   p_viewer_organization_id uuid,
