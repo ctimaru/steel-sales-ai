@@ -10,14 +10,19 @@ const shell = fs.readFileSync(
   new URL("../components/app-shell.tsx", import.meta.url),
   "utf8",
 );
+const navigation = fs.readFileSync(
+  new URL("../components/workspace-navigation.tsx", import.meta.url),
+  "utf8",
+);
 const migration = fs.readFileSync(
   new URL("../../../supabase/migrations/20260925124500_add_pilot_exit_readiness.sql", import.meta.url),
   "utf8",
 );
 
 test("PA2.35 exposes the pilot analytics surface and read models", () => {
-  assert.match(shell, /href: appRoutes\.company\.pilotAnalytics/);
-  assert.match(shell, /Pilot analytics/);
+  assert.match(navigation, /appRoutes\.company\.pilotAnalytics/);
+  assert.match(navigation, /Pilot analytics/);
+  assert.match(shell, /WorkspaceProfileMenu/);
   assert.match(page, /p1_pilot_usage_summary/);
   assert.match(page, /p1_pilot_exit_readiness/);
   assert.match(page, /P1\.12 · Pilot Analytics/);
