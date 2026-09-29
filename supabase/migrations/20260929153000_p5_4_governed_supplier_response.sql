@@ -290,14 +290,14 @@ begin
     return jsonb_build_object(
       'contract','P5.4-response-rights-v1',
       'request_id',p_request_id,
-      'state','ineligible',
+      'state',case when v_response.id is null then 'ineligible' else v_response.status end,
       'reason','request_not_open',
       'can_create',false,
       'can_edit',false,
       'can_submit',false,
-      'can_withdraw',false,
-      'response_id',null,
-      'response_status',null
+      'can_withdraw',v_response.id is not null and v_response.status='draft',
+      'response_id',v_response.id,
+      'response_status',v_response.status
     );
   end if;
 
@@ -309,14 +309,14 @@ begin
     return jsonb_build_object(
       'contract','P5.4-response-rights-v1',
       'request_id',p_request_id,
-      'state','ineligible',
+      'state',case when v_response.id is null then 'ineligible' else v_response.status end,
       'reason','entitlement_required',
       'can_create',false,
       'can_edit',false,
       'can_submit',false,
-      'can_withdraw',false,
-      'response_id',null,
-      'response_status',null
+      'can_withdraw',v_response.id is not null and v_response.status='draft',
+      'response_id',v_response.id,
+      'response_status',v_response.status
     );
   end if;
 
@@ -331,14 +331,14 @@ begin
     return jsonb_build_object(
       'contract','P5.4-response-rights-v1',
       'request_id',p_request_id,
-      'state','ineligible',
+      'state',case when v_response.id is null then 'ineligible' else v_response.status end,
       'reason','unlock_required',
       'can_create',false,
       'can_edit',false,
       'can_submit',false,
-      'can_withdraw',false,
-      'response_id',null,
-      'response_status',null
+      'can_withdraw',v_response.id is not null and v_response.status='draft',
+      'response_id',v_response.id,
+      'response_status',v_response.status
     );
   end if;
 
@@ -352,7 +352,7 @@ begin
   where r.created_by_user_id=v_user
     and r.created_at>=now()-interval '1 hour';
 
-  if not found and (v_org_24h>=40 or v_user_1h>=15) then
+  if v_response.id is null and (v_org_24h>=40 or v_user_1h>=15) then
     return jsonb_build_object(
       'contract','P5.4-response-rights-v1',
       'request_id',p_request_id,
