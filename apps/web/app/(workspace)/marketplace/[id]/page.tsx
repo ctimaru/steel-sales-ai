@@ -108,7 +108,7 @@ export default async function MarketplaceRequestPage({
               </span>
               {request.status === "published" ? (
                 <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-semibold text-amber-700">
-                  Feed supplier P5.2
+                  Teaser live P5.2
                 </span>
               ) : null}
             </div>
