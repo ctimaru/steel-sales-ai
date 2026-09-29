@@ -18,6 +18,10 @@ const commercialHome = fs.readFileSync(
   new URL("../app/(workspace)/commercial/page.tsx", import.meta.url),
   "utf8",
 );
+const knowledgeHome = fs.readFileSync(
+  new URL("../app/(workspace)/knowledge-center/page.tsx", import.meta.url),
+  "utf8",
+);
 const globals = fs.readFileSync(
   new URL("../app/globals.css", import.meta.url),
   "utf8",
@@ -76,12 +80,16 @@ test("UXA2 moves operations, company controls and Platform into the avatar drawe
 test("UXA2 makes Commerciale a first-class landing instead of a random child route", () => {
   assert.match(routes, /home: "\/commercial"/);
   assert.match(nav, /href: appRoutes\.commercial\.home/);
+  assert.match(nav, /href: appRoutes\.knowledge\.workspace/);
   assert.match(commercialHome, /Memoria, ricerca e intelligence commerciale/);
   assert.match(commercialHome, /Cerca nello storico/);
   assert.match(commercialHome, /Product 360/);
   assert.match(commercialHome, /Company 360/);
   assert.match(commercialHome, /Price Intelligence/);
   assert.match(commercialHome, /Market Intelligence/);
+  assert.match(knowledgeHome, /Conoscenza aziendale e Steel Knowledge/);
+  assert.match(knowledgeHome, /Knowledge Explorer/);
+  assert.match(knowledgeHome, /Steel Knowledge/);
 });
 
 test("UXA2 keeps contextual subnavigation scoped to the active macro-space", () => {
