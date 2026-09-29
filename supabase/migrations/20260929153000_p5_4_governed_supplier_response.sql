@@ -269,16 +269,16 @@ begin
   where request_id=p_request_id
     and supplier_organization_id=p_supplier_organization_id;
 
-  if found then
+  if found and v_response.status<>'draft' then
     return jsonb_build_object(
       'contract','P5.4-response-rights-v1',
       'request_id',p_request_id,
       'state',v_response.status,
       'reason','existing_response',
       'can_create',false,
-      'can_edit',v_response.status='draft',
-      'can_submit',v_response.status='draft',
-      'can_withdraw',v_response.status in ('draft','submitted','acknowledged'),
+      'can_edit',false,
+      'can_submit',false,
+      'can_withdraw',v_response.status in ('submitted','acknowledged'),
       'response_id',v_response.id,
       'response_status',v_response.status
     );
@@ -352,7 +352,7 @@ begin
   where r.created_by_user_id=v_user
     and r.created_at>=now()-interval '1 hour';
 
-  if v_org_24h>=40 or v_user_1h>=15 then
+  if not found and (v_org_24h>=40 or v_user_1h>=15) then
     return jsonb_build_object(
       'contract','P5.4-response-rights-v1',
       'request_id',p_request_id,
@@ -364,6 +364,23 @@ begin
       'can_withdraw',false,
       'response_id',null,
       'response_status',null
+    );
+  end if;
+
+  if v_response.id is not null then
+    return jsonb_build_object(
+      'contract','P5.4-response-rights-v1',
+      'request_id',p_request_id,
+      'state','draft',
+      'reason','existing_draft',
+      'can_create',false,
+      'can_edit',true,
+      'can_submit',true,
+      'can_withdraw',true,
+      'response_id',v_response.id,
+      'response_status','draft',
+      'entitlement_key',v_entitlement->>'entitlement_key',
+      'entitlement_source',v_entitlement->>'source_kind'
     );
   end if;
 
@@ -437,6 +454,17 @@ begin
   if p_require_draft and v_response.status<>'draft' then
     raise exception 'Marketplace response is no longer editable'
       using errcode='22023';
+  end if;
+
+  if p_require_draft
+     and coalesce((
+       private.p5_4_response_rights_impl(
+         p_supplier_organization_id,
+         v_response.request_id
+       )->>'can_edit'
+     )::boolean,false)=false then
+    raise exception 'Marketplace response is no longer editable'
+      using errcode='42501';
   end if;
 
   return v_response;
