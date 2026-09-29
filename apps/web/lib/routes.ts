@@ -39,7 +39,16 @@ export const appRoutes = {
   },
 
   knowledge: {
-    workspace: "/knowledge-center",
+    workspace: "/school",
+    catalog: "/school/catalogo",
+    schoolStandards: "/school/norme",
+    schoolStandard: (slug: string) => `/school/norme/${slug}`,
+    schoolGrades: "/school/gradi",
+    schoolGrade: (slug: string) => `/school/gradi/${slug}`,
+    schoolTubes: "/school/tubes",
+    schoolTubeFamily: (family: string) => `/school/tubes/${family}`,
+    schoolTubeSizeHub: (family: string, size: string) => `/school/tubes/${family}/${size}`,
+    schoolTubeDimension: (slug: string) => `/school/tubes/${slug}`,
     home: "/knowledge",
     standards: "/knowledge/norme",
     standard: (slug: string) => `/knowledge/norme/${slug}`,
