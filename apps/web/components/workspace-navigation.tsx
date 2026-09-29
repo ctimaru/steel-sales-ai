@@ -163,6 +163,7 @@ function primaryItems(networkEnabled: boolean) {
             key: "marketplace" as const,
             href: appRoutes.marketplace.home,
             label: "Marketplace",
+            mobileLabel: "Mercato",
             icon: "marketplace" as const,
           },
         ]
