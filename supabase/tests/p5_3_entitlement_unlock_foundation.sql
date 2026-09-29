@@ -591,6 +591,35 @@ select pg_temp.p53_assert_raises(
 
 reset role;
 
+-- Service/billing integration can grant through a real service_role JWT context.
+set local role service_role;
+select set_config('request.jwt.claims','{"role":"service_role"}',true);
+
+select public.p5_3_grant_entitlement(
+  '00000000-0000-0000-0000-000000005311'::uuid,
+  'marketplace_access',
+  null,
+  'system',
+  'service:p53-acceptance',
+  now()+interval '1 day',
+  'p53.service.grant.001',
+  '{"channel":"service_role"}'::jsonb
+) as service_grant \gset
+
+reset role;
+
+select pg_temp.p53_assert(
+  :'service_grant'::jsonb->>'event_type'='granted'
+  and (
+    select actor_authority_type='service' and actor_user_id is null
+    from public.marketplace_entitlement_events
+    where id=(:'service_grant'::jsonb->>'event_id')::uuid
+  ),
+  'service_role JWT must produce a service-authority entitlement event'
+);
+
+select set_config('request.jwt.claims','{}',true);
+
 -- Append-only history and API privilege boundaries.
 select pg_temp.p53_assert_raises(
   format(
