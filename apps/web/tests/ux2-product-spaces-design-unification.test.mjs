@@ -13,15 +13,14 @@ const globals = fs.readFileSync(new URL("../app/globals.css", import.meta.url), 
 const button = fs.readFileSync(new URL("../components/ui/button.tsx", import.meta.url), "utf8");
 const input = fs.readFileSync(new URL("../components/ui/input.tsx", import.meta.url), "utf8");
 
-test("UX2 defines four distinct product spaces", () => {
-  for (const label of ["Home Workspace", "Network", "Marketplace", "Knowledge"]) {
-    assert.match(nav, new RegExp(label));
+test("UXA2 exposes five stable macro destinations over the product spaces", () => {
+  for (const label of ["Home", "Commerciale", "Network", "Marketplace", "Knowledge"]) {
+    assert.match(nav, new RegExp(`label: "${label}"`));
   }
-  assert.match(nav, /Privato/);
-  assert.match(nav, /Condiviso/);
-  assert.match(nav, /Pubblico/);
+  assert.match(routes, /home: "\/commercial"/);
   assert.match(routes, /marketplace:\s*\{/);
   assert.match(routes, /knowledge:\s*\{/);
+  assert.match(nav, /WorkspaceMobileBottomNavigation/);
 });
 
 test("UX2 keeps Commercial Memory private and moves search below primary workspace actions", () => {
