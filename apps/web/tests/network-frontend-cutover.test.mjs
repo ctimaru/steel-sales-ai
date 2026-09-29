@@ -10,6 +10,10 @@ const shell = fs.readFileSync(
   new URL("../components/app-shell.tsx", import.meta.url),
   "utf8",
 );
+const navigation = fs.readFileSync(
+  new URL("../components/workspace-navigation.tsx", import.meta.url),
+  "utf8",
+);
 const directory = fs.readFileSync(
   new URL("../app/(workspace)/network/page.tsx", import.meta.url),
   "utf8",
@@ -35,7 +39,9 @@ test("M8 rollback flag defaults enabled and has an explicit false kill switch", 
 test("M8 rollback flag removes Network navigation and disables all Network routes", () => {
   assert.match(shell, /networkEnabled/);
   assert.match(shell, /const networkItems = networkEnabled \? visibleItems\(networkNav, organizationRole\) : \[\]/);
-  assert.match(shell, /const marketplaceItems = networkEnabled \? visibleItems\(marketplaceNav, organizationRole\) : \[\]/);
+  assert.match(navigation, /\.\.\.\(networkEnabled[\s\S]*?key: "network"/);
+  assert.match(navigation, /key: "marketplace"/);
+  assert.match(shell, /WorkspaceMobileBottomNavigation networkEnabled=\{networkEnabled\}/);
 
   for (const source of [directory, profile, managed]) {
     assert.match(source, /isNetworkFrontendEnabled/);
