@@ -28,7 +28,7 @@ test("P5.1 exposes canonical Marketplace buyer routes and local navigation", () 
 test("P5.1 Marketplace home is a buyer demand workspace, not a fake supplier feed", () => {
   assert.match(home, /P5\.1 · Demand Listing/);
   assert.match(home, /\+ Nuova ricerca/);
-  assert.match(home, /RFQ private della Commercial Memory/);
+  assert.match(home, /RFQ private della[\s\S]*?Commercial Memory/);
   assert.match(home, /feed supplier.*P5\.2/i);
   assert.match(home, /getMyMarketplaceRequests/);
   assert.match(home, /canWriteWorkspace/);
@@ -47,12 +47,17 @@ test("P5.1 creation is explicit and never imports Commercial Memory", () => {
 test("P5.1 request builder supports structured steel-first demand", () => {
   for (const field of [
     "product_family_key", "standard_id", "material_grade_id", "manufacturing_process",
-    "outer_diameter_mm", "width_mm", "height_mm", "thickness_mm", "length_mm",
     "quantity", "quantity_unit", "certification", "delivery_country_code",
     "requested_delivery_date",
   ]) {
     assert.match(detailPage, new RegExp(`name="${field}"`));
   }
+  for (const dimensionField of [
+    "outer_diameter_mm", "width_mm", "height_mm", "thickness_mm", "length_mm",
+  ]) {
+    assert.ok(detailPage.includes(`["${dimensionField}",`), `missing dimension field ${dimensionField}`);
+  }
+  assert.match(detailPage, /<input name=\{name\} type="number"/);
   assert.match(detailPage, /tassonomie governate di Network e Scuola/);
   assert.match(actions, /p5_1_add_request_line/);
   assert.match(actions, /p5_1_remove_request_line/);
