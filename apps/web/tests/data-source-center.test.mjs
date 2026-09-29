@@ -11,6 +11,7 @@ const page = fs.readFileSync(
   "utf8",
 );
 const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
+const navigation = fs.readFileSync(new URL("../components/workspace-navigation.tsx", import.meta.url), "utf8");
 
 test("data source center derives actor identity server-side and calls trusted worker", () => {
   assert.match(actions, /supabase\.auth\.getClaims\(\)/);
@@ -30,8 +31,9 @@ test("data source center exposes required P1.3 operational states", () => {
 });
 
 test("workspace navigation links source history and import workflow", () => {
-  assert.match(shell, /href: appRoutes\.company\.dataSources/);
-  assert.match(shell, /href: appRoutes\.operations\.uploads/);
+  assert.match(navigation, /appRoutes\.company\.dataSources/);
+  assert.match(navigation, /appRoutes\.operations\.uploads/);
+  assert.match(shell, /WorkspaceProfileMenu/);
   assert.match(page, /href="\/uploads"/);
 });
 

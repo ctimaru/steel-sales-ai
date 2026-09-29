@@ -19,19 +19,15 @@ test("UX1 separates public, company and platform entry points", () => {
   assert.doesNotMatch(platformLayout, /getWorkspaceContext/);
 });
 
-test("UX2 Company Workspace exposes explicit private and shared product spaces", () => {
-  assert.match(companyShell, /Company Workspace/);
-  assert.match(companyShell, /Commercial Memory/);
-  assert.match(companyShell, /Commercial Intelligence/);
-  assert.match(companyShell, /Operations/);
-  assert.match(companyShell, /Company/);
-  assert.match(companyShell, /Marketplace/);
-  assert.match(companyShell, /Knowledge/);
-  assert.match(companyShell, /WorkspaceSpaceNavigation/);
+test("UXA2 Company Workspace exposes role-aware LinkedIn-style macro navigation", () => {
+  assert.match(companyShell, /WorkspaceDesktopPrimaryNavigation/);
+  assert.match(companyShell, /WorkspaceMobileBottomNavigation/);
+  assert.match(companyShell, /WorkspaceContextNavigation/);
+  assert.match(companyShell, /WorkspaceProfileMenu/);
   assert.match(companyShell, /organizationRole/);
-  assert.match(companyShell, /Apri Platform Console/);
-  assert.match(companyShell, /adminOnly/);
-  assert.match(companyShell, /writeRole/);
+  assert.match(companyShell, /canAdministerCompany/);
+  assert.match(companyShell, /canWriteWorkspace/);
+  assert.match(companyShell, /platformSuperadmin/);
 });
 
 test("UX2 Company Home is a private operational cockpit with shared-space exits", () => {

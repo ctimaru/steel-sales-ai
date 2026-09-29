@@ -3,12 +3,14 @@ import fs from "node:fs";
 import test from "node:test";
 
 const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
+const navigation = fs.readFileSync(new URL("../components/workspace-navigation.tsx", import.meta.url), "utf8");
 const product = fs.readFileSync(new URL("../app/(workspace)/products/[productId]/page.tsx", import.meta.url), "utf8");
 const prices = fs.readFileSync(new URL("../app/(workspace)/products/[productId]/prices/page.tsx", import.meta.url), "utf8");
 const upload = fs.readFileSync(new URL("../components/bulk-upload-form.tsx", import.meta.url), "utf8");
 
-test("PA2.33 mobile keeps secondary sales tools reachable", () => {
-  assert.match(shell, /Altro/);
+test("PA2.33 mobile keeps secondary sales tools reachable through context navigation and avatar drawer", () => {
+  assert.match(shell, /WorkspaceMobileBottomNavigation/);
+  assert.match(shell, /WorkspaceProfileMenu/);
   for (const routeRef of [
     "appRoutes.commercial.assistant",
     "appRoutes.operations.review",
@@ -16,7 +18,7 @@ test("PA2.33 mobile keeps secondary sales tools reachable", () => {
     "appRoutes.operations.uploads",
     "appRoutes.company.dataSources",
   ]) {
-    assert.ok(shell.includes(routeRef), `missing mobile route reference ${routeRef}`);
+    assert.ok((shell + navigation).includes(routeRef), `missing mobile route reference ${routeRef}`);
   }
 });
 

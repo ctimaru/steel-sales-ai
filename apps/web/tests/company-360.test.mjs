@@ -44,5 +44,5 @@ test("Company 360 exposes commercial chain and provenance surfaces", () => {
 
 test("customers are a primary navigation destination", () => {
   assert.match(shell, /href: appRoutes\.commercial\.companies/);
-  assert.match(shell, /Aziende commerciali/);
+  assert.match(shell, /label: "Aziende"/);
 });

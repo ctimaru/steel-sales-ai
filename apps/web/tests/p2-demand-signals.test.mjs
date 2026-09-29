@@ -12,6 +12,7 @@ const page = fs.readFileSync(
 );
 const routes = fs.readFileSync(new URL("../lib/routes.ts", import.meta.url), "utf8");
 const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
+const navigation = fs.readFileSync(new URL("../components/workspace-navigation.tsx", import.meta.url), "utf8");
 
 test("P2.2 uses a tenant-scoped deterministic RFQ demand RPC", () => {
   assert.match(actions, /p2_demand_signals/);
@@ -44,6 +45,6 @@ test("P2.2 exposes attribution quality and truthful empty state", () => {
 
 test("P2.2 is wired into canonical Commercial Intelligence navigation", () => {
   assert.match(routes, /demand: "\/commercial\/demand"/);
-  assert.match(shell, /Commercial Intelligence/);
   assert.match(shell, /Segnali di domanda/);
+  assert.match(navigation, /Intelligence/);
 });

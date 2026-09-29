@@ -5,6 +5,7 @@ import test from "node:test";
 const routes = fs.readFileSync(new URL("../lib/routes.ts", import.meta.url), "utf8");
 const config = fs.readFileSync(new URL("../next.config.ts", import.meta.url), "utf8");
 const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
+const workspaceNav = fs.readFileSync(new URL("../components/workspace-navigation.tsx", import.meta.url), "utf8");
 const dashboard = fs.readFileSync(new URL("../app/(workspace)/dashboard/page.tsx", import.meta.url), "utf8");
 const publicKnowledge = fs.readFileSync(new URL("../app/(public)/knowledge/page.tsx", import.meta.url), "utf8");
 const publicKnowledgeLayout = fs.readFileSync(new URL("../app/(public)/knowledge/layout.tsx", import.meta.url), "utf8");
@@ -52,9 +53,9 @@ test("UX2 freezes canonical route families", () => {
 test("UX2 Company shell and Home use the canonical space contract", () => {
   assert.match(shell, /appRoutes\.commercial\.products/);
   assert.match(shell, /appRoutes\.commercial\.search/);
-  assert.match(shell, /appRoutes\.operations\.uploads/);
-  assert.match(shell, /appRoutes\.company\.profile/);
-  assert.match(shell, /appRoutes\.marketplace\.home/);
+  assert.match(workspaceNav, /appRoutes\.operations\.uploads/);
+  assert.match(workspaceNav, /appRoutes\.company\.profile/);
+  assert.match(workspaceNav, /appRoutes\.marketplace\.home/);
   assert.match(shell, /appRoutes\.knowledge\.home/);
   assert.match(shell, /appRoutes\.knowledge\.standards/);
   assert.match(shell, /appRoutes\.knowledge\.grades/);

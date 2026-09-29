@@ -49,12 +49,11 @@ test("UXA1 exposes previously orphaned daily analysis tools", () => {
     assert.match(routes, new RegExp(routeKey + ":"));
   }
 
-  assert.match(appShell, /title: "Analisi & strumenti"/);
-  assert.match(appShell, /Commercial Explorer/);
+  assert.match(appShell, /Commercial Explorer|Explorer/);
   assert.match(appShell, /Price Intelligence/);
   assert.match(appShell, /Market Intelligence/);
   assert.match(appShell, /Knowledge Explorer/);
-  assert.match(appShell, /Strumenti tubi & norme/);
+  assert.match(workspaceNav, /Strumenti tubi & norme/);
 });
 
 test("UXA1 makes the Platform Console navigable on mobile", () => {

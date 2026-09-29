@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 import { appRoutes } from "@/lib/routes";
 
@@ -16,133 +17,141 @@ export type WorkspaceNavGroup = {
   alertHref?: string;
 };
 
-type ProductSpace = "workspace" | "network" | "marketplace" | "knowledge";
+type PrimarySpace = "home" | "commercial" | "network" | "marketplace" | "knowledge";
 
-function currentSpace(pathname: string): ProductSpace {
+function isSelected(pathname: string, href: string) {
+  if (href === appRoutes.home) return pathname === href;
+  return pathname === href || pathname.startsWith(href + "/");
+}
+
+function currentPrimarySpace(pathname: string): PrimarySpace {
   if (pathname === appRoutes.network.directory || pathname.startsWith(appRoutes.network.directory + "/")) {
     return "network";
   }
   if (pathname === appRoutes.marketplace.home || pathname.startsWith(appRoutes.marketplace.home + "/")) {
     return "marketplace";
   }
-  if (pathname === appRoutes.knowledge.home || pathname.startsWith(appRoutes.knowledge.home + "/")) {
+  if (
+    pathname === appRoutes.knowledge.workspace ||
+    pathname.startsWith(appRoutes.knowledge.workspace + "/") ||
+    pathname === appRoutes.commercial.knowledgeExplorer ||
+    pathname.startsWith(appRoutes.commercial.knowledgeExplorer + "/")
+  ) {
     return "knowledge";
   }
-  return "workspace";
-}
-
-function isSelected(pathname: string, href: string) {
   if (
-    href === appRoutes.home ||
-    href === appRoutes.network.directory ||
-    href === appRoutes.marketplace.home ||
-    href === appRoutes.knowledge.home
+    pathname.startsWith("/commercial") ||
+    pathname === appRoutes.commercial.explorer ||
+    pathname === appRoutes.commercial.priceIntelligence ||
+    pathname === appRoutes.commercial.marketIntelligence
   ) {
-    return pathname === href;
+    return "commercial";
   }
-  return pathname === href || pathname.startsWith(href + "/");
+  return "home";
 }
 
-export function WorkspaceNavSection({
-  title,
-  items,
-  alertHref,
-  alertActiveCount,
+function NavIcon({
+  name,
+  className = "h-5 w-5",
 }: {
-  title: string;
-  items: WorkspaceNavItem[];
-  alertHref?: string;
-  alertActiveCount?: number;
+  name: "home" | "commercial" | "network" | "marketplace" | "knowledge" | "bell" | "user" | "search" | "chevron";
+  className?: string;
 }) {
-  const pathname = usePathname();
+  const common = {
+    viewBox: "0 0 24 24",
+    className,
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: 1.8,
+    "aria-hidden": true,
+  } as const;
 
-  if (!items.length) return null;
-
+  if (name === "home") {
+    return (
+      <svg {...common}>
+        <path d="m3.5 10 8.5-7 8.5 7" />
+        <path d="M5.5 9.5V21h13V9.5M9 21v-6h6v6" />
+      </svg>
+    );
+  }
+  if (name === "commercial") {
+    return (
+      <svg {...common}>
+        <rect x="3.5" y="6.5" width="17" height="13" rx="2" />
+        <path d="M8.5 6.5V4.75h7V6.5M3.5 11.5h17M9.5 14h5" />
+      </svg>
+    );
+  }
+  if (name === "network") {
+    return (
+      <svg {...common}>
+        <circle cx="8" cy="8" r="3" />
+        <circle cx="17" cy="9" r="2.5" />
+        <path d="M2.75 19c.55-3.25 2.3-5 5.25-5s4.7 1.75 5.25 5M13.5 15.25c.9-.85 2.05-1.25 3.5-1.25 2.35 0 3.75 1.45 4.25 4" />
+      </svg>
+    );
+  }
+  if (name === "marketplace") {
+    return (
+      <svg {...common}>
+        <path d="M4 9.5h16l-1.25-5h-13.5L4 9.5Z" />
+        <path d="M5 9.5V20h14V9.5M9 20v-5h6v5" />
+        <path d="M4 9.5c0 1.4 1 2.5 2.25 2.5S8.5 10.9 8.5 9.5c0 1.4 1 2.5 2.25 2.5S13 10.9 13 9.5c0 1.4 1 2.5 2.25 2.5s2.25-1.1 2.25-2.5c0 1.4 1 2.5 2.25 2.5" />
+      </svg>
+    );
+  }
+  if (name === "knowledge") {
+    return (
+      <svg {...common}>
+        <path d="M4.5 4.5h6.25A2.25 2.25 0 0 1 13 6.75V20a3.25 3.25 0 0 0-3.25-3.25H4.5V4.5Z" />
+        <path d="M19.5 4.5h-6.25A2.25 2.25 0 0 0 11 6.75V20a3.25 3.25 0 0 1 3.25-3.25h5.25V4.5Z" />
+      </svg>
+    );
+  }
+  if (name === "bell") {
+    return (
+      <svg {...common}>
+        <path d="M6 10a6 6 0 0 1 12 0v4.25l1.5 2.25h-15L6 14.25V10Z" />
+        <path d="M9.5 19.5a3 3 0 0 0 5 0" />
+      </svg>
+    );
+  }
+  if (name === "user") {
+    return (
+      <svg {...common}>
+        <circle cx="12" cy="8" r="3.5" />
+        <path d="M5 20c.65-4 3-6 7-6s6.35 2 7 6" />
+      </svg>
+    );
+  }
+  if (name === "search") {
+    return (
+      <svg {...common}>
+        <circle cx="10.5" cy="10.5" r="6" />
+        <path d="m15 15 5 5" />
+      </svg>
+    );
+  }
   return (
-    <div>
-      <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#8b9792]">
-        {title}
-      </p>
-      <nav className="space-y-1">
-        {items.map((item) => {
-          const selected = isSelected(pathname, item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              aria-current={selected ? "page" : undefined}
-              className={[
-                "flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold transition",
-                selected
-                  ? "bg-[#e1ece8] text-[#173f35] shadow-[inset_0_0_0_1px_#d9e8e2]"
-                  : "text-[#5d6a65] hover:bg-white hover:text-[#1d2824]",
-              ].join(" ")}
-            >
-              <span>{item.label}</span>
-              {item.href === alertHref && (alertActiveCount ?? 0) > 0 ? (
-                <span className="rounded-full bg-rose-50 px-2 py-0.5 text-[10px] font-bold text-rose-700 ring-1 ring-inset ring-rose-200">
-                  {alertActiveCount}
-                </span>
-              ) : null}
-            </Link>
-          );
-        })}
-      </nav>
-    </div>
+    <svg {...common}>
+      <path d="m8 10 4 4 4-4" />
+    </svg>
   );
 }
 
-export function WorkspaceHomeLink({
-  href,
-  label,
-}: {
-  href: string;
-  label: string;
-}) {
-  const pathname = usePathname();
-  const selected = pathname === href;
-
-  return (
-    <Link
-      href={href}
-      aria-current={selected ? "page" : undefined}
-      className={[
-        "flex items-center rounded-xl px-3 py-2.5 text-sm font-semibold transition",
-        selected
-          ? "bg-[#e1ece8] text-[#173f35] shadow-[inset_0_0_0_1px_#d9e8e2]"
-          : "text-[#5d6a65] hover:bg-white hover:text-[#1d2824]",
-      ].join(" ")}
-    >
-      {label}
-    </Link>
-  );
-}
-
-export function WorkspaceSpaceNavigation({
-  workspaceGroups,
-  networkItems,
-  marketplaceItems,
-  knowledgeItems,
-  alertActiveCount,
-  networkEnabled,
-}: {
-  workspaceGroups: WorkspaceNavGroup[];
-  networkItems: WorkspaceNavItem[];
-  marketplaceItems: WorkspaceNavItem[];
-  knowledgeItems: WorkspaceNavItem[];
-  alertActiveCount: number;
-  networkEnabled: boolean;
-}) {
-  const pathname = usePathname();
-  const space = currentSpace(pathname);
-
-  const spaces = [
+function primaryItems(networkEnabled: boolean) {
+  return [
     {
-      key: "workspace" as const,
+      key: "home" as const,
       href: appRoutes.home,
-      label: "Home Workspace",
-      scope: "Privato",
-      description: "Memoria e operatività aziendale",
+      label: "Home",
+      icon: "home" as const,
+    },
+    {
+      key: "commercial" as const,
+      href: appRoutes.commercial.home,
+      label: "Commerciale",
+      icon: "commercial" as const,
     },
     ...(networkEnabled
       ? [
@@ -150,189 +159,372 @@ export function WorkspaceSpaceNavigation({
             key: "network" as const,
             href: appRoutes.network.directory,
             label: "Network",
-            scope: "Condiviso",
-            description: "Aziende, profili e relazioni B2B",
+            icon: "network" as const,
           },
           {
             key: "marketplace" as const,
             href: appRoutes.marketplace.home,
             label: "Marketplace",
-            scope: "Condiviso",
-            description: "Domanda e opportunità di mercato",
+            mobileLabel: "Mercato",
+            icon: "marketplace" as const,
           },
         ]
       : []),
     {
       key: "knowledge" as const,
-      href: appRoutes.knowledge.home,
+      href: appRoutes.knowledge.workspace,
       label: "Knowledge",
-      scope: "Pubblico",
-      description: "Norme, gradi, pesi e strumenti tecnici",
+      icon: "knowledge" as const,
     },
   ];
+}
 
-  const contextItems =
-    space === "network"
-      ? networkItems
-      : space === "marketplace"
-        ? marketplaceItems
-        : space === "knowledge"
-          ? knowledgeItems
-          : [];
+export function WorkspaceDesktopPrimaryNavigation({
+  networkEnabled,
+}: {
+  networkEnabled: boolean;
+}) {
+  const pathname = usePathname();
+  const current = currentPrimarySpace(pathname);
 
   return (
-    <div className="space-y-5">
-      <div>
-        <p className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[0.18em] text-[#8b9792]">
-          Spazi
-        </p>
-        <nav className="space-y-1.5">
-          {spaces.map((item) => {
-            const selected = item.key === space;
-            return (
-              <Link
-                key={item.key}
-                href={item.href}
-                aria-current={selected ? "page" : undefined}
-                className={[
-                  "block rounded-2xl border px-3.5 py-3 transition",
-                  selected
-                    ? "border-[#c7ddd5] bg-[#e1ece8] shadow-[0_1px_2px_rgba(23,63,53,0.07)]"
-                    : "border-transparent bg-transparent hover:border-[#dce2df] hover:bg-white",
-                ].join(" ")}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <span className={selected ? "text-sm font-semibold text-[#173f35]" : "text-sm font-semibold text-[#3e4a45]"}>
-                    {item.label}
-                  </span>
-                  <span
-                    className={[
-                      "rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em]",
-                      item.scope === "Privato"
-                        ? "bg-[#ecefed] text-[#65716c]"
-                        : "bg-[#edf5f2] text-[#173f35]",
-                    ].join(" ")}
-                  >
-                    {item.scope}
-                  </span>
-                </div>
-                <p className="mt-1 text-[11px] leading-4 text-[#78857f]">{item.description}</p>
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
+    <nav className="hidden h-full items-stretch gap-1 lg:flex" aria-label="Navigazione principale">
+      {primaryItems(networkEnabled).map((item) => {
+        const selected = current === item.key;
+        return (
+          <Link
+            key={item.key}
+            href={item.href}
+            aria-current={selected ? "page" : undefined}
+            className={[
+              "relative flex min-w-[88px] flex-col items-center justify-center gap-1 px-2 text-[11px] font-semibold transition",
+              selected
+                ? "text-[#173f35]"
+                : "text-[#6c7973] hover:bg-[#f4f6f5] hover:text-[#1d2824]",
+            ].join(" ")}
+          >
+            <NavIcon name={item.icon} className="h-[21px] w-[21px]" />
+            <span>{item.label}</span>
+            {selected ? (
+              <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-[#173f35]" />
+            ) : null}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
 
-      <div className="border-t border-[#dfe5e2] pt-4">
-        {space === "workspace" ? (
-          <div className="space-y-5">
-            <p className="px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#8b9792]">
-              Workspace privato
-            </p>
-            {workspaceGroups.map((group) => (
-              <WorkspaceNavSection
-                key={group.title}
-                title={group.title}
-                items={group.items}
-                alertHref={group.alertHref}
-                alertActiveCount={alertActiveCount}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="px-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8b9792]">
-                {space === "network" ? "Steel Network" : space === "marketplace" ? "Marketplace" : "Steel Knowledge"}
-              </p>
-              <p className="mt-1 text-[11px] leading-4 text-[#78857f]">
-                {space === "network"
-                  ? "Superficie condivisa tra organizzazioni."
-                  : space === "marketplace"
-                    ? "Superficie comune per domanda e opportunità."
-                    : "Base tecnica pubblica e indicizzabile."}
-              </p>
+export function WorkspaceMobileBottomNavigation({
+  networkEnabled,
+}: {
+  networkEnabled: boolean;
+}) {
+  const pathname = usePathname();
+  const current = currentPrimarySpace(pathname);
+  const items = primaryItems(networkEnabled);
+
+  return (
+    <nav
+      className="fixed inset-x-0 bottom-0 z-50 grid border-t border-[#d7dfdb] bg-white/96 pb-[env(safe-area-inset-bottom)] shadow-[0_-6px_22px_rgba(20,46,38,0.06)] backdrop-blur-xl lg:hidden"
+      style={{ gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` }}
+      aria-label="Navigazione mobile principale"
+    >
+      {items.map((item) => {
+        const selected = current === item.key;
+        return (
+          <Link
+            key={item.key}
+            href={item.href}
+            aria-current={selected ? "page" : undefined}
+            className={[
+              "relative flex min-h-[62px] flex-col items-center justify-center gap-1 px-1 pt-1 text-[10px] font-semibold transition",
+              selected ? "text-[#173f35]" : "text-[#7b8782]",
+            ].join(" ")}
+          >
+            {selected ? (
+              <span className="absolute inset-x-[28%] top-0 h-0.5 rounded-full bg-[#173f35]" />
+            ) : null}
+            <NavIcon name={item.icon} className="h-5 w-5" />
+            <span className="max-w-full truncate">{"mobileLabel" in item ? item.mobileLabel : item.label}</span>
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
+function ContextLink({ item }: { item: WorkspaceNavItem }) {
+  const pathname = usePathname();
+  const selected = isSelected(pathname, item.href);
+
+  return (
+    <Link
+      href={item.href}
+      aria-current={selected ? "page" : undefined}
+      className={[
+        "shrink-0 border-b-2 px-3 py-3 text-xs font-semibold transition sm:text-sm",
+        selected
+          ? "border-[#173f35] text-[#173f35]"
+          : "border-transparent text-[#66736e] hover:border-[#c8d5d0] hover:text-[#1d2824]",
+      ].join(" ")}
+    >
+      {item.label}
+    </Link>
+  );
+}
+
+export function WorkspaceContextNavigation({
+  commercialItems,
+  intelligenceItems,
+  networkItems,
+  knowledgeItems,
+}: {
+  commercialItems: WorkspaceNavItem[];
+  intelligenceItems: WorkspaceNavItem[];
+  networkItems: WorkspaceNavItem[];
+  knowledgeItems: WorkspaceNavItem[];
+}) {
+  const pathname = usePathname();
+  const current = currentPrimarySpace(pathname);
+
+  if (current === "home" || current === "marketplace") return null;
+
+  const items =
+    current === "network"
+      ? networkItems
+      : current === "knowledge"
+        ? knowledgeItems
+        : commercialItems;
+
+  return (
+    <div className="border-t border-[#eef1ef] bg-white">
+      <div className="mx-auto flex max-w-[1500px] items-center gap-1 overflow-x-auto px-3 sm:px-5 lg:px-8">
+        {items.map((item) => (
+          <ContextLink key={item.href} item={item} />
+        ))}
+
+        {current === "commercial" && intelligenceItems.length ? (
+          <details className="relative shrink-0">
+            <summary className="flex cursor-pointer list-none items-center gap-1 border-b-2 border-transparent px-3 py-3 text-xs font-semibold text-[#66736e] hover:text-[#1d2824] sm:text-sm">
+              Intelligence
+              <NavIcon name="chevron" className="h-4 w-4" />
+            </summary>
+            <div className="fixed left-3 right-3 top-[112px] z-50 grid gap-1 rounded-2xl border border-[#dce2df] bg-white p-2 shadow-xl sm:left-auto sm:right-6 sm:w-72 lg:absolute lg:left-auto lg:right-0 lg:top-full">
+              {intelligenceItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="rounded-xl px-3 py-2.5 text-sm font-semibold text-[#43524c] hover:bg-[#edf5f2] hover:text-[#173f35]"
+                >
+                  {item.label}
+                </Link>
+              ))}
             </div>
-            <WorkspaceNavSection title="Navigazione" items={contextItems} alertActiveCount={alertActiveCount} />
-          </div>
-        )}
+          </details>
+        ) : null}
       </div>
     </div>
   );
 }
 
-export function WorkspaceHeaderContext({
-  organizationName,
-  roleLabel,
-}: {
-  organizationName: string;
-  roleLabel: string;
-}) {
-  const pathname = usePathname();
-  const space = currentSpace(pathname);
-
-  if (space === "network") {
-    return (
-      <Link href={appRoutes.network.directory} className="min-w-0 shrink">
-        <p className="truncate text-sm font-semibold text-[#1d2824]">Steel Network</p>
-        <p className="truncate text-xs text-[#78857f]">Spazio condiviso tra aziende</p>
-      </Link>
-    );
-  }
-
-  if (space === "marketplace") {
-    return (
-      <Link href={appRoutes.marketplace.home} className="min-w-0 shrink">
-        <p className="truncate text-sm font-semibold text-[#1d2824]">Marketplace</p>
-        <p className="truncate text-xs text-[#78857f]">Spazio condiviso · domanda e opportunità</p>
-      </Link>
-    );
-  }
-
-  if (space === "knowledge") {
-    return (
-      <Link href={appRoutes.knowledge.home} className="min-w-0 shrink">
-        <p className="truncate text-sm font-semibold text-[#1d2824]">Steel Knowledge</p>
-        <p className="truncate text-xs text-[#78857f]">Base tecnica pubblica</p>
-      </Link>
-    );
-  }
-
+export function WorkspaceSearchBar() {
   return (
-    <Link href={appRoutes.home} className="min-w-0 shrink">
-      <p className="truncate text-sm font-semibold text-[#1d2824]">{organizationName}</p>
-      <p className="truncate text-xs text-[#78857f]">Workspace privato · {roleLabel}</p>
+    <form
+      action={appRoutes.commercial.search}
+      method="get"
+      className="relative min-w-0 flex-1 sm:max-w-sm lg:w-[280px] lg:flex-none"
+    >
+      <NavIcon
+        name="search"
+        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7b8782]"
+      />
+      <input
+        name="q"
+        type="search"
+        aria-label="Cerca nello storico commerciale"
+        placeholder="Cerca"
+        className="h-10 w-full rounded-full border border-[#cfd8d4] bg-[#f7f9f8] pl-9 pr-4 text-sm text-[#1d2824] outline-none transition placeholder:text-[#87938e] focus:border-[#86a99e] focus:bg-white focus:ring-4 focus:ring-[#e1ece8]"
+      />
+    </form>
+  );
+}
+
+export function WorkspaceAlertsButton({
+  activeCount,
+  needsAttention,
+}: {
+  activeCount: number;
+  needsAttention: boolean;
+}) {
+  return (
+    <Link
+      href={appRoutes.operations.alerts}
+      aria-label={activeCount > 0 ? `Alert operativi: ${activeCount}` : "Alert operativi"}
+      className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#65716c] transition hover:bg-[#eef1ef] hover:text-[#173f35]"
+    >
+      <NavIcon name="bell" className="h-[21px] w-[21px]" />
+      {activeCount > 0 ? (
+        <span
+          className={[
+            "absolute -right-0.5 -top-0.5 min-w-4 rounded-full px-1 text-center text-[9px] font-bold leading-4 text-white",
+            needsAttention ? "bg-rose-600" : "bg-[#1a5144]",
+          ].join(" ")}
+        >
+          {activeCount > 99 ? "99+" : activeCount}
+        </span>
+      ) : null}
     </Link>
   );
 }
 
-export function WorkspaceMobileSpaceTabs({ networkEnabled }: { networkEnabled: boolean }) {
-  const pathname = usePathname();
-  const space = currentSpace(pathname);
-  const items = [
-    { key: "workspace" as const, href: appRoutes.home, label: "Workspace" },
-    ...(networkEnabled ? [{ key: "network" as const, href: appRoutes.network.directory, label: "Network" }] : []),
-    ...(networkEnabled ? [{ key: "marketplace" as const, href: appRoutes.marketplace.home, label: "Market" }] : []),
-    { key: "knowledge" as const, href: appRoutes.knowledge.home, label: "Knowledge" },
-  ];
+export function WorkspaceProfileMenu({
+  viewerLabel,
+  organizationName,
+  organizationRoleLabel,
+  platformSuperadmin,
+  canAdmin,
+  canWrite,
+  logoutAction,
+}: {
+  viewerLabel: string;
+  organizationName: string;
+  organizationRoleLabel: string;
+  platformSuperadmin: boolean;
+  canAdmin: boolean;
+  canWrite: boolean;
+  logoutAction: () => Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  const initial = (viewerLabel.trim()[0] || "U").toUpperCase();
 
   return (
-    <>
-      {items.map((item) => (
-        <Link
-          key={item.key}
-          href={item.href}
-          aria-current={item.key === space ? "page" : undefined}
-          className={[
-            "shrink-0 rounded-xl border px-3 py-1.5 text-xs font-semibold",
-            item.key === space
-              ? "border-[#c7ddd5] bg-[#e1ece8] text-[#173f35]"
-              : "border-[#d7dfdb] bg-white text-[#43524c]",
-          ].join(" ")}
-        >
-          {item.label}
-        </Link>
-      ))}
-    </>
+    <div className="relative shrink-0">
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex items-center gap-1 rounded-full p-0.5 transition hover:bg-[#eef1ef]"
+        aria-label="Apri menu profilo"
+        aria-expanded={open}
+      >
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#173f35] text-xs font-bold text-white">
+          {initial}
+        </span>
+        <NavIcon name="chevron" className="hidden h-4 w-4 text-[#7b8782] sm:block" />
+      </button>
+
+      {open ? (
+        <>
+          <button
+            type="button"
+            aria-label="Chiudi menu profilo"
+            onClick={() => setOpen(false)}
+            className="fixed inset-0 z-50 cursor-default bg-black/25 lg:bg-black/10"
+          />
+
+          <aside className="fixed inset-y-0 left-0 z-[60] flex h-dvh w-[86vw] max-w-sm flex-col overflow-hidden border-r border-[#d7dfdb] bg-white shadow-2xl lg:absolute lg:inset-y-auto lg:left-auto lg:right-0 lg:top-12 lg:h-auto lg:max-h-[78vh] lg:w-[360px] lg:rounded-2xl lg:border">
+            <div className="flex items-start justify-between gap-3 bg-[#f2f4f3] p-5 lg:p-4">
+              <div className="flex min-w-0 items-start gap-3">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#173f35] text-sm font-bold text-white">
+                  {initial}
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-base font-semibold text-[#1d2824] lg:text-sm">{viewerLabel}</p>
+                  <p className="mt-1 truncate text-sm font-medium text-[#43524c] lg:text-xs">{organizationName}</p>
+                  <p className="mt-0.5 text-xs text-[#7b8782] lg:text-[11px]">{organizationRoleLabel}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Chiudi"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xl text-[#66736e] hover:bg-white hover:text-[#1d2824]"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-3">
+              <div>
+                <p className="px-2 pb-1 pt-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#87938e]">
+                  Operazioni
+                </p>
+                {canWrite ? (
+                  <>
+                    <ProfileMenuLink href={appRoutes.operations.uploads} label="Importa documenti" onNavigate={() => setOpen(false)} />
+                    <ProfileMenuLink href={appRoutes.operations.review} label="Correzioni" onNavigate={() => setOpen(false)} />
+                  </>
+                ) : null}
+                <ProfileMenuLink href={appRoutes.operations.alerts} label="Alert operativi" onNavigate={() => setOpen(false)} />
+              </div>
+
+              <div className="mt-2 border-t border-[#e2e7e4] pt-2">
+                <p className="px-2 pb-1 pt-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#87938e]">
+                  Azienda
+                </p>
+                {canAdmin ? (
+                  <>
+                    <ProfileMenuLink href={appRoutes.company.profile} label="Profilo azienda" onNavigate={() => setOpen(false)} />
+                    <ProfileMenuLink href={appRoutes.company.dataSources} label="Fonti e import" onNavigate={() => setOpen(false)} />
+                    <ProfileMenuLink href={appRoutes.company.pilotAnalytics} label="Pilot analytics" onNavigate={() => setOpen(false)} />
+                  </>
+                ) : null}
+                <ProfileMenuLink href={appRoutes.company.tubesStandards} label="Strumenti tubi & norme" onNavigate={() => setOpen(false)} />
+              </div>
+
+              {platformSuperadmin ? (
+                <div className="mt-2 border-t border-[#e2e7e4] pt-2">
+                  <p className="px-2 pb-1 pt-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#87938e]">
+                    Piattaforma
+                  </p>
+                  <ProfileMenuLink
+                    href={appRoutes.platform.home}
+                    label="Platform Console ↗"
+                    emphasis
+                    onNavigate={() => setOpen(false)}
+                  />
+                </div>
+              ) : null}
+            </div>
+
+            <form action={logoutAction} className="border-t border-[#e2e7e4] p-3">
+              <button
+                type="submit"
+                className="w-full rounded-xl px-3 py-3 text-left text-sm font-semibold text-[#66736e] transition hover:bg-[#f2f4f3] hover:text-[#1d2824]"
+              >
+                Esci
+              </button>
+            </form>
+          </aside>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+function ProfileMenuLink({
+  href,
+  label,
+  emphasis = false,
+  onNavigate,
+}: {
+  href: string;
+  label: string;
+  emphasis?: boolean;
+  onNavigate?: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onNavigate}
+      className={[
+        "block rounded-xl px-3 py-2.5 text-sm font-semibold transition",
+        emphasis
+          ? "bg-[#edf5f2] text-[#173f35] hover:bg-[#e1ece8]"
+          : "text-[#43524c] hover:bg-[#f2f4f3] hover:text-[#1d2824]",
+      ].join(" ")}
+    >
+      {label}
+    </Link>
   );
 }

@@ -3,6 +3,7 @@ export const appRoutes = {
   publicHome: "/",
 
   commercial: {
+    home: "/commercial",
     search: "/commercial/search",
     products: "/commercial/products",
     product: (productId: string) => `/commercial/products/${productId}`,
@@ -38,6 +39,7 @@ export const appRoutes = {
   },
 
   knowledge: {
+    workspace: "/knowledge-center",
     home: "/knowledge",
     standards: "/knowledge/norme",
     standard: (slug: string) => `/knowledge/norme/${slug}`,
