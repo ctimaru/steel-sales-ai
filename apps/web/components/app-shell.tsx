@@ -46,6 +46,7 @@ const networkNav: NavItem[] = [
 
 const marketplaceNav: NavItem[] = [
   { href: appRoutes.marketplace.home, label: "Opportunità" },
+  { href: appRoutes.marketplace.notifications, label: "Per te" },
   { href: appRoutes.marketplace.myRequests, label: "Le mie ricerche" },
   { href: appRoutes.marketplace.responses, label: "Risposte" },
   { href: appRoutes.marketplace.newRequest, label: "Nuova ricerca", writeRole: true },
