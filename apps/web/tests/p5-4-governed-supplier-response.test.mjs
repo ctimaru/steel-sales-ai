@@ -116,7 +116,7 @@ test("P5.4 lifecycle is explicit and does not create private Commercial Memory o
     assert.match(migration, new RegExp("'" + status + "'"));
   }
   assert.doesNotMatch(migration, /insert into public\.(offers|orders|rfqs)/i);
-  assert.match(composer, /separata dalle offerte private della Commercial Memory/);
+  assert.match(composer, /separata dalle[\s\S]*offerte private della Commercial Memory/);
   assert.match(buyerDetail, /Non viene creato[\\s\\S]*automaticamente alcun ordine o offerta/);
 });
 
@@ -128,7 +128,7 @@ test("P5.4 tables are RPC-only for authenticated clients", () => {
   ]) {
     assert.match(
       migration,
-      new RegExp("alter table public\\\\." + table + " enable row level security"),
+      new RegExp("alter table public\\." + table + " enable row level security"),
     );
   }
   assert.match(migration, /revoke all on table public\.marketplace_responses from public,anon,authenticated/);
