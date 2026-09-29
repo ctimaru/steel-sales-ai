@@ -278,24 +278,28 @@ export function WorkspaceContextNavigation({
   commercialItems,
   intelligenceItems,
   networkItems,
+  marketplaceItems,
   knowledgeItems,
 }: {
   commercialItems: WorkspaceNavItem[];
   intelligenceItems: WorkspaceNavItem[];
   networkItems: WorkspaceNavItem[];
+  marketplaceItems: WorkspaceNavItem[];
   knowledgeItems: WorkspaceNavItem[];
 }) {
   const pathname = usePathname();
   const current = currentPrimarySpace(pathname);
 
-  if (current === "home" || current === "marketplace") return null;
+  if (current === "home") return null;
 
   const items =
     current === "network"
       ? networkItems
-      : current === "knowledge"
-        ? knowledgeItems
-        : commercialItems;
+      : current === "marketplace"
+        ? marketplaceItems
+        : current === "knowledge"
+          ? knowledgeItems
+          : commercialItems;
 
   return (
     <div className="border-t border-[#eef1ef] bg-white">
