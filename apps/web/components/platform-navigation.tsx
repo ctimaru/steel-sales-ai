@@ -22,6 +22,13 @@ const platformNav = [
     staffEnabled: false,
   },
   {
+    href: appRoutes.platform.pilot,
+    label: "Commercial Pilot",
+    icon: "pilot",
+    permission: "platform.console.access",
+    staffEnabled: false,
+  },
+  {
     href: appRoutes.platform.registrations,
     label: "Registrazioni aziende",
     icon: "registrations",
@@ -59,12 +66,21 @@ const platformNav = [
 ] as const satisfies readonly {
   href: string;
   label: string;
-  icon: "home" | "people" | "registrations" | "discovery" | "claims" | "knowledge" | "trust";
+  icon: "home" | "people" | "pilot" | "registrations" | "discovery" | "claims" | "knowledge" | "trust";
   permission: PlatformPermissionKey;
   staffEnabled: boolean;
 }[];
 
 function NavIcon({ name }: { name: (typeof platformNav)[number]["icon"] }) {
+  if (name === "pilot") {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M6 18.5h12M8 18.5v-4.25a4 4 0 0 1 8 0v4.25M9.5 7.5h5M12 4.5v6" />
+        <path d="M5 20.25h14" />
+      </svg>
+    );
+  }
+
   if (name === "people") {
     return (
       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
