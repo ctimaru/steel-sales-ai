@@ -36,7 +36,7 @@ test("UX2 Company Home is a private operational cockpit with shared-space exits"
   assert.match(companyHome, /Oggi nel workspace/);
   assert.match(companyHome, /Spazi condivisi/);
   assert.match(companyHome, /Marketplace/);
-  assert.match(companyHome, /Knowledge/);
+  assert.match(companyHome, /Scuola/);
   assert.match(companyHome, /getWorkspaceContext/);
   assert.doesNotMatch(companyHome, /<form action=\{appRoutes\.commercial\.search\}/);
 });
