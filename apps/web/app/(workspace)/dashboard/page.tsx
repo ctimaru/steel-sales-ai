@@ -96,7 +96,7 @@ export default async function DashboardPage() {
             <div className="rounded-2xl border border-[#e2e7e4] bg-[#f6f8f7] p-4">
               <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#173f35]">Ecosistema condiviso</p>
               <p className="mt-2 text-sm leading-6 text-[#5d6a65]">
-                Network, Marketplace e Knowledge, separati dai dati commerciali privati.
+                Network, Marketplace e Scuola, separati dai dati commerciali privati.
               </p>
             </div>
           </div>
@@ -352,16 +352,16 @@ export default async function DashboardPage() {
             </Link>
           ) : null}
 
-          <Link href={appRoutes.knowledge.home} className="rounded-3xl border border-[#dbe7f7] bg-white p-6 hover:border-[#b8d2c8] hover:shadow-sm">
+          <Link href={appRoutes.knowledge.workspace} className="rounded-3xl border border-[#dbe7f7] bg-white p-6 hover:border-[#b8d2c8] hover:shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <span className="rounded-full bg-[#edf5f2] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#173f35]">
                 Condiviso
               </span>
               <span className="text-xs font-semibold text-[#173f35]">Apri →</span>
             </div>
-            <h3 className="mt-4 text-lg font-semibold text-[#1d2824]">Knowledge</h3>
+            <h3 className="mt-4 text-lg font-semibold text-[#1d2824]">Scuola</h3>
             <p className="mt-2 text-sm leading-6 text-[#66736e]">
-              Norme, gradi, dimensioni e pesi tecnici riutilizzabili in tutto il SaaS.
+              Formazione, norme, gradi, dimensioni e strumenti tecnici riutilizzabili in tutto il SaaS.
             </p>
             <p className="mt-5 text-xs text-[#78857f]">Tolleranze: coverage strutturata in costruzione.</p>
           </Link>
