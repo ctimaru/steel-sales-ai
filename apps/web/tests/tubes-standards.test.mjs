@@ -20,7 +20,7 @@ const privateToolRoute = fs.readFileSync(
 );
 
 test("K1 separates the public tube Knowledge hub from the authenticated reference tool", () => {
-  assert.match(shell, /href: appRoutes\.knowledge\.tubes/);
+  assert.match(shell, /href: appRoutes\.knowledge\.schoolTubes/);
   assert.match(shell, /label: "Pesi & dimensioni"/);
   assert.match(publicKnowledgeRoute, /Calcolo peso tubo acciaio/);
   assert.match(publicKnowledgeRoute, /PublicTubeWeightCalculator/);
