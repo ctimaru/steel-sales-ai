@@ -88,8 +88,20 @@ values (
   'p52-buyer.example.test',
   'Named buyer profile for P5.2 acceptance',
   'published',
-  'claimed',
+  'unclaimed',
   'verified'
+);
+
+insert into public.network_company_claims(
+  id,network_company_id,organization_id,requested_by,status,request_note
+)
+values (
+  '00000000-0000-0000-0000-000000005222'::uuid,
+  '00000000-0000-0000-0000-000000005220'::uuid,
+  '00000000-0000-0000-0000-000000005210'::uuid,
+  '00000000-0000-0000-0000-000000005201'::uuid,
+  'requested',
+  'P5.2 acceptance origin evidence'
 );
 
 insert into public.organization_network_company_links(
@@ -102,7 +114,7 @@ values (
   null,
   'active',
   '00000000-0000-0000-0000-000000005201'::uuid,
-  null
+  '00000000-0000-0000-0000-000000005222'::uuid
 );
 
 select
