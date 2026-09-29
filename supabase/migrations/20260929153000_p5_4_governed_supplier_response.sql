@@ -1365,7 +1365,7 @@ begin
     join public.marketplace_requests req on req.id=mr.request_id
     where req.organization_id=p_buyer_organization_id
       and (p_request_id is null or req.id=p_request_id)
-      and mr.status<>'draft'
+      and mr.submitted_at is not null
   ),
   counted as (
     select count(*)::int as total from base
@@ -1470,7 +1470,7 @@ begin
   join public.marketplace_requests req on req.id=mr.request_id
   where mr.id=p_response_id
     and req.organization_id=p_buyer_organization_id
-    and mr.status<>'draft';
+    and mr.submitted_at is not null;
 
   if not found then
     return null;
