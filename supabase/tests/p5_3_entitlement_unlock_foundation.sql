@@ -517,6 +517,20 @@ select pg_temp.p53_assert(
   'buyer must not receive supplier entitlement state for own listing'
 );
 
+-- Prepare a request-specific grant that will be revoked only after closure.
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000005305',true);
+
+select public.p5_3_grant_entitlement(
+  '00000000-0000-0000-0000-000000005311'::uuid,
+  'opportunity_unlock',
+  :'anonymous_request_id'::uuid,
+  'credit',
+  'credit:p53-close-revoke',
+  now()+interval '3 days',
+  'p53.close.revoke.grant.001',
+  '{}'::jsonb
+);
+
 reset role;
 
 -- Closed listings remain unavailable even with historical/global entitlement.
@@ -545,6 +559,21 @@ select pg_temp.p53_assert(
 );
 
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000005305',true);
+
+select public.p5_3_revoke_entitlement(
+  '00000000-0000-0000-0000-000000005311'::uuid,
+  'opportunity_unlock',
+  :'anonymous_request_id'::uuid,
+  'credit',
+  'credit:p53-close-revoke',
+  'p53.close.revoke.closed.001',
+  '{"reason":"closed-opportunity-revocation"}'::jsonb
+) as closed_revoke \gset
+
+select pg_temp.p53_assert(
+  :'closed_revoke'::jsonb->>'event_type'='revoked',
+  'request-specific entitlement must remain revocable after opportunity closure'
+);
 
 select pg_temp.p53_assert_raises(
   format(
