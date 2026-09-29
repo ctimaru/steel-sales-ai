@@ -987,6 +987,8 @@ as $function$
 declare
   v_rights jsonb;
   v_response_id uuid;
+  v_request_lines jsonb := '[]'::jsonb;
+  v_can_compose boolean := false;
 begin
   v_rights := private.p5_4_response_rights_impl(
     p_supplier_organization_id,p_request_id
@@ -997,11 +999,30 @@ begin
   end if;
 
   v_response_id := nullif(v_rights->>'response_id','')::uuid;
+  v_can_compose :=
+    coalesce((v_rights->>'can_create')::boolean,false)
+    or v_response_id is not null;
+
+  if v_can_compose then
+    select coalesce(jsonb_agg(
+      jsonb_build_object(
+        'request_line_id',l.id,
+        'line_number',l.line_number,
+        'quantity',l.quantity,
+        'quantity_unit',l.quantity_unit
+      )
+      order by l.line_number
+    ),'[]'::jsonb)
+    into v_request_lines
+    from public.marketplace_request_lines l
+    where l.request_id=p_request_id;
+  end if;
 
   return jsonb_build_object(
     'contract','P5.4-supplier-workspace-v1',
     'request_id',p_request_id,
     'rights',v_rights,
+    'request_lines',v_request_lines,
     'response',case
       when v_response_id is null then null
       else private.p5_4_supplier_response_json(v_response_id)
@@ -1443,13 +1464,23 @@ declare
 begin
   perform private.p5_1_require_actor(p_buyer_organization_id,false);
 
-  select mr.*,req.*
-  into v_response,v_request
+  select mr.*
+  into v_response
   from public.marketplace_responses mr
   join public.marketplace_requests req on req.id=mr.request_id
   where mr.id=p_response_id
     and req.organization_id=p_buyer_organization_id
     and mr.status<>'draft';
+
+  if not found then
+    return null;
+  end if;
+
+  select req.*
+  into v_request
+  from public.marketplace_requests req
+  where req.id=v_response.request_id
+    and req.organization_id=p_buyer_organization_id;
 
   if not found then
     return null;
