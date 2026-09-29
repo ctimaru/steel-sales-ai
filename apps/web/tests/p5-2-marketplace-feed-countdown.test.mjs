@@ -48,7 +48,7 @@ test("P5.2 teaser remains the free baseline while P5.3 gates exact detail", () =
   assert.match(teaserPage, /Apri Company Profile/);
   assert.match(teaserPage, /getMarketplaceEntitlementState/);
   assert.match(teaserPage, /entitlement\.state === "entitled"/);
-  assert.match(teaserPage, /Unlock ≠ diritto di risposta/);
+  assert.match(teaserPage, /P5\.4 verifica separatamente il diritto di risposta/);
   assert.doesNotMatch(teaserPage, /Invia offerta|Submit quote/i);
 });
 
