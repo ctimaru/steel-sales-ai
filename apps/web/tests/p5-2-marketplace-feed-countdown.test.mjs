@@ -40,14 +40,16 @@ test("P5.2 countdown is initialized from server-derived remaining seconds", () =
   assert.doesNotMatch(countdown, /Date\.now\(\)/);
 });
 
-test("P5.2 teaser page keeps locked detail and response out of scope", () => {
+test("P5.2 teaser remains the free baseline while P5.3 gates exact detail", () => {
   assert.match(teaserPage, /Teaser P5\.2/);
-  assert.match(teaserPage, /Locked detail/);
-  assert.match(teaserPage, /P5\.3 Entitlement & Unlock/);
+  assert.match(teaserPage, /teaser\.teaser_lines\.map/);
+  assert.match(teaserPage, /line\.quantity_band/);
   assert.match(teaserPage, /Buyer anonimo/);
   assert.match(teaserPage, /Apri Company Profile/);
-  assert.doesNotMatch(teaserPage, /line\.standard_code|line\.grade_designation|line\.outer_diameter_mm|line\.quantity\b/);
-  assert.doesNotMatch(teaserPage, /Invia offerta|Rispondi|Submit quote/i);
+  assert.match(teaserPage, /getMarketplaceEntitlementState/);
+  assert.match(teaserPage, /entitlement\.state === "entitled"/);
+  assert.match(teaserPage, /Unlock ≠ diritto di risposta/);
+  assert.doesNotMatch(teaserPage, /Invia offerta|Submit quote/i);
 });
 
 test("P5.2 frontend reads governed feed and teaser RPCs only", () => {
