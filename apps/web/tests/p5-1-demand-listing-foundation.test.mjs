@@ -70,7 +70,7 @@ test("P5.1 publish and withdraw remain buyer-governed and server-side", () => {
   assert.match(actions, /p5_1_withdraw_request/);
   assert.match(actions, /duration_days/);
   assert.match(actions, /Date\.now\(\) \+ durationDays/);
-  assert.match(detailPage, /Feed supplier P5\.2/);
+  assert.match(detailPage, /Teaser live P5\.2/);
 });
 
 test("P5.1 data access uses RPC read models, not raw marketplace tables", () => {
