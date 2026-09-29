@@ -54,8 +54,8 @@ test("commercial search is first-class sales navigation", () => {
   assert.match(page, /Cerca nello storico commerciale/);
   assert.match(page, /Trova prodotti, clienti, richieste, offerte, ordini e documenti/);
   assert.match(shell, /href: appRoutes\.commercial\.search/);
-  assert.match(shell, /label: "Ricerca nello storico"/);
-  assert.match(shell, /shortLabel: "Cerca"/);
+  assert.match(shell, /label: "Cerca"/);
+  assert.match(navigation, /action=\{appRoutes\.commercial\.search\}/);
 });
 
 
@@ -70,20 +70,14 @@ test("structured global search opens verified original evidence in one click", (
 });
 
 
-test("sales navigation is grouped by private workspace and shared product spaces on desktop and mobile", () => {
-  assert.match(shell, /Commercial Memory/);
-  assert.match(shell, /Commercial Intelligence/);
-  assert.match(shell, /Operations/);
-  assert.match(shell, /Company/);
-  assert.match(navigation, /Home Workspace/);
-  assert.match(navigation, /Steel Network/);
-  assert.match(navigation, /Marketplace/);
-  assert.match(navigation, /Steel Knowledge/);
-  assert.match(shell, /shortLabel: "Cerca"/);
-  assert.match(shell, /shortLabel: "Prodotti"/);
-  assert.match(shell, /Altro/);
-  for (const label of ["Assistente", "Correzioni", "Importa documenti", "Norme", "Gradi di acciaio", "Pesi & dimensioni", "Fonti e import"]) {
-    assert.match(shell, new RegExp(label));
+test("sales navigation uses stable macros with contextual tools and avatar drawer", () => {
+  for (const label of ["Home", "Commerciale", "Network", "Marketplace", "Knowledge"]) {
+    assert.match(navigation, new RegExp(`label: "${label}"`));
+  }
+  assert.match(shell, /WorkspaceContextNavigation/);
+  assert.match(shell, /WorkspaceProfileMenu/);
+  for (const label of ["Assistente", "Correzioni", "Importa documenti", "Norme", "Gradi", "Pesi & dimensioni", "Fonti e import"]) {
+    assert.match(shell + navigation, new RegExp(label));
   }
 });
 
