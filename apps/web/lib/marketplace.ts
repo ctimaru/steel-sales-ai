@@ -468,3 +468,97 @@ export async function getMarketplaceBuyerResponse(
   if (error) throw new Error(error.message);
   return (data as MarketplaceBuyerResponseDetail | null) ?? null;
 }
+
+export type MarketplaceMatchBand = "strong" | "good" | "broad";
+
+export type MarketplaceMatchLine = {
+  line_number: number;
+  score: number;
+  band: MarketplaceMatchBand;
+  relationship_type: string;
+  criteria_count: number;
+  exact_count: number;
+  unknown_count: number;
+  reason_codes: string[];
+};
+
+export type MarketplaceNotificationItem = {
+  notification_id: string;
+  status: "unread" | "read";
+  created_at: string;
+  request_id: string;
+  closes_at: string;
+  match: {
+    match_id: string;
+    score: number;
+    band: MarketplaceMatchBand;
+    matched_line_count: number;
+    total_line_count: number;
+    algorithm_version: "P5.5-v1";
+    lines: MarketplaceMatchLine[];
+  };
+  teaser: MarketplaceFeedItem;
+  response_status: MarketplaceResponseStatus | null;
+};
+
+export type MarketplaceNotificationsResponse = {
+  contract: "P5.5-notifications-v1";
+  generated_at: string;
+  items: MarketplaceNotificationItem[];
+  total: number;
+  unread: number;
+  limit: number;
+  offset: number;
+};
+
+export async function getMarketplaceNotifications(
+  recipientOrganizationId: string,
+  options?: { limit?: number; offset?: number },
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p5_5_my_notifications", {
+    p_recipient_organization_id: recipientOrganizationId,
+    p_limit: options?.limit ?? 50,
+    p_offset: options?.offset ?? 0,
+  });
+  if (error) throw new Error(error.message);
+  return (data ?? {
+    contract: "P5.5-notifications-v1",
+    generated_at: new Date().toISOString(),
+    items: [],
+    total: 0,
+    unread: 0,
+    limit: options?.limit ?? 50,
+    offset: options?.offset ?? 0,
+  }) as MarketplaceNotificationsResponse;
+}
+
+export type MarketplaceBuyerMatchSummary = {
+  contract: "P5.5-buyer-match-summary-v1";
+  request_id: string;
+  algorithm_version: "P5.5-v1";
+  total_matches: number;
+  contactable_matches: number;
+  notifications_created: number;
+  bands: {
+    strong: number;
+    good: number;
+    broad: number;
+  };
+};
+
+export async function getMarketplaceBuyerMatchSummary(
+  buyerOrganizationId: string,
+  requestId: string,
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p5_5_buyer_match_summary", {
+    p_buyer_organization_id: buyerOrganizationId,
+    p_request_id: requestId,
+  });
+  if (error) {
+    if (error.code === "P0002") return null;
+    throw new Error(error.message);
+  }
+  return (data as MarketplaceBuyerMatchSummary | null) ?? null;
+}
