@@ -94,6 +94,7 @@ declare
   v_notification public.marketplace_notifications%rowtype;
   v_request public.marketplace_requests%rowtype;
   v_event_id bigint;
+  v_idempotent boolean := false;
   v_now timestamptz := clock_timestamp();
 begin
   if v_actor is null then
@@ -178,6 +179,7 @@ begin
   returning id into v_event_id;
 
   if v_event_id is null then
+    v_idempotent := true;
     select e.id into v_event_id
     from public.pilot_usage_events e
     where e.organization_id=p_organization_id
@@ -191,12 +193,7 @@ begin
   return jsonb_build_object(
     'recorded',true,
     'event_id',v_event_id,
-    'idempotent',not exists(
-      select 1
-      from public.pilot_usage_events e
-      where e.id=v_event_id
-        and e.occurred_at>=v_now-interval '1 second'
-    )
+    'idempotent',v_idempotent
   );
 end;
 $function$;
