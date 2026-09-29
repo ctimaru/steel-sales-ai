@@ -1,69 +1,77 @@
 import Link from "next/link";
 
+import { MarketplaceCountdown } from "@/components/marketplace-countdown";
 import { canWriteWorkspace } from "@/lib/access-policy";
-import { getMyMarketplaceRequests } from "@/lib/marketplace";
+import {
+  getMarketplaceFeed,
+  getMarketplaceTaxonomy,
+  type MarketplaceFeedItem,
+} from "@/lib/marketplace";
 import { appRoutes } from "@/lib/routes";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 
 export const dynamic = "force-dynamic";
 
-function statusLabel(status: string) {
-  if (status === "open") return "Pubblicata";
-  if (status === "closing_soon") return "In scadenza";
-  if (status === "closed") return "Scaduta";
-  if (status === "withdrawn") return "Ritirata";
-  return "Bozza";
+function teaserHeadline(item: MarketplaceFeedItem) {
+  const first = item.teaser_lines[0];
+  if (!first) return "Ricerca prodotto";
+  if (item.line_count <= 1) return first.product_family_name;
+  return `${first.product_family_name} + ${item.line_count - 1} linee`;
 }
 
-function statusClasses(status: string) {
-  if (status === "open") return "bg-emerald-50 text-emerald-700";
-  if (status === "closing_soon") return "bg-amber-50 text-amber-700";
-  if (status === "closed" || status === "withdrawn") return "bg-[#ecefed] text-[#66736e]";
-  return "bg-[#edf5f2] text-[#173f35]";
+function buyerLabel(item: MarketplaceFeedItem) {
+  if (item.buyer.visibility_mode === "anonymous") return "Buyer anonimo";
+  return item.buyer.display_name || "Azienda visibile";
 }
 
-function formatDate(value: string | null) {
-  if (!value) return "—";
-  return new Intl.DateTimeFormat("it-IT", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(value));
+function deliveryLabel(item: MarketplaceFeedItem) {
+  const countries = Array.from(
+    new Set(item.teaser_lines.map((line) => line.delivery_country_code)),
+  );
+  return countries.join(" · ") || "Consegna da definire";
 }
 
-export default async function MarketplaceHomePage({
+export default async function MarketplaceFeedPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string }>;
+  searchParams: Promise<{
+    product?: string;
+    country?: string;
+    closing?: string;
+  }>;
 }) {
-  const [{ error, message }, context] = await Promise.all([
+  const [params, context] = await Promise.all([
     searchParams,
     getWorkspaceContext(),
   ]);
-  const requests = await getMyMarketplaceRequests(context.organizationId);
-  const canWrite = canWriteWorkspace(context.role);
 
-  const drafts = requests.filter((item) => item.status === "draft").length;
-  const published = requests.filter((item) => item.status === "published").length;
-  const active = requests.filter(
-    (item) => item.effective_status === "open" || item.effective_status === "closing_soon",
+  const closingWithinHours =
+    params.closing === "24"
+      ? 24
+      : params.closing === "72"
+        ? 72
+        : params.closing === "168"
+          ? 168
+          : undefined;
+
+  const [feed, taxonomy] = await Promise.all([
+    getMarketplaceFeed(context.organizationId, {
+      productKey: params.product || undefined,
+      countryCode: params.country || undefined,
+      closingWithinHours,
+      limit: 25,
+      offset: 0,
+    }),
+    getMarketplaceTaxonomy(),
+  ]);
+
+  const canWrite = canWriteWorkspace(context.role);
+  const closingSoon = feed.items.filter(
+    (item) => item.effective_status === "closing_soon",
   ).length;
 
   return (
     <div className="mx-auto max-w-7xl space-y-7">
-      {error ? (
-        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-          {error}
-        </div>
-      ) : null}
-      {message ? (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-          {message}
-        </div>
-      ) : null}
-
       <section className="overflow-hidden rounded-3xl border border-[#dce2df] bg-white shadow-[0_1px_2px_rgba(20,46,38,0.03)]">
         <div className="h-1 bg-[#1a5144]" />
         <div className="p-6 sm:p-8">
@@ -71,121 +79,225 @@ export default async function MarketplaceHomePage({
             <div className="max-w-3xl">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-                  P5.1 · Demand Listing
+                  P5.2 · Live Demand Board
                 </span>
                 <span className="rounded-full bg-[#ecefed] px-3 py-1 text-[11px] font-semibold text-[#66736e]">
-                  Buyer workspace
+                  Free teaser
                 </span>
               </div>
               <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-4xl">
-                Marketplace
+                Opportunità dal Network
               </h1>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66736e] sm:text-base">
-                Crea ricerche prodotto strutturate, scegli se mostrare l’azienda oppure restare anonimo
-                e definisci una finestra temporale. Le richieste sono separate dalle RFQ private della
-                Commercial Memory.
+                Scopri ricerche prodotto pubblicate da altre aziende. Il feed mostra soltanto un teaser
+                privacy-safe: categoria, macro-specifica, area consentita, fascia quantità e countdown.
+                Dettagli tecnici completi e risposta restano fuori da P5.2.
               </p>
             </div>
 
-            {canWrite ? (
+            <div className="flex flex-wrap gap-2">
               <Link
-                href={appRoutes.marketplace.newRequest}
-                className="inline-flex h-11 items-center justify-center rounded-xl bg-[#1a5144] px-5 text-sm font-semibold text-white transition hover:bg-[#226657]"
+                href={appRoutes.marketplace.myRequests}
+                className="inline-flex h-11 items-center justify-center rounded-xl border border-[#c8d5d0] bg-white px-4 text-sm font-semibold text-[#173f35] hover:bg-[#f3f7f5]"
               >
-                + Nuova ricerca
+                Le mie ricerche
               </Link>
-            ) : null}
+              {canWrite ? (
+                <Link
+                  href={appRoutes.marketplace.newRequest}
+                  className="inline-flex h-11 items-center justify-center rounded-xl bg-[#1a5144] px-5 text-sm font-semibold text-white transition hover:bg-[#226657]"
+                >
+                  + Nuova ricerca
+                </Link>
+              ) : null}
+            </div>
           </div>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            {[
-              ["Totali", requests.length],
-              ["Bozze", drafts],
-              ["Pubblicate attive", active],
-            ].map(([label, value]) => (
-              <div key={String(label)} className="rounded-2xl border border-[#e2e7e4] bg-[#f7f9f8] p-4">
-                <p className="metric-number text-2xl font-semibold text-[#1d2824]">{value}</p>
-                <p className="mt-1 text-xs font-semibold text-[#66736e]">{label}</p>
-              </div>
-            ))}
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-[#e2e7e4] bg-[#f7f9f8] p-4">
+              <p className="metric-number text-2xl font-semibold text-[#1d2824]">{feed.total}</p>
+              <p className="mt-1 text-xs font-semibold text-[#66736e]">Opportunità aperte</p>
+            </div>
+            <div className="rounded-2xl border border-[#e2e7e4] bg-[#f7f9f8] p-4">
+              <p className="metric-number text-2xl font-semibold text-[#1d2824]">{closingSoon}</p>
+              <p className="mt-1 text-xs font-semibold text-[#66736e]">In scadenza entro 24h nella pagina</p>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="rounded-2xl border border-[#d9e8e2] bg-[#f3f7f5] px-5 py-4">
-        <p className="text-sm font-semibold text-[#173f35]">Confine P5.1</p>
-        <p className="mt-1 text-sm leading-6 text-[#66736e]">
-          “Pubblicata” indica che la richiesta ha superato il lifecycle buyer ed è pronta per il Demand Board.
-          Il feed supplier, il countdown pubblico e i teaser arrivano nel blocco P5.2.
-        </p>
-      </section>
+      <form method="get" className="grid gap-3 rounded-2xl border border-[#dce2df] bg-white p-4 md:grid-cols-[1.4fr_0.7fr_0.8fr_auto] md:items-end">
+        <div>
+          <label className="text-xs font-bold uppercase tracking-[0.12em] text-[#7b8782]">
+            Prodotto
+          </label>
+          <select
+            name="product"
+            defaultValue={params.product || ""}
+            className="mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#43524c] outline-none focus:border-[#438d7a] focus:ring-4 focus:ring-[#e1ece8]"
+          >
+            <option value="">Tutte le famiglie</option>
+            {taxonomy.product_families.map((item) => (
+              <option key={item.id} value={item.key}>{item.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="text-xs font-bold uppercase tracking-[0.12em] text-[#7b8782]">
+            Paese consegna
+          </label>
+          <input
+            name="country"
+            defaultValue={params.country || ""}
+            maxLength={2}
+            placeholder="IT"
+            className="mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] px-3 text-sm uppercase text-[#43524c] outline-none focus:border-[#438d7a] focus:ring-4 focus:ring-[#e1ece8]"
+          />
+        </div>
+
+        <div>
+          <label className="text-xs font-bold uppercase tracking-[0.12em] text-[#7b8782]">
+            Scadenza
+          </label>
+          <select
+            name="closing"
+            defaultValue={params.closing || ""}
+            className="mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#43524c] outline-none focus:border-[#438d7a]"
+          >
+            <option value="">Tutte aperte</option>
+            <option value="24">Entro 24 ore</option>
+            <option value="72">Entro 3 giorni</option>
+            <option value="168">Entro 7 giorni</option>
+          </select>
+        </div>
+
+        <button className="h-11 rounded-xl bg-[#1a5144] px-5 text-sm font-semibold text-white hover:bg-[#226657]">
+          Filtra
+        </button>
+      </form>
 
       <section>
-        <div className="mb-3">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7b8782]">La tua azienda</p>
-          <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">Ricerche prodotto</h2>
+        <div className="mb-3 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7b8782]">
+              Demand Board
+            </p>
+            <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">
+              Ricerche aperte
+            </h2>
+          </div>
+          <p className="text-xs text-[#87938e]">
+            Stato e tempo residuo derivano dal database.
+          </p>
         </div>
 
-        {requests.length === 0 ? (
+        {feed.items.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-[#c8d5d0] bg-white p-8 text-center">
-            <h3 className="font-semibold text-[#1d2824]">Nessuna ricerca Marketplace</h3>
+            <h3 className="font-semibold text-[#1d2824]">Nessuna opportunità aperta</h3>
             <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#66736e]">
-              P5.1 parte da un’azione esplicita: nessuna RFQ, email o richiesta della Commercial Memory
-              viene pubblicata automaticamente.
+              Non ci sono ricerche esterne che corrispondono ai filtri attuali. Le richieste della tua azienda
+              non compaiono nel feed supplier.
             </p>
-            {canWrite ? (
-              <Link
-                href={appRoutes.marketplace.newRequest}
-                className="mt-5 inline-flex rounded-xl bg-[#1a5144] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#226657]"
-              >
-                Crea la prima ricerca
-              </Link>
-            ) : null}
           </div>
         ) : (
-          <div className="grid gap-3 lg:grid-cols-2">
-            {requests.map((item) => (
-              <Link
-                key={item.id}
-                href={appRoutes.marketplace.request(item.id)}
-                className="rounded-2xl border border-[#dce2df] bg-white p-5 transition hover:border-[#b8d2c8] hover:shadow-sm"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className={"rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] " + statusClasses(item.effective_status)}>
-                        {statusLabel(item.effective_status)}
-                      </span>
-                      <span className="rounded-full bg-[#f2f4f3] px-2.5 py-1 text-[10px] font-semibold text-[#66736e]">
-                        {item.visibility_mode === "anonymous" ? "Anonima" : "Azienda visibile"}
-                      </span>
-                    </div>
-                    <h3 className="mt-3 text-base font-semibold text-[#1d2824]">{item.title}</h3>
-                  </div>
-                  <span className="text-xs font-semibold text-[#173f35]">Apri →</span>
-                </div>
+          <div className="grid gap-4 lg:grid-cols-2">
+            {feed.items.map((item) => {
+              const firstLine = item.teaser_lines[0];
+              const namedBuyer = item.buyer.visibility_mode === "named";
 
-                <div className="mt-4 grid grid-cols-2 gap-3 border-t border-[#eef1ef] pt-4 text-xs">
-                  <div>
-                    <p className="text-[#87938e]">Linee prodotto</p>
-                    <p className="mt-1 font-semibold text-[#43524c]">{item.line_count}</p>
+              return (
+                <Link
+                  key={item.request_id}
+                  href={appRoutes.marketplace.opportunity(item.request_id)}
+                  className="group rounded-2xl border border-[#dce2df] bg-white p-5 transition hover:border-[#b8d2c8] hover:shadow-sm"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className={[
+                          "rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em]",
+                          item.effective_status === "closing_soon"
+                            ? "bg-amber-50 text-amber-700"
+                            : "bg-emerald-50 text-emerald-700",
+                        ].join(" ")}>
+                          {item.effective_status === "closing_soon" ? "In scadenza" : "Aperta"}
+                        </span>
+                        <span className="rounded-full bg-[#f2f4f3] px-2.5 py-1 text-[10px] font-semibold text-[#66736e]">
+                          {namedBuyer ? "Named" : "Anonymous"}
+                        </span>
+                        <span className="rounded-full bg-[#edf5f2] px-2.5 py-1 text-[10px] font-semibold text-[#173f35]">
+                          Teaser gratuito
+                        </span>
+                      </div>
+
+                      <h3 className="mt-3 text-lg font-semibold text-[#1d2824]">
+                        {teaserHeadline(item)}
+                      </h3>
+                      <p className="mt-1 text-sm text-[#66736e]">
+                        {buyerLabel(item)}
+                        {" · "}
+                        {deliveryLabel(item)}
+                      </p>
+                    </div>
+
+                    <div className="text-right">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#87938e]">
+                        Tempo residuo
+                      </p>
+                      <div className="mt-1">
+                        <MarketplaceCountdown initialSeconds={item.seconds_remaining} compact />
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-[#87938e]">Scadenza</p>
-                    <p className="mt-1 font-semibold text-[#43524c]">{formatDate(item.closes_at)}</p>
+
+                  {firstLine ? (
+                    <div className="mt-5 grid gap-3 border-t border-[#eef1ef] pt-4 sm:grid-cols-3">
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#87938e]">Macro-specifica</p>
+                        <p className="mt-1 text-sm font-semibold text-[#43524c]">
+                          {firstLine.manufacturing_process || "Non specificata"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#87938e]">Fascia quantità</p>
+                        <p className="mt-1 text-sm font-semibold text-[#43524c]">
+                          {firstLine.quantity_band}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#87938e]">Consegna</p>
+                        <p className="mt-1 text-sm font-semibold text-[#43524c]">
+                          {firstLine.delivery_country_code}
+                          {firstLine.delivery_region ? ` · ${firstLine.delivery_region}` : ""}
+                        </p>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div className="mt-4 flex items-center justify-between text-xs">
+                    <span className="text-[#87938e]">
+                      {item.line_count} {item.line_count === 1 ? "linea prodotto" : "linee prodotto"}
+                    </span>
+                    <span className="font-semibold text-[#173f35] group-hover:underline">
+                      Apri teaser →
+                    </span>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         )}
       </section>
 
-      {published > 0 ? (
-        <p className="text-xs text-[#87938e]">
-          {published} richieste hanno raggiunto lo stato pubblicato. Nessuna è ancora esposta a supplier esterni in P5.1.
+      <section className="rounded-2xl border border-[#d9e8e2] bg-[#f3f7f5] px-5 py-4">
+        <p className="text-sm font-semibold text-[#173f35]">Privacy boundary P5.2</p>
+        <p className="mt-1 text-sm leading-6 text-[#66736e]">
+          Nel feed non vengono esposti titolo libero, norma, grado, dimensioni, quantità esatta,
+          certificazione, note o data di consegna. Per le richieste anonymous non vengono esposti
+          nemmeno identità buyer, Company Profile o regione.
         </p>
-      ) : null}
+      </section>
     </div>
   );
 }
