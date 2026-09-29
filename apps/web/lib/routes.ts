@@ -3,6 +3,7 @@ export const appRoutes = {
   publicHome: "/",
 
   commercial: {
+    home: "/commercial",
     search: "/commercial/search",
     products: "/commercial/products",
     product: (productId: string) => `/commercial/products/${productId}`,
