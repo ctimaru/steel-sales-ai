@@ -11,7 +11,7 @@ const detailPage = fs.readFileSync(new URL("../app/(workspace)/marketplace/[id]/
 const actions = fs.readFileSync(new URL("../app/(workspace)/marketplace/actions.ts", import.meta.url), "utf8");
 const data = fs.readFileSync(new URL("../lib/marketplace.ts", import.meta.url), "utf8");
 const migration = fs.readFileSync(
-  new URL("../../supabase/migrations/20260929101500_p5_1_demand_listing_foundation.sql", import.meta.url),
+  new URL("../../../supabase/migrations/20260929101500_p5_1_demand_listing_foundation.sql", import.meta.url),
   "utf8",
 );
 
