@@ -294,6 +294,8 @@ select pg_temp.p52_assert(
   'anonymous teaser must not leak buyer identity or sub-country geography'
 );
 
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000005201',true);
+
 select pg_temp.p52_assert(
   public.p5_2_marketplace_teaser(
     '00000000-0000-0000-0000-000000005210'::uuid,
@@ -301,6 +303,8 @@ select pg_temp.p52_assert(
   ) is null,
   'buyer cannot use supplier teaser endpoint for own listing'
 );
+
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000005202',true);
 
 select pg_temp.p52_assert_raises(
   $$select public.p5_2_marketplace_feed(
