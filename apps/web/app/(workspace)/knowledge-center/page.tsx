@@ -2,18 +2,18 @@ import Link from "next/link";
 
 import { appRoutes } from "@/lib/routes";
 
-export default function KnowledgeCenterPage() {
+export default function SchoolPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-8">
       <section className="rounded-3xl border border-[#dce2df] bg-white p-6 shadow-[0_1px_2px_rgba(20,46,38,0.03)] sm:p-8">
         <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#173f35]">
-          Knowledge
+          Scuola
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824]">
-          Conoscenza aziendale e Steel Knowledge
+          Formazione e conoscenza tecnica
         </h1>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66736e] sm:text-base">
-          Qui convivono due livelli distinti: la knowledge privata del tuo workspace e la base tecnica pubblica
+          La Scuola riunisce la conoscenza privata del tuo workspace e la base tecnica pubblica
           su norme, gradi, pesi e dimensioni.
         </p>
       </section>
@@ -34,7 +34,7 @@ export default function KnowledgeCenterPage() {
         </Link>
 
         <Link
-          href={appRoutes.knowledge.home}
+          href={appRoutes.knowledge.catalog}
           className="rounded-3xl border border-[#d9e8e2] bg-[#f3f7f5] p-6 transition hover:border-[#b8d2c8] hover:shadow-sm"
         >
           <span className="rounded-full bg-[#e1ece8] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#173f35]">
@@ -55,9 +55,9 @@ export default function KnowledgeCenterPage() {
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
           {[
-            ["Norme", appRoutes.knowledge.standards],
-            ["Gradi", appRoutes.knowledge.grades],
-            ["Pesi & dimensioni", appRoutes.knowledge.tubes],
+            ["Norme", appRoutes.knowledge.schoolStandards],
+            ["Gradi", appRoutes.knowledge.schoolGrades],
+            ["Pesi & dimensioni", appRoutes.knowledge.schoolTubes],
           ].map(([label, href]) => (
             <Link
               key={href}
