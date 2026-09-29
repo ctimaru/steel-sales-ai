@@ -386,6 +386,14 @@ export async function openMarketplaceNotification(formData: FormData) {
 
   if (error) redirect(marketplaceError(fallback, error.message));
 
+  // P5.6B soft telemetry is best-effort and must never block the canonical
+  // notification/read flow. The RPC records only active-pilot first opens.
+  await supabase.rpc("p5_6b_record_notification_open", {
+    p_organization_id: context.organizationId,
+    p_notification_id: notificationId,
+    p_request_id: requestId,
+  });
+
   revalidatePath(fallback);
   redirect(appRoutes.marketplace.opportunity(requestId));
 }

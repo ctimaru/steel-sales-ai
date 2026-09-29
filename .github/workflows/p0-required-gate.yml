@@ -257,6 +257,7 @@ jobs:
             p5_4_governed_supplier_response.sql \
             p5_5_matching_notifications.sql \
             p5_6a_pilot_cohort_activation.sql \
+            p5_6b_end_to_end_telemetry.sql \
             k2_public_knowledge_information_architecture.sql \
             k3_public_standards_catalog.sql \
             k4_public_grades_catalog.sql \

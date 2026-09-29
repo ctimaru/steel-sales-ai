@@ -82,3 +82,105 @@ export async function getMarketplacePilotControl() {
 
   return data as PilotControl;
 }
+
+export type PilotLatencyStats = {
+  samples: number;
+  avg_seconds: number | null;
+  p50_seconds: number | null;
+  min_seconds: number | null;
+  max_seconds: number | null;
+};
+
+export type PilotTelemetryParticipant = {
+  participant_id: string;
+  organization_id: string;
+  organization_name: string;
+  participant_role: "buyer" | "supplier" | "both";
+  status: PilotParticipant["status"];
+  published_listings: number;
+  notifications_received: number;
+  notifications_read: number;
+  opportunities_opened: number;
+  unlocks: number;
+  response_drafts: number;
+  responses_submitted: number;
+  buyer_engagement_actions: number;
+};
+
+export type PilotTelemetryListing = {
+  request_id: string;
+  buyer_organization_id: string;
+  buyer_organization_name: string;
+  visibility_mode: "named" | "anonymous";
+  published_at: string;
+  matches: number;
+  pilot_contactable_matches: number;
+  notifications_created: number;
+  notifications_read: number;
+  opportunities_opened: number;
+  unlocks: number;
+  response_drafts: number;
+  responses_submitted: number;
+  buyer_engaged_responses: number;
+  first_match_at: string | null;
+};
+
+export type PilotTelemetry = {
+  contract: "P5.6B-v1";
+  generated_at: string;
+  run: PilotControl["run"];
+  funnel: {
+    listings_published: number;
+    listings_with_match: number;
+    listing_match_rate: number | null;
+    matches: number;
+    matches_per_listing: number | null;
+    pilot_contactable_matches: number;
+    notifications_created: number;
+    notifications_read: number;
+    notifications_dismissed: number;
+    notification_read_rate: number | null;
+    opportunities_opened: number;
+    notification_to_open_rate: number | null;
+    unlocks: number;
+    open_to_unlock_rate: number | null;
+    response_drafts: number;
+    unlock_to_draft_rate: number | null;
+    responses_submitted: number;
+    unlock_to_submit_rate: number | null;
+    buyer_engaged_responses: number;
+    submitted_to_buyer_engagement_rate: number | null;
+    distinct_buyer_organizations: number;
+    distinct_supplier_organizations: number;
+    distinct_organizations: number;
+  };
+  latencies: {
+    listing_to_first_match: PilotLatencyStats;
+    match_to_notification_read: PilotLatencyStats;
+    notification_to_opportunity_open: PilotLatencyStats;
+    opportunity_open_to_unlock: PilotLatencyStats;
+    unlock_to_draft_response: PilotLatencyStats;
+    unlock_to_submitted_response: PilotLatencyStats;
+    submitted_response_to_buyer_engagement: PilotLatencyStats;
+  };
+  participants: PilotTelemetryParticipant[];
+  listings: PilotTelemetryListing[];
+  measurement?: {
+    hard_event_source: string;
+    soft_event: string;
+    soft_event_source: string;
+    content_payload_copied: boolean;
+  };
+};
+
+export async function getMarketplacePilotTelemetry() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p5_6b_pilot_telemetry");
+
+  if (error) {
+    if (error.code === "42501") redirect("/platform");
+    throw new Error(error.message);
+  }
+
+  return data as PilotTelemetry;
+}
