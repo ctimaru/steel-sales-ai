@@ -45,6 +45,7 @@ const networkNav: NavItem[] = [
 ];
 
 const knowledgeNav: NavItem[] = [
+  { href: appRoutes.knowledge.workspace, label: "Home" },
   { href: appRoutes.commercial.knowledgeExplorer, label: "Knowledge Explorer" },
   { href: appRoutes.knowledge.home, label: "Catalogo pubblico" },
   { href: appRoutes.knowledge.standards, label: "Norme" },
