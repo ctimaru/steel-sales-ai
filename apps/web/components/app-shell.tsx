@@ -47,10 +47,10 @@ const networkNav: NavItem[] = [
 const knowledgeNav: NavItem[] = [
   { href: appRoutes.knowledge.workspace, label: "Home" },
   { href: appRoutes.commercial.knowledgeExplorer, label: "Knowledge Explorer" },
-  { href: appRoutes.knowledge.home, label: "Catalogo pubblico" },
-  { href: appRoutes.knowledge.standards, label: "Norme" },
-  { href: appRoutes.knowledge.grades, label: "Gradi" },
-  { href: appRoutes.knowledge.tubes, label: "Pesi & dimensioni" },
+  { href: appRoutes.knowledge.catalog, label: "Catalogo tecnico" },
+  { href: appRoutes.knowledge.schoolStandards, label: "Norme" },
+  { href: appRoutes.knowledge.schoolGrades, label: "Gradi" },
+  { href: appRoutes.knowledge.schoolTubes, label: "Pesi & dimensioni" },
 ];
 
 function roleLabel(role: string) {
