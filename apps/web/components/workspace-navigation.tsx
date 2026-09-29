@@ -146,7 +146,7 @@ function primaryItems(networkEnabled: boolean) {
     },
     {
       key: "commercial" as const,
-      href: appRoutes.commercial.search,
+      href: appRoutes.commercial.home,
       label: "Commerciale",
       icon: "commercial" as const,
     },
@@ -275,13 +275,11 @@ export function WorkspaceContextNavigation({
   intelligenceItems,
   networkItems,
   knowledgeItems,
-  networkEnabled,
 }: {
   commercialItems: WorkspaceNavItem[];
   intelligenceItems: WorkspaceNavItem[];
   networkItems: WorkspaceNavItem[];
   knowledgeItems: WorkspaceNavItem[];
-  networkEnabled: boolean;
 }) {
   const pathname = usePathname();
   const current = currentPrimarySpace(pathname);
