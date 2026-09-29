@@ -50,7 +50,7 @@ test("UX2 preserves task-dense Company Home behavior without making search the h
   assert.match(dashboard, /Commercial Memory/);
   assert.match(dashboard, /Spazi condivisi/);
   assert.match(dashboard, /Marketplace/);
-  assert.match(dashboard, /Knowledge/);
+  assert.match(dashboard, /Scuola/);
   assert.match(dashboard, /metric-number/);
   assert.doesNotMatch(dashboard, /<form action=\{appRoutes\.commercial\.search\}/);
 });
