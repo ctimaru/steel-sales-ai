@@ -36,6 +36,8 @@ export const appRoutes = {
 
   marketplace: {
     home: "/marketplace",
+    newRequest: "/marketplace/new",
+    request: (id: string) => `/marketplace/${id}`,
   },
 
   knowledge: {
