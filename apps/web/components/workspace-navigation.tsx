@@ -383,6 +383,7 @@ export function WorkspaceProfileMenu({
   platformSuperadmin,
   canAdmin,
   canWrite,
+  logoutAction,
 }: {
   viewerLabel: string;
   organizationName: string;
@@ -390,6 +391,7 @@ export function WorkspaceProfileMenu({
   platformSuperadmin: boolean;
   canAdmin: boolean;
   canWrite: boolean;
+  logoutAction: () => Promise<void>;
 }) {
   const initial = (viewerLabel.trim()[0] || "U").toUpperCase();
 
@@ -454,6 +456,15 @@ export function WorkspaceProfileMenu({
             <ProfileMenuLink href={appRoutes.platform.home} label="Platform Console ↗" emphasis />
           </div>
         ) : null}
+
+        <form action={logoutAction} className="mt-2 border-t border-[#e2e7e4] pt-2">
+          <button
+            type="submit"
+            className="w-full rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-[#66736e] transition hover:bg-[#f2f4f3] hover:text-[#1d2824]"
+          >
+            Esci
+          </button>
+        </form>
       </div>
     </details>
   );
