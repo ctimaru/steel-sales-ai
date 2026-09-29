@@ -104,7 +104,7 @@ export function AppShell({
       <header className="sticky top-0 z-40 border-b border-[#dce2df] bg-white/95 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1500px] items-center gap-3 px-3 sm:px-5 lg:px-8">
           <div className="hidden shrink-0 lg:block">
-            <ProductBrand href={appRoutes.home} />
+            <ProductBrand href={appRoutes.home} compact />
           </div>
 
           <div className="lg:hidden">
@@ -149,7 +149,6 @@ export function AppShell({
           intelligenceItems={intelligenceItems}
           networkItems={networkItems}
           knowledgeItems={knowledgeItems}
-          networkEnabled={networkEnabled}
         />
       </header>
 
