@@ -361,7 +361,7 @@ export default async function PlatformPilotPage({
                   return (
                     <div key={String(label)} className="rounded-xl bg-[#f8faf9] p-3">
                       <p className="text-lg font-semibold text-[#1d2824]">{latencyLabel(metric)}</p>
-                      <p className="mt-1 text-[11px] font-semibold text-[#66736e]">{label}</p>
+                      <p className="mt-1 text-[11px] font-semibold text-[#66736e]">{String(label)}</p>
                       <p className="mt-1 text-[10px] text-[#87938e]">{metric.samples} sample</p>
                     </div>
                   );
