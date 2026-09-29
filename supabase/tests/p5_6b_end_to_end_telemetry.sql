@@ -213,6 +213,34 @@ select public.p5_6a_transition_participant(
 
 reset role;
 
+-- CI executes this entire acceptance in one transaction. Canonical Marketplace
+-- timestamps use transaction_timestamp()/now(), while P5.6A lifecycle events use
+-- clock_timestamp(). Backdate the disposable pilot window + activation evidence
+-- so the single-transaction fixture reproduces the ordering of real production
+-- requests, where these actions occur in separate transactions.
+update public.marketplace_pilot_runs
+set started_at=transaction_timestamp()-interval '2 seconds'
+where status='active'
+  and label='P5.6B acceptance pilot';
+
+insert into public.marketplace_pilot_participant_events(
+  participant_id,pilot_run_id,organization_id,actor_user_id,
+  event_type,from_status,to_status,participant_role,metadata,occurred_at
+)
+select
+  p.id,p.pilot_run_id,p.organization_id,:'superadmin_id'::uuid,
+  'activated','candidate','active',p.participant_role,
+  jsonb_build_object('fixture','single_transaction_time_normalization'),
+  transaction_timestamp()-interval '1 second'
+from public.marketplace_pilot_participants p
+join public.marketplace_pilot_runs r on r.id=p.pilot_run_id
+where r.status='active'
+  and r.label='P5.6B acceptance pilot'
+  and p.organization_id in (
+    '00000000-0000-0000-0000-000000005b10'::uuid,
+    '00000000-0000-0000-0000-000000005b11'::uuid
+  );
+
 -- Buyer publishes a real structured anonymous listing while active.
 set local role authenticated;
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000005b01',true);
