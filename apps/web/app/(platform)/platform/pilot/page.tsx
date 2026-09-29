@@ -1,6 +1,8 @@
 import { requirePlatformSuperadmin } from "@/lib/platform-admin";
 import {
   getMarketplacePilotControl,
+  getMarketplacePilotTelemetry,
+  type PilotLatencyStats,
   type PilotParticipant,
   type PilotReadiness,
 } from "@/lib/platform-pilot";
@@ -10,6 +12,20 @@ import {
   startMarketplacePilot,
   transitionMarketplacePilotParticipant,
 } from "./actions";
+
+function percentLabel(value: number | null) {
+  if (value == null) return "—";
+  return `${Math.round(value * 100)}%`;
+}
+
+function latencyLabel(stats: PilotLatencyStats) {
+  if (!stats.samples || stats.p50_seconds == null) return "—";
+  const seconds = Number(stats.p50_seconds);
+  if (seconds < 60) return `${Math.round(seconds)}s`;
+  if (seconds < 3600) return `${Math.round(seconds / 60)}m`;
+  if (seconds < 86400) return `${(seconds / 3600).toFixed(1)}h`;
+  return `${(seconds / 86400).toFixed(1)}g`;
+}
 
 const blockerLabels: Record<string, string> = {
   organization_onboarding_incomplete: "Onboarding Organization incompleto",
@@ -148,8 +164,9 @@ export default async function PlatformPilotPage({
   searchParams: Promise<{ message?: string; error?: string }>;
 }) {
   await requirePlatformSuperadmin();
-  const [control, params] = await Promise.all([
+  const [control, telemetry, params] = await Promise.all([
     getMarketplacePilotControl(),
+    getMarketplacePilotTelemetry(),
     searchParams,
   ]);
 
@@ -262,6 +279,187 @@ export default async function PlatformPilotPage({
                 </p>
               </div>
             ))}
+          </section>
+
+          <section className="rounded-3xl border border-[#b8d2c8] bg-white p-5 sm:p-6">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#173f35]">
+                  P5.6B · End-to-End Telemetry
+                </p>
+                <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
+                  Commercial funnel
+                </h2>
+                <p className="mt-2 max-w-4xl text-sm leading-6 text-[#66736e]">
+                  Gli eventi hard derivano dai ledger canonici Marketplace. L&apos;unico
+                  segnale UX aggiunto è il primo open da notifica; non vengono copiati
+                  titolo, linee tecniche, quantità, prezzi, messaggi, note o dati
+                  Commercial Memory.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <span className="rounded-full bg-[#e1ece8] px-3 py-1 text-[11px] font-semibold text-[#173f35]">
+                  canonical ledgers
+                </span>
+                <span className="rounded-full bg-[#f2f4f3] px-3 py-1 text-[11px] font-semibold text-[#66736e]">
+                  soft signal: opportunity open
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
+              {[
+                ["Listing", telemetry.funnel.listings_published],
+                ["Con match", telemetry.funnel.listings_with_match],
+                ["Notifiche", telemetry.funnel.notifications_created],
+                ["Lette", telemetry.funnel.notifications_read],
+                ["Open", telemetry.funnel.opportunities_opened],
+                ["Unlock", telemetry.funnel.unlocks],
+                ["Response", telemetry.funnel.responses_submitted],
+                ["Buyer engaged", telemetry.funnel.buyer_engaged_responses],
+              ].map(([label, value]) => (
+                <div key={String(label)} className="rounded-2xl border border-[#e1e7e4] bg-[#f8faf9] p-4">
+                  <p className="text-2xl font-semibold text-[#1d2824]">{String(value)}</p>
+                  <p className="mt-1 text-[11px] font-semibold text-[#66736e]">{label}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+              {[
+                ["Listing → match", telemetry.funnel.listing_match_rate],
+                ["Notification read", telemetry.funnel.notification_read_rate],
+                ["Notification → open", telemetry.funnel.notification_to_open_rate],
+                ["Open → unlock", telemetry.funnel.open_to_unlock_rate],
+                ["Unlock → submit", telemetry.funnel.unlock_to_submit_rate],
+                ["Submit → buyer", telemetry.funnel.submitted_to_buyer_engagement_rate],
+              ].map(([label, value]) => (
+                <div key={String(label)} className="rounded-xl border border-[#dce2df] p-3">
+                  <p className="text-lg font-semibold text-[#173f35]">
+                    {percentLabel(value as number | null)}
+                  </p>
+                  <p className="mt-1 text-[11px] font-semibold text-[#66736e]">{label}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6">
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#7b8782]">
+                P50 time-to-stage
+              </p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+                {[
+                  ["Listing → match", telemetry.latencies.listing_to_first_match],
+                  ["Match → read", telemetry.latencies.match_to_notification_read],
+                  ["Notification → open", telemetry.latencies.notification_to_opportunity_open],
+                  ["Open → unlock", telemetry.latencies.opportunity_open_to_unlock],
+                  ["Unlock → draft", telemetry.latencies.unlock_to_draft_response],
+                  ["Unlock → submit", telemetry.latencies.unlock_to_submitted_response],
+                  ["Submit → buyer", telemetry.latencies.submitted_response_to_buyer_engagement],
+                ].map(([label, stats]) => {
+                  const metric = stats as PilotLatencyStats;
+                  return (
+                    <div key={String(label)} className="rounded-xl bg-[#f8faf9] p-3">
+                      <p className="text-lg font-semibold text-[#1d2824]">{latencyLabel(metric)}</p>
+                      <p className="mt-1 text-[11px] font-semibold text-[#66736e]">{label}</p>
+                      <p className="mt-1 text-[10px] text-[#87938e]">{metric.samples} sample</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-3">
+              <div className="rounded-xl border border-[#dce2df] p-4">
+                <p className="text-2xl font-semibold text-[#1d2824]">
+                  {telemetry.funnel.distinct_organizations}
+                </p>
+                <p className="mt-1 text-xs text-[#66736e]">Organization coinvolte</p>
+              </div>
+              <div className="rounded-xl border border-[#dce2df] p-4">
+                <p className="text-2xl font-semibold text-[#1d2824]">
+                  {telemetry.funnel.distinct_buyer_organizations}
+                </p>
+                <p className="mt-1 text-xs text-[#66736e]">Buyer con listing reali</p>
+              </div>
+              <div className="rounded-xl border border-[#dce2df] p-4">
+                <p className="text-2xl font-semibold text-[#1d2824]">
+                  {telemetry.funnel.distinct_supplier_organizations}
+                </p>
+                <p className="mt-1 text-xs text-[#66736e]">Supplier con attività reale</p>
+              </div>
+            </div>
+
+            <div className="mt-7">
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#7b8782]">
+                Participant telemetry
+              </p>
+              <div className="mt-3 overflow-x-auto rounded-2xl border border-[#e1e7e4]">
+                <table className="min-w-[980px] w-full text-left text-xs">
+                  <thead className="bg-[#f8faf9] text-[#66736e]">
+                    <tr>
+                      {["Organization","Ruolo","Listing","Notif.","Read","Open","Unlock","Draft","Submit","Buyer actions"].map((label) => (
+                        <th key={label} className="px-3 py-3 font-semibold">{label}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {telemetry.participants.length === 0 ? (
+                      <tr>
+                        <td colSpan={10} className="px-3 py-5 text-[#87938e]">
+                          Nessun partecipante pilot con telemetria disponibile.
+                        </td>
+                      </tr>
+                    ) : telemetry.participants.map((item) => (
+                      <tr key={item.participant_id} className="border-t border-[#eef2f0]">
+                        <td className="px-3 py-3 font-semibold text-[#1d2824]">{item.organization_name}</td>
+                        <td className="px-3 py-3 text-[#66736e]">{item.participant_role}</td>
+                        <td className="px-3 py-3">{item.published_listings}</td>
+                        <td className="px-3 py-3">{item.notifications_received}</td>
+                        <td className="px-3 py-3">{item.notifications_read}</td>
+                        <td className="px-3 py-3">{item.opportunities_opened}</td>
+                        <td className="px-3 py-3">{item.unlocks}</td>
+                        <td className="px-3 py-3">{item.response_drafts}</td>
+                        <td className="px-3 py-3">{item.responses_submitted}</td>
+                        <td className="px-3 py-3">{item.buyer_engagement_actions}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="mt-7">
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#7b8782]">
+                Listing progression
+              </p>
+              <div className="mt-3 space-y-3">
+                {telemetry.listings.length === 0 ? (
+                  <p className="rounded-xl border border-dashed border-[#d7dfdb] bg-[#f8faf9] p-4 text-sm text-[#66736e]">
+                    Nessuna listing reale pubblicata durante una finestra di partecipazione buyer attiva.
+                  </p>
+                ) : telemetry.listings.map((item) => (
+                  <article key={item.request_id} className="rounded-2xl border border-[#e1e7e4] bg-[#fbfcfb] p-4">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="font-semibold text-[#1d2824]">{item.buyer_organization_name}</p>
+                        <p className="mt-1 text-[11px] text-[#87938e]">
+                          {item.visibility_mode} · {new Date(item.published_at).toLocaleString("it-IT")} · {item.request_id.slice(0, 8)}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-2 text-[11px] font-semibold text-[#52615b]">
+                        <span>match {item.matches}</span>
+                        <span>notif {item.notifications_created}</span>
+                        <span>open {item.opportunities_opened}</span>
+                        <span>unlock {item.unlocks}</span>
+                        <span>submit {item.responses_submitted}</span>
+                        <span>buyer {item.buyer_engaged_responses}</span>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
           </section>
 
           <section className="rounded-2xl border border-[#dce2df] bg-white p-5 sm:p-6">
