@@ -34,12 +34,13 @@ test("UXA2 keeps Commercial Memory private while search becomes a persistent hea
   assert.doesNotMatch(dashboard, /<form action=\{appRoutes\.commercial\.search\}/);
 });
 
-test("P5.1 Marketplace activates buyer-side demand without implying supplier feed or transactions", () => {
-  assert.match(marketplace, /P5\.1 · Demand Listing/);
-  assert.match(marketplace, /\+ Nuova ricerca/);
-  assert.match(marketplace, /separate dalle RFQ private/);
-  assert.match(marketplace, /feed supplier.*P5\.2/i);
-  assert.doesNotMatch(marketplace, /Pay to see \/ unlock/);
+test("P5.2 Marketplace is a supplier Demand Board without implying unlock or response rights", () => {
+  assert.match(marketplace, /P5\.2 · Live Demand Board/);
+  assert.match(marketplace, /Opportunità dal Network/);
+  assert.match(marketplace, /Free teaser/);
+  assert.match(marketplace, /getMarketplaceFeed/);
+  assert.match(marketplace, /Dettagli tecnici completi e risposta restano fuori da P5\.2/);
+  assert.doesNotMatch(marketplace, /Pay to see/);
   assert.doesNotMatch(marketplace, /supplier interessato può rispondere/i);
 });
 
