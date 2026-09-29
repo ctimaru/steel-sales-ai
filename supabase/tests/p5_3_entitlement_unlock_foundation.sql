@@ -263,14 +263,24 @@ select public.p5_3_grant_entitlement(
 select pg_temp.p53_assert(
   :'specific_grant'::jsonb->>'event_id'=:'specific_grant_retry'::jsonb->>'event_id'
   and (:'specific_grant'::jsonb->>'idempotent')::boolean=false
-  and (:'specific_grant_retry'::jsonb->>'idempotent')::boolean=true
-  and (
+  and (:'specific_grant_retry'::jsonb->>'idempotent')::boolean=true,
+  'grant retry must return the same event id'
+);
+
+reset role;
+
+select pg_temp.p53_assert(
+  (
     select count(*)
     from public.marketplace_entitlement_events
     where idempotency_key='p53.specific.grant.001'
   )=1,
-  'grant must be idempotent and ledger event must remain unique'
+  'idempotency ledger event must remain unique'
 );
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000005305',true);
+select set_config('request.jwt.claim.role','authenticated',true);
 
 select pg_temp.p53_assert_raises(
   format(
@@ -332,6 +342,8 @@ select public.p5_3_marketplace_detail(
   :'named_request_id'::uuid
 );
 
+reset role;
+
 select pg_temp.p53_assert(
   (
     select count(*)
@@ -343,7 +355,9 @@ select pg_temp.p53_assert(
 );
 
 -- Revoke request-specific access; history remains.
+set local role authenticated;
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000005305',true);
+select set_config('request.jwt.claim.role','authenticated',true);
 
 select public.p5_3_revoke_entitlement(
   '00000000-0000-0000-0000-000000005311'::uuid,
@@ -363,15 +377,25 @@ select public.p5_3_entitlement_state(
 ) as revoked_state \gset
 
 select pg_temp.p53_assert(
-  :'revoked_state'::jsonb->>'state'='locked'
-  and (
+  :'revoked_state'::jsonb->>'state'='locked',
+  'revoke must relock the supplier'
+);
+
+reset role;
+
+select pg_temp.p53_assert(
+  (
     select count(*)
     from public.marketplace_entitlement_events
     where supplier_organization_id='00000000-0000-0000-0000-000000005311'::uuid
       and request_id=:'named_request_id'::uuid
   )=2,
-  'revoke must relock without deleting entitlement history'
+  'revoke must preserve both grant and revoke history'
 );
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000005302',true);
+select set_config('request.jwt.claim.role','authenticated',true);
 
 select pg_temp.p53_assert_raises(
   format(
