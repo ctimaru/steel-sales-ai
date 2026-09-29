@@ -14,7 +14,7 @@ const button = fs.readFileSync(new URL("../components/ui/button.tsx", import.met
 const input = fs.readFileSync(new URL("../components/ui/input.tsx", import.meta.url), "utf8");
 
 test("UXA2 exposes five stable macro destinations over the product spaces", () => {
-  for (const label of ["Home", "Commerciale", "Network", "Marketplace", "Knowledge"]) {
+  for (const label of ["Home", "Commerciale", "Network", "Marketplace", "Scuola"]) {
     assert.match(nav, new RegExp(`label: "${label}"`));
   }
   assert.match(routes, /home: "\/commercial"/);

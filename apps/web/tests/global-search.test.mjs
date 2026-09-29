@@ -71,7 +71,7 @@ test("structured global search opens verified original evidence in one click", (
 
 
 test("sales navigation uses stable macros with contextual tools and avatar drawer", () => {
-  for (const label of ["Home", "Commerciale", "Network", "Marketplace", "Knowledge"]) {
+  for (const label of ["Home", "Commerciale", "Network", "Marketplace", "Scuola"]) {
     assert.match(navigation, new RegExp(`label: "${label}"`));
   }
   assert.match(shell, /WorkspaceContextNavigation/);

@@ -173,7 +173,7 @@ function primaryItems(networkEnabled: boolean) {
     {
       key: "knowledge" as const,
       href: appRoutes.knowledge.workspace,
-      label: "Knowledge",
+      label: "Scuola",
       icon: "knowledge" as const,
     },
   ];
