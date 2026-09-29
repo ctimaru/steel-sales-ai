@@ -254,6 +254,7 @@ jobs:
             p5_3_entitlement_unlock_foundation.sql \
             p5_3a_deterministic_entitlement_ordering.sql \
             p5_3b_entitlement_fk_index_hardening.sql \
+            p5_4_governed_supplier_response.sql \
             k2_public_knowledge_information_architecture.sql \
             k3_public_standards_catalog.sql \
             k4_public_grades_catalog.sql \

@@ -2,8 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { MarketplaceCountdown } from "@/components/marketplace-countdown";
+import { MarketplaceResponseWorkspace } from "@/components/marketplace-response-workspace";
+import { canWriteWorkspace } from "@/lib/access-policy";
 import {
   getMarketplaceEntitlementState,
+  getMarketplaceSupplierWorkspace,
   getMarketplaceTeaser,
   getMarketplaceUnlockedDetail,
   type MarketplaceUnlockedLine,
@@ -52,11 +55,14 @@ function sourceLabel(source: string | null) {
 
 export default async function MarketplaceOpportunityPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string; message?: string }>;
 }) {
-  const [{ id }, context] = await Promise.all([
+  const [{ id }, { error, message }, context] = await Promise.all([
     params,
+    searchParams,
     getWorkspaceContext(),
   ]);
 
@@ -82,6 +88,11 @@ export default async function MarketplaceOpportunityPage({
   const first = teaser.teaser_lines[0];
   const namedBuyer = teaser.buyer.visibility_mode === "named";
   const isUnlocked = entitlement.state === "entitled" && unlocked != null;
+  const canRespondRole = canWriteWorkspace(context.role);
+  const responseWorkspace =
+    isUnlocked && canRespondRole
+      ? await getMarketplaceSupplierWorkspace(context.organizationId, id)
+      : null;
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -91,6 +102,17 @@ export default async function MarketplaceOpportunityPage({
       >
         ← Torna alle opportunità
       </Link>
+
+      {error ? (
+        <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          {error}
+        </div>
+      ) : null}
+      {message ? (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          {message}
+        </div>
+      ) : null}
 
       <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
@@ -272,8 +294,9 @@ export default async function MarketplaceOpportunityPage({
               </h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-[#66736e]">
                 Accesso autorizzato da {sourceLabel(entitlement.source_kind)}.
-                L’unlock riguarda i dati dell’opportunità e non concede il diritto
-                di risposta, che resta nel blocco P5.4.
+                P5.4 verifica separatamente il diritto di risposta: l’entitlement
+                da solo non basta, serve anche questo unlock effettivo e la listing
+                deve essere ancora aperta.
               </p>
             </div>
 
@@ -381,12 +404,12 @@ export default async function MarketplaceOpportunityPage({
 
           <div className="mt-6 rounded-2xl border border-[#d9e8e2] bg-[#f3f7f5] px-5 py-4">
             <p className="text-sm font-semibold text-[#173f35]">
-              Unlock ≠ diritto di risposta
+              Response governance P5.4
             </p>
             <p className="mt-1 text-sm leading-6 text-[#66736e]">
-              P5.3 autorizza solo la lettura del dettaglio locked. Quote, response
-              e workflow buyer/supplier saranno introdotti e governati separatamente
-              in P5.4.
+              {canRespondRole
+                ? "Il composer sotto usa un diritto di risposta verificato server-side e mantiene separata questa interazione dalla Commercial Memory privata."
+                : "Il tuo ruolo può consultare l’opportunità sbloccata, ma non creare o modificare risposte Marketplace."}
             </p>
           </div>
         </section>
@@ -419,6 +442,14 @@ export default async function MarketplaceOpportunityPage({
           </div>
         </section>
       )}
+
+      {responseWorkspace && unlocked ? (
+        <MarketplaceResponseWorkspace
+          requestId={id}
+          workspace={responseWorkspace}
+          unlockedLines={unlocked.lines}
+        />
+      ) : null}
     </div>
   );
 }

@@ -280,3 +280,191 @@ export async function getMarketplaceUnlockedDetail(
   return (data as MarketplaceUnlockedDetail | null) ?? null;
 }
 
+export type MarketplaceResponseStatus =
+  | "draft"
+  | "submitted"
+  | "withdrawn"
+  | "declined"
+  | "acknowledged"
+  | "closed";
+
+export type MarketplaceResponseRights = {
+  contract: "P5.4-response-rights-v1";
+  request_id: string;
+  state: "eligible" | "ineligible" | MarketplaceResponseStatus;
+  reason: string;
+  can_create: boolean;
+  can_edit: boolean;
+  can_submit: boolean;
+  can_withdraw: boolean;
+  response_id: string | null;
+  response_status: MarketplaceResponseStatus | null;
+  entitlement_key?: "marketplace_access" | "opportunity_unlock";
+  entitlement_source?: "subscription" | "credit" | "manual" | "pilot" | "system";
+};
+
+export type MarketplaceResponseRequestLine = {
+  request_line_id: string;
+  line_number: number;
+  quantity: number;
+  quantity_unit: string;
+};
+
+export type MarketplaceSupplierResponseLine = {
+  request_line_id: string;
+  line_number: number;
+  offered_quantity?: number;
+  quantity_unit?: string;
+  unit_price?: number;
+  currency_code?: string;
+  lead_time_days?: number;
+  offered_delivery_date?: string;
+  notes?: string;
+};
+
+export type MarketplaceSupplierResponse = {
+  response_id: string;
+  request_id: string;
+  response_kind: "interest" | "quote";
+  status: MarketplaceResponseStatus;
+  message: string | null;
+  valid_until: string | null;
+  submitted_at: string | null;
+  withdrawn_at: string | null;
+  decided_at: string | null;
+  closed_at: string | null;
+  created_at: string;
+  updated_at: string;
+  buyer_visibility_mode: "named" | "anonymous";
+  lines: MarketplaceSupplierResponseLine[];
+};
+
+export type MarketplaceSupplierWorkspace = {
+  contract: "P5.4-supplier-workspace-v1";
+  request_id: string;
+  rights: MarketplaceResponseRights;
+  request_lines: MarketplaceResponseRequestLine[];
+  response: MarketplaceSupplierResponse | null;
+};
+
+export async function getMarketplaceSupplierWorkspace(
+  supplierOrganizationId: string,
+  requestId: string,
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p5_4_supplier_workspace", {
+    p_supplier_organization_id: supplierOrganizationId,
+    p_request_id: requestId,
+  });
+  if (error) {
+    if (error.code === "P0002") return null;
+    throw new Error(error.message);
+  }
+  return (data as MarketplaceSupplierWorkspace | null) ?? null;
+}
+
+export type MarketplaceSupplierIdentity = {
+  network_company_id?: string;
+  display_name: string;
+  country_code?: string;
+  verification_status?: string;
+  claimed_status?: string;
+  profile_available?: boolean;
+};
+
+export type MarketplaceBuyerResponseInboxItem = {
+  response_id: string;
+  request_id: string;
+  request_title: string;
+  request_visibility_mode: "named" | "anonymous";
+  response_kind: "interest" | "quote";
+  status: Exclude<MarketplaceResponseStatus, "draft">;
+  submitted_at: string | null;
+  created_at: string;
+  updated_at: string;
+  line_count: number;
+  supplier: MarketplaceSupplierIdentity;
+};
+
+export type MarketplaceBuyerResponseInbox = {
+  contract: "P5.4-buyer-inbox-v1";
+  items: MarketplaceBuyerResponseInboxItem[];
+  total: number;
+  limit: number;
+  offset: number;
+};
+
+export async function getMarketplaceBuyerResponses(
+  buyerOrganizationId: string,
+  requestId?: string,
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p5_4_buyer_inbox", {
+    p_buyer_organization_id: buyerOrganizationId,
+    p_request_id: requestId ?? null,
+    p_limit: 100,
+    p_offset: 0,
+  });
+  if (error) throw new Error(error.message);
+  return (data ?? {
+    contract: "P5.4-buyer-inbox-v1",
+    items: [],
+    total: 0,
+    limit: 100,
+    offset: 0,
+  }) as MarketplaceBuyerResponseInbox;
+}
+
+export type MarketplaceBuyerResponseDetail = {
+  contract: "P5.4-buyer-response-detail-v1";
+  response: {
+    response_id: string;
+    request_id: string;
+    response_kind: "interest" | "quote";
+    status: Exclude<MarketplaceResponseStatus, "draft">;
+    message: string | null;
+    valid_until: string | null;
+    submitted_at: string | null;
+    withdrawn_at: string | null;
+    decided_at: string | null;
+    closed_at: string | null;
+    created_at: string;
+    updated_at: string;
+  };
+  request: {
+    request_id: string;
+    title: string;
+    visibility_mode: "named" | "anonymous";
+    status: "draft" | "published" | "withdrawn";
+    closes_at: string | null;
+  };
+  supplier: MarketplaceSupplierIdentity;
+  lines: Array<{
+    request_line_id: string;
+    line_number: number;
+    product_family_key: string;
+    product_family_name: string;
+    request_quantity: number;
+    request_quantity_unit: string;
+    offered_quantity?: number;
+    quantity_unit?: string;
+    unit_price?: number;
+    currency_code?: string;
+    lead_time_days?: number;
+    offered_delivery_date?: string;
+    notes?: string;
+  }>;
+};
+
+export async function getMarketplaceBuyerResponse(
+  buyerOrganizationId: string,
+  responseId: string,
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p5_4_buyer_response_detail", {
+    p_buyer_organization_id: buyerOrganizationId,
+    p_response_id: responseId,
+  });
+  if (error) throw new Error(error.message);
+  return (data as MarketplaceBuyerResponseDetail | null) ?? null;
+}

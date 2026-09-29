@@ -22,12 +22,11 @@ test("P5.3 frontend resolves entitlement server-side before rendering locked det
   assert.match(page, /Entitlement richiesto/);
 });
 
-test("P5.3 frontend never offers client-side self-grant or response rights", () => {
+test("P5.3 frontend never offers client-side self-grant and delegates response authority to P5.4", () => {
   assert.match(page, /Il supplier non può auto-concedersi accesso dal client/);
-  assert.match(page, /Unlock ≠ diritto di risposta/);
-  assert.match(page, /P5\.4/);
+  assert.match(page, /P5\.4 verifica separatamente il diritto di risposta/);
+  assert.match(page, /entitlement[\s\S]*da solo non basta/);
   assert.doesNotMatch(page, /grantMarketplace|p5_3_grant_entitlement/);
-  assert.doesNotMatch(page, /Invia offerta|Rispondi ora|Submit quote/i);
 });
 
 test("P5.3 unlocked UI exposes structured opportunity detail and protects anonymous notes", () => {

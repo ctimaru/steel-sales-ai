@@ -16,6 +16,13 @@ function optionalText(formData: FormData, key: string) {
   return value || null;
 }
 
+function optionalNumber(formData: FormData, key: string) {
+  const value = optionalText(formData, key);
+  if (value == null) return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 function marketplaceError(path: string, error: string) {
   return path + (path.includes("?") ? "&" : "?") + "error=" + encodeURIComponent(error);
 }
@@ -170,4 +177,192 @@ export async function withdrawMarketplaceRequest(formData: FormData) {
   revalidatePath(appRoutes.marketplace.home);
   revalidatePath(appRoutes.marketplace.myRequests);
   redirect(path + "?message=" + encodeURIComponent("Ricerca ritirata."));
+}
+
+export async function createMarketplaceResponse(formData: FormData) {
+  const requestId = textValue(formData, "request_id");
+  const path = requestId
+    ? appRoutes.marketplace.opportunity(requestId)
+    : appRoutes.marketplace.home;
+  const context = await requireWorkspaceWriteRole(path);
+
+  if (!requestId) redirect(marketplaceError(path, "Opportunità non valida."));
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p5_4_create_response", {
+    p_supplier_organization_id: context.organizationId,
+    p_request_id: requestId,
+    p_response_kind: textValue(formData, "response_kind") || "interest",
+    p_message: optionalText(formData, "message"),
+    p_valid_until: optionalText(formData, "valid_until"),
+  });
+
+  if (error) redirect(marketplaceError(path, error.message));
+  revalidatePath(path);
+  revalidatePath(appRoutes.marketplace.responses);
+  redirect(path + "?message=" + encodeURIComponent("Bozza risposta creata."));
+}
+
+export async function updateMarketplaceResponse(formData: FormData) {
+  const requestId = textValue(formData, "request_id");
+  const responseId = textValue(formData, "response_id");
+  const path = requestId
+    ? appRoutes.marketplace.opportunity(requestId)
+    : appRoutes.marketplace.home;
+  const context = await requireWorkspaceWriteRole(path);
+
+  if (!requestId || !responseId) {
+    redirect(marketplaceError(path, "Risposta Marketplace non valida."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p5_4_update_response", {
+    p_supplier_organization_id: context.organizationId,
+    p_response_id: responseId,
+    p_response_kind: textValue(formData, "response_kind") || "interest",
+    p_message: optionalText(formData, "message"),
+    p_valid_until: optionalText(formData, "valid_until"),
+  });
+
+  if (error) redirect(marketplaceError(path, error.message));
+  revalidatePath(path);
+  redirect(path + "?message=" + encodeURIComponent("Bozza risposta aggiornata."));
+}
+
+export async function upsertMarketplaceResponseLine(formData: FormData) {
+  const requestId = textValue(formData, "request_id");
+  const responseId = textValue(formData, "response_id");
+  const requestLineId = textValue(formData, "request_line_id");
+  const path = requestId
+    ? appRoutes.marketplace.opportunity(requestId)
+    : appRoutes.marketplace.home;
+  const context = await requireWorkspaceWriteRole(path);
+
+  if (!requestId || !responseId || !requestLineId) {
+    redirect(marketplaceError(path, "Linea risposta non valida."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p5_4_upsert_response_line", {
+    p_supplier_organization_id: context.organizationId,
+    p_response_id: responseId,
+    p_request_line_id: requestLineId,
+    p_offered_quantity: optionalNumber(formData, "offered_quantity"),
+    p_quantity_unit: optionalText(formData, "quantity_unit"),
+    p_unit_price: optionalNumber(formData, "unit_price"),
+    p_currency_code: optionalText(formData, "currency_code")?.toUpperCase() ?? null,
+    p_lead_time_days: optionalNumber(formData, "lead_time_days"),
+    p_offered_delivery_date: optionalText(formData, "offered_delivery_date"),
+    p_notes: optionalText(formData, "notes"),
+  });
+
+  if (error) redirect(marketplaceError(path, error.message));
+  revalidatePath(path);
+  redirect(path + "?message=" + encodeURIComponent("Linea risposta salvata."));
+}
+
+export async function removeMarketplaceResponseLine(formData: FormData) {
+  const requestId = textValue(formData, "request_id");
+  const responseId = textValue(formData, "response_id");
+  const requestLineId = textValue(formData, "request_line_id");
+  const path = requestId
+    ? appRoutes.marketplace.opportunity(requestId)
+    : appRoutes.marketplace.home;
+  const context = await requireWorkspaceWriteRole(path);
+
+  if (!requestId || !responseId || !requestLineId) {
+    redirect(marketplaceError(path, "Linea risposta non valida."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p5_4_remove_response_line", {
+    p_supplier_organization_id: context.organizationId,
+    p_response_id: responseId,
+    p_request_line_id: requestLineId,
+  });
+
+  if (error) redirect(marketplaceError(path, error.message));
+  revalidatePath(path);
+  redirect(path + "?message=" + encodeURIComponent("Linea risposta rimossa."));
+}
+
+export async function submitMarketplaceResponse(formData: FormData) {
+  const requestId = textValue(formData, "request_id");
+  const responseId = textValue(formData, "response_id");
+  const path = requestId
+    ? appRoutes.marketplace.opportunity(requestId)
+    : appRoutes.marketplace.home;
+  const context = await requireWorkspaceWriteRole(path);
+
+  if (!requestId || !responseId) {
+    redirect(marketplaceError(path, "Risposta Marketplace non valida."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p5_4_submit_response", {
+    p_supplier_organization_id: context.organizationId,
+    p_response_id: responseId,
+  });
+
+  if (error) redirect(marketplaceError(path, error.message));
+  revalidatePath(path);
+  revalidatePath(appRoutes.marketplace.responses);
+  redirect(path + "?message=" + encodeURIComponent("Risposta inviata al buyer."));
+}
+
+export async function withdrawMarketplaceResponse(formData: FormData) {
+  const requestId = textValue(formData, "request_id");
+  const responseId = textValue(formData, "response_id");
+  const path = requestId
+    ? appRoutes.marketplace.opportunity(requestId)
+    : appRoutes.marketplace.home;
+  const context = await requireWorkspaceWriteRole(path);
+
+  if (!requestId || !responseId) {
+    redirect(marketplaceError(path, "Risposta Marketplace non valida."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p5_4_withdraw_response", {
+    p_supplier_organization_id: context.organizationId,
+    p_response_id: responseId,
+  });
+
+  if (error) redirect(marketplaceError(path, error.message));
+  revalidatePath(path);
+  revalidatePath(appRoutes.marketplace.responses);
+  redirect(path + "?message=" + encodeURIComponent("Risposta ritirata."));
+}
+
+export async function transitionMarketplaceBuyerResponse(formData: FormData) {
+  const responseId = textValue(formData, "response_id");
+  const action = textValue(formData, "action");
+  const path = responseId
+    ? appRoutes.marketplace.response(responseId)
+    : appRoutes.marketplace.responses;
+  const context = await requireWorkspaceWriteRole(path);
+
+  if (!responseId || !["acknowledge", "decline", "close"].includes(action)) {
+    redirect(marketplaceError(path, "Azione buyer non valida."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("p5_4_buyer_transition", {
+    p_buyer_organization_id: context.organizationId,
+    p_response_id: responseId,
+    p_action: action,
+  });
+
+  if (error) redirect(marketplaceError(path, error.message));
+  revalidatePath(path);
+  revalidatePath(appRoutes.marketplace.responses);
+  revalidatePath(appRoutes.marketplace.myRequests);
+
+  const label =
+    action === "acknowledge"
+      ? "Risposta presa in carico."
+      : action === "decline"
+        ? "Risposta declinata."
+        : "Risposta chiusa.";
+  redirect(path + "?message=" + encodeURIComponent(label));
 }

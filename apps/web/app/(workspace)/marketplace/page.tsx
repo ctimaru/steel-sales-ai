@@ -97,6 +97,12 @@ export default async function MarketplaceFeedPage({
 
             <div className="flex flex-wrap gap-2">
               <Link
+                href={appRoutes.marketplace.responses}
+                className="inline-flex h-11 items-center justify-center rounded-xl border border-[#c8d5d0] bg-white px-4 text-sm font-semibold text-[#173f35] hover:bg-[#f3f7f5]"
+              >
+                Risposte ricevute
+              </Link>
+              <Link
                 href={appRoutes.marketplace.myRequests}
                 className="inline-flex h-11 items-center justify-center rounded-xl border border-[#c8d5d0] bg-white px-4 text-sm font-semibold text-[#173f35] hover:bg-[#f3f7f5]"
               >

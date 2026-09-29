@@ -85,14 +85,22 @@ export default async function MarketplaceRequestsPage({
               </p>
             </div>
 
-            {canWrite ? (
+            <div className="flex flex-wrap gap-2">
               <Link
-                href={appRoutes.marketplace.newRequest}
-                className="inline-flex h-11 items-center justify-center rounded-xl bg-[#1a5144] px-5 text-sm font-semibold text-white transition hover:bg-[#226657]"
+                href={appRoutes.marketplace.responses}
+                className="inline-flex h-11 items-center justify-center rounded-xl border border-[#c8d5d0] bg-white px-4 text-sm font-semibold text-[#173f35] hover:bg-[#f3f7f5]"
               >
-                + Nuova ricerca
+                Risposte ricevute
               </Link>
-            ) : null}
+              {canWrite ? (
+                <Link
+                  href={appRoutes.marketplace.newRequest}
+                  className="inline-flex h-11 items-center justify-center rounded-xl bg-[#1a5144] px-5 text-sm font-semibold text-white transition hover:bg-[#226657]"
+                >
+                  + Nuova ricerca
+                </Link>
+              ) : null}
+            </div>
           </div>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -111,9 +119,9 @@ export default async function MarketplaceRequestsPage({
       </section>
 
       <section className="rounded-2xl border border-[#d9e8e2] bg-[#f3f7f5] px-5 py-4">
-        <p className="text-sm font-semibold text-[#173f35]">P5.2 attivo</p>
+        <p className="text-sm font-semibold text-[#173f35]">P5.4 · Buyer response attivo</p>
         <p className="mt-1 text-sm leading-6 text-[#66736e]">
-          Le richieste pubblicate entrano ora nel feed supplier con countdown e teaser privacy-safe. Norma, grado, dimensioni, quantità esatta, certificazioni e note restano locked fino al blocco P5.3.
+          Le richieste pubblicate entrano nel Demand Board; i supplier con entitlement + unlock possono inviare una risposta governata. Le risposte ricevute restano separate dalle RFQ e offerte private della Commercial Memory.
         </p>
       </section>
 
