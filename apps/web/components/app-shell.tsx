@@ -44,6 +44,11 @@ const networkNav: NavItem[] = [
   { href: appRoutes.network.inquiries, label: "Inquiry" },
 ];
 
+const marketplaceNav: NavItem[] = [
+  { href: appRoutes.marketplace.home, label: "Home" },
+  { href: appRoutes.marketplace.newRequest, label: "Nuova ricerca", writeRole: true },
+];
+
 const knowledgeNav: NavItem[] = [
   { href: appRoutes.knowledge.workspace, label: "Home" },
   { href: appRoutes.commercial.knowledgeExplorer, label: "Knowledge Explorer" },
@@ -95,6 +100,7 @@ export function AppShell({
   const commercialItems = visibleItems(commercialNav, organizationRole);
   const intelligenceItems = visibleItems(intelligenceNav, organizationRole);
   const networkItems = networkEnabled ? visibleItems(networkNav, organizationRole) : [];
+  const marketplaceItems = networkEnabled ? visibleItems(marketplaceNav, organizationRole) : [];
   const knowledgeItems = visibleItems(knowledgeNav, organizationRole);
   const canAdmin = canAdministerCompany(organizationRole);
   const canWrite = canWriteWorkspace(organizationRole);
@@ -149,6 +155,7 @@ export function AppShell({
           commercialItems={commercialItems}
           intelligenceItems={intelligenceItems}
           networkItems={networkItems}
+          marketplaceItems={marketplaceItems}
           knowledgeItems={knowledgeItems}
         />
       </header>
