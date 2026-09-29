@@ -87,7 +87,9 @@ insert into public.organization_memberships(
 ) values
   ('00000000-0000-0000-0000-000000005610'::uuid,'00000000-0000-0000-0000-000000005601'::uuid,'admin','active',true),
   ('00000000-0000-0000-0000-000000005611'::uuid,'00000000-0000-0000-0000-000000005602'::uuid,'admin','active',true),
-  ('00000000-0000-0000-0000-000000005612'::uuid,'00000000-0000-0000-0000-000000005603'::uuid,'admin','active',true);
+  ('00000000-0000-0000-0000-000000005612'::uuid,'00000000-0000-0000-0000-000000005603'::uuid,'admin','active',true),
+  ('00000000-0000-0000-0000-000000005610'::uuid,:'superadmin_id'::uuid,'admin','active',false),
+  ('00000000-0000-0000-0000-000000005611'::uuid,:'superadmin_id'::uuid,'admin','active',false);
 
 insert into public.network_companies(
   id,legal_name,trading_name,country_code,website_url,website_domain,description,
@@ -97,30 +99,49 @@ insert into public.network_companies(
     '00000000-0000-0000-0000-000000005620'::uuid,
     'P5.6A Buyer Srl','P5.6A Buyer',
     'IT','https://p56a-buyer.example.test','p56a-buyer.example.test',
-    'Buyer pilot fixture','published','claimed','unverified'
+    'Buyer pilot fixture','published','unclaimed','unverified'
   ),
   (
     '00000000-0000-0000-0000-000000005621'::uuid,
     'P5.6A Supplier GmbH','P5.6A Supplier',
     'DE','https://p56a-supplier.example.test','p56a-supplier.example.test',
-    'Supplier pilot fixture','published','claimed','unverified'
+    'Supplier pilot fixture','published','unclaimed','unverified'
   );
 
-insert into public.organization_network_company_links(
-  id,organization_id,network_company_id,link_status,linked_by,linked_at
-) values
-  (
-    '00000000-0000-0000-0000-000000005630'::uuid,
-    '00000000-0000-0000-0000-000000005610'::uuid,
+-- Establish valid Organization ↔ Network Company linkage through the governed claim workflow.
+set local role authenticated;
+select set_config('request.jwt.claim.sub',:'superadmin_id',true);
+select set_config('request.jwt.claim.role','authenticated',true);
+
+select (
+  public.p3_6_request_company_claim(
     '00000000-0000-0000-0000-000000005620'::uuid,
-    'active',:'superadmin_id'::uuid,now()
-  ),
-  (
-    '00000000-0000-0000-0000-000000005631'::uuid,
-    '00000000-0000-0000-0000-000000005611'::uuid,
+    '00000000-0000-0000-0000-000000005610'::uuid,
+    'P5.6A buyer pilot claim'
+  )->>'claim_id'
+) as buyer_claim_id \gset
+select public.p3_6_review_claim_proof(
+  :'buyer_claim_id'::uuid,'verified','P5.6A buyer proof'
+);
+select public.m4_review_company_claim(
+  :'buyer_claim_id'::uuid,'approved','P5.6A buyer approval'
+);
+
+select (
+  public.p3_6_request_company_claim(
     '00000000-0000-0000-0000-000000005621'::uuid,
-    'active',:'superadmin_id'::uuid,now()
-  );
+    '00000000-0000-0000-0000-000000005611'::uuid,
+    'P5.6A supplier pilot claim'
+  )->>'claim_id'
+) as supplier_claim_id \gset
+select public.p3_6_review_claim_proof(
+  :'supplier_claim_id'::uuid,'verified','P5.6A supplier proof'
+);
+select public.m4_review_company_claim(
+  :'supplier_claim_id'::uuid,'approved','P5.6A supplier approval'
+);
+
+reset role;
 
 select id as product_family_id
 from public.network_product_families
