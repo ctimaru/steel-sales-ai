@@ -508,7 +508,8 @@ candidates as (
     on c.id=cp.company_id
    and c.publication_status='published'
    and c.archived_at is null
-  where not exists(
+  where cp.relationship_type in ('produces','distributes','stocks','processes')
+    and not exists(
     select 1
     from public.organization_network_company_links own
     where own.organization_id=rm.buyer_organization_id
