@@ -32,6 +32,8 @@ function currentPrimarySpace(pathname: string): PrimarySpace {
     return "marketplace";
   }
   if (
+    pathname === appRoutes.knowledge.workspace ||
+    pathname.startsWith(appRoutes.knowledge.workspace + "/") ||
     pathname === appRoutes.commercial.knowledgeExplorer ||
     pathname.startsWith(appRoutes.commercial.knowledgeExplorer + "/")
   ) {
@@ -170,7 +172,7 @@ function primaryItems(networkEnabled: boolean) {
       : []),
     {
       key: "knowledge" as const,
-      href: appRoutes.commercial.knowledgeExplorer,
+      href: appRoutes.knowledge.workspace,
       label: "Knowledge",
       icon: "knowledge" as const,
     },
