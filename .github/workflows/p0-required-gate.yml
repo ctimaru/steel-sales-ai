@@ -144,7 +144,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: 2.118.0
       - name: Inject CI-only historical baselines
         run: |
           cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
@@ -255,6 +255,7 @@ jobs:
             p5_3a_deterministic_entitlement_ordering.sql \
             p5_3b_entitlement_fk_index_hardening.sql \
             p5_4_governed_supplier_response.sql \
+            p5_5_matching_notifications.sql \
             k2_public_knowledge_information_architecture.sql \
             k3_public_standards_catalog.sql \
             k4_public_grades_catalog.sql \

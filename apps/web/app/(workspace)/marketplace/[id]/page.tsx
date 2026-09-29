@@ -10,6 +10,7 @@ import {
 } from "@/app/(workspace)/marketplace/actions";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import {
+  getMarketplaceBuyerMatchSummary,
   getMarketplaceRequest,
   getMarketplaceTaxonomy,
   type MarketplaceRequestLine,
@@ -72,6 +73,10 @@ export default async function MarketplaceRequestPage({
   if (!detail) notFound();
 
   const request = detail.request;
+  const matchSummary =
+    request.status === "published"
+      ? await getMarketplaceBuyerMatchSummary(context.organizationId, request.id)
+      : null;
   const canWrite = canWriteWorkspace(context.role);
   const editable = canWrite && request.status === "draft";
   const withdrawable = canWrite && (request.status === "draft" || request.status === "published");
@@ -119,7 +124,7 @@ export default async function MarketplaceRequestPage({
               {request.status === "draft"
                 ? "Completa le linee prodotto e pubblica esplicitamente quando la ricerca è pronta."
                 : request.status === "published"
-                  ? "La ricerca è pubblicata. In P5.2 i supplier vedono solo il teaser privacy-safe; i dettagli completi restano locked."
+                  ? "La ricerca è pubblicata. P5.5 seleziona i supplier tecnicamente compatibili e notifica solo le organizzazioni collegate; teaser, unlock e response rights restano governati separatamente."
                   : "La ricerca è stata ritirata e resta conservata nello storico audit."}
             </p>
           </div>
@@ -130,6 +135,80 @@ export default async function MarketplaceRequestPage({
           </div>
         </div>
       </section>
+
+      {matchSummary ? (
+        <section className="rounded-2xl border border-[#d9e8e2] bg-[#f3f7f5] p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#173f35]">
+                P5.5 · Matching
+              </p>
+              <h2 className="mt-2 text-lg font-semibold text-[#1d2824]">
+                Copertura supplier
+              </h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
+                Il buyer vede solo metriche aggregate. Le identità dei supplier non
+                vengono esposte da questo read model: il contatto commerciale avviene
+                quando un supplier decide di rispondere tramite P5.4.
+              </p>
+            </div>
+            <span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-[#66736e]">
+              {matchSummary.algorithm_version}
+            </span>
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            <div className="rounded-xl border border-[#dce2df] bg-white p-3">
+              <p className="metric-number text-xl font-semibold text-[#1d2824]">
+                {matchSummary.total_matches}
+              </p>
+              <p className="mt-1 text-[11px] font-semibold text-[#66736e]">
+                Match
+              </p>
+            </div>
+            <div className="rounded-xl border border-[#dce2df] bg-white p-3">
+              <p className="metric-number text-xl font-semibold text-[#1d2824]">
+                {matchSummary.contactable_matches}
+              </p>
+              <p className="mt-1 text-[11px] font-semibold text-[#66736e]">
+                Organizzazioni attive
+              </p>
+            </div>
+            <div className="rounded-xl border border-[#dce2df] bg-white p-3">
+              <p className="metric-number text-xl font-semibold text-[#1d2824]">
+                {matchSummary.notifications_created}
+              </p>
+              <p className="mt-1 text-[11px] font-semibold text-[#66736e]">
+                Notificate
+              </p>
+            </div>
+            <div className="rounded-xl border border-[#dce2df] bg-white p-3">
+              <p className="metric-number text-xl font-semibold text-emerald-700">
+                {matchSummary.bands.strong}
+              </p>
+              <p className="mt-1 text-[11px] font-semibold text-[#66736e]">
+                Forti
+              </p>
+            </div>
+            <div className="rounded-xl border border-[#dce2df] bg-white p-3">
+              <p className="metric-number text-xl font-semibold text-[#173f35]">
+                {matchSummary.bands.good}
+              </p>
+              <p className="mt-1 text-[11px] font-semibold text-[#66736e]">
+                Buoni
+              </p>
+            </div>
+            <div className="rounded-xl border border-[#dce2df] bg-white p-3">
+              <p className="metric-number text-xl font-semibold text-amber-700">
+                {matchSummary.bands.broad}
+              </p>
+              <p className="mt-1 text-[11px] font-semibold text-[#66736e]">
+                Ampi
+              </p>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {editable ? (
         <section className="grid gap-5 xl:grid-cols-[0.8fr_1.2fr]">
