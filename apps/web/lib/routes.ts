@@ -39,6 +39,7 @@ export const appRoutes = {
   },
 
   knowledge: {
+    workspace: "/knowledge-center",
     home: "/knowledge",
     standards: "/knowledge/norme",
     standard: (slug: string) => `/knowledge/norme/${slug}`,
