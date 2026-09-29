@@ -12,6 +12,7 @@ const actions = fs.readFileSync(
 );
 const routes = fs.readFileSync(new URL("../lib/routes.ts", import.meta.url), "utf8");
 const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
+const navigation = fs.readFileSync(new URL("../components/workspace-navigation.tsx", import.meta.url), "utf8");
 const migration = fs.readFileSync(
   new URL("../../../supabase/migrations/20260926191000_p2_commercial_conversion_foundation.sql", import.meta.url),
   "utf8",
@@ -19,7 +20,8 @@ const migration = fs.readFileSync(
 
 test("P2.5 exposes a canonical Commercial Intelligence conversion workspace", () => {
   assert.match(routes, /conversion:\s*"\/commercial\/conversion"/);
-  assert.match(shell, /Esiti & conversione/);
+  assert.match(shell, /label: "Conversione"/);
+  assert.match(navigation, /Intelligence/);
   assert.match(page, /Esiti & conversione/);
   assert.match(actions, /p2_commercial_conversion_foundation/);
 });
