@@ -23,11 +23,10 @@ test("UXA2 exposes five stable macro destinations over the product spaces", () =
   assert.match(nav, /WorkspaceMobileBottomNavigation/);
 });
 
-test("UX2 keeps Commercial Memory private and moves search below primary workspace actions", () => {
-  const products = shell.indexOf('href: appRoutes.commercial.products');
-  const companies = shell.indexOf('href: appRoutes.commercial.companies');
-  const search = shell.indexOf('href: appRoutes.commercial.search');
-  assert.ok(products >= 0 && companies >= 0 && search > products && search > companies);
+test("UXA2 keeps Commercial Memory private while search becomes a persistent header utility", () => {
+  assert.match(shell, /WorkspaceSearchBar/);
+  assert.match(shell, /appRoutes\.commercial\.products/);
+  assert.match(shell, /appRoutes\.commercial\.companies/);
 
   assert.match(dashboard, /Commercial Memory privata/);
   assert.match(dashboard, /Oggi nel workspace/);
