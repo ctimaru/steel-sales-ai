@@ -257,14 +257,46 @@ set verification_status='verified'
 where id='00000000-0000-0000-0000-000000005521'::uuid;
 
 -- Supplier C has matching product family but no declared technical scope and no org link yet.
+-- Preserve Network provenance invariants even in this disposable fixture.
+insert into public.network_data_assertions(
+  id,
+  entity_type,
+  entity_id,
+  field_path,
+  asserted_value,
+  source_type,
+  source_reference,
+  ownership_type,
+  asserted_by,
+  confidence,
+  review_state
+)
+values(
+  '00000000-0000-0000-0000-000000005531'::uuid,
+  'company_product',
+  '00000000-0000-0000-0000-000000005530'::uuid,
+  'product_relationship',
+  jsonb_build_object(
+    'product_family_key','tubes_pipes',
+    'relationship_type','distributes'
+  ),
+  'platform_curated',
+  'acceptance:p5.5:late-claim-product',
+  'platform_curated',
+  :'superadmin_id'::uuid,
+  1,
+  'accepted'
+);
+
 insert into public.network_company_products(
-  id,company_id,product_family_id,relationship_type
+  id,company_id,product_family_id,relationship_type,source_assertion_id
 )
 values(
   '00000000-0000-0000-0000-000000005530'::uuid,
   '00000000-0000-0000-0000-000000005523'::uuid,
   :'product_family_id'::uuid,
-  'distributes'
+  'distributes',
+  '00000000-0000-0000-0000-000000005531'::uuid
 );
 
 -- Buyer publishes anonymous structured demand. P5.5 matching trigger executes automatically.
