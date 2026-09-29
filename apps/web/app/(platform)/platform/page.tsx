@@ -99,6 +99,23 @@ export default async function PlatformHomePage() {
       <section className="grid gap-4 lg:grid-cols-3">
         {context.is_platform_owner ? (
           <Link
+            href="/platform/pilot"
+            className="rounded-2xl border border-[#dce2df] bg-white p-6 transition hover:border-[#b8d2c8] hover:shadow-sm"
+          >
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#173f35]">
+              P5.6 · Commercial Pilot
+            </p>
+            <h2 className="mt-3 text-lg font-semibold text-[#1d2824]">
+              Pilot Cohort &amp; Activation
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[#66736e]">
+              Seleziona buyer e supplier reali, verifica i prerequisiti e controlla l’attivazione del cohort senza generare usage sintetico.
+            </p>
+          </Link>
+        ) : null}
+
+        {context.is_platform_owner ? (
+          <Link
             href="/platform/people"
             className="rounded-2xl border border-[#dce2df] bg-white p-6 transition hover:border-[#b8d2c8] hover:shadow-sm"
           >
