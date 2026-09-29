@@ -2,11 +2,53 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { MarketplaceCountdown } from "@/components/marketplace-countdown";
-import { getMarketplaceTeaser } from "@/lib/marketplace";
+import {
+  getMarketplaceEntitlementState,
+  getMarketplaceTeaser,
+  getMarketplaceUnlockedDetail,
+  type MarketplaceUnlockedLine,
+} from "@/lib/marketplace";
 import { appRoutes } from "@/lib/routes";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 
 export const dynamic = "force-dynamic";
+
+function numberLabel(value: number | undefined) {
+  if (value == null) return null;
+  return new Intl.NumberFormat("it-IT", {
+    maximumFractionDigits: 3,
+  }).format(value);
+}
+
+function dimensionsLabel(line: MarketplaceUnlockedLine) {
+  const pieces = [
+    line.outer_diameter_mm != null ? `Ø ${numberLabel(line.outer_diameter_mm)}` : null,
+    line.width_mm != null ? numberLabel(line.width_mm) : null,
+    line.height_mm != null ? `× ${numberLabel(line.height_mm)}` : null,
+    line.thickness_mm != null ? `sp. ${numberLabel(line.thickness_mm)}` : null,
+    line.length_mm != null ? `L ${numberLabel(line.length_mm)} mm` : null,
+  ].filter(Boolean);
+
+  return pieces.join(" · ") || "Non specificate";
+}
+
+function formatDate(value: string | null | undefined) {
+  if (!value) return "—";
+  return new Intl.DateTimeFormat("it-IT", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(value));
+}
+
+function sourceLabel(source: string | null) {
+  if (source === "subscription") return "Abbonamento";
+  if (source === "credit") return "Credito opportunità";
+  if (source === "pilot") return "Pilot";
+  if (source === "manual") return "Grant manuale";
+  if (source === "system") return "Sistema";
+  return "Entitlement";
+}
 
 export default async function MarketplaceOpportunityPage({
   params,
@@ -18,11 +60,28 @@ export default async function MarketplaceOpportunityPage({
     getWorkspaceContext(),
   ]);
 
-  const teaser = await getMarketplaceTeaser(context.organizationId, id);
-  if (!teaser) notFound();
+  const [teaser, initialEntitlement] = await Promise.all([
+    getMarketplaceTeaser(context.organizationId, id),
+    getMarketplaceEntitlementState(context.organizationId, id),
+  ]);
+
+  if (!teaser || !initialEntitlement) notFound();
+
+  let entitlement = initialEntitlement;
+  let unlocked =
+    entitlement.state === "entitled"
+      ? await getMarketplaceUnlockedDetail(context.organizationId, id)
+      : null;
+
+  if (entitlement.state === "entitled" && !unlocked) {
+    entitlement =
+      (await getMarketplaceEntitlementState(context.organizationId, id)) ??
+      entitlement;
+  }
 
   const first = teaser.teaser_lines[0];
   const namedBuyer = teaser.buyer.visibility_mode === "named";
+  const isUnlocked = entitlement.state === "entitled" && unlocked != null;
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -37,12 +96,14 @@ export default async function MarketplaceOpportunityPage({
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-3xl">
             <div className="flex flex-wrap items-center gap-2">
-              <span className={[
-                "rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em]",
-                teaser.effective_status === "closing_soon"
-                  ? "bg-amber-50 text-amber-700"
-                  : "bg-emerald-50 text-emerald-700",
-              ].join(" ")}>
+              <span
+                className={[
+                  "rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em]",
+                  teaser.effective_status === "closing_soon"
+                    ? "bg-amber-50 text-amber-700"
+                    : "bg-emerald-50 text-emerald-700",
+                ].join(" ")}
+              >
                 {teaser.effective_status === "closing_soon" ? "In scadenza" : "Aperta"}
               </span>
               <span className="rounded-full bg-[#f2f4f3] px-2.5 py-1 text-[10px] font-semibold text-[#66736e]">
@@ -50,6 +111,22 @@ export default async function MarketplaceOpportunityPage({
               </span>
               <span className="rounded-full bg-[#edf5f2] px-2.5 py-1 text-[10px] font-semibold text-[#173f35]">
                 Teaser P5.2
+              </span>
+              <span
+                className={[
+                  "rounded-full px-2.5 py-1 text-[10px] font-semibold",
+                  isUnlocked
+                    ? "bg-emerald-50 text-emerald-700"
+                    : entitlement.state === "expired"
+                      ? "bg-amber-50 text-amber-700"
+                      : "bg-[#f2f4f3] text-[#66736e]",
+                ].join(" ")}
+              >
+                {isUnlocked
+                  ? "Detail unlocked P5.3"
+                  : entitlement.state === "expired"
+                    ? "Entitlement scaduto"
+                    : "Detail locked"}
               </span>
             </div>
 
@@ -59,8 +136,9 @@ export default async function MarketplaceOpportunityPage({
             </h1>
 
             <p className="mt-3 text-sm leading-6 text-[#66736e]">
-              Questa vista mostra esclusivamente i dati gratuiti del Demand Board. Le specifiche tecniche
-              complete non sono esposte in P5.2.
+              Il teaser resta gratuito. Le specifiche complete vengono restituite
+              esclusivamente dal boundary server-side P5.3 quando l’organizzazione
+              supplier possiede un entitlement valido.
             </p>
           </div>
 
@@ -85,7 +163,7 @@ export default async function MarketplaceOpportunityPage({
             <>
               <h2 className="mt-3 text-lg font-semibold text-[#1d2824]">Buyer anonimo</h2>
               <p className="mt-2 text-sm leading-6 text-[#66736e]">
-                L’identità del buyer non è disponibile nel teaser e non viene rivelata automaticamente.
+                L’identità del buyer resta protetta anche dopo un eventuale unlock.
               </p>
             </>
           ) : (
@@ -125,7 +203,7 @@ export default async function MarketplaceOpportunityPage({
 
         <div className="rounded-2xl border border-[#dce2df] bg-white p-5">
           <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#7b8782]">
-            Opportunità
+            Teaser opportunità
           </p>
           <div className="mt-4 space-y-3">
             {teaser.teaser_lines.map((line) => (
@@ -170,7 +248,9 @@ export default async function MarketplaceOpportunityPage({
                         line.has_grade ? "Grado" : null,
                         line.has_dimensions ? "Dimensioni" : null,
                         line.has_certification ? "Certificazione" : null,
-                      ].filter(Boolean).join(" · ") || "Base"}
+                      ]
+                        .filter(Boolean)
+                        .join(" · ") || "Base"}
                     </p>
                   </div>
                 </div>
@@ -180,25 +260,165 @@ export default async function MarketplaceOpportunityPage({
         </div>
       </section>
 
-      <section className="rounded-3xl border border-[#d9e8e2] bg-[#f3f7f5] p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#173f35]">
-              Locked detail
+      {isUnlocked && unlocked ? (
+        <section className="rounded-3xl border border-[#b8d2c8] bg-white p-6 sm:p-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
+                P5.3 · Entitled detail
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">
+                Specifiche complete sbloccate
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#66736e]">
+                Accesso autorizzato da {sourceLabel(entitlement.source_kind)}.
+                L’unlock riguarda i dati dell’opportunità e non concede il diritto
+                di risposta, che resta nel blocco P5.4.
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-[#f3f7f5] px-4 py-3 text-xs text-[#66736e]">
+              <p>
+                <strong className="text-[#43524c]">Scope:</strong>{" "}
+                {entitlement.entitlement_key === "marketplace_access"
+                  ? "Marketplace access"
+                  : "Singola opportunità"}
+              </p>
+              <p className="mt-1">
+                <strong className="text-[#43524c]">Scadenza accesso:</strong>{" "}
+                {formatDate(entitlement.expires_at)}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 space-y-4">
+            {unlocked.lines.map((line) => (
+              <article
+                key={line.line_number}
+                className="rounded-2xl border border-[#e2e7e4] bg-[#f8faf9] p-5"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#173f35]">
+                      Pos. {line.line_number} · {line.product_family_name}
+                    </p>
+                    <h3 className="mt-2 text-lg font-semibold text-[#1d2824]">
+                      {[
+                        line.standard_code,
+                        line.grade_designation,
+                        dimensionsLabel(line),
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </h3>
+                  </div>
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#173f35]">
+                    {numberLabel(line.quantity)} {line.quantity_unit}
+                  </span>
+                </div>
+
+                <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#87938e]">
+                      Norma / grado
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-[#43524c]">
+                      {line.standard_code || "—"}
+                      {line.grade_designation ? ` · ${line.grade_designation}` : ""}
+                    </p>
+                    {line.material_number ? (
+                      <p className="mt-1 text-xs text-[#87938e]">{line.material_number}</p>
+                    ) : null}
+                  </div>
+
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#87938e]">
+                      Dimensioni
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-[#43524c]">
+                      {dimensionsLabel(line)}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#87938e]">
+                      Certificazione
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-[#43524c]">
+                      {line.certification || "—"}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#87938e]">
+                      Consegna richiesta
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-[#43524c]">
+                      {line.delivery_country_code}
+                      {line.delivery_region ? ` · ${line.delivery_region}` : ""}
+                    </p>
+                    <p className="mt-1 text-xs text-[#87938e]">
+                      {formatDate(line.requested_delivery_date)}
+                    </p>
+                  </div>
+                </div>
+
+                {line.notes ? (
+                  <div className="mt-4 rounded-xl border border-[#e2e7e4] bg-white px-4 py-3">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#87938e]">
+                      Note
+                    </p>
+                    <p className="mt-1 text-sm leading-6 text-[#66736e]">{line.notes}</p>
+                  </div>
+                ) : line.notes_withheld_for_anonymity ? (
+                  <div className="mt-4 rounded-xl border border-amber-100 bg-amber-50/60 px-4 py-3 text-sm text-amber-800">
+                    Le note libere sono trattenute per proteggere l’anonimato del buyer.
+                  </div>
+                ) : null}
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-6 rounded-2xl border border-[#d9e8e2] bg-[#f3f7f5] px-5 py-4">
+            <p className="text-sm font-semibold text-[#173f35]">
+              Unlock ≠ diritto di risposta
             </p>
-            <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
-              Specifiche complete non disponibili nel teaser
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#66736e]">
-              Norma, grado, dimensioni, quantità esatta, certificazione, lead time, note e diritti di risposta
-              saranno governati dal blocco P5.3 Entitlement & Unlock.
+            <p className="mt-1 text-sm leading-6 text-[#66736e]">
+              P5.3 autorizza solo la lettura del dettaglio locked. Quote, response
+              e workflow buyer/supplier saranno introdotti e governati separatamente
+              in P5.4.
             </p>
           </div>
-          <span className="inline-flex h-10 items-center justify-center rounded-xl border border-[#b8d2c8] bg-white px-4 text-sm font-semibold text-[#66736e]">
-            Unlock · P5.3
-          </span>
-        </div>
-      </section>
+        </section>
+      ) : (
+        <section className="rounded-3xl border border-[#d9e8e2] bg-[#f3f7f5] p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#173f35]">
+                P5.3 · Locked detail
+              </p>
+              <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
+                {entitlement.state === "expired"
+                  ? "Entitlement scaduto"
+                  : "Specifiche complete protette"}
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#66736e]">
+                {entitlement.state === "expired"
+                  ? "L’organizzazione aveva un entitlement valido, ma la sua finestra di accesso è terminata. Il dettaglio torna locked automaticamente lato server."
+                  : "Per accedere a norma, grado, dimensioni, quantità esatta, certificazione e delivery detail serve un entitlement marketplace_access oppure opportunity_unlock valido."}
+              </p>
+              <p className="mt-2 max-w-2xl text-xs leading-5 text-[#87938e]">
+                Il supplier non può auto-concedersi accesso dal client. Billing,
+                crediti, pilot o Platform Owner alimentano lo stesso ledger
+                provider-neutral e auditabile.
+              </p>
+            </div>
+            <span className="inline-flex h-10 items-center justify-center rounded-xl border border-[#b8d2c8] bg-white px-4 text-sm font-semibold text-[#66736e]">
+              Entitlement richiesto
+            </span>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

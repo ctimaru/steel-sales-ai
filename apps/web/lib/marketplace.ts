@@ -198,3 +198,85 @@ export async function getMarketplaceTeaser(
   return (data as MarketplaceFeedItem | null) ?? null;
 }
 
+export type MarketplaceEntitlementState = {
+  contract: "P5.3-entitlement-v1";
+  request_id: string;
+  state: "locked" | "entitled" | "expired";
+  can_view_locked_detail: boolean;
+  can_respond: false;
+  entitlement_key: "marketplace_access" | "opportunity_unlock" | null;
+  source_kind: "subscription" | "credit" | "manual" | "pilot" | "system" | null;
+  expires_at: string | null;
+};
+
+export type MarketplaceUnlockedLine = {
+  line_number: number;
+  product_family_key: string;
+  product_family_name: string;
+  standard_code?: string;
+  standard_title?: string;
+  grade_designation?: string;
+  material_number?: string;
+  manufacturing_process?: string;
+  outer_diameter_mm?: number;
+  width_mm?: number;
+  height_mm?: number;
+  thickness_mm?: number;
+  length_mm?: number;
+  quantity: number;
+  quantity_unit: string;
+  certification?: string;
+  delivery_country_code: string;
+  delivery_region?: string;
+  requested_delivery_date?: string;
+  notes?: string;
+  notes_withheld_for_anonymity: boolean;
+};
+
+export type MarketplaceUnlockedDetail = {
+  contract: "P5.3-detail-v1";
+  request: {
+    request_id: string;
+    visibility_mode: "named" | "anonymous";
+    effective_status: "open" | "closing_soon";
+    opens_at: string;
+    closes_at: string;
+    seconds_remaining: number;
+  };
+  buyer: MarketplaceFeedBuyer;
+  entitlement: MarketplaceEntitlementState;
+  lines: MarketplaceUnlockedLine[];
+  can_respond: false;
+};
+
+export async function getMarketplaceEntitlementState(
+  supplierOrganizationId: string,
+  requestId: string,
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p5_3_entitlement_state", {
+    p_supplier_organization_id: supplierOrganizationId,
+    p_request_id: requestId,
+  });
+  if (error) throw new Error(error.message);
+  return (data as MarketplaceEntitlementState | null) ?? null;
+}
+
+export async function getMarketplaceUnlockedDetail(
+  supplierOrganizationId: string,
+  requestId: string,
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("p5_3_marketplace_detail", {
+    p_supplier_organization_id: supplierOrganizationId,
+    p_request_id: requestId,
+  });
+
+  if (error) {
+    if (error.code === "42501") return null;
+    throw new Error(error.message);
+  }
+
+  return (data as MarketplaceUnlockedDetail | null) ?? null;
+}
+
