@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { logout } from "@/app/(workspace)/actions";
@@ -159,15 +158,6 @@ export function AppShell({
       </main>
 
       <WorkspaceMobileBottomNavigation networkEnabled={networkEnabled} />
-
-      {platformSuperadmin ? (
-        <Link
-          href={appRoutes.platform.home}
-          className="fixed bottom-24 right-4 z-30 hidden rounded-full border border-[#c7ddd5] bg-white px-3 py-2 text-xs font-semibold text-[#173f35] shadow-lg sm:block lg:hidden"
-        >
-          Platform
-        </Link>
-      ) : null}
     </div>
   );
 }
