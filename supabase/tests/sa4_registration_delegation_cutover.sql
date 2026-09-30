@@ -177,8 +177,11 @@ select public.p0a_activate_registration_application(:'activate_app_id'::uuid)
 
 select pg_temp.sa4_assert(
   (:'activation_payload'::jsonb->>'status')='activated'
-  and (:'activation_payload'::jsonb->>'organization_id') is not null,
-  'Registration Admin must activate an approved tenant'
+  and (:'activation_payload'::jsonb->>'organization_id') is not null
+  and (:'activation_payload'::jsonb->>'network_link_status')='active'
+  and (:'activation_payload'::jsonb->>'network_company_id') is not null
+  and (:'activation_payload'::jsonb->>'claim_id') is not null,
+  'Registration Admin must atomically activate tenant and Network identity'
 );
 
 select pg_temp.sa4_assert(
@@ -193,8 +196,9 @@ select public.m7_bridge_registration(:'activate_app_id'::uuid,null)
 
 select pg_temp.sa4_assert(
   (:'bridge_payload'::jsonb->>'network_company_id') is not null
-  and (:'bridge_payload'::jsonb->>'claim_status')='approved',
-  'Registration Admin must complete the controlled Network bridge'
+  and (:'bridge_payload'::jsonb->>'claim_id') is not null
+  and coalesce((:'bridge_payload'::jsonb->>'idempotent_replay')::boolean,false),
+  'Registration Admin bridge replay must be idempotent after atomic activation'
 );
 
 reset role;
