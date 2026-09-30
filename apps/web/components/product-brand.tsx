@@ -30,7 +30,7 @@ export function BrandMark({ compact = false }: { compact?: boolean }) {
         <path
           d="M16 5H8.5C5.3 5 3.5 6.5 3.5 9c0 2.2 1.5 3.4 4.7 4l4.1.8c3 .6 4.5 1.9 4.5 4.5 0 2.8-2.2 4.7-5.5 4.7H3.5"
           transform="translate(36 0)"
-          stroke="#226657"
+          stroke="#173f35"
           strokeWidth="4.2"
           strokeLinecap="round"
           strokeLinejoin="round"
