@@ -25,7 +25,7 @@ export default async function LoginPage({
         <div>
           <ProductBrand href="/" inverse />
           <span className="mt-16 inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#d9e8e2]">
-            Steel Sales AI
+            Smart Steel Sales
           </span>
           <h1 className="mt-6 max-w-xl text-5xl font-semibold leading-[1.05] tracking-[-0.04em]">
             Il lavoro commerciale, finalmente in un unico posto.
@@ -126,7 +126,7 @@ export default async function LoginPage({
 
           <div className="mt-8 rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-5">
             <p className="text-sm font-semibold text-[#1d2824]">
-              La tua azienda non è ancora su Steel Sales AI?
+              La tua azienda non è ancora su Smart Steel Sales?
             </p>
             <p className="mt-2 text-sm leading-6 text-[#66736e]">
               Crea un account, inserisci i dati aziendali e invia la richiesta. Il workspace viene
