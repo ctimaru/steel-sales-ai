@@ -1,4 +1,4 @@
-# Steel Sales AI — Web
+# Smart Steel Sales — Web
 
 Frontend MVP built with Next.js, React, TypeScript, Tailwind CSS and Supabase SSR Auth.
 
