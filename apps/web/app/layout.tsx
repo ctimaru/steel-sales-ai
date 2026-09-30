@@ -8,10 +8,10 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  applicationName: "Steel Sales AI",
+  applicationName: "Smart Steel Sales",
   title: {
-    default: "Steel Sales AI",
-    template: "%s · Steel Sales AI",
+    default: "Smart Steel Sales",
+    template: "%s · Smart Steel Sales",
   },
   description:
     "Piattaforma B2B per il settore acciaio e tubo: Commercial Memory, Network e Steel Knowledge pubblico su norme, gradi, dimensioni e pesi.",
