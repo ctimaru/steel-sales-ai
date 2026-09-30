@@ -8,7 +8,7 @@ import { absoluteUrl } from "@/lib/site";
 export const metadata: Metadata = {
   title: {
     default: "Steel Knowledge",
-    template: "%s · Steel Knowledge · Steel Sales AI",
+    template: "%s · Steel Knowledge · Smart Steel Sales",
   },
   description:
     "Norme, gradi di acciaio, dimensioni, pesi e strumenti tecnici per chi lavora nel settore steel e tube.",
@@ -110,7 +110,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
             </p>
           </div>
           <div className="flex flex-wrap items-start gap-x-5 gap-y-2 text-xs font-semibold">
-            <Link href="/" className="hover:text-[#173f35]">Steel Sales AI</Link>
+            <Link href="/" className="hover:text-[#173f35]">Smart Steel Sales</Link>
             <Link href="/knowledge" className="hover:text-[#173f35]">Knowledge</Link>
             <Link href="/dashboard" className="hover:text-[#173f35]">Workspace</Link>
           </div>
