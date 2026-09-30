@@ -21,6 +21,29 @@ async function appOrigin() {
   return `${proto}://${host}`;
 }
 
+function signupErrorMessage(error: { code?: string; message: string }) {
+  const code = error.code ?? "";
+  const message = error.message.toLowerCase();
+
+  if (
+    code === "user_already_exists" ||
+    message.includes("already registered") ||
+    message.includes("already exists")
+  ) {
+    return "Esiste già un account con questa email. Accedi oppure recupera la password.";
+  }
+
+  if (code === "weak_password" || message.includes("password")) {
+    return "La password non rispetta i requisiti di sicurezza. Prova con una password più lunga e difficile da indovinare.";
+  }
+
+  if (message.includes("rate") || message.includes("too many")) {
+    return "Hai effettuato troppi tentativi. Riprova tra qualche minuto.";
+  }
+
+  return "Non è stato possibile creare l’account. Controlla i dati e riprova.";
+}
+
 async function routeAfterAuthentication() {
   const supabase = await createClient();
   await supabase.rpc("claim_pending_organization_invitations");
@@ -106,7 +129,7 @@ export async function signup(formData: FormData) {
   });
 
   if (error) {
-    redirect(`/register?error=${encodeURIComponent(error.message)}`);
+    redirect(`/register?error=${encodeURIComponent(signupErrorMessage(error))}`);
   }
 
   if (data.session) {

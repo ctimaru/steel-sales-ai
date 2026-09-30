@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { Input } from "@/components/ui/input";
-import { ProductBrand } from "@/components/product-brand";
-import { createClient } from "@/lib/supabase/server";
-import { privateNoIndexRobots } from "@/lib/seo";
 import { signup } from "@/app/login/actions";
+import { ProductBrand } from "@/components/product-brand";
+import { RegistrationJourney } from "@/components/registration-journey";
+import { Input } from "@/components/ui/input";
+import { privateNoIndexRobots } from "@/lib/seo";
+import { createClient } from "@/lib/supabase/server";
 
+import { logoutRegistration } from "./actions";
 import { CompanyRegistrationForm } from "./registration-form";
 
 export const metadata: Metadata = {
@@ -27,66 +29,126 @@ export default async function RegisterPage({
 
   if (!user) {
     return (
-      <main className="min-h-screen bg-[#f5f7fb] px-5 py-8 sm:px-8 sm:py-12">
-        <div className="mx-auto grid max-w-5xl overflow-hidden rounded-3xl border border-[#e1e8f2] bg-white shadow-sm lg:grid-cols-[0.9fr_1.1fr]">
-          <section className="border-r border-[#e3eaf5] bg-[#f8fbff] p-8 text-[#1e2b45] sm:p-10">
+      <main className="min-h-screen bg-[#f2f4f3] px-4 py-6 sm:px-6 sm:py-10">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-6 flex items-center justify-between gap-4">
             <ProductBrand href="/" />
-            <h1 className="mt-10 text-3xl font-semibold tracking-tight sm:text-4xl">
-              Registra la tua azienda.
-            </h1>
-            <p className="mt-4 text-sm leading-7 text-[#68788e]">
-              Crea prima il tuo account personale. Dopo la verifica email potrai completare il profilo aziendale e inviarlo per approvazione.
-            </p>
-            <div className="mt-10 space-y-4 text-sm text-[#68788e]">
-              <p>1. Crea e verifica il tuo account</p>
-              <p>2. Compila i dati dell’azienda</p>
-              <p>3. Invia la richiesta</p>
-              <p>4. Dopo l’approvazione viene attivato il workspace</p>
-            </div>
-          </section>
+            <Link
+              href="/login"
+              className="text-sm font-semibold text-[#52615b] hover:text-[#173f35]"
+            >
+              Hai già un account? Accedi
+            </Link>
+          </div>
 
-          <section className="p-7 sm:p-10">
-            <p className="text-sm font-semibold text-[#68788e]">Passaggio 1 di 2</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#1e2b45]">Crea il tuo account</h2>
-            <p className="mt-2 text-sm leading-6 text-[#68788e]">
-              Usa un indirizzo email aziendale a cui hai accesso.
-            </p>
+          <div className="grid overflow-hidden rounded-[28px] border border-[#dce2df] bg-white shadow-[0_16px_48px_rgba(18,61,52,0.08)] lg:grid-cols-[1.02fr_0.98fr]">
+            <section className="bg-[#123d34] p-7 text-white sm:p-10 lg:p-12">
+              <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#d9e8e2]">
+                Accesso aziendale
+              </span>
+              <h1 className="mt-6 max-w-xl text-4xl font-semibold leading-tight tracking-[-0.03em] sm:text-5xl">
+                Porta la tua azienda dentro Steel Sales AI.
+              </h1>
+              <p className="mt-5 max-w-xl text-base leading-7 text-[#c6d8d1]">
+                Crea il tuo account, inserisci i dati essenziali dell’azienda e invia la richiesta.
+                Il workspace viene attivato solo dopo revisione.
+              </p>
 
-            {error ? (
-              <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
-            ) : null}
-            {message ? (
-              <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{message}</div>
-            ) : null}
+              <div className="mt-9 rounded-2xl border border-white/10 bg-white/[0.06] p-5">
+                <p className="text-sm font-semibold text-white">Cosa ti serve adesso</p>
+                <ul className="mt-3 space-y-2 text-sm leading-6 text-[#c6d8d1]">
+                  <li>• Un indirizzo email che controlli</li>
+                  <li>• Ragione sociale e paese</li>
+                  <li>• Il ruolo principale dell’azienda nel mercato</li>
+                </ul>
+              </div>
 
-            <form action={signup} className="mt-7 space-y-5">
-              <label className="block text-sm font-medium text-[#40516a]">
-                Email
-                <Input className="mt-2 h-11" name="email" type="email" autoComplete="email" required />
-              </label>
-              <label className="block text-sm font-medium text-[#40516a]">
-                Password
-                <Input
-                  className="mt-2 h-11"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  minLength={8}
-                  required
-                />
-              </label>
-              <button className="h-11 w-full rounded-xl bg-[#2f6fed] text-sm font-semibold text-white hover:bg-[#245ed1]">
-                Crea account
-              </button>
-            </form>
+              <div className="mt-9 border-t border-white/10 pt-7">
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#9fb9b0]">
+                  I tuoi dati commerciali restano privati
+                </p>
+                <p className="mt-3 text-sm leading-6 text-[#c6d8d1]">
+                  Email, offerte, prezzi, ordini e documenti non diventano dati pubblici del Network.
+                </p>
+              </div>
+            </section>
 
-            <p className="mt-6 text-sm text-[#68788e]">
-              Hai già un account?{" "}
-              <Link href="/login" className="font-semibold text-[#2f4059] underline underline-offset-4">
-                Accedi
-              </Link>
-            </p>
-          </section>
+            <section className="p-6 sm:p-9 lg:p-11">
+              <RegistrationJourney current={1} compact />
+
+              <div className="mt-8">
+                <p className="app-kicker">Step 1 · Account</p>
+                <h2 className="mt-2 text-3xl font-semibold tracking-[-0.02em] text-[#1d2824]">
+                  Crea il tuo accesso
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-[#66736e]">
+                  Ti invieremo un link di verifica. Dopo la conferma potrai completare la richiesta
+                  aziendale.
+                </p>
+              </div>
+
+              {error ? (
+                <div
+                  role="alert"
+                  className="mt-6 rounded-xl border border-[#efc5bd] bg-[#fff5f3] px-4 py-3 text-sm text-[#9f2f24]"
+                >
+                  {error}
+                </div>
+              ) : null}
+
+              {message ? (
+                <div className="mt-6 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-4 py-3 text-sm leading-6 text-[#173f35]">
+                  {message}
+                </div>
+              ) : null}
+
+              <form action={signup} className="mt-7 space-y-5">
+                <label className="block text-sm font-medium text-[#43524c]">
+                  Email
+                  <Input
+                    className="mt-2 h-11"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    inputMode="email"
+                    required
+                  />
+                </label>
+
+                <label className="block text-sm font-medium text-[#43524c]">
+                  Password
+                  <Input
+                    className="mt-2 h-11"
+                    name="password"
+                    type="password"
+                    autoComplete="new-password"
+                    minLength={8}
+                    required
+                  />
+                  <span className="mt-1.5 block text-xs text-[#7b8782]">
+                    Almeno 8 caratteri. Usa una password personale e non riutilizzata.
+                  </span>
+                </label>
+
+                <button
+                  type="submit"
+                  className="app-primary h-11 w-full rounded-xl px-5 text-sm font-semibold"
+                >
+                  Crea account e continua
+                </button>
+              </form>
+
+              <p className="mt-6 text-center text-sm text-[#66736e]">
+                Hai già un account?{" "}
+                <Link
+                  href="/login"
+                  className="font-semibold text-[#173f35] underline decoration-[#b8d2c8] underline-offset-4"
+                >
+                  Accedi
+                </Link>
+              </p>
+            </section>
+          </div>
         </div>
       </main>
     );
@@ -116,36 +178,61 @@ export default async function RegisterPage({
   }
 
   return (
-    <main className="min-h-screen bg-[#f5f7fb] px-4 py-7 sm:px-6 sm:py-10">
-      <div className="mx-auto max-w-3xl rounded-3xl border border-[#e1e8f2] bg-white p-6 shadow-sm sm:p-9">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <ProductBrand href="/" compact />
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#1e2b45]">
-              {application?.application_status === "needs_information"
-                ? "Completa le informazioni richieste"
-                : "Profilo aziendale"}
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#68788e]">
-              Inserisci i dati essenziali della tua azienda. Potrai arricchire il profilo Network dopo l’attivazione.
-            </p>
-          </div>
-          <Link href="/login" className="text-sm font-semibold text-[#68788e] hover:text-[#1e2b45]">
-            Esci
-          </Link>
+    <main className="min-h-screen bg-[#f2f4f3] px-4 py-6 sm:px-6 sm:py-9">
+      <div className="mx-auto max-w-5xl">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <ProductBrand href="/" />
+          <form action={logoutRegistration}>
+            <button
+              type="submit"
+              className="text-sm font-semibold text-[#66736e] hover:text-[#173f35]"
+            >
+              Esci
+            </button>
+          </form>
         </div>
 
-        {error ? (
-          <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
-        ) : null}
+        <div className="mt-6 rounded-[28px] border border-[#dce2df] bg-white p-5 shadow-[0_14px_44px_rgba(18,61,52,0.06)] sm:p-8 lg:p-10">
+          <RegistrationJourney current={2} />
 
-        {application?.application_status === "needs_information" ? (
-          <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-            La richiesta richiede informazioni aggiuntive. Aggiorna i dati e inviala nuovamente.
+          <div className="mt-8 flex flex-col gap-4 border-b border-[#e7ece9] pb-7 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="app-kicker">Step 2 · Azienda</p>
+              <h1 className="mt-2 text-3xl font-semibold tracking-[-0.02em] text-[#1d2824] sm:text-4xl">
+                {application?.application_status === "needs_information"
+                  ? "Aggiorna la richiesta aziendale"
+                  : "Raccontaci chi siete"}
+              </h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#66736e]">
+                Chiediamo solo i dati necessari per identificare l’azienda e capire come opera nel
+                mercato. Il profilo potrà essere arricchito dopo l’attivazione.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-[#dce2df] bg-[#f8faf9] px-4 py-3 text-xs text-[#66736e]">
+              Account verificato
+              <span className="mt-1 block font-semibold text-[#1d2824]">{user.email}</span>
+            </div>
           </div>
-        ) : null}
 
-        <CompanyRegistrationForm initial={application} />
+          {error ? (
+            <div
+              role="alert"
+              className="mt-6 rounded-xl border border-[#efc5bd] bg-[#fff5f3] px-4 py-3 text-sm text-[#9f2f24]"
+            >
+              {error}
+            </div>
+          ) : null}
+
+          {application?.application_status === "needs_information" ? (
+            <div className="mt-6 rounded-xl border border-[#ead7aa] bg-[#fff9e8] px-4 py-3 text-sm leading-6 text-[#77551c]">
+              La revisione richiede un aggiornamento. Modifica i dati necessari e invia nuovamente
+              la richiesta.
+            </div>
+          ) : null}
+
+          <CompanyRegistrationForm initial={application} />
+        </div>
       </div>
     </main>
   );
