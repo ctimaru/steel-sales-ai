@@ -1,8 +1,12 @@
 "use server";
 
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import {
+  PENDING_SIGNUP_EMAIL_COOKIE,
+  pendingSignupEmailCookieOptions,
+} from "@/lib/auth-email-verification";
 import { createClient } from "@/lib/supabase/server";
 
 function ensureSupabaseConfigured() {
@@ -103,8 +107,21 @@ export async function login(formData: FormData) {
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
+    if (error.code === "email_not_confirmed") {
+      const cookieStore = await cookies();
+      cookieStore.set(
+        PENDING_SIGNUP_EMAIL_COOKIE,
+        email,
+        pendingSignupEmailCookieOptions,
+      );
+      redirect("/verify-email?source=login");
+    }
+
     redirect("/login?error=Credenziali%20non%20valide");
   }
+
+  const cookieStore = await cookies();
+  cookieStore.delete(PENDING_SIGNUP_EMAIL_COOKIE);
 
   await routeAfterAuthentication();
 }
@@ -129,14 +146,36 @@ export async function signup(formData: FormData) {
   });
 
   if (error) {
+    if (error.code === "email_address_not_authorized") {
+      redirect(
+        "/register?error=" +
+          encodeURIComponent(
+            "Il servizio email di verifica non è ancora configurato per questo indirizzo. Riprova più tardi.",
+          ),
+      );
+    }
+
     redirect(`/register?error=${encodeURIComponent(signupErrorMessage(error))}`);
   }
 
+  const cookieStore = await cookies();
+  cookieStore.set(
+    PENDING_SIGNUP_EMAIL_COOKIE,
+    email,
+    pendingSignupEmailCookieOptions,
+  );
+
   if (data.session) {
-    redirect("/register");
+    await supabase.auth.signOut();
+    redirect(
+      "/verify-email?error=" +
+        encodeURIComponent(
+          "La verifica email non è stata applicata correttamente. L’accesso è stato bloccato per sicurezza.",
+        ),
+    );
   }
 
-  redirect("/register?message=Controlla%20la%20tua%20email%20per%20confermare%20l%27account");
+  redirect("/verify-email?sent=1");
 }
 
 export async function requestPasswordReset(formData: FormData) {
