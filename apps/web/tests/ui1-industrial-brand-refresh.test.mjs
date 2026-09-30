@@ -25,11 +25,11 @@ test("UXA1 keeps industrial identity while aligning application tokens to the fo
 });
 
 test("UI1 brand remains lightweight and rebrandable from one identity contract", () => {
-  assert.match(identity, /name: "Steel Sales AI"/);
+  assert.match(identity, /name: "Smart Steel Sales"/);
   assert.match(identity, /marketLine: "B2B intelligence for steel & tube"/);
   assert.match(brand, /productIdentity\.name/);
   assert.match(brand, /productIdentity\.descriptor/);
-  assert.doesNotMatch(brand, /<img|next\/image|svg/i);
+  assert.doesNotMatch(brand, /<img|next\/image/i);\n  assert.match(brand, /<svg/);\n  assert.match(brand, /transform="translate\(18 0\)"/);\n  assert.match(brand, /transform="translate\(36 0\)"/);
 });
 
 test("UI1 applies the same product identity to public, Company and Platform contexts", () => {
