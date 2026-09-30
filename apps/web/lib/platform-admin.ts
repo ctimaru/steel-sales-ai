@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import type { PlatformPermissionKey, PlatformStaffRoleKey } from "@/lib/platform-access-contract";
+import type { RegistrationApplicationStatus } from "@/lib/registration-state";
 import { createClient } from "@/lib/supabase/server";
 
 export type PlatformAccessContext = {
@@ -110,7 +111,7 @@ export type RegistrationQueueItem = {
   country_code: string;
   vat_id: string | null;
   primary_company_type: string;
-  application_status: string;
+  application_status: RegistrationApplicationStatus;
   submitted_at: string | null;
   reviewed_at: string | null;
   reviewed_by: string | null;
@@ -170,7 +171,9 @@ export async function requirePlatformSuperadmin(fallback = "/platform") {
   if (!allowed) redirect(fallback);
 }
 
-export async function getRegistrationQueue(status?: string | null) {
+export async function getRegistrationQueue(
+  status?: RegistrationApplicationStatus | null,
+) {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("p0a_admin_registration_queue", {
     p_status: status || null,
