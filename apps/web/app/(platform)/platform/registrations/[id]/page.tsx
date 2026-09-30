@@ -79,13 +79,14 @@ export default async function AdminRegistrationDetailPage({
     pendingReview && permissions.includes("registrations.reject");
   const canActivate =
     application.application_status === "approved" &&
-    permissions.includes("registrations.activate");
+    permissions.includes("registrations.activate") &&
+    permissions.includes("registrations.bridge_network");
   const canBridge =
     networkEnabled &&
     application.application_status === "activated" &&
     !application.matched_network_company_id &&
     permissions.includes("registrations.bridge_network");
-  const networkCandidates = canBridge
+  const networkCandidates = canActivate || canBridge
     ? await getRegistrationNetworkCandidates(application.id)
     : [];
   const hasAvailableAction =
@@ -278,16 +279,46 @@ export default async function AdminRegistrationDetailPage({
 
           {canActivate ? (
             <section className="rounded-2xl border border-indigo-200 bg-indigo-50 p-5">
-              <h2 className="font-semibold text-indigo-950">Attiva workspace</h2>
+              <h2 className="font-semibold text-indigo-950">Attiva workspace + identità Network</h2>
               <p className="mt-1 text-sm leading-6 text-indigo-800">
-                Crea l’organization e assegna l’applicant come Organization Admin. Dopo l’attivazione completa il Registration Bridge verso il Network.
+                HP1.1 esegue Organization, membership Admin, Network bridge e claim nella stessa transazione.
+                Se un passaggio non è valido, l’attivazione viene annullata interamente.
               </p>
-              <form action={activateRegistrationApplication} className="mt-4">
-                <input type="hidden" name="application_id" value={application.id} />
-                <button className="h-10 w-full rounded-xl bg-indigo-700 px-4 text-sm font-semibold text-white">
-                  Attiva workspace
-                </button>
-              </form>
+
+              {networkCandidates.length ? (
+                <div className="mt-4 space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.12em] text-indigo-700">
+                    Selezione identità obbligatoria
+                  </p>
+                  {networkCandidates.map((candidate) => (
+                    <form
+                      key={candidate.network_company_id}
+                      action={activateRegistrationApplication}
+                      className="rounded-xl border border-indigo-200 bg-white p-3"
+                    >
+                      <input type="hidden" name="application_id" value={application.id} />
+                      <input type="hidden" name="network_company_id" value={candidate.network_company_id} />
+                      <p className="text-sm font-semibold text-slate-900">{candidate.legal_name}</p>
+                      <p className="mt-1 text-xs text-[#66736e]">
+                        {candidate.country_code} · score {Number(candidate.match_score).toFixed(2)} · {candidate.signals.join(", ")}
+                      </p>
+                      <button className="mt-3 h-9 w-full rounded-lg bg-indigo-700 px-3 text-xs font-semibold text-white">
+                        Seleziona e attiva
+                      </button>
+                    </form>
+                  ))}
+                </div>
+              ) : (
+                <form action={activateRegistrationApplication} className="mt-4">
+                  <input type="hidden" name="application_id" value={application.id} />
+                  <div className="mb-3 rounded-xl border border-indigo-100 bg-white px-3 py-3 text-xs leading-5 text-indigo-800">
+                    Nessun profilo Network candidato rilevato: verrà creato e collegato un nuovo profilo non verificato.
+                  </div>
+                  <button className="h-10 w-full rounded-xl bg-indigo-700 px-4 text-sm font-semibold text-white">
+                    Attiva workspace e profilo Network
+                  </button>
+                </form>
+              )}
             </section>
           ) : null}
 
