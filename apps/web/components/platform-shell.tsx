@@ -81,7 +81,7 @@ export function PlatformShell({
         <header className="sticky top-0 z-20 border-b border-[#dce2df] bg-white/92 backdrop-blur-xl">
           <div className="flex h-16 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
             <Link href="/platform" className="min-w-0">
-              <p className="truncate text-sm font-semibold text-[#1d2824]">Steel Sales AI · Platform</p>
+              <p className="truncate text-sm font-semibold text-[#1d2824]">Smart Steel Sales · Platform</p>
               <p className="text-xs text-[#7f8b86]">Control Plane</p>
             </Link>
             <div className="flex items-center gap-2">

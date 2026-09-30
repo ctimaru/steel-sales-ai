@@ -1,6 +1,6 @@
-# Steel Sales AI
+# Smart Steel Sales
 
-Steel Sales AI is a commercial intelligence application for the steel/tube sales workflow.
+Smart Steel Sales is a commercial intelligence application for the steel/tube sales workflow.
 
 ## Scope
 

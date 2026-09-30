@@ -47,7 +47,7 @@ export default async function RegisterPage({
                 Accesso aziendale
               </span>
               <h1 className="mt-6 max-w-xl text-4xl font-semibold leading-tight tracking-[-0.03em] sm:text-5xl">
-                Porta la tua azienda dentro Steel Sales AI.
+                Porta la tua azienda dentro Smart Steel Sales.
               </h1>
               <p className="mt-5 max-w-xl text-base leading-7 text-[#c6d8d1]">
                 Crea il tuo account, inserisci i dati essenziali dell’azienda e invia la richiesta.

@@ -34,6 +34,6 @@ double_confirm_changes = true
 enable_confirmations = true
 
 [auth.email.template.confirmation]
-subject = "Conferma il tuo indirizzo email — Steel Sales AI"
+subject = "Conferma il tuo indirizzo email — Smart Steel Sales"
 content_path = "./supabase/templates/confirmation.html"
 

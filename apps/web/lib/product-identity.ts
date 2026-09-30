@@ -1,5 +1,5 @@
 export const productIdentity = {
-  name: "Steel Sales AI",
-  descriptor: "Steel intelligence workspace",
+  name: "Smart Steel Sales",
+  descriptor: "Smart steel intelligence workspace",
   marketLine: "B2B intelligence for steel & tube",
 } as const;

@@ -72,7 +72,7 @@ test("local Supabase explicitly enforces email confirmations and loads the brand
   assert.match(supabaseConfig, /\[auth\.email\.template\.confirmation\]/);
   assert.match(
     supabaseConfig,
-    /subject = "Conferma il tuo indirizzo email — Steel Sales AI"/,
+    /subject = "Conferma il tuo indirizzo email — Smart Steel Sales"/,
   );
   assert.match(
     supabaseConfig,
