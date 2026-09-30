@@ -7,17 +7,35 @@ export function BrandMark({ compact = false }: { compact?: boolean }) {
     <span
       aria-hidden="true"
       className={
-        "relative inline-flex shrink-0 items-center justify-center rounded-full border-2 border-[#4f7d70] bg-white shadow-[inset_0_0_0_3px_#dce9e4] " +
-        (compact ? "h-7 w-7" : "h-9 w-9")
+        "inline-flex shrink-0 items-center justify-center rounded-xl border border-[#cbd8d3] bg-white shadow-[0_1px_2px_rgba(18,61,52,0.08)] " +
+        (compact ? "h-7 w-12" : "h-9 w-[62px]")
       }
     >
-      <span
-        className={
-          "rounded-full border border-[#86a99e] bg-[#173f35] " +
-          (compact ? "h-3 w-3" : "h-4 w-4")
-        }
-      />
-      <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-sm bg-[#b86b42] shadow-[0_0_0_2px_#ffffff]" />
+      <svg viewBox="0 0 58 30" className={compact ? "h-5 w-10" : "h-6 w-[50px]"} fill="none">
+        <path
+          d="M16 5H8.5C5.3 5 3.5 6.5 3.5 9c0 2.2 1.5 3.4 4.7 4l4.1.8c3 .6 4.5 1.9 4.5 4.5 0 2.8-2.2 4.7-5.5 4.7H3.5"
+          stroke="#438d7a"
+          strokeWidth="4.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M16 5H8.5C5.3 5 3.5 6.5 3.5 9c0 2.2 1.5 3.4 4.7 4l4.1.8c3 .6 4.5 1.9 4.5 4.5 0 2.8-2.2 4.7-5.5 4.7H3.5"
+          transform="translate(18 0)"
+          stroke="#344047"
+          strokeWidth="4.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M16 5H8.5C5.3 5 3.5 6.5 3.5 9c0 2.2 1.5 3.4 4.7 4l4.1.8c3 .6 4.5 1.9 4.5 4.5 0 2.8-2.2 4.7-5.5 4.7H3.5"
+          transform="translate(36 0)"
+          stroke="#226657"
+          strokeWidth="4.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
     </span>
   );
 }
@@ -32,7 +50,7 @@ export function ProductBrand({
   compact?: boolean;
 }) {
   return (
-    <Link href={href} className="inline-flex min-w-0 items-center gap-3">
+    <Link href={href} className="inline-flex min-w-0 items-center gap-2.5">
       <BrandMark compact={compact} />
       <span className="min-w-0">
         <span
