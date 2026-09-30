@@ -85,7 +85,7 @@ export default async function OnboardingPage({
           <div className="mt-1">Ruolo commerciale: <strong>{membership.business_role ?? "Non assegnato"}</strong></div>
         </div>
         <Link href="/dashboard" className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-lg bg-slate-950 text-sm font-semibold text-white">
-          Entra in Steel Sales AI
+          Entra in Smart Steel Sales
         </Link>
       </OnboardingShell>
     );
@@ -127,7 +127,7 @@ export default async function OnboardingPage({
             </fieldset>
             <label className="flex items-start gap-3 rounded-xl bg-slate-50 p-4 text-sm leading-6 text-slate-600">
               <input className="mt-1" type="checkbox" name="consent" defaultChecked={Boolean(organization.consent_version)} required={!organization.consent_version} />
-              <span>Confermo di essere autorizzato a importare queste fonti aziendali e che Steel Sales AI può elaborarle per ricerca, estrazione e memoria commerciale del tenant.</span>
+              <span>Confermo di essere autorizzato a importare queste fonti aziendali e che Smart Steel Sales può elaborarle per ricerca, estrazione e memoria commerciale del tenant.</span>
             </label>
             <button className="h-11 w-full rounded-lg bg-slate-950 text-sm font-semibold text-white">
               {complete ? "Salva configurazione" : "Completa onboarding"}
@@ -232,7 +232,7 @@ function OnboardingShell({ step, title, description, wide = false, children }: {
       <div className={`mx-auto ${wide ? "max-w-6xl" : "max-w-2xl"}`}>
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
           <div className="flex items-center justify-between gap-4">
-            <p className="text-xs font-bold tracking-[0.16em] text-slate-400">STEEL SALES AI · P1</p>
+            <p className="text-xs font-bold tracking-[0.16em] text-slate-400">SMART STEEL SALES · P1</p>
             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{step}</span>
           </div>
           <h1 className="mt-5 text-3xl font-semibold tracking-tight text-slate-950">{title}</h1>
