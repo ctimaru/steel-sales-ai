@@ -81,21 +81,36 @@ export async function rejectRegistrationApplication(formData: FormData) {
 
 export async function activateRegistrationApplication(formData: FormData) {
   await requirePlatformPermission("registrations.activate");
+  await requirePlatformPermission("registrations.bridge_network");
+
   const id = applicationId(formData);
+  const networkCompanyId = String(formData.get("network_company_id") ?? "").trim();
   if (!id) redirect("/platform/registrations?error=Application%20non%20valida");
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("p0a_activate_registration_application", {
-    p_application_id: id,
-  });
+  const { error } = networkCompanyId
+    ? await supabase.rpc("p0a_activate_registration_application_with_network", {
+        p_application_id: id,
+        p_network_company_id: networkCompanyId,
+      })
+    : await supabase.rpc("p0a_activate_registration_application", {
+        p_application_id: id,
+      });
 
   if (error) {
-    redirect(detailPath(id, "error", "Non è stato possibile attivare il workspace."));
+    const message = error.message.includes("identity candidates exist")
+      ? "Esistono possibili profili Network: seleziona esplicitamente l’azienda corretta prima dell’attivazione."
+      : error.message.includes("approved claim by another organization")
+        ? "Il profilo Network selezionato è già collegato a un’altra organizzazione. L’attivazione è stata annullata senza creare un tenant parziale."
+        : "Non è stato possibile completare l’attivazione atomica del workspace.";
+    redirect(detailPath(id, "error", message));
   }
 
   revalidatePath("/platform/registrations");
+  revalidatePath("/network");
+  revalidatePath("/network/manage");
   revalidatePath(`/platform/registrations/${id}`);
-  redirect(detailPath(id, "message", "Workspace aziendale attivato."));
+  redirect(detailPath(id, "message", "Workspace e identità Network attivati correttamente."));
 }
 
 
