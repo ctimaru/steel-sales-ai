@@ -8,9 +8,9 @@ const loginActions = fs.readFileSync(new URL("../app/login/actions.ts", import.m
 const verifyActions = fs.readFileSync(new URL("../app/verify-email/actions.ts", import.meta.url), "utf8");
 
 test("D1 makes www.smartsteelsales.com the canonical public origin", () => {
-  assert.match(site, /https:\/\/smartsteelsales\.com/);
+  assert.match(site, /https:\/\/www\.smartsteelsales\.com/);
   assert.doesNotMatch(site, /steel-sales-ai\.vercel\.app/);
-  assert.match(envExample, /NEXT_PUBLIC_SITE_URL=https:\/\/smartsteelsales\.com/);
+  assert.match(envExample, /NEXT_PUBLIC_SITE_URL=https:\/\/www\.smartsteelsales\.com/);
 });
 
 test("D1 pins production auth redirects to the canonical site URL", () => {
