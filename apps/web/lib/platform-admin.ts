@@ -147,7 +147,7 @@ export type RegistrationApplicationDetail = {
   contact_name: string;
   contact_phone: string | null;
   short_description: string | null;
-  application_status: string;
+  application_status: RegistrationApplicationStatus;
   submitted_at: string | null;
   email_verified_at: string | null;
   reviewed_at: string | null;
