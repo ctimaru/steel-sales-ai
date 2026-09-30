@@ -32,27 +32,44 @@ begin
 end;
 $$;
 
--- Create two independent organizations.
+-- Create two independent tenant fixtures from the privileged CI context.
+insert into public.organizations(
+  id,name,slug,created_by,country_code,industry,onboarding_status
+) values
+(
+  '00000000-0000-0000-0000-0000000048d1'::uuid,
+  'P4.8 Sender','p48-sender',
+  '00000000-0000-0000-0000-0000000048a1'::uuid,
+  'IT','Steel','completed'
+),
+(
+  '00000000-0000-0000-0000-0000000048d2'::uuid,
+  'P4.8 Recipient','p48-recipient',
+  '00000000-0000-0000-0000-0000000048b1'::uuid,
+  'DE','Steel','completed'
+);
+
+insert into public.organization_memberships(
+  organization_id,user_id,role,status,is_default
+) values
+(
+  '00000000-0000-0000-0000-0000000048d1'::uuid,
+  '00000000-0000-0000-0000-0000000048a1'::uuid,
+  'admin','active',true
+),
+(
+  '00000000-0000-0000-0000-0000000048d2'::uuid,
+  '00000000-0000-0000-0000-0000000048b1'::uuid,
+  'admin','active',true
+);
+
+select set_config('p48.sender_org','00000000-0000-0000-0000-0000000048d1',true);
+select set_config('p48.recipient_org','00000000-0000-0000-0000-0000000048d2',true);
+
 set local role authenticated;
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000048a1',true);
 select set_config('request.jwt.claim.role','authenticated',true);
-select set_config(
-  'p48.sender_org',
-  public.create_organization_for_current_user('P4.8 Sender','IT','Steel')::text,
-  true
-);
 select public.p4_start_interaction_pilot(current_setting('p48.sender_org')::uuid);
-
-reset role;
-set local role authenticated;
-select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000048b1',true);
-select set_config('request.jwt.claim.role','authenticated',true);
-select set_config(
-  'p48.recipient_org',
-  public.create_organization_for_current_user('P4.8 Recipient','DE','Steel')::text,
-  true
-);
-
 reset role;
 
 -- Expand the disposable test window to three days so we can validate the
