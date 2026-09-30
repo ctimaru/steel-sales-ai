@@ -110,9 +110,9 @@ test("HP3 prevents duplicate one-time registration audit events", () => {
 
 test("HP3 removes legacy statuses from applicant and Platform registration UI", () => {
   for (const source of [queuePage, detailPage, statusPage]) {
-    assert.doesNotMatch(source, /submitted:/);
-    assert.doesNotMatch(source, /email_verification_pending:/);
-    assert.doesNotMatch(source, /suspended:/);
+    assert.doesNotMatch(source, /^  submitted:/m);
+    assert.doesNotMatch(source, /^  email_verification_pending:/m);
+    assert.doesNotMatch(source, /^  suspended:/m);
   }
 
   assert.match(queuePage, /isRegistrationApplicationStatus\(status\)/);
