@@ -1,0 +1,92 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import test from "node:test";
+
+const loginActions = fs.readFileSync(
+  new URL("../app/login/actions.ts", import.meta.url),
+  "utf8",
+);
+const verifyActions = fs.readFileSync(
+  new URL("../app/verify-email/actions.ts", import.meta.url),
+  "utf8",
+);
+const verifyPage = fs.readFileSync(
+  new URL("../app/verify-email/page.tsx", import.meta.url),
+  "utf8",
+);
+const registerActions = fs.readFileSync(
+  new URL("../app/register/actions.ts", import.meta.url),
+  "utf8",
+);
+const helper = fs.readFileSync(
+  new URL("../lib/auth-email-verification.ts", import.meta.url),
+  "utf8",
+);
+const supabaseConfig = fs.readFileSync(
+  new URL("../../../supabase/config.toml", import.meta.url),
+  "utf8",
+);
+const confirmationTemplate = fs.readFileSync(
+  new URL("../../../supabase/templates/confirmation.html", import.meta.url),
+  "utf8",
+);
+
+test("email verification uses a dedicated pending-email gate", () => {
+  assert.match(loginActions, /PENDING_SIGNUP_EMAIL_COOKIE/);
+  assert.match(loginActions, /redirect\("\/verify-email\?sent=1"\)/);
+  assert.match(loginActions, /error\.code === "email_not_confirmed"/);
+  assert.match(loginActions, /redirect\("\/verify-email\?source=login"\)/);
+  assert.match(registerActions, /redirect\("\/verify-email\?source=registration"\)/);
+});
+
+test("signup fails closed if Supabase unexpectedly returns an authenticated session", () => {
+  assert.match(loginActions, /if \(data\.session\)/);
+  assert.match(loginActions, /await supabase\.auth\.signOut\(\)/);
+  assert.match(loginActions, /L’accesso è stato bloccato per sicurezza/);
+});
+
+test("verification page supports privacy-safe resend without putting email in the URL", () => {
+  assert.match(verifyPage, /Controlla la tua email/);
+  assert.match(verifyPage, /Reinvia email di verifica/);
+  assert.match(verifyPage, /maskEmail\(pendingEmail\)/);
+  assert.doesNotMatch(verifyPage, /searchParams[^\n]*email/);
+  assert.match(helper, /httpOnly: true/);
+  assert.match(helper, /sameSite: "lax"/);
+  assert.match(helper, /maxAge: 60 \* 60/);
+});
+
+test("resend uses the Supabase signup confirmation API and preserves the auth callback", () => {
+  assert.match(verifyActions, /supabase\.auth\.resend\(\{/);
+  assert.match(verifyActions, /type: "signup"/);
+  assert.match(
+    verifyActions,
+    /emailRedirectTo: .*\/auth\/finish\?signup=1/,
+  );
+  assert.match(verifyActions, /over_email_send_rate_limit/);
+  assert.match(verifyActions, /email_address_not_authorized/);
+});
+
+test("local Supabase explicitly enforces email confirmations and loads the branded template", () => {
+  assert.match(supabaseConfig, /\[auth\.email\]/);
+  assert.match(supabaseConfig, /enable_confirmations = true/);
+  assert.match(supabaseConfig, /\[auth\.email\.template\.confirmation\]/);
+  assert.match(
+    supabaseConfig,
+    /subject = "Conferma il tuo indirizzo email — Steel Sales AI"/,
+  );
+  assert.match(
+    supabaseConfig,
+    /content_path = "\.\/supabase\/templates\/confirmation\.html"/,
+  );
+});
+
+test("confirmation email stays transactional and uses the Supabase confirmation URL", () => {
+  assert.match(confirmationTemplate, /Conferma il tuo indirizzo email/);
+  assert.match(confirmationTemplate, /\{\{ \.ConfirmationURL \}\}/);
+  assert.match(confirmationTemplate, />\s*Conferma email\s*</);
+  assert.match(
+    confirmationTemplate,
+    /Se non hai richiesto tu la creazione dell’account/,
+  );
+  assert.doesNotMatch(confirmationTemplate, /offerta|sconto|newsletter|promozione/i);
+});
