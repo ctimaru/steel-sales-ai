@@ -7,6 +7,7 @@ import {
   PENDING_SIGNUP_EMAIL_COOKIE,
   pendingSignupEmailCookieOptions,
 } from "@/lib/auth-email-verification";
+import { siteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 
 function ensureSupabaseConfigured() {
@@ -19,6 +20,8 @@ function ensureSupabaseConfigured() {
 }
 
 async function appOrigin() {
+  if (process.env.VERCEL_ENV === "production") return siteUrl;
+
   const incoming = await headers();
   const host = incoming.get("x-forwarded-host") ?? incoming.get("host") ?? "localhost:3000";
   const proto = incoming.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");

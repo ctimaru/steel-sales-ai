@@ -1,4 +1,4 @@
-const fallbackSiteUrl = "https://steel-sales-ai.vercel.app";
+const fallbackSiteUrl = "https://smartsteelsales.com";
 
 export const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL?.trim() || fallbackSiteUrl
