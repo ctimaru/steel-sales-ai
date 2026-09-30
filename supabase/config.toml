@@ -27,3 +27,13 @@ additional_redirect_urls = ["http://127.0.0.1:3000"]
 
 [functions.sa3-platform-staff-invite]
 verify_jwt = true
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = true
+
+[auth.email.template.confirmation]
+subject = "Conferma il tuo indirizzo email — Steel Sales AI"
+content_path = "./supabase/templates/confirmation.html"
+
