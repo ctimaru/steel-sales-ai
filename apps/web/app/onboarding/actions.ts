@@ -24,22 +24,6 @@ function onboardingRedirect(message: string, kind: "message" | "error" = "messag
   redirect(`/onboarding?${kind}=${encodeURIComponent(message)}`);
 }
 
-export async function createOrganization(formData: FormData) {
-  const { supabase } = await currentUser();
-  const name = String(formData.get("name") ?? "").trim();
-  const country = String(formData.get("country_code") ?? "").trim();
-  const industry = String(formData.get("industry") ?? "").trim();
-
-  const { error } = await supabase.rpc("create_organization_for_current_user", {
-    p_name: name,
-    p_country_code: country || null,
-    p_industry: industry || null,
-  });
-  if (error) onboardingRedirect(error.message, "error");
-  revalidatePath("/onboarding");
-  onboardingRedirect("Workspace creato. Ora scegli le fonti e completa la configurazione.");
-}
-
 export async function completeOnboarding(formData: FormData) {
   const { supabase } = await currentUser();
   const organizationId = String(formData.get("organization_id") ?? "");

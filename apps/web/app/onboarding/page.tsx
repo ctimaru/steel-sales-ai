@@ -6,7 +6,7 @@ import { privateNoIndexRobots } from "@/lib/seo";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/server";
 
-import { changeMemberBusinessRole, changeMemberRole, completeOnboarding, createOrganization, inviteMember } from "./actions";
+import { changeMemberBusinessRole, changeMemberRole, completeOnboarding, inviteMember } from "./actions";
 
 export const metadata: Metadata = {
   title: "Onboarding",
@@ -42,27 +42,14 @@ export default async function OnboardingPage({
   const membership = memberships?.find((row) => row.is_default) ?? memberships?.[0] ?? null;
 
   if (!membership) {
-    return (
-      <OnboardingShell step="1 di 2" title="Crea il workspace della tua azienda" description="Definiamo il tenant che conterrà email, offerte, prezzi e memoria commerciale. Tu diventerai il primo admin.">
-        <Feedback message={params.message} error={params.error} />
-        <form action={createOrganization} className="mt-8 space-y-5">
-          <Field label="Ragione sociale / nome azienda">
-            <Input name="name" placeholder="es. Steel Trading S.r.l." minLength={2} required />
-          </Field>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Paese (ISO 2 lettere)">
-              <Input name="country_code" placeholder="IT" maxLength={2} className="uppercase" />
-            </Field>
-            <Field label="Settore">
-              <Input name="industry" placeholder="Tubi in acciaio" />
-            </Field>
-          </div>
-          <button className="h-11 w-full rounded-lg bg-slate-950 text-sm font-semibold text-white hover:bg-slate-800">
-            Crea workspace
-          </button>
-        </form>
-      </OnboardingShell>
-    );
+    const { data: application } = await supabase
+      .from("company_registration_applications")
+      .select("id,application_status")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    redirect(application ? "/registration/status" : "/register");
   }
 
   const { data: organization } = await supabase

@@ -29,7 +29,10 @@ insert into auth.users(id,email,email_confirmed_at) values
   ('00000000-0000-0000-0000-00000000a401'::uuid,'sa4-registration-admin@example.com',now()),
   ('00000000-0000-0000-0000-00000000a402'::uuid,'sa4-platform-auditor@example.com',now()),
   ('00000000-0000-0000-0000-00000000a403'::uuid,'sa4-outsider@example.com',now()),
-  ('00000000-0000-0000-0000-00000000a410'::uuid,'sa4-applicant@example.com',now())
+  ('00000000-0000-0000-0000-00000000a410'::uuid,'sa4-info-applicant@example.com',now()),
+  ('00000000-0000-0000-0000-00000000a411'::uuid,'sa4-approve-applicant@example.com',now()),
+  ('00000000-0000-0000-0000-00000000a412'::uuid,'sa4-reject-applicant@example.com',now()),
+  ('00000000-0000-0000-0000-00000000a413'::uuid,'sa4-activate-applicant@example.com',now())
 on conflict (id) do nothing;
 
 do $root$
@@ -79,18 +82,21 @@ insert into public.company_registration_applications(
   'SA4 Information Request Co','IT','producer','Applicant','SA4 information request'
 ) returning id as info_app_id \gset
 
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-00000000a411',true);
 insert into public.company_registration_applications(
   legal_name,country_code,primary_company_type,contact_name,short_description
 ) values (
   'SA4 Approval Co','IT','producer','Applicant','SA4 approval'
 ) returning id as approve_app_id \gset
 
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-00000000a412',true);
 insert into public.company_registration_applications(
   legal_name,country_code,primary_company_type,contact_name,short_description
 ) values (
   'SA4 Rejection Co','IT','trader_distributor','Applicant','SA4 rejection'
 ) returning id as reject_app_id \gset
 
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-00000000a413',true);
 insert into public.company_registration_applications(
   legal_name,country_code,primary_company_type,contact_name,short_description
 ) values (
@@ -171,8 +177,11 @@ select public.p0a_activate_registration_application(:'activate_app_id'::uuid)
 
 select pg_temp.sa4_assert(
   (:'activation_payload'::jsonb->>'status')='activated'
-  and (:'activation_payload'::jsonb->>'organization_id') is not null,
-  'Registration Admin must activate an approved tenant'
+  and (:'activation_payload'::jsonb->>'organization_id') is not null
+  and (:'activation_payload'::jsonb->>'network_link_status')='active'
+  and (:'activation_payload'::jsonb->>'network_company_id') is not null
+  and (:'activation_payload'::jsonb->>'claim_id') is not null,
+  'Registration Admin must atomically activate tenant and Network identity'
 );
 
 select pg_temp.sa4_assert(
@@ -187,8 +196,9 @@ select public.m7_bridge_registration(:'activate_app_id'::uuid,null)
 
 select pg_temp.sa4_assert(
   (:'bridge_payload'::jsonb->>'network_company_id') is not null
-  and (:'bridge_payload'::jsonb->>'claim_status')='approved',
-  'Registration Admin must complete the controlled Network bridge'
+  and (:'bridge_payload'::jsonb->>'claim_id') is not null
+  and coalesce((:'bridge_payload'::jsonb->>'idempotent_replay')::boolean,false),
+  'Registration Admin bridge replay must be idempotent after atomic activation'
 );
 
 reset role;

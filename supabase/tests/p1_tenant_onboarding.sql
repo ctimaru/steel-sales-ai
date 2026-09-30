@@ -43,17 +43,54 @@ select pg_temp.assert_raises(
   'permission denied'
 );
 
--- A newly authenticated user can create exactly one organization and becomes
--- its active default admin.
+-- HP1.1 closes the historical self-service Organization creation path.
+-- Authenticated users must now reach a tenant only through an approved
+-- registration activation.
 reset role;
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000011a1', true);
 select set_config('request.jwt.claim.role', 'authenticated', true);
-select set_config(
-  'p1.test_org_id',
-  public.create_organization_for_current_user('P1 Test Steel', 'it', 'Steel tubes')::text,
+select pg_temp.assert_raises(
+  $$select public.create_organization_for_current_user('P1 Test Steel', 'IT', 'Steel tubes')$$,
+  'permission denied'
+);
+
+-- Build the tenant fixture from the privileged CI context so the remainder of
+-- the historical P1 onboarding/role contract remains covered.
+reset role;
+insert into public.organizations (
+  id, name, slug, created_by, country_code, industry,
+  onboarding_status, onboarding_updated_by
+) values (
+  '00000000-0000-0000-0000-0000000011d1'::uuid,
+  'P1 Test Steel',
+  'p1-test-steel',
+  '00000000-0000-0000-0000-0000000011a1'::uuid,
+  'IT',
+  'Steel tubes',
+  'profile',
+  '00000000-0000-0000-0000-0000000011a1'::uuid
+);
+
+insert into public.organization_memberships (
+  organization_id, user_id, role, status, is_default
+) values (
+  '00000000-0000-0000-0000-0000000011d1'::uuid,
+  '00000000-0000-0000-0000-0000000011a1'::uuid,
+  'admin',
+  'active',
   true
 );
+
+select set_config(
+  'p1.test_org_id',
+  '00000000-0000-0000-0000-0000000011d1',
+  true
+);
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000011a1', true);
+select set_config('request.jwt.claim.role', 'authenticated', true);
 
 select pg_temp.assert_true(
   exists (
@@ -62,8 +99,9 @@ select pg_temp.assert_true(
       and user_id = '00000000-0000-0000-0000-0000000011a1'
       and role = 'admin' and status = 'active' and is_default
   ),
-  'creator must become active default admin'
+  'registration activation fixture must provide active default admin'
 );
+
 select pg_temp.assert_true(
   exists (
     select 1 from public.organizations
@@ -72,11 +110,7 @@ select pg_temp.assert_true(
       and industry = 'Steel tubes'
       and onboarding_status = 'profile'
   ),
-  'organization profile must be normalized and onboarding started'
-);
-select pg_temp.assert_raises(
-  $$select public.create_organization_for_current_user('Second Tenant', 'IT', 'Steel')$$,
-  'already belongs to an active organization'
+  'registration activation fixture must enter onboarding at profile state'
 );
 
 -- Completion is fail-closed until at least one source is selected and the

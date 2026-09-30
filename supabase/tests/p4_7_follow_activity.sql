@@ -31,16 +31,28 @@ begin
 end;
 $$;
 
-set local role authenticated;
-select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000047a1',true);
-select set_config('request.jwt.claim.role','authenticated',true);
-select set_config(
-  'p4_7.test_org_id',
-  public.create_organization_for_current_user('P4.7 Test Org','IT','Steel')::text,
-  true
+insert into public.organizations(
+  id,name,slug,created_by,country_code,industry,onboarding_status
+) values (
+  '00000000-0000-0000-0000-0000000047d1'::uuid,
+  'P4.7 Test Org','p47-test-org',
+  '00000000-0000-0000-0000-0000000047a1'::uuid,
+  'IT','Steel','completed'
 );
 
-reset role;
+insert into public.organization_memberships(
+  organization_id,user_id,role,status,is_default
+) values (
+  '00000000-0000-0000-0000-0000000047d1'::uuid,
+  '00000000-0000-0000-0000-0000000047a1'::uuid,
+  'admin','active',true
+);
+
+select set_config(
+  'p4_7.test_org_id',
+  '00000000-0000-0000-0000-0000000047d1',
+  true
+);
 
 insert into public.network_companies(
   id,legal_name,country_code,publication_status,claimed_status,verification_status
