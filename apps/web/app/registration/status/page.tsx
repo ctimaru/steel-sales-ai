@@ -2,49 +2,84 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { createClient } from "@/lib/supabase/server";
+import { ProductBrand } from "@/components/product-brand";
+import { RegistrationJourney } from "@/components/registration-journey";
 import { privateNoIndexRobots } from "@/lib/seo";
+import { createClient } from "@/lib/supabase/server";
+
+import { logoutRegistration } from "@/app/register/actions";
 
 export const metadata: Metadata = {
   title: "Stato registrazione",
   robots: privateNoIndexRobots,
 };
 
-const STATUS_COPY: Record<string, { title: string; body: string; tone: string }> = {
+const STATUS_COPY: Record<
+  string,
+  { title: string; body: string; tone: string; label: string; journeyStep: 1 | 2 | 3 | 4 }
+> = {
   draft: {
-    title: "Bozza non inviata",
-    body: "Completa i dati aziendali e invia la richiesta.",
-    tone: "border-slate-200 bg-slate-50 text-slate-800",
+    title: "La richiesta è ancora in bozza",
+    body: "Completa i dati aziendali e invia la richiesta quando sei pronto.",
+    tone: "border-[#dce2df] bg-[#f8faf9] text-[#43524c]",
+    label: "Bozza",
+    journeyStep: 2,
+  },
+  submitted: {
+    title: "Richiesta ricevuta",
+    body: "Abbiamo ricevuto la registrazione. Il prossimo passaggio è la revisione dei dati aziendali.",
+    tone: "border-[#b8d2c8] bg-[#edf5f2] text-[#173f35]",
+    label: "Ricevuta",
+    journeyStep: 3,
+  },
+  email_verification_pending: {
+    title: "Verifica l’indirizzo email",
+    body: "Prima della revisione dobbiamo confermare che l’indirizzo email appartenga al tuo account.",
+    tone: "border-[#ead7aa] bg-[#fff9e8] text-[#77551c]",
+    label: "Verifica email",
+    journeyStep: 2,
   },
   pending_review: {
-    title: "Richiesta in revisione",
-    body: "La richiesta è stata ricevuta. Il Platform Superadmin la esaminerà prima dell’attivazione del workspace.",
-    tone: "border-blue-200 bg-blue-50 text-blue-900",
+    title: "La richiesta è in revisione",
+    body: "Stiamo controllando i dati dell’azienda e l’identità corretta nel Network. Non devi fare nulla in questo momento.",
+    tone: "border-[#b8d2c8] bg-[#edf5f2] text-[#173f35]",
+    label: "In revisione",
+    journeyStep: 3,
   },
   needs_information: {
-    title: "Servono altre informazioni",
-    body: "Aggiorna i dati richiesti e invia nuovamente la registrazione.",
-    tone: "border-amber-200 bg-amber-50 text-amber-900",
+    title: "Serve un aggiornamento",
+    body: "La revisione richiede alcune informazioni aggiuntive. Aggiorna la richiesta e inviala nuovamente.",
+    tone: "border-[#ead7aa] bg-[#fff9e8] text-[#77551c]",
+    label: "Da integrare",
+    journeyStep: 2,
   },
   approved: {
-    title: "Richiesta approvata",
-    body: "La registrazione è approvata. L’attivazione del workspace aziendale è il passaggio successivo.",
-    tone: "border-emerald-200 bg-emerald-50 text-emerald-900",
+    title: "Registrazione approvata",
+    body: "La revisione è completata. Stiamo finalizzando l’attivazione del workspace e il collegamento al profilo aziendale.",
+    tone: "border-[#b8d2c8] bg-[#edf5f2] text-[#173f35]",
+    label: "Approvata",
+    journeyStep: 4,
   },
   rejected: {
     title: "Richiesta non approvata",
-    body: "La richiesta non è stata approvata. Se ritieni che manchino informazioni utili, contatta il supporto della piattaforma.",
-    tone: "border-red-200 bg-red-50 text-red-900",
+    body: "La richiesta non può essere attivata nello stato attuale. In una prossima iterazione renderemo disponibile qui anche il dettaglio della motivazione e il percorso di recupero.",
+    tone: "border-[#efc5bd] bg-[#fff5f3] text-[#9f2f24]",
+    label: "Non approvata",
+    journeyStep: 3,
   },
   activated: {
     title: "Workspace attivato",
-    body: "La tua azienda è stata attivata. Puoi continuare con la configurazione del workspace.",
-    tone: "border-emerald-200 bg-emerald-50 text-emerald-900",
+    body: "La tua azienda è attiva. Puoi completare la configurazione iniziale e iniziare a usare il workspace.",
+    tone: "border-[#b8d2c8] bg-[#edf5f2] text-[#173f35]",
+    label: "Attivata",
+    journeyStep: 4,
   },
   suspended: {
     title: "Registrazione sospesa",
-    body: "L’accesso aziendale è temporaneamente sospeso.",
-    tone: "border-slate-300 bg-slate-100 text-slate-800",
+    body: "L’accesso aziendale è temporaneamente sospeso. Non sono richieste modifiche ai dati finché lo stato non viene aggiornato.",
+    tone: "border-[#d8d0c8] bg-[#f7f4f1] text-[#674c3b]",
+    label: "Sospesa",
+    journeyStep: 3,
   },
 };
 
@@ -75,44 +110,82 @@ export default async function RegistrationStatusPage({
   }
 
   const copy = STATUS_COPY[application.application_status] ?? {
-    title: "Registrazione aziendale",
-    body: "La richiesta è in elaborazione.",
-    tone: "border-slate-200 bg-slate-50 text-slate-800",
+    title: "Registrazione in elaborazione",
+    body: "La richiesta è stata registrata. Aggiorneremo questa pagina quando cambia lo stato.",
+    tone: "border-[#dce2df] bg-[#f8faf9] text-[#43524c]",
+    label: "In elaborazione",
+    journeyStep: 3 as const,
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 sm:py-12">
-      <div className="mx-auto max-w-2xl">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-9">
-          <p className="text-xs font-bold tracking-[0.16em] text-slate-400">STEEL SALES AI</p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">Stato registrazione</h1>
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            Qui puoi controllare lo stato della richiesta per <span className="font-semibold text-slate-800">{application.legal_name}</span>.
-          </p>
+    <main className="min-h-screen bg-[#f2f4f3] px-4 py-6 sm:px-6 sm:py-10">
+      <div className="mx-auto max-w-4xl">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <ProductBrand href="/" />
+          <form action={logoutRegistration}>
+            <button
+              type="submit"
+              className="text-sm font-semibold text-[#66736e] hover:text-[#173f35]"
+            >
+              Esci
+            </button>
+          </form>
+        </div>
+
+        <div className="mt-6 rounded-[28px] border border-[#dce2df] bg-white p-5 shadow-[0_14px_44px_rgba(18,61,52,0.06)] sm:p-8 lg:p-10">
+          <RegistrationJourney current={copy.journeyStep} />
+
+          <div className="mt-8">
+            <p className="app-kicker">Registrazione aziendale</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-[-0.02em] text-[#1d2824] sm:text-4xl">
+              {application.legal_name}
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#66736e]">
+              Qui trovi lo stato aggiornato della richiesta. Quando sarà necessario un tuo
+              intervento, troverai una CTA chiara in questa pagina.
+            </p>
+          </div>
 
           {submitted === "1" ? (
-            <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-              Richiesta inviata correttamente.
+            <div className="mt-6 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-4 py-3 text-sm font-medium text-[#173f35]">
+              Richiesta inviata correttamente. Puoi uscire: lo stato resterà disponibile al
+              prossimo accesso.
             </div>
           ) : null}
 
-          <div className={`mt-6 rounded-2xl border p-5 ${copy.tone}`}>
-            <p className="text-sm font-semibold">{copy.title}</p>
-            <p className="mt-2 text-sm leading-6">{copy.body}</p>
-          </div>
+          <section className={`mt-6 rounded-2xl border p-5 ${copy.tone}`}>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.12em] opacity-70">
+                  Stato attuale
+                </p>
+                <h2 className="mt-2 text-lg font-semibold">{copy.title}</h2>
+              </div>
+              <span className="rounded-full border border-current/15 bg-white/60 px-3 py-1 text-xs font-semibold">
+                {copy.label}
+              </span>
+            </div>
+            <p className="mt-3 max-w-2xl text-sm leading-6">{copy.body}</p>
+          </section>
 
-          <dl className="mt-8 divide-y divide-slate-100 rounded-2xl border border-slate-200">
-            <div className="grid grid-cols-[130px_1fr] gap-4 px-4 py-3 text-sm">
-              <dt className="text-slate-500">Azienda</dt>
-              <dd className="font-medium text-slate-900">{application.legal_name}</dd>
+          <dl className="mt-6 overflow-hidden rounded-2xl border border-[#dce2df] bg-white">
+            <div className="grid gap-1 border-b border-[#eef1ef] px-4 py-3 sm:grid-cols-[170px_1fr] sm:gap-4">
+              <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-[#7b8782]">
+                Azienda
+              </dt>
+              <dd className="text-sm font-medium text-[#1d2824]">{application.legal_name}</dd>
             </div>
-            <div className="grid grid-cols-[130px_1fr] gap-4 px-4 py-3 text-sm">
-              <dt className="text-slate-500">Stato</dt>
-              <dd className="font-medium text-slate-900">{application.application_status}</dd>
+            <div className="grid gap-1 border-b border-[#eef1ef] px-4 py-3 sm:grid-cols-[170px_1fr] sm:gap-4">
+              <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-[#7b8782]">
+                Stato
+              </dt>
+              <dd className="text-sm font-medium text-[#1d2824]">{copy.label}</dd>
             </div>
-            <div className="grid grid-cols-[130px_1fr] gap-4 px-4 py-3 text-sm">
-              <dt className="text-slate-500">Aggiornato</dt>
-              <dd className="font-medium text-slate-900">
+            <div className="grid gap-1 px-4 py-3 sm:grid-cols-[170px_1fr] sm:gap-4">
+              <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-[#7b8782]">
+                Ultimo aggiornamento
+              </dt>
+              <dd className="text-sm font-medium text-[#1d2824]">
                 {new Intl.DateTimeFormat("it-IT", {
                   dateStyle: "medium",
                   timeStyle: "short",
@@ -121,32 +194,38 @@ export default async function RegistrationStatusPage({
             </div>
           </dl>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            {application.application_status === "needs_information" || application.application_status === "draft" ? (
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            {application.application_status === "needs_information" ||
+            application.application_status === "draft" ? (
               <Link
                 href="/register"
-                className="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-semibold text-white"
+                className="app-primary inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold"
               >
-                Completa la richiesta
+                Aggiorna la richiesta
               </Link>
             ) : null}
 
             {application.application_status === "activated" ? (
               <Link
                 href="/onboarding"
-                className="inline-flex h-11 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-semibold text-white"
+                className="app-primary inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold"
               >
-                Configura il workspace
+                Continua la configurazione
               </Link>
             ) : null}
 
             <Link
-              href="/login"
-              className="inline-flex h-11 items-center justify-center rounded-xl border border-slate-300 px-5 text-sm font-semibold text-slate-700"
+              href="/"
+              className="app-secondary inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold"
             >
-              Torna al login
+              Torna al sito
             </Link>
           </div>
+
+          <p className="mt-6 text-xs leading-5 text-[#8b9792]">
+            L’approvazione della registrazione consente l’accesso al prodotto; non rappresenta una
+            certificazione o una valutazione commerciale dell’azienda.
+          </p>
         </div>
       </div>
     </main>
