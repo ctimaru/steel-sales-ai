@@ -1,4 +1,4 @@
-const fallbackSiteUrl = "https://smartsteelsales.com";
+const fallbackSiteUrl = "https://www.smartsteelsales.com";
 
 export const siteUrl = (
   process.env.NEXT_PUBLIC_SITE_URL?.trim() || fallbackSiteUrl
