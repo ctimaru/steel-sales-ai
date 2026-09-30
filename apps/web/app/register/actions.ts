@@ -109,3 +109,10 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
 
   redirect("/registration/status?submitted=1");
 }
+
+export async function logoutRegistration() {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect("/login");
+}
+
