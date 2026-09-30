@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { getRegistrationQueue, requirePlatformPermission } from "@/lib/platform-admin";
+import { isRegistrationApplicationStatus } from "@/lib/registration-state";
 
 const FILTERS = [
   ["all", "Tutte"],
@@ -25,7 +26,6 @@ const STATUS_LABELS: Record<string, string> = {
   approved: "Approvata",
   rejected: "Rifiutata",
   activated: "Attivata",
-  suspended: "Sospesa",
 };
 
 function statusClass(status: string) {
@@ -48,7 +48,7 @@ export default async function AdminRegistrationsPage({
 }) {
   await requirePlatformPermission("registrations.read");
   const { status, error } = await searchParams;
-  const activeStatus = status && status !== "all" ? status : null;
+  const activeStatus = isRegistrationApplicationStatus(status) ? status : null;
   const queue = await getRegistrationQueue(activeStatus);
 
   return (
