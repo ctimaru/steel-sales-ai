@@ -120,7 +120,7 @@ export default async function VerifyEmailPage({
                     : "Email di verifica"}
                 </p>
                 <p className="mt-2 text-sm leading-6 text-[#66736e]">
-                  Apri il messaggio di Steel Sales AI e premi <strong>Conferma email</strong>. Dopo
+                  Apri il messaggio di Smart Steel Sales e premi <strong>Conferma email</strong>. Dopo
                   la verifica tornerai automaticamente al percorso di registrazione aziendale.
                 </p>
               </div>
@@ -149,7 +149,7 @@ export default async function VerifyEmailPage({
 
           <div className="mt-7 grid gap-3 sm:grid-cols-3">
             {[
-              ["1", "Apri l’email", "Cerca il messaggio di verifica inviato da Steel Sales AI."],
+              ["1", "Apri l’email", "Cerca il messaggio di verifica inviato da Smart Steel Sales."],
               ["2", "Conferma", "Premi il pulsante contenuto nel messaggio."],
               ["3", "Continua", "Completa i dati aziendali dopo la verifica."],
             ].map(([number, title, body]) => (
