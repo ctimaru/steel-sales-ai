@@ -1,7 +1,12 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import {
+  PENDING_SIGNUP_EMAIL_COOKIE,
+  pendingSignupEmailCookieOptions,
+} from "@/lib/auth-email-verification";
 import { createClient } from "@/lib/supabase/server";
 
 const COMPANY_TYPES = new Set([
@@ -25,7 +30,15 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
   }
 
   if (!user.email_confirmed_at) {
-    redirect("/register?error=Conferma%20prima%20il%20tuo%20indirizzo%20email");
+    if (user.email) {
+      const cookieStore = await cookies();
+      cookieStore.set(
+        PENDING_SIGNUP_EMAIL_COOKIE,
+        user.email.toLowerCase(),
+        pendingSignupEmailCookieOptions,
+      );
+    }
+    redirect("/verify-email?source=registration");
   }
 
   const legalName = field(formData, "legal_name");
@@ -113,6 +126,8 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
 export async function logoutRegistration() {
   const supabase = await createClient();
   await supabase.auth.signOut();
+  const cookieStore = await cookies();
+  cookieStore.delete(PENDING_SIGNUP_EMAIL_COOKIE);
   redirect("/login");
 }
 
