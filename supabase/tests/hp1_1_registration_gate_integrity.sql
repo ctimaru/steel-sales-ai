@@ -100,9 +100,13 @@ insert into public.company_registration_applications(
 
 reset role;
 update public.company_registration_applications
-set application_status='approved',
+set application_status='pending_review',
     submitted_at=now(),
-    email_verified_at=now(),
+    email_verified_at=now()
+where id=:'fresh_app_id'::uuid;
+
+update public.company_registration_applications
+set application_status='approved',
     reviewed_at=now(),
     reviewed_by=:'owner_id'::uuid
 where id=:'fresh_app_id'::uuid;
@@ -200,9 +204,13 @@ insert into public.company_registration_applications(
 
 reset role;
 update public.company_registration_applications
-set application_status='approved',
+set application_status='pending_review',
     submitted_at=now(),
-    email_verified_at=now(),
+    email_verified_at=now()
+where id=:'conflict_app_id'::uuid;
+
+update public.company_registration_applications
+set application_status='approved',
     reviewed_at=now(),
     reviewed_by=:'owner_id'::uuid
 where id=:'conflict_app_id'::uuid;

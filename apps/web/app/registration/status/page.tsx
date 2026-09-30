@@ -4,6 +4,10 @@ import { redirect } from "next/navigation";
 
 import { ProductBrand } from "@/components/product-brand";
 import { RegistrationJourney } from "@/components/registration-journey";
+import {
+  isRegistrationApplicationStatus,
+  type RegistrationApplicationStatus,
+} from "@/lib/registration-state";
 import { privateNoIndexRobots } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 
@@ -15,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 const STATUS_COPY: Record<
-  string,
+  RegistrationApplicationStatus,
   { title: string; body: string; tone: string; label: string; journeyStep: 1 | 2 | 3 | 4 }
 > = {
   draft: {
@@ -23,20 +27,6 @@ const STATUS_COPY: Record<
     body: "Completa i dati aziendali e invia la richiesta quando sei pronto.",
     tone: "border-[#dce2df] bg-[#f8faf9] text-[#43524c]",
     label: "Bozza",
-    journeyStep: 2,
-  },
-  submitted: {
-    title: "Richiesta ricevuta",
-    body: "Abbiamo ricevuto la registrazione. Il prossimo passaggio è la revisione dei dati aziendali.",
-    tone: "border-[#b8d2c8] bg-[#edf5f2] text-[#173f35]",
-    label: "Ricevuta",
-    journeyStep: 3,
-  },
-  email_verification_pending: {
-    title: "Verifica l’indirizzo email",
-    body: "Prima della revisione dobbiamo confermare che l’indirizzo email appartenga al tuo account.",
-    tone: "border-[#ead7aa] bg-[#fff9e8] text-[#77551c]",
-    label: "Verifica email",
     journeyStep: 2,
   },
   pending_review: {
@@ -74,13 +64,6 @@ const STATUS_COPY: Record<
     label: "Attivata",
     journeyStep: 4,
   },
-  suspended: {
-    title: "Registrazione sospesa",
-    body: "L’accesso aziendale è temporaneamente sospeso. Non sono richieste modifiche ai dati finché lo stato non viene aggiornato.",
-    tone: "border-[#d8d0c8] bg-[#f7f4f1] text-[#674c3b]",
-    label: "Sospesa",
-    journeyStep: 3,
-  },
 };
 
 export default async function RegistrationStatusPage({
@@ -109,13 +92,15 @@ export default async function RegistrationStatusPage({
     redirect("/register");
   }
 
-  const copy = STATUS_COPY[application.application_status] ?? {
-    title: "Registrazione in elaborazione",
-    body: "La richiesta è stata registrata. Aggiorneremo questa pagina quando cambia lo stato.",
-    tone: "border-[#dce2df] bg-[#f8faf9] text-[#43524c]",
-    label: "In elaborazione",
-    journeyStep: 3 as const,
-  };
+  const copy = isRegistrationApplicationStatus(application.application_status)
+    ? STATUS_COPY[application.application_status]
+    : {
+        title: "Registrazione in elaborazione",
+        body: "La richiesta è stata registrata. Aggiorneremo questa pagina quando cambia lo stato.",
+        tone: "border-[#dce2df] bg-[#f8faf9] text-[#43524c]",
+        label: "In elaborazione",
+        journeyStep: 3 as const,
+      };
 
   return (
     <main className="min-h-screen bg-[#f2f4f3] px-4 py-6 sm:px-6 sm:py-10">

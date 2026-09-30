@@ -31,7 +31,6 @@ const STATUS_LABELS: Record<string, string> = {
   approved: "Approvata",
   rejected: "Rifiutata",
   activated: "Attivata",
-  suspended: "Sospesa",
 };
 
 const EVENT_LABELS: Record<string, string> = {
