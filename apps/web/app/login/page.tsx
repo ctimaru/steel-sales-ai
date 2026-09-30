@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ProductBrand } from "@/components/product-brand";
 import { Input } from "@/components/ui/input";
 import { privateNoIndexRobots } from "@/lib/seo";
-import { ProductBrand } from "@/components/product-brand";
 
 import { login } from "./actions";
 
@@ -20,64 +20,82 @@ export default async function LoginPage({
   const { error, message } = await searchParams;
 
   return (
-    <main className="grid min-h-screen bg-[#f5f7fb] lg:grid-cols-[1.05fr_0.95fr]">
-      <section className="hidden border-r border-[#e3eaf5] bg-[#f8fbff] p-12 lg:flex lg:flex-col lg:justify-between">
+    <main className="grid min-h-screen bg-[#f2f4f3] lg:grid-cols-[1.02fr_0.98fr]">
+      <section className="hidden bg-[#123d34] p-12 text-white lg:flex lg:flex-col lg:justify-between">
         <div>
-          <ProductBrand href="/" />
-          <span className="mt-16 inline-flex rounded-full bg-[#eef5ff] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#2f6fed]">
+          <ProductBrand href="/" inverse />
+          <span className="mt-16 inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#d9e8e2]">
             Steel Sales AI
           </span>
-          <h1 className="mt-5 max-w-xl text-5xl font-semibold leading-[1.05] text-[#1e2b45]">
-            Il sistema operativo commerciale per il settore siderurgico.
+          <h1 className="mt-6 max-w-xl text-5xl font-semibold leading-[1.05] tracking-[-0.04em]">
+            Il lavoro commerciale, finalmente in un unico posto.
           </h1>
-          <p className="mt-6 max-w-lg text-lg leading-8 text-[#68788e]">
-            Workspace privato per memoria e operatività, collegato a Network, Marketplace e Knowledge condivisi.
+          <p className="mt-6 max-w-lg text-lg leading-8 text-[#c6d8d1]">
+            Memoria commerciale privata, Network industriale, Marketplace e conoscenza tecnica
+            costruiti intorno al settore steel.
           </p>
         </div>
 
         <div className="grid gap-3 text-sm sm:grid-cols-2">
-          <div className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
-            <p className="font-semibold text-[#1e2b45]">Home Workspace</p>
-            <p className="mt-1 leading-6 text-[#68788e]">Email, offerte, prezzi, ordini e documenti rimangono privati.</p>
+          <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
+            <p className="font-semibold text-white">Workspace privato</p>
+            <p className="mt-1 leading-6 text-[#c6d8d1]">
+              Email, offerte, prezzi, ordini e documenti restano nella tua azienda.
+            </p>
           </div>
-          <div className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
-            <p className="font-semibold text-[#1e2b45]">Shared ecosystem</p>
-            <p className="mt-1 leading-6 text-[#68788e]">Network, Marketplace e Knowledge hanno confini espliciti.</p>
+          <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
+            <p className="font-semibold text-white">Ecosistema condiviso</p>
+            <p className="mt-1 leading-6 text-[#c6d8d1]">
+              Network e Marketplace hanno confini espliciti e governance separata.
+            </p>
           </div>
         </div>
       </section>
 
-      <section className="flex items-center justify-center bg-white px-6 py-10 sm:px-10 lg:px-14">
+      <section className="flex items-center justify-center bg-white px-5 py-8 sm:px-10 lg:px-14">
         <div className="w-full max-w-md">
           <div className="lg:hidden">
-            <ProductBrand href="/" compact />
+            <ProductBrand href="/" />
           </div>
 
-          <p className="mt-6 text-sm font-semibold text-[#2f6fed] lg:mt-0">Bentornato</p>
-          <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1e2b45]">
+          <p className="app-kicker mt-8 lg:mt-0">Bentornato</p>
+          <h2 className="mt-2 text-3xl font-semibold tracking-[-0.02em] text-[#1d2824]">
             Accedi al tuo workspace
           </h2>
-          <p className="mt-3 text-sm leading-6 text-[#68788e]">
-            Usa le credenziali della tua azienda. I nuovi account aziendali seguono un flusso di registrazione e approvazione separato.
+          <p className="mt-3 text-sm leading-6 text-[#66736e]">
+            Usa le credenziali associate alla tua azienda. Se stai registrando una nuova azienda,
+            continua dal percorso dedicato.
           </p>
 
           {error ? (
-            <div className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div
+              role="alert"
+              className="mt-6 rounded-xl border border-[#efc5bd] bg-[#fff5f3] px-4 py-3 text-sm text-[#9f2f24]"
+            >
               {error}
             </div>
           ) : null}
+
           {message ? (
-            <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+            <div className="mt-6 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-4 py-3 text-sm text-[#173f35]">
               {message}
             </div>
           ) : null}
 
           <form action={login} className="mt-8 space-y-5">
-            <label className="block text-sm font-medium text-[#40516a]">
+            <label className="block text-sm font-medium text-[#43524c]">
               Email
-              <Input className="mt-2 h-11" name="email" type="email" autoComplete="email" required />
+              <Input
+                className="mt-2 h-11"
+                name="email"
+                type="email"
+                autoComplete="email"
+                inputMode="email"
+                required
+              />
             </label>
-            <label className="block text-sm font-medium text-[#40516a]">
+
+            <label className="block text-sm font-medium text-[#43524c]">
               Password
               <Input
                 className="mt-2 h-11"
@@ -88,27 +106,35 @@ export default async function LoginPage({
                 required
               />
             </label>
+
             <div className="flex justify-end">
-              <Link href="/forgot-password" className="text-xs font-semibold text-[#68788e] underline underline-offset-4 hover:text-[#1e2b45]">
+              <Link
+                href="/forgot-password"
+                className="text-xs font-semibold text-[#66736e] underline decoration-[#cbd5d0] underline-offset-4 hover:text-[#173f35]"
+              >
                 Password dimenticata?
               </Link>
             </div>
+
             <button
               type="submit"
-              className="h-11 w-full rounded-xl bg-[#2f6fed] text-sm font-semibold text-white shadow-sm transition hover:bg-[#245ed1]"
+              className="app-primary h-11 w-full rounded-xl text-sm font-semibold"
             >
               Accedi
             </button>
           </form>
 
-          <div className="mt-8 border-t border-[#e1e8f2] pt-6">
-            <p className="text-sm font-semibold text-[#2f4059]">La tua azienda non è ancora su Steel Sales AI?</p>
-            <p className="mt-1 text-sm leading-6 text-[#68788e]">
-              Crea il tuo account e invia la richiesta di registrazione aziendale. L’accesso al workspace viene attivato dopo approvazione.
+          <div className="mt-8 rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-5">
+            <p className="text-sm font-semibold text-[#1d2824]">
+              La tua azienda non è ancora su Steel Sales AI?
+            </p>
+            <p className="mt-2 text-sm leading-6 text-[#66736e]">
+              Crea un account, inserisci i dati aziendali e invia la richiesta. Il workspace viene
+              aperto solo dopo revisione.
             </p>
             <Link
               href="/register"
-              className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-xl border border-[#dbe5f1] bg-white text-sm font-semibold text-[#40516a] transition hover:border-[#bdd1f4] hover:bg-[#f3f7ff] hover:text-[#2f6fed]"
+              className="app-secondary mt-4 inline-flex h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-semibold"
             >
               Registra la tua azienda
             </Link>
