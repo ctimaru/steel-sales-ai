@@ -4,7 +4,10 @@ import { redirect } from "next/navigation";
 
 import { ProductBrand } from "@/components/product-brand";
 import { RegistrationJourney } from "@/components/registration-journey";
-import type { RegistrationApplicationStatus } from "@/lib/registration-state";
+import {
+  isRegistrationApplicationStatus,
+  type RegistrationApplicationStatus,
+} from "@/lib/registration-state";
 import { privateNoIndexRobots } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 
@@ -89,14 +92,15 @@ export default async function RegistrationStatusPage({
     redirect("/register");
   }
 
-  const copy =
-    STATUS_COPY[application.application_status as RegistrationApplicationStatus] ?? {
-    title: "Registrazione in elaborazione",
-    body: "La richiesta è stata registrata. Aggiorneremo questa pagina quando cambia lo stato.",
-    tone: "border-[#dce2df] bg-[#f8faf9] text-[#43524c]",
-    label: "In elaborazione",
-    journeyStep: 3 as const,
-  };
+  const copy = isRegistrationApplicationStatus(application.application_status)
+    ? STATUS_COPY[application.application_status]
+    : {
+        title: "Registrazione in elaborazione",
+        body: "La richiesta è stata registrata. Aggiorneremo questa pagina quando cambia lo stato.",
+        tone: "border-[#dce2df] bg-[#f8faf9] text-[#43524c]",
+        label: "In elaborazione",
+        journeyStep: 3 as const,
+      };
 
   return (
     <main className="min-h-screen bg-[#f2f4f3] px-4 py-6 sm:px-6 sm:py-10">
