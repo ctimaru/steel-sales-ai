@@ -85,6 +85,7 @@ export const appRoutes = {
   },
 
   company: {
+    setup: "/onboarding",
     profile: "/company/profile",
     dataSources: "/company/data-sources",
     pilotAnalytics: "/company/pilot-analytics",
