@@ -110,7 +110,7 @@ export default async function ProductsPage({
               href: appRoutes.commercial.search,
               label: "Cerca nello storico",
             }}
-            note={canWrite ? "Dopo l’import, eventuali casi incerti compariranno in Correzioni." : "Il tuo ruolo è in sola lettura: i dati appariranno quando un collega abilitatato importerà lo storico."}
+            note={canWrite ? "Dopo l’import, eventuali casi incerti compariranno in Correzioni." : "Il tuo ruolo è in sola lettura: i dati appariranno quando un collega abilitato importerà lo storico."}
           />
         )
       ) : (
