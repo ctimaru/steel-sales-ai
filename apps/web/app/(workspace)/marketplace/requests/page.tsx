@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { getMyMarketplaceRequests } from "@/lib/marketplace";
 import { appRoutes } from "@/lib/routes";
@@ -132,21 +133,26 @@ export default async function MarketplaceRequestsPage({
         </div>
 
         {requests.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-[#c8d5d0] bg-white p-8 text-center">
-            <h3 className="font-semibold text-[#1d2824]">Nessuna ricerca Marketplace</h3>
-            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#66736e]">
-              P5.1 parte da un’azione esplicita: nessuna RFQ, email o richiesta della Commercial Memory
-              viene pubblicata automaticamente.
-            </p>
-            {canWrite ? (
-              <Link
-                href={appRoutes.marketplace.newRequest}
-                className="mt-5 inline-flex rounded-xl bg-[#1a5144] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#226657]"
-              >
-                Crea la prima ricerca
-              </Link>
-            ) : null}
-          </div>
+          <FirstUseEmptyState
+            title="La tua azienda non ha ancora ricerche Marketplace"
+            description="Le ricerche Marketplace nascono solo da un’azione esplicita: RFQ, email e richieste della Commercial Memory non vengono mai pubblicate automaticamente."
+            primaryAction={
+              canWrite
+                ? {
+                    href: appRoutes.marketplace.newRequest,
+                    label: "Crea la prima ricerca",
+                  }
+                : {
+                    href: appRoutes.marketplace.home,
+                    label: "Apri il Demand Board",
+                  }
+            }
+            secondaryAction={{
+              href: appRoutes.marketplace.responses,
+              label: "Apri risposte ricevute",
+            }}
+            note={canWrite ? "Potrai scegliere visibilità buyer, linee prodotto e scadenza prima della pubblicazione." : "Il tuo ruolo è in sola lettura: una ricerca potrà essere creata da un collega abilitato."}
+          />
         ) : (
           <div className="grid gap-3 lg:grid-cols-2">
             {requests.map((item) => (
