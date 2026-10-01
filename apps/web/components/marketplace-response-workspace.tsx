@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   createMarketplaceResponse,
   removeMarketplaceResponseLine,
@@ -10,6 +11,7 @@ import type {
   MarketplaceSupplierWorkspace,
   MarketplaceUnlockedLine,
 } from "@/lib/marketplace";
+import { appRoutes } from "@/lib/routes";
 
 function statusLabel(status: string) {
   if (status === "draft") return "Bozza";
@@ -35,6 +37,37 @@ function reasonLabel(reason: string) {
     return "Prima di rispondere devi aprire almeno una volta il dettaglio governato dell’opportunità.";
   }
   return "Il diritto di risposta non è disponibile per questa opportunità.";
+}
+
+function reasonAction(reason: string, requestId: string) {
+  if (reason === "request_not_open") {
+    return {
+      href: appRoutes.marketplace.home,
+      label: "Torna alle opportunità aperte",
+    };
+  }
+  if (reason === "entitlement_required") {
+    return {
+      href: appRoutes.marketplace.notifications,
+      label: "Apri opportunità per te",
+    };
+  }
+  if (reason === "unlock_required") {
+    return {
+      href: appRoutes.marketplace.opportunity(requestId),
+      label: "Riapri il dettaglio opportunità",
+    };
+  }
+  if (reason === "rate_limited") {
+    return {
+      href: appRoutes.marketplace.responses,
+      label: "Apri le risposte Marketplace",
+    };
+  }
+  return {
+    href: appRoutes.marketplace.home,
+    label: "Torna al Demand Board",
+  };
 }
 
 function numberLabel(value: number | undefined) {
@@ -128,14 +161,24 @@ export function MarketplaceResponseWorkspace({
   }
 
   if (!response) {
+    const action = reasonAction(rights.reason, requestId);
     return (
       <section className="rounded-2xl border border-amber-100 bg-amber-50/60 p-5">
-        <p className="text-sm font-semibold text-amber-900">
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-amber-800">
+          Response blocker
+        </p>
+        <p className="mt-2 text-sm font-semibold text-amber-950">
           Risposta non disponibile
         </p>
         <p className="mt-1 text-sm leading-6 text-amber-800">
           {reasonLabel(rights.reason)}
         </p>
+        <Link
+          href={action.href}
+          className="mt-4 inline-flex rounded-xl border border-amber-200 bg-white px-4 py-2.5 text-sm font-semibold text-amber-900 hover:bg-amber-50"
+        >
+          {action.label}
+        </Link>
       </section>
     );
   }
@@ -422,11 +465,22 @@ export function MarketplaceResponseWorkspace({
             </form>
           ) : null}
 
-          {response.status === "draft" && !rights.can_edit ? (
-            <p className="mt-5 rounded-xl border border-amber-100 bg-amber-50/60 px-4 py-3 text-sm text-amber-800">
-              {reasonLabel(rights.reason)}
-            </p>
-          ) : null}
+          {response.status === "draft" && !rights.can_edit ? (() => {
+            const action = reasonAction(rights.reason, requestId);
+            return (
+              <div className="mt-5 rounded-xl border border-amber-100 bg-amber-50/60 px-4 py-3">
+                <p className="text-sm text-amber-800">
+                  {reasonLabel(rights.reason)}
+                </p>
+                <Link
+                  href={action.href}
+                  className="mt-3 inline-flex text-sm font-semibold text-amber-900 hover:underline"
+                >
+                  {action.label} →
+                </Link>
+              </div>
+            );
+          })() : null}
         </>
       )}
     </section>
