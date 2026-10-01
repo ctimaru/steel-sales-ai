@@ -297,7 +297,7 @@ export default async function OnboardingPage({
             </Link>
           </article>
 
-          <article className="rounded-3xl border border-[#dce2df] bg-white p-6">
+          <article id="commercial-memory" className="scroll-mt-8 rounded-3xl border border-[#dce2df] bg-white p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#1a5144]">
