@@ -223,15 +223,36 @@ export async function getRegistrationDetail(applicationId: string) {
 export type RegistrationNetworkCandidate = {
   network_company_id: string;
   legal_name: string;
+  trading_name: string | null;
   country_code: string;
+  vat_id: string | null;
+  registration_id: string | null;
   website_domain: string | null;
   publication_status: string;
+  claimed_status: string;
   verification_status: string;
   signals: string[];
+  resolution_class:
+    | "exact_identifier"
+    | "legal_name_and_domain"
+    | "legal_name_exact"
+    | "shared_domain";
   match_score: number;
+  selectable: boolean;
+  active_link_organization_id: string | null;
+  approved_claim_organization_id: string | null;
 };
 
-export async function getRegistrationNetworkCandidates(applicationId: string) {
+export type RegistrationIdentityResolution = {
+  application_id: string;
+  create_new_allowed: boolean;
+  candidate_count: number;
+  possible_match_count: number;
+  candidates: RegistrationNetworkCandidate[];
+  possible_matches: RegistrationNetworkCandidate[];
+};
+
+export async function getRegistrationIdentityResolution(applicationId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("m7_registration_network_candidates", {
     p_application_id: applicationId,
@@ -242,6 +263,19 @@ export async function getRegistrationNetworkCandidates(applicationId: string) {
     throw new Error(error.message);
   }
 
-  const payload = (data ?? {}) as { candidates?: RegistrationNetworkCandidate[] };
-  return payload.candidates ?? [];
+  const payload = (data ?? {}) as Partial<RegistrationIdentityResolution>;
+
+  return {
+    application_id: payload.application_id ?? applicationId,
+    create_new_allowed: payload.create_new_allowed ?? false,
+    candidate_count: Number(payload.candidate_count ?? 0),
+    possible_match_count: Number(payload.possible_match_count ?? 0),
+    candidates: payload.candidates ?? [],
+    possible_matches: payload.possible_matches ?? [],
+  } satisfies RegistrationIdentityResolution;
+}
+
+export async function getRegistrationNetworkCandidates(applicationId: string) {
+  const resolution = await getRegistrationIdentityResolution(applicationId);
+  return resolution.candidates;
 }
