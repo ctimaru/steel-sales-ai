@@ -20,7 +20,7 @@ export default function SchoolPage() {
 
       <section className="grid gap-4 lg:grid-cols-2">
         <Link
-          href={appRoutes.commercial.knowledgeExplorer}
+          href={appRoutes.knowledge.explorer}
           className="rounded-3xl border border-[#dce2df] bg-white p-6 transition hover:border-[#b8d2c8] hover:shadow-sm"
         >
           <span className="rounded-full bg-[#ecefed] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#65716c]">
