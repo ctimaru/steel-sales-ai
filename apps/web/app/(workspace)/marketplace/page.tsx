@@ -2,12 +2,14 @@ import Link from "next/link";
 
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { MarketplaceCountdown } from "@/components/marketplace-countdown";
+import { MarketplaceReadinessPanel } from "@/components/marketplace-readiness";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import {
   getMarketplaceFeed,
   getMarketplaceTaxonomy,
   type MarketplaceFeedItem,
 } from "@/lib/marketplace";
+import { getMarketplaceEntryReadiness } from "@/lib/marketplace-readiness";
 import { appRoutes } from "@/lib/routes";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 
@@ -55,7 +57,7 @@ export default async function MarketplaceFeedPage({
           ? 168
           : undefined;
 
-  const [feed, taxonomy] = await Promise.all([
+  const [feed, taxonomy, readiness] = await Promise.all([
     getMarketplaceFeed(context.organizationId, {
       productKey: params.product || undefined,
       countryCode: params.country || undefined,
@@ -64,6 +66,7 @@ export default async function MarketplaceFeedPage({
       offset: 0,
     }),
     getMarketplaceTaxonomy(),
+    getMarketplaceEntryReadiness(context.role),
   ]);
 
   const canWrite = canWriteWorkspace(context.role);
