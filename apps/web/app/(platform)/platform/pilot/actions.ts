@@ -1,5 +1,7 @@
 "use server";
 
+import { safeErrorMessage } from "@/lib/user-facing-error";
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -34,7 +36,7 @@ export async function startMarketplacePilot(formData: FormData) {
     p_planned_ends_at: plannedEnd,
   });
 
-  if (error) redirect(pilotPath("error", error.message));
+  if (error) redirect(pilotPath("error", safeErrorMessage(error, "Operazione pilot non completata. Aggiorna la pagina e riprova.")));
   await finish("Pilot P5.6 avviato. Il cohort resta vuoto finché non selezioni aziende reali.");
 }
 
@@ -54,7 +56,7 @@ export async function addMarketplacePilotParticipant(formData: FormData) {
     p_participant_role: participantRole,
   });
 
-  if (error) redirect(pilotPath("error", error.message));
+  if (error) redirect(pilotPath("error", safeErrorMessage(error, "Operazione pilot non completata. Aggiorna la pagina e riprova.")));
   await finish("Azienda aggiunta al cohort come candidata. La readiness resta separata dall’attivazione.");
 }
 
@@ -77,7 +79,7 @@ export async function transitionMarketplacePilotParticipant(formData: FormData) 
     p_action: action,
   });
 
-  if (error) redirect(pilotPath("error", error.message));
+  if (error) redirect(pilotPath("error", safeErrorMessage(error, "Operazione pilot non completata. Aggiorna la pagina e riprova.")));
 
   const labels: Record<string, string> = {
     activate: "Partecipante attivato nel pilot.",
