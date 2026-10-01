@@ -73,7 +73,7 @@ export default async function MarketplaceRequestPage({
 
   const [detail, readiness] = await Promise.all([
     getMarketplaceRequest(id),
-    getMarketplaceEntryReadiness(context.role),
+    getMarketplaceEntryReadiness(context.organizationId, context.role),
   ]);
   if (!detail) notFound();
 
