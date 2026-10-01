@@ -12,36 +12,68 @@ function textValue(formData: FormData, key: string) {
 }
 
 export async function requestNetworkClaim(formData: FormData) {
-  await requireWorkspaceAdmin();
+  const context = await requireWorkspaceAdmin();
   const companyId = textValue(formData, "network_company_id");
-  const organizationId = textValue(formData, "organization_id");
+  const note = textValue(formData, "note");
+  const authorityConfirmed = textValue(formData, "authority_confirmed") === "true";
 
-  if (!companyId || !organizationId) redirect("/network?error=Claim%20non%20valido");
+  if (!companyId) redirect("/network?error=Claim%20non%20valido");
+  if (!authorityConfirmed) {
+    redirect(
+      "/network/" +
+        companyId +
+        "/claim?error=" +
+        encodeURIComponent("Conferma di essere autorizzato a rappresentare l'azienda."),
+    );
+  }
+  if (note.length > 2000) {
+    redirect(
+      "/network/" +
+        companyId +
+        "/claim?error=" +
+        encodeURIComponent("La nota non può superare 2000 caratteri."),
+    );
+  }
 
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("p3_6_request_company_claim", {
     p_network_company_id: companyId,
-    p_organization_id: organizationId,
-    p_note: "Requested from Network company profile",
+    p_organization_id: context.organizationId,
+    p_note: note || "Requested from HP5 claim experience",
   });
 
   if (error) {
-    redirect("/network/" + companyId + "?error=" + encodeURIComponent(error.message));
+    redirect(
+      "/network/" +
+        companyId +
+        "/claim?error=" +
+        encodeURIComponent(error.message),
+    );
   }
 
   const result = (data ?? {}) as {
     proof_status?: string;
     proof_method?: string;
+    shared_company_domain?: boolean;
   };
+
   const message =
     result.proof_status === "verified"
-      ? "Claim inviato. Ownership verificata tramite email aziendale; in attesa approvazione Superadmin."
-      : "Claim inviato. Ownership da verificare; in attesa controllo Superadmin.";
+      ? "Richiesta inviata. Ownership confermata tramite email aziendale; resta l'approvazione della piattaforma."
+      : result.shared_company_domain
+        ? "Richiesta inviata. Il dominio è condiviso da più entità legali: ownership in revisione manuale."
+        : "Richiesta inviata. Ownership in revisione manuale.";
 
   revalidatePath("/network/" + companyId);
+  revalidatePath("/network/" + companyId + "/claim");
   revalidatePath("/network/manage");
   revalidatePath("/platform/company-claims");
-  redirect("/network/" + companyId + "?message=" + encodeURIComponent(message));
+  redirect(
+    "/network/" +
+      companyId +
+      "/claim?message=" +
+      encodeURIComponent(message),
+  );
 }
 
 export async function updateManagedNetworkProfile(formData: FormData) {
