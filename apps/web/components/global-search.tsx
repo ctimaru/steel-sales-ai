@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState, useState } from "react";
 
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import {
   globalSearch,
   type GlobalResultType,
@@ -312,10 +313,20 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
           })}
 
           {(state.results ?? []).length === 0 ? (
-            <Card className="p-10 text-center">
-              <p className="font-semibold text-[#34445c]">Nessun risultato</p>
-              <p className="mt-2 text-sm text-[#68788e]">Prova una query più ampia oppure rimuovi uno dei filtri steel.</p>
-            </Card>
+            <FirstUseEmptyState
+              eyebrow="Ricerca senza risultati"
+              title="Nessun elemento corrisponde alla ricerca"
+              description="Prova una query più ampia oppure riparti dalle viste normalizzate per prodotto e azienda. La ricerca non crea record mancanti e mantiene sempre il collegamento alla fonte."
+              primaryAction={{
+                href: appRoutes.commercial.search,
+                label: "Nuova ricerca",
+              }}
+              secondaryAction={{
+                href: appRoutes.commercial.products,
+                label: "Apri Product 360",
+              }}
+              compact
+            />
           ) : null}
         </div>
       ) : null}
