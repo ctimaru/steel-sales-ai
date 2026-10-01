@@ -1,9 +1,6 @@
 import { canWriteWorkspace } from "@/lib/access-policy";
-import {
-  getManagedNetworkCompany,
-  getManagedNetworkProfileState,
-} from "@/lib/network";
 import { appRoutes } from "@/lib/routes";
+import { createClient } from "@/lib/supabase/server";
 
 export type MarketplaceReadinessStatus = "ready" | "blocked" | "improve";
 
@@ -45,35 +42,34 @@ const supplierRelationshipTypes = new Set([
 ]);
 
 export async function getMarketplaceEntryReadiness(
+  organizationId: string,
   role: string,
 ): Promise<MarketplaceEntryReadiness> {
   const canWrite = canWriteWorkspace(role);
-  const managed = await getManagedNetworkCompany();
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("hp11_marketplace_readiness", {
+    p_organization_id: organizationId,
+  });
 
-  const profile = managed?.network_company_id
-    ? await getManagedNetworkProfileState(managed.network_company_id)
-    : null;
+  if (error) throw new Error(error.message);
 
-  const linkReady = Boolean(
-    managed &&
-      managed.link_status === "active" &&
-      managed.network_company_id,
-  );
-  const profilePublished = Boolean(
-    managed?.company.publication_status === "published",
-  );
-  const productCount =
-    profile?.products.filter((item) =>
-      supplierRelationshipTypes.has(item.relationship_type),
-    ).length ?? 0;
-  const technicalSignalCount = profile
-    ? profile.technical_scope.standard_scopes.length +
-      profile.technical_scope.grade_scopes.length +
-      profile.technical_scope.dimension_scopes.length
-    : 0;
+  const payload = (data ?? {}) as {
+    network_company_id?: string | null;
+    link_status?: string | null;
+    publication_status?: string | null;
+    supplier_product_count?: number;
+    technical_signal_count?: number;
+    named_publication_ready?: boolean;
+    supplier_matching_ready?: boolean;
+  };
 
-  const namedPublicationReady = linkReady && profilePublished;
-  const matchingReady = linkReady && profilePublished && productCount > 0;
+  const networkCompanyId = payload.network_company_id ?? null;
+  const linkReady = payload.link_status === "active";
+  const profilePublished = payload.publication_status === "published";
+  const productCount = Number(payload.supplier_product_count ?? 0);
+  const technicalSignalCount = Number(payload.technical_signal_count ?? 0);
+  const namedPublicationReady = Boolean(payload.named_publication_ready);
+  const matchingReady = Boolean(payload.supplier_matching_ready);
 
   return {
     buyer: {
@@ -168,7 +164,7 @@ export async function getMarketplaceEntryReadiness(
         },
       ],
     },
-    networkCompanyId: managed?.network_company_id ?? null,
+    networkCompanyId,
   };
 }
 
