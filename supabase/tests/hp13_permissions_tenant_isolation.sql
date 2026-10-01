@@ -301,10 +301,10 @@ select set_config(
 );
 
 select pg_temp.hp13_assert_raises(
-  $$select public.p1_operational_alerts_summary(
+  $select public.p1_normalized_commercial_explorer(
       '00000000-0000-0000-0000-0000000013f2'::uuid
-    )$$,
-  'active tenant membership required'
+    )$,
+  'organization access denied'
 );
 
 select pg_temp.hp13_assert_raises(
