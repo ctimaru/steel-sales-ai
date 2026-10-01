@@ -11,6 +11,9 @@ export type WorkspaceContext = {
   role: string;
   isDefault: boolean;
   platformSuperadmin: boolean;
+  onboardingStatus: string;
+  guidedSetupComplete: boolean;
+  commercialMemoryReady: boolean;
 };
 
 export async function getWorkspaceContext(): Promise<WorkspaceContext> {
@@ -38,12 +41,17 @@ export async function getWorkspaceContext(): Promise<WorkspaceContext> {
 
   const { data: organization, error: organizationError } = await supabase
     .from("organizations")
-    .select("name,onboarding_status")
+    .select("name,onboarding_status,source_preferences,consent_version,consent_accepted_at,guided_setup_completed_at")
     .eq("id", membership.organization_id)
     .maybeSingle();
 
   if (organizationError) throw new Error(organizationError.message);
-  if (!organization || organization.onboarding_status !== "completed") redirect("/onboarding");
+  if (!organization) redirect("/login?error=Workspace%20non%20disponibile");
+
+  const commercialMemoryReady =
+    (organization.source_preferences?.length ?? 0) > 0 &&
+    Boolean(organization.consent_version) &&
+    Boolean(organization.consent_accepted_at);
 
   return {
     userId: user.id,
@@ -53,6 +61,9 @@ export async function getWorkspaceContext(): Promise<WorkspaceContext> {
     role: membership.role,
     isDefault: membership.is_default,
     platformSuperadmin: superadminFlag === true,
+    onboardingStatus: organization.onboarding_status,
+    guidedSetupComplete: Boolean(organization.guided_setup_completed_at),
+    commercialMemoryReady,
   };
 }
 
@@ -94,5 +105,17 @@ export async function requireWorkspaceAdmin(
 ): Promise<WorkspaceContext> {
   const context = await getWorkspaceContext();
   if (!canAdministerCompany(context.role)) redirect(fallback);
+  return context;
+}
+
+
+export async function requireCommercialMemoryReady(
+  fallback = "/onboarding?error=" +
+    encodeURIComponent(
+      "Configura prima fonti e autorizzazione al trattamento per usare la Commercial Memory.",
+    ),
+): Promise<WorkspaceContext> {
+  const context = await requireWorkspaceWriteRole(fallback);
+  if (!context.commercialMemoryReady) redirect(fallback);
   return context;
 }
