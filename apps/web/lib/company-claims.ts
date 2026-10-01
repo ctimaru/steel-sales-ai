@@ -48,7 +48,7 @@ export type CompanyClaimExperience = {
   corporate_email_confirmed: boolean;
   email_domain_matches_company: boolean;
   company_domain_profile_count: number;
-  current_claim: CompanyClaimState | null;
+  current_claim: Omit<CompanyClaimState, "network_company_id" | "organization_id"> | null;
   claim_is_separate_from_network_verification: boolean;
 };
 
