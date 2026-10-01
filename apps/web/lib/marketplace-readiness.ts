@@ -1,4 +1,7 @@
-import { canWriteWorkspace } from "@/lib/access-policy";
+import {
+  canAdministerCompany,
+  canWriteWorkspace,
+} from "@/lib/access-policy";
 import { appRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
 
@@ -46,6 +49,7 @@ export async function getMarketplaceEntryReadiness(
   role: string,
 ): Promise<MarketplaceEntryReadiness> {
   const canWrite = canWriteWorkspace(role);
+  const canAdminCompany = canAdministerCompany(role);
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("hp11_marketplace_readiness", {
     p_organization_id: organizationId,
@@ -93,10 +97,17 @@ export async function getMarketplaceEntryReadiness(
           description: namedPublicationReady
             ? "Il Company Profile è collegato e pubblicato: puoi usare la modalità named."
             : "Per mostrare il nome della tua azienda serve un Company Profile collegato e pubblicato. La modalità anonima resta disponibile.",
-          href: namedPublicationReady ? undefined : appRoutes.network.manage,
+          href:
+            namedPublicationReady || !canAdminCompany
+              ? undefined
+              : appRoutes.network.manage,
           actionLabel: namedPublicationReady
             ? undefined
-            : "Completa Company Profile",
+            : canAdminCompany
+              ? "Completa Company Profile"
+              : canWrite
+                ? "Pubblica in modalità anonima oppure chiedi a un Organization Admin"
+                : "Chiedi a un Organization Admin di completare il Company Profile",
         },
       ],
     },
@@ -117,11 +128,15 @@ export async function getMarketplaceEntryReadiness(
           href:
             linkReady && profilePublished
               ? undefined
-              : appRoutes.network.manage,
+              : canAdminCompany
+                ? appRoutes.network.manage
+                : undefined,
           actionLabel:
             linkReady && profilePublished
               ? undefined
-              : "Sistema il Company Profile",
+              : canAdminCompany
+                ? "Sistema il Company Profile"
+                : "Chiedi a un Organization Admin di sistemare il Company Profile",
         },
         {
           key: "supplier-products",
@@ -133,9 +148,16 @@ export async function getMarketplaceEntryReadiness(
                 ? "1 relazione prodotto eleggibile per il matching."
                 : `${productCount} relazioni prodotto eleggibili per il matching.`
               : "Dichiara almeno un prodotto come produttore, distributore, stockholder o processor per entrare nel matching.",
-          href: productCount > 0 ? undefined : appRoutes.network.manage,
+          href:
+            productCount > 0 || !canAdminCompany
+              ? undefined
+              : appRoutes.network.manage,
           actionLabel:
-            productCount > 0 ? undefined : "Aggiungi prodotti",
+            productCount > 0
+              ? undefined
+              : canAdminCompany
+                ? "Aggiungi prodotti"
+                : "Chiedi a un Organization Admin di aggiungere prodotti",
         },
         {
           key: "supplier-technical-scope",
@@ -146,13 +168,15 @@ export async function getMarketplaceEntryReadiness(
               ? `${technicalSignalCount} segnal${technicalSignalCount === 1 ? "e tecnico" : "i tecnici"} dichiarat${technicalSignalCount === 1 ? "o" : "i"} tra norme, gradi e range dimensionali.`
               : "Il prodotto può essere matchato anche con scope tecnico incompleto, ma norme, gradi e range dimensionali rendono il matching più preciso.",
           href:
-            technicalSignalCount > 0
+            technicalSignalCount > 0 || !canAdminCompany
               ? undefined
               : appRoutes.network.manage,
           actionLabel:
             technicalSignalCount > 0
               ? undefined
-              : "Completa scope tecnico",
+              : canAdminCompany
+                ? "Completa scope tecnico"
+                : "Chiedi a un Organization Admin di completare lo scope tecnico",
         },
         {
           key: "supplier-response-role",
