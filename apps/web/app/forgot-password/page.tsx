@@ -39,9 +39,12 @@ export default async function ForgotPasswordPage({
             Email
             <Input className="mt-2 h-11" name="email" type="email" autoComplete="email" required />
           </label>
-          <button className="h-11 w-full rounded-xl bg-slate-950 text-sm font-semibold text-white">
+          <PendingSubmitButton
+            pendingLabel="Invio link…"
+            className="h-11 w-full rounded-xl bg-slate-950 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+          >
             Invia link di recupero
-          </button>
+          </PendingSubmitButton>
         </form>
 
         <Link href="/login" className="mt-6 inline-block text-sm font-semibold text-slate-600 underline underline-offset-4">
