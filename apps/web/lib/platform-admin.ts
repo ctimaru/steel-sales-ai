@@ -110,6 +110,7 @@ export type RegistrationQueueItem = {
   trading_name: string | null;
   country_code: string;
   vat_id: string | null;
+  registration_id: string | null;
   primary_company_type: string;
   application_status: RegistrationApplicationStatus;
   submitted_at: string | null;
@@ -119,12 +120,37 @@ export type RegistrationQueueItem = {
   matched_network_company_id: string | null;
   created_at: string;
   updated_at: string;
+  operational_lane:
+    | "review"
+    | "waiting_company"
+    | "ready_activation"
+    | "completed"
+    | "closed"
+    | "draft";
+  next_action: "review_decision" | "await_resubmission" | "activate_workspace" | "none";
+  age_hours: number;
+  identity_state: "clear" | "candidate" | "shared_domain" | "controlled_conflict";
+  blocking_candidate_count: number;
+  possible_match_count: number;
+  controlled_candidate_count: number;
+  attention_required: boolean;
+};
+
+export type RegistrationOperationsSummary = {
+  pending_review: number;
+  pending_over_24h: number;
+  needs_information: number;
+  ready_activation: number;
+  identity_conflicts: number;
+  activated_last_7d: number;
+  oldest_pending_hours: number;
 };
 
 export type RegistrationEvent = {
   id: string;
   event_type: string;
   actor_user_id: string | null;
+  actor_email: string | null;
   actor_type: string;
   from_status: string | null;
   to_status: string | null;
@@ -173,10 +199,13 @@ export async function requirePlatformSuperadmin(fallback = "/platform") {
 
 export async function getRegistrationQueue(
   status?: RegistrationApplicationStatus | null,
+  query?: string | null,
 ) {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("p0a_admin_registration_queue", {
+  const { data, error } = await supabase.rpc("hp6_registration_operations_queue", {
     p_status: status || null,
+    p_query: query?.trim() || null,
+    p_limit: 200,
   });
 
   if (error) {
@@ -186,11 +215,23 @@ export async function getRegistrationQueue(
 
   const payload = (data ?? {}) as {
     count?: number;
+    total?: number;
+    summary?: Partial<RegistrationOperationsSummary>;
     applications?: RegistrationQueueItem[];
   };
 
   return {
     count: Number(payload.count ?? 0),
+    total: Number(payload.total ?? 0),
+    summary: {
+      pending_review: Number(payload.summary?.pending_review ?? 0),
+      pending_over_24h: Number(payload.summary?.pending_over_24h ?? 0),
+      needs_information: Number(payload.summary?.needs_information ?? 0),
+      ready_activation: Number(payload.summary?.ready_activation ?? 0),
+      identity_conflicts: Number(payload.summary?.identity_conflicts ?? 0),
+      activated_last_7d: Number(payload.summary?.activated_last_7d ?? 0),
+      oldest_pending_hours: Number(payload.summary?.oldest_pending_hours ?? 0),
+    } satisfies RegistrationOperationsSummary,
     applications: payload.applications ?? [],
   };
 }
@@ -209,6 +250,12 @@ export async function getRegistrationDetail(applicationId: string) {
   const payload = data as {
     application?: RegistrationApplicationDetail;
     events?: RegistrationEvent[];
+    identity_summary?: {
+      blocking_candidate_count?: number;
+      possible_match_count?: number;
+      controlled_candidate_count?: number;
+      identity_state?: "clear" | "candidate" | "shared_domain" | "controlled_conflict";
+    };
   };
 
   if (!payload?.application) return null;
@@ -216,6 +263,12 @@ export async function getRegistrationDetail(applicationId: string) {
   return {
     application: payload.application,
     events: payload.events ?? [],
+    identitySummary: {
+      blocking_candidate_count: Number(payload.identity_summary?.blocking_candidate_count ?? 0),
+      possible_match_count: Number(payload.identity_summary?.possible_match_count ?? 0),
+      controlled_candidate_count: Number(payload.identity_summary?.controlled_candidate_count ?? 0),
+      identity_state: payload.identity_summary?.identity_state ?? "clear",
+    },
   };
 }
 
