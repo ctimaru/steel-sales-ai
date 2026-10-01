@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { ProductBrand } from "@/components/product-brand";
 import { RegistrationJourney } from "@/components/registration-journey";
 import {
@@ -11,12 +12,46 @@ import {
 import { privateNoIndexRobots } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 
-import { logoutRegistration } from "@/app/register/actions";
+import {
+  logoutRegistration,
+  restartRejectedRegistration,
+} from "@/app/register/actions";
 
 export const metadata: Metadata = {
   title: "Stato registrazione",
   robots: privateNoIndexRobots,
 };
+
+type RegistrationRecoveryState = {
+  contract?: string;
+  application?: {
+    id: string;
+    status: string;
+    legal_name: string;
+    updated_at: string;
+    rejection_reason_code?: string | null;
+    rejection_note?: string | null;
+    information_request_note?: string | null;
+  } | null;
+  recovery_kind?: string;
+  can_reapply?: boolean;
+};
+
+const REJECTION_REASON_COPY: Record<string, string> = {
+  duplicate_application:
+    "Esiste già una pratica o un’identità aziendale che deve essere risolta prima di procedere.",
+  unverifiable_identity:
+    "Non è stato possibile verificare con sufficiente affidabilità l’identità dell’azienda.",
+  incomplete_information:
+    "Le informazioni disponibili non erano sufficienti per completare la revisione.",
+  unsupported_business:
+    "La richiesta non rientra nel perimetro operativo attualmente supportato dalla piattaforma.",
+  abuse_or_spam:
+    "La richiesta è stata bloccata dai controlli di integrità della piattaforma.",
+  other:
+    "La revisione ha richiesto una decisione manuale che non consente l’attivazione nello stato attuale.",
+};
+
 
 const STATUS_COPY: Record<
   RegistrationApplicationStatus,
@@ -52,7 +87,7 @@ const STATUS_COPY: Record<
   },
   rejected: {
     title: "Richiesta non approvata",
-    body: "La richiesta non può essere attivata nello stato attuale. In una prossima iterazione renderemo disponibile qui anche il dettaglio della motivazione e il percorso di recupero.",
+    body: "La richiesta non può essere attivata nello stato attuale. Qui trovi la motivazione disponibile e, quando consentito, il percorso per correggere i dati e ripresentarla.",
     tone: "border-[#efc5bd] bg-[#fff5f3] text-[#9f2f24]",
     label: "Non approvata",
     journeyStep: 3,
@@ -69,9 +104,13 @@ const STATUS_COPY: Record<
 export default async function RegistrationStatusPage({
   searchParams,
 }: {
-  searchParams: Promise<{ submitted?: string }>;
+  searchParams: Promise<{
+    submitted?: string;
+    error?: string;
+    error_code?: string;
+  }>;
 }) {
-  const { submitted } = await searchParams;
+  const { submitted, error: pageError } = await searchParams;
   const supabase = await createClient();
   const { data: authData } = await supabase.auth.getUser();
 
@@ -79,21 +118,24 @@ export default async function RegistrationStatusPage({
     redirect("/login");
   }
 
-  const { data: application } = await supabase
-    .from("company_registration_applications")
-    .select(
-      "id,legal_name,primary_company_type,application_status,submitted_at,reviewed_at,rejection_reason_code,activated_organization_id,updated_at",
-    )
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const { data: recoveryData, error: recoveryError } = await supabase.rpc(
+    "hp12_registration_recovery_state",
+    { p_application_id: null },
+  );
+
+  if (recoveryError) {
+    throw new Error("registration_recovery_state_unavailable");
+  }
+
+  const recovery = (recoveryData ?? {}) as RegistrationRecoveryState;
+  const application = recovery.application;
 
   if (!application) {
     redirect("/register");
   }
 
-  const copy = isRegistrationApplicationStatus(application.application_status)
-    ? STATUS_COPY[application.application_status]
+  const copy = isRegistrationApplicationStatus(application.status)
+    ? STATUS_COPY[application.status]
     : {
         title: "Registrazione in elaborazione",
         body: "La richiesta è stata registrata. Aggiorneremo questa pagina quando cambia lo stato.",
@@ -138,6 +180,15 @@ export default async function RegistrationStatusPage({
             </div>
           ) : null}
 
+          {pageError ? (
+            <div
+              role="alert"
+              className="mt-4 rounded-xl border border-[#efc5bd] bg-[#fff5f3] px-4 py-3 text-sm text-[#9f2f24]"
+            >
+              {pageError}
+            </div>
+          ) : null}
+
           <section className={`mt-6 rounded-2xl border p-5 ${copy.tone}`}>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -151,6 +202,44 @@ export default async function RegistrationStatusPage({
               </span>
             </div>
             <p className="mt-3 max-w-2xl text-sm leading-6">{copy.body}</p>
+
+            {application.status === "needs_information" &&
+            application.information_request_note ? (
+              <div className="mt-4 rounded-xl border border-current/10 bg-white/70 p-4">
+                <p className="text-xs font-bold uppercase tracking-[0.1em] opacity-70">
+                  Cosa aggiornare
+                </p>
+                <p className="mt-2 whitespace-pre-wrap text-sm leading-6">
+                  {application.information_request_note}
+                </p>
+              </div>
+            ) : null}
+
+            {application.status === "rejected" ? (
+              <div className="mt-4 space-y-3 rounded-xl border border-current/10 bg-white/70 p-4">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.1em] opacity-70">
+                    Motivo
+                  </p>
+                  <p className="mt-2 text-sm leading-6">
+                    {REJECTION_REASON_COPY[
+                      application.rejection_reason_code ?? ""
+                    ] ??
+                      "La richiesta richiede una verifica manuale prima di poter procedere."}
+                  </p>
+                </div>
+                {application.rejection_note ? (
+                  <div className="border-t border-current/10 pt-3">
+                    <p className="text-xs font-bold uppercase tracking-[0.1em] opacity-70">
+                      Dettaglio della revisione
+                    </p>
+                    <p className="mt-2 whitespace-pre-wrap text-sm leading-6">
+                      {application.rejection_note}
+                    </p>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
           </section>
 
           <dl className="mt-6 overflow-hidden rounded-2xl border border-[#dce2df] bg-white">
@@ -180,8 +269,8 @@ export default async function RegistrationStatusPage({
           </dl>
 
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            {application.application_status === "needs_information" ||
-            application.application_status === "draft" ? (
+            {application.status === "needs_information" ||
+            application.status === "draft" ? (
               <Link
                 href="/register"
                 className="app-primary inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold"
@@ -190,13 +279,29 @@ export default async function RegistrationStatusPage({
               </Link>
             ) : null}
 
-            {application.application_status === "activated" ? (
+            {application.status === "activated" ? (
               <Link
                 href="/onboarding"
                 className="app-primary inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold"
               >
                 Continua la configurazione
               </Link>
+            ) : null}
+
+            {application.status === "rejected" && recovery.can_reapply ? (
+              <form action={restartRejectedRegistration}>
+                <input
+                  type="hidden"
+                  name="application_id"
+                  value={application.id}
+                />
+                <PendingSubmitButton
+                  pendingLabel="Creazione bozza…"
+                  className="app-primary inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Correggi e ripresenta
+                </PendingSubmitButton>
+              </form>
             ) : null}
 
             <Link
@@ -206,6 +311,14 @@ export default async function RegistrationStatusPage({
               Torna al sito
             </Link>
           </div>
+
+          {application.status === "rejected" && !recovery.can_reapply ? (
+            <div className="mt-6 rounded-xl border border-[#dce2df] bg-[#f8faf9] p-4 text-sm leading-6 text-[#52615b]">
+              Questa decisione non prevede una nuova domanda automatica. Non creare
+              registrazioni parallele: il prossimo passo richiede un intervento del
+              team Smart Steel Sales.
+            </div>
+          ) : null}
 
           <p className="mt-6 text-xs leading-5 text-[#8b9792]">
             L’approvazione della registrazione consente l’accesso al prodotto; non rappresenta una
