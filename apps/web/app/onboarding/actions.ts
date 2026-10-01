@@ -10,12 +10,82 @@ import { requireWorkspaceAdmin } from "@/lib/workspace-context";
 async function origin() {
   const incoming = await headers();
   const host = incoming.get("x-forwarded-host") ?? incoming.get("host") ?? "localhost:3000";
-  const proto = incoming.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+  const proto =
+    incoming.get("x-forwarded-proto") ??
+    (host.startsWith("localhost") ? "http" : "https");
   return `${proto}://${host}`;
 }
 
-function onboardingRedirect(message: string, kind: "message" | "error" = "message"): never {
-  redirect(`/onboarding?${kind}=${encodeURIComponent(message)}`);
+function onboardingRedirect(
+  message: string,
+  kind: "message" | "error" = "message",
+): never {
+  redirect(`/onboarding?${kind}=${encodeURIComponent(message)}#team-access`);
+}
+
+function invitationErrorMessage(status: number, detail?: string): string {
+  const normalized = (detail ?? "").toLowerCase();
+
+  if (status === 409 || normalized.includes("active organization membership")) {
+    return "Questa persona ha già un accesso attivo all’azienda.";
+  }
+  if (status === 403 || normalized.includes("admin role required")) {
+    return "Solo un admin aziendale può gestire gli inviti.";
+  }
+  if (status === 400) {
+    return "Controlla email, ruolo e destinazione dell’invito.";
+  }
+  if (normalized.includes("rate") || normalized.includes("too many")) {
+    return "Troppi invii ravvicinati. Attendi qualche minuto e riprova.";
+  }
+
+  return "Invio dell’invito non riuscito. Riprova tra poco.";
+}
+
+async function sendInvitation(input: {
+  actorUserId: string;
+  organizationId: string;
+  email: string;
+  role: string;
+  businessRole: string | null;
+}) {
+  const workerUrl = process.env.WORKER_URL?.replace(/\/$/, "");
+  const workerToken = process.env.WORKER_INTERNAL_TOKEN;
+  if (!workerUrl || !workerToken) {
+    onboardingRedirect("Servizio inviti non configurato.", "error");
+  }
+
+  const response = await fetch(`${workerUrl}/v1/admin/organization-invitations`, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-worker-token": workerToken,
+    },
+    body: JSON.stringify({
+      actor_user_id: input.actorUserId,
+      organization_id: input.organizationId,
+      email: input.email,
+      role: input.role,
+      business_role: input.businessRole,
+      redirect_to: `${await origin()}/auth/finish?invited=1`,
+    }),
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => null)) as
+      | { detail?: string }
+      | null;
+    onboardingRedirect(
+      invitationErrorMessage(response.status, payload?.detail),
+      "error",
+    );
+  }
+}
+
+function revalidateTeam() {
+  revalidatePath("/onboarding");
+  revalidatePath("/dashboard");
 }
 
 export async function completeOnboarding(formData: FormData) {
@@ -46,85 +116,131 @@ export async function completeOnboarding(formData: FormData) {
   revalidatePath("/dashboard");
   redirect(
     "/onboarding?message=" +
-      encodeURIComponent("Fonti e autorizzazione salvate. Il workspace resta disponibile mentre completi gli altri passaggi."),
+      encodeURIComponent(
+        "Fonti e autorizzazione salvate. Il workspace resta disponibile mentre completi gli altri passaggi.",
+      ),
   );
 }
 
 export async function inviteMember(formData: FormData) {
   const context = await requireWorkspaceAdmin(
-    "/onboarding?error=" + encodeURIComponent("Solo un admin può invitare utenti."),
+    "/onboarding?error=" +
+      encodeURIComponent("Solo un admin può invitare utenti."),
   );
-  const supabase = await createClient();
-  const organizationId = context.organizationId;
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const role = String(formData.get("role") ?? "member");
+  const businessRole =
+    String(formData.get("business_role") ?? "").trim() || null;
 
-  const workerUrl = process.env.WORKER_URL?.replace(/\/$/, "");
-  const workerToken = process.env.WORKER_INTERNAL_TOKEN;
-  if (!workerUrl || !workerToken) {
-    onboardingRedirect("Servizio inviti non configurato.", "error");
-  }
-
-  const response = await fetch(`${workerUrl}/v1/admin/organization-invitations`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-worker-token": workerToken,
-    },
-    body: JSON.stringify({
-      actor_user_id: context.userId,
-      organization_id: organizationId,
-      email,
-      role,
-      redirect_to: `${await origin()}/auth/finish?invited=1`,
-    }),
-    cache: "no-store",
+  await sendInvitation({
+    actorUserId: context.userId,
+    organizationId: context.organizationId,
+    email,
+    role,
+    businessRole,
   });
 
-  if (!response.ok) {
-    const payload = await response.json().catch(() => null) as { detail?: string } | null;
-    onboardingRedirect(payload?.detail ?? "Invio dell’invito non riuscito.", "error");
-  }
-
-  revalidatePath("/onboarding");
+  revalidateTeam();
   onboardingRedirect(`Invito inviato a ${email}.`);
+}
+
+export async function resendInvitation(formData: FormData) {
+  const context = await requireWorkspaceAdmin(
+    "/onboarding?error=" +
+      encodeURIComponent("Solo un admin può reinviare inviti."),
+  );
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const role = String(formData.get("role") ?? "member");
+  const businessRole =
+    String(formData.get("business_role") ?? "").trim() || null;
+
+  await sendInvitation({
+    actorUserId: context.userId,
+    organizationId: context.organizationId,
+    email,
+    role,
+    businessRole,
+  });
+
+  revalidateTeam();
+  onboardingRedirect(`Invito reinviato a ${email}.`);
+}
+
+export async function revokeInvitation(formData: FormData) {
+  const context = await requireWorkspaceAdmin(
+    "/onboarding?error=" +
+      encodeURIComponent("Solo un admin può revocare inviti."),
+  );
+  const invitationId = String(formData.get("invitation_id") ?? "");
+  const supabase = await createClient();
+
+  const { error } = await supabase.rpc("hp8_revoke_organization_invitation", {
+    p_invitation_id: invitationId,
+  });
+  if (error) onboardingRedirect(error.message, "error");
+
+  revalidateTeam();
+  onboardingRedirect("Invito revocato.");
 }
 
 export async function changeMemberRole(formData: FormData) {
   const context = await requireWorkspaceAdmin(
-    "/onboarding?error=" + encodeURIComponent("Solo un admin può modificare i ruoli."),
+    "/onboarding?error=" +
+      encodeURIComponent("Solo un admin può modificare i ruoli."),
   );
   const supabase = await createClient();
-  const organizationId = context.organizationId;
   const userId = String(formData.get("user_id") ?? "");
   const role = String(formData.get("role") ?? "member");
 
   const { error } = await supabase.rpc("set_organization_member_role", {
-    p_organization_id: organizationId,
+    p_organization_id: context.organizationId,
     p_user_id: userId,
     p_role: role,
   });
   if (error) onboardingRedirect(error.message, "error");
-  revalidatePath("/onboarding");
-  onboardingRedirect("Ruolo aggiornato.");
-}
 
+  revalidateTeam();
+  onboardingRedirect("Permesso aggiornato.");
+}
 
 export async function changeMemberBusinessRole(formData: FormData) {
   const context = await requireWorkspaceAdmin(
-    "/onboarding?error=" + encodeURIComponent("Solo un admin può modificare i ruoli."),
+    "/onboarding?error=" +
+      encodeURIComponent("Solo un admin può modificare i ruoli."),
   );
   const supabase = await createClient();
-  const organizationId = context.organizationId;
   const userId = String(formData.get("user_id") ?? "");
   const businessRole = String(formData.get("business_role") ?? "").trim();
 
   const { error } = await supabase.rpc("set_organization_member_business_role", {
-    p_organization_id: organizationId,
+    p_organization_id: context.organizationId,
     p_user_id: userId,
     p_business_role: businessRole || null,
   });
   if (error) onboardingRedirect(error.message, "error");
-  revalidatePath("/onboarding");
+
+  revalidateTeam();
   onboardingRedirect("Ruolo commerciale aggiornato.");
+}
+
+export async function changeMemberStatus(formData: FormData) {
+  const context = await requireWorkspaceAdmin(
+    "/onboarding?error=" +
+      encodeURIComponent("Solo un admin può modificare gli accessi."),
+  );
+  const supabase = await createClient();
+  const userId = String(formData.get("user_id") ?? "");
+  const status = String(formData.get("status") ?? "");
+
+  const { error } = await supabase.rpc("hp8_set_organization_member_status", {
+    p_organization_id: context.organizationId,
+    p_user_id: userId,
+    p_status: status,
+  });
+  if (error) onboardingRedirect(error.message, "error");
+
+  revalidateTeam();
+  onboardingRedirect(
+    status === "suspended" ? "Accesso sospeso." : "Accesso riattivato.",
+  );
 }
