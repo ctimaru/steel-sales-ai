@@ -8,6 +8,7 @@ import {
   pendingSignupEmailCookieOptions,
 } from "@/lib/auth-email-verification";
 import { createClient } from "@/lib/supabase/server";
+import { feedbackPath } from "@/lib/user-facing-error";
 
 const COMPANY_TYPES = new Set([
   "producer",
@@ -96,7 +97,13 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
       .eq("id", applicationId);
 
     if (updateError) {
-      redirect(`/register?error=${encodeURIComponent("Non è stato possibile aggiornare la richiesta.")}`);
+      redirect(
+        feedbackPath(
+          "/register",
+          updateError,
+          "Non è stato possibile aggiornare la richiesta. Riprova.",
+        ),
+      );
     }
   } else {
     const { data: created, error: createError } = await supabase
@@ -106,7 +113,13 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
       .single();
 
     if (createError || !created) {
-      redirect(`/register?error=${encodeURIComponent("Non è stato possibile creare la richiesta.")}`);
+      redirect(
+        feedbackPath(
+          "/register",
+          createError,
+          "Non è stato possibile creare la richiesta. Riprova.",
+        ),
+      );
     }
 
     applicationId = created.id;
@@ -117,7 +130,13 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
   });
 
   if (submitError) {
-    redirect(`/register?error=${encodeURIComponent("La richiesta è stata salvata ma non inviata. Riprova.")}`);
+    redirect(
+      feedbackPath(
+        "/register",
+        submitError,
+        "La richiesta è stata salvata ma non inviata. Puoi riprovare senza ricompilare i dati.",
+      ),
+    );
   }
 
   redirect("/registration/status?submitted=1");
@@ -131,3 +150,54 @@ export async function logoutRegistration() {
   redirect("/login");
 }
 
+
+
+export async function restartRejectedRegistration(formData: FormData) {
+  const applicationId = field(formData, "application_id");
+  if (!applicationId) {
+    redirect(
+      "/registration/status?error=" +
+        encodeURIComponent("Richiesta non valida.") +
+        "&error_code=validation",
+    );
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("hp12_reapply_registration", {
+    p_application_id: applicationId,
+  });
+
+  if (error) {
+    redirect(
+      feedbackPath(
+        "/registration/status",
+        error,
+        "Non è possibile riaprire automaticamente questa registrazione. Aggiorna la pagina o contatta il referente Smart Steel Sales.",
+      ),
+    );
+  }
+
+  const payload = (data ?? {}) as {
+    application_id?: string;
+    status?: string;
+  };
+
+  if (!payload.application_id) {
+    redirect(
+      "/registration/status?error=" +
+        encodeURIComponent(
+          "La nuova bozza non è stata creata. Aggiorna la pagina e riprova.",
+        ) +
+        "&error_code=operation_failed&retry=1",
+    );
+  }
+
+  redirect(
+    "/register?message=" +
+      encodeURIComponent(
+        payload.status === "draft"
+          ? "Nuova bozza creata dai dati della richiesta precedente. Correggi le informazioni e inviala nuovamente."
+          : "Esiste già una pratica aperta. Continua da quella richiesta.",
+      ),
+  );
+}
