@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { createMarketplaceRequest } from "@/app/(workspace)/marketplace/actions";
+import { getMarketplaceEntryReadiness } from "@/lib/marketplace-readiness";
 import { appRoutes } from "@/lib/routes";
 import { requireWorkspaceWriteRole } from "@/lib/workspace-context";
 
@@ -11,10 +12,14 @@ export default async function NewMarketplaceRequestPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
-  const [{ error }] = await Promise.all([
+  const [{ error }, context] = await Promise.all([
     searchParams,
     requireWorkspaceWriteRole(appRoutes.marketplace.home),
   ]);
+  const readiness = await getMarketplaceEntryReadiness(
+    context.organizationId,
+    context.role,
+  );
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -79,6 +84,34 @@ export default async function NewMarketplaceRequestPage({
               </label>
             </div>
           </fieldset>
+
+          <div
+            className={[
+              "rounded-2xl border px-4 py-3",
+              readiness.buyer.namedPublicationReady
+                ? "border-emerald-200 bg-emerald-50/60"
+                : "border-amber-200 bg-amber-50/60",
+            ].join(" ")}
+          >
+            <p className="text-xs font-semibold text-[#1d2824]">
+              {readiness.buyer.namedPublicationReady
+                ? "✓ Pubblicazione named pronta"
+                : "! Pubblicazione named da completare"}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-[#66736e]">
+              {readiness.buyer.namedPublicationReady
+                ? "Il Company Profile della tua organizzazione è collegato e pubblicato."
+                : "Puoi creare subito la bozza. Prima di pubblicarla come azienda visibile dovrai completare e pubblicare il Company Profile; in alternativa potrai usare la modalità anonima."}
+            </p>
+            {!readiness.buyer.namedPublicationReady ? (
+              <Link
+                href={appRoutes.network.manage}
+                className="mt-2 inline-flex text-xs font-semibold text-[#173f35] hover:underline"
+              >
+                Completa Company Profile →
+              </Link>
+            ) : null}
+          </div>
 
           <button className="h-11 rounded-xl bg-[#1a5144] px-5 text-sm font-semibold text-white hover:bg-[#226657]">
             Crea bozza e aggiungi prodotti

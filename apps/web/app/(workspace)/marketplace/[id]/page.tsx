@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { MarketplaceRequestReadiness } from "@/components/marketplace-readiness";
 import {
   addMarketplaceRequestLine,
   publishMarketplaceRequest,
@@ -15,6 +16,7 @@ import {
   getMarketplaceTaxonomy,
   type MarketplaceRequestLine,
 } from "@/lib/marketplace";
+import { getMarketplaceEntryReadiness } from "@/lib/marketplace-readiness";
 import { appRoutes } from "@/lib/routes";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 
@@ -69,7 +71,10 @@ export default async function MarketplaceRequestPage({
     getMarketplaceTaxonomy(),
   ]);
 
-  const detail = await getMarketplaceRequest(id);
+  const [detail, readiness] = await Promise.all([
+    getMarketplaceRequest(id),
+    getMarketplaceEntryReadiness(context.organizationId, context.role),
+  ]);
   if (!detail) notFound();
 
   const request = detail.request;
@@ -79,7 +84,14 @@ export default async function MarketplaceRequestPage({
       : null;
   const canWrite = canWriteWorkspace(context.role);
   const editable = canWrite && request.status === "draft";
-  const withdrawable = canWrite && (request.status === "draft" || request.status === "published");
+  const withdrawable =
+    canWrite &&
+    (request.status === "draft" || request.status === "published");
+  const publishReady =
+    canWrite &&
+    detail.lines.length > 0 &&
+    (request.visibility_mode === "anonymous" ||
+      readiness.buyer.namedPublicationReady);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -210,6 +222,15 @@ export default async function MarketplaceRequestPage({
         </section>
       ) : null}
 
+      {request.status === "draft" ? (
+        <MarketplaceRequestReadiness
+          canWrite={canWrite}
+          lineCount={detail.lines.length}
+          visibilityMode={request.visibility_mode}
+          namedPublicationReady={readiness.buyer.namedPublicationReady}
+        />
+      ) : null}
+
       {editable ? (
         <section className="grid gap-5 xl:grid-cols-[0.8fr_1.2fr]">
           <form action={updateMarketplaceRequest} className="rounded-2xl border border-[#dce2df] bg-white p-5">
@@ -266,17 +287,26 @@ export default async function MarketplaceRequestPage({
                 </select>
               </div>
               <button
-                disabled={detail.lines.length === 0}
+                disabled={!publishReady}
                 className="h-11 rounded-xl bg-[#1a5144] px-5 text-sm font-semibold text-white hover:bg-[#226657] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Pubblica ricerca
               </button>
             </div>
-            {detail.lines.length === 0 ? (
+            {!publishReady ? (
               <p className="mt-3 text-xs font-semibold text-amber-700">
-                Aggiungi almeno una linea prodotto prima di pubblicare.
+                {detail.lines.length === 0
+                  ? "Aggiungi almeno una linea prodotto prima di pubblicare."
+                  : request.visibility_mode === "named" &&
+                      !readiness.buyer.namedPublicationReady
+                    ? "Per pubblicare come azienda visibile completa e pubblica prima il Company Profile, oppure salva la richiesta come anonima."
+                    : "Questa richiesta non è pubblicabile con il ruolo corrente."}
               </p>
-            ) : null}
+            ) : (
+              <p className="mt-3 text-xs font-semibold text-emerald-700">
+                Tutti i prerequisiti di pubblicazione sono soddisfatti.
+              </p>
+            )}
           </form>
         </section>
       ) : null}

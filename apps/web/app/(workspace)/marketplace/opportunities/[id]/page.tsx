@@ -420,6 +420,9 @@ export default async function MarketplaceOpportunityPage({
               <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#173f35]">
                 P5.3 · Locked detail
               </p>
+              <p className="mt-1 text-[11px] font-semibold text-[#66736e]">
+                Entitlement richiesto · accesso non self-service
+              </p>
               <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
                 {entitlement.state === "expired"
                   ? "Entitlement scaduto"
@@ -436,12 +439,45 @@ export default async function MarketplaceOpportunityPage({
                 provider-neutral e auditabile.
               </p>
             </div>
-            <span className="inline-flex h-10 items-center justify-center rounded-xl border border-[#b8d2c8] bg-white px-4 text-sm font-semibold text-[#66736e]">
-              Entitlement richiesto
-            </span>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href={appRoutes.marketplace.notifications}
+                className="inline-flex h-10 items-center justify-center rounded-xl border border-[#b8d2c8] bg-white px-4 text-sm font-semibold text-[#173f35] hover:bg-[#edf5f2]"
+              >
+                Apri opportunità per te
+              </Link>
+              <Link
+                href={appRoutes.network.manage}
+                className="inline-flex h-10 items-center justify-center rounded-xl border border-[#c8d5d0] bg-white px-4 text-sm font-semibold text-[#43524c] hover:bg-[#f2f4f3]"
+              >
+                Migliora Company Profile
+              </Link>
+            </div>
           </div>
         </section>
       )}
+
+      {isUnlocked && unlocked && !canRespondRole ? (
+        <section className="rounded-2xl border border-amber-200 bg-amber-50/60 p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-amber-800">
+            Response readiness
+          </p>
+          <h2 className="mt-2 text-lg font-semibold text-amber-950">
+            Opportunità leggibile, risposta non abilitata per il tuo ruolo
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-800">
+            Il ruolo Viewer può consultare il dettaglio sbloccato ma non creare o
+            modificare risposte Marketplace. Un Organization Admin deve assegnarti
+            un ruolo Member o Admin; questo passaggio non è self-service.
+          </p>
+          <Link
+            href={appRoutes.home}
+            className="mt-4 inline-flex rounded-xl border border-amber-200 bg-white px-4 py-2.5 text-sm font-semibold text-amber-900 hover:bg-amber-50"
+          >
+            Torna al workspace
+          </Link>
+        </section>
+      ) : null}
 
       {responseWorkspace && unlocked ? (
         <MarketplaceResponseWorkspace

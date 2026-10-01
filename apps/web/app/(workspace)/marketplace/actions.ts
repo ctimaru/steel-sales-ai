@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { marketplaceIssueFromError } from "@/lib/marketplace-readiness";
 import { appRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
 import { getWorkspaceContext, requireWorkspaceWriteRole } from "@/lib/workspace-context";
@@ -24,7 +25,16 @@ function optionalNumber(formData: FormData, key: string) {
 }
 
 function marketplaceError(path: string, error: string) {
-  return path + (path.includes("?") ? "&" : "?") + "error=" + encodeURIComponent(error);
+  const issue = marketplaceIssueFromError(error);
+  const separator = path.includes("?") ? "&" : "?";
+  return (
+    path +
+    separator +
+    "error=" +
+    encodeURIComponent(issue.message) +
+    "&blocker=" +
+    encodeURIComponent(issue.code)
+  );
 }
 
 export async function createMarketplaceRequest(formData: FormData) {
