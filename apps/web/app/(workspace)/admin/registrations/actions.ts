@@ -1,5 +1,7 @@
 "use server";
 
+import { safeErrorMessage } from "@/lib/user-facing-error";
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -169,7 +171,16 @@ export async function bridgeRegistrationToNetwork(formData: FormData) {
   });
 
   if (error) {
-    redirect(detailPath(id, "error", error.message));
+    redirect(
+      detailPath(
+        id,
+        "error",
+        safeErrorMessage(
+          error,
+          "Registration bridge non completato. Aggiorna la pratica e riprova.",
+        ),
+      ),
+    );
   }
 
   revalidatePath("/platform/registrations");
