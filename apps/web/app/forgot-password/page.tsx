@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { Input } from "@/components/ui/input";
 import { privateNoIndexRobots } from "@/lib/seo";
 
