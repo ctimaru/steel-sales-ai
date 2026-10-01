@@ -760,9 +760,12 @@ export default async function OnboardingPage({
                                 <option value="salesperson">Commerciale</option>
                                 <option value="operations">Operations</option>
                               </select>
-                              <button className="rounded-lg border border-[#d7dfdb] bg-white px-3 text-xs font-semibold normal-case tracking-normal text-[#43524c]">
+                              <PendingSubmitButton
+                                pendingLabel="…"
+                                className="rounded-lg border border-[#d7dfdb] bg-white px-3 text-xs font-semibold normal-case tracking-normal text-[#43524c] disabled:cursor-not-allowed disabled:opacity-60"
+                              >
                                 Salva
-                              </button>
+                              </PendingSubmitButton>
                             </div>
                           </label>
                         </form>
