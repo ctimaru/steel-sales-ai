@@ -269,7 +269,7 @@ export default async function NetworkDirectoryPage({
           (params.q || hasAdvancedFilters) ? (
             <FirstUseEmptyState
               eyebrow="Ricerca senza risultati"
-              title="Nessuna azienda corrisponde ai filtri"
+              title="Nessuna azienda trovata con questi filtri"
               description="Il Network non inventa profili mancanti. Azzera i filtri oppure amplia la ricerca per tornare alla directory completa."
               primaryAction={{
                 href: appRoutes.network.directory,
