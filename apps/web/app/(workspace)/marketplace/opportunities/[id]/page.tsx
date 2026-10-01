@@ -420,6 +420,9 @@ export default async function MarketplaceOpportunityPage({
               <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#173f35]">
                 P5.3 · Locked detail
               </p>
+              <p className="mt-1 text-[11px] font-semibold text-[#66736e]">
+                Entitlement richiesto · accesso non self-service
+              </p>
               <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
                 {entitlement.state === "expired"
                   ? "Entitlement scaduto"
