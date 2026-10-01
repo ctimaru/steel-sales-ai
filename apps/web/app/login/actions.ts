@@ -91,11 +91,11 @@ async function routeAfterAuthentication() {
 
   const { data: organization } = await supabase
     .from("organizations")
-    .select("onboarding_status")
+    .select("guided_setup_completed_at")
     .eq("id", membership.organization_id)
     .maybeSingle();
 
-  redirect(organization?.onboarding_status === "completed" ? "/dashboard" : "/onboarding");
+  redirect(organization?.guided_setup_completed_at ? "/dashboard" : "/onboarding");
 }
 
 export async function login(formData: FormData) {
