@@ -471,7 +471,7 @@ export async function uploadManagedCompanyLogo(formData: FormData) {
     });
 
   if (uploadError) {
-    redirect(managedProfilePath("error", uploadError.message));
+    redirect(managedProfilePath("error", safeErrorMessage(uploadError, "Caricamento logo non completato. Riprova.")));
   }
 
   const { error: profileError } = await supabase.rpc("p3_7d_set_logo_path", {
@@ -481,7 +481,7 @@ export async function uploadManagedCompanyLogo(formData: FormData) {
 
   if (profileError) {
     await supabase.storage.from(COMPANY_LOGO_BUCKET).remove([logoPath]);
-    redirect(managedProfilePath("error", profileError.message));
+    redirect(managedProfilePath("error", safeErrorMessage(profileError, "Aggiornamento profilo non completato. Aggiorna la pagina e riprova.")));
   }
 
   revalidateManagedProfile(companyId);
@@ -501,7 +501,7 @@ export async function removeManagedCompanyLogo(formData: FormData) {
     p_logo_path: null,
   });
 
-  if (profileError) redirect(managedProfilePath("error", profileError.message));
+  if (profileError) redirect(managedProfilePath("error", safeErrorMessage(profileError, "Aggiornamento profilo non completato. Aggiorna la pagina e riprova.")));
 
   if (logoPath) {
     const { error: removeError } = await supabase.storage
