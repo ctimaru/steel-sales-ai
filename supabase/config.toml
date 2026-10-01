@@ -37,3 +37,8 @@ enable_confirmations = true
 subject = "Conferma il tuo indirizzo email — Smart Steel Sales"
 content_path = "./supabase/templates/confirmation.html"
 
+
+
+[auth.email.template.recovery]
+subject = "Reimposta la tua password — Smart Steel Sales"
+content_path = "./supabase/templates/recovery.html"
