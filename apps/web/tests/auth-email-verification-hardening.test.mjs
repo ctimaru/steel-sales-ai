@@ -30,6 +30,10 @@ const confirmationTemplate = fs.readFileSync(
   new URL("../../../supabase/templates/confirmation.html", import.meta.url),
   "utf8",
 );
+const confirmRoute = fs.readFileSync(
+  new URL("../app/auth/confirm/route.ts", import.meta.url),
+  "utf8",
+);
 
 test("email verification uses a dedicated pending-email gate", () => {
   assert.match(loginActions, /PENDING_SIGNUP_EMAIL_COOKIE/);
@@ -80,13 +84,29 @@ test("local Supabase explicitly enforces email confirmations and loads the brand
   );
 });
 
-test("confirmation email stays transactional and uses the Supabase confirmation URL", () => {
+test("confirmation email stays transactional and uses a device-independent token hash callback", () => {
   assert.match(confirmationTemplate, /Conferma il tuo indirizzo email/);
-  assert.match(confirmationTemplate, /\{\{ \.ConfirmationURL \}\}/);
+  assert.match(confirmationTemplate, /\{\{ \.SiteURL \}\}\/auth\/confirm/);
+  assert.match(confirmationTemplate, /token_hash=\{\{ \.TokenHash \}\}/);
+  assert.match(confirmationTemplate, /type=email/);
+  assert.match(confirmationTemplate, /next=\/register/);
+  assert.doesNotMatch(confirmationTemplate, /\{\{ \.ConfirmationURL \}\}/);
   assert.match(confirmationTemplate, />\s*Conferma email\s*</);
   assert.match(
     confirmationTemplate,
     /Se non hai richiesto tu la creazione dell’account/,
   );
   assert.doesNotMatch(confirmationTemplate, /offerta|sconto|newsletter|promozione/i);
+});
+
+
+test("server-side confirmation endpoint verifies the token hash and rejects unsafe next URLs", () => {
+  assert.match(confirmRoute, /verifyOtp\(\{/);
+  assert.match(confirmRoute, /token_hash: tokenHash/);
+  assert.match(confirmRoute, /type,/);
+  assert.match(confirmRoute, /value\.startsWith\("\/"\)/);
+  assert.match(confirmRoute, /value\.startsWith\("\/\/"\)/);
+  assert.match(confirmRoute, /PENDING_SIGNUP_EMAIL_COOKIE/);
+  assert.match(confirmRoute, /response\.cookies\.delete/);
+  assert.match(confirmRoute, /Il link di verifica non è valido o è scaduto/);
 });
