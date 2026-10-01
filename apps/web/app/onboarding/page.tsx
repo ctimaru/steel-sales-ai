@@ -790,7 +790,6 @@ export default async function OnboardingPage({
             </div>
           </article>
         </section>
-        </section>
       </div>
     </main>
   );
