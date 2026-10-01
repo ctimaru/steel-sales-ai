@@ -44,7 +44,9 @@ test("UX1.5 server guards derive from the same central policy", () => {
 test("UX1.5 direct-route boundaries protect write and company-admin surfaces", () => {
   const writeGuarded = guardedLayouts.slice(0, 2).concat(guardedLayouts.slice(5));
   const adminGuarded = guardedLayouts.slice(2, 5);
-  for (const source of writeGuarded) assert.match(source, /requireWorkspaceWriteRole/);
+  for (const source of writeGuarded) {
+    assert.match(source, /require(?:WorkspaceWriteRole|CommercialMemoryReady)/);
+  }
   for (const source of adminGuarded) assert.match(source, /requireWorkspaceAdmin/);
 });
 
@@ -58,8 +60,10 @@ test("UX1.5 Viewer is read-only on Network interaction surfaces", () => {
 });
 
 test("UX1.5 sensitive Server Actions fail closed by role", () => {
-  assert.match(uploadActions, /await requireWorkspaceWriteRole\(\)/);
-  assert.ok((bulkActions.match(/await requireWorkspaceWriteRole\(\)/g) ?? []).length >= 3);
+  assert.match(uploadActions, /await requireCommercialMemoryReady\(\)/);
+  assert.ok(
+    (bulkActions.match(/await requireCommercialMemoryReady\(\)/g) ?? []).length >= 3,
+  );
   assert.ok((reviewActions.match(/await requireWorkspaceWriteRole\(\)/g) ?? []).length >= 2);
   assert.match(dataSourceActions, /await requireWorkspaceAdmin\(\)/);
   assert.match(pilotActions, /await requireWorkspaceAdmin\(\)/);
