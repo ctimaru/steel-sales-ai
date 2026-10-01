@@ -7,10 +7,38 @@ import { ProductBrand } from "@/components/product-brand";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
 
+type OrganizationInvitationContext = {
+  invitation_id: string;
+  organization_id: string;
+  organization_name: string | null;
+  email: string;
+  role: string;
+  business_role: string | null;
+  status: string;
+  expires_at: string;
+};
+
+function permissionLabel(role: string) {
+  if (role === "admin") return "Admin";
+  if (role === "viewer") return "Viewer";
+  return "Member";
+}
+
+function businessRoleLabel(role: string | null) {
+  if (role === "sales_director") return "Sales Director";
+  if (role === "salesperson") return "Commerciale";
+  if (role === "operations") return "Operations";
+  return "Non assegnato";
+}
+
 export default function AuthFinishPage() {
   const router = useRouter();
   const [mode, setMode] = useState<"loading" | "invite" | "error">("loading");
   const [inviteKind, setInviteKind] = useState<"organization" | "platform">("organization");
+  const [organizationInvitation, setOrganizationInvitation] =
+    useState<OrganizationInvitationContext | null>(null);
+  const [organizationInvitationId, setOrganizationInvitationId] =
+    useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -24,6 +52,8 @@ export default function AuthFinishPage() {
       const isStaffInvite = url.searchParams.get("staff") === "1";
       const isSignup = url.searchParams.get("signup") === "1";
       const isRecovery = url.searchParams.get("recovery") === "1";
+      const invitationId = url.searchParams.get("invitation_id");
+      const setPassword = url.searchParams.get("set_password") !== "0";
       const code = url.searchParams.get("code");
 
       try {
@@ -40,7 +70,11 @@ export default function AuthFinishPage() {
               refresh_token: refreshToken,
             });
             if (sessionError) throw sessionError;
-            window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+            window.history.replaceState(
+              {},
+              document.title,
+              window.location.pathname + window.location.search,
+            );
           }
         }
 
@@ -49,9 +83,74 @@ export default function AuthFinishPage() {
           throw userError ?? new Error("Sessione di autenticazione non disponibile.");
         }
 
-        if (isInvite) {
+        if (isInvite && isStaffInvite) {
           if (!cancelled) {
-            setInviteKind(isStaffInvite ? "platform" : "organization");
+            setInviteKind("platform");
+            setMode("invite");
+          }
+          return;
+        }
+
+        if (isInvite) {
+          if (!invitationId) {
+            await supabase.auth.signOut();
+            throw new Error("Invito aziendale non identificabile. Richiedi un nuovo invito.");
+          }
+
+          const { data: contextData, error: contextError } = await supabase.rpc(
+            "hp8_invitation_context",
+            { p_invitation_id: invitationId },
+          );
+          if (contextError) {
+            await supabase.auth.signOut();
+            throw new Error("Invito non disponibile per questo account.");
+          }
+
+          const invitation = contextData as OrganizationInvitationContext;
+          if (invitation.status === "accepted") {
+            router.replace("/dashboard?joined=1");
+            router.refresh();
+            return;
+          }
+          if (invitation.status !== "pending") {
+            await supabase.auth.signOut();
+            throw new Error(
+              invitation.status === "expired"
+                ? "Questo invito è scaduto. Chiedi all’amministratore di reinviarlo."
+                : "Questo invito non è più utilizzabile.",
+            );
+          }
+
+          if (!setPassword) {
+            const { data: claimData, error: claimError } = await supabase.rpc(
+              "hp8_claim_organization_invitation",
+              { p_invitation_id: invitationId },
+            );
+            if (claimError) throw claimError;
+
+            const claim = (claimData ?? {}) as {
+              claimed?: boolean;
+              idempotent_replay?: boolean;
+              status?: string;
+            };
+
+            if (
+              claim.claimed !== true &&
+              !(claim.idempotent_replay === true && claim.status === "accepted")
+            ) {
+              await supabase.auth.signOut();
+              throw new Error("L’invito è scaduto o è stato revocato.");
+            }
+
+            router.replace("/dashboard?joined=1");
+            router.refresh();
+            return;
+          }
+
+          if (!cancelled) {
+            setInviteKind("organization");
+            setOrganizationInvitation(invitation);
+            setOrganizationInvitationId(invitationId);
             setMode("invite");
           }
           return;
@@ -69,12 +168,15 @@ export default function AuthFinishPage() {
           return;
         }
 
-        await supabase.rpc("claim_pending_organization_invitations");
-        router.replace("/onboarding");
+        router.replace("/dashboard");
         router.refresh();
       } catch (authError) {
         if (cancelled) return;
-        setError(authError instanceof Error ? authError.message : "Link di autenticazione non valido o scaduto.");
+        setError(
+          authError instanceof Error
+            ? authError.message
+            : "Link di autenticazione non valido o scaduto.",
+        );
         setMode("error");
       }
     }
@@ -140,14 +242,39 @@ export default function AuthFinishPage() {
       return;
     }
 
-    const { error: claimError } = await supabase.rpc("claim_pending_organization_invitations");
+    if (!organizationInvitationId) {
+      await supabase.auth.signOut();
+      setError("Invito aziendale non identificabile. Richiedi un nuovo invito.");
+      setSubmitting(false);
+      return;
+    }
+
+    const { data: claimData, error: claimError } = await supabase.rpc(
+      "hp8_claim_organization_invitation",
+      { p_invitation_id: organizationInvitationId },
+    );
     if (claimError) {
       setError(claimError.message);
       setSubmitting(false);
       return;
     }
 
-    router.replace("/onboarding?invited=1");
+    const claim = (claimData ?? {}) as {
+      claimed?: boolean;
+      idempotent_replay?: boolean;
+      status?: string;
+    };
+    if (
+      claim.claimed !== true &&
+      !(claim.idempotent_replay === true && claim.status === "accepted")
+    ) {
+      await supabase.auth.signOut();
+      setError("L’invito è scaduto o è stato revocato. Richiedi un nuovo invito.");
+      setSubmitting(false);
+      return;
+    }
+
+    router.replace("/dashboard?joined=1");
     router.refresh();
   }
 
@@ -175,13 +302,30 @@ export default function AuthFinishPage() {
           <>
             <p className="app-kicker mt-8">Invito</p>
             <h1 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-[#1d2824]">
-              {inviteKind === "platform" ? "Attiva il tuo accesso Platform" : "Completa il tuo invito"}
+              {inviteKind === "platform"
+                ? "Attiva il tuo accesso Platform"
+                : `Entra in ${organizationInvitation?.organization_name ?? "Smart Steel Sales"}`}
             </h1>
             <p className="mt-3 text-sm leading-6 text-[#66736e]">
               {inviteKind === "platform"
                 ? "Imposta una password personale. Le autorizzazioni previste per il tuo ruolo verranno applicate dopo la verifica dell’identità."
-                : "Imposta una password personale. Azienda e ruolo sono già determinati dall’invito ricevuto."}
+                : "L’azienda e i ruoli sono già determinati dall’invito. Imposta una password personale per completare il primo accesso."}
             </p>
+
+            {inviteKind === "organization" && organizationInvitation ? (
+              <div className="mt-5 rounded-2xl border border-[#dce2df] bg-[#f7f9f8] p-4 text-sm text-[#52615b]">
+                <p>
+                  Permesso:{" "}
+                  <strong>{permissionLabel(organizationInvitation.role)}</strong>
+                </p>
+                <p className="mt-1">
+                  Ruolo commerciale:{" "}
+                  <strong>
+                    {businessRoleLabel(organizationInvitation.business_role)}
+                  </strong>
+                </p>
+              </div>
+            ) : null}
 
             <form onSubmit={completeInvitation} className="mt-6 space-y-4">
               <label className="block text-sm font-medium text-[#43524c]">
