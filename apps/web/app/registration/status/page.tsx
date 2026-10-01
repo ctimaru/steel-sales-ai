@@ -128,14 +128,20 @@ export default async function RegistrationStatusPage({
   }
 
   const recovery = (recoveryData ?? {}) as RegistrationRecoveryState;
-  const application = recovery.application;
+  const recoveryApplication = recovery.application;
+  const application = recoveryApplication
+    ? {
+        ...recoveryApplication,
+        application_status: recoveryApplication.status,
+      }
+    : null;
 
   if (!application) {
     redirect("/register");
   }
 
-  const copy = isRegistrationApplicationStatus(application.status)
-    ? STATUS_COPY[application.status]
+  const copy = isRegistrationApplicationStatus(application.application_status)
+    ? STATUS_COPY[application.application_status]
     : {
         title: "Registrazione in elaborazione",
         body: "La richiesta è stata registrata. Aggiorneremo questa pagina quando cambia lo stato.",
@@ -203,7 +209,7 @@ export default async function RegistrationStatusPage({
             </div>
             <p className="mt-3 max-w-2xl text-sm leading-6">{copy.body}</p>
 
-            {application.status === "needs_information" &&
+            {application.application_status === "needs_information" &&
             application.information_request_note ? (
               <div className="mt-4 rounded-xl border border-current/10 bg-white/70 p-4">
                 <p className="text-xs font-bold uppercase tracking-[0.1em] opacity-70">
@@ -215,7 +221,7 @@ export default async function RegistrationStatusPage({
               </div>
             ) : null}
 
-            {application.status === "rejected" ? (
+            {application.application_status === "rejected" ? (
               <div className="mt-4 space-y-3 rounded-xl border border-current/10 bg-white/70 p-4">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.1em] opacity-70">
@@ -269,8 +275,8 @@ export default async function RegistrationStatusPage({
           </dl>
 
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            {application.status === "needs_information" ||
-            application.status === "draft" ? (
+            {application.application_status === "needs_information" ||
+            application.application_status === "draft" ? (
               <Link
                 href="/register"
                 className="app-primary inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold"
@@ -279,7 +285,7 @@ export default async function RegistrationStatusPage({
               </Link>
             ) : null}
 
-            {application.status === "activated" ? (
+            {application.application_status === "activated" ? (
               <Link
                 href="/onboarding"
                 className="app-primary inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold"
@@ -288,7 +294,7 @@ export default async function RegistrationStatusPage({
               </Link>
             ) : null}
 
-            {application.status === "rejected" && recovery.can_reapply ? (
+            {application.application_status === "rejected" && recovery.can_reapply ? (
               <form action={restartRejectedRegistration}>
                 <input
                   type="hidden"
@@ -312,7 +318,7 @@ export default async function RegistrationStatusPage({
             </Link>
           </div>
 
-          {application.status === "rejected" && !recovery.can_reapply ? (
+          {application.application_status === "rejected" && !recovery.can_reapply ? (
             <div className="mt-6 rounded-xl border border-[#dce2df] bg-[#f8faf9] p-4 text-sm leading-6 text-[#52615b]">
               Questa decisione non prevede una nuova domanda automatica. Non creare
               registrazioni parallele: il prossimo passo richiede un intervento del
