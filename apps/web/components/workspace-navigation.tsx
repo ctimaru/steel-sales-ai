@@ -5,10 +5,15 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { appRoutes } from "@/lib/routes";
+import {
+  getWorkspaceNavigationContext,
+  type WorkspaceContextKey,
+} from "@/lib/workspace-information-architecture";
 
 export type WorkspaceNavItem = {
   href: string;
   label: string;
+  contextKey: WorkspaceContextKey;
 };
 
 export type WorkspaceNavGroup = {
@@ -16,39 +21,6 @@ export type WorkspaceNavGroup = {
   items: WorkspaceNavItem[];
   alertHref?: string;
 };
-
-type PrimarySpace = "home" | "commercial" | "network" | "marketplace" | "knowledge";
-
-function isSelected(pathname: string, href: string) {
-  if (href === appRoutes.home) return pathname === href;
-  return pathname === href || pathname.startsWith(href + "/");
-}
-
-function currentPrimarySpace(pathname: string): PrimarySpace {
-  if (pathname === appRoutes.network.directory || pathname.startsWith(appRoutes.network.directory + "/")) {
-    return "network";
-  }
-  if (pathname === appRoutes.marketplace.home || pathname.startsWith(appRoutes.marketplace.home + "/")) {
-    return "marketplace";
-  }
-  if (
-    pathname === appRoutes.knowledge.workspace ||
-    pathname.startsWith(appRoutes.knowledge.workspace + "/") ||
-    pathname === appRoutes.commercial.knowledgeExplorer ||
-    pathname.startsWith(appRoutes.commercial.knowledgeExplorer + "/")
-  ) {
-    return "knowledge";
-  }
-  if (
-    pathname.startsWith("/commercial") ||
-    pathname === appRoutes.commercial.explorer ||
-    pathname === appRoutes.commercial.priceIntelligence ||
-    pathname === appRoutes.commercial.marketIntelligence
-  ) {
-    return "commercial";
-  }
-  return "home";
-}
 
 function NavIcon({
   name,
@@ -185,7 +157,7 @@ export function WorkspaceDesktopPrimaryNavigation({
   networkEnabled: boolean;
 }) {
   const pathname = usePathname();
-  const current = currentPrimarySpace(pathname);
+  const current = getWorkspaceNavigationContext(pathname).primary;
 
   return (
     <nav className="hidden h-full items-stretch gap-1 lg:flex" aria-label="Navigazione principale">
@@ -221,7 +193,7 @@ export function WorkspaceMobileBottomNavigation({
   networkEnabled: boolean;
 }) {
   const pathname = usePathname();
-  const current = currentPrimarySpace(pathname);
+  const current = getWorkspaceNavigationContext(pathname).primary;
   const items = primaryItems(networkEnabled);
 
   return (
@@ -254,10 +226,13 @@ export function WorkspaceMobileBottomNavigation({
   );
 }
 
-function ContextLink({ item }: { item: WorkspaceNavItem }) {
-  const pathname = usePathname();
-  const selected = isSelected(pathname, item.href);
-
+function ContextLink({
+  item,
+  selected,
+}: {
+  item: WorkspaceNavItem;
+  selected: boolean;
+}) {
   return (
     <Link
       href={item.href}
@@ -288,7 +263,8 @@ export function WorkspaceContextNavigation({
   knowledgeItems: WorkspaceNavItem[];
 }) {
   const pathname = usePathname();
-  const current = currentPrimarySpace(pathname);
+  const navigation = getWorkspaceNavigationContext(pathname);
+  const current = navigation.primary;
 
   if (current === "home") return null;
 
@@ -301,29 +277,56 @@ export function WorkspaceContextNavigation({
           ? knowledgeItems
           : commercialItems;
 
+  const intelligenceSelected =
+    current === "commercial" &&
+    Boolean(
+      navigation.context?.startsWith("commercial:intelligence:"),
+    );
+
   return (
     <div className="border-t border-[#eef1ef] bg-white">
       <div className="mx-auto flex max-w-[1500px] items-center gap-1 overflow-x-auto px-3 sm:px-5 lg:px-8">
         {items.map((item) => (
-          <ContextLink key={item.href} item={item} />
+          <ContextLink
+            key={item.contextKey}
+            item={item}
+            selected={navigation.context === item.contextKey}
+          />
         ))}
 
         {current === "commercial" && intelligenceItems.length ? (
           <details className="relative shrink-0">
-            <summary className="flex cursor-pointer list-none items-center gap-1 border-b-2 border-transparent px-3 py-3 text-xs font-semibold text-[#66736e] hover:text-[#1d2824] sm:text-sm">
+            <summary
+              aria-current={intelligenceSelected ? "page" : undefined}
+              className={[
+                "flex cursor-pointer list-none items-center gap-1 border-b-2 px-3 py-3 text-xs font-semibold transition sm:text-sm",
+                intelligenceSelected
+                  ? "border-[#173f35] text-[#173f35]"
+                  : "border-transparent text-[#66736e] hover:border-[#c8d5d0] hover:text-[#1d2824]",
+              ].join(" ")}
+            >
               Intelligence
               <NavIcon name="chevron" className="h-4 w-4" />
             </summary>
             <div className="fixed left-3 right-3 top-[112px] z-50 grid gap-1 rounded-2xl border border-[#dce2df] bg-white p-2 shadow-xl sm:left-auto sm:right-6 sm:w-72 lg:absolute lg:left-auto lg:right-0 lg:top-full">
-              {intelligenceItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="rounded-xl px-3 py-2.5 text-sm font-semibold text-[#43524c] hover:bg-[#edf5f2] hover:text-[#173f35]"
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {intelligenceItems.map((item) => {
+                const selected = navigation.context === item.contextKey;
+                return (
+                  <Link
+                    key={item.contextKey}
+                    href={item.href}
+                    aria-current={selected ? "page" : undefined}
+                    className={[
+                      "rounded-xl px-3 py-2.5 text-sm font-semibold transition",
+                      selected
+                        ? "bg-[#e1ece8] text-[#173f35]"
+                        : "text-[#43524c] hover:bg-[#edf5f2] hover:text-[#173f35]",
+                    ].join(" ")}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
             </div>
           </details>
         ) : null}
