@@ -9,6 +9,7 @@ import {
 } from "@/lib/auth-email-verification";
 import { siteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
+import { safeErrorMessage } from "@/lib/user-facing-error";
 
 function ensureSupabaseConfigured() {
   if (
@@ -28,27 +29,29 @@ async function appOrigin() {
   return `${proto}://${host}`;
 }
 
-function signupErrorMessage(error: { code?: string; message: string }) {
+function signupErrorMessage(error: { code?: string; message: string; status?: number }) {
   const code = error.code ?? "";
-  const message = error.message.toLowerCase();
 
-  if (
-    code === "user_already_exists" ||
-    message.includes("already registered") ||
-    message.includes("already exists")
-  ) {
+  if (code === "user_already_exists" || code === "user_repeated_signup") {
     return "Esiste già un account con questa email. Accedi oppure recupera la password.";
   }
 
-  if (code === "weak_password" || message.includes("password")) {
-    return "La password non rispetta i requisiti di sicurezza. Prova con una password più lunga e difficile da indovinare.";
+  if (code === "weak_password") {
+    return "La password non rispetta i requisiti di sicurezza. Usa una password più lunga e difficile da indovinare.";
   }
 
-  if (message.includes("rate") || message.includes("too many")) {
-    return "Hai effettuato troppi tentativi. Riprova tra qualche minuto.";
+  if (
+    code === "over_email_send_rate_limit" ||
+    code === "over_request_rate_limit" ||
+    error.status === 429
+  ) {
+    return "Hai effettuato troppi tentativi. Attendi qualche minuto e riprova.";
   }
 
-  return "Non è stato possibile creare l’account. Controlla i dati e riprova.";
+  return safeErrorMessage(
+    error,
+    "Non è stato possibile creare l’account. Controlla i dati e riprova.",
+  );
 }
 
 async function routeAfterAuthentication() {
@@ -196,7 +199,15 @@ export async function requestPasswordReset(formData: FormData) {
   });
 
   if (error) {
-    redirect("/forgot-password?error=Non%20%C3%A8%20stato%20possibile%20inviare%20il%20link%20di%20recupero");
+    redirect(
+      "/forgot-password?error=" +
+        encodeURIComponent(
+          safeErrorMessage(
+            error,
+            "Non è stato possibile inviare il link di recupero. Riprova tra poco.",
+          ),
+        ),
+    );
   }
 
   redirect("/forgot-password?message=Se%20l%27account%20esiste%2C%20riceverai%20un%20link%20per%20reimpostare%20la%20password");
