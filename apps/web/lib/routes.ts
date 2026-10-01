@@ -49,6 +49,7 @@ export const appRoutes = {
 
   knowledge: {
     workspace: "/school",
+    explorer: "/school/explorer",
     catalog: "/school/catalogo",
     schoolStandards: "/school/norme",
     schoolStandard: (slug: string) => `/school/norme/${slug}`,
