@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { redirect } from "next/navigation";
 
 import {
@@ -88,12 +89,23 @@ export default async function NetworkInquiriesPage({
       </div>
 
       {result.items.length === 0 ? (
-        <section className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
-          <p className="font-semibold text-slate-900">Nessuna inquiry {box === "received" ? "ricevuta" : "inviata"}</p>
-          <p className="mt-2 text-sm text-slate-500">
-            Le inquiry si avviano dai Company Profile eleggibili nel Network.
-          </p>
-        </section>
+        <FirstUseEmptyState
+          eyebrow={box === "received" ? "Inbox vuota" : "Nessun contatto avviato"}
+          title={box === "received" ? "Non hai ancora ricevuto inquiry" : "Non hai ancora inviato inquiry"}
+          description={
+            box === "received"
+              ? "Le inquiry arrivano da aziende che aprono il tuo Company Profile nel Network. Cura il profilo pubblico per rendere più chiaro chi sei e cosa offri."
+              : "Le inquiry si avviano da Company Profile eleggibili nel Network e restano interazioni B2B private tra organizzazioni."
+          }
+          primaryAction={{
+            href: box === "received" ? "/company/profile" : "/network",
+            label: box === "received" ? "Controlla Company Profile" : "Trova aziende nel Network",
+          }}
+          secondaryAction={{
+            href: box === "received" ? "/network" : "/network/inquiries?box=received",
+            label: box === "received" ? "Esplora il Network" : "Apri inquiry ricevute",
+          }}
+        />
       ) : (
         <div className="space-y-4">
           {result.items.map((inquiry) => {
