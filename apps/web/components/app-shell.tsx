@@ -20,45 +20,46 @@ type NavItem = WorkspaceNavItem & {
 };
 
 const commercialNav: NavItem[] = [
-  { href: appRoutes.commercial.search, label: "Cerca" },
-  { href: appRoutes.commercial.products, label: "Prodotti" },
-  { href: appRoutes.commercial.companies, label: "Aziende" },
-  { href: appRoutes.commercial.assistant, label: "Assistente" },
-  { href: appRoutes.commercial.explorer, label: "Explorer" },
+  { href: appRoutes.commercial.home, label: "Home", contextKey: "commercial:home" },
+  { href: appRoutes.commercial.search, label: "Cerca", contextKey: "commercial:search" },
+  { href: appRoutes.commercial.products, label: "Prodotti", contextKey: "commercial:products" },
+  { href: appRoutes.commercial.companies, label: "Aziende", contextKey: "commercial:companies" },
+  { href: appRoutes.commercial.assistant, label: "Assistente", contextKey: "commercial:assistant" },
+  { href: appRoutes.commercial.explorer, label: "Explorer", contextKey: "commercial:explorer" },
 ];
 
 const intelligenceNav: NavItem[] = [
-  { href: appRoutes.commercial.priceIntelligence, label: "Price Intelligence" },
-  { href: appRoutes.commercial.marketIntelligence, label: "Market Intelligence" },
-  { href: appRoutes.commercial.reengagement, label: "Riattivazione" },
-  { href: appRoutes.commercial.demand, label: "Segnali di domanda" },
-  { href: appRoutes.commercial.conversion, label: "Conversione" },
-  { href: appRoutes.commercial.crossThreadRelationships, label: "Relazioni cross-thread" },
+  { href: appRoutes.commercial.priceIntelligence, label: "Price Intelligence", contextKey: "commercial:intelligence:prices" },
+  { href: appRoutes.commercial.marketIntelligence, label: "Market Intelligence", contextKey: "commercial:intelligence:market" },
+  { href: appRoutes.commercial.reengagement, label: "Riattivazione", contextKey: "commercial:intelligence:reengagement" },
+  { href: appRoutes.commercial.demand, label: "Segnali di domanda", contextKey: "commercial:intelligence:demand" },
+  { href: appRoutes.commercial.conversion, label: "Conversione", contextKey: "commercial:intelligence:conversion" },
+  { href: appRoutes.commercial.crossThreadRelationships, label: "Relazioni cross-thread", contextKey: "commercial:intelligence:relationships" },
 ];
 
 const networkNav: NavItem[] = [
-  { href: appRoutes.network.directory, label: "Directory" },
-  { href: appRoutes.network.saved, label: "Salvate" },
-  { href: appRoutes.network.following, label: "Seguite" },
-  { href: appRoutes.network.activity, label: "Activity" },
-  { href: appRoutes.network.inquiries, label: "Inquiry" },
+  { href: appRoutes.network.directory, label: "Directory", contextKey: "network:directory" },
+  { href: appRoutes.network.saved, label: "Salvate", contextKey: "network:saved" },
+  { href: appRoutes.network.following, label: "Seguite", contextKey: "network:following" },
+  { href: appRoutes.network.activity, label: "Activity", contextKey: "network:activity" },
+  { href: appRoutes.network.inquiries, label: "Inquiry", contextKey: "network:inquiries" },
 ];
 
 const marketplaceNav: NavItem[] = [
-  { href: appRoutes.marketplace.home, label: "Opportunità" },
-  { href: appRoutes.marketplace.notifications, label: "Per te" },
-  { href: appRoutes.marketplace.myRequests, label: "Le mie ricerche" },
-  { href: appRoutes.marketplace.responses, label: "Risposte" },
-  { href: appRoutes.marketplace.newRequest, label: "Nuova ricerca", writeRole: true },
+  { href: appRoutes.marketplace.home, label: "Opportunità", contextKey: "marketplace:opportunities" },
+  { href: appRoutes.marketplace.notifications, label: "Match per te", contextKey: "marketplace:notifications" },
+  { href: appRoutes.marketplace.myRequests, label: "Le mie ricerche", contextKey: "marketplace:requests" },
+  { href: appRoutes.marketplace.responses, label: "Risposte ricevute", contextKey: "marketplace:responses" },
+  { href: appRoutes.marketplace.newRequest, label: "Nuova ricerca", contextKey: "marketplace:new", writeRole: true },
 ];
 
 const knowledgeNav: NavItem[] = [
-  { href: appRoutes.knowledge.workspace, label: "Home" },
-  { href: appRoutes.commercial.knowledgeExplorer, label: "Knowledge Explorer" },
-  { href: appRoutes.knowledge.catalog, label: "Catalogo tecnico" },
-  { href: appRoutes.knowledge.schoolStandards, label: "Norme" },
-  { href: appRoutes.knowledge.schoolGrades, label: "Gradi" },
-  { href: appRoutes.knowledge.schoolTubes, label: "Pesi & dimensioni" },
+  { href: appRoutes.knowledge.workspace, label: "Home", contextKey: "knowledge:home" },
+  { href: appRoutes.commercial.knowledgeExplorer, label: "Knowledge Explorer", contextKey: "knowledge:explorer" },
+  { href: appRoutes.knowledge.catalog, label: "Catalogo tecnico", contextKey: "knowledge:catalog" },
+  { href: appRoutes.knowledge.schoolStandards, label: "Norme", contextKey: "knowledge:standards" },
+  { href: appRoutes.knowledge.schoolGrades, label: "Gradi", contextKey: "knowledge:grades" },
+  { href: appRoutes.knowledge.schoolTubes, label: "Pesi & dimensioni", contextKey: "knowledge:tubes" },
 ];
 
 function roleLabel(role: string) {
@@ -76,7 +77,7 @@ function canSee(item: NavItem, role: string) {
 function visibleItems(items: NavItem[], role: string): WorkspaceNavItem[] {
   return items
     .filter((item) => canSee(item, role))
-    .map(({ href, label }) => ({ href, label }));
+    .map(({ href, label, contextKey }) => ({ href, label, contextKey }));
 }
 
 export function AppShell({
