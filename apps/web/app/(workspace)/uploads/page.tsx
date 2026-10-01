@@ -1,10 +1,13 @@
 import Link from "next/link";
 
 import { BulkUploadForm } from "@/components/bulk-upload-form";
+import { requireCommercialMemoryReady } from "@/lib/workspace-context";
 
 export const dynamic = "force-dynamic";
 
-export default function UploadsPage() {
+export default async function UploadsPage() {
+  await requireCommercialMemoryReady();
+
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-4">

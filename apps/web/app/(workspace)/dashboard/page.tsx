@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { getCompanySetupState } from "@/lib/company-setup";
 import { getDashboardData } from "@/lib/commercial-data";
 import {
   getFollowedNetworkCompanies,
@@ -30,6 +31,10 @@ function workspaceRoleLabel(role: string) {
 export default async function DashboardPage() {
   const context = await getWorkspaceContext();
   const networkEnabled = isNetworkFrontendEnabled();
+  const isAdmin = context.role === "admin";
+  const setup = isAdmin
+    ? await getCompanySetupState(context.organizationId)
+    : null;
 
   const [commercial, received, sent, activity, followed, saved] = await Promise.all([
     getDashboardData(),
@@ -49,7 +54,6 @@ export default async function DashboardPage() {
   ]);
 
   const { metrics, recent, mode, operational } = commercial;
-  const isAdmin = context.role === "admin";
   const canWrite = context.role !== "viewer";
 
   return (
@@ -102,6 +106,80 @@ export default async function DashboardPage() {
           </div>
         </div>
       </section>
+
+      {setup && (!setup.profile_ready || !setup.data_ready || !setup.first_value_ready) ? (
+        <section className="rounded-3xl border border-[#b8d2c8] bg-[#edf5f2] p-6 sm:p-7">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div className="max-w-3xl">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
+                HP7 · Avvio workspace
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">
+                Porta {context.organizationName} al primo valore
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-[#52615b]">
+                Il setup non blocca la navigazione. Completa il profilo e l&apos;autorizzazione
+                delle fonti; poi importa il primo dato commerciale reale.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-[#c7ddd5] bg-white px-5 py-4">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#87938e]">
+                Setup essenziale
+              </p>
+              <p className="mt-1 text-2xl font-semibold text-[#173f35]">
+                {setup.essential_completed_count}/{setup.essential_total_count}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            <Link
+              href="/company/profile"
+              className="rounded-2xl border border-[#c7ddd5] bg-white p-4 hover:border-[#91b7a8]"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-[#1d2824]">Profilo azienda</p>
+                <span className={setup.profile_ready ? "text-xs font-bold text-emerald-700" : "text-xs font-bold text-amber-700"}>
+                  {setup.profile_ready ? "Pronto" : "Da completare"}
+                </span>
+              </div>
+              <p className="mt-2 text-xs leading-5 text-[#66736e]">
+                Sito, descrizione, nome commerciale o logo rendono il profilo subito più utile.
+              </p>
+            </Link>
+
+            <Link
+              href="/onboarding"
+              className="rounded-2xl border border-[#c7ddd5] bg-white p-4 hover:border-[#91b7a8]"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-[#1d2824]">Fonti e autorizzazione</p>
+                <span className={setup.data_ready ? "text-xs font-bold text-emerald-700" : "text-xs font-bold text-amber-700"}>
+                  {setup.data_ready ? "Pronto" : "Da completare"}
+                </span>
+              </div>
+              <p className="mt-2 text-xs leading-5 text-[#66736e]">
+                Gli import restano protetti finché questo passaggio non è pronto.
+              </p>
+            </Link>
+
+            <Link
+              href={setup.data_ready ? appRoutes.operations.uploads : "/onboarding"}
+              className="rounded-2xl border border-[#c7ddd5] bg-white p-4 hover:border-[#91b7a8]"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-[#1d2824]">Primo valore</p>
+                <span className={setup.first_value_ready ? "text-xs font-bold text-emerald-700" : "text-xs font-bold text-[#66736e]"}>
+                  {setup.first_value_ready ? "Raggiunto" : "Da raggiungere"}
+                </span>
+              </div>
+              <p className="mt-2 text-xs leading-5 text-[#66736e]">
+                Primo documento, messaggio, RFQ, offerta o ordine nella memoria privata.
+              </p>
+            </Link>
+          </div>
+        </section>
+      ) : null}
 
       <section>
         <div className="mb-3">

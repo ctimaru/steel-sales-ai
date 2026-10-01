@@ -468,6 +468,7 @@ export function WorkspaceProfileMenu({
                 </p>
                 {canAdmin ? (
                   <>
+                    <ProfileMenuLink href={appRoutes.company.setup} label="Setup azienda" onNavigate={() => setOpen(false)} />
                     <ProfileMenuLink href={appRoutes.company.profile} label="Profilo azienda" onNavigate={() => setOpen(false)} />
                     <ProfileMenuLink href={appRoutes.company.dataSources} label="Fonti e import" onNavigate={() => setOpen(false)} />
                     <ProfileMenuLink href={appRoutes.company.pilotAnalytics} label="Pilot analytics" onNavigate={() => setOpen(false)} />
