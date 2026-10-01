@@ -301,9 +301,7 @@ select set_config(
 );
 
 select pg_temp.hp13_assert_raises(
-  $select public.p1_normalized_commercial_explorer(
-      '00000000-0000-0000-0000-0000000013f2'::uuid
-    )$,
+  'select public.p1_normalized_commercial_explorer(''00000000-0000-0000-0000-0000000013f2''::uuid)',
   'organization access denied'
 );
 
