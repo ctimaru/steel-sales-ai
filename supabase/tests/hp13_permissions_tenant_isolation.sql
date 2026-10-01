@@ -136,21 +136,10 @@ select pg_temp.hp13_assert(
   'anonymous SECURITY DEFINER functions must stay stable, fixed-path and tenant-free'
 );
 
--- Authenticated SECURITY DEFINER functions are also frozen to the audited
--- legacy set. New browser-facing definer RPCs require an explicit HP review.
-select pg_temp.hp13_assert(
-  (
-    select count(*)
-    from pg_proc p
-    join pg_namespace n on n.oid=p.pronamespace
-    where n.nspname='public'
-      and p.prosecdef
-      and has_function_privilege('authenticated',p.oid,'EXECUTE')
-      and not has_function_privilege('anon',p.oid,'EXECUTE')
-  )=13,
-  'authenticated-only SECURITY DEFINER surface must remain the reviewed 13 RPCs'
-);
-
+-- Authenticated SECURITY DEFINER exposure is constrained to the audited
+-- legacy allowlist. We intentionally do not freeze an exact count: removing
+-- an exposed function is security-positive, while adding any unreviewed
+-- function is rejected by the allowlist assertion below.
 select pg_temp.hp13_assert(
   not exists (
     select 1
