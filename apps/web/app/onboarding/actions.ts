@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
+import { requireWorkspaceAdmin } from "@/lib/workspace-context";
 
 async function currentUser() {
   const supabase = await createClient();
@@ -25,13 +26,16 @@ function onboardingRedirect(message: string, kind: "message" | "error" = "messag
 }
 
 export async function completeOnboarding(formData: FormData) {
-  const { supabase } = await currentUser();
-  const organizationId = String(formData.get("organization_id") ?? "");
+  const context = await requireWorkspaceAdmin(
+    "/onboarding?error=" +
+      encodeURIComponent("Solo un admin aziendale può modificare il setup."),
+  );
+  const supabase = await createClient();
   const sources = formData.getAll("sources").map(String);
   const accepted = formData.get("consent") === "on";
 
   const { error } = await supabase.rpc("update_organization_onboarding", {
-    p_organization_id: organizationId,
+    p_organization_id: context.organizationId,
     p_name: String(formData.get("name") ?? "").trim(),
     p_country_code: String(formData.get("country_code") ?? "").trim() || null,
     p_industry: String(formData.get("industry") ?? "").trim() || null,
@@ -40,25 +44,27 @@ export async function completeOnboarding(formData: FormData) {
     p_complete: true,
   });
   if (error) onboardingRedirect(error.message, "error");
+
+  await supabase.rpc("hp7_company_setup_state", {
+    p_organization_id: context.organizationId,
+  });
+
   revalidatePath("/onboarding");
-  redirect("/dashboard");
+  revalidatePath("/dashboard");
+  redirect(
+    "/onboarding?message=" +
+      encodeURIComponent("Fonti e autorizzazione salvate. Il workspace resta disponibile mentre completi gli altri passaggi."),
+  );
 }
 
 export async function inviteMember(formData: FormData) {
-  const { supabase, user } = await currentUser();
-  const organizationId = String(formData.get("organization_id") ?? "");
+  const context = await requireWorkspaceAdmin(
+    "/onboarding?error=" + encodeURIComponent("Solo un admin può invitare utenti."),
+  );
+  const supabase = await createClient();
+  const organizationId = context.organizationId;
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const role = String(formData.get("role") ?? "member");
-
-  const { data: membership } = await supabase
-    .from("organization_memberships")
-    .select("role,status")
-    .eq("organization_id", organizationId)
-    .eq("user_id", user.id)
-    .maybeSingle();
-  if (!membership || membership.status !== "active" || membership.role !== "admin") {
-    onboardingRedirect("Solo un admin può invitare utenti.", "error");
-  }
 
   const workerUrl = process.env.WORKER_URL?.replace(/\/$/, "");
   const workerToken = process.env.WORKER_INTERNAL_TOKEN;
@@ -73,7 +79,7 @@ export async function inviteMember(formData: FormData) {
       "x-worker-token": workerToken,
     },
     body: JSON.stringify({
-      actor_user_id: user.id,
+      actor_user_id: context.userId,
       organization_id: organizationId,
       email,
       role,
@@ -92,8 +98,11 @@ export async function inviteMember(formData: FormData) {
 }
 
 export async function changeMemberRole(formData: FormData) {
-  const { supabase } = await currentUser();
-  const organizationId = String(formData.get("organization_id") ?? "");
+  const context = await requireWorkspaceAdmin(
+    "/onboarding?error=" + encodeURIComponent("Solo un admin può modificare i ruoli."),
+  );
+  const supabase = await createClient();
+  const organizationId = context.organizationId;
   const userId = String(formData.get("user_id") ?? "");
   const role = String(formData.get("role") ?? "member");
 
@@ -109,8 +118,11 @@ export async function changeMemberRole(formData: FormData) {
 
 
 export async function changeMemberBusinessRole(formData: FormData) {
-  const { supabase } = await currentUser();
-  const organizationId = String(formData.get("organization_id") ?? "");
+  const context = await requireWorkspaceAdmin(
+    "/onboarding?error=" + encodeURIComponent("Solo un admin può modificare i ruoli."),
+  );
+  const supabase = await createClient();
+  const organizationId = context.organizationId;
   const userId = String(formData.get("user_id") ?? "");
   const businessRole = String(formData.get("business_role") ?? "").trim();
 
