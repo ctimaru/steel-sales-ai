@@ -1,5 +1,7 @@
 "use server";
 
+import { safeErrorMessage } from "@/lib/user-facing-error";
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -73,7 +75,7 @@ export async function startCompanyDiscovery(formData: FormData) {
   });
 
   if (error) {
-    redirect(discoveryPath("error", error.message));
+    redirect(discoveryPath("error", safeErrorMessage(error, "Operazione discovery non completata. Aggiorna la pagina e riprova.")));
   }
 
   const runId = String((data as { run_id?: string } | null)?.run_id ?? "");
@@ -162,7 +164,7 @@ export async function reviewCompanyDiscovery(formData: FormData) {
         });
 
   if (result.error) {
-    redirect(discoveryPath("error", result.error.message));
+    redirect(discoveryPath("error", result.safeErrorMessage(error, "Operazione discovery non completata. Aggiorna la pagina e riprova.")));
   }
 
   revalidatePath("/platform/company-discovery");
@@ -191,7 +193,7 @@ export async function closeExactDiscoveryDuplicates() {
   });
 
   if (error) {
-    redirect(discoveryPath("error", error.message));
+    redirect(discoveryPath("error", safeErrorMessage(error, "Operazione discovery non completata. Aggiorna la pagina e riprova.")));
   }
 
   const closed = Number(
