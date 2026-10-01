@@ -9,6 +9,7 @@ import {
 } from "@/lib/auth-email-verification";
 import { siteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
+import { safeErrorMessage } from "@/lib/user-facing-error";
 
 async function appOrigin() {
   if (process.env.VERCEL_ENV === "production") return siteUrl;
@@ -25,19 +26,27 @@ async function appOrigin() {
   return `${proto}://${host}`;
 }
 
-function resendErrorMessage(error: { code?: string; message: string }) {
+function resendErrorMessage(error: {
+  code?: string;
+  message: string;
+  status?: number;
+}) {
   if (error.code === "email_address_not_authorized") {
     return "Il servizio email di verifica non è ancora configurato per questo indirizzo.";
   }
 
   if (
     error.code === "over_email_send_rate_limit" ||
-    error.message.toLowerCase().includes("rate")
+    error.code === "over_request_rate_limit" ||
+    error.status === 429
   ) {
     return "Hai richiesto un nuovo link troppo presto. Attendi qualche minuto e riprova.";
   }
 
-  return "Non è stato possibile reinviare il link di verifica. Riprova tra poco.";
+  return safeErrorMessage(
+    error,
+    "Non è stato possibile reinviare il link di verifica. Riprova tra poco.",
+  );
 }
 
 export async function resendSignupConfirmation() {
