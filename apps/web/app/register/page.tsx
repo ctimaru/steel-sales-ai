@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { signup } from "@/app/login/actions";
+import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { ProductBrand } from "@/components/product-brand";
 import { RegistrationJourney } from "@/components/registration-journey";
 import { Input } from "@/components/ui/input";
@@ -130,12 +131,12 @@ export default async function RegisterPage({
                   </span>
                 </label>
 
-                <button
-                  type="submit"
-                  className="app-primary h-11 w-full rounded-xl px-5 text-sm font-semibold"
+                <PendingSubmitButton
+                  pendingLabel="Creazione account…"
+                  className="app-primary h-11 w-full rounded-xl px-5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Crea account e continua
-                </button>
+                </PendingSubmitButton>
               </form>
 
               <p className="mt-6 text-center text-sm text-[#66736e]">
