@@ -21,6 +21,10 @@ const networkActions = fs.readFileSync(
   new URL("../app/(workspace)/network/actions.ts", import.meta.url),
   "utf8",
 );
+const requestNetworkClaimBlock =
+  networkActions.match(
+    /export async function requestNetworkClaim\(formData: FormData\) \{[\s\S]*?\n\}\n\nexport async function updateManagedNetworkProfile/,
+  )?.[0] ?? "";
 const companyClaims = fs.readFileSync(
   new URL("../lib/company-claims.ts", import.meta.url),
   "utf8",
@@ -59,11 +63,12 @@ test("HP5 exposes a dedicated governed claim preflight", () => {
   assert.match(companyClaims, /getCompanyClaimExperience/);
 });
 
-test("HP5 derives Organization from the active workspace instead of trusting form input", () => {
-  assert.match(networkActions, /const context = await requireWorkspaceAdmin\(\)/);
-  assert.match(networkActions, /p_organization_id: context\.organizationId/);
-  assert.doesNotMatch(networkActions, /textValue\(formData, "organization_id"\)/);
-  assert.match(networkActions, /authority_confirmed/);
+test("HP5 derives Organization from the active workspace instead of trusting claim form input", () => {
+  assert.ok(requestNetworkClaimBlock, "requestNetworkClaim action must exist");
+  assert.match(requestNetworkClaimBlock, /const context = await requireWorkspaceAdmin\(\)/);
+  assert.match(requestNetworkClaimBlock, /p_organization_id: context\.organizationId/);
+  assert.doesNotMatch(requestNetworkClaimBlock, /textValue\(formData, "organization_id"\)/);
+  assert.match(requestNetworkClaimBlock, /authority_confirmed/);
 });
 
 test("HP5 routes public profile claim CTA through a guided experience", () => {
