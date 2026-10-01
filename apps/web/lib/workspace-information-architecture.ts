@@ -86,7 +86,7 @@ function networkContext(pathname: string): WorkspaceContextKey {
 function knowledgeContext(pathname: string): WorkspaceContextKey {
   if (
     isAnyPath(pathname, [
-      appRoutes.commercial.knowledgeExplorer,
+      appRoutes.knowledge.explorer,
       legacyRoutes.knowledgeExplorer,
     ])
   ) {
@@ -166,7 +166,7 @@ export function getWorkspaceNavigationContext(
   if (
     isAnyPath(pathname, [
       appRoutes.knowledge.workspace,
-      appRoutes.commercial.knowledgeExplorer,
+      appRoutes.knowledge.explorer,
       legacyRoutes.knowledgeExplorer,
     ])
   ) {
