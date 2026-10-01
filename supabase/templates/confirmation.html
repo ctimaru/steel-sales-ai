@@ -18,7 +18,7 @@
                 </p>
 
                 <p style="margin:28px 0;">
-                  <a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#1a5144;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;padding:13px 22px;border-radius:10px;">
+                  <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/register" style="display:inline-block;background:#1a5144;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;padding:13px 22px;border-radius:10px;">
                     Conferma email
                   </a>
                 </p>
