@@ -1,5 +1,7 @@
 "use server";
 
+import { safeErrorMessage } from "@/lib/user-facing-error";
+
 import { createClient } from "@/lib/supabase/server";
 
 export type SharedSteelReference = {
@@ -275,7 +277,12 @@ async function workerCall<T>(path: string, body: Record<string, unknown>): Promi
   });
   const payload = (await response.json().catch(() => null)) as (T & { detail?: string }) | null;
   if (!response.ok || !payload) {
-    throw new Error(payload?.detail ?? "Product 360 non disponibile.");
+    throw new Error(
+      safeErrorMessage(
+        { status: response.status, message: payload?.detail },
+        "Product 360 non disponibile. Riprova tra poco.",
+      ),
+    );
   }
   return payload;
 }
@@ -302,7 +309,7 @@ export async function loadProductCatalog(query?: string): Promise<{
     });
     return { total: payload.total ?? 0, results: payload.results ?? [] };
   } catch (error) {
-    return { total: 0, results: [], error: error instanceof Error ? error.message : "Product catalog non disponibile." };
+    return { total: 0, results: [], error: safeErrorMessage(error, "Product catalog non disponibile. Riprova tra poco.") };
   }
 }
 
@@ -321,7 +328,7 @@ export async function loadProduct360(productId: string): Promise<Product360Paylo
       limit: 250,
     });
   } catch (error) {
-    return { found: false, error: error instanceof Error ? error.message : "Product 360 non disponibile." };
+    return { found: false, error: safeErrorMessage(error, "Product 360 non disponibile. Riprova tra poco.") };
   }
 }
 
@@ -341,6 +348,6 @@ export async function loadPriceHistory(productId: string): Promise<PriceHistoryP
       comparable_limit: 20,
     });
   } catch (error) {
-    return { found: false, error: error instanceof Error ? error.message : "Price History non disponibile." };
+    return { found: false, error: safeErrorMessage(error, "Price History non disponibile. Riprova tra poco.") };
   }
 }
