@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
+
 import {
   getPlatformKnowledgeQuality,
   getPlatformKnowledgeQueue,
@@ -222,11 +224,23 @@ export default async function PlatformKnowledgePage({
 
       <section className="space-y-3">
         {queue.items.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-[#cfdbea] bg-white p-10 text-center">
-            <p className="font-semibold text-[#1d2824]">
-              Nessun contenuto in questa vista
-            </p>
-          </div>
+          <FirstUseEmptyState
+            eyebrow={activeStatus ? "Filtro senza risultati" : "Coda editoriale"}
+            title="Nessun contenuto in questa vista"
+            description={
+              activeStatus
+                ? "Rimuovi il filtro per tornare all’intero workflow editoriale."
+                : "Non ci sono bozze o contenuti editoriali da gestire in questo momento."
+            }
+            primaryAction={{
+              href: "/platform/knowledge",
+              label: activeStatus ? "Mostra tutti i contenuti" : "Aggiorna la coda",
+            }}
+            secondaryAction={{
+              href: "/knowledge",
+              label: "Apri Knowledge pubblico",
+            }}
+          />
         ) : (
           queue.items.map((item) => (
             <Link
