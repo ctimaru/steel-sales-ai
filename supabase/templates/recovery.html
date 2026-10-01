@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="it">
+  <body style="margin:0;padding:0;background:#f2f4f3;font-family:Arial,Helvetica,sans-serif;color:#1d2824;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f2f4f3;padding:32px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:560px;background:#ffffff;border:1px solid #dce2df;border-radius:20px;">
+            <tr>
+              <td style="padding:32px;">
+                <div style="font-size:20px;font-weight:700;color:#123d34;">Smart Steel Sales</div>
+                <h1 style="margin:28px 0 12px;font-size:26px;line-height:1.2;color:#1d2824;">Reimposta la tua password</h1>
+                <p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#5f6d68;">
+                  Abbiamo ricevuto una richiesta di reimpostazione della password per il tuo account.
+                </p>
+                <p style="margin:28px 0;">
+                  <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery&next=/reset-password" style="display:inline-block;background:#1a5144;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;padding:13px 22px;border-radius:10px;">
+                    Reimposta password
+                  </a>
+                </p>
+                <p style="margin:0 0 12px;font-size:13px;line-height:1.6;color:#7b8782;">
+                  Il link è personale e può essere utilizzato una sola volta.
+                </p>
+                <p style="margin:0;font-size:13px;line-height:1.6;color:#7b8782;">
+                  Se non hai richiesto tu la reimpostazione, puoi ignorare questa email.
+                </p>
+                <div style="margin-top:28px;padding-top:20px;border-top:1px solid #e7ece9;font-size:12px;line-height:1.5;color:#8b9792;">
+                  Messaggio automatico di sicurezza. Non inoltrare questo link.
+                </div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
