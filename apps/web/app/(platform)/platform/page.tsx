@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
+
 import { getAdminCompanyClaimQueue } from "@/lib/company-claims";
 import { getPlatformKnowledgeQueue } from "@/lib/platform-knowledge";
 import { getNetworkTrustQueue } from "@/lib/platform-network-trust";
@@ -218,14 +220,20 @@ export default async function PlatformHomePage() {
       </section>
 
       {!context.is_platform_owner && !canReadRegistrations && !canReadDiscovery && !canReadClaims && !canReadKnowledge && !canReadNetworkTrust ? (
-        <section className="rounded-3xl border border-dashed border-[#cfdbea] bg-white/80 px-6 py-10 text-center">
-          <p className="font-semibold text-[#1d2824]">
-            Nessun modulo operativo ancora abilitato
-          </p>
-          <p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-[#7a899d]">
-            Il tuo account Platform Staff è attivo, ma i domini associati ai tuoi ruoli non sono ancora stati portati sul nuovo permission model.
-          </p>
-        </section>
+        <FirstUseEmptyState
+          eyebrow="Accesso Platform"
+          title="Nessun modulo operativo ancora abilitato"
+          description="Il tuo account Platform Staff è attivo, ma i ruoli assegnati non concedono ancora accesso a un dominio operativo."
+          primaryAction={{
+            href: "/staff/access",
+            label: "Controlla il mio accesso",
+          }}
+          secondaryAction={{
+            href: "/dashboard",
+            label: "Torna al workspace",
+          }}
+          note="Le autorizzazioni Platform sono separate dai ruoli aziendali."
+        />
       ) : null}
     </div>
   );

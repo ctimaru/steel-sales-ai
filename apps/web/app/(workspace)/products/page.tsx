@@ -1,6 +1,9 @@
 import Link from "next/link";
 
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
+import { canWriteWorkspace } from "@/lib/access-policy";
 import { appRoutes } from "@/lib/routes";
+import { getWorkspaceContext } from "@/lib/workspace-context";
 
 import { loadProductCatalog, type ProductCatalogItem } from "./actions";
 
@@ -38,7 +41,11 @@ export default async function ProductsPage({
 }) {
   const params = await searchParams;
   const query = typeof params.q === "string" ? params.q.trim() : "";
-  const catalog = await loadProductCatalog(query || undefined);
+  const [catalog, context] = await Promise.all([
+    loadProductCatalog(query || undefined),
+    getWorkspaceContext(),
+  ]);
+  const canWrite = canWriteWorkspace(context.role);
 
   return (
     <div className="mx-auto max-w-7xl space-y-7">
@@ -72,9 +79,40 @@ export default async function ProductsPage({
       {catalog.error ? (
         <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">{catalog.error}</div>
       ) : catalog.results.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-[#d7dfdb] bg-white px-6 py-12 text-center text-sm text-[#66736e]">
-          Nessun prodotto trovato con questi criteri.
-        </div>
+        query ? (
+          <FirstUseEmptyState
+            eyebrow="Ricerca senza risultati"
+            title="Nessun prodotto corrisponde a questa ricerca"
+            description="La Product 360 contiene solo prodotti emersi dalla Commercial Memory del workspace. Azzera la ricerca oppure prova con qualità, norma o dimensioni meno specifiche."
+            primaryAction={{
+              href: appRoutes.commercial.products,
+              label: "Azzera ricerca",
+            }}
+            secondaryAction={{
+              href: appRoutes.commercial.explorer,
+              label: "Apri Commercial Explorer",
+            }}
+            note="Un risultato assente non crea automaticamente un nuovo prodotto."
+          />
+        ) : (
+          <FirstUseEmptyState
+            title="La Product 360 si costruisce dai tuoi documenti"
+            description="Non ci sono ancora prodotti normalizzati nel workspace. Il primo import di email, PDF o Excel alimenta RFQ, offerte, ordini e storico prodotto senza dover creare manualmente un catalogo parallelo."
+            primaryAction={{
+              href: canWrite
+                ? appRoutes.operations.uploads
+                : appRoutes.commercial.explorer,
+              label: canWrite
+                ? "Importa i primi documenti"
+                : "Apri Commercial Explorer",
+            }}
+            secondaryAction={{
+              href: appRoutes.commercial.search,
+              label: "Cerca nello storico",
+            }}
+            note={canWrite ? "Dopo l’import, eventuali casi incerti compariranno in Correzioni." : "Il tuo ruolo è in sola lettura: i dati appariranno quando un collega abilitato importerà lo storico."}
+          />
+        )
       ) : (
         <section className="grid gap-4 xl:grid-cols-2">
           {catalog.results.map((item) => (

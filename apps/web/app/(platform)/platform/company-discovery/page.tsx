@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
+
 import {
   getCompanyDiscoveryQueue,
   getCompanyDiscoveryRuns,
@@ -308,12 +310,23 @@ export default async function CompanyDiscoveryPage({
         </div>
 
         {queue.items.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[#c8d2d7] bg-white p-10 text-center">
-            <p className="font-semibold text-[#22313a]">Nessun candidato in questa coda</p>
-            <p className="mt-2 text-sm text-[#66736e]">
-              Avvia una discovery oppure cambia filtro.
-            </p>
-          </div>
+          <FirstUseEmptyState
+            eyebrow={status === "pending_review" ? "Coda pronta" : "Filtro senza risultati"}
+            title="Nessun candidato in questa coda"
+            description={
+              status === "pending_review"
+                ? "Avvia una nuova scansione dalla sezione superiore oppure controlla gli esiti delle campagne già processate."
+                : "Passa alla coda da revisionare o cambia stato per vedere gli altri candidati discovery."
+            }
+            primaryAction={{
+              href: "/platform/company-discovery",
+              label: status === "pending_review" ? "Torna alla coda principale" : "Apri da revisionare",
+            }}
+            secondaryAction={{
+              href: "/network",
+              label: "Apri Network",
+            }}
+          />
         ) : (
           <div className="space-y-3">
             {queue.items.map((candidate) => (

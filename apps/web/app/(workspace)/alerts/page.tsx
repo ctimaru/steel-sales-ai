@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 
 import { OperationalAlertActions } from "./operational-alert-actions";
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { appRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
 
 type OperationalAlert = {
@@ -137,12 +139,20 @@ export default async function OperationalAlertsPage() {
       </section>
 
       {alerts.length === 0 ? (
-        <Card className="p-8 text-center">
-          <p className="text-base font-semibold text-slate-950">Nessun alert operativo</p>
-          <p className="mt-2 text-sm text-slate-500">
-            Il regression guard non ha rilevato anomalie rispetto alla baseline controllata.
-          </p>
-        </Card>
+        <FirstUseEmptyState
+          eyebrow="Controlli regolari"
+          title="Nessun alert operativo richiede attenzione"
+          description="Il regression guard non ha rilevato anomalie rispetto alla baseline controllata. Puoi continuare con le correzioni oppure tornare al workspace."
+          primaryAction={{
+            href: appRoutes.operations.review,
+            label: "Apri Correzioni",
+          }}
+          secondaryAction={{
+            href: appRoutes.home,
+            label: "Torna al workspace",
+          }}
+          note="Gli alert compariranno automaticamente quando un controllo operativo rileverà una regressione."
+        />
       ) : (
         <section className="space-y-3">
           {alerts.map((alert) => (

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ export function CommercialExplorer({
   pageSize,
   filters,
   mode,
+  canWrite,
 }: {
   rows: CommercialRow[];
   total: number;
@@ -39,8 +41,15 @@ export function CommercialExplorer({
   pageSize: number;
   filters: ExplorerFilters;
   mode: DataMode;
+  canWrite: boolean;
 }) {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const hasFilters = Boolean(
+    filters.q ||
+      (filters.role && filters.role !== "all") ||
+      (filters.grade && filters.grade !== "all") ||
+      (filters.standard && filters.standard !== "all"),
+  );
 
   return (
     <div className="space-y-5">
@@ -132,10 +141,37 @@ export function CommercialExplorer({
         ))}
 
         {rows.length === 0 ? (
-          <Card className="p-10 text-center">
-            <p className="font-semibold text-slate-800">Nessun risultato</p>
-            <p className="mt-2 text-sm text-slate-500">Modifica i filtri o la ricerca.</p>
-          </Card>
+          hasFilters ? (
+            <FirstUseEmptyState
+              eyebrow="Filtri senza risultati"
+              title="Nessuna attività commerciale corrisponde ai filtri"
+              description="Azzera i filtri per tornare allo storico completo oppure riparti da Product 360 se stai cercando uno specifico articolo."
+              primaryAction={{ href: "/explorer", label: "Azzera filtri" }}
+              secondaryAction={{
+                href: appRoutes.commercial.products,
+                label: "Apri Product 360",
+              }}
+              compact
+            />
+          ) : (
+            <FirstUseEmptyState
+              title="Il Commercial Explorer si accende con il primo storico reale"
+              description="Qui compariranno RFQ, offerte e ordini normalizzati per prodotto, qualità, norma e ruolo. Non serve creare righe manualmente: il punto di ingresso è lo storico commerciale."
+              primaryAction={{
+                href: canWrite
+                  ? appRoutes.operations.uploads
+                  : appRoutes.commercial.products,
+                label: canWrite
+                  ? "Importa i primi documenti"
+                  : "Apri Product 360",
+              }}
+              secondaryAction={{
+                href: appRoutes.commercial.search,
+                label: "Cerca nello storico",
+              }}
+              compact
+            />
+          )
         ) : null}
       </div>
 

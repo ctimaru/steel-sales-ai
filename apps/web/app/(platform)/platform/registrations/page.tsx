@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
+
 import { getRegistrationQueue, requirePlatformPermission } from "@/lib/platform-admin";
 import { isRegistrationApplicationStatus } from "@/lib/registration-state";
 
@@ -209,12 +211,23 @@ export default async function AdminRegistrationsPage({
 
       <section className="space-y-3">
         {queue.applications.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-[#cfdbea] bg-white/80 px-6 py-12 text-center">
-            <p className="font-semibold text-[#1d2824]">Nessuna pratica in questa vista</p>
-            <p className="mt-2 text-sm text-[#7a899d]">
-              Modifica filtro o ricerca per ampliare i risultati.
-            </p>
-          </div>
+          <FirstUseEmptyState
+            eyebrow={activeStatus || query ? "Coda senza risultati" : "Coda pulita"}
+            title="Nessuna pratica in questa vista"
+            description={
+              activeStatus || query
+                ? "Rimuovi filtro e ricerca per verificare l’intera coda di registrazione."
+                : "Non ci sono pratiche aziendali da gestire in questo momento. Le nuove registrazioni compariranno automaticamente qui."
+            }
+            primaryAction={{
+              href: "/platform/registrations",
+              label: activeStatus || query ? "Mostra tutte le pratiche" : "Aggiorna la coda",
+            }}
+            secondaryAction={{
+              href: "/platform",
+              label: "Torna al control plane",
+            }}
+          />
         ) : (
           queue.applications.map((application) => {
             const identity = identityBadge(

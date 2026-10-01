@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
+
 import {
   loadDataSourceCenter,
   type DataSourceState,
@@ -128,6 +130,7 @@ export default async function DataSourcesPage({
   const { summary, sources, items, total_filtered: totalFiltered } = result.data;
   const totalPages = Math.max(1, Math.ceil(totalFiltered / limit));
   const currentPage = Math.min(page, totalPages);
+  const hasFilters = Boolean(search || state !== "all" || sourceKey);
 
   function pageHref(target: number) {
     const params = new URLSearchParams();
@@ -206,9 +209,19 @@ export default async function DataSourcesPage({
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-500">
-            Nessuna fonte ha ancora prodotto dati per questa organizzazione.
-          </div>
+          <FirstUseEmptyState
+            title="Nessuna fonte ha ancora prodotto dati"
+            description="La sezione si popola con il primo import reale. Carica email, PDF o Excel per iniziare a costruire la Commercial Memory e monitorare qui origine, stato e indicizzazione."
+            primaryAction={{
+              href: "/uploads",
+              label: "Importa i primi documenti",
+            }}
+            secondaryAction={{
+              href: "/onboarding",
+              label: "Controlla setup azienda",
+            }}
+            compact
+          />
         )}
       </section>
 
@@ -334,8 +347,29 @@ export default async function DataSourcesPage({
             </table>
           </div>
         ) : (
-          <div className="p-8 text-center text-sm text-slate-500">
-            Nessun import corrisponde ai filtri selezionati.
+          <div className="p-5">
+            <FirstUseEmptyState
+              eyebrow={hasFilters ? "Filtri senza risultati" : "Primo utilizzo"}
+              title={
+                hasFilters
+                  ? "Nessun import corrisponde ai filtri"
+                  : "Lo storico importazioni è ancora vuoto"
+              }
+              description={
+                hasFilters
+                  ? "Azzera ricerca, stato e fonte per tornare alla cronologia completa."
+                  : "Il primo upload creerà qui una traccia verificabile di file, email, stato di parsing e indicizzazione."
+              }
+              primaryAction={{
+                href: hasFilters ? "/data-sources" : "/uploads",
+                label: hasFilters ? "Azzera filtri" : "Importa documenti",
+              }}
+              secondaryAction={{
+                href: hasFilters ? "/uploads" : "/dashboard",
+                label: hasFilters ? "Importa nuovi documenti" : "Torna al workspace",
+              }}
+              compact
+            />
           </div>
         )}
 

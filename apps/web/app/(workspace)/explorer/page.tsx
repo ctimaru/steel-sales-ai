@@ -1,6 +1,8 @@
 import { CommercialExplorer } from "@/components/commercial-explorer";
+import { canWriteWorkspace } from "@/lib/access-policy";
 import { getExplorerData, type ExplorerFilters } from "@/lib/commercial-data";
 import type { ItemRole } from "@/lib/demo-data";
+import { getWorkspaceContext } from "@/lib/workspace-context";
 
 export default async function ExplorerPage({
   searchParams,
@@ -25,7 +27,11 @@ export default async function ExplorerPage({
     page: Number(read("page") ?? 1),
   };
 
-  const data = await getExplorerData(filters);
+  const [data, context] = await Promise.all([
+    getExplorerData(filters),
+    getWorkspaceContext(),
+  ]);
+  const canWrite = canWriteWorkspace(context.role);
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -40,7 +46,7 @@ export default async function ExplorerPage({
         </p>
       </div>
       <div className="mt-7">
-        <CommercialExplorer {...data} filters={filters} />
+        <CommercialExplorer {...data} filters={filters} canWrite={canWrite} />
       </div>
     </div>
   );

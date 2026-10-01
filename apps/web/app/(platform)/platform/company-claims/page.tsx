@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
+
 import { getAdminCompanyClaimQueue } from "@/lib/company-claims";
 import {
   getPlatformAccessContext,
@@ -122,12 +124,23 @@ export default async function CompanyClaimsPage({
 
       <section className="space-y-4">
         {queue.items.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-[#cfdbea] bg-white p-10 text-center">
-            <p className="font-semibold text-[#1d2824]">Nessun claim in questa vista</p>
-            <p className="mt-2 text-sm text-[#7a899d]">
-              Le richieste di gestione dei profili compariranno qui.
-            </p>
-          </div>
+          <FirstUseEmptyState
+            eyebrow={activeStatus ? "Filtro senza risultati" : "Coda pulita"}
+            title="Nessun claim in questa vista"
+            description={
+              activeStatus
+                ? "Apri tutti i claim per verificare se ci sono richieste in altri stati."
+                : "Le richieste di gestione dei Company Profile compariranno qui quando un’azienda avvia un claim."
+            }
+            primaryAction={{
+              href: "/platform/company-claims",
+              label: activeStatus ? "Mostra tutti i claim" : "Aggiorna la coda",
+            }}
+            secondaryAction={{
+              href: "/platform/network-trust",
+              label: "Apri Network Trust",
+            }}
+          />
         ) : (
           queue.items.map((claim) => (
             <article key={claim.claim_id} className="rounded-2xl border border-[#dce2df] bg-white p-5">

@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
+import { canWriteWorkspace } from "@/lib/access-policy";
 import { getMarketplaceBuyerResponses } from "@/lib/marketplace";
 import { appRoutes } from "@/lib/routes";
 import { getWorkspaceContext } from "@/lib/workspace-context";
@@ -36,6 +38,7 @@ function formatDate(value: string | null) {
 export default async function MarketplaceResponsesPage() {
   const context = await getWorkspaceContext();
   const inbox = await getMarketplaceBuyerResponses(context.organizationId);
+  const canWrite = canWriteWorkspace(context.role);
 
   const newCount = inbox.items.filter((item) => item.status === "submitted").length;
   const activeCount = inbox.items.filter(
@@ -102,13 +105,27 @@ export default async function MarketplaceResponsesPage() {
       </section>
 
       {inbox.items.length === 0 ? (
-        <section className="rounded-3xl border border-dashed border-[#c8d5d0] bg-white p-8 text-center">
-          <h2 className="font-semibold text-[#1d2824]">Nessuna risposta ricevuta</h2>
-          <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#66736e]">
-            Quando un supplier autorizzato invierà una risposta governata a una tua
-            ricerca, comparirà qui.
-          </p>
-        </section>
+        <FirstUseEmptyState
+          eyebrow="Buyer inbox"
+          title="Nessuna risposta ricevuta"
+          description="Le risposte compariranno qui quando un supplier con entitlement e unlock invierà una risposta governata a una ricerca pubblicata dalla tua azienda."
+          primaryAction={{
+            href: appRoutes.marketplace.myRequests,
+            label: "Controlla le mie ricerche",
+          }}
+          secondaryAction={
+            canWrite
+              ? {
+                  href: appRoutes.marketplace.newRequest,
+                  label: "Crea una nuova ricerca",
+                }
+              : {
+                  href: appRoutes.marketplace.home,
+                  label: "Apri il Demand Board",
+                }
+          }
+          note="Le bozze dei supplier non sono visibili al buyer."
+        />
       ) : (
         <section className="grid gap-3 lg:grid-cols-2">
           {inbox.items.map((item) => (

@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getReviewItems } from "@/lib/commercial-data";
+import { appRoutes } from "@/lib/routes";
 import { PilotEvent } from "@/components/pilot-event";
 
 import { ReviewConfirmForm } from "@/components/review-confirm-form";
@@ -53,6 +55,22 @@ export default async function ReviewPage() {
       ) : null}
 
       <div className="mt-7 space-y-4">
+        {items.length === 0 ? (
+          <FirstUseEmptyState
+            eyebrow="Coda pulita"
+            title="Non ci sono correzioni da gestire"
+            description="Questa è una condizione positiva: nessun dato estratto richiede intervento umano in questo momento. Importa nuovo materiale oppure torna al workspace."
+            primaryAction={{
+              href: appRoutes.operations.uploads,
+              label: "Importa documenti",
+            }}
+            secondaryAction={{
+              href: appRoutes.home,
+              label: "Torna al workspace",
+            }}
+            note="Quando parser o identity resolution richiederanno una decisione, i casi compariranno automaticamente qui."
+          />
+        ) : null}
         {items.map((flag) => (
           <Card key={flag.id}>
             <CardContent className="grid gap-5 lg:grid-cols-[1fr_1fr_180px] lg:items-center">

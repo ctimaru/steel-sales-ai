@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { PilotEvent } from "@/components/pilot-event";
 import { getNetworkTaxonomy, searchNetwork } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
+import { appRoutes } from "@/lib/routes";
 
 function selectClass() {
   return "h-11 w-full rounded-xl border border-[#dce2df] bg-white px-3 text-sm text-[#2b3d46] outline-none transition focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8]";
@@ -264,12 +266,34 @@ export default async function NetworkDirectoryPage({
         </div>
 
         {results.items.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-[#cbd7e6] bg-white p-10 text-center">
-            <p className="font-semibold text-[#1d2824]">Nessuna azienda trovata</p>
-            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#66736e]">
-              Prova a cercare un nome più ampio, azzera i filtri oppure scegli una tipologia diversa della filiera.
-            </p>
-          </div>
+          (params.q || hasAdvancedFilters) ? (
+            <FirstUseEmptyState
+              eyebrow="Ricerca senza risultati"
+              title="Nessuna azienda trovata con questi filtri"
+              description="Il Network non inventa profili mancanti. Azzera i filtri oppure amplia la ricerca per tornare alla directory completa."
+              primaryAction={{
+                href: appRoutes.network.directory,
+                label: "Azzera ricerca e filtri",
+              }}
+              secondaryAction={{
+                href: appRoutes.network.saved,
+                label: "Apri aziende salvate",
+              }}
+            />
+          ) : (
+            <FirstUseEmptyState
+              title="Il Network crescerà con i Company Profile pubblici"
+              description="Non ci sono ancora profili disponibili in questa vista. Puoi comunque completare il profilo della tua azienda così che sia pronto per discovery, matching e claim governato."
+              primaryAction={{
+                href: appRoutes.network.manage,
+                label: "Completa Company Profile",
+              }}
+              secondaryAction={{
+                href: appRoutes.home,
+                label: "Torna al workspace",
+              }}
+            />
+          )
         ) : (
           <div className="grid gap-4 lg:grid-cols-2">
             {results.items.map((company) => (

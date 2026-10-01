@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { redirect } from "next/navigation";
 
 import {
@@ -76,14 +77,23 @@ export default async function NetworkActivityPage({
       </div>
 
       {feed.items.length === 0 ? (
-        <section className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
-          <p className="font-semibold text-slate-900">
-            {unreadOnly ? "Nessuna activity non letta" : "Nessun aggiornamento disponibile"}
-          </p>
-          <p className="mt-2 text-sm text-slate-500">
-            Gli eventi precedenti al follow non vengono retro-popolati.
-          </p>
-        </section>
+        <FirstUseEmptyState
+          eyebrow={unreadOnly ? "Tutto letto" : "Primo utilizzo"}
+          title={unreadOnly ? "Non hai aggiornamenti non letti" : "Nessun aggiornamento dalle aziende seguite"}
+          description={
+            unreadOnly
+              ? "Hai già letto tutti gli aggiornamenti disponibili. Puoi tornare al feed completo oppure continuare a esplorare il Network."
+              : "L’activity feed parte dal momento in cui segui un’azienda: gli eventi precedenti non vengono retro-popolati."
+          }
+          primaryAction={{
+            href: unreadOnly ? "/network/activity" : "/network/following",
+            label: unreadOnly ? "Mostra tutte le activity" : "Gestisci aziende seguite",
+          }}
+          secondaryAction={{
+            href: "/network",
+            label: "Esplora il Network",
+          }}
+        />
       ) : (
         <div className="space-y-3">
           {feed.items.map((item) => (

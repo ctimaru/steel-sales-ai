@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getCompanySetupState } from "@/lib/company-setup";
@@ -318,6 +319,33 @@ export default async function DashboardPage() {
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
+          {recent.length === 0 ? (
+            <FirstUseEmptyState
+              eyebrow="Workspace pronto, storico ancora vuoto"
+              title="Qui vedrai subito le ultime attività commerciali"
+              description="RFQ, offerte e ordini recenti appariranno automaticamente quando la Commercial Memory avrà acquisito i primi documenti reali."
+              primaryAction={{
+                href: canWrite
+                  ? appRoutes.operations.uploads
+                  : appRoutes.commercial.search,
+                label: canWrite
+                  ? "Importa i primi documenti"
+                  : "Apri lo storico",
+              }}
+              secondaryAction={
+                isAdmin
+                  ? {
+                      href: appRoutes.company.dataSources,
+                      label: "Controlla fonti e import",
+                    }
+                  : {
+                      href: appRoutes.commercial.products,
+                      label: "Apri Product 360",
+                    }
+              }
+              compact
+            />
+          ) : null}
           {recent.map((row) => (
             <Link
               href={row.operationalHref ?? appRoutes.commercial.conversation(row.conversationId)}
@@ -379,7 +407,7 @@ export default async function DashboardPage() {
       <section>
         <div className="mb-3">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#173f35]">Spazi condivisi</p>
-          <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">Ecosistema Steel Sales AI</h2>
+          <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">Ecosistema Smart Steel Sales</h2>
           <p className="mt-1 text-sm text-[#66736e]">Queste superfici non fanno parte della Commercial Memory privata.</p>
         </div>
         <div className="grid gap-4 lg:grid-cols-3">

@@ -4,6 +4,7 @@ import {
   dismissMarketplaceNotification,
   openMarketplaceNotification,
 } from "@/app/(workspace)/marketplace/actions";
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { MarketplaceCountdown } from "@/components/marketplace-countdown";
 import {
   getMarketplaceNotifications,
@@ -195,21 +196,20 @@ export default async function MarketplaceNotificationsPage({
       </section>
 
       {inbox.items.length === 0 ? (
-        <section className="rounded-3xl border border-dashed border-[#c8d5d0] bg-white p-8 text-center">
-          <h2 className="font-semibold text-[#1d2824]">
-            Nessuna opportunità selezionata
-          </h2>
-          <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#66736e]">
-            Il matching usa lo scope tecnico del Company Profile. Completa prodotti,
-            norme, gradi e range dimensionali per rendere più precisa la selezione.
-          </p>
-          <Link
-            href={appRoutes.network.manage}
-            className="mt-4 inline-flex rounded-xl border border-[#b8d2c8] bg-white px-4 py-2.5 text-sm font-semibold text-[#173f35] hover:bg-[#edf5f2]"
-          >
-            Completa Company Profile
-          </Link>
-        </section>
+        <FirstUseEmptyState
+          eyebrow="Matching supplier"
+          title="Nessuna opportunità selezionata per il tuo profilo"
+          description="Il matching usa lo scope tecnico pubblico del Company Profile. Prodotti, norme, gradi e range dimensionali dichiarati rendono la selezione più precisa senza inventare capacità non presenti."
+          primaryAction={{
+            href: appRoutes.network.manage,
+            label: "Completa Company Profile",
+          }}
+          secondaryAction={{
+            href: appRoutes.marketplace.home,
+            label: "Apri tutto il Demand Board",
+          }}
+          note="Entitlement e diritto di risposta restano separati dal punteggio di matching."
+        />
       ) : (
         <section className="space-y-4">
           {inbox.items.map((item) => {

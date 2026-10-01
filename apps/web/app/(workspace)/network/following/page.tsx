@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { redirect } from "next/navigation";
 
 import { unfollowNetworkCompany } from "@/app/(workspace)/network/actions";
@@ -49,15 +50,18 @@ export default async function FollowedCompaniesPage({
       {message ? <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{message}</div> : null}
 
       {followed.items.length === 0 ? (
-        <section className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
-          <p className="font-semibold text-slate-900">Non segui ancora aziende</p>
-          <p className="mt-2 text-sm text-slate-500">
-            Apri un Company Profile e usa “Segui aggiornamenti”.
-          </p>
-          <Link href="/network" className="mt-5 inline-flex h-10 items-center rounded-xl bg-slate-950 px-4 text-sm font-semibold text-white">
-            Esplora il Network
-          </Link>
-        </section>
+        <FirstUseEmptyState
+          title="Non segui ancora aziende"
+          description="Apri un Company Profile nel Network e scegli “Segui aggiornamenti”. Da quel momento vedrai solo i nuovi eventi pubblicati, senza retro-popolare lo storico precedente."
+          primaryAction={{
+            href: "/network",
+            label: "Esplora il Network",
+          }}
+          secondaryAction={{
+            href: "/network/activity",
+            label: "Apri activity feed",
+          }}
+        />
       ) : (
         <div className="grid gap-4 lg:grid-cols-2">
           {followed.items.map((item) => (
