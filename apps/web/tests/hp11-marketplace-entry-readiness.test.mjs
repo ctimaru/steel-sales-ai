@@ -61,6 +61,9 @@ test("HP11 Marketplace entry explains buyer and supplier readiness with correcti
   assert.match(readinessUi, /Gestisci Company Profile/);
   assert.match(readinessUi, /Da completare/);
   assert.match(readinessUi, /Migliorabile/);
+  assert.match(readiness, /canAdministerCompany/);
+  assert.match(readiness, /Chiedi a un Organization Admin/);
+  assert.match(readinessUi, /Azione:/);
 });
 
 test("HP11 preflights named buyer publication before the database rejects it", () => {
