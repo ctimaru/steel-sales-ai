@@ -1,5 +1,7 @@
 "use server";
 
+import { safeErrorMessage } from "@/lib/user-facing-error";
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -94,7 +96,7 @@ export async function createNetworkTrustAssertion(formData: FormData) {
     p_review_state: reviewState,
   });
 
-  if (error) redirect(trustPath("error", error.message));
+  if (error) redirect(trustPath("error", safeErrorMessage(error, "Operazione Network Trust non completata. Aggiorna la pagina e riprova.")));
   await finish("Evidenza Network aggiunta al ledger append-only.");
 }
 
@@ -136,7 +138,7 @@ export async function recordNetworkVerification(formData: FormData) {
     p_note: note,
   });
 
-  if (error) redirect(trustPath("error", error.message));
+  if (error) redirect(trustPath("error", safeErrorMessage(error, "Operazione Network Trust non completata. Aggiorna la pagina e riprova.")));
   await finish(
     status === "verified"
       ? "Verifica Network registrata."
@@ -171,7 +173,7 @@ export async function openNetworkChangeReview(formData: FormData) {
     p_proposed_value: proposedValue,
   });
 
-  if (error) redirect(trustPath("error", error.message));
+  if (error) redirect(trustPath("error", safeErrorMessage(error, "Operazione Network Trust non completata. Aggiorna la pagina e riprova.")));
   await finish("Change review aperta. Nessun dato sorgente è stato sovrascritto.");
 }
 
@@ -193,7 +195,7 @@ export async function decideNetworkChangeReview(formData: FormData) {
     p_note: note,
   });
 
-  if (error) redirect(trustPath("error", error.message));
+  if (error) redirect(trustPath("error", safeErrorMessage(error, "Operazione Network Trust non completata. Aggiorna la pagina e riprova.")));
   await finish(
     "Decisione provenance registrata. Nessun overwrite automatico è stato eseguito.",
   );
@@ -205,7 +207,7 @@ export async function refreshNetworkIdentityCandidates() {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("m5_refresh_identity_candidates");
 
-  if (error) redirect(trustPath("error", error.message));
+  if (error) redirect(trustPath("error", safeErrorMessage(error, "Operazione Network Trust non completata. Aggiorna la pagina e riprova.")));
 
   const payload = (data ?? {}) as {
     upserted_candidates?: number;
@@ -236,7 +238,7 @@ export async function reviewNetworkIdentityCandidate(formData: FormData) {
     p_note: note,
   });
 
-  if (error) redirect(trustPath("error", error.message));
+  if (error) redirect(trustPath("error", safeErrorMessage(error, "Operazione Network Trust non completata. Aggiorna la pagina e riprova.")));
 
   await finish(
     decision === "confirmed_match"
