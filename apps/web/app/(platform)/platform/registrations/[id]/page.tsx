@@ -11,6 +11,7 @@ import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 
 import {
   activateRegistrationApplication,
+  approveAndActivateRegistration,
   approveRegistrationApplication,
   bridgeRegistrationToNetwork,
   rejectRegistrationApplication,
@@ -84,7 +85,7 @@ export default async function AdminRegistrationDetailPage({
 
   if (!detail) notFound();
 
-  const { application, events } = detail;
+  const { application, events, identitySummary } = detail;
   const networkEnabled = isNetworkFrontendEnabled();
   const permissions = access?.permissions ?? [];
   const pendingReview = application.application_status === "pending_review";
@@ -92,6 +93,11 @@ export default async function AdminRegistrationDetailPage({
     pendingReview && permissions.includes("registrations.request_information");
   const canApprove =
     pendingReview && permissions.includes("registrations.approve");
+  const canApproveAndActivate =
+    pendingReview &&
+    permissions.includes("registrations.approve") &&
+    permissions.includes("registrations.activate") &&
+    permissions.includes("registrations.bridge_network");
   const canReject =
     pendingReview && permissions.includes("registrations.reject");
   const canActivate =
@@ -103,7 +109,7 @@ export default async function AdminRegistrationDetailPage({
     application.application_status === "activated" &&
     !application.matched_network_company_id &&
     permissions.includes("registrations.bridge_network");
-  const identityResolution = canActivate || canBridge
+  const identityResolution = canActivate || canBridge || canApproveAndActivate
     ? await getRegistrationIdentityResolution(application.id)
     : {
         application_id: application.id,
@@ -116,7 +122,12 @@ export default async function AdminRegistrationDetailPage({
   const networkCandidates = identityResolution.candidates;
   const possibleNetworkMatches = identityResolution.possible_matches;
   const hasAvailableAction =
-    canRequestInformation || canApprove || canReject || canActivate || canBridge;
+    canRequestInformation ||
+    canApprove ||
+    canApproveAndActivate ||
+    canReject ||
+    canActivate ||
+    canBridge;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -154,6 +165,52 @@ export default async function AdminRegistrationDetailPage({
               <p className="mt-1 break-all text-xs">{application.activated_organization_id}</p>
             </div>
           ) : null}
+        </div>
+      </section>
+
+      <section className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#87938e]">
+            Identity preflight
+          </p>
+          <p className="mt-2 text-sm font-semibold text-[#1d2824]">
+            {identitySummary.identity_state === "controlled_conflict"
+              ? "Conflitto ownership"
+              : identitySummary.identity_state === "candidate"
+                ? "Match identitario"
+                : identitySummary.identity_state === "shared_domain"
+                  ? "Dominio condiviso"
+                  : "Nessun blocco"}
+          </p>
+          <p className="mt-1 text-xs text-[#66736e]">
+            {identitySummary.blocking_candidate_count} candidate · {identitySummary.possible_match_count} possibili
+          </p>
+        </div>
+        <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#87938e]">
+            Workspace
+          </p>
+          <p className="mt-2 text-sm font-semibold text-[#1d2824]">
+            {application.activated_organization_id ? "Attivo" : "Non attivo"}
+          </p>
+          <p className="mt-1 text-xs text-[#66736e]">
+            {application.application_status === "approved"
+              ? "Pronto per attivazione"
+              : application.application_status === "pending_review"
+                ? "In attesa decisione"
+                : STATUS_LABELS[application.application_status] ?? application.application_status}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#87938e]">
+            Network link
+          </p>
+          <p className="mt-2 text-sm font-semibold text-[#1d2824]">
+            {application.matched_network_company_id ? "Collegato" : "Da risolvere"}
+          </p>
+          <p className="mt-1 text-xs text-[#66736e]">
+            Claim e verification restano governati separatamente.
+          </p>
         </div>
       </section>
 
@@ -220,7 +277,8 @@ export default async function AdminRegistrationDetailPage({
                     </p>
                   </div>
                   <p className="mt-1 text-xs text-[#66736e]">
-                    {event.actor_type}
+                    {event.actor_email ?? event.actor_type}
+                    {event.actor_email ? ` · ${event.actor_type}` : ""}
                     {event.from_status || event.to_status
                       ? ` · ${event.from_status ?? "—"} → ${event.to_status ?? "—"}`
                       : ""}
@@ -253,6 +311,64 @@ export default async function AdminRegistrationDetailPage({
                   </button>
                 </form>
               </section>
+          ) : null}
+
+          {canApproveAndActivate ? (
+            <section className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-5">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
+                HP6 · Fast path
+              </p>
+              <h2 className="mt-2 font-semibold text-[#173f35]">Approva e attiva</h2>
+              <p className="mt-1 text-sm leading-6 text-[#43524c]">
+                Approvazione, Organization, membership Admin, Network bridge e claim vengono eseguiti
+                nella stessa transazione. Se il bridge fallisce, anche l&apos;approvazione viene annullata.
+              </p>
+
+              {networkCandidates.length ? (
+                <div className="mt-4 space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#1a5144]">
+                    Seleziona l&apos;identità corretta
+                  </p>
+                  {networkCandidates.map((candidate) =>
+                    candidate.selectable ? (
+                      <form
+                        key={candidate.network_company_id}
+                        action={approveAndActivateRegistration}
+                        className="rounded-xl border border-[#c7ddd5] bg-white p-3"
+                      >
+                        <input type="hidden" name="application_id" value={application.id} />
+                        <input type="hidden" name="network_company_id" value={candidate.network_company_id} />
+                        <p className="text-sm font-semibold text-[#1d2824]">{candidate.legal_name}</p>
+                        <p className="mt-1 text-xs text-[#66736e]">
+                          {candidate.country_code} · score {Number(candidate.match_score).toFixed(2)} · {identitySignals(candidate.signals)}
+                        </p>
+                        <button className="mt-3 h-10 w-full rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657]">
+                          Approva e attiva con questo profilo
+                        </button>
+                      </form>
+                    ) : (
+                      <div
+                        key={candidate.network_company_id}
+                        className="rounded-xl border border-rose-200 bg-rose-50 p-3"
+                      >
+                        <p className="text-sm font-semibold text-rose-950">{candidate.legal_name}</p>
+                        <p className="mt-1 text-xs text-rose-800">{identitySignals(candidate.signals)}</p>
+                        <p className="mt-2 text-xs leading-5 text-rose-800">
+                          Profilo già controllato da un&apos;altra Organization: fast path bloccato.
+                        </p>
+                      </div>
+                    ),
+                  )}
+                </div>
+              ) : (
+                <form action={approveAndActivateRegistration} className="mt-4">
+                  <input type="hidden" name="application_id" value={application.id} />
+                  <button className="h-10 w-full rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657]">
+                    Approva e attiva workspace
+                  </button>
+                </form>
+              )}
+            </section>
           ) : null}
 
           {canApprove ? (
