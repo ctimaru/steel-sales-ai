@@ -45,13 +45,19 @@ function CheckRow({ check }: { check: MarketplaceReadinessCheck }) {
           <p className="mt-1 text-xs leading-5 text-[#66736e]">
             {check.description}
           </p>
-          {check.href && check.actionLabel ? (
-            <Link
-              href={check.href}
-              className="mt-3 inline-flex text-xs font-semibold text-[#173f35] hover:underline"
-            >
-              {check.actionLabel} →
-            </Link>
+          {check.actionLabel ? (
+            check.href ? (
+              <Link
+                href={check.href}
+                className="mt-3 inline-flex text-xs font-semibold text-[#173f35] hover:underline"
+              >
+                {check.actionLabel} →
+              </Link>
+            ) : (
+              <p className="mt-3 text-xs font-semibold text-[#173f35]">
+                Azione: {check.actionLabel}
+              </p>
+            )
           ) : null}
         </div>
       </div>
