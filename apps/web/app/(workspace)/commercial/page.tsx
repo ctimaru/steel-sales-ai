@@ -36,6 +36,7 @@ const intelligence = [
   ["Riattivazione", appRoutes.commercial.reengagement],
   ["Segnali di domanda", appRoutes.commercial.demand],
   ["Conversione", appRoutes.commercial.conversion],
+  ["Relazioni cross-thread", appRoutes.commercial.crossThreadRelationships],
 ] as const;
 
 export default function CommercialHomePage() {
