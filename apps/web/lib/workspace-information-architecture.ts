@@ -60,7 +60,7 @@ function marketplaceContext(pathname: string): WorkspaceContextKey {
   if (isPath(pathname, appRoutes.marketplace.newRequest)) {
     return "marketplace:new";
   }
-  if (isPath(pathname, appRoutes.marketplace.opportunity(""))) {
+  if (isPath(pathname, "/marketplace/opportunities")) {
     return "marketplace:opportunities";
   }
   if (isPath(pathname, appRoutes.marketplace.myRequests)) {
