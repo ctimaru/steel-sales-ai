@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { ProductBrand } from "@/components/product-brand";
 import { Input } from "@/components/ui/input";
 import { privateNoIndexRobots } from "@/lib/seo";
@@ -116,12 +117,12 @@ export default async function LoginPage({
               </Link>
             </div>
 
-            <button
-              type="submit"
-              className="app-primary h-11 w-full rounded-xl text-sm font-semibold"
+            <PendingSubmitButton
+              pendingLabel="Accesso in corso…"
+              className="app-primary h-11 w-full rounded-xl text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
             >
               Accedi
-            </button>
+            </PendingSubmitButton>
           </form>
 
           <div className="mt-8 rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-5">

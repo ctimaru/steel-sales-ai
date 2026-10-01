@@ -1,5 +1,7 @@
 "use server";
 
+import { safeErrorMessage } from "@/lib/user-facing-error";
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -31,7 +33,7 @@ export async function reviewCompanyClaimProof(formData: FormData) {
     p_note: note,
   });
 
-  if (error) redirect(claimsPath("error", error.message));
+  if (error) redirect(claimsPath("error", safeErrorMessage(error, "Operazione claim non completata. Aggiorna la pagina e riprova.")));
 
   revalidatePath("/platform/company-claims");
   redirect(
@@ -70,7 +72,7 @@ export async function reviewCompanyClaim(formData: FormData) {
     p_note: note,
   });
 
-  if (error) redirect(claimsPath("error", error.message));
+  if (error) redirect(claimsPath("error", safeErrorMessage(error, "Operazione claim non completata. Aggiorna la pagina e riprova.")));
 
   revalidatePath("/platform/company-claims");
   revalidatePath("/network");

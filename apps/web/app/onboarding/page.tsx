@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { ProductBrand } from "@/components/product-brand";
 import { Input } from "@/components/ui/input";
 import { getCompanySetupState } from "@/lib/company-setup";
@@ -176,7 +177,7 @@ export default async function OnboardingPage({
       "hp8_team_state",
       { p_organization_id: organization.id },
     );
-    if (teamStateError) throw new Error(teamStateError.message);
+    if (teamStateError) throw new Error("team_state_unavailable");
 
     const teamState = (teamStateData ?? {
       organization_id: organization.id,
@@ -427,11 +428,14 @@ export default async function OnboardingPage({
                 </span>
               </label>
 
-              <button className="h-11 w-full rounded-xl bg-[#1a5144] text-sm font-semibold text-white hover:bg-[#226657]">
+              <PendingSubmitButton
+                pendingLabel="Salvataggio…"
+                className="h-11 w-full rounded-xl bg-[#1a5144] text-sm font-semibold text-white hover:bg-[#226657] disabled:cursor-not-allowed disabled:opacity-60"
+              >
                 {setup.data_ready
                   ? "Salva configurazione"
                   : "Abilita Commercial Memory"}
-              </button>
+              </PendingSubmitButton>
             </form>
           </article>
         </section>
@@ -542,9 +546,12 @@ export default async function OnboardingPage({
                 </label>
               </div>
 
-              <button className="h-10 w-full rounded-xl border border-[#c7d5cf] bg-white text-sm font-semibold text-[#173f35] hover:bg-[#f7f9f8]">
+              <PendingSubmitButton
+                pendingLabel="Invio…"
+                className="h-10 w-full rounded-xl border border-[#c7d5cf] bg-white text-sm font-semibold text-[#173f35] hover:bg-[#f7f9f8] disabled:cursor-not-allowed disabled:opacity-60"
+              >
                 Invia invito
-              </button>
+              </PendingSubmitButton>
             </form>
 
             {actionableInvitations.length ? (
@@ -622,9 +629,12 @@ export default async function OnboardingPage({
                               name="business_role"
                               value={invitation.business_role ?? ""}
                             />
-                            <button className="h-9 rounded-lg border border-[#c7d5cf] bg-white px-3 text-xs font-semibold text-[#173f35] hover:bg-[#edf5f2]">
+                            <PendingSubmitButton
+                              pendingLabel="Invio…"
+                              className="h-9 rounded-lg border border-[#c7d5cf] bg-white px-3 text-xs font-semibold text-[#173f35] hover:bg-[#edf5f2] disabled:cursor-not-allowed disabled:opacity-60"
+                            >
                               Reinvia
-                            </button>
+                            </PendingSubmitButton>
                           </form>
 
                           {invitation.status === "pending" ? (
@@ -634,9 +644,12 @@ export default async function OnboardingPage({
                                 name="invitation_id"
                                 value={invitation.id}
                               />
-                              <button className="h-9 rounded-lg border border-[#e1c7c2] bg-white px-3 text-xs font-semibold text-[#8a3a30] hover:bg-[#fff5f3]">
+                              <PendingSubmitButton
+                                pendingLabel="Revoca…"
+                                className="h-9 rounded-lg border border-[#e1c7c2] bg-white px-3 text-xs font-semibold text-[#8a3a30] hover:bg-[#fff5f3] disabled:cursor-not-allowed disabled:opacity-60"
+                              >
                                 Revoca
-                              </button>
+                              </PendingSubmitButton>
                             </form>
                           ) : null}
                         </div>
@@ -718,9 +731,12 @@ export default async function OnboardingPage({
                                 <option value="member">Member</option>
                                 <option value="viewer">Viewer</option>
                               </select>
-                              <button className="rounded-lg border border-[#d7dfdb] bg-white px-3 text-xs font-semibold normal-case tracking-normal text-[#43524c]">
+                              <PendingSubmitButton
+                                pendingLabel="…"
+                                className="rounded-lg border border-[#d7dfdb] bg-white px-3 text-xs font-semibold normal-case tracking-normal text-[#43524c] disabled:cursor-not-allowed disabled:opacity-60"
+                              >
                                 Salva
-                              </button>
+                              </PendingSubmitButton>
                             </div>
                           </label>
                         </form>
@@ -744,9 +760,12 @@ export default async function OnboardingPage({
                                 <option value="salesperson">Commerciale</option>
                                 <option value="operations">Operations</option>
                               </select>
-                              <button className="rounded-lg border border-[#d7dfdb] bg-white px-3 text-xs font-semibold normal-case tracking-normal text-[#43524c]">
+                              <PendingSubmitButton
+                                pendingLabel="…"
+                                className="rounded-lg border border-[#d7dfdb] bg-white px-3 text-xs font-semibold normal-case tracking-normal text-[#43524c] disabled:cursor-not-allowed disabled:opacity-60"
+                              >
                                 Salva
-                              </button>
+                              </PendingSubmitButton>
                             </div>
                           </label>
                         </form>
@@ -762,9 +781,12 @@ export default async function OnboardingPage({
                             value={member.user_id}
                           />
                           <input type="hidden" name="status" value="suspended" />
-                          <button className="text-xs font-semibold text-[#8a3a30] hover:underline">
+                          <PendingSubmitButton
+                            pendingLabel="Sospensione…"
+                            className="text-xs font-semibold text-[#8a3a30] hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+                          >
                             Sospendi accesso
-                          </button>
+                          </PendingSubmitButton>
                         </form>
                       ) : !isActive ? (
                         <form action={changeMemberStatus}>
@@ -774,9 +796,12 @@ export default async function OnboardingPage({
                             value={member.user_id}
                           />
                           <input type="hidden" name="status" value="active" />
-                          <button className="text-xs font-semibold text-[#173f35] hover:underline">
+                          <PendingSubmitButton
+                            pendingLabel="Riattivazione…"
+                            className="text-xs font-semibold text-[#173f35] hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+                          >
                             Riattiva accesso
-                          </button>
+                          </PendingSubmitButton>
                         </form>
                       ) : (
                         <p className="text-[11px] text-[#87938e]">

@@ -1,5 +1,7 @@
 "use server";
 
+import { safeErrorMessage } from "@/lib/user-facing-error";
+
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -106,7 +108,7 @@ export async function completeOnboarding(formData: FormData) {
     p_accept_consent: accepted,
     p_complete: true,
   });
-  if (error) onboardingRedirect(error.message, "error");
+  if (error) onboardingRedirect(safeErrorMessage(error, "Operazione di onboarding non completata. Aggiorna la pagina e riprova."), "error");
 
   await supabase.rpc("hp7_company_setup_state", {
     p_organization_id: context.organizationId,
@@ -177,7 +179,7 @@ export async function revokeInvitation(formData: FormData) {
   const { error } = await supabase.rpc("hp8_revoke_organization_invitation", {
     p_invitation_id: invitationId,
   });
-  if (error) onboardingRedirect(error.message, "error");
+  if (error) onboardingRedirect(safeErrorMessage(error, "Operazione di onboarding non completata. Aggiorna la pagina e riprova."), "error");
 
   revalidateTeam();
   onboardingRedirect("Invito revocato.");
@@ -197,7 +199,7 @@ export async function changeMemberRole(formData: FormData) {
     p_user_id: userId,
     p_role: role,
   });
-  if (error) onboardingRedirect(error.message, "error");
+  if (error) onboardingRedirect(safeErrorMessage(error, "Operazione di onboarding non completata. Aggiorna la pagina e riprova."), "error");
 
   revalidateTeam();
   onboardingRedirect("Permesso aggiornato.");
@@ -217,7 +219,7 @@ export async function changeMemberBusinessRole(formData: FormData) {
     p_user_id: userId,
     p_business_role: businessRole || null,
   });
-  if (error) onboardingRedirect(error.message, "error");
+  if (error) onboardingRedirect(safeErrorMessage(error, "Operazione di onboarding non completata. Aggiorna la pagina e riprova."), "error");
 
   revalidateTeam();
   onboardingRedirect("Ruolo commerciale aggiornato.");
@@ -237,7 +239,7 @@ export async function changeMemberStatus(formData: FormData) {
     p_user_id: userId,
     p_status: status,
   });
-  if (error) onboardingRedirect(error.message, "error");
+  if (error) onboardingRedirect(safeErrorMessage(error, "Operazione di onboarding non completata. Aggiorna la pagina e riprova."), "error");
 
   revalidateTeam();
   onboardingRedirect(

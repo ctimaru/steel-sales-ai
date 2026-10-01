@@ -1,5 +1,7 @@
 "use server";
 
+import { safeErrorMessage } from "@/lib/user-facing-error";
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -47,7 +49,7 @@ export async function requestNetworkClaim(formData: FormData) {
       "/network/" +
         companyId +
         "/claim?error=" +
-        encodeURIComponent(error.message),
+        encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")),
     );
   }
 
@@ -90,7 +92,7 @@ export async function updateManagedNetworkProfile(formData: FormData) {
   });
 
   if (error) {
-    redirect("/network/manage?error=" + encodeURIComponent(error.message));
+    redirect("/network/manage?error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   }
 
   revalidatePath("/network/manage");
@@ -126,7 +128,7 @@ export async function setManagedCompanyRole(formData: FormData) {
     p_is_primary: isPrimary,
   });
 
-  if (error) redirect(managedProfilePath("error", error.message));
+  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
   redirect(managedProfilePath("message", enabled ? "Ruolo aziendale aggiornato." : "Ruolo rimosso."));
 }
@@ -146,7 +148,7 @@ export async function setManagedCompanySubtype(formData: FormData) {
     p_enabled: enabled,
   });
 
-  if (error) redirect(managedProfilePath("error", error.message));
+  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
   redirect(managedProfilePath("message", enabled ? "Sottotipo aggiunto." : "Sottotipo rimosso."));
 }
@@ -172,7 +174,7 @@ export async function setManagedCompanyProduct(formData: FormData) {
     p_enabled: enabled,
   });
 
-  if (error) redirect(managedProfilePath("error", error.message));
+  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
   redirect(managedProfilePath("message", enabled ? "Prodotto aggiunto al profilo." : "Relazione prodotto rimossa."));
 }
@@ -195,7 +197,7 @@ export async function setManagedProductStandardScope(formData: FormData) {
     p_enabled: enabled,
   });
 
-  if (error) redirect(managedProfilePath("error", error.message));
+  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
   redirect(
     managedProfilePath(
@@ -230,7 +232,7 @@ export async function setManagedProductGradeScope(formData: FormData) {
     p_enabled: enabled,
   });
 
-  if (error) redirect(managedProfilePath("error", error.message));
+  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
   redirect(
     managedProfilePath(
@@ -268,7 +270,7 @@ export async function upsertManagedProductDimensionScope(formData: FormData) {
     p_max_mm: maxMm,
   });
 
-  if (error) redirect(managedProfilePath("error", error.message));
+  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
   redirect(managedProfilePath("message", "Range dimensionale aggiornato."));
 }
@@ -289,7 +291,7 @@ export async function removeManagedProductDimensionScope(formData: FormData) {
     p_dimension_type: dimensionType,
   });
 
-  if (error) redirect(managedProfilePath("error", error.message));
+  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
   redirect(managedProfilePath("message", "Range dimensionale rimosso."));
 }
@@ -321,7 +323,7 @@ export async function upsertManagedFacility(formData: FormData) {
     p_payload: payload,
   });
 
-  if (error) redirect(managedProfilePath("error", error.message));
+  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
   redirect(managedProfilePath("message", facilityId ? "Sede aggiornata." : "Sede aggiunta al profilo."));
 }
@@ -338,7 +340,7 @@ export async function archiveManagedFacility(formData: FormData) {
     p_facility_id: facilityId,
   });
 
-  if (error) redirect(managedProfilePath("error", error.message));
+  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
   redirect(managedProfilePath("message", "Sede archiviata."));
 }
@@ -362,7 +364,7 @@ export async function setManagedFacilityCapability(formData: FormData) {
     p_enabled: enabled,
   });
 
-  if (error) redirect(managedProfilePath("error", error.message));
+  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
   redirect(managedProfilePath("message", enabled ? "Capability aggiunta." : "Capability rimossa."));
 }
@@ -382,7 +384,7 @@ export async function setManagedCompanyMarket(formData: FormData) {
     p_enabled: enabled,
   });
 
-  if (error) redirect(managedProfilePath("error", error.message));
+  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
   redirect(managedProfilePath("message", enabled ? "Mercato aggiunto." : "Mercato rimosso."));
 }
@@ -411,7 +413,7 @@ export async function upsertManagedCertification(formData: FormData) {
     p_payload: payload,
   });
 
-  if (error) redirect(managedProfilePath("error", error.message));
+  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
   redirect(managedProfilePath("message", certificationId ? "Certificazione aggiornata." : "Certificazione aggiunta."));
 }
@@ -430,7 +432,7 @@ export async function removeManagedCertification(formData: FormData) {
     p_certification_id: certificationId,
   });
 
-  if (error) redirect(managedProfilePath("error", error.message));
+  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
   redirect(managedProfilePath("message", "Certificazione rimossa."));
 }
@@ -469,7 +471,7 @@ export async function uploadManagedCompanyLogo(formData: FormData) {
     });
 
   if (uploadError) {
-    redirect(managedProfilePath("error", uploadError.message));
+    redirect(managedProfilePath("error", safeErrorMessage(uploadError, "Caricamento logo non completato. Riprova.")));
   }
 
   const { error: profileError } = await supabase.rpc("p3_7d_set_logo_path", {
@@ -479,7 +481,7 @@ export async function uploadManagedCompanyLogo(formData: FormData) {
 
   if (profileError) {
     await supabase.storage.from(COMPANY_LOGO_BUCKET).remove([logoPath]);
-    redirect(managedProfilePath("error", profileError.message));
+    redirect(managedProfilePath("error", safeErrorMessage(profileError, "Aggiornamento profilo non completato. Aggiorna la pagina e riprova.")));
   }
 
   revalidateManagedProfile(companyId);
@@ -499,7 +501,7 @@ export async function removeManagedCompanyLogo(formData: FormData) {
     p_logo_path: null,
   });
 
-  if (profileError) redirect(managedProfilePath("error", profileError.message));
+  if (profileError) redirect(managedProfilePath("error", safeErrorMessage(profileError, "Aggiornamento profilo non completato. Aggiorna la pagina e riprova.")));
 
   if (logoPath) {
     const { error: removeError } = await supabase.storage
@@ -545,7 +547,7 @@ export async function upsertManagedPublicContact(formData: FormData) {
     p_payload: payload,
   });
 
-  if (error) redirect(managedProfilePath("error", error.message));
+  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
 
   revalidateManagedProfile(companyId);
   redirect(
@@ -571,7 +573,7 @@ export async function archiveManagedPublicContact(formData: FormData) {
     p_contact_id: contactId,
   });
 
-  if (error) redirect(managedProfilePath("error", error.message));
+  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
 
   revalidateManagedProfile(companyId);
   redirect(managedProfilePath("message", "Contatto pubblico archiviato."));
@@ -591,7 +593,7 @@ async function activeOrganizationId() {
     .eq("user_id", userId)
     .eq("status", "active");
 
-  if (error) throw new Error(error.message);
+  if (error) throw new Error("network_context_unavailable");
   const membership = memberships?.find((row) => row.is_default) ?? memberships?.[0];
   if (!membership) redirect("/network?error=Nessuna%20organization%20attiva");
 
@@ -613,7 +615,7 @@ export async function saveNetworkCompany(formData: FormData) {
   );
 
   if (error) {
-    redirect("/network/" + companyId + "?error=" + encodeURIComponent(error.message));
+    redirect("/network/" + companyId + "?error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   }
 
   await recordPilotUsageEvent({
@@ -640,7 +642,7 @@ export async function removeSavedNetworkCompany(formData: FormData) {
     .eq("network_company_id", companyId);
 
   if (error) {
-    redirect("/network/saved?error=" + encodeURIComponent(error.message));
+    redirect("/network/saved?error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   }
 
   await recordPilotUsageEvent({
@@ -675,7 +677,7 @@ export async function submitNetworkInquiry(formData: FormData) {
   });
 
   if (error) {
-    redirect("/network/" + companyId + "/inquiry?error=" + encodeURIComponent(error.message));
+    redirect("/network/" + companyId + "/inquiry?error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   }
 
   await recordPilotUsageEvent({
@@ -707,7 +709,7 @@ export async function transitionNetworkInquiry(formData: FormData) {
   });
 
   if (error) {
-    redirect("/network/inquiries?box=" + box + "&error=" + encodeURIComponent(error.message));
+    redirect("/network/inquiries?box=" + box + "&error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   }
 
   await recordPilotUsageEvent({
@@ -737,7 +739,7 @@ export async function reportNetworkInquiry(formData: FormData) {
   });
 
   if (error) {
-    redirect("/network/inquiries?box=" + box + "&error=" + encodeURIComponent(error.message));
+    redirect("/network/inquiries?box=" + box + "&error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   }
 
   redirect("/network/inquiries?box=" + box + "&message=Segnalazione%20inviata");
@@ -755,7 +757,7 @@ export async function setInquiryPreferences(formData: FormData) {
   });
 
   if (error) {
-    redirect("/network/manage?error=" + encodeURIComponent(error.message));
+    redirect("/network/manage?error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   }
 
   revalidatePath("/network/manage");
@@ -774,7 +776,7 @@ export async function blockInquirySenderOrganization(formData: FormData) {
   });
 
   if (error) {
-    redirect("/network/inquiries?box=received&error=" + encodeURIComponent(error.message));
+    redirect("/network/inquiries?box=received&error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   }
 
   redirect("/network/inquiries?box=received&message=Organizzazione%20bloccata");
@@ -792,7 +794,7 @@ export async function followNetworkCompany(formData: FormData) {
   });
 
   if (error) {
-    redirect("/network/" + companyId + "?error=" + encodeURIComponent(error.message));
+    redirect("/network/" + companyId + "?error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   }
 
   await recordPilotUsageEvent({
@@ -818,7 +820,7 @@ export async function unfollowNetworkCompany(formData: FormData) {
   });
 
   if (error) {
-    redirect("/network/following?error=" + encodeURIComponent(error.message));
+    redirect("/network/following?error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   }
 
   await recordPilotUsageEvent({
@@ -845,7 +847,7 @@ export async function markNetworkActivityRead(formData: FormData) {
   });
 
   if (error) {
-    redirect("/network/activity?error=" + encodeURIComponent(error.message));
+    redirect("/network/activity?error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   }
 
   revalidatePath("/network/activity");
@@ -868,7 +870,7 @@ export async function markAllNetworkActivityRead() {
   });
 
   if (error) {
-    redirect("/network/activity?error=" + encodeURIComponent(error.message));
+    redirect("/network/activity?error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   }
 
   revalidatePath("/network/activity");

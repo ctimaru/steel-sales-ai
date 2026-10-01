@@ -1,5 +1,7 @@
 "use server";
 
+import { safeErrorMessage } from "@/lib/user-facing-error";
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -58,7 +60,7 @@ async function rpcMutation(
   const { error } = await supabase.rpc(functionName, args);
 
   if (error) {
-    redirect(knowledgePath("error", error.message, type, pageId));
+    redirect(knowledgePath("error", safeErrorMessage(error, "Operazione Knowledge non completata. Aggiorna la pagina e riprova."), type, pageId));
   }
 
   revalidatePath("/platform");
@@ -87,7 +89,7 @@ export async function saveKnowledgeDraft(formData: FormData) {
     redirect(
       knowledgePath(
         "error",
-        error instanceof Error ? error.message : "JSON editoriale non valido.",
+        safeErrorMessage(error, "JSON editoriale non valido. Controlla il contenuto e riprova."),
         type,
         pageId,
       ),
@@ -199,7 +201,7 @@ export async function publishKnowledgePage(formData: FormData) {
   });
 
   if (error) {
-    redirect(knowledgePath("error", error.message, type, pageId));
+    redirect(knowledgePath("error", safeErrorMessage(error, "Operazione Knowledge non completata. Aggiorna la pagina e riprova."), type, pageId));
   }
 
   revalidatePath("/platform");

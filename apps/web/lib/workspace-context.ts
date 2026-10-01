@@ -2,6 +2,10 @@ import { redirect } from "next/navigation";
 
 import { canAdministerCompany, canWriteWorkspace, type OrganizationRole } from "@/lib/access-policy";
 import { createClient } from "@/lib/supabase/server";
+import {
+  sessionRecoveryPath,
+  toUserFacingIssue,
+} from "@/lib/user-facing-error";
 
 export type WorkspaceContext = {
   userId: string;
@@ -18,8 +22,15 @@ export type WorkspaceContext = {
 
 export async function getWorkspaceContext(): Promise<WorkspaceContext> {
   const supabase = await createClient();
-  const { data: authData } = await supabase.auth.getUser();
+  const { data: authData, error: authError } = await supabase.auth.getUser();
   const user = authData.user;
+  if (authError) {
+    const issue = toUserFacingIssue(authError);
+    if (issue.code === "session_expired" || issue.code === "permission_denied") {
+      redirect(sessionRecoveryPath());
+    }
+    throw new Error("workspace_auth_unavailable");
+  }
   if (!user) redirect("/login");
 
   await supabase.rpc("claim_pending_organization_invitations");
@@ -34,7 +45,7 @@ export async function getWorkspaceContext(): Promise<WorkspaceContext> {
       supabase.rpc("is_platform_superadmin"),
     ]);
 
-  if (membershipError) throw new Error(membershipError.message);
+  if (membershipError) throw new Error("workspace_membership_unavailable");
 
   const membership = memberships?.find((row) => row.is_default) ?? memberships?.[0];
   if (!membership) redirect("/onboarding");
@@ -45,7 +56,7 @@ export async function getWorkspaceContext(): Promise<WorkspaceContext> {
     .eq("id", membership.organization_id)
     .maybeSingle();
 
-  if (organizationError) throw new Error(organizationError.message);
+  if (organizationError) throw new Error("workspace_organization_unavailable");
   if (!organization) redirect("/login?error=Workspace%20non%20disponibile");
 
   const commercialMemoryReady =

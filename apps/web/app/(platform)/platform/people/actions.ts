@@ -1,5 +1,7 @@
 "use server";
 
+import { safeErrorMessage } from "@/lib/user-facing-error";
+
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -46,7 +48,7 @@ async function sendPlatformStaffInviteEmail(email: string) {
   if (error) {
     return {
       delivery: "failed" as const,
-      detail: error.message,
+      detail: safeErrorMessage(error, "Invio email non completato. L’invito resta disponibile nel Control Plane."),
     };
   }
 
@@ -85,7 +87,7 @@ export async function createPlatformStaffInvitation(formData: FormData) {
   });
 
   if (error) {
-    redirect(peoplePath("error", error.message));
+    redirect(peoplePath("error", safeErrorMessage(error, "Operazione accessi non completata. Aggiorna la pagina e riprova.")));
   }
 
   const delivery = await sendPlatformStaffInviteEmail(email);
@@ -176,7 +178,7 @@ export async function revokePlatformStaffInvitation(formData: FormData) {
   );
 
   if (error) {
-    redirect(peoplePath("error", error.message));
+    redirect(peoplePath("error", safeErrorMessage(error, "Operazione accessi non completata. Aggiorna la pagina e riprova.")));
   }
 
   revalidatePath("/platform/people");
@@ -207,7 +209,7 @@ export async function updatePlatformStaffRoles(formData: FormData) {
   });
 
   if (error) {
-    redirect(peoplePath("error", error.message));
+    redirect(peoplePath("error", safeErrorMessage(error, "Operazione accessi non completata. Aggiorna la pagina e riprova.")));
   }
 
   revalidatePath("/platform/people");
@@ -242,7 +244,7 @@ export async function setPlatformStaffStatus(formData: FormData) {
   });
 
   if (error) {
-    redirect(peoplePath("error", error.message));
+    redirect(peoplePath("error", safeErrorMessage(error, "Operazione accessi non completata. Aggiorna la pagina e riprova.")));
   }
 
   revalidatePath("/platform/people");
