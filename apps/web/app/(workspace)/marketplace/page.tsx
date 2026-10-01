@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { MarketplaceCountdown } from "@/components/marketplace-countdown";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import {
@@ -66,6 +67,8 @@ export default async function MarketplaceFeedPage({
   ]);
 
   const canWrite = canWriteWorkspace(context.role);
+  const canAdmin = context.role === "admin";
+  const hasFilters = Boolean(params.product || params.country || params.closing);
   const closingSoon = feed.items.filter(
     (item) => item.effective_status === "closing_soon",
   ).length;
@@ -199,13 +202,49 @@ export default async function MarketplaceFeedPage({
         </div>
 
         {feed.items.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-[#c8d5d0] bg-white p-8 text-center">
-            <h3 className="font-semibold text-[#1d2824]">Nessuna opportunità aperta</h3>
-            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#66736e]">
-              Non ci sono ricerche esterne che corrispondono ai filtri attuali. Le richieste della tua azienda
-              non compaiono nel feed supplier.
-            </p>
-          </div>
+          hasFilters ? (
+            <FirstUseEmptyState
+              eyebrow="Filtri senza risultati"
+              title="Nessuna opportunità corrisponde ai filtri"
+              description="Azzera prodotto, paese e scadenza per tornare all’intero Demand Board. Le ricerche della tua azienda restano comunque escluse dal feed supplier."
+              primaryAction={{
+                href: appRoutes.marketplace.home,
+                label: "Azzera filtri",
+              }}
+              secondaryAction={{
+                href: appRoutes.marketplace.notifications,
+                label: "Apri opportunità per te",
+              }}
+            />
+          ) : (
+            <FirstUseEmptyState
+              title="Il Demand Board è pronto per le prime opportunità"
+              description="Al momento non ci sono ricerche esterne aperte visibili alla tua organizzazione. Puoi creare una ricerca buyer oppure preparare il profilo tecnico per il matching supplier."
+              primaryAction={
+                canWrite
+                  ? {
+                      href: appRoutes.marketplace.newRequest,
+                      label: "Crea una ricerca",
+                    }
+                  : {
+                      href: appRoutes.marketplace.notifications,
+                      label: "Apri opportunità per te",
+                    }
+              }
+              secondaryAction={
+                canAdmin
+                  ? {
+                      href: appRoutes.network.manage,
+                      label: "Completa Company Profile",
+                    }
+                  : {
+                      href: appRoutes.network.directory,
+                      label: "Esplora il Network",
+                    }
+              }
+              note="Commercial Memory e Marketplace restano separati: nessuna RFQ privata viene pubblicata automaticamente."
+            />
+          )
         ) : (
           <div className="grid gap-4 lg:grid-cols-2">
             {feed.items.map((item) => {
