@@ -138,6 +138,8 @@ export default async function MarketplaceFeedPage({
         </div>
       </section>
 
+      <MarketplaceReadinessPanel readiness={readiness} />
+
       <form method="get" className="grid gap-3 rounded-2xl border border-[#dce2df] bg-white p-4 md:grid-cols-[1.4fr_0.7fr_0.8fr_auto] md:items-end">
         <div>
           <label className="text-xs font-bold uppercase tracking-[0.12em] text-[#7b8782]">
