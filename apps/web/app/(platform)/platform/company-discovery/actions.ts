@@ -164,7 +164,15 @@ export async function reviewCompanyDiscovery(formData: FormData) {
         });
 
   if (result.error) {
-    redirect(discoveryPath("error", result.safeErrorMessage(error, "Operazione discovery non completata. Aggiorna la pagina e riprova.")));
+    redirect(
+      discoveryPath(
+        "error",
+        safeErrorMessage(
+          result.error,
+          "Operazione discovery non completata. Aggiorna la pagina e riprova.",
+        ),
+      ),
+    );
   }
 
   revalidatePath("/platform/company-discovery");
