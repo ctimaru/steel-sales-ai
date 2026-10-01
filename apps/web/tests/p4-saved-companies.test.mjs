@@ -10,6 +10,10 @@ const profile = fs.readFileSync(
   new URL("../app/(workspace)/network/[id]/page.tsx", import.meta.url),
   "utf8",
 );
+const claimPage = fs.readFileSync(
+  new URL("../app/(workspace)/network/[id]/claim/page.tsx", import.meta.url),
+  "utf8",
+);
 const savedPage = fs.readFileSync(
   new URL("../app/(workspace)/network/saved/page.tsx", import.meta.url),
   "utf8",
@@ -26,11 +30,13 @@ test("P4.1 save company is a private user action backed by network_saved_compani
   assert.match(actions, /network_company_id: companyId/);
 });
 
-test("P4.1 Network profile exposes save and remove controls without changing claim semantics", () => {
+test("P4.1 Network profile exposes save/remove controls while preserving governed claim semantics", () => {
   assert.match(profile, /Salva azienda/);
   assert.match(profile, /Rimuovi dai salvati/);
-  assert.match(profile, /requestNetworkClaim/);
+  assert.match(profile, /Rivendica questo profilo/);
+  assert.match(profile, /\/claim"/);
   assert.match(profile, /adminOrganizationId/);
+  assert.match(claimPage, /requestNetworkClaim/);
 });
 
 test("P4.1 saved companies page explicitly preserves private bookmark semantics", () => {

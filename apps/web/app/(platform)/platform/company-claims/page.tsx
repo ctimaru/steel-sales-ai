@@ -23,6 +23,17 @@ function proofLabel(method: string) {
   return "Revisione manuale";
 }
 
+function proofReferenceLabel(reference: string | null) {
+  if (!reference) return null;
+  if (reference.startsWith("shared_company_domain:")) {
+    return "Dominio condiviso: " + reference.replace("shared_company_domain:", "");
+  }
+  if (reference.startsWith("email_domain:")) {
+    return "Dominio email verificato: " + reference.replace("email_domain:", "");
+  }
+  return reference;
+}
+
 export default async function CompanyClaimsPage({
   searchParams,
 }: {
@@ -188,6 +199,11 @@ export default async function CompanyClaimsPage({
                     <p className="mt-1 text-xs leading-5 text-[#66736e]">
                       {proofLabel(claim.proof_method)} · {claim.proof_status}
                     </p>
+                    {proofReferenceLabel(claim.proof_reference) ? (
+                      <p className="mt-2 rounded-lg bg-white px-2.5 py-2 text-xs font-medium text-[#52615b]">
+                        {proofReferenceLabel(claim.proof_reference)}
+                      </p>
+                    ) : null}
                     {claim.proof_review_note ? (
                       <p className="mt-2 text-xs leading-5 text-[#7a899d]">{claim.proof_review_note}</p>
                     ) : null}

@@ -28,6 +28,7 @@ export const appRoutes = {
   network: {
     directory: "/network",
     company: (id: string) => `/network/${id}`,
+    claim: (id: string) => `/network/${id}/claim`,
     saved: "/network/saved",
     following: "/network/following",
     activity: "/network/activity",

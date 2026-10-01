@@ -4,7 +4,6 @@ import { notFound, redirect } from "next/navigation";
 import {
   followNetworkCompany,
   removeSavedNetworkCompany,
-  requestNetworkClaim,
   saveNetworkCompany,
   unfollowNetworkCompany,
 } from "@/app/(workspace)/network/actions";
@@ -166,10 +165,8 @@ export default async function NetworkCompanyProfilePage({
     organizationId = membership?.organization_id ?? null;
     canInteract = membership ? canInteractWithNetwork(membership.role) : false;
 
-    const adminMembership =
-      memberships?.find((row) => row.is_default && row.role === "admin") ??
-      memberships?.find((row) => row.role === "admin");
-    adminOrganizationId = adminMembership?.organization_id ?? null;
+    adminOrganizationId =
+      membership?.role === "admin" ? membership.organization_id : null;
 
     if (adminOrganizationId) {
       claimState = await getMyCompanyClaim(profile.company.id, adminOrganizationId);
@@ -481,15 +478,17 @@ export default async function NetworkCompanyProfilePage({
         <section className="flex flex-col gap-3 rounded-2xl border border-[#dfe7f1] bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="font-semibold text-[#1d2824]">Rappresenti questa azienda?</p>
-            <p className="mt-1 text-sm text-[#66736e]">Rivendica il profilo per gestire direttamente i dati industriali pubblicati.</p>
+            <p className="mt-1 text-sm text-[#66736e]">
+              Verifica prima identità, ownership e metodo di prova. Il claim abilita la gestione del profilo,
+              ma non rende automaticamente l&apos;azienda verificata.
+            </p>
           </div>
-          <form action={requestNetworkClaim}>
-            <input type="hidden" name="network_company_id" value={profile.company.id} />
-            <input type="hidden" name="organization_id" value={adminOrganizationId} />
-            <button className="h-10 rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657]">
-              Rivendica questo profilo
-            </button>
-          </form>
+          <Link
+            href={"/network/" + profile.company.id + "/claim"}
+            className="inline-flex h-10 items-center justify-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657]"
+          >
+            Rivendica questo profilo
+          </Link>
         </section>
       ) : null}
 
