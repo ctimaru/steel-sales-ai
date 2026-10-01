@@ -129,7 +129,9 @@ export async function getMarketplaceEntryReadiness(
           status: productCount > 0 ? "ready" : "blocked",
           description:
             productCount > 0
-              ? `${productCount} relazione${productCount === 1 ? "" : "i"} prodotto eleggibile${productCount === 1 ? "" : "i"} per il matching.`
+              ? productCount === 1
+                ? "1 relazione prodotto eleggibile per il matching."
+                : `${productCount} relazioni prodotto eleggibili per il matching.`
               : "Dichiara almeno un prodotto come produttore, distributore, stockholder o processor per entrare nel matching.",
           href: productCount > 0 ? undefined : appRoutes.network.manage,
           actionLabel:
