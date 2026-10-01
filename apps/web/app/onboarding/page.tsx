@@ -11,8 +11,11 @@ import { createClient } from "@/lib/supabase/server";
 import {
   changeMemberBusinessRole,
   changeMemberRole,
+  changeMemberStatus,
   completeOnboarding,
   inviteMember,
+  resendInvitation,
+  revokeInvitation,
 } from "./actions";
 
 export const metadata: Metadata = {
@@ -27,6 +30,30 @@ type TeamMember = {
   business_role: string | null;
   status: string;
   is_default: boolean;
+  joined_at?: string;
+};
+
+type TeamInvitation = {
+  id: string;
+  email: string;
+  role: string;
+  business_role: string | null;
+  status: string;
+  delivery_status: string;
+  delivery_mode: string | null;
+  send_count: number;
+  last_sent_at: string | null;
+  expires_at: string;
+  accepted_at: string | null;
+  revoked_at: string | null;
+  expired_at: string | null;
+  updated_at: string;
+};
+
+type TeamState = {
+  organization_id: string;
+  members: TeamMember[];
+  invitations: TeamInvitation[];
 };
 
 function StepState({ complete }: { complete: boolean }) {
@@ -85,8 +112,6 @@ export default async function OnboardingPage({
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) redirect("/login");
 
-  await supabase.rpc("claim_pending_organization_invitations");
-
   const { data: memberships } = await supabase
     .from("organization_memberships")
     .select("organization_id,role,business_role,status,is_default")
@@ -123,27 +148,23 @@ export default async function OnboardingPage({
   const isAdmin = membership.role === "admin";
 
   let team: TeamMember[] = [];
-  let invitations: Array<{
-    id: string;
-    email: string;
-    role: string;
-    status: string;
-    expires_at: string;
-  }> = [];
+  let invitations: TeamInvitation[] = [];
 
   if (isAdmin) {
-    const { data: teamRows } = await supabase.rpc("organization_team_members", {
-      p_organization_id: organization.id,
-    });
-    team = (teamRows ?? []) as TeamMember[];
+    const { data: teamStateData, error: teamStateError } = await supabase.rpc(
+      "hp8_team_state",
+      { p_organization_id: organization.id },
+    );
+    if (teamStateError) throw new Error(teamStateError.message);
 
-    const { data: inviteRows } = await supabase
-      .from("organization_invitations")
-      .select("id,email,role,status,expires_at")
-      .eq("organization_id", organization.id)
-      .order("created_at", { ascending: false });
+    const teamState = (teamStateData ?? {
+      organization_id: organization.id,
+      members: [],
+      invitations: [],
+    }) as TeamState;
 
-    invitations = inviteRows ?? [];
+    team = teamState.members ?? [];
+    invitations = teamState.invitations ?? [];
   }
 
   if (!isAdmin) {
@@ -192,9 +213,11 @@ export default async function OnboardingPage({
     );
   }
 
-  const pendingInvitations = invitations.filter(
-    (invitation) => invitation.status === "pending",
-  );
+  const actionableInvitations = invitations
+    .filter((invitation) =>
+      ["pending", "expired", "revoked", "accepted"].includes(invitation.status),
+    )
+    .slice(0, 8);
   const progress = Math.max(
     0,
     Math.min(100, setup.essential_completion_percentage),
