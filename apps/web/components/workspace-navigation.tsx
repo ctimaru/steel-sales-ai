@@ -22,6 +22,16 @@ export type WorkspaceNavGroup = {
   alertHref?: string;
 };
 
+function currentPrimarySpace(pathname: string) {
+  if (
+    pathname === appRoutes.knowledge.workspace ||
+    pathname.startsWith(appRoutes.knowledge.workspace + "/")
+  ) {
+    return "knowledge" as const;
+  }
+  return getWorkspaceNavigationContext(pathname).primary;
+}
+
 function NavIcon({
   name,
   className = "h-5 w-5",
@@ -157,7 +167,7 @@ export function WorkspaceDesktopPrimaryNavigation({
   networkEnabled: boolean;
 }) {
   const pathname = usePathname();
-  const current = getWorkspaceNavigationContext(pathname).primary;
+  const current = currentPrimarySpace(pathname);
 
   return (
     <nav className="hidden h-full items-stretch gap-1 lg:flex" aria-label="Navigazione principale">
@@ -193,7 +203,7 @@ export function WorkspaceMobileBottomNavigation({
   networkEnabled: boolean;
 }) {
   const pathname = usePathname();
-  const current = getWorkspaceNavigationContext(pathname).primary;
+  const current = currentPrimarySpace(pathname);
   const items = primaryItems(networkEnabled);
 
   return (
