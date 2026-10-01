@@ -66,7 +66,7 @@ export default async function MarketplaceFeedPage({
       offset: 0,
     }),
     getMarketplaceTaxonomy(),
-    getMarketplaceEntryReadiness(context.role),
+    getMarketplaceEntryReadiness(context.organizationId, context.role),
   ]);
 
   const canWrite = canWriteWorkspace(context.role);
