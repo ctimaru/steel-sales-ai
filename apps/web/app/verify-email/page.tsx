@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { ProductBrand } from "@/components/product-brand";
 import { RegistrationJourney } from "@/components/registration-journey";
 import {
@@ -129,12 +130,12 @@ export default async function VerifyEmailPage({
             <div className="mt-5 border-t border-[#e2e7e4] pt-5">
               {pendingEmail ? (
                 <form action={resendSignupConfirmation}>
-                  <button
-                    type="submit"
-                    className="app-secondary inline-flex h-11 w-full items-center justify-center rounded-xl px-5 text-sm font-semibold sm:w-auto"
+                  <PendingSubmitButton
+                    pendingLabel="Invio in corso…"
+                    className="app-secondary inline-flex h-11 w-full items-center justify-center rounded-xl px-5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                   >
                     Reinvia email di verifica
-                  </button>
+                  </PendingSubmitButton>
                 </form>
               ) : (
                 <Link
