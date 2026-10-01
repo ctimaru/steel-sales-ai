@@ -55,7 +55,7 @@ const marketplaceNav: NavItem[] = [
 
 const knowledgeNav: NavItem[] = [
   { href: appRoutes.knowledge.workspace, label: "Home", contextKey: "knowledge:home" },
-  { href: appRoutes.commercial.knowledgeExplorer, label: "Knowledge Explorer", contextKey: "knowledge:explorer" },
+  { href: appRoutes.knowledge.explorer, label: "Knowledge Explorer", contextKey: "knowledge:explorer" },
   { href: appRoutes.knowledge.catalog, label: "Catalogo tecnico", contextKey: "knowledge:catalog" },
   { href: appRoutes.knowledge.schoolStandards, label: "Norme", contextKey: "knowledge:standards" },
   { href: appRoutes.knowledge.schoolGrades, label: "Gradi", contextKey: "knowledge:grades" },
