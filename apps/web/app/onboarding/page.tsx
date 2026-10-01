@@ -11,8 +11,11 @@ import { createClient } from "@/lib/supabase/server";
 import {
   changeMemberBusinessRole,
   changeMemberRole,
+  changeMemberStatus,
   completeOnboarding,
   inviteMember,
+  resendInvitation,
+  revokeInvitation,
 } from "./actions";
 
 export const metadata: Metadata = {
@@ -27,6 +30,30 @@ type TeamMember = {
   business_role: string | null;
   status: string;
   is_default: boolean;
+  joined_at?: string;
+};
+
+type TeamInvitation = {
+  id: string;
+  email: string;
+  role: string;
+  business_role: string | null;
+  status: string;
+  delivery_status: string;
+  delivery_mode: string | null;
+  send_count: number;
+  last_sent_at: string | null;
+  expires_at: string;
+  accepted_at: string | null;
+  revoked_at: string | null;
+  expired_at: string | null;
+  updated_at: string;
+};
+
+type TeamState = {
+  organization_id: string;
+  members: TeamMember[];
+  invitations: TeamInvitation[];
 };
 
 function StepState({ complete }: { complete: boolean }) {
@@ -75,6 +102,27 @@ function Field({
   );
 }
 
+function permissionLabel(role: string) {
+  if (role === "admin") return "Admin";
+  if (role === "viewer") return "Viewer";
+  return "Member";
+}
+
+function businessRoleLabel(role: string | null) {
+  if (role === "sales_director") return "Sales Director";
+  if (role === "salesperson") return "Commerciale";
+  if (role === "operations") return "Operations";
+  return "Non assegnato";
+}
+
+function invitationStatusLabel(status: string, deliveryStatus: string) {
+  if (status === "accepted") return "Accettato";
+  if (status === "revoked") return "Revocato";
+  if (status === "expired") return "Scaduto";
+  if (deliveryStatus === "failed") return "Invio da riprovare";
+  return "In attesa";
+}
+
 export default async function OnboardingPage({
   searchParams,
 }: {
@@ -84,8 +132,6 @@ export default async function OnboardingPage({
   const supabase = await createClient();
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) redirect("/login");
-
-  await supabase.rpc("claim_pending_organization_invitations");
 
   const { data: memberships } = await supabase
     .from("organization_memberships")
@@ -123,27 +169,23 @@ export default async function OnboardingPage({
   const isAdmin = membership.role === "admin";
 
   let team: TeamMember[] = [];
-  let invitations: Array<{
-    id: string;
-    email: string;
-    role: string;
-    status: string;
-    expires_at: string;
-  }> = [];
+  let invitations: TeamInvitation[] = [];
 
   if (isAdmin) {
-    const { data: teamRows } = await supabase.rpc("organization_team_members", {
-      p_organization_id: organization.id,
-    });
-    team = (teamRows ?? []) as TeamMember[];
+    const { data: teamStateData, error: teamStateError } = await supabase.rpc(
+      "hp8_team_state",
+      { p_organization_id: organization.id },
+    );
+    if (teamStateError) throw new Error(teamStateError.message);
 
-    const { data: inviteRows } = await supabase
-      .from("organization_invitations")
-      .select("id,email,role,status,expires_at")
-      .eq("organization_id", organization.id)
-      .order("created_at", { ascending: false });
+    const teamState = (teamStateData ?? {
+      organization_id: organization.id,
+      members: [],
+      invitations: [],
+    }) as TeamState;
 
-    invitations = inviteRows ?? [];
+    team = teamState.members ?? [];
+    invitations = teamState.invitations ?? [];
   }
 
   if (!isAdmin) {
@@ -192,9 +234,11 @@ export default async function OnboardingPage({
     );
   }
 
-  const pendingInvitations = invitations.filter(
-    (invitation) => invitation.status === "pending",
-  );
+  const actionableInvitations = invitations
+    .filter((invitation) =>
+      ["pending", "expired", "revoked", "accepted"].includes(invitation.status),
+    )
+    .slice(0, 8);
   const progress = Math.max(
     0,
     Math.min(100, setup.essential_completion_percentage),
@@ -437,12 +481,15 @@ export default async function OnboardingPage({
           </div>
         </section>
 
-        <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+        <section
+          id="team-access"
+          className="scroll-mt-8 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]"
+        >
           <article className="rounded-3xl border border-[#dce2df] bg-white p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#87938e]">
-                  Consigliato
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#1a5144]">
+                  HP8 · Team onboarding
                 </p>
                 <h2 className="mt-2 text-lg font-semibold text-[#1d2824]">
                   Invita il team
@@ -451,8 +498,9 @@ export default async function OnboardingPage({
               <StepState complete={setup.team_ready} />
             </div>
             <p className="mt-2 text-sm leading-6 text-[#66736e]">
-              Non è obbligatorio per entrare nel prodotto. Puoi aggiungere colleghi ora o più
-              avanti.
+              Ogni invito definisce separatamente permesso di accesso e ruolo commerciale.
+              Il link accetta una sola invitation e gli inviti scaduti o revocati non possono
+              creare membership.
             </p>
 
             <form action={inviteMember} className="mt-5 space-y-4">
@@ -464,41 +512,144 @@ export default async function OnboardingPage({
                   required
                 />
               </Field>
-              <label className="block text-sm font-medium text-[#43524c]">
-                Permesso
-                <select
-                  name="role"
-                  defaultValue="member"
-                  className="mt-2 h-10 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#1d2824]"
-                >
-                  <option value="admin">Admin</option>
-                  <option value="member">Member</option>
-                  <option value="viewer">Viewer</option>
-                </select>
-              </label>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="block text-sm font-medium text-[#43524c]">
+                  Permesso
+                  <select
+                    name="role"
+                    defaultValue="member"
+                    className="mt-2 h-10 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#1d2824]"
+                  >
+                    <option value="admin">Admin</option>
+                    <option value="member">Member</option>
+                    <option value="viewer">Viewer</option>
+                  </select>
+                </label>
+
+                <label className="block text-sm font-medium text-[#43524c]">
+                  Ruolo commerciale
+                  <select
+                    name="business_role"
+                    defaultValue="salesperson"
+                    className="mt-2 h-10 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#1d2824]"
+                  >
+                    <option value="">Non assegnato</option>
+                    <option value="sales_director">Sales Director</option>
+                    <option value="salesperson">Commerciale</option>
+                    <option value="operations">Operations</option>
+                  </select>
+                </label>
+              </div>
+
               <button className="h-10 w-full rounded-xl border border-[#c7d5cf] bg-white text-sm font-semibold text-[#173f35] hover:bg-[#f7f9f8]">
                 Invia invito
               </button>
             </form>
 
-            {pendingInvitations.length ? (
-              <div className="mt-5 border-t border-[#e2e7e4] pt-4">
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#87938e]">
-                  Inviti pendenti
-                </p>
-                <div className="mt-3 space-y-2">
-                  {pendingInvitations.map((invitation) => (
+            {actionableInvitations.length ? (
+              <div className="mt-6 border-t border-[#e2e7e4] pt-5">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#87938e]">
+                    Lifecycle inviti
+                  </p>
+                  <span className="text-[11px] text-[#87938e]">
+                    Ultimi {actionableInvitations.length}
+                  </span>
+                </div>
+
+                <div className="mt-3 space-y-3">
+                  {actionableInvitations.map((invitation) => (
                     <div
                       key={invitation.id}
-                      className="flex items-center justify-between gap-3 text-xs text-[#66736e]"
+                      className="rounded-2xl border border-[#e2e7e4] bg-[#f7f9f8] p-4"
                     >
-                      <span className="truncate">{invitation.email}</span>
-                      <span className="shrink-0">{invitation.role}</span>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-[#1d2824]">
+                            {invitation.email}
+                          </p>
+                          <p className="mt-1 text-xs text-[#66736e]">
+                            {permissionLabel(invitation.role)} ·{" "}
+                            {businessRoleLabel(invitation.business_role)}
+                          </p>
+                        </div>
+                        <span
+                          className={[
+                            "shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold",
+                            invitation.status === "accepted"
+                              ? "bg-emerald-50 text-emerald-700"
+                              : invitation.status === "pending" &&
+                                  invitation.delivery_status !== "failed"
+                                ? "bg-amber-50 text-amber-800"
+                                : "bg-[#ecefed] text-[#52615b]",
+                          ].join(" ")}
+                        >
+                          {invitationStatusLabel(
+                            invitation.status,
+                            invitation.delivery_status,
+                          )}
+                        </span>
+                      </div>
+
+                      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[#7b8782]">
+                        <span>Invii: {invitation.send_count}</span>
+                        {invitation.status === "pending" ? (
+                          <span>
+                            Scade:{" "}
+                            {new Date(invitation.expires_at).toLocaleDateString(
+                              "it-IT",
+                            )}
+                          </span>
+                        ) : null}
+                        {invitation.delivery_mode ? (
+                          <span>
+                            Canale:{" "}
+                            {invitation.delivery_mode === "magic_link"
+                              ? "accesso account esistente"
+                              : "nuovo account"}
+                          </span>
+                        ) : null}
+                      </div>
+
+                      {["pending", "expired"].includes(invitation.status) ? (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <form action={resendInvitation}>
+                            <input type="hidden" name="email" value={invitation.email} />
+                            <input type="hidden" name="role" value={invitation.role} />
+                            <input
+                              type="hidden"
+                              name="business_role"
+                              value={invitation.business_role ?? ""}
+                            />
+                            <button className="h-9 rounded-lg border border-[#c7d5cf] bg-white px-3 text-xs font-semibold text-[#173f35] hover:bg-[#edf5f2]">
+                              Reinvia
+                            </button>
+                          </form>
+
+                          {invitation.status === "pending" ? (
+                            <form action={revokeInvitation}>
+                              <input
+                                type="hidden"
+                                name="invitation_id"
+                                value={invitation.id}
+                              />
+                              <button className="h-9 rounded-lg border border-[#e1c7c2] bg-white px-3 text-xs font-semibold text-[#8a3a30] hover:bg-[#fff5f3]">
+                                Revoca
+                              </button>
+                            </form>
+                          ) : null}
+                        </div>
+                      ) : null}
                     </div>
                   ))}
                 </div>
               </div>
-            ) : null}
+            ) : (
+              <p className="mt-5 rounded-xl border border-dashed border-[#d7dfdb] px-4 py-3 text-xs text-[#7b8782]">
+                Nessun invito ancora inviato.
+              </p>
+            )}
           </article>
 
           <article className="rounded-3xl border border-[#dce2df] bg-white p-6">
@@ -508,69 +659,134 @@ export default async function OnboardingPage({
             <h2 className="mt-2 text-lg font-semibold text-[#1d2824]">
               Accessi del workspace
             </h2>
-            <div className="mt-5 space-y-3">
-              {team.map((member) => (
-                <div
-                  key={member.user_id}
-                  className="rounded-2xl border border-[#e2e7e4] bg-[#f7f9f8] p-4"
-                >
-                  <p className="truncate text-sm font-semibold text-[#1d2824]">
-                    {member.email ?? member.user_id}
-                  </p>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                    <form action={changeMemberRole}>
-                      <input
-                        type="hidden"
-                        name="user_id"
-                        value={member.user_id}
-                      />
-                      <label className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#87938e]">
-                        Permesso
-                        <div className="mt-1 flex gap-2">
-                          <select
-                            name="role"
-                            defaultValue={member.role}
-                            className="h-9 min-w-0 flex-1 rounded-lg border border-[#d7dfdb] bg-white px-2 text-xs normal-case tracking-normal text-[#43524c]"
-                          >
-                            <option value="admin">Admin</option>
-                            <option value="member">Member</option>
-                            <option value="viewer">Viewer</option>
-                          </select>
-                          <button className="rounded-lg border border-[#d7dfdb] bg-white px-3 text-xs font-semibold normal-case tracking-normal text-[#43524c]">
-                            Salva
-                          </button>
-                        </div>
-                      </label>
-                    </form>
+            <p className="mt-2 text-sm leading-6 text-[#66736e]">
+              Il permesso controlla cosa può fare l&apos;utente; il ruolo commerciale descrive
+              la sua funzione nel processo vendite. Sospendere un accesso non elimina
+              l&apos;account Supabase né la cronologia.
+            </p>
 
-                    <form action={changeMemberBusinessRole}>
-                      <input
-                        type="hidden"
-                        name="user_id"
-                        value={member.user_id}
-                      />
-                      <label className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#87938e]">
-                        Ruolo commerciale
-                        <div className="mt-1 flex gap-2">
-                          <select
-                            name="business_role"
-                            defaultValue={member.business_role ?? ""}
-                            className="h-9 min-w-0 flex-1 rounded-lg border border-[#d7dfdb] bg-white px-2 text-xs normal-case tracking-normal text-[#43524c]"
-                          >
-                            <option value="">Non assegnato</option>
-                            <option value="sales_director">Sales Director</option>
-                            <option value="salesperson">Commerciale</option>
-                            <option value="operations">Operations</option>
-                          </select>
-                          <button className="rounded-lg border border-[#d7dfdb] bg-white px-3 text-xs font-semibold normal-case tracking-normal text-[#43524c]">
-                            Salva
+            <div className="mt-5 space-y-3">
+              {team.map((member) => {
+                const isCurrentUser = member.user_id === auth.user.id;
+                const isActive = member.status === "active";
+
+                return (
+                  <div
+                    key={member.user_id}
+                    className="rounded-2xl border border-[#e2e7e4] bg-[#f7f9f8] p-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-[#1d2824]">
+                          {member.email ?? member.user_id}
+                        </p>
+                        <p className="mt-1 text-xs text-[#66736e]">
+                          {permissionLabel(member.role)} ·{" "}
+                          {businessRoleLabel(member.business_role)}
+                          {isCurrentUser ? " · Tu" : ""}
+                        </p>
+                      </div>
+                      <span
+                        className={[
+                          "rounded-full px-2.5 py-1 text-[10px] font-bold",
+                          isActive
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-[#ecefed] text-[#52615b]",
+                        ].join(" ")}
+                      >
+                        {isActive ? "Attivo" : "Sospeso"}
+                      </span>
+                    </div>
+
+                    {isActive ? (
+                      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                        <form action={changeMemberRole}>
+                          <input
+                            type="hidden"
+                            name="user_id"
+                            value={member.user_id}
+                          />
+                          <label className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#87938e]">
+                            Permesso
+                            <div className="mt-1 flex gap-2">
+                              <select
+                                name="role"
+                                defaultValue={member.role}
+                                className="h-9 min-w-0 flex-1 rounded-lg border border-[#d7dfdb] bg-white px-2 text-xs normal-case tracking-normal text-[#43524c]"
+                              >
+                                <option value="admin">Admin</option>
+                                <option value="member">Member</option>
+                                <option value="viewer">Viewer</option>
+                              </select>
+                              <button className="rounded-lg border border-[#d7dfdb] bg-white px-3 text-xs font-semibold normal-case tracking-normal text-[#43524c]">
+                                Salva
+                              </button>
+                            </div>
+                          </label>
+                        </form>
+
+                        <form action={changeMemberBusinessRole}>
+                          <input
+                            type="hidden"
+                            name="user_id"
+                            value={member.user_id}
+                          />
+                          <label className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#87938e]">
+                            Ruolo commerciale
+                            <div className="mt-1 flex gap-2">
+                              <select
+                                name="business_role"
+                                defaultValue={member.business_role ?? ""}
+                                className="h-9 min-w-0 flex-1 rounded-lg border border-[#d7dfdb] bg-white px-2 text-xs normal-case tracking-normal text-[#43524c]"
+                              >
+                                <option value="">Non assegnato</option>
+                                <option value="sales_director">Sales Director</option>
+                                <option value="salesperson">Commerciale</option>
+                                <option value="operations">Operations</option>
+                              </select>
+                              <button className="rounded-lg border border-[#d7dfdb] bg-white px-3 text-xs font-semibold normal-case tracking-normal text-[#43524c]">
+                                Salva
+                              </button>
+                            </div>
+                          </label>
+                        </form>
+                      </div>
+                    ) : null}
+
+                    <div className="mt-3 border-t border-[#e2e7e4] pt-3">
+                      {isActive && !isCurrentUser ? (
+                        <form action={changeMemberStatus}>
+                          <input
+                            type="hidden"
+                            name="user_id"
+                            value={member.user_id}
+                          />
+                          <input type="hidden" name="status" value="suspended" />
+                          <button className="text-xs font-semibold text-[#8a3a30] hover:underline">
+                            Sospendi accesso
                           </button>
-                        </div>
-                      </label>
-                    </form>
+                        </form>
+                      ) : !isActive ? (
+                        <form action={changeMemberStatus}>
+                          <input
+                            type="hidden"
+                            name="user_id"
+                            value={member.user_id}
+                          />
+                          <input type="hidden" name="status" value="active" />
+                          <button className="text-xs font-semibold text-[#173f35] hover:underline">
+                            Riattiva accesso
+                          </button>
+                        </form>
+                      ) : (
+                        <p className="text-[11px] text-[#87938e]">
+                          Il tuo accesso non può essere sospeso da questa sessione.
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </article>
         </section>

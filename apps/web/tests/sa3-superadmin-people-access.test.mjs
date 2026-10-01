@@ -90,7 +90,9 @@ test("SA3 staff invite acceptance is separate from organization invitation accep
   assert.match(authFinish, /isStaffInvite/);
   assert.match(authFinish, /sa2_claim_platform_staff_invitation/);
   assert.match(authFinish, /\/staff\/access\?activated=1/);
-  assert.match(authFinish, /claim_pending_organization_invitations/);
+  assert.match(authFinish, /hp8_claim_organization_invitation/);
+  assert.match(authFinish, /invitation_id/);
+  assert.doesNotMatch(authFinish, /claim_pending_organization_invitations/);
 });
 
 test("SA3 existing users can acquire a pending Platform invitation at normal login", () => {
