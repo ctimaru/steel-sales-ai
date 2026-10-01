@@ -1,8 +1,11 @@
 import Link from "next/link";
 
+import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { canWriteWorkspace } from "@/lib/access-policy";
 import { appRoutes } from "@/lib/routes";
+import { getWorkspaceContext } from "@/lib/workspace-context";
 
 import { loadCompanyActivationStatus, loadCompanyDirectory } from "./actions";
 
@@ -22,10 +25,12 @@ export default async function CustomersPage({
 }) {
   const params = await searchParams;
   const query = typeof params.q === "string" ? params.q.trim() : "";
-  const [directory, activation] = await Promise.all([
+  const [directory, activation, context] = await Promise.all([
     loadCompanyDirectory(query || undefined),
     loadCompanyActivationStatus(),
+    getWorkspaceContext(),
   ]);
+  const canWrite = canWriteWorkspace(context.role);
 
   return (
     <div className="mx-auto max-w-7xl space-y-7">
@@ -83,12 +88,50 @@ export default async function CustomersPage({
           {directory.error}
         </div>
       ) : directory.companies.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
-          <p className="text-sm font-semibold text-slate-900">Nessuna Company trovata</p>
-          <p className="mt-1 text-sm text-slate-500">
-            Le aziende appariranno qui quando verranno create o verificate nel workspace.
-          </p>
-        </div>
+        query ? (
+          <FirstUseEmptyState
+            eyebrow="Ricerca senza risultati"
+            title="Nessuna azienda corrisponde a questa ricerca"
+            description="La Company 360 mostra solo identità aziendali normalizzate del workspace. Azzera la ricerca oppure prova con una ragione sociale, una P.IVA o un paese meno specifici."
+            primaryAction={{
+              href: appRoutes.commercial.companies,
+              label: "Azzera ricerca",
+            }}
+            secondaryAction={{
+              href: appRoutes.commercial.search,
+              label: "Cerca nello storico",
+            }}
+          />
+        ) : (
+          <FirstUseEmptyState
+            title="Le Company 360 nasceranno dallo storico commerciale"
+            description={
+              activation.unresolvedContacts > 0
+                ? "Ci sono identità aziendali ancora da confermare. Risolvile per collegare conversazioni, RFQ, offerte e ordini alla Company corretta."
+                : "Non ci sono ancora aziende normalizzate. Importa lo storico commerciale: le Company verranno create o collegate solo quando l’identità è sufficientemente verificata."
+            }
+            primaryAction={
+              activation.unresolvedContacts > 0
+                ? {
+                    href: appRoutes.operations.reviewIdentities,
+                    label: "Risolvi identità aziendali",
+                  }
+                : {
+                    href: canWrite
+                      ? appRoutes.operations.uploads
+                      : appRoutes.commercial.explorer,
+                    label: canWrite
+                      ? "Importa i primi documenti"
+                      : "Apri Commercial Explorer",
+                  }
+            }
+            secondaryAction={{
+              href: appRoutes.network.directory,
+              label: "Esplora il Network pubblico",
+            }}
+            note="La Company 360 privata e il Company Profile pubblico restano due layer distinti."
+          />
+        )
       ) : (
         <section className="grid gap-4 xl:grid-cols-2">
           {directory.companies.map((company) => (
