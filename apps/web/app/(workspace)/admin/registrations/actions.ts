@@ -79,6 +79,47 @@ export async function rejectRegistrationApplication(formData: FormData) {
   redirect(detailPath(id, "message", "Richiesta rifiutata."));
 }
 
+export async function approveAndActivateRegistration(formData: FormData) {
+  await requirePlatformPermission("registrations.approve");
+  await requirePlatformPermission("registrations.activate");
+  await requirePlatformPermission("registrations.bridge_network");
+
+  const id = applicationId(formData);
+  const networkCompanyId = String(formData.get("network_company_id") ?? "").trim();
+  if (!id) redirect("/platform/registrations?error=Application%20non%20valida");
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("hp6_approve_and_activate_registration", {
+    p_application_id: id,
+    p_network_company_id: networkCompanyId || null,
+  });
+
+  if (error) {
+    const message = error.message.includes("identity candidates exist")
+      ? "Esistono match identitari: seleziona esplicitamente la Network Company corretta."
+      : error.message.includes("already controlled by another organization") ||
+          error.message.includes("approved claim by another organization")
+        ? "Il profilo selezionato è già controllato da un’altra Organization. Nessuna modifica è stata applicata."
+        : error.message.includes("not an identity candidate")
+          ? "La Network Company selezionata non corrisponde ai match identitari di questa pratica."
+          : "Non è stato possibile completare approvazione e attivazione atomica.";
+
+    redirect(detailPath(id, "error", message));
+  }
+
+  revalidatePath("/platform/registrations");
+  revalidatePath("/network");
+  revalidatePath("/network/manage");
+  revalidatePath(`/platform/registrations/${id}`);
+  redirect(
+    detailPath(
+      id,
+      "message",
+      "Registrazione approvata e workspace attivato in un’unica operazione.",
+    ),
+  );
+}
+
 export async function activateRegistrationApplication(formData: FormData) {
   await requirePlatformPermission("registrations.activate");
   await requirePlatformPermission("registrations.bridge_network");
