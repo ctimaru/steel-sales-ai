@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import {
   getPlatformAccessContext,
   getRegistrationDetail,
-  getRegistrationNetworkCandidates,
+  getRegistrationIdentityResolution,
   requirePlatformPermission,
 } from "@/lib/platform-admin";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
@@ -51,6 +51,24 @@ function display(value: string | null | undefined) {
   return value?.trim() ? value : "—";
 }
 
+const IDENTITY_SIGNAL_LABELS: Record<string, string> = {
+  country_vat_exact: "P.IVA esatta",
+  country_registration_exact: "Registro impresa esatto",
+  country_legal_name_key_exact: "Ragione sociale normalizzata",
+  website_domain_exact: "Dominio web",
+};
+
+const RESOLUTION_CLASS_LABELS: Record<string, string> = {
+  exact_identifier: "Identificativo legale",
+  legal_name_and_domain: "Ragione sociale + dominio",
+  legal_name_exact: "Ragione sociale",
+  shared_domain: "Dominio condiviso",
+};
+
+function identitySignals(signals: string[]) {
+  return signals.map((signal) => IDENTITY_SIGNAL_LABELS[signal] ?? signal).join(" · ");
+}
+
 export default async function AdminRegistrationDetailPage({
   params,
   searchParams,
@@ -85,9 +103,18 @@ export default async function AdminRegistrationDetailPage({
     application.application_status === "activated" &&
     !application.matched_network_company_id &&
     permissions.includes("registrations.bridge_network");
-  const networkCandidates = canActivate || canBridge
-    ? await getRegistrationNetworkCandidates(application.id)
-    : [];
+  const identityResolution = canActivate || canBridge
+    ? await getRegistrationIdentityResolution(application.id)
+    : {
+        application_id: application.id,
+        create_new_allowed: false,
+        candidate_count: 0,
+        possible_match_count: 0,
+        candidates: [],
+        possible_matches: [],
+      };
+  const networkCandidates = identityResolution.candidates;
+  const possibleNetworkMatches = identityResolution.possible_matches;
   const hasAvailableAction =
     canRequestInformation || canApprove || canReject || canActivate || canBridge;
 
@@ -276,6 +303,32 @@ export default async function AdminRegistrationDetailPage({
               </section>
           ) : null}
 
+          {possibleNetworkMatches.length ? (
+            <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+              <h2 className="font-semibold text-amber-950">Possibili omonimie di dominio</h2>
+              <p className="mt-1 text-sm leading-6 text-amber-800">
+                Il dominio web è condiviso con altri profili Network. HP4 lo tratta come segnale informativo:
+                da solo non forza il collegamento e non blocca la creazione di una nuova entità legale.
+              </p>
+              <div className="mt-4 space-y-2">
+                {possibleNetworkMatches.map((candidate) => (
+                  <div
+                    key={candidate.network_company_id}
+                    className="rounded-xl border border-amber-200 bg-white px-3 py-3"
+                  >
+                    <p className="text-sm font-semibold text-slate-900">{candidate.legal_name}</p>
+                    <p className="mt-1 text-xs text-[#66736e]">
+                      {candidate.country_code}
+                      {candidate.website_domain ? ` · ${candidate.website_domain}` : ""}
+                      {" · "}
+                      {RESOLUTION_CLASS_LABELS[candidate.resolution_class] ?? candidate.resolution_class}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           {canActivate ? (
             <section className="rounded-2xl border border-indigo-200 bg-indigo-50 p-5">
               <h2 className="font-semibold text-indigo-950">Attiva workspace + identità Network</h2>
@@ -289,29 +342,50 @@ export default async function AdminRegistrationDetailPage({
                   <p className="text-xs font-semibold uppercase tracking-[0.12em] text-indigo-700">
                     Selezione identità obbligatoria
                   </p>
-                  {networkCandidates.map((candidate) => (
-                    <form
-                      key={candidate.network_company_id}
-                      action={activateRegistrationApplication}
-                      className="rounded-xl border border-indigo-200 bg-white p-3"
-                    >
-                      <input type="hidden" name="application_id" value={application.id} />
-                      <input type="hidden" name="network_company_id" value={candidate.network_company_id} />
-                      <p className="text-sm font-semibold text-slate-900">{candidate.legal_name}</p>
-                      <p className="mt-1 text-xs text-[#66736e]">
-                        {candidate.country_code} · score {Number(candidate.match_score).toFixed(2)} · {candidate.signals.join(", ")}
-                      </p>
-                      <button className="mt-3 h-9 w-full rounded-lg bg-indigo-700 px-3 text-xs font-semibold text-white">
-                        Seleziona e attiva
-                      </button>
-                    </form>
-                  ))}
+                  {networkCandidates.map((candidate) =>
+                    candidate.selectable ? (
+                      <form
+                        key={candidate.network_company_id}
+                        action={activateRegistrationApplication}
+                        className="rounded-xl border border-indigo-200 bg-white p-3"
+                      >
+                        <input type="hidden" name="application_id" value={application.id} />
+                        <input type="hidden" name="network_company_id" value={candidate.network_company_id} />
+                        <div className="flex items-start justify-between gap-3">
+                          <p className="text-sm font-semibold text-slate-900">{candidate.legal_name}</p>
+                          <span className="rounded-full bg-indigo-50 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-indigo-700">
+                            {RESOLUTION_CLASS_LABELS[candidate.resolution_class] ?? candidate.resolution_class}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-xs text-[#66736e]">
+                          {candidate.country_code} · score {Number(candidate.match_score).toFixed(2)} · {identitySignals(candidate.signals)}
+                        </p>
+                        <button className="mt-3 h-9 w-full rounded-lg bg-indigo-700 px-3 text-xs font-semibold text-white">
+                          Seleziona e attiva
+                        </button>
+                      </form>
+                    ) : (
+                      <div
+                        key={candidate.network_company_id}
+                        className="rounded-xl border border-rose-200 bg-rose-50 p-3"
+                      >
+                        <p className="text-sm font-semibold text-rose-950">{candidate.legal_name}</p>
+                        <p className="mt-1 text-xs text-rose-800">
+                          {candidate.country_code} · {identitySignals(candidate.signals)}
+                        </p>
+                        <p className="mt-2 text-xs leading-5 text-rose-800">
+                          Profilo già gestito da un’altra Organization: non creare un duplicato. Gestisci il caso come
+                          accesso/claim sull’identità esistente.
+                        </p>
+                      </div>
+                    ),
+                  )}
                 </div>
               ) : (
                 <form action={activateRegistrationApplication} className="mt-4">
                   <input type="hidden" name="application_id" value={application.id} />
                   <div className="mb-3 rounded-xl border border-indigo-100 bg-white px-3 py-3 text-xs leading-5 text-indigo-800">
-                    Nessun profilo Network candidato rilevato: verrà creato e collegato un nuovo profilo non verificato.
+                    Nessun match identitario bloccante rilevato: verrà creato e collegato un nuovo profilo Network non verificato.
                   </div>
                   <button className="h-10 w-full rounded-xl bg-indigo-700 px-4 text-sm font-semibold text-white">
                     Attiva workspace e profilo Network
@@ -331,23 +405,36 @@ export default async function AdminRegistrationDetailPage({
 
               <div className="mt-4 space-y-3">
                 {networkCandidates.length ? (
-                  networkCandidates.map((candidate) => (
-                    <form
-                      key={candidate.network_company_id}
-                      action={bridgeRegistrationToNetwork}
-                      className="rounded-xl border border-indigo-200 bg-white p-3"
-                    >
-                      <input type="hidden" name="application_id" value={application.id} />
-                      <input type="hidden" name="network_company_id" value={candidate.network_company_id} />
-                      <p className="text-sm font-semibold text-slate-900">{candidate.legal_name}</p>
-                      <p className="mt-1 text-xs text-[#66736e]">
-                        {candidate.country_code} · score {Number(candidate.match_score).toFixed(2)} · {candidate.signals.join(", ")}
-                      </p>
-                      <button className="mt-3 h-9 w-full rounded-lg bg-indigo-700 px-3 text-xs font-semibold text-white">
-                        Collega questa Network Company
-                      </button>
-                    </form>
-                  ))
+                  networkCandidates.map((candidate) =>
+                    candidate.selectable ? (
+                      <form
+                        key={candidate.network_company_id}
+                        action={bridgeRegistrationToNetwork}
+                        className="rounded-xl border border-indigo-200 bg-white p-3"
+                      >
+                        <input type="hidden" name="application_id" value={application.id} />
+                        <input type="hidden" name="network_company_id" value={candidate.network_company_id} />
+                        <p className="text-sm font-semibold text-slate-900">{candidate.legal_name}</p>
+                        <p className="mt-1 text-xs text-[#66736e]">
+                          {candidate.country_code} · score {Number(candidate.match_score).toFixed(2)} · {identitySignals(candidate.signals)}
+                        </p>
+                        <button className="mt-3 h-9 w-full rounded-lg bg-indigo-700 px-3 text-xs font-semibold text-white">
+                          Collega questa Network Company
+                        </button>
+                      </form>
+                    ) : (
+                      <div
+                        key={candidate.network_company_id}
+                        className="rounded-xl border border-rose-200 bg-rose-50 p-3"
+                      >
+                        <p className="text-sm font-semibold text-rose-950">{candidate.legal_name}</p>
+                        <p className="mt-1 text-xs text-rose-800">{identitySignals(candidate.signals)}</p>
+                        <p className="mt-2 text-xs leading-5 text-rose-800">
+                          Identità già gestita: il bridge verso una seconda Organization è bloccato.
+                        </p>
+                      </div>
+                    ),
+                  )
                 ) : (
                   <form action={bridgeRegistrationToNetwork}>
                     <input type="hidden" name="application_id" value={application.id} />
