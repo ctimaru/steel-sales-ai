@@ -84,7 +84,7 @@ test("HP1.1 Platform activation requires bridge authority and explicit candidate
   );
   assert.match(
     registrationDetail,
-    /canActivate \|\| canBridge[\s\S]*?getRegistrationNetworkCandidates/,
+    /canActivate \|\| canBridge[\s\S]*?getRegistrationIdentityResolution/,
   );
   assert.match(registrationDetail, /Seleziona e attiva/);
   assert.match(registrationDetail, /Attiva workspace e profilo Network/);
