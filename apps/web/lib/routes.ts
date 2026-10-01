@@ -15,10 +15,10 @@ export const appRoutes = {
     conversion: "/commercial/conversion",
     crossThreadRelationships: "/commercial/conversion/relationships",
     assistant: "/commercial/assistant",
-    explorer: "/explorer",
-    priceIntelligence: "/price-intelligence",
-    marketIntelligence: "/market-intelligence",
-    knowledgeExplorer: "/knowledge-explorer",
+    explorer: "/commercial/explorer",
+    priceIntelligence: "/commercial/price-intelligence",
+    marketIntelligence: "/commercial/market-intelligence",
+    knowledgeExplorer: "/school/explorer",
     rfq: (id: string) => `/commercial/rfqs/${id}`,
     offer: (id: string) => `/commercial/offers/${id}`,
     order: (id: string) => `/commercial/orders/${id}`,
@@ -49,6 +49,7 @@ export const appRoutes = {
 
   knowledge: {
     workspace: "/school",
+    explorer: "/school/explorer",
     catalog: "/school/catalogo",
     schoolStandards: "/school/norme",
     schoolStandard: (slug: string) => `/school/norme/${slug}`,
@@ -119,5 +120,9 @@ export const legacyRoutes = {
   alerts: "/alerts",
   dataSources: "/data-sources",
   pilotAnalytics: "/pilot-analytics",
+  explorer: "/explorer",
+  priceIntelligence: "/price-intelligence",
+  marketIntelligence: "/market-intelligence",
+  knowledgeExplorer: "/knowledge-explorer",
   tubesStandards: "/tubi-norme",
 } as const;

@@ -6,6 +6,14 @@ import { usePathname } from "next/navigation";
 import type { PlatformPermissionKey } from "@/lib/platform-access-contract";
 import { appRoutes } from "@/lib/routes";
 
+const platformNavGroups = [
+  ["overview", "Overview"],
+  ["access", "Accesso & onboarding"],
+  ["network", "Network governance"],
+  ["content", "Contenuti"],
+  ["pilot", "Pilot"],
+] as const;
+
 const platformNav = [
   {
     href: appRoutes.platform.home,
@@ -13,6 +21,7 @@ const platformNav = [
     icon: "home",
     permission: "platform.console.access",
     staffEnabled: true,
+    group: "overview",
   },
   {
     href: appRoutes.platform.people,
@@ -20,6 +29,7 @@ const platformNav = [
     icon: "people",
     permission: "platform.staff.read",
     staffEnabled: false,
+    group: "access",
   },
   {
     href: appRoutes.platform.pilot,
@@ -27,6 +37,7 @@ const platformNav = [
     icon: "pilot",
     permission: "platform.console.access",
     staffEnabled: false,
+    group: "pilot",
   },
   {
     href: appRoutes.platform.registrations,
@@ -34,6 +45,7 @@ const platformNav = [
     icon: "registrations",
     permission: "registrations.read",
     staffEnabled: true,
+    group: "access",
   },
   {
     href: appRoutes.platform.discovery,
@@ -41,6 +53,7 @@ const platformNav = [
     icon: "discovery",
     permission: "discovery.read",
     staffEnabled: true,
+    group: "network",
   },
   {
     href: appRoutes.platform.claims,
@@ -48,6 +61,7 @@ const platformNav = [
     icon: "claims",
     permission: "claims.read",
     staffEnabled: true,
+    group: "network",
   },
   {
     href: appRoutes.platform.knowledge,
@@ -55,6 +69,7 @@ const platformNav = [
     icon: "knowledge",
     permission: "knowledge.read_drafts",
     staffEnabled: true,
+    group: "content",
   },
   {
     href: appRoutes.platform.networkTrust,
@@ -62,6 +77,7 @@ const platformNav = [
     icon: "trust",
     permission: "network_trust.read",
     staffEnabled: true,
+    group: "network",
   },
 ] as const satisfies readonly {
   href: string;
@@ -69,6 +85,7 @@ const platformNav = [
   icon: "home" | "people" | "pilot" | "registrations" | "discovery" | "claims" | "knowledge" | "trust";
   permission: PlatformPermissionKey;
   staffEnabled: boolean;
+  group: (typeof platformNavGroups)[number][0];
 }[];
 
 function NavIcon({ name }: { name: (typeof platformNav)[number]["icon"] }) {
@@ -170,11 +187,21 @@ export function PlatformNavigation({
   const visibleItems = visiblePlatformItems(permissions, isPlatformOwner);
 
   return (
-    <nav className="space-y-1">
-      {visibleItems.map((item) => {
-        const selected = isPlatformSelected(pathname, item.href);
+    <nav className="space-y-4" aria-label="Navigazione Platform">
+      {platformNavGroups.map(([groupKey, groupLabel]) => {
+        const items = visibleItems.filter((item) => item.group === groupKey);
+        if (items.length === 0) return null;
 
         return (
+          <div key={groupKey}>
+            <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#8b9792]">
+              {groupLabel}
+            </p>
+            <div className="space-y-1">
+              {items.map((item) => {
+                const selected = isPlatformSelected(pathname, item.href);
+
+                return (
           <Link
             key={item.href}
             href={item.href}
@@ -191,6 +218,10 @@ export function PlatformNavigation({
             </span>
             <span>{item.label}</span>
           </Link>
+                );
+              })}
+            </div>
+          </div>
         );
       })}
     </nav>
@@ -224,10 +255,20 @@ export function PlatformMobileNavigation({
             </p>
           </div>
         </div>
-        <nav className="grid gap-2 sm:grid-cols-2">
-          {visibleItems.map((item) => {
-            const selected = isPlatformSelected(pathname, item.href);
+        <nav className="space-y-4" aria-label="Navigazione mobile Platform">
+          {platformNavGroups.map(([groupKey, groupLabel]) => {
+            const items = visibleItems.filter((item) => item.group === groupKey);
+            if (items.length === 0) return null;
+
             return (
+              <div key={groupKey}>
+                <p className="px-1 pb-1 text-[10px] font-bold uppercase tracking-[0.15em] text-[#87938e]">
+                  {groupLabel}
+                </p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {items.map((item) => {
+                    const selected = isPlatformSelected(pathname, item.href);
+                    return (
               <Link
                 key={item.href}
                 href={item.href}
@@ -244,6 +285,10 @@ export function PlatformMobileNavigation({
                 </span>
                 <span>{item.label}</span>
               </Link>
+                    );
+                  })}
+                </div>
+              </div>
             );
           })}
         </nav>
