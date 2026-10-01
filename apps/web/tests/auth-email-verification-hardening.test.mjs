@@ -30,6 +30,10 @@ const confirmationTemplate = fs.readFileSync(
   new URL("../../../supabase/templates/confirmation.html", import.meta.url),
   "utf8",
 );
+const recoveryTemplate = fs.readFileSync(
+  new URL("../../../supabase/templates/recovery.html", import.meta.url),
+  "utf8",
+);
 const confirmRoute = fs.readFileSync(
   new URL("../app/auth/confirm/route.ts", import.meta.url),
   "utf8",
@@ -109,4 +113,18 @@ test("server-side confirmation endpoint verifies the token hash and rejects unsa
   assert.match(confirmRoute, /PENDING_SIGNUP_EMAIL_COOKIE/);
   assert.match(confirmRoute, /response\.cookies\.delete/);
   assert.match(confirmRoute, /Il link di verifica non è valido o è scaduto/);
+});
+
+
+test("password recovery email uses the same server-side token-hash confirmation endpoint", () => {
+  assert.match(supabaseConfig, /\[auth\.email\.template\.recovery\]/);
+  assert.match(
+    supabaseConfig,
+    /subject = "Reimposta la tua password — Smart Steel Sales"/,
+  );
+  assert.match(recoveryTemplate, /Smart Steel Sales/);
+  assert.match(recoveryTemplate, /\/auth\/confirm\?token_hash=\{\{ \.TokenHash \}\}/);
+  assert.match(recoveryTemplate, /type=recovery/);
+  assert.match(recoveryTemplate, /next=\/reset-password/);
+  assert.doesNotMatch(recoveryTemplate, /newsletter|promozione|offerta|sconto/i);
 });
