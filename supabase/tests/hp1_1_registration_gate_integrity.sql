@@ -179,7 +179,9 @@ insert into public.network_companies(
 
 insert into public.network_company_claims(
   network_company_id,organization_id,requested_by,status,
-  request_note,reviewed_by,reviewed_at,review_note
+  request_note,reviewed_by,reviewed_at,review_note,
+  proof_method,proof_status,proof_reference,proof_review_note,
+  proof_verified_by,proof_verified_at
 ) values (
   '00000000-0000-0000-0000-00000000b121'::uuid,
   '00000000-0000-0000-0000-00000000b120'::uuid,
@@ -188,7 +190,13 @@ insert into public.network_company_claims(
   'HP1.1 acceptance fixture',
   :'owner_id'::uuid,
   now(),
-  'HP1.1 acceptance fixture'
+  'HP1.1 acceptance fixture',
+  'manual_review',
+  'verified',
+  'hp1.1-acceptance-fixture',
+  'Verified fixture for pre-existing claimed company.',
+  :'owner_id'::uuid,
+  now()
 );
 
 set local role authenticated;
