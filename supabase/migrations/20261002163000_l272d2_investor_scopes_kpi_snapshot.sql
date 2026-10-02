@@ -98,10 +98,10 @@ begin
     raise exception 'Valid investor email required' using errcode='22023';
   end if;
 
-  select coalesce(array_agg(distinct s order by s), '{}'::text[])
+  select coalesce(array_agg(distinct scope order by scope), '{}'::text[])
     into v_scopes
-  from unnest(coalesce(p_scopes,'{}'::text[])) s
-  where s in ('business_plan','kpi');
+  from unnest(coalesce(p_scopes,'{}'::text[])) as scope_value(scope)
+  where scope in ('business_plan','kpi');
 
   if cardinality(v_scopes) < 1
      or cardinality(v_scopes) <> cardinality(coalesce(p_scopes,'{}'::text[])) then
@@ -164,10 +164,10 @@ begin
     raise exception 'Platform Owner required' using errcode='42501';
   end if;
 
-  select coalesce(array_agg(distinct s order by s), '{}'::text[])
+  select coalesce(array_agg(distinct scope order by scope), '{}'::text[])
     into v_scopes
-  from unnest(coalesce(p_scopes,'{}'::text[])) s
-  where s in ('business_plan','kpi');
+  from unnest(coalesce(p_scopes,'{}'::text[])) as scope_value(scope)
+  where scope in ('business_plan','kpi');
 
   if cardinality(v_scopes) < 1
      or cardinality(v_scopes) <> cardinality(coalesce(p_scopes,'{}'::text[])) then
