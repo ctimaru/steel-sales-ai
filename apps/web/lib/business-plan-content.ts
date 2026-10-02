@@ -1,8 +1,8 @@
-export const BUSINESS_PLAN_VERSION = "Investor Draft 1.0";
+export const BUSINESS_PLAN_VERSION = "Investor Draft 1.1";
 
 export const businessPlanSnapshot = {
   stage: "Product-ready web SaaS",
-  currentFocus: "Target market sizing & economic opportunity",
+  currentFocus: "Investor audit, bilingual BP & KPI governance",
   launchWindow: "2027 controlled launch",
   thesis:
     "Smart Steel Sales aims to become the business network layer for the steel and tube industry: a free professional network strengthened by commercial memory, marketplace activity, AI and industry intelligence, with monetization that scales with users and usage rather than sales headcount.",
