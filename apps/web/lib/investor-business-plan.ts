@@ -2,11 +2,14 @@ import { createClient } from "@/lib/supabase/server";
 
 export const INVESTOR_BUSINESS_PLAN_COOKIE = "sss_investor_business_plan";
 
+export type InvestorScope = "business_plan" | "kpi";
+
 export type InvestorBusinessPlanInvite = {
   id: string;
   share_token: string;
   label: string;
   investor_email: string | null;
+  scopes: InvestorScope[];
   status: "active" | "expired" | "revoked";
   created_at: string;
   expires_at: string;
@@ -23,16 +26,18 @@ type InviteListPayload = {
   invites: InvestorBusinessPlanInvite[];
 };
 
-export async function getInvestorBusinessPlanInvites() {
+export async function getInvestorAccessInvites() {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc(
-    "l272a_investor_business_plan_invite_list",
-  );
+  const { data, error } = await supabase.rpc("l272d2_investor_access_list");
 
   if (error) throw new Error(error.message);
 
   const payload = (data ?? { allowed: false, invites: [] }) as InviteListPayload;
   return payload.invites ?? [];
+}
+
+export async function getInvestorBusinessPlanInvites() {
+  return getInvestorAccessInvites();
 }
 
 export function parseInvestorBusinessPlanCookie(
@@ -49,16 +54,18 @@ export function parseInvestorBusinessPlanCookie(
   return { shareToken, sessionToken };
 }
 
-export async function validateInvestorBusinessPlanSession(
+export async function validateInvestorAccessSession(
   shareToken: string,
   sessionToken: string,
+  requiredScope?: InvestorScope,
 ) {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc(
-    "l272a_investor_business_plan_validate",
+    "l272d2_investor_access_validate",
     {
       p_share_token: shareToken,
       p_session_token: sessionToken,
+      p_required_scope: requiredScope ?? null,
     },
   );
 
@@ -66,15 +73,88 @@ export async function validateInvestorBusinessPlanSession(
 
   const payload = (data ?? {}) as {
     ok?: boolean;
+    code?: string;
     label?: string;
+    scopes?: InvestorScope[];
     session_expires_at?: string;
   };
 
-  if (!payload.ok) return { ok: false as const };
+  if (!payload.ok) {
+    return {
+      ok: false as const,
+      code: payload.code ?? "access_denied",
+      scopes: payload.scopes ?? [],
+    };
+  }
 
   return {
     ok: true as const,
     label: payload.label ?? "Investor",
+    scopes: payload.scopes ?? [],
     sessionExpiresAt: payload.session_expires_at ?? null,
+  };
+}
+
+export async function validateInvestorBusinessPlanSession(
+  shareToken: string,
+  sessionToken: string,
+) {
+  return validateInvestorAccessSession(
+    shareToken,
+    sessionToken,
+    "business_plan",
+  );
+}
+
+export type InvestorKpiMetric = {
+  key: string;
+  label: string;
+  value: string | number;
+  status: "measured_prelaunch" | "target" | "hypothesis";
+  note: string;
+};
+
+export type InvestorKpiSnapshot = {
+  as_of: string;
+  stage: "pre_launch";
+  measured: InvestorKpiMetric[];
+  targets: InvestorKpiMetric[];
+};
+
+export async function getOwnerInvestorKpiSnapshot() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("l272d2_owner_kpi_snapshot");
+  if (error) throw new Error(error.message);
+  return data as InvestorKpiSnapshot;
+}
+
+export async function getInvestorKpiSnapshot(
+  shareToken: string,
+  sessionToken: string,
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("l272d2_investor_kpi_snapshot", {
+    p_share_token: shareToken,
+    p_session_token: sessionToken,
+  });
+
+  if (error) return { ok: false as const };
+
+  const payload = (data ?? {}) as {
+    ok?: boolean;
+    label?: string;
+    scopes?: InvestorScope[];
+    snapshot?: InvestorKpiSnapshot;
+  };
+
+  if (!payload.ok || !payload.snapshot) {
+    return { ok: false as const };
+  }
+
+  return {
+    ok: true as const,
+    label: payload.label ?? "Investor",
+    scopes: payload.scopes ?? [],
+    snapshot: payload.snapshot,
   };
 }
