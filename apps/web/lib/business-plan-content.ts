@@ -1,12 +1,141 @@
-export const BUSINESS_PLAN_VERSION = "Investor Draft 0.8";
+export const BUSINESS_PLAN_VERSION = "Investor Draft 0.9";
 
 export const businessPlanSnapshot = {
   stage: "Product-ready web SaaS",
-  currentFocus: "Network economics & multi-stream financial model",
+  currentFocus: "Business Plan v2 consolidation",
   launchWindow: "2027 controlled launch",
   thesis:
     "Smart Steel Sales aims to become the business network layer for the steel and tube industry: a free professional network strengthened by commercial memory, marketplace activity, AI and industry intelligence, with monetization that scales with users and usage rather than sales headcount.",
 } as const;
+
+export const businessPlanHighlights = {
+  eyebrow: "Smart Steel Sales · Investor Highlights",
+  headline: "The business network for the steel industry.",
+  subheadline:
+    "A free professional network for steel and tube companies, strengthened by Commercial Memory, Marketplace activity, AI and industry intelligence — monetized through multiple low-friction income streams.",
+  oneLine:
+    "SSS aims to become the digital business graph where steel companies discover each other, manage commercial knowledge, exchange demand and create measurable professional activity.",
+  highlightCards: [
+    {
+      metric: "Free",
+      label: "network-first entry",
+      detail: "Useful core access stays free to maximize company density, users and repeat usage.",
+    },
+    {
+      metric: "5",
+      label: "income streams",
+      detail: "Modules, Marketplace premium, sponsored visibility, intelligence and API/enterprise.",
+    },
+    {
+      metric: "€15–€49",
+      label: "working SME paid range",
+      detail: "Low-impact self-service pricing keeps monetization compatible with product-led adoption.",
+    },
+    {
+      metric: "MAO + MAU",
+      label: "investor north stars",
+      detail: "Company and user activity matter alongside revenue because network density is the core asset.",
+    },
+  ],
+  investorHook:
+    "The investable asset is not a high-priced software contract. It is a growing industry network that concentrates verified companies, professional attention, commercial workflows and transaction intent.",
+} as const;
+
+export const businessPlanTimeline = [
+  {
+    phase: "NOW",
+    title: "Foundation built",
+    status: "Product",
+    description:
+      "Private Commercial Memory, company graph, Marketplace foundations, Scuola acquisition layer, role-aware workspace and governed investor room are already integrated into one product architecture.",
+    signal:
+      "From isolated SaaS features to one connected industry platform.",
+  },
+  {
+    phase: "LAUNCH 2027",
+    title: "Italy-first network activation",
+    status: "Distribution",
+    description:
+      "Use Scuola/SEO, company pages, profile claims and the Free Base to activate steel/tube distributors first, then producers, processors and industrial users.",
+    signal:
+      "Verified organizations + MAO + repeat usage before aggressive monetization.",
+  },
+  {
+    phase: "DENSITY",
+    title: "Product-led monetization",
+    status: "Revenue",
+    description:
+      "Contextual Memory+, AI+, Team+ and SSS Plus upgrades convert a small share of activated organizations without mandatory sales intervention.",
+    signal:
+      "Self-service paid attach + 60/90-day retention.",
+  },
+  {
+    phase: "LIQUIDITY",
+    title: "Marketplace becomes a network engine",
+    status: "Usage",
+    description:
+      "As cross-company demand and supplier response become repeatable, premium Marketplace actions can monetize transaction value while core participation remains free.",
+    signal:
+      "Relevant supplier response + recurring demand activity.",
+  },
+  {
+    phase: "EUROPE",
+    title: "Cross-border steel graph",
+    status: "Scale",
+    description:
+      "Expand the same verified company graph, content, workflows and network mechanics across European steel distribution and production markets.",
+    signal:
+      "More organizations increase discovery, data density and cross-border utility.",
+  },
+  {
+    phase: "NETWORK SCALE",
+    title: "Multi-stream industry infrastructure",
+    status: "Platform",
+    description:
+      "Modules, Marketplace, sponsored professional visibility, aggregated intelligence and API/enterprise revenue compound on the same distribution asset.",
+    signal:
+      "Revenue / MAO grows without requiring high SME subscription prices.",
+  },
+] as const;
+
+export const businessPlanGeneralHighlights = [
+  {
+    title: "Beachhead",
+    value: "Italian steel/tube distributors & stockholders",
+    detail:
+      "High-frequency commercial workflows, fragmented knowledge and strong network connectivity make distribution the first activation wedge.",
+  },
+  {
+    title: "Positioning",
+    value: "Network + commercial operating layer",
+    detail:
+      "SSS complements ERP and email rather than asking companies to replace their operational systems.",
+  },
+  {
+    title: "Distribution",
+    value: "Scuola → Company Graph → Network → Marketplace",
+    detail:
+      "Public technical utility and searchable company identity feed organic discovery into the professional network.",
+  },
+  {
+    title: "Monetization",
+    value: "Low friction, multi-stream",
+    detail:
+      "Free network utility first; optional modules and later network monetization expand revenue after value and density exist.",
+  },
+  {
+    title: "Trust",
+    value: "Private memory stays private",
+    detail:
+      "Commercial Memory is tenant-private and never sold. Intelligence uses only aggregated/anonymized or explicitly permissioned information.",
+  },
+  {
+    title: "Investor lens",
+    value: "Users + usage + revenue density",
+    detail:
+      "Verified organizations, MAO, MAU, interactions, retention, liquidity and revenue/MAO measure whether the network is compounding.",
+  },
+] as const;
 
 export const productPillars = [
   {
@@ -1526,6 +1655,6 @@ export const businessPlanRoadmap = [
   { code: "L27.2B.1", title: "Packaging Boundary & Value Metric Validation", status: "Superseded" },
   { code: "L27.2B.2", title: "Sales-led Offer & WTP Framework", status: "Superseded" },
   { code: "L27.2B.3", title: "Freemium & Product-Led Pricing Reset", status: "Completed" },
-  { code: "L27.2C", title: "Network Economics & Multi-Stream Financial Model", status: "Active" },
-  { code: "L27.2D", title: "Business Plan v2 Consolidation", status: "Next" },
+  { code: "L27.2C", title: "Network Economics & Multi-Stream Financial Model", status: "Completed" },
+  { code: "L27.2D", title: "Business Plan v2 Consolidation", status: "Active" },
 ] as const;

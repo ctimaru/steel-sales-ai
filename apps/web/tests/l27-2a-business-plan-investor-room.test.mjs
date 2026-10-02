@@ -9,12 +9,16 @@ function read(path) {
 const routes = read("../lib/routes.ts");
 const nav = read("../components/platform-navigation.tsx");
 const ownerPage = read("../app/(platform)/platform/business-plan/page.tsx");
+const ownerDetailsPage = read("../app/(platform)/platform/business-plan/details/page.tsx");
 const ownerActions = read("../app/(platform)/platform/business-plan/actions.ts");
 const investorPage = read("../app/(public)/investor/business-plan/[inviteToken]/page.tsx");
+const investorDetailsPage = read("../app/(public)/investor/business-plan/[inviteToken]/details/page.tsx");
 const investorActions = read("../app/(public)/investor/business-plan/[inviteToken]/actions.ts");
 const access = read("../lib/investor-business-plan.ts");
 const content = read("../lib/business-plan-content.ts");
 const view = read("../components/business-plan-view.tsx");
+const highlights = read("../components/business-plan-highlights.tsx");
+const tabs = read("../components/business-plan-tabs.tsx");
 
 test("L27.2A adds an owner-only Business Plan surface to Platform", () => {
   assert.match(routes, /businessPlan: "\/platform\/business-plan"/);
@@ -28,7 +32,8 @@ test("L27.2A external investor view is isolated, noindex and session-gated", () 
   assert.match(investorPage, /robots:[\s\S]*index: false[\s\S]*follow: false/);
   assert.match(investorPage, /validateInvestorBusinessPlanSession/);
   assert.match(investorPage, /Confidential investor room/);
-  assert.match(investorPage, /BusinessPlanView investorMode/);
+  assert.match(investorPage, /BusinessPlanHighlights investorMode/);
+  assert.match(investorDetailsPage, /BusinessPlanView investorMode/);
   assert.doesNotMatch(investorPage, /PlatformShell/);
 });
 
@@ -71,7 +76,7 @@ test("L27.2A.1 adds sourced market evidence, weighted ICP scoring and beachhead 
 
 
 test("L27.2A.2 adds a pre-committed ICP interview and validation framework", () => {
-  assert.match(content, /Investor Draft 0\.8/);
+  assert.match(content, /Investor Draft 0\.9/);
   assert.match(content, /export const interviewCohortPlan/);
   assert.match(content, /totalInterviews: 18/);
   assert.match(content, /interviews: 10/);
@@ -98,7 +103,7 @@ test("L27.2A.2 adds a pre-committed ICP interview and validation framework", () 
 
 
 test("L27.2B keeps the synthetic scenario clearly separated from customer evidence", () => {
-  assert.match(content, /Investor Draft 0\.8/);
+  assert.match(content, /Investor Draft 0\.9/);
   assert.match(content, /export const syntheticInterviewSimulation/);
   assert.match(content, /Synthetic scenario only/);
   assert.match(view, /Synthetic scenario · internal only/);
@@ -144,7 +149,7 @@ test("L27.2B.3 resets monetization to a permanent freemium product-led model", (
 
 
 test("L27.2C adds network economics, multiple income streams and scenario sensitivity without presenting forecasts as traction", () => {
-  assert.match(content, /Investor Draft 0\.8/);
+  assert.match(content, /Investor Draft 0\.9/);
   assert.match(content, /export const networkEconomicsThesis/);
   assert.match(content, /business network layer for the steel and tube industry/);
   assert.match(content, /Build the steel industry's business network first/);
@@ -179,4 +184,32 @@ test("L27.2C adds network economics, multiple income streams and scenario sensit
   assert.match(view, /Network scale sensitivity/);
   assert.match(view, /Sensitivity model · not forecast/);
   assert.match(view, /Investor milestones/);
+});
+
+
+test("L27.2D consolidates Business Plan v2 into distinct Highlights and Details pages", () => {
+  assert.match(content, /Investor Draft 0\.9/);
+  assert.match(content, /export const businessPlanHighlights/);
+  assert.match(content, /The business network for the steel industry/);
+  assert.match(content, /export const businessPlanTimeline/);
+  assert.match(content, /LAUNCH 2027/);
+  assert.match(content, /NETWORK SCALE/);
+  assert.match(content, /export const businessPlanGeneralHighlights/);
+  assert.match(routes, /businessPlanDetails: "\/platform\/business-plan\/details"/);
+  assert.match(ownerPage, /BusinessPlanTabs[\s\S]*active="highlights"/);
+  assert.match(ownerPage, /BusinessPlanHighlights/);
+  assert.match(ownerDetailsPage, /requirePlatformSuperadmin\(\)/);
+  assert.match(ownerDetailsPage, /BusinessPlanTabs[\s\S]*active="details"/);
+  assert.match(ownerDetailsPage, /BusinessPlanView/);
+  assert.match(investorPage, /BusinessPlanTabs[\s\S]*active="highlights"/);
+  assert.match(investorDetailsPage, /validateInvestorBusinessPlanSession/);
+  assert.match(investorDetailsPage, /robots:[\s\S]*index: false[\s\S]*follow: false/);
+  assert.match(investorDetailsPage, /BusinessPlanTabs[\s\S]*active="details"/);
+  assert.match(tabs, /Highlights/);
+  assert.match(tabs, /Details/);
+  assert.match(highlights, /Strategic timeline/);
+  assert.match(highlights, /Why investors should care/);
+  assert.match(highlights, /Scale sensitivity/);
+  assert.match(highlights, /Investor milestone ladder/);
+  assert.match(view, /The business network for steel &amp; tube\./);
 });
