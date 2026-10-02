@@ -1078,9 +1078,9 @@ export function BusinessPlanView({
             ))}
           </div>
           <div className="mt-6 rounded-2xl border border-dashed border-[#b8d2c8] bg-[#edf5f2] p-5">
-            <p className="text-sm font-semibold text-[#173f35]">Not fabricated yet</p>
+            <p className="text-sm font-semibold text-[#173f35]">Evidence discipline</p>
             <p className="mt-2 text-sm leading-6 text-[#52615b]">
-              TAM/SAM/SOM, pricing, revenue scenarios and unit economics will be added only after the corresponding L27.2 research blocks. The investor view distinguishes facts, working hypotheses and future evidence.
+              L27.2C now includes explicit sensitivity scenarios and economic guardrails, but they remain internal planning hypotheses rather than forecasts or traction. TAM/SAM/SOM and final break-even timing remain intentionally unclaimed until their evidence blocks are complete.
             </p>
           </div>
         </div>
