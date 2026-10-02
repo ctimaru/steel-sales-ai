@@ -372,7 +372,6 @@ create or replace function investor_private.l272d2_investor_kpi_snapshot_impl(
 )
 returns jsonb
 language plpgsql
-stable
 security definer
 set search_path = ''
 as $function$
@@ -470,7 +469,6 @@ create or replace function public.l272d2_investor_kpi_snapshot(
 )
 returns jsonb
 language sql
-stable
 security invoker
 set search_path = ''
 as $function$
