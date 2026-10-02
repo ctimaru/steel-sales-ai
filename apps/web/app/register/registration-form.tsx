@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { Input } from "@/components/ui/input";
@@ -52,10 +52,23 @@ export function CompanyRegistrationForm({
   initial?: InitialApplication | null;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
+  const mountedRef = useRef(false);
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [primaryType, setPrimaryType] = useState(initial?.primary_company_type ?? "");
   const [clientError, setClientError] = useState<string | null>(null);
   const [review, setReview] = useState<ReviewSummary | null>(null);
+
+  useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
+
+    const heading = formRef.current?.querySelector<HTMLElement>(
+      `[data-registration-step="${step}"] h2`,
+    );
+    heading?.focus();
+  }, [step]);
 
   function validateCurrentStep() {
     const container = formRef.current?.querySelector<HTMLElement>(
@@ -144,7 +157,7 @@ export function CompanyRegistrationForm({
       className="mt-8"
     >
       <div className="rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-4 sm:p-5">
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div role="list" aria-label="Avanzamento registrazione" className="grid gap-3 sm:grid-cols-3">
           {STEPS.map((item) => {
             const active = item.id === step;
             const completed = item.id < step;
@@ -152,6 +165,7 @@ export function CompanyRegistrationForm({
             return (
               <div
                 key={item.id}
+                role="listitem"
                 aria-current={active ? "step" : undefined}
                 className={[
                   "rounded-xl border px-4 py-3",
@@ -201,7 +215,7 @@ export function CompanyRegistrationForm({
       >
         <div>
           <p className="app-kicker">Dati essenziali</p>
-          <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">Identifichiamo l’azienda</h2>
+          <h2 tabIndex={-1} className="mt-2 text-xl font-semibold text-[#1d2824]">Identifichiamo l’azienda</h2>
           <p className="mt-2 text-sm leading-6 text-[#66736e]">
             Bastano pochi dati per inviare la richiesta. Le informazioni tecniche e commerciali
             potranno essere completate dopo l’attivazione.
@@ -288,7 +302,7 @@ export function CompanyRegistrationForm({
       >
         <div>
           <p className="app-kicker">Profilo operativo</p>
-          <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
+          <h2 tabIndex={-1} className="mt-2 text-xl font-semibold text-[#1d2824]">
             Come operate nel mercato?
           </h2>
           <p className="mt-2 text-sm leading-6 text-[#66736e]">
@@ -400,7 +414,7 @@ export function CompanyRegistrationForm({
       >
         <div>
           <p className="app-kicker">Ultimo controllo</p>
-          <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
+          <h2 tabIndex={-1} className="mt-2 text-xl font-semibold text-[#1d2824]">
             Tutto pronto per la revisione
           </h2>
           <p className="mt-2 text-sm leading-6 text-[#66736e]">

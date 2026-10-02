@@ -24,6 +24,9 @@ export const metadata: Metadata = {
 export default function PublicKnowledgeLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-[#f2f4f3] text-[#1d2824]">
+      <a href="#main-content" className="skip-link">
+        Vai al contenuto principale
+      </a>
       <header className="border-b border-[#dce2df] bg-white">
         <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-5">
@@ -98,7 +101,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
         </div>
       </header>
 
-      <main>{children}</main>
+      <main id="main-content" tabIndex={-1}>{children}</main>
 
       <footer className="mt-16 border-t border-[#dce2df] bg-white">
         <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 text-sm text-[#66736e] sm:px-6 md:grid-cols-[1fr_auto] lg:px-8">

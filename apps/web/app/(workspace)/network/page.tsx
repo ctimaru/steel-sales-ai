@@ -89,7 +89,7 @@ export default async function NetworkDirectoryPage({
     <div className="mx-auto max-w-7xl space-y-8">
       <PilotEvent eventName="network_directory_viewed" metadata={{ surface: "network_directory" }} />
 
-      <section className="overflow-hidden rounded-3xl border border-[#dce7f7] bg-white shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)]">
+      <section className="overflow-hidden rounded-3xl border border-[#dce2df] bg-white shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)]">
         <div className="h-1 bg-[#1a5144]" />
         <div className="p-6 sm:p-8">
           <div className="flex flex-wrap items-center gap-2">
@@ -136,7 +136,7 @@ export default async function NetworkDirectoryPage({
 
       <section id="directory" className="space-y-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">Directory aziende</p>
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Directory aziende</p>
           <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">Da dove vuoi partire?</h2>
           <p className="mt-1 text-sm text-[#66736e]">
             Per il tubo in Italia puoi entrare direttamente da una tipologia della filiera.
@@ -179,9 +179,10 @@ export default async function NetworkDirectoryPage({
           <div className="flex flex-col gap-2 sm:flex-row">
             <input
               name="q"
+              aria-label="Nome azienda o dominio"
               defaultValue={params.q ?? ""}
               placeholder="Nome azienda o dominio"
-              className="h-12 min-w-0 flex-1 rounded-xl border border-[#d7dfdb] px-4 text-sm text-[#1d2824] outline-none transition placeholder:text-[#9aa8ba] focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8]"
+              className="h-12 min-w-0 flex-1 rounded-xl border border-[#d7dfdb] px-4 text-sm text-[#1d2824] outline-none transition placeholder:text-[#66736e] focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8]"
             />
             <button className="h-12 rounded-xl bg-[#1a5144] px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-[#226657]">
               Cerca
@@ -198,7 +199,7 @@ export default async function NetworkDirectoryPage({
 
           <details
             open={hasAdvancedFilters}
-            className="rounded-2xl border border-[#e7edf5] bg-[#f8fafd]"
+            className="rounded-2xl border border-[#e7edf5] bg-[#f6f8f7]"
           >
             <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-[#43524c]">
               Filtri avanzati
@@ -209,7 +210,7 @@ export default async function NetworkDirectoryPage({
               )}
             </summary>
             <div className="grid gap-3 border-t border-[#e7edf5] p-4 sm:grid-cols-2 lg:grid-cols-5">
-              <select name="role" defaultValue={params.role ?? ""} className={selectClass()}>
+              <select name="role" aria-label="Ruolo azienda" defaultValue={params.role ?? ""} className={selectClass()}>
                 <option value="">Tutti i ruoli</option>
                 {taxonomy.roles.map((item) => (
                   <option key={item.canonical_key} value={item.canonical_key}>
@@ -217,7 +218,7 @@ export default async function NetworkDirectoryPage({
                   </option>
                 ))}
               </select>
-              <select name="product" defaultValue={params.product ?? ""} className={selectClass()}>
+              <select name="product" aria-label="Famiglia prodotto" defaultValue={params.product ?? ""} className={selectClass()}>
                 <option value="">Tutti i prodotti</option>
                 {taxonomy.products.map((item) => (
                   <option key={item.canonical_key} value={item.canonical_key}>
@@ -225,7 +226,7 @@ export default async function NetworkDirectoryPage({
                   </option>
                 ))}
               </select>
-              <select name="capability" defaultValue={params.capability ?? ""} className={selectClass()}>
+              <select name="capability" aria-label="Capability" defaultValue={params.capability ?? ""} className={selectClass()}>
                 <option value="">Tutte le capability</option>
                 {taxonomy.capabilities.map((item) => (
                   <option key={item.canonical_key} value={item.canonical_key}>
@@ -233,7 +234,7 @@ export default async function NetworkDirectoryPage({
                   </option>
                 ))}
               </select>
-              <select name="market" defaultValue={params.market ?? ""} className={selectClass()}>
+              <select name="market" aria-label="Mercato" defaultValue={params.market ?? ""} className={selectClass()}>
                 <option value="">Tutti i mercati</option>
                 {taxonomy.markets.map((item) => (
                   <option key={item.canonical_key} value={item.canonical_key}>
@@ -257,7 +258,7 @@ export default async function NetworkDirectoryPage({
       <section>
         <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">Risultati</p>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Risultati</p>
             <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">
               {results.total.toLocaleString("it-IT")} {results.total === 1 ? "azienda trovata" : "aziende trovate"}
             </h2>
@@ -342,7 +343,7 @@ export default async function NetworkDirectoryPage({
                     {company.products.slice(0, 2).map((product) => (
                       <span
                         key={product.key + product.relationship_type}
-                        className="rounded-full bg-[#f2f5f9] px-2.5 py-1 text-xs text-[#5f7088]"
+                        className="rounded-full bg-[#f2f5f9] px-2.5 py-1 text-xs text-[#5d6a65]"
                       >
                         {product.name}
                       </span>

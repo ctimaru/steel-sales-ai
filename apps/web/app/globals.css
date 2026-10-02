@@ -96,7 +96,55 @@ textarea {
 
 :focus-visible {
   outline: 2px solid var(--focus);
-  outline-offset: 2px;
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: calc(0.75rem + env(safe-area-inset-top));
+  z-index: 200;
+  transform: translateY(-180%);
+  border-radius: 0.75rem;
+  background: #123d34;
+  color: #ffffff;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(11, 47, 39, 0.18);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* HP17 — legacy low-contrast utility compatibility.
+   Keep older surfaces readable while they are progressively migrated to semantic tokens. */
+[class~="text-[#7b8782]"],
+[class~="text-[#87938e]"],
+[class~="text-[#8b9792]"],
+[class~="text-[#91a0b2]"],
+[class~="text-[#9aa49f]"],
+[class~="text-[#7f8da3]"],
+[class~="text-[#7f8b86]"],
+[class~="text-[#74817c]"] {
+  color: var(--muted-foreground) !important;
+}
+
+[class~="placeholder:text-[#8b9792]"]::placeholder,
+[class~="placeholder:text-[#87938e]"]::placeholder {
+  color: var(--muted-foreground) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
 
 ::selection {

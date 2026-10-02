@@ -24,6 +24,9 @@ export function PlatformShell({
 }) {
   return (
     <div className="min-h-screen bg-[#f2f4f3] text-[#1d2824]">
+      <a href="#main-content" className="skip-link">
+        Vai al contenuto principale
+      </a>
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-72 border-r border-[#dce2df] bg-[#eef1ef] lg:block">
         <div className="flex h-full flex-col">
           <div className="border-b border-[#dfe5e2] p-5">
@@ -104,7 +107,7 @@ export function PlatformShell({
           </div>
         </header>
 
-        <main className="p-4 sm:p-6 lg:p-8">{children}</main>
+        <main id="main-content" tabIndex={-1} className="p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );

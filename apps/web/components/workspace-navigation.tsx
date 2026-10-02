@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 
 import { appRoutes } from "@/lib/routes";
 import {
@@ -413,11 +413,54 @@ export function WorkspaceProfileMenu({
   logoutAction: () => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
   const initial = (viewerLabel.trim()[0] || "U").toUpperCase();
+
+  function closeMenu() {
+    setOpen(false);
+    queueMicrotask(() => triggerRef.current?.focus());
+  }
+
+  function handlePanelKeyDown(event: KeyboardEvent<HTMLElement>) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeMenu();
+      return;
+    }
+
+    if (event.key !== "Tab") return;
+    const focusable = Array.from(
+      panelRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ) ?? [],
+    );
+    if (focusable.length === 0) return;
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
 
   return (
     <div className="relative shrink-0">
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen(true)}
         className="flex items-center gap-1 rounded-full p-0.5 transition hover:bg-[#eef1ef]"
@@ -435,11 +478,18 @@ export function WorkspaceProfileMenu({
           <button
             type="button"
             aria-label="Chiudi menu profilo"
-            onClick={() => setOpen(false)}
+            onClick={closeMenu}
             className="fixed inset-0 z-50 cursor-default bg-black/25 lg:bg-black/10"
           />
 
-          <aside className="fixed inset-y-0 left-0 z-[60] flex h-dvh w-[86vw] max-w-sm flex-col overflow-hidden border-r border-[#d7dfdb] bg-white pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] shadow-2xl lg:absolute lg:inset-y-auto lg:left-auto lg:right-0 lg:top-12 lg:h-auto lg:max-h-[78vh] lg:w-[360px] lg:rounded-2xl lg:border lg:pb-0 lg:pt-0">
+          <aside
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu profilo"
+            onKeyDown={handlePanelKeyDown}
+            className="fixed inset-y-0 left-0 z-[60] flex h-dvh w-[86vw] max-w-sm flex-col overflow-hidden border-r border-[#d7dfdb] bg-white pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] shadow-2xl lg:absolute lg:inset-y-auto lg:left-auto lg:right-0 lg:top-12 lg:h-auto lg:max-h-[78vh] lg:w-[360px] lg:rounded-2xl lg:border lg:pb-0 lg:pt-0"
+          >
             <div className="flex items-start justify-between gap-3 bg-[#f2f4f3] p-5 lg:p-4">
               <div className="flex min-w-0 items-start gap-3">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#173f35] text-sm font-bold text-white">
@@ -453,7 +503,8 @@ export function WorkspaceProfileMenu({
               </div>
               <button
                 type="button"
-                onClick={() => setOpen(false)}
+                autoFocus
+                onClick={closeMenu}
                 aria-label="Chiudi"
                 className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xl text-[#66736e] hover:bg-white hover:text-[#1d2824]"
               >
@@ -468,11 +519,11 @@ export function WorkspaceProfileMenu({
                 </p>
                 {canWrite ? (
                   <>
-                    <ProfileMenuLink href={appRoutes.operations.uploads} label="Importa documenti" onNavigate={() => setOpen(false)} />
-                    <ProfileMenuLink href={appRoutes.operations.review} label="Correzioni" onNavigate={() => setOpen(false)} />
+                    <ProfileMenuLink href={appRoutes.operations.uploads} label="Importa documenti" onNavigate={closeMenu} />
+                    <ProfileMenuLink href={appRoutes.operations.review} label="Correzioni" onNavigate={closeMenu} />
                   </>
                 ) : null}
-                <ProfileMenuLink href={appRoutes.operations.alerts} label="Alert operativi" onNavigate={() => setOpen(false)} />
+                <ProfileMenuLink href={appRoutes.operations.alerts} label="Alert operativi" onNavigate={closeMenu} />
               </div>
 
               <div className="mt-2 border-t border-[#e2e7e4] pt-2">
@@ -481,14 +532,14 @@ export function WorkspaceProfileMenu({
                 </p>
                 {canAdmin ? (
                   <>
-                    <ProfileMenuLink href={appRoutes.company.setup} label="Setup azienda" onNavigate={() => setOpen(false)} />
-                    <ProfileMenuLink href={appRoutes.company.team} label="Team e accessi" onNavigate={() => setOpen(false)} />
-                    <ProfileMenuLink href={appRoutes.company.profile} label="Profilo azienda" onNavigate={() => setOpen(false)} />
-                    <ProfileMenuLink href={appRoutes.company.dataSources} label="Fonti e import" onNavigate={() => setOpen(false)} />
-                    <ProfileMenuLink href={appRoutes.company.pilotAnalytics} label="Pilot analytics" onNavigate={() => setOpen(false)} />
+                    <ProfileMenuLink href={appRoutes.company.setup} label="Setup azienda" onNavigate={closeMenu} />
+                    <ProfileMenuLink href={appRoutes.company.team} label="Team e accessi" onNavigate={closeMenu} />
+                    <ProfileMenuLink href={appRoutes.company.profile} label="Profilo azienda" onNavigate={closeMenu} />
+                    <ProfileMenuLink href={appRoutes.company.dataSources} label="Fonti e import" onNavigate={closeMenu} />
+                    <ProfileMenuLink href={appRoutes.company.pilotAnalytics} label="Pilot analytics" onNavigate={closeMenu} />
                   </>
                 ) : null}
-                <ProfileMenuLink href={appRoutes.company.tubesStandards} label="Strumenti tubi & norme" onNavigate={() => setOpen(false)} />
+                <ProfileMenuLink href={appRoutes.company.tubesStandards} label="Strumenti tubi & norme" onNavigate={closeMenu} />
               </div>
 
               {platformSuperadmin ? (
@@ -500,7 +551,7 @@ export function WorkspaceProfileMenu({
                     href={appRoutes.platform.home}
                     label="Platform Console ↗"
                     emphasis
-                    onNavigate={() => setOpen(false)}
+                    onNavigate={closeMenu}
                   />
                 </div>
               ) : null}

@@ -283,7 +283,7 @@ export default async function PlatformPeoplePage({
         </div>
 
         <div className="rounded-3xl border border-[#dce2df] bg-white p-6">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">
             Authority model
           </p>
           <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">
@@ -389,7 +389,7 @@ export default async function PlatformPeoplePage({
 
       <section className="space-y-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">
             Delegated administration
           </p>
           <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">
@@ -582,7 +582,7 @@ export default async function PlatformPeoplePage({
       <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">
               Invitation lifecycle
             </p>
             <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">

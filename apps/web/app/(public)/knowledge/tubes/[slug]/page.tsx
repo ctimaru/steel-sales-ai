@@ -205,7 +205,7 @@ export default async function TubeDimensionPage({
     datePublished: dimension.published_at,
     author: {
       "@type": "Organization",
-      name: "Steel Sales AI",
+      name: "Smart Steel Sales",
     },
     citation: dimension.source_url,
   };
@@ -290,19 +290,19 @@ export default async function TubeDimensionPage({
       />
 
       <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
-        <Link href="/knowledge" className="hover:text-[#2f6fed]">Steel Knowledge</Link>
+        <Link href="/knowledge" className="hover:text-[#1a5144]">Steel Knowledge</Link>
         <span className="mx-2">/</span>
-        <Link href="/knowledge/tubes" className="hover:text-[#2f6fed]">Pesi &amp; dimensioni</Link>
+        <Link href="/knowledge/tubes" className="hover:text-[#1a5144]">Pesi &amp; dimensioni</Link>
         {family ? (
           <>
             <span className="mx-2">/</span>
-            <Link href={tubeFamilyHubPath(family.slug)} className="hover:text-[#2f6fed]">{family.label}</Link>
+            <Link href={tubeFamilyHubPath(family.slug)} className="hover:text-[#1a5144]">{family.label}</Link>
           </>
         ) : null}
         {family && sizeHub ? (
           <>
             <span className="mx-2">/</span>
-            <Link href={tubeSizeHubPath(family.slug, sizeHub.size_slug)} className="hover:text-[#2f6fed]">
+            <Link href={tubeSizeHubPath(family.slug, sizeHub.size_slug)} className="hover:text-[#1a5144]">
               {dimension.product_family === "round_tube"
                 ? "Ø " + formatNumber(dimension.outer_diameter_mm ?? 0) + " mm"
                 : formatNumber(dimension.width_mm ?? 0) +
@@ -316,21 +316,21 @@ export default async function TubeDimensionPage({
         <span>{size}</span>
       </nav>
 
-      <header className="rounded-3xl border border-[#dce7f7] bg-white p-6 shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)] sm:p-8 lg:p-10">
+      <header className="rounded-3xl border border-[#dce2df] bg-white p-6 shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)] sm:p-8 lg:p-10">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-[#eef5ff] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#2f6fed]">
+          <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
             {product}
           </span>
           <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">
             Peso pubblicato
           </span>
         </div>
-        <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#1e2b45] sm:text-5xl">
+        <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-5xl">
           {title}
         </h1>
-        <p className="mt-5 max-w-3xl text-base leading-7 text-[#68788e]">
+        <p className="mt-5 max-w-3xl text-base leading-7 text-[#66736e]">
           Il riferimento disponibile per questa geometria è{" "}
-          <strong className="font-semibold text-[#1e2b45]">{formatNumber(dimension.weight_kg_m)} kg/m</strong>.
+          <strong className="font-semibold text-[#1d2824]">{formatNumber(dimension.weight_kg_m)} kg/m</strong>.
           Qui trovi il peso per barra, la conversione in tonnellate, il confronto con il calcolo geometrico e
           le dimensioni vicine già presenti nel catalogo.
         </p>
@@ -343,20 +343,20 @@ export default async function TubeDimensionPage({
           ["Barra 12 m", formatNumber(weight12m, 2) + " kg"],
           ["Metri per tonnellata", formatNumber(metresPerTonne, 2) + " m/t"],
         ].map(([label, value]) => (
-          <div key={label} className="rounded-2xl border border-[#e1e8f2] bg-white p-5">
+          <div key={label} className="rounded-2xl border border-[#dce2df] bg-white p-5">
             <p className="text-xs font-semibold text-[#7e8da1]">{label}</p>
-            <p className="mt-1 text-xl font-semibold text-[#1e2b45]">{value}</p>
+            <p className="mt-1 text-xl font-semibold text-[#1d2824]">{value}</p>
           </div>
         ))}
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Calcolo rapido</p>
-          <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">
+        <div className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Calcolo rapido</p>
+          <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">
             Da {formatNumber(dimension.weight_kg_m)} kg/m alla quantità commerciale
           </h2>
-          <p className="mt-3 text-sm leading-7 text-[#68788e]">
+          <p className="mt-3 text-sm leading-7 text-[#66736e]">
             Il peso per barra deriva direttamente dal valore pubblicato: kg/m × lunghezza. Una tonnellata teorica
             corrisponde a circa {formatNumber(bars6PerTonne, 2)} barre da 6 m oppure {formatNumber(bars12PerTonne, 2)} barre
             da 12 m. I numeri di barre per tonnellata sono rapporti matematici e non tengono conto di tolleranze,
@@ -364,42 +364,42 @@ export default async function TubeDimensionPage({
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-[#e1e8f2] bg-[#f8fbff] p-4">
+            <div className="rounded-2xl border border-[#dce2df] bg-[#f6f8f7] p-4">
               <p className="text-xs font-semibold text-[#7e8da1]">Circa barre da 6 m / t</p>
-              <p className="mt-1 text-lg font-semibold text-[#1e2b45]">{formatNumber(bars6PerTonne, 2)}</p>
+              <p className="mt-1 text-lg font-semibold text-[#1d2824]">{formatNumber(bars6PerTonne, 2)}</p>
             </div>
-            <div className="rounded-2xl border border-[#e1e8f2] bg-[#f8fbff] p-4">
+            <div className="rounded-2xl border border-[#dce2df] bg-[#f6f8f7] p-4">
               <p className="text-xs font-semibold text-[#7e8da1]">Circa barre da 12 m / t</p>
-              <p className="mt-1 text-lg font-semibold text-[#1e2b45]">{formatNumber(bars12PerTonne, 2)}</p>
+              <p className="mt-1 text-lg font-semibold text-[#1d2824]">{formatNumber(bars12PerTonne, 2)}</p>
             </div>
           </div>
 
           <Link
             href={calculatorHref(dimension)}
-            className="mt-6 inline-flex rounded-xl bg-[#2f6fed] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#245ed1]"
+            className="mt-6 inline-flex rounded-xl bg-[#1a5144] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#226657]"
           >
             Apri questa misura nel calcolatore →
           </Link>
         </div>
 
-        <div className="rounded-3xl border border-[#dbe7f7] bg-[#f8fbff] p-6 sm:p-8">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Confronto teorico</p>
-          <h2 className="mt-2 text-xl font-semibold text-[#1e2b45]">Geometria nominale a 7.850 kg/m³</h2>
+        <div className="rounded-3xl border border-[#d9e8e2] bg-[#f6f8f7] p-6 sm:p-8">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Confronto teorico</p>
+          <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">Geometria nominale a 7.850 kg/m³</h2>
           <div className="mt-5 space-y-3">
             <div className="flex items-center justify-between gap-4 border-b border-[#dfe8f4] pb-3 text-sm">
-              <span className="text-[#68788e]">Area teorica</span>
-              <strong className="text-[#1e2b45]">{formatNumber(theoretical.areaMm2, 2)} mm²</strong>
+              <span className="text-[#66736e]">Area teorica</span>
+              <strong className="text-[#1d2824]">{formatNumber(theoretical.areaMm2, 2)} mm²</strong>
             </div>
             <div className="flex items-center justify-between gap-4 border-b border-[#dfe8f4] pb-3 text-sm">
-              <span className="text-[#68788e]">Peso teorico</span>
-              <strong className="text-[#1e2b45]">{formatNumber(theoretical.kgM)} kg/m</strong>
+              <span className="text-[#66736e]">Peso teorico</span>
+              <strong className="text-[#1d2824]">{formatNumber(theoretical.kgM)} kg/m</strong>
             </div>
             <div className="flex items-center justify-between gap-4 text-sm">
-              <span className="text-[#68788e]">Scostamento pubblicato / teorico</span>
-              <strong className="text-[#1e2b45]">{formatNumber(deltaPercent, 2)}%</strong>
+              <span className="text-[#66736e]">Scostamento pubblicato / teorico</span>
+              <strong className="text-[#1d2824]">{formatNumber(deltaPercent, 2)}%</strong>
             </div>
           </div>
-          <p className="mt-5 text-xs leading-5 text-[#68788e]">
+          <p className="mt-5 text-xs leading-5 text-[#66736e]">
             {dimension.product_family === "round_tube"
               ? "Il valore teorico usa diametro e spessore nominali. Il peso pubblicato resta il riferimento distinto mostrato in alto."
               : "Per SHS/RHS la formula usa spigoli vivi; i raggi reali degli angoli sono una delle ragioni per cui il dato pubblicato può differire."}
@@ -407,10 +407,10 @@ export default async function TubeDimensionPage({
         </div>
       </section>
 
-      <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">Fonte del peso</p>
-        <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">{dimension.source_provider}</h2>
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-[#68788e]">
+      <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Fonte del peso</p>
+        <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">{dimension.source_provider}</h2>
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-[#66736e]">
           Il valore di {formatNumber(dimension.weight_kg_m)} kg/m proviene dal riferimento tecnico indicato qui sotto.
           Steel Knowledge mostra la fonte pubblica e mantiene separati i dati di catalogo dai calcoli geometrici.
           Un peso pubblicato non sostituisce le tolleranze, la norma di prodotto o il certificato della fornitura.
@@ -419,21 +419,21 @@ export default async function TubeDimensionPage({
           href={dimension.source_url}
           target="_blank"
           rel="noreferrer"
-          className="mt-4 inline-flex text-sm font-semibold text-[#2f6fed]"
+          className="mt-4 inline-flex text-sm font-semibold text-[#1a5144]"
         >
           {dimension.source_name ?? dimension.source_provider} ↗
         </a>
       </section>
 
       {family && sizeHub ? (
-        <section className="rounded-3xl border border-[#dbe7f7] bg-[#f8fbff] p-5 sm:p-6">
-          <p className="text-sm font-semibold text-[#1e2b45]">Vuoi confrontare tutti gli spessori?</p>
-          <p className="mt-1 text-sm leading-6 text-[#68788e]">
+        <section className="rounded-3xl border border-[#d9e8e2] bg-[#f6f8f7] p-5 sm:p-6">
+          <p className="text-sm font-semibold text-[#1d2824]">Vuoi confrontare tutti gli spessori?</p>
+          <p className="mt-1 text-sm leading-6 text-[#66736e]">
             Questa dimensione esterna ha {sizeHub.variant_count} riferimenti canonici nello stesso cluster.
           </p>
           <Link
             href={tubeSizeHubPath(family.slug, sizeHub.size_slug)}
-            className="mt-3 inline-flex text-sm font-semibold text-[#2f6fed]"
+            className="mt-3 inline-flex text-sm font-semibold text-[#1a5144]"
           >
             Apri il confronto per spessore →
           </Link>
@@ -441,10 +441,10 @@ export default async function TubeDimensionPage({
       ) : null}
 
       {dimension.related_dimensions.length ? (
-        <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Dimensioni correlate</p>
-          <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">Confronta misure vicine</h2>
-          <p className="mt-2 text-sm leading-6 text-[#68788e]">
+        <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Dimensioni correlate</p>
+          <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">Confronta misure vicine</h2>
+          <p className="mt-2 text-sm leading-6 text-[#66736e]">
             Prima vengono proposti gli altri spessori della stessa dimensione esterna, poi le geometrie più vicine
             disponibili nel catalogo.
           </p>
@@ -453,24 +453,24 @@ export default async function TubeDimensionPage({
               <Link
                 key={related.dimension_slug}
                 href={"/knowledge/tubes/" + related.dimension_slug}
-                className="rounded-2xl border border-[#e1e8f2] bg-[#f8fbff] p-4 transition hover:border-[#bdd1f4]"
+                className="rounded-2xl border border-[#dce2df] bg-[#f6f8f7] p-4 transition hover:border-[#b8d2c8]"
               >
-                <p className="font-semibold text-[#1e2b45]">{relatedLabel(related)}</p>
-                <p className="mt-2 text-sm text-[#68788e]">{formatNumber(related.weight_kg_m)} kg/m</p>
-                <p className="mt-3 text-xs font-semibold text-[#2f6fed]">Apri scheda →</p>
+                <p className="font-semibold text-[#1d2824]">{relatedLabel(related)}</p>
+                <p className="mt-2 text-sm text-[#66736e]">{formatNumber(related.weight_kg_m)} kg/m</p>
+                <p className="mt-3 text-xs font-semibold text-[#1a5144]">Apri scheda →</p>
               </Link>
             ))}
           </div>
         </section>
       ) : null}
 
-      <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
-        <h2 className="text-2xl font-semibold text-[#1e2b45]">Domande frequenti</h2>
+      <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+        <h2 className="text-2xl font-semibold text-[#1d2824]">Domande frequenti</h2>
         <div className="mt-4 divide-y divide-[#e8eef7]">
           {faq.map((item) => (
             <div key={item.question} className="py-4">
-              <h3 className="text-sm font-semibold text-[#1e2b45]">{item.question}</h3>
-              <p className="mt-2 text-sm leading-6 text-[#68788e]">{item.answer}</p>
+              <h3 className="text-sm font-semibold text-[#1d2824]">{item.question}</h3>
+              <p className="mt-2 text-sm leading-6 text-[#66736e]">{item.answer}</p>
             </div>
           ))}
         </div>
@@ -479,19 +479,19 @@ export default async function TubeDimensionPage({
       <section className="grid gap-4 sm:grid-cols-3">
         <Link
           href="/knowledge/tubes"
-          className="rounded-2xl border border-[#e1e8f2] bg-white p-5 text-sm font-semibold text-[#2f6fed] hover:border-[#bdd1f4]"
+          className="rounded-2xl border border-[#dce2df] bg-white p-5 text-sm font-semibold text-[#1a5144] hover:border-[#b8d2c8]"
         >
           ← Calcolatore e dimensioni
         </Link>
         <Link
           href="/knowledge/norme"
-          className="rounded-2xl border border-[#e1e8f2] bg-white p-5 text-sm font-semibold text-[#2f6fed] hover:border-[#bdd1f4]"
+          className="rounded-2xl border border-[#dce2df] bg-white p-5 text-sm font-semibold text-[#1a5144] hover:border-[#b8d2c8]"
         >
           Esplora le norme →
         </Link>
         <Link
           href="/knowledge/gradi"
-          className="rounded-2xl border border-[#d7e5ff] bg-[#eef5ff] p-5 text-sm font-semibold text-[#2f6fed] hover:border-[#bdd1f4]"
+          className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-5 text-sm font-semibold text-[#1a5144] hover:border-[#b8d2c8]"
         >
           Esplora i gradi →
         </Link>

@@ -142,10 +142,11 @@ export default async function MarketplaceFeedPage({
 
       <form method="get" className="grid gap-3 rounded-2xl border border-[#dce2df] bg-white p-4 md:grid-cols-[1.4fr_0.7fr_0.8fr_auto] md:items-end">
         <div>
-          <label className="text-xs font-bold uppercase tracking-[0.12em] text-[#7b8782]">
+          <label htmlFor="marketplace-product-filter" className="text-xs font-bold uppercase tracking-[0.12em] text-[#7b8782]">
             Prodotto
           </label>
           <select
+            id="marketplace-product-filter"
             name="product"
             defaultValue={params.product || ""}
             className="mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#43524c] outline-none focus:border-[#438d7a] focus:ring-4 focus:ring-[#e1ece8]"
@@ -158,10 +159,11 @@ export default async function MarketplaceFeedPage({
         </div>
 
         <div>
-          <label className="text-xs font-bold uppercase tracking-[0.12em] text-[#7b8782]">
+          <label htmlFor="marketplace-country-filter" className="text-xs font-bold uppercase tracking-[0.12em] text-[#7b8782]">
             Paese consegna
           </label>
           <input
+            id="marketplace-country-filter"
             name="country"
             defaultValue={params.country || ""}
             maxLength={2}
@@ -171,13 +173,14 @@ export default async function MarketplaceFeedPage({
         </div>
 
         <div>
-          <label className="text-xs font-bold uppercase tracking-[0.12em] text-[#7b8782]">
+          <label htmlFor="marketplace-closing-filter" className="text-xs font-bold uppercase tracking-[0.12em] text-[#7b8782]">
             Scadenza
           </label>
           <select
+            id="marketplace-closing-filter"
             name="closing"
             defaultValue={params.closing || ""}
-            className="mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#43524c] outline-none focus:border-[#438d7a]"
+            className="mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#43524c] outline-none focus:border-[#438d7a] focus:ring-4 focus:ring-[#e1ece8]"
           >
             <option value="">Tutte aperte</option>
             <option value="24">Entro 24 ore</option>

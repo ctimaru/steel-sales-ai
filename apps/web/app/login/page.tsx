@@ -28,9 +28,9 @@ export default async function LoginPage({
           <span className="mt-16 inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#d9e8e2]">
             Smart Steel Sales
           </span>
-          <h1 className="mt-6 max-w-xl text-5xl font-semibold leading-[1.05] tracking-[-0.04em]">
+          <h2 className="mt-6 max-w-xl text-5xl font-semibold leading-[1.05] tracking-[-0.04em]">
             Il lavoro commerciale, finalmente in un unico posto.
-          </h1>
+          </h2>
           <p className="mt-6 max-w-lg text-lg leading-8 text-[#c6d8d1]">
             Memoria commerciale privata, Network industriale, Marketplace e conoscenza tecnica
             costruiti intorno al settore steel.
@@ -60,9 +60,9 @@ export default async function LoginPage({
           </div>
 
           <p className="app-kicker mt-8 lg:mt-0">Bentornato</p>
-          <h2 className="mt-2 text-3xl font-semibold tracking-[-0.02em] text-[#1d2824]">
+          <h1 className="mt-2 text-3xl font-semibold tracking-[-0.02em] text-[#1d2824]">
             Accedi al tuo workspace
-          </h2>
+          </h1>
           <p className="mt-3 text-sm leading-6 text-[#66736e]">
             Usa le credenziali associate alla tua azienda. Se stai registrando una nuova azienda,
             continua dal percorso dedicato.
@@ -78,7 +78,7 @@ export default async function LoginPage({
           ) : null}
 
           {message ? (
-            <div className="mt-6 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-4 py-3 text-sm text-[#173f35]">
+            <div role="status" aria-live="polite" className="mt-6 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-4 py-3 text-sm text-[#173f35]">
               {message}
             </div>
           ) : null}

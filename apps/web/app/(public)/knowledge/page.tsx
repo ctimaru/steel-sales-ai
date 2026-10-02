@@ -6,7 +6,7 @@ import { absoluteUrl } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Norme, gradi, pesi e dimensioni dell'acciaio",
   description:
-    "Steel Knowledge è la base tecnica pubblica di Steel Sales AI: guide su norme e gradi di acciaio, pesi, dimensioni e strumenti pratici per il settore steel e tube.",
+    "Steel Knowledge è la base tecnica pubblica di Smart Steel Sales: guide su norme e gradi di acciaio, pesi, dimensioni e strumenti pratici per il settore steel e tube.",
   alternates: {
     canonical: absoluteUrl("/knowledge"),
   },
@@ -56,22 +56,22 @@ const knowledgeAreas = [
 export default function KnowledgeHomePage() {
   return (
     <div className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-      <section className="overflow-hidden rounded-3xl border border-[#dce7f7] bg-white shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)]">
-        <div className="h-1 bg-[#2f6fed]" />
+      <section className="overflow-hidden rounded-3xl border border-[#dce2df] bg-white shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)]">
+        <div className="h-1 bg-[#1a5144]" />
         <div className="p-6 sm:p-8 lg:p-10">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-[#eef5ff] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#2f6fed]">
+            <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
               Steel Knowledge
             </span>
-            <span className="rounded-full bg-[#eef5ff] px-3 py-1 text-[11px] font-semibold text-[#2f6fed]">
+            <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[11px] font-semibold text-[#1a5144]">
               Pubblico
             </span>
           </div>
 
-          <h1 className="mt-5 max-w-4xl text-3xl font-semibold tracking-tight text-[#1e2b45] sm:text-5xl">
+          <h1 className="mt-5 max-w-4xl text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-5xl">
             Conoscenza tecnica per chi lavora con acciaio e tubi
           </h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-[#68788e] sm:text-lg">
+          <p className="mt-4 max-w-3xl text-base leading-7 text-[#66736e] sm:text-lg">
             Norme, gradi di acciaio, dimensioni, pesi e strumenti pratici spiegati in modo accessibile.
             Steel Knowledge è consultabile senza account ed è separato dai dati commerciali privati delle aziende.
           </p>
@@ -80,11 +80,11 @@ export default function KnowledgeHomePage() {
 
       <section aria-labelledby="knowledge-paths">
         <div className="max-w-3xl">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">Esplora</p>
-          <h2 id="knowledge-paths" className="mt-2 text-2xl font-semibold text-[#1e2b45]">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Esplora</p>
+          <h2 id="knowledge-paths" className="mt-2 text-2xl font-semibold text-[#1d2824]">
             Trova il contenuto tecnico dal problema che devi risolvere
           </h2>
-          <p className="mt-2 text-sm leading-6 text-[#68788e]">
+          <p className="mt-2 text-sm leading-6 text-[#66736e]">
             La struttura è pensata per portare rapidamente dalla domanda alla norma, al grado o allo strumento corretto,
             senza trasformare la pagina in un catalogo di dati interni.
           </p>
@@ -95,17 +95,17 @@ export default function KnowledgeHomePage() {
             const body = (
               <>
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#2f6fed]">{area.eyebrow}</p>
-                  <span className="rounded-full bg-[#f2f5f9] px-2.5 py-1 text-[10px] font-semibold text-[#68788e]">
+                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">{area.eyebrow}</p>
+                  <span className="rounded-full bg-[#ecefed] px-2.5 py-1 text-[10px] font-semibold text-[#66736e]">
                     {area.status}
                   </span>
                 </div>
-                <h3 className="mt-4 text-lg font-semibold text-[#1e2b45]">{area.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-[#68788e]">{area.description}</p>
+                <h3 className="mt-4 text-lg font-semibold text-[#1d2824]">{area.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-[#66736e]">{area.description}</p>
                 {"href" in area ? (
-                  <p className="mt-5 text-xs font-semibold text-[#2f6fed]">Apri sezione →</p>
+                  <p className="mt-5 text-xs font-semibold text-[#1a5144]">Apri sezione →</p>
                 ) : (
-                  <p className="mt-5 text-xs font-semibold text-[#8a99ac]">Guide in preparazione</p>
+                  <p className="mt-5 text-xs font-semibold text-[#66736e]">Guide in preparazione</p>
                 )}
               </>
             );
@@ -114,12 +114,12 @@ export default function KnowledgeHomePage() {
               <Link
                 key={area.eyebrow}
                 href={area.href}
-                className="rounded-2xl border border-[#dbe7f7] bg-white p-5 transition hover:border-[#bdd1f4] hover:shadow-sm"
+                className="rounded-2xl border border-[#d9e8e2] bg-white p-5 transition hover:border-[#b8d2c8] hover:shadow-sm"
               >
                 {body}
               </Link>
             ) : (
-              <article key={area.eyebrow} className="rounded-2xl border border-[#e1e8f2] bg-white p-5">
+              <article key={area.eyebrow} className="rounded-2xl border border-[#dce2df] bg-white p-5">
                 {body}
               </article>
             );
@@ -127,38 +127,38 @@ export default function KnowledgeHomePage() {
         </div>
       </section>
 
-      <section className="grid gap-5 rounded-3xl border border-[#dbe7f7] bg-[#f8fbff] p-6 sm:p-8 lg:grid-cols-[1fr_0.8fr]">
+      <section className="grid gap-5 rounded-3xl border border-[#d9e8e2] bg-[#f6f8f7] p-6 sm:p-8 lg:grid-cols-[1fr_0.8fr]">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Principio editoriale</p>
-          <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">Prima utilità, poi prodotto</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#68788e]">
-            Ogni pagina pubblica deve rispondere a una domanda reale del settore. Le funzioni di Steel Sales AI
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Principio editoriale</p>
+          <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">Prima utilità, poi prodotto</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#66736e]">
+            Ogni pagina pubblica deve rispondere a una domanda reale del settore. Le funzioni di Smart Steel Sales
             entrano in scena solo quando possono aiutare a continuare il lavoro: approfondire un dato, trovare
             un&apos;azienda nel Network o portare l&apos;informazione nella Commercial Memory.
           </p>
         </div>
-        <div className="rounded-2xl border border-[#e1e8f2] bg-white p-5">
-          <p className="text-sm font-semibold text-[#1e2b45]">Qualità e fonti</p>
-          <p className="mt-2 text-sm leading-6 text-[#68788e]">
+        <div className="rounded-2xl border border-[#dce2df] bg-white p-5">
+          <p className="text-sm font-semibold text-[#1d2824]">Qualità e fonti</p>
+          <p className="mt-2 text-sm leading-6 text-[#66736e]">
             Le pagine distinguono spiegazioni editoriali, valori calcolati e riferimenti tecnici verificati.
             Il testo ufficiale delle norme non viene riprodotto quando protetto da licenza o copyright.
           </p>
         </div>
       </section>
 
-      <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
+      <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Pesi & dimensioni</p>
-            <h2 className="mt-2 text-xl font-semibold text-[#1e2b45]">Base tecnica tubi</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#68788e]">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Pesi & dimensioni</p>
+            <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">Base tecnica tubi</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#66736e]">
               La sezione pubblica dedicata a dimensioni e pesi include il calcolatore, i riferimenti canonici
               e i cluster per famiglia, dimensione esterna e spessore.
             </p>
           </div>
           <Link
             href="/knowledge/tubes"
-            className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl bg-[#2f6fed] px-5 text-sm font-semibold text-white hover:bg-[#245ed1]"
+            className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl bg-[#1a5144] px-5 text-sm font-semibold text-white hover:bg-[#226657]"
           >
             Apri pesi & dimensioni →
           </Link>

@@ -252,7 +252,7 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      <section className="rounded-3xl border border-[#dbe7f7] bg-[#f6f8f7] p-6 sm:p-7">
+      <section className="rounded-3xl border border-[#dce2df] bg-[#f6f8f7] p-6 sm:p-7">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#173f35]">Commercial Memory</p>
@@ -412,7 +412,7 @@ export default async function DashboardPage() {
         </div>
         <div className="grid gap-4 lg:grid-cols-3">
           {networkEnabled ? (
-            <Link href={appRoutes.network.directory} className="rounded-3xl border border-[#dbe7f7] bg-white p-6 hover:border-[#b8d2c8] hover:shadow-sm">
+            <Link href={appRoutes.network.directory} className="rounded-3xl border border-[#dce2df] bg-white p-6 hover:border-[#b8d2c8] hover:shadow-sm">
               <div className="flex items-center justify-between gap-3">
                 <span className="rounded-full bg-[#edf5f2] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#173f35]">
                   Condiviso
@@ -424,15 +424,15 @@ export default async function DashboardPage() {
                 Company Profile, directory industriale, aziende seguite, activity e inquiry B2B.
               </p>
               <div className="mt-5 grid grid-cols-3 gap-2 text-center">
-                <div className="rounded-xl bg-[#f8fafd] p-3">
+                <div className="rounded-xl bg-[#f6f8f7] p-3">
                   <p className="metric-number text-lg font-semibold text-[#1d2824]">{saved.length}</p>
                   <p className="text-[10px] text-[#78857f]">Salvate</p>
                 </div>
-                <div className="rounded-xl bg-[#f8fafd] p-3">
+                <div className="rounded-xl bg-[#f6f8f7] p-3">
                   <p className="metric-number text-lg font-semibold text-[#1d2824]">{followed.total}</p>
                   <p className="text-[10px] text-[#78857f]">Seguite</p>
                 </div>
-                <div className="rounded-xl bg-[#f8fafd] p-3">
+                <div className="rounded-xl bg-[#f6f8f7] p-3">
                   <p className="metric-number text-lg font-semibold text-[#1d2824]">{received.total}</p>
                   <p className="text-[10px] text-[#78857f]">Inquiry</p>
                 </div>
@@ -441,7 +441,7 @@ export default async function DashboardPage() {
           ) : null}
 
           {networkEnabled ? (
-            <Link href={appRoutes.marketplace.home} className="rounded-3xl border border-[#dbe7f7] bg-[#f6f8f7] p-6 hover:border-[#b8d2c8]">
+            <Link href={appRoutes.marketplace.home} className="rounded-3xl border border-[#dce2df] bg-[#f6f8f7] p-6 hover:border-[#b8d2c8]">
               <div className="flex items-center justify-between gap-3">
                 <span className="rounded-full bg-[#edf5f2] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#173f35]">
                   Condiviso
@@ -458,7 +458,7 @@ export default async function DashboardPage() {
             </Link>
           ) : null}
 
-          <Link href={appRoutes.knowledge.workspace} className="rounded-3xl border border-[#dbe7f7] bg-white p-6 hover:border-[#b8d2c8] hover:shadow-sm">
+          <Link href={appRoutes.knowledge.workspace} className="rounded-3xl border border-[#dce2df] bg-white p-6 hover:border-[#b8d2c8] hover:shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <span className="rounded-full bg-[#edf5f2] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#173f35]">
                 Condiviso
