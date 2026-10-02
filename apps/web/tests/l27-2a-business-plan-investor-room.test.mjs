@@ -42,10 +42,29 @@ test("L27.2A investor session cookie is httpOnly, secure in production and scope
 
 test("L27.2A visual plan distinguishes hypotheses from evidence", () => {
   assert.match(content, /Commercianti \/ stockholder di tubi e acciaio/);
-  assert.match(content, /Working hypothesis/);
+  assert.match(content, /Evidence-supported hypothesis/);
   assert.match(content, /Sales Director \/ Direttore Commerciale/);
   assert.match(content, /L27\.2B/);
   assert.match(view, /What is proven vs\. what is still a hypothesis/);
   assert.match(view, /TAM\/SAM\/SOM, pricing, revenue scenarios and unit economics/);
   assert.match(view, /Not fabricated yet/);
+});
+
+
+test("L27.2A.1 adds sourced market evidence, weighted ICP scoring and beachhead definition", () => {
+  assert.match(content, /ASSOFERMET Acciai member companies/);
+  assert.match(content, /about 80% of Italian steel distribution/);
+  assert.match(content, /~3,500/);
+  assert.match(content, /75\.6%/);
+  assert.match(content, /21\.1%/);
+  assert.match(content, /export const icpDecisionCriteria/);
+  assert.match(content, /Pain intensity/);
+  assert.match(content, /Commercianti \/ stockholder[\s\S]*score: 4\.9/);
+  assert.match(content, /export const beachheadProfile/);
+  assert.match(content, /Italian steel\/tube distributor or stockholder/);
+  assert.match(content, /export const competitiveAlternatives/);
+  assert.match(content, /INVEX, unitop, Metols, MetalTrax/);
+  assert.match(view, /Why distribution is the first wedge/);
+  assert.match(view, /Weighted ICP scorecard/);
+  assert.match(view, /The real competitive set/);
 });
