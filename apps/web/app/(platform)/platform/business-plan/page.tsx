@@ -1,8 +1,10 @@
-import { BusinessPlanView } from "@/components/business-plan-view";
+import { BusinessPlanHighlights } from "@/components/business-plan-highlights";
+import { BusinessPlanTabs } from "@/components/business-plan-tabs";
 import { InvestorShareLink } from "@/components/investor-share-link";
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { getInvestorBusinessPlanInvites } from "@/lib/investor-business-plan";
 import { requirePlatformSuperadmin } from "@/lib/platform-admin";
+import { appRoutes } from "@/lib/routes";
 
 import {
   createInvestorBusinessPlanInvite,
@@ -67,7 +69,9 @@ export default async function PlatformBusinessPlanPage({
         </div>
       ) : null}
 
-      <BusinessPlanView />
+      <BusinessPlanTabs baseHref={appRoutes.platform.businessPlan} active="highlights" />
+
+      <BusinessPlanHighlights />
 
       <section
         id="investor-access"
