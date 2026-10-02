@@ -1,8 +1,8 @@
-export const BUSINESS_PLAN_VERSION = "Investor Draft 0.5";
+export const BUSINESS_PLAN_VERSION = "Investor Draft 0.6";
 
 export const businessPlanSnapshot = {
   stage: "Product-ready web SaaS",
-  currentFocus: "Packaging boundary & value metric validation",
+  currentFocus: "Offer & willingness-to-pay validation",
   launchWindow: "2027 controlled launch",
   thesis:
     "Smart Steel Sales is the vertical commercial operating system for the steel and tube industry: private commercial memory, trusted industry network, demand marketplace and technical knowledge in one governed product.",
@@ -886,6 +886,194 @@ export const pricingDecisionRules = [
   "Onboarding fees should reflect real setup/import work measured in L27.2C, not become an arbitrary margin lever.",
 ] as const;
 
+export const offerValidationCards = [
+  {
+    code: "PILOT-199",
+    name: "Paid design-partner pilot",
+    price: "€199 / organization / month · 90 days",
+    audience: "Beachhead distributor / stockholder with a real Commercial Memory workflow",
+    scope: [
+      "Up to 3 commercial users",
+      "Private Commercial Memory + historical email/RFQ/offer search",
+      "Controlled ingestion/import support",
+      "Customer/contact/RFQ/offer workspace",
+      "Baseline AI assistance",
+      "Onboarding fee waived for the 90-day pilot only",
+    ],
+    commercialRule:
+      "No free equivalent is counted as willingness-to-pay evidence. No automatic renewal: the pilot ends in an explicit Core conversion decision.",
+    successSignal:
+      "Signed/paid start, named internal owner and agreed 90-day success outcome.",
+  },
+  {
+    code: "CORE-349",
+    name: "Core reference offer",
+    price: "€349 / organization / month",
+    audience: "Small-to-mid commercial team after sufficient problem evidence",
+    scope: [
+      "5 users included",
+      "Commercial Memory",
+      "Email/RFQ ingestion and historical search",
+      "Customer/contact/RFQ/offer workspace",
+      "Network and company intelligence",
+      "Baseline AI allowance",
+      "Tentative extra user: €39/month",
+    ],
+    commercialRule:
+      "This is the baseline Core price cell. Scope stays fixed during the test so objections can be attributed to value/price rather than hidden package changes.",
+    successSignal:
+      "Budget-owner progression, procurement step or paid Core conversion at the stated organization-level price.",
+  },
+  {
+    code: "CORE-399",
+    name: "Core step-up sensitivity cell",
+    price: "€399 / organization / month",
+    audience: "Comparable Core-qualified companies after the baseline cell produces a credible buying signal",
+    scope: [
+      "Same Core scope as CORE-349",
+      "5 users included",
+      "No additional feature used to justify the higher test price",
+    ],
+    commercialRule:
+      "Activate only after the pre-committed step-up trigger. Never re-quote the same company from €349 to €399 merely to test price sensitivity.",
+    successSignal:
+      "Comparable procurement or paid-conversion behavior without a material increase in price-specific rejection.",
+  },
+  {
+    code: "PRO-749",
+    name: "Pro qualification offer",
+    price: "€749 / organization / month",
+    audience: "Larger team with independently observed analytics, automation or governance needs",
+    scope: [
+      "10 users included",
+      "Higher ingestion and AI envelope",
+      "Advanced commercial/team analytics",
+      "Automation and governance features",
+      "Priority support",
+    ],
+    commercialRule:
+      "Do not present Pro as a decoy. Use it only when the company has already expressed a real need for the additional operational complexity.",
+    successSignal:
+      "Advanced needs are independently confirmed and the buyer accepts a paid Pro discussion rather than defaulting to Core.",
+  },
+] as const;
+
+export const willingnessToPayProtocol = {
+  purpose:
+    "Measure real commercial behavior around the current offer architecture. This is directional B2B validation, not a statistically representative pricing study.",
+  minimumSample: {
+    companies: 8,
+    budgetOwnerCompanies: 5,
+    segment: "Distinct Italian distributor/stockholder companies matching the beachhead profile",
+  },
+  sequence: [
+    "Reconfirm a real recent workflow problem and the expected first 30–90 day outcome before price is discussed.",
+    "Present one standardized offer with scope and price visible before asking for any budget range.",
+    "Ask for a concrete decision: move forward, internal budget review, procurement step, later/no decision, or reject.",
+    "If the buyer does not progress, classify the primary blocker: price, proof/ROI, scope, integration/security, timing, procurement or wrong ICP.",
+    "Only after the decision signal, ask what budget envelope or evidence would change the answer; do not use that answer as stronger evidence than behavior.",
+    "Do not counter-discount on the same call. Preserve the original offer outcome before any future commercial iteration.",
+  ],
+  guardrails: [
+    "No ad-hoc discounts during the validation cohort.",
+    "The €199 pilot is the only pre-defined entry concession and its waived onboarding must be recorded separately from recurring price.",
+    "Free pilots, friendly-company trials and verbal enthusiasm do not count as willingness-to-pay evidence.",
+    "A company receives one Core price cell in a validation phase; do not expose the same buyer to multiple prices as a negotiation trick.",
+    "CORE-349 and CORE-399 must use the same Core scope.",
+    "Enterprise/custom pricing is excluded from this validation cohort.",
+  ],
+} as const;
+
+export const offerBehaviorScale = [
+  {
+    score: 5,
+    label: "Paid / signed",
+    evidence: "Payment, signed order/formal agreement, or accepted commercial terms with scheduled paid start.",
+  },
+  {
+    score: 4,
+    label: "Procurement initiated",
+    evidence: "PO/procurement/security process opened with a named owner and required next step.",
+  },
+  {
+    score: 3,
+    label: "Budget-owner commitment",
+    evidence: "Decision-maker accepts the offer terms subject to a specific internal approval/date or schedules a paid pilot start.",
+  },
+  {
+    score: 2,
+    label: "Concrete internal review",
+    evidence: "Named stakeholder, explicit next meeting/date and budget discussion; no generic 'send me information'.",
+  },
+  {
+    score: 1,
+    label: "Interest only",
+    evidence: "Positive words or demo interest without a dated commercial next step.",
+  },
+  {
+    score: 0,
+    label: "Rejected / no fit",
+    evidence: "Explicit rejection, no buying path or confirmed mismatch with the target workflow.",
+  },
+] as const;
+
+export const priceSensitivityStepUp = {
+  baselineCell: "CORE-349",
+  baselineMinimumCompanies: 4,
+  trigger:
+    "Only open CORE-399 after at least 2 of the first 4 valid CORE-349 companies reach behavior score >=3 and fewer than half cite price as the primary blocker.",
+  stepUpCell: "CORE-399",
+  comparisonRule:
+    "Use the same Core scope and comparable beachhead companies. Interpret the result directionally; do not claim statistical significance from the small sample.",
+  rollbackRule:
+    "If price-specific rejection materially increases at €399, keep €349 as the working anchor and investigate ROI proof before testing lower list prices.",
+} as const;
+
+export const willingnessToPayValidationGate = {
+  sampleGate: [
+    "At least 8 distinct beachhead companies receive a standardized paid offer.",
+    "At least 5 of those companies include a budget owner / commercial decision-maker in the pricing decision.",
+    "Each offer record captures company, role, offer code, behavior score, primary blocker, next step and evidence date.",
+  ],
+  entryOfferPass: [
+    "At least 3 distinct companies accept/sign/pay the €199 90-day pilot or equivalent scheduled paid start.",
+    "At least 4 of 8 companies reach behavior score >=2 under a paid offer.",
+    "Fewer than 50% of completed companies cite price as the primary blocker before proof/ROI, integration or timing concerns.",
+  ],
+  coreAnchorSupport: [
+    "At least 6 Core-qualified budget-owner conversations are completed before calling the €349 anchor directionally supported.",
+    "At least 3 companies reach behavior score >=3 at €349 or higher.",
+    "Organization-level pricing is not structurally rejected by >=40% of the completed Core-qualified companies.",
+  ],
+  commercialValidation: [
+    "A Core list price is not called commercially validated until at least 3 distinct companies actually convert to paid Core at or above €349/month.",
+    "Renewal/continued-payment evidence belongs to L27.5 and is required before treating the price as retention-validated.",
+    "Pro remains a hypothesis until at least 2 companies independently value the advanced scope and at least 1 reaches behavior score >=3 on PRO-749.",
+  ],
+  disconfirmSignals: [
+    "Fewer than 2 of 8 companies reach behavior score >=2 after the full sample.",
+    "Price is the primary blocker in >=60% of completed beachhead companies despite clear problem/ROI evidence.",
+    "A structural need for free Commercial Memory or pure per-seat pricing appears in >=40% of completed companies.",
+    "The €199 pilot attracts interest but produces no paid/signed starts, indicating curiosity without willingness to exchange money.",
+  ],
+  decisionRule:
+    "B.2 validates an offer only through observed commercial behavior. Use 'directionally supported' for procurement/budget progression and reserve 'commercially validated' for actual paid Core conversions.",
+} as const;
+
+export const offerEvidenceRecordTemplate = [
+  "Company / segment / size band",
+  "Decision-maker and users involved",
+  "Problem evidence and expected 30–90 day outcome",
+  "Offer code presented",
+  "Price and scope presented without modification",
+  "Behavior score 0–5",
+  "Primary blocker if no progression",
+  "Budget envelope disclosed only after the decision signal",
+  "Named next step / owner / date",
+  "Paid or procurement evidence",
+  "Notes on price-vs-proof sensitivity",
+] as const;
+
 export const buyerPersonas = [
   {
     persona: "Sales Director / Direttore Commerciale",
@@ -963,7 +1151,7 @@ export const evidenceLedger = [
     label: "Pricing / packaging",
     status: "In progress",
     detail:
-      "L27.2B.1 now fixes the free/paid boundary and organization-level primary value metric for testing. Pricing and packaging remain commercially unvalidated until real paid behaviour or procurement progression is observed.",
+      "L27.2B.2 now adds standardized paid offer cards, a behavior-first willingness-to-pay protocol and pre-committed price-sensitivity gates. No price is commercially validated until real paid Core conversions are observed.",
   },
   {
     label: "Unit economics",
@@ -980,8 +1168,8 @@ export const evidenceLedger = [
 export const businessPlanRoadmap = [
   { code: "L27.2A.1", title: "ICP Evidence & Market Segmentation", status: "Completed" },
   { code: "L27.2A.2", title: "ICP Interview & Validation Framework", status: "Framework completed" },
-  { code: "L27.2B.1", title: "Packaging Boundary & Value Metric Validation", status: "Active" },
-  { code: "L27.2B.2", title: "Offer & Willingness-to-Pay Validation", status: "Next" },
+  { code: "L27.2B.1", title: "Packaging Boundary & Value Metric Validation", status: "Completed" },
+  { code: "L27.2B.2", title: "Offer & Willingness-to-Pay Validation", status: "Active" },
   { code: "L27.2C", title: "Unit Economics & Financial Model", status: "Next" },
   { code: "L27.2D", title: "Business Plan v2 Consolidation", status: "Next" },
 ] as const;

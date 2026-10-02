@@ -19,6 +19,9 @@ import {
   interviewScript,
   jobsToBeDone,
   marketEvidence,
+  offerBehaviorScale,
+  offerEvidenceRecordTemplate,
+  offerValidationCards,
   packagingBoundaryDecision,
   packagingBoundaryValidationGate,
   pricingArchitectureDecision,
@@ -26,9 +29,12 @@ import {
   pricingExperimentBands,
   pricingHypotheses,
   pricingMarketAnchors,
+  priceSensitivityStepUp,
   productPillars,
   valueMetricAlternatives,
   valueMetricDecision,
+  willingnessToPayProtocol,
+  willingnessToPayValidationGate,
   syntheticInterviewSimulation,
 } from "@/lib/business-plan-content";
 
@@ -725,6 +731,164 @@ export function BusinessPlanView({
               <li key={item} className="text-xs leading-5 text-[#52615b]">• {item}</li>
             ))}
           </ul>
+        </div>
+
+        <div className="mt-8 rounded-[28px] border border-[#cbdcd5] bg-[#f7faf8] p-5 sm:p-6">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">
+                L27.2B.2 · Offer &amp; willingness-to-pay validation
+              </p>
+              <h3 className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824]">
+                Behavior before stated willingness
+              </h3>
+              <p className="mt-3 max-w-4xl text-sm leading-6 text-[#66736e]">
+                {willingnessToPayProtocol.purpose}
+              </p>
+            </div>
+            <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 ring-1 ring-amber-200">
+              Customer evidence required
+            </span>
+          </div>
+
+          <div className="mt-6 grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
+            {offerValidationCards.map((offer) => (
+              <article key={offer.code} className="rounded-2xl border border-[#e2e8e5] bg-white p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">{offer.code}</p>
+                    <h4 className="mt-2 text-base font-semibold text-[#1d2824]">{offer.name}</h4>
+                  </div>
+                </div>
+                <p className="mt-3 text-lg font-semibold text-[#173f35]">{offer.price}</p>
+                <p className="mt-2 text-xs leading-5 text-[#87938e]">{offer.audience}</p>
+                <ul className="mt-4 space-y-2">
+                  {offer.scope.map((item) => (
+                    <li key={item} className="text-xs leading-5 text-[#66736e]">• {item}</li>
+                  ))}
+                </ul>
+                <p className="mt-4 border-t border-[#edf0ee] pt-3 text-[11px] leading-5 text-[#52615b]">
+                  <span className="font-semibold">Rule:</span> {offer.commercialRule}
+                </p>
+                <p className="mt-2 text-[11px] leading-5 text-[#1a5144]">
+                  <span className="font-semibold">Success signal:</span> {offer.successSignal}
+                </p>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-6 grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
+            <div className="rounded-2xl bg-[#123d34] p-5 text-white">
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">
+                Standard conversation sequence
+              </p>
+              <div className="mt-4 space-y-3">
+                {willingnessToPayProtocol.sequence.map((item, index) => (
+                  <div key={item} className="flex gap-3 rounded-xl bg-white/[0.06] p-3">
+                    <span className="text-xs font-bold text-[#f2cf9c]">{String(index + 1).padStart(2, "0")}</span>
+                    <p className="text-xs leading-5 text-[#d8e5e0]">{item}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.04] p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#9cc5b7]">Sample gate</p>
+                <p className="mt-2 text-sm font-semibold text-white">
+                  {willingnessToPayProtocol.minimumSample.companies} companies · {willingnessToPayProtocol.minimumSample.budgetOwnerCompanies} with budget owner
+                </p>
+                <p className="mt-2 text-xs leading-5 text-[#cfddd8]">{willingnessToPayProtocol.minimumSample.segment}</p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-[#e2e8e5] bg-white p-5">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
+                Validation guardrails
+              </p>
+              <ul className="mt-4 space-y-3">
+                {willingnessToPayProtocol.guardrails.map((item) => (
+                  <li key={item} className="flex gap-2 text-xs leading-5 text-[#52615b]">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#d7a45b]" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Commercial behavior scale</p>
+            <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+              {offerBehaviorScale.map((item) => (
+                <article key={item.score} className="rounded-2xl bg-[#eef3f0] p-4">
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-2xl font-semibold text-[#173f35]">{item.score}</span>
+                    <h4 className="text-sm font-semibold text-[#1d2824]">{item.label}</h4>
+                  </div>
+                  <p className="mt-2 text-xs leading-5 text-[#66736e]">{item.evidence}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-4 lg:grid-cols-2">
+            <div className="rounded-2xl border border-[#b8d2c8] bg-white p-5">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">Price sensitivity step-up</p>
+              <h4 className="mt-2 text-base font-semibold text-[#1d2824]">
+                {priceSensitivityStepUp.baselineCell} → {priceSensitivityStepUp.stepUpCell}
+              </h4>
+              <p className="mt-3 text-xs leading-5 text-[#52615b]">{priceSensitivityStepUp.trigger}</p>
+              <p className="mt-3 text-xs leading-5 text-[#66736e]">{priceSensitivityStepUp.comparisonRule}</p>
+              <p className="mt-3 rounded-xl bg-[#f7f9f8] px-3 py-2 text-[11px] leading-5 text-[#345047]">
+                {priceSensitivityStepUp.rollbackRule}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-[#b8d2c8] bg-white p-5">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">Evidence record</p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {offerEvidenceRecordTemplate.map((item, index) => (
+                  <div key={item} className="rounded-xl bg-[#f7f9f8] px-3 py-2 text-[11px] leading-5 text-[#52615b]">
+                    <span className="mr-2 font-bold text-[#1a5144]">{String(index + 1).padStart(2, "0")}</span>
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 rounded-2xl bg-[#1d2824] p-5 text-white">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#9cc5b7]">
+              Pre-committed WTP decision gate
+            </p>
+            <div className="mt-4 grid gap-5 lg:grid-cols-2">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-300">Entry + Core support</p>
+                <ul className="mt-3 space-y-2">
+                  {[...willingnessToPayValidationGate.entryOfferPass, ...willingnessToPayValidationGate.coreAnchorSupport].map((item) => (
+                    <li key={item} className="text-xs leading-5 text-[#d8e5e0]">• {item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-rose-300">Disconfirm signals</p>
+                <ul className="mt-3 space-y-2">
+                  {willingnessToPayValidationGate.disconfirmSignals.map((item) => (
+                    <li key={item} className="text-xs leading-5 text-[#d8e5e0]">• {item}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.05] p-4">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#9cc5b7]">Commercial validation threshold</p>
+              <ul className="mt-3 space-y-2">
+                {willingnessToPayValidationGate.commercialValidation.map((item) => (
+                  <li key={item} className="text-xs leading-5 text-[#cfddd8]">• {item}</li>
+                ))}
+              </ul>
+            </div>
+            <p className="mt-4 text-xs font-medium leading-5 text-[#f2cf9c]">
+              {willingnessToPayValidationGate.decisionRule}
+            </p>
+          </div>
         </div>
       </section>
 
