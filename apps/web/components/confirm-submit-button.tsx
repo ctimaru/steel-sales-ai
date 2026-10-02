@@ -85,7 +85,7 @@ export function ConfirmSubmitButton({
 
       {open ? (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 p-4"
+          className="fixed inset-0 z-[100] flex items-end justify-center overflow-y-auto overscroll-contain bg-slate-950/45 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:items-center sm:p-4"
           role="presentation"
           onKeyDown={(event) => {
             if (event.key === "Escape") setOpen(false);
@@ -96,7 +96,7 @@ export function ConfirmSubmitButton({
             aria-modal="true"
             aria-labelledby={titleId}
             aria-describedby={descriptionId}
-            className="w-full max-w-md rounded-3xl border border-[#dce2df] bg-white p-6 shadow-2xl"
+            className="max-h-[calc(100dvh-1.5rem-env(safe-area-inset-bottom))] w-full max-w-md overflow-y-auto rounded-3xl border border-[#dce2df] bg-white p-5 shadow-2xl sm:max-h-[calc(100dvh-2rem)] sm:p-6"
           >
             <p
               className={[
@@ -118,14 +118,14 @@ export function ConfirmSubmitButton({
                 type="button"
                 autoFocus
                 onClick={() => setOpen(false)}
-                className="h-10 rounded-xl border border-[#d7dfdb] bg-white px-4 text-sm font-semibold text-[#43524c] hover:bg-[#f6f8f7]"
+                className="min-h-11 rounded-xl border border-[#d7dfdb] bg-white px-4 text-sm font-semibold text-[#43524c] hover:bg-[#f6f8f7]"
               >
                 {cancelLabel}
               </button>
               <button
                 type="button"
                 onClick={confirm}
-                className={`h-10 rounded-xl px-4 text-sm font-semibold ${confirmClass}`}
+                className={`min-h-11 rounded-xl px-4 text-sm font-semibold ${confirmClass}`}
               >
                 {confirmLabel}
               </button>
