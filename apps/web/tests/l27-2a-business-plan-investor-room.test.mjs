@@ -275,8 +275,8 @@ test("L27.2D.2 adds deterministic IT/EN Business Plan presentation", () => {
   assert.match(investorDetailsPage, /BusinessPlanLanguageToggle/);
   assert.match(investorCopy, /Il business network dell'industria dell'acciaio\./);
   assert.match(investorCopy, /The business network for the steel industry\./);
-  assert.match(investorDetails, /Investor story and internal evidence are separated/);
-  assert.match(investorDetails, /Investor story ed evidenza interna sono separate/);
+  assert.match(investorCopy, /Investor story and internal evidence are separated/);
+  assert.match(investorCopy, /Investor story ed evidenza interna sono separate/);
 });
 
 test("L27.2D.2 moves Investor Access out of Business Plan and under Strategy & Investors", () => {
