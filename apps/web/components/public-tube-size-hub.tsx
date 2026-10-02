@@ -223,19 +223,19 @@ export async function PublicTubeSizeHubPage({
       />
 
       <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
-        <Link href="/knowledge" className="hover:text-[#2f6fed]">Steel Knowledge</Link>
+        <Link href="/knowledge" className="hover:text-[#1a5144]">Steel Knowledge</Link>
         <span className="mx-2">/</span>
-        <Link href="/knowledge/tubes" className="hover:text-[#2f6fed]">Pesi &amp; dimensioni</Link>
+        <Link href="/knowledge/tubes" className="hover:text-[#1a5144]">Pesi &amp; dimensioni</Link>
         <span className="mx-2">/</span>
-        <Link href={tubeFamilyHubPath(familySlug)} className="hover:text-[#2f6fed]">{family.label}</Link>
+        <Link href={tubeFamilyHubPath(familySlug)} className="hover:text-[#1a5144]">{family.label}</Link>
         <span className="mx-2">/</span>
         <span>{sizeLabel}</span>
       </nav>
 
-      <header className="rounded-3xl border border-[#dce7f7] bg-white p-6 shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)] sm:p-8 lg:p-10">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Confronto per spessore</p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#1e2b45] sm:text-5xl">{title}</h1>
-        <p className="mt-5 max-w-3xl text-base leading-7 text-[#68788e]">{description}</p>
+      <header className="rounded-3xl border border-[#dce2df] bg-white p-6 shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)] sm:p-8 lg:p-10">
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Confronto per spessore</p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-5xl">{title}</h1>
+        <p className="mt-5 max-w-3xl text-base leading-7 text-[#66736e]">{description}</p>
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -251,17 +251,17 @@ export async function PublicTubeSizeHubPage({
           ],
           ["Fonti nel gruppo", String(hub.source_count)],
         ].map(([label, value]) => (
-          <div key={label} className="rounded-2xl border border-[#e1e8f2] bg-white p-5">
+          <div key={label} className="rounded-2xl border border-[#dce2df] bg-white p-5">
             <p className="text-xs font-semibold text-[#7e8da1]">{label}</p>
-            <p className="mt-1 text-xl font-semibold text-[#1e2b45]">{value}</p>
+            <p className="mt-1 text-xl font-semibold text-[#1d2824]">{value}</p>
           </div>
         ))}
       </section>
 
-      <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">Tabella pesi</p>
-        <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">Peso per ogni spessore disponibile</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-[#68788e]">
+      <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Tabella pesi</p>
+        <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">Peso per ogni spessore disponibile</h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
           Ogni riga apre una scheda dimensionale esatta con confronto teorico, peso per barra, tonnellaggio e fonte.
         </p>
 
@@ -280,22 +280,22 @@ export async function PublicTubeSizeHubPage({
             <tbody className="divide-y divide-[#edf1f6]">
               {hub.variants.map((variant) => (
                 <tr key={variant.dimension_slug}>
-                  <td className="px-2 py-3 font-medium text-[#1e2b45]">
+                  <td className="px-2 py-3 font-medium text-[#1d2824]">
                     {formatTubeNumber(variant.thickness_mm)} mm
                   </td>
                   <td className="px-2 py-3 text-[#40516a]">{formatTubeNumber(variant.weight_kg_m)} kg/m</td>
-                  <td className="px-2 py-3 text-[#68788e]">
+                  <td className="px-2 py-3 text-[#66736e]">
                     {formatTubeNumber(variant.weight_kg_m * 6, 2)} kg
                   </td>
-                  <td className="px-2 py-3 text-[#68788e]">
+                  <td className="px-2 py-3 text-[#66736e]">
                     {formatTubeNumber(variant.weight_kg_m * 12, 2)} kg
                   </td>
-                  <td className="px-2 py-3 text-[#68788e]">
+                  <td className="px-2 py-3 text-[#66736e]">
                     <a
                       href={variant.source_url}
                       target="_blank"
                       rel="noreferrer"
-                      className="font-semibold text-[#2f6fed]"
+                      className="font-semibold text-[#1a5144]"
                     >
                       {variant.source_provider} ↗
                     </a>
@@ -303,7 +303,7 @@ export async function PublicTubeSizeHubPage({
                   <td className="px-2 py-3 text-right">
                     <Link
                       href={"/knowledge/tubes/" + variant.dimension_slug}
-                      className="font-semibold text-[#2f6fed]"
+                      className="font-semibold text-[#1a5144]"
                     >
                       Scheda →
                     </Link>
@@ -316,23 +316,23 @@ export async function PublicTubeSizeHubPage({
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
-          <h2 className="text-2xl font-semibold text-[#1e2b45]">Come cambia il peso con lo spessore</h2>
-          <p className="mt-3 text-sm leading-7 text-[#68788e]">
+        <div className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+          <h2 className="text-2xl font-semibold text-[#1d2824]">Come cambia il peso con lo spessore</h2>
+          <p className="mt-3 text-sm leading-7 text-[#66736e]">
             A parità di dimensione esterna, aumentando lo spessore aumenta la quantità di acciaio nella sezione e quindi
             il peso al metro. La relazione non va usata per scegliere automaticamente uno spessore: il dimensionamento
             dipende dalla norma applicabile e dai requisiti di progetto.
           </p>
         </div>
-        <div className="rounded-3xl border border-[#dbe7f7] bg-[#f8fbff] p-6 sm:p-8">
-          <h2 className="text-xl font-semibold text-[#1e2b45]">Hai una misura diversa?</h2>
-          <p className="mt-3 text-sm leading-7 text-[#68788e]">
+        <div className="rounded-3xl border border-[#d9e8e2] bg-[#f6f8f7] p-6 sm:p-8">
+          <h2 className="text-xl font-semibold text-[#1d2824]">Hai una misura diversa?</h2>
+          <p className="mt-3 text-sm leading-7 text-[#66736e]">
             Usa il calcolatore pubblico per inserire dimensioni, lunghezza e quantità. Se esiste un riferimento canonico
             per la geometria scelta, il risultato pubblicato viene mostrato separatamente dalla stima teorica.
           </p>
           <Link
             href="/knowledge/tubes"
-            className="mt-5 inline-flex rounded-xl bg-[#2f6fed] px-4 py-2.5 text-sm font-semibold text-white"
+            className="mt-5 inline-flex rounded-xl bg-[#1a5144] px-4 py-2.5 text-sm font-semibold text-white"
           >
             Apri il calcolatore →
           </Link>
@@ -340,35 +340,35 @@ export async function PublicTubeSizeHubPage({
       </section>
 
       {related.length ? (
-        <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Cluster correlati</p>
-          <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">Confronta dimensioni esterne vicine</h2>
+        <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Cluster correlati</p>
+          <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">Confronta dimensioni esterne vicine</h2>
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((item) => (
               <Link
                 key={item.size_slug}
                 href={tubeSizeHubPath(familySlug, item.size_slug)}
-                className="rounded-2xl border border-[#e1e8f2] bg-[#f8fbff] p-4 transition hover:border-[#bdd1f4]"
+                className="rounded-2xl border border-[#dce2df] bg-[#f6f8f7] p-4 transition hover:border-[#b8d2c8]"
               >
-                <p className="font-semibold text-[#1e2b45]">{tubeSizeHubLabel(item)}</p>
-                <p className="mt-2 text-xs text-[#68788e]">
+                <p className="font-semibold text-[#1d2824]">{tubeSizeHubLabel(item)}</p>
+                <p className="mt-2 text-xs text-[#66736e]">
                   {item.variant_count} spessori · {formatTubeNumber(item.min_weight_kg_m)}–
                   {formatTubeNumber(item.max_weight_kg_m)} kg/m
                 </p>
-                <p className="mt-3 text-xs font-semibold text-[#2f6fed]">Apri cluster →</p>
+                <p className="mt-3 text-xs font-semibold text-[#1a5144]">Apri cluster →</p>
               </Link>
             ))}
           </div>
         </section>
       ) : null}
 
-      <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
-        <h2 className="text-2xl font-semibold text-[#1e2b45]">Domande frequenti</h2>
+      <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+        <h2 className="text-2xl font-semibold text-[#1d2824]">Domande frequenti</h2>
         <div className="mt-4 divide-y divide-[#e8eef7]">
           {faq.map((item) => (
             <div key={item.question} className="py-4">
-              <h3 className="text-sm font-semibold text-[#1e2b45]">{item.question}</h3>
-              <p className="mt-2 text-sm leading-6 text-[#68788e]">{item.answer}</p>
+              <h3 className="text-sm font-semibold text-[#1d2824]">{item.question}</h3>
+              <p className="mt-2 text-sm leading-6 text-[#66736e]">{item.answer}</p>
             </div>
           ))}
         </div>
