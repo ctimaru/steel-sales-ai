@@ -41,9 +41,43 @@ export function ConfirmSubmitButton({
   const { pending } = useFormStatus();
   const [open, setOpen] = useState(false);
   const submitRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const dialogId = useId();
   const titleId = useId();
   const descriptionId = useId();
   const blocked = disabled || pending;
+
+  function closeDialog() {
+    setOpen(false);
+    queueMicrotask(() => triggerRef.current?.focus());
+  }
+
+  function handleDialogKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeDialog();
+      return;
+    }
+
+    if (event.key !== "Tab") return;
+    const focusable = Array.from(
+      dialogRef.current?.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+      ) ?? [],
+    );
+    if (focusable.length === 0) return;
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
 
   function confirm() {
     const submitter = submitRef.current;
@@ -62,10 +96,12 @@ export function ConfirmSubmitButton({
   return (
     <>
       <button
+        ref={triggerRef}
         type="button"
         disabled={blocked}
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-controls={open ? dialogId : undefined}
         onClick={() => setOpen(true)}
         className={className}
       >
@@ -87,15 +123,15 @@ export function ConfirmSubmitButton({
         <div
           className="fixed inset-0 z-[100] flex items-end justify-center overflow-y-auto overscroll-contain bg-slate-950/45 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:items-center sm:p-4"
           role="presentation"
-          onKeyDown={(event) => {
-            if (event.key === "Escape") setOpen(false);
-          }}
         >
           <div
+            ref={dialogRef}
+            id={dialogId}
             role="alertdialog"
             aria-modal="true"
             aria-labelledby={titleId}
             aria-describedby={descriptionId}
+            onKeyDown={handleDialogKeyDown}
             className="max-h-[calc(100dvh-1.5rem-env(safe-area-inset-bottom))] w-full max-w-md overflow-y-auto rounded-3xl border border-[#dce2df] bg-white p-5 shadow-2xl sm:max-h-[calc(100dvh-2rem)] sm:p-6"
           >
             <p
@@ -117,7 +153,7 @@ export function ConfirmSubmitButton({
               <button
                 type="button"
                 autoFocus
-                onClick={() => setOpen(false)}
+                onClick={closeDialog}
                 className="min-h-11 rounded-xl border border-[#d7dfdb] bg-white px-4 text-sm font-semibold text-[#43524c] hover:bg-[#f6f8f7]"
               >
                 {cancelLabel}
