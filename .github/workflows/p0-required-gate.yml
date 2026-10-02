@@ -277,7 +277,8 @@ jobs:
             hp7_first_login_guided_company_setup.sql \
             hp8_team_invitations_role_onboarding.sql \
             hp13_permissions_tenant_isolation.sql \
-            hp18_production_journey_acceptance.sql; do
+            hp18_production_journey_acceptance.sql \
+            l27_1_release_database_readiness.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
