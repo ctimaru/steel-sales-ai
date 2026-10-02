@@ -28,6 +28,36 @@ $$;
 grant execute on function pg_temp.hp18_assert(boolean,text)
 to authenticated, service_role;
 
+-- A rebuilt CI database has no account-specific production owner. Create a
+-- disposable fallback only when necessary; production reuses the real owner.
+do $owner$
+begin
+  if not exists (
+    select 1
+    from public.platform_user_roles
+    where role='platform_superadmin' and status='active'
+  ) then
+    insert into auth.users(id,email,email_confirmed_at)
+    values (
+      '00000000-0000-0000-0000-000000001800'::uuid,
+      'hp18-owner@example.test',
+      now()
+    )
+    on conflict (id) do nothing;
+
+    insert into public.platform_user_roles(
+      user_id,role,status,granted_by,reason
+    ) values (
+      '00000000-0000-0000-0000-000000001800'::uuid,
+      'platform_superadmin',
+      'active',
+      null,
+      'HP18 acceptance fallback owner'
+    );
+  end if;
+end
+$owner$;
+
 insert into hp18_state(key,value)
 select 'owner', jsonb_build_object('user_id',user_id)
 from public.platform_user_roles
