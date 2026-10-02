@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 import {
   createMarketplaceResponse,
@@ -396,12 +397,16 @@ export function MarketplaceResponseWorkspace({
                       Salva linea
                     </button>
                     {existing ? (
-                      <button
+                      <ConfirmSubmitButton
                         formAction={removeMarketplaceResponseLine}
-                        className="rounded-xl border border-rose-200 bg-white px-4 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50"
+                        title="Rimuovere questa linea dalla risposta?"
+                        description="La linea verrà eliminata dalla bozza corrente. Potrai reinserirla in seguito, ma i valori compilati per questa linea andranno persi."
+                        confirmLabel="Rimuovi linea"
+                        pendingLabel="Rimozione…"
+                        className="rounded-xl border border-rose-200 bg-white px-4 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         Rimuovi linea
-                      </button>
+                      </ConfirmSubmitButton>
                     ) : null}
                   </div>
                 </form>
@@ -413,22 +418,29 @@ export function MarketplaceResponseWorkspace({
             <form action={submitMarketplaceResponse}>
               <input type="hidden" name="request_id" value={requestId} />
               <input type="hidden" name="response_id" value={response.response_id} />
-              <PendingSubmitButton
+              <ConfirmSubmitButton
+                tone="warning"
+                title="Inviare la risposta al buyer?"
+                description="Dopo l’invio la risposta esce dalla bozza ed entra nel workflow Marketplace. Verifica prezzi, quantità e condizioni prima di continuare."
+                confirmLabel="Invia risposta"
                 pendingLabel="Invio risposta…"
                 className="rounded-xl bg-[#1a5144] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#226657] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Invia risposta al buyer
-              </PendingSubmitButton>
+              </ConfirmSubmitButton>
             </form>
             <form action={withdrawMarketplaceResponse}>
               <input type="hidden" name="request_id" value={requestId} />
               <input type="hidden" name="response_id" value={response.response_id} />
-              <PendingSubmitButton
+              <ConfirmSubmitButton
+                title="Ritirare questa bozza?"
+                description="La risposta passerà allo stato ritirato e non sarà più modificabile come bozza attiva."
+                confirmLabel="Ritira bozza"
                 pendingLabel="Ritiro bozza…"
                 className="rounded-xl border border-rose-200 bg-white px-5 py-2.5 text-sm font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Ritira bozza
-              </PendingSubmitButton>
+              </ConfirmSubmitButton>
             </form>
           </div>
         </>
@@ -472,12 +484,15 @@ export function MarketplaceResponseWorkspace({
             <form action={withdrawMarketplaceResponse} className="mt-5">
               <input type="hidden" name="request_id" value={requestId} />
               <input type="hidden" name="response_id" value={response.response_id} />
-              <PendingSubmitButton
+              <ConfirmSubmitButton
+                title="Ritirare la risposta inviata?"
+                description="La risposta verrà marcata come ritirata nel Marketplace e il buyer non potrà più considerarla attiva."
+                confirmLabel="Ritira risposta"
                 pendingLabel="Ritiro risposta…"
                 className="rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Ritira risposta
-              </PendingSubmitButton>
+              </ConfirmSubmitButton>
             </form>
           ) : null}
 

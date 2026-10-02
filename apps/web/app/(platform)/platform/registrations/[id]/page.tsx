@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { notFound } from "next/navigation";
 
 import {
@@ -342,9 +343,16 @@ export default async function AdminRegistrationDetailPage({
                         <p className="mt-1 text-xs text-[#66736e]">
                           {candidate.country_code} · score {Number(candidate.match_score).toFixed(2)} · {identitySignals(candidate.signals)}
                         </p>
-                        <button className="mt-3 h-10 w-full rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657]">
+                        <ConfirmSubmitButton
+                          tone="warning"
+                          title="Approvare e attivare questa registrazione?"
+                          description={`Verranno creati/attivati workspace e membership e la Organization sarà collegata al profilo Network “${candidate.legal_name}” nella stessa transazione.`}
+                          confirmLabel="Approva e attiva"
+                          pendingLabel="Attivazione…"
+                          className="mt-3 h-10 w-full rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657] disabled:cursor-not-allowed disabled:opacity-60"
+                        >
                           Approva e attiva con questo profilo
-                        </button>
+                        </ConfirmSubmitButton>
                       </form>
                     ) : (
                       <div
@@ -363,9 +371,16 @@ export default async function AdminRegistrationDetailPage({
               ) : (
                 <form action={approveAndActivateRegistration} className="mt-4">
                   <input type="hidden" name="application_id" value={application.id} />
-                  <button className="h-10 w-full rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657]">
+                  <ConfirmSubmitButton
+                    tone="warning"
+                    title="Approvare e attivare il workspace?"
+                    description="L’operazione approverà la registrazione e creerà le entità operative previste dal flusso di activation. Verifica i dati aziendali prima di continuare."
+                    confirmLabel="Approva e attiva"
+                    pendingLabel="Attivazione…"
+                    className="h-10 w-full rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
                     Approva e attiva workspace
-                  </button>
+                  </ConfirmSubmitButton>
                 </form>
               )}
             </section>
@@ -412,9 +427,15 @@ export default async function AdminRegistrationDetailPage({
                     placeholder="Nota interna opzionale"
                     className="w-full rounded-xl border border-red-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none"
                   />
-                  <button className="h-10 w-full rounded-xl bg-red-700 px-4 text-sm font-semibold text-white">
+                  <ConfirmSubmitButton
+                    title="Rifiutare questa richiesta di registrazione?"
+                    description="La pratica verrà chiusa come rifiutata con il motivo selezionato. L’azienda non verrà attivata con questa application."
+                    confirmLabel="Rifiuta richiesta"
+                    pendingLabel="Rifiuto…"
+                    className="h-10 w-full rounded-xl bg-red-700 px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                  >
                     Rifiuta richiesta
-                  </button>
+                  </ConfirmSubmitButton>
                 </form>
               </section>
           ) : null}
@@ -476,9 +497,16 @@ export default async function AdminRegistrationDetailPage({
                         <p className="mt-1 text-xs text-[#66736e]">
                           {candidate.country_code} · score {Number(candidate.match_score).toFixed(2)} · {identitySignals(candidate.signals)}
                         </p>
-                        <button className="mt-3 h-9 w-full rounded-lg bg-indigo-700 px-3 text-xs font-semibold text-white">
+                        <ConfirmSubmitButton
+                          tone="warning"
+                          title="Attivare con questa identità Network?"
+                          description={`L’Organization verrà attivata e collegata a “${candidate.legal_name}”. La selezione dell’identità determina il profilo Network gestito dal nuovo workspace.`}
+                          confirmLabel="Seleziona e attiva"
+                          pendingLabel="Attivazione…"
+                          className="mt-3 h-9 w-full rounded-lg bg-indigo-700 px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                        >
                           Seleziona e attiva
-                        </button>
+                        </ConfirmSubmitButton>
                       </form>
                     ) : (
                       <div
@@ -503,9 +531,16 @@ export default async function AdminRegistrationDetailPage({
                   <div className="mb-3 rounded-xl border border-indigo-100 bg-white px-3 py-3 text-xs leading-5 text-indigo-800">
                     Nessun match identitario bloccante rilevato: verrà creato e collegato un nuovo profilo Network non verificato.
                   </div>
-                  <button className="h-10 w-full rounded-xl bg-indigo-700 px-4 text-sm font-semibold text-white">
+                  <ConfirmSubmitButton
+                    tone="warning"
+                    title="Attivare workspace e nuovo profilo Network?"
+                    description="Non è stato selezionato un profilo esistente: l’activation creerà e collegherà un nuovo profilo Network non verificato insieme al workspace."
+                    confirmLabel="Attiva workspace"
+                    pendingLabel="Attivazione…"
+                    className="h-10 w-full rounded-xl bg-indigo-700 px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                  >
                     Attiva workspace e profilo Network
-                  </button>
+                  </ConfirmSubmitButton>
                 </form>
               )}
             </section>

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import {
   PLATFORM_PERMISSIONS,
   PLATFORM_STAFF_ROLE_TEMPLATES,
@@ -530,9 +531,16 @@ export default async function PlatformPeoplePage({
                             placeholder="Motivazione sospensione"
                             className="h-10 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-xs outline-none"
                           />
-                          <button className="mt-2 w-full rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs font-semibold text-amber-800">
+                          <ConfirmSubmitButton
+                            tone="warning"
+                            title="Sospendere questo account Platform Staff?"
+                            description={`L’accesso di ${member.email} verrà bloccato fino a una riattivazione esplicita. I ruoli assegnati restano registrati.`}
+                            confirmLabel="Sospendi accesso"
+                            pendingLabel="Sospensione…"
+                            className="mt-2 w-full rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs font-semibold text-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
                             Sospendi accesso
-                          </button>
+                          </ConfirmSubmitButton>
                         </form>
                       )}
 
@@ -552,9 +560,15 @@ export default async function PlatformPeoplePage({
                           placeholder="Motivazione revoca definitiva"
                           className="h-10 w-full rounded-xl border border-rose-200 bg-white px-3 text-xs outline-none"
                         />
-                        <button className="mt-2 w-full rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-xs font-semibold text-rose-700">
+                        <ConfirmSubmitButton
+                          title="Revocare definitivamente questo account?"
+                          description={`L’accesso Platform di ${member.email} verrà revocato. Questa è una transizione definitiva nel lifecycle dello staff e richiederà un nuovo processo amministrativo per ripristinare l’accesso.`}
+                          confirmLabel="Revoca definitivamente"
+                          pendingLabel="Revoca in corso…"
+                          className="mt-2 w-full rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-xs font-semibold text-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
                           Revoca definitivamente
-                        </button>
+                        </ConfirmSubmitButton>
                       </form>
                     </div>
                   </details>
@@ -640,9 +654,15 @@ export default async function PlatformPeoplePage({
                         placeholder="Motivazione"
                         className="h-9 min-w-0 rounded-xl border border-[#d7dfdb] bg-white px-3 text-xs outline-none"
                       />
-                      <button className="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">
+                      <ConfirmSubmitButton
+                        title="Revocare questo invito?"
+                        description={`L’invito destinato a ${invitation.email} non potrà più essere usato. Per consentire nuovamente l’accesso dovrai creare un nuovo invito.`}
+                        confirmLabel="Revoca invito"
+                        pendingLabel="Revoca…"
+                        className="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
                         Revoca
-                      </button>
+                      </ConfirmSubmitButton>
                     </form>
                   </div>
                 </div>
