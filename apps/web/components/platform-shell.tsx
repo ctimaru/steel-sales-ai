@@ -97,7 +97,7 @@ export function PlatformShell({
                   Company Workspace
                 </Link>
               ) : null}
-              <span className="rounded-full bg-[#e1ece8] px-3.5 py-2 text-xs font-semibold text-[#173f35]">
+              <span className="hidden rounded-full bg-[#e1ece8] px-3.5 py-2 text-xs font-semibold text-[#173f35] sm:inline-flex">
                 {authorityLabel}
               </span>
             </div>
