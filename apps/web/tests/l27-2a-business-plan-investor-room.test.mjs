@@ -76,7 +76,7 @@ test("L27.2A.1 adds sourced market evidence, weighted ICP scoring and beachhead 
 
 
 test("L27.2A.2 adds a pre-committed ICP interview and validation framework", () => {
-  assert.match(content, /Investor Draft 0\.9/);
+  assert.match(content, /Investor Draft 1\.0/);
   assert.match(content, /export const interviewCohortPlan/);
   assert.match(content, /totalInterviews: 18/);
   assert.match(content, /interviews: 10/);
@@ -103,7 +103,7 @@ test("L27.2A.2 adds a pre-committed ICP interview and validation framework", () 
 
 
 test("L27.2B keeps the synthetic scenario clearly separated from customer evidence", () => {
-  assert.match(content, /Investor Draft 0\.9/);
+  assert.match(content, /Investor Draft 1\.0/);
   assert.match(content, /export const syntheticInterviewSimulation/);
   assert.match(content, /Synthetic scenario only/);
   assert.match(view, /Synthetic scenario · internal only/);
@@ -149,7 +149,7 @@ test("L27.2B.3 resets monetization to a permanent freemium product-led model", (
 
 
 test("L27.2C adds network economics, multiple income streams and scenario sensitivity without presenting forecasts as traction", () => {
-  assert.match(content, /Investor Draft 0\.9/);
+  assert.match(content, /Investor Draft 1\.0/);
   assert.match(content, /export const networkEconomicsThesis/);
   assert.match(content, /business network layer for the steel and tube industry/);
   assert.match(content, /Build the steel industry's business network first/);
@@ -188,7 +188,7 @@ test("L27.2C adds network economics, multiple income streams and scenario sensit
 
 
 test("L27.2D consolidates Business Plan v2 into distinct Highlights and Details pages", () => {
-  assert.match(content, /Investor Draft 0\.9/);
+  assert.match(content, /Investor Draft 1\.0/);
   assert.match(content, /export const businessPlanHighlights/);
   assert.match(content, /The business network for the steel industry/);
   assert.match(content, /export const businessPlanTimeline/);
@@ -212,4 +212,43 @@ test("L27.2D consolidates Business Plan v2 into distinct Highlights and Details 
   assert.match(highlights, /Scale sensitivity/);
   assert.match(highlights, /Investor milestone ladder/);
   assert.match(view, /The business network for steel &amp; tube\./);
+});
+
+
+test("L27.2D.1 adds sourced Italy/Europe target-market sizing and economic opportunity analysis", () => {
+  assert.match(content, /Investor Draft 1\.0/);
+  assert.match(content, /export const marketSizingMethodology/);
+  assert.match(content, /concentric market layers instead of one inflated TAM/);
+  assert.match(content, /export const targetMarketLayers/);
+  assert.match(content, /144 \+ 130/);
+  assert.match(content, /~14,000/);
+  assert.match(content, />160,000/);
+  assert.match(content, /~3,500 \+ 500 sites/);
+  assert.match(content, />200,000/);
+  assert.match(content, /770,000/);
+  assert.match(content, /export const marketOpportunityHighlights/);
+  assert.match(content, /17\.6%/);
+  assert.match(content, /export const steelMarketEconomicContext/);
+  assert.match(content, />€10bn/);
+  assert.match(content, /23\.8 Mt/);
+  assert.match(content, /€215bn/);
+  assert.match(content, /10\.6 Mt/);
+  assert.match(content, /€2\.755tn/);
+  assert.match(content, /export const moduleRevenueMarketEnvelope/);
+  assert.match(content, /€244k ARR/);
+  assert.match(content, /€7\.49m ARR/);
+  assert.match(content, /€9\.36m ARR/);
+  assert.match(content, /€36\.0m ARR/);
+  assert.match(content, /export const marketPenetrationSanityChecks/);
+  assert.match(content, /6\.25%/);
+  assert.match(content, /~6\.5%/);
+  assert.match(content, /~26%/);
+  assert.match(content, /not a take-rate claim/);
+  assert.match(content, /export const investorMarketSizingConclusion/);
+  assert.match(highlights, /Target market/);
+  assert.match(highlights, /concentric market layers/);
+  assert.match(view, /Target market &amp; economic opportunity/);
+  assert.match(view, /Software-only revenue envelope/);
+  assert.match(view, /Scenario sanity checks/);
+  assert.match(view, /Investor interpretation/);
 });
