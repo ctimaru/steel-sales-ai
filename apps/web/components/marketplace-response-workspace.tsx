@@ -156,7 +156,7 @@ export function MarketplaceResponseWorkspace({
           </div>
           <PendingSubmitButton
             pendingLabel="Creazione bozza…"
-            className="rounded-xl bg-[#1a5144] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#226657] disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-xl bg-[#1a5144] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#226657] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
             Crea bozza risposta
           </PendingSubmitButton>
@@ -424,7 +424,7 @@ export function MarketplaceResponseWorkspace({
                 description="Dopo l’invio la risposta esce dalla bozza ed entra nel workflow Marketplace. Verifica prezzi, quantità e condizioni prima di continuare."
                 confirmLabel="Invia risposta"
                 pendingLabel="Invio risposta…"
-                className="rounded-xl bg-[#1a5144] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#226657] disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-xl bg-[#1a5144] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#226657] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               >
                 Invia risposta al buyer
               </ConfirmSubmitButton>
@@ -437,7 +437,7 @@ export function MarketplaceResponseWorkspace({
                 description="La risposta passerà allo stato ritirato e non sarà più modificabile come bozza attiva."
                 confirmLabel="Ritira bozza"
                 pendingLabel="Ritiro bozza…"
-                className="rounded-xl border border-rose-200 bg-white px-5 py-2.5 text-sm font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-xl border border-rose-200 bg-white px-5 py-2.5 text-sm font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               >
                 Ritira bozza
               </ConfirmSubmitButton>
