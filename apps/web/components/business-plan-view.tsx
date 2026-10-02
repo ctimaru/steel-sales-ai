@@ -91,7 +91,7 @@ export function BusinessPlanView({
               Investment thesis
             </p>
             <h1 className="mt-3 max-w-4xl text-4xl font-semibold tracking-[-0.045em] sm:text-5xl lg:text-6xl">
-              The commercial operating system for steel &amp; tube.
+              The business network for steel &amp; tube.
             </h1>
             <p className="mt-6 max-w-3xl text-base leading-7 text-[#d8e5e0] sm:text-lg">
               {businessPlanSnapshot.thesis}
