@@ -318,7 +318,7 @@ export function WorkspaceContextNavigation({
               Intelligence
               <NavIcon name="chevron" className="h-4 w-4" />
             </summary>
-            <div className="fixed left-3 right-3 top-[112px] z-50 grid gap-1 rounded-2xl border border-[#dce2df] bg-white p-2 shadow-xl sm:left-auto sm:right-6 sm:w-72 lg:absolute lg:left-auto lg:right-0 lg:top-full">
+            <div className="fixed left-3 right-3 top-[calc(112px+env(safe-area-inset-top))] z-50 grid max-h-[calc(100dvh-9rem-env(safe-area-inset-top))] gap-1 overflow-y-auto rounded-2xl border border-[#dce2df] bg-white p-2 shadow-xl sm:left-auto sm:right-6 sm:w-72 lg:absolute lg:left-auto lg:right-0 lg:top-full lg:max-h-none lg:overflow-visible">
               {intelligenceItems.map((item) => {
                 const selected = navigation.context === item.contextKey;
                 return (
@@ -439,7 +439,7 @@ export function WorkspaceProfileMenu({
             className="fixed inset-0 z-50 cursor-default bg-black/25 lg:bg-black/10"
           />
 
-          <aside className="fixed inset-y-0 left-0 z-[60] flex h-dvh w-[86vw] max-w-sm flex-col overflow-hidden border-r border-[#d7dfdb] bg-white shadow-2xl lg:absolute lg:inset-y-auto lg:left-auto lg:right-0 lg:top-12 lg:h-auto lg:max-h-[78vh] lg:w-[360px] lg:rounded-2xl lg:border">
+          <aside className="fixed inset-y-0 left-0 z-[60] flex h-dvh w-[86vw] max-w-sm flex-col overflow-hidden border-r border-[#d7dfdb] bg-white pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] shadow-2xl lg:absolute lg:inset-y-auto lg:left-auto lg:right-0 lg:top-12 lg:h-auto lg:max-h-[78vh] lg:w-[360px] lg:rounded-2xl lg:border lg:pb-0 lg:pt-0">
             <div className="flex items-start justify-between gap-3 bg-[#f2f4f3] p-5 lg:p-4">
               <div className="flex min-w-0 items-start gap-3">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#173f35] text-sm font-bold text-white">

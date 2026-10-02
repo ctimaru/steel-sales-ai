@@ -111,8 +111,8 @@ export function AppShell({
   const effectiveRole = demoMode ? "Modalità demo" : roleLabel(organizationRole);
 
   return (
-    <div className="min-h-screen bg-[#f2f4f3] pb-20 text-[#1d2824] lg:pb-0">
-      <header className="sticky top-0 z-40 border-b border-[#dce2df] bg-white/95 backdrop-blur-xl">
+    <div className="min-h-screen bg-[#f2f4f3] pb-[calc(5rem+env(safe-area-inset-bottom))] text-[#1d2824] lg:pb-0">
+      <header className="sticky top-0 z-40 border-b border-[#dce2df] bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1500px] items-center gap-3 px-3 sm:px-5 lg:px-8">
           <div className="hidden shrink-0 lg:block">
             <ProductBrand href={appRoutes.home} compact />

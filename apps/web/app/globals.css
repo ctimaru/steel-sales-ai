@@ -43,6 +43,8 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at 85% -10%, rgba(26, 81, 68, 0.07), transparent 28rem),
     var(--background);
@@ -259,4 +261,26 @@ textarea {
 
 .focus\:ring-indigo-50:focus {
   --tw-ring-color: rgba(67, 141, 122, 0.12) !important;
+}
+
+
+/* HP15 — mobile form and viewport hardening */
+@media (max-width: 1023px) {
+  html {
+    scroll-padding-top: calc(8.5rem + env(safe-area-inset-top));
+  }
+}
+
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  button,
+  summary,
+  a {
+    touch-action: manipulation;
+  }
 }

@@ -444,7 +444,7 @@ export default async function PlatformPeoplePage({
                     </summary>
                     <form
                       action={updatePlatformStaffRoles}
-                      className="mt-2 w-full min-w-[300px] rounded-2xl border border-[#d7dfdb] bg-[#f6f8f7] p-4 shadow-sm sm:w-[420px]"
+                      className="mt-2 w-[min(86vw,420px)] rounded-2xl border border-[#d7dfdb] bg-[#f6f8f7] p-4 shadow-sm"
                     >
                       <input
                         type="hidden"
@@ -494,7 +494,7 @@ export default async function PlatformPeoplePage({
                     <summary className="cursor-pointer list-none rounded-xl border border-[#d7dfdb] bg-white px-3 py-2 text-xs font-semibold text-[#43524c] hover:border-[#b8d2c8]">
                       Accesso
                     </summary>
-                    <div className="mt-2 min-w-[280px] rounded-2xl border border-[#d7dfdb] bg-[#f6f8f7] p-4">
+                    <div className="mt-2 w-[min(86vw,320px)] rounded-2xl border border-[#d7dfdb] bg-[#f6f8f7] p-4">
                       {member.status === "suspended" ? (
                         <form action={setPlatformStaffStatus}>
                           <input

@@ -113,7 +113,7 @@ export default async function NewMarketplaceRequestPage({
             ) : null}
           </div>
 
-          <button className="h-11 rounded-xl bg-[#1a5144] px-5 text-sm font-semibold text-white hover:bg-[#226657]">
+          <button className="h-11 w-full rounded-xl bg-[#1a5144] px-5 text-sm font-semibold text-white hover:bg-[#226657] sm:w-auto">
             Crea bozza e aggiungi prodotti
           </button>
         </form>

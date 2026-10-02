@@ -241,10 +241,10 @@ export function PlatformMobileNavigation({
 
   return (
     <details className="relative lg:hidden">
-      <summary className="cursor-pointer list-none rounded-xl border border-[#d7dfdb] bg-white px-3 py-2 text-xs font-semibold text-[#43524c] shadow-sm">
+      <summary className="flex min-h-11 cursor-pointer list-none items-center rounded-xl border border-[#d7dfdb] bg-white px-3 py-2 text-xs font-semibold text-[#43524c] shadow-sm">
         Menu
       </summary>
-      <div className="fixed left-4 right-4 top-16 z-50 max-h-[72vh] overflow-y-auto rounded-2xl border border-[#dce2df] bg-white p-3 shadow-2xl sm:left-auto sm:right-6 sm:w-96">
+      <div className="fixed left-3 right-3 top-[calc(4rem+env(safe-area-inset-top))] z-50 max-h-[calc(100dvh-5rem-env(safe-area-inset-top)-env(safe-area-inset-bottom))] overflow-y-auto overscroll-contain rounded-2xl border border-[#dce2df] bg-white p-3 shadow-2xl sm:left-auto sm:right-6 sm:w-96">
         <div className="mb-2 flex items-center justify-between px-2 py-1">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#87938e]">

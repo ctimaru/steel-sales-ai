@@ -78,7 +78,7 @@ export function PlatformShell({
       </aside>
 
       <div className="lg:pl-72">
-        <header className="sticky top-0 z-20 border-b border-[#dce2df] bg-white/92 backdrop-blur-xl">
+        <header className="sticky top-0 z-20 border-b border-[#dce2df] bg-white/92 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
           <div className="flex h-16 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
             <Link href="/platform" className="min-w-0">
               <p className="truncate text-sm font-semibold text-[#1d2824]">Smart Steel Sales · Platform</p>
@@ -97,7 +97,7 @@ export function PlatformShell({
                   Company Workspace
                 </Link>
               ) : null}
-              <span className="rounded-full bg-[#e1ece8] px-3.5 py-2 text-xs font-semibold text-[#173f35]">
+              <span className="hidden rounded-full bg-[#e1ece8] px-3.5 py-2 text-xs font-semibold text-[#173f35] sm:inline-flex">
                 {authorityLabel}
               </span>
             </div>
