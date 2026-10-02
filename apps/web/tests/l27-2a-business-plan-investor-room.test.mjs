@@ -46,8 +46,8 @@ test("L27.2A visual plan distinguishes hypotheses from evidence", () => {
   assert.match(content, /Sales Director \/ Direttore Commerciale/);
   assert.match(content, /L27\.2B/);
   assert.match(view, /What is proven vs\. what is still a hypothesis/);
-  assert.match(view, /TAM\/SAM\/SOM, pricing, revenue scenarios and unit economics/);
-  assert.match(view, /Not fabricated yet/);
+  assert.match(view, /TAM\/SAM\/SOM and final break-even timing remain intentionally unclaimed/);
+  assert.match(view, /Evidence discipline/);
 });
 
 
