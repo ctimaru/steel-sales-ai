@@ -190,7 +190,7 @@ export default async function AdminRegistrationsPage({
               className={[
                 "shrink-0 rounded-full border px-4 py-2.5 text-xs font-semibold",
                 selected
-                  ? "border-[#1a5144] bg-[#1a5144] text-white"
+                  ? "platform-selected-solid"
                   : "border-[#d7dfdb] bg-white text-[#43524c] hover:border-[#b8d2c8] hover:bg-[#f0f4f2]",
               ].join(" ")}
             >

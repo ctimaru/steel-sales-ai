@@ -217,6 +217,37 @@ textarea {
   background: #226657;
 }
 
+/* UI contrast hardening — solid green interactive states.
+   Selected tabs/filters and primary actions must never inherit legacy dark text
+   utilities from nested labels/icons. */
+.platform-selected-solid,
+.app-selected-solid {
+  border-color: var(--brand-800) !important;
+  background-color: var(--brand-800) !important;
+  color: #ffffff !important;
+}
+
+.platform-selected-solid:hover,
+.app-selected-solid:hover {
+  border-color: var(--brand-700) !important;
+  background-color: var(--brand-700) !important;
+  color: #ffffff !important;
+}
+
+.platform-selected-solid :where(*),
+.app-selected-solid :where(*),
+.platform-primary :where(*),
+.app-primary :where(*),
+.brand-button :where(*) {
+  color: inherit !important;
+}
+
+.platform-primary,
+.app-primary,
+.brand-button {
+  color: #ffffff !important;
+}
+
 .platform-secondary {
   border: 1px solid #d7dfdb;
   background: #ffffff;
