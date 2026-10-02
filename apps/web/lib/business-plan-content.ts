@@ -1203,15 +1203,16 @@ export const evidenceLedger = [
   {
     label: "Commercial evidence",
     status: "Pre-launch",
-    detail: "L27.5 / P5.6C–E will validate usage, friction and willingness-to-pay with real companies.",
+    detail: "L27.5 / P5.6C–E will validate activation, self-service upgrades, paid retention, Marketplace liquidity and product-led expansion with real companies.",
   },
 ] as const;
 
 export const businessPlanRoadmap = [
   { code: "L27.2A.1", title: "ICP Evidence & Market Segmentation", status: "Completed" },
   { code: "L27.2A.2", title: "ICP Interview & Validation Framework", status: "Framework completed" },
-  { code: "L27.2B.1", title: "Packaging Boundary & Value Metric Validation", status: "Completed" },
-  { code: "L27.2B.2", title: "Offer & Willingness-to-Pay Validation", status: "Active" },
+  { code: "L27.2B.1", title: "Packaging Boundary & Value Metric Validation", status: "Superseded" },
+  { code: "L27.2B.2", title: "Sales-led Offer & WTP Framework", status: "Superseded" },
+  { code: "L27.2B.3", title: "Freemium & Product-Led Pricing Reset", status: "Active" },
   { code: "L27.2C", title: "Unit Economics & Financial Model", status: "Next" },
   { code: "L27.2D", title: "Business Plan v2 Consolidation", status: "Next" },
 ] as const;
