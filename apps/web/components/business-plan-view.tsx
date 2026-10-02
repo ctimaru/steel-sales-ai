@@ -1,12 +1,17 @@
 import {
   BUSINESS_PLAN_VERSION,
+  beachheadProfile,
   businessPlanRoadmap,
   businessPlanSnapshot,
   buyerPersonas,
+  competitiveAlternatives,
   differentiation,
   evidenceLedger,
+  icpDecisionCriteria,
+  icpScorecard,
   icpSegments,
   jobsToBeDone,
+  marketEvidence,
   productPillars,
 } from "@/lib/business-plan-content";
 
@@ -101,6 +106,44 @@ export function BusinessPlanView({
       <section className="rounded-[28px] border border-[#dce2df] bg-white p-6 sm:p-8">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">L27.2A.1 · Market evidence</p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824]">
+              Why distribution is the first wedge
+            </h2>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66736e]">
+              External evidence is used to validate market structure and digital readiness. Strategic implications remain internal hypotheses until customer interviews and pilot behaviour confirm them.
+            </p>
+          </div>
+          <span className="rounded-full bg-[#e1ece8] px-3 py-1.5 text-xs font-semibold text-[#173f35] ring-1 ring-[#c7ddd5]">
+            Evidence-backed segmentation
+          </span>
+        </div>
+
+        <div className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {marketEvidence.map((item) => (
+            <article key={item.label} className="rounded-2xl border border-[#e0e6e3] bg-[#f8faf9] p-5">
+              <p className="text-3xl font-semibold tracking-tight text-[#173f35]">{item.metric}</p>
+              <h3 className="mt-2 text-sm font-semibold text-[#1d2824]">{item.label}</h3>
+              <p className="mt-3 text-xs leading-5 text-[#66736e]">{item.detail}</p>
+              <p className="mt-4 border-t border-[#e5ebe8] pt-4 text-xs font-medium leading-5 text-[#345047]">
+                {item.implication}
+              </p>
+              <a
+                href={item.sourceUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-4 inline-flex text-[11px] font-semibold text-[#1a5144] underline decoration-[#9bbeb2] underline-offset-4"
+              >
+                Source · {item.source}
+              </a>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-[28px] border border-[#dce2df] bg-white p-6 sm:p-8">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">L27.2A · ICP</p>
             <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824]">
               Initial customer prioritization
@@ -147,6 +190,109 @@ export function BusinessPlanView({
               <div className="mt-5 rounded-xl border border-[#cfe0d9] bg-white p-4">
                 <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">Value proposition</p>
                 <p className="mt-2 text-sm font-semibold leading-6 text-[#26463c]">{segment.valueProposition}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="grid gap-5 xl:grid-cols-[1.12fr_0.88fr]">
+        <div className="rounded-[28px] border border-[#dce2df] bg-white p-6 sm:p-8">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">Decision rubric</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824]">Weighted ICP scorecard</h2>
+            </div>
+            <span className="text-xs text-[#87938e]">Internal score · 1–5</span>
+          </div>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            {icpDecisionCriteria.map((criterion) => (
+              <span key={criterion.key} className="rounded-full bg-[#f2f4f3] px-3 py-1.5 text-[11px] font-semibold text-[#596761]">
+                {criterion.label} · {criterion.weight}
+              </span>
+            ))}
+          </div>
+
+          <div className="mt-6 space-y-3">
+            {icpScorecard.map((item) => (
+              <article key={item.segment} className="rounded-2xl border border-[#e2e8e5] p-4">
+                <div className="flex items-start gap-4">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#173f35] text-sm font-bold text-white">
+                    {item.rank}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h3 className="font-semibold text-[#1d2824]">{item.segment}</h3>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl font-semibold text-[#173f35]">{item.score.toFixed(1)}</span>
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#87938e]">/5</span>
+                      </div>
+                    </div>
+                    <p className="mt-1 text-[11px] font-semibold text-[#87938e]">Evidence confidence · {item.confidence}</p>
+                    <p className="mt-3 text-sm leading-6 text-[#52615b]">{item.decision}</p>
+                    <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">
+                      {icpDecisionCriteria.map((criterion) => (
+                        <div key={criterion.key} className="rounded-lg bg-[#f7f9f8] px-2 py-2 text-center">
+                          <p className="text-[9px] uppercase tracking-[0.08em] text-[#8b9692]">{criterion.label}</p>
+                          <p className="mt-1 text-xs font-bold text-[#345047]">
+                            {item.scores[criterion.key as keyof typeof item.scores]}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-[28px] bg-[#123d34] p-6 text-white sm:p-8">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#9cc5b7]">Beachhead profile</p>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight">{beachheadProfile.name}</h2>
+          <span className="mt-3 inline-flex rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-[#d8e5e0]">
+            {beachheadProfile.status}
+          </span>
+
+          {[
+            ["Must have", beachheadProfile.mustHave],
+            ["Positive signals", beachheadProfile.positiveSignals],
+            ["Deprioritise", beachheadProfile.deprioritise],
+          ].map(([label, items]) => (
+            <div key={label as string} className="mt-6">
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">{label as string}</p>
+              <ul className="mt-3 space-y-2">
+                {(items as readonly string[]).map((item) => (
+                  <li key={item} className="flex gap-2 text-sm leading-6 text-[#d8e5e0]">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#d7a45b]" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-[28px] border border-[#dce2df] bg-white p-6 sm:p-8">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">Competitive alternatives</p>
+        <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824]">
+          The real competitive set
+        </h2>
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66736e]">
+          Smart Steel Sales should not position itself as a replacement for every ERP or CRM. The initial wedge is the commercial intelligence layer between existing systems, industry relationships and demand activation.
+        </p>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+          {competitiveAlternatives.map((item) => (
+            <article key={item.category} className="rounded-2xl border border-[#e2e8e5] bg-[#f9fbfa] p-5">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">{item.category}</p>
+              <h3 className="mt-2 text-sm font-semibold text-[#1d2824]">{item.examples}</h3>
+              <div className="mt-4 space-y-3 text-xs leading-5">
+                <p><span className="font-semibold text-[#345047]">Strength:</span> <span className="text-[#66736e]">{item.strength}</span></p>
+                <p><span className="font-semibold text-[#345047]">Gap:</span> <span className="text-[#66736e]">{item.gap}</span></p>
+                <p className="rounded-xl bg-white p-3 font-medium text-[#345047]">{item.implication}</p>
               </div>
             </article>
           ))}
