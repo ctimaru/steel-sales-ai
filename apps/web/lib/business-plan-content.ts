@@ -1,8 +1,8 @@
-export const BUSINESS_PLAN_VERSION = "Investor Draft 0.6";
+export const BUSINESS_PLAN_VERSION = "Investor Draft 0.7";
 
 export const businessPlanSnapshot = {
   stage: "Product-ready web SaaS",
-  currentFocus: "Offer & willingness-to-pay validation",
+  currentFocus: "Freemium & product-led monetization reset",
   launchWindow: "2027 controlled launch",
   thesis:
     "Smart Steel Sales is the vertical commercial operating system for the steel and tube industry: private commercial memory, trusted industry network, demand marketplace and technical knowledge in one governed product.",
@@ -638,440 +638,482 @@ export const pricingMarketAnchors = [
 ] as const;
 
 export const pricingArchitectureDecision = {
-  preferredModel: "Organization subscription + included seats + optional usage layer",
+  preferredModel: "Permanent Free Base + optional low-cost modules + simple self-service bundle",
   rationale: [
-    "The core asset is company memory and shared context, so value accrues at organization level rather than only per individual seat.",
-    "Included seats reduce the adoption penalty that pure per-seat pricing creates when a Sales Director wants the whole team using the same memory.",
-    "Additional seats remain useful as a scaling lever without becoming the primary value metric.",
-    "Marketplace credits can later become a separate usage layer after supplier-response value is proven.",
-    "Public Scuola and basic Network identity should remain free to preserve acquisition and network-density loops.",
+    "Smart Steel Sales should be useful before payment: the free product must create real day-one value and network density, not function as a disguised trial.",
+    "Monetization should happen through optional capability unlocks after users have already reached value, reducing dependence on demos, procurement calls and a dedicated sales force.",
+    "Paid modules should be inexpensive enough to sit below the threshold that normally triggers a formal software-buying process for an SME.",
+    "The default commercial path is self-service activation, in-product upgrade and card billing; human sales remains exceptional rather than necessary.",
+    "Organization-level module pricing avoids punishing collaboration while still allowing cost controls through fair-use allowances for AI, ingestion and storage.",
   ],
   rejectedForNow: [
-    "Pure per-seat pricing as the only model.",
-    "Pure Marketplace success fee before transaction attribution and marketplace liquidity are proven.",
-    "Unlimited AI/ingestion promises before unit economics are measured in L27.2C.",
+    "A mandatory paid pilot before the customer can experience the product.",
+    "A €299–€799 Core/Pro ladder as the default route to monetization.",
+    "A GTM model that requires outbound sales, demos or negotiation to create every paying customer.",
+    "Mandatory onboarding fees or annual contracts for normal SME usage.",
+    "Pure per-seat pricing as the primary expansion mechanism.",
   ],
 } as const;
 
 export const packagingBoundaryDecision = {
-  status: "Architecture decision · customer validation pending",
+  status: "Product-led architecture reset · unit-economics validation pending",
   principle:
-    "Keep public discovery and network-density loops open; start the paid boundary when a company activates private Commercial Memory and expects persistent, shared, governed commercial intelligence.",
+    "Keep a permanently useful Free Base and charge only when an organization voluntarily unlocks deeper automation, memory, AI or team capabilities. Every paid boundary must follow an experienced value moment rather than precede it.",
   boundaries: [
     {
-      transition: "Free → Core",
-      trigger: "Private company memory becomes operational",
+      transition: "Free Base → Memory+",
+      trigger: "The company wants deeper, persistent and more automated commercial memory",
       paidValue:
-        "Connect/import private commercial data, persist it as organization memory, search historical email/RFQ/offer context and share it across the sales team.",
+        "Extended historical ingestion, richer email/RFQ/offer retrieval, larger memory/storage envelope and automated synchronization where available.",
       staysOutside:
-        "Public Scuola, technical calculators, company identity/claim, basic Network discovery/follow and limited Marketplace visibility remain open.",
+        "Basic Workspace, customers, contacts, RFQs/offers and a useful Memory Lite experience remain free.",
       reason:
-        "The first durable economic value is not profile visibility; it is turning proprietary commercial history into reusable company infrastructure.",
+        "Users should understand the value of company memory from real use before deciding whether deeper history and automation are worth a small monthly fee.",
     },
     {
-      transition: "Core → Pro",
-      trigger: "Coordination and management complexity increases",
+      transition: "Free Base → AI+",
+      trigger: "The company repeatedly uses AI assistance beyond the included free allowance",
       paidValue:
-        "Larger included team envelope, advanced analytics, automation, governance and higher AI/ingestion allowances.",
+        "Higher AI allowance, structured extraction, assisted drafting/summarization and advanced commercial queries.",
       staysOutside:
-        "Core Commercial Memory jobs stay usable in Core; Pro must not be created by artificially withholding basic historical search or daily RFQ context.",
+        "A small recurring AI allowance remains free so users can experience the workflow without a credit card.",
       reason:
-        "The second tier should monetize organizational complexity and management value, not punish successful adoption of the core workflow.",
+        "AI cost should scale with optional usage, but first value must be discoverable for free.",
     },
     {
-      transition: "Pro → Enterprise",
-      trigger: "Security, integration and procurement requirements become material",
+      transition: "Free Base → Team+",
+      trigger: "The organization needs more coordination rather than more individual usage",
       paidValue:
-        "Custom integration/API scope, SSO or advanced security where available, contractual support, dedicated onboarding and negotiated usage envelope.",
+        "Advanced roles, team analytics, workflow automation, governance and a larger collaboration envelope.",
       staysOutside:
-        "Standard product workflows remain standardized; bespoke requirements are not silently absorbed into lower tiers.",
+        "Basic multi-user collaboration remains free and is never blocked merely to force seat expansion.",
       reason:
-        "Enterprise value is created by governance, integration depth and deployment complexity rather than by a cosmetic feature bundle.",
+        "The paid boundary follows organizational complexity, not the act of inviting another colleague.",
+    },
+    {
+      transition: "Marketplace → Premium actions",
+      trigger: "Network liquidity creates a premium action with measurable transaction value",
+      paidValue:
+        "Optional micro-credits or a low-cost Marketplace add-on for premium distribution/unlock actions only after recurring response value is proven.",
+      staysOutside:
+        "Discovery, company visibility and the basic demand/supply loop stay free while network density is still being built.",
+      reason:
+        "Marketplace monetization must never slow network formation before liquidity exists.",
     },
   ],
 } as const;
 
 export const valueMetricDecision = {
-  primaryMetric: "Organization subscription anchored to active private Commercial Memory",
-  status: "Preferred value metric · directional validation required",
+  primaryMetric: "Optional paid module adoption per organization",
+  status: "Preferred PLG metric · L27.2C cost validation required",
   why:
-    "Commercial Memory compounds across the company: prior quotes, relationships, pricing context and account history remain valuable when users change. Pricing the organization captures that shared asset better than charging for each individual action.",
+    "The user should pay for a capability they actively choose to deepen, not for access to the platform itself. Module attach rate and self-service retention therefore measure value alignment better than seat count or negotiated contract value.",
   secondaryLevers: [
     {
-      metric: "Included seats + additional seats",
-      role: "Expansion lever",
+      metric: "Low-cost module subscription",
+      role: "Primary monetization",
       rule:
-        "Use seats to reflect larger team scale after a useful included-user envelope; do not make every invited colleague a new purchasing decision.",
+        "Charge a small organization-level monthly amount for Memory+, AI+ or Team+ only after the corresponding free capability has demonstrated value.",
     },
     {
-      metric: "AI / ingestion / storage allowance",
+      metric: "SSS Plus bundle",
+      role: "Simple expansion path",
+      rule:
+        "Offer one inexpensive bundle for organizations that want all paid modules, avoiding a complex pricing calculator or sales negotiation.",
+    },
+    {
+      metric: "Fair-use AI / ingestion / storage",
       role: "Cost guardrail",
       rule:
-        "Use fair-use envelopes to protect gross margin and infrastructure capacity. Do not make normal retrieval of company memory feel like a taxi meter.",
+        "Use generous but finite allowances to protect unit economics. Ordinary usage should feel predictable, not metered action by action.",
     },
     {
-      metric: "Marketplace unlock / response credits",
-      role: "Future transaction-value layer",
+      metric: "Marketplace premium actions",
+      role: "Future usage layer",
       rule:
-        "Keep separate from the core subscription until L27.5/P5.6 demonstrates recurring qualified supplier-response value and attribution.",
-    },
-    {
-      metric: "Onboarding / migration services",
-      role: "Potential one-time fee",
-      rule:
-        "Price only against measured setup/import effort in L27.2C; never use onboarding as an arbitrary margin surcharge.",
+        "Introduce only after P5.6/L27.5 proves recurring response value; keep the basic network loop free.",
     },
   ],
   doNotMeter: [
-    "Searches of the customer's own commercial history.",
-    "Number of customers, contacts, RFQs or offers stored during normal use.",
-    "Basic company-profile and Network discovery actions that support network density.",
-    "Routine collaboration inside the included-user envelope.",
+    "Company profile, claim, Network discovery/follow and public Scuola.",
+    "Basic Workspace objects: customers, contacts, RFQs and offers.",
+    "A useful Memory Lite experience and a small recurring AI allowance.",
+    "Basic collaboration among a small commercial team.",
+    "Normal browsing of Marketplace demand/supply while liquidity is being created.",
   ],
 } as const;
 
 export const valueMetricAlternatives = [
   {
-    candidate: "Organization + included users",
+    candidate: "Permanent free base + optional modules",
     decision: "Preferred",
     valueAlignment:
-      "Matches the shared company-memory asset and keeps adoption friction low while preserving seat-based expansion.",
+      "Maximizes product-led adoption and lets companies buy only the incremental capability they already understand.",
+  },
+  {
+    candidate: "All-in Core subscription",
+    decision: "Superseded",
+    valueAlignment:
+      "Creates a larger buying decision too early and tends to require sales assistance before enough value has been experienced.",
   },
   {
     candidate: "Pure per-seat",
-    decision: "Secondary only",
+    decision: "Reject as default",
     valueAlignment:
-      "Easy to understand but misaligned when value increases because knowledge is shared across the team; can discourage inviting the people required for memory completeness.",
+      "Discourages team adoption and makes the product feel expensive as soon as collaboration succeeds.",
   },
   {
-    candidate: "Pure AI / usage consumption",
-    decision: "Reject as headline metric",
+    candidate: "Pure usage / AI credits",
+    decision: "Guardrail only",
     valueAlignment:
-      "Tracks infrastructure consumption better than customer value, makes spend less predictable and can suppress the very usage that creates retention.",
-  },
-  {
-    candidate: "Marketplace success fee / credits only",
-    decision: "Premature",
-    valueAlignment:
-      "Could align with transaction value later, but liquidity, attribution and recurring supplier-response value are not yet commercially proven.",
+      "Useful for cost control but too unpredictable to become the main value proposition or headline price.",
   },
 ] as const;
 
 export const packagingBoundaryValidationGate = {
   evidenceRequired: [
-    "Present the same organization-level Core framing to target distributor companies; do not switch to seat-only pricing mid-test just to remove objections.",
-    "Record which boundary creates confusion: private memory, included users, usage allowances, Pro differentiation or Marketplace credits.",
-    "Count procurement progression, paid-pilot acceptance and concrete budget discussion above stated preference.",
-    "Capture disconfirming evidence from companies that believe core private Commercial Memory should be free or that insist on a fundamentally different value metric.",
+    "Observe whether free organizations reach a meaningful activation event without demos or onboarding calls.",
+    "Measure which paid capability users attempt to unlock after experiencing the corresponding free workflow.",
+    "Track module attach rate, self-service checkout completion, downgrade/cancel reasons and 30/60/90-day paid retention.",
+    "Separate cost-driven limits from artificial paywalls: the free product must remain genuinely useful.",
   ],
   directionalPassSignals: [
-    "At least 3 distinct beachhead companies progress toward a paid pilot, procurement step or budget-owner discussion under an organization-level offer.",
-    "Organization + included users is understandable without a recurring request to reframe the entire offer as pure per-seat pricing.",
-    "Core buyers identify private Commercial Memory as the paid wedge rather than expecting it inside the free Network layer.",
-    "Pro differentiation is not published as a final tier until at least 2 target companies independently value analytics, automation, governance or higher operational envelopes.",
+    "At least 5 distinct organizations purchase a module or SSS Plus through a self-service path without a negotiated sales process.",
+    "At least 80% of early paid activations complete without a mandatory demo, custom proposal or manual onboarding.",
+    "At least 3 paid organizations remain paid after 60 days once enough calendar time has elapsed.",
+    "More than one paid module shows organic demand, indicating monetization is not dependent on a single forced paywall.",
   ],
   disconfirmSignals: [
-    "A structural objection appears in >=40% of completed beachhead companies that the organization metric does not match how they budget or perceive value.",
-    "A structural objection appears in >=40% of completed beachhead companies that private Commercial Memory belongs in the free layer.",
-    "Customers repeatedly ask to meter only individual AI actions because shared organization value is not perceived.",
-    "Marketplace economics become the only credible reason to pay before Commercial Memory produces a buying signal.",
+    "Most activated organizations require a sales call to understand why or how to upgrade.",
+    "Users encounter a paywall before they have reached the corresponding free value moment.",
+    "The Free Base is too weak to create repeat usage or too complete to create any optional module demand.",
+    "L27.2C shows that a low-impact module price cannot sustain infrastructure/support cost even with fair-use limits.",
   ],
   decisionRule:
-    "B.1 fixes the packaging architecture for testing, not final pricing. Mark the value metric commercially validated only after real offer behaviour clears the directional pass signals without a structural disconfirmation signal.",
+    "The freemium architecture is directionally supported only when users reach value for free and a subset voluntarily upgrades through self-service. Sales-assisted conversions may be recorded but must not be the primary proof.",
 } as const;
 
 export const pricingHypotheses = [
   {
-    name: "Free Network",
-    price: "€0",
-    audience: "Any claimed or discoverable company",
-    purpose: "Acquisition + network density",
+    name: "SSS Free",
+    price: "€0 · permanent",
+    audience: "Every verified/registered steel-industry organization",
+    purpose: "Useful product + acquisition + network density",
     includes: [
-      "Public Scuola and technical calculators",
-      "Company profile / claim foundation",
-      "Network browse, follow and basic discovery",
-      "Limited Marketplace visibility",
+      "Scuola, standards and technical calculators",
+      "Company profile / claim + Network discovery/follow",
+      "Basic Workspace for customers, contacts, RFQs and offers",
+      "Memory Lite with a modest history/import envelope",
+      "Small recurring AI allowance",
+      "Basic multi-user collaboration",
+      "Marketplace discovery and basic participation",
     ],
     excludes: [
-      "Private Commercial Memory",
-      "Historical email/RFQ intelligence",
-      "Advanced team analytics and automations",
+      "Large automated history/sync envelope",
+      "High AI usage",
+      "Advanced team analytics/governance/automation",
     ],
-    status: "Structural hypothesis",
+    status: "New baseline",
   },
   {
-    name: "Core",
-    price: "Test band €299–€399 / organization / month",
-    audience: "Small-to-mid distributor sales teams",
-    purpose: "Primary paid wedge",
+    name: "Memory+",
+    price: "Working anchor €15 / organization / month",
+    audience: "Teams that outgrow Memory Lite",
+    purpose: "Deeper commercial history without a large software purchase",
     includes: [
-      "3–5 commercial users included",
-      "Commercial Memory",
-      "Email/RFQ ingestion and historical search",
-      "Customer/contact/RFQ/offer workspace",
-      "Network and company intelligence",
-      "Baseline AI query allowance",
+      "Extended Commercial Memory",
+      "Larger historical ingestion/storage envelope",
+      "Advanced email/RFQ/offer search",
+      "Automated synchronization where available",
     ],
-    excludes: [
-      "Advanced admin/security/integration package",
-      "High-volume AI/ingestion",
-      "Enterprise SLA",
-    ],
-    status: "Primary pricing hypothesis",
+    excludes: ["High AI allowance", "Advanced team governance"],
+    status: "Low-cost module hypothesis",
   },
   {
-    name: "Pro",
-    price: "Test band €649–€799 / organization / month",
-    audience: "Larger distributor teams and second-stage producers",
-    purpose: "Expansion + higher operational value",
+    name: "AI+",
+    price: "Working anchor €15 / organization / month",
+    audience: "Teams with recurring AI-assisted commercial work",
+    purpose: "Optional higher AI capacity",
     includes: [
-      "8–10 users included",
-      "Higher ingestion and AI allowances",
-      "Advanced team/commercial analytics",
-      "Automation and governance features",
-      "Priority support",
-      "Initial Marketplace response/unlock allowance if validated",
+      "Higher AI allowance",
+      "Structured extraction and summarization",
+      "Assisted commercial queries and drafting",
+      "Fair-use protection rather than per-click metering",
     ],
-    excludes: [
-      "Bespoke enterprise integrations",
-      "Dedicated SLA / SSO package unless separately contracted",
-    ],
-    status: "Expansion pricing hypothesis",
+    excludes: ["Custom AI workflows", "Unbounded consumption"],
+    status: "Low-cost module hypothesis",
   },
   {
-    name: "Enterprise",
-    price: "Custom; working floor from ~€1,250/month",
-    audience: "Multi-team producers, large distributors and complex groups",
-    purpose: "Governance + integration + scale",
+    name: "Team+",
+    price: "Working anchor €15 / organization / month",
+    audience: "Organizations that need more coordination and governance",
+    purpose: "Monetize complexity, not seats",
     includes: [
-      "Custom seat/usage envelope",
-      "SSO / advanced security when available",
-      "API and integration scope",
-      "Dedicated onboarding / success plan",
-      "Contractual support and governance",
+      "Advanced roles/permissions",
+      "Team analytics",
+      "Workflow automation",
+      "Larger collaboration envelope",
     ],
-    excludes: [],
-    status: "Do not publish before enterprise discovery",
+    excludes: ["Enterprise SSO/API/SLA"],
+    status: "Low-cost module hypothesis",
+  },
+  {
+    name: "SSS Plus",
+    price: "Working anchor €39 / organization / month",
+    audience: "Organizations that want the full self-service paid experience",
+    purpose: "One simple all-in upgrade",
+    includes: [
+      "Memory+",
+      "AI+",
+      "Team+",
+      "One predictable monthly price",
+      "Self-service activation and cancellation",
+    ],
+    excludes: ["Bespoke enterprise implementation"],
+    status: "Preferred bundle hypothesis",
+  },
+  {
+    name: "Marketplace premium",
+    price: "Keep core free; future micro-credit / low-cost add-on",
+    audience: "Only users creating measurable premium transaction value",
+    purpose: "Monetize liquidity after it exists",
+    includes: [
+      "Potential premium distribution or response unlocks",
+      "Small optional credits/add-on only after value evidence",
+    ],
+    excludes: ["Basic network participation", "Core discovery"],
+    status: "Deferred until P5.6/L27.5 evidence",
   },
 ] as const;
 
 export const pricingExperimentBands = [
   {
-    test: "Paid design-partner pilot",
-    offer: "€199/month for 90 days, up to 3 users; onboarding waived",
+    test: "Module micro-price",
+    offer: "Test €9 / €15 / €19 per organization/month for one optional module",
     goal:
-      "Test whether real companies will pay something now rather than accept a free pilot. Success requires usage plus a paid conversion discussion.",
+      "Find a low-friction price that converts self-service after the user has already experienced the free capability; L27.2C sets the economic floor.",
   },
   {
-    test: "Core anchor",
-    offer: "€349/month, 5 users included; extra users tentatively €39/month",
+    test: "All-in bundle",
+    offer: "Test €29 / €39 / €49 per organization/month for SSS Plus",
     goal:
-      "Test organization-level willingness-to-pay against familiar CRM alternatives while preserving team adoption.",
+      "Keep the typical paying SME below a material procurement threshold while providing a simple alternative to buying modules individually.",
   },
   {
-    test: "Pro anchor",
-    offer: "€749/month, 10 users included",
+    test: "Marketplace premium action",
+    offer: "No paid test before liquidity; later test micro-credit or €9–€19 low-cost add-on",
     goal:
-      "Test whether analytics, automation, governance and higher usage limits create a meaningful second tier.",
+      "Protect network growth now and only introduce payment when a premium response/distribution action has measurable recurring value.",
   },
 ] as const;
 
 export const pricingDecisionRules = [
-  "Do not call any price validated based on the synthetic cohort.",
-  "Prefer offer acceptance, paid pilot or procurement progression over direct 'what would you pay?' answers.",
-  "Core price is viable only if customers perceive Commercial Memory as organization-wide infrastructure rather than a personal productivity tool.",
-  "If teams strongly resist €349/month but accept €199 paid pilots, keep value scope constant and investigate proof/ROI before cutting list price.",
-  "If real customers accept €349–€399 with little friction, test higher value before optimizing downward.",
-  "Marketplace credits remain optional until P5.6/L27.5 proves supplier-response value and recurring usage.",
-  "Onboarding fees should reflect real setup/import work measured in L27.2C, not become an arbitrary margin lever.",
+  "The Free Base is permanent and must remain genuinely useful; do not convert it into a time-limited trial.",
+  "No mandatory demo, proposal or onboarding call should be required for standard module purchase.",
+  "The default target is a typical paying SME spend of roughly €15–€49/month before optional Marketplace usage.",
+  "Never raise prices simply because a company adds ordinary collaborators; monetize advanced coordination through Team+ instead.",
+  "L27.2C can raise a module floor only if real AI/storage/support costs make the working micro-price unsustainable.",
+  "Paid conversion is measured from activated free organizations, not from raw signups.",
+  "Human sales can support complex/custom accounts later, but it must not be required for the core growth engine.",
+  "Marketplace remains free-first until liquidity and supplier-response value are proven.",
 ] as const;
 
-export const offerValidationCards = [
+export const freemiumModuleCards = [
   {
-    code: "PILOT-199",
-    name: "Paid design-partner pilot",
-    price: "€199 / organization / month · 90 days",
-    audience: "Beachhead distributor / stockholder with a real Commercial Memory workflow",
+    code: "FREE",
+    name: "SSS Free",
+    price: "€0 forever",
+    audience: "Any steel-industry organization",
     scope: [
-      "Up to 3 commercial users",
-      "Private Commercial Memory + historical email/RFQ/offer search",
-      "Controlled ingestion/import support",
-      "Customer/contact/RFQ/offer workspace",
-      "Baseline AI assistance",
-      "Onboarding fee waived for the 90-day pilot only",
+      "Scuola + calculators",
+      "Company profile and Network",
+      "Basic Workspace",
+      "Memory Lite",
+      "AI Lite",
+      "Basic collaboration",
+      "Marketplace base",
     ],
-    commercialRule:
-      "No free equivalent is counted as willingness-to-pay evidence. No automatic renewal: the pilot ends in an explicit Core conversion decision.",
+    rule:
+      "No credit card and no countdown. Users must be able to reach repeatable product value before any upgrade prompt becomes important.",
     successSignal:
-      "Signed/paid start, named internal owner and agreed 90-day success outcome.",
+      "Activated organizations return and use Workspace/Memory/Network without human onboarding.",
   },
   {
-    code: "CORE-349",
-    name: "Core reference offer",
-    price: "€349 / organization / month",
-    audience: "Small-to-mid commercial team after sufficient problem evidence",
+    code: "MEMORY+",
+    name: "Memory+",
+    price: "Working anchor €15/month",
+    audience: "Organizations with growing historical commercial data",
     scope: [
-      "5 users included",
-      "Commercial Memory",
-      "Email/RFQ ingestion and historical search",
-      "Customer/contact/RFQ/offer workspace",
-      "Network and company intelligence",
-      "Baseline AI allowance",
-      "Tentative extra user: €39/month",
+      "Extended memory/history",
+      "Larger ingestion/storage envelope",
+      "Advanced historical search",
+      "Automated sync where available",
     ],
-    commercialRule:
-      "This is the baseline Core price cell. Scope stays fixed during the test so objections can be attributed to value/price rather than hidden package changes.",
+    rule:
+      "Upgrade prompt appears only when Memory Lite has demonstrated value or a genuine cost/volume boundary is reached.",
     successSignal:
-      "Budget-owner progression, procurement step or paid Core conversion at the stated organization-level price.",
+      "Self-service purchase directly after repeated Memory Lite use or a clearly understood history/sync need.",
   },
   {
-    code: "CORE-399",
-    name: "Core step-up sensitivity cell",
-    price: "€399 / organization / month",
-    audience: "Comparable Core-qualified companies after the baseline cell produces a credible buying signal",
+    code: "AI+",
+    name: "AI+",
+    price: "Working anchor €15/month",
+    audience: "Organizations repeatedly using AI assistance",
     scope: [
-      "Same Core scope as CORE-349",
-      "5 users included",
-      "No additional feature used to justify the higher test price",
+      "Higher AI allowance",
+      "Extraction/summarization",
+      "Commercial querying",
+      "Assisted drafting",
     ],
-    commercialRule:
-      "Activate only after the pre-committed step-up trigger. Never re-quote the same company from €349 to €399 merely to test price sensitivity.",
+    rule:
+      "Keep a useful free recurring allowance. AI+ expands capacity rather than unlocking the concept for the first time.",
     successSignal:
-      "Comparable procurement or paid-conversion behavior without a material increase in price-specific rejection.",
+      "Users voluntarily upgrade after exhausting or repeatedly approaching the free allowance.",
   },
   {
-    code: "PRO-749",
-    name: "Pro qualification offer",
-    price: "€749 / organization / month",
-    audience: "Larger team with independently observed analytics, automation or governance needs",
+    code: "TEAM+",
+    name: "Team+",
+    price: "Working anchor €15/month",
+    audience: "Organizations needing advanced coordination",
     scope: [
-      "10 users included",
-      "Higher ingestion and AI envelope",
-      "Advanced commercial/team analytics",
-      "Automation and governance features",
-      "Priority support",
+      "Advanced roles",
+      "Team analytics",
+      "Automation",
+      "Governance controls",
     ],
-    commercialRule:
-      "Do not present Pro as a decoy. Use it only when the company has already expressed a real need for the additional operational complexity.",
+    rule:
+      "Do not charge for every normal seat. The module unlocks coordination depth rather than basic collaboration.",
     successSignal:
-      "Advanced needs are independently confirmed and the buyer accepts a paid Pro discussion rather than defaulting to Core.",
+      "Upgrade follows a real governance/analytics need created by successful team adoption.",
+  },
+  {
+    code: "PLUS",
+    name: "SSS Plus",
+    price: "Working anchor €39/month",
+    audience: "Organizations wanting all paid modules",
+    scope: [
+      "Memory+",
+      "AI+",
+      "Team+",
+      "Single predictable monthly bill",
+    ],
+    rule:
+      "Always available through self-service with clear savings versus three separate modules; no negotiation required.",
+    successSignal:
+      "Becomes the natural self-service choice for organizations attaching two or more modules.",
   },
 ] as const;
 
-export const willingnessToPayProtocol = {
+export const selfServeMonetizationModel = {
   purpose:
-    "Measure real commercial behavior around the current offer architecture. This is directional B2B validation, not a statistically representative pricing study.",
-  minimumSample: {
-    companies: 8,
-    budgetOwnerCompanies: 5,
-    segment: "Distinct Italian distributor/stockholder companies matching the beachhead profile",
+    "Prove that Smart Steel Sales can monetize as a product-led network utility: users discover value for free, upgrade inside the product and remain paid without a sales-dependent acquisition engine.",
+  activationCohort: {
+    organizations: 50,
+    initialPaidOrganizations: 5,
+    definition:
+      "Activated = a real organization that completes a meaningful workflow such as creating/importing commercial data, retrieving history, using AI assistance or repeatedly using Network/Marketplace—not merely registering.",
   },
   sequence: [
-    "Reconfirm a real recent workflow problem and the expected first 30–90 day outcome before price is discussed.",
-    "Present one standardized offer with scope and price visible before asking for any budget range.",
-    "Ask for a concrete decision: move forward, internal budget review, procurement step, later/no decision, or reject.",
-    "If the buyer does not progress, classify the primary blocker: price, proof/ROI, scope, integration/security, timing, procurement or wrong ICP.",
-    "Only after the decision signal, ask what budget envelope or evidence would change the answer; do not use that answer as stronger evidence than behavior.",
-    "Do not counter-discount on the same call. Preserve the original offer outcome before any future commercial iteration.",
+    "Acquire through public Scuola/SEO, company discovery, referrals, claim flow and Network activity.",
+    "Let the organization activate the useful Free Base without a meeting or credit card.",
+    "Detect a natural expansion signal such as memory volume, repeated AI use, advanced team coordination or a future premium Marketplace action.",
+    "Show a contextual upgrade with a low monthly price and plain-language benefit.",
+    "Complete checkout and module activation in-product without proposal negotiation.",
+    "Measure repeat use, downgrade/cancel reason and paid retention before changing price.",
   ],
   guardrails: [
-    "No ad-hoc discounts during the validation cohort.",
-    "The €199 pilot is the only pre-defined entry concession and its waived onboarding must be recorded separately from recurring price.",
-    "Free pilots, friendly-company trials and verbal enthusiasm do not count as willingness-to-pay evidence.",
-    "A company receives one Core price cell in a validation phase; do not expose the same buyer to multiple prices as a negotiation trick.",
-    "CORE-349 and CORE-399 must use the same Core scope.",
-    "Enterprise/custom pricing is excluded from this validation cohort.",
+    "No mandatory free-trial expiry.",
+    "No sales call required to unlock normal paid modules.",
+    "No onboarding fee for standard self-service organizations.",
+    "No annual commitment required at launch; annual billing can later be an optional discount.",
+    "No artificial data hostage pattern: exports and normal customer data remain accessible.",
+    "Paid limits should map to cost or advanced capability, not arbitrary friction.",
   ],
 } as const;
 
-export const offerBehaviorScale = [
+export const productLedEvidenceScale = [
   {
     score: 5,
-    label: "Paid / signed",
-    evidence: "Payment, signed order/formal agreement, or accepted commercial terms with scheduled paid start.",
+    label: "Retained self-service payer",
+    evidence: "Organization buys without sales assistance and remains paid after the defined retention window.",
   },
   {
     score: 4,
-    label: "Procurement initiated",
-    evidence: "PO/procurement/security process opened with a named owner and required next step.",
+    label: "Self-service paid",
+    evidence: "Organization purchases a module/bundle and activates it without negotiated commercial intervention.",
   },
   {
     score: 3,
-    label: "Budget-owner commitment",
-    evidence: "Decision-maker accepts the offer terms subject to a specific internal approval/date or schedules a paid pilot start.",
+    label: "Upgrade intent in product",
+    evidence: "Activated organization reaches a paid boundary and initiates checkout or pricing interaction.",
   },
   {
     score: 2,
-    label: "Concrete internal review",
-    evidence: "Named stakeholder, explicit next meeting/date and budget discussion; no generic 'send me information'.",
+    label: "Repeat free activation",
+    evidence: "Organization repeatedly uses the free workflow and reaches a clear expansion signal.",
   },
   {
     score: 1,
-    label: "Interest only",
-    evidence: "Positive words or demo interest without a dated commercial next step.",
+    label: "Registered / claimed",
+    evidence: "Organization exists on the platform but has not reached repeatable product value.",
   },
   {
     score: 0,
-    label: "Rejected / no fit",
-    evidence: "Explicit rejection, no buying path or confirmed mismatch with the target workflow.",
+    label: "Inactive",
+    evidence: "No meaningful workflow beyond registration or first visit.",
   },
 ] as const;
 
-export const priceSensitivityStepUp = {
-  baselineCell: "CORE-349",
-  baselineMinimumCompanies: 4,
-  trigger:
-    "Only open CORE-399 after at least 2 of the first 4 valid CORE-349 companies reach behavior score >=3 and fewer than half cite price as the primary blocker.",
-  stepUpCell: "CORE-399",
-  comparisonRule:
-    "Use the same Core scope and comparable beachhead companies. Interpret the result directionally; do not claim statistical significance from the small sample.",
-  rollbackRule:
-    "If price-specific rejection materially increases at €399, keep €349 as the working anchor and investigate ROI proof before testing lower list prices.",
+export const freemiumPricingGuardrails = {
+  moduleTestCells: "€9 → €15 → €19",
+  bundleTestCells: "€29 → €39 → €49",
+  rule:
+    "Run price tests only on comparable activated cohorts and only after users reach the same value moment. Never turn pricing tests into human negotiation.",
+  target:
+    "Keep normal SME self-service spend low enough that adoption can remain a card-level operating expense rather than a software procurement project.",
+  unitEconomicsRule:
+    "L27.2C defines the minimum sustainable price from AI, storage, email, support and payment costs before any public pricing is locked.",
 } as const;
 
-export const willingnessToPayValidationGate = {
+export const productLedValidationGate = {
   sampleGate: [
-    "At least 8 distinct beachhead companies receive a standardized paid offer.",
-    "At least 5 of those companies include a budget owner / commercial decision-maker in the pricing decision.",
-    "Each offer record captures company, role, offer code, behavior score, primary blocker, next step and evidence date.",
+    "Reach at least 50 activated organizations before treating conversion percentages as more than early directional evidence.",
+    "Record source, activation event, free feature usage, upgrade trigger, module purchased, price cell and whether human assistance was required.",
+    "Exclude test/friendly accounts and manually comped subscriptions from paid conversion evidence.",
   ],
-  entryOfferPass: [
-    "At least 3 distinct companies accept/sign/pay the €199 90-day pilot or equivalent scheduled paid start.",
-    "At least 4 of 8 companies reach behavior score >=2 under a paid offer.",
-    "Fewer than 50% of completed companies cite price as the primary blocker before proof/ROI, integration or timing concerns.",
+  earlyPass: [
+    "At least 5 distinct organizations purchase a module or SSS Plus through self-service.",
+    "At least 4 of the first 5 paid organizations complete purchase without a mandatory sales call or custom proposal.",
+    "At least 3 paid organizations remain paid after 60 days once the observation window exists.",
+    "At least two different paid modules or the Plus bundle receive organic purchases, reducing dependence on a single artificial paywall.",
   ],
-  coreAnchorSupport: [
-    "At least 6 Core-qualified budget-owner conversations are completed before calling the €349 anchor directionally supported.",
-    "At least 3 companies reach behavior score >=3 at €349 or higher.",
-    "Organization-level pricing is not structurally rejected by >=40% of the completed Core-qualified companies.",
-  ],
-  commercialValidation: [
-    "A Core list price is not called commercially validated until at least 3 distinct companies actually convert to paid Core at or above €349/month.",
-    "Renewal/continued-payment evidence belongs to L27.5 and is required before treating the price as retention-validated.",
-    "Pro remains a hypothesis until at least 2 companies independently value the advanced scope and at least 1 reaches behavior score >=3 on PRO-749.",
+  scaledSupport: [
+    "A 5–10% activated-to-paid conversion band is the initial internal hypothesis to test, not an external benchmark.",
+    "Typical self-service paid spend should remain in the low-impact €15–€49/month range unless optional usage creates additional value.",
+    "Expansion should come from module attach/bundle adoption and product usage rather than from adding sales headcount.",
   ],
   disconfirmSignals: [
-    "Fewer than 2 of 8 companies reach behavior score >=2 after the full sample.",
-    "Price is the primary blocker in >=60% of completed beachhead companies despite clear problem/ROI evidence.",
-    "A structural need for free Commercial Memory or pure per-seat pricing appears in >=40% of completed companies.",
-    "The €199 pilot attracts interest but produces no paid/signed starts, indicating curiosity without willingness to exchange money.",
+    "Paid conversion occurs mainly after demos, outbound persuasion or manually negotiated discounts.",
+    "More than half of activated users hit a paywall before demonstrating repeat free value.",
+    "Paid churn rapidly reverses module upgrades once users see the first invoice.",
+    "L27.2C shows negative or fragile contribution margin at the intended low-impact price bands.",
   ],
   decisionRule:
-    "B.2 validates an offer only through observed commercial behavior. Use 'directionally supported' for procurement/budget progression and reserve 'commercially validated' for actual paid Core conversions.",
+    "Call the model product-led validated only when real organizations repeatedly activate for free, upgrade self-service and remain paid. Sales-assisted revenue can coexist later but is not required evidence for the core model.",
 } as const;
 
-export const offerEvidenceRecordTemplate = [
-  "Company / segment / size band",
-  "Decision-maker and users involved",
-  "Problem evidence and expected 30–90 day outcome",
-  "Offer code presented",
-  "Price and scope presented without modification",
-  "Behavior score 0–5",
-  "Primary blocker if no progression",
-  "Budget envelope disclosed only after the decision signal",
-  "Named next step / owner / date",
-  "Paid or procurement evidence",
-  "Notes on price-vs-proof sensitivity",
+export const productLedEvidenceTemplate = [
+  "Organization / segment / acquisition source",
+  "Activation date and activation event",
+  "Free features used before upgrade",
+  "Natural expansion signal",
+  "Module / bundle selected",
+  "Price cell shown",
+  "Checkout started / completed",
+  "Human sales or onboarding assistance required? yes/no",
+  "30/60/90-day paid status",
+  "Downgrade / cancel reason",
+  "Estimated usage cost for L27.2C",
 ] as const;
 
 export const buyerPersonas = [
@@ -1151,7 +1193,7 @@ export const evidenceLedger = [
     label: "Pricing / packaging",
     status: "In progress",
     detail:
-      "L27.2B.2 now adds standardized paid offer cards, a behavior-first willingness-to-pay protocol and pre-committed price-sensitivity gates. No price is commercially validated until real paid Core conversions are observed.",
+      "L27.2B.3 resets monetization around a permanent Free Base, optional low-cost modules and self-service conversion. The previous sales-led pilot/Core/Pro framework is superseded."
   },
   {
     label: "Unit economics",
