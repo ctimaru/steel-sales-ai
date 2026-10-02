@@ -56,8 +56,10 @@ function signupErrorMessage(error: { code?: string; message: string; status?: nu
 
 async function routeAfterAuthentication() {
   const supabase = await createClient();
-  await supabase.rpc("claim_pending_organization_invitations");
-  await supabase.rpc("sa2_claim_platform_staff_invitation");
+  await Promise.all([
+    supabase.rpc("claim_pending_organization_invitations"),
+    supabase.rpc("sa2_claim_platform_staff_invitation"),
+  ]);
 
   const { data: platformContext } = await supabase.rpc("platform_access_context");
   const authority = (platformContext ?? {}) as {
