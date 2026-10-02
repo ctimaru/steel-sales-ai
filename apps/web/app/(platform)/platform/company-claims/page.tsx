@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 
 import { getAdminCompanyClaimQueue } from "@/lib/company-claims";
@@ -200,9 +201,17 @@ export default async function CompanyClaimsPage({
                         <button name="decision" value="verified" className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white">
                           Conferma ownership
                         </button>
-                        <button name="decision" value="rejected" className="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">
+                        <ConfirmSubmitButton
+                          name="decision"
+                          value="rejected"
+                          title="Rifiutare questa prova di ownership?"
+                          description="La prova verrà marcata come rifiutata e non potrà più essere usata per approvare il claim corrente senza una nuova evidenza o revisione."
+                          confirmLabel="Rifiuta prova"
+                          pendingLabel="Rifiuto…"
+                          className="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
                           Rifiuta prova
-                        </button>
+                        </ConfirmSubmitButton>
                       </div>
                     </form>
                   </div>
@@ -244,14 +253,30 @@ export default async function CompanyClaimsPage({
                         </button>
                       ) : null}
                       {["requested", "under_review"].includes(claim.status) && canReject ? (
-                        <button name="decision" value="rejected" className="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">
+                        <ConfirmSubmitButton
+                          name="decision"
+                          value="rejected"
+                          title="Rifiutare questo company claim?"
+                          description="La richiesta di controllo del profilo verrà chiusa come rifiutata. L’Organization non otterrà la gestione del profilo con questo claim."
+                          confirmLabel="Rifiuta claim"
+                          pendingLabel="Rifiuto…"
+                          className="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
                           Rifiuta claim
-                        </button>
+                        </ConfirmSubmitButton>
                       ) : null}
                       {claim.status === "approved" && canRevoke ? (
-                        <button name="decision" value="revoked" className="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700">
+                        <ConfirmSubmitButton
+                          name="decision"
+                          value="revoked"
+                          title="Revocare il controllo di questo profilo?"
+                          description="L’Organization perderà il diritto di gestire il profilo Network. La Network verification resta separata, ma il claim verrà chiuso come revocato."
+                          confirmLabel="Revoca controllo"
+                          pendingLabel="Revoca…"
+                          className="rounded-xl border border-rose-200 bg-white px-3 py-2 text-xs font-semibold text-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
                           Revoca controllo
-                        </button>
+                        </ConfirmSubmitButton>
                       ) : null}
                     </div>
                   </form>
