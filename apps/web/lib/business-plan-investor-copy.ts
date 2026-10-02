@@ -225,14 +225,29 @@ const en = {
       ],
     },
     team: {
-      kicker: "Team & funding",
-      title: "Two sections must be completed before fundraising.",
+      kicker: "Founder, team & funding",
+      title: "Founder-market fit is already visible; team and financing design come next.",
+      founderLinkedIn: "https://www.linkedin.com/in/ctimaru/?isSelfProfile=true",
       cards: [
-        ["Founder / team", "Add founder-market fit, steel-industry experience, product/technical capability and future key hires."],
-        ["Funding ask / use of funds", "Add amount sought, target runway and allocation only after the financing plan is explicitly approved."],
+        [
+          "Founder",
+          "Founder with 4 years of direct commercial sales experience at Alessio Tubi, operating inside the Italian steel-tube market and building Smart Steel Sales from first-hand sector workflows and recurring commercial friction.",
+        ],
+        [
+          "Founder-market fit",
+          "The company is being built from inside the target industry: customer relationships, quoting context, supplier discovery and commercial knowledge are not abstract software problems but recurring operating realities observed directly in the market.",
+        ],
+        [
+          "Team build-out",
+          "Next key hires should complement — not duplicate — the founder: product/engineering ownership, network activation/customer success and data/growth execution.",
+        ],
+        [
+          "Funding ask / use of funds",
+          "Amount sought, target runway and allocation remain intentionally open until the financing plan is explicitly approved.",
+        ],
       ],
       note:
-        "These gaps are intentionally visible rather than filled with invented fundraising claims.",
+        "Founder-market fit is evidenced by direct commercial experience in the target industry. The public LinkedIn profile is linked as supporting founder evidence.",
     },
     evidence: {
       kicker: "Evidence discipline",
@@ -468,14 +483,29 @@ const it = {
       ],
     },
     team: {
-      kicker: "Team & funding",
-      title: "Due sezioni devono essere completate prima del fundraising.",
+      kicker: "Founder, team & funding",
+      title: "Il founder-market fit è già concreto; ora vanno progettati team e finanziamento.",
+      founderLinkedIn: "https://www.linkedin.com/in/ctimaru/?isSelfProfile=true",
       cards: [
-        ["Founder / team", "Aggiungere founder-market fit, esperienza steel, capacità prodotto/tecnica e key hire futuri."],
-        ["Funding ask / use of funds", "Aggiungere importo raccolta, runway target e allocazione soltanto dopo approvazione esplicita del financing plan."],
+        [
+          "Founder",
+          "Founder con 4 anni di esperienza commerciale diretta nella vendita presso Alessio Tubi, operando nel mercato italiano del tubo d'acciaio e costruendo Smart Steel Sales a partire da workflow e frizioni commerciali osservati direttamente nel settore.",
+        ],
+        [
+          "Founder-market fit",
+          "La società nasce dall'interno del mercato target: relazioni cliente, contesto di quotazione, discovery dei fornitori e conoscenza commerciale non sono problemi software astratti, ma realtà operative ricorrenti vissute direttamente nel settore.",
+        ],
+        [
+          "Costruzione del team",
+          "Le prossime assunzioni devono completare — non duplicare — il founder: ownership prodotto/engineering, network activation/customer success ed execution data/growth.",
+        ],
+        [
+          "Funding ask / use of funds",
+          "Importo da raccogliere, runway target e allocazione restano intenzionalmente aperti fino all'approvazione del financing plan.",
+        ],
       ],
       note:
-        "Questi gap restano intenzionalmente visibili invece di essere riempiti con claim fundraising inventati.",
+        "Il founder-market fit è supportato da esperienza commerciale diretta nel mercato target. Il profilo LinkedIn pubblico è collegato come evidenza founder.",
     },
     evidence: {
       kicker: "Evidence discipline",

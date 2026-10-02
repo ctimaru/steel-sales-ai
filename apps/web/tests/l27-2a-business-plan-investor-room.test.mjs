@@ -307,3 +307,12 @@ test("L27.2D.2 adds governed owner and investor KPI surfaces", () => {
   assert.match(access, /l272d2_investor_access_validate/);
   assert.match(access, /l272d2_investor_kpi_snapshot/);
 });
+
+
+test("Founder evidence is explicit in the investor Business Plan", () => {
+  assert.match(investorCopy, /4 years of direct commercial sales experience at Alessio Tubi/);
+  assert.match(investorCopy, /4 anni di esperienza commerciale diretta nella vendita presso Alessio Tubi/);
+  assert.match(investorCopy, /https:\/\/www\.linkedin\.com\/in\/ctimaru\/\?isSelfProfile=true/);
+  assert.match(investorDetails, /Founder LinkedIn profile/);
+  assert.match(investorDetails, /Profilo LinkedIn del founder/);
+});

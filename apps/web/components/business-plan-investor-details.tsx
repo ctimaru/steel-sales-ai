@@ -162,6 +162,14 @@ export function BusinessPlanInvestorDetails({
               </div>
             ))}
           </div>
+          <a
+            href={d.team.founderLinkedIn}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-4 inline-flex rounded-xl border border-amber-200 bg-white px-3 py-2 text-xs font-semibold text-[#345047] hover:bg-amber-50"
+          >
+            {locale === "it" ? "Profilo LinkedIn del founder" : "Founder LinkedIn profile"}
+          </a>
           <p className="mt-4 text-xs leading-5 text-amber-900">{d.team.note}</p>
         </article>
         <article className="rounded-[28px] bg-[#123d34] p-6 text-white">
