@@ -11,13 +11,24 @@ const nav = read("../components/platform-navigation.tsx");
 const ownerPage = read("../app/(platform)/platform/business-plan/page.tsx");
 const ownerDetailsPage = read("../app/(platform)/platform/business-plan/details/page.tsx");
 const ownerActions = read("../app/(platform)/platform/business-plan/actions.ts");
+const investorAccessPage = read("../app/(platform)/platform/investor-access/page.tsx");
+const investorAccessActions = read("../app/(platform)/platform/investor-access/actions.ts");
+const ownerKpiPage = read("../app/(platform)/platform/investor-kpis/page.tsx");
 const investorPage = read("../app/(public)/investor/business-plan/[inviteToken]/page.tsx");
 const investorDetailsPage = read("../app/(public)/investor/business-plan/[inviteToken]/details/page.tsx");
 const investorActions = read("../app/(public)/investor/business-plan/[inviteToken]/actions.ts");
+const investorPortalPage = read("../app/(public)/investor/access/[inviteToken]/page.tsx");
+const investorPortalActions = read("../app/(public)/investor/access/[inviteToken]/actions.ts");
+const investorKpiPage = read("../app/(public)/investor/kpi/[inviteToken]/page.tsx");
 const access = read("../lib/investor-business-plan.ts");
 const content = read("../lib/business-plan-content.ts");
 const view = read("../components/business-plan-view.tsx");
 const highlights = read("../components/business-plan-highlights.tsx");
+const investorDetails = read("../components/business-plan-investor-details.tsx");
+const investorCopy = read("../lib/business-plan-investor-copy.ts");
+const locale = read("../lib/business-plan-locale.ts");
+const languageToggle = read("../components/business-plan-language-toggle.tsx");
+const kpiDashboard = read("../components/investor-kpi-dashboard.tsx");
 const tabs = read("../components/business-plan-tabs.tsx");
 
 test("L27.2A adds an owner-only Business Plan surface to Platform", () => {
@@ -31,17 +42,17 @@ test("L27.2A adds an owner-only Business Plan surface to Platform", () => {
 test("L27.2A external investor view is isolated, noindex and session-gated", () => {
   assert.match(investorPage, /robots:[\s\S]*index: false[\s\S]*follow: false/);
   assert.match(investorPage, /validateInvestorBusinessPlanSession/);
-  assert.match(investorPage, /Confidential investor room/);
-  assert.match(investorPage, /BusinessPlanHighlights investorMode/);
-  assert.match(investorDetailsPage, /BusinessPlanView investorMode/);
+  assert.match(investorPage, /redirect\(\`\/investor\/access\/\$\{inviteToken\}\`\)/);
+  assert.match(investorPage, /BusinessPlanHighlights investorMode locale=\{locale\}/);
+  assert.match(investorDetailsPage, /BusinessPlanInvestorDetails locale=\{locale\}/);
   assert.doesNotMatch(investorPage, /PlatformShell/);
 });
 
-test("L27.2A investor session cookie is httpOnly, secure in production and scoped away from Platform", () => {
-  assert.match(investorActions, /httpOnly: true/);
-  assert.match(investorActions, /secure: process\.env\.NODE_ENV === "production"/);
-  assert.match(investorActions, /sameSite: "lax"/);
-  assert.match(investorActions, /path: "\/investor\/business-plan"/);
+test("L27.2A investor session cookie remains httpOnly and is now scoped to the full Investor Room", () => {
+  assert.match(investorPortalActions, /httpOnly: true/);
+  assert.match(investorPortalActions, /secure: process\.env\.NODE_ENV === "production"/);
+  assert.match(investorPortalActions, /sameSite: "lax"/);
+  assert.match(investorPortalActions, /path: "\/investor"/);
   assert.match(access, /sss_investor_business_plan/);
 });
 
@@ -76,7 +87,7 @@ test("L27.2A.1 adds sourced market evidence, weighted ICP scoring and beachhead 
 
 
 test("L27.2A.2 adds a pre-committed ICP interview and validation framework", () => {
-  assert.match(content, /Investor Draft 1\.0/);
+  assert.match(content, /Investor Draft 1\.1/);
   assert.match(content, /export const interviewCohortPlan/);
   assert.match(content, /totalInterviews: 18/);
   assert.match(content, /interviews: 10/);
@@ -103,7 +114,7 @@ test("L27.2A.2 adds a pre-committed ICP interview and validation framework", () 
 
 
 test("L27.2B keeps the synthetic scenario clearly separated from customer evidence", () => {
-  assert.match(content, /Investor Draft 1\.0/);
+  assert.match(content, /Investor Draft 1\.1/);
   assert.match(content, /export const syntheticInterviewSimulation/);
   assert.match(content, /Synthetic scenario only/);
   assert.match(view, /Synthetic scenario · internal only/);
@@ -149,7 +160,7 @@ test("L27.2B.3 resets monetization to a permanent freemium product-led model", (
 
 
 test("L27.2C adds network economics, multiple income streams and scenario sensitivity without presenting forecasts as traction", () => {
-  assert.match(content, /Investor Draft 1\.0/);
+  assert.match(content, /Investor Draft 1\.1/);
   assert.match(content, /export const networkEconomicsThesis/);
   assert.match(content, /business network layer for the steel and tube industry/);
   assert.match(content, /Build the steel industry's business network first/);
@@ -188,7 +199,7 @@ test("L27.2C adds network economics, multiple income streams and scenario sensit
 
 
 test("L27.2D consolidates Business Plan v2 into distinct Highlights and Details pages", () => {
-  assert.match(content, /Investor Draft 1\.0/);
+  assert.match(content, /Investor Draft 1\.1/);
   assert.match(content, /export const businessPlanHighlights/);
   assert.match(content, /The business network for the steel industry/);
   assert.match(content, /export const businessPlanTimeline/);
@@ -200,23 +211,23 @@ test("L27.2D consolidates Business Plan v2 into distinct Highlights and Details 
   assert.match(ownerPage, /BusinessPlanHighlights/);
   assert.match(ownerDetailsPage, /requirePlatformSuperadmin\(\)/);
   assert.match(ownerDetailsPage, /BusinessPlanTabs[\s\S]*active="details"/);
-  assert.match(ownerDetailsPage, /BusinessPlanView/);
+  assert.match(ownerDetailsPage, /BusinessPlanInvestorDetails/);
   assert.match(investorPage, /BusinessPlanTabs[\s\S]*active="highlights"/);
   assert.match(investorDetailsPage, /validateInvestorBusinessPlanSession/);
   assert.match(investorDetailsPage, /robots:[\s\S]*index: false[\s\S]*follow: false/);
   assert.match(investorDetailsPage, /BusinessPlanTabs[\s\S]*active="details"/);
   assert.match(tabs, /Highlights/);
   assert.match(tabs, /Details/);
-  assert.match(highlights, /Strategic timeline/);
-  assert.match(highlights, /Why investors should care/);
-  assert.match(highlights, /Scale sensitivity/);
-  assert.match(highlights, /Investor milestone ladder/);
+  assert.match(investorCopy, /Strategic timeline/);
+  assert.match(investorCopy, /Why investors should care/);
+  assert.match(investorCopy, /Scale sensitivity/);
+  assert.match(investorCopy, /Investor milestone ladder/);
   assert.match(view, /The business network for steel &amp; tube\./);
 });
 
 
 test("L27.2D.1 adds sourced Italy/Europe target-market sizing and economic opportunity analysis", () => {
-  assert.match(content, /Investor Draft 1\.0/);
+  assert.match(content, /Investor Draft 1\.1/);
   assert.match(content, /export const marketSizingMethodology/);
   assert.match(content, /concentric market layers instead of one inflated TAM/);
   assert.match(content, /export const targetMarketLayers/);
@@ -245,10 +256,54 @@ test("L27.2D.1 adds sourced Italy/Europe target-market sizing and economic oppor
   assert.match(content, /~26%/);
   assert.match(content, /not a take-rate claim/);
   assert.match(content, /export const investorMarketSizingConclusion/);
-  assert.match(highlights, /Target market/);
-  assert.match(highlights, /concentric market layers/);
+  assert.match(investorCopy, /Target market/);
+  assert.match(investorCopy, /concentric market layers/);
   assert.match(view, /Target market &amp; economic opportunity/);
   assert.match(view, /Software-only revenue envelope/);
   assert.match(view, /Scenario sanity checks/);
   assert.match(view, /Investor interpretation/);
+});
+
+
+test("L27.2D.2 adds deterministic IT/EN Business Plan presentation", () => {
+  assert.match(locale, /export type BusinessPlanLocale = "it" \| "en"/);
+  assert.match(languageToggle, /\(\["it", "en"\] as const\)/);
+  assert.match(ownerPage, /resolveBusinessPlanLocale/);
+  assert.match(ownerPage, /BusinessPlanLanguageToggle/);
+  assert.match(ownerDetailsPage, /BusinessPlanLanguageToggle/);
+  assert.match(investorPage, /BusinessPlanLanguageToggle/);
+  assert.match(investorDetailsPage, /BusinessPlanLanguageToggle/);
+  assert.match(investorCopy, /Il business network dell'industria dell'acciaio\./);
+  assert.match(investorCopy, /The business network for the steel industry\./);
+  assert.match(investorCopy, /Investor story and internal evidence are separated/);
+  assert.match(investorCopy, /Investor story ed evidenza interna sono separate/);
+});
+
+test("L27.2D.2 moves Investor Access out of Business Plan and under Strategy & Investors", () => {
+  assert.doesNotMatch(ownerPage, /Gestisci accessi investor/);
+  assert.doesNotMatch(ownerPage, /createInvestorBusinessPlanInvite/);
+  assert.match(routes, /investorAccess: "\/platform\/investor-access"/);
+  assert.match(nav, /label: "Investor Access"[\s\S]*group: "strategy"/);
+  assert.match(investorAccessPage, /Strategy & Investors/);
+  assert.match(investorAccessPage, /Business Plan/);
+  assert.match(investorAccessPage, /KPI/);
+  assert.match(investorAccessActions, /l272d2_create_investor_access_invite/);
+  assert.match(investorAccessActions, /l272d2_update_investor_access_scopes/);
+  assert.match(investorPortalPage, /access\.scopes\.includes\("business_plan"\)/);
+  assert.match(investorPortalPage, /access\.scopes\.includes\("kpi"\)/);
+});
+
+test("L27.2D.2 adds governed owner and investor KPI surfaces", () => {
+  assert.match(routes, /investorKpis: "\/platform\/investor-kpis"/);
+  assert.match(nav, /label: "KPI"[\s\S]*group: "strategy"/);
+  assert.match(ownerKpiPage, /requirePlatformSuperadmin\(\)/);
+  assert.match(ownerKpiPage, /getOwnerInvestorKpiSnapshot/);
+  assert.match(investorKpiPage, /getInvestorKpiSnapshot/);
+  assert.match(investorKpiPage, /robots:[\s\S]*index: false[\s\S]*follow: false/);
+  assert.match(kpiDashboard, /Measured baseline/);
+  assert.match(kpiDashboard, /Baseline misurata/);
+  assert.match(kpiDashboard, /No target is automatically promoted to traction/);
+  assert.match(access, /InvestorScope = "business_plan" \| "kpi"/);
+  assert.match(access, /l272d2_investor_access_validate/);
+  assert.match(access, /l272d2_investor_kpi_snapshot/);
 });
