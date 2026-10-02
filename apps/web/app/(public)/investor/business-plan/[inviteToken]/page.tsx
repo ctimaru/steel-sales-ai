@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 
-import { BusinessPlanView } from "@/components/business-plan-view";
+import { BusinessPlanHighlights } from "@/components/business-plan-highlights";
+import { BusinessPlanTabs } from "@/components/business-plan-tabs";
 import { ProductBrand } from "@/components/product-brand";
 import {
   INVESTOR_BUSINESS_PLAN_COOKIE,
@@ -119,7 +120,10 @@ export default async function InvestorBusinessPlanPage({
       </header>
 
       <main className="mx-auto max-w-[1500px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
-        <BusinessPlanView investorMode />
+        <BusinessPlanTabs baseHref={`/investor/business-plan/${inviteToken}`} active="highlights" />
+        <div className="mt-8">
+          <BusinessPlanHighlights investorMode />
+        </div>
         <p className="mx-auto mt-8 max-w-4xl text-center text-xs leading-5 text-[#87938e]">
           Confidential · Smart Steel Sales · Working business-plan material. Figures and hypotheses are explicitly marked until validated.
         </p>
