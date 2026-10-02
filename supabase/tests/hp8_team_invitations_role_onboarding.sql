@@ -166,7 +166,7 @@ select set_config('request.jwt.claim.role','authenticated',true);
 
 select public.hp8_invitation_context(
   '00000000-0000-0000-0000-0000000088a1'::uuid
-) as invitation_context gset
+) as invitation_context \gset
 
 select pg_temp.hp8_assert(
   (:'invitation_context'::jsonb->>'organization_id')::uuid =
@@ -185,11 +185,11 @@ select pg_temp.hp8_assert_raises(
 -- Explicit acceptance claims only invite A.
 select public.hp8_claim_organization_invitation(
   '00000000-0000-0000-0000-0000000088a1'::uuid
-) as first_claim gset
+) as first_claim \gset
 
 select public.hp8_claim_organization_invitation(
   '00000000-0000-0000-0000-0000000088a1'::uuid
-) as replay_claim gset
+) as replay_claim \gset
 
 select pg_temp.hp8_assert(
   coalesce((:'first_claim'::jsonb->>'claimed')::boolean,false)
@@ -229,7 +229,7 @@ select set_config('request.jwt.claim.role','authenticated',true);
 
 select public.hp8_team_state(
   '00000000-0000-0000-0000-0000000088f1'::uuid
-) as team_state gset
+) as team_state \gset
 
 select pg_temp.hp8_assert(
   jsonb_array_length(:'team_state'::jsonb->'members')=2
@@ -277,7 +277,7 @@ select public.hp8_set_organization_member_status(
 -- Pending invite can be revoked, and the invited identity cannot activate it afterward.
 select public.hp8_revoke_organization_invitation(
   '00000000-0000-0000-0000-0000000088a2'::uuid
-) as revoke_result gset
+) as revoke_result \gset
 
 select pg_temp.hp8_assert(
   (:'revoke_result'::jsonb->>'status')='revoked',
@@ -291,7 +291,7 @@ select set_config('request.jwt.claim.role','authenticated',true);
 
 select public.hp8_claim_organization_invitation(
   '00000000-0000-0000-0000-0000000088a2'::uuid
-) as revoked_claim gset
+) as revoked_claim \gset
 
 select pg_temp.hp8_assert(
   (:'revoked_claim'::jsonb->>'status')='revoked'

@@ -62,7 +62,7 @@ $owner$;
 select user_id as owner_id
 from public.platform_user_roles
 where role='platform_superadmin' and status='active'
-limit 1 gset
+limit 1 \gset
 
 select pg_temp.hp7_assert(
   not has_function_privilege(
@@ -89,7 +89,7 @@ insert into public.company_registration_applications(
   'https://hp7-guided-7701.example.test',
   'trader_distributor',
   'HP7 Applicant'
-) returning id as hp7_app_id gset
+) returning id as hp7_app_id \gset
 
 select public.p0a_submit_registration_application(:'hp7_app_id'::uuid);
 
@@ -101,11 +101,11 @@ select set_config('request.jwt.claim.role','authenticated',true);
 
 select public.p0a_approve_registration_application(:'hp7_app_id'::uuid);
 select public.p0a_activate_registration_application(:'hp7_app_id'::uuid)
-  as hp7_activation gset
+  as hp7_activation \gset
 
 reset role;
 
-select (:'hp7_activation'::jsonb->>'organization_id')::uuid as hp7_org_id gset
+select (:'hp7_activation'::jsonb->>'organization_id')::uuid as hp7_org_id \gset
 
 set local role authenticated;
 select set_config(
@@ -116,7 +116,7 @@ select set_config(
 select set_config('request.jwt.claim.role','authenticated',true);
 
 select public.hp7_company_setup_state(:'hp7_org_id'::uuid)
-  as initial_setup gset
+  as initial_setup \gset
 
 select pg_temp.hp7_assert(
   (:'initial_setup'::jsonb->>'profile_ready')::boolean
@@ -137,7 +137,7 @@ select public.update_organization_onboarding(
 );
 
 select public.hp7_company_setup_state(:'hp7_org_id'::uuid)
-  as configured_setup gset
+  as configured_setup \gset
 
 select pg_temp.hp7_assert(
   (:'configured_setup'::jsonb->>'profile_ready')::boolean
@@ -168,7 +168,7 @@ select set_config(
 select set_config('request.jwt.claim.role','authenticated',true);
 
 select public.hp7_company_setup_state(:'hp7_org_id'::uuid)
-  as first_value_setup gset
+  as first_value_setup \gset
 
 select pg_temp.hp7_assert(
   (:'first_value_setup'::jsonb->>'first_value_ready')::boolean

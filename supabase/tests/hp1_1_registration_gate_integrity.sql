@@ -55,7 +55,7 @@ $owner$;
 select user_id as owner_id
 from public.platform_user_roles
 where role='platform_superadmin' and status='active'
-limit 1 gset
+limit 1 \gset
 
 -- The legacy P1 path is no longer executable by authenticated users.
 select pg_temp.hp11_assert(
@@ -96,7 +96,7 @@ insert into public.company_registration_applications(
 ) values (
   'HP11 Atomic Fresh 6C21','IT','producer','Tester',
   'https://hp11-fresh-6c21.example.test'
-) returning id as fresh_app_id gset
+) returning id as fresh_app_id \gset
 
 reset role;
 update public.company_registration_applications
@@ -116,7 +116,7 @@ select set_config('request.jwt.claim.sub',:'owner_id',true);
 select set_config('request.jwt.claim.role','authenticated',true);
 
 select public.p0a_activate_registration_application(:'fresh_app_id'::uuid)
-  as fresh_activation gset
+  as fresh_activation \gset
 
 select pg_temp.hp11_assert(
   (:'fresh_activation'::jsonb->>'status')='activated'
@@ -179,7 +179,9 @@ insert into public.network_companies(
 
 insert into public.network_company_claims(
   network_company_id,organization_id,requested_by,status,
-  request_note,reviewed_by,reviewed_at,review_note
+  request_note,reviewed_by,reviewed_at,review_note,
+  proof_method,proof_status,proof_reference,proof_review_note,
+  proof_verified_by,proof_verified_at
 ) values (
   '00000000-0000-0000-0000-00000000b121'::uuid,
   '00000000-0000-0000-0000-00000000b120'::uuid,
@@ -188,7 +190,13 @@ insert into public.network_company_claims(
   'HP1.1 acceptance fixture',
   :'owner_id'::uuid,
   now(),
-  'HP1.1 acceptance fixture'
+  'HP1.1 acceptance fixture',
+  'manual_review',
+  'verified',
+  'hp1.1-acceptance-fixture',
+  'Verified fixture for pre-existing claimed company.',
+  :'owner_id'::uuid,
+  now()
 );
 
 set local role authenticated;
@@ -200,7 +208,7 @@ insert into public.company_registration_applications(
 ) values (
   'HP11 Conflict Company 91D3','IT','producer','Tester',
   'https://hp11-conflict-91d3.example.test'
-) returning id as conflict_app_id gset
+) returning id as conflict_app_id \gset
 
 reset role;
 update public.company_registration_applications
