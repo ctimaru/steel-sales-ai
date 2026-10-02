@@ -22,6 +22,15 @@ test("HP16 deduplicates shared auth/context work inside one server request", () 
   assert.match(workspaceContext, /getWorkspaceContext = cache\(/);
   assert.match(platformAdmin, /getPlatformAccessContext = cache\(/);
   assert.match(platformAdmin, /requirePlatformConsoleContext = cache\(/);
+  assert.match(
+    platformAdmin,
+    /hasPlatformPermission[\s\S]*getPlatformAccessContext\(\)/,
+  );
+  assert.doesNotMatch(platformAdmin, /rpc\("has_platform_permission"/);
+  assert.match(
+    platformAdmin,
+    /requirePlatformConsoleContext[\s\S]*getPlatformAccessContext\(\)/,
+  );
 });
 
 test("HP16 starts independent workspace shell dependencies together", () => {
