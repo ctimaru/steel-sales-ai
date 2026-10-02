@@ -12,6 +12,7 @@ const registrations = read("../app/(platform)/platform/registrations/page.tsx");
 const claims = read("../app/(platform)/platform/company-claims/page.tsx");
 const discovery = read("../app/(platform)/platform/company-discovery/page.tsx");
 const knowledge = read("../app/(platform)/platform/knowledge/page.tsx");
+const businessPlanPage = read("../app/(platform)/platform/business-plan/page.tsx");
 
 test("solid selected states use a semantic high-contrast token", () => {
   assert.match(globals, /\.platform-selected-solid,[\s\S]*\.app-selected-solid/);
@@ -51,5 +52,21 @@ test("Platform solid filter selections share the semantic contrast state", () =>
   assert.doesNotMatch(
     knowledge,
     /selected[\s\S]{0,160}border-\[#1a5144\] bg-\[#1a5144\] text-white/,
+  );
+});
+
+
+test("Investor Room primary actions use the semantic high-contrast primary style", () => {
+  assert.match(
+    businessPlanPage,
+    /platform-primary inline-flex min-h-11[\s\S]*Gestisci accessi investor/,
+  );
+  assert.match(
+    businessPlanPage,
+    /platform-primary min-h-11 w-full[\s\S]*Crea accesso investor/,
+  );
+  assert.doesNotMatch(
+    businessPlanPage,
+    /Gestisci accessi investor[\s\S]{0,100}bg-\[#1a5144\]/,
   );
 });
