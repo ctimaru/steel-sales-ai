@@ -46,8 +46,8 @@ test("L27.2A visual plan distinguishes hypotheses from evidence", () => {
   assert.match(content, /Sales Director \/ Direttore Commerciale/);
   assert.match(content, /L27\.2B/);
   assert.match(view, /What is proven vs\. what is still a hypothesis/);
-  assert.match(view, /TAM\/SAM\/SOM, pricing, revenue scenarios and unit economics/);
-  assert.match(view, /Not fabricated yet/);
+  assert.match(view, /TAM\/SAM\/SOM and final break-even timing remain intentionally unclaimed/);
+  assert.match(view, /Evidence discipline/);
 });
 
 
@@ -71,7 +71,7 @@ test("L27.2A.1 adds sourced market evidence, weighted ICP scoring and beachhead 
 
 
 test("L27.2A.2 adds a pre-committed ICP interview and validation framework", () => {
-  assert.match(content, /Investor Draft 0\.7/);
+  assert.match(content, /Investor Draft 0\.8/);
   assert.match(content, /export const interviewCohortPlan/);
   assert.match(content, /totalInterviews: 18/);
   assert.match(content, /interviews: 10/);
@@ -98,7 +98,7 @@ test("L27.2A.2 adds a pre-committed ICP interview and validation framework", () 
 
 
 test("L27.2B keeps the synthetic scenario clearly separated from customer evidence", () => {
-  assert.match(content, /Investor Draft 0\.7/);
+  assert.match(content, /Investor Draft 0\.8/);
   assert.match(content, /export const syntheticInterviewSimulation/);
   assert.match(content, /Synthetic scenario only/);
   assert.match(view, /Synthetic scenario · internal only/);
@@ -141,3 +141,42 @@ test("L27.2B.3 resets monetization to a permanent freemium product-led model", (
   assert.doesNotMatch(view, /Behavior before stated willingness/);
 });
 
+
+
+test("L27.2C adds network economics, multiple income streams and scenario sensitivity without presenting forecasts as traction", () => {
+  assert.match(content, /Investor Draft 0\.8/);
+  assert.match(content, /export const networkEconomicsThesis/);
+  assert.match(content, /business network layer for the steel and tube industry/);
+  assert.match(content, /Build the steel industry's business network first/);
+  assert.match(content, /export const networkNorthStarMetrics/);
+  assert.match(content, /Monthly active organizations \(MAO\)/);
+  assert.match(content, /Meaningful interactions \/ MAO/);
+  assert.match(content, /Cross-side liquidity/);
+  assert.match(content, /export const networkIncomeStreams/);
+  assert.match(content, /Freemium modules \+ SSS Plus/);
+  assert.match(content, /Marketplace premium actions/);
+  assert.match(content, /Sponsored industry visibility/);
+  assert.match(content, /Aggregated industry intelligence/);
+  assert.match(content, /API \/ integrations \/ enterprise services/);
+  assert.match(content, /private commercial memory is never sold/);
+  assert.match(content, /export const unitEconomicsGuardrails/);
+  assert.match(content, /≤ €0\.75 \/ MAO \/ month/);
+  assert.match(content, /≤ 25% of revenue/);
+  assert.match(content, /export const networkScaleScenarios/);
+  assert.match(content, /Italy network/);
+  assert.match(content, /European network/);
+  assert.match(content, /Network scale/);
+  assert.match(content, /€44\.4k/);
+  assert.match(content, /€383\.9k/);
+  assert.match(content, /€2\.262m/);
+  assert.match(content, /These are internal sensitivity scenarios, not forecasts/);
+  assert.match(content, /export const breakEvenFramework/);
+  assert.match(content, /Break-even occurs when this contribution covers fixed monthly operating expense/);
+  assert.match(content, /export const investorMilestones/);
+  assert.match(view, /Network economics &amp; multi-stream financial model/);
+  assert.match(view, /Value grows with users, companies and usage/);
+  assert.match(view, /Multiple income streams/);
+  assert.match(view, /Network scale sensitivity/);
+  assert.match(view, /Sensitivity model · not forecast/);
+  assert.match(view, /Investor milestones/);
+});
