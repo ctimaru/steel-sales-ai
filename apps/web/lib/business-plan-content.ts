@@ -1,11 +1,11 @@
-export const BUSINESS_PLAN_VERSION = "Investor Draft 0.7";
+export const BUSINESS_PLAN_VERSION = "Investor Draft 0.8";
 
 export const businessPlanSnapshot = {
   stage: "Product-ready web SaaS",
-  currentFocus: "Freemium & product-led monetization reset",
+  currentFocus: "Network economics & multi-stream financial model",
   launchWindow: "2027 controlled launch",
   thesis:
-    "Smart Steel Sales is the vertical commercial operating system for the steel and tube industry: private commercial memory, trusted industry network, demand marketplace and technical knowledge in one governed product.",
+    "Smart Steel Sales aims to become the business network layer for the steel and tube industry: a free professional network strengthened by commercial memory, marketplace activity, AI and industry intelligence, with monetization that scales with users and usage rather than sales headcount.",
 } as const;
 
 export const productPillars = [
@@ -1116,6 +1116,318 @@ export const productLedEvidenceTemplate = [
   "Estimated usage cost for L27.2C",
 ] as const;
 
+export const networkEconomicsThesis = {
+  headline: "Build the steel industry's business network first; monetize the value created on top of it.",
+  principle:
+    "SSS should become more valuable as verified companies, professionals, relationships, commercial data and marketplace interactions accumulate. Revenue can then attach to multiple high-value surfaces without making access to the network itself expensive.",
+  investorLogic: [
+    "Users and verified organizations create the distribution asset; they are not merely leads for a sales team.",
+    "A permanent Free Base lowers friction for network formation and creates more data, relationships and recurring workflows.",
+    "Low-cost modules monetize power users while preserving broad adoption.",
+    "Marketplace, sponsored visibility and industry intelligence can add revenue as network density and usage mature.",
+    "Enterprise/API revenue can monetize integration depth without dictating the default SME product.",
+    "A diversified revenue mix reduces dependence on any single subscription price or feature paywall.",
+  ],
+} as const;
+
+export const networkNorthStarMetrics = [
+  {
+    metric: "Verified organizations",
+    why: "Measures trusted supply/demand identity in the steel graph.",
+    targetLogic: "Growth asset",
+  },
+  {
+    metric: "Monthly active organizations (MAO)",
+    why: "Primary denominator for network usage, monetization and infrastructure economics.",
+    targetLogic: "Core scale metric",
+  },
+  {
+    metric: "Monthly active users (MAU)",
+    why: "Shows professional reach and multi-user penetration inside organizations.",
+    targetLogic: "Reach + engagement",
+  },
+  {
+    metric: "Meaningful interactions / MAO",
+    why: "RFQs, memory retrievals, follows, supplier discovery, messages/responses and marketplace actions measure real network utility.",
+    targetLogic: "Usage density",
+  },
+  {
+    metric: "Self-service paid attach rate",
+    why: "Shows whether value monetizes without outbound persuasion.",
+    targetLogic: "Monetization efficiency",
+  },
+  {
+    metric: "Paid ARPA + revenue / MAO",
+    why: "Separates direct subscription value from broader network monetization.",
+    targetLogic: "Economic depth",
+  },
+  {
+    metric: "30/60/90-day organization retention",
+    why: "A network only compounds when companies continue to participate.",
+    targetLogic: "Retention",
+  },
+  {
+    metric: "Cross-side liquidity",
+    why: "Measures whether demand receives relevant supplier response and discovery becomes commercially useful.",
+    targetLogic: "Marketplace quality",
+  },
+] as const;
+
+export const networkIncomeStreams = [
+  {
+    stream: "Freemium modules + SSS Plus",
+    timing: "Launch / early",
+    payer: "Organizations that want deeper Memory, AI or Team capability",
+    model: "€9–€19/module or €29–€49 bundle working cells",
+    strategicRole:
+      "Early recurring revenue with minimal sales friction. Validates willingness to pay without restricting network access.",
+    trustGuard:
+      "Never degrade the Free Base into a useless lead-generation shell.",
+  },
+  {
+    stream: "Marketplace premium actions",
+    timing: "After liquidity",
+    payer: "Organizations receiving measurable premium distribution/response value",
+    model: "Low-cost add-on or micro-credits; exact mechanic deferred",
+    strategicRole:
+      "Monetizes commercial intent and usage rather than access to the network.",
+    trustGuard:
+      "Basic participation and discovery stay free until recurring response value is proven.",
+  },
+  {
+    stream: "Sponsored industry visibility",
+    timing: "After meaningful traffic",
+    payer: "Suppliers, service centres and industry brands seeking targeted professional visibility",
+    model: "Featured company/content/sponsorship packages; pricing deferred",
+    strategicRole:
+      "Turns sector-specific attention into revenue without raising core software prices.",
+    trustGuard:
+      "Sponsored placement must be clearly labeled and must not override relevance or trust ranking.",
+  },
+  {
+    stream: "Aggregated industry intelligence",
+    timing: "After sufficient data density",
+    payer: "Organizations seeking market signals, benchmarks or aggregated demand/supply insight",
+    model: "Premium intelligence subscription or report/data product",
+    strategicRole:
+      "Creates a high-margin information layer from network-level patterns rather than private tenant data.",
+    trustGuard:
+      "Only aggregated/anonymized or explicitly permissioned data; private commercial memory is never sold.",
+  },
+  {
+    stream: "API / integrations / enterprise services",
+    timing: "Selective / later",
+    payer: "Large groups and software partners",
+    model: "Higher-value API, integration or enterprise contract",
+    strategicRole:
+      "Adds higher-ARPA revenue without forcing enterprise complexity onto the standard product.",
+    trustGuard:
+      "Custom work must stay bounded so it does not turn the core company into a services business.",
+  },
+] as const;
+
+export const unitEconomicsGuardrails = {
+  philosophy:
+    "L27.2C uses internal planning ceilings rather than pretending current costs are already measured. Production telemetry must replace these assumptions before launch economics are considered validated.",
+  variableCostTargets: [
+    {
+      metric: "Free active organization variable cost",
+      workingCeiling: "≤ €0.75 / MAO / month",
+      reason:
+        "A large Free Base is only strategically attractive if ordinary non-AI usage remains extremely cheap to serve.",
+    },
+    {
+      metric: "Paid organization incremental variable cost",
+      workingCeiling: "≤ €5 / paying organization / month before exceptional usage",
+      reason:
+        "Low-price modules require storage, email and baseline AI cost to remain tightly controlled.",
+    },
+    {
+      metric: "AI-specific variable cost",
+      workingCeiling: "≤ 20% of AI+ attributable revenue",
+      reason:
+        "AI+ should expand usage while preserving predictable contribution margin through fair-use envelopes.",
+    },
+    {
+      metric: "Blended variable revenue cost",
+      workingCeiling: "≤ 25% of revenue",
+      reason:
+        "Internal target implies ≥75% contribution before fixed product/company operating expense.",
+    },
+    {
+      metric: "Standard support load",
+      workingCeiling: "< 15 minutes / paying organization / month",
+      reason:
+        "A €15–€49 self-service model cannot economically depend on account-management intensity.",
+    },
+  ],
+  acquisitionRules: [
+    "Organic, referral, company-claim, Network and Scuola acquisition are the default growth channels.",
+    "Paid acquisition is optional experimentation, not a dependency in the base model.",
+    "Any paid acquisition cohort should target payback inside roughly 3 months of contribution margin before scaling.",
+    "Founder or sales-assisted onboarding must be measured separately and excluded from the self-service CAC baseline.",
+  ],
+} as const;
+
+export const networkScaleScenarios = [
+  {
+    name: "Validation",
+    status: "Early evidence stage",
+    activatedOrganizations: 500,
+    paidAttachRate: "5%",
+    payingOrganizations: 25,
+    blendedPaidArpa: "€29",
+    moduleMrr: "€725",
+    marketplaceMrr: "€0",
+    sponsoredMrr: "€0",
+    intelligenceApiMrr: "€0",
+    totalMrr: "€725",
+    annualizedRevenue: "€8.7k",
+    interpretation:
+      "This stage proves self-service monetization mechanics; it is not designed to demonstrate venture-scale revenue.",
+  },
+  {
+    name: "Italy network",
+    status: "Internal planning scenario",
+    activatedOrganizations: 10000,
+    paidAttachRate: "8%",
+    payingOrganizations: 800,
+    blendedPaidArpa: "€35",
+    moduleMrr: "€28.0k",
+    marketplaceMrr: "€7.5k",
+    sponsoredMrr: "€4.9k",
+    intelligenceApiMrr: "€4.0k",
+    totalMrr: "€44.4k",
+    annualizedRevenue: "€533k",
+    interpretation:
+      "Illustrates how a meaningful domestic network can monetize through several small streams without high SME subscription pricing.",
+  },
+  {
+    name: "European network",
+    status: "Internal planning scenario",
+    activatedOrganizations: 50000,
+    paidAttachRate: "10%",
+    payingOrganizations: 5000,
+    blendedPaidArpa: "€39",
+    moduleMrr: "€195k",
+    marketplaceMrr: "€80k",
+    sponsoredMrr: "€79k",
+    intelligenceApiMrr: "€29.9k",
+    totalMrr: "€383.9k",
+    annualizedRevenue: "€4.61m",
+    interpretation:
+      "Shows why user/organization scale and usage density matter more than extracting high ARPA from each customer.",
+  },
+  {
+    name: "Network scale",
+    status: "Long-range sensitivity case",
+    activatedOrganizations: 200000,
+    paidAttachRate: "12%",
+    payingOrganizations: 24000,
+    blendedPaidArpa: "€42",
+    moduleMrr: "€1.008m",
+    marketplaceMrr: "€500k",
+    sponsoredMrr: "€594k",
+    intelligenceApiMrr: "€159.6k",
+    totalMrr: "€2.262m",
+    annualizedRevenue: "€27.14m",
+    interpretation:
+      "Sensitivity case for a broad European/global steel-business network. It is not a forecast and assumes multiple mature monetization surfaces.",
+  },
+] as const;
+
+export const scenarioAssumptions = {
+  disclaimer:
+    "These are internal sensitivity scenarios, not forecasts, guidance, traction or market-size claims. They exist to test whether the business architecture can become attractive at scale.",
+  formulas: [
+    "Module MRR = activated organizations × paid attach rate × blended paid ARPA.",
+    "Marketplace MRR = activated organizations × monetized marketplace rate × average monthly premium usage.",
+    "Sponsored MRR = activated organizations × sponsor penetration × average sponsor spend.",
+    "Intelligence/API MRR = paying intelligence/API accounts × average monthly contract value.",
+    "Annualized revenue = total modeled MRR × 12.",
+  ],
+  scenarioInputs: [
+    {
+      scenario: "Validation",
+      marketplace: "0% monetized",
+      sponsored: "0%",
+      intelligenceApi: "0 accounts",
+    },
+    {
+      scenario: "Italy network",
+      marketplace: "5% × €15/month",
+      sponsored: "1% × €49/month",
+      intelligenceApi: "20 × €199/month",
+    },
+    {
+      scenario: "European network",
+      marketplace: "8% × €20/month",
+      sponsored: "2% × €79/month",
+      intelligenceApi: "100 × €299/month",
+    },
+    {
+      scenario: "Network scale",
+      marketplace: "10% × €25/month",
+      sponsored: "3% × €99/month",
+      intelligenceApi: "400 × €399/month",
+    },
+  ],
+} as const;
+
+export const breakEvenFramework = {
+  principle:
+    "Do not invent a single break-even date before real cost telemetry and team budgets exist. Track the break-even equation transparently instead.",
+  formula:
+    "Monthly network contribution = total revenue − free-base variable cost − paid/usage variable cost − payment cost − support/moderation variable cost. Break-even occurs when this contribution covers fixed monthly operating expense.",
+  requiredInputs: [
+    "MAO and MAU by cohort",
+    "Actual Supabase / Vercel / Railway / email cost per active organization",
+    "AI cost by free, AI+ and high-usage cohort",
+    "Storage and ingestion cost per organization",
+    "Payment processing cost",
+    "Support/moderation hours per 100 active organizations",
+    "Actual module attach rate and blended paid ARPA",
+    "Marketplace premium usage and take economics",
+    "Sponsored visibility and intelligence/API revenue once launched",
+    "Fixed product, engineering, data, legal and operating expense",
+  ],
+  investmentMessage:
+    "The investable thesis is not that €39/month alone funds the company. It is that a low-friction industry network can aggregate professional attention, commercial workflows and transaction intent, creating several monetization layers on one shared distribution asset.",
+} as const;
+
+export const investorMilestones = [
+  {
+    stage: "Product-market utility",
+    evidence:
+      "Organizations repeatedly use Free Workspace / Memory / Network without assisted onboarding.",
+  },
+  {
+    stage: "Product-led monetization",
+    evidence:
+      "At least 5 self-service payers, then measurable free→paid attach and 60/90-day retention.",
+  },
+  {
+    stage: "Network density",
+    evidence:
+      "Growing MAO/MAU, verified company graph, follows/relationships and repeated cross-company discovery.",
+  },
+  {
+    stage: "Marketplace liquidity",
+    evidence:
+      "Demand receives relevant supplier response often enough that premium marketplace actions become optional monetizable value.",
+  },
+  {
+    stage: "Revenue diversification",
+    evidence:
+      "At least three independent income streams contribute recurring revenue without weakening trust or Free Base utility.",
+  },
+  {
+    stage: "Scalable economics",
+    evidence:
+      "Measured variable cost and support load stay inside guardrails while revenue/MAO and contribution margin improve with scale.",
+  },
+] as const;
+
 export const buyerPersonas = [
   {
     persona: "Sales Director / Direttore Commerciale",
@@ -1197,8 +1509,9 @@ export const evidenceLedger = [
   },
   {
     label: "Unit economics",
-    status: "Next",
-    detail: "L27.2C will quantify infrastructure, AI, support, CAC and margin assumptions.",
+    status: "In progress",
+    detail:
+      "L27.2C reframes economics around network scale: free-user cost ceilings, product-led paid attach, multiple income streams and transparent scenario sensitivity. Production telemetry is still required before the model is validated.",
   },
   {
     label: "Commercial evidence",
@@ -1212,7 +1525,7 @@ export const businessPlanRoadmap = [
   { code: "L27.2A.2", title: "ICP Interview & Validation Framework", status: "Framework completed" },
   { code: "L27.2B.1", title: "Packaging Boundary & Value Metric Validation", status: "Superseded" },
   { code: "L27.2B.2", title: "Sales-led Offer & WTP Framework", status: "Superseded" },
-  { code: "L27.2B.3", title: "Freemium & Product-Led Pricing Reset", status: "Active" },
-  { code: "L27.2C", title: "Unit Economics & Financial Model", status: "Next" },
+  { code: "L27.2B.3", title: "Freemium & Product-Led Pricing Reset", status: "Completed" },
+  { code: "L27.2C", title: "Network Economics & Multi-Stream Financial Model", status: "Active" },
   { code: "L27.2D", title: "Business Plan v2 Consolidation", status: "Next" },
 ] as const;
