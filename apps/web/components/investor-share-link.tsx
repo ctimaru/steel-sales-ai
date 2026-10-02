@@ -4,7 +4,7 @@ import { useState } from "react";
 
 export function InvestorShareLink({ shareToken }: { shareToken: string }) {
   const [copied, setCopied] = useState(false);
-  const path = `/investor/business-plan/${shareToken}`;
+  const path = `/investor/access/${shareToken}`;
 
   async function copyLink() {
     const url = `${window.location.origin}${path}`;
