@@ -71,7 +71,7 @@ test("L27.2A.1 adds sourced market evidence, weighted ICP scoring and beachhead 
 
 
 test("L27.2A.2 adds a pre-committed ICP interview and validation framework", () => {
-  assert.match(content, /Investor Draft 0\.3/);
+  assert.match(content, /Investor Draft 0\.4/);
   assert.match(content, /export const interviewCohortPlan/);
   assert.match(content, /totalInterviews: 18/);
   assert.match(content, /interviews: 10/);
