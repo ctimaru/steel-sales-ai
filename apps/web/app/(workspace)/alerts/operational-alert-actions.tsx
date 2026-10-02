@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
+import { ActionFeedback } from "@/components/action-feedback";
 import { acknowledgeOperationalAlert, resolveOperationalAlert } from "./actions";
 
 export function OperationalAlertActions({
@@ -15,7 +16,7 @@ export function OperationalAlertActions({
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [note, setNote] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ status: "success" | "error"; message: string } | null>(null);
 
   if (status === "resolved") return null;
 
@@ -27,10 +28,10 @@ export function OperationalAlertActions({
             type="button"
             disabled={pending}
             onClick={() => {
-              setMessage(null);
+              setFeedback(null);
               startTransition(async () => {
                 const result = await acknowledgeOperationalAlert(alertId);
-                setMessage(result.ok ? "Alert preso in carico." : result.error ?? "Operazione non riuscita.");
+                setFeedback({ status: result.ok ? "success" : "error", message: result.ok ? "Alert preso in carico." : result.error ?? "Operazione non riuscita." });
                 if (result.ok) router.refresh();
               });
             }}
@@ -52,10 +53,10 @@ export function OperationalAlertActions({
           type="button"
           disabled={pending || !note.trim()}
           onClick={() => {
-            setMessage(null);
+            setFeedback(null);
             startTransition(async () => {
               const result = await resolveOperationalAlert(alertId, note);
-              setMessage(result.ok ? "Alert risolto." : result.error ?? "Operazione non riuscita.");
+              setFeedback({ status: result.ok ? "success" : "error", message: result.ok ? "Alert risolto." : result.error ?? "Operazione non riuscita." });
               if (result.ok) {
                 setNote("");
                 router.refresh();
@@ -68,7 +69,12 @@ export function OperationalAlertActions({
         </button>
       </div>
 
-      {message ? <p className="text-xs font-medium text-slate-600">{message}</p> : null}
+      <ActionFeedback
+        status={feedback?.status ?? "idle"}
+        message={feedback?.message}
+        pending={pending}
+        pendingMessage="Operazione in corso…"
+      />
     </div>
   );
 }
