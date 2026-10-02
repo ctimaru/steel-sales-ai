@@ -39,7 +39,7 @@ export function BusinessPlanTabs({
             className={[
               "rounded-xl px-4 py-3 transition",
               selected
-                ? "bg-[#123d34] text-white shadow-sm"
+                ? "platform-selected-solid shadow-sm"
                 : "text-[#52615b] hover:bg-[#f4f7f5]",
             ].join(" ")}
           >
@@ -47,7 +47,7 @@ export function BusinessPlanTabs({
             <span
               className={[
                 "mt-0.5 block text-[11px]",
-                selected ? "text-[#cfe0da]" : "text-[#87938e]",
+                selected ? "opacity-80" : "text-[#87938e]",
               ].join(" ")}
             >
               {tab.description}
