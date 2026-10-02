@@ -19,9 +19,8 @@ import {
   interviewScript,
   jobsToBeDone,
   marketEvidence,
-  offerBehaviorScale,
-  offerEvidenceRecordTemplate,
-  offerValidationCards,
+  freemiumModuleCards,
+  freemiumPricingGuardrails,
   packagingBoundaryDecision,
   packagingBoundaryValidationGate,
   pricingArchitectureDecision,
@@ -29,12 +28,13 @@ import {
   pricingExperimentBands,
   pricingHypotheses,
   pricingMarketAnchors,
-  priceSensitivityStepUp,
+  productLedEvidenceScale,
+  productLedEvidenceTemplate,
+  productLedValidationGate,
   productPillars,
+  selfServeMonetizationModel,
   valueMetricAlternatives,
   valueMetricDecision,
-  willingnessToPayProtocol,
-  willingnessToPayValidationGate,
   syntheticInterviewSimulation,
 } from "@/lib/business-plan-content";
 
@@ -556,20 +556,21 @@ export function BusinessPlanView({
       <section className="rounded-[28px] border border-[#dce2df] bg-white p-6 sm:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">L27.2B · Packaging & pricing</p>
-            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824]">Working pricing architecture</h2>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">L27.2B.3 · Freemium &amp; product-led pricing reset</p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824]">Free first. Pay only to deepen value.</h2>
             <p className="mt-3 max-w-4xl text-sm leading-6 text-[#66736e]">
-              These are testable pricing hypotheses, not validated willingness-to-pay. The current model favours an organization subscription with included users because company memory creates shared organizational value.
+              Smart Steel Sales is no longer modeled around a paid pilot → Core → Pro sales funnel. The default growth engine is a permanently useful Free Base, optional low-cost modules and self-service upgrade after the user has already experienced value.
             </p>
           </div>
-          <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 ring-1 ring-amber-200">Hypothesis only</span>
+          <span className="rounded-full bg-[#e1ece8] px-3 py-1.5 text-xs font-semibold text-[#173f35] ring-1 ring-[#c7ddd5]">Product-led reset</span>
         </div>
 
         <div className="mt-6 grid gap-4 lg:grid-cols-3">
           {pricingMarketAnchors.map((item) => (
             <article key={item.vendor} className="rounded-2xl bg-[#f8faf9] p-5">
-              <p className="text-sm font-semibold text-[#1d2824]">{item.vendor}</p>
-              <p className="mt-2 text-lg font-semibold text-[#173f35]">{item.anchor}</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#87938e]">Market context · not target pricing</p>
+              <p className="mt-2 text-sm font-semibold text-[#1d2824]">{item.vendor}</p>
+              <p className="mt-2 text-base font-semibold text-[#173f35]">{item.anchor}</p>
               <p className="mt-3 text-xs leading-5 text-[#66736e]">{item.implication}</p>
               <a href={item.sourceUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex text-[11px] font-semibold text-[#1a5144] underline underline-offset-4">
                 Official pricing · {item.asOf}
@@ -586,38 +587,33 @@ export function BusinessPlanView({
               <div key={item} className="rounded-xl bg-white/[0.06] p-3 text-xs leading-5 text-[#d8e5e0]">{item}</div>
             ))}
           </div>
+          <div className="mt-5 border-t border-white/10 pt-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#f2cf9c]">Explicitly superseded</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {pricingArchitectureDecision.rejectedForNow.map((item) => (
+                <span key={item} className="rounded-full bg-white/10 px-3 py-1.5 text-[11px] text-[#d8e5e0]">{item}</span>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="mt-6 rounded-[28px] border border-[#b8d2c8] bg-[#f7faf8] p-5 sm:p-6">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">
-                L27.2B.1 · Packaging boundary &amp; value metric
-              </p>
-              <h3 className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824]">
-                Charge for private company memory, not for every action
-              </h3>
-              <p className="mt-3 max-w-4xl text-sm leading-6 text-[#66736e]">
-                {packagingBoundaryDecision.principle}
-              </p>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">Freemium boundary</p>
+              <h3 className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824]">The paywall comes after the aha moment</h3>
+              <p className="mt-3 max-w-4xl text-sm leading-6 text-[#66736e]">{packagingBoundaryDecision.principle}</p>
             </div>
-            <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 ring-1 ring-amber-200">
-              {packagingBoundaryDecision.status}
-            </span>
+            <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 ring-1 ring-amber-200">{packagingBoundaryDecision.status}</span>
           </div>
 
           <div className="mt-6 grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
             <div className="rounded-2xl bg-[#123d34] p-5 text-white">
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">
-                Primary value metric
-              </p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">Primary value metric</p>
               <h4 className="mt-2 text-xl font-semibold">{valueMetricDecision.primaryMetric}</h4>
               <p className="mt-3 text-sm leading-6 text-[#d8e5e0]">{valueMetricDecision.why}</p>
               <p className="mt-4 text-[11px] font-semibold text-[#f2cf9c]">{valueMetricDecision.status}</p>
-
-              <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">
-                Do not meter normal value creation
-              </p>
+              <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">Stays genuinely free</p>
               <ul className="mt-3 space-y-2">
                 {valueMetricDecision.doNotMeter.map((item) => (
                   <li key={item} className="flex gap-2 text-xs leading-5 text-[#d8e5e0]">
@@ -639,20 +635,13 @@ export function BusinessPlanView({
             </div>
           </div>
 
-          <div className="mt-6 grid gap-3 lg:grid-cols-3">
+          <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             {packagingBoundaryDecision.boundaries.map((boundary) => (
               <article key={boundary.transition} className="rounded-2xl border border-[#e2e8e5] bg-white p-5">
                 <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">{boundary.transition}</p>
                 <h4 className="mt-2 text-base font-semibold text-[#1d2824]">{boundary.trigger}</h4>
-                <p className="mt-3 text-xs leading-5 text-[#345047]">
-                  <span className="font-semibold">Paid value:</span> {boundary.paidValue}
-                </p>
-                <p className="mt-3 text-xs leading-5 text-[#66736e]">
-                  <span className="font-semibold text-[#52615b]">Boundary guard:</span> {boundary.staysOutside}
-                </p>
-                <p className="mt-3 border-t border-[#edf0ee] pt-3 text-[11px] leading-5 text-[#87938e]">
-                  {boundary.reason}
-                </p>
+                <p className="mt-3 text-xs leading-5 text-[#345047]"><span className="font-semibold">Paid value:</span> {boundary.paidValue}</p>
+                <p className="mt-3 text-xs leading-5 text-[#66736e]"><span className="font-semibold text-[#52615b]">Free guard:</span> {boundary.staysOutside}</p>
               </article>
             ))}
           </div>
@@ -662,44 +651,15 @@ export function BusinessPlanView({
               <article key={item.candidate} className="rounded-2xl bg-[#eef3f0] p-4">
                 <div className="flex items-start justify-between gap-3">
                   <h4 className="text-sm font-semibold text-[#1d2824]">{item.candidate}</h4>
-                  <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-[#345047]">
-                    {item.decision}
-                  </span>
+                  <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-[#345047]">{item.decision}</span>
                 </div>
                 <p className="mt-3 text-xs leading-5 text-[#66736e]">{item.valueAlignment}</p>
               </article>
             ))}
           </div>
-
-          <div className="mt-6 rounded-2xl border border-dashed border-[#b8d2c8] bg-white p-5">
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-              Directional validation gate
-            </p>
-            <div className="mt-4 grid gap-5 lg:grid-cols-2">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-700">Pass signals</p>
-                <ul className="mt-3 space-y-2">
-                  {packagingBoundaryValidationGate.directionalPassSignals.map((item) => (
-                    <li key={item} className="text-xs leading-5 text-[#52615b]">• {item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-rose-700">Disconfirm signals</p>
-                <ul className="mt-3 space-y-2">
-                  {packagingBoundaryValidationGate.disconfirmSignals.map((item) => (
-                    <li key={item} className="text-xs leading-5 text-[#52615b]">• {item}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <p className="mt-4 rounded-xl bg-[#f7f9f8] px-4 py-3 text-xs font-medium leading-5 text-[#345047]">
-              {packagingBoundaryValidationGate.decisionRule}
-            </p>
-          </div>
         </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {pricingHypotheses.map((tier) => (
             <article key={tier.name} className="rounded-2xl border border-[#e2e8e5] p-5">
               <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">{tier.status}</p>
@@ -725,7 +685,7 @@ export function BusinessPlanView({
         </div>
 
         <div className="mt-6 rounded-2xl border border-dashed border-[#b8d2c8] p-5">
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Decision rules</p>
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Pricing rules</p>
           <ul className="mt-3 grid gap-2 lg:grid-cols-2">
             {pricingDecisionRules.map((item) => (
               <li key={item} className="text-xs leading-5 text-[#52615b]">• {item}</li>
@@ -736,54 +696,34 @@ export function BusinessPlanView({
         <div className="mt-8 rounded-[28px] border border-[#cbdcd5] bg-[#f7faf8] p-5 sm:p-6">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">
-                L27.2B.2 · Offer &amp; willingness-to-pay validation
-              </p>
-              <h3 className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824]">
-                Behavior before stated willingness
-              </h3>
-              <p className="mt-3 max-w-4xl text-sm leading-6 text-[#66736e]">
-                {willingnessToPayProtocol.purpose}
-              </p>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">Self-service monetization validation</p>
+              <h3 className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824]">No sales funnel required</h3>
+              <p className="mt-3 max-w-4xl text-sm leading-6 text-[#66736e]">{selfServeMonetizationModel.purpose}</p>
             </div>
-            <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 ring-1 ring-amber-200">
-              Customer evidence required
-            </span>
+            <span className="rounded-full bg-[#e1ece8] px-3 py-1.5 text-xs font-semibold text-[#173f35] ring-1 ring-[#c7ddd5]">PLG evidence gate</span>
           </div>
 
-          <div className="mt-6 grid gap-4 lg:grid-cols-2 xl:grid-cols-4">
-            {offerValidationCards.map((offer) => (
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+            {freemiumModuleCards.map((offer) => (
               <article key={offer.code} className="rounded-2xl border border-[#e2e8e5] bg-white p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">{offer.code}</p>
-                    <h4 className="mt-2 text-base font-semibold text-[#1d2824]">{offer.name}</h4>
-                  </div>
-                </div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">{offer.code}</p>
+                <h4 className="mt-2 text-base font-semibold text-[#1d2824]">{offer.name}</h4>
                 <p className="mt-3 text-lg font-semibold text-[#173f35]">{offer.price}</p>
                 <p className="mt-2 text-xs leading-5 text-[#87938e]">{offer.audience}</p>
                 <ul className="mt-4 space-y-2">
-                  {offer.scope.map((item) => (
-                    <li key={item} className="text-xs leading-5 text-[#66736e]">• {item}</li>
-                  ))}
+                  {offer.scope.map((item) => <li key={item} className="text-xs leading-5 text-[#66736e]">• {item}</li>)}
                 </ul>
-                <p className="mt-4 border-t border-[#edf0ee] pt-3 text-[11px] leading-5 text-[#52615b]">
-                  <span className="font-semibold">Rule:</span> {offer.commercialRule}
-                </p>
-                <p className="mt-2 text-[11px] leading-5 text-[#1a5144]">
-                  <span className="font-semibold">Success signal:</span> {offer.successSignal}
-                </p>
+                <p className="mt-4 border-t border-[#edf0ee] pt-3 text-[11px] leading-5 text-[#52615b]"><span className="font-semibold">Rule:</span> {offer.rule}</p>
+                <p className="mt-2 text-[11px] leading-5 text-[#1a5144]"><span className="font-semibold">Signal:</span> {offer.successSignal}</p>
               </article>
             ))}
           </div>
 
           <div className="mt-6 grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
             <div className="rounded-2xl bg-[#123d34] p-5 text-white">
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">
-                Standard conversation sequence
-              </p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">Product-led journey</p>
               <div className="mt-4 space-y-3">
-                {willingnessToPayProtocol.sequence.map((item, index) => (
+                {selfServeMonetizationModel.sequence.map((item, index) => (
                   <div key={item} className="flex gap-3 rounded-xl bg-white/[0.06] p-3">
                     <span className="text-xs font-bold text-[#f2cf9c]">{String(index + 1).padStart(2, "0")}</span>
                     <p className="text-xs leading-5 text-[#d8e5e0]">{item}</p>
@@ -791,33 +731,37 @@ export function BusinessPlanView({
                 ))}
               </div>
               <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.04] p-4">
-                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#9cc5b7]">Sample gate</p>
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#9cc5b7]">First directional cohort</p>
                 <p className="mt-2 text-sm font-semibold text-white">
-                  {willingnessToPayProtocol.minimumSample.companies} companies · {willingnessToPayProtocol.minimumSample.budgetOwnerCompanies} with budget owner
+                  {selfServeMonetizationModel.activationCohort.organizations} activated organizations · first {selfServeMonetizationModel.activationCohort.initialPaidOrganizations} self-service payers
                 </p>
-                <p className="mt-2 text-xs leading-5 text-[#cfddd8]">{willingnessToPayProtocol.minimumSample.segment}</p>
+                <p className="mt-2 text-xs leading-5 text-[#cfddd8]">{selfServeMonetizationModel.activationCohort.definition}</p>
               </div>
             </div>
 
             <div className="rounded-2xl border border-[#e2e8e5] bg-white p-5">
-              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-                Validation guardrails
-              </p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">PLG guardrails</p>
               <ul className="mt-4 space-y-3">
-                {willingnessToPayProtocol.guardrails.map((item) => (
+                {selfServeMonetizationModel.guardrails.map((item) => (
                   <li key={item} className="flex gap-2 text-xs leading-5 text-[#52615b]">
                     <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#d7a45b]" />
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
+              <div className="mt-5 rounded-xl bg-[#eef3f0] p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">Price cells</p>
+                <p className="mt-2 text-sm font-semibold text-[#1d2824]">Modules {freemiumPricingGuardrails.moduleTestCells}</p>
+                <p className="mt-1 text-sm font-semibold text-[#1d2824]">Bundle {freemiumPricingGuardrails.bundleTestCells}</p>
+                <p className="mt-3 text-xs leading-5 text-[#66736e]">{freemiumPricingGuardrails.unitEconomicsRule}</p>
+              </div>
             </div>
           </div>
 
           <div className="mt-6">
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Commercial behavior scale</p>
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Product-led evidence scale</p>
             <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {offerBehaviorScale.map((item) => (
+              {productLedEvidenceScale.map((item) => (
                 <article key={item.score} className="rounded-2xl bg-[#eef3f0] p-4">
                   <div className="flex items-baseline gap-3">
                     <span className="text-2xl font-semibold text-[#173f35]">{item.score}</span>
@@ -831,63 +775,27 @@ export function BusinessPlanView({
 
           <div className="mt-6 grid gap-4 lg:grid-cols-2">
             <div className="rounded-2xl border border-[#b8d2c8] bg-white p-5">
-              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">Price sensitivity step-up</p>
-              <h4 className="mt-2 text-base font-semibold text-[#1d2824]">
-                {priceSensitivityStepUp.baselineCell} → {priceSensitivityStepUp.stepUpCell}
-              </h4>
-              <p className="mt-3 text-xs leading-5 text-[#52615b]">{priceSensitivityStepUp.trigger}</p>
-              <p className="mt-3 text-xs leading-5 text-[#66736e]">{priceSensitivityStepUp.comparisonRule}</p>
-              <p className="mt-3 rounded-xl bg-[#f7f9f8] px-3 py-2 text-[11px] leading-5 text-[#345047]">
-                {priceSensitivityStepUp.rollbackRule}
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-[#b8d2c8] bg-white p-5">
               <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">Evidence record</p>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                {offerEvidenceRecordTemplate.map((item, index) => (
+                {productLedEvidenceTemplate.map((item, index) => (
                   <div key={item} className="rounded-xl bg-[#f7f9f8] px-3 py-2 text-[11px] leading-5 text-[#52615b]">
-                    <span className="mr-2 font-bold text-[#1a5144]">{String(index + 1).padStart(2, "0")}</span>
-                    {item}
+                    <span className="mr-2 font-bold text-[#1a5144]">{String(index + 1).padStart(2, "0")}</span>{item}
                   </div>
                 ))}
               </div>
             </div>
-          </div>
 
-          <div className="mt-6 rounded-2xl bg-[#1d2824] p-5 text-white">
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#9cc5b7]">
-              Pre-committed WTP decision gate
-            </p>
-            <div className="mt-4 grid gap-5 lg:grid-cols-2">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-300">Entry + Core support</p>
-                <ul className="mt-3 space-y-2">
-                  {[...willingnessToPayValidationGate.entryOfferPass, ...willingnessToPayValidationGate.coreAnchorSupport].map((item) => (
-                    <li key={item} className="text-xs leading-5 text-[#d8e5e0]">• {item}</li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-rose-300">Disconfirm signals</p>
-                <ul className="mt-3 space-y-2">
-                  {willingnessToPayValidationGate.disconfirmSignals.map((item) => (
-                    <li key={item} className="text-xs leading-5 text-[#d8e5e0]">• {item}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.05] p-4">
-              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#9cc5b7]">Commercial validation threshold</p>
+            <div className="rounded-2xl bg-[#1d2824] p-5 text-white">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#9cc5b7]">Early validation gate</p>
               <ul className="mt-3 space-y-2">
-                {willingnessToPayValidationGate.commercialValidation.map((item) => (
-                  <li key={item} className="text-xs leading-5 text-[#cfddd8]">• {item}</li>
-                ))}
+                {productLedValidationGate.earlyPass.map((item) => <li key={item} className="text-xs leading-5 text-[#d8e5e0]">• {item}</li>)}
               </ul>
+              <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.12em] text-rose-300">Disconfirm signals</p>
+              <ul className="mt-3 space-y-2">
+                {productLedValidationGate.disconfirmSignals.map((item) => <li key={item} className="text-xs leading-5 text-[#d8e5e0]">• {item}</li>)}
+              </ul>
+              <p className="mt-4 border-t border-white/10 pt-4 text-xs font-medium leading-5 text-[#f2cf9c]">{productLedValidationGate.decisionRule}</p>
             </div>
-            <p className="mt-4 text-xs font-medium leading-5 text-[#f2cf9c]">
-              {willingnessToPayValidationGate.decisionRule}
-            </p>
           </div>
         </div>
       </section>
@@ -909,7 +817,7 @@ export function BusinessPlanView({
         <div className="rounded-[28px] border border-[#dce2df] bg-white p-6 sm:p-8">
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">Jobs to be done</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824]">
-            The moments that create willingness to pay
+            The moments that create repeat use and optional expansion
           </h2>
           <div className="mt-6 space-y-3">
             {jobsToBeDone.map((job, index) => (
