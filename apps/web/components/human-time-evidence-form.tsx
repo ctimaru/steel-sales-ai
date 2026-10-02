@@ -2,6 +2,8 @@
 
 import { useActionState, useId } from "react";
 
+import { ActionFeedback } from "@/components/action-feedback";
+
 import {
   recordHumanTimeEvidence,
   type HumanEvidenceState,
@@ -64,9 +66,14 @@ export function HumanTimeEvidenceForm() {
         </button>
       </div>
 
-      <p id={messageId} role={state.status === "error" ? "alert" : "status"} className={"text-xs sm:col-span-2 " + (state.status === "error" ? "text-red-700" : "text-emerald-700")}>
-        {state.message}
-      </p>
+      <ActionFeedback
+        id={messageId}
+        status={state.status}
+        message={state.message}
+        pending={pending}
+        pendingMessage="Salvataggio in corso…"
+        className="sm:col-span-2"
+      />
     </form>
   );
 }
