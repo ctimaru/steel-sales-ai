@@ -19,12 +19,16 @@ import {
   interviewScript,
   jobsToBeDone,
   marketEvidence,
+  packagingBoundaryDecision,
+  packagingBoundaryValidationGate,
   pricingArchitectureDecision,
   pricingDecisionRules,
   pricingExperimentBands,
   pricingHypotheses,
   pricingMarketAnchors,
   productPillars,
+  valueMetricAlternatives,
+  valueMetricDecision,
   syntheticInterviewSimulation,
 } from "@/lib/business-plan-content";
 
@@ -575,6 +579,117 @@ export function BusinessPlanView({
             {pricingArchitectureDecision.rationale.map((item) => (
               <div key={item} className="rounded-xl bg-white/[0.06] p-3 text-xs leading-5 text-[#d8e5e0]">{item}</div>
             ))}
+          </div>
+        </div>
+
+        <div className="mt-6 rounded-[28px] border border-[#b8d2c8] bg-[#f7faf8] p-5 sm:p-6">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">
+                L27.2B.1 · Packaging boundary &amp; value metric
+              </p>
+              <h3 className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824]">
+                Charge for private company memory, not for every action
+              </h3>
+              <p className="mt-3 max-w-4xl text-sm leading-6 text-[#66736e]">
+                {packagingBoundaryDecision.principle}
+              </p>
+            </div>
+            <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 ring-1 ring-amber-200">
+              {packagingBoundaryDecision.status}
+            </span>
+          </div>
+
+          <div className="mt-6 grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
+            <div className="rounded-2xl bg-[#123d34] p-5 text-white">
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">
+                Primary value metric
+              </p>
+              <h4 className="mt-2 text-xl font-semibold">{valueMetricDecision.primaryMetric}</h4>
+              <p className="mt-3 text-sm leading-6 text-[#d8e5e0]">{valueMetricDecision.why}</p>
+              <p className="mt-4 text-[11px] font-semibold text-[#f2cf9c]">{valueMetricDecision.status}</p>
+
+              <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">
+                Do not meter normal value creation
+              </p>
+              <ul className="mt-3 space-y-2">
+                {valueMetricDecision.doNotMeter.map((item) => (
+                  <li key={item} className="flex gap-2 text-xs leading-5 text-[#d8e5e0]">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#d7a45b]" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {valueMetricDecision.secondaryLevers.map((item) => (
+                <article key={item.metric} className="rounded-2xl border border-[#e2e8e5] bg-white p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">{item.role}</p>
+                  <h4 className="mt-2 text-sm font-semibold text-[#1d2824]">{item.metric}</h4>
+                  <p className="mt-2 text-xs leading-5 text-[#66736e]">{item.rule}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-3 lg:grid-cols-3">
+            {packagingBoundaryDecision.boundaries.map((boundary) => (
+              <article key={boundary.transition} className="rounded-2xl border border-[#e2e8e5] bg-white p-5">
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">{boundary.transition}</p>
+                <h4 className="mt-2 text-base font-semibold text-[#1d2824]">{boundary.trigger}</h4>
+                <p className="mt-3 text-xs leading-5 text-[#345047]">
+                  <span className="font-semibold">Paid value:</span> {boundary.paidValue}
+                </p>
+                <p className="mt-3 text-xs leading-5 text-[#66736e]">
+                  <span className="font-semibold text-[#52615b]">Boundary guard:</span> {boundary.staysOutside}
+                </p>
+                <p className="mt-3 border-t border-[#edf0ee] pt-3 text-[11px] leading-5 text-[#87938e]">
+                  {boundary.reason}
+                </p>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {valueMetricAlternatives.map((item) => (
+              <article key={item.candidate} className="rounded-2xl bg-[#eef3f0] p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <h4 className="text-sm font-semibold text-[#1d2824]">{item.candidate}</h4>
+                  <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-[#345047]">
+                    {item.decision}
+                  </span>
+                </div>
+                <p className="mt-3 text-xs leading-5 text-[#66736e]">{item.valueAlignment}</p>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-6 rounded-2xl border border-dashed border-[#b8d2c8] bg-white p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
+              Directional validation gate
+            </p>
+            <div className="mt-4 grid gap-5 lg:grid-cols-2">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-700">Pass signals</p>
+                <ul className="mt-3 space-y-2">
+                  {packagingBoundaryValidationGate.directionalPassSignals.map((item) => (
+                    <li key={item} className="text-xs leading-5 text-[#52615b]">• {item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-rose-700">Disconfirm signals</p>
+                <ul className="mt-3 space-y-2">
+                  {packagingBoundaryValidationGate.disconfirmSignals.map((item) => (
+                    <li key={item} className="text-xs leading-5 text-[#52615b]">• {item}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <p className="mt-4 rounded-xl bg-[#f7f9f8] px-4 py-3 text-xs font-medium leading-5 text-[#345047]">
+              {packagingBoundaryValidationGate.decisionRule}
+            </p>
           </div>
         </div>
 
