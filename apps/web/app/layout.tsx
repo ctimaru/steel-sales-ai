@@ -1,10 +1,17 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
 import { googleSiteVerification } from "@/lib/seo";
 import { siteUrl } from "@/lib/site";
 
 import "./globals.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#f2f4f3",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
