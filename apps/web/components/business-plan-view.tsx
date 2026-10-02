@@ -19,8 +19,14 @@ import {
   interviewScript,
   jobsToBeDone,
   marketEvidence,
+  breakEvenFramework,
   freemiumModuleCards,
   freemiumPricingGuardrails,
+  investorMilestones,
+  networkEconomicsThesis,
+  networkIncomeStreams,
+  networkNorthStarMetrics,
+  networkScaleScenarios,
   packagingBoundaryDecision,
   packagingBoundaryValidationGate,
   pricingArchitectureDecision,
@@ -32,7 +38,9 @@ import {
   productLedEvidenceTemplate,
   productLedValidationGate,
   productPillars,
+  scenarioAssumptions,
   selfServeMonetizationModel,
+  unitEconomicsGuardrails,
   valueMetricAlternatives,
   valueMetricDecision,
   syntheticInterviewSimulation,
@@ -796,6 +804,187 @@ export function BusinessPlanView({
               </ul>
               <p className="mt-4 border-t border-white/10 pt-4 text-xs font-medium leading-5 text-[#f2cf9c]">{productLedValidationGate.decisionRule}</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-[28px] border border-[#dce2df] bg-white p-6 sm:p-8">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">L27.2C · Network economics &amp; multi-stream financial model</p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824]">Value grows with users, companies and usage</h2>
+            <p className="mt-3 max-w-4xl text-sm leading-6 text-[#66736e]">{networkEconomicsThesis.principle}</p>
+          </div>
+          <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 ring-1 ring-amber-200">Sensitivity model · not forecast</span>
+        </div>
+
+        <div className="mt-6 rounded-2xl bg-[#123d34] p-5 text-white">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">Investor thesis</p>
+          <h3 className="mt-2 text-2xl font-semibold">{networkEconomicsThesis.headline}</h3>
+          <div className="mt-5 grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
+            {networkEconomicsThesis.investorLogic.map((item) => (
+              <div key={item} className="rounded-xl bg-white/[0.06] p-4 text-xs leading-5 text-[#d8e5e0]">{item}</div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Network north-star metrics</p>
+          <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {networkNorthStarMetrics.map((item) => (
+              <article key={item.metric} className="rounded-2xl bg-[#eef3f0] p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">{item.targetLogic}</p>
+                <h4 className="mt-2 text-sm font-semibold text-[#1d2824]">{item.metric}</h4>
+                <p className="mt-2 text-xs leading-5 text-[#66736e]">{item.why}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-7">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Multiple income streams</p>
+          <div className="mt-3 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+            {networkIncomeStreams.map((item) => (
+              <article key={item.stream} className="rounded-2xl border border-[#e2e8e5] p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <h4 className="text-base font-semibold text-[#1d2824]">{item.stream}</h4>
+                  <span className="rounded-full bg-[#eef3f0] px-2.5 py-1 text-[10px] font-bold text-[#345047]">{item.timing}</span>
+                </div>
+                <p className="mt-3 text-xs leading-5 text-[#52615b]"><span className="font-semibold">Payer:</span> {item.payer}</p>
+                <p className="mt-2 text-xs leading-5 text-[#52615b]"><span className="font-semibold">Model:</span> {item.model}</p>
+                <p className="mt-3 text-xs leading-5 text-[#66736e]">{item.strategicRole}</p>
+                <p className="mt-3 border-t border-[#edf0ee] pt-3 text-[11px] leading-5 text-[#87938e]"><span className="font-semibold">Trust guard:</span> {item.trustGuard}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-7 grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
+          <div className="rounded-2xl border border-[#b8d2c8] bg-[#f7faf8] p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Unit-economics guardrails</p>
+            <p className="mt-2 text-xs leading-5 text-[#66736e]">{unitEconomicsGuardrails.philosophy}</p>
+            <div className="mt-4 space-y-3">
+              {unitEconomicsGuardrails.variableCostTargets.map((item) => (
+                <div key={item.metric} className="rounded-xl bg-white p-4">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
+                    <h4 className="text-sm font-semibold text-[#1d2824]">{item.metric}</h4>
+                    <span className="text-sm font-semibold text-[#173f35]">{item.workingCeiling}</span>
+                  </div>
+                  <p className="mt-2 text-xs leading-5 text-[#66736e]">{item.reason}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-[#1d2824] p-5 text-white">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#9cc5b7]">Acquisition economics</p>
+            <ul className="mt-4 space-y-3">
+              {unitEconomicsGuardrails.acquisitionRules.map((item) => (
+                <li key={item} className="flex gap-2 text-xs leading-5 text-[#d8e5e0]">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#f2cf9c]" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-7">
+          <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Network scale sensitivity</p>
+              <h3 className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824]">Low ARPA can still create meaningful revenue at network scale</h3>
+            </div>
+            <p className="max-w-xl text-xs leading-5 text-[#87938e]">{scenarioAssumptions.disclaimer}</p>
+          </div>
+
+          <div className="mt-4 overflow-x-auto rounded-2xl border border-[#e2e8e5]">
+            <table className="min-w-[1000px] w-full text-left text-xs">
+              <thead className="bg-[#eef3f0] text-[#345047]">
+                <tr>
+                  <th className="px-4 py-3 font-semibold">Scenario</th>
+                  <th className="px-4 py-3 font-semibold">Activated orgs</th>
+                  <th className="px-4 py-3 font-semibold">Paid attach</th>
+                  <th className="px-4 py-3 font-semibold">Paid orgs</th>
+                  <th className="px-4 py-3 font-semibold">Paid ARPA</th>
+                  <th className="px-4 py-3 font-semibold">Modules MRR</th>
+                  <th className="px-4 py-3 font-semibold">Marketplace</th>
+                  <th className="px-4 py-3 font-semibold">Sponsored</th>
+                  <th className="px-4 py-3 font-semibold">Intel/API</th>
+                  <th className="px-4 py-3 font-semibold">Total MRR</th>
+                  <th className="px-4 py-3 font-semibold">Annualized</th>
+                </tr>
+              </thead>
+              <tbody>
+                {networkScaleScenarios.map((item) => (
+                  <tr key={item.name} className="border-t border-[#edf0ee] align-top">
+                    <td className="px-4 py-4">
+                      <p className="font-semibold text-[#1d2824]">{item.name}</p>
+                      <p className="mt-1 text-[10px] text-[#87938e]">{item.status}</p>
+                    </td>
+                    <td className="px-4 py-4 text-[#52615b]">{item.activatedOrganizations.toLocaleString("en-US")}</td>
+                    <td className="px-4 py-4 text-[#52615b]">{item.paidAttachRate}</td>
+                    <td className="px-4 py-4 text-[#52615b]">{item.payingOrganizations.toLocaleString("en-US")}</td>
+                    <td className="px-4 py-4 text-[#52615b]">{item.blendedPaidArpa}</td>
+                    <td className="px-4 py-4 text-[#52615b]">{item.moduleMrr}</td>
+                    <td className="px-4 py-4 text-[#52615b]">{item.marketplaceMrr}</td>
+                    <td className="px-4 py-4 text-[#52615b]">{item.sponsoredMrr}</td>
+                    <td className="px-4 py-4 text-[#52615b]">{item.intelligenceApiMrr}</td>
+                    <td className="px-4 py-4 font-semibold text-[#173f35]">{item.totalMrr}</td>
+                    <td className="px-4 py-4 font-semibold text-[#173f35]">{item.annualizedRevenue}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {networkScaleScenarios.map((item) => (
+              <article key={item.name} className="rounded-2xl bg-[#f8faf9] p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">{item.status}</p>
+                <h4 className="mt-2 text-sm font-semibold text-[#1d2824]">{item.name}</h4>
+                <p className="mt-2 text-xl font-semibold text-[#173f35]">{item.totalMrr} MRR</p>
+                <p className="mt-2 text-xs leading-5 text-[#66736e]">{item.interpretation}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-7 grid gap-4 lg:grid-cols-2">
+          <div className="rounded-2xl border border-[#b8d2c8] bg-white p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Scenario formulas</p>
+            <ul className="mt-4 space-y-2">
+              {scenarioAssumptions.formulas.map((item) => <li key={item} className="text-xs leading-5 text-[#52615b]">• {item}</li>)}
+            </ul>
+            <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">Scenario inputs</p>
+            <div className="mt-3 space-y-2">
+              {scenarioAssumptions.scenarioInputs.map((item) => (
+                <div key={item.scenario} className="rounded-xl bg-[#f7f9f8] p-3 text-[11px] leading-5 text-[#52615b]">
+                  <span className="font-semibold text-[#1d2824]">{item.scenario}:</span> Marketplace {item.marketplace} · Sponsored {item.sponsored} · Intel/API {item.intelligenceApi}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-[#123d34] p-5 text-white">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#9cc5b7]">Break-even framework</p>
+            <h4 className="mt-2 text-lg font-semibold">{breakEvenFramework.principle}</h4>
+            <p className="mt-3 text-xs leading-5 text-[#d8e5e0]">{breakEvenFramework.formula}</p>
+            <p className="mt-5 text-[10px] font-bold uppercase tracking-[0.12em] text-[#f2cf9c]">Investor message</p>
+            <p className="mt-2 text-sm leading-6 text-white">{breakEvenFramework.investmentMessage}</p>
+          </div>
+        </div>
+
+        <div className="mt-7 rounded-[24px] border border-dashed border-[#b8d2c8] bg-[#edf5f2] p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Investor milestones</p>
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {investorMilestones.map((item, index) => (
+              <article key={item.stage} className="rounded-2xl bg-white p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">Milestone {String(index + 1).padStart(2, "0")}</p>
+                <h4 className="mt-2 text-sm font-semibold text-[#1d2824]">{item.stage}</h4>
+                <p className="mt-2 text-xs leading-5 text-[#66736e]">{item.evidence}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
