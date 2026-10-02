@@ -1,8 +1,8 @@
-export const BUSINESS_PLAN_VERSION = "Investor Draft 0.2";
+export const BUSINESS_PLAN_VERSION = "Investor Draft 0.3";
 
 export const businessPlanSnapshot = {
   stage: "Product-ready web SaaS",
-  currentFocus: "ICP evidence & market segmentation",
+  currentFocus: "ICP interview & validation framework",
   launchWindow: "2027 controlled launch",
   thesis:
     "Smart Steel Sales is the vertical commercial operating system for the steel and tube industry: private commercial memory, trusted industry network, demand marketplace and technical knowledge in one governed product.",
@@ -344,6 +344,236 @@ export const competitiveAlternatives = [
   },
 ] as const;
 
+
+export const interviewCohortPlan = {
+  purpose:
+    "Directional customer discovery, not a statistically representative market survey.",
+  totalInterviews: 18,
+  primaryGate: {
+    segment: "Commercianti / stockholder",
+    interviews: 10,
+    minimumCompanies: 7,
+    roleMix: [
+      "At least 4 owner / Sales Director / commercial decision-maker interviews.",
+      "At least 4 frontline commercial / Area Manager interviews.",
+      "Up to 2 commercial operations / inside-sales interviews to test workflow reality.",
+    ],
+  },
+  comparisonCohort: [
+    { segment: "Produttori", interviews: 4, minimumCompanies: 3 },
+    { segment: "Terzisti / processor", interviews: 2, minimumCompanies: 2 },
+    { segment: "Utilizzatori industriali", interviews: 2, minimumCompanies: 2 },
+  ],
+} as const;
+
+export const interviewPrinciples = [
+  "Past behaviour before future intention: start from a real recent RFQ, quote or customer follow-up.",
+  "No product pitch during the problem-discovery section; concept testing comes only after the current workflow is understood.",
+  "Ask for concrete frequency, elapsed time, tools opened, hand-offs and failure modes instead of abstract satisfaction.",
+  "Capture disconfirming evidence with the same weight as supporting evidence.",
+  "Compliments do not count as traction; only concrete next-step behaviour counts as commitment.",
+  "Score the interview immediately after the call before reading the aggregate results.",
+] as const;
+
+export const interviewScript = [
+  {
+    phase: "1 · Context",
+    minutes: "3–5",
+    objective: "Understand role, commercial model and who owns the workflow.",
+    questions: [
+      "Qual è il tuo ruolo e quante persone partecipano normalmente al processo commerciale?",
+      "Che tipo di clienti, prodotti e richieste gestite più spesso?",
+      "Quali sistemi usate oggi tra email, ERP, CRM, Excel, cartelle e strumenti interni?",
+    ],
+  },
+  {
+    phase: "2 · Recent behaviour",
+    minutes: "8–10",
+    objective: "Anchor the interview in a recent real commercial episode.",
+    questions: [
+      "Raccontami l’ultima RFQ o richiesta cliente che hai gestito dall’inizio alla fine.",
+      "Quando hai dovuto recuperare un prezzo o un’offerta precedente, come hai fatto esattamente?",
+      "Quanti strumenti o persone hai dovuto coinvolgere per ricostruire il contesto?",
+      "Dove si è perso più tempo o dove hai avuto più incertezza?",
+    ],
+  },
+  {
+    phase: "3 · Frequency & impact",
+    minutes: "5–7",
+    objective: "Measure recurrence and economic/operational severity.",
+    questions: [
+      "Quanto spesso si presenta questo problema: ogni giorno, ogni settimana, ogni mese?",
+      "Quando non trovi subito lo storico, cosa succede concretamente?",
+      "Riesci a stimare tempo perso, ritardo di risposta, rischio prezzo o opportunità persa?",
+      "Chi altro in azienda soffre lo stesso problema?",
+    ],
+  },
+  {
+    phase: "4 · Alternatives & priority",
+    minutes: "5–7",
+    objective: "Understand incumbents, previous attempts and buying trigger.",
+    questions: [
+      "Come lo risolvete oggi e quanto siete soddisfatti di questa soluzione?",
+      "Avete già provato CRM, moduli ERP, cartelle condivise o procedure interne diverse?",
+      "Perché quelle soluzioni hanno funzionato o non hanno funzionato?",
+      "Cosa dovrebbe succedere perché questo problema diventi una priorità di investimento?",
+    ],
+  },
+  {
+    phase: "5 · Buying process",
+    minutes: "4–5",
+    objective: "Identify sponsor, authority and practical adoption constraints.",
+    questions: [
+      "Chi dovrebbe essere coinvolto per adottare uno strumento commerciale di questo tipo?",
+      "Chi decide e chi potrebbe bloccare la decisione?",
+      "Quali requisiti di sicurezza, dati o integrazione sarebbero obbligatori?",
+      "Quale risultato dovrebbe essere visibile nei primi 30–60 giorni per giustificare il progetto?",
+    ],
+  },
+  {
+    phase: "6 · Concept test",
+    minutes: "5–7",
+    objective: "Test the wedge only after the problem is established.",
+    questions: [
+      "Guardando il concetto Commercial Memory + Network, quale parte useresti davvero nel lavoro di domani?",
+      "Quale parte invece è irrilevante o troppo complessa?",
+      "Cosa dovrebbe integrarsi con il vostro ERP o mailbox per essere credibile?",
+      "Qual è il motivo principale per cui non lo adotteresti?",
+    ],
+  },
+  {
+    phase: "7 · Commitment",
+    minutes: "2–3",
+    objective: "Replace stated interest with observable next-step behaviour.",
+    questions: [
+      "Quale prossimo passo concreto avrebbe senso: seconda demo, coinvolgere un collega, condividere un esempio anonimizzato o valutare un pilot?",
+      "Chi altro dovremmo ascoltare nella vostra azienda per capire se il problema è reale?",
+    ],
+  },
+] as const;
+
+export const interviewScoreDimensions = [
+  {
+    key: "frequency",
+    label: "Problem frequency",
+    zero: "Rare / monthly or less",
+    one: "Weekly",
+    two: "Several times per week / daily",
+  },
+  {
+    key: "impact",
+    label: "Measurable impact",
+    zero: "Minor annoyance; no consequence described",
+    one: "Clear time loss, delay or operational risk",
+    two: "Quantified hours, margin/revenue risk or recurring customer impact",
+  },
+  {
+    key: "fragmentation",
+    label: "Workflow fragmentation",
+    zero: "One current system solves it adequately",
+    one: "Manual workaround around one main system",
+    two: "Two or more tools/people plus manual reconciliation",
+  },
+  {
+    key: "priority",
+    label: "Buying urgency",
+    zero: "No initiative or trigger",
+    one: "Recognised problem / medium-term priority",
+    two: "Active trigger, project or management priority",
+  },
+  {
+    key: "authority",
+    label: "Sponsor / authority",
+    zero: "No route to a sponsor",
+    one: "Influencer or user willing to introduce decision-maker",
+    two: "Budget owner / decision-maker directly engaged",
+  },
+  {
+    key: "commitment",
+    label: "Behavioural commitment",
+    zero: "Positive words only",
+    one: "Agrees to concrete follow-up or second stakeholder",
+    two: "Shares data/example, schedules pilot step or commits internal resources",
+  },
+] as const;
+
+export const interviewFitBands = [
+  {
+    band: "Strong fit",
+    score: "9–12 / 12",
+    rule:
+      "Requires problem frequency >= 1 and behavioural commitment >= 1; a high score without recurrence or commitment cannot be strong fit.",
+  },
+  {
+    band: "Medium fit",
+    score: "6–8 / 12",
+    rule:
+      "Problem exists but urgency, authority, impact or commitment is incomplete.",
+  },
+  {
+    band: "Weak fit",
+    score: "0–5 / 12",
+    rule:
+      "Low recurrence, low impact, satisfactory incumbent workflow or no credible buying path.",
+  },
+] as const;
+
+export const icpValidationGate = {
+  sampleGate: [
+    "10 distributor/stockholder interviews completed across at least 7 distinct companies.",
+    "At least 4 decision-maker interviews and at least 4 frontline commercial-user interviews.",
+    "Comparison cohort completed: 4 producers, 2 processors and 2 industrial end users.",
+  ],
+  validateThresholds: [
+    ">=70% of distributor interviews report the core commercial-memory problem at least weekly.",
+    ">=60% use two or more systems/people or manual reconciliation to reconstruct commercial context.",
+    ">=50% provide concrete evidence of material time, delay, risk or commercial impact.",
+    ">=50% of interviewed distributor companies expose a reachable sponsor or decision-maker.",
+    ">=40% of distinct distributor companies make a behavioural commitment beyond verbal interest.",
+    "At least 3 distinct distributor companies accept a pilot-oriented next step: data example, second stakeholder, or controlled pilot discussion.",
+  ],
+  disconfirmThresholds: [
+    "<40% of distributor interviews experience the problem weekly.",
+    ">=60% say the current ERP/CRM/workflow solves the problem adequately with no meaningful workaround.",
+    "<20% of distributor companies make any concrete next-step commitment after concept testing.",
+    "A repeated blocker appears in >=40% of companies and cannot be addressed without changing the core product thesis.",
+  ],
+  decisionLogic: [
+    {
+      status: "Validated",
+      rule:
+        "Sample gate complete, at least 5 of 6 validation thresholds pass, and no disconfirmation threshold triggers.",
+    },
+    {
+      status: "Needs evidence",
+      rule:
+        "Sample gate incomplete or only 3–4 validation thresholds pass without a decisive disconfirmation signal.",
+    },
+    {
+      status: "Rejected / pivot",
+      rule:
+        "Two or more disconfirmation thresholds trigger, or the core weekly-pain threshold fails after the complete primary sample.",
+    },
+  ],
+} as const;
+
+export const interviewEvidenceTemplate = [
+  "Company / segment / company-size band",
+  "Interviewee role and decision influence",
+  "Recent commercial episode used as evidence",
+  "Current tools and hand-offs",
+  "Problem frequency",
+  "Observed or quantified impact",
+  "Current workaround and satisfaction",
+  "Buying trigger / urgency",
+  "Security or integration blockers",
+  "Concept-test reaction: useful / irrelevant / missing",
+  "Behavioural commitment",
+  "Verbatim evidence quote",
+  "6-dimension score /12",
+  "Strong / Medium / Weak fit",
+] as const;
+
 export const buyerPersonas = [
   {
     persona: "Sales Director / Direttore Commerciale",
@@ -415,7 +645,7 @@ export const evidenceLedger = [
     label: "ICP / value proposition",
     status: "In progress",
     detail:
-      "Distributor-first is now an evidence-supported hypothesis; customer interviews and observed pilot behaviour are still required for validation.",
+      "Distributor-first is an evidence-supported hypothesis. L27.2A.2 now fixes the primary-interview sample, scoring rubric and objective validation / rejection thresholds before any interviews are counted.",
   },
   {
     label: "Pricing / packaging",
@@ -435,8 +665,8 @@ export const evidenceLedger = [
 ] as const;
 
 export const businessPlanRoadmap = [
-  { code: "L27.2A.1", title: "ICP Evidence & Market Segmentation", status: "Active" },
-  { code: "L27.2A.2", title: "ICP Interview & Validation Framework", status: "Next" },
+  { code: "L27.2A.1", title: "ICP Evidence & Market Segmentation", status: "Completed" },
+  { code: "L27.2A.2", title: "ICP Interview & Validation Framework", status: "Active" },
   { code: "L27.2B", title: "Packaging & Pricing Architecture", status: "Next" },
   { code: "L27.2C", title: "Unit Economics & Financial Model", status: "Next" },
   { code: "L27.2D", title: "Business Plan v2 Consolidation", status: "Next" },

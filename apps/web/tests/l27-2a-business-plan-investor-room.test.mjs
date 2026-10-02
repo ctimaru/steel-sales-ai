@@ -68,3 +68,30 @@ test("L27.2A.1 adds sourced market evidence, weighted ICP scoring and beachhead 
   assert.match(view, /Weighted ICP scorecard/);
   assert.match(view, /The real competitive set/);
 });
+
+
+test("L27.2A.2 adds a pre-committed ICP interview and validation framework", () => {
+  assert.match(content, /Investor Draft 0\.3/);
+  assert.match(content, /export const interviewCohortPlan/);
+  assert.match(content, /totalInterviews: 18/);
+  assert.match(content, /interviews: 10/);
+  assert.match(content, /minimumCompanies: 7/);
+  assert.match(content, /export const interviewPrinciples/);
+  assert.match(content, /Past behaviour before future intention/);
+  assert.match(content, /export const interviewScript/);
+  assert.match(content, /Recent behaviour/);
+  assert.match(content, /Buying process/);
+  assert.match(content, /Concept test/);
+  assert.match(content, /Commitment/);
+  assert.match(content, /export const interviewScoreDimensions/);
+  assert.match(content, /Behavioural commitment/);
+  assert.match(content, /export const icpValidationGate/);
+  assert.match(content, />=70% of distributor interviews/);
+  assert.match(content, /<40% of distributor interviews/);
+  assert.match(content, /Validated/);
+  assert.match(content, /Rejected \/ pivot/);
+  assert.match(view, /Interview &amp; validation framework/);
+  assert.match(view, /6 dimensions · 12-point fit score/);
+  assert.match(view, /Pre-committed validation thresholds/);
+  assert.match(view, /One standard record per interview/);
+});
