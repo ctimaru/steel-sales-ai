@@ -1,26 +1,31 @@
 import Link from "next/link";
 
+import type { BusinessPlanLocale } from "@/lib/business-plan-locale";
+import { withBusinessPlanLocale } from "@/lib/business-plan-locale";
+
 type BusinessPlanTab = "highlights" | "details";
 
 export function BusinessPlanTabs({
   baseHref,
   active,
+  locale = "en",
 }: {
   baseHref: string;
   active: BusinessPlanTab;
+  locale?: BusinessPlanLocale;
 }) {
   const tabs = [
     {
       key: "highlights" as const,
       label: "Highlights",
       description: "Timeline, thesis e numeri chiave",
-      href: baseHref,
+      href: withBusinessPlanLocale(baseHref, locale),
     },
     {
       key: "details" as const,
       label: "Details",
       description: "Business Plan completo",
-      href: `${baseHref}/details`,
+      href: withBusinessPlanLocale(`${baseHref}/details`, locale),
     },
   ];
 
