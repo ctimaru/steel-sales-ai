@@ -1,8 +1,8 @@
-export const BUSINESS_PLAN_VERSION = "Investor Draft 0.3";
+export const BUSINESS_PLAN_VERSION = "Investor Draft 0.4";
 
 export const businessPlanSnapshot = {
   stage: "Product-ready web SaaS",
-  currentFocus: "ICP interview & validation framework",
+  currentFocus: "Packaging & pricing hypotheses",
   launchWindow: "2027 controlled launch",
   thesis:
     "Smart Steel Sales is the vertical commercial operating system for the steel and tube industry: private commercial memory, trusted industry network, demand marketplace and technical knowledge in one governed product.",
@@ -574,6 +574,191 @@ export const interviewEvidenceTemplate = [
   "Strong / Medium / Weak fit",
 ] as const;
 
+
+export const syntheticInterviewSimulation = {
+  disclaimer:
+    "Synthetic scenario only. These are not customer interviews, traction, willingness-to-pay evidence or validation. The scenario is calibrated from current steel-market structure, Italian digital-adoption data, existing product evidence and current CRM price anchors.",
+  cohort: "10 simulated distributor/stockholder interviews across 8 synthetic companies",
+  sentimentMix: [
+    { label: "Strong positive", count: 4 },
+    { label: "Positive / cautious", count: 4 },
+    { label: "Sceptical / conditional", count: 1 },
+    { label: "Low fit", count: 1 },
+  ],
+  aggregate: [
+    { label: "Weekly core pain", value: "80%", gate: ">=70%", result: "Pass in simulation" },
+    { label: "Fragmented workflow", value: "80%", gate: ">=60%", result: "Pass in simulation" },
+    { label: "Material impact evidence", value: "60%", gate: ">=50%", result: "Pass in simulation" },
+    { label: "Reachable sponsor", value: "62.5%", gate: ">=50%", result: "Pass in simulation" },
+    { label: "Behavioural commitment", value: "50%", gate: ">=40%", result: "Pass in simulation" },
+    { label: "Pilot-oriented companies", value: "3", gate: ">=3", result: "Pass in simulation" },
+  ],
+  likelyPositiveSignals: [
+    "Historical quote and price retrieval feels immediately understandable because it maps to an existing daily workflow.",
+    "Sales Directors value shared commercial memory more than another generic pipeline view.",
+    "Frontline users respond best when the product removes search/reconstruction work rather than adding CRM data-entry work.",
+    "Network and supplier discovery increase perceived upside after the Commercial Memory wedge is understood.",
+  ],
+  likelyObjections: [
+    "ERP/email integration must feel additive rather than requiring process replacement.",
+    "Customers will ask where commercial emails, prices and customer data are stored and who can access them.",
+    "Teams may resist a new tool if ingestion/search is not automatic enough.",
+    "ROI must be demonstrated through response speed, recovered context, reactivated opportunities or fewer manual searches.",
+    "Marketplace value is attractive but should not be the only reason to pay before network density is proven.",
+  ],
+  implication:
+    "If real interviews resemble this base case, the ICP gate would pass. Until those interviews exist, the only valid conclusion is that the distributor-first thesis is plausible enough to justify pricing experiments.",
+} as const;
+
+export const pricingMarketAnchors = [
+  {
+    vendor: "Salesforce Sales Cloud",
+    anchor: "€25–€100/user/month for Starter–Pro; higher editions rise materially beyond that",
+    implication:
+      "Generic CRM establishes that European B2B sales software can support meaningful per-seat pricing, but Smart Steel Sales should avoid direct feature-for-feature CRM comparison.",
+    asOf: "2 Oct 2026",
+    sourceUrl: "https://www.salesforce.com/eu/sales/pricing/",
+  },
+  {
+    vendor: "Microsoft Dynamics 365 Sales",
+    anchor: "€56.30 / €91 / €130 per user/month for Professional / Enterprise / Premium in Italy",
+    implication:
+      "A five-user commercial team already sits around €281–€650/month before implementation or adjacent tooling.",
+    asOf: "2 Oct 2026",
+    sourceUrl: "https://www.microsoft.com/it-it/dynamics-365/products/sales/pricing",
+  },
+  {
+    vendor: "HubSpot Sales Hub",
+    anchor: "Professional about €90/user/month plus one-time onboarding; Enterprise about €150/user/month",
+    implication:
+      "Mature sales software combines recurring seats with onboarding and usage/credit mechanics, providing an upper reference for a vertical early-stage offer.",
+    asOf: "2 Oct 2026",
+    sourceUrl: "https://www.hubspot.com/pricing/sales?currencyCode=EUR",
+  },
+] as const;
+
+export const pricingArchitectureDecision = {
+  preferredModel: "Organization subscription + included seats + optional usage layer",
+  rationale: [
+    "The core asset is company memory and shared context, so value accrues at organization level rather than only per individual seat.",
+    "Included seats reduce the adoption penalty that pure per-seat pricing creates when a Sales Director wants the whole team using the same memory.",
+    "Additional seats remain useful as a scaling lever without becoming the primary value metric.",
+    "Marketplace credits can later become a separate usage layer after supplier-response value is proven.",
+    "Public Scuola and basic Network identity should remain free to preserve acquisition and network-density loops.",
+  ],
+  rejectedForNow: [
+    "Pure per-seat pricing as the only model.",
+    "Pure Marketplace success fee before transaction attribution and marketplace liquidity are proven.",
+    "Unlimited AI/ingestion promises before unit economics are measured in L27.2C.",
+  ],
+} as const;
+
+export const pricingHypotheses = [
+  {
+    name: "Free Network",
+    price: "€0",
+    audience: "Any claimed or discoverable company",
+    purpose: "Acquisition + network density",
+    includes: [
+      "Public Scuola and technical calculators",
+      "Company profile / claim foundation",
+      "Network browse, follow and basic discovery",
+      "Limited Marketplace visibility",
+    ],
+    excludes: [
+      "Private Commercial Memory",
+      "Historical email/RFQ intelligence",
+      "Advanced team analytics and automations",
+    ],
+    status: "Structural hypothesis",
+  },
+  {
+    name: "Core",
+    price: "Test band €299–€399 / organization / month",
+    audience: "Small-to-mid distributor sales teams",
+    purpose: "Primary paid wedge",
+    includes: [
+      "3–5 commercial users included",
+      "Commercial Memory",
+      "Email/RFQ ingestion and historical search",
+      "Customer/contact/RFQ/offer workspace",
+      "Network and company intelligence",
+      "Baseline AI query allowance",
+    ],
+    excludes: [
+      "Advanced admin/security/integration package",
+      "High-volume AI/ingestion",
+      "Enterprise SLA",
+    ],
+    status: "Primary pricing hypothesis",
+  },
+  {
+    name: "Pro",
+    price: "Test band €649–€799 / organization / month",
+    audience: "Larger distributor teams and second-stage producers",
+    purpose: "Expansion + higher operational value",
+    includes: [
+      "8–10 users included",
+      "Higher ingestion and AI allowances",
+      "Advanced team/commercial analytics",
+      "Automation and governance features",
+      "Priority support",
+      "Initial Marketplace response/unlock allowance if validated",
+    ],
+    excludes: [
+      "Bespoke enterprise integrations",
+      "Dedicated SLA / SSO package unless separately contracted",
+    ],
+    status: "Expansion pricing hypothesis",
+  },
+  {
+    name: "Enterprise",
+    price: "Custom; working floor from ~€1,250/month",
+    audience: "Multi-team producers, large distributors and complex groups",
+    purpose: "Governance + integration + scale",
+    includes: [
+      "Custom seat/usage envelope",
+      "SSO / advanced security when available",
+      "API and integration scope",
+      "Dedicated onboarding / success plan",
+      "Contractual support and governance",
+    ],
+    excludes: [],
+    status: "Do not publish before enterprise discovery",
+  },
+] as const;
+
+export const pricingExperimentBands = [
+  {
+    test: "Paid design-partner pilot",
+    offer: "€199/month for 90 days, up to 3 users; onboarding waived",
+    goal:
+      "Test whether real companies will pay something now rather than accept a free pilot. Success requires usage plus a paid conversion discussion.",
+  },
+  {
+    test: "Core anchor",
+    offer: "€349/month, 5 users included; extra users tentatively €39/month",
+    goal:
+      "Test organization-level willingness-to-pay against familiar CRM alternatives while preserving team adoption.",
+  },
+  {
+    test: "Pro anchor",
+    offer: "€749/month, 10 users included",
+    goal:
+      "Test whether analytics, automation, governance and higher usage limits create a meaningful second tier.",
+  },
+] as const;
+
+export const pricingDecisionRules = [
+  "Do not call any price validated based on the synthetic cohort.",
+  "Prefer offer acceptance, paid pilot or procurement progression over direct 'what would you pay?' answers.",
+  "Core price is viable only if customers perceive Commercial Memory as organization-wide infrastructure rather than a personal productivity tool.",
+  "If teams strongly resist €349/month but accept €199 paid pilots, keep value scope constant and investigate proof/ROI before cutting list price.",
+  "If real customers accept €349–€399 with little friction, test higher value before optimizing downward.",
+  "Marketplace credits remain optional until P5.6/L27.5 proves supplier-response value and recurring usage.",
+  "Onboarding fees should reflect real setup/import work measured in L27.2C, not become an arbitrary margin lever.",
+] as const;
+
 export const buyerPersonas = [
   {
     persona: "Sales Director / Direttore Commerciale",
@@ -649,8 +834,9 @@ export const evidenceLedger = [
   },
   {
     label: "Pricing / packaging",
-    status: "Next",
-    detail: "L27.2B will define what is free, paid, seat-based or usage/credit-based.",
+    status: "In progress",
+    detail:
+      "L27.2B has opened pricing hypotheses and test bands. No price is validated until real paid behaviour or procurement progression is observed.",
   },
   {
     label: "Unit economics",
@@ -666,8 +852,8 @@ export const evidenceLedger = [
 
 export const businessPlanRoadmap = [
   { code: "L27.2A.1", title: "ICP Evidence & Market Segmentation", status: "Completed" },
-  { code: "L27.2A.2", title: "ICP Interview & Validation Framework", status: "Active" },
-  { code: "L27.2B", title: "Packaging & Pricing Architecture", status: "Next" },
+  { code: "L27.2A.2", title: "ICP Interview & Validation Framework", status: "Framework completed" },
+  { code: "L27.2B", title: "Packaging & Pricing Architecture", status: "Active" },
   { code: "L27.2C", title: "Unit Economics & Financial Model", status: "Next" },
   { code: "L27.2D", title: "Business Plan v2 Consolidation", status: "Next" },
 ] as const;

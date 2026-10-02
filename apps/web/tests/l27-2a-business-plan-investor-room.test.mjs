@@ -71,7 +71,7 @@ test("L27.2A.1 adds sourced market evidence, weighted ICP scoring and beachhead 
 
 
 test("L27.2A.2 adds a pre-committed ICP interview and validation framework", () => {
-  assert.match(content, /Investor Draft 0\.3/);
+  assert.match(content, /Investor Draft 0\.4/);
   assert.match(content, /export const interviewCohortPlan/);
   assert.match(content, /totalInterviews: 18/);
   assert.match(content, /interviews: 10/);
@@ -94,4 +94,28 @@ test("L27.2A.2 adds a pre-committed ICP interview and validation framework", () 
   assert.match(view, /6 dimensions · 12-point fit score/);
   assert.match(view, /Pre-committed validation thresholds/);
   assert.match(view, /One standard record per interview/);
+});
+
+
+test("L27.2B adds synthetic interview scenario and pricing hypotheses without presenting them as evidence", () => {
+  assert.match(content, /Investor Draft 0\.4/);
+  assert.match(content, /export const syntheticInterviewSimulation/);
+  assert.match(content, /Synthetic scenario only/);
+  assert.match(content, /Weekly core pain/);
+  assert.match(content, /80%/);
+  assert.match(content, /export const pricingMarketAnchors/);
+  assert.match(content, /Salesforce Sales Cloud/);
+  assert.match(content, /Microsoft Dynamics 365 Sales/);
+  assert.match(content, /HubSpot Sales Hub/);
+  assert.match(content, /Organization subscription \+ included seats \+ optional usage layer/);
+  assert.match(content, /Test band €299–€399/);
+  assert.match(content, /€199\/month for 90 days/);
+  assert.match(content, /€349\/month, 5 users included/);
+  assert.match(content, /€749\/month, 10 users included/);
+  assert.match(content, /Do not call any price validated based on the synthetic cohort/);
+  assert.match(view, /Synthetic scenario · internal only/);
+  assert.match(view, /Not customer evidence/);
+  assert.match(view, /Working pricing architecture/);
+  assert.match(view, /Hypothesis only/);
+  assert.match(view, /Preferred monetization model/);
 });

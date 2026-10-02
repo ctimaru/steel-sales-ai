@@ -19,7 +19,13 @@ import {
   interviewScript,
   jobsToBeDone,
   marketEvidence,
+  pricingArchitectureDecision,
+  pricingDecisionRules,
+  pricingExperimentBands,
+  pricingHypotheses,
+  pricingMarketAnchors,
   productPillars,
+  syntheticInterviewSimulation,
 } from "@/lib/business-plan-content";
 
 function StatusPill({ status }: { status: string }) {
@@ -469,6 +475,141 @@ export function BusinessPlanView({
               {item}
             </div>
           ))}
+        </div>
+      </section>
+
+      {!investorMode ? (
+        <section className="rounded-[28px] border border-amber-200 bg-amber-50/50 p-6 sm:p-8">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-800">Synthetic scenario · internal only</p>
+              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824]">What the first 10 interviews could realistically look like</h2>
+              <p className="mt-3 max-w-4xl text-sm leading-6 text-[#66736e]">{syntheticInterviewSimulation.disclaimer}</p>
+            </div>
+            <span className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-amber-800 ring-1 ring-amber-200">
+              Not customer evidence
+            </span>
+          </div>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {syntheticInterviewSimulation.sentimentMix.map((item) => (
+              <div key={item.label} className="rounded-2xl bg-white p-4">
+                <p className="text-3xl font-semibold text-[#173f35]">{item.count}</p>
+                <p className="mt-1 text-xs font-semibold text-[#52615b]">{item.label}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {syntheticInterviewSimulation.aggregate.map((item) => (
+              <div key={item.label} className="rounded-2xl border border-amber-100 bg-white p-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="text-sm font-semibold text-[#1d2824]">{item.label}</p>
+                  <p className="text-xl font-semibold text-[#173f35]">{item.value}</p>
+                </div>
+                <p className="mt-2 text-[11px] text-[#87938e]">Gate {item.gate} · {item.result}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 grid gap-4 lg:grid-cols-2">
+            <div className="rounded-2xl bg-white p-5">
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Likely positive signals</p>
+              <ul className="mt-3 space-y-2">
+                {syntheticInterviewSimulation.likelyPositiveSignals.map((item) => (
+                  <li key={item} className="flex gap-2 text-sm leading-6 text-[#52615b]">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="rounded-2xl bg-white p-5">
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#8b5d23]">Likely objections</p>
+              <ul className="mt-3 space-y-2">
+                {syntheticInterviewSimulation.likelyObjections.map((item) => (
+                  <li key={item} className="flex gap-2 text-sm leading-6 text-[#52615b]">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <p className="mt-5 rounded-xl bg-white px-4 py-3 text-sm font-medium leading-6 text-[#345047]">
+            {syntheticInterviewSimulation.implication}
+          </p>
+        </section>
+      ) : null}
+
+      <section className="rounded-[28px] border border-[#dce2df] bg-white p-6 sm:p-8">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">L27.2B · Packaging & pricing</p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824]">Working pricing architecture</h2>
+            <p className="mt-3 max-w-4xl text-sm leading-6 text-[#66736e]">
+              These are testable pricing hypotheses, not validated willingness-to-pay. The current model favours an organization subscription with included users because company memory creates shared organizational value.
+            </p>
+          </div>
+          <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 ring-1 ring-amber-200">Hypothesis only</span>
+        </div>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-3">
+          {pricingMarketAnchors.map((item) => (
+            <article key={item.vendor} className="rounded-2xl bg-[#f8faf9] p-5">
+              <p className="text-sm font-semibold text-[#1d2824]">{item.vendor}</p>
+              <p className="mt-2 text-lg font-semibold text-[#173f35]">{item.anchor}</p>
+              <p className="mt-3 text-xs leading-5 text-[#66736e]">{item.implication}</p>
+              <a href={item.sourceUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex text-[11px] font-semibold text-[#1a5144] underline underline-offset-4">
+                Official pricing · {item.asOf}
+              </a>
+            </article>
+          ))}
+        </div>
+
+        <div className="mt-6 rounded-2xl bg-[#123d34] p-5 text-white">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">Preferred monetization model</p>
+          <h3 className="mt-2 text-xl font-semibold">{pricingArchitectureDecision.preferredModel}</h3>
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            {pricingArchitectureDecision.rationale.map((item) => (
+              <div key={item} className="rounded-xl bg-white/[0.06] p-3 text-xs leading-5 text-[#d8e5e0]">{item}</div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {pricingHypotheses.map((tier) => (
+            <article key={tier.name} className="rounded-2xl border border-[#e2e8e5] p-5">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">{tier.status}</p>
+              <h3 className="mt-2 text-xl font-semibold text-[#1d2824]">{tier.name}</h3>
+              <p className="mt-2 text-sm font-semibold text-[#173f35]">{tier.price}</p>
+              <p className="mt-1 text-xs text-[#87938e]">{tier.audience}</p>
+              <p className="mt-4 text-xs font-semibold text-[#52615b]">{tier.purpose}</p>
+              <ul className="mt-3 space-y-2">
+                {tier.includes.map((item) => <li key={item} className="text-xs leading-5 text-[#66736e]">• {item}</li>)}
+              </ul>
+            </article>
+          ))}
+        </div>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-3">
+          {pricingExperimentBands.map((item) => (
+            <article key={item.test} className="rounded-2xl bg-[#eef3f0] p-5">
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">{item.test}</p>
+              <p className="mt-2 text-lg font-semibold text-[#1d2824]">{item.offer}</p>
+              <p className="mt-3 text-xs leading-5 text-[#52615b]">{item.goal}</p>
+            </article>
+          ))}
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-dashed border-[#b8d2c8] p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Decision rules</p>
+          <ul className="mt-3 grid gap-2 lg:grid-cols-2">
+            {pricingDecisionRules.map((item) => (
+              <li key={item} className="text-xs leading-5 text-[#52615b]">• {item}</li>
+            ))}
+          </ul>
         </div>
       </section>
 
