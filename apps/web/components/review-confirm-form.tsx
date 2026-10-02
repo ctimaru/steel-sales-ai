@@ -2,6 +2,7 @@
 
 import { useActionState, useId } from "react";
 import { confirmReviewItem, type ReviewActionState } from "@/app/(workspace)/review/actions";
+import { ActionFeedback } from "@/components/action-feedback";
 
 const initialState: ReviewActionState = { status: "idle", message: "" };
 
@@ -21,14 +22,14 @@ export function ReviewConfirmForm({ id, reviewed }: { id: string; reviewed: bool
       >
         {pending ? "Salvataggio…" : saved ? "Confermata" : reviewed ? "Già revisionata" : "Conferma"}
       </button>
-      <p
+      <ActionFeedback
         id={messageId}
-        role={state.status === "error" ? "alert" : "status"}
-        aria-atomic="true"
-        className={`mt-2 text-xs leading-5 ${state.status === "error" ? "text-red-700" : "text-emerald-700"}`}
-      >
-        {pending ? "Salvataggio in corso…" : state.message}
-      </p>
+        status={state.status}
+        message={state.message}
+        pending={pending}
+        pendingMessage="Salvataggio in corso…"
+        className="mt-2"
+      />
     </form>
   );
 }
