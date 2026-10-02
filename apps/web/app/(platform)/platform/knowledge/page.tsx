@@ -124,7 +124,7 @@ export default async function PlatformKnowledgePage({
                 readiness e stato del workflow sulle bozze.
               </p>
             </div>
-            <div className="grid min-w-[280px] grid-cols-2 gap-2 text-center">
+            <div className="grid w-full grid-cols-2 gap-2 text-center sm:min-w-[280px] sm:w-auto">
               <div className="rounded-xl bg-emerald-50 p-3">
                 <p className="text-xl font-semibold text-emerald-800">
                   {quality.workflow.ready_drafts}
