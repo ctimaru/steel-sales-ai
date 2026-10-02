@@ -71,7 +71,7 @@ test("L27.2A.1 adds sourced market evidence, weighted ICP scoring and beachhead 
 
 
 test("L27.2A.2 adds a pre-committed ICP interview and validation framework", () => {
-  assert.match(content, /Investor Draft 0\.4/);
+  assert.match(content, /Investor Draft 0\.5/);
   assert.match(content, /export const interviewCohortPlan/);
   assert.match(content, /totalInterviews: 18/);
   assert.match(content, /interviews: 10/);
@@ -98,7 +98,7 @@ test("L27.2A.2 adds a pre-committed ICP interview and validation framework", () 
 
 
 test("L27.2B adds synthetic interview scenario and pricing hypotheses without presenting them as evidence", () => {
-  assert.match(content, /Investor Draft 0\.4/);
+  assert.match(content, /Investor Draft 0\.5/);
   assert.match(content, /export const syntheticInterviewSimulation/);
   assert.match(content, /Synthetic scenario only/);
   assert.match(content, /Weekly core pain/);
@@ -118,4 +118,27 @@ test("L27.2B adds synthetic interview scenario and pricing hypotheses without pr
   assert.match(view, /Working pricing architecture/);
   assert.match(view, /Hypothesis only/);
   assert.match(view, /Preferred monetization model/);
+});
+
+
+test("L27.2B.1 fixes the free-paid boundary and organization value metric without claiming commercial validation", () => {
+  assert.match(content, /export const packagingBoundaryDecision/);
+  assert.match(content, /Private company memory becomes operational/);
+  assert.match(content, /Core → Pro/);
+  assert.match(content, /Pro → Enterprise/);
+  assert.match(content, /export const valueMetricDecision/);
+  assert.match(content, /Organization subscription anchored to active private Commercial Memory/);
+  assert.match(content, /Included seats \+ additional seats/);
+  assert.match(content, /AI \/ ingestion \/ storage allowance/);
+  assert.match(content, /Marketplace unlock \/ response credits/);
+  assert.match(content, /Searches of the customer's own commercial history/);
+  assert.match(content, /export const valueMetricAlternatives/);
+  assert.match(content, /Pure per-seat/);
+  assert.match(content, /Pure AI \/ usage consumption/);
+  assert.match(content, /export const packagingBoundaryValidationGate/);
+  assert.match(content, /At least 3 distinct beachhead companies/);
+  assert.match(content, />=40% of completed beachhead companies/);
+  assert.match(view, /Packaging boundary &amp; value metric/);
+  assert.match(view, /Charge for private company memory, not for every action/);
+  assert.match(view, /Directional validation gate/);
 });

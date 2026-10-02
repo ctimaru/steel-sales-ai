@@ -1,8 +1,8 @@
-export const BUSINESS_PLAN_VERSION = "Investor Draft 0.4";
+export const BUSINESS_PLAN_VERSION = "Investor Draft 0.5";
 
 export const businessPlanSnapshot = {
   stage: "Product-ready web SaaS",
-  currentFocus: "Packaging & pricing hypotheses",
+  currentFocus: "Packaging boundary & value metric validation",
   launchWindow: "2027 controlled launch",
   thesis:
     "Smart Steel Sales is the vertical commercial operating system for the steel and tube industry: private commercial memory, trusted industry network, demand marketplace and technical knowledge in one governed product.",
@@ -653,6 +653,133 @@ export const pricingArchitectureDecision = {
   ],
 } as const;
 
+export const packagingBoundaryDecision = {
+  status: "Architecture decision · customer validation pending",
+  principle:
+    "Keep public discovery and network-density loops open; start the paid boundary when a company activates private Commercial Memory and expects persistent, shared, governed commercial intelligence.",
+  boundaries: [
+    {
+      transition: "Free → Core",
+      trigger: "Private company memory becomes operational",
+      paidValue:
+        "Connect/import private commercial data, persist it as organization memory, search historical email/RFQ/offer context and share it across the sales team.",
+      staysOutside:
+        "Public Scuola, technical calculators, company identity/claim, basic Network discovery/follow and limited Marketplace visibility remain open.",
+      reason:
+        "The first durable economic value is not profile visibility; it is turning proprietary commercial history into reusable company infrastructure.",
+    },
+    {
+      transition: "Core → Pro",
+      trigger: "Coordination and management complexity increases",
+      paidValue:
+        "Larger included team envelope, advanced analytics, automation, governance and higher AI/ingestion allowances.",
+      staysOutside:
+        "Core Commercial Memory jobs stay usable in Core; Pro must not be created by artificially withholding basic historical search or daily RFQ context.",
+      reason:
+        "The second tier should monetize organizational complexity and management value, not punish successful adoption of the core workflow.",
+    },
+    {
+      transition: "Pro → Enterprise",
+      trigger: "Security, integration and procurement requirements become material",
+      paidValue:
+        "Custom integration/API scope, SSO or advanced security where available, contractual support, dedicated onboarding and negotiated usage envelope.",
+      staysOutside:
+        "Standard product workflows remain standardized; bespoke requirements are not silently absorbed into lower tiers.",
+      reason:
+        "Enterprise value is created by governance, integration depth and deployment complexity rather than by a cosmetic feature bundle.",
+    },
+  ],
+} as const;
+
+export const valueMetricDecision = {
+  primaryMetric: "Organization subscription anchored to active private Commercial Memory",
+  status: "Preferred value metric · directional validation required",
+  why:
+    "Commercial Memory compounds across the company: prior quotes, relationships, pricing context and account history remain valuable when users change. Pricing the organization captures that shared asset better than charging for each individual action.",
+  secondaryLevers: [
+    {
+      metric: "Included seats + additional seats",
+      role: "Expansion lever",
+      rule:
+        "Use seats to reflect larger team scale after a useful included-user envelope; do not make every invited colleague a new purchasing decision.",
+    },
+    {
+      metric: "AI / ingestion / storage allowance",
+      role: "Cost guardrail",
+      rule:
+        "Use fair-use envelopes to protect gross margin and infrastructure capacity. Do not make normal retrieval of company memory feel like a taxi meter.",
+    },
+    {
+      metric: "Marketplace unlock / response credits",
+      role: "Future transaction-value layer",
+      rule:
+        "Keep separate from the core subscription until L27.5/P5.6 demonstrates recurring qualified supplier-response value and attribution.",
+    },
+    {
+      metric: "Onboarding / migration services",
+      role: "Potential one-time fee",
+      rule:
+        "Price only against measured setup/import effort in L27.2C; never use onboarding as an arbitrary margin surcharge.",
+    },
+  ],
+  doNotMeter: [
+    "Searches of the customer's own commercial history.",
+    "Number of customers, contacts, RFQs or offers stored during normal use.",
+    "Basic company-profile and Network discovery actions that support network density.",
+    "Routine collaboration inside the included-user envelope.",
+  ],
+} as const;
+
+export const valueMetricAlternatives = [
+  {
+    candidate: "Organization + included users",
+    decision: "Preferred",
+    valueAlignment:
+      "Matches the shared company-memory asset and keeps adoption friction low while preserving seat-based expansion.",
+  },
+  {
+    candidate: "Pure per-seat",
+    decision: "Secondary only",
+    valueAlignment:
+      "Easy to understand but misaligned when value increases because knowledge is shared across the team; can discourage inviting the people required for memory completeness.",
+  },
+  {
+    candidate: "Pure AI / usage consumption",
+    decision: "Reject as headline metric",
+    valueAlignment:
+      "Tracks infrastructure consumption better than customer value, makes spend less predictable and can suppress the very usage that creates retention.",
+  },
+  {
+    candidate: "Marketplace success fee / credits only",
+    decision: "Premature",
+    valueAlignment:
+      "Could align with transaction value later, but liquidity, attribution and recurring supplier-response value are not yet commercially proven.",
+  },
+] as const;
+
+export const packagingBoundaryValidationGate = {
+  evidenceRequired: [
+    "Present the same organization-level Core framing to target distributor companies; do not switch to seat-only pricing mid-test just to remove objections.",
+    "Record which boundary creates confusion: private memory, included users, usage allowances, Pro differentiation or Marketplace credits.",
+    "Count procurement progression, paid-pilot acceptance and concrete budget discussion above stated preference.",
+    "Capture disconfirming evidence from companies that believe core private Commercial Memory should be free or that insist on a fundamentally different value metric.",
+  ],
+  directionalPassSignals: [
+    "At least 3 distinct beachhead companies progress toward a paid pilot, procurement step or budget-owner discussion under an organization-level offer.",
+    "Organization + included users is understandable without a recurring request to reframe the entire offer as pure per-seat pricing.",
+    "Core buyers identify private Commercial Memory as the paid wedge rather than expecting it inside the free Network layer.",
+    "Pro differentiation is not published as a final tier until at least 2 target companies independently value analytics, automation, governance or higher operational envelopes.",
+  ],
+  disconfirmSignals: [
+    "A structural objection appears in >=40% of completed beachhead companies that the organization metric does not match how they budget or perceive value.",
+    "A structural objection appears in >=40% of completed beachhead companies that private Commercial Memory belongs in the free layer.",
+    "Customers repeatedly ask to meter only individual AI actions because shared organization value is not perceived.",
+    "Marketplace economics become the only credible reason to pay before Commercial Memory produces a buying signal.",
+  ],
+  decisionRule:
+    "B.1 fixes the packaging architecture for testing, not final pricing. Mark the value metric commercially validated only after real offer behaviour clears the directional pass signals without a structural disconfirmation signal.",
+} as const;
+
 export const pricingHypotheses = [
   {
     name: "Free Network",
@@ -836,7 +963,7 @@ export const evidenceLedger = [
     label: "Pricing / packaging",
     status: "In progress",
     detail:
-      "L27.2B has opened pricing hypotheses and test bands. No price is validated until real paid behaviour or procurement progression is observed.",
+      "L27.2B.1 now fixes the free/paid boundary and organization-level primary value metric for testing. Pricing and packaging remain commercially unvalidated until real paid behaviour or procurement progression is observed.",
   },
   {
     label: "Unit economics",
@@ -853,7 +980,8 @@ export const evidenceLedger = [
 export const businessPlanRoadmap = [
   { code: "L27.2A.1", title: "ICP Evidence & Market Segmentation", status: "Completed" },
   { code: "L27.2A.2", title: "ICP Interview & Validation Framework", status: "Framework completed" },
-  { code: "L27.2B", title: "Packaging & Pricing Architecture", status: "Active" },
+  { code: "L27.2B.1", title: "Packaging Boundary & Value Metric Validation", status: "Active" },
+  { code: "L27.2B.2", title: "Offer & Willingness-to-Pay Validation", status: "Next" },
   { code: "L27.2C", title: "Unit Economics & Financial Model", status: "Next" },
   { code: "L27.2D", title: "Business Plan v2 Consolidation", status: "Next" },
 ] as const;
