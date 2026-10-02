@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
   type ButtonHTMLAttributes,
+  type KeyboardEvent,
   type ReactNode,
 } from "react";
 import { useFormStatus } from "react-dom";
@@ -53,7 +54,7 @@ export function ConfirmSubmitButton({
     queueMicrotask(() => triggerRef.current?.focus());
   }
 
-  function handleDialogKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+  function handleDialogKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (event.key === "Escape") {
       event.preventDefault();
       closeDialog();
