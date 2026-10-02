@@ -197,12 +197,13 @@ export default async function PlatformBusinessPlanPage({
                           className="h-10 min-w-0 flex-1 rounded-lg border border-[#d7dfdb] px-3 text-xs"
                         />
                         <ConfirmSubmitButton
-                          confirmTitle="Revocare questo accesso investor?"
-                          confirmDescription="Tutte le sessioni attive collegate a questo invito verranno invalidate immediatamente."
-                          triggerLabel="Revoca accesso"
+                          title="Revocare questo accesso investor?"
+                          description="Tutte le sessioni attive collegate a questo invito verranno invalidate immediatamente."
                           confirmLabel="Revoca"
                           className="h-10 rounded-lg border border-rose-200 bg-rose-50 px-3 text-xs font-semibold text-rose-700"
-                        />
+                        >
+                          Revoca accesso
+                        </ConfirmSubmitButton>
                       </form>
                     ) : null}
                   </article>
