@@ -100,6 +100,7 @@ export const appRoutes = {
     people: "/platform/people",
     pilot: "/platform/pilot",
     businessPlan: "/platform/business-plan",
+    businessPlanDetails: "/platform/business-plan/details",
     registrations: "/platform/registrations",
     discovery: "/platform/company-discovery",
     claims: "/platform/company-claims",
