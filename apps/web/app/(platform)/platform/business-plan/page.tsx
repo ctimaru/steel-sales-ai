@@ -52,7 +52,7 @@ export default async function PlatformBusinessPlanPage({
         </div>
         <a
           href="#investor-access"
-          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657]"
+          className="platform-primary inline-flex min-h-11 items-center justify-center rounded-xl px-4 text-sm font-semibold"
         >
           Gestisci accessi investor
         </a>
@@ -133,7 +133,7 @@ export default async function PlatformBusinessPlanPage({
                   className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm"
                 />
               </label>
-              <button className="min-h-11 w-full rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657]">
+              <button className="platform-primary min-h-11 w-full rounded-xl px-4 text-sm font-semibold">
                 Crea accesso investor
               </button>
             </form>
