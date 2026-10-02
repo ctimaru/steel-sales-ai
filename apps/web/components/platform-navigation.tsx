@@ -41,6 +41,22 @@ const platformNav = [
     group: "strategy",
   },
   {
+    href: appRoutes.platform.investorAccess,
+    label: "Investor Access",
+    icon: "investor",
+    permission: "platform.console.access",
+    staffEnabled: false,
+    group: "strategy",
+  },
+  {
+    href: appRoutes.platform.investorKpis,
+    label: "KPI",
+    icon: "kpi",
+    permission: "platform.console.access",
+    staffEnabled: false,
+    group: "strategy",
+  },
+  {
     href: appRoutes.platform.pilot,
     label: "Commercial Pilot",
     icon: "pilot",
@@ -91,13 +107,31 @@ const platformNav = [
 ] as const satisfies readonly {
   href: string;
   label: string;
-  icon: "home" | "people" | "strategy" | "pilot" | "registrations" | "discovery" | "claims" | "knowledge" | "trust";
+  icon: "home" | "people" | "strategy" | "investor" | "kpi" | "pilot" | "registrations" | "discovery" | "claims" | "knowledge" | "trust";
   permission: PlatformPermissionKey;
   staffEnabled: boolean;
   group: (typeof platformNavGroups)[number][0];
 }[];
 
 function NavIcon({ name }: { name: (typeof platformNav)[number]["icon"] }) {
+  if (name === "investor") {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M4 18.75V9.5l8-4.25 8 4.25v9.25" />
+        <path d="M7.5 18.75v-5h9v5M8.5 10.5h7M12 5.25v-2" />
+      </svg>
+    );
+  }
+
+  if (name === "kpi") {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M4.25 19.75V12.5h3.5v7.25M10.25 19.75V8h3.5v11.75M16.25 19.75V4.25h3.5v15.5" />
+        <path d="M3 19.75h18" />
+      </svg>
+    );
+  }
+
   if (name === "strategy") {
     return (
       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
