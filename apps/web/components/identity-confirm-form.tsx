@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useActionState, useId } from "react";
 
+import { ActionFeedback } from "@/components/action-feedback";
+
 import {
   confirmIdentityMapping,
   type IdentityConfirmState,
@@ -60,13 +62,13 @@ export function IdentityConfirmForm({
         {pending ? "Attivazione in corso…" : state.status === "success" ? "Attivata" : "Conferma e attiva"}
       </button>
 
-      <p
+      <ActionFeedback
         id={messageId}
-        role={state.status === "error" ? "alert" : "status"}
-        className={`text-xs leading-5 ${state.status === "error" ? "text-red-700" : "text-emerald-700"}`}
-      >
-        {pending ? "Salvataggio, verifica consenso e attivazione in corso…" : state.message}
-      </p>
+        status={state.status}
+        message={state.message}
+        pending={pending}
+        pendingMessage="Salvataggio, verifica consenso e attivazione in corso…"
+      />
 
       {state.status === "success" && state.companyId ? (
         <Link

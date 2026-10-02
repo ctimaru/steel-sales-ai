@@ -2,6 +2,7 @@
 
 import { useActionState, useId } from "react";
 import { correctReviewItem, type ReviewActionState } from "@/app/(workspace)/review/actions";
+import { ActionFeedback } from "@/components/action-feedback";
 
 const initialState: ReviewActionState = { status: "idle", message: "" };
 
@@ -44,9 +45,13 @@ export function ReviewCorrectForm({ id, reviewed }: { id: string; reviewed: bool
         <button type="submit" disabled={pending || saved || reviewed} className="w-full rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">
           {pending ? "Salvataggio…" : saved ? "Salvata" : reviewed ? "Già revisionata" : "Salva correzione"}
         </button>
-        <p id={messageId} role={state.status === "error" ? "alert" : "status"} aria-atomic="true" className={`text-xs ${state.status === "error" ? "text-red-700" : "text-emerald-700"}`}>
-          {pending ? "Salvataggio in corso…" : state.message}
-        </p>
+        <ActionFeedback
+          id={messageId}
+          status={state.status}
+          message={state.message}
+          pending={pending}
+          pendingMessage="Salvataggio in corso…"
+        />
       </form>
     </details>
   );

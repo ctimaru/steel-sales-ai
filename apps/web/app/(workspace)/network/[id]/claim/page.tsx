@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { requestNetworkClaim } from "@/app/(workspace)/network/actions";
+import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { getCompanyClaimExperience } from "@/lib/company-claims";
 import { getNetworkProfile } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
@@ -305,9 +306,12 @@ export default async function ClaimCompanyProfilePage({
                 </span>
               </label>
 
-              <button className="h-11 rounded-xl bg-[#1a5144] px-5 text-sm font-semibold text-white hover:bg-[#226657]">
+              <PendingSubmitButton
+                pendingLabel="Invio richiesta…"
+                className="h-11 rounded-xl bg-[#1a5144] px-5 text-sm font-semibold text-white hover:bg-[#226657] disabled:cursor-not-allowed disabled:opacity-60"
+              >
                 Invia richiesta di claim
-              </button>
+              </PendingSubmitButton>
             </form>
           </section>
         </>

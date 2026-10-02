@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PendingSubmitButton } from "@/components/pending-submit-button";
 import {
   createMarketplaceResponse,
   removeMarketplaceResponseLine,
@@ -152,9 +153,12 @@ export function MarketplaceResponseWorkspace({
               className="mt-2 w-full rounded-xl border border-[#c8d5d0] bg-white px-3 py-3 text-sm leading-6"
             />
           </div>
-          <button className="rounded-xl bg-[#1a5144] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#226657]">
+          <PendingSubmitButton
+            pendingLabel="Creazione bozza…"
+            className="rounded-xl bg-[#1a5144] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#226657] disabled:cursor-not-allowed disabled:opacity-60"
+          >
             Crea bozza risposta
-          </button>
+          </PendingSubmitButton>
         </form>
       </section>
     );
@@ -250,9 +254,12 @@ export function MarketplaceResponseWorkspace({
                 className="mt-2 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 py-3 text-sm leading-6"
               />
             </div>
-            <button className="mt-4 rounded-xl border border-[#b8d2c8] bg-white px-4 py-2.5 text-sm font-semibold text-[#173f35] hover:bg-[#edf5f2]">
+            <PendingSubmitButton
+              pendingLabel="Salvataggio bozza…"
+              className="mt-4 rounded-xl border border-[#b8d2c8] bg-white px-4 py-2.5 text-sm font-semibold text-[#173f35] hover:bg-[#edf5f2] disabled:cursor-not-allowed disabled:opacity-60"
+            >
               Salva bozza
-            </button>
+            </PendingSubmitButton>
           </form>
 
           <div className="mt-6 space-y-4">
@@ -406,16 +413,22 @@ export function MarketplaceResponseWorkspace({
             <form action={submitMarketplaceResponse}>
               <input type="hidden" name="request_id" value={requestId} />
               <input type="hidden" name="response_id" value={response.response_id} />
-              <button className="rounded-xl bg-[#1a5144] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#226657]">
+              <PendingSubmitButton
+                pendingLabel="Invio risposta…"
+                className="rounded-xl bg-[#1a5144] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#226657] disabled:cursor-not-allowed disabled:opacity-60"
+              >
                 Invia risposta al buyer
-              </button>
+              </PendingSubmitButton>
             </form>
             <form action={withdrawMarketplaceResponse}>
               <input type="hidden" name="request_id" value={requestId} />
               <input type="hidden" name="response_id" value={response.response_id} />
-              <button className="rounded-xl border border-rose-200 bg-white px-5 py-2.5 text-sm font-semibold text-rose-700 hover:bg-rose-50">
+              <PendingSubmitButton
+                pendingLabel="Ritiro bozza…"
+                className="rounded-xl border border-rose-200 bg-white px-5 py-2.5 text-sm font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
                 Ritira bozza
-              </button>
+              </PendingSubmitButton>
             </form>
           </div>
         </>
@@ -459,9 +472,12 @@ export function MarketplaceResponseWorkspace({
             <form action={withdrawMarketplaceResponse} className="mt-5">
               <input type="hidden" name="request_id" value={requestId} />
               <input type="hidden" name="response_id" value={response.response_id} />
-              <button className="rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-semibold text-rose-700 hover:bg-rose-50">
+              <PendingSubmitButton
+                pendingLabel="Ritiro risposta…"
+                className="rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-sm font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
                 Ritira risposta
-              </button>
+              </PendingSubmitButton>
             </form>
           ) : null}
 

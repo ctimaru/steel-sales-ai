@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef, useState, type FormEvent } from "react";
-import { useFormStatus } from "react-dom";
 
+import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { Input } from "@/components/ui/input";
 
 import { saveAndSubmitCompanyRegistration } from "./actions";
@@ -44,20 +44,6 @@ const STEPS = [
 
 function companyTypeLabel(value: string) {
   return COMPANY_TYPES.find((item) => item.value === value)?.label ?? value;
-}
-
-function SubmitRegistrationButton() {
-  const { pending } = useFormStatus();
-
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="app-primary inline-flex h-11 w-full items-center justify-center rounded-xl px-6 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-    >
-      {pending ? "Invio in corso…" : "Invia richiesta"}
-    </button>
-  );
 }
 
 export function CompanyRegistrationForm({
@@ -480,7 +466,12 @@ export function CompanyRegistrationForm({
             Continua
           </button>
         ) : (
-          <SubmitRegistrationButton />
+          <PendingSubmitButton
+            pendingLabel="Invio in corso…"
+            className="app-primary inline-flex h-11 w-full items-center justify-center rounded-xl px-6 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+          >
+            Invia richiesta
+          </PendingSubmitButton>
         )}
       </div>
     </form>
