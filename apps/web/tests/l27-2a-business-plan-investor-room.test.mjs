@@ -71,7 +71,7 @@ test("L27.2A.1 adds sourced market evidence, weighted ICP scoring and beachhead 
 
 
 test("L27.2A.2 adds a pre-committed ICP interview and validation framework", () => {
-  assert.match(content, /Investor Draft 0\.6/);
+  assert.match(content, /Investor Draft 0\.7/);
   assert.match(content, /export const interviewCohortPlan/);
   assert.match(content, /totalInterviews: 18/);
   assert.match(content, /interviews: 10/);
@@ -97,79 +97,47 @@ test("L27.2A.2 adds a pre-committed ICP interview and validation framework", () 
 });
 
 
-test("L27.2B adds synthetic interview scenario and pricing hypotheses without presenting them as evidence", () => {
-  assert.match(content, /Investor Draft 0\.6/);
+test("L27.2B keeps the synthetic scenario clearly separated from customer evidence", () => {
+  assert.match(content, /Investor Draft 0\.7/);
   assert.match(content, /export const syntheticInterviewSimulation/);
   assert.match(content, /Synthetic scenario only/);
-  assert.match(content, /Weekly core pain/);
-  assert.match(content, /80%/);
-  assert.match(content, /export const pricingMarketAnchors/);
-  assert.match(content, /Salesforce Sales Cloud/);
-  assert.match(content, /Microsoft Dynamics 365 Sales/);
-  assert.match(content, /HubSpot Sales Hub/);
-  assert.match(content, /Organization subscription \+ included seats \+ optional usage layer/);
-  assert.match(content, /Test band €299–€399/);
-  assert.match(content, /€199\/month for 90 days/);
-  assert.match(content, /€349\/month, 5 users included/);
-  assert.match(content, /€749\/month, 10 users included/);
-  assert.match(content, /Do not call any price validated based on the synthetic cohort/);
   assert.match(view, /Synthetic scenario · internal only/);
   assert.match(view, /Not customer evidence/);
-  assert.match(view, /Working pricing architecture/);
-  assert.match(view, /Hypothesis only/);
-  assert.match(view, /Preferred monetization model/);
 });
 
-
-test("L27.2B.1 fixes the free-paid boundary and organization value metric without claiming commercial validation", () => {
+test("L27.2B.3 resets monetization to a permanent freemium product-led model", () => {
+  assert.match(content, /Permanent Free Base \+ optional low-cost modules \+ simple self-service bundle/);
+  assert.match(content, /mandatory paid pilot/);
+  assert.match(content, /€299–€799 Core\/Pro ladder/);
   assert.match(content, /export const packagingBoundaryDecision/);
-  assert.match(content, /Private company memory becomes operational/);
-  assert.match(content, /Core → Pro/);
-  assert.match(content, /Pro → Enterprise/);
+  assert.match(content, /Free Base → Memory\+/);
+  assert.match(content, /Free Base → AI\+/);
+  assert.match(content, /Free Base → Team\+/);
+  assert.match(content, /Marketplace → Premium actions/);
   assert.match(content, /export const valueMetricDecision/);
-  assert.match(content, /Organization subscription anchored to active private Commercial Memory/);
-  assert.match(content, /Included seats \+ additional seats/);
-  assert.match(content, /AI \/ ingestion \/ storage allowance/);
-  assert.match(content, /Marketplace unlock \/ response credits/);
-  assert.match(content, /Searches of the customer's own commercial history/);
-  assert.match(content, /export const valueMetricAlternatives/);
-  assert.match(content, /Pure per-seat/);
-  assert.match(content, /Pure AI \/ usage consumption/);
-  assert.match(content, /export const packagingBoundaryValidationGate/);
-  assert.match(content, /At least 3 distinct beachhead companies/);
-  assert.match(content, />=40% of completed beachhead companies/);
-  assert.match(view, /Packaging boundary &amp; value metric/);
-  assert.match(view, /Charge for private company memory, not for every action/);
-  assert.match(view, /Directional validation gate/);
+  assert.match(content, /Optional paid module adoption per organization/);
+  assert.match(content, /export const pricingHypotheses/);
+  assert.match(content, /SSS Free/);
+  assert.match(content, /Working anchor €15 \/ organization \/ month/);
+  assert.match(content, /Working anchor €39 \/ organization \/ month/);
+  assert.match(content, /export const freemiumModuleCards/);
+  assert.match(content, /€0 forever/);
+  assert.match(content, /MEMORY\+/);
+  assert.match(content, /AI\+/);
+  assert.match(content, /TEAM\+/);
+  assert.match(content, /export const selfServeMonetizationModel/);
+  assert.match(content, /activated organizations/);
+  assert.match(content, /No sales call required to unlock normal paid modules/);
+  assert.match(content, /export const productLedValidationGate/);
+  assert.match(content, /At least 5 distinct organizations purchase a module or SSS Plus through self-service/);
+  assert.match(content, /5–10% activated-to-paid conversion band/);
+  assert.match(content, /Sales-assisted revenue can coexist later but is not required evidence/);
+  assert.match(view, /Freemium &amp; product-led pricing reset/);
+  assert.match(view, /Free first\. Pay only to deepen value\./);
+  assert.match(view, /The paywall comes after the aha moment/);
+  assert.match(view, /No sales funnel required/);
+  assert.match(view, /Product-led evidence scale/);
+  assert.match(view, /Early validation gate/);
+  assert.doesNotMatch(view, /Behavior before stated willingness/);
 });
 
-
-test("L27.2B.2 adds standardized paid offers and a behavior-first willingness-to-pay gate", () => {
-  assert.match(content, /Investor Draft 0\.6/);
-  assert.match(content, /export const offerValidationCards/);
-  assert.match(content, /PILOT-199/);
-  assert.match(content, /CORE-349/);
-  assert.match(content, /CORE-399/);
-  assert.match(content, /PRO-749/);
-  assert.match(content, /No free equivalent is counted as willingness-to-pay evidence/);
-  assert.match(content, /export const willingnessToPayProtocol/);
-  assert.match(content, /minimumSample:[\s\S]*companies: 8/);
-  assert.match(content, /budgetOwnerCompanies: 5/);
-  assert.match(content, /Do not counter-discount on the same call/);
-  assert.match(content, /No ad-hoc discounts during the validation cohort/);
-  assert.match(content, /export const offerBehaviorScale/);
-  assert.match(content, /Paid \/ signed/);
-  assert.match(content, /Procurement initiated/);
-  assert.match(content, /export const priceSensitivityStepUp/);
-  assert.match(content, /first 4 valid CORE-349 companies/);
-  assert.match(content, /export const willingnessToPayValidationGate/);
-  assert.match(content, /At least 3 distinct companies accept\/sign\/pay the €199 90-day pilot/);
-  assert.match(content, /at least 3 distinct companies actually convert to paid Core at or above €349\/month/);
-  assert.match(content, /reserve 'commercially validated' for actual paid Core conversions/);
-  assert.match(content, /export const offerEvidenceRecordTemplate/);
-  assert.match(view, /Offer &amp; willingness-to-pay validation/);
-  assert.match(view, /Behavior before stated willingness/);
-  assert.match(view, /Commercial behavior scale/);
-  assert.match(view, /Price sensitivity step-up/);
-  assert.match(view, /Pre-committed WTP decision gate/);
-});
