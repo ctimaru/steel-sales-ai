@@ -33,11 +33,11 @@ export default async function DashboardPage() {
   const context = await getWorkspaceContext();
   const networkEnabled = isNetworkFrontendEnabled();
   const isAdmin = context.role === "admin";
-  const setup = isAdmin
-    ? await getCompanySetupState(context.organizationId)
-    : null;
 
-  const [commercial, received, sent, activity, followed, saved] = await Promise.all([
+  const [setup, commercial, received, sent, activity, followed, saved] = await Promise.all([
+    isAdmin
+      ? getCompanySetupState(context.organizationId)
+      : Promise.resolve(null),
     getDashboardData(),
     networkEnabled
       ? getNetworkInquiries(context.organizationId, "received")

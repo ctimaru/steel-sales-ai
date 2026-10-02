@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { cache } from "react";
 
 import type { PlatformPermissionKey, PlatformStaffRoleKey } from "@/lib/platform-access-contract";
 import type { RegistrationApplicationStatus } from "@/lib/registration-state";
@@ -15,19 +16,16 @@ export type PlatformAccessContext = {
 };
 
 export async function hasPlatformPermission(permission: PlatformPermissionKey) {
-  const supabase = await createClient();
-  const { data, error } = await supabase.rpc("has_platform_permission", {
-    p_permission_key: permission,
-  });
-  return !error && data === true;
+  const context = await getPlatformAccessContext();
+  return context?.permissions.includes(permission) ?? false;
 }
 
-export async function getPlatformAccessContext() {
+export const getPlatformAccessContext = cache(async function getPlatformAccessContext() {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("platform_access_context");
   if (error || !data) return null;
   return data as PlatformAccessContext;
-}
+});
 
 export async function requirePlatformPermission(
   permission: PlatformPermissionKey,
@@ -37,16 +35,15 @@ export async function requirePlatformPermission(
   if (!allowed) redirect(fallback);
 }
 
-export async function requirePlatformConsoleContext() {
-  const supabase = await createClient();
+export const requirePlatformConsoleContext = cache(async function requirePlatformConsoleContext() {
+  const [supabase, context] = await Promise.all([
+    createClient(),
+    getPlatformAccessContext(),
+  ]);
   const { data: authData } = await supabase.auth.getUser();
   const user = authData.user;
   if (!user) redirect("/login");
-
-  const { data, error } = await supabase.rpc("platform_access_context");
-  if (error || !data) redirect("/dashboard");
-
-  const context = data as PlatformAccessContext;
+  if (!context) redirect("/dashboard");
   if (!context.permissions.includes("platform.console.access")) {
     redirect(context.is_platform_staff ? "/staff/access" : "/dashboard");
   }
@@ -55,7 +52,7 @@ export async function requirePlatformConsoleContext() {
     ...context,
     viewerLabel: user.email ?? "Platform user",
   };
-}
+});
 
 export type PlatformStaffDirectoryItem = {
   user_id: string;

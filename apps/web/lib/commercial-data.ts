@@ -205,9 +205,25 @@ export async function getDashboardData(): Promise<DashboardData> {
   }
 
   const supabase = await createClient();
-  const { data: metricRows, error: metricError } = await supabase.rpc(
-    "commercial_dashboard_metrics",
-  );
+  const [
+    { data: metricRows, error: metricError },
+    { data: recentRfqLines },
+    { count: rfqCount },
+    { count: offerCount },
+    { count: orderCount },
+    { count: legacyEvidence },
+  ] = await Promise.all([
+    supabase.rpc("commercial_dashboard_metrics"),
+    supabase
+      .from("rfq_lines")
+      .select("id,rfq_id,requested_grade,requested_standard,raw_spec_text,source_observation_id,rfqs!inner(requested_at,company_id,conversation_id,companies(name),conversations(external_thread_id))")
+      .order("created_at", { ascending: false })
+      .limit(4),
+    supabase.from("rfqs").select("id", { count: "exact", head: true }),
+    supabase.from("offers").select("id", { count: "exact", head: true }),
+    supabase.from("orders").select("id", { count: "exact", head: true }),
+    supabase.from("commercial_observations").select("id", { count: "exact", head: true }),
+  ]);
 
   if (metricError || !metricRows?.length) {
     return {
@@ -219,18 +235,6 @@ export async function getDashboardData(): Promise<DashboardData> {
   }
 
   const metric = metricRows[0] as Record<string, unknown>;
-  const [{ data: recentRfqLines }, { count: rfqCount }, { count: offerCount }, { count: orderCount }, { count: legacyEvidence }] =
-    await Promise.all([
-      supabase
-        .from("rfq_lines")
-        .select("id,rfq_id,requested_grade,requested_standard,raw_spec_text,source_observation_id,rfqs!inner(requested_at,company_id,conversation_id,companies(name),conversations(external_thread_id))")
-        .order("created_at", { ascending: false })
-        .limit(4),
-      supabase.from("rfqs").select("id", { count: "exact", head: true }),
-      supabase.from("offers").select("id", { count: "exact", head: true }),
-      supabase.from("orders").select("id", { count: "exact", head: true }),
-      supabase.from("commercial_observations").select("id", { count: "exact", head: true }),
-    ]);
 
   const recent = (recentRfqLines ?? []).map((raw) => {
     const row = raw as Record<string, unknown>;

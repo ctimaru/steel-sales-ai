@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { cache } from "react";
 
 import { canAdministerCompany, canWriteWorkspace, type OrganizationRole } from "@/lib/access-policy";
 import { createClient } from "@/lib/supabase/server";
@@ -20,7 +21,7 @@ export type WorkspaceContext = {
   commercialMemoryReady: boolean;
 };
 
-export async function getWorkspaceContext(): Promise<WorkspaceContext> {
+export const getWorkspaceContext = cache(async function getWorkspaceContext(): Promise<WorkspaceContext> {
   const supabase = await createClient();
   const { data: authData, error: authError } = await supabase.auth.getUser();
   const user = authData.user;
@@ -76,7 +77,7 @@ export async function getWorkspaceContext(): Promise<WorkspaceContext> {
     guidedSetupComplete: Boolean(organization.guided_setup_completed_at),
     commercialMemoryReady,
   };
-}
+});
 
 export async function requirePlatformContext() {
   const supabase = await createClient();

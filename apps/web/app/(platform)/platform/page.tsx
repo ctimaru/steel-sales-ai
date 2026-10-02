@@ -17,10 +17,13 @@ export default async function PlatformHomePage() {
   const canReadClaims = context.permissions.includes("claims.read");
   const canReadKnowledge = context.permissions.includes("knowledge.read_drafts");
   const canReadNetworkTrust = context.permissions.includes("network_trust.read");
-  const queue = canReadRegistrations ? await getRegistrationQueue() : null;
-  const claimQueue = canReadClaims ? await getAdminCompanyClaimQueue() : null;
-  const knowledgeQueue = canReadKnowledge ? await getPlatformKnowledgeQueue() : null;
-  const networkTrustQueue = canReadNetworkTrust ? await getNetworkTrustQueue() : null;
+  const [queue, claimQueue, knowledgeQueue, networkTrustQueue] =
+    await Promise.all([
+      canReadRegistrations ? getRegistrationQueue() : Promise.resolve(null),
+      canReadClaims ? getAdminCompanyClaimQueue() : Promise.resolve(null),
+      canReadKnowledge ? getPlatformKnowledgeQueue() : Promise.resolve(null),
+      canReadNetworkTrust ? getNetworkTrustQueue() : Promise.resolve(null),
+    ]);
   const counts = (queue?.applications ?? []).reduce<Record<string, number>>(
     (acc, application) => {
       acc[application.application_status] =
