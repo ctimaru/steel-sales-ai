@@ -71,7 +71,7 @@ test("L27.2A.1 adds sourced market evidence, weighted ICP scoring and beachhead 
 
 
 test("L27.2A.2 adds a pre-committed ICP interview and validation framework", () => {
-  assert.match(content, /Investor Draft 0\.4/);
+  assert.match(content, /Investor Draft 0\.5/);
   assert.match(content, /export const interviewCohortPlan/);
   assert.match(content, /totalInterviews: 18/);
   assert.match(content, /interviews: 10/);
@@ -98,7 +98,7 @@ test("L27.2A.2 adds a pre-committed ICP interview and validation framework", () 
 
 
 test("L27.2B adds synthetic interview scenario and pricing hypotheses without presenting them as evidence", () => {
-  assert.match(content, /Investor Draft 0\.4/);
+  assert.match(content, /Investor Draft 0\.5/);
   assert.match(content, /export const syntheticInterviewSimulation/);
   assert.match(content, /Synthetic scenario only/);
   assert.match(content, /Weekly core pain/);
