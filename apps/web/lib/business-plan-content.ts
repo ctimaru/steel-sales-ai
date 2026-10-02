@@ -1,8 +1,8 @@
-export const BUSINESS_PLAN_VERSION = "Investor Draft 0.9";
+export const BUSINESS_PLAN_VERSION = "Investor Draft 1.0";
 
 export const businessPlanSnapshot = {
   stage: "Product-ready web SaaS",
-  currentFocus: "Business Plan v2 consolidation",
+  currentFocus: "Target market sizing & economic opportunity",
   launchWindow: "2027 controlled launch",
   thesis:
     "Smart Steel Sales aims to become the business network layer for the steel and tube industry: a free professional network strengthened by commercial memory, marketplace activity, AI and industry intelligence, with monetization that scales with users and usage rather than sales headcount.",
@@ -252,6 +252,256 @@ export const marketEvidence = [
       "https://ftp.eurofer.eu/publications/economic-market-outlook/economic-and-steel-market-outlook-2026-2027-third-quarter",
   },
 ] as const;
+
+export const marketSizingMethodology = {
+  asOf: "2 Oct 2026",
+  principle:
+    "Use concentric market layers instead of one inflated TAM. Association/company/site counts overlap, so core, serviceable and broad universes are shown separately and are never added together without deduplication.",
+  layers: [
+    "Core steel network = distributors, service centres, steel/tube producers and processors closest to the daily SSS workflow.",
+    "Serviceable industrial network = metal/engineering companies with recurring steel purchasing, processing or commercial relationships.",
+    "Broad discovery universe = downstream industrial companies that can derive Network, Marketplace, Scuola or intelligence value even if they never buy a paid software module.",
+  ],
+  caveat:
+    "Membership figures measure represented companies, while production-site and downstream-user figures measure different units. They are market-structure evidence, not a deduplicated census.",
+} as const;
+
+export const targetMarketLayers = [
+  {
+    geography: "Italy",
+    core: {
+      metric: "144 + 130",
+      label: "distribution + production association footprints",
+      detail:
+        "ASSOFERMET Acciai has 144 member companies representing about 80% of Italian steel distribution. Federacciai has 130 member companies representing more than 95% of Italian steel production and transformation. These memberships are not summed as a deduplicated company count.",
+      source: "ASSOFERMET + Federacciai",
+      sourceUrls: [
+        "https://www.assofermet.it/settore-acciai",
+        "https://federacciai.it/profilo-e-storia/",
+      ],
+    },
+    serviceable: {
+      metric: "~14,000",
+      label: "Federmeccanica member companies",
+      detail:
+        "Federmeccanica says it associates about 14,000 Italian metalworking/mechatronics companies employing around 900,000 people. This is a useful serviceable industrial adjacency, not a steel-only count.",
+      source: "Federmeccanica",
+      sourceUrls: ["https://www.federmeccanica.it/chi-siamo.html"],
+    },
+    broad: {
+      metric: ">160,000",
+      label: "downstream customer companies served by steel distribution",
+      detail:
+        "ASSOFERMET's sector brochure says its steel-distribution members serve more than 160,000 customer companies across Italian industry.",
+      source: "ASSOFERMET industry brochure",
+      sourceUrls: [
+        "https://www.assofermet.it/source/Brochure/brochure_assofermet.pdf",
+      ],
+    },
+  },
+  {
+    geography: "Europe",
+    core: {
+      metric: "~3,500 + 500 sites",
+      label: "distribution ecosystem + EU steel production footprint",
+      detail:
+        "EUROMETAL's associated federations represent about 3,500 distributors, service centres, processors and traders. EUROFER reports about 500 steel production sites across 22 EU Member States. Sites are not companies and are shown separately inside the same core footprint.",
+      source: "EUROMETAL + EUROFER",
+      sourceUrls: [
+        "https://eurometal.net/membership/",
+        "https://www.eurofer.eu/about-steel/learn-about-steel",
+      ],
+    },
+    serviceable: {
+      metric: ">200,000",
+      label: "MET industry member companies",
+      detail:
+        "Ceemet's national federations across 20 countries represent more than 200,000 companies in metal, engineering and technology-based industries, the vast majority SMEs.",
+      source: "Ceemet",
+      sourceUrls: ["https://ceemet.org/about/"],
+    },
+    broad: {
+      metric: "770,000",
+      label: "European technology-industry companies",
+      detail:
+        "Orgalim reports 770,000 companies across mechanical engineering, electrical engineering, electronics, ICT and metal technology. This is a broad industrial expansion envelope, not a steel-specific TAM.",
+      source: "Orgalim",
+      sourceUrls: [
+        "https://orgalim.eu/en/orgalim-at-the-european-commissions-eu-trade-policy-day-driving-competitiveness-from-the-inside/",
+      ],
+    },
+  },
+] as const;
+
+export const marketOpportunityHighlights = [
+  {
+    metric: ">160k",
+    label: "Italian downstream companies",
+    detail:
+      "Documented customer-company reach of the Italian steel-distribution ecosystem.",
+    geography: "Italy",
+    sourceUrl:
+      "https://www.assofermet.it/source/Brochure/brochure_assofermet.pdf",
+  },
+  {
+    metric: "17.6%",
+    label: "Italy share of EU apparent steel use",
+    detail:
+      "23.8 Mt in Italy out of 135.2 Mt EU27 apparent steel use in 2025.",
+    geography: "Italy",
+    sourceUrl:
+      "https://worldsteel.org/data/world-steel-in-figures/world-steel-in-figures-2026/",
+  },
+  {
+    metric: "~3,500",
+    label: "European distribution companies",
+    detail:
+      "EUROMETAL federation footprint across stockholders, service centres, processors and traders.",
+    geography: "Europe",
+    sourceUrl: "https://eurometal.net/membership/",
+  },
+  {
+    metric: "770k",
+    label: "European technology-industry companies",
+    detail:
+      "Broad industrial company universe represented by Orgalim across major technology and metal branches.",
+    geography: "Europe",
+    sourceUrl:
+      "https://orgalim.eu/en/orgalim-at-the-european-commissions-eu-trade-policy-day-driving-competitiveness-from-the-inside/",
+  },
+] as const;
+
+export const steelMarketEconomicContext = [
+  {
+    geography: "Italy",
+    metric: ">€10bn",
+    label: "steel-distribution turnover",
+    detail:
+      "ASSOFERMET's industry brochure describes more than €10 billion of turnover in the Italian steel distribution/pre-processing sector and over 13,000 employees.",
+    source: "ASSOFERMET",
+    sourceUrl:
+      "https://www.assofermet.it/source/Brochure/brochure_assofermet.pdf",
+  },
+  {
+    geography: "Italy",
+    metric: "23.8 Mt",
+    label: "apparent steel use in 2025",
+    detail:
+      "World Steel Association reports 23.8 Mt of apparent finished-steel use in Italy in 2025, versus 135.2 Mt for EU27 — about 17.6% of EU use.",
+    source: "worldsteel · World Steel in Figures 2026",
+    sourceUrl:
+      "https://worldsteel.org/data/world-steel-in-figures/world-steel-in-figures-2026/",
+  },
+  {
+    geography: "Europe",
+    metric: "€215bn",
+    label: "EU steel-sector turnover",
+    detail:
+      "EUROFER describes the EU steel sector as roughly €215 billion in turnover, with about 500 production sites and around 298,000 direct employees.",
+    source: "EUROFER",
+    sourceUrl: "https://www.eurofer.eu/",
+  },
+  {
+    geography: "Europe",
+    metric: "10.6 Mt",
+    label: "EU tubular steel market in 2023",
+    detail:
+      "EUROMETAL research cited a 10.6 Mt tubular-steel market in 2023, split evenly between distributors and direct mill sales at roughly 5.3 Mt each.",
+    source: "EUROMETAL",
+    sourceUrl:
+      "https://eurometal.net/european-distributors-lose-volume-in-2020s/",
+  },
+  {
+    geography: "Europe",
+    metric: "€2.755tn",
+    label: "technology-industry annual turnover",
+    detail:
+      "Orgalim reports more than €2.755 trillion in annual turnover across 770,000 European technology-industry companies and 11.6 million direct jobs.",
+    source: "Orgalim",
+    sourceUrl:
+      "https://orgalim.eu/en/orgalim-at-the-european-commissions-eu-trade-policy-day-driving-competitiveness-from-the-inside/",
+  },
+] as const;
+
+export const moduleRevenueMarketEnvelope = {
+  disclaimer:
+    "Software-only market envelopes, not forecasts. Each case asks what annual recurring module revenue would result if 5% of the referenced organization universe paid €29/month versus 10% paying €39/month. Marketplace, sponsored visibility, intelligence and API revenue are excluded.",
+  cases: [
+    {
+      scope: "Italy · serviceable industrial adjacency",
+      organizations: "~14,000",
+      basis: "Federmeccanica member companies",
+      lowCase: "€244k ARR",
+      highCase: "€655k ARR",
+      lowAssumption: "5% paid × €29/month",
+      highAssumption: "10% paid × €39/month",
+    },
+    {
+      scope: "Italy · broad downstream universe",
+      organizations: ">160,000",
+      basis: "customer companies served by ASSOFERMET distribution members",
+      lowCase: "€2.78m ARR",
+      highCase: "€7.49m ARR",
+      lowAssumption: "5% paid × €29/month",
+      highAssumption: "10% paid × €39/month",
+    },
+    {
+      scope: "Europe · serviceable MET adjacency",
+      organizations: ">200,000",
+      basis: "Ceemet member-company footprint",
+      lowCase: "€3.48m ARR",
+      highCase: "€9.36m ARR",
+      lowAssumption: "5% paid × €29/month",
+      highAssumption: "10% paid × €39/month",
+    },
+    {
+      scope: "Europe · broad technology-industry envelope",
+      organizations: "770,000",
+      basis: "Orgalim company footprint",
+      lowCase: "€13.4m ARR",
+      highCase: "€36.0m ARR",
+      lowAssumption: "5% paid × €29/month",
+      highAssumption: "10% paid × €39/month",
+    },
+  ],
+} as const;
+
+export const marketPenetrationSanityChecks = [
+  {
+    scenario: "Italy network sensitivity",
+    penetration: "6.25%",
+    comparison:
+      "10,000 activated organizations equals 6.25% of the >160,000 Italian downstream customer-company universe documented by ASSOFERMET.",
+    economicRead:
+      "The existing €533k annualized multi-stream Italy scenario is roughly 0.005% of the >€10bn steel-distribution turnover context — illustrating a very low monetization burden relative to sector economics, not a take-rate claim.",
+  },
+  {
+    scenario: "European network sensitivity",
+    penetration: "~6.5%",
+    comparison:
+      "50,000 activated organizations equals about 6.5% of Orgalim's 770,000-company technology-industry envelope.",
+    economicRead:
+      "The existing €4.61m annualized European scenario therefore does not require high subscription ARPA; it requires meaningful but still minority network penetration plus diversified monetization.",
+  },
+  {
+    scenario: "Long-range network scale",
+    penetration: "~26%",
+    comparison:
+      "200,000 activated organizations equals about 26% of the 770,000-company broad European technology-industry envelope.",
+    economicRead:
+      "This remains a deliberately long-range sensitivity case and should never be presented as a near-term SOM or forecast.",
+  },
+] as const;
+
+export const investorMarketSizingConclusion = {
+  headline: "The launch market is concentrated; the network market is large.",
+  points: [
+    "Italy is unusually attractive as a launch market: a small number of high-connectivity steel distributors and producers sit in front of a downstream base exceeding 160,000 customer companies.",
+    "Italy accounted for about 17.6% of EU27 apparent steel use in 2025, supporting an Italy-first strategy despite the country's smaller overall economy.",
+    "Europe offers a documented core distribution footprint of about 3,500 companies, then expands into more than 200,000 MET companies and a 770,000-company technology-industry envelope.",
+    "The investment case should not call all broad industrial companies immediate paying TAM. Core network density drives acquisition; a minority self-service paid attach plus later marketplace, visibility and intelligence revenue creates the economic upside.",
+  ],
+} as const;
 
 export const icpDecisionCriteria = [
   { key: "pain", label: "Pain intensity", weight: "25%" },
