@@ -26,13 +26,14 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
   const networkEnabled = isNetworkFrontendEnabled();
 
   if (configured) {
-    const context = await getWorkspaceContext();
+    const [context, supabase] = await Promise.all([
+      getWorkspaceContext(),
+      createClient(),
+    ]);
     viewerLabel = context.viewerLabel;
     organizationName = context.organizationName;
     organizationRole = context.role;
     platformSuperadmin = context.platformSuperadmin;
-
-    const supabase = await createClient();
     const { data: alertSummary } = await supabase.rpc("p1_operational_alerts_summary", {
       p_organization_id: context.organizationId,
     });
