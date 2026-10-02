@@ -89,7 +89,7 @@ export default async function NetworkDirectoryPage({
     <div className="mx-auto max-w-7xl space-y-8">
       <PilotEvent eventName="network_directory_viewed" metadata={{ surface: "network_directory" }} />
 
-      <section className="overflow-hidden rounded-3xl border border-[#dce7f7] bg-white shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)]">
+      <section className="overflow-hidden rounded-3xl border border-[#dce2df] bg-white shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)]">
         <div className="h-1 bg-[#1a5144]" />
         <div className="p-6 sm:p-8">
           <div className="flex flex-wrap items-center gap-2">
@@ -136,7 +136,7 @@ export default async function NetworkDirectoryPage({
 
       <section id="directory" className="space-y-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">Directory aziende</p>
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Directory aziende</p>
           <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">Da dove vuoi partire?</h2>
           <p className="mt-1 text-sm text-[#66736e]">
             Per il tubo in Italia puoi entrare direttamente da una tipologia della filiera.
@@ -199,7 +199,7 @@ export default async function NetworkDirectoryPage({
 
           <details
             open={hasAdvancedFilters}
-            className="rounded-2xl border border-[#e7edf5] bg-[#f8fafd]"
+            className="rounded-2xl border border-[#e7edf5] bg-[#f6f8f7]"
           >
             <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-[#43524c]">
               Filtri avanzati
@@ -258,7 +258,7 @@ export default async function NetworkDirectoryPage({
       <section>
         <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">Risultati</p>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Risultati</p>
             <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">
               {results.total.toLocaleString("it-IT")} {results.total === 1 ? "azienda trovata" : "aziende trovate"}
             </h2>
@@ -343,7 +343,7 @@ export default async function NetworkDirectoryPage({
                     {company.products.slice(0, 2).map((product) => (
                       <span
                         key={product.key + product.relationship_type}
-                        className="rounded-full bg-[#f2f5f9] px-2.5 py-1 text-xs text-[#5f7088]"
+                        className="rounded-full bg-[#f2f5f9] px-2.5 py-1 text-xs text-[#5d6a65]"
                       >
                         {product.name}
                       </span>
