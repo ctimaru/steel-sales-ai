@@ -179,9 +179,10 @@ export default async function NetworkDirectoryPage({
           <div className="flex flex-col gap-2 sm:flex-row">
             <input
               name="q"
+              aria-label="Nome azienda o dominio"
               defaultValue={params.q ?? ""}
               placeholder="Nome azienda o dominio"
-              className="h-12 min-w-0 flex-1 rounded-xl border border-[#d7dfdb] px-4 text-sm text-[#1d2824] outline-none transition placeholder:text-[#9aa8ba] focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8]"
+              className="h-12 min-w-0 flex-1 rounded-xl border border-[#d7dfdb] px-4 text-sm text-[#1d2824] outline-none transition placeholder:text-[#66736e] focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8]"
             />
             <button className="h-12 rounded-xl bg-[#1a5144] px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-[#226657]">
               Cerca
@@ -209,7 +210,7 @@ export default async function NetworkDirectoryPage({
               )}
             </summary>
             <div className="grid gap-3 border-t border-[#e7edf5] p-4 sm:grid-cols-2 lg:grid-cols-5">
-              <select name="role" defaultValue={params.role ?? ""} className={selectClass()}>
+              <select name="role" aria-label="Ruolo azienda" defaultValue={params.role ?? ""} className={selectClass()}>
                 <option value="">Tutti i ruoli</option>
                 {taxonomy.roles.map((item) => (
                   <option key={item.canonical_key} value={item.canonical_key}>
@@ -217,7 +218,7 @@ export default async function NetworkDirectoryPage({
                   </option>
                 ))}
               </select>
-              <select name="product" defaultValue={params.product ?? ""} className={selectClass()}>
+              <select name="product" aria-label="Famiglia prodotto" defaultValue={params.product ?? ""} className={selectClass()}>
                 <option value="">Tutti i prodotti</option>
                 {taxonomy.products.map((item) => (
                   <option key={item.canonical_key} value={item.canonical_key}>
@@ -225,7 +226,7 @@ export default async function NetworkDirectoryPage({
                   </option>
                 ))}
               </select>
-              <select name="capability" defaultValue={params.capability ?? ""} className={selectClass()}>
+              <select name="capability" aria-label="Capability" defaultValue={params.capability ?? ""} className={selectClass()}>
                 <option value="">Tutte le capability</option>
                 {taxonomy.capabilities.map((item) => (
                   <option key={item.canonical_key} value={item.canonical_key}>
@@ -233,7 +234,7 @@ export default async function NetworkDirectoryPage({
                   </option>
                 ))}
               </select>
-              <select name="market" defaultValue={params.market ?? ""} className={selectClass()}>
+              <select name="market" aria-label="Mercato" defaultValue={params.market ?? ""} className={selectClass()}>
                 <option value="">Tutti i mercati</option>
                 {taxonomy.markets.map((item) => (
                   <option key={item.canonical_key} value={item.canonical_key}>
