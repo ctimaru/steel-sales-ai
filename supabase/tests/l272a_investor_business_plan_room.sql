@@ -61,6 +61,14 @@ begin
 end
 $owner$;
 
+insert into l272a_state(key,value)
+select 'owner',
+  jsonb_build_object('user_id',user_id)
+from public.platform_user_roles
+where role='platform_superadmin'
+  and status='active'
+limit 1;
+
 insert into auth.users(id,email,email_confirmed_at)
 values(
   '00000000-0000-0000-0000-000000002721',
@@ -74,10 +82,9 @@ set local role authenticated;
 select set_config(
   'request.jwt.claim.sub',
   (
-    select user_id::text
-    from public.platform_user_roles
-    where role='platform_superadmin' and status='active'
-    limit 1
+    select value->>'user_id'
+    from l272a_state
+    where key='owner'
   ),
   true
 );
