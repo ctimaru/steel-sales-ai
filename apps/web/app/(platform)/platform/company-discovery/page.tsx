@@ -299,7 +299,7 @@ export default async function CompanyDiscoveryPage({
                 href={`/platform/company-discovery?status=${key}`}
                 className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
                   status === key
-                    ? "border border-[#1a5144] bg-[#1a5144] text-white"
+                    ? "platform-selected-solid border"
                     : "border border-[#d7dfdb] bg-white text-[#43524c] hover:border-[#b8d2c8] hover:bg-[#f0f4f2] hover:text-[#1a5144]"
                 }`}
               >
