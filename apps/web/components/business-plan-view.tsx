@@ -10,6 +10,13 @@ import {
   icpDecisionCriteria,
   icpScorecard,
   icpSegments,
+  icpValidationGate,
+  interviewCohortPlan,
+  interviewEvidenceTemplate,
+  interviewFitBands,
+  interviewPrinciples,
+  interviewScoreDimensions,
+  interviewScript,
   jobsToBeDone,
   marketEvidence,
   productPillars,
@@ -295,6 +302,172 @@ export function BusinessPlanView({
                 <p className="rounded-xl bg-white p-3 font-medium text-[#345047]">{item.implication}</p>
               </div>
             </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-[28px] border border-[#dce2df] bg-white p-6 sm:p-8">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">L27.2A.2 · Primary validation</p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824]">
+              Interview &amp; validation framework
+            </h2>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66736e]">
+              A pre-committed discovery protocol converts the distributor-first thesis from evidence-supported to validated, needs-evidence or rejected. The sample is directional, not statistically representative.
+            </p>
+          </div>
+          <div className="rounded-2xl bg-[#123d34] px-5 py-4 text-white">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">Planned cohort</p>
+            <p className="mt-1 text-3xl font-semibold">{interviewCohortPlan.totalInterviews}</p>
+            <p className="mt-1 text-xs text-[#d8e5e0]">customer-discovery interviews</p>
+          </div>
+        </div>
+
+        <div className="mt-7 grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
+          <div className="rounded-2xl bg-[#f7f9f8] p-5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">Primary gate</p>
+            <h3 className="mt-2 text-lg font-semibold text-[#1d2824]">{interviewCohortPlan.primaryGate.segment}</h3>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="rounded-xl bg-white p-4">
+                <p className="text-2xl font-semibold text-[#173f35]">{interviewCohortPlan.primaryGate.interviews}</p>
+                <p className="mt-1 text-[11px] text-[#66736e]">interviews</p>
+              </div>
+              <div className="rounded-xl bg-white p-4">
+                <p className="text-2xl font-semibold text-[#173f35]">≥{interviewCohortPlan.primaryGate.minimumCompanies}</p>
+                <p className="mt-1 text-[11px] text-[#66736e]">distinct companies</p>
+              </div>
+            </div>
+            <div className="mt-4 space-y-2">
+              {interviewCohortPlan.primaryGate.roleMix.map((item) => (
+                <div key={item} className="flex gap-2 text-xs leading-5 text-[#52615b]">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#5b8f7f]" />
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.12em] text-[#87938e]">Comparison cohort</p>
+            <div className="mt-3 space-y-2">
+              {interviewCohortPlan.comparisonCohort.map((item) => (
+                <div key={item.segment} className="flex items-center justify-between rounded-xl bg-white px-3 py-3 text-xs">
+                  <span className="font-semibold text-[#345047]">{item.segment}</span>
+                  <span className="text-[#66736e]">{item.interviews} interviews · ≥{item.minimumCompanies} companies</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[#e2e8e5] p-5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">Anti-bias rules</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {interviewPrinciples.map((item, index) => (
+                <div key={item} className="rounded-xl bg-[#f8faf9] p-4">
+                  <p className="text-xs font-bold text-[#173f35]">{String(index + 1).padStart(2, "0")}</p>
+                  <p className="mt-2 text-xs leading-5 text-[#52615b]">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">Interview flow · ~35–45 min</p>
+          <div className="mt-3 grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
+            {interviewScript.map((phase) => (
+              <article key={phase.phase} className="rounded-2xl border border-[#e2e8e5] p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-sm font-semibold text-[#1d2824]">{phase.phase}</h3>
+                  <span className="rounded-full bg-[#f2f4f3] px-2.5 py-1 text-[10px] font-semibold text-[#66736e]">{phase.minutes} min</span>
+                </div>
+                <p className="mt-2 text-xs font-medium leading-5 text-[#345047]">{phase.objective}</p>
+                <ul className="mt-3 space-y-2">
+                  {phase.questions.map((question) => (
+                    <li key={question} className="text-xs leading-5 text-[#66736e]">• {question}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
+        <div className="rounded-[28px] border border-[#dce2df] bg-white p-6 sm:p-8">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">Per-interview evidence</p>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824]">6 dimensions · 12-point fit score</h2>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            {interviewScoreDimensions.map((item) => (
+              <article key={item.key} className="rounded-2xl bg-[#f8faf9] p-4">
+                <h3 className="text-sm font-semibold text-[#1d2824]">{item.label}</h3>
+                <div className="mt-3 space-y-2 text-[11px] leading-5">
+                  <p><span className="font-bold text-rose-700">0</span> · <span className="text-[#66736e]">{item.zero}</span></p>
+                  <p><span className="font-bold text-amber-700">1</span> · <span className="text-[#66736e]">{item.one}</span></p>
+                  <p><span className="font-bold text-emerald-700">2</span> · <span className="text-[#66736e]">{item.two}</span></p>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            {interviewFitBands.map((item) => (
+              <div key={item.band} className="rounded-2xl border border-[#e2e8e5] p-4">
+                <p className="text-sm font-semibold text-[#1d2824]">{item.band}</p>
+                <p className="mt-1 text-xl font-semibold text-[#173f35]">{item.score}</p>
+                <p className="mt-2 text-[11px] leading-5 text-[#66736e]">{item.rule}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-[28px] bg-[#1d2824] p-6 text-white sm:p-8">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#9cc5b7]">Decision gate</p>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight">Pre-committed validation thresholds</h2>
+
+          <div className="mt-5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#9cc5b7]">Validate signals</p>
+            <ul className="mt-3 space-y-2">
+              {icpValidationGate.validateThresholds.map((item) => (
+                <li key={item} className="flex gap-2 text-xs leading-5 text-[#d8e5e0]">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-300" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="mt-6">
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#e9b7ad]">Disconfirm signals</p>
+            <ul className="mt-3 space-y-2">
+              {icpValidationGate.disconfirmThresholds.map((item) => (
+                <li key={item} className="flex gap-2 text-xs leading-5 text-[#d8e5e0]">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-300" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="mt-6 space-y-3">
+            {icpValidationGate.decisionLogic.map((item) => (
+              <div key={item.status} className="rounded-xl border border-white/10 bg-white/[0.05] p-4">
+                <p className="text-sm font-semibold text-white">{item.status}</p>
+                <p className="mt-2 text-xs leading-5 text-[#cfddd8]">{item.rule}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-[28px] border border-dashed border-[#b8d2c8] bg-[#edf5f2] p-6 sm:p-8">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">Interview evidence record</p>
+        <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824]">One standard record per interview</h2>
+        <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {interviewEvidenceTemplate.map((item, index) => (
+            <div key={item} className="rounded-xl bg-white px-3 py-3 text-xs leading-5 text-[#52615b]">
+              <span className="mr-2 font-bold text-[#1a5144]">{String(index + 1).padStart(2, "0")}</span>
+              {item}
+            </div>
           ))}
         </div>
       </section>
