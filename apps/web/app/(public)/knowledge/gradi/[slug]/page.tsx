@@ -73,7 +73,7 @@ export default async function GradeDetailPage({
     mainEntityOfPage: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
     author: {
       "@type": "Organization",
-      name: "Steel Sales AI",
+      name: "Smart Steel Sales",
     },
     citation: grade.source_references.map((source) => source.url),
   };
@@ -107,21 +107,21 @@ export default async function GradeDetailPage({
       ) : null}
 
       <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
-        <Link href="/knowledge" className="hover:text-[#2f6fed]">Steel Knowledge</Link>
+        <Link href="/knowledge" className="hover:text-[#1a5144]">Steel Knowledge</Link>
         <span className="mx-2">/</span>
-        <Link href="/knowledge/gradi" className="hover:text-[#2f6fed]">Gradi</Link>
+        <Link href="/knowledge/gradi" className="hover:text-[#1a5144]">Gradi</Link>
         <span className="mx-2">/</span>
         <span>{grade.designation}</span>
       </nav>
 
       <article className="space-y-8">
-        <header className="rounded-3xl border border-[#dce7f7] bg-white p-6 shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)] sm:p-8 lg:p-10">
+        <header className="rounded-3xl border border-[#dce2df] bg-white p-6 shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)] sm:p-8 lg:p-10">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-[#eef5ff] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#2f6fed]">
+            <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
               {grade.standard_system ?? "Grado acciaio"}
             </span>
             {grade.material_family ? (
-              <span className="rounded-full bg-[#f2f5f9] px-3 py-1 text-[11px] font-semibold text-[#68788e]">
+              <span className="rounded-full bg-[#ecefed] px-3 py-1 text-[11px] font-semibold text-[#66736e]">
                 {materialFamilyLabel(grade.material_family)}
               </span>
             ) : null}
@@ -129,41 +129,41 @@ export default async function GradeDetailPage({
               Revisione editoriale {formatReviewDate(grade.last_reviewed_at)}
             </span>
           </div>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#1e2b45] sm:text-5xl">
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-5xl">
             {grade.seo_title}
           </h1>
-          <p className="mt-5 max-w-3xl text-base leading-7 text-[#68788e]">{grade.intro}</p>
+          <p className="mt-5 max-w-3xl text-base leading-7 text-[#66736e]">{grade.intro}</p>
         </header>
 
         <section className="grid gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
+          <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
             <p className="text-xs font-semibold text-[#7e8da1]">Designazione</p>
-            <p className="mt-1 text-lg font-semibold text-[#1e2b45]">{grade.designation}</p>
+            <p className="mt-1 text-lg font-semibold text-[#1d2824]">{grade.designation}</p>
           </div>
-          <div className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
+          <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
             <p className="text-xs font-semibold text-[#7e8da1]">Numero materiale</p>
-            <p className="mt-1 text-lg font-semibold text-[#1e2b45]">{grade.material_number ?? "—"}</p>
+            <p className="mt-1 text-lg font-semibold text-[#1d2824]">{grade.material_number ?? "—"}</p>
           </div>
-          <div className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
+          <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
             <p className="text-xs font-semibold text-[#7e8da1]">Densità usata nei riferimenti</p>
-            <p className="mt-1 text-lg font-semibold text-[#1e2b45]">
+            <p className="mt-1 text-lg font-semibold text-[#1d2824]">
               {grade.density_kg_m3 ? `${grade.density_kg_m3.toLocaleString("it-IT")} kg/m³` : "—"}
             </p>
-            <p className="mt-1 text-[11px] leading-4 text-[#8a99ac]">Valore di riferimento del catalogo, non tolleranza di fornitura.</p>
+            <p className="mt-1 text-[11px] leading-4 text-[#66736e]">Valore di riferimento del catalogo, non tolleranza di fornitura.</p>
           </div>
         </section>
 
-        <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Designazione</p>
-          <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">Come leggere {grade.designation}</h2>
-          <p className="mt-4 whitespace-pre-line text-sm leading-7 text-[#68788e]">
+        <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Designazione</p>
+          <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">Come leggere {grade.designation}</h2>
+          <p className="mt-4 whitespace-pre-line text-sm leading-7 text-[#66736e]">
             {grade.designation_explanation}
           </p>
 
           {grade.typical_applications ? (
             <>
-              <h3 className="mt-7 text-lg font-semibold text-[#1e2b45]">Applicazioni tipiche</h3>
-              <p className="mt-2 whitespace-pre-line text-sm leading-7 text-[#68788e]">
+              <h3 className="mt-7 text-lg font-semibold text-[#1d2824]">Applicazioni tipiche</h3>
+              <p className="mt-2 whitespace-pre-line text-sm leading-7 text-[#66736e]">
                 {grade.typical_applications}
               </p>
             </>
@@ -171,17 +171,17 @@ export default async function GradeDetailPage({
         </section>
 
         {grade.editorial_sections.map((section, index) => (
-          <section key={section.heading + index} className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
-            <h2 className="text-2xl font-semibold text-[#1e2b45]">{section.heading}</h2>
-            <p className="mt-3 whitespace-pre-line text-sm leading-7 text-[#68788e]">{section.body}</p>
+          <section key={section.heading + index} className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+            <h2 className="text-2xl font-semibold text-[#1d2824]">{section.heading}</h2>
+            <p className="mt-3 whitespace-pre-line text-sm leading-7 text-[#66736e]">{section.body}</p>
           </section>
         ))}
 
         {grade.related_grade_pages.length ? (
-          <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">Gradi correlati</p>
-            <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">Materiali utili da confrontare</h2>
-            <p className="mt-2 text-sm leading-6 text-[#68788e]">
+          <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Gradi correlati</p>
+            <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">Materiali utili da confrontare</h2>
+            <p className="mt-2 text-sm leading-6 text-[#66736e]">
               Il collegamento serve a orientare la ricerca. Un materiale correlato non è automaticamente equivalente
               o sostituibile.
             </p>
@@ -190,14 +190,14 @@ export default async function GradeDetailPage({
                 <Link
                   key={related.slug}
                   href={`/knowledge/gradi/${related.slug}`}
-                  className="rounded-2xl border border-[#e1e8f2] bg-[#f8fbff] p-4 transition hover:border-[#bdd1f4]"
+                  className="rounded-2xl border border-[#dce2df] bg-[#f6f8f7] p-4 transition hover:border-[#b8d2c8]"
                 >
-                  <p className="font-semibold text-[#1e2b45]">{related.designation}</p>
+                  <p className="font-semibold text-[#1d2824]">{related.designation}</p>
                   {related.material_number ? (
                     <p className="mt-1 text-xs text-[#7e8da1]">Materiale {related.material_number}</p>
                   ) : null}
                   {related.material_family ? (
-                    <p className="mt-3 text-xs font-semibold text-[#2f6fed]">
+                    <p className="mt-3 text-xs font-semibold text-[#1a5144]">
                       {materialFamilyLabel(related.material_family)}
                     </p>
                   ) : null}
@@ -208,12 +208,12 @@ export default async function GradeDetailPage({
         ) : null}
 
         {grade.related_standards.length ? (
-          <section className="rounded-3xl border border-[#dbe7f7] bg-[#f8fbff] p-6 sm:p-8">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Norme collegate</p>
-            <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">
+          <section className="rounded-3xl border border-[#d9e8e2] bg-[#f6f8f7] p-6 sm:p-8">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Norme collegate</p>
+            <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">
               Dove compare {grade.designation}
             </h2>
-            <p className="mt-2 text-sm leading-6 text-[#68788e]">
+            <p className="mt-2 text-sm leading-6 text-[#66736e]">
               Il tipo di evidenza resta visibile. Una gamma produttore o fornitore non viene presentata come
               applicabilità normativa e una relazione con una norma non implica sostituibilità.
             </p>
@@ -224,18 +224,18 @@ export default async function GradeDetailPage({
                   <>
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="font-semibold text-[#1e2b45]">{standard.code}</p>
-                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-[#68788e]">{standard.title}</p>
+                        <p className="font-semibold text-[#1d2824]">{standard.code}</p>
+                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-[#66736e]">{standard.title}</p>
                       </div>
                       <span className={standard.is_normative
                         ? "rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700"
-                        : "rounded-full bg-[#f2f5f9] px-2.5 py-1 text-[10px] font-semibold text-[#68788e]"
+                        : "rounded-full bg-[#ecefed] px-2.5 py-1 text-[10px] font-semibold text-[#66736e]"
                       }>
                         {applicabilityLabel(standard.applicability_type)}
                       </span>
                     </div>
                     {standard.manufacturing_processes.length ? (
-                      <p className="mt-3 text-xs text-[#68788e]">
+                      <p className="mt-3 text-xs text-[#66736e]">
                         {standard.manufacturing_processes.map(manufacturingProcessLabel).join(" · ")}
                       </p>
                     ) : null}
@@ -246,47 +246,47 @@ export default async function GradeDetailPage({
                   <Link
                     key={standard.standard_id}
                     href={`/knowledge/norme/${standard.slug}`}
-                    className="rounded-2xl border border-[#e1e8f2] bg-white p-4 transition hover:border-[#bdd1f4]"
+                    className="rounded-2xl border border-[#dce2df] bg-white p-4 transition hover:border-[#b8d2c8]"
                   >
                     {content}
                   </Link>
                 ) : (
-                  <div key={standard.standard_id} className="rounded-2xl border border-[#e1e8f2] bg-white p-4">
+                  <div key={standard.standard_id} className="rounded-2xl border border-[#dce2df] bg-white p-4">
                     {content}
                   </div>
                 );
               })}
             </div>
 
-            <Link href="/knowledge/norme" className="mt-5 inline-flex text-sm font-semibold text-[#2f6fed]">
+            <Link href="/knowledge/norme" className="mt-5 inline-flex text-sm font-semibold text-[#1a5144]">
               Esplora il catalogo norme →
             </Link>
           </section>
         ) : null}
 
         {grade.faq.length ? (
-          <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
-            <h2 className="text-2xl font-semibold text-[#1e2b45]">Domande frequenti</h2>
+          <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+            <h2 className="text-2xl font-semibold text-[#1d2824]">Domande frequenti</h2>
             <div className="mt-4 divide-y divide-[#e8eef7]">
               {grade.faq.map((item, index) => (
                 <div key={item.question + index} className="py-4">
-                  <h3 className="text-sm font-semibold text-[#1e2b45]">{item.question}</h3>
-                  <p className="mt-2 text-sm leading-6 text-[#68788e]">{item.answer}</p>
+                  <h3 className="text-sm font-semibold text-[#1d2824]">{item.question}</h3>
+                  <p className="mt-2 text-sm leading-6 text-[#66736e]">{item.answer}</p>
                 </div>
               ))}
             </div>
           </section>
         ) : null}
 
-        <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
+        <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">Fonti</p>
-              <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">Riferimenti consultati</h2>
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Fonti</p>
+              <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">Riferimenti consultati</h2>
             </div>
-            <p className="text-xs text-[#8a99ac]">Ultima revisione: {formatReviewDate(grade.last_reviewed_at)}</p>
+            <p className="text-xs text-[#66736e]">Ultima revisione: {formatReviewDate(grade.last_reviewed_at)}</p>
           </div>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#68788e]">
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
             Le fonti di produttori e fornitori documentano gamme osservate; i riferimenti UNI definiscono il
             contesto della norma. Nessuna fonte commerciale viene elevata a prova normativa completa.
           </p>
@@ -297,15 +297,15 @@ export default async function GradeDetailPage({
                 href={source.url}
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-start justify-between gap-4 rounded-2xl border border-[#e1e8f2] bg-[#f8fbff] p-4 transition hover:border-[#bdd1f4]"
+                className="flex items-start justify-between gap-4 rounded-2xl border border-[#dce2df] bg-[#f6f8f7] p-4 transition hover:border-[#b8d2c8]"
               >
                 <div>
-                  <p className="text-sm font-semibold text-[#1e2b45]">{source.label}</p>
-                  <p className="mt-1 text-xs text-[#68788e]">
+                  <p className="text-sm font-semibold text-[#1d2824]">{source.label}</p>
+                  <p className="mt-1 text-xs text-[#66736e]">
                     {source.publisher}{source.status ? ` · ${source.status}` : ""}
                   </p>
                 </div>
-                <span className="shrink-0 text-sm font-semibold text-[#2f6fed]">Apri ↗</span>
+                <span className="shrink-0 text-sm font-semibold text-[#1a5144]">Apri ↗</span>
               </a>
             ))}
           </div>
@@ -323,13 +323,13 @@ export default async function GradeDetailPage({
         <section className="grid gap-4 sm:grid-cols-2">
           <Link
             href="/knowledge/gradi"
-            className="rounded-2xl border border-[#e1e8f2] bg-white p-5 text-sm font-semibold text-[#2f6fed] hover:border-[#bdd1f4]"
+            className="rounded-2xl border border-[#dce2df] bg-white p-5 text-sm font-semibold text-[#1a5144] hover:border-[#b8d2c8]"
           >
             ← Torna al catalogo gradi
           </Link>
           <Link
             href="/knowledge/tubes"
-            className="rounded-2xl border border-[#d7e5ff] bg-[#eef5ff] p-5 text-sm font-semibold text-[#2f6fed] hover:border-[#bdd1f4]"
+            className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-5 text-sm font-semibold text-[#1a5144] hover:border-[#b8d2c8]"
           >
             Continua con pesi & dimensioni →
           </Link>
