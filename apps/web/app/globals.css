@@ -265,6 +265,12 @@ textarea {
 
 
 /* HP15 — mobile form and viewport hardening */
+@media (max-width: 1023px) {
+  html {
+    scroll-padding-top: calc(8.5rem + env(safe-area-inset-top));
+  }
+}
+
 @media (max-width: 767px) {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
   select,
