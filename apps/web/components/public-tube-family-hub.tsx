@@ -156,19 +156,19 @@ export async function PublicTubeFamilyHubPage({
       />
 
       <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
-        <Link href="/knowledge" className="hover:text-[#2f6fed]">Steel Knowledge</Link>
+        <Link href="/knowledge" className="hover:text-[#1a5144]">Steel Knowledge</Link>
         <span className="mx-2">/</span>
-        <Link href="/knowledge/tubes" className="hover:text-[#2f6fed]">Pesi &amp; dimensioni</Link>
+        <Link href="/knowledge/tubes" className="hover:text-[#1a5144]">Pesi &amp; dimensioni</Link>
         <span className="mx-2">/</span>
         <span>{config.label}</span>
       </nav>
 
       <header className="max-w-4xl">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#2f6fed]">Hub dimensionale</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1e2b45] sm:text-5xl">
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Hub dimensionale</p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-5xl">
           {editorial.title}
         </h1>
-        <p className="mt-4 text-base leading-7 text-[#68788e]">{editorial.intro}</p>
+        <p className="mt-4 text-base leading-7 text-[#66736e]">{editorial.intro}</p>
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -190,19 +190,19 @@ export async function PublicTubeFamilyHubPage({
               " kg/m",
           ],
         ].map(([label, value]) => (
-          <div key={label} className="rounded-2xl border border-[#e1e8f2] bg-white p-5">
+          <div key={label} className="rounded-2xl border border-[#dce2df] bg-white p-5">
             <p className="text-xs font-semibold text-[#7e8da1]">{label}</p>
-            <p className="mt-1 text-xl font-semibold text-[#1e2b45]">{value}</p>
+            <p className="mt-1 text-xl font-semibold text-[#1d2824]">{value}</p>
           </div>
         ))}
       </section>
 
-      <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7f8da3]">Naviga per dimensione</p>
-        <h2 className="mt-2 text-2xl font-semibold text-[#1e2b45]">
+      <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Naviga per dimensione</p>
+        <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">
           Sezioni con più spessori disponibili
         </h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-[#68788e]">
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
           Ogni gruppo contiene almeno due riferimenti canonici: puoi quindi confrontare realmente come cambia il
           peso al metro al variare dello spessore.
         </p>
@@ -212,54 +212,54 @@ export async function PublicTubeFamilyHubPage({
             <Link
               key={hub.size_slug}
               href={tubeSizeHubPath(familySlug, hub.size_slug)}
-              className="rounded-2xl border border-[#e1e8f2] bg-[#f8fbff] p-4 transition hover:border-[#bdd1f4] hover:bg-white"
+              className="rounded-2xl border border-[#dce2df] bg-[#f6f8f7] p-4 transition hover:border-[#b8d2c8] hover:bg-white"
             >
               <div className="flex items-start justify-between gap-3">
-                <p className="font-semibold text-[#1e2b45]">{tubeSizeHubLabel(hub)}</p>
-                <span className="rounded-full bg-white px-2 py-1 text-[10px] font-semibold text-[#68788e]">
+                <p className="font-semibold text-[#1d2824]">{tubeSizeHubLabel(hub)}</p>
+                <span className="rounded-full bg-white px-2 py-1 text-[10px] font-semibold text-[#66736e]">
                   {hub.variant_count} spessori
                 </span>
               </div>
-              <p className="mt-3 text-xs leading-5 text-[#68788e]">
+              <p className="mt-3 text-xs leading-5 text-[#66736e]">
                 t {formatTubeNumber(hub.min_thickness_mm)}–{formatTubeNumber(hub.max_thickness_mm)} mm ·{" "}
                 {formatTubeNumber(hub.min_weight_kg_m)}–{formatTubeNumber(hub.max_weight_kg_m)} kg/m
               </p>
-              <p className="mt-3 text-xs font-semibold text-[#2f6fed]">Confronta spessori →</p>
+              <p className="mt-3 text-xs font-semibold text-[#1a5144]">Confronta spessori →</p>
             </Link>
           ))}
         </div>
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
-          <h2 className="text-2xl font-semibold text-[#1e2b45]">Come leggere questo catalogo</h2>
-          <p className="mt-3 text-sm leading-7 text-[#68788e]">{editorial.guide}</p>
-          <p className="mt-4 text-sm leading-7 text-[#68788e]">{editorial.formula}</p>
+        <div className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+          <h2 className="text-2xl font-semibold text-[#1d2824]">Come leggere questo catalogo</h2>
+          <p className="mt-3 text-sm leading-7 text-[#66736e]">{editorial.guide}</p>
+          <p className="mt-4 text-sm leading-7 text-[#66736e]">{editorial.formula}</p>
         </div>
 
-        <div className="rounded-3xl border border-[#dbe7f7] bg-[#f8fbff] p-6 sm:p-8">
-          <h2 className="text-xl font-semibold text-[#1e2b45]">Dal cluster al calcolo</h2>
-          <p className="mt-3 text-sm leading-7 text-[#68788e]">
+        <div className="rounded-3xl border border-[#d9e8e2] bg-[#f6f8f7] p-6 sm:p-8">
+          <h2 className="text-xl font-semibold text-[#1d2824]">Dal cluster al calcolo</h2>
+          <p className="mt-3 text-sm leading-7 text-[#66736e]">
             Le pagine di gruppo servono per scegliere la dimensione esterna. Le singole schede mostrano il peso
             pubblicato, mentre il calcolatore permette di modificare lunghezza, quantità e densità senza trasformare
             il risultato teorico in un dato canonico.
           </p>
           <Link
             href="/knowledge/tubes"
-            className="mt-5 inline-flex rounded-xl bg-[#2f6fed] px-4 py-2.5 text-sm font-semibold text-white"
+            className="mt-5 inline-flex rounded-xl bg-[#1a5144] px-4 py-2.5 text-sm font-semibold text-white"
           >
             Apri il calcolatore →
           </Link>
         </div>
       </section>
 
-      <section className="rounded-3xl border border-[#e1e8f2] bg-white p-6 sm:p-8">
-        <h2 className="text-2xl font-semibold text-[#1e2b45]">Domande frequenti</h2>
+      <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+        <h2 className="text-2xl font-semibold text-[#1d2824]">Domande frequenti</h2>
         <div className="mt-4 divide-y divide-[#e8eef7]">
           {faq.map((item) => (
             <div key={item.question} className="py-4">
-              <h3 className="text-sm font-semibold text-[#1e2b45]">{item.question}</h3>
-              <p className="mt-2 text-sm leading-6 text-[#68788e]">{item.answer}</p>
+              <h3 className="text-sm font-semibold text-[#1d2824]">{item.question}</h3>
+              <p className="mt-2 text-sm leading-6 text-[#66736e]">{item.answer}</p>
             </div>
           ))}
         </div>
