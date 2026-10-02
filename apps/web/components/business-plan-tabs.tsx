@@ -14,24 +14,40 @@ export function BusinessPlanTabs({
   active: BusinessPlanTab;
   locale?: BusinessPlanLocale;
 }) {
-  const tabs = [
-    {
-      key: "highlights" as const,
-      label: "Highlights",
-      description: "Timeline, thesis e numeri chiave",
-      href: withBusinessPlanLocale(baseHref, locale),
-    },
-    {
-      key: "details" as const,
-      label: "Details",
-      description: "Business Plan completo",
-      href: withBusinessPlanLocale(`${baseHref}/details`, locale),
-    },
-  ];
+  const tabs =
+    locale === "it"
+      ? [
+          {
+            key: "highlights" as const,
+            label: "Highlights",
+            description: "Timeline, tesi e numeri chiave",
+            href: withBusinessPlanLocale(baseHref, locale),
+          },
+          {
+            key: "details" as const,
+            label: "Dettagli",
+            description: "Business Plan investor completo",
+            href: withBusinessPlanLocale(`${baseHref}/details`, locale),
+          },
+        ]
+      : [
+          {
+            key: "highlights" as const,
+            label: "Highlights",
+            description: "Timeline, thesis and key metrics",
+            href: withBusinessPlanLocale(baseHref, locale),
+          },
+          {
+            key: "details" as const,
+            label: "Details",
+            description: "Complete investor Business Plan",
+            href: withBusinessPlanLocale(`${baseHref}/details`, locale),
+          },
+        ];
 
   return (
     <nav
-      aria-label="Business Plan pages"
+      aria-label={locale === "it" ? "Pagine Business Plan" : "Business Plan pages"}
       className="grid gap-2 rounded-2xl border border-[#dce2df] bg-white p-2 sm:grid-cols-2"
     >
       {tabs.map((tab) => {
