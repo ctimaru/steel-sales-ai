@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { cache } from "react";
 
 import type { PlatformPermissionKey, PlatformStaffRoleKey } from "@/lib/platform-access-contract";
 import type { RegistrationApplicationStatus } from "@/lib/registration-state";
@@ -22,12 +23,12 @@ export async function hasPlatformPermission(permission: PlatformPermissionKey) {
   return !error && data === true;
 }
 
-export async function getPlatformAccessContext() {
+export const getPlatformAccessContext = cache(async function getPlatformAccessContext() {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("platform_access_context");
   if (error || !data) return null;
   return data as PlatformAccessContext;
-}
+});
 
 export async function requirePlatformPermission(
   permission: PlatformPermissionKey,
@@ -37,7 +38,7 @@ export async function requirePlatformPermission(
   if (!allowed) redirect(fallback);
 }
 
-export async function requirePlatformConsoleContext() {
+export const requirePlatformConsoleContext = cache(async function requirePlatformConsoleContext() {
   const supabase = await createClient();
   const { data: authData } = await supabase.auth.getUser();
   const user = authData.user;
@@ -55,7 +56,7 @@ export async function requirePlatformConsoleContext() {
     ...context,
     viewerLabel: user.email ?? "Platform user",
   };
-}
+});
 
 export type PlatformStaffDirectoryItem = {
   user_id: string;
