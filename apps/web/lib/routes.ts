@@ -99,6 +99,7 @@ export const appRoutes = {
     home: "/platform",
     people: "/platform/people",
     pilot: "/platform/pilot",
+    businessPlan: "/platform/business-plan",
     registrations: "/platform/registrations",
     discovery: "/platform/company-discovery",
     claims: "/platform/company-claims",
