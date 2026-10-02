@@ -980,7 +980,8 @@ export const evidenceLedger = [
 export const businessPlanRoadmap = [
   { code: "L27.2A.1", title: "ICP Evidence & Market Segmentation", status: "Completed" },
   { code: "L27.2A.2", title: "ICP Interview & Validation Framework", status: "Framework completed" },
-  { code: "L27.2B.1", title: "Packaging Boundary & Value Metric Validation", status: "Active" },\n  { code: "L27.2B.2", title: "Offer & Willingness-to-Pay Validation", status: "Next" },
+  { code: "L27.2B.1", title: "Packaging Boundary & Value Metric Validation", status: "Active" },
+  { code: "L27.2B.2", title: "Offer & Willingness-to-Pay Validation", status: "Next" },
   { code: "L27.2C", title: "Unit Economics & Financial Model", status: "Next" },
   { code: "L27.2D", title: "Business Plan v2 Consolidation", status: "Next" },
 ] as const;
