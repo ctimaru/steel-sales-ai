@@ -22,6 +22,11 @@ export const metadata: Metadata = {
   },
   description:
     "Piattaforma B2B per il settore acciaio e tubo: Commercial Memory, Network e Steel Knowledge pubblico su norme, gradi, dimensioni e pesi.",
+  appleWebApp: {
+    capable: true,
+    title: "Smart Steel Sales",
+    statusBarStyle: "default",
+  },
   robots: {
     index: true,
     follow: true,
