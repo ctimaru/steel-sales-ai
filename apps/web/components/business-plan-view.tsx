@@ -17,8 +17,15 @@ import {
   interviewPrinciples,
   interviewScoreDimensions,
   interviewScript,
+  investorMarketSizingConclusion,
   jobsToBeDone,
   marketEvidence,
+  marketOpportunityHighlights,
+  marketPenetrationSanityChecks,
+  marketSizingMethodology,
+  moduleRevenueMarketEnvelope,
+  steelMarketEconomicContext,
+  targetMarketLayers,
   breakEvenFramework,
   freemiumModuleCards,
   freemiumPricingGuardrails,
@@ -169,6 +176,159 @@ export function BusinessPlanView({
               </a>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="rounded-[28px] border border-[#dce2df] bg-white p-6 sm:p-8">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">L27.2D.1 · Target market &amp; economic opportunity</p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824]">
+              {investorMarketSizingConclusion.headline}
+            </h2>
+            <p className="mt-3 max-w-4xl text-sm leading-6 text-[#66736e]">
+              {marketSizingMethodology.principle}
+            </p>
+          </div>
+          <span className="rounded-full bg-[#e1ece8] px-3 py-1.5 text-xs font-semibold text-[#173f35] ring-1 ring-[#c7ddd5]">
+            Research as of {marketSizingMethodology.asOf}
+          </span>
+        </div>
+
+        <div className="mt-7 grid gap-4 xl:grid-cols-2">
+          {targetMarketLayers.map((market) => (
+            <article key={market.geography} className="rounded-[24px] border border-[#dfe6e2] bg-[#f8faf9] p-5">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-xl font-semibold text-[#1d2824]">{market.geography}</h3>
+                <span className="rounded-full bg-white px-3 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#66736e] ring-1 ring-[#dce2df]">
+                  3 market layers
+                </span>
+              </div>
+              <div className="mt-5 space-y-3">
+                {[
+                  ["Core steel network", market.core],
+                  ["Serviceable industrial network", market.serviceable],
+                  ["Broad discovery universe", market.broad],
+                ].map(([layer, item]) => {
+                  const value = item as typeof market.core;
+                  return (
+                    <div key={layer as string} className="rounded-2xl bg-white p-4">
+                      <div className="flex flex-wrap items-end justify-between gap-3">
+                        <div>
+                          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">{layer as string}</p>
+                          <p className="mt-1 text-2xl font-semibold text-[#173f35]">{value.metric}</p>
+                        </div>
+                        <p className="max-w-xs text-right text-[11px] font-semibold leading-4 text-[#52615b]">{value.label}</p>
+                      </div>
+                      <p className="mt-3 text-xs leading-5 text-[#66736e]">{value.detail}</p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {value.sourceUrls.map((url) => (
+                          <a
+                            key={url}
+                            href={url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-[10px] font-semibold text-[#1a5144] underline decoration-[#9bbeb2] underline-offset-4"
+                          >
+                            {value.source}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-dashed border-[#c6d8d1] bg-[#f7faf8] p-5">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">Methodology guardrail</p>
+          <p className="mt-2 text-xs leading-5 text-[#66736e]">{marketSizingMethodology.caveat}</p>
+        </div>
+
+        <div className="mt-7">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Economic context</p>
+          <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+            {steelMarketEconomicContext.map((item) => (
+              <a
+                key={item.label}
+                href={item.sourceUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-2xl border border-[#e2e8e5] bg-white p-4 transition hover:bg-[#f8faf9]"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-2xl font-semibold text-[#173f35]">{item.metric}</p>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#87938e]">{item.geography}</span>
+                </div>
+                <h4 className="mt-2 text-xs font-semibold text-[#1d2824]">{item.label}</h4>
+                <p className="mt-2 text-[11px] leading-5 text-[#66736e]">{item.detail}</p>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-7 rounded-[24px] bg-[#123d34] p-5 text-white sm:p-6">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">Software-only revenue envelope</p>
+              <h3 className="mt-2 text-2xl font-semibold">What low ARPA can mean at market scale</h3>
+            </div>
+            <p className="max-w-xl text-xs leading-5 text-[#cfddd8]">{moduleRevenueMarketEnvelope.disclaimer}</p>
+          </div>
+
+          <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {moduleRevenueMarketEnvelope.cases.map((item) => (
+              <article key={item.scope} className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.11em] text-[#9cc5b7]">{item.scope}</p>
+                <p className="mt-2 text-lg font-semibold text-white">{item.organizations}</p>
+                <p className="mt-1 text-[11px] leading-4 text-[#cfddd8]">{item.basis}</p>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <div className="rounded-xl bg-white/10 p-3">
+                    <p className="text-[10px] uppercase tracking-[0.08em] text-[#9cc5b7]">Low</p>
+                    <p className="mt-1 text-lg font-semibold text-white">{item.lowCase}</p>
+                    <p className="mt-1 text-[10px] leading-4 text-[#cfddd8]">{item.lowAssumption}</p>
+                  </div>
+                  <div className="rounded-xl bg-white/10 p-3">
+                    <p className="text-[10px] uppercase tracking-[0.08em] text-[#9cc5b7]">High</p>
+                    <p className="mt-1 text-lg font-semibold text-white">{item.highCase}</p>
+                    <p className="mt-1 text-[10px] leading-4 text-[#cfddd8]">{item.highAssumption}</p>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-7 grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
+          <div className="rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Scenario sanity checks</p>
+            <div className="mt-4 space-y-3">
+              {marketPenetrationSanityChecks.map((item) => (
+                <div key={item.scenario} className="rounded-xl bg-white p-4">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <h4 className="text-sm font-semibold text-[#1d2824]">{item.scenario}</h4>
+                    <span className="text-lg font-semibold text-[#173f35]">{item.penetration}</span>
+                  </div>
+                  <p className="mt-2 text-xs leading-5 text-[#66736e]">{item.comparison}</p>
+                  <p className="mt-2 text-[11px] leading-5 text-[#345047]">{item.economicRead}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-[#1d2824] p-5 text-white">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#9cc5b7]">Investor interpretation</p>
+            <ul className="mt-4 space-y-3">
+              {investorMarketSizingConclusion.points.map((item) => (
+                <li key={item} className="flex gap-2 text-xs leading-5 text-[#d8e5e0]">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#f2cf9c]" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
 

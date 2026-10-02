@@ -3,8 +3,10 @@ import {
   businessPlanGeneralHighlights,
   businessPlanHighlights,
   businessPlanTimeline,
+  investorMarketSizingConclusion,
   investorMilestones,
   marketEvidence,
+  marketOpportunityHighlights,
   networkIncomeStreams,
   networkScaleScenarios,
 } from "@/lib/business-plan-content";
@@ -103,6 +105,49 @@ export function BusinessPlanHighlights({
                 </div>
                 <p className="mt-3 text-xs leading-5 text-[#66736e]">{item.strategicRole}</p>
               </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-[30px] border border-[#dce2df] bg-white p-6 sm:p-8">
+        <div className="grid gap-7 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">Target market</p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824]">
+              {investorMarketSizingConclusion.headline}
+            </h2>
+            <p className="mt-4 text-sm leading-6 text-[#66736e]">
+              Italy offers a dense launch wedge inside a much broader European industrial graph. Counts are shown as concentric market layers rather than summed into one inflated TAM.
+            </p>
+            <ul className="mt-5 space-y-3">
+              {investorMarketSizingConclusion.points.slice(0, 3).map((item) => (
+                <li key={item} className="flex gap-2 text-xs leading-5 text-[#52615b]">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#d7a45b]" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            {marketOpportunityHighlights.map((item) => (
+              <a
+                key={item.geography + "-" + item.label}
+                href={item.sourceUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-2xl border border-[#e2e8e5] bg-[#f8faf9] p-5 transition hover:border-[#bfd2ca] hover:bg-[#f3f7f5]"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <p className="text-3xl font-semibold tracking-tight text-[#173f35]">{item.metric}</p>
+                  <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#66736e] ring-1 ring-[#dce2df]">
+                    {item.geography}
+                  </span>
+                </div>
+                <h3 className="mt-3 text-sm font-semibold text-[#1d2824]">{item.label}</h3>
+                <p className="mt-2 text-xs leading-5 text-[#66736e]">{item.detail}</p>
+              </a>
             ))}
           </div>
         </div>
