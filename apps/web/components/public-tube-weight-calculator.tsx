@@ -144,7 +144,7 @@ export function PublicTubeWeightCalculator({
 
   return (
     <div className="space-y-6">
-      <section className="overflow-hidden rounded-3xl border border-[#dce7f7] bg-white shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)]">
+      <section className="overflow-hidden rounded-3xl border border-[#dce2df] bg-white shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)]">
         <div className="border-b border-[#e7ece9] p-5 sm:p-7">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Calcolatore peso tubo</p>
           <h2 className="mt-2 text-2xl font-semibold text-[#1d2824] sm:text-3xl">
