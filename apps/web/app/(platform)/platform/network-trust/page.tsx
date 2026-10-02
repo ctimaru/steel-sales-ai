@@ -1,3 +1,4 @@
+import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import {
   getPlatformAccessContext,
   requirePlatformPermission,
@@ -426,9 +427,15 @@ export default async function PlatformNetworkTrustPage({
                         name="note"
                         value="SA8 explicit verification revocation"
                       />
-                      <button className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700">
+                      <ConfirmSubmitButton
+                        title="Revocare questa Network verification?"
+                        description="La verification corrente verrà chiusa come revocata. L’evidence originale resta disponibile per audit, ma il target non risulterà più verificato tramite questo record."
+                        confirmLabel="Revoca verification"
+                        pendingLabel="Revoca…"
+                        className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
                         Revoca
-                      </button>
+                      </ConfirmSubmitButton>
                     </form>
                   ) : null}
                 </div>
