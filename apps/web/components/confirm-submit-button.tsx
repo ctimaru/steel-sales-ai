@@ -20,8 +20,8 @@ type ConfirmSubmitButtonProps = {
   className?: string;
   disabled?: boolean;
   formAction?: ButtonHTMLAttributes<HTMLButtonElement>["formAction"];
-  name?: string;
-  value?: string | number | readonly string[];
+  name?: ButtonHTMLAttributes<HTMLButtonElement>["name"];
+  value?: ButtonHTMLAttributes<HTMLButtonElement>["value"];
 };
 
 export function ConfirmSubmitButton({
