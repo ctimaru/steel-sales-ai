@@ -102,7 +102,7 @@ select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000013001'
 
 select public.pa1_3_network_access_state(
   '00000000-0000-0000-0000-000000013010'::uuid
-) as locked_state \\gset
+) as locked_state \gset
 
 select pg_temp.pa13_assert(
   :'locked_state'::jsonb->>'state'='locked'
@@ -113,7 +113,7 @@ select pg_temp.pa13_assert(
 select count(*) as locked_company_count
 from public.network_companies
 where id='00000000-0000-0000-0000-000000013020'::uuid
-\\gset
+\gset
 
 select pg_temp.pa13_assert(
   :'locked_company_count'::integer=0,
@@ -149,7 +149,7 @@ select pg_temp.pa13_assert_raises(
 select public.p3_6_my_company_claim(
   '00000000-0000-0000-0000-000000013020'::uuid,
   '00000000-0000-0000-0000-000000013010'::uuid
-) as claim_state \\gset
+) as claim_state \gset
 
 select pg_temp.pa13_assert(
   :'claim_state'::jsonb->>'status'='requested',
@@ -161,7 +161,7 @@ select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000013002'
 
 select public.pa1_3_network_access_state(
   '00000000-0000-0000-0000-000000013010'::uuid
-) as owner_state \\gset
+) as owner_state \gset
 
 select pg_temp.pa13_assert(
   :'owner_state'::jsonb->>'state'='entitled'
@@ -176,7 +176,7 @@ select public.pa1_3_grant_network_access(
   null,
   'pa13.subscription.grant.001',
   '{"plan":"network_plus"}'::jsonb
-) as first_grant \\gset
+) as first_grant \gset
 
 select public.pa1_3_grant_network_access(
   '00000000-0000-0000-0000-000000013010'::uuid,
@@ -185,7 +185,7 @@ select public.pa1_3_grant_network_access(
   null,
   'pa13.subscription.grant.001',
   '{"plan":"network_plus"}'::jsonb
-) as repeated_grant \\gset
+) as repeated_grant \gset
 
 select pg_temp.pa13_assert(
   (:'first_grant'::jsonb->>'idempotent')::boolean=false
@@ -197,7 +197,7 @@ select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000013001'
 
 select public.pa1_3_network_access_state(
   '00000000-0000-0000-0000-000000013010'::uuid
-) as entitled_state \\gset
+) as entitled_state \gset
 
 select pg_temp.pa13_assert(
   :'entitled_state'::jsonb->>'state'='entitled'
@@ -209,7 +209,7 @@ select pg_temp.pa13_assert(
 select count(*) as entitled_company_count
 from public.network_companies
 where id='00000000-0000-0000-0000-000000013020'::uuid
-\\gset
+\gset
 
 select pg_temp.pa13_assert(
   :'entitled_company_count'::integer=1,
@@ -238,7 +238,7 @@ select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000013001'
 
 select public.pa1_3_network_access_state(
   '00000000-0000-0000-0000-000000013010'::uuid
-) as revoked_state \\gset
+) as revoked_state \gset
 
 select pg_temp.pa13_assert(
   :'revoked_state'::jsonb->>'state'='revoked'
@@ -249,7 +249,7 @@ select pg_temp.pa13_assert(
 select count(*) as revoked_company_count
 from public.network_companies
 where id='00000000-0000-0000-0000-000000013020'::uuid
-\\gset
+\gset
 
 select pg_temp.pa13_assert(
   :'revoked_company_count'::integer=0,
