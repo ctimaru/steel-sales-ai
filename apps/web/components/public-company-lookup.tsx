@@ -30,22 +30,26 @@ function claimBadge(state: PublicCompanyLookupItem["claim_state"]) {
 
 function ResultAction({ item }: { item: PublicCompanyLookupItem }) {
   if (item.claim_state === "claimable") {
+    const claimPath = `/register?claim_ref=${encodeURIComponent(item.claim_ref)}`;
     return (
       <Link
-        href="/register"
+        href={claimPath}
         className="platform-primary inline-flex min-h-10 items-center justify-center rounded-xl px-3 text-xs font-semibold"
       >
-        Registrati per rivendicarla
+        Rivendica questa azienda
       </Link>
     );
   }
 
+  const nextPath =
+    item.claim_state === "claimed" ? "/network/manage" : "/registration/status";
+
   return (
     <Link
-      href="/login"
+      href={`/login?next=${encodeURIComponent(nextPath)}`}
       className="inline-flex min-h-10 items-center justify-center rounded-xl border border-[#d7dfdb] bg-white px-3 text-xs font-semibold text-[#52615b] hover:bg-[#f4f7f5] hover:text-[#173f35]"
     >
-      Accedi
+      {item.claim_state === "claimed" ? "Accedi per gestirla" : "Accedi per verificare"}
     </Link>
   );
 }
