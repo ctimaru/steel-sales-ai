@@ -6,6 +6,7 @@
 
 create table public.organization_product_entitlement_events (
   id uuid primary key default gen_random_uuid(),
+  event_order bigint generated always as identity unique,
   organization_id uuid not null references public.organizations(id) on delete restrict,
   product_key text not null,
   event_type text not null,
@@ -52,14 +53,15 @@ create index organization_product_entitlement_events_resolution_idx
     organization_id,
     product_key,
     effective_at desc,
-    created_at desc,
-    id desc
+    event_order desc
   );
 
 alter table public.organization_product_entitlement_events enable row level security;
 revoke all on table public.organization_product_entitlement_events
   from public,anon,authenticated;
 grant select,insert on table public.organization_product_entitlement_events
+  to service_role;
+grant usage,select on sequence public.organization_product_entitlement_events_event_order_seq
   to service_role;
 
 create or replace function private.pa1_3_entitlement_append_only_guard()
@@ -138,7 +140,7 @@ begin
   where e.organization_id=p_organization_id
     and e.product_key='network_access'
     and e.effective_at<=now()
-  order by e.effective_at desc,e.created_at desc,e.id desc
+  order by e.effective_at desc,e.event_order desc
   limit 1;
 
   return found
@@ -293,7 +295,7 @@ begin
   where e.organization_id=p_organization_id
     and e.product_key='network_access'
     and e.effective_at<=now()
-  order by e.effective_at desc,e.created_at desc,e.id desc
+  order by e.effective_at desc,e.event_order desc
   limit 1;
 
   if not found then
