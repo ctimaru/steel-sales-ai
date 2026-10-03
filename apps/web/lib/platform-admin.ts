@@ -114,6 +114,8 @@ export type RegistrationQueueItem = {
   reviewed_at: string | null;
   reviewed_by: string | null;
   activated_organization_id: string | null;
+  claim_target_network_company_id: string | null;
+  claim_handoff_started_at: string | null;
   matched_network_company_id: string | null;
   created_at: string;
   updated_at: string;
