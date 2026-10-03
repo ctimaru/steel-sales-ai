@@ -22,12 +22,30 @@ function field(formData: FormData, name: string) {
 }
 
 export async function saveAndSubmitCompanyRegistration(formData: FormData) {
+  const claimRef = field(formData, "claim_ref").toLowerCase();
+  const validClaimRef = /^[0-9a-f]{64}$/.test(claimRef);
+  const registerPath = validClaimRef
+    ? "/register?claim_ref=" + encodeURIComponent(claimRef)
+    : "/register";
+
+  if (claimRef && !validClaimRef) {
+    redirect(
+      "/register?error=" +
+        encodeURIComponent("Il riferimento di claim non è valido. Cerca nuovamente l’azienda."),
+    );
+  }
+
   const supabase = await createClient();
   const { data: authData, error: authError } = await supabase.auth.getUser();
   const user = authData.user;
 
   if (authError || !user) {
-    redirect("/login?error=Accedi%20prima%20di%20registrare%20la%20tua%20azienda");
+    redirect(
+      "/login?error=" +
+        encodeURIComponent("Accedi prima di registrare la tua azienda") +
+        "&next=" +
+        encodeURIComponent(registerPath),
+    );
   }
 
   if (!user.email_confirmed_at) {
@@ -39,12 +57,15 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
         pendingSignupEmailCookieOptions,
       );
     }
-    redirect("/verify-email?source=registration");
+    redirect(
+      "/verify-email?source=registration&next=" +
+        encodeURIComponent(registerPath),
+    );
   }
 
-  const legalName = field(formData, "legal_name");
-  const tradingName = field(formData, "trading_name");
-  const countryCode = field(formData, "country_code").toUpperCase();
+  let legalName = field(formData, "legal_name");
+  let tradingName = field(formData, "trading_name");
+  let countryCode = field(formData, "country_code").toUpperCase();
   const vatId = field(formData, "vat_id");
   const registrationId = field(formData, "registration_id");
   const websiteUrl = field(formData, "website_url");
@@ -57,13 +78,55 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
     .map((value) => String(value))
     .filter((value) => COMPANY_TYPES.has(value) && value !== primaryCompanyType);
 
+  if (validClaimRef) {
+    const { data: claimContextData, error: claimContextError } = await supabase.rpc(
+      "pa1_4_company_claim_context",
+      { p_claim_ref: claimRef },
+    );
+
+    const claimContext = (claimContextData ?? {}) as {
+      ok?: boolean;
+      legal_name?: string;
+      trading_name?: string | null;
+      country_code?: string;
+      claim_state?: string;
+      can_start_registration?: boolean;
+    };
+
+    if (
+      claimContextError ||
+      claimContext.ok !== true ||
+      claimContext.can_start_registration !== true ||
+      claimContext.claim_state !== "claimable" ||
+      !claimContext.legal_name ||
+      !claimContext.country_code
+    ) {
+      redirect(
+        feedbackPath(
+          registerPath,
+          claimContextError ?? { code: "23505" },
+          "Questo profilo non è più disponibile per il claim. Cerca nuovamente l’azienda.",
+        ),
+      );
+    }
+
+    legalName = claimContext.legal_name;
+    tradingName = tradingName || claimContext.trading_name || "";
+    countryCode = claimContext.country_code.toUpperCase();
+  }
+
   if (
     !legalName ||
     !/^[A-Z]{2}$/.test(countryCode) ||
     !COMPANY_TYPES.has(primaryCompanyType) ||
     !contactName
   ) {
-    redirect("/register?error=Completa%20i%20campi%20obbligatori%20prima%20di%20inviare");
+    redirect(
+      registerPath +
+        (registerPath.includes("?") ? "&" : "?") +
+        "error=" +
+        encodeURIComponent("Completa i campi obbligatori prima di inviare"),
+    );
   }
 
   const payload = {
@@ -99,7 +162,7 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
     if (updateError) {
       redirect(
         feedbackPath(
-          "/register",
+          registerPath,
           updateError,
           "Non è stato possibile aggiornare la richiesta. Riprova.",
         ),
@@ -115,7 +178,7 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
     if (createError || !created) {
       redirect(
         feedbackPath(
-          "/register",
+          registerPath,
           createError,
           "Non è stato possibile creare la richiesta. Riprova.",
         ),
@@ -123,6 +186,26 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
     }
 
     applicationId = created.id;
+  }
+
+  if (validClaimRef && applicationId) {
+    const { error: bindError } = await supabase.rpc(
+      "pa1_4_bind_registration_claim",
+      {
+        p_application_id: applicationId,
+        p_claim_ref: claimRef,
+      },
+    );
+
+    if (bindError) {
+      redirect(
+        feedbackPath(
+          registerPath,
+          bindError,
+          "Il profilo selezionato non può più essere collegato a questa registrazione. Cerca nuovamente l’azienda.",
+        ),
+      );
+    }
   }
 
   const { error: submitError } = await supabase.rpc("p0a_submit_registration_application", {
