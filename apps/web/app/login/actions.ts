@@ -121,13 +121,16 @@ export async function login(formData: FormData) {
   ensureSupabaseConfigured();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
-  const nextPath = safeInternalNext(formData.get("next"), "/dashboard");
+  const requestedNext = String(formData.get("next") ?? "").trim();
+  const nextPath = requestedNext
+    ? safeInternalNext(requestedNext, "/dashboard")
+    : undefined;
+  const nextSuffix = nextPath
+    ? "&next=" + encodeURIComponent(nextPath)
+    : "";
 
   if (!email || !password) {
-    redirect(
-      "/login?error=Inserisci%20email%20e%20password&next=" +
-        encodeURIComponent(nextPath),
-    );
+    redirect("/login?error=Inserisci%20email%20e%20password" + nextSuffix);
   }
 
   const supabase = await createClient();
@@ -141,13 +144,13 @@ export async function login(formData: FormData) {
         pendingSignupEmailCookieOptions,
       );
       redirect(
-        "/verify-email?source=login&next=" + encodeURIComponent(nextPath),
+        "/verify-email?source=login" +
+          (nextPath ? "&next=" + encodeURIComponent(nextPath) : ""),
       );
     }
 
     redirect(
-      "/login?error=Credenziali%20non%20valide&next=" +
-        encodeURIComponent(nextPath),
+      "/login?error=Credenziali%20non%20valide" + nextSuffix,
     );
   }
 
