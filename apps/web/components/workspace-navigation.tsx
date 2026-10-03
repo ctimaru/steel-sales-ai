@@ -121,19 +121,21 @@ function NavIcon({
   );
 }
 
-function primaryItems(networkEnabled: boolean) {
+function primaryItems(networkEnabled: boolean, networkEntitled: boolean) {
   return [
     {
       key: "home" as const,
       href: appRoutes.home,
       label: "Home",
       icon: "home" as const,
+      locked: false,
     },
     {
       key: "commercial" as const,
       href: appRoutes.commercial.home,
       label: "Commerciale",
       icon: "commercial" as const,
+      locked: false,
     },
     ...(networkEnabled
       ? [
@@ -142,6 +144,7 @@ function primaryItems(networkEnabled: boolean) {
             href: appRoutes.network.directory,
             label: "Network",
             icon: "network" as const,
+            locked: !networkEntitled,
           },
           {
             key: "marketplace" as const,
@@ -149,6 +152,7 @@ function primaryItems(networkEnabled: boolean) {
             label: "Marketplace",
             mobileLabel: "Mercato",
             icon: "marketplace" as const,
+            locked: false,
           },
         ]
       : []),
@@ -157,21 +161,24 @@ function primaryItems(networkEnabled: boolean) {
       href: appRoutes.knowledge.workspace,
       label: "Scuola",
       icon: "knowledge" as const,
+      locked: false,
     },
   ];
 }
 
 export function WorkspaceDesktopPrimaryNavigation({
   networkEnabled,
+  networkEntitled,
 }: {
   networkEnabled: boolean;
+  networkEntitled: boolean;
 }) {
   const pathname = usePathname();
   const current = currentPrimarySpace(pathname);
 
   return (
     <nav className="hidden h-full items-stretch gap-1 lg:flex" aria-label="Navigazione principale">
-      {primaryItems(networkEnabled).map((item) => {
+      {primaryItems(networkEnabled, networkEntitled).map((item) => {
         const selected = current === item.key;
         return (
           <Link
@@ -187,6 +194,11 @@ export function WorkspaceDesktopPrimaryNavigation({
           >
             <NavIcon name={item.icon} className="h-[21px] w-[21px]" />
             <span>{item.label}</span>
+            {item.locked ? (
+              <span className="absolute right-1 top-1 rounded-full bg-[#edf5f2] px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-[0.08em] text-[#173f35]">
+                Premium
+              </span>
+            ) : null}
             {selected ? (
               <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-[#173f35]" />
             ) : null}
@@ -199,12 +211,14 @@ export function WorkspaceDesktopPrimaryNavigation({
 
 export function WorkspaceMobileBottomNavigation({
   networkEnabled,
+  networkEntitled,
 }: {
   networkEnabled: boolean;
+  networkEntitled: boolean;
 }) {
   const pathname = usePathname();
   const current = currentPrimarySpace(pathname);
-  const items = primaryItems(networkEnabled);
+  const items = primaryItems(networkEnabled, networkEntitled);
 
   return (
     <nav
@@ -228,7 +242,10 @@ export function WorkspaceMobileBottomNavigation({
               <span className="absolute inset-x-[28%] top-0 h-0.5 rounded-full bg-[#173f35]" />
             ) : null}
             <NavIcon name={item.icon} className="h-5 w-5" />
-            <span className="max-w-full truncate">{"mobileLabel" in item ? item.mobileLabel : item.label}</span>
+            <span className="max-w-full truncate">
+              {"mobileLabel" in item ? item.mobileLabel : item.label}
+              {item.locked ? " · 🔒" : ""}
+            </span>
           </Link>
         );
       })}
@@ -286,6 +303,8 @@ export function WorkspaceContextNavigation({
         : current === "knowledge"
           ? knowledgeItems
           : commercialItems;
+
+  if (current === "network" && items.length === 0) return null;
 
   const intelligenceSelected =
     current === "commercial" &&
