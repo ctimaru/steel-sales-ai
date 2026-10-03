@@ -181,7 +181,28 @@ stable
 security definer
 set search_path=''
 as $function$
+declare
+  v_user uuid := (select auth.uid());
 begin
+  if v_user is null then
+    raise exception 'authentication required' using errcode='42501';
+  end if;
+
+  if private.is_platform_superadmin() then
+    return;
+  end if;
+
+  if not exists(
+    select 1
+    from public.organization_memberships om
+    where om.organization_id=p_organization_id
+      and om.user_id=v_user
+      and om.status='active'
+  ) then
+    raise exception 'active organization membership required'
+      using errcode='42501';
+  end if;
+
   if not private.pa1_3_network_access_allowed_for(p_organization_id) then
     raise exception 'Network entitlement required'
       using errcode='42501';
