@@ -582,6 +582,7 @@ export async function archiveManagedPublicContact(formData: FormData) {
 
 async function activeOrganizationId() {
   await requireWorkspaceWriteRole();
+  await requireNetworkAccess();
   const supabase = await createClient();
   const { data: authData } = await supabase.auth.getUser();
   const userId = authData.user?.id;
@@ -659,6 +660,7 @@ export async function removeSavedNetworkCompany(formData: FormData) {
 
 export async function submitNetworkInquiry(formData: FormData) {
   await requireWorkspaceWriteRole();
+  await requireNetworkAccess();
   const companyId = textValue(formData, "network_company_id");
   const organizationId = textValue(formData, "organization_id");
   const subject = textValue(formData, "subject");
@@ -692,6 +694,7 @@ export async function submitNetworkInquiry(formData: FormData) {
 
 export async function transitionNetworkInquiry(formData: FormData) {
   await requireWorkspaceWriteRole();
+  await requireNetworkAccess();
   const inquiryId = textValue(formData, "inquiry_id");
   const organizationId = textValue(formData, "organization_id");
   const newStatus = textValue(formData, "new_status");
@@ -724,6 +727,7 @@ export async function transitionNetworkInquiry(formData: FormData) {
 
 export async function reportNetworkInquiry(formData: FormData) {
   await requireWorkspaceWriteRole();
+  await requireNetworkAccess();
   const inquiryId = textValue(formData, "inquiry_id");
   const organizationId = textValue(formData, "organization_id");
   const reason = textValue(formData, "reason");
@@ -766,6 +770,7 @@ export async function setInquiryPreferences(formData: FormData) {
 
 export async function blockInquirySenderOrganization(formData: FormData) {
   await requireWorkspaceWriteRole();
+  await requireNetworkAccess();
   const blockingOrganizationId = textValue(formData, "blocking_organization_id");
   const blockedOrganizationId = textValue(formData, "blocked_organization_id");
 
