@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { recordPilotUsageEvent } from "@/app/(workspace)/telemetry/actions";
+import { requireNetworkAccess } from "@/lib/network-access";
 import { createClient } from "@/lib/supabase/server";
 import { requireWorkspaceAdmin, requireWorkspaceWriteRole } from "@/lib/workspace-context";
 
