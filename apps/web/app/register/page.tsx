@@ -41,6 +41,11 @@ export default async function RegisterPage({
   const claimRef = /^[0-9a-f]{64}$/.test(normalizedClaimRef)
     ? normalizedClaimRef
     : null;
+
+  if (normalizedClaimRef && !claimRef) {
+    redirect("/#aziende");
+  }
+
   const registrationPath = claimRef
     ? "/register?claim_ref=" + encodeURIComponent(claimRef)
     : "/register";
