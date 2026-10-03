@@ -59,7 +59,8 @@ test("K1 establishes metadata and canonical URLs for public Knowledge", () => {
 
 test("K1 makes public Knowledge discoverable from the product while preserving private data boundaries", () => {
   assert.match(root, /href="\/knowledge"/);
-  assert.match(root, /Knowledge pubblica/);
+  assert.match(root, /Scuola/);
+  assert.match(root, /Utile anche senza account/);
   assert.match(shell, /appRoutes\.knowledge\.catalog/);
   assert.match(shell, /Catalogo tecnico/);
   assert.match(nav, /label: "Scuola"/);

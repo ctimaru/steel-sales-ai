@@ -44,7 +44,8 @@ test("UI1 applies the same product identity to public, Company and Platform cont
 test("UI1 keeps the public landing fast and asset-light", () => {
   assert.doesNotMatch(publicHome, /<img|next\/image|video|iframe/i);
   assert.doesNotMatch(publicHome, /animate-|transition-all/);
-  assert.match(publicHome, /B2B intelligence for steel & tube/);
+  assert.match(publicHome, /Il business network/);
+  assert.match(publicHome, /Utile anche senza account/);
 });
 
 test("UX2 preserves task-dense Company Home behavior without making search the hero", () => {
