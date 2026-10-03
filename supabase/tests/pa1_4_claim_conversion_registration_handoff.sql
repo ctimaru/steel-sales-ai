@@ -205,12 +205,10 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub',:'owner_id',true);
 select set_config('request.jwt.claim.role','authenticated',true);
 
-select public.p0a_approve_registration_application(:'app_id'::uuid);
-
 insert into pa14_state(key,value)
 select
   'activation',
-  public.p0a_activate_registration_application(
+  public.hp6_approve_and_activate_registration(
     :'app_id'::uuid,
     '00000000-0000-0000-0000-000000014020'::uuid
   );
