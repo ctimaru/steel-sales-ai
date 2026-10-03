@@ -11,7 +11,7 @@ test("PA1.1 public home leads with value before login", () => {
   assert.match(home, /Il business network/);
   assert.match(home, /Utile anche senza account/);
   assert.match(home, /Prima utilità, poi prodotto/);
-  assert.match(home, /Trovala, rivendicala, rendila verificata/);
+  assert.match(home, /Cercala per nome o Partita IVA/);
   assert.match(home, /Produttori/);
   assert.match(home, /Commercianti/);
   assert.match(home, /Terzisti/);
@@ -25,11 +25,12 @@ test("PA1.1 exposes real public Scuola entry points", () => {
   assert.match(home, /Apri Scuola/);
 });
 
-test("PA1.1 keeps claim path truthful before VAT lookup ships", () => {
+test("PA1.1 public-value architecture remains intact after PA1.2 adds real company lookup", () => {
   assert.match(home, /Rivendica o registra la tua azienda/);
-  assert.match(home, /Il company graph di Smart Steel Sales nasce da informazioni aziendali pubbliche/);
-  assert.doesNotMatch(home, /name="vat"/);
-  assert.doesNotMatch(home, /placeholder=.*Partita IVA/);
+  assert.match(home, /<PublicCompanyLookup \/>/);
+  assert.match(home, /La ricerca pubblica serve solo a riconoscere l&apos;identità aziendale/);
+  assert.match(home, /Privato · Premium/);
+  assert.doesNotMatch(home, /href="\/network"/);
 });
 
 test("PA1.1 aligns the public home with the current brand palette", () => {
