@@ -592,3 +592,157 @@ comment on function public.pa1_4_bind_registration_claim(uuid,text) is
   'PA1.4 binds an available public claim target to the applicant own editable registration. Final Network link and claim remain governed by registration activation.';
 comment on function public.pa1_4_registration_claim_context(uuid) is
   'PA1.4 restores the minimal claim context already bound to the authenticated applicant registration without exposing premium Network data.';
+
+
+-- Preserve PA1.4 claim intent when an eligible rejected application is
+-- re-opened through the existing HP12 recovery path. The target is still only
+-- intent: the registration page revalidates availability and Platform must
+-- explicitly select the identity during activation.
+create or replace function private.hp12_reapply_registration_impl(
+  p_application_id uuid
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path=''
+as $function$
+declare
+  v_user_id uuid;
+  v_email_confirmed_at timestamptz;
+  v_source public.company_registration_applications%rowtype;
+  v_existing public.company_registration_applications%rowtype;
+  v_new_id uuid;
+begin
+  v_user_id := (select auth.uid());
+
+  if v_user_id is null then
+    raise exception 'authentication required' using errcode='42501';
+  end if;
+
+  select u.email_confirmed_at
+  into v_email_confirmed_at
+  from auth.users u
+  where u.id=v_user_id;
+
+  if v_email_confirmed_at is null then
+    raise exception 'email verification required before reapplication'
+      using errcode='42501';
+  end if;
+
+  select *
+  into v_source
+  from public.company_registration_applications a
+  where a.id=p_application_id
+    and a.applicant_user_id=v_user_id
+  for update;
+
+  if not found then
+    raise exception 'registration application not found'
+      using errcode='P0002';
+  end if;
+
+  if v_source.application_status<>'rejected' then
+    raise exception 'only rejected applications can start reapplication'
+      using errcode='22023';
+  end if;
+
+  if v_source.rejection_reason_code not in (
+    'incomplete_information',
+    'unverifiable_identity'
+  ) then
+    raise exception 'registration reapplication requires platform support'
+      using errcode='22023';
+  end if;
+
+  select *
+  into v_existing
+  from public.company_registration_applications a
+  where a.applicant_user_id=v_user_id
+    and a.application_status in (
+      'draft',
+      'pending_review',
+      'needs_information',
+      'approved'
+    )
+  order by a.created_at desc,a.id
+  limit 1;
+
+  if found then
+    return jsonb_build_object(
+      'contract','HP12-registration-reapply-v1',
+      'application_id',v_existing.id,
+      'status',v_existing.application_status,
+      'idempotent_replay',true
+    );
+  end if;
+
+  insert into public.company_registration_applications(
+    legal_name,
+    trading_name,
+    country_code,
+    vat_id,
+    registration_id,
+    website_url,
+    primary_company_type,
+    secondary_company_types,
+    contact_name,
+    contact_phone,
+    short_description,
+    claim_target_network_company_id,
+    claim_handoff_started_at
+  )
+  values(
+    v_source.legal_name,
+    v_source.trading_name,
+    v_source.country_code,
+    v_source.vat_id,
+    v_source.registration_id,
+    v_source.website_url,
+    v_source.primary_company_type,
+    v_source.secondary_company_types,
+    v_source.contact_name,
+    v_source.contact_phone,
+    v_source.short_description,
+    v_source.claim_target_network_company_id,
+    v_source.claim_handoff_started_at
+  )
+  returning id into v_new_id;
+
+  return jsonb_build_object(
+    'contract','HP12-registration-reapply-v1',
+    'application_id',v_new_id,
+    'status','draft',
+    'source_application_id',v_source.id,
+    'claim_target_preserved',(v_source.claim_target_network_company_id is not null),
+    'idempotent_replay',false
+  );
+exception
+  when unique_violation then
+    select *
+    into v_existing
+    from public.company_registration_applications a
+    where a.applicant_user_id=v_user_id
+      and a.application_status in (
+        'draft',
+        'pending_review',
+        'needs_information',
+        'approved'
+      )
+    order by a.created_at desc,a.id
+    limit 1;
+
+    if found then
+      return jsonb_build_object(
+        'contract','HP12-registration-reapply-v1',
+        'application_id',v_existing.id,
+        'status',v_existing.application_status,
+        'idempotent_replay',true
+      );
+    end if;
+
+    raise;
+end;
+$function$;
+
+comment on function private.hp12_reapply_registration_impl(uuid) is
+  'HP12 recovery path with PA1.4 claim-target continuity. Reapplication preserves applicant claim intent but never creates a Network link or entitlement.';
