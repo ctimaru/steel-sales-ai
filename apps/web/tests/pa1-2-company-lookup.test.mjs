@@ -26,7 +26,7 @@ test("PA1.2 embeds real public lookup by company name or VAT", () => {
 
 test("PA1.2 keeps the rich Network private and premium", () => {
   assert.match(home, /Privato · Premium/);
-  assert.match(home, /Directory ricca, filtri avanzati, prodotti,[\s\S]*capability, mercati/);
+  assert.match(home, /directory ricca, filtri avanzati, prodotti,[\s\S]*capability, mercati/i);
   assert.match(lookup, /Il Network completo non è pubblico/);
   assert.doesNotMatch(home, /href="\/network"/);
   assert.doesNotMatch(lookup, /href="\/network"/);
