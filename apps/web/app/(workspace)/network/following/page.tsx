@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { unfollowNetworkCompany } from "@/app/(workspace)/network/actions";
 import { getActiveOrganizationContext, getFollowedNetworkCompanies } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
+import { requireNetworkAccess } from "@/lib/network-access";
 
 export default async function FollowedCompaniesPage({
   searchParams,
@@ -12,6 +13,7 @@ export default async function FollowedCompaniesPage({
   searchParams: Promise<{ error?: string; message?: string }>;
 }) {
   if (!isNetworkFrontendEnabled()) redirect("/dashboard");
+  await requireNetworkAccess();
 
   const { error, message } = await searchParams;
   const organization = await getActiveOrganizationContext();
