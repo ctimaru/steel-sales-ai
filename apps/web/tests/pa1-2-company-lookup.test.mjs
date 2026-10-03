@@ -12,7 +12,7 @@ const actions = fs.readFileSync(
   "utf8",
 );
 const migration = fs.readFileSync(
-  new URL("../../supabase/migrations/20261003163500_pa1_2_public_company_lookup.sql", import.meta.url),
+  new URL("../../../supabase/migrations/20261003163500_pa1_2_public_company_lookup.sql", import.meta.url),
   "utf8",
 );
 
