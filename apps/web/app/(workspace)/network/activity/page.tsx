@@ -9,6 +9,7 @@ import {
 import { getActiveOrganizationContext, getNetworkActivityFeed } from "@/lib/network";
 import { PilotEvent } from "@/components/pilot-event";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
+import { requireNetworkAccess } from "@/lib/network-access";
 
 function formatWhen(value: string) {
   return new Intl.DateTimeFormat("it-IT", {
@@ -23,6 +24,7 @@ export default async function NetworkActivityPage({
   searchParams: Promise<{ unread?: string; error?: string; message?: string }>;
 }) {
   if (!isNetworkFrontendEnabled()) redirect("/dashboard");
+  await requireNetworkAccess();
 
   const params = await searchParams;
   const organization = await getActiveOrganizationContext();
