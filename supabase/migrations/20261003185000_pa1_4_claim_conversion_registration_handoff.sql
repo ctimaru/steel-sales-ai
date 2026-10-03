@@ -473,7 +473,8 @@ begin
   into v_company
   from public.network_companies
   where id=v_app.claim_target_network_company_id
-    and publication_status<>'archived';
+    and publication_status='published'
+    and archived_at is null;
 
   if not found then
     return jsonb_build_object('ok',false,'code','claim_target_not_found');
