@@ -436,6 +436,113 @@ revoke all on function public.pa1_4_bind_registration_claim(uuid,text)
 grant execute on function public.pa1_4_bind_registration_claim(uuid,text)
   to authenticated,service_role;
 
+create or replace function private.pa1_4_registration_claim_context_impl(
+  p_application_id uuid
+)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path=''
+as $function$
+declare
+  v_user_id uuid := (select auth.uid());
+  v_app public.company_registration_applications%rowtype;
+  v_company public.network_companies%rowtype;
+  v_claim_state text;
+begin
+  if v_user_id is null then
+    raise exception 'authentication required' using errcode='42501';
+  end if;
+
+  select *
+  into v_app
+  from public.company_registration_applications
+  where id=p_application_id
+    and applicant_user_id=v_user_id;
+
+  if not found then
+    raise exception 'registration application not found' using errcode='P0002';
+  end if;
+
+  if v_app.claim_target_network_company_id is null then
+    return jsonb_build_object('ok',true,'code','no_claim_target');
+  end if;
+
+  select *
+  into v_company
+  from public.network_companies
+  where id=v_app.claim_target_network_company_id
+    and publication_status<>'archived';
+
+  if not found then
+    return jsonb_build_object('ok',false,'code','claim_target_not_found');
+  end if;
+
+  v_claim_state := case
+    when v_company.claimed_status='claimed'
+         or exists(
+           select 1
+           from public.network_company_claims cl
+           where cl.network_company_id=v_company.id
+             and cl.status='approved'
+         )
+      then 'claimed'
+    when v_company.claimed_status='pending'
+         or exists(
+           select 1
+           from public.network_company_claims cl
+           where cl.network_company_id=v_company.id
+             and cl.status in ('requested','under_review')
+         )
+      then 'claim_in_progress'
+    else 'claimable'
+  end;
+
+  return jsonb_build_object(
+    'ok',true,
+    'code','ok',
+    'claim_ref',private.pa1_4_claim_ref(v_company.id),
+    'legal_name',v_company.legal_name,
+    'trading_name',v_company.trading_name,
+    'country_code',v_company.country_code,
+    'vat_hint',case
+      when private.hp4_normalize_identifier(v_company.vat_id) is null then null
+      else '••••'||right(private.hp4_normalize_identifier(v_company.vat_id),4)
+    end,
+    'claim_state',v_claim_state,
+    'can_start_registration',(
+      v_claim_state='claimable'
+      and v_app.application_status in ('draft','needs_information')
+    ),
+    'application_status',v_app.application_status,
+    'network_access_included',false
+  );
+end;
+$function$;
+
+revoke all on function private.pa1_4_registration_claim_context_impl(uuid)
+  from public,anon;
+grant execute on function private.pa1_4_registration_claim_context_impl(uuid)
+  to authenticated,service_role;
+
+create or replace function public.pa1_4_registration_claim_context(
+  p_application_id uuid
+)
+returns jsonb
+language sql
+stable
+security invoker
+set search_path=''
+as $function$
+  select private.pa1_4_registration_claim_context_impl(p_application_id);
+$function$;
+
+revoke all on function public.pa1_4_registration_claim_context(uuid)
+  from public,anon;
+grant execute on function public.pa1_4_registration_claim_context(uuid)
+  to authenticated,service_role;
+
 create or replace function private.pa1_4_guard_registration_identity_targets()
 returns trigger
 language plpgsql
@@ -483,3 +590,5 @@ comment on function public.pa1_4_company_claim_context(text) is
   'PA1.4 authenticated resolver for an opaque public claim reference. Returns only minimal identity / claim availability and never grants paid Network access.';
 comment on function public.pa1_4_bind_registration_claim(uuid,text) is
   'PA1.4 binds an available public claim target to the applicant own editable registration. Final Network link and claim remain governed by registration activation.';
+comment on function public.pa1_4_registration_claim_context(uuid) is
+  'PA1.4 restores the minimal claim context already bound to the authenticated applicant registration without exposing premium Network data.';
