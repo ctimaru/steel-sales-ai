@@ -20,8 +20,8 @@ export default async function LoginPage({
   searchParams: Promise<{ error?: string; message?: string; next?: string }>;
 }) {
   const { error, message, next } = await searchParams;
-  const nextPath = safeInternalNext(next, "/dashboard");
-  const registrationHref = nextPath.startsWith("/register")
+  const nextPath = next ? safeInternalNext(next, "/dashboard") : null;
+  const registrationHref = nextPath?.startsWith("/register")
     ? nextPath
     : "/register";
 
@@ -89,7 +89,7 @@ export default async function LoginPage({
           ) : null}
 
           <form action={login} className="mt-8 space-y-5">
-            <input type="hidden" name="next" value={nextPath} />
+            {nextPath ? <input type="hidden" name="next" value={nextPath} /> : null}
             <label className="block text-sm font-medium text-[#43524c]">
               Email
               <Input
