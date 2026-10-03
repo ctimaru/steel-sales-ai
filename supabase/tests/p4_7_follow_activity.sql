@@ -48,6 +48,15 @@ insert into public.organization_memberships(
   'admin','active',true
 );
 
+insert into public.organization_product_entitlement_events(
+  organization_id,product_key,event_type,source_kind,source_reference,
+  idempotency_key,actor_authority_type,metadata
+) values (
+  '00000000-0000-0000-0000-0000000047d1'::uuid,
+  'network_access','granted','pilot','p47-acceptance',
+  'p47.network.access.001','system','{}'::jsonb
+);
+
 select set_config(
   'p4_7.test_org_id',
   '00000000-0000-0000-0000-0000000047d1',
