@@ -215,7 +215,7 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
   if (submitError) {
     redirect(
       feedbackPath(
-        "/register",
+        registerPath,
         submitError,
         "La richiesta è stata salvata ma non inviata. Puoi riprovare senza ricompilare i dati.",
       ),
