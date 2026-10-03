@@ -10,6 +10,7 @@ import {
   maskEmail,
   PENDING_SIGNUP_EMAIL_COOKIE,
 } from "@/lib/auth-email-verification";
+import { safeInternalNext } from "@/lib/auth-next";
 import { privateNoIndexRobots } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 
@@ -28,14 +29,16 @@ export default async function VerifyEmailPage({
     resent?: string;
     source?: string;
     error?: string;
+    next?: string;
   }>;
 }) {
-  const { sent, resent, source, error } = await searchParams;
+  const { sent, resent, source, error, next } = await searchParams;
+  const nextPath = safeInternalNext(next, "/register");
   const supabase = await createClient();
   const { data: authData } = await supabase.auth.getUser();
 
   if (authData.user?.email_confirmed_at) {
-    redirect("/register");
+    redirect(nextPath);
   }
 
   const cookieStore = await cookies();
@@ -130,6 +133,7 @@ export default async function VerifyEmailPage({
             <div className="mt-5 border-t border-[#e2e7e4] pt-5">
               {pendingEmail ? (
                 <form action={resendSignupConfirmation}>
+                  <input type="hidden" name="next" value={nextPath} />
                   <PendingSubmitButton
                     pendingLabel="Invio in corso…"
                     className="app-secondary inline-flex h-11 w-full items-center justify-center rounded-xl px-5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
@@ -139,7 +143,7 @@ export default async function VerifyEmailPage({
                 </form>
               ) : (
                 <Link
-                  href="/register"
+                  href={nextPath}
                   className="app-primary inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold"
                 >
                   Torna alla registrazione
@@ -168,7 +172,7 @@ export default async function VerifyEmailPage({
             <p>
               Hai usato un indirizzo sbagliato?{" "}
               <Link
-                href="/register"
+                href={nextPath}
                 className="font-semibold text-[#173f35] underline decoration-[#b8d2c8] underline-offset-4"
               >
                 Riparti dalla registrazione

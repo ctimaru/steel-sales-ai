@@ -7,6 +7,7 @@ import {
   PENDING_SIGNUP_EMAIL_COOKIE,
   pendingSignupEmailCookieOptions,
 } from "@/lib/auth-email-verification";
+import { isRegistrationNext, safeInternalNext } from "@/lib/auth-next";
 import { siteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 import { safeErrorMessage } from "@/lib/user-facing-error";
@@ -54,7 +55,12 @@ function signupErrorMessage(error: { code?: string; message: string; status?: nu
   );
 }
 
-async function routeAfterAuthentication() {
+function appendQuery(path: string, key: string, value: string) {
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}${key}=${encodeURIComponent(value)}`;
+}
+
+async function routeAfterAuthentication(nextPath?: string) {
   const supabase = await createClient();
   await Promise.all([
     supabase.rpc("claim_pending_organization_invitations"),
@@ -84,6 +90,10 @@ async function routeAfterAuthentication() {
 
   const membership = memberships?.find((row) => row.is_default) ?? memberships?.[0];
   if (!membership) {
+    if (nextPath && isRegistrationNext(nextPath)) {
+      redirect(nextPath);
+    }
+
     const { data: application } = await supabase
       .from("company_registration_applications")
       .select("id,application_status")
@@ -92,6 +102,10 @@ async function routeAfterAuthentication() {
       .maybeSingle();
 
     redirect(application ? "/registration/status" : "/register");
+  }
+
+  if (nextPath && !isRegistrationNext(nextPath)) {
+    redirect(nextPath);
   }
 
   const { data: organization } = await supabase
@@ -107,9 +121,16 @@ export async function login(formData: FormData) {
   ensureSupabaseConfigured();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
+  const requestedNext = String(formData.get("next") ?? "").trim();
+  const nextPath = requestedNext
+    ? safeInternalNext(requestedNext, "/dashboard")
+    : undefined;
+  const nextSuffix = nextPath
+    ? "&next=" + encodeURIComponent(nextPath)
+    : "";
 
   if (!email || !password) {
-    redirect("/login?error=Inserisci%20email%20e%20password");
+    redirect("/login?error=Inserisci%20email%20e%20password" + nextSuffix);
   }
 
   const supabase = await createClient();
@@ -122,25 +143,40 @@ export async function login(formData: FormData) {
         email,
         pendingSignupEmailCookieOptions,
       );
-      redirect("/verify-email?source=login");
+      redirect(
+        "/verify-email?source=login" +
+          (nextPath ? "&next=" + encodeURIComponent(nextPath) : ""),
+      );
     }
 
-    redirect("/login?error=Credenziali%20non%20valide");
+    redirect(
+      "/login?error=Credenziali%20non%20valide" + nextSuffix,
+    );
   }
 
   const cookieStore = await cookies();
   cookieStore.delete(PENDING_SIGNUP_EMAIL_COOKIE);
 
-  await routeAfterAuthentication();
+  await routeAfterAuthentication(nextPath);
 }
 
 export async function signup(formData: FormData) {
   ensureSupabaseConfigured();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
+  const requestedNext = safeInternalNext(formData.get("next"), "/register");
+  const nextPath = requestedNext.startsWith("/register")
+    ? requestedNext
+    : "/register";
 
   if (!email || password.length < 8) {
-    redirect("/register?error=Usa%20una%20password%20di%20almeno%208%20caratteri");
+    redirect(
+      appendQuery(
+        nextPath,
+        "error",
+        "Usa una password di almeno 8 caratteri",
+      ),
+    );
   }
 
   const supabase = await createClient();
@@ -149,21 +185,23 @@ export async function signup(formData: FormData) {
     email,
     password,
     options: {
-      emailRedirectTo: `${origin}/auth/finish?signup=1`,
+      emailRedirectTo:
+        `${origin}/auth/finish?signup=1&next=${encodeURIComponent(nextPath)}`,
     },
   });
 
   if (error) {
     if (error.code === "email_address_not_authorized") {
       redirect(
-        "/register?error=" +
-          encodeURIComponent(
-            "Il servizio email di verifica non è ancora configurato per questo indirizzo. Riprova più tardi.",
-          ),
+        appendQuery(
+          nextPath,
+          "error",
+          "Il servizio email di verifica non è ancora configurato per questo indirizzo. Riprova più tardi.",
+        ),
       );
     }
 
-    redirect(`/register?error=${encodeURIComponent(signupErrorMessage(error))}`);
+    redirect(appendQuery(nextPath, "error", signupErrorMessage(error)));
   }
 
   const cookieStore = await cookies();
@@ -179,11 +217,13 @@ export async function signup(formData: FormData) {
       "/verify-email?error=" +
         encodeURIComponent(
           "La verifica email non è stata applicata correttamente. L’accesso è stato bloccato per sicurezza.",
-        ),
+        ) +
+        "&next=" +
+        encodeURIComponent(nextPath),
     );
   }
 
-  redirect("/verify-email?sent=1");
+  redirect("/verify-email?sent=1&next=" + encodeURIComponent(nextPath));
 }
 
 export async function requestPasswordReset(formData: FormData) {

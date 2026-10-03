@@ -140,6 +140,12 @@ export default async function RegistrationStatusPage({
     redirect("/register");
   }
 
+  const { data: identityState } = await supabase
+    .from("company_registration_applications")
+    .select("matched_network_company_id,claim_target_network_company_id")
+    .eq("id", application.id)
+    .maybeSingle();
+
   const copy = isRegistrationApplicationStatus(application.application_status)
     ? STATUS_COPY[application.application_status]
     : {
@@ -285,12 +291,22 @@ export default async function RegistrationStatusPage({
               </Link>
             ) : null}
 
+            {application.application_status === "activated" &&
+            identityState?.matched_network_company_id ? (
+              <Link
+                href="/network/manage"
+                className="app-primary inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold"
+              >
+                Gestisci il profilo aziendale
+              </Link>
+            ) : null}
+
             {application.application_status === "activated" ? (
               <Link
                 href="/onboarding"
-                className="app-primary inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold"
+                className="app-secondary inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold"
               >
-                Continua la configurazione
+                Completa il setup workspace
               </Link>
             ) : null}
 
@@ -327,8 +343,10 @@ export default async function RegistrationStatusPage({
           ) : null}
 
           <p className="mt-6 text-xs leading-5 text-[#8b9792]">
-            L’approvazione della registrazione consente l’accesso al prodotto; non rappresenta una
-            certificazione o una valutazione commerciale dell’azienda.
+            L’approvazione della registrazione consente l’accesso al workspace e, dopo il bridge,
+            la gestione del proprio profilo aziendale. Il Network completo resta un prodotto
+            premium separato e l’approvazione non rappresenta una certificazione o una valutazione
+            commerciale dell’azienda.
           </p>
         </div>
       </div>

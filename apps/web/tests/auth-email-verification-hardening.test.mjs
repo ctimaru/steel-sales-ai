@@ -41,10 +41,10 @@ const confirmRoute = fs.readFileSync(
 
 test("email verification uses a dedicated pending-email gate", () => {
   assert.match(loginActions, /PENDING_SIGNUP_EMAIL_COOKIE/);
-  assert.match(loginActions, /redirect\("\/verify-email\?sent=1"\)/);
+  assert.match(loginActions, /\/verify-email\?sent=1&next=/);
   assert.match(loginActions, /error\.code === "email_not_confirmed"/);
-  assert.match(loginActions, /redirect\("\/verify-email\?source=login"\)/);
-  assert.match(registerActions, /redirect\("\/verify-email\?source=registration"\)/);
+  assert.match(loginActions, /\/verify-email\?source=login/);
+  assert.match(registerActions, /\/verify-email\?source=registration&next=/);
 });
 
 test("signup fails closed if Supabase unexpectedly returns an authenticated session", () => {
@@ -66,10 +66,8 @@ test("verification page supports privacy-safe resend without putting email in th
 test("resend uses the Supabase signup confirmation API and preserves the auth callback", () => {
   assert.match(verifyActions, /supabase\.auth\.resend\(\{/);
   assert.match(verifyActions, /type: "signup"/);
-  assert.match(
-    verifyActions,
-    /emailRedirectTo: .*\/auth\/finish\?signup=1/,
-  );
+  assert.match(verifyActions, /\/auth\/finish\?signup=1&next=/);
+  assert.match(verifyActions, /safeInternalNext/);
   assert.match(verifyActions, /over_email_send_rate_limit/);
   assert.match(verifyActions, /email_address_not_authorized/);
 });

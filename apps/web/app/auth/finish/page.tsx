@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { ProductBrand } from "@/components/product-brand";
 import { Input } from "@/components/ui/input";
+import { safeInternalNext } from "@/lib/auth-next";
 import { createClient } from "@/lib/supabase/client";
 
 type OrganizationInvitationContext = {
@@ -52,6 +53,7 @@ export default function AuthFinishPage() {
       const isStaffInvite = url.searchParams.get("staff") === "1";
       const isSignup = url.searchParams.get("signup") === "1";
       const isRecovery = url.searchParams.get("recovery") === "1";
+      const nextPath = safeInternalNext(url.searchParams.get("next"), "/register");
       const invitationId = url.searchParams.get("invitation_id");
       const setPassword = url.searchParams.get("set_password") !== "0";
       const code = url.searchParams.get("code");
@@ -163,7 +165,7 @@ export default function AuthFinishPage() {
         }
 
         if (isSignup) {
-          router.replace("/register");
+          router.replace(nextPath);
           router.refresh();
           return;
         }

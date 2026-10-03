@@ -178,6 +178,8 @@ export type RegistrationApplicationDetail = {
   rejection_reason_code: string | null;
   rejection_note: string | null;
   activated_organization_id: string | null;
+  claim_target_network_company_id: string | null;
+  claim_handoff_started_at: string | null;
   matched_network_company_id: string | null;
   created_at: string;
   updated_at: string;
