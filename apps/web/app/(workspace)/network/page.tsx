@@ -2,10 +2,13 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
+import { NetworkAccessGate } from "@/components/network-access-gate";
 import { PilotEvent } from "@/components/pilot-event";
 import { getNetworkTaxonomy, searchNetwork } from "@/lib/network";
+import { getNetworkAccessState } from "@/lib/network-access";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { appRoutes } from "@/lib/routes";
+import { getWorkspaceContext } from "@/lib/workspace-context";
 
 function selectClass() {
   return "h-11 w-full rounded-xl border border-[#dce2df] bg-white px-3 text-sm text-[#2b3d46] outline-none transition focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8]";
@@ -62,6 +65,18 @@ export default async function NetworkDirectoryPage({
 }) {
   if (!isNetworkFrontendEnabled()) redirect("/dashboard");
 
+  const context = await getWorkspaceContext();
+  const access = await getNetworkAccessState(context.organizationId);
+
+  if (!access.can_access_network) {
+    return (
+      <NetworkAccessGate
+        access={access}
+        organizationName={context.organizationName}
+      />
+    );
+  }
+
   const params = await searchParams;
   const [taxonomy, results] = await Promise.all([
     getNetworkTaxonomy(),
@@ -106,8 +121,8 @@ export default async function NetworkDirectoryPage({
               Trova aziende e costruisci relazioni nel settore steel
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66736e] sm:text-base">
-              Il Network raccoglie profili aziendali pubblici e strumenti per scoperta, monitoraggio
-              e contatto B2B. La Commercial Memory della tua azienda resta privata e separata.
+              Il Network raccoglie profili aziendali della filiera e strumenti premium per scoperta,
+              monitoraggio e contatto B2B. La Commercial Memory della tua azienda resta privata e separata.
             </p>
           </div>
 
