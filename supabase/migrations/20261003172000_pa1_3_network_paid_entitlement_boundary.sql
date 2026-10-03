@@ -206,6 +206,10 @@ declare
 begin
   v_organization_id:=private.pa1_3_current_organization_id();
 
+  if private.is_platform_superadmin() then
+    return v_organization_id;
+  end if;
+
   if v_organization_id is null then
     raise exception 'active organization membership required'
       using errcode='42501';
