@@ -90,6 +90,7 @@ export function AppShell({
   alertActiveCount,
   platformSuperadmin,
   networkEnabled,
+  networkEntitled,
 }: {
   children: ReactNode;
   viewerLabel: string;
@@ -100,10 +101,12 @@ export function AppShell({
   alertActiveCount: number;
   platformSuperadmin: boolean;
   networkEnabled: boolean;
+  networkEntitled: boolean;
 }) {
   const commercialItems = visibleItems(commercialNav, organizationRole);
   const intelligenceItems = visibleItems(intelligenceNav, organizationRole);
-  const networkItems = networkEnabled ? visibleItems(networkNav, organizationRole) : [];
+  const networkItems =
+    networkEnabled && networkEntitled ? visibleItems(networkNav, organizationRole) : [];
   const marketplaceItems = networkEnabled ? visibleItems(marketplaceNav, organizationRole) : [];
   const knowledgeItems = visibleItems(knowledgeNav, organizationRole);
   const canAdmin = canAdministerCompany(organizationRole);
@@ -136,7 +139,10 @@ export function AppShell({
           <WorkspaceSearchBar />
 
           <div className="ml-auto hidden h-full lg:flex">
-            <WorkspaceDesktopPrimaryNavigation networkEnabled={networkEnabled} />
+            <WorkspaceDesktopPrimaryNavigation
+              networkEnabled={networkEnabled}
+              networkEntitled={networkEntitled}
+            />
           </div>
 
           <div className="ml-auto flex items-center gap-1 lg:ml-2">
@@ -171,7 +177,10 @@ export function AppShell({
         {children}
       </main>
 
-      <WorkspaceMobileBottomNavigation networkEnabled={networkEnabled} />
+      <WorkspaceMobileBottomNavigation
+        networkEnabled={networkEnabled}
+        networkEntitled={networkEntitled}
+      />
     </div>
   );
 }
