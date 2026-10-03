@@ -140,6 +140,15 @@ values (
   'admin','sales_director','active',true
 );
 
+insert into public.organization_product_entitlement_events(
+  organization_id,product_key,event_type,source_kind,source_reference,
+  idempotency_key,actor_authority_type,metadata
+) values (
+  '00000000-0000-0000-0000-0000000031f1',
+  'network_access','granted','pilot','p31-acceptance',
+  'p31.network.access.001','system','{}'::jsonb
+);
+
 set local role authenticated;
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000031a1',true);
 select set_config('request.jwt.claim.role','authenticated',true);

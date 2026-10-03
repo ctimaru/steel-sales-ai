@@ -19,6 +19,7 @@ import {
   type PublicProfileProvenanceKind,
 } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
+import { requireNetworkAccess } from "@/lib/network-access";
 import { createClient } from "@/lib/supabase/server";
 
 const relationshipLabels: Record<string, string> = {
@@ -137,6 +138,7 @@ export default async function NetworkCompanyProfilePage({
   searchParams: Promise<{ error?: string; message?: string }>;
 }) {
   if (!isNetworkFrontendEnabled()) redirect("/dashboard");
+  await requireNetworkAccess();
 
   const { id } = await params;
   const { error, message } = await searchParams;

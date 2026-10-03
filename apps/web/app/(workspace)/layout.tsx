@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/app-shell";
+import { getNetworkAccessState } from "@/lib/network-access";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { privateNoIndexRobots } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
@@ -24,6 +25,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
   let alertActiveCount = 0;
   let platformSuperadmin = false;
   const networkEnabled = isNetworkFrontendEnabled();
+  let networkEntitled = !configured;
 
   if (configured) {
     const [context, supabase] = await Promise.all([
@@ -34,6 +36,12 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
     organizationName = context.organizationName;
     organizationRole = context.role;
     platformSuperadmin = context.platformSuperadmin;
+
+    if (networkEnabled) {
+      const networkAccess = await getNetworkAccessState(context.organizationId);
+      networkEntitled = networkAccess.can_access_network;
+    }
+
     const { data: alertSummary } = await supabase.rpc("p1_operational_alerts_summary", {
       p_organization_id: context.organizationId,
     });
@@ -55,6 +63,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
       alertActiveCount={alertActiveCount}
       platformSuperadmin={platformSuperadmin}
       networkEnabled={networkEnabled}
+      networkEntitled={networkEntitled}
     >
       {children}
     </AppShell>

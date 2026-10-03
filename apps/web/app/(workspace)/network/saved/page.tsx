@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { removeSavedNetworkCompany } from "@/app/(workspace)/network/actions";
 import { getSavedNetworkCompanies } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
+import { requireNetworkAccess } from "@/lib/network-access";
 
 export default async function SavedNetworkCompaniesPage({
   searchParams,
@@ -12,6 +13,7 @@ export default async function SavedNetworkCompaniesPage({
   searchParams: Promise<{ error?: string; message?: string }>;
 }) {
   if (!isNetworkFrontendEnabled()) redirect("/dashboard");
+  await requireNetworkAccess();
 
   const { error, message } = await searchParams;
   const saved = await getSavedNetworkCompanies();

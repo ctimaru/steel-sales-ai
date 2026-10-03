@@ -10,6 +10,7 @@ import {
 import { canInteractWithNetwork } from "@/lib/access-policy";
 import { getActiveOrganizationContext, getNetworkInquiries } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
+import { requireNetworkAccess } from "@/lib/network-access";
 
 function statusClass(status: string) {
   if (status === "responded") return "bg-emerald-50 text-emerald-700";
@@ -29,6 +30,7 @@ export default async function NetworkInquiriesPage({
   }>;
 }) {
   if (!isNetworkFrontendEnabled()) redirect("/dashboard");
+  await requireNetworkAccess();
 
   const params = await searchParams;
   const box = params.box === "sent" ? "sent" : "received";

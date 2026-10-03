@@ -201,6 +201,39 @@ select pg_temp.p37f_assert(
   'each validation profile must have a governed public contact'
 );
 
+do $p37f_bootstrap$
+begin
+  if not exists (
+    select 1 from public.platform_user_roles
+    where role='platform_superadmin' and status='active'
+  ) then
+    insert into auth.users(id,email,email_confirmed_at)
+    values(
+      '00000000-0000-0000-0000-0000000037f1'::uuid,
+      'p37f-owner@example.test',
+      now()
+    )
+    on conflict (id) do nothing;
+
+    insert into public.platform_user_roles(user_id,role,status,granted_by,reason)
+    values(
+      '00000000-0000-0000-0000-0000000037f1'::uuid,
+      'platform_superadmin','active',null,
+      'P3.7F acceptance fallback Platform Owner'
+    );
+  end if;
+end;
+$p37f_bootstrap$;
+
+select user_id as p37f_owner_id
+from public.platform_user_roles
+where role='platform_superadmin' and status='active'
+limit 1 \gset
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub',:'p37f_owner_id',true);
+select set_config('request.jwt.claim.role','authenticated',true);
+
 select pg_temp.p37f_assert(
   (
     select public.p3_7c_public_company_profile(
@@ -243,5 +276,7 @@ select pg_temp.p37f_assert(
   )>=2,
   'technical facts from official sites must remain visibly public-web sourced'
 );
+
+reset role;
 
 rollback;

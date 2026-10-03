@@ -12,6 +12,39 @@ begin
 end;
 $$;
 
+insert into auth.users(id,email,email_confirmed_at)
+values(
+  '00000000-0000-0000-0000-0000000037ca'::uuid,
+  'p37c-reader@example.test',
+  now()
+);
+
+insert into public.organizations(id,name,slug,created_by,country_code,industry)
+values(
+  '00000000-0000-0000-0000-0000000037cf'::uuid,
+  'P3.7C Reader Organization',
+  'p37c-reader-organization',
+  '00000000-0000-0000-0000-0000000037ca'::uuid,
+  'IT','steel'
+);
+
+insert into public.organization_memberships(
+  organization_id,user_id,role,status,is_default
+) values(
+  '00000000-0000-0000-0000-0000000037cf'::uuid,
+  '00000000-0000-0000-0000-0000000037ca'::uuid,
+  'admin','active',true
+);
+
+insert into public.organization_product_entitlement_events(
+  organization_id,product_key,event_type,source_kind,source_reference,
+  idempotency_key,actor_authority_type,metadata
+) values(
+  '00000000-0000-0000-0000-0000000037cf'::uuid,
+  'network_access','granted','pilot','p37c-acceptance',
+  'p37c.network.access.001','system','{}'::jsonb
+);
+
 insert into public.network_companies(
   id,legal_name,trading_name,country_code,website_url,website_domain,description,
   publication_status,claimed_status,verification_status
@@ -134,6 +167,8 @@ from public.network_certification_types ct
 where ct.canonical_key='iso_9001';
 
 set local role authenticated;
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000037ca',true);
+select set_config('request.jwt.claim.role','authenticated',true);
 select public.p3_7c_public_company_profile(
   '00000000-0000-0000-0000-0000000037c1'
 ) as profile

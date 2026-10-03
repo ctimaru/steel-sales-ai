@@ -38,10 +38,10 @@ test("M8 rollback flag defaults enabled and has an explicit false kill switch", 
 
 test("M8 rollback flag removes Network navigation and disables all Network routes", () => {
   assert.match(shell, /networkEnabled/);
-  assert.match(shell, /const networkItems = networkEnabled \? visibleItems\(networkNav, organizationRole\) : \[\]/);
+  assert.match(shell, /networkEnabled && networkEntitled[\s\S]*visibleItems\(networkNav, organizationRole\)/);
   assert.match(navigation, /\.\.\.\(networkEnabled[\s\S]*?key: "network"/);
   assert.match(navigation, /key: "marketplace"/);
-  assert.match(shell, /WorkspaceMobileBottomNavigation networkEnabled=\{networkEnabled\}/);
+  assert.match(shell, /WorkspaceMobileBottomNavigation[\s\S]*networkEnabled=\{networkEnabled\}[\s\S]*networkEntitled=\{networkEntitled\}/);
 
   for (const source of [directory, profile, managed]) {
     assert.match(source, /isNetworkFrontendEnabled/);

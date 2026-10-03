@@ -9,6 +9,7 @@ import {
   type P5ReadinessCriterion,
 } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
+import { requireNetworkAccess } from "@/lib/network-access";
 
 const labels: Record<string, { title: string; help: string }> = {
   multi_day_use: {
@@ -48,6 +49,7 @@ function metric(actual: number, target: number, passed: boolean) {
 
 export default async function InteractionPilotReadinessPage() {
   if (!isNetworkFrontendEnabled()) redirect("/dashboard");
+  await requireNetworkAccess();
 
   const context = await getActiveOrganizationContext();
   if (!context) redirect("/network?error=Nessuna%20organization%20attiva");

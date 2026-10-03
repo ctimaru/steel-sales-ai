@@ -63,6 +63,15 @@ insert into public.organization_memberships(
   'admin','active',true
 );
 
+insert into public.organization_product_entitlement_events(
+  organization_id,product_key,event_type,source_kind,source_reference,
+  idempotency_key,actor_authority_type,metadata
+) values (
+  '00000000-0000-0000-0000-0000000048d1'::uuid,
+  'network_access','granted','pilot','p48-acceptance',
+  'p48.network.access.001','system','{}'::jsonb
+);
+
 select set_config('p48.sender_org','00000000-0000-0000-0000-0000000048d1',true);
 select set_config('p48.recipient_org','00000000-0000-0000-0000-0000000048d2',true);
 
