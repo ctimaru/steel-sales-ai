@@ -3,20 +3,21 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { ProductBrand } from "@/components/product-brand";
+import { PublicCompanyLookup } from "@/components/public-company-lookup";
 import { absoluteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Smart Steel Sales — Il business network dell'acciaio",
   description:
-    "Scuola, strumenti tecnici, company discovery e Network per chi lavora con acciaio e tubi. Utile anche prima di registrarti.",
+    "Scuola, strumenti tecnici e verifica della tua azienda per chi lavora con acciaio e tubi. Il Network completo è un prodotto privato per aziende registrate.",
   alternates: {
     canonical: absoluteUrl("/"),
   },
   openGraph: {
     title: "Smart Steel Sales — Il business network dell'acciaio",
     description:
-      "Scuola, strumenti tecnici, company discovery e Network per chi lavora con acciaio e tubi.",
+      "Scuola, strumenti tecnici e company lookup pubblico; Network completo riservato alle aziende registrate.",
     url: absoluteUrl("/"),
     type: "website",
   },
@@ -140,9 +141,9 @@ export default async function PublicHomePage() {
             </h1>
 
             <p className="mt-6 max-w-2xl text-base leading-7 text-[#d8e5e0] sm:text-lg">
-              Strumenti tecnici, Scuola, company discovery e Network in un unico posto.
-              Entra per risolvere un problema reale del lavoro quotidiano; registrati solo
-              quando vuoi rivendicare la tua azienda o usare il workspace.
+              Scuola e strumenti tecnici sono pubblici. Puoi anche verificare se la tua azienda
+              è già presente e rivendicabile. Il Network completo — con directory, filtri e dati
+              arricchiti — resta un prodotto privato per le aziende registrate.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -164,7 +165,7 @@ export default async function PublicHomePage() {
               {[
                 ["Norme", "consultazione pubblica"],
                 ["Pesi", "strumenti tubi"],
-                ["Aziende", "claim e Network"],
+                ["Aziende", "verifica e claim"],
               ].map(([title, body]) => (
                 <div key={title} className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
                   <p className="text-lg font-semibold text-white">{title}</p>
@@ -236,58 +237,57 @@ export default async function PublicHomePage() {
       </section>
 
       <section id="aziende" className="border-y border-[#dce2df] bg-white">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[0.82fr_1.18fr] lg:px-8">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">La tua azienda</p>
             <h2 className="mt-2 max-w-xl text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-4xl">
-              Trovala, rivendicala, rendila verificata.
+              Cercala per nome o Partita IVA.
             </h2>
             <p className="mt-4 max-w-xl text-sm leading-6 text-[#66736e] sm:text-base">
-              Il company graph di Smart Steel Sales nasce da informazioni aziendali pubbliche e da profili
-              completati direttamente dalle imprese. Il claim gratuito collega il profilo al rappresentante corretto.
+              La ricerca pubblica serve solo a riconoscere l&apos;identità aziendale e capire se il
+              profilo è rivendicabile. Non apre la directory Network né espone dati commerciali
+              arricchiti.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link
-                href="/register"
-                className="platform-primary inline-flex min-h-11 items-center justify-center rounded-xl px-4 text-sm font-semibold"
-              >
-                Rivendica o registra la tua azienda
-              </Link>
-              <Link
-                href="/login"
-                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#d7dfdb] bg-white px-4 text-sm font-semibold text-[#52615b] hover:bg-[#f4f7f5] hover:text-[#173f35]"
-              >
-                Hai già un account? Accedi
-              </Link>
+
+            <div className="mt-6 space-y-3">
+              {[
+                ["01", "Trova", "Ragione sociale o Partita IVA."],
+                ["02", "Verifica", "Claim disponibile, in verifica o già rivendicato."],
+                ["03", "Registrati", "Completa il claim e accedi ai prodotti privati SSS."],
+              ].map(([step, title, body]) => (
+                <div key={step} className="flex gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#edf5f2] text-xs font-bold text-[#173f35]">
+                    {step}
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-[#1d2824]">{title}</p>
+                    <p className="mt-0.5 text-xs leading-5 text-[#66736e]">{body}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            {[
-              ["01", "Profilo azienda", "Identità, categoria e informazioni pubbliche essenziali."],
-              ["02", "Claim gratuito", "Un rappresentante richiede il controllo del profilo."],
-              ["03", "Profilo verificato", "L'azienda completa e mantiene aggiornate le informazioni."],
-            ].map(([step, title, body]) => (
-              <article key={step} className="rounded-2xl border border-[#e0e6e3] bg-[#f8faf9] p-5">
-                <span className="text-xs font-bold text-[#1a5144]">{step}</span>
-                <h3 className="mt-3 text-base font-semibold text-[#1d2824]">{title}</h3>
-                <p className="mt-2 text-xs leading-5 text-[#66736e]">{body}</p>
-              </article>
-            ))}
-          </div>
+          <PublicCompanyLookup />
         </div>
       </section>
 
       <section id="network" className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Network</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Network</p>
+              <span className="rounded-full bg-[#173f35] px-2.5 py-1 text-[10px] font-bold text-white">
+                Privato · Premium
+              </span>
+            </div>
             <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-4xl">
               La filiera dell&apos;acciaio, organizzata per trovare chi ti serve.
             </h2>
             <p className="mt-4 text-sm leading-6 text-[#66736e] sm:text-base">
-              Smart Steel Sales distingue quattro ruoli aziendali per rendere discovery, relazioni e Marketplace
-              più rilevanti del semplice elenco di nomi.
+              Dopo la registrazione, il Network diventa uno dei prodotti premium di Smart Steel Sales:
+              directory ricca, filtri avanzati, prodotti, capability, mercati e relazioni B2B. La ricerca
+              pubblica della propria azienda non sostituisce questo asset.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -295,13 +295,13 @@ export default async function PublicHomePage() {
               href="/login"
               className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#d7dfdb] bg-white px-4 text-sm font-semibold text-[#52615b] hover:bg-[#f4f7f5] hover:text-[#173f35]"
             >
-              Accedi al Network
+              Accedi
             </Link>
             <Link
               href="/register"
               className="platform-primary inline-flex min-h-11 items-center justify-center rounded-xl px-4 text-sm font-semibold"
             >
-              Porta la tua azienda nel Network
+              Registrati per Smart Steel Sales
             </Link>
           </div>
         </div>
@@ -327,14 +327,15 @@ export default async function PublicHomePage() {
               Il profilo pubblico non è la tua Commercial Memory.
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-[#cfddd8]">
-              Profilo azienda, Network e contenuti pubblici sono separati da email, offerte, prezzi,
-              ordini, documenti e memoria commerciale privata del workspace.
+              Scuola e lookup dell&apos;identità aziendale sono pubblici. Network e Commercial Memory
+              restano prodotti privati con livelli di accesso separati.
             </p>
           </div>
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="grid gap-2 sm:grid-cols-3">
             {[
-              ["Pubblico", "Identità azienda, categoria, informazioni di profilo."],
-              ["Privato", "Email, prezzi, offerte, ordini, documenti e Commercial Memory."],
+              ["Pubblico", "Scuola + lookup minimale dell'identità aziendale."],
+              ["Network", "Directory, filtri e intelligence B2B · privato e premium."],
+              ["Commercial Memory", "Email, prezzi, offerte, ordini e documenti · privati al tenant."],
             ].map(([title, body]) => (
               <div key={title} className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
                 <p className="text-sm font-semibold text-white">{title}</p>
