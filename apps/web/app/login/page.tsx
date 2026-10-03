@@ -4,6 +4,7 @@ import Link from "next/link";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { ProductBrand } from "@/components/product-brand";
 import { Input } from "@/components/ui/input";
+import { safeInternalNext } from "@/lib/auth-next";
 import { privateNoIndexRobots } from "@/lib/seo";
 
 import { login } from "./actions";
@@ -16,9 +17,13 @@ export const metadata: Metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string }>;
+  searchParams: Promise<{ error?: string; message?: string; next?: string }>;
 }) {
-  const { error, message } = await searchParams;
+  const { error, message, next } = await searchParams;
+  const nextPath = safeInternalNext(next, "/dashboard");
+  const registrationHref = nextPath.startsWith("/register")
+    ? nextPath
+    : "/register";
 
   return (
     <main className="grid min-h-screen bg-[#f2f4f3] lg:grid-cols-[1.02fr_0.98fr]">
@@ -84,6 +89,7 @@ export default async function LoginPage({
           ) : null}
 
           <form action={login} className="mt-8 space-y-5">
+            <input type="hidden" name="next" value={nextPath} />
             <label className="block text-sm font-medium text-[#43524c]">
               Email
               <Input
@@ -134,7 +140,7 @@ export default async function LoginPage({
               aperto solo dopo revisione.
             </p>
             <Link
-              href="/register"
+              href={registrationHref}
               className="app-secondary mt-4 inline-flex h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-semibold"
             >
               Registra la tua azienda
