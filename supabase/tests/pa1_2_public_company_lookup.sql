@@ -80,9 +80,9 @@ select pg_temp.pa12_assert(
     select 1
     from pa12_state s,
          jsonb_array_elements(s.value->'items') item,
-         jsonb_object_keys(item) key
+         jsonb_object_keys(item) as object_keys(key_name)
     where s.key='name'
-      and key not in ('legal_name','trading_name','country_code','vat_hint','claim_state')
+      and key_name not in ('legal_name','trading_name','country_code','vat_hint','claim_state')
   ),
   'public lookup must expose only minimal identity fields'
 );
