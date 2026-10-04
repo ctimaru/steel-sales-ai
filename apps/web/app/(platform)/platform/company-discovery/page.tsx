@@ -520,7 +520,7 @@ export default async function CompanyDiscoveryPage({
                         <input type="hidden" name="candidate_id" value={candidate.id} />
                         <input type="hidden" name="decision" value="publish_new" />
                         <button className="platform-primary h-10 rounded-xl px-4 text-sm font-semibold">
-                          Pubblica nuovo profilo
+                          Materializza nel Network
                         </button>
                       </form>
                     ) : null}
