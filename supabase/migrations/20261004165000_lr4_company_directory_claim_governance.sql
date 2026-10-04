@@ -226,7 +226,7 @@ insert into public.platform_permissions(
 )
 values(
   'network.privacy_governance_review',
-  'network',
+  'network_trust',
   'privacy_governance_review',
   'critical',
   'Classify Network contact data, decide legitimate-interest LIA and record Article 14 notice evidence.',
