@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
+import { SchoolHero } from "@/components/school-ui";
 import {
   getPublicTubeDimension,
   listPublicTubeSizeHubs,
@@ -289,7 +290,7 @@ export default async function TubeDimensionPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
-      <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
+      <nav aria-label="Breadcrumb" className="school-breadcrumb">
         <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>
         <Link href="/knowledge/tubes" className="hover:text-[#1a5144]">Pesi &amp; dimensioni</Link>
@@ -316,25 +317,21 @@ export default async function TubeDimensionPage({
         <span>{size}</span>
       </nav>
 
-      <header className="rounded-3xl border border-[#dce2df] bg-white p-6 shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)] sm:p-8 lg:p-10">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-            {product}
-          </span>
-          <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">
-            Peso pubblicato
-          </span>
-        </div>
-        <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-5xl">
-          {title}
-        </h1>
-        <p className="mt-5 max-w-3xl text-base leading-7 text-[#66736e]">
-          Il riferimento disponibile per questa geometria è{" "}
-          <strong className="font-semibold text-[#1d2824]">{formatNumber(dimension.weight_kg_m)} kg/m</strong>.
-          Qui trovi il peso per barra, la conversione in tonnellate, il confronto con il calcolo geometrico e
-          le dimensioni vicine già presenti nel catalogo.
-        </p>
-      </header>
+      <SchoolHero
+        eyebrow={product}
+        title={title}
+        description={
+          <>
+            Il riferimento disponibile per questa geometria è{" "}
+            <strong className="font-semibold text-[#1d2824]">
+              {formatNumber(dimension.weight_kg_m)} kg/m
+            </strong>.
+            Qui trovi peso per barra, conversione in tonnellate, confronto geometrico e dimensioni vicine
+            già presenti nel catalogo.
+          </>
+        }
+        badges={["Peso pubblicato", dimension.source_provider]}
+      />
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
@@ -344,7 +341,7 @@ export default async function TubeDimensionPage({
           ["Metri per tonnellata", formatNumber(metresPerTonne, 2) + " m/t"],
         ].map(([label, value]) => (
           <div key={label} className="rounded-2xl border border-[#dce2df] bg-white p-5">
-            <p className="text-xs font-semibold text-[#7e8da1]">{label}</p>
+            <p className="school-meta-label">{label}</p>
             <p className="mt-1 text-xl font-semibold text-[#1d2824]">{value}</p>
           </div>
         ))}
@@ -365,11 +362,11 @@ export default async function TubeDimensionPage({
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             <div className="rounded-2xl border border-[#dce2df] bg-[#f6f8f7] p-4">
-              <p className="text-xs font-semibold text-[#7e8da1]">Circa barre da 6 m / t</p>
+              <p className="school-meta-label">Circa barre da 6 m / t</p>
               <p className="mt-1 text-lg font-semibold text-[#1d2824]">{formatNumber(bars6PerTonne, 2)}</p>
             </div>
             <div className="rounded-2xl border border-[#dce2df] bg-[#f6f8f7] p-4">
-              <p className="text-xs font-semibold text-[#7e8da1]">Circa barre da 12 m / t</p>
+              <p className="school-meta-label">Circa barre da 12 m / t</p>
               <p className="mt-1 text-lg font-semibold text-[#1d2824]">{formatNumber(bars12PerTonne, 2)}</p>
             </div>
           </div>
@@ -419,7 +416,7 @@ export default async function TubeDimensionPage({
           href={dimension.source_url}
           target="_blank"
           rel="noreferrer"
-          className="mt-4 inline-flex text-sm font-semibold text-[#1a5144]"
+          className="school-inline-link mt-4 inline-flex"
         >
           {dimension.source_name ?? dimension.source_provider} ↗
         </a>
