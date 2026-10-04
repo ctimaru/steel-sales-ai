@@ -151,7 +151,9 @@ export default async function GradeDetailPage({
           title={grade.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, "")}
           description={<>{grade.intro}</>}
           badges={[
-            ...(grade.material_family ? [materialFamilyLabel(grade.material_family)] : []),
+            ...(grade.material_family
+              ? [materialFamilyLabel(grade.material_family) ?? grade.material_family]
+              : []),
             `Rivisto ${formatReviewDate(grade.last_reviewed_at)}`,
           ]}
         />
