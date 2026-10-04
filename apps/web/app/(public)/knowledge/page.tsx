@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { SchoolHero } from "@/components/school-ui";
+import { schoolArticles } from "@/lib/school-articles";
 import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -45,38 +47,29 @@ const knowledgeAreas = [
     href: "/knowledge/tubes",
   },
   {
-    eyebrow: "Guide tecniche",
-    title: "Risposte alle domande del settore",
+    eyebrow: "Articoli",
+    title: "Capire storia, processi e industria",
     description:
-      "Approfondimenti pratici su tubi, norme, materiali e calcoli, organizzati per essere utili prima ancora di entrare nel SaaS.",
+      "Approfondimenti originali su come nasce il tubo, perché si sviluppa e quali gruppi producono oggi in Europa.",
     status: "Editoriale",
+    href: "/knowledge/articoli",
   },
 ] as const;
 
 export default function KnowledgeHomePage() {
   return (
     <div className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-      <section className="overflow-hidden rounded-3xl border border-[#dce2df] bg-white shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)]">
-        <div className="h-1 bg-[#1a5144]" />
-        <div className="p-6 sm:p-8 lg:p-10">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-              Scuola
-            </span>
-            <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[11px] font-semibold text-[#1a5144]">
-              Pubblico
-            </span>
-          </div>
-
-          <h1 className="mt-5 max-w-4xl text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-5xl">
-            Conoscenza tecnica per chi lavora con acciaio e tubi
-          </h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-[#66736e] sm:text-lg">
-            Norme, gradi di acciaio, dimensioni, pesi e strumenti pratici spiegati in modo accessibile.
+      <SchoolHero
+        eyebrow="Scuola"
+        title="Conoscenza tecnica per chi lavora con acciaio e tubi"
+        description={
+          <>
+            Norme, gradi di acciaio, dimensioni, pesi, articoli e strumenti pratici spiegati in modo accessibile.
             La Scuola è consultabile senza account ed è separata dai dati commerciali privati delle aziende.
-          </p>
-        </div>
-      </section>
+          </>
+        }
+        badges={["Pubblico", "Tecnica + industria"]}
+      />
 
       <section aria-labelledby="knowledge-paths">
         <div className="max-w-3xl">
@@ -127,6 +120,41 @@ export default function KnowledgeHomePage() {
         </div>
       </section>
 
+      <section aria-labelledby="school-editorial">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-3xl">
+            <p className="school-kicker">Articoli</p>
+            <h2 id="school-editorial" className="mt-2 text-2xl font-semibold text-[#1d2824]">
+              La cultura del tubo: storia, tecnologia e produttori
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[#5d6a65]">
+              Non solo norme e numeri: raccontiamo da dove arriva il prodotto, quale problema ha risolto e come si è sviluppata l&apos;industria europea.
+            </p>
+          </div>
+          <Link href="/knowledge/articoli" className="school-secondary-action shrink-0">
+            Tutti gli articoli
+          </Link>
+        </div>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          {schoolArticles.slice(0, 2).map((article) => (
+            <Link
+              key={article.slug}
+              href={`/knowledge/articoli/${article.slug}`}
+              className="school-card group p-6 transition hover:border-[#9fbfb3] hover:shadow-sm"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <span className="school-eyebrow">{article.category}</span>
+                <span className="text-xs font-semibold text-[#68736f]">{article.readMinutes} min</span>
+              </div>
+              <h3 className="mt-4 text-xl font-semibold text-[#1d2824]">{article.title}</h3>
+              <p className="mt-3 text-sm leading-6 text-[#5d6a65]">{article.description}</p>
+              <p className="mt-5 text-sm font-bold text-[#173f35]">Leggi articolo →</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       <section className="grid gap-5 rounded-3xl border border-[#d9e8e2] bg-[#f6f8f7] p-6 sm:p-8 lg:grid-cols-[1fr_0.8fr]">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Principio editoriale</p>
@@ -157,7 +185,7 @@ export default function KnowledgeHomePage() {
           </div>
           <Link
             href="/knowledge/tubes"
-            className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl bg-[#1a5144] px-5 text-sm font-semibold text-white hover:bg-[#226657]"
+            className="school-primary-action shrink-0"
           >
             Apri pesi & dimensioni →
           </Link>
