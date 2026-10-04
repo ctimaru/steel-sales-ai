@@ -92,6 +92,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
                 {label}
               </Link>
             ))}
+            <PublicSessionAction className="shrink-0 rounded-xl border border-[#b8c7c1] bg-white px-3 py-2 text-xs font-semibold text-[#173f35] hover:border-[#438d7a] hover:bg-[#edf5f2]" />
           </nav>
         </div>
       </header>
