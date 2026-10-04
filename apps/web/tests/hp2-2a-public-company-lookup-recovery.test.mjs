@@ -2,8 +2,12 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
-const lookupContract = fs.readFileSync(
+const lookupService = fs.readFileSync(
   new URL("../lib/public-company-lookup.ts", import.meta.url),
+  "utf8",
+);
+const lookupContract = fs.readFileSync(
+  new URL("../lib/public-company-lookup-contract.ts", import.meta.url),
   "utf8",
 );
 const route = fs.readFileSync(
@@ -20,17 +24,17 @@ const register = fs.readFileSync(
 );
 
 test("HP2.2a public lookup uses the stateless publishable-key client", () => {
-  assert.match(lookupContract, /createPublicSupabaseClient/);
-  assert.doesNotMatch(lookupContract, /supabase\/server/);
+  assert.match(lookupService, /createPublicSupabaseClient/);
+  assert.doesNotMatch(lookupService, /supabase\/server/);
   assert.match(publicClient, /persistSession: false/);
   assert.match(publicClient, /autoRefreshToken: false/);
 });
 
 test("HP2.2a public lookup contains route-safe recovery instead of throwing to root error", () => {
-  assert.match(lookupContract, /try \{/);
-  assert.match(lookupContract, /catch \{/);
-  assert.match(lookupContract, /return \{ status: "error", mode: null, items: \[\] \}/);
-  assert.match(lookupContract, /supabase\.rpc\("pa1_2_company_lookup"/);
+  assert.match(lookupService, /try \{/);
+  assert.match(lookupService, /catch \{/);
+  assert.match(lookupService, /return \{ status: "error", mode: null, items: \[\] \}/);
+  assert.match(lookupService, /supabase\.rpc\("pa1_2_company_lookup"/);
   assert.match(route, /NextResponse\.json/);
   assert.match(route, /Cache-Control/);
 });
