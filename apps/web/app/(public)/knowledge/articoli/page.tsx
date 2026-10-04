@@ -123,7 +123,8 @@ export default function SchoolArticlesPage() {
         <div className="flex flex-wrap gap-2">
           <Link href="/knowledge/norme" className="school-secondary-action">Norme</Link>
           <Link href="/knowledge/gradi" className="school-secondary-action">Gradi</Link>
-          <Link href="/knowledge/tubes" className="school-primary-action">Pesi &amp; dimensioni</Link>
+          <Link href="/knowledge/tubes?source=school&surface=school_section#calcolatore-pesi" className="school-primary-action">Calcolatore pesi</Link>
+          <Link href="/azienda" className="school-secondary-action">Trova azienda</Link>
         </div>
       </section>
     </div>

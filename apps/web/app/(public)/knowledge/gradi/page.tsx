@@ -254,6 +254,21 @@ export default async function GradesIndexPage({
         </section>
       )}
 
+      <section className="rounded-3xl border border-[#d9e8e2] bg-[#f6f8f7] p-5 sm:p-6">
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Approfondimento editoriale</p>
+        <div className="mt-2 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-[#1d2824]">Dal grado al prodotto reale</h2>
+            <p className="mt-1 max-w-3xl text-sm leading-6 text-[#66736e]">
+              Un grado va sempre letto insieme a norma, processo e famiglia di tubo. L’approfondimento mostra come saldato, seamless e cold drawn si collegano alle specifiche tecniche.
+            </p>
+          </div>
+          <Link href="/knowledge/articoli/come-si-producono-tubi-acciaio" className="school-secondary-action shrink-0">
+            Processi produttivi →
+          </Link>
+        </div>
+      </section>
+
       <section className="grid gap-4 md:grid-cols-2">
         <div className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-5">
           <p className="text-sm font-semibold text-[#1d2824]">Vuoi partire dalla norma?</p>
@@ -269,7 +284,7 @@ export default async function GradesIndexPage({
           <p className="mt-1 text-sm leading-6 text-[#66736e]">
             Continua con il layer pesi e dimensioni per trasformare la geometria in un riferimento quantitativo.
           </p>
-          <Link href="/knowledge/tubes" className="mt-3 inline-flex text-sm font-semibold text-[#1a5144]">
+          <Link href="/knowledge/tubes?source=school&surface=school_section#calcolatore-pesi" className="mt-3 inline-flex text-sm font-semibold text-[#1a5144]">
             Apri pesi & dimensioni →
           </Link>
         </div>
