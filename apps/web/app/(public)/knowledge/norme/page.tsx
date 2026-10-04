@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { SchoolHero } from "@/components/school-ui";
 import { applicationCategoryLabel, productFamilyLabel } from "@/lib/knowledge-labels";
 import {
   listPublicStandards,
@@ -164,17 +165,19 @@ export default async function StandardsIndexPage({
         <span>Norme</span>
       </nav>
 
-      <section className="max-w-4xl">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Catalogo norme</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-4xl">
-          Trova la norma partendo dal tipo di prodotto o dall&apos;impiego
-        </h1>
-        <p className="mt-4 text-base leading-7 text-[#66736e]">
-          Le schede spiegano cosa tratta ogni norma, come leggere le sue parti e come si collega ai materiali
-          osservati sul mercato. Il contenuto è originale e sintetico: per conformità e certificazione fa sempre
-          fede il testo ufficiale dell&apos;edizione applicabile.
-        </p>
-      </section>
+      <SchoolHero
+        eyebrow="Catalogo norme"
+        title="Trova la norma partendo dal tipo di prodotto o dall’impiego"
+        description={
+          <>
+            Le schede spiegano cosa tratta ogni norma, come leggere le sue parti e come si collega ai materiali
+            osservati sul mercato. Il contenuto è originale e sintetico: per conformità e certificazione fa sempre
+            fede il testo ufficiale dell&apos;edizione applicabile.
+          </>
+        }
+        badges={["Pubblico", `${standards.length} schede`]}
+        compact
+      />
 
       {!query ? (
         <section className="grid gap-4 md:grid-cols-3" aria-label="Percorsi del catalogo">
@@ -214,7 +217,7 @@ export default async function StandardsIndexPage({
               placeholder="Cerca EN 10219, pressione, acqua..."
               className="h-11 min-w-0 flex-1 rounded-xl border border-[#dbe5f1] px-3 text-sm outline-none focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8]"
             />
-            <button className="h-11 rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657]">
+            <button className="school-primary-action h-11">
               Cerca
             </button>
           </form>
