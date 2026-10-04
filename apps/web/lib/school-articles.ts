@@ -243,7 +243,7 @@ export const schoolArticles: SchoolArticle[] = [
         note: "Tube division and European production sites.",
       },
     ],
-  },,
+  },
   {
     slug: "come-si-producono-tubi-acciaio",
     category: "Tecnologia",
