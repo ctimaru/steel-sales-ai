@@ -73,7 +73,7 @@ export default function PrivacyPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="4. Dati aziendali provenienti da fonti pubbliche">
+      <LegalSection title="4. Dati aziendali provenienti da fonti pubbliche e art. 14">
         <p>
           Smart Steel Sales può predisporre schede aziendali minime a partire da informazioni pubbliche.
           I dati puramente riferiti a persone giuridiche non sono, di per sé, dati personali; eventuali
@@ -81,7 +81,10 @@ export default function PrivacyPage() {
         </p>
         <p>
           Il programma LR4 prevede provenance della fonte, processi di rettifica/opposizione/rimozione e,
-          quando applicabile, informativa ai sensi dell’art. 14 GDPR.
+          quando applicabile, informativa ai sensi dell’art. 14 GDPR. Per dati personali non raccolti
+          direttamente, l’informativa va resa entro il termine applicabile previsto dal GDPR e comunque
+          non oltre un mese, oppure prima se i dati vengono comunicati all’interessato o a terzi, salvo
+          una specifica eccezione documentabile.
         </p>
       </LegalSection>
 
