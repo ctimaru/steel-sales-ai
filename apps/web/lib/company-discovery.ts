@@ -200,10 +200,10 @@ export async function getCompanyDiscoveryGovernance(): Promise<DiscoveryGovernan
 
 export type CompanyDataGovernanceRequest = {
   id: string;
-  request_type: "correction" | "removal" | "privacy_objection" | "source_question";
+  request_type: "correction" | "removal" | "source_question";
   company_name: string;
   country_code: string | null;
-  contact_email: string;
+  contact_email: string | null;
   source_url: string | null;
   request_text: string;
   status: "received" | "in_review" | "resolved" | "rejected";
