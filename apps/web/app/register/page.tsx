@@ -215,6 +215,27 @@ export default async function RegisterPage({
                     </span>
                   </label>
 
+                  <p className="text-xs leading-5 text-[#66736e]">
+                    Prima di creare l’account consulta l’{" "}
+                    <Link
+                      href="/privacy"
+                      target="_blank"
+                      className="font-semibold text-[#173f35] underline underline-offset-4"
+                    >
+                      Informativa privacy
+                    </Link>{" "}
+                    sul trattamento dei dati e i{" "}
+                    <Link
+                      href="/terms"
+                      target="_blank"
+                      className="font-semibold text-[#173f35] underline underline-offset-4"
+                    >
+                      Termini d’uso
+                    </Link>.
+                    Le conferme versionate verranno raccolte separatamente prima dell’invio della
+                    richiesta aziendale.
+                  </p>
+
                   <PendingSubmitButton
                     pendingLabel="Creazione account…"
                     className="app-primary h-12 w-full rounded-xl px-5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
@@ -233,6 +254,13 @@ export default async function RegisterPage({
         </div>
       </main>
     );
+  }
+
+  const { data: lifecycleData } = await supabase.rpc("lr5_account_lifecycle_state");
+  const lifecycle = (lifecycleData ?? {}) as { access_suspended?: boolean };
+  if (lifecycle.access_suspended === true) {
+    await supabase.auth.signOut({ scope: "global" });
+    redirect("/account-closure?requested=1");
   }
 
   const { data: memberships } = await supabase
