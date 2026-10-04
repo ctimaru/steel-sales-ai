@@ -34,7 +34,7 @@ test("WC5 makes the calculator a primary public-home action", () => {
   assert.match(home, /source=home&surface=quick_actions#calcolatore-pesi/);
   assert.match(home, /source=home&surface=school_section#calcolatore-pesi/);
   assert.match(home, />Calcolatore</);
-  assert.match(home, />Calcola</);
+  assert.match(home, />\s*Calcola\s*</);
 });
 
 test("WC5 keeps Scuola discovery visible on desktop, mobile and Scuola home", () => {
