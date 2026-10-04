@@ -185,7 +185,7 @@ export async function reviewCompanyDiscovery(formData: FormData) {
     discoveryPath(
       "message",
       decision === "publish_new"
-        ? "Profilo pubblicato nel Network come unclaimed + unverified."
+        ? "Profilo materializzato nel Network come unclaimed + unverified."
         : decision === "enrich_existing"
           ? "Profilo esistente arricchito con evidenza pubblica. Nessun merge o overwrite eseguito."
           : decision === "duplicate_existing"
