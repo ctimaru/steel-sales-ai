@@ -62,6 +62,14 @@ function appendQuery(path: string, key: string, value: string) {
 
 async function routeAfterAuthentication(nextPath?: string) {
   const supabase = await createClient();
+
+  const { data: lifecycleData } = await supabase.rpc("lr5_account_lifecycle_state");
+  const lifecycle = (lifecycleData ?? {}) as { access_suspended?: boolean };
+  if (lifecycle.access_suspended === true) {
+    await supabase.auth.signOut({ scope: "global" });
+    redirect("/account-closure?requested=1");
+  }
+
   await Promise.all([
     supabase.rpc("claim_pending_organization_invitations"),
     supabase.rpc("sa2_claim_platform_staff_invitation"),
@@ -81,13 +89,6 @@ async function routeAfterAuthentication(nextPath?: string) {
       redirect("/platform");
     }
     redirect("/staff/access");
-  }
-
-  const { data: lifecycleData } = await supabase.rpc("lr5_account_lifecycle_state");
-  const lifecycle = (lifecycleData ?? {}) as { access_suspended?: boolean };
-  if (lifecycle.access_suspended === true) {
-    await supabase.auth.signOut({ scope: "global" });
-    redirect("/account-closure?requested=1");
   }
 
   const { data: memberships } = await supabase
