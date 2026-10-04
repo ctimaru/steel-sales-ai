@@ -440,7 +440,7 @@ export function PublicTubeWeightCalculator({
                         onClick={() => setLength(preset)}
                         className={
                           length === preset
-                            ? "school-selected-control min-h-10 rounded-xl px-3 text-sm font-bold"
+                            ? "school-selected-control rounded-xl px-3 py-2.5 text-sm font-bold"
                             : "min-h-10 rounded-xl border border-[#cfd9d5] bg-white px-3 text-sm font-bold text-[#334a42] hover:border-[#8fb5a8] hover:bg-[#edf5f2]"
                         }
                       >
@@ -522,7 +522,7 @@ export function PublicTubeWeightCalculator({
 
               <div className="grid gap-px bg-white/10 sm:grid-cols-2">
                 <div className="bg-[#16483d] p-5 sm:p-6">
-                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/60">Peso barra · {length || "—"} m</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/60">Peso per barra · {length || "—"} m</p>
                   <p className="metric-number mt-2 text-3xl font-semibold">
                     {values.kgBar == null ? "—" : formatNumber(values.kgBar, 2)}
                     <span className="ml-1 text-base text-white/60">kg</span>
@@ -557,7 +557,7 @@ export function PublicTubeWeightCalculator({
                       </p>
                       {values.deltaPercent != null ? (
                         <p className="mt-1 text-xs text-white/60">
-                          Scostamento dal calcolo geometrico: {formatNumber(values.deltaPercent, 2)}%.
+                          Scostamento rispetto al calcolo geometrico: {formatNumber(values.deltaPercent, 2)}%.
                         </p>
                       ) : null}
                       <p className="mt-3 text-xs leading-5 text-white/60">
