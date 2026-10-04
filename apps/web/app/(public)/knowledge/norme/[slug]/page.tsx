@@ -45,7 +45,7 @@ export async function generateMetadata({
       canonical: absoluteUrl(`/knowledge/norme/${standard.slug}`),
     },
     openGraph: {
-      title: standard.seo_title.replace(/ · Steel Knowledge.*$/i, ""),
+      title: standard.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, ""),
       description: standard.seo_description,
       url: absoluteUrl(`/knowledge/norme/${standard.slug}`),
       type: "article",
@@ -67,7 +67,7 @@ export default async function StandardDetailPage({
   const articleJsonLd = {
     "@context": "https://schema.org",
     "@type": "TechArticle",
-    headline: standard.seo_title.replace(/ · Steel Knowledge.*$/i, ""),
+    headline: standard.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, ""),
     description: standard.seo_description,
     datePublished: standard.published_at,
     dateModified: standard.last_reviewed_at,
@@ -77,6 +77,31 @@ export default async function StandardDetailPage({
       name: "Smart Steel Sales",
     },
     citation: standard.source_references.map((source) => source.url),
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Scuola",
+        item: absoluteUrl("/knowledge"),
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Norme",
+        item: absoluteUrl("/knowledge/norme"),
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: standard.code,
+        item: absoluteUrl(`/knowledge/norme/${standard.slug}`),
+      },
+    ],
   };
 
   const faqJsonLd = standard.faq.length
@@ -99,6 +124,10 @@ export default async function StandardDetailPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       {faqJsonLd ? (
         <script
@@ -131,7 +160,7 @@ export default async function StandardDetailPage({
             </span>
           </div>
           <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-5xl">
-            {standard.seo_title.replace(/ · Steel Knowledge.*$/i, "")}
+            {standard.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, "")}
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-7 text-[#66736e]">
             {standard.intro}
