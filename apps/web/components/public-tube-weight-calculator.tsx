@@ -145,6 +145,220 @@ function ShapeGraphic({
   );
 }
 
+
+function positiveDimension(value: string, fallback: number) {
+  const parsed = parseNumber(value);
+  return parsed != null && parsed > 0 ? parsed : fallback;
+}
+
+function ParametricShapeDiagram({
+  family,
+  outerDiameter,
+  width,
+  height,
+  thickness,
+}: {
+  family: TubeFamily;
+  outerDiameter: string;
+  width: string;
+  height: string;
+  thickness: string;
+}) {
+  const d = positiveDimension(outerDiameter, 100);
+  const b = positiveDimension(width, 100);
+  const h = family === "square_tube" ? b : positiveDimension(height, 60);
+  const t = positiveDimension(thickness, 5);
+
+  const shapeCenterX = 132;
+  const shapeCenterY = 86;
+  const maxShape = 116;
+  const minShape = 64;
+
+  const ratio = b / h;
+  const outerW =
+    family === "rectangular_tube"
+      ? ratio >= 1
+        ? maxShape
+        : Math.max(minShape, maxShape * ratio)
+      : maxShape;
+  const outerH =
+    family === "rectangular_tube"
+      ? ratio >= 1
+        ? Math.max(minShape, maxShape / ratio)
+        : maxShape
+      : maxShape;
+
+  const safeWallRatio =
+    family === "round_tube"
+      ? Math.min(0.44, t / d)
+      : Math.min(0.44, t / Math.min(b, h));
+
+  const innerScale = Math.max(0.12, 1 - 2 * safeWallRatio);
+  const outerX = shapeCenterX - outerW / 2;
+  const outerY = shapeCenterY - outerH / 2;
+  const innerW = Math.max(14, outerW * (family === "rectangular_tube" ? Math.max(0.12, 1 - 2 * Math.min(0.44, t / b)) : innerScale));
+  const innerH = Math.max(14, outerH * (family === "rectangular_tube" ? Math.max(0.12, 1 - 2 * Math.min(0.44, t / h)) : innerScale));
+  const innerX = shapeCenterX - innerW / 2;
+  const innerY = shapeCenterY - innerH / 2;
+
+  const primaryDimension =
+    family === "round_tube"
+      ? `Ø ${formatNumber(d, 2)} mm`
+      : `B ${formatNumber(b, 2)} mm`;
+  const secondaryDimension =
+    family === "rectangular_tube" ? `H ${formatNumber(h, 2)} mm` : null;
+  const thicknessDimension = `t ${formatNumber(t, 2)} mm`;
+  const accessibleLabel =
+    family === "round_tube"
+      ? `Sezione tubo tondo, diametro esterno ${formatNumber(d, 2)} millimetri e spessore ${formatNumber(t, 2)} millimetri`
+      : family === "square_tube"
+        ? `Sezione profilo quadro, lato ${formatNumber(b, 2)} millimetri e spessore ${formatNumber(t, 2)} millimetri`
+        : `Sezione profilo rettangolare, base ${formatNumber(b, 2)} millimetri, altezza ${formatNumber(h, 2)} millimetri e spessore ${formatNumber(t, 2)} millimetri`;
+
+  return (
+    <figure className="rounded-3xl border border-[#d3e1dc] bg-white p-4 sm:p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Vista proporzionale</p>
+          <p className="mt-1 text-xs leading-5 text-[#66736e]">
+            Le quote seguono i valori inseriti e lo spessore viene rappresentato in proporzione.
+          </p>
+        </div>
+        <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#1a5144]">
+          Live
+        </span>
+      </div>
+
+      <svg
+        viewBox="0 0 264 210"
+        role="img"
+        aria-label={accessibleLabel}
+        className="mx-auto mt-3 block h-auto w-full max-w-[30rem]"
+      >
+        <title>{accessibleLabel}</title>
+
+        {family === "round_tube" ? (
+          <>
+            <circle
+              cx={shapeCenterX}
+              cy={shapeCenterY}
+              r={outerW / 2}
+              fill="#d9e8e2"
+              stroke="#1a5144"
+              strokeWidth="2.5"
+            />
+            <circle
+              cx={shapeCenterX}
+              cy={shapeCenterY}
+              r={(outerW / 2) * innerScale}
+              fill="#ffffff"
+              stroke="#7aa99a"
+              strokeWidth="1.5"
+            />
+          </>
+        ) : (
+          <>
+            <rect
+              x={outerX}
+              y={outerY}
+              width={outerW}
+              height={outerH}
+              rx="8"
+              fill="#d9e8e2"
+              stroke="#1a5144"
+              strokeWidth="2.5"
+            />
+            <rect
+              x={innerX}
+              y={innerY}
+              width={innerW}
+              height={innerH}
+              rx="5"
+              fill="#ffffff"
+              stroke="#7aa99a"
+              strokeWidth="1.5"
+            />
+          </>
+        )}
+
+        <g fill="none" stroke="#5d6a65" strokeWidth="1.25">
+          <line x1={shapeCenterX - outerW / 2} y1="164" x2={shapeCenterX + outerW / 2} y2="164" />
+          <line x1={shapeCenterX - outerW / 2} y1="158" x2={shapeCenterX - outerW / 2} y2="170" />
+          <line x1={shapeCenterX + outerW / 2} y1="158" x2={shapeCenterX + outerW / 2} y2="170" />
+        </g>
+        <text x={shapeCenterX} y="187" textAnchor="middle" fill="#334a42" fontSize="12" fontWeight="700">
+          {primaryDimension}
+        </text>
+
+        {secondaryDimension ? (
+          <>
+            <g fill="none" stroke="#5d6a65" strokeWidth="1.25">
+              <line x1="45" y1={shapeCenterY - outerH / 2} x2="45" y2={shapeCenterY + outerH / 2} />
+              <line x1="39" y1={shapeCenterY - outerH / 2} x2="51" y2={shapeCenterY - outerH / 2} />
+              <line x1="39" y1={shapeCenterY + outerH / 2} x2="51" y2={shapeCenterY + outerH / 2} />
+            </g>
+            <text
+              x="22"
+              y={shapeCenterY}
+              textAnchor="middle"
+              fill="#334a42"
+              fontSize="12"
+              fontWeight="700"
+              transform={`rotate(-90 22 ${shapeCenterY})`}
+            >
+              {secondaryDimension}
+            </text>
+          </>
+        ) : null}
+
+        {family === "round_tube" ? (
+          <>
+            <line
+              x1={shapeCenterX + (outerW / 2) * innerScale * 0.72}
+              y1={shapeCenterY - (outerW / 2) * innerScale * 0.72}
+              x2={shapeCenterX + (outerW / 2) * 0.72}
+              y2={shapeCenterY - (outerW / 2) * 0.72}
+              stroke="#b55f29"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+            <text x="211" y="45" fill="#9a4e22" fontSize="11" fontWeight="800">
+              {thicknessDimension}
+            </text>
+          </>
+        ) : (
+          <>
+            <line
+              x1={innerX + innerW}
+              y1={shapeCenterY}
+              x2={outerX + outerW}
+              y2={shapeCenterY}
+              stroke="#b55f29"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+            <text x={Math.min(236, outerX + outerW + 8)} y={shapeCenterY + 4} fill="#9a4e22" fontSize="11" fontWeight="800">
+              {thicknessDimension}
+            </text>
+          </>
+        )}
+      </svg>
+
+      <figcaption className="grid gap-2 border-t border-[#e4ebe8] pt-3 text-xs sm:grid-cols-3">
+        <span className="rounded-xl bg-[#f6f8f7] px-3 py-2 font-semibold text-[#405049]">{primaryDimension}</span>
+        {secondaryDimension ? (
+          <span className="rounded-xl bg-[#f6f8f7] px-3 py-2 font-semibold text-[#405049]">{secondaryDimension}</span>
+        ) : (
+          <span className="rounded-xl bg-[#f6f8f7] px-3 py-2 font-semibold text-[#405049]">
+            {family === "round_tube" ? "Sezione circolare" : "Sezione quadrata"}
+          </span>
+        )}
+        <span className="rounded-xl bg-[#fbf0e9] px-3 py-2 font-semibold text-[#8b4a25]">{thicknessDimension}</span>
+      </figcaption>
+    </figure>
+  );
+}
+
 export function PublicTubeWeightCalculator({
   references,
   initialValues,
@@ -334,8 +548,8 @@ export function PublicTubeWeightCalculator({
                     onClick={() => setFamily(option.value)}
                     className={
                       selected
-                        ? "group relative overflow-hidden rounded-3xl border border-[#173f35] bg-[#173f35] p-5 text-left text-white shadow-[0_14px_34px_rgba(23,63,53,0.18)]"
-                        : "group relative overflow-hidden rounded-3xl border border-[#d7e1dd] bg-white p-5 text-left text-[#173f35] hover:-translate-y-0.5 hover:border-[#8fb5a8] hover:shadow-md"
+                        ? "group relative overflow-hidden rounded-3xl border border-[#173f35] bg-[#173f35] p-5 text-left text-white shadow-[0_14px_34px_rgba(23,63,53,0.18)] focus-visible:ring-4 focus-visible:ring-[#b8d2c8]"
+                        : "group relative overflow-hidden rounded-3xl border border-[#d7e1dd] bg-white p-5 text-left text-[#173f35] hover:-translate-y-0.5 hover:border-[#8fb5a8] hover:shadow-md focus-visible:ring-4 focus-visible:ring-[#d9e8e2]"
                     }
                   >
                     <div className="flex items-center justify-between gap-4">
@@ -368,16 +582,24 @@ export function PublicTubeWeightCalculator({
               aria-labelledby="calculator-measures"
               className="rounded-3xl border border-[#d7e1dd] bg-[#f7f9f8] p-5 sm:p-6"
             >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="school-kicker">3 · Misure</p>
-                  <h3 id="calculator-measures" className="mt-1 text-xl font-semibold text-[#1d2824]">
-                    Inserisci le dimensioni
-                  </h3>
-                </div>
-                <div className="hidden rounded-2xl border border-[#d9e8e2] bg-white p-2 sm:block">
-                  <ShapeGraphic family={family} className="h-16 w-20 text-[#1a5144]" />
-                </div>
+              <div>
+                <p className="school-kicker">3 · Misure</p>
+                <h3 id="calculator-measures" className="mt-1 text-xl font-semibold text-[#1d2824]">
+                  Inserisci le dimensioni
+                </h3>
+                <p className="mt-1 text-xs leading-5 text-[#66736e]">
+                  La sezione qui sotto cambia insieme alle misure: controlli subito proporzioni, orientamento e spessore.
+                </p>
+              </div>
+
+              <div className="mt-5">
+                <ParametricShapeDiagram
+                  family={family}
+                  outerDiameter={outerDiameter}
+                  width={width}
+                  height={height}
+                  thickness={thickness}
+                />
               </div>
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
