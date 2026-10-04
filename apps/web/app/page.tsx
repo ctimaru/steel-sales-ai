@@ -411,6 +411,10 @@ export default async function PublicHomePage() {
             <Link href="/knowledge" className="font-semibold hover:text-[#173f35]">Scuola</Link>
             <Link href="/login" className="font-semibold hover:text-[#173f35]">Accedi</Link>
             <Link href="/register" className="font-semibold hover:text-[#173f35]">Registra azienda</Link>
+            <Link href="/privacy" className="font-semibold hover:text-[#173f35]">Privacy</Link>
+            <Link href="/cookies" className="font-semibold hover:text-[#173f35]">Cookie</Link>
+            <Link href="/terms" className="font-semibold hover:text-[#173f35]">Termini</Link>
+            <Link href="/legal" className="font-semibold hover:text-[#173f35]">Informazioni legali</Link>
           </div>
           <span>Smart Steel Sales · Built for the steel & tube industry.</span>
         </div>
