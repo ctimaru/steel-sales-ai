@@ -165,6 +165,14 @@ export const PLATFORM_PERMISSIONS = [
     risk: "high",
     description: "Close exact discovery matches as duplicates without merging identities.",
   },
+  {
+    key: "discovery.governance_review",
+    area: "discovery",
+    action: "governance_review",
+    risk: "critical",
+    description:
+      "Approve or block source reuse and candidate company-data publication under the PA1.5 legal/data-governance gate.",
+  },
 
   {
     key: "claims.read",
@@ -431,6 +439,7 @@ export const ROOT_ONLY_PERMISSIONS = [
   "platform.staff.manage_roles",
   "platform.staff.suspend",
   "platform.settings.manage",
+  "discovery.governance_review",
   "tenant_access.break_glass",
 ] as const satisfies readonly PlatformPermissionKey[];
 
@@ -459,6 +468,9 @@ export const PLATFORM_ACTION_PERMISSION_CONTRACT = {
   publishCompanyDiscovery: "discovery.publish",
   enrichCompanyDiscovery: "discovery.enrich",
   closeExactDiscoveryDuplicates: "discovery.close_duplicates",
+  reviewDiscoverySourceGovernance: "discovery.governance_review",
+  reviewDiscoveryCandidateGovernance: "discovery.governance_review",
+  reviewCompanyDataRequest: "discovery.governance_review",
   reviewCompanyClaimProof: "claims.review_proof",
   approveCompanyClaim: "claims.approve",
   rejectCompanyClaim: "claims.reject",
