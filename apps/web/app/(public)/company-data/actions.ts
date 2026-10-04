@@ -31,12 +31,11 @@ export async function submitCompanyDataRequest(
   }
 
   if (
-    !["correction", "removal", "privacy_objection", "source_question"].includes(requestType) ||
+    !["correction", "removal", "source_question"].includes(requestType) ||
     companyName.length < 2 ||
     companyName.length > 255 ||
     (countryCode && !/^[A-Z]{2}$/.test(countryCode)) ||
-    contactEmail.length < 5 ||
-    contactEmail.length > 320 ||
+    (contactEmail.length > 0 && (contactEmail.length < 5 || contactEmail.length > 320)) ||
     requestText.length < 10 ||
     requestText.length > 4000 ||
     (sourceUrl && !/^https?:\/\//i.test(sourceUrl))
