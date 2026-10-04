@@ -70,6 +70,7 @@ const faq = [
 ];
 
 type SearchParams = Promise<{
+  standard?: string;
   family?: string;
   od?: string;
   width?: string;
@@ -77,6 +78,7 @@ type SearchParams = Promise<{
   thickness?: string;
   length?: string;
   quantity?: string;
+  target?: string;
   density?: string;
 }>;
 
@@ -91,7 +93,11 @@ export default async function PublicTubeWeightsPage({
     listPublicTubeFamilyHubs(),
   ]);
   const supportedFamilies = new Set(["round_tube", "square_tube", "rectangular_tube"]);
+  const supportedStandards = new Set(["en10219", "en10210", "geometric"]);
   const initialValues: PublicTubeCalculatorInitialValues = {
+    standard: supportedStandards.has(params.standard ?? "")
+      ? (params.standard as PublicTubeCalculatorInitialValues["standard"])
+      : undefined,
     family: supportedFamilies.has(params.family ?? "")
       ? (params.family as PublicTubeCalculatorInitialValues["family"])
       : undefined,
@@ -101,6 +107,7 @@ export default async function PublicTubeWeightsPage({
     thickness: params.thickness,
     length: params.length,
     quantity: params.quantity,
+    targetTonnes: params.target,
     density: params.density,
   };
 
