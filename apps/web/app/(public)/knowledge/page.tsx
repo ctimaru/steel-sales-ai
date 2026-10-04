@@ -23,6 +23,14 @@ export const metadata: Metadata = {
 
 const knowledgeAreas = [
   {
+    eyebrow: "Calcolatore",
+    title: "Calcola peso, barre e tonnellate",
+    description:
+      "EN 10210, EN 10219 e calcolo libero in un cockpit rapido con suggerimenti dimensionali e risultati live.",
+    status: "Utility",
+    href: "/knowledge/tubes",
+  },
+  {
     eyebrow: "Norme",
     title: "Capire cosa disciplina ogni standard",
     description:
@@ -37,14 +45,6 @@ const knowledgeAreas = [
       "Significato delle sigle, numeri materiale, applicazioni e norme collegate senza equivalenze automatiche.",
     status: "Catalogo",
     href: "/knowledge/gradi",
-  },
-  {
-    eyebrow: "Pesi & dimensioni",
-    title: "Dalla geometria al peso",
-    description:
-      "Riferimenti dimensionali e strumenti per comprendere peso al metro, peso per barra e differenza tra peso teorico e peso di riferimento.",
-    status: "Strumento",
-    href: "/knowledge/tubes",
   },
   {
     eyebrow: "Articoli",
@@ -84,11 +84,19 @@ export default function KnowledgeHomePage() {
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {knowledgeAreas.map((area) => (
+          {knowledgeAreas.map((area, index) => (
             <Link
               key={area.eyebrow}
-              href={area.href}
-              className="rounded-2xl border border-[#d9e8e2] bg-white p-5 transition hover:border-[#b8d2c8] hover:shadow-sm"
+              href={
+                index === 0
+                  ? "/knowledge/tubes?source=school&surface=home_card#calcolatore-pesi"
+                  : area.href
+              }
+              className={
+                index === 0
+                  ? "rounded-2xl border border-[#8fb5a8] bg-[#f7fbf9] p-5 shadow-sm transition hover:border-[#438d7a] hover:shadow-md"
+                  : "rounded-2xl border border-[#d9e8e2] bg-white p-5 transition hover:border-[#b8d2c8] hover:shadow-sm"
+              }
             >
               <div className="flex items-center justify-between gap-3">
                 <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">{area.eyebrow}</p>
@@ -98,7 +106,7 @@ export default function KnowledgeHomePage() {
               </div>
               <h3 className="mt-4 text-lg font-semibold text-[#1d2824]">{area.title}</h3>
               <p className="mt-2 text-sm leading-6 text-[#66736e]">{area.description}</p>
-              <p className="mt-5 text-xs font-semibold text-[#1a5144]">Apri sezione →</p>
+              <p className="mt-5 text-xs font-semibold text-[#1a5144]">{index === 0 ? "Calcola ora →" : "Apri sezione →"}</p>
             </Link>
           ))}
         </div>
@@ -168,10 +176,10 @@ export default function KnowledgeHomePage() {
             </p>
           </div>
           <Link
-            href="/knowledge/tubes"
+            href="/knowledge/tubes?source=school&surface=home_card#calcolatore-pesi"
             className="school-primary-action shrink-0"
           >
-            Apri pesi & dimensioni →
+            Apri il calcolatore →
           </Link>
         </div>
       </section>
