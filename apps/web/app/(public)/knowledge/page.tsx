@@ -120,8 +120,8 @@ export default function KnowledgeHomePage() {
           </Link>
         </div>
 
-        <div className="mt-6 grid gap-4 lg:grid-cols-2">
-          {schoolArticles.slice(0, 2).map((article) => (
+        <div className="mt-6 grid gap-4 lg:grid-cols-3">
+          {schoolArticles.slice(0, 3).map((article) => (
             <Link
               key={article.slug}
               href={`/knowledge/articoli/${article.slug}`}
