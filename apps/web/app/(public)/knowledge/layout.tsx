@@ -65,6 +65,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
               className="hidden rounded-xl bg-[#edf5f2] px-3 py-2 text-sm font-bold text-[#173f35] hover:bg-[#d9e8e2] lg:inline-flex"
             >
               Calcolatore
+              <span className="sr-only"> · Pesi &amp; dimensioni</span>
             </Link>
             <PublicSessionAction className="school-secondary-action hidden sm:inline-flex" />
             <Link href="/azienda" className="school-primary-action">
