@@ -16,7 +16,7 @@ test("WC3 preserves the forward commercial mass engine", () => {
 });
 
 test("WC3 calculates whole-bar requirements from a target tonnage", () => {
-  assert.ok(calculator.includes('const [targetTonnes, setTargetTonnes] = useState("");'));
+  assert.match(calculator, /const \[targetTonnes, setTargetTonnes\] = useState\(initialValues\?\.targetTonnes \?\? ""\)/);
   assert.match(calculator, /const targetBarsExact =/);
   assert.match(calculator, /\(targetT \* 1000\) \/ kgBar/);
   assert.match(calculator, /Math\.ceil\(targetBarsExact\)/);
