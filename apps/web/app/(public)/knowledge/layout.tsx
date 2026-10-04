@@ -45,7 +45,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
               href="/knowledge"
               className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#5d6a65] hover:bg-[#eef2f0] hover:text-[#173f35] md:inline-flex"
             >
-              Knowledge
+              Scuola
             </Link>
             <Link
               href="/knowledge/norme"
