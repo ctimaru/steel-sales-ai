@@ -5,6 +5,7 @@ import {
   PublicTubeWeightCalculator,
   type PublicTubeCalculatorInitialValues,
 } from "@/components/public-tube-weight-calculator";
+import { SchoolHero } from "@/components/school-ui";
 import {
   listPublicTubeDimensionPages,
   listPublicTubeFamilyHubs,
@@ -166,16 +167,17 @@ export default async function PublicTubeWeightsPage({
         <span>Pesi &amp; dimensioni</span>
       </nav>
 
-      <header className="max-w-4xl">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Pesi &amp; dimensioni · pubblico</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-5xl">
-          Calcolo peso tubo acciaio
-        </h1>
-        <p className="mt-4 text-base leading-7 text-[#66736e]">
-          Inserisci dimensioni, lunghezza e quantità per ottenere peso al metro, peso per barra e tonnellaggio.
-          Il calcolo teorico resta sempre distinto dai pesi tecnici pubblicati presenti nel catalogo.
-        </p>
-      </header>
+      <SchoolHero
+        eyebrow="Pesi & dimensioni"
+        title="Calcolo peso tubo acciaio"
+        description={
+          <>
+            Inserisci dimensioni, lunghezza e quantità per ottenere peso al metro, peso per barra e tonnellaggio.
+            Il calcolo teorico resta sempre distinto dai pesi tecnici pubblicati presenti nel catalogo.
+          </>
+        }
+        badges={["Pubblico", "Calcolatore + catalogo"]}
+      />
 
       <section aria-label="Esplora il catalogo per famiglia">
         <div className="mb-4 max-w-3xl">
