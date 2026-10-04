@@ -122,3 +122,116 @@ export async function getCompanyDiscoveryRuns(): Promise<CompanyDiscoveryRun[]> 
 
   return Array.isArray(data) ? (data as CompanyDiscoveryRun[]) : [];
 }
+
+
+export type DiscoveryRunGovernance = {
+  run_id: string;
+  governance_status: "unreviewed" | "approved" | "restricted" | "blocked";
+  terms_status:
+    | "not_checked"
+    | "allows_reuse"
+    | "allows_limited_reuse"
+    | "restricts_reuse"
+    | "unknown";
+  database_rights_status:
+    | "not_assessed"
+    | "low_risk"
+    | "licensed"
+    | "restricted"
+    | "unknown";
+  personal_data_policy:
+    | "not_assessed"
+    | "company_data_only"
+    | "exclude_personal_data"
+    | "legal_review_required";
+  governance_reviewed_at: string | null;
+  governance_note: string | null;
+  created_at: string;
+};
+
+export type DiscoveryCandidateGovernance = {
+  candidate_id: string;
+  run_id: string;
+  governance_status:
+    | "unreviewed"
+    | "approved_company_data"
+    | "needs_legal_review"
+    | "blocked";
+  personal_data_detected: boolean;
+  personal_data_fields: string[];
+  governance_reviewed_at: string | null;
+  governance_note: string | null;
+  publication_gate_ready: boolean;
+  created_at: string;
+};
+
+export type DiscoveryGovernanceState = {
+  runs: DiscoveryRunGovernance[];
+  candidates: DiscoveryCandidateGovernance[];
+  summary: {
+    source_review_required: number;
+    candidate_review_required: number;
+    publication_ready: number;
+  };
+};
+
+export async function getCompanyDiscoveryGovernance(): Promise<DiscoveryGovernanceState> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("pa1_5_discovery_governance_state", {
+    p_limit: 300,
+  });
+
+  if (error) {
+    if (error.code === "42501") redirect("/dashboard");
+    throw new Error(error.message);
+  }
+
+  const payload = (data ?? {}) as Partial<DiscoveryGovernanceState>;
+  return {
+    runs: payload.runs ?? [],
+    candidates: payload.candidates ?? [],
+    summary: {
+      source_review_required: Number(payload.summary?.source_review_required ?? 0),
+      candidate_review_required: Number(payload.summary?.candidate_review_required ?? 0),
+      publication_ready: Number(payload.summary?.publication_ready ?? 0),
+    },
+  };
+}
+
+export type CompanyDataGovernanceRequest = {
+  id: string;
+  request_type: "correction" | "removal" | "privacy_objection" | "source_question";
+  company_name: string;
+  country_code: string | null;
+  contact_email: string;
+  source_url: string | null;
+  request_text: string;
+  status: "received" | "in_review" | "resolved" | "rejected";
+  reviewed_at: string | null;
+  review_note: string | null;
+  created_at: string;
+  resolved_at: string | null;
+};
+
+export async function getCompanyDataGovernanceRequests() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("pa1_5_company_data_request_queue", {
+    p_status: null,
+    p_limit: 100,
+  });
+
+  if (error) {
+    if (error.code === "42501") return { items: [], open_count: 0 };
+    throw new Error(error.message);
+  }
+
+  const payload = (data ?? {}) as {
+    items?: CompanyDataGovernanceRequest[];
+    open_count?: number;
+  };
+
+  return {
+    items: payload.items ?? [],
+    open_count: Number(payload.open_count ?? 0),
+  };
+}
