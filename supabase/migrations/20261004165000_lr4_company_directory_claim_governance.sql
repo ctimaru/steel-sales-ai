@@ -276,6 +276,9 @@ $function$;
 revoke all on function private.lr4_contact_privacy_ready(
   text,text,text,text,timestamptz
 ) from public,anon,authenticated;
+grant execute on function private.lr4_contact_privacy_ready(
+  text,text,text,text,timestamptz
+) to service_role;
 
 create or replace function private.lr4_contact_publication_guard()
 returns trigger
@@ -733,10 +736,7 @@ begin
         art14_exception_reason=null,
         privacy_reviewed_by=v_user,
         privacy_reviewed_at=now(),
-        privacy_review_expires_at=case
-          when v_lia='passed' then now()+interval '12 months'
-          else null
-        end,
+        privacy_review_expires_at=now()+interval '12 months',
         privacy_review_note=v_note,
         publication_status=case
           when v_lia='passed' then 'pending_review'
@@ -1307,5 +1307,36 @@ comment on function public.lr4_review_contact_privacy(uuid,text,text,timestamptz
   'LR4 root-only classification/LIA gate. Company channels may be approved without GDPR personal-data basis; personal contacts require a passed legitimate-interest assessment and remain pending until Article 14 readiness.';
 comment on function public.lr4_record_art14_notice(uuid,text,timestamptz,text,text,text,boolean) is
   'LR4 root-only Article 14 evidence ledger. Late delivery is recorded as delivered_late and remains non-publishable.';
+create or replace function public.pa1_5_company_data_policy()
+returns jsonb
+language sql
+stable
+security invoker
+set search_path=''
+as $function$
+  select jsonb_build_object(
+    'contract','PA1.5-public-company-data-governance-v1',
+    'network_public',false,
+    'public_lookup_scope',jsonb_build_array(
+      'legal_name','trading_name','country_code','masked_vat_hint','claim_state'
+    ),
+    'default_rules',jsonb_build_array(
+      'public_visibility_is_not_a_reuse_licence',
+      'source_terms_and_database_rights_must_be_reviewed_before_publication',
+      'prefer_legal_entity_and_company_data',
+      'exclude_personal_employee_contacts_by_default',
+      'personal_contact_disclosure_requires_lr4_lia_and_art14_readiness',
+      'commercial_memory_never_feeds_public_company_data',
+      'claim_does_not_equal_verification',
+      'correction_removal_and_source_question_channel_available',
+      'formal_privacy_rights_require_dedicated_legal_privacy_process'
+    )
+  );
+$function$;
+
+revoke all on function public.pa1_5_company_data_policy() from public;
+grant execute on function public.pa1_5_company_data_policy()
+  to anon,authenticated,service_role;
+
 comment on function public.lr4_company_directory_policy() is
   'Machine-readable LR4 directory/claim privacy contract. The Network remains private/paid; public lookup contains company identity only.';
