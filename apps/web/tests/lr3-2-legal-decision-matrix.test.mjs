@@ -23,7 +23,7 @@ test("LR3.2 creates one decision record for every LR3.1 activity", () => {
 
 test("LR3.2 keeps public-source personal data blocked until LR4", () => {
   assert.match(matrix, /activityId: "LR3-A06"[\s\S]*decisionState: "blocked-until-lr4"/);
-  assert.match(matrix, /before first public disclosure or first communication/);
+  assert.match(matrix, /before first public disclosure or first communication/i);
   assert.match(matrix, /no later than one month/);
   assert.match(matrix, /LR4 legitimate-interest assessment/);
   assert.match(matrix, /LR4 Art\. 14 notice workflow/);
