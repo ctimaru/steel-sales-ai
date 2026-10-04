@@ -24,7 +24,7 @@ const baseMetadata: Metadata = {
     canonical: absoluteUrl("/knowledge/tubes"),
   },
   openGraph: {
-    title: "Calcolo peso tubo acciaio · Steel Knowledge",
+    title: "Calcolo peso tubo acciaio · Scuola Smart Steel Sales",
     description:
       "Calcola il peso di tubi tondi, quadri e rettangolari e confronta il risultato teorico con pesi tecnici pubblicati.",
     url: absoluteUrl("/knowledge/tubes"),
@@ -161,7 +161,7 @@ export default async function PublicTubeWeightsPage({
       />
 
       <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
-        <Link href="/knowledge" className="hover:text-[#1a5144]">Steel Knowledge</Link>
+        <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>
         <span>Pesi &amp; dimensioni</span>
       </nav>
