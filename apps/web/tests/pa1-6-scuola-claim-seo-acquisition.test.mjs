@@ -42,7 +42,7 @@ test("PA1.6 gives every Scuola page a direct company lookup and claim path", () 
   assert.match(schoolLayout, /<SchoolClaimCta \/>/);
   assert.match(claimCta, /href="\/azienda"/);
   assert.match(claimCta, /Dalla Scuola alla tua azienda/);
-  assert.match(claimCta, /Il Network[\s\S]*resta privato/);
+  assert.match(claimCta, /il Network[\s\S]*resta privato/i);
   assert.match(schoolLayout, /href="\/azienda"/);
 });
 
