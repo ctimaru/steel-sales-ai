@@ -169,7 +169,7 @@ export default async function PublicTubeWeightsPage({
 
       <SchoolHero
         eyebrow="Pesi & dimensioni"
-        title="Calcolo peso tubo acciaio"
+        title="Calcola il peso del tubo in pochi secondi"
         description={
           <>
             Inserisci dimensioni, lunghezza e quantità per ottenere peso al metro, peso per barra e tonnellaggio.
@@ -179,7 +179,7 @@ export default async function PublicTubeWeightsPage({
         badges={["Pubblico", "Calcolatore + catalogo"]}
       />
 
-      <section aria-label="Esplora il catalogo per famiglia">
+      <PublicTubeWeightCalculator references={references} initialValues={initialValues} />\n\n      <section aria-label="Esplora il catalogo per famiglia">
         <div className="mb-4 max-w-3xl">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Catalogo dimensionale</p>
           <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">Esplora per famiglia e dimensione esterna</h2>
@@ -209,8 +209,6 @@ export default async function PublicTubeWeightsPage({
           })}
         </div>
       </section>
-
-      <PublicTubeWeightCalculator references={references} initialValues={initialValues} />
 
       <article className="grid gap-6 lg:grid-cols-[1fr_0.82fr]">
         <div className="space-y-6">
