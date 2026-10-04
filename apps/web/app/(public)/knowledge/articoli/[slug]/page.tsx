@@ -76,6 +76,7 @@ export default async function SchoolArticlePage({
       "@type": "Organization",
       name: "Smart Steel Sales",
     },
+    citation: article.sources.map((source) => source.url),
   };
 
   const breadcrumbJsonLd = {
@@ -114,7 +115,7 @@ export default async function SchoolArticlePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
-      <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#68736f]">
+      <nav aria-label="Breadcrumb" className="school-breadcrumb">
         <Link href="/knowledge" className="hover:text-[#173f35]">Scuola</Link>
         <span className="mx-2">/</span>
         <Link href="/knowledge/articoli" className="hover:text-[#173f35]">Articoli</Link>
@@ -276,7 +277,7 @@ export default async function SchoolArticlePage({
         </h2>
         <p className="mt-2 text-sm leading-6 text-[#5d6a65]">
           Ultima revisione editoriale: {formatDate(article.lastReviewedAt)}. Le fonti servono a
-          verificare fatti storici, presenza industriale e dati dichiarati dai produttori.
+          verificare fatti storici, processi produttivi, presenza industriale e ambito delle norme richiamate.
         </p>
         <div className="mt-5 space-y-3">
           {article.sources.map((source) => (
