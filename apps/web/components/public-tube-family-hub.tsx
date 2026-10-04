@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { SchoolHero } from "@/components/school-ui";
 import {
   listPublicTubeFamilyHubs,
   listPublicTubeSizeHubs,
@@ -155,7 +156,7 @@ export async function PublicTubeFamilyHubPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
 
-      <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
+      <nav aria-label="Breadcrumb" className="school-breadcrumb">
         <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>
         <Link href="/knowledge/tubes" className="hover:text-[#1a5144]">Pesi &amp; dimensioni</Link>
@@ -163,13 +164,15 @@ export async function PublicTubeFamilyHubPage({
         <span>{config.label}</span>
       </nav>
 
-      <header className="max-w-4xl">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Hub dimensionale</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-5xl">
-          {editorial.title}
-        </h1>
-        <p className="mt-4 text-base leading-7 text-[#66736e]">{editorial.intro}</p>
-      </header>
+      <SchoolHero
+        eyebrow="Hub dimensionale"
+        title={editorial.title}
+        description={<>{editorial.intro}</>}
+        badges={[
+          `${family.dimension_count} pesi`,
+          `${family.size_hub_count} gruppi confrontabili`,
+        ]}
+      />
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
@@ -191,7 +194,7 @@ export async function PublicTubeFamilyHubPage({
           ],
         ].map(([label, value]) => (
           <div key={label} className="rounded-2xl border border-[#dce2df] bg-white p-5">
-            <p className="text-xs font-semibold text-[#7e8da1]">{label}</p>
+            <p className="school-meta-label">{label}</p>
             <p className="mt-1 text-xl font-semibold text-[#1d2824]">{value}</p>
           </div>
         ))}
