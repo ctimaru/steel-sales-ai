@@ -19,7 +19,7 @@ export default function CompanyDataPage() {
 
         <section className="mt-8 rounded-[32px] border border-[#dce2df] bg-white p-6 shadow-sm sm:p-9">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
-            PA1.5 · Data governance
+            Data governance
           </p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight">
             Dati aziendali, fonti e correzioni
