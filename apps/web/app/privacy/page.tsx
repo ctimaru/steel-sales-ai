@@ -17,7 +17,7 @@ export default function PrivacyPage() {
     <LegalPageShell
       eyebrow="GDPR · Informativa privacy"
       title="Privacy Policy"
-      intro="Questa informativa descrive il trattamento dei dati personali nelle superfici pubbliche e nei principali flussi di Smart Steel Sales. Finché i dati identificativi del Titolare e la retention matrix non sono completati, la policy resta una versione operativa provvisoria e non indicizzata."
+      intro="Questa informativa descrive il trattamento dei dati personali nelle superfici pubbliche e nei principali flussi di Smart Steel Sales. La retention matrix e baseline LR3.2 definisce basi giuridiche e criteri di conservazione interni; finché i dati identificativi del Titolare e le verifiche provider/legali finali non sono completati, la policy resta una versione operativa provvisoria e non indicizzata."
     >
       <LegalSection title="1. Ambito">
         <p>
@@ -108,9 +108,24 @@ export default function PrivacyPage() {
       <LegalSection title="7. Conservazione">
         <p>
           I dati vengono conservati secondo il principio di limitazione della conservazione e per il tempo
-          necessario alle finalità per cui sono trattati, oltre agli eventuali periodi richiesti da obblighi
-          legali o dalla tutela di diritti. La retention matrix con periodi specifici per account,
-          registrazioni, claim, log, email e analytics è in fase di formalizzazione nel programma LR3/LR6.
+          necessario alle finalità per cui sono trattati. La <strong>Baseline LR3.2</strong> adotta i
+          seguenti limiti operativi, soggetti alla verifica dei fornitori in LR6 e alla revisione legale
+          prima del lancio commerciale:
+        </p>
+        <ul className="list-disc space-y-2 pl-5">
+          <li>log tecnici e di sicurezza ordinari: fino a 90 giorni; gli eventi amministrativi/audit fino a 24 mesi;</li>
+          <li>account: durata dell’account e fino a 30 giorni dopo la chiusura, con cancellazione progressiva dei backup entro il relativo ciclo tecnico;</li>
+          <li>registrazioni e claim: bozze inattive fino a 90 giorni, pratiche chiuse/rifiutate fino a 12 mesi e principali evidenze di attivazione/claim fino a 24 mesi;</li>
+          <li>inviti team revocati o scaduti: fino a 90 giorni; evidenza degli inviti accettati fino a 12 mesi;</li>
+          <li>telemetria pubblica privacy-minimal: fino a 12 mesi, poi cancellazione o aggregazione irreversibile;</li>
+          <li>Google Analytics: scelta di consenso locale valida per 6 mesi a versione invariata; target di conservazione GA4 dei dati utente/evento impostato al minimo disponibile di 2 mesi, da verificare in LR6;</li>
+          <li>Network/Marketplace: contenuti e interazioni fino a 24 mesi dopo la chiusura o lo stato terminale, salvo cancellazione anticipata o necessità documentate;</li>
+          <li>Commercial Memory: retention definita dal cliente titolare; baseline di cessazione con finestra export/cancellazione fino a 30 giorni e successivo ciclo backup da formalizzare nel DPA.</li>
+        </ul>
+        <p>
+          Un obbligo di legge, un contenzioso, una richiesta dell’interessato o un incidente di sicurezza
+          può richiedere una conservazione ulteriore solo per i dati interessati e per il periodo
+          documentatamente necessario.
         </p>
       </LegalSection>
 
