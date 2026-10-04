@@ -503,7 +503,7 @@ export function PublicTubeWeightCalculator({
               <div className="border-b border-white/10 p-5 sm:p-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/65">4 · Risultato live</p>
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/60">4 · Risultato live</p>
                     <h3 className="mt-1 text-xl font-semibold">Il numero che ti serve subito</h3>
                   </div>
                   <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold">
@@ -525,7 +525,7 @@ export function PublicTubeWeightCalculator({
                   <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/60">Peso barra · {length || "—"} m</p>
                   <p className="metric-number mt-2 text-3xl font-semibold">
                     {values.kgBar == null ? "—" : formatNumber(values.kgBar, 2)}
-                    <span className="ml-1 text-base text-white/65">kg</span>
+                    <span className="ml-1 text-base text-white/60">kg</span>
                   </p>
                 </div>
                 <div className="bg-[#16483d] p-5 sm:p-6">
@@ -534,13 +534,13 @@ export function PublicTubeWeightCalculator({
                   </p>
                   <p className="metric-number mt-2 text-3xl font-semibold">
                     {values.totalTonnes == null ? "—" : formatNumber(values.totalTonnes, 4)}
-                    <span className="ml-1 text-base text-white/65">t</span>
+                    <span className="ml-1 text-base text-white/60">t</span>
                   </p>
                 </div>
               </div>
 
               <div className="p-5 sm:p-6">
-                <div className="rounded-2xl border border-white/12 bg-white/8 p-4">
+                <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <p className="text-sm font-semibold">Riferimento tecnico</p>
                     {values.exactReference ? (
@@ -556,11 +556,11 @@ export function PublicTubeWeightCalculator({
                         {formatNumber(values.exactReference.weight_kg_m, 3)} kg/m
                       </p>
                       {values.deltaPercent != null ? (
-                        <p className="mt-1 text-xs text-white/65">
+                        <p className="mt-1 text-xs text-white/60">
                           Scostamento dal calcolo geometrico: {formatNumber(values.deltaPercent, 2)}%.
                         </p>
                       ) : null}
-                      <p className="mt-3 text-xs leading-5 text-white/65">
+                      <p className="mt-3 text-xs leading-5 text-white/60">
                         Fonte: {values.exactReference.source_provider ?? values.exactReference.source_name ?? "fonte tecnica verificata"}.
                         Il peso pubblicato resta separato dal risultato matematico.
                       </p>
@@ -578,7 +578,7 @@ export function PublicTubeWeightCalculator({
                   ) : (
                     <>
                       <p className="mt-2 text-sm font-semibold text-white">Nessun peso pubblicato per questa geometria</p>
-                      <p className="mt-2 text-xs leading-5 text-white/65">
+                      <p className="mt-2 text-xs leading-5 text-white/60">
                         Il risultato resta un calcolo teorico. Non viene trasformato automaticamente in un valore normativo o verificato.
                       </p>
                     </>
