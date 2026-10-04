@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
 import type { PublicTubeDimensionSummary } from "@/lib/public-knowledge";
 
 type TubeFamily = PublicTubeDimensionSummary["product_family"];
@@ -867,13 +868,13 @@ export function PublicTubeWeightCalculator({
   }
 
   const inputClass =
-    "mt-1 w-full rounded-xl border border-[#cfd9d5] bg-white px-3 py-2 text-sm font-semibold text-[#1d2824] outline-none transition focus:border-[#438d7a] focus:ring-4 focus:ring-[#d9e8e2]";
+    "mt-1 min-h-11 w-full rounded-xl border border-[#cfd9d5] bg-white px-3 py-2 text-sm font-semibold text-[#1d2824] outline-none transition focus:border-[#438d7a] focus:ring-4 focus:ring-[#d9e8e2]";
 
   return (
     <div className="space-y-5">
       <section
         id="calcolatore-pesi"
-        className="flex h-[calc(100svh-6.75rem)] min-h-[560px] max-h-[820px] flex-col overflow-hidden rounded-[1.6rem] border border-[#cddbd6] bg-white shadow-[0_18px_60px_rgba(11,47,39,0.08)]"
+        className="flex h-auto min-h-0 max-h-none scroll-mt-20 flex-col overflow-hidden rounded-[1.6rem] border border-[#cddbd6] bg-white shadow-[0_18px_60px_rgba(11,47,39,0.08)] lg:h-[calc(100svh-6.75rem)] lg:min-h-[560px] lg:max-h-[820px]"
       >
         <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[#dce7e3] bg-[linear-gradient(135deg,#f7fbf9_0%,#ffffff_62%,#edf5f2_100%)] px-3 py-2.5 sm:px-4">
           <div className="min-w-0">
@@ -888,6 +889,7 @@ export function PublicTubeWeightCalculator({
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
+            <CalculatorInstallGuide />
             <button
               type="button"
               disabled={!currentSnapshot}
@@ -905,8 +907,8 @@ export function PublicTubeWeightCalculator({
               }}
               className={
                 calculatorSaved
-                  ? "school-selected-control rounded-xl px-3 py-2.5 text-xs font-bold disabled:opacity-50"
-                  : "school-secondary-action px-3 py-2.5 text-xs disabled:opacity-50"
+                  ? "school-selected-control min-h-11 rounded-xl px-3 py-2.5 text-xs font-bold disabled:opacity-50"
+                  : "school-secondary-action min-h-11 px-3 py-2.5 text-xs disabled:opacity-50"
               }
             >
               <span className="sm:hidden">{calculatorSaved ? "Salvato ✓" : "Salva"}</span>
@@ -915,8 +917,8 @@ export function PublicTubeWeightCalculator({
           </div>
         </header>
 
-        <div className="grid min-h-0 flex-1 lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)]">
-          <div className="min-h-0 overflow-y-auto border-b border-[#dce7e3] p-3 sm:p-4 lg:overflow-hidden lg:border-b-0 lg:border-r">
+        <div className="grid min-h-0 flex-1 grid-rows-[minmax(21rem,1.15fr)_minmax(13.5rem,0.85fr)] lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)] lg:grid-rows-1">
+          <div className="min-h-0 overscroll-contain overflow-y-auto border-b border-[#dce7e3] p-3 sm:p-4 lg:overflow-hidden lg:border-b-0 lg:border-r">
             <div className="grid gap-3 lg:h-full lg:grid-rows-[auto_auto_1fr_auto]">
               <section aria-labelledby="calculator-standard">
                 <div className="mb-1.5 flex items-center justify-between gap-2">
@@ -938,8 +940,8 @@ export function PublicTubeWeightCalculator({
                         onClick={() => handleStandardChange(option.value)}
                         className={
                           selected
-                            ? "school-selected-control min-h-10 rounded-xl px-2 py-2 text-center text-xs font-bold shadow-sm"
-                            : "min-h-10 rounded-xl border border-[#d7e1dd] bg-[#f8faf9] px-2 py-2 text-center text-xs font-bold text-[#334a42] hover:border-[#8fb5a8] hover:bg-[#f1f7f4]"
+                            ? "school-selected-control min-h-11 rounded-xl px-2 py-2 text-center text-xs font-bold shadow-sm"
+                            : "min-h-11 rounded-xl border border-[#d7e1dd] bg-[#f8faf9] px-2 py-2 text-center text-xs font-bold text-[#334a42] hover:border-[#8fb5a8] hover:bg-[#f1f7f4]"
                         }
                       >
                         {option.label}
@@ -1105,8 +1107,8 @@ export function PublicTubeWeightCalculator({
                             onClick={() => setLength(preset)}
                             className={
                               length === preset
-                                ? "school-selected-control rounded-xl px-3 py-2.5 text-xs font-bold"
-                                : "school-secondary-action px-3 py-2.5 text-xs"
+                                ? "school-selected-control min-h-11 rounded-xl px-3 py-2.5 text-xs font-bold"
+                                : "school-secondary-action min-h-11 px-3 py-2.5 text-xs"
                             }
                           >
                             {preset}
@@ -1117,7 +1119,7 @@ export function PublicTubeWeightCalculator({
                           onChange={(event) => setLength(event.target.value)}
                           inputMode="decimal"
                           aria-label="Lunghezza barra personalizzata"
-                          className="min-w-0 rounded-xl border border-[#cfd9d5] bg-white px-2 text-center text-sm font-bold text-[#1d2824] outline-none focus:border-[#438d7a]"
+                          className="min-h-11 min-w-0 rounded-xl border border-[#cfd9d5] bg-white px-2 text-center text-sm font-bold text-[#1d2824] outline-none focus:border-[#438d7a]"
                         />
                       </div>
                     </div>
@@ -1132,7 +1134,7 @@ export function PublicTubeWeightCalculator({
                             const current = Math.max(1, Math.floor(parseNumber(quantity) ?? 1));
                             setQuantity(String(Math.max(1, current - 1)));
                           }}
-                          className="school-secondary-action min-h-10 px-0 py-0 text-base"
+                          className="school-secondary-action min-h-11 px-0 py-0 text-base"
                         >
                           −
                         </button>
@@ -1140,7 +1142,7 @@ export function PublicTubeWeightCalculator({
                           value={quantity}
                           onChange={(event) => setQuantity(event.target.value)}
                           inputMode="numeric"
-                          className="min-w-0 rounded-xl border border-[#cfd9d5] bg-white px-2 text-center text-sm font-bold text-[#1d2824] outline-none focus:border-[#438d7a]"
+                          className="min-h-11 min-w-0 rounded-xl border border-[#cfd9d5] bg-white px-2 text-center text-sm font-bold text-[#1d2824] outline-none focus:border-[#438d7a]"
                         />
                         <button
                           type="button"
@@ -1149,7 +1151,7 @@ export function PublicTubeWeightCalculator({
                             const current = Math.max(0, Math.floor(parseNumber(quantity) ?? 0));
                             setQuantity(String(current + 1));
                           }}
-                          className="school-secondary-action min-h-10 px-0 py-0 text-base"
+                          className="school-secondary-action min-h-11 px-0 py-0 text-base"
                         >
                           +
                         </button>
@@ -1175,7 +1177,7 @@ export function PublicTubeWeightCalculator({
                         onClick={() => {
                           if (values.targetBars != null) setQuantity(String(values.targetBars));
                         }}
-                        className="school-primary-action min-h-10 px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-50"
+                        className="school-primary-action min-h-11 px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Usa barre suggerite
                       </button>
@@ -1264,7 +1266,7 @@ export function PublicTubeWeightCalculator({
               ) : null}
             </div>
 
-            <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4">
+            <div className="min-h-0 flex-1 overscroll-contain overflow-y-auto p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:p-4 sm:pb-[calc(1rem+env(safe-area-inset-bottom))]">
               <div className="grid grid-cols-3 gap-1.5">
                 <button
                   type="button"
@@ -1274,7 +1276,7 @@ export function PublicTubeWeightCalculator({
                     await copyTextToClipboard(resultText(currentSnapshot));
                     setActionFeedback("Risultato copiato.");
                   }}
-                  className="rounded-xl border border-white/15 bg-white/10 px-2 py-2 text-xs font-bold hover:bg-white/15 disabled:opacity-40"
+                  className="min-h-11 rounded-xl border border-white/15 bg-white/10 px-2 py-2 text-[10px] font-bold hover:bg-white/15 disabled:opacity-40 sm:text-xs"
                 >
                   Copia risultato
                 </button>
@@ -1286,7 +1288,7 @@ export function PublicTubeWeightCalculator({
                     await copyTextToClipboard(shareUrl(currentSnapshot));
                     setActionFeedback("Link condivisibile copiato.");
                   }}
-                  className="rounded-xl border border-white/15 bg-white/10 px-2 py-2 text-xs font-bold hover:bg-white/15 disabled:opacity-40"
+                  className="min-h-11 rounded-xl border border-white/15 bg-white/10 px-2 py-2 text-[10px] font-bold hover:bg-white/15 disabled:opacity-40 sm:text-xs"
                 >
                   Copia link
                 </button>
@@ -1310,8 +1312,8 @@ export function PublicTubeWeightCalculator({
                   }}
                   className={
                     currentIsFavorite
-                      ? "rounded-xl border border-white bg-white px-2 py-2 text-xs font-bold text-[#123d34]"
-                      : "rounded-xl border border-white/15 bg-white/10 px-2 py-2 text-xs font-bold hover:bg-white/15 disabled:opacity-40"
+                      ? "min-h-11 rounded-xl border border-white bg-white px-2 py-2 text-[10px] font-bold text-[#123d34] sm:text-xs"
+                      : "min-h-11 rounded-xl border border-white/15 bg-white/10 px-2 py-2 text-[10px] font-bold hover:bg-white/15 disabled:opacity-40 sm:text-xs"
                   }
                 >
                   {currentIsFavorite ? "Preferito ★" : "Aggiungi ai preferiti ☆"}
