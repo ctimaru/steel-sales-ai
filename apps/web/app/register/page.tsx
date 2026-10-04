@@ -317,11 +317,11 @@ export default async function RegisterPage({
     <main className="min-h-screen bg-[#f2f4f3] px-4 py-6 sm:px-6 sm:py-9">
       <div className="mx-auto max-w-5xl">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <ProductBrand href="/" />
+          <ProductBrand href="/" showDescriptor={false} />
           <form action={logoutRegistration}>
             <button
               type="submit"
-              className="text-sm font-semibold text-[#66736e] hover:text-[#173f35]"
+              className="app-secondary inline-flex min-h-10 items-center justify-center rounded-xl px-4 text-sm font-semibold"
             >
               Esci
             </button>
