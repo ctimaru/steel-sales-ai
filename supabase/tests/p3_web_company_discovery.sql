@@ -225,7 +225,24 @@ where id=:'duplicate_run_id'::uuid;
 
 set local role authenticated;
 
-do $$
+select public.pa1_5_review_discovery_run_governance(
+  :'duplicate_run_id'::uuid,
+  'approved',
+  'allows_reuse',
+  'low_risk',
+  'company_data_only',
+  'P3.2 rediscovery fixture source approved under PA1.5'
+);
+
+select public.pa1_5_review_discovery_candidate_governance(
+  '00000000-0000-0000-0000-0000000032c2',
+  'approved_company_data',
+  false,
+  '{}'::text[],
+  'P3.2 rediscovery fixture contains company data only'
+);
+
+do $
 begin
   begin
     perform public.p3_review_company_discovery(
