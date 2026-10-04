@@ -4,14 +4,14 @@ import Link from "next/link";
 import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Norme, gradi, pesi e dimensioni dell'acciaio",
+  title: "Scuola: norme, gradi, pesi e dimensioni dell'acciaio",
   description:
-    "Steel Knowledge è la base tecnica pubblica di Smart Steel Sales: guide su norme e gradi di acciaio, pesi, dimensioni e strumenti pratici per il settore steel e tube.",
+    "La Scuola di Smart Steel Sales è la base tecnica pubblica per il settore steel e tube: norme, gradi di acciaio, pesi, dimensioni e strumenti pratici.",
   alternates: {
     canonical: absoluteUrl("/knowledge"),
   },
   openGraph: {
-    title: "Steel Knowledge — Norme, gradi, pesi e dimensioni",
+    title: "Scuola Smart Steel Sales — Norme, gradi, pesi e dimensioni",
     description:
       "Conoscenza tecnica pubblica per chi lavora con acciaio e tubi: norme, gradi, dimensioni, pesi e strumenti pratici.",
     url: absoluteUrl("/knowledge"),
@@ -61,7 +61,7 @@ export default function KnowledgeHomePage() {
         <div className="p-6 sm:p-8 lg:p-10">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-              Steel Knowledge
+              Scuola
             </span>
             <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[11px] font-semibold text-[#1a5144]">
               Pubblico
@@ -73,7 +73,7 @@ export default function KnowledgeHomePage() {
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-[#66736e] sm:text-lg">
             Norme, gradi di acciaio, dimensioni, pesi e strumenti pratici spiegati in modo accessibile.
-            Steel Knowledge è consultabile senza account ed è separato dai dati commerciali privati delle aziende.
+            Scuola è consultabile senza account ed è separato dai dati commerciali privati delle aziende.
           </p>
         </div>
       </section>
@@ -134,7 +134,7 @@ export default function KnowledgeHomePage() {
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[#66736e]">
             Ogni pagina pubblica deve rispondere a una domanda reale del settore. Le funzioni di Smart Steel Sales
             entrano in scena solo quando possono aiutare a continuare il lavoro: approfondire un dato, trovare
-            un&apos;azienda nel Network o portare l&apos;informazione nella Commercial Memory.
+            verificare o rivendicare la propria azienda oppure portare l&apos;informazione nella Commercial Memory.
           </p>
         </div>
         <div className="rounded-2xl border border-[#dce2df] bg-white p-5">
