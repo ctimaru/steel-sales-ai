@@ -158,15 +158,15 @@ export default async function GradeDetailPage({
 
         <section className="grid gap-4 sm:grid-cols-3">
           <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
-            <p className="text-xs font-semibold text-[#7e8da1]">Designazione</p>
+            <p className="school-meta-label">Designazione</p>
             <p className="mt-1 text-lg font-semibold text-[#1d2824]">{grade.designation}</p>
           </div>
           <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
-            <p className="text-xs font-semibold text-[#7e8da1]">Numero materiale</p>
+            <p className="school-meta-label">Numero materiale</p>
             <p className="mt-1 text-lg font-semibold text-[#1d2824]">{grade.material_number ?? "—"}</p>
           </div>
           <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
-            <p className="text-xs font-semibold text-[#7e8da1]">Densità usata nei riferimenti</p>
+            <p className="school-meta-label">Densità usata nei riferimenti</p>
             <p className="mt-1 text-lg font-semibold text-[#1d2824]">
               {grade.density_kg_m3 ? `${grade.density_kg_m3.toLocaleString("it-IT")} kg/m³` : "—"}
             </p>
@@ -215,7 +215,7 @@ export default async function GradeDetailPage({
                 >
                   <p className="font-semibold text-[#1d2824]">{related.designation}</p>
                   {related.material_number ? (
-                    <p className="mt-1 text-xs text-[#7e8da1]">Materiale {related.material_number}</p>
+                    <p className="mt-1 text-xs text-[#5d6a65]">Materiale {related.material_number}</p>
                   ) : null}
                   {related.material_family ? (
                     <p className="mt-3 text-xs font-semibold text-[#1a5144]">
