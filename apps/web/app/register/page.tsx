@@ -86,13 +86,13 @@ export default async function RegisterPage({
 
               <div className="mt-8 space-y-3">
                 {[
-                  ["01", "Cerca", "Verifica ragione sociale o Partita IVA."],
-                  ["02", "Crea l’accesso", "Usa un’email che controlli e verifica il link ricevuto."],
-                  ["03", "Completa l’azienda", "Invia i dati essenziali per revisione e attivazione."],
-                ].map(([step, title, body]) => (
-                  <div key={step} className="flex gap-3 rounded-2xl border border-white/10 bg-white/[0.06] p-4">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-xs font-extrabold text-[#123d34]">
-                      {step}
+                  ["Cerca", "Verifica ragione sociale o Partita IVA."],
+                  ["Crea l’accesso", "Usa un’email che controlli e verifica il link ricevuto."],
+                  ["Completa la richiesta", "Inserisci i dati aziendali e inviali per revisione e attivazione."],
+                ].map(([title, body]) => (
+                  <div key={title} className="flex gap-3 rounded-2xl border border-white/10 bg-white/[0.06] p-4">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-sm font-extrabold text-[#123d34]">
+                      ✓
                     </span>
                     <div>
                       <p className="text-sm font-semibold text-white">{title}</p>
