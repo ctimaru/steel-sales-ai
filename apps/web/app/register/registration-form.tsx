@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 
 import { PendingSubmitButton } from "@/components/pending-submit-button";
@@ -144,6 +145,8 @@ export function CompanyRegistrationForm({
     const countryCode = String(data.get("country_code") ?? "").trim().toUpperCase();
     const companyType = String(data.get("primary_company_type") ?? "").trim();
     const contactName = String(data.get("contact_name") ?? "").trim();
+    const privacyAcknowledged = data.get("privacy_acknowledged") === "on";
+    const termsAccepted = data.get("terms_accepted") === "on";
 
     if (!legalName || !/^[A-Z]{2}$/.test(countryCode)) {
       event.preventDefault();
@@ -156,6 +159,13 @@ export function CompanyRegistrationForm({
       event.preventDefault();
       setStep(2);
       setClientError("Seleziona l’attività principale e indica il referente.");
+      return;
+    }
+
+    if (!privacyAcknowledged || !termsAccepted) {
+      event.preventDefault();
+      setStep(3);
+      setClientError("Conferma separatamente Informativa privacy e Termini d’uso prima di inviare.");
     }
   }
 
@@ -481,6 +491,52 @@ export function CompanyRegistrationForm({
             </div>
           ))}
         </dl>
+
+        <div className="space-y-3 rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-5">
+          <p className="text-sm font-semibold text-[#1d2824]">Privacy e condizioni di accesso</p>
+          <p className="text-xs leading-5 text-[#66736e]">
+            Le due conferme sono registrate separatamente e con la versione dei documenti.
+            Prendere visione dell’informativa privacy non equivale a prestare consenso.
+          </p>
+
+          <label className="flex gap-3 rounded-xl border border-[#e2e7e4] bg-white p-3 text-sm leading-5 text-[#43524c]">
+            <input
+              type="checkbox"
+              name="privacy_acknowledged"
+              required={step === 3}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-[#1a5144]"
+            />
+            <span>
+              Ho letto l’{" "}
+              <Link
+                href="/privacy"
+                target="_blank"
+                className="font-semibold text-[#173f35] underline underline-offset-4"
+              >
+                Informativa privacy
+              </Link>.
+            </span>
+          </label>
+
+          <label className="flex gap-3 rounded-xl border border-[#e2e7e4] bg-white p-3 text-sm leading-5 text-[#43524c]">
+            <input
+              type="checkbox"
+              name="terms_accepted"
+              required={step === 3}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-[#1a5144]"
+            />
+            <span>
+              Accetto i{" "}
+              <Link
+                href="/terms"
+                target="_blank"
+                className="font-semibold text-[#173f35] underline underline-offset-4"
+              >
+                Termini d’uso
+              </Link>.
+            </span>
+          </label>
+        </div>
 
         <div className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-5">
           <p className="text-sm font-semibold text-[#123d34]">Cosa succede dopo</p>
