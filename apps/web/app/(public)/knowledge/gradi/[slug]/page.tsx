@@ -38,13 +38,13 @@ export async function generateMetadata({
   }
 
   return {
-    title: grade.seo_title,
+    title: grade.seo_title.replace(/ · Steel Knowledge.*$/i, ""),
     description: grade.seo_description,
     alternates: {
       canonical: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
     },
     openGraph: {
-      title: grade.seo_title,
+      title: grade.seo_title.replace(/ · Steel Knowledge.*$/i, ""),
       description: grade.seo_description,
       url: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
       type: "article",
@@ -66,7 +66,7 @@ export default async function GradeDetailPage({
   const articleJsonLd = {
     "@context": "https://schema.org",
     "@type": "TechArticle",
-    headline: grade.seo_title,
+    headline: grade.seo_title.replace(/ · Steel Knowledge.*$/i, ""),
     description: grade.seo_description,
     datePublished: grade.published_at,
     dateModified: grade.last_reviewed_at,
@@ -107,7 +107,7 @@ export default async function GradeDetailPage({
       ) : null}
 
       <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
-        <Link href="/knowledge" className="hover:text-[#1a5144]">Steel Knowledge</Link>
+        <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>
         <Link href="/knowledge/gradi" className="hover:text-[#1a5144]">Gradi</Link>
         <span className="mx-2">/</span>
@@ -130,7 +130,7 @@ export default async function GradeDetailPage({
             </span>
           </div>
           <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-5xl">
-            {grade.seo_title}
+            {grade.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, "")}
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-7 text-[#66736e]">{grade.intro}</p>
         </header>
