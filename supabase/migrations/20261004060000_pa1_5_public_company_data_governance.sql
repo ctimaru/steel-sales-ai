@@ -133,26 +133,21 @@ for each row execute function private.pa1_5_governance_event_immutable_guard();
 
 create table if not exists public.company_data_governance_requests (
   id uuid primary key default gen_random_uuid(),
-  request_type text not null check (
-    request_type in ('correction','removal','source_question')
-  ),
+  request_type text not null check (request_type in ('correction','removal','source_question')),
   company_name text not null check (char_length(btrim(company_name)) between 2 and 255),
   country_code text null check (country_code is null or country_code ~ '^[A-Z]{2}$'),
   contact_email text null check (
-    contact_email is null
-    or (
+    contact_email is null or (
       char_length(contact_email) between 5 and 320
-      and contact_email ~* '^[^[:space:]@]+@[^[:space:]@]+[.][^[:space:]@]+
-    source_url is null
-    or (
-      char_length(source_url)<=2000
-      and source_url ~* '^https?://'
+      and position('@' in contact_email) > 1
+      and position('.' in split_part(contact_email,'@',2)) > 1
     )
   ),
-  request_text text not null check (char_length(btrim(request_text)) between 10 and 4000),
-  status text not null default 'received' check (
-    status in ('received','in_review','resolved','rejected')
+  source_url text null check (
+    source_url is null or (char_length(source_url)<=2000 and source_url ~* '^https?://')
   ),
+  request_text text not null check (char_length(btrim(request_text)) between 10 and 4000),
+  status text not null default 'received' check (status in ('received','in_review','resolved','rejected')),
   reviewed_by uuid null references auth.users(id) on delete restrict,
   reviewed_at timestamptz null,
   review_note text null check (review_note is null or char_length(review_note)<=4000),
@@ -160,16 +155,10 @@ create table if not exists public.company_data_governance_requests (
   resolved_at timestamptz null,
   constraint company_data_governance_requests_review_integrity_check check (
     (status='received' and reviewed_by is null and reviewed_at is null and resolved_at is null)
-    or
-    (status='in_review' and reviewed_by is not null and reviewed_at is not null and resolved_at is null)
-    or
-    (status in ('resolved','rejected')
-      and reviewed_by is not null
-      and reviewed_at is not null
-      and resolved_at is not null)
+    or (status='in_review' and reviewed_by is not null and reviewed_at is not null and resolved_at is null)
+    or (status in ('resolved','rejected') and reviewed_by is not null and reviewed_at is not null and resolved_at is not null)
   )
 );
-
 alter table public.company_data_governance_requests enable row level security;
 revoke all on table public.company_data_governance_requests from public,anon,authenticated;
 grant select,insert,update on table public.company_data_governance_requests to service_role;
