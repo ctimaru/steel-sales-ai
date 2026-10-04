@@ -150,6 +150,16 @@ export default async function PublicTubeWeightsPage({
       price: "0",
       priceCurrency: "EUR",
     },
+    isAccessibleForFree: true,
+    browserRequirements: "Requires JavaScript. Works in modern mobile and desktop browsers.",
+    featureList: [
+      "EN 10210",
+      "EN 10219",
+      "kg/m",
+      "peso per barra",
+      "tonnellaggio",
+      "calcolo inverso barre",
+    ],
   };
 
   const articleJsonLd = {
@@ -178,6 +188,25 @@ export default async function PublicTubeWeightsPage({
     })),
   };
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Scuola",
+        item: absoluteUrl("/knowledge"),
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Calcolatore peso tubo",
+        item: absoluteUrl("/knowledge/tubes"),
+      },
+    ],
+  };
+
   return (
     <div className="mx-auto max-w-7xl space-y-8 px-3 py-3 sm:px-5 sm:py-5 lg:px-6">
       <script
@@ -191,6 +220,10 @@ export default async function PublicTubeWeightsPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
       <PublicUtilityTelemetry source={discoverySource} surface={discoverySurface} />

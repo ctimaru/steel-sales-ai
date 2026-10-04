@@ -22,7 +22,7 @@ const familyEditorial: Record<
   { title: string; intro: string; guide: string; formula: string }
 > = {
   tondo: {
-    title: "Pesi tubi tondi in acciaio per diametro e spessore",
+    title: "Calcolo peso tubo tondo acciaio: kg/m, diametri e spessori",
     intro:
       "Esplora i diametri del catalogo pubblico e confronta, per ogni diametro esterno, gli spessori disponibili e i relativi pesi al metro pubblicati.",
     guide:
@@ -31,7 +31,7 @@ const familyEditorial: Record<
       "Per una stima teorica si può usare l’area π × t × (D − t) e una densità di riferimento. Il dato di catalogo pubblicato resta comunque separato dal calcolo geometrico.",
   },
   quadro: {
-    title: "Pesi profili quadri in acciaio per sezione e spessore",
+    title: "Calcolo peso profilo quadro acciaio: kg/m, SHS e spessori",
     intro:
       "Consulta le sezioni SHS raggruppate per lato esterno e confronta gli spessori con il peso al metro pubblicato.",
     guide:
@@ -40,7 +40,7 @@ const familyEditorial: Record<
       "La formula geometrica a spigoli vivi è utile per una stima, ma i raggi reali dello SHS possono generare uno scostamento rispetto al peso pubblicato dal produttore.",
   },
   rettangolare: {
-    title: "Pesi profili rettangolari in acciaio per sezione e spessore",
+    title: "Calcolo peso profilo rettangolare acciaio: kg/m, RHS e spessori",
     intro:
       "Esplora le sezioni RHS con più spessori disponibili e confronta rapidamente peso al metro, intervallo di spessore e fonti.",
     guide:
@@ -49,6 +49,22 @@ const familyEditorial: Record<
       "Il calcolo teorico usa l’area B × H − (B − 2t) × (H − 2t). Nei prodotti reali i raggi degli angoli e le convenzioni di catalogo possono modificare la massa lineare pubblicata.",
   },
 };
+
+const calculatorFamilyBySlug: Record<PublicTubeFamilySlug, "round_tube" | "square_tube" | "rectangular_tube"> = {
+  tondo: "round_tube",
+  quadro: "square_tube",
+  rettangolare: "rectangular_tube",
+};
+
+function calculatorHrefForFamily(familySlug: PublicTubeFamilySlug) {
+  const query = new URLSearchParams({
+    standard: "en10219",
+    family: calculatorFamilyBySlug[familySlug],
+    source: "school",
+    surface: "home_card",
+  });
+  return `/knowledge/tubes?${query.toString()}#calcolatore-pesi`;
+}
 
 export function tubeFamilyMetadata(familySlug: PublicTubeFamilySlug): Metadata {
   const family = getTubeFamilyBySlug(familySlug);
@@ -59,7 +75,7 @@ export function tubeFamilyMetadata(familySlug: PublicTubeFamilySlug): Metadata {
     title: editorial.title,
     description:
       editorial.intro +
-      " Tabelle per sezione, intervalli di spessore e collegamenti ai pesi esatti.",
+      " Usa il calcolatore gratuito kg/m, peso barra e tonnellate e confronta tabelle per sezione e spessore.",
     alternates: {
       canonical: absoluteUrl(tubeFamilyHubPath(familySlug)),
     },
@@ -145,6 +161,42 @@ export async function PublicTubeFamilyHubPage({
     })),
   };
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Scuola",
+        item: absoluteUrl("/knowledge"),
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Calcolatore peso tubo",
+        item: absoluteUrl("/knowledge/tubes"),
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: config.label,
+        item: absoluteUrl(tubeFamilyHubPath(familySlug)),
+      },
+    ],
+  };
+
+  const calculatorJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: `Calcolatore peso ${config.label.toLowerCase()}`,
+    applicationCategory: "EngineeringApplication",
+    operatingSystem: "Web",
+    url: absoluteUrl(calculatorHrefForFamily(familySlug)),
+    isAccessibleForFree: true,
+    description: `Calcola kg/m, peso per barra e tonnellate per ${config.label.toLowerCase()} in acciaio.`,
+  };
+
   return (
     <div className="mx-auto max-w-7xl space-y-9 px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
       <script
@@ -154,6 +206,14 @@ export async function PublicTubeFamilyHubPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(calculatorJsonLd) }}
       />
 
       <nav aria-label="Breadcrumb" className="school-breadcrumb">
@@ -173,6 +233,23 @@ export async function PublicTubeFamilyHubPage({
           `${family.size_hub_count} gruppi confrontabili`,
         ]}
       />
+
+      <section className="flex flex-col gap-4 rounded-3xl border border-[#b8d2c8] bg-[#edf5f2] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div>
+          <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#1a5144]">
+            Calcolo immediato
+          </p>
+          <h2 className="mt-1 text-xl font-semibold text-[#173f35]">
+            Parti da {config.label.toLowerCase()} e calcola subito kg/m e tonnellate
+          </h2>
+          <p className="mt-1 text-sm leading-6 text-[#52615b]">
+            La sagoma viene preselezionata nel cockpit; puoi cambiare norma, misure, lunghezza barra e quantità.
+          </p>
+        </div>
+        <Link href={calculatorHrefForFamily(familySlug)} className="school-primary-action min-h-11 shrink-0">
+          Calcola {config.label.toLowerCase()} →
+        </Link>
+      </section>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
@@ -248,10 +325,10 @@ export async function PublicTubeFamilyHubPage({
             il risultato teorico in un dato canonico.
           </p>
           <Link
-            href="/knowledge/tubes"
+            href={calculatorHrefForFamily(familySlug)}
             className="school-primary-action mt-5"
           >
-            Apri il calcolatore →
+            Apri il calcolatore con {config.label.toLowerCase()} →
           </Link>
         </div>
       </section>

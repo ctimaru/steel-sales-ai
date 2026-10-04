@@ -35,9 +35,9 @@ test("K7 adds crawlable family discovery above exact dimensions", () => {
   assert.match(tubeIndex, /Esplora per famiglia e dimensione esterna/);
   assert.match(tubeIndex, /listPublicTubeFamilyHubs/);
   assert.match(tubeIndex, /tubeFamilyHubPath/);
-  assert.match(familyHub, /Pesi tubi tondi in acciaio per diametro e spessore/);
-  assert.match(familyHub, /Pesi profili quadri in acciaio per sezione e spessore/);
-  assert.match(familyHub, /Pesi profili rettangolari in acciaio per sezione e spessore/);
+  assert.match(familyHub, /Calcolo peso tubo tondo acciaio/);
+  assert.match(familyHub, /Calcolo peso profilo quadro acciaio/);
+  assert.match(familyHub, /Calcolo peso profilo rettangolare acciaio/);
 });
 
 test("K7 refuses thin outer-size hub pages", () => {
