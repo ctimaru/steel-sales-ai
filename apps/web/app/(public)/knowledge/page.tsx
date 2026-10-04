@@ -84,39 +84,23 @@ export default function KnowledgeHomePage() {
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {knowledgeAreas.map((area) => {
-            const body = (
-              <>
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">{area.eyebrow}</p>
-                  <span className="rounded-full bg-[#ecefed] px-2.5 py-1 text-[10px] font-semibold text-[#66736e]">
-                    {area.status}
-                  </span>
-                </div>
-                <h3 className="mt-4 text-lg font-semibold text-[#1d2824]">{area.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-[#66736e]">{area.description}</p>
-                {"href" in area ? (
-                  <p className="mt-5 text-xs font-semibold text-[#1a5144]">Apri sezione →</p>
-                ) : (
-                  <p className="mt-5 text-xs font-semibold text-[#66736e]">Guide in preparazione</p>
-                )}
-              </>
-            );
-
-            return "href" in area ? (
-              <Link
-                key={area.eyebrow}
-                href={area.href}
-                className="rounded-2xl border border-[#d9e8e2] bg-white p-5 transition hover:border-[#b8d2c8] hover:shadow-sm"
-              >
-                {body}
-              </Link>
-            ) : (
-              <article key={area.eyebrow} className="rounded-2xl border border-[#dce2df] bg-white p-5">
-                {body}
-              </article>
-            );
-          })}
+          {knowledgeAreas.map((area) => (
+            <Link
+              key={area.eyebrow}
+              href={area.href}
+              className="rounded-2xl border border-[#d9e8e2] bg-white p-5 transition hover:border-[#b8d2c8] hover:shadow-sm"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">{area.eyebrow}</p>
+                <span className="rounded-full bg-[#ecefed] px-2.5 py-1 text-[10px] font-semibold text-[#66736e]">
+                  {area.status}
+                </span>
+              </div>
+              <h3 className="mt-4 text-lg font-semibold text-[#1d2824]">{area.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-[#66736e]">{area.description}</p>
+              <p className="mt-5 text-xs font-semibold text-[#1a5144]">Apri sezione →</p>
+            </Link>
+          ))}
         </div>
       </section>
 
