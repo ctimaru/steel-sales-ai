@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { LegalPageShell, LegalSection } from "@/components/legal-page-shell";
+import { PrivacyProcessingMatrix } from "@/components/privacy-processing-matrix";
 import { legalRobots } from "@/lib/legal";
 import { absoluteUrl } from "@/lib/site";
 
@@ -46,6 +47,8 @@ export default function PrivacyPage() {
           per la funzione di riuso quotidiano; il layer WC4 non li invia al backend.
         </p>
       </LegalSection>
+
+      <PrivacyProcessingMatrix />
 
       <LegalSection title="3. Finalità e basi giuridiche">
         <ul className="list-disc space-y-2 pl-5">
