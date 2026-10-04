@@ -85,6 +85,15 @@ export default function AuthFinishPage() {
           throw userError ?? new Error("Sessione di autenticazione non disponibile.");
         }
 
+        const { data: lifecycleData } = await supabase.rpc("lr5_account_lifecycle_state");
+        const lifecycle = (lifecycleData ?? {}) as { access_suspended?: boolean };
+        if (lifecycle.access_suspended === true) {
+          await supabase.auth.signOut({ scope: "global" });
+          router.replace("/account-closure?requested=1");
+          router.refresh();
+          return;
+        }
+
         if (isInvite && isStaffInvite) {
           if (!cancelled) {
             setInviteKind("platform");
