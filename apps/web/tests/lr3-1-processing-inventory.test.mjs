@@ -8,11 +8,11 @@ const inventory = fs.readFileSync(
 );
 const privacy = fs.readFileSync(new URL("../app/privacy/page.tsx", import.meta.url), "utf8");
 const wc5 = fs.readFileSync(
-  new URL("../../supabase/migrations/20261004113212_wc5_public_utility_discovery_telemetry.sql", import.meta.url),
+  new URL("../../../supabase/migrations/20261004113212_wc5_public_utility_discovery_telemetry.sql", import.meta.url),
   "utf8",
 );
 const pa15 = fs.readFileSync(
-  new URL("../../supabase/migrations/20261004060000_pa1_5_public_company_data_governance.sql", import.meta.url),
+  new URL("../../../supabase/migrations/20261004060000_pa1_5_public_company_data_governance.sql", import.meta.url),
   "utf8",
 );
 
