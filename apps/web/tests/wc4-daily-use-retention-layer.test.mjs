@@ -65,6 +65,8 @@ test("WC4 Save Calculator persists a reopen configuration without overriding a s
   assert.match(calculator, /Salva il Calcolatore/);
   assert.match(calculator, /Calcolatore salvato ✓/);
   assert.match(calculator, /WC4_SAVED_TOOL_KEY/);
+  assert.match(calculator, /writeSavedCalculator/);
+  assert.match(calculator, /if \(!retentionReady \|\| !calculatorSaved \|\| !currentSnapshot\) return/);
   assert.match(calculator, /hasSharedState/);
   assert.match(calculator, /if \(!hasSharedState && saved\?\.key\) restoreCalculation\(saved\)/);
 });
