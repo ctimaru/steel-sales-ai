@@ -26,7 +26,7 @@ test("PA1.1 exposes real public Scuola entry points", () => {
 });
 
 test("PA1.1 public-value architecture remains intact after PA1.2 adds real company lookup", () => {
-  assert.match(home, /Rivendica o registra la tua azienda/);
+  assert.match(home, /Trova o rivendica la tua azienda/);
   assert.match(home, /<PublicCompanyLookup \/>/);
   assert.match(home, /La ricerca pubblica serve solo a riconoscere l&apos;identità aziendale/);
   assert.match(home, /Privato · Premium/);
