@@ -18,7 +18,7 @@ create table if not exists public.user_legal_acceptances (
     acceptance_source in ('registration','first_login','team_invite','account')
   ),
   created_at timestamptz not null default now(),
-  unique(user_id,privacy_notice_version,terms_version)
+  unique(subject_user_ref,privacy_notice_version,terms_version)
 );
 
 alter table public.user_legal_acceptances enable row level security;
@@ -115,6 +115,13 @@ security invoker
 set search_path=''
 as $function$
 begin
+  if tg_op='UPDATE'
+     and old.user_id is not null
+     and new.user_id is null
+     and (to_jsonb(new)-'user_id')=(to_jsonb(old)-'user_id') then
+    return new;
+  end if;
+
   raise exception 'LR5 compliance evidence is immutable'
     using errcode='55000';
 end;
@@ -226,7 +233,7 @@ begin
     v_terms_version,now(),
     v_source
   )
-  on conflict (user_id,privacy_notice_version,terms_version)
+  on conflict (subject_user_ref,privacy_notice_version,terms_version)
   do nothing
   returning id into v_id;
 
@@ -632,28 +639,57 @@ security definer
 set search_path=''
 as $function$
 declare
-  v_deleted_drafts integer := 0;
-  v_deleted_rejected integer := 0;
+  v_redacted_drafts integer := 0;
+  v_redacted_rejected integer := 0;
   v_redacted_activated integer := 0;
   v_deleted_export_events integer := 0;
   v_deleted_lifecycle_events integer := 0;
 begin
-  with deleted as (
-    delete from public.company_registration_applications
+  -- Registration audit rows are referenced by immutable platform events.
+  -- LR5 therefore removes personal applicant/contact fields after the retention
+  -- window instead of deleting the application row and breaking accountability.
+  with redacted as (
+    update public.company_registration_applications
+    set applicant_user_id=null,
+        applicant_email_snapshot=
+          'retention-redacted+'||substr(id::text,1,12)||'@invalid.local',
+        contact_name='Retention redacted',
+        contact_phone=null,
+        short_description=null,
+        updated_at=p_now
     where application_status='draft'
       and updated_at < p_now-interval '90 days'
+      and (
+        applicant_user_id is not null
+        or contact_name<>'Retention redacted'
+        or contact_phone is not null
+        or short_description is not null
+      )
     returning 1
   )
-  select count(*)::integer into v_deleted_drafts from deleted;
+  select count(*)::integer into v_redacted_drafts from redacted;
 
-  with deleted as (
-    delete from public.company_registration_applications
+  with redacted as (
+    update public.company_registration_applications
+    set applicant_user_id=null,
+        applicant_email_snapshot=
+          'retention-redacted+'||substr(id::text,1,12)||'@invalid.local',
+        contact_name='Retention redacted',
+        contact_phone=null,
+        short_description=null,
+        updated_at=p_now
     where application_status='rejected'
       and reviewed_at is not null
       and reviewed_at < p_now-interval '12 months'
+      and (
+        applicant_user_id is not null
+        or contact_name<>'Retention redacted'
+        or contact_phone is not null
+        or short_description is not null
+      )
     returning 1
   )
-  select count(*)::integer into v_deleted_rejected from deleted;
+  select count(*)::integer into v_redacted_rejected from redacted;
 
   with redacted as (
     update public.company_registration_applications
@@ -694,8 +730,8 @@ begin
 
   return jsonb_build_object(
     'ran_at',p_now,
-    'deleted_drafts',v_deleted_drafts,
-    'deleted_rejected',v_deleted_rejected,
+    'redacted_drafts',v_redacted_drafts,
+    'redacted_rejected',v_redacted_rejected,
     'redacted_activated',v_redacted_activated,
     'deleted_export_events',v_deleted_export_events,
     'deleted_lifecycle_events',v_deleted_lifecycle_events
