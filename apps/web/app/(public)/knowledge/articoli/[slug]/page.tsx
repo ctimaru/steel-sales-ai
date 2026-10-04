@@ -77,7 +77,23 @@ export default async function SchoolArticlePage({
       name: "Smart Steel Sales",
     },
     citation: article.sources.map((source) => source.url),
+    url: absoluteUrl(`/knowledge/articoli/${article.slug}`),
+    inLanguage: "it-IT",
+    keywords: article.keywords,
+    about: article.about.map((name) => ({
+      "@type": "Thing",
+      name,
+    })),
+    isPartOf: {
+      "@type": "CollectionPage",
+      name: "Articoli Scuola Smart Steel Sales",
+      url: absoluteUrl("/knowledge/articoli"),
+    },
   };
+
+  const relatedArticles = article.relatedArticleSlugs
+    .map((relatedSlug) => getSchoolArticle(relatedSlug))
+    .filter((related): related is NonNullable<typeof related> => Boolean(related));
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -270,6 +286,32 @@ export default async function SchoolArticlePage({
         ))}
       </article>
 
+      {relatedArticles.length ? (
+        <section className="school-card p-6 sm:p-8" aria-labelledby="article-related-articles">
+          <p className="school-kicker">Leggi anche</p>
+          <h2 id="article-related-articles" className="mt-2 text-2xl font-semibold text-[#1d2824]">
+            Approfondimenti collegati
+          </h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#5d6a65]">
+            La Scuola collega storia, industria, processi, norme e strumenti in un unico percorso tecnico.
+          </p>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            {relatedArticles.map((related) => (
+              <Link
+                key={related.slug}
+                href={`/knowledge/articoli/${related.slug}`}
+                className="rounded-2xl border border-[#d7dfdb] bg-[#f7f9f8] p-5 transition hover:border-[#9fbfb3] hover:bg-white"
+              >
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">{related.category}</p>
+                <h3 className="mt-2 font-semibold text-[#173f35]">{related.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-[#5d6a65]">{related.description}</p>
+                <p className="mt-3 text-xs font-bold text-[#1a5144]">Leggi approfondimento →</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <section className="school-muted-card p-6 sm:p-8" aria-labelledby="article-sources">
         <p className="school-kicker">Fonti e revisione</p>
         <h2 id="article-sources" className="mt-2 text-2xl font-semibold text-[#1d2824]">
@@ -305,7 +347,8 @@ export default async function SchoolArticlePage({
         <div className="flex flex-wrap gap-2">
           <Link href="/knowledge/articoli" className="school-secondary-action">Altri articoli</Link>
           <Link href="/knowledge/norme" className="school-secondary-action">Norme</Link>
-          <Link href="/knowledge/tubes" className="school-primary-action">Calcola pesi</Link>
+          <Link href="/knowledge/tubes?source=school&surface=home_card#calcolatore-pesi" className="school-primary-action">Calcola pesi</Link>
+          <Link href="/azienda" className="school-secondary-action">Trova azienda</Link>
         </div>
       </section>
     </div>
