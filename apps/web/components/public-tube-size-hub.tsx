@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
+import { SchoolHero } from "@/components/school-ui";
 import {
   getPublicTubeSizeHub,
   listPublicTubeSizeHubs,
@@ -222,7 +223,7 @@ export async function PublicTubeSizeHubPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
-      <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
+      <nav aria-label="Breadcrumb" className="school-breadcrumb">
         <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>
         <Link href="/knowledge/tubes" className="hover:text-[#1a5144]">Pesi &amp; dimensioni</Link>
@@ -232,11 +233,15 @@ export async function PublicTubeSizeHubPage({
         <span>{sizeLabel}</span>
       </nav>
 
-      <header className="rounded-3xl border border-[#dce2df] bg-white p-6 shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)] sm:p-8 lg:p-10">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Confronto per spessore</p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-5xl">{title}</h1>
-        <p className="mt-5 max-w-3xl text-base leading-7 text-[#66736e]">{description}</p>
-      </header>
+      <SchoolHero
+        eyebrow="Confronto per spessore"
+        title={title}
+        description={<>{description}</>}
+        badges={[
+          `${hub.variant_count} spessori`,
+          `${hub.source_count} fonti`,
+        ]}
+      />
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
@@ -252,7 +257,7 @@ export async function PublicTubeSizeHubPage({
           ["Fonti nel gruppo", String(hub.source_count)],
         ].map(([label, value]) => (
           <div key={label} className="rounded-2xl border border-[#dce2df] bg-white p-5">
-            <p className="text-xs font-semibold text-[#7e8da1]">{label}</p>
+            <p className="school-meta-label">{label}</p>
             <p className="mt-1 text-xl font-semibold text-[#1d2824]">{value}</p>
           </div>
         ))}
@@ -267,7 +272,7 @@ export async function PublicTubeSizeHubPage({
 
         <div className="mt-5 overflow-x-auto">
           <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-[#e7edf6] text-xs uppercase tracking-wide text-[#7e8da1]">
+            <thead className="school-table-head border-b border-[#dce2df] text-xs uppercase tracking-wide">
               <tr>
                 <th className="px-2 py-3 font-semibold">Spessore</th>
                 <th className="px-2 py-3 font-semibold">kg/m</th>
@@ -279,7 +284,7 @@ export async function PublicTubeSizeHubPage({
             </thead>
             <tbody className="divide-y divide-[#edf1f6]">
               {hub.variants.map((variant) => (
-                <tr key={variant.dimension_slug}>
+                <tr key={variant.dimension_slug} className="school-table-row">
                   <td className="px-2 py-3 font-medium text-[#1d2824]">
                     {formatTubeNumber(variant.thickness_mm)} mm
                   </td>
@@ -295,7 +300,7 @@ export async function PublicTubeSizeHubPage({
                       href={variant.source_url}
                       target="_blank"
                       rel="noreferrer"
-                      className="font-semibold text-[#1a5144]"
+                      className="school-inline-link"
                     >
                       {variant.source_provider} ↗
                     </a>
@@ -303,7 +308,7 @@ export async function PublicTubeSizeHubPage({
                   <td className="px-2 py-3 text-right">
                     <Link
                       href={"/knowledge/tubes/" + variant.dimension_slug}
-                      className="font-semibold text-[#1a5144]"
+                      className="school-inline-link"
                     >
                       Scheda →
                     </Link>

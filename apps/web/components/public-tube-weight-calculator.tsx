@@ -166,7 +166,7 @@ export function PublicTubeWeightCalculator({
                   onClick={() => setFamily(option.value)}
                   className={
                     family === option.value
-                      ? "school-primary-action px-3 py-2.5"
+                      ? "school-selected-control rounded-xl px-3 py-2.5 text-sm font-semibold"
                       : "school-secondary-action px-3 py-2.5"
                   }
                 >
@@ -270,7 +270,7 @@ export function PublicTubeWeightCalculator({
                 ["Peso totale", values.totalTonnes == null ? "—" : `${formatNumber(values.totalTonnes, 4)} t`],
               ].map(([label, value]) => (
                 <div key={label} className="rounded-2xl border border-[#dfe8f4] bg-white p-4">
-                  <p className="text-xs font-semibold text-[#7e8da1]">{label}</p>
+                  <p className="school-meta-label">{label}</p>
                   <p className="mt-1 text-xl font-semibold text-[#1d2824]">{value}</p>
                 </div>
               ))}
@@ -344,7 +344,7 @@ export function PublicTubeWeightCalculator({
 
         <div className="mt-5 overflow-x-auto">
           <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-[#e7ece9] text-xs uppercase tracking-wide text-[#7e8da1]">
+            <thead className="school-table-head border-b border-[#dce2df] text-xs uppercase tracking-wide">
               <tr>
                 <th className="px-2 py-3 font-semibold">Dimensione</th>
                 <th className="px-2 py-3 font-semibold">Peso</th>
@@ -354,7 +354,7 @@ export function PublicTubeWeightCalculator({
             </thead>
             <tbody className="divide-y divide-[#edf1f6]">
               {familyReferences.map((reference) => (
-                <tr key={reference.reference_id}>
+                <tr key={reference.reference_id} className="school-table-row">
                   <td className="px-2 py-3 font-medium">
                     <Link
                       href={`/knowledge/tubes/${reference.dimension_slug}`}
@@ -369,7 +369,7 @@ export function PublicTubeWeightCalculator({
                   </td>
                   <td className="px-2 py-3 text-[#66736e]">
                     {reference.source_url ? (
-                      <a href={reference.source_url} target="_blank" rel="noreferrer" className="font-semibold text-[#1a5144]">
+                      <a href={reference.source_url} target="_blank" rel="noreferrer" className="school-inline-link">
                         {reference.source_provider ?? "Fonte"} ↗
                       </a>
                     ) : reference.source_provider ?? "—"}

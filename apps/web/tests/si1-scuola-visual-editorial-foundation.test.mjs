@@ -36,7 +36,7 @@ test("SI1 centralizes high-contrast primary and secondary Scuola actions", () =>
   assert.match(layout, /school-secondary-action/);
   assert.match(standards, /school-primary-action h-11/);
   assert.match(grades, /school-primary-action h-11/);
-  assert.match(calculator, /school-primary-action px-3 py-2\.5/);
+  assert.match(calculator, /school-selected-control rounded-xl px-3 py-2\.5/);
   assert.match(calculator, /school-secondary-action px-3 py-2\.5/);
   assert.match(claimCta, /border-white\/60/);
 });

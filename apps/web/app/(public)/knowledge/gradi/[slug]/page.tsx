@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
+import { SchoolHero } from "@/components/school-ui";
+
 import {
   applicabilityLabel,
   manufacturingProcessLabel,
@@ -135,7 +137,7 @@ export default async function GradeDetailPage({
         />
       ) : null}
 
-      <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
+      <nav aria-label="Breadcrumb" className="school-breadcrumb">
         <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>
         <Link href="/knowledge/gradi" className="hover:text-[#1a5144]">Gradi</Link>
@@ -144,37 +146,29 @@ export default async function GradeDetailPage({
       </nav>
 
       <article className="space-y-8">
-        <header className="rounded-3xl border border-[#dce2df] bg-white p-6 shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)] sm:p-8 lg:p-10">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-              {grade.standard_system ?? "Grado acciaio"}
-            </span>
-            {grade.material_family ? (
-              <span className="rounded-full bg-[#ecefed] px-3 py-1 text-[11px] font-semibold text-[#66736e]">
-                {materialFamilyLabel(grade.material_family)}
-              </span>
-            ) : null}
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">
-              Revisione editoriale {formatReviewDate(grade.last_reviewed_at)}
-            </span>
-          </div>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-5xl">
-            {grade.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, "")}
-          </h1>
-          <p className="mt-5 max-w-3xl text-base leading-7 text-[#66736e]">{grade.intro}</p>
-        </header>
+        <SchoolHero
+          eyebrow={grade.standard_system ?? "Grado acciaio"}
+          title={grade.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, "")}
+          description={<>{grade.intro}</>}
+          badges={[
+            ...(grade.material_family
+              ? [materialFamilyLabel(grade.material_family) ?? grade.material_family]
+              : []),
+            `Rivisto ${formatReviewDate(grade.last_reviewed_at)}`,
+          ]}
+        />
 
         <section className="grid gap-4 sm:grid-cols-3">
           <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
-            <p className="text-xs font-semibold text-[#7e8da1]">Designazione</p>
+            <p className="school-meta-label">Designazione</p>
             <p className="mt-1 text-lg font-semibold text-[#1d2824]">{grade.designation}</p>
           </div>
           <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
-            <p className="text-xs font-semibold text-[#7e8da1]">Numero materiale</p>
+            <p className="school-meta-label">Numero materiale</p>
             <p className="mt-1 text-lg font-semibold text-[#1d2824]">{grade.material_number ?? "—"}</p>
           </div>
           <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
-            <p className="text-xs font-semibold text-[#7e8da1]">Densità usata nei riferimenti</p>
+            <p className="school-meta-label">Densità usata nei riferimenti</p>
             <p className="mt-1 text-lg font-semibold text-[#1d2824]">
               {grade.density_kg_m3 ? `${grade.density_kg_m3.toLocaleString("it-IT")} kg/m³` : "—"}
             </p>
@@ -223,7 +217,7 @@ export default async function GradeDetailPage({
                 >
                   <p className="font-semibold text-[#1d2824]">{related.designation}</p>
                   {related.material_number ? (
-                    <p className="mt-1 text-xs text-[#7e8da1]">Materiale {related.material_number}</p>
+                    <p className="mt-1 text-xs text-[#5d6a65]">Materiale {related.material_number}</p>
                   ) : null}
                   {related.material_family ? (
                     <p className="mt-3 text-xs font-semibold text-[#1a5144]">
@@ -287,7 +281,7 @@ export default async function GradeDetailPage({
               })}
             </div>
 
-            <Link href="/knowledge/norme" className="mt-5 inline-flex text-sm font-semibold text-[#1a5144]">
+            <Link href="/knowledge/norme" className="school-inline-link mt-5 inline-flex">
               Esplora il catalogo norme →
             </Link>
           </section>
@@ -334,7 +328,7 @@ export default async function GradeDetailPage({
                     {source.publisher}{source.status ? ` · ${source.status}` : ""}
                   </p>
                 </div>
-                <span className="shrink-0 text-sm font-semibold text-[#1a5144]">Apri ↗</span>
+                <span className="school-inline-link shrink-0 text-sm">Apri ↗</span>
               </a>
             ))}
           </div>
@@ -352,13 +346,13 @@ export default async function GradeDetailPage({
         <section className="grid gap-4 sm:grid-cols-2">
           <Link
             href="/knowledge/gradi"
-            className="rounded-2xl border border-[#dce2df] bg-white p-5 text-sm font-semibold text-[#1a5144] hover:border-[#b8d2c8]"
+            className="school-secondary-action min-h-16 justify-start px-5"
           >
             ← Torna al catalogo gradi
           </Link>
           <Link
             href="/knowledge/tubes"
-            className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-5 text-sm font-semibold text-[#1a5144] hover:border-[#b8d2c8]"
+            className="school-primary-action min-h-16 justify-start px-5"
           >
             Continua con pesi & dimensioni →
           </Link>
