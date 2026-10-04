@@ -26,13 +26,14 @@ test("SI4 publishes the manufacturing article with four distinct production rout
 });
 
 test("SI4 avoids the simplistic welded-bad seamless-good hierarchy", () => {
+  const renderedContract = articleData + "\n" + articleDetail;
   for (const term of [
     "seamless è sempre migliore",
     "saldato è sempre meno sicuro",
     "La conformità dipende dalla specifica tecnica applicabile",
     "Quindi: saldato o seamless?",
   ]) {
-    assert.ok(articleData.includes(term), term);
+    assert.ok(renderedContract.includes(term), term);
   }
 });
 
