@@ -907,8 +907,8 @@ export function PublicTubeWeightCalculator({
               }}
               className={
                 calculatorSaved
-                  ? "school-selected-control min-h-11 rounded-xl px-3 py-2.5 text-xs font-bold disabled:opacity-50"
-                  : "school-secondary-action min-h-11 px-3 py-2.5 text-xs disabled:opacity-50"
+                  ? "school-selected-control rounded-xl px-3 py-2.5 min-h-11 text-xs font-bold disabled:opacity-50"
+                  : "school-secondary-action px-3 py-2.5 min-h-11 text-xs disabled:opacity-50"
               }
             >
               <span className="sm:hidden">{calculatorSaved ? "Salvato ✓" : "Salva"}</span>
