@@ -162,19 +162,19 @@ export default async function StandardDetailPage({
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {standard.issuing_body ? (
             <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
-              <p className="text-xs font-semibold text-[#7e8da1]">Ente / riferimento</p>
+              <p className="school-meta-label">Ente / riferimento</p>
               <p className="mt-1 text-sm font-semibold text-[#1d2824]">{standard.issuing_body.split(";")[0]}</p>
             </div>
           ) : null}
           {standard.edition && !standard.edition.includes("manufacturer-reference") ? (
             <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
-              <p className="text-xs font-semibold text-[#7e8da1]">Edizione / stato</p>
+              <p className="school-meta-label">Edizione / stato</p>
               <p className="mt-1 text-sm font-semibold text-[#1d2824]">{standard.edition}</p>
             </div>
           ) : null}
           {standard.product_families.length ? (
             <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
-              <p className="text-xs font-semibold text-[#7e8da1]">Famiglie prodotto</p>
+              <p className="school-meta-label">Famiglie prodotto</p>
               <p className="mt-1 text-sm font-semibold text-[#1d2824]">
                 {standard.product_families.map(productFamilyLabel).join(", ")}
               </p>
@@ -182,7 +182,7 @@ export default async function StandardDetailPage({
           ) : null}
           {standard.manufacturing_processes.length ? (
             <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
-              <p className="text-xs font-semibold text-[#7e8da1]">Processi</p>
+              <p className="school-meta-label">Processi</p>
               <p className="mt-1 text-sm font-semibold text-[#1d2824]">
                 {standard.manufacturing_processes.map(manufacturingProcessLabel).join(", ")}
               </p>
@@ -262,7 +262,7 @@ export default async function StandardDetailPage({
                       <div>
                         <p className="font-semibold text-[#1d2824]">{grade.designation}</p>
                         {grade.material_number ? (
-                          <p className="mt-1 text-xs text-[#7e8da1]">Materiale {grade.material_number}</p>
+                          <p className="mt-1 text-xs text-[#5d6a65]">Materiale {grade.material_number}</p>
                         ) : null}
                       </div>
                       <span className={grade.is_normative
