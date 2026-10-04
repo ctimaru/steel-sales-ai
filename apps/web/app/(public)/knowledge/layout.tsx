@@ -61,10 +61,12 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
               Gradi
             </Link>
             <Link
-              href="/knowledge/tubes"
-              className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#4f5e58] hover:bg-[#eef2f0] hover:text-[#173f35] xl:inline-flex"
+              href="/knowledge/tubes?source=school&surface=nav#calcolatore-pesi"
+              aria-label="Calcolatore · Pesi & dimensioni"
+              className="hidden rounded-xl bg-[#edf5f2] px-3 py-2 text-sm font-bold text-[#173f35] hover:bg-[#d9e8e2] lg:inline-flex"
             >
-              Pesi & dimensioni
+              Calcolatore
+              <span className="sr-only"> · Pesi &amp; dimensioni</span>
             </Link>
             <PublicSessionAction className="school-secondary-action hidden sm:inline-flex" />
             <Link href="/azienda" className="school-primary-action">
@@ -79,10 +81,10 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
           >
             {[
               ["/knowledge", "Home"],
+              ["/knowledge/tubes?source=school&surface=nav#calcolatore-pesi", "Calcolatore"],
               ["/knowledge/articoli", "Articoli"],
               ["/knowledge/norme", "Norme"],
               ["/knowledge/gradi", "Gradi"],
-              ["/knowledge/tubes", "Pesi & dimensioni"],
             ].map(([href, label]) => (
               <Link
                 key={href}
@@ -113,6 +115,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
           <div className="flex flex-wrap items-start gap-x-5 gap-y-2 text-xs font-semibold">
             <Link href="/" className="hover:text-[#173f35]">Smart Steel Sales</Link>
             <Link href="/knowledge" className="hover:text-[#173f35]">Scuola</Link>
+            <Link href="/knowledge/tubes?source=school&surface=nav#calcolatore-pesi" className="hover:text-[#173f35]">Calcolatore</Link>
             <Link href="/knowledge/articoli" className="hover:text-[#173f35]">Articoli</Link>
             <PublicSessionAction className="hover:text-[#173f35]" />
           </div>

@@ -117,6 +117,12 @@ export default async function PublicHomePage() {
             >
               Scuola
             </Link>
+            <Link
+              href="/knowledge/tubes?source=home&surface=header#calcolatore-pesi"
+              className="rounded-xl bg-[#edf5f2] px-3 py-2 text-sm font-bold text-[#173f35] hover:bg-[#d9e8e2]"
+            >
+              Calcolatore
+            </Link>
             <a
               href="#aziende"
               className="rounded-xl px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3] hover:text-[#173f35]"
@@ -131,6 +137,12 @@ export default async function PublicHomePage() {
             </a>
           </nav>
           <div className="flex items-center gap-2">
+            <Link
+              href="/knowledge/tubes?source=home&surface=header#calcolatore-pesi"
+              className="inline-flex rounded-xl bg-[#173f35] px-3 py-2 text-sm font-bold text-white md:hidden"
+            >
+              Calcola
+            </Link>
             <Link
               href="/login"
               className="rounded-xl border border-[#d7dfdb] bg-white px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f4f7f5] hover:text-[#173f35]"
@@ -170,18 +182,24 @@ export default async function PublicHomePage() {
               arricchiti — resta un prodotto privato per le aziende registrate.
             </p>
 
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
-                href="/knowledge"
-                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-white px-5 text-sm font-semibold text-[#173f35] transition hover:bg-[#edf5f2]"
+                href="/knowledge/tubes?source=home&surface=hero#calcolatore-pesi"
+                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-white px-5 text-sm font-bold text-[#173f35] transition hover:bg-[#edf5f2]"
               >
-                Apri Scuola
+                Calcola peso tubo
               </Link>
               <Link
                 href="/azienda"
                 className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/20 bg-white/[0.06] px-5 text-sm font-semibold text-white transition hover:bg-white/[0.1]"
               >
                 Trova o rivendica la tua azienda
+              </Link>
+              <Link
+                href="/knowledge"
+                className="inline-flex min-h-10 items-center px-2 text-sm font-semibold text-[#c6d8d1] underline decoration-white/25 underline-offset-4 hover:text-white"
+              >
+                Apri Scuola
               </Link>
             </div>
 
@@ -206,8 +224,16 @@ export default async function PublicHomePage() {
             {schoolCards.map((card, index) => (
               <Link
                 key={card.title}
-                href={card.href}
-                className="group rounded-2xl border border-white/10 bg-white/[0.07] p-5 transition hover:bg-white/[0.11]"
+                href={
+                  index === 0
+                    ? "/knowledge/tubes?source=home&surface=quick_actions#calcolatore-pesi"
+                    : card.href
+                }
+                className={
+                  index === 0
+                    ? "group rounded-2xl border border-[#f2cf9c]/35 bg-white/[0.12] p-5 shadow-[0_12px_28px_rgba(0,0,0,0.08)] transition hover:bg-white/[0.16]"
+                    : "group rounded-2xl border border-white/10 bg-white/[0.07] p-5 transition hover:bg-white/[0.11]"
+                }
               >
                 <div className="flex items-start gap-4">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-xs font-bold text-[#173f35]">
@@ -243,17 +269,25 @@ export default async function PublicHomePage() {
         </div>
 
         <div className="mt-7 grid gap-4 lg:grid-cols-3">
-          {schoolCards.map((card) => (
+          {schoolCards.map((card, index) => (
             <Link
               key={card.title}
-              href={card.href}
-              className="rounded-[24px] border border-[#dce2df] bg-white p-6 transition hover:border-[#b8d2c8] hover:shadow-[0_12px_36px_rgba(18,61,52,0.06)]"
+              href={
+                index === 0
+                  ? "/knowledge/tubes?source=home&surface=school_section#calcolatore-pesi"
+                  : card.href
+              }
+              className={
+                index === 0
+                  ? "rounded-[24px] border border-[#9fbfb3] bg-[#f7fbf9] p-6 shadow-[0_12px_36px_rgba(18,61,52,0.06)] transition hover:border-[#438d7a]"
+                  : "rounded-[24px] border border-[#dce2df] bg-white p-6 transition hover:border-[#b8d2c8] hover:shadow-[0_12px_36px_rgba(18,61,52,0.06)]"
+              }
             >
               <p className="text-xs font-bold uppercase tracking-[0.13em] text-[#1a5144]">{card.eyebrow}</p>
               <h3 className="mt-3 text-xl font-semibold text-[#1d2824]">{card.title}</h3>
               <p className="mt-3 text-sm leading-6 text-[#66736e]">{card.description}</p>
               <p className="mt-5 text-xs font-semibold text-[#1a5144]">
-                {card.action} <span aria-hidden="true">→</span>
+                {index === 0 ? "Calcola ora" : card.action} <span aria-hidden="true">→</span>
               </p>
             </Link>
           ))}
@@ -373,6 +407,7 @@ export default async function PublicHomePage() {
       <footer className="border-t border-[#dce2df] bg-white">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-6 text-xs text-[#7b8782] sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
           <div className="flex flex-wrap gap-x-5 gap-y-2">
+            <Link href="/knowledge/tubes?source=home&surface=school_section#calcolatore-pesi" className="font-semibold hover:text-[#173f35]">Calcolatore</Link>
             <Link href="/knowledge" className="font-semibold hover:text-[#173f35]">Scuola</Link>
             <Link href="/login" className="font-semibold hover:text-[#173f35]">Accedi</Link>
             <Link href="/register" className="font-semibold hover:text-[#173f35]">Registra azienda</Link>

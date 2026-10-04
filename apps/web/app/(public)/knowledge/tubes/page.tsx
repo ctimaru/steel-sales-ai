@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { PublicUtilityTelemetry } from "@/components/public-utility-telemetry";
 import {
   PublicTubeWeightCalculator,
   type PublicTubeCalculatorInitialValues,
@@ -79,6 +80,8 @@ type SearchParams = Promise<{
   quantity?: string;
   target?: string;
   density?: string;
+  source?: string;
+  surface?: string;
 }>;
 
 export default async function PublicTubeWeightsPage({
@@ -93,6 +96,29 @@ export default async function PublicTubeWeightsPage({
   ]);
   const supportedFamilies = new Set(["round_tube", "square_tube", "rectangular_tube"]);
   const supportedStandards = new Set(["en10219", "en10210", "geometric"]);
+  const supportedDiscoverySources = new Set(["direct", "home", "school"]);
+  const supportedDiscoverySurfaces = new Set([
+    "direct",
+    "header",
+    "hero",
+    "quick_actions",
+    "school_section",
+    "nav",
+    "home_card",
+  ]);
+  const discoverySource = supportedDiscoverySources.has(params.source ?? "")
+    ? (params.source as "direct" | "home" | "school")
+    : "direct";
+  const discoverySurface = supportedDiscoverySurfaces.has(params.surface ?? "")
+    ? (params.surface as
+        | "direct"
+        | "header"
+        | "hero"
+        | "quick_actions"
+        | "school_section"
+        | "nav"
+        | "home_card")
+    : "direct";
   const initialValues: PublicTubeCalculatorInitialValues = {
     standard: supportedStandards.has(params.standard ?? "")
       ? (params.standard as PublicTubeCalculatorInitialValues["standard"])
@@ -167,6 +193,7 @@ export default async function PublicTubeWeightsPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
 
+      <PublicUtilityTelemetry source={discoverySource} surface={discoverySurface} />
       <PublicTubeWeightCalculator references={references} initialValues={initialValues} />\n\n      <section aria-label="Esplora il catalogo per famiglia">
         <div className="mb-4 max-w-3xl">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Catalogo dimensionale</p>
