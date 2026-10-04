@@ -39,13 +39,13 @@ export async function generateMetadata({
   }
 
   return {
-    title: standard.seo_title,
+    title: standard.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, ""),
     description: standard.seo_description,
     alternates: {
       canonical: absoluteUrl(`/knowledge/norme/${standard.slug}`),
     },
     openGraph: {
-      title: standard.seo_title,
+      title: standard.seo_title.replace(/ · Steel Knowledge.*$/i, ""),
       description: standard.seo_description,
       url: absoluteUrl(`/knowledge/norme/${standard.slug}`),
       type: "article",
@@ -67,7 +67,7 @@ export default async function StandardDetailPage({
   const articleJsonLd = {
     "@context": "https://schema.org",
     "@type": "TechArticle",
-    headline: standard.seo_title,
+    headline: standard.seo_title.replace(/ · Steel Knowledge.*$/i, ""),
     description: standard.seo_description,
     datePublished: standard.published_at,
     dateModified: standard.last_reviewed_at,
@@ -108,7 +108,7 @@ export default async function StandardDetailPage({
       ) : null}
 
       <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
-        <Link href="/knowledge" className="hover:text-[#1a5144]">Steel Knowledge</Link>
+        <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>
         <Link href="/knowledge/norme" className="hover:text-[#1a5144]">Norme</Link>
         <span className="mx-2">/</span>
