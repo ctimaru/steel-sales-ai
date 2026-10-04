@@ -40,6 +40,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     {
+      url: absoluteUrl("/company-data"),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
       url: absoluteUrl("/knowledge"),
       lastModified: knowledgeLastModified,
       changeFrequency: "weekly",
