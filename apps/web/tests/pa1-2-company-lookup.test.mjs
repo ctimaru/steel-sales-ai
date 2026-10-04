@@ -7,8 +7,8 @@ const lookup = fs.readFileSync(
   new URL("../components/public-company-lookup.tsx", import.meta.url),
   "utf8",
 );
-const actions = fs.readFileSync(
-  new URL("../app/public-company-lookup-actions.ts", import.meta.url),
+const lookupContract = fs.readFileSync(
+  new URL("../lib/public-company-lookup.ts", import.meta.url),
   "utf8",
 );
 const migration = fs.readFileSync(
@@ -21,7 +21,7 @@ test("PA1.2 embeds real public lookup by company name or VAT", () => {
   assert.match(home, /Cercala per nome o Partita IVA/);
   assert.match(lookup, /name="company_query"/);
   assert.match(lookup, /Ragione sociale o Partita IVA/);
-  assert.match(actions, /supabase\.rpc\("pa1_2_company_lookup"/);
+  assert.match(lookupContract, /supabase\.rpc\("pa1_2_company_lookup"/);
 });
 
 test("PA1.2 keeps the rich Network private and premium", () => {
@@ -41,7 +41,7 @@ test("PA1.2 public result projection stays minimal", () => {
     "claim_state",
     "claim_ref",
   ]) {
-    assert.match(actions, new RegExp(field));
+    assert.match(lookupContract, new RegExp(field));
   }
 
   for (const forbidden of [
@@ -52,7 +52,7 @@ test("PA1.2 public result projection stays minimal", () => {
     "website_url",
     "description",
   ]) {
-    assert.doesNotMatch(actions, new RegExp(forbidden));
+    assert.doesNotMatch(lookupContract, new RegExp(forbidden));
   }
 });
 
