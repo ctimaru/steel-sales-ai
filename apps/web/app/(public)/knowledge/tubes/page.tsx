@@ -20,14 +20,14 @@ import {
 const baseMetadata: Metadata = {
   title: "Calcolo peso tubo acciaio: kg/m, barra e tonnellate",
   description:
-    "Calcolatore pubblico per il peso teorico di tubi tondi, profili quadri e rettangolari in acciaio. Calcola kg/m, peso barra e tonnellate e confronta i risultati con riferimenti tecnici pubblicati.",
+    "Calcolatore pubblico per tubi strutturali in acciaio: massa lineare secondo EN 10210 o EN 10219, oppure calcolo geometrico libero. Ottieni kg/m, peso barra e tonnellate.",
   alternates: {
     canonical: absoluteUrl("/knowledge/tubes"),
   },
   openGraph: {
     title: "Calcolo peso tubo acciaio · Scuola Smart Steel Sales",
     description:
-      "Calcola il peso di tubi tondi, quadri e rettangolari e confronta il risultato teorico con pesi tecnici pubblicati.",
+      "Calcola kg/m, peso per barra e tonnellate secondo EN 10210 o EN 10219, con modalità libera separata.",
     url: absoluteUrl("/knowledge/tubes"),
     type: "article",
   },
@@ -53,9 +53,9 @@ const faq = [
       "Si calcola l’area della corona circolare usando diametro esterno e spessore, poi si moltiplica l’area per la densità del materiale. Il calcolatore usa 7.850 kg/m³ come densità di default, modificabile.",
   },
   {
-    question: "Il peso teorico è uguale al peso riportato dal produttore?",
+    question: "Perché EN 10210 ed EN 10219 possono dare pesi diversi per lo stesso quadro o rettangolare?",
     answer:
-      "Non necessariamente. Il calcolo geometrico usa dimensioni nominali e una densità impostata, mentre un valore pubblicato può riflettere geometria reale della sezione, raggi degli spigoli, arrotondamenti e convenzioni del catalogo.",
+      "Per SHS e RHS le due norme usano raggi di raccordo di calcolo diversi. Questi raggi modificano l’area della sezione e quindi la massa lineare in kg/m, anche a parità di dimensioni nominali e spessore.",
   },
   {
     question: "Come si calcola il peso di una barra da 6 o 12 metri?",
@@ -63,9 +63,9 @@ const faq = [
       "Si moltiplica il peso in kg/m per la lunghezza della barra. Il peso totale si ottiene moltiplicando ancora per il numero di barre.",
   },
   {
-    question: "Il calcolatore può essere usato per profili quadri e rettangolari?",
+    question: "Posso ancora fare un calcolo geometrico libero?",
     answer:
-      "Sì. Per SHS e RHS il calcolo teorico usa una geometria idealizzata a spigoli vivi. Quando esiste un riferimento tecnico pubblicato per la stessa misura viene mostrato separatamente.",
+      "Sì. Se selezioni Calcolo libero, il calcolatore usa la geometria idealizzata e consente di modificare la densità. Se selezioni EN 10210 o EN 10219, invece, il kg/m principale usa le regole geometriche della norma scelta.",
   },
 ];
 
@@ -112,7 +112,7 @@ export default async function PublicTubeWeightsPage({
     operatingSystem: "Web",
     url: absoluteUrl("/knowledge/tubes"),
     description:
-      "Calcolatore pubblico di peso teorico per tubi tondi e profilati cavi quadri e rettangolari in acciaio.",
+      "Calcolatore pubblico per massa lineare secondo EN 10210 o EN 10219, con modalità geometrica libera separata.",
     offers: {
       "@type": "Offer",
       price: "0",
@@ -125,7 +125,7 @@ export default async function PublicTubeWeightsPage({
     "@type": "TechArticle",
     headline: "Come calcolare il peso di un tubo in acciaio",
     description:
-      "Formula, densità, kg/m, peso per barra e differenza tra calcolo teorico e peso tecnico pubblicato.",
+      "Formula, raggi di raccordo, kg/m, peso per barra e differenza tra EN 10210, EN 10219 e calcolo libero.",
     mainEntityOfPage: absoluteUrl("/knowledge/tubes"),
     author: {
       "@type": "Organization",
@@ -172,8 +172,8 @@ export default async function PublicTubeWeightsPage({
         title="Calcola il peso del tubo in pochi secondi"
         description={
           <>
-            Inserisci dimensioni, lunghezza e quantità per ottenere peso al metro, peso per barra e tonnellaggio.
-            Il calcolo teorico resta sempre distinto dai pesi tecnici pubblicati presenti nel catalogo.
+            Scegli EN 10210, EN 10219 oppure Calcolo libero. Nelle modalità normative il kg/m usa le regole
+            geometriche della norma selezionata; il calcolo libero resta separato e mantiene la densità modificabile.
           </>
         }
         badges={["Pubblico", "Calcolatore + catalogo"]}
@@ -235,15 +235,17 @@ export default async function PublicTubeWeightsPage({
               <div className="rounded-2xl border border-[#dce2df] bg-[#f6f8f7] p-5">
                 <h3 className="font-semibold text-[#1d2824]">Profilo quadro</h3>
                 <p className="mt-2 text-sm leading-6 text-[#66736e]">
-                  Per un lato esterno B, il modello geometrico usa B² − (B − 2t)². È un&apos;idealizzazione a
-                  spigoli vivi: nei profili reali i raggi degli angoli possono produrre un peso pubblicato diverso.
+                  In EN 10210 ed EN 10219 il peso non viene ricavato da un quadrato ideale a spigoli vivi:
+                  entrano nel calcolo anche i raggi esterni e interni previsti dalla norma. Solo la modalità
+                  Calcolo libero usa B² − (B − 2t)² e una densità modificabile.
                 </p>
               </div>
               <div className="rounded-2xl border border-[#dce2df] bg-[#f6f8f7] p-5">
                 <h3 className="font-semibold text-[#1d2824]">Profilo rettangolare</h3>
                 <p className="mt-2 text-sm leading-6 text-[#66736e]">
-                  Con base B e altezza H, il modello usa B × H − (B − 2t) × (H − 2t). Anche qui il risultato
-                  rappresenta una sezione ideale e non sostituisce il valore tecnico pubblicato per uno specifico prodotto.
+                  Per i rettangolari EN 10210 ed EN 10219 applicano la geometria con raggi di raccordo propria
+                  della norma. Questo cambia l&apos;area della sezione e quindi i kg/m. La formula a spigoli vivi
+                  B × H − (B − 2t) × (H − 2t) resta disponibile esclusivamente nel Calcolo libero.
                 </p>
               </div>
             </div>
@@ -265,10 +267,10 @@ export default async function PublicTubeWeightsPage({
               Peso teorico e peso pubblicato: perché possono essere diversi
             </h2>
             <p className="mt-3 text-sm leading-7 text-[#66736e]">
-              Un calcolo geometrico parte da dimensioni nominali e densità. Un catalogo tecnico può invece utilizzare
-              geometria effettiva della sezione, raggi interni ed esterni, convenzioni di calcolo o arrotondamenti.
-              Inoltre le tolleranze dimensionali del prodotto reale incidono sulla massa effettiva. Per questo Steel
-              Knowledge mostra i due valori separatamente e indica la fonte quando esiste un riferimento verificato.
+              Per SHS e RHS la scelta della norma è parte del calcolo: EN 10210 ed EN 10219 usano raggi di raccordo
+              diversi e possono quindi restituire masse lineari differenti per la stessa dimensione nominale.
+              Il Calcolo libero resta invece una stima geometrica separata. In ogni caso la massa reale di fornitura
+              può variare entro le tolleranze applicabili e va verificata sulla documentazione del produttore.
             </p>
           </section>
         </div>
