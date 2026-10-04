@@ -67,8 +67,8 @@ export default function CompanyDataPage() {
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
               Indica solo le informazioni necessarie a identificare l&apos;azienda e la
-              correzione richiesta. L&apos;email serve per poter gestire la richiesta e non
-              viene pubblicata nel Network.
+              correzione richiesta. L&apos;email è opzionale e, se fornita, serve soltanto
+              per poter ricontattare chi invia la segnalazione; non viene pubblicata nel Network.
             </p>
           </div>
           <CompanyDataRequestForm />
