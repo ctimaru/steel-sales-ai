@@ -33,7 +33,7 @@ test("K1 public Knowledge does not depend on tenant workspace context", () => {
 });
 
 test("K1 public Knowledge is crawlable while private product areas are excluded", () => {
-  assert.match(robots, /allow: \["\/", "\/knowledge", "\/knowledge\/"\]/);
+  assert.match(robots, /allow: \["\/", "\/azienda", "\/knowledge", "\/knowledge\/"\]/);
   for (const privatePath of [
     "/dashboard",
     "/commercial/",
@@ -65,7 +65,7 @@ test("K1 makes public Knowledge discoverable from the product while preserving p
   assert.match(shell, /Catalogo tecnico/);
   assert.match(nav, /label: "Scuola"/);
   assert.match(publicKnowledge, /consultabile senza account/);
-  assert.match(publicKnowledge, /separato dai dati commerciali privati/);
+  assert.match(publicKnowledge, /separat[oa] dai dati commerciali privati/);
   assert.match(routes, /tubesStandards: "\/company\/tools\/tubi-norme"/);
 });
 
