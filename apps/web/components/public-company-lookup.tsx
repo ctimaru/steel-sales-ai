@@ -7,7 +7,7 @@ import {
   initialPublicCompanyLookupState,
   type PublicCompanyLookupItem,
   type PublicCompanyLookupState,
-} from "@/lib/public-company-lookup";
+} from "@/lib/public-company-lookup-contract";
 
 function claimBadge(state: PublicCompanyLookupItem["claim_state"]) {
   if (state === "claimable") {
