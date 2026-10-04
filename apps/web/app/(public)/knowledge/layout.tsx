@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 
 export default function PublicKnowledgeLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#f2f4f3] text-[#1d2824]">
+    <div className="school-shell min-h-screen bg-[#f2f4f3] text-[#1d2824]">
       <a href="#main-content" className="skip-link">
         Vai al contenuto principale
       </a>
