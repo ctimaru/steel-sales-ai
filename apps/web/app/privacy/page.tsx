@@ -17,7 +17,7 @@ export default function PrivacyPage() {
     <LegalPageShell
       eyebrow="GDPR · Informativa privacy"
       title="Privacy Policy"
-      intro="Questa informativa descrive il trattamento dei dati personali nelle superfici pubbliche e nei principali flussi di Smart Steel Sales. La baseline LR3.2 definisce basi giuridiche e criteri di conservazione interni; finché i dati identificativi del Titolare e le verifiche provider/legali finali non sono completati, la policy resta una versione operativa provvisoria e non indicizzata."
+      intro="Questa informativa descrive il trattamento dei dati personali nelle superfici pubbliche e nei principali flussi di Smart Steel Sales. La retention matrix e baseline LR3.2 definisce basi giuridiche e criteri di conservazione interni; finché i dati identificativi del Titolare e le verifiche provider/legali finali non sono completati, la policy resta una versione operativa provvisoria e non indicizzata."
     >
       <LegalSection title="1. Ambito">
         <p>
