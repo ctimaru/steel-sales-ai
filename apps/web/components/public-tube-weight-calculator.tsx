@@ -166,8 +166,8 @@ export function PublicTubeWeightCalculator({
                   onClick={() => setFamily(option.value)}
                   className={
                     family === option.value
-                      ? "rounded-xl bg-[#1a5144] px-3 py-2.5 text-sm font-semibold text-white"
-                      : "rounded-xl border border-[#dce2df] bg-white px-3 py-2.5 text-sm font-semibold text-[#5d6a65] hover:border-[#b8d2c8]"
+                      ? "school-primary-action px-3 py-2.5"
+                      : "school-secondary-action px-3 py-2.5"
                   }
                 >
                   <span className="hidden sm:inline">{option.label}</span>

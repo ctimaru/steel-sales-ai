@@ -376,7 +376,7 @@ export default async function TubeDimensionPage({
 
           <Link
             href={calculatorHref(dimension)}
-            className="mt-6 inline-flex rounded-xl bg-[#1a5144] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#226657]"
+            className="school-primary-action mt-6"
           >
             Apri questa misura nel calcolatore →
           </Link>

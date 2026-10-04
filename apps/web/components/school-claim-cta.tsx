@@ -24,13 +24,13 @@ export function SchoolClaimCta() {
           <div className="flex flex-col gap-2 sm:flex-row lg:flex-col">
             <Link
               href="/azienda"
-              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-white px-5 text-sm font-semibold text-[#173f35] transition hover:bg-[#edf5f2]"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white bg-white px-5 text-sm font-bold text-[#123d34] transition hover:bg-[#edf5f2]"
             >
               Trova la tua azienda
             </Link>
             <Link
               href="/register"
-              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/20 bg-white/[0.06] px-5 text-sm font-semibold text-white transition hover:bg-white/[0.1]"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/60 bg-white/[0.10] px-5 text-sm font-bold text-white transition hover:border-white hover:bg-white/[0.16]"
             >
               Registra una nuova azienda
             </Link>

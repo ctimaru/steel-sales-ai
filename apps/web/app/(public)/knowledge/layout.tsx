@@ -42,39 +42,33 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
 
           <nav className="flex items-center gap-2" aria-label="Navigazione Scuola">
             <Link
-              href="/knowledge"
-              className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#5d6a65] hover:bg-[#eef2f0] hover:text-[#173f35] md:inline-flex"
+              href="/knowledge/articoli"
+              className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#4f5e58] hover:bg-[#eef2f0] hover:text-[#173f35] md:inline-flex"
             >
-              Scuola
+              Articoli
             </Link>
             <Link
               href="/knowledge/norme"
-              className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#5d6a65] hover:bg-[#eef2f0] hover:text-[#173f35] md:inline-flex"
+              className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#4f5e58] hover:bg-[#eef2f0] hover:text-[#173f35] md:inline-flex"
             >
               Norme
             </Link>
             <Link
               href="/knowledge/gradi"
-              className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#5d6a65] hover:bg-[#eef2f0] hover:text-[#173f35] md:inline-flex"
+              className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#4f5e58] hover:bg-[#eef2f0] hover:text-[#173f35] lg:inline-flex"
             >
               Gradi
             </Link>
             <Link
               href="/knowledge/tubes"
-              className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#5d6a65] hover:bg-[#eef2f0] hover:text-[#173f35] lg:inline-flex"
+              className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#4f5e58] hover:bg-[#eef2f0] hover:text-[#173f35] xl:inline-flex"
             >
               Pesi & dimensioni
             </Link>
-            <Link
-              href="/dashboard"
-              className="rounded-xl border border-[#d7dfdb] bg-white px-3.5 py-2 text-sm font-semibold text-[#43524c] hover:border-[#b8d2c8] hover:bg-[#f0f4f2] hover:text-[#173f35]"
-            >
-              Apri workspace
+            <Link href="/dashboard" className="school-secondary-action hidden sm:inline-flex">
+              Workspace
             </Link>
-            <Link
-              href="/azienda"
-              className="hidden rounded-xl bg-[#173f35] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#226657] sm:inline-flex"
-            >
+            <Link href="/azienda" className="school-primary-action">
               Trova azienda
             </Link>
           </nav>
@@ -86,6 +80,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
           >
             {[
               ["/knowledge", "Home"],
+              ["/knowledge/articoli", "Articoli"],
               ["/knowledge/norme", "Norme"],
               ["/knowledge/gradi", "Gradi"],
               ["/knowledge/tubes", "Pesi & dimensioni"],
@@ -93,7 +88,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
               <Link
                 key={href}
                 href={href}
-                className="shrink-0 rounded-xl border border-[#d7dfdb] bg-white px-3 py-2 text-xs font-semibold text-[#43524c] hover:border-[#b8d2c8] hover:bg-[#edf5f2] hover:text-[#173f35]"
+                className="shrink-0 rounded-xl border border-[#b8c7c1] bg-white px-3 py-2 text-xs font-semibold text-[#173f35] hover:border-[#438d7a] hover:bg-[#edf5f2]"
               >
                 {label}
               </Link>
@@ -118,6 +113,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
           <div className="flex flex-wrap items-start gap-x-5 gap-y-2 text-xs font-semibold">
             <Link href="/" className="hover:text-[#173f35]">Smart Steel Sales</Link>
             <Link href="/knowledge" className="hover:text-[#173f35]">Scuola</Link>
+            <Link href="/knowledge/articoli" className="hover:text-[#173f35]">Articoli</Link>
             <Link href="/dashboard" className="hover:text-[#173f35]">Workspace</Link>
           </div>
         </div>

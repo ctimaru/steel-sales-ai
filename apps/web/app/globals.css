@@ -309,6 +309,107 @@ textarea {
 }
 
 
+/* SI1 — Scuola visual consistency & contrast hardening */
+.school-hero {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  background: #ffffff;
+  box-shadow:
+    0 1px 2px rgba(30, 43, 69, 0.025),
+    0 12px 36px rgba(30, 43, 69, 0.035);
+}
+
+.school-hero-accent {
+  height: 0.25rem;
+  background: var(--brand-800);
+}
+
+.school-card {
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  background: #ffffff;
+}
+
+.school-muted-card {
+  border: 1px solid var(--brand-100);
+  border-radius: 1.5rem;
+  background: #f6f8f7;
+}
+
+.school-kicker,
+.school-eyebrow {
+  color: var(--brand-900);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.school-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.75rem;
+  border-radius: 999px;
+  background: var(--brand-50);
+  padding: 0.25rem 0.75rem;
+}
+
+.school-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.75rem;
+  border-radius: 999px;
+  background: #ecefed;
+  color: #4f5e58;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+.school-primary-action,
+.school-secondary-action {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.25rem;
+}
+
+.school-primary-action {
+  border: 1px solid var(--brand-900);
+  background: var(--brand-900);
+  color: #ffffff !important;
+}
+
+.school-primary-action:hover {
+  border-color: var(--brand-800);
+  background: var(--brand-800);
+  color: #ffffff !important;
+}
+
+.school-secondary-action {
+  border: 1px solid #b8c7c1;
+  background: #ffffff;
+  color: var(--brand-900) !important;
+}
+
+.school-secondary-action:hover {
+  border-color: var(--brand-500);
+  background: var(--brand-50);
+  color: var(--brand-950) !important;
+}
+
+.school-primary-action :where(*),
+.school-secondary-action :where(*) {
+  color: inherit !important;
+}
+
+
 /* UXA1 — legacy accent compatibility
    Keeps older Tailwind-indigo surfaces inside the new forest palette while
    feature pages are progressively moved onto semantic app/platform classes. */

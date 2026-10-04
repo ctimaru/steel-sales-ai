@@ -332,7 +332,7 @@ export async function PublicTubeSizeHubPage({
           </p>
           <Link
             href="/knowledge/tubes"
-            className="mt-5 inline-flex rounded-xl bg-[#1a5144] px-4 py-2.5 text-sm font-semibold text-white"
+            className="school-primary-action mt-5"
           >
             Apri il calcolatore →
           </Link>

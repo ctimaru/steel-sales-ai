@@ -24,7 +24,7 @@ test("K2 defines stable public URL families for standards and grades", () => {
 test("K2 indexes are useful without exposing internal catalog state", () => {
   assert.match(standardsIndex, /Trova la norma partendo dal tipo di prodotto/);
   assert.match(standardsIndex, /testo ufficiale dell&apos;edizione applicabile/);
-  assert.match(gradesIndex, /Trova il materiale partendo dall&apos;impiego/);
+  assert.match(gradesIndex, /Trova il materiale partendo dall(?:&apos;|’)impiego/);
   assert.match(gradesIndex, /non implicano equivalenza o sostituibilità/);
   assert.doesNotMatch(standardsIndex + gradesIndex, /service_role|source_locator|knowledge_source_id|page_status/);
 });
