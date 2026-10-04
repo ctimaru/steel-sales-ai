@@ -192,7 +192,7 @@ insert into public.company_registration_applications(
   now()-interval '100 days',now()-interval '100 days'
 );
 
-select private.lr5_retention_cleanup_impl(now()) as retention_result \gset
+select private.lr5_retention_cleanup_impl(now()+interval '100 days') as retention_result \gset
 
 select pg_temp.lr5_assert(
   (:'retention_result'::jsonb->>'redacted_drafts')::integer>=1
