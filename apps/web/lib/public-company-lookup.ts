@@ -1,0 +1,78 @@
+import { createPublicSupabaseClient } from "@/lib/supabase/public";
+
+export type PublicCompanyLookupItem = {
+  legal_name: string;
+  trading_name: string | null;
+  country_code: string;
+  vat_hint: string | null;
+  claim_state: "claimable" | "claim_in_progress" | "claimed";
+  claim_ref: string;
+};
+
+export type PublicCompanyLookupState = {
+  status: "idle" | "invalid" | "error" | "not_found" | "ok";
+  mode: "name" | "vat" | null;
+  items: PublicCompanyLookupItem[];
+};
+
+export const initialPublicCompanyLookupState: PublicCompanyLookupState = {
+  status: "idle",
+  mode: null,
+  items: [],
+};
+
+export async function queryPublicCompany(
+  queryValue: unknown,
+  honeypotValue: unknown,
+): Promise<PublicCompanyLookupState> {
+  const query = String(queryValue ?? "").trim();
+  const honeypot = String(honeypotValue ?? "").trim();
+
+  if (honeypot) {
+    return { status: "not_found", mode: null, items: [] };
+  }
+
+  if (query.length < 3 || query.length > 120) {
+    return { status: "invalid", mode: null, items: [] };
+  }
+
+  try {
+    const supabase = createPublicSupabaseClient();
+    if (!supabase) {
+      return { status: "error", mode: null, items: [] };
+    }
+
+    const { data, error } = await supabase.rpc("pa1_2_company_lookup", {
+      p_query: query,
+    });
+
+    if (error || !data || typeof data !== "object") {
+      return { status: "error", mode: null, items: [] };
+    }
+
+    const payload = data as {
+      ok?: boolean;
+      code?: string;
+      mode?: "name" | "vat" | null;
+      items?: PublicCompanyLookupItem[];
+    };
+
+    if (!payload.ok && payload.code === "invalid_query") {
+      return { status: "invalid", mode: payload.mode ?? null, items: [] };
+    }
+
+    if (!payload.ok) {
+      return { status: "error", mode: payload.mode ?? null, items: [] };
+    }
+
+    const items = Array.isArray(payload.items) ? payload.items.slice(0, 5) : [];
+
+    return {
+      status: payload.code === "not_found" || items.length === 0 ? "not_found" : "ok",
+      mode: payload.mode ?? null,
+      items,
+    };
+  } catch {
+    return { status: "error", mode: null, items: [] };
+  }
+}
