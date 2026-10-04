@@ -118,6 +118,10 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
             <Link href="/knowledge/tubes?source=school&surface=nav#calcolatore-pesi" className="hover:text-[#173f35]">Calcolatore</Link>
             <Link href="/knowledge/articoli" className="hover:text-[#173f35]">Articoli</Link>
             <PublicSessionAction className="hover:text-[#173f35]" />
+            <Link href="/privacy" className="hover:text-[#173f35]">Privacy</Link>
+            <Link href="/cookies" className="hover:text-[#173f35]">Cookie</Link>
+            <Link href="/terms" className="hover:text-[#173f35]">Termini</Link>
+            <Link href="/legal" className="hover:text-[#173f35]">Informazioni legali</Link>
           </div>
         </div>
       </footer>

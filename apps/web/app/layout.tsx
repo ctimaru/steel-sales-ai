@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
 import { GoogleAnalyticsConsent } from "@/components/google-analytics-consent";
+import { PublicLegalFooter } from "@/components/public-legal-footer";
 import { googleSiteVerification } from "@/lib/seo";
 import { siteUrl } from "@/lib/site";
 
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="it">
       <body>
         {children}
+        <PublicLegalFooter />
         <GoogleAnalyticsConsent measurementId={googleAnalyticsId} />
       </body>
     </html>
