@@ -113,10 +113,15 @@ export default function PrivacyPage() {
 
       <LegalSection title="7. Conservazione">
         <p>
-          I dati vengono conservati secondo il principio di limitazione della conservazione e per il tempo
-          necessario alle finalità per cui sono trattati, oltre agli eventuali periodi richiesti da obblighi
-          legali o dalla tutela di diritti. La retention matrix con periodi specifici per account,
-          registrazioni, claim, log, email e analytics è in fase di formalizzazione nel programma LR3/LR6.
+          I dati vengono conservati secondo il principio di limitazione della conservazione. La matrice LR3
+          distingue i periodi già applicabili dai punti ancora aperti: dove non esiste ancora una cancellazione
+          automatica o un termine contrattuale implementato, questa informativa lo indica espressamente invece
+          di dichiarare una durata fittizia.
+        </p>
+        <p>
+          I termini ancora aperti per account chiusi, domande di registrazione, claim, audit, email e
+          Commercial Memory devono essere resi operativi nei blocchi LR4-LR7 prima dell'onboarding
+          commerciale su scala.
         </p>
       </LegalSection>
 
@@ -127,8 +132,10 @@ export default function PrivacyPage() {
           precedente alla revoca.
         </p>
         <p>
-          È inoltre possibile proporre reclamo al Garante per la protezione dei dati personali. Il canale
-          privacy operativo sarà quello indicato nei dati del Titolare in cima alla pagina appena configurato.
+          È inoltre possibile proporre reclamo al Garante per la protezione dei dati personali. Le richieste
+          relative ai diritti vengono gestite senza ingiustificato ritardo e, di regola, entro un mese nei
+          termini previsti dal GDPR. Il canale privacy operativo sarà quello indicato nei dati del Titolare
+          in cima alla pagina appena configurato.
         </p>
       </LegalSection>
 
