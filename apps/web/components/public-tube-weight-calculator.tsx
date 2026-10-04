@@ -111,6 +111,18 @@ function writeStoredCalculations(key: string, calculations: StoredTubeCalculatio
   }
 }
 
+function writeSavedCalculator(calculation: StoredTubeCalculation | null) {
+  try {
+    if (calculation) {
+      window.localStorage.setItem(WC4_SAVED_TOOL_KEY, JSON.stringify(calculation));
+    } else {
+      window.localStorage.removeItem(WC4_SAVED_TOOL_KEY);
+    }
+  } catch {
+    // A blocked storage layer must never break the calculator.
+  }
+}
+
 async function copyTextToClipboard(text: string) {
   if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(text);
@@ -764,6 +776,11 @@ export function PublicTubeWeightCalculator({
   const currentIsFavorite =
     currentSnapshot != null && favoriteCalculations.some((item) => item.key === currentSnapshot.key);
 
+  useEffect(() => {
+    if (!retentionReady || !calculatorSaved || !currentSnapshot) return;
+    writeSavedCalculator({ ...currentSnapshot, savedAt: new Date().toISOString() });
+  }, [retentionReady, calculatorSaved, currentSnapshot]);
+
   const familyReferences = useMemo(() => {
     const q = referenceQuery.trim().toLowerCase().replace(",", ".");
     return references
@@ -1327,12 +1344,12 @@ export function PublicTubeWeightCalculator({
             onClick={() => {
               if (!currentSnapshot) return;
               if (calculatorSaved) {
-                window.localStorage.removeItem(WC4_SAVED_TOOL_KEY);
+                writeSavedCalculator(null);
                 setCalculatorSaved(false);
                 setActionFeedback("Salvataggio del calcolatore rimosso.");
                 return;
               }
-              window.localStorage.setItem(WC4_SAVED_TOOL_KEY, JSON.stringify(currentSnapshot));
+              writeSavedCalculator(currentSnapshot);
               setCalculatorSaved(true);
               setActionFeedback("Calcolatore salvato su questo dispositivo.");
             }}
