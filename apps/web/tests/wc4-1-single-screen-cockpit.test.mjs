@@ -21,7 +21,7 @@ test("WC4.1 makes the calculator the first-screen utility", () => {
 
 test("WC4.1 compacts standard and shape selection into dense controls", () => {
   assert.match(calculator, /grid grid-cols-3 gap-1\.5/);
-  assert.match(calculator, /min-h-10 rounded-xl/);
+  assert.match(calculator, /min-h-11 rounded-xl/);
   assert.match(calculator, /min-h-14 items-center justify-center/);
   assert.match(calculator, /h-9 w-10/);
 });
