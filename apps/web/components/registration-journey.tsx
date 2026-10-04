@@ -42,7 +42,7 @@ export function RegistrationJourney({
                   "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold",
                   active || completed
                     ? "bg-[#1a5144] text-white"
-                    : "bg-[#e7ece9] text-[#7b8782]",
+                    : "bg-[#e7ece9] text-[#52615b]",
                 ].join(" ")}
               >
                 {completed ? "✓" : step.id}
@@ -52,7 +52,7 @@ export function RegistrationJourney({
                   {step.label}
                 </span>
                 {!compact ? (
-                  <span className="mt-0.5 block text-[11px] leading-4 text-[#7b8782]">
+                  <span className="mt-0.5 block text-[11px] leading-4 text-[#5d6a65]">
                     {step.description}
                   </span>
                 ) : null}
