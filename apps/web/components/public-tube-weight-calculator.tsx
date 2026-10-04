@@ -579,7 +579,7 @@ export function PublicTubeWeightCalculator({
                     <>
                       <p className="mt-2 text-sm font-semibold text-white">Nessun peso pubblicato per questa geometria</p>
                       <p className="mt-2 text-xs leading-5 text-white/60">
-                        Il risultato resta un calcolo teorico. Non viene trasformato automaticamente in un valore normativo o verificato.
+                        Il risultato resta un calcolo teorico. Non viene trasformato in un riferimento normativo o in un peso verificato solo perché la geometria è matematicamente valida.
                       </p>
                     </>
                   )}
