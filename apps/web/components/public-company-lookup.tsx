@@ -54,24 +54,46 @@ function ResultAction({ item }: { item: PublicCompanyLookupItem }) {
   );
 }
 
-export function PublicCompanyLookup() {
+type PublicCompanyLookupProps = {
+  context?: "default" | "registration";
+  notFoundHref?: string;
+  notFoundLabel?: string;
+  showNetworkNote?: boolean;
+};
+
+export function PublicCompanyLookup({
+  context = "default",
+  notFoundHref = "/register",
+  notFoundLabel = "Registra la tua azienda →",
+  showNetworkNote = true,
+}: PublicCompanyLookupProps = {}) {
+  const registrationContext = context === "registration";
   const [state, formAction, pending] = useActionState(
     lookupPublicCompany,
     initialPublicCompanyLookupState,
   );
 
   return (
-    <div className="rounded-[28px] border border-[#dce2df] bg-[#f8faf9] p-5 sm:p-6">
+    <div
+      className={
+        registrationContext
+          ? "rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-5 sm:p-6"
+          : "rounded-[28px] border border-[#dce2df] bg-[#f8faf9] p-5 sm:p-6"
+      }
+    >
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
-          Trova la tua azienda
+          {registrationContext ? "Prima di registrarti" : "Trova la tua azienda"}
         </p>
         <h3 className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824]">
-          È già presente su Smart Steel Sales?
+          {registrationContext
+            ? "Verifica se la tua azienda è già presente"
+            : "È già presente su Smart Steel Sales?"}
         </h3>
-        <p className="mt-2 text-sm leading-6 text-[#66736e]">
-          Cerca per ragione sociale o Partita IVA. Mostriamo solo l&apos;identità minima
-          necessaria a verificare se il profilo può essere rivendicato.
+        <p className="mt-2 text-sm leading-6 text-[#5d6a65]">
+          {registrationContext
+            ? "Cerca per ragione sociale o Partita IVA. Se esiste già un profilo claimable, lo colleghiamo alla registrazione invece di creare un duplicato."
+            : "Cerca per ragione sociale o Partita IVA. Mostriamo solo l’identità minima necessaria a verificare se il profilo può essere rivendicato."}
         </p>
       </div>
 
@@ -126,10 +148,10 @@ export function PublicCompanyLookup() {
               Puoi registrare l&apos;azienda e completare i dati durante l&apos;onboarding.
             </p>
             <Link
-              href="/register"
+              href={notFoundHref}
               className="mt-3 inline-flex text-xs font-semibold text-[#1a5144] underline decoration-[#b8d2c8] underline-offset-4"
             >
-              Registra la tua azienda →
+              {notFoundLabel}
             </Link>
           </div>
         ) : null}
@@ -175,19 +197,21 @@ export function PublicCompanyLookup() {
         ) : null}
       </div>
 
-      <div className="mt-4 rounded-xl border border-[#d9e8e2] bg-[#edf5f2] px-4 py-3">
-        <p className="text-xs leading-5 text-[#52615b]">
-          <strong className="text-[#173f35]">Il Network completo non è pubblico.</strong>{" "}
-          Directory, filtri, prodotti, capability, mercati e contatti restano un prodotto
-          privato disponibile alle aziende registrate con accesso Network.{" "}
-          <Link
-            href="/company-data"
-            className="font-semibold text-[#1a5144] underline decoration-[#b8d2c8] underline-offset-4"
-          >
-            Fonti, correzioni e rimozioni
-          </Link>
-        </p>
-      </div>
+      {showNetworkNote ? (
+        <div className="mt-4 rounded-xl border border-[#d9e8e2] bg-[#edf5f2] px-4 py-3">
+          <p className="text-xs leading-5 text-[#52615b]">
+            <strong className="text-[#173f35]">Il Network completo non è pubblico.</strong>{" "}
+            Directory, filtri, prodotti, capability, mercati e contatti restano un prodotto
+            privato disponibile alle aziende registrate con accesso Network.{" "}
+            <Link
+              href="/company-data"
+              className="font-semibold text-[#1a5144] underline decoration-[#b8d2c8] underline-offset-4"
+            >
+              Fonti, correzioni e rimozioni
+            </Link>
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 }

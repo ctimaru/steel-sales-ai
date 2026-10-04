@@ -218,14 +218,14 @@ export function CompanyRegistrationForm({
                       "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold",
                       active || completed
                         ? "bg-[#1a5144] text-white"
-                        : "bg-[#e7ece9] text-[#7b8782]",
+                        : "bg-[#e7ece9] text-[#52615b]",
                     ].join(" ")}
                   >
                     {completed ? "✓" : item.id}
                   </span>
                   <div>
                     <p className="text-sm font-semibold text-[#1d2824]">{item.label}</p>
-                    <p className="mt-0.5 text-[11px] text-[#7b8782]">{item.description}</p>
+                    <p className="mt-0.5 text-[11px] text-[#5d6a65]">{item.description}</p>
                   </div>
                 </div>
               </div>
@@ -285,7 +285,7 @@ export function CompanyRegistrationForm({
               readOnly={Boolean(claim)}
               required={step === 1}
             />
-            <span id="country-help" className="mt-1.5 block text-xs text-[#7b8782]">
+            <span id="country-help" className="mt-1.5 block text-xs text-[#5d6a65]">
               Codice ISO a 2 lettere, ad esempio IT.
             </span>
           </label>
@@ -474,7 +474,7 @@ export function CompanyRegistrationForm({
               key={label}
               className="grid gap-1 border-b border-[#eef1ef] px-4 py-3 last:border-b-0 sm:grid-cols-[170px_1fr] sm:gap-4"
             >
-              <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-[#7b8782]">
+              <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-[#5d6a65]">
                 {label}
               </dt>
               <dd className="text-sm font-medium text-[#1d2824]">{value}</dd>
