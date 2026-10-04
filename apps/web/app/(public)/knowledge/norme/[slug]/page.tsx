@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
+import { SchoolHero } from "@/components/school-ui";
+
 import {
   applicationCategoryLabel,
   applicabilityLabel,
@@ -136,7 +138,7 @@ export default async function StandardDetailPage({
         />
       ) : null}
 
-      <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
+      <nav aria-label="Breadcrumb" className="school-breadcrumb">
         <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>
         <Link href="/knowledge/norme" className="hover:text-[#1a5144]">Norme</Link>
@@ -145,27 +147,17 @@ export default async function StandardDetailPage({
       </nav>
 
       <article className="space-y-8">
-        <header className="rounded-3xl border border-[#dce2df] bg-white p-6 shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)] sm:p-8 lg:p-10">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-              {standard.standard_system ?? "Norma tecnica"}
-            </span>
-            {standard.application_category ? (
-              <span className="rounded-full bg-[#ecefed] px-3 py-1 text-[11px] font-semibold text-[#66736e]">
-                {applicationCategoryLabel(standard.application_category)}
-              </span>
-            ) : null}
-            <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold text-emerald-700">
-              Revisione editoriale {formatReviewDate(standard.last_reviewed_at)}
-            </span>
-          </div>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-5xl">
-            {standard.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, "")}
-          </h1>
-          <p className="mt-5 max-w-3xl text-base leading-7 text-[#66736e]">
-            {standard.intro}
-          </p>
-        </header>
+        <SchoolHero
+          eyebrow={standard.standard_system ?? "Norma tecnica"}
+          title={standard.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, "")}
+          description={<>{standard.intro}</>}
+          badges={[
+            ...(standard.application_category
+              ? [applicationCategoryLabel(standard.application_category)]
+              : []),
+            `Rivisto ${formatReviewDate(standard.last_reviewed_at)}`,
+          ]}
+        />
 
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {standard.issuing_body ? (
@@ -304,7 +296,7 @@ export default async function StandardDetailPage({
               })}
             </div>
 
-            <Link href="/knowledge/gradi" className="mt-5 inline-flex text-sm font-semibold text-[#1a5144]">
+            <Link href="/knowledge/gradi" className="school-inline-link mt-5 inline-flex">
               Esplora il catalogo gradi →
             </Link>
           </section>
@@ -347,7 +339,7 @@ export default async function StandardDetailPage({
                     {source.publisher}{source.status ? ` · ${source.status}` : ""}
                   </p>
                 </div>
-                <span className="shrink-0 text-sm font-semibold text-[#1a5144]">Apri ↗</span>
+                <span className="school-inline-link shrink-0 text-sm">Apri ↗</span>
               </a>
             ))}
           </div>
@@ -365,13 +357,13 @@ export default async function StandardDetailPage({
         <section className="grid gap-4 sm:grid-cols-2">
           <Link
             href="/knowledge/norme"
-            className="rounded-2xl border border-[#dce2df] bg-white p-5 text-sm font-semibold text-[#1a5144] hover:border-[#b8d2c8]"
+            className="school-secondary-action min-h-16 justify-start px-5"
           >
             ← Torna al catalogo norme
           </Link>
           <Link
             href="/knowledge/tubes"
-            className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-5 text-sm font-semibold text-[#1a5144] hover:border-[#b8d2c8]"
+            className="school-primary-action min-h-16 justify-start px-5"
           >
             Continua con pesi & dimensioni →
           </Link>
