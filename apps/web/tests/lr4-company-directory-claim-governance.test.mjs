@@ -101,7 +101,7 @@ test("LR4 preserves claim ownership proof and keeps it separate from verificatio
 test("LR4 public lookup remains company-only while Network contacts remain private/paid", () => {
   assert.match(contract, /publicLookupPersonalData: false/);
   assert.match(contract, /networkPublic: false/);
-  assert.match(notice, /lookup pubblico non espone\s+contatti personali/);
+  assert.match(notice, /lookup pubblico espone solo dati minimi riferiti all’azienda, non contatti personali/);
   assert.match(notice, /entitlement Network attivo/);
 });
 
