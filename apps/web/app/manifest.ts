@@ -14,7 +14,6 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#1a5144",
     orientation: "any",
     categories: ["business", "productivity"],
-    prefer_related_applications: false,
     shortcuts: [
       {
         name: "Calcolatore peso tubo",
