@@ -153,7 +153,7 @@ export default async function StandardDetailPage({
           description={<>{standard.intro}</>}
           badges={[
             ...(standard.application_category
-              ? [applicationCategoryLabel(standard.application_category)]
+              ? [applicationCategoryLabel(standard.application_category) ?? standard.application_category]
               : []),
             `Rivisto ${formatReviewDate(standard.last_reviewed_at)}`,
           ]}
