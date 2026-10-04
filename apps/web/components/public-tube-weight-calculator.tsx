@@ -487,10 +487,15 @@ export function PublicTubeWeightCalculator({
 
     const areaMm2 = standard === "geometric" ? freeAreaMm2 : standardAreaMm2;
     const effectiveDensityKgM3 = standard === "geometric" ? rho : 7850;
-    const kgM =
-      !error && areaMm2 != null && effectiveDensityKgM3 != null
-        ? (areaMm2 * effectiveDensityKgM3) / 1_000_000
+    const geometricKgM =
+      !error && areaMm2 != null && rho != null
+        ? (areaMm2 * rho) / 1_000_000
         : null;
+    const standardKgM =
+      !error && areaMm2 != null
+        ? (areaMm2 * 7850) / 1_000_000
+        : null;
+    const kgM = standard === "geometric" ? geometricKgM : standardKgM;
     const kgBar = kgM != null && l != null ? kgM * l : null;
     const totalKg = kgBar != null && qty != null ? kgBar * qty : null;
     const totalTonnes = totalKg != null ? totalKg / 1000 : null;
