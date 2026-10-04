@@ -150,6 +150,96 @@ export default async function SchoolArticlePage({
         </section>
       ) : null}
 
+      {article.processFlows?.length ? (
+        <section className="space-y-5" aria-labelledby="article-process-flows">
+          <div className="school-card p-6 sm:p-8">
+            <p className="school-kicker">Processi produttivi</p>
+            <h2 id="article-process-flows" className="mt-2 text-2xl font-semibold text-[#1d2824]">
+              Quattro route industriali da non confondere
+            </h2>
+            <p className="mt-3 max-w-3xl text-sm leading-7 text-[#5d6a65]">
+              Ogni schema mostra il flusso logico principale. La configurazione reale di una linea cambia per
+              diametri, spessori, grado, norma e requisiti di collaudo.
+            </p>
+          </div>
+
+          {article.processFlows.map((flow) => (
+            <section key={flow.title} className="school-card p-6 sm:p-8">
+              <h3 className="text-xl font-semibold text-[#1d2824]">{flow.title}</h3>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-[#5d6a65]">{flow.subtitle}</p>
+              <ol className="mt-6 grid gap-3 md:grid-cols-5">
+                {flow.steps.map((step, index) => (
+                  <li
+                    key={step.title}
+                    className="relative rounded-2xl border border-[#d9e8e2] bg-[#f7f9f8] p-4"
+                  >
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#123d34] text-xs font-extrabold text-white">
+                      {index + 1}
+                    </span>
+                    <h4 className="mt-3 text-sm font-semibold text-[#1d2824]">{step.title}</h4>
+                    <p className="mt-2 text-xs leading-5 text-[#5d6a65]">{step.text}</p>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ))}
+        </section>
+      ) : null}
+
+      {article.comparison?.length ? (
+        <section className="school-card p-6 sm:p-8" aria-labelledby="article-process-comparison">
+          <p className="school-kicker">Confronto</p>
+          <h2 id="article-process-comparison" className="mt-2 text-2xl font-semibold text-[#1d2824]">
+            Saldato vs seamless: cosa cambia davvero
+          </h2>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-[#5d6a65]">
+            Il confronto serve a capire la route produttiva, non a stabilire una classifica assoluta di qualità.
+            La conformità dipende dalla specifica tecnica applicabile.
+          </p>
+          <div className="mt-6 overflow-x-auto rounded-2xl border border-[#dce2df]">
+            <table className="min-w-[720px] w-full text-left text-sm">
+              <thead className="school-table-head border-b border-[#dce2df] text-xs uppercase tracking-wide">
+                <tr>
+                  <th className="px-4 py-3 font-semibold">Aspetto</th>
+                  <th className="px-4 py-3 font-semibold">Saldato</th>
+                  <th className="px-4 py-3 font-semibold">Seamless</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#e7ece9]">
+                {article.comparison.map((row) => (
+                  <tr key={row.label} className="school-table-row align-top">
+                    <th className="px-4 py-4 font-semibold text-[#1d2824]">{row.label}</th>
+                    <td className="px-4 py-4 leading-6 text-[#4f5e58]">{row.welded}</td>
+                    <td className="px-4 py-4 leading-6 text-[#4f5e58]">{row.seamless}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
+
+      {article.relatedLinks?.length ? (
+        <section className="school-muted-card p-6 sm:p-8" aria-labelledby="article-related-links">
+          <p className="school-kicker">Collega processo e norma</p>
+          <h2 id="article-related-links" className="mt-2 text-2xl font-semibold text-[#1d2824]">
+            Continua nelle schede tecniche della Scuola
+          </h2>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            {article.relatedLinks.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="rounded-2xl border border-[#d7dfdb] bg-white p-4 transition hover:border-[#9fbfb3]"
+              >
+                <p className="font-semibold text-[#173f35]">{item.label} →</p>
+                <p className="mt-1 text-sm leading-6 text-[#5d6a65]">{item.note}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <article className="space-y-6">
         {article.sections.map((section) => (
           <section key={section.heading} className="school-card p-6 sm:p-8">
