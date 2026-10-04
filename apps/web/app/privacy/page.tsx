@@ -77,8 +77,15 @@ export default function PrivacyPage() {
           informazioni che identificano persone fisiche richiedono invece una specifica governance GDPR.
         </p>
         <p>
-          Il programma LR4 prevede provenance della fonte, processi di rettifica/opposizione/rimozione e,
-          quando applicabile, informativa ai sensi dell’art. 14 GDPR.
+          LR4 applica provenance della fonte, review del legittimo interesse, processi di
+          rettifica/opposizione/rimozione e, quando applicabile, informativa ai sensi dell’art. 14 GDPR.
+          I dettagli sono nella{" "}
+          <Link
+            href="/privacy/company-directory"
+            className="font-semibold text-[#1a5144] underline underline-offset-4"
+          >
+            informativa Company Directory / Art. 14
+          </Link>.
         </p>
       </LegalSection>
 
