@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createPublicSupabaseClient } from "@/lib/supabase/public";
 
 export type PublicCompanyLookupItem = {
   legal_name: string;
@@ -38,35 +38,43 @@ export async function lookupPublicCompany(
     return { status: "invalid", mode: null, items: [] };
   }
 
-  const supabase = await createClient();
-  const { data, error } = await supabase.rpc("pa1_2_company_lookup", {
-    p_query: query,
-  });
+  try {
+    const supabase = createPublicSupabaseClient();
+    if (!supabase) {
+      return { status: "error", mode: null, items: [] };
+    }
 
-  if (error || !data || typeof data !== "object") {
+    const { data, error } = await supabase.rpc("pa1_2_company_lookup", {
+      p_query: query,
+    });
+
+    if (error || !data || typeof data !== "object") {
+      return { status: "error", mode: null, items: [] };
+    }
+
+    const payload = data as {
+      ok?: boolean;
+      code?: string;
+      mode?: "name" | "vat" | null;
+      items?: PublicCompanyLookupItem[];
+    };
+
+    if (!payload.ok && payload.code === "invalid_query") {
+      return { status: "invalid", mode: payload.mode ?? null, items: [] };
+    }
+
+    if (!payload.ok) {
+      return { status: "error", mode: payload.mode ?? null, items: [] };
+    }
+
+    const items = Array.isArray(payload.items) ? payload.items.slice(0, 5) : [];
+
+    return {
+      status: payload.code === "not_found" || items.length === 0 ? "not_found" : "ok",
+      mode: payload.mode ?? null,
+      items,
+    };
+  } catch {
     return { status: "error", mode: null, items: [] };
   }
-
-  const payload = data as {
-    ok?: boolean;
-    code?: string;
-    mode?: "name" | "vat" | null;
-    items?: PublicCompanyLookupItem[];
-  };
-
-  if (!payload.ok && payload.code === "invalid_query") {
-    return { status: "invalid", mode: payload.mode ?? null, items: [] };
-  }
-
-  if (!payload.ok) {
-    return { status: "error", mode: payload.mode ?? null, items: [] };
-  }
-
-  const items = Array.isArray(payload.items) ? payload.items.slice(0, 5) : [];
-
-  return {
-    status: payload.code === "not_found" || items.length === 0 ? "not_found" : "ok",
-    mode: payload.mode ?? null,
-    items,
-  };
 }
