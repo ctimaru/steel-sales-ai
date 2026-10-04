@@ -410,6 +410,70 @@ textarea {
 }
 
 
+/* SI1.1 — detail-page readability and interaction contract */
+.school-shell [class~="text-[#7e8da1]"] {
+  color: #5d6a65 !important;
+}
+
+.school-breadcrumb {
+  color: #5d6a65;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.school-breadcrumb a {
+  color: #43524c;
+}
+
+.school-breadcrumb a:hover {
+  color: var(--brand-900);
+}
+
+.school-meta-label {
+  color: #5d6a65;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.school-inline-link {
+  color: var(--brand-900) !important;
+  font-weight: 700;
+  text-decoration-line: underline;
+  text-decoration-color: var(--brand-200);
+  text-underline-offset: 0.25rem;
+}
+
+.school-inline-link:hover {
+  color: var(--brand-800) !important;
+  text-decoration-color: var(--brand-500);
+}
+
+.school-table-head {
+  color: #5d6a65;
+  background: #f7f9f8;
+}
+
+.school-table-row {
+  transition: background-color 120ms ease;
+}
+
+.school-table-row:hover {
+  background: #f7f9f8;
+}
+
+.school-selected-control {
+  border-color: var(--brand-900) !important;
+  background: var(--brand-900) !important;
+  color: #ffffff !important;
+}
+
+.school-selected-control:hover {
+  border-color: var(--brand-800) !important;
+  background: var(--brand-800) !important;
+  color: #ffffff !important;
+}
+
+
 /* UXA1 — legacy accent compatibility
    Keeps older Tailwind-indigo surfaces inside the new forest palette while
    feature pages are progressively moved onto semantic app/platform classes. */
