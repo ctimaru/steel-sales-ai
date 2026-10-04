@@ -5,7 +5,6 @@ import {
   PublicTubeWeightCalculator,
   type PublicTubeCalculatorInitialValues,
 } from "@/components/public-tube-weight-calculator";
-import { SchoolHero } from "@/components/school-ui";
 import {
   listPublicTubeDimensionPages,
   listPublicTubeFamilyHubs,
@@ -154,7 +153,7 @@ export default async function PublicTubeWeightsPage({
   };
 
   return (
-    <div className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+    <div className="mx-auto max-w-7xl space-y-8 px-3 py-3 sm:px-5 sm:py-5 lg:px-6">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(calculatorJsonLd) }}
@@ -166,24 +165,6 @@ export default async function PublicTubeWeightsPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
-
-      <nav aria-label="Breadcrumb" className="school-breadcrumb">
-        <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
-        <span className="mx-2">/</span>
-        <span>Pesi &amp; dimensioni</span>
-      </nav>
-
-      <SchoolHero
-        eyebrow="Pesi & dimensioni"
-        title="Calcola il peso del tubo in pochi secondi"
-        description={
-          <>
-            Scegli EN 10210, EN 10219 oppure Calcolo libero. Nelle modalità normative il kg/m usa le regole
-            geometriche della norma selezionata; il calcolo libero resta separato e mantiene la densità modificabile.
-          </>
-        }
-        badges={["Pubblico", "Calcolatore + catalogo"]}
       />
 
       <PublicTubeWeightCalculator references={references} initialValues={initialValues} />\n\n      <section aria-label="Esplora il catalogo per famiglia">
