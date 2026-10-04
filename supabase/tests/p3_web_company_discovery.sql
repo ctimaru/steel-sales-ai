@@ -242,7 +242,7 @@ select public.pa1_5_review_discovery_candidate_governance(
   'P3.2 rediscovery fixture contains company data only'
 );
 
-do $
+do $p32dup$
 begin
   begin
     perform public.p3_review_company_discovery(
@@ -256,7 +256,7 @@ begin
     when unique_violation then null;
   end;
 end;
-$$;
+$p32dup$;
 
 select public.p3_review_company_discovery(
   '00000000-0000-0000-0000-0000000032c2',
