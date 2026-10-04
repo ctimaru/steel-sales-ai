@@ -23,8 +23,12 @@ const lookup = fs.readFileSync(
   new URL("../components/public-company-lookup.tsx", import.meta.url),
   "utf8",
 );
-const lookupActions = fs.readFileSync(
-  new URL("../app/public-company-lookup-actions.ts", import.meta.url),
+const lookupService = fs.readFileSync(
+  new URL("../lib/public-company-lookup.ts", import.meta.url),
+  "utf8",
+);
+const lookupContract = fs.readFileSync(
+  new URL("../lib/public-company-lookup-contract.ts", import.meta.url),
   "utf8",
 );
 const sitemap = fs.readFileSync(new URL("../app/sitemap.ts", import.meta.url), "utf8");
@@ -58,7 +62,7 @@ test("PA1.6 ships one indexable canonical company acquisition landing, not a pub
 
 test("PA1.6 preserves the governed PA1.2 minimal lookup and PA1.4 claim handoff", () => {
   assert.match(lookup, /\/register\?claim_ref=/);
-  assert.match(lookupActions, /pa1_2_company_lookup/);
+  assert.match(lookupService, /pa1_2_company_lookup/);
   for (const forbidden of [
     "products",
     "capabilities",
@@ -67,7 +71,7 @@ test("PA1.6 preserves the governed PA1.2 minimal lookup and PA1.4 claim handoff"
     "website_url",
     "description",
   ]) {
-    assert.doesNotMatch(lookupActions, new RegExp(forbidden));
+    assert.doesNotMatch(lookupService + lookupContract, new RegExp(forbidden));
   }
 });
 

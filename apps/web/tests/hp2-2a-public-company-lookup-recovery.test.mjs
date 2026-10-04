@@ -2,8 +2,16 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
-const actions = fs.readFileSync(
-  new URL("../app/public-company-lookup-actions.ts", import.meta.url),
+const lookupService = fs.readFileSync(
+  new URL("../lib/public-company-lookup.ts", import.meta.url),
+  "utf8",
+);
+const lookupContract = fs.readFileSync(
+  new URL("../lib/public-company-lookup-contract.ts", import.meta.url),
+  "utf8",
+);
+const route = fs.readFileSync(
+  new URL("../app/api/public/company-lookup/route.ts", import.meta.url),
   "utf8",
 );
 const publicClient = fs.readFileSync(
@@ -16,17 +24,19 @@ const register = fs.readFileSync(
 );
 
 test("HP2.2a public lookup uses the stateless publishable-key client", () => {
-  assert.match(actions, /createPublicSupabaseClient/);
-  assert.doesNotMatch(actions, /supabase\/server/);
+  assert.match(lookupService, /createPublicSupabaseClient/);
+  assert.doesNotMatch(lookupService, /supabase\/server/);
   assert.match(publicClient, /persistSession: false/);
   assert.match(publicClient, /autoRefreshToken: false/);
 });
 
 test("HP2.2a public lookup contains route-safe recovery instead of throwing to root error", () => {
-  assert.match(actions, /try \{/);
-  assert.match(actions, /catch \{/);
-  assert.match(actions, /return \{ status: "error", mode: null, items: \[\] \}/);
-  assert.match(actions, /supabase\.rpc\("pa1_2_company_lookup"/);
+  assert.match(lookupService, /try \{/);
+  assert.match(lookupService, /catch \{/);
+  assert.match(lookupService, /return \{ status: "error", mode: null, items: \[\] \}/);
+  assert.match(lookupService, /supabase\.rpc\("pa1_2_company_lookup"/);
+  assert.match(route, /NextResponse\.json/);
+  assert.match(route, /Cache-Control/);
 });
 
 test("HP2.2a keeps anonymous result projection minimal", () => {
@@ -38,7 +48,7 @@ test("HP2.2a keeps anonymous result projection minimal", () => {
     "claim_state",
     "claim_ref",
   ]) {
-    assert.match(actions, new RegExp(field));
+    assert.match(lookupContract, new RegExp(field));
   }
 
   for (const forbidden of [
@@ -49,7 +59,7 @@ test("HP2.2a keeps anonymous result projection minimal", () => {
     "website_url",
     "description",
   ]) {
-    assert.doesNotMatch(actions, new RegExp(forbidden));
+    assert.doesNotMatch(lookupContract, new RegExp(forbidden));
   }
 });
 

@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useState, type FormEvent } from "react";
 
 import {
   initialPublicCompanyLookupState,
-  lookupPublicCompany,
   type PublicCompanyLookupItem,
-} from "@/app/public-company-lookup-actions";
+  type PublicCompanyLookupState,
+} from "@/lib/public-company-lookup-contract";
 
 function claimBadge(state: PublicCompanyLookupItem["claim_state"]) {
   if (state === "claimable") {
@@ -68,10 +68,47 @@ export function PublicCompanyLookup({
   showNetworkNote = true,
 }: PublicCompanyLookupProps = {}) {
   const registrationContext = context === "registration";
-  const [state, formAction, pending] = useActionState(
-    lookupPublicCompany,
+  const [state, setState] = useState<PublicCompanyLookupState>(
     initialPublicCompanyLookupState,
   );
+  const [pending, setPending] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (pending) return;
+
+    setPending(true);
+
+    try {
+      const response = await fetch("/api/public/company-lookup", {
+        method: "POST",
+        body: new FormData(event.currentTarget),
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        setState({ status: "error", mode: null, items: [] });
+        return;
+      }
+
+      const payload = (await response.json()) as PublicCompanyLookupState;
+
+      if (
+        !payload ||
+        !["idle", "invalid", "error", "not_found", "ok"].includes(payload.status) ||
+        !Array.isArray(payload.items)
+      ) {
+        setState({ status: "error", mode: null, items: [] });
+        return;
+      }
+
+      setState(payload);
+    } catch {
+      setState({ status: "error", mode: null, items: [] });
+    } finally {
+      setPending(false);
+    }
+  }
 
   return (
     <div
@@ -97,7 +134,7 @@ export function PublicCompanyLookup({
         </p>
       </div>
 
-      <form action={formAction} className="mt-5">
+      <form onSubmit={handleSubmit} className="mt-5">
         <div className="sr-only" aria-hidden="true">
           <label>
             Sito aziendale
