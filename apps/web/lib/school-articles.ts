@@ -439,6 +439,16 @@ export const schoolArticles: SchoolArticle[] = [
         note: "Famiglia utile per comprendere seamless e welded precision tubes, inclusi prodotti cold drawn.",
       },
       {
+        label: "Gradi S355 per hollow sections",
+        href: "/knowledge/gradi?q=S355",
+        note: "Confronta i gradi strutturali presenti nella Scuola e le norme a cui risultano collegati.",
+      },
+      {
+        label: "Gradi P235 / P265 per pressione",
+        href: "/knowledge/gradi?q=P265",
+        note: "Apri i gradi per tubi in pressione e verifica il contesto normativo.",
+      },
+      {
         label: "Pesi & dimensioni",
         href: "/knowledge/tubes",
         note: "Confronta pesi pubblicati e calcoli teorici dopo aver identificato la famiglia di prodotto.",
