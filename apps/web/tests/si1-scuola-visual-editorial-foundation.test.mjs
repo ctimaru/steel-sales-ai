@@ -45,7 +45,7 @@ test("SI2 exposes an editorial hub from desktop and mobile Scuola navigation", (
   assert.match(layout, /href="\/knowledge\/articoli"/);
   assert.match(layout, /\["\/knowledge\/articoli", "Articoli"\]/);
   assert.match(home, /href: "\/knowledge\/articoli"/);
-  assert.match(home, /schoolArticles\.slice\(0, 2\)/);
+  assert.match(home, /schoolArticles\.slice\(0, 3\)/);
   assert.match(articlesIndex, /Biblioteca editoriale/);
 });
 
