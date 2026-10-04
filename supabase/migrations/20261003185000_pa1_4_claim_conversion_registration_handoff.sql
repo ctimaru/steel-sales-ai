@@ -550,6 +550,13 @@ language plpgsql
 set search_path=''
 as $function$
 begin
+  if new.claim_target_network_company_id is not null
+     and new.matched_network_company_id is not null
+     and new.claim_target_network_company_id<>new.matched_network_company_id then
+    raise exception 'activated Network identity must match the PA1.4 claim target'
+      using errcode='23514';
+  end if;
+
   if current_user in ('postgres','service_role','supabase_admin') then
     return new;
   end if;
