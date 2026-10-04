@@ -99,6 +99,23 @@ select pg_temp.p32_assert(
   'pending crawler candidate must be visible to superadmin review queue'
 );
 
+select public.pa1_5_review_discovery_run_governance(
+  :'run_id'::uuid,
+  'approved',
+  'allows_reuse',
+  'low_risk',
+  'company_data_only',
+  'P3.2 fixture source approved under PA1.5'
+);
+
+select public.pa1_5_review_discovery_candidate_governance(
+  '00000000-0000-0000-0000-0000000032c1',
+  'approved_company_data',
+  false,
+  '{}'::text[],
+  'P3.2 fixture contains company data only'
+);
+
 select public.p3_review_company_discovery(
   '00000000-0000-0000-0000-0000000032c1',
   'publish_new',
@@ -208,7 +225,24 @@ where id=:'duplicate_run_id'::uuid;
 
 set local role authenticated;
 
-do $$
+select public.pa1_5_review_discovery_run_governance(
+  :'duplicate_run_id'::uuid,
+  'approved',
+  'allows_reuse',
+  'low_risk',
+  'company_data_only',
+  'P3.2 rediscovery fixture source approved under PA1.5'
+);
+
+select public.pa1_5_review_discovery_candidate_governance(
+  '00000000-0000-0000-0000-0000000032c2',
+  'approved_company_data',
+  false,
+  '{}'::text[],
+  'P3.2 rediscovery fixture contains company data only'
+);
+
+do $p32dup$
 begin
   begin
     perform public.p3_review_company_discovery(
@@ -222,7 +256,7 @@ begin
     when unique_violation then null;
   end;
 end;
-$$;
+$p32dup$;
 
 select public.p3_review_company_discovery(
   '00000000-0000-0000-0000-0000000032c2',

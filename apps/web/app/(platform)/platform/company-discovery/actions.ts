@@ -12,6 +12,10 @@ function discoveryPath(key: "message" | "error", value: string) {
   return `/platform/company-discovery?${key}=${encodeURIComponent(value)}`;
 }
 
+function governancePath(key: "message" | "error", value: string) {
+  return `/platform/company-discovery/governance?${key}=${encodeURIComponent(value)}`;
+}
+
 function candidateId(formData: FormData) {
   return String(formData.get("candidate_id") ?? "").trim();
 }
@@ -181,7 +185,7 @@ export async function reviewCompanyDiscovery(formData: FormData) {
     discoveryPath(
       "message",
       decision === "publish_new"
-        ? "Profilo pubblicato nel Network come unclaimed + unverified."
+        ? "Profilo materializzato nel Network come unclaimed + unverified."
         : decision === "enrich_existing"
           ? "Profilo esistente arricchito con evidenza pubblica. Nessun merge o overwrite eseguito."
           : decision === "duplicate_existing"
@@ -215,4 +219,133 @@ export async function closeExactDiscoveryDuplicates() {
       `${closed} exact identity match chiusi come duplicati. Nessun merge eseguito.`,
     ),
   );
+}
+
+
+export async function reviewDiscoverySourceGovernance(formData: FormData) {
+  await requirePlatformPermission("discovery.governance_review");
+
+  const runId = String(formData.get("run_id") ?? "").trim();
+  const decision = String(formData.get("decision") ?? "").trim();
+  const termsStatus = String(formData.get("terms_status") ?? "").trim();
+  const databaseRightsStatus = String(
+    formData.get("database_rights_status") ?? "",
+  ).trim();
+  const personalDataPolicy = String(
+    formData.get("personal_data_policy") ?? "",
+  ).trim();
+  const note = String(formData.get("note") ?? "").trim() || null;
+
+  if (!runId) {
+    redirect(governancePath("error", "Run discovery non valido."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("pa1_5_review_discovery_run_governance", {
+    p_run_id: runId,
+    p_decision: decision,
+    p_terms_status: termsStatus,
+    p_database_rights_status: databaseRightsStatus,
+    p_personal_data_policy: personalDataPolicy,
+    p_note: note,
+  });
+
+  if (error) {
+    redirect(
+      governancePath(
+        "error",
+        safeErrorMessage(
+          error,
+          "La decisione sulla fonte non è stata registrata. Verifica termini, diritti database e policy dati personali.",
+        ),
+      ),
+    );
+  }
+
+  revalidatePath("/platform/company-discovery");
+  revalidatePath("/platform/company-discovery/governance");
+  redirect(governancePath("message", "Gate della fonte aggiornato."));
+}
+
+export async function reviewDiscoveryCandidateGovernance(formData: FormData) {
+  await requirePlatformPermission("discovery.governance_review");
+
+  const id = candidateId(formData);
+  const decision = String(formData.get("decision") ?? "").trim();
+  const personalDataDetected = formData.get("personal_data_detected") === "on";
+  const personalDataFields = Array.from(
+    new Set(
+      String(formData.get("personal_data_fields") ?? "")
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean),
+    ),
+  );
+  const note = String(formData.get("note") ?? "").trim() || null;
+
+  if (!id) {
+    redirect(governancePath("error", "Candidato discovery non valido."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc(
+    "pa1_5_review_discovery_candidate_governance",
+    {
+      p_candidate_id: id,
+      p_decision: decision,
+      p_personal_data_detected: personalDataDetected,
+      p_personal_data_fields: personalDataFields,
+      p_note: note,
+    },
+  );
+
+  if (error) {
+    redirect(
+      governancePath(
+        "error",
+        safeErrorMessage(
+          error,
+          "Il gate del candidato non è stato aggiornato. La fonte deve essere approvata e i dati personali non possono essere classificati come company-only.",
+        ),
+      ),
+    );
+  }
+
+  revalidatePath("/platform/company-discovery");
+  revalidatePath("/platform/company-discovery/governance");
+  redirect(governancePath("message", "Gate del candidato aggiornato."));
+}
+
+export async function reviewCompanyDataRequest(formData: FormData) {
+  await requirePlatformPermission("discovery.governance_review");
+
+  const requestId = String(formData.get("request_id") ?? "").trim();
+  const status = String(formData.get("status") ?? "").trim();
+  const note = String(formData.get("note") ?? "").trim() || null;
+
+  if (!requestId) {
+    redirect(governancePath("error", "Richiesta governance non valida."));
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("pa1_5_review_company_data_request", {
+    p_request_id: requestId,
+    p_status: status,
+    p_note: note,
+  });
+
+  if (error) {
+    redirect(
+      governancePath(
+        "error",
+        safeErrorMessage(
+          error,
+          "La richiesta pubblica non è stata aggiornata.",
+        ),
+      ),
+    );
+  }
+
+  revalidatePath("/platform/company-discovery/governance");
+  redirect(governancePath("message", "Richiesta dati aggiornata."));
 }

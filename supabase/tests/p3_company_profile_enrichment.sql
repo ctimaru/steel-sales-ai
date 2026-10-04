@@ -110,6 +110,23 @@ select pg_temp.p34_assert(
   'bulk duplicate closure must preserve enrichment-ready exact matches'
 );
 
+select public.pa1_5_review_discovery_run_governance(
+  :'run_id'::uuid,
+  'approved',
+  'allows_reuse',
+  'low_risk',
+  'company_data_only',
+  'P3.4 fixture source approved under PA1.5'
+);
+
+select public.pa1_5_review_discovery_candidate_governance(
+  '00000000-0000-0000-0000-0000000034c1',
+  'approved_company_data',
+  false,
+  '{}'::text[],
+  'P3.4 fixture contains company data only'
+);
+
 select public.p3_enrich_existing_company_discovery_selected(
   '00000000-0000-0000-0000-0000000034c1',
   '00000000-0000-0000-0000-0000000034c0',
