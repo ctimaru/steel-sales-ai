@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { SchoolHero } from "@/components/school-ui";
 import { materialFamilyLabel } from "@/lib/knowledge-labels";
 import {
   listPublicGrades,
@@ -154,17 +155,19 @@ export default async function GradesIndexPage({
         <span>Gradi di acciaio</span>
       </nav>
 
-      <section className="max-w-4xl">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Catalogo gradi</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-4xl">
-          Trova il materiale partendo dall&apos;impiego, dalla sigla o dal numero materiale
-        </h1>
-        <p className="mt-4 text-base leading-7 text-[#66736e]">
-          Le schede spiegano come leggere una designazione, a quali norme risulta collegata e quali materiali
-          sono utili da confrontare. Le relazioni servono alla discovery: non implicano equivalenza o sostituibilità
-          automatica.
-        </p>
-      </section>
+      <SchoolHero
+        eyebrow="Catalogo gradi"
+        title="Trova il materiale partendo dall’impiego, dalla sigla o dal numero materiale"
+        description={
+          <>
+            Le schede spiegano come leggere una designazione, a quali norme risulta collegata e quali materiali
+            sono utili da confrontare. Le relazioni servono alla discovery: non implicano equivalenza o sostituibilità
+            automatica.
+          </>
+        }
+        badges={["Pubblico", `${grades.length} schede`]}
+        compact
+      />
 
       {!query ? (
         <section className="grid gap-4 md:grid-cols-3" aria-label="Percorsi del catalogo gradi">
@@ -203,7 +206,7 @@ export default async function GradesIndexPage({
               placeholder="Cerca P265GH, 1.0425, EN 10217-1..."
               className="h-11 min-w-0 flex-1 rounded-xl border border-[#dbe5f1] px-3 text-sm outline-none focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8]"
             />
-            <button className="h-11 rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657]">
+            <button className="school-primary-action h-11">
               Cerca
             </button>
           </form>
