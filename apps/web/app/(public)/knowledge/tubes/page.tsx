@@ -296,13 +296,13 @@ export default async function PublicTubeWeightsPage({
             <div className="mt-4 grid gap-3">
               <Link
                 href="/knowledge/norme"
-                className="rounded-xl border border-[#dce2df] bg-[#f6f8f7] px-4 py-3 text-sm font-semibold text-[#1a5144]"
+                className="school-secondary-action justify-start"
               >
                 Esplora le norme →
               </Link>
               <Link
                 href="/knowledge/gradi"
-                className="rounded-xl border border-[#dce2df] bg-[#f6f8f7] px-4 py-3 text-sm font-semibold text-[#1a5144]"
+                className="school-secondary-action justify-start"
               >
                 Esplora i gradi →
               </Link>
