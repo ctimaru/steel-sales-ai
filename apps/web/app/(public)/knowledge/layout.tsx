@@ -3,15 +3,16 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { ProductBrand } from "@/components/product-brand";
+import { SchoolClaimCta } from "@/components/school-claim-cta";
 import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: {
-    default: "Steel Knowledge",
-    template: "%s · Steel Knowledge · Smart Steel Sales",
+    default: "Scuola",
+    template: "%s · Scuola · Smart Steel Sales",
   },
   description:
-    "Norme, gradi di acciaio, dimensioni, pesi e strumenti tecnici per chi lavora nel settore steel e tube.",
+    "Scuola tecnica pubblica per il settore steel e tube: norme, gradi di acciaio, dimensioni, pesi e strumenti pratici.",
   alternates: {
     canonical: absoluteUrl("/knowledge"),
   },
@@ -35,11 +36,11 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
               href="/knowledge"
               className="hidden border-l border-[#dce2df] pl-5 text-sm font-semibold text-[#43524c] hover:text-[#173f35] sm:block"
             >
-              Steel Knowledge
+              Scuola
             </Link>
           </div>
 
-          <nav className="flex items-center gap-2" aria-label="Navigazione Steel Knowledge">
+          <nav className="flex items-center gap-2" aria-label="Navigazione Scuola">
             <Link
               href="/knowledge"
               className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#5d6a65] hover:bg-[#eef2f0] hover:text-[#173f35] md:inline-flex"
@@ -71,17 +72,17 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
               Apri workspace
             </Link>
             <Link
-              href="/register"
+              href="/azienda"
               className="hidden rounded-xl bg-[#173f35] px-3.5 py-2 text-sm font-semibold text-white hover:bg-[#226657] sm:inline-flex"
             >
-              Registra azienda
+              Trova azienda
             </Link>
           </nav>
         </div>
         <div className="border-t border-[#e2e7e4] bg-[#f7f8f7] md:hidden">
           <nav
             className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-2.5 sm:px-6"
-            aria-label="Sezioni Steel Knowledge"
+            aria-label="Sezioni Scuola"
           >
             {[
               ["/knowledge", "Home"],
@@ -103,10 +104,12 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
 
       <main id="main-content" tabIndex={-1}>{children}</main>
 
+      <SchoolClaimCta />
+
       <footer className="mt-16 border-t border-[#dce2df] bg-white">
         <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 text-sm text-[#66736e] sm:px-6 md:grid-cols-[1fr_auto] lg:px-8">
           <div>
-            <p className="font-semibold text-[#1d2824]">Steel Knowledge</p>
+            <p className="font-semibold text-[#1d2824]">Scuola</p>
             <p className="mt-1 max-w-2xl text-xs leading-5">
               Contenuti tecnici e strumenti pubblici per il settore acciaio e tubo. Le sintesi non sostituiscono
               il testo ufficiale delle norme né le specifiche contrattuali applicabili.
@@ -114,7 +117,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
           </div>
           <div className="flex flex-wrap items-start gap-x-5 gap-y-2 text-xs font-semibold">
             <Link href="/" className="hover:text-[#173f35]">Smart Steel Sales</Link>
-            <Link href="/knowledge" className="hover:text-[#173f35]">Knowledge</Link>
+            <Link href="/knowledge" className="hover:text-[#173f35]">Scuola</Link>
             <Link href="/dashboard" className="hover:text-[#173f35]">Workspace</Link>
           </div>
         </div>
