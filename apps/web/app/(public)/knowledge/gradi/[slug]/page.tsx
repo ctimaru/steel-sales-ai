@@ -38,13 +38,13 @@ export async function generateMetadata({
   }
 
   return {
-    title: grade.seo_title.replace(/ · Steel Knowledge.*$/i, ""),
+    title: grade.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, ""),
     description: grade.seo_description,
     alternates: {
       canonical: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
     },
     openGraph: {
-      title: grade.seo_title.replace(/ · Steel Knowledge.*$/i, ""),
+      title: grade.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, ""),
       description: grade.seo_description,
       url: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
       type: "article",
@@ -66,7 +66,7 @@ export default async function GradeDetailPage({
   const articleJsonLd = {
     "@context": "https://schema.org",
     "@type": "TechArticle",
-    headline: grade.seo_title.replace(/ · Steel Knowledge.*$/i, ""),
+    headline: grade.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, ""),
     description: grade.seo_description,
     datePublished: grade.published_at,
     dateModified: grade.last_reviewed_at,
@@ -76,6 +76,31 @@ export default async function GradeDetailPage({
       name: "Smart Steel Sales",
     },
     citation: grade.source_references.map((source) => source.url),
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Scuola",
+        item: absoluteUrl("/knowledge"),
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Gradi",
+        item: absoluteUrl("/knowledge/gradi"),
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: grade.designation,
+        item: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
+      },
+    ],
   };
 
   const faqJsonLd = grade.faq.length
@@ -98,6 +123,10 @@ export default async function GradeDetailPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       {faqJsonLd ? (
         <script
