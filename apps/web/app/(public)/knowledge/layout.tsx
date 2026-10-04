@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { ProductBrand } from "@/components/product-brand";
+import { PublicSessionAction } from "@/components/public-session-action";
 import { SchoolClaimCta } from "@/components/school-claim-cta";
 import { absoluteUrl } from "@/lib/site";
 
@@ -65,9 +66,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
             >
               Pesi & dimensioni
             </Link>
-            <Link href="/dashboard" className="school-secondary-action hidden sm:inline-flex">
-              Workspace
-            </Link>
+            <PublicSessionAction className="school-secondary-action hidden sm:inline-flex" />
             <Link href="/azienda" className="school-primary-action">
               Trova azienda
             </Link>
@@ -93,6 +92,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
                 {label}
               </Link>
             ))}
+            <PublicSessionAction className="shrink-0 rounded-xl border border-[#b8c7c1] bg-white px-3 py-2 text-xs font-semibold text-[#173f35] hover:border-[#438d7a] hover:bg-[#edf5f2]" />
           </nav>
         </div>
       </header>
@@ -114,7 +114,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
             <Link href="/" className="hover:text-[#173f35]">Smart Steel Sales</Link>
             <Link href="/knowledge" className="hover:text-[#173f35]">Scuola</Link>
             <Link href="/knowledge/articoli" className="hover:text-[#173f35]">Articoli</Link>
-            <Link href="/dashboard" className="hover:text-[#173f35]">Workspace</Link>
+            <PublicSessionAction className="hover:text-[#173f35]" />
           </div>
         </div>
       </footer>

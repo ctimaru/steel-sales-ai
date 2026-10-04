@@ -30,6 +30,10 @@ const assistantPage = fs.readFileSync(
   new URL("../app/(workspace)/assistant/page.tsx", import.meta.url),
   "utf8",
 );
+const publicSessionAction = fs.readFileSync(
+  new URL("../components/public-session-action.tsx", import.meta.url),
+  "utf8",
+);
 const globals = fs.readFileSync(
   new URL("../app/globals.css", import.meta.url),
   "utf8",
@@ -79,7 +83,9 @@ test("UXA1 makes public Knowledge category navigation reachable on mobile", () =
   assert.match(knowledgeLayout, /aria-label="Sezioni Scuola"/);
   assert.match(knowledgeLayout, /md:hidden/);
   assert.match(knowledgeLayout, /Pesi & dimensioni/);
-  assert.match(knowledgeLayout, /href="\/dashboard"/);
+  assert.match(knowledgeLayout, /PublicSessionAction/);
+  assert.match(publicSessionAction, /authenticated \? "\/dashboard"/);
+  assert.match(publicSessionAction, /"Accedi"/);
 });
 
 test("UXA1 prevents the commercial assistant from jumping to legacy URLs", () => {
