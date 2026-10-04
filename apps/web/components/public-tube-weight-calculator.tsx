@@ -374,6 +374,7 @@ export function PublicTubeWeightCalculator({
   const [thickness, setThickness] = useState(initialValues?.thickness ?? "6,3");
   const [length, setLength] = useState(initialValues?.length ?? "12");
   const [quantity, setQuantity] = useState(initialValues?.quantity ?? "1");
+  const [targetTonnes, setTargetTonnes] = useState("");
   const [density, setDensity] = useState(initialValues?.density ?? "7850");
   const [referenceQuery, setReferenceQuery] = useState("");
 
@@ -384,6 +385,7 @@ export function PublicTubeWeightCalculator({
     const t = parseNumber(thickness);
     const l = parseNumber(length);
     const qty = parseNumber(quantity);
+    const targetT = parseNumber(targetTonnes);
     const rho = parseNumber(density);
 
     let error: string | null = null;
@@ -415,6 +417,15 @@ export function PublicTubeWeightCalculator({
     const kgBar = kgM != null && l != null ? kgM * l : null;
     const totalKg = kgBar != null && qty != null ? kgBar * qty : null;
     const totalTonnes = totalKg != null ? totalKg / 1000 : null;
+    const totalMeters = l != null && qty != null ? l * qty : null;
+
+    const targetBarsExact = targetT != null && targetT > 0 && kgBar != null && kgBar > 0
+      ? (targetT * 1000) / kgBar
+      : null;
+    const targetBars = targetBarsExact != null ? Math.ceil(targetBarsExact) : null;
+    const targetMeters = targetBars != null && l != null ? targetBars * l : null;
+    const targetActualKg = targetBars != null && kgBar != null ? targetBars * kgBar : null;
+    const targetActualTonnes = targetActualKg != null ? targetActualKg / 1000 : null;
 
     const exactReference = !error
       ? references.find((reference) => {
@@ -430,8 +441,12 @@ export function PublicTubeWeightCalculator({
         ? ((exactReference.weight_kg_m - kgM) / kgM) * 100
         : null;
 
-    return { d, b, h, t, l, qty, rho, areaMm2, kgM, kgBar, totalKg, totalTonnes, exactReference, deltaPercent, error };
-  }, [outerDiameter, width, height, thickness, length, quantity, density, family, references]);
+    return {
+      d, b, h, t, l, qty, targetT, rho, areaMm2, kgM, kgBar, totalKg, totalTonnes, totalMeters,
+      targetBarsExact, targetBars, targetMeters, targetActualKg, targetActualTonnes,
+      exactReference, deltaPercent, error,
+    };
+  }, [outerDiameter, width, height, thickness, length, quantity, targetTonnes, density, family, references]);
 
   const familyReferences = useMemo(() => {
     const q = referenceQuery.trim().toLowerCase().replace(",", ".");
@@ -685,14 +700,105 @@ export function PublicTubeWeightCalculator({
 
                   <label className="text-xs font-semibold text-[#52615b]">
                     Numero barre
+                    <div className="mt-1.5 grid grid-cols-[44px_1fr_44px] gap-2">
+                      <button
+                        type="button"
+                        aria-label="Riduci di una barra"
+                        onClick={() => {
+                          const current = Math.max(1, Math.floor(parseNumber(quantity) ?? 1));
+                          setQuantity(String(Math.max(1, current - 1)));
+                        }}
+                        className="school-secondary-action flex min-h-12 items-center justify-center px-0 py-0 text-lg"
+                      >
+                        −
+                      </button>
+                      <input
+                        value={quantity}
+                        onChange={(event) => setQuantity(event.target.value)}
+                        inputMode="numeric"
+                        className="w-full rounded-xl border border-[#cfd9d5] bg-white px-3 py-3 text-center text-base font-semibold text-[#1d2824] outline-none transition focus:border-[#438d7a] focus:ring-4 focus:ring-[#d9e8e2]"
+                      />
+                      <button
+                        type="button"
+                        aria-label="Aumenta di una barra"
+                        onClick={() => {
+                          const current = Math.max(0, Math.floor(parseNumber(quantity) ?? 0));
+                          setQuantity(String(current + 1));
+                        }}
+                        className="school-secondary-action flex min-h-12 items-center justify-center px-0 py-0 text-lg"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-2xl border border-[#bed3cb] bg-[#edf5f2] p-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-[#173f35]">Parti dalle tonnellate</p>
+                    <p className="mt-1 text-xs leading-5 text-[#5d6a65]">
+                      Inserisci il tonnellaggio che vuoi raggiungere: calcoliamo quante barre intere servono alla lunghezza selezionata.
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#1a5144]">
+                    Calcolo inverso
+                  </span>
+                </div>
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+                  <label className="text-xs font-semibold text-[#52615b]">
+                    Tonnellate target
                     <input
-                      value={quantity}
-                      onChange={(event) => setQuantity(event.target.value)}
-                      inputMode="numeric"
+                      value={targetTonnes}
+                      onChange={(event) => setTargetTonnes(event.target.value)}
+                      inputMode="decimal"
+                      placeholder="es. 25"
                       className={inputClass}
                     />
                   </label>
+
+                  <button
+                    type="button"
+                    disabled={values.targetBars == null}
+                    onClick={() => {
+                      if (values.targetBars != null) setQuantity(String(values.targetBars));
+                    }}
+                    className="school-primary-action min-h-12 px-4 py-3 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Usa barre suggerite
+                  </button>
                 </div>
+
+                <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                  <div className="rounded-xl bg-white px-3 py-3">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#66736e]">Barre necessarie</p>
+                    <p className="metric-number mt-1 text-2xl font-semibold text-[#173f35]">
+                      {values.targetBars == null ? "—" : formatNumber(values.targetBars, 0)}
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-white px-3 py-3">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#66736e]">Metri totali</p>
+                    <p className="metric-number mt-1 text-2xl font-semibold text-[#173f35]">
+                      {values.targetMeters == null ? "—" : formatNumber(values.targetMeters, 1)}
+                      <span className="ml-1 text-sm font-semibold text-[#66736e]">m</span>
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-white px-3 py-3">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#66736e]">Tonnellate reali</p>
+                    <p className="metric-number mt-1 text-2xl font-semibold text-[#173f35]">
+                      {values.targetActualTonnes == null ? "—" : formatNumber(values.targetActualTonnes, 4)}
+                      <span className="ml-1 text-sm font-semibold text-[#66736e]">t</span>
+                    </p>
+                  </div>
+                </div>
+
+                {values.targetBarsExact != null && values.targetBars != null ? (
+                  <p className="mt-3 text-xs leading-5 text-[#5d6a65]">
+                    Calcolo teorico: {formatNumber(values.targetBarsExact, 2)} barre. Per lavorare con barre intere arrotondiamo sempre per eccesso a {values.targetBars}.
+                  </p>
+                ) : null}
               </div>
 
               <details className="mt-4 rounded-2xl border border-[#d7e1dd] bg-white p-4">
@@ -742,12 +848,19 @@ export function PublicTubeWeightCalculator({
                 </div>
               </div>
 
-              <div className="grid gap-px bg-white/10 sm:grid-cols-2">
+              <div className="grid gap-px bg-white/10 sm:grid-cols-3">
                 <div className="bg-[#16483d] p-5 sm:p-6">
                   <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/60">Peso per barra · {length || "—"} m</p>
                   <p className="metric-number mt-2 text-3xl font-semibold">
                     {values.kgBar == null ? "—" : formatNumber(values.kgBar, 2)}
                     <span className="ml-1 text-base text-white/60">kg</span>
+                  </p>
+                </div>
+                <div className="bg-[#16483d] p-5 sm:p-6">
+                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/60">Metri totali</p>
+                  <p className="metric-number mt-2 text-3xl font-semibold">
+                    {values.totalMeters == null ? "—" : formatNumber(values.totalMeters, 1)}
+                    <span className="ml-1 text-base text-white/60">m</span>
                   </p>
                 </div>
                 <div className="bg-[#16483d] p-5 sm:p-6">
