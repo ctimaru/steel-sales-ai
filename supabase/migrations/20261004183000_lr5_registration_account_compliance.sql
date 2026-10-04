@@ -757,6 +757,8 @@ from public,anon,authenticated;
 grant execute on function public.lr5_retention_cleanup()
 to service_role;
 
+create extension if not exists pg_cron with schema pg_catalog;
+
 do $lr5_cron$
 declare
   v_jobid bigint;
