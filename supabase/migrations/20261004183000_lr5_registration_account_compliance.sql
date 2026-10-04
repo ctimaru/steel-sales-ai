@@ -300,7 +300,10 @@ begin
   into v_row
   from public.account_lifecycle_requests
   where user_id=v_user
-  order by requested_at desc
+  order by
+    (status in ('requested','processing')) desc,
+    requested_at desc,
+    id desc
   limit 1;
 
   return jsonb_build_object(
