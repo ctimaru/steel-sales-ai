@@ -55,7 +55,7 @@ test("LR4 withdraws legacy published contacts until explicit review", () => {
 test("LR4 requires Article 14 evidence before a personal contact is disclosure-ready", () => {
   assert.match(migration, /network_art14_notice_log/);
   assert.match(migration, /outcome in \('delivered','delivered_late','exempt_documented'\)/);
-  assert.match(migration, /one month/i);
+  assert.match(migration, /interval '1 month'/);
   assert.match(migration, /delivered_late/);
   assert.match(migration, /contact is not LR4-ready for disclosure/);
   assert.match(migration, /2026-10-04-lr4-v1/);
