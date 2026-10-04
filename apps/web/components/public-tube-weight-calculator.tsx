@@ -542,7 +542,7 @@ export function PublicTubeWeightCalculator({
               <div className="p-5 sm:p-6">
                 <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm font-semibold">Riferimento tecnico</p>
+                    <p className="text-sm font-semibold">Riferimento tecnico trovato</p>
                     {values.exactReference ? (
                       <span className="rounded-full bg-white/12 px-2.5 py-1 text-[10px] font-semibold text-white">
                         {values.exactReference.weight_method === "published" ? "Peso pubblicato" : "Verificato"}
