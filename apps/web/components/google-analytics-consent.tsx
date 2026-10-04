@@ -1,6 +1,7 @@
 "use client";
 
 import Script from "next/script";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 
@@ -129,6 +130,16 @@ export function GoogleAnalyticsConsent({
               <p className="text-sm font-bold text-[#173f35]">Statistiche del sito</p>
               <p className="mt-1 text-xs leading-5 text-[#52615b]">
                 Possiamo usare Google Analytics per capire quali pagine pubbliche vengono visitate e da quali sorgenti arriva il traffico. Il tag non viene caricato finché non accetti.
+              </p>
+              <p className="mt-2 text-[11px] leading-5 text-[#66736e]">
+                Leggi la{" "}
+                <Link href="/privacy" className="font-bold text-[#1a5144] underline underline-offset-4">
+                  Privacy Policy
+                </Link>{" "}
+                e la{" "}
+                <Link href="/cookies" className="font-bold text-[#1a5144] underline underline-offset-4">
+                  Cookie & Tracking Policy
+                </Link>.
               </p>
             </div>
             <div className="flex shrink-0 flex-wrap gap-2">
