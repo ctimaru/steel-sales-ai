@@ -8,6 +8,7 @@ const dashboard = fs.readFileSync(new URL("../app/(workspace)/dashboard/page.tsx
 const marketplace = fs.readFileSync(new URL("../app/(workspace)/marketplace/page.tsx", import.meta.url), "utf8");
 const knowledge = fs.readFileSync(new URL("../app/(public)/knowledge/page.tsx", import.meta.url), "utf8");
 const knowledgeLayout = fs.readFileSync(new URL("../app/(public)/knowledge/layout.tsx", import.meta.url), "utf8");
+const publicSessionAction = fs.readFileSync(new URL("../components/public-session-action.tsx", import.meta.url), "utf8");
 const routes = fs.readFileSync(new URL("../lib/routes.ts", import.meta.url), "utf8");
 const globals = fs.readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 const button = fs.readFileSync(new URL("../components/ui/button.tsx", import.meta.url), "utf8");
@@ -53,7 +54,8 @@ test("K1 Knowledge is a public technical discovery surface", () => {
   assert.match(knowledge, /href: "\/knowledge\/gradi"/);
   assert.match(knowledge, /Articoli/);
   assert.match(knowledge, /Pubblico/);
-  assert.match(knowledgeLayout, />\s*Workspace\s*</);
+  assert.match(knowledgeLayout, /PublicSessionAction/);
+  assert.match(publicSessionAction, /authenticated \? "Workspace" : "Accedi"/);
   assert.match(knowledgeLayout, /Trova azienda/);
   assert.match(knowledgeLayout, /\/knowledge\/articoli/);
   assert.doesNotMatch(knowledge + knowledgeLayout, /getWorkspaceContext|requireWorkspace|redirect\("\/login"\)/);
