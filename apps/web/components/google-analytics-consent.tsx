@@ -75,6 +75,9 @@ export function GoogleAnalyticsConsent({
       return;
     }
 
+    if (stored?.decision === "granted") {
+      clearGoogleAnalyticsCookies();
+    }
     window.localStorage.removeItem(ANALYTICS_CONSENT_STORAGE_KEY);
 
     // LR2 intentionally invalidates the old unversioned choice once so the new
