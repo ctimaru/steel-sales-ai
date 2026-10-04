@@ -40,6 +40,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     {
+      url: absoluteUrl("/azienda"),
+      changeFrequency: "monthly",
+      priority: 0.82,
+    },
+    {
       url: absoluteUrl("/company-data"),
       changeFrequency: "monthly",
       priority: 0.5,
