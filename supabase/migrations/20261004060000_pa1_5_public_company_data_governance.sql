@@ -315,7 +315,7 @@ revoke all on function private.pa1_5_review_discovery_run_governance_impl(
 ) from public,anon,authenticated;
 grant execute on function private.pa1_5_review_discovery_run_governance_impl(
   uuid,text,text,text,text,text
-) to service_role;
+) to authenticated,service_role;
 
 create or replace function public.pa1_5_review_discovery_run_governance(
   p_run_id uuid,
@@ -460,7 +460,7 @@ revoke all on function private.pa1_5_review_discovery_candidate_governance_impl(
 ) from public,anon,authenticated;
 grant execute on function private.pa1_5_review_discovery_candidate_governance_impl(
   uuid,text,boolean,text[],text
-) to service_role;
+) to authenticated,service_role;
 
 create or replace function public.pa1_5_review_discovery_candidate_governance(
   p_candidate_id uuid,
@@ -804,7 +804,7 @@ $function$;
 revoke all on function private.pa1_5_company_data_request_queue_impl(text,integer)
   from public,anon,authenticated;
 grant execute on function private.pa1_5_company_data_request_queue_impl(text,integer)
-  to service_role;
+  to authenticated,service_role;
 
 create or replace function public.pa1_5_company_data_request_queue(
   p_status text default null,
@@ -899,7 +899,7 @@ $function$;
 revoke all on function private.pa1_5_review_company_data_request_impl(uuid,text,text)
   from public,anon,authenticated;
 grant execute on function private.pa1_5_review_company_data_request_impl(uuid,text,text)
-  to service_role;
+  to authenticated,service_role;
 
 create or replace function public.pa1_5_review_company_data_request(
   p_request_id uuid,
