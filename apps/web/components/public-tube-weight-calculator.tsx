@@ -441,7 +441,7 @@ export function PublicTubeWeightCalculator({
                         className={
                           length === preset
                             ? "school-selected-control rounded-xl px-3 py-2.5 text-sm font-bold"
-                            : "min-h-10 rounded-xl border border-[#cfd9d5] bg-white px-3 text-sm font-bold text-[#334a42] hover:border-[#8fb5a8] hover:bg-[#edf5f2]"
+                            : "school-secondary-action px-3 py-2.5"
                         }
                       >
                         {preset} m
@@ -530,7 +530,7 @@ export function PublicTubeWeightCalculator({
                 </div>
                 <div className="bg-[#16483d] p-5 sm:p-6">
                   <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/60">
-                    Totale · {quantity || "—"} barre
+                    Peso totale · {quantity || "—"} barre
                   </p>
                   <p className="metric-number mt-2 text-3xl font-semibold">
                     {values.totalTonnes == null ? "—" : formatNumber(values.totalTonnes, 4)}
