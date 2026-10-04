@@ -81,8 +81,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     {
       url: absoluteUrl("/knowledge/tubes"),
       lastModified: tubesLastModified,
-      changeFrequency: "monthly",
-      priority: 0.8,
+      changeFrequency: "weekly",
+      priority: 0.92,
     },
   ];
 
@@ -110,8 +110,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const familyHubEntries: MetadataRoute.Sitemap = familyHubs.map((hub) => ({
     url: absoluteUrl(`/knowledge/tubes/${hub.family_slug}`),
     lastModified: new Date(hub.published_at),
-    changeFrequency: "monthly",
-    priority: 0.78,
+    changeFrequency: "weekly",
+    priority: 0.86,
   }));
 
   const sizeHubEntries: MetadataRoute.Sitemap = sizeHubs.map((hub) => ({
