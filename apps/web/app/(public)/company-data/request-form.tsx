@@ -51,8 +51,8 @@ export function CompanyDataRequestForm() {
       </label>
 
       <p className="rounded-xl border border-[#d9e8e2] bg-[#edf5f2] px-4 py-3 text-xs leading-5 text-[#52615b]">
-        Non inserire dati personali non necessari. Questo modulo serve a segnalare dati aziendali;
-        non sostituisce i canali formali previsti dall&apos;informativa privacy.
+        Non inserire dati personali non necessari. Questo modulo serve a segnalare dati aziendali
+        e non sostituisce le procedure formali per l&apos;esercizio dei diritti privacy.
       </p>
 
       <label className="block text-sm font-medium text-[#34423d]">
