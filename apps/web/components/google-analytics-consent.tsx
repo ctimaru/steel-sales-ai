@@ -5,9 +5,20 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 
-const STORAGE_KEY = "sss.google-analytics-consent.v1";
+import {
+  ANALYTICS_CONSENT_STORAGE_KEY,
+  ANALYTICS_CONSENT_VERSION,
+  ANALYTICS_NOTICE_VERSION,
+  ANALYTICS_REPROMPT_MONTHS,
+  LEGACY_ANALYTICS_CONSENT_STORAGE_KEY,
+  analyticsConsentRecordIsCurrent,
+  createAnalyticsConsentRecord,
+  parseAnalyticsConsentRecord,
+  type AnalyticsConsentDecision,
+  type AnalyticsConsentRecord,
+} from "@/lib/analytics-consent";
 
-type AnalyticsConsent = "granted" | "denied" | null;
+type AnalyticsConsent = AnalyticsConsentDecision | null;
 
 type AnalyticsWindow = Window & {
   dataLayer?: unknown[][];
@@ -43,6 +54,7 @@ export function GoogleAnalyticsConsent({
 }) {
   const pathname = usePathname();
   const [consent, setConsent] = useState<AnalyticsConsent>(null);
+  const [consentRecord, setConsentRecord] = useState<AnalyticsConsentRecord | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const shouldMeasure = useMemo(
@@ -52,10 +64,27 @@ export function GoogleAnalyticsConsent({
 
   useEffect(() => {
     if (!measurementId) return;
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored === "granted" || stored === "denied") {
-      setConsent(stored);
+
+    const stored = parseAnalyticsConsentRecord(
+      window.localStorage.getItem(ANALYTICS_CONSENT_STORAGE_KEY),
+    );
+
+    if (stored && analyticsConsentRecordIsCurrent(stored)) {
+      setConsentRecord(stored);
+      setConsent(stored.decision);
+      return;
     }
+
+    window.localStorage.removeItem(ANALYTICS_CONSENT_STORAGE_KEY);
+
+    // LR2 intentionally invalidates the old unversioned choice once so the new
+    // versioned notice can be acknowledged and documented correctly.
+    if (window.localStorage.getItem(LEGACY_ANALYTICS_CONSENT_STORAGE_KEY)) {
+      window.localStorage.removeItem(LEGACY_ANALYTICS_CONSENT_STORAGE_KEY);
+    }
+
+    setConsentRecord(null);
+    setConsent(null);
   }, [measurementId]);
 
   useEffect(() => {
@@ -91,7 +120,12 @@ export function GoogleAnalyticsConsent({
   if (!measurementId || !shouldMeasure) return null;
 
   function choose(nextConsent: Exclude<AnalyticsConsent, null>) {
-    window.localStorage.setItem(STORAGE_KEY, nextConsent);
+    const nextRecord = createAnalyticsConsentRecord(nextConsent);
+    window.localStorage.setItem(
+      ANALYTICS_CONSENT_STORAGE_KEY,
+      JSON.stringify(nextRecord),
+    );
+    setConsentRecord(nextRecord);
     setConsent(nextConsent);
     setSettingsOpen(false);
 
@@ -132,6 +166,9 @@ export function GoogleAnalyticsConsent({
                 Possiamo usare Google Analytics per capire quali pagine pubbliche vengono visitate e da quali sorgenti arriva il traffico. Il tag non viene caricato finché non accetti.
               </p>
               <p className="mt-2 text-[11px] leading-5 text-[#66736e]">
+                La scelta viene ricordata per {ANALYTICS_REPROMPT_MONTHS} mesi e viene richiesta di nuovo prima solo se cambia in modo sostanziale il trattamento o l'informativa.
+              </p>
+              <p className="mt-2 text-[11px] leading-5 text-[#66736e]">
                 Leggi la{" "}
                 <Link href="/privacy" className="font-bold text-[#1a5144] underline underline-offset-4">
                   Privacy Policy
@@ -167,6 +204,9 @@ export function GoogleAnalyticsConsent({
           className="fixed bottom-3 left-3 z-[90] min-h-9 rounded-full border border-[#cbd8d3] bg-white/95 px-3 text-[10px] font-bold text-[#52615b] shadow-sm backdrop-blur hover:border-[#8fb5a8] hover:text-[#173f35]"
         >
           Preferenze statistiche
+          <span className="sr-only">
+            · consenso {consentRecord?.decision ?? "non espresso"} · versione {ANALYTICS_CONSENT_VERSION} · informativa {ANALYTICS_NOTICE_VERSION}
+          </span>
         </button>
       )}
     </>
