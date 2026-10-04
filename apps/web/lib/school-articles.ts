@@ -48,6 +48,9 @@ export type SchoolArticle = {
   publishedAt: string;
   lastReviewedAt: string;
   readMinutes: number;
+  keywords: string[];
+  about: string[];
+  relatedArticleSlugs: string[];
   timeline?: SchoolArticleTimelineItem[];
   processFlows?: SchoolArticleProcessFlow[];
   comparison?: SchoolArticleComparisonRow[];
@@ -68,6 +71,9 @@ export const schoolArticles: SchoolArticle[] = [
     publishedAt: "2026-10-04",
     lastReviewedAt: "2026-10-04",
     readMinutes: 7,
+    keywords: ["storia tubi acciaio", "Mannesmann", "tubi seamless", "tubi saldati", "industria siderurgica"],
+    about: ["storia del tubo d’acciaio", "tubi senza saldatura", "tubi saldati industriali"],
+    relatedArticleSlugs: ["come-si-producono-tubi-acciaio", "produttori-tubi-europa"],
     timeline: [
       {
         year: "Antichità",
@@ -130,6 +136,23 @@ export const schoolArticles: SchoolArticle[] = [
         ],
       },
     ],
+    relatedLinks: [
+      {
+        label: "Come si producono oggi i tubi d’acciaio",
+        href: "/knowledge/articoli/come-si-producono-tubi-acciaio",
+        note: "Dal salto storico Mannesmann ai processi industriali HFI/ERW, SAW, seamless e cold drawn.",
+      },
+      {
+        label: "Calcolatore peso tubo",
+        href: "/knowledge/tubes?source=school&surface=home_card#calcolatore-pesi",
+        note: "Passa dalla storia alla pratica: kg/m, peso per barra e tonnellaggio.",
+      },
+      {
+        label: "Norme per tubi e profilati",
+        href: "/knowledge/norme",
+        note: "Esplora le famiglie normative che oggi definiscono prodotto, processo e requisiti.",
+      },
+    ],
     sources: [
       {
         label: "Salzgitter AG — Mannesmann history",
@@ -164,6 +187,9 @@ export const schoolArticles: SchoolArticle[] = [
     publishedAt: "2026-10-04",
     lastReviewedAt: "2026-10-04",
     readMinutes: 8,
+    keywords: ["produttori tubi europa", "tubifici europei", "tubi acciaio europa", "seamless europe", "welded tubes europe"],
+    about: ["produttori europei di tubi d’acciaio", "seamless", "tubi saldati", "precision tubes"],
+    relatedArticleSlugs: ["come-si-producono-tubi-acciaio", "storia-tubi-acciaio"],
     sections: [
       {
         heading: "Come leggere la mappa",
@@ -211,6 +237,28 @@ export const schoolArticles: SchoolArticle[] = [
         ],
       },
     ],
+    relatedLinks: [
+      {
+        label: "Come si producono i tubi d’acciaio",
+        href: "/knowledge/articoli/come-si-producono-tubi-acciaio",
+        note: "Capisci quali processi distinguono le gamme welded, seamless e precision citate nella mappa.",
+      },
+      {
+        label: "Norme e famiglie di prodotto",
+        href: "/knowledge/norme",
+        note: "Dal nome del produttore passa alla specifica tecnica applicabile.",
+      },
+      {
+        label: "Pesi e dimensioni",
+        href: "/knowledge/tubes?source=school&surface=home_card#calcolatore-pesi",
+        note: "Calcola kg/m, barre e tonnellaggio per tondo, quadro e rettangolare.",
+      },
+      {
+        label: "Trova la tua azienda",
+        href: "/azienda",
+        note: "Verifica se il profilo della tua azienda è già presente e rivendicabile.",
+      },
+    ],
     sources: [
       {
         label: "ArcelorMittal Europe — Our Company",
@@ -255,6 +303,9 @@ export const schoolArticles: SchoolArticle[] = [
     publishedAt: "2026-10-04",
     lastReviewedAt: "2026-10-04",
     readMinutes: 10,
+    keywords: ["come si producono tubi acciaio", "tubi ERW HFI", "tubi seamless", "SAW", "cold drawn"],
+    about: ["processi produttivi dei tubi d’acciaio", "HFI ERW", "SAW", "seamless", "cold drawn"],
+    relatedArticleSlugs: ["storia-tubi-acciaio", "produttori-tubi-europa"],
     processFlows: [
       {
         title: "HFI / ERW — dal coil al tubo saldato longitudinale",
