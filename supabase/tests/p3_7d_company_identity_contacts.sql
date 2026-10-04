@@ -149,9 +149,14 @@ select pg_temp.p37d_assert(
 
 select pg_temp.p37d_assert(
   :'public_state'::jsonb->>'logo_path'='00000000-0000-0000-0000-0000000037d3/logo'
-  and jsonb_array_length(:'public_state'::jsonb->'contacts')=1
-  and :'public_state'::jsonb->'contacts'->0->>'provenance_kind'='company_declared',
-  'public identity state must expose safe company-declared contact provenance'
+  and jsonb_array_length(:'public_state'::jsonb->'contacts')=0
+  and (
+    select publication_status='pending_review'
+      and privacy_classification='unreviewed'
+    from public.network_contacts
+    where id=:'contact_id'::uuid
+  ),
+  'LR4 must keep newly proposed company contacts out of disclosure until privacy review'
 );
 
 select pg_temp.p37d_assert(
@@ -245,7 +250,7 @@ insert into public.network_contacts(
   '00000000-0000-0000-0000-0000000037d5',
   '00000000-0000-0000-0000-0000000037d3',
   'general','Crawler Contact','crawler@p37d.example.test',
-  'published','public_web','https://p37d.example.test','unverified'
+  'pending_review','public_web','https://p37d.example.test','unverified'
 );
 
 set local role authenticated;
