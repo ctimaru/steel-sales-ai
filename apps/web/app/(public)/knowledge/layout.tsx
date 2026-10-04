@@ -62,6 +62,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
             </Link>
             <Link
               href="/knowledge/tubes?source=school&surface=nav#calcolatore-pesi"
+              aria-label="Calcolatore · Pesi & dimensioni"
               className="hidden rounded-xl bg-[#edf5f2] px-3 py-2 text-sm font-bold text-[#173f35] hover:bg-[#d9e8e2] lg:inline-flex"
             >
               Calcolatore
