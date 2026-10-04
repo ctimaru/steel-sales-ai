@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type { PublicTubeDimensionSummary } from "@/lib/public-knowledge";
 
 type TubeFamily = PublicTubeDimensionSummary["product_family"];
 
 export type PublicTubeCalculatorInitialValues = {
+  standard?: "en10219" | "en10210" | "geometric";
   family?: TubeFamily;
   outerDiameter?: string;
   width?: string;
@@ -15,6 +16,7 @@ export type PublicTubeCalculatorInitialValues = {
   thickness?: string;
   length?: string;
   quantity?: string;
+  targetTonnes?: string;
   density?: string;
 };
 
@@ -64,6 +66,67 @@ const standardOptions = [
 
 type StandardValue = (typeof standardOptions)[number]["value"];
 type NormativeStandard = Exclude<StandardValue, "geometric">;
+
+type StoredTubeCalculation = {
+  key: string;
+  savedAt: string;
+  standard: StandardValue;
+  family: TubeFamily;
+  outerDiameter: string;
+  width: string;
+  height: string;
+  thickness: string;
+  length: string;
+  quantity: string;
+  targetTonnes: string;
+  density: string;
+  kgM: number;
+  kgBar: number;
+  totalMeters: number;
+  totalTonnes: number;
+};
+
+const WC4_RECENTS_KEY = "sss.weightCalculator.recents.v1";
+const WC4_FAVORITES_KEY = "sss.weightCalculator.favorites.v1";
+const WC4_SAVED_TOOL_KEY = "sss.weightCalculator.savedTool.v1";
+const WC4_MAX_RECENTS = 6;
+const WC4_MAX_FAVORITES = 8;
+
+function readStoredCalculations(key: string) {
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as StoredTubeCalculation[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeStoredCalculations(key: string, calculations: StoredTubeCalculation[]) {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(calculations));
+  } catch {
+    // Retention is optional: calculator functionality must survive blocked storage.
+  }
+}
+
+async function copyTextToClipboard(text: string) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  document.body.removeChild(textarea);
+}
 
 function standardCornerRadii(standard: NormativeStandard, thicknessMm: number) {
   if (standard === "en10210") {
@@ -423,7 +486,7 @@ export function PublicTubeWeightCalculator({
   references: PublicTubeDimensionSummary[];
   initialValues?: PublicTubeCalculatorInitialValues;
 }) {
-  const [standard, setStandard] = useState<StandardValue>("en10219");
+  const [standard, setStandard] = useState<StandardValue>(initialValues?.standard ?? "en10219");
   const [family, setFamily] = useState<TubeFamily>(initialValues?.family ?? "round_tube");
   const [outerDiameter, setOuterDiameter] = useState(initialValues?.outerDiameter ?? "168,3");
   const [width, setWidth] = useState(initialValues?.width ?? "100");
@@ -431,9 +494,14 @@ export function PublicTubeWeightCalculator({
   const [thickness, setThickness] = useState(initialValues?.thickness ?? "6,3");
   const [length, setLength] = useState(initialValues?.length ?? "12");
   const [quantity, setQuantity] = useState(initialValues?.quantity ?? "1");
-  const [targetTonnes, setTargetTonnes] = useState("");
+  const [targetTonnes, setTargetTonnes] = useState(initialValues?.targetTonnes ?? "");
   const [density, setDensity] = useState(initialValues?.density ?? "7850");
   const [referenceQuery, setReferenceQuery] = useState("");
+  const [recentCalculations, setRecentCalculations] = useState<StoredTubeCalculation[]>([]);
+  const [favoriteCalculations, setFavoriteCalculations] = useState<StoredTubeCalculation[]>([]);
+  const [calculatorSaved, setCalculatorSaved] = useState(false);
+  const [retentionReady, setRetentionReady] = useState(false);
+  const [actionFeedback, setActionFeedback] = useState("");
 
   const values = useMemo(() => {
     const d = parseNumber(outerDiameter);
@@ -530,6 +598,171 @@ export function PublicTubeWeightCalculator({
       exactReference, deltaPercent, error,
     };
   }, [outerDiameter, width, height, thickness, length, quantity, targetTonnes, density, family, standard, references]);
+
+  const currentSnapshot = useMemo<StoredTubeCalculation | null>(() => {
+    if (
+      values.error ||
+      values.kgM == null ||
+      values.kgBar == null ||
+      values.totalMeters == null ||
+      values.totalTonnes == null
+    ) {
+      return null;
+    }
+
+    const key = [
+      standard,
+      family,
+      outerDiameter.trim(),
+      width.trim(),
+      height.trim(),
+      thickness.trim(),
+      length.trim(),
+      quantity.trim(),
+      targetTonnes.trim(),
+      standard === "geometric" ? density.trim() : "7850",
+    ].join("|");
+
+    return {
+      key,
+      savedAt: new Date().toISOString(),
+      standard,
+      family,
+      outerDiameter,
+      width,
+      height,
+      thickness,
+      length,
+      quantity,
+      targetTonnes,
+      density,
+      kgM: values.kgM,
+      kgBar: values.kgBar,
+      totalMeters: values.totalMeters,
+      totalTonnes: values.totalTonnes,
+    };
+  }, [
+    values.error,
+    values.kgM,
+    values.kgBar,
+    values.totalMeters,
+    values.totalTonnes,
+    standard,
+    family,
+    outerDiameter,
+    width,
+    height,
+    thickness,
+    length,
+    quantity,
+    targetTonnes,
+    density,
+  ]);
+
+  function restoreCalculation(calculation: StoredTubeCalculation) {
+    setStandard(calculation.standard);
+    setFamily(calculation.family);
+    setOuterDiameter(calculation.outerDiameter);
+    setWidth(calculation.width);
+    setHeight(calculation.height);
+    setThickness(calculation.thickness);
+    setLength(calculation.length);
+    setQuantity(calculation.quantity);
+    setTargetTonnes(calculation.targetTonnes);
+    setDensity(calculation.density);
+    setActionFeedback("Calcolo ripristinato.");
+  }
+
+  function calculationDimensionLabel(calculation: StoredTubeCalculation) {
+    if (calculation.family === "round_tube") {
+      return `Ø ${calculation.outerDiameter} × ${calculation.thickness} mm`;
+    }
+    if (calculation.family === "square_tube") {
+      return `${calculation.width} × ${calculation.width} × ${calculation.thickness} mm`;
+    }
+    return `${calculation.width} × ${calculation.height} × ${calculation.thickness} mm`;
+  }
+
+  function calculationStandardLabel(calculation: StoredTubeCalculation) {
+    return standardOptions.find((option) => option.value === calculation.standard)?.label ?? calculation.standard;
+  }
+
+  function resultText(calculation: StoredTubeCalculation) {
+    return [
+      `Smart Steel Sales · ${calculationStandardLabel(calculation)}`,
+      calculationDimensionLabel(calculation),
+      `${formatNumber(calculation.kgM, 3)} kg/m`,
+      `${formatNumber(calculation.kgBar, 2)} kg/barra · ${calculation.length} m`,
+      `${calculation.quantity} barre · ${formatNumber(calculation.totalMeters, 1)} m · ${formatNumber(calculation.totalTonnes, 4)} t`,
+    ].join("\n");
+  }
+
+  function shareUrl(calculation: StoredTubeCalculation) {
+    const params = new URLSearchParams();
+    params.set("standard", calculation.standard);
+    params.set("family", calculation.family);
+    if (calculation.family === "round_tube") {
+      params.set("od", calculation.outerDiameter);
+    } else {
+      params.set("width", calculation.width);
+      if (calculation.family === "rectangular_tube") params.set("height", calculation.height);
+    }
+    params.set("thickness", calculation.thickness);
+    params.set("length", calculation.length);
+    params.set("quantity", calculation.quantity);
+    if (calculation.targetTonnes.trim()) params.set("target", calculation.targetTonnes);
+    if (calculation.standard === "geometric") params.set("density", calculation.density);
+    return `${window.location.origin}${window.location.pathname}?${params.toString()}#calcolatore-pesi`;
+  }
+
+  function saveFavorites(next: StoredTubeCalculation[]) {
+    setFavoriteCalculations(next);
+    writeStoredCalculations(WC4_FAVORITES_KEY, next);
+  }
+
+  useEffect(() => {
+    const recents = readStoredCalculations(WC4_RECENTS_KEY).slice(0, WC4_MAX_RECENTS);
+    const favorites = readStoredCalculations(WC4_FAVORITES_KEY).slice(0, WC4_MAX_FAVORITES);
+    setRecentCalculations(recents);
+    setFavoriteCalculations(favorites);
+
+    try {
+      const savedRaw = window.localStorage.getItem(WC4_SAVED_TOOL_KEY);
+      if (savedRaw) {
+        const saved = JSON.parse(savedRaw) as StoredTubeCalculation;
+        setCalculatorSaved(true);
+        const params = new URLSearchParams(window.location.search);
+        const hasSharedState = [
+          "standard", "family", "od", "width", "height", "thickness", "length", "quantity", "density", "target",
+        ].some((key) => params.has(key));
+        if (!hasSharedState && saved?.key) restoreCalculation(saved);
+      }
+    } catch {
+      // Ignore invalid/blocked local retention state.
+    }
+
+    setRetentionReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!retentionReady || !currentSnapshot) return;
+
+    const timeout = window.setTimeout(() => {
+      setRecentCalculations((current) => {
+        const next = [
+          { ...currentSnapshot, savedAt: new Date().toISOString() },
+          ...current.filter((item) => item.key !== currentSnapshot.key),
+        ].slice(0, WC4_MAX_RECENTS);
+        writeStoredCalculations(WC4_RECENTS_KEY, next);
+        return next;
+      });
+    }, 800);
+
+    return () => window.clearTimeout(timeout);
+  }, [retentionReady, currentSnapshot]);
+
+  const currentIsFavorite =
+    currentSnapshot != null && favoriteCalculations.some((item) => item.key === currentSnapshot.key);
 
   const familyReferences = useMemo(() => {
     const q = referenceQuery.trim().toLowerCase().replace(",", ".");
@@ -1069,6 +1302,199 @@ export function PublicTubeWeightCalculator({
                 </div>
               </div>
             </aside>
+          </div>
+        </div>
+      </section>
+
+      <section
+        aria-labelledby="calculator-retention"
+        className="rounded-3xl border border-[#cddbd6] bg-[linear-gradient(135deg,#f7fbf9_0%,#ffffff_65%)] p-5 shadow-[0_12px_36px_rgba(18,61,52,0.06)] sm:p-7"
+      >
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Uso quotidiano</p>
+            <h2 id="calculator-retention" className="mt-2 text-2xl font-semibold text-[#173f35]">
+              Tieni il calcolatore a portata di mano
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[#66736e]">
+              Ultimi calcoli e preferiti restano su questo dispositivo. Nessuna misura o quantità viene inviata al backend per questa funzione.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            disabled={!currentSnapshot}
+            onClick={() => {
+              if (!currentSnapshot) return;
+              if (calculatorSaved) {
+                window.localStorage.removeItem(WC4_SAVED_TOOL_KEY);
+                setCalculatorSaved(false);
+                setActionFeedback("Salvataggio del calcolatore rimosso.");
+                return;
+              }
+              window.localStorage.setItem(WC4_SAVED_TOOL_KEY, JSON.stringify(currentSnapshot));
+              setCalculatorSaved(true);
+              setActionFeedback("Calcolatore salvato su questo dispositivo.");
+            }}
+            className={
+              calculatorSaved
+                ? "school-selected-control min-h-12 px-4 py-3 text-sm font-bold disabled:opacity-50"
+                : "school-primary-action min-h-12 px-4 py-3 disabled:opacity-50"
+            }
+          >
+            {calculatorSaved ? "Calcolatore salvato ✓" : "Salva il Calcolatore"}
+          </button>
+        </div>
+
+        <div className="mt-5 grid gap-2 sm:grid-cols-3">
+          <button
+            type="button"
+            disabled={!currentSnapshot}
+            onClick={async () => {
+              if (!currentSnapshot) return;
+              await copyTextToClipboard(resultText(currentSnapshot));
+              setActionFeedback("Risultato copiato.");
+            }}
+            className="school-secondary-action min-h-12 justify-center px-4 py-3 disabled:opacity-50"
+          >
+            Copia risultato
+          </button>
+          <button
+            type="button"
+            disabled={!currentSnapshot}
+            onClick={async () => {
+              if (!currentSnapshot) return;
+              await copyTextToClipboard(shareUrl(currentSnapshot));
+              setActionFeedback("Link condivisibile copiato.");
+            }}
+            className="school-secondary-action min-h-12 justify-center px-4 py-3 disabled:opacity-50"
+          >
+            Copia link
+          </button>
+          <button
+            type="button"
+            disabled={!currentSnapshot}
+            aria-pressed={currentIsFavorite}
+            onClick={() => {
+              if (!currentSnapshot) return;
+              if (currentIsFavorite) {
+                saveFavorites(favoriteCalculations.filter((item) => item.key !== currentSnapshot.key));
+                setActionFeedback("Rimosso dai preferiti.");
+              } else {
+                const next = [
+                  { ...currentSnapshot, savedAt: new Date().toISOString() },
+                  ...favoriteCalculations.filter((item) => item.key !== currentSnapshot.key),
+                ].slice(0, WC4_MAX_FAVORITES);
+                saveFavorites(next);
+                setActionFeedback("Calcolo aggiunto ai preferiti.");
+              }
+            }}
+            className={
+              currentIsFavorite
+                ? "school-selected-control min-h-12 justify-center px-4 py-3 text-sm font-bold disabled:opacity-50"
+                : "school-secondary-action min-h-12 justify-center px-4 py-3 disabled:opacity-50"
+            }
+          >
+            {currentIsFavorite ? "Preferito ★" : "Aggiungi ai preferiti ☆"}
+          </button>
+        </div>
+
+        <p aria-live="polite" className="mt-3 min-h-5 text-xs font-semibold text-[#1a5144]">
+          {actionFeedback}
+        </p>
+
+        <div className="mt-5 grid gap-5 lg:grid-cols-2">
+          <div className="rounded-2xl border border-[#dce5e1] bg-white p-4 sm:p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#66736e]">Ultimi calcoli</p>
+                <p className="mt-1 text-xs text-[#7b8782]">Aggiornati automaticamente sul dispositivo.</p>
+              </div>
+              {recentCalculations.length ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRecentCalculations([]);
+                    window.localStorage.removeItem(WC4_RECENTS_KEY);
+                    setActionFeedback("Cronologia locale svuotata.");
+                  }}
+                  className="text-xs font-bold text-[#1a5144] underline decoration-[#b8d2c8] underline-offset-4"
+                >
+                  Svuota
+                </button>
+              ) : null}
+            </div>
+            <div className="mt-4 space-y-2">
+              {recentCalculations.length ? (
+                recentCalculations.map((calculation) => (
+                  <div key={`${calculation.key}-${calculation.savedAt}`} className="flex items-center justify-between gap-3 rounded-xl bg-[#f6f8f7] p-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-[#263a33]">
+                        {calculationStandardLabel(calculation)} · {calculationDimensionLabel(calculation)}
+                      </p>
+                      <p className="mt-1 text-xs text-[#66736e]">
+                        {formatNumber(calculation.kgM, 3)} kg/m · {calculation.quantity} barre · {formatNumber(calculation.totalTonnes, 4)} t
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => restoreCalculation(calculation)}
+                      className="school-secondary-action shrink-0 px-3 py-2 text-xs"
+                    >
+                      Ripristina
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <p className="rounded-xl bg-[#f6f8f7] p-4 text-sm text-[#66736e]">
+                  I prossimi calcoli validi compariranno qui automaticamente.
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-[#dce5e1] bg-white p-4 sm:p-5">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#66736e]">Preferiti</p>
+              <p className="mt-1 text-xs text-[#7b8782]">Salva le misure che richiami più spesso.</p>
+            </div>
+            <div className="mt-4 space-y-2">
+              {favoriteCalculations.length ? (
+                favoriteCalculations.map((calculation) => (
+                  <div key={calculation.key} className="flex items-center justify-between gap-3 rounded-xl bg-[#f6f8f7] p-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-[#263a33]">
+                        {calculationStandardLabel(calculation)} · {calculationDimensionLabel(calculation)}
+                      </p>
+                      <p className="mt-1 text-xs text-[#66736e]">
+                        {formatNumber(calculation.kgM, 3)} kg/m · barra {calculation.length} m
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => restoreCalculation(calculation)}
+                        className="school-secondary-action px-3 py-2 text-xs"
+                      >
+                        Apri
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`Rimuovi ${calculationDimensionLabel(calculation)} dai preferiti`}
+                        onClick={() => saveFavorites(favoriteCalculations.filter((item) => item.key !== calculation.key))}
+                        className="school-secondary-action px-3 py-2 text-xs"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="rounded-xl bg-[#f6f8f7] p-4 text-sm text-[#66736e]">
+                  Usa “Aggiungi ai preferiti” per creare la tua raccolta rapida.
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </section>
