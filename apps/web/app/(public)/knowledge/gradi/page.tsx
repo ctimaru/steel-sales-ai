@@ -17,7 +17,7 @@ const baseMetadata: Metadata = {
     canonical: absoluteUrl("/knowledge/gradi"),
   },
   openGraph: {
-    title: "Gradi di acciaio e materiali · Steel Knowledge",
+    title: "Gradi di acciaio e materiali · Scuola Smart Steel Sales",
     description:
       "Consulta le schede pubbliche dei principali gradi di acciaio e le norme a cui risultano collegati.",
     url: absoluteUrl("/knowledge/gradi"),
@@ -149,7 +149,7 @@ export default async function GradesIndexPage({
       />
 
       <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
-        <Link href="/knowledge" className="hover:text-[#1a5144]">Steel Knowledge</Link>
+        <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>
         <span>Gradi di acciaio</span>
       </nav>

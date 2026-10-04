@@ -71,7 +71,7 @@ test("UX2 canonical private route modules reuse stable domain pages during cutov
 });
 
 test("K1 moves Knowledge to a standalone public route family", () => {
-  assert.match(publicKnowledge, /Steel Knowledge/);
+  assert.match(publicKnowledge, /Scuola/);
   assert.match(publicKnowledgeTubes, /Calcolo peso tubo acciaio/);
   assert.match(publicKnowledgeLayout, /ProductBrand/);
   assert.doesNotMatch(publicKnowledgeLayout, /getWorkspaceContext|requireWorkspace/);

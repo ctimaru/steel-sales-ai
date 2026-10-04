@@ -76,7 +76,7 @@ test("UXA1 keeps Platform navigation on canonical route constants", () => {
 });
 
 test("UXA1 makes public Knowledge category navigation reachable on mobile", () => {
-  assert.match(knowledgeLayout, /aria-label="Sezioni Steel Knowledge"/);
+  assert.match(knowledgeLayout, /aria-label="Sezioni Scuola"/);
   assert.match(knowledgeLayout, /md:hidden/);
   assert.match(knowledgeLayout, /Pesi & dimensioni/);
   assert.match(knowledgeLayout, /href="\/dashboard"/);

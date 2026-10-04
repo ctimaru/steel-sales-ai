@@ -17,7 +17,7 @@ const baseMetadata: Metadata = {
     canonical: absoluteUrl("/knowledge/norme"),
   },
   openGraph: {
-    title: "Norme per tubi e acciaio · Steel Knowledge",
+    title: "Norme per tubi e acciaio · Scuola Smart Steel Sales",
     description:
       "Consulta le schede pubbliche delle principali norme tecniche per tubi e prodotti siderurgici.",
     url: absoluteUrl("/knowledge/norme"),
@@ -159,7 +159,7 @@ export default async function StandardsIndexPage({
       />
 
       <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
-        <Link href="/knowledge" className="hover:text-[#1a5144]">Steel Knowledge</Link>
+        <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>
         <span>Norme</span>
       </nav>

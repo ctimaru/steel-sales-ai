@@ -70,6 +70,22 @@ const companyTypes = [
 ] as const;
 
 export default async function PublicHomePage() {
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Smart Steel Sales",
+    url: absoluteUrl("/"),
+    logo: absoluteUrl("/icon.svg"),
+    description:
+      "Piattaforma B2B per il settore acciaio e tubo con Scuola pubblica, company lookup e prodotti privati per aziende registrate.",
+  };
+
+  const webSiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Smart Steel Sales",
+    url: absoluteUrl("/"),
+  };
   const configured = Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
@@ -83,6 +99,14 @@ export default async function PublicHomePage() {
 
   return (
     <main className="min-h-screen bg-[#f2f4f3] text-[#1d2824]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
+      />
       <header className="border-b border-[#dce2df] bg-white/95 backdrop-blur-xl">
         <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <ProductBrand href="/" />
@@ -154,10 +178,10 @@ export default async function PublicHomePage() {
                 Apri Scuola
               </Link>
               <Link
-                href="/register"
+                href="/azienda"
                 className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/20 bg-white/[0.06] px-5 text-sm font-semibold text-white transition hover:bg-white/[0.1]"
               >
-                Rivendica o registra la tua azienda
+                Trova o rivendica la tua azienda
               </Link>
             </div>
 

@@ -39,13 +39,13 @@ export async function generateMetadata({
   }
 
   return {
-    title: standard.seo_title,
+    title: standard.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, ""),
     description: standard.seo_description,
     alternates: {
       canonical: absoluteUrl(`/knowledge/norme/${standard.slug}`),
     },
     openGraph: {
-      title: standard.seo_title,
+      title: standard.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, ""),
       description: standard.seo_description,
       url: absoluteUrl(`/knowledge/norme/${standard.slug}`),
       type: "article",
@@ -67,7 +67,7 @@ export default async function StandardDetailPage({
   const articleJsonLd = {
     "@context": "https://schema.org",
     "@type": "TechArticle",
-    headline: standard.seo_title,
+    headline: standard.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, ""),
     description: standard.seo_description,
     datePublished: standard.published_at,
     dateModified: standard.last_reviewed_at,
@@ -77,6 +77,31 @@ export default async function StandardDetailPage({
       name: "Smart Steel Sales",
     },
     citation: standard.source_references.map((source) => source.url),
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Scuola",
+        item: absoluteUrl("/knowledge"),
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Norme",
+        item: absoluteUrl("/knowledge/norme"),
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: standard.code,
+        item: absoluteUrl(`/knowledge/norme/${standard.slug}`),
+      },
+    ],
   };
 
   const faqJsonLd = standard.faq.length
@@ -100,6 +125,10 @@ export default async function StandardDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       {faqJsonLd ? (
         <script
           type="application/ld+json"
@@ -108,7 +137,7 @@ export default async function StandardDetailPage({
       ) : null}
 
       <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
-        <Link href="/knowledge" className="hover:text-[#1a5144]">Steel Knowledge</Link>
+        <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>
         <Link href="/knowledge/norme" className="hover:text-[#1a5144]">Norme</Link>
         <span className="mx-2">/</span>
@@ -131,7 +160,7 @@ export default async function StandardDetailPage({
             </span>
           </div>
           <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-5xl">
-            {standard.seo_title.replace(/ · Steel Knowledge.*$/i, "")}
+            {standard.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, "")}
           </h1>
           <p className="mt-5 max-w-3xl text-base leading-7 text-[#66736e]">
             {standard.intro}

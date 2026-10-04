@@ -93,7 +93,7 @@ export async function tubeSizeHubMetadata(
       canonical: absoluteUrl(canonical),
     },
     openGraph: {
-      title: title + " · Steel Knowledge",
+      title: title + " · Scuola Smart Steel Sales",
       description,
       url: absoluteUrl(canonical),
       type: "website",
@@ -189,7 +189,7 @@ export async function PublicTubeSizeHubPage({
       {
         "@type": "ListItem",
         position: 1,
-        name: "Steel Knowledge",
+        name: "Scuola Smart Steel Sales",
         item: absoluteUrl("/knowledge"),
       },
       {
@@ -223,7 +223,7 @@ export async function PublicTubeSizeHubPage({
       />
 
       <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
-        <Link href="/knowledge" className="hover:text-[#1a5144]">Steel Knowledge</Link>
+        <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>
         <Link href="/knowledge/tubes" className="hover:text-[#1a5144]">Pesi &amp; dimensioni</Link>
         <span className="mx-2">/</span>

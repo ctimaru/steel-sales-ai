@@ -54,7 +54,7 @@ test("K1 Knowledge is a public technical discovery surface", () => {
   assert.match(knowledge, /Guide tecniche/);
   assert.match(knowledge, /Pubblico/);
   assert.match(knowledgeLayout, /Apri workspace/);
-  assert.match(knowledgeLayout, /Registra azienda/);
+  assert.match(knowledgeLayout, /Trova azienda/);
   assert.doesNotMatch(knowledge + knowledgeLayout, /getWorkspaceContext|requireWorkspace|redirect\("\/login"\)/);
 });
 

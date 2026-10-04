@@ -64,12 +64,12 @@ test("UXA2B redirects authenticated public-Knowledge navigation back into Scuola
   assert.match(proxy, /NextResponse\.redirect\(target\)/);
 });
 
-test("UXA2B preserves public Steel Knowledge as a separate crawlable surface", () => {
+test("UXA2B preserves public Scuola as a separate crawlable surface", () => {
   assert.match(routes, /home: "\/knowledge"/);
   assert.match(publicLayout, /index: true/);
   assert.match(publicLayout, /follow: true/);
   assert.doesNotMatch(publicLayout, /AppShell|WorkspaceMobileBottomNavigation/);
-  assert.match(robots, /allow: \["\/", "\/knowledge", "\/knowledge\/"\]/);
+  assert.match(robots, /allow: \["\/", "\/azienda", "\/knowledge", "\/knowledge\/"\]/);
   assert.match(robots, /"\/school"/);
   assert.match(robots, /"\/school\/"/);
 });

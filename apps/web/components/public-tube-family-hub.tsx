@@ -63,7 +63,7 @@ export function tubeFamilyMetadata(familySlug: PublicTubeFamilySlug): Metadata {
       canonical: absoluteUrl(tubeFamilyHubPath(familySlug)),
     },
     openGraph: {
-      title: editorial.title + " · Steel Knowledge",
+      title: editorial.title + " · Scuola Smart Steel Sales",
       description: editorial.intro,
       url: absoluteUrl(tubeFamilyHubPath(familySlug)),
       type: "website",
@@ -156,7 +156,7 @@ export async function PublicTubeFamilyHubPage({
       />
 
       <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
-        <Link href="/knowledge" className="hover:text-[#1a5144]">Steel Knowledge</Link>
+        <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>
         <Link href="/knowledge/tubes" className="hover:text-[#1a5144]">Pesi &amp; dimensioni</Link>
         <span className="mx-2">/</span>
