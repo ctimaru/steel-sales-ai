@@ -17,6 +17,7 @@ const legacyAction = fs.readFileSync(
 
 test("HP2.2b public lookup no longer depends on React Server Actions", () => {
   assert.doesNotMatch(component, /useActionState/);
+  assert.doesNotMatch(component, /@\/lib\/public-company-lookup";/);
   assert.doesNotMatch(component, /formAction/);
   assert.match(component, /onSubmit=\{handleSubmit\}/);
   assert.match(component, /fetch\("\/api\/public\/company-lookup"/);
