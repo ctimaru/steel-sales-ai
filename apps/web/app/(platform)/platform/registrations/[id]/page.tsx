@@ -169,7 +169,7 @@ export default async function AdminRegistrationDetailPage({
         </div>
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-3">
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
           <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#87938e]">
             Identity preflight
@@ -200,6 +200,19 @@ export default async function AdminRegistrationDetailPage({
               : application.application_status === "pending_review"
                 ? "In attesa decisione"
                 : STATUS_LABELS[application.application_status] ?? application.application_status}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#87938e]">
+            Claim handoff
+          </p>
+          <p className="mt-2 text-sm font-semibold text-[#1d2824]">
+            {application.claim_target_network_company_id ? "Profilo selezionato" : "Non presente"}
+          </p>
+          <p className="mt-1 text-xs text-[#66736e]">
+            {application.claim_target_network_company_id
+              ? "Intenzione applicant · da confermare in activation"
+              : "Registrazione senza claim pubblico"}
           </p>
         </div>
         <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
@@ -339,7 +352,14 @@ export default async function AdminRegistrationDetailPage({
                       >
                         <input type="hidden" name="application_id" value={application.id} />
                         <input type="hidden" name="network_company_id" value={candidate.network_company_id} />
-                        <p className="text-sm font-semibold text-[#1d2824]">{candidate.legal_name}</p>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-sm font-semibold text-[#1d2824]">{candidate.legal_name}</p>
+                          {candidate.network_company_id === application.claim_target_network_company_id ? (
+                            <span className="rounded-full bg-[#edf5f2] px-2 py-1 text-[10px] font-bold text-[#1a5144]">
+                              Selezionata nel claim
+                            </span>
+                          ) : null}
+                        </div>
                         <p className="mt-1 text-xs text-[#66736e]">
                           {candidate.country_code} · score {Number(candidate.match_score).toFixed(2)} · {identitySignals(candidate.signals)}
                         </p>

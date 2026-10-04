@@ -39,6 +39,7 @@ test("PA1.2 public result projection stays minimal", () => {
     "country_code",
     "vat_hint",
     "claim_state",
+    "claim_ref",
   ]) {
     assert.match(actions, new RegExp(field));
   }
@@ -64,12 +65,12 @@ test("PA1.2 limits anonymous search and does not create a public directory", () 
   assert.doesNotMatch(migration, /grant select on (table )?public\.network_companies to anon/i);
 });
 
-test("PA1.2 maps lookup state to registration without pretending claim is already completed", () => {
-  assert.match(lookup, /Registrati per rivendicarla/);
+test("PA1.2 maps lookup state into the governed PA1.4 handoff without pretending claim is complete", () => {
+  assert.match(lookup, /Rivendica questa azienda/);
   assert.match(lookup, /Azienda non trovata/);
   assert.match(lookup, /Claim in verifica/);
   assert.match(lookup, /Già rivendicata/);
-  assert.match(lookup, /href="\/register"/);
-  assert.match(lookup, /href="\/login"/);
+  assert.match(lookup, /\/register\?claim_ref=/);
+  assert.match(lookup, /\/login\?next=/);
   assert.doesNotMatch(lookup, /\/network\/.*\/claim/);
 });

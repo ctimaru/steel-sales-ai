@@ -8,6 +8,7 @@ export type PublicCompanyLookupItem = {
   country_code: string;
   vat_hint: string | null;
   claim_state: "claimable" | "claim_in_progress" | "claimed";
+  claim_ref: string;
 };
 
 export type PublicCompanyLookupState = {

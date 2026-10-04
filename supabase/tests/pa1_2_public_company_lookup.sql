@@ -82,9 +82,22 @@ select pg_temp.pa12_assert(
          jsonb_array_elements(s.value->'items') item,
          jsonb_object_keys(item) as object_keys(key_name)
     where s.key='name'
-      and key_name not in ('legal_name','trading_name','country_code','vat_hint','claim_state')
+      and key_name not in (
+        'legal_name','trading_name','country_code','vat_hint','claim_state','claim_ref'
+      )
   ),
-  'public lookup must expose only minimal identity fields'
+  'public lookup must expose only minimal identity fields plus opaque claim handoff reference'
+);
+
+select pg_temp.pa12_assert(
+  not exists(
+    select 1
+    from pa12_state s,
+         jsonb_array_elements(s.value->'items') item
+    where s.key='name'
+      and coalesce(item->>'claim_ref','') !~ '^[0-9a-f]{64}$'
+  ),
+  'each lookup identity must carry an opaque SHA-256 claim reference'
 );
 
 select pg_temp.pa12_assert(

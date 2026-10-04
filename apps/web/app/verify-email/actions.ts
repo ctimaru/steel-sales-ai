@@ -7,6 +7,7 @@ import {
   PENDING_SIGNUP_EMAIL_COOKIE,
   pendingSignupEmailCookieOptions,
 } from "@/lib/auth-email-verification";
+import { safeInternalNext } from "@/lib/auth-next";
 import { siteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 import { safeErrorMessage } from "@/lib/user-facing-error";
@@ -49,7 +50,8 @@ function resendErrorMessage(error: {
   );
 }
 
-export async function resendSignupConfirmation() {
+export async function resendSignupConfirmation(formData: FormData) {
+  const nextPath = safeInternalNext(formData.get("next"), "/register");
   const cookieStore = await cookies();
   const email = cookieStore.get(PENDING_SIGNUP_EMAIL_COOKIE)?.value
     ?.trim()
@@ -70,13 +72,14 @@ export async function resendSignupConfirmation() {
     type: "signup",
     email,
     options: {
-      emailRedirectTo: `${origin}/auth/finish?signup=1`,
+      emailRedirectTo:
+        `${origin}/auth/finish?signup=1&next=${encodeURIComponent(nextPath)}`,
     },
   });
 
   if (error) {
     redirect(
-      `/verify-email?error=${encodeURIComponent(resendErrorMessage(error))}`,
+      `/verify-email?error=${encodeURIComponent(resendErrorMessage(error))}&next=${encodeURIComponent(nextPath)}`,
     );
   }
 
@@ -86,5 +89,5 @@ export async function resendSignupConfirmation() {
     pendingSignupEmailCookieOptions,
   );
 
-  redirect("/verify-email?resent=1");
+  redirect("/verify-email?resent=1&next=" + encodeURIComponent(nextPath));
 }

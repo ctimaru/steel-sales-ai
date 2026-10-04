@@ -21,6 +21,14 @@ type InitialApplication = {
   short_description?: string | null;
 };
 
+type ClaimRegistrationContext = {
+  claim_ref: string;
+  legal_name: string;
+  trading_name: string | null;
+  country_code: string;
+  vat_hint: string | null;
+};
+
 type ReviewSummary = {
   legalName: string;
   countryCode: string;
@@ -48,8 +56,10 @@ function companyTypeLabel(value: string) {
 
 export function CompanyRegistrationForm({
   initial,
+  claim,
 }: {
   initial?: InitialApplication | null;
+  claim?: ClaimRegistrationContext | null;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
   const mountedRef = useRef(false);
@@ -156,6 +166,32 @@ export function CompanyRegistrationForm({
       onSubmit={handleSubmit}
       className="mt-8"
     >
+      {claim ? <input type="hidden" name="claim_ref" value={claim.claim_ref} /> : null}
+
+      {claim ? (
+        <div className="mb-5 rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-4 sm:p-5">
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#1a5144]">
+            Claim selezionato
+          </p>
+          <div className="mt-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-[#173f35]">{claim.legal_name}</p>
+              <p className="mt-1 text-xs text-[#52615b]">
+                {claim.country_code}
+                {claim.vat_hint ? " · P.IVA " + claim.vat_hint : ""}
+              </p>
+            </div>
+            <span className="mt-2 inline-flex w-fit rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-[#1a5144] sm:mt-0">
+              Identità preservata
+            </span>
+          </div>
+          <p className="mt-3 text-xs leading-5 text-[#52615b]">
+            Questa registrazione resterà collegata al profilo che hai scelto nella ricerca pubblica.
+            Il claim diventerà operativo solo dopo verifica e attivazione.
+          </p>
+        </div>
+      ) : null}
+
       <div className="rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-4 sm:p-5">
         <div role="list" aria-label="Avanzamento registrazione" className="grid gap-3 sm:grid-cols-3">
           {STEPS.map((item) => {
@@ -217,8 +253,9 @@ export function CompanyRegistrationForm({
           <p className="app-kicker">Dati essenziali</p>
           <h2 tabIndex={-1} className="mt-2 text-xl font-semibold text-[#1d2824]">Identifichiamo l’azienda</h2>
           <p className="mt-2 text-sm leading-6 text-[#66736e]">
-            Bastano pochi dati per inviare la richiesta. Le informazioni tecniche e commerciali
-            potranno essere completate dopo l’attivazione.
+            {claim
+              ? "L’identità legale arriva dalla ricerca pubblica ed è bloccata per evitare duplicati. Completa solo i dati necessari alla verifica e all’attivazione."
+              : "Bastano pochi dati per inviare la richiesta. Le informazioni tecniche e commerciali potranno essere completate dopo l’attivazione."}
           </p>
         </div>
 
@@ -229,6 +266,7 @@ export function CompanyRegistrationForm({
             defaultValue={initial?.legal_name ?? ""}
             className="mt-2 h-11"
             autoComplete="organization"
+            readOnly={Boolean(claim)}
             required={step === 1}
           />
         </label>
@@ -244,6 +282,7 @@ export function CompanyRegistrationForm({
               pattern="[A-Za-z]{2}"
               inputMode="text"
               aria-describedby="country-help"
+              readOnly={Boolean(claim)}
               required={step === 1}
             />
             <span id="country-help" className="mt-1.5 block text-xs text-[#7b8782]">
@@ -446,9 +485,9 @@ export function CompanyRegistrationForm({
         <div className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-5">
           <p className="text-sm font-semibold text-[#123d34]">Cosa succede dopo</p>
           <p className="mt-2 text-sm leading-6 text-[#43524c]">
-            La richiesta viene revisionata prima dell’attivazione. L’approvazione della
-            registrazione non equivale a una certificazione, una verifica commerciale o una
-            raccomandazione dell’azienda.
+            {claim
+              ? "La richiesta viene revisionata insieme al claim dell’identità selezionata. Se approvata, l’attivazione collega il workspace a quel profilo gestito senza creare un duplicato."
+              : "La richiesta viene revisionata prima dell’attivazione. L’approvazione della registrazione non equivale a una certificazione, una verifica commerciale o una raccomandazione dell’azienda."}
           </p>
         </div>
 
