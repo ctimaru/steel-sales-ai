@@ -194,11 +194,12 @@ select pg_temp.p37f_assert(
       '51100000-0000-5000-8000-000000000005',
       '51100000-0000-5000-8000-000000000006'
     )
-      and publication_status='published'
+      and publication_status='pending_review'
+      and privacy_classification='unreviewed'
       and verification_status='unverified'
       and source_assertion_id is not null
   )>=3,
-  'each validation profile must have a governed public contact'
+  'LR4 must preserve governed real-profile contacts as pending privacy-review candidates'
 );
 
 do $p37f_bootstrap$
