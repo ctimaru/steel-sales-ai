@@ -74,7 +74,7 @@ set local role authenticated;
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000005501',true);
 select set_config('request.jwt.claim.role','authenticated',true);
 
-select public.lr5_current_legal_acceptance_state() as initial_legal \\gset
+select public.lr5_current_legal_acceptance_state() as initial_legal \gset
 
 select pg_temp.lr5_assert(
   not coalesce((:'initial_legal'::jsonb->>'accepted')::boolean,false),
@@ -88,13 +88,13 @@ select pg_temp.lr5_assert_raises(
 
 select public.lr5_record_legal_acceptance(
   true,true,'first_login'
-) as first_acceptance \\gset
+) as first_acceptance \gset
 
 select public.lr5_record_legal_acceptance(
   true,true,'first_login'
-) as replay_acceptance \\gset
+) as replay_acceptance \gset
 
-select public.lr5_current_legal_acceptance_state() as legal_state \\gset
+select public.lr5_current_legal_acceptance_state() as legal_state \gset
 
 select pg_temp.lr5_assert(
   coalesce((:'first_acceptance'::jsonb->>'accepted')::boolean,false)
@@ -106,7 +106,7 @@ select pg_temp.lr5_assert(
   'legal acceptance must be versioned and retry-safe'
 );
 
-select public.lr5_account_export() as export_payload \\gset
+select public.lr5_account_export() as export_payload \gset
 
 select pg_temp.lr5_assert(
   (:'export_payload'::jsonb->>'export_version')='2026-10-04-lr5-v1'
@@ -137,7 +137,7 @@ select set_config('request.jwt.claim.role','authenticated',true);
 
 select public.lr5_request_account_erasure(
   'DELETE_MY_ACCOUNT'
-) as blocked_request \\gset
+) as blocked_request \gset
 
 select pg_temp.lr5_assert(
   not coalesce((:'blocked_request'::jsonb->>'requested')::boolean,false)
@@ -158,9 +158,9 @@ select set_config('request.jwt.claim.role','authenticated',true);
 
 select public.lr5_request_account_erasure(
   'DELETE_MY_ACCOUNT'
-) as accepted_request \\gset
+) as accepted_request \gset
 
-select public.lr5_account_lifecycle_state() as lifecycle_state \\gset
+select public.lr5_account_lifecycle_state() as lifecycle_state \gset
 
 select pg_temp.lr5_assert(
   coalesce((:'accepted_request'::jsonb->>'requested')::boolean,false)
@@ -192,7 +192,7 @@ insert into public.company_registration_applications(
   now()-interval '100 days',now()-interval '100 days'
 );
 
-select private.lr5_retention_cleanup_impl(now()) as retention_result \\gset
+select private.lr5_retention_cleanup_impl(now()) as retention_result \gset
 
 select pg_temp.lr5_assert(
   (:'retention_result'::jsonb->>'redacted_drafts')::integer>=1
