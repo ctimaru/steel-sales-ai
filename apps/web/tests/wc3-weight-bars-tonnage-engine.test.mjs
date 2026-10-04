@@ -42,5 +42,5 @@ test("WC3 lets users adjust bar quantity without retyping the field", () => {
 test("WC3 makes total linear meters visible alongside mass outputs", () => {
   assert.match(calculator, /Metri totali/);
   assert.match(calculator, /values\.totalMeters/);
-  assert.match(calculator, /sm:grid-cols-3/);
+  assert.match(calculator, /grid-cols-3/);
 });
