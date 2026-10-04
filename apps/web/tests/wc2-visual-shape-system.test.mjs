@@ -40,7 +40,7 @@ test("WC2 keeps the SVG accessible and responsive", () => {
   assert.match(calculator, /viewBox="0 0 264 210"/);
   assert.match(calculator, /role="img"/);
   assert.match(calculator, /aria-label=\{accessibleLabel\}/);
-  assert.match(calculator, /className="mx-auto mt-3 block h-auto w-full max-w-\[30rem\]"/);
+  assert.match(calculator, /className="mx-auto mt-2 block h-auto w-full max-w-\[13rem\] lg:max-w-\[15rem\]"/);
   assert.match(calculator, /<title>\{accessibleLabel\}<\/title>/);
 });
 
