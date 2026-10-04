@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 
 import {
+  getCompanyDiscoveryGovernance,
   getCompanyDiscoveryQueue,
   getCompanyDiscoveryRuns,
 } from "@/lib/company-discovery";
@@ -48,11 +49,15 @@ export default async function CompanyDiscoveryPage({
     )
       ? params.status
       : "pending_review";
-  const [queue, runs] = await Promise.all([
+  const [queue, runs, governance] = await Promise.all([
     getCompanyDiscoveryQueue(status),
     getCompanyDiscoveryRuns(),
+    getCompanyDiscoveryGovernance(),
   ]);
   const latestRun = runs[0] ?? null;
+  const candidateGovernance = new Map(
+    governance.candidates.map((item) => [item.candidate_id, item]),
+  );
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -71,14 +76,22 @@ export default async function CompanyDiscoveryPage({
               automaticamente un&apos;azienda.
             </p>
           </div>
-          {access?.is_platform_owner ? (
+          <div className="flex flex-wrap gap-2">
             <Link
-              href="/network"
+              href="/platform/company-discovery/governance"
               className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
             >
-              Apri Network ↗
+              Governance PA1.5
             </Link>
-          ) : null}
+            {access?.is_platform_owner ? (
+              <Link
+                href="/network"
+                className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
+              >
+                Apri Network ↗
+              </Link>
+            ) : null}
+          </div>
         </div>
       </section>
 
@@ -329,7 +342,9 @@ export default async function CompanyDiscoveryPage({
           />
         ) : (
           <div className="space-y-3">
-            {queue.items.map((candidate) => (
+            {queue.items.map((candidate) => {
+              const governanceState = candidateGovernance.get(candidate.id);
+              return (
               <article
                 key={candidate.id}
                 className="rounded-2xl border border-[#dce2df] bg-white p-5"
@@ -345,6 +360,13 @@ export default async function CompanyDiscoveryPage({
                       </span>
                       <span className="rounded-full bg-[#edf1f3] px-2.5 py-1 text-[11px] font-semibold text-[#53637a]">
                         {Math.round(Number(candidate.confidence) * 100)}% confidence
+                      </span>
+                      <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                        governanceState?.publication_gate_ready
+                          ? "bg-emerald-50 text-emerald-800"
+                          : "bg-amber-50 text-amber-800"
+                      }`}>
+                        {governanceState?.publication_gate_ready ? "PA1.5 ready" : "PA1.5 locked"}
                       </span>
                       {candidate.quality_flags.map((flag) => (
                         <span
@@ -493,7 +515,7 @@ export default async function CompanyDiscoveryPage({
 
                 {candidate.review_status === "pending_review" && canReview ? (
                   <div className="mt-4 flex flex-wrap gap-2 border-t border-[#edf1f3] pt-4">
-                    {!candidate.match_company_id && canPublish ? (
+                    {!candidate.match_company_id && canPublish && governanceState?.publication_gate_ready ? (
                       <form action={reviewCompanyDiscovery}>
                         <input type="hidden" name="candidate_id" value={candidate.id} />
                         <input type="hidden" name="decision" value="publish_new" />
@@ -504,6 +526,7 @@ export default async function CompanyDiscoveryPage({
                     ) : null}
                     {candidate.match_company_id &&
                     canEnrich &&
+                    governanceState?.publication_gate_ready &&
                     (candidate.facility_candidates.length > 0 ||
                       candidate.capability_keys.length > 0 ||
                       candidate.market_keys.length > 0) ? (
@@ -610,6 +633,15 @@ export default async function CompanyDiscoveryPage({
                         </p>
                       </form>
                     ) : null}
+                    {!governanceState?.publication_gate_ready &&
+                    (canPublish || canEnrich) ? (
+                      <Link
+                        href="/platform/company-discovery/governance"
+                        className="inline-flex h-10 items-center rounded-xl border border-amber-200 bg-amber-50 px-4 text-sm font-semibold text-amber-800"
+                      >
+                        Completa gate PA1.5
+                      </Link>
+                    ) : null}
                     {candidate.match_company_id && canReview ? (
                       <form action={reviewCompanyDiscovery}>
                         <input type="hidden" name="candidate_id" value={candidate.id} />
@@ -636,7 +668,8 @@ export default async function CompanyDiscoveryPage({
                   </div>
                 ) : null}
               </article>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>
