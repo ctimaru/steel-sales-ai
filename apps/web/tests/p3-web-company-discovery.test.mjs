@@ -26,7 +26,7 @@ const migration = fs.readFileSync(
 test("P3.2 exposes Company Discovery only in Platform control plane", () => {
   assert.match(platformNavigation, /appRoutes\.platform\.discovery/);
   assert.match(page, /Company Discovery/);
-  assert.match(page, /Pubblica nuovo profilo/);
+  assert.match(page, /Materializza nel Network/);
   assert.match(page, /Segna duplicato/);
   assert.match(page, /Rifiuta/);
 });
