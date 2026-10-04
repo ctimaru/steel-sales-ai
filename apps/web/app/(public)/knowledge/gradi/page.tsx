@@ -149,7 +149,7 @@ export default async function GradesIndexPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
+      <nav aria-label="Breadcrumb" className="school-breadcrumb">
         <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>
         <span>Gradi di acciaio</span>
