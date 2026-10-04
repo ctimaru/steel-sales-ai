@@ -110,7 +110,7 @@ export default function AuthFinishPage() {
 
           const invitation = contextData as OrganizationInvitationContext;
           if (invitation.status === "accepted") {
-            router.replace("/dashboard?joined=1");
+            router.replace("/legal/accept?source=team_invite&next=" + encodeURIComponent("/dashboard?joined=1"));
             router.refresh();
             return;
           }
@@ -144,7 +144,7 @@ export default function AuthFinishPage() {
               throw new Error("L’invito è scaduto o è stato revocato.");
             }
 
-            router.replace("/dashboard?joined=1");
+            router.replace("/legal/accept?source=team_invite&next=" + encodeURIComponent("/dashboard?joined=1"));
             router.refresh();
             return;
           }
@@ -276,7 +276,7 @@ export default function AuthFinishPage() {
       return;
     }
 
-    router.replace("/dashboard?joined=1");
+    router.replace("/legal/accept?source=team_invite&next=" + encodeURIComponent("/dashboard?joined=1"));
     router.refresh();
   }
 
