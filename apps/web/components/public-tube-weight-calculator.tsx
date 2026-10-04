@@ -63,6 +63,51 @@ const standardOptions = [
 ] as const;
 
 type StandardValue = (typeof standardOptions)[number]["value"];
+type NormativeStandard = Exclude<StandardValue, "geometric">;
+
+function standardCornerRadii(standard: NormativeStandard, thicknessMm: number) {
+  if (standard === "en10210") {
+    return {
+      outerRadiusMm: 1.5 * thicknessMm,
+      innerRadiusMm: 1.0 * thicknessMm,
+    };
+  }
+
+  if (thicknessMm <= 6) {
+    return {
+      outerRadiusMm: 2.0 * thicknessMm,
+      innerRadiusMm: 1.0 * thicknessMm,
+    };
+  }
+
+  if (thicknessMm <= 10) {
+    return {
+      outerRadiusMm: 2.5 * thicknessMm,
+      innerRadiusMm: 1.5 * thicknessMm,
+    };
+  }
+
+  return {
+    outerRadiusMm: 3.0 * thicknessMm,
+    innerRadiusMm: 2.0 * thicknessMm,
+  };
+}
+
+function standardRectangularAreaMm2(
+  standard: NormativeStandard,
+  widthMm: number,
+  heightMm: number,
+  thicknessMm: number,
+) {
+  const { outerRadiusMm, innerRadiusMm } = standardCornerRadii(standard, thicknessMm);
+  return {
+    areaMm2:
+      2 * thicknessMm * (widthMm + heightMm - 2 * thicknessMm) -
+      (4 - Math.PI) * (outerRadiusMm ** 2 - innerRadiusMm ** 2),
+    outerRadiusMm,
+    innerRadiusMm,
+  };
+}
 
 const lengthPresets = ["6", "8", "10", "12"] as const;
 
@@ -157,12 +202,14 @@ function ParametricShapeDiagram({
   width,
   height,
   thickness,
+  standard,
 }: {
   family: TubeFamily;
   outerDiameter: string;
   width: string;
   height: string;
   thickness: string;
+  standard: StandardValue;
 }) {
   const d = positiveDimension(outerDiameter, 100);
   const b = positiveDimension(width, 100);
@@ -200,6 +247,16 @@ function ParametricShapeDiagram({
   const innerH = Math.max(14, outerH * (family === "rectangular_tube" ? Math.max(0.12, 1 - 2 * Math.min(0.44, t / h)) : innerScale));
   const innerX = shapeCenterX - innerW / 2;
   const innerY = shapeCenterY - innerH / 2;
+  const diagramRadii =
+    family !== "round_tube" && standard !== "geometric"
+      ? standardCornerRadii(standard, t)
+      : null;
+  const outerCornerRadiusPx = diagramRadii
+    ? Math.min(18, Math.max(5, (diagramRadii.outerRadiusMm / Math.min(b, h)) * Math.min(outerW, outerH)))
+    : 8;
+  const innerCornerRadiusPx = diagramRadii
+    ? Math.min(15, Math.max(3, (diagramRadii.innerRadiusMm / Math.max(1, Math.min(b, h) - 2 * t)) * Math.min(innerW, innerH)))
+    : 5;
 
   const primaryDimension =
     family === "round_tube"
@@ -225,7 +282,7 @@ function ParametricShapeDiagram({
           </p>
         </div>
         <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#1a5144]">
-          Live
+          {standard === "geometric" ? "Libero" : standard === "en10210" ? "EN 10210" : "EN 10219"}
         </span>
       </div>
 
@@ -263,7 +320,7 @@ function ParametricShapeDiagram({
               y={outerY}
               width={outerW}
               height={outerH}
-              rx="8"
+              rx={outerCornerRadiusPx}
               fill="#d9e8e2"
               stroke="#1a5144"
               strokeWidth="2.5"
@@ -273,7 +330,7 @@ function ParametricShapeDiagram({
               y={innerY}
               width={innerW}
               height={innerH}
-              rx="5"
+              rx={innerCornerRadiusPx}
               fill="#ffffff"
               stroke="#7aa99a"
               strokeWidth="1.5"
@@ -392,28 +449,53 @@ export function PublicTubeWeightCalculator({
     if (t == null || t <= 0) error = "Inserisci uno spessore maggiore di zero.";
     if (l == null || l <= 0) error = "Inserisci una lunghezza maggiore di zero.";
     if (qty == null || qty <= 0) error = "Inserisci una quantità maggiore di zero.";
-    if (rho == null || rho <= 0) error = "Inserisci una densità valida.";
+    if (standard === "geometric" && (rho == null || rho <= 0)) error = "Inserisci una densità valida.";
 
-    let areaMm2: number | null = null;
+    let freeAreaMm2: number | null = null;
     if (!error && family === "round_tube") {
       if (d == null || d <= 0) error = "Inserisci un diametro esterno valido.";
       else if (t != null && 2 * t >= d) error = "Lo spessore deve essere inferiore a metà del diametro.";
-      else if (t != null) areaMm2 = Math.PI * t * (d - t);
+      else if (t != null) freeAreaMm2 = Math.PI * t * (d - t);
     }
 
     if (!error && family === "square_tube") {
       if (b == null || b <= 0) error = "Inserisci il lato esterno.";
       else if (t != null && 2 * t >= b) error = "Lo spessore deve essere inferiore a metà del lato.";
-      else if (t != null) areaMm2 = b * b - (b - 2 * t) * (b - 2 * t);
+      else if (t != null) freeAreaMm2 = b * b - (b - 2 * t) * (b - 2 * t);
     }
 
     if (!error && family === "rectangular_tube") {
       if (b == null || b <= 0 || h == null || h <= 0) error = "Inserisci base e altezza esterne.";
       else if (t != null && 2 * t >= Math.min(b, h)) error = "Lo spessore deve essere inferiore a metà del lato minore.";
-      else if (t != null) areaMm2 = b * h - (b - 2 * t) * (h - 2 * t);
+      else if (t != null) freeAreaMm2 = b * h - (b - 2 * t) * (h - 2 * t);
     }
 
-    const kgM = !error && areaMm2 != null && rho != null ? (areaMm2 * rho) / 1_000_000 : null;
+    let standardAreaMm2: number | null = null;
+    let outerRadiusMm: number | null = null;
+    let innerRadiusMm: number | null = null;
+
+    if (!error && standard !== "geometric") {
+      if (family === "round_tube") {
+        standardAreaMm2 = freeAreaMm2;
+      } else if (b != null && h != null && t != null) {
+        const standardSection = standardRectangularAreaMm2(standard, b, h, t);
+        standardAreaMm2 = standardSection.areaMm2;
+        outerRadiusMm = standardSection.outerRadiusMm;
+        innerRadiusMm = standardSection.innerRadiusMm;
+      }
+    }
+
+    const areaMm2 = standard === "geometric" ? freeAreaMm2 : standardAreaMm2;
+    const effectiveDensityKgM3 = standard === "geometric" ? rho : 7850;
+    const geometricKgM =
+      !error && areaMm2 != null && rho != null
+        ? (areaMm2 * rho) / 1_000_000
+        : null;
+    const standardKgM =
+      !error && areaMm2 != null
+        ? (areaMm2 * 7850) / 1_000_000
+        : null;
+    const kgM = standard === "geometric" ? geometricKgM : standardKgM;
     const kgBar = kgM != null && l != null ? kgM * l : null;
     const totalKg = kgBar != null && qty != null ? kgBar * qty : null;
     const totalTonnes = totalKg != null ? totalKg / 1000 : null;
@@ -427,7 +509,7 @@ export function PublicTubeWeightCalculator({
     const targetActualKg = targetBars != null && kgBar != null ? targetBars * kgBar : null;
     const targetActualTonnes = targetActualKg != null ? targetActualKg / 1000 : null;
 
-    const exactReference = !error
+    const exactReference = !error && standard === "geometric"
       ? references.find((reference) => {
           if (reference.product_family !== family || t == null || !near(reference.thickness_mm, t)) return false;
           if (family === "round_tube") return d != null && near(reference.outer_diameter_mm, d);
@@ -442,11 +524,12 @@ export function PublicTubeWeightCalculator({
         : null;
 
     return {
-      d, b, h, t, l, qty, targetT, rho, areaMm2, kgM, kgBar, totalKg, totalTonnes, totalMeters,
+      d, b, h, t, l, qty, targetT, rho, areaMm2, freeAreaMm2, standardAreaMm2,
+      outerRadiusMm, innerRadiusMm, effectiveDensityKgM3, kgM, kgBar, totalKg, totalTonnes, totalMeters,
       targetBarsExact, targetBars, targetMeters, targetActualKg, targetActualTonnes,
       exactReference, deltaPercent, error,
     };
-  }, [outerDiameter, width, height, thickness, length, quantity, targetTonnes, density, family, references]);
+  }, [outerDiameter, width, height, thickness, length, quantity, targetTonnes, density, family, standard, references]);
 
   const familyReferences = useMemo(() => {
     const q = referenceQuery.trim().toLowerCase().replace(",", ".");
@@ -517,7 +600,7 @@ export function PublicTubeWeightCalculator({
                 </h3>
               </div>
               <p className="max-w-xl text-xs leading-5 text-[#66736e]">
-                La norma orienta il percorso e i riferimenti. Il risultato teorico resta calcolato dalla geometria e dalla densità impostata.
+                EN 10210 e EN 10219 cambiano realmente il calcolo: per quadri e rettangolari applichiamo i raggi di raccordo previsti dalla norma. Solo “Calcolo libero” usa geometria ideale e densità modificabile.
               </p>
             </div>
 
@@ -614,6 +697,7 @@ export function PublicTubeWeightCalculator({
                   width={width}
                   height={height}
                   thickness={thickness}
+                  standard={standard}
                 />
               </div>
 
@@ -801,21 +885,33 @@ export function PublicTubeWeightCalculator({
                 ) : null}
               </div>
 
-              <details className="mt-4 rounded-2xl border border-[#d7e1dd] bg-white p-4">
-                <summary className="cursor-pointer text-sm font-bold text-[#334a42]">
-                  Impostazioni avanzate
-                </summary>
-                <label className="mt-4 block text-xs font-semibold text-[#52615b]">
-                  Densità (kg/m³)
-                  <input
-                    value={density}
-                    onChange={(event) => setDensity(event.target.value)}
-                    inputMode="decimal"
-                    className={inputClass}
-                  />
-                  <span className="mt-1 block font-normal text-[#66736e]">Default acciaio: 7.850 kg/m³.</span>
-                </label>
-              </details>
+              {standard === "geometric" ? (
+                <details className="mt-4 rounded-2xl border border-[#d7e1dd] bg-white p-4">
+                  <summary className="cursor-pointer text-sm font-bold text-[#334a42]">
+                    Impostazioni avanzate
+                  </summary>
+                  <label className="mt-4 block text-xs font-semibold text-[#52615b]">
+                    Densità (kg/m³)
+                    <input
+                      value={density}
+                      onChange={(event) => setDensity(event.target.value)}
+                      inputMode="decimal"
+                      className={inputClass}
+                    />
+                    <span className="mt-1 block font-normal text-[#66736e]">
+                      Nel calcolo libero la densità è modificabile. Default acciaio: 7.850 kg/m³.
+                    </span>
+                  </label>
+                </details>
+              ) : (
+                <div className="mt-4 rounded-2xl border border-[#d7e1dd] bg-white p-4">
+                  <p className="text-sm font-bold text-[#334a42]">Massa secondo {currentStandard.label}</p>
+                  <p className="mt-1 text-xs leading-5 text-[#66736e]">
+                    Il calcolo usa la geometria di sezione e il coefficiente di massa della norma
+                    (equivalente a 7.850 kg/m³). La densità non è modificabile in modalità normativa.
+                  </p>
+                </div>
+              )}
 
               {values.error ? (
                 <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
@@ -840,7 +936,9 @@ export function PublicTubeWeightCalculator({
                 </div>
 
                 <div className="mt-8">
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/60">Peso al metro</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/60">
+                    {standard === "geometric" ? "Peso al metro · calcolo libero" : `Massa lineare · ${currentStandard.label}`}
+                  </p>
                   <p className="metric-number mt-2 text-5xl font-semibold tracking-[-0.05em] sm:text-6xl">
                     {values.kgM == null ? "—" : formatNumber(values.kgM, 3)}
                     <span className="ml-2 text-xl font-semibold tracking-normal text-white/70">kg/m</span>
@@ -875,50 +973,95 @@ export function PublicTubeWeightCalculator({
               </div>
 
               <div className="p-5 sm:p-6">
-                <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm font-semibold">Riferimento tecnico trovato</p>
+                {standard === "geometric" ? (
+                  <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-sm font-semibold">Riferimento tecnico trovato</p>
+                      {values.exactReference ? (
+                        <span className="rounded-full bg-white/12 px-2.5 py-1 text-[10px] font-semibold text-white">
+                          {values.exactReference.weight_method === "published" ? "Peso pubblicato" : "Verificato"}
+                        </span>
+                      ) : null}
+                    </div>
+  
                     {values.exactReference ? (
-                      <span className="rounded-full bg-white/12 px-2.5 py-1 text-[10px] font-semibold text-white">
-                        {values.exactReference.weight_method === "published" ? "Peso pubblicato" : "Verificato"}
-                      </span>
-                    ) : null}
-                  </div>
-
-                  {values.exactReference ? (
-                    <>
-                      <p className="metric-number mt-3 text-2xl font-semibold">
-                        {formatNumber(values.exactReference.weight_kg_m, 3)} kg/m
-                      </p>
-                      {values.deltaPercent != null ? (
-                        <p className="mt-1 text-xs text-white/60">
-                          Scostamento rispetto al calcolo geometrico: {formatNumber(values.deltaPercent, 2)}%.
+                      <>
+                        <p className="metric-number mt-3 text-2xl font-semibold">
+                          {formatNumber(values.exactReference.weight_kg_m, 3)} kg/m
                         </p>
-                      ) : null}
-                      <p className="mt-3 text-xs leading-5 text-white/60">
-                        Fonte: {values.exactReference.source_provider ?? values.exactReference.source_name ?? "fonte tecnica verificata"}.
-                        Il peso pubblicato resta separato dal risultato matematico.
+                        {values.deltaPercent != null ? (
+                          <p className="mt-1 text-xs text-white/60">
+                            Scostamento rispetto al calcolo geometrico: {formatNumber(values.deltaPercent, 2)}%.
+                          </p>
+                        ) : null}
+                        <p className="mt-3 text-xs leading-5 text-white/60">
+                          Fonte: {values.exactReference.source_provider ?? values.exactReference.source_name ?? "fonte tecnica verificata"}.
+                          Il peso pubblicato resta separato dal risultato matematico.
+                        </p>
+                        {values.exactReference.source_url ? (
+                          <a
+                            href={values.exactReference.source_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-3 inline-flex text-xs font-bold text-white underline decoration-white/35 underline-offset-4"
+                          >
+                            Apri fonte ↗
+                          </a>
+                        ) : null}
+                      </>
+                    ) : (
+                      <>
+                        <p className="mt-2 text-sm font-semibold text-white">Nessun peso pubblicato per questa geometria</p>
+                        <p className="mt-2 text-xs leading-5 text-white/60">
+                          Il risultato resta un calcolo teorico. Non viene trasformato in un riferimento normativo o in un peso verificato solo perché la geometria è matematicamente valida.
+                        </p>
+                      </>
+                    )}
+                  </div>
+  
+  
+                ) : (
+                  <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-sm font-semibold">Metodo della norma applicato</p>
+                      <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-white">
+                        {currentStandard.label}
+                      </span>
+                    </div>
+                    {family === "round_tube" ? (
+                      <p className="mt-3 text-xs leading-5 text-white/70">
+                        Sezione circolare: il peso deriva dall’area della corona circolare e dal coefficiente
+                        M = 0,785 × A, con A espresso in cm².
                       </p>
-                      {values.exactReference.source_url ? (
-                        <a
-                          href={values.exactReference.source_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mt-3 inline-flex text-xs font-bold text-white underline decoration-white/35 underline-offset-4"
-                        >
-                          Apri fonte ↗
-                        </a>
-                      ) : null}
-                    </>
-                  ) : (
-                    <>
-                      <p className="mt-2 text-sm font-semibold text-white">Nessun peso pubblicato per questa geometria</p>
-                      <p className="mt-2 text-xs leading-5 text-white/60">
-                        Il risultato resta un calcolo teorico. Non viene trasformato in un riferimento normativo o in un peso verificato solo perché la geometria è matematicamente valida.
-                      </p>
-                    </>
-                  )}
-                </div>
+                    ) : (
+                      <>
+                        <div className="mt-3 grid grid-cols-2 gap-2">
+                          <div className="rounded-xl bg-white/10 px-3 py-2">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-white/60">Raggio esterno rₒ</p>
+                            <p className="metric-number mt-1 text-lg font-semibold">
+                              {values.outerRadiusMm == null ? "—" : `${formatNumber(values.outerRadiusMm, 2)} mm`}
+                            </p>
+                          </div>
+                          <div className="rounded-xl bg-white/10 px-3 py-2">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-white/60">Raggio interno rᵢ</p>
+                            <p className="metric-number mt-1 text-lg font-semibold">
+                              {values.innerRadiusMm == null ? "—" : `${formatNumber(values.innerRadiusMm, 2)} mm`}
+                            </p>
+                          </div>
+                        </div>
+                        <p className="mt-3 text-xs leading-5 text-white/70">
+                          I raggi di calcolo previsti da {currentStandard.label} entrano nella sezione resistente e
+                          quindi nella massa lineare. Per questo SHS/RHS EN 10210 ed EN 10219 possono avere kg/m diversi
+                          a parità di dimensioni nominali.
+                        </p>
+                      </>
+                    )}
+                    <p className="mt-3 text-xs leading-5 text-white/60">
+                      Questo valore alimenta anche peso per barra, tonnellaggio e calcolo inverso. È un calcolo delle
+                      proprietà di sezione secondo la norma selezionata, non una certificazione del peso reale della fornitura.
+                    </p>
+                  </div>
+                )}
 
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-white/60">
                   <span>Area sezione: {values.areaMm2 == null ? "—" : `${formatNumber(values.areaMm2, 2)} mm²`}</span>
