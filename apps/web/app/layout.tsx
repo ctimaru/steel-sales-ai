@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
+import { GoogleAnalyticsConsent } from "@/components/google-analytics-consent";
 import { googleSiteVerification } from "@/lib/seo";
 import { siteUrl } from "@/lib/site";
 
@@ -46,9 +47,14 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const googleAnalyticsId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID?.trim();
+
   return (
     <html lang="it">
-      <body>{children}</body>
+      <body>
+        {children}
+        <GoogleAnalyticsConsent measurementId={googleAnalyticsId} />
+      </body>
     </html>
   );
 }
