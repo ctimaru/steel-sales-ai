@@ -73,7 +73,7 @@ export default function KnowledgeHomePage() {
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-[#66736e] sm:text-lg">
             Norme, gradi di acciaio, dimensioni, pesi e strumenti pratici spiegati in modo accessibile.
-            Scuola è consultabile senza account ed è separato dai dati commerciali privati delle aziende.
+            La Scuola è consultabile senza account ed è separata dai dati commerciali privati delle aziende.
           </p>
         </div>
       </section>
@@ -133,8 +133,7 @@ export default function KnowledgeHomePage() {
           <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">Prima utilità, poi prodotto</h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[#66736e]">
             Ogni pagina pubblica deve rispondere a una domanda reale del settore. Le funzioni di Smart Steel Sales
-            entrano in scena solo quando possono aiutare a continuare il lavoro: approfondire un dato, trovare
-            verificare o rivendicare la propria azienda oppure portare l&apos;informazione nella Commercial Memory.
+            entrano in scena solo quando possono aiutare a continuare il lavoro: approfondire un dato, verificare o rivendicare la propria azienda oppure portare l&apos;informazione nella Commercial Memory.
           </p>
         </div>
         <div className="rounded-2xl border border-[#dce2df] bg-white p-5">
