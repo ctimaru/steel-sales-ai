@@ -44,10 +44,12 @@ export function ProductBrand({
   href = "/dashboard",
   inverse = false,
   compact = false,
+  showDescriptor = true,
 }: {
   href?: string;
   inverse?: boolean;
   compact?: boolean;
+  showDescriptor?: boolean;
 }) {
   return (
     <Link href={href} className="inline-flex min-w-0 items-center gap-2.5">
@@ -62,7 +64,7 @@ export function ProductBrand({
         >
           {productIdentity.name}
         </span>
-        {!compact ? (
+        {!compact && showDescriptor ? (
           <span className={"mt-0.5 block text-[10px] font-semibold uppercase tracking-[0.15em] " + (inverse ? "text-[#9fb9b0]" : "text-[#7b8782]")}>
             {productIdentity.descriptor}
           </span>
