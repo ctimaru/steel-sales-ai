@@ -128,7 +128,7 @@ export async function generateMetadata({
       canonical: absoluteUrl("/knowledge/tubes/" + dimension.dimension_slug),
     },
     openGraph: {
-      title: title + " · Steel Knowledge",
+      title: title + " · Scuola Smart Steel Sales",
       description,
       url: absoluteUrl("/knowledge/tubes/" + dimension.dimension_slug),
       type: "article",
@@ -169,7 +169,7 @@ export default async function TubeDimensionPage({
     {
       question: "Quanto pesa al metro un " + product + " " + size + "?",
       answer:
-        "Il riferimento pubblico presente in Steel Knowledge è " +
+        "Il riferimento pubblico presente in Scuola Smart Steel Sales è " +
         formatNumber(dimension.weight_kg_m) +
         " kg/m, con fonte " +
         dimension.source_provider +
@@ -230,7 +230,7 @@ export default async function TubeDimensionPage({
       {
         "@type": "ListItem",
         position: 1,
-        name: "Steel Knowledge",
+        name: "Scuola Smart Steel Sales",
         item: absoluteUrl("/knowledge"),
       },
       {
@@ -290,7 +290,7 @@ export default async function TubeDimensionPage({
       />
 
       <nav aria-label="Breadcrumb" className="text-xs font-semibold text-[#7e8da1]">
-        <Link href="/knowledge" className="hover:text-[#1a5144]">Steel Knowledge</Link>
+        <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>
         <Link href="/knowledge/tubes" className="hover:text-[#1a5144]">Pesi &amp; dimensioni</Link>
         {family ? (
@@ -412,7 +412,7 @@ export default async function TubeDimensionPage({
         <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">{dimension.source_provider}</h2>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-[#66736e]">
           Il valore di {formatNumber(dimension.weight_kg_m)} kg/m proviene dal riferimento tecnico indicato qui sotto.
-          Steel Knowledge mostra la fonte pubblica e mantiene separati i dati di catalogo dai calcoli geometrici.
+          Scuola Smart Steel Sales mostra la fonte pubblica e mantiene separati i dati di catalogo dai calcoli geometrici.
           Un peso pubblicato non sostituisce le tolleranze, la norma di prodotto o il certificato della fornitura.
         </p>
         <a
