@@ -50,8 +50,8 @@ test("LR2 deliberately invalidates the legacy unversioned choice once", () => {
 
 test("LR2 keeps zero Google Analytics loading before explicit grant", () => {
   assert.match(consent, /consent === "granted" \\?/);
-  assert.match(consent, /googletagmanager\\.com\\/gtag\\/js\\?id=/);
-  assert.match(consent, /if \\(!measurementId \\|\\| !shouldMeasure \\|\\| consent !== "granted"\\) return/);
+  assert.ok(consent.includes("googletagmanager.com/gtag/js?id="));
+  assert.ok(consent.includes('if (!measurementId || !shouldMeasure || consent !== "granted") return;'));
   assert.doesNotMatch(layout, /googletagmanager\\.com|google-analytics\\.com/);
   assert.match(consent, /Solo necessari/);
   assert.match(consent, /Accetta statistiche/);
@@ -86,9 +86,9 @@ test("LR2 publishes a concrete cookie and local-storage inventory", () => {
 test("LR2 keeps consent revocable and public analytics restricted to acquisition surfaces", () => {
   assert.match(consent, /Preferenze statistiche/);
   assert.match(consent, /setSettingsOpen\\(true\\)/);
-  assert.match(consent, /pathname\\.startsWith\\("\\/knowledge"\\)/);
-  assert.match(consent, /pathname\\.startsWith\\("\\/azienda"\\)/);
-  assert.doesNotMatch(consent, /pathname\\.startsWith\\("\\/network"\\)/);
-  assert.doesNotMatch(consent, /pathname\\.startsWith\\("\\/workspace"\\)/);
-  assert.doesNotMatch(consent, /pathname\\.startsWith\\("\\/platform"\\)/);
+  assert.ok(consent.includes('pathname.startsWith("/knowledge")'));
+  assert.ok(consent.includes('pathname.startsWith("/azienda")'));
+  assert.ok(!consent.includes('pathname.startsWith("/network")'));
+  assert.ok(!consent.includes('pathname.startsWith("/workspace")'));
+  assert.ok(!consent.includes('pathname.startsWith("/platform")'));
 });
