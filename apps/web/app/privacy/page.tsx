@@ -143,6 +143,15 @@ export default function PrivacyPage() {
           precedente alla revoca.
         </p>
         <p>
+          Gli utenti autenticati possono inoltre usare la sezione{" "}
+          <Link href="/account" className="font-semibold text-[#1a5144] underline underline-offset-4">
+            Account e privacy
+          </Link>{" "}
+          per ottenere un export dei principali dati riferiti al proprio account e per avviare la
+          chiusura dell’accesso con richiesta di cancellazione. L’export self-service non sostituisce
+          una richiesta formale di accesso quando servono ulteriori dati o valutazioni specifiche.
+        </p>
+        <p>
           È inoltre possibile proporre reclamo al Garante per la protezione dei dati personali. Il canale
           privacy operativo sarà quello indicato nei dati del Titolare in cima alla pagina appena configurato.
         </p>
