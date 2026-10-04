@@ -28,7 +28,6 @@ export function CompanyDataRequestForm() {
           <select name="request_type" required defaultValue="correction" className="mt-2 h-11 w-full rounded-xl border border-[#d0dad6] bg-white px-3">
             <option value="correction">Correzione dati</option>
             <option value="removal">Richiesta di rimozione</option>
-            <option value="privacy_objection">Opposizione / privacy</option>
             <option value="source_question">Informazioni sulla fonte</option>
           </select>
         </label>
@@ -41,8 +40,8 @@ export function CompanyDataRequestForm() {
           <input name="country_code" maxLength={2} placeholder="IT" className="mt-2 h-11 w-full rounded-xl border border-[#d0dad6] px-3 uppercase" />
         </label>
         <label className="text-sm font-medium text-[#34423d]">
-          Email di contatto
-          <input name="contact_email" required type="email" maxLength={320} autoComplete="email" className="mt-2 h-11 w-full rounded-xl border border-[#d0dad6] px-3" />
+          Email di contatto (opzionale)
+          <input name="contact_email" type="email" maxLength={320} autoComplete="email" className="mt-2 h-11 w-full rounded-xl border border-[#d0dad6] px-3" />
         </label>
       </div>
 
@@ -50,6 +49,11 @@ export function CompanyDataRequestForm() {
         URL della fonte o del risultato (opzionale)
         <input name="source_url" type="url" maxLength={2000} placeholder="https://..." className="mt-2 h-11 w-full rounded-xl border border-[#d0dad6] px-3" />
       </label>
+
+      <p className="rounded-xl border border-[#d9e8e2] bg-[#edf5f2] px-4 py-3 text-xs leading-5 text-[#52615b]">
+        Non inserire dati personali non necessari. Questo modulo serve a segnalare dati aziendali;
+        non sostituisce i canali formali previsti dall&apos;informativa privacy.
+      </p>
 
       <label className="block text-sm font-medium text-[#34423d]">
         Cosa dobbiamo verificare?
