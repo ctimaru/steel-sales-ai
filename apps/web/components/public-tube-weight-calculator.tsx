@@ -1093,13 +1093,13 @@ export function PublicTubeWeightCalculator({
                     </div>
                   ) : null}
 
-                  <div className="mt-3 grid grid-cols-[1fr_1fr] gap-2 sm:grid-cols-[1.35fr_0.85fr]">
+                  <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-[1.35fr_0.85fr]">
                     <div>
                       <div className="mb-1 flex items-center justify-between gap-2">
                         <span className="text-[10px] font-bold text-[#52615b]">Lunghezza barra</span>
                         <span className="text-[10px] text-[#7b8782]">m</span>
                       </div>
-                      <div className="grid grid-cols-[repeat(4,1fr)_70px] gap-1">
+                      <div className="grid grid-cols-5 gap-1">
                         {lengthPresets.map((preset) => (
                           <button
                             key={preset}
@@ -1160,7 +1160,7 @@ export function PublicTubeWeightCalculator({
                   </div>
 
                   <div className="mt-3 rounded-xl border border-[#bed3cb] bg-[#edf5f2] p-2.5">
-                    <div className="grid grid-cols-[1fr_auto] items-end gap-2">
+                    <div className="grid grid-cols-1 items-end gap-2 sm:grid-cols-[1fr_auto]">
                       <label className="text-[10px] font-bold text-[#52615b]">
                         Parti dalle tonnellate · Tonnellate target
                         <input
@@ -1177,7 +1177,7 @@ export function PublicTubeWeightCalculator({
                         onClick={() => {
                           if (values.targetBars != null) setQuantity(String(values.targetBars));
                         }}
-                        className="school-primary-action min-h-11 px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-50"
+                        className="school-primary-action min-h-11 w-full px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                       >
                         Usa barre suggerite
                       </button>
