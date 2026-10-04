@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { LegalPageShell, LegalSection } from "@/components/legal-page-shell";
 import { legalRobots } from "@/lib/legal";
+import { PUBLIC_STORAGE_INVENTORY } from "@/lib/public-storage-inventory";
 import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -30,11 +31,16 @@ export default function CookiesPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="2. Preferenza analytics">
+      <LegalSection title="2. Preferenza analytics e durata della scelta">
         <p>
           La scelta “Accetta statistiche” / “Solo necessari” viene conservata localmente nel browser
-          per evitare di riproporre inutilmente la richiesta. L’utente può riaprire in qualsiasi momento
-          “Preferenze statistiche” e modificare la scelta.
+          insieme a versione del consenso, versione dell’informativa e data della decisione.
+        </p>
+        <p>
+          Finché le condizioni del trattamento restano sostanzialmente invariate, Smart Steel Sales
+          non ripropone il banner prima di sei mesi. La scelta viene richiesta nuovamente se cambia
+          la versione dell’informativa/consenso oppure, in ogni caso, dopo la scadenza del periodo.
+          L’utente può sempre riaprire “Preferenze statistiche” e cambiare decisione prima della scadenza.
         </p>
       </LegalSection>
 
@@ -72,7 +78,43 @@ export default function CookiesPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="6. Informativa privacy">
+      <LegalSection title="6. Inventario cookie e storage pubblico">
+        <p>
+          L’inventario seguente descrive le tecnologie note utilizzate dalle superfici pubbliche.
+          I nomi dinamici del provider di autenticazione possono variare per progetto o versione.
+        </p>
+        <div className="mt-4 overflow-x-auto">
+          <table className="min-w-full border-separate border-spacing-0 text-left text-xs">
+            <thead>
+              <tr className="bg-[#f3f6f4] text-[#43524c]">
+                <th className="border-b border-[#dce2df] px-3 py-2 font-bold">Tecnologia</th>
+                <th className="border-b border-[#dce2df] px-3 py-2 font-bold">Nome</th>
+                <th className="border-b border-[#dce2df] px-3 py-2 font-bold">Categoria</th>
+                <th className="border-b border-[#dce2df] px-3 py-2 font-bold">Provider</th>
+                <th className="border-b border-[#dce2df] px-3 py-2 font-bold">Finalità</th>
+                <th className="border-b border-[#dce2df] px-3 py-2 font-bold">Attivazione / durata</th>
+              </tr>
+            </thead>
+            <tbody>
+              {PUBLIC_STORAGE_INVENTORY.map((item) => (
+                <tr key={item.name} className="align-top">
+                  <td className="border-b border-[#edf1ef] px-3 py-3 font-semibold text-[#43524c]">{item.technology}</td>
+                  <td className="border-b border-[#edf1ef] px-3 py-3 font-mono text-[11px] text-[#173f35]">{item.name}</td>
+                  <td className="border-b border-[#edf1ef] px-3 py-3">{item.category}</td>
+                  <td className="border-b border-[#edf1ef] px-3 py-3">{item.provider}</td>
+                  <td className="border-b border-[#edf1ef] px-3 py-3">{item.purpose}</td>
+                  <td className="border-b border-[#edf1ef] px-3 py-3">
+                    <span className="block">{item.activation}</span>
+                    <span className="mt-1 block text-[#7b8782]">{item.duration}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </LegalSection>
+
+      <LegalSection title="7. Informativa privacy">
         <p>
           Per finalità, basi giuridiche, destinatari, conservazione e diritti consulta la{" "}
           <Link href="/privacy" className="font-semibold text-[#1a5144] underline underline-offset-4">
