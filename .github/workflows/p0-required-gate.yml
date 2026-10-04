@@ -252,6 +252,7 @@ jobs:
             pa1_2_public_company_lookup.sql \
             pa1_3_network_paid_entitlement_boundary.sql \
             pa1_4_claim_conversion_registration_handoff.sql \
+            pa1_5_public_company_data_governance.sql \
             p5_1_demand_listing_foundation.sql \
             p5_2_marketplace_feed_countdown.sql \
             p5_3_entitlement_unlock_foundation.sql \
