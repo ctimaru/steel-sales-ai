@@ -67,6 +67,24 @@ const standardOptions = [
 type StandardValue = (typeof standardOptions)[number]["value"];
 type NormativeStandard = Exclude<StandardValue, "geometric">;
 
+const standardThicknessAssist: Record<
+  NormativeStandard,
+  { preferred: string; options: readonly string[] }
+> = {
+  en10210: {
+    preferred: "6,3",
+    options: ["4", "5", "5,6", "6", "6,3", "7,1", "8", "10"],
+  },
+  en10219: {
+    preferred: "6",
+    options: ["3", "4", "5", "6", "6,3", "8", "10"],
+  },
+};
+
+function preferredThicknessForStandard(standard: StandardValue) {
+  return standard === "geometric" ? "6,3" : standardThicknessAssist[standard].preferred;
+}
+
 type StoredTubeCalculation = {
   key: string;
   savedAt: string;
@@ -496,12 +514,16 @@ export function PublicTubeWeightCalculator({
   references: PublicTubeDimensionSummary[];
   initialValues?: PublicTubeCalculatorInitialValues;
 }) {
-  const [standard, setStandard] = useState<StandardValue>(initialValues?.standard ?? "en10219");
+  const initialStandard = initialValues?.standard ?? "en10219";
+  const [standard, setStandard] = useState<StandardValue>(initialStandard);
   const [family, setFamily] = useState<TubeFamily>(initialValues?.family ?? "round_tube");
   const [outerDiameter, setOuterDiameter] = useState(initialValues?.outerDiameter ?? "168,3");
   const [width, setWidth] = useState(initialValues?.width ?? "100");
   const [height, setHeight] = useState(initialValues?.height ?? "60");
-  const [thickness, setThickness] = useState(initialValues?.thickness ?? "6,3");
+  const [thickness, setThickness] = useState(
+    initialValues?.thickness ?? preferredThicknessForStandard(initialStandard),
+  );
+  const [thicknessTouched, setThicknessTouched] = useState(Boolean(initialValues?.thickness));
   const [length, setLength] = useState(initialValues?.length ?? "12");
   const [quantity, setQuantity] = useState(initialValues?.quantity ?? "1");
   const [targetTonnes, setTargetTonnes] = useState(initialValues?.targetTonnes ?? "");
@@ -676,11 +698,38 @@ export function PublicTubeWeightCalculator({
     setWidth(calculation.width);
     setHeight(calculation.height);
     setThickness(calculation.thickness);
+    setThicknessTouched(true);
     setLength(calculation.length);
     setQuantity(calculation.quantity);
     setTargetTonnes(calculation.targetTonnes);
     setDensity(calculation.density);
     setActionFeedback("Calcolo ripristinato.");
+  }
+
+  function handleStandardChange(nextStandard: StandardValue) {
+    setStandard(nextStandard);
+    if (nextStandard !== "geometric" && !thicknessTouched) {
+      setThickness(preferredThicknessForStandard(nextStandard));
+    }
+  }
+
+  function handlePrimaryDimensionChange(
+    setter: (nextValue: string) => void,
+    nextValue: string,
+  ) {
+    setter(nextValue);
+    if (
+      standard !== "geometric" &&
+      !thicknessTouched &&
+      (parseNumber(nextValue) ?? 0) > 0
+    ) {
+      setThickness(preferredThicknessForStandard(standard));
+    }
+  }
+
+  function applyCommercialThickness(nextThickness: string) {
+    setThickness(nextThickness);
+    setThicknessTouched(true);
   }
 
   function calculationDimensionLabel(calculation: StoredTubeCalculation) {
@@ -797,6 +846,25 @@ export function PublicTubeWeightCalculator({
   const familyCount = references.filter((reference) => reference.product_family === family).length;
   const currentFamily = familyOptions.find((option) => option.value === family) ?? familyOptions[0];
   const currentStandard = standardOptions.find((option) => option.value === standard) ?? standardOptions[0];
+  const standardAssist =
+    standard === "geometric" ? null : standardThicknessAssist[standard];
+  const primaryDimensionValue =
+    family === "round_tube" ? parseNumber(outerDiameter) : parseNumber(width);
+  const canShowStandardAssist =
+    standardAssist != null && primaryDimensionValue != null && primaryDimensionValue > 0;
+
+  function commercialSuggestionLabel(candidateThickness: string) {
+    if (family === "round_tube") {
+      return `Ø ${outerDiameter} × ${candidateThickness}`;
+    }
+    if (family === "square_tube") {
+      return `${width} × ${width} × ${candidateThickness}`;
+    }
+    const parsedHeight = parseNumber(height);
+    return parsedHeight != null && parsedHeight > 0
+      ? `${width} × ${height} × ${candidateThickness}`
+      : `B ${width} × t ${candidateThickness}`;
+  }
 
   const inputClass =
     "mt-1 w-full rounded-xl border border-[#cfd9d5] bg-white px-3 py-2 text-sm font-semibold text-[#1d2824] outline-none transition focus:border-[#438d7a] focus:ring-4 focus:ring-[#d9e8e2]";
@@ -867,7 +935,7 @@ export function PublicTubeWeightCalculator({
                         key={option.value}
                         type="button"
                         aria-pressed={selected}
-                        onClick={() => setStandard(option.value)}
+                        onClick={() => handleStandardChange(option.value)}
                         className={
                           selected
                             ? "school-selected-control min-h-10 rounded-xl px-2 py-2 text-center text-xs font-bold shadow-sm"
@@ -930,7 +998,7 @@ export function PublicTubeWeightCalculator({
                         Diametro D
                         <input
                           value={outerDiameter}
-                          onChange={(event) => setOuterDiameter(event.target.value)}
+                          onChange={(event) => handlePrimaryDimensionChange(setOuterDiameter, event.target.value)}
                           inputMode="decimal"
                           className={inputClass}
                         />
@@ -940,7 +1008,7 @@ export function PublicTubeWeightCalculator({
                         {family === "square_tube" ? "Lato B" : "Base B"}
                         <input
                           value={width}
-                          onChange={(event) => setWidth(event.target.value)}
+                          onChange={(event) => handlePrimaryDimensionChange(setWidth, event.target.value)}
                           inputMode="decimal"
                           className={inputClass}
                         />
@@ -963,7 +1031,10 @@ export function PublicTubeWeightCalculator({
                       Spessore t
                       <input
                         value={thickness}
-                        onChange={(event) => setThickness(event.target.value)}
+                        onChange={(event) => {
+                          setThickness(event.target.value);
+                          setThicknessTouched(true);
+                        }}
                         inputMode="decimal"
                         className={inputClass}
                       />
@@ -982,6 +1053,43 @@ export function PublicTubeWeightCalculator({
                       </label>
                     ) : null}
                   </div>
+
+                  {canShowStandardAssist && standardAssist ? (
+                    <div className="mt-2 flex min-w-0 items-center gap-2 rounded-xl border border-[#d4e0db] bg-[#f6f8f7] px-2 py-1.5">
+                      <div className="shrink-0">
+                        <p className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[#1a5144]">
+                          Assist {currentStandard.label}
+                        </p>
+                        <p className="text-[9px] text-[#66736e]">
+                          preferito {standardAssist.preferred} mm
+                        </p>
+                      </div>
+                      <div className="flex min-w-0 flex-1 gap-1 overflow-x-auto pb-0.5">
+                        {standardAssist.options.map((candidate) => {
+                          const selected = near(parseNumber(thickness), parseNumber(candidate));
+                          const preferred = candidate === standardAssist.preferred;
+                          return (
+                            <button
+                              key={candidate}
+                              type="button"
+                              aria-pressed={selected}
+                              aria-label={`${commercialSuggestionLabel(candidate)} mm${preferred ? ", spessore commerciale preferito" : ""}`}
+                              onClick={() => applyCommercialThickness(candidate)}
+                              className={
+                                selected
+                                  ? "school-selected-control shrink-0 rounded-lg px-2 py-1.5 text-[10px] font-bold"
+                                  : preferred
+                                    ? "shrink-0 rounded-lg border border-[#8fb5a8] bg-white px-2 py-1.5 text-[10px] font-bold text-[#173f35]"
+                                    : "shrink-0 rounded-lg border border-[#d7e1dd] bg-white px-2 py-1.5 text-[10px] font-semibold text-[#52615b] hover:border-[#8fb5a8]"
+                              }
+                            >
+                              {commercialSuggestionLabel(candidate)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : null}
 
                   <div className="mt-3 grid grid-cols-[1fr_1fr] gap-2 sm:grid-cols-[1.35fr_0.85fr]">
                     <div>
