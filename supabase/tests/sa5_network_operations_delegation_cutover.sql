@@ -80,7 +80,8 @@ select pg_temp.sa5_assert(
   and public.has_platform_permission('discovery.review')
   and public.has_platform_permission('discovery.publish')
   and public.has_platform_permission('discovery.enrich')
-  and public.has_platform_permission('discovery.close_duplicates'),
+  and public.has_platform_permission('discovery.close_duplicates')
+  and not public.has_platform_permission('discovery.governance_review'),
   'Network Operations Admin must receive the complete Company Discovery capability set'
 );
 
@@ -195,6 +196,39 @@ set status='completed',
     started_at=coalesce(started_at,now()),
     completed_at=now()
 where id=:'run_id'::uuid;
+
+-- PA1.5 keeps legal/source governance root-only. The owner clears the source
+-- and only the candidates that the delegated operator may materialize/enrich.
+set local role authenticated;
+select set_config('request.jwt.claim.sub',:'owner_id',true);
+select set_config('request.jwt.claim.role','authenticated',true);
+
+select public.pa1_5_review_discovery_run_governance(
+  :'run_id'::uuid,
+  'approved',
+  'allows_reuse',
+  'low_risk',
+  'company_data_only',
+  'SA5 fixture source cleared by Platform Owner'
+);
+
+select public.pa1_5_review_discovery_candidate_governance(
+  '00000000-0000-0000-0000-00000000a5c2'::uuid,
+  'approved_company_data',
+  false,
+  '{}'::text[],
+  'SA5 delegated publication candidate contains company data only'
+);
+
+select public.pa1_5_review_discovery_candidate_governance(
+  '00000000-0000-0000-0000-00000000a5c4'::uuid,
+  'approved_company_data',
+  false,
+  '{}'::text[],
+  'SA5 delegated enrichment candidate contains company data only'
+);
+
+reset role;
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-00000000a501',true);
