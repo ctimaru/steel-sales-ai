@@ -179,7 +179,13 @@ export function PublicCompanyLookup() {
         <p className="text-xs leading-5 text-[#52615b]">
           <strong className="text-[#173f35]">Il Network completo non è pubblico.</strong>{" "}
           Directory, filtri, prodotti, capability, mercati e contatti restano un prodotto
-          privato disponibile alle aziende registrate con accesso Network.
+          privato disponibile alle aziende registrate con accesso Network.{" "}
+          <Link
+            href="/company-data"
+            className="font-semibold text-[#1a5144] underline decoration-[#b8d2c8] underline-offset-4"
+          >
+            Fonti, correzioni e rimozioni
+          </Link>
         </p>
       </div>
     </div>
