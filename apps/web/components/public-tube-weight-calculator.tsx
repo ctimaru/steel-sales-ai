@@ -18,11 +18,53 @@ export type PublicTubeCalculatorInitialValues = {
   density?: string;
 };
 
-const familyOptions: Array<{ value: TubeFamily; label: string; short: string }> = [
-  { value: "round_tube", label: "Tubo tondo", short: "Tondo" },
-  { value: "square_tube", label: "Profilo quadro", short: "Quadro" },
-  { value: "rectangular_tube", label: "Profilo rettangolare", short: "Rettangolare" },
+const familyOptions: Array<{
+  value: TubeFamily;
+  label: string;
+  short: string;
+  description: string;
+}> = [
+  {
+    value: "round_tube",
+    label: "Tubo tondo",
+    short: "Tondo",
+    description: "Diametro esterno + spessore",
+  },
+  {
+    value: "square_tube",
+    label: "Profilo quadro",
+    short: "Quadro",
+    description: "Lato esterno + spessore",
+  },
+  {
+    value: "rectangular_tube",
+    label: "Profilo rettangolare",
+    short: "Rettangolare",
+    description: "Base + altezza + spessore",
+  },
 ];
+
+const standardOptions = [
+  {
+    value: "en10219",
+    label: "EN 10219",
+    description: "Profilati cavi formati a freddo",
+  },
+  {
+    value: "en10210",
+    label: "EN 10210",
+    description: "Profilati cavi finiti a caldo",
+  },
+  {
+    value: "geometric",
+    label: "Calcolo libero",
+    description: "Solo geometria e densità",
+  },
+] as const;
+
+type StandardValue = (typeof standardOptions)[number]["value"];
+
+const lengthPresets = ["6", "8", "10", "12"] as const;
 
 function parseNumber(value: string) {
   const normalized = value.trim().replace(",", ".");
@@ -52,6 +94,57 @@ function referenceLabel(reference: PublicTubeDimensionSummary) {
   return `${formatNumber(reference.width_mm ?? 0)} × ${formatNumber(reference.height_mm ?? 0)} × ${formatNumber(reference.thickness_mm)} mm`;
 }
 
+function ShapeGraphic({
+  family,
+  className = "",
+}: {
+  family: TubeFamily;
+  className?: string;
+}) {
+  if (family === "round_tube") {
+    return (
+      <svg
+        viewBox="0 0 120 120"
+        aria-hidden="true"
+        className={className}
+        fill="none"
+        stroke="currentColor"
+      >
+        <circle cx="60" cy="60" r="38" strokeWidth="9" />
+        <circle cx="60" cy="60" r="20" strokeWidth="2" opacity="0.22" />
+      </svg>
+    );
+  }
+
+  if (family === "square_tube") {
+    return (
+      <svg
+        viewBox="0 0 120 120"
+        aria-hidden="true"
+        className={className}
+        fill="none"
+        stroke="currentColor"
+      >
+        <rect x="25" y="25" width="70" height="70" rx="7" strokeWidth="9" />
+        <rect x="43" y="43" width="34" height="34" rx="3" strokeWidth="2" opacity="0.22" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg
+      viewBox="0 0 140 110"
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+    >
+      <rect x="20" y="25" width="100" height="60" rx="7" strokeWidth="9" />
+      <rect x="40" y="43" width="60" height="24" rx="3" strokeWidth="2" opacity="0.22" />
+    </svg>
+  );
+}
+
 export function PublicTubeWeightCalculator({
   references,
   initialValues,
@@ -59,6 +152,7 @@ export function PublicTubeWeightCalculator({
   references: PublicTubeDimensionSummary[];
   initialValues?: PublicTubeCalculatorInitialValues;
 }) {
+  const [standard, setStandard] = useState<StandardValue>("en10219");
   const [family, setFamily] = useState<TubeFamily>(initialValues?.family ?? "round_tube");
   const [outerDiameter, setOuterDiameter] = useState(initialValues?.outerDiameter ?? "168,3");
   const [width, setWidth] = useState(initialValues?.width ?? "100");
@@ -141,183 +235,362 @@ export function PublicTubeWeightCalculator({
   }, [references, family, referenceQuery]);
 
   const familyCount = references.filter((reference) => reference.product_family === family).length;
+  const currentFamily = familyOptions.find((option) => option.value === family) ?? familyOptions[0];
+  const currentStandard = standardOptions.find((option) => option.value === standard) ?? standardOptions[0];
+
+  const inputClass =
+    "mt-1.5 w-full rounded-xl border border-[#cfd9d5] bg-white px-3 py-3 text-base font-semibold text-[#1d2824] outline-none transition focus:border-[#438d7a] focus:ring-4 focus:ring-[#d9e8e2]";
 
   return (
     <div className="space-y-6">
-      <section className="overflow-hidden rounded-3xl border border-[#dce2df] bg-white shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)]">
-        <div className="border-b border-[#e7ece9] p-5 sm:p-7">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Calcolatore peso tubo</p>
-          <h2 className="mt-2 text-2xl font-semibold text-[#1d2824] sm:text-3xl">
-            Da dimensioni a kg/m, peso barra e tonnellate
-          </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
-            Calcolo geometrico immediato con densità modificabile. Se la stessa geometria esiste nel catalogo
-            tecnico verificato, mostriamo anche il peso di riferimento pubblicato senza confonderlo con il calcolo.
-          </p>
-        </div>
-
-        <div className="grid gap-0 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="border-b border-[#e7ece9] p-5 sm:p-7 lg:border-b-0 lg:border-r">
-            <div className="grid grid-cols-3 gap-2">
-              {familyOptions.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setFamily(option.value)}
-                  className={
-                    family === option.value
-                      ? "school-selected-control rounded-xl px-3 py-2.5 text-sm font-semibold"
-                      : "school-secondary-action px-3 py-2.5"
-                  }
-                >
-                  <span className="hidden sm:inline">{option.label}</span>
-                  <span className="sm:hidden">{option.short}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              {family === "round_tube" ? (
-                <label className="text-xs font-semibold text-[#5d6a65]">
-                  Diametro esterno D (mm)
-                  <input
-                    value={outerDiameter}
-                    onChange={(event) => setOuterDiameter(event.target.value)}
-                    inputMode="decimal"
-                    className="mt-1.5 w-full rounded-xl border border-[#dce2df] px-3 py-2.5 text-sm text-[#1d2824] outline-none focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8]"
-                  />
-                </label>
-              ) : (
-                <label className="text-xs font-semibold text-[#5d6a65]">
-                  {family === "square_tube" ? "Lato esterno (mm)" : "Base esterna B (mm)"}
-                  <input
-                    value={width}
-                    onChange={(event) => setWidth(event.target.value)}
-                    inputMode="decimal"
-                    className="mt-1.5 w-full rounded-xl border border-[#dce2df] px-3 py-2.5 text-sm text-[#1d2824] outline-none focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8]"
-                  />
-                </label>
-              )}
-
-              {family === "rectangular_tube" ? (
-                <label className="text-xs font-semibold text-[#5d6a65]">
-                  Altezza esterna H (mm)
-                  <input
-                    value={height}
-                    onChange={(event) => setHeight(event.target.value)}
-                    inputMode="decimal"
-                    className="mt-1.5 w-full rounded-xl border border-[#dce2df] px-3 py-2.5 text-sm text-[#1d2824] outline-none focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8]"
-                  />
-                </label>
-              ) : null}
-
-              <label className="text-xs font-semibold text-[#5d6a65]">
-                Spessore t (mm)
-                <input
-                  value={thickness}
-                  onChange={(event) => setThickness(event.target.value)}
-                  inputMode="decimal"
-                  className="mt-1.5 w-full rounded-xl border border-[#dce2df] px-3 py-2.5 text-sm text-[#1d2824] outline-none focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8]"
-                />
-              </label>
-
-              <label className="text-xs font-semibold text-[#5d6a65]">
-                Lunghezza barra (m)
-                <input
-                  value={length}
-                  onChange={(event) => setLength(event.target.value)}
-                  inputMode="decimal"
-                  className="mt-1.5 w-full rounded-xl border border-[#dce2df] px-3 py-2.5 text-sm text-[#1d2824] outline-none focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8]"
-                />
-              </label>
-
-              <label className="text-xs font-semibold text-[#5d6a65]">
-                Quantità barre
-                <input
-                  value={quantity}
-                  onChange={(event) => setQuantity(event.target.value)}
-                  inputMode="decimal"
-                  className="mt-1.5 w-full rounded-xl border border-[#dce2df] px-3 py-2.5 text-sm text-[#1d2824] outline-none focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8]"
-                />
-              </label>
-
-              <label className="text-xs font-semibold text-[#5d6a65]">
-                Densità (kg/m³)
-                <input
-                  value={density}
-                  onChange={(event) => setDensity(event.target.value)}
-                  inputMode="decimal"
-                  className="mt-1.5 w-full rounded-xl border border-[#dce2df] px-3 py-2.5 text-sm text-[#1d2824] outline-none focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8]"
-                />
-                <span className="mt-1 block font-normal text-[#66736e]">Default di calcolo: 7.850 kg/m³.</span>
-              </label>
-            </div>
-
-            {values.error ? (
-              <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
-                {values.error}
+      <section
+        id="calcolatore-pesi"
+        className="overflow-hidden rounded-[2rem] border border-[#cddbd6] bg-white shadow-[0_18px_60px_rgba(11,47,39,0.08)]"
+      >
+        <div className="border-b border-[#dce7e3] bg-[linear-gradient(135deg,#f7fbf9_0%,#ffffff_55%,#edf5f2_100%)] p-5 sm:p-7 lg:p-8">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="school-eyebrow">Calcolatore pesi</span>
+                <span className="school-badge">Gratis</span>
+                <span className="school-badge">Risultato live</span>
+              </div>
+              <h2 className="mt-4 text-3xl font-semibold tracking-[-0.03em] text-[#15372f] sm:text-4xl">
+                Scegli il tubo. Inserisci la misura. Hai subito il peso.
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#5d6a65] sm:text-base">
+                Parti dalla norma e dalla sagoma che stai cercando. Il calcolo si aggiorna mentre scrivi:
+                kg/m, peso della barra e tonnellaggio totale senza passare da Excel.
               </p>
-            ) : null}
-          </div>
+            </div>
 
-          <div className="bg-[#f6f8f7] p-5 sm:p-7">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Risultato teorico</p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {[
-                ["Area sezione", values.areaMm2 == null ? "—" : `${formatNumber(values.areaMm2, 2)} mm²`],
-                ["Peso al metro", values.kgM == null ? "—" : `${formatNumber(values.kgM, 3)} kg/m`],
-                ["Peso per barra", values.kgBar == null ? "—" : `${formatNumber(values.kgBar, 2)} kg`],
-                ["Peso totale", values.totalTonnes == null ? "—" : `${formatNumber(values.totalTonnes, 4)} t`],
-              ].map(([label, value]) => (
-                <div key={label} className="rounded-2xl border border-[#dfe8f4] bg-white p-4">
-                  <p className="school-meta-label">{label}</p>
-                  <p className="mt-1 text-xl font-semibold text-[#1d2824]">{value}</p>
+            <div className="grid grid-cols-4 gap-1 rounded-2xl border border-[#d7e4df] bg-white/90 p-1.5 text-center shadow-sm">
+              {["Norma", "Sagoma", "Misure", "Peso"].map((step, index) => (
+                <div
+                  key={step}
+                  className="rounded-xl px-2 py-2 text-[10px] font-bold uppercase tracking-[0.08em] text-[#496159]"
+                >
+                  <span className="block text-sm text-[#173f35]">{index + 1}</span>
+                  {step}
                 </div>
               ))}
             </div>
+          </div>
+        </div>
 
-            <div className="mt-5 rounded-2xl border border-[#dce2df] bg-white p-4">
-              {values.exactReference ? (
-                <>
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm font-semibold text-[#1d2824]">Riferimento tecnico trovato</p>
-                    <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700">
-                      {values.exactReference.weight_method === "published" ? "Peso pubblicato" : "Riferimento verificato"}
-                    </span>
-                  </div>
-                  <p className="mt-3 text-2xl font-semibold text-[#1d2824]">
-                    {formatNumber(values.exactReference.weight_kg_m, 3)} kg/m
-                  </p>
-                  {values.deltaPercent != null ? (
-                    <p className="mt-1 text-xs text-[#66736e]">
-                      Scostamento rispetto al calcolo geometrico: {formatNumber(values.deltaPercent, 2)}%.
-                    </p>
-                  ) : null}
-                  <p className="mt-3 text-xs leading-5 text-[#66736e]">
-                    Fonte: {values.exactReference.source_provider ?? values.exactReference.source_name ?? "fonte tecnica verificata"}.
-                    Il valore pubblicato resta separato dal risultato matematico.
-                  </p>
-                  {values.exactReference.source_url ? (
-                    <a
-                      href={values.exactReference.source_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-3 inline-flex text-xs font-semibold text-[#1a5144]"
-                    >
-                      Apri fonte ↗
-                    </a>
-                  ) : null}
-                </>
-              ) : (
-                <>
-                  <p className="text-sm font-semibold text-[#1d2824]">Nessun peso pubblicato per questa geometria</p>
-                  <p className="mt-2 text-xs leading-5 text-[#66736e]">
-                    Il risultato sopra resta un calcolo teorico. Non viene trasformato in un riferimento normativo
-                    o in un peso verificato solo perché la geometria è matematicamente valida.
-                  </p>
-                </>
-              )}
+        <div className="space-y-8 p-5 sm:p-7 lg:p-8">
+          <section aria-labelledby="calculator-standard">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="school-kicker">1 · Norma di partenza</p>
+                <h3 id="calculator-standard" className="mt-1 text-xl font-semibold text-[#1d2824]">
+                  In quale contesto stai lavorando?
+                </h3>
+              </div>
+              <p className="max-w-xl text-xs leading-5 text-[#66736e]">
+                La norma orienta il percorso e i riferimenti. Il risultato teorico resta calcolato dalla geometria e dalla densità impostata.
+              </p>
             </div>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+              {standardOptions.map((option) => {
+                const selected = standard === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => setStandard(option.value)}
+                    className={
+                      selected
+                        ? "school-selected-control min-h-20 rounded-2xl px-4 py-3 text-left shadow-sm"
+                        : "rounded-2xl border border-[#d7e1dd] bg-[#f8faf9] px-4 py-3 text-left text-[#1d2824] hover:border-[#8fb5a8] hover:bg-[#f1f7f4]"
+                    }
+                  >
+                    <span className="block text-base font-bold">{option.label}</span>
+                    <span className={selected ? "mt-1 block text-xs text-white/80" : "mt-1 block text-xs text-[#66736e]"}>
+                      {option.description}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          <section aria-labelledby="calculator-shape">
+            <p className="school-kicker">2 · Sagoma</p>
+            <h3 id="calculator-shape" className="mt-1 text-xl font-semibold text-[#1d2824]">
+              Che profilo stai cercando?
+            </h3>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+              {familyOptions.map((option) => {
+                const selected = family === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => setFamily(option.value)}
+                    className={
+                      selected
+                        ? "group relative overflow-hidden rounded-3xl border border-[#173f35] bg-[#173f35] p-5 text-left text-white shadow-[0_14px_34px_rgba(23,63,53,0.18)]"
+                        : "group relative overflow-hidden rounded-3xl border border-[#d7e1dd] bg-white p-5 text-left text-[#173f35] hover:-translate-y-0.5 hover:border-[#8fb5a8] hover:shadow-md"
+                    }
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <ShapeGraphic
+                        family={option.value}
+                        className={selected ? "h-24 w-28 text-white" : "h-24 w-28 text-[#1a5144]"}
+                      />
+                      <span
+                        className={
+                          selected
+                            ? "rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-white"
+                            : "rounded-full bg-[#edf5f2] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#1a5144]"
+                        }
+                      >
+                        {selected ? "Selezionato" : "Scegli"}
+                      </span>
+                    </div>
+                    <span className="mt-3 block text-lg font-bold">{option.label}</span>
+                    <span className={selected ? "mt-1 block text-xs text-white/75" : "mt-1 block text-xs text-[#66736e]"}>
+                      {option.description}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          <div className="grid gap-6 xl:grid-cols-[1.02fr_0.98fr]">
+            <section
+              aria-labelledby="calculator-measures"
+              className="rounded-3xl border border-[#d7e1dd] bg-[#f7f9f8] p-5 sm:p-6"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="school-kicker">3 · Misure</p>
+                  <h3 id="calculator-measures" className="mt-1 text-xl font-semibold text-[#1d2824]">
+                    Inserisci le dimensioni
+                  </h3>
+                </div>
+                <div className="hidden rounded-2xl border border-[#d9e8e2] bg-white p-2 sm:block">
+                  <ShapeGraphic family={family} className="h-16 w-20 text-[#1a5144]" />
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                {family === "round_tube" ? (
+                  <label className="text-xs font-semibold text-[#52615b]">
+                    Diametro esterno D (mm)
+                    <input
+                      value={outerDiameter}
+                      onChange={(event) => setOuterDiameter(event.target.value)}
+                      inputMode="decimal"
+                      className={inputClass}
+                    />
+                  </label>
+                ) : (
+                  <label className="text-xs font-semibold text-[#52615b]">
+                    {family === "square_tube" ? "Lato esterno (mm)" : "Base esterna B (mm)"}
+                    <input
+                      value={width}
+                      onChange={(event) => setWidth(event.target.value)}
+                      inputMode="decimal"
+                      className={inputClass}
+                    />
+                  </label>
+                )}
+
+                {family === "rectangular_tube" ? (
+                  <label className="text-xs font-semibold text-[#52615b]">
+                    Altezza esterna H (mm)
+                    <input
+                      value={height}
+                      onChange={(event) => setHeight(event.target.value)}
+                      inputMode="decimal"
+                      className={inputClass}
+                    />
+                  </label>
+                ) : null}
+
+                <label className="text-xs font-semibold text-[#52615b]">
+                  Spessore t (mm)
+                  <input
+                    value={thickness}
+                    onChange={(event) => setThickness(event.target.value)}
+                    inputMode="decimal"
+                    className={inputClass}
+                  />
+                </label>
+              </div>
+
+              <div className="mt-6 rounded-2xl border border-[#d4e0db] bg-white p-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm font-bold text-[#1d2824]">Lunghezza barra</p>
+                    <p className="text-xs text-[#66736e]">12 m è il valore standard iniziale, sempre modificabile.</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {lengthPresets.map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => setLength(preset)}
+                        className={
+                          length === preset
+                            ? "school-selected-control min-h-10 rounded-xl px-3 text-sm font-bold"
+                            : "min-h-10 rounded-xl border border-[#cfd9d5] bg-white px-3 text-sm font-bold text-[#334a42] hover:border-[#8fb5a8] hover:bg-[#edf5f2]"
+                        }
+                      >
+                        {preset} m
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <label className="text-xs font-semibold text-[#52615b]">
+                    Lunghezza personalizzata (m)
+                    <input
+                      value={length}
+                      onChange={(event) => setLength(event.target.value)}
+                      inputMode="decimal"
+                      className={inputClass}
+                    />
+                  </label>
+
+                  <label className="text-xs font-semibold text-[#52615b]">
+                    Numero barre
+                    <input
+                      value={quantity}
+                      onChange={(event) => setQuantity(event.target.value)}
+                      inputMode="numeric"
+                      className={inputClass}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <details className="mt-4 rounded-2xl border border-[#d7e1dd] bg-white p-4">
+                <summary className="cursor-pointer text-sm font-bold text-[#334a42]">
+                  Impostazioni avanzate
+                </summary>
+                <label className="mt-4 block text-xs font-semibold text-[#52615b]">
+                  Densità (kg/m³)
+                  <input
+                    value={density}
+                    onChange={(event) => setDensity(event.target.value)}
+                    inputMode="decimal"
+                    className={inputClass}
+                  />
+                  <span className="mt-1 block font-normal text-[#66736e]">Default acciaio: 7.850 kg/m³.</span>
+                </label>
+              </details>
+
+              {values.error ? (
+                <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
+                  {values.error}
+                </p>
+              ) : null}
+            </section>
+
+            <aside
+              aria-live="polite"
+              className="overflow-hidden rounded-3xl border border-[#173f35] bg-[#123d34] text-white shadow-[0_20px_50px_rgba(18,61,52,0.18)]"
+            >
+              <div className="border-b border-white/10 p-5 sm:p-6">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/65">4 · Risultato live</p>
+                    <h3 className="mt-1 text-xl font-semibold">Il numero che ti serve subito</h3>
+                  </div>
+                  <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold">
+                    {currentStandard.label} · {currentFamily.short}
+                  </span>
+                </div>
+
+                <div className="mt-8">
+                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/60">Peso al metro</p>
+                  <p className="metric-number mt-2 text-5xl font-semibold tracking-[-0.05em] sm:text-6xl">
+                    {values.kgM == null ? "—" : formatNumber(values.kgM, 3)}
+                    <span className="ml-2 text-xl font-semibold tracking-normal text-white/70">kg/m</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-px bg-white/10 sm:grid-cols-2">
+                <div className="bg-[#16483d] p-5 sm:p-6">
+                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/60">Peso barra · {length || "—"} m</p>
+                  <p className="metric-number mt-2 text-3xl font-semibold">
+                    {values.kgBar == null ? "—" : formatNumber(values.kgBar, 2)}
+                    <span className="ml-1 text-base text-white/65">kg</span>
+                  </p>
+                </div>
+                <div className="bg-[#16483d] p-5 sm:p-6">
+                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/60">
+                    Totale · {quantity || "—"} barre
+                  </p>
+                  <p className="metric-number mt-2 text-3xl font-semibold">
+                    {values.totalTonnes == null ? "—" : formatNumber(values.totalTonnes, 4)}
+                    <span className="ml-1 text-base text-white/65">t</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-5 sm:p-6">
+                <div className="rounded-2xl border border-white/12 bg-white/8 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <p className="text-sm font-semibold">Riferimento tecnico</p>
+                    {values.exactReference ? (
+                      <span className="rounded-full bg-white/12 px-2.5 py-1 text-[10px] font-semibold text-white">
+                        {values.exactReference.weight_method === "published" ? "Peso pubblicato" : "Verificato"}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {values.exactReference ? (
+                    <>
+                      <p className="metric-number mt-3 text-2xl font-semibold">
+                        {formatNumber(values.exactReference.weight_kg_m, 3)} kg/m
+                      </p>
+                      {values.deltaPercent != null ? (
+                        <p className="mt-1 text-xs text-white/65">
+                          Scostamento dal calcolo geometrico: {formatNumber(values.deltaPercent, 2)}%.
+                        </p>
+                      ) : null}
+                      <p className="mt-3 text-xs leading-5 text-white/65">
+                        Fonte: {values.exactReference.source_provider ?? values.exactReference.source_name ?? "fonte tecnica verificata"}.
+                        Il peso pubblicato resta separato dal risultato matematico.
+                      </p>
+                      {values.exactReference.source_url ? (
+                        <a
+                          href={values.exactReference.source_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-3 inline-flex text-xs font-bold text-white underline decoration-white/35 underline-offset-4"
+                        >
+                          Apri fonte ↗
+                        </a>
+                      ) : null}
+                    </>
+                  ) : (
+                    <>
+                      <p className="mt-2 text-sm font-semibold text-white">Nessun peso pubblicato per questa geometria</p>
+                      <p className="mt-2 text-xs leading-5 text-white/65">
+                        Il risultato resta un calcolo teorico. Non viene trasformato automaticamente in un valore normativo o verificato.
+                      </p>
+                    </>
+                  )}
+                </div>
+
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-white/60">
+                  <span>Area sezione: {values.areaMm2 == null ? "—" : `${formatNumber(values.areaMm2, 2)} mm²`}</span>
+                  <span>Totale: {values.totalKg == null ? "—" : `${formatNumber(values.totalKg, 1)} kg`}</span>
+                </div>
+              </div>
+            </aside>
           </div>
         </div>
       </section>
@@ -327,7 +600,7 @@ export function PublicTubeWeightCalculator({
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Dimensioni di riferimento</p>
             <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">
-              {familyCount} pesi verificati per {familyOptions.find((item) => item.value === family)?.label.toLowerCase()}
+              {familyCount} pesi verificati per {currentFamily.label.toLowerCase()}
             </h2>
             <p className="mt-1 text-sm text-[#66736e]">
               Cerca una misura per confrontare il calcolo con valori già presenti nel catalogo tecnico.
@@ -338,7 +611,7 @@ export function PublicTubeWeightCalculator({
             onChange={(event) => setReferenceQuery(event.target.value)}
             placeholder="Cerca 168,3 × 6,3..."
             aria-label="Cerca dimensione di riferimento"
-            className="h-10 w-full rounded-xl border border-[#dce2df] px-3 text-sm outline-none focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8] sm:max-w-xs"
+            className="h-11 w-full rounded-xl border border-[#dce2df] px-3 text-base outline-none focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8] sm:max-w-xs"
           />
         </div>
 
