@@ -165,6 +165,7 @@ jobs:
             p0_entity_resolution.sql \
             p0_observability.sql \
             p0_data_lifecycle.sql \
+            lr5_registration_account_compliance.sql \
             p1_tenant_onboarding.sql \
             p1_team_directory.sql \
             p1_bulk_import.sql \
