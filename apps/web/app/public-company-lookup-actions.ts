@@ -1,11 +1,11 @@
 "use server";
 
+import { queryPublicCompany } from "@/lib/public-company-lookup";
 import {
   initialPublicCompanyLookupState,
-  queryPublicCompany,
   type PublicCompanyLookupItem,
   type PublicCompanyLookupState,
-} from "@/lib/public-company-lookup";
+} from "@/lib/public-company-lookup-contract";
 
 export type { PublicCompanyLookupItem, PublicCompanyLookupState };
 export { initialPublicCompanyLookupState };
