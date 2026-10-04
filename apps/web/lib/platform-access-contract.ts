@@ -149,7 +149,7 @@ export const PLATFORM_PERMISSIONS = [
     area: "discovery",
     action: "publish",
     risk: "high",
-    description: "Publish an accepted candidate as a public Network company.",
+    description: "Materialize an accepted candidate as a governed Network company.",
   },
   {
     key: "discovery.enrich",
@@ -351,7 +351,7 @@ export const PLATFORM_STAFF_ROLE_TEMPLATES = [
   {
     key: "network_operations_admin",
     label: "Network Operations Admin",
-    description: "Operates Company Discovery and controlled public Network enrichment.",
+    description: "Operates Company Discovery and controlled public-source Network enrichment.",
     permissions: [
       CONSOLE_ACCESS,
       "discovery.read",
@@ -404,7 +404,7 @@ export const PLATFORM_STAFF_ROLE_TEMPLATES = [
     key: "network_trust_admin",
     label: "Network Trust Admin",
     description:
-      "Reviews public Network evidence, verification states, provenance conflicts and identity candidates without tenant-private access or automatic merges.",
+      "Reviews public-source Network evidence, verification states, provenance conflicts and identity candidates without tenant-private access or automatic merges.",
     permissions: [
       CONSOLE_ACCESS,
       "network_trust.read",
