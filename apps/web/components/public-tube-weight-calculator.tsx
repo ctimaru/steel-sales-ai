@@ -348,13 +348,11 @@ function ParametricShapeDiagram({
         : `Sezione profilo rettangolare, base ${formatNumber(b, 2)} millimetri, altezza ${formatNumber(h, 2)} millimetri e spessore ${formatNumber(t, 2)} millimetri`;
 
   return (
-    <figure className="rounded-3xl border border-[#d3e1dc] bg-white p-4 sm:p-5">
+    <figure className="rounded-2xl border border-[#d3e1dc] bg-white p-3">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Vista proporzionale</p>
-          <p className="mt-1 text-xs leading-5 text-[#66736e]">
-            Le quote seguono i valori inseriti e lo spessore viene rappresentato in proporzione.
-          </p>
+          <p className="sr-only">Le quote seguono i valori inseriti e lo spessore viene rappresentato in proporzione.</p>
         </div>
         <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#1a5144]">
           {standard === "geometric" ? "Libero" : standard === "en10210" ? "EN 10210" : "EN 10219"}
@@ -365,7 +363,7 @@ function ParametricShapeDiagram({
         viewBox="0 0 264 210"
         role="img"
         aria-label={accessibleLabel}
-        className="mx-auto mt-3 block h-auto w-full max-w-[30rem]"
+        className="mx-auto mt-2 block h-auto w-full max-w-[13rem] lg:max-w-[15rem]"
       >
         <title>{accessibleLabel}</title>
 
@@ -476,16 +474,16 @@ function ParametricShapeDiagram({
         )}
       </svg>
 
-      <figcaption className="grid gap-2 border-t border-[#e4ebe8] pt-3 text-xs sm:grid-cols-3">
-        <span className="rounded-xl bg-[#f6f8f7] px-3 py-2 font-semibold text-[#405049]">{primaryDimension}</span>
+      <figcaption className="mt-1 grid grid-cols-3 gap-1 border-t border-[#e4ebe8] pt-2 text-[10px]">
+        <span className="rounded-lg bg-[#f6f8f7] px-2 py-1.5 font-semibold text-[#405049]">{primaryDimension}</span>
         {secondaryDimension ? (
-          <span className="rounded-xl bg-[#f6f8f7] px-3 py-2 font-semibold text-[#405049]">{secondaryDimension}</span>
+          <span className="rounded-lg bg-[#f6f8f7] px-2 py-1.5 font-semibold text-[#405049]">{secondaryDimension}</span>
         ) : (
-          <span className="rounded-xl bg-[#f6f8f7] px-3 py-2 font-semibold text-[#405049]">
+          <span className="rounded-lg bg-[#f6f8f7] px-2 py-1.5 font-semibold text-[#405049]">
             {family === "round_tube" ? "Sezione circolare" : "Sezione quadrata"}
           </span>
         )}
-        <span className="rounded-xl bg-[#fbf0e9] px-3 py-2 font-semibold text-[#8b4a25]">{thicknessDimension}</span>
+        <span className="rounded-lg bg-[#fbf0e9] px-2 py-1.5 font-semibold text-[#8b4a25]">{thicknessDimension}</span>
       </figcaption>
     </figure>
   );
@@ -801,718 +799,534 @@ export function PublicTubeWeightCalculator({
   const currentStandard = standardOptions.find((option) => option.value === standard) ?? standardOptions[0];
 
   const inputClass =
-    "mt-1.5 w-full rounded-xl border border-[#cfd9d5] bg-white px-3 py-3 text-base font-semibold text-[#1d2824] outline-none transition focus:border-[#438d7a] focus:ring-4 focus:ring-[#d9e8e2]";
+    "mt-1 w-full rounded-xl border border-[#cfd9d5] bg-white px-3 py-2 text-sm font-semibold text-[#1d2824] outline-none transition focus:border-[#438d7a] focus:ring-4 focus:ring-[#d9e8e2]";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <section
         id="calcolatore-pesi"
-        className="overflow-hidden rounded-[2rem] border border-[#cddbd6] bg-white shadow-[0_18px_60px_rgba(11,47,39,0.08)]"
+        className="flex h-[calc(100svh-6.75rem)] min-h-[560px] max-h-[820px] flex-col overflow-hidden rounded-[1.6rem] border border-[#cddbd6] bg-white shadow-[0_18px_60px_rgba(11,47,39,0.08)]"
       >
-        <div className="border-b border-[#dce7e3] bg-[linear-gradient(135deg,#f7fbf9_0%,#ffffff_55%,#edf5f2_100%)] p-5 sm:p-7 lg:p-8">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="school-eyebrow">Calcolatore pesi</span>
-                <span className="school-badge">Gratis</span>
-                <span className="school-badge">Risultato live</span>
-              </div>
-              <h2 className="mt-4 text-3xl font-semibold tracking-[-0.03em] text-[#15372f] sm:text-4xl">
-                Scegli il tubo. Inserisci la misura. Hai subito il peso.
-              </h2>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#5d6a65] sm:text-base">
-                Parti dalla norma e dalla sagoma che stai cercando. Il calcolo si aggiorna mentre scrivi:
-                kg/m, peso della barra e tonnellaggio totale senza passare da Excel.
-              </p>
+        <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[#dce7e3] bg-[linear-gradient(135deg,#f7fbf9_0%,#ffffff_62%,#edf5f2_100%)] px-3 py-2.5 sm:px-4">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="school-eyebrow hidden sm:inline-flex">Calcolatore pesi</span>
+              <span className="school-badge">Gratis</span>
+              <span className="school-badge hidden sm:inline-flex">Live</span>
             </div>
-
-            <div className="grid grid-cols-4 gap-1 rounded-2xl border border-[#d7e4df] bg-white/90 p-1.5 text-center shadow-sm">
-              {["Norma", "Sagoma", "Misure", "Peso"].map((step, index) => (
-                <div
-                  key={step}
-                  className="rounded-xl px-2 py-2 text-[10px] font-bold uppercase tracking-[0.08em] text-[#496159]"
-                >
-                  <span className="block text-sm text-[#173f35]">{index + 1}</span>
-                  {step}
-                </div>
-              ))}
-            </div>
+            <h1 className="mt-1 truncate text-lg font-semibold tracking-[-0.025em] text-[#15372f] sm:text-xl">
+              Peso tubo acciaio
+            </h1>
           </div>
-        </div>
 
-        <div className="space-y-8 p-5 sm:p-7 lg:p-8">
-          <section aria-labelledby="calculator-standard">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="school-kicker">1 · Norma di partenza</p>
-                <h3 id="calculator-standard" className="mt-1 text-xl font-semibold text-[#1d2824]">
-                  In quale contesto stai lavorando?
-                </h3>
-              </div>
-              <p className="max-w-xl text-xs leading-5 text-[#66736e]">
-                EN 10210 e EN 10219 cambiano realmente il calcolo: per quadri e rettangolari applichiamo i raggi di raccordo previsti dalla norma. Solo “Calcolo libero” usa geometria ideale e densità modificabile.
-              </p>
-            </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              disabled={!currentSnapshot}
+              onClick={() => {
+                if (!currentSnapshot) return;
+                if (calculatorSaved) {
+                  writeSavedCalculator(null);
+                  setCalculatorSaved(false);
+                  setActionFeedback("Salvataggio del calcolatore rimosso.");
+                  return;
+                }
+                writeSavedCalculator(currentSnapshot);
+                setCalculatorSaved(true);
+                setActionFeedback("Calcolatore salvato su questo dispositivo.");
+              }}
+              className={
+                calculatorSaved
+                  ? "school-selected-control rounded-xl px-3 py-2.5 text-xs font-bold disabled:opacity-50"
+                  : "school-secondary-action px-3 py-2.5 text-xs disabled:opacity-50"
+              }
+            >
+              <span className="sm:hidden">{calculatorSaved ? "Salvato ✓" : "Salva"}</span>
+              <span className="hidden sm:inline">{calculatorSaved ? "Calcolatore salvato ✓" : "Salva il Calcolatore"}</span>
+            </button>
+          </div>
+        </header>
 
-            <div className="mt-4 grid gap-3 md:grid-cols-3">
-              {standardOptions.map((option) => {
-                const selected = standard === option.value;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    aria-pressed={selected}
-                    onClick={() => setStandard(option.value)}
-                    className={
-                      selected
-                        ? "school-selected-control min-h-20 rounded-2xl px-4 py-3 text-left shadow-sm"
-                        : "rounded-2xl border border-[#d7e1dd] bg-[#f8faf9] px-4 py-3 text-left text-[#1d2824] hover:border-[#8fb5a8] hover:bg-[#f1f7f4]"
-                    }
-                  >
-                    <span className="block text-base font-bold">{option.label}</span>
-                    <span className={selected ? "mt-1 block text-xs text-white/80" : "mt-1 block text-xs text-[#66736e]"}>
-                      {option.description}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
-          <section aria-labelledby="calculator-shape">
-            <p className="school-kicker">2 · Sagoma</p>
-            <h3 id="calculator-shape" className="mt-1 text-xl font-semibold text-[#1d2824]">
-              Che profilo stai cercando?
-            </h3>
-
-            <div className="mt-4 grid gap-3 md:grid-cols-3">
-              {familyOptions.map((option) => {
-                const selected = family === option.value;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    aria-pressed={selected}
-                    onClick={() => setFamily(option.value)}
-                    className={
-                      selected
-                        ? "group relative overflow-hidden rounded-3xl border border-[#173f35] bg-[#173f35] p-5 text-left text-white shadow-[0_14px_34px_rgba(23,63,53,0.18)] focus-visible:ring-4 focus-visible:ring-[#b8d2c8]"
-                        : "group relative overflow-hidden rounded-3xl border border-[#d7e1dd] bg-white p-5 text-left text-[#173f35] hover:-translate-y-0.5 hover:border-[#8fb5a8] hover:shadow-md focus-visible:ring-4 focus-visible:ring-[#d9e8e2]"
-                    }
-                  >
-                    <div className="flex items-center justify-between gap-4">
-                      <ShapeGraphic
-                        family={option.value}
-                        className={selected ? "h-24 w-28 text-white" : "h-24 w-28 text-[#1a5144]"}
-                      />
-                      <span
+        <div className="grid min-h-0 flex-1 lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)]">
+          <div className="min-h-0 overflow-y-auto border-b border-[#dce7e3] p-3 sm:p-4 lg:overflow-hidden lg:border-b-0 lg:border-r">
+            <div className="grid gap-3 lg:h-full lg:grid-rows-[auto_auto_1fr_auto]">
+              <section aria-labelledby="calculator-standard">
+                <div className="mb-1.5 flex items-center justify-between gap-2">
+                  <h2 id="calculator-standard" className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-[#52615b]">
+                    Norma
+                  </h2>
+                  <span className="text-[10px] font-semibold text-[#7b8782]">
+                    {standard === "geometric" ? "Geometria libera" : "Massa da norma"}
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {standardOptions.map((option) => {
+                    const selected = standard === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        aria-pressed={selected}
+                        onClick={() => setStandard(option.value)}
                         className={
                           selected
-                            ? "rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-white"
-                            : "rounded-full bg-[#edf5f2] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#1a5144]"
+                            ? "school-selected-control min-h-10 rounded-xl px-2 py-2 text-center text-xs font-bold shadow-sm"
+                            : "min-h-10 rounded-xl border border-[#d7e1dd] bg-[#f8faf9] px-2 py-2 text-center text-xs font-bold text-[#334a42] hover:border-[#8fb5a8] hover:bg-[#f1f7f4]"
                         }
                       >
-                        {selected ? "Selezionato" : "Scegli"}
-                      </span>
-                    </div>
-                    <span className="mt-3 block text-lg font-bold">{option.label}</span>
-                    <span className={selected ? "mt-1 block text-xs text-white/75" : "mt-1 block text-xs text-[#66736e]"}>
-                      {option.description}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
+                        {option.label}
+                        <span className="sr-only"> — {option.description}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
 
-          <div className="grid gap-6 xl:grid-cols-[1.02fr_0.98fr]">
-            <section
-              aria-labelledby="calculator-measures"
-              className="rounded-3xl border border-[#d7e1dd] bg-[#f7f9f8] p-5 sm:p-6"
-            >
-              <div>
-                <p className="school-kicker">3 · Misure</p>
-                <h3 id="calculator-measures" className="mt-1 text-xl font-semibold text-[#1d2824]">
-                  Inserisci le dimensioni
-                </h3>
-                <p className="mt-1 text-xs leading-5 text-[#66736e]">
-                  La sezione qui sotto cambia insieme alle misure: controlli subito proporzioni, orientamento e spessore.
-                </p>
-              </div>
-
-              <div className="mt-5">
-                <ParametricShapeDiagram
-                  family={family}
-                  outerDiameter={outerDiameter}
-                  width={width}
-                  height={height}
-                  thickness={thickness}
-                  standard={standard}
-                />
-              </div>
-
-              <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                {family === "round_tube" ? (
-                  <label className="text-xs font-semibold text-[#52615b]">
-                    Diametro esterno D (mm)
-                    <input
-                      value={outerDiameter}
-                      onChange={(event) => setOuterDiameter(event.target.value)}
-                      inputMode="decimal"
-                      className={inputClass}
-                    />
-                  </label>
-                ) : (
-                  <label className="text-xs font-semibold text-[#52615b]">
-                    {family === "square_tube" ? "Lato esterno (mm)" : "Base esterna B (mm)"}
-                    <input
-                      value={width}
-                      onChange={(event) => setWidth(event.target.value)}
-                      inputMode="decimal"
-                      className={inputClass}
-                    />
-                  </label>
-                )}
-
-                {family === "rectangular_tube" ? (
-                  <label className="text-xs font-semibold text-[#52615b]">
-                    Altezza esterna H (mm)
-                    <input
-                      value={height}
-                      onChange={(event) => setHeight(event.target.value)}
-                      inputMode="decimal"
-                      className={inputClass}
-                    />
-                  </label>
-                ) : null}
-
-                <label className="text-xs font-semibold text-[#52615b]">
-                  Spessore t (mm)
-                  <input
-                    value={thickness}
-                    onChange={(event) => setThickness(event.target.value)}
-                    inputMode="decimal"
-                    className={inputClass}
-                  />
-                </label>
-              </div>
-
-              <div className="mt-6 rounded-2xl border border-[#d4e0db] bg-white p-4">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="text-sm font-bold text-[#1d2824]">Lunghezza barra</p>
-                    <p className="text-xs text-[#66736e]">12 m è il valore standard iniziale, sempre modificabile.</p>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {lengthPresets.map((preset) => (
+              <section aria-labelledby="calculator-shape">
+                <div className="mb-1.5 flex items-center justify-between gap-2">
+                  <h2 id="calculator-shape" className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-[#52615b]">
+                    Sagoma
+                  </h2>
+                  <span className="text-[10px] font-semibold text-[#7b8782]">{currentFamily.description}</span>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {familyOptions.map((option) => {
+                    const selected = family === option.value;
+                    return (
                       <button
-                        key={preset}
+                        key={option.value}
                         type="button"
-                        onClick={() => setLength(preset)}
+                        aria-pressed={selected}
+                        onClick={() => setFamily(option.value)}
                         className={
-                          length === preset
-                            ? "school-selected-control rounded-xl px-3 py-2.5 text-sm font-bold"
-                            : "school-secondary-action px-3 py-2.5"
+                          selected
+                            ? "group flex min-h-14 items-center justify-center gap-1.5 rounded-xl border border-[#173f35] bg-[#173f35] px-2 py-1.5 text-white shadow-sm focus-visible:ring-4 focus-visible:ring-[#b8d2c8]"
+                            : "group flex min-h-14 items-center justify-center gap-1.5 rounded-xl border border-[#d7e1dd] bg-white px-2 py-1.5 text-[#173f35] hover:-translate-y-0.5 hover:border-[#8fb5a8] focus-visible:ring-4 focus-visible:ring-[#d9e8e2]"
                         }
                       >
-                        {preset} m
+                        <ShapeGraphic family={option.value} className={selected ? "h-9 w-10 text-white" : "h-9 w-10 text-[#1a5144]"} />
+                        <span className="text-xs font-bold">{option.short}</span>
                       </button>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
+              </section>
 
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  <label className="text-xs font-semibold text-[#52615b]">
-                    Lunghezza personalizzata (m)
-                    <input
-                      value={length}
-                      onChange={(event) => setLength(event.target.value)}
-                      inputMode="decimal"
-                      className={inputClass}
-                    />
-                  </label>
+              <section
+                aria-labelledby="calculator-measures"
+                className="grid min-h-0 gap-3 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-center"
+              >
+                <div className="min-w-0">
+                  <div className="mb-1.5 flex items-center justify-between gap-2">
+                    <h2 id="calculator-measures" className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-[#52615b]">
+                      Misure
+                    </h2>
+                    <span className="text-[10px] text-[#7b8782]">mm</span>
+                  </div>
 
-                  <label className="text-xs font-semibold text-[#52615b]">
-                    Numero barre
-                    <div className="mt-1.5 grid grid-cols-[44px_1fr_44px] gap-2">
-                      <button
-                        type="button"
-                        aria-label="Riduci di una barra"
-                        onClick={() => {
-                          const current = Math.max(1, Math.floor(parseNumber(quantity) ?? 1));
-                          setQuantity(String(Math.max(1, current - 1)));
-                        }}
-                        className="school-secondary-action flex min-h-12 items-center justify-center px-0 py-0 text-lg"
-                      >
-                        −
-                      </button>
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {family === "round_tube" ? (
+                      <label className="text-[10px] font-bold text-[#52615b]">
+                        Diametro D
+                        <input
+                          value={outerDiameter}
+                          onChange={(event) => setOuterDiameter(event.target.value)}
+                          inputMode="decimal"
+                          className={inputClass}
+                        />
+                      </label>
+                    ) : (
+                      <label className="text-[10px] font-bold text-[#52615b]">
+                        {family === "square_tube" ? "Lato B" : "Base B"}
+                        <input
+                          value={width}
+                          onChange={(event) => setWidth(event.target.value)}
+                          inputMode="decimal"
+                          className={inputClass}
+                        />
+                      </label>
+                    )}
+
+                    {family === "rectangular_tube" ? (
+                      <label className="text-[10px] font-bold text-[#52615b]">
+                        Altezza H
+                        <input
+                          value={height}
+                          onChange={(event) => setHeight(event.target.value)}
+                          inputMode="decimal"
+                          className={inputClass}
+                        />
+                      </label>
+                    ) : null}
+
+                    <label className="text-[10px] font-bold text-[#52615b]">
+                      Spessore t
                       <input
-                        value={quantity}
-                        onChange={(event) => setQuantity(event.target.value)}
-                        inputMode="numeric"
-                        className="w-full rounded-xl border border-[#cfd9d5] bg-white px-3 py-3 text-center text-base font-semibold text-[#1d2824] outline-none transition focus:border-[#438d7a] focus:ring-4 focus:ring-[#d9e8e2]"
+                        value={thickness}
+                        onChange={(event) => setThickness(event.target.value)}
+                        inputMode="decimal"
+                        className={inputClass}
                       />
+                    </label>
+
+                    {standard === "geometric" ? (
+                      <label className="text-[10px] font-bold text-[#52615b]">
+                        Densità kg/m³
+                        <input
+                          value={density}
+                          onChange={(event) => setDensity(event.target.value)}
+                          inputMode="decimal"
+                          className={inputClass}
+                        />
+                        <span className="sr-only">Nel calcolo libero la densità è modificabile. Default acciaio: 7.850 kg/m³.</span>
+                      </label>
+                    ) : null}
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-[1fr_1fr] gap-2 sm:grid-cols-[1.35fr_0.85fr]">
+                    <div>
+                      <div className="mb-1 flex items-center justify-between gap-2">
+                        <span className="text-[10px] font-bold text-[#52615b]">Lunghezza barra</span>
+                        <span className="text-[10px] text-[#7b8782]">m</span>
+                      </div>
+                      <div className="grid grid-cols-[repeat(4,1fr)_70px] gap-1">
+                        {lengthPresets.map((preset) => (
+                          <button
+                            key={preset}
+                            type="button"
+                            onClick={() => setLength(preset)}
+                            className={
+                              length === preset
+                                ? "school-selected-control rounded-xl px-3 py-2.5 text-xs font-bold"
+                                : "school-secondary-action px-3 py-2.5 text-xs"
+                            }
+                          >
+                            {preset}
+                          </button>
+                        ))}
+                        <input
+                          value={length}
+                          onChange={(event) => setLength(event.target.value)}
+                          inputMode="decimal"
+                          aria-label="Lunghezza barra personalizzata"
+                          className="min-w-0 rounded-xl border border-[#cfd9d5] bg-white px-2 text-center text-sm font-bold text-[#1d2824] outline-none focus:border-[#438d7a]"
+                        />
+                      </div>
+                    </div>
+
+                    <label className="text-[10px] font-bold text-[#52615b]">
+                      Numero barre
+                      <div className="mt-1 grid grid-cols-[36px_1fr_36px] gap-1">
+                        <button
+                          type="button"
+                          aria-label="Riduci di una barra"
+                          onClick={() => {
+                            const current = Math.max(1, Math.floor(parseNumber(quantity) ?? 1));
+                            setQuantity(String(Math.max(1, current - 1)));
+                          }}
+                          className="school-secondary-action min-h-10 px-0 py-0 text-base"
+                        >
+                          −
+                        </button>
+                        <input
+                          value={quantity}
+                          onChange={(event) => setQuantity(event.target.value)}
+                          inputMode="numeric"
+                          className="min-w-0 rounded-xl border border-[#cfd9d5] bg-white px-2 text-center text-sm font-bold text-[#1d2824] outline-none focus:border-[#438d7a]"
+                        />
+                        <button
+                          type="button"
+                          aria-label="Aumenta di una barra"
+                          onClick={() => {
+                            const current = Math.max(0, Math.floor(parseNumber(quantity) ?? 0));
+                            setQuantity(String(current + 1));
+                          }}
+                          className="school-secondary-action min-h-10 px-0 py-0 text-base"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </label>
+                  </div>
+
+                  <div className="mt-3 rounded-xl border border-[#bed3cb] bg-[#edf5f2] p-2.5">
+                    <div className="grid grid-cols-[1fr_auto] items-end gap-2">
+                      <label className="text-[10px] font-bold text-[#52615b]">
+                        Parti dalle tonnellate · Tonnellate target
+                        <input
+                          value={targetTonnes}
+                          onChange={(event) => setTargetTonnes(event.target.value)}
+                          inputMode="decimal"
+                          placeholder="es. 25"
+                          className={inputClass}
+                        />
+                      </label>
                       <button
                         type="button"
-                        aria-label="Aumenta di una barra"
+                        disabled={values.targetBars == null}
                         onClick={() => {
-                          const current = Math.max(0, Math.floor(parseNumber(quantity) ?? 0));
-                          setQuantity(String(current + 1));
+                          if (values.targetBars != null) setQuantity(String(values.targetBars));
                         }}
-                        className="school-secondary-action flex min-h-12 items-center justify-center px-0 py-0 text-lg"
+                        className="school-primary-action min-h-10 px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        +
+                        Usa barre suggerite
                       </button>
                     </div>
-                  </label>
+                    <p className="sr-only">
+                      Barre necessarie: {values.targetBars ?? "—"}. Tonnellate reali: {values.targetActualTonnes ?? "—"}.
+                      Per lavorare con barre intere arrotondiamo sempre per eccesso.
+                    </p>
+                  </div>
+
+                  {values.error ? (
+                    <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-800">
+                      {values.error}
+                    </p>
+                  ) : null}
                 </div>
+
+                <div className="hidden lg:block">
+                  <ParametricShapeDiagram
+                    family={family}
+                    outerDiameter={outerDiameter}
+                    width={width}
+                    height={height}
+                    thickness={thickness}
+                    standard={standard}
+                  />
+                </div>
+              </section>
+
+              <div className="hidden text-xs text-[#66736e] lg:flex lg:items-center lg:justify-between">
+                <span>Il risultato si aggiorna mentre scrivi.</span>
+                <span>{standard === "geometric" ? "Densità modificabile" : "La densità non è modificabile in modalità normativa."}</span>
               </div>
+            </div>
+          </div>
 
-              <div className="mt-4 rounded-2xl border border-[#bed3cb] bg-[#edf5f2] p-4">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p className="text-sm font-bold text-[#173f35]">Parti dalle tonnellate</p>
-                    <p className="mt-1 text-xs leading-5 text-[#5d6a65]">
-                      Inserisci il tonnellaggio che vuoi raggiungere: calcoliamo quante barre intere servono alla lunghezza selezionata.
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#1a5144]">
-                    Calcolo inverso
-                  </span>
-                </div>
-
-                <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
-                  <label className="text-xs font-semibold text-[#52615b]">
-                    Tonnellate target
-                    <input
-                      value={targetTonnes}
-                      onChange={(event) => setTargetTonnes(event.target.value)}
-                      inputMode="decimal"
-                      placeholder="es. 25"
-                      className={inputClass}
-                    />
-                  </label>
-
-                  <button
-                    type="button"
-                    disabled={values.targetBars == null}
-                    onClick={() => {
-                      if (values.targetBars != null) setQuantity(String(values.targetBars));
-                    }}
-                    className="school-primary-action min-h-12 px-4 py-3 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Usa barre suggerite
-                  </button>
-                </div>
-
-                <div className="mt-4 grid gap-2 sm:grid-cols-3">
-                  <div className="rounded-xl bg-white px-3 py-3">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#66736e]">Barre necessarie</p>
-                    <p className="metric-number mt-1 text-2xl font-semibold text-[#173f35]">
-                      {values.targetBars == null ? "—" : formatNumber(values.targetBars, 0)}
-                    </p>
-                  </div>
-                  <div className="rounded-xl bg-white px-3 py-3">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#66736e]">Metri totali</p>
-                    <p className="metric-number mt-1 text-2xl font-semibold text-[#173f35]">
-                      {values.targetMeters == null ? "—" : formatNumber(values.targetMeters, 1)}
-                      <span className="ml-1 text-sm font-semibold text-[#66736e]">m</span>
-                    </p>
-                  </div>
-                  <div className="rounded-xl bg-white px-3 py-3">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#66736e]">Tonnellate reali</p>
-                    <p className="metric-number mt-1 text-2xl font-semibold text-[#173f35]">
-                      {values.targetActualTonnes == null ? "—" : formatNumber(values.targetActualTonnes, 4)}
-                      <span className="ml-1 text-sm font-semibold text-[#66736e]">t</span>
-                    </p>
-                  </div>
-                </div>
-
-                {values.targetBarsExact != null && values.targetBars != null ? (
-                  <p className="mt-3 text-xs leading-5 text-[#5d6a65]">
-                    Calcolo teorico: {formatNumber(values.targetBarsExact, 2)} barre. Per lavorare con barre intere arrotondiamo sempre per eccesso a {values.targetBars}.
-                  </p>
-                ) : null}
-              </div>
-
-              {standard === "geometric" ? (
-                <details className="mt-4 rounded-2xl border border-[#d7e1dd] bg-white p-4">
-                  <summary className="cursor-pointer text-sm font-bold text-[#334a42]">
-                    Impostazioni avanzate
-                  </summary>
-                  <label className="mt-4 block text-xs font-semibold text-[#52615b]">
-                    Densità (kg/m³)
-                    <input
-                      value={density}
-                      onChange={(event) => setDensity(event.target.value)}
-                      inputMode="decimal"
-                      className={inputClass}
-                    />
-                    <span className="mt-1 block font-normal text-[#66736e]">
-                      Nel calcolo libero la densità è modificabile. Default acciaio: 7.850 kg/m³.
-                    </span>
-                  </label>
-                </details>
-              ) : (
-                <div className="mt-4 rounded-2xl border border-[#d7e1dd] bg-white p-4">
-                  <p className="text-sm font-bold text-[#334a42]">Massa secondo {currentStandard.label}</p>
-                  <p className="mt-1 text-xs leading-5 text-[#66736e]">
-                    Il calcolo usa la geometria di sezione e il coefficiente di massa della norma
-                    (equivalente a 7.850 kg/m³). La densità non è modificabile in modalità normativa.
-                  </p>
-                </div>
-              )}
-
-              {values.error ? (
-                <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
-                  {values.error}
-                </p>
-              ) : null}
-            </section>
-
-            <aside
-              aria-live="polite"
-              className="overflow-hidden rounded-3xl border border-[#173f35] bg-[#123d34] text-white shadow-[0_20px_50px_rgba(18,61,52,0.18)]"
-            >
-              <div className="border-b border-white/10 p-5 sm:p-6">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/60">4 · Risultato live</p>
-                    <h3 className="mt-1 text-xl font-semibold">Il numero che ti serve subito</h3>
-                  </div>
-                  <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold">
-                    {currentStandard.label} · {currentFamily.short}
-                  </span>
-                </div>
-
-                <div className="mt-8">
-                  <p className="text-xs font-bold uppercase tracking-[0.14em] text-white/60">
+          <aside
+            aria-live="polite"
+            className="flex min-h-0 flex-col bg-[#123d34] text-white lg:h-full"
+          >
+            <div className="shrink-0 border-b border-white/10 px-3 py-3 sm:px-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/55">
                     {standard === "geometric" ? "Peso al metro · calcolo libero" : `Massa lineare · ${currentStandard.label}`}
                   </p>
-                  <p className="metric-number mt-2 text-5xl font-semibold tracking-[-0.05em] sm:text-6xl">
+                  <p className="metric-number mt-1 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">
                     {values.kgM == null ? "—" : formatNumber(values.kgM, 3)}
-                    <span className="ml-2 text-xl font-semibold tracking-normal text-white/70">kg/m</span>
+                    <span className="ml-1 text-base font-semibold tracking-normal text-white/65">kg/m</span>
                   </p>
                 </div>
+                <span className="rounded-full border border-white/15 bg-white/10 px-2 py-1 text-[10px] font-bold">
+                  {currentFamily.short}
+                </span>
               </div>
 
-              <div className="grid gap-px bg-white/10 sm:grid-cols-3">
-                <div className="bg-[#16483d] p-5 sm:p-6">
-                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/60">Peso per barra · {length || "—"} m</p>
-                  <p className="metric-number mt-2 text-3xl font-semibold">
+              <div className="mt-3 grid grid-cols-3 gap-1.5">
+                <div className="rounded-xl bg-white/8 p-2">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-white/55">Peso per barra</p>
+                  <p className="metric-number mt-1 text-lg font-semibold">
                     {values.kgBar == null ? "—" : formatNumber(values.kgBar, 2)}
-                    <span className="ml-1 text-base text-white/60">kg</span>
+                    <span className="ml-1 text-[10px] text-white/55">kg</span>
                   </p>
                 </div>
-                <div className="bg-[#16483d] p-5 sm:p-6">
-                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/60">Metri totali</p>
-                  <p className="metric-number mt-2 text-3xl font-semibold">
+                <div className="rounded-xl bg-white/8 p-2">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-white/55">Metri totali</p>
+                  <p className="metric-number mt-1 text-lg font-semibold">
                     {values.totalMeters == null ? "—" : formatNumber(values.totalMeters, 1)}
-                    <span className="ml-1 text-base text-white/60">m</span>
+                    <span className="ml-1 text-[10px] text-white/55">m</span>
                   </p>
                 </div>
-                <div className="bg-[#16483d] p-5 sm:p-6">
-                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/60">
-                    Peso totale · {quantity || "—"} barre
-                  </p>
-                  <p className="metric-number mt-2 text-3xl font-semibold">
+                <div className="rounded-xl bg-white/8 p-2">
+                  <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-white/55">Peso totale</p>
+                  <p className="metric-number mt-1 text-lg font-semibold">
                     {values.totalTonnes == null ? "—" : formatNumber(values.totalTonnes, 4)}
-                    <span className="ml-1 text-base text-white/60">t</span>
+                    <span className="ml-1 text-[10px] text-white/55">t</span>
                   </p>
                 </div>
               </div>
 
-              <div className="p-5 sm:p-6">
-                {standard === "geometric" ? (
-                  <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-sm font-semibold">Riferimento tecnico trovato</p>
-                      {values.exactReference ? (
-                        <span className="rounded-full bg-white/12 px-2.5 py-1 text-[10px] font-semibold text-white">
-                          {values.exactReference.weight_method === "published" ? "Peso pubblicato" : "Verificato"}
-                        </span>
-                      ) : null}
-                    </div>
-  
-                    {values.exactReference ? (
-                      <>
-                        <p className="metric-number mt-3 text-2xl font-semibold">
-                          {formatNumber(values.exactReference.weight_kg_m, 3)} kg/m
-                        </p>
-                        {values.deltaPercent != null ? (
-                          <p className="mt-1 text-xs text-white/60">
-                            Scostamento rispetto al calcolo geometrico: {formatNumber(values.deltaPercent, 2)}%.
-                          </p>
-                        ) : null}
-                        <p className="mt-3 text-xs leading-5 text-white/60">
-                          Fonte: {values.exactReference.source_provider ?? values.exactReference.source_name ?? "fonte tecnica verificata"}.
-                          Il peso pubblicato resta separato dal risultato matematico.
-                        </p>
-                        {values.exactReference.source_url ? (
-                          <a
-                            href={values.exactReference.source_url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="mt-3 inline-flex text-xs font-bold text-white underline decoration-white/35 underline-offset-4"
-                          >
-                            Apri fonte ↗
-                          </a>
-                        ) : null}
-                      </>
-                    ) : (
-                      <>
-                        <p className="mt-2 text-sm font-semibold text-white">Nessun peso pubblicato per questa geometria</p>
-                        <p className="mt-2 text-xs leading-5 text-white/60">
-                          Il risultato resta un calcolo teorico. Non viene trasformato in un riferimento normativo o in un peso verificato solo perché la geometria è matematicamente valida.
-                        </p>
-                      </>
-                    )}
-                  </div>
-  
-  
-                ) : (
-                  <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="text-sm font-semibold">Metodo della norma applicato</p>
-                      <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-white">
-                        {currentStandard.label}
-                      </span>
-                    </div>
-                    {family === "round_tube" ? (
-                      <p className="mt-3 text-xs leading-5 text-white/70">
-                        Sezione circolare: il peso deriva dall’area della corona circolare e dal coefficiente
-                        M = 0,785 × A, con A espresso in cm².
-                      </p>
-                    ) : (
-                      <>
-                        <div className="mt-3 grid grid-cols-2 gap-2">
-                          <div className="rounded-xl bg-white/10 px-3 py-2">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-white/60">Raggio esterno rₒ</p>
-                            <p className="metric-number mt-1 text-lg font-semibold">
-                              {values.outerRadiusMm == null ? "—" : `${formatNumber(values.outerRadiusMm, 2)} mm`}
-                            </p>
-                          </div>
-                          <div className="rounded-xl bg-white/10 px-3 py-2">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-white/60">Raggio interno rᵢ</p>
-                            <p className="metric-number mt-1 text-lg font-semibold">
-                              {values.innerRadiusMm == null ? "—" : `${formatNumber(values.innerRadiusMm, 2)} mm`}
-                            </p>
-                          </div>
-                        </div>
-                        <p className="mt-3 text-xs leading-5 text-white/70">
-                          I raggi di calcolo previsti da {currentStandard.label} entrano nella sezione resistente e
-                          quindi nella massa lineare. Per questo SHS/RHS EN 10210 ed EN 10219 possono avere kg/m diversi
-                          a parità di dimensioni nominali.
-                        </p>
-                      </>
-                    )}
-                    <p className="mt-3 text-xs leading-5 text-white/60">
-                      Questo valore alimenta anche peso per barra, tonnellaggio e calcolo inverso. È un calcolo delle
-                      proprietà di sezione secondo la norma selezionata, non una certificazione del peso reale della fornitura.
-                    </p>
-                  </div>
-                )}
-
-                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-white/60">
-                  <span>Area sezione: {values.areaMm2 == null ? "—" : `${formatNumber(values.areaMm2, 2)} mm²`}</span>
-                  <span>Totale: {values.totalKg == null ? "—" : `${formatNumber(values.totalKg, 1)} kg`}</span>
+              {values.targetBars != null ? (
+                <div className="mt-2 flex items-center justify-between gap-3 rounded-xl bg-white/10 px-3 py-2 text-xs">
+                  <span>Barre necessarie <strong>{values.targetBars}</strong></span>
+                  <span>Tonnellate reali <strong>{values.targetActualTonnes == null ? "—" : formatNumber(values.targetActualTonnes, 4)} t</strong></span>
                 </div>
-              </div>
-            </aside>
-          </div>
-        </div>
-      </section>
-
-      <section
-        aria-labelledby="calculator-retention"
-        className="rounded-3xl border border-[#cddbd6] bg-[linear-gradient(135deg,#f7fbf9_0%,#ffffff_65%)] p-5 shadow-[0_12px_36px_rgba(18,61,52,0.06)] sm:p-7"
-      >
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div className="max-w-2xl">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Uso quotidiano</p>
-            <h2 id="calculator-retention" className="mt-2 text-2xl font-semibold text-[#173f35]">
-              Tieni il calcolatore a portata di mano
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-[#66736e]">
-              Ultimi calcoli e preferiti restano su questo dispositivo. Nessuna misura o quantità viene inviata al backend per questa funzione.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            disabled={!currentSnapshot}
-            onClick={() => {
-              if (!currentSnapshot) return;
-              if (calculatorSaved) {
-                writeSavedCalculator(null);
-                setCalculatorSaved(false);
-                setActionFeedback("Salvataggio del calcolatore rimosso.");
-                return;
-              }
-              writeSavedCalculator(currentSnapshot);
-              setCalculatorSaved(true);
-              setActionFeedback("Calcolatore salvato su questo dispositivo.");
-            }}
-            className={
-              calculatorSaved
-                ? "school-selected-control min-h-12 px-4 py-3 text-sm font-bold disabled:opacity-50"
-                : "school-primary-action min-h-12 px-4 py-3 disabled:opacity-50"
-            }
-          >
-            {calculatorSaved ? "Calcolatore salvato ✓" : "Salva il Calcolatore"}
-          </button>
-        </div>
-
-        <div className="mt-5 grid gap-2 sm:grid-cols-3">
-          <button
-            type="button"
-            disabled={!currentSnapshot}
-            onClick={async () => {
-              if (!currentSnapshot) return;
-              await copyTextToClipboard(resultText(currentSnapshot));
-              setActionFeedback("Risultato copiato.");
-            }}
-            className="school-secondary-action min-h-12 justify-center px-4 py-3 disabled:opacity-50"
-          >
-            Copia risultato
-          </button>
-          <button
-            type="button"
-            disabled={!currentSnapshot}
-            onClick={async () => {
-              if (!currentSnapshot) return;
-              await copyTextToClipboard(shareUrl(currentSnapshot));
-              setActionFeedback("Link condivisibile copiato.");
-            }}
-            className="school-secondary-action min-h-12 justify-center px-4 py-3 disabled:opacity-50"
-          >
-            Copia link
-          </button>
-          <button
-            type="button"
-            disabled={!currentSnapshot}
-            aria-pressed={currentIsFavorite}
-            onClick={() => {
-              if (!currentSnapshot) return;
-              if (currentIsFavorite) {
-                saveFavorites(favoriteCalculations.filter((item) => item.key !== currentSnapshot.key));
-                setActionFeedback("Rimosso dai preferiti.");
-              } else {
-                const next = [
-                  { ...currentSnapshot, savedAt: new Date().toISOString() },
-                  ...favoriteCalculations.filter((item) => item.key !== currentSnapshot.key),
-                ].slice(0, WC4_MAX_FAVORITES);
-                saveFavorites(next);
-                setActionFeedback("Calcolo aggiunto ai preferiti.");
-              }
-            }}
-            className={
-              currentIsFavorite
-                ? "school-selected-control min-h-12 justify-center px-4 py-3 text-sm font-bold disabled:opacity-50"
-                : "school-secondary-action min-h-12 justify-center px-4 py-3 disabled:opacity-50"
-            }
-          >
-            {currentIsFavorite ? "Preferito ★" : "Aggiungi ai preferiti ☆"}
-          </button>
-        </div>
-
-        <p aria-live="polite" className="mt-3 min-h-5 text-xs font-semibold text-[#1a5144]">
-          {actionFeedback}
-        </p>
-
-        <div className="mt-5 grid gap-5 lg:grid-cols-2">
-          <div className="rounded-2xl border border-[#dce5e1] bg-white p-4 sm:p-5">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#66736e]">Ultimi calcoli</p>
-                <p className="mt-1 text-xs text-[#7b8782]">Aggiornati automaticamente sul dispositivo.</p>
-              </div>
-              {recentCalculations.length ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setRecentCalculations([]);
-                    window.localStorage.removeItem(WC4_RECENTS_KEY);
-                    setActionFeedback("Cronologia locale svuotata.");
-                  }}
-                  className="text-xs font-bold text-[#1a5144] underline decoration-[#b8d2c8] underline-offset-4"
-                >
-                  Svuota
-                </button>
               ) : null}
             </div>
-            <div className="mt-4 space-y-2">
-              {recentCalculations.length ? (
-                recentCalculations.map((calculation) => (
-                  <div key={`${calculation.key}-${calculation.savedAt}`} className="flex items-center justify-between gap-3 rounded-xl bg-[#f6f8f7] p-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-[#263a33]">
-                        {calculationStandardLabel(calculation)} · {calculationDimensionLabel(calculation)}
-                      </p>
-                      <p className="mt-1 text-xs text-[#66736e]">
-                        {formatNumber(calculation.kgM, 3)} kg/m · {calculation.quantity} barre · {formatNumber(calculation.totalTonnes, 4)} t
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => restoreCalculation(calculation)}
-                      className="school-secondary-action shrink-0 px-3 py-2 text-xs"
-                    >
-                      Ripristina
-                    </button>
-                  </div>
-                ))
-              ) : (
-                <p className="rounded-xl bg-[#f6f8f7] p-4 text-sm text-[#66736e]">
-                  I prossimi calcoli validi compariranno qui automaticamente.
-                </p>
-              )}
-            </div>
-          </div>
 
-          <div className="rounded-2xl border border-[#dce5e1] bg-white p-4 sm:p-5">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#66736e]">Preferiti</p>
-              <p className="mt-1 text-xs text-[#7b8782]">Salva le misure che richiami più spesso.</p>
-            </div>
-            <div className="mt-4 space-y-2">
-              {favoriteCalculations.length ? (
-                favoriteCalculations.map((calculation) => (
-                  <div key={calculation.key} className="flex items-center justify-between gap-3 rounded-xl bg-[#f6f8f7] p-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-[#263a33]">
-                        {calculationStandardLabel(calculation)} · {calculationDimensionLabel(calculation)}
+            <div className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4">
+              <div className="grid grid-cols-3 gap-1.5">
+                <button
+                  type="button"
+                  disabled={!currentSnapshot}
+                  onClick={async () => {
+                    if (!currentSnapshot) return;
+                    await copyTextToClipboard(resultText(currentSnapshot));
+                    setActionFeedback("Risultato copiato.");
+                  }}
+                  className="rounded-xl border border-white/15 bg-white/10 px-2 py-2 text-xs font-bold hover:bg-white/15 disabled:opacity-40"
+                >
+                  Copia risultato
+                </button>
+                <button
+                  type="button"
+                  disabled={!currentSnapshot}
+                  onClick={async () => {
+                    if (!currentSnapshot) return;
+                    await copyTextToClipboard(shareUrl(currentSnapshot));
+                    setActionFeedback("Link condivisibile copiato.");
+                  }}
+                  className="rounded-xl border border-white/15 bg-white/10 px-2 py-2 text-xs font-bold hover:bg-white/15 disabled:opacity-40"
+                >
+                  Copia link
+                </button>
+                <button
+                  type="button"
+                  disabled={!currentSnapshot}
+                  aria-pressed={currentIsFavorite}
+                  onClick={() => {
+                    if (!currentSnapshot) return;
+                    if (currentIsFavorite) {
+                      saveFavorites(favoriteCalculations.filter((item) => item.key !== currentSnapshot.key));
+                      setActionFeedback("Rimosso dai preferiti.");
+                    } else {
+                      const next = [
+                        { ...currentSnapshot, savedAt: new Date().toISOString() },
+                        ...favoriteCalculations.filter((item) => item.key !== currentSnapshot.key),
+                      ].slice(0, WC4_MAX_FAVORITES);
+                      saveFavorites(next);
+                      setActionFeedback("Calcolo aggiunto ai preferiti.");
+                    }
+                  }}
+                  className={
+                    currentIsFavorite
+                      ? "rounded-xl border border-white bg-white px-2 py-2 text-xs font-bold text-[#123d34]"
+                      : "rounded-xl border border-white/15 bg-white/10 px-2 py-2 text-xs font-bold hover:bg-white/15 disabled:opacity-40"
+                  }
+                >
+                  {currentIsFavorite ? "Preferito ★" : "Aggiungi ai preferiti ☆"}
+                </button>
+              </div>
+
+              <p aria-live="polite" className="mt-2 min-h-4 text-[10px] font-semibold text-white/70">
+                {actionFeedback}
+              </p>
+
+              <details className="mt-2 rounded-xl border border-white/10 bg-white/5">
+                <summary className="cursor-pointer px-3 py-2 text-xs font-bold">
+                  Metodo e provenienza
+                </summary>
+                <div className="border-t border-white/10 px-3 py-2 text-xs leading-5 text-white/65">
+                  {standard === "geometric" ? (
+                    <>
+                      <p className="font-semibold text-white">Riferimento tecnico trovato</p>
+                      {values.exactReference ? (
+                        <>
+                          <p className="mt-1">{formatNumber(values.exactReference.weight_kg_m, 3)} kg/m · {values.exactReference.weight_method === "published" ? "Peso pubblicato" : "Verificato"}</p>
+                          {values.deltaPercent != null ? <p>Scostamento rispetto al calcolo geometrico: {formatNumber(values.deltaPercent, 2)}%.</p> : null}
+                          {values.exactReference.source_url ? (
+                            <a href={values.exactReference.source_url} target="_blank" rel="noreferrer" className="mt-1 inline-flex underline">
+                              {values.exactReference.source_provider ?? "Fonte"} ↗
+                            </a>
+                          ) : null}
+                        </>
+                      ) : (
+                        <>
+                          <p className="mt-1 font-semibold text-white">Nessun peso pubblicato per questa geometria</p>
+                          <p>Il risultato resta un calcolo teorico. Non viene trasformato in un riferimento normativo o in un peso verificato solo perché la geometria è matematicamente valida.</p>
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <p className="font-semibold text-white">Metodo della norma applicato · {currentStandard.label}</p>
+                      {family !== "round_tube" ? (
+                        <p className="mt-1">
+                          rₒ {values.outerRadiusMm == null ? "—" : formatNumber(values.outerRadiusMm, 2)} mm · rᵢ {values.innerRadiusMm == null ? "—" : formatNumber(values.innerRadiusMm, 2)} mm
+                        </p>
+                      ) : null}
+                      <p className="mt-1">
+                        Questo valore alimenta anche peso per barra, tonnellaggio e calcolo inverso.
                       </p>
-                      <p className="mt-1 text-xs text-[#66736e]">
-                        {formatNumber(calculation.kgM, 3)} kg/m · barra {calculation.length} m
-                      </p>
+                    </>
+                  )}
+                  <p className="mt-1">Area sezione: {values.areaMm2 == null ? "—" : `${formatNumber(values.areaMm2, 2)} mm²`}</p>
+                </div>
+              </details>
+
+              <details className="mt-2 rounded-xl border border-white/10 bg-white/5">
+                <summary className="cursor-pointer px-3 py-2 text-xs font-bold">
+                  Ultimi calcoli e preferiti
+                </summary>
+                <div className="grid gap-3 border-t border-white/10 p-2.5 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-white/55">Ultimi calcoli</p>
+                      {recentCalculations.length ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setRecentCalculations([]);
+                            window.localStorage.removeItem(WC4_RECENTS_KEY);
+                            setActionFeedback("Cronologia locale svuotata.");
+                          }}
+                          className="text-[10px] font-bold underline"
+                        >
+                          Svuota
+                        </button>
+                      ) : null}
                     </div>
-                    <div className="flex shrink-0 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => restoreCalculation(calculation)}
-                        className="school-secondary-action px-3 py-2 text-xs"
-                      >
-                        Apri
-                      </button>
-                      <button
-                        type="button"
-                        aria-label={`Rimuovi ${calculationDimensionLabel(calculation)} dai preferiti`}
-                        onClick={() => saveFavorites(favoriteCalculations.filter((item) => item.key !== calculation.key))}
-                        className="school-secondary-action px-3 py-2 text-xs"
-                      >
-                        ×
-                      </button>
+                    <div className="mt-1.5 space-y-1">
+                      {recentCalculations.length ? recentCalculations.slice(0, 4).map((calculation) => (
+                        <button
+                          type="button"
+                          key={`${calculation.key}-${calculation.savedAt}`}
+                          onClick={() => restoreCalculation(calculation)}
+                          className="block w-full rounded-lg bg-white/8 px-2 py-1.5 text-left text-[10px] hover:bg-white/12"
+                        >
+                          <span className="block truncate font-bold">{calculationStandardLabel(calculation)} · {calculationDimensionLabel(calculation)}</span>
+                          <span className="text-white/55">{formatNumber(calculation.kgM, 3)} kg/m · Ripristina</span>
+                        </button>
+                      )) : (
+                        <p className="text-[10px] text-white/55">Nessun calcolo recente.</p>
+                      )}
                     </div>
                   </div>
-                ))
-              ) : (
-                <p className="rounded-xl bg-[#f6f8f7] p-4 text-sm text-[#66736e]">
-                  Usa “Aggiungi ai preferiti” per creare la tua raccolta rapida.
-                </p>
-              )}
+
+                  <div>
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-white/55">Preferiti</p>
+                    <div className="mt-1.5 space-y-1">
+                      {favoriteCalculations.length ? favoriteCalculations.slice(0, 4).map((calculation) => (
+                        <div key={calculation.key} className="flex items-center gap-1 rounded-lg bg-white/8 p-1">
+                          <button
+                            type="button"
+                            onClick={() => restoreCalculation(calculation)}
+                            className="min-w-0 flex-1 px-1.5 py-1 text-left text-[10px]"
+                          >
+                            <span className="block truncate font-bold">{calculationStandardLabel(calculation)} · {calculationDimensionLabel(calculation)}</span>
+                          </button>
+                          <button
+                            type="button"
+                            aria-label={`Rimuovi ${calculationDimensionLabel(calculation)} dai preferiti`}
+                            onClick={() => saveFavorites(favoriteCalculations.filter((item) => item.key !== calculation.key))}
+                            className="rounded-md px-2 py-1 text-xs font-bold hover:bg-white/10"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      )) : (
+                        <p className="text-[10px] text-white/55">Aggiungi ai preferiti le misure che usi più spesso.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </details>
+
+              <p className="sr-only">Nessuna misura o quantità viene inviata al backend per questa funzione.</p>
             </div>
-          </div>
+          </aside>
         </div>
       </section>
 
