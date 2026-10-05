@@ -34,7 +34,7 @@ export default function CommercialHomePage() {
     <FocusPage>
       <FocusHeader
         eyebrow="Commerciale"
-        title="Lavora sulla memoria commerciale"
+        title="Memoria, ricerca e intelligence commerciale"
         description="Parti dalla ricerca. Prodotti, aziende, documenti e intelligence restano strumenti di approfondimento, non punti d’ingresso concorrenti."
       />
 
