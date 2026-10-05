@@ -4,11 +4,15 @@ import { appRoutes } from "@/lib/routes";
 export default function SchoolPage() {
   return (
     <FocusPage>
-      <FocusHeader
-        eyebrow="Scuola"
-        title="Conoscenza tecnica, senza rumore"
-        description="Il calcolatore è il punto di partenza operativo. Norme, gradi e knowledge privata restano a un click quando servono."
-      />
+      <header className="mvp-focus-header">
+        <p className="app-kicker">Scuola</p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-[-0.025em] text-[#1d2824] sm:text-[2.15rem]">
+          Formazione e conoscenza tecnica
+        </h1>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-[#66736e] sm:text-base">
+          Il calcolatore è il punto di partenza operativo. Norme, gradi e knowledge privata restano a un click quando servono.
+        </p>
+      </header>
 
       <FocusPanel>
         <p className="app-kicker">Strumento principale</p>
@@ -39,7 +43,7 @@ export default function SchoolPage() {
           />
           <FocusLink
             href={appRoutes.knowledge.catalog}
-            title="Catalogo tecnico"
+            title="Steel Knowledge"
             description="Apri la base pubblica completa della Scuola."
             meta="Pubblico"
           />
