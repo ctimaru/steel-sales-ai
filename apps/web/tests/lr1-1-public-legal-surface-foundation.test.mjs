@@ -27,8 +27,8 @@ test("LR1.1 legal identity is environment-driven and incomplete identities are n
 });
 
 test("LR1.1 publishes the four minimum public legal surfaces", () => {
-  assert.match(privacy, /Privacy/);
-  assert.match(cookies, /Cookie Policy/);
+  assert.match(privacy, /Privacy Policy/);
+  assert.match(cookies, /Cookie & Tracking Policy/);
   assert.match(terms, /Termini d’uso/);
   assert.match(legalPage, /Informazioni legali/);
   for (const source of [privacy, cookies, terms, legalPage]) {
