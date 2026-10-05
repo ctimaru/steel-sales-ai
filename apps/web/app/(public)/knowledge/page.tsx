@@ -59,7 +59,7 @@ export default function KnowledgeHomePage() {
         title="Conoscenza tecnica per chi lavora con acciaio e tubi"
         description={
           <>
-            Parti dal problema tecnico: calcola un peso, poi approfondisci norma o grado. La Scuola è
+            Parti dal problema tecnico: calcola un peso, poi approfondisci norma o grado. È consultabile senza account. La Scuola è
             pubblica e separata dai dati commerciali privati delle aziende.
           </>
         }
