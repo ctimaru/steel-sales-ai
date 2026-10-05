@@ -10,7 +10,7 @@ const secondary = [
   {
     href: appRoutes.commercial.companies,
     title: "Aziende commerciali",
-    description: "Clienti, fornitori e storico delle relazioni private del workspace.",
+    description: "Company 360 con clienti, fornitori e storico delle relazioni private del workspace.",
   },
   {
     href: appRoutes.commercial.assistant,
