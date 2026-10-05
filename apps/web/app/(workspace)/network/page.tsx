@@ -107,14 +107,14 @@ export default async function NetworkDirectoryPage({
 
       <FocusHeader
         eyebrow="Network"
-        title="Trova un’azienda"
-        description="Cerca per nome o dominio. Tipologia di filiera e filtri avanzati servono solo per restringere i risultati; la Commercial Memory resta privata e separata."
+        title="Trova aziende e costruisci relazioni nel settore steel"
+        description="Cerca per nome o dominio. Tipologia e filtri servono solo per restringere i risultati; la Commercial Memory resta privata. Le aziende salvate, quelle seguite e i loro aggiornamenti sono sempre nel menu Network."
       />
 
       <section id="directory" className="space-y-3">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Directory aziende</p>
-          <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Scorciatoie filiera</h2>
+          <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Da dove vuoi partire?</h2>
           <p className="mt-1 text-sm text-[#66736e]">Seleziona una tipologia solo se ti aiuta a restringere la ricerca.</p>
         </div>
 
