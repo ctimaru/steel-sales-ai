@@ -62,10 +62,10 @@ export default async function DashboardPage() {
     <FocusPage>
       <FocusHeader
         eyebrow="Workspace"
-        title="Cosa richiede attenzione oggi"
+        title="Il centro operativo della tua azienda"
         description={
           <>
-            Parti dalle priorità operative e dalla memoria commerciale. Network, Marketplace e Scuola
+            Oggi nel workspace: parti dalle priorità operative e dalla memoria commerciale. Network, Marketplace e Scuola
             restano disponibili dalla navigazione principale senza competere con il lavoro quotidiano.
             <span className="mt-2 block text-xs font-semibold text-[#78857f]">
               {workspaceRoleLabel(context.role)} · Area privata aziendale
