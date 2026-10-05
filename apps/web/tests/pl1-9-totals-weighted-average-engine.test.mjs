@@ -33,7 +33,7 @@ test("PL1.9 computes weighted €/t from total value divided by total tonnes, ne
   assert.doesNotMatch(contract, /reduce[\s\S]*netEurT/);
   assert.doesNotMatch(contract, /average.*netEurT/i);
   assert.match(distinta, /€\/t medio ponderato/);
-  assert.match(distinta, /Media ponderata = valore totale ÷ tonnellate totali/);
+  assert.match(contract, /Media ponderata = valore totale ÷ tonnellate totali/);
 });
 
 test("PL1.9 withholds weighted average until every selected line has value and governed tonnes", () => {
