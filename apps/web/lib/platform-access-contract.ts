@@ -445,6 +445,7 @@ export const ROOT_ONLY_PERMISSIONS = [
 
 export const PLATFORM_ROUTE_PERMISSION_CONTRACT = [
   { route: "/platform", permission: "platform.console.access" },
+  { route: "/platform/labs", permission: "platform.console.access" },
   { route: "/platform/people", permission: "platform.staff.read" },
   { route: "/platform/audit", permission: "platform.audit.read" },
   { route: "/platform/registrations", permission: "registrations.read" },

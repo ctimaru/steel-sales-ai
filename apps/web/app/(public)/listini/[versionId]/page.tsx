@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { PrivateDiscountProfilesPanel } from "@/components/private-discount-profiles-panel";
 import { PublicPriceListExplorer } from "@/components/public-price-list-explorer";
@@ -9,6 +9,7 @@ import {
   getPriceListExplorerVersion,
   getPriceListPublicationReadiness,
   getPriceListPublicNotices,
+  getPriceListSourceRightsReview,
   getPrivatePricingContext,
 } from "@/lib/price-list-explorer-server";
 import { absoluteUrl } from "@/lib/site";
@@ -135,11 +136,22 @@ export default async function PriceListExplorerPage({
     getPriceListPublicNotices(versionId, includeInternal),
   ]);
 
-  if (!version) notFound();
+  if (!version) {
+    if (includeInternal && !privatePricing.authenticated) {
+      redirect(
+        "/login?next=" +
+          encodeURIComponent("/listini/" + versionId + "?preview=1"),
+      );
+    }
+    notFound();
+  }
 
-  const publicationReadiness = version.is_internal_preview
-    ? await getPriceListPublicationReadiness(versionId)
-    : null;
+  const [publicationReadiness, sourceRightsReview] = version.is_internal_preview
+    ? await Promise.all([
+        getPriceListPublicationReadiness(versionId),
+        getPriceListSourceRightsReview(versionId),
+      ])
+    : [null, null];
 
   const readyPct =
     version.item_count > 0
@@ -238,6 +250,50 @@ export default async function PriceListExplorerPage({
                   </span>
                 ))}
               </div>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
+
+      {sourceRightsReview ? (
+        <section className="rounded-2xl border border-rose-200 bg-rose-50 p-4 sm:p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="max-w-3xl">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-rose-900">
+                PP1.1 · Publication Rights
+              </p>
+              <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">
+                Autorizzazione scritta richiesta prima della pubblicazione
+              </h2>
+              <p className="mt-2 text-xs leading-5 text-[#66736e]">
+                Citare Padana Tubi come fonte non costituisce, da solo, un&apos;autorizzazione alla
+                riproduzione o al reimpiego pubblico del listino strutturato. La decisione corrente è{" "}
+                <strong>{sourceRightsReview.decision}</strong> e i dati restano{" "}
+                <strong>{sourceRightsReview.structured_data_visibility}</strong>.
+              </p>
+              {sourceRightsReview.evidence_snapshot.public_linking_policy ? (
+                <p className="mt-2 text-xs leading-5 text-[#66736e]">
+                  {sourceRightsReview.evidence_snapshot.public_linking_policy}
+                </p>
+              ) : null}
+            </div>
+
+            {sourceRightsReview.terms_reference ? (
+              <a
+                href={sourceRightsReview.terms_reference}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl border border-rose-200 bg-white px-4 text-xs font-semibold text-rose-900 hover:bg-rose-100"
+              >
+                Note legali della fonte
+              </a>
+            ) : null}
+          </div>
+
+          {sourceRightsReview.evidence_snapshot.required_next_evidence ? (
+            <div className="mt-4 border-t border-rose-200 pt-3 text-xs leading-5 text-rose-950">
+              <strong>Per sbloccare:</strong>{" "}
+              {sourceRightsReview.evidence_snapshot.required_next_evidence}
             </div>
           ) : null}
         </section>

@@ -121,3 +121,23 @@ export type PriceListPublicationReadiness = {
   blockers: PriceListPublicationIssue[];
   warnings: PriceListPublicationIssue[];
 };
+
+
+export type PriceListSourceRightsReview = {
+  decision: string;
+  raw_document_visibility: string;
+  structured_data_visibility: string;
+  attribution_requirement: string | null;
+  terms_reference: string | null;
+  evidence_snapshot: {
+    reviewed_at?: string;
+    source_pdf_url?: string;
+    official_attachment_page?: string;
+    legal_notes_url?: string;
+    rights_findings?: string[];
+    public_linking_policy?: string;
+    required_next_evidence?: string;
+  };
+  rationale: string | null;
+  decided_at: string;
+};
