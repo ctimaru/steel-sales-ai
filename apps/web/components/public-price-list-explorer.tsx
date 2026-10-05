@@ -7,6 +7,10 @@ import type {
   PriceListCatalogEntry,
   PriceListExplorerItem,
 } from "@/lib/public-price-lists";
+import type {
+  EffectiveDiscount,
+  PrivatePricingContext,
+} from "@/lib/private-pricing";
 
 const PAGE_SIZE = 75;
 
@@ -74,21 +78,49 @@ function netPricePerTonne(
 export function PublicPriceListExplorer({
   version,
   items,
+  privatePricing,
 }: {
   version: PriceListCatalogEntry;
   items: PriceListExplorerItem[];
+  privatePricing?: PrivatePricingContext;
 }) {
   const [query, setQuery] = useState("");
   const [shape, setShape] = useState("all");
   const [grade, setGrade] = useState("all");
   const [finish, setFinish] = useState("all");
   const [discountInput, setDiscountInput] = useState("0");
+  const [pricingMode, setPricingMode] = useState<"manual" | "saved">(
+    privatePricing?.effectiveDiscounts.length ? "saved" : "manual",
+  );
   const [page, setPage] = useState(1);
 
-  const discountPct = Math.min(
+  const manualDiscountPct = Math.min(
     100,
     Math.max(0, Number(discountInput.replace(",", ".")) || 0),
   );
+
+  const effectiveDiscountByItem = useMemo(
+    () =>
+      new Map(
+        (privatePricing?.effectiveDiscounts ?? []).map((discount) => [
+          discount.price_list_item_id,
+          discount,
+        ]),
+      ),
+    [privatePricing?.effectiveDiscounts],
+  );
+
+  const savedCoverage = effectiveDiscountByItem.size;
+
+  function effectiveDiscountForRow(row: PriceListExplorerItem): EffectiveDiscount | null {
+    return effectiveDiscountByItem.get(row.item_id) ?? null;
+  }
+
+  function discountForRow(row: PriceListExplorerItem) {
+    if (pricingMode === "manual") return manualDiscountPct;
+    const saved = effectiveDiscountForRow(row);
+    return saved ? Number(saved.discount_pct) : 0;
+  }
 
   const shapeOptions = useMemo(
     () => [...new Set(items.map((row) => row.shape_code).filter(Boolean))].sort(),
@@ -217,19 +249,56 @@ export function PublicPriceListExplorer({
             </label>
           </div>
 
-          <label className="block min-w-[190px] text-xs font-semibold text-[#173f35]">
-            Sconto commerciale %
-            <div className="mt-1.5 flex h-10 items-center overflow-hidden rounded-xl border border-[#9ebfb3] bg-[#edf5f2]">
-              <input
-                inputMode="decimal"
-                value={discountInput}
-                onChange={(event) => setDiscountInput(event.target.value)}
-                className="h-full min-w-0 flex-1 bg-transparent px-3 text-right text-sm font-bold text-[#173f35] outline-none"
-                aria-label="Sconto commerciale percentuale"
-              />
-              <span className="pr-3 text-sm font-bold text-[#173f35]">%</span>
-            </div>
-          </label>
+          <div className="min-w-[220px]">
+            {privatePricing?.authenticated && privatePricing.effectiveDiscounts.length > 0 ? (
+              <div className="mb-2 flex rounded-xl border border-[#d7dfdb] bg-[#f6f8f7] p-1 text-xs font-semibold">
+                <button
+                  type="button"
+                  onClick={() => setPricingMode("saved")}
+                  className={[
+                    "flex-1 rounded-lg px-3 py-2 transition",
+                    pricingMode === "saved"
+                      ? "bg-white text-[#173f35] shadow-sm"
+                      : "text-[#66736e]",
+                  ].join(" ")}
+                >
+                  Profili salvati
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPricingMode("manual")}
+                  className={[
+                    "flex-1 rounded-lg px-3 py-2 transition",
+                    pricingMode === "manual"
+                      ? "bg-white text-[#173f35] shadow-sm"
+                      : "text-[#66736e]",
+                  ].join(" ")}
+                >
+                  Manuale
+                </button>
+              </div>
+            ) : null}
+
+            {pricingMode === "manual" ? (
+              <label className="block text-xs font-semibold text-[#173f35]">
+                Sconto commerciale %
+                <div className="mt-1.5 flex h-10 items-center overflow-hidden rounded-xl border border-[#9ebfb3] bg-[#edf5f2]">
+                  <input
+                    inputMode="decimal"
+                    value={discountInput}
+                    onChange={(event) => setDiscountInput(event.target.value)}
+                    className="h-full min-w-0 flex-1 bg-transparent px-3 text-right text-sm font-bold text-[#173f35] outline-none"
+                    aria-label="Sconto commerciale percentuale"
+                  />
+                  <span className="pr-3 text-sm font-bold text-[#173f35]">%</span>
+                </div>
+              </label>
+            ) : (
+              <div className="rounded-xl border border-[#9ebfb3] bg-[#edf5f2] px-3 py-2.5 text-xs text-[#173f35]">
+                <strong>{savedCoverage}</strong> articoli coperti dai profili privati
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[#e7ece9] pt-3 text-xs text-[#66736e]">
@@ -237,7 +306,11 @@ export function PublicPriceListExplorer({
             <strong className="text-[#1d2824]">{filtered.length}</strong> articoli ·{" "}
             <strong className="text-[#1d2824]">{readyCount}</strong> con €/t disponibile
           </p>
-          <p>Sconto temporaneo · non viene salvato</p>
+          <p>
+            {pricingMode === "saved"
+              ? "Prezzi privati · profili salvati applicati per precedenza"
+              : "Sconto temporaneo · non viene salvato"}
+          </p>
         </div>
       </section>
 
@@ -258,13 +331,16 @@ export function PublicPriceListExplorer({
                 <th className="px-3 py-3">kg/m</th>
                 <th className="px-3 py-3">Base €/m</th>
                 <th className="px-3 py-3">Extra €/m</th>
+                <th className="px-3 py-3">Sconto</th>
                 <th className="px-3 py-3">Netto €/m</th>
                 <th className="px-4 py-3">Netto €/t</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#edf0ee]">
               {visibleRows.map((row) => {
-                const netM = netPricePerMeter(row, discountPct, version.pricing_formula);
+                const appliedDiscountPct = discountForRow(row);
+                const savedDiscount = effectiveDiscountForRow(row);
+                const netM = netPricePerMeter(row, appliedDiscountPct, version.pricing_formula);
                 const netT = netPricePerTonne(row, netM);
                 return (
                   <tr key={row.item_id} className="align-top hover:bg-[#fafcfb]">
@@ -293,6 +369,16 @@ export function PublicPriceListExplorer({
                     <td className="whitespace-nowrap px-3 py-3 tabular-nums text-[#43524c]">
                       {formatNumber(toNumber(row.fixed_extra_eur_m), 4)}
                     </td>
+                    <td className="whitespace-nowrap px-3 py-3">
+                      <span className="font-semibold tabular-nums text-[#43524c]">
+                        {formatNumber(appliedDiscountPct, 2)}%
+                      </span>
+                      {pricingMode === "saved" && savedDiscount ? (
+                        <p className="mt-1 text-[9px] font-semibold uppercase tracking-wide text-[#7a8781]">
+                          {savedDiscount.scope_type.replaceAll("_", " ")}
+                        </p>
+                      ) : null}
+                    </td>
                     <td className="whitespace-nowrap px-3 py-3 font-semibold tabular-nums text-[#173f35]">
                       {formatNumber(netM, 4)}
                     </td>
@@ -320,7 +406,9 @@ export function PublicPriceListExplorer({
 
       <div className="grid gap-3 lg:hidden">
         {visibleRows.map((row) => {
-          const netM = netPricePerMeter(row, discountPct, version.pricing_formula);
+          const appliedDiscountPct = discountForRow(row);
+          const savedDiscount = effectiveDiscountForRow(row);
+          const netM = netPricePerMeter(row, appliedDiscountPct, version.pricing_formula);
           const netT = netPricePerTonne(row, netM);
           return (
             <article key={row.item_id} className="rounded-2xl border border-[#dce2df] bg-white p-4">
@@ -352,6 +440,17 @@ export function PublicPriceListExplorer({
                   <p className="mt-1 font-semibold tabular-nums text-[#1d2824]">
                     {formatNumber(toNumber(row.fixed_extra_eur_m), 4)}
                   </p>
+                </div>
+                <div className="rounded-xl bg-[#f7f9f8] p-3">
+                  <p className="text-[#7a8781]">Sconto</p>
+                  <p className="mt-1 font-semibold tabular-nums text-[#1d2824]">
+                    {formatNumber(appliedDiscountPct, 2)}%
+                  </p>
+                  {pricingMode === "saved" && savedDiscount ? (
+                    <p className="mt-1 text-[9px] font-semibold uppercase tracking-wide text-[#7a8781]">
+                      {savedDiscount.scope_type.replaceAll("_", " ")}
+                    </p>
+                  ) : null}
                 </div>
                 <div className="rounded-xl bg-[#edf5f2] p-3">
                   <p className="text-[#527268]">Netto €/m</p>
