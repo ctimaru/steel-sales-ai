@@ -72,7 +72,7 @@ export function PriceListDistinta({
       line,
       weightKgM,
       calculation,
-      issue: distintaIssueLabel(calculation.issue),
+      issue: line.pricingIssue ?? distintaIssueLabel(calculation.issue),
     };
   });
 
