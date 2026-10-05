@@ -30,7 +30,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
         Vai al contenuto principale
       </a>
       <header className="border-b border-[#dce2df] bg-white">
-        <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex min-h-16 max-w-[1180px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <div className="flex min-w-0 items-center gap-5">
             <ProductBrand href="/" />
             <Link
@@ -76,7 +76,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
         </div>
         <div className="border-t border-[#e2e7e4] bg-[#f7f8f7] md:hidden">
           <nav
-            className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-2.5 sm:px-6"
+            className="mx-auto flex max-w-[1180px] gap-2 overflow-x-auto px-4 py-2.5 sm:px-6"
             aria-label="Sezioni Scuola"
           >
             {[
@@ -99,12 +99,12 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
         </div>
       </header>
 
-      <main id="main-content" tabIndex={-1}>{children}</main>
+      <main id="main-content" tabIndex={-1} className="mvp-focus-shell">{children}</main>
 
       <SchoolClaimCta />
 
       <footer className="mt-16 border-t border-[#dce2df] bg-white">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 text-sm text-[#66736e] sm:px-6 md:grid-cols-[1fr_auto] lg:px-8">
+        <div className="mx-auto grid max-w-[1180px] gap-6 px-4 py-8 text-sm text-[#66736e] sm:px-6 md:grid-cols-[1fr_auto] lg:px-8">
           <div>
             <p className="font-semibold text-[#1d2824]">Scuola</p>
             <p className="mt-1 max-w-2xl text-xs leading-5">
