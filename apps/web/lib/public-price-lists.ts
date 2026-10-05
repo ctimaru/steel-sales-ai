@@ -74,3 +74,50 @@ export async function listPublicPriceLists(): Promise<PriceListCatalogEntry[]> {
 
   return Array.isArray(data) ? (data as PriceListCatalogEntry[]) : [];
 }
+
+
+export type PriceListPublicNotice = {
+  notice_code: string;
+  title: string;
+  body: string;
+  severity: "warning" | "info" | string;
+  calculation_order: number;
+};
+
+export type PriceListPublicationIssue = {
+  code: string;
+  message: string;
+  count?: number;
+  ready?: number;
+  total?: number;
+  missing?: number;
+  decision?: string | null;
+  structured_visibility?: string | null;
+  status?: string;
+  publication_scope?: string;
+};
+
+export type PriceListPublicationReadiness = {
+  version_id: string;
+  manufacturer_version_code: string;
+  status: string;
+  publication_scope: string;
+  ready_to_publish: boolean;
+  metrics: {
+    item_count: number;
+    price_per_m_ready: number;
+    price_per_t_ready: number;
+    price_per_t_missing: number;
+    price_per_t_coverage_pct: number;
+    import_error_items: number;
+    import_review_items: number;
+    review_required_rules: number;
+  };
+  source_governance: {
+    decision: string | null;
+    structured_visibility: string | null;
+    sha256_ready: boolean;
+  };
+  blockers: PriceListPublicationIssue[];
+  warnings: PriceListPublicationIssue[];
+};
