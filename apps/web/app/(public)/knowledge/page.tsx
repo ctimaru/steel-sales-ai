@@ -25,7 +25,7 @@ const knowledgeAreas = [
     eyebrow: "Calcolatore",
     title: "Calcola peso, barre e tonnellate",
     description: "EN 10210, EN 10219 e calcolo libero con kg/m, peso barra e tonnellaggio.",
-    status: "Pesi & dimensioni",
+    status: "Utility",
     href: "/knowledge/tubes",
   },
   {
@@ -73,7 +73,7 @@ export default function KnowledgeHomePage() {
           href={`${knowledgeAreas[0].href}?source=school&surface=home_card#calcolatore-pesi`}
           title={knowledgeAreas[0].title}
           description={knowledgeAreas[0].description}
-          meta={knowledgeAreas[0].eyebrow}
+          meta={`${knowledgeAreas[0].eyebrow} · Calcola ora`}
           primary
         />
 
