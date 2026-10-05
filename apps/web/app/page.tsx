@@ -173,7 +173,7 @@ export default async function PublicHomePage() {
               href="/azienda"
               className="inline-flex min-h-11 items-center px-2 text-sm font-semibold text-[#c6d8d1] hover:text-white"
             >
-              Trova azienda →
+              Trova o rivendica la tua azienda
             </Link>
             <Link
               href="/knowledge"
