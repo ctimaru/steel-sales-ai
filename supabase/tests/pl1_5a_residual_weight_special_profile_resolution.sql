@@ -63,6 +63,12 @@ select pg_temp.pl15a_assert(
 );
 
 select pg_temp.pl15a_assert(
+  position('weight_standard_key' in pg_get_functiondef('private.pl1_close_residual_weight_links(uuid)'::regprocedure)) > 0
+  and position('standard_code' in pg_get_functiondef('private.pl1_close_residual_weight_links(uuid)'::regprocedure)) > 0,
+  'governed reference adoption must require explicit same-standard evidence'
+);
+
+select pg_temp.pl15a_assert(
   position('unsupported_special_shape' in pg_get_viewdef('public.price_list_item_pricing_readiness'::regclass,true)) > 0
   and position('unresolved_standard' in pg_get_viewdef('public.price_list_item_pricing_readiness'::regclass,true)) > 0
   and position('no_compatible_weight_reference' in pg_get_viewdef('public.price_list_item_pricing_readiness'::regclass,true)) > 0,
