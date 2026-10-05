@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PilotEvent } from "@/components/pilot-event";
+import { DenseDisclosure, DenseStatStrip, DenseTableFrame } from "@/components/dense-ui";
 import { appRoutes } from "@/lib/routes";
 
 import { loadProduct360, type ProductPrice, type ProductTimelineEvent } from "../actions";
@@ -58,7 +59,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   return (
     <>
       <PilotEvent eventName="product_viewed" entityType="product" entityId={productId} metadata={{ surface: "product_360" }} />
-      <div className="mx-auto max-w-7xl space-y-7">
+      <div className="uxf2-dense-page mx-auto max-w-[1180px] space-y-6">
       <div>
         <Link href={appRoutes.commercial.products} className="text-xs font-semibold text-indigo-600">← Storico prodotti</Link>
         <div className="mt-3 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
@@ -113,27 +114,22 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         </section>
       ) : null}
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-        {[
-          ["Eventi", summary.event_count],
-          ["RFQ", summary.requested_count],
-          ["Offerte", summary.offered_count],
-          ["Ordini", summary.ordered_count],
-          ["Consegne", summary.delivered_count],
-          ["Conversazioni", summary.thread_count],
-        ].map(([label, value]) => (
-          <div key={String(label)} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-2xl font-semibold text-slate-950">{String(value)}</p>
-            <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</p>
-          </div>
-        ))}
-      </section>
+      <DenseStatStrip
+        items={[
+          { label: "Eventi", value: summary.event_count },
+          { label: "RFQ", value: summary.requested_count },
+          { label: "Offerte", value: summary.offered_count },
+          { label: "Ordini", value: summary.ordered_count },
+          { label: "Consegne", value: summary.delivered_count },
+          { label: "Conversazioni", value: summary.thread_count },
+        ]}
+      />
 
       <section className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <h2 className="text-lg font-semibold text-slate-950">Storico prezzi</h2>
           <p className="mt-1 text-xs text-slate-500">Solo prezzi realmente estratti dalle offerte. Per confronti e andamento apri lo storico prezzi completo.</p>
-          <div className="mt-4 overflow-x-auto">
+          <DenseTableFrame label="Ultimi prezzi osservati">
             <table className="w-full min-w-[620px] text-left text-sm">
               <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-400">
                 <tr><th className="py-2">Data</th><th>Prezzo</th><th>Quantità</th><th>Fonte</th><th></th></tr>
@@ -156,7 +152,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 ))}
               </tbody>
             </table>
-          </div>
+          </DenseTableFrame>
           {(payload.price_history ?? []).length === 0 ? <p className="mt-4 text-sm text-slate-500">Nessun prezzo offerto disponibile per questo prodotto.</p> : null}
         </div>
 
@@ -215,8 +211,12 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         </div>
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-2">
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <DenseDisclosure
+        title="Fonti e controparti"
+        description="Apri solo quando devi verificare provenienza o aziende collegate."
+      >
+        <div className="grid gap-5 xl:grid-cols-2">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5">
           <h2 className="text-lg font-semibold text-slate-950">Documenti sorgente</h2>
           <p className="mt-1 text-xs text-slate-500">File da cui provengono i dati di questo prodotto.</p>
           <div className="mt-4 space-y-3">
@@ -262,7 +262,8 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
             {(payload.counterparties ?? []).length === 0 ? <p className="text-sm text-slate-500">Nessun cliente o fornitore collegato disponibile al momento.</p> : null}
           </div>
         </div>
-      </section>
+        </div>
+      </DenseDisclosure>
       </div>
     </>
   );
