@@ -33,14 +33,14 @@ export default function CookiesPage() {
 
       <LegalSection title="2. Preferenza analytics e durata della scelta">
         <p>
-          La scelta “Accetta statistiche” / “Solo necessari” viene conservata localmente nel browser
+          La scelta “Accetta analytics” / “Solo necessari” viene conservata localmente nel browser
           insieme a versione del consenso, versione dell’informativa e data della decisione.
         </p>
         <p>
           Finché le condizioni del trattamento restano sostanzialmente invariate, Smart Steel Sales
           non ripropone il banner prima di sei mesi. La scelta viene richiesta nuovamente se cambia
           la versione dell’informativa/consenso oppure, in ogni caso, dopo la scadenza del periodo.
-          L’utente può sempre riaprire “Preferenze statistiche” e cambiare decisione prima della scadenza.
+          L’utente può sempre riaprire la linguetta “Privacy” e cambiare decisione prima della scadenza.
         </p>
       </LegalSection>
 
@@ -72,7 +72,7 @@ export default function CookiesPage() {
 
       <LegalSection title="5. Gestione e revoca">
         <p>
-          Dopo aver espresso una scelta, il controllo “Preferenze statistiche” consente di riaprire
+          Dopo aver espresso una scelta, la linguetta “Privacy” consente di riaprire
           il pannello e revocare il consenso. Il rifiuto non impedisce l’uso delle funzioni pubbliche
           essenziali del sito.
         </p>
