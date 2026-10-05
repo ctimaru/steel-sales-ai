@@ -59,18 +59,21 @@ select pg_temp.pl16_assert(
 select pg_temp.pl16_assert(
   exists (
     select 1
-    from pg_proc p
-    join pg_namespace n on n.oid=p.pronamespace
+    from pg_class c
+    join pg_namespace n on n.oid=c.relnamespace
     where n.nspname='public'
-      and p.proname='pl1_can_preview_internal'
-      and p.prosecdef
+      and c.relname='price_list_versions'
+      and c.relrowsecurity
   )
-  and has_function_privilege('anon','public.pl1_can_preview_internal()','EXECUTE')
-  and position(
-    'pl1_can_preview_internal'
-    in pg_get_functiondef('public.pl1_price_list_catalog(boolean)'::regprocedure)
-  ) > 0,
-  'internal preview must use the anonymous-safe permission bridge'
+  and exists (
+    select 1
+    from pg_policies p
+    where p.schemaname='public'
+      and p.tablename='price_list_versions'
+      and p.policyname='price_list_versions_authenticated_read'
+      and p.qual like '%knowledge.read_drafts%'
+  ),
+  'internal preview must remain bounded by existing price-list RLS'
 );
 
 select pg_temp.pl16_assert(
