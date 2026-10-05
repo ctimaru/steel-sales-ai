@@ -44,7 +44,7 @@ test("WC5 makes the calculator a primary public-home action", () => {
 
 test("WC5 keeps Scuola discovery visible on desktop, mobile and Scuola home", () => {
   assert.match(schoolLayout, /source=school&surface=nav#calcolatore-pesi/);
-  assert.match(schoolLayout, />\s*Calcolatore\s*</);
+  assert.match(schoolLayout, />\s*Calcolo pesi\s*</);
   assert.match(schoolHome, /eyebrow: "Calcolatore"/);
   assert.match(schoolHome, /status: "Utility"/);
   assert.match(schoolHome, /source=school&surface=home_card#calcolatore-pesi/);

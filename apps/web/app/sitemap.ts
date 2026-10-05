@@ -8,16 +8,18 @@ import {
   listPublicTubeSizeHubs,
 } from "@/lib/public-knowledge";
 import { schoolArticles } from "@/lib/school-articles";
+import { listPublicPriceLists } from "@/lib/public-price-lists";
 import { finalizePublicSitemap, newestDate } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const [standards, grades, dimensions, familyHubs, sizeHubs] = await Promise.all([
+    const [standards, grades, dimensions, familyHubs, sizeHubs, priceLists] = await Promise.all([
     listPublicStandards(),
     listPublicGrades(),
     listPublicTubeDimensionPages(),
     listPublicTubeFamilyHubs(),
     listPublicTubeSizeHubs(),
+    listPublicPriceLists(),
   ]);
 
   const standardsLastModified = newestDate(standards.map((item) => item.last_reviewed_at));
@@ -30,11 +32,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const articlesLastModified = newestDate(
     schoolArticles.map((article) => article.lastReviewedAt),
   );
+  const priceListsLastModified = newestDate(
+    priceLists.map((item) => item.published_at || item.source_date),
+  );
   const knowledgeLastModified = newestDate([
     standardsLastModified,
     gradesLastModified,
     tubesLastModified,
     articlesLastModified,
+    priceListsLastModified,
   ]);
 
   const staticEntries: MetadataRoute.Sitemap = [
@@ -84,6 +90,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.92,
     },
+    {
+      url: absoluteUrl("/listini"),
+      lastModified: priceListsLastModified,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
   ];
 
   const articleEntries: MetadataRoute.Sitemap = schoolArticles.map((article) => ({
@@ -128,6 +140,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  const priceListEntries: MetadataRoute.Sitemap = priceLists
+    .filter((priceList) => !priceList.is_internal_preview)
+    .map((priceList) => ({
+      url: absoluteUrl(`/listini/${priceList.version_id}`),
+      lastModified: new Date(
+        priceList.published_at ||
+          (priceList.source_date ? priceList.source_date + "T00:00:00Z" : Date.now()),
+      ),
+      changeFrequency: "monthly",
+      priority: 0.78,
+    }));
+
   return finalizePublicSitemap([
     ...staticEntries,
     ...articleEntries,
@@ -136,5 +160,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...familyHubEntries,
     ...sizeHubEntries,
     ...dimensionEntries,
+    ...priceListEntries,
   ]);
 }

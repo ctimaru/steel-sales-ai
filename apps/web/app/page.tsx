@@ -31,6 +31,11 @@ const publicTools = [
     href: "/knowledge/tubes?source=home&surface=school_section#calcolatore-pesi",
   },
   {
+    label: "Listini",
+    description: "Base, Extra e calcolo netto €/m e €/t.",
+    href: "/listini",
+  },
+  {
     label: "Norme",
     description: "Standard, prodotti e riferimenti.",
     href: "/knowledge/norme",
@@ -100,18 +105,18 @@ export default async function PublicHomePage() {
             >
               Calcolo pesi
             </Link>
-            <a
-              href="#aziende"
+            <Link
+              href="/listini"
               className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3] hover:text-[#173f35]"
             >
-              Aziende
-            </a>
-            <a
-              href="#network"
+              Listini
+            </Link>
+            <Link
+              href="/azienda"
               className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3] hover:text-[#173f35]"
             >
-              Network
-            </a>
+              Trova azienda
+            </Link>
           </nav>
 
           <div className="flex items-center gap-2">
@@ -147,8 +152,8 @@ export default async function PublicHomePage() {
             <span className="block text-[#a9cbbf]">con strumenti che usi davvero.</span>
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-[#d8e5e0]">
-            Calcola il peso dei tubi, consulta norme e gradi oppure verifica se la tua azienda è già presente.
-            Il Network completo resta privato per le aziende registrate.
+            Calcola il peso dei tubi, consulta i listini interattivi, approfondisci norme e gradi oppure verifica
+            se la tua azienda è già presente. Il Network completo resta privato per le aziende registrate.
           </p>
 
           <div className="mt-7 flex flex-wrap gap-3">
@@ -159,8 +164,14 @@ export default async function PublicHomePage() {
               Calcolo pesi
             </Link>
             <Link
-              href="/azienda"
+              href="/listini"
               className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/20 bg-transparent px-5 text-sm font-semibold text-white hover:bg-white/[0.08]"
+            >
+              Apri Listini
+            </Link>
+            <Link
+              href="/azienda"
+              className="inline-flex min-h-11 items-center px-2 text-sm font-semibold text-[#c6d8d1] hover:text-white"
             >
               Trova o rivendica la tua azienda
             </Link>
@@ -186,7 +197,7 @@ export default async function PublicHomePage() {
               </h2>
             </div>
 
-            <div className="grid flex-1 gap-px overflow-hidden rounded-xl border border-[#dce2df] bg-[#dce2df] sm:grid-cols-3 lg:max-w-3xl">
+            <div className="grid flex-1 gap-px overflow-hidden rounded-xl border border-[#dce2df] bg-[#dce2df] sm:grid-cols-2 lg:max-w-4xl lg:grid-cols-4">
               {publicTools.map((tool) => (
                 <Link
                   key={tool.label}
@@ -235,6 +246,7 @@ export default async function PublicHomePage() {
               Calcolo pesi
             </Link>
             <Link href="/knowledge" className="font-semibold hover:text-[#173f35]">Scuola</Link>
+            <Link href="/listini" className="font-semibold hover:text-[#173f35]">Listini</Link>
             <Link href="/login" className="font-semibold hover:text-[#173f35]">Accedi</Link>
             <Link href="/register" className="font-semibold hover:text-[#173f35]">Registra azienda</Link>
             <Link href="/privacy" className="font-semibold hover:text-[#173f35]">Privacy</Link>
