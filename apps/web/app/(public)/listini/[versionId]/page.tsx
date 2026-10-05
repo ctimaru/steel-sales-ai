@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { PrivateDiscountProfilesPanel } from "@/components/private-discount-profiles-panel";
 import { PublicPriceListExplorer } from "@/components/public-price-list-explorer";
@@ -136,7 +136,15 @@ export default async function PriceListExplorerPage({
     getPriceListPublicNotices(versionId, includeInternal),
   ]);
 
-  if (!version) notFound();
+  if (!version) {
+    if (includeInternal && !privatePricing.authenticated) {
+      redirect(
+        "/login?next=" +
+          encodeURIComponent("/listini/" + versionId + "?preview=1"),
+      );
+    }
+    notFound();
+  }
 
   const [publicationReadiness, sourceRightsReview] = version.is_internal_preview
     ? await Promise.all([
