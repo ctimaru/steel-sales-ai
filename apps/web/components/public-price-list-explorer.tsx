@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 
 import { savePricingSession } from "@/app/(public)/listini/[versionId]/actions";
 
@@ -186,6 +186,7 @@ export function PublicPriceListExplorer({
     }>
   >([]);
   const [mobileDistintaOpen, setMobileDistintaOpen] = useState(false);
+  const [mobileControlsOpen, setMobileControlsOpen] = useState(false);
   const [savePending, startSaveTransition] = useTransition();
   const [savedSessionId, setSavedSessionId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -196,6 +197,23 @@ export function PublicPriceListExplorer({
   );
   const parsedTargetEurT = Number(targetInput.replace(",", "."));
   const targetEurT = Number.isFinite(parsedTargetEurT) ? parsedTargetEurT : 0;
+
+  useEffect(() => {
+    if (!mobileDistintaOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMobileDistintaOpen(false);
+    };
+
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [mobileDistintaOpen]);
 
   const effectiveDiscountByItem = useMemo(
     () =>
@@ -385,6 +403,11 @@ export function PublicPriceListExplorer({
     safePage * PAGE_SIZE,
   );
   const readyCount = filtered.filter((row) => row.price_per_t_ready).length;
+  const activeFilterCount =
+    Number(shape !== "all") +
+    Number(grade !== "all") +
+    Number(finish !== "all") +
+    Number(query.trim().length > 0);
 
   function resetPage() {
     setPage(1);
@@ -392,7 +415,34 @@ export function PublicPriceListExplorer({
 
   return (
     <div className="space-y-4">
-      <section className="sticky top-0 z-20 rounded-2xl border border-[#d4dfda] bg-white/95 p-4 shadow-[0_8px_30px_rgba(20,46,38,0.08)] backdrop-blur-xl">
+      <section className="relative z-20 rounded-2xl border border-[#d4dfda] bg-white/95 p-3 shadow-[0_8px_30px_rgba(20,46,38,0.08)] backdrop-blur-xl sm:p-4 lg:sticky lg:top-0">
+        <button
+          type="button"
+          onClick={() => setMobileControlsOpen((current) => !current)}
+          className="flex min-h-11 w-full items-center justify-between rounded-xl border border-[#d7dfdb] bg-[#f7f9f8] px-3 text-left lg:hidden"
+          aria-expanded={mobileControlsOpen}
+          aria-controls="mobile-listini-controls"
+        >
+          <span>
+            <span className="block text-xs font-bold text-[#173f35]">Filtri e prezzo</span>
+            <span className="mt-0.5 block text-[10px] text-[#718078]">
+              {activeFilterCount > 0
+                ? activeFilterCount + " filtri attivi"
+                : "Ricerca, forma, grado, finitura e modalità prezzo"}
+            </span>
+          </span>
+          <span className="text-sm font-bold text-[#52615b]" aria-hidden="true">
+            {mobileControlsOpen ? "−" : "+"}
+          </span>
+        </button>
+
+        <div
+          id="mobile-listini-controls"
+          className={[
+            "mt-3 lg:mt-0",
+            mobileControlsOpen ? "block" : "hidden lg:block",
+          ].join(" ")}
+        >
         <div className="grid gap-4 xl:grid-cols-[1fr_auto] xl:items-end">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <label className="text-xs font-semibold text-[#43524c]">
@@ -466,7 +516,7 @@ export function PublicPriceListExplorer({
             </label>
           </div>
 
-          <div className="min-w-[280px]">
+          <div className="min-w-0 xl:min-w-[280px]">
             <div className="mb-2 flex rounded-xl border border-[#d7dfdb] bg-[#f6f8f7] p-1 text-xs font-semibold">
               {privatePricing?.authenticated && privatePricing.effectiveDiscounts.length > 0 ? (
                 <button
@@ -557,6 +607,21 @@ export function PublicPriceListExplorer({
                 ? "Reverse pricing · calcolo dello sconto richiesto per ogni articolo"
                 : "Sconto temporaneo · non viene salvato"}
           </p>
+        </div>
+        </div>
+
+        <div className="mt-3 flex items-center justify-between gap-3 text-xs text-[#66736e] lg:hidden">
+          <p className="truncate">
+            <strong className="text-[#1d2824]">{filtered.length}</strong> articoli ·{" "}
+            <strong className="text-[#1d2824]">{readyCount}</strong> €/t
+          </p>
+          <button
+            type="button"
+            onClick={() => setMobileControlsOpen(true)}
+            className="shrink-0 font-semibold text-[#173f35]"
+          >
+            Modifica filtri
+          </button>
         </div>
       </section>
 
@@ -878,27 +943,38 @@ export function PublicPriceListExplorer({
         </aside>
       </div>
 
-      <button
-        type="button"
-        onClick={() => setMobileDistintaOpen(true)}
-        className="fixed bottom-4 right-4 z-40 inline-flex min-h-12 items-center gap-2 rounded-2xl bg-[#173f35] px-4 text-sm font-semibold text-white shadow-xl xl:hidden"
-        aria-label="Apri distinta"
-      >
-        Distinta
-        <span className="rounded-full bg-white/15 px-2 py-0.5 text-xs">
-          {distinta.length}
-        </span>
-      </button>
+      {distinta.length > 0 ? (
+        <button
+          type="button"
+          onClick={() => setMobileDistintaOpen(true)}
+          className="fixed right-4 z-40 inline-flex min-h-12 items-center gap-2 rounded-2xl bg-[#173f35] px-4 text-sm font-semibold text-white shadow-xl xl:hidden"
+          style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
+          aria-label={"Apri distinta con " + distinta.length + " righe"}
+        >
+          Distinta
+          <span className="rounded-full bg-white/15 px-2 py-0.5 text-xs">
+            {distinta.length}
+          </span>
+        </button>
+      ) : null}
 
       {mobileDistintaOpen ? (
-        <div className="fixed inset-0 z-50 xl:hidden">
+        <div
+          className="fixed inset-0 z-50 xl:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Distinta articoli"
+        >
           <button
             type="button"
             aria-label="Chiudi distinta"
             onClick={() => setMobileDistintaOpen(false)}
-            className="absolute inset-0 bg-black/30"
+            className="absolute inset-0 bg-black/35"
           />
-          <div className="absolute inset-x-0 bottom-0">
+          <div
+            className="absolute inset-x-0 bottom-0"
+            style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+          >
             <PriceListDistinta
               mobile
               lines={distintaLines}
