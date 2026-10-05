@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DenseDisclosure } from "@/components/dense-ui";
 import { redirect } from "next/navigation";
 
 import {
@@ -70,7 +71,7 @@ function SectionHeader({
   description: string;
 }) {
   return (
-    <div id={id} className="scroll-mt-28">
+    <div id={id} className="uxf2-section-header scroll-mt-28">
       <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#1a5144]">{eyebrow}</p>
       <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">{title}</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">{description}</p>
@@ -226,7 +227,7 @@ export default async function ManagedNetworkProfilePage({
   );
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 pb-16">
+    <div className="uxf2-dense-page mx-auto max-w-[1180px] space-y-5 pb-16">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link href="/network" className="text-sm font-semibold text-[#66736e] hover:text-[#1d2824]">
           ← Torna alla directory
@@ -422,7 +423,11 @@ export default async function ManagedNetworkProfilePage({
         </form>
       </section>
 
-      <section className="space-y-6 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+      <DenseDisclosure
+        title="Tipologia e posizionamento"
+        description="Ruoli e sottotipi nella filiera. Apri quando devi modificare il posizionamento."
+      >
+        <section className="space-y-6 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="positioning"
           eyebrow="02 · Company type"
@@ -524,8 +529,13 @@ export default async function ManagedNetworkProfilePage({
           </form>
         </div>
       </section>
+      </DenseDisclosure>
 
-      <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+      <DenseDisclosure
+        title="Prodotti e relazione commerciale"
+        description="Famiglie, norme, gradi e relazioni commerciali dichiarate."
+      >
+        <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="products"
           eyebrow="03 · Products"
@@ -819,8 +829,13 @@ export default async function ManagedNetworkProfilePage({
           <button className={primaryButton}>Aggiungi prodotto</button>
         </form>
       </section>
+      </DenseDisclosure>
 
-      <section className="space-y-6 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+      <DenseDisclosure
+        title="Sedi, stabilimenti e capability"
+        description="Sedi operative e capacità produttive o di servizio."
+      >
+        <section className="space-y-6 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="facilities"
           eyebrow="04 · Facilities"
@@ -940,8 +955,13 @@ export default async function ManagedNetworkProfilePage({
           </form>
         </div>
       </section>
+      </DenseDisclosure>
 
-      <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+      <DenseDisclosure
+        title="Mercati e settori serviti"
+        description="Aree geografiche, settori e mercati applicativi."
+      >
+        <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="markets"
           eyebrow="05 · Markets"
@@ -980,8 +1000,13 @@ export default async function ManagedNetworkProfilePage({
           <button className={primaryButton}>Aggiungi</button>
         </form>
       </section>
+      </DenseDisclosure>
 
-      <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+      <DenseDisclosure
+        title="Certificazioni"
+        description="Certificazioni pubblicabili e relativa provenienza."
+      >
+        <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="certifications"
           eyebrow="06 · Certifications"
@@ -1087,8 +1112,13 @@ export default async function ManagedNetworkProfilePage({
           </form>
         </div>
       </section>
+      </DenseDisclosure>
 
-      <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+      <DenseDisclosure
+        title="Contatti pubblici"
+        description="Contatti destinati alla visibilità Network, separati dalla Commercial Memory."
+      >
+        <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="contacts"
           eyebrow="07 · Public contacts"
@@ -1233,8 +1263,13 @@ export default async function ManagedNetworkProfilePage({
           </form>
         </div>
       </section>
+      </DenseDisclosure>
 
-      <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+      <DenseDisclosure
+        title="Inquiry"
+        description="Preferenze di contatto e readiness per richieste dal Network."
+      >
+        <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="inquiries"
           eyebrow="08 · Network availability"
@@ -1261,6 +1296,7 @@ export default async function ManagedNetworkProfilePage({
           </form>
         </div>
       </section>
+      </DenseDisclosure>
 
       <section className="rounded-2xl border border-[#d7dfdb] bg-[#f8faff] p-5">
         <p className="text-sm font-semibold text-[#33445e]">Governance del profilo</p>

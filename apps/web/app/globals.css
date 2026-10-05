@@ -580,3 +580,54 @@ textarea {
 .mvp-focus-shell .school-hero-accent {
   display: none;
 }
+
+
+/* UXF2 — dense pages & forms */
+.uxf2-disclosure[open] .uxf2-disclosure-chevron {
+  transform: rotate(180deg);
+}
+
+.uxf2-disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.uxf2-table-frame table thead {
+  background: #f8faf9;
+}
+
+.uxf2-table-frame table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f8faf9;
+}
+
+.uxf2-table-frame table tbody tr:hover {
+  background: #fafcfb;
+}
+
+.uxf2-dense-page input,
+.uxf2-dense-page select,
+.uxf2-dense-page textarea {
+  scroll-margin-top: 7rem;
+}
+
+.uxf2-dense-page .rounded-3xl {
+  border-radius: 1.25rem;
+}
+
+.uxf2-dense-page [class*="shadow-"] {
+  box-shadow: none !important;
+}
+
+
+.uxf2-disclosure .uxf2-section-header {
+  display: none;
+}
+
+.uxf2-disclosure > div > section {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+}

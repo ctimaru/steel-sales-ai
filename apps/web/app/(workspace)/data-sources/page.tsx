@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { DenseDisclosure, DenseStatStrip, DenseTableFrame } from "@/components/dense-ui";
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 
 import {
@@ -143,23 +144,26 @@ export default async function DataSourcesPage({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="uxf2-dense-page mx-auto max-w-[1180px] space-y-6">
       <PageHeader />
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-        <Metric label="Documenti importati" value={summary.total} detail={`${summary.processing} in elaborazione`} />
-        <Metric
-          label="Indicizzati"
-          value={summary.indexed}
-          detail={summary.active_model_key ? `Ricerca attiva: ${summary.active_model_key}` : "Ricerca non attiva"}
-        />
-        <Metric label="Da indicizzare" value={summary.indexing} detail="In attesa o incompleti" />
-        <Metric label="Duplicati" value={summary.duplicates} detail="Contenuti già presenti" />
-        <Metric label="Errori / scartati" value={summary.errors + summary.discarded} detail={`${summary.errors} errori · ${summary.discarded} scartati`} />
-        <Metric label="Ultimo aggiornamento" value={formatDate(summary.last_sync_at)} detail="Aggiornamento più recente" compact />
-      </section>
+      <DenseStatStrip
+        items={[
+          { label: "Documenti importati", value: summary.total, detail: `${summary.processing} in elaborazione` },
+          { label: "Indicizzati", value: summary.indexed, detail: summary.active_model_key ? `Ricerca attiva: ${summary.active_model_key}` : "Ricerca non attiva" },
+          { label: "Da indicizzare", value: summary.indexing, detail: "In attesa o incompleti" },
+          { label: "Duplicati", value: summary.duplicates, detail: "Contenuti già presenti" },
+          { label: "Errori / scartati", value: summary.errors + summary.discarded, detail: `${summary.errors} errori · ${summary.discarded} scartati` },
+          { label: "Ultimo aggiornamento", value: formatDate(summary.last_sync_at), detail: "Aggiornamento più recente" },
+        ]}
+      />
 
-      <section className="space-y-3">
+      <DenseDisclosure
+        title="Fonti collegate"
+        description="Apri per vedere la salute delle fonti che alimentano la memoria commerciale."
+        badge={<span className="text-xs font-semibold text-[#66736e]">{sources.length} fonti</span>}
+      >
+        <div className="space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 className="text-lg font-semibold text-slate-950">Fonti collegate</h2>
@@ -223,9 +227,10 @@ export default async function DataSourcesPage({
             compact
           />
         )}
-      </section>
+        </div>
+      </DenseDisclosure>
 
-      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white">
         <div className="border-b border-slate-200 p-5">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -236,7 +241,12 @@ export default async function DataSourcesPage({
             </div>
             <p className="text-xs font-semibold text-slate-500">{totalFiltered} risultati</p>
           </div>
-          <form className="mt-5 grid gap-3 lg:grid-cols-[minmax(220px,1fr)_190px_220px_auto]" method="get">
+          <DenseDisclosure
+            title="Filtri"
+            description={hasFilters ? "Filtri attivi: restringi o azzera la ricerca." : "Apri solo quando devi restringere lo storico."}
+            badge={hasFilters ? <span className="rounded-full bg-[#edf5f2] px-2.5 py-1 text-[11px] font-semibold text-[#1a5144]">Attivi</span> : undefined}
+          >
+          <form className="grid gap-3 lg:grid-cols-[minmax(220px,1fr)_190px_220px_auto]" method="get">
             <input
               type="search"
               name="q"
@@ -279,10 +289,11 @@ export default async function DataSourcesPage({
               </Link>
             </div>
           </form>
+          </DenseDisclosure>
         </div>
 
         {items.length ? (
-          <div className="overflow-x-auto">
+          <DenseTableFrame label="Storico importazioni">
             <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
               <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                 <tr>
@@ -345,7 +356,7 @@ export default async function DataSourcesPage({
                 ))}
               </tbody>
             </table>
-          </div>
+          </DenseTableFrame>
         ) : (
           <div className="p-5">
             <FirstUseEmptyState

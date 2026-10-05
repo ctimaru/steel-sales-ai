@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
+import { DenseDisclosure } from "@/components/dense-ui";
 import { notFound } from "next/navigation";
 
 import {
@@ -131,7 +132,7 @@ export default async function AdminRegistrationDetailPage({
     canBridge;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="uxf2-dense-page mx-auto max-w-[1180px] space-y-6">
       <div>
         <Link href="/platform/registrations" className="text-sm font-semibold text-[#66736e] hover:text-[#1d2824]">
           ← Torna alle registrazioni
@@ -273,9 +274,12 @@ export default async function AdminRegistrationDetailPage({
             ) : null}
           </section>
 
-          <section className="rounded-2xl border border-[#dce2df] bg-white p-5 sm:p-6">
-            <h2 className="text-base font-semibold text-[#1d2824]">Timeline audit</h2>
-            <div className="mt-5 space-y-4">
+          <DenseDisclosure
+            title="Timeline audit"
+            description="Cronologia completa delle transizioni e degli attori. Apri solo quando devi ricostruire una decisione."
+            badge={<span className="text-xs font-semibold text-[#66736e]">{events.length} eventi</span>}
+          >
+            <div className="space-y-4">
               {events.map((event) => (
                 <div key={event.id} className="relative border-l-2 border-slate-200 pl-5">
                   <div className="absolute -left-[5px] top-1 h-2 w-2 rounded-full bg-slate-500" />
@@ -300,16 +304,16 @@ export default async function AdminRegistrationDetailPage({
                 </div>
               ))}
             </div>
-          </section>
+          </DenseDisclosure>
         </div>
 
         <aside className="space-y-4">
           {canRequestInformation ? (
-              <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
-                <h2 className="font-semibold text-amber-950">Richiedi integrazione</h2>
-                <p className="mt-1 text-sm leading-6 text-amber-800">
-                  Rimanda la richiesta all’azienda per una correzione mirata.
-                </p>
+              <DenseDisclosure
+                title="Richiedi integrazione"
+                description="Rimanda la richiesta all’azienda per una correzione mirata."
+                tone="warning"
+              >
                 <form action={requestRegistrationInformation} className="mt-4 space-y-3">
                   <input type="hidden" name="application_id" value={application.id} />
                   <textarea
@@ -324,7 +328,7 @@ export default async function AdminRegistrationDetailPage({
                     Richiedi informazioni
                   </button>
                 </form>
-              </section>
+              </DenseDisclosure>
           ) : null}
 
           {canApproveAndActivate ? (

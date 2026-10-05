@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
+import { DenseDisclosure, DenseStatStrip } from "@/components/dense-ui";
 import {
   PLATFORM_PERMISSIONS,
   PLATFORM_STAFF_ROLE_TEMPLATES,
@@ -132,7 +133,7 @@ export default async function PlatformPeoplePage({
   );
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="uxf2-dense-page mx-auto max-w-[1180px] space-y-6">
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
@@ -177,26 +178,14 @@ export default async function PlatformPeoplePage({
         </div>
       ) : null}
 
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          ["Platform Owner", 1],
-          ["Staff attivo", activeStaff],
-          ["Staff sospeso", suspendedStaff],
-          ["Inviti pendenti", pendingInvitations.length],
-        ].map(([label, value]) => (
-          <div
-            key={String(label)}
-            className="rounded-2xl border border-[#dce2df] bg-white p-5"
-          >
-            <p className="metric-number text-3xl font-semibold text-[#1d2824]">
-              {Number(value)}
-            </p>
-            <p className="mt-1 text-xs font-semibold text-[#66736e]">
-              {label}
-            </p>
-          </div>
-        ))}
-      </section>
+      <DenseStatStrip
+        items={[
+          { label: "Platform Owner", value: 1 },
+          { label: "Staff attivo", value: activeStaff },
+          { label: "Staff sospeso", value: suspendedStaff },
+          { label: "Inviti pendenti", value: pendingInvitations.length },
+        ]}
+      />
 
       <section className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
         <div className="rounded-3xl border border-[#dce2df] bg-white p-6">
@@ -282,13 +271,15 @@ export default async function PlatformPeoplePage({
           </form>
         </div>
 
-        <div className="rounded-3xl border border-[#dce2df] bg-white p-6">
+        <DenseDisclosure
+          title="Role template disponibili"
+          description="Matrice dei permessi effettivi. Apri solo quando devi verificare il modello di authority."
+        >
+        <div>
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">
             Authority model
           </p>
-          <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">
-            Role template disponibili
-          </h2>
+          <h2 className="sr-only">Role template disponibili</h2>
           <p className="mt-2 text-sm leading-6 text-[#66736e]">
             Nessun template può contenere permission root-only. La gestione
             staff e le impostazioni globali restano esclusivamente al Platform
@@ -355,6 +346,7 @@ export default async function PlatformPeoplePage({
             })}
           </div>
         </div>
+        </DenseDisclosure>
       </section>
 
       <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
