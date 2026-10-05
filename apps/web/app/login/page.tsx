@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { FocusHeader, FocusPanel } from "@/components/focus-ui";
+import { FocusPanel } from "@/components/focus-ui";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { ProductBrand } from "@/components/product-brand";
 import { Input } from "@/components/ui/input";
@@ -34,13 +34,15 @@ export default async function LoginPage({
           </Link>
         </div>
 
-        <div className="mt-10">
-          <FocusHeader
-            eyebrow="Accesso"
-            title="Accedi al tuo workspace"
-            description="Email e password. Tutto il resto viene dopo l’accesso, nel contesto corretto."
-          />
-        </div>
+        <header className="mvp-focus-header mt-10">
+          <p className="app-kicker">Accesso</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-[-0.025em] text-[#123d34] sm:text-[2.15rem]">
+            Accedi al tuo workspace
+          </h1>
+          <p className="mt-3 max-w-md text-sm leading-6 text-[#66736e]">
+            Email e password. Tutto il resto viene dopo l’accesso, nel contesto corretto.
+          </p>
+        </header>
 
         <FocusPanel className="mt-5">
           {error ? (
