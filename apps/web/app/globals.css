@@ -528,3 +528,43 @@ textarea {
     touch-action: manipulation;
   }
 }
+
+
+/* UXF1 — MVP focus system
+   One primary task per screen: narrower reading width, flatter hierarchy and
+   lower visual competition between secondary surfaces. */
+.mvp-focus-shell {
+  --mvp-content-width: 1180px;
+}
+
+.mvp-focus-page {
+  padding-bottom: 0.25rem;
+}
+
+.mvp-focus-header {
+  border-bottom: 1px solid var(--border);
+  padding: 0.25rem 0 1.25rem;
+}
+
+.mvp-focus-shell [class~="space-y-8"] > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 1.5rem !important;
+}
+
+.mvp-focus-shell [class~="space-y-7"] > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 1.375rem !important;
+}
+
+.mvp-focus-shell .rounded-3xl {
+  border-radius: 1.25rem;
+}
+
+.mvp-focus-shell .shadow-sm,
+.mvp-focus-shell [class*="shadow-[0_"] {
+  box-shadow: none !important;
+}
+
+@media (min-width: 1024px) {
+  .mvp-focus-shell {
+    font-size: 0.9875rem;
+  }
+}
