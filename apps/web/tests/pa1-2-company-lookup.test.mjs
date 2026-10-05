@@ -3,6 +3,10 @@ import fs from "node:fs";
 import test from "node:test";
 
 const home = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+const network = fs.readFileSync(
+  new URL("../components/public-network-role-explorer.tsx", import.meta.url),
+  "utf8",
+);
 const lookup = fs.readFileSync(
   new URL("../components/public-company-lookup.tsx", import.meta.url),
   "utf8",
@@ -29,10 +33,10 @@ test("PA1.2 embeds real public lookup by company name or VAT", () => {
 });
 
 test("PA1.2 keeps the rich Network private and premium", () => {
-  assert.match(home, /Privato · Premium/);
-  assert.match(home, /directory ricca, filtri avanzati, prodotti,[\s\S]*capability, mercati/i);
+  assert.match(network, /Privato · Premium/);
+  assert.match(network, /directory completa, i filtri avanzati e i profili dettagliati/i);
   assert.match(lookup, /Il Network completo non è pubblico/);
-  assert.doesNotMatch(home, /href="\/network"/);
+  assert.doesNotMatch(home, /href="\/network"/);\n  assert.doesNotMatch(network, /href="\/network"/);
   assert.doesNotMatch(lookup, /href="\/network"/);
 });
 
