@@ -336,7 +336,7 @@ export async function savePricingSession(
       weight_kg_m_snapshot: weightKgM,
       weight_reference_id_snapshot: "",
       weight_resolution_mode_snapshot: item.weight_resolution_mode ?? "",
-      formula_version_snapshot: version.manufacturer_version_code,
+      formula_version_snapshot: "",
       line_tonnes: calculation.tonnes,
       base_eur_m_snapshot: baseEurM,
       fixed_extra_eur_m_snapshot: fixedExtraEurM,
