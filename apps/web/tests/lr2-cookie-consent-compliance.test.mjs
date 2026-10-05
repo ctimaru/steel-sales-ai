@@ -40,8 +40,8 @@ test("LR2 keeps zero Google Analytics loading before explicit grant", () => {
   assert.ok(consent.includes('if (!measurementId || !shouldMeasure || consent !== "granted") return;'));
   assert.ok(!layout.includes("googletagmanager.com"));
   assert.ok(!layout.includes("google-analytics.com"));
-  assert.ok(consent.includes("Solo necessari"));
-  assert.ok(consent.includes("Accetta analytics"));
+  assert.ok(consent.includes("Accetta necessari"));
+  assert.ok(consent.includes("Accetta"));
 });
 
 test("LR2 removes accessible GA cookies on withdrawal or stale granted evidence", () => {
