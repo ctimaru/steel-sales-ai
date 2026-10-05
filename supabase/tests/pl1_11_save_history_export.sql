@@ -79,6 +79,52 @@ select pg_temp.pl111_assert(
   'saved pricing snapshots must be immutable to authenticated users'
 );
 
+select pg_temp.pl111_assert(
+  position(
+    'ON DELETE CASCADE'
+    in pg_get_constraintdef(
+      (
+        select c.oid
+        from pg_constraint c
+        join pg_class t on t.oid=c.conrelid
+        join pg_namespace n on n.oid=t.relnamespace
+        where n.nspname='public'
+          and t.relname='pricing_sessions'
+          and c.conname='pricing_sessions_owner_user_id_fkey'
+      )
+    )
+  )>0
+  and position(
+    'ON DELETE CASCADE'
+    in pg_get_constraintdef(
+      (
+        select c.oid
+        from pg_constraint c
+        join pg_class t on t.oid=c.conrelid
+        join pg_namespace n on n.oid=t.relnamespace
+        where n.nspname='public'
+          and t.relname='pricing_sessions'
+          and c.conname='pricing_sessions_organization_id_fkey'
+      )
+    )
+  )>0
+  and position(
+    'ON DELETE CASCADE'
+    in pg_get_constraintdef(
+      (
+        select c.oid
+        from pg_constraint c
+        join pg_class t on t.oid=c.conrelid
+        join pg_namespace n on n.oid=t.relnamespace
+        where n.nspname='public'
+          and t.relname='pricing_session_lines'
+          and c.conname='pricing_session_lines_session_id_fkey'
+      )
+    )
+  )>0,
+  'private pricing snapshots must follow user/organization lifecycle cascades'
+);
+
 insert into auth.users(id,email,email_confirmed_at) values
  ('00000000-0000-0000-0000-0000000011a1'::uuid,'pl111-a@example.test',now()),
  ('00000000-0000-0000-0000-0000000011a2'::uuid,'pl111-a2@example.test',now()),
