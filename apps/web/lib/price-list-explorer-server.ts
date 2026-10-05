@@ -6,6 +6,7 @@ import type {
   PriceListExplorerItem,
   PriceListPublicNotice,
   PriceListPublicationReadiness,
+  PriceListSourceRightsReview,
 } from "@/lib/public-price-lists";
 import {
   emptyPrivatePricingContext,
@@ -255,4 +256,19 @@ export async function getPriceListPublicationReadiness(versionId: string) {
   }
 
   return (data ?? null) as PriceListPublicationReadiness | null;
+}
+
+
+export async function getPriceListSourceRightsReview(versionId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("pl1_source_rights_review", {
+    p_version_id: versionId,
+  });
+
+  if (error) {
+    console.error("PP1.1 source-rights lookup failed:", error.message);
+    return null;
+  }
+
+  return (data ?? null) as PriceListSourceRightsReview | null;
 }
