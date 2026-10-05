@@ -59,6 +59,7 @@ function readinessWarningLabel(code: string, count?: number) {
   if (code === "partial_eur_t_coverage") return "Copertura €/t parziale" + suffix;
   if (code === "bounded_technical_review_rows") return "Righe con identità tecnica ancora in review" + suffix;
   if (code === "unresolved_standard") return "Norma non risolta/ambigua" + suffix;
+  if (code === "no_compatible_weight_reference") return "Peso governato compatibile non disponibile" + suffix;
   if (code === "special_shape_without_weight") return "Profili speciali senza peso governato" + suffix;
   if (code === "non_automated_source_rules") return "Condizioni fonte non automatizzate" + suffix;
   if (code === "source_grade_label_conflict") return "Conflitti di etichetta grado preservati dalla fonte" + suffix;
