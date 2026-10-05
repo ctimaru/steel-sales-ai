@@ -310,7 +310,8 @@ as $$
         public.pl1_version_visible_to(v.id,'public')
         or (
           p_include_internal
-          and public.pl1_can_preview_internal()
+          and (select auth.uid()) is not null
+          and public.has_platform_permission('knowledge.read_drafts')
           and v.status in ('draft','review','verified')
         )
       )
