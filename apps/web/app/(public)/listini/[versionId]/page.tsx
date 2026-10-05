@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { PrivateDiscountProfilesPanel } from "@/components/private-discount-profiles-panel";
 import { PublicPriceListExplorer } from "@/components/public-price-list-explorer";
 import {
   getPriceListExplorerItems,
   getPriceListExplorerVersion,
+  getPrivatePricingContext,
 } from "@/lib/price-list-explorer-server";
 import { absoluteUrl } from "@/lib/site";
 
@@ -87,9 +89,10 @@ export default async function PriceListExplorerPage({
 
   if (!isUuid(versionId)) notFound();
 
-  const [version, items] = await Promise.all([
+  const [version, items, privatePricing] = await Promise.all([
     getPriceListExplorerVersion(versionId, includeInternal),
     getPriceListExplorerItems(versionId, includeInternal),
+    getPrivatePricingContext(versionId),
   ]);
 
   if (!version) notFound();
@@ -132,8 +135,9 @@ export default async function PriceListExplorerPage({
                 : ""}
             </p>
             <p className="mt-4 max-w-2xl text-sm leading-6 text-[#66736e]">
-              Il calcolo pubblico applica esclusivamente la formula commerciale strutturata per questa
-              versione. Lo sconto inserito qui è temporaneo e non viene associato al tuo account.
+              Il listino applica esclusivamente la formula commerciale strutturata per questa versione.
+              Puoi usare uno sconto temporaneo oppure, con un account aziendale, applicare profili sconto
+              privati salvati per produttore, listino, versione, grado o finitura.
             </p>
           </div>
 
@@ -165,7 +169,17 @@ export default async function PriceListExplorerPage({
         </div>
       </header>
 
-      <PublicPriceListExplorer version={version} items={items} />
+      <PrivateDiscountProfilesPanel
+        versionId={versionId}
+        items={items}
+        context={privatePricing}
+      />
+
+      <PublicPriceListExplorer
+        version={version}
+        items={items}
+        privatePricing={privatePricing}
+      />
 
       <section className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border border-[#dce2df] bg-white p-5">
