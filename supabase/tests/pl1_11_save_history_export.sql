@@ -137,7 +137,7 @@ insert into public.price_list_versions(
   '00000000-0000-0000-0000-0000000011d1'::uuid,
   '00000000-0000-0000-0000-0000000011d0'::uuid,
   '00000000-0000-0000-0000-0000000011c2'::uuid,
-  'PL111-V1','2026-10-05','published','public','pl1.1-v1'
+  'PL111-V1','2026-10-05','draft','internal','pl1.1-v1'
 );
 
 insert into public.price_list_sections(
