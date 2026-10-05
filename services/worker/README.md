@@ -12,6 +12,7 @@ Python/FastAPI service for document ingestion and commercial extraction.
 - parser v3.1 input classification boundary
 - structured latest-price query through POST /v1/ai/latest-price
 - Railway-ready Docker deployment
+- PL1 governed manufacturer price-list PDF preview/staging through `/v1/price-lists/import/preview` and `/v1/price-lists/import/stage`
 
 ## Configuration
 
@@ -54,3 +55,16 @@ cd services/worker
 pip install -e '.[test]'
 WORKER_STORAGE_MODE=memory pytest
 ```
+
+
+## PL1 price-list import
+
+The PL1 import boundary is deliberately separate from the general commercial-document parser.
+
+- `POST /v1/price-lists/import/preview` parses a supported manufacturer PDF without persistence and returns metadata, validation diagnostics, pricing-rule extraction, summary counts and a bounded row sample.
+- `POST /v1/price-lists/import/stage` requires a draft/review `price_list_version_id` plus its immutable `source_document_id`. The uploaded PDF SHA-256 must match the source document before staging can be accepted.
+- The first adapter is `padana_ptc` (`pl1.4-padana-ptc-v1`).
+- The parser uses embedded PDF text via pypdf. It does not silently fall back to OCR.
+- Staged rows remain isolated from published `price_list_items`; PL1.5 owns controlled promotion after review.
+
+The Padana adapter preserves Base and fixed Extra as separate components, extracts the cover commercial-discount rule, stages the logistics-efficiency rule with a bundle-master-data review requirement, and preserves source ambiguities instead of guessing a standard or grade.

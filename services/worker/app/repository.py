@@ -457,6 +457,85 @@ class WorkerRepository:
             raise RepositoryError("Offer source reparse failure update returned an invalid payload.")
         return result
 
+
+    async def create_price_list_import_run(
+        self,
+        *,
+        price_list_version_id: UUID,
+        source_document_id: UUID,
+        adapter_key: str,
+        parser_version: str,
+        filename: str,
+        content_checksum: str,
+        created_by: UUID | None,
+    ) -> dict[str, Any]:
+        payload = {
+            "price_list_version_id": str(price_list_version_id),
+            "source_document_id": str(source_document_id),
+            "adapter_key": adapter_key,
+            "parser_version": parser_version,
+            "filename": filename,
+            "content_checksum": content_checksum,
+            "created_by": str(created_by) if created_by else None,
+            "status": "queued",
+        }
+        rows = await self._request(
+            "POST",
+            "/rest/v1/price_list_import_runs",
+            json=payload,
+            prefer="return=representation",
+        )
+        if not isinstance(rows, list) or not rows:
+            raise RepositoryError("Price-list import run creation returned an invalid payload.")
+        return rows[0]
+
+    async def update_price_list_import_run(
+        self,
+        run_id: UUID,
+        values: dict[str, Any],
+    ) -> None:
+        await self._request(
+            "PATCH",
+            f"/rest/v1/price_list_import_runs?id=eq.{run_id}",
+            json=values,
+            prefer="return=minimal",
+        )
+
+    async def insert_price_list_import_rows(
+        self,
+        rows: list[dict[str, Any]],
+        *,
+        chunk_size: int = 200,
+    ) -> None:
+        for start in range(0, len(rows), chunk_size):
+            chunk = rows[start:start + chunk_size]
+            if not chunk:
+                continue
+            await self._request(
+                "POST",
+                "/rest/v1/price_list_import_rows",
+                json=chunk,
+                prefer="return=minimal",
+            )
+
+    async def insert_price_list_import_anomalies(
+        self,
+        rows: list[dict[str, Any]],
+        *,
+        chunk_size: int = 100,
+    ) -> None:
+        for start in range(0, len(rows), chunk_size):
+            chunk = rows[start:start + chunk_size]
+            if not chunk:
+                continue
+            await self._request(
+                "POST",
+                "/rest/v1/price_list_import_anomalies",
+                json=chunk,
+                prefer="return=minimal",
+            )
+
+
     async def _request(
         self,
         method: str,

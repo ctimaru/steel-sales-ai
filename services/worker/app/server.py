@@ -17,6 +17,7 @@ from .source_recovery_bootstrap import install_offer_source_recovery_bootstrap
 from .ambiguous_recovery_bootstrap import install_offer_source_ambiguous_recovery_bootstrap
 from .p1_assistant import router as p1_assistant_router
 from .product_360 import router as product_360_router
+from .price_list_import import router as price_list_import_router
 from .promotion_readiness import router as promotion_readiness_router
 from .message_identity_reconstruction import router as message_identity_reconstruction_router
 from .retrieval_api import router as retrieval_router
@@ -27,6 +28,7 @@ app.include_router(retrieval_router)
 app.include_router(global_search_router)
 app.include_router(p1_assistant_router)
 app.include_router(product_360_router)
+app.include_router(price_list_import_router)
 app.include_router(promotion_readiness_router)
 app.include_router(message_identity_reconstruction_router)
 app.include_router(observability_router)
