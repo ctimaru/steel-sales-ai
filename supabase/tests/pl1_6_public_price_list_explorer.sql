@@ -57,11 +57,20 @@ select pg_temp.pl16_assert(
 );
 
 select pg_temp.pl16_assert(
-  position(
-    'has_platform_permission(''knowledge.read_drafts''::text)'
+  exists (
+    select 1
+    from pg_proc p
+    join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='public'
+      and p.proname='pl1_can_preview_internal'
+      and p.prosecdef
+  )
+  and has_function_privilege('anon','public.pl1_can_preview_internal()','EXECUTE')
+  and position(
+    'pl1_can_preview_internal'
     in pg_get_functiondef('public.pl1_price_list_catalog(boolean)'::regprocedure)
   ) > 0,
-  'internal preview must be permission-gated'
+  'internal preview must use the anonymous-safe permission bridge'
 );
 
 select pg_temp.pl16_assert(
