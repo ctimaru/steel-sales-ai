@@ -63,7 +63,7 @@ test("PL1.7 applies effective saved discounts per row without changing the PL1.6
   assert.match(explorer, /resolveRowPricing/);
   assert.match(explorer, /pricingMode === "saved"/);
   assert.match(explorer, /base \* \(1 - discountPct \/ 100\) \+ extra/);
-  assert.match(explorer, /Profili salvati/);
+  assert.match(explorer, />\s*Profili\s*</);
   assert.match(explorer, />Sconto</);
 });
 
