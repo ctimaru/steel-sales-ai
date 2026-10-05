@@ -9,7 +9,6 @@ import {
   ANALYTICS_CONSENT_STORAGE_KEY,
   ANALYTICS_CONSENT_VERSION,
   ANALYTICS_NOTICE_VERSION,
-  ANALYTICS_REPROMPT_MONTHS,
   LEGACY_ANALYTICS_CONSENT_STORAGE_KEY,
   analyticsConsentRecordIsCurrent,
   createAnalyticsConsentRecord,
@@ -47,6 +46,22 @@ function clearGoogleAnalyticsCookies() {
   }
 }
 
+function PrivacyShield() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="h-3.5 w-3.5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+    >
+      <path d="M12 3.5 19 6v5.2c0 4.6-2.8 7.7-7 9.3-4.2-1.6-7-4.7-7-9.3V6l7-2.5Z" />
+      <path d="m9.5 12 1.6 1.6 3.5-3.7" />
+    </svg>
+  );
+}
+
 export function GoogleAnalyticsConsent({
   measurementId,
 }: {
@@ -80,8 +95,6 @@ export function GoogleAnalyticsConsent({
     }
     window.localStorage.removeItem(ANALYTICS_CONSENT_STORAGE_KEY);
 
-    // LR2 intentionally invalidates the old unversioned choice once so the new
-    // versioned notice can be acknowledged and documented correctly.
     if (window.localStorage.getItem(LEGACY_ANALYTICS_CONSENT_STORAGE_KEY)) {
       window.localStorage.removeItem(LEGACY_ANALYTICS_CONSENT_STORAGE_KEY);
     }
@@ -145,6 +158,12 @@ export function GoogleAnalyticsConsent({
   }
 
   const showPanel = consent === null || settingsOpen;
+  const currentLabel =
+    consent === "granted"
+      ? "Analytics accettati"
+      : consent === "denied"
+        ? "Solo necessari"
+        : "Scelta non espressa";
 
   return (
     <>
@@ -159,54 +178,70 @@ export function GoogleAnalyticsConsent({
       {showPanel ? (
         <section
           role="dialog"
-          aria-label="Preferenze statistiche"
-          className="fixed inset-x-3 bottom-3 z-[100] mx-auto max-w-2xl rounded-2xl border border-[#c9ddd5] bg-white p-4 shadow-[0_18px_55px_rgba(11,47,39,0.20)] sm:bottom-5 sm:p-5"
+          aria-label="Cookie e privacy"
+          aria-modal="false"
+          className="fixed bottom-3 left-3 right-3 z-[100] ml-auto max-w-[560px] rounded-2xl border border-[#c9d8d2] bg-white/98 p-4 shadow-[0_12px_36px_rgba(17,54,45,0.14)] backdrop-blur sm:bottom-4 sm:left-auto sm:right-4"
         >
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm font-bold text-[#173f35]">Statistiche del sito</p>
-              <p className="mt-1 text-xs leading-5 text-[#52615b]">
-                Possiamo usare Google Analytics per capire quali pagine pubbliche vengono visitate e da quali sorgenti arriva il traffico. Il tag non viene caricato finché non accetti.
-              </p>
-              <p className="mt-2 text-[11px] leading-5 text-[#66736e]">
-                La scelta viene ricordata per {ANALYTICS_REPROMPT_MONTHS} mesi e viene richiesta di nuovo prima solo se cambia in modo sostanziale il trattamento o l'informativa.
-              </p>
-              <p className="mt-2 text-[11px] leading-5 text-[#66736e]">
-                Leggi la{" "}
-                <Link href="/privacy" className="font-bold text-[#1a5144] underline underline-offset-4">
-                  Privacy Policy
-                </Link>{" "}
-                e la{" "}
-                <Link href="/cookies" className="font-bold text-[#1a5144] underline underline-offset-4">
-                  Cookie & Tracking Policy
-                </Link>.
-              </p>
+          <button
+            type="button"
+            onClick={() => choose("denied")}
+            aria-label="Continua solo con cookie necessari"
+            title="Solo necessari"
+            className="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-full text-base font-medium text-[#718078] transition hover:bg-[#f1f5f3] hover:text-[#173f35]"
+          >
+            ×
+          </button>
+
+          <div className="pr-8">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-sm font-bold text-[#173f35]">Cookie e privacy</p>
+              {consent !== null ? (
+                <span className="rounded-full bg-[#f1f5f3] px-2 py-1 text-[10px] font-semibold text-[#66736e]">
+                  {currentLabel}
+                </span>
+              ) : null}
             </div>
-            <div className="flex shrink-0 flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => choose("denied")}
-                className="min-h-11 rounded-xl border border-[#cbd8d3] bg-white px-4 text-xs font-bold text-[#43524c] hover:border-[#8fb5a8]"
-              >
-                Solo necessari
-              </button>
-              <button
-                type="button"
-                onClick={() => choose("granted")}
-                className="min-h-11 rounded-xl bg-[#173f35] px-4 text-xs font-bold text-white hover:bg-[#225c4d]"
-              >
-                Accetta statistiche
-              </button>
-            </div>
+            <p className="mt-1.5 max-w-lg text-xs leading-5 text-[#52615b]">
+              Usiamo cookie necessari per il sito e, solo se accetti, Google Analytics per capire come vengono usate le pagine pubbliche. Nessun cookie analytics viene caricato prima della tua scelta.
+            </p>
+            <p className="mt-2 text-[11px] leading-5 text-[#718078]">
+              <Link href="/privacy" className="font-semibold text-[#1a5144] underline underline-offset-4">
+                Privacy
+              </Link>
+              <span aria-hidden="true"> · </span>
+              <Link href="/cookies" className="font-semibold text-[#1a5144] underline underline-offset-4">
+                Cookie Policy
+              </Link>
+            </p>
+          </div>
+
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => choose("denied")}
+              className="min-h-10 rounded-xl border border-[#b9cbc4] bg-white px-3 text-xs font-bold text-[#43524c] transition hover:bg-[#f6f8f7]"
+            >
+              Solo necessari
+            </button>
+            <button
+              type="button"
+              onClick={() => choose("granted")}
+              className="min-h-10 rounded-xl border border-[#9ebcaf] bg-[#edf5f2] px-3 text-xs font-bold text-[#173f35] transition hover:bg-[#e4efeb]"
+            >
+              Accetta analytics
+            </button>
           </div>
         </section>
       ) : (
         <button
           type="button"
           onClick={() => setSettingsOpen(true)}
-          className="fixed bottom-3 left-3 z-[90] min-h-9 rounded-full border border-[#cbd8d3] bg-white/95 px-3 text-[10px] font-bold text-[#52615b] shadow-sm backdrop-blur hover:border-[#8fb5a8] hover:text-[#173f35]"
+          aria-label="Riapri preferenze cookie e privacy"
+          title="Cookie e privacy"
+          className="group fixed bottom-4 left-0 z-[90] flex h-9 items-center gap-1.5 rounded-r-full border border-l-0 border-[#cbd8d3] bg-white/95 pl-2.5 pr-3 text-[10px] font-bold text-[#52615b] shadow-sm backdrop-blur transition hover:border-[#8fb5a8] hover:bg-white hover:text-[#173f35]"
         >
-          Preferenze statistiche
+          <PrivacyShield />
+          <span>Privacy</span>
           <span className="sr-only">
             · consenso {consentRecord?.decision ?? "non espresso"} · versione {ANALYTICS_CONSENT_VERSION} · informativa {ANALYTICS_NOTICE_VERSION}
           </span>

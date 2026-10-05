@@ -54,7 +54,7 @@ test("LR1.1 cookie policy documents local retention and consent-gated GA4", () =
   assert.match(cookies, /_ga/);
   assert.match(cookies, /non viene caricato prima del consenso/i);
   assert.match(cookies, /Scorrere la pagina/);
-  assert.match(cookies, /Preferenze statistiche/);
+  assert.match(cookies, /linguetta “Privacy”/);
 });
 
 test("LR1.1 terms contain technical calculator and company-profile disclaimers", () => {
@@ -80,8 +80,8 @@ test("LR1.1 legal links are permanently reachable across public surfaces", () =>
 test("LR1.1 analytics first layer links directly to privacy and cookie information", () => {
   assert.match(consent, /href="\/privacy"/);
   assert.match(consent, /href="\/cookies"/);
-  assert.match(consent, /Privacy Policy/);
-  assert.match(consent, /Cookie & Tracking Policy/);
+  assert.match(consent, /Privacy/);
+  assert.match(consent, /Cookie Policy/);
   assert.match(consent, /Solo necessari/);
-  assert.match(consent, /Accetta statistiche/);
+  assert.match(consent, /Accetta analytics/);
 });

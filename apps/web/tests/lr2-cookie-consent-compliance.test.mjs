@@ -25,6 +25,7 @@ test("LR2 does not aggressively reprompt before six months unless the notice cha
   assert.ok(contract.includes("record.noticeVersion !== ANALYTICS_NOTICE_VERSION"));
   assert.ok(consent.includes("analyticsConsentRecordIsCurrent(stored)"));
   assert.ok(cookies.includes("non ripropone il banner prima di sei mesi"));
+  assert.ok(cookies.includes("linguetta “Privacy”"));
 });
 
 test("LR2 deliberately invalidates the legacy unversioned choice once", () => {
@@ -40,7 +41,7 @@ test("LR2 keeps zero Google Analytics loading before explicit grant", () => {
   assert.ok(!layout.includes("googletagmanager.com"));
   assert.ok(!layout.includes("google-analytics.com"));
   assert.ok(consent.includes("Solo necessari"));
-  assert.ok(consent.includes("Accetta statistiche"));
+  assert.ok(consent.includes("Accetta analytics"));
 });
 
 test("LR2 removes accessible GA cookies on withdrawal or stale granted evidence", () => {
@@ -70,7 +71,8 @@ test("LR2 publishes a concrete cookie and local-storage inventory", () => {
 });
 
 test("LR2 keeps consent revocable and public analytics restricted to acquisition surfaces", () => {
-  assert.ok(consent.includes("Preferenze statistiche"));
+  assert.ok(consent.includes("Cookie e privacy"));
+  assert.ok(consent.includes("Riapri preferenze cookie e privacy"));
   assert.ok(consent.includes("setSettingsOpen(true)"));
   assert.ok(consent.includes('pathname.startsWith("/knowledge")'));
   assert.ok(consent.includes('pathname.startsWith("/azienda")'));
