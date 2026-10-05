@@ -760,7 +760,15 @@ from public,anon,authenticated;
 grant execute on function public.lr5_retention_cleanup()
 to service_role;
 
-create extension if not exists pg_cron with schema pg_catalog;
+do $lr5_pg_cron$
+begin
+  if not exists (
+    select 1 from pg_extension where extname='pg_cron'
+  ) then
+    execute 'create extension pg_cron with schema pg_catalog';
+  end if;
+end;
+$lr5_pg_cron$;
 
 do $lr5_cron$
 declare
