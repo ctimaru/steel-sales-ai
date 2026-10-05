@@ -62,9 +62,10 @@ begin
       'corner_radii','t<=6: ro=2t ri=1t; 6<t<=10: ro=2.5t ri=1.5t; t>10: ro=3t ri=2t'
     )
   from public.price_list_items i
-  join public.price_list_sections s on s.id=i.section_id
-  join public.steel_geometries g on g.id=wl.geometry_id
+  join public.price_list_sections s on s.id=i.section_id,
+       public.steel_geometries g
   where wl.price_list_item_id=i.id
+    and g.id=wl.geometry_id
     and s.price_list_version_id=p_price_list_version_id
     and s.weight_standard_key='EN10219'
     and wl.resolution_status='candidate'
