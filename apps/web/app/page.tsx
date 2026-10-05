@@ -108,7 +108,7 @@ export default async function PublicHomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
       />
       <header className="border-b border-[#dce2df] bg-white/95 backdrop-blur-xl">
-        <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex min-h-16 max-w-[1180px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <ProductBrand href="/" />
           <nav className="hidden items-center gap-1 md:flex" aria-label="Navigazione pubblica">
             <Link
@@ -159,104 +159,41 @@ export default async function PublicHomePage() {
         </div>
       </header>
 
-      <section className="overflow-hidden border-b border-[#dce2df] bg-[#123d34] text-white">
-        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-20">
-          <div className="flex flex-col justify-center">
-            <div className="flex flex-wrap gap-2">
-              <span className="rounded-full border border-white/10 bg-white/[0.08] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-[#d9e8e2]">
-                Smart Steel Sales
-              </span>
-              <span className="rounded-full border border-[#d7a45b]/35 bg-[#d7a45b]/10 px-3 py-1.5 text-[11px] font-bold text-[#f2cf9c]">
-                Utile anche senza account
-              </span>
-            </div>
-
-            <h1 className="mt-6 max-w-4xl text-4xl font-semibold leading-[1.02] tracking-[-0.05em] sm:text-6xl">
-              Il business network
-              <span className="block text-[#9cc5b7]">dell&apos;industria dell&apos;acciaio.</span>
-            </h1>
-
-            <p className="mt-6 max-w-2xl text-base leading-7 text-[#d8e5e0] sm:text-lg">
-              Scuola e strumenti tecnici sono pubblici. Puoi anche verificare se la tua azienda
-              è già presente e rivendicabile. Il Network completo — con directory, filtri e dati
-              arricchiti — resta un prodotto privato per le aziende registrate.
-            </p>
-
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link
-                href="/knowledge/tubes?source=home&surface=hero#calcolatore-pesi"
-                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-white px-5 text-sm font-bold text-[#173f35] transition hover:bg-[#edf5f2]"
-              >
-                Calcola peso tubo
-              </Link>
-              <Link
-                href="/azienda"
-                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/20 bg-white/[0.06] px-5 text-sm font-semibold text-white transition hover:bg-white/[0.1]"
-              >
-                Trova o rivendica la tua azienda
-              </Link>
-              <Link
-                href="/knowledge"
-                className="inline-flex min-h-10 items-center px-2 text-sm font-semibold text-[#c6d8d1] underline decoration-white/25 underline-offset-4 hover:text-white"
-              >
-                Apri Scuola
-              </Link>
-            </div>
-
-            <div className="mt-9 grid gap-3 sm:grid-cols-3">
-              {[
-                ["Norme", "consultazione pubblica"],
-                ["Pesi", "strumenti tubi"],
-                ["Aziende", "verifica e claim"],
-              ].map(([title, body]) => (
-                <div key={title} className="rounded-2xl border border-white/10 bg-white/[0.05] p-4">
-                  <p className="text-lg font-semibold text-white">{title}</p>
-                  <p className="mt-1 text-xs text-[#b9cec6]">{body}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid content-center gap-3">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#9cc5b7]">
-              Cosa puoi fare subito
-            </p>
-            {schoolCards.map((card, index) => (
-              <Link
-                key={card.title}
-                href={
-                  index === 0
-                    ? "/knowledge/tubes?source=home&surface=quick_actions#calcolatore-pesi"
-                    : card.href
-                }
-                className={
-                  index === 0
-                    ? "group rounded-2xl border border-[#f2cf9c]/35 bg-white/[0.12] p-5 shadow-[0_12px_28px_rgba(0,0,0,0.08)] transition hover:bg-white/[0.16]"
-                    : "group rounded-2xl border border-white/10 bg-white/[0.07] p-5 transition hover:bg-white/[0.11]"
-                }
-              >
-                <div className="flex items-start gap-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-xs font-bold text-[#173f35]">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#9cc5b7]">
-                      {card.eyebrow}
-                    </p>
-                    <h2 className="mt-1 text-lg font-semibold text-white">{card.title}</h2>
-                    <p className="mt-2 text-sm leading-6 text-[#c6d8d1]">{card.description}</p>
-                    <p className="mt-3 text-xs font-semibold text-[#f2cf9c]">
-                      {card.action} <span aria-hidden="true">→</span>
-                    </p>
-                  </div>
-                </div>
-              </Link>
-            ))}
+      <section className="border-b border-[#dce2df] bg-[#123d34] text-white">
+        <div className="mx-auto max-w-[1180px] px-4 py-12 sm:px-6 sm:py-14 lg:px-8">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">Smart Steel Sales</p>
+          <h1 className="mt-3 max-w-3xl text-4xl font-semibold leading-[1.04] tracking-[-0.04em] sm:text-5xl">
+            Parti da uno strumento utile.
+            <span className="block text-[#9cc5b7]">Poi entra nel network dell’acciaio.</span>
+          </h1>
+          <p className="mt-5 max-w-2xl text-base leading-7 text-[#d8e5e0]">
+            Calcola il peso dei tubi, consulta norme e gradi oppure verifica se la tua azienda è già presente.
+            Il Network completo e la Commercial Memory restano prodotti privati per le aziende registrate.
+          </p>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <Link
+              href="/knowledge/tubes?source=home&surface=hero#calcolatore-pesi"
+              className="inline-flex min-h-12 items-center justify-center rounded-xl bg-white px-5 text-sm font-bold text-[#173f35] hover:bg-[#edf5f2]"
+            >
+              Calcola peso tubo
+            </Link>
+            <Link
+              href="/azienda"
+              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/20 bg-white/[0.06] px-5 text-sm font-semibold text-white hover:bg-white/[0.1]"
+            >
+              Trova la tua azienda
+            </Link>
+            <Link
+              href="/knowledge"
+              className="inline-flex min-h-12 items-center px-2 text-sm font-semibold text-[#c6d8d1] hover:text-white"
+            >
+              Apri Scuola →
+            </Link>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+      <section className="mx-auto max-w-[1180px] px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
         <div className="max-w-3xl">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Scuola</p>
           <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-4xl">
@@ -295,7 +232,7 @@ export default async function PublicHomePage() {
       </section>
 
       <section id="aziende" className="border-y border-[#dce2df] bg-white">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[0.82fr_1.18fr] lg:px-8">
+        <div className="mx-auto grid max-w-[1180px] gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[0.82fr_1.18fr] lg:px-8">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">La tua azienda</p>
             <h2 className="mt-2 max-w-xl text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-4xl">
@@ -330,7 +267,7 @@ export default async function PublicHomePage() {
         </div>
       </section>
 
-      <section id="network" className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+      <section id="network" className="mx-auto max-w-[1180px] px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <div className="flex flex-wrap items-center gap-2">
@@ -378,7 +315,7 @@ export default async function PublicHomePage() {
       </section>
 
       <section className="bg-[#1d2824] text-white">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8">
+        <div className="mx-auto grid max-w-[1180px] gap-6 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">Trust by design</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
@@ -405,7 +342,7 @@ export default async function PublicHomePage() {
       </section>
 
       <footer className="border-t border-[#dce2df] bg-white">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-6 text-xs text-[#7b8782] sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
+        <div className="mx-auto flex max-w-[1180px] flex-col gap-4 px-4 py-6 text-xs text-[#7b8782] sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
           <div className="flex flex-wrap gap-x-5 gap-y-2">
             <Link href="/knowledge/tubes?source=home&surface=school_section#calcolatore-pesi" className="font-semibold hover:text-[#173f35]">Calcolatore</Link>
             <Link href="/knowledge" className="font-semibold hover:text-[#173f35]">Scuola</Link>
