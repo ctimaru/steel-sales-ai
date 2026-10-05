@@ -19,14 +19,14 @@ test("PA1.1 public home leads with value before login", () => {
 });
 
 test("PA1.1 exposes real public Scuola entry points", () => {
-  assert.match(home, /href: "\/knowledge\/tubes"/);
+  assert.match(home, /href: "\/knowledge\/tubes\?source=home&surface=school_section#calcolatore-pesi"/);
   assert.match(home, /href: "\/knowledge\/norme"/);
   assert.match(home, /href: "\/knowledge\/gradi"/);
   assert.match(home, /Apri Scuola/);
 });
 
 test("PA1.1 public-value architecture remains intact after PA1.2 adds real company lookup", () => {
-  assert.match(home, /Trova o rivendica la tua azienda/);
+  assert.match(home, /Trova la tua azienda/);
   assert.match(home, /<PublicCompanyLookup \/>/);
   assert.match(home, /La ricerca pubblica serve solo a riconoscere l&apos;identità aziendale/);
   assert.match(home, /Privato · Premium/);
