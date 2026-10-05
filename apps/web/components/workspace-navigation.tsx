@@ -314,7 +314,7 @@ export function WorkspaceContextNavigation({
 
   return (
     <div className="border-t border-[#eef1ef] bg-white">
-      <div className="mx-auto flex max-w-[1500px] items-center gap-1 overflow-x-auto px-3 sm:px-5 lg:px-8">
+      <div className="mx-auto flex max-w-[1280px] items-center gap-1 overflow-x-auto px-3 sm:px-5 lg:px-8">
         {items.map((item) => (
           <ContextLink
             key={item.contextKey}
