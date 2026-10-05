@@ -223,4 +223,15 @@ select pg_temp.lr5_assert(
   'registration applicant identity must use ON DELETE SET NULL for post-retention identity detachment'
 );
 
+select pg_temp.lr5_assert(
+  exists(
+    select 1
+    from pg_indexes
+    where schemaname='public'
+      and tablename='user_legal_acceptances'
+      and indexname='user_legal_acceptances_user_id_idx'
+  ),
+  'legal acceptance auth user FK must have a covering index'
+);
+
 rollback;
