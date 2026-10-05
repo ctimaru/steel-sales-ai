@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import { PrivateDiscountProfilesPanel } from "@/components/private-discount-profiles-panel";
 import { PublicPriceListExplorer } from "@/components/public-price-list-explorer";
 import {
@@ -10,6 +12,11 @@ import {
 import { requirePlatformSuperadmin } from "@/lib/platform-admin";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Prove & novità · Platform",
+  robots: { index: false, follow: false, noarchive: true },
+};
 
 const PADANA_PTC18_VERSION_ID = "31c762b0-2d20-480f-aa87-dd63e33db945";
 
