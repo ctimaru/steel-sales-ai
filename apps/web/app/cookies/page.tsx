@@ -33,7 +33,7 @@ export default function CookiesPage() {
 
       <LegalSection title="2. Preferenza analytics e durata della scelta">
         <p>
-          La scelta “Accetta analytics” / “Solo necessari” viene conservata localmente nel browser
+          La scelta “Accetta” / “Accetta necessari” viene conservata localmente nel browser
           insieme a versione del consenso, versione dell’informativa e data della decisione.
         </p>
         <p>
