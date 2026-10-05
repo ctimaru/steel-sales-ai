@@ -54,7 +54,7 @@ test("PL1.8 keeps selected lines coupled to the active manual or saved pricing m
 test("PL1.8 uses a desktop side panel and mobile bottom drawer", () => {
   assert.match(explorer, /xl:grid-cols-\[minmax\(0,1fr\)_360px\]/);
   assert.match(explorer, /<aside className="hidden xl:block">/);
-  assert.match(explorer, /fixed bottom-4 right-4/);
+  assert.match(explorer, /fixed right-4 z-40/);
   assert.match(explorer, /mobileDistintaOpen/);
   assert.match(explorer, /<PriceListDistinta/);
 });
