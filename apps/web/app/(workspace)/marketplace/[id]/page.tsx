@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DenseDisclosure, DenseStatStrip } from "@/components/dense-ui";
 import { notFound } from "next/navigation";
 
 import { MarketplaceRequestReadiness } from "@/components/marketplace-readiness";
@@ -94,7 +95,7 @@ export default async function MarketplaceRequestPage({
       readiness.buyer.namedPublicationReady);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="uxf2-dense-page mx-auto max-w-[1180px] space-y-6">
       <Link
         href={appRoutes.marketplace.home}
         className="text-sm font-semibold text-[#66736e] hover:text-[#173f35]"
@@ -169,55 +170,17 @@ export default async function MarketplaceRequestPage({
             </span>
           </div>
 
-          <div className="mt-5 grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
-            <div className="rounded-xl border border-[#dce2df] bg-white p-3">
-              <p className="metric-number text-xl font-semibold text-[#1d2824]">
-                {matchSummary.total_matches}
-              </p>
-              <p className="mt-1 text-[11px] font-semibold text-[#66736e]">
-                Match
-              </p>
-            </div>
-            <div className="rounded-xl border border-[#dce2df] bg-white p-3">
-              <p className="metric-number text-xl font-semibold text-[#1d2824]">
-                {matchSummary.contactable_matches}
-              </p>
-              <p className="mt-1 text-[11px] font-semibold text-[#66736e]">
-                Organizzazioni attive
-              </p>
-            </div>
-            <div className="rounded-xl border border-[#dce2df] bg-white p-3">
-              <p className="metric-number text-xl font-semibold text-[#1d2824]">
-                {matchSummary.notifications_created}
-              </p>
-              <p className="mt-1 text-[11px] font-semibold text-[#66736e]">
-                Notificate
-              </p>
-            </div>
-            <div className="rounded-xl border border-[#dce2df] bg-white p-3">
-              <p className="metric-number text-xl font-semibold text-emerald-700">
-                {matchSummary.bands.strong}
-              </p>
-              <p className="mt-1 text-[11px] font-semibold text-[#66736e]">
-                Forti
-              </p>
-            </div>
-            <div className="rounded-xl border border-[#dce2df] bg-white p-3">
-              <p className="metric-number text-xl font-semibold text-[#173f35]">
-                {matchSummary.bands.good}
-              </p>
-              <p className="mt-1 text-[11px] font-semibold text-[#66736e]">
-                Buoni
-              </p>
-            </div>
-            <div className="rounded-xl border border-[#dce2df] bg-white p-3">
-              <p className="metric-number text-xl font-semibold text-amber-700">
-                {matchSummary.bands.broad}
-              </p>
-              <p className="mt-1 text-[11px] font-semibold text-[#66736e]">
-                Ampi
-              </p>
-            </div>
+          <div className="mt-5">
+            <DenseStatStrip
+              items={[
+                { label: "Match", value: matchSummary.total_matches },
+                { label: "Organizzazioni attive", value: matchSummary.contactable_matches },
+                { label: "Notificate", value: matchSummary.notifications_created },
+                { label: "Forti", value: matchSummary.bands.strong },
+                { label: "Buoni", value: matchSummary.bands.good },
+                { label: "Ampi", value: matchSummary.bands.broad },
+              ]}
+            />
           </div>
         </section>
       ) : null}
@@ -232,6 +195,10 @@ export default async function MarketplaceRequestPage({
       ) : null}
 
       {editable ? (
+        <DenseDisclosure
+          title="Impostazioni e pubblicazione"
+          description="Apri per modificare titolo, visibilità o durata. Le linee prodotto restano il contenuto principale."
+        >
         <section className="grid gap-5 xl:grid-cols-[0.8fr_1.2fr]">
           <form action={updateMarketplaceRequest} className="rounded-2xl border border-[#dce2df] bg-white p-5">
             <input type="hidden" name="request_id" value={request.id} />
@@ -309,6 +276,7 @@ export default async function MarketplaceRequestPage({
             )}
           </form>
         </section>
+        </DenseDisclosure>
       ) : null}
 
       <section>
@@ -366,7 +334,11 @@ export default async function MarketplaceRequestPage({
       </section>
 
       {editable ? (
-        <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+        <DenseDisclosure
+          title="Aggiungi una linea prodotto"
+          description="Apri solo quando devi aggiungere una nuova specifica alla richiesta."
+        >
+        <section className="rounded-2xl border border-[#dce2df] bg-white p-5 sm:p-6">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#173f35]">Aggiungi linea</p>
           <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">Specifica il prodotto richiesto</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
@@ -484,9 +456,15 @@ export default async function MarketplaceRequestPage({
             </button>
           </form>
         </section>
+        </DenseDisclosure>
       ) : null}
 
       {withdrawable ? (
+        <DenseDisclosure
+          title="Ritira ricerca"
+          description="Azione definitiva registrata nell’audit ledger."
+          tone="danger"
+        >
         <section className="rounded-2xl border border-rose-100 bg-rose-50/50 p-5">
           <h2 className="text-sm font-semibold text-rose-900">Ritira ricerca</h2>
           <p className="mt-1 text-xs leading-5 text-rose-700">
@@ -499,6 +477,7 @@ export default async function MarketplaceRequestPage({
             </button>
           </form>
         </section>
+        </DenseDisclosure>
       ) : null}
     </div>
   );
