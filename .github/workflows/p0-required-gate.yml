@@ -285,7 +285,8 @@ jobs:
             hp18_production_journey_acceptance.sql \
             l27_1_release_database_readiness.sql \
             l272a_investor_business_plan_room.sql \
-            pl1_5_padana_full_import.sql; do
+            pl1_5_padana_full_import.sql \
+            pl1_5a_residual_weight_special_profile_resolution.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
