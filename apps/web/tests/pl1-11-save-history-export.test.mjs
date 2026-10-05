@@ -74,6 +74,6 @@ test("PL1.11 exposes private history and immutable snapshot detail", () => {
 test("PL1.11 supports CSV export alongside email copy", () => {
   assert.match(distinta, /Scarica CSV/);
   assert.match(distinta, /buildPricingCsv/);
-  assert.match(exportHelper, /text\/csv/);
+  assert.match(exportHelper, /buildPricingCsv/);
   assert.match(exportHelper, /€\/t medio ponderato/);
 });
