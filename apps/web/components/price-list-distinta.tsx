@@ -3,7 +3,9 @@
 import type { PriceListExplorerItem } from "@/lib/public-price-lists";
 import {
   calculateDistintaLine,
+  calculateDistintaTotals,
   distintaIssueLabel,
+  weightedAverageStatusLabel,
   type DistintaQuantityMode,
 } from "@/lib/distinta";
 
@@ -55,6 +57,33 @@ export function PriceListDistinta({
   onClose?: () => void;
   mobile?: boolean;
 }) {
+  const calculatedLines = lines.map((line) => {
+    const weightKgM = numberValue(line.item.resolved_weight_kg_m);
+    const calculation = calculateDistintaLine({
+      quantityMode: line.quantityMode,
+      quantity: numberFromInput(line.quantityInput),
+      barLengthM: numberFromInput(line.barLengthInput),
+      weightKgM,
+      netEurM: line.netEurM,
+    });
+
+    return {
+      line,
+      weightKgM,
+      calculation,
+      issue: distintaIssueLabel(calculation.issue),
+    };
+  });
+
+  const totals = calculateDistintaTotals(
+    calculatedLines.map(({ calculation }) => calculation),
+  );
+  const weightedAverageMessage = weightedAverageStatusLabel(
+    totals.weightedAverageStatus,
+    totals.lineCount,
+    totals.weightedReadyLineCount,
+  );
+
   return (
     <section
       className={[
@@ -114,17 +143,7 @@ export function PriceListDistinta({
       ) : (
         <div className={mobile ? "max-h-[62vh] overflow-y-auto" : "max-h-[70vh] overflow-y-auto"}>
           <div className="divide-y divide-[#edf0ee]">
-            {lines.map((line, index) => {
-              const weightKgM = numberValue(line.item.resolved_weight_kg_m);
-              const calculation = calculateDistintaLine({
-                quantityMode: line.quantityMode,
-                quantity: numberFromInput(line.quantityInput),
-                barLengthM: numberFromInput(line.barLengthInput),
-                weightKgM,
-                netEurM: line.netEurM,
-              });
-              const issue = distintaIssueLabel(calculation.issue);
-
+            {calculatedLines.map(({ line, weightKgM, calculation, issue }, index) => {
               return (
                 <article key={line.item.item_id} className="p-4">
                   <div className="flex items-start justify-between gap-3">
@@ -276,6 +295,77 @@ export function PriceListDistinta({
           </div>
         </div>
       )}
+
+      {lines.length > 0 ? (
+        <footer className="border-t border-[#d9e3de] bg-[#f6faf8] p-4">
+          <div className="grid grid-cols-2 gap-2">
+            <div className="rounded-xl border border-[#dfe8e4] bg-white p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-[#718078]">
+                Metri {totals.metersComplete ? "totali" : "calcolati"}
+              </p>
+              <p className="mt-1 text-base font-bold tabular-nums text-[#1d2824]">
+                {formatNumber(totals.totalMeters, 2)}
+              </p>
+            </div>
+            <div className="rounded-xl border border-[#dfe8e4] bg-white p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-[#718078]">
+                Tonnellate {totals.tonnesComplete ? "totali" : "note"}
+              </p>
+              <p className="mt-1 text-base font-bold tabular-nums text-[#1d2824]">
+                {formatNumber(totals.totalTonnes, 3)}
+              </p>
+            </div>
+            <div className="rounded-xl border border-[#cfe0d9] bg-white p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-[#527268]">
+                {totals.valueComplete ? "Valore totale" : "Valore calcolato"}
+              </p>
+              <p className="mt-1 text-base font-bold tabular-nums text-[#173f35]">
+                € {formatNumber(totals.totalValueEur, 2)}
+              </p>
+            </div>
+            <div
+              className={[
+                "rounded-xl border p-3",
+                totals.weightedAverageStatus === "ready"
+                  ? "border-[#9ebfb3] bg-[#eaf4f0]"
+                  : "border-[#dfe5e2] bg-[#f0f3f1]",
+              ].join(" ")}
+            >
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-[#527268]">
+                €/t medio ponderato
+              </p>
+              <p className="mt-1 text-base font-bold tabular-nums text-[#173f35]">
+                {totals.weightedAverageEurT === null
+                  ? "—"
+                  : formatNumber(totals.weightedAverageEurT, 2)}
+              </p>
+            </div>
+          </div>
+
+          <p
+            className={[
+              "mt-2 text-[10px] leading-4",
+              totals.weightedAverageStatus === "ready"
+                ? "text-[#527268]"
+                : "text-[#7a6a55]",
+            ].join(" ")}
+          >
+            {weightedAverageMessage}
+          </p>
+
+          {!totals.valueComplete ? (
+            <p className="mt-1 text-[10px] leading-4 text-[#7a8781]">
+              Il valore mostrato include soltanto le righe con quantità e prezzo calcolabili.
+            </p>
+          ) : null}
+
+          {!totals.tonnesComplete ? (
+            <p className="mt-1 text-[10px] leading-4 text-[#7a8781]">
+              Le tonnellate mostrate includono soltanto le righe con kg/m disponibile.
+            </p>
+          ) : null}
+        </footer>
+      ) : null}
     </section>
   );
 }
