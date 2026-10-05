@@ -83,7 +83,19 @@ export default function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection title="8. Evoluzione dei termini">
+      <LegalSection title="8. Accettazione account e versioni">
+        <p>
+          Per gli account che accedono alle aree private Smart Steel Sales registra in modo versionato
+          l’accettazione dei Termini separatamente dalla presa visione dell’informativa privacy.
+          La presa visione dell’informativa non viene trattata come consenso al trattamento.
+        </p>
+        <p>
+          Quando una futura versione dei Termini introdurrà modifiche che richiedono una nuova
+          accettazione, la piattaforma potrà richiederla prima di proseguire nell’area autenticata.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="9. Evoluzione dei termini">
         <p>
           Questi termini pubblici saranno sostituiti o integrati dalle condizioni SaaS B2B LR8 prima
           dell’attivazione commerciale di piani a pagamento, rinnovi e servizi contrattuali.

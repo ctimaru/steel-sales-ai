@@ -99,7 +99,7 @@ test("HP8 handles both new and existing Supabase Auth identities", () => {
   assert.match(worker, /invite_user_by_email/);
   assert.match(worker, /set_password/);
   assert.match(authFinish, /set_password/);
-  assert.match(authFinish, /router\.replace\("\/dashboard\?joined=1"\)/);
+  assert.match(authFinish, /router\.replace\("\/legal\/accept\?source=team_invite&next="/);
 });
 
 test("HP8 worker administration endpoint fails closed", () => {

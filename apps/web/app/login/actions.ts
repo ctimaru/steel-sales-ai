@@ -62,6 +62,14 @@ function appendQuery(path: string, key: string, value: string) {
 
 async function routeAfterAuthentication(nextPath?: string) {
   const supabase = await createClient();
+
+  const { data: lifecycleData } = await supabase.rpc("lr5_account_lifecycle_state");
+  const lifecycle = (lifecycleData ?? {}) as { access_suspended?: boolean };
+  if (lifecycle.access_suspended === true) {
+    await supabase.auth.signOut({ scope: "global" });
+    redirect("/account-closure?requested=1");
+  }
+
   await Promise.all([
     supabase.rpc("claim_pending_organization_invitations"),
     supabase.rpc("sa2_claim_platform_staff_invitation"),
@@ -104,17 +112,26 @@ async function routeAfterAuthentication(nextPath?: string) {
     redirect(application ? "/registration/status" : "/register");
   }
 
-  if (nextPath && !isRegistrationNext(nextPath)) {
-    redirect(nextPath);
-  }
-
   const { data: organization } = await supabase
     .from("organizations")
     .select("guided_setup_completed_at")
     .eq("id", membership.organization_id)
     .maybeSingle();
 
-  redirect(organization?.guided_setup_completed_at ? "/dashboard" : "/onboarding");
+  const destination =
+    nextPath && !isRegistrationNext(nextPath)
+      ? nextPath
+      : organization?.guided_setup_completed_at
+        ? "/dashboard"
+        : "/onboarding";
+
+  const { data: legalData } = await supabase.rpc("lr5_current_legal_acceptance_state");
+  const legal = (legalData ?? {}) as { accepted?: boolean };
+  if (legal.accepted !== true) {
+    redirect("/legal/accept?next=" + encodeURIComponent(destination));
+  }
+
+  redirect(destination);
 }
 
 export async function login(formData: FormData) {

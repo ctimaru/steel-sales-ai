@@ -73,6 +73,8 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
   const contactName = field(formData, "contact_name");
   const contactPhone = field(formData, "contact_phone");
   const shortDescription = field(formData, "short_description");
+  const privacyAcknowledged = formData.get("privacy_acknowledged") === "on";
+  const termsAccepted = formData.get("terms_accepted") === "on";
   const secondaryCompanyTypes = formData
     .getAll("secondary_company_types")
     .map((value) => String(value))
@@ -119,13 +121,35 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
     !legalName ||
     !/^[A-Z]{2}$/.test(countryCode) ||
     !COMPANY_TYPES.has(primaryCompanyType) ||
-    !contactName
+    !contactName ||
+    !privacyAcknowledged ||
+    !termsAccepted
   ) {
     redirect(
       registerPath +
         (registerPath.includes("?") ? "&" : "?") +
         "error=" +
         encodeURIComponent("Completa i campi obbligatori prima di inviare"),
+    );
+  }
+
+  const { error: legalAcceptanceError } = await supabase.rpc(
+    "lr5_record_legal_acceptance",
+    {
+      p_privacy_acknowledged: true,
+      p_terms_accepted: true,
+      p_source: "registration",
+    },
+  );
+
+  if (legalAcceptanceError) {
+    redirect(
+      registerPath +
+        (registerPath.includes("?") ? "&" : "?") +
+        "error=" +
+        encodeURIComponent(
+          "Non è stato possibile registrare Informativa privacy e Termini d’uso. Riprova.",
+        ),
     );
   }
 

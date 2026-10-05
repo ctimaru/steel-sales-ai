@@ -85,6 +85,15 @@ export default function AuthFinishPage() {
           throw userError ?? new Error("Sessione di autenticazione non disponibile.");
         }
 
+        const { data: lifecycleData } = await supabase.rpc("lr5_account_lifecycle_state");
+        const lifecycle = (lifecycleData ?? {}) as { access_suspended?: boolean };
+        if (lifecycle.access_suspended === true) {
+          await supabase.auth.signOut({ scope: "global" });
+          router.replace("/account-closure?requested=1");
+          router.refresh();
+          return;
+        }
+
         if (isInvite && isStaffInvite) {
           if (!cancelled) {
             setInviteKind("platform");
@@ -110,7 +119,7 @@ export default function AuthFinishPage() {
 
           const invitation = contextData as OrganizationInvitationContext;
           if (invitation.status === "accepted") {
-            router.replace("/dashboard?joined=1");
+            router.replace("/legal/accept?source=team_invite&next=" + encodeURIComponent("/dashboard?joined=1"));
             router.refresh();
             return;
           }
@@ -144,7 +153,7 @@ export default function AuthFinishPage() {
               throw new Error("L’invito è scaduto o è stato revocato.");
             }
 
-            router.replace("/dashboard?joined=1");
+            router.replace("/legal/accept?source=team_invite&next=" + encodeURIComponent("/dashboard?joined=1"));
             router.refresh();
             return;
           }
@@ -276,7 +285,7 @@ export default function AuthFinishPage() {
       return;
     }
 
-    router.replace("/dashboard?joined=1");
+    router.replace("/legal/accept?source=team_invite&next=" + encodeURIComponent("/dashboard?joined=1"));
     router.refresh();
   }
 

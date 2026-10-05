@@ -70,6 +70,10 @@ export const appRoutes = {
     tubeDimension: (slug: string) => `/knowledge/tubes/${slug}`,
   },
 
+  account: {
+    profile: "/account",
+  },
+
   operations: {
     uploads: "/operations/uploads",
     review: "/operations/review",

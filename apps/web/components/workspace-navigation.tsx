@@ -561,6 +561,17 @@ export function WorkspaceProfileMenu({
                 <ProfileMenuLink href={appRoutes.company.tubesStandards} label="Strumenti tubi & norme" onNavigate={closeMenu} />
               </div>
 
+              <div className="mt-2 border-t border-[#e2e7e4] pt-2">
+                <p className="px-2 pb-1 pt-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#87938e]">
+                  Account
+                </p>
+                <ProfileMenuLink
+                  href={appRoutes.account.profile}
+                  label="Account e privacy"
+                  onNavigate={closeMenu}
+                />
+              </div>
+
               {platformSuperadmin ? (
                 <div className="mt-2 border-t border-[#e2e7e4] pt-2">
                   <p className="px-2 pb-1 pt-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#87938e]">

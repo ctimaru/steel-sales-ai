@@ -34,6 +34,13 @@ export const getWorkspaceContext = cache(async function getWorkspaceContext(): P
   }
   if (!user) redirect("/login");
 
+  const { data: lifecycleData } = await supabase.rpc("lr5_account_lifecycle_state");
+  const lifecycle = (lifecycleData ?? {}) as { access_suspended?: boolean };
+  if (lifecycle.access_suspended === true) {
+    await supabase.auth.signOut({ scope: "global" });
+    redirect("/account-closure?requested=1");
+  }
+
   await supabase.rpc("claim_pending_organization_invitations");
 
   const [{ data: memberships, error: membershipError }, { data: superadminFlag }] =
@@ -50,6 +57,12 @@ export const getWorkspaceContext = cache(async function getWorkspaceContext(): P
 
   const membership = memberships?.find((row) => row.is_default) ?? memberships?.[0];
   if (!membership) redirect("/onboarding");
+
+  const { data: legalData } = await supabase.rpc("lr5_current_legal_acceptance_state");
+  const legal = (legalData ?? {}) as { accepted?: boolean };
+  if (legal.accepted !== true) {
+    redirect("/legal/accept?next=" + encodeURIComponent("/dashboard"));
+  }
 
   const { data: organization, error: organizationError } = await supabase
     .from("organizations")
