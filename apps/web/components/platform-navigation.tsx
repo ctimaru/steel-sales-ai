@@ -8,6 +8,7 @@ import { appRoutes } from "@/lib/routes";
 
 const platformNavGroups = [
   ["overview", "Overview"],
+  ["labs", "Prove & novità"],
   ["access", "Accesso & onboarding"],
   ["network", "Network governance"],
   ["content", "Contenuti"],
@@ -23,6 +24,14 @@ const platformNav = [
     permission: "platform.console.access",
     staffEnabled: true,
     group: "overview",
+  },
+  {
+    href: appRoutes.platform.labs,
+    label: "Listini in prova",
+    icon: "labs",
+    permission: "platform.console.access",
+    staffEnabled: false,
+    group: "labs",
   },
   {
     href: appRoutes.platform.people,
@@ -107,13 +116,22 @@ const platformNav = [
 ] as const satisfies readonly {
   href: string;
   label: string;
-  icon: "home" | "people" | "strategy" | "investor" | "kpi" | "pilot" | "registrations" | "discovery" | "claims" | "knowledge" | "trust";
+  icon: "home" | "labs" | "people" | "strategy" | "investor" | "kpi" | "pilot" | "registrations" | "discovery" | "claims" | "knowledge" | "trust";
   permission: PlatformPermissionKey;
   staffEnabled: boolean;
   group: (typeof platformNavGroups)[number][0];
 }[];
 
 function NavIcon({ name }: { name: (typeof platformNav)[number]["icon"] }) {
+  if (name === "labs") {
+    return (
+      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <path d="M9 3.75h6M10 3.75v5.5l-5.5 8.5a1.6 1.6 0 0 0 1.35 2.5h12.3a1.6 1.6 0 0 0 1.35-2.5L14 9.25v-5.5" />
+        <path d="M7.5 15.25h9M9.5 12.25h5" />
+      </svg>
+    );
+  }
+
   if (name === "investor") {
     return (
       <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
