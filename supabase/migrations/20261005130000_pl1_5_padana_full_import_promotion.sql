@@ -364,7 +364,7 @@ begin
   -- Governed geometry promotion for exact circular/square/rectangular identities.
   insert into public.steel_geometries(
     product_family, outer_diameter_mm, width_mm, height_mm,
-    thickness_mm, geometry_key, metadata
+    thickness_mm, metadata
   )
   select distinct
     case s.shape_code
@@ -376,7 +376,6 @@ begin
     case when s.shape_code in ('square','rectangular') then i.width_mm else null end,
     case when s.shape_code in ('square','rectangular') then i.height_mm else null end,
     i.thickness_mm,
-    i.geometry_candidate_key,
     jsonb_build_object(
       'created_by_contract','PL1.5',
       'created_from_import_run',p_run_id,
