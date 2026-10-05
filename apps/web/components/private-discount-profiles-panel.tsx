@@ -81,7 +81,7 @@ export function PrivateDiscountProfilesPanel({
           </div>
           <Link
             href={"/login?next=" + encodeURIComponent("/listini/" + versionId)}
-            className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-4 text-sm font-semibold text-[#173f35] hover:bg-[#e5f0ec]"
+            className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-4 text-sm font-semibold text-[#173f35] hover:bg-[#e5f0ec]"
           >
             Accedi
           </Link>
@@ -191,7 +191,7 @@ export function PrivateDiscountProfilesPanel({
           <select
             value={scopeType}
             onChange={(event) => setScopeType(event.target.value as DiscountScopeType)}
-            className="mt-1.5 h-10 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm outline-none focus:border-[#438d7a]"
+            className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm outline-none focus:border-[#438d7a]"
           >
             <option value="manufacturer">Produttore</option>
             <option value="price_list">Listino</option>
@@ -209,7 +209,7 @@ export function PrivateDiscountProfilesPanel({
             value={discountInput}
             onChange={(event) => setDiscountInput(event.target.value)}
             placeholder="es. 42"
-            className="mt-1.5 h-10 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm outline-none focus:border-[#438d7a]"
+            className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm outline-none focus:border-[#438d7a]"
           />
         </label>
 
@@ -219,7 +219,7 @@ export function PrivateDiscountProfilesPanel({
             value={gradeCode}
             onChange={(event) => setGradeCode(event.target.value)}
             disabled={!needsGrade}
-            className="mt-1.5 h-10 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm outline-none disabled:bg-[#f1f3f2] disabled:text-[#98a29e]"
+            className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm outline-none disabled:bg-[#f1f3f2] disabled:text-[#98a29e]"
           >
             <option value="">Seleziona</option>
             {grades.map((grade) => (
@@ -234,7 +234,7 @@ export function PrivateDiscountProfilesPanel({
             value={finishCode}
             onChange={(event) => setFinishCode(event.target.value)}
             disabled={!needsFinish}
-            className="mt-1.5 h-10 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm outline-none disabled:bg-[#f1f3f2] disabled:text-[#98a29e]"
+            className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm outline-none disabled:bg-[#f1f3f2] disabled:text-[#98a29e]"
           >
             <option value="">Seleziona</option>
             {finishes.map((finish) => (
@@ -248,7 +248,7 @@ export function PrivateDiscountProfilesPanel({
           <select
             value={visibility}
             onChange={(event) => setVisibility(event.target.value as DiscountVisibility)}
-            className="mt-1.5 h-10 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm outline-none focus:border-[#438d7a]"
+            className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm outline-none focus:border-[#438d7a]"
           >
             <option value="personal">Solo io</option>
             {context.canManageOrganization ? (
@@ -262,7 +262,7 @@ export function PrivateDiscountProfilesPanel({
             type="button"
             onClick={submitProfile}
             disabled={isPending}
-            className="min-h-10 w-full rounded-xl bg-[#173f35] px-4 text-sm font-semibold text-white hover:bg-[#245747] disabled:cursor-wait disabled:opacity-60"
+            className="min-h-11 w-full rounded-xl bg-[#173f35] px-4 text-sm font-semibold text-white hover:bg-[#245747] disabled:cursor-wait disabled:opacity-60"
           >
             {isPending ? "Salvataggio…" : "Salva profilo"}
           </button>
@@ -275,7 +275,7 @@ export function PrivateDiscountProfilesPanel({
             onChange={(event) => setLabel(event.target.value)}
             placeholder="es. Accordo annuale Padana"
             maxLength={120}
-            className="mt-1.5 h-10 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm outline-none focus:border-[#438d7a]"
+            className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm outline-none focus:border-[#438d7a]"
           />
         </label>
       </div>

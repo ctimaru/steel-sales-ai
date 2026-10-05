@@ -193,14 +193,14 @@ export function PriceListDistinta({
   return (
     <section
       className={[
-        "overflow-hidden bg-white",
+        "flex overflow-hidden bg-white",
         mobile
-          ? "max-h-[82vh] rounded-t-3xl border-x border-t border-[#d7dfdb] shadow-2xl"
-          : "rounded-2xl border border-[#d7dfdb] shadow-[0_10px_35px_rgba(20,46,38,0.08)]",
+          ? "max-h-[88dvh] flex-col rounded-t-3xl border-x border-t border-[#d7dfdb] shadow-2xl"
+          : "max-h-[calc(100dvh-170px)] flex-col rounded-2xl border border-[#d7dfdb] shadow-[0_10px_35px_rgba(20,46,38,0.08)]",
       ].join(" ")}
       aria-label="Distinta articoli"
     >
-      <header className="flex items-start justify-between gap-3 border-b border-[#e4e9e6] bg-[#f7f9f8] px-4 py-4">
+      <header className="shrink-0 flex items-start justify-between gap-3 border-b border-[#e4e9e6] bg-[#f7f9f8] px-4 py-4">
         <div>
           <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#1a5144]">
             Distinta
@@ -238,7 +238,7 @@ export function PriceListDistinta({
       </header>
 
       {lines.length === 0 ? (
-        <div className="px-4 py-8 text-center">
+        <div className="min-h-0 flex-1 px-4 py-8 text-center">
           <p className="text-sm font-semibold text-[#43524c]">
             La distinta è vuota.
           </p>
@@ -247,7 +247,7 @@ export function PriceListDistinta({
           </p>
         </div>
       ) : (
-        <div className={mobile ? "max-h-[62vh] overflow-y-auto" : "max-h-[70vh] overflow-y-auto"}>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
           <div className="divide-y divide-[#edf0ee]">
             {calculatedLines.map(({ line, weightKgM, calculation, issue }, index) => {
               return (
@@ -291,7 +291,7 @@ export function PriceListDistinta({
                               ? "barre"
                               : "tonnellate"
                         }
-                        className="mt-1 h-9 w-full rounded-lg border border-[#d7dfdb] bg-white px-2.5 text-sm font-semibold text-[#1d2824] outline-none focus:border-[#438d7a]"
+                        className="mt-1 h-11 w-full rounded-lg border border-[#d7dfdb] bg-white px-2.5 text-sm font-semibold text-[#1d2824] outline-none focus:border-[#438d7a]"
                       />
                     </label>
 
@@ -305,7 +305,7 @@ export function PriceListDistinta({
                             event.target.value as DistintaQuantityMode,
                           )
                         }
-                        className="mt-1 h-9 w-full rounded-lg border border-[#d7dfdb] bg-white px-2 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
+                        className="mt-1 h-11 w-full rounded-lg border border-[#d7dfdb] bg-white px-2 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
                       >
                         <option value="meters">Metri</option>
                         <option value="bars">Barre / pezzi</option>
@@ -334,14 +334,14 @@ export function PriceListDistinta({
                         <button
                           type="button"
                           onClick={() => onBarLengthChange(line.item.item_id, "6")}
-                          className="rounded-lg border border-[#d7dfdb] px-2.5 text-xs font-semibold text-[#52615b] hover:bg-[#f4f7f5]"
+                          className="min-h-11 rounded-lg border border-[#d7dfdb] px-2.5 text-xs font-semibold text-[#52615b] hover:bg-[#f4f7f5]"
                         >
                           6 m
                         </button>
                         <button
                           type="button"
                           onClick={() => onBarLengthChange(line.item.item_id, "12")}
-                          className="rounded-lg border border-[#d7dfdb] px-2.5 text-xs font-semibold text-[#52615b] hover:bg-[#f4f7f5]"
+                          className="min-h-11 rounded-lg border border-[#d7dfdb] px-2.5 text-xs font-semibold text-[#52615b] hover:bg-[#f4f7f5]"
                         >
                           12 m
                         </button>
@@ -403,7 +403,10 @@ export function PriceListDistinta({
       )}
 
       {lines.length > 0 ? (
-        <footer className="border-t border-[#d9e3de] bg-[#f6faf8] p-4">
+        <footer
+          className="shrink-0 border-t border-[#d9e3de] bg-[#f6faf8] p-4"
+          style={mobile ? { paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" } : undefined}
+        >
           <div className="grid grid-cols-2 gap-2">
             <div className="rounded-xl border border-[#dfe8e4] bg-white p-3">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-[#718078]">
@@ -476,7 +479,7 @@ export function PriceListDistinta({
               <button
                 type="button"
                 onClick={copyForEmail}
-                className="min-h-10 rounded-xl bg-[#173f35] px-3 text-xs font-semibold text-white hover:bg-[#245747]"
+                className="min-h-11 rounded-xl bg-[#173f35] px-3 text-xs font-semibold text-white hover:bg-[#245747]"
               >
                 {copyStatus === "copied"
                   ? "✓ Copiata"
@@ -487,7 +490,7 @@ export function PriceListDistinta({
               <button
                 type="button"
                 onClick={downloadCsv}
-                className="min-h-10 rounded-xl border border-[#cfdad5] bg-white px-3 text-xs font-semibold text-[#52615b] hover:border-[#9ebfb3] hover:text-[#173f35]"
+                className="min-h-11 rounded-xl border border-[#cfdad5] bg-white px-3 text-xs font-semibold text-[#52615b] hover:border-[#9ebfb3] hover:text-[#173f35]"
               >
                 Scarica CSV
               </button>
@@ -503,7 +506,7 @@ export function PriceListDistinta({
                 type="button"
                 onClick={onSave}
                 disabled={savePending}
-                className="mt-3 min-h-10 w-full rounded-xl border border-[#9ebfb3] bg-[#edf5f2] px-3 text-xs font-bold text-[#173f35] hover:bg-[#e4f0eb] disabled:cursor-wait disabled:opacity-60"
+                className="mt-3 min-h-11 w-full rounded-xl border border-[#9ebfb3] bg-[#edf5f2] px-3 text-xs font-bold text-[#173f35] hover:bg-[#e4f0eb] disabled:cursor-wait disabled:opacity-60"
               >
                 {savePending ? "Salvataggio…" : "Salva distinta"}
               </button>
@@ -514,7 +517,7 @@ export function PriceListDistinta({
             ) : (
               <Link
                 href="/login"
-                className="mt-3 flex min-h-10 items-center justify-center rounded-xl border border-[#d7dfdb] bg-white px-3 text-xs font-semibold text-[#52615b] hover:text-[#173f35]"
+                className="mt-3 flex min-h-11 items-center justify-center rounded-xl border border-[#d7dfdb] bg-white px-3 text-xs font-semibold text-[#52615b] hover:text-[#173f35]"
               >
                 Accedi per salvare
               </Link>
