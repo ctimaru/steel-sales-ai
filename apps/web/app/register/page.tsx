@@ -71,13 +71,13 @@ export default async function RegisterPage({
           <div className="mt-6 space-y-5">
             <aside className="rounded-2xl border border-[#d9e8e2] bg-[#edf5f2] p-5 sm:p-6">
               <p className="app-kicker">Registrazione aziendale</p>
-              <h1 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-[#173f35] sm:text-3xl">
-                {claimRef ? "Continua il claim della tua azienda" : "Prima verifica se l’azienda è già presente"}
+              <h1 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-[#123d34] sm:text-3xl">
+                {claimRef ? "Continua il claim della tua azienda" : "Prima verifica se la tua azienda è già presente"}
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-[#52615b]">
                 {claimRef
                   ? "Il profilo scelto è già collegato al percorso. Crea l’accesso e prosegui senza duplicare l’identità aziendale."
-                  : "Cerca ragione sociale o Partita IVA. Se trovi un profilo claimable lo colleghiamo alla registrazione; altrimenti puoi creare la nuova richiesta."}
+                  : "Cerca ragione sociale o Partita IVA. Se trovi un profilo claimable lo colleghiamo alla registrazione; altrimenti puoi creare la nuova richiesta. Completa la richiesta dopo la verifica email."}
               </p>
             </aside>
 
