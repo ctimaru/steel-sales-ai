@@ -13,8 +13,8 @@ const cookies = fs.readFileSync(
 
 test("UXF3 uses user-facing Cookie e privacy language instead of analytics jargon", () => {
   assert.match(consent, /Cookie e privacy/);
-  assert.match(consent, /Solo necessari/);
-  assert.match(consent, /Accetta analytics/);
+  assert.match(consent, /Accetta necessari/);
+  assert.match(consent, /Accetta/);
   assert.doesNotMatch(consent, /Statistiche del sito/);
   assert.doesNotMatch(consent, /Preferenze statistiche/);
 });
@@ -32,8 +32,8 @@ test("UXF3 makes closing the panel equivalent to necessary-only consent", () => 
 });
 
 test("UXF3 gives accept and necessary-only choices equivalent control weight", () => {
-  const necessary = consent.indexOf(">\n              Solo necessari\n");
-  const accept = consent.indexOf(">\n              Accetta analytics\n");
+  const necessary = consent.indexOf(">\n              Accetta necessari\n");
+  const accept = consent.indexOf(">\n              Accetta\n");
   assert.ok(necessary >= 0 && accept >= 0);
   assert.match(consent, /grid grid-cols-2 gap-2/);
   assert.ok((consent.match(/min-h-10 rounded-xl border/g) || []).length >= 2);
