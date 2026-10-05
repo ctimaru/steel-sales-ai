@@ -34,8 +34,8 @@ test("G1 uses basic consent mode and blocks Google before opt-in", () => {
   assert.match(analytics, /ad_user_data: "denied"/);
   assert.match(analytics, /ad_personalization: "denied"/);
   assert.match(analytics, /Solo necessari/);
-  assert.match(analytics, /Accetta statistiche/);
-  assert.match(analytics, /Il tag non viene caricato finché non accetti/);
+  assert.match(analytics, /Accetta analytics/);
+  assert.match(analytics, /Nessun cookie analytics viene caricato prima della tua scelta/);
 });
 
 test("G1 limits GA4 measurement to public acquisition surfaces", () => {
@@ -60,7 +60,7 @@ test("G1 pageviews contain page context but no Smart Steel Sales identity payloa
 });
 
 test("G1 lets users withdraw analytics consent and clears GA cookies", () => {
-  assert.match(analytics, /Preferenze statistiche/);
+  assert.match(analytics, /Riapri preferenze cookie e privacy/);
   assert.match(analytics, /clearGoogleAnalyticsCookies/);
   assert.match(analytics, /Max-Age=0/);
   assert.match(analytics, /analytics_storage: "denied"/);
