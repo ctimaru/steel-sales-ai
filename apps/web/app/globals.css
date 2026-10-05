@@ -568,3 +568,15 @@ textarea {
     font-size: 0.9875rem;
   }
 }
+
+.mvp-focus-shell .school-hero {
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.mvp-focus-shell .school-hero-accent {
+  display: none;
+}
