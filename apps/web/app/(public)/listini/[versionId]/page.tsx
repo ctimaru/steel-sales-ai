@@ -125,7 +125,7 @@ export default async function PriceListExplorerPage({
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
               {version.list_code} · {formatDate(version.source_date)}
             </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-[#1d2824] sm:text-4xl">
+            <h1 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[#1d2824] sm:text-4xl">
               {version.list_name}
             </h1>
             <p className="mt-2 text-base font-medium text-[#52615b]">
@@ -141,7 +141,7 @@ export default async function PriceListExplorerPage({
             </p>
           </div>
 
-          <div className="grid min-w-[260px] grid-cols-2 gap-2">
+          <div className="grid w-full grid-cols-2 gap-2 sm:w-auto sm:min-w-[260px]">
             <div className="rounded-xl bg-[#f7f9f8] p-3">
               <p className="text-xs text-[#7a8781]">Articoli</p>
               <p className="mt-1 text-xl font-semibold text-[#1d2824]">
