@@ -202,7 +202,7 @@ export async function savePricingSession(
   }
 
   const lineSnapshots: Array<Record<string, unknown>> = [];
-  const lineCalculations = [];
+  const lineCalculations: ReturnType<typeof calculateDistintaLine>[] = [];
 
   for (let index = 0; index < input.lines.length; index += 1) {
     const draft = input.lines[index];
