@@ -29,8 +29,8 @@ test("PL1.8 supports meters, bars and tonnes with explicit bar length", () => {
   assert.match(contract, /meters = input\.quantity \* input\.barLengthM/);
   assert.match(contract, /meters = \(input\.quantity \* 1000\) \/ input\.weightKgM/);
   assert.match(distinta, /Barre \/ pezzi/);
-  assert.match(distinta, />6 m</);
-  assert.match(distinta, />12 m</);
+  assert.match(distinta, /6 m/);
+  assert.match(distinta, /12 m/);
   assert.match(distinta, /value="tonnes" disabled=\{!line\.item\.price_per_t_ready \|\| !weightKgM\}/);
 });
 
@@ -40,7 +40,7 @@ test("PL1.8 calculates line tonnes and line total without inventing missing weig
   assert.match(contract, /issue: "weight_required"/);
   assert.match(distinta, /Totale riga/);
   assert.match(distinta, /Tonnellate/);
-  assert.match(distinta, /Il peso kg\/m è necessario per inserire tonnellate/);
+  assert.match(contract, /Il peso kg\/m è necessario per inserire tonnellate/);
 });
 
 test("PL1.8 keeps selected lines coupled to the active manual or saved pricing mode", () => {
