@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
+import { FocusHeader, FocusPage } from "@/components/focus-ui";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getCompanySetupState } from "@/lib/company-setup";
@@ -58,55 +59,20 @@ export default async function DashboardPage() {
   const canWrite = context.role !== "viewer";
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8">
-      <section className="overflow-hidden rounded-3xl border border-[#d9e1dd] bg-white shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)]">
-        <div className="h-1 bg-[#173f35]" />
-        <div className="p-6 sm:p-8">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#173f35]">
-              Workspace
-            </span>
-            <span className="rounded-full bg-[#f2f5f9] px-3 py-1 text-[11px] font-semibold text-[#64748b]">
-              Privato
-            </span>
-          </div>
-
-          <div className="mt-4 max-w-4xl">
-            <h1 className="text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-4xl">
-              Il centro operativo della tua azienda
-            </h1>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66736e] sm:text-base">
-              Questa pagina riunisce ciò che richiede attenzione, la memoria commerciale privata,
-              le attività recenti e l’accesso agli spazi condivisi. È il punto di partenza per capire
-              subito cosa sta succedendo e dove intervenire.
-            </p>
-            <p className="mt-3 text-xs font-semibold text-[#78857f]">
+    <FocusPage>
+      <FocusHeader
+        eyebrow="Workspace"
+        title="Cosa richiede attenzione oggi"
+        description={
+          <>
+            Parti dalle priorità operative e dalla memoria commerciale. Network, Marketplace e Scuola
+            restano disponibili dalla navigazione principale senza competere con il lavoro quotidiano.
+            <span className="mt-2 block text-xs font-semibold text-[#78857f]">
               {workspaceRoleLabel(context.role)} · Area privata aziendale
-            </p>
-          </div>
-
-          <div className="mt-6 grid gap-3 md:grid-cols-3">
-            <div className="rounded-2xl border border-[#e2e7e4] bg-[#f6f8f7] p-4">
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#173f35]">Priorità operative</p>
-              <p className="mt-2 text-sm leading-6 text-[#5d6a65]">
-                Correzioni, inquiry e segnali che richiedono la tua attenzione.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-[#e2e7e4] bg-[#f6f8f7] p-4">
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#173f35]">Commercial Memory</p>
-              <p className="mt-2 text-sm leading-6 text-[#5d6a65]">
-                RFQ, offerte, ordini, aziende, conversazioni e storico normalizzato.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-[#e2e7e4] bg-[#f6f8f7] p-4">
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#173f35]">Ecosistema condiviso</p>
-              <p className="mt-2 text-sm leading-6 text-[#5d6a65]">
-                Network, Marketplace e Scuola, separati dai dati commerciali privati.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+            </span>
+          </>
+        }
+      />
 
       {setup && (!setup.profile_ready || !setup.data_ready || !setup.first_value_ready) ? (
         <section className="rounded-3xl border border-[#b8d2c8] bg-[#edf5f2] p-6 sm:p-7">
@@ -485,6 +451,6 @@ export default async function DashboardPage() {
           Inquiry inviate nel Network: {sent.total}. Lo storico delle inquiry resta nello spazio condiviso Network.
         </p>
       ) : null}
-    </div>
+    </FocusPage>
   );
 }
