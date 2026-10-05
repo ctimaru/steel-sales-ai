@@ -91,24 +91,43 @@ export default function PrivacyPage() {
 
       <LegalSection title="5. Destinatari e fornitori">
         <p>
-          Per erogare il servizio possono essere utilizzati fornitori cloud, hosting, database,
-          autenticazione, invio email, infrastruttura applicativa e analytics. Il registro LR6
-          consoliderà per ciascun fornitore ruolo, DPA, subprocessors, localizzazione e garanzie
-          per eventuali trasferimenti internazionali.
+          Per erogare il servizio utilizziamo fornitori per database/autenticazione, hosting web,
+          elaborazione backend, email transazionali e analytics. La baseline LR6 documenta ruolo,
+          localizzazione, DPA, subprocessors, conservazione e garanzie di trasferimento per i
+          principali fornitori effettivamente presenti nell’architettura.
         </p>
         <p>
-          L’architettura attuale utilizza, tra gli altri, Supabase, Vercel, Railway e Google Analytics
-          per specifiche funzioni tecniche. L’uso di Google Analytics è limitato alle superfici pubbliche
-          e subordinato al consenso.
+          I principali servizi attivi includono Supabase, Vercel, Railway, Resend e Google Analytics.
+          Le funzioni AI del worker utilizzano inoltre un percorso Hugging Face Inference Providers:
+          l’invio di dati personali dei clienti verso tale percorso non è approvato per il lancio
+          commerciale finché provider effettivo, localizzazione e catena contrattuale non sono fissati
+          e verificati.
+        </p>
+        <p>
+          Consulta il{" "}
+          <Link
+            href="/privacy/processors"
+            className="font-semibold text-[#1a5144] underline underline-offset-4"
+          >
+            registro fornitori e trasferimenti
+          </Link>{" "}
+          per lo stato aggiornato della baseline LR6.
         </p>
       </LegalSection>
 
       <LegalSection title="6. Trasferimenti fuori dallo SEE">
         <p>
-          Alcuni fornitori tecnologici possono comportare trattamenti o accessi da Paesi esterni allo
-          Spazio Economico Europeo. Le garanzie applicabili, incluse eventuali decisioni di adeguatezza
-          o clausole contrattuali standard, saranno riportate nel registro fornitori LR6 e nella versione
-          definitiva di questa informativa.
+          Alcuni fornitori comportano trattamenti o accessi da Paesi esterni allo Spazio Economico
+          Europeo. Supabase utilizza come regione primaria del progetto di produzione Parigi; il worker
+          Railway è attualmente eseguito negli Stati Uniti; Resend utilizza una regione di invio europea
+          ma dichiara storage negli Stati Uniti; Vercel e Google possono comportare trattamenti
+          internazionali.
+        </p>
+        <p>
+          Quando applicabili, i trasferimenti sono ricondotti alle garanzie previste dai rispettivi
+          accordi di trattamento, comprese Clausole Contrattuali Standard e/o meccanismi di adeguatezza
+          dichiarati dai fornitori. Le verifiche ancora aperte restano gate di lancio e non vengono
+          considerate approvate per supposizione.
         </p>
       </LegalSection>
 
@@ -125,7 +144,7 @@ export default function PrivacyPage() {
           <li>registrazioni e claim: bozze inattive fino a 90 giorni, pratiche chiuse/rifiutate fino a 12 mesi e principali evidenze di attivazione/claim fino a 24 mesi;</li>
           <li>inviti team revocati o scaduti: fino a 90 giorni; evidenza degli inviti accettati fino a 12 mesi;</li>
           <li>telemetria pubblica privacy-minimal: fino a 12 mesi, poi cancellazione o aggregazione irreversibile;</li>
-          <li>Google Analytics: scelta di consenso locale valida per 6 mesi a versione invariata; target di conservazione GA4 dei dati utente/evento impostato al minimo disponibile di 2 mesi, da verificare in LR6;</li>
+          <li>Google Analytics: scelta di consenso locale valida per 6 mesi a versione invariata; target interno di conservazione GA4 dei dati utente/evento pari al minimo disponibile di 2 mesi, con verifica account-level ancora richiesta prima del lancio commerciale;</li>
           <li>Network/Marketplace: contenuti e interazioni fino a 24 mesi dopo la chiusura o lo stato terminale, salvo cancellazione anticipata o necessità documentate;</li>
           <li>Commercial Memory: retention definita dal cliente titolare; baseline di cessazione con finestra export/cancellazione fino a 30 giorni e successivo ciclo backup da formalizzare nel DPA.</li>
         </ul>
