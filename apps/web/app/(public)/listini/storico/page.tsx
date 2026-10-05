@@ -32,10 +32,10 @@ export default async function PricingHistoryPage() {
 
   return (
     <FocusPage className="px-4 py-7 sm:px-6 sm:py-9 lg:px-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="app-kicker">Listini · I miei calcoli</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-[#1d2824]">
+          <h1 className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[#1d2824] sm:text-3xl">
             Distinte salvate
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[#66736e]">
@@ -45,7 +45,7 @@ export default async function PricingHistoryPage() {
         </div>
         <Link
           href="/listini"
-          className="inline-flex min-h-10 items-center rounded-xl border border-[#d7dfdb] bg-white px-4 text-sm font-semibold text-[#52615b] hover:text-[#173f35]"
+          className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[#d7dfdb] bg-white px-4 text-sm font-semibold text-[#52615b] hover:text-[#173f35] sm:w-auto"
         >
           ← Listini
         </Link>
