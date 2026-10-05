@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const LEGAL_VERSION = "2026-10-04";
+export const LEGAL_VERSION = "2026-10-05";
 
 export type LegalIdentity = {
   controllerName: string | null;
