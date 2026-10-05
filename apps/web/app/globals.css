@@ -619,3 +619,15 @@ textarea {
 .uxf2-dense-page [class*="shadow-"] {
   box-shadow: none !important;
 }
+
+
+.uxf2-disclosure .uxf2-section-header {
+  display: none;
+}
+
+.uxf2-disclosure > div > section {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+}
