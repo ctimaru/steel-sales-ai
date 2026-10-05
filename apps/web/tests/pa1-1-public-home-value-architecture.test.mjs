@@ -6,6 +6,10 @@ const home = fs.readFileSync(
   new URL("../app/page.tsx", import.meta.url),
   "utf8",
 );
+const network = fs.readFileSync(
+  new URL("../components/public-network-role-explorer.tsx", import.meta.url),
+  "utf8",
+);
 
 test("PA1.1 public home leads with value before login", () => {
   assert.match(home, /Il business network/);
