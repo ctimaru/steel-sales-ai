@@ -161,10 +161,10 @@ export default async function PublicHomePage() {
 
       <section className="border-b border-[#dce2df] bg-[#123d34] text-white">
         <div className="mx-auto max-w-[1180px] px-4 py-12 sm:px-6 sm:py-14 lg:px-8">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">Smart Steel Sales</p>
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">Smart Steel Sales · Utile anche senza account</p>
           <h1 className="mt-3 max-w-3xl text-4xl font-semibold leading-[1.04] tracking-[-0.04em] sm:text-5xl">
-            Parti da uno strumento utile.
-            <span className="block text-[#9cc5b7]">Poi entra nel network dell’acciaio.</span>
+            Il business network dell’acciaio
+            <span className="block text-[#9cc5b7]">parte da uno strumento utile.</span>
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-[#d8e5e0]">
             Calcola il peso dei tubi, consulta norme e gradi oppure verifica se la tua azienda è già presente.
@@ -172,7 +172,7 @@ export default async function PublicHomePage() {
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
-              href="/knowledge/tubes?source=home&surface=hero#calcolatore-pesi"
+              href="/knowledge/tubes?source=home&surface=quick_actions#calcolatore-pesi"
               className="inline-flex min-h-12 items-center justify-center rounded-xl bg-white px-5 text-sm font-bold text-[#173f35] hover:bg-[#edf5f2]"
             >
               Calcola peso tubo
@@ -181,7 +181,7 @@ export default async function PublicHomePage() {
               href="/azienda"
               className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/20 bg-white/[0.06] px-5 text-sm font-semibold text-white hover:bg-white/[0.1]"
             >
-              Trova la tua azienda
+              Trova o rivendica la tua azienda
             </Link>
             <Link
               href="/knowledge"
