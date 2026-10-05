@@ -162,7 +162,7 @@ export default async function PublicHomePage() {
               href="/azienda"
               className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/20 bg-transparent px-5 text-sm font-semibold text-white hover:bg-white/[0.08]"
             >
-              Trova la tua azienda
+              Trova o rivendica la tua azienda
             </Link>
             <Link
               href="/knowledge"
@@ -236,8 +236,8 @@ export default async function PublicHomePage() {
               La filiera steel, ricercabile quando ti serve.
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-[#66736e]">
-              Produttori, commercianti, terzisti e utilizzatori in una directory B2B filtrabile.
-              Il Network completo è disponibile dopo registrazione e abilitazione.
+              Produttori, commercianti, terzisti e utilizzatori in una directory ricca con filtri avanzati,
+              prodotti, capability e mercati. Il Network completo è disponibile dopo registrazione e abilitazione.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               {companyTypes.map((type) => (
