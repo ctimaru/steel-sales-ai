@@ -28,13 +28,14 @@ const migration = fs.readFileSync(
 );
 
 test("WC5 makes the calculator a primary public-home action", () => {
-  assert.match(home, /Calcola peso tubo/);
+  assert.match(home, /Calcolo pesi/);
   assert.match(home, /source=home&surface=hero#calcolatore-pesi/);
   assert.match(home, /source=home&surface=header#calcolatore-pesi/);
   assert.match(home, /source=home&surface=quick_actions#calcolatore-pesi/);
   assert.match(home, /source=home&surface=school_section#calcolatore-pesi/);
-  assert.match(home, />Calcolatore</);
-  assert.match(home, />\s*Calcola\s*</);
+  assert.doesNotMatch(home, />Calcolatore</);
+  assert.match(home, />\s*Calcolo pesi\s*</);
+  assert.match(home, /surface=quick_actions#calcolatore-pesi/);
 });
 
 test("WC5 keeps Scuola discovery visible on desktop, mobile and Scuola home", () => {

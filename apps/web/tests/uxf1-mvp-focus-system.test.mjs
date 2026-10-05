@@ -70,7 +70,7 @@ test("UXF1 removes split-screen distraction from auth entry", () => {
 });
 
 test("UXF1 makes the public homepage utility-first", () => {
-  assert.match(home, /Parti da uno strumento utile/);
-  assert.match(home, /Calcola peso tubo/);
-  assert.match(home, /max-w-\[1180px\]/);
+  assert.match(home, /con strumenti che usi davvero/);
+  assert.match(home, /Calcolo pesi/);
+  assert.match(home, /max-w-\[1120px\]/);
 });

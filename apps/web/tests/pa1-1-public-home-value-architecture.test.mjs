@@ -19,7 +19,7 @@ test("PA1.1 public home leads with value before login", () => {
 });
 
 test("PA1.1 exposes real public Scuola entry points", () => {
-  assert.match(home, /href: "\/knowledge\/tubes"/);
+  assert.match(home, /href: "\/knowledge\/tubes\?source=home&surface=school_section#calcolatore-pesi"/);
   assert.match(home, /href: "\/knowledge\/norme"/);
   assert.match(home, /href: "\/knowledge\/gradi"/);
   assert.match(home, /Apri Scuola/);
