@@ -60,10 +60,10 @@ test("PL1.7 exposes high-frequency private discount scopes and organization visi
 
 test("PL1.7 applies effective saved discounts per row without changing the PL1.6 price formula", () => {
   assert.match(explorer, /effectiveDiscountByItem/);
-  assert.match(explorer, /discountForRow/);
+  assert.match(explorer, /resolveRowPricing/);
   assert.match(explorer, /pricingMode === "saved"/);
   assert.match(explorer, /base \* \(1 - discountPct \/ 100\) \+ extra/);
-  assert.match(explorer, /Profili salvati/);
+  assert.match(explorer, />\s*Profili\s*</);
   assert.match(explorer, />Sconto</);
 });
 

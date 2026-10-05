@@ -14,9 +14,10 @@ export type DistintaDraftLine = {
   quantityMode: DistintaQuantityMode;
   quantityInput: string;
   barLengthInput: string;
-  appliedDiscountPct: number;
+  appliedDiscountPct: number | null;
   netEurM: number | null;
   netEurT: number | null;
+  pricingIssue?: string | null;
 };
 
 function numberFromInput(value: string) {
@@ -71,7 +72,7 @@ export function PriceListDistinta({
       line,
       weightKgM,
       calculation,
-      issue: distintaIssueLabel(calculation.issue),
+      issue: line.pricingIssue ?? distintaIssueLabel(calculation.issue),
     };
   });
 
