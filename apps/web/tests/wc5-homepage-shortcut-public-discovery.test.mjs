@@ -33,7 +33,8 @@ test("WC5 makes the calculator a primary public-home action", () => {
   assert.match(home, /source=home&surface=header#calcolatore-pesi/);
   assert.match(home, /source=home&surface=quick_actions#calcolatore-pesi/);
   assert.match(home, /source=home&surface=school_section#calcolatore-pesi/);
-  assert.doesNotMatch(home, />Calcolatore</);\n  assert.match(home, />\s*Calcolo pesi\s*</);
+  assert.doesNotMatch(home, />Calcolatore</);
+  assert.match(home, />\s*Calcolo pesi\s*</);
   assert.match(home, /surface=quick_actions#calcolatore-pesi/);
 });
 
