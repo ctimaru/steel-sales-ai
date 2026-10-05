@@ -67,12 +67,20 @@ export default async function PlatformKnowledgePage({
               fino a una pubblicazione esplicita.
             </p>
           </div>
-          <Link
-            href="/knowledge"
-            className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
-          >
-            Apri Knowledge pubblico ↗
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/listini?preview=1"
+              className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
+            >
+              Anteprima Listini ↗
+            </Link>
+            <Link
+              href="/knowledge"
+              className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
+            >
+              Apri Knowledge pubblico ↗
+            </Link>
+          </div>
         </div>
       </section>
 
