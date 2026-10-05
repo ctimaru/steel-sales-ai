@@ -6,6 +6,10 @@ const home = fs.readFileSync(
   new URL("../app/page.tsx", import.meta.url),
   "utf8",
 );
+const network = fs.readFileSync(
+  new URL("../components/public-network-role-explorer.tsx", import.meta.url),
+  "utf8",
+);
 const schoolLayout = fs.readFileSync(
   new URL("../app/(public)/knowledge/layout.tsx", import.meta.url),
   "utf8",
@@ -74,7 +78,8 @@ test("WC5 public telemetry table is insert-only for public roles", () => {
 });
 
 test("WC5 leaves the Network positioning private", () => {
-  assert.match(home, /Privato · Premium/);
-  assert.match(home, /Network completo/);
+  assert.match(network, /Privato · Premium/);
+  assert.match(network, /directory completa/);
   assert.doesNotMatch(home, /href="\/network"/);
+  assert.doesNotMatch(network, /href="\/network"/);
 });
