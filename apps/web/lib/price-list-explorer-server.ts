@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import type {
   PriceListCatalogEntry,
   PriceListExplorerItem,
+  PriceListPublicNotice,
+  PriceListPublicationReadiness,
 } from "@/lib/public-price-lists";
 import {
   emptyPrivatePricingContext,
@@ -220,4 +222,37 @@ export async function getPricingSessionSnapshot(
         : [],
     },
   };
+}
+
+
+export async function getPriceListPublicNotices(
+  versionId: string,
+  includeInternal = false,
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("pl1_price_list_public_notices", {
+    p_version_id: versionId,
+    p_include_internal: includeInternal,
+  });
+
+  if (error) {
+    console.error("PP1 public notice lookup failed:", error.message);
+    return [] as PriceListPublicNotice[];
+  }
+
+  return Array.isArray(data) ? (data as PriceListPublicNotice[]) : [];
+}
+
+export async function getPriceListPublicationReadiness(versionId: string) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("pl1_publication_readiness", {
+    p_version_id: versionId,
+  });
+
+  if (error) {
+    console.error("PP1 readiness lookup failed:", error.message);
+    return null;
+  }
+
+  return (data ?? null) as PriceListPublicationReadiness | null;
 }

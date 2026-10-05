@@ -7,6 +7,8 @@ import { PublicPriceListExplorer } from "@/components/public-price-list-explorer
 import {
   getPriceListExplorerItems,
   getPriceListExplorerVersion,
+  getPriceListPublicationReadiness,
+  getPriceListPublicNotices,
   getPrivatePricingContext,
 } from "@/lib/price-list-explorer-server";
 import { absoluteUrl } from "@/lib/site";
@@ -25,6 +27,43 @@ function formatDate(value: string | null) {
     month: "2-digit",
     year: "numeric",
   }).format(new Date(value + "T00:00:00Z"));
+}
+
+function readinessIssueLabel(code: string) {
+  if (code === "publication_rights_not_approved") {
+    return "Diritti di ripubblicazione pubblica dei dati strutturati non ancora approvati.";
+  }
+  if (code === "delivery_term_conflict") {
+    return "Termine di resa incoerente nella fonte: copertina FCA, tabelle Ex-Work.";
+  }
+  if (code === "version_not_verified") {
+    return "La versione deve completare la review e passare allo stato verified.";
+  }
+  if (code === "publication_scope_not_public") {
+    return "La visibilità della versione è ancora internal.";
+  }
+  if (code === "commercial_price_incomplete") {
+    return "Una o più righe non hanno Base + Extra €/m governati.";
+  }
+  if (code === "immutable_source_missing") {
+    return "La fonte immutabile SHA-256 non è disponibile.";
+  }
+  if (code === "import_errors_present") {
+    return "L'import promosso contiene ancora righe in errore.";
+  }
+  return code.replaceAll("_", " ");
+}
+
+function readinessWarningLabel(code: string, count?: number) {
+  const suffix = typeof count === "number" ? " (" + count.toLocaleString("it-IT") + ")" : "";
+  if (code === "partial_eur_t_coverage") return "Copertura €/t parziale" + suffix;
+  if (code === "bounded_technical_review_rows") return "Righe con identità tecnica ancora in review" + suffix;
+  if (code === "unresolved_standard") return "Norma non risolta/ambigua" + suffix;
+  if (code === "no_compatible_weight_reference") return "Peso governato compatibile non disponibile" + suffix;
+  if (code === "special_shape_without_weight") return "Profili speciali senza peso governato" + suffix;
+  if (code === "non_automated_source_rules") return "Condizioni fonte non automatizzate" + suffix;
+  if (code === "source_grade_label_conflict") return "Conflitti di etichetta grado preservati dalla fonte" + suffix;
+  return code.replaceAll("_", " ") + suffix;
 }
 
 export async function generateMetadata({
@@ -89,13 +128,18 @@ export default async function PriceListExplorerPage({
 
   if (!isUuid(versionId)) notFound();
 
-  const [version, items, privatePricing] = await Promise.all([
+  const [version, items, privatePricing, publicNotices] = await Promise.all([
     getPriceListExplorerVersion(versionId, includeInternal),
     getPriceListExplorerItems(versionId, includeInternal),
     getPrivatePricingContext(versionId),
+    getPriceListPublicNotices(versionId, includeInternal),
   ]);
 
   if (!version) notFound();
+
+  const publicationReadiness = version.is_internal_preview
+    ? await getPriceListPublicationReadiness(versionId)
+    : null;
 
   const readyPct =
     version.item_count > 0
@@ -117,6 +161,86 @@ export default async function PriceListExplorerPage({
           Anteprima interna · questa versione è in stato <strong>{version.version_status}</strong> e non è
           visibile né indicizzabile per il pubblico.
         </div>
+      ) : null}
+
+      {publicationReadiness ? (
+        <section
+          className={[
+            "rounded-2xl border p-4 sm:p-5",
+            publicationReadiness.ready_to_publish
+              ? "border-emerald-200 bg-emerald-50"
+              : "border-amber-200 bg-amber-50",
+          ].join(" ")}
+        >
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#173f35]">
+                PP1 · Publication Readiness
+              </p>
+              <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">
+                {publicationReadiness.ready_to_publish
+                  ? "Pronto per la pubblicazione"
+                  : "Pubblicazione bloccata"}
+              </h2>
+              <p className="mt-1 max-w-3xl text-xs leading-5 text-[#66736e]">
+                Questo controllo è visibile solo nell&apos;anteprima interna e non modifica automaticamente
+                lo stato del listino.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="rounded-xl bg-white/80 px-3 py-2">
+                <p className="text-[10px] text-[#718078]">€/m</p>
+                <p className="mt-0.5 text-sm font-bold text-[#173f35]">
+                  {publicationReadiness.metrics.price_per_m_ready.toLocaleString("it-IT")}
+                </p>
+              </div>
+              <div className="rounded-xl bg-white/80 px-3 py-2">
+                <p className="text-[10px] text-[#718078]">€/t</p>
+                <p className="mt-0.5 text-sm font-bold text-[#173f35]">
+                  {publicationReadiness.metrics.price_per_t_coverage_pct.toLocaleString("it-IT")}%
+                </p>
+              </div>
+              <div className="rounded-xl bg-white/80 px-3 py-2">
+                <p className="text-[10px] text-[#718078]">Articoli</p>
+                <p className="mt-0.5 text-sm font-bold text-[#173f35]">
+                  {publicationReadiness.metrics.item_count.toLocaleString("it-IT")}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {publicationReadiness.blockers.length > 0 ? (
+            <div className="mt-4 border-t border-amber-200 pt-3">
+              <p className="text-[10px] font-bold uppercase tracking-wide text-amber-900">
+                Blocker
+              </p>
+              <ul className="mt-2 space-y-1.5 text-xs leading-5 text-amber-950">
+                {publicationReadiness.blockers.map((issue) => (
+                  <li key={issue.code}>• {readinessIssueLabel(issue.code)}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          {publicationReadiness.warnings.length > 0 ? (
+            <div className="mt-4 border-t border-amber-200 pt-3">
+              <p className="text-[10px] font-bold uppercase tracking-wide text-[#66736e]">
+                Warning governati
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {publicationReadiness.warnings.map((issue) => (
+                  <span
+                    key={issue.code}
+                    className="rounded-full border border-[#d8dfdc] bg-white/80 px-2.5 py-1 text-[10px] font-semibold text-[#596761]"
+                  >
+                    {readinessWarningLabel(issue.code, issue.count ?? issue.missing)}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </section>
       ) : null}
 
       <header className="rounded-3xl border border-[#dce2df] bg-white p-5 sm:p-7">
@@ -168,6 +292,25 @@ export default async function PriceListExplorerPage({
           ))}
         </div>
       </header>
+
+      {publicNotices.length > 0 ? (
+        <section className="rounded-2xl border border-amber-200 bg-[#fffaf0] p-4 sm:p-5">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-900">
+            Condizioni della fonte non automatizzate
+          </p>
+          <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">
+            Il calcolo automatico non sostituisce tutte le condizioni d&apos;ordine
+          </h2>
+          <div className="mt-3 grid gap-2">
+            {publicNotices.map((notice) => (
+              <div key={notice.notice_code} className="rounded-xl border border-amber-100 bg-white px-3 py-3">
+                <p className="text-xs font-bold text-[#43524c]">{notice.title}</p>
+                <p className="mt-1 text-xs leading-5 text-[#66736e]">{notice.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <PrivateDiscountProfilesPanel
         versionId={versionId}
