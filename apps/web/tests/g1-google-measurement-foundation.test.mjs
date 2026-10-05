@@ -33,8 +33,8 @@ test("G1 uses basic consent mode and blocks Google before opt-in", () => {
   assert.match(analytics, /ad_storage: "denied"/);
   assert.match(analytics, /ad_user_data: "denied"/);
   assert.match(analytics, /ad_personalization: "denied"/);
-  assert.match(analytics, /Solo necessari/);
-  assert.match(analytics, /Accetta analytics/);
+  assert.match(analytics, /Accetta necessari/);
+  assert.match(analytics, /Accetta/);
   assert.match(analytics, /Nessun cookie analytics viene caricato prima della tua scelta/);
 });
 

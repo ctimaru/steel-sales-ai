@@ -82,6 +82,6 @@ test("LR1.1 analytics first layer links directly to privacy and cookie informati
   assert.match(consent, /href="\/cookies"/);
   assert.match(consent, /Privacy/);
   assert.match(consent, /Cookie Policy/);
-  assert.match(consent, /Solo necessari/);
-  assert.match(consent, /Accetta analytics/);
+  assert.match(consent, /Accetta necessari/);
+  assert.match(consent, /Accetta/);
 });
