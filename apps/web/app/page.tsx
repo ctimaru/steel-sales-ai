@@ -138,7 +138,7 @@ export default async function PublicHomePage() {
           </nav>
           <div className="flex items-center gap-2">
             <Link
-              href="/knowledge/tubes?source=home&surface=header#calcolatore-pesi"
+              href="/knowledge/tubes?source=home&surface=quick_actions#calcolatore-pesi"
               className="inline-flex rounded-xl bg-[#173f35] px-3 py-2 text-sm font-bold text-white md:hidden"
             >
               Calcola
@@ -172,7 +172,7 @@ export default async function PublicHomePage() {
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
-              href="/knowledge/tubes?source=home&surface=quick_actions#calcolatore-pesi"
+              href="/knowledge/tubes?source=home&surface=hero#calcolatore-pesi"
               className="inline-flex min-h-12 items-center justify-center rounded-xl bg-white px-5 text-sm font-bold text-[#173f35] hover:bg-[#edf5f2]"
             >
               Calcola peso tubo
