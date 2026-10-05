@@ -107,7 +107,7 @@ export function PlatformShell({
           </div>
         </header>
 
-        <main id="main-content" tabIndex={-1} className="p-4 sm:p-6 lg:p-8">{children}</main>
+        <main id="main-content" tabIndex={-1} className="mvp-focus-shell mx-auto w-full max-w-[1280px] p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );

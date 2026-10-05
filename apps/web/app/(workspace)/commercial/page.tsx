@@ -1,33 +1,23 @@
-import Link from "next/link";
-
+import { FocusHeader, FocusLink, FocusPage, FocusPanel } from "@/components/focus-ui";
 import { appRoutes } from "@/lib/routes";
 
-const primary = [
-  {
-    href: appRoutes.commercial.search,
-    eyebrow: "Ricerca",
-    title: "Cerca nello storico",
-    description: "Prodotti, clienti, RFQ, offerte, ordini e documenti in un unico punto.",
-  },
+const secondary = [
   {
     href: appRoutes.commercial.products,
-    eyebrow: "Product 360",
     title: "Prodotti",
-    description: "Apri la vista prodotto con richieste, offerte, ordini, prezzi ed evidenze.",
+    description: "Product 360 con richieste, offerte, ordini, prezzi ed evidenze.",
   },
   {
     href: appRoutes.commercial.companies,
-    eyebrow: "Company 360",
     title: "Aziende commerciali",
-    description: "Consulta clienti, fornitori e storico delle relazioni private del workspace.",
+    description: "Company 360 con clienti, fornitori e storico delle relazioni private del workspace.",
   },
   {
     href: appRoutes.commercial.assistant,
-    eyebrow: "AI",
     title: "Assistente",
-    description: "Interroga la memoria commerciale mantenendo fonti, contesto e provenance.",
+    description: "Interroga la memoria commerciale mantenendo fonti e provenance.",
   },
-];
+] as const;
 
 const intelligence = [
   ["Commercial Explorer", appRoutes.commercial.explorer],
@@ -41,58 +31,42 @@ const intelligence = [
 
 export default function CommercialHomePage() {
   return (
-    <div className="mx-auto max-w-7xl space-y-8">
-      <section className="rounded-3xl border border-[#dce2df] bg-white p-6 shadow-[0_1px_2px_rgba(20,46,38,0.03)] sm:p-8">
-        <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#173f35]">
-          Commerciale
-        </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824]">
-          Memoria, ricerca e intelligence commerciale
-        </h1>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66736e] sm:text-base">
-          Tutto ciò che riguarda il lavoro commerciale privato della tua azienda resta qui:
-          storico, prodotti, aziende, documenti, segnali e strumenti di analisi.
-        </p>
+    <FocusPage>
+      <FocusHeader
+        eyebrow="Commerciale"
+        title="Memoria, ricerca e intelligence commerciale"
+        description="Parti dalla ricerca. Prodotti, aziende, documenti e intelligence restano strumenti di approfondimento, non punti d’ingresso concorrenti."
+      />
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {primary.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-5 transition hover:border-[#b8d2c8] hover:bg-[#f2f6f4]"
-            >
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#173f35]">
-                {item.eyebrow}
-              </p>
-              <h2 className="mt-2 font-semibold text-[#1d2824]">{item.title}</h2>
-              <p className="mt-2 text-sm leading-6 text-[#66736e]">{item.description}</p>
-            </Link>
-          ))}
-        </div>
-      </section>
+      <FocusPanel>
+        <p className="app-kicker">Azione principale</p>
+        <FocusLink
+          href={appRoutes.commercial.search}
+          title="Cerca nello storico"
+          description="Trova prodotto, cliente, RFQ, offerta, ordine o documento da un solo punto."
+          primary
+        />
 
-      <section>
-        <div className="mb-3">
-          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#7b8782]">
-            Intelligence
-          </p>
-          <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">
-            Analisi e segnali
-          </h2>
+        <div className="mt-5">
+          <p className="mb-2 text-xs font-semibold text-[#66736e]">Approfondisci quando serve</p>
+          <div className="grid gap-2 md:grid-cols-3">
+            {secondary.map((item) => (
+              <FocusLink key={item.href} {...item} />
+            ))}
+          </div>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      </FocusPanel>
+
+      <details className="rounded-2xl border border-[#dce2df] bg-white">
+        <summary className="cursor-pointer list-none px-5 py-4 text-sm font-semibold text-[#43524c] hover:text-[#173f35]">
+          Intelligence avanzata <span className="ml-1 text-xs font-normal text-[#7b8782]">· 7 strumenti</span>
+        </summary>
+        <div className="grid gap-2 border-t border-[#e7ece9] p-4 sm:grid-cols-2">
           {intelligence.map(([label, href]) => (
-            <Link
-              key={href}
-              href={href}
-              className="flex items-center justify-between rounded-2xl border border-[#dce2df] bg-white px-5 py-4 text-sm font-semibold text-[#43524c] transition hover:border-[#b8d2c8] hover:text-[#173f35]"
-            >
-              <span>{label}</span>
-              <span aria-hidden="true">→</span>
-            </Link>
+            <FocusLink key={href} href={href} title={label} />
           ))}
         </div>
-      </section>
-    </div>
+      </details>
+    </FocusPage>
   );
 }
