@@ -119,7 +119,7 @@ export function AppShell({
         Vai al contenuto principale
       </a>
       <header className="sticky top-0 z-40 border-b border-[#dce2df] bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-[1500px] items-center gap-3 px-3 sm:px-5 lg:px-8">
+        <div className="mx-auto flex h-16 max-w-[1280px] items-center gap-3 px-3 sm:px-5 lg:px-8">
           <div className="hidden shrink-0 lg:block">
             <ProductBrand href={appRoutes.home} compact />
           </div>
@@ -173,7 +173,7 @@ export function AppShell({
         />
       </header>
 
-      <main id="main-content" tabIndex={-1} className="mx-auto w-full max-w-[1500px] p-4 sm:p-6 lg:p-8">
+      <main id="main-content" tabIndex={-1} className="mvp-focus-shell mx-auto w-full max-w-[1280px] p-4 sm:p-6 lg:p-8">
         {children}
       </main>
 
