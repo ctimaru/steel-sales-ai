@@ -236,8 +236,8 @@ export default async function PublicHomePage() {
               La filiera steel, ricercabile quando ti serve.
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-[#66736e]">
-              Produttori, commercianti, terzisti e utilizzatori in una directory ricca con filtri avanzati,
-              prodotti, capability e mercati. Il Network completo è disponibile dopo registrazione e abilitazione.
+              Produttori, commercianti, terzisti e utilizzatori in una directory ricca, filtri avanzati, prodotti,
+              capability, mercati. Il Network completo è disponibile dopo registrazione e abilitazione.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               {companyTypes.map((type) => (
