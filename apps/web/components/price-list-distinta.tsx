@@ -1,6 +1,15 @@
 "use client";
 
+import Link from "next/link";
+import { useState } from "react";
+
 import type { PriceListExplorerItem } from "@/lib/public-price-lists";
+import {
+  buildPricingCsv,
+  buildPricingEmailHtml,
+  buildPricingEmailPlainText,
+  type EmailExportSummary,
+} from "@/lib/pricing-export";
 import {
   calculateDistintaLine,
   calculateDistintaTotals,
@@ -47,6 +56,13 @@ export function PriceListDistinta({
   onRemove,
   onClear,
   onClose,
+  exportContext,
+  authenticated = false,
+  canSave = false,
+  onSave,
+  savePending = false,
+  savedSessionId = null,
+  saveError = null,
   mobile = false,
 }: {
   lines: DistintaDraftLine[];
@@ -56,8 +72,22 @@ export function PriceListDistinta({
   onRemove: (itemId: string) => void;
   onClear: () => void;
   onClose?: () => void;
+  exportContext: {
+    title: string;
+    listName: string;
+    versionCode: string;
+    sourceDate: string | null;
+    currencyCode: string;
+  };
+  authenticated?: boolean;
+  canSave?: boolean;
+  onSave?: () => void;
+  savePending?: boolean;
+  savedSessionId?: string | null;
+  saveError?: string | null;
   mobile?: boolean;
 }) {
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "error">("idle");
   const calculatedLines = lines.map((line) => {
     const weightKgM = numberValue(line.item.resolved_weight_kg_m);
     const calculation = calculateDistintaLine({
@@ -84,6 +114,81 @@ export function PriceListDistinta({
     totals.lineCount,
     totals.weightedReadyLineCount,
   );
+
+  const exportSummary: EmailExportSummary = {
+    title: exportContext.title,
+    listName: exportContext.listName,
+    versionCode: exportContext.versionCode,
+    sourceDate: exportContext.sourceDate,
+    currencyCode: exportContext.currencyCode,
+    lines: calculatedLines.map(({ line, calculation }, index) => ({
+      position: index + 1,
+      dimension: line.item.dimension_label,
+      grade: line.item.grade_code || line.item.grade_raw,
+      finish: line.item.finish_raw || line.item.finish_code,
+      quantityLabel:
+        line.quantityMode === "meters"
+          ? line.quantityInput + " m"
+          : line.quantityMode === "bars"
+            ? line.quantityInput + " barre × " + line.barLengthInput + " m"
+            : line.quantityInput + " t",
+      meters: calculation.meters,
+      tonnes: calculation.tonnes,
+      netEurM: line.netEurM,
+      netEurT: line.netEurT,
+      lineTotalEur: calculation.lineTotalEur,
+    })),
+    totalMeters: totals.totalMeters,
+    totalTonnes: totals.totalTonnes,
+    totalValueEur: totals.totalValueEur,
+    weightedAverageEurT: totals.weightedAverageEurT,
+  };
+
+  async function copyForEmail() {
+    const plain = buildPricingEmailPlainText(exportSummary);
+    const html = buildPricingEmailHtml(exportSummary);
+
+    try {
+      if (
+        typeof navigator !== "undefined" &&
+        navigator.clipboard &&
+        typeof ClipboardItem !== "undefined" &&
+        navigator.clipboard.write
+      ) {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            "text/plain": new Blob([plain], { type: "text/plain" }),
+            "text/html": new Blob([html], { type: "text/html" }),
+          }),
+        ]);
+      } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(plain);
+      } else {
+        throw new Error("clipboard_unavailable");
+      }
+
+      setCopyStatus("copied");
+      window.setTimeout(() => setCopyStatus("idle"), 2200);
+    } catch {
+      setCopyStatus("error");
+      window.setTimeout(() => setCopyStatus("idle"), 2600);
+    }
+  }
+
+  function downloadCsv() {
+    const csv = buildPricingCsv(exportSummary);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download =
+      exportContext.versionCode.replaceAll(/[^a-zA-Z0-9_-]+/g, "-") +
+      "-distinta.csv";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+  }
 
   return (
     <section
@@ -365,6 +470,71 @@ export function PriceListDistinta({
               Le tonnellate mostrate includono soltanto le righe con kg/m disponibile.
             </p>
           ) : null}
+
+          <div className="mt-4 border-t border-[#d9e3de] pt-3">
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={copyForEmail}
+                className="min-h-10 rounded-xl bg-[#173f35] px-3 text-xs font-semibold text-white hover:bg-[#245747]"
+              >
+                {copyStatus === "copied"
+                  ? "✓ Copiata"
+                  : copyStatus === "error"
+                    ? "Copia non riuscita"
+                    : "Copia per email"}
+              </button>
+              <button
+                type="button"
+                onClick={downloadCsv}
+                className="min-h-10 rounded-xl border border-[#cfdad5] bg-white px-3 text-xs font-semibold text-[#52615b] hover:border-[#9ebfb3] hover:text-[#173f35]"
+              >
+                Scarica CSV
+              </button>
+            </div>
+
+            <p className="mt-2 text-[10px] leading-4 text-[#718078]">
+              La copia per email include articolo, quantità, metri, tonnellate e prezzi netti.
+              Base, Extra e sconto commerciale restano esclusi.
+            </p>
+
+            {canSave && onSave ? (
+              <button
+                type="button"
+                onClick={onSave}
+                disabled={savePending}
+                className="mt-3 min-h-10 w-full rounded-xl border border-[#9ebfb3] bg-[#edf5f2] px-3 text-xs font-bold text-[#173f35] hover:bg-[#e4f0eb] disabled:cursor-wait disabled:opacity-60"
+              >
+                {savePending ? "Salvataggio…" : "Salva distinta"}
+              </button>
+            ) : authenticated ? (
+              <p className="mt-3 rounded-xl bg-[#f1f3f2] px-3 py-2 text-[10px] leading-4 text-[#66736e]">
+                Il tuo ruolo può consultare le distinte ma non salvarne di nuove.
+              </p>
+            ) : (
+              <Link
+                href="/login"
+                className="mt-3 flex min-h-10 items-center justify-center rounded-xl border border-[#d7dfdb] bg-white px-3 text-xs font-semibold text-[#52615b] hover:text-[#173f35]"
+              >
+                Accedi per salvare
+              </Link>
+            )}
+
+            {savedSessionId ? (
+              <Link
+                href={"/listini/storico/" + savedSessionId}
+                className="mt-2 flex min-h-9 items-center justify-center rounded-lg bg-emerald-50 px-3 text-xs font-semibold text-emerald-800 hover:bg-emerald-100"
+              >
+                ✓ Salvata · apri snapshot
+              </Link>
+            ) : null}
+
+            {saveError ? (
+              <p className="mt-2 rounded-lg bg-rose-50 px-3 py-2 text-[10px] font-medium leading-4 text-rose-800">
+                {saveError}
+              </p>
+            ) : null}
+          </div>
         </footer>
       ) : null}
     </section>

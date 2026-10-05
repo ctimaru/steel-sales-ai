@@ -24,6 +24,9 @@ export default function PublicPriceListsLayout({ children }: { children: ReactNo
             <Link href="/listini" className="rounded-lg bg-[#edf5f2] px-3 py-2 text-sm font-bold text-[#173f35]">
               Listini
             </Link>
+            <Link href="/listini/storico" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3] hover:text-[#173f35]">
+              I miei calcoli
+            </Link>
             <Link href="/azienda" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3] hover:text-[#173f35]">
               Trova azienda
             </Link>
@@ -38,6 +41,7 @@ export default function PublicPriceListsLayout({ children }: { children: ReactNo
               ["/knowledge", "Scuola"],
               ["/knowledge/tubes?source=school&surface=nav#calcolatore-pesi", "Calcolo pesi"],
               ["/listini", "Listini"],
+              ["/listini/storico", "I miei calcoli"],
               ["/azienda", "Trova azienda"],
             ].map(([href, label]) => (
               <Link
@@ -62,6 +66,7 @@ export default function PublicPriceListsLayout({ children }: { children: ReactNo
         <div className="mx-auto flex max-w-[1180px] flex-col gap-4 px-4 py-7 text-xs text-[#718078] sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
           <div className="flex flex-wrap gap-x-5 gap-y-2">
             <Link href="/listini" className="font-semibold hover:text-[#173f35]">Listini</Link>
+            <Link href="/listini/storico" className="font-semibold hover:text-[#173f35]">I miei calcoli</Link>
             <Link href="/knowledge" className="font-semibold hover:text-[#173f35]">Scuola</Link>
             <Link href="/knowledge/tubes" className="font-semibold hover:text-[#173f35]">Calcolo pesi</Link>
             <Link href="/azienda" className="font-semibold hover:text-[#173f35]">Trova azienda</Link>

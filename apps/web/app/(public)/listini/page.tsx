@@ -63,9 +63,9 @@ export default async function PriceListsPage({
           Dal PDF al prezzo utilizzabile.
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-[#d8e5e0] sm:text-base">
-          Consulta i listini produttore in forma strutturata, filtra le misure e applica uno sconto temporaneo.
-          Il prezzo al metro è calcolato dalla struttura pubblicata; il prezzo a tonnellata compare solo quando
-          il peso è supportato da un riferimento governato.
+          Consulta i listini produttore in forma strutturata, filtra le misure, calcola i prezzi e costruisci
+          una Distinta pronta da copiare nell&apos;email commerciale. Con un account puoi anche salvarla e
+          ritrovarla nello storico come snapshot immutabile.
         </p>
       </header>
 
@@ -189,7 +189,7 @@ export default async function PriceListsPage({
 
       <FocusPanel>
         <p className="app-kicker">Come funziona</p>
-        <div className="mt-3 grid gap-4 md:grid-cols-3">
+        <div className="mt-3 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div>
             <h2 className="text-sm font-semibold text-[#1d2824]">1. Filtra il prodotto</h2>
             <p className="mt-1 text-xs leading-5 text-[#66736e]">
@@ -203,9 +203,15 @@ export default async function PriceListsPage({
             </p>
           </div>
           <div>
-            <h2 className="text-sm font-semibold text-[#1d2824]">3. Leggi €/m e €/t</h2>
+            <h2 className="text-sm font-semibold text-[#1d2824]">3. Crea la Distinta</h2>
             <p className="mt-1 text-xs leading-5 text-[#66736e]">
-              €/t è mostrato solo quando kg/m e provenienza del peso sono risolti.
+              Inserisci metri, barre o tonnellate e ottieni totali e €/t medio ponderato.
+            </p>
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold text-[#1d2824]">4. Copia o salva</h2>
+            <p className="mt-1 text-xs leading-5 text-[#66736e]">
+              Incolla la tabella direttamente nell&apos;email oppure salvala in I miei calcoli.
             </p>
           </div>
         </div>

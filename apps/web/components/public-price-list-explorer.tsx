@@ -1,7 +1,9 @@
 
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
+
+import { savePricingSession } from "@/app/(public)/listini/[versionId]/actions";
 
 import {
   PriceListDistinta,
@@ -184,6 +186,9 @@ export function PublicPriceListExplorer({
     }>
   >([]);
   const [mobileDistintaOpen, setMobileDistintaOpen] = useState(false);
+  const [savePending, startSaveTransition] = useTransition();
+  const [savedSessionId, setSavedSessionId] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const manualDiscountPct = Math.min(
     100,
@@ -316,6 +321,37 @@ export function PublicPriceListExplorer({
         line.itemId === itemId ? { ...line, ...patch } : line,
       ),
     );
+  }
+
+  function saveCurrentDistinta() {
+    setSaveError(null);
+    setSavedSessionId(null);
+
+    startSaveTransition(async () => {
+      const result = await savePricingSession({
+        versionId: version.version_id,
+        pricingMode,
+        manualDiscountPct:
+          pricingMode === "manual" ? manualDiscountPct : null,
+        targetEurT: pricingMode === "target" ? targetEurT : null,
+        lines: distinta.map((line) => ({
+          itemId: line.itemId,
+          quantityMode: line.quantityMode,
+          quantity: Number(line.quantityInput.replace(",", ".")),
+          barLengthM:
+            line.quantityMode === "bars"
+              ? Number(line.barLengthInput.replace(",", "."))
+              : null,
+        })),
+      });
+
+      if (!result.ok || !result.sessionId) {
+        setSaveError(result.error ?? "Non è stato possibile salvare la distinta.");
+        return;
+      }
+
+      setSavedSessionId(result.sessionId);
+    });
   }
 
   const filtered = useMemo(() => {
@@ -824,6 +860,19 @@ export function PublicPriceListExplorer({
               }
               onRemove={removeFromDistinta}
               onClear={() => setDistinta([])}
+              exportContext={{
+                title: "Distinta commerciale",
+                listName: version.list_name,
+                versionCode: version.manufacturer_version_code,
+                sourceDate: version.source_date,
+                currencyCode: version.currency_code,
+              }}
+              authenticated={privatePricing?.authenticated ?? false}
+              canSave={privatePricing?.canWrite ?? false}
+              onSave={saveCurrentDistinta}
+              savePending={savePending}
+              savedSessionId={savedSessionId}
+              saveError={saveError}
             />
           </div>
         </aside>
@@ -865,6 +914,19 @@ export function PublicPriceListExplorer({
               onRemove={removeFromDistinta}
               onClear={() => setDistinta([])}
               onClose={() => setMobileDistintaOpen(false)}
+              exportContext={{
+                title: "Distinta commerciale",
+                listName: version.list_name,
+                versionCode: version.manufacturer_version_code,
+                sourceDate: version.source_date,
+                currencyCode: version.currency_code,
+              }}
+              authenticated={privatePricing?.authenticated ?? false}
+              canSave={privatePricing?.canWrite ?? false}
+              onSave={saveCurrentDistinta}
+              savePending={savePending}
+              savedSessionId={savedSessionId}
+              saveError={saveError}
             />
           </div>
         </div>
