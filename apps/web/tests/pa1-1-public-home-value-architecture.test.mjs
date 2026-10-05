@@ -6,16 +6,20 @@ const home = fs.readFileSync(
   new URL("../app/page.tsx", import.meta.url),
   "utf8",
 );
+const network = fs.readFileSync(
+  new URL("../components/public-network-role-explorer.tsx", import.meta.url),
+  "utf8",
+);
 
 test("PA1.1 public home leads with value before login", () => {
   assert.match(home, /Il business network/);
   assert.match(home, /Utile anche senza account/);
   assert.match(home, /Prima utilità, poi prodotto/);
   assert.match(home, /Cercala per nome o Partita IVA/);
-  assert.match(home, /Produttori/);
-  assert.match(home, /Commercianti/);
-  assert.match(home, /Terzisti/);
-  assert.match(home, /Utilizzatori/);
+  assert.match(network, /Produttori/);
+  assert.match(network, /Commercianti/);
+  assert.match(network, /Terzisti/);
+  assert.match(network, /Utilizzatori/);
 });
 
 test("PA1.1 exposes real public Scuola entry points", () => {
@@ -29,7 +33,7 @@ test("PA1.1 public-value architecture remains intact after PA1.2 adds real compa
   assert.match(home, /Trova o rivendica la tua azienda/);
   assert.match(home, /<PublicCompanyLookup \/>/);
   assert.match(home, /La ricerca pubblica serve solo a riconoscere l&apos;identità aziendale/);
-  assert.match(home, /Privato · Premium/);
+  assert.match(network, /Privato · Premium/);
   assert.doesNotMatch(home, /href="\/network"/);
 });
 

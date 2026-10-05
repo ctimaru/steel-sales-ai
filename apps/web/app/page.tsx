@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { ProductBrand } from "@/components/product-brand";
+import { PublicNetworkRoleExplorer } from "@/components/public-network-role-explorer";
 import { PublicCompanyLookup } from "@/components/public-company-lookup";
 import { absoluteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
@@ -41,7 +42,6 @@ const publicTools = [
   },
 ] as const;
 
-const companyTypes = ["Produttori", "Commercianti", "Terzisti", "Utilizzatori"] as const;
 
 export default async function PublicHomePage() {
   const organizationJsonLd = {
@@ -174,6 +174,8 @@ export default async function PublicHomePage() {
         </div>
       </section>
 
+      <PublicNetworkRoleExplorer />
+
       <section className="border-b border-[#dce2df] bg-white">
         <div className="mx-auto max-w-[1120px] px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
@@ -220,51 +222,6 @@ export default async function PublicHomePage() {
             La ricerca pubblica serve solo a riconoscere l&apos;identità aziendale. Non apre la directory Network
             e non espone dati commerciali, prezzi, email, offerte o ordini.
           </p>
-        </div>
-      </section>
-
-      <section id="network" className="border-y border-[#dce2df] bg-white">
-        <div className="mx-auto grid max-w-[1120px] gap-7 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_auto] lg:items-center lg:px-8">
-          <div className="max-w-3xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Network</p>
-              <span className="rounded-full bg-[#edf5f2] px-2.5 py-1 text-[10px] font-bold text-[#173f35]">
-                Privato · Premium
-              </span>
-            </div>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824] sm:text-3xl">
-              La filiera steel, ricercabile quando ti serve.
-            </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#66736e]">
-              Produttori, commercianti, terzisti e utilizzatori in una directory ricca, filtri avanzati, prodotti,
-              capability, mercati. Il Network completo è disponibile dopo registrazione e abilitazione.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {companyTypes.map((type) => (
-                <span
-                  key={type}
-                  className="rounded-full border border-[#dce2df] bg-[#f8faf9] px-3 py-1.5 text-xs font-semibold text-[#52615b]"
-                >
-                  {type}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2 lg:justify-end">
-            <Link
-              href="/login"
-              className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#d7dfdb] bg-white px-4 text-sm font-semibold text-[#52615b] hover:bg-[#f4f7f5] hover:text-[#173f35]"
-            >
-              Accedi
-            </Link>
-            <Link
-              href="/register"
-              className="platform-primary inline-flex min-h-10 items-center justify-center rounded-lg px-4 text-sm font-semibold"
-            >
-              Registra azienda
-            </Link>
-          </div>
         </div>
       </section>
 
