@@ -92,11 +92,17 @@ insert into public.organization_memberships(
  ('00000000-0000-0000-0000-0000000017f1'::uuid,'00000000-0000-0000-0000-0000000017a3'::uuid,'viewer','active',true),
  ('00000000-0000-0000-0000-0000000017f2'::uuid,'00000000-0000-0000-0000-0000000017b1'::uuid,'admin','active',true);
 
-insert into public.platform_user_roles(user_id,role,status,granted_by,reason) values
- ('00000000-0000-0000-0000-0000000017a1'::uuid,'platform_superadmin','active','00000000-0000-0000-0000-0000000017a1'::uuid,'PL1.7 CI fixture'),
- ('00000000-0000-0000-0000-0000000017a2'::uuid,'platform_superadmin','active','00000000-0000-0000-0000-0000000017a2'::uuid,'PL1.7 CI fixture'),
- ('00000000-0000-0000-0000-0000000017a3'::uuid,'platform_superadmin','active','00000000-0000-0000-0000-0000000017a3'::uuid,'PL1.7 CI fixture'),
- ('00000000-0000-0000-0000-0000000017b1'::uuid,'platform_superadmin','active','00000000-0000-0000-0000-0000000017b1'::uuid,'PL1.7 CI fixture');
+insert into public.platform_staff(user_id,status) values
+ ('00000000-0000-0000-0000-0000000017a1'::uuid,'active'),
+ ('00000000-0000-0000-0000-0000000017a2'::uuid,'active'),
+ ('00000000-0000-0000-0000-0000000017a3'::uuid,'active'),
+ ('00000000-0000-0000-0000-0000000017b1'::uuid,'active');
+
+insert into public.platform_staff_roles(user_id,role_key,status,assigned_by,reason) values
+ ('00000000-0000-0000-0000-0000000017a1'::uuid,'knowledge_editor','active','00000000-0000-0000-0000-0000000017a1'::uuid,'PL1.7 CI fixture'),
+ ('00000000-0000-0000-0000-0000000017a2'::uuid,'knowledge_editor','active','00000000-0000-0000-0000-0000000017a2'::uuid,'PL1.7 CI fixture'),
+ ('00000000-0000-0000-0000-0000000017a3'::uuid,'knowledge_editor','active','00000000-0000-0000-0000-0000000017a3'::uuid,'PL1.7 CI fixture'),
+ ('00000000-0000-0000-0000-0000000017b1'::uuid,'knowledge_editor','active','00000000-0000-0000-0000-0000000017b1'::uuid,'PL1.7 CI fixture');
 
 -- Tenant A admin creates organization defaults.
 select set_config('request.jwt.claim.role','authenticated',true);
