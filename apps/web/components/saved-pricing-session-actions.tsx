@@ -111,11 +111,11 @@ export function SavedPricingSessionActions({
   }
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="grid w-full grid-cols-1 gap-2 sm:w-auto sm:grid-cols-2">
       <button
         type="button"
         onClick={copyForEmail}
-        className="inline-flex min-h-10 items-center justify-center rounded-xl bg-[#173f35] px-4 text-sm font-semibold text-white hover:bg-[#245747]"
+        className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#173f35] px-4 text-sm font-semibold text-white hover:bg-[#245747]"
       >
         {copyStatus === "copied"
           ? "✓ Copiata per email"
@@ -126,7 +126,7 @@ export function SavedPricingSessionActions({
       <button
         type="button"
         onClick={downloadCsv}
-        className="inline-flex min-h-10 items-center justify-center rounded-xl border border-[#d7dfdb] bg-white px-4 text-sm font-semibold text-[#52615b] hover:border-[#9ebfb3] hover:text-[#173f35]"
+        className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[#d7dfdb] bg-white px-4 text-sm font-semibold text-[#52615b] hover:border-[#9ebfb3] hover:text-[#173f35]"
       >
         Scarica CSV
       </button>
