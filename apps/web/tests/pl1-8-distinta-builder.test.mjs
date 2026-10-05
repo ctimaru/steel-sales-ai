@@ -18,7 +18,7 @@ const contract = fs.readFileSync(
 test("PL1.8 lets each price-list row enter and leave the distinta", () => {
   assert.match(explorer, /addToDistinta/);
   assert.match(explorer, /removeFromDistinta/);
-  assert.match(explorer, /+ Distinta/);
+  assert.match(explorer, /\+ Distinta/);
   assert.match(explorer, /✓ In distinta/);
   assert.match(explorer, /selectedItemIds/);
 });
