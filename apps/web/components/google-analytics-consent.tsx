@@ -160,9 +160,9 @@ export function GoogleAnalyticsConsent({
   const showPanel = consent === null || settingsOpen;
   const currentLabel =
     consent === "granted"
-      ? "Analytics accettati"
+      ? "Accettato"
       : consent === "denied"
-        ? "Solo necessari"
+        ? "Necessari"
         : "Scelta non espressa";
 
   return (
@@ -186,7 +186,7 @@ export function GoogleAnalyticsConsent({
             type="button"
             onClick={() => choose("denied")}
             aria-label="Continua solo con cookie necessari"
-            title="Solo necessari"
+            title="Accetta necessari"
             className="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-full text-base font-medium text-[#718078] transition hover:bg-[#f1f5f3] hover:text-[#173f35]"
           >
             ×
@@ -221,14 +221,14 @@ export function GoogleAnalyticsConsent({
               onClick={() => choose("denied")}
               className="min-h-10 rounded-xl border border-[#b9cbc4] bg-white px-3 text-xs font-bold text-[#43524c] transition hover:bg-[#f6f8f7]"
             >
-              Solo necessari
+              Accetta necessari
             </button>
             <button
               type="button"
               onClick={() => choose("granted")}
               className="min-h-10 rounded-xl border border-[#9ebcaf] bg-[#edf5f2] px-3 text-xs font-bold text-[#173f35] transition hover:bg-[#e4efeb]"
             >
-              Accetta analytics
+              Accetta
             </button>
           </div>
         </section>
