@@ -14,9 +14,10 @@ export type DistintaDraftLine = {
   quantityMode: DistintaQuantityMode;
   quantityInput: string;
   barLengthInput: string;
-  appliedDiscountPct: number;
+  appliedDiscountPct: number | null;
   netEurM: number | null;
   netEurT: number | null;
+  pricingIssue?: string | null;
 };
 
 function numberFromInput(value: string) {
