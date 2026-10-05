@@ -145,7 +145,7 @@ export default async function PlatformHomePage() {
             {context.is_platform_owner ? (
               <FocusLink
                 href="/platform/pilot"
-                title="Pilot Cohort & Activation"
+                title={<span>Pilot Cohort &amp; Activation</span>}
                 description="Prerequisiti e attivazione del pilot commerciale."
                 meta="Pilot"
               />
