@@ -110,3 +110,113 @@ export function distintaIssueLabel(issue: DistintaLineCalculation["issue"]) {
   if (issue === "price_unavailable") return "Prezzo €/m non disponibile per questa riga.";
   return null;
 }
+
+
+export type DistintaTotals = {
+  lineCount: number;
+  completeValueLineCount: number;
+  weightedReadyLineCount: number;
+  totalMeters: number;
+  totalTonnes: number;
+  totalValueEur: number;
+  weightedAverageEurT: number | null;
+  metersComplete: boolean;
+  tonnesComplete: boolean;
+  valueComplete: boolean;
+  weightedAverageStatus:
+    | "empty"
+    | "incomplete_lines"
+    | "missing_weight"
+    | "no_tonnage"
+    | "ready";
+};
+
+export function calculateDistintaTotals(
+  calculations: DistintaLineCalculation[],
+): DistintaTotals {
+  const lineCount = calculations.length;
+  const completeValueLines = calculations.filter(
+    (line) => line.lineTotalEur !== null,
+  );
+  const weightedReadyLines = completeValueLines.filter(
+    (line) => line.tonnes !== null && line.tonnes > 0,
+  );
+
+  const totalMeters = calculations.reduce(
+    (sum, line) => sum + (line.meters ?? 0),
+    0,
+  );
+  const totalTonnes = calculations.reduce(
+    (sum, line) => sum + (line.tonnes ?? 0),
+    0,
+  );
+  const totalValueEur = calculations.reduce(
+    (sum, line) => sum + (line.lineTotalEur ?? 0),
+    0,
+  );
+
+  const metersComplete =
+    lineCount > 0 && calculations.every((line) => line.meters !== null);
+  const tonnesComplete =
+    lineCount > 0 && calculations.every((line) => line.tonnes !== null);
+  const valueComplete =
+    lineCount > 0 &&
+    completeValueLines.length === lineCount;
+
+  let weightedAverageStatus: DistintaTotals["weightedAverageStatus"] = "empty";
+
+  if (lineCount > 0 && !valueComplete) {
+    weightedAverageStatus = "incomplete_lines";
+  } else if (
+    lineCount > 0 &&
+    weightedReadyLines.length !== lineCount
+  ) {
+    weightedAverageStatus = "missing_weight";
+  } else if (lineCount > 0 && totalTonnes <= 0) {
+    weightedAverageStatus = "no_tonnage";
+  } else if (lineCount > 0) {
+    weightedAverageStatus = "ready";
+  }
+
+  const weightedAverageEurT =
+    weightedAverageStatus === "ready"
+      ? totalValueEur / totalTonnes
+      : null;
+
+  return {
+    lineCount,
+    completeValueLineCount: completeValueLines.length,
+    weightedReadyLineCount: weightedReadyLines.length,
+    totalMeters,
+    totalTonnes,
+    totalValueEur,
+    weightedAverageEurT,
+    metersComplete,
+    tonnesComplete,
+    valueComplete,
+    weightedAverageStatus,
+  };
+}
+
+export function weightedAverageStatusLabel(
+  status: DistintaTotals["weightedAverageStatus"],
+  lineCount: number,
+  weightedReadyLineCount: number,
+) {
+  if (status === "empty") return "Aggiungi articoli per calcolare il riepilogo.";
+  if (status === "incomplete_lines") {
+    return "Completa quantità e prezzo di tutte le righe per ottenere il €/t medio.";
+  }
+  if (status === "missing_weight") {
+    const missing = Math.max(0, lineCount - weightedReadyLineCount);
+    return (
+      "€/t medio non disponibile: " +
+      missing +
+      (missing === 1
+        ? " riga non ha un peso kg/m governato."
+        : " righe non hanno un peso kg/m governato.")
+    );
+  }
+  if (status === "no_tonnage") return "La distinta non contiene tonnellaggio calcolabile.";
+  return "Media ponderata = valore totale ÷ tonnellate totali.";
+}
