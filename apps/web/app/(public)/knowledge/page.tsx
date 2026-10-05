@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { FocusHeader, FocusLink, FocusPage, FocusPanel } from "@/components/focus-ui";
+import { FocusLink, FocusPage, FocusPanel } from "@/components/focus-ui";
+import { SchoolHero } from "@/components/school-ui";
 import { schoolArticles } from "@/lib/school-articles";
 import { absoluteUrl } from "@/lib/site";
 
@@ -19,41 +20,72 @@ export const metadata: Metadata = {
   },
 };
 
+const knowledgeAreas = [
+  {
+    eyebrow: "Calcolatore",
+    title: "Calcola peso, barre e tonnellate",
+    description: "EN 10210, EN 10219 e calcolo libero con kg/m, peso barra e tonnellaggio.",
+    status: "Pesi & dimensioni",
+    href: "/knowledge/tubes",
+  },
+  {
+    eyebrow: "Norme",
+    title: "Capire cosa disciplina ogni standard",
+    description: "Ambito, prodotti e collegamenti tecnici.",
+    status: "Catalogo",
+    href: "/knowledge/norme",
+  },
+  {
+    eyebrow: "Gradi di acciaio",
+    title: "Leggere designazioni e materiali",
+    description: "Designazioni, materiali e norme collegate.",
+    status: "Catalogo",
+    href: "/knowledge/gradi",
+  },
+  {
+    eyebrow: "Articoli",
+    title: "Storia, processi e industria",
+    description: "Approfondimenti originali sul settore steel e tube.",
+    status: "Editoriale",
+    href: "/knowledge/articoli",
+  },
+] as const;
+
 export default function KnowledgeHomePage() {
   return (
     <FocusPage className="px-4 py-7 sm:px-6 sm:py-9 lg:px-8">
-      <FocusHeader
+      <SchoolHero
         eyebrow="Scuola"
-        title="Parti dal problema tecnico"
-        description="Calcola un peso, poi approfondisci norma o grado. Gli articoli e il contesto editoriale restano disponibili senza competere con lo strumento principale."
+        title="Conoscenza tecnica per chi lavora con acciaio e tubi"
+        description={
+          <>
+            Parti dal problema tecnico: calcola un peso, poi approfondisci norma o grado. La Scuola è
+            pubblica e separata dai dati commerciali privati delle aziende.
+          </>
+        }
+        badges={["Pubblico", "Pesi & dimensioni"]}
+        compact
       />
 
       <FocusPanel>
         <p className="app-kicker">Strumento principale</p>
         <FocusLink
-          href="/knowledge/tubes?source=school&surface=home_card#calcolatore-pesi"
-          title="Calcola peso, barre e tonnellate"
-          description="EN 10210, EN 10219 e calcolo libero con kg/m, peso barra e tonnellaggio."
-          meta="Calcolatore"
+          href={`${knowledgeAreas[0].href}?source=school&surface=home_card#calcolatore-pesi`}
+          title={knowledgeAreas[0].title}
+          description={knowledgeAreas[0].description}
+          meta={knowledgeAreas[0].eyebrow}
           primary
         />
 
         <div className="mt-5 grid gap-2 sm:grid-cols-3">
-          <FocusLink
-            href="/knowledge/norme"
-            title="Norme"
-            description="Ambito, prodotti e collegamenti tecnici."
-          />
-          <FocusLink
-            href="/knowledge/gradi"
-            title="Gradi"
-            description="Designazioni, materiali e norme collegate."
-          />
-          <FocusLink
-            href="/knowledge/articoli"
-            title="Articoli"
-            description="Storia, processi e industria steel."
-          />
+          {knowledgeAreas.slice(1).map((area) => (
+            <FocusLink
+              key={area.href}
+              href={area.href}
+              title={area.eyebrow}
+              description={area.description}
+            />
+          ))}
         </div>
       </FocusPanel>
 
@@ -84,8 +116,8 @@ export default function KnowledgeHomePage() {
         </summary>
         <div className="border-t border-[#e2e7e4] px-5 py-4 text-sm leading-6 text-[#66736e]">
           Le pagine distinguono spiegazioni editoriali, valori calcolati e riferimenti tecnici verificati.
-          Il testo ufficiale delle norme non viene riprodotto quando protetto da licenza o copyright.
-          Smart Steel Sales porta il prodotto in primo piano solo quando aiuta a continuare il lavoro.
+          La sezione tubi include cluster per famiglia, dimensione esterna e spessore. Il testo ufficiale
+          delle norme non viene riprodotto quando protetto da licenza o copyright.
         </div>
       </details>
     </FocusPage>
