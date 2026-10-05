@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
+import { FocusHeader, FocusPage } from "@/components/focus-ui";
 import { NetworkAccessGate } from "@/components/network-access-gate";
 import { PilotEvent } from "@/components/pilot-event";
 import { getNetworkTaxonomy, searchNetwork } from "@/lib/network";
@@ -101,71 +102,30 @@ export default async function NetworkDirectoryPage({
     params.product === "tubes_pipes" && (params.country ?? "").toUpperCase() === "IT";
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8">
+    <FocusPage>
       <PilotEvent eventName="network_directory_viewed" metadata={{ surface: "network_directory" }} />
 
-      <section className="overflow-hidden rounded-3xl border border-[#dce2df] bg-white shadow-[0_1px_2px_rgba(30,43,69,0.025),0_12px_36px_rgba(30,43,69,0.035)]">
-        <div className="h-1 bg-[#1a5144]" />
-        <div className="p-6 sm:p-8">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-              Network
-            </span>
-            <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[11px] font-semibold text-[#1a5144]">
-              Condiviso
-            </span>
-          </div>
-
-          <div className="mt-4 max-w-4xl">
-            <h1 className="text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-4xl">
-              Trova aziende e costruisci relazioni nel settore steel
-            </h1>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66736e] sm:text-base">
-              Il Network raccoglie profili aziendali della filiera e strumenti premium per scoperta,
-              monitoraggio e contatto B2B. La Commercial Memory della tua azienda resta privata e separata.
-            </p>
-          </div>
-
-          <div className="mt-6 grid gap-3 md:grid-cols-3">
-            <div className="rounded-2xl border border-[#e6edf7] bg-[#f6f8f7] p-4">
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Trova</p>
-              <p className="mt-2 text-sm leading-6 text-[#5f7087]">
-                Scegli una tipologia della filiera oppure cerca un&apos;azienda per nome, prodotto o capability.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-[#e6edf7] bg-[#f6f8f7] p-4">
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Ritrova e segui</p>
-              <p className="mt-2 text-sm leading-6 text-[#5f7087]">
-                Le aziende salvate, quelle seguite e i loro aggiornamenti sono sempre nel menu Network.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-[#e6edf7] bg-[#f6f8f7] p-4">
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Contatta</p>
-              <p className="mt-2 text-sm leading-6 text-[#5f7087]">
-                Apri un profilo per inviare un&apos;inquiry quando disponibile; lo storico resta in Inquiry B2B.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <FocusHeader
+        eyebrow="Network"
+        title="Trova un’azienda"
+        description="Cerca per nome o dominio. Tipologia di filiera e filtri avanzati servono solo per restringere i risultati; la Commercial Memory resta privata e separata."
+      />
 
       <section id="directory" className="space-y-3">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Directory aziende</p>
-          <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">Da dove vuoi partire?</h2>
-          <p className="mt-1 text-sm text-[#66736e]">
-            Per il tubo in Italia puoi entrare direttamente da una tipologia della filiera.
-          </p>
+          <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Scorciatoie filiera</h2>
+          <p className="mt-1 text-sm text-[#66736e]">Seleziona una tipologia solo se ti aiuta a restringere la ricerca.</p>
         </div>
 
-        <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="flex flex-wrap gap-2">
           {companyTypeDoors.map((door) => {
             const active = quickTubeContext && (params.role ?? "") === door.key;
             return (
               <Link
                 key={door.key || "all"}
                 href={companyTypeHref(door.key)}
-                className={`rounded-2xl border p-4 transition ${
+                className={`rounded-full border px-4 py-2.5 transition ${
                   active
                     ? "border-[#1a5144] bg-[#edf5f2] shadow-[inset_0_0_0_1px_#d9e8e2]"
                     : "border-[#dce2df] bg-white hover:border-[#b8d2c8] hover:bg-[#f6f8f7]"
@@ -174,7 +134,6 @@ export default async function NetworkDirectoryPage({
                 <p className={`text-sm font-semibold ${active ? "text-[#1a5144]" : "text-[#1d2824]"}`}>
                   {door.label}
                 </p>
-                <p className="mt-1 text-xs text-[#66736e]">{door.description}</p>
               </Link>
             );
           })}
@@ -374,6 +333,6 @@ export default async function NetworkDirectoryPage({
           </div>
         )}
       </section>
-    </div>
+    </FocusPage>
   );
 }
