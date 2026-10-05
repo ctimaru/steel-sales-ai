@@ -36,7 +36,8 @@ test("PA1.2 keeps the rich Network private and premium", () => {
   assert.match(network, /Privato · Premium/);
   assert.match(network, /directory completa, i filtri avanzati e i profili dettagliati/i);
   assert.match(lookup, /Il Network completo non è pubblico/);
-  assert.doesNotMatch(home, /href="\/network"/);\n  assert.doesNotMatch(network, /href="\/network"/);
+  assert.doesNotMatch(home, /href="\/network"/);
+  assert.doesNotMatch(network, /href="\/network"/);
   assert.doesNotMatch(lookup, /href="\/network"/);
 });
 
