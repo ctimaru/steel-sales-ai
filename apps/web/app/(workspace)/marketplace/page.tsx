@@ -80,12 +80,13 @@ export default async function MarketplaceFeedPage({
   return (
     <FocusPage>
       <FocusHeader
-        eyebrow="Marketplace"
-        title="Ricerche aperte"
+        eyebrow="P5.2 · Live Demand Board"
+        title="Opportunità dal Network"
         description={
           <>
-            Scopri opportunità dal Network partendo dal feed. I dettagli avanzati, lo stato di readiness
-            e le tue ricerche restano secondari rispetto alla scansione delle opportunità.
+            Free teaser: categoria, macro-specifica, area consentita, fascia quantità e countdown.
+            Dettagli tecnici completi e risposta restano fuori da P5.2. Lo stato di readiness e le tue
+            ricerche restano secondari rispetto alla scansione delle opportunità.
             <span className="mt-2 block text-xs font-semibold text-[#78857f]">
               {feed.total} aperte · {closingSoon} in scadenza entro 24h nella pagina
             </span>
