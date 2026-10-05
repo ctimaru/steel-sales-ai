@@ -69,7 +69,8 @@ export function PublicNetworkRoleExplorer() {
     <section
       id="network"
       className="border-b border-[#dce2df] bg-white"
-      aria-labelledby="network-value-title"\n      aria-label="Network per Produttori, Commercianti, Terzisti e Utilizzatori"
+      aria-labelledby="network-value-title"
+      aria-label="Network per Produttori, Commercianti, Terzisti e Utilizzatori"
     >
       <div className="mx-auto max-w-[1120px] px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
         <div className="flex flex-wrap items-center gap-2">
