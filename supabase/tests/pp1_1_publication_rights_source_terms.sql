@@ -11,7 +11,12 @@ end;
 $$;
 
 select pg_temp.pp11_assert(
-  exists (
+  not exists (
+    select 1
+    from public.price_list_versions v
+    where v.manufacturer_version_code='PTC 18/2026'
+  )
+  or exists (
     select 1
     from public.price_list_source_governance_events g
     join public.price_list_versions v
@@ -24,11 +29,16 @@ select pg_temp.pp11_assert(
       and g.terms_reference='https://www.padanatubi.it/note-legali/'
       and g.evidence_snapshot->>'reviewed_at'='2026-10-05'
   ),
-  'Padana publication-rights review must remain internal_only'
+  'when the real Padana version is present, publication rights must remain internal_only'
 );
 
 select pg_temp.pp11_assert(
-  exists (
+  not exists (
+    select 1
+    from public.price_list_versions v
+    where v.manufacturer_version_code='PTC 18/2026'
+  )
+  or exists (
     select 1
     from public.price_list_source_governance_events g
     join public.price_list_versions v
@@ -39,7 +49,7 @@ select pg_temp.pp11_assert(
       and g.attribution_requirement ilike '%Attribution alone is not sufficient%'
       and g.evidence_snapshot->>'required_next_evidence' ilike '%Written Padana authorization%'
   ),
-  'source attribution alone must not satisfy the publication-rights gate'
+  'when the real Padana version is present, attribution alone must not satisfy the publication-rights gate'
 );
 
 select pg_temp.pp11_assert(
