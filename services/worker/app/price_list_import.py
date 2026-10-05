@@ -416,7 +416,12 @@ def _section_key(context: dict[str, Any]) -> str:
 
 
 def _validation_status(codes: list[str]) -> str:
-    error_codes = {"UNPARSED_DIMENSION_LABEL", "THICKNESS_COLUMN_MISMATCH", "SHAPE_HEADER_ROW_MISMATCH"}
+    error_codes = {
+        "UNPARSED_PRICE_ROW",
+        "UNPARSED_DIMENSION_LABEL",
+        "THICKNESS_COLUMN_MISMATCH",
+        "SHAPE_HEADER_ROW_MISMATCH",
+    }
     if any(code in error_codes for code in codes):
         return "error"
     if codes:
@@ -557,6 +562,26 @@ def parse_padana_page_texts(
                 continue
             parsed = _parse_price_line(line)
             if not parsed:
+                if _looks_like_price_row(line):
+                    source_row_index += 1
+                    row_codes_counter.update(["UNPARSED_PRICE_ROW"])
+                    rows.append(
+                        ParsedRow(
+                            row_type="item",
+                            page_number=page_number,
+                            source_row_index=source_row_index,
+                            section_key=None,
+                            raw_text=line,
+                            normalized_data={"unparsed": True},
+                            validation_status="error",
+                            validation_codes=["UNPARSED_PRICE_ROW"],
+                            source_locator={
+                                "kind": "pdf",
+                                "page": page_number,
+                                "row": source_row_index,
+                            },
+                        )
+                    )
                 continue
 
             source_row_index += 1
@@ -683,6 +708,7 @@ def parse_padana_page_texts(
 
     for code, count in sorted(row_codes_counter.items()):
         severity = "error" if code in {
+            "UNPARSED_PRICE_ROW",
             "UNPARSED_DIMENSION_LABEL",
             "THICKNESS_COLUMN_MISMATCH",
             "SHAPE_HEADER_ROW_MISMATCH",
@@ -802,6 +828,8 @@ async def stage_price_list_import(
     _require_worker_token(x_worker_token)
     content = await _read_pdf(upload)
     filename = Path(upload.filename or "").name
+    repo: WorkerRepository | None = None
+    run_id: UUID | None = None
     try:
         result = parse_price_list_pdf(content, adapter_key=adapter_key)
         repo = WorkerRepository()
@@ -857,6 +885,22 @@ async def stage_price_list_import(
             "summary": result.summary,
         }
     except (RepositoryConfigurationError, RepositoryError) as exc:
+        if repo is not None and run_id is not None:
+            try:
+                await repo.update_price_list_import_run(
+                    run_id,
+                    {"status": "failed", "error_message": str(exc)[:2000]},
+                )
+            except (RepositoryConfigurationError, RepositoryError):
+                pass
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except (ValueError, InvalidOperation) as exc:
+        if repo is not None and run_id is not None:
+            try:
+                await repo.update_price_list_import_run(
+                    run_id,
+                    {"status": "failed", "error_message": str(exc)[:2000]},
+                )
+            except (RepositoryConfigurationError, RepositoryError):
+                pass
         raise HTTPException(status_code=422, detail=str(exc)) from exc
