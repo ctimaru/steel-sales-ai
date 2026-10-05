@@ -41,6 +41,7 @@ export function LegalPageShell({
         <nav aria-label="Pagine legali" className="flex flex-wrap gap-2 text-xs font-semibold">
           {[
             ["/privacy", "Privacy"],
+            ["/privacy/processors", "Fornitori & trasferimenti"],
             ["/cookies", "Cookie & tracking"],
             ["/terms", "Termini d’uso"],
             ["/legal", "Informazioni legali"],
