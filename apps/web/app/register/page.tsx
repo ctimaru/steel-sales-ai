@@ -57,7 +57,7 @@ export default async function RegisterPage({
   if (!user) {
     return (
       <main className="min-h-screen bg-[#f2f4f3] px-4 py-6 sm:px-6 sm:py-9">
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-3xl">
           <div className="flex items-center justify-between gap-4">
             <ProductBrand href="/" showDescriptor={false} />
             <Link
@@ -68,49 +68,17 @@ export default async function RegisterPage({
             </Link>
           </div>
 
-          <div className="mt-6 grid gap-6 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
-            <aside className="rounded-[28px] bg-[#123d34] p-7 text-white shadow-[0_16px_48px_rgba(18,61,52,0.10)] sm:p-9 lg:sticky lg:top-6 lg:p-10">
-              <span className="inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-[#e5f0ec]">
-                Registrazione aziendale
-              </span>
-              <h1 className="mt-6 text-4xl font-semibold leading-tight tracking-[-0.03em] sm:text-5xl">
-                {claimRef
-                  ? "Continua il claim della tua azienda."
-                  : "Prima verifica se la tua azienda è già presente."}
+          <div className="mt-6 space-y-5">
+            <aside className="rounded-2xl border border-[#d9e8e2] bg-[#edf5f2] p-5 sm:p-6">
+              <p className="app-kicker">Registrazione aziendale</p>
+              <h1 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-[#173f35] sm:text-3xl">
+                {claimRef ? "Continua il claim della tua azienda" : "Prima verifica se l’azienda è già presente"}
               </h1>
-              <p className="mt-5 text-base leading-7 text-[#d5e3de]">
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#52615b]">
                 {claimRef
-                  ? "Il riferimento selezionato nella ricerca è stato preservato. Crea il tuo accesso, verifica l’email e completa la richiesta senza creare un profilo parallelo."
-                  : "Smart Steel Sales può avere già una scheda minima della tua azienda. Cercarla prima evita duplicati e, se il profilo è claimable, collega la registrazione all’identità corretta."}
+                  ? "Il profilo scelto è già collegato al percorso. Crea l’accesso e prosegui senza duplicare l’identità aziendale."
+                  : "Cerca ragione sociale o Partita IVA. Se trovi un profilo claimable lo colleghiamo alla registrazione; altrimenti puoi creare la nuova richiesta."}
               </p>
-
-              <div className="mt-8 space-y-3">
-                {[
-                  ["Cerca", "Verifica ragione sociale o Partita IVA."],
-                  ["Crea l’accesso", "Usa un’email che controlli e verifica il link ricevuto."],
-                  ["Completa la richiesta", "Inserisci i dati aziendali e inviali per revisione e attivazione."],
-                ].map(([title, body]) => (
-                  <div key={title} className="flex gap-3 rounded-2xl border border-white/10 bg-white/[0.06] p-4">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-sm font-extrabold text-[#123d34]">
-                      ✓
-                    </span>
-                    <div>
-                      <p className="text-sm font-semibold text-white">{title}</p>
-                      <p className="mt-1 text-xs leading-5 text-[#c6d8d1]">{body}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-8 border-t border-white/15 pt-6">
-                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#b9cec6]">
-                  Dati commerciali privati
-                </p>
-                <p className="mt-2 text-sm leading-6 text-[#d5e3de]">
-                  Email, offerte, prezzi, ordini e documenti restano nel workspace della tua
-                  azienda e non diventano dati pubblici del Network.
-                </p>
-              </div>
             </aside>
 
             <div className="space-y-5">
