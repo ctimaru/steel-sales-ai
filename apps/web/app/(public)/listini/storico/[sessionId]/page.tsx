@@ -115,7 +115,73 @@ export default async function SavedPricingSessionPage({
         </div>
       </header>
 
-      <section className="overflow-hidden rounded-2xl border border-[#dce2df] bg-white">
+      <section className="grid gap-3 md:hidden" aria-label="Righe distinta salvata">
+        {session.lines.map((line) => (
+          <article
+            key={line.id}
+            className="rounded-2xl border border-[#dce2df] bg-white p-4"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-wide text-[#82908a]">
+                  Riga {line.line_position}
+                </p>
+                <h2 className="mt-1 truncate text-base font-semibold text-[#1d2824]">
+                  {line.dimension_label_snapshot}
+                </h2>
+                <p className="mt-1 text-xs text-[#718078]">
+                  {[line.grade_code_snapshot, line.finish_code_snapshot]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+              </div>
+              <p className="shrink-0 text-xs font-semibold text-[#43524c]">
+                {quantityLabel(
+                  line.quantity_mode,
+                  Number(line.quantity),
+                  line.bar_length_m === null ? null : Number(line.bar_length_m),
+                )}
+              </p>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
+              <div className="rounded-xl bg-[#f7f9f8] p-3">
+                <p className="text-[10px] text-[#7a8781]">Metri</p>
+                <p className="mt-1 font-semibold tabular-nums text-[#1d2824]">
+                  {formatNumber(line.line_meters, 2)}
+                </p>
+              </div>
+              <div className="rounded-xl bg-[#f7f9f8] p-3">
+                <p className="text-[10px] text-[#7a8781]">Tonnellate</p>
+                <p className="mt-1 font-semibold tabular-nums text-[#1d2824]">
+                  {formatNumber(line.line_tonnes, 3)}
+                </p>
+              </div>
+              <div className="rounded-xl bg-[#edf5f2] p-3">
+                <p className="text-[10px] text-[#527268]">Netto €/m</p>
+                <p className="mt-1 font-bold tabular-nums text-[#173f35]">
+                  {formatNumber(line.net_eur_m, 4)}
+                </p>
+              </div>
+              <div className="rounded-xl bg-[#edf5f2] p-3">
+                <p className="text-[10px] text-[#527268]">Netto €/t</p>
+                <p className="mt-1 font-bold tabular-nums text-[#173f35]">
+                  {formatNumber(line.net_eur_t, 2)}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-3 flex items-center justify-between border-t border-[#edf0ee] pt-3">
+              <span className="text-xs text-[#718078]">Totale riga</span>
+              <span className="text-sm font-bold tabular-nums text-[#173f35]">
+                € {formatNumber(line.line_total, 2)}
+              </span>
+            </div>
+          </article>
+        ))}
+      </section>
+
+      <section className="hidden overflow-hidden rounded-2xl border border-[#dce2df] bg-white md:block">
         <div className="overflow-x-auto">
           <table className="min-w-full border-collapse text-left text-sm">
             <thead className="bg-[#f6f8f7] text-[11px] font-bold uppercase tracking-[0.08em] text-[#66736e]">
@@ -171,7 +237,7 @@ export default async function SavedPricingSessionPage({
         </div>
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <div className="rounded-xl border border-[#dfe8e4] bg-white p-4">
           <p className="text-xs text-[#718078]">Metri totali</p>
           <p className="mt-1 text-xl font-bold text-[#1d2824]">
