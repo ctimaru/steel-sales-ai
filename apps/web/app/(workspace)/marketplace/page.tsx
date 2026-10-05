@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
+import { FocusHeader, FocusPage } from "@/components/focus-ui";
 import { MarketplaceCountdown } from "@/components/marketplace-countdown";
 import { MarketplaceReadinessPanel } from "@/components/marketplace-readiness";
 import { canWriteWorkspace } from "@/lib/access-policy";
@@ -77,68 +78,44 @@ export default async function MarketplaceFeedPage({
   ).length;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-7">
-      <section className="overflow-hidden rounded-3xl border border-[#dce2df] bg-white shadow-[0_1px_2px_rgba(20,46,38,0.03)]">
-        <div className="h-1 bg-[#1a5144]" />
-        <div className="p-6 sm:p-8">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-            <div className="max-w-3xl">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-                  P5.2 · Live Demand Board
-                </span>
-                <span className="rounded-full bg-[#ecefed] px-3 py-1 text-[11px] font-semibold text-[#66736e]">
-                  Free teaser
-                </span>
-              </div>
-              <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-4xl">
-                Opportunità dal Network
-              </h1>
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66736e] sm:text-base">
-                Scopri ricerche prodotto pubblicate da altre aziende. Il feed mostra soltanto un teaser
-                privacy-safe: categoria, macro-specifica, area consentita, fascia quantità e countdown.
-                Dettagli tecnici completi e risposta restano fuori da P5.2.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              <Link
-                href={appRoutes.marketplace.responses}
-                className="inline-flex h-11 items-center justify-center rounded-xl border border-[#c8d5d0] bg-white px-4 text-sm font-semibold text-[#173f35] hover:bg-[#f3f7f5]"
-              >
-                Risposte ricevute
+    <FocusPage>
+      <FocusHeader
+        eyebrow="Marketplace"
+        title="Ricerche aperte"
+        description={
+          <>
+            Scopri opportunità dal Network partendo dal feed. I dettagli avanzati, lo stato di readiness
+            e le tue ricerche restano secondari rispetto alla scansione delle opportunità.
+            <span className="mt-2 block text-xs font-semibold text-[#78857f]">
+              {feed.total} aperte · {closingSoon} in scadenza entro 24h nella pagina
+            </span>
+          </>
+        }
+        actions={
+          <>
+            {canWrite ? (
+              <Link href={appRoutes.marketplace.newRequest} className="app-primary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">
+                Nuova ricerca
               </Link>
-              <Link
-                href={appRoutes.marketplace.myRequests}
-                className="inline-flex h-11 items-center justify-center rounded-xl border border-[#c8d5d0] bg-white px-4 text-sm font-semibold text-[#173f35] hover:bg-[#f3f7f5]"
-              >
-                Le mie ricerche
-              </Link>
-              {canWrite ? (
-                <Link
-                  href={appRoutes.marketplace.newRequest}
-                  className="inline-flex h-11 items-center justify-center rounded-xl bg-[#1a5144] px-5 text-sm font-semibold text-white transition hover:bg-[#226657]"
-                >
-                  + Nuova ricerca
-                </Link>
-              ) : null}
-            </div>
-          </div>
+            ) : null}
+            <Link href={appRoutes.marketplace.myRequests} className="app-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">
+              Le mie ricerche
+            </Link>
+            <Link href={appRoutes.marketplace.responses} className="app-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">
+              Risposte
+            </Link>
+          </>
+        }
+      />
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-[#e2e7e4] bg-[#f7f9f8] p-4">
-              <p className="metric-number text-2xl font-semibold text-[#1d2824]">{feed.total}</p>
-              <p className="mt-1 text-xs font-semibold text-[#66736e]">Opportunità aperte</p>
-            </div>
-            <div className="rounded-2xl border border-[#e2e7e4] bg-[#f7f9f8] p-4">
-              <p className="metric-number text-2xl font-semibold text-[#1d2824]">{closingSoon}</p>
-              <p className="mt-1 text-xs font-semibold text-[#66736e]">In scadenza entro 24h nella pagina</p>
-            </div>
-          </div>
+      <details className="rounded-2xl border border-[#dce2df] bg-white">
+        <summary className="cursor-pointer list-none px-5 py-3.5 text-sm font-semibold text-[#52615b]">
+          Stato di accesso e readiness
+        </summary>
+        <div className="border-t border-[#e7ece9] p-3">
+          <MarketplaceReadinessPanel readiness={readiness} />
         </div>
-      </section>
-
-      <MarketplaceReadinessPanel readiness={readiness} />
+      </details>
 
       <form method="get" className="grid gap-3 rounded-2xl border border-[#dce2df] bg-white p-4 md:grid-cols-[1.4fr_0.7fr_0.8fr_auto] md:items-end">
         <div>
@@ -351,6 +328,6 @@ export default async function MarketplaceFeedPage({
           nemmeno identità buyer, Company Profile o regione.
         </p>
       </section>
-    </div>
+    </FocusPage>
   );
 }
