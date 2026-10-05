@@ -3,6 +3,12 @@
 
 import { useMemo, useState } from "react";
 
+import {
+  PriceListDistinta,
+  type DistintaDraftLine,
+} from "@/components/price-list-distinta";
+import type { DistintaQuantityMode } from "@/lib/distinta";
+
 import type {
   PriceListCatalogEntry,
   PriceListExplorerItem,
@@ -93,6 +99,15 @@ export function PublicPriceListExplorer({
     privatePricing?.effectiveDiscounts.length ? "saved" : "manual",
   );
   const [page, setPage] = useState(1);
+  const [distinta, setDistinta] = useState<
+    Array<{
+      itemId: string;
+      quantityMode: DistintaQuantityMode;
+      quantityInput: string;
+      barLengthInput: string;
+    }>
+  >([]);
+  const [mobileDistintaOpen, setMobileDistintaOpen] = useState(false);
 
   const manualDiscountPct = Math.min(
     100,
@@ -136,6 +151,89 @@ export function PublicPriceListExplorer({
       [...new Set(items.map((row) => row.finish_code).filter((value): value is string => Boolean(value)))].sort(),
     [items],
   );
+
+  const itemById = useMemo(
+    () => new Map(items.map((item) => [item.item_id, item])),
+    [items],
+  );
+
+  const distintaLines = useMemo<DistintaDraftLine[]>(
+    () =>
+      distinta.flatMap((draft) => {
+        const item = itemById.get(draft.itemId);
+        if (!item) return [];
+
+        const appliedDiscountPct =
+          pricingMode === "manual"
+            ? manualDiscountPct
+            : Number(effectiveDiscountByItem.get(item.item_id)?.discount_pct ?? 0);
+        const netEurM = netPricePerMeter(
+          item,
+          appliedDiscountPct,
+          version.pricing_formula,
+        );
+        const netEurT = netPricePerTonne(item, netEurM);
+
+        return [
+          {
+            item,
+            quantityMode: draft.quantityMode,
+            quantityInput: draft.quantityInput,
+            barLengthInput: draft.barLengthInput,
+            appliedDiscountPct,
+            netEurM,
+            netEurT,
+          },
+        ];
+      }),
+    [
+      distinta,
+      effectiveDiscountByItem,
+      itemById,
+      manualDiscountPct,
+      pricingMode,
+      version.pricing_formula,
+    ],
+  );
+
+  const selectedItemIds = useMemo(
+    () => new Set(distinta.map((line) => line.itemId)),
+    [distinta],
+  );
+
+  function addToDistinta(itemId: string) {
+    setDistinta((current) => {
+      if (current.some((line) => line.itemId === itemId)) return current;
+      return [
+        ...current,
+        {
+          itemId,
+          quantityMode: "meters",
+          quantityInput: "",
+          barLengthInput: "6",
+        },
+      ];
+    });
+  }
+
+  function removeFromDistinta(itemId: string) {
+    setDistinta((current) => current.filter((line) => line.itemId !== itemId));
+  }
+
+  function updateDistintaLine(
+    itemId: string,
+    patch: Partial<{
+      quantityMode: DistintaQuantityMode;
+      quantityInput: string;
+      barLengthInput: string;
+    }>,
+  ) {
+    setDistinta((current) =>
+      current.map((line) =>
+        line.itemId === itemId ? { ...line, ...patch } : line,
+      ),
+    );
+  }
 
   const filtered = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase("it");
@@ -321,6 +419,8 @@ export function PublicPriceListExplorer({
         </div>
       ) : null}
 
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="min-w-0 space-y-4">
       <div className="hidden overflow-hidden rounded-2xl border border-[#dce2df] bg-white lg:block">
         <div className="overflow-x-auto">
           <table className="min-w-full border-collapse text-left text-sm">
@@ -334,6 +434,7 @@ export function PublicPriceListExplorer({
                 <th className="px-3 py-3">Sconto</th>
                 <th className="px-3 py-3">Netto €/m</th>
                 <th className="px-4 py-3">Netto €/t</th>
+                <th className="px-4 py-3 text-right">Distinta</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#edf0ee]">
@@ -395,6 +496,24 @@ export function PublicPriceListExplorer({
                           {readinessLabel(row.price_per_t_status)}
                         </span>
                       )}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          selectedItemIds.has(row.item_id)
+                            ? removeFromDistinta(row.item_id)
+                            : addToDistinta(row.item_id)
+                        }
+                        className={[
+                          "whitespace-nowrap rounded-lg px-3 py-2 text-xs font-semibold transition",
+                          selectedItemIds.has(row.item_id)
+                            ? "border border-[#b9cec6] bg-[#edf5f2] text-[#173f35]"
+                            : "border border-[#d7dfdb] bg-white text-[#52615b] hover:border-[#9ebfb3] hover:text-[#173f35]",
+                        ].join(" ")}
+                      >
+                        {selectedItemIds.has(row.item_id) ? "✓ In distinta" : "+ Distinta"}
+                      </button>
                     </td>
                   </tr>
                 );
@@ -472,12 +591,30 @@ export function PublicPriceListExplorer({
                 </div>
               </div>
 
-              <p className="mt-3 text-[11px] text-[#7a8781]">
-                Sp. {formatNumber(toNumber(row.thickness_mm), 1)} mm
-                {row.price_per_t_ready && row.resolved_weight_kg_m
-                  ? " · " + formatNumber(toNumber(row.resolved_weight_kg_m), 3) + " kg/m"
-                  : ""}
-              </p>
+              <div className="mt-3 flex items-center justify-between gap-3 border-t border-[#edf0ee] pt-3">
+                <p className="text-[11px] text-[#7a8781]">
+                  Sp. {formatNumber(toNumber(row.thickness_mm), 1)} mm
+                  {row.price_per_t_ready && row.resolved_weight_kg_m
+                    ? " · " + formatNumber(toNumber(row.resolved_weight_kg_m), 3) + " kg/m"
+                    : ""}
+                </p>
+                <button
+                  type="button"
+                  onClick={() =>
+                    selectedItemIds.has(row.item_id)
+                      ? removeFromDistinta(row.item_id)
+                      : addToDistinta(row.item_id)
+                  }
+                  className={[
+                    "shrink-0 rounded-lg px-3 py-2 text-xs font-semibold",
+                    selectedItemIds.has(row.item_id)
+                      ? "border border-[#b9cec6] bg-[#edf5f2] text-[#173f35]"
+                      : "border border-[#d7dfdb] bg-white text-[#52615b]",
+                  ].join(" ")}
+                >
+                  {selectedItemIds.has(row.item_id) ? "✓ In distinta" : "+ Distinta"}
+                </button>
+              </div>
             </article>
           );
         })}
@@ -527,6 +664,68 @@ export function PublicPriceListExplorer({
             Successivi →
           </button>
         </nav>
+      ) : null}
+        </div>
+
+        <aside className="hidden xl:block">
+          <div className="sticky top-[150px]">
+            <PriceListDistinta
+              lines={distintaLines}
+              onQuantityModeChange={(itemId, quantityMode) =>
+                updateDistintaLine(itemId, { quantityMode })
+              }
+              onQuantityChange={(itemId, quantityInput) =>
+                updateDistintaLine(itemId, { quantityInput })
+              }
+              onBarLengthChange={(itemId, barLengthInput) =>
+                updateDistintaLine(itemId, { barLengthInput })
+              }
+              onRemove={removeFromDistinta}
+              onClear={() => setDistinta([])}
+            />
+          </div>
+        </aside>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => setMobileDistintaOpen(true)}
+        className="fixed bottom-4 right-4 z-40 inline-flex min-h-12 items-center gap-2 rounded-2xl bg-[#173f35] px-4 text-sm font-semibold text-white shadow-xl xl:hidden"
+        aria-label="Apri distinta"
+      >
+        Distinta
+        <span className="rounded-full bg-white/15 px-2 py-0.5 text-xs">
+          {distinta.length}
+        </span>
+      </button>
+
+      {mobileDistintaOpen ? (
+        <div className="fixed inset-0 z-50 xl:hidden">
+          <button
+            type="button"
+            aria-label="Chiudi distinta"
+            onClick={() => setMobileDistintaOpen(false)}
+            className="absolute inset-0 bg-black/30"
+          />
+          <div className="absolute inset-x-0 bottom-0">
+            <PriceListDistinta
+              mobile
+              lines={distintaLines}
+              onQuantityModeChange={(itemId, quantityMode) =>
+                updateDistintaLine(itemId, { quantityMode })
+              }
+              onQuantityChange={(itemId, quantityInput) =>
+                updateDistintaLine(itemId, { quantityInput })
+              }
+              onBarLengthChange={(itemId, barLengthInput) =>
+                updateDistintaLine(itemId, { barLengthInput })
+              }
+              onRemove={removeFromDistinta}
+              onClear={() => setDistinta([])}
+              onClose={() => setMobileDistintaOpen(false)}
+            />
+          </div>
+        </div>
       ) : null}
     </div>
   );
