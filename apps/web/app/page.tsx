@@ -167,7 +167,7 @@ export default async function PublicHomePage() {
             <span className="block text-[#9cc5b7]">parte da uno strumento utile.</span>
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-[#d8e5e0]">
-            Calcola il peso dei tubi, consulta norme e gradi oppure verifica se la tua azienda è già presente.
+            Parti da uno strumento utile: calcola il peso dei tubi, consulta norme e gradi oppure verifica se la tua azienda è già presente.
             Il Network completo e la Commercial Memory restano prodotti privati per le aziende registrate.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
