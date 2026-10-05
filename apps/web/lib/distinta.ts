@@ -22,7 +22,7 @@ export type DistintaLineCalculation = {
     | null;
 };
 
-function positiveFinite(value: number | null | undefined) {
+function positiveFinite(value: number | null | undefined): value is number {
   return typeof value === "number" && Number.isFinite(value) && value > 0;
 }
 
