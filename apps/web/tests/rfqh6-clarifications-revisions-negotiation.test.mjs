@@ -145,8 +145,8 @@ test("RFQH6 supplier replies notify the buyer without exposing server secrets", 
   assert.match(emailLib, /Nuovo messaggio dal fornitore/);
 });
 
-test("RFQH6 does not implement award decisions", () => {
+test("RFQH6 stays isolated while RFQH7 owns award decisions", () => {
   const surface = buyerPanel + supplierPanel + buyerActions + supplierActions;
   assert.doesNotMatch(surface, /auto.?award|awardSupplier|createAward|supplier_score/i);
-  assert.match(buyerPage, /RFQH7 gestirà award e conversione ordine/);
+  assert.match(buyerPage, /RfqAwardPanel/);
 });
