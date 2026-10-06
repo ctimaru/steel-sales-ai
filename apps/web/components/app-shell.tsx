@@ -49,6 +49,7 @@ const marketplaceNav: NavItem[] = [
   { href: appRoutes.marketplace.home, label: "Opportunità", contextKey: "marketplace:opportunities" },
   { href: appRoutes.marketplace.notifications, label: "Per te", contextKey: "marketplace:notifications" },
   { href: appRoutes.marketplace.myRequests, label: "Le mie ricerche", contextKey: "marketplace:requests" },
+  { href: appRoutes.marketplace.rfqHub, label: "RFQ Hub", contextKey: "marketplace:rfq-hub", writeRole: true },
   { href: appRoutes.marketplace.responses, label: "Risposte ricevute", contextKey: "marketplace:responses" },
   { href: appRoutes.marketplace.newRequest, label: "Nuova ricerca", contextKey: "marketplace:new", writeRole: true },
 ];
