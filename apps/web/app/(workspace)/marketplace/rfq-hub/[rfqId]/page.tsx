@@ -50,7 +50,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       .order("created_at", { ascending: true }),
     supabase
       .from("buyer_rfq_dispatches")
-      .select("id,supplier_id,status,attempt_count,sent_at,delivered_at,opened_at,last_error")
+      .select("id,supplier_id,status,attempt_count,reminder_count,last_reminder_at,sent_at,delivered_at,opened_at,last_error")
       .eq("rfq_id", campaign.id)
       .order("created_at", { ascending: true }),
   ]);
@@ -149,6 +149,11 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
                   <span className="rounded-full bg-[#f2f4f3] px-2.5 py-1 text-[10px] font-bold uppercase text-[#52615b]">
                     {supplier.status}
                   </span>
+                  {Number(dispatches?.find((dispatch) => dispatch.supplier_id === supplier.id)?.reminder_count ?? 0) > 0 ? (
+                    <p className="mt-2 text-[10px] font-semibold text-[#66736e]">
+                      Promemoria inviati: {dispatches?.find((dispatch) => dispatch.supplier_id === supplier.id)?.reminder_count}/2
+                    </p>
+                  ) : null}
                   {dispatches?.find((dispatch) => dispatch.supplier_id === supplier.id)?.last_error ? (
                     <p className="mt-2 max-w-72 text-[10px] leading-4 text-[#9a4f45]">
                       {dispatches.find((dispatch) => dispatch.supplier_id === supplier.id)?.last_error}
