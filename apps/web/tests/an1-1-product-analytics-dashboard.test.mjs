@@ -55,3 +55,8 @@ test("AN1.1 supports 24h, 7d and 30d windows", () => {
   assert.match(dashboard, /7 giorni/);
   assert.match(dashboard, /30 giorni/);
 });
+
+
+test("AN1.1 selected range uses hardened white-on-green contrast", () => {
+  assert.match(dashboard, /platform-selected-solid/);
+});
