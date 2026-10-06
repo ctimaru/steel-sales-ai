@@ -25,6 +25,42 @@ type SendBuyerDistintaInput = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
 
+
+export async function createBuyerRfqCampaign(
+  distintaId: string,
+): Promise<{ ok: boolean; rfqId?: string; error?: string }> {
+  const supabase = await createClient();
+  const { data: authData } = await supabase.auth.getUser();
+
+  if (!authData.user) {
+    return { ok: false, error: "Accedi per creare un RFQ multi-fornitore." };
+  }
+
+  const { data, error } = await supabase.rpc("rfqh1_create_campaign_from_distinta", {
+    p_distinta_id: distintaId,
+    p_due_at: null,
+    p_buyer_message: null,
+  });
+
+  if (error) {
+    console.error("RFQH1 create campaign failed:", error.message);
+    return {
+      ok: false,
+      error: error.message.includes("Active organization required")
+        ? "Completa e attiva la tua azienda prima di creare un RFQ."
+        : "Non è stato possibile creare il RFQ Hub da questa distinta.",
+    };
+  }
+
+  const rfqId = typeof data === "string" ? data : null;
+  if (!rfqId) {
+    return { ok: false, error: "RFQ creato senza identificativo." };
+  }
+
+  revalidatePath("/marketplace/rfq-hub");
+  return { ok: true, rfqId };
+}
+
 export async function saveBuyerDistinta(
   input: SaveBuyerDistintaInput,
 ): Promise<{ ok: boolean; distintaId?: string; error?: string }> {
