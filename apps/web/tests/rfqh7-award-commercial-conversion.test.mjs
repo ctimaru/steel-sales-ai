@@ -88,11 +88,11 @@ test("RFQH7 prefills are suggestions and confirmation remains explicit", () => {
   assert.match(panel, /Conferma award e crea PO draft/);
 });
 
-test("RFQH7 is integrated after comparison and negotiation", () => {
+test("RFQH7 remains integrated before the RFQH8 bridge", () => {
   assert.match(buyerPage, /RfqQuoteComparison/);
   assert.match(buyerPage, /RfqBuyerNegotiationPanel/);
   assert.match(buyerPage, /RfqAwardPanel/);
   assert.match(buyerPage, /buyer_rfq_awards/);
   assert.match(buyerPage, /buyer_purchase_order_drafts/);
-  assert.match(buyerPage, />RFQH7</);
+  assert.match(buyerPage, /RfqMarketplaceBridgePanel/);
 });
