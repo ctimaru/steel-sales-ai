@@ -1,6 +1,10 @@
 import { createHash } from "node:crypto";
 import type { Metadata } from "next";
 
+import {
+  RfqSupplierNegotiation,
+  type SupplierNegotiationPayload,
+} from "@/components/rfq-supplier-negotiation";
 import { RfqSupplierResponseForm } from "@/components/rfq-supplier-response-form";
 import { createClient } from "@/lib/supabase/server";
 
@@ -105,9 +109,17 @@ export default async function SupplierRfqInvitePage({ params }: { params: Params
   const { token } = await params;
   const tokenHash = createHash("sha256").update(token).digest("hex");
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("rfqh4_get_portal", {
-    p_token_hash: tokenHash,
-  });
+  const [
+    { data, error },
+    { data: negotiationData },
+  ] = await Promise.all([
+    supabase.rpc("rfqh4_get_portal", {
+      p_token_hash: tokenHash,
+    }),
+    supabase.rpc("rfqh6_supplier_thread", {
+      p_token_hash: tokenHash,
+    }),
+  ]);
 
   const invite =
     data && typeof data === "object" && !Array.isArray(data)
@@ -135,6 +147,12 @@ export default async function SupplierRfqInvitePage({ params }: { params: Params
   const uploadUrl =
     (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "") +
     "/functions/v1/rfqh4-offer-upload";
+  const negotiation =
+    negotiationData &&
+    typeof negotiationData === "object" &&
+    !Array.isArray(negotiationData)
+      ? (negotiationData as SupplierNegotiationPayload)
+      : null;
 
   return (
     <main className="min-h-screen bg-[#f2f4f3] px-4 py-8 text-[#1d2824] sm:py-12">
@@ -179,6 +197,12 @@ export default async function SupplierRfqInvitePage({ params }: { params: Params
             </p>
           </section>
         ) : null}
+
+        <RfqSupplierNegotiation
+          token={token}
+          negotiation={negotiation}
+          quoteStatus={invite.quote?.status ?? null}
+        />
 
         <RfqSupplierResponseForm
           token={token}

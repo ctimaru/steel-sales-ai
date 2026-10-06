@@ -5,7 +5,6 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { Input } from "@/components/ui/input";
-import { trackProductEvent } from "@/lib/product-analytics";
 
 import { saveAndSubmitCompanyRegistration } from "./actions";
 
@@ -167,14 +166,7 @@ export function CompanyRegistrationForm({
       event.preventDefault();
       setStep(3);
       setClientError("Conferma separatamente Informativa privacy e Termini d’uso prima di inviare.");
-      return;
     }
-
-    trackProductEvent("registration_submit", {
-      flow: claim ? "claim" : "new_company",
-      company_type: companyType,
-      country: countryCode,
-    });
   }
 
   return (

@@ -2,6 +2,7 @@
 
 import { createHash } from "node:crypto";
 
+import { buildRfqh6BuyerNotificationEmail } from "@/lib/rfqh6-negotiation";
 import { createClient } from "@/lib/supabase/server";
 
 type QuoteHeaderInput = {
@@ -149,6 +150,123 @@ export async function startSupplierQuoteRevision(
   if (error) {
     console.error("RFQH4 revision start failed:", error.message);
     return { ok: false, error: quoteError(error.message) };
+  }
+
+  return { ok: true };
+}
+
+
+export async function sendSupplierNegotiationMessage(
+  token: string,
+  body: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const cleanToken = token.trim();
+  const cleanBody = body.trim();
+
+  if (!cleanToken) return { ok: false, error: "Link RFQ non valido." };
+  if (!cleanBody) return { ok: false, error: "Scrivi un messaggio prima di inviare." };
+  if (cleanBody.length > 4000) {
+    return { ok: false, error: "Il messaggio supera il limite di 4000 caratteri." };
+  }
+
+  const supabase = await createClient();
+  const hash = tokenHash(cleanToken);
+  const { data, error } = await supabase.rpc("rfqh6_supplier_post", {
+    p_token_hash: hash,
+    p_body: cleanBody,
+  });
+
+  if (error) {
+    console.error("RFQH6 supplier negotiation post failed:", error.message);
+    return {
+      ok: false,
+      error: error.message.includes("hourly limit")
+        ? "Hai raggiunto il limite temporaneo di messaggi. Riprova più tardi."
+        : error.message.includes("closed")
+          ? "La trattativa è stata chiusa dal buyer."
+          : error.message.includes("not open")
+            ? "La RFQ non è più aperta alla negoziazione."
+            : "Non è stato possibile inviare il messaggio.",
+    };
+  }
+
+  const postPayload =
+    data && typeof data === "object" && !Array.isArray(data)
+      ? (data as { message_id?: string })
+      : null;
+
+  const apiKey = process.env.RESEND_API_KEY;
+  if (apiKey && postPayload?.message_id) {
+    const { data: contextData } = await supabase.rpc(
+      "rfqh6_supplier_notification_context",
+      { p_token_hash: hash },
+    );
+
+    const context =
+      contextData &&
+      typeof contextData === "object" &&
+      !Array.isArray(contextData)
+        ? (contextData as {
+            valid?: boolean;
+            rfq_id?: string;
+            buyer_email?: string | null;
+            buyer_organization_name?: string | null;
+            supplier_name?: string | null;
+            rfq_title?: string | null;
+          })
+        : null;
+
+    if (
+      context?.valid === true &&
+      context.rfq_id &&
+      context.buyer_email &&
+      context.rfq_title
+    ) {
+      const email = buildRfqh6BuyerNotificationEmail({
+        buyerOrganizationName:
+          context.buyer_organization_name || "Buyer Smart Steel Sales",
+        supplierName: context.supplier_name ?? null,
+        rfqTitle: context.rfq_title,
+        rfqId: context.rfq_id,
+        body: cleanBody,
+      });
+
+      try {
+        const response = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + apiKey,
+            "Content-Type": "application/json",
+            "Idempotency-Key": "rfqh6-supplier-" + postPayload.message_id,
+          },
+          body: JSON.stringify({
+            from:
+              process.env.RFQ_EMAIL_FROM ||
+              "Smart Steel Sales <rfq@smartsteelsales.com>",
+            to: [context.buyer_email],
+            subject: email.subject,
+            html: email.html,
+            text: email.text,
+          }),
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          const providerError = await response.text().catch(() => "");
+          console.error(
+            "RFQH6 supplier-to-buyer notification failed:",
+            providerError || response.statusText,
+          );
+        }
+      } catch (notificationError) {
+        console.error(
+          "RFQH6 supplier-to-buyer notification failed:",
+          notificationError instanceof Error
+            ? notificationError.message
+            : "Unknown notification error",
+        );
+      }
+    }
   }
 
   return { ok: true };
