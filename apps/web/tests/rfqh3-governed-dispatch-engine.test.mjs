@@ -3,7 +3,7 @@ import fs from "node:fs";
 import test from "node:test";
 
 const migration = fs.readFileSync(
-  new URL("../../../supabase/migrations/20261006123000_rfqh3_governed_dispatch_engine.sql", import.meta.url),
+  new URL("../../../supabase/migrations/20261006103754_rfqh3_governed_dispatch_engine.sql", import.meta.url),
   "utf8",
 );
 const actions = fs.readFileSync(
