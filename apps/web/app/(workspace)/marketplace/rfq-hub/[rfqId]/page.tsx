@@ -18,7 +18,15 @@ import {
   RfqQuoteComparison,
   type RfqComparisonData,
 } from "@/components/rfq-quote-comparison";
+import {
+  Rfqh9PurchaseOrderPanel,
+  type Rfqh9PoState,
+} from "@/components/rfqh9-purchase-order-panel";
 import { RfqSupplierAddForm } from "@/components/rfq-supplier-add-form";
+import {
+  buildRfqh9SupplierUrl,
+  createRfqh9PoSecurity,
+} from "@/lib/rfqh9-po";
 import { appRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
 
@@ -68,6 +76,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
     { data: negotiationThreads },
     { data: awardRow },
     { data: marketplaceBridgeState },
+    { data: purchaseOrderState },
   ] = await Promise.all([
     supabase
       .from("buyer_distintas")
@@ -108,6 +117,9 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       .eq("rfq_id", campaign.id)
       .maybeSingle(),
     supabase.rpc("rfqh8_bridge_state", {
+      p_rfq_id: campaign.id,
+    }),
+    supabase.rpc("rfqh9_po_state", {
       p_rfq_id: campaign.id,
     }),
   ]);
@@ -200,6 +212,35 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
         ),
       })),
   })) as BuyerNegotiationThread[];
+
+  let poState: Rfqh9PoState | null =
+    purchaseOrderState &&
+    typeof purchaseOrderState === "object" &&
+    !Array.isArray(purchaseOrderState)
+      ? (purchaseOrderState as Rfqh9PoState)
+      : null;
+
+  if (poState?.purchase_orders?.length) {
+    poState = {
+      ...poState,
+      purchase_orders: poState.purchase_orders.map((po) => ({
+        ...po,
+        versions: (po.versions ?? []).map((version) => {
+          let supplierUrl: string | null = null;
+          try {
+            const security = createRfqh9PoSecurity({
+              poDraftId: po.id,
+              versionNo: Number(version.version_no),
+            });
+            supplierUrl = buildRfqh9SupplierUrl(security.token);
+          } catch {
+            supplierUrl = null;
+          }
+          return { ...version, supplier_url: supplierUrl };
+        }),
+      })),
+    };
+  }
 
   let awardSnapshot: Rfqh7AwardSnapshot | null = null;
   if (awardRow) {
@@ -384,6 +425,11 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
         campaignStatus={campaign.status}
         comparison={comparisonData}
         award={awardSnapshot}
+      />
+
+      <Rfqh9PurchaseOrderPanel
+        rfqId={campaign.id}
+        state={poState}
       />
 
       <section className="rounded-2xl border border-[#dce2df] bg-white">
@@ -595,11 +641,11 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       </section>
 
       <section className="rounded-2xl border border-[#cddbd6] bg-[#f7faf8] p-5">
-        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">RFQH8</p>
-        <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Network + Marketplace Bridge attivo.</h2>
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">RFQH9</p>
+        <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Purchase Order Issuance &amp; Supplier Confirmation attivo.</h2>
         <p className="mt-2 text-sm leading-6 text-[#66736e]">
-          La RFQ privata può ora usare matching Network, inviti diretti e pubblicazione Marketplace opzionale.
-          Le quote Marketplace importate confluiscono in RFQH5 senza esporre il Target buyer.
+          I PO generati dall&apos;award possono essere versionati, emessi e confermati dal supplier
+          tramite link personale, mantenendo prezzi e quantità congelati dalla decisione RFQH7.
         </p>
       </section>
     </div>
