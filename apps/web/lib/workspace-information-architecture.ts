@@ -26,6 +26,7 @@ export type WorkspaceContextKey =
   | "network:activity"
   | "network:inquiries"
   | "marketplace:opportunities"
+  | "marketplace:rfq-hub"
   | "marketplace:notifications"
   | "marketplace:requests"
   | "marketplace:responses"
@@ -51,6 +52,9 @@ function isAnyPath(pathname: string, hrefs: string[]) {
 }
 
 function marketplaceContext(pathname: string): WorkspaceContextKey {
+  if (isPath(pathname, appRoutes.marketplace.rfqHub)) {
+    return "marketplace:rfq-hub";
+  }
   if (isPath(pathname, appRoutes.marketplace.notifications)) {
     return "marketplace:notifications";
   }
