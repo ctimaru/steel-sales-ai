@@ -24,6 +24,7 @@ export type RfqComparisonSupplier = {
   moq_tonnes: Numeric;
   attachment_name: string | null;
   quoted_lines: number;
+  fully_covered_lines: number;
   unavailable_lines: number;
   total_lines: number;
   line_coverage_pct: Numeric;
@@ -60,6 +61,9 @@ export type RfqComparisonLineQuote = {
   delta_pct: Numeric;
   offered_quantity: Numeric;
   offered_quantity_mode: string | null;
+  offered_tonnes: Numeric;
+  quantity_coverage_pct: Numeric;
+  is_full_line_coverage: boolean;
   moq_tonnes: Numeric;
   lead_time_days: number | null;
   delivery_date: string | null;
@@ -83,6 +87,7 @@ export type RfqComparisonLine = {
   target_eur_m: Numeric;
   target_total_eur: Numeric;
   quoted_supplier_count: number;
+  full_coverage_supplier_count: number;
   quotes: RfqComparisonLineQuote[];
 };
 
@@ -391,8 +396,8 @@ export function RfqQuoteComparison({
                     {number(supplier.tonne_coverage_pct, 0)}%
                   </p>
                   <p className="mt-1 text-[10px] text-[#718078]">
-                    {supplier.quoted_lines}/{supplier.total_lines} righe ·{" "}
-                    {number(supplier.quoted_tonnes, 3)}/{number(supplier.total_tonnes, 3)} t
+                    {supplier.fully_covered_lines}/{supplier.total_lines} righe complete ·{" "}
+                    {number(supplier.quoted_tonnes, 3)}/{number(supplier.total_tonnes, 3)} t coperte
                   </p>
                 </td>
                 <td className="px-4 py-4 text-right">
@@ -506,6 +511,10 @@ export function RfqQuoteComparison({
                         <span className="rounded-full bg-[#e9f5ef] px-2 py-0.5 text-[9px] font-bold text-[#14543f]">
                           Miglior prezzo
                         </span>
+                      ) : quote.response_status === "quoted" && !quote.is_full_line_coverage ? (
+                        <span className="rounded-full bg-[#fff7e8] px-2 py-0.5 text-[9px] font-bold text-[#7b5e2b]">
+                          Parziale {number(quote.quantity_coverage_pct, 0)}%
+                        </span>
                       ) : null}
                     </div>
 
@@ -544,9 +553,10 @@ export function RfqQuoteComparison({
 
         <div className="mt-4 rounded-xl border border-[#dce2df] bg-[#f8faf9] px-4 py-3 text-xs leading-5 text-[#66736e]">
           <strong className="text-[#1d2824]">Regole del confronto:</strong>{" "}
-          il totale fornitore viene classificato solo con copertura 100%; le offerte parziali
-          mostrano solo valori sulle righe effettivamente quotate. Il benchmark split somma il
-          miglior prezzo disponibile per ciascuna riga ed è un riferimento analitico, non un award.
+          il totale fornitore viene classificato solo quando quantità e righe coprono il 100% della
+          richiesta; le offerte parziali valorizzano esclusivamente la quantità realmente coperta.
+          Il benchmark split usa, per ogni riga, solo offerte capaci di coprire l&apos;intera quantità
+          richiesta ed è un riferimento analitico, non un award.
         </div>
       </div>
     </section>
