@@ -87,6 +87,18 @@ export function buildRfqh3InviteUrl(token: string) {
   return absoluteUrl("/rfq/respond/" + encodeURIComponent(token));
 }
 
+export function createRfqh3ReminderIdempotencyKey(
+  dispatchId: string,
+  reminderSequence: number,
+) {
+  return (
+    "rfqh3-" +
+    dispatchId +
+    "-reminder-v" +
+    String(reminderSequence)
+  );
+}
+
 export function buildRfqh3Email(input: {
   buyerOrganizationName: string;
   supplierName: string | null;
@@ -204,6 +216,69 @@ export function buildRfqh3Email(input: {
     "Apri richiesta RFQ: " + input.inviteUrl,
     "",
     "Il link è personale per questo destinatario. Non inoltrarlo a terzi.",
+  ]
+    .filter((line, index, values) => line !== "" || values[index - 1] !== "")
+    .join("\n");
+
+  return { subject, html, text };
+}
+
+
+export function buildRfqh3ReminderEmail(input: {
+  buyerOrganizationName: string;
+  supplierName: string | null;
+  title: string;
+  dueAt: string | null;
+  inviteUrl: string;
+  reminderSequence: number;
+}) {
+  const deadline = dueLabel(input.dueAt);
+  const greeting = input.supplierName
+    ? "Buongiorno " + input.supplierName + ","
+    : "Buongiorno,";
+  const subject =
+    "Promemoria RFQ · " +
+    input.buyerOrganizationName +
+    " · " +
+    input.title;
+
+  const html = `<!doctype html>
+<html lang="it">
+  <head><meta charset="utf-8"><title>${escapeHtml(subject)}</title></head>
+  <body style="margin:0;background:#f3f5f4;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
+    <div style="display:none;max-height:0;overflow:hidden;">Promemoria richiesta di offerta da ${escapeHtml(input.buyerOrganizationName)}.</div>
+    <div style="max-width:620px;margin:0 auto;padding:28px 16px;">
+      <div style="background:#123d34;border-radius:16px 16px 0 0;padding:24px;color:#ffffff;">
+        <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#a8cfc1;">Smart Steel Sales · RFQ</div>
+        <h1 style="margin:10px 0 0;font-size:22px;line-height:1.3;">Promemoria richiesta di offerta</h1>
+      </div>
+      <div style="background:#ffffff;border:1px solid #dce2df;border-top:0;border-radius:0 0 16px 16px;padding:24px;">
+        <p style="margin:0 0 14px;font-size:15px;line-height:1.6;">${escapeHtml(greeting)}</p>
+        <p style="margin:0 0 14px;font-size:15px;line-height:1.6;">
+          <strong>${escapeHtml(input.buyerOrganizationName)}</strong> ti ricorda la richiesta
+          <strong>${escapeHtml(input.title)}</strong>.
+        </p>
+        ${deadline ? `<p style="margin:0 0 20px;font-size:14px;color:#4b5563;"><strong>Scadenza richiesta:</strong> ${escapeHtml(deadline)}</p>` : ""}
+        <a href="${escapeHtml(input.inviteUrl)}" style="display:inline-block;box-sizing:border-box;background:#173f35;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:14px 20px;border-radius:10px;">
+          Apri richiesta RFQ
+        </a>
+        <p style="margin:20px 0 0;font-size:12px;line-height:1.6;color:#6b7280;">
+          Promemoria ${input.reminderSequence} di 2. Il link è personale e non deve essere inoltrato.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>`;
+
+  const text = [
+    greeting,
+    "",
+    input.buyerOrganizationName + " ti ricorda la richiesta: " + input.title + ".",
+    deadline ? "Scadenza richiesta: " + deadline : "",
+    "",
+    "Apri richiesta RFQ: " + input.inviteUrl,
+    "",
+    "Promemoria " + String(input.reminderSequence) + " di 2.",
   ]
     .filter((line, index, values) => line !== "" || values[index - 1] !== "")
     .join("\n");

@@ -6,6 +6,7 @@ import { useMemo, useState, useTransition } from "react";
 import {
   launchBuyerRfq,
   retryFailedBuyerRfq,
+  sendBuyerRfqReminders,
 } from "@/app/(workspace)/marketplace/rfq-hub/actions";
 
 type SupplierState = {
@@ -35,10 +36,14 @@ export function RfqDispatchPanel({
   const [feedback, setFeedback] = useState<string | null>(null);
   const [launchPending, startLaunchTransition] = useTransition();
   const [retryPending, startRetryTransition] = useTransition();
+  const [reminderPending, startReminderTransition] = useTransition();
 
   const isDraft = campaignStatus === "draft" || campaignStatus === "ready";
   const missingEmail = suppliers.filter((supplier) => !supplier.hasEmail).length;
   const failed = suppliers.filter((supplier) => supplier.status === "failed").length;
+  const reminderCandidates = suppliers.filter((supplier) =>
+    ["sent", "delivered", "opened"].includes(supplier.status),
+  ).length;
 
   const statusCounts = useMemo(() => {
     const counts = new Map<string, number>();
@@ -89,6 +94,29 @@ export function RfqDispatchPanel({
           " inviati, " +
           String(result.failedCount ?? 0) +
           " ancora falliti.",
+      );
+      router.refresh();
+    });
+  }
+
+  function remind() {
+    setFeedback(null);
+    startReminderTransition(async () => {
+      const result = await sendBuyerRfqReminders(rfqId);
+      if (!result.ok) {
+        setFeedback(result.error ?? "Promemoria non riuscito.");
+        return;
+      }
+
+      setFeedback(
+        "Promemoria: " +
+          String(result.sentCount ?? 0) +
+          " inviati, " +
+          String(result.skippedCount ?? 0) +
+          " non ancora eleggibili" +
+          ((result.failedCount ?? 0) > 0
+            ? ", " + String(result.failedCount) + " falliti."
+            : "."),
       );
       router.refresh();
     });
@@ -165,16 +193,34 @@ export function RfqDispatchPanel({
         </p>
       ) : null}
 
-      {!isDraft && failed > 0 ? (
-        <div className="mt-5 border-t border-[#dce7e2] pt-5">
+      {!isDraft ? (
+        <div className="mt-5 flex flex-wrap gap-3 border-t border-[#dce7e2] pt-5">
+          {failed > 0 ? (
+            <button
+              type="button"
+              onClick={retry}
+              disabled={retryPending}
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#b8d2c8] bg-white px-5 text-sm font-bold text-[#173f35] disabled:opacity-50"
+            >
+              {retryPending ? "Retry in corso…" : "Riprova " + String(failed) + " invii falliti"}
+            </button>
+          ) : null}
+
           <button
             type="button"
-            onClick={retry}
-            disabled={retryPending}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#b8d2c8] bg-white px-5 text-sm font-bold text-[#173f35] disabled:opacity-50"
+            onClick={remind}
+            disabled={reminderPending || reminderCandidates < 1}
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#b8d2c8] bg-white px-5 text-sm font-bold text-[#173f35] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {retryPending ? "Retry in corso…" : "Riprova " + String(failed) + " invii falliti"}
+            {reminderPending
+              ? "Promemoria in corso…"
+              : "Invia promemoria governato"}
           </button>
+
+          <p className="w-full text-xs leading-5 text-[#718078]">
+            I promemoria partono solo dopo 24 ore dall&apos;invio precedente, massimo 2 per fornitore.
+            Risposte, decline, bounce e complaint vengono esclusi automaticamente.
+          </p>
         </div>
       ) : null}
 

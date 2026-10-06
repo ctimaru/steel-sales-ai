@@ -10,6 +10,10 @@ const capabilityHardening = fs.readFileSync(
   new URL("../../../supabase/migrations/20261006104559_rfqh3_capability_schema_hardening.sql", import.meta.url),
   "utf8",
 );
+const reminderMigration = fs.readFileSync(
+  new URL("../../../supabase/migrations/20261006111155_rfqh3_reminder_message_ledger.sql", import.meta.url),
+  "utf8",
+);
 const actions = fs.readFileSync(
   new URL("../app/(workspace)/marketplace/rfq-hub/actions.ts", import.meta.url),
   "utf8",
@@ -105,4 +109,46 @@ test("RFQH3 keeps anonymous privileged code out of public and private schemas", 
   );
   assert.match(migration, /buyer_rfq_webhook_events_deny_all/);
   assert.match(migration, /buyer_rfq_email_suppressions_deny_all/);
+});
+
+
+test("RFQH3 reminder closure keeps a message-level provider ledger", () => {
+  assert.match(
+    reminderMigration,
+    /create table if not exists public\.buyer_rfq_dispatch_messages/,
+  );
+  assert.match(reminderMigration, /unique\(dispatch_id,message_kind,sequence\)/);
+  assert.match(reminderMigration, /provider_message_id text null unique/);
+  assert.match(reminderMigration, /message_kind in \('invite','reminder'\)/);
+  assert.match(reminderMigration, /rfqh3_mark_dispatch_result_impl/);
+});
+
+test("RFQH3 reminders are server-governed with cooldown, cap and suppression", () => {
+  assert.match(reminderMigration, /rfqh3_prepare_reminder_impl/);
+  assert.match(reminderMigration, /reminder_count >= 2/);
+  assert.match(reminderMigration, /interval '24 hours'/);
+  assert.match(reminderMigration, /Daily reminder limit reached/);
+  assert.match(reminderMigration, /Supplier email is suppressed/);
+  assert.match(reminderMigration, /supplier\.status not in \('sent','delivered','opened'\)/);
+  assert.match(actions, /sendBuyerRfqReminders/);
+  assert.match(actions, /createRfqh3ReminderIdempotencyKey/);
+  assert.match(dispatchPanel, /Invia promemoria governato/);
+  assert.match(dispatchPanel, /massimo 2 per fornitore/);
+});
+
+test("RFQH3 reminder emails reuse the current secure invite token without exposing target pricing", () => {
+  assert.match(dispatchLib, /buildRfqh3ReminderEmail/);
+  assert.match(dispatchLib, /Promemoria RFQ/);
+  assert.match(dispatchLib, /Promemoria .* di 2/);
+  assert.doesNotMatch(
+    dispatchLib.match(/export function buildRfqh3ReminderEmail[\s\S]*$/)?.[0] ?? "",
+    /targetEurT|targetEurM|target_eur_t|target_eur_m/,
+  );
+});
+
+test("RFQH3 webhook tracks async failure and suppression events at message level", () => {
+  assert.match(webhook, /email\.failed/);
+  assert.match(webhook, /email\.suppressed/);
+  assert.match(reminderMigration, /buyer_rfq_dispatch_messages m/);
+  assert.match(reminderMigration, /v_message\.message_kind='invite'/);
 });
