@@ -17,6 +17,7 @@ import {
   type BuyerDistintaDraftLine,
   type BuyerQuantityMode,
 } from "@/lib/buyer-distinta";
+import { trackProductEvent } from "@/lib/product-analytics";
 
 function blankLine(id: string): BuyerDistintaDraftLine {
   return {
@@ -138,6 +139,9 @@ export function BuyerDistintaBuilder({
         await navigator.clipboard.writeText(plain);
       }
       setCopyState("copied");
+      trackProductEvent("distinta_copy", {
+        line_count: calculated.filter((item) => item.complete).length,
+      });
       window.setTimeout(() => setCopyState("idle"), 2200);
     } catch {
       setCopyState("error");
@@ -154,6 +158,9 @@ export function BuyerDistintaBuilder({
         return;
       }
       setSavedId(result.distintaId);
+      trackProductEvent("distinta_save", {
+        line_count: calculated.filter((item) => item.complete).length,
+      });
       setSaveMessage("Distinta salvata nel tuo spazio privato.");
     });
   }
@@ -171,6 +178,10 @@ export function BuyerDistintaBuilder({
         setRfqMessage(result.error ?? "Creazione RFQ non riuscita.");
         return;
       }
+      trackProductEvent("rfq_start", {
+        source: "distinta",
+        line_count: calculated.filter((item) => item.complete).length,
+      });
       router.push("/marketplace/rfq-hub/" + result.rfqId);
     });
   }
@@ -199,6 +210,10 @@ export function BuyerDistintaBuilder({
         setSendMessage(result.error ?? "Invio non riuscito.");
         return;
       }
+      trackProductEvent("supplier_dispatch_complete", {
+        source: "distinta_direct",
+        supplier_count: result.sentCount ?? recipients.length,
+      });
       setSendMessage(
         "Distinta inviata a " +
           String(result.sentCount ?? recipients.length) +
