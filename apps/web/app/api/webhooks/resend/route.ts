@@ -102,6 +102,8 @@ export async function POST(request: NextRequest) {
     "email.delivery_delayed",
     "email.bounced",
     "email.complained",
+    "email.failed",
+    "email.suppressed",
   ]);
 
   if (!trackedEvents.has(eventType)) {
