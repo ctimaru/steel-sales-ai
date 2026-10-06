@@ -1,11 +1,13 @@
 import { createHash } from "node:crypto";
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import {
   RfqSupplierNegotiation,
   type SupplierNegotiationPayload,
 } from "@/components/rfq-supplier-negotiation";
 import { RfqSupplierResponseForm } from "@/components/rfq-supplier-response-form";
+import { appRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -112,11 +114,15 @@ export default async function SupplierRfqInvitePage({ params }: { params: Params
   const [
     { data, error },
     { data: negotiationData },
+    { data: claimData },
   ] = await Promise.all([
     supabase.rpc("rfqh4_get_portal", {
       p_token_hash: tokenHash,
     }),
     supabase.rpc("rfqh6_supplier_thread", {
+      p_token_hash: tokenHash,
+    }),
+    supabase.rpc("rfqh8_guest_claim_context", {
       p_token_hash: tokenHash,
     }),
   ]);
@@ -152,6 +158,17 @@ export default async function SupplierRfqInvitePage({ params }: { params: Params
     typeof negotiationData === "object" &&
     !Array.isArray(negotiationData)
       ? (negotiationData as SupplierNegotiationPayload)
+      : null;
+  const claimContext =
+    claimData && typeof claimData === "object" && !Array.isArray(claimData)
+      ? (claimData as {
+          available?: boolean;
+          network_company_id?: string;
+          company_name?: string;
+          claimed_status?: string;
+          verification_status?: string;
+          claim_recommended?: boolean;
+        })
       : null;
 
   return (
@@ -212,6 +229,38 @@ export default async function SupplierRfqInvitePage({ params }: { params: Params
           quote={invite.quote ?? null}
           uploadUrl={uploadUrl}
         />
+
+        {claimContext?.available && claimContext.network_company_id ? (
+          <section className="rounded-2xl border border-[#cfe1da] bg-[#edf5f2] p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
+              Profilo aziendale Network
+            </p>
+            <h2 className="mt-2 text-lg font-semibold text-[#173f35]">
+              {claimContext.company_name || "La tua azienda"} è già presente su Smart Steel Sales
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-[#52615b]">
+              Puoi rispondere a questa RFQ senza creare un account. Se vuoi gestire dati,
+              contatti e presenza Network della tua azienda, puoi richiedere il profilo separatamente.
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <Link
+                href={
+                  claimContext.claim_recommended
+                    ? appRoutes.network.claim(claimContext.network_company_id)
+                    : appRoutes.network.company(claimContext.network_company_id)
+                }
+                className="inline-flex min-h-10 items-center rounded-xl border border-[#a9c9bd] bg-white px-4 text-xs font-bold text-[#173f35]"
+              >
+                {claimContext.claim_recommended
+                  ? "Richiedi il profilo aziendale"
+                  : "Apri profilo Network"}
+              </Link>
+              <span className="text-[10px] font-semibold text-[#718078]">
+                Facoltativo · non influisce sulla risposta RFQ
+              </span>
+            </div>
+          </section>
+        ) : null}
 
         <section className="rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
