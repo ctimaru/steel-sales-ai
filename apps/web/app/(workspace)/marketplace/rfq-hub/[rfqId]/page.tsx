@@ -356,6 +356,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
           targetEurM: line.target_eur_m,
         }))}
         threads={buyerNegotiationThreads}
+        readOnly={campaign.status === "awarded"}
       />
 
       <RfqAwardPanel
