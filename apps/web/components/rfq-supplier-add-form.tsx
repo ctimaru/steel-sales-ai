@@ -68,6 +68,11 @@ function CandidateGroup({
                   <p className="truncate text-sm font-semibold text-[#1d2824]">
                     {candidate.company_name || candidate.contact_name || candidate.email || "Fornitore"}
                   </p>
+                  {candidate.preferred ? (
+                    <span className="rounded-full bg-[#173f35] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em] text-white">
+                      Preferito
+                    </span>
+                  ) : null}
                   <span className="rounded-full bg-[#edf5f2] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em] text-[#1a5144]">
                     {sourceLabel(candidate.source)}
                   </span>
@@ -115,17 +120,22 @@ export function RfqSupplierAddForm({ rfqId }: { rfqId: string }) {
 
   const groups = useMemo(
     () => ({
-      recent: candidates.filter((candidate) => candidate.source === "recent"),
+      preferred: candidates.filter((candidate) => candidate.preferred),
+      recent: candidates.filter(
+        (candidate) => !candidate.preferred && candidate.source === "recent",
+      ),
       private: candidates.filter(
         (candidate) =>
-          candidate.source === "private_contact" ||
-          candidate.source === "private_company",
+          !candidate.preferred &&
+          (candidate.source === "private_contact" ||
+            candidate.source === "private_company"),
       ),
       network: candidates.filter(
         (candidate) =>
-          candidate.source === "network_contact" ||
-          candidate.source === "network_company" ||
-          candidate.source === "platform_organization",
+          !candidate.preferred &&
+          (candidate.source === "network_contact" ||
+            candidate.source === "network_company" ||
+            candidate.source === "platform_organization"),
       ),
     }),
     [candidates],
@@ -262,6 +272,14 @@ export function RfqSupplierAddForm({ rfqId }: { rfqId: string }) {
       ) : null}
 
       <div className="mt-5 space-y-4">
+        <CandidateGroup
+          title="Preferiti"
+          hint="Aziende salvate nel Network e disponibili per questa RFQ."
+          candidates={groups.preferred}
+          addingKey={addingKey}
+          addPending={addPending}
+          onAdd={addCandidate}
+        />
         <CandidateGroup
           title="Già usati"
           hint="Fornitori già selezionati in altre RFQ della tua azienda."
