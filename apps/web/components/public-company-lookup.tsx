@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 
+import { trackProductEvent } from "@/lib/product-analytics";
+
 import {
   initialPublicCompanyLookupState,
   type PublicCompanyLookupItem,
@@ -28,12 +30,24 @@ function claimBadge(state: PublicCompanyLookupItem["claim_state"]) {
   };
 }
 
-function ResultAction({ item }: { item: PublicCompanyLookupItem }) {
+function ResultAction({
+  item,
+  context,
+}: {
+  item: PublicCompanyLookupItem;
+  context: "default" | "registration";
+}) {
   if (item.claim_state === "claimable") {
     const claimPath = `/register?claim_ref=${encodeURIComponent(item.claim_ref)}`;
     return (
       <Link
         href={claimPath}
+        onClick={() =>
+          trackProductEvent("company_claim_start", {
+            context,
+            claim_state: "claimable",
+          })
+        }
         className="platform-primary inline-flex min-h-10 items-center justify-center rounded-xl px-3 text-xs font-semibold"
       >
         Rivendica questa azienda
@@ -88,6 +102,11 @@ export function PublicCompanyLookup({
 
       if (!response.ok) {
         setState({ status: "error", mode: null, items: [] });
+        trackProductEvent("company_search", {
+          context,
+          status: "http_error",
+          results: 0,
+        });
         return;
       }
 
@@ -103,8 +122,19 @@ export function PublicCompanyLookup({
       }
 
       setState(payload);
+      trackProductEvent("company_search", {
+        context,
+        status: payload.status,
+        mode: payload.mode ?? "none",
+        results: payload.items.length,
+      });
     } catch {
       setState({ status: "error", mode: null, items: [] });
+      trackProductEvent("company_search", {
+        context,
+        status: "network_error",
+        results: 0,
+      });
     } finally {
       setPending(false);
     }
@@ -225,7 +255,7 @@ export function PublicCompanyLookup({
                         {item.vat_hint ? " · P.IVA " + item.vat_hint : ""}
                       </p>
                     </div>
-                    <ResultAction item={item} />
+                    <ResultAction item={item} context={context} />
                   </div>
                 </article>
               );

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
+import { trackProductEvent } from "@/lib/product-analytics";
 import type { PublicTubeDimensionSummary } from "@/lib/public-knowledge";
 
 type TubeFamily = PublicTubeDimensionSummary["product_family"];
@@ -1274,6 +1275,12 @@ export function PublicTubeWeightCalculator({
                   onClick={async () => {
                     if (!currentSnapshot) return;
                     await copyTextToClipboard(resultText(currentSnapshot));
+                    trackProductEvent("weight_calculation", {
+                      action: "copy_result",
+                      standard: currentSnapshot.standard,
+                      family: currentSnapshot.family,
+                      has_target: Boolean(currentSnapshot.targetTonnes.trim()),
+                    });
                     setActionFeedback("Risultato copiato.");
                   }}
                   className="min-h-11 rounded-xl border border-white/15 bg-white/10 px-2 py-2 text-[10px] font-bold hover:bg-white/15 disabled:opacity-40 sm:text-xs"
@@ -1286,6 +1293,10 @@ export function PublicTubeWeightCalculator({
                   onClick={async () => {
                     if (!currentSnapshot) return;
                     await copyTextToClipboard(shareUrl(currentSnapshot));
+                    trackProductEvent("weight_calculator_share", {
+                      standard: currentSnapshot.standard,
+                      family: currentSnapshot.family,
+                    });
                     setActionFeedback("Link condivisibile copiato.");
                   }}
                   className="min-h-11 rounded-xl border border-white/15 bg-white/10 px-2 py-2 text-[10px] font-bold hover:bg-white/15 disabled:opacity-40 sm:text-xs"

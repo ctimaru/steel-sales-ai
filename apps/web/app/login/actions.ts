@@ -8,6 +8,7 @@ import {
   pendingSignupEmailCookieOptions,
 } from "@/lib/auth-email-verification";
 import { isRegistrationNext, safeInternalNext } from "@/lib/auth-next";
+import { trackProductEventServer } from "@/lib/product-analytics-server";
 import { siteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 import { safeErrorMessage } from "@/lib/user-facing-error";
@@ -220,6 +221,10 @@ export async function signup(formData: FormData) {
 
     redirect(appendQuery(nextPath, "error", signupErrorMessage(error)));
   }
+
+  await trackProductEventServer("registration_account_created", {
+    flow: nextPath.includes("claim_ref=") ? "claim" : "new_company",
+  });
 
   const cookieStore = await cookies();
   cookieStore.set(
