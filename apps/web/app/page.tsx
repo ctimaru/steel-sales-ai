@@ -11,14 +11,14 @@ import { createClient } from "@/lib/supabase/server";
 export const metadata: Metadata = {
   title: "Smart Steel Sales — Il business network dell'acciaio",
   description:
-    "Scuola, strumenti tecnici e verifica della tua azienda per chi lavora con acciaio e tubi. Il Network completo è un prodotto privato per aziende registrate.",
+    "Scuola, calcolo pesi, Crea distinta e verifica della tua azienda per chi lavora con acciaio e tubi. Il Network completo è un prodotto privato per aziende registrate.",
   alternates: {
     canonical: absoluteUrl("/"),
   },
   openGraph: {
     title: "Smart Steel Sales — Il business network dell'acciaio",
     description:
-      "Scuola, strumenti tecnici e company lookup pubblico; Network completo riservato alle aziende registrate.",
+      "Scuola, strumenti buyer e company lookup pubblico; Network completo riservato alle aziende registrate.",
     url: absoluteUrl("/"),
     type: "website",
   },
@@ -31,9 +31,9 @@ const publicTools = [
     href: "/knowledge/tubes?source=home&surface=school_section#calcolatore-pesi",
   },
   {
-    label: "Listini",
-    description: "Base, Extra e calcolo netto €/m e €/t.",
-    href: "/listini",
+    label: "Crea distinta",
+    description: "Target €/t, €/m e copia pronta per l'email.",
+    href: "/distinta",
   },
   {
     label: "Norme",
@@ -106,10 +106,10 @@ export default async function PublicHomePage() {
               Calcolo pesi
             </Link>
             <Link
-              href="/listini"
+              href="/distinta"
               className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3] hover:text-[#173f35]"
             >
-              Listini
+              Crea distinta
             </Link>
             <Link
               href="/azienda"
@@ -152,8 +152,8 @@ export default async function PublicHomePage() {
             <span className="block text-[#a9cbbf]">con strumenti che usi davvero.</span>
           </h1>
           <p className="mt-5 max-w-2xl text-base leading-7 text-[#d8e5e0]">
-            Calcola il peso dei tubi, consulta i listini interattivi, approfondisci norme e gradi oppure verifica
-            se la tua azienda è già presente. Il Network completo resta privato per le aziende registrate.
+            Calcola il peso dei tubi, crea una distinta da inviare ai fornitori, approfondisci norme e gradi oppure
+            verifica se la tua azienda è già presente. Il Network completo resta privato per le aziende registrate.
           </p>
 
           <div className="mt-7 flex flex-wrap gap-3">
@@ -164,10 +164,10 @@ export default async function PublicHomePage() {
               Calcolo pesi
             </Link>
             <Link
-              href="/listini"
+              href="/distinta"
               className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/20 bg-transparent px-5 text-sm font-semibold text-white hover:bg-white/[0.08]"
             >
-              Apri Listini
+              Crea distinta
             </Link>
             <Link
               href="/azienda"
@@ -246,7 +246,7 @@ export default async function PublicHomePage() {
               Calcolo pesi
             </Link>
             <Link href="/knowledge" className="font-semibold hover:text-[#173f35]">Scuola</Link>
-            <Link href="/listini" className="font-semibold hover:text-[#173f35]">Listini</Link>
+            <Link href="/distinta" className="font-semibold hover:text-[#173f35]">Crea distinta</Link>
             <Link href="/login" className="font-semibold hover:text-[#173f35]">Accedi</Link>
             <Link href="/register" className="font-semibold hover:text-[#173f35]">Registra azienda</Link>
             <Link href="/privacy" className="font-semibold hover:text-[#173f35]">Privacy</Link>
