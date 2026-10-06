@@ -24,16 +24,18 @@ function verifySvixSignature(input: {
     ? input.secret.slice("whsec_".length)
     : input.secret;
 
-  let secretBytes: Buffer;
+  let secretBytes: Uint8Array;
   try {
-    secretBytes = Buffer.from(rawSecret, "base64");
+    secretBytes = Uint8Array.from(Buffer.from(rawSecret, "base64"));
   } catch {
     return false;
   }
 
-  const expected = createHmac("sha256", secretBytes)
-    .update(input.id + "." + input.timestamp + "." + input.payload)
-    .digest();
+  const expected = Uint8Array.from(
+    createHmac("sha256", secretBytes)
+      .update(input.id + "." + input.timestamp + "." + input.payload)
+      .digest(),
+  );
 
   const candidates = input.signature
     .split(" ")
@@ -47,7 +49,7 @@ function verifySvixSignature(input: {
 
   return candidates.some((candidate) => {
     try {
-      const actual = Buffer.from(candidate, "base64");
+      const actual = Uint8Array.from(Buffer.from(candidate, "base64"));
       return actual.length === expected.length && timingSafeEqual(actual, expected);
     } catch {
       return false;
