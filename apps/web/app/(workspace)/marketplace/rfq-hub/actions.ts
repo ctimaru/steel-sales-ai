@@ -6,7 +6,9 @@ import { revalidatePath } from "next/cache";
 import {
   buildRfqh3Email,
   buildRfqh3InviteUrl,
+  buildRfqh3ReminderEmail,
   createRfqh3DispatchSecurity,
+  createRfqh3ReminderIdempotencyKey,
   type Rfqh3EmailLine,
 } from "@/lib/rfqh3-dispatch";
 import { createClient } from "@/lib/supabase/server";
@@ -529,4 +531,167 @@ export async function retryFailedBuyerRfq(
 
   revalidatePath("/marketplace/rfq-hub/" + context.campaign.id);
   return { ok: sentCount > 0, sentCount, failedCount };
+}
+
+
+export async function sendBuyerRfqReminders(
+  rfqId: string,
+): Promise<{
+  ok: boolean;
+  sentCount?: number;
+  failedCount?: number;
+  skippedCount?: number;
+  error?: string;
+}> {
+  const supabase = await createClient();
+  const { data: authData } = await supabase.auth.getUser();
+  const user = authData.user;
+
+  if (!user) return { ok: false, error: "Accedi per inviare i promemoria." };
+
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey || !process.env.RFQ_INVITE_SECRET) {
+    return { ok: false, error: "Il canale email RFQ non è configurato." };
+  }
+
+  const context = await loadRfqh3EmailContext(supabase, rfqId.trim());
+  if (!context) return { ok: false, error: "RFQ non trovata." };
+  if (!["launched", "collecting"].includes(context.campaign.status)) {
+    return { ok: false, error: "Questa RFQ non è aperta ai promemoria." };
+  }
+
+  const { data: dispatches, error: dispatchError } = await supabase
+    .from("buyer_rfq_dispatches")
+    .select("id,supplier_id,attempt_count,reminder_count,status")
+    .eq("rfq_id", context.campaign.id)
+    .order("created_at", { ascending: true });
+
+  if (dispatchError) {
+    console.error("RFQH3 reminder dispatch lookup failed:", dispatchError.message);
+    return { ok: false, error: "Non è stato possibile preparare i promemoria." };
+  }
+
+  const supplierById = new Map(
+    context.suppliers.map((supplier) => [supplier.id, supplier]),
+  );
+  const from =
+    process.env.RFQ_EMAIL_FROM || "Smart Steel Sales <rfq@smartsteelsales.com>";
+
+  let sentCount = 0;
+  let failedCount = 0;
+  let skippedCount = 0;
+
+  for (const dispatch of dispatches ?? []) {
+    const supplier = supplierById.get(dispatch.supplier_id);
+    if (!supplier?.supplier_email_normalized) {
+      skippedCount += 1;
+      continue;
+    }
+
+    const reminderSequence = Number(dispatch.reminder_count) + 1;
+    const idempotencyKey = createRfqh3ReminderIdempotencyKey(
+      dispatch.id,
+      reminderSequence,
+    );
+
+    const { data: prepared, error: prepareError } = await supabase.rpc(
+      "rfqh3_prepare_reminder",
+      {
+        p_dispatch_id: dispatch.id,
+        p_idempotency_key: idempotencyKey,
+      },
+    );
+
+    if (prepareError) {
+      skippedCount += 1;
+      continue;
+    }
+
+    const preparedPayload =
+      prepared && typeof prepared === "object" && !Array.isArray(prepared)
+        ? (prepared as {
+            attempt_count?: unknown;
+            reminder_sequence?: unknown;
+          })
+        : null;
+
+    const attemptVersion = Number(
+      preparedPayload?.attempt_count ?? dispatch.attempt_count,
+    );
+    const preparedSequence = Number(
+      preparedPayload?.reminder_sequence ?? reminderSequence,
+    );
+
+    if (!Number.isFinite(attemptVersion) || attemptVersion < 1) {
+      skippedCount += 1;
+      continue;
+    }
+
+    const security = createRfqh3DispatchSecurity({
+      dispatchId: dispatch.id,
+      rfqId: context.campaign.id,
+      supplierId: supplier.id,
+      attemptVersion,
+    });
+
+    const email = buildRfqh3ReminderEmail({
+      buyerOrganizationName: context.organizationName,
+      supplierName: supplier.supplier_name,
+      title: context.campaign.title,
+      dueAt: context.campaign.due_at,
+      inviteUrl: buildRfqh3InviteUrl(security.token),
+      reminderSequence: preparedSequence,
+    });
+
+    try {
+      const providerMessageId = await sendRfqh3Email({
+        apiKey,
+        from,
+        replyTo: user.email ?? null,
+        recipient: supplier.supplier_email_normalized,
+        idempotencyKey,
+        ...email,
+      });
+
+      const { error: markError } = await supabase.rpc(
+        "rfqh3_mark_reminder_result",
+        {
+          p_dispatch_id: dispatch.id,
+          p_idempotency_key: idempotencyKey,
+          p_success: true,
+          p_provider_message_id: providerMessageId,
+          p_error: null,
+        },
+      );
+
+      if (markError) {
+        console.error("RFQH3 reminder success ledger failed:", markError.message);
+        failedCount += 1;
+        continue;
+      }
+
+      sentCount += 1;
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Provider email error";
+
+      await supabase.rpc("rfqh3_mark_reminder_result", {
+        p_dispatch_id: dispatch.id,
+        p_idempotency_key: idempotencyKey,
+        p_success: false,
+        p_provider_message_id: null,
+        p_error: message,
+      });
+      failedCount += 1;
+    }
+  }
+
+  revalidatePath("/marketplace/rfq-hub/" + context.campaign.id);
+
+  return {
+    ok: true,
+    sentCount,
+    failedCount,
+    skippedCount,
+  };
 }
