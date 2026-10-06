@@ -120,13 +120,13 @@ test("RFQH4 attachments are private, size/type constrained and server uploaded",
   assert.doesNotMatch(uploadFunction, /console\.log\(token/);
 });
 
-test("RFQH4 buyer sees latest response without prematurely implementing RFQH5 ranking", () => {
+test("RFQH4 response detail remains available beside the RFQH5 cockpit", () => {
   assert.match(buyerPage, /buyer_rfq_quotes/);
   assert.match(buyerPage, /buyer_rfq_quote_lines/);
   assert.match(buyerPage, /Risposte fornitori/);
   assert.match(buyerPage, /createSignedUrl/);
-  assert.match(buyerPage, /RFQH5 userà queste risposte/);
-  assert.doesNotMatch(buyerPage, /miglior fornitore|auto-award|ranking score/i);
+  assert.match(buyerPage, /rfqh5_quote_comparison/);
+  assert.doesNotMatch(buyerPage, /auto-award|ranking score/i);
 });
 
 
