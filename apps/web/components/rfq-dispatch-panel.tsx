@@ -8,6 +8,7 @@ import {
   retryFailedBuyerRfq,
   sendBuyerRfqReminders,
 } from "@/app/(workspace)/marketplace/rfq-hub/actions";
+import { trackProductEvent } from "@/lib/product-analytics";
 
 type SupplierState = {
   id: string;
@@ -68,6 +69,12 @@ export function RfqDispatchPanel({
         return;
       }
 
+      trackProductEvent("rfq_dispatch_launch", {
+        supplier_count: suppliers.length,
+        sent_count: result.sentCount ?? 0,
+        failed_count: result.failedCount ?? 0,
+        has_deadline: Boolean(dueIso),
+      });
       setFeedback(
         "RFQ avviata: " +
           String(result.sentCount ?? 0) +
@@ -88,6 +95,10 @@ export function RfqDispatchPanel({
         setFeedback(result.error ?? "Retry non riuscito.");
         return;
       }
+      trackProductEvent("rfq_dispatch_retry", {
+        sent_count: result.sentCount ?? 0,
+        failed_count: result.failedCount ?? 0,
+      });
       setFeedback(
         "Retry completato: " +
           String(result.sentCount ?? 0) +
@@ -108,6 +119,11 @@ export function RfqDispatchPanel({
         return;
       }
 
+      trackProductEvent("rfq_dispatch_reminder", {
+        sent_count: result.sentCount ?? 0,
+        skipped_count: result.skippedCount ?? 0,
+        failed_count: result.failedCount ?? 0,
+      });
       setFeedback(
         "Promemoria: " +
           String(result.sentCount ?? 0) +
