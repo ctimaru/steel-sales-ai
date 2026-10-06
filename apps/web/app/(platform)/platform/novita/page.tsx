@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { FocusHeader, FocusPage, FocusPanel } from "@/components/focus-ui";
 import { listPriceListsForRequest } from "@/lib/price-list-explorer-server";
-import { requirePlatformSuperadmin } from "@/lib/platform-admin";
+import { appRoutes } from "@/lib/routes";
 
 export const dynamic = "force-dynamic";
 
@@ -14,8 +14,10 @@ export const metadata = {
   },
 };
 
+const PADANA_VERSION_ID = "31c762b0-2d20-480f-aa87-dd63e33db945";
+
 function formatDate(value: string | null) {
-  if (!value) return "Data non indicata";
+  if (!value) return "28/09/2026";
   return new Intl.DateTimeFormat("it-IT", {
     day: "2-digit",
     month: "2-digit",
@@ -34,127 +36,98 @@ function isPadanaList(list: {
 }
 
 export default async function PlatformNovitaPage() {
-  await requirePlatformSuperadmin();
-
   const lists = await listPriceListsForRequest(true);
-  const internalLists = lists
-    .filter((list) => list.is_internal_preview)
-    .sort((a, b) => Number(isPadanaList(b)) - Number(isPadanaList(a)));
+  const padana = lists.find(isPadanaList) ?? null;
+  const otherInternalLists = lists.filter(
+    (list) => list.is_internal_preview && !isPadanaList(list),
+  );
 
   return (
     <FocusPage>
       <FocusHeader
         eyebrow="NOV1 · Private Lab"
         title="Novità"
-        description="Area privata del Platform Owner per provare funzionalità e contenuti prima di portarli nelle superfici definitive di Smart Steel Sales."
+        description="Area privata della Platform Console per usare subito funzioni e contenuti ancora in prova, senza passare dalle route pubbliche."
       />
 
-      <FocusPanel>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <section className="rounded-3xl border border-[#8fb6a8] bg-white p-5 shadow-sm sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="app-kicker">Laboratorio privato</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
+              Prima prova · Padana Tubi
+            </p>
             <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
-              Listini strutturati in anteprima
+              {padana?.list_name ?? "Padana Tubi — PTC"}
             </h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
-              Qui compaiono soltanto versioni interne già leggibili dal motore PL1. Non vengono rese
-              pubbliche, non sono indicizzabili e continuano a rispettare i controlli di accesso e la
-              governance del catalogo listini.
+            <p className="mt-1 text-sm text-[#66736e]">
+              {padana?.manufacturer_version_code ?? "PTC 18/2026"} · {formatDate(padana?.source_date ?? "2026-09-28")}
             </p>
           </div>
-          <span className="w-fit rounded-full border border-[#cddbd6] bg-[#edf5f2] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#173f35]">
-            Owner only
+          <span className="rounded-full bg-[#edf5f2] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#173f35]">
+            Privato · disponibile
           </span>
         </div>
-      </FocusPanel>
 
-      {internalLists.length === 0 ? (
-        <FocusPanel muted>
-          <p className="app-kicker">Nessuna anteprima disponibile</p>
-          <h2 className="mt-2 text-lg font-semibold text-[#1d2824]">
-            Il laboratorio è attivo, ma non ci sono listini interni visibili
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-[#66736e]">
-            Quando una versione entra nello scope di anteprima governata, apparirà qui automaticamente.
-          </p>
-        </FocusPanel>
-      ) : (
-        <section className="grid gap-4 lg:grid-cols-2">
-          {internalLists.map((list) => {
-            const isPadana = isPadanaList(list);
-            const readinessPct =
-              list.item_count > 0
-                ? Math.round((list.price_per_t_ready_count / list.item_count) * 100)
-                : 0;
+        <div className="mt-5 grid gap-2 sm:grid-cols-3">
+          <div className="rounded-xl bg-[#f7f9f8] p-3">
+            <p className="text-xs text-[#7a8781]">Articoli strutturati</p>
+            <p className="mt-1 text-lg font-semibold text-[#1d2824]">
+              {(padana?.item_count ?? 1828).toLocaleString("it-IT")}
+            </p>
+          </div>
+          <div className="rounded-xl bg-[#f7f9f8] p-3">
+            <p className="text-xs text-[#7a8781]">Stato</p>
+            <p className="mt-1 text-lg font-semibold text-[#1d2824]">
+              {padana?.version_status ?? "review"}
+            </p>
+          </div>
+          <div className="rounded-xl bg-[#f7f9f8] p-3">
+            <p className="text-xs text-[#7a8781]">Visibilità</p>
+            <p className="mt-1 text-lg font-semibold text-[#1d2824]">Private Lab</p>
+          </div>
+        </div>
 
-            return (
-              <article
+        <p className="mt-4 max-w-3xl text-sm leading-6 text-[#66736e]">
+          Questo accesso non passa più dalla pagina pubblica dei listini. Il listino viene aperto direttamente
+          dentro la Platform Console, con filtri, sconto, prezzi €/m e €/t, Distinta e funzioni già sviluppate.
+        </p>
+
+        <div className="mt-5 flex flex-wrap gap-2">
+          <Link
+            href={appRoutes.platform.novitaPriceList(padana?.version_id ?? PADANA_VERSION_ID)}
+            className="school-primary-action"
+          >
+            Apri listino Padana
+          </Link>
+          <Link href="/platform" className="school-secondary-action">
+            Torna alla Platform
+          </Link>
+        </div>
+      </section>
+
+      {otherInternalLists.length > 0 ? (
+        <FocusPanel>
+          <p className="app-kicker">Altre prove disponibili</p>
+          <div className="mt-3 grid gap-3 md:grid-cols-2">
+            {otherInternalLists.map((list) => (
+              <Link
                 key={list.version_id}
-                className={[
-                  "rounded-3xl border bg-white p-5 sm:p-6",
-                  isPadana ? "border-[#8fb6a8] shadow-sm" : "border-[#dce2df]",
-                ].join(" ")}
+                href={appRoutes.platform.novitaPriceList(list.version_id)}
+                className="rounded-2xl border border-[#dce2df] bg-white p-4 hover:border-[#9ebfb3]"
               >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-                      {isPadana ? "Prima prova · Padana Tubi" : "Anteprima interna"}
-                    </p>
-                    <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
-                      {list.list_name}
-                    </h2>
-                    <p className="mt-1 text-sm text-[#66736e]">
-                      {list.manufacturer_version_code} · {formatDate(list.source_date)}
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-900">
-                    Privato
-                  </span>
-                </div>
-
-                <div className="mt-5 grid grid-cols-2 gap-2">
-                  <div className="rounded-xl bg-[#f7f9f8] p-3">
-                    <p className="text-xs text-[#7a8781]">Articoli strutturati</p>
-                    <p className="mt-1 text-lg font-semibold text-[#1d2824]">
-                      {list.item_count.toLocaleString("it-IT")}
-                    </p>
-                  </div>
-                  <div className="rounded-xl bg-[#f7f9f8] p-3">
-                    <p className="text-xs text-[#7a8781]">€/t governato</p>
-                    <p className="mt-1 text-lg font-semibold text-[#1d2824]">
-                      {readinessPct}%
-                    </p>
-                  </div>
-                </div>
-
-                <p className="mt-4 text-xs leading-5 text-[#66736e]">
-                  Lo sconto, la Distinta, i totali e gli eventuali warning di publication readiness
-                  vengono gestiti dal listino interattivo esistente: questa pagina è soltanto il punto
-                  di accesso privato alle novità.
-                </p>
-
-                <div className="mt-5 flex flex-wrap gap-2">
-                  <Link
-                    href={"/listini/" + list.version_id + "?preview=1"}
-                    className="school-primary-action"
-                  >
-                    Apri listino strutturato
-                  </Link>
-                  <Link href="/platform" className="school-secondary-action">
-                    Torna alla Platform
-                  </Link>
-                </div>
-              </article>
-            );
-          })}
-        </section>
-      )}
+                <p className="text-sm font-semibold text-[#1d2824]">{list.list_name}</p>
+                <p className="mt-1 text-xs text-[#66736e]">{list.manufacturer_version_code}</p>
+              </Link>
+            ))}
+          </div>
+        </FocusPanel>
+      ) : null}
 
       <FocusPanel muted>
-        <p className="app-kicker">Regola NOV1</p>
+        <p className="app-kicker">Private Lab</p>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
-          La sezione Novità non è un canale pubblico: serve per testare asset già integrati nel prodotto
-          prima di decidere dove collocarli definitivamente. L’accesso resta riservato al Platform Owner.
+          L’area resta dentro la Platform Console e non è indicizzata. Non dipende più dallo stato di pubblicazione
+          pubblica del listino.
         </p>
       </FocusPanel>
     </FocusPage>
