@@ -11,6 +11,10 @@ import {
 } from "@/components/rfq-buyer-negotiation-panel";
 import { RfqDispatchPanel } from "@/components/rfq-dispatch-panel";
 import {
+  RfqMarketplaceBridgePanel,
+  type Rfqh8BridgeState,
+} from "@/components/rfq-marketplace-bridge-panel";
+import {
   RfqQuoteComparison,
   type RfqComparisonData,
 } from "@/components/rfq-quote-comparison";
@@ -63,6 +67,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
     { data: comparison },
     { data: negotiationThreads },
     { data: awardRow },
+    { data: marketplaceBridgeState },
   ] = await Promise.all([
     supabase
       .from("buyer_distintas")
@@ -102,6 +107,9 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       .select("id,award_mode,reason,line_count,supplier_count,total_tonnes,total_eur,target_total_eur,savings_eur,savings_pct,confirmed_at")
       .eq("rfq_id", campaign.id)
       .maybeSingle(),
+    supabase.rpc("rfqh8_bridge_state", {
+      p_rfq_id: campaign.id,
+    }),
   ]);
 
   const supplierRows = suppliers ?? [];
@@ -282,6 +290,18 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       {campaign.status === "draft" || campaign.status === "ready" ? (
         <RfqSupplierAddForm rfqId={campaign.id} />
       ) : null}
+
+      <RfqMarketplaceBridgePanel
+        rfqId={campaign.id}
+        campaignStatus={campaign.status}
+        state={
+          marketplaceBridgeState &&
+          typeof marketplaceBridgeState === "object" &&
+          !Array.isArray(marketplaceBridgeState)
+            ? (marketplaceBridgeState as Rfqh8BridgeState)
+            : null
+        }
+      />
 
       <section className="rounded-2xl border border-[#dce2df] bg-white">
         <div className="border-b border-[#e7ece9] px-5 py-4">
@@ -575,11 +595,11 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       </section>
 
       <section className="rounded-2xl border border-[#cddbd6] bg-[#f7faf8] p-5">
-        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">RFQH7</p>
-        <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Award &amp; Commercial Conversion attivo.</h2>
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">RFQH8</p>
+        <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Network + Marketplace Bridge attivo.</h2>
         <p className="mt-2 text-sm leading-6 text-[#66736e]">
-          Il buyer può congelare un award unico o split, generare PO draft procurement-native e
-          chiudere le trattative non selezionate. L&apos;invio dell&apos;ordine resta un&apos;azione separata e intenzionale.
+          La RFQ privata può ora usare matching Network, inviti diretti e pubblicazione Marketplace opzionale.
+          Le quote Marketplace importate confluiscono in RFQH5 senza esporre il Target buyer.
         </p>
       </section>
     </div>
