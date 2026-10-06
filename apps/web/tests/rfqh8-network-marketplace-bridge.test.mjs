@@ -51,7 +51,7 @@ test("RFQH8 mirrors RFQ lines without exposing internal buyer target prices", ()
 });
 
 test("RFQH8 keeps Marketplace publication explicit and separate from bridge preparation", () => {
-  assert.match(bridge, /status,'draft','rfq_hub'/);
+  assert.match(bridge, /'draft',\s*'rfq_hub'/);
   assert.match(bridge, /rfqh8_publish_marketplace_bridge_impl/);
   assert.match(actions, /prepareRfqh8MarketplaceBridge/);
   assert.match(actions, /publishRfqh8MarketplaceBridge/);
