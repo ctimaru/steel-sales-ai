@@ -97,6 +97,14 @@ const platformNav = [
     group: "content",
   },
   {
+    href: appRoutes.platform.novita,
+    label: "Novità",
+    icon: "knowledge",
+    permission: "platform.console.access",
+    staffEnabled: true,
+    group: "content",
+  },
+  {
     href: appRoutes.platform.networkTrust,
     label: "Network Trust",
     icon: "trust",

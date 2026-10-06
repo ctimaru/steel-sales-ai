@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { PrivateDiscountProfilesPanel } from "@/components/private-discount-profiles-panel";
 import { PublicPriceListExplorer } from "@/components/public-price-list-explorer";
@@ -11,6 +11,7 @@ import {
   getPriceListPublicNotices,
   getPrivatePricingContext,
 } from "@/lib/price-list-explorer-server";
+import { appRoutes } from "@/lib/routes";
 import { absoluteUrl } from "@/lib/site";
 
 type Params = Promise<{ versionId: string }>;
@@ -127,6 +128,10 @@ export default async function PriceListExplorerPage({
   const includeInternal = query.preview === "1";
 
   if (!isUuid(versionId)) notFound();
+
+  if (includeInternal) {
+    redirect(appRoutes.platform.novitaPriceList(versionId));
+  }
 
   const [version, items, privatePricing, publicNotices] = await Promise.all([
     getPriceListExplorerVersion(versionId, includeInternal),
