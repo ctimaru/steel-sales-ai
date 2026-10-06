@@ -107,14 +107,12 @@ export default async function PlatformHomePage() {
                 meta="Governance"
               />
             ) : null}
-            {context.is_platform_owner ? (
-              <FocusLink
-                href="/platform/novita"
-                title="Novità · Private Lab"
-                description="Prove private di nuove funzionalità e contenuti, incluso il listino Padana strutturato."
-                meta="Owner only"
-              />
-            ) : null}
+            <FocusLink
+              href="/platform/novita"
+              title="Novità · Private Lab"
+              description="Prove private di nuove funzionalità e contenuti, incluso il listino Padana strutturato."
+              meta="Private Lab"
+            />
             {canReadRegistrations ? (
               <FocusLink
                 href="/platform/registrations"
