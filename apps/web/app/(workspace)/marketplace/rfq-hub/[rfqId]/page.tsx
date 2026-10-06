@@ -20,6 +20,16 @@ function formatNumber(value: number | string | null, digits: number) {
   });
 }
 
+function formatDate(value: string | null) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return "—";
+  return new Intl.DateTimeFormat("it-IT", {
+    timeZone: "Europe/Rome",
+    dateStyle: "medium",
+  }).format(date);
+}
+
 export default async function BuyerRfqCampaignPage({ params }: { params: Params }) {
   const { rfqId } = await params;
   const supabase = await createClient();
@@ -32,7 +42,13 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
 
   if (!campaign) notFound();
 
-  const [{ data: distinta }, { data: lines }, { data: suppliers }, { data: dispatches }] = await Promise.all([
+  const [
+    { data: distinta },
+    { data: lines },
+    { data: suppliers },
+    { data: dispatches },
+    { data: quotes },
+  ] = await Promise.all([
     supabase
       .from("buyer_distintas")
       .select("id,line_count,total_meters,total_tonnes,target_total_eur")
@@ -53,10 +69,57 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       .select("id,supplier_id,status,attempt_count,reminder_count,last_reminder_at,sent_at,delivered_at,opened_at,last_error")
       .eq("rfq_id", campaign.id)
       .order("created_at", { ascending: true }),
+    supabase
+      .from("buyer_rfq_quotes")
+      .select("id,supplier_id,revision_no,status,incoterm,payment_terms,validity_until,lead_time_days,delivery_date,moq_tonnes,notes,decline_reason,attachment_bucket,attachment_path,attachment_name,attachment_size_bytes,submitted_at,declined_at")
+      .eq("rfq_id", campaign.id)
+      .order("revision_no", { ascending: false }),
   ]);
 
   const supplierRows = suppliers ?? [];
   const lineRows = lines ?? [];
+  const quoteRows = quotes ?? [];
+  const latestQuoteBySupplier = new Map<
+    string,
+    (typeof quoteRows)[number]
+  >();
+
+  for (const quote of quoteRows) {
+    if (!latestQuoteBySupplier.has(quote.supplier_id)) {
+      latestQuoteBySupplier.set(quote.supplier_id, quote);
+    }
+  }
+
+  const latestQuotes = Array.from(latestQuoteBySupplier.values());
+  const latestQuoteIds = latestQuotes.map((quote) => quote.id);
+  const quoteLinesResult =
+    latestQuoteIds.length > 0
+      ? await supabase
+          .from("buyer_rfq_quote_lines")
+          .select("quote_id,rfq_line_id,line_position,response_status,price_basis,unit_price,normalized_eur_t,normalized_eur_m,offered_quantity,offered_quantity_mode,moq_tonnes,lead_time_days,delivery_date,notes")
+          .in("quote_id", latestQuoteIds)
+          .order("line_position", { ascending: true })
+      : null;
+  const quoteLineRows = quoteLinesResult?.data ?? [];
+
+  const attachmentLinks = await Promise.all(
+    latestQuotes.map(async (quote) => {
+      if (!quote.attachment_path || !quote.attachment_bucket) {
+        return [quote.id, null] as const;
+      }
+      const { data } = await supabase.storage
+        .from(quote.attachment_bucket)
+        .createSignedUrl(quote.attachment_path, 600, {
+          download: quote.attachment_name || "offerta",
+        });
+      return [quote.id, data?.signedUrl ?? null] as const;
+    }),
+  );
+  const attachmentUrlByQuote = new Map(
+    attachmentLinks.filter(
+      (entry): entry is readonly [string, string] => Boolean(entry[1]),
+    ),
+  );
 
   return (
     <div className="space-y-5">
@@ -166,6 +229,170 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
         )}
       </section>
 
+      <section className="rounded-2xl border border-[#dce2df] bg-white">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e7ece9] px-5 py-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
+              Risposte fornitori
+            </p>
+            <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">
+              Offerte ricevute
+            </h2>
+          </div>
+          <span className="text-xs text-[#718078]">
+            {latestQuotes.filter((quote) => quote.status === "submitted").length} inviate ·{" "}
+            {latestQuotes.filter((quote) => quote.status === "declined").length} rifiutate
+          </span>
+        </div>
+
+        {latestQuotes.length === 0 ? (
+          <p className="px-5 py-6 text-sm text-[#66736e]">
+            Nessuna risposta ricevuta per ora.
+          </p>
+        ) : (
+          <div className="divide-y divide-[#edf0ee]">
+            {supplierRows.map((supplier) => {
+              const quote = latestQuoteBySupplier.get(supplier.id);
+              if (!quote) return null;
+              const responseLines = quoteLineRows.filter(
+                (line) => line.quote_id === quote.id,
+              );
+              const attachmentUrl = attachmentUrlByQuote.get(quote.id);
+
+              return (
+                <article key={quote.id} className="px-5 py-5">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-base font-semibold text-[#1d2824]">
+                        {supplier.supplier_name || supplier.supplier_email_normalized || "Fornitore"}
+                      </p>
+                      <p className="mt-1 text-xs text-[#718078]">
+                        Revisione {quote.revision_no}
+                        {quote.submitted_at ? " · inviata " + formatDate(quote.submitted_at) : ""}
+                      </p>
+                    </div>
+                    <span className={
+                      "rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.08em] " +
+                      (quote.status === "submitted"
+                        ? "bg-[#edf5f2] text-[#173f35]"
+                        : quote.status === "declined"
+                          ? "bg-[#fff1ef] text-[#8b5148]"
+                          : "bg-[#f2f4f3] text-[#52615b]")
+                    }>
+                      {quote.status}
+                    </span>
+                  </div>
+
+                  {quote.status === "declined" ? (
+                    <p className="mt-3 rounded-xl bg-[#fff8f6] px-4 py-3 text-sm text-[#76544e]">
+                      {quote.decline_reason || "Il fornitore ha indicato che non può quotare questa RFQ."}
+                    </p>
+                  ) : (
+                    <>
+                      <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+                        <div className="rounded-xl bg-[#f7f9f8] p-3">
+                          <p className="text-[10px] uppercase text-[#718078]">Incoterm</p>
+                          <p className="mt-1 text-sm font-semibold">{quote.incoterm || "—"}</p>
+                        </div>
+                        <div className="rounded-xl bg-[#f7f9f8] p-3">
+                          <p className="text-[10px] uppercase text-[#718078]">Pagamento</p>
+                          <p className="mt-1 text-sm font-semibold">{quote.payment_terms || "—"}</p>
+                        </div>
+                        <div className="rounded-xl bg-[#f7f9f8] p-3">
+                          <p className="text-[10px] uppercase text-[#718078]">Validità</p>
+                          <p className="mt-1 text-sm font-semibold">{formatDate(quote.validity_until)}</p>
+                        </div>
+                        <div className="rounded-xl bg-[#f7f9f8] p-3">
+                          <p className="text-[10px] uppercase text-[#718078]">Lead time</p>
+                          <p className="mt-1 text-sm font-semibold">
+                            {quote.lead_time_days === null ? "—" : quote.lead_time_days + " gg"}
+                          </p>
+                        </div>
+                        <div className="rounded-xl bg-[#f7f9f8] p-3">
+                          <p className="text-[10px] uppercase text-[#718078]">Consegna</p>
+                          <p className="mt-1 text-sm font-semibold">{formatDate(quote.delivery_date)}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 overflow-x-auto">
+                        <table className="min-w-[920px] w-full border-collapse text-left text-xs">
+                          <thead>
+                            <tr className="border-b border-[#dce2df] text-[#66736e]">
+                              <th className="px-2 py-2">Riga</th>
+                              <th className="px-2 py-2">Esito</th>
+                              <th className="px-2 py-2 text-right">€/t</th>
+                              <th className="px-2 py-2 text-right">€/m</th>
+                              <th className="px-2 py-2 text-right">Q.tà offerta</th>
+                              <th className="px-2 py-2 text-right">MOQ t</th>
+                              <th className="px-2 py-2 text-right">Lead gg</th>
+                              <th className="px-2 py-2">Consegna</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {responseLines.map((line) => (
+                              <tr key={line.rfq_line_id} className="border-b border-[#edf0ee]">
+                                <td className="px-2 py-3 font-semibold">{line.line_position}</td>
+                                <td className="px-2 py-3">
+                                  {line.response_status === "quoted" ? "Quotata" : "Non disponibile"}
+                                </td>
+                                <td className="px-2 py-3 text-right font-semibold tabular-nums text-[#173f35]">
+                                  {line.response_status === "quoted"
+                                    ? formatNumber(line.normalized_eur_t, 2)
+                                    : "—"}
+                                </td>
+                                <td className="px-2 py-3 text-right font-semibold tabular-nums text-[#173f35]">
+                                  {line.response_status === "quoted"
+                                    ? formatNumber(line.normalized_eur_m, 4)
+                                    : "—"}
+                                </td>
+                                <td className="px-2 py-3 text-right tabular-nums">
+                                  {line.offered_quantity === null
+                                    ? "—"
+                                    : formatNumber(line.offered_quantity, 3) +
+                                      " " +
+                                      (line.offered_quantity_mode || "")}
+                                </td>
+                                <td className="px-2 py-3 text-right tabular-nums">
+                                  {formatNumber(line.moq_tonnes, 3)}
+                                </td>
+                                <td className="px-2 py-3 text-right tabular-nums">
+                                  {line.lead_time_days ?? "—"}
+                                </td>
+                                <td className="px-2 py-3">{formatDate(line.delivery_date)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <div className="mt-4 flex flex-wrap items-center gap-3">
+                        {quote.attachment_name ? (
+                          attachmentUrl ? (
+                            <a
+                              href={attachmentUrl}
+                              className="inline-flex min-h-10 items-center rounded-xl border border-[#b8d2c8] bg-white px-4 text-xs font-bold text-[#173f35]"
+                            >
+                              Scarica {quote.attachment_name}
+                            </a>
+                          ) : (
+                            <span className="text-xs text-[#718078]">
+                              Allegato: {quote.attachment_name}
+                            </span>
+                          )
+                        ) : null}
+                        {quote.notes ? (
+                          <p className="text-xs text-[#66736e]">{quote.notes}</p>
+                        ) : null}
+                      </div>
+                    </>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </section>
+
       <section className="rounded-2xl border border-[#dce2df] bg-white p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -211,10 +438,12 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       </section>
 
       <section className="rounded-2xl border border-[#cddbd6] bg-[#f7faf8] p-5">
-        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">RFQH3</p>
-        <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Dispatch governato attivo.</h2>
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">RFQH4</p>
+        <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Supplier Response Portal attivo.</h2>
         <p className="mt-2 text-sm leading-6 text-[#66736e]">
-          Inviti separati, token personali, idempotenza, retry e tracking di delivery sono gestiti dal ledger RFQ. Il prossimo blocco RFQH4 trasformerà il link fornitore in un portale di risposta strutturata.
+          I fornitori possono salvare una bozza, rispondere riga per riga, allegare l&apos;offerta,
+          rifiutare la richiesta o inviare revisioni versionate. RFQH5 userà queste risposte per il
+          confronto normalizzato buyer-side.
         </p>
       </section>
     </div>
