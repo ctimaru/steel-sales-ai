@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import {
+  RfqBuyerNegotiationPanel,
+  type BuyerNegotiationThread,
+} from "@/components/rfq-buyer-negotiation-panel";
 import { RfqDispatchPanel } from "@/components/rfq-dispatch-panel";
 import {
   RfqQuoteComparison,
@@ -53,6 +57,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
     { data: dispatches },
     { data: quotes },
     { data: comparison },
+    { data: negotiationThreads },
   ] = await Promise.all([
     supabase
       .from("buyer_distintas")
@@ -82,6 +87,11 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
     supabase.rpc("rfqh5_quote_comparison", {
       p_rfq_id: campaign.id,
     }),
+    supabase
+      .from("buyer_rfq_negotiation_threads")
+      .select("id,supplier_id,status,active_request_type,request_due_at,round_no,reminder_count,last_message_at,updated_at")
+      .eq("rfq_id", campaign.id)
+      .order("updated_at", { ascending: false }),
   ]);
 
   const supplierRows = suppliers ?? [];
@@ -131,6 +141,47 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
   for (const [quoteId, signedUrl] of attachmentLinks) {
     if (signedUrl) attachmentUrlByQuote.set(quoteId, signedUrl);
   }
+
+  const negotiationThreadRows = negotiationThreads ?? [];
+  const negotiationThreadIds = negotiationThreadRows.map((thread) => thread.id);
+  const negotiationMessageResult =
+    negotiationThreadIds.length > 0
+      ? await supabase
+          .from("buyer_rfq_negotiation_messages")
+          .select("id,thread_id,sender_role,message_type,round_no,body,request_due_at,notification_status,created_at")
+          .in("thread_id", negotiationThreadIds)
+          .order("created_at", { ascending: true })
+      : null;
+  const negotiationMessageRows = negotiationMessageResult?.data ?? [];
+  const negotiationMessageIds = negotiationMessageRows.map((message) => message.id);
+  const negotiationTargetResult =
+    negotiationMessageIds.length > 0
+      ? await supabase
+          .from("buyer_rfq_negotiation_targets")
+          .select("id,message_id,rfq_line_id,target_basis,target_value,normalized_eur_t,normalized_eur_m")
+          .in("message_id", negotiationMessageIds)
+      : null;
+  const negotiationTargetRows = negotiationTargetResult?.data ?? [];
+
+  const buyerNegotiationThreads = negotiationThreadRows.map((thread) => ({
+    id: thread.id,
+    supplier_id: thread.supplier_id,
+    status: thread.status,
+    active_request_type: thread.active_request_type,
+    request_due_at: thread.request_due_at,
+    round_no: Number(thread.round_no),
+    reminder_count: Number(thread.reminder_count),
+    last_message_at: thread.last_message_at,
+    messages: negotiationMessageRows
+      .filter((message) => message.thread_id === thread.id)
+      .map((message) => ({
+        ...message,
+        round_no: Number(message.round_no),
+        targets: negotiationTargetRows.filter(
+          (target) => target.message_id === message.id,
+        ),
+      })),
+  })) as BuyerNegotiationThread[];
 
   return (
     <div className="space-y-5">
@@ -241,6 +292,24 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       </section>
 
       <RfqQuoteComparison comparison={comparisonData} />
+
+      <RfqBuyerNegotiationPanel
+        rfqId={campaign.id}
+        suppliers={supplierRows.map((supplier) => ({
+          id: supplier.id,
+          name: supplier.supplier_name,
+          email: supplier.supplier_email_normalized,
+          status: supplier.status,
+        }))}
+        lines={lineRows.map((line) => ({
+          id: line.id,
+          position: Number(line.line_position),
+          description: line.description,
+          targetEurT: line.target_eur_t,
+          targetEurM: line.target_eur_m,
+        }))}
+        threads={buyerNegotiationThreads}
+      />
 
       <section className="rounded-2xl border border-[#dce2df] bg-white">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e7ece9] px-5 py-4">
@@ -451,11 +520,11 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       </section>
 
       <section className="rounded-2xl border border-[#cddbd6] bg-[#f7faf8] p-5">
-        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">RFQH5</p>
-        <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Confronto normalizzato attivo.</h2>
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">RFQH6</p>
+        <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Negoziazione privata attiva.</h2>
         <p className="mt-2 text-sm leading-6 text-[#66736e]">
-          Il buyer può confrontare copertura, €/t, €/m, delta dal target, lead time e benchmark split
-          con regole trasparenti. RFQH6 aggiungerà chiarimenti, negoziazione e Best &amp; Final Offer.
+          Chiarimenti, revisioni, counter-target e Best &amp; Final Offer restano isolati per fornitore
+          e confluiscono automaticamente nel confronto RFQH5. RFQH7 gestirà award e conversione ordine.
         </p>
       </section>
     </div>
