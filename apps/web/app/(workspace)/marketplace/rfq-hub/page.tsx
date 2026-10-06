@@ -36,12 +36,20 @@ export default async function BuyerRfqHubPage() {
           Una distinta salvata diventa una campagna privata: aggiungi più fornitori, mantieni separati i destinatari
           e prepara il percorso verso invio, raccolta offerte e confronto.
         </p>
-        <Link
-          href="/distinta"
-          className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-white/20 bg-white/[0.08] px-5 text-sm font-bold text-white hover:bg-white/[0.14]"
-        >
-          Crea nuova distinta
-        </Link>
+        <div className="mt-5 flex flex-wrap gap-2">
+          <Link
+            href={appRoutes.marketplace.procurementInbox}
+            className="inline-flex min-h-11 items-center rounded-xl bg-white px-5 text-sm font-bold text-[#173f35] hover:bg-[#f3f7f5]"
+          >
+            Apri Inbox acquisti
+          </Link>
+          <Link
+            href="/distinta"
+            className="inline-flex min-h-11 items-center rounded-xl border border-white/20 bg-white/[0.08] px-5 text-sm font-bold text-white hover:bg-white/[0.14]"
+          >
+            Crea nuova distinta
+          </Link>
+        </div>
       </header>
 
       {rows.length === 0 ? (
