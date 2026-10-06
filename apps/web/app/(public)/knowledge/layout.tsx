@@ -69,7 +69,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
               <span className="sr-only"> · Pesi &amp; dimensioni</span>
             </Link>
             <Link
-              href="/listini"
+              href="/distinta"
               className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#4f5e58] hover:bg-[#eef2f0] hover:text-[#173f35] xl:inline-flex"
             >
               Listini
@@ -88,7 +88,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
             {[
               ["/knowledge", "Home"],
               ["/knowledge/tubes?source=school&surface=nav#calcolatore-pesi", "Calcolo pesi"],
-              ["/listini", "Listini"],
+              ["/distinta", "Crea distinta"],
               ["/knowledge/articoli", "Articoli"],
               ["/knowledge/norme", "Norme"],
               ["/knowledge/gradi", "Gradi"],
@@ -123,7 +123,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
             <Link href="/" className="hover:text-[#173f35]">Smart Steel Sales</Link>
             <Link href="/knowledge" className="hover:text-[#173f35]">Scuola</Link>
             <Link href="/knowledge/tubes?source=school&surface=nav#calcolatore-pesi" className="hover:text-[#173f35]">Calcolo pesi</Link>
-            <Link href="/listini" className="hover:text-[#173f35]">Listini</Link>
+            <Link href="/distinta" className="hover:text-[#173f35]">Crea distinta</Link>
             <Link href="/knowledge/articoli" className="hover:text-[#173f35]">Articoli</Link>
             <PublicSessionAction className="hover:text-[#173f35]" />
             <Link href="/privacy" className="hover:text-[#173f35]">Privacy</Link>
