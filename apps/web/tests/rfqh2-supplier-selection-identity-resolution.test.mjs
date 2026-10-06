@@ -75,9 +75,9 @@ test("RFQH2 application surface searches and adds resolved suppliers", () => {
   assert.match(selector, /identity_key/);
 });
 
-test("RFQH2 identity resolution remains visible after RFQH7 award upgrade", () => {
+test("RFQH2 identity resolution remains visible after RFQH8 bridge upgrade", () => {
   assert.match(detail, /identity_source/);
   assert.match(detail, /resolution_status/);
   assert.match(detail, /Email \+ piattaforma/);
-  assert.match(detail, />RFQH7</);
+  assert.match(detail, /RfqMarketplaceBridgePanel/);
 });
