@@ -1,9 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 
-import { saveBuyerDistinta, sendBuyerDistinta } from "@/app/(public)/distinta/actions";
+import {
+  createBuyerRfqCampaign,
+  saveBuyerDistinta,
+  sendBuyerDistinta,
+} from "@/app/(public)/distinta/actions";
 import {
   buildBuyerDistintaHtml,
   buildBuyerDistintaPlainText,
@@ -44,6 +49,7 @@ export function BuyerDistintaBuilder({
   authenticated: boolean;
   emailConfigured: boolean;
 }) {
+  const router = useRouter();
   const [title, setTitle] = useState("Richiesta di offerta");
   const [lines, setLines] = useState<BuyerDistintaDraftLine[]>([
     blankLine("line-1"),
@@ -57,8 +63,10 @@ export function BuyerDistintaBuilder({
     "Buongiorno,\nvi chiediamo cortesemente la vostra migliore offerta per i materiali indicati nella distinta seguente.",
   );
   const [sendMessage, setSendMessage] = useState<string | null>(null);
+  const [rfqMessage, setRfqMessage] = useState<string | null>(null);
   const [savePending, startSaveTransition] = useTransition();
   const [sendPending, startSendTransition] = useTransition();
+  const [rfqPending, startRfqTransition] = useTransition();
 
   const calculated = useMemo(
     () => lines.map(calculateBuyerDistintaLine),
@@ -147,6 +155,23 @@ export function BuyerDistintaBuilder({
       }
       setSavedId(result.distintaId);
       setSaveMessage("Distinta salvata nel tuo spazio privato.");
+    });
+  }
+
+  function createRfqHub() {
+    if (!savedId) {
+      setRfqMessage("Salva prima la distinta, poi puoi trasformarla in RFQ.");
+      return;
+    }
+
+    setRfqMessage(null);
+    startRfqTransition(async () => {
+      const result = await createBuyerRfqCampaign(savedId);
+      if (!result.ok || !result.rfqId) {
+        setRfqMessage(result.error ?? "Creazione RFQ non riuscita.");
+        return;
+      }
+      router.push("/marketplace/rfq-hub/" + result.rfqId);
     });
   }
 
@@ -480,8 +505,30 @@ export function BuyerDistintaBuilder({
               </div>
             )}
 
+            {savedId ? (
+              <div className="mt-3 rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-4">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
+                  RFQ Hub
+                </p>
+                <p className="mt-1 text-sm leading-6 text-[#52615b]">
+                  Trasforma questa distinta salvata in una campagna privata e aggiungi più fornitori senza esporre gli indirizzi tra loro.
+                </p>
+                <button
+                  type="button"
+                  onClick={createRfqHub}
+                  disabled={rfqPending}
+                  className="mt-3 inline-flex min-h-11 items-center justify-center rounded-xl bg-[#173f35] px-5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {rfqPending ? "Creazione RFQ…" : "Avvia RFQ multi-fornitore"}
+                </button>
+              </div>
+            ) : null}
+
             {saveMessage ? (
               <p className="mt-3 text-xs font-semibold text-[#52615b]">{saveMessage}</p>
+            ) : null}
+            {rfqMessage ? (
+              <p className="mt-2 text-xs font-semibold text-[#7b6a43]">{rfqMessage}</p>
             ) : null}
           </div>
 
