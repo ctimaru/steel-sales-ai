@@ -6,6 +6,10 @@ const migration = fs.readFileSync(
   new URL("../../../supabase/migrations/20261006103754_rfqh3_governed_dispatch_engine.sql", import.meta.url),
   "utf8",
 );
+const capabilityHardening = fs.readFileSync(
+  new URL("../../../supabase/migrations/20261006104559_rfqh3_capability_schema_hardening.sql", import.meta.url),
+  "utf8",
+);
 const actions = fs.readFileSync(
   new URL("../app/(workspace)/marketplace/rfq-hub/actions.ts", import.meta.url),
   "utf8",
@@ -86,15 +90,17 @@ test("RFQH3 does not allow supplier list mutation after launch", () => {
 });
 
 
-test("RFQH3 keeps anonymous privileged code out of the exposed public schema", () => {
-  assert.match(migration, /private\.rfqh3_open_invite_impl/);
-  assert.match(migration, /private\.rfqh3_ingest_resend_event_impl/);
+test("RFQH3 keeps anonymous privileged code out of public and private schemas", () => {
+  assert.match(capabilityHardening, /create schema if not exists rfqh_secure/);
+  assert.match(capabilityHardening, /rfqh_secure\.rfqh3_open_invite_impl/);
+  assert.match(capabilityHardening, /rfqh_secure\.rfqh3_ingest_resend_event_impl/);
+  assert.match(capabilityHardening, /revoke usage on schema private from anon/);
   assert.match(
-    migration,
+    capabilityHardening,
     /create or replace function public\.rfqh3_open_invite[\s\S]*?security invoker/,
   );
   assert.match(
-    migration,
+    capabilityHardening,
     /create or replace function public\.rfqh3_ingest_resend_event[\s\S]*?security invoker/,
   );
   assert.match(migration, /buyer_rfq_webhook_events_deny_all/);
