@@ -153,3 +153,40 @@ export async function startSupplierQuoteRevision(
 
   return { ok: true };
 }
+
+
+export async function sendSupplierNegotiationMessage(
+  token: string,
+  body: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const cleanToken = token.trim();
+  const cleanBody = body.trim();
+
+  if (!cleanToken) return { ok: false, error: "Link RFQ non valido." };
+  if (!cleanBody) return { ok: false, error: "Scrivi un messaggio prima di inviare." };
+  if (cleanBody.length > 4000) {
+    return { ok: false, error: "Il messaggio supera il limite di 4000 caratteri." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("rfqh6_supplier_post", {
+    p_token_hash: tokenHash(cleanToken),
+    p_body: cleanBody,
+  });
+
+  if (error) {
+    console.error("RFQH6 supplier negotiation post failed:", error.message);
+    return {
+      ok: false,
+      error: error.message.includes("hourly limit")
+        ? "Hai raggiunto il limite temporaneo di messaggi. Riprova più tardi."
+        : error.message.includes("closed")
+          ? "La trattativa è stata chiusa dal buyer."
+          : error.message.includes("not open")
+            ? "La RFQ non è più aperta alla negoziazione."
+            : "Non è stato possibile inviare il messaggio.",
+    };
+  }
+
+  return { ok: true };
+}
