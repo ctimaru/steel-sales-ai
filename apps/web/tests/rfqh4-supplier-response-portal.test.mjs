@@ -6,6 +6,10 @@ const migration = fs.readFileSync(
   new URL("../../../supabase/migrations/20261006113158_rfqh4_supplier_response_portal.sql", import.meta.url),
   "utf8",
 );
+const indexHardening = fs.readFileSync(
+  new URL("../../../supabase/migrations/20261006113947_rfqh4_quote_fk_index_hardening.sql", import.meta.url),
+  "utf8",
+);
 const portalPage = fs.readFileSync(
   new URL("../app/(public)/rfq/respond/[token]/page.tsx", import.meta.url),
   "utf8",
@@ -123,4 +127,11 @@ test("RFQH4 buyer sees latest response without prematurely implementing RFQH5 ra
   assert.match(buyerPage, /createSignedUrl/);
   assert.match(buyerPage, /RFQH5 userà queste risposte/);
   assert.doesNotMatch(buyerPage, /miglior fornitore|auto-award|ranking score/i);
+});
+
+
+test("RFQH4 covers new quote foreign-key access paths", () => {
+  assert.match(indexHardening, /buyer_rfq_quote_lines_rfq_line_idx/);
+  assert.match(indexHardening, /buyer_rfq_quotes_organization_idx/);
+  assert.match(indexHardening, /buyer_rfq_quotes_supplier_idx/);
 });
