@@ -45,6 +45,8 @@ export const appRoutes = {
     responses: "/marketplace/responses",
     response: (id: string) => `/marketplace/responses/${id}`,
     notifications: "/marketplace/notifications",
+    rfqHub: "/marketplace/rfq-hub",
+    rfqCampaign: (id: string) => `/marketplace/rfq-hub/${id}`,
   },
 
   knowledge: {
