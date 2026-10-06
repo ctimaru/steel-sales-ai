@@ -25,6 +25,14 @@ const platformNav = [
     group: "overview",
   },
   {
+    href: appRoutes.platform.productAnalytics,
+    label: "Product Analytics",
+    icon: "kpi",
+    permission: "platform.console.access",
+    staffEnabled: false,
+    group: "overview",
+  },
+  {
     href: appRoutes.platform.people,
     label: "People & Access",
     icon: "people",
