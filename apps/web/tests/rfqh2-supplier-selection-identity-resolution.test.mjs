@@ -75,9 +75,9 @@ test("RFQH2 application surface searches and adds resolved suppliers", () => {
   assert.match(selector, /identity_key/);
 });
 
-test("RFQH2 identity resolution remains visible after RFQH3 dispatch upgrade", () => {
+test("RFQH2 identity resolution remains visible after RFQH4 response upgrade", () => {
   assert.match(detail, /identity_source/);
   assert.match(detail, /resolution_status/);
   assert.match(detail, /Email \+ piattaforma/);
-  assert.match(detail, />RFQH3</);
+  assert.match(detail, />RFQH4</);
 });
