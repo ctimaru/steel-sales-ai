@@ -101,8 +101,8 @@ test("RFQH5 exposes transparent buyer-side sorting without automatic award", () 
   assert.doesNotMatch(comparison, /auto.?award|assegna automaticamente|supplier_score/i);
 });
 
-test("RFQH5 is integrated into the RFQ buyer detail", () => {
+test("RFQH5 remains integrated beside the RFQH6 negotiation surface", () => {
   assert.match(buyerPage, /rfqh5_quote_comparison/);
   assert.match(buyerPage, /RfqQuoteComparison/);
-  assert.match(buyerPage, />RFQH5</);
+  assert.match(buyerPage, /RfqBuyerNegotiationPanel/);
 });
