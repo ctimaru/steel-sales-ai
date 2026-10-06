@@ -44,7 +44,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       .order("line_position", { ascending: true }),
     supabase
       .from("buyer_rfq_suppliers")
-      .select("id,supplier_name,supplier_email_normalized,status,delivery_channel,created_at")
+      .select("id,supplier_name,supplier_email_normalized,status,delivery_channel,identity_source,resolution_status,created_at")
       .eq("rfq_id", campaign.id)
       .order("created_at", { ascending: true }),
   ]);
@@ -109,7 +109,21 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
                   <p className="text-sm font-semibold text-[#1d2824]">
                     {supplier.supplier_name || "Fornitore " + String(index + 1)}
                   </p>
-                  <p className="mt-0.5 text-xs text-[#66736e]">{supplier.supplier_email_normalized}</p>
+                  <p className="mt-0.5 text-xs text-[#66736e]">
+                    {supplier.supplier_email_normalized || "Canale piattaforma"}
+                  </p>
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    <span className="rounded-full bg-[#edf5f2] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.08em] text-[#1a5144]">
+                      {supplier.identity_source.replaceAll("_", " ")}
+                    </span>
+                    <span className="rounded-full bg-[#f7f9f8] px-2 py-0.5 text-[9px] font-semibold text-[#66736e]">
+                      {supplier.delivery_channel === "both"
+                        ? "Email + piattaforma"
+                        : supplier.delivery_channel === "platform"
+                          ? "Piattaforma"
+                          : "Email"}
+                    </span>
+                  </div>
                 </div>
                 <span className="rounded-full bg-[#f2f4f3] px-2.5 py-1 text-[10px] font-bold uppercase text-[#52615b]">
                   {supplier.status}
@@ -165,10 +179,10 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       </section>
 
       <section className="rounded-2xl border border-[#cddbd6] bg-[#f7faf8] p-5">
-        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">RFQH1</p>
-        <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Campagna pronta per il targeting.</h2>
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">RFQH2</p>
+        <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Identità fornitori riconciliate.</h2>
         <p className="mt-2 text-sm leading-6 text-[#66736e]">
-          L&apos;invio governato, il link sicuro per il fornitore e la raccolta strutturata delle offerte entreranno nel blocco RFQH2–RFQH4.
+          Storico, contatti privati e Network convergono su una sola identità per fornitore. Il prossimo blocco RFQH3 aggiungerà launch, inviti sicuri e tracking dell&apos;invio.
         </p>
       </section>
     </div>
