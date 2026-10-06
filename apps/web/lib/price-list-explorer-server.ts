@@ -71,6 +71,40 @@ export async function getPriceListExplorerItems(
 }
 
 
+export async function getPrivateLabPriceListExplorerVersion(
+  versionId: string,
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("pl1_private_lab_explorer_version", {
+    p_version_id: versionId,
+  });
+
+  if (error) {
+    console.error("NOV1.2 private lab version failed:", error.message);
+    return null;
+  }
+
+  const rows = Array.isArray(data) ? (data as PriceListCatalogEntry[]) : [];
+  return rows[0] ?? null;
+}
+
+export async function getPrivateLabPriceListExplorerItems(
+  versionId: string,
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("pl1_private_lab_explorer_items", {
+    p_version_id: versionId,
+  });
+
+  if (error) {
+    console.error("NOV1.2 private lab items failed:", error.message);
+    return [] as PriceListExplorerItem[];
+  }
+
+  return Array.isArray(data) ? (data as PriceListExplorerItem[]) : [];
+}
+
+
 export async function getPrivatePricingContext(
   versionId: string,
 ): Promise<PrivatePricingContext> {
