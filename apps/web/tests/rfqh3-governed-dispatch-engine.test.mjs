@@ -84,3 +84,19 @@ test("RFQH3 does not allow supplier list mutation after launch", () => {
   assert.match(dispatchPanel, /campaignStatus === "draft" \|\| campaignStatus === "ready"/);
   assert.match(migration, /s\.status<>'draft'/);
 });
+
+
+test("RFQH3 keeps anonymous privileged code out of the exposed public schema", () => {
+  assert.match(migration, /private\.rfqh3_open_invite_impl/);
+  assert.match(migration, /private\.rfqh3_ingest_resend_event_impl/);
+  assert.match(
+    migration,
+    /create or replace function public\.rfqh3_open_invite[\s\S]*?security invoker/,
+  );
+  assert.match(
+    migration,
+    /create or replace function public\.rfqh3_ingest_resend_event[\s\S]*?security invoker/,
+  );
+  assert.match(migration, /buyer_rfq_webhook_events_deny_all/);
+  assert.match(migration, /buyer_rfq_email_suppressions_deny_all/);
+});
