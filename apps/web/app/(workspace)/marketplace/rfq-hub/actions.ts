@@ -24,6 +24,7 @@ export type SupplierCandidate = {
   supplier_network_contact_id: string | null;
   supplier_organization_id: string | null;
   last_used_at: string | null;
+  preferred: boolean;
 };
 
 export type SupplierCandidateResult = {
@@ -75,9 +76,9 @@ export async function searchBuyerRfqSuppliers(
     candidates?: unknown;
   };
 
-  const candidates = Array.isArray(payload.candidates)
+  const rawCandidates = Array.isArray(payload.candidates)
     ? payload.candidates.filter(
-        (candidate): candidate is SupplierCandidate =>
+        (candidate): candidate is Omit<SupplierCandidate, "preferred"> =>
           Boolean(
             candidate &&
               typeof candidate === "object" &&
@@ -86,6 +87,49 @@ export async function searchBuyerRfqSuppliers(
           ),
       )
     : [];
+
+  const networkCompanyIds = Array.from(
+    new Set(
+      rawCandidates
+        .map((candidate) => candidate.supplier_network_company_id)
+        .filter((value): value is string => Boolean(value)),
+    ),
+  );
+
+  let preferredIds = new Set<string>();
+
+  if (networkCompanyIds.length > 0) {
+    const { data: campaign } = await supabase
+      .from("buyer_rfq_campaigns")
+      .select("organization_id")
+      .eq("id", cleanRfqId)
+      .maybeSingle();
+
+    if (campaign?.organization_id) {
+      const { data: savedRows, error: savedError } = await supabase
+        .from("network_saved_companies")
+        .select("network_company_id")
+        .eq("organization_id", campaign.organization_id)
+        .eq("user_id", authData.user.id)
+        .in("network_company_id", networkCompanyIds);
+
+      if (savedError) {
+        console.error("RFQH2 preferred supplier lookup failed:", savedError.message);
+      } else {
+        preferredIds = new Set(
+          (savedRows ?? []).map((row) => row.network_company_id),
+        );
+      }
+    }
+  }
+
+  const candidates: SupplierCandidate[] = rawCandidates.map((candidate) => ({
+    ...candidate,
+    preferred: Boolean(
+      candidate.supplier_network_company_id &&
+        preferredIds.has(candidate.supplier_network_company_id),
+    ),
+  }));
 
   return {
     ok: true,
