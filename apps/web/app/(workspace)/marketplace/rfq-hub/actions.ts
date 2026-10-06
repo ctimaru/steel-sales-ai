@@ -1,7 +1,14 @@
 "use server";
 
+import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 
+import {
+  buildRfqh3Email,
+  buildRfqh3InviteUrl,
+  createRfqh3DispatchSecurity,
+  type Rfqh3EmailLine,
+} from "@/lib/rfqh3-dispatch";
 import { createClient } from "@/lib/supabase/server";
 
 export type SupplierCandidate = {
@@ -200,4 +207,326 @@ export async function addSupplierToBuyerRfq(
   revalidatePath("/marketplace/rfq-hub");
   revalidatePath("/marketplace/rfq-hub/" + rfqId);
   return { ok: true, supplierId };
+}
+
+
+type LaunchBuyerRfqInput = {
+  rfqId: string;
+  dueAt?: string | null;
+  buyerMessage?: string | null;
+};
+
+async function loadRfqh3EmailContext(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  rfqId: string,
+) {
+  const { data: campaign } = await supabase
+    .from("buyer_rfq_campaigns")
+    .select("id,title,status,organization_id,source_distinta_id,due_at,buyer_message")
+    .eq("id", rfqId)
+    .maybeSingle();
+
+  if (!campaign) return null;
+
+  const [{ data: organization }, { data: suppliers }, { data: lines }] = await Promise.all([
+    supabase
+      .from("organizations")
+      .select("name")
+      .eq("id", campaign.organization_id)
+      .maybeSingle(),
+    supabase
+      .from("buyer_rfq_suppliers")
+      .select("id,supplier_name,supplier_email_normalized,status")
+      .eq("rfq_id", rfqId)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("buyer_distinta_lines")
+      .select("line_position,description,standard_code,grade_code,finish_code,quantity_mode,quantity,bar_length_m,weight_kg_m,line_meters,line_tonnes,note")
+      .eq("distinta_id", campaign.source_distinta_id)
+      .order("line_position", { ascending: true }),
+  ]);
+
+  return {
+    campaign,
+    organizationName: organization?.name || "Buyer Smart Steel Sales",
+    suppliers: suppliers ?? [],
+    lines: (lines ?? []).map((line) => ({
+      position: Number(line.line_position),
+      description: line.description,
+      standardCode: line.standard_code,
+      gradeCode: line.grade_code,
+      finishCode: line.finish_code,
+      quantityMode: line.quantity_mode,
+      quantity: Number(line.quantity),
+      barLengthM: line.bar_length_m === null ? null : Number(line.bar_length_m),
+      weightKgM: Number(line.weight_kg_m),
+      lineMeters: Number(line.line_meters),
+      lineTonnes: Number(line.line_tonnes),
+      note: line.note,
+    })) satisfies Rfqh3EmailLine[],
+  };
+}
+
+async function sendRfqh3Email(input: {
+  apiKey: string;
+  from: string;
+  replyTo: string | null;
+  recipient: string;
+  idempotencyKey: string;
+  subject: string;
+  html: string;
+  text: string;
+}) {
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + input.apiKey,
+      "Content-Type": "application/json",
+      "Idempotency-Key": input.idempotencyKey,
+    },
+    body: JSON.stringify({
+      from: input.from,
+      to: [input.recipient],
+      subject: input.subject,
+      html: input.html,
+      text: input.text,
+      reply_to: input.replyTo ? [input.replyTo] : undefined,
+    }),
+    cache: "no-store",
+  });
+
+  const body = (await response.json().catch(() => ({}))) as {
+    id?: string;
+    message?: string;
+  };
+
+  if (!response.ok || !body.id) {
+    throw new Error(body.message || "Resend provider error");
+  }
+
+  return body.id;
+}
+
+export async function launchBuyerRfq(
+  input: LaunchBuyerRfqInput,
+): Promise<{ ok: boolean; sentCount?: number; failedCount?: number; error?: string }> {
+  const supabase = await createClient();
+  const { data: authData } = await supabase.auth.getUser();
+  const user = authData.user;
+
+  if (!user) return { ok: false, error: "Accedi per inviare la RFQ." };
+
+  const apiKey = process.env.RESEND_API_KEY;
+  const inviteSecret = process.env.RFQ_INVITE_SECRET;
+  if (!apiKey || !inviteSecret) {
+    return {
+      ok: false,
+      error: "Il canale email RFQ non è ancora configurato sul server.",
+    };
+  }
+
+  const context = await loadRfqh3EmailContext(supabase, input.rfqId.trim());
+  if (!context) return { ok: false, error: "RFQ non trovata." };
+  if (!["draft", "ready"].includes(context.campaign.status)) {
+    return { ok: false, error: "Questa RFQ è già stata avviata." };
+  }
+  if (!context.suppliers.length) {
+    return { ok: false, error: "Aggiungi almeno un fornitore prima dell'invio." };
+  }
+  if (context.suppliers.some((supplier) => !supplier.supplier_email_normalized)) {
+    return {
+      ok: false,
+      error: "Tutti i fornitori devono avere un indirizzo email utilizzabile prima del launch.",
+    };
+  }
+
+  const dueAt = input.dueAt?.trim() || null;
+  const buyerMessage = input.buyerMessage?.trim() || null;
+
+  const dispatches = context.suppliers.map((supplier) => {
+    const dispatchId = randomUUID();
+    const security = createRfqh3DispatchSecurity({
+      dispatchId,
+      rfqId: context.campaign.id,
+      supplierId: supplier.id,
+      attemptVersion: 1,
+    });
+    return { supplier, dispatchId, ...security };
+  });
+
+  const { error: launchError } = await supabase.rpc("rfqh3_launch_campaign", {
+    p_rfq_id: context.campaign.id,
+    p_due_at: dueAt,
+    p_buyer_message: buyerMessage,
+    p_dispatches: dispatches.map((dispatch) => ({
+      dispatch_id: dispatch.dispatchId,
+      supplier_id: dispatch.supplier.id,
+      token_hash: dispatch.tokenHash,
+      idempotency_key: dispatch.idempotencyKey,
+    })),
+  });
+
+  if (launchError) {
+    console.error("RFQH3 launch failed:", launchError.message);
+    return {
+      ok: false,
+      error: launchError.message.includes("suppressed")
+        ? "Uno o più indirizzi sono bloccati per bounce o complaint."
+        : launchError.message.includes("limit reached")
+          ? "Limite temporaneo di invio RFQ raggiunto. Riprova più tardi."
+          : "Non è stato possibile avviare la RFQ.",
+    };
+  }
+
+  const from =
+    process.env.RFQ_EMAIL_FROM || "Smart Steel Sales <rfq@smartsteelsales.com>";
+  let sentCount = 0;
+  let failedCount = 0;
+
+  for (const dispatch of dispatches) {
+    const inviteUrl = buildRfqh3InviteUrl(dispatch.token);
+    const email = buildRfqh3Email({
+      buyerOrganizationName: context.organizationName,
+      supplierName: dispatch.supplier.supplier_name,
+      title: context.campaign.title,
+      buyerMessage,
+      dueAt,
+      inviteUrl,
+      lines: context.lines,
+    });
+
+    try {
+      const providerMessageId = await sendRfqh3Email({
+        apiKey,
+        from,
+        replyTo: user.email ?? null,
+        recipient: dispatch.supplier.supplier_email_normalized!,
+        idempotencyKey: dispatch.idempotencyKey,
+        ...email,
+      });
+
+      await supabase.rpc("rfqh3_mark_dispatch_result", {
+        p_dispatch_id: dispatch.dispatchId,
+        p_success: true,
+        p_provider_message_id: providerMessageId,
+        p_error: null,
+      });
+      sentCount += 1;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Provider email error";
+      await supabase.rpc("rfqh3_mark_dispatch_result", {
+        p_dispatch_id: dispatch.dispatchId,
+        p_success: false,
+        p_provider_message_id: null,
+        p_error: message,
+      });
+      failedCount += 1;
+    }
+  }
+
+  revalidatePath("/marketplace/rfq-hub");
+  revalidatePath("/marketplace/rfq-hub/" + context.campaign.id);
+
+  return { ok: sentCount > 0, sentCount, failedCount };
+}
+
+export async function retryFailedBuyerRfq(
+  rfqId: string,
+): Promise<{ ok: boolean; sentCount?: number; failedCount?: number; error?: string }> {
+  const supabase = await createClient();
+  const { data: authData } = await supabase.auth.getUser();
+  const user = authData.user;
+
+  if (!user) return { ok: false, error: "Accedi per riprovare gli invii." };
+
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey || !process.env.RFQ_INVITE_SECRET) {
+    return { ok: false, error: "Il canale email RFQ non è configurato." };
+  }
+
+  const context = await loadRfqh3EmailContext(supabase, rfqId.trim());
+  if (!context) return { ok: false, error: "RFQ non trovata." };
+
+  const { data: failed } = await supabase
+    .from("buyer_rfq_dispatches")
+    .select("id,supplier_id,attempt_count,status")
+    .eq("rfq_id", context.campaign.id)
+    .eq("status", "failed");
+
+  const failedRows = failed ?? [];
+  if (!failedRows.length) return { ok: false, error: "Non ci sono invii falliti da riprovare." };
+
+  const supplierById = new Map(context.suppliers.map((supplier) => [supplier.id, supplier]));
+  const from =
+    process.env.RFQ_EMAIL_FROM || "Smart Steel Sales <rfq@smartsteelsales.com>";
+  let sentCount = 0;
+  let failedCount = 0;
+
+  for (const dispatch of failedRows) {
+    const supplier = supplierById.get(dispatch.supplier_id);
+    if (!supplier?.supplier_email_normalized) {
+      failedCount += 1;
+      continue;
+    }
+
+    const version = Number(dispatch.attempt_count) + 1;
+    const security = createRfqh3DispatchSecurity({
+      dispatchId: dispatch.id,
+      rfqId: context.campaign.id,
+      supplierId: supplier.id,
+      attemptVersion: version,
+    });
+
+    const { error: prepareError } = await supabase.rpc("rfqh3_prepare_retry", {
+      p_dispatch_id: dispatch.id,
+      p_token_hash: security.tokenHash,
+      p_idempotency_key: security.idempotencyKey,
+    });
+
+    if (prepareError) {
+      failedCount += 1;
+      continue;
+    }
+
+    const email = buildRfqh3Email({
+      buyerOrganizationName: context.organizationName,
+      supplierName: supplier.supplier_name,
+      title: context.campaign.title,
+      buyerMessage: context.campaign.buyer_message,
+      dueAt: context.campaign.due_at,
+      inviteUrl: buildRfqh3InviteUrl(security.token),
+      lines: context.lines,
+    });
+
+    try {
+      const providerMessageId = await sendRfqh3Email({
+        apiKey,
+        from,
+        replyTo: user.email ?? null,
+        recipient: supplier.supplier_email_normalized,
+        idempotencyKey: security.idempotencyKey,
+        ...email,
+      });
+
+      await supabase.rpc("rfqh3_mark_dispatch_result", {
+        p_dispatch_id: dispatch.id,
+        p_success: true,
+        p_provider_message_id: providerMessageId,
+        p_error: null,
+      });
+      sentCount += 1;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Provider email error";
+      await supabase.rpc("rfqh3_mark_dispatch_result", {
+        p_dispatch_id: dispatch.id,
+        p_success: false,
+        p_provider_message_id: null,
+        p_error: message,
+      });
+      failedCount += 1;
+    }
+  }
+
+  revalidatePath("/marketplace/rfq-hub/" + context.campaign.id);
+  return { ok: sentCount > 0, sentCount, failedCount };
 }

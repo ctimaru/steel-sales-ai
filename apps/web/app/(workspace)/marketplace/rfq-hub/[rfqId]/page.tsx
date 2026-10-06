@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { RfqDispatchPanel } from "@/components/rfq-dispatch-panel";
 import { RfqSupplierAddForm } from "@/components/rfq-supplier-add-form";
 import { appRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
@@ -31,7 +32,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
 
   if (!campaign) notFound();
 
-  const [{ data: distinta }, { data: lines }, { data: suppliers }] = await Promise.all([
+  const [{ data: distinta }, { data: lines }, { data: suppliers }, { data: dispatches }] = await Promise.all([
     supabase
       .from("buyer_distintas")
       .select("id,line_count,total_meters,total_tonnes,target_total_eur")
@@ -45,6 +46,11 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
     supabase
       .from("buyer_rfq_suppliers")
       .select("id,supplier_name,supplier_email_normalized,status,delivery_channel,identity_source,resolution_status,created_at")
+      .eq("rfq_id", campaign.id)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("buyer_rfq_dispatches")
+      .select("id,supplier_id,status,attempt_count,sent_at,delivered_at,opened_at,last_error")
       .eq("rfq_id", campaign.id)
       .order("created_at", { ascending: true }),
   ]);
@@ -89,7 +95,21 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
         </div>
       </header>
 
-      <RfqSupplierAddForm rfqId={campaign.id} />
+      <RfqDispatchPanel
+        rfqId={campaign.id}
+        campaignStatus={campaign.status}
+        dueAt={campaign.due_at}
+        buyerMessage={campaign.buyer_message}
+        suppliers={supplierRows.map((supplier) => ({
+          id: supplier.id,
+          status: supplier.status,
+          hasEmail: Boolean(supplier.supplier_email_normalized),
+        }))}
+      />
+
+      {campaign.status === "draft" || campaign.status === "ready" ? (
+        <RfqSupplierAddForm rfqId={campaign.id} />
+      ) : null}
 
       <section className="rounded-2xl border border-[#dce2df] bg-white">
         <div className="border-b border-[#e7ece9] px-5 py-4">
@@ -125,9 +145,16 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
                     </span>
                   </div>
                 </div>
-                <span className="rounded-full bg-[#f2f4f3] px-2.5 py-1 text-[10px] font-bold uppercase text-[#52615b]">
-                  {supplier.status}
-                </span>
+                <div className="text-right">
+                  <span className="rounded-full bg-[#f2f4f3] px-2.5 py-1 text-[10px] font-bold uppercase text-[#52615b]">
+                    {supplier.status}
+                  </span>
+                  {dispatches?.find((dispatch) => dispatch.supplier_id === supplier.id)?.last_error ? (
+                    <p className="mt-2 max-w-72 text-[10px] leading-4 text-[#9a4f45]">
+                      {dispatches.find((dispatch) => dispatch.supplier_id === supplier.id)?.last_error}
+                    </p>
+                  ) : null}
+                </div>
               </div>
             ))}
           </div>
@@ -179,10 +206,10 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       </section>
 
       <section className="rounded-2xl border border-[#cddbd6] bg-[#f7faf8] p-5">
-        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">RFQH2</p>
-        <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Identità fornitori riconciliate.</h2>
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">RFQH3</p>
+        <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Dispatch governato attivo.</h2>
         <p className="mt-2 text-sm leading-6 text-[#66736e]">
-          Storico, contatti privati e Network convergono su una sola identità per fornitore. Il prossimo blocco RFQH3 aggiungerà launch, inviti sicuri e tracking dell&apos;invio.
+          Inviti separati, token personali, idempotenza, retry e tracking di delivery sono gestiti dal ledger RFQ. Il prossimo blocco RFQH4 trasformerà il link fornitore in un portale di risposta strutturata.
         </p>
       </section>
     </div>
