@@ -168,3 +168,60 @@ export function buildRfqh6NegotiationEmail(input: {
 
   return { subject, html, text, inviteUrl };
 }
+
+
+export function buildRfqh6BuyerNotificationEmail(input: {
+  buyerOrganizationName: string;
+  supplierName: string | null;
+  rfqTitle: string;
+  rfqId: string;
+  body: string;
+}) {
+  const supplier = input.supplierName || "Un fornitore";
+  const rfqUrl = absoluteUrl(
+    "/marketplace/rfq-hub/" + encodeURIComponent(input.rfqId),
+  );
+  const subject =
+    "Nuovo messaggio RFQ · " + supplier + " · " + input.rfqTitle;
+
+  const html = `<!doctype html>
+<html lang="it">
+  <head><meta charset="utf-8"><title>${escapeHtml(subject)}</title></head>
+  <body style="margin:0;background:#f3f5f4;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
+    <div style="max-width:620px;margin:0 auto;padding:28px 16px;">
+      <div style="background:#123d34;border-radius:16px 16px 0 0;padding:24px;color:#ffffff;">
+        <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#a8cfc1;">
+          Smart Steel Sales · RFQ Negotiation
+        </div>
+        <h1 style="margin:10px 0 0;font-size:22px;line-height:1.3;">Nuovo messaggio dal fornitore</h1>
+      </div>
+      <div style="background:#ffffff;border:1px solid #dce2df;border-top:0;border-radius:0 0 16px 16px;padding:24px;">
+        <p style="margin:0 0 14px;font-size:15px;line-height:1.6;">
+          <strong>${escapeHtml(supplier)}</strong> ha scritto nella trattativa
+          <strong>${escapeHtml(input.rfqTitle)}</strong>.
+        </p>
+        <div style="margin:16px 0;padding:14px 16px;border-radius:10px;background:#f7f9f8;font-size:14px;line-height:1.6;color:#374151;">
+          ${escapeHtml(input.body).replaceAll("\n", "<br/>")}
+        </div>
+        <a href="${escapeHtml(rfqUrl)}" style="display:inline-block;margin-top:8px;background:#173f35;color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:13px 19px;border-radius:10px;">
+          Apri trattativa RFQ
+        </a>
+        <p style="margin:20px 0 0;font-size:12px;line-height:1.6;color:#6b7280;">
+          Questa notifica riguarda un thread privato buyer ↔ supplier.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>`;
+
+  const text = [
+    "Nuovo messaggio RFQ",
+    "",
+    supplier + " ha scritto nella trattativa " + input.rfqTitle + ".",
+    input.body,
+    "",
+    "Apri trattativa RFQ: " + rfqUrl,
+  ].join("\n");
+
+  return { subject, html, text, rfqUrl };
+}
