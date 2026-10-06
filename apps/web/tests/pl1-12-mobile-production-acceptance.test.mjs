@@ -69,9 +69,8 @@ test("PL1.12 renders saved Distinta as mobile cards instead of forcing a horizon
   assert.match(historyPage, /sm:flex-row sm:items-center sm:justify-between/);
 });
 
-test("PL1.12 keeps governed internal-preview and indexing boundaries intact", () => {
+test("PL1.12 keeps governed internal-preview boundaries while retiring the public catalogue", () => {
   assert.match(versionPage, /version\.is_internal_preview/);
   assert.match(versionPage, /index: false, follow: false/);
-  assert.match(catalogPage, /params\.preview === "1"/);
-  assert.match(catalogPage, /Anteprima interna attiva/);
+  assert.match(catalogPage, /redirect\("\/distinta"\)/);
 });

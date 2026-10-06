@@ -27,12 +27,12 @@ const sitemap = fs.readFileSync(
   "utf8",
 );
 
-test("PL1.6 exposes Listini from the public navigation without forcing publication", () => {
-  assert.match(home, /href="\/listini"/);
-  assert.match(home, />\s*Listini\s*</);
-  assert.match(schoolLayout, /href="\/listini"/);
-  assert.match(catalogue, /Nessun listino pubblico disponibile al momento/);
-  assert.match(catalogue, /preview === "1"/);
+test("PL1.6 keeps the price-list explorer engine but removes public catalogue promotion", () => {
+  assert.match(home, /href="\/distinta"/);
+  assert.match(home, />\s*Crea distinta\s*</);
+  assert.match(schoolLayout, /href="\/distinta"/);
+  assert.match(schoolLayout, /Crea distinta/);
+  assert.match(catalogue, /redirect\("\/distinta"\)/);
 });
 
 test("PL1.6 explorer keeps Base and fixed Extra separate and applies discount only to Base", () => {
