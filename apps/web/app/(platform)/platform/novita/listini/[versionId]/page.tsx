@@ -4,8 +4,8 @@ import { PrivateDiscountProfilesPanel } from "@/components/private-discount-prof
 import { PublicPriceListExplorer } from "@/components/public-price-list-explorer";
 import { FocusHeader, FocusPage, FocusPanel } from "@/components/focus-ui";
 import {
-  getPriceListExplorerItems,
-  getPriceListExplorerVersion,
+  getPrivateLabPriceListExplorerItems,
+  getPrivateLabPriceListExplorerVersion,
   getPrivatePricingContext,
 } from "@/lib/price-list-explorer-server";
 import { appRoutes } from "@/lib/routes";
@@ -51,8 +51,8 @@ export default async function PrivateLabPriceListPage({
   }
 
   const [version, items, privatePricing] = await Promise.all([
-    getPriceListExplorerVersion(versionId, true),
-    getPriceListExplorerItems(versionId, true),
+    getPrivateLabPriceListExplorerVersion(versionId),
+    getPrivateLabPriceListExplorerItems(versionId),
     getPrivatePricingContext(versionId),
   ]);
 
@@ -61,12 +61,12 @@ export default async function PrivateLabPriceListPage({
       <FocusPage>
         <FocusHeader
           eyebrow="NOV1 · Private Lab"
-          title="Listino temporaneamente non leggibile"
-          description="La route privata è attiva, ma il database non ha restituito questa versione alla sessione corrente."
+          title="Listino non disponibile"
+          description="La versione richiesta non esiste nel Private Lab oppure non è disponibile per la Platform Console."
         />
         <FocusPanel>
           <p className="text-sm leading-6 text-[#66736e]">
-            Non viene restituito un 404: il problema resta visibile e diagnosticabile all’interno della Platform Console.
+            Il Private Lab ora usa RPC dedicate alla Platform Console e non dipende più dalle policy di pubblicazione del catalogo pubblico.
           </p>
           <div className="mt-4">
             <Link href={appRoutes.platform.novita} className="school-primary-action">
