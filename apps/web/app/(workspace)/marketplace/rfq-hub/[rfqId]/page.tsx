@@ -115,11 +115,10 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       return [quote.id, data?.signedUrl ?? null] as const;
     }),
   );
-  const attachmentUrlByQuote = new Map(
-    attachmentLinks.filter(
-      (entry): entry is readonly [string, string] => Boolean(entry[1]),
-    ),
-  );
+  const attachmentUrlByQuote = new Map<string, string>();
+  for (const [quoteId, signedUrl] of attachmentLinks) {
+    if (signedUrl) attachmentUrlByQuote.set(quoteId, signedUrl);
+  }
 
   return (
     <div className="space-y-5">
