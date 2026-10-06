@@ -257,7 +257,7 @@ export function ProductAnalyticsDashboard({
               className={[
                 "rounded-full px-3 py-1.5 text-xs font-semibold",
                 snapshot.range === range
-                  ? "bg-[#173f35] text-white"
+                  ? "platform-selected-solid border border-[#173f35]"
                   : "border border-[#d7dfdb] bg-white text-[#5f6d67] hover:bg-[#f4f7f5]",
               ].join(" ")}
             >
