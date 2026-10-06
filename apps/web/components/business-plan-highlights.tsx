@@ -1,6 +1,7 @@
 import {
   BUSINESS_PLAN_VERSION,
 } from "@/lib/business-plan-content";
+import { BusinessPlanExecutionSnapshot } from "@/components/business-plan-execution-snapshot";
 import type { BusinessPlanLocale } from "@/lib/business-plan-locale";
 import { getBusinessPlanInvestorCopy } from "@/lib/business-plan-investor-copy";
 
