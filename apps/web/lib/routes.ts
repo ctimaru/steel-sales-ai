@@ -101,6 +101,8 @@ export const appRoutes = {
 
   platform: {
     home: "/platform",
+    novita: "/platform/novita",
+    novitaPriceList: (versionId: string) => `/platform/novita/listini/${versionId}`,
     people: "/platform/people",
     pilot: "/platform/pilot",
     businessPlan: "/platform/business-plan",
