@@ -98,11 +98,13 @@ function BuyerSupplierNegotiationCard({
   supplier,
   lines,
   thread,
+  readOnly,
 }: {
   rfqId: string;
   supplier: Supplier;
   lines: Line[];
   thread: BuyerNegotiationThread | null;
+  readOnly: boolean;
 }) {
   const router = useRouter();
   const [messageType, setMessageType] =
@@ -314,6 +316,8 @@ function BuyerSupplierNegotiationCard({
           </p>
         )}
 
+        {!readOnly ? (
+        <>
         <div className="mt-4 grid gap-3 lg:grid-cols-[220px_1fr]">
           <label className="text-xs font-semibold text-[#52615b]">
             Azione
@@ -447,6 +451,12 @@ function BuyerSupplierNegotiationCard({
             <span className="text-xs font-semibold text-[#66736e]">{feedback}</span>
           ) : null}
         </div>
+        </>
+        ) : (
+          <p className="mt-4 rounded-xl border border-[#dce2df] bg-[#f8faf9] px-4 py-3 text-xs font-semibold text-[#66736e]">
+            Trattativa chiusa: l&apos;award RFQH7 è stato confermato.
+          </p>
+        )}
       </div>
     </details>
   );
@@ -457,11 +467,13 @@ export function RfqBuyerNegotiationPanel({
   suppliers,
   lines,
   threads,
+  readOnly = false,
 }: {
   rfqId: string;
   suppliers: Supplier[];
   lines: Line[];
   threads: BuyerNegotiationThread[];
+  readOnly?: boolean;
 }) {
   const threadBySupplier = useMemo(
     () => new Map(threads.map((thread) => [thread.supplier_id, thread])),
@@ -501,6 +513,7 @@ export function RfqBuyerNegotiationPanel({
             supplier={supplier}
             lines={lines}
             thread={threadBySupplier.get(supplier.id) ?? null}
+            readOnly={readOnly}
           />
         ))}
       </div>

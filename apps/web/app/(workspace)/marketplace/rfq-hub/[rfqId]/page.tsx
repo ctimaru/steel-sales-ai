@@ -2,6 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
+  RfqAwardPanel,
+  type Rfqh7AwardSnapshot,
+} from "@/components/rfq-award-panel";
+import {
   RfqBuyerNegotiationPanel,
   type BuyerNegotiationThread,
 } from "@/components/rfq-buyer-negotiation-panel";
@@ -58,6 +62,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
     { data: quotes },
     { data: comparison },
     { data: negotiationThreads },
+    { data: awardRow },
   ] = await Promise.all([
     supabase
       .from("buyer_distintas")
@@ -92,6 +97,11 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       .select("id,supplier_id,status,active_request_type,request_due_at,round_no,reminder_count,last_message_at,updated_at")
       .eq("rfq_id", campaign.id)
       .order("updated_at", { ascending: false }),
+    supabase
+      .from("buyer_rfq_awards")
+      .select("id,award_mode,reason,line_count,supplier_count,total_tonnes,total_eur,target_total_eur,savings_eur,savings_pct,confirmed_at")
+      .eq("rfq_id", campaign.id)
+      .maybeSingle(),
   ]);
 
   const supplierRows = suppliers ?? [];
@@ -182,6 +192,43 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
         ),
       })),
   })) as BuyerNegotiationThread[];
+
+  let awardSnapshot: Rfqh7AwardSnapshot | null = null;
+  if (awardRow) {
+    const [{ data: awardAllocations }, { data: poDrafts }] = await Promise.all([
+      supabase
+        .from("buyer_rfq_award_allocations")
+        .select("id,rfq_line_id,supplier_id,line_position,description,awarded_tonnes,awarded_meters,unit_eur_t,unit_eur_m,line_total_eur,savings_eur")
+        .eq("award_id", awardRow.id)
+        .order("line_position", { ascending: true }),
+      supabase
+        .from("buyer_purchase_order_drafts")
+        .select("id,supplier_id,status,po_draft_ref,supplier_name_snapshot,supplier_email_snapshot,quote_revision_no,incoterm,payment_terms,total_tonnes,total_eur,commercial_order_id")
+        .eq("award_id", awardRow.id)
+        .order("po_draft_ref", { ascending: true }),
+    ]);
+
+    const poIds = (poDrafts ?? []).map((po) => po.id);
+    const poLineResult =
+      poIds.length > 0
+        ? await supabase
+            .from("buyer_purchase_order_lines")
+            .select("id,po_draft_id,line_position,description,awarded_tonnes,awarded_meters,unit_eur_t,unit_eur_m,line_total_eur")
+            .in("po_draft_id", poIds)
+            .order("line_position", { ascending: true })
+        : null;
+    const poLineRows = poLineResult?.data ?? [];
+
+    awardSnapshot = {
+      ...awardRow,
+      award_mode: awardRow.award_mode as "full" | "split",
+      allocations: awardAllocations ?? [],
+      poDrafts: (poDrafts ?? []).map((po) => ({
+        ...po,
+        lines: poLineRows.filter((line) => line.po_draft_id === po.id),
+      })),
+    } as Rfqh7AwardSnapshot;
+  }
 
   return (
     <div className="space-y-5">
@@ -309,6 +356,14 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
           targetEurM: line.target_eur_m,
         }))}
         threads={buyerNegotiationThreads}
+        readOnly={campaign.status === "awarded"}
+      />
+
+      <RfqAwardPanel
+        rfqId={campaign.id}
+        campaignStatus={campaign.status}
+        comparison={comparisonData}
+        award={awardSnapshot}
       />
 
       <section className="rounded-2xl border border-[#dce2df] bg-white">
@@ -520,11 +575,11 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       </section>
 
       <section className="rounded-2xl border border-[#cddbd6] bg-[#f7faf8] p-5">
-        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">RFQH6</p>
-        <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Negoziazione privata attiva.</h2>
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">RFQH7</p>
+        <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Award &amp; Commercial Conversion attivo.</h2>
         <p className="mt-2 text-sm leading-6 text-[#66736e]">
-          Chiarimenti, revisioni, counter-target e Best &amp; Final Offer restano isolati per fornitore
-          e confluiscono automaticamente nel confronto RFQH5. RFQH7 gestirà award e conversione ordine.
+          Il buyer può congelare un award unico o split, generare PO draft procurement-native e
+          chiudere le trattative non selezionate. L&apos;invio dell&apos;ordine resta un&apos;azione separata e intenzionale.
         </p>
       </section>
     </div>
