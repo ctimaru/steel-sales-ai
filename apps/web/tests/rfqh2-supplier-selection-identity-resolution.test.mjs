@@ -3,19 +3,19 @@ import fs from "node:fs";
 import test from "node:test";
 
 const foundation = fs.readFileSync(
-  new URL("../../../supabase/migrations/20261006093714_rfqh2_supplier_selection_identity_resolution.sql", import.meta.url),
+  new URL("../../../supabase/migrations/20261006102000_rfqh2_supplier_selection_identity_resolution.sql", import.meta.url),
   "utf8",
 );
 const dedupe = fs.readFileSync(
-  new URL("../../../supabase/migrations/20261006093847_rfqh2_candidate_canonical_dedupe.sql", import.meta.url),
+  new URL("../../../supabase/migrations/20261006102100_rfqh2_candidate_canonical_dedupe.sql", import.meta.url),
   "utf8",
 );
 const vatFix = fs.readFileSync(
-  new URL("../../../supabase/migrations/20261006094058_rfqh2_verified_vat_match_fix.sql", import.meta.url),
+  new URL("../../../supabase/migrations/20261006102200_rfqh2_verified_vat_match_fix.sql", import.meta.url),
   "utf8",
 );
 const entitlementFix = fs.readFileSync(
-  new URL("../../../supabase/migrations/20261006094449_rfqh2_entitlement_safe_private_resolution.sql", import.meta.url),
+  new URL("../../../supabase/migrations/20261006102400_rfqh2_entitlement_safe_private_resolution.sql", import.meta.url),
   "utf8",
 );
 const actions = fs.readFileSync(
