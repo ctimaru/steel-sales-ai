@@ -74,7 +74,7 @@ test("RFQH6 supports clarification, revision, counter-target and BAFO with expli
   assert.match(foundation, /BAFO deadline is required/);
   assert.match(foundation, /Negotiation deadline must be in the future/);
   assert.match(foundation, /Counter target requires at least one line/);
-  assert.match(buyerPanel, /Best & Final Offer/);
+  assert.match(buyerPanel, /Best &amp; Final Offer/);
   assert.match(buyerPanel, /Counter target/);
   assert.match(buyerPanel, /Richiedi revisione/);
   assert.match(buyerPanel, /Chiarimento/);
