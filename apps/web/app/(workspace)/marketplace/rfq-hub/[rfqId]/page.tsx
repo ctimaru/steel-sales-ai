@@ -2,6 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { RfqDispatchPanel } from "@/components/rfq-dispatch-panel";
+import {
+  RfqQuoteComparison,
+  type RfqComparisonData,
+} from "@/components/rfq-quote-comparison";
 import { RfqSupplierAddForm } from "@/components/rfq-supplier-add-form";
 import { appRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
@@ -48,6 +52,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
     { data: suppliers },
     { data: dispatches },
     { data: quotes },
+    { data: comparison },
   ] = await Promise.all([
     supabase
       .from("buyer_distintas")
@@ -74,11 +79,18 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       .select("id,supplier_id,revision_no,status,incoterm,payment_terms,validity_until,lead_time_days,delivery_date,moq_tonnes,notes,decline_reason,attachment_bucket,attachment_path,attachment_name,attachment_size_bytes,submitted_at,declined_at")
       .eq("rfq_id", campaign.id)
       .order("revision_no", { ascending: false }),
+    supabase.rpc("rfqh5_quote_comparison", {
+      p_rfq_id: campaign.id,
+    }),
   ]);
 
   const supplierRows = suppliers ?? [];
   const lineRows = lines ?? [];
   const quoteRows = quotes ?? [];
+  const comparisonData =
+    comparison && typeof comparison === "object" && !Array.isArray(comparison)
+      ? (comparison as RfqComparisonData)
+      : null;
   const latestQuoteBySupplier = new Map<
     string,
     (typeof quoteRows)[number]
@@ -227,6 +239,8 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
           </div>
         )}
       </section>
+
+      <RfqQuoteComparison comparison={comparisonData} />
 
       <section className="rounded-2xl border border-[#dce2df] bg-white">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e7ece9] px-5 py-4">
@@ -437,12 +451,11 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       </section>
 
       <section className="rounded-2xl border border-[#cddbd6] bg-[#f7faf8] p-5">
-        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">RFQH4</p>
-        <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Supplier Response Portal attivo.</h2>
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">RFQH5</p>
+        <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Confronto normalizzato attivo.</h2>
         <p className="mt-2 text-sm leading-6 text-[#66736e]">
-          I fornitori possono salvare una bozza, rispondere riga per riga, allegare l&apos;offerta,
-          rifiutare la richiesta o inviare revisioni versionate. RFQH5 userà queste risposte per il
-          confronto normalizzato buyer-side.
+          Il buyer può confrontare copertura, €/t, €/m, delta dal target, lead time e benchmark split
+          con regole trasparenti. RFQH6 aggiungerà chiarimenti, negoziazione e Best &amp; Final Offer.
         </p>
       </section>
     </div>
