@@ -65,6 +65,9 @@ test("RFQH2 keeps private-to-Network reconciliation behind Network entitlement",
 test("RFQH2 application surface searches and adds resolved suppliers", () => {
   assert.match(actions, /rfqh2_supplier_candidates/);
   assert.match(actions, /rfqh2_add_supplier/);
+  assert.match(actions, /network_saved_companies/);
+  assert.match(actions, /preferred/);
+  assert.match(selector, /Preferiti/);
   assert.match(selector, /Già usati/);
   assert.match(selector, /Contatti privati/);
   assert.match(selector, /Network/);
