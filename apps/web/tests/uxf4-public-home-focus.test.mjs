@@ -21,10 +21,10 @@ test("UXF4 keeps public navigation neutral and renames calculator entry", () => 
   );
 });
 
-test("UXF4 uses a brand-colored weight CTA instead of a white hero button", () => {
+test("UXF4 uses an accessible brand-colored weight CTA instead of a white hero button", () => {
   assert.match(home, /surface=hero#calcolatore-pesi/);
-  assert.match(home, /bg-\[#438d7a\]/);
-  assert.match(home, /text-white/);
+  assert.match(home, /public-primary-cta/);
+  assert.doesNotMatch(home, /bg-\[#438d7a\]/);
   assert.doesNotMatch(
     home,
     /surface=hero#calcolatore-pesi"[\s\S]{0,220}bg-white/,
