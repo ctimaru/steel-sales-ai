@@ -5,7 +5,7 @@
   --foreground: #1d2824;
   --card: #ffffff;
   --muted: #ecefed;
-  --muted-foreground: #68736f;
+  --muted-foreground: #5d6a65;
   --border: #dce2df;
 
   --brand-950: #0b2f27;
@@ -120,6 +120,9 @@ textarea {
 
 /* HP17 — legacy low-contrast utility compatibility.
    Keep older surfaces readable while they are progressively migrated to semantic tokens. */
+[class~="text-[#66736e]"],
+[class~="text-[#718078]"],
+[class~="text-[#7a8782]"],
 [class~="text-[#7b8782]"],
 [class~="text-[#87938e]"],
 [class~="text-[#8b9792]"],
@@ -176,6 +179,22 @@ textarea {
 .brand-button {
   background: #1a5144;
   color: white;
+}
+
+.public-primary-cta {
+  border-color: var(--brand-600) !important;
+  background-color: var(--brand-600) !important;
+  color: #ffffff !important;
+}
+
+.public-primary-cta:hover {
+  border-color: var(--brand-700) !important;
+  background-color: var(--brand-700) !important;
+  color: #ffffff !important;
+}
+
+.public-primary-cta :where(*) {
+  color: inherit !important;
 }
 
 .brand-button:hover {

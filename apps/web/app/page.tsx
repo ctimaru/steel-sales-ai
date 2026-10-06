@@ -159,7 +159,7 @@ export default async function PublicHomePage() {
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
               href="/knowledge/tubes?source=home&surface=hero#calcolatore-pesi"
-              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[#438d7a] bg-[#438d7a] px-5 text-sm font-bold text-white hover:border-[#2d7967] hover:bg-[#2d7967]"
+              className="public-primary-cta inline-flex min-h-11 items-center justify-center rounded-lg border px-5 text-sm font-bold"
             >
               Calcolo pesi
             </Link>
