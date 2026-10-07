@@ -419,6 +419,9 @@ export function WorkspaceProfileMenu({
   organizationName,
   organizationRoleLabel,
   platformSuperadmin,
+  platformConsoleAccess,
+  platformOwner,
+  guidedSetupComplete,
   canAdmin,
   canWrite,
   logoutAction,
@@ -427,6 +430,9 @@ export function WorkspaceProfileMenu({
   organizationName: string;
   organizationRoleLabel: string;
   platformSuperadmin: boolean;
+  platformConsoleAccess: boolean;
+  platformOwner: boolean;
+  guidedSetupComplete: boolean;
   canAdmin: boolean;
   canWrite: boolean;
   logoutAction: () => Promise<void>;
@@ -534,32 +540,33 @@ export function WorkspaceProfileMenu({
             <div className="flex-1 overflow-y-auto p-3">
               <div>
                 <p className="px-2 pb-1 pt-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#87938e]">
-                  Operazioni
+                  Workspace
                 </p>
                 {canWrite ? (
                   <>
                     <ProfileMenuLink href={appRoutes.operations.uploads} label="Importa documenti" onNavigate={closeMenu} />
-                    <ProfileMenuLink href={appRoutes.operations.review} label="Correzioni" onNavigate={closeMenu} />
+                    <ProfileMenuLink href={appRoutes.operations.review} label="Revisioni dati" onNavigate={closeMenu} />
                   </>
-                ) : null}
-                <ProfileMenuLink href={appRoutes.operations.alerts} label="Alert operativi" onNavigate={closeMenu} />
+                ) : (
+                  <p className="px-3 py-2 text-xs leading-5 text-[#7b8782]">
+                    Le operazioni di modifica non sono disponibili con accesso in sola lettura.
+                  </p>
+                )}
               </div>
 
-              <div className="mt-2 border-t border-[#e2e7e4] pt-2">
-                <p className="px-2 pb-1 pt-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#87938e]">
-                  Azienda
-                </p>
-                {canAdmin ? (
-                  <>
-                    <ProfileMenuLink href={appRoutes.company.setup} label="Setup azienda" onNavigate={closeMenu} />
-                    <ProfileMenuLink href={appRoutes.company.team} label="Team e accessi" onNavigate={closeMenu} />
-                    <ProfileMenuLink href={appRoutes.company.profile} label="Profilo azienda" onNavigate={closeMenu} />
-                    <ProfileMenuLink href={appRoutes.company.dataSources} label="Fonti e import" onNavigate={closeMenu} />
-                    <ProfileMenuLink href={appRoutes.company.pilotAnalytics} label="Pilot analytics" onNavigate={closeMenu} />
-                  </>
-                ) : null}
-                <ProfileMenuLink href={appRoutes.company.tubesStandards} label="Strumenti tubi & norme" onNavigate={closeMenu} />
-              </div>
+              {canAdmin ? (
+                <div className="mt-2 border-t border-[#e2e7e4] pt-2">
+                  <p className="px-2 pb-1 pt-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#87938e]">
+                    Azienda
+                  </p>
+                  {!guidedSetupComplete ? (
+                    <ProfileMenuLink href={appRoutes.company.setup} label="Completa setup azienda" onNavigate={closeMenu} />
+                  ) : null}
+                  <ProfileMenuLink href={appRoutes.company.profile} label="Profilo azienda" onNavigate={closeMenu} />
+                  <ProfileMenuLink href={appRoutes.company.team} label="Team e accessi" onNavigate={closeMenu} />
+                  <ProfileMenuLink href={appRoutes.company.dataSources} label="Dati e fonti" onNavigate={closeMenu} />
+                </div>
+              ) : null}
 
               <div className="mt-2 border-t border-[#e2e7e4] pt-2">
                 <p className="px-2 pb-1 pt-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#87938e]">
@@ -572,17 +579,26 @@ export function WorkspaceProfileMenu({
                 />
               </div>
 
-              {platformSuperadmin ? (
-                <div className="mt-2 border-t border-[#e2e7e4] pt-2">
-                  <p className="px-2 pb-1 pt-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#87938e]">
-                    Piattaforma
-                  </p>
-                  <ProfileMenuLink
-                    href={appRoutes.platform.home}
-                    label="Platform Console ↗"
-                    emphasis
-                    onNavigate={closeMenu}
-                  />
+              {platformConsoleAccess ? (
+                <div className="mt-3 border-t border-[#d4dfda] pt-3">
+                  <div className="rounded-2xl border border-[#bfd2ca] bg-[#edf5f2] p-3">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#55736a]">
+                      Amministrazione Smart Steel Sales
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-[#5d6a65]">
+                      Ambiente separato dal workspace aziendale per governance e operazioni globali.
+                    </p>
+                    <Link
+                      href={appRoutes.platform.home}
+                      onClick={closeMenu}
+                      className="mt-3 flex items-center justify-between gap-3 rounded-xl bg-[#173f35] px-3 py-3 text-sm font-semibold text-white transition hover:bg-[#205548]"
+                    >
+                      <span>Apri Console piattaforma</span>
+                      <span className="shrink-0 text-[9px] font-bold uppercase tracking-[0.08em] text-white/75">
+                        {platformOwner || platformSuperadmin ? "Platform Owner" : "Platform Staff"}
+                      </span>
+                    </Link>
+                  </div>
                 </div>
               ) : null}
             </div>

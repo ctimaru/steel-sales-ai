@@ -32,8 +32,8 @@ export function PlatformShell({
           <div className="border-b border-[#dfe5e2] p-5">
             <ProductBrand href="/platform" />
             <div className="mt-5 rounded-2xl border border-[#dce2df] bg-white px-4 py-3 shadow-[0_1px_2px_rgba(30,43,69,0.03)]">
-              <p className="text-sm font-semibold text-[#1d2824]">Platform Console</p>
-              <p className="mt-1 text-[11px] font-medium text-[#7f8b86]">Global control plane</p>
+              <p className="text-sm font-semibold text-[#1d2824]">Console piattaforma</p>
+              <p className="mt-1 text-[11px] font-medium text-[#7f8b86]">Amministrazione globale</p>
             </div>
           </div>
 
@@ -43,7 +43,7 @@ export function PlatformShell({
                 href="/dashboard"
                 className="flex items-center justify-between rounded-xl border border-[#d7dfdb] bg-white px-3 py-2.5 text-sm font-semibold text-[#46534e] shadow-[0_1px_2px_rgba(30,43,69,0.025)] hover:border-[#b9cfc7] hover:bg-[#f0f4f2] hover:text-[#173f35]"
               >
-                <span>Apri Company Workspace</span>
+                <span>Torna al workspace aziendale</span>
                 <span className="text-[#7b8882]">↗</span>
               </Link>
             </div>
@@ -84,8 +84,8 @@ export function PlatformShell({
         <header className="sticky top-0 z-20 border-b border-[#dce2df] bg-white/92 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
           <div className="flex h-16 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
             <Link href="/platform" className="min-w-0">
-              <p className="truncate text-sm font-semibold text-[#1d2824]">Smart Steel Sales · Platform</p>
-              <p className="text-xs text-[#7f8b86]">Control Plane</p>
+              <p className="truncate text-sm font-semibold text-[#1d2824]">Smart Steel Sales · Console</p>
+              <p className="text-xs text-[#7f8b86]">Amministrazione piattaforma</p>
             </Link>
             <div className="flex items-center gap-2">
               <PlatformMobileNavigation
@@ -97,7 +97,7 @@ export function PlatformShell({
                   href="/dashboard"
                   className="hidden rounded-full border border-[#d7dfdb] bg-white px-3.5 py-2 text-xs font-semibold text-[#43524c] hover:border-[#b8d2c8] hover:bg-[#f0f4f2] hover:text-[#173f35] sm:inline-flex"
                 >
-                  Company Workspace
+                  Workspace aziendale
                 </Link>
               ) : null}
               <span className="hidden rounded-full bg-[#e1ece8] px-3.5 py-2 text-xs font-semibold text-[#173f35] sm:inline-flex">

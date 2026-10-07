@@ -61,7 +61,7 @@ const knowledgeNav: NavItem[] = [
 ];
 
 function roleLabel(role: string) {
-  if (role === "admin") return "Amministratore";
+  if (role === "admin") return "Amministratore azienda";
   if (role === "viewer") return "Sola lettura";
   return "Membro";
 }
@@ -78,6 +78,12 @@ function visibleItems(items: NavItem[], role: string): WorkspaceNavItem[] {
     .map(({ href, label, contextKey }) => ({ href, label, contextKey }));
 }
 
+function workspaceOrganizationLabel(name: string) {
+  return /^Steel Sales AI workspace [a-z0-9-]+$/i.test(name.trim())
+    ? "Smart Steel Sales · Workspace"
+    : name;
+}
+
 export function AppShell({
   children,
   viewerLabel,
@@ -87,6 +93,9 @@ export function AppShell({
   alertNeedsAttention,
   alertActiveCount,
   platformSuperadmin,
+  platformConsoleAccess,
+  platformOwner,
+  guidedSetupComplete,
   networkEnabled,
   networkEntitled,
 }: {
@@ -98,6 +107,9 @@ export function AppShell({
   alertNeedsAttention: boolean;
   alertActiveCount: number;
   platformSuperadmin: boolean;
+  platformConsoleAccess: boolean;
+  platformOwner: boolean;
+  guidedSetupComplete: boolean;
   networkEnabled: boolean;
   networkEntitled: boolean;
 }) {
@@ -110,6 +122,7 @@ export function AppShell({
   const canAdmin = canAdministerCompany(organizationRole);
   const canWrite = canWriteWorkspace(organizationRole);
   const effectiveRole = demoMode ? "Modalità demo" : roleLabel(organizationRole);
+  const organizationLabel = workspaceOrganizationLabel(organizationName);
 
   return (
     <div className="min-h-screen bg-[#f2f4f3] pb-[calc(5rem+env(safe-area-inset-bottom))] text-[#1d2824] lg:pb-0">
@@ -125,9 +138,12 @@ export function AppShell({
           <div className="lg:hidden">
             <WorkspaceProfileMenu
               viewerLabel={viewerLabel}
-              organizationName={organizationName}
+              organizationName={organizationLabel}
               organizationRoleLabel={effectiveRole}
               platformSuperadmin={platformSuperadmin}
+              platformConsoleAccess={platformConsoleAccess}
+              platformOwner={platformOwner}
+              guidedSetupComplete={guidedSetupComplete}
               canAdmin={canAdmin}
               canWrite={canWrite}
               logoutAction={logout}
@@ -151,9 +167,12 @@ export function AppShell({
             <div className="hidden lg:block">
               <WorkspaceProfileMenu
                 viewerLabel={viewerLabel}
-                organizationName={organizationName}
+                organizationName={organizationLabel}
                 organizationRoleLabel={effectiveRole}
                 platformSuperadmin={platformSuperadmin}
+                platformConsoleAccess={platformConsoleAccess}
+                platformOwner={platformOwner}
+                guidedSetupComplete={guidedSetupComplete}
                 canAdmin={canAdmin}
                 canWrite={canWrite}
                 logoutAction={logout}

@@ -57,7 +57,8 @@ test("UXA1 exposes previously orphaned daily analysis tools", () => {
   assert.match(appShell, /label: "Prezzi"/);
   assert.match(appShell, /label: "Mercato"/);
   assert.match(appShell, /label: "Documenti"/);
-  assert.match(workspaceNav, /Strumenti tubi & norme/);
+  assert.match(appShell, /label: "Calcolo pesi"/);
+  assert.match(routes, /tubesStandards: "\/company\/tools\/tubi-norme"/);
 });
 
 test("UXA1 makes the Platform Console navigable on mobile", () => {

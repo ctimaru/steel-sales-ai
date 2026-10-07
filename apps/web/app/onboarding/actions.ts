@@ -25,6 +25,21 @@ function onboardingRedirect(
   redirect(`/onboarding?${kind}=${encodeURIComponent(message)}#team-access`);
 }
 
+function teamReturnPath(value: FormDataEntryValue | null): "/company/team" | "/onboarding" {
+  return String(value ?? "") === "/company/team" ? "/company/team" : "/onboarding";
+}
+
+function teamRedirect(
+  returnTo: "/company/team" | "/onboarding",
+  message: string,
+  kind: "message" | "error" = "message",
+): never {
+  if (returnTo === "/company/team") {
+    redirect(`/company/team?${kind}=${encodeURIComponent(message)}`);
+  }
+  onboardingRedirect(message, kind);
+}
+
 function invitationErrorMessage(status: number, detail?: string): string {
   const normalized = (detail ?? "").toLowerCase();
 
@@ -50,11 +65,12 @@ async function sendInvitation(input: {
   email: string;
   role: string;
   businessRole: string | null;
+  returnTo: "/company/team" | "/onboarding";
 }) {
   const workerUrl = process.env.WORKER_URL?.replace(/\/$/, "");
   const workerToken = process.env.WORKER_INTERNAL_TOKEN;
   if (!workerUrl || !workerToken) {
-    onboardingRedirect("Servizio inviti non configurato.", "error");
+    teamRedirect(input.returnTo, "Servizio inviti non configurato.", "error");
   }
 
   const response = await fetch(`${workerUrl}/v1/admin/organization-invitations`, {
@@ -78,7 +94,8 @@ async function sendInvitation(input: {
     const payload = (await response.json().catch(() => null)) as
       | { detail?: string }
       | null;
-    onboardingRedirect(
+    teamRedirect(
+      input.returnTo,
       invitationErrorMessage(response.status, payload?.detail),
       "error",
     );
@@ -87,6 +104,7 @@ async function sendInvitation(input: {
 
 function revalidateTeam() {
   revalidatePath("/onboarding");
+  revalidatePath("/company/team");
   revalidatePath("/dashboard");
 }
 
@@ -125,6 +143,7 @@ export async function completeOnboarding(formData: FormData) {
 }
 
 export async function inviteMember(formData: FormData) {
+  const returnTo = teamReturnPath(formData.get("return_to"));
   const context = await requireWorkspaceAdmin(
     "/onboarding?error=" +
       encodeURIComponent("Solo un admin può invitare utenti."),
@@ -140,13 +159,15 @@ export async function inviteMember(formData: FormData) {
     email,
     role,
     businessRole,
+    returnTo,
   });
 
   revalidateTeam();
-  onboardingRedirect(`Invito inviato a ${email}.`);
+  teamRedirect(returnTo, `Invito inviato a ${email}.`);
 }
 
 export async function resendInvitation(formData: FormData) {
+  const returnTo = teamReturnPath(formData.get("return_to"));
   const context = await requireWorkspaceAdmin(
     "/onboarding?error=" +
       encodeURIComponent("Solo un admin può reinviare inviti."),
@@ -162,13 +183,15 @@ export async function resendInvitation(formData: FormData) {
     email,
     role,
     businessRole,
+    returnTo,
   });
 
   revalidateTeam();
-  onboardingRedirect(`Invito reinviato a ${email}.`);
+  teamRedirect(returnTo, `Invito reinviato a ${email}.`);
 }
 
 export async function revokeInvitation(formData: FormData) {
+  const returnTo = teamReturnPath(formData.get("return_to"));
   const context = await requireWorkspaceAdmin(
     "/onboarding?error=" +
       encodeURIComponent("Solo un admin può revocare inviti."),
@@ -179,13 +202,14 @@ export async function revokeInvitation(formData: FormData) {
   const { error } = await supabase.rpc("hp8_revoke_organization_invitation", {
     p_invitation_id: invitationId,
   });
-  if (error) onboardingRedirect(safeErrorMessage(error, "Operazione di onboarding non completata. Aggiorna la pagina e riprova."), "error");
+  if (error) teamRedirect(returnTo, safeErrorMessage(error, "Operazione non completata. Aggiorna la pagina e riprova."), "error");
 
   revalidateTeam();
-  onboardingRedirect("Invito revocato.");
+  teamRedirect(returnTo, "Invito revocato.");
 }
 
 export async function changeMemberRole(formData: FormData) {
+  const returnTo = teamReturnPath(formData.get("return_to"));
   const context = await requireWorkspaceAdmin(
     "/onboarding?error=" +
       encodeURIComponent("Solo un admin può modificare i ruoli."),
@@ -199,13 +223,14 @@ export async function changeMemberRole(formData: FormData) {
     p_user_id: userId,
     p_role: role,
   });
-  if (error) onboardingRedirect(safeErrorMessage(error, "Operazione di onboarding non completata. Aggiorna la pagina e riprova."), "error");
+  if (error) teamRedirect(returnTo, safeErrorMessage(error, "Operazione non completata. Aggiorna la pagina e riprova."), "error");
 
   revalidateTeam();
-  onboardingRedirect("Permesso aggiornato.");
+  teamRedirect(returnTo, "Permesso aggiornato.");
 }
 
 export async function changeMemberBusinessRole(formData: FormData) {
+  const returnTo = teamReturnPath(formData.get("return_to"));
   const context = await requireWorkspaceAdmin(
     "/onboarding?error=" +
       encodeURIComponent("Solo un admin può modificare i ruoli."),
@@ -219,13 +244,14 @@ export async function changeMemberBusinessRole(formData: FormData) {
     p_user_id: userId,
     p_business_role: businessRole || null,
   });
-  if (error) onboardingRedirect(safeErrorMessage(error, "Operazione di onboarding non completata. Aggiorna la pagina e riprova."), "error");
+  if (error) teamRedirect(returnTo, safeErrorMessage(error, "Operazione non completata. Aggiorna la pagina e riprova."), "error");
 
   revalidateTeam();
-  onboardingRedirect("Ruolo commerciale aggiornato.");
+  teamRedirect(returnTo, "Ruolo commerciale aggiornato.");
 }
 
 export async function changeMemberStatus(formData: FormData) {
+  const returnTo = teamReturnPath(formData.get("return_to"));
   const context = await requireWorkspaceAdmin(
     "/onboarding?error=" +
       encodeURIComponent("Solo un admin può modificare gli accessi."),
@@ -239,10 +265,11 @@ export async function changeMemberStatus(formData: FormData) {
     p_user_id: userId,
     p_status: status,
   });
-  if (error) onboardingRedirect(safeErrorMessage(error, "Operazione di onboarding non completata. Aggiorna la pagina e riprova."), "error");
+  if (error) teamRedirect(returnTo, safeErrorMessage(error, "Operazione non completata. Aggiorna la pagina e riprova."), "error");
 
   revalidateTeam();
-  onboardingRedirect(
+  teamRedirect(
+    returnTo,
     status === "suspended" ? "Accesso sospeso." : "Accesso riattivato.",
   );
 }
