@@ -47,14 +47,9 @@ const networkNav: NavItem[] = [
 
 const marketplaceNav: NavItem[] = [
   { href: appRoutes.marketplace.home, label: "Opportunità", contextKey: "marketplace:opportunities" },
-  { href: appRoutes.marketplace.procurementInbox, label: "Inbox acquisti", contextKey: "marketplace:inbox", writeRole: true },
-  { href: appRoutes.marketplace.suppliers, label: "Supplier", contextKey: "marketplace:suppliers", writeRole: true },
-  { href: appRoutes.marketplace.procurementIntelligence, label: "Intelligence", contextKey: "marketplace:intelligence", writeRole: true },
-  { href: appRoutes.marketplace.notifications, label: "Per te", contextKey: "marketplace:notifications" },
-  { href: appRoutes.marketplace.myRequests, label: "Le mie ricerche", contextKey: "marketplace:requests" },
-  { href: appRoutes.marketplace.rfqHub, label: "RFQ Hub", contextKey: "marketplace:rfq-hub", writeRole: true },
-  { href: appRoutes.marketplace.responses, label: "Risposte ricevute", contextKey: "marketplace:responses" },
-  { href: appRoutes.marketplace.newRequest, label: "Nuova ricerca", contextKey: "marketplace:new", writeRole: true },
+  { href: appRoutes.marketplace.procurementInbox, label: "Acquisti", contextKey: "marketplace:inbox", writeRole: true },
+  { href: appRoutes.marketplace.rfqHub, label: "RFQ", contextKey: "marketplace:rfq-hub", writeRole: true },
+  { href: appRoutes.marketplace.responses, label: "Risposte", contextKey: "marketplace:responses" },
 ];
 
 const knowledgeNav: NavItem[] = [
