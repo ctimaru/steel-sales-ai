@@ -92,7 +92,6 @@ export function AppShell({
   demoMode,
   alertNeedsAttention,
   alertActiveCount,
-  platformSuperadmin,
   platformConsoleAccess,
   platformOwner,
   guidedSetupComplete,
@@ -106,7 +105,6 @@ export function AppShell({
   demoMode: boolean;
   alertNeedsAttention: boolean;
   alertActiveCount: number;
-  platformSuperadmin: boolean;
   platformConsoleAccess: boolean;
   platformOwner: boolean;
   guidedSetupComplete: boolean;
@@ -139,7 +137,6 @@ export function AppShell({
               viewerLabel={viewerLabel}
               organizationName={organizationLabel}
               organizationRoleLabel={effectiveRole}
-              platformSuperadmin={platformSuperadmin}
               platformConsoleAccess={platformConsoleAccess}
               platformOwner={platformOwner}
               guidedSetupComplete={guidedSetupComplete}
