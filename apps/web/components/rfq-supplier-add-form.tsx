@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useTransition, type FormEvent } from "react";
 
@@ -8,6 +9,7 @@ import {
   searchBuyerRfqSuppliers,
   type SupplierCandidate,
 } from "@/app/(workspace)/marketplace/rfq-hub/actions";
+import { appRoutes } from "@/lib/routes";
 
 function sourceLabel(source: SupplierCandidate["source"]) {
   if (source === "recent") return "Già usato";
@@ -239,14 +241,23 @@ export function RfqSupplierAddForm({ rfqId }: { rfqId: string }) {
             Scegli i fornitori senza ricopiare gli indirizzi.
           </h2>
           <p className="mt-2 text-sm leading-6 text-[#66736e]">
-            Cerchiamo nello storico RFQ, nei contatti privati della tua azienda e nel Network.
+            Cerchiamo nella rubrica supplier, nello storico RFQ, nei contatti privati della tua azienda e nel Network.
             Le identità coincidenti vengono riconciliate prima dell&apos;aggiunta.
           </p>
         </div>
 
+        <div className="w-full lg:max-w-xl">
+          <div className="mb-2 flex justify-end">
+            <Link
+              href={appRoutes.marketplace.suppliers}
+              className="text-xs font-bold text-[#173f35] underline underline-offset-4"
+            >
+              Apri rubrica supplier
+            </Link>
+          </div>
         <form
           onSubmit={handleSearch}
-          className="flex w-full gap-2 lg:max-w-xl"
+          className="flex w-full gap-2"
         >
           <input
             type="search"
@@ -263,6 +274,7 @@ export function RfqSupplierAddForm({ rfqId }: { rfqId: string }) {
             {searchPending ? "Cerco…" : "Cerca"}
           </button>
         </form>
+        </div>
       </div>
 
       {networkEnabled === false ? (
@@ -274,7 +286,7 @@ export function RfqSupplierAddForm({ rfqId }: { rfqId: string }) {
       <div className="mt-5 space-y-4">
         <CandidateGroup
           title="Preferiti"
-          hint="Aziende salvate nel Network e disponibili per questa RFQ."
+          hint="Supplier preferiti nella rubrica acquisti o aziende salvate nel Network."
           candidates={groups.preferred}
           addingKey={addingKey}
           addPending={addPending}
