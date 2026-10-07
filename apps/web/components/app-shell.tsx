@@ -48,6 +48,7 @@ const networkNav: NavItem[] = [
 const marketplaceNav: NavItem[] = [
   { href: appRoutes.marketplace.home, label: "Opportunità", contextKey: "marketplace:opportunities" },
   { href: appRoutes.marketplace.procurementInbox, label: "Inbox acquisti", contextKey: "marketplace:inbox", writeRole: true },
+  { href: appRoutes.marketplace.suppliers, label: "Supplier", contextKey: "marketplace:suppliers", writeRole: true },
   { href: appRoutes.marketplace.notifications, label: "Per te", contextKey: "marketplace:notifications" },
   { href: appRoutes.marketplace.myRequests, label: "Le mie ricerche", contextKey: "marketplace:requests" },
   { href: appRoutes.marketplace.rfqHub, label: "RFQ Hub", contextKey: "marketplace:rfq-hub", writeRole: true },
