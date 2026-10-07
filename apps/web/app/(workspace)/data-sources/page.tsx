@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { DenseDisclosure, DenseStatStrip, DenseTableFrame } from "@/components/dense-ui";
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
+import { appRoutes } from "@/lib/routes";
 
 import {
   loadDataSourceCenter,
@@ -140,7 +141,7 @@ export default async function DataSourcesPage({
     if (sourceKey) params.set("source", sourceKey);
     if (target > 1) params.set("page", String(target));
     const suffix = params.toString();
-    return suffix ? `/data-sources?${suffix}` : "/data-sources";
+    return suffix ? `${appRoutes.company.dataSources}?${suffix}` : appRoutes.company.dataSources;
   }
 
   return (
@@ -180,7 +181,7 @@ export default async function DataSourcesPage({
             {sources.map((source) => (
               <Link
                 key={`${source.source_type}:${source.source_key}`}
-                href={`/data-sources?source=${encodeURIComponent(source.source_key)}`}
+                href={`${appRoutes.company.dataSources}?source=${encodeURIComponent(source.source_key)}`}
                 className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow"
               >
                 <div className="flex items-start justify-between gap-4">
@@ -217,11 +218,11 @@ export default async function DataSourcesPage({
             title="Nessuna fonte ha ancora prodotto dati"
             description="La sezione si popola con il primo import reale. Carica email, PDF o Excel per iniziare a costruire la Commercial Memory e monitorare qui origine, stato e indicizzazione."
             primaryAction={{
-              href: "/uploads",
+              href: appRoutes.operations.uploads,
               label: "Importa i primi documenti",
             }}
             secondaryAction={{
-              href: "/onboarding",
+              href: appRoutes.company.setup,
               label: "Controlla setup azienda",
             }}
             compact
@@ -282,7 +283,7 @@ export default async function DataSourcesPage({
                 Filtra
               </button>
               <Link
-                href="/data-sources"
+                href={appRoutes.company.dataSources}
                 className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
               >
                 Reset
@@ -372,11 +373,11 @@ export default async function DataSourcesPage({
                   : "Il primo upload creerà qui una traccia verificabile di file, email, stato di parsing e indicizzazione."
               }
               primaryAction={{
-                href: hasFilters ? "/data-sources" : "/uploads",
+                href: hasFilters ? appRoutes.company.dataSources : appRoutes.operations.uploads,
                 label: hasFilters ? "Azzera filtri" : "Importa documenti",
               }}
               secondaryAction={{
-                href: hasFilters ? "/uploads" : "/dashboard",
+                href: hasFilters ? appRoutes.operations.uploads : appRoutes.home,
                 label: hasFilters ? "Importa nuovi documenti" : "Torna al workspace",
               }}
               compact
@@ -418,7 +419,7 @@ function PageHeader() {
           Controlla da dove arrivano i documenti, quali sono disponibili nella ricerca, quali erano già presenti e quali richiedono attenzione.
         </p>
       </div>
-      <Link href="/uploads" className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800">
+      <Link href={appRoutes.operations.uploads} className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800">
         Importa documenti
       </Link>
     </div>
