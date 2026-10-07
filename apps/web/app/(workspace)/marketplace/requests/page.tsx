@@ -82,7 +82,7 @@ export default async function MarketplaceRequestsPage({
                 Marketplace
               </h1>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66736e] sm:text-base">
-                Gestisci le ricerche prodotto create dalla tua azienda. Le richieste restano separate dalle RFQ private della Commercial Memory e, quando pubblicate, entrano nel Demand Board con il teaser privacy-safe di P5.2.
+                Gestisci le richieste create dalla tua azienda. Restano separate dalle RFQ private della Commercial Memory e, quando pubblicate, diventano visibili ai fornitori secondo le regole di privacy e accesso.
               </p>
             </div>
 
@@ -120,9 +120,9 @@ export default async function MarketplaceRequestsPage({
       </section>
 
       <section className="rounded-2xl border border-[#d9e8e2] bg-[#f3f7f5] px-5 py-4">
-        <p className="text-sm font-semibold text-[#173f35]">P5.4 · Buyer response attivo</p>
+        <p className="text-sm font-semibold text-[#173f35]">Risposte dei fornitori</p>
         <p className="mt-1 text-sm leading-6 text-[#66736e]">
-          Le richieste pubblicate entrano nel Demand Board; i supplier con entitlement + unlock possono inviare una risposta governata. Le risposte ricevute restano separate dalle RFQ e offerte private della Commercial Memory.
+          Le richieste pubblicate possono ricevere risposte dai fornitori abilitati. Le risposte Marketplace restano separate dalle RFQ e offerte private della Commercial Memory.
         </p>
       </section>
 
@@ -144,7 +144,7 @@ export default async function MarketplaceRequestsPage({
                   }
                 : {
                     href: appRoutes.marketplace.home,
-                    label: "Apri il Demand Board",
+                    label: "Apri le opportunità",
                   }
             }
             secondaryAction={{
@@ -194,7 +194,7 @@ export default async function MarketplaceRequestsPage({
 
       {published > 0 ? (
         <p className="text-xs text-[#87938e]">
-          {published} richieste hanno raggiunto lo stato pubblicato e sono visibili nel feed supplier secondo le regole P5.2.
+          {published} richieste sono pubblicate e visibili ai fornitori secondo le regole di accesso del Marketplace.
         </p>
       ) : null}
     </div>
