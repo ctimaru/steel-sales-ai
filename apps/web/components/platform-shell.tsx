@@ -97,7 +97,7 @@ export function PlatformShell({
                   href="/dashboard"
                   className="hidden rounded-full border border-[#d7dfdb] bg-white px-3.5 py-2 text-xs font-semibold text-[#43524c] hover:border-[#b8d2c8] hover:bg-[#f0f4f2] hover:text-[#173f35] sm:inline-flex"
                 >
-                  Company Workspace
+                  Workspace aziendale
                 </Link>
               ) : null}
               <span className="hidden rounded-full bg-[#e1ece8] px-3.5 py-2 text-xs font-semibold text-[#173f35] sm:inline-flex">
