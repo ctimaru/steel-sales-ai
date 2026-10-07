@@ -15,7 +15,7 @@ export const PUBLIC_STORAGE_INVENTORY: StorageInventoryItem[] = [
     category: "necessario",
     provider: "Smart Steel Sales",
     purpose: "Memorizza decisione analytics, versione dell'informativa e data della scelta.",
-    activation: "Quando l'utente sceglie Accetta statistiche o Solo necessari.",
+    activation: "Quando l'utente sceglie Accetta o Accetta necessari.",
     duration: "6 mesi, oppure fino a cambio versione dell'informativa/consenso.",
   },
   {
