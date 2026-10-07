@@ -31,13 +31,13 @@ test("UXA2B renames the authenticated macro-space to Scuola", () => {
   assert.doesNotMatch(nav, /label: "Knowledge"/);
   assert.match(routes, /workspace: "\/school"/);
   assert.match(schoolHome, />\s*Scuola\s*</);
-  assert.match(schoolHome, /Formazione e conoscenza tecnica/);
+  assert.match(schoolHome, /Il toolbox tecnico per acciaio e tubi/);
 });
 
 test("UXA2B keeps Scuola contextual navigation inside authenticated routes", () => {
   for (const routeRef of [
     "appRoutes.knowledge.workspace",
-    "appRoutes.knowledge.catalog",
+    "appRoutes.knowledge.schoolTubes",
     "appRoutes.knowledge.schoolStandards",
     "appRoutes.knowledge.schoolGrades",
     "appRoutes.knowledge.schoolTubes",
@@ -49,7 +49,10 @@ test("UXA2B keeps Scuola contextual navigation inside authenticated routes", () 
 
 test("UXA2B mirrors every public technical route inside the authenticated Scuola shell", () => {
   for (const wrapper of schoolWrappers) {
-    assert.match(wrapper, /export \{ default \} from "@\/app\/\(public\)\/knowledge/);
+    assert.match(
+      wrapper,
+      /(?:export \{ default \} from|import .* from) "@\/app\/\(public\)\/knowledge/,
+    );
   }
 });
 

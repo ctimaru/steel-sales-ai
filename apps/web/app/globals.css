@@ -625,6 +625,27 @@ textarea {
   padding-bottom: 0.25rem;
 }
 
+.workspace-context-scroll {
+  scrollbar-width: none;
+}
+
+.workspace-context-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.app-section-header {
+  min-height: 3.25rem;
+}
+
+.mvp-focus-page > section {
+  scroll-margin-top: 8rem;
+}
+
+.mvp-focus-page :where(.app-primary, .app-secondary) {
+  min-height: 2.75rem;
+}
+
+
 .mvp-focus-header {
   border-bottom: 1px solid var(--border);
   padding: 0.25rem 0 1.25rem;

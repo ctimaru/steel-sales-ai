@@ -87,9 +87,10 @@ test("UXA2 makes Commerciale a first-class landing instead of a random child rou
   assert.match(commercialHome, /Company 360/);
   assert.match(commercialHome, /Prezzi & mercato/);
   assert.match(commercialHome, /Opportunità commerciali/);
-  assert.match(knowledgeHome, /Formazione e conoscenza tecnica/);
-  assert.match(knowledgeHome, /Knowledge Explorer/);
-  assert.match(knowledgeHome, /Steel Knowledge/);
+  assert.match(knowledgeHome, /Il toolbox tecnico per acciaio e tubi/);
+  assert.match(knowledgeHome, /Calcolo pesi tubo/);
+  assert.match(knowledgeHome, /Documenti aziendali/);
+  assert.match(knowledgeHome, /Catalogo completo/);
 });
 
 test("UXA2 keeps contextual subnavigation scoped to the active macro-space", () => {

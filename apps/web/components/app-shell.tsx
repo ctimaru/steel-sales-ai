@@ -41,8 +41,8 @@ const networkNav: NavItem[] = [
   { href: appRoutes.network.directory, label: "Directory", contextKey: "network:directory" },
   { href: appRoutes.network.saved, label: "Salvate", contextKey: "network:saved" },
   { href: appRoutes.network.following, label: "Seguite", contextKey: "network:following" },
-  { href: appRoutes.network.activity, label: "Activity", contextKey: "network:activity" },
-  { href: appRoutes.network.inquiries, label: "Inquiry", contextKey: "network:inquiries" },
+  { href: appRoutes.network.activity, label: "Attività", contextKey: "network:activity" },
+  { href: appRoutes.network.inquiries, label: "Richieste", contextKey: "network:inquiries" },
 ];
 
 const marketplaceNav: NavItem[] = [
@@ -54,17 +54,16 @@ const marketplaceNav: NavItem[] = [
 
 const knowledgeNav: NavItem[] = [
   { href: appRoutes.knowledge.workspace, label: "Home", contextKey: "knowledge:home" },
-  { href: appRoutes.knowledge.explorer, label: "Knowledge Explorer", contextKey: "knowledge:explorer" },
-  { href: appRoutes.knowledge.catalog, label: "Catalogo tecnico", contextKey: "knowledge:catalog" },
+  { href: appRoutes.knowledge.schoolTubes, label: "Calcolo pesi", contextKey: "knowledge:tubes" },
   { href: appRoutes.knowledge.schoolStandards, label: "Norme", contextKey: "knowledge:standards" },
   { href: appRoutes.knowledge.schoolGrades, label: "Gradi", contextKey: "knowledge:grades" },
-  { href: appRoutes.knowledge.schoolTubes, label: "Pesi & dimensioni", contextKey: "knowledge:tubes" },
+  { href: appRoutes.knowledge.explorer, label: "Documenti", contextKey: "knowledge:explorer" },
 ];
 
 function roleLabel(role: string) {
-  if (role === "admin") return "Organization Admin";
-  if (role === "viewer") return "Viewer";
-  return "Member";
+  if (role === "admin") return "Amministratore";
+  if (role === "viewer") return "Sola lettura";
+  return "Membro";
 }
 
 function canSee(item: NavItem, role: string) {

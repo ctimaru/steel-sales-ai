@@ -186,10 +186,10 @@ export function WorkspaceDesktopPrimaryNavigation({
             href={item.href}
             aria-current={selected ? "page" : undefined}
             className={[
-              "relative flex min-w-[88px] flex-col items-center justify-center gap-1 px-2 text-[11px] font-semibold transition",
+              "relative flex min-w-[88px] flex-col items-center justify-center gap-1 rounded-t-xl px-2 text-[11px] font-semibold transition",
               selected
-                ? "text-[#173f35]"
-                : "text-[#6c7973] hover:bg-[#f4f6f5] hover:text-[#1d2824]",
+                ? "bg-[#f7faf8] text-[#173f35]"
+                : "text-[#5d6a65] hover:bg-[#f4f6f5] hover:text-[#1d2824]",
             ].join(" ")}
           >
             <NavIcon name={item.icon} className="h-[21px] w-[21px]" />
@@ -235,7 +235,7 @@ export function WorkspaceMobileBottomNavigation({
             aria-current={selected ? "page" : undefined}
             className={[
               "relative flex min-h-[62px] flex-col items-center justify-center gap-1 px-1 pt-1 text-[10px] font-semibold transition",
-              selected ? "text-[#173f35]" : "text-[#7b8782]",
+              selected ? "bg-[#f3f7f5] text-[#173f35]" : "text-[#5d6a65]",
             ].join(" ")}
           >
             {selected ? (
@@ -265,10 +265,10 @@ function ContextLink({
       href={item.href}
       aria-current={selected ? "page" : undefined}
       className={[
-        "shrink-0 border-b-2 px-3 py-3 text-xs font-semibold transition sm:text-sm",
+        "flex min-h-11 shrink-0 items-center rounded-t-lg border-b-2 px-3 text-xs font-semibold transition sm:text-sm",
         selected
-          ? "border-[#173f35] text-[#173f35]"
-          : "border-transparent text-[#66736e] hover:border-[#c8d5d0] hover:text-[#1d2824]",
+          ? "border-[#173f35] bg-[#f7faf8] text-[#173f35]"
+          : "border-transparent text-[#5d6a65] hover:border-[#c8d5d0] hover:bg-[#fafcfb] hover:text-[#1d2824]",
       ].join(" ")}
     >
       {item.label}
@@ -314,7 +314,7 @@ export function WorkspaceContextNavigation({
 
   return (
     <div className="border-t border-[#eef1ef] bg-white">
-      <div className="mx-auto flex max-w-[1280px] items-center gap-1 overflow-x-auto px-3 sm:px-5 lg:px-8">
+      <div className="workspace-context-scroll mx-auto flex max-w-[1280px] items-center gap-1 overflow-x-auto px-3 sm:px-5 lg:px-8">
         {items.map((item) => (
           <ContextLink
             key={item.contextKey}
@@ -328,10 +328,10 @@ export function WorkspaceContextNavigation({
             <summary
               aria-current={intelligenceSelected ? "page" : undefined}
               className={[
-                "flex cursor-pointer list-none items-center gap-1 border-b-2 px-3 py-3 text-xs font-semibold transition sm:text-sm",
+                "flex min-h-11 cursor-pointer list-none items-center gap-1 rounded-t-lg border-b-2 px-3 text-xs font-semibold transition sm:text-sm",
                 intelligenceSelected
-                  ? "border-[#173f35] text-[#173f35]"
-                  : "border-transparent text-[#66736e] hover:border-[#c8d5d0] hover:text-[#1d2824]",
+                  ? "border-[#173f35] bg-[#f7faf8] text-[#173f35]"
+                  : "border-transparent text-[#5d6a65] hover:border-[#c8d5d0] hover:bg-[#fafcfb] hover:text-[#1d2824]",
               ].join(" ")}
             >
               Intelligence
@@ -380,7 +380,7 @@ export function WorkspaceSearchBar() {
         type="search"
         aria-label="Cerca nello storico commerciale"
         placeholder="Cerca"
-        className="h-10 w-full rounded-full border border-[#cfd8d4] bg-[#f7f9f8] pl-9 pr-4 text-sm text-[#1d2824] outline-none transition placeholder:text-[#87938e] focus:border-[#86a99e] focus:bg-white focus:ring-4 focus:ring-[#e1ece8]"
+        className="h-10 w-full rounded-xl border border-[#cfd8d4] bg-[#f7f9f8] pl-9 pr-4 text-sm text-[#1d2824] outline-none transition placeholder:text-[#5d6a65] focus:border-[#86a99e] focus:bg-white focus:ring-4 focus:ring-[#e1ece8]"
       />
     </form>
   );

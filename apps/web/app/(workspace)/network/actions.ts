@@ -602,9 +602,24 @@ async function activeOrganizationId() {
   return { supabase, userId, organizationId: membership.organization_id };
 }
 
+function safeNetworkReturnPath(formData: FormData, fallback: string) {
+  const requested = textValue(formData, "return_to");
+  if (!requested || !requested.startsWith("/network") || requested.startsWith("//")) {
+    return fallback;
+  }
+  return requested;
+}
+
+function withNetworkFlash(path: string, key: "message" | "error", value: string) {
+  const url = new URL(path, "https://smartsteelsales.local");
+  url.searchParams.set(key, value);
+  return url.pathname + url.search + url.hash;
+}
+
 export async function saveNetworkCompany(formData: FormData) {
   const companyId = textValue(formData, "network_company_id");
   if (!companyId) redirect("/network?error=Azienda%20non%20valida");
+  const returnTo = safeNetworkReturnPath(formData, "/network/" + companyId);
 
   const { supabase, userId, organizationId } = await activeOrganizationId();
   const { error } = await supabase.from("network_saved_companies").upsert(
@@ -617,23 +632,25 @@ export async function saveNetworkCompany(formData: FormData) {
   );
 
   if (error) {
-    redirect("/network/" + companyId + "?error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+    redirect(withNetworkFlash(returnTo, "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   }
 
   await recordPilotUsageEvent({
     eventName: "network_saved_created",
     entityType: "network_company",
     entityId: companyId,
-    metadata: { surface: "network_company_profile" },
+    metadata: { surface: returnTo.startsWith("/network?") || returnTo === "/network" ? "network_directory" : "network_company_profile" },
   });
+  revalidatePath("/network");
   revalidatePath("/network/" + companyId);
   revalidatePath("/network/saved");
-  redirect("/network/" + companyId + "?message=Azienda%20salvata");
+  redirect(withNetworkFlash(returnTo, "message", "Azienda salvata"));
 }
 
 export async function removeSavedNetworkCompany(formData: FormData) {
   const companyId = textValue(formData, "network_company_id");
   if (!companyId) redirect("/network/saved?error=Azienda%20non%20valida");
+  const returnTo = safeNetworkReturnPath(formData, "/network/saved");
 
   const { supabase, userId, organizationId } = await activeOrganizationId();
   const { error } = await supabase
@@ -644,18 +661,19 @@ export async function removeSavedNetworkCompany(formData: FormData) {
     .eq("network_company_id", companyId);
 
   if (error) {
-    redirect("/network/saved?error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+    redirect(withNetworkFlash(returnTo, "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   }
 
   await recordPilotUsageEvent({
     eventName: "network_saved_removed",
     entityType: "network_company",
     entityId: companyId,
-    metadata: { surface: "network_saved_companies" },
+    metadata: { surface: returnTo.startsWith("/network?") || returnTo === "/network" ? "network_directory" : "network_saved_companies" },
   });
+  revalidatePath("/network");
   revalidatePath("/network/" + companyId);
   revalidatePath("/network/saved");
-  redirect("/network/saved?message=Azienda%20rimossa%20dai%20salvati");
+  redirect(withNetworkFlash(returnTo, "message", "Azienda rimossa dai salvati"));
 }
 
 
@@ -792,6 +810,7 @@ export async function blockInquirySenderOrganization(formData: FormData) {
 export async function followNetworkCompany(formData: FormData) {
   const companyId = textValue(formData, "network_company_id");
   if (!companyId) redirect("/network?error=Azienda%20non%20valida");
+  const returnTo = safeNetworkReturnPath(formData, "/network/" + companyId);
 
   const { supabase, organizationId } = await activeOrganizationId();
   const { error } = await supabase.rpc("p4_follow_company", {
@@ -800,24 +819,26 @@ export async function followNetworkCompany(formData: FormData) {
   });
 
   if (error) {
-    redirect("/network/" + companyId + "?error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+    redirect(withNetworkFlash(returnTo, "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   }
 
   await recordPilotUsageEvent({
     eventName: "network_follow_created",
     entityType: "network_company",
     entityId: companyId,
-    metadata: { surface: "network_company_profile" },
+    metadata: { surface: returnTo.startsWith("/network?") || returnTo === "/network" ? "network_directory" : "network_company_profile" },
   });
+  revalidatePath("/network");
   revalidatePath("/network/" + companyId);
   revalidatePath("/network/following");
   revalidatePath("/network/activity");
-  redirect("/network/" + companyId + "?message=Azienda%20seguita");
+  redirect(withNetworkFlash(returnTo, "message", "Azienda seguita"));
 }
 
 export async function unfollowNetworkCompany(formData: FormData) {
   const companyId = textValue(formData, "network_company_id");
   if (!companyId) redirect("/network/following?error=Azienda%20non%20valida");
+  const returnTo = safeNetworkReturnPath(formData, "/network/following");
 
   const { supabase, organizationId } = await activeOrganizationId();
   const { error } = await supabase.rpc("p4_unfollow_company", {
@@ -826,19 +847,20 @@ export async function unfollowNetworkCompany(formData: FormData) {
   });
 
   if (error) {
-    redirect("/network/following?error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+    redirect(withNetworkFlash(returnTo, "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   }
 
   await recordPilotUsageEvent({
     eventName: "network_follow_removed",
     entityType: "network_company",
     entityId: companyId,
-    metadata: { surface: "network_following" },
+    metadata: { surface: returnTo.startsWith("/network?") || returnTo === "/network" ? "network_directory" : "network_following" },
   });
+  revalidatePath("/network");
   revalidatePath("/network/" + companyId);
   revalidatePath("/network/following");
   revalidatePath("/network/activity");
-  redirect("/network/following?message=Follow%20rimosso");
+  redirect(withNetworkFlash(returnTo, "message", "Follow rimosso"));
 }
 
 export async function markNetworkActivityRead(formData: FormData) {

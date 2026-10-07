@@ -20,7 +20,16 @@ export type PilotEventName =
   | "network_activity_feed_opened"
   | "network_activity_item_opened"
   | "network_inquiry_submitted"
-  | "network_inquiry_state_changed";
+  | "network_inquiry_state_changed"
+  | "workspace_home_viewed"
+  | "commercial_home_viewed"
+  | "network_search_completed"
+  | "marketplace_home_viewed"
+  | "marketplace_opportunity_viewed"
+  | "rfq_hub_viewed"
+  | "school_home_viewed"
+  | "school_calculator_viewed"
+  | "school_reference_search";
 
 export type PilotEventInput = {
   eventName: PilotEventName;

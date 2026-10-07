@@ -17,6 +17,16 @@ type UsageSummary = {
   review_views: number;
   corrections_completed: number;
   uploads_completed: number;
+  workspace_home_views: number;
+  commercial_home_views: number;
+  network_searches: number;
+  network_profile_views: number;
+  marketplace_home_views: number;
+  marketplace_opportunity_views: number;
+  rfq_hub_views: number;
+  school_home_views: number;
+  school_calculator_views: number;
+  school_reference_searches: number;
   event_count: number;
 };
 
@@ -334,6 +344,48 @@ export default async function PilotAnalyticsPage() {
               </Card>
             );
           })}
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-3">
+          <p className="app-kicker">PF7 · Usage Validation</p>
+          <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Le macrosezioni vengono davvero usate?</h2>
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-[#5d6a65]">
+            Conteggi first-party dal kickoff. Nessun evento salva query, nomi cliente, prezzi, contenuto RFQ o documenti.
+          </p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {[
+            ["Home", summaryPilot.workspace_home_views, "aperture cockpit"],
+            ["Commerciale", summaryPilot.commercial_home_views, "aperture Commercial Memory"],
+            ["Network", summaryPilot.network_searches, "ricerche eseguite"],
+            ["Marketplace", summaryPilot.marketplace_home_views, "aperture Marketplace"],
+            ["Scuola", summaryPilot.school_home_views, "aperture toolbox"],
+          ].map(([label, value, help]) => (
+            <Card key={String(label)}>
+              <CardContent className="p-4">
+                <p className="text-2xl font-semibold tabular-nums text-[#173f35]">{integer(Number(value))}</p>
+                <p className="mt-1 text-sm font-semibold text-[#1d2824]">{String(label)}</p>
+                <p className="mt-1 text-xs leading-5 text-[#5d6a65]">{String(help)}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {[
+            ["Profili Network", summaryPilot.network_profile_views],
+            ["Opportunità aperte", summaryPilot.marketplace_opportunity_views],
+            ["RFQ Hub", summaryPilot.rfq_hub_views],
+            ["Calcolo pesi", summaryPilot.school_calculator_views],
+            ["Ricerche norme/gradi", summaryPilot.school_reference_searches],
+          ].map(([label, value]) => (
+            <div key={String(label)} className="rounded-xl border border-[#dce2df] bg-[#f8faf9] p-3">
+              <p className="text-lg font-semibold tabular-nums text-[#173f35]">{integer(Number(value))}</p>
+              <p className="text-xs text-[#5d6a65]">{String(label)}</p>
+            </div>
+          ))}
         </div>
       </section>
 

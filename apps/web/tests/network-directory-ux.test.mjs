@@ -11,12 +11,11 @@ const shell = fs.readFileSync(
   "utf8",
 );
 
-test("Network home explains the space before exposing controls", () => {
-  assert.match(directory, /Trova aziende e costruisci relazioni nel settore steel/);
-  assert.match(directory, /Commercial Memory della tua azienda resta privata e separata/);
-  for (const label of ["Trova", "Ritrova e segui", "Contatta"]) {
-    assert.match(directory, new RegExp(label));
-  }
+test("PF3 Network home starts with discovery instead of explanatory copy", () => {
+  assert.match(directory, /Trova aziende steel/);
+  assert.match(directory, /Ricerca aziende/);
+  assert.match(directory, /Directory privata del Network/);
+  assert.match(directory, /Commercial Memory resta separata/);
 });
 
 test("Network home does not duplicate contextual navigation with a CTA wall", () => {
@@ -26,25 +25,26 @@ test("Network home does not duplicate contextual navigation with a CTA wall", ()
   assert.doesNotMatch(directory, />Inquiry</);
   assert.doesNotMatch(directory, />Aziende salvate</);
   assert.doesNotMatch(directory, />Gestisci profilo azienda</);
-  for (const label of ["Directory", "Salvate", "Seguite", "Activity", "Inquiry"]) {
+  for (const label of ["Directory", "Salvate", "Seguite", "Attività", "Richieste"]) {
     assert.match(shell, new RegExp(`label: "${label}"`));
   }
 });
 
 test("Network discovery starts simple and progressively reveals advanced filters", () => {
-  assert.match(directory, /Nome azienda o dominio/);
+  assert.match(directory, /Nome o dominio/);
+  assert.match(directory, /type="search"/);
   assert.match(directory, /<details/);
-  assert.match(directory, /Filtri avanzati/);
+  assert.match(directory, /Filtri/);
   assert.match(directory, /ruolo, prodotto, capability, mercato e paese/);
-  assert.match(directory, /Da dove vuoi partire/);
   assert.match(directory, /Tutta la filiera/);
 });
 
 test("Network results use customer-facing language and restrained metadata", () => {
-  assert.match(directory, /Profili pubblici del Network/);
+  assert.match(directory, /Profili industriali pubblicati nel Network/);
   assert.match(directory, /Nessuna azienda trovata/);
-  assert.match(directory, /company\.roles\.slice\(0, 2\)/);
-  assert.match(directory, /company\.products\.slice\(0, 2\)/);
+  assert.match(directory, /compactList\(company\.roles\)/);
+  assert.match(directory, /compactList\(company\.products\)/);
+  assert.match(directory, /compactList\(company\.capabilities\)/);
   for (const forbidden of ["Solo profili published", "pending review", "read model", "P5 readiness"]) {
     assert.doesNotMatch(directory, new RegExp(forbidden));
   }
