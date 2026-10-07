@@ -36,14 +36,14 @@ export async function requirePlatformPermission(
 }
 
 export const requirePlatformConsoleContext = cache(async function requirePlatformConsoleContext() {
-  const [supabase, context] = await Promise.all([
-    createClient(),
-    getPlatformAccessContext(),
-  ]);
-  const { data: authData } = await supabase.auth.getUser();
+  const supabase = await createClient();
+  const { data: authData, error: authError } = await supabase.auth.getUser();
   const user = authData.user;
-  if (!user) redirect("/login");
-  if (!context) redirect("/dashboard");
+
+  if (authError || !user) redirect("/login");
+
+  const context = await getPlatformAccessContext();
+  if (!context || context.user_id !== user.id) redirect("/dashboard");
   if (!context.permissions.includes("platform.console.access")) {
     redirect(context.is_platform_staff ? "/staff/access" : "/dashboard");
   }

@@ -7,19 +7,19 @@ const navigation = fs.readFileSync(new URL("../components/workspace-navigation.t
 const product = fs.readFileSync(new URL("../app/(workspace)/products/[productId]/page.tsx", import.meta.url), "utf8");
 const prices = fs.readFileSync(new URL("../app/(workspace)/products/[productId]/prices/page.tsx", import.meta.url), "utf8");
 const upload = fs.readFileSync(new URL("../components/bulk-upload-form.tsx", import.meta.url), "utf8");
+const dashboard = fs.readFileSync(new URL("../app/(workspace)/dashboard/page.tsx", import.meta.url), "utf8");
+const dataSources = fs.readFileSync(new URL("../app/(workspace)/data-sources/page.tsx", import.meta.url), "utf8");
 
-test("PA2.33 mobile keeps secondary sales tools reachable through context navigation and avatar drawer", () => {
+test("PA2.33 mobile keeps secondary sales tools reachable without duplicating operations in the avatar drawer", () => {
   assert.match(shell, /WorkspaceMobileBottomNavigation/);
   assert.match(shell, /WorkspaceProfileMenu/);
-  for (const routeRef of [
-    "appRoutes.commercial.assistant",
-    "appRoutes.operations.review",
-    "appRoutes.operations.alerts",
-    "appRoutes.operations.uploads",
-    "appRoutes.company.dataSources",
-  ]) {
-    assert.ok((shell + navigation).includes(routeRef), `missing mobile route reference ${routeRef}`);
-  }
+  assert.match(shell, /appRoutes\.commercial\.assistant/);
+  assert.match(navigation, /appRoutes\.operations\.alerts/);
+  assert.match(navigation, /appRoutes\.company\.dataSources/);
+  assert.match(dashboard, /appRoutes\.operations\.review/);
+  assert.match(dashboard + dataSources, /appRoutes\.operations\.uploads/);
+  assert.doesNotMatch(navigation, /label="Revisioni dati"/);
+  assert.doesNotMatch(navigation, /label="Importa documenti"/);
 });
 
 test("PA2.33 avoids unqualified verified-data claims", () => {

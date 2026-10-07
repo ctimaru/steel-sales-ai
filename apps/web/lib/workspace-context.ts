@@ -45,8 +45,10 @@ export const getWorkspaceContext = cache(async function getWorkspaceContext(): P
 
   await supabase.rpc("claim_pending_organization_invitations");
 
-  const [{ data: memberships, error: membershipError }, { data: platformAccessData }] =
-    await Promise.all([
+  const [
+    { data: memberships, error: membershipError },
+    { data: platformAccessData, error: platformAccessError },
+  ] = await Promise.all([
       supabase
         .from("organization_memberships")
         .select("organization_id,role,is_default,status")
@@ -55,13 +57,21 @@ export const getWorkspaceContext = cache(async function getWorkspaceContext(): P
       supabase.rpc("platform_access_context"),
     ]);
 
-  const platformAccess = (platformAccessData ?? {}) as {
-    is_platform_owner?: boolean;
-    permissions?: string[];
-  };
-  const platformOwner = platformAccess.is_platform_owner === true;
+  const platformAccess =
+    !platformAccessError && platformAccessData
+      ? (platformAccessData as {
+          user_id?: string;
+          is_platform_owner?: boolean;
+          permissions?: string[];
+        })
+      : null;
+
+  const platformIdentityMatches = platformAccess?.user_id === user.id;
+  const platformOwner =
+    platformIdentityMatches && platformAccess?.is_platform_owner === true;
   const platformConsoleAccess =
-    platformAccess.permissions?.includes("platform.console.access") ?? false;
+    platformIdentityMatches &&
+    (platformAccess?.permissions?.includes("platform.console.access") ?? false);
 
   if (membershipError) throw new Error("workspace_membership_unavailable");
 

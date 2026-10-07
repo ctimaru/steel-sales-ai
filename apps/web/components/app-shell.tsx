@@ -92,7 +92,6 @@ export function AppShell({
   demoMode,
   alertNeedsAttention,
   alertActiveCount,
-  platformSuperadmin,
   platformConsoleAccess,
   platformOwner,
   guidedSetupComplete,
@@ -106,7 +105,6 @@ export function AppShell({
   demoMode: boolean;
   alertNeedsAttention: boolean;
   alertActiveCount: number;
-  platformSuperadmin: boolean;
   platformConsoleAccess: boolean;
   platformOwner: boolean;
   guidedSetupComplete: boolean;
@@ -120,7 +118,6 @@ export function AppShell({
   const marketplaceItems = networkEnabled ? visibleItems(marketplaceNav, organizationRole) : [];
   const knowledgeItems = visibleItems(knowledgeNav, organizationRole);
   const canAdmin = canAdministerCompany(organizationRole);
-  const canWrite = canWriteWorkspace(organizationRole);
   const effectiveRole = demoMode ? "Modalità demo" : roleLabel(organizationRole);
   const organizationLabel = workspaceOrganizationLabel(organizationName);
 
@@ -140,12 +137,10 @@ export function AppShell({
               viewerLabel={viewerLabel}
               organizationName={organizationLabel}
               organizationRoleLabel={effectiveRole}
-              platformSuperadmin={platformSuperadmin}
               platformConsoleAccess={platformConsoleAccess}
               platformOwner={platformOwner}
               guidedSetupComplete={guidedSetupComplete}
               canAdmin={canAdmin}
-              canWrite={canWrite}
               logoutAction={logout}
             />
           </div>
@@ -169,12 +164,10 @@ export function AppShell({
                 viewerLabel={viewerLabel}
                 organizationName={organizationLabel}
                 organizationRoleLabel={effectiveRole}
-                platformSuperadmin={platformSuperadmin}
                 platformConsoleAccess={platformConsoleAccess}
                 platformOwner={platformOwner}
                 guidedSetupComplete={guidedSetupComplete}
                 canAdmin={canAdmin}
-                canWrite={canWrite}
                 logoutAction={logout}
               />
             </div>

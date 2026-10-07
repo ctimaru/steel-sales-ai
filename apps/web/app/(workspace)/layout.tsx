@@ -23,7 +23,6 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
   let organizationRole = "admin";
   let alertNeedsAttention = false;
   let alertActiveCount = 0;
-  let platformSuperadmin = false;
   let platformConsoleAccess = false;
   let platformOwner = false;
   let guidedSetupComplete = true;
@@ -38,7 +37,6 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
     viewerLabel = context.viewerLabel;
     organizationName = context.organizationName;
     organizationRole = context.role;
-    platformSuperadmin = context.platformSuperadmin;
     platformConsoleAccess = context.platformConsoleAccess;
     platformOwner = context.platformOwner;
     guidedSetupComplete = context.guidedSetupComplete;
@@ -67,7 +65,6 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
       demoMode={!configured}
       alertNeedsAttention={alertNeedsAttention}
       alertActiveCount={alertActiveCount}
-      platformSuperadmin={platformSuperadmin}
       platformConsoleAccess={platformConsoleAccess}
       platformOwner={platformOwner}
       guidedSetupComplete={guidedSetupComplete}

@@ -418,23 +418,19 @@ export function WorkspaceProfileMenu({
   viewerLabel,
   organizationName,
   organizationRoleLabel,
-  platformSuperadmin,
   platformConsoleAccess,
   platformOwner,
   guidedSetupComplete,
   canAdmin,
-  canWrite,
   logoutAction,
 }: {
   viewerLabel: string;
   organizationName: string;
   organizationRoleLabel: string;
-  platformSuperadmin: boolean;
   platformConsoleAccess: boolean;
   platformOwner: boolean;
   guidedSetupComplete: boolean;
   canAdmin: boolean;
-  canWrite: boolean;
   logoutAction: () => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
@@ -538,22 +534,6 @@ export function WorkspaceProfileMenu({
             </div>
 
             <div className="flex-1 overflow-y-auto p-3">
-              <div>
-                <p className="px-2 pb-1 pt-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#87938e]">
-                  Workspace
-                </p>
-                {canWrite ? (
-                  <>
-                    <ProfileMenuLink href={appRoutes.operations.uploads} label="Importa documenti" onNavigate={closeMenu} />
-                    <ProfileMenuLink href={appRoutes.operations.review} label="Revisioni dati" onNavigate={closeMenu} />
-                  </>
-                ) : (
-                  <p className="px-3 py-2 text-xs leading-5 text-[#7b8782]">
-                    Le operazioni di modifica non sono disponibili con accesso in sola lettura.
-                  </p>
-                )}
-              </div>
-
               {canAdmin ? (
                 <div className="mt-2 border-t border-[#e2e7e4] pt-2">
                   <p className="px-2 pb-1 pt-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#87938e]">
@@ -595,7 +575,7 @@ export function WorkspaceProfileMenu({
                     >
                       <span>Apri Console piattaforma</span>
                       <span className="shrink-0 text-[9px] font-bold uppercase tracking-[0.08em] text-white/75">
-                        {platformOwner || platformSuperadmin ? "Platform Owner" : "Platform Staff"}
+                        {platformOwner ? "Platform Owner" : "Platform Staff"}
                       </span>
                     </Link>
                   </div>

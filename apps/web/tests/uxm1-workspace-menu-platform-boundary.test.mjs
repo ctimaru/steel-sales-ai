@@ -19,13 +19,12 @@ test("UXM1 gives team management a canonical company route", () => {
   assert.match(actions, /revalidatePath\("\/company\/team"\)/);
 });
 
-test("UXM1 simplifies the avatar drawer around workspace, company and account settings", () => {
+test("UXM1 keeps the avatar drawer focused on company, account and privileged Platform settings", () => {
   const start = nav.indexOf("export function WorkspaceProfileMenu");
   const menu = nav.slice(start);
 
-  assert.match(menu, /Workspace/);
-  assert.match(menu, /Importa documenti/);
-  assert.match(menu, /Revisioni dati/);
+  assert.doesNotMatch(menu, /Importa documenti/);
+  assert.doesNotMatch(menu, /Revisioni dati/);
   assert.match(menu, /Profilo azienda/);
   assert.match(menu, /Team e accessi/);
   assert.match(menu, /Dati e fonti/);
