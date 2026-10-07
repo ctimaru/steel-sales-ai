@@ -34,6 +34,12 @@ export default async function PlatformPitchDeckFoundationPage({
         <div className="flex flex-wrap items-center gap-2">
           <BusinessPlanLanguageToggle baseHref={appRoutes.platform.marketingPitchDeck} locale={locale} />
           <Link
+            href={appRoutes.platform.marketingInvestorDeck}
+            className="platform-secondary inline-flex min-h-10 items-center rounded-xl px-4 text-xs font-semibold"
+          >
+            {locale === "it" ? "Apri Deck visuale" : "Open Visual Deck"}
+          </Link>
+          <Link
             href={appRoutes.platform.marketingFundraisingReadiness}
             className="platform-secondary inline-flex min-h-10 items-center rounded-xl px-4 text-xs font-semibold"
           >
