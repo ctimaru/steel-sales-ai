@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { PilotEvent } from "@/components/pilot-event";
-import { FocusHeader, FocusPage } from "@/components/focus-ui";
+import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
 import { Badge } from "@/components/ui/badge";
 import { getDashboardData } from "@/lib/commercial-data";
 import { appRoutes } from "@/lib/routes";
@@ -129,20 +129,15 @@ export default async function CommercialHomePage() {
       </section>
 
       <section aria-labelledby="commercial-overview">
-        <div className="mb-3 flex items-end justify-between gap-4">
-          <div>
-            <p className="app-kicker">Memoria disponibile</p>
-            <h2 id="commercial-overview" className="mt-1 text-xl font-semibold text-[#1d2824]">
-              Cosa contiene il workspace
-            </h2>
-          </div>
-          <Link
-            href={appRoutes.commercial.explorer}
-            className="text-xs font-semibold text-[#173f35] hover:underline"
-          >
-            Esplora tutto →
-          </Link>
-        </div>
+        <FocusSectionHeader
+          eyebrow="Memoria disponibile"
+          title={<span id="commercial-overview">Cosa contiene il workspace</span>}
+          action={
+            <Link href={appRoutes.commercial.explorer} className="text-xs font-semibold text-[#173f35] hover:underline">
+              Esplora tutto →
+            </Link>
+          }
+        />
 
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {metricCards.map((item) => (
@@ -155,20 +150,15 @@ export default async function CommercialHomePage() {
       </section>
 
       <section aria-labelledby="commercial-recent">
-        <div className="mb-3 flex items-end justify-between gap-4">
-          <div>
-            <p className="app-kicker">Attività recente</p>
-            <h2 id="commercial-recent" className="mt-1 text-xl font-semibold text-[#1d2824]">
-              Ultimi movimenti
-            </h2>
-          </div>
-          <Link
-            href={appRoutes.commercial.search}
-            className="text-xs font-semibold text-[#173f35] hover:underline"
-          >
-            Apri storico →
-          </Link>
-        </div>
+        <FocusSectionHeader
+          eyebrow="Attività recente"
+          title={<span id="commercial-recent">Ultimi movimenti</span>}
+          action={
+            <Link href={appRoutes.commercial.search} className="text-xs font-semibold text-[#173f35] hover:underline">
+              Apri storico →
+            </Link>
+          }
+        />
 
         {recent.length === 0 ? (
           <FirstUseEmptyState
@@ -217,12 +207,10 @@ export default async function CommercialHomePage() {
       </section>
 
       <section aria-labelledby="commercial-tools">
-        <div className="mb-3">
-          <p className="app-kicker">Approfondisci</p>
-          <h2 id="commercial-tools" className="mt-1 text-xl font-semibold text-[#1d2824]">
-            Tre modi per leggere la memoria
-          </h2>
-        </div>
+        <FocusSectionHeader
+          eyebrow="Approfondisci"
+          title={<span id="commercial-tools">Tre modi per leggere la memoria</span>}
+        />
 
         <div className="grid gap-3 md:grid-cols-3">
           {coreTools.map((item) => (
@@ -247,15 +235,11 @@ export default async function CommercialHomePage() {
       </section>
 
       <section aria-labelledby="commercial-intelligence">
-        <div className="mb-3">
-          <p className="app-kicker">Intelligence</p>
-          <h2 id="commercial-intelligence" className="mt-1 text-xl font-semibold text-[#1d2824]">
-            Analizza solo quando serve
-          </h2>
-          <p className="mt-1 max-w-2xl text-sm leading-6 text-[#5d6a65]">
-            Gli strumenti avanzati sono raggruppati per obiettivo commerciale, non per architettura interna.
-          </p>
-        </div>
+        <FocusSectionHeader
+          eyebrow="Intelligence"
+          title={<span id="commercial-intelligence">Analizza solo quando serve</span>}
+          description="Gli strumenti avanzati sono raggruppati per obiettivo commerciale, non per architettura interna."
+        />
 
         <div className="grid gap-3 lg:grid-cols-3">
           {intelligenceGroups.map((group) => (
