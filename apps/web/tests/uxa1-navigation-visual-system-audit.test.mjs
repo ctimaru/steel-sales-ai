@@ -101,7 +101,7 @@ test("UXA1 establishes the forest and neutral visual system in core chrome", () 
   assert.match(globals, /--surface-canvas: #f6f8f7/);
   assert.match(globals, /--border: #dde4e1/);
   assert.match(globals, /UXA1 — legacy accent compatibility/);
-  assert.match(productBrand, /#173f35/);
+  assert.match(productBrand, /#123B34/);
 
   for (const source of [appShell, workspaceNav, platformNav, platformShell]) {
     assert.doesNotMatch(source, /#2f6fed/i);
