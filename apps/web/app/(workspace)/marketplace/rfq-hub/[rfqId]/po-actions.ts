@@ -113,6 +113,38 @@ export async function issuePurchaseOrder(input: {
     confirmationDueAt = date.toISOString();
   }
 
+  const { data: approvalData, error: approvalError } = await supabase.rpc(
+    "rfqh13_request_approval",
+    {
+      p_rfq_id: input.rfqId,
+      p_action_type: "po_issue",
+      p_po_draft_id: input.poDraftId,
+      p_reason: "Emissione Purchase Order",
+      p_context: {
+        buyer_message: input.buyerMessage?.trim() || null,
+        confirmation_due_at: confirmationDueAt,
+      },
+    },
+  );
+
+  if (approvalError) {
+    console.error("RFQH13 PO approval request failed:", approvalError.message);
+    return { ok: false, error: readableError(approvalError.message) };
+  }
+
+  const approval =
+    approvalData && typeof approvalData === "object" && !Array.isArray(approvalData)
+      ? (approvalData as { required?: boolean; status?: string })
+      : null;
+
+  if (approval?.required && approval.status !== "approved") {
+    return {
+      ok: false,
+      error:
+        "Emissione PO inviata in approvazione. Dopo l'approvazione, l'owner deve ripetere l'emissione senza cambiare termini, messaggio o scadenza.",
+    };
+  }
+
   const { data, error } = await supabase.rpc("rfqh9_prepare_issue", {
     p_po_draft_id: input.poDraftId,
     p_token_hash: security.tokenHash,

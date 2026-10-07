@@ -22,11 +22,13 @@ import {
   Rfqh9PurchaseOrderPanel,
   type Rfqh9PoState,
 } from "@/components/rfqh9-purchase-order-panel";
+import { Rfqh13GovernancePanel } from "@/components/rfqh13-governance-panel";
 import { RfqSupplierAddForm } from "@/components/rfq-supplier-add-form";
 import {
   buildRfqh9SupplierUrl,
   createRfqh9PoSecurity,
 } from "@/lib/rfqh9-po";
+import type { Rfqh13GovernanceState } from "@/lib/rfqh13-governance";
 import { appRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
 
@@ -57,10 +59,11 @@ function formatDate(value: string | null) {
 export default async function BuyerRfqCampaignPage({ params }: { params: Params }) {
   const { rfqId } = await params;
   const supabase = await createClient();
+  const { data: authData } = await supabase.auth.getUser();
 
   const { data: campaign } = await supabase
     .from("buyer_rfq_campaigns")
-    .select("id,title,status,source_distinta_id,due_at,buyer_message,created_at")
+    .select("id,title,status,source_distinta_id,due_at,buyer_message,created_at,owner_user_id,organization_id")
     .eq("id", rfqId)
     .maybeSingle();
 
@@ -77,6 +80,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
     { data: awardRow },
     { data: marketplaceBridgeState },
     { data: purchaseOrderState },
+    { data: governanceState },
   ] = await Promise.all([
     supabase
       .from("buyer_distintas")
@@ -122,7 +126,18 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
     supabase.rpc("rfqh9_po_state", {
       p_rfq_id: campaign.id,
     }),
+    supabase.rpc("rfqh13_governance_state", {
+      p_rfq_id: campaign.id,
+    }),
   ]);
+
+  const governance =
+    governanceState && typeof governanceState === "object" && !Array.isArray(governanceState)
+      ? (governanceState as Rfqh13GovernanceState)
+      : null;
+  const canExecuteCritical =
+    governance?.current_user?.role === "owner" ||
+    campaign.owner_user_id === authData.user?.id;
 
   const supplierRows = suppliers ?? [];
   const lineRows = lines ?? [];
@@ -316,11 +331,18 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
         </div>
       </header>
 
+      <Rfqh13GovernancePanel
+        rfqId={campaign.id}
+        currentUserId={authData.user?.id ?? null}
+        state={governance}
+      />
+
       <RfqDispatchPanel
         rfqId={campaign.id}
         campaignStatus={campaign.status}
         dueAt={campaign.due_at}
         buyerMessage={campaign.buyer_message}
+        canExecute={canExecuteCritical}
         suppliers={supplierRows.map((supplier) => ({
           id: supplier.id,
           status: supplier.status,
@@ -328,7 +350,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
         }))}
       />
 
-      {campaign.status === "draft" || campaign.status === "ready" ? (
+      {(campaign.status === "draft" || campaign.status === "ready") && canExecuteCritical ? (
         <RfqSupplierAddForm rfqId={campaign.id} />
       ) : null}
 
@@ -417,7 +439,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
           targetEurM: line.target_eur_m,
         }))}
         threads={buyerNegotiationThreads}
-        readOnly={campaign.status === "awarded"}
+        readOnly={campaign.status === "awarded" || !canExecuteCritical}
       />
 
       <RfqAwardPanel
@@ -425,11 +447,13 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
         campaignStatus={campaign.status}
         comparison={comparisonData}
         award={awardSnapshot}
+        canExecute={canExecuteCritical}
       />
 
       <Rfqh9PurchaseOrderPanel
         rfqId={campaign.id}
         state={poState}
+        canExecute={canExecuteCritical}
       />
 
       <section className="rounded-2xl border border-[#dce2df] bg-white">

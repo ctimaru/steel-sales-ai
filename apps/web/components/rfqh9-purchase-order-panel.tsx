@@ -103,9 +103,11 @@ function statusLabel(status: string) {
 function PurchaseOrderCard({
   rfqId,
   po,
+  canExecute,
 }: {
   rfqId: string;
   po: PurchaseOrder;
+  canExecute: boolean;
 }) {
   const router = useRouter();
   const [incoterm, setIncoterm] = useState(po.incoterm || "");
@@ -121,9 +123,9 @@ function PurchaseOrderCard({
   const [lastSupplierUrl, setLastSupplierUrl] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  const editable = ["draft", "change_requested", "supplier_rejected"].includes(
-    po.status,
-  );
+  const editable =
+    canExecute &&
+    ["draft", "change_requested", "supplier_rejected"].includes(po.status);
   const latest = po.versions[0] ?? null;
 
   function saveTerms() {
@@ -461,9 +463,11 @@ function PurchaseOrderCard({
 export function Rfqh9PurchaseOrderPanel({
   rfqId,
   state,
+  canExecute = true,
 }: {
   rfqId: string;
   state: Rfqh9PoState | null;
+  canExecute?: boolean;
 }) {
   const purchaseOrders = state?.purchase_orders ?? [];
   if (!purchaseOrders.length) return null;
@@ -492,9 +496,20 @@ export function Rfqh9PurchaseOrderPanel({
         </span>
       </div>
 
+      {!canExecute ? (
+        <p className="mt-3 rounded-xl border border-[#dce2df] bg-white px-4 py-3 text-xs font-semibold text-[#66736e]">
+          Modalità consultazione: modifica termini ed emissione PO restano azioni dell&apos;owner RFQ.
+        </p>
+      ) : null}
+
       <div className="mt-4 space-y-4">
         {purchaseOrders.map((po) => (
-          <PurchaseOrderCard key={po.id} rfqId={rfqId} po={po} />
+          <PurchaseOrderCard
+            key={po.id}
+            rfqId={rfqId}
+            po={po}
+            canExecute={canExecute}
+          />
         ))}
       </div>
     </section>

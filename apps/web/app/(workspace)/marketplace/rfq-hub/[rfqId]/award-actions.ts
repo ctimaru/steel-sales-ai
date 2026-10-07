@@ -38,6 +38,35 @@ export async function confirmRfqAward(input: {
     }))
     .filter((item) => item.line_id && item.supplier_id && item.awarded_tonnes);
 
+  const { data: approvalData, error: approvalError } = await supabase.rpc(
+    "rfqh13_request_approval",
+    {
+      p_rfq_id: input.rfqId.trim(),
+      p_action_type: "award",
+      p_po_draft_id: null,
+      p_reason: input.reason.trim(),
+      p_context: { allocations },
+    },
+  );
+
+  if (approvalError) {
+    console.error("RFQH13 award approval request failed:", approvalError.message);
+    return { ok: false, error: awardError(approvalError.message) };
+  }
+
+  const approval =
+    approvalData && typeof approvalData === "object" && !Array.isArray(approvalData)
+      ? (approvalData as { required?: boolean; status?: string })
+      : null;
+
+  if (approval?.required && approval.status !== "approved") {
+    return {
+      ok: false,
+      error:
+        "Award inviato in approvazione. Un approver diverso dal richiedente deve approvarlo; poi l'owner potrà confermarlo senza modificare quantità o motivazione.",
+    };
+  }
+
   const { error } = await supabase.rpc("rfqh7_confirm_award", {
     p_rfq_id: input.rfqId.trim(),
     p_reason: input.reason.trim(),
