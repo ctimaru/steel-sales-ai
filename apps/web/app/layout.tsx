@@ -51,8 +51,58 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   const googleAnalyticsId =
     process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID?.trim() || "G-F5QWLD98HD";
 
+  const googleConsentBootstrap = `
+window.dataLayer = window.dataLayer || [];
+window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};
+window.gtag("consent", "default", {
+  analytics_storage: "denied",
+  ad_storage: "denied",
+  ad_user_data: "denied",
+  ad_personalization: "denied",
+  wait_for_update: 500
+});
+window.gtag("set", "ads_data_redaction", true);
+`;
+
+  const googleAnalyticsConfig = `
+(function() {
+  var path = window.location.pathname;
+  var shouldMeasure =
+    path === "/" ||
+    path.indexOf("/knowledge") === 0 ||
+    path.indexOf("/azienda") === 0 ||
+    path.indexOf("/register") === 0 ||
+    path.indexOf("/login") === 0;
+
+  if (!shouldMeasure) return;
+
+  window.gtag("js", new Date());
+  window.gtag("config", "${googleAnalyticsId}", {
+    send_page_view: false,
+    allow_google_signals: false,
+    allow_ad_personalization_signals: false
+  });
+  window.__sssGaConfigured = "${googleAnalyticsId}";
+})();
+`;
+
   return (
     <html lang="it">
+      <head>
+        <script
+          id="sss-google-consent-bootstrap"
+          dangerouslySetInnerHTML={{ __html: googleConsentBootstrap }}
+        />
+        <script
+          id="sss-google-analytics"
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
+        />
+        <script
+          id="sss-google-analytics-config"
+          dangerouslySetInnerHTML={{ __html: googleAnalyticsConfig }}
+        />
+      </head>
       <body>
         {children}
         <PublicLegalFooter />

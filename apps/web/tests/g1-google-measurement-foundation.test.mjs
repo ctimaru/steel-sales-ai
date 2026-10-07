@@ -24,17 +24,16 @@ test("G1 keeps Search Console verification env-driven", () => {
 test("G1 activates GA4 only from an environment measurement ID", () => {
   assert.match(rootLayout, /NEXT_PUBLIC_GOOGLE_ANALYTICS_ID/);
   assert.match(rootLayout, /<GoogleAnalyticsConsent measurementId=\{googleAnalyticsId\}/);
-  assert.match(analytics, /googletagmanager\.com\/gtag\/js\?id=/);
+  assert.match(rootLayout, /googletagmanager\.com\/gtag\/js\?id=/);
 });
 
 test("G1 uses advanced consent mode with denied defaults before opt-in", () => {
-  assert.match(analytics, /\{shouldMeasure \? \(/);
-  assert.match(analytics, /"consent", "default"/);
-  assert.match(analytics, /analytics_storage: "denied"/);
+  assert.match(rootLayout, /"consent", "default"/);
+  assert.match(rootLayout, /analytics_storage: "denied"/);
   assert.match(analytics, /analytics_storage: consent === "granted" \? "granted" : "denied"/);
-  assert.match(analytics, /ad_storage: "denied"/);
-  assert.match(analytics, /ad_user_data: "denied"/);
-  assert.match(analytics, /ad_personalization: "denied"/);
+  assert.match(rootLayout, /ad_storage: "denied"/);
+  assert.match(rootLayout, /ad_user_data: "denied"/);
+  assert.match(rootLayout, /ad_personalization: "denied"/);
   assert.match(analytics, /Accetta necessari/);
   assert.match(analytics, /Accetta/);
   assert.match(analytics, /Prima della tua scelta Analytics resta senza cookie/);
@@ -57,13 +56,13 @@ test("G1 pageviews contain page context but no Smart Steel Sales identity payloa
   assert.match(analytics, /page_location:/);
   assert.match(analytics, /page_title:/);
   assert.doesNotMatch(analytics, /user_id|organization_id|company_id|email|vat_number|partita_iva/i);
-  assert.match(analytics, /allow_google_signals: false/);
-  assert.match(analytics, /allow_ad_personalization_signals: false/);
+  assert.match(rootLayout + analytics, /allow_google_signals: false/);
+  assert.match(rootLayout + analytics, /allow_ad_personalization_signals: false/);
 });
 
 test("G1 lets users withdraw analytics consent and clears GA cookies", () => {
   assert.match(analytics, /Riapri preferenze cookie e privacy/);
   assert.match(analytics, /clearGoogleAnalyticsCookies/);
   assert.match(analytics, /Max-Age=0/);
-  assert.match(analytics, /analytics_storage: "denied"/);
+  assert.match(rootLayout + analytics, /analytics_storage: "denied"/);
 });
