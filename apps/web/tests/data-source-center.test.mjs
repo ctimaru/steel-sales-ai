@@ -30,11 +30,12 @@ test("data source center exposes required P1.3 operational states", () => {
   assert.match(page, /File ed email importati/);
 });
 
-test("workspace navigation links source history and import workflow", () => {
+test("company navigation exposes data sources while import stays contextual inside the source center", () => {
   assert.match(navigation, /appRoutes\.company\.dataSources/);
-  assert.match(navigation, /appRoutes\.operations\.uploads/);
+  assert.doesNotMatch(navigation, /label="Importa documenti"/);
   assert.match(shell, /WorkspaceProfileMenu/);
-  assert.match(page, /href="\/uploads"/);
+  assert.match(page, /appRoutes\.operations\.uploads/);
+  assert.match(page, /appRoutes\.company\.dataSources/);
 });
 
 
