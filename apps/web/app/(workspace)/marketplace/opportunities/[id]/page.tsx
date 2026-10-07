@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { MarketplaceCountdown } from "@/components/marketplace-countdown";
+import { PilotEvent } from "@/components/pilot-event";
 import { MarketplaceResponseWorkspace } from "@/components/marketplace-response-workspace";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import {
@@ -96,6 +97,7 @@ export default async function MarketplaceOpportunityPage({
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
+      <PilotEvent eventName="marketplace_opportunity_viewed" metadata={{ surface: "marketplace_opportunity" }} />
       <Link
         href={appRoutes.marketplace.home}
         className="text-sm font-semibold text-[#66736e] hover:text-[#173f35]"
