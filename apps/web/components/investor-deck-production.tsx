@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import type { BusinessPlanLocale } from "@/lib/business-plan-locale";
+import { investorDeckRelease, investorDeckReleaseFooter } from "@/lib/marketing-investor-deck-release";
 import { getPitchDeckSlides, type ClaimStatus } from "@/lib/marketing-fundraising-assets";
 import {
   getFundraisingReadiness,
@@ -44,6 +45,7 @@ function SlideFrame({
   children,
   footer,
   dark = false,
+  investorMode = false,
 }: {
   number: number;
   title: string;
@@ -53,6 +55,7 @@ function SlideFrame({
   children: ReactNode;
   footer?: ReactNode;
   dark?: boolean;
+  investorMode?: boolean;
 }) {
   return (
     <section
@@ -86,12 +89,14 @@ function SlideFrame({
             ].join(" ")}>
               {claimLabel(claimStatus)}
             </span>
-            <span className={[
-              "rounded-full px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.1em]",
-              dark ? "bg-white/10 text-white" : readinessClass(readiness),
-            ].join(" ")}>
-              {readiness}
-            </span>
+            {!investorMode ? (
+              <span className={[
+                "rounded-full px-3 py-1.5 text-[9px] font-bold uppercase tracking-[0.1em]",
+                dark ? "bg-white/10 text-white" : readinessClass(readiness),
+              ].join(" ")}>
+                {readiness}
+              </span>
+            ) : null}
           </div>
         </div>
 
@@ -101,7 +106,11 @@ function SlideFrame({
           "mt-5 flex items-end justify-between gap-5 border-t pt-4 text-[10px]",
           dark ? "border-white/10 text-white/45" : "border-[var(--border)] text-[var(--text-tertiary)]",
         ].join(" ")}>
-          <span>Smart Steel Sales · Investor Deck Draft · MKT5</span>
+          <span>
+            {investorMode
+              ? `Smart Steel Sales · Confidential Investor Deck · ${investorDeckRelease.version}`
+              : "Smart Steel Sales · Investor Deck Draft · MKT5"}
+          </span>
           <span className="max-w-[60%] text-right">{footer}</span>
         </div>
       </div>
@@ -111,8 +120,10 @@ function SlideFrame({
 
 export function InvestorDeckProduction({
   locale = "it",
+  investorMode = false,
 }: {
   locale?: BusinessPlanLocale;
+  investorMode?: boolean;
 }) {
   const slides = getPitchDeckSlides(locale);
   const readiness = getFundraisingReadiness(locale);
@@ -120,19 +131,22 @@ export function InvestorDeckProduction({
   const slide = (number: number) => slides.find((item) => item.number === number)!;
   const ev = (number: number) => evidence.get(number)!;
   const isIt = locale === "it";
+  const footerFor = (number: number, internal: ReactNode) =>
+    investorMode ? investorDeckReleaseFooter(number, locale) : internal;
 
   const visualApproved = readiness.screenshots.filter((item) => item.readiness === "approved_for_deck");
 
   return (
     <div className="space-y-8 print:space-y-0">
       <SlideFrame
+        investorMode={investorMode}
         number={1}
         title={slide(1).title}
         thesis={slide(1).thesis}
         readiness={ev(1).readiness}
         claimStatus={slide(1).status}
         dark
-        footer={isIt ? "Pre-launch · pilot readiness" : "Pre-launch · pilot readiness"}
+        footer={footerFor(1, isIt ? "Pre-launch · pilot readiness" : "Pre-launch · pilot readiness")}
       >
         <div className="flex h-full flex-col justify-between">
           <div className="grid max-w-4xl gap-3 sm:grid-cols-3">
@@ -149,7 +163,7 @@ export function InvestorDeckProduction({
           <div className="flex flex-wrap items-center gap-2">
             {visualApproved.filter((item) => item.slideTargets.includes(1)).map((item) => (
               <span key={item.key} className="rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5 text-[10px] font-semibold text-white/70">
-                Visual approved · {item.surface}
+                {investorMode ? "Public visual validated" : <>Visual approved · {item.surface}</>}
               </span>
             ))}
           </div>
@@ -157,12 +171,13 @@ export function InvestorDeckProduction({
       </SlideFrame>
 
       <SlideFrame
+        investorMode={investorMode}
         number={2}
         title={slide(2).title}
         thesis={slide(2).thesis}
         readiness={ev(2).readiness}
         claimStatus={slide(2).status}
-        footer={ev(2).gap}
+        footer={footerFor(2, ev(2).gap)}
       >
         <div className="grid h-full gap-4 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
           <div className="grid grid-cols-2 gap-3">
@@ -187,12 +202,13 @@ export function InvestorDeckProduction({
       </SlideFrame>
 
       <SlideFrame
+        investorMode={investorMode}
         number={3}
         title={slide(3).title}
         thesis={slide(3).thesis}
         readiness={ev(3).readiness}
         claimStatus={slide(3).status}
-        footer={ev(3).nextAction}
+        footer={footerFor(3, ev(3).nextAction)}
       >
         <div className="grid h-full gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
@@ -210,12 +226,13 @@ export function InvestorDeckProduction({
       </SlideFrame>
 
       <SlideFrame
+        investorMode={investorMode}
         number={4}
         title={slide(4).title}
         thesis={slide(4).thesis}
         readiness={ev(4).readiness}
         claimStatus={slide(4).status}
-        footer={ev(4).nextAction}
+        footer={footerFor(4, ev(4).nextAction)}
       >
         <div className="grid h-full grid-cols-2 gap-3 lg:grid-cols-3">
           {[
@@ -235,12 +252,13 @@ export function InvestorDeckProduction({
       </SlideFrame>
 
       <SlideFrame
+        investorMode={investorMode}
         number={5}
         title={slide(5).title}
         thesis={slide(5).thesis}
         readiness={ev(5).readiness}
         claimStatus={slide(5).status}
-        footer={ev(5).gap}
+        footer={footerFor(5, ev(5).gap)}
       >
         <div className="flex h-full flex-wrap content-center items-center gap-2">
           {[
@@ -262,12 +280,13 @@ export function InvestorDeckProduction({
       </SlideFrame>
 
       <SlideFrame
+        investorMode={investorMode}
         number={6}
         title={slide(6).title}
         thesis={slide(6).thesis}
         readiness={ev(6).readiness}
         claimStatus={slide(6).status}
-        footer={ev(6).nextAction}
+        footer={footerFor(6, ev(6).nextAction)}
       >
         <div className="grid h-full gap-4 lg:grid-cols-2">
           <div className="rounded-3xl bg-[var(--brand-primary-soft)] p-6">
@@ -288,12 +307,13 @@ export function InvestorDeckProduction({
       </SlideFrame>
 
       <SlideFrame
+        investorMode={investorMode}
         number={7}
         title={slide(7).title}
         thesis={slide(7).thesis}
         readiness={ev(7).readiness}
         claimStatus={slide(7).status}
-        footer={ev(7).gap}
+        footer={footerFor(7, ev(7).gap)}
       >
         <div className="grid h-full gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
@@ -312,12 +332,13 @@ export function InvestorDeckProduction({
       </SlideFrame>
 
       <SlideFrame
+        investorMode={investorMode}
         number={8}
         title={slide(8).title}
         thesis={slide(8).thesis}
         readiness={ev(8).readiness}
         claimStatus={slide(8).status}
-        footer={ev(8).gap}
+        footer={footerFor(8, ev(8).gap)}
       >
         <div className="grid h-full gap-3 sm:grid-cols-2">
           {[
@@ -335,12 +356,13 @@ export function InvestorDeckProduction({
       </SlideFrame>
 
       <SlideFrame
+        investorMode={investorMode}
         number={9}
         title={slide(9).title}
         thesis={slide(9).thesis}
         readiness={ev(9).readiness}
         claimStatus={slide(9).status}
-        footer={isIt ? "Estimate · replacement cost ≠ valuation" : "Estimate · replacement cost ≠ valuation"}
+        footer={footerFor(9, isIt ? "Estimate · replacement cost ≠ valuation" : "Estimate · replacement cost ≠ valuation")}
       >
         <div className="grid h-full gap-4 sm:grid-cols-3">
           {metric("~280–400 h", isIt ? "AI-assisted operative" : "AI-assisted operating")}
@@ -350,16 +372,17 @@ export function InvestorDeckProduction({
       </SlideFrame>
 
       <SlideFrame
+        investorMode={investorMode}
         number={10}
         title={slide(10).title}
         thesis={isIt ? "Non inventiamo una traction slide prima della traction." : "We do not invent a traction slide before traction exists."}
         readiness={ev(10).readiness}
         claimStatus={slide(10).status}
-        footer={ev(10).nextAction}
+        footer={footerFor(10, ev(10).nextAction)}
       >
         <div className="grid h-full items-center gap-4 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="rounded-3xl border border-red-200 bg-red-50 p-6">
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--semantic-error)]">BLOCKED</p>
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--semantic-error)]">{investorMode ? "PRE-LAUNCH" : "BLOCKED"}</p>
             <p className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
               {isIt ? "Pre-launch baseline only" : "Pre-launch baseline only"}
             </p>
@@ -380,12 +403,13 @@ export function InvestorDeckProduction({
       </SlideFrame>
 
       <SlideFrame
+        investorMode={investorMode}
         number={11}
         title={slide(11).title}
         thesis={slide(11).thesis}
         readiness={ev(11).readiness}
         claimStatus={slide(11).status}
-        footer={ev(11).gap}
+        footer={footerFor(11, ev(11).gap)}
       >
         <div className="flex h-full flex-wrap content-center items-center gap-2">
           {[
@@ -407,12 +431,13 @@ export function InvestorDeckProduction({
       </SlideFrame>
 
       <SlideFrame
+        investorMode={investorMode}
         number={12}
         title={slide(12).title}
         thesis={slide(12).thesis}
         readiness={ev(12).readiness}
         claimStatus={slide(12).status}
-        footer={isIt ? "Operating milestones, not guaranteed forecast" : "Operating milestones, not guaranteed forecast"}
+        footer={footerFor(12, isIt ? "Operating milestones, not guaranteed forecast" : "Operating milestones, not guaranteed forecast")}
       >
         <div className="grid h-full gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {readiness.milestonePhases.map((phase) => (
@@ -426,12 +451,13 @@ export function InvestorDeckProduction({
       </SlideFrame>
 
       <SlideFrame
+        investorMode={investorMode}
         number={13}
         title={slide(13).title}
         thesis={slide(13).thesis}
         readiness={ev(13).readiness}
         claimStatus={slide(13).status}
-        footer={ev(13).nextAction}
+        footer={footerFor(13, ev(13).nextAction)}
       >
         <div className="grid h-full gap-4 lg:grid-cols-[0.8fr_1.2fr]">
           <div className="flex items-center justify-center rounded-3xl bg-[var(--brand-deep)] p-6 text-white">
@@ -457,13 +483,14 @@ export function InvestorDeckProduction({
       </SlideFrame>
 
       <SlideFrame
+        investorMode={investorMode}
         number={14}
         title={slide(14).title}
         thesis={slide(14).thesis}
         readiness={ev(14).readiness}
         claimStatus={slide(14).status}
         dark
-        footer={isIt ? "Working recommendation · valuation & terms TBD" : "Working recommendation · valuation & terms TBD"}
+        footer={footerFor(14, isIt ? "Working recommendation · valuation & terms TBD" : "Working recommendation · valuation & terms TBD")}
       >
         <div className="grid h-full gap-6 lg:grid-cols-[0.8fr_1.2fr]">
           <div className="flex flex-col justify-center">
