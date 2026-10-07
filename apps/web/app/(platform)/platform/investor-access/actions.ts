@@ -13,7 +13,7 @@ function value(formData: FormData, key: string) {
 }
 
 function selectedScopes(formData: FormData) {
-  const scopes = ["business_plan", "kpi"].filter(
+  const scopes = ["business_plan", "marketing", "kpi"].filter(
     (scope) => formData.get(scope) === "on",
   );
   return scopes;
@@ -55,7 +55,7 @@ export async function createInvestorAccessInvite(formData: FormData) {
     redirect(
       investorAccessPath(
         "error",
-        "Seleziona almeno una sezione: Business Plan o KPI.",
+        "Seleziona almeno una sezione: Business Plan, Marketing o KPI.",
       ),
     );
   }
