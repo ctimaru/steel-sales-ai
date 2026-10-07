@@ -167,9 +167,12 @@ export function AppShell({
             <div className="hidden lg:block">
               <WorkspaceProfileMenu
                 viewerLabel={viewerLabel}
-                organizationName={organizationName}
+                organizationName={organizationLabel}
                 organizationRoleLabel={effectiveRole}
                 platformSuperadmin={platformSuperadmin}
+                platformConsoleAccess={platformConsoleAccess}
+                platformOwner={platformOwner}
+                guidedSetupComplete={guidedSetupComplete}
                 canAdmin={canAdmin}
                 canWrite={canWrite}
                 logoutAction={logout}
