@@ -9,6 +9,7 @@ export const investorDeckRelease = {
   readOnly: true,
   noIndex: true,
   includesPrivateDemoScreenshots: false,
+  privateVisualQa: "pending" as const,
   includedApprovedPublicVisuals: ["public-home", "school"] as const,
   excludedInternalAssets: [
     "pitch-deck-foundation",
