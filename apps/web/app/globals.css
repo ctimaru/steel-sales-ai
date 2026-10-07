@@ -761,6 +761,39 @@ textarea {
 }
 
 
+/* UXC1 — legacy palette bridge.
+   These aliases let the new system propagate immediately while feature files
+   are progressively moved away from literal Tailwind hex values. */
+[class~="text-[#1d2824]"] {
+  color: var(--text-primary) !important;
+}
+
+[class~="text-[#173f35]"],
+[class~="text-[#1a5144]"] {
+  color: var(--brand-deep) !important;
+}
+
+[class~="bg-[#123d34]"] {
+  background-color: var(--brand-deep) !important;
+}
+
+[class~="bg-[#1a5144]"] {
+  background-color: var(--brand-primary) !important;
+}
+
+[class~="border-[#1a5144]"] {
+  border-color: var(--brand-primary) !important;
+}
+
+[class~="bg-[#f2f4f3]"],
+[class~="bg-[#edf1ef]"] {
+  background-color: var(--surface-canvas) !important;
+}
+
+[class~="border-[#dce2df]"] {
+  border-color: var(--border) !important;
+}
+
 /* UXC1 — semantic helpers for progressive page migration. */
 .ui-text-primary { color: var(--text-primary); }
 .ui-text-secondary { color: var(--text-secondary); }
