@@ -8,7 +8,7 @@ import {
   unfollowNetworkCompany,
 } from "@/app/(workspace)/network/actions";
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
-import { FocusHeader, FocusPage } from "@/components/focus-ui";
+import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
 import { NetworkAccessGate } from "@/components/network-access-gate";
 import { PilotEvent } from "@/components/pilot-event";
 import { canWriteWorkspace } from "@/lib/access-policy";
@@ -284,32 +284,31 @@ export default async function NetworkDirectoryPage({
       </section>
 
       <section aria-labelledby="network-results">
-        <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="app-kicker">Directory</p>
-            <h2 id="network-results" className="mt-1 text-xl font-semibold text-[#1d2824]">
+        <FocusSectionHeader
+          eyebrow="Directory"
+          title={
+            <span id="network-results">
               {results.total.toLocaleString("it-IT")} {results.total === 1 ? "azienda" : "aziende"}
-            </h2>
-            <p className="mt-1 text-sm text-[#5d6a65]">
-              Profili industriali pubblicati nel Network.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2 text-xs">
-            <Link
-              href={appRoutes.network.saved}
-              className="rounded-full border border-[#d7dfdb] bg-white px-3 py-1.5 font-semibold text-[#43524c] hover:border-[#9db9af]"
-            >
-              Salvate · {saved.length}
-            </Link>
-            <Link
-              href={appRoutes.network.following}
-              className="rounded-full border border-[#d7dfdb] bg-white px-3 py-1.5 font-semibold text-[#43524c] hover:border-[#9db9af]"
-            >
-              Seguite · {followed.total}
-            </Link>
-          </div>
-        </div>
+            </span>
+          }
+          description="Profili industriali pubblicati nel Network."
+          action={
+            <div className="flex flex-wrap gap-2 text-xs">
+              <Link
+                href={appRoutes.network.saved}
+                className="rounded-full border border-[#d7dfdb] bg-white px-3 py-1.5 font-semibold text-[#43524c] hover:border-[#9db9af]"
+              >
+                Salvate · {saved.length}
+              </Link>
+              <Link
+                href={appRoutes.network.following}
+                className="rounded-full border border-[#d7dfdb] bg-white px-3 py-1.5 font-semibold text-[#43524c] hover:border-[#9db9af]"
+              >
+                Seguite · {followed.total}
+              </Link>
+            </div>
+          }
+        />
 
         {results.items.length === 0 ? (
           params.q || hasAdvancedFilters ? (
