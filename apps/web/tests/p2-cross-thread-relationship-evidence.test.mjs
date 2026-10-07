@@ -23,7 +23,7 @@ const migration = fs.readFileSync(
 
 test("P2.6 exposes canonical cross-thread review workspace", () => {
   assert.match(routes, /crossThreadRelationships:\s*"\/commercial\/conversion\/relationships"/);
-  assert.match(shell, /Relazioni cross-thread/);
+  assert.match(shell, /label: "Relazioni"/);
   assert.match(page, /Relazioni cross-thread/);
   assert.match(actions, /p2_cross_thread_relationship_evidence/);
 });

@@ -13,7 +13,7 @@ export type WorkspaceContextKey =
   | "commercial:products"
   | "commercial:companies"
   | "commercial:assistant"
-  | "commercial:explorer"
+  | "commercial:intelligence:explorer"
   | "commercial:intelligence:prices"
   | "commercial:intelligence:market"
   | "commercial:intelligence:reengagement"
@@ -142,7 +142,7 @@ function commercialContext(pathname: string): WorkspaceContextKey {
     return "commercial:assistant";
   }
   if (isAnyPath(pathname, [appRoutes.commercial.explorer, legacyRoutes.explorer])) {
-    return "commercial:explorer";
+    return "commercial:intelligence:explorer";
   }
   if (isAnyPath(pathname, [appRoutes.commercial.priceIntelligence, legacyRoutes.priceIntelligence])) {
     return "commercial:intelligence:prices";

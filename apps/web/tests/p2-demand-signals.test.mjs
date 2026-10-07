@@ -45,6 +45,6 @@ test("P2.2 exposes attribution quality and truthful empty state", () => {
 
 test("P2.2 is wired into canonical Commercial Intelligence navigation", () => {
   assert.match(routes, /demand: "\/commercial\/demand"/);
-  assert.match(shell, /Segnali di domanda/);
+  assert.match(shell, /label: "Domanda"/);
   assert.match(navigation, /Intelligence/);
 });
