@@ -18,18 +18,19 @@ test("P5.2 promotes Marketplace home to supplier opportunities and preserves buy
   assert.match(routes, /myRequests: "\/marketplace\/requests"/);
   assert.match(routes, /opportunity: \(id: string\)/);
   assert.match(shell, /label: "Opportunità"/);
-  assert.match(shell, /label: "Le mie ricerche"/);
-  assert.match(feedPage, /P5\.2 · Live Demand Board/);
+  assert.match(shell, /label: "Acquisti"/);
+  assert.match(shell, /label: "RFQ"/);
+  assert.match(shell, /label: "Risposte"/);
+  assert.match(feedPage, /Compra o vendi, in un unico spazio/);
   assert.match(feedPage, /getMarketplaceFeed/);
   assert.match(buyerPage, /getMyMarketplaceRequests/);
 });
 
 test("P5.2 feed exposes only privacy-safe teaser concepts", () => {
-  assert.match(feedPage, /Free teaser/);
-  assert.match(feedPage, /Fascia quantità/);
+  assert.match(feedPage, /Informazioni protette/);
+  assert.match(feedPage, /Quantità/);
   assert.match(feedPage, /Tempo residuo/);
-  assert.match(feedPage, /Privacy boundary P5\.2/);
-  assert.match(feedPage, /titolo libero, norma, grado, dimensioni, quantità esatta/);
+  assert.match(feedPage, /Commercial Memory/);
   assert.doesNotMatch(feedPage, /standard_code|grade_designation|outer_diameter_mm|thickness_mm|certification/);
 });
 
@@ -41,14 +42,14 @@ test("P5.2 countdown is initialized from server-derived remaining seconds", () =
 });
 
 test("P5.2 teaser remains the free baseline while P5.3 gates exact detail", () => {
-  assert.match(teaserPage, /Teaser P5\.2/);
+  assert.match(teaserPage, /Informazioni essenziali/);
   assert.match(teaserPage, /teaser\.teaser_lines\.map/);
   assert.match(teaserPage, /line\.quantity_band/);
   assert.match(teaserPage, /Buyer anonimo/);
   assert.match(teaserPage, /Apri Company Profile/);
   assert.match(teaserPage, /getMarketplaceEntitlementState/);
   assert.match(teaserPage, /entitlement\.state === "entitled"/);
-  assert.match(teaserPage, /P5\.4 verifica separatamente il diritto di risposta/);
+  assert.match(teaserPage, /diritto di risposta viene verificato separatamente/);
   assert.doesNotMatch(teaserPage, /Invia offerta|Submit quote/i);
 });
 
