@@ -56,6 +56,7 @@ test("HP10 centralizes route-to-context resolution so root tabs do not double-se
   assert.match(ia, /marketplaceContext/);
   assert.match(ia, /knowledgeContext/);
   assert.match(ia, /commercialContext/);
+  assert.match(ia, /commercial:intelligence:explorer/);
 
   assert.match(nav, /navigation\.context === item\.contextKey/);
   assert.doesNotMatch(nav, /pathname === href \|\| pathname\.startsWith\(href \+ "\/"\)/);
@@ -69,7 +70,7 @@ test("HP10 gives Commerciale a real contextual home and complete intelligence en
   assert.match(shell, /contextKey: "commercial:products"/);
   assert.match(shell, /contextKey: "commercial:companies"/);
   assert.match(shell, /contextKey: "commercial:assistant"/);
-  assert.match(shell, /contextKey: "commercial:explorer"/);
+  assert.match(shell, /contextKey: "commercial:intelligence:explorer"/);
   assert.match(shell, /commercial:intelligence:prices/);
   assert.match(shell, /commercial:intelligence:market/);
   assert.match(shell, /commercial:intelligence:relationships/);
