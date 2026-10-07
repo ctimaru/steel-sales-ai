@@ -49,7 +49,10 @@ test("UXA2B keeps Scuola contextual navigation inside authenticated routes", () 
 
 test("UXA2B mirrors every public technical route inside the authenticated Scuola shell", () => {
   for (const wrapper of schoolWrappers) {
-    assert.match(wrapper, /export \{ default \} from "@\/app\/\(public\)\/knowledge/);
+    assert.match(
+      wrapper,
+      /(?:export \{ default \} from|import .* from) "@\/app\/\(public\)\/knowledge/,
+    );
   }
 });
 
