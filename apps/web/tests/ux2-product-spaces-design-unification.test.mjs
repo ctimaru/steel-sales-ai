@@ -36,14 +36,14 @@ test("PF1 keeps Commercial Memory private while Home becomes a daily cockpit", (
   assert.doesNotMatch(dashboard, /<form action=\{appRoutes\.commercial\.search\}/);
 });
 
-test("P5.2 Marketplace is a supplier Demand Board without implying unlock or response rights", () => {
-  assert.match(marketplace, /P5\.2 · Live Demand Board/);
-  assert.match(marketplace, /Opportunità dal Network/);
-  assert.match(marketplace, /Free teaser/);
+test("PF4 Marketplace separates buyer and supplier jobs without internal program language", () => {
+  assert.match(marketplace, /Compra o vendi, in un unico spazio/);
+  assert.match(marketplace, /Chiedi offerte a più fornitori/);
+  assert.match(marketplace, /Trova richieste a cui puoi rispondere/);
+  assert.match(marketplace, /Apri RFQ Hub/);
+  assert.match(marketplace, /Opportunità per te/);
   assert.match(marketplace, /getMarketplaceFeed/);
-  assert.match(marketplace, /Dettagli tecnici completi e risposta restano fuori da P5\.2/);
-  assert.doesNotMatch(marketplace, /Pay to see/);
-  assert.doesNotMatch(marketplace, /supplier interessato può rispondere/i);
+  assert.doesNotMatch(marketplace, /P5\.|Free teaser|Demand Board|foundation/i);
 });
 
 test("K1 Knowledge is a public technical discovery surface", () => {
