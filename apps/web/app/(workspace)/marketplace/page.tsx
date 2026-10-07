@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { FocusHeader, FocusPage } from "@/components/focus-ui";
 import { MarketplaceCountdown } from "@/components/marketplace-countdown";
+import { PilotEvent } from "@/components/pilot-event";
 import { MarketplaceReadinessPanel } from "@/components/marketplace-readiness";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import {
@@ -79,6 +80,7 @@ export default async function MarketplaceFeedPage({
 
   return (
     <FocusPage>
+      <PilotEvent eventName="marketplace_home_viewed" metadata={{ surface: "marketplace_home" }} />
       <FocusHeader
         eyebrow="Marketplace"
         title="Compra o vendi, in un unico spazio"
