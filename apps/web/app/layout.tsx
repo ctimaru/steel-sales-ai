@@ -48,7 +48,7 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  const googleAnalyticsId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID?.trim();
+  const googleAnalyticsId =\n    process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID?.trim() || "G-F5QWLD98HD";
 
   return (
     <html lang="it">
