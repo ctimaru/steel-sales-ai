@@ -22,6 +22,10 @@ const navigation = fs.readFileSync(
   new URL("../components/workspace-navigation.tsx", import.meta.url),
   "utf8",
 );
+const teamPage = fs.readFileSync(
+  new URL("../app/(workspace)/company/team/page.tsx", import.meta.url),
+  "utf8",
+);
 const worker = fs.readFileSync(
   new URL("../../../services/worker/app/tenant_admin.py", import.meta.url),
   "utf8",
@@ -122,9 +126,11 @@ test("HP8 member access lifecycle remains admin governed", () => {
   assert.match(migration, /cannot suspend the last active organization admin/);
 });
 
-test("HP8 keeps team administration reachable from Company navigation", () => {
-  assert.match(routes, /team: "\/onboarding#team-access"/);
+test("HP8 keeps team administration reachable on a canonical Company route", () => {
+  assert.match(routes, /team: "\/company\/team"/);
   assert.match(navigation, /Team e accessi/);
+  assert.match(teamPage, /hp8_team_state/);
+  assert.match(teamPage, /Invita una persona/);
   assert.match(onboarding, /id="team-access"/);
   assert.match(onboarding, /HP8 · Team onboarding/);
 });
