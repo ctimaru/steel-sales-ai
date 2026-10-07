@@ -1,8 +1,9 @@
 import Link from "next/link";
 
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
-import { FocusHeader, FocusPage } from "@/components/focus-ui";
+import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
 import { MarketplaceCountdown } from "@/components/marketplace-countdown";
+import { PilotEvent } from "@/components/pilot-event";
 import { MarketplaceReadinessPanel } from "@/components/marketplace-readiness";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import {
@@ -79,6 +80,7 @@ export default async function MarketplaceFeedPage({
 
   return (
     <FocusPage>
+      <PilotEvent eventName="marketplace_home_viewed" metadata={{ surface: "marketplace_home" }} />
       <FocusHeader
         eyebrow="Marketplace"
         title="Compra o vendi, in un unico spazio"
@@ -203,21 +205,19 @@ export default async function MarketplaceFeedPage({
       </details>
 
       <section id="opportunita" className="scroll-mt-36">
-        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="app-kicker">Vendi</p>
-            <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">Opportunità aperte</h2>
-            <p className="mt-1 text-sm text-[#5d6a65]">
-              Filtra il mercato per prodotto, consegna e tempo residuo.
-            </p>
-          </div>
-          <Link
-            href={appRoutes.marketplace.notifications}
-            className="text-sm font-semibold text-[#173f35] hover:underline"
-          >
-            Vedi quelle per te →
-          </Link>
-        </div>
+        <FocusSectionHeader
+          eyebrow="Vendi"
+          title="Opportunità aperte"
+          description="Filtra il mercato per prodotto, consegna e tempo residuo."
+          action={
+            <Link
+              href={appRoutes.marketplace.notifications}
+              className="text-sm font-semibold text-[#173f35] hover:underline"
+            >
+              Vedi quelle per te →
+            </Link>
+          }
+        />
 
         <form
           method="get"

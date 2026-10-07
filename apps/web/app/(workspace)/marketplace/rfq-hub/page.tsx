@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { PilotEvent } from "@/components/pilot-event";
 import { appRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
 
@@ -25,6 +26,7 @@ export default async function BuyerRfqHubPage() {
 
   return (
     <div className="space-y-6">
+      <PilotEvent eventName="rfq_hub_viewed" metadata={{ surface: "rfq_hub" }} />
       <header className="rounded-3xl border border-[#244d43] bg-[#123d34] p-6 text-white sm:p-8">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">
           RFQ Hub

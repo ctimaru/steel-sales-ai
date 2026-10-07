@@ -1,7 +1,8 @@
 import Link from "next/link";
 
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
-import { FocusHeader, FocusPage } from "@/components/focus-ui";
+import { PilotEvent } from "@/components/pilot-event";
+import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
 import { Badge } from "@/components/ui/badge";
 import { getCompanySetupState } from "@/lib/company-setup";
 import { getDashboardData } from "@/lib/commercial-data";
@@ -143,6 +144,7 @@ export default async function DashboardPage() {
 
   return (
     <FocusPage className="max-w-[1120px]">
+      <PilotEvent eventName="workspace_home_viewed" metadata={{ surface: "workspace_home" }} />
       <FocusHeader
         eyebrow="Home"
         title={<>Oggi in {context.organizationName}</>}
@@ -186,17 +188,11 @@ export default async function DashboardPage() {
       ) : null}
 
       <section aria-labelledby="daily-priorities">
-        <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="app-kicker">Priorità</p>
-            <h2 id="daily-priorities" className="mt-1 text-xl font-semibold text-[#1d2824]">
-              Cosa richiede attenzione
-            </h2>
-          </div>
-          <p className="text-xs text-[#5d6a65]">
-            Solo segnali con un&apos;azione concreta.
-          </p>
-        </div>
+        <FocusSectionHeader
+          eyebrow="Priorità"
+          title={<span id="daily-priorities">Cosa richiede attenzione</span>}
+          description="Solo segnali con un’azione concreta."
+        />
 
         {attentionItems.length > 0 ? (
           <div className="grid gap-3 md:grid-cols-3">
@@ -241,17 +237,15 @@ export default async function DashboardPage() {
       </section>
 
       <section aria-labelledby="recent-activity">
-        <div className="mb-3 flex items-end justify-between gap-4">
-          <div>
-            <p className="app-kicker">Attività recente</p>
-            <h2 id="recent-activity" className="mt-1 text-xl font-semibold text-[#1d2824]">
-              Ultimi movimenti commerciali
-            </h2>
-          </div>
-          <Link href={appRoutes.commercial.search} className="text-xs font-semibold text-[#173f35] hover:underline">
-            Apri storico →
-          </Link>
-        </div>
+        <FocusSectionHeader
+          eyebrow="Attività recente"
+          title={<span id="recent-activity">Ultimi movimenti commerciali</span>}
+          action={
+            <Link href={appRoutes.commercial.search} className="text-xs font-semibold text-[#173f35] hover:underline">
+              Apri storico →
+            </Link>
+          }
+        />
 
         {recent.length === 0 ? (
           <FirstUseEmptyState
@@ -298,12 +292,10 @@ export default async function DashboardPage() {
       </section>
 
       <section aria-labelledby="quick-actions">
-        <div className="mb-3">
-          <p className="app-kicker">Azioni rapide</p>
-          <h2 id="quick-actions" className="mt-1 text-xl font-semibold text-[#1d2824]">
-            Parti da qui
-          </h2>
-        </div>
+        <FocusSectionHeader
+          eyebrow="Azioni rapide"
+          title={<span id="quick-actions">Parti da qui</span>}
+        />
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {quickActions.map((action, index) => (
             <Link

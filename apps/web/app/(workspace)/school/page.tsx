@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-import { FocusHeader, FocusPage } from "@/components/focus-ui";
+import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
+import { PilotEvent } from "@/components/pilot-event";
 import { SchoolQuickAccess } from "@/components/school-quick-access";
 import { appRoutes } from "@/lib/routes";
 
@@ -14,6 +15,7 @@ const technicalShortcuts = [
 export default function SchoolPage() {
   return (
     <FocusPage className="max-w-[1120px]">
+      <PilotEvent eventName="school_home_viewed" metadata={{ surface: "school_home" }} />
       <FocusHeader
         eyebrow="Scuola"
         title="Il toolbox tecnico per acciaio e tubi"
@@ -117,12 +119,10 @@ export default function SchoolPage() {
       </section>
 
       <section aria-labelledby="school-catalogs">
-        <div className="mb-3">
-          <p className="app-kicker">Cataloghi</p>
-          <h2 id="school-catalogs" className="mt-1 text-xl font-semibold text-[#1d2824]">
-            Vai direttamente al riferimento tecnico
-          </h2>
-        </div>
+        <FocusSectionHeader
+          eyebrow="Cataloghi"
+          title={<span id="school-catalogs">Vai direttamente al riferimento tecnico</span>}
+        />
 
         <div className="grid gap-3 md:grid-cols-3">
           <Link

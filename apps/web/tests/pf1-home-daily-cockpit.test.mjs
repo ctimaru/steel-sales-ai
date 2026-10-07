@@ -11,7 +11,7 @@ test("PF1 turns Home into a compact daily cockpit", () => {
   assert.match(home, /Cosa richiede attenzione/);
   assert.match(home, /Ultimi movimenti commerciali/);
   assert.match(home, /Azioni rapide/);
-  assert.match(home, /Solo segnali con un&apos;azione concreta/);
+  assert.match(home, /Solo segnali con un’azione concreta/);
 });
 
 test("PF1 keeps setup contextual and only when incomplete", () => {
