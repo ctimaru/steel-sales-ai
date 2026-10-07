@@ -120,7 +120,6 @@ export function AppShell({
   const marketplaceItems = networkEnabled ? visibleItems(marketplaceNav, organizationRole) : [];
   const knowledgeItems = visibleItems(knowledgeNav, organizationRole);
   const canAdmin = canAdministerCompany(organizationRole);
-  const canWrite = canWriteWorkspace(organizationRole);
   const effectiveRole = demoMode ? "Modalità demo" : roleLabel(organizationRole);
   const organizationLabel = workspaceOrganizationLabel(organizationName);
 
@@ -145,7 +144,6 @@ export function AppShell({
               platformOwner={platformOwner}
               guidedSetupComplete={guidedSetupComplete}
               canAdmin={canAdmin}
-              canWrite={canWrite}
               logoutAction={logout}
             />
           </div>
