@@ -8,6 +8,7 @@ import {
   type PublicCompanyLookupItem,
   type PublicCompanyLookupState,
 } from "@/lib/public-company-lookup-contract";
+import { trackProductEvent } from "@/lib/product-analytics-events.client";
 
 function claimBadge(state: PublicCompanyLookupItem["claim_state"]) {
   if (state === "claimable") {
@@ -34,6 +35,7 @@ function ResultAction({ item }: { item: PublicCompanyLookupItem }) {
     return (
       <Link
         href={claimPath}
+        onClick={() => trackProductEvent("company_claim_start", { source: "company_lookup" })}
         className="platform-primary inline-flex min-h-10 items-center justify-center rounded-xl px-3 text-xs font-semibold"
       >
         Rivendica questa azienda
@@ -102,6 +104,11 @@ export function PublicCompanyLookup({
         return;
       }
 
+      trackProductEvent("company_search", {
+        context,
+        result: payload.status,
+        matches: payload.items.length,
+      });
       setState(payload);
     } catch {
       setState({ status: "error", mode: null, items: [] });
