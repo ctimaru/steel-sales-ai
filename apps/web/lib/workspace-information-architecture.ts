@@ -28,6 +28,7 @@ export type WorkspaceContextKey =
   | "marketplace:opportunities"
   | "marketplace:inbox"
   | "marketplace:suppliers"
+  | "marketplace:intelligence"
   | "marketplace:rfq-hub"
   | "marketplace:notifications"
   | "marketplace:requests"
@@ -59,6 +60,9 @@ function marketplaceContext(pathname: string): WorkspaceContextKey {
   }
   if (isPath(pathname, appRoutes.marketplace.suppliers)) {
     return "marketplace:suppliers";
+  }
+  if (isPath(pathname, appRoutes.marketplace.procurementIntelligence)) {
+    return "marketplace:intelligence";
   }
   if (isPath(pathname, appRoutes.marketplace.rfqHub)) {
     return "marketplace:rfq-hub";
