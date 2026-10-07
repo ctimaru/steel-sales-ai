@@ -43,7 +43,7 @@ export default async function PlatformInvestorAccessPage({
           Investor Access
         </h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
-          Un unico sistema di inviti per Business Plan e KPI. Ogni accesso ha
+          Un unico sistema di inviti per Business Plan, Marketing e KPI. Ogni accesso ha
           scope espliciti, password dedicata, scadenza, revoca e sessione
           temporanea. Nessun invito concede accesso alla Platform Console.
         </p>
@@ -110,12 +110,19 @@ export default async function PlatformInvestorAccessPage({
 
             <fieldset>
               <legend className="text-xs font-semibold text-[#52615b]">Sezioni condivise</legend>
-              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              <div className="mt-2 grid gap-2 sm:grid-cols-3">
                 <label className="flex items-center gap-3 rounded-xl border border-[#dce2df] bg-[#f8faf9] p-3">
                   <input name="business_plan" type="checkbox" defaultChecked />
                   <span>
                     <span className="block text-sm font-semibold text-[#1d2824]">Business Plan</span>
                     <span className="block text-[11px] text-[#87938e]">Highlights + Details</span>
+                  </span>
+                </label>
+                <label className="flex items-center gap-3 rounded-xl border border-[#dce2df] bg-[#f8faf9] p-3">
+                  <input name="marketing" type="checkbox" />
+                  <span>
+                    <span className="block text-sm font-semibold text-[#1d2824]">Marketing & Brand</span>
+                    <span className="block text-[11px] text-[#87938e]">Brand system + messaging</span>
                   </span>
                 </label>
                 <label className="flex items-center gap-3 rounded-xl border border-[#dce2df] bg-[#f8faf9] p-3">
@@ -190,7 +197,7 @@ export default async function PlatformInvestorAccessPage({
                       <div className="mt-2 flex flex-wrap gap-2">
                         {invite.scopes.map((scope) => (
                           <span key={scope} className="rounded-full bg-[#eef3f0] px-2.5 py-1 text-[10px] font-semibold text-[#345047]">
-                            {scope === "business_plan" ? "Business Plan" : "KPI"}
+                            {scope === "business_plan" ? "Business Plan" : scope === "marketing" ? "Marketing & Brand" : "KPI"}
                           </span>
                         ))}
                       </div>
@@ -217,6 +224,14 @@ export default async function PlatformInvestorAccessPage({
                             defaultChecked={invite.scopes.includes("business_plan")}
                           />
                           Business Plan
+                        </label>
+                        <label className="flex items-center gap-1.5 text-xs text-[#52615b]">
+                          <input
+                            name="marketing"
+                            type="checkbox"
+                            defaultChecked={invite.scopes.includes("marketing")}
+                          />
+                          Marketing
                         </label>
                         <label className="flex items-center gap-1.5 text-xs text-[#52615b]">
                           <input
