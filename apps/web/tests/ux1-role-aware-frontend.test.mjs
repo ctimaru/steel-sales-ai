@@ -27,7 +27,8 @@ test("UXA2 Company Workspace exposes role-aware LinkedIn-style macro navigation"
   assert.match(companyShell, /organizationRole/);
   assert.match(companyShell, /canAdministerCompany/);
   assert.match(companyShell, /canWriteWorkspace/);
-  assert.match(companyShell, /platformSuperadmin/);
+  assert.match(companyShell, /platformConsoleAccess/);
+  assert.doesNotMatch(companyShell, /platformSuperadmin/);
 });
 
 test("PF1 Company Home is a private daily cockpit with task-oriented exits", () => {
