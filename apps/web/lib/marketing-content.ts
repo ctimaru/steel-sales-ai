@@ -41,7 +41,7 @@ export const marketingPalette = [
     hex: "#0F1720",
     roleIt: "Titoli, navigazione, testo principale",
     roleEn: "Headings, navigation, primary text",
-    contrast: "17.91:1",
+    contrast: "18.05:1",
   },
   {
     token: "Secondary Text",
@@ -89,7 +89,7 @@ export const marketingPalette = [
     hex: "#B42318",
     roleIt: "Errori e azioni distruttive",
     roleEn: "Errors and destructive actions",
-    contrast: "7.44:1",
+    contrast: "6.57:1",
   },
 ] as const;
 
