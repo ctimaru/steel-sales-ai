@@ -106,7 +106,7 @@ test("UXA2 keeps contextual subnavigation scoped to the active macro-space", () 
 });
 
 test("UXA2 preserves the forest-neutral visual baseline", () => {
-  assert.match(globals, /--brand-950: #0b2f27/);
-  assert.match(globals, /--primary: #1a5144/);
+  assert.match(globals, /--brand-deep: #123b34/);
+  assert.match(globals, /--primary: var\(--brand-primary\)/);
   assert.doesNotMatch(shell + nav, /#2f6fed|#245ed1/i);
 });
