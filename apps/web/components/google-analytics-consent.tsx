@@ -70,6 +70,7 @@ export function GoogleAnalyticsConsent({
   const pathname = usePathname();
   const [consent, setConsent] = useState<AnalyticsConsent>(null);
   const [consentRecord, setConsentRecord] = useState<AnalyticsConsentRecord | null>(null);
+  const [consentReady, setConsentReady] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const shouldMeasure = useMemo(
@@ -87,6 +88,7 @@ export function GoogleAnalyticsConsent({
     if (stored && analyticsConsentRecordIsCurrent(stored)) {
       setConsentRecord(stored);
       setConsent(stored.decision);
+      setConsentReady(true);
       return;
     }
 
@@ -101,10 +103,11 @@ export function GoogleAnalyticsConsent({
 
     setConsentRecord(null);
     setConsent(null);
+    setConsentReady(true);
   }, [measurementId]);
 
   useEffect(() => {
-    if (!measurementId || !shouldMeasure || consent !== "granted") return;
+    if (!measurementId || !shouldMeasure) return;
 
     const analyticsWindow = window as AnalyticsWindow;
     analyticsWindow.dataLayer = analyticsWindow.dataLayer ?? [];
@@ -115,23 +118,47 @@ export function GoogleAnalyticsConsent({
       };
 
     analyticsWindow.gtag("consent", "default", {
-      analytics_storage: "granted",
+      analytics_storage: "denied",
       ad_storage: "denied",
       ad_user_data: "denied",
       ad_personalization: "denied",
+      wait_for_update: 500,
     });
+    analyticsWindow.gtag("set", "ads_data_redaction", true);
     analyticsWindow.gtag("js", new Date());
     analyticsWindow.gtag("config", measurementId, {
       send_page_view: false,
       allow_google_signals: false,
       allow_ad_personalization_signals: false,
     });
-    analyticsWindow.gtag("event", "page_view", {
+  }, [measurementId, shouldMeasure]);
+
+  useEffect(() => {
+    if (!measurementId || !shouldMeasure || !consentReady || consent === null) return;
+
+    const analyticsWindow = window as AnalyticsWindow;
+    analyticsWindow.gtag?.("consent", "update", {
+      analytics_storage: consent === "granted" ? "granted" : "denied",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+    });
+
+    if (consent === "denied") {
+      clearGoogleAnalyticsCookies();
+    }
+  }, [consent, consentReady, measurementId, shouldMeasure]);
+
+  useEffect(() => {
+    if (!measurementId || !shouldMeasure || !consentReady) return;
+
+    const analyticsWindow = window as AnalyticsWindow;
+    analyticsWindow.gtag?.("event", "page_view", {
       page_path: `${pathname}${window.location.search}`,
       page_location: window.location.href,
       page_title: document.title,
     });
-  }, [consent, measurementId, pathname, shouldMeasure]);
+  }, [consentReady, measurementId, pathname, shouldMeasure]);
 
   if (!measurementId || !shouldMeasure) return null;
 
@@ -146,13 +173,14 @@ export function GoogleAnalyticsConsent({
     setSettingsOpen(false);
 
     const analyticsWindow = window as AnalyticsWindow;
+    analyticsWindow.gtag?.("consent", "update", {
+      analytics_storage: nextConsent === "granted" ? "granted" : "denied",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+    });
+
     if (nextConsent === "denied") {
-      analyticsWindow.gtag?.("consent", "update", {
-        analytics_storage: "denied",
-        ad_storage: "denied",
-        ad_user_data: "denied",
-        ad_personalization: "denied",
-      });
       clearGoogleAnalyticsCookies();
     }
   }
@@ -167,12 +195,28 @@ export function GoogleAnalyticsConsent({
 
   return (
     <>
-      {consent === "granted" ? (
-        <Script
-          id="sss-google-analytics"
-          src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
-          strategy="afterInteractive"
-        />
+      {shouldMeasure ? (
+        <>
+          <Script id="sss-google-consent-default" strategy="afterInteractive">
+            {`
+window.dataLayer = window.dataLayer || [];
+window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};
+window.gtag("consent", "default", {
+  analytics_storage: "denied",
+  ad_storage: "denied",
+  ad_user_data: "denied",
+  ad_personalization: "denied",
+  wait_for_update: 500
+});
+window.gtag("set", "ads_data_redaction", true);
+            `}
+          </Script>
+          <Script
+            id="sss-google-analytics"
+            src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
+            strategy="afterInteractive"
+          />
+        </>
       ) : null}
 
       {showPanel ? (
@@ -202,7 +246,7 @@ export function GoogleAnalyticsConsent({
               ) : null}
             </div>
             <p className="mt-1.5 max-w-lg text-xs leading-5 text-[#52615b]">
-              Usiamo cookie necessari per il sito e, solo se accetti, Google Analytics per capire come vengono usate le pagine pubbliche. Nessun cookie analytics viene caricato prima della tua scelta.
+              Usiamo cookie necessari per il sito e Google Analytics in Consent Mode. Prima della tua scelta Analytics resta senza cookie; se accetti, abiliti la misurazione statistica completa sulle sole pagine pubbliche.
             </p>
             <p className="mt-2 text-[11px] leading-5 text-[#718078]">
               <Link href="/privacy" className="font-semibold text-[#1a5144] underline underline-offset-4">
