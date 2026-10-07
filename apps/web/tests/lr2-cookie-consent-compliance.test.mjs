@@ -34,10 +34,13 @@ test("LR2 deliberately invalidates the legacy unversioned choice once", () => {
   assert.ok(consent.includes("removeItem(LEGACY_ANALYTICS_CONSENT_STORAGE_KEY)"));
 });
 
-test("LR2 keeps zero Google Analytics loading before explicit grant", () => {
-  assert.ok(consent.includes('consent === "granted" ? ('));
+test("LR2 advanced mode loads the Google tag with denied defaults before explicit grant", () => {
+  assert.ok(consent.includes("{shouldMeasure ? ("));
   assert.ok(consent.includes("googletagmanager.com/gtag/js?id="));
-  assert.ok(consent.includes('if (!measurementId || !shouldMeasure || consent !== "granted") return;'));
+  assert.ok(consent.includes('"consent", "default"'));
+  assert.ok(consent.includes('analytics_storage: "denied"'));
+  assert.ok(consent.includes('ad_storage: "denied"'));
+  assert.ok(consent.includes("consentReady"));
   assert.ok(!layout.includes("googletagmanager.com"));
   assert.ok(!layout.includes("google-analytics.com"));
   assert.ok(consent.includes("Accetta necessari"));
