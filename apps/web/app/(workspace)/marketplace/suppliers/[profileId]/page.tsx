@@ -69,7 +69,7 @@ export default async function SupplierDetailPage({
       <FocusPage>
         <section className="rounded-3xl border border-[#ead0cb] bg-[#fff7f5] p-7">
           <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#8a3e35]">
-            RFQH11
+            Fornitore
           </p>
           <h1 className="mt-2 text-2xl font-semibold text-[#1d2824]">
             Supplier non disponibile
@@ -91,12 +91,11 @@ export default async function SupplierDetailPage({
   return (
     <FocusPage>
       <FocusHeader
-        eyebrow="RFQH11 · Supplier CRM"
+        eyebrow="Fornitori"
         title={profile.display_name || profile.email || "Supplier"}
         description={
           <>
-            Identità procurement consolidata: storico RFQ, prezzi ricevuti, tempi di risposta,
-            award e Purchase Order restano collegati alla stessa identity key.
+            Profilo acquisti consolidato: storico RFQ, prezzi ricevuti, tempi di risposta, assegnazioni e Purchase Order restano collegati allo stesso fornitore.
             <span className="mt-2 block text-xs font-semibold text-[#78857f]">
               Ultimo utilizzo {formatDate(profile.last_used_at)}
               {profile.email ? " · " + profile.email : ""}
@@ -382,13 +381,13 @@ export default async function SupplierDetailPage({
 
       <section className="rounded-2xl border border-[#cddbd6] bg-[#f7faf8] p-5">
         <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-          RFQH11
+          Rubrica fornitori
         </p>
         <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">
-          Supplier Address Book &amp; Network CRM attivo
+          Storico fornitore collegato
         </h2>
         <p className="mt-2 text-sm leading-6 text-[#66736e]">
-          Questo profilo non è una copia dell&apos;azienda: è la vista procurement che unisce
+          Questa è la vista acquisti che unisce
           identità, utilizzo RFQ, prezzi, award e PO. I tag sono anche gruppi operativi riutilizzabili
           nella ricerca della rubrica.
         </p>
