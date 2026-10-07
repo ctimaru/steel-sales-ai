@@ -418,8 +418,6 @@ export function WorkspaceProfileMenu({
   viewerLabel,
   organizationName,
   organizationRoleLabel,
-  platformConsoleAccess,
-  platformOwner,
   guidedSetupComplete,
   canAdmin,
   logoutAction,
@@ -427,8 +425,6 @@ export function WorkspaceProfileMenu({
   viewerLabel: string;
   organizationName: string;
   organizationRoleLabel: string;
-  platformConsoleAccess: boolean;
-  platformOwner: boolean;
   guidedSetupComplete: boolean;
   canAdmin: boolean;
   logoutAction: () => Promise<void>;
@@ -559,28 +555,6 @@ export function WorkspaceProfileMenu({
                 />
               </div>
 
-              {platformConsoleAccess ? (
-                <div className="mt-3 border-t border-[#d4dfda] pt-3">
-                  <div className="rounded-2xl border border-[#bfd2ca] bg-[#edf5f2] p-3">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#55736a]">
-                      Amministrazione Smart Steel Sales
-                    </p>
-                    <p className="mt-1 text-xs leading-5 text-[#5d6a65]">
-                      Ambiente separato dal workspace aziendale per governance e operazioni globali.
-                    </p>
-                    <Link
-                      href={appRoutes.platform.home}
-                      onClick={closeMenu}
-                      className="mt-3 flex items-center justify-between gap-3 rounded-xl bg-[#173f35] px-3 py-3 text-sm font-semibold text-white transition hover:bg-[#205548]"
-                    >
-                      <span>Apri Console piattaforma</span>
-                      <span className="shrink-0 text-[9px] font-bold uppercase tracking-[0.08em] text-white/75">
-                        {platformOwner ? "Platform Owner" : "Platform Staff"}
-                      </span>
-                    </Link>
-                  </div>
-                </div>
-              ) : null}
             </div>
 
             <form action={logoutAction} className="border-t border-[#e2e7e4] p-3">

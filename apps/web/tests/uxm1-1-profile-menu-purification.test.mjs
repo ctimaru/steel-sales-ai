@@ -65,8 +65,11 @@ test("UXM1.1 hides Platform administration unless the authenticated identity has
   assert.match(workspaceContext, /platformAccess\?\.user_id === user\.id/);
   assert.match(workspaceContext, /permissions\?\.includes\("platform\.console\.access"\)/);
   assert.match(workspaceLayout, /platformConsoleAccess = context\.platformConsoleAccess/);
-  assert.match(shell, /platformConsoleAccess=\{platformConsoleAccess\}/);
-  assert.match(nav, /\{platformConsoleAccess \? \(/);
+  assert.match(shell, /platformConsoleAccess/);
+  assert.match(shell, /label="Console piattaforma"/);
+  assert.match(shell, /appRoutes\.platform\.home/);
+  assert.doesNotMatch(nav, /Amministrazione Smart Steel Sales/);
+  assert.doesNotMatch(nav, /Apri Console piattaforma/);
   assert.doesNotMatch(shell, /platformSuperadmin/);
 });
 

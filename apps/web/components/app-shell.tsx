@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { logout } from "@/app/(workspace)/actions";
+import { ContextSwitchLink } from "@/components/context-switch-link";
 import { ProductBrand } from "@/components/product-brand";
 import {
   WorkspaceAlertsButton,
@@ -93,7 +94,6 @@ export function AppShell({
   alertNeedsAttention,
   alertActiveCount,
   platformConsoleAccess,
-  platformOwner,
   guidedSetupComplete,
   networkEnabled,
   networkEntitled,
@@ -106,7 +106,6 @@ export function AppShell({
   alertNeedsAttention: boolean;
   alertActiveCount: number;
   platformConsoleAccess: boolean;
-  platformOwner: boolean;
   guidedSetupComplete: boolean;
   networkEnabled: boolean;
   networkEntitled: boolean;
@@ -128,8 +127,15 @@ export function AppShell({
       </a>
       <header className="sticky top-0 z-40 border-b border-[#dce2df] bg-white/95 pt-[env(safe-area-inset-top)] backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1280px] items-center gap-3 px-3 sm:px-5 lg:px-8">
-          <div className="hidden shrink-0 lg:block">
+          <div className="hidden shrink-0 items-center gap-3 lg:flex">
             <ProductBrand href={appRoutes.home} compact />
+            {platformConsoleAccess ? (
+              <ContextSwitchLink
+                href={appRoutes.platform.home}
+                label="Console piattaforma"
+                compact
+              />
+            ) : null}
           </div>
 
           <div className="lg:hidden">
@@ -137,8 +143,6 @@ export function AppShell({
               viewerLabel={viewerLabel}
               organizationName={organizationLabel}
               organizationRoleLabel={effectiveRole}
-              platformConsoleAccess={platformConsoleAccess}
-              platformOwner={platformOwner}
               guidedSetupComplete={guidedSetupComplete}
               canAdmin={canAdmin}
               logoutAction={logout}
@@ -155,6 +159,15 @@ export function AppShell({
           </div>
 
           <div className="ml-auto flex items-center gap-1 lg:ml-2">
+            {platformConsoleAccess ? (
+              <div className="lg:hidden">
+                <ContextSwitchLink
+                  href={appRoutes.platform.home}
+                  label="Console"
+                  compact
+                />
+              </div>
+            ) : null}
             <WorkspaceAlertsButton
               activeCount={alertActiveCount}
               needsAttention={alertNeedsAttention}
@@ -164,8 +177,6 @@ export function AppShell({
                 viewerLabel={viewerLabel}
                 organizationName={organizationLabel}
                 organizationRoleLabel={effectiveRole}
-                platformConsoleAccess={platformConsoleAccess}
-                platformOwner={platformOwner}
                 guidedSetupComplete={guidedSetupComplete}
                 canAdmin={canAdmin}
                 logoutAction={logout}
