@@ -124,6 +124,14 @@ export default async function NetworkDirectoryPage({
   return (
     <FocusPage className="max-w-[1180px]">
       <PilotEvent eventName="network_directory_viewed" metadata={{ surface: "network_directory" }} />
+      {params.q || hasAdvancedFilters ? (
+        <PilotEvent
+          eventName="network_search_completed"
+          outcome={results.total > 0 ? "success" : "empty"}
+          resultCount={results.total}
+          metadata={{ surface: "network_directory" }}
+        />
+      ) : null}
 
       <FocusHeader
         eyebrow="Network"
