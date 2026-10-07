@@ -149,6 +149,52 @@ textarea {
   color: var(--muted-foreground) !important;
 }
 
+[class~="text-[#5f718a]"],
+[class~="text-[#64748b]"],
+[class~="text-[#64758d]"],
+[class~="text-[#66778c]"],
+[class~="text-[#68756f]"],
+[class~="text-[#6f7f93]"],
+[class~="text-[#71819a]"],
+[class~="text-[#78857f]"],
+[class~="text-[#78879a]"],
+[class~="text-[#7b8a9d]"],
+[class~="text-[#7b8ba1]"],
+[class~="text-[#7d8984]"],
+[class~="text-[#7e8da1]"],
+[class~="text-[#7f8da0]"],
+[class~="text-[#8090a4]"],
+[class~="text-[#82908a]"],
+[class~="text-[#8290a4]"],
+[class~="text-[#8291a5]"],
+[class~="text-[#8594a7]"],
+[class~="text-[#87908c]"],
+[class~="text-[#8795a7]"],
+[class~="text-[#8a9691]"],
+[class~="text-[#8a98aa]"],
+[class~="text-[#8a99ac]"],
+[class~="text-[#8b99aa]"],
+[class~="text-[#8fa1a9]"],
+[class~="text-[#92a0b1]"],
+[class~="text-[#95a2b3]"],
+[class~="text-[#96a3b4]"],
+[class~="text-[#9ba7a2]"],
+[class~="text-[#a0aaa5]"],
+[class~="text-[#a3ada8]"],
+[class~="text-[#a6b0ac]"] {
+  color: var(--muted-foreground) !important;
+}
+
+[class~="text-[#3c8192]"] {
+  color: #276778 !important;
+}
+
+[class~="text-[#7f725f]"],
+[class~="text-[#8a6a52]"],
+[class~="text-[#8a6d2f]"] {
+  color: #6f4f24 !important;
+}
+
 [class~="text-[#2f6fed]"] {
   color: #1e4fb8 !important;
 }
