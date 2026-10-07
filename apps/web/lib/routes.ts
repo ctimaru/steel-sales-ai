@@ -97,7 +97,7 @@ export const appRoutes = {
 
   company: {
     setup: "/onboarding",
-    team: "/onboarding#team-access",
+    team: "/company/team",
     profile: "/company/profile",
     dataSources: "/company/data-sources",
     pilotAnalytics: "/company/pilot-analytics",
