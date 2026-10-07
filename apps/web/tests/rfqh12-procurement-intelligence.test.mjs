@@ -20,6 +20,10 @@ const ia = fs.readFileSync(
   "utf8",
 );
 const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
+const marketplaceHome = fs.readFileSync(
+  new URL("../app/(workspace)/marketplace/page.tsx", import.meta.url),
+  "utf8",
+);
 
 test("RFQH12 exposes an authenticated owner-scoped procurement intelligence RPC", () => {
   assert.match(migration, /rfqh12_procurement_intelligence/);
@@ -75,8 +79,10 @@ test("RFQH12 keeps a source-level price history and award drill-down", () => {
   assert.match(page, /appRoutes\.marketplace\.rfqCampaign/);
 });
 
-test("RFQH12 is integrated into marketplace routes and navigation", () => {
+test("RFQH12 stays integrated while PF4 keeps Marketplace navigation compact", () => {
   assert.match(routes, /procurementIntelligence: "\/marketplace\/intelligence"/);
   assert.match(ia, /"marketplace:intelligence"/);
-  assert.match(shell, /label: "Intelligence"/);
+  assert.match(marketplaceHome, /appRoutes\.marketplace\.procurementIntelligence/);
+  assert.match(marketplaceHome, /Intelligence acquisti/);
+  assert.doesNotMatch(shell, /label: "Intelligence"/);
 });
