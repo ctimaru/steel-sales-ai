@@ -6,6 +6,7 @@ import {
   PlatformMobileNavigation,
   PlatformNavigation,
 } from "@/components/platform-navigation";
+import { ContextSwitchLink } from "@/components/context-switch-link";
 import { ProductBrand } from "@/components/product-brand";
 import type { PlatformPermissionKey } from "@/lib/platform-access-contract";
 
@@ -39,13 +40,10 @@ export function PlatformShell({
 
           {isPlatformOwner ? (
             <div className="border-b border-[#dfe5e2] p-3">
-              <Link
+              <ContextSwitchLink
                 href="/dashboard"
-                className="flex items-center justify-between rounded-xl border border-[#d7dfdb] bg-white px-3 py-2.5 text-sm font-semibold text-[#46534e] shadow-[0_1px_2px_rgba(30,43,69,0.025)] hover:border-[#b9cfc7] hover:bg-[#f0f4f2] hover:text-[#173f35]"
-              >
-                <span>Torna al workspace aziendale</span>
-                <span className="text-[#7b8882]">↗</span>
-              </Link>
+                label="Torna al workspace aziendale"
+              />
             </div>
           ) : null}
 
@@ -93,12 +91,12 @@ export function PlatformShell({
                 isPlatformOwner={isPlatformOwner}
               />
               {isPlatformOwner ? (
-                <Link
+                <ContextSwitchLink
                   href="/dashboard"
-                  className="hidden rounded-full border border-[#d7dfdb] bg-white px-3.5 py-2 text-xs font-semibold text-[#43524c] hover:border-[#b8d2c8] hover:bg-[#f0f4f2] hover:text-[#173f35] sm:inline-flex"
-                >
-                  Workspace aziendale
-                </Link>
+                  label="Workspace aziendale"
+                  compact
+                  className="hidden sm:inline-flex"
+                />
               ) : null}
               <span className="hidden rounded-full bg-[#e1ece8] px-3.5 py-2 text-xs font-semibold text-[#173f35] sm:inline-flex">
                 {authorityLabel}
