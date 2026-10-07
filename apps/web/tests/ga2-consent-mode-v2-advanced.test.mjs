@@ -20,9 +20,9 @@ const cookies = fs.readFileSync(
 );
 
 test("GA2 loads the Google tag independently of analytics consent", () => {
-  assert.match(consent, /\{shouldMeasure \? \(/);
-  assert.match(consent, /id="sss-google-analytics"/);
-  assert.doesNotMatch(consent, /\{consent === "granted" \? \(/);
+  assert.match(layout, /id="sss-google-analytics"/);
+  assert.match(layout, /googletagmanager\.com\/gtag\/js\?id=/);
+  assert.doesNotMatch(layout, /consent === "granted"/);
 });
 
 test("GA2 defaults Consent Mode v2 storage to denied before measurement", () => {
