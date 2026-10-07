@@ -21,7 +21,8 @@ function readinessClass(value: EvidenceReadiness) {
 
 function screenshotClass(value: ScreenshotReadiness) {
   if (value === "approved_for_deck") return "bg-[var(--brand-primary-soft)] text-[var(--brand-deep)]";
-  if (value === "candidate") return "bg-[var(--steel-blue-soft)] text-[var(--steel-blue)]";
+  if (value === "approved_desktop") return "bg-[var(--steel-blue-soft)] text-[var(--steel-blue)]";
+  if (value === "candidate") return "bg-[var(--surface-muted)] text-[var(--text-secondary)]";
   return "bg-red-50 text-[var(--semantic-error)]";
 }
 

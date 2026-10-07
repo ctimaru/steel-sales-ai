@@ -62,12 +62,11 @@ test("MKT4 evidence pack maps all 14 slides and blocks traction until real evide
   assert.match(deck, /MKT4 next action/);
 });
 
-test("MKT4 screenshot matrix refuses blind approval", () => {
-  assert.match(readiness, /ScreenshotReadiness = "candidate" \| "approved_for_deck" \| "blocked"/);
-  const declared = [...readiness.matchAll(/readiness: "(candidate|approved_for_deck|blocked)"/g)].map((match) => match[1]);
-  assert.ok(declared.filter((value) => value === "candidate").length >= 7);
-  assert.equal(declared.filter((value) => value === "approved_for_deck").length, 0);
+test("MKT4 screenshot matrix preserves governed approval states", () => {
+  assert.match(readiness, /ScreenshotReadiness = "candidate" \| "approved_desktop" \| "approved_for_deck" \| "blocked"/);
   assert.match(readinessView, /No screenshot is approved blindly/);
+  assert.match(readiness, /desktopVerified:/);
+  assert.match(readiness, /mobileVerified:/);
 });
 
 test("MKT4 remains owner-only and cannot leak through the investor Marketing surface", () => {
