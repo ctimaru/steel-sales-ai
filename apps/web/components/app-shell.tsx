@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { logout } from "@/app/(workspace)/actions";
 import { ContextSwitchLink } from "@/components/context-switch-link";
+import { HeaderMenuDismissController } from "@/components/header-menu-dismiss-controller";
 import { ProductBrand } from "@/components/product-brand";
 import {
   WorkspaceAlertsButton,
@@ -121,7 +122,7 @@ export function AppShell({
   const organizationLabel = workspaceOrganizationLabel(organizationName);
 
   return (
-    <div className="min-h-screen bg-[#f2f4f3] pb-[calc(5rem+env(safe-area-inset-bottom))] text-[#1d2824] lg:pb-0">
+    <><HeaderMenuDismissController /><div className="min-h-screen bg-[#f2f4f3] pb-[calc(5rem+env(safe-area-inset-bottom))] text-[#1d2824] lg:pb-0">
       <a href="#main-content" className="skip-link">
         Vai al contenuto principale
       </a>
@@ -202,6 +203,6 @@ export function AppShell({
         networkEnabled={networkEnabled}
         networkEntitled={networkEntitled}
       />
-    </div>
+    </div></>
   );
 }
