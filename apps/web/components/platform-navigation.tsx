@@ -65,6 +65,14 @@ const platformNav = [
     group: "strategy",
   },
   {
+    href: appRoutes.platform.fundraising,
+    label: "Fundraising",
+    icon: "investor",
+    permission: "platform.console.access",
+    staffEnabled: false,
+    group: "strategy",
+  },
+  {
     href: appRoutes.platform.investorKpis,
     label: "KPI",
     icon: "kpi",
