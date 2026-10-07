@@ -418,7 +418,6 @@ export function WorkspaceProfileMenu({
   viewerLabel,
   organizationName,
   organizationRoleLabel,
-  platformSuperadmin,
   platformConsoleAccess,
   platformOwner,
   guidedSetupComplete,
@@ -428,7 +427,6 @@ export function WorkspaceProfileMenu({
   viewerLabel: string;
   organizationName: string;
   organizationRoleLabel: string;
-  platformSuperadmin: boolean;
   platformConsoleAccess: boolean;
   platformOwner: boolean;
   guidedSetupComplete: boolean;
@@ -577,7 +575,7 @@ export function WorkspaceProfileMenu({
                     >
                       <span>Apri Console piattaforma</span>
                       <span className="shrink-0 text-[9px] font-bold uppercase tracking-[0.08em] text-white/75">
-                        {platformOwner || platformSuperadmin ? "Platform Owner" : "Platform Staff"}
+                        {platformOwner ? "Platform Owner" : "Platform Staff"}
                       </span>
                     </Link>
                   </div>
