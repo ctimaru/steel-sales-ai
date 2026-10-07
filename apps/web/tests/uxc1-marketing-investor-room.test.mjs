@@ -18,7 +18,7 @@ const investorActions = read("../app/(platform)/platform/investor-access/actions
 const investorAccess = read("../app/(platform)/platform/investor-access/page.tsx");
 const investorPortal = read("../app/(public)/investor/access/[inviteToken]/page.tsx");
 const investorMarketing = read("../app/(public)/investor/marketing/[inviteToken]/page.tsx");
-const migration = read("../../supabase/migrations/20261007115403_mkt1_marketing_investor_scope.sql");
+const migration = read("../../../supabase/migrations/20261007115403_mkt1_marketing_investor_scope.sql");
 
 test("UXC1 establishes the approved semantic palette at the global layer", () => {
   for (const token of [
