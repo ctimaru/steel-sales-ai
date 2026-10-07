@@ -20,8 +20,8 @@ test("MKT3 defines a claim-status contract for fundraising material", () => {
   assert.match(fundraising, /ClaimStatus = "fact" \| "estimate" \| "hypothesis" \| "target"/);
   assert.match(fundraising, /Feature costruite ≠ traction|feature costruite ≠ traction/i);
   assert.match(fundraising, /replacement cost ≠ valuation/i);
-  assert.match(fundraising, /Nessun ask definitivo è stato approvato/);
-  assert.match(fundraising, /Round size · TBD/);
+  assert.match(fundraising, /€1M è la working recommendation/);
+  assert.match(fundraising, /Terms · TBD/);
 });
 
 test("MKT3 one-pager covers problem, why-now, product, market, moat, execution and vision", () => {
