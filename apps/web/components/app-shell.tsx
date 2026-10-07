@@ -30,7 +30,7 @@ const commercialNav: NavItem[] = [
 const intelligenceNav: NavItem[] = [
   { href: appRoutes.commercial.priceIntelligence, label: "Prezzi", contextKey: "commercial:intelligence:prices" },
   { href: appRoutes.commercial.marketIntelligence, label: "Mercato", contextKey: "commercial:intelligence:market" },
-  { href: appRoutes.commercial.explorer, label: "Explorer", contextKey: "commercial:explorer" },
+  { href: appRoutes.commercial.explorer, label: "Explorer", contextKey: "commercial:intelligence:explorer" },
   { href: appRoutes.commercial.demand, label: "Domanda", contextKey: "commercial:intelligence:demand" },
   { href: appRoutes.commercial.reengagement, label: "Riattivazione", contextKey: "commercial:intelligence:reengagement" },
   { href: appRoutes.commercial.conversion, label: "Conversione", contextKey: "commercial:intelligence:conversion" },
