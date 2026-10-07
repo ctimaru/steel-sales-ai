@@ -92,8 +92,10 @@ test("HP10 keeps Scuola private navigation separate from public Steel Knowledge"
   assert.match(ia, /knowledge:standards/);
   assert.match(ia, /knowledge:grades/);
   assert.match(ia, /knowledge:tubes/);
-  assert.match(shell, /label: "Catalogo tecnico"/);
-  assert.match(shell, /label: "Pesi & dimensioni"/);
+  assert.match(shell, /label: "Calcolo pesi"/);
+  assert.match(shell, /label: "Norme"/);
+  assert.match(shell, /label: "Gradi"/);
+  assert.match(shell, /label: "Documenti"/);
 });
 
 test("HP10 groups Platform navigation identically across desktop and mobile", () => {
