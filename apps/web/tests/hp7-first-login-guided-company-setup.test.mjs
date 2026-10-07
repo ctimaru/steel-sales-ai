@@ -143,5 +143,6 @@ test("HP7 keeps setup visible in the workspace and company menu", () => {
   assert.match(dashboard, /setup\.data_ready/);
   assert.match(dashboard, /setup\.first_value_ready/);
   assert.match(routes, /setup: "\/onboarding"/);
-  assert.match(navigation, /Setup azienda/);
+  assert.match(navigation, /Completa setup azienda/);
+  assert.match(navigation, /!guidedSetupComplete/);
 });
