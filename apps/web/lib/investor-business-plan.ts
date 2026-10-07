@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export const INVESTOR_BUSINESS_PLAN_COOKIE = "sss_investor_business_plan";
 
-export type InvestorScope = "business_plan" | "kpi";
+export type InvestorScope = "business_plan" | "marketing" | "kpi";
 
 export type InvestorBusinessPlanInvite = {
   id: string;
