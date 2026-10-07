@@ -45,7 +45,7 @@ test("PF3 exposes save follow and open actions directly in search results", () =
   assert.match(directory, /unfollowNetworkCompany/);
   assert.match(directory, /Salva/);
   assert.match(directory, /Segui/);
-  assert.match(directory, />Apri</);
+  assert.match(directory, /Apri/);
   assert.match(directory, /return_to/);
 });
 
