@@ -155,11 +155,7 @@ export async function login(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
     if (error.code === "email_not_confirmed") {
-      await trackServerProductEvent("registration_account_created", {
-    source: nextPath.includes("claim_ref=") ? "claim" : "direct",
-  });
-
-  const cookieStore = await cookies();
+      const cookieStore = await cookies();
       cookieStore.set(
         PENDING_SIGNUP_EMAIL_COOKIE,
         email,
@@ -225,6 +221,10 @@ export async function signup(formData: FormData) {
 
     redirect(appendQuery(nextPath, "error", signupErrorMessage(error)));
   }
+
+  await trackServerProductEvent("registration_account_created", {
+    source: nextPath.includes("claim_ref=") ? "claim" : "direct",
+  });
 
   const cookieStore = await cookies();
   cookieStore.set(
