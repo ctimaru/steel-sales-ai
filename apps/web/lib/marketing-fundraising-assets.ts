@@ -2,6 +2,23 @@ import type { BusinessPlanLocale } from "@/lib/business-plan-locale";
 
 export type ClaimStatus = "fact" | "estimate" | "hypothesis" | "target";
 
+export const fundraisingGuardrails = {
+  it: [
+    "Feature costruite ≠ traction.",
+    "Seed database ≠ network liquidity.",
+    "Replacement cost ≠ valuation.",
+    "Ogni stima deve essere etichettata.",
+    "Round size, use of funds e milestone restano TBD finché non approvati.",
+  ],
+  en: [
+    "Shipped features ≠ traction.",
+    "Seeded database ≠ network liquidity.",
+    "Replacement cost ≠ valuation.",
+    "Every estimate must be labeled.",
+    "Round size, use of funds and milestones remain TBD until approved.",
+  ],
+} as const;
+
 export type OnePagerBlock = {
   key: string;
   labelIt: string;
