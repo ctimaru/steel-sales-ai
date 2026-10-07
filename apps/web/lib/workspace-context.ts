@@ -16,6 +16,8 @@ export type WorkspaceContext = {
   role: string;
   isDefault: boolean;
   platformSuperadmin: boolean;
+  platformConsoleAccess: boolean;
+  platformOwner: boolean;
   onboardingStatus: string;
   guidedSetupComplete: boolean;
   commercialMemoryReady: boolean;
@@ -43,15 +45,23 @@ export const getWorkspaceContext = cache(async function getWorkspaceContext(): P
 
   await supabase.rpc("claim_pending_organization_invitations");
 
-  const [{ data: memberships, error: membershipError }, { data: superadminFlag }] =
+  const [{ data: memberships, error: membershipError }, { data: platformAccessData }] =
     await Promise.all([
       supabase
         .from("organization_memberships")
         .select("organization_id,role,is_default,status")
         .eq("user_id", user.id)
         .eq("status", "active"),
-      supabase.rpc("is_platform_superadmin"),
+      supabase.rpc("platform_access_context"),
     ]);
+
+  const platformAccess = (platformAccessData ?? {}) as {
+    is_platform_owner?: boolean;
+    permissions?: string[];
+  };
+  const platformOwner = platformAccess.is_platform_owner === true;
+  const platformConsoleAccess =
+    platformAccess.permissions?.includes("platform.console.access") ?? false;
 
   if (membershipError) throw new Error("workspace_membership_unavailable");
 
@@ -85,7 +95,9 @@ export const getWorkspaceContext = cache(async function getWorkspaceContext(): P
     organizationName: organization.name ?? "Workspace azienda",
     role: membership.role,
     isDefault: membership.is_default,
-    platformSuperadmin: superadminFlag === true,
+    platformSuperadmin: platformOwner,
+    platformConsoleAccess,
+    platformOwner,
     onboardingStatus: organization.onboarding_status,
     guidedSetupComplete: Boolean(organization.guided_setup_completed_at),
     commercialMemoryReady,
