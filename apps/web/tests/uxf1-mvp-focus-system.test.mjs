@@ -52,7 +52,7 @@ test("UXF1 focuses the main workspace entry points", () => {
   }
   assert.match(commercial, /Cerca nello storico/);
   assert.match(network, /Trova aziende e costruisci relazioni nel settore steel/);
-  assert.match(marketplace, /title="Opportunità dal Network"/);
+  assert.match(marketplace, /title="Compra o vendi, in un unico spazio"/);
   assert.match(school, /Strumento principale/);
 });
 

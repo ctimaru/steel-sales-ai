@@ -127,6 +127,6 @@ test("RFQH11 is integrated into Marketplace navigation", () => {
   assert.match(routes, /suppliers: "\/marketplace\/suppliers"/);
   assert.match(routes, /supplier: \(id: string\)/);
   assert.match(ia, /"marketplace:suppliers"/);
-  assert.match(shell, /label: "Supplier"/);
-  assert.match(directoryPage, /Supplier Address Book & Network CRM/);
+  assert.doesNotMatch(shell, /label: "Supplier"/);
+  assert.match(directoryPage, /La tua rubrica fornitori/);
 });

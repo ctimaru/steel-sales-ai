@@ -87,11 +87,11 @@ test("HP11 keeps anonymous publication as a valid alternative without weakening 
 });
 
 test("HP11 turns supplier entitlement and role blockers into next actions", () => {
-  assert.match(opportunity, /Entitlement richiesto · accesso non self-service/);
+  assert.match(opportunity, /Accesso ai dettagli richiesto/);
   assert.match(opportunity, /Apri opportunità per te/);
   assert.match(opportunity, /Migliora Company Profile/);
   assert.match(opportunity, /Opportunità leggibile, risposta non abilitata per il tuo ruolo/);
-  assert.match(opportunity, /Organization Admin/);
+  assert.match(opportunity, /amministratore dell’organizzazione/);
   assert.match(responseWorkspace, /reasonAction/);
   assert.match(responseWorkspace, /Torna alle opportunità aperte/);
   assert.match(responseWorkspace, /Riapri il dettaglio opportunità/);
@@ -112,8 +112,8 @@ test("HP11 humanizes known backend failures and does not leak generic database i
 
 test("HP11 preserves Marketplace boundaries and never turns readiness into authority", () => {
   assert.match(readinessUi, /Commercial Memory/);
-  assert.match(opportunity, /Il supplier non può auto-concedersi accesso dal client/);
-  assert.match(opportunity, /P5\.4 verifica separatamente il diritto di risposta/);
+  assert.match(opportunity, /L’accesso è gestito a livello organizzazione/);
+  assert.match(opportunity, /diritto di risposta viene verificato separatamente/);
   assert.doesNotMatch(migration, /marketplace_entitlement_events|marketplace_unlocks|marketplace_responses/);
   assert.doesNotMatch(migration, /insert\s+into\s+public\.(rfqs|offers|orders)/i);
   assert.doesNotMatch(readiness, /grantMarketplace|p5_3_grant_entitlement/);

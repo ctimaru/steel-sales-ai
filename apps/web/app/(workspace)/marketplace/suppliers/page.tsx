@@ -205,13 +205,11 @@ export default async function SupplierDirectoryPage({
   return (
     <FocusPage>
       <FocusHeader
-        eyebrow="RFQH11 · Supplier Address Book & Network CRM"
-        title="La memoria supplier del buyer"
+        eyebrow="Acquisti · Fornitori"
+        title="La tua rubrica fornitori"
         description={
           <>
-            Ogni fornitore usato nelle RFQ entra in una rubrica deduplicata tramite identity resolution.
-            Preferiti, tag e note sono curati dal buyer; prezzi, response rate, award e PO arrivano
-            direttamente dallo storico RFQ reale.
+            Ogni fornitore usato nelle RFQ entra in una rubrica unica. Preferiti, tag e note sono gestiti dal buyer; prezzi, tempi di risposta, assegnazioni e PO arrivano direttamente dallo storico RFQ.
             <span className="mt-2 block text-xs font-semibold text-[#78857f]">
               {num(summary.supplier_count)} supplier · {num(summary.with_quotes_count)} con quote ·{" "}
               {num(summary.with_awards_count)} con award

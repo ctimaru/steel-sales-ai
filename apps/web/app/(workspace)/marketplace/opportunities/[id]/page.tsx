@@ -50,7 +50,7 @@ function sourceLabel(source: string | null) {
   if (source === "pilot") return "Pilot";
   if (source === "manual") return "Grant manuale";
   if (source === "system") return "Sistema";
-  return "Entitlement";
+  return "Accesso";
 }
 
 export default async function MarketplaceOpportunityPage({
@@ -129,10 +129,10 @@ export default async function MarketplaceOpportunityPage({
                 {teaser.effective_status === "closing_soon" ? "In scadenza" : "Aperta"}
               </span>
               <span className="rounded-full bg-[#f2f4f3] px-2.5 py-1 text-[10px] font-semibold text-[#66736e]">
-                {namedBuyer ? "Named" : "Anonymous"}
+                {namedBuyer ? "Buyer visibile" : "Buyer riservato"}
               </span>
               <span className="rounded-full bg-[#edf5f2] px-2.5 py-1 text-[10px] font-semibold text-[#173f35]">
-                Teaser P5.2
+                Informazioni essenziali
               </span>
               <span
                 className={[
@@ -145,10 +145,10 @@ export default async function MarketplaceOpportunityPage({
                 ].join(" ")}
               >
                 {isUnlocked
-                  ? "Detail unlocked P5.3"
+                  ? "Dettagli disponibili"
                   : entitlement.state === "expired"
-                    ? "Entitlement scaduto"
-                    : "Detail locked"}
+                    ? "Accesso scaduto"
+                    : "Dettagli protetti"}
               </span>
             </div>
 
@@ -158,9 +158,7 @@ export default async function MarketplaceOpportunityPage({
             </h1>
 
             <p className="mt-3 text-sm leading-6 text-[#66736e]">
-              Il teaser resta gratuito. Le specifiche complete vengono restituite
-              esclusivamente dal boundary server-side P5.3 quando l’organizzazione
-              supplier possiede un entitlement valido.
+              Le informazioni essenziali sono visibili subito. Le specifiche complete vengono mostrate solo quando la tua organizzazione dispone del livello di accesso richiesto.
             </p>
           </div>
 
@@ -185,7 +183,7 @@ export default async function MarketplaceOpportunityPage({
             <>
               <h2 className="mt-3 text-lg font-semibold text-[#1d2824]">Buyer anonimo</h2>
               <p className="mt-2 text-sm leading-6 text-[#66736e]">
-                L’identità del buyer resta protetta anche dopo un eventuale unlock.
+                L’identità del buyer resta protetta anche quando i dettagli della richiesta sono accessibili.
               </p>
             </>
           ) : (
@@ -225,7 +223,7 @@ export default async function MarketplaceOpportunityPage({
 
         <div className="rounded-2xl border border-[#dce2df] bg-white p-5">
           <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#7b8782]">
-            Teaser opportunità
+            Informazioni disponibili
           </p>
           <div className="mt-4 space-y-3">
             {teaser.teaser_lines.map((line) => (
@@ -287,16 +285,13 @@ export default async function MarketplaceOpportunityPage({
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-                P5.3 · Entitled detail
+                Dettaglio completo
               </p>
               <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">
                 Specifiche complete sbloccate
               </h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-[#66736e]">
-                Accesso autorizzato da {sourceLabel(entitlement.source_kind)}.
-                P5.4 verifica separatamente il diritto di risposta: l’entitlement
-                da solo non basta, serve anche questo unlock effettivo e la listing
-                deve essere ancora aperta.
+                Accesso disponibile tramite {sourceLabel(entitlement.source_kind)}. Il diritto di risposta viene verificato separatamente e la richiesta deve essere ancora aperta.
               </p>
             </div>
 
@@ -404,7 +399,7 @@ export default async function MarketplaceOpportunityPage({
 
           <div className="mt-6 rounded-2xl border border-[#d9e8e2] bg-[#f3f7f5] px-5 py-4">
             <p className="text-sm font-semibold text-[#173f35]">
-              Response governance P5.4
+              Risposta al buyer
             </p>
             <p className="mt-1 text-sm leading-6 text-[#66736e]">
               {canRespondRole
@@ -418,25 +413,23 @@ export default async function MarketplaceOpportunityPage({
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#173f35]">
-                P5.3 · Locked detail
+                Dettaglio protetto
               </p>
               <p className="mt-1 text-[11px] font-semibold text-[#66736e]">
-                Entitlement richiesto · accesso non self-service
+                Accesso ai dettagli richiesto
               </p>
               <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
                 {entitlement.state === "expired"
-                  ? "Entitlement scaduto"
+                  ? "Accesso scaduto"
                   : "Specifiche complete protette"}
               </h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-[#66736e]">
                 {entitlement.state === "expired"
-                  ? "L’organizzazione aveva un entitlement valido, ma la sua finestra di accesso è terminata. Il dettaglio torna locked automaticamente lato server."
-                  : "Per accedere a norma, grado, dimensioni, quantità esatta, certificazione e delivery detail serve un entitlement marketplace_access oppure opportunity_unlock valido."}
+                  ? "La finestra di accesso della tua organizzazione è terminata. Le specifiche complete sono nuovamente protette."
+                  : "Per visualizzare norma, grado, dimensioni, quantità esatta, certificazione e consegna serve un livello di accesso abilitato per la tua organizzazione."}
               </p>
               <p className="mt-2 max-w-2xl text-xs leading-5 text-[#87938e]">
-                Il supplier non può auto-concedersi accesso dal client. Billing,
-                crediti, pilot o Platform Owner alimentano lo stesso ledger
-                provider-neutral e auditabile.
+                L’accesso è gestito a livello organizzazione e non può essere auto-assegnato da questa pagina.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -460,14 +453,14 @@ export default async function MarketplaceOpportunityPage({
       {isUnlocked && unlocked && !canRespondRole ? (
         <section className="rounded-2xl border border-amber-200 bg-amber-50/60 p-5">
           <p className="text-xs font-bold uppercase tracking-[0.12em] text-amber-800">
-            Response readiness
+            Permessi di risposta
           </p>
           <h2 className="mt-2 text-lg font-semibold text-amber-950">
             Opportunità leggibile, risposta non abilitata per il tuo ruolo
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-800">
             Il ruolo Viewer può consultare il dettaglio sbloccato ma non creare o
-            modificare risposte Marketplace. Un Organization Admin deve assegnarti
+            modificare risposte Marketplace. Un amministratore dell’organizzazione deve assegnarti
             un ruolo Member o Admin; questo passaggio non è self-service.
           </p>
           <Link

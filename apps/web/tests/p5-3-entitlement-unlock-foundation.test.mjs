@@ -17,15 +17,14 @@ test("P5.3 frontend resolves entitlement server-side before rendering locked det
   assert.match(page, /getMarketplaceUnlockedDetail/);
   assert.match(page, /entitlement\.state === "entitled"/);
   assert.match(page, /entitlement\.state === "expired"/);
-  assert.match(page, /P5\.3 · Entitled detail/);
-  assert.match(page, /P5\.3 · Locked detail/);
-  assert.match(page, /Entitlement richiesto/);
+  assert.match(page, /Dettaglio completo/);
+  assert.match(page, /Dettaglio protetto/);
+  assert.match(page, /Accesso ai dettagli richiesto/);
 });
 
 test("P5.3 frontend never offers client-side self-grant and delegates response authority to P5.4", () => {
-  assert.match(page, /Il supplier non può auto-concedersi accesso dal client/);
-  assert.match(page, /P5\.4 verifica separatamente il diritto di risposta/);
-  assert.match(page, /entitlement[\s\S]*da solo non basta/);
+  assert.match(page, /L’accesso è gestito a livello organizzazione/);
+  assert.match(page, /diritto di risposta viene verificato separatamente/);
   assert.doesNotMatch(page, /grantMarketplace|p5_3_grant_entitlement/);
 });
 

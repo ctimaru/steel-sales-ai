@@ -252,7 +252,7 @@ export default async function ProcurementInboxPage({
   return (
     <FocusPage>
       <FocusHeader
-        eyebrow="RFQH10 · Procurement Inbox"
+        eyebrow="Acquisti"
         title="Cosa richiede attenzione adesso"
         description={
           <>
@@ -454,11 +454,10 @@ export default async function ProcurementInboxPage({
 
       <section className="rounded-2xl border border-[#dce2df] bg-white px-5 py-4">
         <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#718078]">
-          Regola RFQH10
+          Come funziona
         </p>
         <p className="mt-1 text-xs leading-5 text-[#66736e]">
-          La Inbox non esegue automaticamente launch, reminder, award o emissioni PO.
-          Aggrega lo stato reale e porta il buyer al workflow governato che possiede già l&apos;azione.
+          La Inbox non esegue automaticamente invii, solleciti, assegnazioni o emissioni PO. Riunisce lo stato reale e porta al passaggio corretto quando serve un’azione.
         </p>
       </section>
     </FocusPage>
