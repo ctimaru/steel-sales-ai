@@ -168,6 +168,7 @@ export default async function NetworkDirectoryPage({
               id="network-company-search"
               name="q"
               type="search"
+              aria-label="Nome azienda o dominio"
               defaultValue={params.q ?? ""}
               placeholder="Es. Padana Tubi, acciaitubi.it..."
               className="h-12 min-w-0 flex-1 rounded-xl border border-[#c9d9d3] bg-white px-4 text-sm text-[#1d2824] outline-none placeholder:text-[#5d6a65] focus:border-[#438d7a] focus:ring-4 focus:ring-[#dcebe6]"
@@ -191,7 +192,8 @@ export default async function NetworkDirectoryPage({
           </div>
         </form>
 
-        <div className="mt-4 flex flex-wrap gap-2" aria-label="Tipologia azienda">
+        <div className="mt-4 flex flex-wrap items-center gap-2" aria-label="Tipologia azienda">
+          <span className="mr-1 text-xs font-semibold text-[#5d6a65]">Italia · Tubes & Pipes</span>
           {companyTypeDoors.map((door) => {
             const active = quickTubeContext && (params.role ?? "") === door.key;
             return (
@@ -199,6 +201,7 @@ export default async function NetworkDirectoryPage({
                 key={door.key || "all"}
                 href={companyTypeHref(door.key)}
                 aria-current={active ? "page" : undefined}
+                aria-label={door.key === "processor_service_provider" ? "Carpenterie & terzisti" : door.label}
                 className={[
                   "inline-flex min-h-10 items-center rounded-full border px-3.5 text-xs font-semibold transition",
                   active
@@ -355,7 +358,7 @@ export default async function NetworkDirectoryPage({
                       ) : null}
                       {company.claimed_status === "unclaimed" ? (
                         <span className="rounded-full bg-[#fff4e8] px-2 py-0.5 text-[10px] font-bold text-[#8a461f]">
-                          Rivendicabile
+                          Profilo rivendicabile
                         </span>
                       ) : null}
                     </div>
