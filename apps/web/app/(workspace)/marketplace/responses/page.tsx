@@ -58,7 +58,7 @@ export default async function MarketplaceResponsesPage() {
           href={appRoutes.marketplace.home}
           className="text-sm font-semibold text-[#173f35] hover:underline"
         >
-          Demand Board →
+          Opportunità →
         </Link>
       </div>
 
@@ -121,7 +121,7 @@ export default async function MarketplaceResponsesPage() {
                 }
               : {
                   href: appRoutes.marketplace.home,
-                  label: "Apri il Demand Board",
+                  label: "Apri le opportunità",
                 }
           }
           note="Le bozze dei supplier non sono visibili al buyer."
