@@ -119,6 +119,7 @@ export const appRoutes = {
     marketingFundraisingReadiness: "/platform/marketing/fundraising-readiness",
     marketingInvestorDeck: "/platform/marketing/investor-deck",
     marketingVisualEvidenceQa: "/platform/marketing/visual-evidence-qa",
+    marketingDemoRoom: (surface: string) => `/platform/marketing/demo-room/${surface}`,
     investorAccess: "/platform/investor-access",
     investorKpis: "/platform/investor-kpis",
     productAnalytics: "/platform/product-analytics",

@@ -39,6 +39,7 @@ function assetHref(
     if (asset.key === "fundraising-readiness") return appRoutes.platform.marketingFundraisingReadiness;
     if (asset.key === "investor-deck") return appRoutes.platform.marketingInvestorDeck;
     if (asset.key === "visual-evidence-qa" || asset.key === "approved-screenshots") return appRoutes.platform.marketingVisualEvidenceQa;
+    if (asset.key === "private-demo-room") return appRoutes.platform.marketingDemoRoom("commercial-memory");
     if (asset.key === "kpi-dashboard") return appRoutes.platform.investorKpis;
     if (asset.key === "brand-system" || asset.key === "investor-narrative") {
       return appRoutes.platform.marketing;

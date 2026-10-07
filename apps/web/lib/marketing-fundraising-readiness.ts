@@ -289,8 +289,8 @@ export const screenshotCandidates: readonly ScreenshotCandidate[] = [
     gateEn: "Use only non-sensitive demo data and readable results.",
     desktopVerified: false,
     mobileVerified: false,
-    qaNoteIt: "Richiede QA autenticato con dataset demo non sensibile.",
-    qaNoteEn: "Requires authenticated QA with a non-sensitive demo dataset.",
+    qaNoteIt: "Demo Room MKT6 pronta con fixture sintetica. QA live autenticato ancora da completare.",
+    qaNoteEn: "MKT6 Demo Room ready with a synthetic fixture. Live authenticated QA still pending.",
   },
   {
     key: "rfq-hub",
@@ -303,8 +303,8 @@ export const screenshotCandidates: readonly ScreenshotCandidate[] = [
     gateEn: "Complete demo campaign, readable quote comparison, no real tenant data.",
     desktopVerified: false,
     mobileVerified: false,
-    qaNoteIt: "Richiede QA autenticato su una campagna demo completa e senza dati tenant reali.",
-    qaNoteEn: "Requires authenticated QA on a complete demo campaign without real tenant data.",
+    qaNoteIt: "Demo Room MKT6 pronta con campagna RFQ sintetica completa. QA live autenticato ancora da completare.",
+    qaNoteEn: "MKT6 Demo Room ready with a complete synthetic RFQ campaign. Live authenticated QA still pending.",
   },
   {
     key: "network",
@@ -317,8 +317,8 @@ export const screenshotCandidates: readonly ScreenshotCandidate[] = [
     gateEn: "Sufficient density, clear filters and non-misleading profiles.",
     desktopVerified: false,
     mobileVerified: false,
-    qaNoteIt: "Richiede QA autenticato su densità, filtri e profili mostrati.",
-    qaNoteEn: "Requires authenticated QA on density, filters and displayed profiles.",
+    qaNoteIt: "Demo Room MKT6 pronta con directory sintetica. QA live autenticato ancora da completare.",
+    qaNoteEn: "MKT6 Demo Room ready with a synthetic directory. Live authenticated QA still pending.",
   },
   {
     key: "procurement-intelligence",
@@ -331,8 +331,8 @@ export const screenshotCandidates: readonly ScreenshotCandidate[] = [
     gateEn: "Insights based on demo data/explicit evidence, no unvalidated predictive claims.",
     desktopVerified: false,
     mobileVerified: false,
-    qaNoteIt: "Richiede QA autenticato con insight demo ed evidence esplicita.",
-    qaNoteEn: "Requires authenticated QA with demo insights and explicit evidence.",
+    qaNoteIt: "Demo Room MKT6 pronta con Procurement Intelligence sintetica ed evidence esplicita. QA live autenticato ancora da completare.",
+    qaNoteEn: "MKT6 Demo Room ready with synthetic Procurement Intelligence and explicit evidence. Live authenticated QA still pending.",
   },
   {
     key: "investor-kpi",
