@@ -2,7 +2,25 @@
 
 import { Analytics, type BeforeSendEvent } from "@vercel/analytics/next";
 
-const PRIVATE_ADMIN_PREFIXES = ["/platform", "/staff"];
+const PUBLIC_PAGEVIEW_PREFIXES = [
+  "/knowledge",
+  "/azienda",
+  "/register",
+  "/login",
+  "/cookies",
+  "/privacy",
+  "/terms",
+  "/company-data",
+  "/distinta",
+  "/rfq/respond",
+  "/forgot-password",
+  "/reset-password",
+  "/verify-email",
+];
+
+function isMeasuredPublicPath(pathname: string) {
+  return pathname === "/" || PUBLIC_PAGEVIEW_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
 
 function redactDynamicSegment(segment: string) {
   if (
@@ -18,7 +36,7 @@ function redactDynamicSegment(segment: string) {
 export function sanitizeProductAnalyticsEvent(event: BeforeSendEvent) {
   try {
     const url = new URL(event.url);
-    if (PRIVATE_ADMIN_PREFIXES.some((prefix) => url.pathname.startsWith(prefix))) {
+    if (!isMeasuredPublicPath(url.pathname)) {
       return null;
     }
 
