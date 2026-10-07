@@ -177,8 +177,6 @@ export function AppShell({
                 viewerLabel={viewerLabel}
                 organizationName={organizationLabel}
                 organizationRoleLabel={effectiveRole}
-                platformConsoleAccess={platformConsoleAccess}
-                platformOwner={platformOwner}
                 guidedSetupComplete={guidedSetupComplete}
                 canAdmin={canAdmin}
                 logoutAction={logout}
