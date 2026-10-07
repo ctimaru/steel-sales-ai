@@ -12,7 +12,7 @@ const page = read("../app/(platform)/platform/fundraising/page.tsx");
 const actions = read("../app/(platform)/platform/fundraising/actions.ts");
 const readModel = read("../lib/investor-outreach.ts");
 const pack = read("../lib/marketing-investor-outreach-pack.ts");
-const migration = read("../../supabase/migrations/20261007135353_mkt8_investor_outreach_data_room_operations.sql");
+const migration = read("../../../supabase/migrations/20261007135353_mkt8_investor_outreach_data_room_operations.sql");
 
 test("MKT8 adds an owner-only fundraising operations surface", () => {
   assert.match(routes, /fundraising: "\/platform\/fundraising"/);
