@@ -47,14 +47,14 @@ export function FirstUseEmptyState({
       <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
         <Link
           href={primaryAction.href}
-          className="inline-flex min-h-10 items-center justify-center rounded-xl bg-[#173f35] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#226657]"
+          className="app-primary inline-flex min-h-11 items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold"
         >
           {primaryAction.label}
         </Link>
         {secondaryAction ? (
           <Link
             href={secondaryAction.href}
-            className="inline-flex min-h-10 items-center justify-center rounded-xl border border-[#c8d5d0] bg-white px-4 py-2.5 text-sm font-semibold text-[#173f35] transition hover:bg-[#edf5f2]"
+            className="app-secondary inline-flex min-h-11 items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold"
           >
             {secondaryAction.label}
           </Link>
