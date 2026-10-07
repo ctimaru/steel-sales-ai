@@ -144,7 +144,7 @@ export default async function MarketplaceRequestsPage({
                   }
                 : {
                     href: appRoutes.marketplace.home,
-                    label: "Apri il Demand Board",
+                    label: "Apri le opportunità",
                   }
             }
             secondaryAction={{
