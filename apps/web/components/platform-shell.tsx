@@ -7,6 +7,7 @@ import {
   PlatformNavigation,
 } from "@/components/platform-navigation";
 import { ContextSwitchLink } from "@/components/context-switch-link";
+import { HeaderMenuDismissController } from "@/components/header-menu-dismiss-controller";
 import { ProductBrand } from "@/components/product-brand";
 import type { PlatformPermissionKey } from "@/lib/platform-access-contract";
 
@@ -24,7 +25,7 @@ export function PlatformShell({
   isPlatformOwner: boolean;
 }) {
   return (
-    <div className="min-h-screen bg-[#f2f4f3] text-[#1d2824]">
+    <><HeaderMenuDismissController /><div className="min-h-screen bg-[#f2f4f3] text-[#1d2824]">
       <a href="#main-content" className="skip-link">
         Vai al contenuto principale
       </a>
@@ -107,6 +108,6 @@ export function PlatformShell({
 
         <main id="main-content" tabIndex={-1} className="mvp-focus-shell mx-auto w-full max-w-[1280px] p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
-    </div>
+    </div></>
   );
 }
