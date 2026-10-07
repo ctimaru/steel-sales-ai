@@ -96,12 +96,12 @@ test("UXA1 prevents the commercial assistant from jumping to legacy URLs", () =>
 });
 
 test("UXA1 establishes the forest and neutral visual system in core chrome", () => {
-  assert.match(globals, /--brand-950: #0b2f27/);
-  assert.match(globals, /--brand-800: #1a5144/);
-  assert.match(globals, /--background: #f2f4f3/);
-  assert.match(globals, /--border: #dce2df/);
+  assert.match(globals, /--brand-deep: #123b34/);
+  assert.match(globals, /--brand-primary: #1f6b5a/);
+  assert.match(globals, /--surface-canvas: #f6f8f7/);
+  assert.match(globals, /--border: #dde4e1/);
   assert.match(globals, /UXA1 — legacy accent compatibility/);
-  assert.match(productBrand, /#173f35/);
+  assert.match(productBrand, /#123B34/);
 
   for (const source of [appShell, workspaceNav, platformNav, platformShell]) {
     assert.doesNotMatch(source, /#2f6fed/i);

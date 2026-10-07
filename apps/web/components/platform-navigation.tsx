@@ -49,6 +49,14 @@ const platformNav = [
     group: "strategy",
   },
   {
+    href: appRoutes.platform.marketing,
+    label: "Marketing & Brand",
+    icon: "strategy",
+    permission: "platform.console.access",
+    staffEnabled: false,
+    group: "strategy",
+  },
+  {
     href: appRoutes.platform.investorAccess,
     label: "Investor Access",
     icon: "investor",

@@ -27,15 +27,15 @@ function contrast(a, b) {
 }
 
 test("public text tokens meet WCAG AA 4.5:1 on their light surfaces", () => {
-  assert.ok(contrast("#5d6a65", "#f2f4f3") >= 4.5);
-  assert.ok(contrast("#5d6a65", "#ffffff") >= 4.5);
-  assert.ok(contrast("#5d6a65", "#f8faf9") >= 4.5);
-  assert.ok(contrast("#52615b", "#f2f4f3") >= 4.5);
+  assert.ok(contrast("#475569", "#f6f8f7") >= 4.5);
+  assert.ok(contrast("#475569", "#ffffff") >= 4.5);
+  assert.ok(contrast("#475569", "#f8faf9") >= 4.5);
+  assert.ok(contrast("#52615b", "#f6f8f7") >= 4.5);
 });
 
 test("primary public CTA meets WCAG AA with white text", () => {
-  assert.ok(contrast("#ffffff", "#2d7967") >= 4.5);
-  assert.ok(contrast("#ffffff", "#226657") >= 4.5);
+  assert.ok(contrast("#ffffff", "#1f6b5a") >= 4.5);
+  assert.ok(contrast("#ffffff", "#185247") >= 4.5);
   assert.match(globals, /\.public-primary-cta/);
   assert.match(home, /public-primary-cta/);
 });
@@ -44,5 +44,5 @@ test("legacy low-contrast public utility colors are remapped to accessible muted
   for (const token of ["#66736e", "#718078", "#7a8782"]) {
     assert.match(globals, new RegExp(`text-\\[\\${token}\\]`));
   }
-  assert.match(globals, /--muted-foreground: #5d6a65/);
+  assert.match(globals, /--muted-foreground: var\(--text-secondary\)/);
 });

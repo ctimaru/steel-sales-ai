@@ -14,10 +14,10 @@ export function Button({
   ...props
 }: ButtonProps) {
   const variants = {
-    default: "bg-[#1a5144] text-white shadow-sm hover:bg-[#226657]",
-    secondary: "border border-[#d7dfdb] bg-white text-[#43524c] hover:border-[#b8d2c8] hover:bg-[#f0f4f2] hover:text-[#1a5144]",
-    ghost: "text-[#66736e] hover:bg-[#e9eeeb] hover:text-[#1d2824]",
-    danger: "bg-red-600 text-white hover:bg-red-700",
+    default: "bg-[var(--brand-primary)] text-white shadow-sm hover:bg-[var(--brand-primary-hover)]",
+    secondary: "border border-[var(--border)] bg-[var(--surface-base)] text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-subtle)] hover:text-[var(--brand-deep)]",
+    ghost: "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] hover:text-[var(--text-primary)]",
+    danger: "bg-[var(--semantic-error)] text-white hover:brightness-90",
   };
 
   const sizes = {

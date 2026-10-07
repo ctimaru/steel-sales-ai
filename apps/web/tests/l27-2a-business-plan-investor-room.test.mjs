@@ -303,7 +303,7 @@ test("L27.2D.2 adds governed owner and investor KPI surfaces", () => {
   assert.match(kpiDashboard, /Measured baseline/);
   assert.match(kpiDashboard, /Baseline misurata/);
   assert.match(kpiDashboard, /No target is automatically promoted to traction/);
-  assert.match(access, /InvestorScope = "business_plan" \| "kpi"/);
+  assert.match(access, /InvestorScope = "business_plan" \| "marketing" \| "kpi"/);
   assert.match(access, /l272d2_investor_access_validate/);
   assert.match(access, /l272d2_investor_kpi_snapshot/);
 });

@@ -12,13 +12,14 @@ const dashboard = fs.readFileSync(new URL("../app/(workspace)/dashboard/page.tsx
 
 test("UXA1 keeps industrial identity while aligning application tokens to the forest-neutral system", () => {
   for (const token of [
-    "--brand-950: #0b2f27",
-    "--brand-700: #226657",
-    "--brand-500: #438d7a",
-    "--copper-500: #c36e32",
-    "--background: #f2f4f3",
-    "--foreground: #1d2824",
-    "--primary: #1a5144",
+    "--brand-deep: #123b34",
+    "--brand-primary: #1f6b5a",
+    "--brand-primary-hover: #185247",
+    "--brand-primary-soft: #ddf5ec",
+    "--steel-blue: #315c74",
+    "--surface-canvas: #f6f8f7",
+    "--text-primary: #0f1720",
+    "--primary: var(--brand-primary)",
   ]) assert.ok(globals.includes(token), `missing token ${token}`);
   assert.match(globals, /\.app-surface/);
   assert.match(globals, /\.app-primary/);
