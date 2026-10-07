@@ -91,14 +91,14 @@ test("HP9 gives every main Network zero state a concrete continuation", () => {
 test("HP9 makes Marketplace first use role-aware and filter-aware", () => {
   assert.match(marketplace, /const hasFilters = Boolean/);
   assert.match(marketplace, /Azzera filtri/);
-  assert.match(marketplace, /Crea una ricerca/);
+  assert.match(marketplace, /Apri RFQ Hub/);
   assert.match(marketplace, /Completa Company Profile/);
   assert.match(marketplaceRequests, /Crea la prima ricerca/);
-  assert.match(marketplaceRequests, /Apri il Demand Board/);
+  assert.match(marketplaceRequests, /Apri le opportunità/);
   assert.match(marketplaceResponses, /Controlla le mie ricerche/);
   assert.match(marketplaceResponses, /Crea una nuova ricerca/);
   assert.match(marketplaceNotifications, /Completa Company Profile/);
-  assert.match(marketplaceNotifications, /Apri tutto il Demand Board/);
+  assert.match(marketplaceNotifications, /Vedi tutte le opportunità/);
 });
 
 test("HP9 covers core Platform control-plane queues", () => {
