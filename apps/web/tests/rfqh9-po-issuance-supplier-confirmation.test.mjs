@@ -126,5 +126,5 @@ test("RFQH9 is integrated after RFQH7 award in the buyer detail", () => {
   assert.match(buyerPage, /rfqh9_po_state/);
   assert.match(buyerPage, /createRfqh9PoSecurity/);
   assert.match(buyerPage, /Rfqh9PurchaseOrderPanel/);
-  assert.match(buyerPage, />RFQH9</);
+  assert.match(buyerPage, />Ordine di acquisto</);
 });
