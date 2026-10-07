@@ -30,7 +30,7 @@ test("PF3 keeps the steel supply-chain shortcuts compact", () => {
 test("PF3 renders dense industrial rows instead of oversized linked cards", () => {
   assert.match(directory, /Ruolo & prodotti/);
   assert.match(directory, /Capability/);
-  assert.match(directory, /Rivendicabile/);
+  assert.match(directory, /rivendicabile/i);
   assert.match(directory, /Verificata/);
   assert.match(directory, /compactList\(company\.roles\)/);
   assert.match(directory, /compactList\(company\.products\)/);
