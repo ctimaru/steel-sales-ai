@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import type { BusinessPlanLocale } from "@/lib/business-plan-locale";
 import { getFundraisingReadiness } from "@/lib/marketing-fundraising-readiness";
+import { appRoutes } from "@/lib/routes";
 
 function readinessClass(value: string) {
   if (value === "approved_for_deck") return "bg-[var(--brand-primary-soft)] text-[var(--brand-deep)]";
@@ -9,6 +10,8 @@ function readinessClass(value: string) {
   if (value === "blocked") return "bg-red-50 text-[var(--semantic-error)]";
   return "bg-[var(--surface-muted)] text-[var(--text-secondary)]";
 }
+
+const privateDemoKeys = new Set(["commercial-memory", "rfq-hub", "network", "procurement-intelligence"]);
 
 export function VisualEvidenceQa({
   locale = "it",
@@ -42,14 +45,14 @@ export function VisualEvidenceQa({
 
       <section className="rounded-[28px] border border-[var(--border)] bg-[var(--surface-base)] p-6 sm:p-8">
         <div className="max-w-4xl">
-          <p className="app-kicker">MKT5 · Visual Evidence QA</p>
+          <p className="app-kicker">MKT6 · Visual Evidence QA</p>
           <h2 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
             {isIt ? "Screenshot reali, non decorativi" : "Real screenshots, not decoration"}
           </h2>
           <p className="mt-3 text-sm leading-6 text-[var(--text-secondary)]">
             {isIt
-              ? "Home e Scuola hanno superato il QA live desktop del 7 ottobre 2026. Le superfici private restano candidate finché non vengono verificate in sessione autenticata con dati demo-safe."
-              : "Home and School passed live desktop QA on October 7, 2026. Private surfaces remain candidates until verified in an authenticated session with demo-safe data."}
+              ? "Home e Scuola sono approvate. Le quattro superfici private MKT6 ora dispongono di una Demo Room sintetica owner-only e restano candidate finché il visual QA live autenticato non viene completato."
+              : "Home and School are approved. The four MKT6 private surfaces now have an owner-only synthetic Demo Room and remain candidates until live authenticated visual QA is completed."}
           </p>
         </div>
 
@@ -82,6 +85,13 @@ export function VisualEvidenceQa({
                     className="text-xs font-semibold text-[var(--brand-deep)] underline decoration-[var(--brand-primary-soft)] underline-offset-4"
                   >
                     {isIt ? "Apri live" : "Open live"}
+                  </Link>
+                ) : privateDemoKeys.has(item.key) ? (
+                  <Link
+                    href={appRoutes.platform.marketingDemoRoom(item.key)}
+                    className="text-xs font-semibold text-[var(--steel-blue)] underline decoration-[var(--steel-blue-soft)] underline-offset-4"
+                  >
+                    {isIt ? "Apri demo autenticata" : "Open authenticated demo"}
                   </Link>
                 ) : null}
               </div>
