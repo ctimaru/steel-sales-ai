@@ -81,6 +81,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
     { data: marketplaceBridgeState },
     { data: purchaseOrderState },
     { data: governanceState },
+    { data: approvalRows },
   ] = await Promise.all([
     supabase
       .from("buyer_distintas")
@@ -129,12 +130,24 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
     supabase.rpc("rfqh13_governance_state", {
       p_rfq_id: campaign.id,
     }),
+    supabase
+      .from("buyer_procurement_approvals")
+      .select("id,action_type,po_draft_id,status,reason,requested_by,requested_at,expires_at,decided_by,decided_at,decision_note,consumed_at,payload_snapshot")
+      .eq("rfq_id", campaign.id)
+      .order("requested_at", { ascending: false })
+      .limit(50),
   ]);
 
-  const governance =
+  const governanceBase =
     governanceState && typeof governanceState === "object" && !Array.isArray(governanceState)
       ? (governanceState as Rfqh13GovernanceState)
       : null;
+  const governance = governanceBase
+    ? {
+        ...governanceBase,
+        approvals: (approvalRows ?? governanceBase.approvals) as Rfqh13GovernanceState["approvals"],
+      }
+    : null;
   const canExecuteCritical =
     governance?.current_user?.role === "owner" ||
     campaign.owner_user_id === authData.user?.id;
