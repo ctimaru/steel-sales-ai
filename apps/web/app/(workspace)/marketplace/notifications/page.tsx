@@ -134,7 +134,7 @@ export default async function MarketplaceNotificationsPage({
         <div className="p-6 sm:p-8">
           <div className="max-w-3xl">
             <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-              P5.5 · Matching & Notifications
+              Matching Marketplace
             </span>
             <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#1d2824]">
               Opportunità per te
@@ -142,7 +142,7 @@ export default async function MarketplaceNotificationsPage({
             <p className="mt-3 text-sm leading-6 text-[#66736e]">
               Match deterministici calcolati sullo scope tecnico pubblico del tuo
               Company Profile. Il punteggio spiega la compatibilità ma non concede
-              entitlement, unlock o diritto di risposta.
+              accesso ai dettagli o diritto di risposta.
             </p>
           </div>
 
@@ -206,9 +206,9 @@ export default async function MarketplaceNotificationsPage({
           }}
           secondaryAction={{
             href: appRoutes.marketplace.home,
-            label: "Apri tutto il Demand Board",
+            label: "Vedi tutte le opportunità",
           }}
-          note="Entitlement e diritto di risposta restano separati dal punteggio di matching."
+          note="Il punteggio di compatibilità non modifica i permessi di accesso o di risposta."
         />
       ) : (
         <section className="space-y-4">
