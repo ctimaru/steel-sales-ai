@@ -34,6 +34,8 @@ function assetHref(
 
   if (!investorMode) {
     if (asset.key === "business-plan") return appRoutes.platform.businessPlan;
+    if (asset.key === "one-pager") return appRoutes.platform.marketingOnePager;
+    if (asset.key === "pitch-deck-foundation") return appRoutes.platform.marketingPitchDeck;
     if (asset.key === "kpi-dashboard") return appRoutes.platform.investorKpis;
     if (asset.key === "brand-system" || asset.key === "investor-narrative") {
       return appRoutes.platform.marketing;
@@ -45,6 +47,7 @@ function assetHref(
   if (asset.requiredScope && !scopes.includes(asset.requiredScope)) return null;
 
   if (asset.key === "business-plan") return `/investor/business-plan/${inviteToken}`;
+  if (asset.key === "one-pager") return `/investor/marketing/${inviteToken}/one-pager`;
   if (asset.key === "kpi-dashboard") return `/investor/kpi/${inviteToken}`;
   if (asset.key === "brand-system" || asset.key === "investor-narrative") {
     return `/investor/marketing/${inviteToken}`;

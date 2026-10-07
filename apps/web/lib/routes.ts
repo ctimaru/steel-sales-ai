@@ -114,6 +114,8 @@ export const appRoutes = {
     businessPlan: "/platform/business-plan",
     businessPlanDetails: "/platform/business-plan/details",
     marketing: "/platform/marketing",
+    marketingOnePager: "/platform/marketing/one-pager",
+    marketingPitchDeck: "/platform/marketing/pitch-deck",
     investorAccess: "/platform/investor-access",
     investorKpis: "/platform/investor-kpis",
     productAnalytics: "/platform/product-analytics",
