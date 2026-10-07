@@ -48,13 +48,14 @@ test("UI1 keeps the public landing fast and asset-light", () => {
   assert.match(publicHome, /Utile anche senza account/);
 });
 
-test("UX2 preserves task-dense Company Home behavior without making search the hero", () => {
-  assert.match(dashboard, /Il centro operativo della tua azienda/);
-  assert.match(dashboard, /Oggi nel workspace/);
-  assert.match(dashboard, /Commercial Memory/);
-  assert.match(dashboard, /Spazi condivisi/);
-  assert.match(dashboard, /Marketplace/);
-  assert.match(dashboard, /Scuola/);
+test("PF1 keeps Company Home task-dense without duplicating macro navigation", () => {
+  assert.match(dashboard, /Oggi in/);
+  assert.match(dashboard, /Cosa richiede attenzione/);
+  assert.match(dashboard, /Ultimi movimenti commerciali/);
+  assert.match(dashboard, /Azioni rapide/);
+  assert.match(dashboard, /Apri RFQ Hub/);
   assert.match(dashboard, /metric-number/);
+  assert.doesNotMatch(dashboard, /Spazi condivisi/);
+  assert.doesNotMatch(dashboard, /Ecosistema Smart Steel Sales/);
   assert.doesNotMatch(dashboard, /<form action=\{appRoutes\.commercial\.search\}/);
 });
