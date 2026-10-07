@@ -262,8 +262,8 @@ export default async function PlatformFundraisingPage({
           Nessun invio automatico in MKT8. Personalizza nome e contesto, poi usa il canale appropriato.
         </p>
         <div className="mt-5 grid gap-4 xl:grid-cols-3">
-          {investorOutreachPack.templates.map((template) => (
-            <InvestorOutreachCopyCard key={template.key} {...template} />
+          {investorOutreachPack.templates.map(({ key, ...template }) => (
+            <InvestorOutreachCopyCard key={key} {...template} />
           ))}
         </div>
       </section>
