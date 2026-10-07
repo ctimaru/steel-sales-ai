@@ -64,15 +64,14 @@ function walk(directory) {
 
 test("all audited legacy low-contrast utilities are globally hardened", () => {
   for (const token of mutedLegacy) {
-    assert.match(
-      globals,
-      new RegExp(`text-\\\\\[#${token.slice(1)}\\\\\]`),
+    assert.ok(
+      globals.includes(`[class~="text-[${token}]"]`),
       `Missing global contrast remap for ${token}`,
     );
   }
 
   for (const [token, replacement] of accentReplacement) {
-    assert.match(globals, new RegExp(`text-\\\\\[#${token.slice(1)}\\\\\]`));
+    assert.ok(globals.includes(`[class~="text-[${token}]"]`));
     assert.ok(
       contrast(replacement, "#ffffff") >= 4.5,
       `${replacement} must pass on white`,
