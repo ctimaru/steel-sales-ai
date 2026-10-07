@@ -381,7 +381,7 @@ export default async function SupplierDetailPage({
 
       <section className="rounded-2xl border border-[#cddbd6] bg-[#f7faf8] p-5">
         <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-          RFQH11
+          Rubrica fornitori
         </p>
         <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">
           Storico fornitore collegato
