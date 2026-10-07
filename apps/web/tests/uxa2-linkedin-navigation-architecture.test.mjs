@@ -61,11 +61,10 @@ test("UXA2 keeps daily search and alerts in the top header", () => {
   assert.match(nav, /Alert operativi/);
 });
 
-test("UXA2 keeps workspace, company controls and the privileged Platform switch in the avatar drawer", () => {
+test("UXA2 keeps identity, company controls and the privileged Platform switch in the avatar drawer", () => {
   assert.match(nav, /fixed inset-y-0 left-0/);
-  assert.match(nav, /Workspace/);
-  assert.match(nav, /Importa documenti/);
-  assert.match(nav, /Revisioni dati/);
+  assert.doesNotMatch(nav, /label="Importa documenti"/);
+  assert.doesNotMatch(nav, /label="Revisioni dati"/);
   assert.match(nav, /Azienda/);
   assert.match(nav, /Profilo azienda/);
   assert.match(nav, /Dati e fonti/);
