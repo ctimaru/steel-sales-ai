@@ -105,38 +105,61 @@ export async function searchBuyerRfqSuppliers(
     ),
   );
 
-  let preferredIds = new Set<string>();
+  let preferredNetworkIds = new Set<string>();
+  let preferredIdentityKeys = new Set<string>();
 
-  if (networkCompanyIds.length > 0) {
-    const { data: campaign } = await supabase
-      .from("buyer_rfq_campaigns")
-      .select("organization_id")
-      .eq("id", cleanRfqId)
-      .maybeSingle();
+  const { data: campaign } = await supabase
+    .from("buyer_rfq_campaigns")
+    .select("organization_id")
+    .eq("id", cleanRfqId)
+    .maybeSingle();
 
-    if (campaign?.organization_id) {
-      const { data: savedRows, error: savedError } = await supabase
-        .from("network_saved_companies")
-        .select("network_company_id")
-        .eq("organization_id", campaign.organization_id)
-        .eq("user_id", authData.user.id)
-        .in("network_company_id", networkCompanyIds);
+  if (campaign?.organization_id) {
+    const identityKeys = rawCandidates.map((candidate) => candidate.identity_key);
 
-      if (savedError) {
-        console.error("RFQH2 preferred supplier lookup failed:", savedError.message);
-      } else {
-        preferredIds = new Set(
-          (savedRows ?? []).map((row) => row.network_company_id),
-        );
-      }
+    const [savedResult, profileResult] = await Promise.all([
+      networkCompanyIds.length
+        ? supabase
+            .from("network_saved_companies")
+            .select("network_company_id")
+            .eq("organization_id", campaign.organization_id)
+            .eq("user_id", authData.user.id)
+            .in("network_company_id", networkCompanyIds)
+        : Promise.resolve({ data: [], error: null }),
+      identityKeys.length
+        ? supabase
+            .from("buyer_supplier_profiles")
+            .select("identity_key")
+            .eq("organization_id", campaign.organization_id)
+            .eq("owner_user_id", authData.user.id)
+            .eq("preferred", true)
+            .in("identity_key", identityKeys)
+        : Promise.resolve({ data: [], error: null }),
+    ]);
+
+    if (savedResult.error) {
+      console.error("RFQH2 Network saved supplier lookup failed:", savedResult.error.message);
+    } else {
+      preferredNetworkIds = new Set(
+        (savedResult.data ?? []).map((row) => row.network_company_id),
+      );
+    }
+
+    if (profileResult.error) {
+      console.error("RFQH11 preferred supplier lookup failed:", profileResult.error.message);
+    } else {
+      preferredIdentityKeys = new Set(
+        (profileResult.data ?? []).map((row) => row.identity_key),
+      );
     }
   }
 
   const candidates: SupplierCandidate[] = rawCandidates.map((candidate) => ({
     ...candidate,
     preferred: Boolean(
-      candidate.supplier_network_company_id &&
-        preferredIds.has(candidate.supplier_network_company_id),
+      preferredIdentityKeys.has(candidate.identity_key) ||
+        (candidate.supplier_network_company_id &&
+          preferredNetworkIds.has(candidate.supplier_network_company_id)),
     ),
   }));
 
