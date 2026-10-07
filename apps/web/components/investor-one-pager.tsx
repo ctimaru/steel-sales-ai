@@ -55,7 +55,7 @@ export function InvestorOnePager({
         <h1 className="mt-6 max-w-4xl text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">
           {copy.title}
         </h1>
-        <p className="mt-5 max-w-4xl text-base leading-7 text-white/78">{copy.subtitle}</p>
+        <p className="mt-5 max-w-4xl text-base leading-7 text-white/80">{copy.subtitle}</p>
       </header>
 
       <div className="p-6 sm:p-8 lg:p-10">
