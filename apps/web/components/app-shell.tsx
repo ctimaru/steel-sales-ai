@@ -25,16 +25,16 @@ const commercialNav: NavItem[] = [
   { href: appRoutes.commercial.products, label: "Prodotti", contextKey: "commercial:products" },
   { href: appRoutes.commercial.companies, label: "Aziende", contextKey: "commercial:companies" },
   { href: appRoutes.commercial.assistant, label: "Assistente", contextKey: "commercial:assistant" },
-  { href: appRoutes.commercial.explorer, label: "Explorer", contextKey: "commercial:explorer" },
 ];
 
 const intelligenceNav: NavItem[] = [
-  { href: appRoutes.commercial.priceIntelligence, label: "Price Intelligence", contextKey: "commercial:intelligence:prices" },
-  { href: appRoutes.commercial.marketIntelligence, label: "Market Intelligence", contextKey: "commercial:intelligence:market" },
+  { href: appRoutes.commercial.priceIntelligence, label: "Prezzi", contextKey: "commercial:intelligence:prices" },
+  { href: appRoutes.commercial.marketIntelligence, label: "Mercato", contextKey: "commercial:intelligence:market" },
+  { href: appRoutes.commercial.explorer, label: "Explorer", contextKey: "commercial:explorer" },
+  { href: appRoutes.commercial.demand, label: "Domanda", contextKey: "commercial:intelligence:demand" },
   { href: appRoutes.commercial.reengagement, label: "Riattivazione", contextKey: "commercial:intelligence:reengagement" },
-  { href: appRoutes.commercial.demand, label: "Segnali di domanda", contextKey: "commercial:intelligence:demand" },
   { href: appRoutes.commercial.conversion, label: "Conversione", contextKey: "commercial:intelligence:conversion" },
-  { href: appRoutes.commercial.crossThreadRelationships, label: "Relazioni cross-thread", contextKey: "commercial:intelligence:relationships" },
+  { href: appRoutes.commercial.crossThreadRelationships, label: "Relazioni", contextKey: "commercial:intelligence:relationships" },
 ];
 
 const networkNav: NavItem[] = [
