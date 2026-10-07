@@ -72,14 +72,14 @@ export default async function NewMarketplaceRequestPage({
                 <input type="radio" name="visibility_mode" value="named" defaultChecked className="mr-2" />
                 <span className="text-sm font-semibold text-[#1d2824]">Azienda visibile</span>
                 <p className="mt-2 text-xs leading-5 text-[#66736e]">
-                  Il futuro teaser potrà collegare la domanda al Company Profile.
+                  La richiesta potrà essere collegata al Company Profile visibile nel Network.
                 </p>
               </label>
               <label className="cursor-pointer rounded-2xl border border-[#d7dfdb] bg-[#f8faf9] p-4">
                 <input type="radio" name="visibility_mode" value="anonymous" className="mr-2" />
                 <span className="text-sm font-semibold text-[#1d2824]">Anonima</span>
                 <p className="mt-2 text-xs leading-5 text-[#66736e]">
-                  Anche dopo un futuro unlock l’identità non verrà rivelata automaticamente.
+                  L’identità resta protetta anche quando i dettagli della richiesta sono accessibili.
                 </p>
               </label>
             </div>
