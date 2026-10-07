@@ -47,12 +47,14 @@ test("LR1.1 privacy policy describes current core data flows without inventing c
   assert.doesNotMatch(privacy + legalPage, /Claudiu|Timaru/i);
 });
 
-test("LR1.1 cookie policy documents local retention and consent-gated GA4", () => {
+test("LR1.1 cookie policy documents local retention and consent-controlled GA4", () => {
   assert.match(cookies, /local storage/i);
   assert.match(cookies, /ultimi calcoli, preferiti/);
   assert.match(cookies, /Google Analytics 4/);
   assert.match(cookies, /_ga/);
-  assert.match(cookies, /non viene caricato prima del consenso/i);
+  assert.match(cookies, /Consent Mode v2/i);
+  assert.match(cookies, /analytics storage negato/i);
+  assert.match(cookies, /senza cookie/i);
   assert.match(cookies, /Scorrere la pagina/);
   assert.match(cookies, /linguetta “Privacy”/);
 });
