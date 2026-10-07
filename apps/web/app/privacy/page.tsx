@@ -39,7 +39,7 @@ export default function PrivacyPage() {
           <li>dati di registrazione aziendale, inclusi ragione sociale, paese, sito, P.IVA/identificativi societari ove forniti;</li>
           <li>dati del referente della richiesta, come nome e, facoltativamente, telefono;</li>
           <li>dati necessari al claim e alla verifica dell’identità/ruolo rispetto a un profilo aziendale;</li>
-          <li>dati statistici sulle superfici pubbliche solo se l’utente accetta Google Analytics.</li>
+          <li>dati statistici completi sulle superfici pubbliche solo se l’utente accetta Google Analytics; prima della scelta o in caso di rifiuto, il tag opera con analytics storage negato e può inviare ping tecnici senza cookie previsti da Consent Mode v2.</li>
         </ul>
         <p>
           Le misure, quantità e preferiti del calcolatore possono essere salvati localmente nel browser
@@ -59,8 +59,10 @@ export default function PrivacyPage() {
           </li>
           <li>adempimento di obblighi di legge: obbligo legale, ove applicabile;</li>
           <li>
-            Google Analytics sulle pagine pubbliche: consenso, revocabile in qualsiasi momento tramite
-            “Preferenze statistiche”.
+            cookie/identificatori Analytics e misurazione statistica completa sulle pagine pubbliche:
+            consenso, revocabile in qualsiasi momento tramite il pannello “Privacy”. Il funzionamento
+            cookieless di Consent Mode v2 resta documentato nella Cookie & Tracking Policy e soggetto
+            alla revisione legale di lancio.
           </li>
         </ul>
         <p>
