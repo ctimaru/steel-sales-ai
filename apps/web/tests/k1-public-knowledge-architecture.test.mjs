@@ -23,6 +23,7 @@ const sitemap = fs.readFileSync(new URL("../app/sitemap.ts", import.meta.url), "
 const root = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
 const nav = fs.readFileSync(new URL("../components/workspace-navigation.tsx", import.meta.url), "utf8");
 const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
+const schoolHome = fs.readFileSync(new URL("../app/(workspace)/school/page.tsx", import.meta.url), "utf8");
 const routes = fs.readFileSync(new URL("../lib/routes.ts", import.meta.url), "utf8");
 
 test("K1 public Knowledge does not depend on tenant workspace context", () => {
@@ -61,8 +62,8 @@ test("K1 makes public Knowledge discoverable from the product while preserving p
   assert.match(root, /href="\/knowledge"/);
   assert.match(root, /Scuola/);
   assert.match(root, /Utile anche senza account/);
-  assert.match(shell, /appRoutes\.knowledge\.catalog/);
-  assert.match(shell, /Catalogo tecnico/);
+  assert.match(schoolHome, /appRoutes\.knowledge\.catalog/);
+  assert.match(schoolHome, /Catalogo completo/);
   assert.match(nav, /label: "Scuola"/);
   assert.match(publicKnowledge, /consultabile senza account/);
   assert.match(publicKnowledge, /separat[oa] dai dati commerciali privati/);

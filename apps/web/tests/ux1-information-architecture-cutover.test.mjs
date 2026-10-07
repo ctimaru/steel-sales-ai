@@ -11,6 +11,7 @@ const publicKnowledge = fs.readFileSync(new URL("../app/(public)/knowledge/page.
 const publicKnowledgeLayout = fs.readFileSync(new URL("../app/(public)/knowledge/layout.tsx", import.meta.url), "utf8");
 const publicKnowledgeTubes = fs.readFileSync(new URL("../app/(public)/knowledge/tubes/page.tsx", import.meta.url), "utf8");
 const privateSteelTool = fs.readFileSync(new URL("../app/(workspace)/company/tools/tubi-norme/page.tsx", import.meta.url), "utf8");
+const schoolHome = fs.readFileSync(new URL("../app/(workspace)/school/page.tsx", import.meta.url), "utf8");
 
 const aliases = [
   "../app/(workspace)/commercial/search/page.tsx",
@@ -56,7 +57,7 @@ test("UX2 Company shell and Home use the canonical space contract", () => {
   assert.match(workspaceNav, /appRoutes\.operations\.uploads/);
   assert.match(workspaceNav, /appRoutes\.company\.profile/);
   assert.match(workspaceNav, /appRoutes\.marketplace\.home/);
-  assert.match(shell, /appRoutes\.knowledge\.catalog/);
+  assert.match(schoolHome, /appRoutes\.knowledge\.catalog/);
   assert.match(shell, /appRoutes\.knowledge\.schoolStandards/);
   assert.match(shell, /appRoutes\.knowledge\.schoolGrades/);
   assert.match(shell, /appRoutes\.knowledge\.schoolTubes/);

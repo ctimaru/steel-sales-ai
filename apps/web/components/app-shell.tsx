@@ -54,11 +54,10 @@ const marketplaceNav: NavItem[] = [
 
 const knowledgeNav: NavItem[] = [
   { href: appRoutes.knowledge.workspace, label: "Home", contextKey: "knowledge:home" },
-  { href: appRoutes.knowledge.explorer, label: "Knowledge Explorer", contextKey: "knowledge:explorer" },
-  { href: appRoutes.knowledge.catalog, label: "Catalogo tecnico", contextKey: "knowledge:catalog" },
+  { href: appRoutes.knowledge.schoolTubes, label: "Calcolo pesi", contextKey: "knowledge:tubes" },
   { href: appRoutes.knowledge.schoolStandards, label: "Norme", contextKey: "knowledge:standards" },
   { href: appRoutes.knowledge.schoolGrades, label: "Gradi", contextKey: "knowledge:grades" },
-  { href: appRoutes.knowledge.schoolTubes, label: "Pesi & dimensioni", contextKey: "knowledge:tubes" },
+  { href: appRoutes.knowledge.explorer, label: "Documenti", contextKey: "knowledge:explorer" },
 ];
 
 function roleLabel(role: string) {
