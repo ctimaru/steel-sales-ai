@@ -9,7 +9,7 @@ export function FocusPage({
   className?: string;
 }) {
   return (
-    <div className={["mvp-focus-page mx-auto w-full max-w-[1180px] space-y-6", className].filter(Boolean).join(" ")}>
+    <div className={["mvp-focus-page mx-auto w-full max-w-[1180px] space-y-7", className].filter(Boolean).join(" ")}>
       {children}
     </div>
   );
@@ -27,20 +27,46 @@ export function FocusHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="mvp-focus-header">
+    <header className="mvp-focus-header flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
       <div className="max-w-3xl">
         {eyebrow ? <p className="app-kicker">{eyebrow}</p> : null}
         <h1 className="mt-2 text-3xl font-semibold tracking-[-0.025em] text-[#1d2824] sm:text-[2.15rem]">
           {title}
         </h1>
         {description ? (
-          <div className="mt-3 max-w-2xl text-sm leading-6 text-[#66736e] sm:text-base">
+          <div className="mt-3 max-w-2xl text-sm leading-6 text-[#5d6a65] sm:text-base">
             {description}
           </div>
         ) : null}
       </div>
-      {actions ? <div className="mt-4 flex flex-wrap gap-2">{actions}</div> : null}
+      {actions ? <div className="flex shrink-0 flex-wrap gap-2 lg:justify-end">{actions}</div> : null}
     </header>
+  );
+}
+
+
+export function FocusSectionHeader({
+  eyebrow,
+  title,
+  description,
+  action,
+}: {
+  eyebrow?: string;
+  title: ReactNode;
+  description?: ReactNode;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="app-section-header mb-3 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+      <div className="min-w-0">
+        {eyebrow ? <p className="app-kicker">{eyebrow}</p> : null}
+        <h2 className="mt-1 text-xl font-semibold tracking-[-0.015em] text-[#1d2824]">{title}</h2>
+        {description ? (
+          <div className="mt-1 max-w-2xl text-sm leading-6 text-[#5d6a65]">{description}</div>
+        ) : null}
+      </div>
+      {action ? <div className="shrink-0">{action}</div> : null}
+    </div>
   );
 }
 
