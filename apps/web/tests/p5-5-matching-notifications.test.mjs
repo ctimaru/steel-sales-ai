@@ -70,7 +70,7 @@ test("P5.5 never grants entitlement, unlock or response authority", () => {
   assert.doesNotMatch(migration, /insert into public\.marketplace_responses/i);
   assert.match(
     notificationsPage,
-    /non concede[\s\S]*entitlement, unlock o diritto di risposta/,
+    /punteggio di compatibilità non modifica i permessi di accesso o di risposta/,
   );
 });
 
@@ -93,8 +93,8 @@ test("P5.5 supports late Company Profile claim handoff without recomputing buyer
 
 test("P5.5 frontend exposes Per te, explainable scoring and notification lifecycle", () => {
   assert.match(routes, /notifications: "\/marketplace\/notifications"/);
-  assert.match(shell, /label: "Per te"/);
-  assert.match(notificationsPage, /P5\.5 · Matching & Notifications/);
+  assert.doesNotMatch(shell, /label: "Per te"/);
+  assert.match(notificationsPage, /Matching Marketplace/);
   assert.match(notificationsPage, /Match deterministici/);
   assert.match(notificationsPage, /MarketplaceCountdown/);
   assert.match(notificationsPage, /openMarketplaceNotification/);
