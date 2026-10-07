@@ -68,7 +68,7 @@ export default async function MarketplaceResponsesPage() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-3xl">
               <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-                P5.4 · Buyer inbox
+                Risposte fornitori
               </span>
               <h1 className="mt-4 text-3xl font-semibold tracking-tight text-[#1d2824]">
                 Risposte Marketplace
@@ -108,7 +108,7 @@ export default async function MarketplaceResponsesPage() {
         <FirstUseEmptyState
           eyebrow="Buyer inbox"
           title="Nessuna risposta ricevuta"
-          description="Le risposte compariranno qui quando un supplier con entitlement e unlock invierà una risposta governata a una ricerca pubblicata dalla tua azienda."
+          description="Le risposte compariranno qui quando un fornitore abilitato risponderà a una richiesta pubblicata dalla tua azienda."
           primaryAction={{
             href: appRoutes.marketplace.myRequests,
             label: "Controlla le mie ricerche",
