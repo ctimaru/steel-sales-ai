@@ -42,7 +42,7 @@ test("PF6 aligns navigation language and interaction states", () => {
   assert.match(shell, /return "Amministratore"/);
   assert.match(shell, /return "Sola lettura"/);
   assert.match(nav, /workspace-context-scroll/);
-  assert.match(nav, /bg-[#f7faf8]/);
+  assert.match(nav, /bg-\[#f7faf8\]/);
   assert.match(nav, /min-h-11/);
   assert.match(globals, /workspace-context-scroll/);
   assert.match(globals, /app-section-header/);
