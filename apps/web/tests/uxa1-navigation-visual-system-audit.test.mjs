@@ -54,8 +54,8 @@ test("UXA1 exposes previously orphaned daily analysis tools", () => {
   }
 
   assert.match(appShell, /Commercial Explorer|Explorer/);
-  assert.match(appShell, /Price Intelligence/);
-  assert.match(appShell, /Market Intelligence/);
+  assert.match(appShell, /label: "Prezzi"/);
+  assert.match(appShell, /label: "Mercato"/);
   assert.match(appShell, /Knowledge Explorer/);
   assert.match(workspaceNav, /Strumenti tubi & norme/);
 });
