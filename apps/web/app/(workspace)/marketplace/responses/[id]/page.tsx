@@ -77,7 +77,7 @@ export default async function MarketplaceResponseDetailPage({
           <div>
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-                P5.4 · Buyer response
+                Risposta fornitore
               </span>
               <span className="rounded-full bg-[#f2f4f3] px-3 py-1 text-[11px] font-semibold text-[#66736e]">
                 {statusLabel(response.status)}
@@ -212,7 +212,7 @@ export default async function MarketplaceResponseDetailPage({
         <section className="rounded-2xl border border-[#d9e8e2] bg-[#f3f7f5] p-5">
           <h2 className="text-sm font-semibold text-[#173f35]">Gestisci risposta</h2>
           <p className="mt-1 text-xs leading-5 text-[#66736e]">
-            Le decisioni sono registrate nell’audit ledger P5.4. Non viene creato
+            Le decisioni sono registrate nello storico attività. Non viene creato
             automaticamente alcun ordine o offerta nella Commercial Memory.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
