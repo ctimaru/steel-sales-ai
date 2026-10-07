@@ -54,7 +54,8 @@ test("UX2 freezes canonical route families", () => {
 test("UX2 Company shell and Home use the canonical space contract", () => {
   assert.match(shell, /appRoutes\.commercial\.products/);
   assert.match(shell, /appRoutes\.commercial\.search/);
-  assert.match(workspaceNav, /appRoutes\.operations\.uploads/);
+  assert.doesNotMatch(workspaceNav, /label="Importa documenti"/);
+  assert.match(dashboard, /appRoutes\.operations\.uploads/);
   assert.match(workspaceNav, /appRoutes\.company\.profile/);
   assert.match(workspaceNav, /appRoutes\.marketplace\.home/);
   assert.match(schoolHome, /appRoutes\.knowledge\.catalog/);
