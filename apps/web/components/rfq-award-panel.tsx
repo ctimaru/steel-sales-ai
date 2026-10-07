@@ -112,11 +112,13 @@ export function RfqAwardPanel({
   campaignStatus,
   comparison,
   award,
+  canExecute = true,
 }: {
   rfqId: string;
   campaignStatus: string;
   comparison: RfqComparisonData | null;
   award: Rfqh7AwardSnapshot | null;
+  canExecute?: boolean;
 }) {
   const router = useRouter();
   const [reason, setReason] = useState("");
@@ -543,13 +545,17 @@ export function RfqAwardPanel({
         <button
           type="button"
           onClick={confirm}
-          disabled={!canAward || pending || !fullyCovered || reason.trim().length < 3}
+          disabled={!canExecute || !canAward || pending || !fullyCovered || reason.trim().length < 3}
           className="inline-flex min-h-11 items-center rounded-xl bg-[#173f35] px-5 text-sm font-bold text-white disabled:opacity-50"
         >
           {pending ? "Conferma…" : "Conferma award e crea PO draft"}
         </button>
         <span className="text-xs font-semibold text-[#66736e]">
-          {fullyCovered ? "Copertura 100% pronta." : "Completa il 100% delle quantità."}
+          {!canExecute
+            ? "Solo l'owner può confermare definitivamente l'award."
+            : fullyCovered
+              ? "Copertura 100% pronta."
+              : "Completa il 100% delle quantità."}
         </span>
         {feedback ? <span className="text-xs font-semibold text-[#66736e]">{feedback}</span> : null}
       </div>

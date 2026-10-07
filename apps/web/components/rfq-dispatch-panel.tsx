@@ -21,12 +21,14 @@ export function RfqDispatchPanel({
   dueAt,
   buyerMessage,
   suppliers,
+  canExecute = true,
 }: {
   rfqId: string;
   campaignStatus: string;
   dueAt: string | null;
   buyerMessage: string | null;
   suppliers: SupplierState[];
+  canExecute?: boolean;
 }) {
   const router = useRouter();
   const [deadline, setDeadline] = useState(
@@ -150,7 +152,7 @@ export function RfqDispatchPanel({
         </div>
       </div>
 
-      {isDraft ? (
+      {isDraft && canExecute ? (
         <div className="mt-5 grid gap-4 border-t border-[#dce7e2] pt-5 lg:grid-cols-[260px_1fr_auto] lg:items-end">
           <label className="text-xs font-semibold text-[#52615b]">
             Scadenza offerta
@@ -187,13 +189,13 @@ export function RfqDispatchPanel({
         </div>
       ) : null}
 
-      {missingEmail > 0 && isDraft ? (
+      {missingEmail > 0 && isDraft && canExecute ? (
         <p className="mt-3 rounded-xl border border-[#ead9c0] bg-[#fffaf1] px-4 py-3 text-xs font-semibold text-[#7b5e2b]">
           {missingEmail} fornitore/i non hanno ancora un indirizzo email utilizzabile. RFQH3 blocca il launch finché tutti i destinatari non sono inviabili.
         </p>
       ) : null}
 
-      {!isDraft ? (
+      {!isDraft && canExecute ? (
         <div className="mt-5 flex flex-wrap gap-3 border-t border-[#dce7e2] pt-5">
           {failed > 0 ? (
             <button
@@ -222,6 +224,12 @@ export function RfqDispatchPanel({
             Risposte, decline, bounce e complaint vengono esclusi automaticamente.
           </p>
         </div>
+      ) : null}
+
+      {!canExecute ? (
+        <p className="mt-4 rounded-xl border border-[#dce2df] bg-white px-4 py-3 text-xs font-semibold text-[#66736e]">
+          Modalità consultazione: launch, retry e reminder restano azioni dell&apos;owner RFQ.
+        </p>
       ) : null}
 
       {feedback ? (

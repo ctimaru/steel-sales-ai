@@ -1,0 +1,3 @@
+-- RFQH13 migration tombstone.
+-- The interrupted 20261007100440 draft was superseded before production apply.
+-- Canonical approval gate enforcement lives in 20261007111845_rfqh13_core_approval_gate_enforcement.sql.
