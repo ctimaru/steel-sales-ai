@@ -150,6 +150,14 @@ export default async function PlatformHomePage() {
             ) : null}
             {context.is_platform_owner ? (
               <FocusLink
+                href="/platform/fundraising"
+                title="Investor Outreach & Data Room"
+                description="Pipeline fundraising, follow-up, outreach pack e accessi Investor Room."
+                meta="Strategy"
+              />
+            ) : null}
+            {context.is_platform_owner ? (
+              <FocusLink
                 href="/platform/pilot"
                 title={<span>Pilot Cohort &amp; Activation</span>}
                 description="Prerequisiti e attivazione del pilot commerciale."
