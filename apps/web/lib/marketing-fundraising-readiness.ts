@@ -286,7 +286,7 @@ export const screenshotCandidates: readonly ScreenshotCandidate[] = [
     readiness: "candidate",
     slideTargets: [2, 4, 8],
     gateIt: "Usare solo dataset demo non sensibile e risultati leggibili.",
-    gateEn: "Use only non-sensitive demo data and readable results.",
+    gateEn: "Use only non-sensitive demo data and readable results.",\n    desktopVerified: false,\n    mobileVerified: false,\n    qaNoteIt: "Richiede QA autenticato con dataset demo non sensibile.",\n    qaNoteEn: "Requires authenticated QA with a non-sensitive demo dataset.",
   },
   {
     key: "rfq-hub",
@@ -296,7 +296,7 @@ export const screenshotCandidates: readonly ScreenshotCandidate[] = [
     readiness: "candidate",
     slideTargets: [4, 5, 11],
     gateIt: "Campagna demo completa, confronto offerte leggibile, nessun dato reale di tenant.",
-    gateEn: "Complete demo campaign, readable quote comparison, no real tenant data.",
+    gateEn: "Complete demo campaign, readable quote comparison, no real tenant data.",\n    desktopVerified: false,\n    mobileVerified: false,\n    qaNoteIt: "Richiede QA autenticato su una campagna demo completa e senza dati tenant reali.",\n    qaNoteEn: "Requires authenticated QA on a complete demo campaign without real tenant data.",
   },
   {
     key: "network",
@@ -306,7 +306,7 @@ export const screenshotCandidates: readonly ScreenshotCandidate[] = [
     readiness: "candidate",
     slideTargets: [4, 5, 8],
     gateIt: "Densità sufficiente, filtri chiari, profili non fuorvianti.",
-    gateEn: "Sufficient density, clear filters and non-misleading profiles.",
+    gateEn: "Sufficient density, clear filters and non-misleading profiles.",\n    desktopVerified: false,\n    mobileVerified: false,\n    qaNoteIt: "Richiede QA autenticato su densità, filtri e profili mostrati.",\n    qaNoteEn: "Requires authenticated QA on density, filters and displayed profiles.",
   },
   {
     key: "procurement-intelligence",
@@ -316,7 +316,7 @@ export const screenshotCandidates: readonly ScreenshotCandidate[] = [
     readiness: "candidate",
     slideTargets: [4, 8, 10],
     gateIt: "Insight basati su dati demo/evidence esplicita, niente claim predittivi non validati.",
-    gateEn: "Insights based on demo data/explicit evidence, no unvalidated predictive claims.",
+    gateEn: "Insights based on demo data/explicit evidence, no unvalidated predictive claims.",\n    desktopVerified: false,\n    mobileVerified: false,\n    qaNoteIt: "Richiede QA autenticato con insight demo ed evidence esplicita.",\n    qaNoteEn: "Requires authenticated QA with demo insights and explicit evidence.",
   },
   {
     key: "investor-kpi",
@@ -326,7 +326,7 @@ export const screenshotCandidates: readonly ScreenshotCandidate[] = [
     readiness: "candidate",
     slideTargets: [9, 10],
     gateIt: "Solo vista interna; usare nel deck finale solo metriche realmente investor-safe.",
-    gateEn: "Internal view only; use in the final deck only genuinely investor-safe metrics.",
+    gateEn: "Internal view only; use in the final deck only genuinely investor-safe metrics.",\n    desktopVerified: false,\n    mobileVerified: false,\n    qaNoteIt: "Richiede QA owner-only; nessuna metrica non validata può entrare nel deck.",\n    qaNoteEn: "Requires owner-only QA; no unvalidated metric may enter the deck.",
   },
 ] as const;
 
