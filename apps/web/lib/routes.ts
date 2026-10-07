@@ -48,6 +48,7 @@ export const appRoutes = {
     procurementInbox: "/marketplace/inbox",
     suppliers: "/marketplace/suppliers",
     supplier: (id: string) => `/marketplace/suppliers/${id}`,
+    procurementIntelligence: "/marketplace/intelligence",
     rfqHub: "/marketplace/rfq-hub",
     rfqCampaign: (id: string) => `/marketplace/rfq-hub/${id}`,
   },
