@@ -9,6 +9,7 @@ import {
 } from "@/lib/auth-email-verification";
 import { isRegistrationNext, safeInternalNext } from "@/lib/auth-next";
 import { siteUrl } from "@/lib/site";
+import { trackServerProductEvent } from "@/lib/product-analytics-events.server";
 import { createClient } from "@/lib/supabase/server";
 import { safeErrorMessage } from "@/lib/user-facing-error";
 
@@ -154,7 +155,11 @@ export async function login(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
     if (error.code === "email_not_confirmed") {
-      const cookieStore = await cookies();
+      await trackServerProductEvent("registration_account_created", {
+    source: nextPath.includes("claim_ref=") ? "claim" : "direct",
+  });
+
+  const cookieStore = await cookies();
       cookieStore.set(
         PENDING_SIGNUP_EMAIL_COOKIE,
         email,
