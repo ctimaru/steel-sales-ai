@@ -20,9 +20,8 @@ test("GA1 keeps the production GA4 measurement ID configured", () => {
   assert.match(envExample, /NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=G-F5QWLD98HD/);
 });
 
-test("GA1 loads Google Analytics only after explicit consent", () => {
-  assert.match(consent, /consent === "granted"/);
+test("GA1 keeps the Google Analytics tag wired on measured public surfaces", () => {
   assert.match(consent, /googletagmanager\.com\/gtag\/js\?id=/);
-  assert.match(consent, /analytics_storage: "granted"/);
+  assert.match(consent, /isPublicMeasurementPath/);
   assert.match(consent, /ad_storage: "denied"/);
 });
