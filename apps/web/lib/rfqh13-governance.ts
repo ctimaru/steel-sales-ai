@@ -56,6 +56,7 @@ export type Rfqh13GovernanceState = {
     decided_at: string | null;
     decision_note: string | null;
     consumed_at: string | null;
+    payload_snapshot?: Record<string, unknown> | null;
   }>;
   health: {
     stale_dispatches: number;
