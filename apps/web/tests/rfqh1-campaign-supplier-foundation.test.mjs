@@ -61,7 +61,7 @@ test("RFQH1 bridges a saved public Buyer Distinta into the private hub", () => {
 });
 
 test("RFQH1 exposes RFQ Hub inside Marketplace and supports supplier targeting", () => {
-  assert.match(appShell, /label: "RFQ Hub"/);
+  assert.match(appShell, /label: "RFQ"/);
   assert.match(hub, /Richieste multi-fornitore/);
   assert.match(detail, /Fornitori target/);
   assert.match(supplierForm, /addSupplierToBuyerRfq/);
