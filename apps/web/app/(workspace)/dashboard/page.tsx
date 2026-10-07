@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
+import { PilotEvent } from "@/components/pilot-event";
 import { FocusHeader, FocusPage } from "@/components/focus-ui";
 import { Badge } from "@/components/ui/badge";
 import { getCompanySetupState } from "@/lib/company-setup";
@@ -143,6 +144,7 @@ export default async function DashboardPage() {
 
   return (
     <FocusPage className="max-w-[1120px]">
+      <PilotEvent eventName="workspace_home_viewed" metadata={{ surface: "workspace_home" }} />
       <FocusHeader
         eyebrow="Home"
         title={<>Oggi in {context.organizationName}</>}
