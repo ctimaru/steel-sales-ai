@@ -126,7 +126,7 @@ export default async function MarketplaceRequestPage({
               </span>
               {request.status === "published" ? (
                 <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-semibold text-amber-700">
-                  Teaser live P5.2
+                  Pubblicata
                 </span>
               ) : null}
             </div>
@@ -137,7 +137,7 @@ export default async function MarketplaceRequestPage({
               {request.status === "draft"
                 ? "Completa le linee prodotto e pubblica esplicitamente quando la ricerca è pronta."
                 : request.status === "published"
-                  ? "La ricerca è pubblicata. P5.5 seleziona i supplier tecnicamente compatibili e notifica solo le organizzazioni collegate; teaser, unlock e response rights restano governati separatamente."
+                  ? "La ricerca è pubblicata. Il sistema seleziona i fornitori tecnicamente compatibili e notifica solo le organizzazioni collegate; dettagli e diritto di risposta restano protetti."
                   : "La ricerca è stata ritirata e resta conservata nello storico audit."}
             </p>
           </div>
@@ -154,7 +154,7 @@ export default async function MarketplaceRequestPage({
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#173f35]">
-                P5.5 · Matching
+                Matching fornitori
               </p>
               <h2 className="mt-2 text-lg font-semibold text-[#1d2824]">
                 Copertura supplier
@@ -162,7 +162,7 @@ export default async function MarketplaceRequestPage({
               <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
                 Il buyer vede solo metriche aggregate. Le identità dei supplier non
                 vengono esposte da questo read model: il contatto commerciale avviene
-                quando un supplier decide di rispondere tramite P5.4.
+                quando un fornitore decide di rispondere.
               </p>
             </div>
             <span className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-[#66736e]">
@@ -235,8 +235,7 @@ export default async function MarketplaceRequestPage({
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#173f35]">Pubblicazione</p>
             <h2 className="mt-2 text-lg font-semibold text-[#1d2824]">Imposta la durata</h2>
             <p className="mt-2 text-sm leading-6 text-[#66736e]">
-              Il countdown è autoritativo lato database. P5.1 consente da 1 a 30 giorni;
-              il feed supplier usa il teaser privacy-safe P5.2; unlock e dettagli completi arrivano in P5.3.
+              Puoi pubblicare la ricerca da 1 a 30 giorni. Nel feed fornitori vengono mostrate solo le informazioni consentite; i dettagli completi restano protetti.
             </p>
             <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
               <div className="flex-1">
@@ -468,7 +467,7 @@ export default async function MarketplaceRequestPage({
         <section className="rounded-2xl border border-rose-100 bg-rose-50/50 p-5">
           <h2 className="text-sm font-semibold text-rose-900">Ritira ricerca</h2>
           <p className="mt-1 text-xs leading-5 text-rose-700">
-            Il ritiro è definitivo in P5.1 e viene registrato nell’audit ledger.
+            Il ritiro è definitivo e viene registrato nello storico attività.
           </p>
           <form action={withdrawMarketplaceRequest} className="mt-3">
             <input type="hidden" name="request_id" value={request.id} />
