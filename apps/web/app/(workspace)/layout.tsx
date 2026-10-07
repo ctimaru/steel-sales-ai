@@ -24,6 +24,9 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
   let alertNeedsAttention = false;
   let alertActiveCount = 0;
   let platformSuperadmin = false;
+  let platformConsoleAccess = false;
+  let platformOwner = false;
+  let guidedSetupComplete = true;
   const networkEnabled = isNetworkFrontendEnabled();
   let networkEntitled = !configured;
 
@@ -36,6 +39,9 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
     organizationName = context.organizationName;
     organizationRole = context.role;
     platformSuperadmin = context.platformSuperadmin;
+    platformConsoleAccess = context.platformConsoleAccess;
+    platformOwner = context.platformOwner;
+    guidedSetupComplete = context.guidedSetupComplete;
 
     if (networkEnabled) {
       const networkAccess = await getNetworkAccessState(context.organizationId);
@@ -62,6 +68,9 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
       alertNeedsAttention={alertNeedsAttention}
       alertActiveCount={alertActiveCount}
       platformSuperadmin={platformSuperadmin}
+      platformConsoleAccess={platformConsoleAccess}
+      platformOwner={platformOwner}
+      guidedSetupComplete={guidedSetupComplete}
       networkEnabled={networkEnabled}
       networkEntitled={networkEntitled}
     >
