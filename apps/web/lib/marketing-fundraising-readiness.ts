@@ -267,7 +267,7 @@ export const screenshotCandidates: readonly ScreenshotCandidate[] = [
     key: "school",
     titleIt: "Scuola / public utility",
     titleEn: "School / public utility",
-    surface: "/school",
+    surface: "/knowledge",
     readiness: "approved_for_deck",
     slideTargets: [4, 5, 11],
     gateIt: "Usare crop desktop che escluda il pill Privacy preferences e mantenga calculator + content hierarchy.",
