@@ -1,7 +1,7 @@
 export const ANALYTICS_CONSENT_STORAGE_KEY = "sss.analytics-consent.v2";
 export const LEGACY_ANALYTICS_CONSENT_STORAGE_KEY = "sss.google-analytics-consent.v1";
-export const ANALYTICS_CONSENT_VERSION = "lr2-2026-10-04-v1";
-export const ANALYTICS_NOTICE_VERSION = "2026-10-04";
+export const ANALYTICS_CONSENT_VERSION = "ga2-2026-10-07-v1";
+export const ANALYTICS_NOTICE_VERSION = "2026-10-07";
 export const ANALYTICS_REPROMPT_MONTHS = 6;
 
 export type AnalyticsConsentDecision = "granted" | "denied";
