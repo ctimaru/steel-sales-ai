@@ -1,22 +1,44 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f2f4f3;
-  --foreground: #1d2824;
-  --card: #ffffff;
-  --muted: #ecefed;
-  --muted-foreground: #5d6a65;
-  --border: #dce2df;
+  /* UXC1 — Smart Steel Sales semantic color system */
+  --surface-canvas: #f6f8f7;
+  --surface-base: #ffffff;
+  --surface-muted: #eef2f0;
+  --surface-subtle: #f8faf9;
+  --text-primary: #0f1720;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
+  --border: #dde4e1;
+  --border-strong: #c7d3ce;
 
-  --brand-950: #0b2f27;
-  --brand-900: #123d34;
-  --brand-800: #1a5144;
-  --brand-700: #226657;
-  --brand-600: #2d7967;
-  --brand-500: #438d7a;
-  --brand-200: #b8d2c8;
-  --brand-100: #d9e8e2;
-  --brand-50: #edf5f2;
+  --brand-deep: #123b34;
+  --brand-primary: #1f6b5a;
+  --brand-primary-hover: #185247;
+  --brand-primary-soft: #ddf5ec;
+  --steel-blue: #315c74;
+  --steel-blue-soft: #e8f0f4;
+
+  --semantic-success: #247a52;
+  --semantic-warning: #a15c00;
+  --semantic-error: #b42318;
+
+  /* Backward-compatible aliases during progressive migration. */
+  --background: var(--surface-canvas);
+  --foreground: var(--text-primary);
+  --card: var(--surface-base);
+  --muted: var(--surface-muted);
+  --muted-foreground: var(--text-secondary);
+
+  --brand-950: #0b2e28;
+  --brand-900: var(--brand-deep);
+  --brand-800: var(--brand-primary-hover);
+  --brand-700: var(--brand-primary);
+  --brand-600: #287d6b;
+  --brand-500: #4a9582;
+  --brand-200: #abd3c7;
+  --brand-100: var(--brand-primary-soft);
+  --brand-50: #f0faf6;
 
   --copper-700: #9a4e22;
   --copper-600: #b55f29;
@@ -24,11 +46,12 @@
   --copper-100: #f5ddcf;
   --copper-50: #fbf0e9;
 
-  --success: #1f6b58;
-  --warning: #a96616;
-  --danger: #b42318;
-  --focus: #1a5144;
-  --primary: #1a5144;
+  --success: var(--semantic-success);
+  --warning: var(--semantic-warning);
+  --danger: var(--semantic-error);
+  --info: var(--steel-blue);
+  --focus: var(--steel-blue);
+  --primary: var(--brand-primary);
 }
 
 * {
@@ -46,7 +69,7 @@ body {
   min-height: 100dvh;
   overflow-x: hidden;
   background:
-    radial-gradient(circle at 85% -10%, rgba(26, 81, 68, 0.07), transparent 28rem),
+    radial-gradient(circle at 85% -10%, rgba(18, 59, 52, 0.055), transparent 28rem),
     var(--background);
   color: var(--foreground);
   font-family:
@@ -106,12 +129,12 @@ textarea {
   z-index: 200;
   transform: translateY(-180%);
   border-radius: 0.75rem;
-  background: #123d34;
+  background: var(--brand-deep);
   color: #ffffff;
   padding: 0.65rem 0.9rem;
   font-size: 0.875rem;
   font-weight: 700;
-  box-shadow: 0 8px 24px rgba(11, 47, 39, 0.18);
+  box-shadow: 0 8px 24px rgba(18, 59, 52, 0.16);
 }
 
 .skip-link:focus {
@@ -216,8 +239,8 @@ textarea {
 }
 
 ::selection {
-  background: #d9e8e2;
-  color: #123d34;
+  background: var(--brand-primary-soft);
+  color: var(--brand-deep);
 }
 
 .metric-number {
@@ -234,7 +257,7 @@ textarea {
 }
 
 .product-kicker {
-  color: var(--primary);
+  color: var(--brand-deep);
   font-size: 0.6875rem;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -242,7 +265,7 @@ textarea {
 }
 
 .brand-button {
-  background: #1a5144;
+  background: var(--brand-primary);
   color: white;
 }
 
@@ -253,8 +276,8 @@ textarea {
 }
 
 .public-primary-cta:hover {
-  border-color: var(--brand-700) !important;
-  background-color: var(--brand-700) !important;
+  border-color: var(--brand-primary-hover) !important;
+  background-color: var(--brand-primary-hover) !important;
   color: #ffffff !important;
 }
 
@@ -263,7 +286,7 @@ textarea {
 }
 
 .brand-button:hover {
-  background: #226657;
+  background: var(--brand-primary-hover);
 }
 
 .copper-accent {
@@ -277,13 +300,13 @@ textarea {
 
 
 .platform-surface {
-  border: 1px solid #dce2df;
-  background: #ffffff;
+  border: 1px solid var(--border);
+  background: var(--surface-base);
   box-shadow: 0 1px 2px rgba(30, 43, 69, 0.025), 0 10px 28px rgba(30, 43, 69, 0.035);
 }
 
 .platform-kicker {
-  color: #1a5144;
+  color: var(--brand-deep);
   font-size: 0.6875rem;
   font-weight: 800;
   letter-spacing: 0.15em;
@@ -291,14 +314,14 @@ textarea {
 }
 
 .platform-primary {
-  border: 1px solid #1a5144;
-  background: #1a5144;
+  border: 1px solid var(--brand-primary);
+  background: var(--brand-primary);
   color: #ffffff;
 }
 
 .platform-primary:hover {
-  border-color: #226657;
-  background: #226657;
+  border-color: var(--brand-primary-hover);
+  background: var(--brand-primary-hover);
 }
 
 /* UI contrast hardening — solid green interactive states.
@@ -306,8 +329,8 @@ textarea {
    utilities from nested labels/icons. */
 .platform-selected-solid,
 .app-selected-solid {
-  border-color: var(--brand-800) !important;
-  background-color: var(--brand-800) !important;
+  border-color: var(--brand-primary) !important;
+  background-color: var(--brand-primary) !important;
   color: #ffffff !important;
 }
 
@@ -347,8 +370,8 @@ textarea {
 
 /* UX2 — unified application surfaces */
 .app-surface {
-  border: 1px solid #dce2df;
-  background: #ffffff;
+  border: 1px solid var(--border);
+  background: var(--surface-base);
   box-shadow: 0 1px 2px rgba(30, 43, 69, 0.025), 0 8px 24px rgba(30, 43, 69, 0.025);
 }
 
@@ -358,7 +381,7 @@ textarea {
 }
 
 .app-kicker {
-  color: #1a5144;
+  color: var(--brand-deep);
   font-size: 0.6875rem;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -366,18 +389,18 @@ textarea {
 }
 
 .app-copy {
-  color: #66736e;
+  color: var(--text-secondary);
 }
 
 .app-primary {
-  border: 1px solid #1a5144;
-  background: #1a5144;
+  border: 1px solid var(--brand-primary);
+  background: var(--brand-primary);
   color: #ffffff;
 }
 
 .app-primary:hover {
-  border-color: #226657;
-  background: #226657;
+  border-color: var(--brand-primary-hover);
+  background: var(--brand-primary-hover);
 }
 
 .app-secondary {
@@ -736,3 +759,14 @@ textarea {
   padding: 0;
   box-shadow: none;
 }
+
+
+/* UXC1 — semantic helpers for progressive page migration. */
+.ui-text-primary { color: var(--text-primary); }
+.ui-text-secondary { color: var(--text-secondary); }
+.ui-brand-text { color: var(--brand-deep); }
+.ui-info-text { color: var(--steel-blue); }
+.ui-surface { background: var(--surface-base); border-color: var(--border); }
+.ui-canvas { background: var(--surface-canvas); }
+.ui-brand-soft { background: var(--brand-primary-soft); color: var(--brand-deep); }
+.ui-info-soft { background: var(--steel-blue-soft); color: var(--steel-blue); }
