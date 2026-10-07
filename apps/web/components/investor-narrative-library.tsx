@@ -52,6 +52,7 @@ function assetHref(
 
   if (asset.key === "business-plan") return `/investor/business-plan/${inviteToken}`;
   if (asset.key === "one-pager") return `/investor/marketing/${inviteToken}/one-pager`;
+  if (asset.key === "investor-deck") return `/investor/marketing/${inviteToken}/deck`;
   if (asset.key === "kpi-dashboard") return `/investor/kpi/${inviteToken}`;
   if (asset.key === "brand-system" || asset.key === "investor-narrative") {
     return `/investor/marketing/${inviteToken}`;
