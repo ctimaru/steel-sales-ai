@@ -9,6 +9,7 @@ import {
   calculateBuyerDistintaTotals,
   type BuyerDistintaDraftLine,
 } from "@/lib/buyer-distinta";
+import { trackServerProductEvent } from "@/lib/product-analytics-events.server";
 import { createClient } from "@/lib/supabase/server";
 
 type SaveBuyerDistintaInput = {
@@ -58,6 +59,7 @@ export async function createBuyerRfqCampaign(
   }
 
   revalidatePath("/marketplace/rfq-hub");
+  await trackServerProductEvent("rfq_start", { source: "distinta" });
   return { ok: true, rfqId };
 }
 
@@ -125,6 +127,7 @@ export async function saveBuyerDistinta(
   }
 
   revalidatePath("/distinta");
+  await trackServerProductEvent("distinta_save", { line_count: lines.length });
   return { ok: true, distintaId };
 }
 

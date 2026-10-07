@@ -11,6 +11,7 @@ import {
   createRfqh3ReminderIdempotencyKey,
   type Rfqh3EmailLine,
 } from "@/lib/rfqh3-dispatch";
+import { trackServerProductEvent } from "@/lib/product-analytics-events.server";
 import { createClient } from "@/lib/supabase/server";
 
 export type SupplierCandidate = {
@@ -451,6 +452,14 @@ export async function launchBuyerRfq(
 
   revalidatePath("/marketplace/rfq-hub");
   revalidatePath("/marketplace/rfq-hub/" + context.campaign.id);
+
+  if (sentCount > 0) {
+    await trackServerProductEvent("rfq_dispatch_launch", {
+      supplier_count: dispatches.length,
+      sent_count: sentCount,
+      failed_count: failedCount,
+    });
+  }
 
   return { ok: sentCount > 0, sentCount, failedCount };
 }

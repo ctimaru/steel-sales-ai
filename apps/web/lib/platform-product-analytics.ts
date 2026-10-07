@@ -31,6 +31,10 @@ export type PlatformAnalyticsSnapshot = {
   range: AnalyticsRangeKey;
   rangeLabel: string;
   error: string | null;
+  ingestion: {
+    collector: "an1.2";
+    state: "receiving" | "awaiting_data" | "api_error" | "token_missing";
+  };
   totals: {
     pageviews: number;
     visitors: number;
@@ -171,6 +175,10 @@ function emptySnapshot(
     range,
     rangeLabel: RANGE_CONFIG[range].label,
     error,
+    ingestion: {
+      collector: "an1.2",
+      state: error === "VERCEL_ANALYTICS_TOKEN_MISSING" ? "token_missing" : "api_error",
+    },
     totals: {
       pageviews: 0,
       visitors: 0,
@@ -277,6 +285,11 @@ export async function getPlatformAnalyticsSnapshot(
       .sort((a, b) => b.count - a.count);
 
     const eventMap = new Map(events.map((event) => [event.name, event.count]));
+    const pageviews = visitCount.data?.pageviews ?? 0;
+    const visitors = visitCount.data?.visitors ?? 0;
+    const eventTotal = eventCount.data?.count ?? 0;
+    const eventVisitors = eventCount.data?.visitors ?? 0;
+    const hasData = pageviews > 0 || visitors > 0 || eventTotal > 0 || eventVisitors > 0;
 
     return {
       configured: true,
@@ -284,11 +297,15 @@ export async function getPlatformAnalyticsSnapshot(
       range,
       rangeLabel: RANGE_CONFIG[range].label,
       error: null,
+      ingestion: {
+        collector: "an1.2",
+        state: hasData ? "receiving" : "awaiting_data",
+      },
       totals: {
-        pageviews: visitCount.data?.pageviews ?? 0,
-        visitors: visitCount.data?.visitors ?? 0,
-        events: eventCount.data?.count ?? 0,
-        eventVisitors: eventCount.data?.visitors ?? 0,
+        pageviews,
+        visitors,
+        events: eventTotal,
+        eventVisitors,
       },
       trend: (trendResponse.data ?? []).map((row) => ({
         label: row.timestamp ?? "",

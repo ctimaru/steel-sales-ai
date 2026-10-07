@@ -267,6 +267,19 @@ export function ProductAnalyticsDashboard({
         </div>
       </section>
 
+      {snapshot.ingestion.state === "awaiting_data" ? (
+        <section className="rounded-2xl border border-[#e7d4ae] bg-[#fffaf1] p-4 sm:p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#8b5d21]">
+            Ingestion AN1.2 · collector cablato
+          </p>
+          <p className="mt-2 text-sm leading-6 text-[#6e6253]">
+            La Web Analytics API risponde correttamente ma non restituisce ancora traffico nel periodo selezionato.
+            Dopo il deploy AN1.2 i nuovi pageview e custom event iniziano a popolare questa dashboard; se resta a zero,
+            verifica che Web Analytics sia abilitato sul progetto Vercel.
+          </p>
+        </section>
+      ) : null}
+
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {[
           ["Visitatori", snapshot.totals.visitors, "utenti unici stimati da Vercel"],

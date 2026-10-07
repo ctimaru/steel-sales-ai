@@ -7,6 +7,7 @@ import {
   PENDING_SIGNUP_EMAIL_COOKIE,
   pendingSignupEmailCookieOptions,
 } from "@/lib/auth-email-verification";
+import { trackServerProductEvent } from "@/lib/product-analytics-events.server";
 import { createClient } from "@/lib/supabase/server";
 import { feedbackPath } from "@/lib/user-facing-error";
 
@@ -245,6 +246,11 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
       ),
     );
   }
+
+  await trackServerProductEvent("registration_submit", {
+    claim: validClaimRef,
+    company_type: primaryCompanyType,
+  });
 
   redirect("/registration/status?submitted=1");
 }

@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
+import { trackProductEvent } from "@/lib/product-analytics-events.client";
 import type { PublicTubeDimensionSummary } from "@/lib/public-knowledge";
 
 type TubeFamily = PublicTubeDimensionSummary["product_family"];
@@ -535,6 +536,8 @@ export function PublicTubeWeightCalculator({
   const [calculatorSaved, setCalculatorSaved] = useState(false);
   const [retentionReady, setRetentionReady] = useState(false);
   const [actionFeedback, setActionFeedback] = useState("");
+  const calculationInteractedRef = useRef(false);
+  const lastTrackedCalculationKeyRef = useRef<string | null>(null);
 
   const values = useMemo(() => {
     const d = parseNumber(outerDiameter);
@@ -821,6 +824,27 @@ export function PublicTubeWeightCalculator({
     return () => window.clearTimeout(timeout);
   }, [retentionReady, currentSnapshot]);
 
+  useEffect(() => {
+    if (
+      !retentionReady ||
+      !currentSnapshot ||
+      !calculationInteractedRef.current ||
+      lastTrackedCalculationKeyRef.current === currentSnapshot.key
+    ) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      trackProductEvent("weight_calculation", {
+        standard: currentSnapshot.standard,
+        family: currentSnapshot.family,
+      });
+      lastTrackedCalculationKeyRef.current = currentSnapshot.key;
+    }, 1200);
+
+    return () => window.clearTimeout(timeout);
+  }, [retentionReady, currentSnapshot]);
+
   const currentIsFavorite =
     currentSnapshot != null && favoriteCalculations.some((item) => item.key === currentSnapshot.key);
 
@@ -871,7 +895,12 @@ export function PublicTubeWeightCalculator({
     "mt-1 min-h-11 w-full rounded-xl border border-[#cfd9d5] bg-white px-3 py-2 text-sm font-semibold text-[#1d2824] outline-none transition focus:border-[#438d7a] focus:ring-4 focus:ring-[#d9e8e2]";
 
   return (
-    <div className="space-y-5">
+    <div
+      className="space-y-5"
+      onChangeCapture={() => {
+        calculationInteractedRef.current = true;
+      }}
+    >
       <section
         id="calcolatore-pesi"
         className="flex h-auto min-h-0 max-h-none scroll-mt-20 flex-col overflow-hidden rounded-[1.6rem] border border-[#cddbd6] bg-white shadow-[0_18px_60px_rgba(11,47,39,0.08)] lg:h-[calc(100svh-6.75rem)] lg:min-h-[560px] lg:max-h-[820px]"
