@@ -18,7 +18,7 @@ export default function CookiesPage() {
     <LegalPageShell
       eyebrow="Cookie · local storage · analytics"
       title="Cookie & Tracking Policy"
-      intro="Smart Steel Sales distingue le tecnologie necessarie o richieste dall’utente dagli strumenti statistici non essenziali. Google Analytics non viene caricato prima del consenso."
+      intro="Smart Steel Sales distingue le tecnologie necessarie o richieste dall’utente dagli strumenti statistici non essenziali. Google Analytics usa Consent Mode v2: il tag può caricarsi con consenso negato, senza cookie analytics, e passa alla misurazione completa solo dopo consenso."
     >
       <LegalSection title="1. Tecnologie necessarie e funzionali">
         <p>
@@ -47,13 +47,15 @@ export default function CookiesPage() {
       <LegalSection title="3. Google Analytics 4">
         <p>
           Google Analytics 4 è utilizzato sulle sole superfici pubbliche per comprendere visitatori,
-          sorgenti di traffico, landing page e utilizzo dei contenuti pubblici. Il relativo script viene
-          caricato solo dopo consenso esplicito.
+          sorgenti di traffico, landing page e utilizzo dei contenuti pubblici. Smart Steel Sales usa
+          Google Consent Mode v2 in modalità avanzata: il tag può essere caricato prima della scelta,
+          con analytics storage negato per impostazione predefinita e senza impostare cookie analytics.
         </p>
         <p>
-          La configurazione Smart Steel Sales mantiene disattivati ad storage, ad user data,
-          ad personalization e Google signals. Le aree Network, Workspace e Platform non vengono
-          misurate da questa integrazione GA4.
+          Quando il consenso analytics è negato o non ancora espresso, Google può ricevere ping tecnici
+          senza cookie previsti dalla modalità di consenso avanzata. La configurazione Smart Steel Sales
+          mantiene sempre disattivati ad storage, ad user data, ad personalization e Google signals.
+          Le aree Network, Workspace e Platform non vengono misurate da questa integrazione GA4.
         </p>
         <p>
           Dopo il consenso, Google Analytics può utilizzare identificatori come <code>_ga</code> e
@@ -65,8 +67,9 @@ export default function CookiesPage() {
       <LegalSection title="4. Nessun consenso implicito">
         <p>
           Scorrere la pagina, continuare la navigazione o chiudere altri elementi dell’interfaccia non
-          equivale ad accettare le statistiche. Senza una scelta positiva il tag Google Analytics non
-          viene caricato.
+          equivale ad accettare le statistiche. Senza una scelta positiva analytics storage resta negato:
+          non vengono impostati cookie analytics e il tag resta limitato ai segnali consentiti dalla
+          modalità avanzata senza consenso.
         </p>
       </LegalSection>
 
