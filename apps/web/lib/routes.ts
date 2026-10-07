@@ -116,6 +116,7 @@ export const appRoutes = {
     marketing: "/platform/marketing",
     marketingOnePager: "/platform/marketing/one-pager",
     marketingPitchDeck: "/platform/marketing/pitch-deck",
+    marketingFundraisingReadiness: "/platform/marketing/fundraising-readiness",
     investorAccess: "/platform/investor-access",
     investorKpis: "/platform/investor-kpis",
     productAnalytics: "/platform/product-analytics",

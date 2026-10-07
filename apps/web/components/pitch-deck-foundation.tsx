@@ -1,5 +1,6 @@
 import type { BusinessPlanLocale } from "@/lib/business-plan-locale";
 import { getPitchDeckSlides, type ClaimStatus } from "@/lib/marketing-fundraising-assets";
+import { getFundraisingReadiness, type EvidenceReadiness } from "@/lib/marketing-fundraising-readiness";
 
 function statusLabel(status: ClaimStatus, locale: BusinessPlanLocale) {
   const labels = {
@@ -9,8 +10,15 @@ function statusLabel(status: ClaimStatus, locale: BusinessPlanLocale) {
   return labels[locale][status];
 }
 
+function readinessClass(value: EvidenceReadiness) {
+  if (value === "ready") return "bg-[var(--brand-primary-soft)] text-[var(--brand-deep)]";
+  if (value === "partial") return "bg-[var(--steel-blue-soft)] text-[var(--steel-blue)]";
+  return "bg-red-50 text-[var(--semantic-error)]";
+}
+
 export function PitchDeckFoundation({ locale = "it" }: { locale?: BusinessPlanLocale }) {
   const slides = getPitchDeckSlides(locale);
+  const evidenceBySlide = new Map(getFundraisingReadiness(locale).evidencePack.map((item) => [item.slide, item]));
 
   return (
     <section className="rounded-[28px] border border-[var(--border)] bg-[var(--surface-base)] p-6 sm:p-8">
@@ -34,7 +42,9 @@ export function PitchDeckFoundation({ locale = "it" }: { locale?: BusinessPlanLo
       </div>
 
       <div className="mt-7 grid gap-4 lg:grid-cols-2">
-        {slides.map((slide) => (
+        {slides.map((slide) => {
+          const evidence = evidenceBySlide.get(slide.number);
+          return (
           <article key={slide.key} className="rounded-2xl border border-[var(--border)] bg-[var(--surface-subtle)] p-5">
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -43,9 +53,16 @@ export function PitchDeckFoundation({ locale = "it" }: { locale?: BusinessPlanLo
                 </p>
                 <h3 className="mt-2 text-xl font-semibold tracking-[-0.02em] text-[var(--text-primary)]">{slide.thesis}</h3>
               </div>
-              <span className="shrink-0 rounded-full bg-[var(--surface-muted)] px-2.5 py-1 text-[9px] font-bold tracking-[0.08em] text-[var(--text-secondary)]">
-                {statusLabel(slide.status, locale)}
-              </span>
+              <div className="flex shrink-0 flex-col items-end gap-2">
+                <span className="rounded-full bg-[var(--surface-muted)] px-2.5 py-1 text-[9px] font-bold tracking-[0.08em] text-[var(--text-secondary)]">
+                  {statusLabel(slide.status, locale)}
+                </span>
+                {evidence ? (
+                  <span className={`rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.08em] ${readinessClass(evidence.readiness)}`}>
+                    {evidence.readiness}
+                  </span>
+                ) : null}
+              </div>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               {slide.content.map((item) => (
@@ -59,9 +76,18 @@ export function PitchDeckFoundation({ locale = "it" }: { locale?: BusinessPlanLo
                 Evidence rule
               </p>
               <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">{slide.evidence}</p>
+              {evidence ? (
+                <>
+                  <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--steel-blue)]">
+                    MKT4 next action
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">{evidence.nextAction}</p>
+                </>
+              ) : null}
             </div>
           </article>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

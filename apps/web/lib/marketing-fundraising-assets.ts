@@ -8,14 +8,14 @@ export const fundraisingGuardrails = {
     "Seed database ≠ network liquidity.",
     "Replacement cost ≠ valuation.",
     "Ogni stima deve essere etichettata.",
-    "Round size, use of funds e milestone restano TBD finché non approvati.",
+    "€1M è la working recommendation; valuation, dilution e termini restano TBD finché non approvati.",
   ],
   en: [
     "Shipped features ≠ traction.",
     "Seeded database ≠ network liquidity.",
     "Replacement cost ≠ valuation.",
     "Every estimate must be labeled.",
-    "Round size, use of funds and milestones remain TBD until approved.",
+    "€1M is the working recommendation; valuation, dilution and terms remain TBD until approved.",
   ],
 } as const;
 
@@ -367,13 +367,13 @@ export const pitchDeckSlides: readonly PitchDeckSlide[] = [
     key: "ask",
     titleIt: "Fundraising ask",
     titleEn: "Fundraising ask",
-    thesisIt: "Round size, use of funds e milestone restano placeholder finché non vengono approvati.",
-    thesisEn: "Round size, use of funds and milestones remain placeholders until approved.",
+    thesisIt: "€1,0M Seed come working recommendation per comprare 24 mesi di evidence.",
+    thesisEn: "€1.0M Seed as the working recommendation to buy 24 months of evidence.",
     status: "target",
-    evidenceIt: "Nessun ask definitivo è stato approvato.",
-    evidenceEn: "No final fundraising ask has been approved.",
-    contentIt: ["Round size · TBD", "Use of funds · TBD", "Milestones · TBD"],
-    contentEn: ["Round size · TBD", "Use of funds · TBD", "Milestones · TBD"],
+    evidenceIt: "Modello bottom-up €1M / 24 mesi, 5-person core team, reserve €130k. Valuation e termini restano aperti.",
+    evidenceEn: "Bottom-up €1M / 24-month model, five-person core team, €130k reserve. Valuation and terms remain open.",
+    contentIt: ["Ask · €1,0M working target", "Range · €0,8–1,2M", "Lead/co-lead · €400–700k", "Runway · ~24 mesi", "Terms · TBD"],
+    contentEn: ["Ask · €1.0M working target", "Range · €0.8–1.2M", "Lead/co-lead · €400–700k", "Runway · ~24 months", "Terms · TBD"],
   },
 ] as const;
 
