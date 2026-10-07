@@ -91,7 +91,7 @@ test("HP11 turns supplier entitlement and role blockers into next actions", () =
   assert.match(opportunity, /Apri opportunità per te/);
   assert.match(opportunity, /Migliora Company Profile/);
   assert.match(opportunity, /Opportunità leggibile, risposta non abilitata per il tuo ruolo/);
-  assert.match(opportunity, /Organization Admin/);
+  assert.match(opportunity, /amministratore dell’organizzazione/);
   assert.match(responseWorkspace, /reasonAction/);
   assert.match(responseWorkspace, /Torna alle opportunità aperte/);
   assert.match(responseWorkspace, /Riapri il dettaglio opportunità/);
