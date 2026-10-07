@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
+import { PilotEvent } from "@/components/pilot-event";
 import { FocusHeader, FocusPage } from "@/components/focus-ui";
 import { Badge } from "@/components/ui/badge";
 import { getDashboardData } from "@/lib/commercial-data";
@@ -75,6 +76,7 @@ export default async function CommercialHomePage() {
 
   return (
     <FocusPage className="max-w-[1120px]">
+      <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
       <FocusHeader
         eyebrow="Commerciale"
         title="La memoria commerciale della tua azienda"
