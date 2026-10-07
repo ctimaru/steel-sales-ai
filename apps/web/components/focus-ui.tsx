@@ -30,11 +30,11 @@ export function FocusHeader({
     <header className="mvp-focus-header flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
       <div className="max-w-3xl">
         {eyebrow ? <p className="app-kicker">{eyebrow}</p> : null}
-        <h1 className="mt-2 text-3xl font-semibold tracking-[-0.025em] text-[#1d2824] sm:text-[2.15rem]">
+        <h1 className="mt-2 text-3xl font-semibold tracking-[-0.025em] text-[var(--text-primary)] sm:text-[2.15rem]">
           {title}
         </h1>
         {description ? (
-          <div className="mt-3 max-w-2xl text-sm leading-6 text-[#5d6a65] sm:text-base">
+          <div className="mt-3 max-w-2xl text-sm leading-6 text-[var(--text-secondary)] sm:text-base">
             {description}
           </div>
         ) : null}
@@ -60,9 +60,9 @@ export function FocusSectionHeader({
     <div className="app-section-header mb-3 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
         {eyebrow ? <p className="app-kicker">{eyebrow}</p> : null}
-        <h2 className="mt-1 text-xl font-semibold tracking-[-0.015em] text-[#1d2824]">{title}</h2>
+        <h2 className="mt-1 text-xl font-semibold tracking-[-0.015em] text-[var(--text-primary)]">{title}</h2>
         {description ? (
-          <div className="mt-1 max-w-2xl text-sm leading-6 text-[#5d6a65]">{description}</div>
+          <div className="mt-1 max-w-2xl text-sm leading-6 text-[var(--text-secondary)]">{description}</div>
         ) : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
@@ -83,7 +83,7 @@ export function FocusPanel({
     <section
       className={[
         "rounded-2xl border p-5 sm:p-6",
-        muted ? "border-[#d9e1dd] bg-[#f7f9f8]" : "border-[#dce2df] bg-white",
+        muted ? "border-[var(--border)] bg-[var(--surface-subtle)]" : "border-[var(--border)] bg-[var(--surface-base)]",
         className,
       ]
         .filter(Boolean)
@@ -113,16 +113,16 @@ export function FocusLink({
       className={[
         "group flex items-start justify-between gap-4 rounded-xl border px-4 py-3.5 transition",
         primary
-          ? "border-[#b8d2c8] bg-[#edf5f2] hover:border-[#82aa9b] hover:bg-[#e6f0ec]"
-          : "border-[#e2e7e4] bg-white hover:border-[#b8d2c8] hover:bg-[#f8faf9]",
+          ? "border-[var(--brand-primary-soft)] bg-[var(--brand-primary-soft)] hover:border-[var(--brand-primary)] hover:bg-[#d2eee4]"
+          : "border-[var(--border)] bg-[var(--surface-base)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-subtle)]",
       ].join(" ")}
     >
       <div className="min-w-0">
-        {meta ? <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#66736e]">{meta}</div> : null}
-        <div className="text-sm font-semibold text-[#1d2824]">{title}</div>
-        {description ? <div className="mt-1 text-xs leading-5 text-[#66736e]">{description}</div> : null}
+        {meta ? <div className="mb-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--text-secondary)]">{meta}</div> : null}
+        <div className="text-sm font-semibold text-[var(--text-primary)]">{title}</div>
+        {description ? <div className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">{description}</div> : null}
       </div>
-      <span className="mt-0.5 shrink-0 text-sm font-semibold text-[#1a5144]" aria-hidden="true">
+      <span className="mt-0.5 shrink-0 text-sm font-semibold text-[var(--brand-deep)]" aria-hidden="true">
         →
       </span>
     </Link>
