@@ -1,6 +1,5 @@
 "use client";
 
-import Script from "next/script";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -22,6 +21,7 @@ type AnalyticsConsent = AnalyticsConsentDecision | null;
 type AnalyticsWindow = Window & {
   dataLayer?: unknown[][];
   gtag?: (...args: unknown[]) => void;
+  __sssGaConfigured?: string;
 };
 
 function isPublicMeasurementPath(pathname: string) {
@@ -117,20 +117,15 @@ export function GoogleAnalyticsConsent({
         analyticsWindow.dataLayer?.push(args);
       };
 
-    analyticsWindow.gtag("consent", "default", {
-      analytics_storage: "denied",
-      ad_storage: "denied",
-      ad_user_data: "denied",
-      ad_personalization: "denied",
-      wait_for_update: 500,
-    });
-    analyticsWindow.gtag("set", "ads_data_redaction", true);
-    analyticsWindow.gtag("js", new Date());
-    analyticsWindow.gtag("config", measurementId, {
-      send_page_view: false,
-      allow_google_signals: false,
-      allow_ad_personalization_signals: false,
-    });
+    if (analyticsWindow.__sssGaConfigured !== measurementId) {
+      analyticsWindow.gtag("js", new Date());
+      analyticsWindow.gtag("config", measurementId, {
+        send_page_view: false,
+        allow_google_signals: false,
+        allow_ad_personalization_signals: false,
+      });
+      analyticsWindow.__sssGaConfigured = measurementId;
+    }
   }, [measurementId, shouldMeasure]);
 
   useEffect(() => {
@@ -195,30 +190,6 @@ export function GoogleAnalyticsConsent({
 
   return (
     <>
-      {shouldMeasure ? (
-        <>
-          <Script id="sss-google-consent-default" strategy="afterInteractive">
-            {`
-window.dataLayer = window.dataLayer || [];
-window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};
-window.gtag("consent", "default", {
-  analytics_storage: "denied",
-  ad_storage: "denied",
-  ad_user_data: "denied",
-  ad_personalization: "denied",
-  wait_for_update: 500
-});
-window.gtag("set", "ads_data_redaction", true);
-            `}
-          </Script>
-          <Script
-            id="sss-google-analytics"
-            src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`}
-            strategy="afterInteractive"
-          />
-        </>
-      ) : null}
-
       {showPanel ? (
         <section
           role="dialog"
