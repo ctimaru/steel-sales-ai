@@ -23,7 +23,7 @@ const schoolStandards = read("../app/(workspace)/school/norme/page.tsx");
 const schoolGrades = read("../app/(workspace)/school/gradi/page.tsx");
 const telemetry = read("../app/(workspace)/telemetry/actions.ts");
 const pilotAnalytics = read("../app/(workspace)/pilot-analytics/page.tsx");
-const migration = read("../../supabase/migrations/20261007111127_pf7_usage_validation_events.sql");
+const migration = read("../../../supabase/migrations/20261007111127_pf7_usage_validation_events.sql");
 
 test("PF6 aligns focused page hierarchy across the five macro-spaces", () => {
   assert.match(focusUi, /export function FocusSectionHeader/);
