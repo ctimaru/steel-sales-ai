@@ -21,7 +21,7 @@ test("GA1 keeps the production GA4 measurement ID configured", () => {
 });
 
 test("GA1 keeps the Google Analytics tag wired on measured public surfaces", () => {
-  assert.match(consent, /googletagmanager\.com\/gtag\/js\?id=/);
+  assert.match(layout, /googletagmanager\.com\/gtag\/js\?id=/);
   assert.match(consent, /isPublicMeasurementPath/);
-  assert.match(consent, /ad_storage: "denied"/);
+  assert.match(layout, /ad_storage: "denied"/);
 });
