@@ -30,14 +30,16 @@ test("UXA2 Company Workspace exposes role-aware LinkedIn-style macro navigation"
   assert.match(companyShell, /platformSuperadmin/);
 });
 
-test("UX2 Company Home is a private operational cockpit with shared-space exits", () => {
-  assert.match(companyHome, /Il centro operativo della tua azienda/);
-  assert.match(companyHome, /Area privata aziendale/);
-  assert.match(companyHome, /Oggi nel workspace/);
-  assert.match(companyHome, /Spazi condivisi/);
-  assert.match(companyHome, /Marketplace/);
-  assert.match(companyHome, /Scuola/);
+test("PF1 Company Home is a private daily cockpit with task-oriented exits", () => {
+  assert.match(companyHome, /Oggi in/);
+  assert.match(companyHome, /Workspace privato/);
+  assert.match(companyHome, /Cosa richiede attenzione/);
+  assert.match(companyHome, /Ultimi movimenti commerciali/);
+  assert.match(companyHome, /Azioni rapide/);
+  assert.match(companyHome, /appRoutes\.marketplace\.rfqHub/);
+  assert.match(companyHome, /appRoutes\.network\.directory/);
   assert.match(companyHome, /getWorkspaceContext/);
+  assert.doesNotMatch(companyHome, /Spazi condivisi/);
   assert.doesNotMatch(companyHome, /<form action=\{appRoutes\.commercial\.search\}/);
 });
 

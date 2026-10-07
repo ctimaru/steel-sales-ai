@@ -13,10 +13,9 @@ test("dashboard and explorer use normalized business entities as operational rea
   assert.doesNotMatch(explorerBlock, /from\("commercial_observations"\)/);
   assert.doesNotMatch(explorerBlock, /from\("rfq_lines"\)/);
   assert.match(data, /operational:/);
-  assert.match(dashboard, /Commercial Memory privata/);
-  assert.match(dashboard, /operational\.rfqs/);
-  assert.match(dashboard, /operational\.offers/);
-  assert.match(dashboard, /operational\.orders/);
+  assert.match(dashboard, /getDashboardData/);
+  assert.match(dashboard, /Ultimi movimenti commerciali/);
+  assert.match(dashboard, /row\.operationalHref/);
 });
 
 test("normalized workspace customer labels come only from explicit company links", () => {

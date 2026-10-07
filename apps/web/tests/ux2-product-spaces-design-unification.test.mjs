@@ -24,14 +24,15 @@ test("UXA2 exposes five stable macro destinations over the product spaces", () =
   assert.match(nav, /WorkspaceMobileBottomNavigation/);
 });
 
-test("UXA2 keeps Commercial Memory private while search becomes a persistent header utility", () => {
+test("PF1 keeps Commercial Memory private while Home becomes a daily cockpit", () => {
   assert.match(shell, /WorkspaceSearchBar/);
   assert.match(shell, /appRoutes\.commercial\.products/);
   assert.match(shell, /appRoutes\.commercial\.companies/);
 
-  assert.match(dashboard, /Commercial Memory privata/);
-  assert.match(dashboard, /Oggi nel workspace/);
-  assert.match(dashboard, /Operations e configurazione/);
+  assert.match(dashboard, /Workspace privato/);
+  assert.match(dashboard, /Ultimi movimenti commerciali/);
+  assert.match(dashboard, /Cerca nello storico/);
+  assert.doesNotMatch(dashboard, /Operations e configurazione/);
   assert.doesNotMatch(dashboard, /<form action=\{appRoutes\.commercial\.search\}/);
 });
 

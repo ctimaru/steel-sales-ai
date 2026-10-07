@@ -82,11 +82,12 @@ test("sales navigation uses stable macros with contextual tools and avatar drawe
 });
 
 
-test("Home is an operational cockpit while Search owns the dedicated search workspace", () => {
-  assert.match(dashboard, /Il centro operativo della tua azienda/);
-  assert.match(dashboard, /Oggi nel workspace/);
+test("Home is a daily operational cockpit while Search owns the dedicated search workspace", () => {
+  assert.match(dashboard, /Oggi in/);
+  assert.match(dashboard, /Cosa richiede attenzione/);
   assert.match(dashboard, /href=\{appRoutes\.commercial\.search\}/);
-  assert.match(dashboard, /Ricerca nello storico/);
+  assert.match(dashboard, /Cerca nello storico/);
+  assert.match(dashboard, /Azioni rapide/);
   assert.doesNotMatch(dashboard, /action=\{appRoutes\.commercial\.search\}/);
   assert.doesNotMatch(dashboard, /name="q"/);
   assert.doesNotMatch(dashboard, /<GlobalSearch/);
@@ -100,9 +101,9 @@ test("Home is an operational cockpit while Search owns the dedicated search work
 
 test("Home exposes corrections contextually only when review work exists", () => {
   assert.match(dashboard, /metrics\.reviewFlags > 0/);
-  assert.match(dashboard, /Richiede decisione umana/);
+  assert.match(dashboard, /decisione umana/);
   assert.match(dashboard, /Elementi da verificare/);
-  assert.match(dashboard, /href=\{appRoutes\.operations\.review\}/);
+  assert.match(dashboard, /href: appRoutes\.operations\.review/);
   assert.doesNotMatch(dashboard, /<h3 className="mt-3 font-semibold text-slate-950">Correggi i dati<\/h3>/);
 });
 
@@ -123,6 +124,6 @@ test("sales surfaces avoid infrastructure terminology", () => {
   assert.match(component, /Fonte sempre disponibile/);
   assert.match(component, /Riferimento verificato/);
   assert.match(component, /Rilevanza/);
-  assert.match(dashboard, /conversazioni commerciali/i);
-  assert.match(dashboard, /Richiede decisione umana/);
+  assert.match(dashboard, /movimenti commerciali/i);
+  assert.match(dashboard, /decisione umana/);
 });
