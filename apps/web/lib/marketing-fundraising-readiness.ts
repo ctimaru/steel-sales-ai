@@ -2,7 +2,7 @@ import type { BusinessPlanLocale } from "@/lib/business-plan-locale";
 import type { ClaimStatus } from "@/lib/marketing-fundraising-assets";
 
 export type EvidenceReadiness = "ready" | "partial" | "blocked";
-export type ScreenshotReadiness = "candidate" | "approved_for_deck" | "blocked";
+export type ScreenshotReadiness = "candidate" | "approved_desktop" | "approved_for_deck" | "blocked";
 
 export type EvidencePackItem = {
   slide: number;
@@ -49,6 +49,11 @@ export type ScreenshotCandidate = {
   slideTargets: readonly number[];
   gateIt: string;
   gateEn: string;
+  desktopVerified: boolean;
+  mobileVerified: boolean;
+  checkedAt?: string;
+  qaNoteIt: string;
+  qaNoteEn: string;
 };
 
 export const fundraisingAsk = {
@@ -248,20 +253,30 @@ export const screenshotCandidates: readonly ScreenshotCandidate[] = [
     titleIt: "Public Home / positioning",
     titleEn: "Public Home / positioning",
     surface: "/",
-    readiness: "candidate",
+    readiness: "approved_for_deck",
     slideTargets: [1, 3],
-    gateIt: "Visual QA desktop/mobile, copy finale, nessun banner/elemento temporaneo.",
-    gateEn: "Desktop/mobile visual QA, final copy, no temporary banner or element.",
+    gateIt: "Usare crop desktop senza cookie banner e, se distrae, senza elemento animato nel hero.",
+    gateEn: "Use a desktop crop without the cookie banner and, if distracting, without the animated hero element.",
+    desktopVerified: true,
+    mobileVerified: false,
+    checkedAt: "2026-10-07",
+    qaNoteIt: "QA live desktop PASS: gerarchia forte, branding coerente, CTA chiare, nessuna UI rotta. Mobile non verificato.",
+    qaNoteEn: "Live desktop QA PASS: strong hierarchy, consistent branding, clear CTAs, no broken UI. Mobile not verified.",
   },
   {
     key: "school",
     titleIt: "Scuola / public utility",
     titleEn: "School / public utility",
     surface: "/school",
-    readiness: "candidate",
+    readiness: "approved_for_deck",
     slideTargets: [4, 5, 11],
-    gateIt: "Mostrare utility reale senza sovraccarico informativo.",
-    gateEn: "Show real utility without information overload.",
+    gateIt: "Usare crop desktop che escluda il pill Privacy preferences e mantenga calculator + content hierarchy.",
+    gateEn: "Use a desktop crop that excludes the Privacy preferences pill and preserves the calculator + content hierarchy.",
+    desktopVerified: true,
+    mobileVerified: false,
+    checkedAt: "2026-10-07",
+    qaNoteIt: "QA live desktop PASS: struttura professionale, calculator CTA chiara, branding coerente, nessuna UI rotta. Mobile non verificato.",
+    qaNoteEn: "Live desktop QA PASS: professional structure, clear calculator CTA, consistent branding, no broken UI. Mobile not verified.",
   },
   {
     key: "commercial-memory",
@@ -544,6 +559,7 @@ export function getFundraisingReadiness(locale: BusinessPlanLocale) {
       ...item,
       title: locale === "it" ? item.titleIt : item.titleEn,
       gate: locale === "it" ? item.gateIt : item.gateEn,
+      qaNote: locale === "it" ? item.qaNoteIt : item.qaNoteEn,
     })),
     evidencePack: evidencePack.map((item) => ({
       ...item,
@@ -553,4 +569,4 @@ export function getFundraisingReadiness(locale: BusinessPlanLocale) {
       nextAction: locale === "it" ? item.nextActionIt : item.nextActionEn,
     })),
   };
-}
+}\n    desktopVerified: false,\n    mobileVerified: false,\n    qaNoteIt: "Richiede QA owner-only; nessuna metrica non validata può entrare nel deck.",\n    qaNoteEn: "Requires owner-only QA; no unvalidated metric may enter the deck.",\n    desktopVerified: false,\n    mobileVerified: false,\n    qaNoteIt: "Richiede QA autenticato con insight demo ed evidence esplicita.",\n    qaNoteEn: "Requires authenticated QA with demo insights and explicit evidence.",\n    desktopVerified: false,\n    mobileVerified: false,\n    qaNoteIt: "Richiede QA autenticato su densità, filtri e profili mostrati.",\n    qaNoteEn: "Requires authenticated QA on density, filters and displayed profiles.",\n    desktopVerified: false,\n    mobileVerified: false,\n    qaNoteIt: "Richiede QA autenticato su una campagna demo completa e senza dati tenant reali.",\n    qaNoteEn: "Requires authenticated QA on a complete demo campaign without real tenant data.",\n    desktopVerified: false,\n    mobileVerified: false,\n    qaNoteIt: "Richiede QA autenticato con dataset demo non sensibile.",\n    qaNoteEn: "Requires authenticated QA with a non-sensitive demo dataset.",
