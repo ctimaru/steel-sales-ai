@@ -21,14 +21,14 @@ export default async function PlatformInvestorDeckPage({
     <div className="mx-auto max-w-[1600px] space-y-5">
       <section className="flex flex-col gap-4 rounded-3xl border border-[var(--border)] bg-[var(--surface-base)] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6 print:hidden">
         <div>
-          <p className="platform-kicker">MKT5 · Internal production deck</p>
+          <p className="platform-kicker">MKT7 · Investor release candidate</p>
           <h1 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-3xl">
-            Investor Deck — Production Draft
+            Investor Deck — MKT7 Release Candidate
           </h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-secondary)]">
             {locale === "it"
-              ? "Deck visuale evidence-aware. Le slide partial mantengono i gap; Traction resta bloccata; nessuna metrica viene inventata per completare la storia."
-              : "Evidence-aware visual deck. Partial slides keep their gaps; Traction remains blocked; no metric is invented to complete the story."}
+              ? "Deck visuale evidence-aware. La versione investor-safe è ora rilasciabile tramite scope Marketing; gli asset interni MKT4–MKT6 restano separati."
+              : "Evidence-aware visual deck. The investor-safe version can now be released through the Marketing scope; internal MKT4–MKT6 assets remain separate."}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
