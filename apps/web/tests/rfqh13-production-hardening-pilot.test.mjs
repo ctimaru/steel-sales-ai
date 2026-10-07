@@ -11,7 +11,11 @@ const approvalMigration = fs.readFileSync(
   "utf8",
 );
 const gateMigration = fs.readFileSync(
-  new URL("../../../supabase/migrations/20261007100440_rfqh13_core_approval_gate_enforcement.sql", import.meta.url),
+  new URL("../../../supabase/migrations/20261007111845_rfqh13_core_approval_gate_enforcement.sql", import.meta.url),
+  "utf8",
+);
+const snapshotMigration = fs.readFileSync(
+  new URL("../../../supabase/migrations/20261007112905_rfqh13_approval_payload_snapshot.sql", import.meta.url),
   "utf8",
 );
 const page = fs.readFileSync(
@@ -66,6 +70,12 @@ test("RFQH13 approval gates are enforced inside award and PO core functions", ()
   assert.match(gateMigration, /rfqh13_consume_approval/);
   assert.match(awardActions, /rfqh13_request_approval/);
   assert.match(poActions, /rfqh13_request_approval/);
+});
+
+test("RFQH13 approval requests persist a readable payload snapshot", () => {
+  assert.match(snapshotMigration, /payload_snapshot/);
+  assert.match(snapshotMigration, /rfqh13_request_approval_with_snapshot_impl/);
+  assert.match(page, /payload_snapshot/);
 });
 
 test("RFQH13 exposes safe recovery only for stale dispatches without provider evidence", () => {
