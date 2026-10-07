@@ -4,6 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { BusinessPlanLanguageToggle } from "@/components/business-plan-language-toggle";
+import { InvestorNarrativeLibrary } from "@/components/investor-narrative-library";
 import { MarketingPrinciplesView } from "@/components/marketing-principles-view";
 import { ProductBrand } from "@/components/product-brand";
 import { resolveBusinessPlanLocale } from "@/lib/business-plan-locale";
@@ -19,7 +20,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Marketing & Brand · Smart Steel Sales Investor Room",
-  description: "Confidential Smart Steel Sales brand and marketing principles.",
+  description: "Confidential Smart Steel Sales investor narrative, governed assets and brand principles.",
   robots: { index: false, follow: false, noarchive: true, nocache: true },
 };
 
@@ -79,7 +80,15 @@ export default async function InvestorMarketingPage({
       </header>
 
       <main className="mx-auto max-w-[1500px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
-        <MarketingPrinciplesView investorMode locale={locale} />
+        <InvestorNarrativeLibrary
+          investorMode
+          inviteToken={inviteToken}
+          locale={locale}
+          scopes={access.scopes}
+        />
+        <div className="mt-6">
+          <MarketingPrinciplesView investorMode locale={locale} />
+        </div>
         <p className="mx-auto mt-8 max-w-4xl text-center text-xs leading-5 text-[var(--text-tertiary)]">
           {locale === "it"
             ? "Confidenziale · Smart Steel Sales · Materiale condiviso in sola lettura."

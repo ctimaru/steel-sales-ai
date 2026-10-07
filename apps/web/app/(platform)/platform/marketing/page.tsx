@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { BusinessPlanLanguageToggle } from "@/components/business-plan-language-toggle";
+import { InvestorNarrativeLibrary } from "@/components/investor-narrative-library";
 import { MarketingPrinciplesView } from "@/components/marketing-principles-view";
 import { resolveBusinessPlanLocale } from "@/lib/business-plan-locale";
 import { requirePlatformSuperadmin } from "@/lib/platform-admin";
@@ -21,14 +22,14 @@ export default async function PlatformMarketingPage({
     <div className="mx-auto max-w-[1500px] space-y-6">
       <section className="flex flex-col gap-4 rounded-3xl border border-[var(--border)] bg-[var(--surface-base)] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div>
-          <p className="platform-kicker">MKT1 · Private Console</p>
+          <p className="platform-kicker">MKT2 · Private Console</p>
           <h1 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-3xl">
             Marketing & Brand
           </h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-secondary)]">
             {locale === "it"
-              ? "Fonte privata per identità, palette, accessibilità e messaging. Gli investor vedono questa sezione solo quando il relativo scope viene concesso esplicitamente."
-              : "Private source of truth for identity, palette, accessibility and messaging. Investors see this section only when the matching scope is explicitly granted."}
+              ? "Fonte privata per narrativa investitori, asset governati, identità, palette e messaging. Gli investor vedono soltanto ciò che è compatibile con gli scope esplicitamente concessi."
+              : "Private source of truth for investor narrative, governed assets, identity, palette and messaging. Investors see only material allowed by explicitly granted scopes."}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -42,6 +43,7 @@ export default async function PlatformMarketingPage({
         </div>
       </section>
 
+      <InvestorNarrativeLibrary locale={locale} />
       <MarketingPrinciplesView locale={locale} />
     </div>
   );
