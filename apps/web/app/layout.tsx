@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
 import { GoogleAnalyticsConsent } from "@/components/google-analytics-consent";
+import { ProductAnalyticsIngestion } from "@/components/product-analytics-ingestion";
 import { PublicLegalFooter } from "@/components/public-legal-footer";
 import { googleSiteVerification } from "@/lib/seo";
 import { siteUrl } from "@/lib/site";
@@ -106,6 +107,7 @@ window.gtag("set", "ads_data_redaction", true);
       <body>
         {children}
         <PublicLegalFooter />
+        <ProductAnalyticsIngestion />
         <GoogleAnalyticsConsent measurementId={googleAnalyticsId} />
       </body>
     </html>
