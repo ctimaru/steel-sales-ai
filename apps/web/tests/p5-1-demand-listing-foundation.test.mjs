@@ -19,8 +19,9 @@ test("P5.1 exposes canonical Marketplace buyer routes and local navigation", () 
   assert.match(routes, /newRequest: "\/marketplace\/new"/);
   assert.match(routes, /request: \(id: string\)/);
   assert.match(routes, /\/marketplace\/\$\{id\}/);
-  assert.match(shell, /label: "Le mie ricerche"/);
-  assert.match(shell, /label: "Nuova ricerca"/);
+  for (const label of ["Opportunità", "Acquisti", "RFQ", "Risposte"]) {
+    assert.match(shell, new RegExp(`label: "${label}"`));
+  }
   assert.match(shell, /writeRole: true/);
   assert.match(nav, /current === "marketplace"/);
   assert.match(shell, /marketplaceItems=\{marketplaceItems\}/);
@@ -70,7 +71,7 @@ test("P5.1 publish and withdraw remain buyer-governed and server-side", () => {
   assert.match(actions, /p5_1_withdraw_request/);
   assert.match(actions, /duration_days/);
   assert.match(actions, /Date\.now\(\) \+ durationDays/);
-  assert.match(detailPage, /Teaser live P5\.2/);
+  assert.match(detailPage, /Pubblicata/);
 });
 
 test("P5.1 data access uses RPC read models, not raw marketplace tables", () => {
