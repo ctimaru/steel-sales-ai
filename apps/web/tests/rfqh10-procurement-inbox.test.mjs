@@ -79,7 +79,7 @@ test("RFQH10 is a read-only cockpit and never performs irreversible procurement 
   assert.doesNotMatch(impl, /insert into public\./i);
   assert.doesNotMatch(impl, /update public\./i);
   assert.doesNotMatch(impl, /delete from public\./i);
-  assert.match(page, /non esegue automaticamente launch, reminder, award o emissioni PO/);
+  assert.match(page, /non esegue automaticamente invii, solleciti, assegnazioni o emissioni PO/);
 });
 
 test("RFQH10 workspace has attention/waiting filters and deterministic priority lanes", () => {
@@ -102,6 +102,6 @@ test("RFQH10 is integrated into Marketplace navigation and RFQ Hub", () => {
   assert.match(routes, /procurementInbox: "\/marketplace\/inbox"/);
   assert.match(ia, /"marketplace:inbox"/);
   assert.match(ia, /appRoutes\.marketplace\.procurementInbox/);
-  assert.match(shell, /Inbox acquisti/);
+  assert.match(shell, /label: "Acquisti"/);
   assert.match(hub, /Apri Inbox acquisti/);
 });
