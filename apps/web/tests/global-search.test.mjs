@@ -103,7 +103,7 @@ test("Home exposes corrections contextually only when review work exists", () =>
   assert.match(dashboard, /metrics\.reviewFlags > 0/);
   assert.match(dashboard, /decisione umana/);
   assert.match(dashboard, /Elementi da verificare/);
-  assert.match(dashboard, /href=\{appRoutes\.operations\.review\}/);
+  assert.match(dashboard, /href: appRoutes\.operations\.review/);
   assert.doesNotMatch(dashboard, /<h3 className="mt-3 font-semibold text-slate-950">Correggi i dati<\/h3>/);
 });
 
