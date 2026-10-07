@@ -147,6 +147,14 @@ export default async function MarketplaceFeedPage({
             >
               Fornitori
             </Link>
+            {canWrite ? (
+              <Link
+                href={appRoutes.marketplace.procurementIntelligence}
+                className="app-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-semibold"
+              >
+                Intelligence acquisti
+              </Link>
+            ) : null}
           </div>
         </div>
 
