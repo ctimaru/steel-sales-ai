@@ -22,14 +22,14 @@ export default async function PlatformMarketingPage({
     <div className="mx-auto max-w-[1500px] space-y-6">
       <section className="flex flex-col gap-4 rounded-3xl border border-[var(--border)] bg-[var(--surface-base)] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div>
-          <p className="platform-kicker">MKT4 · Private Console</p>
+          <p className="platform-kicker">MKT5 · Private Console</p>
           <h1 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-3xl">
             Marketing & Brand
           </h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-secondary)]">
             {locale === "it"
-              ? "Fonte privata per fundraising readiness, evidence pack, one-pager, pitch deck foundation, narrativa investitori e asset governati. Gli investor vedono soltanto ciò che è compatibile con gli scope esplicitamente concessi."
-              : "Private source of truth for fundraising readiness, the evidence pack, one-pager, pitch deck foundation, investor narrative and governed assets. Investors see only material allowed by explicitly granted scopes."}
+              ? "Fonte privata per investor deck, visual evidence QA, fundraising readiness, one-pager, narrative e asset governati. Gli investor vedono soltanto ciò che è compatibile con gli scope esplicitamente concessi."
+              : "Private source of truth for the investor deck, visual evidence QA, fundraising readiness, one-pager, narrative and governed assets. Investors see only material allowed by explicitly granted scopes."}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
