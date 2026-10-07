@@ -641,11 +641,10 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       </section>
 
       <section className="rounded-2xl border border-[#cddbd6] bg-[#f7faf8] p-5">
-        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">RFQH9</p>
-        <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Purchase Order Issuance &amp; Supplier Confirmation attivo.</h2>
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Ordine di acquisto</p>
+        <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Emissione PO e conferma fornitore</h2>
         <p className="mt-2 text-sm leading-6 text-[#66736e]">
-          I PO generati dall&apos;award possono essere versionati, emessi e confermati dal supplier
-          tramite link personale, mantenendo prezzi e quantità congelati dalla decisione RFQH7.
+          I PO generati dall&apos;assegnazione possono essere versionati, emessi e confermati dal fornitore tramite link personale, mantenendo prezzi e quantità della decisione commerciale.
         </p>
       </section>
     </div>
