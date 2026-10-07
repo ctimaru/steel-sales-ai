@@ -57,10 +57,11 @@ test("P4.7 activity feed exposes only Network activity semantics and read contro
   assert.match(networkLib, /p4_list_activity_feed/);
 });
 
-test("P4.7 Network navigation exposes follow and activity without duplicating them in the directory hero", () => {
+test("PF3 keeps follow and activity governed while surfacing follow directly in directory results", () => {
   assert.match(shell, /href: appRoutes\.network\.activity/);
   assert.match(shell, /href: appRoutes\.network\.following/);
-  assert.match(directory, /quelle seguite e i loro aggiornamenti sono sempre nel menu Network/);
-  assert.doesNotMatch(directory, /href="\/network\/activity"/);
-  assert.doesNotMatch(directory, /href="\/network\/following"/);
+  assert.match(directory, /followNetworkCompany/);
+  assert.match(directory, /unfollowNetworkCompany/);
+  assert.match(directory, /Seguite · \{followed\.total\}/);
+  assert.doesNotMatch(directory, />Activity</);
 });
