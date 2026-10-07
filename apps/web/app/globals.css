@@ -134,6 +134,25 @@ textarea {
   color: var(--muted-foreground) !important;
 }
 
+/* A11Y2 — additional legacy text colors found by the source-wide contrast audit. */
+[class~="text-[#65716c]"],
+[class~="text-[#65758a]"],
+[class~="text-[#65758b]"],
+[class~="text-[#68788e]"],
+[class~="text-[#6b798c]"],
+[class~="text-[#6f7b76]"],
+[class~="text-[#718197]"],
+[class~="text-[#7a8781]"],
+[class~="text-[#7a899d]"],
+[class~="text-[#7b8882]"],
+[class~="text-[#98a29e]"] {
+  color: var(--muted-foreground) !important;
+}
+
+[class~="text-[#2f6fed]"] {
+  color: #1e4fb8 !important;
+}
+
 [class~="placeholder:text-[#8b9792]"]::placeholder,
 [class~="placeholder:text-[#87938e]"]::placeholder {
   color: var(--muted-foreground) !important;
