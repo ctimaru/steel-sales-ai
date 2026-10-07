@@ -137,6 +137,19 @@ export default async function InvestorAccessPage({
             </Link>
           ) : null}
 
+          {access.scopes.includes("marketing") ? (
+            <Link
+              href={`/investor/marketing/${inviteToken}?lang=en`}
+              className="rounded-[26px] border border-[#dce2df] bg-white p-6 transition hover:border-[#b9cec6] hover:shadow-[0_12px_40px_rgba(18,61,52,0.08)]"
+            >
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Marketing & Brand</p>
+              <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">Brand System + Messaging</h2>
+              <p className="mt-3 text-sm leading-6 text-[#66736e]">
+                Positioning, accessible color system, communication principles and investor-facing brand rationale.
+              </p>
+            </Link>
+          ) : null}
+
           {access.scopes.includes("kpi") ? (
             <Link
               href={`/investor/kpi/${inviteToken}`}
