@@ -44,8 +44,8 @@ test("PF1 Company Home is a private daily cockpit with task-oriented exits", () 
 });
 
 test("UX1 Platform Console is structurally separate from tenant workspace", () => {
-  assert.match(platformShell, /Global control plane/);
-  assert.match(platformShell, /Apri Company Workspace/);
+  assert.match(platformShell, /Amministrazione globale/);
+  assert.match(platformShell, /Torna al workspace aziendale/);
   assert.match(platformShell, /Commercial Memory privata dei tenant/);
   assert.match(platformHome, /Governance della piattaforma/);
   assert.match(platformHome, /Registrazioni aziende/);
