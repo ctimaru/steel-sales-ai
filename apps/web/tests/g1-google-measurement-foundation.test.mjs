@@ -57,8 +57,8 @@ test("G1 pageviews contain page context but no Smart Steel Sales identity payloa
   assert.match(analytics, /page_location:/);
   assert.match(analytics, /page_title:/);
   assert.doesNotMatch(analytics, /user_id|organization_id|company_id|email|vat_number|partita_iva/i);
-  assert.match(analytics, /allow_google_signals: false/);
-  assert.match(analytics, /allow_ad_personalization_signals: false/);
+  assert.match(rootLayout + analytics, /allow_google_signals: false/);
+  assert.match(rootLayout + analytics, /allow_ad_personalization_signals: false/);
 });
 
 test("G1 lets users withdraw analytics consent and clears GA cookies", () => {
