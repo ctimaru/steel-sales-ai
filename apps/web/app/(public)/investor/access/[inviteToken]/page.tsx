@@ -139,6 +139,19 @@ export default async function InvestorAccessPage({
 
           {access.scopes.includes("marketing") ? (
             <Link
+              href={`/investor/marketing/${inviteToken}/deck?lang=en`}
+              className="rounded-[26px] border border-[#b8d2c8] bg-[#123d34] p-6 text-white transition hover:-translate-y-0.5 hover:shadow-[0_16px_44px_rgba(18,61,52,0.18)]"
+            >
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">Investor Deck</p>
+              <h2 className="mt-2 text-2xl font-semibold">14-slide Investor Release</h2>
+              <p className="mt-3 text-sm leading-6 text-[#d8e5e0]">
+                Product thesis, market, moat, execution, evidence gates, roadmap and €1M working Seed ask.
+              </p>
+            </Link>
+          ) : null}
+
+          {access.scopes.includes("marketing") ? (
+            <Link
               href={`/investor/marketing/${inviteToken}?lang=en`}
               className="rounded-[26px] border border-[#dce2df] bg-white p-6 transition hover:border-[#b9cec6] hover:shadow-[0_12px_40px_rgba(18,61,52,0.08)]"
             >
