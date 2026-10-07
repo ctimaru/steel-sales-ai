@@ -36,6 +36,7 @@ function assetHref(
     if (asset.key === "business-plan") return appRoutes.platform.businessPlan;
     if (asset.key === "one-pager") return appRoutes.platform.marketingOnePager;
     if (asset.key === "pitch-deck-foundation") return appRoutes.platform.marketingPitchDeck;
+    if (asset.key === "fundraising-readiness") return appRoutes.platform.marketingFundraisingReadiness;
     if (asset.key === "kpi-dashboard") return appRoutes.platform.investorKpis;
     if (asset.key === "brand-system" || asset.key === "investor-narrative") {
       return appRoutes.platform.marketing;
