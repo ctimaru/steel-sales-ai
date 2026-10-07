@@ -34,6 +34,12 @@ export default async function PlatformFundraisingReadinessPage({
         <div className="flex flex-wrap items-center gap-2">
           <BusinessPlanLanguageToggle baseHref={appRoutes.platform.marketingFundraisingReadiness} locale={locale} />
           <Link
+            href={appRoutes.platform.marketingInvestorDeck}
+            className="platform-secondary inline-flex min-h-10 items-center rounded-xl px-4 text-xs font-semibold"
+          >
+            {locale === "it" ? "Apri Investor Deck" : "Open Investor Deck"}
+          </Link>
+          <Link
             href={appRoutes.platform.marketingPitchDeck}
             className="platform-secondary inline-flex min-h-10 items-center rounded-xl px-4 text-xs font-semibold"
           >
