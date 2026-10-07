@@ -138,7 +138,7 @@ test("HP7 derives setup mutations from the active admin workspace", () => {
 });
 
 test("HP7 keeps setup visible in the workspace and company menu", () => {
-  assert.match(dashboard, /HP7 · Avvio workspace/);
+  assert.match(dashboard, /Setup azienda/);
   assert.match(dashboard, /setup\.profile_ready/);
   assert.match(dashboard, /setup\.data_ready/);
   assert.match(dashboard, /setup\.first_value_ready/);
