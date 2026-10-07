@@ -45,6 +45,20 @@ export const onePagerBlocks: readonly OnePagerBlock[] = [
     evidenceEn: "Problem thesis derived from the ICP and target workflows documented in the Business Plan.",
   },
   {
+    key: "why-now",
+    labelIt: "Perché ora",
+    labelEn: "Why now",
+    titleIt: "L'AI rende economicamente praticabile strutturare workflow prima troppo costosi",
+    titleEn: "AI makes previously expensive workflow structuring economically practical",
+    bodyIt:
+      "Document understanding, retrieval, normalizzazione e decision support riducono il costo operativo necessario per trasformare email, PDF e dati destrutturati in memoria commerciale utilizzabile.",
+    bodyEn:
+      "Document understanding, retrieval, normalization and decision support reduce the operating cost required to turn email, PDFs and unstructured data into usable commercial memory.",
+    status: "hypothesis",
+    evidenceIt: "Tesi tecnologica coerente con il prodotto; gli economics reali devono essere validati sui pilot.",
+    evidenceEn: "Technology thesis consistent with the product; real economics must be validated through pilots.",
+  },
+  {
     key: "product",
     labelIt: "Prodotto",
     labelEn: "Product",
@@ -99,6 +113,20 @@ export const onePagerBlocks: readonly OnePagerBlock[] = [
     status: "hypothesis",
     evidenceIt: "Moat thesis definita; difendibilità e network effects devono ancora essere provati sul mercato.",
     evidenceEn: "The moat thesis is defined; defensibility and network effects still need market validation.",
+  },
+  {
+    key: "market",
+    labelIt: "Mercato",
+    labelEn: "Market",
+    titleIt: "Italia come beachhead, Europa come spazio di espansione",
+    titleEn: "Italy as the beachhead, Europe as the expansion space",
+    bodyIt:
+      "Il Business Plan mantiene separati core market, serviceable industrial network e broad industrial universe. La strategia è validare ICP e GTM in Italia prima di estendere il modello europeo.",
+    bodyEn:
+      "The Business Plan keeps core market, serviceable industrial network and broad industrial universe separate. The strategy is to validate ICP and GTM in Italy before extending the model across Europe.",
+    status: "estimate",
+    evidenceIt: "Market sizing e fonti restano nella sezione Business Plan dedicata; il one-pager non somma universi non deduplicati.",
+    evidenceEn: "Market sizing and sources remain in the dedicated Business Plan section; the one-pager does not add non-deduplicated universes.",
   },
   {
     key: "execution",
