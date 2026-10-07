@@ -27,15 +27,17 @@ test("G1 activates GA4 only from an environment measurement ID", () => {
   assert.match(analytics, /googletagmanager\.com\/gtag\/js\?id=/);
 });
 
-test("G1 uses basic consent mode and blocks Google before opt-in", () => {
-  assert.match(analytics, /consent === "granted" \?/);
-  assert.match(analytics, /analytics_storage: "granted"/);
+test("G1 uses advanced consent mode with denied defaults before opt-in", () => {
+  assert.match(analytics, /\{shouldMeasure \? \(/);
+  assert.match(analytics, /"consent", "default"/);
+  assert.match(analytics, /analytics_storage: "denied"/);
+  assert.match(analytics, /analytics_storage: consent === "granted" \? "granted" : "denied"/);
   assert.match(analytics, /ad_storage: "denied"/);
   assert.match(analytics, /ad_user_data: "denied"/);
   assert.match(analytics, /ad_personalization: "denied"/);
   assert.match(analytics, /Accetta necessari/);
   assert.match(analytics, /Accetta/);
-  assert.match(analytics, /Nessun cookie analytics viene caricato prima della tua scelta/);
+  assert.match(analytics, /Prima della tua scelta Analytics resta senza cookie/);
 });
 
 test("G1 limits GA4 measurement to public acquisition surfaces", () => {
