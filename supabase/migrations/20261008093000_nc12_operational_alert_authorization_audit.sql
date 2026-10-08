@@ -112,8 +112,7 @@ begin
   limit v_limit
   offset v_offset;
 end;
-$function$
-
+$function$;
 
 CREATE OR REPLACE FUNCTION public.p1_operational_alerts_summary(p_organization_id uuid)
  RETURNS jsonb
@@ -155,8 +154,7 @@ begin
 
   return v_result;
 end;
-$function$
-
+$function$;
 
 -- Do not leak existence of cross-tenant alert IDs: same denial for absent/inaccessible rows.
 create or replace function public.p1_acknowledge_operational_alert(
