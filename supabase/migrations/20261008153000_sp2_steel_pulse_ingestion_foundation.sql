@@ -17,6 +17,7 @@ create table steel_pulse_private.sources (
   feed_url text check (feed_url is null or (char_length(feed_url) <= 1024 and feed_url ~ '^https://')),
   policy_url text,
   approval_evidence_url text,
+  approval_reason text check (approval_reason is null or char_length(approval_reason) between 12 and 2000),
   reviewer_user_id uuid references auth.users(id) on delete restrict,
   legal_reviewer_user_id uuid references auth.users(id) on delete restrict,
   approved_at timestamptz,
@@ -29,7 +30,7 @@ create table steel_pulse_private.sources (
   ]::text[]),
   check (status <> 'approved' or (
     feed_url is not null and policy_url is not null and approval_evidence_url is not null
-    and reviewer_user_id is not null and legal_reviewer_user_id is not null
+    and approval_reason is not null and reviewer_user_id is not null and legal_reviewer_user_id is not null
     and approved_at is not null and approval_expires_at > approved_at
     and terms_reviewed_at is not null and license_basis <> 'unverified'
     and 'discover_metadata' = any(approved_operations)
@@ -116,6 +117,36 @@ values
 ('steelorbis','SteelOrbis','https://www.steelorbis.com/',array['www.steelorbis.com','steelorbis.com'],'editorial_site','prohibited')
 on conflict (id) do nothing;
 
+insert into steel_pulse_private.source_rights_ledger(
+  source_id,previous_status,next_status,decision_reason
+)
+select id,status,status,'SP1 research baseline: source remains disabled'
+from steel_pulse_private.sources
+on conflict do nothing;
+
+-- Any later source-rights edit writes an append-only audit record, in the same transaction.
+-- Approval must be backed by reviewer identities and an explicit rationale.
+create function steel_pulse_private.sp2_audit_source_rights()
+returns trigger language plpgsql security definer set search_path=''
+as $
+begin
+  if to_jsonb(new) - 'updated_at' is distinct from to_jsonb(old) - 'updated_at' then
+    insert into steel_pulse_private.source_rights_ledger(
+      source_id,previous_status,next_status,actor_user_id,
+      policy_url,evidence_url,decision_reason
+    ) values (
+      new.id,old.status,new.status,(select auth.uid()),
+      new.policy_url,new.approval_evidence_url,
+      coalesce(new.approval_reason,'Source rights changed without activation')
+    );
+  end if;
+  return new;
+end;
+$;
+create trigger sp2_source_rights_change_audit
+after update on steel_pulse_private.sources
+for each row execute function steel_pulse_private.sp2_audit_source_rights();
+
 -- Executed only with the Supabase service-role JWT; not exposed to normal sessions.
 create function public.sp2_begin_feed_run(p_source_id text)
 returns jsonb language plpgsql security definer set search_path = ''
@@ -128,7 +159,7 @@ begin
   select * into s from steel_pulse_private.sources where id = p_source_id for update;
   if not found or s.status <> 'approved' or s.license_basis = 'unverified'
     or s.approval_expires_at <= now()
-    or s.approval_evidence_url is null or s.policy_url is null
+    or s.approval_evidence_url is null or s.approval_reason is null or s.policy_url is null
     or s.reviewer_user_id is null or s.legal_reviewer_user_id is null
     or s.terms_reviewed_at is null
     or s.terms_reviewed_at < now() - interval '90 days'
@@ -183,7 +214,7 @@ begin
   select * into s from steel_pulse_private.sources where id=r.source_id for update;
   if r.lease_expires_at <= now() or s.status <> 'approved'
     or s.approval_expires_at <= now()
-    or s.approval_evidence_url is null
+    or s.approval_evidence_url is null or s.approval_reason is null
     or s.terms_reviewed_at < now() - interval '90 days'
     or not ('discover_metadata' = any(s.approved_operations)) then
     raise exception 'source rights or lease no longer valid' using errcode='42501';
