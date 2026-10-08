@@ -79,6 +79,7 @@ export default async function BuyerDistintaPage() {
           authenticated={authenticated}
           emailConfigured={emailConfigured}
           catalogOptions={catalogOptions}
+          userId={data.user?.id ?? null}
         />
       </div>
 
