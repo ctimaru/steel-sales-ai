@@ -7,6 +7,9 @@ const read = (path) => fs.readFileSync(new URL(path, import.meta.url), "utf8");
 const overview = read("../app/(workspace)/marketplace/rfq-hub/page.tsx");
 const alias = read("../app/(workspace)/rfq-hub/page.tsx");
 const savedPage = read("../app/(workspace)/rfq-hub/distinte/[distintaId]/page.tsx");
+const archive = read("../app/(workspace)/rfq-hub/distinte/page.tsx");
+const shell = read("../components/app-shell.tsx");
+const ia = read("../lib/workspace-information-architecture.ts");
 const button = read("../components/rfq-hub-create-from-snapshot.tsx");
 const helperSource = read("../lib/rfq-hub-overview.ts");
 const routes = read("../lib/routes.ts");
@@ -80,4 +83,18 @@ test("RFQ-IA3 archived snapshot has RLS-gated details and owner-only campaign co
   assert.match(button, /router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)\)/);
   assert.match(savedPage, /Lo snapshot è immutabile/);
   assert.match(overview, /appRoutes\.rfqHub\.savedDistinta\(draft\.id\)/);
+});
+
+test("RFQ-IA3 saved archive is paginated, noindex, organization-scoped and accessible in contextual menu", () => {
+  assert.match(routes, /savedDistinte: "\/rfq-hub\/distinte"/);
+  assert.match(archive, /getWorkspaceContext\(\)/);
+  assert.match(archive, /\.eq\("organization_id", context\.organizationId\)/);
+  assert.match(archive, /\{ count: "exact" \}/);
+  assert.match(archive, /\.range\(\(page - 1\) \* PAGE_SIZE, page \* PAGE_SIZE - 1\)/);
+  assert.match(archive, /privateNoIndexRobots/);
+  assert.match(archive, /data\.map\(\(draft\) =>/);
+  assert.match(archive, /href=\{appRoutes\.rfqHub\.savedDistinta\(draft\.id\)\}/);
+  assert.match(ia, /return "rfq:archive"/);
+  assert.match(shell, /label: "Distinte salvate", contextKey: "rfq:archive"/);
+  assert.match(overview, /href=\{appRoutes\.rfqHub\.savedDistinte\} action="Archivio completo"/);
 });
