@@ -17,7 +17,7 @@ type AwardRow = {
   unit_eur_t: number | string;
   unit_eur_m: number | string;
   line_total_eur: number | string;
-  savings_eur: number | string;
+  savings_eur: number | string | null;
 };
 
 type PoLine = {
@@ -55,7 +55,7 @@ export type Rfqh7AwardSnapshot = {
   supplier_count: number;
   total_tonnes: number | string;
   total_eur: number | string;
-  target_total_eur: number | string;
+  target_total_eur: number | string | null;
   savings_eur: number | string;
   savings_pct: number | string | null;
   confirmed_at: string;
@@ -70,6 +70,7 @@ type DraftAllocation = {
 };
 
 function num(value: number | string | null | undefined) {
+  if (value == null || value === "") return null;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
 }
@@ -159,7 +160,7 @@ export function RfqAwardPanel({
             <div className="text-right">
               <p className="text-xl font-semibold text-[#173f35]">{money(award.total_eur)}</p>
               <p className="text-xs text-[#527268]">
-                Saving {money(award.savings_eur)} · {pct(award.savings_pct)}
+                {award.savings_eur == null ? "Nessun target buyer definito" : <>Saving {money(award.savings_eur)} · {pct(award.savings_pct)}</>}
               </p>
             </div>
           </div>
@@ -337,8 +338,8 @@ export function RfqAwardPanel({
   const fullyCovered = computed.every(
     (row) => row.required > 0 && Math.abs(row.required - row.awarded) <= 0.000001,
   );
-  const targetTotal = num(comparison.target.total_eur) ?? 0;
-  const savings = targetTotal - awardedTotal;
+  const targetTotal = num(comparison.target.total_eur);
+  const savings = targetTotal === null ? null : targetTotal - awardedTotal;
 
   function confirm() {
     if (!fullyCovered) {
@@ -523,7 +524,7 @@ export function RfqAwardPanel({
         </div>
         <div className="rounded-2xl bg-white p-4">
           <p className="text-[10px] uppercase text-[#718078]">Saving stimato</p>
-          <p className={"mt-1 text-xl font-semibold " + (savings >= 0 ? "text-[#17634c]" : "text-[#9a4f45]")}>
+          <p className={"mt-1 text-xl font-semibold " + (savings === null ? "text-[#64748b]" : savings >= 0 ? "text-[#17634c]" : "text-[#9a4f45]")}>
             {money(savings)}
           </p>
         </div>
