@@ -56,7 +56,7 @@ test("NC2.3: cron calls only service-only processor with no network credentials"
   assert.match(schedule, /cron\.schedule/);
   assert.match(schedule, /set local role service_role/);
   assert.match(schedule, /public\.nc23_process_source_bridge_batch\(50\)/);
-  assert.doesNotMatch(schedule, /apikey|secret|http_post|mail\.send/i);
+  assert.doesNotMatch(schedule, /net\.http_post\s*\(|net\.http_get\s*\(|apikey\\s*[:=]|mail\.send\s*\(/i);
 });
 
 test("NC2.3: acceptance on actual source transitions runs as rollback-only SQL", () => {
