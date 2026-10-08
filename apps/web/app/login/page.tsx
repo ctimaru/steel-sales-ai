@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { FocusPanel } from "@/components/focus-ui";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { ProductBrand } from "@/components/product-brand";
+import { SteelPulsePreview } from "@/components/steel-pulse-preview";
 import { Input } from "@/components/ui/input";
 import { safeInternalNext } from "@/lib/auth-next";
 import { privateNoIndexRobots } from "@/lib/seo";
+import { listSteelPulsePublicCards } from "@/lib/steel-pulse-public";
 
 import { login } from "./actions";
 
@@ -14,6 +17,11 @@ export const metadata: Metadata = {
   title: "Accedi",
   robots: privateNoIndexRobots,
 };
+
+async function SteelPulsePanel() {
+  const cards = await listSteelPulsePublicCards();
+  return <SteelPulsePreview cards={cards} />;
+}
 
 export default async function LoginPage({
   searchParams,
@@ -26,7 +34,7 @@ export default async function LoginPage({
 
   return (
     <main className="min-h-screen bg-[#f2f4f3] px-4 py-6 sm:px-6 sm:py-10">
-      <div className="mx-auto w-full max-w-lg">
+      <div className="mx-auto w-full max-w-[1120px]">
         <div className="flex items-center justify-between gap-4">
           <ProductBrand href="/" />
           <Link href="/" className="text-xs font-semibold text-[#66736e] hover:text-[#173f35]">
@@ -34,7 +42,9 @@ export default async function LoginPage({
           </Link>
         </div>
 
-        <header className="mvp-focus-header mt-10">
+        <div className="mt-8 grid gap-7 lg:grid-cols-[minmax(0,460px)_minmax(0,1fr)] lg:items-start lg:gap-10">
+          <section aria-label="Accesso al workspace" className="min-w-0 max-w-lg">
+        <header className="mvp-focus-header lg:mt-6">
           <p className="app-kicker">Accesso</p>
           <h1 className="mt-2 text-3xl font-semibold tracking-[-0.025em] text-[#123d34] sm:text-[2.15rem]">
             Accedi al tuo workspace
@@ -89,6 +99,12 @@ export default async function LoginPage({
           <Link href={registrationHref} className="font-semibold text-[#173f35] underline decoration-[#b8d2c8] underline-offset-4">
             Registra o verifica l’azienda
           </Link>
+        </div>
+          </section>
+
+          <Suspense fallback={<SteelPulsePreview cards={[]} />}>
+            <SteelPulsePanel />
+          </Suspense>
         </div>
       </div>
     </main>
