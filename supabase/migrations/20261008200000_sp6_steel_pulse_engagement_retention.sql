@@ -67,15 +67,22 @@ begin
         coalesce(steel_pulse_private.user_article_engagement.read_at,now())
         else steel_pulse_private.user_article_engagement.read_at end,
       updated_at=now();
-  else
-    update steel_pulse_private.user_article_engagement as e set
-      saved_at=case when p_action='unsave' then null else saved_at end,
-      read_at=case when p_action='unread' then null else read_at end,
-      updated_at=now()
-    where e.user_id=v_user and e.card_id=v_card;
+  elsif p_action='unsave' then
+    -- Delete outright when clearing the last signal; never violate the
+    -- nonempty-state CHECK during an intermediate UPDATE.
     delete from steel_pulse_private.user_article_engagement e
+      where e.user_id=v_user and e.card_id=v_card and e.read_at is null;
+    update steel_pulse_private.user_article_engagement e
+      set saved_at=null,updated_at=now()
       where e.user_id=v_user and e.card_id=v_card
-        and e.saved_at is null and e.read_at is null;
+        and e.read_at is not null and e.saved_at is not null;
+  elsif p_action='unread' then
+    delete from steel_pulse_private.user_article_engagement e
+      where e.user_id=v_user and e.card_id=v_card and e.saved_at is null;
+    update steel_pulse_private.user_article_engagement e
+      set read_at=null,updated_at=now()
+      where e.user_id=v_user and e.card_id=v_card
+        and e.saved_at is not null and e.read_at is not null;
   end if;
 
   select e.saved_at is not null,e.read_at is not null
