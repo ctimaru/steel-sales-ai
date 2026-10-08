@@ -36,7 +36,7 @@ function NavIcon({
   name,
   className = "h-5 w-5",
 }: {
-  name: "home" | "commercial" | "network" | "marketplace" | "knowledge" | "bell" | "user" | "search" | "chevron";
+  name: "home" | "commercial" | "rfq" | "network" | "marketplace" | "knowledge" | "bell" | "user" | "search" | "chevron";
   className?: string;
 }) {
   const common = {
@@ -61,6 +61,14 @@ function NavIcon({
       <svg {...common}>
         <rect x="3.5" y="6.5" width="17" height="13" rx="2" />
         <path d="M8.5 6.5V4.75h7V6.5M3.5 11.5h17M9.5 14h5" />
+      </svg>
+    );
+  }
+  if (name === "rfq") {
+    return (
+      <svg {...common}>
+        <rect x="5" y="3" width="14" height="18" rx="2" />
+        <path d="M8 8h8M8 12h5M8 16h5M15 15l2 2 3-4" />
       </svg>
     );
   }
@@ -135,6 +143,14 @@ function primaryItems(networkEnabled: boolean, networkEntitled: boolean) {
       href: appRoutes.commercial.home,
       label: "Commerciale",
       icon: "commercial" as const,
+      locked: false,
+    },
+    {
+      key: "rfq" as const,
+      href: appRoutes.rfqHub.home,
+      label: "RFQ Hub",
+      mobileLabel: "RFQ",
+      icon: "rfq" as const,
       locked: false,
     },
     ...(networkEnabled
@@ -279,12 +295,14 @@ function ContextLink({
 export function WorkspaceContextNavigation({
   commercialItems,
   intelligenceItems,
+  rfqItems,
   networkItems,
   marketplaceItems,
   knowledgeItems,
 }: {
   commercialItems: WorkspaceNavItem[];
   intelligenceItems: WorkspaceNavItem[];
+  rfqItems: WorkspaceNavItem[];
   networkItems: WorkspaceNavItem[];
   marketplaceItems: WorkspaceNavItem[];
   knowledgeItems: WorkspaceNavItem[];
@@ -296,8 +314,10 @@ export function WorkspaceContextNavigation({
   if (current === "home") return null;
 
   const items =
-    current === "network"
-      ? networkItems
+    current === "rfq"
+      ? rfqItems
+      : current === "network"
+        ? networkItems
       : current === "marketplace"
         ? marketplaceItems
         : current === "knowledge"

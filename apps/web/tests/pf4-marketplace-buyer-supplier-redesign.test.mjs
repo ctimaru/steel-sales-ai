@@ -27,8 +27,9 @@ test("PF4 makes buyer and supplier jobs explicit at Marketplace entry", () => {
 });
 
 test("PF4 reduces contextual Marketplace navigation to four user jobs", () => {
-  for (const label of ["Opportunità", "Acquisti", "RFQ", "Risposte"]) {
-    assert.match(shell, new RegExp(`label: "${label}"`));
+  const marketplaceNav = shell.slice(shell.indexOf("const marketplaceNav:"), shell.indexOf("const knowledgeNav:"));
+  for (const label of ["Opportunità", "Le mie pubblicazioni", "Risposte Marketplace", "Notifiche"]) {
+    assert.match(marketplaceNav, new RegExp(`label: "${label}"`));
   }
   for (const oldLabel of [
     "Inbox acquisti",
@@ -38,7 +39,7 @@ test("PF4 reduces contextual Marketplace navigation to four user jobs", () => {
     "Risposte ricevute",
     "Nuova ricerca",
   ]) {
-    assert.doesNotMatch(shell, new RegExp(`label: "${oldLabel}"`));
+    assert.doesNotMatch(marketplaceNav, new RegExp(`label: "${oldLabel}"`));
   }
 });
 

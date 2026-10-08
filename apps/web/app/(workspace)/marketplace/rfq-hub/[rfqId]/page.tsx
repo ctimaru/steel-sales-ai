@@ -311,7 +311,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
-          href={appRoutes.marketplace.rfqHub}
+          href={appRoutes.rfqHub.home}
           className="text-sm font-semibold text-[#52615b] hover:text-[#173f35]"
         >
           ← RFQ Hub

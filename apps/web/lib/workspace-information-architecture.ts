@@ -3,6 +3,7 @@ import { appRoutes, legacyRoutes } from "@/lib/routes";
 export type WorkspacePrimarySpace =
   | "home"
   | "commercial"
+  | "rfq"
   | "network"
   | "marketplace"
   | "knowledge";
@@ -20,6 +21,11 @@ export type WorkspaceContextKey =
   | "commercial:intelligence:demand"
   | "commercial:intelligence:conversion"
   | "commercial:intelligence:relationships"
+  | "rfq:home"
+  | "rfq:distinta"
+  | "rfq:inbox"
+  | "rfq:suppliers"
+  | "rfq:intelligence"
   | "network:directory"
   | "network:saved"
   | "network:following"
@@ -52,6 +58,21 @@ function isPath(pathname: string, href: string) {
 
 function isAnyPath(pathname: string, hrefs: string[]) {
   return hrefs.some((href) => isPath(pathname, href));
+}
+
+// RFQ Hub owns procurement and private supplier workflows, including old
+// Marketplace URLs. This resolution must happen before Marketplace routing.
+function rfqContext(pathname: string): WorkspaceContextKey {
+  if (isAnyPath(pathname, [appRoutes.rfqHub.inbox, appRoutes.marketplace.procurementInbox])) {
+    return "rfq:inbox";
+  }
+  if (isAnyPath(pathname, [appRoutes.rfqHub.suppliers, appRoutes.marketplace.suppliers])) {
+    return "rfq:suppliers";
+  }
+  if (isAnyPath(pathname, [appRoutes.rfqHub.intelligence, appRoutes.marketplace.procurementIntelligence])) {
+    return "rfq:intelligence";
+  }
+  return "rfq:home";
 }
 
 function marketplaceContext(pathname: string): WorkspaceContextKey {
@@ -168,6 +189,18 @@ function commercialContext(pathname: string): WorkspaceContextKey {
 export function getWorkspaceNavigationContext(
   pathname: string,
 ): WorkspaceNavigationContext {
+  if (
+    isAnyPath(pathname, [
+      appRoutes.rfqHub.home,
+      appRoutes.marketplace.rfqHub,
+      appRoutes.marketplace.procurementInbox,
+      appRoutes.marketplace.suppliers,
+      appRoutes.marketplace.procurementIntelligence,
+    ])
+  ) {
+    return { primary: "rfq", context: rfqContext(pathname) };
+  }
+
   if (isPath(pathname, appRoutes.network.directory)) {
     return { primary: "network", context: networkContext(pathname) };
   }

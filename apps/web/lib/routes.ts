@@ -27,6 +27,17 @@ export const appRoutes = {
     conversation: (id: string) => `/commercial/conversations/${id}`,
   },
 
+  // Private procurement workspace. Legacy /marketplace/* routes remain stable
+  // for existing bookmarks and Server Actions until the IA3 route cutover.
+  rfqHub: {
+    home: "/rfq-hub",
+    campaign: (id: string) => `/rfq-hub/${id}`,
+    inbox: "/rfq-hub/inbox",
+    suppliers: "/rfq-hub/suppliers",
+    intelligence: "/rfq-hub/intelligence",
+    createDistinta: "/distinta",
+  },
+
   network: {
     directory: "/network",
     company: (id: string) => `/network/${id}`,

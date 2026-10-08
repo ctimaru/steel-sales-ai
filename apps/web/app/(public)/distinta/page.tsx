@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
 import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
 import { listBuyerDistintaPublicDimensions } from "@/lib/public-knowledge";
 import { absoluteUrl } from "@/lib/site";
+import { appRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -52,6 +54,25 @@ export default async function BuyerDistintaPage() {
           </span>
         </div>
       </header>
+
+      {authenticated ? (
+        <aside className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-strong)] bg-[var(--brand-primary-soft)] px-4 py-3" aria-label="Percorso RFQ aziendale">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-[var(--brand-deep)]">
+              Questa è la distinta pubblica. La gestione aziendale si trova in RFQ Hub.
+            </p>
+            <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
+              Prima di uscire, salva o copia la distinta: i campi non compilati sul server non sono ancora ripristinabili.
+            </p>
+          </div>
+          <Link
+            href={appRoutes.rfqHub.home}
+            className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-[var(--brand-primary)] bg-white px-3 text-sm font-bold text-[var(--brand-deep)] hover:bg-[var(--surface-subtle)]"
+          >
+            Apri RFQ Hub →
+          </Link>
+        </aside>
+      ) : null}
 
       <div className="mt-3">
         <BuyerDistintaBuilder

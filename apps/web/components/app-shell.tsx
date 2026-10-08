@@ -48,11 +48,22 @@ const networkNav: NavItem[] = [
   { href: appRoutes.network.inquiries, label: "Richieste", contextKey: "network:inquiries" },
 ];
 
+// RFQ Hub is a private procurement domain, independently of the Marketplace
+// feature flag. Viewers may consult RFQs authorized by database RLS; only
+// writers should see the entry to create new Distinta work and owner-scoped work queues.
+const rfqNav: NavItem[] = [
+  { href: appRoutes.rfqHub.home, label: "Le mie RFQ", contextKey: "rfq:home" },
+  { href: appRoutes.rfqHub.createDistinta, label: "Nuova distinta ↗", contextKey: "rfq:distinta", writeRole: true },
+  { href: appRoutes.rfqHub.inbox, label: "Inbox acquisti", contextKey: "rfq:inbox", writeRole: true },
+  { href: appRoutes.rfqHub.suppliers, label: "Fornitori", contextKey: "rfq:suppliers", writeRole: true },
+  { href: appRoutes.rfqHub.intelligence, label: "Intelligence", contextKey: "rfq:intelligence", writeRole: true },
+];
+
 const marketplaceNav: NavItem[] = [
   { href: appRoutes.marketplace.home, label: "Opportunità", contextKey: "marketplace:opportunities" },
-  { href: appRoutes.marketplace.procurementInbox, label: "Acquisti", contextKey: "marketplace:inbox", writeRole: true },
-  { href: appRoutes.marketplace.rfqHub, label: "RFQ", contextKey: "marketplace:rfq-hub", writeRole: true },
-  { href: appRoutes.marketplace.responses, label: "Risposte", contextKey: "marketplace:responses" },
+  { href: appRoutes.marketplace.myRequests, label: "Le mie pubblicazioni", contextKey: "marketplace:requests" },
+  { href: appRoutes.marketplace.responses, label: "Risposte Marketplace", contextKey: "marketplace:responses" },
+  { href: appRoutes.marketplace.notifications, label: "Notifiche", contextKey: "marketplace:notifications" },
 ];
 
 const knowledgeNav: NavItem[] = [
@@ -116,6 +127,7 @@ export function AppShell({
 }) {
   const commercialItems = visibleItems(commercialNav, organizationRole);
   const intelligenceItems = visibleItems(intelligenceNav, organizationRole);
+  const rfqItems = visibleItems(rfqNav, organizationRole);
   const networkItems =
     networkEnabled && networkEntitled ? visibleItems(networkNav, organizationRole) : [];
   const marketplaceItems = networkEnabled ? visibleItems(marketplaceNav, organizationRole) : [];
@@ -189,6 +201,7 @@ export function AppShell({
         <WorkspaceContextNavigation
           commercialItems={commercialItems}
           intelligenceItems={intelligenceItems}
+          rfqItems={rfqItems}
           networkItems={networkItems}
           marketplaceItems={marketplaceItems}
           knowledgeItems={knowledgeItems}
