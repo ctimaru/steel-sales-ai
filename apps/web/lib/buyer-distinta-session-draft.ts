@@ -16,6 +16,7 @@ export type BuyerSessionDraft = {
   documents: BuyerDistintaDocumentRequirements;
   guidedSpecsByLine: Record<string, GuidedTubeDraft>;
   selectedCatalog: Record<string, CatalogSelection>;
+  wizardDraft: GuidedTubeDraft | null;
 };
 
 export function buyerDraftKey(userId: string | null): string {
@@ -53,6 +54,22 @@ function normalLine(value: unknown): BuyerDistintaDraftLine | null {
   };
 }
 
+function normalGuidedDraft(input: unknown): GuidedTubeDraft | null {
+  if (!plainObject(input)) return null;
+  const family = input.family;
+  const standard = input.standard;
+  return {
+    family: family === "round_tube" || family === "square_tube" || family === "rectangular_tube" ? family : "",
+    standard: standard === "EN 10219" || standard === "EN 10210" ? standard : "",
+    grade: bounded(input.grade, 100),
+    diameter: bounded(input.diameter, 45),
+    side: bounded(input.side, 45),
+    width: bounded(input.width, 45),
+    height: bounded(input.height, 45),
+    thickness: bounded(input.thickness, 45),
+  };
+}
+
 export function parseBuyerSessionDraft(raw: string | null, now = Date.now()): BuyerSessionDraft | null {
   if (!raw || raw.length > MAX_DRAFT_BYTES) return null;
   try {
@@ -70,18 +87,8 @@ export function parseBuyerSessionDraft(raw: string | null, now = Date.now()): Bu
     if (plainObject(data.guidedSpecsByLine)) {
       for (const [id, input] of Object.entries(data.guidedSpecsByLine)) {
         if (!ids.has(id) || !plainObject(input)) continue;
-        const family = input.family;
-        const standard = input.standard;
-        guidedSpecsByLine[id] = {
-          family: family === "round_tube" || family === "square_tube" || family === "rectangular_tube" ? family : "",
-          standard: standard === "EN 10219" || standard === "EN 10210" ? standard : "",
-          grade: bounded(input.grade, 100),
-          diameter: bounded(input.diameter, 45),
-          side: bounded(input.side, 45),
-          width: bounded(input.width, 45),
-          height: bounded(input.height, 45),
-          thickness: bounded(input.thickness, 45),
-        };
+        const guided = normalGuidedDraft(input);
+        if (guided) guidedSpecsByLine[id] = guided;
       }
     }
     const selectedCatalog: Record<string, CatalogSelection> = {};
@@ -103,13 +110,14 @@ export function parseBuyerSessionDraft(raw: string | null, now = Date.now()): Bu
       documents: normalizeBuyerDocumentRequirements(data.documents),
       guidedSpecsByLine,
       selectedCatalog,
+      wizardDraft: normalGuidedDraft(data.wizardDraft),
     };
   } catch {
     return null;
   }
 }
 
-export function isMeaningfulBuyerDraft(input: Pick<BuyerSessionDraft, "title" | "lines" | "documents">): boolean {
+export function isMeaningfulBuyerDraft(input: Pick<BuyerSessionDraft, "title" | "lines" | "documents" | "wizardDraft">): boolean {
   return input.title.trim() !== DEFAULT_TITLE ||
     input.lines.length > 1 ||
     input.lines.some((line) => Boolean(
@@ -118,7 +126,12 @@ export function isMeaningfulBuyerDraft(input: Pick<BuyerSessionDraft, "title" | 
       line.targetEurT.trim() || line.note.trim() ||
       (line.quantityMode !== "bars" || line.barLengthM !== "12"),
     )) ||
-    Boolean(input.documents.inspectionDocument || input.documents.ceDop || input.documents.iso9001);
+    Boolean(input.documents.inspectionDocument || input.documents.ceDop || input.documents.iso9001) ||
+    Boolean(input.wizardDraft && (
+      input.wizardDraft.family || input.wizardDraft.standard || input.wizardDraft.grade ||
+      input.wizardDraft.diameter || input.wizardDraft.side || input.wizardDraft.width ||
+      input.wizardDraft.height || input.wizardDraft.thickness
+    ));
 }
 
 export function serializeBuyerSessionDraft(
