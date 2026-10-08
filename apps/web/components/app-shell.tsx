@@ -54,6 +54,7 @@ const networkNav: NavItem[] = [
 const rfqNav: NavItem[] = [
   { href: appRoutes.rfqHub.home, label: "Le mie RFQ", contextKey: "rfq:home" },
   { href: appRoutes.rfqHub.createDistinta, label: "Nuova distinta ↗", contextKey: "rfq:distinta", writeRole: true },
+  { href: appRoutes.rfqHub.savedDistinte, label: "Distinte salvate", contextKey: "rfq:archive" },
   { href: appRoutes.rfqHub.inbox, label: "Inbox acquisti", contextKey: "rfq:inbox", writeRole: true },
   { href: appRoutes.rfqHub.suppliers, label: "Fornitori", contextKey: "rfq:suppliers", writeRole: true },
   { href: appRoutes.rfqHub.intelligence, label: "Intelligence", contextKey: "rfq:intelligence", writeRole: true },
