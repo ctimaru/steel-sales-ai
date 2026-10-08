@@ -467,7 +467,7 @@ export function BuyerDistintaBuilder({
         </div>
 
 
-        <BuyerTubeGuidedCreator catalogOptions={catalogOptions} onAdd={addGuidedTube} />
+        <BuyerTubeGuidedCreator catalogOptions={catalogOptions} onAdd={addGuidedTube} canAdd={lines.length < 500 || (lines.length === 1 && isUntouchedLine(lines[0]))} />
 
         <details className="bd6-legacy-search">
           <summary className="bd6-legacy-summary">Ricerca rapida alternativa · misure pubblicate e compilazione libera</summary>
