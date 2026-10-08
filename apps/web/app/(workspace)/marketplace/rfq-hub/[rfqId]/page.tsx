@@ -642,7 +642,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
             <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Snapshot inviabile</h2>
           </div>
           <span className="text-xs text-[#718078]">
-            Target €/t e Target €/m restano congelati nello snapshot.
+            I Target €/t e €/m, quando indicati, restano congelati nello snapshot.
           </span>
         </div>
         <div className="mt-4 overflow-x-auto">

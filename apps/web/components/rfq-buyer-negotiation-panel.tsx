@@ -387,8 +387,9 @@ function BuyerSupplierNegotiationCard({
                         Riga {line.position} · {line.description}
                       </p>
                       <p className="mt-0.5 text-[10px] text-[#87908c]">
-                        Target interno: € {number(line.targetEurT, 2)}/t · €{" "}
-                        {number(line.targetEurM, 4)}/m
+                        {line.targetEurT == null
+                          ? "Nessun target buyer indicato"
+                          : <>Target interno: € {number(line.targetEurT, 2)}/t · € {number(line.targetEurM, 4)}/m</>}
                       </p>
                     </div>
                     <select

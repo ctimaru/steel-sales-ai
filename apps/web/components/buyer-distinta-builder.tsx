@@ -141,8 +141,8 @@ export function BuyerDistintaBuilder({
   }
 
   async function copyDistinta() {
-    const valid = calculated.filter((line) => line.description.length > 0);
-    if (!valid.length) {
+    const valid = calculated.filter((line) => line.complete);
+    if (!valid.length || valid.length !== calculated.length) {
       setCopyState("error");
       window.setTimeout(() => setCopyState("idle"), 2200);
       return;
@@ -248,7 +248,7 @@ export function BuyerDistintaBuilder({
               Crea la distinta in pochi passaggi
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#66736e]">
-              Inserisci il materiale, la quantità, il peso kg/m e il tuo Target €/t.
+              Inserisci il materiale, la quantità e il peso kg/m; il Target €/t è facoltativo.
               Smart Steel Sales calcola automaticamente il corrispondente Target €/m.
             </p>
           </div>
@@ -457,14 +457,14 @@ export function BuyerDistintaBuilder({
                     </label>
                   ) : null}
                   <label className="lg:col-span-2 text-xs font-semibold text-[#173f35]">
-                    Target €/t *
+                    Target €/t (facoltativo)
                     <input
                       inputMode="decimal"
                       value={line.targetEurT}
                       onChange={(event) =>
                         updateLine(line.id, { targetEurT: event.target.value })
                       }
-                      placeholder="750"
+                      placeholder="Opzionale · es. 750"
                       className="mt-1.5 h-11 w-full rounded-xl border border-[#9ebfb3] bg-[#f6fbf9] px-3 text-sm font-bold text-[#173f35] outline-none focus:border-[#438d7a]"
                     />
                   </label>
@@ -496,7 +496,7 @@ export function BuyerDistintaBuilder({
 
                 {!calc.complete ? (
                   <p className="mt-3 text-[11px] leading-5 text-[#7b6a43]">
-                    Per il calcolo completo servono descrizione, quantità, peso kg/m e Target €/t.
+                    Per completare la distinta servono descrizione, quantità e peso kg/m. Se inserisci un Target €/t, deve essere positivo.
                   </p>
                 ) : null}
               </article>
@@ -533,7 +533,7 @@ export function BuyerDistintaBuilder({
             </div>
           </div>
           <p className="mt-3 text-xs leading-5 text-[#66736e]">
-            {totals.completeLines}/{lines.length} righe complete. Il Target €/m è sempre derivato da Target €/t × kg/m ÷ 1000.
+            {totals.completeLines}/{lines.length} righe complete. Se indicato, il Target €/m deriva da Target €/t × kg/m ÷ 1000.
           </p>
         </div>
 
@@ -545,7 +545,7 @@ export function BuyerDistintaBuilder({
             Copia la distinta e incollala nella tua email.
           </h3>
           <p className="mt-2 text-sm leading-6 text-[#66736e]">
-            La copia include articoli, quantità, peso, Target €/t e Target €/m in una tabella pulita.
+            La copia include articoli, quantità, peso e, soltanto se inseriti, i prezzi obiettivo.
           </p>
           <button
             type="button"
@@ -555,7 +555,7 @@ export function BuyerDistintaBuilder({
             {copyState === "copied"
               ? "Copiata ✓"
               : copyState === "error"
-                ? "Completa almeno una riga"
+                ? "Completa tutte le righe"
                 : "Copia distinta"}
           </button>
         </div>

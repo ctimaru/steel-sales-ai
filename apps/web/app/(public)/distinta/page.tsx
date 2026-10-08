@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/server";
 export const metadata: Metadata = {
   title: "Crea distinta per richiesta offerta acciaio e tubi",
   description:
-    "Crea gratuitamente una distinta per i tuoi fornitori: articoli, quantità, kg/m, Target €/t e Target €/m. Copiala nell'email oppure accedi per salvarla e inviarla.",
+    "Crea gratuitamente una distinta per i tuoi fornitori: articoli, quantità, kg/m, Target €/t opzionale e Target €/m. Copiala nell'email oppure accedi per salvarla e inviarla.",
   alternates: {
     canonical: absoluteUrl("/distinta"),
   },
@@ -52,7 +52,7 @@ export default async function BuyerDistintaPage() {
             Nessun account per creare e copiare
           </span>
           <span className="rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5">
-            Target €/t → Target €/m
+            Prezzo obiettivo facoltativo
           </span>
           <span className="rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5">
             Login per salvare e inviare
@@ -76,13 +76,13 @@ export default async function BuyerDistintaPage() {
           <div>
             <h2 className="text-sm font-semibold text-[#1d2824]">1. Standardizza la richiesta</h2>
             <p className="mt-1 text-xs leading-5 text-[#66736e]">
-              Tutti i fornitori ricevono la stessa distinta, con quantità e obiettivo prezzo leggibili.
+              Tutti i fornitori ricevono la stessa distinta, con quantità e, se indicato, obiettivo prezzo leggibili.
             </p>
           </div>
           <div>
             <h2 className="text-sm font-semibold text-[#1d2824]">2. Evita conversioni manuali</h2>
             <p className="mt-1 text-xs leading-5 text-[#66736e]">
-              Dal Target €/t e dal peso kg/m ricaviamo il Target €/m senza fogli separati.
+              Se indichi Target €/t e kg/m ricaviamo il Target €/m senza fogli separati.
             </p>
           </div>
           <div>
