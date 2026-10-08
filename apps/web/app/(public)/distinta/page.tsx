@@ -66,7 +66,7 @@ export default async function BuyerDistintaPage() {
             </p>
           </div>
           <Link
-            href={appRoutes.rfqHub.home}
+            href={appRoutes.rfqHub.createDistinta}
             className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-[var(--brand-primary)] bg-white px-3 text-sm font-bold text-[var(--brand-deep)] hover:bg-[var(--surface-subtle)]"
           >
             Apri RFQ Hub →
