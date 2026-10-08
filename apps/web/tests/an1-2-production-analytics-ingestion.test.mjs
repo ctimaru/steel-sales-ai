@@ -99,7 +99,7 @@ test("AN1.2 analytics failures never block canonical product actions", () => {
 
 test("AN1.2 dashboard distinguishes collector/API state from a real zero", () => {
   assert.match(analyticsService, /collector: "an1\.2"/);
-  assert.match(analyticsService, /"receiving" \| "awaiting_data" \| "api_error" \| "token_missing"/);
+  assert.match(analyticsService, /"receiving" \| "partial_data" \| "awaiting_data" \| "api_error" \| "token_missing"/);
   assert.match(dashboard, /Ingestion AN1\.2/);
   assert.match(dashboard, /Web Analytics API risponde correttamente/);
 });

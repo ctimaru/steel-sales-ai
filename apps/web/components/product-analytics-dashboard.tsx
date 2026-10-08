@@ -149,6 +149,9 @@ function Funnel({
         {title}
       </h2>
       <p className="mt-2 text-xs leading-5 text-[#718078]">{subtitle}</p>
+      <p className="mt-1 text-[11px] leading-5 text-[#87938e]">
+        I passaggi confrontano volumi aggregati di eventi: non sono conversioni di utenti unici o coorti.
+      </p>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {steps.map((step, index) => (
@@ -173,8 +176,8 @@ function Funnel({
             </div>
             <p className="mt-2 text-[10px] text-[#87938e]">
               {step.conversionFromPrevious == null
-                ? "base funnel"
-                : `${step.conversionFromPrevious}% dallo step precedente`}
+                ? "base eventi"
+                : `${step.conversionFromPrevious}% rapporto eventi con step precedente`}
             </p>
           </div>
         ))}
@@ -223,9 +226,11 @@ export function ProductAnalyticsDashboard({
   }
 
   const viewsPerVisitor =
-    snapshot.totals.visitors > 0
+    snapshot.totals.visitors != null &&
+    snapshot.totals.visitors > 0 &&
+    snapshot.totals.pageviews != null
       ? snapshot.totals.pageviews / snapshot.totals.visitors
-      : 0;
+      : null;
 
   return (
     <div className="space-y-6">
@@ -280,11 +285,25 @@ export function ProductAnalyticsDashboard({
         </section>
       ) : null}
 
+      {snapshot.ingestion.state === "partial_data" ? (
+        <section role="status" className="rounded-2xl border border-[#e7d4ae] bg-[#fffaf1] p-4 sm:p-5">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#8b5d21]">
+            Dati parziali · conteggi Vercel da verificare
+          </p>
+          <p className="mt-2 text-sm leading-6 text-[#6e6253]">
+            Le aggregazioni Vercel contengono traffico, ma alcuni contatori restituiscono zero
+            o dati mancanti. Le pageview possono essere ricostruite dalle fasce temporali;
+            i visitatori unici non vengono sommati fra fasce o paesi, per evitare stime errate.
+            Un trattino indica un valore non affidabile, non uno zero reale.
+          </p>
+        </section>
+      ) : null}
+
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {[
           ["Visitatori", snapshot.totals.visitors, "utenti unici stimati da Vercel"],
           ["Pageview", snapshot.totals.pageviews, snapshot.rangeLabel],
-          ["Pagine / visitatore", viewsPerVisitor.toFixed(2).replace(".", ","), "engagement medio"],
+          ["Pagine / visitatore", viewsPerVisitor == null ? null : viewsPerVisitor.toFixed(2).replace(".", ","), "engagement medio"],
           ["Custom events", snapshot.totals.events, "azioni AN1 tracciate"],
           ["Utenti con eventi", snapshot.totals.eventVisitors, "visitatori che hanno attivato eventi"],
         ].map(([label, value, detail]) => (
@@ -293,7 +312,7 @@ export function ProductAnalyticsDashboard({
             className="rounded-2xl border border-[#dce2df] bg-white p-4"
           >
             <p className="text-2xl font-semibold tracking-tight tabular-nums text-[#173f35]">
-              {typeof value === "number" ? formatCount(value) : String(value)}
+              {value == null ? "—" : typeof value === "number" ? formatCount(value) : String(value)}
             </p>
             <p className="mt-1 text-xs font-semibold text-[#52615b]">{String(label)}</p>
             <p className="mt-1 text-[10px] leading-4 text-[#87938e]">{String(detail)}</p>
