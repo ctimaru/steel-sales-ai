@@ -88,10 +88,15 @@ insert into public.platform_registration_events(
 
 
 -- RFQ source labels verified against actual source-writing database functions.
-insert into public.buyer_rfq_campaigns(id,owner_user_id,organization_id,title)
+insert into public.buyer_distintas(id,owner_user_id,organization_id,title,line_count)
+values('00000000-0000-0000-0000-000000002240',
+ '00000000-0000-0000-0000-000000002201',
+ '00000000-0000-0000-0000-000000002211','NC23 synthetic distinta',1);
+insert into public.buyer_rfq_campaigns(id,owner_user_id,organization_id,title,source_distinta_id)
  values('00000000-0000-0000-0000-000000002241',
    '00000000-0000-0000-0000-000000002201',
-   '00000000-0000-0000-0000-000000002211','NC23 Synthetic Campaign');
+   '00000000-0000-0000-0000-000000002211','NC23 Synthetic Campaign',
+   '00000000-0000-0000-0000-000000002240');
 insert into public.buyer_rfq_team_members(rfq_id,user_id,organization_id,role,status,added_by)
  values('00000000-0000-0000-0000-000000002241',
    '00000000-0000-0000-0000-000000002202',
