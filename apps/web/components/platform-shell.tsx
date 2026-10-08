@@ -20,6 +20,7 @@ export function PlatformShell({
   permissions,
   isPlatformOwner,
   notificationSnapshot,
+  notificationVerifiedAt,
 }: {
   children: ReactNode;
   viewerLabel: string;
@@ -27,6 +28,7 @@ export function PlatformShell({
   permissions: PlatformPermissionKey[];
   isPlatformOwner: boolean;
   notificationSnapshot: PlatformNotificationSnapshot | null;
+  notificationVerifiedAt: string | null;
 }) {
   return (
     <><HeaderMenuDismissController /><div className="min-h-screen bg-[#f2f4f3] text-[#1d2824]">
@@ -103,7 +105,7 @@ export function PlatformShell({
                   className="hidden sm:inline-flex"
                 />
               ) : null}
-              <PlatformNotificationBell snapshot={notificationSnapshot} platformReady />
+              <PlatformNotificationBell snapshot={notificationSnapshot} initialVerifiedAt={notificationVerifiedAt} platformReady />
               <span className="hidden rounded-full bg-[#e1ece8] px-3.5 py-2 text-xs font-semibold text-[#173f35] sm:inline-flex">
                 {authorityLabel}
               </span>
