@@ -182,7 +182,7 @@ export function useNotificationFreshness<T extends NotificationSnapshot>({
             event:"*",schema:"public",table:typeTable,
             filter:`recipient_user_id=eq.${uid}`,
           }, () => {
-            // Deliberately ignore payload.new/old (no source data is trusted).
+            // Never inspect or render the Realtime change object.
             queueRefresh();
           })
           .subscribe((status) => {
