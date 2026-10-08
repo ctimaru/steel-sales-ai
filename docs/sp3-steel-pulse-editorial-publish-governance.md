@@ -22,6 +22,8 @@ Riutilizziamo il RBAC esistente: \`knowledge.edit\` crea/modifica e invia bozze,
 
 Tutte le mutazioni sono RPC \`public.sp3_save_draft\` e \`public.sp3_decide\` con \`SECURITY DEFINER\`, check autenticazione e permessi, lock e controllo revisione; non sono disponibili DML dirette a \`anon\`/\`authenticated\`. La review umana **non è sostituibile** dalla generazione AI.
 
+Per consultare la coda senza accesso SQL diretto, le RPC `public.sp3_editorial_queue` e `public.sp3_editorial_detail` espongono la sola vista redazionale ai ruoli dotati di `knowledge.read_drafts`. L'attestazione legale dettagliata è consultabile soltanto dal Platform Owner. Le quattro RPC SP3 sono registrate nell'allowlist di sicurezza HP13 per nuove funzioni `SECURITY DEFINER` autenticate, con `search_path` vincolato. L'interfaccia grafica privata di moderazione sarà collegata in un microblocco UI successivo.
+
 ## Publish gate a prova di revoca
 \`sp3_source_is_publishable\` controlla il diritto di \`publish_news_card\`, stato approvato, prova/source item coerente, identità legale-editoriale distinte, politica esistente, review recente e licenza non scaduta.
 Le schede marcate \`published\` NON sono ancora esposte in una route pubblica; restano in \`steel_pulse_private.sp3_currently_eligible_cards\` leggibile solo da servizio. La proiezione applica nuovamente il controllo fonte **alla lettura**, per escludere una scheda appena la fonte è sospesa/scade, senza attendere un cron. Ritiro manuale con \`sp3_decide(...,'withdraw',...)\` e audit.
