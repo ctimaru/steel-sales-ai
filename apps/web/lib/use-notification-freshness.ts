@@ -147,10 +147,14 @@ export function useNotificationFreshness<T extends NotificationSnapshot>({
 
     function queueRefresh() {
       if (!active || !isVisible() || pendingRefresh) return;
+      // Delay rather than DROP an event received during the request cooldown.
+      // Otherwise a genuine Realtime event could wait until the 90s poll.
+      const remaining = MIN_REFRESH_MS - (Date.now() - lastRequestAt);
+      const delay = Math.max(NC33_DEBOUNCE_MS,remaining + 50);
       pendingRefresh = setTimeout(() => {
         pendingRefresh = null;
         void loadVerifiedInbox("change");
-      }, NC33_DEBOUNCE_MS);
+      }, delay);
     }
 
     function dropRealtime() {
