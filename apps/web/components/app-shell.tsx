@@ -94,6 +94,8 @@ export function AppShell({
   organizationRole,
   demoMode,
   notificationSnapshot,
+  notificationVerifiedAt,
+  organizationId,
   platformConsoleAccess,
   guidedSetupComplete,
   networkEnabled,
@@ -105,6 +107,8 @@ export function AppShell({
   organizationRole: string;
   demoMode: boolean;
   notificationSnapshot: WorkspaceNotificationSnapshot | null;
+  notificationVerifiedAt: string | null;
+  organizationId: string | null;
   platformConsoleAccess: boolean;
   guidedSetupComplete: boolean;
   networkEnabled: boolean;
@@ -168,7 +172,7 @@ export function AppShell({
                 />
               </div>
             ) : null}
-            <WorkspaceNotificationBell snapshot={notificationSnapshot} demoMode={demoMode} />
+            <WorkspaceNotificationBell key={organizationId ?? "demo"} organizationId={organizationId} initialVerifiedAt={notificationVerifiedAt} snapshot={notificationSnapshot} demoMode={demoMode} />
             <div className="hidden lg:block">
               <WorkspaceProfileMenu
                 viewerLabel={viewerLabel}
