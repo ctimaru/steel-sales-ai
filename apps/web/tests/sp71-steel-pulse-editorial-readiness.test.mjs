@@ -19,7 +19,7 @@ test("SP7.1 page is owner-only and reads actual current production status", () =
   assert.match(page, /getPlatformStaffInvitations/);
   assert.match(page, /person\.status === "active"/);
   assert.match(page, /reviewer\.user_id !== author\.user_id/);
-  assert.match(page, /non può essere considerata pronta/);
+  assert.match(page, /nessuna fonte può essere considerata pronta/);
 });
 
 test("SP7.1 reuses audited invitations, no new unauthorized admin or publish controls", () => {
