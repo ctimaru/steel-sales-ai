@@ -120,7 +120,8 @@ select pg_temp.nc32_assert(
 
 -- Revocation immediately removes grants, even when personal receipt persists.
 reset role;
-update public.platform_staff_roles set status='revoked' where user_id='00000000-0000-0000-0000-000000003202';
+update public.platform_staff_roles set status='revoked',
+ revoked_by='00000000-0000-0000-0000-000000003201',revoked_at=now() where user_id='00000000-0000-0000-0000-000000003202';
 set local role authenticated;
 select pg_temp.nc32_deny($$select public.nc32_platform_notifications_read('all',15,0)$$);
 select pg_temp.nc32_deny($$select public.nc32_platform_notification_set_state('00000000-0000-0000-0000-000000003233','read')$$);
