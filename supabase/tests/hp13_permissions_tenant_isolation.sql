@@ -175,7 +175,10 @@ select pg_temp.hp13_assert(
         'sp3_save_draft',
         'sp3_decide',
         'sp3_editorial_queue',
-        'sp3_editorial_detail'
+        'sp3_editorial_detail',
+        -- SP5 audited own-user preferences and licensed-feed projection.
+        'sp5_save_feed_preferences',
+        'sp5_my_steel_pulse_feed'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
