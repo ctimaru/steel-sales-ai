@@ -16,7 +16,7 @@ export function NotificationFormButton({
       className={[
         "inline-flex min-h-9 items-center justify-center rounded-lg px-3 py-2 text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#173f35] disabled:opacity-60",
         tone === "primary"
-          ? "bg-[#173f35] text-white hover:bg-[#265d4c]"
+          ? "notification-primary-action"
           : "border border-[#d8e4df] bg-white text-[#365749] hover:bg-[#edf5f2]",
       ].join(" ")}
     >
