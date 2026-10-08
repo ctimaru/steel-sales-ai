@@ -17,6 +17,17 @@ function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
+type OperationalAlertAudit = {
+  id: number;
+  alert_id: number;
+  action: string;
+  previous_status: string;
+  new_status: string;
+  actor_user_id: string | null;
+  note: string | null;
+  occurred_at: string;
+};
+
 function statusLabel(status: string) {
   if (status === "open") return "Aperto";
   if (status === "acknowledged") return "In carico";
@@ -51,7 +62,7 @@ export default async function OperationalAlertsPage() {
 
   const { data: memberships, error: membershipError } = await supabase
     .from("organization_memberships")
-    .select("organization_id,is_default,status")
+    .select("organization_id,role,is_default,status")
     .eq("user_id", user.id)
     .eq("status", "active");
 
@@ -61,6 +72,7 @@ export default async function OperationalAlertsPage() {
   if (!membership?.organization_id) redirect("/onboarding");
 
   const organizationId = membership.organization_id as string;
+  const canManage = membership.role === "admin";
   // Failure in either RPC must never be presented as "everything is healthy".
   const [alertsResult, summaryResult] = await Promise.allSettled([
     supabase.rpc("p1_operational_alerts_read", {
@@ -110,6 +122,18 @@ export default async function OperationalAlertsPage() {
     );
   }
 
+  // A distinct admin-scoped RPC reads history; failure must not look like an empty history.
+  const auditResponse = canManage
+    ? await supabase.rpc("p1_operational_alert_audit_read", {
+        p_organization_id: organizationId,
+        p_alert_id: null,
+        p_limit: 100,
+        p_offset: 0,
+      }).then((result) => result).catch(() => null)
+    : null;
+  const auditData = auditResponse && !auditResponse.error ? auditResponse.data : null;
+  const auditRows = Array.isArray(auditData) ? (auditData as OperationalAlertAudit[]) : null;
+
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
@@ -133,6 +157,12 @@ export default async function OperationalAlertsPage() {
           Dati consultati: {formatDate(summary.generated_at)} · Ultimo alert registrato: {formatDate(summary.last_alert_at)}.
           La consultazione non certifica l'ultima esecuzione del controllo automatico.
         </p>
+
+        {!canManage ? (
+          <p className="mt-4 rounded-xl border border-[#dce5e2] bg-[#f2f6f4] px-4 py-3 text-sm text-[#47554f]">
+            Consultazione in sola lettura. Presa in carico e risoluzione sono riservate agli amministratori aziendali.
+          </p>
+        ) : null}
 
         <div className="mt-6 grid gap-3 sm:grid-cols-4">
           {[
@@ -193,11 +223,41 @@ export default async function OperationalAlertsPage() {
                 <p>Risoluzione: <span className="font-medium text-slate-700">{formatDate(alert.resolved_at)}</span></p>
               </div>
 
-              <OperationalAlertActions alertId={alert.id} status={alert.status} />
+              {canManage ? <OperationalAlertActions alertId={alert.id} status={alert.status} /> : null}
             </Card>
           ))}
         </section>
       )}
+
+      {canManage ? (
+        <section className="rounded-3xl border border-[#dce5e2] bg-white p-6 shadow-sm sm:p-8" aria-label="Storico operazioni sugli alert">
+          <h2 className="text-lg font-semibold text-[#1d2824]">Storico operazioni</h2>
+          <p className="mt-2 text-sm text-[#66736e]">
+            Registro delle transizioni degli alert aziendali, consultabile solo dagli amministratori.
+            Sono mostrate fino alle ultime 100 operazioni.
+          </p>
+          {auditRows === null ? (
+            <div role="alert" className="mt-4 rounded-xl border border-[#ead7aa] bg-[#fffaf0] p-4 text-sm text-[#785c27]">
+              Impossibile verificare lo storico delle operazioni. Aggiorna per riprovare.
+            </div>
+          ) : auditRows.length === 0 ? (
+            <p className="mt-4 text-sm text-[#66736e]">Nessuna transizione registrata da quando è attivo lo storico.</p>
+          ) : (
+            <ol className="mt-4 space-y-3">
+              {auditRows.map((event) => (
+                <li key={event.id} className="rounded-xl border border-[#dce5e2] bg-[#f8faf9] p-4 text-sm">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-semibold text-[#173f35]">Alert #{event.alert_id} · {statusLabel(event.previous_status)} → {statusLabel(event.new_status)}</span>
+                    <time className="text-xs text-[#66736e]">{formatDate(event.occurred_at)}</time>
+                  </div>
+                  <p className="mt-1 text-xs text-[#66736e]">Responsabile: {event.actor_user_id ? `Utente ${event.actor_user_id.slice(0, 8)}…` : "Processo automatico"}</p>
+                  {event.note ? <p className="mt-2 text-sm text-[#47554f]">{event.note}</p> : null}
+                </li>
+              ))}
+            </ol>
+          )}
+        </section>
+      ) : null}
     </div>
   );
 }
