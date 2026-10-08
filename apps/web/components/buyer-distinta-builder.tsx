@@ -5,6 +5,7 @@ import { BuyerTubeGuidedCreator } from "@/components/buyer-tube-guided-creator";
 import { guidedTubeMassKgM, guidedTubeMeasurement, type GuidedTubeDraft } from "@/lib/buyer-tube-guidance";
 import { emptyBuyerDocumentRequirements, formatBuyerDocumentRequirements, type BuyerDistintaDocumentRequirements } from "@/lib/buyer-distinta-documents";
 import { useRouter } from "next/navigation";
+import { appRoutes } from "@/lib/routes";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 import {
@@ -381,7 +382,7 @@ export function BuyerDistintaBuilder({
         setRfqMessage(result.error ?? "Creazione RFQ non riuscita.");
         return;
       }
-      router.push("/marketplace/rfq-hub/" + result.rfqId);
+      router.push(appRoutes.rfqHub.campaign(result.rfqId));
     });
   }
 
