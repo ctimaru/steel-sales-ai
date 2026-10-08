@@ -78,6 +78,7 @@ insert into public.worker_jobs(
 ('00000000-0000-0000-0000-000000002223','nc22-failed.eml','eml',12,'failed',now(),
 '00000000-0000-0000-0000-000000002202','00000000-0000-0000-0000-000000002211',1);
 
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000002203',true);
 insert into public.company_registration_applications(
  id,applicant_email_snapshot,legal_name,country_code,primary_company_type,
  contact_name,application_status,applicant_user_id,submitted_at,email_verified_at
