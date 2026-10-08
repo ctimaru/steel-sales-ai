@@ -462,7 +462,7 @@ export function RfqQuoteComparison({
             </p>
           </div>
           <span className="text-xs text-[#718078]">
-            Target interno buyer sempre visibile solo qui.
+            Target interno buyer, se indicato, visibile soltanto qui.
           </span>
         </div>
 
