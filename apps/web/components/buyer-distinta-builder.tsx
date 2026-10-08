@@ -77,6 +77,7 @@ export function BuyerDistintaBuilder({
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const focusQuantityId = useRef<string | null>(null);
   const [selectedCatalog, setSelectedCatalog] = useState<Record<string, { family: string; sizeKey: string; optionId: string }>>({});
+  const [guidedSpecsByLine, setGuidedSpecsByLine] = useState<Record<string, GuidedTubeDraft>>({});
   const [lines, setLines] = useState<BuyerDistintaDraftLine[]>([
     blankLine("line-1"),
   ]);
@@ -168,6 +169,7 @@ export function BuyerDistintaBuilder({
       note: guidedDocumentsNote(draft),
     };
     setLines((current) => reusable ? [nextLine] : [...current, nextLine]);
+    setGuidedSpecsByLine((current) => ({ ...current, [id]: { ...draft } }));
     setSavedId(null);
     setSaveMessage(null);
     setSendMessage(null);
@@ -219,6 +221,9 @@ export function BuyerDistintaBuilder({
     if (!source || !source.description.trim()) return;
     const duplicateId = newLineId();
     const copy = { ...source, id: duplicateId, quantity: "" };
+    if (guidedSpecsByLine[id]) {
+      setGuidedSpecsByLine((current) => ({ ...current, [duplicateId]: { ...current[id] } }));
+    }
     setExpandedRows((current) => ({ ...current, [duplicateId]: false }));
     focusQuantityId.current = duplicateId;
     setLines((current) => {
@@ -258,6 +263,11 @@ export function BuyerDistintaBuilder({
       return next;
     });
     setExpandedRows((current) => {
+      const next = { ...current };
+      delete next[id];
+      return next;
+    });
+    setGuidedSpecsByLine((current) => {
       const next = { ...current };
       delete next[id];
       return next;
@@ -768,9 +778,21 @@ export function BuyerDistintaBuilder({
                           onChange={(event) => {
                             const standard = event.target.value;
                             const reference = catalogOptions.find((option) => option.id === selection.optionId);
+                            const guided = guidedSpecsByLine[line.id];
+                            const recalculated = (standard === "EN 10219" || standard === "EN 10210") && guided
+                              ? guidedTubeMeasurement({ ...guided, standard })
+                              : null;
                             updateLine(line.id, reference
                               ? { standard, weightKgM: weightFromCatalogForStandard(reference, standard) }
-                              : { standard });
+                              : recalculated
+                                ? { standard, weightKgM: recalculated.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 }) }
+                                : { standard });
+                            if (guided) {
+                              setGuidedSpecsByLine((current) => ({
+                                ...current,
+                                [line.id]: { ...guided, standard: standard === "EN 10219" || standard === "EN 10210" ? standard : "" },
+                              }));
+                            }
                           }}
                           placeholder="EN 10219"
                           className="bd52-input"
