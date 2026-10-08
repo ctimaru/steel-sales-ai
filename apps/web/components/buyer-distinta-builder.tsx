@@ -71,7 +71,8 @@ export function BuyerDistintaBuilder({
   const router = useRouter();
   const [title, setTitle] = useState("Richiesta di offerta");
   const [quickQuery, setQuickQuery] = useState("");
-  const [compactMode, setCompactMode] = useState(false);
+  const [compactMode, setCompactMode] = useState(true);
+  const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const focusQuantityId = useRef<string | null>(null);
   const [selectedCatalog, setSelectedCatalog] = useState<Record<string, { family: string; sizeKey: string; optionId: string }>>({});
   const [lines, setLines] = useState<BuyerDistintaDraftLine[]>([
@@ -173,6 +174,7 @@ export function BuyerDistintaBuilder({
     setRfqMessage(null);
     setQuickQuery("");
     setCompactMode(true);
+    setExpandedRows((current) => ({ ...current, [id]: false }));
   }
 
   function duplicateLine(id: string) {
@@ -181,6 +183,7 @@ export function BuyerDistintaBuilder({
     if (!source || !source.description.trim()) return;
     const duplicateId = newLineId();
     const copy = { ...source, id: duplicateId, quantity: "" };
+    setExpandedRows((current) => ({ ...current, [duplicateId]: false }));
     focusQuantityId.current = duplicateId;
     setLines((current) => {
       const index = current.findIndex((line) => line.id === id);
@@ -197,6 +200,10 @@ export function BuyerDistintaBuilder({
     setRfqMessage(null);
   }
 
+  function toggleRowDetails(id: string) {
+    setExpandedRows((current) => ({ ...current, [id]: !(current[id] ?? !compactMode) }));
+  }
+
   function addLine() {
     if (lines.length >= 500) return;
     setSavedId(null);
@@ -210,6 +217,11 @@ export function BuyerDistintaBuilder({
     setSavedId(null);
     setSaveMessage(null);
     setSelectedCatalog((current) => {
+      const next = { ...current };
+      delete next[id];
+      return next;
+    });
+    setExpandedRows((current) => {
       const next = { ...current };
       delete next[id];
       return next;
@@ -330,7 +342,7 @@ export function BuyerDistintaBuilder({
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#66736e]">
               Inserisci il materiale, la quantità e il peso kg/m; il Target €/t è facoltativo.
-              Smart Steel Sales calcola automaticamente il corrispondente Target €/m.
+              Compila i campi essenziali nella card; apri i dettagli solo quando servono.
             </p>
           </div>
           <label className="w-full max-w-md text-xs font-semibold uppercase tracking-wide text-[#66736e]">
@@ -353,19 +365,21 @@ export function BuyerDistintaBuilder({
             <div>
               <h3 className="text-sm font-bold text-[var(--brand-deep)]">Aggiunta rapida degli articoli</h3>
               <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
-                Cerca una misura pubblica, aggiungila alla distinta e inserisci solo la quantità.
-                Per articoli particolari usa la compilazione libera.
+                Trova una misura pubblica, aggiungila e compila la quantità. Per altri articoli usa la riga libera.
               </p>
             </div>
             <button
               type="button"
-              aria-pressed={compactMode}
-              onClick={() => setCompactMode((current) => !current)}
-              className={compactMode
+              aria-pressed={!compactMode}
+              onClick={() => {
+                setCompactMode((current) => !current);
+                setExpandedRows({});
+              }}
+              className={!compactMode
                 ? "platform-primary min-h-11 rounded-xl px-4 text-xs font-bold"
                 : "min-h-11 rounded-xl border border-[var(--border)] bg-white px-4 text-xs font-bold text-[var(--brand-deep)] hover:bg-[var(--surface-muted)]"}
             >
-              {compactMode ? "Vista compatta: attiva" : "Attiva vista compatta"}
+              {compactMode ? "Mostra tutti i dettagli" : "Comprimi tutte le righe"}
             </button>
           </div>
           <label className="mt-3 block text-xs font-semibold text-[var(--text-secondary)]">
@@ -432,6 +446,8 @@ export function BuyerDistintaBuilder({
         <div className="mt-3 space-y-3 sm:space-y-4">
           {lines.map((line, index) => {
             const calc = calculated[index];
+            const detailOpen = expandedRows[line.id] ?? !compactMode;
+            const invalidTarget = line.targetEurT.trim() !== "" && calc.targetEurT === null;
             const rowStage = calc.complete ? "complete" : isUntouchedLine(line) ? "empty" : "pending";
             const selection = selectedCatalog[line.id] ?? { family: "", sizeKey: "", optionId: "" };
             const familyOptions = catalogOptions.filter((option) => option.family === selection.family);
@@ -488,285 +504,217 @@ export function BuyerDistintaBuilder({
                   </div>
                 </div>
                 <div className="bd5-row-body">
-                {compactMode ? (
-                  <div className="mt-3 space-y-3">
-                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-12">
-                      <label className="col-span-2 text-xs font-semibold text-[var(--text-secondary)] sm:col-span-5">
-                        Articolo / descrizione *
-                        <input
-                          value={line.description}
-                          onChange={(event) => updateLine(line.id, { description: event.target.value })}
-                          className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)] focus:border-[var(--brand-primary)]"
-                        />
-                      </label>
-                      <label className="text-xs font-semibold text-[var(--text-secondary)] sm:col-span-2">
-                        Peso kg/m *
+                <div className="bd52-core">
+                  <div className="bd52-core-fields">
+                    <label className="bd52-field bd52-field-description">
+                      Articolo / descrizione *
+                      <input
+                        value={line.description}
+                        onChange={(event) => updateLine(line.id, { description: event.target.value })}
+                        placeholder="Es. Tubo quadro 100 × 100 × 4 mm"
+                        className="bd52-input"
+                      />
+                    </label>
+                    <label className="bd52-field bd52-field-weight">
+                      Peso kg/m *
+                      <input
+                        inputMode="decimal"
+                        value={line.weightKgM}
+                        onChange={(event) => updateLine(line.id, { weightKgM: event.target.value })}
+                        placeholder="kg/m"
+                        className="bd52-input"
+                      />
+                    </label>
+                    <label className="bd52-field bd52-field-quantity">
+                      Quantità *
+                      <input
+                        id={"buyer-quantity-" + line.id}
+                        inputMode="decimal"
+                        value={line.quantity}
+                        onChange={(event) => updateLine(line.id, { quantity: event.target.value })}
+                        placeholder="Quantità"
+                        className="bd52-input bd52-quantity-input"
+                      />
+                    </label>
+                    <label className="bd52-field bd52-field-unit">
+                      Unità
+                      <select
+                        value={line.quantityMode}
+                        onChange={(event) => updateLine(line.id, { quantityMode: event.target.value as BuyerQuantityMode })}
+                        className="bd52-input"
+                      >
+                        <option value="meters">Metri</option>
+                        <option value="bars">Barre / pezzi</option>
+                        <option value="tonnes">Tonnellate</option>
+                      </select>
+                    </label>
+                    {line.quantityMode === "bars" ? (
+                      <label className="bd52-field bd52-field-bars">
+                        Lunghezza barra (m) *
                         <input
                           inputMode="decimal"
-                          value={line.weightKgM}
-                          onChange={(event) => updateLine(line.id, { weightKgM: event.target.value })}
-                          className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)]"
+                          value={line.barLengthM}
+                          onChange={(event) => updateLine(line.id, { barLengthM: event.target.value })}
+                          placeholder="6"
+                          className="bd52-input"
                         />
                       </label>
-                      <label className="text-xs font-semibold text-[var(--text-secondary)] sm:col-span-2">
-                        Quantità *
-                        <input
-                          inputMode="decimal"
-                          id={"buyer-quantity-" + line.id}
-                          value={line.quantity}
-                          onChange={(event) => updateLine(line.id, { quantity: event.target.value })}
-                          placeholder="Quantità"
-                          className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-semibold text-[var(--text-primary)]"
-                        />
-                      </label>
-                      <label className="text-xs font-semibold text-[var(--text-secondary)] sm:col-span-3">
-                        Unità
+                    ) : null}
+                  </div>
+                  <div className="bd52-core-footer">
+                    <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1.5">
+                      <span className="bd52-weight-pill">{formatNumber(calc.tonnes, 3)} t</span>
+                      {line.targetEurT.trim() ? (
+                        <span className="bd52-detail-summary">
+                          {invalidTarget ? "Verifica Target €/t" : `Target ${formatNumber(calc.targetEurT, 2)} €/t`}
+                        </span>
+                      ) : null}
+                      {line.standard || line.grade || line.finish ? (
+                        <span className="bd52-detail-summary truncate">
+                          {[line.standard, line.grade, line.finish].filter(Boolean).join(" · ")}
+                        </span>
+                      ) : null}
+                      {line.note ? <span className="bd52-note-indicator">Nota inserita</span> : null}
+                    </div>
+                    <button
+                      type="button"
+                      aria-expanded={detailOpen}
+                      aria-controls={"buyer-details-" + line.id}
+                      aria-label={(detailOpen ? "Chiudi dettagli riga " : "Apri dettagli riga ") + String(index + 1)}
+                      onClick={() => toggleRowDetails(line.id)}
+                      className="bd52-details-toggle"
+                    >
+                      {detailOpen ? "Nascondi dettagli" : invalidTarget ? "Correggi target" : "Dettagli e opzioni"}
+                      <span aria-hidden="true" className={detailOpen ? "bd52-chevron bd52-chevron-open" : "bd52-chevron"}>⌄</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  id={"buyer-details-" + line.id}
+                  hidden={!detailOpen}
+                  className="bd52-detail-panel"
+                >
+                  <div className="bd52-detail-section">
+                    <p className="bd52-detail-heading">Misure da catalogo Knowledge</p>
+                    <div className="grid gap-2 sm:grid-cols-3">
+                      <label className="bd52-field">
+                        Tipo di tubo
                         <select
-                          value={line.quantityMode}
-                          onChange={(event) => updateLine(line.id, { quantityMode: event.target.value as BuyerQuantityMode })}
-                          className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-2 text-sm text-[var(--text-primary)]"
+                          aria-label={`Tipo di tubo, riga ${index + 1}`}
+                          value={selection.family}
+                          onChange={(event) => chooseFamily(line.id, event.target.value)}
+                          className="bd52-input"
                         >
-                          <option value="meters">Metri</option>
-                          <option value="bars">Barre / pezzi</option>
-                          <option value="tonnes">Tonnellate</option>
+                          <option value="">Compilazione libera</option>
+                          {(["round_tube", "square_tube", "rectangular_tube"] as const).map((family) => (
+                            <option key={family} value={family}>{buyerTubeFamilyLabels[family]}</option>
+                          ))}
                         </select>
                       </label>
-                      {line.quantityMode === "bars" ? (
-                        <label className="text-xs font-semibold text-[var(--text-secondary)] sm:col-span-3">
-                          Lunghezza barra (m)
-                          <input inputMode="decimal" value={line.barLengthM}
-                            onChange={(event) => updateLine(line.id, { barLengthM: event.target.value })}
-                            className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)]" />
-                        </label>
-                      ) : null}
-                      <label className="col-span-2 text-xs font-semibold text-[var(--text-secondary)] sm:col-span-3">
+                      <label className="bd52-field">
+                        Misura
+                        <select
+                          aria-label={`Misura, riga ${index + 1}`}
+                          value={selection.sizeKey}
+                          disabled={!selection.family || sizeChoices.length === 0}
+                          onChange={(event) => chooseSize(line.id, selection.family, event.target.value)}
+                          className="bd52-input"
+                        >
+                          <option value="">Scegli misura</option>
+                          {sizeChoices.map((option) => (
+                            <option key={option.sizeKey} value={option.sizeKey}>{option.sizeLabel}</option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="bd52-field">
+                        Spessore
+                        <select
+                          aria-label={`Spessore, riga ${index + 1}`}
+                          value={selection.optionId}
+                          disabled={!selection.sizeKey || thicknessChoices.length === 0}
+                          onChange={(event) => chooseCatalogOption(line.id, selection.family, selection.sizeKey, event.target.value)}
+                          className="bd52-input"
+                        >
+                          <option value="">Scegli spessore</option>
+                          {thicknessChoices.map((option) => (
+                            <option key={option.id} value={option.id}>
+                              {option.thicknessMm.toLocaleString("it-IT")} mm · {option.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 })} kg/m
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+                    {catalogOptions.length === 0 ? (
+                      <p className="mt-2 text-xs text-[var(--semantic-warning)]">
+                        Riferimenti pubblici temporaneamente non disponibili: usa la compilazione libera.
+                      </p>
+                    ) : null}
+                    {selection.optionId ? (
+                      <p className="mt-2 text-xs text-[var(--text-secondary)]">
+                        Il peso precompilato è indicativo; verifica sempre specifiche e tolleranze richieste.
+                      </p>
+                    ) : null}
+                  </div>
+                  <div className="bd52-detail-section">
+                    <p className="bd52-detail-heading">Specifiche e condizioni (facoltative)</p>
+                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                      <label className="bd52-field">
+                        Norma
+                        <input
+                          list="buyer-standards"
+                          value={line.standard}
+                          onChange={(event) => updateLine(line.id, { standard: event.target.value })}
+                          placeholder="EN 10219"
+                          className="bd52-input"
+                        />
+                      </label>
+                      <label className="bd52-field">
+                        Grado
+                        <input
+                          list="buyer-grades"
+                          value={line.grade}
+                          onChange={(event) => updateLine(line.id, { grade: event.target.value })}
+                          placeholder="S355J2H"
+                          className="bd52-input"
+                        />
+                      </label>
+                      <label className="bd52-field">
+                        Finitura
+                        <input
+                          list="buyer-finishes"
+                          value={line.finish}
+                          onChange={(event) => updateLine(line.id, { finish: event.target.value })}
+                          placeholder="Nero / zincato"
+                          className="bd52-input"
+                        />
+                      </label>
+                      <label className="bd52-field">
                         Target €/t (facoltativo)
                         <input
                           inputMode="decimal"
                           value={line.targetEurT}
                           onChange={(event) => updateLine(line.id, { targetEurT: event.target.value })}
                           placeholder="Opzionale"
-                          className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)]"
+                          className="bd52-input"
+                        />
+                      </label>
+                      <div className="bd52-field">
+                        Target €/m (calcolato)
+                        <output className="bd52-output">{formatNumber(calc.targetEurM, 4)}</output>
+                      </div>
+                      <label className="bd52-field">
+                        Note
+                        <input
+                          value={line.note}
+                          onChange={(event) => updateLine(line.id, { note: event.target.value })}
+                          placeholder="Tolleranze, consegna…"
+                          className="bd52-input"
                         />
                       </label>
                     </div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[var(--text-secondary)]">
-                      <span>{formatNumber(calc.tonnes, 3)} t</span>
-                      <span>Target €/m: {formatNumber(calc.targetEurM, 4)}</span>
-                      {(line.standard || line.grade || line.finish || line.note) ? (
-                        <span className="max-w-full truncate">{[line.standard, line.grade, line.finish, line.note].filter(Boolean).join(" · ")}</span>
-                      ) : null}
-                      <button
-                        type="button"
-                        onClick={() => setCompactMode(false)}
-                        className="font-bold text-[var(--brand-deep)] underline underline-offset-4"
-                      >
-                        Apri dettagli e selettori
-                      </button>
-                    </div>
                   </div>
-                ) : (
-                  <>
-                <div className="mt-3 rounded-xl border border-[var(--border)] bg-white p-3 sm:p-4">
-                  <p className="text-xs font-bold text-[var(--brand-deep)]">1. Seleziona l'articolo</p>
-                  <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
-                    Seleziona forma, misura e spessore: descrizione e peso vengono precompilati
-                    dai riferimenti pubblici di Knowledge. Puoi sempre inserire un articolo manualmente.
-                  </p>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                    <label className="text-xs font-semibold text-[var(--text-secondary)]">
-                      Tipo di tubo
-                      <select
-                        aria-label={`Tipo di tubo, riga ${index + 1}`}
-                        value={selection.family}
-                        onChange={(event) => chooseFamily(line.id, event.target.value)}
-                        className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)]"
-                      >
-                        <option value="">Compilazione libera</option>
-                        {(["round_tube", "square_tube", "rectangular_tube"] as const).map((family) => (
-                          <option key={family} value={family}>{buyerTubeFamilyLabels[family]}</option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="text-xs font-semibold text-[var(--text-secondary)]">
-                      Misura
-                      <select
-                        aria-label={`Misura, riga ${index + 1}`}
-                        value={selection.sizeKey}
-                        disabled={!selection.family || sizeChoices.length === 0}
-                        onChange={(event) => chooseSize(line.id, selection.family, event.target.value)}
-                        className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)] disabled:bg-[var(--surface-muted)]"
-                      >
-                        <option value="">Scegli misura</option>
-                        {sizeChoices.map((option) => (
-                          <option key={option.sizeKey} value={option.sizeKey}>{option.sizeLabel}</option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="text-xs font-semibold text-[var(--text-secondary)]">
-                      Spessore
-                      <select
-                        aria-label={`Spessore, riga ${index + 1}`}
-                        value={selection.optionId}
-                        disabled={!selection.sizeKey || thicknessChoices.length === 0}
-                        onChange={(event) => chooseCatalogOption(line.id, selection.family, selection.sizeKey, event.target.value)}
-                        className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)] disabled:bg-[var(--surface-muted)]"
-                      >
-                        <option value="">Scegli spessore</option>
-                        {thicknessChoices.map((option) => (
-                          <option key={option.id} value={option.id}>
-                            {option.thicknessMm.toLocaleString("it-IT")} mm · {option.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 })} kg/m
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
-                  {catalogOptions.length === 0 ? (
-                    <p className="mt-2 text-xs text-[var(--semantic-warning)]">
-                      Riferimenti pubblici temporaneamente non disponibili: usa la compilazione libera.
-                    </p>
-                  ) : null}
-                  {selection.optionId ? (
-                    <p className="mt-2 text-xs text-[var(--text-secondary)]">
-                      Peso di riferimento precompilato, non una conferma di disponibilità o tolleranza del fornitore.
-                    </p>
-                  ) : null}
                 </div>
-
-                <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-12">
-                  <label className="lg:col-span-9 text-xs font-semibold text-[var(--text-secondary)]">
-                    2. Articolo / descrizione *
-                    <input
-                      value={line.description}
-                      onChange={(event) => updateLine(line.id, { description: event.target.value })}
-                      placeholder="Es. Tubo quadro 100 × 100 × 4 mm"
-                      className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)] focus:border-[var(--brand-primary)]"
-                    />
-                  </label>
-                  <label className="lg:col-span-3 text-xs font-semibold text-[var(--text-secondary)]">
-                    Peso kg/m *
-                    <input
-                      inputMode="decimal"
-                      value={line.weightKgM}
-                      onChange={(event) => updateLine(line.id, { weightKgM: event.target.value })}
-                      placeholder="Es. 12,5"
-                      className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-semibold text-[var(--text-primary)] focus:border-[var(--brand-primary)]"
-                    />
-                  </label>
-                </div>
-                <details className="mt-3 rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-3">
-                  <summary className="cursor-pointer text-xs font-semibold text-[var(--brand-deep)]">
-                    Specifiche aggiuntive · norma, grado, finitura (facoltative)
-                  </summary>
-                  <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                    <label className="text-xs font-semibold text-[var(--text-secondary)]">
-                      Norma
-                      <input list="buyer-standards" value={line.standard}
-                        onChange={(event) => updateLine(line.id, { standard: event.target.value })}
-                        placeholder="EN 10219"
-                        className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)]" />
-                    </label>
-                    <label className="text-xs font-semibold text-[var(--text-secondary)]">
-                      Grado
-                      <input list="buyer-grades" value={line.grade}
-                        onChange={(event) => updateLine(line.id, { grade: event.target.value })}
-                        placeholder="S355J2H"
-                        className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)]" />
-                    </label>
-                    <label className="text-xs font-semibold text-[var(--text-secondary)]">
-                      Finitura
-                      <input list="buyer-finishes" value={line.finish}
-                        onChange={(event) => updateLine(line.id, { finish: event.target.value })}
-                        placeholder="Nero / zincato"
-                        className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)]" />
-                    </label>
-                  </div>
-                </details>
-
-                <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-12">
-                  <label className="lg:col-span-2 text-xs font-semibold text-[#52615b]">
-                    Quantità *
-                    <input
-                      inputMode="decimal"
-                      id={"buyer-quantity-" + line.id}
-                      value={line.quantity}
-                      onChange={(event) =>
-                        updateLine(line.id, { quantity: event.target.value })
-                      }
-                      placeholder="100"
-                      className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm font-semibold text-[#1d2824] outline-none focus:border-[#438d7a]"
-                    />
-                  </label>
-                  <label className="lg:col-span-2 text-xs font-semibold text-[#52615b]">
-                    Unità
-                    <select
-                      value={line.quantityMode}
-                      onChange={(event) =>
-                        updateLine(line.id, {
-                          quantityMode: event.target.value as BuyerQuantityMode,
-                        })
-                      }
-                      className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
-                    >
-                      <option value="meters">Metri</option>
-                      <option value="bars">Barre / pezzi</option>
-                      <option value="tonnes">Tonnellate</option>
-                    </select>
-                  </label>
-                  {line.quantityMode === "bars" ? (
-                    <label className="lg:col-span-2 text-xs font-semibold text-[#52615b]">
-                      Lunghezza barra
-                      <input
-                        inputMode="decimal"
-                        value={line.barLengthM}
-                        onChange={(event) =>
-                          updateLine(line.id, { barLengthM: event.target.value })
-                        }
-                        placeholder="6"
-                        className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
-                      />
-                    </label>
-                  ) : null}
-                  <label className="lg:col-span-2 text-xs font-semibold text-[#173f35]">
-                    Target €/t (facoltativo)
-                    <input
-                      inputMode="decimal"
-                      value={line.targetEurT}
-                      onChange={(event) =>
-                        updateLine(line.id, { targetEurT: event.target.value })
-                      }
-                      placeholder="Opzionale · es. 750"
-                      className="mt-1.5 h-11 w-full rounded-xl border border-[#9ebfb3] bg-[#f6fbf9] px-3 text-sm font-bold text-[#173f35] outline-none focus:border-[#438d7a]"
-                    />
-                  </label>
-
-                  <div className="lg:col-span-2">
-                    <p className="text-xs font-semibold text-[#173f35]">Target €/m</p>
-                    <div className="mt-1.5 flex h-11 items-center rounded-xl border border-[#cfe0da] bg-[#edf5f2] px-3 text-sm font-bold tabular-nums text-[#173f35]">
-                      {formatNumber(calc.targetEurM, 4)}
-                    </div>
-                  </div>
-                  <div className="lg:col-span-2">
-                    <p className="text-xs font-semibold text-[#66736e]">Tonnellate</p>
-                    <div className="mt-1.5 flex h-11 items-center rounded-xl border border-[#e0e5e3] bg-white px-3 text-sm font-semibold tabular-nums text-[#43524c]">
-                      {formatNumber(calc.tonnes, 3)}
-                    </div>
-                  </div>
-                  <label className="lg:col-span-2 text-xs font-semibold text-[#52615b]">
-                    Note
-                    <input
-                      value={line.note}
-                      onChange={(event) =>
-                        updateLine(line.id, { note: event.target.value })
-                      }
-                      placeholder="Tolleranze, consegna…"
-                      className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
-                    />
-                  </label>
-                </div>
-
-                  </>
-                )}
 
                 {!calc.complete && rowStage === "pending" ? (
                   <p className="bd5-row-hint mt-3 text-xs leading-5">
