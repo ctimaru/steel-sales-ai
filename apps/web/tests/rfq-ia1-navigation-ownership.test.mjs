@@ -63,7 +63,7 @@ test("RFQ-IA1 canonical routes reuse the existing private engine and leave legac
   assert.match(routeSource, /rfqHub: \{/);
   assert.match(routeSource, /home: "\/rfq-hub"/);
   assert.match(routeSource, /rfqHub: "\/marketplace\/rfq-hub"/);
-  assert.match(rfqHub, /appRoutes\.rfqHub\.campaign\(row\.id\)/);
+  assert.match(rfqHub, /appRoutes\.rfqHub\.campaign\(campaign\.id\)/);
   assert.match(rfqDetail, /href=\{appRoutes\.rfqHub\.home\}/);
   assert.match(buyer, /router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)\)/);
 });
@@ -104,5 +104,5 @@ test("RFQ-IA1 keeps the public SEO tool separate and explicitly links authentica
   assert.match(publicDistinta, /La bozza può essere ripresa nel Workspace/);
   assert.match(market, /href=\{appRoutes\.rfqHub\.home\}/);
   assert.match(market, /Le campagne RFQ riservate e i confronti tra fornitori/);
-  assert.match(rfqHub, /Il Marketplace viene coinvolto solo se scegli di pubblicare/);
+  assert.match(rfqHub, /Marketplace resta un canale opzionale di pubblicazione/);
 });

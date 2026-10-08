@@ -93,7 +93,7 @@ test("RFQH10 workspace has attention/waiting filters and deterministic priority 
 });
 
 test("RFQH10 actions navigate back to the governed RFQ workflow", () => {
-  assert.match(page, /appRoutes\.marketplace\.rfqCampaign\(item\.rfq_id\)/);
+  assert.match(page, /appRoutes\.rfqHub\.campaign\(item\.rfq_id\)/);
   assert.match(page, /item\.action_label/);
   assert.doesNotMatch(page, /confirmRfqAward|issuePurchaseOrder|sendNegotiation|launchCampaign/);
 });
@@ -104,5 +104,5 @@ test("RFQH10 keeps legacy routes and is now owned by private RFQ Hub", () => {
   assert.match(ia, /appRoutes\.marketplace\.procurementInbox/);
   assert.match(shell, /label: "Inbox acquisti"/);
   assert.match(ia, /"rfq:inbox"/);
-  assert.match(hub, /Apri Inbox acquisti/);
+  assert.match(hub, /Apri Inbox/);
 });
