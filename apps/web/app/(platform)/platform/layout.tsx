@@ -6,6 +6,8 @@ import {
   type PlatformStaffRoleKey,
 } from "@/lib/platform-access-contract";
 import { requirePlatformConsoleContext } from "@/lib/platform-admin";
+import { createClient } from "@/lib/supabase/server";
+import { parsePlatformNotificationSnapshot, type PlatformNotificationSnapshot } from "@/lib/platform-notifications";
 
 function authorityLabel(
   isPlatformOwner: boolean,
@@ -32,6 +34,16 @@ export default async function PlatformLayout({
   children: ReactNode;
 }) {
   const context = await requirePlatformConsoleContext();
+  let notificationSnapshot: PlatformNotificationSnapshot | null = null;
+  try {
+    const client = await createClient();
+    const { data,error } = await client.rpc("nc32_platform_notifications_read", {
+      p_filter:"all", p_limit:5, p_offset:0,
+    });
+    notificationSnapshot = error ? null : parsePlatformNotificationSnapshot(data);
+  } catch {
+    notificationSnapshot = null;
+  }
 
   return (
     <PlatformShell
@@ -42,6 +54,7 @@ export default async function PlatformLayout({
       )}
       permissions={context.permissions}
       isPlatformOwner={context.is_platform_owner}
+      notificationSnapshot={notificationSnapshot}
     >
       {children}
     </PlatformShell>
