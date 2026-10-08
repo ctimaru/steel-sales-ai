@@ -57,7 +57,7 @@ function GuidedDimensionInput({
             onChange(suggestions[Math.min(activeSuggestion, suggestions.length - 1)]);
             setFocused(false);
           }
-        }
+        }}
         placeholder="Inizia a scrivere…"
         className="bd6-input"
       />
