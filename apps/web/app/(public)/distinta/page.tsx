@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
 import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
+import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
+import { listBuyerDistintaPublicDimensions } from "@/lib/public-knowledge";
 import { absoluteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 
@@ -21,8 +23,12 @@ export const metadata: Metadata = {
 };
 
 export default async function BuyerDistintaPage() {
-  const supabase = await createClient();
+  const [supabase, publishedDimensions] = await Promise.all([
+    createClient(),
+    listBuyerDistintaPublicDimensions(),
+  ]);
   const { data } = await supabase.auth.getUser();
+  const catalogOptions = buildBuyerDistintaCatalogOptions(publishedDimensions);
   const authenticated = Boolean(data.user);
   const emailConfigured = Boolean(process.env.RESEND_API_KEY);
 
@@ -36,7 +42,7 @@ export default async function BuyerDistintaPage() {
           Prepara la richiesta da inviare ai tuoi fornitori.
         </h1>
         <p className="mt-4 max-w-3xl text-sm leading-7 text-[#d8e5e0] sm:text-base">
-          Inserisci materiale, quantità, peso kg/m e il tuo Target €/t. Ottieni automaticamente il
+          Scegli forma, misura e spessore dal catalogo Knowledge oppure inserisci un articolo libero. Ottieni automaticamente il
           rispettivo Target €/m e copia una distinta pulita direttamente nella tua email. Nessun
           riferimento a listini produttore: è uno strumento indipendente pensato per buyer.
         </p>
@@ -58,6 +64,7 @@ export default async function BuyerDistintaPage() {
         <BuyerDistintaBuilder
           authenticated={authenticated}
           emailConfigured={emailConfigured}
+          catalogOptions={catalogOptions}
         />
       </div>
 
