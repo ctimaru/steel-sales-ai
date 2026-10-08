@@ -335,7 +335,10 @@ export async function getPlatformAnalyticsSnapshot(
       inconsistentVisitors ||
       inconsistentEvents ||
       inconsistentEventVisitors ||
-      (hasData && (pageviews === null || visitors === null || eventTotal === null || eventVisitors === null));
+      pageviews === null ||
+      visitors === null ||
+      eventTotal === null ||
+      eventVisitors === null;
 
     return {
       configured: true,
