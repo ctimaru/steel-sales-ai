@@ -128,7 +128,7 @@ on conflict do nothing;
 -- Approval must be backed by reviewer identities and an explicit rationale.
 create function steel_pulse_private.sp2_audit_source_rights()
 returns trigger language plpgsql security definer set search_path=''
-as $
+as $$
 begin
   if to_jsonb(new) - 'updated_at' is distinct from to_jsonb(old) - 'updated_at' then
     insert into steel_pulse_private.source_rights_ledger(
@@ -142,7 +142,7 @@ begin
   end if;
   return new;
 end;
-$;
+$$;
 create trigger sp2_source_rights_change_audit
 after update on steel_pulse_private.sources
 for each row execute function steel_pulse_private.sp2_audit_source_rights();
