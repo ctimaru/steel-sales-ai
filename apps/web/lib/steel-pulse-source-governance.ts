@@ -71,7 +71,7 @@ export const STEEL_PULSE_SOURCES: readonly SteelPulseSource[] = [
     approvalEvidenceUrl: null,
     approvedAt: null,
     approvalExpiresAt: null,
-    notes: "General commercial reuse with attribution; assess specific dataset, third-party exceptions, and API terms before approval.",
+    notes: "General commercial reuse with attribution, but important exceptions include third-party works, certain non-EU country data, and specific trade datasets; assess per dataset and API terms.",
   },
   {
     id: "oecd",
