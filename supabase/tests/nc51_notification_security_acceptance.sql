@@ -53,7 +53,7 @@ insert into public.platform_notification_recipients(id,event_id,required_permiss
 
 -- Browser grants, source/outbox privacy and protected replication publication.
 select pg_temp.nc51_assert(
- not has_function_privilege('authenticated','public.nc22_route_notification(text,text,text,text,integer,uuid)','EXECUTE')
+ not has_function_privilege('authenticated','public.nc22_route_notification(text,text,integer,uuid)','EXECUTE')
  and not has_function_privilege('authenticated','public.nc23_process_source_bridge_batch(integer)','EXECUTE'),
  'browser cannot use service notification producer');
 select pg_temp.nc51_assert(
