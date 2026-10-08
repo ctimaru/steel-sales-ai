@@ -1407,3 +1407,7 @@ textarea {
 @media(min-width:960px){.bd6-wizard-sections{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:700px){.bd6-wizard-sections{grid-template-columns:minmax(0,1fr);gap:.5rem;padding:.55rem}.bd6-dimensions{grid-column:1}.bd6-dimension-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.bd6-documents{grid-template-columns:1fr}.bd6-config-head{padding:.75rem}.bd6-step-indicator{display:none}.bd6-wizard-result{padding:.8rem}.bd6-add-button{width:100%}}
 @media(prefers-reduced-motion:reduce){.bd6-choice,.bd6-suggestion{transition:none}}
+
+/* BD6 docs are a single full-width final step, never squeezed into a third column. */
+.bd6-wizard-section:last-child{grid-column:1/-1}
+@media(max-width:700px){.bd6-wizard-section:last-child{grid-column:1}}
