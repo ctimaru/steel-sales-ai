@@ -555,7 +555,7 @@ export function BuyerDistintaBuilder({
             {copyState === "copied"
               ? "Copiata ✓"
               : copyState === "error"
-                ? "Completa almeno una riga"
+                ? "Completa tutte le righe"
                 : "Copia distinta"}
           </button>
         </div>
