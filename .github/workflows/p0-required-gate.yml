@@ -291,7 +291,8 @@ jobs:
             pl1_7_discount_profiles_private_pricing.sql \
             pl1_11_save_history_export.sql \
             pp1_padana_publication_readiness.sql \
-            rfqh13_production_hardening_pilot.sql; do
+            rfqh13_production_hardening_pilot.sql \
+            nc12_operational_alert_authorization_audit.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done

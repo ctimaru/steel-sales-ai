@@ -36,7 +36,7 @@ async function authenticatedContext() {
 
   const { data: memberships, error: membershipError } = await client
     .from("organization_memberships")
-    .select("organization_id,is_default,status")
+    .select("organization_id,role,is_default,status")
     .eq("user_id", user.id)
     .eq("status", "active");
 
@@ -49,11 +49,16 @@ async function authenticatedContext() {
     return { client: null, organizationId: null, error: "Nessuna organizzazione attiva." };
   }
 
+  if (membership.role !== "admin") {
+    return { client: null, organizationId: null, error: "Solo gli amministratori aziendali possono gestire gli alert." };
+  }
+
   return { client, organizationId: membership.organization_id as string, error: null };
 }
 
 function revalidateAlertSurfaces() {
   revalidatePath("/alerts");
+  revalidatePath("/operations/alerts");
   revalidatePath("/dashboard");
 }
 
