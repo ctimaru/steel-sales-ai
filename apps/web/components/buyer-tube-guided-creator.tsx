@@ -4,7 +4,6 @@ import { useId, useState } from "react";
 
 import type { BuyerDistintaCatalogOption } from "@/lib/buyer-distinta-catalog";
 import {
-  guidedDocumentsNote,
   guidedTubeGrades,
   guidedTubeMeasurement,
   newGuidedTubeDraft,
@@ -125,8 +124,7 @@ export function BuyerTubeGuidedCreator({
             1. Componi il tuo tubo
           </h3>
           <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
-            Segui la sequenza: tipologia, norma, grado, dimensioni e documentazione.
-            Il peso teorico dipende dalla norma selezionata, come nel calcolatore.
+            Scegli tipologia, norma e grado, poi digita le dimensioni: il peso teorico segue il metodo del calcolatore.
           </p>
         </div>
         <span className="bd6-step-indicator">Articolo assistito</span>
@@ -194,8 +192,7 @@ export function BuyerTubeGuidedCreator({
         <fieldset className="bd6-wizard-section bd6-dimensions" disabled={!draft.grade.trim()}>
           <legend className="bd6-wizard-label"><span>04</span> Dimensioni assistite</legend>
           <p className="mb-2 text-xs text-[var(--text-secondary)]">
-            Digita anche solo <strong>1</strong>: i suggerimenti arrivano dalle misure pubblicate in Knowledge.
-            Puoi sempre inserire una misura diversa, da verificare con il fornitore.
+            Scrivi una cifra per vedere subito le misure proposte; puoi anche inserire una misura diversa.
           </p>
           <div className="bd6-dimension-grid">
             {draft.family === "round_tube" ? dimension("Diametro esterno", "diameter") : null}
@@ -215,41 +212,6 @@ export function BuyerTubeGuidedCreator({
           ) : null}
         </fieldset>
 
-        <fieldset className="bd6-wizard-section" disabled={!measurement}>
-          <legend className="bd6-wizard-label"><span>05</span> Documentazione richiesta</legend>
-          <div className="bd6-documents">
-            <label className="bd6-dimension-field">
-              <span>Certificato di controllo EN 10204</span>
-              <select
-                value={draft.inspectionDocument}
-                onChange={(event) => patch({ inspectionDocument: event.target.value })}
-                disabled={!measurement}
-                className="bd6-input"
-              >
-                <option value="">Non specificato</option>
-                <option value="2.1">2.1 · Dichiarazione conformità</option>
-                <option value="2.2">2.2 · Rapporto di prova</option>
-                <option value="3.1">3.1 · Certificato materiale</option>
-                <option value="3.2">3.2 · Con ispezione indipendente</option>
-              </select>
-            </label>
-            <label className="bd6-check">
-              <input type="checkbox" checked={draft.ceDop}
-                disabled={!measurement}
-                onChange={(event) => patch({ ceDop: event.target.checked })} />
-              Marcatura CE + DoP, se applicabili
-            </label>
-            <label className="bd6-check">
-              <input type="checkbox" checked={draft.iso9001}
-                disabled={!measurement}
-                onChange={(event) => patch({ iso9001: event.target.checked })} />
-              Produttore certificato UNI EN ISO 9001
-            </label>
-          </div>
-          <p className="mt-2 text-xs text-[var(--text-secondary)]">
-            CE/DoP, certificati EN 10204 e ISO 9001 hanno scopi diversi; sono richieste al fornitore, non certificazioni emesse da Smart Steel Sales.
-          </p>
-        </fieldset>
       </div>
 
       <div className="bd6-wizard-result">
@@ -259,9 +221,8 @@ export function BuyerTubeGuidedCreator({
             {measurement ? `${measurement.description} · ${draft.standard} · ${draft.grade}` : "Seleziona i campi in sequenza"}
           </p>
           <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
-            {measurement ? `Peso teorico ${measurement.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 })} kg/m · ${draft.standard}` : "Le dimensioni e il peso saranno calcolati appena completata la selezione."}
+            {measurement ? `Peso teorico ${measurement.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 })} kg/m · ${draft.standard}` : "Seleziona forma, norma, grado e dimensioni."}
           </p>
-          {guidedDocumentsNote(draft) ? <p className="mt-1 text-xs text-[var(--text-secondary)]">{guidedDocumentsNote(draft)}</p> : null}
         </div>
         <button
           type="button"
