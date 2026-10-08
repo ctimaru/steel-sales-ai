@@ -172,7 +172,7 @@ export default async function BuyerRfqHubPage() {
           </section>
 
           <section id="distinte" className="scroll-mt-28 rounded-xl border border-[var(--border)] bg-white p-4">
-            <BlockHeading title="Distinte salvate" href={appRoutes.rfqHub.createDistinta} action={canWrite ? "Nuova distinta" : "Strumento"} />
+            <BlockHeading title="Distinte salvate" href={appRoutes.rfqHub.savedDistinte} action="Archivio completo" />
             {saved.error ? (
               <p className="py-4 text-sm text-[var(--text-secondary)]">Archivio distinte non disponibile.</p>
             ) : recentSaved.length === 0 ? (
