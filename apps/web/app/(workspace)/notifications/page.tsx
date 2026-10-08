@@ -133,7 +133,7 @@ export default async function WorkspaceNotificationsPage({
           <p className="mt-2 text-sm leading-6 text-[#66736e]">
             Non è stato possibile recuperare un elenco attendibile. Questo non significa che non ci siano messaggi.
           </p>
-          <Link href={filterHref(filter,page)} className="mt-4 inline-flex rounded-lg bg-[#173f35] px-4 py-2.5 text-sm font-semibold text-white">
+          <Link href={filterHref(filter,page)} className="notification-primary-action mt-4 inline-flex rounded-lg px-4 py-2.5 text-sm font-semibold">
             Riprova
           </Link>
         </section>
@@ -156,7 +156,7 @@ export default async function WorkspaceNotificationsPage({
                 aria-current={filter === item.id ? "page" : undefined}
                 className={`inline-flex min-h-10 items-center rounded-xl border px-4 py-2 text-xs font-semibold transition sm:text-sm ${
                   filter === item.id
-                    ? "border-[#173f35] bg-[#173f35] text-white"
+                    ? "notification-filter-active"
                     : "border-[#dce5e2] bg-white text-[#456056] hover:bg-[#edf5f2]"
                 }`}>
                 {item.label}
@@ -198,7 +198,7 @@ export default async function WorkspaceNotificationsPage({
                       <p className="mt-1 text-sm leading-6 text-[#66736e]">{item.description}</p>
                       <div className="mt-4 flex flex-wrap items-center gap-2">
                         <Link href={item.href}
-                          className="inline-flex min-h-9 items-center rounded-lg bg-[#173f35] px-4 py-2 text-xs font-semibold text-white hover:bg-[#275e50]">
+                          className="notification-primary-action inline-flex min-h-9 items-center rounded-lg px-4 py-2 text-xs font-semibold">
                           Apri attività
                         </Link>
                         <NotificationActions item={item} filter={filter} page={page} />

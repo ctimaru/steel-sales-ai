@@ -63,7 +63,7 @@ test("UXA2 keeps daily search and alerts in the top header", () => {
 });
 
 test("UXA2 keeps the avatar drawer focused while Platform becomes a persistent context switch", () => {
-  assert.match(nav, /fixed inset-y-0 left-0/);
+  assert.match(nav, /lg:absolute lg:inset-x-auto lg:right-0/);
   assert.doesNotMatch(nav, /label="Importa documenti"/);
   assert.doesNotMatch(nav, /label="Revisioni dati"/);
   assert.match(nav, /Azienda/);

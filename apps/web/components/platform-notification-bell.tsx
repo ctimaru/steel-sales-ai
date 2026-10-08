@@ -132,7 +132,7 @@ export function PlatformNotificationBell({
             )}
             <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#e2e9e5] bg-[#f8faf9] p-3">
               <Link href={appRoutes.platform.notifications} onClick={() => setOpen(false)}
-                className="rounded-lg bg-[#173f35] px-4 py-2 text-xs font-semibold text-white hover:bg-[#245b4c]">
+                className="notification-primary-action rounded-lg px-4 py-2 text-xs font-semibold">
                 Apri Centro notifiche
               </Link>
               <Link href={appRoutes.platform.registrations} onClick={() => setOpen(false)}
