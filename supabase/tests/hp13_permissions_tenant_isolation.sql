@@ -86,8 +86,8 @@ select pg_temp.hp13_assert(
     where n.nspname='public'
       and p.prosecdef
       and has_function_privilege('anon',p.oid,'EXECUTE')
-  )=10,
-  'anonymous SECURITY DEFINER surface must remain exactly the reviewed 10 RPCs'
+  )=11,
+  'anonymous SECURITY DEFINER surface must remain exactly the reviewed 11 RPCs'
 );
 
 select pg_temp.hp13_assert(
@@ -108,7 +108,9 @@ select pg_temp.hp13_assert(
         'k6_public_tube_dimension_pages',
         'k7_public_tube_family_hubs',
         'k7_public_tube_size_hub',
-        'k7_public_tube_size_hubs'
+        'k7_public_tube_size_hubs',
+        -- SP4: rights-current, default-off, read-only public Steel Pulse cards.
+        'sp4_public_steel_pulse_feed'
       )
   ),
   'no unreviewed anonymous SECURITY DEFINER function may be exposed'
