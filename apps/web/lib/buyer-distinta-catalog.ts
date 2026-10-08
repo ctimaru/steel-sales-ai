@@ -68,3 +68,34 @@ export function buildBuyerDistintaCatalogOptions(
     a.thicknessMm - b.thicknessMm
   );
 }
+
+/** Accent, decimal comma, multiplication sign and spacing tolerant dimension search. */
+function normalizeBuyerDimensionQuery(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("it")
+    .replace(/(\d),(\d)/g, "$1.$2")
+    .replace(/[×*]/g, "x")
+    .replace(/\s*x\s*/g, "x")
+    .replace(/[^a-z0-9.]+/g, " ")
+    .trim();
+}
+
+export function searchBuyerDistintaCatalog(
+  options: BuyerDistintaCatalogOption[],
+  query: string,
+  limit = 8,
+): BuyerDistintaCatalogOption[] {
+  const normalized = normalizeBuyerDimensionQuery(query);
+  if (!normalized) return [];
+  const terms = normalized.split(/\s+/).filter(Boolean);
+  const maxResults = Math.max(1, Math.min(20, Math.floor(limit) || 8));
+  return options.filter((item) => {
+    const haystack = normalizeBuyerDimensionQuery(
+      [item.description, buyerTubeFamilyLabels[item.family], item.sizeLabel,
+        item.thicknessMm.toLocaleString("it-IT"), "mm"].join(" "),
+    );
+    return terms.every((term) => haystack.includes(term));
+  }).slice(0, maxResults);
+}
