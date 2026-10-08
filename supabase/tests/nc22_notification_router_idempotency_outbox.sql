@@ -80,11 +80,11 @@ insert into public.worker_jobs(
 
 insert into public.company_registration_applications(
  id,applicant_email_snapshot,legal_name,country_code,primary_company_type,
- contact_name,application_status,applicant_user_id
+ contact_name,application_status,applicant_user_id,submitted_at,email_verified_at
 ) values (
  '00000000-0000-0000-0000-000000002224','nc22-applicant@example.test',
- 'NC22 Test Steel Italia','IT','commerciante','NC22 Applicant','pending_review',
- '00000000-0000-0000-0000-000000002203'
+ 'NC22 Test Steel Italia','IT','trader_distributor','NC22 Applicant','pending_review',
+ '00000000-0000-0000-0000-000000002203',now(),now()
 );
 insert into public.platform_registration_events(
  id,application_id,event_type,actor_user_id,actor_type,from_status,to_status
