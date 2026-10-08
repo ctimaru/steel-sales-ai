@@ -86,8 +86,8 @@ export default async function MarketplaceFeedPage({
         title="Compra o vendi, in un unico spazio"
         description={
           <>
-            Usa il Marketplace per cercare fornitori, gestire RFQ multi-fornitore oppure intercettare
-            richieste compatibili con ciò che la tua azienda vende.
+            Trova opportunità di acquisto e vendita e scopri le richieste pubblicate dalla rete.
+            Le campagne RFQ riservate e i confronti tra fornitori sono gestiti nel tuo RFQ Hub.
             <span className="mt-2 block text-xs font-semibold text-[#5d6a65]">
               {feed.total} opportunità aperte · {closingSoon} in scadenza entro 24h nella pagina
             </span>
@@ -124,7 +124,7 @@ export default async function MarketplaceFeedPage({
           <div className="mt-5 flex flex-wrap gap-2">
             {canWrite ? (
               <Link
-                href={appRoutes.marketplace.rfqHub}
+                href={appRoutes.rfqHub.home}
                 className="app-primary inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-semibold"
               >
                 Apri RFQ Hub
