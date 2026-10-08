@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NotificationRefreshButton } from "@/components/notification-refresh-button";
 
 import { setPlatformNotificationState } from "@/app/(platform)/platform/notifications/actions";
 import { NotificationFormButton } from "@/app/(workspace)/notifications/notification-form-button";
@@ -86,12 +87,10 @@ export default async function PlatformNotificationsPage({
             Aggiornamenti di registrazioni, claim e incidenti destinati al tuo ruolo amministrativo.
             Nessun dato della Commercial Memory delle aziende è disponibile in questa inbox.
           </p>
-        </div>
+
+          <p className="mt-1 max-w-2xl text-xs text-[#70817a]">La campanella verifica automaticamente le novità; se la connessione è interrotta, usa Aggiorna.</p>        </div>
         <div className="flex flex-wrap gap-2">
-          <Link href={filterHref(filter,page)}
-            className="inline-flex min-h-10 items-center rounded-xl border border-[#d2dfd8] bg-white px-4 text-sm font-semibold text-[#365749] hover:bg-[#edf5f2]">
-            Aggiorna
-          </Link>
+          <NotificationRefreshButton />
           <Link href={appRoutes.platform.home}
             className="inline-flex min-h-10 items-center rounded-xl border border-[#d2dfd8] bg-white px-4 text-sm font-semibold text-[#365749] hover:bg-[#edf5f2]">
             Console Platform

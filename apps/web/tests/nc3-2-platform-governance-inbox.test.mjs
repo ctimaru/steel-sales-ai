@@ -19,7 +19,7 @@ test("NC3.2: Platform bell has personal fail-closed preview and remains separate
  assert.match(layout,/notificationSnapshot = error \? null/);
  assert.match(shell,/PlatformNotificationBell/);
  assert.match(bell,/Notifiche Platform: verifica non disponibile/);
- assert.match(bell,/router\.refresh/);
+ assert.match(bell,/onClick=\{refresh\}/);
  assert.match(bell,/aria-modal="true"/);
  assert.match(bell,/Escape/);
  assert.match(bell,/appRoutes\.platform\.notifications/);

@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useNotificationFreshness } from "@/lib/use-notification-freshness";
 
 import { appRoutes } from "@/lib/routes";
 import {
@@ -21,18 +22,23 @@ function BellIcon() {
 }
 
 export function PlatformNotificationBell({
-  snapshot,
+  snapshot: initialSnapshot,
   platformReady,
+  initialVerifiedAt,
 }: {
   snapshot: PlatformNotificationSnapshot | null;
   platformReady: boolean;
+  initialVerifiedAt: string | null;
 }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
+  const {snapshot,connection,verifiedAt,stale,isRefreshing,refresh} = useNotificationFreshness<PlatformNotificationSnapshot>({
+    scope:"platform",organizationId:null,enabled:platformReady,
+    initialSnapshot,initialVerifiedAt,
+  });
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLElement>(null);
-  const unavailable = !snapshot && platformReady;
+  const unavailable = platformReady && stale;
   const unread = snapshot?.unreadCount ?? 0;
 
   useEffect(() => { setOpen(false); }, [pathname]);
@@ -104,7 +110,7 @@ export function PlatformNotificationBell({
                 <h2 className="text-base font-bold text-[#1d2824]">Governance</h2>
                 <p className="text-xs text-[#66736e]">
                   {unavailable ? "Impossibile verificare lo stato"
-                    : platformReady ? "Richiede una sessione Platform"
+                    : !platformReady ? "Richiede una sessione Platform"
                       : unread > 0 ? `${unread} da leggere · Governance Platform`
                         : "Nessuna da leggere · Governance Platform"}
                 </p>
@@ -114,10 +120,19 @@ export function PlatformNotificationBell({
                 className="flex h-9 w-9 items-center justify-center rounded-full text-xl text-[#5c6e66] hover:bg-[#edf5f2]">×</button>
             </div>
 
+            <div className="border-b border-[#e2e9e5] px-4 py-2 text-xs text-[#66736e]" aria-live="polite">
+              {verifiedAt && !unavailable
+                ? `Dati verificati alle ${formatNotificationTime(verifiedAt)} · ${connection === "live" ? "Realtime attivo" : connection === "paused" ? "Aggiornamento sospeso" : "Aggiornamento periodico"}`
+                : connection === "paused" ? "Aggiornamento sospeso" : "Dati da verificare"}
+              <button type="button" onClick={refresh} disabled={isRefreshing}
+                className="ml-2 font-semibold text-[#173f35] underline disabled:opacity-50">
+                {isRefreshing ? "Verifica…" : "Aggiorna"}
+              </button>
+            </div>
             {unavailable ? (
               <div role="alert" className="p-5 text-sm text-[#815e24]">
                 Non è stato possibile caricare un dato attendibile. Questo non significa che non ci siano notifiche.
-                <button type="button" className="mt-3 block font-semibold underline" onClick={() => router.refresh()}>
+                <button type="button" className="mt-3 block font-semibold underline" onClick={refresh}>
                   Riprova
                 </button>
               </div>
@@ -139,7 +154,7 @@ export function PlatformNotificationBell({
               </ul>
             ) : (
               <p className="p-5 text-sm leading-6 text-[#66736e]">
-                {platformReady ? "Il Centro Notifiche richiede una sessione Platform."
+                {!platformReady ? "Il Centro Notifiche richiede una sessione Platform."
                   : "Nessuna notifica al momento. Puoi consultare separatamente il registro amministrativo."}
               </p>
             )}

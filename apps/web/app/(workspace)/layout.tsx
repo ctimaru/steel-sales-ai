@@ -23,6 +23,8 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
   let organizationName = "Demo Company";
   let organizationRole = "admin";
   let notificationSnapshot: WorkspaceNotificationSnapshot | null = null;
+  let notificationVerifiedAt: string | null = null;
+  let organizationId: string | null = null;
   let platformConsoleAccess = false;
   let guidedSetupComplete = true;
   const networkEnabled = isNetworkFrontendEnabled();
@@ -33,6 +35,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
       getWorkspaceContext(),
       createClient(),
     ]);
+    organizationId = context.organizationId;
     viewerLabel = context.viewerLabel;
     organizationName = context.organizationName;
     organizationRole = context.role;
@@ -53,8 +56,10 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
         p_offset: 0,
       });
       notificationSnapshot = error ? null : parseWorkspaceNotificationSnapshot(data);
+      notificationVerifiedAt = notificationSnapshot ? new Date().toISOString() : null;
     } catch {
       notificationSnapshot = null;
+      notificationVerifiedAt = null;
     }
   }
 
@@ -65,6 +70,8 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
       organizationRole={organizationRole}
       demoMode={!configured}
       notificationSnapshot={notificationSnapshot}
+      notificationVerifiedAt={notificationVerifiedAt}
+      organizationId={organizationId}
       platformConsoleAccess={platformConsoleAccess}
       guidedSetupComplete={guidedSetupComplete}
       networkEnabled={networkEnabled}
