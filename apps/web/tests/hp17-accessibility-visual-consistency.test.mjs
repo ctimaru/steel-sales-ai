@@ -84,12 +84,11 @@ test("HP17 honors reduced motion and lifts known low-contrast legacy text tokens
   }
 });
 
-test("HP17 profile drawer behaves as a keyboard modal and restores trigger focus", () => {
+test("HP17 profile menu is dismissible without blocking the page", () => {
   assert.match(workspaceNavigation, /role="dialog"/);
-  assert.match(workspaceNavigation, /aria-modal="true"/);
+  assert.match(workspaceNavigation, /aria-modal="false"/);
   assert.match(workspaceNavigation, /aria-label="Menu profilo"/);
-  assert.match(workspaceNavigation, /event\.key === "Escape"/);
-  assert.match(workspaceNavigation, /event\.key !== "Tab"/);
+  assert.match(workspaceNavigation, /event\.key !== "Escape"/);
   assert.match(workspaceNavigation, /triggerRef\.current\?\.focus\(\)/);
   assert.match(workspaceNavigation, /autoFocus/);
 });
