@@ -1,6 +1,7 @@
 export const appRoutes = {
   home: "/dashboard",
   notifications: "/notifications",
+  steelPulse: "/pulse",
   publicHome: "/",
 
   commercial: {

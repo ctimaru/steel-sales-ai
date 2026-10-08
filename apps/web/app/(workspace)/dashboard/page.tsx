@@ -158,6 +158,18 @@ export default async function DashboardPage() {
         }
       />
 
+      <section aria-label="Steel Pulse" className="rounded-2xl border border-[#d9e7df] bg-[#f3f8f5] px-4 py-3 sm:px-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#24634f]">Steel Pulse · Il tuo settore</p>
+            <p className="mt-1 text-sm text-[#52615b]">Segui gli argomenti che contano per te, anche quando non hai una trattativa da gestire.</p>
+          </div>
+          <Link href={appRoutes.steelPulse} className="app-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-xs font-semibold">
+            Personalizza il feed →
+          </Link>
+        </div>
+      </section>
+
       {setupIncomplete && setup && nextSetupAction ? (
         <section className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-5 sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
