@@ -62,14 +62,14 @@ export default async function BuyerDistintaPage() {
               Questa è la distinta pubblica. La gestione aziendale si trova in RFQ Hub.
             </p>
             <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
-              Prima di uscire, salva o copia la distinta: i campi non compilati sul server non sono ancora ripristinabili.
+              La bozza può essere ripresa nel Workspace dalla stessa scheda: il recupero è temporaneo e richiede conferma. Salva per conservarla nel tuo account.
             </p>
           </div>
           <Link
-            href={appRoutes.rfqHub.home}
+            href={appRoutes.rfqHub.createDistinta}
             className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-[var(--brand-primary)] bg-white px-3 text-sm font-bold text-[var(--brand-deep)] hover:bg-[var(--surface-subtle)]"
           >
-            Apri RFQ Hub →
+            Continua nel RFQ Hub →
           </Link>
         </aside>
       ) : null}
@@ -79,6 +79,7 @@ export default async function BuyerDistintaPage() {
           authenticated={authenticated}
           emailConfigured={emailConfigured}
           catalogOptions={catalogOptions}
+          userId={data.user?.id ?? null}
         />
       </div>
 

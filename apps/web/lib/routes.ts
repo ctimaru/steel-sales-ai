@@ -35,7 +35,7 @@ export const appRoutes = {
     inbox: "/rfq-hub/inbox",
     suppliers: "/rfq-hub/suppliers",
     intelligence: "/rfq-hub/intelligence",
-    createDistinta: "/distinta",
+    createDistinta: "/rfq-hub/distinta",
   },
 
   network: {

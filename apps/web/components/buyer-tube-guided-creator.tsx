@@ -88,14 +88,15 @@ function GuidedDimensionInput({
 }
 
 export function BuyerTubeGuidedCreator({
-  catalogOptions, onAdd, onDraftChange, canAdd,
+  catalogOptions, onAdd, onDraftChange, canAdd, initialDraft,
 }: {
   catalogOptions: BuyerDistintaCatalogOption[];
+  initialDraft?: GuidedTubeDraft | null;
   onAdd: (draft: GuidedTubeDraft) => void;
   onDraftChange: (draft: GuidedTubeDraft) => void;
   canAdd: boolean;
 }) {
-  const [draft, setDraft] = useState<GuidedTubeDraft>(newGuidedTubeDraft);
+  const [draft, setDraft] = useState<GuidedTubeDraft>(() => initialDraft ?? newGuidedTubeDraft());
   useEffect(() => { onDraftChange(draft); }, [draft, onDraftChange]);
   const measurement = guidedTubeMeasurement(draft);
   const chooseFamily = (family: GuidedTubeFamily) => {

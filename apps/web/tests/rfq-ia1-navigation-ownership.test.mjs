@@ -100,8 +100,8 @@ test("RFQ-IA1 keeps the public SEO tool separate and explicitly links authentica
   assert.match(publicDistinta, /export const metadata/);
   assert.match(publicDistinta, /canonical: absoluteUrl\("\/distinta"\)/);
   assert.match(publicDistinta, /\{authenticated \? \(/);
-  assert.match(publicDistinta, /href=\{appRoutes\.rfqHub\.home\}/);
-  assert.match(publicDistinta, /Prima di uscire, salva o copia/);
+  assert.match(publicDistinta, /href=\{appRoutes\.rfqHub\.createDistinta\}/);
+  assert.match(publicDistinta, /La bozza può essere ripresa nel Workspace/);
   assert.match(market, /href=\{appRoutes\.rfqHub\.home\}/);
   assert.match(market, /Le campagne RFQ riservate e i confronti tra fornitori/);
   assert.match(rfqHub, /Il Marketplace viene coinvolto solo se scegli di pubblicare/);
