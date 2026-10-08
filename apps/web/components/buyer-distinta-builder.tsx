@@ -84,6 +84,7 @@ export function BuyerDistintaBuilder({
   const [title, setTitle] = useState("Richiesta di offerta");
   const [documents, setDocuments] = useState<BuyerDistintaDocumentRequirements>(emptyBuyerDocumentRequirements);
   const [previewDraft, setPreviewDraft] = useState<GuidedTubeDraft | null>(null);
+  const [wizardRestoreSerial, setWizardRestoreSerial] = useState(0);
   const [quickQuery, setQuickQuery] = useState("");
   const [compactMode, setCompactMode] = useState(true);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
@@ -151,7 +152,7 @@ export function BuyerDistintaBuilder({
   function persistBrowserDraft() {
     try {
       const value = serializeBuyerSessionDraft({
-        title, lines, documents, guidedSpecsByLine, selectedCatalog,
+        title, lines, documents, guidedSpecsByLine, selectedCatalog, wizardDraft: previewDraft,
       });
       if (value) window.sessionStorage.setItem(draftKey, value);
       else window.sessionStorage.removeItem(draftKey);
@@ -166,7 +167,7 @@ export function BuyerDistintaBuilder({
     // Deliberately store only changes to the draft payload, not message, email
     // recipients or subject; none of these can be sent from browser storage.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draftReady, draftKey, title, lines, documents, guidedSpecsByLine, selectedCatalog]);
+  }, [draftReady, draftKey, title, lines, documents, guidedSpecsByLine, selectedCatalog, previewDraft]);
 
   function restoreBrowserDraft() {
     if (!restoreCandidate) return;
@@ -176,6 +177,8 @@ export function BuyerDistintaBuilder({
     setDocuments(recovered.documents);
     setGuidedSpecsByLine(recovered.guidedSpecsByLine);
     setSelectedCatalog(recovered.selectedCatalog);
+    setPreviewDraft(recovered.wizardDraft);
+    setWizardRestoreSerial((current) => current + 1);
     setEmailSubject(recovered.title);
     setSavedId(null);
     setSaveMessage(null);
@@ -604,6 +607,8 @@ export function BuyerDistintaBuilder({
         <div className="bd7-workbench">
           <div className="bd7-workbench-editor">
             <BuyerTubeGuidedCreator
+              key={wizardRestoreSerial}
+              initialDraft={previewDraft}
               catalogOptions={catalogOptions}
               onAdd={addGuidedTube}
               onDraftChange={setPreviewDraft}
