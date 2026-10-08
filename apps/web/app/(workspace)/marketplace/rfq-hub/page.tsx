@@ -32,21 +32,21 @@ export default async function BuyerRfqHubPage() {
           RFQ Hub
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
-          Richieste multi-fornitore.
+          Le tue richieste ai fornitori.
         </h1>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-[#d8e5e0]">
-          Una distinta salvata diventa una campagna privata: aggiungi più fornitori, mantieni separati i destinatari
-          e prepara il percorso verso invio, raccolta offerte e confronto.
+          Il tuo spazio privato per le RFQ: dalla distinta ai fornitori selezionati, alle offerte,
+          alla negoziazione e agli ordini. Il Marketplace viene coinvolto solo se scegli di pubblicare.
         </p>
         <div className="mt-5 flex flex-wrap gap-2">
           <Link
-            href={appRoutes.marketplace.procurementInbox}
+            href={appRoutes.rfqHub.inbox}
             className="inline-flex min-h-11 items-center rounded-xl bg-white px-5 text-sm font-bold text-[#173f35] hover:bg-[#f3f7f5]"
           >
             Apri Inbox acquisti
           </Link>
           <Link
-            href="/distinta"
+            href={appRoutes.rfqHub.createDistinta}
             className="inline-flex min-h-11 items-center rounded-xl border border-white/20 bg-white/[0.08] px-5 text-sm font-bold text-white hover:bg-white/[0.14]"
           >
             Crea nuova distinta
@@ -66,7 +66,7 @@ export default async function BuyerRfqHubPage() {
           {rows.map((row) => (
             <Link
               key={row.id}
-              href={appRoutes.marketplace.rfqCampaign(row.id)}
+              href={appRoutes.rfqHub.campaign(row.id)}
               className="rounded-2xl border border-[#dce2df] bg-white p-5 transition hover:border-[#9ebfb3] hover:shadow-sm"
             >
               <div className="flex items-start justify-between gap-3">
