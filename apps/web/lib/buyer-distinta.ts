@@ -47,7 +47,7 @@ export function calculateBuyerDistintaLine(
   const weightKgM = parsePositive(input.weightKgM);
   const targetEurT = parsePositive(input.targetEurT);
   // An absent target is valid; a supplied but invalid/nonpositive target is not.
-  const targetValid = input.targetEurT.trim() === "" || targetEurT !== null;
+  const targetValid = String(input.targetEurT ?? "").trim() === "" || targetEurT !== null;
   const targetEurM =
     weightKgM !== null && targetEurT !== null
       ? (targetEurT * weightKgM) / 1000
