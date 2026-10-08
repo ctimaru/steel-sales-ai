@@ -32,14 +32,12 @@ test("GA3 initializes denied consent before the external Google tag", () => {
   assert.match(layout, /ad_personalization: "denied"/);
 });
 
-test("GA3 configures GA only for the public acquisition paths", () => {
-  assert.match(layout, /path === "\/"/);
-  assert.match(layout, /path\.indexOf\("\/knowledge"\)/);
-  assert.match(layout, /path\.indexOf\("\/azienda"\)/);
-  assert.match(layout, /path\.indexOf\("\/register"\)/);
-  assert.match(layout, /path\.indexOf\("\/login"\)/);
+test("GA3 configures the tag globally but never autotracks private routes", () => {
+  assert.match(layout, /window.gtag\("config",/);
+  assert.doesNotMatch(layout, /if \(!shouldMeasure\) return/);
   assert.match(layout, /send_page_view: false/);
   assert.match(layout, /window\.__sssGaConfigured/);
+  assert.match(layout, /requestedGoogleAnalyticsId === "G-F5QWLD98HD"/);
 });
 
 test("GA3 keeps consent updates and explicit page views in the client layer", () => {
