@@ -17,6 +17,10 @@ import {
   type BuyerDistintaDraftLine,
   type BuyerQuantityMode,
 } from "@/lib/buyer-distinta";
+import {
+  buyerTubeFamilyLabels,
+  type BuyerDistintaCatalogOption,
+} from "@/lib/buyer-distinta-catalog";
 
 function blankLine(id: string): BuyerDistintaDraftLine {
   return {
@@ -45,12 +49,15 @@ function formatNumber(value: number | null, digits: number) {
 export function BuyerDistintaBuilder({
   authenticated,
   emailConfigured,
+  catalogOptions,
 }: {
   authenticated: boolean;
   emailConfigured: boolean;
+  catalogOptions: BuyerDistintaCatalogOption[];
 }) {
   const router = useRouter();
   const [title, setTitle] = useState("Richiesta di offerta");
+  const [selectedCatalog, setSelectedCatalog] = useState<Record<string, { family: string; sizeKey: string; optionId: string }>>({});
   const [lines, setLines] = useState<BuyerDistintaDraftLine[]>([
     blankLine("line-1"),
   ]);
@@ -88,6 +95,28 @@ export function BuyerDistintaBuilder({
     setLines((current) =>
       current.map((line) => (line.id === id ? { ...line, ...patch } : line)),
     );
+  }
+
+  function chooseFamily(id: string, family: string) {
+    setSelectedCatalog((current) => ({ ...current, [id]: { family, sizeKey: "", optionId: "" } }));
+    updateLine(id, { description: "", weightKgM: "" });
+  }
+
+  function chooseSize(id: string, family: string, sizeKey: string) {
+    setSelectedCatalog((current) => ({ ...current, [id]: { family, sizeKey, optionId: "" } }));
+    updateLine(id, { description: "", weightKgM: "" });
+  }
+
+  function chooseCatalogOption(id: string, family: string, sizeKey: string, optionId: string) {
+    const selected = catalogOptions.find((option) =>
+      option.id === optionId && option.family === family && option.sizeKey === sizeKey
+    );
+    if (!selected) return;
+    setSelectedCatalog((current) => ({ ...current, [id]: { family, sizeKey, optionId } }));
+    updateLine(id, {
+      description: selected.description,
+      weightKgM: selected.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 }),
+    });
   }
 
   function addLine() {
@@ -216,7 +245,7 @@ export function BuyerDistintaBuilder({
               Buyer tool
             </p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824]">
-              Costruisci la richiesta riga per riga
+              Crea la distinta in pochi passaggi
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#66736e]">
               Inserisci il materiale, la quantità, il peso kg/m e il tuo Target €/t.
@@ -237,9 +266,18 @@ export function BuyerDistintaBuilder({
           </label>
         </div>
 
+        <datalist id="buyer-standards"><option value="EN 10219" /><option value="EN 10210" /><option value="EN 10305" /></datalist>
+        <datalist id="buyer-grades"><option value="S235JRH" /><option value="S275J0H" /><option value="S355J2H" /></datalist>
+        <datalist id="buyer-finishes"><option value="Nero" /><option value="Zincato" /><option value="Decapato" /></datalist>
         <div className="mt-5 space-y-4">
           {lines.map((line, index) => {
             const calc = calculated[index];
+            const selection = selectedCatalog[line.id] ?? { family: "", sizeKey: "", optionId: "" };
+            const familyOptions = catalogOptions.filter((option) => option.family === selection.family);
+            const sizeChoices = familyOptions.filter((option, optionIndex, all) =>
+              all.findIndex((candidate) => candidate.sizeKey === option.sizeKey) === optionIndex
+            );
+            const thicknessChoices = familyOptions.filter((option) => option.sizeKey === selection.sizeKey);
 
             return (
               <article
@@ -259,64 +297,121 @@ export function BuyerDistintaBuilder({
                   </button>
                 </div>
 
-                <div className="mt-3 grid gap-3 lg:grid-cols-12">
-                  <label className="lg:col-span-4 text-xs font-semibold text-[#52615b]">
-                    Articolo / descrizione *
+                <div className="mt-3 rounded-xl border border-[var(--border)] bg-white p-3 sm:p-4">
+                  <p className="text-xs font-bold text-[var(--brand-deep)]">1. Seleziona l'articolo</p>
+                  <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
+                    Seleziona forma, misura e spessore: descrizione e peso vengono precompilati
+                    dai riferimenti pubblici di Knowledge. Puoi sempre inserire un articolo manualmente.
+                  </p>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                    <label className="text-xs font-semibold text-[var(--text-secondary)]">
+                      Tipo di tubo
+                      <select
+                        aria-label={`Tipo di tubo, riga ${index + 1}`}
+                        value={selection.family}
+                        onChange={(event) => chooseFamily(line.id, event.target.value)}
+                        className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)]"
+                      >
+                        <option value="">Compilazione libera</option>
+                        {(["round_tube", "square_tube", "rectangular_tube"] as const).map((family) => (
+                          <option key={family} value={family}>{buyerTubeFamilyLabels[family]}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="text-xs font-semibold text-[var(--text-secondary)]">
+                      Misura
+                      <select
+                        aria-label={`Misura, riga ${index + 1}`}
+                        value={selection.sizeKey}
+                        disabled={!selection.family || sizeChoices.length === 0}
+                        onChange={(event) => chooseSize(line.id, selection.family, event.target.value)}
+                        className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)] disabled:bg-[var(--surface-muted)]"
+                      >
+                        <option value="">Scegli misura</option>
+                        {sizeChoices.map((option) => (
+                          <option key={option.sizeKey} value={option.sizeKey}>{option.sizeLabel}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className="text-xs font-semibold text-[var(--text-secondary)]">
+                      Spessore
+                      <select
+                        aria-label={`Spessore, riga ${index + 1}`}
+                        value={selection.optionId}
+                        disabled={!selection.sizeKey || thicknessChoices.length === 0}
+                        onChange={(event) => chooseCatalogOption(line.id, selection.family, selection.sizeKey, event.target.value)}
+                        className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)] disabled:bg-[var(--surface-muted)]"
+                      >
+                        <option value="">Scegli spessore</option>
+                        {thicknessChoices.map((option) => (
+                          <option key={option.id} value={option.id}>
+                            {option.thicknessMm.toLocaleString("it-IT")} mm · {option.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 })} kg/m
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                  {catalogOptions.length === 0 ? (
+                    <p className="mt-2 text-xs text-[var(--semantic-warning)]">
+                      Riferimenti pubblici temporaneamente non disponibili: usa la compilazione libera.
+                    </p>
+                  ) : null}
+                  {selection.optionId ? (
+                    <p className="mt-2 text-xs text-[var(--text-secondary)]">
+                      Peso di riferimento precompilato, non una conferma di disponibilità o tolleranza del fornitore.
+                    </p>
+                  ) : null}
+                </div>
+
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-12">
+                  <label className="lg:col-span-9 text-xs font-semibold text-[var(--text-secondary)]">
+                    2. Articolo / descrizione *
                     <input
                       value={line.description}
-                      onChange={(event) =>
-                        updateLine(line.id, { description: event.target.value })
-                      }
-                      placeholder="Es. Tubo quadro 100 × 100 × 4"
-                      className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
+                      onChange={(event) => updateLine(line.id, { description: event.target.value })}
+                      placeholder="Es. Tubo quadro 100 × 100 × 4 mm"
+                      className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)] focus:border-[var(--brand-primary)]"
                     />
                   </label>
-                  <label className="lg:col-span-2 text-xs font-semibold text-[#52615b]">
-                    Norma
-                    <input
-                      value={line.standard}
-                      onChange={(event) =>
-                        updateLine(line.id, { standard: event.target.value })
-                      }
-                      placeholder="EN 10219"
-                      className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
-                    />
-                  </label>
-                  <label className="lg:col-span-2 text-xs font-semibold text-[#52615b]">
-                    Grado
-                    <input
-                      value={line.grade}
-                      onChange={(event) =>
-                        updateLine(line.id, { grade: event.target.value })
-                      }
-                      placeholder="S355J2H"
-                      className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
-                    />
-                  </label>
-                  <label className="lg:col-span-2 text-xs font-semibold text-[#52615b]">
-                    Finitura
-                    <input
-                      value={line.finish}
-                      onChange={(event) =>
-                        updateLine(line.id, { finish: event.target.value })
-                      }
-                      placeholder="Nero / zincato"
-                      className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
-                    />
-                  </label>
-                  <label className="lg:col-span-2 text-xs font-semibold text-[#52615b]">
+                  <label className="lg:col-span-3 text-xs font-semibold text-[var(--text-secondary)]">
                     Peso kg/m *
                     <input
                       inputMode="decimal"
                       value={line.weightKgM}
-                      onChange={(event) =>
-                        updateLine(line.id, { weightKgM: event.target.value })
-                      }
-                      placeholder="12,50"
-                      className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm font-semibold text-[#1d2824] outline-none focus:border-[#438d7a]"
+                      onChange={(event) => updateLine(line.id, { weightKgM: event.target.value })}
+                      placeholder="Es. 12,5"
+                      className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-semibold text-[var(--text-primary)] focus:border-[var(--brand-primary)]"
                     />
                   </label>
                 </div>
+                <details className="mt-3 rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-3">
+                  <summary className="cursor-pointer text-xs font-semibold text-[var(--brand-deep)]">
+                    Specifiche aggiuntive · norma, grado, finitura (facoltative)
+                  </summary>
+                  <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                    <label className="text-xs font-semibold text-[var(--text-secondary)]">
+                      Norma
+                      <input list="buyer-standards" value={line.standard}
+                        onChange={(event) => updateLine(line.id, { standard: event.target.value })}
+                        placeholder="EN 10219"
+                        className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)]" />
+                    </label>
+                    <label className="text-xs font-semibold text-[var(--text-secondary)]">
+                      Grado
+                      <input list="buyer-grades" value={line.grade}
+                        onChange={(event) => updateLine(line.id, { grade: event.target.value })}
+                        placeholder="S355J2H"
+                        className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)]" />
+                    </label>
+                    <label className="text-xs font-semibold text-[var(--text-secondary)]">
+                      Finitura
+                      <input list="buyer-finishes" value={line.finish}
+                        onChange={(event) => updateLine(line.id, { finish: event.target.value })}
+                        placeholder="Nero / zincato"
+                        className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)]" />
+                    </label>
+                  </div>
+                </details>
 
                 <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-12">
                   <label className="lg:col-span-2 text-xs font-semibold text-[#52615b]">
