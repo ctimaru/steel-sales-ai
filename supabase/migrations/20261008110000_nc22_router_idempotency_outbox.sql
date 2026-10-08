@@ -129,6 +129,9 @@ begin
       raise exception using errcode='22023',message='invalid alert source ID';
     end if;
     v_source_bigint := p_source_event_id::bigint;
+    if p_source_event_id <> v_source_bigint::text then
+      raise exception using errcode='22023',message='non-canonical source ID';
+    end if;
     select a.last_seen_at into v_occurred from public.operational_alerts a
     where a.id=v_source_bigint and a.organization_id=p_organization_id
       and a.status='open' and a.severity='critical'
@@ -138,6 +141,9 @@ begin
       raise exception using errcode='22023',message='source ID must be UUID';
     end if;
     v_source_uuid := p_source_event_id::uuid;
+    if p_source_event_id <> v_source_uuid::text then
+      raise exception using errcode='22023',message='non-canonical source ID';
+    end if;
 
     case p_event_type
       when 'workspace.import.failed' then
