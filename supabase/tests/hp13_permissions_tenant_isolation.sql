@@ -151,6 +151,7 @@ select pg_temp.hp13_assert(
       and not has_function_privilege('anon',p.oid,'EXECUTE')
       and p.proname not in (
         'p1_acknowledge_operational_alert',
+        'p1_operational_alert_audit_read',
         'p1_apply_commercial_review_correction',
         'p1_operational_alerts_read',
         'p1_operational_alerts_summary',
