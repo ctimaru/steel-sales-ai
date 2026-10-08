@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { BuyerTubeGuidedCreator } from "@/components/buyer-tube-guided-creator";
-import { guidedTubeMassKgM, guidedTubeMeasurement, guidedDocumentsNote, type GuidedTubeDraft } from "@/lib/buyer-tube-guidance";
+import { guidedTubeMassKgM, guidedTubeMeasurement, type GuidedTubeDraft } from "@/lib/buyer-tube-guidance";
+import { emptyBuyerDocumentRequirements, formatBuyerDocumentRequirements, type BuyerDistintaDocumentRequirements } from "@/lib/buyer-distinta-documents";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
@@ -32,9 +33,9 @@ function blankLine(id: string): BuyerDistintaDraftLine {
     standard: "",
     grade: "",
     finish: "",
-    quantityMode: "meters",
+    quantityMode: "bars",
     quantity: "",
-    barLengthM: "6",
+    barLengthM: "12",
     weightKgM: "",
     targetEurT: "",
     note: "",
@@ -72,6 +73,8 @@ export function BuyerDistintaBuilder({
 }) {
   const router = useRouter();
   const [title, setTitle] = useState("Richiesta di offerta");
+  const [documents, setDocuments] = useState<BuyerDistintaDocumentRequirements>(emptyBuyerDocumentRequirements);
+  const [previewDraft, setPreviewDraft] = useState<GuidedTubeDraft | null>(null);
   const [quickQuery, setQuickQuery] = useState("");
   const [compactMode, setCompactMode] = useState(true);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
@@ -166,7 +169,7 @@ export function BuyerDistintaBuilder({
       standard: draft.standard,
       grade: draft.grade.trim().toUpperCase(),
       weightKgM: measurement.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 }),
-      note: guidedDocumentsNote(draft),
+      note: "",
     };
     setLines((current) => reusable ? [nextLine] : [...current, nextLine]);
     setGuidedSpecsByLine((current) => ({ ...current, [id]: { ...draft } }));
@@ -304,8 +307,8 @@ export function BuyerDistintaBuilder({
       return;
     }
 
-    const plain = buildBuyerDistintaPlainText(title, valid);
-    const html = buildBuyerDistintaHtml(title, valid);
+    const plain = buildBuyerDistintaPlainText(title, valid, documents);
+    const html = buildBuyerDistintaHtml(title, valid, documents);
 
     try {
       if (
@@ -333,7 +336,7 @@ export function BuyerDistintaBuilder({
   function saveDistinta() {
     setSaveMessage(null);
     startSaveTransition(async () => {
-      const result = await saveBuyerDistinta({ title, lines });
+      const result = await saveBuyerDistinta({ title, lines, documents });
       if (!result.ok || !result.distintaId) {
         setSaveMessage(result.error ?? "Salvataggio non riuscito.");
         return;
@@ -439,20 +442,19 @@ export function BuyerDistintaBuilder({
         </button>
       </aside>
       <section className="rounded-3xl border border-[#d8e1dd] bg-white p-3 shadow-[0_16px_50px_rgba(18,61,52,0.06)] sm:p-5">
-        <div className="flex flex-col gap-4 border-b border-[#e8ecea] pb-5 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex flex-col gap-3 border-b border-[var(--border)] pb-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
-              Buyer tool
+              Creazione articoli
             </p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824]">
+            <h2 className="mt-1 text-lg font-bold tracking-tight text-[var(--brand-deep)]">
               Crea la distinta in pochi passaggi
             </h2>
-            <p className="mt-2 text-sm leading-6 text-[#66736e]">
-              Inserisci il materiale, la quantità e il peso kg/m; il Target €/t è facoltativo.
-              Compila i campi essenziali nella card; apri i dettagli solo quando servono.
+            <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
+              Configura il tubo, aggiungilo e indica le barre: 12 m è il valore iniziale, modificabile.
             </p>
           </div>
-          <label className="w-full max-w-md text-xs font-semibold uppercase tracking-wide text-[#66736e]">
+          <label className="w-full max-w-sm text-xs font-semibold text-[var(--text-secondary)]">
             Titolo distinta
             <input
               value={title}
@@ -461,13 +463,20 @@ export function BuyerDistintaBuilder({
                 setSavedId(null);
                 setEmailSubject(event.target.value || "Richiesta di offerta");
               }}
-              className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm font-semibold normal-case tracking-normal text-[#1d2824] outline-none focus:border-[#438d7a]"
+              className="mt-1 h-10 w-full rounded-lg border border-[var(--border-strong)] bg-white px-3 text-sm font-semibold text-[var(--text-primary)]"
             />
           </label>
         </div>
 
 
-        <BuyerTubeGuidedCreator catalogOptions={catalogOptions} onAdd={addGuidedTube} canAdd={lines.length < 500 || (lines.length === 1 && isUntouchedLine(lines[0]))} />
+        <div className="bd7-workbench">
+          <div className="bd7-workbench-editor">
+            <BuyerTubeGuidedCreator
+              catalogOptions={catalogOptions}
+              onAdd={addGuidedTube}
+              onDraftChange={setPreviewDraft}
+              canAdd={lines.length < 500 || (lines.length === 1 && isUntouchedLine(lines[0]))}
+            />
 
         <details className="bd6-legacy-search">
           <summary className="bd6-legacy-summary">Ricerca rapida alternativa · misure pubblicate e compilazione libera</summary>
@@ -536,6 +545,112 @@ export function BuyerDistintaBuilder({
           ) : null}
         </section>
         </details>
+          </div>
+          <aside className="bd7-preview" aria-label="Distinta in composizione">
+            <div className="bd7-preview-head">
+              <div>
+                <p className="bd6-eyebrow">Anteprima in tempo reale</p>
+                <h3 className="text-sm font-extrabold text-[var(--brand-deep)]">La tua distinta</h3>
+              </div>
+              <span className="bd7-preview-counter">{totals.completeLines}/{lines.length} righe</span>
+            </div>
+            {previewDraft && (previewDraft.family || previewDraft.standard || previewDraft.grade) ? (
+              <div className="bd7-draft-pending">
+                <span className="text-[10px] font-bold uppercase tracking-wide text-[var(--text-secondary)]">In configurazione</span>
+                <p className="mt-1 text-xs font-semibold text-[var(--brand-deep)]">
+                  {guidedTubeMeasurement(previewDraft)?.description ||
+                    [previewDraft.family ? buyerTubeFamilyLabels[previewDraft.family] : "", previewDraft.standard, previewDraft.grade].filter(Boolean).join(" · ")}
+                </p>
+                {guidedTubeMeasurement(previewDraft) ? (
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    {formatNumber(guidedTubeMeasurement(previewDraft)!.weightKgM, 3)} kg/m teorici
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+            <ol className="bd7-preview-list" aria-label="Articoli inseriti">
+              {lines.map((line, index) => (
+                <li key={line.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const row = document.getElementById("buyer-row-" + line.id);
+                      row?.focus({ preventScroll: true });
+                      row?.scrollIntoView({ block: "center", behavior: "smooth" });
+                    }}
+                    className="bd7-preview-item"
+                    aria-label={"Vai alla riga " + (index + 1)}
+                  >
+                    <span className="bd7-preview-number">{index + 1}</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="bd7-preview-description">
+                        {line.description.trim() || "Articolo da compilare"}
+                      </span>
+                      <span className="bd7-preview-meta">
+                        {line.grade ? line.grade + " · " : ""}
+                        {calculated[index].quantity !== null
+                          ? formatNumber(calculated[index].quantity, line.quantityMode === "bars" ? 0 : 2) + " " +
+                            (line.quantityMode === "bars" ? "barre" : line.quantityMode === "meters" ? "m" : "t")
+                          : "Quantità da inserire"}
+                        {" · "}{formatNumber(calculated[index].tonnes, 3)} t
+                      </span>
+                    </span>
+                    <span className={calculated[index].complete ? "bd7-preview-ready" : "bd7-preview-incomplete"}>
+                      {calculated[index].complete ? "✓" : "·"}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+            <div className="bd7-preview-totals">
+              <span>{formatNumber(totals.totalMeters, 2)} m</span>
+              <strong>{formatNumber(totals.totalTonnes, 3)} t</strong>
+            </div>
+            <details className="bd7-global-documents">
+              <summary className="bd7-doc-summary">
+                <span className="font-bold">Documentazione richiesta · intera distinta</span>
+                <span className="bd7-doc-caption">{formatBuyerDocumentRequirements(documents) ? "Condizioni impostate" : "Facoltativa"}</span>
+              </summary>
+              <div className="bd7-doc-fields">
+                <label className="bd6-dimension-field">
+                  Certificato di controllo EN 10204
+                  <select
+                    value={documents.inspectionDocument}
+                    onChange={(event) => {
+                      setDocuments((current) => ({ ...current, inspectionDocument: event.target.value as BuyerDistintaDocumentRequirements["inspectionDocument"] }));
+                      setSavedId(null);
+                    }}
+                    className="bd6-input"
+                  >
+                    <option value="">Non specificato</option>
+                    <option value="2.1">2.1 · Dichiarazione conformità</option>
+                    <option value="2.2">2.2 · Rapporto di prova</option>
+                    <option value="3.1">3.1 · Certificato materiale</option>
+                    <option value="3.2">3.2 · Con ispezione indipendente</option>
+                  </select>
+                </label>
+                <label className="bd6-check">
+                  <input type="checkbox" checked={documents.ceDop} onChange={(event) => {
+                    setDocuments((current) => ({ ...current, ceDop: event.target.checked })); setSavedId(null);
+                  }} />
+                  Marcatura CE + DoP, se applicabili
+                </label>
+                <label className="bd6-check">
+                  <input type="checkbox" checked={documents.iso9001} onChange={(event) => {
+                    setDocuments((current) => ({ ...current, iso9001: event.target.checked })); setSavedId(null);
+                  }} />
+                  Produttore certificato UNI EN ISO 9001
+                </label>
+                <p className="text-[11px] leading-4 text-[var(--text-secondary)]">
+                  Vale per tutta la richiesta; non viene ripetuto in ogni articolo. CE/DoP, EN 10204 e ISO 9001 hanno finalità differenti.
+                </p>
+              </div>
+            </details>
+            {formatBuyerDocumentRequirements(documents) ? (
+              <p className="bd7-preview-doc-note">{formatBuyerDocumentRequirements(documents)}</p>
+            ) : null}
+          </aside>
+        </div>
 
         <datalist id="buyer-standards"><option value="EN 10219" /><option value="EN 10210" /><option value="EN 10305" /></datalist>
         <datalist id="buyer-grades"><option value="S235JRH" /><option value="S275J0H" /><option value="S355J2H" /></datalist>

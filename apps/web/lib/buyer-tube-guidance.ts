@@ -13,15 +13,11 @@ export type GuidedTubeDraft = {
   width: string;
   height: string;
   thickness: string;
-  inspectionDocument: string;
-  ceDop: boolean;
-  iso9001: boolean;
 };
 
 export const newGuidedTubeDraft = (): GuidedTubeDraft => ({
   family: "", standard: "", grade: "", diameter: "", side: "",
-  width: "", height: "", thickness: "", inspectionDocument: "",
-  ceDop: false, iso9001: false,
+  width: "", height: "", thickness: "",
 });
 
 export const guidedTubeGrades = [
@@ -83,15 +79,6 @@ export function guidedTubeMeasurement(
     description: shape + " " + measures + " × " + guidedFormatDimension(thickness) + " mm",
     weightKgM, family: draft.family, standard: draft.standard,
   };
-}
-
-export function guidedDocumentsNote(draft: GuidedTubeDraft): string {
-  const requirements = [
-    draft.inspectionDocument ? "Certificato di controllo EN 10204 tipo " + draft.inspectionDocument : "",
-    draft.ceDop ? "Marcatura CE e dichiarazione di prestazione DoP, ove applicabili" : "",
-    draft.iso9001 ? "Certificazione ISO 9001 del sistema qualità del produttore" : "",
-  ].filter(Boolean);
-  return requirements.length ? "Documentazione richiesta: " + requirements.join("; ") : "";
 }
 
 export function suggestedGuidedDimensions(

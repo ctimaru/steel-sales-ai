@@ -46,7 +46,7 @@ test("BD6 guided workflow requires norm and grade before weighted dimensions", (
   assert.equal(guide.guidedTubeMeasurement(d), null);
   d.grade = "S355J2H";
   assert.equal(guide.guidedTubeMeasurement(d).description, "Tubo quadro 100 × 100 × 4 mm");
-  for (const label of ["Tipo di tubo", "Norma", "Grado acciaio", "Dimensioni assistite", "Documentazione richiesta"]) {
+  for (const label of ["Tipo di tubo", "Norma", "Grado acciaio", "Dimensioni assistite"]) {
     assert.ok(wizard.includes(label));
   }
 });
@@ -63,14 +63,12 @@ test("BD6 dimension autocomplete suggests 1xx values and constrains dependent fi
   }
 });
 
-test("BD6 documents are distinct and flow into commercial notes", () => {
-  const d = { ...guide.newGuidedTubeDraft(), inspectionDocument: "3.1", ceDop: true, iso9001: true };
-  const note = guide.guidedDocumentsNote(d);
-  assert.match(note, /EN 10204 tipo 3\.1/);
-  assert.match(note, /dichiarazione di prestazione DoP/);
-  assert.match(note, /ISO 9001/);
-  assert.match(wizard, /UNI EN ISO 9001/);
-  assert.match(builder, /note: guidedDocumentsNote\(draft\)/);
+test("BD6 keeps normative mass and document requirements separate from tube metadata", () => {
+  const d = guide.newGuidedTubeDraft();
+  assert.equal(d.inspectionDocument, undefined);
+  assert.equal(d.ceDop, undefined);
+  assert.equal(d.iso9001, undefined);
+  assert.doesNotMatch(wizard, /Documentazione richiesta/);
   assert.match(builder, /weightFromCatalogForStandard/);
   assert.match(builder, /guidedTubeMeasurement\(\{ \.\.\.guided, standard \}\)/);
   assert.match(builder, /createBuyerRfqCampaign/);
