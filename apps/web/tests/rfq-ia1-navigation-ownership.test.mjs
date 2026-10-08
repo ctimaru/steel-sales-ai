@@ -88,7 +88,8 @@ test("RFQ-IA1 distinguishes procurement from Marketplace and preserves viewer ac
   assert.match(rfqEntries, /label: "Inbox acquisti"/);
   assert.match(rfqEntries, /label: "Fornitori"/);
   assert.doesNotMatch(rfqEntries.match(/label: "Le mie RFQ"[^\n]*/)[0], /writeRole: true/);
-  assert.doesNotMatch(rfqEntries.match(/label: "Inbox acquisti"[^\n]*/)[0], /writeRole: true/);
+  assert.match(rfqEntries.match(/label: "Inbox acquisti"[^\n]*/)[0], /writeRole: true/);
+  assert.match(rfqEntries.match(/label: "Fornitori"[^\n]*/)[0], /writeRole: true/);
   assert.match(marketplaceEntries, /label: "Opportunità"/);
   assert.match(marketplaceEntries, /label: "Le mie pubblicazioni"/);
   assert.doesNotMatch(marketplaceEntries, /label: "Acquisti"|label: "RFQ"/);
