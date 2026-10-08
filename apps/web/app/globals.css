@@ -1029,3 +1029,164 @@ textarea {
     transform: none;
   }
 }
+
+
+/* BD5.2 — The fast RFQ line stays short; options expand inside that single card. */
+.bd52-core {
+  min-width: 0;
+}
+.bd52-core-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 3.4fr) minmax(6.4rem, 1.1fr) minmax(6.4rem, 1.1fr) minmax(7.5rem, 1.25fr);
+  align-items: end;
+  gap: 0.6rem;
+}
+.bd52-field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.3rem;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+.bd52-input,
+.bd52-output {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 2.7rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.7rem;
+  background: var(--surface-base);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 550;
+  line-height: 1.35;
+}
+.bd52-input:focus-visible {
+  border-color: var(--brand-primary);
+}
+.bd52-input:disabled {
+  background: var(--surface-muted);
+  color: var(--text-tertiary);
+}
+.bd52-quantity-input {
+  border-color: var(--brand-200);
+  font-weight: 750;
+}
+.bd52-output {
+  background: var(--surface-muted);
+  color: var(--brand-deep);
+  font-variant-numeric: tabular-nums;
+}
+.bd52-core-footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.7rem;
+  justify-content: space-between;
+  min-height: 2.4rem;
+  margin-top: 0.55rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--border);
+}
+.bd52-weight-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.7rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.45rem;
+  background: var(--steel-blue-soft);
+  color: var(--steel-blue);
+  font-size: 0.76rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.bd52-detail-summary,
+.bd52-note-indicator {
+  color: var(--text-secondary);
+  font-size: 0.73rem;
+  font-weight: 550;
+}
+.bd52-details-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 2.5rem;
+  flex-shrink: 0;
+  padding: 0.48rem 0.7rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.65rem;
+  background: var(--surface-subtle);
+  color: var(--brand-deep);
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+.bd52-details-toggle:hover {
+  border-color: var(--brand-primary);
+  background: var(--brand-primary-soft);
+}
+.bd52-chevron {
+  display: inline-block;
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform 140ms ease;
+}
+.bd52-chevron-open {
+  transform: rotate(180deg);
+}
+.bd52-detail-panel {
+  margin-top: 0.7rem;
+  padding: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  background: var(--surface-subtle);
+}
+.bd52-detail-panel[hidden] {
+  display: none !important;
+}
+.bd52-detail-section + .bd52-detail-section {
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--border);
+}
+.bd52-detail-heading {
+  margin-bottom: 0.55rem;
+  color: var(--brand-deep);
+  font-size: 0.77rem;
+  font-weight: 750;
+}
+@media (max-width: 900px) {
+  .bd52-core-fields {
+    grid-template-columns: minmax(0, 1.6fr) repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 680px) {
+  .bd52-core-fields {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.55rem;
+  }
+  .bd52-field-description {
+    grid-column: 1 / -1;
+  }
+  .bd52-field-unit {
+    grid-column: 1 / -1;
+  }
+  .bd52-core-footer {
+    align-items: stretch;
+  }
+  .bd52-details-toggle {
+    margin-left: auto;
+  }
+  .bd52-detail-panel {
+    padding: 0.7rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bd52-chevron {
+    transition: none;
+  }
+}
