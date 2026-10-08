@@ -803,3 +803,29 @@ textarea {
 .ui-canvas { background: var(--surface-canvas); }
 .ui-brand-soft { background: var(--brand-primary-soft); color: var(--brand-deep); }
 .ui-info-soft { background: var(--steel-blue-soft); color: var(--steel-blue); }
+
+
+/* NC-PALETTE — notification actions use semantic tokens, never inherited legacy text. */
+.notification-primary-action,
+.notification-filter-active {
+  border-color: var(--brand-primary) !important;
+  background-color: var(--brand-primary) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
+}
+.notification-primary-action:hover,
+.notification-filter-active:hover {
+  border-color: var(--brand-primary-hover) !important;
+  background-color: var(--brand-primary-hover) !important;
+  color: #ffffff !important;
+}
+.notification-primary-action :where(*),
+.notification-filter-active :where(*) {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit;
+}
+.notification-primary-action:focus-visible,
+.notification-filter-active:focus-visible {
+  outline: 2px solid var(--steel-blue);
+  outline-offset: 3px;
+}
