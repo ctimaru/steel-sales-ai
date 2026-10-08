@@ -29,6 +29,7 @@ function isPublicMeasurementPath(pathname: string) {
     pathname === "/" ||
     pathname.startsWith("/knowledge") ||
     pathname.startsWith("/azienda") ||
+    pathname.startsWith("/distinta") ||
     pathname.startsWith("/register") ||
     pathname.startsWith("/login")
   );
@@ -177,6 +178,14 @@ export function GoogleAnalyticsConsent({
 
     if (nextConsent === "denied") {
       clearGoogleAnalyticsCookies();
+    } else if (consent !== "granted" && shouldMeasure) {
+      // On the first opt-in, emit a granted hit immediately.
+      // The initial cookieless page_view was sent before the visitor chose.
+      analyticsWindow.gtag?.("event", "page_view", {
+        page_path: `${pathname}${window.location.search}`,
+        page_location: window.location.href,
+        page_title: document.title,
+      });
     }
   }
 
