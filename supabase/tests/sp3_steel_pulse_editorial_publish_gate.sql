@@ -99,7 +99,7 @@ insert into steel_pulse_private.items(
   '00000000-0000-0000-0000-00000000c310',
   'https://news.example.org/evidence/source'
 );
--- Unauthorized authenticated account cannot save.
+-- Unauthorized authenticated account cannot save or inspect Platform-only editorial data.
 set local role authenticated;
 select set_config('request.jwt.claim.role','authenticated',true);
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-00000000c304',true);
@@ -110,8 +110,19 @@ select pg_temp.sp3_must_deny($q$
     'A practical implication for steel producers and distributors in Europe.',
     'market','it')
 $q$);
+select pg_temp.sp3_must_deny(
+  'select public.sp3_editorial_queue(''all'',25)'
+);
+select pg_temp.sp3_must_deny(
+  'select public.sp3_editorial_detail(''00000000-0000-0000-0000-00000000c311''::uuid)'
+);
 -- Author prepares own original draft, then submits for independent review.
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-00000000c301',true);
+select public.sp3_editorial_queue('unassigned',25) as sp3_unassigned \gset
+select pg_temp.sp3_assert(
+  jsonb_array_length(:'sp3_unassigned'::jsonb->'items')=1,
+  'authorized Knowledge Editor sees staged work queue'
+);
 select public.sp3_save_draft(
   '00000000-0000-0000-0000-00000000c311',0,
   'A legitimate synthetic steel-sector headline',
@@ -155,6 +166,14 @@ select set_config('request.jwt.claim.sub',:'sp3_owner_id',true);
 select public.sp3_decide(:'sp3_card_id'::uuid,1,'legal_approve',
   'https://news.example.org/evidence/item',
   'The rights of this particular item permit original factual commentary without reused media.') as legal_ok \gset
+-- Legal notes are not exposed to ordinary editors.
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-00000000c302',true);
+select public.sp3_editorial_detail('00000000-0000-0000-0000-00000000c311'::uuid) as sp3_editor_view \gset
+select pg_temp.sp3_assert(
+  (:'sp3_editor_view'::jsonb->'card'->>'legal_attestation') is null
+  and (:'sp3_editor_view'::jsonb->'card'->>'status')='legal_approved',
+  'editorial detail hides owner-only rights attestation'
+);
 -- Neither author nor editor may publish after sign-off.
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-00000000c301',true);
 select pg_temp.sp3_must_deny(format(
