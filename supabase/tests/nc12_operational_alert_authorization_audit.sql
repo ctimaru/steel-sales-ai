@@ -39,7 +39,7 @@ insert into public.observability_events(id,trace_id,event_type,operation,status,
 values (
   '00000000-0000-0000-0000-0000000c1221',
   '00000000-0000-0000-0000-0000000c1222',
-  'nc12_synthetic_ci_only','nc12_rbac','ok',
+  'system','nc12_rbac','ok',
   '00000000-0000-0000-0000-0000000c1211'
 );
 insert into public.operational_alerts(
