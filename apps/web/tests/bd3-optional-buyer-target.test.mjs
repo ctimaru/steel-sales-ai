@@ -15,7 +15,7 @@ test("BD3 accepts missing target but rejects a nonpositive target explicitly ent
   assert.match(calc, /targetValid &&/);
   assert.doesNotMatch(calc, /targetEurT !== null &&\s*targetEurM !== null &&/);
   assert.match(builder, /Target €\/t \(facoltativo\)/);
-  assert.match(builder, /Il Target €\/t è facoltativo/);
+  assert.match(builder, /il Target €\/t è facoltativo/i);
   assert.match(actions, /Completa articolo, quantità e peso kg\/m/);
 });
 
