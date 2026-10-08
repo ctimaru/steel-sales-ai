@@ -74,7 +74,7 @@ test("NC2.2: transactional negative acceptance included in required gate", () =>
   assert.match(sqlTest,/no email was enqueued/);
   assert.match(sqlTest,/import owner sees their notification/);
   assert.match(sqlTest,/tenant B cannot read tenant A/);
-  assert.match(sqlTest,/RFQ source bridge not yet approved/);
+  assert.match(sqlTest,/RFQ subtype not yet source-verified/);
   assert.match(gate,/nc22_notification_router_idempotency_outbox\.sql/);
   assert.match(contract, /NC1\.3-v1/);
 });
