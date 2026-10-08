@@ -442,20 +442,19 @@ export function BuyerDistintaBuilder({
         </button>
       </aside>
       <section className="rounded-3xl border border-[#d8e1dd] bg-white p-3 shadow-[0_16px_50px_rgba(18,61,52,0.06)] sm:p-5">
-        <div className="flex flex-col gap-4 border-b border-[#e8ecea] pb-5 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex flex-col gap-3 border-b border-[var(--border)] pb-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
-              Buyer tool
+              Creazione articoli
             </p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824]">
+            <h2 className="mt-1 text-lg font-bold tracking-tight text-[var(--brand-deep)]">
               Crea la distinta in pochi passaggi
             </h2>
-            <p className="mt-2 text-sm leading-6 text-[#66736e]">
-              Inserisci il materiale, la quantità e il peso kg/m; il Target €/t è facoltativo.
-              Compila i campi essenziali nella card; apri i dettagli solo quando servono.
+            <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
+              Configura il tubo, aggiungilo e indica le barre: 12 m è il valore iniziale, modificabile.
             </p>
           </div>
-          <label className="w-full max-w-md text-xs font-semibold uppercase tracking-wide text-[#66736e]">
+          <label className="w-full max-w-sm text-xs font-semibold text-[var(--text-secondary)]">
             Titolo distinta
             <input
               value={title}
@@ -464,7 +463,7 @@ export function BuyerDistintaBuilder({
                 setSavedId(null);
                 setEmailSubject(event.target.value || "Richiesta di offerta");
               }}
-              className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm font-semibold normal-case tracking-normal text-[#1d2824] outline-none focus:border-[#438d7a]"
+              className="mt-1 h-10 w-full rounded-lg border border-[var(--border-strong)] bg-white px-3 text-sm font-semibold text-[var(--text-primary)]"
             />
           </label>
         </div>
