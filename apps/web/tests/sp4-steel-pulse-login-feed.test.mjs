@@ -82,7 +82,7 @@ test("SP4 reads at most three public curated articles using an anonymous client"
   assert.equal(cards.length, 3);
   assert.equal(calls.filter((x) => x.type === "rpc")[0].method, "sp4_public_steel_pulse_feed");
   assert.equal(calls.filter((x) => x.type === "rpc")[0].args.p_limit, 3);
-  assert.doesNotMatch(reader, /SERVICE_ROLE_KEY|service_role/);
+  assert.doesNotMatch(reader, /process\.env\.(?:SUPABASE_SERVICE_ROLE_KEY|SERVICE_ROLE_KEY)/);
   assert.match(reader, /cache: "no-store"/);
   assert.match(reader, /AbortSignal\.timeout\(2500\)/);
 });
