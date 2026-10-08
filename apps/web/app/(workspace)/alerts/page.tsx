@@ -1,37 +1,13 @@
 import { redirect } from "next/navigation";
 
 import { OperationalAlertActions } from "./operational-alert-actions";
+import { OperationalAlertsRefreshButton } from "./refresh-button";
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { appRoutes } from "@/lib/routes";
+import { parseOperationalAlertRows, parseOperationalAlertSummary } from "@/lib/operational-alert-status";
 import { createClient } from "@/lib/supabase/server";
-
-type OperationalAlert = {
-  id: number;
-  alert_type: string;
-  severity: string;
-  status: string;
-  title: string;
-  summary: string;
-  occurrence_count: number;
-  first_seen_at: string;
-  last_seen_at: string;
-  acknowledged_at: string | null;
-  resolved_at: string | null;
-  is_active: boolean;
-  needs_attention: boolean;
-};
-
-type AlertSummary = {
-  open_count: number;
-  acknowledged_count: number;
-  resolved_count: number;
-  critical_open_count: number;
-  active_count: number;
-  needs_attention: boolean;
-  last_alert_at: string | null;
-};
 
 function formatDate(value: string | null) {
   if (!value) return "—";
@@ -68,44 +44,71 @@ export default async function OperationalAlertsPage() {
   const supabase = await createClient();
   const {
     data: { user },
+    error: authError,
   } = await supabase.auth.getUser();
+  if (authError) throw new Error("operational_alerts_auth_unavailable");
   if (!user) redirect("/login");
 
-  const { data: memberships } = await supabase
+  const { data: memberships, error: membershipError } = await supabase
     .from("organization_memberships")
     .select("organization_id,is_default,status")
     .eq("user_id", user.id)
     .eq("status", "active");
 
+  if (membershipError) throw new Error("operational_alerts_membership_unavailable");
+
   const membership = memberships?.find((row) => row.is_default) ?? memberships?.[0];
   if (!membership?.organization_id) redirect("/onboarding");
 
   const organizationId = membership.organization_id as string;
-  const [{ data: alertsData, error: alertsError }, { data: summaryData, error: summaryError }] =
-    await Promise.all([
-      supabase.rpc("p1_operational_alerts_read", {
-        p_organization_id: organizationId,
-        p_status: null,
-        p_limit: 100,
-        p_offset: 0,
-      }),
-      supabase.rpc("p1_operational_alerts_summary", {
-        p_organization_id: organizationId,
-      }),
-    ]);
+  // Failure in either RPC must never be presented as "everything is healthy".
+  const [alertsResult, summaryResult] = await Promise.allSettled([
+    supabase.rpc("p1_operational_alerts_read", {
+      p_organization_id: organizationId,
+      p_status: null,
+      p_limit: 100,
+      p_offset: 0,
+    }),
+    supabase.rpc("p1_operational_alerts_summary", {
+      p_organization_id: organizationId,
+    }),
+  ]);
 
-  const alerts = (alertsError ? [] : alertsData ?? []) as OperationalAlert[];
-  const summary = (summaryError || !summaryData
-    ? {
-        open_count: 0,
-        acknowledged_count: 0,
-        resolved_count: 0,
-        critical_open_count: 0,
-        active_count: 0,
-        needs_attention: false,
-        last_alert_at: null,
-      }
-    : summaryData) as AlertSummary;
+  const alerts =
+    alertsResult.status === "fulfilled" && !alertsResult.value.error
+      ? parseOperationalAlertRows(alertsResult.value.data)
+      : null;
+  const summary =
+    summaryResult.status === "fulfilled" && !summaryResult.value.error
+      ? parseOperationalAlertSummary(summaryResult.value.data)
+      : null;
+  const inconsistentEmptyList =
+    alerts?.length === 0 &&
+    summary !== null &&
+    summary.open_count + summary.acknowledged_count + summary.resolved_count > 0;
+
+  if (!alerts || !summary || inconsistentEmptyList) {
+    return (
+      <div className="mx-auto max-w-6xl">
+        <section role="alert" className="rounded-3xl border border-[#ead7aa] bg-white p-6 shadow-sm sm:p-8">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#8a6520]">Verifica non disponibile</p>
+          <h1 className="mt-2 text-2xl font-semibold text-[#1d2824]">
+            Impossibile verificare gli alert operativi
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#66736e]">
+            Non è stato possibile caricare uno stato attendibile. Questo non significa che
+            i controlli siano regolari o che non esistano avvisi.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <OperationalAlertsRefreshButton />
+            <a href={appRoutes.home} className="app-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-semibold">
+              Torna al workspace
+            </a>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -118,10 +121,18 @@ export default async function OperationalAlertsPage() {
               Regressioni rilevate automaticamente sui controlli di remediation e recovery. Gli alert aperti richiedono presa in carico o risoluzione esplicita.
             </p>
           </div>
-          <Badge tone={summary.needs_attention ? "red" : "green"}>
-            {summary.needs_attention ? "Richiede attenzione" : "Controlli regolari"}
-          </Badge>
+          <div className="flex flex-wrap items-center gap-3">
+            <Badge tone={summary.needs_attention ? "red" : summary.active_count > 0 ? "amber" : "green"}>
+              {summary.needs_attention ? "Richiede attenzione" : summary.active_count > 0 ? "Alert attivi" : "Nessun alert attivo"}
+            </Badge>
+            <OperationalAlertsRefreshButton label="Aggiorna" />
+          </div>
         </div>
+
+        <p className="mt-4 text-xs text-[#66736e]">
+          Dati consultati: {formatDate(summary.generated_at)} · Ultimo alert registrato: {formatDate(summary.last_alert_at)}.
+          La consultazione non certifica l'ultima esecuzione del controllo automatico.
+        </p>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-4">
           {[
@@ -140,9 +151,9 @@ export default async function OperationalAlertsPage() {
 
       {alerts.length === 0 ? (
         <FirstUseEmptyState
-          eyebrow="Controlli regolari"
-          title="Nessun alert operativo richiede attenzione"
-          description="Il regression guard non ha rilevato anomalie rispetto alla baseline controllata. Puoi continuare con le correzioni oppure tornare al workspace."
+          eyebrow="Nessun alert registrato"
+          title="Non risultano alert operativi per questa azienda"
+          description="La lettura è riuscita e non risultano avvisi nel registro. Questo elenco copre i controlli operativi disponibili, non la salute complessiva della piattaforma."
           primaryAction={{
             href: appRoutes.operations.review,
             label: "Apri Correzioni",
@@ -151,7 +162,7 @@ export default async function OperationalAlertsPage() {
             href: appRoutes.home,
             label: "Torna al workspace",
           }}
-          note="Gli alert compariranno automaticamente quando un controllo operativo rileverà una regressione."
+          note="Gli alert vengono creati quando un controllo monitorato rileva una regressione. Non tutti i processi sono ancora coperti."
         />
       ) : (
         <section className="space-y-3">
