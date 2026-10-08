@@ -34,33 +34,26 @@ export default async function BuyerDistintaPage() {
 
   return (
     <div className="mx-auto max-w-[1180px] px-4 py-7 sm:px-6 sm:py-9 lg:px-8">
-      <header className="rounded-3xl border border-[#244d43] bg-[#123d34] px-5 py-8 text-white sm:px-7 sm:py-10">
-        <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#9cc5b7]">
-          Crea distinta · gratuito
-        </p>
-        <h1 className="mt-3 max-w-4xl text-3xl font-semibold tracking-[-0.03em] sm:text-5xl">
-          Prepara la richiesta da inviare ai tuoi fornitori.
-        </h1>
-        <p className="mt-4 max-w-3xl text-sm leading-7 text-[#d8e5e0] sm:text-base">
-          Scegli forma, misura e spessore dal catalogo Knowledge oppure inserisci un articolo libero. Ottieni automaticamente il
-          rispettivo Target €/m e copia una distinta pulita direttamente nella tua email. Nessun
-          riferimento a listini produttore: è uno strumento indipendente pensato per buyer.
-        </p>
-
-        <div className="mt-6 flex flex-wrap gap-2 text-xs font-semibold">
-          <span className="rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5">
-            Nessun account per creare e copiare
-          </span>
-          <span className="rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5">
-            Prezzo obiettivo facoltativo
-          </span>
-          <span className="rounded-full border border-white/15 bg-white/[0.06] px-3 py-1.5">
-            Login per salvare e inviare
+      <header className="rounded-2xl border border-[var(--border-strong)] bg-white px-4 py-4 shadow-sm sm:px-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--brand-primary)]">
+              Buyer tool · gratuito
+            </p>
+            <h1 className="mt-1 text-xl font-extrabold tracking-tight text-[var(--brand-deep)] sm:text-2xl">
+              Crea distinta per i tuoi fornitori
+            </h1>
+            <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)] sm:text-sm">
+              Tipo tubo → norma → grado → misura → richiesta. Nessun riferimento a listini produttore.
+            </p>
+          </div>
+          <span className="rounded-full bg-[var(--brand-primary-soft)] px-3 py-1.5 text-xs font-bold text-[var(--brand-deep)]">
+            Compilazione libera · prezzo facoltativo
           </span>
         </div>
       </header>
 
-      <div className="mt-6">
+      <div className="mt-3">
         <BuyerDistintaBuilder
           authenticated={authenticated}
           emailConfigured={emailConfigured}
