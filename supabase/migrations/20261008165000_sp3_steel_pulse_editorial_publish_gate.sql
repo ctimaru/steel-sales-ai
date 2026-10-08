@@ -307,3 +307,96 @@ grant select on steel_pulse_private.sp3_currently_eligible_cards to service_role
 
 comment on view steel_pulse_private.sp3_currently_eligible_cards is
 'Private SP3 rights-current projection, NOT a publicly exposed feed. SP4 must add public boundary.';
+
+
+-- Platform-only read APIs make the editorial workflow operable without leaking private tables.
+-- A "ready" card is NOT the same as public publication; SP4 owns the public boundary.
+create function public.sp3_editorial_queue(p_state text default 'all',p_limit integer default 25)
+returns jsonb language plpgsql stable security definer set search_path=''
+as $$
+declare v_rows jsonb;
+begin
+  if (select auth.uid()) is null or
+    not public.has_platform_permission('knowledge.read_drafts') then
+    raise exception 'SP3 editorial read permission required' using errcode='42501';
+  end if;
+  if p_state is null or p_state not in
+    ('all','unassigned','draft','in_review','editor_approved',
+     'legal_approved','published','withdrawn')
+     or p_limit is null or p_limit not between 1 and 50 then
+    raise exception 'Invalid SP3 queue filter' using errcode='22023';
+  end if;
+  select coalesce(jsonb_agg(to_jsonb(r) order by r.last_changed desc),'[]'::jsonb)
+   into v_rows from (
+    select i.id as item_id,c.id as card_id,c.revision,
+      coalesce(c.status,'unassigned') as status,
+      c.headline,c.topic,c.language_code,
+      s.display_name as source_name,
+      i.canonical_url,i.published_at as source_published_at,
+      coalesce(c.updated_at,i.first_seen_at) as last_changed
+    from steel_pulse_private.items i
+    join steel_pulse_private.sources s on s.id=i.source_id
+    left join steel_pulse_private.editorial_cards c on c.item_id=i.id
+    where i.editorial_state='staged'
+      and (p_state='all' or p_state=coalesce(c.status,'unassigned'))
+    order by coalesce(c.updated_at,i.first_seen_at) desc,i.id
+    limit p_limit
+  ) r;
+  return jsonb_build_object('items',v_rows,'limit',p_limit,'state',p_state);
+end;
+$$;
+revoke all on function public.sp3_editorial_queue(text,integer)
+  from public,anon,authenticated;
+grant execute on function public.sp3_editorial_queue(text,integer) to authenticated;
+
+create function public.sp3_editorial_detail(p_item_id uuid)
+returns jsonb language plpgsql stable security definer set search_path=''
+as $$
+declare v_item jsonb;v_card jsonb;v_events jsonb;
+begin
+  if (select auth.uid()) is null or
+    not public.has_platform_permission('knowledge.read_drafts') then
+    raise exception 'SP3 editorial detail permission required' using errcode='42501';
+  end if;
+  select jsonb_build_object(
+    'item_id',i.id,'canonical_url',i.canonical_url,
+    'source_name',s.display_name,'source_id',s.id,
+    'source_status',s.status,'source_published_at',i.published_at,
+    'rights_valid_now',steel_pulse_private.sp3_source_is_publishable(i.id)
+  ) into v_item
+  from steel_pulse_private.items i
+  join steel_pulse_private.sources s on s.id=i.source_id
+  where i.id=p_item_id;
+  if v_item is null then
+    raise exception 'SP3 item not found' using errcode='P0002';
+  end if;
+  select jsonb_build_object(
+    'id',c.id,'revision',c.revision,'status',c.status,'headline',c.headline,
+    'summary',c.summary,'relevance',c.relevance,'topic',c.topic,
+    'language_code',c.language_code,'authored_by',c.authored_by,
+    'editor_reviewed_by',c.editor_reviewed_by,
+    'editor_reviewed_at',c.editor_reviewed_at,'fact_evidence_url',c.fact_evidence_url,
+    'legal_reviewed_by',c.legal_reviewed_by,
+    'legal_reviewed_at',c.legal_reviewed_at,
+    'published_at',c.published_at,'published_until',c.published_until,
+    'withdrawn_at',c.withdrawn_at,
+    'item_rights_evidence_url',case when private.is_platform_superadmin()
+      then c.item_rights_evidence_url else null end,
+    'legal_attestation',case when private.is_platform_superadmin()
+      then c.legal_attestation else null end
+  ) into v_card from steel_pulse_private.editorial_cards c
+   where c.item_id=p_item_id;
+  select coalesce(jsonb_agg(
+    jsonb_build_object('event',e.event_type,'revision',e.revision,
+      'occurred_at',e.occurred_at,'actor_user_id',e.actor_user_id)
+      order by e.occurred_at desc,e.id desc
+  ),'[]'::jsonb) into v_events
+  from steel_pulse_private.editorial_events e
+  join steel_pulse_private.editorial_cards c on c.id=e.card_id
+  where c.item_id=p_item_id;
+  return jsonb_build_object('source',v_item,'card',v_card,'history',v_events);
+end;
+$$;
+revoke all on function public.sp3_editorial_detail(uuid)
+  from public,anon,authenticated;
+grant execute on function public.sp3_editorial_detail(uuid) to authenticated;
