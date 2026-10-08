@@ -41,10 +41,10 @@ test("BD4 duplicate retains specifications, clears quantity and enforces 500-lin
   assert.match(builder, /Duplica articolo/);
 });
 
-test("BD4 compact mode leaves article and weight editable, with quantity mode, optional target and details", () => {
-  assert.match(builder, /aria-pressed=\{compactMode\}/);
-  assert.match(builder, /\{compactMode \? \(/);
-  assert.match(builder, /Apri dettagli e selettori/);
+test("BD4 compact editing preserves primary fields and optional details", () => {
+  assert.match(builder, /aria-pressed=\{!compactMode\}/);
+  assert.match(builder, /const detailOpen = expandedRows\[line\.id\] \?\? !compactMode/);
+  assert.match(builder, /Dettagli e opzioni/);
   assert.match(builder, /onChange=\{\(event\) => updateLine\(line\.id, \{ weightKgM: event\.target\.value \}\)\}/);
   assert.match(builder, /Target €\/t \(facoltativo\)/);
   assert.match(builder, /createBuyerRfqCampaign/);
