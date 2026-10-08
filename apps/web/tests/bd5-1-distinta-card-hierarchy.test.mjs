@@ -42,7 +42,7 @@ test("BD5.1 visual treatments are semantic, responsive and reduced-motion safe",
 test("BD5.1 leaves BD4 speed and commercial contracts intact", () => {
   assert.match(builder, /searchBuyerDistintaCatalog/);
   assert.match(builder, /function duplicateLine\(id: string\)/);
-  assert.match(builder, /\{compactMode \? \(/);
+  assert.match(builder, /const detailOpen = expandedRows\[line\.id\] \?\? !compactMode/);
   assert.match(builder, /Target €\/t \(facoltativo\)/);
   assert.match(builder, /saveBuyerDistinta/);
   assert.match(builder, /createBuyerRfqCampaign/);
