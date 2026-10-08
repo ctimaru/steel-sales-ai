@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { BuyerTubeGuidedCreator } from "@/components/buyer-tube-guided-creator";
+import { guidedTubeMassKgM, guidedTubeMeasurement, guidedDocumentsNote, type GuidedTubeDraft } from "@/lib/buyer-tube-guidance";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
@@ -141,6 +143,40 @@ export function BuyerDistintaBuilder({
     updateLine(id, { description: "", weightKgM: "" });
   }
 
+  function weightFromCatalogForStandard(option: BuyerDistintaCatalogOption, standard: string): string {
+    if (standard !== "EN 10210" && standard !== "EN 10219") {
+      return option.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 });
+    }
+    const parts = option.sizeKey.split(":");
+    const a = Number(parts[1]), b = Number(parts[2]);
+    const weight = guidedTubeMassKgM(option.family, standard, a, b, option.thicknessMm);
+    return (weight ?? option.weightKgM).toLocaleString("it-IT", { maximumFractionDigits: 3 });
+  }
+
+  function addGuidedTube(draft: GuidedTubeDraft) {
+    const measurement = guidedTubeMeasurement(draft);
+    if (!measurement) return;
+    const reusable = lines.length === 1 && isUntouchedLine(lines[0]);
+    if (lines.length >= 500 && !reusable) return;
+    const id = reusable ? lines[0].id : newLineId();
+    const nextLine: BuyerDistintaDraftLine = {
+      ...blankLine(id),
+      description: measurement.description,
+      standard: draft.standard,
+      grade: draft.grade.trim().toUpperCase(),
+      weightKgM: measurement.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 }),
+      note: guidedDocumentsNote(draft),
+    };
+    setLines((current) => reusable ? [nextLine] : [...current, nextLine]);
+    setSavedId(null);
+    setSaveMessage(null);
+    setSendMessage(null);
+    setRfqMessage(null);
+    setCompactMode(true);
+    setExpandedRows((current) => ({ ...current, [id]: false }));
+    focusQuantityId.current = id;
+  }
+
   function chooseCatalogOption(id: string, family: string, sizeKey: string, optionId: string) {
     const selected = catalogOptions.find((option) =>
       option.id === optionId && option.family === family && option.sizeKey === sizeKey
@@ -149,7 +185,7 @@ export function BuyerDistintaBuilder({
     setSelectedCatalog((current) => ({ ...current, [id]: { family, sizeKey, optionId } }));
     updateLine(id, {
       description: selected.description,
-      weightKgM: selected.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 }),
+      weightKgM: weightFromCatalogForStandard(selected, lines.find((line) => line.id === id)?.standard ?? ""),
     });
   }
 
@@ -421,6 +457,10 @@ export function BuyerDistintaBuilder({
         </div>
 
 
+        <BuyerTubeGuidedCreator catalogOptions={catalogOptions} onAdd={addGuidedTube} />
+
+        <details className="bd6-legacy-search">
+          <summary className="bd6-legacy-summary">Ricerca rapida alternativa · misure pubblicate e compilazione libera</summary>
         <section aria-label="Ricerca rapida articoli" className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--surface-subtle)] p-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
@@ -485,6 +525,7 @@ export function BuyerDistintaBuilder({
             </div>
           ) : null}
         </section>
+        </details>
 
         <datalist id="buyer-standards"><option value="EN 10219" /><option value="EN 10210" /><option value="EN 10305" /></datalist>
         <datalist id="buyer-grades"><option value="S235JRH" /><option value="S275J0H" /><option value="S355J2H" /></datalist>
@@ -724,7 +765,13 @@ export function BuyerDistintaBuilder({
                         <input
                           list="buyer-standards"
                           value={line.standard}
-                          onChange={(event) => updateLine(line.id, { standard: event.target.value })}
+                          onChange={(event) => {
+                            const standard = event.target.value;
+                            const reference = catalogOptions.find((option) => option.id === selection.optionId);
+                            updateLine(line.id, reference
+                              ? { standard, weightKgM: weightFromCatalogForStandard(reference, standard) }
+                              : { standard });
+                          }}
                           placeholder="EN 10219"
                           className="bd52-input"
                         />
