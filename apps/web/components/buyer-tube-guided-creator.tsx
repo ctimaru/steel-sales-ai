@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 
 import type { BuyerDistintaCatalogOption } from "@/lib/buyer-distinta-catalog";
 import {
@@ -85,13 +85,15 @@ function GuidedDimensionInput({
 }
 
 export function BuyerTubeGuidedCreator({
-  catalogOptions, onAdd, canAdd,
+  catalogOptions, onAdd, onDraftChange, canAdd,
 }: {
   catalogOptions: BuyerDistintaCatalogOption[];
   onAdd: (draft: GuidedTubeDraft) => void;
+  onDraftChange: (draft: GuidedTubeDraft) => void;
   canAdd: boolean;
 }) {
   const [draft, setDraft] = useState<GuidedTubeDraft>(newGuidedTubeDraft);
+  useEffect(() => { onDraftChange(draft); }, [draft, onDraftChange]);
   const measurement = guidedTubeMeasurement(draft);
   const chooseFamily = (family: GuidedTubeFamily) => {
     setDraft((current) => ({
@@ -120,14 +122,12 @@ export function BuyerTubeGuidedCreator({
       <div className="bd6-config-head">
         <div>
           <p className="bd6-eyebrow">Configuratore commerciale · assistito</p>
-          <h3 id="bd6-config-title" className="text-lg font-extrabold text-[var(--brand-deep)]">
-            1. Componi il tuo tubo
+          <h3 id="bd6-config-title" className="text-base font-extrabold text-[var(--brand-deep)]">
+            Configura un articolo
           </h3>
-          <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
-            Scegli tipologia, norma e grado, poi digita le dimensioni: il peso teorico segue il metodo del calcolatore.
-          </p>
+
         </div>
-        <span className="bd6-step-indicator">Articolo assistito</span>
+        <span className="bd6-step-indicator">Norma · grado · misura</span>
       </div>
 
       <div className="bd6-wizard-sections">
@@ -191,9 +191,7 @@ export function BuyerTubeGuidedCreator({
 
         <fieldset className="bd6-wizard-section bd6-dimensions" disabled={!draft.grade.trim()}>
           <legend className="bd6-wizard-label"><span>04</span> Dimensioni assistite</legend>
-          <p className="mb-2 text-xs text-[var(--text-secondary)]">
-            Scrivi una cifra per vedere subito le misure proposte; puoi anche inserire una misura diversa.
-          </p>
+
           <div className="bd6-dimension-grid">
             {draft.family === "round_tube" ? dimension("Diametro esterno", "diameter") : null}
             {draft.family === "square_tube" ? dimension("Lato", "side") : null}
