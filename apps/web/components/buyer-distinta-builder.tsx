@@ -499,10 +499,7 @@ export function BuyerDistintaBuilder({
               </p>
             </div>
           </div>
-          <span className="bd5-progress-count" aria-label={`${totals.completeLines} di ${lines.length} righe complete`}>
-            <span className="bd5-progress-dot" aria-hidden="true" />
-            {totals.completeLines}/{lines.length} complete
-          </span>
+
         </div>
         <div className="mt-3 space-y-3 sm:space-y-4">
           {lines.map((line, index) => {
