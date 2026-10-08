@@ -98,10 +98,11 @@ test("RFQH10 actions navigate back to the governed RFQ workflow", () => {
   assert.doesNotMatch(page, /confirmRfqAward|issuePurchaseOrder|sendNegotiation|launchCampaign/);
 });
 
-test("RFQH10 is integrated into Marketplace navigation and RFQ Hub", () => {
+test("RFQH10 keeps legacy routes and is now owned by private RFQ Hub", () => {
   assert.match(routes, /procurementInbox: "\/marketplace\/inbox"/);
   assert.match(ia, /"marketplace:inbox"/);
   assert.match(ia, /appRoutes\.marketplace\.procurementInbox/);
-  assert.match(shell, /label: "Acquisti"/);
+  assert.match(shell, /label: "Inbox acquisti"/);
+  assert.match(ia, /"rfq:inbox"/);
   assert.match(hub, /Apri Inbox acquisti/);
 });
