@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 import {
   createBuyerRfqCampaign,
@@ -72,6 +72,7 @@ export function BuyerDistintaBuilder({
   const [title, setTitle] = useState("Richiesta di offerta");
   const [quickQuery, setQuickQuery] = useState("");
   const [compactMode, setCompactMode] = useState(false);
+  const focusQuantityId = useRef<string | null>(null);
   const [selectedCatalog, setSelectedCatalog] = useState<Record<string, { family: string; sizeKey: string; optionId: string }>>({});
   const [lines, setLines] = useState<BuyerDistintaDraftLine[]>([
     blankLine("line-1"),
@@ -104,6 +105,19 @@ export function BuyerDistintaBuilder({
     () => searchBuyerDistintaCatalog(catalogOptions, quickQuery, 8),
     [catalogOptions, quickQuery],
   );
+
+  useEffect(() => {
+    const id = focusQuantityId.current;
+    if (!id) return;
+    const input = document.getElementById("buyer-quantity-" + id);
+    if (!input) return;
+    focusQuantityId.current = null;
+    input.focus({ preventScroll: true });
+    input.scrollIntoView({
+      block: "center",
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+    });
+  }, [lines, compactMode]);
 
   function updateLine(
     id: string,
@@ -142,6 +156,7 @@ export function BuyerDistintaBuilder({
     if (lines.length >= 500 && !(lines.length === 1 && isUntouchedLine(lines[0]))) return;
     const reuse = lines.length === 1 && isUntouchedLine(lines[0]);
     const id = reuse ? lines[0].id : newLineId();
+    focusQuantityId.current = id;
     const nextLine: BuyerDistintaDraftLine = {
       ...blankLine(id),
       description: option.description,
@@ -166,6 +181,7 @@ export function BuyerDistintaBuilder({
     if (!source || !source.description.trim()) return;
     const duplicateId = newLineId();
     const copy = { ...source, id: duplicateId, quantity: "" };
+    focusQuantityId.current = duplicateId;
     setLines((current) => {
       const index = current.findIndex((line) => line.id === id);
       if (index === -1 || current.length >= 500) return current;
@@ -462,6 +478,7 @@ export function BuyerDistintaBuilder({
                         Quantità *
                         <input
                           inputMode="decimal"
+                          id={"buyer-quantity-" + line.id}
                           value={line.quantity}
                           onChange={(event) => updateLine(line.id, { quantity: event.target.value })}
                           placeholder="Quantità"
@@ -637,6 +654,7 @@ export function BuyerDistintaBuilder({
                     Quantità *
                     <input
                       inputMode="decimal"
+                      id={"buyer-quantity-" + line.id}
                       value={line.quantity}
                       onChange={(event) =>
                         updateLine(line.id, { quantity: event.target.value })
