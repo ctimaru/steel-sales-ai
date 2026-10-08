@@ -8,13 +8,15 @@ end;
 $$;
 
 select pg_temp.sp2_check(
-  (select count(*)=6 from steel_pulse_private.sources),
-  'six seed sources are registered'
+  (select count(*)=6 from steel_pulse_private.sources
+    where id in ('eurostat','oecd','worldsteel','eurofer','siderweb','steelorbis')),
+  'six original seed sources remain registered'
 );
 select pg_temp.sp2_check(
   not exists(select 1 from steel_pulse_private.sources where status='approved'
-    or cardinality(approved_operations)>0 or feed_url is not null),
-  'all initial sources disabled'
+    or cardinality(approved_operations)>0
+    or (feed_url is not null and id<>'ec_dg_trade')),
+  'all initial source permissions disabled; only the unapproved SP7 candidate has an RSS'
 );
 select pg_temp.sp2_check(
   (select status='prohibited' from steel_pulse_private.sources where id='steelorbis'),
