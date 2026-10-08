@@ -60,24 +60,27 @@ def canonical_url(url: str, hosts: tuple[str, ...]) -> str:
     try:
         parts = urlsplit(url)
         hostname = (parts.hostname or "").lower()
-        if (
-            parts.scheme != "https"
-            or not hostname
-            or hostname not in hosts
-            or parts.port is not None
-            or parts.username is not None
-            or parts.password is not None
-            or "\\" in url
-        ):
-            raise SteelPulseIngestionError("invalid_url")
-        if ipaddress.ip_address(hostname).is_global is False:
-            raise SteelPulseIngestionError("invalid_url")
+        port = parts.port
+    except (ValueError, TypeError, AttributeError) as exc:
+        raise SteelPulseIngestionError("invalid_url") from exc
+    if (
+        parts.scheme != "https"
+        or not hostname
+        or hostname not in hosts
+        or port is not None
+        or parts.username is not None
+        or parts.password is not None
+        or "\\" in url
+        or not re.fullmatch(r"[a-z0-9.-]{3,253}", hostname)
+    ):
+        raise SteelPulseIngestionError("invalid_url")
+    try:
+        address = ipaddress.ip_address(hostname)
     except ValueError:
-        # Not an IP literal: only vetted DNS hostnames are eligible.
-        if not hostname or not re.fullmatch(r"[a-z0-9.-]{3,253}", hostname):
+        pass  # DNS hostname, checked against the source allowlist and public DNS below.
+    else:
+        if not address.is_global:
             raise SteelPulseIngestionError("invalid_url")
-    except (TypeError, AttributeError):
-        raise SteelPulseIngestionError("invalid_url") from None
     path = parts.path or "/"
     safe = urlunsplit(("https", hostname, path, "", ""))
     if len(safe) > MAX_URL_LENGTH or "#" in path or "?" in path:
