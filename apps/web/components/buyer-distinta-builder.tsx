@@ -418,7 +418,7 @@ export function BuyerDistintaBuilder({
   }
 
   return (
-    <div className="space-y-5">
+    <div className="bd54-page space-y-4 sm:space-y-5">
       <aside className="bd53-hud" aria-label="Riepilogo in tempo reale della distinta">
         <div className="bd53-hud-progress">
           <span className="bd53-hud-caption">Righe pronte</span>
