@@ -46,6 +46,8 @@ export function calculateBuyerDistintaLine(
   const barLengthM = parsePositive(input.barLengthM);
   const weightKgM = parsePositive(input.weightKgM);
   const targetEurT = parsePositive(input.targetEurT);
+  // An absent target is valid; a supplied but invalid/nonpositive target is not.
+  const targetValid = input.targetEurT.trim() === "" || targetEurT !== null;
   const targetEurM =
     weightKgM !== null && targetEurT !== null
       ? (targetEurT * weightKgM) / 1000
@@ -98,18 +100,21 @@ export function calculateBuyerDistintaLine(
       input.description.trim().length > 0 &&
       quantity !== null &&
       weightKgM !== null &&
-      targetEurT !== null &&
-      targetEurM !== null &&
+      targetValid &&
       meters !== null &&
       tonnes !== null,
   };
 }
 
 export function calculateBuyerDistintaTotals(lines: BuyerDistintaCalculatedLine[]) {
+  const everyLineHasTarget = lines.length > 0 && lines.every((line) => line.targetTotalEur !== null);
   return {
     totalMeters: lines.reduce((sum, line) => sum + (line.meters ?? 0), 0),
     totalTonnes: lines.reduce((sum, line) => sum + (line.tonnes ?? 0), 0),
-    targetTotalEur: lines.reduce((sum, line) => sum + (line.targetTotalEur ?? 0), 0),
+    // A total price target is meaningful only when every requested line has one.
+    targetTotalEur: everyLineHasTarget
+      ? lines.reduce((sum, line) => sum + (line.targetTotalEur ?? 0), 0)
+      : null,
     completeLines: lines.filter((line) => line.complete).length,
   };
 }
