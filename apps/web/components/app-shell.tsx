@@ -3,9 +3,9 @@ import type { ReactNode } from "react";
 import { logout } from "@/app/(workspace)/actions";
 import { ContextSwitchLink } from "@/components/context-switch-link";
 import { HeaderMenuDismissController } from "@/components/header-menu-dismiss-controller";
+import { WorkspaceNotificationBell } from "@/components/workspace-notification-bell";
 import { ProductBrand } from "@/components/product-brand";
 import {
-  WorkspaceAlertsButton,
   WorkspaceContextNavigation,
   WorkspaceDesktopPrimaryNavigation,
   WorkspaceMobileBottomNavigation,
@@ -15,6 +15,7 @@ import {
 } from "@/components/workspace-navigation";
 import { canAdministerCompany, canWriteWorkspace } from "@/lib/access-policy";
 import { appRoutes } from "@/lib/routes";
+import type { WorkspaceNotificationSnapshot } from "@/lib/workspace-notifications";
 
 type NavItem = WorkspaceNavItem & {
   adminOnly?: boolean;
@@ -92,9 +93,7 @@ export function AppShell({
   organizationName,
   organizationRole,
   demoMode,
-  alertNeedsAttention,
-  alertActiveCount,
-  alertSummaryVerified,
+  notificationSnapshot,
   platformConsoleAccess,
   guidedSetupComplete,
   networkEnabled,
@@ -105,9 +104,7 @@ export function AppShell({
   organizationName: string;
   organizationRole: string;
   demoMode: boolean;
-  alertNeedsAttention: boolean;
-  alertActiveCount: number;
-  alertSummaryVerified: boolean;
+  notificationSnapshot: WorkspaceNotificationSnapshot | null;
   platformConsoleAccess: boolean;
   guidedSetupComplete: boolean;
   networkEnabled: boolean;
@@ -171,11 +168,7 @@ export function AppShell({
                 />
               </div>
             ) : null}
-            <WorkspaceAlertsButton
-              activeCount={alertActiveCount}
-              needsAttention={alertNeedsAttention}
-              statusVerified={alertSummaryVerified}
-            />
+            <WorkspaceNotificationBell snapshot={notificationSnapshot} demoMode={demoMode} />
             <div className="hidden lg:block">
               <WorkspaceProfileMenu
                 viewerLabel={viewerLabel}
