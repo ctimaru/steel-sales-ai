@@ -24,7 +24,7 @@ test("NC3.1: Workspace bell uses per-user RPC and never disguises failure as emp
   assert.match(bell, /Notifiche: verifica non disponibile/);
   assert.match(bell, /onClick=\{refresh\}/);
   assert.match(bell, /role="dialog"/);
-  assert.match(bell, /Escape/);
+  assert.match(bell, /useNotificationPopoverDismiss/);
   assert.match(bell, /onClick=\{\(\) => setOpen\(false\)\}/);
   assert.match(paths, /notifications: "\/notifications"/);
   assert.doesNotMatch(shell, /WorkspaceAlertsButton/);
