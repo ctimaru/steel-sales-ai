@@ -22,6 +22,7 @@ export type WorkspaceContextKey =
   | "commercial:intelligence:conversion"
   | "commercial:intelligence:relationships"
   | "rfq:home"
+  | "rfq:archive"
   | "rfq:distinta"
   | "rfq:inbox"
   | "rfq:suppliers"
