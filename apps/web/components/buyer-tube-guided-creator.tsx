@@ -5,7 +5,6 @@ import { useId, useState } from "react";
 import type { BuyerDistintaCatalogOption } from "@/lib/buyer-distinta-catalog";
 import {
   guidedDocumentsNote,
-  guidedFormatDimension,
   guidedTubeGrades,
   guidedTubeMeasurement,
   newGuidedTubeDraft,
@@ -28,6 +27,7 @@ function GuidedDimensionInput({
 }) {
   const listId = useId();
   const [focused, setFocused] = useState(false);
+  const [activeSuggestion, setActiveSuggestion] = useState(0);
   const suggestions = suggestedGuidedDimensions(catalogOptions, draft, field, value);
   return (
     <label className="bd6-dimension-field">
@@ -42,17 +42,32 @@ function GuidedDimensionInput({
         value={value}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(event) => { setActiveSuggestion(0); onChange(event.target.value); }}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") { setFocused(false); return; }
+          if (!suggestions.length || !focused) return;
+          if (event.key === "ArrowDown") {
+            event.preventDefault();
+            setActiveSuggestion((index) => (index + 1) % suggestions.length);
+          } else if (event.key === "ArrowUp") {
+            event.preventDefault();
+            setActiveSuggestion((index) => (index - 1 + suggestions.length) % suggestions.length);
+          } else if (event.key === "Enter") {
+            event.preventDefault();
+            onChange(suggestions[Math.min(activeSuggestion, suggestions.length - 1)]);
+            setFocused(false);
+          }
+        }
         placeholder="Inizia a scrivere…"
         className="bd6-input"
       />
       {focused && suggestions.length ? (
         <div id={listId} role="listbox" aria-label={"Suggerimenti " + label} className="bd6-suggestions">
-          {suggestions.map((suggestion) => (
+          {suggestions.map((suggestion, index) => (
             <button
               type="button"
               role="option"
-              aria-selected={false}
+              aria-selected={index === activeSuggestion}
               key={suggestion}
               onPointerDown={(event) => event.preventDefault()}
               onClick={() => {
@@ -249,7 +264,13 @@ export function BuyerTubeGuidedCreator({
         </div>
         <button
           type="button"
-          onClick={() => { if (!measurement) return; onAdd(draft); setDraft(newGuidedTubeDraft()); }}
+          onClick={() => {
+            if (!measurement) return;
+            onAdd(draft);
+            setDraft((current) => ({
+              ...current, diameter: "", side: "", width: "", height: "", thickness: "",
+            }));
+          }}
           disabled={!measurement}
           className="bd6-add-button"
         >
