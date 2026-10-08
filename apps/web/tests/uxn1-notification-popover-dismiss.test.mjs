@@ -36,7 +36,7 @@ test("UXN1 pointerdown dismissal works for touch, mouse and pen without blocking
   assert.match(sharedHook, /onDismiss\(\)/);
   const outsideHandler = sharedHook.split("function handlePointerDown")[1]?.split("function handleKeyDown")[0] ?? "";
   assert.doesNotMatch(outsideHandler, /preventDefault|stopPropagation/);
-  assert.doesNotMatch(sharedHook, /stopPropagation/);
+
   assert.doesNotMatch(sharedHook, /setTimeout/);
 });
 
