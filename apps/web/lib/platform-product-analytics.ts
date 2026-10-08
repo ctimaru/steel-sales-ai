@@ -33,13 +33,13 @@ export type PlatformAnalyticsSnapshot = {
   error: string | null;
   ingestion: {
     collector: "an1.2";
-    state: "receiving" | "awaiting_data" | "api_error" | "token_missing";
+    state: "receiving" | "partial_data" | "awaiting_data" | "api_error" | "token_missing";
   };
   totals: {
-    pageviews: number;
-    visitors: number;
-    events: number;
-    eventVisitors: number;
+    pageviews: number | null;
+    visitors: number | null;
+    events: number | null;
+    eventVisitors: number | null;
   };
   trend: AnalyticsPoint[];
   topPages: AnalyticsDimensionRow[];
@@ -139,6 +139,16 @@ async function vercelAnalyticsQuery<T>(
   }
 
   return (await response.json()) as T;
+}
+
+function countMetric(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0
+    ? value
+    : null;
+}
+
+function sumCountMetrics(rows: Array<{ pageviews?: number }>) {
+  return rows.reduce((total, row) => total + (countMetric(row.pageviews) ?? 0), 0);
 }
 
 function conversion(value: number, previous: number | null) {
@@ -285,11 +295,47 @@ export async function getPlatformAnalyticsSnapshot(
       .sort((a, b) => b.count - a.count);
 
     const eventMap = new Map(events.map((event) => [event.name, event.count]));
-    const pageviews = visitCount.data?.pageviews ?? 0;
-    const visitors = visitCount.data?.visitors ?? 0;
-    const eventTotal = eventCount.data?.count ?? 0;
-    const eventVisitors = eventCount.data?.visitors ?? 0;
-    const hasData = pageviews > 0 || visitors > 0 || eventTotal > 0 || eventVisitors > 0;
+
+    // A successful HTTP response does not guarantee a populated count payload.
+    // The page/time aggregations are independent evidence of actual traffic.
+    const countedPageviews = countMetric(visitCount.data?.pageviews);
+    const countedVisitors = countMetric(visitCount.data?.visitors);
+    const countedEvents = countMetric(eventCount.data?.count);
+    const countedEventVisitors = countMetric(eventCount.data?.visitors);
+    const aggregatePageviews = sumCountMetrics(trendResponse.data ?? []);
+    const aggregateEvents = events.reduce((total, event) => total + event.count, 0);
+    const pagesHaveTraffic = (pagesResponse.data ?? []).some((row) => (row.pageviews ?? 0) > 0);
+    const hasData =
+      aggregatePageviews > 0 ||
+      aggregateEvents > 0 ||
+      pagesHaveTraffic ||
+      (countriesResponse.data ?? []).some((row) => (row.pageviews ?? 0) > 0) ||
+      (countedPageviews ?? 0) > 0 ||
+      (countedVisitors ?? 0) > 0 ||
+      (countedEvents ?? 0) > 0 ||
+      (countedEventVisitors ?? 0) > 0;
+
+    const inconsistentPageviews =
+      aggregatePageviews > 0 && (countedPageviews === null || countedPageviews === 0);
+    const inconsistentVisitors =
+      aggregatePageviews > 0 && (countedVisitors === null || countedVisitors === 0);
+    const inconsistentEvents =
+      aggregateEvents > 0 && (countedEvents === null || countedEvents === 0);
+    const inconsistentEventVisitors =
+      aggregateEvents > 0 && (countedEventVisitors === null || countedEventVisitors === 0);
+
+    // Pageviews are additive across time buckets, but unique visitors are NOT.
+    // Never fabricate a unique-visitor total by summing bucket or country visitors.
+    const pageviews = inconsistentPageviews ? aggregatePageviews : countedPageviews;
+    const visitors = inconsistentVisitors ? null : countedVisitors;
+    const eventTotal = inconsistentEvents ? aggregateEvents : countedEvents;
+    const eventVisitors = inconsistentEventVisitors ? null : countedEventVisitors;
+    const partialData =
+      inconsistentPageviews ||
+      inconsistentVisitors ||
+      inconsistentEvents ||
+      inconsistentEventVisitors ||
+      (hasData && (pageviews === null || visitors === null || eventTotal === null || eventVisitors === null));
 
     return {
       configured: true,
@@ -299,7 +345,7 @@ export async function getPlatformAnalyticsSnapshot(
       error: null,
       ingestion: {
         collector: "an1.2",
-        state: hasData ? "receiving" : "awaiting_data",
+        state: partialData ? "partial_data" : hasData ? "receiving" : "awaiting_data",
       },
       totals: {
         pageviews,
