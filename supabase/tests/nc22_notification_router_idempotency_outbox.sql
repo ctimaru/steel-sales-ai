@@ -156,9 +156,9 @@ select pg_temp.nc22_expect_error(
  '00000000-0000-0000-0000-000000002211')$$,
  'source unavailable');
 select pg_temp.nc22_expect_error(
- $$select public.nc22_route_notification('workspace.rfq.response_received','00000000-0000-0000-0000-000000002225',1,
+ $$select public.nc22_route_notification('workspace.rfq.clarification_requested','00000000-0000-0000-0000-000000002225',1,
  '00000000-0000-0000-0000-000000002211')$$,
- 'RFQ source bridge not yet approved');
+ 'RFQ subtype not yet source-verified');
 select pg_temp.nc22_expect_error(
  $$select public.nc22_route_notification('platform.registration.submitted','00000000-0000-0000-0000-000000002225',1,
  '00000000-0000-0000-0000-000000002211')$$,
