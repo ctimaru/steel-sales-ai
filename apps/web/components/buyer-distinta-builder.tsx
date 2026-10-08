@@ -194,6 +194,28 @@ export function BuyerDistintaBuilder({
     });
   }
 
+  // The specification belongs to this line: switching its norm never changes
+  // previously entered lines, even when their shapes and dimensions match.
+  function changeLineStandard(id: string, standard: string) {
+    const selection = selectedCatalog[id];
+    const reference = catalogOptions.find((option) => option.id === selection?.optionId);
+    const guided = guidedSpecsByLine[id];
+    const recalculated = (standard === "EN 10219" || standard === "EN 10210") && guided
+      ? guidedTubeMeasurement({ ...guided, standard })
+      : null;
+    updateLine(id, reference
+      ? { standard, weightKgM: weightFromCatalogForStandard(reference, standard) }
+      : recalculated
+        ? { standard, weightKgM: recalculated.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 }) }
+        : { standard });
+    if (guided) {
+      setGuidedSpecsByLine((current) => ({
+        ...current,
+        [id]: { ...guided, standard: standard === "EN 10219" || standard === "EN 10210" ? standard : "" },
+      }));
+    }
+  }
+
   function addCatalogLine(option: BuyerDistintaCatalogOption) {
     if (lines.length >= 500 && !(lines.length === 1 && isUntouchedLine(lines[0]))) return;
     const reuse = lines.length === 1 && isUntouchedLine(lines[0]);
@@ -690,131 +712,142 @@ export function BuyerDistintaBuilder({
                 className="bd5-row-card"
               >
                 <div className="bd5-row-header">
-                  <div className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3">
-                    <span className="bd5-row-number" aria-hidden="true">
-                      {String(index + 1).padStart(2, "0")}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-[var(--brand-deep)]">
-                        Riga {index + 1}
-                      </p>
-                      <p className="mt-0.5 max-w-[26rem] truncate text-xs text-[var(--text-secondary)]">
-                        {calc.complete
-                          ? `${line.description} · ${formatNumber(calc.tonnes, 3)} t`
-                          : line.description.trim() || "Seleziona un articolo o inserisci una misura"}
-                      </p>
-                    </div>
-                  </div>
-                  <span className="bd5-status-badge">
+                  <span className="bd5-row-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+                  <label className="bd52-field bd52-field-description">
+                    Articolo *
+                    <input
+                      value={line.description}
+                      onChange={(event) => updateLine(line.id, { description: event.target.value })}
+                      placeholder="Tubo quadro 100 × 100 × 4 mm"
+                      className="bd52-input"
+                    />
+                  </label>
+                  <label className="bd8-inline-norm bd52-field">
+                    Norma
+                    <select
+                      aria-label={`Norma della riga ${index + 1}`}
+                      value={line.standard}
+                      onChange={(event) => changeLineStandard(line.id, event.target.value)}
+                      className="bd52-input"
+                    >
+                      <option value="">Scegli</option>
+                      <option value="EN 10219">EN 10219</option>
+                      <option value="EN 10210">EN 10210</option>
+                      {line.standard && !["EN 10219", "EN 10210"].includes(line.standard)
+                        ? <option value={line.standard}>{line.standard}</option> : null}
+                    </select>
+                  </label>
+                  <label className="bd8-inline-grade bd52-field">
+                    Grado
+                    <input
+                      list="buyer-grades"
+                      aria-label={`Grado della riga ${index + 1}`}
+                      value={line.grade}
+                      onChange={(event) => updateLine(line.id, { grade: event.target.value })}
+                      placeholder="S355J2H"
+                      className="bd52-input"
+                    />
+                  </label>
+                  <span className="bd5-status-badge" title={calc.complete ? "Completa" : rowStage === "empty" ? "Da iniziare" : "Da completare"}>
                     <span aria-hidden="true" className="bd5-status-dot" />
-                    {calc.complete ? "Completa" : rowStage === "empty" ? "Da iniziare" : "Da completare"}
+                    <span className="sr-only">{calc.complete ? "Completa" : rowStage === "empty" ? "Da iniziare" : "Da completare"}</span>
                   </span>
-                  <div className="bd5-row-actions flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => duplicateLine(line.id)}
-                      disabled={!line.description.trim() || lines.length >= 500}
-                      title="Copia materiale e specifiche, lasciando vuota la quantità"
-                      className="bd5-row-action"
-                    >
-                      Duplica articolo
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => removeLine(line.id)}
-                      className="bd5-row-action bd5-row-action-danger"
-                      aria-label={`Rimuovi riga ${index + 1}`}
-                    >
-                      Rimuovi
-                    </button>
-                  </div>
                 </div>
                 <div className="bd5-row-body">
-                <div className="bd52-core">
-                  <div className="bd52-core-fields">
-                    <label className="bd52-field bd52-field-description">
-                      Articolo / descrizione *
-                      <input
-                        value={line.description}
-                        onChange={(event) => updateLine(line.id, { description: event.target.value })}
-                        placeholder="Es. Tubo quadro 100 × 100 × 4 mm"
-                        className="bd52-input"
-                      />
-                    </label>
-                    <label className="bd52-field bd52-field-weight">
-                      Peso kg/m *
-                      <input
-                        inputMode="decimal"
-                        value={line.weightKgM}
-                        onChange={(event) => updateLine(line.id, { weightKgM: event.target.value })}
-                        placeholder="kg/m"
-                        className="bd52-input"
-                      />
-                    </label>
-                    <label className="bd52-field bd52-field-quantity">
-                      Quantità *
-                      <input
-                        id={"buyer-quantity-" + line.id}
-                        inputMode="decimal"
-                        value={line.quantity}
-                        onChange={(event) => updateLine(line.id, { quantity: event.target.value })}
-                        placeholder="Quantità"
-                        className="bd52-input bd52-quantity-input"
-                      />
-                    </label>
-                    <label className="bd52-field bd52-field-unit">
-                      Unità
-                      <select
-                        value={line.quantityMode}
-                        onChange={(event) => updateLine(line.id, { quantityMode: event.target.value as BuyerQuantityMode })}
-                        className="bd52-input"
-                      >
-                        <option value="meters">Metri</option>
-                        <option value="bars">Barre / pezzi</option>
-                        <option value="tonnes">Tonnellate</option>
-                      </select>
-                    </label>
-                    {line.quantityMode === "bars" ? (
-                      <label className="bd52-field bd52-field-bars">
-                        Lunghezza barra (m) *
+                  <div className="bd52-core">
+                    <div className="bd52-core-fields">
+                      <label className="bd52-field bd52-field-quantity">
+                        Quantità *
+                        <input
+                          id={"buyer-quantity-" + line.id}
+                          inputMode="decimal"
+                          aria-label={`Quantità riga ${index + 1}`}
+                          value={line.quantity}
+                          onChange={(event) => updateLine(line.id, { quantity: event.target.value })}
+                          placeholder="0"
+                          className="bd52-input bd52-quantity-input"
+                        />
+                      </label>
+                      <label className="bd52-field bd52-field-unit">
+                        Unità
+                        <select
+                          value={line.quantityMode}
+                          onChange={(event) => updateLine(line.id, { quantityMode: event.target.value as BuyerQuantityMode })}
+                          className="bd52-input"
+                        >
+                          <option value="meters">Metri</option>
+                          <option value="bars">Barre / pezzi</option>
+                          <option value="tonnes">Tonnellate</option>
+                        </select>
+                      </label>
+                      {line.quantityMode === "bars" ? (
+                        <label className="bd52-field bd52-field-bars">
+                          Barra (m) *
+                          <input
+                            inputMode="decimal"
+                            value={line.barLengthM}
+                            onChange={(event) => updateLine(line.id, { barLengthM: event.target.value })}
+                            placeholder="12"
+                            className="bd52-input"
+                          />
+                        </label>
+                      ) : null}
+                      <label className="bd52-field bd52-field-weight">
+                        kg/m *
                         <input
                           inputMode="decimal"
-                          value={line.barLengthM}
-                          onChange={(event) => updateLine(line.id, { barLengthM: event.target.value })}
-                          placeholder="6"
+                          value={line.weightKgM}
+                          onChange={(event) => updateLine(line.id, { weightKgM: event.target.value })}
+                          placeholder="kg/m"
                           className="bd52-input"
                         />
                       </label>
+                      <div className="bd8-tonnes" aria-label={`Peso riga ${index + 1}`}>
+                        <span>Tonnellate</span>
+                        <strong className="bd52-weight-pill">{formatNumber(calc.tonnes, 3)} t</strong>
+                      </div>
+                      <button
+                        type="button"
+                        aria-expanded={detailOpen}
+                        aria-controls={"buyer-details-" + line.id}
+                        aria-label={(detailOpen ? "Chiudi dettagli riga " : "Apri dettagli riga ") + String(index + 1)}
+                        onClick={() => toggleRowDetails(line.id)}
+                        className="bd52-details-toggle"
+                      >
+                        {detailOpen ? "Chiudi" : invalidTarget ? "Correggi target" : "Dettagli e opzioni"}
+                        <span aria-hidden="true" className={detailOpen ? "bd52-chevron bd52-chevron-open" : "bd52-chevron"}>⌄</span>
+                      </button>
+                      <div className="bd5-row-actions flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => duplicateLine(line.id)}
+                          disabled={!line.description.trim() || lines.length >= 500}
+                          title="Duplica articolo (quantità vuota, norma invariata)"
+                          aria-label={`Duplica articolo riga ${index + 1}`}
+                          className="bd5-row-action bd8-icon-button"
+                        >
+                          <span aria-hidden="true">⧉</span><span className="sr-only">Duplica articolo</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeLine(line.id)}
+                          className="bd5-row-action bd5-row-action-danger bd8-icon-button"
+                          aria-label={`Rimuovi riga ${index + 1}`}
+                          title="Rimuovi articolo"
+                        >
+                          <span aria-hidden="true">×</span><span className="sr-only">Rimuovi</span>
+                        </button>
+                      </div>
+                    </div>
+                    {(line.targetEurT.trim() || line.finish || line.note) ? (
+                      <div className="bd52-core-footer">
+                        {line.targetEurT.trim()
+                          ? <span>{invalidTarget ? "Verifica Target €/t" : `Target ${formatNumber(calc.targetEurT, 2)} €/t`}</span> : null}
+                        {line.finish ? <span>Finitura: {line.finish}</span> : null}
+                        {line.note ? <span>Nota inserita</span> : null}
+                      </div>
                     ) : null}
                   </div>
-                  <div className="bd52-core-footer">
-                    <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1.5">
-                      <span className="bd52-weight-pill">{formatNumber(calc.tonnes, 3)} t</span>
-                      {line.targetEurT.trim() ? (
-                        <span className="bd52-detail-summary">
-                          {invalidTarget ? "Verifica Target €/t" : `Target ${formatNumber(calc.targetEurT, 2)} €/t`}
-                        </span>
-                      ) : null}
-                      {line.standard || line.grade || line.finish ? (
-                        <span className="bd52-detail-summary truncate">
-                          {[line.standard, line.grade, line.finish].filter(Boolean).join(" · ")}
-                        </span>
-                      ) : null}
-                      {line.note ? <span className="bd52-note-indicator">Nota inserita</span> : null}
-                    </div>
-                    <button
-                      type="button"
-                      aria-expanded={detailOpen}
-                      aria-controls={"buyer-details-" + line.id}
-                      aria-label={(detailOpen ? "Chiudi dettagli riga " : "Apri dettagli riga ") + String(index + 1)}
-                      onClick={() => toggleRowDetails(line.id)}
-                      className="bd52-details-toggle"
-                    >
-                      {detailOpen ? "Nascondi dettagli" : invalidTarget ? "Correggi target" : "Dettagli e opzioni"}
-                      <span aria-hidden="true" className={detailOpen ? "bd52-chevron bd52-chevron-open" : "bd52-chevron"}>⌄</span>
-                    </button>
-                  </div>
-                </div>
 
                 <div
                   id={"buyer-details-" + line.id}
@@ -890,25 +923,7 @@ export function BuyerDistintaBuilder({
                         <input
                           list="buyer-standards"
                           value={line.standard}
-                          onChange={(event) => {
-                            const standard = event.target.value;
-                            const reference = catalogOptions.find((option) => option.id === selection.optionId);
-                            const guided = guidedSpecsByLine[line.id];
-                            const recalculated = (standard === "EN 10219" || standard === "EN 10210") && guided
-                              ? guidedTubeMeasurement({ ...guided, standard })
-                              : null;
-                            updateLine(line.id, reference
-                              ? { standard, weightKgM: weightFromCatalogForStandard(reference, standard) }
-                              : recalculated
-                                ? { standard, weightKgM: recalculated.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 }) }
-                                : { standard });
-                            if (guided) {
-                              setGuidedSpecsByLine((current) => ({
-                                ...current,
-                                [line.id]: { ...guided, standard: standard === "EN 10219" || standard === "EN 10210" ? standard : "" },
-                              }));
-                            }
-                          }}
+                          onChange={(event) => changeLineStandard(line.id, event.target.value)}
                           placeholder="EN 10219"
                           className="bd52-input"
                         />
