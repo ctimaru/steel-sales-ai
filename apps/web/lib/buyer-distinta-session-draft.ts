@@ -47,7 +47,7 @@ function normalLine(value: unknown): BuyerDistintaDraftLine | null {
     finish: bounded(value.finish, 150),
     quantityMode,
     quantity: bounded(value.quantity, 45),
-    barLengthM: bounded(value.barLengthM, 45) || "12",
+    barLengthM: typeof value.barLengthM === "string" ? bounded(value.barLengthM, 45) : "12",
     weightKgM: bounded(value.weightKgM, 45),
     targetEurT: bounded(value.targetEurT, 45),
     note: bounded(value.note, 1200),
