@@ -793,7 +793,7 @@ export function BuyerDistintaBuilder({
                         </label>
                       ) : null}
                       <label className="bd52-field bd52-field-weight">
-                        kg/m *
+                        Peso kg/m *
                         <input
                           inputMode="decimal"
                           value={line.weightKgM}
