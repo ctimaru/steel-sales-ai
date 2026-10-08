@@ -19,6 +19,7 @@ import {
 } from "@/lib/buyer-distinta";
 import {
   buyerTubeFamilyLabels,
+  searchBuyerDistintaCatalog,
   type BuyerDistintaCatalogOption,
 } from "@/lib/buyer-distinta-catalog";
 
@@ -36,6 +37,18 @@ function blankLine(id: string): BuyerDistintaDraftLine {
     targetEurT: "",
     note: "",
   };
+}
+
+function newLineId() {
+  return typeof crypto !== "undefined" && crypto.randomUUID
+    ? crypto.randomUUID()
+    : "line-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+}
+
+function isUntouchedLine(line: BuyerDistintaDraftLine) {
+  return !line.description.trim() && !line.weightKgM.trim() &&
+    !line.quantity.trim() && !line.standard.trim() && !line.grade.trim() &&
+    !line.finish.trim() && !line.targetEurT.trim() && !line.note.trim();
 }
 
 function formatNumber(value: number | null, digits: number) {
@@ -57,6 +70,8 @@ export function BuyerDistintaBuilder({
 }) {
   const router = useRouter();
   const [title, setTitle] = useState("Richiesta di offerta");
+  const [quickQuery, setQuickQuery] = useState("");
+  const [compactMode, setCompactMode] = useState(false);
   const [selectedCatalog, setSelectedCatalog] = useState<Record<string, { family: string; sizeKey: string; optionId: string }>>({});
   const [lines, setLines] = useState<BuyerDistintaDraftLine[]>([
     blankLine("line-1"),
@@ -85,6 +100,10 @@ export function BuyerDistintaBuilder({
   );
   const allComplete =
     calculated.length > 0 && calculated.every((line) => line.complete);
+  const quickMatches = useMemo(
+    () => searchBuyerDistintaCatalog(catalogOptions, quickQuery, 8),
+    [catalogOptions, quickQuery],
+  );
 
   function updateLine(
     id: string,
@@ -119,23 +138,69 @@ export function BuyerDistintaBuilder({
     });
   }
 
-  function addLine() {
-    setSavedId(null);
-    setLines((current) => [
+  function addCatalogLine(option: BuyerDistintaCatalogOption) {
+    if (lines.length >= 500 && !(lines.length === 1 && isUntouchedLine(lines[0]))) return;
+    const reuse = lines.length === 1 && isUntouchedLine(lines[0]);
+    const id = reuse ? lines[0].id : newLineId();
+    const nextLine: BuyerDistintaDraftLine = {
+      ...blankLine(id),
+      description: option.description,
+      weightKgM: option.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 }),
+    };
+    setLines((current) => reuse ? [nextLine] : [...current, nextLine]);
+    setSelectedCatalog((current) => ({
       ...current,
-      blankLine(
-        typeof crypto !== "undefined" && crypto.randomUUID
-          ? crypto.randomUUID()
-          : "line-" + String(Date.now()),
-      ),
-    ]);
+      [id]: { family: option.family, sizeKey: option.sizeKey, optionId: option.id },
+    }));
+    setSavedId(null);
+    setSaveMessage(null);
+    setSendMessage(null);
+    setRfqMessage(null);
+    setQuickQuery("");
+    setCompactMode(true);
+  }
+
+  function duplicateLine(id: string) {
+    if (lines.length >= 500) return;
+    const source = lines.find((line) => line.id === id);
+    if (!source || !source.description.trim()) return;
+    const duplicateId = newLineId();
+    const copy = { ...source, id: duplicateId, quantity: "" };
+    setLines((current) => {
+      const index = current.findIndex((line) => line.id === id);
+      if (index === -1 || current.length >= 500) return current;
+      return [...current.slice(0, index + 1), copy, ...current.slice(index + 1)];
+    });
+    const selection = selectedCatalog[id];
+    if (selection) {
+      setSelectedCatalog((current) => ({ ...current, [duplicateId]: { ...selection } }));
+    }
+    setSavedId(null);
+    setSaveMessage(null);
+    setSendMessage(null);
+    setRfqMessage(null);
+  }
+
+  function addLine() {
+    if (lines.length >= 500) return;
+    setSavedId(null);
+    setSaveMessage(null);
+    setLines((current) =>
+      current.length >= 500 ? current : [...current, blankLine(newLineId())],
+    );
   }
 
   function removeLine(id: string) {
     setSavedId(null);
+    setSaveMessage(null);
+    setSelectedCatalog((current) => {
+      const next = { ...current };
+      delete next[id];
+      return next;
+    });
     setLines((current) =>
       current.length === 1
-        ? [blankLine("line-reset")]
+        ? [blankLine(newLineId())]
         : current.filter((line) => line.id !== id),
     );
   }
@@ -266,6 +331,70 @@ export function BuyerDistintaBuilder({
           </label>
         </div>
 
+
+        <section aria-label="Ricerca rapida articoli" className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--surface-subtle)] p-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h3 className="text-sm font-bold text-[var(--brand-deep)]">Aggiunta rapida degli articoli</h3>
+              <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
+                Cerca una misura pubblica, aggiungila alla distinta e inserisci solo la quantità.
+                Per articoli particolari usa la compilazione libera.
+              </p>
+            </div>
+            <button
+              type="button"
+              aria-pressed={compactMode}
+              onClick={() => setCompactMode((current) => !current)}
+              className={compactMode
+                ? "platform-primary min-h-11 rounded-xl px-4 text-xs font-bold"
+                : "min-h-11 rounded-xl border border-[var(--border)] bg-white px-4 text-xs font-bold text-[var(--brand-deep)] hover:bg-[var(--surface-muted)]"}
+            >
+              {compactMode ? "Vista compatta: attiva" : "Attiva vista compatta"}
+            </button>
+          </div>
+          <label className="mt-3 block text-xs font-semibold text-[var(--text-secondary)]">
+            Cerca per forma, dimensioni o spessore
+            <input
+              type="search"
+              value={quickQuery}
+              onChange={(event) => setQuickQuery(event.target.value)}
+              placeholder="Es. quadro 100x100x4, tondo 60,3x3"
+              autoComplete="off"
+              className="mt-1.5 h-12 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--brand-primary)]"
+            />
+          </label>
+          {quickQuery.trim() ? (
+            <div className="mt-3" aria-live="polite">
+              {catalogOptions.length === 0 ? (
+                <p className="text-xs text-[var(--text-secondary)]">Catalogo pubblico non disponibile. Aggiungi una riga libera.</p>
+              ) : quickMatches.length === 0 ? (
+                <p className="text-xs text-[var(--text-secondary)]">Nessuna misura trovata. Prova una ricerca diversa oppure usa una riga libera.</p>
+              ) : (
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {quickMatches.map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => addCatalogLine(option)}
+                      disabled={lines.length >= 500}
+                      aria-label={"Aggiungi " + option.description}
+                      className="flex min-h-12 items-center justify-between gap-3 rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-left text-sm text-[var(--text-primary)] transition hover:border-[var(--brand-primary)] hover:bg-[var(--brand-primary-soft)] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <span className="min-w-0 font-semibold">{option.description}</span>
+                      <span className="shrink-0 whitespace-nowrap text-xs text-[var(--text-secondary)]">
+                        {option.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 })} kg/m <span aria-hidden="true">＋</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {quickMatches.length === 8 ? (
+                <p className="mt-2 text-xs text-[var(--text-secondary)]">Mostriamo i primi 8 risultati: affina la ricerca per trovare la misura desiderata.</p>
+              ) : null}
+            </div>
+          ) : null}
+        </section>
+
         <datalist id="buyer-standards"><option value="EN 10219" /><option value="EN 10210" /><option value="EN 10305" /></datalist>
         <datalist id="buyer-grades"><option value="S235JRH" /><option value="S275J0H" /><option value="S355J2H" /></datalist>
         <datalist id="buyer-finishes"><option value="Nero" /><option value="Zincato" /><option value="Decapato" /></datalist>
@@ -288,15 +417,105 @@ export function BuyerDistintaBuilder({
                   <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#718078]">
                     Riga {index + 1}
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => removeLine(line.id)}
-                    className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#8a4c44] hover:bg-rose-50"
-                  >
-                    Rimuovi
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => duplicateLine(line.id)}
+                      disabled={!line.description.trim() || lines.length >= 500}
+                      title="Copia materiale e specifiche, lasciando vuota la quantità"
+                      className="min-h-10 rounded-lg border border-[var(--border)] bg-white px-3 text-xs font-bold text-[var(--brand-deep)] hover:bg-[var(--brand-primary-soft)] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Duplica articolo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeLine(line.id)}
+                      className="min-h-10 rounded-lg px-2.5 text-xs font-semibold text-[#8a4c44] hover:bg-rose-50"
+                    >
+                      Rimuovi
+                    </button>
+                  </div>
                 </div>
 
+
+                {compactMode ? (
+                  <div className="mt-3 space-y-3">
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-12">
+                      <label className="col-span-2 text-xs font-semibold text-[var(--text-secondary)] sm:col-span-5">
+                        Articolo / descrizione *
+                        <input
+                          value={line.description}
+                          onChange={(event) => updateLine(line.id, { description: event.target.value })}
+                          className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)] focus:border-[var(--brand-primary)]"
+                        />
+                      </label>
+                      <label className="text-xs font-semibold text-[var(--text-secondary)] sm:col-span-2">
+                        Peso kg/m *
+                        <input
+                          inputMode="decimal"
+                          value={line.weightKgM}
+                          onChange={(event) => updateLine(line.id, { weightKgM: event.target.value })}
+                          className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)]"
+                        />
+                      </label>
+                      <label className="text-xs font-semibold text-[var(--text-secondary)] sm:col-span-2">
+                        Quantità *
+                        <input
+                          inputMode="decimal"
+                          value={line.quantity}
+                          onChange={(event) => updateLine(line.id, { quantity: event.target.value })}
+                          placeholder="Quantità"
+                          className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm font-semibold text-[var(--text-primary)]"
+                        />
+                      </label>
+                      <label className="text-xs font-semibold text-[var(--text-secondary)] sm:col-span-3">
+                        Unità
+                        <select
+                          value={line.quantityMode}
+                          onChange={(event) => updateLine(line.id, { quantityMode: event.target.value as BuyerQuantityMode })}
+                          className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-2 text-sm text-[var(--text-primary)]"
+                        >
+                          <option value="meters">Metri</option>
+                          <option value="bars">Barre / pezzi</option>
+                          <option value="tonnes">Tonnellate</option>
+                        </select>
+                      </label>
+                      {line.quantityMode === "bars" ? (
+                        <label className="text-xs font-semibold text-[var(--text-secondary)] sm:col-span-3">
+                          Lunghezza barra (m)
+                          <input inputMode="decimal" value={line.barLengthM}
+                            onChange={(event) => updateLine(line.id, { barLengthM: event.target.value })}
+                            className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)]" />
+                        </label>
+                      ) : null}
+                      <label className="col-span-2 text-xs font-semibold text-[var(--text-secondary)] sm:col-span-3">
+                        Target €/t (facoltativo)
+                        <input
+                          inputMode="decimal"
+                          value={line.targetEurT}
+                          onChange={(event) => updateLine(line.id, { targetEurT: event.target.value })}
+                          placeholder="Opzionale"
+                          className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm text-[var(--text-primary)]"
+                        />
+                      </label>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[var(--text-secondary)]">
+                      <span>{formatNumber(calc.tonnes, 3)} t</span>
+                      <span>Target €/m: {formatNumber(calc.targetEurM, 4)}</span>
+                      {(line.standard || line.grade || line.finish || line.note) ? (
+                        <span className="max-w-full truncate">{[line.standard, line.grade, line.finish, line.note].filter(Boolean).join(" · ")}</span>
+                      ) : null}
+                      <button
+                        type="button"
+                        onClick={() => setCompactMode(false)}
+                        className="font-bold text-[var(--brand-deep)] underline underline-offset-4"
+                      >
+                        Apri dettagli e selettori
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
                 <div className="mt-3 rounded-xl border border-[var(--border)] bg-white p-3 sm:p-4">
                   <p className="text-xs font-bold text-[var(--brand-deep)]">1. Seleziona l'articolo</p>
                   <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
@@ -494,6 +713,9 @@ export function BuyerDistintaBuilder({
                   </label>
                 </div>
 
+                  </>
+                )}
+
                 {!calc.complete ? (
                   <p className="mt-3 text-[11px] leading-5 text-[#7b6a43]">
                     Per completare la distinta servono descrizione, quantità e peso kg/m. Se inserisci un Target €/t, deve essere positivo.
@@ -507,10 +729,12 @@ export function BuyerDistintaBuilder({
         <button
           type="button"
           onClick={addLine}
+          disabled={lines.length >= 500}
           className="mt-4 inline-flex min-h-11 items-center rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-4 text-sm font-bold text-[#173f35] hover:bg-[#e1ece8]"
         >
-          + Aggiungi riga
+          + Aggiungi riga libera
         </button>
+        <p className="mt-2 text-xs text-[var(--text-secondary)]">{lines.length} / 500 righe · Duplica per riutilizzare le specifiche senza ripetere la quantità.</p>
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[1fr_1.35fr]">
