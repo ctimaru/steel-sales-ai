@@ -9,6 +9,8 @@ import {
 import { ContextSwitchLink } from "@/components/context-switch-link";
 import { HeaderMenuDismissController } from "@/components/header-menu-dismiss-controller";
 import { ProductBrand } from "@/components/product-brand";
+import { PlatformNotificationBell } from "@/components/platform-notification-bell";
+import type { PlatformNotificationSnapshot } from "@/lib/platform-notifications";
 import type { PlatformPermissionKey } from "@/lib/platform-access-contract";
 
 export function PlatformShell({
@@ -17,12 +19,14 @@ export function PlatformShell({
   authorityLabel,
   permissions,
   isPlatformOwner,
+  notificationSnapshot,
 }: {
   children: ReactNode;
   viewerLabel: string;
   authorityLabel: string;
   permissions: PlatformPermissionKey[];
   isPlatformOwner: boolean;
+  notificationSnapshot: PlatformNotificationSnapshot | null;
 }) {
   return (
     <><HeaderMenuDismissController /><div className="min-h-screen bg-[#f2f4f3] text-[#1d2824]">
@@ -99,6 +103,7 @@ export function PlatformShell({
                   className="hidden sm:inline-flex"
                 />
               ) : null}
+              <PlatformNotificationBell snapshot={notificationSnapshot} platformReady />
               <span className="hidden rounded-full bg-[#e1ece8] px-3.5 py-2 text-xs font-semibold text-[#173f35] sm:inline-flex">
                 {authorityLabel}
               </span>
