@@ -127,7 +127,7 @@ export function BuyerTubeGuidedCreator({
           </h3>
 
         </div>
-        <span className="bd6-step-indicator">Norma · grado · misura</span>
+        <span className="bd6-step-indicator">Norma per articolo · mista consentita</span>
       </div>
 
       <div className="bd6-wizard-sections">
@@ -228,7 +228,7 @@ export function BuyerTubeGuidedCreator({
             if (!measurement || !canAdd) return;
             onAdd(draft);
             setDraft((current) => ({
-              ...current, diameter: "", side: "", width: "", height: "", thickness: "",
+              ...current, standard: "", diameter: "", side: "", width: "", height: "", thickness: "",
             }));
           }}
           disabled={!measurement || !canAdd}
