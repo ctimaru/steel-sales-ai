@@ -10,7 +10,7 @@ import {
 const page = fs.readFileSync(new URL("../app/(workspace)/alerts/page.tsx", import.meta.url), "utf8");
 const layout = fs.readFileSync(new URL("../app/(workspace)/layout.tsx", import.meta.url), "utf8");
 const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
-const navigation = fs.readFileSync(new URL("../components/workspace-navigation.tsx", import.meta.url), "utf8");
+const bell = fs.readFileSync(new URL("../components/workspace-notification-bell.tsx", import.meta.url), "utf8");
 const refresh = fs.readFileSync(new URL("../app/(workspace)/alerts/refresh-button.tsx", import.meta.url), "utf8");
 
 const baseSummary = {
@@ -83,11 +83,10 @@ test("NC1.1: page and header never turn RPC failures into zero alerts", () => {
   assert.match(page, /Non risultano alert operativi per questa azienda/);
   assert.doesNotMatch(page, /alertsError \? \[\]/);
   assert.doesNotMatch(page, /Controlli regolari/);
-  assert.match(layout, /parseOperationalAlertSummary/);
-  assert.match(layout, /alertSummaryVerified = false/);
-  assert.match(layout, /if \(summary\) \{/);
-  assert.match(shell, /statusVerified=\{alertSummaryVerified\}/);
-  assert.match(navigation, /Alert operativi: stato non disponibile/);
+  assert.match(layout, /parseWorkspaceNotificationSnapshot/);
+  assert.match(layout, /notificationSnapshot = null/);
+  assert.match(shell, /WorkspaceNotificationBell/);
+  assert.match(bell, /Notifiche: verifica non disponibile/);
 });
 
 test("NC1.1: retry and timestamps are explicit, but do not impersonate cron health", () => {

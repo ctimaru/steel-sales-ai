@@ -156,6 +156,8 @@ select pg_temp.hp13_assert(
         'p1_operational_alerts_read',
         'p1_operational_alerts_summary',
         'p1_resolve_operational_alert',
+        'nc31_workspace_notification_set_state',
+        'nc31_workspace_notification_destination',
         'platform_access_context',
         'sa2_claim_platform_staff_invitation',
         'sa2_create_platform_staff_invitation',

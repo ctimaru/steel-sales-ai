@@ -4,6 +4,7 @@ import test from "node:test";
 
 const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
 const navigation = fs.readFileSync(new URL("../components/workspace-navigation.tsx", import.meta.url), "utf8");
+const bell = fs.readFileSync(new URL("../components/workspace-notification-bell.tsx", import.meta.url), "utf8");
 const product = fs.readFileSync(new URL("../app/(workspace)/products/[productId]/page.tsx", import.meta.url), "utf8");
 const prices = fs.readFileSync(new URL("../app/(workspace)/products/[productId]/prices/page.tsx", import.meta.url), "utf8");
 const upload = fs.readFileSync(new URL("../components/bulk-upload-form.tsx", import.meta.url), "utf8");
@@ -14,7 +15,7 @@ test("PA2.33 mobile keeps secondary sales tools reachable without duplicating op
   assert.match(shell, /WorkspaceMobileBottomNavigation/);
   assert.match(shell, /WorkspaceProfileMenu/);
   assert.match(shell, /appRoutes\.commercial\.assistant/);
-  assert.match(navigation, /appRoutes\.operations\.alerts/);
+  assert.match(bell, /appRoutes\.operations\.alerts/);
   assert.match(navigation, /appRoutes\.company\.dataSources/);
   assert.match(dashboard, /appRoutes\.operations\.review/);
   assert.match(dashboard + dataSources, /appRoutes\.operations\.uploads/);

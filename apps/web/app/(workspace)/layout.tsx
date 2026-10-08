@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { AppShell } from "@/components/app-shell";
 import { getNetworkAccessState } from "@/lib/network-access";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
-import { parseOperationalAlertSummary } from "@/lib/operational-alert-status";
+import { parseWorkspaceNotificationSnapshot, type WorkspaceNotificationSnapshot } from "@/lib/workspace-notifications";
 import { privateNoIndexRobots } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 import { getWorkspaceContext } from "@/lib/workspace-context";
@@ -22,9 +22,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
   let viewerLabel = "demo@steel-sales-ai.local";
   let organizationName = "Demo Company";
   let organizationRole = "admin";
-  let alertNeedsAttention = false;
-  let alertActiveCount = 0;
-  let alertSummaryVerified = false;
+  let notificationSnapshot: WorkspaceNotificationSnapshot | null = null;
   let platformConsoleAccess = false;
   let guidedSetupComplete = true;
   const networkEnabled = isNetworkFrontendEnabled();
@@ -46,20 +44,17 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
       networkEntitled = networkAccess.can_access_network;
     }
 
-    // Keep the rest of the workspace usable if the alert service fails.
-    // An unavailable summary must show an unknown state, never a healthy zero.
+    // The bell must fail closed. RPC failures may not be represented as zero unread.
     try {
-      const { data, error } = await supabase.rpc("p1_operational_alerts_summary", {
+      const { data, error } = await supabase.rpc("nc31_workspace_notifications_read", {
         p_organization_id: context.organizationId,
+        p_filter: "all",
+        p_limit: 5,
+        p_offset: 0,
       });
-      const summary = error ? null : parseOperationalAlertSummary(data);
-      if (summary) {
-        alertSummaryVerified = true;
-        alertNeedsAttention = summary.needs_attention;
-        alertActiveCount = summary.active_count;
-      }
+      notificationSnapshot = error ? null : parseWorkspaceNotificationSnapshot(data);
     } catch {
-      alertSummaryVerified = false;
+      notificationSnapshot = null;
     }
   }
 
@@ -69,9 +64,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
       organizationName={organizationName}
       organizationRole={organizationRole}
       demoMode={!configured}
-      alertNeedsAttention={alertNeedsAttention}
-      alertActiveCount={alertActiveCount}
-      alertSummaryVerified={alertSummaryVerified}
+      notificationSnapshot={notificationSnapshot}
       platformConsoleAccess={platformConsoleAccess}
       guidedSetupComplete={guidedSetupComplete}
       networkEnabled={networkEnabled}
