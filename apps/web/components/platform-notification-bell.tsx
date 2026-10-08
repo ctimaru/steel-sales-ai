@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNotificationFreshness } from "@/lib/use-notification-freshness";
+import { useNotificationPopoverDismiss } from "@/lib/use-notification-popover-dismiss";
 
 import { appRoutes } from "@/lib/routes";
 import {
@@ -38,37 +39,12 @@ export function PlatformNotificationBell({
   });
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLElement>(null);
+  const dismiss = useCallback(() => setOpen(false), []);
+  useNotificationPopoverDismiss({ open, triggerRef, panelRef, onDismiss: dismiss });
   const unavailable = platformReady && stale;
   const unread = snapshot?.unreadCount ?? 0;
 
   useEffect(() => { setOpen(false); }, [pathname]);
-  useEffect(() => {
-    if (!open) return;
-    function handleEscape(event: globalThis.KeyboardEvent) {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        setOpen(false);
-        triggerRef.current?.focus();
-      }
-    }
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
-  }, [open]);
-
-  function handlePanelKeyDown(event: KeyboardEvent<HTMLElement>) {
-    if (event.key !== "Tab") return;
-    const focusable = Array.from(panelRef.current?.querySelectorAll<HTMLElement>(
-      'a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])',
-    ) ?? []);
-    if (!focusable.length) return;
-    if (event.shiftKey && document.activeElement === focusable[0]) {
-      event.preventDefault();
-      focusable[focusable.length - 1].focus();
-    } else if (!event.shiftKey && document.activeElement === focusable[focusable.length - 1]) {
-      event.preventDefault();
-      focusable[0].focus();
-    }
-  }
 
   return (
     <div className="relative shrink-0">
@@ -96,13 +72,9 @@ export function PlatformNotificationBell({
 
       {open ? (
         <>
-          <button type="button" tabIndex={-1} aria-label="Chiudi notifiche"
-            onClick={() => setOpen(false)}
-            className="fixed inset-0 z-50 cursor-default bg-black/15" />
           <aside
             ref={panelRef}
-            role="dialog" aria-modal="true" aria-label="Anteprima notifiche Platform"
-            onKeyDown={handlePanelKeyDown}
+            role="dialog" aria-modal="false" aria-label="Anteprima notifiche Platform"
             className="fixed inset-x-3 top-[calc(72px+env(safe-area-inset-top))] z-[60] max-h-[min(75dvh,680px)] overflow-y-auto rounded-2xl border border-[#dce5e2] bg-white shadow-2xl sm:left-auto sm:right-5 sm:w-[390px] lg:absolute lg:inset-x-auto lg:right-0 lg:top-12 lg:w-[400px]"
           >
             <div className="sticky top-0 flex items-center justify-between gap-3 border-b border-[#e2e9e5] bg-white p-4">
