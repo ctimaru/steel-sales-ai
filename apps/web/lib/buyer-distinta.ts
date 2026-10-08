@@ -1,3 +1,5 @@
+import { formatBuyerDocumentRequirements, type BuyerDistintaDocumentRequirements } from "@/lib/buyer-distinta-documents";
+
 export type BuyerQuantityMode = "meters" | "bars" | "tonnes";
 
 export type BuyerDistintaDraftLine = {
@@ -150,6 +152,7 @@ function quantityLabel(line: BuyerDistintaCalculatedLine) {
 export function buildBuyerDistintaPlainText(
   title: string,
   lines: BuyerDistintaCalculatedLine[],
+  documents?: BuyerDistintaDocumentRequirements,
 ) {
   const totals = calculateBuyerDistintaTotals(lines);
   return [
@@ -172,6 +175,7 @@ export function buildBuyerDistintaPlainText(
     "",
     "Metri totali: " + formatNumber(totals.totalMeters, 2),
     "Tonnellate totali: " + formatNumber(totals.totalTonnes, 3),
+    ...(documents && formatBuyerDocumentRequirements(documents) ? ["", formatBuyerDocumentRequirements(documents)] : []),
     "",
     "Distinta creata con Smart Steel Sales",
   ].join("\n");
@@ -180,6 +184,7 @@ export function buildBuyerDistintaPlainText(
 export function buildBuyerDistintaHtml(
   title: string,
   lines: BuyerDistintaCalculatedLine[],
+  documents?: BuyerDistintaDocumentRequirements,
 ) {
   const totals = calculateBuyerDistintaTotals(lines);
   const rows = lines
@@ -222,6 +227,7 @@ export function buildBuyerDistintaHtml(
         <div><strong>Metri totali:</strong> ${formatNumber(totals.totalMeters, 2)}</div>
         <div><strong>Tonnellate totali:</strong> ${formatNumber(totals.totalTonnes, 3)}</div>
       </div>
+      ${documents && formatBuyerDocumentRequirements(documents) ? `<div style="margin-top:12px;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-size:12px;"><strong>Condizioni generali:</strong> ${safeHtml(formatBuyerDocumentRequirements(documents))}</div>` : ""}
       <div style="margin-top:12px;font-size:10px;color:#6b7280;">Distinta creata con Smart Steel Sales</div>
     </div>`;
 }
