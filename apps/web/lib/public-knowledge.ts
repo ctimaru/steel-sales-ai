@@ -289,6 +289,19 @@ export async function listPublicTubeDimensionPages(productFamily?: string) {
   });
 }
 
+/** Lightweight public selector for /distinta; only previously published Knowledge entries. */
+export async function listBuyerDistintaPublicDimensions() {
+  const families = ["round_tube", "square_tube", "rectangular_tube"] as const;
+  const groups = await Promise.all(families.map((family) =>
+    rpcRows<PublicTubeDimensionSummary>("k6_public_tube_dimension_pages", {
+      p_product_family: family,
+      p_limit: 350,
+      p_offset: 0,
+    }),
+  ));
+  return groups.flat();
+}
+
 export async function getPublicTubeDimension(slug: string) {
   const rows = await rpcRows<PublicTubeDimension>("k6_public_tube_dimension_page", {
     p_slug: slug,
