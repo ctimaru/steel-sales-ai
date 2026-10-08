@@ -19,11 +19,13 @@ test("P5.1 exposes canonical Marketplace buyer routes and local navigation", () 
   assert.match(routes, /newRequest: "\/marketplace\/new"/);
   assert.match(routes, /request: \(id: string\)/);
   assert.match(routes, /\/marketplace\/\$\{id\}/);
-  for (const label of ["Opportunità", "Acquisti", "RFQ", "Risposte"]) {
+  for (const label of ["Opportunità", "Le mie pubblicazioni", "Risposte Marketplace", "Notifiche"]) {
     assert.match(shell, new RegExp(`label: "${label}"`));
   }
   assert.match(shell, /writeRole: true/);
   assert.match(nav, /current === "marketplace"/);
+  assert.match(shell, /const rfqNav: NavItem\[\]/);
+  assert.match(shell, /label: "Inbox acquisti"/);
   assert.match(shell, /marketplaceItems=\{marketplaceItems\}/);
 });
 
