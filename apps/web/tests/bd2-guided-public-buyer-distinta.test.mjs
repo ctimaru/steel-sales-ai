@@ -26,7 +26,7 @@ test("BD2 provides guided family, size and thickness selectors with editable des
   assert.match(builder, /chooseFamily/);
   assert.match(builder, /chooseSize/);
   assert.match(builder, /chooseCatalogOption/);
-  assert.match(builder, /weightKgM: selected\.weightKgM/);
+  assert.match(builder, /weightKgM: weightFromCatalogForStandard\(selected,/);
   assert.match(builder, /updateLine\(line\.id, \{ weightKgM: event\.target\.value \}\)/);
   assert.match(builder, /Compilazione libera/);
   assert.match(builder, /Riferimenti pubblici temporaneamente non disponibili/);
