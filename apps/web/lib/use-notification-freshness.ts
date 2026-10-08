@@ -85,7 +85,6 @@ export function useNotificationFreshness<T extends NotificationSnapshot>({
     let inFlight = false;
     let pendingRefresh: ReturnType<typeof setTimeout> | null = null;
     let lastRequestAt = 0;
-    let subscribedUser: string | null = null;
 
     const isVisible = () => document.visibilityState === "visible" && navigator.onLine;
     const typeTable = scope === "platform"
@@ -159,7 +158,6 @@ export function useNotificationFreshness<T extends NotificationSnapshot>({
         void supabase.removeChannel(channel);
         channel = null;
       }
-      subscribedUser = null;
     }
 
     async function connectRealtime() {
@@ -177,7 +175,6 @@ export function useNotificationFreshness<T extends NotificationSnapshot>({
           return;
         }
         const uid = data.user.id;
-        subscribedUser = uid;
         // Subscription is limited to *own* per-user rows; RLS on the
         // recipient table additionally checks active org/Platform privileges.
         channel = supabase.channel(`nc33-${scope}-${organizationId ?? "global"}-${uid}`)
