@@ -647,7 +647,7 @@ export function BuyerDistintaBuilder({
                     </div>
                     {catalogOptions.length === 0 ? (
                       <p className="mt-2 text-xs text-[var(--semantic-warning)]">
-                        Catalogo pubblico temporaneamente non disponibile: usa la compilazione libera.
+                        Riferimenti pubblici temporaneamente non disponibili: usa la compilazione libera.
                       </p>
                     ) : null}
                     {selection.optionId ? (
