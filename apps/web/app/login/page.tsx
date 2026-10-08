@@ -43,7 +43,7 @@ export default async function LoginPage({
         </div>
 
         <div className="mt-8 grid gap-7 lg:grid-cols-[minmax(0,460px)_minmax(0,1fr)] lg:items-start lg:gap-10">
-          <section aria-label="Accesso al workspace" className="min-w-0">
+          <section aria-label="Accesso al workspace" className="min-w-0 max-w-lg">
         <header className="mvp-focus-header lg:mt-6">
           <p className="app-kicker">Accesso</p>
           <h1 className="mt-2 text-3xl font-semibold tracking-[-0.025em] text-[#123d34] sm:text-[2.15rem]">
