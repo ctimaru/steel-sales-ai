@@ -182,7 +182,9 @@ select pg_temp.hp13_assert(
         -- SP6 individually scoped explicit read/save actions and owner-only aggregate summary.
         'sp6_set_article_engagement',
         'sp6_my_article_engagement',
-        'sp6_platform_retention_summary'
+        'sp6_platform_retention_summary',
+        -- SP7.1 reviewed owner-only rights readiness read model.
+        'sp71_pilot_source_readiness'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
