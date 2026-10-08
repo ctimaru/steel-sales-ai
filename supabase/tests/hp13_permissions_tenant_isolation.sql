@@ -167,7 +167,13 @@ select pg_temp.hp13_assert(
         'sa2_platform_staff_invitation_queue',
         'sa2_revoke_platform_staff_invitation',
         'sa2_set_platform_staff_roles',
-        'sa2_set_platform_staff_status'
+        'sa2_set_platform_staff_status',
+        -- SP3 reviewed Platform-only editorial RPCs: knowledge RBAC,
+        -- independent approvals, revision checks, no direct tenant data.
+        'sp3_save_draft',
+        'sp3_decide',
+        'sp3_editorial_queue',
+        'sp3_editorial_detail'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
