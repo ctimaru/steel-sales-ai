@@ -1,5 +1,6 @@
 export const appRoutes = {
   home: "/dashboard",
+  notifications: "/notifications",
   publicHome: "/",
 
   commercial: {
