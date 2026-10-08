@@ -6,6 +6,10 @@ import { guidedTubeMassKgM, guidedTubeMeasurement, type GuidedTubeDraft } from "
 import { emptyBuyerDocumentRequirements, formatBuyerDocumentRequirements, type BuyerDistintaDocumentRequirements } from "@/lib/buyer-distinta-documents";
 import { useRouter } from "next/navigation";
 import { appRoutes } from "@/lib/routes";
+import {
+  buyerDraftKey, parseBuyerSessionDraft, serializeBuyerSessionDraft,
+  type BuyerSessionDraft,
+} from "@/lib/buyer-distinta-session-draft";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 import {
@@ -67,10 +71,14 @@ export function BuyerDistintaBuilder({
   authenticated,
   emailConfigured,
   catalogOptions,
+  workspace = false,
+  userId = null,
 }: {
   authenticated: boolean;
   emailConfigured: boolean;
   catalogOptions: BuyerDistintaCatalogOption[];
+  workspace?: boolean;
+  userId?: string | null;
 }) {
   const router = useRouter();
   const [title, setTitle] = useState("Richiesta di offerta");
@@ -95,6 +103,10 @@ export function BuyerDistintaBuilder({
   );
   const [sendMessage, setSendMessage] = useState<string | null>(null);
   const [rfqMessage, setRfqMessage] = useState<string | null>(null);
+  // Only a same-tab session draft; no cookie, URL payload, remote autosave or email data.
+  const [draftReady, setDraftReady] = useState(false);
+  const [restoreCandidate, setRestoreCandidate] = useState<{ key: string; draft: BuyerSessionDraft } | null>(null);
+  const draftKey = buyerDraftKey(authenticated ? userId : null);
   const [savePending, startSaveTransition] = useTransition();
   const [sendPending, startSendTransition] = useTransition();
   const [rfqPending, startRfqTransition] = useTransition();
@@ -113,6 +125,77 @@ export function BuyerDistintaBuilder({
     () => searchBuyerDistintaCatalog(catalogOptions, quickQuery, 8),
     [catalogOptions, quickQuery],
   );
+
+  useEffect(() => {
+    try {
+      // After authentication prefer the guest handoff. Never silently load one
+      // browser user's commercial text into a different account.
+      const candidates = authenticated
+        ? [buyerDraftKey(null), draftKey]
+        : [draftKey];
+      for (const key of candidates) {
+        const raw = window.sessionStorage.getItem(key);
+        const recovered = parseBuyerSessionDraft(raw);
+        if (recovered) {
+          setRestoreCandidate({ key, draft: recovered });
+          return;
+        }
+        if (raw) window.sessionStorage.removeItem(key);
+      }
+    } catch {
+      // Storage may be disabled in private mode; builder remains fully usable.
+    }
+    setDraftReady(true);
+  }, [authenticated, draftKey]);
+
+  function persistBrowserDraft() {
+    try {
+      const value = serializeBuyerSessionDraft({
+        title, lines, documents, guidedSpecsByLine, selectedCatalog,
+      });
+      if (value) window.sessionStorage.setItem(draftKey, value);
+      else window.sessionStorage.removeItem(draftKey);
+    } catch {
+      // Storage unavailable or quota exceeded; server save and copy still work.
+    }
+  }
+
+  useEffect(() => {
+    if (!draftReady) return;
+    persistBrowserDraft();
+    // Deliberately store only changes to the draft payload, not message, email
+    // recipients or subject; none of these can be sent from browser storage.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftReady, draftKey, title, lines, documents, guidedSpecsByLine, selectedCatalog]);
+
+  function restoreBrowserDraft() {
+    if (!restoreCandidate) return;
+    const recovered = restoreCandidate.draft;
+    setTitle(recovered.title);
+    setLines(recovered.lines);
+    setDocuments(recovered.documents);
+    setGuidedSpecsByLine(recovered.guidedSpecsByLine);
+    setSelectedCatalog(recovered.selectedCatalog);
+    setEmailSubject(recovered.title);
+    setSavedId(null);
+    setSaveMessage(null);
+    setSendMessage(null);
+    setRfqMessage(null);
+    try {
+      // Transfer ownership into the authenticated user's tab-scoped key only
+      // after an explicit choice, never silently on login.
+      if (restoreCandidate.key !== draftKey) window.sessionStorage.removeItem(restoreCandidate.key);
+    } catch { /* storage may be disabled */ }
+    setRestoreCandidate(null);
+    setDraftReady(true);
+  }
+
+  function discardBrowserDraft() {
+    try { if (restoreCandidate) window.sessionStorage.removeItem(restoreCandidate.key); }
+    catch { /* optional session storage */ }
+    setRestoreCandidate(null);
+    setDraftReady(true);
+  }
 
   useEffect(() => {
     const id = focusQuantityId.current;
@@ -365,6 +448,7 @@ export function BuyerDistintaBuilder({
         return;
       }
       setSavedId(result.distintaId);
+      try { window.sessionStorage.removeItem(draftKey); } catch { /* optional storage */ }
       setSaveMessage("Distinta salvata nel tuo spazio privato.");
     });
   }
@@ -420,6 +504,31 @@ export function BuyerDistintaBuilder({
 
   return (
     <div className="bd54-page space-y-4 sm:space-y-5">
+      {restoreCandidate ? (
+        <aside className="rounded-xl border border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] p-3 sm:p-4" aria-label="Bozza da recuperare">
+          <p className="text-sm font-bold text-[var(--brand-deep)]">Bozza trovata in questa scheda</p>
+          <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
+            {restoreCandidate.draft.lines.length} righe, ultima modifica in questa sessione.
+            Riprendila soltanto se è la tua richiesta: niente è stato inviato o salvato online.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button type="button" onClick={restoreBrowserDraft}
+              className="platform-primary min-h-11 rounded-lg px-4 text-sm font-bold">
+              Riprendi la distinta
+            </button>
+            <button type="button" onClick={discardBrowserDraft}
+              className="app-secondary min-h-11 rounded-lg px-4 text-sm font-semibold">
+              Scarta e crea nuova
+            </button>
+          </div>
+        </aside>
+      ) : null}
+      {workspace && !restoreCandidate ? (
+        <p className="rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-xs text-[var(--text-secondary)]">
+          RFQ Hub · Le modifiche non ancora salvate sono temporanee e rimangono solo in questa scheda.
+          Salva la distinta per registrarla nel tuo account aziendale.
+        </p>
+      ) : null}
       <aside className="bd53-hud" aria-label="Riepilogo in tempo reale della distinta">
         <div className="bd53-hud-progress">
           <span className="bd53-hud-caption">Righe pronte</span>
@@ -468,7 +577,7 @@ export function BuyerDistintaBuilder({
         <div className="flex flex-col gap-3 border-b border-[var(--border)] pb-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
-              Creazione articoli
+              {workspace ? "RFQ Hub · Distinta privata" : "Creazione articoli"}
             </p>
             <h2 className="mt-1 text-lg font-bold tracking-tight text-[var(--brand-deep)]">
               Crea la distinta in pochi passaggi
@@ -1023,13 +1132,15 @@ export function BuyerDistintaBuilder({
             ) : (
               <div className="mt-4 flex flex-wrap gap-2">
                 <Link
-                  href={"/login?next=" + encodeURIComponent("/distinta")}
+                  href={"/login?next=" + encodeURIComponent(appRoutes.rfqHub.createDistinta)}
+                  onClick={persistBrowserDraft}
                   className="platform-primary inline-flex min-h-11 items-center justify-center rounded-xl px-5 text-sm font-bold"
                 >
                   Accedi per salvare
                 </Link>
                 <Link
                   href="/register"
+                  onClick={persistBrowserDraft}
                   className="app-secondary inline-flex min-h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold"
                 >
                   Registra azienda
