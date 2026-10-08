@@ -9,12 +9,17 @@ import {
   calculateBuyerDistintaTotals,
   type BuyerDistintaDraftLine,
 } from "@/lib/buyer-distinta";
+import {
+  formatBuyerDocumentRequirements, normalizeBuyerDocumentRequirements,
+  type BuyerDistintaDocumentRequirements,
+} from "@/lib/buyer-distinta-documents";
 import { trackServerProductEvent } from "@/lib/product-analytics-events.server";
 import { createClient } from "@/lib/supabase/server";
 
 type SaveBuyerDistintaInput = {
   title: string;
   lines: BuyerDistintaDraftLine[];
+  documents: BuyerDistintaDocumentRequirements;
 };
 
 type SendBuyerDistintaInput = {
@@ -37,10 +42,17 @@ export async function createBuyerRfqCampaign(
     return { ok: false, error: "Accedi per creare un RFQ multi-fornitore." };
   }
 
+  const { data: distinta } = await supabase
+    .from("buyer_distintas")
+    .select("document_requirements")
+    .eq("id", distintaId)
+    .eq("owner_user_id", authData.user.id)
+    .maybeSingle();
+  const documents = normalizeBuyerDocumentRequirements(distinta?.document_requirements);
   const { data, error } = await supabase.rpc("rfqh1_create_campaign_from_distinta", {
     p_distinta_id: distintaId,
     p_due_at: null,
-    p_buyer_message: null,
+    p_buyer_message: formatBuyerDocumentRequirements(documents) || null,
   });
 
   if (error) {
@@ -92,6 +104,7 @@ export async function saveBuyerDistinta(
     total_meters: totals.totalMeters,
     total_tonnes: totals.totalTonnes,
     target_total_eur: totals.targetTotalEur,
+    document_requirements: normalizeBuyerDocumentRequirements(input.documents),
   };
 
   const lines = calculated.map((line) => ({
@@ -172,7 +185,7 @@ export async function sendBuyerDistinta(
 
   const { data: distinta, error: distintaError } = await supabase
     .from("buyer_distintas")
-    .select("id,title,owner_user_id")
+    .select("id,title,owner_user_id,document_requirements")
     .eq("id", input.distintaId)
     .eq("owner_user_id", user.id)
     .maybeSingle();
@@ -213,10 +226,11 @@ export async function sendBuyerDistinta(
   }));
 
   const title = distinta.title || "Richiesta di offerta";
+  const documents = normalizeBuyerDocumentRequirements(distinta.document_requirements);
   const extraMessage = input.message?.trim() || "";
   const plain =
     (extraMessage ? extraMessage + "\n\n" : "") +
-    buildBuyerDistintaPlainText(title, exportLines);
+    buildBuyerDistintaPlainText(title, exportLines, documents);
   const html =
     (extraMessage
       ? '<p style="font-family:Arial,sans-serif;color:#1f2937;">' +
@@ -226,7 +240,7 @@ export async function sendBuyerDistinta(
           .replaceAll(">", "&gt;")
           .replaceAll("\n", "<br/>") +
         "</p>"
-      : "") + buildBuyerDistintaHtml(title, exportLines);
+      : "") + buildBuyerDistintaHtml(title, exportLines, documents);
 
   const subject = input.subject.trim() || title;
   const providerIds: string[] = [];
