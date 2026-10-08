@@ -187,6 +187,18 @@ export default async function PlatformPeoplePage({
         ]}
       />
 
+      <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#d9e8df] bg-[#f1f8f4] px-4 py-3" aria-label="Steel Pulse editorial onboarding">
+        <div>
+          <p className="text-sm font-semibold text-[#154b38]">SP7.1 · Team editoriale Steel Pulse</p>
+          <p className="mt-1 text-xs leading-5 text-[#526c5d]">
+            Serve un autore e un secondo revisore con identità distinta. Non assegnare entrambi i compiti alla stessa persona.
+          </p>
+        </div>
+        <a href="/platform/steel-pulse" className="inline-flex min-h-11 items-center rounded-xl border border-[#a8cbb7] bg-white px-4 text-sm font-semibold text-[#14553e]">
+          Verifica readiness →
+        </a>
+      </section>
+
       <section className="grid gap-5 xl:grid-cols-[0.95fr_1.05fr]">
         <div className="rounded-3xl border border-[#dce2df] bg-white p-6">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
@@ -200,7 +212,7 @@ export default async function PlatformPeoplePage({
             l&apos;email invitata e verificare il proprio account.
           </p>
 
-          <form action={createPlatformStaffInvitation} className="mt-6 space-y-5">
+          <form id="editorial-staff-invite" action={createPlatformStaffInvitation} className="mt-6 space-y-5 scroll-mt-24">
             <label className="block text-sm font-semibold text-[#43524c]">
               Email
               <input
