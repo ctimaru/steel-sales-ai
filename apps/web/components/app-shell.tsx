@@ -50,12 +50,12 @@ const networkNav: NavItem[] = [
 
 // RFQ Hub is a private procurement domain, independently of the Marketplace
 // feature flag. Viewers may consult RFQs authorized by database RLS; only
-// writers should see the entry to create new Distinta work.
+// writers should see the entry to create new Distinta work and owner-scoped work queues.
 const rfqNav: NavItem[] = [
   { href: appRoutes.rfqHub.home, label: "Le mie RFQ", contextKey: "rfq:home" },
   { href: appRoutes.rfqHub.createDistinta, label: "Nuova distinta ↗", contextKey: "rfq:distinta", writeRole: true },
-  { href: appRoutes.rfqHub.inbox, label: "Inbox acquisti", contextKey: "rfq:inbox" },
-  { href: appRoutes.rfqHub.suppliers, label: "Fornitori", contextKey: "rfq:suppliers" },
+  { href: appRoutes.rfqHub.inbox, label: "Inbox acquisti", contextKey: "rfq:inbox", writeRole: true },
+  { href: appRoutes.rfqHub.suppliers, label: "Fornitori", contextKey: "rfq:suppliers", writeRole: true },
   { href: appRoutes.rfqHub.intelligence, label: "Intelligence", contextKey: "rfq:intelligence", writeRole: true },
 ];
 
