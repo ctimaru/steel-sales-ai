@@ -233,6 +233,23 @@ export function BuyerDistintaBuilder({
     );
   }
 
+  function goToIncompleteRow() {
+    const index = calculated.findIndex((line) => !line.complete);
+    if (index < 0) return;
+    const row = lines[index];
+    // A provided but invalid target is editable in this row's details panel.
+    if (row.targetEurT.trim() && calculated[index].targetEurT === null) {
+      setExpandedRows((current) => ({ ...current, [row.id]: true }));
+    }
+    const element = document.getElementById("buyer-row-" + row.id);
+    if (!element) return;
+    element.focus({ preventScroll: true });
+    element.scrollIntoView({
+      block: "start",
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+    });
+  }
+
   async function copyDistinta() {
     const valid = calculated.filter((line) => line.complete);
     if (!valid.length || valid.length !== calculated.length) {
@@ -331,6 +348,50 @@ export function BuyerDistintaBuilder({
 
   return (
     <div className="space-y-5">
+      <aside className="bd53-hud" aria-label="Riepilogo in tempo reale della distinta">
+        <div className="bd53-hud-progress">
+          <span className="bd53-hud-caption">Righe pronte</span>
+          <span className="bd53-hud-complete">{totals.completeLines}/{lines.length}</span>
+          <div
+            className="bd53-hud-track"
+            role="progressbar"
+            aria-label="Righe complete nella distinta"
+            aria-valuemin={0}
+            aria-valuemax={lines.length}
+            aria-valuenow={totals.completeLines}
+          >
+            <span
+              className="bd53-hud-progress-fill"
+              style={{ width: (totals.completeLines / lines.length) * 100 + "%" }}
+            />
+          </div>
+        </div>
+        <div className="bd53-hud-metrics">
+          <div className="bd53-hud-metric">
+            <span>Metri</span>
+            <strong>{formatNumber(totals.totalMeters, 2)}</strong>
+          </div>
+          <div className="bd53-hud-metric">
+            <span>Tonnellate</span>
+            <strong>{formatNumber(totals.totalTonnes, 3)}</strong>
+          </div>
+          {!allComplete ? <span className="bd53-hud-partial">Totali parziali</span> : null}
+        </div>
+        <button
+          type="button"
+          onClick={allComplete ? copyDistinta : goToIncompleteRow}
+          disabled={allComplete && copyState === "copied"}
+          className="bd53-hud-action"
+        >
+          {allComplete
+            ? copyState === "copied"
+              ? "Copiata ✓"
+              : copyState === "error"
+                ? "Riprova copia"
+                : "Copia distinta"
+            : "Completa le righe"}
+        </button>
+      </aside>
       <section className="rounded-3xl border border-[#d8e1dd] bg-white p-3 shadow-[0_16px_50px_rgba(18,61,52,0.06)] sm:p-5">
         <div className="flex flex-col gap-4 border-b border-[#e8ecea] pb-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
@@ -438,10 +499,7 @@ export function BuyerDistintaBuilder({
               </p>
             </div>
           </div>
-          <span className="bd5-progress-count" aria-label={`${totals.completeLines} di ${lines.length} righe complete`}>
-            <span className="bd5-progress-dot" aria-hidden="true" />
-            {totals.completeLines}/{lines.length} complete
-          </span>
+
         </div>
         <div className="mt-3 space-y-3 sm:space-y-4">
           {lines.map((line, index) => {
@@ -459,6 +517,8 @@ export function BuyerDistintaBuilder({
             return (
               <article
                 key={line.id}
+                id={"buyer-row-" + line.id}
+                tabIndex={-1}
                 aria-label={`Riga ${index + 1}: ${calc.complete ? "completa" : rowStage === "empty" ? "da iniziare" : "da completare"}`}
                 data-stage={rowStage}
                 className="bd5-row-card"
@@ -736,54 +796,6 @@ export function BuyerDistintaBuilder({
           + Aggiungi riga libera
         </button>
         <p className="mt-2 text-xs text-[var(--text-secondary)]">{lines.length} / 500 righe · Duplica per riutilizzare le specifiche senza ripetere la quantità.</p>
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-[1fr_1.35fr]">
-        <div className="rounded-2xl border border-[#dce2df] bg-white p-5">
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-            Riepilogo
-          </p>
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            <div className="rounded-xl bg-[#f7f9f8] p-3">
-              <p className="text-xs text-[#718078]">Metri totali</p>
-              <p className="mt-1 text-xl font-semibold tabular-nums text-[#1d2824]">
-                {formatNumber(totals.totalMeters, 2)}
-              </p>
-            </div>
-            <div className="rounded-xl bg-[#f7f9f8] p-3">
-              <p className="text-xs text-[#718078]">Tonnellate totali</p>
-              <p className="mt-1 text-xl font-semibold tabular-nums text-[#1d2824]">
-                {formatNumber(totals.totalTonnes, 3)}
-              </p>
-            </div>
-          </div>
-          <p className="mt-3 text-xs leading-5 text-[#66736e]">
-            {totals.completeLines}/{lines.length} righe complete. Se indicato, il Target €/m deriva da Target €/t × kg/m ÷ 1000.
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-[#cddbd6] bg-[#f7faf8] p-5">
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-            Pronta per l&apos;email
-          </p>
-          <h3 className="mt-2 text-lg font-semibold text-[#1d2824]">
-            Copia la distinta e incollala nella tua email.
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-[#66736e]">
-            La copia include articoli, quantità, peso e, soltanto se inseriti, i prezzi obiettivo.
-          </p>
-          <button
-            type="button"
-            onClick={copyDistinta}
-            className="platform-primary mt-4 inline-flex min-h-11 items-center justify-center rounded-xl px-5 text-sm font-bold"
-          >
-            {copyState === "copied"
-              ? "Copiata ✓"
-              : copyState === "error"
-                ? "Completa tutte le righe"
-                : "Copia distinta"}
-          </button>
-        </div>
       </section>
 
       <section className="rounded-3xl border border-[#d8e1dd] bg-white p-5 sm:p-6">
