@@ -18,8 +18,9 @@ export const dynamic = "force-dynamic";
 const FILTERS: Array<{ id: PlatformNotificationFilter; label: string }> = [
   { id: "all", label: "Tutte" },
   { id: "unread", label: "Da leggere" },
-  { id: "commercial", label: "Commerciali" },
-  { id: "system", label: "Sistema" },
+  { id: "registrations", label: "Registrazioni" },
+  { id: "claims", label: "Claim" },
+  { id: "incidents", label: "Incidenti" },
   { id: "archived", label: "Archiviate" },
 ];
 
@@ -82,8 +83,8 @@ export default async function PlatformNotificationsPage({
             Centro notifiche Platform
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[#66736e]">
-            Novità commerciali e operative destinate a te, nel contesto della tua azienda.
-            Le notifiche Platform sono separate e non compaiono qui.
+            Aggiornamenti di registrazioni, claim e incidenti destinati al tuo ruolo amministrativo.
+            Nessun dato della Commercial Memory delle aziende è disponibile in questa inbox.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -114,7 +115,7 @@ export default async function PlatformNotificationsPage({
       {!snapshot ? (
         <section role="alert" className="rounded-2xl border border-[#edd5ad] bg-white p-6">
           <p className="text-xs font-bold uppercase tracking-[0.13em] text-[#946515]">Verifica non disponibile</p>
-          <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">Impossibile verificare le notifiche</h2>
+          <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">Impossibile verificare le notifiche Platform</h2>
           <p className="mt-2 text-sm leading-6 text-[#66736e]">
             Non è stato possibile recuperare un elenco attendibile. Questo non significa che non ci siano messaggi.
           </p>
@@ -170,8 +171,7 @@ export default async function PlatformNotificationsPage({
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="rounded-md bg-[#edf5f2] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.07em] text-[#2e6150]">
-                          {item.eventType.includes(".rfq.") ? "RFQ" : item.eventType.includes(".marketplace.")
-                            ? "Marketplace" : item.eventType.includes(".import.") ? "Importazioni" : "Operazioni"}
+                          {item.eventType.includes(".registration.") ? "Registrazioni" : item.eventType.includes(".claim.") ? "Claim" : "Incidenti"}
                         </span>
                         {item.priority === "critical" ? (
                           <span className="rounded-md bg-rose-50 px-2 py-1 text-[10px] font-bold text-rose-700">Critica</span>
