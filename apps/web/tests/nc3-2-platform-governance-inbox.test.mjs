@@ -1,0 +1,82 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import test from "node:test";
+const read=(p)=>fs.readFileSync(new URL(p,import.meta.url),"utf8");
+const sql=read("../../../supabase/migrations/20261008130000_nc32_platform_governance_inbox.sql");
+const accept=read("../../../supabase/tests/nc32_platform_governance_inbox.sql");
+const gate=read("../../../.github/workflows/p0-required-gate.yml");
+const layout=read("../app/(platform)/platform/layout.tsx");
+const shell=read("../components/platform-shell.tsx");
+const bell=read("../components/platform-notification-bell.tsx");
+const parser=read("../lib/platform-notifications.ts");
+const page=read("../app/(platform)/platform/notifications/page.tsx");
+const actions=read("../app/(platform)/platform/notifications/actions.ts");
+const route=read("../app/(platform)/platform/notifications/open/[id]/route.ts");
+const hp=read("../../../supabase/tests/hp13_permissions_tenant_isolation.sql");
+test("NC3.2: Platform bell has personal fail-closed preview and remains separate from Workspace",()=>{
+ assert.match(layout,/requirePlatformConsoleContext/);
+ assert.match(layout,/nc32_platform_notifications_read/);
+ assert.match(layout,/notificationSnapshot = error \? null/);
+ assert.match(shell,/PlatformNotificationBell/);
+ assert.match(bell,/Notifiche Platform: verifica non disponibile/);
+ assert.match(bell,/router\.refresh/);
+ assert.match(bell,/aria-modal="true"/);
+ assert.match(bell,/Escape/);
+ assert.match(bell,/appRoutes\.platform\.notifications/);
+ assert.doesNotMatch(shell,/WorkspaceNotificationBell/);
+ assert.doesNotMatch(bell,/appRoutes\.notifications[^\w]/);
+});
+test("NC3.2: filters, counters, personal actions, pagination and errors",()=>{
+ for(const item of ["all","unread","registrations","claims","incidents","archived"]){
+   assert.match(page,new RegExp('id: "'+item+'"'));
+   assert.match(sql,new RegExp("'"+item+"'"));
+ }
+ assert.match(page,/Centro notifiche Platform/);
+ assert.match(page,/parsePlatformNotificationSnapshot/);
+ assert.match(page,/setPlatformNotificationState/);
+ assert.match(page,/snapshot\.filteredCount/);
+ assert.match(page,/Impossibile verificare le notifiche Platform/);
+ assert.match(actions,/nc32_platform_notification_set_state/);
+ assert.match(actions,/requirePlatformConsoleContext/);
+ assert.match(actions,/revalidatePath/);
+ assert.match(parser,/definition|def\.scope!==["']platform["']/);
+ assert.match(parser,/if\(!raw/);
+});
+test("NC3.2: action RPC is narrow; permission checked per event and current identity",()=>{
+ assert.match(sql,/security invoker/);
+ assert.match(sql,/security definer/);
+ assert.match(sql,/search_path=''/);
+ assert.match(sql,/public\.has_platform_permission\('platform\.console\.access'\)/);
+ assert.match(sql,/public\.has_platform_permission\(e\.required_permission_key\)/);
+ assert.match(sql,/r\.recipient_user_id=v_user/);
+ assert.match(sql,/for update of r/);
+ assert.match(sql,/revoke all on function public\.nc32_/);
+ assert.match(sql,/from public,anon,authenticated/);
+ assert.match(sql,/grant execute .*to authenticated/s);
+ assert.doesNotMatch(sql,/grant update on public\.platform_notification_recipients/i);
+ assert.match(hp,/nc32_platform_notification_set_state/);
+ assert.match(hp,/nc32_platform_notification_destination/);
+});
+test("NC3.2: source links only from recipient and live Platform permissions",()=>{
+ assert.match(route,/nc32_platform_notification_destination/);
+ assert.match(route,/requirePlatformConsoleContext/);
+ assert.match(route,/appRoutes\.platform\.registration/);
+ assert.match(route,/appRoutes\.platform\.claims/);
+ assert.match(sql,/public\.platform_registration_events/);
+ assert.match(sql,/public\.company_registration_applications/);
+ assert.match(sql,/public\.network_company_claims/);
+ assert.match(sql,/public\.observability_events/);
+ assert.match(sql,/public\.has_platform_permission\('claims\.read'\)/);
+ assert.match(sql,/jsonb_build_object\('type','unavailable'\)/);
+ assert.doesNotMatch(route,/\.startsWith\("https?:/);
+});
+test("NC3.2: rollback SQL tests foreign tenant, different staff, revocation and no Workspace union",()=>{
+ assert.match(accept,/^begin;/m);
+ assert.match(accept,/^rollback;/m);
+ assert.match(accept,/same Platform permission is not equivalent to recipient ownership/);
+ assert.match(accept,/Revocation immediately removes grants/);
+ assert.match(accept,/no Workspace receipt created/);
+ assert.match(accept,/platform_auditor/);
+ assert.match(accept,/registration_admin/);
+ assert.match(gate,/nc32_platform_governance_inbox\.sql/);
+});
