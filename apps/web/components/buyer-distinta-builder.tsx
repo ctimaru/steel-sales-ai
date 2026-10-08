@@ -319,7 +319,7 @@ export function BuyerDistintaBuilder({
 
   return (
     <div className="space-y-5">
-      <section className="rounded-3xl border border-[#d8e1dd] bg-white p-4 shadow-[0_16px_50px_rgba(18,61,52,0.06)] sm:p-6">
+      <section className="rounded-3xl border border-[#d8e1dd] bg-white p-3 shadow-[0_16px_50px_rgba(18,61,52,0.06)] sm:p-5">
         <div className="flex flex-col gap-4 border-b border-[#e8ecea] pb-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
@@ -414,9 +414,25 @@ export function BuyerDistintaBuilder({
         <datalist id="buyer-standards"><option value="EN 10219" /><option value="EN 10210" /><option value="EN 10305" /></datalist>
         <datalist id="buyer-grades"><option value="S235JRH" /><option value="S275J0H" /><option value="S355J2H" /></datalist>
         <datalist id="buyer-finishes"><option value="Nero" /><option value="Zincato" /><option value="Decapato" /></datalist>
-        <div className="mt-5 space-y-4">
+        <div className="bd5-row-toolbar mt-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span aria-hidden="true" className="bd5-toolbar-mark">▦</span>
+            <div>
+              <h3 className="text-sm font-bold text-[var(--brand-deep)]">Articoli in distinta</h3>
+              <p className="text-xs text-[var(--text-secondary)]">
+                {lines.length} {lines.length === 1 ? "articolo" : "articoli"} · modifica o duplica le card
+              </p>
+            </div>
+          </div>
+          <span className="bd5-progress-count" aria-label={`${totals.completeLines} di ${lines.length} righe complete`}>
+            <span className="bd5-progress-dot" aria-hidden="true" />
+            {totals.completeLines}/{lines.length} complete
+          </span>
+        </div>
+        <div className="mt-3 space-y-3 sm:space-y-4">
           {lines.map((line, index) => {
             const calc = calculated[index];
+            const rowStage = calc.complete ? "complete" : isUntouchedLine(line) ? "empty" : "pending";
             const selection = selectedCatalog[line.id] ?? { family: "", sizeKey: "", optionId: "" };
             const familyOptions = catalogOptions.filter((option) => option.family === selection.family);
             const sizeChoices = familyOptions.filter((option, optionIndex, all) =>
@@ -427,33 +443,51 @@ export function BuyerDistintaBuilder({
             return (
               <article
                 key={line.id}
-                className="rounded-2xl border border-[#dfe5e2] bg-[#fbfcfb] p-4 sm:p-5"
+                aria-label={`Riga ${index + 1}: ${calc.complete ? "completa" : rowStage === "empty" ? "da iniziare" : "da completare"}`}
+                data-stage={rowStage}
+                className="bd5-row-card"
               >
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#718078]">
-                    Riga {index + 1}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-2">
+                <div className="bd5-row-header">
+                  <div className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3">
+                    <span className="bd5-row-number" aria-hidden="true">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-extrabold uppercase tracking-[0.08em] text-[var(--brand-deep)]">
+                        Riga {index + 1}
+                      </p>
+                      <p className="mt-0.5 max-w-[26rem] truncate text-xs text-[var(--text-secondary)]">
+                        {calc.complete
+                          ? `${line.description} · ${formatNumber(calc.tonnes, 3)} t`
+                          : line.description.trim() || "Seleziona un articolo o inserisci una misura"}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="bd5-status-badge">
+                    <span aria-hidden="true" className="bd5-status-dot" />
+                    {calc.complete ? "Completa" : rowStage === "empty" ? "Da iniziare" : "Da completare"}
+                  </span>
+                  <div className="bd5-row-actions flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => duplicateLine(line.id)}
                       disabled={!line.description.trim() || lines.length >= 500}
                       title="Copia materiale e specifiche, lasciando vuota la quantità"
-                      className="min-h-10 rounded-lg border border-[var(--border)] bg-white px-3 text-xs font-bold text-[var(--brand-deep)] hover:bg-[var(--brand-primary-soft)] disabled:cursor-not-allowed disabled:opacity-50"
+                      className="bd5-row-action"
                     >
                       Duplica articolo
                     </button>
                     <button
                       type="button"
                       onClick={() => removeLine(line.id)}
-                      className="min-h-10 rounded-lg px-2.5 text-xs font-semibold text-[#8a4c44] hover:bg-rose-50"
+                      className="bd5-row-action bd5-row-action-danger"
+                      aria-label={`Rimuovi riga ${index + 1}`}
                     >
                       Rimuovi
                     </button>
                   </div>
                 </div>
-
-
+                <div className="bd5-row-body">
                 {compactMode ? (
                   <div className="mt-3 space-y-3">
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-12">
@@ -734,11 +768,12 @@ export function BuyerDistintaBuilder({
                   </>
                 )}
 
-                {!calc.complete ? (
-                  <p className="mt-3 text-[11px] leading-5 text-[#7b6a43]">
-                    Per completare la distinta servono descrizione, quantità e peso kg/m. Se inserisci un Target €/t, deve essere positivo.
+                {!calc.complete && rowStage === "pending" ? (
+                  <p className="bd5-row-hint mt-3 text-xs leading-5">
+                    Completa descrizione, quantità e peso kg/m. Il Target €/t è facoltativo, ma se inserito deve essere positivo.
                   </p>
                 ) : null}
+                </div>
               </article>
             );
           })}
