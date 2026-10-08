@@ -64,6 +64,7 @@ function isAnyPath(pathname: string, hrefs: string[]) {
 // RFQ Hub owns procurement and private supplier workflows, including old
 // Marketplace URLs. This resolution must happen before Marketplace routing.
 function rfqContext(pathname: string): WorkspaceContextKey {
+  if (isPath(pathname, appRoutes.rfqHub.savedDistinte)) return "rfq:archive";
   if (isPath(pathname, appRoutes.rfqHub.createDistinta)) return "rfq:distinta";
   if (isAnyPath(pathname, [appRoutes.rfqHub.inbox, appRoutes.marketplace.procurementInbox])) {
     return "rfq:inbox";
