@@ -30,7 +30,9 @@ function validReadiness(value: unknown): value is Readiness {
     "policy_registered","approval_evidence_registered","terms_reviewed","rss_registered",
     "public_enabled","ready_to_ingest"].every((k) => typeof x[k] === "boolean") &&
     typeof x.source_status === "string" && typeof x.license_basis === "string" &&
-    Number.isInteger(x.items_staged) && Number.isInteger(x.cards_published);
+    typeof x.items_staged === "number" && typeof x.cards_published === "number" &&
+    Number.isInteger(x.items_staged) && Number.isInteger(x.cards_published) &&
+    x.items_staged >= 0 && x.cards_published >= 0;
 }
 
 function Check({ ok, name, explanation }: { ok: boolean; name: string; explanation: string }) {
