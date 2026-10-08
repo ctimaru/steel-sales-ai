@@ -9,7 +9,7 @@ create table steel_pulse_private.user_feed_preferences (
   updated_at timestamptz not null default now(),
   check (topics <@ array['market','trade','regulation','raw_materials','technology','companies']::text[]),
   check (cardinality(topics) <= 6),
-  check (cardinality(topics) = (select count(distinct x) from unnest(topics) as x))
+  check (array_position(topics,null) is null)
 );
 alter table steel_pulse_private.user_feed_preferences enable row level security;
 revoke all on steel_pulse_private.user_feed_preferences from public, anon, authenticated;
@@ -28,10 +28,9 @@ begin
     raise exception 'SP5 authenticated user required' using errcode='42501';
   end if;
   if p_topics is null or cardinality(p_topics)>6
-    or p_topics is distinct from array(
-      select distinct topic from unnest(p_topics) as topic order by topic
-    ) and cardinality(p_topics)<>(
-      select count(distinct topic) from unnest(p_topics) as topic
+    or array_position(p_topics,null) is not null
+    or cardinality(p_topics)<>(
+      select count(distinct x) from unnest(p_topics) as x
     )
     or not (p_topics <@ array[
        'market','trade','regulation','raw_materials','technology','companies'
