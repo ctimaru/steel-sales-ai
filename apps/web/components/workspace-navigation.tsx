@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { appRoutes } from "@/lib/routes";
 import {
@@ -406,88 +406,66 @@ export function WorkspaceProfileMenu({
   const panelRef = useRef<HTMLElement>(null);
   const initial = (viewerLabel.trim()[0] || "U").toUpperCase();
 
-  function closeMenu() {
-    setOpen(false);
-    queueMicrotask(() => triggerRef.current?.focus());
-  }
-
-  function handlePanelKeyDown(event: KeyboardEvent<HTMLElement>) {
-    if (event.key === "Escape") {
-      event.preventDefault();
-      closeMenu();
-      return;
-    }
-
-    if (event.key !== "Tab") return;
-    const focusable = Array.from(
-      panelRef.current?.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
-      ) ?? [],
-    );
-    if (focusable.length === 0) return;
-
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  }
+  const closeMenu = useCallback(() => setOpen(false), []);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!open) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    function onPointerDown(event: PointerEvent) {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (triggerRef.current?.contains(target) || panelRef.current?.contains(target)) return;
+      closeMenu();
+    }
+    function onKeyDown(event: globalThis.KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      closeMenu();
+      triggerRef.current?.focus();
+    }
+    document.addEventListener("pointerdown", onPointerDown, true);
+    document.addEventListener("keydown", onKeyDown);
     return () => {
-      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("pointerdown", onPointerDown, true);
+      document.removeEventListener("keydown", onKeyDown);
     };
-  }, [open]);
+  }, [open, closeMenu]);
+
+  useEffect(() => { closeMenu(); }, [pathname, closeMenu]);
 
   return (
     <div className="relative shrink-0">
       <button
         ref={triggerRef}
         type="button"
-        onClick={() => setOpen(true)}
-        className="flex items-center gap-1 rounded-full p-0.5 transition hover:bg-[#eef1ef]"
+        onClick={() => setOpen((value) => !value)}
+        className="flex items-center gap-1 rounded-full p-0.5 transition hover:bg-[var(--surface-muted)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--steel-blue)]"
         aria-label="Apri menu profilo"
         aria-expanded={open}
       >
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#173f35] text-xs font-bold text-white">
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--brand-deep)] text-xs font-bold text-white">
           {initial}
         </span>
-        <NavIcon name="chevron" className="hidden h-4 w-4 text-[#7b8782] sm:block" />
+        <NavIcon name="chevron" className="hidden h-4 w-4 text-[var(--text-secondary)] sm:block" />
       </button>
 
       {open ? (
         <>
-          <button
-            type="button"
-            aria-label="Chiudi menu profilo"
-            onClick={closeMenu}
-            className="fixed inset-0 z-50 cursor-default bg-black/25 lg:bg-black/10"
-          />
-
           <aside
             ref={panelRef}
             role="dialog"
-            aria-modal="true"
+            aria-modal="false"
             aria-label="Menu profilo"
-            onKeyDown={handlePanelKeyDown}
-            className="fixed inset-y-0 left-0 z-[60] flex h-dvh w-[86vw] max-w-sm flex-col overflow-hidden border-r border-[#d7dfdb] bg-white pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)] shadow-2xl lg:absolute lg:inset-y-auto lg:left-auto lg:right-0 lg:top-12 lg:h-auto lg:max-h-[78vh] lg:w-[360px] lg:rounded-2xl lg:border lg:pb-0 lg:pt-0"
+            className="fixed inset-x-3 top-[calc(72px+env(safe-area-inset-top))] z-[60] flex max-h-[min(75dvh,650px)] flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface-base)] shadow-2xl sm:left-auto sm:right-5 sm:w-[360px] lg:absolute lg:inset-x-auto lg:right-0 lg:top-12 lg:w-[360px]"
           >
-            <div className="flex items-start justify-between gap-3 bg-[#f2f4f3] p-5 lg:p-4">
+            <div className="flex items-start justify-between gap-3 bg-[var(--surface-subtle)] p-4">
               <div className="flex min-w-0 items-start gap-3">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#173f35] text-sm font-bold text-white">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--brand-deep)] text-sm font-bold text-white">
                   {initial}
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate text-base font-semibold text-[#1d2824] lg:text-sm">{viewerLabel}</p>
-                  <p className="mt-1 truncate text-sm font-medium text-[#43524c] lg:text-xs">{organizationName}</p>
-                  <p className="mt-0.5 text-xs text-[#7b8782] lg:text-[11px]">{organizationRoleLabel}</p>
+                  <p className="truncate text-base font-semibold text-[var(--text-primary)] lg:text-sm">{viewerLabel}</p>
+                  <p className="mt-1 truncate text-sm font-medium text-[var(--text-secondary)] lg:text-xs">{organizationName}</p>
+                  <p className="mt-0.5 text-xs text-[var(--text-secondary)] lg:text-[11px]">{organizationRoleLabel}</p>
                 </div>
               </div>
               <button
@@ -495,7 +473,7 @@ export function WorkspaceProfileMenu({
                 autoFocus
                 onClick={closeMenu}
                 aria-label="Chiudi"
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xl text-[#66736e] hover:bg-white hover:text-[#1d2824]"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xl text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] hover:text-[var(--brand-deep)]"
               >
                 ×
               </button>
@@ -503,8 +481,8 @@ export function WorkspaceProfileMenu({
 
             <div className="flex-1 overflow-y-auto p-3">
               {canAdmin ? (
-                <div className="mt-2 border-t border-[#e2e7e4] pt-2">
-                  <p className="px-2 pb-1 pt-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#87938e]">
+                <div className="mt-2 border-t border-[var(--border)] pt-2">
+                  <p className="px-2 pb-1 pt-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-secondary)]">
                     Azienda
                   </p>
                   {!guidedSetupComplete ? (
@@ -516,8 +494,8 @@ export function WorkspaceProfileMenu({
                 </div>
               ) : null}
 
-              <div className="mt-2 border-t border-[#e2e7e4] pt-2">
-                <p className="px-2 pb-1 pt-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#87938e]">
+              <div className="mt-2 border-t border-[var(--border)] pt-2">
+                <p className="px-2 pb-1 pt-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--text-secondary)]">
                   Account
                 </p>
                 <ProfileMenuLink
@@ -529,10 +507,10 @@ export function WorkspaceProfileMenu({
 
             </div>
 
-            <form action={logoutAction} className="border-t border-[#e2e7e4] p-3">
+            <form action={logoutAction} className="border-t border-[var(--border)] p-3">
               <button
                 type="submit"
-                className="w-full rounded-xl px-3 py-3 text-left text-sm font-semibold text-[#66736e] transition hover:bg-[#f2f4f3] hover:text-[#1d2824]"
+                className="w-full rounded-xl px-3 py-3 text-left text-sm font-semibold text-[var(--text-secondary)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--brand-deep)]"
               >
                 Esci
               </button>
@@ -562,8 +540,8 @@ function ProfileMenuLink({
       className={[
         "block rounded-xl px-3 py-2.5 text-sm font-semibold transition",
         emphasis
-          ? "bg-[#edf5f2] text-[#173f35] hover:bg-[#e1ece8]"
-          : "text-[#43524c] hover:bg-[#f2f4f3] hover:text-[#1d2824]",
+          ? "bg-[var(--brand-primary-soft)] text-[var(--brand-deep)] hover:bg-[var(--surface-muted)]"
+          : "text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] hover:text-[var(--brand-deep)]",
       ].join(" ")}
     >
       {label}
