@@ -49,8 +49,12 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  // Keep the production Google tag canonical even if an older Vercel environment value lingers.
+  const requestedGoogleAnalyticsId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID?.trim();
   const googleAnalyticsId =
-    process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID?.trim() || "G-F5QWLD98HD";
+    requestedGoogleAnalyticsId === "G-F5QWLD98HD"
+      ? requestedGoogleAnalyticsId
+      : "G-F5QWLD98HD";
 
   const googleConsentBootstrap = `
 window.dataLayer = window.dataLayer || [];
@@ -67,16 +71,8 @@ window.gtag("set", "ads_data_redaction", true);
 
   const googleAnalyticsConfig = `
 (function() {
-  var path = window.location.pathname;
-  var shouldMeasure =
-    path === "/" ||
-    path.indexOf("/knowledge") === 0 ||
-    path.indexOf("/azienda") === 0 ||
-    path.indexOf("/register") === 0 ||
-    path.indexOf("/login") === 0;
-
-  if (!shouldMeasure) return;
-
+  // Google Tag Assistant must see a configured tag on every route.
+  // Automatic page views are disabled; only public paths send explicit page_view events.
   window.gtag("js", new Date());
   window.gtag("config", "${googleAnalyticsId}", {
     send_page_view: false,
