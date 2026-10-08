@@ -305,7 +305,8 @@ jobs:
             sp4_steel_pulse_public_feed.sql \
             sp5_steel_pulse_personalized_feed.sql \
             sp6_steel_pulse_engagement_retention.sql \
-            sp7_first_licensed_source_preflight.sql; do
+            sp7_first_licensed_source_preflight.sql \
+            sp71_steel_pulse_editorial_readiness.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
