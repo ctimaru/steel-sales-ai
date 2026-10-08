@@ -124,12 +124,12 @@ export default async function OperationalAlertsPage() {
 
   // A distinct admin-scoped RPC reads history; failure must not look like an empty history.
   const auditResponse = canManage
-    ? await supabase.rpc("p1_operational_alert_audit_read", {
+    ? await Promise.resolve(supabase.rpc("p1_operational_alert_audit_read", {
         p_organization_id: organizationId,
         p_alert_id: null,
         p_limit: 100,
         p_offset: 0,
-      }).then((result) => result).catch(() => null)
+      })).catch(() => null)
     : null;
   const auditData = auditResponse && !auditResponse.error ? auditResponse.data : null;
   const auditRows = Array.isArray(auditData) ? (auditData as OperationalAlertAudit[]) : null;
