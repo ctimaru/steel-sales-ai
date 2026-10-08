@@ -82,7 +82,7 @@ export async function saveBuyerDistinta(
     return {
       ok: false,
       error:
-        "Completa articolo, quantità, peso kg/m e Target €/t di tutte le righe prima di salvare.",
+        "Completa articolo, quantità e peso kg/m di tutte le righe; se inserisci un Target €/t deve essere positivo.",
     };
   }
 
@@ -203,11 +203,11 @@ export async function sendBuyerDistinta(
     quantity: Number(row.quantity),
     barLengthM: row.bar_length_m === null ? null : Number(row.bar_length_m),
     weightKgM: Number(row.weight_kg_m),
-    targetEurT: Number(row.target_eur_t),
-    targetEurM: Number(row.target_eur_m),
+    targetEurT: row.target_eur_t == null ? null : Number(row.target_eur_t),
+    targetEurM: row.target_eur_m == null ? null : Number(row.target_eur_m),
     meters: Number(row.line_meters),
     tonnes: Number(row.line_tonnes),
-    targetTotalEur: Number(row.target_total_eur),
+    targetTotalEur: row.target_total_eur == null ? null : Number(row.target_total_eur),
     note: row.note ?? "",
     complete: true,
   }));
