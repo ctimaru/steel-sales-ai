@@ -62,7 +62,7 @@ export default async function BuyerDistintaPage() {
               Questa è la distinta pubblica. La gestione aziendale si trova in RFQ Hub.
             </p>
             <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
-              Prima di uscire, salva o copia la distinta: i campi non compilati sul server non sono ancora ripristinabili.
+              La bozza può essere ripresa nel Workspace dalla stessa scheda: il recupero è temporaneo e richiede conferma. Salva per conservarla nel tuo account.
             </p>
           </div>
           <Link
