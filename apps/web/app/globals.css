@@ -1743,3 +1743,230 @@ textarea {
 @media (prefers-reduced-motion: reduce) {
   .bd5-row-card:has(.bd8-inline-norm) { transition: none; }
 }
+
+
+/* BD5.4 — Final mobile acceptance: readable inputs, thumb-sized actions and safe viewports. */
+@media (max-width: 980px) {
+  /* The side preview is part of the document flow under the configurator, not a second sticky layer. */
+  .bd7-preview {
+    position: static;
+    max-width: 100%;
+  }
+  .bd7-workbench, .bd7-workbench-editor, .bd6-configurator, .bd5-row-card {
+    min-width: 0;
+  }
+}
+@media (max-width: 640px) {
+  /* Prevent iOS Safari's automatic zoom for fields rendered below 16px. */
+  .bd6-input,
+  .bd52-input,
+  .bd52-output,
+  .bd7-doc-fields select,
+  .bd5-row-card:has(.bd8-inline-norm) .bd52-input {
+    min-height: 44px;
+    font-size: 16px;
+    line-height: 1.2;
+  }
+  .bd6-input, .bd52-input {
+    padding: 0.55rem 0.62rem;
+  }
+  .bd7-workbench .bd6-wizard-sections {
+    gap: 0.45rem;
+    padding: 0.45rem;
+  }
+  .bd7-workbench .bd6-wizard-section {
+    min-width: 0;
+    padding: 0.6rem;
+  }
+  .bd7-workbench .bd6-choice {
+    min-height: 44px;
+    overflow-wrap: anywhere;
+    padding: 0.4rem 0.25rem;
+    font-size: 0.75rem;
+  }
+  .bd7-workbench .bd6-choice small { font-size: 0.64rem; }
+  .bd6-suggestions {
+    max-height: min(36dvh, 11rem);
+    overscroll-behavior: contain;
+  }
+  .bd6-suggestion {
+    min-height: 44px;
+    font-size: 0.875rem;
+    touch-action: manipulation;
+  }
+  .bd6-add-button {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  .bd7-preview { border-radius: 0.8rem; }
+  .bd7-preview-item, .bd7-doc-summary {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  .bd7-preview-list { max-height: min(30dvh, 11rem); }
+  .bd7-preview-description {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+  .bd7-preview-meta { overflow-wrap: anywhere; }
+  .bd7-doc-fields .bd6-check {
+    min-height: 44px;
+  }
+  .bd7-doc-fields .bd6-check input {
+    min-width: 20px;
+    min-height: 20px;
+  }
+  /* Dense visual rows but physical buttons large enough for fingers. */
+  .bd5-row-card:has(.bd8-inline-norm) .bd8-icon-button {
+    width: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .bd5-row-card:has(.bd8-inline-norm) .bd52-details-toggle {
+    min-height: 44px;
+    white-space: normal;
+    text-align: center;
+  }
+  .bd5-row-card:has(.bd8-inline-norm) .bd5-row-actions {
+    flex-wrap: nowrap;
+    gap: 0.25rem;
+    width: auto;
+    border-top: 0;
+    padding-top: 0;
+  }
+  .bd5-row-card:has(.bd8-inline-norm) .bd5-row-header {
+    gap: 0.4rem;
+  }
+  .bd5-row-card:has(.bd8-inline-norm) .bd52-field {
+    font-size: 0.72rem;
+    line-height: 1.25;
+  }
+  .bd5-row-card:has(.bd8-inline-norm) .bd8-tonnes {
+    font-size: 0.72rem;
+  }
+  .bd5-row-card:has(.bd8-inline-norm) .bd52-weight-pill {
+    min-height: 2rem;
+    font-size: 0.82rem;
+  }
+  .bd5-row-card:has(.bd8-inline-norm) .bd5-row-body {
+    padding-bottom: 0.55rem;
+  }
+  .bd53-hud {
+    padding: 0.5rem 0.6rem;
+    max-width: 100%;
+  }
+  .bd53-hud-action {
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  .bd5-row-card[id^="buyer-row-"] {
+    scroll-margin-top: 8.5rem;
+  }
+  .bd5-row-card:has(.bd8-inline-norm) .bd52-detail-panel {
+    padding: 0.6rem;
+    overflow-wrap: anywhere;
+  }
+  .bd52-detail-panel .bd52-field, .bd52-detail-panel .bd52-input {
+    min-width: 0;
+  }
+  .bd6-legacy-search > section {
+    margin: 0 0.45rem 0.45rem;
+    padding: 0.65rem;
+  }
+}
+@media (max-width: 430px) {
+  .bd5-row-card:has(.bd8-inline-norm) .bd52-core-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+  .bd5-row-card:has(.bd8-inline-norm) .bd52-field-quantity {
+    grid-column: 1;
+  }
+  .bd5-row-card:has(.bd8-inline-norm) .bd52-field-unit {
+    grid-column: 2;
+  }
+  .bd5-row-card:has(.bd8-inline-norm) .bd52-field-bars {
+    grid-column: 1;
+  }
+  .bd5-row-card:has(.bd8-inline-norm) .bd52-field-weight {
+    grid-column: 2;
+  }
+  .bd5-row-card:has(.bd8-inline-norm) .bd8-tonnes {
+    grid-column: 1;
+    min-width: 0;
+  }
+  .bd5-row-card:has(.bd8-inline-norm) .bd52-details-toggle {
+    grid-column: 2;
+  }
+  .bd5-row-card:has(.bd8-inline-norm) .bd5-row-actions {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+  /* Keep controls on full-width rows: no sideways scrolling at 320px. */
+  .bd7-workbench .bd6-choice-family {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .bd7-workbench .bd6-dimension-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .bd7-preview-totals {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 380px) {
+  /* A two-column HUD can truncate physical totals; let the action have its own line. */
+  .bd53-hud {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0.4rem;
+  }
+  .bd53-hud-progress {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .bd53-hud-metrics {
+    grid-column: 1;
+    grid-row: 2;
+    gap: 0.85rem;
+  }
+  .bd53-hud-metric {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.35rem;
+  }
+  .bd53-hud-action {
+    grid-column: 1;
+    grid-row: 3;
+    width: 100%;
+    max-width: none;
+    min-height: 44px;
+  }
+  .bd5-row-card[id^="buyer-row-"] {
+    scroll-margin-top: 11.5rem;
+  }
+  .bd7-workbench .bd6-config-head { padding: 0.6rem; }
+}
+@media (hover: none) {
+  .bd5-row-card:has(.bd8-inline-norm):hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Includes title, quick search, notes and email fields as well as the new tiny rows. */
+  .bd54-page input:not([type="checkbox"]),
+  .bd54-page select,
+  .bd54-page textarea {
+    font-size: 16px;
+  }
+  .bd54-page :is(button, input, select, textarea, summary):focus-visible {
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+  }
+  .bd54-page :is(button, summary) {
+    -webkit-tap-highlight-color: transparent;
+  }
+}

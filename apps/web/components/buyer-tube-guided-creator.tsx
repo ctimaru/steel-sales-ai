@@ -34,12 +34,14 @@ function GuidedDimensionInput({
       <input
         aria-label={label + " in millimetri"}
         aria-autocomplete="list"
+        aria-haspopup="listbox"
         aria-controls={focused && suggestions.length ? listId : undefined}
+        aria-activedescendant={focused && suggestions.length ? listId + "-option-" + Math.min(activeSuggestion, suggestions.length - 1) : undefined}
         aria-expanded={focused && suggestions.length > 0}
         inputMode="decimal"
         autoComplete="off"
         value={value}
-        onFocus={() => setFocused(true)}
+        onFocus={() => { setActiveSuggestion(0); setFocused(true); }}
         onBlur={() => setFocused(false)}
         onChange={(event) => { setActiveSuggestion(0); onChange(event.target.value); }}
         onKeyDown={(event) => {
@@ -66,7 +68,8 @@ function GuidedDimensionInput({
             <button
               type="button"
               role="option"
-              aria-selected={index === activeSuggestion}
+              id={listId + "-option-" + index}
+              aria-selected={index === Math.min(activeSuggestion, suggestions.length - 1)}
               key={suggestion}
               onPointerDown={(event) => event.preventDefault()}
               onClick={() => {
