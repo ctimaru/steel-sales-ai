@@ -10,6 +10,7 @@ const nav = fs.readFileSync(
   new URL("../components/workspace-navigation.tsx", import.meta.url),
   "utf8",
 );
+const bell = fs.readFileSync(new URL("../components/workspace-notification-bell.tsx", import.meta.url), "utf8");
 const routes = fs.readFileSync(
   new URL("../lib/routes.ts", import.meta.url),
   "utf8",
@@ -57,8 +58,8 @@ test("UXA2 desktop primary navigation uses icons plus labels and active underlin
 test("UXA2 keeps daily search and alerts in the top header", () => {
   assert.match(nav, /placeholder="Cerca"/);
   assert.match(nav, /action=\{appRoutes\.commercial\.search\}/);
-  assert.match(shell, /WorkspaceAlertsButton/);
-  assert.match(nav, /Alert operativi/);
+  assert.match(shell, /WorkspaceNotificationBell/);
+  assert.match(bell, /Alert operativi/);
 });
 
 test("UXA2 keeps the avatar drawer focused while Platform becomes a persistent context switch", () => {
