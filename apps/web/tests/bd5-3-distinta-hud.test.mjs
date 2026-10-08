@@ -51,8 +51,8 @@ test("BD5.3 does not alter private save, RFQ, email or previous fast-entry flows
   assert.match(builder, /function duplicateLine\(id: string\)/);
   assert.match(builder, /function toggleRowDetails\(id: string\)/);
   assert.match(builder, /function addCatalogLine\(option: BuyerDistintaCatalogOption\)/);
-  assert.match(builder, /saveBuyerDistinta\(\{ title, lines \}\)/);
+  assert.match(builder, /saveBuyerDistinta\(\{ title, lines, documents \}\)/);
   assert.match(builder, /createBuyerRfqCampaign\(savedId\)/);
   assert.match(builder, /sendBuyerDistinta\(\{/);
-  assert.match(builder, /buildBuyerDistintaPlainText\(title, valid\)/);
+  assert.match(builder, /buildBuyerDistintaPlainText\(title, valid, documents\)/);
 });
