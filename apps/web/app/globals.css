@@ -1954,3 +1954,19 @@ textarea {
     transform: none;
   }
 }
+
+@media (max-width: 640px) {
+  /* Includes title, quick search, notes and email fields as well as the new tiny rows. */
+  .bd54-page input:not([type="checkbox"]),
+  .bd54-page select,
+  .bd54-page textarea {
+    font-size: 16px;
+  }
+  .bd54-page :is(button, input, select, textarea, summary):focus-visible {
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+  }
+  .bd54-page :is(button, summary) {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
