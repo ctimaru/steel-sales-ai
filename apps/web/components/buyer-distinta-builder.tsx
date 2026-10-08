@@ -375,7 +375,7 @@ export function BuyerDistintaBuilder({
                 setCompactMode((current) => !current);
                 setExpandedRows({});
               }}
-              className={compactMode
+              className={!compactMode
                 ? "platform-primary min-h-11 rounded-xl px-4 text-xs font-bold"
                 : "min-h-11 rounded-xl border border-[var(--border)] bg-white px-4 text-xs font-bold text-[var(--brand-deep)] hover:bg-[var(--surface-muted)]"}
             >
@@ -580,6 +580,7 @@ export function BuyerDistintaBuilder({
                       type="button"
                       aria-expanded={detailOpen}
                       aria-controls={"buyer-details-" + line.id}
+                      aria-label={(detailOpen ? "Chiudi dettagli riga " : "Apri dettagli riga ") + String(index + 1)}
                       onClick={() => toggleRowDetails(line.id)}
                       className="bd52-details-toggle"
                     >
