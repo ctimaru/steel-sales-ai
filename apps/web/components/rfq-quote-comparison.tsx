@@ -119,6 +119,7 @@ export type RfqComparisonData = {
 type SortMode = "coverage" | "total" | "delta" | "lead";
 
 function num(value: Numeric) {
+  if (value == null || value === "") return null;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
 }
@@ -230,7 +231,7 @@ export function RfqQuoteComparison({
         </h2>
         <p className="mt-2 text-sm leading-6 text-[#66736e]">
           Quando almeno un fornitore invia un&apos;offerta, qui compariranno copertura,
-          prezzi normalizzati, delta dal target, tempi e benchmark split.
+          prezzi normalizzati, tempi e benchmark split; il delta appare solo se hai indicato un target.
         </p>
       </section>
     );
