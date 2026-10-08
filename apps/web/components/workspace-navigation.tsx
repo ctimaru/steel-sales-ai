@@ -389,18 +389,31 @@ export function WorkspaceSearchBar() {
 export function WorkspaceAlertsButton({
   activeCount,
   needsAttention,
+  statusVerified,
 }: {
   activeCount: number;
   needsAttention: boolean;
+  statusVerified: boolean;
 }) {
   return (
     <Link
       href={appRoutes.operations.alerts}
-      aria-label={activeCount > 0 ? `Alert operativi: ${activeCount}` : "Alert operativi"}
+      aria-label={
+        !statusVerified
+          ? "Alert operativi: stato non disponibile"
+          : activeCount > 0
+            ? `Alert operativi: ${activeCount}`
+            : "Alert operativi: nessun alert attivo"
+      }
+      title={!statusVerified ? "Stato degli alert non disponibile: apri per riprovare" : "Alert operativi"}
       className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#65716c] transition hover:bg-[#eef1ef] hover:text-[#173f35]"
     >
       <NavIcon name="bell" className="h-[21px] w-[21px]" />
-      {activeCount > 0 ? (
+      {!statusVerified ? (
+        <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#946515] px-1 text-[10px] font-bold leading-4 text-white">
+          !
+        </span>
+      ) : activeCount > 0 ? (
         <span
           className={[
             "absolute -right-0.5 -top-0.5 min-w-4 rounded-full px-1 text-center text-[9px] font-bold leading-4 text-white",

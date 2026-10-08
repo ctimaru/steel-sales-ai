@@ -94,6 +94,7 @@ export function AppShell({
   demoMode,
   alertNeedsAttention,
   alertActiveCount,
+  alertSummaryVerified,
   platformConsoleAccess,
   guidedSetupComplete,
   networkEnabled,
@@ -106,6 +107,7 @@ export function AppShell({
   demoMode: boolean;
   alertNeedsAttention: boolean;
   alertActiveCount: number;
+  alertSummaryVerified: boolean;
   platformConsoleAccess: boolean;
   guidedSetupComplete: boolean;
   networkEnabled: boolean;
@@ -172,6 +174,7 @@ export function AppShell({
             <WorkspaceAlertsButton
               activeCount={alertActiveCount}
               needsAttention={alertNeedsAttention}
+              statusVerified={alertSummaryVerified}
             />
             <div className="hidden lg:block">
               <WorkspaceProfileMenu

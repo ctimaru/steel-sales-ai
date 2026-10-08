@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { AppShell } from "@/components/app-shell";
 import { getNetworkAccessState } from "@/lib/network-access";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
+import { parseOperationalAlertSummary } from "@/lib/operational-alert-status";
 import { privateNoIndexRobots } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 import { getWorkspaceContext } from "@/lib/workspace-context";
@@ -23,6 +24,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
   let organizationRole = "admin";
   let alertNeedsAttention = false;
   let alertActiveCount = 0;
+  let alertSummaryVerified = false;
   let platformConsoleAccess = false;
   let guidedSetupComplete = true;
   const networkEnabled = isNetworkFrontendEnabled();
@@ -44,14 +46,20 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
       networkEntitled = networkAccess.can_access_network;
     }
 
-    const { data: alertSummary } = await supabase.rpc("p1_operational_alerts_summary", {
-      p_organization_id: context.organizationId,
-    });
-
-    if (alertSummary && typeof alertSummary === "object") {
-      const summary = alertSummary as { needs_attention?: unknown; active_count?: unknown };
-      alertNeedsAttention = summary.needs_attention === true;
-      alertActiveCount = Math.max(0, Number(summary.active_count ?? 0) || 0);
+    // Keep the rest of the workspace usable if the alert service fails.
+    // An unavailable summary must show an unknown state, never a healthy zero.
+    try {
+      const { data, error } = await supabase.rpc("p1_operational_alerts_summary", {
+        p_organization_id: context.organizationId,
+      });
+      const summary = error ? null : parseOperationalAlertSummary(data);
+      if (summary) {
+        alertSummaryVerified = true;
+        alertNeedsAttention = summary.needs_attention;
+        alertActiveCount = summary.active_count;
+      }
+    } catch {
+      alertSummaryVerified = false;
     }
   }
 
@@ -63,6 +71,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
       demoMode={!configured}
       alertNeedsAttention={alertNeedsAttention}
       alertActiveCount={alertActiveCount}
+      alertSummaryVerified={alertSummaryVerified}
       platformConsoleAccess={platformConsoleAccess}
       guidedSetupComplete={guidedSetupComplete}
       networkEnabled={networkEnabled}

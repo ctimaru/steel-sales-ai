@@ -27,7 +27,8 @@ test("operational alert actions use controlled RPCs", () => {
 
 test("alert surface exposes attention and lifecycle states", () => {
   assert.match(page, /Richiede attenzione/);
-  assert.match(page, /Controlli regolari/);
+  assert.match(page, /Nessun alert attivo/);
+  assert.match(page, /Impossibile verificare gli alert operativi/);
   assert.match(page, /In carico/);
   assert.match(page, /Risolti/);
 });
