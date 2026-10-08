@@ -15,10 +15,20 @@ const hp13 = read("../../../supabase/tests/hp13_permissions_tenant_isolation.sql
 
 function loadContract() {
   const exports = {};
-  const compiled = ts.transpileModule(contract, {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
-  }).outputText;
-  vm.runInNewContext(compiled, { exports, Set });
+  const publicExports = {};
+  const options = { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } };
+  vm.runInNewContext(
+    ts.transpileModule(read("../lib/steel-pulse-public.ts"), options).outputText,
+    { exports: publicExports, require: () => ({ createClient: () => null }), Set, URL, Date },
+  );
+  const compiled = ts.transpileModule(contract, options).outputText;
+  vm.runInNewContext(compiled, {
+    exports, Set,
+    require: (id) => {
+      if (id !== "@/lib/steel-pulse-public") throw new Error("Unexpected module: " + id);
+      return publicExports;
+    },
+  });
   return exports;
 }
 const model = loadContract();
