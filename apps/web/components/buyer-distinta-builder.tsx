@@ -609,7 +609,7 @@ export function BuyerDistintaBuilder({
                         {line.description.trim() || "Articolo da compilare"}
                       </span>
                       <span className="bd7-preview-meta">
-                        {line.grade ? line.grade + " · " : ""}
+                        {line.standard ? line.standard + " · " : "Norma da scegliere · "}{line.grade ? line.grade + " · " : ""}
                         {calculated[index].quantity !== null
                           ? formatNumber(calculated[index].quantity, line.quantityMode === "bars" ? 0 : 2) + " " +
                             (line.quantityMode === "bars" ? "barre" : line.quantityMode === "meters" ? "m" : "t")
@@ -683,7 +683,7 @@ export function BuyerDistintaBuilder({
             <div>
               <h3 className="text-sm font-bold text-[var(--brand-deep)]">Articoli in distinta</h3>
               <p className="text-xs text-[var(--text-secondary)]">
-                {lines.length} {lines.length === 1 ? "articolo" : "articoli"} · modifica o duplica le card
+                {lines.length} {lines.length === 1 ? "articolo" : "articoli"} · ogni riga ha la propria norma EN 10210 / EN 10219
               </p>
             </div>
           </div>
