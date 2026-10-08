@@ -192,7 +192,7 @@ function InboxCard({ item }: { item: InboxItem }) {
           {item.source_status.replaceAll("_", " ")}
         </span>
         <Link
-          href={appRoutes.marketplace.rfqCampaign(item.rfq_id)}
+          href={appRoutes.rfqHub.campaign(item.rfq_id)}
           className="inline-flex min-h-10 items-center rounded-xl bg-[#173f35] px-4 text-xs font-bold text-white"
         >
           {item.action_label} →
@@ -267,13 +267,13 @@ export default async function ProcurementInboxPage({
         actions={
           <>
             <Link
-              href={appRoutes.marketplace.rfqHub}
+              href={appRoutes.rfqHub.home}
               className="app-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
             >
               RFQ Hub
             </Link>
             <Link
-              href="/distinta"
+              href={appRoutes.rfqHub.createDistinta}
               className="app-primary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
             >
               Crea distinta
