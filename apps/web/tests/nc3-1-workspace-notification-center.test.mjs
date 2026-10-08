@@ -52,7 +52,7 @@ test("NC3.1: Inbox filters, pagination and individual lifecycle are visibly wire
 test("NC3.1: RPCs enforce tenant and exact own-recipient ACL at database boundary", () => {
   assert.match(migration,/security invoker/);
   assert.match(migration,/security definer/);
-  assert.match(migration,/set search_path=''/);
+  assert.match(migration,/set search_path\\s*=\\s*''/);
   assert.match(migration,/public\.is_organization_member\(p_organization_id,false\)/);
   assert.match(migration,/r\.recipient_user_id=v_actor/);
   assert.match(migration,/r\.recipient_user_id=v_user/);
