@@ -300,7 +300,8 @@ jobs:
             nc32_platform_governance_inbox.sql \
             nc33_notification_realtime_publication.sql \
             nc51_notification_security_acceptance.sql \
-            sp2_steel_pulse_ingestion_foundation.sql; do
+            sp2_steel_pulse_ingestion_foundation.sql \
+            sp3_steel_pulse_editorial_publish_gate.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
