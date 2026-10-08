@@ -86,10 +86,11 @@ function GuidedDimensionInput({
 }
 
 export function BuyerTubeGuidedCreator({
-  catalogOptions, onAdd,
+  catalogOptions, onAdd, canAdd,
 }: {
   catalogOptions: BuyerDistintaCatalogOption[];
   onAdd: (draft: GuidedTubeDraft) => void;
+  canAdd: boolean;
 }) {
   const [draft, setDraft] = useState<GuidedTubeDraft>(newGuidedTubeDraft);
   const measurement = guidedTubeMeasurement(draft);
@@ -242,7 +243,7 @@ export function BuyerTubeGuidedCreator({
               <input type="checkbox" checked={draft.iso9001}
                 disabled={!measurement}
                 onChange={(event) => patch({ iso9001: event.target.checked })} />
-              Produttore certificato ISO 9001
+              Produttore certificato UNI EN ISO 9001
             </label>
           </div>
           <p className="mt-2 text-xs text-[var(--text-secondary)]">
@@ -265,13 +266,13 @@ export function BuyerTubeGuidedCreator({
         <button
           type="button"
           onClick={() => {
-            if (!measurement) return;
+            if (!measurement || !canAdd) return;
             onAdd(draft);
             setDraft((current) => ({
               ...current, diameter: "", side: "", width: "", height: "", thickness: "",
             }));
           }}
-          disabled={!measurement}
+          disabled={!measurement || !canAdd}
           className="bd6-add-button"
         >
           + Aggiungi alla distinta
