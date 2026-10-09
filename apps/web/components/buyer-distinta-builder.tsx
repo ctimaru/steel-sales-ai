@@ -1,5 +1,6 @@
-import { guidedTubeToBuyerLine } from "@/lib/buyer-guided-commercial-line";
 "use client";
+
+import { guidedTubeToBuyerLine } from "@/lib/buyer-guided-commercial-line";
 
 import Link from "next/link";
 import { BuyerTubeGuidedCreator } from "@/components/buyer-tube-guided-creator";
