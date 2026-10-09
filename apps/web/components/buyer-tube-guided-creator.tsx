@@ -122,7 +122,7 @@ export function BuyerTubeGuidedCreator({
   );
 
   return (
-    <section className="bd6-configurator" aria-labelledby="bd6-config-title">
+    <section className="bd6-configurator bd91-compact-configurator" aria-labelledby="bd6-config-title">
       <div className="bd6-config-head">
         <div>
           <p className="bd6-eyebrow">Configuratore commerciale · assistito</p>
@@ -178,7 +178,7 @@ export function BuyerTubeGuidedCreator({
         <fieldset className="bd6-wizard-section" disabled={!draft.standard}>
           <legend className="bd6-wizard-label"><span>03</span> Grado acciaio</legend>
           <label className="bd6-dimension-field">
-            <span>Grado strutturale</span>
+            <span className="sr-only">Grado strutturale</span>
             <input
               list="bd6-grade-suggestions"
               value={draft.grade}
