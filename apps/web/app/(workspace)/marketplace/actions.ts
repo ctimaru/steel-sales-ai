@@ -41,9 +41,13 @@ export async function createMarketplaceRequest(formData: FormData) {
   const context = await requireWorkspaceWriteRole(appRoutes.marketplace.home);
   const title = textValue(formData, "title");
   const visibilityMode = textValue(formData, "visibility_mode") || "named";
+  // Explicit opt-in only: the default Marketplace entry now leads buyers to RFQ Hub.
+  if (textValue(formData, "creation_mode") !== "standalone_marketplace") {
+    redirect(appRoutes.marketplace.newRequest);
+  }
 
   if (title.length < 5) {
-    redirect(marketplaceError(appRoutes.marketplace.newRequest, "Inserisci un titolo più descrittivo."));
+    redirect(marketplaceError(appRoutes.marketplace.newRequest + "?mode=standalone", "Inserisci un titolo più descrittivo."));
   }
 
   const supabase = await createClient();
@@ -53,7 +57,7 @@ export async function createMarketplaceRequest(formData: FormData) {
     p_visibility_mode: visibilityMode,
   });
 
-  if (error) redirect(marketplaceError(appRoutes.marketplace.newRequest, error.message));
+  if (error) redirect(marketplaceError(appRoutes.marketplace.newRequest + "?mode=standalone", error.message));
 
   const requestId = String((data as { request_id?: string } | null)?.request_id ?? "");
   if (!requestId) redirect(marketplaceError(appRoutes.marketplace.home, "Richiesta non creata."));
