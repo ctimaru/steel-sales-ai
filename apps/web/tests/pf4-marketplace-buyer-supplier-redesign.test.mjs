@@ -69,7 +69,7 @@ test("PF4 keeps governed buyer and supplier boundaries while using business lang
   assert.match(home, /Commercial Memory e Marketplace restano separati/);
   assert.match(opportunity, /livello di accesso richiesto/);
   assert.match(opportunity, /diritto di risposta viene verificato separatamente/);
-  assert.match(requests, /regole di privacy e accesso/);
+  assert.match(requests, /Le RFQ private e i confronti offerte si gestiscono in RFQ Hub/);
   assert.match(responses, /fornitore abilitato/);
   assert.match(inbox, /non esegue automaticamente invii, solleciti, assegnazioni o emissioni PO/);
 });
