@@ -51,7 +51,7 @@ const proxy = fs.readFileSync(
 
 test("PA1.1 preserves authenticated-user redirect at the proxy before the static home", () => {
   assert.match(home, /export const dynamic = "force-static"/);
-  assert.doesNotMatch(home, /createClient|getUser|cookies\\(|redirect\\(/);
+  assert.doesNotMatch(home, /createClient|getUser|cookies\s*\(|redirect\s*\(/);
   assert.match(proxy, /if \(!error && data\.user\)/);
   assert.match(proxy, /target\.pathname = "\/dashboard"/);
 });
