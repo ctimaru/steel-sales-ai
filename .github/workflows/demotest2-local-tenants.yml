@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "supabase/tests/demotest2_four_tenant_rfq.sql"
+      - "supabase/migrations/20261009114500_demotest2_rfq_insert_source_rls_cycle_fix.sql"
       - ".github/workflows/demotest2-local-tenants.yml"
   workflow_dispatch:
 
