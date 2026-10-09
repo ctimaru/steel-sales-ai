@@ -10,8 +10,9 @@ import type { BuyerDistintaDraftLine } from "@/lib/buyer-distinta";
 import { appRoutes } from "@/lib/routes";
 
 /**
- * RFQAI2 is presentation only. No AI calls, file reads/uploads, mailbox
- * subscriptions or writes happen here. RFQAI3+ will attach authorized actions.
+ * RFQAI2 introduced the four-mode UI. RFQAI3 activates only the private
+ * text-mode server action after an explicit click; file/email remain inert.
+ * No automatic RFQ save/dispatch occurs from this client component.
  */
 export type RfqAiIntakeMode = "manual" | "text" | "file" | "email";
 const MAX_TEXT_CHARS = 12_000;
@@ -121,9 +122,10 @@ export function RfqAiIntakeUx({
             <p className="rfqai2-panel-kicker">Smart Steel Sales · AI privata</p>
             <h4>Trasforma una richiesta in distinta, senza ricopiarla</h4>
             <p>
-              Testi, documenti ed email saranno interpretati in una bozza verificabile
-              nel RFQ Hub aziendale. La funzione automatica è in preparazione e non è
-              ancora attiva; la compilazione manuale resta gratuita.
+              Nel RFQ Hub aziendale puoi già preparare una distinta da testo libero con AI,
+              verificando ogni articolo prima di inserirlo. L’importazione da file e il
+              collegamento email arriveranno nei prossimi rilasci. La compilazione manuale
+              rimane gratuita.
             </p>
             <div className="rfqai2-access-actions">
               {authenticated ? (
