@@ -8,7 +8,7 @@ const source = read("../lib/rfq-ai-intake-contract.ts");
 const adapterSource = read("../lib/rfq-ai-parser-v4-adapter.ts");
 const buyerSource = read("../lib/buyer-distinta.ts");
 const guidanceSource = read("../lib/buyer-tube-guidance.ts");
-const audit = read("../../docs/architecture/rfqai1-unified-intake-contract.md");
+const audit = read("../../../docs/architecture/rfqai1-unified-intake-contract.md");
 
 const transpile = (input) => ts.transpileModule(input, {
   compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
