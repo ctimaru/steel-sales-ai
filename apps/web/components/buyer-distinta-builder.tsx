@@ -125,7 +125,7 @@ export function BuyerDistintaBuilder({
   );
   // Only the initial reusable empty placeholder is excluded from progress.
   // Explicitly added blank rows must still block copy until they are completed.
-  const initialEmptyRow = lines.length === 1 && isUntouchedLine(lines[0]);
+  const initialEmptyRow = lines.length === 1 && isUntouchedLine(lines[0]) && !editingRows[lines[0].id];
   const activeLineCount = initialEmptyRow ? 0 : lines.length;
   const allComplete =
     calculated.length > 0 && calculated.every((line) => line.complete);
@@ -771,7 +771,9 @@ Configura un articolo o compila direttamente una riga: quantità, kg/m e antepri
                     <span>{calc.quantity !== null
                       ? formatNumber(calc.quantity, line.quantityMode === "bars" ? 0 : 2) + " " +
                         (line.quantityMode === "bars" ? "barre" : line.quantityMode === "meters" ? "m" : "t")
-                      : "Quantità mancante"} · {formatNumber(calc.tonnes, 3)} t</span>
+                      : "Quantità mancante"} · {formatNumber(calc.meters, 2)} m · {formatNumber(calc.tonnes, 3)} t
+                      {" · "}{formatNumber(calc.weightKgM, 3)} kg/m
+                      {calc.targetEurT !== null ? " · Target " + formatNumber(calc.targetEurT, 2) + " €/t" : ""}</span>
                   </div>
                   <div className="bd10-row-actions">
                     <button type="button" className="bd10-edit-button"
