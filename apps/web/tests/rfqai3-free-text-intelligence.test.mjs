@@ -99,9 +99,9 @@ test("RFQAI3 authenticated server action, bounded Gateway call, no auto-persist 
   assert.match(action, /requireWorkspaceWriteRole\("\/rfq-hub"\)/);
   assert.match(action, /process.env.AI_GATEWAY_API_KEY \|\| process.env.VERCEL_OIDC_TOKEN/);
   assert.match(action, /https:\/\/ai-gateway\.vercel\.sh\/v1\/chat\/completions/);
-  assert.match(action, /response_format: \{ type: "json_object" \}/);
-  assert.match(action, /max_tokens: 3500/);
-  assert.match(action, /controller.abort\(\), 25_000/);
+  assert.match(action, /response_format: RFQAI3_RESPONSE_FORMAT/);
+  assert.match(action, /max_tokens: 5000/);
+  assert.match(action, /controller.abort\(\), 45_000/);
   assert.match(action, /parseRfqAiModelResponse/);
   assert.doesNotMatch(action, /\b(createBuyerRfqCampaign|saveBuyerDistinta|sendBuyerDistinta|service_role)\(/);
 });
