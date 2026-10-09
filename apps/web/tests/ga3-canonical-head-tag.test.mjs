@@ -11,12 +11,12 @@ const consent = fs.readFileSync(
   "utf8",
 );
 
-test("GA3 renders the Google tag directly in the document head", () => {
+test("GA3 declares one idle-loaded Google tag in the root head", () => {
   const head = layout.indexOf("<head>");
   const tag = layout.indexOf('id="sss-google-analytics"');
   const body = layout.indexOf("<body>");
   assert.ok(head >= 0 && tag > head && body > tag);
-  assert.match(layout, /async/);
+  assert.match(layout, /strategy="lazyOnload"/);
   assert.match(layout, /googletagmanager\.com\/gtag\/js\?id=/);
   assert.match(layout, /G-F5QWLD98HD/);
 });
