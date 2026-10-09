@@ -10,6 +10,7 @@ const BASE = "https://www.smartsteelsales.com";
 const browser = await chromium.launch({ headless: true, channel: "chrome" });
 let count = 0;
 let blockedWriteAttempt = false;
+const attemptedWrites = new Set();
 function pass(label) { count++; console.log("DEMOTEST2.4 CHROME PASS", label); }
 
 async function createAnonymousContext(viewport, mobile = false) {
@@ -22,6 +23,12 @@ async function createAnonymousContext(viewport, mobile = false) {
     const req = route.request();
     if (!["GET","HEAD"].includes(req.method())) {
       blockedWriteAttempt = true;
+      // Never log path parameters, query strings, headers, cookies, or bodies.
+      // Group attempted writes by method and route prefix only.
+      const parsed = new URL(req.url());
+      const segments = parsed.pathname.split("/").filter(Boolean);
+      const safeRoute = "/" + segments.slice(0, 3).join("/");
+      attemptedWrites.add(req.method() + " " + (parsed.hostname === "www.smartsteelsales.com" ? "first-party " : "third-party ") + safeRoute);
       await route.abort();
       return;
     }
@@ -78,6 +85,9 @@ try {
     pass("mobile no page overflow " + path);
   }
   await mobile.context.close();
+  if (blockedWriteAttempt) {
+    console.error("DEMOTEST2.4 BLOCKED WRITE ATTEMPT TYPES", [...attemptedWrites].join(" | "));
+  }
   assert.ok(!blockedWriteAttempt,
     "Read-only production smoke encountered a non-GET/HEAD request (blocked, no writes)");
   console.log("DEMOTEST2.4 CHROME SUCCESS — " + count +
