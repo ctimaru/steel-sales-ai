@@ -45,11 +45,11 @@ test("RFQAI3 accepts JSON string body and exact fenced JSON, never executes sour
 
 test("RFQAI3 classifies empty, truncated, malformed or missing Chat Completion bodies",()=>{
   const cases=[
-    [{choices:[{finish_reason:"length",message:{content:'{"lines":[]}'}}]}],"truncated"],
-    [{choices:[{finish_reason:"stop",message:{content:""}}]},"empty"],
-    [{choices:[{finish_reason:"stop",message:{content:"bad"}}]},"invalid_json"],
-    [{choices:[{finish_reason:"stop",message:{content:"[1,2]"}}]},"invalid_envelope"],
-    [{hello:true},"empty"],
+    [{choices:[{finish_reason:"length",message:{content:'{"lines":[]}'}}]}, "truncated"],
+    [{choices:[{finish_reason:"stop",message:{content:""}}]}, "empty"],
+    [{choices:[{finish_reason:"stop",message:{content:"bad"}}]}, "invalid_json"],
+    [{choices:[{finish_reason:"stop",message:{content:"[1,2]"}}]}, "invalid_envelope"],
+    [{hello:true}, "empty"],
   ];
   for(const [payload,kind] of cases){
     assert.throws(()=>gateway.readRfqAiGatewayOutput(payload),{name:"Error",kind});
