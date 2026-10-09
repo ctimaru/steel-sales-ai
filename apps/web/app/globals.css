@@ -2178,3 +2178,132 @@ textarea {
   .bd7-workbench-editor .bd5-row-card:has(.bd8-inline-norm) .bd52-details-toggle { grid-column: 2; }
   .bd7-workbench-editor .bd5-row-card:has(.bd8-inline-norm) .bd5-row-actions { grid-column: 1 / -1; }
 }
+
+
+/* BD9.1 — Compact assisted commercial configurator, without changing the
+   guided field order, normative calculations or mobile touch targets. */
+.bd7-workbench .bd91-compact-configurator {
+  border-radius: 0.7rem;
+  box-shadow: none;
+}
+.bd7-workbench .bd91-compact-configurator .bd6-config-head {
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.7rem 0.7rem 0 0;
+}
+.bd91-compact-configurator .bd6-eyebrow {
+  margin-bottom: 0.1rem;
+  font-size: 0.63rem;
+}
+.bd91-compact-configurator .bd6-config-head h3 { font-size: 0.9rem; line-height: 1.25; }
+.bd91-compact-configurator .bd6-step-indicator { font-size: 0.63rem; padding: 0.25rem 0.4rem; }
+.bd7-workbench .bd91-compact-configurator .bd6-wizard-sections {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+  padding: 0.4rem;
+}
+.bd7-workbench .bd91-compact-configurator .bd6-wizard-section,
+.bd7-workbench .bd91-compact-configurator .bd6-wizard-section:last-child,
+.bd7-workbench .bd91-compact-configurator .bd6-dimensions {
+  min-width: 0;
+  grid-column: auto;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.55rem;
+}
+.bd7-workbench .bd91-compact-configurator .bd6-wizard-label {
+  gap: 0.35rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.72rem;
+  line-height: 1.2;
+}
+.bd91-compact-configurator .bd6-wizard-label span {
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 0.3rem;
+  font-size: 0.6rem;
+}
+.bd91-compact-configurator .bd6-choice-grid { gap: 0.22rem; }
+.bd7-workbench .bd91-compact-configurator .bd6-choice {
+  min-width: 0;
+  min-height: 2.4rem;
+  gap: 0;
+  padding: 0.22rem 0.15rem;
+  border-radius: 0.45rem;
+  font-size: 0.7rem;
+  line-height: 1.2;
+  text-align: center;
+}
+.bd91-compact-configurator .bd6-choice small {
+  font-size: 0.59rem;
+  line-height: 1.2;
+}
+.bd91-compact-configurator .bd6-shape-mark { font-size: 1rem; }
+.bd91-compact-configurator .bd6-dimension-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 6rem), 1fr));
+  gap: 0.35rem;
+}
+.bd91-compact-configurator .bd6-dimension-field {
+  gap: 0.15rem;
+  font-size: 0.67rem;
+  line-height: 1.25;
+}
+.bd7-workbench .bd91-compact-configurator .bd6-input {
+  min-height: 2.4rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.45rem;
+  font-size: 0.81rem;
+}
+.bd7-workbench .bd91-compact-configurator .bd6-wizard-result {
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  padding: 0.5rem 0.65rem;
+}
+.bd91-compact-configurator .bd6-wizard-result > div { flex: 1 1 auto; }
+.bd91-compact-configurator .bd6-wizard-result p { line-height: 1.35; }
+.bd91-compact-configurator .bd6-wizard-result .bd6-add-button {
+  flex: 0 0 auto;
+  min-height: 2.5rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 0.5rem;
+  font-size: 0.73rem;
+}
+@media (max-width: 640px) {
+  .bd7-workbench .bd91-compact-configurator .bd6-config-head {
+    flex-wrap: wrap;
+    padding: 0.45rem 0.55rem;
+  }
+  .bd91-compact-configurator .bd6-step-indicator {
+    display: inline-flex;
+    max-width: 100%;
+    border: 0;
+    padding: 0;
+    color: var(--text-secondary);
+  }
+  .bd7-workbench .bd91-compact-configurator .bd6-wizard-sections {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.3rem;
+    padding: 0.35rem;
+  }
+  .bd7-workbench .bd91-compact-configurator .bd6-wizard-section,
+  .bd7-workbench .bd91-compact-configurator .bd6-wizard-section:last-child,
+  .bd7-workbench .bd91-compact-configurator .bd6-dimensions {
+    grid-column: 1;
+    padding: 0.35rem 0.45rem;
+  }
+  .bd7-workbench .bd91-compact-configurator .bd6-choice,
+  .bd7-workbench .bd91-compact-configurator .bd6-input,
+  .bd91-compact-configurator .bd6-wizard-result .bd6-add-button {
+    min-height: 44px;
+  }
+  .bd7-workbench .bd91-compact-configurator .bd6-input { font-size: 16px; }
+  .bd7-workbench .bd91-compact-configurator .bd6-wizard-result {
+    flex-wrap: wrap;
+    padding: 0.45rem 0.55rem;
+  }
+  .bd91-compact-configurator .bd6-wizard-result .bd6-add-button {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+}
