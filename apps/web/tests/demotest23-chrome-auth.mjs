@@ -86,7 +86,11 @@ try {
 
     await step(p.id + " real GoTrue UI login", () => login(page, p));
     await step(p.id + " own company workspace", async () => {
-      const body = await navigate(page, "/dashboard");
+      await navigate(page, "/dashboard");
+      // Wait for the streamed Dashboard component after the temporary shell.
+      await page.getByRole("heading", { name: "Oggi in " + p.name, exact: true })
+        .waitFor({ state: "visible", timeout: 60000 });
+      const body = await page.locator("body").innerText();
       assert.ok(body.includes(p.name));
       assert.ok(!body.includes("Oggi in " + personas.find(other => other.org !== p.org)?.name));
       if (p.id === "buyerViewer") {
