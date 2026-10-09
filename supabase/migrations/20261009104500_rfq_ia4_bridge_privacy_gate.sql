@@ -343,3 +343,111 @@ $$;
 
 -- Existing RFQ bridges were audited before deployment; no published
 -- rows currently require retrospective correction.
+
+-- Block manual Marketplace RPC mutations on an RFQ-managed mirror:
+-- these operations must remain governed by RFQH8 (not by the standalone editor).
+create or replace function private.rfq_ia4_require_standalone_request(p_request_id uuid)
+returns void
+language plpgsql security definer set search_path=''
+as $$
+declare
+  v_request public.marketplace_requests%rowtype;
+begin
+  v_request := private.p5_1_require_request(p_request_id,true);
+  if v_request.source_kind<>'manual' then
+    raise exception 'RFQ-managed Marketplace publication must be handled in RFQ Hub' using errcode='42501';
+  end if;
+end;
+$$;
+
+revoke all on function private.rfq_ia4_require_standalone_request(uuid) from public,anon;
+grant execute on function private.rfq_ia4_require_standalone_request(uuid) to authenticated;
+
+create or replace function public.p5_1_update_request(
+  p_request_id uuid,p_title text,p_visibility_mode text
+) returns jsonb language plpgsql security invoker set search_path=''
+as $$
+begin
+  perform private.rfq_ia4_require_standalone_request(p_request_id);
+  return private.p5_1_update_request_impl(p_request_id,p_title,p_visibility_mode);
+end;
+$$;
+
+create or replace function public.p5_1_add_request_line(
+  p_request_id uuid,p_line jsonb
+) returns jsonb language plpgsql security invoker set search_path=''
+as $$
+begin
+  perform private.rfq_ia4_require_standalone_request(p_request_id);
+  return private.p5_1_add_line_impl(p_request_id,p_line);
+end;
+$$;
+
+create or replace function public.p5_1_remove_request_line(
+  p_request_id uuid,p_line_id uuid
+) returns jsonb language plpgsql security invoker set search_path=''
+as $$
+begin
+  perform private.rfq_ia4_require_standalone_request(p_request_id);
+  return private.p5_1_remove_line_impl(p_request_id,p_line_id);
+end;
+$$;
+
+create or replace function public.p5_1_publish_request(
+  p_request_id uuid,p_closes_at timestamptz
+) returns jsonb language plpgsql security invoker set search_path=''
+as $$
+begin
+  perform private.rfq_ia4_require_standalone_request(p_request_id);
+  return private.p5_1_publish_request_impl(p_request_id,p_closes_at);
+end;
+$$;
+
+create or replace function public.p5_1_withdraw_request(
+  p_request_id uuid
+) returns jsonb language plpgsql security invoker set search_path=''
+as $$
+begin
+  perform private.rfq_ia4_require_standalone_request(p_request_id);
+  return private.p5_1_withdraw_request_impl(p_request_id);
+end;
+$$;
+
+-- Authorized Marketplace owner/readers can recognize the request's
+-- origin. RFQ link is returned only if the private RFQ is separately visible.
+create or replace function private.rfq_ia4_request_origin_impl(p_request_id uuid)
+returns jsonb language plpgsql stable security definer set search_path=''
+as $$
+declare
+  v_request public.marketplace_requests%rowtype;
+  v_linked_rfq uuid;
+begin
+  v_request := private.p5_1_require_request(p_request_id,false);
+  select b.rfq_id into v_linked_rfq
+  from public.buyer_rfq_marketplace_bridges b
+  where b.marketplace_request_id=p_request_id
+    and (
+      b.owner_user_id=(select auth.uid())
+      or private.rfqh13_can_view_rfq(b.rfq_id,(select auth.uid()))
+    )
+  limit 1;
+
+  return jsonb_build_object(
+    'source_kind',v_request.source_kind,
+    'rfq_id',v_linked_rfq
+  );
+end;
+$$;
+
+revoke all on function private.rfq_ia4_request_origin_impl(uuid) from public,anon;
+grant execute on function private.rfq_ia4_request_origin_impl(uuid) to authenticated;
+
+create or replace function public.rfq_ia4_request_origin(p_request_id uuid)
+returns jsonb language sql stable security invoker set search_path=''
+as $$
+  select private.rfq_ia4_request_origin_impl(p_request_id)
+$$;
+revoke all on function public.rfq_ia4_request_origin(uuid) from public,anon;
+grant execute on function public.rfq_ia4_request_origin(uuid) to authenticated;
+
+notify pgrst,'reload schema';
