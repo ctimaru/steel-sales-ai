@@ -82,7 +82,7 @@ export default async function MarketplaceRequestsPage({
                 Marketplace
               </h1>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66736e] sm:text-base">
-                Gestisci le richieste create dalla tua azienda. Restano separate dalle RFQ private della Commercial Memory e, quando pubblicate, diventano visibili ai fornitori secondo le regole di privacy e accesso.
+                Qui trovi le pubblicazioni Marketplace della tua azienda, comprese quelle provenienti da RFQ Hub. Le RFQ private e i confronti offerte si gestiscono in RFQ Hub, non nell’editor Marketplace.
               </p>
             </div>
 
@@ -98,7 +98,7 @@ export default async function MarketplaceRequestsPage({
                   href={appRoutes.marketplace.newRequest}
                   className="inline-flex h-11 items-center justify-center rounded-xl bg-[#1a5144] px-5 text-sm font-semibold text-white transition hover:bg-[#226657]"
                 >
-                  + Nuova ricerca
+                  + Nuova pubblicazione
                 </Link>
               ) : null}
             </div>
@@ -140,7 +140,7 @@ export default async function MarketplaceRequestsPage({
               canWrite
                 ? {
                     href: appRoutes.marketplace.newRequest,
-                    label: "Crea la prima ricerca",
+                    label: "Scegli come iniziare",
                   }
                 : {
                     href: appRoutes.marketplace.home,
