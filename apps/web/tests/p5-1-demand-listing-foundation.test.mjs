@@ -32,7 +32,7 @@ test("P5.1 exposes canonical Marketplace buyer routes and local navigation", () 
 test("P5.1 buyer demand workspace remains explicit and separate from Commercial Memory", () => {
   assert.match(buyerWorkspace, /Buyer workspace/);
   assert.match(buyerWorkspace, /\+ Nuova pubblicazione/);
-  assert.match(buyerWorkspace, /RFQ private della[\s\S]*?Commercial Memory/);
+  assert.match(buyerWorkspace, /Le RFQ private e i confronti offerte si gestiscono in RFQ Hub/);
   assert.match(buyerWorkspace, /getMyMarketplaceRequests/);
   assert.match(buyerWorkspace, /canWriteWorkspace/);
   assert.doesNotMatch(buyerWorkspace, /paywall/i);
@@ -40,7 +40,7 @@ test("P5.1 buyer demand workspace remains explicit and separate from Commercial 
 
 test("P5.1 creation is explicit and never imports Commercial Memory", () => {
   assert.match(createPage, /Crea un annuncio Marketplace/);
-  assert.match(createPage, /Non importa dati da RFQ, offerte, email o clienti/);
+  assert.match(createPage, /Non importa distinte, offerte, email o clienti/);
   assert.match(createPage, /Azienda visibile/);
   assert.match(createPage, /Anonima/);
   assert.match(actions, /p5_1_create_request/);
