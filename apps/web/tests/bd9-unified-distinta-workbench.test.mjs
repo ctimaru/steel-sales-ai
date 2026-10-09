@@ -28,7 +28,7 @@ test("BD9/10 assisted creation and editable article list form one two-column wor
 });
 
 test("BD9/10 preview excludes a recyclable placeholder but preserves manual editing", () => {
-  assert.match(builder, /const initialEmptyRow = lines.length === 1 && isUntouchedLine\(lines\[0\]\)/);
+  assert.match(builder, /const initialEmptyRow = lines.length === 1 && isUntouchedLine\(lines\[0\]\) && !editingRows\[lines\[0\]\.id\]/);
   assert.match(builder, /const activeLineCount = initialEmptyRow \? 0 : lines.length/);
   assert.match(builder, /aria-valuemax=\{activeLineCount\}/);
   assert.match(builder, /activeLineCount \? totals.completeLines \/ activeLineCount : 0/);
