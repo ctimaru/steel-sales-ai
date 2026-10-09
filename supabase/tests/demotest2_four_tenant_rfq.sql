@@ -97,7 +97,7 @@ select pg_temp.dt2_assert(
                 '00000000-0000-0000-0000-000000002022'::uuid,
                 '00000000-0000-0000-0000-000000002023'::uuid,
                 '00000000-0000-0000-0000-000000002024'::uuid)
-     and application_status='submitted' and activated_organization_id is null),
+     and application_status='pending_review' and activated_organization_id is null),
   'four applications require platform approval and are not auto-activated'
 );
 select pg_temp.dt2_deny(
@@ -141,7 +141,6 @@ select pg_temp.dt2_assert(
  not exists (select 1 from public.platform_user_roles
              where user_id in (select id from auth.users
                                where id::text like '00000000-0000-0000-0000-0000000020%')
-               and id is not null
                and role='platform_superadmin'
                and user_id <> '00000000-0000-0000-0000-0000000020ff'::uuid),
  'four company admins and reps must not become Platform Superadmin'
