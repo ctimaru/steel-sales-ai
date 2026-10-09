@@ -46,7 +46,7 @@ export default async function BuyerDistintaPage() {
               Crea distinta per i tuoi fornitori
             </h1>
             <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)] sm:text-sm">
-              Tipo tubo → norma → grado → misura → richiesta. Nessun riferimento a listini produttore.
+              Configura subito la distinta; per le aziende sarà disponibile anche l'importazione AI da testo, documenti ed email.
             </p>
           </div>
           <span className="rounded-full bg-[var(--brand-primary-soft)] px-3 py-1.5 text-xs font-bold text-[var(--brand-deep)]">
