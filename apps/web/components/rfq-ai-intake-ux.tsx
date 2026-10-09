@@ -32,7 +32,7 @@ export function RfqAiIntakeUx({
   /** Can only be true on the route guarded by requireWorkspaceWriteRole. */
   workspace: boolean;
   authenticated: boolean;
-  onInsertTextLines: (lines: BuyerDistintaDraftLine[]) => void;
+  onInsertTextLines: (lines: BuyerDistintaDraftLine[]) => boolean;
   children: ReactNode;
 }) {
   const panelId = useId();
@@ -188,9 +188,10 @@ export function RfqAiIntakeUx({
                 result={textResult}
                 onDismiss={() => setTextResult(null)}
                 onInsert={(items) => {
-                  onInsertTextLines(items);
+                  if (!onInsertTextLines(items)) return false;
                   setTextResult(null);
                   setTextDraft("");
+                  return true;
                 }}
               />
             ) : null}
