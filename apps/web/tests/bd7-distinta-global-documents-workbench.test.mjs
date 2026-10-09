@@ -68,7 +68,7 @@ test("BD7 previews the live draft and entered rows in a responsive side-by-side 
   assert.match(builder, /onDraftChange=\{setPreviewDraft\}/);
   assert.match(wizard, /onDraftChange\(draft\)/);
   assert.match(builder, /guidedTubeMeasurement\(previewDraft\)/);
-  assert.match(builder, /lines\.map\(\(line, index\) => \(/);
+  assert.match(builder, /lines\.map\(\(line, index\) => \{/);
   assert.match(builder, /formatNumber\(calc\.tonnes, 3\)/);
   assert.match(builder, /bd7-global-documents/);
   assert.match(css, /\.bd7-workbench \{/);
