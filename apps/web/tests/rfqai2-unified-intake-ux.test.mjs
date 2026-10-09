@@ -39,7 +39,7 @@ test("RFQAI2 reuses BD10 wizard and keeps preview in exactly one place", () => {
   assert.match(chooser, /<div className="rfqai2-manual" hidden=\{mode !== "manual"\}>/);
   assert.match(builder, /className="bd10-preview-lines"/);
   assert.equal((builder.match(/className="bd5-row-card bd10-preview-row"/g) ?? []).length, 1);
-  assert.match(builder, /setIntakeMode\\("manual"\\)/);
+  assert.ok(builder.includes('setIntakeMode("manual")'));
   assert.match(chooser, /id="rfqai2-intake-modes"/);
   assert.match(builder, /saveBuyerDistinta\(\{ title, lines, documents \}\)/);
   assert.match(builder, /createBuyerRfqCampaign\(savedId\)/);
