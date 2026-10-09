@@ -6,6 +6,7 @@ import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-u
 import { Badge } from "@/components/ui/badge";
 import { getCompanySetupState } from "@/lib/company-setup";
 import { getDashboardData } from "@/lib/commercial-data";
+import { getNetworkAccessState } from "@/lib/network-access";
 import {
   getNetworkActivityFeed,
   getNetworkInquiries,
@@ -31,6 +32,12 @@ function workspaceRoleLabel(role: string) {
 export default async function DashboardPage() {
   const context = await getWorkspaceContext();
   const networkEnabled = isNetworkFrontendEnabled();
+  // The Network navigation can remain available as an upgrade/onboarding
+  // entry, but its protected feed and inquiries require an actual entitlement.
+  // Newly registered companies must never crash their normal Workspace.
+  const networkEntitled = networkEnabled
+    ? (await getNetworkAccessState(context.organizationId)).can_access_network
+    : false;
   const isAdmin = context.role === "admin";
   const canWrite = context.role !== "viewer";
 
@@ -39,10 +46,10 @@ export default async function DashboardPage() {
       ? getCompanySetupState(context.organizationId)
       : Promise.resolve(null),
     getDashboardData(),
-    networkEnabled
+    networkEntitled
       ? getNetworkInquiries(context.organizationId, "received")
       : Promise.resolve({ items: [], total: 0 }),
-    networkEnabled
+    networkEntitled
       ? getNetworkActivityFeed(context.organizationId, true)
       : Promise.resolve({ items: [], total: 0, unread: 0 }),
   ]);
@@ -85,7 +92,7 @@ export default async function DashboardPage() {
           valueClass: "text-amber-900",
         }
       : null,
-    networkEnabled && received.total > 0
+    networkEntitled && received.total > 0
       ? {
           href: appRoutes.network.inquiries + "?box=received",
           value: received.total,
@@ -95,7 +102,7 @@ export default async function DashboardPage() {
           valueClass: "text-[#173f35]",
         }
       : null,
-    networkEnabled && activity.unread > 0
+    networkEntitled && activity.unread > 0
       ? {
           href: appRoutes.network.activity + "?unread=1",
           value: activity.unread,
