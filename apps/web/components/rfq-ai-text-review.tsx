@@ -11,13 +11,14 @@ export function RfqAiTextReview({
   result, onInsert, onDismiss,
 }: {
   result: RfqAiTextDraftResult;
-  onInsert: (rows: BuyerDistintaDraftLine[]) => void;
+  onInsert: (rows: BuyerDistintaDraftLine[]) => boolean;
   onDismiss: () => void;
 }) {
   const [candidates, setCandidates] = useState(result.candidates);
   const [raw, setRaw] = useState(result.rawById);
   const [lengthDisplay, setLengthDisplay] = useState<Record<string, string>>({});
   const [confirmed, setConfirmed] = useState<Record<string, boolean>>({});
+  const [transferError, setTransferError] = useState("");
 
   function change(candidate: RfqAiLineCandidate, patch: Partial<RfqAiRawLine>) {
     const nextRaw = { ...raw[candidate.candidateId], ...patch };
@@ -57,7 +58,11 @@ export function RfqAiTextReview({
     if (!selected.length) return;
     // The existing Distinta builder will create its own unique IDs and
     // clear saved RFQ state. Nothing is submitted or emailed here.
-    onInsert(selected.map((row) => row.proposedLine));
+    if (!onInsert(selected.map((row) => row.proposedLine))) {
+      setTransferError("Limite di 500 righe: rimuovi articoli dalla distinta prima di importare.");
+    } else {
+      setTransferError("");
+    }
   }
 
   return (
@@ -153,6 +158,7 @@ export function RfqAiTextReview({
           </article>
         );
       })}
+      {transferError ? <p role="alert" className="rfqai3-warning">{transferError}</p> : null}
       <div className="rfqai3-review-footer">
         <span>{selected.length} articoli confermati</span>
         <button type="button" className="rfqai2-primary-link" disabled={selected.length === 0}
