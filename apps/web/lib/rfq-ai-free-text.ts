@@ -33,6 +33,60 @@ function record(input: unknown): Record<string, unknown> | null {
 }
 
 /**
+ * Reconcile fields ONLY against a verbatim, unique and explicit tube reference.
+ * Corrects model mistakes like OD + width/height on a quoted "tubo quadro".
+ * Never guesses a shape from bare three-number dimensions.
+ */
+export function reconcileRfqAiExplicitTubeText(raw: RfqAiRawLine, quote: string): RfqAiRawLine {
+  const next = { ...raw };
+  const shape = [...quote.matchAll(/\b(?:tub[oi]|profil[oi])\s+(quadr[oi]|quadrat[oi]|rettangolar[ei]|tond[oi]|circolar[ei])\b/gi)];
+  const n = String.raw`(\d{1,4}(?:[.,]\d{1,2})?)`;
+  const triples = [...quote.matchAll(new RegExp(n + String.raw`\s*[x×]\s*` + n + String.raw`\s*[x×]\s*` + n, "gi"))];
+  const doubles = [...quote.matchAll(new RegExp(n + String.raw`\s*[x×]\s*` + n, "gi"))];
+  if (shape.length === 1) {
+    const kind = shape[0][1].toLowerCase();
+    if (/^quadr/.test(kind) && triples.length === 1 && triples[0][1].replace(",", ".") === triples[0][2].replace(",", ".")) {
+      next.outerDiameterMm = null;
+      next.widthMm = triples[0][1];
+      next.heightMm = triples[0][2];
+      next.thicknessMm = triples[0][3];
+    } else if (/^rettangolar/.test(kind) && triples.length === 1) {
+      next.outerDiameterMm = null;
+      next.widthMm = triples[0][1];
+      next.heightMm = triples[0][2];
+      next.thicknessMm = triples[0][3];
+    } else if (/^(tond|circolar)/.test(kind) && triples.length === 0 && doubles.length === 1) {
+      next.outerDiameterMm = doubles[0][1];
+      next.widthMm = null;
+      next.heightMm = null;
+      next.thicknessMm = doubles[0][2];
+    }
+  }
+
+  const standards = [...quote.matchAll(/\bEN\s*102(?:10|19)\b/gi)];
+  if (standards.length === 1) next.standard = standards[0][0].toUpperCase().replace(/EN\s*/, "EN ");
+  const grades = [...quote.matchAll(/\bS\d{3}(?:(?:JR|J0|J2|K2)H?|H)?\b/gi)];
+  if (grades.length === 1) next.grade = grades[0][0].toUpperCase();
+
+  // Distinguish "30 barre da 12 metri" from 12 metres as an order quantity.
+  const quantities = [...quote.matchAll(/\b(\d+(?:[.,]\d{1,2})?)\s*(barre|barra|pz|pezzi|pezzo|metri|metro|mt|m|tonnellate|tonnellata|ton|t)\b/gi)];
+  const bars = quantities.filter((match) => /^(barre|barra|pz|pezzi|pezzo)$/i.test(match[2]));
+  const amount = bars.length === 1 ? bars[0] : bars.length > 1 ? null :
+    quantities.length === 1 ? quantities[0] : null;
+  if (amount) {
+    next.quantity = amount[1];
+    next.quantityUnit = /^(barre|barra|pz|pezzi|pezzo)$/i.test(amount[2]) ? "BARRE" :
+      /^(metri|metro|mt|m)$/i.test(amount[2]) ? "M" : "T";
+  }
+  const lengths = [...quote.matchAll(/\b(?:da|a|lunghezza)\s*(\d+(?:[.,]\d{1,2})?)\s*(metri|metro|mt|m)\b/gi)];
+  if (next.quantityUnit === "BARRE" && lengths.length === 1) {
+    const amountM = Number(lengths[0][1].replace(",", "."));
+    if (Number.isFinite(amountM) && amountM > 0) next.lengthMm = amountM * 1000;
+  }
+  return next;
+}
+
+/**
  * Normalize model JSON without trusting its claims: the model cannot pick source IDs,
  * organization, approval state, weights, normalized norms or reviewer decisions.
  */
@@ -73,7 +127,10 @@ export function parseRfqAiModelResponse(
       // No model-supplied price, confidence or technical weight is trusted.
       parserValidationStatus: trustedQuote ? "valid" : "review_required",
     };
-    return { candidateId: "text-" + (index + 1), locator: { kind: "text_line" as const, line: index + 1 }, raw: line };
+    // Only the exact quoted fragment can repair a model-derived shape.
+    // False/missing citations remain non-confirmable in the review UI.
+    const reconciled = trustedQuote ? reconcileRfqAiExplicitTubeText(line, quote) : line;
+    return { candidateId: "text-" + (index + 1), locator: { kind: "text_line" as const, line: index + 1 }, raw: reconciled };
   });
   const batch = makeRfqAiIntakeBatch(source, intent, rows);
   return {
