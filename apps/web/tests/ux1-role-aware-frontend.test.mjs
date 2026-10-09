@@ -3,6 +3,7 @@ import fs from "node:fs";
 import test from "node:test";
 
 const root = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+const proxy = fs.readFileSync(new URL("../lib/supabase/proxy.ts", import.meta.url), "utf8");
 const workspaceLayout = fs.readFileSync(new URL("../app/(workspace)/layout.tsx", import.meta.url), "utf8");
 const companyShell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
 const companyHome = fs.readFileSync(new URL("../app/(workspace)/dashboard/page.tsx", import.meta.url), "utf8");
@@ -13,7 +14,9 @@ const legacyAdmin = fs.readFileSync(new URL("../app/(workspace)/admin/registrati
 
 test("UX1 separates public, company and platform entry points", () => {
   assert.match(root, /Trova o rivendica la tua azienda/);
-  assert.match(root, /if \(data\.user\) redirect\("\/dashboard"\)/);
+  assert.match(root, /export const dynamic = "force-static"/);
+  assert.match(proxy, /if \(!error && data\.user\)/);
+  assert.match(proxy, /target\.pathname = "\/dashboard"/);
   assert.match(workspaceLayout, /getWorkspaceContext/);
   assert.match(platformLayout, /requirePlatformConsoleContext/);
   assert.doesNotMatch(platformLayout, /getWorkspaceContext/);

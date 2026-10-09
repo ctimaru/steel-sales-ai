@@ -1,0 +1,117 @@
+name: PERF1 Chrome Auth & Multi-Account Acceptance
+
+on:
+  pull_request:
+    paths:
+      - "apps/web/app/page.tsx"
+      - "apps/web/lib/supabase/proxy.ts"
+      - "apps/web/tests/perf1-*.mjs"
+      - "supabase/tests/perf1_chrome_seed.sql"
+      - ".github/workflows/perf1-chrome-auth.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  perf1-chrome:
+    name: PERF1 / Google Chrome / 6 GoTrue identities / 4 tenants
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      PERF1_WEB_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Restore historical CI-only baseline migrations
+        run: |
+          cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          cp supabase/ci/p0_staging_baseline.sql supabase/migrations/20260908000001_ci_staging_baseline.sql
+      - name: Start disposable LOCAL Supabase + migrate
+        run: |
+          supabase start
+          supabase db reset --local
+      - name: Read local-only Supabase keys (never print)
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          supabase status -o env > "$RUNNER_TEMP/perf1-local.env"
+          source "$RUNNER_TEMP/perf1-local.env"
+          test -n "$ANON_KEY"
+          test -n "$SERVICE_ROLE_KEY"
+          echo "::add-mask::$ANON_KEY"
+          echo "::add-mask::$SERVICE_ROLE_KEY"
+          echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+      - name: Install frontend and REAL Google Chrome stable
+        working-directory: apps/web
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chrome
+      - name: Create 6 ephemeral real GoTrue identities
+        working-directory: apps/web
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/perf1-local.env"
+          DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+            SUPABASE_URL=http://127.0.0.1:54321 \
+            node tests/perf1-chrome-seed-auth.mjs
+      - name: Seed isolated test tenants and one synthetic platform owner
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/perf1-psql-vars.sql" \
+            -f supabase/tests/perf1_chrome_seed.sql
+      - name: Start local Next.js (not production/Vercel)
+        working-directory: apps/web
+        shell: bash
+        run: |
+          set -euo pipefail
+          nohup npm run dev -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/perf1-next.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/perf1-next.pid"
+          for attempt in $(seq 1 60); do
+            if curl --silent --show-error --fail --location --max-time 8 \
+                 http://127.0.0.1:3000/login > /dev/null 2>&1; then
+              echo "PERF1 LOCAL NEXT READY"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "PERF1 LOCAL NEXT FAILED"
+          tail -n 70 "$RUNNER_TEMP/perf1-next.log"
+          exit 1
+      - name: Google Chrome — homepage, login, tenant permissions and owner
+        working-directory: apps/web
+        timeout-minutes: 20
+        run: node tests/perf1-chrome-multi-account.mjs
+      - name: Diagnose local Next failures (no auth secrets)
+        if: failure()
+        shell: bash
+        run: |
+          if [ -f "$RUNNER_TEMP/perf1-next.log" ]; then
+            grep -E 'Error|error|Failed|failed|Exception|permission' \
+              "$RUNNER_TEMP/perf1-next.log" | tail -n 40 || true
+          fi
+      - name: Destroy local Next and temporary Supabase and credentials
+        if: always()
+        shell: bash
+        run: |
+          if [ -f "$RUNNER_TEMP/perf1-next.pid" ]; then
+            kill "$(cat "$RUNNER_TEMP/perf1-next.pid")" || true
+          fi
+          supabase stop --no-backup || true
+          rm -f "$RUNNER_TEMP/perf1-personas.json" "$RUNNER_TEMP/perf1-psql-vars.sql" "$RUNNER_TEMP/perf1-local.env"

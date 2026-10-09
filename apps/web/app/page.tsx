@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
 import { ProductBrand } from "@/components/product-brand";
 import { PublicNetworkRoleExplorer } from "@/components/public-network-role-explorer";
 import { PublicCompanyLookup } from "@/components/public-company-lookup";
 import { absoluteUrl } from "@/lib/site";
-import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Smart Steel Sales — Il business network dell'acciaio",
@@ -23,6 +21,8 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
+
+export const dynamic = "force-static";
 
 const publicTools = [
   {
@@ -48,7 +48,7 @@ const publicTools = [
 ] as const;
 
 
-export default async function PublicHomePage() {
+export default function PublicHomePage() {
   const organizationJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -65,17 +65,6 @@ export default async function PublicHomePage() {
     name: "Smart Steel Sales",
     url: absoluteUrl("/"),
   };
-
-  const configured = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
-  );
-
-  if (configured) {
-    const supabase = await createClient();
-    const { data } = await supabase.auth.getUser();
-    if (data.user) redirect("/dashboard");
-  }
 
   return (
     <main className="min-h-screen bg-[#f2f4f3] text-[#1d2824]">
