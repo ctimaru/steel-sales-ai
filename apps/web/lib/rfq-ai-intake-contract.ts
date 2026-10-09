@@ -89,7 +89,7 @@ const numeric = (v: unknown): number | null => {
   if (!source) return null;
   // Only decimal comma/dot are accepted; ambiguous thousands separators are never guessed.
   if (!/^-?\d+(?:[.,]\d+)?$/.test(source)) return null;
-  if (/^[1-9]\\d{0,2}[.,]\\d{3}$/.test(source)) return null; // ambiguous thousands/decimals
+  if (/^[1-9]\d{0,2}[.,]\d{3}$/.test(source)) return null; // ambiguous thousands/decimals
   const value = Number(source.replace(",", "."));
   return Number.isFinite(value) ? value : null;
 };
