@@ -329,6 +329,13 @@ from public.buyer_purchase_order_drafts p
 join public.buyer_rfq_suppliers s on s.id=p.supplier_id
 where p.rfq_id=(select (value->>'id')::uuid from dt22_state where key='rfq')
   and s.supplier_organization_id='00000000-0000-0000-0000-000000002232'::uuid;
+select pg_temp.dt22_assert(
+ (public.rfqh9_update_po_terms(
+  (select (value->>'id')::uuid from dt22_state where key='po_draft'),
+  'EXW','Net 30',current_date+25,18,'DEMOTEST2.2 local PO terms'
+ )->>'status')='draft',
+ 'buyer must establish a concrete PO delivery date before issuing'
+);
 insert into dt22_state(key,value)
 values ('po_due',jsonb_build_object('date',(now()+interval '3 days')::text));
 
@@ -386,6 +393,12 @@ select pg_temp.dt22_assert(
  (public.rfqh9_supplier_portal(repeat('d',64))->>'valid')='true'
  and (public.rfqh9_supplier_portal(repeat('e',64))->>'valid')='false',
  'supplier PO portal exposes only a valid token'
+);
+select pg_temp.dt22_denied(
+ $select public.rfqh9_supplier_decide(
+   repeat('d',64),'confirmed','Unapproved delivery change',
+   current_date+26,'DT22-CONF-WRONG')$,
+ 'Confirmed delivery date must match issued PO'
 );
 select pg_temp.dt22_assert(
  (public.rfqh9_supplier_decide(
