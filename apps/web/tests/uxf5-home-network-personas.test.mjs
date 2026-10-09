@@ -15,12 +15,14 @@ test("UXF5 puts the Network value explorer directly after the public hero", () =
   );
 });
 
-test("UXF5 asks one role question and exposes only one role detail at a time", () => {
+test("UXF5 uses native radios and four server-rendered role explanations", () => {
   assert.match(network, /Tu che azienda sei\?/);
-  assert.match(network, /useState<PersonaKey>\("merchant"\)/);
-  assert.match(network, /role="tablist"/);
-  assert.match(network, /role="tab"/);
-  assert.match(network, /role="tabpanel"/);
+  assert.match(network, /type="radio"/);
+  assert.match(network, /name="network-persona"/);
+  assert.match(network, /defaultChecked=\{key === "merchant"\}/);
+  assert.match(network, /aria-controls/);
+  assert.match(network, /role="region"/);
+  assert.doesNotMatch(network, /"use client"/);
 });
 
 test("UXF5 answers benefits, counterparties and search value for all four company types", () => {
