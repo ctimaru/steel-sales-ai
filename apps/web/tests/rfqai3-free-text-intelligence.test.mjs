@@ -153,6 +153,34 @@ test("RFQAI3 supports explicit rectangular sections without copying another arti
   assert.equal(candidate.proposedLine.barLengthM, "6");
   assert.equal(buyer.calculateBuyerDistintaLine(candidate.proposedLine).meters, 120);
 });
+test("RFQAI3 review can repair a conflicting geometry explicitly, then recompute theoretical kg/m", () => {
+  const sourceText = "Richiesta: tubo quadro 100x100x5 S355J2H EN 10219, 30 barre da 12 metri";
+  const original = contract.normalizeRfqAiCandidate(sourceRef,"text-1",{kind:"text_line",line:1},
+    "buyer_request",{
+      sourceText, outerDiameterMm:100, widthMm:100, heightMm:100,
+      thicknessMm:5,standard:"EN 10219",grade:"S355J2H",
+      quantity:30,quantityUnit:"BARRE",lengthMm:12000,
+    });
+  assert.equal(original.status,"invalid");
+  const fixed = contract.normalizeRfqAiCandidate(sourceRef,"text-1",{kind:"text_line",line:1},
+    "buyer_request",{
+      sourceText, outerDiameterMm:null, widthMm:100, heightMm:100,
+      thicknessMm:5,standard:"EN 10219",grade:"S355J2H",
+      quantity:30,quantityUnit:"BARRE",lengthMm:12000,
+    });
+  assert.equal(fixed.status,"ready_for_review");
+  assert.ok(Number(fixed.proposedLine.weightKgM.replace(",", ".")) > 0);
+  assert.equal(buyer.calculateBuyerDistintaLine(fixed.proposedLine).complete,true);
+  assert.equal(fixed.approvalState,"pending_human_review");
+  assert.match(reviewer,/aria-label="Forma del tubo"/);
+  assert.match(reviewer,/aria-label="Spessore in millimetri"/);
+  assert.match(reviewer,/aria-label="Diametro esterno in millimetri"/);
+  assert.match(reviewer,/aria-label="Lato in millimetri"/);
+  assert.match(reviewer,/aria-label="Altezza in millimetri"/);
+  assert.match(reviewer,/onChange=\{\(event\) => change\(candidate, \{ thicknessMm: event.target.value \}\)\}/);
+  assert.match(reviewer,/disabled=\{!editable\}/);
+  assert.match(reviewer,/Conferma disabilitata: completa o correggi i dati segnalati/);
+});
 test("RFQAI3 requires bounded text and resists instruction injection in the LLM prompt",()=>{
   assert.equal(text.validateRfqAiText("Azienda richiede 30 tubi 100x100x5"),"Azienda richiede 30 tubi 100x100x5");
   assert.throws(()=>text.validateRfqAiText("short"),/12/);
