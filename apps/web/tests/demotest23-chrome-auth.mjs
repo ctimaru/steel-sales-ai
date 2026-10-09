@@ -48,7 +48,15 @@ async function login(page, p) {
   await page.getByRole("button", { name: "Accedi", exact: true }).click();
   await page.waitForURL(url => url.pathname === "/dashboard", { timeout: 90000 });
   const title = page.getByRole("heading", { name: "Oggi in " + p.name });
-  await title.waitFor({ state: "visible", timeout: 60000 });
+  try {
+    await title.waitFor({ state: "visible", timeout: 22000 });
+  } catch (error) {
+    const landing = await page.locator("body").innerText({ timeout: 15000 }).catch(() => "body unavailable");
+    console.error("DEMOTEST23 LOGIN RENDER DIAGNOSTIC", p.id,
+      "path=" + new URL(page.url()).pathname,
+      "body=" + landing.slice(0, 1400).replace(/\\s+/g, " "));
+    throw error;
+  }
   assert.ok((await page.locator("body").innerText()).includes(p.name));
 }
 
