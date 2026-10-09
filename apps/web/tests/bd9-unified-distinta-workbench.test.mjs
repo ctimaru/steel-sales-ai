@@ -25,12 +25,13 @@ test("BD9 assisted configurator and editable article cards share one editor and 
   assert.doesNotMatch(builder.slice(previewStart), /className="bd5-row-card"/);
 });
 
-test("BD9 live preview counts entered articles without counting the recyclable blank row", () => {
-  assert.match(builder, /const activeLineCount = lines.filter\(\(line\) => !isUntouchedLine\(line\)\).length/);
+test("BD9 live preview excludes only the initial recyclable blank row from counts", () => {
+  assert.match(builder, /const initialEmptyRow = lines.length === 1 && isUntouchedLine\(lines\[0\]\)/);
+  assert.match(builder, /const activeLineCount = initialEmptyRow \? 0 : lines.length/);
   assert.match(builder, /aria-valuemax=\{activeLineCount\}/);
   assert.match(builder, /activeLineCount \? totals.completeLines \/ activeLineCount : 0/);
   assert.match(builder, /\{totals.completeLines\}\/\{activeLineCount\} righe/);
-  assert.match(builder, /hidden=\{isUntouchedLine\(line\)\}/);
+  assert.match(builder, /hidden=\{initialEmptyRow\}/);
   assert.match(builder, /Nessun articolo ancora inserito/);
   assert.match(builder, /calculated\[index\]\.tonnes/);
   assert.match(builder, /onDraftChange=\{setPreviewDraft\}/);
