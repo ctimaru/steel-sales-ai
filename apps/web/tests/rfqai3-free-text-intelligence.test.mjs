@@ -52,7 +52,7 @@ test("RFQAI3 interprets two mixed-standard articles, exact source evidence and c
   assert.equal(result.candidates[0].approvalState,"pending_human_review");
   assert.equal(buyer.calculateBuyerDistintaLine(result.candidates[0].proposedLine).meters,360);
   assert.equal(buyer.calculateBuyerDistintaLine(result.candidates[1].proposedLine).meters,120);
-  assert.equal(result.rawById["text-1"].widthMm,100);
+  assert.equal(result.rawById["text-1"].widthMm,"100");
   assert.equal(result.candidates[1].evidence.grade.rawValue,"S235JRH");
 });
 test("RFQAI3 fails closed on invalid output, missing fields, fake provenance and supplier quotes", () => {
@@ -175,7 +175,7 @@ test("RFQAI3 review can repair a conflicting geometry explicitly, then recompute
   assert.match(reviewer,/aria-label="Forma del tubo"/);
   assert.match(reviewer,/aria-label="Spessore in millimetri"/);
   assert.match(reviewer,/aria-label="Diametro esterno in millimetri"/);
-  assert.match(reviewer,/aria-label="Lato in millimetri"/);
+  assert.match(reviewer,/shape === "square" \? "Lato in millimetri" : "Larghezza in millimetri"/);
   assert.match(reviewer,/aria-label="Altezza in millimetri"/);
   assert.match(reviewer,/onChange=\{\(event\) => change\(candidate, \{ thicknessMm: event.target.value \}\)\}/);
   assert.match(reviewer,/disabled=\{!editable\}/);
