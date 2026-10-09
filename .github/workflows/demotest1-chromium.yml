@@ -1,4 +1,4 @@
-name: DEMOTEST1 Chromium Public Smoke
+name: DEMOTEST1 Google Chrome Public Smoke
 
 on:
   pull_request:
@@ -29,8 +29,9 @@ jobs:
           cache-dependency-path: apps/web/package-lock.json
       - run: npm ci --no-audit --no-fund
       - run: npm install --no-save --no-package-lock playwright@1.56.1
-      - run: npx playwright install --with-deps chromium
-      - name: Read-only Chromium browser smoke on public production
+      - run: npx playwright install --with-deps chrome
+      - name: Read-only Google Chrome browser smoke on public production
         run: node tests/demotest1-browser-smoke.mjs
         env:
           DEMOTEST_BASE_URL: https://www.smartsteelsales.com
+          DEMOTEST_BROWSER_CHANNEL: chrome
