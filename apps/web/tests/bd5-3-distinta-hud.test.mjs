@@ -10,9 +10,9 @@ const contract = read("../lib/buyer-distinta.ts");
 test("BD5.3 sticky HUD exposes live completion, metres and tonnes from the canonical totals", () => {
   assert.match(builder, /aria-label="Riepilogo in tempo reale della distinta"/);
   assert.match(builder, /className="bd53-hud"/);
-  assert.match(builder, /aria-valuemax=\{lines\.length\}/);
+  assert.match(builder, /aria-valuemax=\{activeLineCount\}/);
   assert.match(builder, /aria-valuenow=\{totals\.completeLines\}/);
-  assert.match(builder, /totals\.completeLines \/ lines\.length/);
+  assert.match(builder, /totals\.completeLines \/ activeLineCount/);
   assert.match(builder, /formatNumber\(totals\.totalMeters, 2\)/);
   assert.match(builder, /formatNumber\(totals\.totalTonnes, 3\)/);
   assert.match(builder, /!allComplete \? <span className="bd53-hud-partial">Totali parziali/);
