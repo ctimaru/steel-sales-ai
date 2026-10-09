@@ -61,16 +61,16 @@ test("RFQAI2 private inputs are never reachable by public or unapproved workspac
   assert.match(chooser, /L’accesso all’AI richiederà un’azienda attiva/);
 });
 
-test("RFQAI2 text staging is bounded and cannot claim conversion, persistence or upload", () => {
+test("RFQAI2 text mode preserves bounds and RFQAI3 adds authorized inference", () => {
   assert.match(chooser, /const MAX_TEXT_CHARS = 12_000/);
   assert.match(chooser, /const \[textDraft, setTextDraft\] = useState\(""/);
   assert.match(chooser, /maxLength=\{MAX_TEXT_CHARS\}/);
   assert.match(chooser, /value=\{textDraft\}/);
-  assert.match(chooser, /onChange=\{\(event\) => setTextDraft\(event.target.value\)\}/);
+  assert.match(chooser, /setTextDraft\(event.target.value\)/);
   assert.ok(chooser.includes('setTextDraft("")'));
-  assert.match(chooser, /Trasforma in distinta con AI · RFQAI3/);
-  assert.match(chooser, /disabled className="rfqai2-disabled-action"/);
-  assert.match(chooser, /Il testo rimane solo in memoria/);
+  assert.match(chooser, /Analizza la richiesta con AI/);
+  assert.match(chooser, /disabled=\{textPending \|\| textDraft.trim\(\).length < 12\}/);
+  assert.match(chooser, /Il testo viene inviato al servizio AI solo quando premi Analizza/);
   assert.doesNotMatch(chooser, /sessionStorage|localStorage|navigator\.clipboard|FileReader|FormData|fetch\(|\.upload\(|\.rpc\(|\.from\(/);
 });
 
