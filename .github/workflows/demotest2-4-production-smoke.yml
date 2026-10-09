@@ -1,0 +1,43 @@
+name: DEMOTEST2.4 Production Smoke — Anonymous Read-Only
+
+on:
+  pull_request:
+    paths:
+      - "apps/web/tests/demotest24-*"
+      - ".github/workflows/demotest2-4-production-smoke.yml"
+      - "apps/web/app/(public)/**"
+      - "apps/web/app/login/**"
+      - "apps/web/app/register/**"
+      - "apps/web/app/page.tsx"
+      - "apps/web/app/robots.ts"
+      - "apps/web/app/sitemap.ts"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  production-smoke:
+    name: HTTPS production anonymous routes and Chrome responsive
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: "Read-only production HTTP: public SEO and private auth gates"
+        working-directory: apps/web
+        run: node tests/demotest24-production-http.mjs
+      - name: Install Chrome stable on isolated runner
+        working-directory: apps/web
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chrome
+      - name: "Read-only production Chrome: public pages, anonymous denials and mobile"
+        working-directory: apps/web
+        timeout-minutes: 10
+        run: node tests/demotest24-production-chrome.mjs
