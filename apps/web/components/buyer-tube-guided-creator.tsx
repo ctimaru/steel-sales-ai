@@ -6,6 +6,7 @@ import type { BuyerDistintaCatalogOption } from "@/lib/buyer-distinta-catalog";
 import {
   guidedTubeGrades,
   guidedTubeMeasurement,
+  guidedTubeToBuyerLine,
   newGuidedTubeDraft,
   suggestedGuidedDimensions,
   type GuidedDimension,
@@ -99,6 +100,7 @@ export function BuyerTubeGuidedCreator({
   const [draft, setDraft] = useState<GuidedTubeDraft>(() => initialDraft ?? newGuidedTubeDraft());
   useEffect(() => { onDraftChange(draft); }, [draft, onDraftChange]);
   const measurement = guidedTubeMeasurement(draft);
+  const completeLine = guidedTubeToBuyerLine(draft, "guided-preview");
   const chooseFamily = (family: GuidedTubeFamily) => {
     setDraft((current) => ({
       ...current, family, diameter: "", side: "", width: "", height: "", thickness: "",
@@ -214,6 +216,79 @@ export function BuyerTubeGuidedCreator({
           ) : null}
         </fieldset>
 
+        <fieldset className="bd6-wizard-section bd10-commercial-step" disabled={!measurement}>
+          <legend className="bd6-wizard-label"><span>05</span> Quantità e condizioni</legend>
+          <div className="bd10-commercial-grid">
+            <label className="bd6-dimension-field">
+              Quantità *
+              <input
+                inputMode="decimal"
+                aria-label="Quantità articolo da inserire"
+                value={draft.quantity}
+                disabled={!measurement}
+                onChange={(event) => patch({ quantity: event.target.value })}
+                placeholder="Es. 20"
+                className="bd6-input"
+              />
+            </label>
+            <label className="bd6-dimension-field">
+              Unità
+              <select
+                value={draft.quantityMode}
+                disabled={!measurement}
+                onChange={(event) => patch({ quantityMode: event.target.value as GuidedTubeDraft["quantityMode"] })}
+                className="bd6-input"
+              >
+                <option value="bars">Barre / pezzi</option>
+                <option value="meters">Metri</option>
+                <option value="tonnes">Tonnellate</option>
+              </select>
+            </label>
+            {draft.quantityMode === "bars" ? (
+              <label className="bd6-dimension-field">
+                Lunghezza barra (m) *
+                <input
+                  inputMode="decimal"
+                  aria-label="Lunghezza barra in metri"
+                  value={draft.barLengthM}
+                  disabled={!measurement}
+                  onChange={(event) => patch({ barLengthM: event.target.value })}
+                  className="bd6-input"
+                />
+              </label>
+            ) : null}
+            <div className="bd10-weight-result" aria-label="Peso teorico calcolato">
+              <span>Peso teorico</span>
+              <strong>{measurement ? measurement.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 }) + " kg/m" : "— kg/m"}</strong>
+            </div>
+          </div>
+          <details className="bd10-commercial-optional">
+            <summary>Finitura, target prezzo e note · facoltativi</summary>
+            <div className="bd10-commercial-grid">
+              <label className="bd6-dimension-field">
+                Finitura
+                <input value={draft.finish} onChange={(event) => patch({ finish: event.target.value })}
+                  placeholder="Nero / zincato" className="bd6-input" />
+              </label>
+              <label className="bd6-dimension-field">
+                Target €/t
+                <input inputMode="decimal" value={draft.targetEurT}
+                  onChange={(event) => patch({ targetEurT: event.target.value })}
+                  placeholder="Facoltativo" className="bd6-input" />
+              </label>
+              <label className="bd6-dimension-field">
+                Note articolo
+                <input value={draft.note} onChange={(event) => patch({ note: event.target.value })}
+                  placeholder="Tolleranze, consegna…" className="bd6-input" />
+              </label>
+            </div>
+          </details>
+          {draft.quantity.trim() && !completeLine ? (
+            <p className="mt-1 text-xs text-[var(--semantic-warning)]">
+              Verifica quantità, lunghezza barra e target prezzo: devono essere positivi; le barre richiedono un numero intero.
+            </p>
+          ) : null}
+        </fieldset>
       </div>
 
       <div className="bd6-wizard-result">
@@ -223,22 +298,22 @@ export function BuyerTubeGuidedCreator({
             {measurement ? `${measurement.description} · ${draft.standard} · ${draft.grade}` : "Seleziona i campi in sequenza"}
           </p>
           <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
-            {measurement ? `Peso teorico ${measurement.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 })} kg/m · ${draft.standard}` : "Seleziona forma, norma, grado e dimensioni."}
+            {completeLine ? `${draft.quantity} ${draft.quantityMode === "bars" ? "barre" : draft.quantityMode === "meters" ? "m" : "t"} · ${completeLine.weightKgM} kg/m · pronta per la distinta` : measurement ? "Indica la quantità per completare l’articolo." : "Seleziona forma, norma, grado e dimensioni."}
           </p>
         </div>
         <button
           type="button"
           onClick={() => {
-            if (!measurement || !canAdd) return;
+            if (!completeLine || !canAdd) return;
             onAdd(draft);
             setDraft((current) => ({
-              ...current, standard: "", diameter: "", side: "", width: "", height: "", thickness: "",
+              ...current, standard: "", diameter: "", side: "", width: "", height: "", thickness: "", quantity: "", targetEurT: "", note: "",
             }));
           }}
-          disabled={!measurement || !canAdd}
+          disabled={!completeLine || !canAdd}
           className="bd6-add-button"
         >
-          + Aggiungi alla distinta
+          Inserisci articolo completo
         </button>
       </div>
     </section>
