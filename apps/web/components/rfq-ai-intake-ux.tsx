@@ -68,7 +68,7 @@ export function RfqAiIntakeUx({
         <span className="rfqai2-intake-note">Un’unica anteprima modificabile</span>
       </div>
 
-      <div className="rfqai2-mode-grid" role="group" aria-label="Scegli la modalità di inserimento">
+      <div id="rfqai2-intake-modes" className="rfqai2-mode-grid" role="group" aria-label="Scegli la modalità di inserimento">
         {options.map((option) => (
           <button
             key={option.mode}
