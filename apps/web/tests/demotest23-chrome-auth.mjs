@@ -118,8 +118,16 @@ try {
         waitUntil: "domcontentloaded", timeout: 90000,
       });
       const body = await page.locator("body").innerText();
-      assert.equal(response.status(), 404, "Cross-tenant direct URL must be 404");
+      // Next.js App Router may stream notFound() after response headers were sent,
+      // returning HTTP 200 with the rendered 404. Treat only explicit not-found
+      // content as denial; never let a 200 page containing a private title pass.
       assert.ok(!body.includes(target.rfqTitle), "Cross-tenant RFQ title leaked");
+      const isNotFound = /404|non trovata|not found|could not be found/i.test(body);
+      assert.ok(
+        response.status() === 404 || (response.status() === 200 && isNotFound),
+        "Cross-tenant direct URL must render a real 404 denial; HTTP " +
+          response.status() + ", body=" + body.slice(0, 300),
+      );
     });
 
     await step(p.id + " Marketplace access in own session", async () => {
