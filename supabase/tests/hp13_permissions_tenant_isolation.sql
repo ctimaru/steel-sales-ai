@@ -76,8 +76,10 @@ select pg_temp.hp13_assert(
   'browser-readable public views must be security_invoker'
 );
 
--- SECURITY DEFINER functions callable by anon are an explicit allowlist:
--- the curated, read-only public Scuola/Knowledge API.
+-- SEC1: The 11 public Scuola/Knowledge/Steel Pulse readers have been
+-- turned into SECURITY INVOKER facades. Their published-only privileged
+-- implementations now live in sec1_public, which is not a PostgREST schema.
+-- No new anon SECURITY DEFINER may be exposed through public.
 select pg_temp.hp13_assert(
   (
     select count(*)
@@ -86,8 +88,33 @@ select pg_temp.hp13_assert(
     where n.nspname='public'
       and p.prosecdef
       and has_function_privilege('anon',p.oid,'EXECUTE')
+  )=0,
+  'SEC1: anonymous SECURITY DEFINER surface in public must be zero'
+);
+
+select pg_temp.hp13_assert(
+  (
+    select count(*)
+    from pg_proc p
+    join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='public'
+      and not p.prosecdef
+      and has_function_privilege('anon',p.oid,'EXECUTE')
+      and p.proname in (
+        'k2_public_knowledge_grade',
+        'k2_public_knowledge_grades',
+        'k2_public_knowledge_standard',
+        'k2_public_knowledge_standards',
+        'k5_public_tube_weight_references',
+        'k6_public_tube_dimension_page',
+        'k6_public_tube_dimension_pages',
+        'k7_public_tube_family_hubs',
+        'k7_public_tube_size_hub',
+        'k7_public_tube_size_hubs',
+        'sp4_public_steel_pulse_feed'
+      )
   )=11,
-  'anonymous SECURITY DEFINER surface must remain exactly the reviewed 11 RPCs'
+  'SEC1: preserve exactly 11 anonymous published-only SECURITY INVOKER facades'
 );
 
 select pg_temp.hp13_assert(
