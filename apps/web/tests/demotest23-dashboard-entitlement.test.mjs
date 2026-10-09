@@ -3,7 +3,7 @@ import fs from "node:fs";
 import test from "node:test";
 
 const source = fs.readFileSync(new URL("../app/(workspace)/dashboard/page.tsx", import.meta.url), "utf8");
-const workflow = fs.readFileSync(new URL("../../.github/workflows/demotest2-3-chrome-auth.yml", import.meta.url), "utf8");
+const workflow = fs.readFileSync(new URL("../../../.github/workflows/demotest2-3-chrome-auth.yml", import.meta.url), "utf8");
 const browser = fs.readFileSync(new URL("./demotest23-chrome-auth.mjs", import.meta.url), "utf8");
 
 test("DEMOTEST2.3 Dashboard does not call privileged Network reads without tenant entitlement", () => {
