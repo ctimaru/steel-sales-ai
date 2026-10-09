@@ -30,7 +30,7 @@ export function DeferredPublicCompanyLookup() {
           observer.disconnect();
         }
       },
-      { rootMargin: "400px 0px" },
+      { rootMargin: "200px 0px" },
     );
     observer.observe(element);
     return () => observer.disconnect();
