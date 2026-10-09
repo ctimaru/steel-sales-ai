@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { useState } from "react";
 
 type PersonaKey = "merchant" | "user" | "processor" | "producer";
 
@@ -61,14 +58,14 @@ const personas: Record<PersonaKey, Persona> = {
 
 const order: PersonaKey[] = ["merchant", "user", "processor", "producer"];
 
-export function PublicNetworkRoleExplorer() {
-  const [active, setActive] = useState<PersonaKey>("merchant");
-  const persona = personas[active];
 
+// Native radios keep the role selector usable without hydration on mobile.
+// All four persona descriptions remain in server-rendered HTML for SEO.
+export function PublicNetworkRoleExplorer() {
   return (
     <section
       id="network"
-      className="border-b border-[#dce2df] bg-white"
+      className="perf21-network-explorer border-b border-[#dce2df] bg-white"
       aria-labelledby="network-value-title"
       aria-label="Network per Produttori, Commercianti, Terzisti e Utilizzatori"
     >
@@ -81,12 +78,8 @@ export function PublicNetworkRoleExplorer() {
             Privato · Premium
           </span>
         </div>
-
         <div className="mt-2 max-w-3xl">
-          <h2
-            id="network-value-title"
-            className="text-2xl font-semibold tracking-tight text-[#1d2824] sm:text-3xl"
-          >
+          <h2 id="network-value-title" className="text-2xl font-semibold tracking-tight text-[#1d2824] sm:text-3xl">
             La filiera steel, utile in base al tuo ruolo.
           </h2>
           <p className="mt-2 text-sm leading-6 text-[#66736e]">
@@ -95,89 +88,85 @@ export function PublicNetworkRoleExplorer() {
           </p>
         </div>
 
-        <div className="mt-6">
-          <p className="text-xs font-semibold text-[#66736e]">Tu che azienda sei?</p>
-          <div
-            className="mt-2 flex flex-wrap gap-2"
-            role="tablist"
-            aria-label="Scegli il tuo ruolo nella filiera"
-          >
-            {order.map((key) => {
-              const selected = key === active;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  role="tab"
-                  aria-selected={selected}
-                  onClick={() => setActive(key)}
-                  className={[
-                    "rounded-full border px-3.5 py-2 text-xs font-semibold transition",
-                    selected
-                      ? "border-[#2f7c69] bg-[#173f35] text-white"
-                      : "border-[#d8e0dc] bg-white text-[#52615b] hover:border-[#9dbab0] hover:text-[#173f35]",
-                  ].join(" ")}
-                >
+        <fieldset className="mt-6">
+          <legend className="text-xs font-semibold text-[#66736e]">Tu che azienda sei?</legend>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {order.map((key) => (
+              <label key={key} className="cursor-pointer">
+                <input
+                  className="peer sr-only"
+                  type="radio"
+                  name="network-persona"
+                  value={key}
+                  defaultChecked={key === "merchant"}
+                  aria-controls={`network-persona-${key}`}
+                />
+                <span className="inline-flex rounded-full border border-[#d8e0dc] bg-white px-3.5 py-2 text-xs font-semibold text-[#52615b] transition hover:border-[#9dbab0] hover:text-[#173f35] peer-checked:border-[#2f7c69] peer-checked:bg-[#173f35] peer-checked:text-white peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#2f7c69]">
                   {personas[key].label}
-                </button>
-              );
-            })}
+                </span>
+              </label>
+            ))}
           </div>
-        </div>
+        </fieldset>
 
-        <div
-          className="mt-5 rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-5 sm:p-6"
-          role="tabpanel"
-        >
-          <p className="text-lg font-semibold text-[#1d2824]">{persona.question}</p>
-
-          <div className="mt-4 grid gap-4 lg:grid-cols-3">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-                Che beneficio hai
-              </p>
-              <p className="mt-1.5 text-sm leading-6 text-[#52615b]">{persona.benefit}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-                Chi puoi trovare
-              </p>
-              <p className="mt-1.5 text-sm leading-6 text-[#52615b]">{persona.who}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-                Cosa puoi cercare
-              </p>
-              <p className="mt-1.5 text-sm leading-6 text-[#52615b]">{persona.search}</p>
-            </div>
-          </div>
-
-          {persona.emphasis ? (
-            <div className="mt-4 rounded-xl border border-[#c7ddd5] bg-white px-4 py-3 text-sm font-semibold text-[#173f35]">
-              {persona.emphasis}
-            </div>
-          ) : null}
-
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Link
-              href="/login"
-              className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#cfd9d5] bg-white px-4 text-sm font-semibold text-[#52615b] hover:bg-[#f2f5f4] hover:text-[#173f35]"
+        {order.map((key) => {
+          const persona = personas[key];
+          return (
+            <div
+              key={key}
+              id={`network-persona-${key}`}
+              data-network-persona={key}
+              className="perf21-network-panel mt-5 rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-5 sm:p-6"
+              role="region"
+              aria-label={persona.question}
             >
-              Accedi al Network
-            </Link>
-            <Link
-              href="/register"
-              className="platform-primary inline-flex min-h-10 items-center justify-center rounded-lg px-4 text-sm font-semibold"
-            >
-              Registra azienda
-            </Link>
-          </div>
-
-          <p className="mt-3 text-[11px] leading-5 text-[#7a8782]">
-            La directory completa, i filtri avanzati e i profili dettagliati restano visibili solo
-            alle aziende registrate e abilitate.
-          </p>
-        </div>
+              <p className="text-lg font-semibold text-[#1d2824]">{persona.question}</p>
+              <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
+                    Che beneficio hai
+                  </p>
+                  <p className="mt-1.5 text-sm leading-6 text-[#52615b]">{persona.benefit}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
+                    Chi puoi trovare
+                  </p>
+                  <p className="mt-1.5 text-sm leading-6 text-[#52615b]">{persona.who}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
+                    Cosa puoi cercare
+                  </p>
+                  <p className="mt-1.5 text-sm leading-6 text-[#52615b]">{persona.search}</p>
+                </div>
+              </div>
+              {persona.emphasis ? (
+                <div className="mt-4 rounded-xl border border-[#c7ddd5] bg-white px-4 py-3 text-sm font-semibold text-[#173f35]">
+                  {persona.emphasis}
+                </div>
+              ) : null}
+              <div className="mt-5 flex flex-wrap gap-2">
+                <Link
+                  href="/login"
+                  className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#cfd9d5] bg-white px-4 text-sm font-semibold text-[#52615b] hover:bg-[#f2f5f4] hover:text-[#173f35]"
+                >
+                  Accedi al Network
+                </Link>
+                <Link
+                  href="/register"
+                  className="platform-primary inline-flex min-h-10 items-center justify-center rounded-lg px-4 text-sm font-semibold"
+                >
+                  Registra azienda
+                </Link>
+              </div>
+              <p className="mt-3 text-[11px] leading-5 text-[#7a8782]">
+                La directory completa, i filtri avanzati e i profili dettagliati restano visibili solo
+                alle aziende registrate e abilitate.
+              </p>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
