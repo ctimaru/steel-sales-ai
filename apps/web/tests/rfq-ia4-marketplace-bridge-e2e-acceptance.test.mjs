@@ -25,7 +25,7 @@ test("RFQ-IA4 retains one buyer process: private distinta -> RFQ -> optional Mar
   assert.match(bridgePanel, /importRfqh8MarketplaceResponse/);
   assert.match(bridgePanel, /Importa nel confronto RFQ/);
   assert.match(marketplaceHome, /Apri RFQ Hub/);
-  assert.match(marketplaceList, /Pubblicazioni Marketplace/);
+  assert.match(marketplaceList, /pubblicazioni Marketplace/);
   assert.match(marketplaceNew, /Percorso consigliato/);
   assert.match(marketplaceNew, /href=\{appRoutes\.rfqHub\.createDistinta\}/);
   assert.match(marketplaceNew, /mode !== "standalone"/);
@@ -97,7 +97,7 @@ test("RFQ-IA4 retains legally distinct published, prepared, imported and owner-s
   assert.match(rfqSource, /rfqh8_prepare_marketplace_bridge_impl/);
   assert.match(rfqSource, /rfqh8_publish_marketplace_bridge_impl/);
   assert.match(rfqSource, /rfqh8_import_marketplace_response_impl/);
-  assert.match(rfqSource, /'draft','rfq_hub'/);
+  assert.match(rfqSource, /'draft',\s*'rfq_hub'/);
   assert.match(rfqSource, /Marketplace quote contains non-EUR or non-normalizable priced lines/);
   assert.match(rfqSource, /owner_user_id=v_user_id/);
   assert.match(migration, /private\.p5_1_require_actor\(v_campaign\.organization_id,true\)/);
