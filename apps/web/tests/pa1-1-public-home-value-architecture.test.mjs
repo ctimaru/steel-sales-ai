@@ -44,6 +44,14 @@ test("PA1.1 aligns the public home with the current brand palette", () => {
   assert.doesNotMatch(home, /#245ed1/);
 });
 
-test("PA1.1 preserves authenticated-user redirect", () => {
-  assert.match(home, /if \(data\.user\) redirect\("\/dashboard"\)/);
+const proxy = fs.readFileSync(
+  new URL("../lib/supabase/proxy.ts", import.meta.url),
+  "utf8",
+);
+
+test("PA1.1 preserves authenticated-user redirect at the proxy before the static home", () => {
+  assert.match(home, /export const dynamic = "force-static"/);
+  assert.doesNotMatch(home, /createClient|getUser|cookies\\(|redirect\\(/);
+  assert.match(proxy, /if \(!error && data\.user\)/);
+  assert.match(proxy, /target\.pathname = "\/dashboard"/);
 });
