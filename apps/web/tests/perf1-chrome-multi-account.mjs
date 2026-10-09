@@ -80,8 +80,11 @@ try {
       url: base,
     }]);
     assert.equal(await openHome(anonPage), "/");
+    await anonPage.getByRole("heading", { name: /Il business network dell.acciaio/i })
+      .waitFor({ state: "visible", timeout: 40000 });
     const text = await pageText(anonPage);
-    assert.ok(text.includes("Utile anche senza account"));
+    assert.ok(text.includes("Trova o rivendica la tua azienda"),
+      "Invalid cookie returned non-home content: " + text.slice(0, 260));
     await anon.clearCookies();
   });
   await anon.close();
