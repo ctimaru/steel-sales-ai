@@ -23,12 +23,13 @@ export type RfqAiSourceRef = {
   sha256?: string;
 };
 export type RfqAiLocator = {
-  kind: "text_line" | "spreadsheet_row" | "pdf_page" | "email_part";
+  kind: "text_line" | "spreadsheet_row" | "pdf_page" | "email_part" | "extracted_observation";
   line?: number;
   sheet?: string;
   row?: number;
   page?: number;
   part?: string;
+  observationIndex?: number;
 };
 export type RfqAiEvidence = {
   origin: RfqAiOrigin;
