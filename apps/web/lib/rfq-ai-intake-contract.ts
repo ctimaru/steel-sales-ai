@@ -89,6 +89,7 @@ const numeric = (v: unknown): number | null => {
   if (!source) return null;
   // Only decimal comma/dot are accepted; ambiguous thousands separators are never guessed.
   if (!/^-?\d+(?:[.,]\d+)?$/.test(source)) return null;
+  if (/^[1-9]\\d{0,2}[.,]\\d{3}$/.test(source)) return null; // ambiguous thousands/decimals
   const value = Number(source.replace(",", "."));
   return Number.isFinite(value) ? value : null;
 };
@@ -101,7 +102,7 @@ const std = (v: unknown): GuidedTubeStandard | null => {
 };
 const unit = (v: unknown): BuyerQuantityMode | null => {
   const value = trimmed(v, 40).toUpperCase().replace(/\./g, "");
-  if (["BARRE", "BARRA", "PZ", "PZ", "NR", "N", "PCS", "PEZZI", "PEZZO"].includes(value)) return "bars";
+  if (["BARRE", "BARRA", "PZ", "NR", "N", "PCS", "PEZZI", "PEZZO"].includes(value)) return "bars";
   if (["M", "MT", "ML", "METRI", "METRO"].includes(value)) return "meters";
   if (["T", "TON", "TONN", "TONNELLATE", "TONNELLATA"].includes(value)) return "tonnes";
   return null;
@@ -131,7 +132,7 @@ export function normalizeRfqAiCandidate(
     issues.push({ code, severity, field });
   if (!sourceValid(source, candidateId)) issue("invalid_source", "error", "source");
   if (intent !== "buyer_request") issue("untrusted_document_intent", "warning", "sourceIntent");
-  if (raw.itemRole !== undefined && raw.itemRole !== null && !["request", "rfq", "buyer_request"].includes(trimmed(raw.itemRole, 60).toLowerCase()))
+  if (raw.itemRole !== undefined && raw.itemRole !== null && !["requested", "request", "rfq", "buyer_request"].includes(trimmed(raw.itemRole, 60).toLowerCase()))
     issue("untrusted_item_role", "warning", "itemRole");
 
   const geometry = section(raw);
