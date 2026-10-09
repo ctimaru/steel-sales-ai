@@ -120,6 +120,7 @@ export function BuyerDistintaBuilder({
     () => calculateBuyerDistintaTotals(calculated),
     [calculated],
   );
+  const activeLineCount = lines.filter((line) => !isUntouchedLine(line)).length;
   const allComplete =
     calculated.length > 0 && calculated.every((line) => line.complete);
   const quickMatches = useMemo(
@@ -535,18 +536,18 @@ export function BuyerDistintaBuilder({
       <aside className="bd53-hud" aria-label="Riepilogo in tempo reale della distinta">
         <div className="bd53-hud-progress">
           <span className="bd53-hud-caption">Righe pronte</span>
-          <span className="bd53-hud-complete">{totals.completeLines}/{lines.length}</span>
+          <span className="bd53-hud-complete">{totals.completeLines}/{activeLineCount}</span>
           <div
             className="bd53-hud-track"
             role="progressbar"
             aria-label="Righe complete nella distinta"
             aria-valuemin={0}
-            aria-valuemax={lines.length}
+            aria-valuemax={activeLineCount}
             aria-valuenow={totals.completeLines}
           >
             <span
               className="bd53-hud-progress-fill"
-              style={{ width: (totals.completeLines / lines.length) * 100 + "%" }}
+              style={{ width: (activeLineCount ? totals.completeLines / activeLineCount : 0) * 100 + "%" }}
             />
           </div>
         </div>
@@ -583,10 +584,10 @@ export function BuyerDistintaBuilder({
               {workspace ? "RFQ Hub · Distinta privata" : "Creazione articoli"}
             </p>
             <h2 className="mt-1 text-lg font-bold tracking-tight text-[var(--brand-deep)]">
-              Crea la distinta in pochi passaggi
+              Articoli in distinta
             </h2>
             <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
-              Configura il tubo, aggiungilo e indica le barre: 12 m è il valore iniziale, modificabile.
+Configura un articolo o compila direttamente una riga: quantità, kg/m e anteprima si aggiornano subito. Ogni articolo mantiene la propria norma.
             </p>
           </div>
           <label className="w-full max-w-sm text-xs font-semibold text-[var(--text-secondary)]">
@@ -682,113 +683,8 @@ export function BuyerDistintaBuilder({
           ) : null}
         </section>
         </details>
-          </div>
-          <aside className="bd7-preview" aria-label="Distinta in composizione">
-            <div className="bd7-preview-head">
-              <div>
-                <p className="bd6-eyebrow">Anteprima in tempo reale</p>
-                <h3 className="text-sm font-extrabold text-[var(--brand-deep)]">La tua distinta</h3>
-              </div>
-              <span className="bd7-preview-counter">{totals.completeLines}/{lines.length} righe</span>
-            </div>
-            {previewDraft && (previewDraft.family || previewDraft.standard || previewDraft.grade) ? (
-              <div className="bd7-draft-pending">
-                <span className="text-[10px] font-bold uppercase tracking-wide text-[var(--text-secondary)]">In configurazione</span>
-                <p className="mt-1 text-xs font-semibold text-[var(--brand-deep)]">
-                  {guidedTubeMeasurement(previewDraft)?.description ||
-                    [previewDraft.family ? buyerTubeFamilyLabels[previewDraft.family] : "", previewDraft.standard, previewDraft.grade].filter(Boolean).join(" · ")}
-                </p>
-                {guidedTubeMeasurement(previewDraft) ? (
-                  <p className="text-xs text-[var(--text-secondary)]">
-                    {formatNumber(guidedTubeMeasurement(previewDraft)!.weightKgM, 3)} kg/m teorici
-                  </p>
-                ) : null}
-              </div>
-            ) : null}
-            <ol className="bd7-preview-list" aria-label="Articoli inseriti">
-              {lines.map((line, index) => (
-                <li key={line.id}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const row = document.getElementById("buyer-row-" + line.id);
-                      row?.focus({ preventScroll: true });
-                      row?.scrollIntoView({ block: "center", behavior: "smooth" });
-                    }}
-                    className="bd7-preview-item"
-                    aria-label={"Vai alla riga " + (index + 1)}
-                  >
-                    <span className="bd7-preview-number">{index + 1}</span>
-                    <span className="min-w-0 flex-1">
-                      <span className="bd7-preview-description">
-                        {line.description.trim() || "Articolo da compilare"}
-                      </span>
-                      <span className="bd7-preview-meta">
-                        {line.standard ? line.standard + " · " : "Norma da scegliere · "}{line.grade ? line.grade + " · " : ""}
-                        {calculated[index].quantity !== null
-                          ? formatNumber(calculated[index].quantity, line.quantityMode === "bars" ? 0 : 2) + " " +
-                            (line.quantityMode === "bars" ? "barre" : line.quantityMode === "meters" ? "m" : "t")
-                          : "Quantità da inserire"}
-                        {" · "}{formatNumber(calculated[index].tonnes, 3)} t
-                      </span>
-                    </span>
-                    <span className={calculated[index].complete ? "bd7-preview-ready" : "bd7-preview-incomplete"}>
-                      {calculated[index].complete ? "✓" : "·"}
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ol>
-            <div className="bd7-preview-totals">
-              <span>{formatNumber(totals.totalMeters, 2)} m</span>
-              <strong>{formatNumber(totals.totalTonnes, 3)} t</strong>
-            </div>
-            <details className="bd7-global-documents">
-              <summary className="bd7-doc-summary">
-                <span className="font-bold">Documentazione richiesta · intera distinta</span>
-                <span className="bd7-doc-caption">{formatBuyerDocumentRequirements(documents) ? "Condizioni impostate" : "Facoltativa"}</span>
-              </summary>
-              <div className="bd7-doc-fields">
-                <label className="bd6-dimension-field">
-                  Certificato di controllo EN 10204
-                  <select
-                    value={documents.inspectionDocument}
-                    onChange={(event) => {
-                      setDocuments((current) => ({ ...current, inspectionDocument: event.target.value as BuyerDistintaDocumentRequirements["inspectionDocument"] }));
-                      setSavedId(null);
-                    }}
-                    className="bd6-input"
-                  >
-                    <option value="">Non specificato</option>
-                    <option value="2.1">2.1 · Dichiarazione conformità</option>
-                    <option value="2.2">2.2 · Rapporto di prova</option>
-                    <option value="3.1">3.1 · Certificato materiale</option>
-                    <option value="3.2">3.2 · Con ispezione indipendente</option>
-                  </select>
-                </label>
-                <label className="bd6-check">
-                  <input type="checkbox" checked={documents.ceDop} onChange={(event) => {
-                    setDocuments((current) => ({ ...current, ceDop: event.target.checked })); setSavedId(null);
-                  }} />
-                  Marcatura CE + DoP, se applicabili
-                </label>
-                <label className="bd6-check">
-                  <input type="checkbox" checked={documents.iso9001} onChange={(event) => {
-                    setDocuments((current) => ({ ...current, iso9001: event.target.checked })); setSavedId(null);
-                  }} />
-                  Produttore certificato UNI EN ISO 9001
-                </label>
-                <p className="text-[11px] leading-4 text-[var(--text-secondary)]">
-                  Vale per tutta la richiesta; non viene ripetuto in ogni articolo. CE/DoP, EN 10204 e ISO 9001 hanno finalità differenti.
-                </p>
-              </div>
-            </details>
-            {formatBuyerDocumentRequirements(documents) ? (
-              <p className="bd7-preview-doc-note">{formatBuyerDocumentRequirements(documents)}</p>
-            ) : null}
-          </aside>
-        </div>
 
+        <div className="bd9-rows-in-composer" aria-label="Articoli della distinta">
         <datalist id="buyer-standards"><option value="EN 10219" /><option value="EN 10210" /><option value="EN 10305" /></datalist>
         <datalist id="buyer-grades"><option value="S235JRH" /><option value="S275J0H" /><option value="S355J2H" /></datalist>
         <datalist id="buyer-finishes"><option value="Nero" /><option value="Zincato" /><option value="Decapato" /></datalist>
@@ -796,7 +692,7 @@ export function BuyerDistintaBuilder({
           <div className="flex items-center gap-3">
             <span aria-hidden="true" className="bd5-toolbar-mark">▦</span>
             <div>
-              <h3 className="text-sm font-bold text-[var(--brand-deep)]">Articoli in distinta</h3>
+              <h3 className="text-sm font-bold text-[var(--brand-deep)]">Righe della richiesta</h3>
               <p className="text-xs text-[var(--text-secondary)]">
                 {lines.length} {lines.length === 1 ? "articolo" : "articoli"} · ogni riga ha la propria norma EN 10210 / EN 10219
               </p>
@@ -1110,6 +1006,118 @@ export function BuyerDistintaBuilder({
           + Aggiungi riga libera
         </button>
         <p className="mt-2 text-xs text-[var(--text-secondary)]">{lines.length} / 500 righe · Duplica per riutilizzare le specifiche senza ripetere la quantità.</p>
+        </div>
+          </div>
+          <aside className="bd7-preview" aria-label="Distinta in composizione">
+            <div className="bd7-preview-head">
+              <div>
+                <p className="bd6-eyebrow">Anteprima in tempo reale</p>
+                <h3 className="text-sm font-extrabold text-[var(--brand-deep)]">La tua distinta</h3>
+              </div>
+              <span className="bd7-preview-counter">{totals.completeLines}/{activeLineCount} righe</span>
+            </div>
+            {previewDraft && (previewDraft.family || previewDraft.standard || previewDraft.grade) ? (
+              <div className="bd7-draft-pending">
+                <span className="text-[10px] font-bold uppercase tracking-wide text-[var(--text-secondary)]">In configurazione</span>
+                <p className="mt-1 text-xs font-semibold text-[var(--brand-deep)]">
+                  {guidedTubeMeasurement(previewDraft)?.description ||
+                    [previewDraft.family ? buyerTubeFamilyLabels[previewDraft.family] : "", previewDraft.standard, previewDraft.grade].filter(Boolean).join(" · ")}
+                </p>
+                {guidedTubeMeasurement(previewDraft) ? (
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    {formatNumber(guidedTubeMeasurement(previewDraft)!.weightKgM, 3)} kg/m teorici
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+            {activeLineCount === 0 ? (
+              <p className="bd9-preview-empty">Nessun articolo ancora inserito. Configura il primo articolo o compila una riga libera.</p>
+            ) : null}
+            <ol className="bd7-preview-list" aria-label="Articoli inseriti">
+              {lines.map((line, index) => (
+                <li key={line.id} hidden={isUntouchedLine(line)}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const row = document.getElementById("buyer-row-" + line.id);
+                      row?.focus({ preventScroll: true });
+                      row?.scrollIntoView({ block: "center", behavior: "smooth" });
+                    }}
+                    className="bd7-preview-item"
+                    aria-label={"Vai alla riga " + (index + 1)}
+                  >
+                    <span className="bd7-preview-number">{index + 1}</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="bd7-preview-description">
+                        {line.description.trim() || "Articolo da compilare"}
+                      </span>
+                      <span className="bd7-preview-meta">
+                        {line.standard ? line.standard + " · " : "Norma da scegliere · "}{line.grade ? line.grade + " · " : ""}
+                        {calculated[index].quantity !== null
+                          ? formatNumber(calculated[index].quantity, line.quantityMode === "bars" ? 0 : 2) + " " +
+                            (line.quantityMode === "bars" ? "barre" : line.quantityMode === "meters" ? "m" : "t")
+                          : "Quantità da inserire"}
+                        {" · "}{formatNumber(calculated[index].tonnes, 3)} t
+                      </span>
+                    </span>
+                    <span className={calculated[index].complete ? "bd7-preview-ready" : "bd7-preview-incomplete"}>
+                      {calculated[index].complete ? "✓" : "·"}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+            <div className="bd7-preview-totals">
+              <span>{formatNumber(totals.totalMeters, 2)} m</span>
+              <strong>{formatNumber(totals.totalTonnes, 3)} t</strong>
+            </div>
+            <details className="bd7-global-documents">
+              <summary className="bd7-doc-summary">
+                <span className="font-bold">Documentazione richiesta · intera distinta</span>
+                <span className="bd7-doc-caption">{formatBuyerDocumentRequirements(documents) ? "Condizioni impostate" : "Facoltativa"}</span>
+              </summary>
+              <div className="bd7-doc-fields">
+                <label className="bd6-dimension-field">
+                  Certificato di controllo EN 10204
+                  <select
+                    value={documents.inspectionDocument}
+                    onChange={(event) => {
+                      setDocuments((current) => ({ ...current, inspectionDocument: event.target.value as BuyerDistintaDocumentRequirements["inspectionDocument"] }));
+                      setSavedId(null);
+                    }}
+                    className="bd6-input"
+                  >
+                    <option value="">Non specificato</option>
+                    <option value="2.1">2.1 · Dichiarazione conformità</option>
+                    <option value="2.2">2.2 · Rapporto di prova</option>
+                    <option value="3.1">3.1 · Certificato materiale</option>
+                    <option value="3.2">3.2 · Con ispezione indipendente</option>
+                  </select>
+                </label>
+                <label className="bd6-check">
+                  <input type="checkbox" checked={documents.ceDop} onChange={(event) => {
+                    setDocuments((current) => ({ ...current, ceDop: event.target.checked })); setSavedId(null);
+                  }} />
+                  Marcatura CE + DoP, se applicabili
+                </label>
+                <label className="bd6-check">
+                  <input type="checkbox" checked={documents.iso9001} onChange={(event) => {
+                    setDocuments((current) => ({ ...current, iso9001: event.target.checked })); setSavedId(null);
+                  }} />
+                  Produttore certificato UNI EN ISO 9001
+                </label>
+                <p className="text-[11px] leading-4 text-[var(--text-secondary)]">
+                  Vale per tutta la richiesta; non viene ripetuto in ogni articolo. CE/DoP, EN 10204 e ISO 9001 hanno finalità differenti.
+                </p>
+              </div>
+            </details>
+            {formatBuyerDocumentRequirements(documents) ? (
+              <p className="bd7-preview-doc-note">{formatBuyerDocumentRequirements(documents)}</p>
+            ) : null}
+          </aside>
+        </div>
+
+
       </section>
 
       <section className="rounded-3xl border border-[#d8e1dd] bg-white p-5 sm:p-6">
