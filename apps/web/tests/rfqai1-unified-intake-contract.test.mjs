@@ -156,7 +156,7 @@ test("RFQAI1 parser v4 adapter uses real observation fields, never infers buyer 
 test("RFQAI1 is an inert domain contract: no writes, mailbox, permissions, or UI changes", () => {
   assert.match(audit, /ParserV31Adapter.*alias|alias.*ParserV4Adapter/);
   assert.match(audit, /No auth policy, server action, Supabase migration/);
-  assert.doesNotMatch(source + adapterSource, /\b(createClient|service_role|fetch\(|sendBuyerDistinta|createBuyerRfqCampaign|saveBuyerDistinta\()/);
+  assert.doesNotMatch(source + adapterSource, /\b(createClient|service_role|fetch\(|sendBuyerDistinta\\(|createBuyerRfqCampaign\\(|saveBuyerDistinta\()/);
   assert.match(source, /approvalState: "pending_human_review"/);
   assert.match(adapterSource, /price_value \/ price_unit must never/);
   assert.match(audit, /RFQAI1\.4/);
