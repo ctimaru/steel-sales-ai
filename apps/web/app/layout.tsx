@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
+import Script from "next/script";
 
 import { GoogleAnalyticsConsent } from "@/components/google-analytics-consent";
 import { ProductAnalyticsIngestion } from "@/components/product-analytics-ingestion";
@@ -90,9 +91,12 @@ window.gtag("set", "ads_data_redaction", true);
           id="sss-google-consent-bootstrap"
           dangerouslySetInnerHTML={{ __html: googleConsentBootstrap }}
         />
-        <script
+        {/* PERF2.1: Consent Mode v2 defaults and queued events stay in the
+            synchronous inline stub; the external GA library is fetched
+            after page load/idle instead of competing with mobile LCP. */}
+        <Script
           id="sss-google-analytics"
-          async
+          strategy="lazyOnload"
           src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
         />
         <script
