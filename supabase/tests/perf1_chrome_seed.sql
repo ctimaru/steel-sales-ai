@@ -64,7 +64,7 @@ insert into public.buyer_rfq_campaigns(
 insert into public.platform_user_roles(user_id,role,status,granted_by,reason)
 values (:'owner_user_id'::uuid,'platform_superadmin','active',null,'PERF1 local Chrome acceptance');
 
-do $
+do $$
 begin
  if (select count(*) from public.platform_user_roles where role='platform_superadmin' and status='active') <> 1 then
   raise exception 'PERF1 expected a single synthetic platform owner';
