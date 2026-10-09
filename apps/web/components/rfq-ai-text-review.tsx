@@ -16,6 +16,7 @@ export function RfqAiTextReview({
 }) {
   const [candidates, setCandidates] = useState(result.candidates);
   const [raw, setRaw] = useState(result.rawById);
+  const [lengthDisplay, setLengthDisplay] = useState<Record<string, string>>({});
   const [confirmed, setConfirmed] = useState<Record<string, boolean>>({});
 
   function change(candidate: RfqAiLineCandidate, patch: Partial<RfqAiRawLine>) {
@@ -25,6 +26,19 @@ export function RfqAiTextReview({
       candidate.source, candidate.candidateId, candidate.locator,
       candidate.sourceIntent, nextRaw,
     );
+    // Corrected information is user-provided evidence, never an original AI
+    // extraction: preserve its distinct origin for RFQAI7 audit migration.
+    const evidenceKeys: Record<string, keyof typeof next.proposedLine> = {
+      standard: "standard", grade: "grade", quantity: "quantity",
+      quantityUnit: "quantityMode", lengthMm: "barLengthM",
+    };
+    for (const [key, value] of Object.entries(patch)) {
+      const field = evidenceKeys[key];
+      if (field) next.evidence[field] = {
+        origin: "human", locator: { ...candidate.locator },
+        rawValue: value === null || value === undefined ? null : String(value),
+      };
+    }
     setCandidates((previous) => previous.map((row) => row.candidateId === candidate.candidateId ? next : row));
     setConfirmed((previous) => ({ ...previous, [candidate.candidateId]: false }));
   }
@@ -74,7 +88,7 @@ export function RfqAiTextReview({
             )}
             <div className="rfqai3-candidate-grid">
               <label>Norma
-                <select value={String(source.standard ?? "")}
+                <select value={candidate.proposedLine.standard || String(source.standard ?? "")}
                   onChange={(event) => change(candidate, { standard: event.target.value })}>
                   <option value="">Da specificare</option>
                   <option value="EN 10219">EN 10219</option>
@@ -92,7 +106,7 @@ export function RfqAiTextReview({
                   placeholder="Es. 30" />
               </label>
               <label>Unità
-                <select value={String(source.quantityUnit ?? "")}
+                <select value={String(source.quantityUnit ?? "").toUpperCase() === "PACCHI" ? "" : candidate.proposedLine.quantityMode === "bars" && candidate.proposedLine.quantity ? "PZ" : candidate.proposedLine.quantityMode === "meters" ? "M" : candidate.proposedLine.quantityMode === "tonnes" ? "T" : ""}
                   onChange={(event) => change(candidate, { quantityUnit: event.target.value })}>
                   <option value="">Da specificare</option>
                   <option value="PZ">Pezzi / barre</option>
@@ -101,10 +115,13 @@ export function RfqAiTextReview({
                 </select>
               </label>
               <label>Lunghezza singola barra (m)
-                <input inputMode="decimal" maxLength={40} value={source.lengthMm === null || source.lengthMm === undefined || source.lengthMm === "" ? "" :
-                  String(Number(String(source.lengthMm).replace(",", ".")) / 1000)}
+                <input inputMode="decimal" maxLength={40} value={lengthDisplay[candidate.candidateId] ??
+                  (source.lengthMm === null || source.lengthMm === undefined || source.lengthMm === "" ? "" :
+                    String(Number(String(source.lengthMm).replace(",", ".")) / 1000))}
                   onChange={(event) => {
-                    const v = event.target.value.trim();
+                    const value = event.target.value;
+                    setLengthDisplay((previous) => ({ ...previous, [candidate.candidateId]: value }));
+                    const v = value.trim();
                     const n = v ? Number(v.replace(",", ".")) : null;
                     change(candidate, { lengthMm: n !== null && Number.isFinite(n) ? String(n * 1000) : v ? "invalid" : "" });
                   }}
