@@ -185,6 +185,27 @@ select pg_temp.dt2_assert(
 set local role authenticated;
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000002001',true);
 
+-- Structural regression guard: no anonymous execution of privileged helper;
+-- campaign INSERT checks source ownership through an RLS-safe internal helper.
+select pg_temp.dt2_assert(
+  not has_function_privilege(
+    'anon',
+    'private.rfqh13_source_distinta_owned_for_campaign(uuid,uuid,uuid)',
+    'EXECUTE'
+  ),
+  'anonymous role must never execute internal RLS source helper'
+);
+select pg_temp.dt2_assert(
+  position(
+    'rfqh13_source_distinta_owned_for_campaign'
+    in (select pg_get_expr(c.polwithcheck,c.polrelid)
+        from pg_policy c
+        where c.polrelid='public.buyer_rfq_campaigns'::regclass
+          and c.polname='buyer_rfq_campaigns_owner_insert')
+  )>0,
+  'campaign RLS must use cycle-safe source ownership helper'
+);
+
 -- Actual server-side Buyer Distinta RPC, mixing EN 10219 and EN 10210.
 insert into demotest2_state(key,value)
 select 'distinta',jsonb_build_object('id',public.buyer_create_distinta_snapshot(
