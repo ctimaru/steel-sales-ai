@@ -95,7 +95,10 @@ try {
     });
 
     await step(p.id + " RFQ Hub visibility", async () => {
-      const body = await navigate(page, "/rfq-hub");
+      await navigate(page, "/rfq-hub");
+      await page.getByRole("heading", { name: "RFQ Hub", exact: true })
+        .waitFor({ state: "visible", timeout: 60000 });
+      const body = await page.locator("body").innerText();
       if (p.id === "buyerViewer") {
         assert.ok(!body.includes(p.rfqTitle), "Viewer accessed owner-only buyer campaign");
       } else {
@@ -108,8 +111,34 @@ try {
 
     if (p.id !== "buyerViewer") {
       await step(p.id + " direct own RFQ detail", async () => {
-        const body = await navigate(page, "/rfq-hub/" + p.rfq);
+        await navigate(page, "/rfq-hub/" + p.rfq);
+        await page.getByText(p.rfqTitle, { exact: false }).first()
+          .waitFor({ state: "visible", timeout: 60000 });
+        const body = await page.locator("body").innerText();
         assert.ok(body.includes(p.rfqTitle));
+      });
+    }
+    if (p.id === "buyerViewer") {
+      await step("buyer viewer cannot open owner's private RFQ", async () => {
+        const response = await page.goto(base + "/rfq-hub/" + p.rfq, {
+          waitUntil: "domcontentloaded", timeout: 90000,
+        });
+        await page.waitForFunction(
+          (title) => {
+            const text = document.body.innerText;
+            return !text.includes("Caricamento workspace") &&
+              (text.includes(title) || /404|non trovata|not found|could not be found/i.test(text));
+          },
+          p.rfqTitle,
+          { timeout: 60000 },
+        );
+        const body = await page.locator("body").innerText();
+        assert.ok(!body.includes(p.rfqTitle), "Viewer accessed owner's private RFQ by direct URL");
+        assert.ok(
+          response.status() === 404 ||
+            (response.status() === 200 && /404|non trovata|not found|could not be found/i.test(body)),
+          "Viewer owner-detail must render not-found denial",
+        );
       });
     }
     await step(p.id + " cannot access buyer's other private RFQ", async () => {
@@ -169,7 +198,13 @@ try {
   await step("mobile Chrome actual buyer login and workspace", () => login(mobilePage, personas[0]));
   for (const route of ["/dashboard", "/rfq-hub", "/marketplace"]) {
     await step("mobile responsive " + route, async () => {
-      const body = await navigate(mobilePage, route);
+      await navigate(mobilePage, route);
+      const heading = route === "/dashboard"
+        ? "Oggi in " + personas[0].name
+        : route === "/rfq-hub" ? "RFQ Hub" : "Compra o vendi, in un unico spazio";
+      await mobilePage.getByRole("heading", { name: heading, exact: true })
+        .waitFor({ state: "visible", timeout: 60000 });
+      const body = await mobilePage.locator("body").innerText();
       assert.ok(body.length > 50);
       const { width, scrollWidth } = await mobilePage.evaluate(() => ({
         width: document.documentElement.clientWidth,
