@@ -46,4 +46,4 @@ Future RFQAI3/4 implementations should take controlled intake content through a 
 
 ## Dependencies and release
 
-RFQAI2 is based on RFQAI1 branch `feature/rfqai1-unified-intake-contract`; submit a stacked PR with that branch as base until RFQAI1 is merged. Merge RFQAI1 first, then re-target / merge RFQAI2 to main after acceptance. No changes to any production authentication or Supabase policies.
+RFQAI2 was branched from RFQAI1 `feature/rfqai1-unified-intake-contract`. Its PR targets `main` so the repository's mandatory P0 Required Gate runs (the workflow only triggers for PRs against `main`). Until RFQAI1 (#472) merges, RFQAI2's PR diff temporarily contains RFQAI1's foundations too. **Merge RFQAI1 first, then RFQAI2**; GitHub will reduce the latter diff once the former is on `main`. No changes to production authentication or Supabase policies.
