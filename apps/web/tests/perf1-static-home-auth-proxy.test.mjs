@@ -39,7 +39,10 @@ function runProxy({ pathname = "/", cookies = [], user = null, authError = null,
       url: target?.toString() ?? null,
       headers: new Map(),
       cookies: {
-        set(cookie) {
+        set(nameOrCookie, value, options) {
+          const cookie = typeof nameOrCookie === "string"
+            ? { name: nameOrCookie, value, ...options }
+            : nameOrCookie;
           writtenCookies.push(cookie);
         },
         getAll() {
