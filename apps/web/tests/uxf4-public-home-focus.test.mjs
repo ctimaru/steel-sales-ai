@@ -42,7 +42,7 @@ test("UXF4 reduces the homepage to four focused content stages", () => {
 });
 
 test("UXF4 keeps public utility, company lookup and private Network boundaries", () => {
-  assert.match(home, /<PublicCompanyLookup \/>/);
+  assert.match(home, /<DeferredPublicCompanyLookup \/>/);
   assert.match(home, /La ricerca pubblica serve solo a riconoscere/);
   assert.match(network, /Privato · Premium/);
   for (const type of ["Produttori", "Commercianti", "Terzisti", "Utilizzatori"]) {
