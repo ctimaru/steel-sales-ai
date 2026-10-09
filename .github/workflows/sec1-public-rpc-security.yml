@@ -5,6 +5,7 @@ on:
     paths:
       - "supabase/migrations/20261009140500_sec1_public_rpc_privilege_boundary.sql"
       - "supabase/tests/sec1_public_rpc_boundary.sql"
+      - "supabase/tests/hp13_permissions_tenant_isolation.sql"
       - ".github/workflows/sec1-public-rpc-security.yml"
   workflow_dispatch:
 
