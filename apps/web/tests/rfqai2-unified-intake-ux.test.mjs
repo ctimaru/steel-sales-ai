@@ -65,7 +65,7 @@ test("RFQAI2 text staging is bounded and cannot claim conversion, persistence or
   assert.match(chooser, /maxLength=\{MAX_TEXT_CHARS\}/);
   assert.match(chooser, /value=\{textDraft\}/);
   assert.match(chooser, /onChange=\{\(event\) => setTextDraft\(event.target.value\)\}/);
-  assert.match(chooser, /setTextDraft\(" "\)/.source === undefined ? /setTextDraft\(" "\)/ : /setTextDraft\(" "\)/);
+  assert.ok(chooser.includes('setTextDraft("")'));
   assert.match(chooser, /Trasforma in distinta con AI · RFQAI3/);
   assert.match(chooser, /disabled className="rfqai2-disabled-action"/);
   assert.match(chooser, /Il testo rimane solo in memoria/);
