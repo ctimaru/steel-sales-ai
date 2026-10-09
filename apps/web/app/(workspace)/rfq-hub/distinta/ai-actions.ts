@@ -3,6 +3,13 @@
 import { randomUUID } from "node:crypto";
 import { requireWorkspaceWriteRole } from "@/lib/workspace-context";
 import { buildRfqAiPrompt, parseRfqAiModelResponse, validateRfqAiText, type RfqAiTextDraftResult } from "@/lib/rfq-ai-free-text";
+import {
+  RFQAI3_RESPONSE_FORMAT,
+  RfqAiGatewayOutputError,
+  readRfqAiGatewayOutput,
+  rfqAiGatewayHttpFailure,
+  rfqAiGatewayOutputFailure,
+} from "@/lib/rfq-ai-gateway-protocol";
 
 /** No tenant, user or ownership input is accepted from the browser. */
 export type RfqAiTextActionResult =
@@ -47,7 +54,18 @@ export async function analyzeRfqAiFreeText(input: string): Promise<RfqAiTextActi
 
   const model = process.env.RFQAI3_MODEL || "alibaba/qwen-3-14b";
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 25_000);
+  // Qwen3 can spend tokens in its default thinking mode; explicitly disable
+  // reasoning for deterministic, latency-sensitive extraction, with a longer
+  // upper bound for occasional provider delays.
+  const timeout = setTimeout(() => controller.abort(), 45_000);
+  const traceId = randomUUID().slice(0, 8);
+  let phase: "gateway_fetch" | "gateway_body" | "model_response" | "candidate_validation" = "gateway_fetch";
+  const diagnostic = (kind: string, httpStatus?: number) => {
+    // No input text, model output, user IDs or credentials may enter logs.
+    console.warn("[RFQAI3] AI Gateway extraction failed", {
+      traceId, phase, kind, ...(httpStatus ? { httpStatus } : {}),
+    });
+  };
   try {
     const response = await fetch("https://ai-gateway.vercel.sh/v1/chat/completions", {
       method: "POST",
@@ -58,33 +76,50 @@ export async function analyzeRfqAiFreeText(input: string): Promise<RfqAiTextActi
       body: JSON.stringify({
         model,
         messages: buildRfqAiPrompt(text),
-        response_format: { type: "json_object" },
-        temperature: 0,
-        max_tokens: 3500,
+        response_format: RFQAI3_RESPONSE_FORMAT,
+        reasoning: { effort: "none" },
+        temperature: 0.2,
+        max_tokens: 5000,
         stream: false,
       }),
       cache: "no-store",
       signal: controller.signal,
     });
     if (!response.ok) {
-      return { ok: false, error: response.status === 429
-        ? "Servizio AI temporaneamente occupato. Riprova più tardi."
-        : "Servizio AI non disponibile: la richiesta non è stata elaborata." };
+      const failure = rfqAiGatewayHttpFailure(response.status);
+      diagnostic(failure.kind, response.status);
+      return { ok: false, error: failure.message };
     }
-    const body = await response.json() as {
-      choices?: { message?: { content?: string | null } }[];
-    };
-    const answer = body.choices?.[0]?.message?.content;
-    if (!answer || answer.length > 48_000)
-      return { ok: false, error: "Non è stato possibile interpretare la risposta AI." };
-    const output = JSON.parse(answer) as unknown;
+    phase = "gateway_body";
+    const body = await response.json() as unknown;
+    phase = "model_response";
+    const output = readRfqAiGatewayOutput(body);
+    phase = "candidate_validation";
     // Derive ID on authenticated server; model cannot inject owner, tenant,
     // approvalState, sourceId, weights or save/dispatch decisions.
     const result = parseRfqAiModelResponse(text,
       { sourceId: "text:" + randomUUID(), channel: "free_text" }, output);
     return { ok: true, result };
-  } catch {
-    return { ok: false, error: "L'analisi AI non è riuscita. Nessuna riga è stata aggiunta." };
+  } catch (error) {
+    if (controller.signal.aborted) {
+      diagnostic("timeout");
+      return { ok: false, error: "Il modello AI non ha risposto entro 45 secondi. Riprova con una richiesta più breve." };
+    }
+    if (error instanceof RfqAiGatewayOutputError) {
+      diagnostic(error.kind);
+      return { ok: false, error: rfqAiGatewayOutputFailure(error.kind) };
+    }
+    if (phase === "candidate_validation") {
+      diagnostic("invalid_candidates");
+      return { ok: false, error: "L'AI ha restituito articoli non validi. Nessuna riga è stata importata." };
+    }
+    if (phase === "gateway_body") {
+      diagnostic("invalid_upstream_envelope");
+      return { ok: false, error: "AI Gateway ha restituito una risposta tecnica non valida. Riprova più tardi." };
+    }
+    // No raw provider response or exception message is disclosed to the client.
+    diagnostic("network_or_gateway_failure");
+    return { ok: false, error: "Collegamento con AI Gateway non riuscito. Verifica la disponibilità del servizio." };
   } finally {
     clearTimeout(timeout);
   }
