@@ -10,7 +10,7 @@ const compactCss = css.slice(css.indexOf("/* BD9.1 —"));
 
 test("BD9.1 preserves the four guided steps, measurement feedback and add action", () => {
   assert.match(wizard, /className="bd6-configurator bd91-compact-configurator"/);
-  for (const label of ["Tipo di tubo", "Norma", "Grado acciaio", "Dimensioni assistite", "Anteprima articolo", "Aggiungi alla distinta"]) {
+  for (const label of ["Tipo di tubo", "Norma", "Grado acciaio", "Dimensioni assistite", "Anteprima articolo", "Inserisci articolo completo"]) {
     assert.ok(wizard.includes(label), "Missing wizard step: " + label);
   }
   const labels = ["Tipo di tubo", "Grado acciaio", "Dimensioni assistite"];

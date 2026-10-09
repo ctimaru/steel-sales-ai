@@ -1,8 +1,10 @@
 "use client";
 
+import { guidedTubeToBuyerLine } from "@/lib/buyer-guided-commercial-line";
+
 import Link from "next/link";
 import { BuyerTubeGuidedCreator } from "@/components/buyer-tube-guided-creator";
-import { guidedTubeMassKgM, guidedTubeMeasurement, type GuidedTubeDraft } from "@/lib/buyer-tube-guidance";
+import { guidedTubeMassKgM, guidedTubeMeasurement,  type GuidedTubeDraft } from "@/lib/buyer-tube-guidance";
 import { emptyBuyerDocumentRequirements, formatBuyerDocumentRequirements, type BuyerDistintaDocumentRequirements } from "@/lib/buyer-distinta-documents";
 import { useRouter } from "next/navigation";
 import { appRoutes } from "@/lib/routes";
@@ -88,6 +90,7 @@ export function BuyerDistintaBuilder({
   const [quickQuery, setQuickQuery] = useState("");
   const [compactMode, setCompactMode] = useState(true);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+  const [editingRows, setEditingRows] = useState<Record<string, boolean>>({});
   const focusQuantityId = useRef<string | null>(null);
   const [selectedCatalog, setSelectedCatalog] = useState<Record<string, { family: string; sizeKey: string; optionId: string }>>({});
   const [guidedSpecsByLine, setGuidedSpecsByLine] = useState<Record<string, GuidedTubeDraft>>({});
@@ -122,7 +125,7 @@ export function BuyerDistintaBuilder({
   );
   // Only the initial reusable empty placeholder is excluded from progress.
   // Explicitly added blank rows must still block copy until they are completed.
-  const initialEmptyRow = lines.length === 1 && isUntouchedLine(lines[0]);
+  const initialEmptyRow = lines.length === 1 && isUntouchedLine(lines[0]) && !editingRows[lines[0].id];
   const activeLineCount = initialEmptyRow ? 0 : lines.length;
   const allComplete =
     calculated.length > 0 && calculated.every((line) => line.complete);
@@ -178,6 +181,7 @@ export function BuyerDistintaBuilder({
     const recovered = restoreCandidate.draft;
     setTitle(recovered.title);
     setLines(recovered.lines);
+    setEditingRows({});
     setDocuments(recovered.documents);
     setGuidedSpecsByLine(recovered.guidedSpecsByLine);
     setSelectedCatalog(recovered.selectedCatalog);
@@ -223,6 +227,8 @@ export function BuyerDistintaBuilder({
   ) {
     setSavedId(null);
     setSaveMessage(null);
+    setSendMessage(null);
+    setRfqMessage(null);
     setLines((current) =>
       current.map((line) => (line.id === id ? { ...line, ...patch } : line)),
     );
@@ -249,19 +255,11 @@ export function BuyerDistintaBuilder({
   }
 
   function addGuidedTube(draft: GuidedTubeDraft) {
-    const measurement = guidedTubeMeasurement(draft);
-    if (!measurement) return;
     const reusable = lines.length === 1 && isUntouchedLine(lines[0]);
     if (lines.length >= 500 && !reusable) return;
     const id = reusable ? lines[0].id : newLineId();
-    const nextLine: BuyerDistintaDraftLine = {
-      ...blankLine(id),
-      description: measurement.description,
-      standard: draft.standard,
-      grade: draft.grade.trim().toUpperCase(),
-      weightKgM: measurement.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 }),
-      note: "",
-    };
+    const nextLine = guidedTubeToBuyerLine(draft, id);
+    if (!nextLine) return; // Never create a partial article from the guided flow.
     setLines((current) => reusable ? [nextLine] : [...current, nextLine]);
     setGuidedSpecsByLine((current) => ({ ...current, [id]: { ...draft } }));
     setSavedId(null);
@@ -270,7 +268,9 @@ export function BuyerDistintaBuilder({
     setRfqMessage(null);
     setCompactMode(true);
     setExpandedRows((current) => ({ ...current, [id]: false }));
-    focusQuantityId.current = id;
+    setEditingRows((current) => ({ ...current, [id]: false }));
+    // The confirmed row already contains quantity and theoretical weight;
+    // no secondary quantity-entry step or forced focus is needed.
   }
 
   function chooseCatalogOption(id: string, family: string, sizeKey: string, optionId: string) {
@@ -329,6 +329,7 @@ export function BuyerDistintaBuilder({
     setQuickQuery("");
     setCompactMode(true);
     setExpandedRows((current) => ({ ...current, [id]: false }));
+    setEditingRows((current) => ({ ...current, [id]: true }));
   }
 
   function duplicateLine(id: string) {
@@ -341,6 +342,7 @@ export function BuyerDistintaBuilder({
       setGuidedSpecsByLine((current) => ({ ...current, [duplicateId]: { ...current[id] } }));
     }
     setExpandedRows((current) => ({ ...current, [duplicateId]: false }));
+    setEditingRows((current) => ({ ...current, [duplicateId]: true }));
     focusQuantityId.current = duplicateId;
     setLines((current) => {
       const index = current.findIndex((line) => line.id === id);
@@ -365,8 +367,16 @@ export function BuyerDistintaBuilder({
     if (lines.length >= 500) return;
     setSavedId(null);
     setSaveMessage(null);
+    if (initialEmptyRow) {
+      // The initial blank row is recyclable; opening manual mode must not
+      // create a second empty line and break completion unexpectedly.
+      setEditingRows((current) => ({ ...current, [lines[0].id]: true }));
+      return;
+    }
+    const id = newLineId();
+    setEditingRows((current) => ({ ...current, [id]: true }));
     setLines((current) =>
-      current.length >= 500 ? current : [...current, blankLine(newLineId())],
+      current.length >= 500 ? current : [...current, blankLine(id)],
     );
   }
 
@@ -379,6 +389,11 @@ export function BuyerDistintaBuilder({
       return next;
     });
     setExpandedRows((current) => {
+      const next = { ...current };
+      delete next[id];
+      return next;
+    });
+    setEditingRows((current) => {
       const next = { ...current };
       delete next[id];
       return next;
@@ -399,6 +414,11 @@ export function BuyerDistintaBuilder({
     const index = calculated.findIndex((line) => !line.complete);
     if (index < 0) return;
     const row = lines[index];
+    if (initialEmptyRow) {
+      document.getElementById("bd6-config-title")?.scrollIntoView({ block: "center", behavior: "smooth" });
+      return;
+    }
+    setEditingRows((current) => ({ ...current, [row.id]: true }));
     // A provided but invalid target is editable in this row's details panel.
     if (row.targetEurT.trim() && calculated[index].targetEurT === null) {
       setExpandedRows((current) => ({ ...current, [row.id]: true }));
@@ -687,26 +707,43 @@ Configura un articolo o compila direttamente una riga: quantità, kg/m e antepri
         </section>
         </details>
 
-        <div className="bd9-rows-in-composer" aria-label="Articoli della distinta">
+
+          </div>
+          <aside className="bd7-preview" aria-label="Distinta in composizione">
+            <div className="bd7-preview-head">
+              <div>
+                <p className="bd6-eyebrow">Anteprima in tempo reale</p>
+                <h3 className="text-sm font-extrabold text-[var(--brand-deep)]">La tua distinta</h3>
+              </div>
+              <span className="bd7-preview-counter">{totals.completeLines}/{activeLineCount} righe</span>
+            </div>
+            {previewDraft && (previewDraft.family || previewDraft.standard || previewDraft.grade) ? (
+              <div className="bd7-draft-pending">
+                <span className="text-[10px] font-bold uppercase tracking-wide text-[var(--text-secondary)]">In configurazione</span>
+                <p className="mt-1 text-xs font-semibold text-[var(--brand-deep)]">
+                  {guidedTubeMeasurement(previewDraft)?.description ||
+                    [previewDraft.family ? buyerTubeFamilyLabels[previewDraft.family] : "", previewDraft.standard, previewDraft.grade].filter(Boolean).join(" · ")}
+                </p>
+                {guidedTubeMeasurement(previewDraft) ? (
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    {formatNumber(guidedTubeMeasurement(previewDraft)!.weightKgM, 3)} kg/m teorici
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+            {activeLineCount === 0 ? (
+              <p className="bd9-preview-empty">Nessun articolo ancora inserito. Configura il primo articolo o compila una riga libera.</p>
+            ) : null}
+                    <div className="bd10-preview-lines" aria-label="Articoli della distinta">
         <datalist id="buyer-standards"><option value="EN 10219" /><option value="EN 10210" /><option value="EN 10305" /></datalist>
         <datalist id="buyer-grades"><option value="S235JRH" /><option value="S275J0H" /><option value="S355J2H" /></datalist>
         <datalist id="buyer-finishes"><option value="Nero" /><option value="Zincato" /><option value="Decapato" /></datalist>
-        <div className="bd5-row-toolbar mt-5 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <span aria-hidden="true" className="bd5-toolbar-mark">▦</span>
-            <div>
-              <h3 className="text-sm font-bold text-[var(--brand-deep)]">Righe della richiesta</h3>
-              <p className="text-xs text-[var(--text-secondary)]">
-                {lines.length} {lines.length === 1 ? "articolo" : "articoli"} · ogni riga ha la propria norma EN 10210 / EN 10219
-              </p>
-            </div>
-          </div>
-
-        </div>
+        <p className="bd10-preview-help">Ogni riga è pronta per la richiesta e può essere modificata qui, senza un secondo passaggio.</p>
         <div className="mt-3 space-y-3 sm:space-y-4">
           {lines.map((line, index) => {
             const calc = calculated[index];
             const detailOpen = expandedRows[line.id] ?? !compactMode;
+            const editOpen = editingRows[line.id] ?? false;
             const invalidTarget = line.targetEurT.trim() !== "" && calc.targetEurT === null;
             const rowStage = calc.complete ? "complete" : isUntouchedLine(line) ? "empty" : "pending";
             const selection = selectedCatalog[line.id] ?? { family: "", sizeKey: "", optionId: "" };
@@ -723,9 +760,39 @@ Configura un articolo o compila direttamente una riga: quantità, kg/m e antepri
                 tabIndex={-1}
                 aria-label={`Riga ${index + 1}: ${calc.complete ? "completa" : rowStage === "empty" ? "da iniziare" : "da completare"}`}
                 data-stage={rowStage}
-                className="bd5-row-card"
+                hidden={initialEmptyRow && !editingRows[line.id]}
+                className="bd5-row-card bd10-preview-row"
               >
-                <div className="bd5-row-header">
+                <div className="bd10-row-summary">
+                  <span className="bd7-preview-number" aria-hidden="true">{index + 1}</span>
+                  <div className="bd10-row-summary-content">
+                    <strong>{line.description.trim() || "Articolo da compilare"}</strong>
+                    <span>{line.standard || "Norma da scegliere"}{line.grade ? " · " + line.grade : ""}</span>
+                    <span>{calc.quantity !== null
+                      ? formatNumber(calc.quantity, line.quantityMode === "bars" ? 0 : 2) + " " +
+                        (line.quantityMode === "bars" ? "barre" : line.quantityMode === "meters" ? "m" : "t")
+                      : "Quantità mancante"} · {formatNumber(calc.meters, 2)} m · {formatNumber(calc.tonnes, 3)} t
+                      {" · "}{formatNumber(calc.weightKgM, 3)} kg/m
+                      {calc.targetEurT !== null ? " · Target " + formatNumber(calc.targetEurT, 2) + " €/t" : ""}</span>
+                  </div>
+                  <div className="bd10-row-actions">
+                    <button type="button" className="bd10-edit-button"
+                      aria-expanded={editOpen}
+                      aria-controls={"buyer-inline-editor-" + line.id}
+                      onClick={() => setEditingRows((current) => ({ ...current, [line.id]: !editOpen }))}>
+                      {editOpen ? "Chiudi" : "Modifica"}
+                    </button>
+                    <button type="button" className="bd10-mini-action" title="Duplica articolo"
+                      aria-label={`Duplica articolo riga ${index + 1}`}
+                      disabled={!line.description.trim() || lines.length >= 500}
+                      onClick={() => duplicateLine(line.id)}>⧉</button>
+                    <button type="button" className="bd10-mini-action bd10-mini-danger" title="Rimuovi articolo"
+                      aria-label={`Rimuovi articolo riga ${index + 1}`}
+                      onClick={() => removeLine(line.id)}>×</button>
+                  </div>
+                </div>
+                <div id={"buyer-inline-editor-" + line.id} className="bd10-row-editor" hidden={!editOpen}>
+                  <div className="bd5-row-header">
                   <span className="bd5-row-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
                   <label className="bd52-field bd52-field-description">
                     Articolo *
@@ -995,6 +1062,7 @@ Configura un articolo o compila direttamente una riga: quantità, kg/m e antepri
                   </p>
                 ) : null}
                 </div>
+                </div>
               </article>
             );
           })}
@@ -1010,66 +1078,6 @@ Configura un articolo o compila direttamente una riga: quantità, kg/m e antepri
         </button>
         <p className="mt-2 text-xs text-[var(--text-secondary)]">{lines.length} / 500 righe · Duplica per riutilizzare le specifiche senza ripetere la quantità.</p>
         </div>
-          </div>
-          <aside className="bd7-preview" aria-label="Distinta in composizione">
-            <div className="bd7-preview-head">
-              <div>
-                <p className="bd6-eyebrow">Anteprima in tempo reale</p>
-                <h3 className="text-sm font-extrabold text-[var(--brand-deep)]">La tua distinta</h3>
-              </div>
-              <span className="bd7-preview-counter">{totals.completeLines}/{activeLineCount} righe</span>
-            </div>
-            {previewDraft && (previewDraft.family || previewDraft.standard || previewDraft.grade) ? (
-              <div className="bd7-draft-pending">
-                <span className="text-[10px] font-bold uppercase tracking-wide text-[var(--text-secondary)]">In configurazione</span>
-                <p className="mt-1 text-xs font-semibold text-[var(--brand-deep)]">
-                  {guidedTubeMeasurement(previewDraft)?.description ||
-                    [previewDraft.family ? buyerTubeFamilyLabels[previewDraft.family] : "", previewDraft.standard, previewDraft.grade].filter(Boolean).join(" · ")}
-                </p>
-                {guidedTubeMeasurement(previewDraft) ? (
-                  <p className="text-xs text-[var(--text-secondary)]">
-                    {formatNumber(guidedTubeMeasurement(previewDraft)!.weightKgM, 3)} kg/m teorici
-                  </p>
-                ) : null}
-              </div>
-            ) : null}
-            {activeLineCount === 0 ? (
-              <p className="bd9-preview-empty">Nessun articolo ancora inserito. Configura il primo articolo o compila una riga libera.</p>
-            ) : null}
-            <ol className="bd7-preview-list" aria-label="Articoli inseriti">
-              {lines.map((line, index) => (
-                <li key={line.id} hidden={initialEmptyRow}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const row = document.getElementById("buyer-row-" + line.id);
-                      row?.focus({ preventScroll: true });
-                      row?.scrollIntoView({ block: "center", behavior: "smooth" });
-                    }}
-                    className="bd7-preview-item"
-                    aria-label={"Vai alla riga " + (index + 1)}
-                  >
-                    <span className="bd7-preview-number">{index + 1}</span>
-                    <span className="min-w-0 flex-1">
-                      <span className="bd7-preview-description">
-                        {line.description.trim() || "Articolo da compilare"}
-                      </span>
-                      <span className="bd7-preview-meta">
-                        {line.standard ? line.standard + " · " : "Norma da scegliere · "}{line.grade ? line.grade + " · " : ""}
-                        {calculated[index].quantity !== null
-                          ? formatNumber(calculated[index].quantity, line.quantityMode === "bars" ? 0 : 2) + " " +
-                            (line.quantityMode === "bars" ? "barre" : line.quantityMode === "meters" ? "m" : "t")
-                          : "Quantità da inserire"}
-                        {" · "}{formatNumber(calculated[index].tonnes, 3)} t
-                      </span>
-                    </span>
-                    <span className={calculated[index].complete ? "bd7-preview-ready" : "bd7-preview-incomplete"}>
-                      {calculated[index].complete ? "✓" : "·"}
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ol>
             <div className="bd7-preview-totals">
               <span>{formatNumber(totals.totalMeters, 2)} m</span>
               <strong>{formatNumber(totals.totalTonnes, 3)} t</strong>

@@ -1,4 +1,5 @@
 import type { BuyerDistintaCatalogOption } from "@/lib/buyer-distinta-catalog";
+import type { BuyerQuantityMode } from "@/lib/buyer-distinta";
 
 export type GuidedTubeFamily = BuyerDistintaCatalogOption["family"];
 export type GuidedTubeStandard = "EN 10219" | "EN 10210";
@@ -13,11 +14,19 @@ export type GuidedTubeDraft = {
   width: string;
   height: string;
   thickness: string;
+  quantityMode: BuyerQuantityMode;
+  quantity: string;
+  barLengthM: string;
+  finish: string;
+  targetEurT: string;
+  note: string;
 };
 
 export const newGuidedTubeDraft = (): GuidedTubeDraft => ({
   family: "", standard: "", grade: "", diameter: "", side: "",
   width: "", height: "", thickness: "",
+  quantityMode: "bars", quantity: "", barLengthM: "12",
+  finish: "", targetEurT: "", note: "",
 });
 
 export const guidedTubeGrades = [
