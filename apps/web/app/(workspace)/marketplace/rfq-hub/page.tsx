@@ -24,7 +24,7 @@ function value(value: number | null | undefined, digits = 2): string {
 }
 function Tile({ label, number, foot, href }: { label: string; number: string; foot: string; href: string }) {
   return (
-    <Link href={href} className="group rounded-xl border border-[var(--border-strong)] bg-white p-3.5 transition hover:border-[var(--brand-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]">
+    <Link href={href} className="group min-w-0 rounded-xl border border-[var(--border-strong)] bg-white p-3.5 transition hover:border-[var(--brand-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]">
       <p className="text-[11px] font-bold text-[var(--text-secondary)]">{label}</p>
       <p className="mt-1 text-2xl font-extrabold tabular-nums text-[var(--brand-deep)]">{number}</p>
       <p className="mt-1 text-[11px] text-[var(--text-secondary)]">{foot} <span aria-hidden="true">↗</span></p>
@@ -107,7 +107,7 @@ export default async function BuyerRfqHubPage() {
   const campaignName = new Map(campaignsList.map((campaign) => [campaign.id, campaign.title]));
 
   return (
-    <div className="space-y-4 pb-8">
+    <div className="min-w-0 max-w-full space-y-4 pb-8">
       <PilotEvent eventName="rfq_hub_viewed" metadata={{ surface: "rfq_hub_dashboard" }} />
       <header className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--border-strong)] bg-white p-4 sm:p-5">
         <div>
@@ -132,16 +132,16 @@ export default async function BuyerRfqHubPage() {
         </p>
       ) : null}
 
-      <section aria-label="Riepilogo acquisti" className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+      <section aria-label="Riepilogo acquisti" className="grid min-w-0 grid-cols-2 gap-2 lg:grid-cols-4">
         <Tile label="Distinte salvate" number={countText(savedCount.count, savedCount.error)} foot="Snapshot aziendali visibili" href="#distinte" />
         <Tile label="Campagne RFQ" number={countText(campaignCount.count, campaignCount.error)} foot="Private e condivise" href="#campagne" />
         <Tile label="Offerte ricevute" number={countText(quoteCount.count, quoteCount.error)} foot="Revisioni attualmente inviate" href="#offerte" />
         <Tile label="Purchase Order" number={countText(orderCount.count, orderCount.error)} foot="Bozze e ordini in gestione" href="#ordini" />
       </section>
 
-      <div className="grid items-start gap-3 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
-        <div className="space-y-3">
-          <section id="campagne" className="scroll-mt-28 rounded-xl border border-[var(--border)] bg-white p-4">
+      <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] items-start gap-3 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+        <div className="min-w-0 space-y-3">
+          <section id="campagne" className="min-w-0 scroll-mt-28 rounded-xl border border-[var(--border)] bg-white p-4">
             <BlockHeading title="Campagne RFQ" href={appRoutes.rfqHub.home} action="Aggiorna" />
             {campaigns.error ? (
               <p className="py-4 text-sm text-[var(--text-secondary)]">Elenco RFQ non disponibile.</p>
@@ -156,7 +156,7 @@ export default async function BuyerRfqHubPage() {
                     className="flex min-h-16 items-center justify-between gap-3 py-2.5 hover:text-[var(--brand-primary)]">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-bold text-[var(--brand-deep)]">{campaign.title}</p>
-                      <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
+                      <p className="mt-0.5 break-words text-xs text-[var(--text-secondary)]">
                         {rfqCampaignStatusLabel(campaign.status)} · Creata {formatHubDate(campaign.created_at)}
                         {campaign.due_at ? " · Scadenza " + formatHubDate(campaign.due_at) : ""}
                       </p>
@@ -171,7 +171,7 @@ export default async function BuyerRfqHubPage() {
             ) : null}
           </section>
 
-          <section id="distinte" className="scroll-mt-28 rounded-xl border border-[var(--border)] bg-white p-4">
+          <section id="distinte" className="min-w-0 scroll-mt-28 rounded-xl border border-[var(--border)] bg-white p-4">
             <BlockHeading title="Distinte salvate" href={appRoutes.rfqHub.savedDistinte} action="Archivio completo" />
             {saved.error ? (
               <p className="py-4 text-sm text-[var(--text-secondary)]">Archivio distinte non disponibile.</p>
@@ -186,7 +186,7 @@ export default async function BuyerRfqHubPage() {
                         className="block truncate text-sm font-bold text-[var(--brand-deep)] hover:underline">
                         {draft.title || "Distinta"}
                       </Link>
-                      <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
+                      <p className="mt-0.5 break-words text-xs text-[var(--text-secondary)]">
                         {draft.line_count} righe · {value(Number(draft.total_tonnes), 3)} t · {formatHubDate(draft.created_at)}
                       </p>
                     </div>
@@ -204,8 +204,8 @@ export default async function BuyerRfqHubPage() {
           </section>
         </div>
 
-        <div className="space-y-3">
-          <section className="rounded-xl border border-[var(--border)] bg-white p-4">
+        <div className="min-w-0 space-y-3">
+          <section className="min-w-0 rounded-xl border border-[var(--border)] bg-white p-4">
             <BlockHeading title="Da gestire" href={appRoutes.rfqHub.inbox} action="Apri Inbox" />
             {!canWrite ? (
               <p className="py-4 text-sm text-[var(--text-secondary)]">Le attività operative sono disponibili ai ruoli autorizzati. Le RFQ condivise restano consultabili.</p>
@@ -230,7 +230,7 @@ export default async function BuyerRfqHubPage() {
             )}
           </section>
 
-          <section id="offerte" className="scroll-mt-28 rounded-xl border border-[var(--border)] bg-white p-4">
+          <section id="offerte" className="min-w-0 scroll-mt-28 rounded-xl border border-[var(--border)] bg-white p-4">
             <BlockHeading title="Offerte ricevute" href={appRoutes.rfqHub.home + "#campagne"} action="Vai alle RFQ" />
             {quotes.error ? <p className="py-4 text-sm text-[var(--text-secondary)]">Offerte non disponibili.</p>
               : recentQuotes.length === 0 ? <p className="py-4 text-sm text-[var(--text-secondary)]">Non risultano offerte inviate dai fornitori.</p>
@@ -246,7 +246,7 @@ export default async function BuyerRfqHubPage() {
                   </div>}
           </section>
 
-          <section id="ordini" className="scroll-mt-28 rounded-xl border border-[var(--border)] bg-white p-4">
+          <section id="ordini" className="min-w-0 scroll-mt-28 rounded-xl border border-[var(--border)] bg-white p-4">
             <BlockHeading title="Ordini di acquisto" href={appRoutes.rfqHub.home + "#campagne"} action="Vai alle RFQ" />
             {orders.error ? <p className="py-4 text-sm text-[var(--text-secondary)]">Ordini non disponibili.</p>
               : recentOrders.length === 0 ? <p className="py-4 text-sm text-[var(--text-secondary)]">Nessun Purchase Order collegato alle RFQ.</p>
