@@ -1,5 +1,5 @@
 import type { BuyerDistintaCatalogOption } from "@/lib/buyer-distinta-catalog";
-import { calculateBuyerDistintaLine, type BuyerDistintaDraftLine, type BuyerQuantityMode } from "@/lib/buyer-distinta";
+import type { BuyerQuantityMode } from "@/lib/buyer-distinta";
 
 export type GuidedTubeFamily = BuyerDistintaCatalogOption["family"];
 export type GuidedTubeStandard = "EN 10219" | "EN 10210";
@@ -88,29 +88,6 @@ export function guidedTubeMeasurement(
     description: shape + " " + measures + " × " + guidedFormatDimension(thickness) + " mm",
     weightKgM, family: draft.family, standard: draft.standard,
   };
-}
-
-/** Confirm a guided article only when its entire commercial line is valid.
- * The same canonical calculator validates the export and server-save contract.
- * Mass remains theoretical, never certified.
- */
-export function guidedTubeToBuyerLine(draft: GuidedTubeDraft, id: string): BuyerDistintaDraftLine | null {
-  const measurement = guidedTubeMeasurement(draft);
-  if (!measurement) return null;
-  const line: BuyerDistintaDraftLine = {
-    id,
-    description: measurement.description,
-    standard: measurement.standard,
-    grade: draft.grade.trim().toUpperCase(),
-    finish: draft.finish.trim(),
-    quantityMode: draft.quantityMode,
-    quantity: draft.quantity.trim(),
-    barLengthM: draft.barLengthM.trim(),
-    weightKgM: measurement.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 }),
-    targetEurT: draft.targetEurT.trim(),
-    note: draft.note.trim(),
-  };
-  return calculateBuyerDistintaLine(line).complete ? line : null;
 }
 
 export function suggestedGuidedDimensions(
