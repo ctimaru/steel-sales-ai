@@ -367,6 +367,12 @@ export function BuyerDistintaBuilder({
     if (lines.length >= 500) return;
     setSavedId(null);
     setSaveMessage(null);
+    if (initialEmptyRow) {
+      // The initial blank row is recyclable; opening manual mode must not
+      // create a second empty line and break completion unexpectedly.
+      setEditingRows((current) => ({ ...current, [lines[0].id]: true }));
+      return;
+    }
     const id = newLineId();
     setEditingRows((current) => ({ ...current, [id]: true }));
     setLines((current) =>
@@ -754,7 +760,7 @@ Configura un articolo o compila direttamente una riga: quantità, kg/m e antepri
                 tabIndex={-1}
                 aria-label={`Riga ${index + 1}: ${calc.complete ? "completa" : rowStage === "empty" ? "da iniziare" : "da completare"}`}
                 data-stage={rowStage}
-                hidden={initialEmptyRow}
+                hidden={initialEmptyRow && !editingRows[line.id]}
                 className="bd5-row-card bd10-preview-row"
               >
                 <div className="bd10-row-summary">
