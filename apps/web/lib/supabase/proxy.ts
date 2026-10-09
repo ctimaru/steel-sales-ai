@@ -22,7 +22,7 @@ export async function updateSession(request: NextRequest) {
   // Chunked SSR auth cookies are named sb-<project>-auth-token.0, .1, etc.
   const isPublicHome = request.nextUrl.pathname === "/";
   const hasAuthCookie = request.cookies.getAll().some(({ name }) =>
-    /^sb-[A-Za-z0-9_-]+-auth-token(?:\\.\\d+)?$/.test(name),
+    /^sb-[A-Za-z0-9_-]+-auth-token(?:\.\d+)?$/.test(name),
   );
   if (isPublicHome && !hasAuthCookie) {
     return NextResponse.next({ request });
