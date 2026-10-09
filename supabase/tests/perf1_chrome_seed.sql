@@ -83,4 +83,4 @@ begin
  end if;
 end $$;
 commit;
-select 'PERF1 local-only Chrome fixtures seeded: 4 organizations, 5 GoTrue sessions, 4 private RFQs' as result;
+select 'PERF1 local-only Chrome fixtures seeded: 4 organizations, 6 GoTrue users (5 tenant + 1 owner), 4 private RFQs' as result;
