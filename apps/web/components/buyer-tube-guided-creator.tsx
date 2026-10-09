@@ -309,7 +309,7 @@ export function BuyerTubeGuidedCreator({
             if (!completeLine || !canAdd) return;
             onAdd(draft);
             setDraft((current) => ({
-              ...current, standard: "", diameter: "", side: "", width: "", height: "", thickness: "", quantity: "", targetEurT: "", note: "",
+              ...current, standard: "", diameter: "", side: "", width: "", height: "", thickness: "", quantity: "", targetEurT: "", note: "", family: "", grade: "", finish: "",
             }));
           }}
           disabled={!completeLine || !canAdd}
