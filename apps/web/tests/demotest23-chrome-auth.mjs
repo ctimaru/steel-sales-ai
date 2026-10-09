@@ -210,6 +210,17 @@ try {
         width: document.documentElement.clientWidth,
         scrollWidth: document.documentElement.scrollWidth,
       }));
+      if (scrollWidth > width + 12) {
+        const offenders = await mobilePage.evaluate(() =>
+          Array.from(document.querySelectorAll("body *"))
+            .map(el => ({ tag: el.tagName.toLowerCase(),
+              className: typeof el.className === "string" ? el.className.slice(0, 140) : "",
+              right: Math.round(el.getBoundingClientRect().right),
+              width: Math.round(el.getBoundingClientRect().width) }))
+            .filter(el => el.right > document.documentElement.clientWidth + 12)
+            .sort((a, b) => b.width - a.width).slice(0, 12));
+        console.error("DEMOTEST23 MOBILE OVERFLOW ELEMENTS", route, JSON.stringify(offenders));
+      }
       assert.ok(scrollWidth <= width + 12, route + " horizontal overflow " + scrollWidth + " > " + width);
     });
   }
