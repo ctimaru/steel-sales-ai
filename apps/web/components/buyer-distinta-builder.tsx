@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { BuyerTubeGuidedCreator } from "@/components/buyer-tube-guided-creator";
-import { guidedTubeMassKgM, guidedTubeMeasurement, type GuidedTubeDraft } from "@/lib/buyer-tube-guidance";
+import { guidedTubeMassKgM, guidedTubeMeasurement, guidedTubeToBuyerLine, type GuidedTubeDraft } from "@/lib/buyer-tube-guidance";
 import { emptyBuyerDocumentRequirements, formatBuyerDocumentRequirements, type BuyerDistintaDocumentRequirements } from "@/lib/buyer-distinta-documents";
 import { useRouter } from "next/navigation";
 import { appRoutes } from "@/lib/routes";
@@ -88,6 +88,7 @@ export function BuyerDistintaBuilder({
   const [quickQuery, setQuickQuery] = useState("");
   const [compactMode, setCompactMode] = useState(true);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
+  const [editingRows, setEditingRows] = useState<Record<string, boolean>>({});
   const focusQuantityId = useRef<string | null>(null);
   const [selectedCatalog, setSelectedCatalog] = useState<Record<string, { family: string; sizeKey: string; optionId: string }>>({});
   const [guidedSpecsByLine, setGuidedSpecsByLine] = useState<Record<string, GuidedTubeDraft>>({});
@@ -178,6 +179,7 @@ export function BuyerDistintaBuilder({
     const recovered = restoreCandidate.draft;
     setTitle(recovered.title);
     setLines(recovered.lines);
+    setEditingRows({});
     setDocuments(recovered.documents);
     setGuidedSpecsByLine(recovered.guidedSpecsByLine);
     setSelectedCatalog(recovered.selectedCatalog);
@@ -223,6 +225,8 @@ export function BuyerDistintaBuilder({
   ) {
     setSavedId(null);
     setSaveMessage(null);
+    setSendMessage(null);
+    setRfqMessage(null);
     setLines((current) =>
       current.map((line) => (line.id === id ? { ...line, ...patch } : line)),
     );
@@ -249,19 +253,11 @@ export function BuyerDistintaBuilder({
   }
 
   function addGuidedTube(draft: GuidedTubeDraft) {
-    const measurement = guidedTubeMeasurement(draft);
-    if (!measurement) return;
     const reusable = lines.length === 1 && isUntouchedLine(lines[0]);
     if (lines.length >= 500 && !reusable) return;
     const id = reusable ? lines[0].id : newLineId();
-    const nextLine: BuyerDistintaDraftLine = {
-      ...blankLine(id),
-      description: measurement.description,
-      standard: draft.standard,
-      grade: draft.grade.trim().toUpperCase(),
-      weightKgM: measurement.weightKgM.toLocaleString("it-IT", { maximumFractionDigits: 3 }),
-      note: "",
-    };
+    const nextLine = guidedTubeToBuyerLine(draft, id);
+    if (!nextLine) return; // Never create a partial article from the guided flow.
     setLines((current) => reusable ? [nextLine] : [...current, nextLine]);
     setGuidedSpecsByLine((current) => ({ ...current, [id]: { ...draft } }));
     setSavedId(null);
@@ -270,7 +266,9 @@ export function BuyerDistintaBuilder({
     setRfqMessage(null);
     setCompactMode(true);
     setExpandedRows((current) => ({ ...current, [id]: false }));
-    focusQuantityId.current = id;
+    setEditingRows((current) => ({ ...current, [id]: false }));
+    // The confirmed row already contains quantity and theoretical weight;
+    // no secondary quantity-entry step or forced focus is needed.
   }
 
   function chooseCatalogOption(id: string, family: string, sizeKey: string, optionId: string) {
@@ -329,6 +327,7 @@ export function BuyerDistintaBuilder({
     setQuickQuery("");
     setCompactMode(true);
     setExpandedRows((current) => ({ ...current, [id]: false }));
+    setEditingRows((current) => ({ ...current, [id]: true }));
   }
 
   function duplicateLine(id: string) {
@@ -341,6 +340,7 @@ export function BuyerDistintaBuilder({
       setGuidedSpecsByLine((current) => ({ ...current, [duplicateId]: { ...current[id] } }));
     }
     setExpandedRows((current) => ({ ...current, [duplicateId]: false }));
+    setEditingRows((current) => ({ ...current, [duplicateId]: true }));
     focusQuantityId.current = duplicateId;
     setLines((current) => {
       const index = current.findIndex((line) => line.id === id);
@@ -365,8 +365,10 @@ export function BuyerDistintaBuilder({
     if (lines.length >= 500) return;
     setSavedId(null);
     setSaveMessage(null);
+    const id = newLineId();
+    setEditingRows((current) => ({ ...current, [id]: true }));
     setLines((current) =>
-      current.length >= 500 ? current : [...current, blankLine(newLineId())],
+      current.length >= 500 ? current : [...current, blankLine(id)],
     );
   }
 
@@ -379,6 +381,11 @@ export function BuyerDistintaBuilder({
       return next;
     });
     setExpandedRows((current) => {
+      const next = { ...current };
+      delete next[id];
+      return next;
+    });
+    setEditingRows((current) => {
       const next = { ...current };
       delete next[id];
       return next;
@@ -399,6 +406,11 @@ export function BuyerDistintaBuilder({
     const index = calculated.findIndex((line) => !line.complete);
     if (index < 0) return;
     const row = lines[index];
+    if (initialEmptyRow) {
+      document.getElementById("bd6-config-title")?.scrollIntoView({ block: "center", behavior: "smooth" });
+      return;
+    }
+    setEditingRows((current) => ({ ...current, [row.id]: true }));
     // A provided but invalid target is editable in this row's details panel.
     if (row.targetEurT.trim() && calculated[index].targetEurT === null) {
       setExpandedRows((current) => ({ ...current, [row.id]: true }));
