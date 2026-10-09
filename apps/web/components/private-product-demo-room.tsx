@@ -111,6 +111,7 @@ function NetworkDemo() {
         <p className="app-kicker">Network</p>
         <h2 className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-[#173f35]">Trova aziende steel per ruolo e capability.</h2>
         <div className="mt-4 flex flex-wrap gap-2">{data.filters.map(f=><span key={f} className="rounded-full border border-[#cfe0d9] bg-white px-3 py-1.5 text-xs font-semibold text-[#43524c]">{f}</span>)}</div>
+        <Link href="/platform/marketing/demo-room/companies" className="mt-4 inline-flex rounded-xl border border-[#afcabe] bg-white px-4 py-2.5 text-xs font-semibold text-[#173f35]">Apri DEMOTEST1 · Quattro aziende e matrice di collaudo →</Link>
       </header>
       <div className="flex items-baseline justify-between"><p className="text-sm font-semibold text-[#52615b]">Directory demo</p><p className="text-2xl font-semibold text-[#173f35]">{data.total.toLocaleString("it-IT")} aziende</p></div>
       <section className="overflow-hidden rounded-2xl border border-[#dce2df] bg-white">
