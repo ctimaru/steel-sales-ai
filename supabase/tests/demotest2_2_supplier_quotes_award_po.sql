@@ -220,7 +220,7 @@ select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000002203'
 select pg_temp.dt22_denied(
  format('select public.rfqh7_confirm_award(%L::uuid,%L,%L::jsonb)',
  (select value->>'id' from dt22_state where key='rfq'),
- 'Unauthorized award','[]'),
+ 'Unauthorized award','[{"line_id":"00000000-0000-0000-0000-000000002245","supplier_id":"00000000-0000-0000-0000-000000002246","awarded_tonnes":1}]'),
  'RFQ not found or not accessible'
 );
 
@@ -230,6 +230,20 @@ select 'comparison',public.rfqh5_quote_comparison((select (value->>'id')::uuid f
 select pg_temp.dt22_assert(
  jsonb_typeof((select value from dt22_state where key='comparison'))='object',
  'buyer obtains canonical normalized comparison JSON'
+);
+select pg_temp.dt22_assert(
+ (select (value->'summary'->>'supplier_count')::int=3
+         and (value->'summary'->>'comparable_supplier_count')::int=2
+         and (value->'summary'->>'complete_offer_count')::int=1
+         and (value->'summary'->>'declined_supplier_count')::int=1
+  from dt22_state where key='comparison')
+ and (select count(*)=1 from dt22_state t,
+      jsonb_array_elements(t.value->'suppliers') s
+      where t.key='comparison' and (s->>'fully_covered_lines')::int=3)
+ and (select count(*)=1 from dt22_state t,
+      jsonb_array_elements(t.value->'suppliers') s
+      where t.key='comparison' and (s->>'fully_covered_lines')::int=2),
+ 'comparison must label 1 full 3/3 offer, 1 partial 2/3 offer, 1 decline'
 );
 
 insert into dt22_state(key,value)
