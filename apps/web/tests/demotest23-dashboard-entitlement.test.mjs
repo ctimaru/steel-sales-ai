@@ -21,7 +21,7 @@ test("DEMOTEST2.3 Chrome checks actual local Auth and cross-tenant UI denials", 
   assert.match(workflow, /127\.0\.0\.1:3000/);
   assert.match(browser, /chromium\.launch\(\{ headless: true, channel: "chrome" \}\)/);
   assert.match(browser, /page\.getByRole\("button", \{ name: "Accedi"/);
-  assert.match(browser, /Cross-tenant direct URL must be 404/);
+  assert.match(browser, /Cross-tenant direct URL must render a real 404 denial/);
   assert.match(browser, /mobile responsive/);
   assert.doesNotMatch(workflow, /www\.smartsteelsales\.com|supabase\.co/);
 });
