@@ -1,8 +1,9 @@
+import { guidedTubeToBuyerLine } from "@/lib/buyer-guided-commercial-line";
 "use client";
 
 import Link from "next/link";
 import { BuyerTubeGuidedCreator } from "@/components/buyer-tube-guided-creator";
-import { guidedTubeMassKgM, guidedTubeMeasurement, guidedTubeToBuyerLine, type GuidedTubeDraft } from "@/lib/buyer-tube-guidance";
+import { guidedTubeMassKgM, guidedTubeMeasurement,  type GuidedTubeDraft } from "@/lib/buyer-tube-guidance";
 import { emptyBuyerDocumentRequirements, formatBuyerDocumentRequirements, type BuyerDistintaDocumentRequirements } from "@/lib/buyer-distinta-documents";
 import { useRouter } from "next/navigation";
 import { appRoutes } from "@/lib/routes";
