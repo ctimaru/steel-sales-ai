@@ -52,7 +52,7 @@ test("RFQAI3 interprets two mixed-standard articles, exact source evidence and c
   assert.equal(result.candidates[0].approvalState,"pending_human_review");
   assert.equal(buyer.calculateBuyerDistintaLine(result.candidates[0].proposedLine).meters,360);
   assert.equal(buyer.calculateBuyerDistintaLine(result.candidates[1].proposedLine).meters,120);
-  assert.equal(result.rawById["text-1"].widthMm,100);
+  assert.equal(result.rawById["text-1"].widthMm,"100");
   assert.equal(result.candidates[1].evidence.grade.rawValue,"S235JRH");
 });
 test("RFQAI3 fails closed on invalid output, missing fields, fake provenance and supplier quotes", () => {
@@ -69,8 +69,117 @@ test("RFQAI3 fails closed on invalid output, missing fields, fake provenance and
   const missing=text.parseRfqAiModelResponse(example,sourceRef,{
     ...values(),lines:[{sourceText:"30 barre da 12 m di tubo quadro 100x100x5 S355J2H EN 10219",
       widthMm:100,heightMm:100,thicknessMm:5,grade:"S355J2H",quantity:30,quantityUnit:"BARRE"}]});
-  assert.equal(missing.candidates[0].proposedLine.standard,"");
-  assert.ok(missing.candidates[0].issues.some(x=>x.code==="missing_standard"));
+  // The exact cited text contains the standard: recover it deterministically,
+  // rather than treating an omitted LLM field as unavailable.
+  assert.equal(missing.candidates[0].proposedLine.standard,"EN 10219");
+  assert.equal(missing.candidates[0].proposedLine.barLengthM,"12");
+  assert.ok(!missing.candidates[0].issues.some(x=>x.code==="missing_standard"));
+});
+test("RFQAI3 recovers a quoted square tube when AI mixes round and square geometry", () => {
+  const quote = "30 barre da 12 metri di tubo quadro 100x100x5 S355J2H EN 10219";
+  const output = text.parseRfqAiModelResponse(quote, sourceRef, {
+    intent: "buyer_request", lines: [{
+      sourceText: quote, itemRole: "requested",
+      outerDiameterMm: "100", widthMm: "100", heightMm: "100", thicknessMm: "5",
+      standard: "", grade: "", quantity: "", quantityUnit: "", lengthMm: ""
+    }]
+  });
+  const candidate = output.candidates[0];
+  assert.equal(candidate.status, "ready_for_review");
+  assert.equal(candidate.issues.length, 0);
+  assert.equal(candidate.proposedLine.description, "Tubo quadro 100 × 100 × 5 mm");
+  assert.equal(candidate.proposedLine.standard, "EN 10219");
+  assert.equal(candidate.proposedLine.grade, "S355J2H");
+  assert.equal(candidate.proposedLine.quantity, "30");
+  assert.equal(candidate.proposedLine.quantityMode, "bars");
+  assert.equal(candidate.proposedLine.barLengthM, "12");
+  assert.ok(Number(candidate.proposedLine.weightKgM.replace(",", ".")) > 0);
+  assert.equal(buyer.calculateBuyerDistintaLine(candidate.proposedLine).meters, 360);
+  assert.equal(output.rawById["text-1"].outerDiameterMm, null);
+});
+test("RFQAI3 recovers a quoted round tube, never conflating linear metres and bar length", () => {
+  const quote = "120 metri di tubo tondo 60,3x3 EN 10210 S235JRH";
+  const output = text.parseRfqAiModelResponse(quote, sourceRef, {
+    intent: "buyer_request", lines: [{
+      sourceText: quote, itemRole: "requested",
+      outerDiameterMm: "", widthMm: "60,3", heightMm: "60,3", thicknessMm: "3",
+      standard: "", grade: "", quantity: "", quantityUnit: "", lengthMm: ""
+    }]
+  });
+  const candidate = output.candidates[0];
+  assert.equal(candidate.status, "ready_for_review");
+  assert.equal(candidate.proposedLine.standard, "EN 10210");
+  assert.equal(candidate.proposedLine.quantityMode, "meters");
+  assert.equal(candidate.proposedLine.quantity, "120");
+  assert.equal(candidate.proposedLine.barLengthM, "");
+  assert.ok(Number(candidate.proposedLine.weightKgM.replace(",", ".")) > 0);
+  assert.equal(candidate.proposedLine.description, "Tubo tondo Ø 60,3 × 3 mm");
+  assert.equal(buyer.calculateBuyerDistintaLine(candidate.proposedLine).meters, 120);
+});
+test("RFQAI3 does not guess geometry without an explicit type or unambiguous evidence", () => {
+  const sourceText = "30 barre 100x80x5 EN 10219 S355J2H";
+  const result = text.parseRfqAiModelResponse(sourceText, sourceRef, {
+    intent: "buyer_request", lines: [{
+      sourceText, itemRole: "requested", outerDiameterMm: "100",
+      widthMm: "100", heightMm: "80", thicknessMm: "5",
+      standard: "EN 10219", grade: "S355J2H",
+      quantity: "30", quantityUnit: "BARRE", lengthMm: "12000"
+    }]
+  });
+  assert.equal(result.candidates[0].status, "invalid");
+  assert.ok(result.candidates[0].issues.some(issue => issue.code === "ambiguous_geometry"));
+  const unverified = text.parseRfqAiModelResponse(sourceText, sourceRef, {
+    intent: "buyer_request", lines: [{
+      sourceText: "invented tube quotation", itemRole: "requested",
+      outerDiameterMm: "100", widthMm: "100", heightMm: "80",
+      thicknessMm: "5"
+    }]
+  });
+  assert.equal(unverified.candidates[0].sourceExcerpt, "");
+  assert.equal(unverified.candidates[0].status, "invalid");
+});
+test("RFQAI3 supports explicit rectangular sections without copying another article's dimensions", () => {
+  const quote = "20 barre da 6 metri di tubo rettangolare 120x80x4 EN 10219 S355J2H";
+  const normalized = text.parseRfqAiModelResponse(quote, sourceRef, {
+    intent: "buyer_request", lines: [{
+      sourceText: quote, itemRole: "requested", outerDiameterMm: 120,
+      widthMm: "", heightMm: "", thicknessMm: "",
+      standard: "", grade: "", quantity: "", quantityUnit: "", lengthMm: ""
+    }]
+  });
+  const candidate = normalized.candidates[0];
+  assert.equal(candidate.status, "ready_for_review");
+  assert.equal(candidate.proposedLine.description, "Tubo rettangolare 120 × 80 × 4 mm");
+  assert.equal(candidate.proposedLine.barLengthM, "6");
+  assert.equal(buyer.calculateBuyerDistintaLine(candidate.proposedLine).meters, 120);
+});
+test("RFQAI3 review can repair a conflicting geometry explicitly, then recompute theoretical kg/m", () => {
+  const sourceText = "Richiesta: tubo quadro 100x100x5 S355J2H EN 10219, 30 barre da 12 metri";
+  const original = contract.normalizeRfqAiCandidate(sourceRef,"text-1",{kind:"text_line",line:1},
+    "buyer_request",{
+      sourceText, outerDiameterMm:100, widthMm:100, heightMm:100,
+      thicknessMm:5,standard:"EN 10219",grade:"S355J2H",
+      quantity:30,quantityUnit:"BARRE",lengthMm:12000,
+    });
+  assert.equal(original.status,"invalid");
+  const fixed = contract.normalizeRfqAiCandidate(sourceRef,"text-1",{kind:"text_line",line:1},
+    "buyer_request",{
+      sourceText, outerDiameterMm:null, widthMm:100, heightMm:100,
+      thicknessMm:5,standard:"EN 10219",grade:"S355J2H",
+      quantity:30,quantityUnit:"BARRE",lengthMm:12000,
+    });
+  assert.equal(fixed.status,"ready_for_review");
+  assert.ok(Number(fixed.proposedLine.weightKgM.replace(",", ".")) > 0);
+  assert.equal(buyer.calculateBuyerDistintaLine(fixed.proposedLine).complete,true);
+  assert.equal(fixed.approvalState,"pending_human_review");
+  assert.match(reviewer,/aria-label="Forma del tubo"/);
+  assert.match(reviewer,/aria-label="Spessore in millimetri"/);
+  assert.match(reviewer,/aria-label="Diametro esterno in millimetri"/);
+  assert.match(reviewer,/shape === "square" \? "Lato in millimetri" : "Larghezza in millimetri"/);
+  assert.match(reviewer,/aria-label="Altezza in millimetri"/);
+  assert.match(reviewer,/onChange=\{\(event\) => change\(candidate, \{ thicknessMm: event.target.value \}\)\}/);
+  assert.match(reviewer,/disabled=\{!editable\}/);
+  assert.match(reviewer,/Conferma disabilitata: completa o correggi i dati segnalati/);
 });
 test("RFQAI3 requires bounded text and resists instruction injection in the LLM prompt",()=>{
   assert.equal(text.validateRfqAiText("Azienda richiede 30 tubi 100x100x5"),"Azienda richiede 30 tubi 100x100x5");
