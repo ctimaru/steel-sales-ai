@@ -57,6 +57,11 @@ begin
   end if;
 end $$;
 
+insert into demotest2_state(key,value)
+select 'owner', jsonb_build_object('user_id',user_id)
+from public.platform_user_roles
+where role='platform_superadmin' and status='active' limit 1;
+
 insert into auth.users(id,email,email_confirmed_at) values
  ('00000000-0000-0000-0000-000000002001','buyer@example.test',now()),
  ('00000000-0000-0000-0000-000000002002','producer@example.test',now()),
@@ -92,6 +97,13 @@ values ('00000000-0000-0000-0000-000000002024','DEMO Steel Processing','IT','pro
 select public.p0a_submit_registration_application('00000000-0000-0000-0000-000000002024');
 
 select pg_temp.dt2_assert(
+  (select count(*)=1 from public.company_registration_applications
+   where id='00000000-0000-0000-0000-000000002024'::uuid
+     and application_status='pending_review'),
+  'processor sees its own submitted application'
+);
+reset role;
+select pg_temp.dt2_assert(
   (select count(*)=4 from public.company_registration_applications
    where id in ('00000000-0000-0000-0000-000000002021'::uuid,
                 '00000000-0000-0000-0000-000000002022'::uuid,
@@ -100,16 +112,16 @@ select pg_temp.dt2_assert(
      and application_status='pending_review' and activated_organization_id is null),
   'four applications require platform approval and are not auto-activated'
 );
+set local role authenticated;
 select pg_temp.dt2_deny(
-  $$select public.p0a_activate_registration_application('00000000-0000-0000-0000-000000002024'::uuid)$$,
+  $select public.p0a_activate_registration_application('00000000-0000-0000-0000-000000002024'::uuid)$$,
   'applicant cannot self-activate organization'
 );
 
 -- Platform review and activation are separate, audited operations.
 select set_config(
  'request.jwt.claim.sub',
- (select user_id::text from public.platform_user_roles
-  where role='platform_superadmin' and status='active' limit 1),
+ (select value->>'user_id' from demotest2_state where key='owner'),
  true
 );
 select public.p0a_approve_registration_application('00000000-0000-0000-0000-000000002021');
@@ -137,6 +149,7 @@ select pg_temp.dt2_assert(
 );
 
 -- Platform privileges must never pass to ordinary company accounts.
+reset role;
 select pg_temp.dt2_assert(
  not exists (select 1 from public.platform_user_roles
              where user_id in (select id from auth.users
@@ -148,7 +161,6 @@ select pg_temp.dt2_assert(
 
 -- Simulate secondary team members in *local* DB only, leaving invitation/email
 -- sending to a separate E2E browser gate.
-reset role;
 insert into public.organization_memberships(
  organization_id,user_id,role,business_role,status,is_default
 )
