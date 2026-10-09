@@ -8,6 +8,7 @@ on:
       - ".github/workflows/demotest2-3-chrome-auth.yml"
       - "apps/web/app/login/**"
       - "apps/web/lib/workspace-context.ts"
+      - "apps/web/app/**/dashboard/page.tsx"
       - "apps/web/app/**/rfq-hub/**"
       - "apps/web/app/**/marketplace/**"
   workflow_dispatch:
