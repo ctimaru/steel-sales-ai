@@ -1,0 +1,37 @@
+name: DEMOTEST1 Google Chrome Public Smoke
+
+on:
+  pull_request:
+    paths:
+      - "apps/web/lib/demotest1-company-fixtures.ts"
+      - "apps/web/app/**/demo-room/companies/**"
+      - "apps/web/tests/demotest1-*"
+      - "apps/web/components/private-product-demo-room.tsx"
+      - ".github/workflows/demotest1-chromium.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: npx playwright install --with-deps chrome
+      - name: Read-only Google Chrome browser smoke on public production
+        run: node tests/demotest1-browser-smoke.mjs
+        env:
+          DEMOTEST_BASE_URL: https://www.smartsteelsales.com
+          DEMOTEST_BROWSER_CHANNEL: chrome
