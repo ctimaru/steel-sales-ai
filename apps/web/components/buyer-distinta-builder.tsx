@@ -281,7 +281,9 @@ export function BuyerDistintaBuilder({
     const valid = proposals.filter((line) =>
       Boolean(line.standard && line.grade && calculateBuyerDistintaLine(line).complete)
     );
-    if (!valid.length) return;
+    const recyclable = lines.length === 1 && isUntouchedLine(lines[0]);
+    const capacity = 500 - (recyclable ? 0 : lines.length);
+    if (!valid.length || valid.length !== proposals.length || valid.length > capacity) return false;
     const prepared = valid.map((line) => ({ ...line, id: newLineId() }));
     setLines((current) => {
       const recyclable = current.length === 1 && isUntouchedLine(current[0]);
@@ -298,6 +300,7 @@ export function BuyerDistintaBuilder({
       ...current,
       ...Object.fromEntries(prepared.map((line) => [line.id, false])),
     }));
+    return true;
   }
 
   function chooseCatalogOption(id: string, family: string, sizeKey: string, optionId: string) {
