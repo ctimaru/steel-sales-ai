@@ -67,6 +67,12 @@ function normalGuidedDraft(input: unknown): GuidedTubeDraft | null {
     width: bounded(input.width, 45),
     height: bounded(input.height, 45),
     thickness: bounded(input.thickness, 45),
+    quantityMode: input.quantityMode === "meters" || input.quantityMode === "tonnes" ? input.quantityMode : "bars",
+    quantity: bounded(input.quantity, 45),
+    barLengthM: typeof input.barLengthM === "string" ? bounded(input.barLengthM, 45) : "12",
+    finish: bounded(input.finish, 150),
+    targetEurT: bounded(input.targetEurT, 45),
+    note: bounded(input.note, 1200),
   };
 }
 
@@ -130,7 +136,10 @@ export function isMeaningfulBuyerDraft(input: Pick<BuyerSessionDraft, "title" | 
     Boolean(input.wizardDraft && (
       input.wizardDraft.family || input.wizardDraft.standard || input.wizardDraft.grade ||
       input.wizardDraft.diameter || input.wizardDraft.side || input.wizardDraft.width ||
-      input.wizardDraft.height || input.wizardDraft.thickness
+      input.wizardDraft.height || input.wizardDraft.thickness ||
+      input.wizardDraft.quantity || input.wizardDraft.finish ||
+      input.wizardDraft.targetEurT || input.wizardDraft.note ||
+      input.wizardDraft.quantityMode !== "bars" || input.wizardDraft.barLengthM !== "12"
     ));
 }
 
