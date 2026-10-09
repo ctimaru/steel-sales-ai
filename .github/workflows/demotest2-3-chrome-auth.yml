@@ -100,6 +100,14 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 20
         run: node tests/demotest23-chrome-auth.mjs
+      - name: Local Next.js render diagnostics after Chrome failure
+        if: failure()
+        shell: bash
+        run: |
+          if [ -f "$RUNNER_TEMP/demotest23-next.log" ]; then
+            grep -E 'Error|error|Failed|failed|/dashboard|Exception|permission' \
+              "$RUNNER_TEMP/demotest23-next.log" | tail -n 70 || true
+          fi
       - name: Stop local Next.js and DESTROY temporary Supabase
         if: always()
         shell: bash
