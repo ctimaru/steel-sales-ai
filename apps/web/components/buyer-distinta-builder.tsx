@@ -275,6 +275,34 @@ export function BuyerDistintaBuilder({
     // no secondary quantity-entry step or forced focus is needed.
   }
 
+  function insertRfqAiTextLines(proposals: BuyerDistintaDraftLine[]) {
+    // Explicit human-approved candidates from the review UI. Recheck even
+    // client-provided rows, then let existing server actions validate on save.
+    const valid = proposals.filter((line) =>
+      Boolean(line.standard && line.grade && calculateBuyerDistintaLine(line).complete)
+    );
+    const recyclable = lines.length === 1 && isUntouchedLine(lines[0]);
+    const capacity = 500 - (recyclable ? 0 : lines.length);
+    if (!valid.length || valid.length !== proposals.length || valid.length > capacity) return false;
+    const prepared = valid.map((line) => ({ ...line, id: newLineId() }));
+    setLines((current) => {
+      const recyclable = current.length === 1 && isUntouchedLine(current[0]);
+      const base = recyclable ? [] : current;
+      return [...base, ...prepared.slice(0, Math.max(0, 500 - base.length))];
+    });
+    setSavedId(null);
+    setSaveMessage(null);
+    setSendMessage(null);
+    setRfqMessage(null);
+    setCopyState("idle");
+    setCompactMode(true);
+    setEditingRows((current) => ({
+      ...current,
+      ...Object.fromEntries(prepared.map((line) => [line.id, false])),
+    }));
+    return true;
+  }
+
   function chooseCatalogOption(id: string, family: string, sizeKey: string, optionId: string) {
     const selected = catalogOptions.find((option) =>
       option.id === optionId && option.family === family && option.sizeKey === sizeKey
@@ -638,6 +666,7 @@ Configura ogni articolo in un unico passaggio; nel workspace aziendale puoi anch
               onModeChange={setIntakeMode}
               workspace={workspace}
               authenticated={authenticated}
+              onInsertTextLines={insertRfqAiTextLines}
             >
             <BuyerTubeGuidedCreator
               key={wizardRestoreSerial}

@@ -1,13 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useState, type ChangeEvent, type ReactNode } from "react";
+import { useId, useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { analyzeRfqAiFreeText } from "@/app/(workspace)/rfq-hub/distinta/ai-actions";
+import { RfqAiTextReview } from "@/components/rfq-ai-text-review";
+import type { RfqAiTextDraftResult } from "@/lib/rfq-ai-free-text";
+import type { BuyerDistintaDraftLine } from "@/lib/buyer-distinta";
 
 import { appRoutes } from "@/lib/routes";
 
 /**
- * RFQAI2 is presentation only. No AI calls, file reads/uploads, mailbox
- * subscriptions or writes happen here. RFQAI3+ will attach authorized actions.
+ * RFQAI2 introduced the four-mode UI. RFQAI3 activates only the private
+ * text-mode server action after an explicit click; file/email remain inert.
+ * No automatic RFQ save/dispatch occurs from this client component.
  */
 export type RfqAiIntakeMode = "manual" | "text" | "file" | "email";
 const MAX_TEXT_CHARS = 12_000;
@@ -15,23 +20,46 @@ const MAX_FILE_BYTES = 25 * 1024 * 1024;
 const ALLOWED_EXTENSIONS = [".xlsx", ".xls", ".pdf", ".eml"] as const;
 const options: { mode: RfqAiIntakeMode; name: string; meta: string }[] = [
   { mode: "manual", name: "Configura", meta: "Subito disponibile" },
-  { mode: "text", name: "Scrivi o incolla", meta: "RFQAI3 · AI" },
+  { mode: "text", name: "Scrivi o incolla", meta: "Estrazione AI" },
   { mode: "file", name: "Carica file", meta: "RFQAI4–5 · AI" },
   { mode: "email", name: "Email", meta: "RFQAI9–10" },
 ];
 
 export function RfqAiIntakeUx({
-  mode, onModeChange, workspace, authenticated, children,
+  mode, onModeChange, workspace, authenticated, children, onInsertTextLines,
 }: {
   mode: RfqAiIntakeMode;
   onModeChange: (mode: RfqAiIntakeMode) => void;
   /** Can only be true on the route guarded by requireWorkspaceWriteRole. */
   workspace: boolean;
   authenticated: boolean;
+  onInsertTextLines: (lines: BuyerDistintaDraftLine[]) => boolean;
   children: ReactNode;
 }) {
   const panelId = useId();
   const [textDraft, setTextDraft] = useState("");
+  const [textPending, setTextPending] = useState(false);
+  const [textError, setTextError] = useState("");
+  const [textResult, setTextResult] = useState<RfqAiTextDraftResult | null>(null);
+  const extractionVersion = useRef(0);
+  async function analyzeText() {
+    if (textPending || !workspace || !textDraft.trim()) return;
+    const version = ++extractionVersion.current;
+    setTextPending(true);
+    setTextError("");
+    setTextResult(null);
+    try {
+      const response = await analyzeRfqAiFreeText(textDraft);
+      if (extractionVersion.current === version) {
+        if (response.ok) setTextResult(response.result);
+        else setTextError(response.error);
+      }
+    } catch {
+      if (extractionVersion.current === version) setTextError("Non è stato possibile analizzare la richiesta. Nessun dato è stato importato.");
+    } finally {
+      setTextPending(false);
+    }
+  }
   const [selectedFile, setSelectedFile] = useState<{ name: string; bytes: number } | null>(null);
   const [fileError, setFileError] = useState("");
   const [fileInputKey, setFileInputKey] = useState(0);
@@ -94,9 +122,10 @@ export function RfqAiIntakeUx({
             <p className="rfqai2-panel-kicker">Smart Steel Sales · AI privata</p>
             <h4>Trasforma una richiesta in distinta, senza ricopiarla</h4>
             <p>
-              Testi, documenti ed email saranno interpretati in una bozza verificabile
-              nel RFQ Hub aziendale. La funzione automatica è in preparazione e non è
-              ancora attiva; la compilazione manuale resta gratuita.
+              Nel RFQ Hub aziendale puoi già preparare una distinta da testo libero con AI,
+              verificando ogni articolo prima di inserirlo. L’importazione da file e il
+              collegamento email arriveranno nei prossimi rilasci. La compilazione manuale
+              rimane gratuita.
             </p>
             <div className="rfqai2-access-actions">
               {authenticated ? (
@@ -122,10 +151,10 @@ export function RfqAiIntakeUx({
           <div className="rfqai2-capture-panel" aria-label="Preparazione testo per estrazione AI">
             <div className="rfqai2-panel-heading">
               <div>
-                <p className="rfqai2-panel-kicker">RFQAI3 · Prossima fase</p>
+                <p className="rfqai2-panel-kicker">RFQAI3 · Free Text Intelligence</p>
                 <h4>Scrivi o incolla la richiesta commerciale</h4>
               </div>
-              <span className="rfqai2-panel-status">Solo preparazione</span>
+              <span className="rfqai2-panel-status">Revisione obbligatoria</span>
             </div>
             <label htmlFor="rfqai2-text-input" className="rfqai2-field-label">
               Testo della richiesta
@@ -135,7 +164,7 @@ export function RfqAiIntakeUx({
               maxLength={MAX_TEXT_CHARS}
               rows={7}
               value={textDraft}
-              onChange={(event) => setTextDraft(event.target.value)}
+              onChange={(event) => { extractionVersion.current += 1; setTextDraft(event.target.value); setTextResult(null); setTextError(""); }}
               placeholder={"Es. Mi servono 30 barre da 12 m di tubo quadro 100×100×5 S355J2H EN 10219 e 120 m di tubo tondo 60,3×3 EN 10210."}
               spellCheck={false}
               className="rfqai2-textarea"
@@ -145,16 +174,32 @@ export function RfqAiIntakeUx({
               <span>{textDraft.length.toLocaleString("it-IT")} / {MAX_TEXT_CHARS.toLocaleString("it-IT")} caratteri</span>
             </div>
             <div className="rfqai2-input-actions">
-              <button type="button" disabled={!textDraft} onClick={() => setTextDraft("")} className="rfqai2-secondary-action">
+              <button type="button" disabled={!textDraft || textPending}
+                onClick={() => { extractionVersion.current += 1; setTextDraft(""); setTextResult(null); setTextError(""); }}
+                className="rfqai2-secondary-action">
                 Cancella testo
               </button>
-              <button type="button" disabled className="rfqai2-disabled-action">
-                Trasforma in distinta con AI · RFQAI3
+              <button type="button" disabled={textPending || textDraft.trim().length < 12}
+                onClick={analyzeText} className="rfqai2-primary-link">
+                {textPending ? "Analisi in corso…" : "Analizza la richiesta con AI"}
               </button>
             </div>
+            {textError ? <p role="alert" className="rfqai3-warning">{textError}</p> : null}
+            {textResult ? (
+              <RfqAiTextReview
+                result={textResult}
+                onDismiss={() => setTextResult(null)}
+                onInsert={(items) => {
+                  if (!onInsertTextLines(items)) return false;
+                  setTextResult(null);
+                  setTextDraft("");
+                  return true;
+                }}
+              />
+            ) : null}
             <p role="status" className="rfqai2-privacy-note">
-              Il testo rimane solo in memoria nella scheda aperta: non viene inviato, analizzato o salvato.
-              La conversione automatica sarà attivata nel microblocco RFQAI3.
+              Il testo viene inviato al servizio AI solo quando premi Analizza.
+              L’AI prepara proposte, non salva né invia RFQ. Ogni articolo richiede una conferma esplicita.
             </p>
           </div>
         ) : null}
