@@ -39,7 +39,7 @@ export async function prepareRfqh8MarketplaceBridge(input: {
     return { ok: false, error: rfqh8Error(error.message) };
   }
 
-  revalidatePath("/marketplace/rfq-hub/" + input.rfqId.trim());
+  revalidatePath("/rfq-hub/" + input.rfqId.trim());
   revalidatePath("/marketplace");
   revalidatePath("/marketplace/requests");
   return { ok: true };
@@ -48,10 +48,13 @@ export async function prepareRfqh8MarketplaceBridge(input: {
 export async function publishRfqh8MarketplaceBridge(input: {
   rfqId: string;
   durationDays: number;
+  acknowledged: boolean;
 }): Promise<{ ok: boolean; error?: string }> {
   const supabase = await createClient();
   const { data: authData } = await supabase.auth.getUser();
   if (!authData.user) return { ok: false, error: "Accedi per pubblicare nel Marketplace." };
+
+  if (input.acknowledged !== true) return { ok: false, error: "Conferma esplicitamente la visibilità dei dati prima di pubblicare." };
 
   if (![1, 3, 7, 14, 30].includes(input.durationDays)) {
     return { ok: false, error: "Durata Marketplace non valida." };
@@ -71,7 +74,7 @@ export async function publishRfqh8MarketplaceBridge(input: {
     return { ok: false, error: rfqh8Error(error.message) };
   }
 
-  revalidatePath("/marketplace/rfq-hub/" + input.rfqId.trim());
+  revalidatePath("/rfq-hub/" + input.rfqId.trim());
   revalidatePath("/marketplace");
   revalidatePath("/marketplace/requests");
   return { ok: true };
@@ -95,7 +98,7 @@ export async function importRfqh8MarketplaceResponse(input: {
     return { ok: false, error: rfqh8Error(error.message) };
   }
 
-  revalidatePath("/marketplace/rfq-hub/" + input.rfqId.trim());
+  revalidatePath("/rfq-hub/" + input.rfqId.trim());
   revalidatePath("/marketplace/responses");
   return { ok: true };
 }
