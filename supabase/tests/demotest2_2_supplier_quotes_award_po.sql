@@ -395,9 +395,8 @@ select pg_temp.dt22_assert(
  'supplier PO portal exposes only a valid token'
 );
 select pg_temp.dt22_denied(
- $select public.rfqh9_supplier_decide(
-   repeat('d',64),'confirmed','Unapproved delivery change',
-   current_date+26,'DT22-CONF-WRONG')$,
+ format('select public.rfqh9_supplier_decide(%L,%L,%L,current_date+26,%L)',
+   repeat('d',64),'confirmed','Unapproved delivery change','DT22-CONF-WRONG'),
  'Confirmed delivery date must match issued PO'
 );
 select pg_temp.dt22_assert(
