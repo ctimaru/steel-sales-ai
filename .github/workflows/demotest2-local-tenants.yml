@@ -1,0 +1,39 @@
+name: DEMOTEST2 Four-Tenant Local SQL Acceptance
+
+on:
+  pull_request:
+    paths:
+      - "supabase/tests/demotest2_four_tenant_rfq.sql"
+      - "supabase/migrations/20261009114500_demotest2_rfq_insert_source_rls_cycle_fix.sql"
+      - ".github/workflows/demotest2-local-tenants.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  four-tenant-db:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Seed CI-only historical baselines
+        run: |
+          cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          cp supabase/ci/p0_staging_baseline.sql supabase/migrations/20260908000001_ci_staging_baseline.sql
+      - name: Start DISPOSABLE local Supabase
+        run: supabase start
+      - name: Apply migrations to local database
+        run: supabase db reset --local
+      - name: Four-company registration, RFQ and RLS acceptance (ROLLBACK)
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 -f supabase/tests/demotest2_four_tenant_rfq.sql
+      - name: Stop local Supabase without persisting data
+        if: always()
+        run: supabase stop --no-backup
