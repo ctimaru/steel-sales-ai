@@ -114,7 +114,7 @@ select pg_temp.dt2_assert(
 );
 set local role authenticated;
 select pg_temp.dt2_deny(
-  $select public.p0a_activate_registration_application('00000000-0000-0000-0000-000000002024'::uuid)$$,
+  $$select public.p0a_activate_registration_application('00000000-0000-0000-0000-000000002024'::uuid)$$,
   'applicant cannot self-activate organization'
 );
 
@@ -171,7 +171,8 @@ select (s.value->>'organization_id')::uuid,
          when 'trader' then '00000000-0000-0000-0000-000000002013'::uuid
          else '00000000-0000-0000-0000-000000002014'::uuid end,
        'member','salesperson','active',true
-from demotest2_state s;
+from demotest2_state s
+where s.key in ('buyer','producer','trader','processor');
 
 select pg_temp.dt2_assert(
   (select count(*)=8 from public.organization_memberships
