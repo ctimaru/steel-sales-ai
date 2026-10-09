@@ -35,3 +35,4 @@ jobs:
         env:
           DEMOTEST_BASE_URL: https://www.smartsteelsales.com
           DEMOTEST_BROWSER_CHANNEL: chrome
+          DEMOTEST_VERIFY_NEW_ROUTE: "1"
