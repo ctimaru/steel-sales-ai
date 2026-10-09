@@ -31,6 +31,16 @@ type Suggestion = {
   direct_invite_ready: boolean;
 };
 
+export type Rfqh8SourcePreviewLine = {
+  id: string;
+  line_position: number;
+  description: string | null;
+  standard_code: string | null;
+  grade_code: string | null;
+  finish_code: string | null;
+  line_tonnes: number | null;
+};
+
 type MarketplaceResponse = {
   response_id: string;
   supplier_organization_id: string;
@@ -96,10 +106,14 @@ export function RfqMarketplaceBridgePanel({
   rfqId,
   campaignStatus,
   state,
+  sourceLines,
+  canExecute = false,
 }: {
   rfqId: string;
   campaignStatus: string;
   state: Rfqh8BridgeState | null;
+  sourceLines: Rfqh8SourcePreviewLine[];
+  canExecute?: boolean;
 }) {
   const router = useRouter();
   const [productFamilyKey, setProductFamilyKey] = useState("tubes_pipes");
@@ -108,6 +122,7 @@ export function RfqMarketplaceBridgePanel({
   const [countryCode, setCountryCode] = useState("IT");
   const [region, setRegion] = useState("");
   const [durationDays, setDurationDays] = useState(7);
+  const [publishConsent, setPublishConsent] = useState(false);
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -116,7 +131,7 @@ export function RfqMarketplaceBridgePanel({
   const bridge = state?.bridge;
   const suggestions = state?.suggestions?.candidates ?? [];
   const responses = state?.responses ?? [];
-  const readOnly = ["awarded", "closed", "cancelled"].includes(campaignStatus);
+  const readOnly = !canExecute || ["awarded", "closed", "cancelled"].includes(campaignStatus);
   const canDirectInvite = ["draft", "ready"].includes(campaignStatus);
 
   function prepare() {
@@ -141,13 +156,8 @@ export function RfqMarketplaceBridgePanel({
   }
 
   function publish() {
-    if (
-      !window.confirm(
-        "Pubblicare questa domanda nel Marketplace? Il Target buyer resta privato e non viene copiato.",
-      )
-    ) {
-      return;
-    }
+    if (!publishConsent || readOnly || !bridgeReady || bridge?.marketplace_status === "published") return;
+    if (!window.confirm("Confermi la pubblicazione volontaria dei dati elencati nell’anteprima? La ricerca sarà visibile nel Marketplace.")) return;
 
     setFeedback(null);
     setBusyKey("publish");
@@ -155,12 +165,14 @@ export function RfqMarketplaceBridgePanel({
       const result = await publishRfqh8MarketplaceBridge({
         rfqId,
         durationDays,
+        acknowledged: publishConsent,
       });
       setBusyKey(null);
       if (!result.ok) {
         setFeedback(result.error ?? "Pubblicazione non riuscita.");
         return;
       }
+      setPublishConsent(false);
       setFeedback("Domanda pubblicata nel Marketplace e matching aggiornato.");
       router.refresh();
     });
@@ -219,14 +231,14 @@ export function RfqMarketplaceBridgePanel({
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-              RFQH8 · Network + Marketplace Bridge
+              RFQ Hub · Pubblicazione Marketplace
             </p>
             <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">
               Amplia la ricerca senza perdere il controllo della RFQ
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
               Usa il matching del Network per trovare supplier pertinenti e, solo se lo decidi,
-              pubblica un mirror privacy-safe della domanda nel Marketplace.
+              pubblica volontariamente una versione selezionata della domanda nel Marketplace.
             </p>
           </div>
           <span className="rounded-full bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#173f35]">
@@ -446,6 +458,42 @@ export function RfqMarketplaceBridgePanel({
               ) : null}
             </div>
 
+            {bridge?.marketplace_status !== "published" ? (
+              <div className="mt-4 space-y-3 rounded-xl border border-[#cbdcd4] bg-white p-3 sm:p-4" aria-label="Anteprima pubblicazione Marketplace">
+                <div>
+                  <p className="text-sm font-bold text-[#173f35]">Controlla prima di pubblicare</p>
+                  <p className="mt-1 text-xs leading-5 text-[#52615b]">
+                    Saranno visibili titolo della ricerca, famiglia prodotto, norme, gradi, descrizioni degli articoli,
+                    quantità e zona di consegna. Identità buyer: {bridge?.visibility_mode === "anonymous" ? "anonima" : "azienda visibile"}.
+                    Nessun prezzo target, offerta ricevuta, email dei fornitori o nota privata verrà copiato dal motore RFQ.
+                    Verifica che anche le descrizioni non contengano dettagli riservati.
+                  </p>
+                </div>
+                <div className="grid gap-2 text-xs sm:grid-cols-2">
+                  <p><strong>Consegna:</strong> {bridge?.delivery_country_code || "—"} {bridge?.delivery_region || ""}</p>
+                  <p><strong>Famiglia:</strong> {bridge?.product_family_key || "—"}</p>
+                </div>
+                <div className="max-h-52 divide-y divide-[#e7ece9] overflow-y-auto rounded-lg border border-[#e7ece9]">
+                  {sourceLines.map((line) => (
+                    <div key={line.id} className="px-3 py-2 text-xs">
+                      <strong className="text-[#1d2824]">{line.line_position}. {line.description || "Articolo"}</strong>
+                      <p className="mt-0.5 text-[#66736e]">
+                        {[line.standard_code, line.grade_code, line.finish_code].filter(Boolean).join(" · ")}
+                        {" · "}{Number(line.line_tonnes ?? 0).toLocaleString("it-IT", { maximumFractionDigits: 3 })} t
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                {canExecute && !readOnly ? (
+                  <label className="flex min-h-11 cursor-pointer items-start gap-3 rounded-lg bg-[#f4f8f6] p-3 text-xs leading-5 text-[#173f35]">
+                    <input type="checkbox" checked={publishConsent} onChange={(event) => setPublishConsent(event.target.checked)}
+                      className="mt-0.5 h-5 w-5 shrink-0 accent-[#1a5144]" />
+                    Ho verificato descrizioni, quantità, identità e luogo di consegna e autorizzo espressamente la pubblicazione nel Marketplace.
+                  </label>
+                ) : null}
+              </div>
+            ) : null}
+
             {bridge?.marketplace_status !== "published" && !readOnly ? (
               <div className="mt-4 flex flex-wrap items-end gap-3">
                 <label className="text-xs font-semibold text-[#52615b]">
@@ -465,8 +513,8 @@ export function RfqMarketplaceBridgePanel({
                 <button
                   type="button"
                   onClick={publish}
-                  disabled={pending}
-                  className="inline-flex min-h-10 items-center rounded-xl bg-[#173f35] px-4 text-xs font-bold text-white disabled:opacity-50"
+                  disabled={pending || !publishConsent || !canExecute}
+                  className="inline-flex min-h-11 items-center rounded-xl bg-[#173f35] px-4 text-xs font-bold text-white disabled:opacity-50"
                 >
                   {busyKey === "publish" ? "Pubblico…" : "Pubblica nel Marketplace"}
                 </button>

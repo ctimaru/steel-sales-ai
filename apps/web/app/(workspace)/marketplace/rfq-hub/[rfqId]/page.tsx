@@ -370,6 +370,16 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       <RfqMarketplaceBridgePanel
         rfqId={campaign.id}
         campaignStatus={campaign.status}
+        canExecute={canExecuteCritical}
+        sourceLines={lineRows.map((line) => ({
+          id: line.id,
+          line_position: line.line_position,
+          description: line.description,
+          standard_code: line.standard_code,
+          grade_code: line.grade_code,
+          finish_code: line.finish_code,
+          line_tonnes: line.line_tonnes,
+        }))}
         state={
           marketplaceBridgeState &&
           typeof marketplaceBridgeState === "object" &&

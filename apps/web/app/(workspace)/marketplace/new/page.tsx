@@ -10,9 +10,9 @@ export const dynamic = "force-dynamic";
 export default async function NewMarketplaceRequestPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; mode?: string }>;
 }) {
-  const [{ error }, context] = await Promise.all([
+  const [{ error, mode }, context] = await Promise.all([
     searchParams,
     requireWorkspaceWriteRole(appRoutes.marketplace.home),
   ]);
@@ -20,6 +20,48 @@ export default async function NewMarketplaceRequestPage({
     context.organizationId,
     context.role,
   );
+
+  if (mode !== "standalone") {
+    return (
+      <div className="mx-auto max-w-4xl space-y-4">
+        <nav className="text-xs font-bold text-[#66736e]"><Link href={appRoutes.marketplace.home}>← Marketplace</Link></nav>
+        <header className="rounded-2xl border border-[#dce2df] bg-white p-5">
+          <p className="text-xs font-extrabold uppercase tracking-wider text-[#1a5144]">Nuova richiesta · Scegli il percorso</p>
+          <h1 className="mt-2 text-xl font-extrabold text-[#173f35]">Da dove vuoi iniziare?</h1>
+          <p className="mt-2 text-sm leading-6 text-[#66736e]">
+            RFQ Hub conserva una richiesta privata, i fornitori, le offerte, le negoziazioni e gli ordini.
+            Il Marketplace diventa un canale facoltativo: niente viene pubblicato senza una tua decisione.
+          </p>
+        </header>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <article className="rounded-2xl border border-[#abcfc0] bg-[#edf5f2] p-5">
+            <p className="text-xs font-bold uppercase tracking-wide text-[#1a5144]">Percorso consigliato</p>
+            <h2 className="mt-2 text-lg font-extrabold text-[#173f35]">RFQ Hub · Richiesta ai fornitori</h2>
+            <p className="mt-2 text-sm leading-6 text-[#52615b]">
+              Crea una distinta, inviala privatamente, confronta le offerte e, solo se serve,
+              prepara una pubblicazione selettiva nel Marketplace.
+            </p>
+            <Link href={appRoutes.rfqHub.createDistinta}
+              className="mt-4 inline-flex min-h-11 items-center rounded-lg bg-[#1a5144] px-4 text-sm font-bold text-white">
+              Crea distinta in RFQ Hub →
+            </Link>
+          </article>
+          <article className="rounded-2xl border border-[#dce2df] bg-white p-5">
+            <p className="text-xs font-bold uppercase tracking-wide text-[#66736e]">Pubblicazione indipendente</p>
+            <h2 className="mt-2 text-lg font-extrabold text-[#173f35]">Annuncio Marketplace rapido</h2>
+            <p className="mt-2 text-sm leading-6 text-[#52615b]">
+              Crea direttamente un annuncio singolo, senza distinta RFQ e senza confronto privato.
+              È un percorso distinto e la bozza non diventa una campagna RFQ.
+            </p>
+            <Link href={appRoutes.marketplace.newRequest + "?mode=standalone"}
+              className="mt-4 inline-flex min-h-11 items-center rounded-lg border border-[#b8d2c8] px-4 text-sm font-bold text-[#173f35]">
+              Continua con annuncio indipendente →
+            </Link>
+          </article>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -38,17 +80,18 @@ export default async function NewMarketplaceRequestPage({
 
       <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#173f35]">
-          Nuova ricerca prodotto
+          Annuncio Marketplace indipendente
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824]">
-          Crea una bozza Marketplace
+          Crea un annuncio Marketplace
         </h1>
         <p className="mt-3 text-sm leading-6 text-[#66736e]">
-          La bozza nasce nel dominio Marketplace. Non importa dati da RFQ, offerte, email o clienti
-          della Commercial Memory.
+          Questo percorso è indipendente dal RFQ Hub: crea una pubblicazione autonoma.
+          Non importa distinte, offerte, email o clienti della Commercial Memory. Per gestire più fornitori e confrontare offerte usa il RFQ Hub.
         </p>
 
         <form action={createMarketplaceRequest} className="mt-7 space-y-5">
+          <input type="hidden" name="creation_mode" value="standalone_marketplace" />
           <div>
             <label className="text-xs font-bold uppercase tracking-[0.12em] text-[#7b8782]">
               Titolo

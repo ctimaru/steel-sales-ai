@@ -131,27 +131,27 @@ export default async function MarketplaceFeedPage({
               </Link>
             ) : (
               <Link
-                href={appRoutes.marketplace.procurementInbox}
+                href={appRoutes.rfqHub.home}
                 className="app-primary inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-semibold"
               >
-                Apri Acquisti
+                Consulta RFQ Hub
               </Link>
             )}
             <Link
               href={appRoutes.marketplace.myRequests}
               className="app-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-semibold"
             >
-              Le mie richieste
+              Pubblicazioni Marketplace
             </Link>
             <Link
-              href={appRoutes.marketplace.suppliers}
+              href={appRoutes.rfqHub.suppliers}
               className="app-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-semibold"
             >
               Fornitori
             </Link>
             {canWrite ? (
               <Link
-                href={appRoutes.marketplace.procurementIntelligence}
+                href={appRoutes.rfqHub.intelligence}
                 className="app-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-semibold"
               >
                 Intelligence acquisti

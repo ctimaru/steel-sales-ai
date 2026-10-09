@@ -93,7 +93,7 @@ test("HP9 makes Marketplace first use role-aware and filter-aware", () => {
   assert.match(marketplace, /Azzera filtri/);
   assert.match(marketplace, /Apri RFQ Hub/);
   assert.match(marketplace, /Completa Company Profile/);
-  assert.match(marketplaceRequests, /Crea la prima ricerca/);
+  assert.match(marketplaceRequests, /Scegli come iniziare/);
   assert.match(marketplaceRequests, /Apri le opportunità/);
   assert.match(marketplaceResponses, /Controlla le mie ricerche/);
   assert.match(marketplaceResponses, /Crea una nuova ricerca/);
