@@ -102,7 +102,7 @@ test("PERF1 public homepage is statically rendered without request cookies or Su
   assert.match(home, /export default function PublicHomePage/);
   assert.doesNotMatch(home, /createClient|cookies\s*\(|getUser|getClaims|redirect\s*\(|headers\s*\(/);
   assert.match(home, /<PublicNetworkRoleExplorer \/>/);
-  assert.match(home, /<PublicCompanyLookup \/>/);
+  assert.match(home, /<DeferredPublicCompanyLookup \/>/);
 });
 
 test("PERF1 anonymous homepage avoids all auth initialization", async () => {

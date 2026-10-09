@@ -2069,3 +2069,24 @@ textarea {
     min-height: 44px;
   }
 }
+
+
+/* PERF2.1: native CSS-only Network role selection. The initial merchant
+   content works even in browsers without :has support or JavaScript. */
+.perf21-network-panel {
+  display: none;
+}
+.perf21-network-panel[data-network-persona="merchant"] {
+  display: block;
+}
+@supports selector(:has(*)) {
+  .perf21-network-explorer:has(input[name="network-persona"]:checked) .perf21-network-panel {
+    display: none;
+  }
+  .perf21-network-explorer:has(input[name="network-persona"][value="merchant"]:checked) .perf21-network-panel[data-network-persona="merchant"],
+  .perf21-network-explorer:has(input[name="network-persona"][value="user"]:checked) .perf21-network-panel[data-network-persona="user"],
+  .perf21-network-explorer:has(input[name="network-persona"][value="processor"]:checked) .perf21-network-panel[data-network-persona="processor"],
+  .perf21-network-explorer:has(input[name="network-persona"][value="producer"]:checked) .perf21-network-panel[data-network-persona="producer"] {
+    display: block;
+  }
+}

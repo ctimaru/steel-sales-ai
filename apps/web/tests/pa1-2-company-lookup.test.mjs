@@ -25,7 +25,7 @@ const migration = fs.readFileSync(
 );
 
 test("PA1.2 embeds real public lookup by company name or VAT", () => {
-  assert.match(home, /<PublicCompanyLookup \/>/);
+  assert.match(home, /<DeferredPublicCompanyLookup \/>/);
   assert.match(home, /Cercala per nome o Partita IVA/);
   assert.match(lookup, /name="company_query"/);
   assert.match(lookup, /Ragione sociale o Partita IVA/);
