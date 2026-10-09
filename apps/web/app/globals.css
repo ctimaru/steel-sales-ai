@@ -2824,3 +2824,25 @@ textarea {
   .rfqai3-review-footer button { width: 100%; }
   .rfqai3-candidate-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 }
+
+
+/* RFQAI3.2: compact editable tube geometry with proper mobile focus order. */
+.rfqai3-geometry-wide {
+  grid-column: 1 / -1;
+}
+.rfqai3-candidate-grid .rfqai3-geometry-wide.rfqai3-warning {
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+.rfqai3-candidate-grid label select,
+.rfqai3-candidate-grid label input {
+  width: 100%;
+}
+@media (max-width: 640px) {
+  .rfqai3-candidate-grid {
+    gap: 0.5rem;
+  }
+  .rfqai3-candidate-grid label {
+    font-size: 0.72rem;
+  }
+}
