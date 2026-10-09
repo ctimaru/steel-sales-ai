@@ -17,6 +17,17 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.next({ request });
   }
 
+  // PERF1: the public homepage is fully static. Anonymous visits have no
+  // Supabase auth cookie, so avoid initializing/authenticating a server client.
+  // Chunked SSR auth cookies are named sb-<project>-auth-token.0, .1, etc.
+  const isPublicHome = request.nextUrl.pathname === "/";
+  const hasAuthCookie = request.cookies.getAll().some(({ name }) =>
+    /^sb-[A-Za-z0-9_-]+-auth-token(?:\\.\\d+)?$/.test(name),
+  );
+  if (isPublicHome && !hasAuthCookie) {
+    return NextResponse.next({ request });
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -38,6 +49,24 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
+  // Preserve the former homepage behavior: only a verified, live user
+  // reaches /dashboard. A cookie alone never grants access or redirects.
+  if (isPublicHome) {
+    const { data, error } = await supabase.auth.getUser();
+    if (!error && data.user) {
+      const target = request.nextUrl.clone();
+      target.pathname = "/dashboard";
+      target.search = "";
+      target.hash = "";
+      const redirectResponse = NextResponse.redirect(target);
+      redirectResponse.headers.set("Cache-Control", "private, no-store");
+      response.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie));
+      return redirectResponse;
+    }
+    return response;
+  }
+
+  // All other routes keep their current claims-based routing and guards.
   const { data } = await supabase.auth.getClaims();
   const schoolPath =
     data?.claims?.sub && request.nextUrl.searchParams.get("public") !== "1"
