@@ -23,7 +23,7 @@ test("BD8 new article requires its own standard instead of silently reusing prev
   assert.match(builder, /aria-label=\{`Norma della riga \$\{index \+ 1\}\`\}/);
   assert.match(builder, /<option value="EN 10219">EN 10219<\/option>/);
   assert.match(builder, /<option value="EN 10210">EN 10210<\/option>/);
-  assert.match(builder, /\{line\.standard \? line\.standard \+ " · " : "Norma da scegliere · "\}/);
+  assert.match(builder, /\{line\.standard \|\| "Norma da scegliere"\}/);
 });
 
 test("BD8 independently recalculates hot and cold tubes and adds physical totals for both", () => {
