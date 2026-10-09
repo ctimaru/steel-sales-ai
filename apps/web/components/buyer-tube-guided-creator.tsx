@@ -1,3 +1,4 @@
+import { guidedTubeToBuyerLine } from "@/lib/buyer-guided-commercial-line";
 "use client";
 
 import { useEffect, useId, useState } from "react";
@@ -6,7 +7,7 @@ import type { BuyerDistintaCatalogOption } from "@/lib/buyer-distinta-catalog";
 import {
   guidedTubeGrades,
   guidedTubeMeasurement,
-  guidedTubeToBuyerLine,
+  
   newGuidedTubeDraft,
   suggestedGuidedDimensions,
   type GuidedDimension,
