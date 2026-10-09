@@ -113,6 +113,7 @@ test("SP4 requires explicit feature enable and audited limited anonymous functio
   assert.match(migration, /p_limit between 1 and 3/);
   assert.match(migration, /grant execute on function public\.sp4_public_steel_pulse_feed\(integer\)/);
   assert.doesNotMatch(migration, /grant select on steel_pulse_private\.(editorial_cards|publication_settings).*anon/);
-  assert.match(hp13, /anonymous SECURITY DEFINER surface must remain exactly the reviewed 11 RPCs/);
+  assert.match(hp13, /SEC1: anonymous SECURITY DEFINER surface in public must be zero/);
+  assert.match(hp13, /SEC1: preserve exactly 11 anonymous published-only SECURITY INVOKER facades/);
   assert.match(hp13, /'sp4_public_steel_pulse_feed'/);
 });
