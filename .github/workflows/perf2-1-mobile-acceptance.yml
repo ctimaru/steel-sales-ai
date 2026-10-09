@@ -1,0 +1,85 @@
+name: PERF2.1 Mobile UX & Payload Acceptance
+
+on:
+  pull_request:
+    paths:
+      - "apps/web/app/page.tsx"
+      - "apps/web/app/layout.tsx"
+      - "apps/web/app/globals.css"
+      - "apps/web/components/public-network-role-explorer.tsx"
+      - "apps/web/components/deferred-public-company-lookup.tsx"
+      - "apps/web/tests/perf2-1-*"
+      - ".github/workflows/perf2-1-mobile-acceptance.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mobile-acceptance:
+    name: Chrome mobile / keyboard / consent / 3 Lighthouse samples
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    defaults:
+      run:
+        working-directory: apps/web
+    env:
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install frontend & browser-only QA dependencies
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-package-lock playwright@1.56.1 lighthouse@12.6.0
+          npx playwright install --with-deps chrome
+      - name: Compile production Next.js with no external data
+        run: npm run build
+      - name: Start disposable local production server
+        run: |
+          set -euo pipefail
+          nohup npm run start -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/perf21-next.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/perf21-next.pid"
+          for attempt in $(seq 1 50); do
+            if curl --fail --silent http://127.0.0.1:3000/ > /dev/null; then
+              echo "PERF2.1 LOCAL READY"
+              exit 0
+            fi
+            sleep 2
+          done
+          tail -n 70 "$RUNNER_TEMP/perf21-next.log"
+          exit 1
+      - name: Chrome keyboard / no-JS / lazy lookup / consent acceptance
+        run: node tests/perf2-1-chrome-mobile.mjs
+      - name: Repeated mobile Lighthouse benchmark (diagnostic; not a score gate)
+        timeout-minutes: 8
+        shell: bash
+        run: |
+          for i in 1 2 3; do
+            node node_modules/lighthouse/cli/index.js http://127.0.0.1:3000/ \
+              --only-categories=performance --form-factor=mobile \
+              --throttling-method=simulate \
+              --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+              --quiet --output=json --output-path="$RUNNER_TEMP/perf21-$i.json"
+          done
+          node --input-type=module -e '
+            import fs from "node:fs";
+            const reports=[1,2,3].map(i=>JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+"/perf21-"+i+".json","utf8")));
+            for(let i=0;i<reports.length;i++){
+              const r=reports[i];const a=r.audits;
+              console.log("PERF2.1 LIGHTHOUSE", JSON.stringify({run:i+1,score:Math.round(r.categories.performance.score*100),fcpMs:Math.round(a["first-contentful-paint"].numericValue),lcpMs:Math.round(a["largest-contentful-paint"].numericValue),tbtMs:Math.round(a["total-blocking-time"].numericValue),cls:a["cumulative-layout-shift"].numericValue,bytes:a["total-byte-weight"]?.numericValue}));
+            }
+            console.log("PERF2.1 LIGHTHOUSE NOTE: localhost CI and PSI production are not directly comparable");
+          '
+      - name: Local Next diagnostics
+        if: failure()
+        run: tail -n 100 "$RUNNER_TEMP/perf21-next.log" || true
+      - name: Stop local Next
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/perf21-next.pid" ]; then kill "$(cat "$RUNNER_TEMP/perf21-next.pid")" || true; fi
