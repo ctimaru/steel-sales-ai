@@ -6,6 +6,7 @@ export const RFQAI3_MAX_LINES = 30;
 
 export type RfqAiTextDraftResult = {
   candidates: RfqAiLineCandidate[];
+  rawById: Record<string, RfqAiRawLine>;
   warnings: string[];
 };
 
@@ -77,6 +78,7 @@ export function parseRfqAiModelResponse(
   const batch = makeRfqAiIntakeBatch(source, intent, rows);
   return {
     candidates: batch.candidates,
+    rawById: Object.fromEntries(rows.map((item) => [item.candidateId, item.raw])),
     warnings: [...warnings, ...(batch.candidates.length === 0 ? ["Non ho individuato articoli. Prova a specificare misure, norme e quantità."] : [])],
   };
 }
