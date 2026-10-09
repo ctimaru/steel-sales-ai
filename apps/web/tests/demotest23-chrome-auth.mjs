@@ -117,6 +117,17 @@ try {
       const response = await page.goto(base + "/rfq-hub/" + target.rfq, {
         waitUntil: "domcontentloaded", timeout: 90000,
       });
+      // Wait for the streaming Server Component result, not the temporary
+      // workspace loading shell (which returns HTTP 200 before notFound()).
+      await page.waitForFunction(
+        (title) => {
+          const text = document.body.innerText;
+          return !text.includes("Caricamento workspace") &&
+            (text.includes(title) || /404|non trovata|not found|could not be found/i.test(text));
+        },
+        target.rfqTitle,
+        { timeout: 60000 },
+      );
       const body = await page.locator("body").innerText();
       // Next.js App Router may stream notFound() after response headers were sent,
       // returning HTTP 200 with the rendered 404. Treat only explicit not-found
@@ -131,7 +142,10 @@ try {
     });
 
     await step(p.id + " Marketplace access in own session", async () => {
-      const body = await navigate(page, "/marketplace");
+      await navigate(page, "/marketplace");
+      await page.getByRole("heading", { name: "Compra o vendi, in un unico spazio" })
+        .waitFor({ state: "visible", timeout: 60000 });
+      const body = await page.locator("body").innerText();
       assert.ok(body.includes("Marketplace"));
       assert.ok(!body.includes("DEMOTEST23 BUYER PRIVATE MIXED EN10210 EN10219"), "Private RFQ leaked in Marketplace");
     });
