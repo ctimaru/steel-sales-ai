@@ -1,0 +1,37 @@
+name: PERF1 Mobile Lighthouse Diagnostic (read-only)
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/perf1-mobile-diagnostic.yml"
+      - "apps/web/tests/perf1-mobile-lighthouse-diagnostic.mjs"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse-comparison:
+    name: Chrome mobile / PSI report read / current vs baseline
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install browser diagnostic dependencies only
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-package-lock lighthouse@12.6.0 playwright@1.56.1
+          npx playwright install --with-deps chrome
+      - name: Compare saved PSI reports and mobile Lighthouse page loads
+        timeout-minutes: 14
+        env:
+          CI: "true"
+        run: node tests/perf1-mobile-lighthouse-diagnostic.mjs
