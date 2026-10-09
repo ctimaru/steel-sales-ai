@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { ProductBrand } from "@/components/product-brand";
 import { PublicNetworkRoleExplorer } from "@/components/public-network-role-explorer";
-import { PublicCompanyLookup } from "@/components/public-company-lookup";
+import { DeferredPublicCompanyLookup } from "@/components/deferred-public-company-lookup";
 import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -215,7 +215,7 @@ export default function PublicHomePage() {
           </div>
 
           <div className="mt-6">
-            <PublicCompanyLookup />
+            <DeferredPublicCompanyLookup />
           </div>
 
           <p className="mt-4 max-w-3xl text-xs leading-5 text-[#718078]">
