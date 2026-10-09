@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useState, type ChangeEvent, type ReactNode } from "react";
+import { useId, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { analyzeRfqAiFreeText } from "@/app/(workspace)/rfq-hub/distinta/ai-actions";
 import { RfqAiTextReview } from "@/components/rfq-ai-text-review";
 import type { RfqAiTextDraftResult } from "@/lib/rfq-ai-free-text";
@@ -40,17 +40,21 @@ export function RfqAiIntakeUx({
   const [textPending, setTextPending] = useState(false);
   const [textError, setTextError] = useState("");
   const [textResult, setTextResult] = useState<RfqAiTextDraftResult | null>(null);
+  const extractionVersion = useRef(0);
   async function analyzeText() {
     if (textPending || !workspace || !textDraft.trim()) return;
+    const version = ++extractionVersion.current;
     setTextPending(true);
     setTextError("");
     setTextResult(null);
     try {
       const response = await analyzeRfqAiFreeText(textDraft);
-      if (response.ok) setTextResult(response.result);
-      else setTextError(response.error);
+      if (extractionVersion.current === version) {
+        if (response.ok) setTextResult(response.result);
+        else setTextError(response.error);
+      }
     } catch {
-      setTextError("Non è stato possibile analizzare la richiesta. Nessun dato è stato importato.");
+      if (extractionVersion.current === version) setTextError("Non è stato possibile analizzare la richiesta. Nessun dato è stato importato.");
     } finally {
       setTextPending(false);
     }
@@ -158,7 +162,7 @@ export function RfqAiIntakeUx({
               maxLength={MAX_TEXT_CHARS}
               rows={7}
               value={textDraft}
-              onChange={(event) => { setTextDraft(event.target.value); setTextResult(null); setTextError(""); }}
+              onChange={(event) => { extractionVersion.current += 1; setTextDraft(event.target.value); setTextResult(null); setTextError(""); }}
               placeholder={"Es. Mi servono 30 barre da 12 m di tubo quadro 100×100×5 S355J2H EN 10219 e 120 m di tubo tondo 60,3×3 EN 10210."}
               spellCheck={false}
               className="rfqai2-textarea"
@@ -169,7 +173,7 @@ export function RfqAiIntakeUx({
             </div>
             <div className="rfqai2-input-actions">
               <button type="button" disabled={!textDraft || textPending}
-                onClick={() => { setTextDraft(""); setTextResult(null); setTextError(""); }}
+                onClick={() => { extractionVersion.current += 1; setTextDraft(""); setTextResult(null); setTextError(""); }}
                 className="rfqai2-secondary-action">
                 Cancella testo
               </button>
