@@ -120,7 +120,10 @@ export function BuyerDistintaBuilder({
     () => calculateBuyerDistintaTotals(calculated),
     [calculated],
   );
-  const activeLineCount = lines.filter((line) => !isUntouchedLine(line)).length;
+  // Only the initial reusable empty placeholder is excluded from progress.
+  // Explicitly added blank rows must still block copy until they are completed.
+  const initialEmptyRow = lines.length === 1 && isUntouchedLine(lines[0]);
+  const activeLineCount = initialEmptyRow ? 0 : lines.length;
   const allComplete =
     calculated.length > 0 && calculated.every((line) => line.complete);
   const quickMatches = useMemo(
@@ -1035,7 +1038,7 @@ Configura un articolo o compila direttamente una riga: quantità, kg/m e antepri
             ) : null}
             <ol className="bd7-preview-list" aria-label="Articoli inseriti">
               {lines.map((line, index) => (
-                <li key={line.id} hidden={isUntouchedLine(line)}>
+                <li key={line.id} hidden={initialEmptyRow}>
                   <button
                     type="button"
                     onClick={() => {
