@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { chromium } from "playwright";
 
 const baseUrl = (process.env.DEMOTEST_BASE_URL || "https://www.smartsteelsales.com").replace(/\/$/, "");
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({ headless: true, channel: process.env.DEMOTEST_BROWSER_CHANNEL || "chrome" });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, locale: "it-IT" });
 
 try {
@@ -19,11 +19,13 @@ try {
     console.log("CHROMIUM PASS", path, response.status());
   }
 
-  const privateResponse = await page.goto(baseUrl + "/platform/marketing/demo-room/companies", {
+  const privatePath = process.env.DEMOTEST_VERIFY_NEW_ROUTE === "1" ? "/platform/marketing/demo-room/companies" : "/platform/marketing/demo-room/network";
+  const privateResponse = await page.goto(baseUrl + privatePath, {
     waitUntil: "domcontentloaded", timeout: 45000,
   });
-  assert.ok(privateResponse && privateResponse.status() < 500, "owner-only route server error");
+  assert.ok(privateResponse && privateResponse.status() < 500 && privateResponse.status() !== 404, "owner-only route server error or not deployed");
   const privateBody = await page.locator("body").innerText();
+  assert.ok(!privateBody.includes("Demo Tubes Nord"), "NO_PRIVATE_LEAK: existing private Demo Room content exposed anonymously");
   assert.ok(!privateBody.includes("DEMO Industrial Engineering"), "NO_PRIVATE_LEAK: demo-company data exposed to anonymous visitor");
   assert.ok(!privateBody.includes("Quattro aziende demo · quattro ruoli Network"), "NO_PRIVATE_LEAK: private fixture rendered anonymously");
   console.log("CHROMIUM PASS", "NO_PRIVATE_LEAK", privateResponse.status());
