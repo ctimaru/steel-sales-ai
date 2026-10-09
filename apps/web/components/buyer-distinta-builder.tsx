@@ -4,6 +4,7 @@ import { guidedTubeToBuyerLine } from "@/lib/buyer-guided-commercial-line";
 
 import Link from "next/link";
 import { BuyerTubeGuidedCreator } from "@/components/buyer-tube-guided-creator";
+import { RfqAiIntakeUx, type RfqAiIntakeMode } from "@/components/rfq-ai-intake-ux";
 import { guidedTubeMassKgM, guidedTubeMeasurement,  type GuidedTubeDraft } from "@/lib/buyer-tube-guidance";
 import { emptyBuyerDocumentRequirements, formatBuyerDocumentRequirements, type BuyerDistintaDocumentRequirements } from "@/lib/buyer-distinta-documents";
 import { useRouter } from "next/navigation";
@@ -87,6 +88,7 @@ export function BuyerDistintaBuilder({
   const [documents, setDocuments] = useState<BuyerDistintaDocumentRequirements>(emptyBuyerDocumentRequirements);
   const [previewDraft, setPreviewDraft] = useState<GuidedTubeDraft | null>(null);
   const [wizardRestoreSerial, setWizardRestoreSerial] = useState(0);
+  const [intakeMode, setIntakeMode] = useState<RfqAiIntakeMode>("manual");
   const [quickQuery, setQuickQuery] = useState("");
   const [compactMode, setCompactMode] = useState(true);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
@@ -415,7 +417,8 @@ export function BuyerDistintaBuilder({
     if (index < 0) return;
     const row = lines[index];
     if (initialEmptyRow) {
-      document.getElementById("bd6-config-title")?.scrollIntoView({ block: "center", behavior: "smooth" });
+      setIntakeMode("manual");
+      document.getElementById("rfqai2-intake-modes")?.scrollIntoView({ block: "center", behavior: "smooth" });
       return;
     }
     setEditingRows((current) => ({ ...current, [row.id]: true }));
@@ -610,7 +613,7 @@ export function BuyerDistintaBuilder({
               Articoli in distinta
             </h2>
             <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
-Configura un articolo o compila direttamente una riga: quantità, kg/m e anteprima si aggiornano subito. Ogni articolo mantiene la propria norma.
+Configura ogni articolo in un unico passaggio; nel workspace aziendale puoi anche preparare testo, file ed email per l'importazione AI. La distinta resta unica e modificabile.
             </p>
           </div>
           <label className="w-full max-w-sm text-xs font-semibold text-[var(--text-secondary)]">
@@ -630,6 +633,12 @@ Configura un articolo o compila direttamente una riga: quantità, kg/m e antepri
 
         <div className="bd7-workbench">
           <div className="bd7-workbench-editor">
+            <RfqAiIntakeUx
+              mode={intakeMode}
+              onModeChange={setIntakeMode}
+              workspace={workspace}
+              authenticated={authenticated}
+            >
             <BuyerTubeGuidedCreator
               key={wizardRestoreSerial}
               initialDraft={previewDraft}
@@ -706,8 +715,7 @@ Configura un articolo o compila direttamente una riga: quantità, kg/m e antepri
           ) : null}
         </section>
         </details>
-
-
+            </RfqAiIntakeUx>
           </div>
           <aside className="bd7-preview" aria-label="Distinta in composizione">
             <div className="bd7-preview-head">
