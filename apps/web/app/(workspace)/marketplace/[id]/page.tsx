@@ -19,6 +19,7 @@ import {
 } from "@/lib/marketplace";
 import { getMarketplaceEntryReadiness } from "@/lib/marketplace-readiness";
 import { appRoutes } from "@/lib/routes";
+import { createClient } from "@/lib/supabase/server";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 
 export const dynamic = "force-dynamic";
@@ -79,17 +80,27 @@ export default async function MarketplaceRequestPage({
   if (!detail) notFound();
 
   const request = detail.request;
+  const supabase = await createClient();
+  // Authorized origin read: an RFQ-managed mirror is never edited here.
+  const { data: originData } = await supabase.rpc("rfq_ia4_request_origin", { p_request_id: request.id });
+  const origin = originData && typeof originData === "object" && !Array.isArray(originData)
+    ? originData as { source_kind?: string; rfq_id?: string | null }
+    : null;
+  // Fail closed if origin is temporarily unavailable: never offer mutation
+  // controls for an unclassified request.
+  const standalone = origin?.source_kind === "manual";
+  const rfqManaged = origin?.source_kind === "rfq_hub";
   const matchSummary =
     request.status === "published"
       ? await getMarketplaceBuyerMatchSummary(context.organizationId, request.id)
       : null;
   const canWrite = canWriteWorkspace(context.role);
-  const editable = canWrite && request.status === "draft";
+  const editable = canWrite && standalone && request.status === "draft";
   const withdrawable =
-    canWrite &&
+    canWrite && standalone &&
     (request.status === "draft" || request.status === "published");
   const publishReady =
-    canWrite &&
+    canWrite && standalone &&
     detail.lines.length > 0 &&
     (request.visibility_mode === "anonymous" ||
       readiness.buyer.namedPublicationReady);
@@ -149,6 +160,26 @@ export default async function MarketplaceRequestPage({
         </div>
       </section>
 
+      {rfqManaged ? (
+        <section className="rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-4 py-3">
+          <p className="text-sm font-bold text-[#173f35]">Richiesta gestita nel RFQ Hub</p>
+          <p className="mt-1 text-xs leading-5 text-[#52615b]">
+            Questo annuncio è una versione selezionata di una RFQ privata. La pubblicazione e i dati originali
+            si gestiscono esclusivamente nel RFQ Hub. Qui puoi consultare le informazioni Marketplace.
+          </p>
+          {origin?.rfq_id ? (
+            <Link href={appRoutes.rfqHub.campaign(origin.rfq_id)}
+              className="mt-2 inline-flex min-h-11 items-center text-xs font-bold text-[#173f35] underline">
+              Apri la RFQ di origine →
+            </Link>
+          ) : null}
+        </section>
+      ) : !standalone ? (
+        <p role="status" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-900">
+          Provenienza della ricerca non disponibile: le modifiche sono disabilitate in via precauzionale.
+        </p>
+      ) : null}
+
       {matchSummary ? (
         <section className="rounded-2xl border border-[#d9e8e2] bg-[#f3f7f5] p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -185,7 +216,7 @@ export default async function MarketplaceRequestPage({
         </section>
       ) : null}
 
-      {request.status === "draft" ? (
+      {request.status === "draft" && standalone ? (
         <MarketplaceRequestReadiness
           canWrite={canWrite}
           lineCount={detail.lines.length}
