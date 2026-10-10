@@ -114,7 +114,7 @@ export default async function AdminRegistrationsPage({
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <GovernanceWorkspaceNav current="registrations" permissions={access?.permissions ?? []} />
-      <GovernanceQueueControls title="Registrazioni" total={queue.total} readOnly={!((access?.permissions ?? []).some((permission) => permission === 'registrations.approve' || permission === 'registrations.activate'))} tabs={FILTERS.map(([value, label]) => ({ value, label }))} current={activeStatus ?? 'all'} baseHref="/platform/registrations" searchQuery={query} />
+      <GovernanceQueueControls title="Registrazioni" total={queue.total} readOnly={!((access?.permissions ?? []).some((permission) => permission === 'registrations.approve' || permission === 'registrations.activate'))} tabs={FILTERS.map(([value, label]) => ({ value, label }))} current={activeStatus ?? 'all'} baseHref="/platform/registrations" priorityValues={["pending_review", "approved"]} searchQuery={query} />
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
