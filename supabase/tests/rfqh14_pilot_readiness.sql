@@ -67,9 +67,17 @@ begin
     end if;
   end loop;
 
-  if to_regclass('public.rfqh11_supplier_directory') is null
-    or to_regclass('public.rfqh11_supplier_detail') is null then
-    raise exception 'RFQH14: Supplier CRM read models not available';
+  -- RFQH11 read models are SECURITY INVOKER RPC functions, not SQL views.
+  if to_regprocedure('public.rfqh11_supplier_directory(text,boolean,text,integer,integer)') is null
+    or to_regprocedure('public.rfqh11_supplier_detail(uuid)') is null then
+    raise exception 'RFQH14: Supplier CRM read-model RPCs not available';
+  end if;
+  if has_function_privilege(
+        'anon',to_regprocedure('public.rfqh11_supplier_detail(uuid)'),'EXECUTE'
+     ) or has_function_privilege(
+        'anon',to_regprocedure('public.rfqh11_supplier_directory(text,boolean,text,integer,integer)'),'EXECUTE'
+     ) then
+    raise exception 'RFQH14: anonymous supplier CRM data access forbidden';
   end if;
   if not exists (
     select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
