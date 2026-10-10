@@ -63,7 +63,7 @@ export default async function CompanyClaimsPage({
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <GovernanceWorkspaceNav current="claims" permissions={access?.permissions ?? []} />
-      <GovernanceQueueControls title="Company Claims" total={queue.total} readOnly={!hasMutationAccess} tabs={FILTERS.map(([value, label]) => ({ value, label }))} current={activeStatus ?? 'all'} baseHref="/platform/company-claims" />
+      <GovernanceQueueControls title="Company Claims" total={queue.total} readOnly={!hasMutationAccess} tabs={FILTERS.map(([value, label]) => ({ value, label }))} current={activeStatus ?? 'all'} baseHref="/platform/company-claims" priorityValues={["requested", "under_review"]} />
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <p className="platform-kicker">P3.6 · Governance</p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#18263d] sm:text-4xl">
