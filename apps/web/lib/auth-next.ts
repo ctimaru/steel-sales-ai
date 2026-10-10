@@ -18,7 +18,11 @@ export function safeInternalNext(
 }
 
 export function isRegistrationNext(path: string) {
-  return path === "/register" ||
+  return path === "/en/register" ||
+    path.startsWith("/en/register?") ||
+    path === "/en/registration/status" ||
+    path.startsWith("/en/registration/status?") ||
+    path === "/register" ||
     path.startsWith("/register?") ||
     path === "/registration/status" ||
     path.startsWith("/registration/status?");

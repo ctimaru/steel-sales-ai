@@ -5,17 +5,33 @@ on:
     paths:
       - "apps/web/tests/demotest24-*"
       - "apps/web/tests/i18n4-production-seo-*"
+      - "apps/web/tests/i18n6-production-chrome.mjs"
       - ".github/workflows/demotest2-4-production-smoke.yml"
       - "apps/web/app/(public)/**"
       - "apps/web/app/en/**"
       - "apps/web/components/english-public-subpage.tsx"
       - "apps/web/components/english-conversion-handoff.tsx"
+      - "apps/web/components/public-company-lookup.tsx"
+      - "apps/web/components/registration-journey.tsx"
+      - "apps/web/components/english-company-registration-form.tsx"
+      - "apps/web/app/verify-email/actions.ts"
+      - "apps/web/app/auth/confirm/route.ts"
       - "apps/web/lib/international-steel-knowledge.ts"
       - "apps/web/app/login/**"
       - "apps/web/app/register/**"
       - "apps/web/app/page.tsx"
       - "apps/web/app/robots.ts"
       - "apps/web/app/sitemap.ts"
+  push:
+    branches: [main]
+    paths:
+      - "apps/web/app/en/**"
+      - "apps/web/components/public-company-lookup.tsx"
+      - "apps/web/components/registration-journey.tsx"
+      - "apps/web/app/register/actions.ts"
+      - "apps/web/app/login/actions.ts"
+      - "apps/web/app/verify-email/actions.ts"
+      - "apps/web/app/auth/confirm/route.ts"
   workflow_dispatch:
 
 permissions:
@@ -54,6 +70,12 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 10
         run: node tests/i18n4-production-seo-chrome.mjs
+      - name: "I18N6: Real Chrome English registration and guarded onboarding (anonymous, GET only)"
+        working-directory: apps/web
+        timeout-minutes: 7
+        env:
+          I18N6_STRICT_PRODUCTION: ${{ github.event_name != 'pull_request' }}
+        run: node tests/i18n6-production-chrome.mjs
       - name: "I18N4: Capture public English Chrome screenshots"
         if: always()
         uses: actions/upload-artifact@v4

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import {
   PENDING_SIGNUP_EMAIL_COOKIE,
+  PENDING_SIGNUP_NEXT_COOKIE,
   pendingSignupEmailCookieOptions,
 } from "@/lib/auth-email-verification";
 import { isRegistrationNext, safeInternalNext } from "@/lib/auth-next";
@@ -146,9 +147,10 @@ export async function login(formData: FormData) {
   const nextSuffix = nextPath
     ? "&next=" + encodeURIComponent(nextPath)
     : "";
+  const loginPath = nextPath?.startsWith("/en/register") ? "/en/login" : "/login";
 
   if (!email || !password) {
-    redirect("/login?error=Inserisci%20email%20e%20password" + nextSuffix);
+    redirect(loginPath + "?error=Inserisci%20email%20e%20password" + nextSuffix);
   }
 
   const supabase = await createClient();
@@ -162,18 +164,19 @@ export async function login(formData: FormData) {
         pendingSignupEmailCookieOptions,
       );
       redirect(
-        "/verify-email?source=login" +
+        (nextPath?.startsWith("/en/register") ? "/en/verify-email?source=login" : "/verify-email?source=login") +
           (nextPath ? "&next=" + encodeURIComponent(nextPath) : ""),
       );
     }
 
     redirect(
-      "/login?error=Credenziali%20non%20valide" + nextSuffix,
+      loginPath + "?error=Credenziali%20non%20valide" + nextSuffix,
     );
   }
 
   const cookieStore = await cookies();
   cookieStore.delete(PENDING_SIGNUP_EMAIL_COOKIE);
+  cookieStore.delete(PENDING_SIGNUP_NEXT_COOKIE);
 
   await routeAfterAuthentication(nextPath);
 }
@@ -183,7 +186,8 @@ export async function signup(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
   const requestedNext = safeInternalNext(formData.get("next"), "/register");
-  const nextPath = requestedNext.startsWith("/register")
+  const nextPath = isRegistrationNext(requestedNext) &&
+    (requestedNext.startsWith("/register") || requestedNext.startsWith("/en/register"))
     ? requestedNext
     : "/register";
 
@@ -232,11 +236,13 @@ export async function signup(formData: FormData) {
     email,
     pendingSignupEmailCookieOptions,
   );
+  // Same-browser fallback for older hosted email templates with a fixed /register next.
+  cookieStore.set(PENDING_SIGNUP_NEXT_COOKIE, nextPath, pendingSignupEmailCookieOptions);
 
   if (data.session) {
     await supabase.auth.signOut();
     redirect(
-      "/verify-email?error=" +
+      (nextPath.startsWith("/en/register") ? "/en/verify-email" : "/verify-email") + "?error=" +
         encodeURIComponent(
           "La verifica email non è stata applicata correttamente. L’accesso è stato bloccato per sicurezza.",
         ) +
@@ -245,6 +251,9 @@ export async function signup(formData: FormData) {
     );
   }
 
+  if (nextPath.startsWith("/en/register")) {
+    redirect("/en/verify-email?sent=1&next=" + encodeURIComponent(nextPath));
+  }
   redirect("/verify-email?sent=1&next=" + encodeURIComponent(nextPath));
 }
 

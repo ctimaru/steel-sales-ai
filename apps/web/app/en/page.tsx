@@ -88,8 +88,8 @@ export default function EnglishHomePage() {
           </nav>
           <div className="flex shrink-0 items-center gap-2">
             <PublicLanguageSwitch locale="en" italianHref="/" englishHref="/en" />
-            <Link href="/login" hrefLang="it" className="hidden min-h-11 items-center justify-center px-2 text-xs font-semibold text-[#52615b] hover:text-[#123b34] sm:inline-flex">Sign in (IT)</Link>
-            <Link href="/register" hrefLang="it" className="platform-primary inline-flex min-h-11 items-center justify-center rounded-xl px-3 text-xs font-bold sm:px-4 sm:text-sm">
+            <Link href="/en/login" className="hidden min-h-11 items-center justify-center px-2 text-xs font-semibold text-[#52615b] hover:text-[#123b34] sm:inline-flex">Sign in</Link>
+            <Link href="/en/register" className="platform-primary inline-flex min-h-11 items-center justify-center rounded-xl px-3 text-xs font-bold sm:px-4 sm:text-sm">
               <span className="sm:hidden">Join</span>
               <span className="hidden sm:inline">Register company</span>
             </Link>
@@ -103,7 +103,7 @@ export default function EnglishHomePage() {
           <Link href="/en/knowledge/tubes" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">Weight calculator</Link>
           <Link href="/en/distinta" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">RFQ builder</Link>
           <Link href="#get-in-touch" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">Get in touch</Link>
-          <Link href="/login" hrefLang="it" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b] sm:hidden">Sign in (IT)</Link>
+          <Link href="/en/login" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b] sm:hidden">Sign in</Link>
         </nav>
       </header>
 
@@ -122,13 +122,13 @@ export default function EnglishHomePage() {
               Technical bills of materials, multi-supplier enquiries, quote comparison and supply-chain relationships, brought together for companies buying and selling steel.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Link href="/register" hrefLang="it" className="platform-primary inline-flex min-h-12 items-center justify-center rounded-xl px-6 text-sm font-bold">
+              <Link href="/en/register" className="platform-primary inline-flex min-h-12 items-center justify-center rounded-xl px-6 text-sm font-bold">
                 Register your company <span aria-hidden="true" className="ml-2">→</span>
               </Link>
               <Link href="#get-in-touch" className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#b9c9c2] bg-white px-6 text-sm font-bold text-[#123b34] hover:bg-[#edf5f1]">Get in touch</Link>
             </div>
             <p className="mt-3 text-xs leading-5 text-[#52615b]">
-              Company registration and the full workspace currently use an Italian-language interface. Access is subject to review.
+              Company registration is now available in English. The private workspace and legal documents are currently in Italian. Access is subject to review.
             </p>
             <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-[#dbe6df] pt-5 text-xs font-semibold text-[#1f6b5a]">
               <Link href="/en/knowledge" className="underline underline-offset-4">Steel Knowledge</Link>

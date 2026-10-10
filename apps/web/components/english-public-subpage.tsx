@@ -37,7 +37,7 @@ export function EnglishPublicSubpage({
           </nav>
           <div className="flex shrink-0 items-center gap-2">
             <PublicLanguageSwitch locale="en" italianHref={italianHref} englishHref={englishHref} />
-            <Link href="/register" hrefLang="it" className="platform-primary inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-bold">Join</Link>
+            <Link href="/en/register" className="platform-primary inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-bold">Join</Link>
           </div>
         </div>
         <nav aria-label="English mobile public navigation" className="flex items-center gap-1 overflow-x-auto border-t border-[#edf1ee] px-4 py-1.5 xl:hidden">
@@ -46,7 +46,7 @@ export function EnglishPublicSubpage({
           <Link href="/en/knowledge/tubes" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">Weight calculator</Link>
           <Link href="/en/distinta" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">RFQ builder</Link>
           <Link href="/en/network" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">Network</Link>
-          <Link href="/login" hrefLang="it" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">Sign in (IT)</Link>
+          <Link href="/en/login" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">Sign in</Link>
         </nav>
       </header>
 
@@ -74,8 +74,8 @@ export function EnglishPublicSubpage({
           <Link href="/en/knowledge/grades" className="font-semibold">Steel grades</Link>
           <Link href="/en/knowledge/tubes" className="font-semibold">Weight calculator</Link>
           <Link href="/en/distinta" className="font-semibold">RFQ builder</Link>
-          <Link href="/register" hrefLang="it" className="font-semibold">Register (IT)</Link>
-          <Link href="/login" hrefLang="it" className="font-semibold">Sign in (IT)</Link>
+          <Link href="/en/register" className="font-semibold">Register</Link>
+          <Link href="/en/login" className="font-semibold">Sign in</Link>
           <Link href="/privacy" hrefLang="it" className="font-semibold">Privacy (IT)</Link>
           <Link href="/terms" hrefLang="it" className="font-semibold">Terms (IT)</Link>
         </div>
