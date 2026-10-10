@@ -25,6 +25,7 @@ const personas = [
   { id: "trader", type: "trader_distributor", name: "DEMO Tubes Trading", email: "dt23-trader@example.test", org: "00000000-0000-0000-0000-000000023303", rfq: "00000000-0000-0000-0000-000000023323", rfqTitle: "DEMOTEST23 TRADER PRIVATE RFQ" },
   { id: "processor", type: "processor_service_provider", name: "DEMO Steel Processing", email: "dt23-processor@example.test", org: "00000000-0000-0000-0000-000000023304", rfq: "00000000-0000-0000-0000-000000023324", rfqTitle: "DEMOTEST23 PROCESSOR PRIVATE RFQ" },
   { id: "owner", type: "platform_owner", name: "Local Test Platform Owner", email: "perf1-platform-owner@example.test", org: null, rfq: null, rfqTitle: null },
+  { id: "platformStaff", type: "platform_staff", name: "Local Registration Staff", email: "perf1-registration-staff@example.test", org: null, rfq: null, rfqTitle: null },
   { id: "buyerViewer", type: "end_user_viewer", name: "DEMO Industrial Engineering", email: "dt23-buyer-viewer@example.test", org: "00000000-0000-0000-0000-000000023301", rfq: "00000000-0000-0000-0000-000000023321", rfqTitle: "DEMOTEST23 BUYER PRIVATE MIXED EN10210 EN10219" },
 ];
 
@@ -50,4 +51,4 @@ writeFileSync(credsPath, JSON.stringify(personas, null, 2), { mode: 0o600 });
 writeFileSync(varsPath, variables.join("\n") + "\n", { mode: 0o600 });
 chmodSync(credsPath, 0o600);
 chmodSync(varsPath, 0o600);
-console.log("LOCAL AUTH SETUP PASS: 6 independent GoTrue identities (4 companies, 1 viewer, 1 platform owner); temporary credentials never uploaded");
+console.log("LOCAL AUTH SETUP PASS: 7 independent GoTrue identities (4 companies, 1 viewer, 1 platform owner); temporary credentials never uploaded");

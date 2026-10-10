@@ -12,7 +12,7 @@ const base = process.env.PERF1_WEB_URL ?? "";
 assert.equal(base, "http://127.0.0.1:3000", "External URLs forbidden");
 assert.ok(process.env.RUNNER_TEMP, "Ephemeral CI runner required");
 const personas = JSON.parse(readFileSync(path.join(process.env.RUNNER_TEMP, "perf1-personas.json"), "utf8"));
-assert.equal(personas.length, 6);
+assert.equal(personas.length, 7);
 const tenants = personas.filter(p => p.org);
 assert.equal(tenants.length, 5);
 assert.equal(new Set(tenants.map(p => p.org)).size, 4);
@@ -190,6 +190,32 @@ try {
   });
   await ownerContext.close();
 
+  const staff = personas.find(p => p.id === "platformStaff");
+  assert.ok(staff, "Missing delegated staff persona");
+  const staffContext = await browser.newContext({ locale: "it-IT", viewport: { width: 390, height: 844 } });
+  const staffPage = await staffContext.newPage();
+  await check("PLR4.5 registration staff has real GoTrue login and scoped Platform access", async () => {
+    await visit(staffPage, "/login");
+    await staffPage.locator('input[name="email"]').fill(staff.email);
+    await staffPage.locator('input[name="password"]').fill(staff.password);
+    await staffPage.getByRole("button", { name: "Accedi", exact: true }).click();
+    await staffPage.waitForURL(u => u.pathname !== "/login", { timeout: 90000 });
+    await visit(staffPage, "/platform/registrations");
+    const nav = staffPage.getByRole("navigation", { name: "Aree di governance autorizzate" });
+    await nav.waitFor({ state: "visible", timeout: 60000 });
+    assert.equal(await nav.locator("a").count(), 1);
+    assert.equal(await nav.getByRole("link", { name: "Registrazioni" }).count(), 1);
+    await staffPage.getByRole("region", { name: /gestione coda/ }).waitFor();
+  });
+  await check("PLR4.5 registration staff is denied unrelated queues and root-only people", async () => {
+    for (const route of ["/platform/company-discovery", "/platform/company-claims", "/platform/network-trust", "/platform/knowledge", "/platform/people"]) {
+      await visit(staffPage, route);
+      await staffPage.waitForURL(u => u.pathname !== route, { timeout: 30000 });
+      assert.equal(await staffPage.getByRole("navigation", { name: "Aree di governance autorizzate" }).count(), 0);
+    }
+  });
+  await staffContext.close();
+
   const mobile = await browser.newContext({
     locale: "it-IT", viewport: { width: 390, height: 844 }, isMobile: true, deviceScaleFactor: 2,
   });
@@ -208,7 +234,7 @@ try {
   });
   await mobile.close();
 
-  console.log("PERF1 CHROME ACCEPTANCE PASS:", checks.length, "checks; 6 real GoTrue users; 4 companies + viewer + synthetic platform owner; localhost only");
+  console.log("PERF1 CHROME ACCEPTANCE PASS:", checks.length, "checks; 7 real GoTrue users; 4 companies + viewer + synthetic platform owner; localhost only");
 } finally {
   await browser.close();
 }
