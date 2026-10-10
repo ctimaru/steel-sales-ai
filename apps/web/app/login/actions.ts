@@ -183,7 +183,8 @@ export async function signup(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
   const requestedNext = safeInternalNext(formData.get("next"), "/register");
-  const nextPath = requestedNext.startsWith("/register")
+  const nextPath = isRegistrationNext(requestedNext) &&
+    (requestedNext.startsWith("/register") || requestedNext.startsWith("/en/register"))
     ? requestedNext
     : "/register";
 
@@ -236,7 +237,7 @@ export async function signup(formData: FormData) {
   if (data.session) {
     await supabase.auth.signOut();
     redirect(
-      "/verify-email?error=" +
+      (nextPath.startsWith("/en/register") ? "/en/verify-email" : "/verify-email") + "?error=" +
         encodeURIComponent(
           "La verifica email non è stata applicata correttamente. L’accesso è stato bloccato per sicurezza.",
         ) +
@@ -245,7 +246,7 @@ export async function signup(formData: FormData) {
     );
   }
 
-  redirect("/verify-email?sent=1&next=" + encodeURIComponent(nextPath));
+  redirect((nextPath.startsWith("/en/register") ? "/en/verify-email" : "/verify-email") + "?sent=1&next=" + encodeURIComponent(nextPath));
 }
 
 export async function requestPasswordReset(formData: FormData) {
