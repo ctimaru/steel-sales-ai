@@ -45,7 +45,8 @@ test("I18N6 redirects and ownership preserve claim reference after email verific
   assert.match(register, /can_start_registration !== true/);
   assert.match(registration, /pa1_4_bind_registration_claim/);
   assert.match(registration, /claimContext\.claim_state !== "claimable"/);
-  assert.match(lookup, /locale === "en" \? "\/en\/register" : "\/register"/);
+  assert.match(lookup, /\/en\/register\?claim_ref=/);
+  assert.match(lookup, /\/register\?claim_ref=/);
 });
 
 test("I18N6 submitted status reuses owner-protected recovery and human activation controls", () => {
