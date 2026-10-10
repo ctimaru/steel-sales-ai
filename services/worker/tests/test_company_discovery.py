@@ -8,6 +8,7 @@ from app.company_discovery import (
     CompanyDiscoveryError,
     CompanyDiscoveryService,
     _extract_structured_data,
+    _italian_geo_from_postal_address,
     canonicalize_seed_url,
     classify_company,
     extract_candidate,
@@ -370,3 +371,46 @@ def test_p34_existing_match_marks_shared_domain_ambiguous() -> None:
 
     assert company_id is None
     assert "website_domain_ambiguous" in signals
+
+
+def test_italian_postal_region_and_province_evidence() -> None:
+    assert _italian_geo_from_postal_address(
+        {"addressLocality": "Brescia", "addressRegion": "Lombardia"}, "IT"
+    ) == ("Brescia", "Lombardia", None)
+    assert _italian_geo_from_postal_address(
+        {"addressLocality": "Milano", "addressRegion": "MI"}, "IT"
+    ) == ("Milano", None, "MI")
+    assert _italian_geo_from_postal_address(
+        {"addressLocality": "Bologna", "addressRegion": "Emilia Romagna"}, "IT"
+    ) == ("Bologna", "Emilia-Romagna", None)
+    assert _italian_geo_from_postal_address(
+        {"addressLocality": "Brescia"}, "IT"
+    ) == ("Brescia", None, None)
+
+
+def test_italian_facility_keeps_province_separate_from_region() -> None:
+    pages = [CrawledPage(
+        url="https://tubi-geolocalizzati.example/",
+        title="Tubi Geolocalizzati S.r.l.",
+        site_name="Tubi Geolocalizzati",
+        meta_description=None,
+        h1="Tubi Geolocalizzati",
+        text="Tubi Geolocalizzati S.r.l. ampio stock tubi in acciaio, distribuzione tubi e pronta consegna, vendita tubi quadri e rettangolari.",
+        links=(),
+        structured_data=({
+            "@type": "Organization",
+            "name": "Tubi Geolocalizzati S.r.l.",
+            "address": {
+                "@type": "PostalAddress", "addressLocality": "Milano",
+                "addressRegion": "MI", "postalCode": "20100",
+                "addressCountry": "IT"
+            },
+        },),
+    )]
+    candidate = extract_candidate(pages, "IT")
+    assert candidate is not None
+    facility = candidate["facility_candidates"][0]
+    assert facility["city"] == "Milano"
+    assert facility["province_code"] == "MI"
+    assert facility["region"] is None
+    assert facility["source_url"] == pages[0].url

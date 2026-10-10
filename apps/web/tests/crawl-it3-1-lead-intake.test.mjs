@@ -1,0 +1,20 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import test from "node:test";
+const root = new URL("../", import.meta.url);
+const read = p => readFileSync(new URL(p, root), "utf8");
+test("CRAWL-IT3.1 human review preserves scoped permission and no publication", () => {
+  const a = read("app/(platform)/platform/company-discovery/sources/actions.ts");
+  const p = read("app/(platform)/platform/company-discovery/sources/page.tsx");
+  assert.match(a, /requirePlatformPermission\("discovery\.review"\)/);
+  assert.match(a, /crawl_it3_review_lead/);
+  assert.match(p, /crawl_it3_list_pending_leads/);
+  assert.match(p, /name="note" required minLength=\{12\}/);
+  const sql = read("../../supabase/migrations/20261010223000_crawl_it3_1_reviewed_lead_intake.sql");
+  assert.match(sql, /private\.require_platform_permission\('discovery\.review'\)/);
+  assert.match(sql, /v\.status<>'pending_review'/);
+  assert.match(sql, /governance_status='approved'/);
+  assert.match(sql, /domain already present in Network/);
+  assert.match(sql, /'queued'/);
+  assert.doesNotMatch(sql, /insert into public\.network_companies/);
+});

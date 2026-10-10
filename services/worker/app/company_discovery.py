@@ -366,6 +366,37 @@ def _normalize_country_code(value: object, fallback: str) -> str:
     return fallback.upper()
 
 
+ITALIAN_REGIONS = {
+    "abruzzo", "basilicata", "calabria", "campania", "emilia-romagna",
+    "friuli-venezia giulia", "lazio", "liguria", "lombardia", "marche",
+    "molise", "piemonte", "puglia", "sardegna", "sicilia", "toscana",
+    "trentino-alto adige", "umbria", "valle d'aosta", "veneto",
+}
+ITALIAN_REGION_ALIASES = {
+    "emilia romagna": "emilia-romagna",
+    "friuli venezia giulia": "friuli-venezia giulia",
+    "trentino alto adige": "trentino-alto adige",
+    "valle d’aosta": "valle d'aosta",
+}
+
+
+def _italian_geo_from_postal_address(
+    address: dict[str, object], country_code: str
+) -> tuple[str | None, str | None, str | None]:
+    """Use only evidenced PostalAddress fields; never guess a region from a city."""
+    city = str(address.get("addressLocality") or "").strip()[:120] or None
+    raw_region = str(address.get("addressRegion") or "").strip()
+    if country_code != "IT":
+        return city, raw_region[:120] or None, None
+    region_key = ITALIAN_REGION_ALIASES.get(raw_region.casefold(), raw_region.casefold())
+    if region_key in ITALIAN_REGIONS:
+        return city, region_key.title().replace("D'Aosta", "d'Aosta"), None
+    # addressRegion may be a province code (MI, BS, TO), not a region.
+    # Preserve it as evidence, but do not put it into the region filter field.
+    province = raw_region.upper() if re.fullmatch(r"[A-Za-z]{2}", raw_region) else None
+    return city, None, province
+
+
 def _structured_facilities(
     pages: list[CrawledPage],
     country_code: str,
@@ -384,13 +415,9 @@ def _structured_facilities(
                     continue
 
                 street = str(address.get("streetAddress") or "").strip() or None
-                city = str(address.get("addressLocality") or "").strip() or None
-                region = str(address.get("addressRegion") or "").strip() or None
+                country = _normalize_country_code(address.get("addressCountry"), country_code)
+                city, region, province = _italian_geo_from_postal_address(address, country)
                 postal = str(address.get("postalCode") or "").strip() or None
-                country = _normalize_country_code(
-                    address.get("addressCountry"),
-                    country_code,
-                )
                 if street is None and city is None:
                     continue
 
@@ -426,6 +453,7 @@ def _structured_facilities(
                     "postal_code": postal,
                     "city": city,
                     "region": region,
+                    "province_code": province,
                     "country_code": country,
                     "website_url": website_url[:500],
                     "source_url": page.url,
@@ -898,6 +926,7 @@ def extract_candidate(pages: list[CrawledPage], country_code: str) -> dict[str, 
             "capability_count": len(capability_keys),
             "market_count": len(market_keys),
             "facility_extraction": "json_ld_postal_address_only",
+            "geographic_provenance": "source_postal_address_no_city_inference",
         },
     }
 

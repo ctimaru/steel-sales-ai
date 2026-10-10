@@ -214,7 +214,14 @@ select pg_temp.hp13_assert(
         'sp71_pilot_source_readiness',
         -- PLR2 reviewed owner-only Private Lab read RPCs (singleton active owner).
         'pl1_private_lab_explorer_version',
-        'pl1_private_lab_explorer_items'
+        'pl1_private_lab_explorer_items',
+        -- CRAWL-IT2/3.1: permission-checked source registry and audited lead intake only.
+        -- All five pin search_path and explicitly require discovery.read/review/governance_review.
+        'crawl_it2_list_sources',
+        'crawl_it2_register_source',
+        'crawl_it2_review_source',
+        'crawl_it3_list_pending_leads',
+        'crawl_it3_review_lead'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
