@@ -82,6 +82,8 @@ export default function EnglishHomePage() {
           <nav aria-label="English public navigation" className="hidden items-center gap-2 lg:flex">
             <Link href="/en/network" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">Network</Link>
             <Link href="/en/knowledge" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">Knowledge</Link>
+            <Link href="/en/knowledge/tubes" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">Weight calculator</Link>
+            <Link href="/en/distinta" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">RFQ builder</Link>
             <Link href="#get-in-touch" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">Contact</Link>
           </nav>
           <div className="flex shrink-0 items-center gap-2">
@@ -95,6 +97,8 @@ export default function EnglishHomePage() {
         <nav aria-label="English mobile navigation" className="flex gap-1 overflow-x-auto border-t border-[#edf1ee] px-4 py-1.5 lg:hidden">
           <Link href="/en/network" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">Network</Link>
           <Link href="/en/knowledge" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">Knowledge</Link>
+          <Link href="/en/knowledge/tubes" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">Weight calculator</Link>
+          <Link href="/en/distinta" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">RFQ builder</Link>
           <Link href="#get-in-touch" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">Get in touch</Link>
         </nav>
       </header>
@@ -125,6 +129,8 @@ export default function EnglishHomePage() {
             <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-[#dbe6df] pt-5 text-xs font-semibold text-[#1f6b5a]">
               <Link href="/en/knowledge" className="underline underline-offset-4">Steel Knowledge</Link>
               <Link href="/en/network" className="underline underline-offset-4">Explore the Network</Link>
+              <Link href="/en/knowledge/tubes" className="underline underline-offset-4">Calculate tube weight</Link>
+              <Link href="/en/distinta" className="underline underline-offset-4">Create an RFQ bill</Link>
             </div>
           </div>
 
@@ -211,6 +217,8 @@ export default function EnglishHomePage() {
           <div className="flex flex-wrap gap-x-5 gap-y-2">
             <Link href="/en/knowledge" className="font-semibold hover:text-[#173f35]">Knowledge</Link>
             <Link href="/en/network" className="font-semibold hover:text-[#173f35]">Network</Link>
+            <Link href="/en/knowledge/tubes" className="font-semibold hover:text-[#173f35]">Weight calculator</Link>
+            <Link href="/en/distinta" className="font-semibold hover:text-[#173f35]">RFQ builder</Link>
             <Link href="/privacy" hrefLang="it" className="font-semibold hover:text-[#173f35]">Privacy (IT)</Link>
             <Link href="/terms" hrefLang="it" className="font-semibold hover:text-[#173f35]">Terms (IT)</Link>
             <Link href="/" hrefLang="it" className="font-semibold hover:text-[#173f35]">Italiano</Link>
