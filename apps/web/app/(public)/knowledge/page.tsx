@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { FocusLink, FocusPage, FocusPanel } from "@/components/focus-ui";
 import { SchoolHero } from "@/components/school-ui";
+import { PublicLanguageSwitch } from "@/components/public-language-switch";
 import { schoolArticles } from "@/lib/school-articles";
 import { absoluteUrl } from "@/lib/site";
 
@@ -10,7 +11,10 @@ export const metadata: Metadata = {
   title: "Scuola: norme, gradi, pesi e dimensioni dell'acciaio",
   description:
     "La Scuola di Smart Steel Sales è la base tecnica pubblica per il settore steel e tube: norme, gradi di acciaio, pesi, dimensioni e strumenti pratici.",
-  alternates: { canonical: absoluteUrl("/knowledge") },
+  alternates: {
+    canonical: absoluteUrl("/knowledge"),
+    languages: { it: absoluteUrl("/knowledge"), en: absoluteUrl("/en/knowledge") },
+  },
   openGraph: {
     title: "Scuola Smart Steel Sales — Norme, gradi, pesi e dimensioni",
     description:
@@ -54,6 +58,7 @@ const knowledgeAreas = [
 export default function KnowledgeHomePage() {
   return (
     <FocusPage className="px-4 py-7 sm:px-6 sm:py-9 lg:px-8">
+      <div className="mb-3 flex justify-end"><PublicLanguageSwitch locale="it" italianHref="/knowledge" englishHref="/en/knowledge" /></div>
       <SchoolHero
         eyebrow="Scuola"
         title="Conoscenza tecnica per chi lavora con acciaio e tubi"

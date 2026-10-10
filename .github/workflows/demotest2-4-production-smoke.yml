@@ -4,8 +4,12 @@ on:
   pull_request:
     paths:
       - "apps/web/tests/demotest24-*"
+      - "apps/web/tests/i18n4-production-seo-*"
       - ".github/workflows/demotest2-4-production-smoke.yml"
       - "apps/web/app/(public)/**"
+      - "apps/web/app/en/**"
+      - "apps/web/components/english-public-subpage.tsx"
+      - "apps/web/lib/international-steel-knowledge.ts"
       - "apps/web/app/login/**"
       - "apps/web/app/register/**"
       - "apps/web/app/page.tsx"
@@ -28,6 +32,14 @@ jobs:
           node-version: "22"
           cache: npm
           cache-dependency-path: apps/web/package-lock.json
+      - name: "I18N4: International SEO HTTP acceptance (GET only)"
+        working-directory: apps/web
+        # A PR checks currently deployed main, not its unreleased fixes.
+        # A manual post-release run is strict and fails on any remaining issue.
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
+        env:
+          I18N4_STRICT_PRODUCTION: ${{ github.event_name == 'workflow_dispatch' }}
+        run: node tests/i18n4-production-seo-http.mjs
       - name: "Read-only production HTTP: public SEO and private auth gates"
         working-directory: apps/web
         run: node tests/demotest24-production-http.mjs
@@ -37,6 +49,18 @@ jobs:
           npm ci --no-audit --no-fund
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chrome
+      - name: "I18N4: Real production Chrome English SEO and mobile acceptance"
+        working-directory: apps/web
+        timeout-minutes: 10
+        run: node tests/i18n4-production-seo-chrome.mjs
+      - name: "I18N4: Capture public English Chrome screenshots"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: i18n4-public-english-chrome
+          path: apps/web/test-results/i18n4/*.png
+          if-no-files-found: ignore
+          retention-days: 3
       - name: "Read-only production Chrome: public pages, anonymous denials and mobile"
         working-directory: apps/web
         timeout-minutes: 10
