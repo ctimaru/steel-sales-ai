@@ -141,7 +141,7 @@ export default async function EnglishRegistrationPage({ searchParams }: {
       <div className="mx-auto max-w-4xl">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <ProductBrand href="/en" />
-          <form action={logoutRegistration}><button type="submit" className="text-sm font-bold text-[#52615b] underline">Sign out</button></form>
+          <form action={logoutRegistration}><input type="hidden" name="registration_locale" value="en" /><button type="submit" className="text-sm font-bold text-[#52615b] underline">Sign out</button></form>
         </header>
         <div className="mt-7 rounded-[24px] border border-[#dce2df] bg-white p-5 sm:p-8">
           <RegistrationJourney current={2} locale="en" />
