@@ -9,6 +9,7 @@ import {
   getPrivatePricingContext,
 } from "@/lib/price-list-explorer-server";
 import { appRoutes } from "@/lib/routes";
+import { requirePlatformSuperadmin } from "@/lib/platform-admin";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,7 @@ export default async function PrivateLabPriceListPage({
 }: {
   params: Params;
 }) {
+  await requirePlatformSuperadmin();
   const { versionId } = await params;
 
   if (!isUuid(versionId)) {

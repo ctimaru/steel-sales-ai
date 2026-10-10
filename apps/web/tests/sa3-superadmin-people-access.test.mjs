@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+const platformIa = fs.readFileSync(new URL("../lib/platform-ia-contract.ts", import.meta.url), "utf8");
 
 const peoplePage = fs.readFileSync(
   new URL("../app/(platform)/platform/people/page.tsx", import.meta.url),
@@ -43,8 +44,8 @@ const edgeInvite = fs.readFileSync(
 );
 
 test("SA3 adds People & Access to the owner control plane", () => {
-  assert.match(navigation, /appRoutes\.platform\.people/);
-  assert.match(navigation, /People & Access/);
+  assert.match(navigation, /getPlatformIaVisibleModules/);
+  assert.match(platformIa, /key: "people"[\s\S]*?access: \{ kind: "owner_only" \}/);
   assert.match(peoplePage, /Invita Platform Staff/);
   assert.match(peoplePage, /Platform Staff/);
   assert.match(peoplePage, /Inviti pendenti/);

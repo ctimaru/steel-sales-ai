@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FocusHeader, FocusPage, FocusPanel } from "@/components/focus-ui";
 import { listPriceListsForRequest } from "@/lib/price-list-explorer-server";
 import { appRoutes } from "@/lib/routes";
+import { requirePlatformSuperadmin } from "@/lib/platform-admin";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,7 @@ function isPadanaList(list: {
 }
 
 export default async function PlatformNovitaPage() {
+  await requirePlatformSuperadmin();
   const lists = await listPriceListsForRequest(true);
   const padana = lists.find(isPadanaList) ?? null;
   const otherInternalLists = lists.filter(

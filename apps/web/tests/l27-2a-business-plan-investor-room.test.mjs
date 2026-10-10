@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+const platformIa = fs.readFileSync(new URL("../lib/platform-ia-contract.ts", import.meta.url), "utf8");
 
 function read(path) {
   return fs.readFileSync(new URL(path, import.meta.url), "utf8");
@@ -33,8 +34,8 @@ const tabs = read("../components/business-plan-tabs.tsx");
 
 test("L27.2A adds an owner-only Business Plan surface to Platform", () => {
   assert.match(routes, /businessPlan: "\/platform\/business-plan"/);
-  assert.match(nav, /label: "Business Plan"/);
-  assert.match(nav, /staffEnabled: false/);
+  assert.match(platformIa, /label: "Business Plan"/);
+  assert.match(platformIa, /key: "businessPlan"[\s\S]*?access: \{ kind: "owner_only" \}/);
   assert.match(ownerPage, /requirePlatformSuperadmin\(\)/);
   assert.match(ownerActions, /requirePlatformSuperadmin\(\)/);
 });
@@ -283,7 +284,7 @@ test("L27.2D.2 moves Investor Access out of Business Plan and under Strategy & I
   assert.doesNotMatch(ownerPage, /Gestisci accessi investor/);
   assert.doesNotMatch(ownerPage, /createInvestorBusinessPlanInvite/);
   assert.match(routes, /investorAccess: "\/platform\/investor-access"/);
-  assert.match(nav, /label: "Investor Access"[\s\S]*group: "strategy"/);
+  assert.match(platformIa, /key: "investorAccess"[\s\S]*?area: "strategy"/);
   assert.match(investorAccessPage, /Strategy & Investors/);
   assert.match(investorAccessPage, /Business Plan/);
   assert.match(investorAccessPage, /KPI/);
@@ -295,7 +296,7 @@ test("L27.2D.2 moves Investor Access out of Business Plan and under Strategy & I
 
 test("L27.2D.2 adds governed owner and investor KPI surfaces", () => {
   assert.match(routes, /investorKpis: "\/platform\/investor-kpis"/);
-  assert.match(nav, /label: "KPI"[\s\S]*group: "strategy"/);
+  assert.match(platformIa, /key: "investorKpis"[\s\S]*?area: "strategy"/);
   assert.match(ownerKpiPage, /requirePlatformSuperadmin\(\)/);
   assert.match(ownerKpiPage, /getOwnerInvestorKpiSnapshot/);
   assert.match(investorKpiPage, /getInvestorKpiSnapshot/);

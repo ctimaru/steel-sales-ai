@@ -26,8 +26,10 @@ export function PlatformNotificationBell({
   snapshot: initialSnapshot,
   platformReady,
   initialVerifiedAt,
+  canReadRegistrations,
 }: {
   snapshot: PlatformNotificationSnapshot | null;
+  canReadRegistrations: boolean;
   platformReady: boolean;
   initialVerifiedAt: string | null;
 }) {
@@ -135,10 +137,12 @@ export function PlatformNotificationBell({
                 className="notification-primary-action rounded-lg px-4 py-2 text-xs font-semibold">
                 Apri Centro notifiche
               </Link>
-              <Link href={appRoutes.platform.registrations} onClick={() => setOpen(false)}
-                className="rounded-lg px-2 py-2 text-xs font-semibold text-[#456458] hover:bg-[#edf5f2]">
-                Registrazioni
-              </Link>
+              {canReadRegistrations ? (
+                <Link href={appRoutes.platform.registrations} onClick={() => setOpen(false)}
+                  className="rounded-lg px-2 py-2 text-xs font-semibold text-[#456458] hover:bg-[#edf5f2]">
+                  Registrazioni
+                </Link>
+              ) : null}
             </div>
           </aside>
         </>

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+const platformIa = fs.readFileSync(new URL("../lib/platform-ia-contract.ts", import.meta.url), "utf8");
 
 function read(path) {
   return fs.readFileSync(new URL(path, import.meta.url), "utf8");
@@ -42,8 +43,8 @@ test("UXC1 establishes the approved semantic palette at the global layer", () =>
 
 test("MKT1 is an owner-only Platform Console surface", () => {
   assert.match(routes, /marketing: "\/platform\/marketing"/);
-  assert.match(navigation, /label: "Marketing & Brand"/);
-  assert.match(navigation, /href: appRoutes\.platform\.marketing/);
+  assert.match(platformIa, /label: "Marketing e materiali"/);
+  assert.match(platformIa, /href: appRoutes\.platform\.marketing/);
   assert.match(marketingPage, /requirePlatformSuperadmin\(\)/);
   assert.match(marketingPage, /MarketingPrinciplesView/);
   assert.match(marketingView, /WCAG 2\.2 AA/);

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+const platformIa = fs.readFileSync(new URL("../lib/platform-ia-contract.ts", import.meta.url), "utf8");
 
 const page = fs.readFileSync(
   new URL("../app/(platform)/platform/company-discovery/page.tsx", import.meta.url),
@@ -24,7 +25,7 @@ const migration = fs.readFileSync(
 );
 
 test("P3.2 exposes Company Discovery only in Platform control plane", () => {
-  assert.match(platformNavigation, /appRoutes\.platform\.discovery/);
+  assert.match(platformIa, /appRoutes\.platform\.discovery/);
   assert.match(page, /Company Discovery/);
   assert.match(page, /Materializza nel Network/);
   assert.match(page, /Segna duplicato/);

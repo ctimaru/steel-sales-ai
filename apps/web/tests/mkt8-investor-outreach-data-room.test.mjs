@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+const platformIa = fs.readFileSync(new URL("../lib/platform-ia-contract.ts", import.meta.url), "utf8");
 
 function read(path) {
   return fs.readFileSync(new URL(path, import.meta.url), "utf8");
@@ -16,7 +17,7 @@ const migration = read("../../../supabase/migrations/20261007135353_mkt8_investo
 
 test("MKT8 adds an owner-only fundraising operations surface", () => {
   assert.match(routes, /fundraising: "\/platform\/fundraising"/);
-  assert.match(nav, /label: "Fundraising"/);
+  assert.match(platformIa, /label: "Fundraising"/);
   assert.match(page, /requirePlatformSuperadmin\(\)/);
   assert.match(page, /Investor Outreach & Data Room/);
 });

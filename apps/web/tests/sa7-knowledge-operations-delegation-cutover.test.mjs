@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+const platformIa = fs.readFileSync(new URL("../lib/platform-ia-contract.ts", import.meta.url), "utf8");
 
 const navigation = fs.readFileSync(
   new URL("../components/platform-navigation.tsx", import.meta.url),
@@ -39,8 +40,8 @@ const migration = fs.readFileSync(
 
 test("SA7 exposes Knowledge Operations through knowledge.read_drafts", () => {
   assert.match(
-    navigation,
-    /href: appRoutes\.platform\.knowledge[\s\S]*?permission: "knowledge\.read_drafts"[\s\S]*?staffEnabled: true/,
+    platformIa,
+    /key: "knowledge"[\s\S]*?access: \{ kind: "permission", key: "knowledge\.read_drafts" \}/,
   );
   assert.match(home, /canReadKnowledge/);
   assert.match(

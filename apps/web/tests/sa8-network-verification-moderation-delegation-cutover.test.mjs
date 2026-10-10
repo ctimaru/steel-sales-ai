@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+const platformIa = fs.readFileSync(new URL("../lib/platform-ia-contract.ts", import.meta.url), "utf8");
 
 const contract = fs.readFileSync(
   new URL("../lib/platform-access-contract.ts", import.meta.url),
@@ -57,8 +58,8 @@ test("SA8 adds a distinct Network Trust role and capability family", () => {
 
 test("SA8 exposes Network Trust only through network_trust.read", () => {
   assert.match(
-    navigation,
-    /href: appRoutes\.platform\.networkTrust[\s\S]*?permission: "network_trust\.read"[\s\S]*?staffEnabled: true/,
+    platformIa,
+    /key: "networkTrust"[\s\S]*?access: \{ kind: "permission", key: "network_trust\.read" \}/,
   );
   assert.match(home, /canReadNetworkTrust/);
   assert.match(
