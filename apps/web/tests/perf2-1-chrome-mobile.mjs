@@ -93,7 +93,7 @@ try {
       }
       assert.equal(await dialog.getByRole("link", { name: "Privacy", exact: true }).getAttribute("href"), "/privacy");
       assert.equal(await dialog.getByRole("link", { name: "Cookie Policy" }).getAttribute("href"), "/cookies");
-      const brand = page.locator('header a[href="/"]').first();
+      const brand = page.locator('header a[href="/"]:visible').first();
       assert.equal(await brand.getAttribute("href"), "/");
       assert.match(await brand.innerText(), /Smart Steel Sales/);
       const brandBox = await brand.boundingBox();
