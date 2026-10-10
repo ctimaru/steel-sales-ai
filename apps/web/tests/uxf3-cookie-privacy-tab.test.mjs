@@ -27,14 +27,16 @@ test("UXF3 keeps the first-layer consent panel compact and non-blocking", () => 
 });
 
 test("UXF3 makes closing the panel equivalent to necessary-only consent", () => {
-  assert.match(consent, /aria-label="Continua solo con cookie necessari"/);
+  assert.match(consent, /aria-label=\{english \? "Continue with essential cookies only" : "Continua solo con cookie necessari"\}/);
   assert.match(consent, /onClick=\{\(\) => choose\("denied"\)\}/);
 });
 
 test("UXF3 gives accept and necessary-only choices equivalent control weight", () => {
-  const necessary = consent.indexOf(">\n              Accetta necessari\n");
-  const accept = consent.indexOf(">\n              Accetta\n");
+  const necessary = consent.indexOf('english ? "Essential only" : "Accetta necessari"');
+  const accept = consent.indexOf('english ? "Accept analytics" : "Accetta"');
   assert.ok(necessary >= 0 && accept >= 0);
+  assert.match(consent, /onClick=\{\(\) => choose\("denied"\)\}/);
+  assert.match(consent, /onClick=\{\(\) => choose\("granted"\)\}/);
   assert.match(consent, /grid grid-cols-2 gap-2/);
   assert.ok((consent.match(/min-h-11 rounded-xl border/g) || []).length >= 2);
   assert.match(consent, /sm:hidden/);
