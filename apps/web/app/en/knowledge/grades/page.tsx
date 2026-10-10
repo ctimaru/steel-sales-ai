@@ -11,7 +11,7 @@ const canonical = "/en/knowledge/grades";
 const title = "Steel Grades for Tubes: S355, P265GH, 16Mo3 & TR Series";
 const description = "English guide to structural hollow-section and pressure-tube steel grades. Learn to distinguish S355J2H, S355NH, P235GH, P265GH, 16Mo3 and TR1/TR2 materials.";
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   title,
   description,
   alternates: {
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ q?: string }> }): Promise<Metadata> {
   const { q } = await searchParams;
-  return { ...metadata, robots: robotsForParameterizedPage(Boolean(q?.trim())) };
+  return { ...baseMetadata, robots: robotsForParameterizedPage(Boolean(q?.trim())) };
 }
 
 const groups = [
