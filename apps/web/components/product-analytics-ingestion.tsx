@@ -3,6 +3,7 @@
 import { Analytics, type BeforeSendEvent } from "@vercel/analytics/next";
 
 const PUBLIC_PAGEVIEW_PREFIXES = [
+  "/en",
   "/knowledge",
   "/azienda",
   "/register",
