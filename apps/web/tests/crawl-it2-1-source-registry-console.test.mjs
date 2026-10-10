@@ -12,7 +12,7 @@ test("CRAWL-IT2.1 Platform source registry is permission scoped", () => {
   assert.match(page, /discovery\.governance_review/);
   assert.match(actions, /requirePlatformPermission\("discovery\.governance_review"\)/);
   assert.match(actions, /p_enable: false/);
-  assert.match(page, /La scansione rimane disabilitata/);
+  assert.match(page, /motore di scoperta periodica non è attivo/);
 });
 
 test("CRAWL-IT2.1 SQL RPCs defend permission, rights and cannot auto-enable from UI", () => {
