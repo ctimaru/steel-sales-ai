@@ -70,15 +70,51 @@ try {
     assert.ok(await page.locator('[data-network-persona="producer"]').isVisible());
     assert.equal(await page.locator(".perf21-network-panel:visible").count(), 1);
   });
-  await testCase("privacy consent remains opt-out-capable", async () => {
+  await testCase("mobile cookie notice stays compact and choices equally reachable", async () => {
+    const dialog = page.getByRole("dialog", { name: "Cookie e privacy" });
+    await dialog.waitFor({ state: "visible", timeout: 25000 });
+    for (const { width, height, maxHeight } of [
+      { width: 390, height: 844, maxHeight: 220 },
+      { width: 320, height: 720, maxHeight: 245 },
+    ]) {
+      await page.setViewportSize({ width, height });
+      const bounds = await dialog.boundingBox();
+      assert.ok(bounds && bounds.height <= maxHeight,
+        "Consent obstructs too much of viewport: " + JSON.stringify({ width, bounds }));
+      assert.ok(bounds.x >= -1 && bounds.x + bounds.width <= width + 1,
+        "Consent exceeds viewport: " + JSON.stringify({ width, bounds }));
+      for (const name of ["Accetta necessari", "Accetta"]) {
+        const button = dialog.getByRole("button", { name, exact: true });
+        const rect = await button.boundingBox();
+        assert.ok(rect && rect.height >= 44, "Undersized choice: " + name);
+      }
+      assert.equal(await dialog.getByRole("link", { name: "Privacy", exact: true }).getAttribute("href"), "/privacy");
+      assert.equal(await dialog.getByRole("link", { name: "Cookie Policy" }).getAttribute("href"), "/cookies");
+      console.log("COOKIE-MOBILE ACCEPTANCE", JSON.stringify({ width, panelHeight: Math.round(bounds.height) }));
+    }
+    await page.setViewportSize({ width: 390, height: 844 });
+  });
+  await testCase("privacy consent stays reversible with default opt-out", async () => {
     const close = page.getByRole("button", { name: "Accetta necessari", exact: true });
     await close.waitFor({ state: "visible", timeout: 25000 });
     await close.click();
-    await page.getByRole("button", { name: "Riapri preferenze cookie e privacy" }).waitFor();
+    const reopen = page.getByRole("button", { name: "Riapri preferenze cookie e privacy" });
+    await reopen.waitFor();
     const defaultConsent = await page.evaluate(() =>
       window.dataLayer?.find((args) => args[0] === "consent" && args[1] === "default")?.[2]?.analytics_storage
     );
     assert.equal(defaultConsent, "denied");
+    const decision = () => page.evaluate(() =>
+      JSON.parse(window.localStorage.getItem("sss.analytics-consent.v2") || "{}").decision
+    );
+    assert.equal(await decision(), "denied");
+    await reopen.click();
+    await page.getByRole("dialog", { name: "Cookie e privacy" }).getByRole("button", { name: "Accetta", exact: true }).click();
+    assert.equal(await decision(), "granted");
+    await reopen.click();
+    await page.getByRole("dialog", { name: "Cookie e privacy" }).getByRole("button", { name: "Accetta necessari", exact: true }).click();
+    assert.equal(await decision(), "denied");
+    assert.equal(await reopen.isVisible(), true);
   });
   await mobile.close();
   console.log("PERF2.1 CHROME TOTAL", results.length, "PASS");

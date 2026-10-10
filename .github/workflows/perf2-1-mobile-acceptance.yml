@@ -8,6 +8,7 @@ on:
       - "apps/web/app/globals.css"
       - "apps/web/components/public-network-role-explorer.tsx"
       - "apps/web/components/public-registration-trust.tsx"
+      - "apps/web/components/google-analytics-consent.tsx"
       - "apps/web/tests/home-si5-*"
       - "apps/web/components/deferred-public-company-lookup.tsx"
       - "apps/web/tests/perf2-1-*"
