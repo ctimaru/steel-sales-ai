@@ -395,7 +395,7 @@ def test_italian_facility_keeps_province_separate_from_region() -> None:
         site_name="Tubi Geolocalizzati",
         meta_description=None,
         h1="Tubi Geolocalizzati",
-        text="Tubi Geolocalizzati S.r.l. commercio e distribuzione tubi in acciaio.",
+        text="Tubi Geolocalizzati S.r.l. ampio stock tubi in acciaio, distribuzione tubi e pronta consegna, vendita tubi quadri e rettangolari.",
         links=(),
         structured_data=({
             "@type": "Organization",
