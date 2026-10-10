@@ -1,3 +1,4 @@
+import { GOVERNANCE_ROW_CLASS } from "@/lib/governance-row-contract";
 import { GovernanceQueueControls } from "@/components/governance-queue-controls";
 import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
 import Link from "next/link";
@@ -148,7 +149,7 @@ export default async function CompanyClaimsPage({
           />
         ) : (
           queue.items.map((claim) => (
-            <article key={claim.claim_id} className="rounded-2xl border border-[#dce2df] bg-white p-5">
+            <article key={claim.claim_id} className={GOVERNANCE_ROW_CLASS}>
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
