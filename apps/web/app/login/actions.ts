@@ -146,9 +146,10 @@ export async function login(formData: FormData) {
   const nextSuffix = nextPath
     ? "&next=" + encodeURIComponent(nextPath)
     : "";
+  const loginPath = nextPath?.startsWith("/en/register") ? "/en/login" : "/login";
 
   if (!email || !password) {
-    redirect("/login?error=Inserisci%20email%20e%20password" + nextSuffix);
+    redirect(loginPath + "?error=Inserisci%20email%20e%20password" + nextSuffix);
   }
 
   const supabase = await createClient();
@@ -162,13 +163,13 @@ export async function login(formData: FormData) {
         pendingSignupEmailCookieOptions,
       );
       redirect(
-        "/verify-email?source=login" +
+        (nextPath?.startsWith("/en/register") ? "/en/verify-email" : "/verify-email") + "?source=login" +
           (nextPath ? "&next=" + encodeURIComponent(nextPath) : ""),
       );
     }
 
     redirect(
-      "/login?error=Credenziali%20non%20valide" + nextSuffix,
+      loginPath + "?error=Credenziali%20non%20valide" + nextSuffix,
     );
   }
 
