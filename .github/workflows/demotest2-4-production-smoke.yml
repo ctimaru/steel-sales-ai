@@ -9,6 +9,7 @@ on:
       - "apps/web/app/(public)/**"
       - "apps/web/app/en/**"
       - "apps/web/components/english-public-subpage.tsx"
+      - "apps/web/components/english-conversion-handoff.tsx"
       - "apps/web/lib/international-steel-knowledge.ts"
       - "apps/web/app/login/**"
       - "apps/web/app/register/**"

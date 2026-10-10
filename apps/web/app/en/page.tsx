@@ -88,6 +88,7 @@ export default function EnglishHomePage() {
           </nav>
           <div className="flex shrink-0 items-center gap-2">
             <PublicLanguageSwitch locale="en" italianHref="/" englishHref="/en" />
+            <Link href="/login" hrefLang="it" className="hidden min-h-11 items-center justify-center px-2 text-xs font-semibold text-[#52615b] hover:text-[#123b34] sm:inline-flex">Sign in (IT)</Link>
             <Link href="/register" hrefLang="it" className="platform-primary inline-flex min-h-11 items-center justify-center rounded-xl px-3 text-xs font-bold sm:px-4 sm:text-sm">
               <span className="sm:hidden">Join</span>
               <span className="hidden sm:inline">Register company</span>
@@ -102,6 +103,7 @@ export default function EnglishHomePage() {
           <Link href="/en/knowledge/tubes" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">Weight calculator</Link>
           <Link href="/en/distinta" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">RFQ builder</Link>
           <Link href="#get-in-touch" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">Get in touch</Link>
+          <Link href="/login" hrefLang="it" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b] sm:hidden">Sign in (IT)</Link>
         </nav>
       </header>
 
