@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   successUrl.search = "";
 
   const errorUrl = request.nextUrl.clone();
-  errorUrl.pathname = "/verify-email";
+  errorUrl.pathname = next.startsWith("/en/register") ? "/en/verify-email" : "/verify-email";
   errorUrl.search = "";
   errorUrl.searchParams.set(
     "error",
