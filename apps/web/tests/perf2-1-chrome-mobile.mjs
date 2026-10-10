@@ -3,6 +3,7 @@
  * Checks native keyboard access without JS and lazy client search with JS.
  */
 import assert from "node:assert/strict";
+import fs from "node:fs/promises";
 import { chromium } from "playwright";
 
 const base = process.env.PERF21_URL || "http://127.0.0.1:3000";
@@ -73,6 +74,8 @@ try {
   await testCase("mobile cookie notice stays compact and choices equally reachable", async () => {
     const dialog = page.getByRole("dialog", { name: "Cookie e privacy" });
     await dialog.waitFor({ state: "visible", timeout: 25000 });
+    await fs.mkdir("/tmp/home-si5", { recursive: true });
+    await page.evaluate(() => window.scrollTo(0, 0));
     for (const { width, height, maxHeight } of [
       { width: 390, height: 844, maxHeight: 220 },
       { width: 320, height: 720, maxHeight: 245 },
@@ -90,6 +93,7 @@ try {
       }
       assert.equal(await dialog.getByRole("link", { name: "Privacy", exact: true }).getAttribute("href"), "/privacy");
       assert.equal(await dialog.getByRole("link", { name: "Cookie Policy" }).getAttribute("href"), "/cookies");
+      await page.screenshot({ path: "/tmp/home-si5/cookie-mobile-" + width + ".png", animations: "disabled" });
       console.log("COOKIE-MOBILE ACCEPTANCE", JSON.stringify({ width, panelHeight: Math.round(bounds.height) }));
     }
     await page.setViewportSize({ width: 390, height: 844 });
