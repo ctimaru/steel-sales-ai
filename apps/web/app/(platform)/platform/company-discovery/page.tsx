@@ -1,3 +1,4 @@
+import { GOVERNANCE_ROW_CLASS } from "@/lib/governance-row-contract";
 import { GovernanceQueueControls } from "@/components/governance-queue-controls";
 import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
 import Link from "next/link";
@@ -209,7 +210,7 @@ export default async function CompanyDiscoveryPage({
       </section>
 
       {latestRun ? (
-        <section className="rounded-2xl border border-[#dce2df] bg-white p-5">
+        <section className={GOVERNANCE_ROW_CLASS}>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#3c8192]">
@@ -230,7 +231,7 @@ export default async function CompanyDiscoveryPage({
       ) : null}
 
       {runs.length ? (
-        <section className="rounded-2xl border border-[#dce2df] bg-white p-5">
+        <section className={GOVERNANCE_ROW_CLASS}>
           <div className="flex items-end justify-between gap-4">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
@@ -351,7 +352,7 @@ export default async function CompanyDiscoveryPage({
               return (
               <article
                 key={candidate.id}
-                className="rounded-2xl border border-[#dce2df] bg-white p-5"
+                className={GOVERNANCE_ROW_CLASS}
               >
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0">
