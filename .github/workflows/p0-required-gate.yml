@@ -292,6 +292,7 @@ jobs:
             pl1_11_save_history_export.sql \
             pp1_padana_publication_readiness.sql \
             rfqh13_production_hardening_pilot.sql \
+            rfqh14_pilot_readiness.sql \
             nc12_operational_alert_authorization_audit.sql \
             nc21_segregated_notification_inbox_schema.sql \
             nc22_notification_router_idempotency_outbox.sql \
