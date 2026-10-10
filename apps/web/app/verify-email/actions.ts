@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import {
   PENDING_SIGNUP_EMAIL_COOKIE,
+  PENDING_SIGNUP_NEXT_COOKIE,
   pendingSignupEmailCookieOptions,
 } from "@/lib/auth-email-verification";
 import { safeInternalNext } from "@/lib/auth-next";
@@ -89,6 +90,7 @@ export async function resendSignupConfirmation(formData: FormData) {
     email,
     pendingSignupEmailCookieOptions,
   );
+  cookieStore.set(PENDING_SIGNUP_NEXT_COOKIE, nextPath, pendingSignupEmailCookieOptions);
 
   redirect(verifyPath + "?resent=1&next=" + encodeURIComponent(nextPath));
 }
