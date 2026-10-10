@@ -14,6 +14,10 @@ export const metadata: Metadata = {
     "Crea gratuitamente una distinta per i tuoi fornitori: articoli, quantità, kg/m, Target €/t opzionale e Target €/m. Copiala nell'email oppure accedi per salvarla e inviarla.",
   alternates: {
     canonical: absoluteUrl("/distinta"),
+    languages: {
+      it: absoluteUrl("/distinta"),
+      en: absoluteUrl("/en/distinta"),
+    },
   },
   openGraph: {
     title: "Crea distinta · Smart Steel Sales",
