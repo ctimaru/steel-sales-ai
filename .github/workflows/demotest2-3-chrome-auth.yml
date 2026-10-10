@@ -5,6 +5,8 @@ on:
     paths:
       - "apps/web/tests/demotest23-*.mjs"
       - "apps/web/tests/rfqh14-2-*.mjs"
+      - "apps/web/tests/rfqh14-2b-*.mjs"
+      - "supabase/tests/rfqh14_2b_*.sql"
       - "supabase/tests/rfqh14_2_chrome_procurement_seed.sql"
       - "supabase/tests/demotest2_3_chrome_seed.sql"
       - ".github/workflows/demotest2-3-chrome-auth.yml"
@@ -28,6 +30,7 @@ jobs:
       NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
       NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
       CI: "true"
+      RESEND_API_KEY: ""  # No provider calls. PO browser test is local-only.
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -93,6 +96,11 @@ jobs:
             -f "$RUNNER_TEMP/demotest23-psql-vars.sql" \
             -f "$RUNNER_TEMP/rfqh14-2-psql-vars.sql" \
             -f supabase/tests/rfqh14_2_chrome_procurement_seed.sql
+      - name: "RFQH14.2b — Enable ephemeral PO HMAC secret, local Next only"
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "PO_CONFIRMATION_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
       - name: Start REAL Next.js against local Supabase (never Vercel)
         shell: bash
         working-directory: apps/web
@@ -119,6 +127,26 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 20
         run: node tests/rfqh14-2-chrome-procurement.mjs
+      - name: "RFQH14.2b — Seed pending second-user PO approval (LOCAL DB)"
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/demotest23-psql-vars.sql" \
+            -f supabase/tests/rfqh14_2b_chrome_po_approval_seed.sql
+      - name: "RFQH14.2b Chrome — independent approver, PO issue, supplier confirmation"
+        working-directory: apps/web
+        timeout-minutes: 20
+        run: node tests/rfqh14-2b-chrome-po-approver.mjs
+      - name: "RFQH14.2b — Assert immutable PO and no provider sends (LOCAL DB)"
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/demotest23-psql-vars.sql" \
+            -f supabase/tests/rfqh14_2b_assert_po_browser.sql
       - name: Local Next.js render diagnostics after Chrome failure
         if: failure()
         shell: bash
