@@ -52,6 +52,7 @@ function resendErrorMessage(error: {
 
 export async function resendSignupConfirmation(formData: FormData) {
   const nextPath = safeInternalNext(formData.get("next"), "/register");
+  const verifyPath = nextPath.startsWith("/en/register") ? "/en/verify-email" : "/verify-email";
   const cookieStore = await cookies();
   const email = cookieStore.get(PENDING_SIGNUP_EMAIL_COOKIE)?.value
     ?.trim()
@@ -59,7 +60,7 @@ export async function resendSignupConfirmation(formData: FormData) {
 
   if (!email) {
     redirect(
-      "/verify-email?error=" +
+      verifyPath + "?error=" +
         encodeURIComponent(
           "Inserisci nuovamente il tuo indirizzo dalla pagina di registrazione.",
         ),
@@ -79,7 +80,7 @@ export async function resendSignupConfirmation(formData: FormData) {
 
   if (error) {
     redirect(
-      `/verify-email?error=${encodeURIComponent(resendErrorMessage(error))}&next=${encodeURIComponent(nextPath)}`,
+      `${verifyPath}?error=${encodeURIComponent(resendErrorMessage(error))}&next=${encodeURIComponent(nextPath)}`,
     );
   }
 
@@ -89,5 +90,5 @@ export async function resendSignupConfirmation(formData: FormData) {
     pendingSignupEmailCookieOptions,
   );
 
-  redirect("/verify-email?resent=1&next=" + encodeURIComponent(nextPath));
+  redirect(verifyPath + "?resent=1&next=" + encodeURIComponent(nextPath));
 }
