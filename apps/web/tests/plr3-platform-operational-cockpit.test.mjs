@@ -57,3 +57,10 @@ test("PLR3 preserves order, permission-gated links, explicit freshness and staff
   assert.ok(indices.every((i) => i >= 0) && indices.every((v, i) => i === 0 || v > indices[i - 1]));
   assert.match(home, /grid gap-3 sm:grid-cols-2 xl:grid-cols-4/);
 });
+
+test("PLR3 mobile header keeps Workspace switch outside 320px flow", () => {
+  const shell = read("../components/platform-shell.tsx");
+  assert.match(shell, /<span className="hidden sm:inline-flex">/);
+  assert.match(shell, /label="Workspace aziendale"/);
+  assert.doesNotMatch(shell, /className="hidden sm:inline-flex"\s*\/>/);
+});
