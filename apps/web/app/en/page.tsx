@@ -129,6 +129,8 @@ export default function EnglishHomePage() {
             <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-[#dbe6df] pt-5 text-xs font-semibold text-[#1f6b5a]">
               <Link href="/en/knowledge" className="underline underline-offset-4">Steel Knowledge</Link>
               <Link href="/en/network" className="underline underline-offset-4">Explore the Network</Link>
+              <Link href="/en/knowledge/standards" className="underline underline-offset-4">Steel standards</Link>
+              <Link href="/en/knowledge/grades" className="underline underline-offset-4">Steel grades</Link>
               <Link href="/en/knowledge/tubes" className="underline underline-offset-4">Calculate tube weight</Link>
               <Link href="/en/distinta" className="underline underline-offset-4">Create an RFQ bill</Link>
             </div>
