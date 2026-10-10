@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+const platformIa = fs.readFileSync(new URL("../lib/platform-ia-contract.ts", import.meta.url), "utf8");
 
 const routes = fs.readFileSync(
   new URL("../lib/routes.ts", import.meta.url),
@@ -29,8 +30,8 @@ const client = fs.readFileSync(
 
 test("P5.6A exposes an owner-only Pilot Control Room", () => {
   assert.match(routes, /pilot:\s*"\/platform\/pilot"/);
-  assert.match(navigation, /label:\s*"Commercial Pilot"/);
-  assert.match(navigation, /href:\s*appRoutes\.platform\.pilot/);
+  assert.match(platformIa, /label: "Pilot e attivazione"/);
+  assert.match(platformIa, /href: appRoutes\.platform\.pilot/);
   assert.match(page, /requirePlatformSuperadmin\(\)/);
   assert.match(actions, /requirePlatformSuperadmin\(\)/);
   assert.match(platformHome, /Pilot Cohort &amp; Activation/);

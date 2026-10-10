@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+const platformIa = fs.readFileSync(new URL("../lib/platform-ia-contract.ts", import.meta.url), "utf8");
 
 const layout = fs.readFileSync(
   new URL("../app/(platform)/platform/layout.tsx", import.meta.url),
@@ -66,10 +67,9 @@ test("SA4 opens the Platform shell through capability context rather than root-o
 });
 
 test("SA4 keeps the registration delegation invariant while later domains may cut over independently", () => {
-  assert.match(navigation, /permission: "registrations\.read"/);
-  assert.match(navigation, /href: appRoutes\.platform\.registrations[\s\S]*?staffEnabled: true/);
-  assert.match(navigation, /href: appRoutes\.platform\.people[\s\S]*?staffEnabled: false/);
-  assert.match(navigation, /permissions\.includes\(item\.permission\)/);
+  assert.match(platformIa, /key: "registrations"[\s\S]*?access: \{ kind: "permission", key: "registrations\\.read" \}/);
+  assert.match(platformIa, /key: "people"[\s\S]*?access: \{ kind: "owner_only" \}/);
+  assert.match(navigation, /getPlatformIaVisibleModules/);
 });
 
 test("SA4 makes Platform Home and shell authority-aware without implying tenant access", () => {
@@ -78,7 +78,7 @@ test("SA4 makes Platform Home and shell authority-aware without implying tenant 
   assert.match(home, /context\.is_platform_owner/);
   assert.match(home, /Nessun modulo operativo ancora abilitato/);
   assert.match(shell, /isPlatformOwner \?/);
-  assert.match(shell, /Commercial Memory privata dei tenant/);
+  assert.match(shell, /dati commerciali delle aziende restano separati/);
 });
 
 test("SA4 cuts registration read routes over to registrations.read", () => {

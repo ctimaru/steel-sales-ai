@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+const platformIa = fs.readFileSync(new URL("../lib/platform-ia-contract.ts", import.meta.url), "utf8");
 
 function read(path) {
   return fs.readFileSync(new URL(path, import.meta.url), "utf8");
@@ -99,20 +100,12 @@ test("HP10 keeps Scuola private navigation separate from public Steel Knowledge"
 });
 
 test("HP10 groups Platform navigation identically across desktop and mobile", () => {
-  for (const label of [
-    "Overview",
-    "Accesso & onboarding",
-    "Network governance",
-    "Contenuti",
-    "Pilot",
-  ]) {
-    assert.ok(platformNav.includes(label), "missing Platform group " + label);
+  for (const label of ["Centro di controllo","Aziende e accessi","Network e fiducia","Contenuti e laboratorio","Analytics e attivazione","Strategia e investitori"]) {
+    assert.ok(platformIa.includes(label), "missing Platform group " + label);
   }
-
-  assert.match(platformNav, /aria-label="Navigazione Platform"/);
-  assert.match(platformNav, /aria-label="Navigazione mobile Platform"/);
-  assert.match(platformNav, /platformNavGroups\.map/);
-  assert.match(platformNav, /visiblePlatformItems/);
+  assert.match(platformNav, /getPlatformIaVisibleModules/);
+  assert.match(platformNav, /PLATFORM_IA_AREAS\.map/);
+  assert.match(platformNav, /aria-label=\{mobile \? "Navigazione mobile Platform"/);
 });
 
 test("HP10 preserves the five LinkedIn-style macro destinations on desktop and mobile", () => {

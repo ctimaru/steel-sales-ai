@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+const platformIa = fs.readFileSync(new URL("../lib/platform-ia-contract.ts", import.meta.url), "utf8");
 
 const page = fs.readFileSync(
   new URL("../app/(platform)/platform/product-analytics/page.tsx", import.meta.url),
@@ -27,7 +28,7 @@ const navigation = fs.readFileSync(
 test("AN1.1 is owner-only and linked from Platform navigation", () => {
   assert.match(page, /requirePlatformSuperadmin/);
   assert.match(routes, /productAnalytics/);
-  assert.match(navigation, /Product Analytics/);
+  assert.match(platformIa, /label: "Product Analytics"/);
 });
 
 test("AN1.1 uses the Vercel Web Analytics API server-side", () => {

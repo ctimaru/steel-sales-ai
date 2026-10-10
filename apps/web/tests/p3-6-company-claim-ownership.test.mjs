@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+const platformIa = fs.readFileSync(new URL("../lib/platform-ia-contract.ts", import.meta.url), "utf8");
 
 const migration = fs.readFileSync(
   new URL("../../../supabase/migrations/20260927190000_p3_6_company_claim_ownership_verification.sql", import.meta.url),
@@ -48,7 +49,7 @@ test("P3.6 claim workflow is available to company admins and Platform Superadmin
   assert.match(networkActions, /p3_6_request_company_claim/);
   assert.match(profile, /Rivendica questo profilo/);
   assert.match(profile, /Ownership verificata/);
-  assert.match(platformNavigation, /appRoutes\.platform\.claims/);
+  assert.match(platformIa, /appRoutes\.platform\.claims/);
   assert.match(platformClaims, /Company Claims/);
   assert.match(platformClaims, /Approva claim/);
   assert.match(platformClaimActions, /p3_6_review_claim_proof/);
