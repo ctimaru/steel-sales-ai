@@ -19,7 +19,10 @@ export function GovernanceQueueControls({
           <p className="text-xs text-[#66736e]">{totalLabel}</p>
         </div>
       </div>
-      {tabs && baseHref && priorityValues.length > 0 ? (\n        <p className="mt-3 text-xs text-[#52615b]">Le viste contrassegnate come <strong>Da gestire</strong> indicano stati che richiedono attenzione; non sono una misura di urgenza temporale.</p>\n      ) : null}\n      {tabs && baseHref ? (
+      {tabs && baseHref && priorityValues.length > 0 ? (
+        <p className="mt-3 text-xs text-[#52615b]">Le viste contrassegnate come <strong>Da gestire</strong> indicano stati che richiedono attenzione; non sono una misura di urgenza temporale.</p>
+      ) : null}
+      {tabs && baseHref ? (
         <nav aria-label={"Filtri " + title} className="mt-4 flex gap-2 overflow-x-auto pb-1">
           {tabs.map(({ value, label }) => {
             const active = (current ?? "all") === value;
@@ -31,7 +34,7 @@ export function GovernanceQueueControls({
               <Link key={value} href={href} aria-current={active ? "page" : undefined}
                 className={["inline-flex min-h-10 shrink-0 items-center rounded-xl border px-3 py-2 text-xs font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1a5144]",
                   active ? "border-[#1a5144] bg-[#1a5144] text-white" : "border-[#d7dfdb] bg-[#f8faf9] text-[#43524c] hover:bg-[#e1ece8]"].join(" ")}>
-                {label}
+                {label}{priorityValues.includes(value) ? <span className="ml-1.5 text-[10px] font-semibold opacity-80">· Da gestire</span> : null}
               </Link>
             );
           })}
