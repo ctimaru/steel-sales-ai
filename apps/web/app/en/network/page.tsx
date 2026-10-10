@@ -69,10 +69,10 @@ export default function EnglishNetworkPage() {
             The public company lookup helps identify organizations and determine whether a profile can be claimed. Contacts, quotations, orders and private commercial records are not published through the directory.
           </p>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-[#52615b]">
-            Company registration requires review before private workspace activation. The registration and company lookup interfaces are currently in Italian.
+            Company registration requires review before private workspace activation. English registration and company lookup are now available. The private workspace and legal documents are currently in Italian.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/register" hrefLang="it" className="platform-primary inline-flex min-h-12 items-center justify-center rounded-xl px-5 text-sm font-bold">Register company (IT) →</Link>
+            <Link href="/en/register" className="platform-primary inline-flex min-h-12 items-center justify-center rounded-xl px-5 text-sm font-bold">Register company →</Link>
             <Link href="/azienda" hrefLang="it" className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#b9c9c2] bg-white px-5 text-sm font-bold text-[#123b34]">Find a company (IT)</Link>
           </div>
         </div>
