@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getPlatformAccessContext, requirePlatformPermission } from "@/lib/platform-admin";
-import { addDiscoverySource, reviewDiscoverySourceRegistry } from "./actions";
+import { addDiscoverySource, reviewDiscoverySourceRegistry, reviewDiscoveredDomain } from "./actions";
 
 type Source = { id: string; source_name: string; source_url: string; source_type: string;
  governance_status: string; terms_status: string; database_rights_status: string;
@@ -18,6 +18,8 @@ export default async function DiscoverySourcesPage({
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("crawl_it2_list_sources");
   const sources = (data ?? []) as Source[];
+  const { data: leads, error: leadError } = await supabase.rpc("crawl_it3_list_pending_leads");
+  const pendingLeads = (leads ?? []) as Array<{ id:string; domain:string; proposed_url:string; evidence_url:string; source_name:string; created_at:string }>;
   return <main className="mx-auto max-w-5xl space-y-5 p-4 sm:p-6">
     <Link href="/platform/company-discovery/governance" className="text-sm font-semibold underline">← Governance Discovery</Link>
     <header className="space-y-2">
@@ -34,6 +36,28 @@ export default async function DiscoverySourcesPage({
       <label className="grid gap-1 text-sm">Tipologia<select name="type" className="min-h-11 rounded-lg border px-3">{sourceTypes.map(type=><option key={type} value={type}>{type.replaceAll("_"," ")}</option>)}</select></label>
       <button className="min-h-11 rounded-xl bg-[#173f35] px-5 font-semibold text-white">Aggiungi come non revisionata</button>
     </form> : null}
+    <section className="space-y-3">
+      <h2 className="text-lg font-semibold">Nuovi domini da valutare ({pendingLeads.length})</h2>
+      {leadError ? <p role="alert" className="rounded-xl border p-3 text-sm">Coda dei domini temporaneamente non disponibile.</p> : null}
+      {pendingLeads.length===0 && !leadError ? <p className="rounded-xl border p-3 text-sm">Nessun dominio da revisionare.</p> : null}
+      {pendingLeads.map(lead => <article key={lead.id} className="rounded-2xl border bg-white p-4">
+        <p className="font-semibold">{lead.domain}</p>
+        <p className="text-xs text-[#53637a]">Fonte: {lead.source_name}</p>
+        <a href={lead.evidence_url} target="_blank" rel="noopener noreferrer" className="block break-all text-xs underline">Evidenza della provenienza</a>
+        {canReview ? <form action={reviewDiscoveredDomain} className="mt-3 grid gap-3 sm:grid-cols-2">
+          <input type="hidden" name="lead_id" value={lead.id}/>
+          <label className="grid gap-1 text-sm">Decisione
+            <select name="decision" className="min-h-11 rounded-lg border px-2">
+              <option value="reject">Rifiuta</option><option value="accept">Accetta per analisi crawler</option>
+            </select>
+          </label>
+          <label className="grid gap-1 text-sm">Motivazione
+            <input name="note" required minLength={12} maxLength={2000} className="min-h-11 rounded-lg border px-3"/>
+          </label>
+          <button className="min-h-11 rounded-xl border px-4 font-semibold sm:col-span-2">Registra decisione</button>
+        </form> : null}
+      </article>)}
+    </section>
     <section className="space-y-3">
       <h2 className="text-lg font-semibold">Fonti registrate ({sources.length})</h2>
       {sources.length===0 ? <p className="rounded-xl border p-4 text-sm">Nessuna fonte inserita. La scoperta autonoma rimane disattivata.</p> : null}
