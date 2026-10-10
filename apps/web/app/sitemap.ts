@@ -132,6 +132,46 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: tubesLastModified,
       changeFrequency: "weekly",
       priority: 0.92,
+      alternates: {
+        languages: {
+          it: absoluteUrl("/knowledge/tubes"),
+          en: absoluteUrl("/en/knowledge/tubes"),
+        },
+      },
+    },
+    {
+      url: absoluteUrl("/en/knowledge/tubes"),
+      lastModified: tubesLastModified,
+      changeFrequency: "weekly",
+      priority: 0.9,
+      alternates: {
+        languages: {
+          it: absoluteUrl("/knowledge/tubes"),
+          en: absoluteUrl("/en/knowledge/tubes"),
+        },
+      },
+    },
+    {
+      url: absoluteUrl("/distinta"),
+      changeFrequency: "monthly",
+      priority: 0.88,
+      alternates: {
+        languages: {
+          it: absoluteUrl("/distinta"),
+          en: absoluteUrl("/en/distinta"),
+        },
+      },
+    },
+    {
+      url: absoluteUrl("/en/distinta"),
+      changeFrequency: "monthly",
+      priority: 0.86,
+      alternates: {
+        languages: {
+          it: absoluteUrl("/distinta"),
+          en: absoluteUrl("/en/distinta"),
+        },
+      },
     },
     {
       url: absoluteUrl("/listini"),
