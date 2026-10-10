@@ -27,7 +27,8 @@ test("English knowledge and network pages are independently indexable", () => {
   assert.match(sitemap, /url: absoluteUrl\("\/en"\)/);
   assert.match(sitemap, /url: absoluteUrl\("\/en\/knowledge"\)/);
   assert.match(sitemap, /url: absoluteUrl\("\/en\/network"\)/);
-  assert.match(robots, /"\/en\/"/);
+  assert.match(robots, /allow: \["\\/", "\\/azienda", "\\/knowledge", "\\/knowledge\\/"\]/);
+  assert.doesNotMatch(robots, /disallow: \[[\s\S]*?"\\/en"/);
 });
 
 test("Contact is present on both homes without inventing a LinkedIn message URL", () => {
