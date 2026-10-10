@@ -5,10 +5,15 @@ import { PENDING_SIGNUP_EMAIL_COOKIE } from "@/lib/auth-email-verification";
 import { safeInternalNext } from "@/lib/auth-next";
 import { createClient } from "@/lib/supabase/server";
 
+function safeNext(value: string | null) {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/register";
+  return safeInternalNext(value, "/register");
+}
+
 export async function GET(request: NextRequest) {
   const tokenHash = request.nextUrl.searchParams.get("token_hash");
   const type = request.nextUrl.searchParams.get("type") as EmailOtpType | null;
-  const next = safeInternalNext(request.nextUrl.searchParams.get("next"), "/register");
+  const next = safeNext(request.nextUrl.searchParams.get("next"));
 
   const successUrl = request.nextUrl.clone();
   // A claim reference belongs in the query string, not the URL pathname.
