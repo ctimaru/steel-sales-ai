@@ -29,6 +29,8 @@ export function EnglishPublicSubpage({
             <Link href="/en" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">Home</Link>
             <Link href="/en/knowledge" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">Knowledge</Link>
             <Link href="/en/network" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">Network</Link>
+            <Link href="/en/knowledge/standards" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">Standards</Link>
+            <Link href="/en/knowledge/grades" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">Grades</Link>
             <Link href="/en/knowledge/tubes" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">Weight calculator</Link>
             <Link href="/en/distinta" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">RFQ builder</Link>
           </nav>
@@ -54,6 +56,8 @@ export function EnglishPublicSubpage({
           <Link href="/en" className="font-semibold">Home</Link>
           <Link href="/en/knowledge" className="font-semibold">Knowledge</Link>
           <Link href="/en/network" className="font-semibold">Network</Link>
+          <Link href="/en/knowledge/standards" className="font-semibold">Standards</Link>
+          <Link href="/en/knowledge/grades" className="font-semibold">Steel grades</Link>
           <Link href="/en/knowledge/tubes" className="font-semibold">Weight calculator</Link>
           <Link href="/en/distinta" className="font-semibold">RFQ builder</Link>
           <Link href="/privacy" hrefLang="it" className="font-semibold">Privacy (IT)</Link>
