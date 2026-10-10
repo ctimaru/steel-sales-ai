@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "apps/web/tests/demotest23-*.mjs"
+      - "apps/web/tests/rfqh14-2-*.mjs"
+      - "supabase/tests/rfqh14_2_chrome_procurement_seed.sql"
       - "supabase/tests/demotest2_3_chrome_seed.sql"
       - ".github/workflows/demotest2-3-chrome-auth.yml"
       - "apps/web/app/login/**"
@@ -79,6 +81,18 @@ jobs:
             -v ON_ERROR_STOP=1 \
             -f "$RUNNER_TEMP/demotest23-psql-vars.sql" \
             -f supabase/tests/demotest2_3_chrome_seed.sql
+      - name: RFQH14.2 — Generate ephemeral guest tokens (LOCAL only)
+        working-directory: apps/web
+        run: node tests/rfqh14-2-prepare-portal.mjs
+      - name: RFQH14.2 — Seed unsent buyer RFQ and two isolated supplier portals (LOCAL only)
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/demotest23-psql-vars.sql" \
+            -f "$RUNNER_TEMP/rfqh14-2-psql-vars.sql" \
+            -f supabase/tests/rfqh14_2_chrome_procurement_seed.sql
       - name: Start REAL Next.js against local Supabase (never Vercel)
         shell: bash
         working-directory: apps/web
@@ -101,6 +115,10 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 20
         run: node tests/demotest23-chrome-auth.mjs
+      - name: "RFQH14.2 Chrome: buyer, isolated supplier portals, quote, mobile 390 + 430"
+        working-directory: apps/web
+        timeout-minutes: 20
+        run: node tests/rfqh14-2-chrome-procurement.mjs
       - name: Local Next.js render diagnostics after Chrome failure
         if: failure()
         shell: bash
@@ -118,4 +136,5 @@ jobs:
           fi
           supabase stop --no-backup || true
           rm -f "$RUNNER_TEMP/demotest23-personas.json" "$RUNNER_TEMP/demotest23-psql-vars.sql" \
-            "$RUNNER_TEMP/demotest23-local.env"
+            "$RUNNER_TEMP/demotest23-local.env" "$RUNNER_TEMP/rfqh14-2-tokens.json" \
+            "$RUNNER_TEMP/rfqh14-2-psql-vars.sql"
