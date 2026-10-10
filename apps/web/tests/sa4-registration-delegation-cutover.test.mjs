@@ -98,7 +98,7 @@ test("SA4 renders each registration mutation only when its dedicated capability 
   ]) {
     assert.match(
       registrationDetail,
-      new RegExp("permissions\.includes\\(\"" + permission.replaceAll(".", "\.") + "\"\\)"),
+      new RegExp("permissions\\.includes\\(\"" + permission.replaceAll(".", "\\.") + "\"\\)"),
     );
   }
   assert.match(registrationDetail, /canRequestInformation/);
@@ -123,7 +123,7 @@ test("SA4 server actions recheck dedicated registration permissions before RPC e
         "export async function " +
           action +
           "[\\s\\S]*?requirePlatformPermission\\(\"" +
-          permission.replaceAll(".", "\.") +
+          permission.replaceAll(".", "\\.") +
           "\"\\)",
       ),
     );
@@ -139,7 +139,7 @@ test("SA4 database cutover maps all registration RPCs to explicit capabilities",
     "registrations.activate",
     "registrations.bridge_network",
   ]) {
-    assert.match(migration, new RegExp("require_platform_permission\\('" + permission.replaceAll(".", "\.") + "'\\)"));
+    assert.match(migration, new RegExp("require_platform_permission\\('" + permission.replaceAll(".", "\\.") + "'\\)"));
   }
   assert.match(migration, /platform_owner/);
   assert.match(migration, /platform_staff/);

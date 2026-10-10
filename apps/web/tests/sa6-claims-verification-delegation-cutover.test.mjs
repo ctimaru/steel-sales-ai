@@ -54,8 +54,8 @@ test("SA6 renders proof and claim decisions from dedicated capabilities", () => 
     assert.match(
       page,
       new RegExp(
-        "permissions\.includes\\(\"" +
-          permission.replaceAll(".", "\.") +
+        "permissions\\.includes\\(\"" +
+          permission.replaceAll(".", "\\.") +
           "\"\\)",
       ),
     );
@@ -101,7 +101,7 @@ test("SA6 database cutover replaces root gates only for Claims operations", () =
       migration,
       new RegExp(
         "require_platform_permission\\([^)]*" +
-          permission.replaceAll(".", "\.") ,
+          permission.replaceAll(".", "\\.") ,
       ),
     );
   }

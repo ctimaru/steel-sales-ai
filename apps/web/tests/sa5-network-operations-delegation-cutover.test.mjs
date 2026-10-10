@@ -60,8 +60,8 @@ test("SA5 renders discovery operations from their dedicated capabilities", () =>
     assert.match(
       page,
       new RegExp(
-        "permissions\.includes\\(\"" +
-          permission.replaceAll(".", "\.") +
+        "permissions\\.includes\\(\"" +
+          permission.replaceAll(".", "\\.") +
           "\"\\)",
       ),
     );
@@ -111,7 +111,7 @@ test("SA5 database cutover removes direct root gates and enforces explicit permi
       migration,
       new RegExp(
         "require_platform_permission\\('" +
-          permission.replaceAll(".", "\.") +
+          permission.replaceAll(".", "\\.") +
           "'\\)",
       ),
     );

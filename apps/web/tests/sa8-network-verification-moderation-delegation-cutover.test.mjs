@@ -47,11 +47,11 @@ test("SA8 adds a distinct Network Trust role and capability family", () => {
   ]) {
     assert.match(
       contract,
-      new RegExp(permission.replaceAll(".", "\.")),
+      new RegExp(permission.replaceAll(".", "\\.")),
     );
     assert.match(
       migration,
-      new RegExp(permission.replaceAll(".", "\.")),
+      new RegExp(permission.replaceAll(".", "\\.")),
     );
   }
 });
@@ -82,8 +82,8 @@ test("SA8 UI gates every privileged Network Trust operation independently", () =
     assert.match(
       page,
       new RegExp(
-        "permissions\.includes\\([\\s\\S]*?\"" +
-          permission.replaceAll(".", "\.") +
+        "permissions\\.includes\\([\\s\\S]*?\"" +
+          permission.replaceAll(".", "\\.") +
           "\"[\\s\\S]*?\\)",
       ),
     );
@@ -132,7 +132,7 @@ test("SA8 cuts M4/M5 root-only operations over to explicit capabilities", () => 
       migration,
       new RegExp(
         "require_platform_permission\\('" +
-          permission.replaceAll(".", "\.") +
+          permission.replaceAll(".", "\\.") +
           "'\\)",
       ),
     );
