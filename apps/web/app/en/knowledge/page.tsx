@@ -31,15 +31,15 @@ const topics = [
     title: "Steel standards",
     description:
       "Learn how technical standards define product requirements, dimensional tolerances and testing conditions. EN 10219 covers cold-formed structural hollow sections; EN 10210 covers hot-finished structural hollow sections.",
-    href: "/knowledge/norme",
-    linkText: "View standards catalogue (Italian interface)",
+    href: "/en/knowledge/standards",
+    linkText: "Browse the English steel standards catalogue"
   },
   {
     title: "Material grades",
     description:
       "Understand material designations such as S235, S275 and S355, and why a full grade and standard reference matter when specifying steel.",
-    href: "/knowledge/gradi",
-    linkText: "Browse grade references (Italian interface)",
+    href: "/en/knowledge/grades",
+    linkText: "Explore steel grades in English"
   },
   {
     title: "Tube dimensions and weights",

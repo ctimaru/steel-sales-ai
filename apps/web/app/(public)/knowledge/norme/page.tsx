@@ -16,6 +16,7 @@ const baseMetadata: Metadata = {
     "Catalogo pubblico delle principali norme per tubi e acciaio: EN 10210, EN 10219, EN 10216, EN 10217, EN 10224 e altre guide tecniche.",
   alternates: {
     canonical: absoluteUrl("/knowledge/norme"),
+    languages: { it: absoluteUrl("/knowledge/norme"), en: absoluteUrl("/en/knowledge/standards") },
   },
   openGraph: {
     title: "Norme per tubi e acciaio · Scuola Smart Steel Sales",
@@ -159,6 +160,7 @@ export default async function StandardsIndexPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
+      <div className="flex justify-end"><Link href="/en/knowledge/standards" hrefLang="en" lang="en" className="inline-flex min-h-10 items-center rounded-lg border border-[#dce5e0] bg-white px-3 text-xs font-bold text-[#123b34]">English standards →</Link></div>
       <nav aria-label="Breadcrumb" className="school-breadcrumb">
         <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>

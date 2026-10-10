@@ -79,7 +79,7 @@ export default function EnglishHomePage() {
       <header className="border-b border-[#dce5e0] bg-white">
         <div className="mx-auto flex min-h-[72px] max-w-[1180px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
           <ProductBrand href="/en" compact />
-          <nav aria-label="English public navigation" className="hidden items-center gap-2 lg:flex">
+          <nav aria-label="English public navigation" className="hidden items-center gap-2 xl:flex">
             <Link href="/en/network" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">Network</Link>
             <Link href="/en/knowledge" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">Knowledge</Link>
             <Link href="/en/knowledge/tubes" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">Weight calculator</Link>
@@ -94,9 +94,11 @@ export default function EnglishHomePage() {
             </Link>
           </div>
         </div>
-        <nav aria-label="English mobile navigation" className="flex gap-1 overflow-x-auto border-t border-[#edf1ee] px-4 py-1.5 lg:hidden">
+        <nav aria-label="English mobile navigation" className="flex gap-1 overflow-x-auto border-t border-[#edf1ee] px-4 py-1.5 xl:hidden">
           <Link href="/en/network" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">Network</Link>
           <Link href="/en/knowledge" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">Knowledge</Link>
+          <Link href="/en/knowledge/standards" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">Standards</Link>
+          <Link href="/en/knowledge/grades" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">Grades</Link>
           <Link href="/en/knowledge/tubes" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">Weight calculator</Link>
           <Link href="/en/distinta" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">RFQ builder</Link>
           <Link href="#get-in-touch" className="inline-flex min-h-10 shrink-0 items-center px-3 text-xs font-semibold text-[#52615b]">Get in touch</Link>
@@ -129,6 +131,8 @@ export default function EnglishHomePage() {
             <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-[#dbe6df] pt-5 text-xs font-semibold text-[#1f6b5a]">
               <Link href="/en/knowledge" className="underline underline-offset-4">Steel Knowledge</Link>
               <Link href="/en/network" className="underline underline-offset-4">Explore the Network</Link>
+              <Link href="/en/knowledge/standards" className="underline underline-offset-4">Steel standards</Link>
+              <Link href="/en/knowledge/grades" className="underline underline-offset-4">Steel grades</Link>
               <Link href="/en/knowledge/tubes" className="underline underline-offset-4">Calculate tube weight</Link>
               <Link href="/en/distinta" className="underline underline-offset-4">Create an RFQ bill</Link>
             </div>
