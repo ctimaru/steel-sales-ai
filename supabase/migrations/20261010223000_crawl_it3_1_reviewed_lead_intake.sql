@@ -24,6 +24,10 @@ begin
     and s.database_rights_status in ('low_risk','licensed')
     and s.personal_data_policy in ('company_data_only','exclude_personal_data')
  ) then raise exception 'source approval required' using errcode='42501'; end if;
+ if p_decision='accept' and exists (
+   select 1 from public.network_companies c
+   where c.archived_at is null and lower(c.website_domain)=lower(v.domain)
+ ) then raise exception 'domain already present in Network; resolve existing identity first' using errcode='22023'; end if;
  if p_decision='accept' then
    -- A reviewed lead enters the existing candidate extraction pipeline;
    -- no approval of a Network company or facility happens here.
