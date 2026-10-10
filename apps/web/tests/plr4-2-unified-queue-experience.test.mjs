@@ -18,5 +18,5 @@ test("PLR4.2 all five domains share role-aware queue summary", () => {
 test("PLR4.2 no database calls or mutations in reusable queue UI", () => {
  const c=read("components/governance-queue-controls.tsx");
  assert.doesNotMatch(c,/supabase|\.rpc\(|fetch\(|<form|useEffect/);
- assert.match(c,/encodeURIComponent\(value\)/);
+ assert.match(c,/URLSearchParams/);
 });

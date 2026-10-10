@@ -1,3 +1,4 @@
+import { platformQueueReturn } from "@/lib/platform-queue-return";
 import Link from "next/link";
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { DenseDisclosure } from "@/components/dense-ui";
@@ -77,12 +78,12 @@ export default async function AdminRegistrationDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ error?: string; message?: string }>;
+  searchParams: Promise<{ error?: string; message?: string; status?: string; q?: string }>;
 }) {
   await requirePlatformPermission("registrations.read");
   const access = await getPlatformAccessContext();
   const { id } = await params;
-  const { error, message } = await searchParams;
+  const { error, message, status, q } = await searchParams;
   const detail = await getRegistrationDetail(id);
 
   if (!detail) notFound();
@@ -134,7 +135,7 @@ export default async function AdminRegistrationDetailPage({
   return (
     <div className="uxf2-dense-page mx-auto max-w-[1180px] space-y-6">
       <div>
-        <Link href="/platform/registrations" className="text-sm font-semibold text-[#66736e] hover:text-[#1d2824]">
+        <Link href={platformQueueReturn("/platform/registrations", status, q)} className="text-sm font-semibold text-[#66736e] hover:text-[#1d2824]">
           ← Torna alle registrazioni
         </Link>
       </div>

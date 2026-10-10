@@ -1,3 +1,4 @@
+import { GovernanceQueueFeedback } from "@/components/governance-queue-feedback";
 import { GOVERNANCE_ROW_CLASS } from "@/lib/governance-row-contract";
 import { GovernanceQueueControls } from "@/components/governance-queue-controls";
 import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
@@ -63,7 +64,7 @@ export default async function CompanyClaimsPage({
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <GovernanceWorkspaceNav current="claims" permissions={access?.permissions ?? []} />
-      <GovernanceQueueControls title="Company Claims" total={queue.total} readOnly={!hasMutationAccess} />
+      <GovernanceQueueControls title="Company Claims" total={queue.total} readOnly={!hasMutationAccess} tabs={FILTERS.map(([value, label]) => ({ value, label }))} current={activeStatus ?? 'all'} baseHref="/platform/company-claims" priorityValues={["requested", "under_review"]} />
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <p className="platform-kicker">P3.6 · Governance</p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#18263d] sm:text-4xl">
@@ -76,16 +77,7 @@ export default async function CompanyClaimsPage({
         </p>
       </section>
 
-      {params.message ? (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-800">
-          {params.message}
-        </div>
-      ) : null}
-      {params.error ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-800">
-          {params.error}
-        </div>
-      ) : null}
+      <GovernanceQueueFeedback error={params.error} message={params.message} />
 
       <section className="grid gap-3 sm:grid-cols-3">
         {[
@@ -102,25 +94,7 @@ export default async function CompanyClaimsPage({
         ))}
       </section>
 
-      <nav className="flex gap-2 overflow-x-auto pb-1" aria-label="Filtri claim">
-        {FILTERS.map(([value, label]) => {
-          const selected = (activeStatus ?? "all") === value;
-          return (
-            <Link
-              key={value}
-              href={value === "all" ? "/platform/company-claims" : `/platform/company-claims?status=${value}`}
-              className={[
-                "shrink-0 rounded-full border px-4 py-2.5 text-xs font-semibold",
-                selected
-                  ? "platform-selected-solid"
-                  : "border-[#d7dfdb] bg-white text-[#43524c] hover:border-[#b8d2c8] hover:bg-[#f0f4f2] hover:text-[#1a5144]",
-              ].join(" ")}
-            >
-              {label}
-            </Link>
-          );
-        })}
-      </nav>
+      
 
       {!hasMutationAccess ? (
         <div className="rounded-2xl border border-[#d7dfdb] bg-[#f8fafd] p-4 text-sm text-[#66736e]">
@@ -131,7 +105,7 @@ export default async function CompanyClaimsPage({
       <section className="space-y-4">
         {queue.items.length === 0 ? (
           <FirstUseEmptyState
-            eyebrow={activeStatus ? "Filtro senza risultati" : "Coda pulita"}
+            eyebrow={activeStatus ? "Nessun risultato con il filtro attivo" : "Coda senza pratiche"}
             title="Nessun claim in questa vista"
             description={
               activeStatus
