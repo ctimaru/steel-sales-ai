@@ -91,7 +91,9 @@ test("confirmation email stays transactional and uses a device-independent token
   assert.match(confirmationTemplate, /\{\{ \.SiteURL \}\}\/auth\/confirm/);
   assert.match(confirmationTemplate, /token_hash=\{\{ \.TokenHash \}\}/);
   assert.match(confirmationTemplate, /type=email/);
-  assert.match(confirmationTemplate, /next=\/register/);
+  assert.match(confirmationTemplate, /redirect_to=\{\{ \.RedirectTo \}\}/);
+  assert.match(confirmRoute, /nextFromSignupRedirect/);
+  assert.match(confirmRoute, /PENDING_SIGNUP_NEXT_COOKIE/);
   assert.doesNotMatch(confirmationTemplate, /\{\{ \.ConfirmationURL \}\}/);
   assert.match(confirmationTemplate, />\s*Conferma email\s*</);
   assert.match(
