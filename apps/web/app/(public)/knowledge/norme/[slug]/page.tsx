@@ -12,6 +12,7 @@ import {
   productFamilyLabel,
 } from "@/lib/knowledge-labels";
 import { getPublicStandard } from "@/lib/public-knowledge";
+import { englishStandardForSlug } from "@/lib/international-steel-knowledge";
 import { absoluteUrl } from "@/lib/site";
 
 const loadStandard = cache(getPublicStandard);
@@ -45,6 +46,10 @@ export async function generateMetadata({
     description: standard.seo_description,
     alternates: {
       canonical: absoluteUrl(`/knowledge/norme/${standard.slug}`),
+      ...(englishStandardForSlug(standard.slug) ? { languages: {
+        it: absoluteUrl(`/knowledge/norme/${standard.slug}`),
+        en: absoluteUrl(`/en/knowledge/standards/${standard.slug}`),
+      }} : {}),
     },
     openGraph: {
       title: standard.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, ""),
@@ -138,6 +143,7 @@ export default async function StandardDetailPage({
         />
       ) : null}
 
+      {englishStandardForSlug(standard.slug) ? <div className="flex justify-end"><Link href={`/en/knowledge/standards/${standard.slug}`} hrefLang="en" lang="en" className="inline-flex min-h-10 items-center rounded-lg border border-[#dce5e0] bg-white px-3 text-xs font-bold text-[#123b34]">English guide →</Link></div> : null}
       <nav aria-label="Breadcrumb" className="school-breadcrumb">
         <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>

@@ -16,6 +16,7 @@ const baseMetadata: Metadata = {
     "Catalogo pubblico dei principali gradi di acciaio per tubi e profilati: P235GH, P265GH, 16Mo3, P235TR1/TR2, P265TR1/TR2, S355J2H, S355NH e S355NLH.",
   alternates: {
     canonical: absoluteUrl("/knowledge/gradi"),
+    languages: { it: absoluteUrl("/knowledge/gradi"), en: absoluteUrl("/en/knowledge/grades") },
   },
   openGraph: {
     title: "Gradi di acciaio e materiali · Scuola Smart Steel Sales",
@@ -149,6 +150,7 @@ export default async function GradesIndexPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
+      <div className="flex justify-end"><Link href="/en/knowledge/grades" hrefLang="en" lang="en" className="inline-flex min-h-10 items-center rounded-lg border border-[#dce5e0] bg-white px-3 text-xs font-bold text-[#123b34]">English grades →</Link></div>
       <nav aria-label="Breadcrumb" className="school-breadcrumb">
         <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>
