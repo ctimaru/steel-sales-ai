@@ -183,10 +183,10 @@ export const PLATFORM_IA_COCKPIT_SIGNALS = [
   { key: "registrations_review", label: "Registrazioni da revisionare", permission: "registrations.read", source: "hp6_registration_operations_queue.summary.pending_review", state: "aggregate_available" },
   { key: "registrations_activate", label: "Workspace da attivare", permission: "registrations.read", source: "hp6_registration_operations_queue.summary.ready_activation", state: "aggregate_available" },
   { key: "registration_identity_conflicts", label: "Conflitti identità", permission: "registrations.read", source: "hp6_registration_operations_queue.summary.identity_conflicts", state: "aggregate_available" },
-  { key: "claims_proof_pending", label: "Claim da verificare", permission: "claims.read", source: "getAdminCompanyClaimQueue.proofPending", state: "validate_scope" },
-  { key: "discovery_review", label: "Aziende da revisionare", permission: "discovery.read", source: "getCompanyDiscoveryQueue", state: "aggregate_required" },
-  { key: "network_identity_candidates", label: "Identità in verifica", permission: "network_trust.read", source: "getNetworkTrustQueue.counts.open_identity_candidates", state: "validate_scope" },
-  { key: "knowledge_review", label: "Knowledge in revisione", permission: "knowledge.read_drafts", source: "getPlatformKnowledgeQueue.inReview", state: "validate_scope" },
+  { key: "claims_proof_pending", label: "Claim da verificare", permission: "claims.read", source: "p3_6_admin_claim_queue.proof_pending", state: "aggregate_available" },
+  { key: "discovery_review", label: "Aziende da revisionare", permission: "discovery.read", source: "p3_admin_discovery_queue(p_status=pending_review).total", state: "aggregate_available" },
+  { key: "network_identity_candidates", label: "Identità in verifica", permission: "network_trust.read", source: "sa8_network_trust_queue.counts.open_identity_candidates", state: "aggregate_available" },
+  { key: "knowledge_review", label: "Knowledge in revisione", permission: "knowledge.read_drafts", source: "sa7_knowledge_queue.in_review", state: "aggregate_available" },
 ] as const satisfies readonly {
   key: string;
   label: string;
