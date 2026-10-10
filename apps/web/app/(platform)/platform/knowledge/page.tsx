@@ -1,3 +1,4 @@
+import { platformQueueReturn } from "@/lib/platform-queue-return";
 import { GOVERNANCE_ROW_LINK_CLASS } from "@/lib/governance-row-contract";
 import { GovernanceQueueControls } from "@/components/governance-queue-controls";
 import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
@@ -236,7 +237,7 @@ export default async function PlatformKnowledgePage({
           queue.items.map((item) => (
             <Link
               key={`${item.content_type}-${item.page_id}`}
-              href={`/platform/knowledge/${item.content_type}/${item.page_id}`}
+              href={`/platform/knowledge/${item.content_type}/${item.page_id}${activeStatus ? "?status=" + encodeURIComponent(activeStatus) : ""}`}
               className={GOVERNANCE_ROW_LINK_CLASS}
             >
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
