@@ -129,7 +129,7 @@ export const PLATFORM_IA_MODULES = [
 
 export type PlatformIaModuleKey = (typeof PLATFORM_IA_MODULES)[number]["key"];
 
-/** Include every actual app/(platform)/platform/**/page.tsx (template paths use [id]). */
+/** Inventory of the app-router Platform page files (including nested paths). */
 export const PLATFORM_IA_ROUTE_INVENTORY = [
   { path: "/platform", module: "home" },
   { path: "/platform/notifications", module: "notifications" },
