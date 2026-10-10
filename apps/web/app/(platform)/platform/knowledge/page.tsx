@@ -1,3 +1,4 @@
+import { GovernanceQueueFeedback } from "@/components/governance-queue-feedback";
 import { GOVERNANCE_ROW_LINK_CLASS } from "@/lib/governance-row-contract";
 import { GovernanceQueueControls } from "@/components/governance-queue-controls";
 import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
@@ -58,7 +59,7 @@ export default async function PlatformKnowledgePage({
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <GovernanceWorkspaceNav current="knowledge" permissions={access?.permissions ?? []} />
-      <GovernanceQueueControls title="Knowledge" total={queue.total} readOnly={!(canEdit || canReview || canPublish)} />
+      <GovernanceQueueControls title="Knowledge" total={queue.total} readOnly={!(canEdit || canReview || canPublish)} tabs={FILTERS.map(([value, label]) => ({ value, label }))} current={activeStatus ?? 'all'} baseHref="/platform/knowledge" priorityValues={["in_review", "changes_requested"]} />
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <p className="platform-kicker">SA7 · Knowledge Operations</p>
         <div className="mt-3 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -89,16 +90,7 @@ export default async function PlatformKnowledgePage({
         </div>
       </section>
 
-      {params.message ? (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-800">
-          {params.message}
-        </div>
-      ) : null}
-      {params.error ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-800">
-          {params.error}
-        </div>
-      ) : null}
+      <GovernanceQueueFeedback error={params.error} message={params.message} />
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {[
@@ -204,29 +196,7 @@ export default async function PlatformKnowledgePage({
         </div>
       </section>
 
-      <nav className="flex gap-2 overflow-x-auto pb-1" aria-label="Filtri Knowledge">
-        {FILTERS.map(([value, label]) => {
-          const selected = (activeStatus ?? "all") === value;
-          return (
-            <Link
-              key={value}
-              href={
-                value === "all"
-                  ? "/platform/knowledge"
-                  : `/platform/knowledge?status=${value}`
-              }
-              className={[
-                "shrink-0 rounded-full border px-4 py-2.5 text-xs font-semibold",
-                selected
-                  ? "platform-selected-solid"
-                  : "border-[#d7dfdb] bg-white text-[#43524c] hover:border-[#b8d2c8] hover:bg-[#f0f4f2] hover:text-[#1a5144]",
-              ].join(" ")}
-            >
-              {label}
-            </Link>
-          );
-        })}
-      </nav>
+      
 
       {!canEdit && !canReview && !canPublish ? (
         <div className="rounded-2xl border border-[#d7dfdb] bg-[#f8fafd] p-4 text-sm text-[#66736e]">
@@ -238,7 +208,7 @@ export default async function PlatformKnowledgePage({
       <section className="space-y-3">
         {queue.items.length === 0 ? (
           <FirstUseEmptyState
-            eyebrow={activeStatus ? "Filtro senza risultati" : "Coda editoriale"}
+            eyebrow={activeStatus ? "Nessun risultato con il filtro attivo" : "Coda editoriale vuota"}
             title="Nessun contenuto in questa vista"
             description={
               activeStatus
@@ -258,7 +228,7 @@ export default async function PlatformKnowledgePage({
           queue.items.map((item) => (
             <Link
               key={`${item.content_type}-${item.page_id}`}
-              href={`/platform/knowledge/${item.content_type}/${item.page_id}`}
+              href={`/platform/knowledge/${item.content_type}/${item.page_id}${activeStatus ? "?status=" + encodeURIComponent(activeStatus) : ""}`}
               className={GOVERNANCE_ROW_LINK_CLASS}
             >
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

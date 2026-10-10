@@ -1,6 +1,6 @@
 /** PLR4.3 shared visual contract, deliberately independent of business workflows. */
 export const GOVERNANCE_ROW_CLASS =
-  "rounded-2xl border border-[#dce2df] bg-white p-5 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1a5144]";
+  "rounded-2xl border border-[#dce2df] bg-white p-3 sm:p-5 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1a5144]";
 
 export const GOVERNANCE_ROW_LINK_CLASS =
   GOVERNANCE_ROW_CLASS + " block hover:border-[#b8d2c8] hover:shadow-sm";

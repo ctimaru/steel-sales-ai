@@ -1,3 +1,4 @@
+import { platformQueueReturn } from "@/lib/platform-queue-return";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -104,7 +105,7 @@ export default async function PlatformKnowledgeDetailPage({
   searchParams,
 }: {
   params: Promise<{ type: string; id: string }>;
-  searchParams: Promise<{ message?: string; error?: string }>;
+  searchParams: Promise<{ message?: string; error?: string; status?: string }>;
 }) {
   await requirePlatformPermission("knowledge.read_drafts");
   const [{ type: rawType, id }, query, access] = await Promise.all([
@@ -141,7 +142,7 @@ export default async function PlatformKnowledgeDetailPage({
     <div className="mx-auto max-w-7xl space-y-6">
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <Link
-          href="/platform/knowledge"
+          href={platformQueueReturn("/platform/knowledge", query.status)}
           className="text-xs font-semibold text-[#1a5144]"
         >
           ← Knowledge Operations
