@@ -34,6 +34,8 @@ jobs:
           cache-dependency-path: apps/web/package-lock.json
       - name: "I18N4: International SEO HTTP acceptance (GET only)"
         working-directory: apps/web
+        env:
+          I18N4_STRICT_PRODUCTION: ${{ github.event_name == 'workflow_dispatch' }}
         run: node tests/i18n4-production-seo-http.mjs
       - name: "Read-only production HTTP: public SEO and private auth gates"
         working-directory: apps/web
