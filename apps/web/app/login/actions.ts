@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import {
   PENDING_SIGNUP_EMAIL_COOKIE,
+  PENDING_SIGNUP_NEXT_COOKIE,
   pendingSignupEmailCookieOptions,
 } from "@/lib/auth-email-verification";
 import { isRegistrationNext, safeInternalNext } from "@/lib/auth-next";
@@ -175,6 +176,7 @@ export async function login(formData: FormData) {
 
   const cookieStore = await cookies();
   cookieStore.delete(PENDING_SIGNUP_EMAIL_COOKIE);
+  cookieStore.delete(PENDING_SIGNUP_NEXT_COOKIE);
 
   await routeAfterAuthentication(nextPath);
 }
@@ -234,6 +236,8 @@ export async function signup(formData: FormData) {
     email,
     pendingSignupEmailCookieOptions,
   );
+  // Same-browser fallback for older hosted email templates with a fixed /register next.
+  cookieStore.set(PENDING_SIGNUP_NEXT_COOKIE, nextPath, pendingSignupEmailCookieOptions);
 
   if (data.session) {
     await supabase.auth.signOut();
