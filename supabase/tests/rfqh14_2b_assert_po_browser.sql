@@ -2,6 +2,8 @@
 -- NEVER against remote Supabase; workflow pins 127.0.0.1:54322.
 \set ON_ERROR_STOP on
 begin transaction read only;
+select set_config('rfqh14.buyer_uid', :'buyer_user_id',true);
+select set_config('rfqh14.approver_uid', :'buyerViewer_user_id',true);
 do $verify$
 begin
   if (select count(*) from public.buyer_purchase_order_versions
@@ -14,8 +16,8 @@ begin
       where rfq_id='00000000-0000-0000-0000-000000023321'::uuid
         and action_type='po_issue'
         and status='consumed'
-        and requested_by=:'buyer_user_id'::uuid
-        and decided_by=:'buyerViewer_user_id'::uuid
+        and requested_by=current_setting('rfqh14.buyer_uid')::uuid
+        and decided_by=current_setting('rfqh14.approver_uid')::uuid
         and consumed_at is not null)<>1
     then raise exception 'RFQH14.2b requires a distinct second-person UI approval consumed by PO issuance'; end if;
   if (select count(*) from public.buyer_procurement_approvals
