@@ -8,36 +8,31 @@ const network = fs.readFileSync(
   "utf8",
 );
 
-test("UXF4 keeps public navigation neutral and renames calculator entry", () => {
+test("UXF4 preserves public discovery links in both desktop and mobile header", () => {
+  assert.match(home, /aria-label="Navigazione pubblica"/);
+  assert.match(home, /aria-label="Navigazione pubblica mobile"/);
+  assert.match(home, /surface=header#calcolatore-pesi/);
   assert.match(home, />\s*Calcolo pesi\s*</);
+  assert.match(home, /href="\/distinta"/);
+  assert.match(home, /href="\/azienda"/);
   assert.doesNotMatch(home, />\s*Calcolatore\s*</);
-  assert.match(
-    home,
-    /href="\/knowledge\/tubes\?source=home&surface=header#calcolatore-pesi"[\s\S]*className="rounded-lg px-3 py-2 text-sm font-semibold text-\[#52615b\]/,
-  );
-  assert.doesNotMatch(
-    home,
-    /surface=header#calcolatore-pesi"[\s\S]{0,180}bg-\[#edf5f2\]/,
-  );
 });
 
-test("UXF4 uses an accessible brand-colored weight CTA instead of a white hero button", () => {
-  assert.match(home, /surface=hero#calcolatore-pesi/);
-  assert.match(home, /public-primary-cta/);
+test("UXF4 prioritizes registration while keeping a no-account utility CTA", () => {
+  assert.match(home, /href="\/register" className="platform-primary inline-flex min-h-12/);
+  assert.match(home, /Registra la tua azienda/);
+  assert.match(home, /Crea distinta gratis/);
+  assert.match(home, /href="\/knowledge\/tubes\?source=home&surface=hero#calcolatore-pesi"/);
+  assert.match(home, /Utile anche senza account/);
   assert.doesNotMatch(home, /bg-\[#438d7a\]/);
-  assert.doesNotMatch(
-    home,
-    /surface=hero#calcolatore-pesi"[\s\S]{0,220}bg-white/,
-  );
 });
 
-test("UXF4 reduces the homepage to four focused content stages", () => {
-  assert.match(home, /Smart Steel Sales · Utile anche senza account/);
+test("UXF4 keeps a focused homepage value path and existing public sections", () => {
+  assert.match(home, /Super Intelligence Ready/);
   assert.match(home, /Prima utilità, poi prodotto/);
   assert.match(home, /id="aziende"/);
   assert.match(home, /<PublicNetworkRoleExplorer \/>/);
   assert.doesNotMatch(home, /Trust by design/);
-  assert.doesNotMatch(home, /Ragione sociale o Partita IVA\."\]/);
   assert.doesNotMatch(home, /rounded-\[24px\].*companyTypes/s);
 });
 
