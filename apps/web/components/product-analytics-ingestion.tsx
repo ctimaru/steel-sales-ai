@@ -3,7 +3,6 @@
 import { Analytics, type BeforeSendEvent } from "@vercel/analytics/next";
 
 const PUBLIC_PAGEVIEW_PREFIXES = [
-  "/en",
   "/knowledge",
   "/azienda",
   "/register",
@@ -20,7 +19,7 @@ const PUBLIC_PAGEVIEW_PREFIXES = [
 ];
 
 function isMeasuredPublicPath(pathname: string) {
-  return pathname === "/" || PUBLIC_PAGEVIEW_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+  return pathname === "/" || pathname === "/en" || pathname.startsWith("/en/") || PUBLIC_PAGEVIEW_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
 function redactDynamicSegment(segment: string) {
