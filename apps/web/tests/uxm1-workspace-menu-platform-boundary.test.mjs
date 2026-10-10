@@ -53,7 +53,7 @@ test("UXM1 uses Platform permission context instead of company admin role", () =
 
 test("UXM1 preserves the server-side Platform boundary and provides an explicit return path", () => {
   assert.match(platformShell, /Torna al workspace aziendale/);
-  assert.match(platformShell, /Amministrazione piattaforma/);
+  assert.match(platformShell, /Governance Smart Steel Sales/);
   assert.match(platformShell, /Console piattaforma/);
 });
 

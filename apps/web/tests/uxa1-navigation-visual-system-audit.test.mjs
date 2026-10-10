@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+const platformIa = fs.readFileSync(new URL("../lib/platform-ia-contract.ts", import.meta.url), "utf8");
 
 const routes = fs.readFileSync(
   new URL("../lib/routes.ts", import.meta.url),
@@ -64,20 +65,20 @@ test("UXA1 exposes previously orphaned daily analysis tools", () => {
 test("UXA1 makes the Platform Console navigable on mobile", () => {
   assert.match(platformNav, /export function PlatformMobileNavigation/);
   assert.match(platformNav, /lg:hidden/);
-  assert.match(platformNav, /visiblePlatformItems/);
+  assert.match(platformNav, /getPlatformIaVisibleModules/);
   assert.match(platformShell, /<PlatformMobileNavigation/);
   assert.match(platformShell, /permissions={permissions}/);
   assert.match(platformShell, /isPlatformOwner={isPlatformOwner}/);
 });
 
 test("UXA1 keeps Platform navigation on canonical route constants", () => {
-  assert.match(platformNav, /appRoutes\.platform\.home/);
-  assert.match(platformNav, /appRoutes\.platform\.people/);
-  assert.match(platformNav, /appRoutes\.platform\.registrations/);
-  assert.match(platformNav, /appRoutes\.platform\.discovery/);
-  assert.match(platformNav, /appRoutes\.platform\.claims/);
-  assert.match(platformNav, /appRoutes\.platform\.knowledge/);
-  assert.match(platformNav, /appRoutes\.platform\.networkTrust/);
+  assert.match(platformIa, /appRoutes\.platform\.home/);
+  assert.match(platformIa, /appRoutes\.platform\.people/);
+  assert.match(platformIa, /appRoutes\.platform\.registrations/);
+  assert.match(platformIa, /appRoutes\.platform\.discovery/);
+  assert.match(platformIa, /appRoutes\.platform\.claims/);
+  assert.match(platformIa, /appRoutes\.platform\.knowledge/);
+  assert.match(platformIa, /appRoutes\.platform\.networkTrust/);
 });
 
 test("UXA1 makes public Knowledge category navigation reachable on mobile", () => {

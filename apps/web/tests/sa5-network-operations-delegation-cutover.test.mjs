@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+const platformIa = fs.readFileSync(new URL("../lib/platform-ia-contract.ts", import.meta.url), "utf8");
 
 const navigation = fs.readFileSync(
   new URL("../components/platform-navigation.tsx", import.meta.url),
@@ -28,8 +29,8 @@ const migration = fs.readFileSync(
 
 test("SA5 exposes Company Discovery to authorized Platform Staff", () => {
   assert.match(
-    navigation,
-    /href: appRoutes\.platform\.discovery[\s\S]*?permission: "discovery\.read"[\s\S]*?staffEnabled: true/,
+    platformIa,
+    /key: "discovery"[\s\S]*?access: \{ kind: "permission", key: "discovery\\.read" \}/,
   );
   assert.match(home, /canReadDiscovery/);
   assert.match(home, /context\.permissions\.includes\("discovery\.read"\)/);
