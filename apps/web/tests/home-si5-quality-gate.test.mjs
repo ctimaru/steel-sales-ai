@@ -21,6 +21,7 @@ test("HOME-SI5 runs real Chrome visual/SEO/WCAG audit in disposable CI without V
   assert.match(chrome, /screenshot/);
   assert.match(chrome, /robots\.txt/);
   assert.match(chrome, /sitemap\.xml/);
+  assert.match(chrome, /Local canonical should use local CI origin/);
   assert.match(chrome, /getByRole/);
   assert.match(chrome, /route\.abort\(\)/);
   assert.match(home, /export const dynamic = "force-static"/);

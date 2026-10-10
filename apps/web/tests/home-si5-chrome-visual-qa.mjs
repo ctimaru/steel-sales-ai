@@ -138,7 +138,8 @@ try {
         });
         check(meta.title.includes("Smart Steel Sales"), "SEO title missing");
         check(meta.description.length > 75, "SEO description missing");
-        assert.equal(meta.canonical, "https://www.smartsteelsales.com/");
+        assert.equal(new URL(meta.canonical).origin, BASE, "Local canonical should use local CI origin");
+        assert.equal(new URL(meta.canonical).pathname, "/", "Canonical homepage path missing");
         check(meta.ogTitle.includes("Smart Steel Sales") && meta.ogDescription.length > 30, "OG metadata missing");
         check(!meta.robots.includes("noindex"), "Public homepage must remain indexable");
         check(meta.schemaTypes.includes("Organization") && meta.schemaTypes.includes("WebSite"), "JSON-LD schema missing");
