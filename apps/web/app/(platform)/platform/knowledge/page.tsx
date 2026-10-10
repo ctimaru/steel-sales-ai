@@ -58,7 +58,7 @@ export default async function PlatformKnowledgePage({
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <GovernanceWorkspaceNav current="knowledge" permissions={access?.permissions ?? []} />
-      <GovernanceQueueControls title="Knowledge" total={queue.total} readOnly={!(canEdit || canReview || canPublish)} tabs={FILTERS.map(([value, label]) => ({ value, label }))} current={activeStatus ?? 'all'} baseHref="/platform/knowledge" />
+      <GovernanceQueueControls title="Knowledge" total={queue.total} readOnly={!(canEdit || canReview || canPublish)} tabs={FILTERS.map(([value, label]) => ({ value, label }))} current={activeStatus ?? 'all'} baseHref="/platform/knowledge" priorityValues={["in_review", "changes_requested"]} />
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <p className="platform-kicker">SA7 · Knowledge Operations</p>
         <div className="mt-3 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
