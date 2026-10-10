@@ -34,6 +34,7 @@ export const appRoutes = {
     campaign: (id: string) => `/rfq-hub/${id}`,
     inbox: "/rfq-hub/inbox",
     suppliers: "/rfq-hub/suppliers",
+    supplier: (id: string) => `/rfq-hub/suppliers/${id}`,
     intelligence: "/rfq-hub/intelligence",
     createDistinta: "/rfq-hub/distinta",
     savedDistinte: "/rfq-hub/distinte",

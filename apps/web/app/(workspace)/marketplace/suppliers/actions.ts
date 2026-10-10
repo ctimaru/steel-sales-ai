@@ -54,9 +54,11 @@ export async function updateSupplierProfile(input: {
     };
   }
 
+  revalidatePath(appRoutes.rfqHub.suppliers);
   revalidatePath(appRoutes.marketplace.suppliers);
+  revalidatePath(appRoutes.rfqHub.supplier(profileId));
   revalidatePath(appRoutes.marketplace.supplier(profileId));
-  revalidatePath(appRoutes.marketplace.rfqHub);
+  revalidatePath(appRoutes.rfqHub.home);
 
   return { ok: true };
 }

@@ -78,7 +78,7 @@ export default async function SupplierDetailPage({
             Il profilo non esiste oppure non appartiene alla tua rubrica procurement.
           </p>
           <Link
-            href={appRoutes.marketplace.suppliers}
+            href={appRoutes.rfqHub.suppliers}
             className="mt-4 inline-flex min-h-10 items-center rounded-xl bg-[#173f35] px-4 text-xs font-bold text-white"
           >
             Torna alla rubrica
@@ -113,13 +113,13 @@ export default async function SupplierDetailPage({
               </Link>
             ) : null}
             <Link
-              href={appRoutes.marketplace.rfqHub}
+              href={appRoutes.rfqHub.home}
               className="app-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
             >
               RFQ Hub
             </Link>
             <Link
-              href={appRoutes.marketplace.suppliers}
+              href={appRoutes.rfqHub.suppliers}
               className="app-primary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
             >
               Rubrica supplier
@@ -248,7 +248,7 @@ export default async function SupplierDetailPage({
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <Link
-                      href={appRoutes.marketplace.rfqCampaign(item.rfq_id)}
+                      href={appRoutes.rfqHub.campaign(item.rfq_id)}
                       className="text-sm font-semibold text-[#173f35] hover:underline"
                     >
                       {item.rfq_title}
@@ -341,7 +341,7 @@ export default async function SupplierDetailPage({
                     <td className="px-5 py-3">{formatDate(row.submitted_at)}</td>
                     <td className="px-3 py-3">
                       <Link
-                        href={appRoutes.marketplace.rfqCampaign(row.rfq_id)}
+                        href={appRoutes.rfqHub.campaign(row.rfq_id)}
                         className="font-semibold text-[#173f35] hover:underline"
                       >
                         {row.rfq_title}

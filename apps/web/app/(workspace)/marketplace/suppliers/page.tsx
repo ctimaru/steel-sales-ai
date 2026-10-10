@@ -85,7 +85,7 @@ function SupplierCard({ supplier }: { supplier: SupplierDirectoryItem }) {
         </div>
 
         <Link
-          href={appRoutes.marketplace.supplier(supplier.id)}
+          href={appRoutes.rfqHub.supplier(supplier.id)}
           className="inline-flex min-h-10 items-center rounded-xl border border-[#b8d2c8] bg-white px-4 text-xs font-bold text-[#173f35] hover:bg-[#edf5f2]"
         >
           Apri CRM →
@@ -219,13 +219,13 @@ export default async function SupplierDirectoryPage({
         actions={
           <>
             <Link
-              href={appRoutes.marketplace.procurementInbox}
+              href={appRoutes.rfqHub.inbox}
               className="app-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
             >
               Inbox acquisti
             </Link>
             <Link
-              href={appRoutes.marketplace.rfqHub}
+              href={appRoutes.rfqHub.home}
               className="app-primary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
             >
               RFQ Hub
@@ -308,7 +308,7 @@ export default async function SupplierDirectoryPage({
             anagrafica parallela da mantenere.
           </p>
           <Link
-            href={appRoutes.marketplace.rfqHub}
+            href={appRoutes.rfqHub.home}
             className="mt-4 inline-flex min-h-10 items-center rounded-xl bg-[#173f35] px-4 text-xs font-bold text-white"
           >
             Apri RFQ Hub
