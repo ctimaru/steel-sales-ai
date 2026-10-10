@@ -163,7 +163,7 @@ export async function login(formData: FormData) {
         pendingSignupEmailCookieOptions,
       );
       redirect(
-        (nextPath?.startsWith("/en/register") ? "/en/verify-email" : "/verify-email") + "?source=login" +
+        (nextPath?.startsWith("/en/register") ? "/en/verify-email?source=login" : "/verify-email?source=login") +
           (nextPath ? "&next=" + encodeURIComponent(nextPath) : ""),
       );
     }
@@ -247,7 +247,10 @@ export async function signup(formData: FormData) {
     );
   }
 
-  redirect((nextPath.startsWith("/en/register") ? "/en/verify-email" : "/verify-email") + "?sent=1&next=" + encodeURIComponent(nextPath));
+  if (nextPath.startsWith("/en/register")) {
+    redirect("/en/verify-email?sent=1&next=" + encodeURIComponent(nextPath));
+  }
+  redirect("/verify-email?sent=1&next=" + encodeURIComponent(nextPath));
 }
 
 export async function requestPasswordReset(formData: FormData) {
