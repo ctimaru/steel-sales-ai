@@ -62,12 +62,20 @@ export function EnglishRfqBillBuilder() {
           bars: parseTubeNumber(line.bars),
           lengthM: parseTubeNumber(line.length),
         }),
+        error:
+          !line.grade.trim() || !/^[A-Za-z0-9 .+\/-]{1,50}$/.test(line.grade.trim())
+            ? "Enter a valid steel grade (letters, numbers and standard designators)."
+            : line.targetPricePerTonne.trim() &&
+                (!Number.isFinite(parseTubeNumber(line.targetPricePerTonne)) ||
+                  parseTubeNumber(line.targetPricePerTonne) <= 0)
+              ? "Target price must be a positive number or left blank."
+              : null,
       })),
     [lines],
   );
 
-  const invalidCount = calculated.filter((item) => !item.mass.ok).length;
-  const valid = calculated.filter((item) => item.mass.ok);
+  const invalidCount = calculated.filter((item) => !item.mass.ok || item.error).length;
+  const valid = calculated.filter((item) => item.mass.ok && !item.error);
   const totalTonnes = valid.reduce((sum, item) => sum + (item.mass.ok ? item.mass.totalTonnes : 0), 0);
   const totalMeters = valid.reduce((sum, item) => sum + (item.mass.ok ? item.mass.totalMeters : 0), 0);
 
@@ -147,7 +155,7 @@ export function EnglishRfqBillBuilder() {
         </p>
       </div>
 
-      {calculated.map(({ line, mass }, index) => (
+      {calculated.map(({ line, mass, error }, index) => (
         <article key={line.id} className="rounded-2xl border border-[#dce5e0] bg-white p-4 sm:p-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <h3 className="text-base font-bold text-[#123b34]">Item {index + 1}</h3>
@@ -185,10 +193,10 @@ export function EnglishRfqBillBuilder() {
             {field(line, "targetPricePerTonne", `Optional target (${currency}/t)`, "Not specified")}
           </div>
           <div aria-live="polite" className="mt-4 rounded-xl bg-[#f0f6f2] px-4 py-3 text-xs text-[#123b34]">
-            {mass.ok ? (
+            {mass.ok && !error ? (
               <p><strong>{describeLine(line)}</strong> · {formatEnglishMass(mass.weightKgM, 3)} kg/m · {formatEnglishMass(mass.totalMeters, 2)} m · <strong>{formatEnglishMass(mass.totalTonnes, 4)} t</strong></p>
             ) : (
-              <p role="alert" className="font-semibold text-[#9a4e22]">{mass.error}</p>
+              <p role="alert" className="font-semibold text-[#9a4e22]">{error || (mass.ok ? "" : mass.error)}</p>
             )}
           </div>
         </article>
