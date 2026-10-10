@@ -12,20 +12,20 @@ test("I18N5 puts a registration and sign-in handoff on every shared English publ
   assert.match(shell, /<EnglishConversionHandoff context=/);
   assert.match(shell, /englishHref === "\/en\/distinta" \? "rfq"/);
   assert.match(shell, /englishHref === "\/en\/network" \? "network"/);
-  assert.match(shell, /href="\/register" hrefLang="it"/);
-  assert.match(shell, /href="\/login" hrefLang="it"/);
-  assert.match(home, /href="\/login" hrefLang="it"/);
+  assert.match(shell, /href="\/en\/register"/);
+  assert.match(shell, /href="\/en\/login"/);
+  assert.match(home, /href="\/en\/login"/);
   assert.match(home, /Register your company/);
 });
 
 test("I18N5 keeps realistic and explicit locale, company verification and privacy gates", () => {
-  assert.match(handoff, /Registration and the private workspace are currently in Italian/);
+  assert.match(handoff, /company application is available in English/);
   assert.match(handoff, /Company approval is required before private access/);
   assert.match(handoff, /Check whether your company already has a profile/);
   assert.match(handoff, /Create an account and verify your email/);
   assert.match(handoff, /Submit your company request for review/);
   assert.match(handoff, /It does not save or send RFQs/);
-  assert.match(handoff, /href="\/register" hrefLang="it"/);
+  assert.match(handoff, /href="\/en\/register"/);
   assert.match(registration, /PublicCompanyLookup/);
   assert.match(registration, /<form action=\{signup\}/);
 });
