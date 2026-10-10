@@ -73,3 +73,8 @@ PLR1 is **read-only specification + types + tests**. It does not update the live
 4. No mutation, email delivery, database migration or new user creation in PLR1.
 5. No preview deployment or cost-bearing visual analytics as an artifact of the contract.
 6. Preserve the existing \`/platform\` URLs and \`/dashboard\` context switch.
+
+
+## PLR2 implementation update — 2026-10-10
+
+Private Lab's intended owner-only route and RPC cutover has been implemented in the PLR2 stacked branch; owner/staff/anonymous acceptance remains required before production deployment. Before PLR2, both `pl1_private_lab_explorer_*` functions accepted generic Platform Console permission as confirmed by read-only production function inspection. PLR2 replaces that check with `private.is_platform_superadmin()` and gates both Next.js pages before executing any private read. All existing general editorial permission/RLS contracts outside Private Lab stay unchanged. This does not itself narrow broader Knowledge Editor access to raw editorial tables; review that separate policy if the license requires stricter segregation.

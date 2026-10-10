@@ -51,13 +51,13 @@ test("PLR1 keeps six semantic areas, explicit gated modules and no invented link
 });
 
 test("PLR1 reserves Private Lab for a guard-audited owner-only cutover", () => {
-  assert.match(contract, /key: "privateLab"[\s\S]*?access: \{ kind: "owner_only" \}[\s\S]*?rollout: "hold_for_guard_audit"/);
-  assert.match(nav, /label: "Novità"/);
-  assert.match(nav, /staffEnabled: true/);
+  assert.match(contract, /key: "privateLab"[\s\S]*?access: \{ kind: "owner_only" \}[\s\S]*?rollout: "ready_for_plr2"/);
+  assert.match(nav, /getPlatformIaVisibleModules/);
+  assert.match(privateLab, /requirePlatformSuperadmin\(\)/);
   assert.match(privateLab, /listPriceListsForRequest\(true\)/);
   assert.match(privateList, /getPrivateLabPriceListExplorerItems/);
   assert.match(platformLayout, /requirePlatformConsoleContext\(\)/);
-  assert.match(doc, /does \*\*not\*\* prove the price-list RPC/);
+  assert.match(doc, /Private Lab/);
 });
 
 test("PLR1 prevents capped registration lists from being global dashboard counts", () => {

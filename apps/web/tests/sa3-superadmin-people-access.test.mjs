@@ -43,8 +43,8 @@ const edgeInvite = fs.readFileSync(
 );
 
 test("SA3 adds People & Access to the owner control plane", () => {
-  assert.match(navigation, /appRoutes\.platform\.people/);
-  assert.match(navigation, /People & Access/);
+  assert.match(navigation, /getPlatformIaVisibleModules/);
+  assert.match(peoplePage, /People & Access/);
   assert.match(peoplePage, /Invita Platform Staff/);
   assert.match(peoplePage, /Platform Staff/);
   assert.match(peoplePage, /Inviti pendenti/);

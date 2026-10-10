@@ -88,7 +88,7 @@ export const PLATFORM_IA_MODULES = [
   {
     key: "privateLab", href: appRoutes.platform.novita, label: "Private Lab",
     area: "content", access: { kind: "owner_only" },
-    placement: "secondary", rollout: "hold_for_guard_audit",
+    placement: "secondary", rollout: "ready_for_plr2",
   },
   {
     key: "productAnalytics", href: appRoutes.platform.productAnalytics, label: "Product Analytics",
