@@ -41,6 +41,15 @@ begin
     or nullif(btrim(coalesce(p_note,'')),'') is null
     or length(p_note) > 4000
   then raise exception 'invalid source review' using errcode='22023'; end if;
+  if p_decision='approved' and (
+    p_terms not in ('allows_reuse','allows_limited_reuse')
+    or p_rights not in ('low_risk','licensed')
+    or p_personal_data not in ('company_data_only','exclude_personal_data')
+    or nullif(btrim(coalesce(p_evidence_url,'')),'') is null
+  ) then raise exception 'approved source requires reusable terms, rights and evidence' using errcode='22023'; end if;
+  if p_enable and p_decision <> 'approved' then
+    raise exception 'blocked or restricted source cannot be enabled' using errcode='22023';
+  end if;
   update public.network_discovery_source_registry
   set governance_status=p_decision,terms_status=p_terms,
     database_rights_status=p_rights,personal_data_policy=p_personal_data,
