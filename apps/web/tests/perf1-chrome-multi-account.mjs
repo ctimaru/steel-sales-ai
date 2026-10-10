@@ -12,7 +12,7 @@ const base = process.env.PERF1_WEB_URL ?? "";
 assert.equal(base, "http://127.0.0.1:3000", "External URLs forbidden");
 assert.ok(process.env.RUNNER_TEMP, "Ephemeral CI runner required");
 const personas = JSON.parse(readFileSync(path.join(process.env.RUNNER_TEMP, "perf1-personas.json"), "utf8"));
-assert.equal(personas.length, 7);
+assert.equal(personas.length, 8);
 const tenants = personas.filter(p => p.org);
 assert.equal(tenants.length, 5);
 assert.equal(new Set(tenants.map(p => p.org)).size, 4);
@@ -215,6 +215,32 @@ try {
     }
   });
   await staffContext.close();
+
+  const applicant = personas.find(p => p.id === "pendingApplicant");
+  assert.ok(applicant, "Missing NETG1 pending applicant");
+  const pendingContext = await browser.newContext({ locale: "it-IT", viewport: { width: 390, height: 844 } });
+  const pendingPage = await pendingContext.newPage();
+  await check("NETG1 verified applicant is routed to status and can use public tools", async () => {
+    await visit(pendingPage, "/login");
+    await pendingPage.locator('input[name="email"]').fill(applicant.email);
+    await pendingPage.locator('input[name="password"]').fill(applicant.password);
+    await pendingPage.getByRole("button", { name: "Accedi", exact: true }).click();
+    await pendingPage.waitForURL(u => u.pathname === "/registration/status", { timeout: 90000 });
+    await pendingPage.getByRole("heading", { name: "Puoi già utilizzare gli strumenti pubblici" }).waitFor();
+    await pendingPage.getByRole("link", { name: "Consulta Knowledge" }).waitFor();
+    await pendingPage.getByRole("link", { name: "Crea una distinta" }).waitFor();
+    await visit(pendingPage, "/knowledge");
+    assert.equal(new URL(pendingPage.url()).pathname, "/knowledge");
+    await visit(pendingPage, "/distinta");
+    assert.equal(new URL(pendingPage.url()).pathname, "/distinta");
+  });
+  await check("NETG1 pending applicant cannot enter private workspace or Platform", async () => {
+    for (const route of ["/dashboard", "/platform"]) {
+      await visit(pendingPage, route);
+      await pendingPage.waitForURL(u => u.pathname !== route, { timeout: 35000 });
+    }
+  });
+  await pendingContext.close();
 
   const mobile = await browser.newContext({
     locale: "it-IT", viewport: { width: 390, height: 844 }, isMobile: true, deviceScaleFactor: 2,
