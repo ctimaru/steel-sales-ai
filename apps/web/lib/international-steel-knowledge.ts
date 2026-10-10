@@ -172,7 +172,7 @@ export const englishGrades = [
   {
     slug: "p265tr2", designation: "P265TR2", group: "pressure-room",
     title: "P265-series pressure-tube steel quality TR2",
-    summary: "P265TR2 describes the TR2 quality variant of the P265 pressure-tube steel family.",
+    summary: "P265TR2 describes the TR2 quality variant of the P265 pressure-tube steel family, used in relevant room-temperature pressure-tube specifications.",
     designationMeaning: "The TR2 suffix specifies a distinct material quality and must be retained in product and certificate references.",
     procurement: "Combine P265TR2 with its applicable product standard, actual process, dimensions and inspection documentation.",
     difference: "P265TR1 and P265TR2 are related grades but are not automatic equivalents.",
