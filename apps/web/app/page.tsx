@@ -85,7 +85,7 @@ export default function PublicHomePage() {
             <ProductBrand href="/" />
           </div>
           <div className="min-w-0 sm:hidden">
-            <ProductBrand href="/" compact showDescriptor={false} />
+            <ProductBrand href="/" compact showDescriptor={false} markOnly />
           </div>
 
           <nav className="hidden items-center gap-1 lg:flex" aria-label="Navigazione pubblica">

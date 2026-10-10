@@ -22,7 +22,7 @@ test("UXF3 uses user-facing Cookie e privacy language instead of analytics jargo
 test("UXF3 keeps the first-layer consent panel compact and non-blocking", () => {
   assert.match(consent, /max-w-\[560px\]/);
   assert.match(consent, /aria-modal="false"/);
-  assert.match(consent, /bottom-3 left-3 right-3/);
+  assert.match(consent, /bottom-\[max\(0\.5rem,env\(safe-area-inset-bottom\)\)\] left-2 right-2/);
   assert.doesNotMatch(consent, /fixed inset-0/);
 });
 
@@ -36,7 +36,9 @@ test("UXF3 gives accept and necessary-only choices equivalent control weight", (
   const accept = consent.indexOf(">\n              Accetta\n");
   assert.ok(necessary >= 0 && accept >= 0);
   assert.match(consent, /grid grid-cols-2 gap-2/);
-  assert.ok((consent.match(/min-h-10 rounded-xl border/g) || []).length >= 2);
+  assert.ok((consent.match(/min-h-11 rounded-xl border/g) || []).length >= 2);
+  assert.match(consent, /sm:hidden/);
+  assert.match(consent, /sm:block/);
 });
 
 test("UXF3 retracts consent UI into a small corner privacy tab after choice", () => {

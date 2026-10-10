@@ -204,7 +204,8 @@ export function GoogleAnalyticsConsent({
           role="dialog"
           aria-label="Cookie e privacy"
           aria-modal="false"
-          className="fixed bottom-3 left-3 right-3 z-[100] ml-auto max-w-[560px] rounded-2xl border border-[#c9d8d2] bg-white/98 p-4 shadow-[0_12px_36px_rgba(17,54,45,0.14)] backdrop-blur sm:bottom-4 sm:left-auto sm:right-4"
+          data-testid="mobile-cookie-consent"
+          className="fixed bottom-[max(0.5rem,env(safe-area-inset-bottom))] left-2 right-2 z-[100] ml-auto max-w-[560px] rounded-2xl border border-[#c9d8d2] bg-white/98 p-3 shadow-[0_12px_36px_rgba(17,54,45,0.14)] backdrop-blur sm:bottom-4 sm:left-auto sm:right-4 sm:p-4"
         >
           <button
             type="button"
@@ -225,10 +226,13 @@ export function GoogleAnalyticsConsent({
                 </span>
               ) : null}
             </div>
-            <p className="mt-1.5 max-w-lg text-xs leading-5 text-[#52615b]">
+            <p className="mt-1 max-w-lg text-xs leading-[1.4] text-[#52615b] sm:hidden">
+              Usiamo cookie necessari. Google Analytics invia segnali senza cookie; solo se accetti abilitiamo i cookie statistici sulle pagine pubbliche.
+            </p>
+            <p className="mt-1.5 hidden max-w-lg text-xs leading-5 text-[#52615b] sm:block">
               Usiamo cookie necessari per il sito e Google Analytics in Consent Mode. Prima della tua scelta Analytics resta senza cookie; se accetti, abiliti la misurazione statistica completa sulle sole pagine pubbliche.
             </p>
-            <p className="mt-2 text-[11px] leading-5 text-[#718078]">
+            <p className="mt-1 text-[11px] leading-5 text-[#718078] sm:mt-2">
               <Link href="/privacy" className="font-semibold text-[#1a5144] underline underline-offset-4">
                 Privacy
               </Link>
@@ -239,18 +243,18 @@ export function GoogleAnalyticsConsent({
             </p>
           </div>
 
-          <div className="mt-3 grid grid-cols-2 gap-2">
+          <div className="mt-2 grid grid-cols-2 gap-2 sm:mt-3">
             <button
               type="button"
               onClick={() => choose("denied")}
-              className="min-h-10 rounded-xl border border-[#b9cbc4] bg-white px-3 text-xs font-bold text-[#43524c] transition hover:bg-[#f6f8f7]"
+              className="min-h-11 rounded-xl border border-[#b9cbc4] bg-white px-3 text-xs font-bold text-[#43524c] transition hover:bg-[#f6f8f7]"
             >
               Accetta necessari
             </button>
             <button
               type="button"
               onClick={() => choose("granted")}
-              className="min-h-10 rounded-xl border border-[#9ebcaf] bg-[#edf5f2] px-3 text-xs font-bold text-[#173f35] transition hover:bg-[#e4efeb]"
+              className="min-h-11 rounded-xl border border-[#9ebcaf] bg-[#edf5f2] px-3 text-xs font-bold text-[#173f35] transition hover:bg-[#e4efeb]"
             >
               Accetta
             </button>
