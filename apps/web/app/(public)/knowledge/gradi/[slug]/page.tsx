@@ -11,6 +11,7 @@ import {
   materialFamilyLabel,
 } from "@/lib/knowledge-labels";
 import { getPublicGrade } from "@/lib/public-knowledge";
+import { englishGradeForSlug } from "@/lib/international-steel-knowledge";
 import { absoluteUrl } from "@/lib/site";
 
 const loadGrade = cache(getPublicGrade);
@@ -44,6 +45,10 @@ export async function generateMetadata({
     description: grade.seo_description,
     alternates: {
       canonical: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
+      ...(englishGradeForSlug(grade.slug) ? { languages: {
+        it: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
+        en: absoluteUrl(`/en/knowledge/grades/${grade.slug}`),
+      }} : {}),
     },
     openGraph: {
       title: grade.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, ""),
@@ -137,6 +142,7 @@ export default async function GradeDetailPage({
         />
       ) : null}
 
+      {englishGradeForSlug(grade.slug) ? <div className="flex justify-end"><Link href={`/en/knowledge/grades/${grade.slug}`} hrefLang="en" lang="en" className="inline-flex min-h-10 items-center rounded-lg border border-[#dce5e0] bg-white px-3 text-xs font-bold text-[#123b34]">English guide →</Link></div> : null}
       <nav aria-label="Breadcrumb" className="school-breadcrumb">
         <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>
