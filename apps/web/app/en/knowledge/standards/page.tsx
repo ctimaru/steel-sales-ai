@@ -13,7 +13,7 @@ const copy = {
 };
 const canonical = "/en/knowledge/standards";
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   title: copy.title,
   description: copy.description,
   alternates: {
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ q?: string }> }): Promise<Metadata> {
   const { q } = await searchParams;
-  return { ...metadata, robots: robotsForParameterizedPage(Boolean(q?.trim())) };
+  return { ...baseMetadata, robots: robotsForParameterizedPage(Boolean(q?.trim())) };
 }
 
 const groups = [
