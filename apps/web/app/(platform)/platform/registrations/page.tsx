@@ -1,3 +1,4 @@
+import { GovernanceQueueControls } from "@/components/governance-queue-controls";
 import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
 import Link from "next/link";
 
@@ -113,6 +114,7 @@ export default async function AdminRegistrationsPage({
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <GovernanceWorkspaceNav current="registrations" permissions={access?.permissions ?? []} />
+      <GovernanceQueueControls title="Registrazioni" total={queue.total} readOnly={!((access?.permissions ?? []).some((permission) => permission === 'registrations.approve' || permission === 'registrations.activate'))} />
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
