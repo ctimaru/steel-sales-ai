@@ -149,6 +149,16 @@ try {
         client: document.documentElement.clientWidth,
         scroll: document.documentElement.scrollWidth,
       }));
+      if (widths.scroll > widths.client + 8) {
+        const overflow = await ownerPage.evaluate(() => Array.from(document.querySelectorAll("body *"))
+          .map((el) => {
+            const r = el.getBoundingClientRect();
+            return { tag: el.tagName, cls: String(el.className).slice(0, 110), left: Math.round(r.left), right: Math.round(r.right), width: Math.round(r.width), text: (el.textContent || "").trim().slice(0, 45) };
+          })
+          .filter((r) => r.width > 0 && (r.right > document.documentElement.clientWidth + 4 || r.left < -4))
+          .slice(0, 25));
+        console.error("PLR3 OVERFLOW DIAGNOSTIC", JSON.stringify({ width, overflow }));
+      }
       assert.ok(widths.scroll <= widths.client + 8,
         "PLR3 horizontal overflow " + width + "px: " + JSON.stringify(widths));
       assert.equal(await ownerPage.getByRole("heading", { name: "Cosa richiede attenzione" }).count(), 1);
