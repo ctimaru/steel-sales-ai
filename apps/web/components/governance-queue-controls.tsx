@@ -2,10 +2,10 @@ import Link from "next/link";
 
 type QueueTab = { value: string; label: string };
 export function GovernanceQueueControls({
-  title, total, totalLabel = "Elementi nella vista", readOnly, tabs, current, baseHref,
+  title, total, totalLabel = "Elementi nella vista", readOnly, tabs, current, baseHref, searchQuery,
 }: {
   title: string; total: number | null; totalLabel?: string; readOnly: boolean;
-  tabs?: readonly QueueTab[]; current?: string; baseHref?: string;
+  tabs?: readonly QueueTab[]; current?: string; baseHref?: string; searchQuery?: string;
 }) {
   return (
     <section aria-label={title + " · gestione coda"} className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
@@ -23,7 +23,10 @@ export function GovernanceQueueControls({
         <nav aria-label={"Filtri " + title} className="mt-4 flex gap-2 overflow-x-auto pb-1">
           {tabs.map(({ value, label }) => {
             const active = (current ?? "all") === value;
-            const href = value === "all" ? baseHref : baseHref + "?status=" + encodeURIComponent(value);
+            const params = new URLSearchParams();
+            if (value !== "all") params.set("status", value);
+            if (searchQuery?.trim()) params.set("q", searchQuery.trim());
+            const href = params.size ? baseHref + "?" + params.toString() : baseHref;
             return (
               <Link key={value} href={href} aria-current={active ? "page" : undefined}
                 className={["inline-flex min-h-10 shrink-0 items-center rounded-xl border px-3 py-2 text-xs font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1a5144]",
