@@ -1,3 +1,4 @@
+import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
 import Link from "next/link";
 
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
@@ -61,6 +62,7 @@ export default async function CompanyDiscoveryPage({
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
+      <GovernanceWorkspaceNav current="discovery" permissions={access?.permissions ?? []} />
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <p className="platform-kicker">
           P3 · Industry Network
