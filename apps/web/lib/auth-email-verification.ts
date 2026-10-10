@@ -1,4 +1,5 @@
 export const PENDING_SIGNUP_EMAIL_COOKIE = "steel_pending_signup_email";
+export const PENDING_SIGNUP_NEXT_COOKIE = "steel_pending_signup_next";
 
 export function maskEmail(email: string) {
   const [localPart, domain] = email.split("@");
