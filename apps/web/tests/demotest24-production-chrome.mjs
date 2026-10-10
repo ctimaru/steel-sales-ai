@@ -29,7 +29,9 @@ async function createAnonymousContext(viewport, mobile = false) {
       const isBlockedAnalyticsPing =
         req.method() === "POST" &&
         (parsed.hostname === "google-analytics.com" ||
-          parsed.hostname.endsWith(".google-analytics.com")) &&
+          parsed.hostname.endsWith(".google-analytics.com") ||
+          parsed.hostname === "google.com" ||
+          parsed.hostname === "www.google.com") &&
         parsed.pathname === "/g/collect";
       if (!isBlockedAnalyticsPing) {
         blockedWriteAttempt = true;
