@@ -86,6 +86,11 @@ export function PublicNetworkRoleExplorer() {
             Il Network non è una semplice lista di aziende: serve a capire chi può esserti utile,
             chi produce o lavora cosa e dove trovare nuove relazioni commerciali.
           </p>
+          <p className="mt-3 text-xs leading-5 text-[#52615b]">
+            <strong className="text-[#173f35]">Identità e Network sono distinti.</strong>{" "}
+            Puoi <Link href="/azienda" className="font-semibold text-[#1a5144] underline decoration-[#b8d2c8] underline-offset-4 hover:text-[#123b34]">trovare o rivendicare il tuo profilo</Link> dalla ricerca pubblica;
+            la directory completa richiede un&apos;abilitazione Network separata.
+          </p>
         </div>
 
         <fieldset className="mt-6">

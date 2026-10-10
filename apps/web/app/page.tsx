@@ -5,6 +5,7 @@ import { ProductBrand } from "@/components/product-brand";
 import { PublicNetworkRoleExplorer } from "@/components/public-network-role-explorer";
 import { DeferredPublicCompanyLookup } from "@/components/deferred-public-company-lookup";
 import { PublicIntelligencePillars, PublicProductPreview } from "@/components/public-intelligence-showcase";
+import { PublicRegistrationTrust } from "@/components/public-registration-trust";
 import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -179,10 +180,13 @@ export default function PublicHomePage() {
         <div className="mx-auto max-w-[1120px] px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-sm">
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Scuola</p>
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Strumenti pubblici · senza account</p>
               <h2 className="mt-1.5 text-xl font-semibold tracking-tight text-[#1d2824]">
                 Prima utilità, poi prodotto.
               </h2>
+              <p className="mt-2 text-xs leading-5 text-[#52615b]">
+                Calcola, consulta o prepara una distinta. Puoi iniziare subito, senza registrarti.
+              </p>
             </div>
 
             <div className="grid flex-1 gap-px overflow-hidden rounded-xl border border-[#dce2df] bg-[#dce2df] sm:grid-cols-2 lg:max-w-4xl lg:grid-cols-4">
@@ -209,7 +213,7 @@ export default function PublicHomePage() {
               Cercala per nome o Partita IVA.
             </h2>
             <p className="mt-3 text-sm leading-6 text-[#66736e]">
-              Se il profilo è già presente puoi capire subito se è rivendicabile e continuare la registrazione senza creare duplicati.
+              Verifica se il profilo è rivendicabile. Se la tua azienda non compare, puoi comunque avviare una nuova richiesta di registrazione.
             </p>
           </div>
 
@@ -221,8 +225,18 @@ export default function PublicHomePage() {
             La ricerca pubblica serve solo a riconoscere l&apos;identità aziendale. Non apre la directory Network
             e non espone dati commerciali, prezzi, email, offerte o ordini.
           </p>
+          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
+            <Link href="/register" className="inline-flex min-h-11 items-center rounded-xl border border-[#b9c9c2] bg-white px-4 text-sm font-bold text-[#123b34] hover:border-[#1f6b5a] hover:bg-[#edf5f1]">
+              Non trovi la tua azienda? Registrala →
+            </Link>
+            <Link href="/company-data" className="inline-flex min-h-11 items-center text-xs font-semibold text-[#315c74] underline decoration-[#b8d2c8] underline-offset-4 hover:text-[#123b34]">
+              Come gestiamo i dati aziendali
+            </Link>
+          </div>
         </div>
       </section>
+
+      <PublicRegistrationTrust />
 
       <footer className="bg-[#f2f4f3]">
         <div className="mx-auto flex max-w-[1120px] flex-col gap-4 px-4 py-6 text-xs text-[#718078] sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
@@ -238,6 +252,7 @@ export default function PublicHomePage() {
             <Link href="/login" className="font-semibold hover:text-[#173f35]">Accedi</Link>
             <Link href="/register" className="font-semibold hover:text-[#173f35]">Registra azienda</Link>
             <Link href="/privacy" className="font-semibold hover:text-[#173f35]">Privacy</Link>
+            <Link href="/company-data" className="font-semibold hover:text-[#173f35]">Dati aziendali</Link>
             <Link href="/cookies" className="font-semibold hover:text-[#173f35]">Cookie</Link>
             <Link href="/terms" className="font-semibold hover:text-[#173f35]">Termini</Link>
             <Link href="/legal" className="font-semibold hover:text-[#173f35]">Informazioni legali</Link>

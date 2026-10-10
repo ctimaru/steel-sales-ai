@@ -63,7 +63,10 @@ async function publicPage(path, fragments) {
 }
 
 // One self-contained anonymous request per public route; no session persistence.
-await publicPage("/", ["Smart Steel Sales"]);
+const publicHome = await publicPage("/", ["Smart Steel Sales"]);
+assert.match(publicHome.content, /<link[^>]+rel="canonical"[^>]+href="https:\/\/www\.smartsteelsales\.com\/?"|<link[^>]+href="https:\/\/www\.smartsteelsales\.com\/?"[^>]+rel="canonical"/i,
+  "Production canonical homepage must use www.smartsteelsales.com");
+pass("production homepage canonical origin");
 await publicPage("/knowledge", ["Conoscenza tecnica"]);
 await publicPage("/knowledge/norme", ["Norme"]);
 await publicPage("/knowledge/gradi", ["Gradi"]);
