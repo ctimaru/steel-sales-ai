@@ -63,7 +63,7 @@ export default async function CompanyClaimsPage({
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <GovernanceWorkspaceNav current="claims" permissions={access?.permissions ?? []} />
-      <GovernanceQueueControls title="Company Claims" total={queue.total} readOnly={!hasMutationAccess} />
+      <GovernanceQueueControls title="Company Claims" total={queue.total} readOnly={!hasMutationAccess} tabs={FILTERS.map(([value, label]) => ({ value, label }))} current={activeStatus ?? 'all'} baseHref="/platform/company-claims" />
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <p className="platform-kicker">P3.6 · Governance</p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#18263d] sm:text-4xl">
@@ -102,25 +102,7 @@ export default async function CompanyClaimsPage({
         ))}
       </section>
 
-      <nav className="flex gap-2 overflow-x-auto pb-1" aria-label="Filtri claim">
-        {FILTERS.map(([value, label]) => {
-          const selected = (activeStatus ?? "all") === value;
-          return (
-            <Link
-              key={value}
-              href={value === "all" ? "/platform/company-claims" : `/platform/company-claims?status=${value}`}
-              className={[
-                "shrink-0 rounded-full border px-4 py-2.5 text-xs font-semibold",
-                selected
-                  ? "platform-selected-solid"
-                  : "border-[#d7dfdb] bg-white text-[#43524c] hover:border-[#b8d2c8] hover:bg-[#f0f4f2] hover:text-[#1a5144]",
-              ].join(" ")}
-            >
-              {label}
-            </Link>
-          );
-        })}
-      </nav>
+      
 
       {!hasMutationAccess ? (
         <div className="rounded-2xl border border-[#d7dfdb] bg-[#f8fafd] p-4 text-sm text-[#66736e]">
