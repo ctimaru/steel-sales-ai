@@ -144,10 +144,23 @@ try {
     await supplierPage.getByLabel("Riferimento ordine supplier")
       .fill("RFQH14-LOCAL-ONLY");
     await supplierPage.getByRole("button",{name:"Registra risposta",exact:true}).click();
-    await supplierPage.getByText("Risposta registrata.",{exact:true})
-      .waitFor({state:"visible",timeout:45000});
+    await supplierPage.waitForFunction(() => {
+      const text=document.body.innerText;
+      return text.includes("Risposta registrata.") ||
+        text.includes("Non è stato possibile registrare la risposta al PO.") ||
+        text.includes("Questa versione del PO non è più aperta") ||
+        text.includes("La scadenza di conferma è trascorsa.");
+    },null,{timeout:30000});
+    const message=await supplierPage.locator("body").innerText();
+    console.log("RFQH14.2b SUPPLIER SUBMIT DIAGNOSTIC",JSON.stringify({
+      registered:message.includes("Risposta registrata."),
+      failed:message.includes("Non è stato possibile registrare la risposta al PO."),
+      closed:message.includes("Questa versione del PO non è più aperta"),
+      expired:message.includes("La scadenza di conferma è trascorsa."),
+    }));
+    assert.ok(message.includes("Risposta registrata."),"Supplier confirmation action failed");
     await supplierPage.getByRole("heading",{name:"Confermato",exact:true})
-      .waitFor({state:"visible",timeout:45000});
+      .waitFor({state:"visible",timeout:30000});
     assert.equal(await supplierPage.getByRole("button",{name:"Registra risposta"}).count(),0,
       "Confirmation action must not be available after decision");
   });
