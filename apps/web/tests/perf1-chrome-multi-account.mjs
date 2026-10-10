@@ -135,6 +135,25 @@ try {
       .waitFor({ state: "visible", timeout: 60000 });
     assert.equal(new URL(ownerPage.url()).pathname, "/platform");
   });
+  await check("PLR3 owner cockpit has reliable operational sections", async () => {
+    await ownerPage.getByRole("heading", { name: "Stato operativo" }).waitFor();
+    await ownerPage.getByRole("heading", { name: "Cosa richiede attenzione" }).waitFor();
+    await ownerPage.getByRole("heading", { name: "Aree di gestione" }).waitFor();
+    assert.equal(await ownerPage.locator("h1").count(), 1);
+    assert.ok(!((await pageText(ownerPage)).includes("Application error")));
+  });
+  await check("PLR3 owner cockpit fits 320/390 mobile and 768 tablet", async () => {
+    for (const width of [320, 390, 768, 1440]) {
+      await ownerPage.setViewportSize({ width, height: 860 });
+      const widths = await ownerPage.evaluate(() => ({
+        client: document.documentElement.clientWidth,
+        scroll: document.documentElement.scrollWidth,
+      }));
+      assert.ok(widths.scroll <= widths.client + 8,
+        "PLR3 horizontal overflow " + width + "px: " + JSON.stringify(widths));
+      assert.equal(await ownerPage.getByRole("heading", { name: "Cosa richiede attenzione" }).count(), 1);
+    }
+  });
   await ownerContext.close();
 
   const mobile = await browser.newContext({

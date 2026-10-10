@@ -66,7 +66,8 @@ test("SA8 exposes Network Trust only through network_trust.read", () => {
     home,
     /context\.permissions\.includes\("network_trust\.read"\)/,
   );
-  assert.match(home, /getNetworkTrustQueue/);
+  const cockpit = fs.readFileSync(new URL("../lib/platform-cockpit.ts", import.meta.url), "utf8");
+  assert.match(cockpit, /sa8_network_trust_queue/);
   assert.match(page, /requirePlatformPermission\("network_trust\.read"\)/);
 });
 

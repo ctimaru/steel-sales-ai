@@ -48,7 +48,8 @@ test("SA7 exposes Knowledge Operations through knowledge.read_drafts", () => {
     home,
     /context\.permissions\.includes\("knowledge\.read_drafts"\)/,
   );
-  assert.match(home, /getPlatformKnowledgeQueue/);
+  const cockpit = fs.readFileSync(new URL("../lib/platform-cockpit.ts", import.meta.url), "utf8");
+  assert.match(cockpit, /sa7_knowledge_queue/);
   assert.match(home, /Knowledge Operations/);
 });
 

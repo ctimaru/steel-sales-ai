@@ -34,7 +34,8 @@ test("SA6 exposes Company Claims to authorized Platform Staff", () => {
   );
   assert.match(home, /canReadClaims/);
   assert.match(home, /context\.permissions\.includes\("claims\.read"\)/);
-  assert.match(home, /getAdminCompanyClaimQueue/);
+  const cockpit = fs.readFileSync(new URL("../lib/platform-cockpit.ts", import.meta.url), "utf8");
+  assert.match(cockpit, /p3_6_admin_claim_queue/);
   assert.match(home, /Company Claims/);
 });
 
