@@ -1,3 +1,4 @@
+import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
 import Link from "next/link";
 
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
@@ -54,6 +55,7 @@ export default async function PlatformKnowledgePage({
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
+      <GovernanceWorkspaceNav current="knowledge" permissions={access?.permissions ?? []} />
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <p className="platform-kicker">SA7 · Knowledge Operations</p>
         <div className="mt-3 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
