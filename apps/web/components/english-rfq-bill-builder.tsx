@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   estimatePublicTubeMass,
   formatEnglishMass,
@@ -42,6 +42,10 @@ function describeLine(line: RfqLine) {
 }
 
 export function EnglishRfqBillBuilder() {
+  // Render actions disabled in SSR HTML until React handlers have hydrated.
+  // This prevents a fast first click from appearing successful but doing nothing.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => { setHydrated(true); }, []);
   const nextId = useRef(2);
   const [lines, setLines] = useState<RfqLine[]>([createLine(1)]);
   const [currency, setCurrency] = useState<"EUR" | "USD" | "GBP">("EUR");
@@ -159,7 +163,7 @@ export function EnglishRfqBillBuilder() {
         <article key={line.id} className="rounded-2xl border border-[#dce5e0] bg-white p-4 sm:p-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <h3 className="text-base font-bold text-[#123b34]">Item {index + 1}</h3>
-            <button type="button" onClick={() => removeLine(line.id)} disabled={lines.length === 1}
+            <button type="button" onClick={() => removeLine(line.id)} disabled={!hydrated || lines.length === 1}
               className="min-h-10 rounded-lg border border-[#d4ddd8] px-3 text-xs font-semibold text-[#52615b] hover:bg-[#f2f4f3] disabled:cursor-not-allowed disabled:opacity-40">
               Remove item
             </button>
@@ -203,7 +207,7 @@ export function EnglishRfqBillBuilder() {
       ))}
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <button type="button" onClick={addLine} className="inline-flex min-h-11 items-center rounded-xl border border-[#99b8aa] bg-white px-5 text-sm font-bold text-[#123b34] hover:bg-[#edf5f1]">
+        <button type="button" onClick={addLine} disabled={!hydrated} className="inline-flex min-h-11 items-center rounded-xl border border-[#99b8aa] bg-white px-5 text-sm font-bold text-[#123b34] hover:bg-[#edf5f1] disabled:cursor-wait disabled:opacity-60">
           + Add another item
         </button>
         <label className="text-xs font-semibold text-[#52615b]">
@@ -231,7 +235,7 @@ export function EnglishRfqBillBuilder() {
           <p className="mt-2 text-xs text-[#dbeae4]">Values are not stored on the server. Supplier quotations must confirm all quantities and weights.</p>
         </div>
         <div className="flex flex-col gap-2">
-          <button type="button" disabled={invalidCount > 0} onClick={copyRfq}
+          <button type="button" disabled={!hydrated || invalidCount > 0} onClick={copyRfq}
             className="inline-flex min-h-12 items-center justify-center rounded-xl bg-white px-5 text-sm font-bold text-[#123b34] hover:bg-[#e6f3ed] disabled:cursor-not-allowed disabled:opacity-40">
             {copyState === "copied" ? "RFQ copied" : "Copy RFQ email"}
           </button>
