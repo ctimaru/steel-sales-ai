@@ -114,7 +114,7 @@ export default async function AdminRegistrationsPage({
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <GovernanceWorkspaceNav current="registrations" permissions={access?.permissions ?? []} />
-      <GovernanceQueueControls title="Registrazioni" total={queue.total} readOnly={!((access?.permissions ?? []).some((permission) => permission === 'registrations.approve' || permission === 'registrations.activate'))} />
+      <GovernanceQueueControls title="Registrazioni" total={queue.total} readOnly={!((access?.permissions ?? []).some((permission) => permission === 'registrations.approve' || permission === 'registrations.activate'))} tabs={FILTERS.map(([value, label]) => ({ value, label }))} current={activeStatus ?? 'all'} baseHref="/platform/registrations" searchQuery={query} />
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
@@ -183,26 +183,7 @@ export default async function AdminRegistrationsPage({
         </form>
       </section>
 
-      <nav className="flex gap-2 overflow-x-auto pb-1" aria-label="Filtri registrazioni">
-        {FILTERS.map(([value, label]) => {
-          const selected = (activeStatus ?? "all") === value;
-          return (
-            <Link
-              key={value}
-              href={queueHref(value, query)}
-              aria-current={selected ? "page" : undefined}
-              className={[
-                "shrink-0 rounded-full border px-4 py-2.5 text-xs font-semibold",
-                selected
-                  ? "platform-selected-solid"
-                  : "border-[#d7dfdb] bg-white text-[#43524c] hover:border-[#b8d2c8] hover:bg-[#f0f4f2]",
-              ].join(" ")}
-            >
-              {label}
-            </Link>
-          );
-        })}
-      </nav>
+      
 
       {queue.summary.oldest_pending_hours > 0 ? (
         <div className="rounded-2xl border border-[#d9e1dd] bg-[#f7f9f8] px-4 py-3 text-sm text-[#52615b]">
