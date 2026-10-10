@@ -14,6 +14,10 @@ export const metadata: Metadata = {
     "Crea gratuitamente una distinta per i tuoi fornitori: articoli, quantità, kg/m, Target €/t opzionale e Target €/m. Copiala nell'email oppure accedi per salvarla e inviarla.",
   alternates: {
     canonical: absoluteUrl("/distinta"),
+    languages: {
+      it: absoluteUrl("/distinta"),
+      en: absoluteUrl("/en/distinta"),
+    },
   },
   openGraph: {
     title: "Crea distinta · Smart Steel Sales",
@@ -36,6 +40,7 @@ export default async function BuyerDistintaPage() {
 
   return (
     <div className="mx-auto max-w-[1180px] px-4 py-7 sm:px-6 sm:py-9 lg:px-8">
+      <div className="mb-3 flex justify-end"><Link href="/en/distinta" hrefLang="en" lang="en" className="inline-flex min-h-10 items-center rounded-lg border border-[#dce5e0] bg-white px-3 text-xs font-bold text-[#123b34] hover:bg-[#edf5f1]">English version →</Link></div>
       <header className="rounded-2xl border border-[var(--border-strong)] bg-white px-4 py-4 shadow-sm sm:px-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>

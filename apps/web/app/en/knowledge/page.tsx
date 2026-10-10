@@ -45,15 +45,15 @@ const topics = [
     title: "Tube dimensions and weights",
     description:
       "Compare circular, square and rectangular hollow sections. Calculate indicative kilograms per metre, piece weights and total mass from the relevant dimensions.",
-    href: "/knowledge/tubes",
-    linkText: "Open tube weight tools (Italian interface)",
+    href: "/en/knowledge/tubes",
+    linkText: "Open the English tube weight calculator"
   },
   {
     title: "RFQ bill of materials",
     description:
       "A precise request should include section type, dimensions, wall thickness, steel grade, manufacturing standard, quantity, unit and length.",
-    href: "/distinta",
-    linkText: "Create a bill of materials (Italian interface)",
+    href: "/en/distinta",
+    linkText: "Create an RFQ bill of materials in English"
   },
 ] as const;
 
@@ -72,7 +72,7 @@ export default function EnglishKnowledgePage() {
             <article key={topic.title} className="flex flex-col rounded-2xl border border-[#dce5e0] bg-[#f8faf8] p-6">
               <h2 className="text-xl font-semibold text-[#123b34]">{topic.title}</h2>
               <p className="mt-3 flex-1 text-sm leading-7 text-[#52615b]">{topic.description}</p>
-              <Link href={topic.href} hrefLang="it" className="mt-5 inline-flex min-h-11 items-center text-sm font-bold text-[#1f6b5a] underline underline-offset-4">
+              <Link href={topic.href} hrefLang={topic.href.startsWith("/en/") ? "en" : "it"} className="mt-5 inline-flex min-h-11 items-center text-sm font-bold text-[#1f6b5a] underline underline-offset-4">
                 {topic.linkText} ↗
               </Link>
             </article>

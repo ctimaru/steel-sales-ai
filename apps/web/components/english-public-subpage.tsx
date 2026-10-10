@@ -29,6 +29,8 @@ export function EnglishPublicSubpage({
             <Link href="/en" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">Home</Link>
             <Link href="/en/knowledge" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">Knowledge</Link>
             <Link href="/en/network" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">Network</Link>
+            <Link href="/en/knowledge/tubes" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">Weight calculator</Link>
+            <Link href="/en/distinta" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">RFQ builder</Link>
           </nav>
           <PublicLanguageSwitch locale="en" italianHref={italianHref} englishHref={englishHref} />
         </div>
@@ -52,6 +54,8 @@ export function EnglishPublicSubpage({
           <Link href="/en" className="font-semibold">Home</Link>
           <Link href="/en/knowledge" className="font-semibold">Knowledge</Link>
           <Link href="/en/network" className="font-semibold">Network</Link>
+          <Link href="/en/knowledge/tubes" className="font-semibold">Weight calculator</Link>
+          <Link href="/en/distinta" className="font-semibold">RFQ builder</Link>
           <Link href="/privacy" hrefLang="it" className="font-semibold">Privacy (IT)</Link>
           <Link href="/terms" hrefLang="it" className="font-semibold">Terms (IT)</Link>
         </div>
