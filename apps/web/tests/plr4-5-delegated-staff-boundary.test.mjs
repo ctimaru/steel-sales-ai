@@ -24,7 +24,7 @@ test("PLR4.5 delegated staff navigation is explicitly permission-scoped", () => 
 });
 test("PLR4.5 owner-only staff administration cannot be delegated via role mapping", () => {
   const ia = read("lib/platform-ia-contract.ts");
-  const migration = read("../../../supabase/migrations/20260928162000_sa2_platform_rbac_foundation.sql");
+  const migration = read("../../supabase/migrations/20260928162000_sa2_platform_rbac_foundation.sql");
   assert.match(ia, /key: "people"[\s\S]*?access: \{ kind: "owner_only" \}/);
   assert.match(migration, /sa2_reject_root_only_role_permission/);
 });
