@@ -44,7 +44,7 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
 
   if (authError || !user) {
     redirect(
-      "/login?error=" +
+      (root === "/en/register" ? "/en/login" : "/login") + "?error=" +
         encodeURIComponent("Accedi prima di registrare la tua azienda") +
         "&next=" +
         encodeURIComponent(registerPath),
@@ -61,7 +61,7 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
       );
     }
     redirect(
-      "/verify-email?source=registration&next=" +
+      (root === "/en/register" ? "/en/verify-email" : "/verify-email") + "?source=registration&next=" +
         encodeURIComponent(registerPath),
     );
   }
@@ -257,12 +257,12 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
   redirect((root === "/en/register" ? "/en/registration/status" : "/registration/status") + "?submitted=1");
 }
 
-export async function logoutRegistration() {
+export async function logoutRegistration(formData?: FormData) {
   const supabase = await createClient();
   await supabase.auth.signOut();
   const cookieStore = await cookies();
   cookieStore.delete(PENDING_SIGNUP_EMAIL_COOKIE);
-  redirect("/login");
+  redirect(formData?.get("registration_locale") === "en" ? "/en/login" : "/login");
 }
 
 
