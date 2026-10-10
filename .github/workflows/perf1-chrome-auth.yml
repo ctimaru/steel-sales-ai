@@ -5,6 +5,12 @@ on:
     paths:
       - "apps/web/app/page.tsx"
       - "apps/web/lib/supabase/proxy.ts"
+      - "apps/web/components/platform-navigation.tsx"
+      - "apps/web/components/platform-shell.tsx"
+      - "apps/web/app/(platform)/platform/novita/page.tsx"
+      - "apps/web/app/(platform)/platform/novita/listini/[versionId]/page.tsx"
+      - "apps/web/tests/plr2-platform-navigation-shell.test.mjs"
+      - "supabase/migrations/*plr2_private_lab_owner_boundary.sql"
       - "apps/web/tests/perf1-*.mjs"
       - "supabase/tests/perf1_chrome_seed.sql"
       - ".github/workflows/perf1-chrome-auth.yml"
