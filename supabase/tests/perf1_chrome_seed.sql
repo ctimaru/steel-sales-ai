@@ -59,6 +59,12 @@ insert into public.buyer_rfq_campaigns(
  ('00000000-0000-0000-0000-000000023323',:'trader_user_id'::uuid,'00000000-0000-0000-0000-000000023303','00000000-0000-0000-0000-000000023313','DEMOTEST23 TRADER PRIVATE RFQ','draft',now()+interval '14 days'),
  ('00000000-0000-0000-0000-000000023324',:'processor_user_id'::uuid,'00000000-0000-0000-0000-000000023304','00000000-0000-0000-0000-000000023314','DEMOTEST23 PROCESSOR PRIVATE RFQ','draft',now()+interval '14 days');
 
+-- PLR4.5 disposable delegation: active staff with ONLY registration_admin.
+insert into public.platform_staff (user_id,status)
+values (:'platformStaff_user_id'::uuid,'active');
+insert into public.platform_staff_roles (user_id,role_key,status,assigned_by,reason)
+values (:'platformStaff_user_id'::uuid,'registration_admin','active',:'owner_user_id'::uuid,'PLR4.5 isolated CI registration staff');
+
 -- Platform Owner identity is strictly synthetic and exists ONLY in this throwaway DB.
 -- Existing one-owner partial unique index remains intact; no hosted environment is touched.
 insert into public.platform_user_roles(user_id,role,status,granted_by,reason)
@@ -83,4 +89,4 @@ begin
  end if;
 end $$;
 commit;
-select 'PERF1 local-only Chrome fixtures seeded: 4 organizations, 6 GoTrue users (5 tenant + 1 owner), 4 private RFQs' as result;
+select 'PERF1 local-only Chrome fixtures seeded: 4 organizations, 7 GoTrue users (5 tenant + 1 owner + 1 staff), 4 private RFQs' as result;
