@@ -292,7 +292,7 @@ export default async function PlatformNetworkTrustPage({
             queue.evidence.slice(0, 60).map((item) => (
               <article
                 key={item.assertion_id}
-                className="rounded-2xl border border-[#e6ecf4] bg-[#f9fbfd] p-4"
+                className={GOVERNANCE_ROW_CLASS}
               >
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                   <div className="min-w-0">
@@ -398,7 +398,7 @@ export default async function PlatformNetworkTrustPage({
             queue.current_verifications.map((item) => (
               <article
                 key={item.verification_id}
-                className="rounded-xl border border-[#e6ecf4] bg-[#f9fbfd] p-4"
+                className={GOVERNANCE_ROW_CLASS}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -517,7 +517,7 @@ export default async function PlatformNetworkTrustPage({
             queue.change_reviews.map((review) => (
               <article
                 key={review.review_id}
-                className="rounded-xl border border-[#e6ecf4] bg-[#f9fbfd] p-4"
+                className={GOVERNANCE_ROW_CLASS}
               >
                 <p className="text-xs font-bold uppercase text-[#1a5144]">
                   {review.company_legal_name} · {review.field_path}
@@ -610,7 +610,7 @@ export default async function PlatformNetworkTrustPage({
             queue.identity_candidates.map((candidate) => (
               <article
                 key={candidate.candidate_id}
-                className="rounded-xl border border-[#e6ecf4] bg-[#f9fbfd] p-4"
+                className={GOVERNANCE_ROW_CLASS}
               >
                 <div className="grid gap-4 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
                   <div>
