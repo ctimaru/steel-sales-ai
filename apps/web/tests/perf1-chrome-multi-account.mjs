@@ -201,6 +201,8 @@ try {
   });
   await check("mobile Chrome authenticated homepage returns own workspace", async () => {
     assert.equal(await openHome(mobilePage), "/dashboard");
+    await mobilePage.getByRole("heading", { name: "Oggi in " + tenants[0].name })
+      .waitFor({ state: "visible", timeout: 60000 });
     const text = await pageText(mobilePage);
     assert.ok(text.includes(tenants[0].name));
   });
