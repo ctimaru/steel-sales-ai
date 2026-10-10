@@ -1,6 +1,7 @@
 type RegistrationJourneyProps = {
   current: 1 | 2 | 3 | 4;
   compact?: boolean;
+  locale?: "it" | "en";
 };
 
 const STEPS = [
@@ -13,13 +14,20 @@ const STEPS = [
 export function RegistrationJourney({
   current,
   compact = false,
+  locale = "it",
 }: RegistrationJourneyProps) {
+  const items = locale === "en" ? [
+    { id: 1, label: "Account", description: "Create and verify your email" },
+    { id: 2, label: "Company", description: "Provide essential details" },
+    { id: 3, label: "Review", description: "We review your application" },
+    { id: 4, label: "Activation", description: "Access the workspace" },
+  ] : STEPS;
   return (
     <ol
-      aria-label="Percorso di registrazione"
+      aria-label={locale === "en" ? "Registration progress" : "Percorso di registrazione"}
       className={compact ? "grid gap-2 sm:grid-cols-4" : "grid gap-3 sm:grid-cols-2 xl:grid-cols-4"}
     >
-      {STEPS.map((step) => {
+      {items.map((step) => {
         const active = step.id === current;
         const completed = step.id < current;
 
