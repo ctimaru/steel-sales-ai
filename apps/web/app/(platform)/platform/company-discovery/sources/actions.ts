@@ -40,3 +40,17 @@ export async function reviewDiscoverySourceRegistry(form: FormData) {
   revalidatePath(route);
   response("message", "Revisione salvata. Attivazione automatica non ancora disponibile.");
 }
+
+export async function reviewDiscoveredDomain(form: FormData) {
+  await requirePlatformPermission("discovery.review");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("crawl_it3_review_lead", {
+    p_lead_id: String(form.get("lead_id") ?? ""),
+    p_decision: String(form.get("decision") ?? ""),
+    p_note: String(form.get("note") ?? "").trim(),
+  });
+  if (error) response("error", "Revisione dominio non completata. Verifica identità, fonte e motivazione.");
+  revalidatePath(route);
+  revalidatePath("/platform/company-discovery");
+  response("message", "Decisione registrata. Solo i domini accettati entrano nella coda crawler, senza pubblicazione automatica.");
+}
