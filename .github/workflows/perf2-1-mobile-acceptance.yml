@@ -7,6 +7,8 @@ on:
       - "apps/web/app/layout.tsx"
       - "apps/web/app/globals.css"
       - "apps/web/components/public-network-role-explorer.tsx"
+      - "apps/web/components/public-registration-trust.tsx"
+      - "apps/web/tests/home-si5-*"
       - "apps/web/components/deferred-public-company-lookup.tsx"
       - "apps/web/tests/perf2-1-*"
       - ".github/workflows/perf2-1-mobile-acceptance.yml"
@@ -36,7 +38,7 @@ jobs:
       - name: Install frontend & browser-only QA dependencies
         run: |
           npm ci --no-audit --no-fund
-          npm install --no-save --no-package-lock playwright@1.56.1 lighthouse@12.6.0
+          npm install --no-save --no-package-lock playwright@1.56.1 lighthouse@12.6.0 @axe-core/playwright@4.10.2
           npx playwright install --with-deps chrome
       - name: Compile production Next.js with no external data
         run: npm run build
@@ -56,6 +58,16 @@ jobs:
           exit 1
       - name: Chrome keyboard / no-JS / lazy lookup / consent acceptance
         run: node tests/perf2-1-chrome-mobile.mjs
+      - name: HOME-SI5 Chrome visual / WCAG / SEO acceptance
+        run: node tests/home-si5-chrome-visual-qa.mjs
+      - name: Upload public visual QA screenshots (no accounts or credentials)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: home-si5-public-visual-qa
+          path: /tmp/home-si5
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Repeated mobile Lighthouse benchmark (diagnostic; not a score gate)
         timeout-minutes: 8
         shell: bash
