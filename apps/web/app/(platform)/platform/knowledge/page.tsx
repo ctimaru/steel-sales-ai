@@ -1,3 +1,4 @@
+import { GovernanceQueueFeedback } from "@/components/governance-queue-feedback";
 import { GOVERNANCE_ROW_LINK_CLASS } from "@/lib/governance-row-contract";
 import { GovernanceQueueControls } from "@/components/governance-queue-controls";
 import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
@@ -89,16 +90,7 @@ export default async function PlatformKnowledgePage({
         </div>
       </section>
 
-      {params.message ? (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-800">
-          {params.message}
-        </div>
-      ) : null}
-      {params.error ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-800">
-          {params.error}
-        </div>
-      ) : null}
+      <GovernanceQueueFeedback error={params.error} message={params.message} />
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {[
@@ -216,7 +208,7 @@ export default async function PlatformKnowledgePage({
       <section className="space-y-3">
         {queue.items.length === 0 ? (
           <FirstUseEmptyState
-            eyebrow={activeStatus ? "Filtro senza risultati" : "Coda editoriale"}
+            eyebrow={activeStatus ? "Nessun risultato con il filtro attivo" : "Coda editoriale vuota"}
             title="Nessun contenuto in questa vista"
             description={
               activeStatus
