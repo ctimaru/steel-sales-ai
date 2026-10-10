@@ -1,3 +1,4 @@
+import { GovernanceQueueControls } from "@/components/governance-queue-controls";
 import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import {
@@ -58,6 +59,7 @@ export default async function PlatformNetworkTrustPage({
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <GovernanceWorkspaceNav current="trust" permissions={access?.permissions ?? []} />
+      <GovernanceQueueControls title="Network Trust" total={queue.counts.open_change_reviews} totalLabel="Change review aperte" readOnly={readOnly} />
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <p className="platform-kicker">SA8 · Network Trust</p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#18263d] sm:text-4xl">
