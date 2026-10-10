@@ -229,8 +229,8 @@ try {
     await pendingPage.getByRole("heading", { name: "Puoi già utilizzare gli strumenti pubblici" }).waitFor();
     await pendingPage.getByRole("link", { name: "Consulta Knowledge" }).waitFor();
     await pendingPage.getByRole("link", { name: "Crea una distinta" }).waitFor();
-    await visit(pendingPage, "/knowledge");
-    assert.equal(new URL(pendingPage.url()).pathname, "/knowledge");
+    await pendingPage.getByRole("link", { name: "Consulta Knowledge" }).click();
+    await pendingPage.waitForURL(u => u.pathname === "/knowledge" && u.searchParams.get("public") === "1", { timeout: 35000 });
     await visit(pendingPage, "/distinta");
     assert.equal(new URL(pendingPage.url()).pathname, "/distinta");
   });
