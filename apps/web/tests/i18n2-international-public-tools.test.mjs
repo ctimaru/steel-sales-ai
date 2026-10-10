@@ -17,6 +17,8 @@ const italianCalculator = read("../components/public-tube-weight-calculator.tsx"
 const italianCalculatorPage = read("../app/(public)/knowledge/tubes/page.tsx");
 const italianRfqPage = read("../app/(public)/distinta/page.tsx");
 const englishHub = read("../app/en/knowledge/page.tsx");
+const consent = read("../components/google-analytics-consent.tsx");
+const analytics = read("../components/product-analytics-ingestion.tsx");
 
 function nearlyEqual(actual, expected, epsilon = 1e-10) {
   assert.ok(Math.abs(actual - expected) <= epsilon * Math.max(1, expected), `Expected ${expected}, received ${actual}`);
@@ -92,4 +94,13 @@ test("I18N2 tools remain local until user copies; mixed standards remain availab
   assert.match(rfq, /navigator\.clipboard\.writeText/);
   assert.match(calculator, /navigator\.clipboard\.writeText/);
   assert.doesNotMatch(rfq + calculator, /fetch\(|createClient\(|supabase|sendRfq|dispatchRfq/i);
+});
+
+
+test("I18N2 measures public EN paths, retains consent-gated tracking and English privacy choices", () => {
+  assert.match(analytics, /pathname === "\/en" \|\| pathname\.startsWith\("\/en\/"\)/);
+  assert.match(consent, /pathname === "\/en" \|\|/);
+  assert.match(consent, /english \? "Accept analytics" : "Accetta"/);
+  assert.match(consent, /english \? "Essential only" : "Accetta necessari"/);
+  assert.match(consent, /analytics_storage: consent === "granted" \? "granted" : "denied"/);
 });
