@@ -34,6 +34,9 @@ jobs:
           cache-dependency-path: apps/web/package-lock.json
       - name: "I18N4: International SEO HTTP acceptance (GET only)"
         working-directory: apps/web
+        # A PR checks currently deployed main, not its unreleased fixes.
+        # A manual post-release run is strict and fails on any remaining issue.
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
         env:
           I18N4_STRICT_PRODUCTION: ${{ github.event_name == 'workflow_dispatch' }}
         run: node tests/i18n4-production-seo-http.mjs
