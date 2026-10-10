@@ -164,6 +164,30 @@ try {
       assert.equal(await ownerPage.getByRole("heading", { name: "Cosa richiede attenzione" }).count(), 1);
     }
   });
+  await check("PLR4 owner governance queues render permission-scoped navigation", async () => {
+    for (const [route, label] of [
+      ["/platform/registrations", "Registrazioni"],
+      ["/platform/company-discovery", "Discovery"],
+      ["/platform/company-claims", "Claims"],
+      ["/platform/network-trust", "Network Trust"],
+      ["/platform/knowledge", "Knowledge"],
+    ]) {
+      await visit(ownerPage, route);
+      const nav = ownerPage.getByRole("navigation", { name: "Aree di governance autorizzate" });
+      await nav.waitFor({ state: "visible", timeout: 60000 });
+      assert.equal(await nav.locator("a").count(), 5);
+      assert.ok((await nav.locator('a[aria-current="page"]').innerText()).includes(label));
+      await ownerPage.getByRole("region", { name: /gestione coda/ }).waitFor();
+      for (const width of [390, 1440]) {
+        await ownerPage.setViewportSize({ width, height: 860 });
+        const d = await ownerPage.evaluate(() => ({
+          client: document.documentElement.clientWidth,
+          scroll: document.documentElement.scrollWidth,
+        }));
+        assert.ok(d.scroll <= d.client + 8, route + " overflow at " + width);
+      }
+    }
+  });
   await ownerContext.close();
 
   const mobile = await browser.newContext({
