@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import {
   PENDING_SIGNUP_EMAIL_COOKIE,
+  PENDING_SIGNUP_NEXT_COOKIE,
   pendingSignupEmailCookieOptions,
 } from "@/lib/auth-email-verification";
 import { trackServerProductEvent } from "@/lib/product-analytics-events.server";
@@ -262,6 +263,7 @@ export async function logoutRegistration(formData?: FormData) {
   await supabase.auth.signOut();
   const cookieStore = await cookies();
   cookieStore.delete(PENDING_SIGNUP_EMAIL_COOKIE);
+  cookieStore.delete(PENDING_SIGNUP_NEXT_COOKIE);
   redirect(formData?.get("registration_locale") === "en" ? "/en/login" : "/login");
 }
 
