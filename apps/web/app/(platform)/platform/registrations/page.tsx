@@ -1,3 +1,4 @@
+import { platformQueueReturn } from "@/lib/platform-queue-return";
 import { GovernanceQueueControls } from "@/components/governance-queue-controls";
 import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
 import Link from "next/link";
@@ -224,7 +225,7 @@ export default async function AdminRegistrationsPage({
             return (
               <Link
                 key={application.id}
-                href={`/platform/registrations/${application.id}`}
+                href={`/platform/registrations/${application.id}?${new URLSearchParams({ ...(activeStatus ? { status: activeStatus } : {}), ...(query ? { q: query.slice(0, 120) } : {}) }).toString()}`}
                 className={[
                   "block rounded-2xl border bg-white p-5 transition",
                   application.attention_required
