@@ -65,6 +65,15 @@ values (:'platformStaff_user_id'::uuid,'active');
 insert into public.platform_staff_roles (user_id,role_key,status,assigned_by,reason)
 values (:'platformStaff_user_id'::uuid,'registration_admin','active',:'owner_user_id'::uuid,'PLR4.5 isolated CI registration staff');
 
+-- NETG1: verified but unapproved applicant, exclusively in the disposable CI database.
+insert into public.company_registration_applications (
+ applicant_user_id,applicant_email_snapshot,legal_name,country_code,primary_company_type,
+ contact_name,application_status,submitted_at,email_verified_at
+) values (
+ :'pendingApplicant_user_id'::uuid,'netg1-applicant@example.test','NETG1 Local Pending Company','IT','trader_distributor',
+ 'Local QA Applicant','pending_review',now(),now()
+);
+
 -- Platform Owner identity is strictly synthetic and exists ONLY in this throwaway DB.
 -- Existing one-owner partial unique index remains intact; no hosted environment is touched.
 insert into public.platform_user_roles(user_id,role,status,granted_by,reason)
