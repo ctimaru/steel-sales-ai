@@ -61,7 +61,7 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
       );
     }
     redirect(
-      (root === "/en/register" ? "/en/verify-email" : "/verify-email") + "?source=registration&next=" +
+      (root === "/en/register" ? "/en/verify-email?source=registration&next=" : "/verify-email?source=registration&next=") +
         encodeURIComponent(registerPath),
     );
   }
