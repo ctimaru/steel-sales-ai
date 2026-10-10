@@ -22,7 +22,7 @@ try {
   await testCase("mobile no-JavaScript public HTML and SEO hero", async () => {
     const response = await staticPage.goto(base, { waitUntil: "domcontentloaded", timeout: 30000 });
     assert.equal(response.status(), 200);
-    await staticPage.getByRole("heading", { name: /Il business network dell.acciaio/i }).waitFor();
+    await staticPage.getByRole("heading", { name: /L.intelligenza che connette/i }).waitFor();
     await staticPage.getByRole("heading", { name: /La filiera steel/i }).waitFor();
     assert.equal(await staticPage.locator('input[name="network-persona"]').count(), 4);
   });
@@ -50,7 +50,7 @@ try {
   await testCase("mobile homepage with JS stays usable and bounded", async () => {
     const response = await page.goto(base, { waitUntil: "domcontentloaded", timeout: 30000 });
     assert.equal(response.status(), 200);
-    await page.getByRole("heading", { name: /Il business network dell.acciaio/i }).waitFor();
+    await page.getByRole("heading", { name: /L.intelligenza che connette/i }).waitFor();
     const sizes = await page.evaluate(() => ({
       width: document.documentElement.clientWidth,
       total: document.documentElement.scrollWidth,

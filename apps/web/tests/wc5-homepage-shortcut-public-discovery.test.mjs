@@ -31,15 +31,14 @@ const migration = fs.readFileSync(
   "utf8",
 );
 
-test("WC5 makes the calculator a primary public-home action", () => {
+test("WC5 keeps the calculator discoverable from hero, header and Scuola section", () => {
   assert.match(home, /Calcolo pesi/);
   assert.match(home, /source=home&surface=hero#calcolatore-pesi/);
   assert.match(home, /source=home&surface=header#calcolatore-pesi/);
-  assert.match(home, /source=home&surface=quick_actions#calcolatore-pesi/);
   assert.match(home, /source=home&surface=school_section#calcolatore-pesi/);
+  assert.match(home, /aria-label="Navigazione pubblica mobile"/);
   assert.doesNotMatch(home, />Calcolatore</);
   assert.match(home, />\s*Calcolo pesi\s*</);
-  assert.match(home, /surface=quick_actions#calcolatore-pesi/);
 });
 
 test("WC5 keeps Scuola discovery visible on desktop, mobile and Scuola home", () => {

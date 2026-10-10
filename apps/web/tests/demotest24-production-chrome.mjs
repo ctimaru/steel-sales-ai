@@ -22,13 +22,23 @@ async function createAnonymousContext(viewport, mobile = false) {
   await context.route("**/*", async route => {
     const req = route.request();
     if (!["GET","HEAD"].includes(req.method())) {
-      blockedWriteAttempt = true;
-      // Never log path parameters, query strings, headers, cookies, or bodies.
-      // Group attempted writes by method and route prefix only.
+      // All non-read requests remain BLOCKED. Consent Mode can emit cookieless
+      // telemetry pings; those are not application writes or a reason to fail
+      // an otherwise read-only anonymous smoke. Never send them from CI.
       const parsed = new URL(req.url());
-      const segments = parsed.pathname.split("/").filter(Boolean);
-      const safeRoute = "/" + segments.slice(0, 3).join("/");
-      attemptedWrites.add(req.method() + " " + (parsed.hostname === "www.smartsteelsales.com" ? "first-party " : "third-party ") + safeRoute);
+      const isBlockedAnalyticsPing =
+        req.method() === "POST" &&
+        (parsed.hostname === "google-analytics.com" ||
+          parsed.hostname.endsWith(".google-analytics.com")) &&
+        parsed.pathname === "/g/collect";
+      if (!isBlockedAnalyticsPing) {
+        blockedWriteAttempt = true;
+        // Never log path parameters, query strings, headers, cookies, or bodies.
+        // Group attempted writes by method and route prefix only.
+        const segments = parsed.pathname.split("/").filter(Boolean);
+        const safeRoute = "/" + segments.slice(0, 3).join("/");
+        attemptedWrites.add(req.method() + " " + (parsed.hostname === "www.smartsteelsales.com" ? "first-party " : "third-party ") + safeRoute);
+      }
       await route.abort();
       return;
     }

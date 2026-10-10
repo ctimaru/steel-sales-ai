@@ -36,8 +36,8 @@ test("public text tokens meet WCAG AA 4.5:1 on their light surfaces", () => {
 test("primary public CTA meets WCAG AA with white text", () => {
   assert.ok(contrast("#ffffff", "#1f6b5a") >= 4.5);
   assert.ok(contrast("#ffffff", "#185247") >= 4.5);
-  assert.match(globals, /\.public-primary-cta/);
-  assert.match(home, /public-primary-cta/);
+  assert.match(globals, /\.platform-primary \{/);
+  assert.match(home, /href="\/register" className="platform-primary/);
 });
 
 test("legacy low-contrast public utility colors are remapped to accessible muted text", () => {

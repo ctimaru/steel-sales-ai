@@ -32,7 +32,7 @@ jobs:
           cache-dependency-path: apps/web/package-lock.json
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: 2.118.0
       - name: Restore historical CI-only baseline migrations
         run: |
           cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
