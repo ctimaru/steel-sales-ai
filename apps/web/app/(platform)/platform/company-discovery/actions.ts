@@ -150,6 +150,28 @@ export async function reviewCompanyDiscovery(formData: FormData) {
   }
 
   const supabase = await createClient();
+  if (decision === "duplicate_existing") {
+    if (!existingCompanyId || !note || note.length < 12) {
+      redirect(discoveryPath("error", "Per chiudere un duplicato indica azienda esistente e motivazione (almeno 12 caratteri)."));
+    }
+    const [{ data: candidate, error: candidateError }, { data: existing, error: existingError }] = await Promise.all([
+      supabase.from("network_company_discovery_candidates").select("legal_name,canonical_domain,match_company_id").eq("id", id).maybeSingle(),
+      supabase.from("network_companies").select("legal_name,website_domain").eq("id", existingCompanyId).maybeSingle(),
+    ]);
+    // Client/RLS failures must not be treated as evidence of identity.
+    if (candidateError || existingError || !candidate || !existing) {
+      redirect(discoveryPath("error", "Identità non verificabile: nessuna decisione registrata."));
+    }
+    const normalize = (name: string) => name.normalize("NFKC").trim().replace(/\\s+/g, " ").toLocaleLowerCase("it");
+    if (
+      candidate.match_company_id !== existingCompanyId ||
+      normalize(candidate.legal_name) !== normalize(existing.legal_name) ||
+      !candidate.canonical_domain ||
+      candidate.canonical_domain.toLowerCase() !== existing.website_domain?.toLowerCase()
+    ) {
+      redirect(discoveryPath("error", "Corrispondenza ambigua: eseguire una revisione manuale dell'identità prima di segnare il duplicato."));
+    }
+  }
   const result =
     decision === "enrich_existing"
       ? await supabase.rpc("p3_enrich_existing_company_discovery_selected", {
