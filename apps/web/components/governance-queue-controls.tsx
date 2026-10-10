@@ -2,10 +2,10 @@ import Link from "next/link";
 
 type QueueTab = { value: string; label: string };
 export function GovernanceQueueControls({
-  title, total, totalLabel = "Elementi nella vista", readOnly, tabs, current, baseHref, searchQuery,
+  title, total, totalLabel = "Elementi nella vista", readOnly, tabs, current, baseHref, searchQuery, priorityValues = [],
 }: {
   title: string; total: number | null; totalLabel?: string; readOnly: boolean;
-  tabs?: readonly QueueTab[]; current?: string; baseHref?: string; searchQuery?: string;
+  tabs?: readonly QueueTab[]; current?: string; baseHref?: string; searchQuery?: string; priorityValues?: readonly string[];
 }) {
   return (
     <section aria-label={title + " · gestione coda"} className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
@@ -19,7 +19,7 @@ export function GovernanceQueueControls({
           <p className="text-xs text-[#66736e]">{totalLabel}</p>
         </div>
       </div>
-      {tabs && baseHref ? (
+      {tabs && baseHref && priorityValues.length > 0 ? (\n        <p className="mt-3 text-xs text-[#52615b]">Le viste contrassegnate come <strong>Da gestire</strong> indicano stati che richiedono attenzione; non sono una misura di urgenza temporale.</p>\n      ) : null}\n      {tabs && baseHref ? (
         <nav aria-label={"Filtri " + title} className="mt-4 flex gap-2 overflow-x-auto pb-1">
           {tabs.map(({ value, label }) => {
             const active = (current ?? "all") === value;
