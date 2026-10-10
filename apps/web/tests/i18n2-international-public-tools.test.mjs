@@ -91,5 +91,5 @@ test("I18N2 tools remain local until user copies; mixed standards remain availab
   assert.match(rfq, /"en10210"/);
   assert.match(rfq, /navigator\.clipboard\.writeText/);
   assert.match(calculator, /navigator\.clipboard\.writeText/);
-  assert.doesNotMatch(rfq + calculator, /fetch\(|createClient\(|supabase|sendRfq|dispatchRfq|/i);
+  assert.doesNotMatch(rfq + calculator, /fetch\(|createClient\(|supabase|sendRfq|dispatchRfq/i);
 });
