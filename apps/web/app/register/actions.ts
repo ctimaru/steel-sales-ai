@@ -25,13 +25,15 @@ function field(formData: FormData, name: string) {
 export async function saveAndSubmitCompanyRegistration(formData: FormData) {
   const claimRef = field(formData, "claim_ref").toLowerCase();
   const validClaimRef = /^[0-9a-f]{64}$/.test(claimRef);
+  // Locale only selects the return URL; security and approval remain in the same RPCs.
+  const root = field(formData, "registration_locale") === "en" ? "/en/register" : "/register";
   const registerPath = validClaimRef
-    ? "/register?claim_ref=" + encodeURIComponent(claimRef)
-    : "/register";
+    ? root + "?claim_ref=" + encodeURIComponent(claimRef)
+    : root;
 
   if (claimRef && !validClaimRef) {
     redirect(
-      "/register?error=" +
+      root + "?error=" +
         encodeURIComponent("Il riferimento di claim non è valido. Cerca nuovamente l’azienda."),
     );
   }
@@ -252,7 +254,7 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
     company_type: primaryCompanyType,
   });
 
-  redirect("/registration/status?submitted=1");
+  redirect((root === "/en/register" ? "/en/registration/status" : "/registration/status") + "?submitted=1");
 }
 
 export async function logoutRegistration() {
@@ -267,9 +269,11 @@ export async function logoutRegistration() {
 
 export async function restartRejectedRegistration(formData: FormData) {
   const applicationId = field(formData, "application_id");
+  const statusPath = field(formData, "registration_locale") === "en" ? "/en/registration/status" : "/registration/status";
+  const registrationPath = field(formData, "registration_locale") === "en" ? "/en/register" : "/register";
   if (!applicationId) {
     redirect(
-      "/registration/status?error=" +
+      statusPath + "?error=" +
         encodeURIComponent("Richiesta non valida.") +
         "&error_code=validation",
     );
@@ -283,7 +287,7 @@ export async function restartRejectedRegistration(formData: FormData) {
   if (error) {
     redirect(
       feedbackPath(
-        "/registration/status",
+        statusPath,
         error,
         "Non è possibile riaprire automaticamente questa registrazione. Aggiorna la pagina o contatta il referente Smart Steel Sales.",
       ),
@@ -297,7 +301,7 @@ export async function restartRejectedRegistration(formData: FormData) {
 
   if (!payload.application_id) {
     redirect(
-      "/registration/status?error=" +
+      statusPath + "?error=" +
         encodeURIComponent(
           "La nuova bozza non è stata creata. Aggiorna la pagina e riprova.",
         ) +
@@ -306,7 +310,7 @@ export async function restartRejectedRegistration(formData: FormData) {
   }
 
   redirect(
-    "/register?message=" +
+    registrationPath + "?message=" +
       encodeURIComponent(
         payload.status === "draft"
           ? "Nuova bozza creata dai dati della richiesta precedente. Correggi le informazioni e inviala nuovamente."
