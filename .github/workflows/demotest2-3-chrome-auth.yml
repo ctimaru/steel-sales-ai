@@ -100,7 +100,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          echo "PO_CONFIRMATION_SECRET=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+          test_secret="$(openssl rand -hex 32)"
+          echo "::add-mask::$test_secret"
+          echo "PO_CONFIRMATION_SECRET=$test_secret" >> "$GITHUB_ENV"
       - name: Start REAL Next.js against local Supabase (never Vercel)
         shell: bash
         working-directory: apps/web
