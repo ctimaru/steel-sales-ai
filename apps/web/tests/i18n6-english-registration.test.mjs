@@ -55,7 +55,8 @@ test("I18N6 submitted status reuses owner-protected recovery and human activatio
   assert.match(register, /email_confirmed_at/);
   assert.match(registration, /lr5_record_legal_acceptance/);
   assert.match(registration, /p0a_submit_registration_application/);
-  assert.match(registration, /"pending_review"/);
+  assert.match(registration, /p0a_submit_registration_application/);
+  assert.match(registration, /\.in\("application_status", \["draft", "needs_information"\]\)/);
   assert.match(registration, /root === "\/en\/register" \? "\/en\/registration\/status"/);
   assert.match(status, /recovery.can_reapply === true/);
   assert.match(status, /action=\{restartRejectedRegistration\}/);
