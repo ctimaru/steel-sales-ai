@@ -45,16 +45,18 @@ export function ProductBrand({
   inverse = false,
   compact = false,
   showDescriptor = true,
+  markOnly = false,
 }: {
   href?: string;
   inverse?: boolean;
   compact?: boolean;
   showDescriptor?: boolean;
+  markOnly?: boolean;
 }) {
   return (
     <Link href={href} className="inline-flex min-w-0 items-center gap-2.5">
       <BrandMark compact={compact} />
-      <span className="min-w-0">
+      <span className={markOnly ? "sr-only" : "min-w-0"}>
         <span
           className={
             "block truncate font-semibold tracking-[-0.01em] " +

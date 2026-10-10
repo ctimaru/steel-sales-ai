@@ -93,6 +93,13 @@ try {
       }
       assert.equal(await dialog.getByRole("link", { name: "Privacy", exact: true }).getAttribute("href"), "/privacy");
       assert.equal(await dialog.getByRole("link", { name: "Cookie Policy" }).getAttribute("href"), "/cookies");
+      const brand = page.locator('header a[href="/"]').first();
+      assert.equal(await brand.getAttribute("href"), "/");
+      assert.match(await brand.innerText(), /Smart Steel Sales/);
+      const brandBox = await brand.boundingBox();
+      const loginBox = await page.locator('header a[href="/login"]').first().boundingBox();
+      assert.ok(brandBox && loginBox && brandBox.x + brandBox.width + 4 <= loginBox.x,
+        "Mobile brand overlaps login at " + width + "px: " + JSON.stringify({ brandBox, loginBox }));
       await page.screenshot({ path: "/tmp/home-si5/cookie-mobile-" + width + ".png", animations: "disabled" });
       console.log("COOKIE-MOBILE ACCEPTANCE", JSON.stringify({ width, panelHeight: Math.round(bounds.height) }));
     }
