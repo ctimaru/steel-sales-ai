@@ -8,7 +8,7 @@ test("NETG1.2 pending applicant sees only public tools, not private workspace ac
  const page = read("app/registration/status/page.tsx");
  assert.match(page, /application\.application_status !== "activated"/);
  assert.match(page, /Strumenti gratuiti disponibili/);
- assert.match(page, /href="\/knowledge"/);
+ assert.match(page, /href="\/knowledge\?public=1"/);
  assert.match(page, /href="\/distinta"/);
  assert.match(page, /non richiedono l&apos;attivazione del workspace privato/);
  assert.doesNotMatch(page, /create_organization_for_current_user/);
