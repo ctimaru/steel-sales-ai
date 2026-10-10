@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ProductBrand } from "@/components/product-brand";
 import { PublicNetworkRoleExplorer } from "@/components/public-network-role-explorer";
 import { DeferredPublicCompanyLookup } from "@/components/deferred-public-company-lookup";
+import { PublicIntelligencePillars, PublicProductPreview } from "@/components/public-intelligence-showcase";
 import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -166,49 +167,13 @@ export default function PublicHomePage() {
             </div>
           </div>
 
-          <div className="relative min-w-0" aria-label="Esempio illustrativo del flusso commerciale Smart Steel Sales">
-            <div aria-hidden="true" className="absolute -inset-3 rounded-[32px] border border-[#dbe8e1] bg-white/30 sm:-inset-5" />
-            <div className="relative overflow-hidden rounded-[24px] border border-[#cbd9d2] bg-white shadow-[0_20px_60px_rgba(18,59,52,0.10)]">
-              <div className="flex items-center justify-between gap-3 bg-[#123b34] px-5 py-4 text-white">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#bdd9ce]">Smart Steel Sales</p>
-                  <p className="mt-1 text-sm font-semibold">Dal bisogno alla decisione</p>
-                </div>
-                <span className="shrink-0 rounded-full border border-white/20 px-2.5 py-1 text-[10px] font-semibold text-[#e1eee8]">Anteprima</span>
-              </div>
-
-              <div className="space-y-3 p-4 sm:p-5">
-                <div className="flex gap-3 rounded-2xl border border-[#dce5e0] bg-[#f8faf9] p-4">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#ddf5ec] text-xs font-extrabold text-[#123b34]">01</span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-[#123b34]">Distinta tecnica</p>
-                    <p className="mt-1 text-xs leading-5 text-[#52615b]">Materiale, norme, misure e quantità in un unico punto.</p>
-                  </div>
-                </div>
-                <div className="flex gap-3 rounded-2xl border border-[#dce5e0] bg-[#f8faf9] p-4">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#e8f0f4] text-xs font-extrabold text-[#315c74]">02</span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-[#123b34]">RFQ multi-fornitore</p>
-                    <p className="mt-1 text-xs leading-5 text-[#52615b]">Richieste e risposte organizzate, con tracciabilità.</p>
-                  </div>
-                </div>
-                <div className="flex gap-3 rounded-2xl border border-[#dce5e0] bg-[#f8faf9] p-4">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#f5ece5] text-xs font-extrabold text-[#895028]">03</span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-bold text-[#123b34]">Confronto offerte</p>
-                    <p className="mt-1 text-xs leading-5 text-[#52615b]">Elementi commerciali confrontabili per decidere.</p>
-                  </div>
-                </div>
-              </div>
-              <div className="border-t border-[#e1eae5] bg-[#f8faf9] px-5 py-3 text-xs font-medium text-[#52615b]">
-                Flusso illustrativo · L’AI assiste, la decisione resta alle persone.
-              </div>
-            </div>
-          </div>
+          <PublicProductPreview />
         </div>
       </section>
 
       <PublicNetworkRoleExplorer />
+
+      <PublicIntelligencePillars />
 
       <section className="border-b border-[#dce2df] bg-white">
         <div className="mx-auto max-w-[1120px] px-4 py-8 sm:px-6 lg:px-8">

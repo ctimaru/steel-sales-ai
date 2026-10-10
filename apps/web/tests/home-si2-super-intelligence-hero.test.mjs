@@ -4,12 +4,14 @@ import test from "node:test";
 
 const home = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
 const proxy = fs.readFileSync(new URL("../lib/supabase/proxy.ts", import.meta.url), "utf8");
+const showcase = fs.readFileSync(new URL("../components/public-intelligence-showcase.tsx", import.meta.url), "utf8");
 
 test("HOME-SI2 establishes a truthful AI-ready hero without claiming autonomous decisions", () => {
   assert.match(home, /Super Intelligence Ready/);
   assert.match(home, /L’intelligenza che connette/);
-  assert.match(home, /Flusso illustrativo/);
-  assert.match(home, /L’AI assiste, la decisione resta alle persone/);
+  assert.match(home, /<PublicProductPreview \/>/);
+  assert.match(showcase, /Flusso illustrativo/);
+  assert.match(showcase, /L’AI assiste, la decisione resta alle persone/);
   assert.match(home, /richiedono registrazione e approvazione/);
   assert.match(home, /metadata: Metadata/);
   assert.doesNotMatch(home, /intelligenza artificiale generale|superintelligenza autonoma/i);

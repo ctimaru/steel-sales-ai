@@ -10,6 +10,10 @@ const network = fs.readFileSync(
   new URL("../components/public-network-role-explorer.tsx", import.meta.url),
   "utf8",
 );
+const showcase = fs.readFileSync(
+  new URL("../components/public-intelligence-showcase.tsx", import.meta.url),
+  "utf8",
+);
 
 test("PA1.1 public home leads with value before login", () => {
   assert.match(home, /L’intelligenza che connette/);
@@ -38,7 +42,7 @@ test("PA1.1 public-value architecture remains intact after PA1.2 adds real compa
 });
 
 test("PA1.1 aligns the public home with the current brand palette", () => {
-  assert.match(home, /bg-\[#123b34\]/);
+  assert.match(showcase, /bg-\[#123b34\]/);
   assert.match(home, /platform-primary/);
   assert.doesNotMatch(home, /#2f6fed/);
   assert.doesNotMatch(home, /#245ed1/);
