@@ -23,6 +23,10 @@ const baseMetadata: Metadata = {
     "Calcolatore pubblico per tubi strutturali in acciaio: massa lineare secondo EN 10210 o EN 10219, oppure calcolo geometrico libero. Ottieni kg/m, peso barra e tonnellate.",
   alternates: {
     canonical: absoluteUrl("/knowledge/tubes"),
+    languages: {
+      it: absoluteUrl("/knowledge/tubes"),
+      en: absoluteUrl("/en/knowledge/tubes"),
+    },
   },
   openGraph: {
     title: "Calcolo peso tubo acciaio · Scuola Smart Steel Sales",
