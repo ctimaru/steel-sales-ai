@@ -30,7 +30,7 @@ const migration = fs.readFileSync(
 test("SA6 exposes Company Claims to authorized Platform Staff", () => {
   assert.match(
     platformIa,
-    /key: "claims"[\s\S]*?access: \{ kind: "permission", key: "claims\\.read" \}/,
+    /key: "claims"[\s\S]*?access: \{ kind: "permission", key: "claims\.read" \}/,
   );
   assert.match(home, /canReadClaims/);
   assert.match(home, /context\.permissions\.includes\("claims\.read"\)/);
@@ -54,8 +54,8 @@ test("SA6 renders proof and claim decisions from dedicated capabilities", () => 
     assert.match(
       page,
       new RegExp(
-        "permissions\\.includes\\(\"" +
-          permission.replaceAll(".", "\\.") +
+        "permissions\.includes\\(\"" +
+          permission.replaceAll(".", "\.") +
           "\"\\)",
       ),
     );
@@ -101,7 +101,7 @@ test("SA6 database cutover replaces root gates only for Claims operations", () =
       migration,
       new RegExp(
         "require_platform_permission\\([^)]*" +
-          permission.replaceAll(".", "\\.") ,
+          permission.replaceAll(".", "\.") ,
       ),
     );
   }

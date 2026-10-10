@@ -41,7 +41,7 @@ const migration = fs.readFileSync(
 test("SA7 exposes Knowledge Operations through knowledge.read_drafts", () => {
   assert.match(
     platformIa,
-    /key: "knowledge"[\s\S]*?access: \{ kind: "permission", key: "knowledge\\.read_drafts" \}/,
+    /key: "knowledge"[\s\S]*?access: \{ kind: "permission", key: "knowledge\.read_drafts" \}/,
   );
   assert.match(home, /canReadKnowledge/);
   assert.match(
@@ -65,8 +65,8 @@ test("SA7 route and detail resolve the effective Knowledge capability set", () =
     assert.match(
       queue,
       new RegExp(
-        "permissions\\.includes\\(\"" +
-          permission.replaceAll(".", "\\.") +
+        "permissions\.includes\\(\"" +
+          permission.replaceAll(".", "\.") +
           "\"\\)",
       ),
     );
@@ -112,7 +112,7 @@ test("SA7 registers Knowledge mutations in the platform capability contract", ()
       new RegExp(
         pair[0] +
           ': "' +
-          pair[1].replaceAll(".", "\\.") +
+          pair[1].replaceAll(".", "\.") +
           '"',
       ),
     );
@@ -155,7 +155,7 @@ test("SA7 enforces read/edit/review/publish/quality capabilities in Postgres", (
       migration,
       new RegExp(
         "require_platform_permission\\('" +
-          permission.replaceAll(".", "\\.") +
+          permission.replaceAll(".", "\.") +
           "'\\)",
       ),
     );
