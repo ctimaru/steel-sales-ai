@@ -6,6 +6,8 @@ import { PublicNetworkRoleExplorer } from "@/components/public-network-role-expl
 import { DeferredPublicCompanyLookup } from "@/components/deferred-public-company-lookup";
 import { PublicIntelligencePillars, PublicProductPreview } from "@/components/public-intelligence-showcase";
 import { PublicRegistrationTrust } from "@/components/public-registration-trust";
+import { PublicContactSection } from "@/components/public-contact-section";
+import { PublicLanguageSwitch } from "@/components/public-language-switch";
 import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -14,6 +16,11 @@ export const metadata: Metadata = {
     "Intelligence commerciale per l’acciaio: distinte, RFQ multi-fornitore, confronto offerte, Scuola e Network privato per aziende registrate.",
   alternates: {
     canonical: absoluteUrl("/"),
+    languages: {
+      it: absoluteUrl("/"),
+      en: absoluteUrl("/en"),
+      "x-default": absoluteUrl("/"),
+    },
   },
   openGraph: {
     title: "Smart Steel Sales — Super Intelligence Ready per l’acciaio",
@@ -21,6 +28,7 @@ export const metadata: Metadata = {
       "Strumenti pubblici, RFQ Hub e Network privato: più chiarezza per chi compra e vende acciaio.",
     url: absoluteUrl("/"),
     type: "website",
+    locale: "it_IT",
   },
 };
 
@@ -107,6 +115,7 @@ export default function PublicHomePage() {
           </nav>
 
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <PublicLanguageSwitch locale="it" italianHref="/" englishHref="/en" />
             <Link href="/login" className="inline-flex min-h-11 items-center justify-center rounded-xl px-2.5 text-sm font-semibold text-[#36574c] hover:bg-[#f2f4f3] sm:px-3">
               Accedi
             </Link>
@@ -237,6 +246,8 @@ export default function PublicHomePage() {
       </section>
 
       <PublicRegistrationTrust />
+
+      <PublicContactSection locale="it" />
 
       <footer className="bg-[#f2f4f3]">
         <div className="mx-auto flex max-w-[1120px] flex-col gap-4 px-4 py-6 text-xs text-[#718078] sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">

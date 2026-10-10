@@ -49,6 +49,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: knowledgeLastModified,
       changeFrequency: "weekly",
       priority: 1,
+      alternates: {
+        languages: {
+          it: absoluteUrl("/"),
+          en: absoluteUrl("/en"),
+          "x-default": absoluteUrl("/"),
+        },
+      },
+    },
+    {
+      url: absoluteUrl("/en"),
+      lastModified: knowledgeLastModified,
+      changeFrequency: "weekly",
+      priority: 0.9,
+      alternates: {
+        languages: {
+          it: absoluteUrl("/"),
+          en: absoluteUrl("/en"),
+          "x-default": absoluteUrl("/"),
+        },
+      },
+    },
+    {
+      url: absoluteUrl("/en/network"),
+      changeFrequency: "monthly",
+      priority: 0.78,
     },
     {
       url: absoluteUrl("/azienda"),
@@ -65,6 +90,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: knowledgeLastModified,
       changeFrequency: "weekly",
       priority: 0.9,
+      alternates: {
+        languages: {
+          it: absoluteUrl("/knowledge"),
+          en: absoluteUrl("/en/knowledge"),
+        },
+      },
+    },
+    {
+      url: absoluteUrl("/en/knowledge"),
+      lastModified: knowledgeLastModified,
+      changeFrequency: "weekly",
+      priority: 0.8,
+      alternates: {
+        languages: {
+          it: absoluteUrl("/knowledge"),
+          en: absoluteUrl("/en/knowledge"),
+        },
+      },
     },
     {
       url: absoluteUrl("/knowledge/articoli"),
