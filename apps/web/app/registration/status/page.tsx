@@ -280,6 +280,20 @@ export default async function RegistrationStatusPage({
             </div>
           </dl>
 
+          {application.application_status !== "activated" ? (
+            <section aria-label="Strumenti gratuiti disponibili" className="mt-6 rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-4 sm:p-5">
+              <h2 className="text-base font-semibold text-[#1d2824]">Puoi già utilizzare gli strumenti pubblici</h2>
+              <p className="mt-1 text-sm leading-6 text-[#52615b]">
+                In attesa dell&apos;approvazione aziendale, puoi consultare Knowledge e preparare una distinta.
+                Questi strumenti pubblici non richiedono l&apos;attivazione del workspace privato.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Link href="/knowledge" className="app-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-semibold">Consulta Knowledge</Link>
+                <Link href="/distinta" className="app-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-semibold">Crea una distinta</Link>
+              </div>
+            </section>
+          ) : null}
+
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             {application.application_status === "needs_information" ||
             application.application_status === "draft" ? (
