@@ -54,8 +54,8 @@ export function EnglishConversionHandoff({ context }: { context: EnglishConversi
             <Link href={copy.supportingHref} hrefLang="en" className="inline-flex min-h-11 items-center text-sm font-bold text-[#1f6b5a] underline underline-offset-4">
               {copy.supportingLabel} →
             </Link>
-            <Link href="/login" hrefLang="it" className="inline-flex min-h-11 items-center text-sm font-semibold text-[#52615b] underline underline-offset-4">
-              Already registered? Sign in (IT)
+            <Link href="/en/login" className="inline-flex min-h-11 items-center text-sm font-semibold text-[#52615b] underline underline-offset-4">
+              Already registered? Sign in
             </Link>
           </div>
         </div>
@@ -66,11 +66,11 @@ export function EnglishConversionHandoff({ context }: { context: EnglishConversi
             <li><span className="font-bold text-[#1f6b5a]">2.</span> Create an account and verify your email</li>
             <li><span className="font-bold text-[#1f6b5a]">3.</span> Submit your company request for review</li>
           </ol>
-          <Link href="/register" hrefLang="it" className="platform-primary mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl px-4 text-center text-sm font-bold">
-            Start company registration (IT) →
+          <Link href="/en/register" className="platform-primary mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl px-4 text-center text-sm font-bold">
+            Start company registration →
           </Link>
           <p className="mt-3 text-xs leading-5 text-[#52615b]">
-            Registration and the private workspace are currently in Italian. Company approval is required before private access.
+            The company application is available in English; the private workspace and legal documents currently remain in Italian. Company approval is required before private access.
           </p>
         </div>
       </div>
