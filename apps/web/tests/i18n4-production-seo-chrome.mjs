@@ -69,8 +69,9 @@ async function checkContext(label, viewport, mobile) {
       const detail = await page.goto(BASE + destination, { waitUntil: "domcontentloaded", timeout: 90000 });
       assert.equal(detail?.status(), 200, "Guide " + destination);
       await page.getByRole("heading", { level: 1 }).first().waitFor({ state: "visible" });
-      assert.ok((await page.locator("body").innerText()).includes("Technical") ||
-        (await page.locator("body").innerText()).includes("Published"), "Technical guide content");
+      assert.ok(await page.getByRole("heading", {
+        name: /What does .* cover\?|Understanding the designation/i,
+      }).count() > 0, "Published guide is missing its technical explanation");
       checks++;
       console.log("I18N4 CHROME PASS", label, "published technical guide", destination);
     }
