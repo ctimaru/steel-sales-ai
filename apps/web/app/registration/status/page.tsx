@@ -288,7 +288,7 @@ export default async function RegistrationStatusPage({
                 Questi strumenti pubblici non richiedono l&apos;attivazione del workspace privato.
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
-                <Link href="/knowledge" className="app-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-semibold">Consulta Knowledge</Link>
+                <Link href="/knowledge?public=1" className="app-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-semibold">Consulta Knowledge</Link>
                 <Link href="/distinta" className="app-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-semibold">Crea una distinta</Link>
               </div>
             </section>
