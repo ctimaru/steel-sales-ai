@@ -213,6 +213,7 @@ export default async function PublicTubeWeightsPage({
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 px-3 py-3 sm:px-5 sm:py-5 lg:px-6">
+      <div className="flex justify-end"><Link href="/en/knowledge/tubes" hrefLang="en" lang="en" className="inline-flex min-h-10 items-center rounded-lg border border-[#dce5e0] bg-white px-3 text-xs font-bold text-[#123b34] hover:bg-[#edf5f1]">English calculator →</Link></div>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(calculatorJsonLd) }}
