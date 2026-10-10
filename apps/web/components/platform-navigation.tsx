@@ -118,7 +118,7 @@ export function PlatformMobileNavigation(props: AccessProps) {
   const items = visibleItems(props);
 
   return (
-    <details className="relative w-[86px] shrink-0 lg:hidden">
+    <details className="relative w-[86px] min-w-0 max-w-[86px] flex-none lg:hidden">
       <summary
         aria-label="Apri navigazione Platform"
         className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-xl border border-[#d7dfdb] bg-white px-3 py-2 text-xs font-semibold text-[#123b34] shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6b5a]"
