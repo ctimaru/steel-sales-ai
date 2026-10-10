@@ -1,3 +1,4 @@
+import { GOVERNANCE_ROW_CLASS } from "@/lib/governance-row-contract";
 import { GovernanceQueueControls } from "@/components/governance-queue-controls";
 import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
