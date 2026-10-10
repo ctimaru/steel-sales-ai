@@ -8,6 +8,7 @@ import {
   listPublicTubeSizeHubs,
 } from "@/lib/public-knowledge";
 import { schoolArticles } from "@/lib/school-articles";
+import { englishGradeForSlug, englishStandardForSlug } from "@/lib/international-steel-knowledge";
 import { listPublicPriceLists } from "@/lib/public-price-lists";
 import { finalizePublicSitemap, newestDate } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
@@ -120,12 +121,40 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: standardsLastModified,
       changeFrequency: "weekly",
       priority: 0.85,
+      alternates: { languages: {
+        it: absoluteUrl("/knowledge/norme"),
+        en: absoluteUrl("/en/knowledge/standards"),
+      } },
+    },
+    {
+      url: absoluteUrl("/en/knowledge/standards"),
+      lastModified: standardsLastModified,
+      changeFrequency: "weekly",
+      priority: 0.82,
+      alternates: { languages: {
+        it: absoluteUrl("/knowledge/norme"),
+        en: absoluteUrl("/en/knowledge/standards"),
+      } },
     },
     {
       url: absoluteUrl("/knowledge/gradi"),
       lastModified: gradesLastModified,
       changeFrequency: "weekly",
       priority: 0.85,
+      alternates: { languages: {
+        it: absoluteUrl("/knowledge/gradi"),
+        en: absoluteUrl("/en/knowledge/grades"),
+      } },
+    },
+    {
+      url: absoluteUrl("/en/knowledge/grades"),
+      lastModified: gradesLastModified,
+      changeFrequency: "weekly",
+      priority: 0.82,
+      alternates: { languages: {
+        it: absoluteUrl("/knowledge/gradi"),
+        en: absoluteUrl("/en/knowledge/grades"),
+      } },
     },
     {
       url: absoluteUrl("/knowledge/tubes"),
@@ -193,14 +222,52 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(standard.last_reviewed_at + "T00:00:00Z"),
     changeFrequency: "monthly",
     priority: 0.75,
+    ...(englishStandardForSlug(standard.slug)
+      ? { alternates: { languages: {
+          it: absoluteUrl(`/knowledge/norme/${standard.slug}`),
+          en: absoluteUrl(`/en/knowledge/standards/${standard.slug}`),
+        } } }
+      : {}),
   }));
+
+  const englishStandardEntries: MetadataRoute.Sitemap = standards
+    .filter((standard) => Boolean(englishStandardForSlug(standard.slug)))
+    .map((standard) => ({
+      url: absoluteUrl(`/en/knowledge/standards/${standard.slug}`),
+      lastModified: new Date(standard.last_reviewed_at + "T00:00:00Z"),
+      changeFrequency: "monthly",
+      priority: 0.78,
+      alternates: { languages: {
+        it: absoluteUrl(`/knowledge/norme/${standard.slug}`),
+        en: absoluteUrl(`/en/knowledge/standards/${standard.slug}`),
+      } },
+    }));
 
   const gradeEntries: MetadataRoute.Sitemap = grades.map((grade) => ({
     url: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
     lastModified: new Date(grade.last_reviewed_at + "T00:00:00Z"),
     changeFrequency: "monthly",
     priority: 0.75,
+    ...(englishGradeForSlug(grade.slug)
+      ? { alternates: { languages: {
+          it: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
+          en: absoluteUrl(`/en/knowledge/grades/${grade.slug}`),
+        } } }
+      : {}),
   }));
+
+  const englishGradeEntries: MetadataRoute.Sitemap = grades
+    .filter((grade) => Boolean(englishGradeForSlug(grade.slug)))
+    .map((grade) => ({
+      url: absoluteUrl(`/en/knowledge/grades/${grade.slug}`),
+      lastModified: new Date(grade.last_reviewed_at + "T00:00:00Z"),
+      changeFrequency: "monthly",
+      priority: 0.78,
+      alternates: { languages: {
+        it: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
+        en: absoluteUrl(`/en/knowledge/grades/${grade.slug}`),
+      } },
+    }));
 
   const familyHubEntries: MetadataRoute.Sitemap = familyHubs.map((hub) => ({
     url: absoluteUrl(`/knowledge/tubes/${hub.family_slug}`),
@@ -239,7 +306,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...staticEntries,
     ...articleEntries,
     ...standardEntries,
+    ...englishStandardEntries,
     ...gradeEntries,
+    ...englishGradeEntries,
     ...familyHubEntries,
     ...sizeHubEntries,
     ...dimensionEntries,
