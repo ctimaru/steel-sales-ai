@@ -7,6 +7,7 @@ const nav=read("../components/platform-navigation.tsx");
 const shell=read("../components/platform-shell.tsx");
 const bell=read("../components/platform-notification-bell.tsx");
 const home=read("../app/(platform)/platform/page.tsx");
+const cockpit=read("../lib/platform-cockpit.ts");
 const lab=read("../app/(platform)/platform/novita/page.tsx");
 const labDetail=read("../app/(platform)/platform/novita/listini/[versionId]/page.tsx");
 const sql=read("../../../supabase/migrations/20261010150000_plr2_private_lab_owner_boundary.sql");
@@ -40,7 +41,8 @@ test("PLR2 preserves context switch, mobile menu dismissal and staff-safe bell",
 test("PLR2 Private Lab protected at route and SQL callable RPC boundaries",()=>{
   assert.match(lab,/await requirePlatformSuperadmin\(\);\s*const lists/);
   assert.match(labDetail,/await requirePlatformSuperadmin\(\);\s*const \{ versionId \}/);
-  assert.match(home,/context\.is_platform_owner \? \([\s\S]*?href="\/platform\/novita"/);
+  assert.match(home,/getPlatformIaVisibleModules\(context\)/);
+  assert.match(ia,/key: "privateLab"[\s\S]*?access: \{ kind: "owner_only" \}/);
   const functions=sql.split(/create or replace function public\.pl1_private_lab_explorer_/i).slice(1);
   assert.equal(functions.length,2);
   for(const f of functions) {
@@ -53,8 +55,8 @@ test("PLR2 Private Lab protected at route and SQL callable RPC boundaries",()=>{
   assert.match(sql,/grant execute on function public\.pl1_private_lab_explorer_items\(uuid\) to authenticated/);
 });
 test("PLR2 does not replace live notification, registration, or owner authority rules",()=>{
-  assert.match(home,/getRegistrationQueue\(\)/);
-  assert.match(home,/needsAttention/);
+  assert.match(home,/getPlatformCockpitSnapshot\(context\)/);
+  assert.match(cockpit,/hp6_registration_operations_queue/);
   assert.match(shell,/PlatformNotificationBell/);
   assert.match(ia,/staffTenantDataAccess: false/);
   assert.match(nav,/getPlatformIaVisibleModules/);

@@ -95,12 +95,13 @@ export function PlatformShell({
                 isPlatformOwner={isPlatformOwner}
               />
               {isPlatformOwner ? (
-                <ContextSwitchLink
-                  href="/dashboard"
-                  label="Workspace aziendale"
-                  compact
-                  className="hidden sm:inline-flex"
-                />
+                <span className="hidden sm:inline-flex">
+                  <ContextSwitchLink
+                    href="/dashboard"
+                    label="Workspace aziendale"
+                    compact
+                  />
+                </span>
               ) : null}
               <PlatformNotificationBell snapshot={notificationSnapshot} initialVerifiedAt={notificationVerifiedAt} platformReady canReadRegistrations={permissions.includes("registrations.read")} />
               <span className="hidden rounded-full bg-[#e1ece8] px-3.5 py-2 text-xs font-semibold text-[#173f35] sm:inline-flex">

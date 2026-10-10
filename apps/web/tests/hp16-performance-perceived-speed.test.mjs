@@ -52,10 +52,10 @@ test("HP16 keeps Dashboard critical reads in one parallel batch", () => {
 });
 
 test("HP16 removes the Platform Home queue waterfall", () => {
-  assert.match(
-    platformHome,
-    /\[queue, claimQueue, knowledgeQueue, networkTrustQueue\][\s\S]*await Promise\.all/,
-  );
+  assert.match(platformHome, /await getPlatformCockpitSnapshot\(context\)/);
+  const cockpit = fs.readFileSync(new URL("../lib/platform-cockpit.ts", import.meta.url), "utf8");
+  assert.match(cockpit, /await Promise\.all/);
+  assert.match(cockpit, /p_limit: 1/);
   assert.doesNotMatch(
     platformHome,
     /canReadRegistrations \? await getRegistrationQueue/,
