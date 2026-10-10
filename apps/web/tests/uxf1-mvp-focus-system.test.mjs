@@ -69,8 +69,10 @@ test("UXF1 removes split-screen distraction from auth entry", () => {
   assert.doesNotMatch(register, /lg:sticky lg:top-6/);
 });
 
-test("UXF1 makes the public homepage utility-first", () => {
-  assert.match(home, /con strumenti che usi davvero/);
+test("UXF1 keeps free utilities accessible in the intelligence-first public homepage", () => {
+  assert.match(home, /Super Intelligence Ready/);
+  assert.match(home, /Registra la tua azienda/);
+  assert.match(home, /Crea distinta gratis/);
   assert.match(home, /Calcolo pesi/);
-  assert.match(home, /max-w-\[1120px\]/);
+  assert.match(home, /max-w-\[1180px\]/);
 });
