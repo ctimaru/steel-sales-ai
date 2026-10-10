@@ -1,8 +1,10 @@
+import { GovernanceQueueControls } from "@/components/governance-queue-controls";
+import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
 import Link from "next/link";
 
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 
-import { getRegistrationQueue, requirePlatformPermission } from "@/lib/platform-admin";
+import { getPlatformAccessContext, getRegistrationQueue, requirePlatformPermission } from "@/lib/platform-admin";
 import { isRegistrationApplicationStatus } from "@/lib/registration-state";
 
 const FILTERS = [
@@ -100,7 +102,7 @@ export default async function AdminRegistrationsPage({
   const { status, q, error, message } = await searchParams;
   const activeStatus = isRegistrationApplicationStatus(status) ? status : null;
   const query = q?.trim() ?? "";
-  const queue = await getRegistrationQueue(activeStatus, query);
+  const [queue, access] = await Promise.all([getRegistrationQueue(activeStatus, query), getPlatformAccessContext()]);
 
   const metrics = [
     ["Da revisionare", queue.summary.pending_review, "Richiedono una decisione"],
@@ -111,6 +113,8 @@ export default async function AdminRegistrationsPage({
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
+      <GovernanceWorkspaceNav current="registrations" permissions={access?.permissions ?? []} />
+      <GovernanceQueueControls title="Registrazioni" total={queue.total} readOnly={!((access?.permissions ?? []).some((permission) => permission === 'registrations.approve' || permission === 'registrations.activate'))} />
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>

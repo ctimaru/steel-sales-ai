@@ -1,3 +1,6 @@
+import { GOVERNANCE_ROW_CLASS } from "@/lib/governance-row-contract";
+import { GovernanceQueueControls } from "@/components/governance-queue-controls";
+import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
 import Link from "next/link";
 
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
@@ -59,6 +62,8 @@ export default async function CompanyClaimsPage({
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
+      <GovernanceWorkspaceNav current="claims" permissions={access?.permissions ?? []} />
+      <GovernanceQueueControls title="Company Claims" total={queue.total} readOnly={!hasMutationAccess} />
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <p className="platform-kicker">P3.6 · Governance</p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#18263d] sm:text-4xl">
@@ -144,7 +149,7 @@ export default async function CompanyClaimsPage({
           />
         ) : (
           queue.items.map((claim) => (
-            <article key={claim.claim_id} className="rounded-2xl border border-[#dce2df] bg-white p-5">
+            <article key={claim.claim_id} className={GOVERNANCE_ROW_CLASS}>
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">

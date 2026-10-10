@@ -1,3 +1,6 @@
+import { GOVERNANCE_ROW_LINK_CLASS } from "@/lib/governance-row-contract";
+import { GovernanceQueueControls } from "@/components/governance-queue-controls";
+import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
 import Link from "next/link";
 
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
@@ -54,6 +57,8 @@ export default async function PlatformKnowledgePage({
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
+      <GovernanceWorkspaceNav current="knowledge" permissions={access?.permissions ?? []} />
+      <GovernanceQueueControls title="Knowledge" total={queue.total} readOnly={!(canEdit || canReview || canPublish)} />
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <p className="platform-kicker">SA7 · Knowledge Operations</p>
         <div className="mt-3 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -254,7 +259,7 @@ export default async function PlatformKnowledgePage({
             <Link
               key={`${item.content_type}-${item.page_id}`}
               href={`/platform/knowledge/${item.content_type}/${item.page_id}`}
-              className="block rounded-2xl border border-[#dce2df] bg-white p-5 transition hover:border-[#b8d2c8] hover:shadow-sm"
+              className={GOVERNANCE_ROW_LINK_CLASS}
             >
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>

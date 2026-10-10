@@ -1,3 +1,6 @@
+import { GOVERNANCE_ROW_CLASS } from "@/lib/governance-row-contract";
+import { GovernanceQueueControls } from "@/components/governance-queue-controls";
+import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
 import Link from "next/link";
 
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
@@ -61,6 +64,8 @@ export default async function CompanyDiscoveryPage({
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
+      <GovernanceWorkspaceNav current="discovery" permissions={access?.permissions ?? []} />
+      <GovernanceQueueControls title="Discovery" total={queue.total} readOnly={!(canRun || canReview || canPublish || canEnrich || canCloseDuplicates)} />
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <p className="platform-kicker">
           P3 · Industry Network
@@ -205,7 +210,7 @@ export default async function CompanyDiscoveryPage({
       </section>
 
       {latestRun ? (
-        <section className="rounded-2xl border border-[#dce2df] bg-white p-5">
+        <section className={GOVERNANCE_ROW_CLASS}>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#3c8192]">
@@ -226,7 +231,7 @@ export default async function CompanyDiscoveryPage({
       ) : null}
 
       {runs.length ? (
-        <section className="rounded-2xl border border-[#dce2df] bg-white p-5">
+        <section className={GOVERNANCE_ROW_CLASS}>
           <div className="flex items-end justify-between gap-4">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
@@ -347,7 +352,7 @@ export default async function CompanyDiscoveryPage({
               return (
               <article
                 key={candidate.id}
-                className="rounded-2xl border border-[#dce2df] bg-white p-5"
+                className={GOVERNANCE_ROW_CLASS}
               >
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0">
