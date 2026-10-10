@@ -31,7 +31,9 @@ function claimBadge(state: PublicCompanyLookupItem["claim_state"], locale: "it" 
 
 function ResultAction({ item, locale }: { item: PublicCompanyLookupItem; locale: "it" | "en" }) {
   if (item.claim_state === "claimable") {
-    const claimPath = `${locale === "en" ? "/en/register" : "/register"}?claim_ref=${encodeURIComponent(item.claim_ref)}`;
+    const claimPath = locale === "en"
+      ? `/en/register?claim_ref=${encodeURIComponent(item.claim_ref)}`
+      : `/register?claim_ref=${encodeURIComponent(item.claim_ref)}`;
     return (
       <Link
         href={claimPath}
@@ -46,9 +48,12 @@ function ResultAction({ item, locale }: { item: PublicCompanyLookupItem; locale:
   const nextPath =
     item.claim_state === "claimed" ? "/network/manage" : "/registration/status";
 
+  const loginPath = locale === "en"
+    ? `/en/login?next=${encodeURIComponent(nextPath)}`
+    : `/login?next=${encodeURIComponent(nextPath)}`;
   return (
     <Link
-      href={`${locale === "en" ? "/en/login" : "/login"}?next=${encodeURIComponent(nextPath)}`}
+      href={loginPath}
       className="inline-flex min-h-10 items-center justify-center rounded-xl border border-[#d7dfdb] bg-white px-3 text-xs font-semibold text-[#52615b] hover:bg-[#f4f7f5] hover:text-[#173f35]"
     >
       {locale === "en" ? (item.claim_state === "claimed" ? "Sign in to manage" : "Sign in to check") : (item.claim_state === "claimed" ? "Accedi per gestirla" : "Accedi per verificare")}
