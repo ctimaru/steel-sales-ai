@@ -1,3 +1,4 @@
+import { GovernanceQueueFeedback } from "@/components/governance-queue-feedback";
 import { GovernanceQueueControls } from "@/components/governance-queue-controls";
 import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
 import Link from "next/link";
@@ -138,16 +139,7 @@ export default async function AdminRegistrationsPage({
         </div>
       </section>
 
-      {error ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
-          {error}
-        </div>
-      ) : null}
-      {message ? (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
-          {message}
-        </div>
-      ) : null}
+      <GovernanceQueueFeedback error={error} message={message} />
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map(([label, value, hint]) => (
@@ -197,7 +189,7 @@ export default async function AdminRegistrationsPage({
       <section className="space-y-3">
         {queue.applications.length === 0 ? (
           <FirstUseEmptyState
-            eyebrow={activeStatus || query ? "Coda senza risultati" : "Coda pulita"}
+            eyebrow={activeStatus || query ? "Nessun risultato con i filtri attivi" : "Coda senza pratiche"}
             title="Nessuna pratica in questa vista"
             description={
               activeStatus || query
