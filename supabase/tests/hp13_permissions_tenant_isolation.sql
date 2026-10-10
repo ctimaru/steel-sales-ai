@@ -211,7 +211,10 @@ select pg_temp.hp13_assert(
         'sp6_my_article_engagement',
         'sp6_platform_retention_summary',
         -- SP7.1 reviewed owner-only rights readiness read model.
-        'sp71_pilot_source_readiness'
+        'sp71_pilot_source_readiness',
+        -- PLR2 reviewed owner-only Private Lab read RPCs (singleton active owner).
+        'pl1_private_lab_explorer_version',
+        'pl1_private_lab_explorer_items'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
