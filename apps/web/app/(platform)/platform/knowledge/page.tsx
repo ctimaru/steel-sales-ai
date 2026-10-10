@@ -58,7 +58,7 @@ export default async function PlatformKnowledgePage({
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <GovernanceWorkspaceNav current="knowledge" permissions={access?.permissions ?? []} />
-      <GovernanceQueueControls title="Knowledge" total={queue.total} readOnly={!(canEdit || canReview || canPublish)} />
+      <GovernanceQueueControls title="Knowledge" total={queue.total} readOnly={!(canEdit || canReview || canPublish)} tabs={FILTERS.map(([value, label]) => ({ value, label }))} current={activeStatus ?? 'all'} baseHref="/platform/knowledge" />
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <p className="platform-kicker">SA7 · Knowledge Operations</p>
         <div className="mt-3 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -204,29 +204,7 @@ export default async function PlatformKnowledgePage({
         </div>
       </section>
 
-      <nav className="flex gap-2 overflow-x-auto pb-1" aria-label="Filtri Knowledge">
-        {FILTERS.map(([value, label]) => {
-          const selected = (activeStatus ?? "all") === value;
-          return (
-            <Link
-              key={value}
-              href={
-                value === "all"
-                  ? "/platform/knowledge"
-                  : `/platform/knowledge?status=${value}`
-              }
-              className={[
-                "shrink-0 rounded-full border px-4 py-2.5 text-xs font-semibold",
-                selected
-                  ? "platform-selected-solid"
-                  : "border-[#d7dfdb] bg-white text-[#43524c] hover:border-[#b8d2c8] hover:bg-[#f0f4f2] hover:text-[#1a5144]",
-              ].join(" ")}
-            >
-              {label}
-            </Link>
-          );
-        })}
-      </nav>
+      
 
       {!canEdit && !canReview && !canPublish ? (
         <div className="rounded-2xl border border-[#d7dfdb] bg-[#f8fafd] p-4 text-sm text-[#66736e]">
