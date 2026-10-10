@@ -11,6 +11,7 @@ const businessPlanTabs = read("../components/business-plan-tabs.tsx");
 const registrations = read("../app/(platform)/platform/registrations/page.tsx");
 const claims = read("../app/(platform)/platform/company-claims/page.tsx");
 const discovery = read("../app/(platform)/platform/company-discovery/page.tsx");
+const queueControls = read("../components/governance-queue-controls.tsx");
 const knowledge = read("../app/(platform)/platform/knowledge/page.tsx");
 const businessPlanPage = read("../app/(platform)/platform/business-plan/page.tsx");
 const investorAccessPage = read("../app/(platform)/platform/investor-access/page.tsx");
@@ -34,16 +35,16 @@ test("Business Plan selected tab cannot inherit dark child text", () => {
 });
 
 test("Platform solid filter selections share the semantic contrast state", () => {
-  for (const source of [registrations, claims, discovery, knowledge]) {
+  for (const source of [queueControls, discovery]) {
     assert.match(source, /platform-selected-solid/);
   }
 
   assert.doesNotMatch(
-    registrations,
+    queueControls,
     /selected[\s\S]{0,160}border-\[#1a5144\] bg-\[#1a5144\] text-white/,
   );
   assert.doesNotMatch(
-    claims,
+    queueControls,
     /selected[\s\S]{0,160}border-\[#1a5144\] bg-\[#1a5144\] text-white/,
   );
   assert.doesNotMatch(
@@ -51,7 +52,7 @@ test("Platform solid filter selections share the semantic contrast state", () =>
     /status === key[\s\S]{0,240}bg-\[#1a5144\] text-white/,
   );
   assert.doesNotMatch(
-    knowledge,
+    queueControls,
     /selected[\s\S]{0,160}border-\[#1a5144\] bg-\[#1a5144\] text-white/,
   );
 });
