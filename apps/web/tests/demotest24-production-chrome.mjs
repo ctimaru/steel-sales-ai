@@ -26,13 +26,15 @@ async function createAnonymousContext(viewport, mobile = false) {
       // telemetry pings; those are not application writes or a reason to fail
       // an otherwise read-only anonymous smoke. Never send them from CI.
       const parsed = new URL(req.url());
+      const knownGoogleTelemetryHost =
+        parsed.hostname === "google-analytics.com" ||
+        parsed.hostname.endsWith(".google-analytics.com") ||
+        parsed.hostname === "google.com" ||
+        parsed.hostname === "www.google.com";
       const isBlockedAnalyticsPing =
         req.method() === "POST" &&
-        (parsed.hostname === "google-analytics.com" ||
-          parsed.hostname.endsWith(".google-analytics.com") ||
-          parsed.hostname === "google.com" ||
-          parsed.hostname === "www.google.com") &&
-        parsed.pathname === "/g/collect";
+        knownGoogleTelemetryHost &&
+        (parsed.pathname === "/g/collect" || parsed.pathname === "/td");
       if (!isBlockedAnalyticsPing) {
         blockedWriteAttempt = true;
         // Never log path parameters, query strings, headers, cookies, or bodies.
