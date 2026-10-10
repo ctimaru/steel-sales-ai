@@ -62,7 +62,8 @@ test("PLR1 reserves Private Lab for a guard-audited owner-only cutover", () => {
 
 test("PLR1 prevents capped registration lists from being global dashboard counts", () => {
   assert.match(admin, /p_limit: 200/);
-  assert.match(home, /queue\?\.applications \?\? \[\]/);
+  assert.match(home, /getPlatformCockpitSnapshot\(context\)/);
+  assert.doesNotMatch(home, /queue\?\.applications/);
   assert.match(contract, /allowPaginatedRowsAsGlobalCounters: false/);
   assert.match(contract, /summary\.pending_review/);
   assert.match(contract, /summary\.ready_activation/);
