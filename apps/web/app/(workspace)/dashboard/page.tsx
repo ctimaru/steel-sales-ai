@@ -15,6 +15,7 @@ import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { appRoutes } from "@/lib/routes";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 import { canWriteWorkspace } from "@/lib/access-policy";
+import { createClient } from "@/lib/supabase/server";
 import { getDashboardCompanySector } from "@/lib/dashboard-company-sector";
 import { dashboardPresentation } from "@/lib/dashboard-role-contract";
 
@@ -44,7 +45,7 @@ export default async function DashboardPage() {
   const isAdmin = context.role === "admin";
   const canWrite = canWriteWorkspace(context.role);
 
-  const [setup, commercial, received, activity, sector] = await Promise.all([
+  const [setup, commercial, received, activity, sector, procurement] = await Promise.all([
     isAdmin
       ? getCompanySetupState(context.organizationId)
       : Promise.resolve(null),
@@ -56,9 +57,10 @@ export default async function DashboardPage() {
       ? getNetworkActivityFeed(context.organizationId, true)
       : Promise.resolve({ items: [], total: 0, unread: 0 }),
     networkEntitled ? getDashboardCompanySector(context.organizationId) : Promise.resolve("unknown" as const),
+    canWrite ? createClient().then((db) => db.rpc("rfqh10_procurement_inbox", { p_limit: 5 })).catch(() => ({ data: null, error: true })) : Promise.resolve({ data: null, error: null }),
   ]);
 
-  const { metrics, recent, mode } = commercial;
+  const { metrics, recent, mode, operational } = commercial;
   const presentation = dashboardPresentation(context.role === "admin" || context.role === "viewer" ? context.role : "member", sector);
   const setupIncomplete = Boolean(
     setup && (!setup.profile_ready || !setup.data_ready || !setup.first_value_ready),
@@ -86,7 +88,62 @@ export default async function DashboardPage() {
           : null
     : null;
 
+  // Reuse the existing commercial snapshot; no extra queries or inferred open statuses.
+  const operationalKpis = mode === "live" ? [
+    { label: "RFQ registrate", value: operational.rfqs, href: appRoutes.commercial.search, detail: "Totale record · non solo aperte" },
+    { label: "Offerte registrate", value: operational.offers, href: appRoutes.commercial.search, detail: "Totale record" },
+    { label: "Ordini registrati", value: operational.orders, href: appRoutes.commercial.search, detail: "Totale record" },
+  ] : [];
+  const recentRfq = mode === "live"
+    ? recent.find((row) => row.role === "requested" && row.operationalHref)
+    : undefined;
+
+  // The existing procurement inbox RPC provides both actionable rows and aggregate
+  // lifecycle totals. Keep missing/invalid data distinct from a genuine zero.
+  const procurementPayload = !procurement.error && procurement.data && typeof procurement.data === "object" && !Array.isArray(procurement.data)
+    ? procurement.data as {
+        summary?: { attention_total?: number; urgent?: number; due_24h?: number; active_rfqs?: number };
+        items?: Array<{ rfq_id?: string; headline?: string; detail?: string; requires_action?: boolean; priority?: string; stage?: string }>;
+      }
+    : null;
+  const procurementSummary = procurementPayload?.summary;
+  const procurementKpis = procurementSummary && [
+    { label: "Azioni buyer", value: procurementSummary.attention_total, href: appRoutes.rfqHub.inbox },
+    { label: "Urgenti", value: procurementSummary.urgent, href: appRoutes.rfqHub.inbox },
+    { label: "RFQ attive", value: procurementSummary.active_rfqs, href: appRoutes.rfqHub.home },
+  ].flatMap((entry) =>
+    typeof entry.value === "number" && Number.isFinite(entry.value) && entry.value >= 0
+      ? [{ ...entry, value: entry.value }]
+      : [],
+  );
+  const procurementActions = (procurementPayload?.items ?? [])
+    .filter((item) => item.requires_action === true && typeof item.rfq_id === "string" && /^[0-9a-f-]{36}$/i.test(item.rfq_id))
+    .slice(0, 2);
+  // The buyer-centric inbox remains available to any permitted operator;
+  // display order adapts to business context without withholding authorized data.
+  const prioritizeProcurement = presentation.audience === "demand";
+
+
+  const procurementPriorityCards = procurementActions.map((item) => ({
+      href: appRoutes.rfqHub.campaign(item.rfq_id!),
+      value: null,
+      title: item.headline || "RFQ da gestire",
+      description: item.detail || "Apri la richiesta per completare l’azione.",
+      accent: item.priority === "urgent" ? "border-amber-200 bg-amber-50" : "border-[#b8d2c8] bg-[#edf5f2]",
+      valueClass: "text-[#173f35]",
+    }));
   const attentionItems = [
+    ...(prioritizeProcurement ? procurementPriorityCards : []),
+    recentRfq && canWrite
+      ? {
+          href: recentRfq.operationalHref!,
+          value: null,
+          title: "Apri RFQ recente",
+          description: "Consulta la richiesta registrata. Stato e scadenze nel dettaglio.",
+          accent: "border-[#b8d2c8] bg-[#edf5f2]",
+          valueClass: "text-[#173f35]",
+        }
+      : null,
     metrics.reviewFlags > 0
       ? {
           href: appRoutes.operations.review,
@@ -117,6 +174,7 @@ export default async function DashboardPage() {
           valueClass: "text-[#173f35]",
         }
       : null,
+    ...(!prioritizeProcurement ? procurementPriorityCards : []),
   ].filter((item): item is NonNullable<typeof item> => Boolean(item));
 
   const quickActions = [
@@ -162,14 +220,14 @@ export default async function DashboardPage() {
       : quickActions;
 
   return (
-    <FocusPage className="max-w-[1120px]">
+    <FocusPage className="max-w-[1180px] space-y-5 sm:space-y-7">
       <PilotEvent eventName="workspace_home_viewed" metadata={{ surface: "workspace_home" }} />
       <FocusHeader
-        eyebrow="Home"
+        eyebrow="Cockpit commerciale"
         title={<>Oggi in {context.organizationName}</>}
         description={
           <>
-            Le priorità da gestire, gli ultimi movimenti commerciali e le azioni che servono per lavorare.
+            Le tue attività prioritarie e gli strumenti per agire subito.
             <span className="mt-2 block text-xs font-semibold text-[#5d6a65]">
               {workspaceRoleLabel(context.role)} · Workspace privato
             </span>
@@ -177,15 +235,34 @@ export default async function DashboardPage() {
         }
       />
 
-      <section aria-label="Steel Pulse" className="rounded-2xl border border-[#d9e7df] bg-[#f3f8f5] px-4 py-3 sm:px-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#24634f]">Steel Pulse · Il tuo settore</p>
-            <p className="mt-1 text-sm text-[#52615b]">Segui gli argomenti che contano per te, anche quando non hai una trattativa da gestire.</p>
-          </div>
-          <Link href={appRoutes.steelPulse} className="app-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-xs font-semibold">
-            Personalizza il feed →
-          </Link>
+
+
+      <section aria-labelledby="quick-actions">
+        <FocusSectionHeader
+          eyebrow="Azioni rapide"
+          title={<span id="quick-actions">Parti da qui</span>}
+        />
+        <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
+          {orderedQuickActions.map((action, index) => (
+            <Link
+              key={action.href}
+              href={action.href}
+              className={[
+                "group min-w-0 rounded-xl border p-3 transition hover:shadow-sm sm:rounded-2xl sm:p-4",
+                index === 0
+                  ? "border-[#b8d2c8] bg-[#edf5f2] hover:border-[#82aa9b]"
+                  : "border-[#dce2df] bg-white hover:border-[#b8d2c8]",
+              ].join(" ")}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="text-sm font-semibold text-[#1d2824]">{action.title}</h3>
+                <span className="text-sm font-semibold text-[#173f35]" aria-hidden="true">
+                  →
+                </span>
+              </div>
+              <p className="mt-1 hidden text-xs leading-5 text-[#5d6a65] sm:block">{action.description}</p>
+            </Link>
+          ))}
         </div>
       </section>
 
@@ -218,6 +295,29 @@ export default async function DashboardPage() {
         </section>
       ) : null}
 
+      {operationalKpis.length > 0 ? (
+        <section aria-label="Indicatori commerciali" className="grid grid-cols-3 gap-2 sm:gap-3">
+          {operationalKpis.map((kpi) => (
+            <Link key={kpi.label} href={kpi.href} className="min-w-0 rounded-xl border border-[#dce2df] bg-white p-2 hover:border-[#b8d2c8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 sm:p-4">
+              <p className="text-[11px] font-medium leading-4 text-[#52615b] sm:text-xs">{kpi.label}</p>
+              <p className="mt-2 text-xl font-semibold tabular-nums text-[#1d2824] sm:text-2xl">{kpi.value.toLocaleString("it-IT")}</p>
+              <p className="mt-1 hidden text-[11px] text-[#5d6a65] sm:block">{kpi.detail}</p>
+            </Link>
+          ))}
+        </section>
+      ) : null}
+
+      {procurementKpis && procurementKpis.length > 0 ? (
+        <section aria-label="RFQ lifecycle" className="grid grid-cols-3 gap-2 sm:gap-3">
+          {procurementKpis.map((kpi) => (
+            <Link key={kpi.label} href={kpi.href} className="min-w-0 rounded-xl border border-[#dce2df] bg-white p-2.5 hover:border-[#b8d2c8] sm:p-4">
+              <p className="text-[11px] leading-4 text-[#52615b]">{kpi.label}</p>
+              <p className="mt-1 text-xl font-semibold tabular-nums text-[#1d2824] sm:text-2xl">{kpi.value.toLocaleString("it-IT")}</p>
+            </Link>
+          ))}
+        </section>
+      ) : null}
+
       <section aria-labelledby="daily-priorities">
         <FocusSectionHeader
           eyebrow="Priorità"
@@ -226,25 +326,23 @@ export default async function DashboardPage() {
         />
 
         {attentionItems.length > 0 ? (
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {attentionItems.map((item) => (
               <Link
                 key={item.title}
                 href={item.href}
                 className={[
-                  "group rounded-2xl border p-5 transition hover:-translate-y-0.5 hover:shadow-sm",
+                  "group rounded-xl border p-3 transition hover:shadow-sm sm:rounded-2xl sm:p-5",
                   item.accent,
                 ].join(" ")}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <p className={["metric-number text-3xl font-semibold", item.valueClass].join(" ")}>
-                    {item.value}
-                  </p>
+                  {item.value !== null ? <p className={["metric-number text-2xl font-semibold sm:text-3xl", item.valueClass].join(" ")}>{item.value}</p> : <span className="text-xs font-semibold text-[#173f35]">Apri dettaglio</span>}
                   <span className="text-sm font-semibold text-[#173f35]" aria-hidden="true">
                     →
                   </span>
                 </div>
-                <h3 className="mt-3 text-sm font-semibold text-[#1d2824]">{item.title}</h3>
+                <h3 className="mt-2 text-sm font-semibold text-[#1d2824]">{item.title}</h3>
                 <p className="mt-1 text-xs leading-5 text-[#5d6a65]">{item.description}</p>
               </Link>
             ))}
@@ -324,32 +422,17 @@ export default async function DashboardPage() {
         )}
       </section>
 
-      <section aria-labelledby="quick-actions">
-        <FocusSectionHeader
-          eyebrow="Azioni rapide"
-          title={<span id="quick-actions">Parti da qui</span>}
-        />
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {orderedQuickActions.map((action, index) => (
-            <Link
-              key={action.href}
-              href={action.href}
-              className={[
-                "group rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:shadow-sm",
-                index === 0
-                  ? "border-[#b8d2c8] bg-[#edf5f2] hover:border-[#82aa9b]"
-                  : "border-[#dce2df] bg-white hover:border-[#b8d2c8]",
-              ].join(" ")}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <h3 className="text-sm font-semibold text-[#1d2824]">{action.title}</h3>
-                <span className="text-sm font-semibold text-[#173f35]" aria-hidden="true">
-                  →
-                </span>
-              </div>
-              <p className="mt-2 text-xs leading-5 text-[#5d6a65]">{action.description}</p>
-            </Link>
-          ))}
+
+
+      <section aria-label="Steel Pulse" className="rounded-2xl border border-[#d9e7df] bg-[#f3f8f5] px-4 py-3 sm:px-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#24634f]">Steel Pulse · Il tuo settore</p>
+            <p className="mt-1 text-sm text-[#52615b]">Segui gli argomenti che contano per te, anche quando non hai una trattativa da gestire.</p>
+          </div>
+          <Link href={appRoutes.steelPulse} className="app-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-xs font-semibold">
+            Personalizza il feed →
+          </Link>
         </div>
       </section>
 
