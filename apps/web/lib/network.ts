@@ -202,15 +202,20 @@ export async function searchNetwork(filters: {
   capability?: string | null;
   country?: string | null;
   market?: string | null;
+  region?: string | null;
+  province?: string | null;
+  city?: string | null;
 }) {
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("m6_search_network", {
+  const isGeo = Boolean(filters.region || filters.province || filters.city);
+  const { data, error } = await supabase.rpc(isGeo ? "m6_search_network_geo" : "m6_search_network", {
     p_query: filters.query || null,
     p_role_keys: filters.role ? [filters.role] : null,
     p_product_keys: filters.product ? [filters.product] : null,
     p_capability_keys: filters.capability ? [filters.capability] : null,
     p_country_codes: filters.country ? [filters.country.toUpperCase()] : null,
     p_market_keys: filters.market ? [filters.market] : null,
+    ...(isGeo ? { p_region: filters.region || null, p_province: filters.province || null, p_city: filters.city || null } : {}),
     p_limit: 50,
     p_offset: 0,
   });
@@ -808,4 +813,12 @@ export async function getP5Readiness(organizationId: string) {
   });
   if (error) throw new Error(error.message);
   return (data as P5Readiness | null) ?? null;
+}
+
+export async function getNetworkGeoFacets(): Promise<{regions: string[]; cities: string[]; provinces: string[]}> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("m6_network_geo_facets");
+  if (error) throw new Error(error.message);
+  const payload = (data ?? {}) as { regions?: string[]; cities?: string[]; provinces?: string[] };
+  return { regions: payload.regions ?? [], cities: payload.cities ?? [], provinces: payload.provinces ?? [] };
 }
