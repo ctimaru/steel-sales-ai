@@ -54,3 +54,17 @@ test("DASH-UX3.3 reads lifecycle from one governed procurement snapshot", () => 
   assert.match(home, /appRoutes\.rfqHub\.campaign/);
   assert.match(home, /procurement\.error/);
 });
+
+test("DASH-UX3.4 prioritizes buyer actions only by order and preserves permitted cards", () => {
+  assert.match(home, /presentation\.audience === "demand"/);
+  assert.match(home, /\.\.\.\(prioritizeProcurement \? procurementPriorityCards : \[\]\)/);
+  assert.match(home, /\.\.\.\(!prioritizeProcurement \? procurementPriorityCards : \[\]\)/);
+  assert.match(home, /getNetworkAccessState/);
+  assert.match(home, /canWriteWorkspace/);
+});
+
+test("DASH-UX3.4 maintains mobile two-column actions, compact KPI grid and focus styles", () => {
+  assert.match(home, /grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4/);
+  assert.match(home, /grid grid-cols-3 gap-2 sm:gap-3/);
+  assert.match(home, /focus-visible:outline/);
+});
