@@ -15,6 +15,7 @@ import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { appRoutes } from "@/lib/routes";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 import { canWriteWorkspace } from "@/lib/access-policy";
+import { createClient } from "@/lib/supabase/server";
 import { getDashboardCompanySector } from "@/lib/dashboard-company-sector";
 import { dashboardPresentation } from "@/lib/dashboard-role-contract";
 
@@ -44,7 +45,7 @@ export default async function DashboardPage() {
   const isAdmin = context.role === "admin";
   const canWrite = canWriteWorkspace(context.role);
 
-  const [setup, commercial, received, activity, sector] = await Promise.all([
+  const [setup, commercial, received, activity, sector, procurement] = await Promise.all([
     isAdmin
       ? getCompanySetupState(context.organizationId)
       : Promise.resolve(null),
@@ -56,6 +57,7 @@ export default async function DashboardPage() {
       ? getNetworkActivityFeed(context.organizationId, true)
       : Promise.resolve({ items: [], total: 0, unread: 0 }),
     networkEntitled ? getDashboardCompanySector(context.organizationId) : Promise.resolve("unknown" as const),
+    canWrite ? createClient().then((db) => db.rpc("rfqh10_procurement_inbox", { p_limit: 5 })).catch(() => ({ data: null, error: true })) : Promise.resolve({ data: null, error: null }),
   ]);
 
   const { metrics, recent, mode, operational } = commercial;
@@ -96,7 +98,35 @@ export default async function DashboardPage() {
     ? recent.find((row) => row.role === "requested" && row.operationalHref)
     : undefined;
 
+  // The existing procurement inbox RPC provides both actionable rows and aggregate
+  // lifecycle totals. Keep missing/invalid data distinct from a genuine zero.
+  const procurementPayload = !procurement.error && procurement.data && typeof procurement.data === "object" && !Array.isArray(procurement.data)
+    ? procurement.data as {
+        summary?: { attention_total?: number; urgent?: number; due_24h?: number; active_rfqs?: number };
+        items?: Array<{ rfq_id?: string; headline?: string; detail?: string; requires_action?: boolean; priority?: string; stage?: string }>;
+      }
+    : null;
+  const procurementSummary = procurementPayload?.summary;
+  const procurementKpis = procurementSummary && [
+    { label: "Azioni buyer", value: procurementSummary.attention_total, href: appRoutes.rfqHub.inbox },
+    { label: "Urgenti", value: procurementSummary.urgent, href: appRoutes.rfqHub.inbox },
+    { label: "RFQ attive", value: procurementSummary.active_rfqs, href: appRoutes.rfqHub.home },
+  ].filter((entry): entry is { label: string; value: number; href: string } =>
+    typeof entry.value === "number" && Number.isFinite(entry.value) && entry.value >= 0,
+  );
+  const procurementActions = (procurementPayload?.items ?? [])
+    .filter((item) => item.requires_action === true && typeof item.rfq_id === "string" && /^[0-9a-f-]{36}$/i.test(item.rfq_id))
+    .slice(0, 2);
+
   const attentionItems = [
+    ...procurementActions.map((item) => ({
+      href: appRoutes.rfqHub.campaign(item.rfq_id!),
+      value: null,
+      title: item.headline || "RFQ da gestire",
+      description: item.detail || "Apri la richiesta per completare l’azione.",
+      accent: item.priority === "urgent" ? "border-amber-200 bg-amber-50" : "border-[#b8d2c8] bg-[#edf5f2]",
+      valueClass: "text-[#173f35]",
+    })),
     recentRfq && canWrite
       ? {
           href: recentRfq.operationalHref!,
@@ -264,6 +294,17 @@ export default async function DashboardPage() {
               <p className="text-[11px] font-medium leading-4 text-[#52615b] sm:text-xs">{kpi.label}</p>
               <p className="mt-2 text-xl font-semibold tabular-nums text-[#1d2824] sm:text-2xl">{kpi.value.toLocaleString("it-IT")}</p>
               <p className="mt-1 hidden text-[11px] text-[#5d6a65] sm:block">{kpi.detail}</p>
+            </Link>
+          ))}
+        </section>
+      ) : null}
+
+      {procurementKpis && procurementKpis.length > 0 ? (
+        <section aria-label="RFQ lifecycle" className="grid grid-cols-3 gap-2 sm:gap-3">
+          {procurementKpis.map((kpi) => (
+            <Link key={kpi.label} href={kpi.href} className="min-w-0 rounded-xl border border-[#dce2df] bg-white p-2.5 hover:border-[#b8d2c8] sm:p-4">
+              <p className="text-[11px] leading-4 text-[#52615b]">{kpi.label}</p>
+              <p className="mt-1 text-xl font-semibold tabular-nums text-[#1d2824] sm:text-2xl">{kpi.value.toLocaleString("it-IT")}</p>
             </Link>
           ))}
         </section>
