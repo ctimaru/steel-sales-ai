@@ -30,3 +30,22 @@ test("DASH-UX2 uses canonical permission policy and does not derive access from 
   assert.match(contract, /return "unknown"/);
   assert.match(policy, /viewer: new Set\(\["commercial_read", "network_read"\]\)/);
 });
+
+const sectorSource = read("../lib/dashboard-company-sector.ts");
+
+test("DASH-UX2.5 uses the existing governed organization-to-company link", () => {
+  assert.match(sectorSource, /m8_my_network_company/);
+  assert.match(sectorSource, /p3_7_managed_profile_state/);
+  assert.match(sectorSource, /company\.organization_id !== organizationId/);
+  assert.match(sectorSource, /primaries\.length !== 1/);
+  assert.match(sectorSource, /return "unknown"/);
+  for (const key of ["producer", "trader_distributor", "processor_service_provider", "end_user"]) {
+    assert.ok(contract.includes(key), key);
+  }
+});
+
+test("DASH-UX2.5 only changes shortcut ordering and retains all four destinations", () => {
+  assert.match(dashboard, /getDashboardCompanySector\(context\.organizationId\)/);
+  assert.match(dashboard, /orderedQuickActions\.map/);
+  assert.match(dashboard, /networkEntitled \? getDashboardCompanySector/);
+});
