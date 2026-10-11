@@ -221,7 +221,10 @@ select pg_temp.hp13_assert(
         'crawl_it2_register_source',
         'crawl_it2_review_source',
         'crawl_it3_list_pending_leads',
-        'crawl_it3_review_lead'
+        'crawl_it3_review_lead',
+        -- CRAWL-IT6.1: discovery RBAC gated geo evidence queue and review (no facility mutation).
+        'crawl_it61_geo_review_queue',
+        'crawl_it61_review_geo_evidence'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
