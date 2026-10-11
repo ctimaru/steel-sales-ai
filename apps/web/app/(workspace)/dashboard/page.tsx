@@ -15,6 +15,8 @@ import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { appRoutes } from "@/lib/routes";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 import { canWriteWorkspace } from "@/lib/access-policy";
+import { getDashboardCompanySector } from "@/lib/dashboard-company-sector";
+import { dashboardPresentation } from "@/lib/dashboard-role-contract";
 
 function roleLabel(role: string) {
   if (role === "requested") return "Richiesta";
@@ -42,7 +44,7 @@ export default async function DashboardPage() {
   const isAdmin = context.role === "admin";
   const canWrite = canWriteWorkspace(context.role);
 
-  const [setup, commercial, received, activity] = await Promise.all([
+  const [setup, commercial, received, activity, sector] = await Promise.all([
     isAdmin
       ? getCompanySetupState(context.organizationId)
       : Promise.resolve(null),
@@ -53,9 +55,11 @@ export default async function DashboardPage() {
     networkEntitled
       ? getNetworkActivityFeed(context.organizationId, true)
       : Promise.resolve({ items: [], total: 0, unread: 0 }),
+    networkEntitled ? getDashboardCompanySector(context.organizationId) : Promise.resolve("unknown" as const),
   ]);
 
   const { metrics, recent, mode } = commercial;
+  const presentation = dashboardPresentation(context.role === "admin" || context.role === "viewer" ? context.role : "member", sector);
   const setupIncomplete = Boolean(
     setup && (!setup.profile_ready || !setup.data_ready || !setup.first_value_ready),
   );
@@ -149,6 +153,13 @@ export default async function DashboardPage() {
           description: "Apri il calcolatore tecnico della Scuola.",
         },
   ];
+
+  // Sector only orders already permitted shortcuts; it never changes access.
+  const orderedQuickActions = presentation.primaryIntent === "create_rfq"
+    ? [quickActions[1], quickActions[2], quickActions[0], quickActions[3]]
+    : presentation.primaryIntent === "review_inquiries"
+      ? [quickActions[2], quickActions[0], quickActions[1], quickActions[3]]
+      : quickActions;
 
   return (
     <FocusPage className="max-w-[1120px]">
@@ -319,7 +330,7 @@ export default async function DashboardPage() {
           title={<span id="quick-actions">Parti da qui</span>}
         />
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {quickActions.map((action, index) => (
+          {orderedQuickActions.map((action, index) => (
             <Link
               key={action.href}
               href={action.href}
