@@ -22,7 +22,7 @@ test("DASH-UX4 keeps admin-only, incomplete-only company-scoped setup", () => {
 test("DASH-UX4 setup is a low-density responsive row without changing destinations", () => {
   assert.match(source, /aria-label="Configurazione aziendale" className="rounded-xl/);
   assert.match(source, /sm:flex-row sm:items-center sm:justify-between/);
-  assert.match(source, /Completa setup/);
+  assert.match(source, /Continua setup/);
   assert.match(source, /appRoutes\.company\.setup/);
   assert.match(source, /appRoutes\.operations\.uploads/);
 });
