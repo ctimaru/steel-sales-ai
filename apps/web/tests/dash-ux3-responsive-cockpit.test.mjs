@@ -27,3 +27,18 @@ test("DASH-UX3 preserves secure pathways and onboarding", () => {
     "Steel Pulse", "awaiting_assignment",
   ]) assert.ok(home.includes(fragment), fragment);
 });
+
+test("DASH-UX3.2 reuses the fetched operational snapshot for compact KPI cards", () => {
+  assert.match(home, /const \{ metrics, recent, mode, operational \} = commercial/);
+  assert.match(home, /operational\.rfqs/);
+  assert.match(home, /operational\.offers/);
+  assert.match(home, /operational\.orders/);
+  assert.match(home, /mode === "live" \? \[/);
+  assert.match(home, /grid grid-cols-3 gap-2 sm:gap-3/);
+});
+
+test("DASH-UX3.2 recent RFQ deep link is gated by live data and write capability", () => {
+  assert.match(home, /recentRfq && canWrite/);
+  assert.match(home, /recentRfq\.operationalHref!/);
+  assert.match(home, /Stato e scadenze nel dettaglio/);
+});
