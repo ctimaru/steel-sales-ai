@@ -14,6 +14,7 @@ import {
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { appRoutes } from "@/lib/routes";
 import { getWorkspaceContext } from "@/lib/workspace-context";
+import { canWriteWorkspace } from "@/lib/access-policy";
 
 function roleLabel(role: string) {
   if (role === "requested") return "Richiesta";
@@ -39,7 +40,7 @@ export default async function DashboardPage() {
     ? (await getNetworkAccessState(context.organizationId)).can_access_network
     : false;
   const isAdmin = context.role === "admin";
-  const canWrite = context.role !== "viewer";
+  const canWrite = canWriteWorkspace(context.role);
 
   const [setup, commercial, received, activity] = await Promise.all([
     isAdmin
@@ -266,7 +267,9 @@ export default async function DashboardPage() {
           }
         />
 
-        {recent.length === 0 ? (
+        {mode === "awaiting_assignment" ? (
+          <div role="status" className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">I dati commerciali non sono disponibili o non sono ancora associati a questo workspace. Nessun dato dimostrativo viene mostrato come reale.</div>
+        ) : recent.length === 0 ? (
           <FirstUseEmptyState
             eyebrow="Storico ancora vuoto"
             title="Qui compariranno RFQ, offerte e ordini recenti"
@@ -341,7 +344,7 @@ export default async function DashboardPage() {
 
       {mode === "awaiting_assignment" ? (
         <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-medium text-amber-900">
-          Il corpus validato è disponibile, ma deve ancora essere associato al workspace.
+          I dati commerciali non sono al momento disponibili o devono ancora essere associati al workspace.
         </p>
       ) : null}
     </FocusPage>
