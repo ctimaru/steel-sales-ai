@@ -7,7 +7,7 @@ The reference as of 21 February 2026 contains 7,894 municipalities. Verify the c
 
 ## Import procedure
 1. Retrieve the ISTAT original XLSX, inspect actual workbook column headers and export a UTF-8 CSV with exactly these columns: `istat_code,municipality_name,province_code,province_name,region_code,region_name`. Preserve code leading zeros.
-2. Run from `services/worker`: `python -m scripts.import_istat_municipalities path/to/official-mapped.csv` (check only). Confirm 7,894 unique codes, 20 regions, all valid two-character province abbreviations, and newly instituted Castegnero Nanto.
+2. Run from `services/worker`: `python -m app.istat_import path/to/official-mapped.csv` (check only). Confirm 7,894 unique codes, 20 regions, all valid two-character province abbreviations, and newly instituted Castegnero Nanto.
 3. Record original XLSX URL, download date, XLSX SHA256, verified mapped CSV SHA256, importer results, and operator review in change ticket.
 4. Only after authorizing the correct official source data: run same command with `--apply` in a correctly scoped worker environment, then verify reference count and sample lookups. The importer changes only `network_it_municipalities`.
 5. Perform geographic reconciliation from evidenced company facility candidates; do not overwrite original `network_facilities`. When province is missing, prefer manual review to guesswork. Proposed records can be stored in `network_it_facility_geo_reviews` only after independent provenance is attached.
