@@ -111,8 +111,10 @@ export default async function DashboardPage() {
     { label: "Azioni buyer", value: procurementSummary.attention_total, href: appRoutes.rfqHub.inbox },
     { label: "Urgenti", value: procurementSummary.urgent, href: appRoutes.rfqHub.inbox },
     { label: "RFQ attive", value: procurementSummary.active_rfqs, href: appRoutes.rfqHub.home },
-  ].filter((entry): entry is { label: string; value: number; href: string } =>
-    typeof entry.value === "number" && Number.isFinite(entry.value) && entry.value >= 0,
+  ].flatMap((entry) =>
+    typeof entry.value === "number" && Number.isFinite(entry.value) && entry.value >= 0
+      ? [{ ...entry, value: entry.value }]
+      : [],
   );
   const procurementActions = (procurementPayload?.items ?? [])
     .filter((item) => item.requires_action === true && typeof item.rfq_id === "string" && /^[0-9a-f-]{36}$/i.test(item.rfq_id))
