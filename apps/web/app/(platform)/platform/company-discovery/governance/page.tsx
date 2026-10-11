@@ -67,6 +67,7 @@ export default async function CompanyDataGovernancePage({
 
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <p className="platform-kicker">PA1.5 · Legal & data governance gate</p>
+        <Link href="/platform/company-discovery/geo-review" className="mt-3 mr-3 inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold">Revisiona sedi Italia →</Link>
         <Link href="/platform/company-discovery/sources" className="mt-3 inline-flex min-h-11 items-center rounded-xl border px-4 text-sm font-semibold">Gestisci fonti Italia →</Link>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#18263d] sm:text-4xl">
           Public Company Data Governance
