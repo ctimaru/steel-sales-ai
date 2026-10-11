@@ -58,7 +58,7 @@ export default async function DashboardPage() {
     networkEntitled ? getDashboardCompanySector(context.organizationId) : Promise.resolve("unknown" as const),
   ]);
 
-  const { metrics, recent, mode } = commercial;
+  const { metrics, recent, mode, operational } = commercial;
   const presentation = dashboardPresentation(context.role === "admin" || context.role === "viewer" ? context.role : "member", sector);
   const setupIncomplete = Boolean(
     setup && (!setup.profile_ready || !setup.data_ready || !setup.first_value_ready),
@@ -86,7 +86,27 @@ export default async function DashboardPage() {
           : null
     : null;
 
+  // Reuse the existing commercial snapshot; no extra queries or inferred open statuses.
+  const operationalKpis = mode === "live" ? [
+    { label: "RFQ registrate", value: operational.rfqs, href: appRoutes.commercial.search, detail: "Totale record · non solo aperte" },
+    { label: "Offerte registrate", value: operational.offers, href: appRoutes.commercial.search, detail: "Totale record" },
+    { label: "Ordini registrati", value: operational.orders, href: appRoutes.commercial.search, detail: "Totale record" },
+  ] : [];
+  const recentRfq = mode === "live"
+    ? recent.find((row) => row.role === "requested" && row.operationalHref)
+    : undefined;
+
   const attentionItems = [
+    recentRfq && canWrite
+      ? {
+          href: recentRfq.operationalHref!,
+          value: null,
+          title: "Apri RFQ recente",
+          description: "Consulta la richiesta registrata. Stato e scadenze nel dettaglio.",
+          accent: "border-[#b8d2c8] bg-[#edf5f2]",
+          valueClass: "text-[#173f35]",
+        }
+      : null,
     metrics.reviewFlags > 0
       ? {
           href: appRoutes.operations.review,
@@ -237,6 +257,18 @@ export default async function DashboardPage() {
         </section>
       ) : null}
 
+      {operationalKpis.length > 0 ? (
+        <section aria-label="Indicatori commerciali" className="grid grid-cols-3 gap-2 sm:gap-3">
+          {operationalKpis.map((kpi) => (
+            <Link key={kpi.label} href={kpi.href} className="min-w-0 rounded-xl border border-[#dce2df] bg-white p-2.5 hover:border-[#b8d2c8] sm:p-4">
+              <p className="text-[11px] font-medium leading-4 text-[#52615b] sm:text-xs">{kpi.label}</p>
+              <p className="mt-2 text-xl font-semibold tabular-nums text-[#1d2824] sm:text-2xl">{kpi.value.toLocaleString("it-IT")}</p>
+              <p className="mt-1 hidden text-[11px] text-[#5d6a65] sm:block">{kpi.detail}</p>
+            </Link>
+          ))}
+        </section>
+      ) : null}
+
       <section aria-labelledby="daily-priorities">
         <FocusSectionHeader
           eyebrow="Priorità"
@@ -256,9 +288,7 @@ export default async function DashboardPage() {
                 ].join(" ")}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <p className={["metric-number text-3xl font-semibold", item.valueClass].join(" ")}>
-                    {item.value}
-                  </p>
+                  {item.value !== null ? <p className={["metric-number text-2xl font-semibold sm:text-3xl", item.valueClass].join(" ")}>{item.value}</p> : <span className="text-xs font-semibold text-[#173f35]">Apri dettaglio</span>}
                   <span className="text-sm font-semibold text-[#173f35]" aria-hidden="true">
                     →
                   </span>
