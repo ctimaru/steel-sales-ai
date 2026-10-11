@@ -68,3 +68,20 @@ test("DASH-UX3.4 maintains mobile two-column actions, compact KPI grid and focus
   assert.match(home, /grid grid-cols-3 gap-2 sm:gap-3/);
   assert.match(home, /focus-visible:outline/);
 });
+
+test("DASH-UX3 acceptance: viewer never receives buyer inbox queries or write links", () => {
+  assert.match(home, /const canWrite = canWriteWorkspace\(context\.role\)/);
+  assert.match(home, /canWrite \? createClient\(\)\.then/);
+  assert.match(home, /recentRfq && canWrite/);
+  assert.match(home, /canWrite\s*\? \{/);
+});
+
+test("DASH-UX3 acceptance: responsive hierarchy and data unavailable states remain accessible", () => {
+  assert.match(home, /aria-labelledby="quick-actions"/);
+  assert.match(home, /aria-labelledby="daily-priorities"/);
+  assert.match(home, /aria-labelledby="recent-activity"/);
+  assert.match(home, /aria-label="RFQ lifecycle"/);
+  assert.match(home, /aria-label="Indicatori commerciali"/);
+  assert.match(home, /mode === "awaiting_assignment"/);
+  assert.match(home, /sm:grid-cols-2 lg:grid-cols-3/);
+});
