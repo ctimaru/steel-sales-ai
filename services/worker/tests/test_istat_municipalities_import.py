@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts.import_istat_municipalities import EXPECTED, load_verified_csv
+from app.istat_import import EXPECTED, load_verified_csv
 
 
 def write_csv(path: Path, rows: list[dict[str, str]]) -> None:
