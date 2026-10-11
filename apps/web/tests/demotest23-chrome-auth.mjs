@@ -98,6 +98,24 @@ try {
       }
     });
 
+    await step(p.id + " dashboard cockpit visual layout and authorization", async () => {
+      await navigate(page, "/dashboard");
+      await page.getByRole("heading", { name: "Oggi in " + p.name, exact: true })
+        .waitFor({ state: "visible", timeout: 60000 });
+      const actions = page.locator('section[aria-labelledby="quick-actions"]');
+      const priorities = page.locator('section[aria-labelledby="daily-priorities"]');
+      assert.equal(await actions.count(), 1, "Missing quick action section");
+      assert.equal(await priorities.count(), 1, "Missing daily priorities section");
+      assert.equal(await actions.locator("a").count(), 4, "Expected four safe quick actions");
+      const a = await actions.boundingBox();
+      const b = await priorities.boundingBox();
+      assert.ok(a && b && a.y < b.y, "Quick actions must precede priority cards");
+      if (p.id === "buyerViewer") {
+        assert.equal(await actions.getByRole("link", { name: /Apri RFQ Hub/ }).count(), 0,
+          "Viewer must not receive buyer-action shortcut");
+      }
+    });
+
     await step(p.id + " RFQ Hub visibility", async () => {
       await navigate(page, "/rfq-hub");
       await page.getByRole("heading", { name: "RFQ Hub", exact: true })
@@ -228,6 +246,23 @@ try {
       assert.ok(scrollWidth <= width + 12, route + " horizontal overflow " + scrollWidth + " > " + width);
     });
   }
+  await step("mobile dashboard visual tiles and focus behavior", async () => {
+    await navigate(mobilePage, "/dashboard");
+    await mobilePage.getByRole("heading", { name: "Oggi in " + personas[0].name, exact: true })
+      .waitFor({ state: "visible", timeout: 60000 });
+    const tiles = mobilePage.locator('section[aria-labelledby="quick-actions"] a');
+    assert.equal(await tiles.count(), 4);
+    const first = await tiles.nth(0).boundingBox();
+    const second = await tiles.nth(1).boundingBox();
+    assert.ok(first && second, "Mobile actions must be visible");
+    assert.ok(Math.abs(first.y - second.y) < 12, "First two mobile actions must share a row");
+    assert.ok(second.x > first.x, "Mobile actions must form two columns");
+    const measures = await mobilePage.evaluate(() => ({
+      client: document.documentElement.clientWidth,
+      scroll: document.documentElement.scrollWidth,
+    }));
+    assert.ok(measures.scroll <= measures.client + 12, "Dashboard has horizontal overflow");
+  });
   await mobile.close();
 
   console.log("DEMOTEST2.3 CHROME PASS", checks.length, "browser checks; 5 REAL GoTrue sessions; 4 companies; no production data");
