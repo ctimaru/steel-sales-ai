@@ -117,16 +117,21 @@ export default async function DashboardPage() {
   const procurementActions = (procurementPayload?.items ?? [])
     .filter((item) => item.requires_action === true && typeof item.rfq_id === "string" && /^[0-9a-f-]{36}$/i.test(item.rfq_id))
     .slice(0, 2);
+  // The buyer-centric inbox remains available to any permitted operator;
+  // display order adapts to business context without withholding authorized data.
+  const prioritizeProcurement = presentation.audience === "demand";
 
-  const attentionItems = [
-    ...procurementActions.map((item) => ({
+
+  const procurementPriorityCards = procurementActions.map((item) => ({
       href: appRoutes.rfqHub.campaign(item.rfq_id!),
       value: null,
       title: item.headline || "RFQ da gestire",
       description: item.detail || "Apri la richiesta per completare l’azione.",
       accent: item.priority === "urgent" ? "border-amber-200 bg-amber-50" : "border-[#b8d2c8] bg-[#edf5f2]",
       valueClass: "text-[#173f35]",
-    })),
+    }));
+  const attentionItems = [
+    ...(prioritizeProcurement ? procurementPriorityCards : []),
     recentRfq && canWrite
       ? {
           href: recentRfq.operationalHref!,
@@ -167,6 +172,7 @@ export default async function DashboardPage() {
           valueClass: "text-[#173f35]",
         }
       : null,
+    ...(!prioritizeProcurement ? procurementPriorityCards : []),
   ].filter((item): item is NonNullable<typeof item> => Boolean(item));
 
   const quickActions = [
@@ -290,7 +296,7 @@ export default async function DashboardPage() {
       {operationalKpis.length > 0 ? (
         <section aria-label="Indicatori commerciali" className="grid grid-cols-3 gap-2 sm:gap-3">
           {operationalKpis.map((kpi) => (
-            <Link key={kpi.label} href={kpi.href} className="min-w-0 rounded-xl border border-[#dce2df] bg-white p-2.5 hover:border-[#b8d2c8] sm:p-4">
+            <Link key={kpi.label} href={kpi.href} className="min-w-0 rounded-xl border border-[#dce2df] bg-white p-2 hover:border-[#b8d2c8] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 sm:p-4">
               <p className="text-[11px] font-medium leading-4 text-[#52615b] sm:text-xs">{kpi.label}</p>
               <p className="mt-2 text-xl font-semibold tabular-nums text-[#1d2824] sm:text-2xl">{kpi.value.toLocaleString("it-IT")}</p>
               <p className="mt-1 hidden text-[11px] text-[#5d6a65] sm:block">{kpi.detail}</p>
