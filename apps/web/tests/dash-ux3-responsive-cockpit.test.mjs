@@ -42,3 +42,15 @@ test("DASH-UX3.2 recent RFQ deep link is gated by live data and write capability
   assert.match(home, /recentRfq\.operationalHref!/);
   assert.match(home, /Stato e scadenze nel dettaglio/);
 });
+
+test("DASH-UX3.3 reads lifecycle from one governed procurement snapshot", () => {
+  assert.match(home, /rfqh10_procurement_inbox/);
+  assert.match(home, /p_limit: 5/);
+  assert.match(home, /canWrite \? createClient/);
+  assert.match(home, /procurementSummary\.active_rfqs/);
+  assert.match(home, /procurementSummary\.attention_total/);
+  assert.match(home, /procurementSummary\.urgent/);
+  assert.match(home, /procurementActions/);
+  assert.match(home, /appRoutes\.rfqHub\.campaign/);
+  assert.match(home, /procurement\.error/);
+});
