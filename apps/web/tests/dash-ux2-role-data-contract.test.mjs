@@ -49,3 +49,9 @@ test("DASH-UX2.5 only changes shortcut ordering and retains all four destination
   assert.match(dashboard, /orderedQuickActions\.map/);
   assert.match(dashboard, /networkEntitled \? getDashboardCompanySector/);
 });
+
+test("DASH-UX2 sector has no authorization authority", () => {
+  assert.match(contract, /sector: CompanySector/);
+  assert.match(contract, /canWrite: canWriteWorkspace\(role\)/);
+  assert.doesNotMatch(contract, /sector\s*===\s*"utilizzatore"\s*\?\s*true/);
+});
