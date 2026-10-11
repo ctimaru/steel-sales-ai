@@ -194,6 +194,12 @@ function mapObservation(row: Record<string, unknown>): CommercialRow {
   };
 }
 
+const emptyDashboardMetrics: typeof archiveMetrics = {
+  emails: 0, threads: 0, messages: 0, observations: 0,
+  requested: 0, offered: 0, ordered: 0, delivered: 0,
+  reviewFlags: 0, avgConfidence: 0,
+};
+
 export async function getDashboardData(): Promise<DashboardData> {
   if (!isConfigured()) {
     return {
@@ -228,9 +234,9 @@ export async function getDashboardData(): Promise<DashboardData> {
   if (metricError || !metricRows?.length) {
     return {
       mode: "awaiting_assignment",
-      metrics: archiveMetrics,
-      recent: demoCommercialRows.slice(0, 4),
-      operational: { rfqs: 0, offers: 0, orders: 0, normalizedLines: 0, legacyEvidence: archiveMetrics.observations },
+      metrics: emptyDashboardMetrics,
+      recent: [],
+      operational: { rfqs: 0, offers: 0, orders: 0, normalizedLines: 0, legacyEvidence: 0 },
     };
   }
 
