@@ -11,10 +11,10 @@ export type DashboardAudience = "supply" | "demand" | "neutral";
 export function normalizeCompanySector(value: unknown): CompanySector {
   if (typeof value !== "string") return "unknown";
   const key = value.trim().toLowerCase();
-  if (key === "produttore" || key === "produttori") return "produttore";
-  if (key === "commerciante" || key === "commercianti") return "commerciante";
-  if (key === "terzista" || key === "terzisti") return "terzista";
-  if (key === "utilizzatore" || key === "utilizzatori") return "utilizzatore";
+  if (key === "producer" || key === "produttore" || key === "produttori") return "produttore";
+  if (key === "trader_distributor" || key === "commerciante" || key === "commercianti") return "commerciante";
+  if (key === "processor_service_provider" || key === "terzista" || key === "terzisti") return "terzista";
+  if (key === "end_user" || key === "utilizzatore" || key === "utilizzatori") return "utilizzatore";
   return "unknown";
 }
 
