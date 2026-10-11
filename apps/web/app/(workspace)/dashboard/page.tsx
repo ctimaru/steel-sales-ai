@@ -162,14 +162,14 @@ export default async function DashboardPage() {
       : quickActions;
 
   return (
-    <FocusPage className="max-w-[1120px]">
+    <FocusPage className="max-w-[1180px] space-y-5 sm:space-y-7">
       <PilotEvent eventName="workspace_home_viewed" metadata={{ surface: "workspace_home" }} />
       <FocusHeader
-        eyebrow="Home"
+        eyebrow="Cockpit commerciale"
         title={<>Oggi in {context.organizationName}</>}
         description={
           <>
-            Le priorità da gestire, gli ultimi movimenti commerciali e le azioni che servono per lavorare.
+            Le tue attività prioritarie e gli strumenti per agire subito.
             <span className="mt-2 block text-xs font-semibold text-[#5d6a65]">
               {workspaceRoleLabel(context.role)} · Workspace privato
             </span>
@@ -177,15 +177,34 @@ export default async function DashboardPage() {
         }
       />
 
-      <section aria-label="Steel Pulse" className="rounded-2xl border border-[#d9e7df] bg-[#f3f8f5] px-4 py-3 sm:px-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#24634f]">Steel Pulse · Il tuo settore</p>
-            <p className="mt-1 text-sm text-[#52615b]">Segui gli argomenti che contano per te, anche quando non hai una trattativa da gestire.</p>
-          </div>
-          <Link href={appRoutes.steelPulse} className="app-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-xs font-semibold">
-            Personalizza il feed →
-          </Link>
+
+
+      <section aria-labelledby="quick-actions">
+        <FocusSectionHeader
+          eyebrow="Azioni rapide"
+          title={<span id="quick-actions">Parti da qui</span>}
+        />
+        <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
+          {orderedQuickActions.map((action, index) => (
+            <Link
+              key={action.href}
+              href={action.href}
+              className={[
+                "group min-w-0 rounded-xl border p-3 transition hover:shadow-sm sm:rounded-2xl sm:p-4",
+                index === 0
+                  ? "border-[#b8d2c8] bg-[#edf5f2] hover:border-[#82aa9b]"
+                  : "border-[#dce2df] bg-white hover:border-[#b8d2c8]",
+              ].join(" ")}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="text-sm font-semibold text-[#1d2824]">{action.title}</h3>
+                <span className="text-sm font-semibold text-[#173f35]" aria-hidden="true">
+                  →
+                </span>
+              </div>
+              <p className="mt-1 hidden text-xs leading-5 text-[#5d6a65] sm:block">{action.description}</p>
+            </Link>
+          ))}
         </div>
       </section>
 
@@ -226,13 +245,13 @@ export default async function DashboardPage() {
         />
 
         {attentionItems.length > 0 ? (
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {attentionItems.map((item) => (
               <Link
                 key={item.title}
                 href={item.href}
                 className={[
-                  "group rounded-2xl border p-5 transition hover:-translate-y-0.5 hover:shadow-sm",
+                  "group rounded-xl border p-3 transition hover:shadow-sm sm:rounded-2xl sm:p-5",
                   item.accent,
                 ].join(" ")}
               >
@@ -244,7 +263,7 @@ export default async function DashboardPage() {
                     →
                   </span>
                 </div>
-                <h3 className="mt-3 text-sm font-semibold text-[#1d2824]">{item.title}</h3>
+                <h3 className="mt-2 text-sm font-semibold text-[#1d2824]">{item.title}</h3>
                 <p className="mt-1 text-xs leading-5 text-[#5d6a65]">{item.description}</p>
               </Link>
             ))}
@@ -324,32 +343,17 @@ export default async function DashboardPage() {
         )}
       </section>
 
-      <section aria-labelledby="quick-actions">
-        <FocusSectionHeader
-          eyebrow="Azioni rapide"
-          title={<span id="quick-actions">Parti da qui</span>}
-        />
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {orderedQuickActions.map((action, index) => (
-            <Link
-              key={action.href}
-              href={action.href}
-              className={[
-                "group rounded-2xl border p-4 transition hover:-translate-y-0.5 hover:shadow-sm",
-                index === 0
-                  ? "border-[#b8d2c8] bg-[#edf5f2] hover:border-[#82aa9b]"
-                  : "border-[#dce2df] bg-white hover:border-[#b8d2c8]",
-              ].join(" ")}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <h3 className="text-sm font-semibold text-[#1d2824]">{action.title}</h3>
-                <span className="text-sm font-semibold text-[#173f35]" aria-hidden="true">
-                  →
-                </span>
-              </div>
-              <p className="mt-2 text-xs leading-5 text-[#5d6a65]">{action.description}</p>
-            </Link>
-          ))}
+
+
+      <section aria-label="Steel Pulse" className="rounded-2xl border border-[#d9e7df] bg-[#f3f8f5] px-4 py-3 sm:px-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#24634f]">Steel Pulse · Il tuo settore</p>
+            <p className="mt-1 text-sm text-[#52615b]">Segui gli argomenti che contano per te, anche quando non hai una trattativa da gestire.</p>
+          </div>
+          <Link href={appRoutes.steelPulse} className="app-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-xs font-semibold">
+            Personalizza il feed →
+          </Link>
         </div>
       </section>
 
