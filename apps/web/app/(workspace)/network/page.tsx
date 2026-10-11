@@ -102,8 +102,8 @@ export default async function NetworkDirectoryPage({
   const canWrite = canWriteWorkspace(context.role);
 
   const [taxonomy, geoFacets, results, saved, followed] = await Promise.all([
-    getNetworkGeoFacets(),
     getNetworkTaxonomy(),
+    getNetworkGeoFacets(),
     searchNetwork({
       query: params.q,
       role: params.role,
