@@ -15,6 +15,7 @@ import { canWriteWorkspace } from "@/lib/access-policy";
 import {
   getFollowedNetworkCompanies,
   getNetworkTaxonomy,
+  getNetworkGeoFacets,
   getSavedNetworkCompanies,
   searchNetwork,
 } from "@/lib/network";
@@ -50,6 +51,9 @@ function currentDirectoryPath(params: {
   capability?: string;
   country?: string;
   market?: string;
+  region?: string;
+  province?: string;
+  city?: string;
 }) {
   const query = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
@@ -73,6 +77,9 @@ export default async function NetworkDirectoryPage({
     capability?: string;
     country?: string;
     market?: string;
+    region?: string;
+    province?: string;
+    city?: string;
     error?: string;
     message?: string;
   }>;
@@ -94,8 +101,9 @@ export default async function NetworkDirectoryPage({
   const params = await searchParams;
   const canWrite = canWriteWorkspace(context.role);
 
-  const [taxonomy, results, saved, followed] = await Promise.all([
+  const [taxonomy, geoFacets, results, saved, followed] = await Promise.all([
     getNetworkTaxonomy(),
+    getNetworkGeoFacets(),
     searchNetwork({
       query: params.q,
       role: params.role,
@@ -103,6 +111,9 @@ export default async function NetworkDirectoryPage({
       capability: params.capability,
       country: params.country,
       market: params.market,
+      region: params.region,
+      province: params.province,
+      city: params.city,
     }),
     getSavedNetworkCompanies(),
     getFollowedNetworkCompanies(context.organizationId),
@@ -115,7 +126,7 @@ export default async function NetworkDirectoryPage({
       params.product ||
       params.capability ||
       params.country ||
-      params.market,
+      params.market || params.region || params.province || params.city,
   );
   const quickTubeContext =
     params.product === "tubes_pipes" && (params.country ?? "").toUpperCase() === "IT";
@@ -186,6 +197,9 @@ export default async function NetworkDirectoryPage({
             {params.capability ? <input type="hidden" name="capability" value={params.capability} /> : null}
             {params.country ? <input type="hidden" name="country" value={params.country} /> : null}
             {params.market ? <input type="hidden" name="market" value={params.market} /> : null}
+            {params.region ? <input type="hidden" name="region" value={params.region} /> : null}
+            {params.province ? <input type="hidden" name="province" value={params.province} /> : null}
+            {params.city ? <input type="hidden" name="city" value={params.city} /> : null}
             <button className="app-primary min-h-12 rounded-xl px-6 text-sm font-semibold">
               Cerca
             </button>
@@ -266,6 +280,18 @@ export default async function NetworkDirectoryPage({
                 </option>
               ))}
             </select>
+            <select name="region" aria-label="Regione" defaultValue={params.region ?? ""} className={selectClass()}>
+              <option value="">Tutte le regioni</option>
+              {geoFacets.regions.map((value) => <option key={value} value={value}>{value}</option>)}
+            </select>
+            <select name="province" aria-label="Provincia verificata ISTAT" defaultValue={params.province ?? ""} className={selectClass()} disabled={!geoFacets.provinces.length}>
+              <option value="">Tutte le province{!geoFacets.provinces.length ? " · in preparazione" : ""}</option>
+              {geoFacets.provinces.map((value) => <option key={value} value={value}>{value}</option>)}
+            </select>
+            <select name="city" aria-label="Comune" defaultValue={params.city ?? ""} className={selectClass()}>
+              <option value="">Tutti i comuni</option>
+              {geoFacets.cities.map((value) => <option key={value} value={value}>{value}</option>)}
+            </select>
             <div className="flex gap-2">
               <input
                 name="country"
@@ -279,6 +305,7 @@ export default async function NetworkDirectoryPage({
                 Applica
               </button>
             </div>
+            <p className="text-xs text-[#647269] sm:col-span-2 lg:col-span-5">Regione e comune provengono da sedi pubblicate. La provincia sarà disponibile dopo la verifica ISTAT; le aziende senza sede strutturata non appaiono nei filtri geografici.</p>
           </form>
         </details>
       </section>
