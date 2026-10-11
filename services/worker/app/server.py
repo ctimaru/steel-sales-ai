@@ -10,6 +10,7 @@ from .data_lifecycle import router as data_lifecycle_router
 from .data_source_center import router as data_source_center_router
 from .evidence import router as evidence_router
 from .global_search import router as global_search_router
+from .geo_enrichment import router as geo_enrichment_router
 from .main import app
 from .observability import install_observability, router as observability_router
 from .offer_reparse import install_offer_reparse_bootstrap, router as offer_reparse_router
@@ -27,6 +28,7 @@ from .tenant_admin import router as tenant_admin_router
 
 app.include_router(retrieval_router)
 app.include_router(global_search_router)
+app.include_router(geo_enrichment_router)
 app.include_router(p1_assistant_router)
 app.include_router(product_360_router)
 app.include_router(price_list_import_router)
