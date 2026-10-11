@@ -266,35 +266,6 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      {setupIncomplete && setup && nextSetupAction ? (
-        <section className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-5 sm:p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="max-w-2xl">
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#173f35]">
-                  Setup azienda
-                </p>
-                <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-[#173f35]">
-                  {setup.essential_completed_count}/{setup.essential_total_count}
-                </span>
-              </div>
-              <h2 className="mt-2 text-lg font-semibold text-[#1d2824]">
-                {nextSetupAction.label}
-              </h2>
-              <p className="mt-1 text-sm leading-6 text-[#52615b]">
-                {nextSetupAction.detail}
-              </p>
-            </div>
-            <Link
-              href={nextSetupAction.href}
-              className="app-primary inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl px-4 text-sm font-semibold"
-            >
-              Continua setup
-            </Link>
-          </div>
-        </section>
-      ) : null}
-
       {operationalKpis.length > 0 ? (
         <section aria-label="Indicatori commerciali" className="grid grid-cols-3 gap-2 sm:gap-3">
           {operationalKpis.map((kpi) => (
@@ -364,6 +335,28 @@ export default async function DashboardPage() {
           </div>
         )}
       </section>
+
+      {setupIncomplete && setup && nextSetupAction ? (
+        <section aria-label="Configurazione aziendale" className="rounded-xl border border-[#d9e8e2] bg-[#f7faf8] px-3 py-3 sm:px-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-semibold text-[#173f35]">Setup azienda</span>
+                <span className="text-[11px] tabular-nums text-[#52615b]">
+                  {setup.essential_completed_count}/{setup.essential_total_count}
+                </span>
+              </div>
+              <p className="mt-1 text-xs leading-5 text-[#52615b]">{nextSetupAction.label}</p>
+            </div>
+            <Link
+              href={nextSetupAction.href}
+              className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg border border-[#b8d2c8] bg-white px-3 text-xs font-semibold text-[#173f35] hover:bg-[#edf5f2] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+            >
+              Continua setup →
+            </Link>
+          </div>
+        </section>
+      ) : null}
 
       <section aria-labelledby="recent-activity">
         <FocusSectionHeader
