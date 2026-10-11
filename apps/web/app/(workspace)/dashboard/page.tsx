@@ -341,7 +341,7 @@ export default async function DashboardPage() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-semibold text-[#173f35]">Configurazione aziendale</span>
+                <span className="text-xs font-semibold text-[#173f35]">Setup azienda</span>
                 <span className="text-[11px] tabular-nums text-[#52615b]">
                   {setup.essential_completed_count}/{setup.essential_total_count}
                 </span>
@@ -352,7 +352,7 @@ export default async function DashboardPage() {
               href={nextSetupAction.href}
               className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg border border-[#b8d2c8] bg-white px-3 text-xs font-semibold text-[#173f35] hover:bg-[#edf5f2] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
             >
-              Completa setup →
+              Continua setup →
             </Link>
           </div>
         </section>
