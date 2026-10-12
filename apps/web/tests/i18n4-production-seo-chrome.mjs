@@ -87,7 +87,7 @@ async function checkContext(label, viewport, mobile) {
         "Standard selection missing");
       assert.ok(await calc.getByRole("button", {name:"Copy result",exact:true}).count() > 0,
         "English copy action missing");
-      assert.ok(await calc.locator('.tube-calculator-rfq-link[href="/en/distinta"]').count() === 1,
+      assert.ok(await calc.getByRole("button", { name: /Add this calculation to an RFQ bill/ }).count() === 1,
         "English RFQ bill link missing");
       assert.ok(await page.getByText("Total weight").first().count() > 0,
         "English calculator total mass missing");
