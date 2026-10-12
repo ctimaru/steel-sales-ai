@@ -95,7 +95,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       .order("line_position", { ascending: true }),
     supabase
       .from("buyer_rfq_suppliers")
-      .select("id,supplier_name,supplier_email_normalized,status,delivery_channel,identity_source,resolution_status,created_at")
+      .select("id,identity_key,supplier_name,supplier_email_normalized,status,delivery_channel,identity_source,resolution_status,created_at")
       .eq("rfq_id", campaign.id)
       .order("created_at", { ascending: true }),
     supabase
@@ -365,7 +365,10 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
 
       {isPreparation && canExecuteCritical ? (
         <div id="rfq-select-suppliers" className="scroll-mt-24">
-          <RfqSupplierAddForm rfqId={campaign.id} />
+          <RfqSupplierAddForm rfqId={campaign.id}
+            existingIdentityKeys={supplierRows.map(supplier => supplier.identity_key).filter((key): key is string => Boolean(key))}
+            existingEmails={supplierRows.map(supplier => supplier.supplier_email_normalized).filter((email): email is string => Boolean(email))}
+            currentCount={supplierRows.length} />
         </div>
       ) : null}
 
@@ -437,6 +440,9 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
           id: supplier.id,
           status: supplier.status,
           hasEmail: Boolean(supplier.supplier_email_normalized),
+          name: supplier.supplier_name,
+          email: supplier.supplier_email_normalized,
+          deliveryChannel: supplier.delivery_channel,
         }))}
       />
       </div>

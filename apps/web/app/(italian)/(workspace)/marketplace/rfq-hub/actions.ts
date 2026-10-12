@@ -12,6 +12,7 @@ import {
   type Rfqh3EmailLine,
 } from "@/lib/rfqh3-dispatch";
 import { trackServerProductEvent } from "@/lib/product-analytics-events.server";
+import { matchesConfirmedRecipients } from "@/lib/rfq-dispatch-recipient-check";
 import { createClient } from "@/lib/supabase/server";
 
 export type SupplierCandidate = {
@@ -236,10 +237,53 @@ export async function addSupplierToBuyerRfq(
 }
 
 
+// BD14: one client request for up to 20 selected supplier identities.
+// Individual existing authorization, identity resolution, dedupe and entitlement
+// checks remain enforced by addSupplierToBuyerRfq / rfqh2_add_supplier.
+export async function addSuppliersToBuyerRfqBulk(input: {
+  rfqId: string;
+  candidates: SupplierCandidate[];
+}): Promise<{ ok: boolean; addedKeys: string[]; failed: Array<{ key: string; error: string }>; error?: string }> {
+  if (!Array.isArray(input.candidates) || input.candidates.length < 1 || input.candidates.length > 20) {
+    return { ok: false, addedKeys: [], failed: [], error: "Seleziona da 1 a 20 fornitori per volta." };
+  }
+  const seen = new Set<string>();
+  const addedKeys: string[] = [];
+  const failed: Array<{ key: string; error: string }> = [];
+  for (const candidate of input.candidates) {
+    const key = typeof candidate?.identity_key === "string" ? candidate.identity_key : "";
+    if (!key || seen.has(key)) {
+      failed.push({ key, error: "Identità mancante o ripetuta nella selezione." });
+      continue;
+    }
+    seen.add(key);
+    try {
+      const result = await addSupplierToBuyerRfq({
+        rfqId: input.rfqId,
+        identitySource: candidate.source,
+        supplierName: candidate.company_name,
+        supplierEmail: candidate.email,
+        supplierCompanyId: candidate.supplier_company_id,
+        supplierContactId: candidate.supplier_contact_id,
+        supplierNetworkCompanyId: candidate.supplier_network_company_id,
+        supplierNetworkContactId: candidate.supplier_network_contact_id,
+        supplierOrganizationId: candidate.supplier_organization_id,
+      });
+      if (result.ok) addedKeys.push(key);
+      else failed.push({ key, error: result.error || "Aggiunta non riuscita." });
+    } catch {
+      failed.push({ key, error: "Errore temporaneo durante l'aggiunta." });
+    }
+  }
+  return { ok: failed.length === 0, addedKeys, failed };
+}
+
 type LaunchBuyerRfqInput = {
   rfqId: string;
   dueAt?: string | null;
   buyerMessage?: string | null;
+  /** BD14: compare the reviewed recipient list with the live server-side set. */
+  expectedSupplierIds?: string[];
 };
 
 async function loadRfqh3EmailContext(
@@ -353,6 +397,9 @@ export async function launchBuyerRfq(
 
   const context = await loadRfqh3EmailContext(supabase, input.rfqId.trim());
   if (!context) return { ok: false, error: "RFQ non trovata." };
+  if (input.expectedSupplierIds && !matchesConfirmedRecipients(input.expectedSupplierIds, context.suppliers.map((supplier) => supplier.id))) {
+    return { ok: false, error: "I destinatari sono cambiati dopo la conferma. Ricarica la pagina e verifica di nuovo prima dell’invio." };
+  }
   if (!["draft", "ready"].includes(context.campaign.status)) {
     return { ok: false, error: "Questa RFQ è già stata avviata." };
   }
