@@ -159,6 +159,53 @@ try {
       // Screenshots are anonymized by design: public static homepage only.
       await page.screenshot({ path: OUT + "/" + viewport.name + ".png", fullPage: true, animations: "disabled" });
       console.log("HOME-SI5 VIEWPORT PASS", JSON.stringify({ viewport: viewport.name, width: layout.actualWidth, documentWidth: layout.pageWidth }));
+      // CONTACT-CTA1: assert actual computed text, WebKit text fill and backgrounds
+      // on both public homepages across all existing mobile/desktop viewports.
+      for (const home of [
+        { path: "/", locale: "it", investorHref: "/investitori" },
+        { path: "/en", locale: "en", investorHref: "/en/investors" },
+      ]) {
+        const homeResponse = await page.goto(BASE + home.path, { waitUntil: "domcontentloaded", timeout: 50000 });
+        assert.equal(homeResponse?.status(), 200, "Contact homepage should return HTTP 200: " + home.path);
+        const contact = page.locator("#get-in-touch");
+        await contact.waitFor({ state: "visible" });
+        const ctaChecks = [
+          { cls: "public-contact-email", color: "rgb(18, 59, 52)", bg: "rgb(255, 255, 255)", href: "mailto:hello@smartsteelsales.com" },
+          { cls: "public-contact-linkedin", color: "rgb(255, 255, 255)", bg: "rgba(0, 0, 0, 0)", href: "https://www.linkedin.com/company/smart-steel-sales" },
+          { cls: "public-contact-investor", color: "rgb(18, 59, 52)", bg: "rgb(223, 243, 233)", href: home.investorHref },
+        ];
+        for (const expected of ctaChecks) {
+          const link = contact.locator("." + expected.cls);
+          assert.equal(await link.count(), 1, home.locale + " " + expected.cls + " must exist exactly once");
+          const actual = await link.evaluate((element) => {
+            const computed = getComputedStyle(element);
+            const box = element.getBoundingClientRect();
+            return {
+              color: computed.color,
+              background: computed.backgroundColor,
+              webkitTextFillColor: computed.webkitTextFillColor,
+              width: box.width,
+              height: box.height,
+              href: element.getAttribute("href"),
+            };
+          });
+          assert.equal(actual.color, expected.color, home.locale + " " + expected.cls + " text foreground");
+          assert.equal(actual.webkitTextFillColor, expected.color, home.locale + " " + expected.cls + " WebKit text foreground");
+          assert.equal(actual.background, expected.bg, home.locale + " " + expected.cls + " background");
+          check(actual.height >= 44 && actual.width >= 44, home.locale + " " + expected.cls + " touch target too small");
+          check(actual.href?.startsWith(expected.href), home.locale + " " + expected.cls + " unexpected href");
+        }
+        const geometry = await contact.evaluate((section) => {
+          const rect = section.getBoundingClientRect();
+          return { left: rect.left, right: rect.right, viewport: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth };
+        });
+        check(geometry.left >= -12 && geometry.right <= geometry.viewport + 12,
+          home.locale + " Get in touch section clipped: " + JSON.stringify(geometry));
+        check(geometry.scroll <= geometry.viewport + 12,
+          home.locale + " Get in touch creates horizontal overflow: " + JSON.stringify(geometry));
+        await contact.screenshot({ path: OUT + "/contact-cta1-" + home.locale + "-" + viewport.name + ".png", animations: "disabled" });
+        console.log("CONTACT-CTA1 CHROME PASS", home.locale, viewport.name);
+      }
       // INVEST2: exercise the actual CSS cascade in Chrome, not just static source.
       // These are static public pages; all non-read-only requests remain blocked above.
       for (const investor of [
