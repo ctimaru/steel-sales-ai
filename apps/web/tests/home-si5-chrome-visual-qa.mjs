@@ -310,7 +310,7 @@ try {
             await Promise.all([page.waitForURL("**"+tube.builder,{timeout:50000}),move.click()]);
             if (tube.locale === "it") {
               if (repeat) await page.getByRole("button",{name:"Riprendi la distinta"}).click();
-              await page.getByText(/misur[ae] importat[ae] dal calcolatore/).first().waitFor({state:"visible",timeout:20000});
+              await page.getByText(/misur[ae] importat[ae] dal calcolatore/i).first().waitFor({state:"visible",timeout:20000});
               await page.waitForFunction(n=>document.querySelectorAll('[id^="buyer-row-"][data-stage]:not([hidden])').length===n,repeat+1);
               await page.waitForFunction(()=>Boolean(sessionStorage.getItem("smart-steel-sales:buyer-distinta:v1:guest")));
             } else {
