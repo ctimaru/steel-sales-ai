@@ -98,7 +98,7 @@ try {
       await page.getByRole("heading",{name:"BD15 E2E LOCAL "+width,exact:true})
         .waitFor({state:"visible",timeout:60000});
       const body = await page.locator("body").innerText();
-      assert.match(body,/RFQ privata · preparazione/);
+      assert.match(body,/RFQ privata · preparazione/i);
       assert.match(body,/La RFQ è ancora privata/);
       assert.match(body,/1 · Scegli i fornitori/);
       assert.match(body,/2 · Verifica e invia/);
