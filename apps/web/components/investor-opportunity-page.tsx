@@ -3,7 +3,7 @@ import Link from "next/link";
 type Locale = "it" | "en";
 
 const sourceWorld = "https://worldsteel.org/data/annual-production-steel-data/";
-const sourceEurope = "https://ftp.eurofer.eu/publications/brochures-booklets-and-factsheets/european-steel-in-figures-2026";
+const sourceEurope = "https://www.eurofer.eu/assets/european-steel-in-figures-2026/Steel-in-Figures-SIF-Final_printer.pdf";
 const linkedIn = "https://www.linkedin.com/company/smart-steel-sales";
 
 const copy = {
