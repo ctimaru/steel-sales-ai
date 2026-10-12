@@ -3,6 +3,7 @@ import {
   marketModelGovernance,
   marketModelInputs,
   marketModelVersion,
+  pricingMixSensitivity,
   sourceLedger,
 } from "@/lib/private-business-plan-market-sizing";
 import type { BusinessPlanLocale } from "@/lib/business-plan-locale";
@@ -46,6 +47,7 @@ const text = {
     module: "Modulo",
     plus: "SSS Plus",
     arpa: "ARPA mensile per azienda pagante",
+    mixSensitivity: "Sensibilità ricavi per mix di abbonamenti (stesse aziende paganti)",
     funnel: "SOM: tre scenari di penetrazione a 36 mesi",
     scenario: "Scenario",
     activated: "Aziende attivate",
@@ -95,6 +97,7 @@ const text = {
     module: "Optional module",
     plus: "SSS Plus",
     arpa: "Weighted monthly ARPA per paying org",
+    mixSensitivity: "Subscription mix sensitivity (same number of paying companies)",
     funnel: "SOM: three 36-month penetration hypotheses",
     scenario: "Scenario",
     activated: "Activated companies",
@@ -179,6 +182,19 @@ export function PrivateBusinessPlanMarketSizing({ locale }: { locale: BusinessPl
           <div className="rounded-xl bg-[#edf4f0] p-4"><p className="text-xs text-[#52615b]">{c.module} · 40%</p><p className="mt-1 text-2xl font-semibold text-[#123b34]">{euro(marketModelInputs.modulePriceEurPerOrganizationMonth,locale)} / mo</p></div>
           <div className="rounded-xl bg-[#edf4f0] p-4"><p className="text-xs text-[#52615b]">{c.plus} · 60%</p><p className="mt-1 text-2xl font-semibold text-[#123b34]">{euro(marketModelInputs.plusPriceEurPerOrganizationMonth,locale)} / mo</p></div>
           <div className="rounded-xl bg-[#123b34] p-4 text-white"><p className="text-xs text-[#dbeae4]">{c.arpa}</p><p className="mt-1 text-2xl font-semibold">{euro(m.paidArpaMonthly,locale,2)} / mo</p></div>
+        </div>
+        <div className="mt-5 border-t border-[#edf2ee] pt-4">
+          <h4 className="text-sm font-semibold text-[#123b34]">{c.mixSensitivity}</h4>
+          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+            {pricingMixSensitivity(base.payingOrganizations).map((row) => (
+              <div key={row.key} className="rounded-xl border border-[#e1e9e5] bg-[#f8faf9] p-3">
+                <p className="text-xs font-semibold text-[#345047]">{locale === "it" ? row.labelIt : row.labelEn}</p>
+                <p className="mt-1 text-[11px] text-[#66736e]">{fraction(row.moduleShare,locale)} €15 / {fraction(row.plusShare,locale)} €39</p>
+                <p className="mt-2 font-semibold tabular-nums text-[#123b34]">{euro(row.monthlyArpaEur,locale,2)} ARPA</p>
+                <p className="mt-1 text-sm font-semibold tabular-nums text-[#123b34]">{euro(row.arrEur,locale)} ARR</p>
+              </div>
+            ))}
+          </div>
         </div>
         <p className="mt-4 text-xs leading-6 text-[#66736e]">{c.priceBenchmark} <a className="underline" target="_blank" rel="noopener noreferrer" href="https://www.odoo.com/pricing">Odoo ↗</a> · <a className="underline" target="_blank" rel="noopener noreferrer" href="https://support.pipedrive.com/en/article/how-does-pricing-work-in-pipedrive">Pipedrive ↗</a></p>
       </section>
