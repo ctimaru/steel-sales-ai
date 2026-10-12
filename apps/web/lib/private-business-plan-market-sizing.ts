@@ -116,7 +116,10 @@ export function calculateMarketModel(
   // again. Users are an adoption indicator, NEVER an ARR multiplier.
   const paidArpaMonthly = inputs.moduleShareAmongPayers * inputs.modulePriceEurPerOrganizationMonth
     + inputs.plusShareAmongPayers * inputs.plusPriceEurPerOrganizationMonth;
-  const annualValuePerPayingOrganization = paidArpaMonthly * 12;
+  const monthlyPriceCents = Math.round(paidArpaMonthly * 100);
+  const annualValuePerPayingOrganization = monthlyPriceCents * 12 / 100;
+  const annualSpend = (organizations: number) => Math.round(organizations * monthlyPriceCents * 12) / 100;
+  const monthlySpend = (organizations: number) => Math.round(organizations * monthlyPriceCents) / 100;
 
   const euroEligibleOrganizations = round(inputs.europeanBroadOrganizations * inputs.europeanRelevantShare);
   const italianEligibleOrganizations = round(inputs.italianBroadOrganizations * inputs.italianRelevantShare);
@@ -131,8 +134,8 @@ export function calculateMarketModel(
       payingOrganizations,
       estimatedActiveUsers: round(activatedOrganizations * inputs.usersPerActivatedOrganization),
       usersWithinPayingOrganizations: round(payingOrganizations * inputs.usersPerActivatedOrganization),
-      mrrEur: payingOrganizations * paidArpaMonthly,
-      arrEur: payingOrganizations * annualValuePerPayingOrganization,
+      mrrEur: monthlySpend(payingOrganizations),
+      arrEur: annualSpend(payingOrganizations),
     };
   });
   return {
@@ -142,7 +145,7 @@ export function calculateMarketModel(
       scope: "EU industrial technology proxy, filtered by steel-RFQ fit",
       organizations: euroEligibleOrganizations,
       potentialUsers: round(euroEligibleOrganizations * inputs.usersPerActivatedOrganization),
-      annualSoftwareSpendCeilingEur: euroEligibleOrganizations * annualValuePerPayingOrganization,
+      annualSoftwareSpendCeilingEur: annualSpend(euroEligibleOrganizations),
     },
     italyQualified: {
       organizations: italianEligibleOrganizations,
@@ -152,7 +155,7 @@ export function calculateMarketModel(
       scope: "Italy first; relevant organizations multiplied by delivery/geographic reach",
       organizations: italianSamOrganizations,
       potentialUsers: round(italianSamOrganizations * inputs.usersPerActivatedOrganization),
-      annualSoftwareSpendCeilingEur: italianSamOrganizations * annualValuePerPayingOrganization,
+      annualSoftwareSpendCeilingEur: annualSpend(italianSamOrganizations),
     },
     som,
   };
