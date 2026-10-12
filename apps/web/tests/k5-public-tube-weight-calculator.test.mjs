@@ -10,6 +10,9 @@ const calculator = fs.readFileSync(
   new URL("../components/public-tube-weight-calculator.tsx", import.meta.url),
   "utf8",
 );
+const evidence = fs.readFileSync(
+  new URL("../lib/tube-reference-evidence.ts", import.meta.url), "utf8",
+);
 const data = fs.readFileSync(
   new URL("../lib/public-knowledge.ts", import.meta.url),
   "utf8",
@@ -51,11 +54,14 @@ test("K5 calculator produces commercial-friendly mass outputs without turning es
 
 test("K5 keeps canonical published weights distinct and exposes source links", () => {
   assert.match(calculator, /exactReference/);
-  assert.match(calculator, /weight_method === "published"/);
+  assert.match(evidence, /weight_method === "published"/);
+  assert.match(evidence, /weight_method === "verified"/);
+  assert.match(calculator, /sourceMethodLabel\(referenceEvidence\(values.exactReference\).declaredMethod, locale\)/);
   assert.match(calculator, /Scostamento rispetto al calcolo geometrico/);
   assert.match(calculator, /source_provider/);
   assert.match(calculator, /source_url/);
-  assert.match(calculator, /Dimensioni di riferimento/);
+  assert.match(calculator, /riferimenti disponibili/);
+  assert.match(calculator, /tube-reference-catalogue/);
 });
 
 test("K5 public data comes only through the anonymous-safe RPC", () => {
