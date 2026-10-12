@@ -70,7 +70,7 @@ try {
     await goto(a, "/distinta");
     const { bill } = await fillTwoTubularLines(a);
     assert.equal(await bill.getByRole("button", {name:/Crea RFQ privata/}).count(),0);
-    assert.ok(await a.getByRole("link", {name:/Accedi per creare una RFQ privata/}).isVisible());
+    assert.ok(await a.getByRole("link", {name:/Accedi per creare una RFQ privata|Accedi e scegli i fornitori per una RFQ privata/}).isVisible());
     await noOverflow(a,"anonymous mobile bill");
   });
   await anon.close();

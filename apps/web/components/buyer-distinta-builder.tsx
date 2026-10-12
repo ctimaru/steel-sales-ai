@@ -3,6 +3,7 @@
 import { guidedTubeToBuyerLine } from "@/lib/buyer-guided-commercial-line";
 import { calculatorItemToBuyerLine, consumeCalculatorRfqIds, readCalculatorRfqQueue, type CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
 import { PublicTubeWeightCalculator } from "@/components/public-tube-weight-calculator";
+import { Bd17GuestRfqCta } from "@/components/bd17-guest-rfq-cta";
 import { trackProductEvent } from "@/lib/product-analytics-events.client";
 import { createPrivateRfqOneStep } from "@/lib/buyer-distinta-rfq-one-step";
 
@@ -1246,10 +1247,10 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                 {rfqMessage ? <p role="alert" className="mt-2 text-xs font-semibold text-[#95420e]">{rfqMessage}</p> : null}
               </div>
             ) : (
-              <p className="mt-3 text-xs leading-5 text-[#52615b]">
-                La distinta è gratuita e copiabile. <Link href={"/login?next=" + encodeURIComponent(appRoutes.rfqHub.createDistinta)}
-                  onClick={persistBrowserDraft} className="font-bold underline underline-offset-2">Accedi per creare una RFQ privata</Link>.
-              </p>
+              <Bd17GuestRfqCta
+                eligible={!workspace && allComplete && draftReady && !restoreCandidate}
+                onNavigate={persistBrowserDraft}
+              />
             )}
             <details className="bd7-global-documents">
               <summary className="bd7-doc-summary">

@@ -7,7 +7,11 @@ export type ProductAnalyticsEventName =
   | "company_claim_start"
   | "weight_calculation"
   | "rfq_calculator_line_added"
-  | "rfq_bill_copied";
+  | "rfq_bill_copied"
+  | "bd17_cta_control_view"
+  | "bd17_cta_control_click"
+  | "bd17_cta_clarity_view"
+  | "bd17_cta_clarity_click";
 
 export function trackProductEvent(
   name: ProductAnalyticsEventName,
