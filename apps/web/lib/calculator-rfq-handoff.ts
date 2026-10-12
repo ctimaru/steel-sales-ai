@@ -67,7 +67,7 @@ export function calculatorRfqFromValues(input: {
   return validatedCalculatorRfqItem(value,now);
 }
 
-export function readCalculatorRfqQueue(storage: Pick<Storage,"getItem"|"removeItem">, now=Date.now()): CalculatorRfqItem[] {
+export function readCalculatorRfqQueue(storage: Pick<Storage,"getItem">, now=Date.now()): CalculatorRfqItem[] {
   try {
     const raw=storage.getItem(CALC_RFQ_HANDOFF_KEY);
     if(!raw) return [];
