@@ -1,6 +1,7 @@
 "use client";
 
 import { guidedTubeToBuyerLine } from "@/lib/buyer-guided-commercial-line";
+import { calculatorItemToBuyerLine, consumeCalculatorRfqIds, readCalculatorRfqQueue } from "@/lib/calculator-rfq-handoff";
 
 import Link from "next/link";
 import { BuyerTubeGuidedCreator } from "@/components/buyer-tube-guided-creator";
@@ -100,6 +101,8 @@ export function BuyerDistintaBuilder({
     blankLine("line-1"),
   ]);
   const [copyState, setCopyState] = useState<"idle" | "copied" | "error">("idle");
+  const [calculatorHandoffCount, setCalculatorHandoffCount] = useState(0);
+  const [calculatorHandoffOverflow, setCalculatorHandoffOverflow] = useState(false);
   const [savedId, setSavedId] = useState<string | null>(null);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [recipientInput, setRecipientInput] = useState("");
@@ -177,6 +180,34 @@ export function BuyerDistintaBuilder({
     // recipients or subject; none of these can be sent from browser storage.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draftReady, draftKey, title, lines, documents, guidedSpecsByLine, selectedCatalog, previewDraft]);
+
+  // CALC-UX2: read only after the optional existing draft has been either
+  // restored or explicitly discarded. Never overwrite previous RFQ lines.
+  useEffect(() => {
+    if (!draftReady || restoreCandidate) return;
+    const pending = readCalculatorRfqQueue(window.sessionStorage);
+    if (!pending.length) return;
+    const baseSize = lines.length === 1 && isUntouchedLine(lines[0]) ? 0 : lines.length;
+    const accepted = pending.slice(0, Math.max(0,500-baseSize));
+    if (!accepted.length) { setCalculatorHandoffOverflow(true); return; }
+    const imported = accepted.map((item) => calculatorItemToBuyerLine(item, newLineId()));
+    setLines((current) => {
+      const base = current.length === 1 && isUntouchedLine(current[0]) ? [] : current;
+      return [...base, ...imported.slice(0,Math.max(0,500-base.length))];
+    });
+    consumeCalculatorRfqIds(window.sessionStorage, accepted.map(v=>v.id));
+    setCalculatorHandoffCount(accepted.length);
+    setCalculatorHandoffOverflow(accepted.length < pending.length);
+    setCompactMode(true);
+    setCopyState("idle");
+    setSavedId(null);
+    setSaveMessage(null);
+    setSendMessage(null);
+    setRfqMessage(null);
+  // Run once when the existing draft decision is complete. The queue is
+  // consumed synchronously; StrictMode effect replay cannot double-import.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftReady, restoreCandidate]);
 
   function restoreBrowserDraft() {
     if (!restoreCandidate) return;
@@ -562,6 +593,13 @@ export function BuyerDistintaBuilder({
 
   return (
     <div className="bd54-page space-y-4 sm:space-y-5">
+      {calculatorHandoffCount > 0 ? (
+        <aside role="status" aria-live="polite" className="rounded-xl border border-[#b5d9c7] bg-[#edf8f1] px-4 py-3 text-sm text-[#123b34]">
+          <strong>{calculatorHandoffCount === 1 ? "Misura importata dal calcolatore" : calculatorHandoffCount + " misure importate dal calcolatore"} ✓</strong>
+          <p className="mt-1 text-xs leading-5">Norma, geometria, lunghezza, numero barre e kg/m teorico sono già nella distinta. Verifica il grado acciaio e i requisiti di fornitura prima di inviare la richiesta. Nessuna RFQ è stata inviata.</p>
+        </aside>
+      ) : null}
+      {calculatorHandoffOverflow ? <p role="alert" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">Distinta piena: alcune misure rimangono in attesa nella scheda. Rimuovi righe prima di importarle.</p> : null}
       {restoreCandidate ? (
         <aside className="rounded-xl border border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] p-3 sm:p-4" aria-label="Bozza da recuperare">
           <p className="text-sm font-bold text-[var(--brand-deep)]">Bozza trovata in questa scheda</p>
