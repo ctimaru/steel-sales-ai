@@ -159,6 +159,46 @@ try {
       // Screenshots are anonymized by design: public static homepage only.
       await page.screenshot({ path: OUT + "/" + viewport.name + ".png", fullPage: true, animations: "disabled" });
       console.log("HOME-SI5 VIEWPORT PASS", JSON.stringify({ viewport: viewport.name, width: layout.actualWidth, documentWidth: layout.pageWidth }));
+      // INVEST2: exercise the actual CSS cascade in Chrome, not just static source.
+      // These are static public pages; all non-read-only requests remain blocked above.
+      for (const investor of [
+        { path: "/investitori", label: "Richiedi accesso al Business Plan" },
+        { path: "/en/investors", label: "Request Business Plan access" },
+      ]) {
+        const investorResponse = await page.goto(BASE + investor.path, { waitUntil: "domcontentloaded", timeout: 50000 });
+        assert.equal(investorResponse?.status(), 200, investor.path + " should return HTTP 200");
+        const planCta = page.getByRole("link", { name: investor.label, exact: true });
+        await planCta.waitFor({ state: "visible" });
+        const actual = await planCta.evaluate((anchor) => {
+          const css = getComputedStyle(anchor);
+          const label = anchor.querySelector(".investor-plan-cta-label");
+          const labelCss = label ? getComputedStyle(label) : null;
+          const bounds = anchor.getBoundingClientRect();
+          return {
+            color: css.color, background: css.backgroundColor,
+            textFillColor: css.webkitTextFillColor,
+            labelColor: labelCss?.color,
+            labelTextFill: labelCss?.webkitTextFillColor,
+            width: bounds.width, height: bounds.height,
+            href: anchor.getAttribute("href"),
+            scroll: document.documentElement.scrollWidth,
+            viewport: document.documentElement.clientWidth,
+          };
+        });
+        assert.equal(actual.background, "rgb(255, 255, 255)", "Investor primary CTA must have white background");
+        assert.equal(actual.color, "rgb(18, 59, 52)", "Investor CTA must have dark visible lettering");
+        assert.equal(actual.labelColor, "rgb(18, 59, 52)", "Investor label must have dark visible lettering");
+        assert.equal(actual.textFillColor, "rgb(18, 59, 52)", "Investor CTA must override WebKit text fill");
+        assert.equal(actual.labelTextFill, "rgb(18, 59, 52)", "Investor label must override WebKit text fill");
+        check(actual.width >= 210 && actual.height >= 48, "Investor CTA touch target or width too small");
+        check(actual.href?.startsWith("mailto:hello@smartsteelsales.com"), "Investor CTA mailto destination wrong");
+        check(actual.scroll <= actual.viewport + 12, "Investor landing horizontal overflow at " + viewport.name);
+        await page.screenshot({
+          path: OUT + "/invest2-" + (investor.path === "/investitori" ? "it" : "en") + "-" + viewport.name + ".png",
+          fullPage: true, animations: "disabled",
+        });
+        console.log("INVEST2 CHROME CTA PASS", viewport.name, investor.path, actual.color, actual.background);
+      }
       results.push(viewport.name);
     } finally {
       await context.close();
