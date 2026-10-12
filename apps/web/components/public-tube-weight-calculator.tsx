@@ -1170,8 +1170,8 @@ export function PublicTubeWeightCalculator({
                       </div>
                     </div>
 
-                    <label className="text-[10px] font-bold text-[#52615b]">
-                      {t("Numero barre")}
+                    <div className="text-xs font-bold text-[#52615b]">
+                      <label htmlFor="tube-calculator-quantity">{t("Numero barre")}</label>
                       <div className="mt-1 grid grid-cols-[44px_minmax(0,1fr)_44px] gap-1">
                         <button
                           type="button"
@@ -1185,8 +1185,9 @@ export function PublicTubeWeightCalculator({
                           −
                         </button>
                         <input
+                          id="tube-calculator-quantity"
                           aria-label={t("Numero barre")}
-                           value={quantity}
+                          value={quantity}
                           onChange={(event) => setQuantity(event.target.value)}
                           inputMode="numeric"
                           className="min-h-11 min-w-0 rounded-xl border border-[#cfd9d5] bg-white px-2 text-center text-sm font-bold text-[#1d2824] outline-none focus:border-[#438d7a]"
@@ -1203,7 +1204,7 @@ export function PublicTubeWeightCalculator({
                           +
                         </button>
                       </div>
-                    </label>
+                    </div>
                   </div>
 
                   <div className="mt-3 rounded-xl border border-[#bed3cb] bg-[#edf5f2] p-2.5">
@@ -1263,7 +1264,6 @@ export function PublicTubeWeightCalculator({
           </div>
 
           <aside
-            aria-live="polite"
             className="tube-calculator-result flex min-w-0 flex-col bg-[#123d34] text-white"
           >
             <div className="shrink-0 border-b border-white/10 px-3 py-3 sm:px-4">
@@ -1272,7 +1272,7 @@ export function PublicTubeWeightCalculator({
                   <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/85">
                     {standard === "geometric" ? t("Peso al metro · calcolo libero") : `${t("Massa lineare")} · ${currentStandard.label}`}
                   </p>
-                  <p className="metric-number mt-1 break-words text-3xl font-semibold tracking-[-0.05em] sm:text-5xl">
+                  <p aria-live="polite" aria-atomic="true" className="metric-number mt-1 break-words text-3xl font-semibold tracking-[-0.05em] sm:text-5xl">
                     {values.kgM == null ? "—" : formatOutput(values.kgM, 3)}
                     <span className="ml-1 text-base font-semibold tracking-normal text-white/85">kg/m</span>
                   </p>
@@ -1397,7 +1397,7 @@ export function PublicTubeWeightCalculator({
               <p className="mt-1 text-[11px] leading-4 text-white/85">
                 {locale === "en" ? "Free · no login required. Product grade remains to be confirmed." : "Gratuito · nessun login richiesto. Il grado acciaio resta da confermare."}
               </p>
-              <p aria-live="polite" className="mt-2 min-h-4 text-[10px] font-semibold text-white/70">
+              <p aria-live="polite" className="mt-2 min-h-4 text-xs font-semibold text-white/85">
                 {t(actionFeedback)}
               </p>
 
