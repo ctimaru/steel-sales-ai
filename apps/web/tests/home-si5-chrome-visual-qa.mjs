@@ -276,13 +276,14 @@ try {
           const actual = await rfq.evaluate((anchor) => {
             const style = getComputedStyle(anchor);
             const box = anchor.getBoundingClientRect();
-            return { href: anchor.getAttribute("href"), color: style.color,
+            return { tag: anchor.tagName, disabled: anchor.hasAttribute("disabled"), color: style.color,
               fill: style.webkitTextFillColor, background: style.backgroundColor,
               width: box.width, height: box.height,
               viewport: document.documentElement.clientWidth,
               scroll: document.documentElement.scrollWidth };
           });
-          assert.equal(actual.href, tube.builder, "Wrong language-specific RFQ bill route");
+          assert.equal(actual.tag, "BUTTON", "RFQ transfer must be an explicit action");
+          assert.equal(actual.disabled, false, "RFQ transfer must be enabled for valid data");
           assert.equal(actual.color, "rgb(18, 59, 52)", "Unreadable RFQ link label");
           assert.equal(actual.fill, "rgb(18, 59, 52)", "Unreadable RFQ link in Safari");
           assert.equal(actual.background, "rgb(227, 244, 235)", "RFQ link background");
@@ -298,6 +299,32 @@ try {
             path: OUT + "/i18n7-calc-" + tube.locale + "-" + viewport.name + ".png",
             animations: "disabled",
           });
+          // CALC-UX2: full same-tab commercial bridge. No POST is allowed
+          // by the read-only browser harness; no RFQ dispatch is performed.
+          for (let repeat = 0; repeat < 2; repeat++) {
+            if (repeat) {
+              await page.goto(BASE + tube.path, {waitUntil:"domcontentloaded",timeout:50000});
+              await page.locator("#calcolatore-pesi").waitFor({state:"visible"});
+            }
+            const move=page.locator("#calcolatore-pesi .tube-calculator-rfq-link");
+            await Promise.all([page.waitForURL("**"+tube.builder,{timeout:50000}),move.click()]);
+            if (tube.locale === "it") {
+              if (repeat) await page.getByRole("button",{name:"Riprendi la distinta"}).click();
+              await page.getByText(/misur[ae] importat[ae] dal calcolatore/).first().waitFor({state:"visible",timeout:20000});
+              await page.waitForFunction(n=>document.querySelectorAll('[id^="buyer-row-"][data-stage]:not([hidden])').length===n,repeat+1);
+              await page.waitForFunction(()=>Boolean(sessionStorage.getItem("smart-steel-sales:buyer-distinta:v1:guest")));
+            } else {
+              await page.getByText(/calculation(s)? added to your RFQ bill/).first().waitFor({state:"visible",timeout:20000});
+              await page.getByRole("heading",{name:"Item "+(repeat+1)}).waitFor({state:"visible"});
+              await page.waitForFunction(n=>document.querySelectorAll('[aria-label="English RFQ bill of materials builder"] article').length===n,repeat+1);
+              await page.waitForFunction(()=>Boolean(sessionStorage.getItem("sss:english-rfq-bill:v1")));
+              check(await page.getByLabel("Steel grade").first().inputValue()==="",
+                "CALC-UX2 must not invent a steel grade");
+            }
+            const queued=await page.evaluate(()=>sessionStorage.getItem("sss:calc-rfq-handoff:v1"));
+            check(!queued || queued==="[]","CALC-UX2 replay queue not consumed");
+            console.log("CALC-UX2 HANDOFF PASS",tube.locale,viewport.name,repeat+1);
+          }
           console.log("I18N7 CHROME PASS", tube.locale, viewport.name);
         }
       }
