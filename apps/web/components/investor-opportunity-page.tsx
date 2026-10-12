@@ -88,14 +88,14 @@ export function InvestorOpportunityPage({ locale, contactHref }: { locale: Local
 
         <section aria-labelledby="investor-hero" className="py-12 sm:py-20">
           <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#276e58]">{c.eyebrow}</p>
-          <h1 id="investor-hero" className="mt-4 max-w-[900px] text-4xl font-semibold leading-[1.12] tracking-tight text-[#123b34] sm:text-5xl">{c.title}</h1>
+          <h1 id="investor-hero" className="mt-4 max-w-[900px] break-words text-4xl font-semibold leading-[1.12] tracking-tight text-[#123b34] sm:text-5xl">{c.title}</h1>
           <p className="mt-6 max-w-[860px] text-base leading-8 text-[#52615b] sm:text-lg">{c.intro}</p>
           <p className="mt-5 text-sm font-semibold text-[#1f6b5a]">{c.subtitle}</p>
         </section>
 
         <section aria-labelledby="investor-market-title" className="border-t border-[#dce5e0] py-10 sm:py-12">
           <div className="max-w-3xl">
-            <h2 id="investor-market-title" className="text-2xl font-semibold tracking-tight text-[#123b34] sm:text-3xl">{c.marketTitle}</h2>
+            <h2 id="investor-market-title" className="break-words text-2xl font-semibold tracking-tight text-[#123b34] sm:text-3xl">{c.marketTitle}</h2>
             <p className="mt-3 text-sm leading-7 text-[#52615b]">{c.marketText}</p>
           </div>
           <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -123,7 +123,7 @@ export function InvestorOpportunityPage({ locale, contactHref }: { locale: Local
         </section>
 
         <section aria-labelledby="investor-model-title" className="rounded-2xl border border-[#cfe2d8] bg-[#eaf4ef] p-6 sm:p-8">
-          <h2 id="investor-model-title" className="text-2xl font-semibold text-[#123b34]">{c.modelTitle}</h2>
+          <h2 id="investor-model-title" className="break-words text-2xl font-semibold text-[#123b34]">{c.modelTitle}</h2>
           <p className="mt-3 max-w-3xl text-sm leading-7 text-[#43564f]">{c.modelText}</p>
           <ol className="mt-5 grid gap-3 sm:grid-cols-3">
             {c.steps.map((step, index) => <li key={step} className="rounded-xl border border-[#cfe2d8] bg-white px-4 py-3 text-sm font-medium leading-6 text-[#123b34]">{index + 1}. {step}</li>)}
@@ -132,11 +132,11 @@ export function InvestorOpportunityPage({ locale, contactHref }: { locale: Local
 
         <section aria-labelledby="investor-contact" className="mt-9 rounded-2xl bg-[#123b34] p-6 text-white sm:p-10">
           <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#b4e0d0]">{c.thesis}</p>
-          <h2 id="investor-contact" className="mt-3 max-w-3xl text-2xl font-semibold leading-tight sm:text-3xl">{c.ctaTitle}</h2>
+          <h2 id="investor-contact" className="mt-3 max-w-3xl break-words text-2xl font-semibold leading-tight sm:text-3xl">{c.ctaTitle}</h2>
           <p className="mt-4 max-w-3xl text-sm leading-7 text-[#dbeae4] sm:text-base">{c.ctaText}</p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-            <a href={contactHref} aria-label={c.ctaButton} className="investor-plan-cta inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-white bg-white px-5 py-3 text-center text-sm font-bold shadow-sm transition hover:bg-[#e6f3ed] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:w-auto">
-              <span className="investor-plan-cta-label">{c.ctaButton}</span><span aria-hidden="true">↗</span>
+            <a href={contactHref} aria-label={c.ctaButton} className="investor-plan-cta inline-flex min-h-12 min-w-0 w-full items-center justify-center gap-2 rounded-xl border border-white bg-white px-5 py-3 text-center text-sm font-bold shadow-sm transition hover:bg-[#e6f3ed] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:w-auto">
+              <span className="investor-plan-cta-label min-w-0 break-words">{c.ctaButton}</span><span aria-hidden="true">↗</span>
             </a>
             <a href={linkedIn} rel="noopener noreferrer" target="_blank" className="inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-[#91b4a5] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#235247] sm:w-auto">{c.linkedin} ↗</a>
           </div>
