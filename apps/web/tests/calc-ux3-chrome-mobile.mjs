@@ -47,11 +47,11 @@ try {
       });
       await context.route("**/*", async (route) => {
         const request = route.request();
-        if (!["GET", "HEAD"].includes(request.method()) ||
-            new URL(request.url()).origin !== BASE) {
+        if (!["GET", "HEAD"].includes(request.method())) {
           violations.push(request.method() + " " + request.url());
           return route.abort();
         }
+        if (new URL(request.url()).origin !== BASE) return route.abort();
         await route.continue();
       });
       const page = await context.newPage();
@@ -64,7 +64,7 @@ try {
         await page.waitForFunction(() => {
           const action = document.querySelector("#calcolatore-pesi .tube-calculator-rfq-link");
           return action && !action.disabled;
-        }, { timeout: 30000 });
+        }, null, { timeout: 30000 });
         const geometry = await calc.evaluate((element) => {
           const r = element.getBoundingClientRect();
           return { x: r.left, right: r.right, width: r.width, client: element.clientWidth,
