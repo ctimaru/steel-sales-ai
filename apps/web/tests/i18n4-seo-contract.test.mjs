@@ -34,7 +34,7 @@ test("I18N4 production acceptance is read-only and manually strict after deploym
   assert.match(chrome, /"GET" && method !== "HEAD"/);
   assert.match(chrome, /width: 390/);
   assert.match(chrome, /Shared English calculator missing/);
-  assert.match(chrome, /tube-calculator-rfq-link/);
+  assert.match(chrome, /Add this calculation to an RFQ bill/);
   assert.match(chrome, /Add another item/);
   assert.doesNotMatch(http + chrome, /method:\s*["']POST|fetch\([^)]*,\s*\{\s*method:\s*["']POST/i);
 });

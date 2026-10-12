@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
+import { calculatorRfqFromValues, enqueueCalculatorRfq } from "@/lib/calculator-rfq-handoff";
 import { tubeCalculatorText, type TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
 import { referenceEvidence, relatedTubeReferences, sourceMethodLabel, sourceStandardLabel } from "@/lib/tube-reference-evidence";
 import { trackProductEvent } from "@/lib/product-analytics-events.client";
@@ -1373,12 +1374,27 @@ export function PublicTubeWeightCalculator({
                 </button>
               </div>
 
-              <Link
-                href={locale === "en" ? "/en/distinta" : "/distinta"}
-                className="tube-calculator-rfq-link mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[#c3e5d5] bg-[#e3f4eb] px-4 py-2 text-center text-xs font-bold text-[#123b34] hover:bg-[#ccebdc] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:text-sm"
+              <button
+                type="button"
+                disabled={!currentSnapshot}
+                onClick={() => {
+                  if (!currentSnapshot) return;
+                  const item = calculatorRfqFromValues(currentSnapshot,
+                    typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "calc-"+Date.now()+"-"+Math.random().toString(36).slice(2));
+                  if (!item || !enqueueCalculatorRfq(window.sessionStorage, item)) {
+                    setActionFeedback(locale === "en" ? "Unable to transfer the item. Check browser session storage and try again." : "Impossibile trasferire l'articolo. Verifica lo spazio di sessione del browser e riprova.");
+                    return;
+                  }
+                  // The queue stays in this tab only: no calculator data in URLs or requests.
+                  window.location.assign(locale === "en" ? "/en/distinta" : "/distinta");
+                }}
+                className="tube-calculator-rfq-link mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[#c3e5d5] bg-[#e3f4eb] px-4 py-2 text-center text-xs font-bold text-[#123b34] hover:bg-[#ccebdc] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
               >
-                {locale === "en" ? "Create an RFQ bill · Paste copied results →" : "Crea distinta RFQ · Incolla il risultato copiato →"}
-              </Link>
+                {locale === "en" ? "Add this calculation to an RFQ bill →" : "Aggiungi questa misura alla distinta →"}
+              </button>
+              <p className="mt-1 text-[11px] leading-4 text-white/85">
+                {locale === "en" ? "Free · no login required. Product grade remains to be confirmed." : "Gratuito · nessun login richiesto. Il grado acciaio resta da confermare."}
+              </p>
               <p aria-live="polite" className="mt-2 min-h-4 text-[10px] font-semibold text-white/70">
                 {t(actionFeedback)}
               </p>

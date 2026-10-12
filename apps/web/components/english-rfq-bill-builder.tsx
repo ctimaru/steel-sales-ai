@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { consumeCalculatorRfqIds, readCalculatorRfqQueue, type CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
 import {
   estimatePublicTubeMass,
   formatEnglishMass,
@@ -21,13 +22,52 @@ type RfqLine = {
   bars: string;
   length: string;
   targetPricePerTonne: string;
+  density: string;
 };
 
 const createLine = (id: number): RfqLine => ({
   id, shape: "square", standard: "en10219", grade: "S355J2H",
   diameter: "168.3", width: "100", height: "60", thickness: "5",
-  bars: "10", length: "12", targetPricePerTonne: "",
+  bars: "10", length: "12", targetPricePerTonne: "", density: "7850",
 });
+
+const EN_BILL_SESSION_KEY = "sss:english-rfq-bill:v1";
+const EN_BILL_SESSION_TTL = 24*60*60*1000;
+function storedEnglishBill(value: string | null) {
+  if (!value || value.length > 150000) return null;
+  try {
+    const item: unknown = JSON.parse(value);
+    if (!item || typeof item !== "object" || Array.isArray(item)) return null;
+    const obj = item as Record<string,unknown>;
+    if (obj.version!==1 || typeof obj.at!=="number" ||
+        obj.at>Date.now()+60_000 || Date.now()-obj.at>EN_BILL_SESSION_TTL ||
+        !Array.isArray(obj.lines) || !obj.lines.length || obj.lines.length>50) return null;
+    const allowed = new Set(["en10219","en10210","geometric"]);
+    const shapes = new Set(["round","square","rectangular"]);
+    const keys = ["grade","diameter","width","height","thickness","bars","length","targetPricePerTonne","density"];
+    const parsed = obj.lines.map((r:unknown) => {
+      if (!r || typeof r!=="object" || Array.isArray(r)) return null;
+      const v=r as Record<string,unknown>;
+      if (!Number.isSafeInteger(v.id) || (v.id as number)<1 || !shapes.has(String(v.shape)) ||
+          !allowed.has(String(v.standard)) || keys.some(k=>typeof v[k]!=="string" || (v[k] as string).length>200)) return null;
+      return {id:v.id as number, shape:v.shape as PublicTubeShape,standard:v.standard as PublicTubeStandard,
+        grade:v.grade as string, diameter:v.diameter as string,width:v.width as string,height:v.height as string,
+        thickness:v.thickness as string,bars:v.bars as string,length:v.length as string,
+        targetPricePerTonne:v.targetPricePerTonne as string,density:v.density as string} satisfies RfqLine;
+    });
+    if (parsed.some(v=>v===null) || new Set(parsed.map(v=>v!.id)).size!==parsed.length) return null;
+    return {lines:parsed as RfqLine[],
+      notes:typeof obj.notes==="string"?obj.notes.slice(0,5000):"",
+      currency:obj.currency==="USD"||obj.currency==="GBP"?obj.currency:"EUR"} as const;
+  } catch {return null;}
+}
+function fromCalculator(item:CalculatorRfqItem,id:number):RfqLine {
+  return {id,shape:item.family==="round_tube"?"round":item.family==="square_tube"?"square":"rectangular",
+    standard:item.standard,grade:"",
+    diameter:String(item.outerDiameter??""),width:String(item.width??""),height:String(item.height??""),
+    thickness:String(item.thickness),bars:String(item.bars),length:String(item.length),
+    density:String(item.density),targetPricePerTonne:""};
+}
 
 const control = "mt-1 w-full min-w-0 rounded-lg border border-[#c7d7cf] bg-white px-2.5 py-2.5 text-sm text-[#123b34] focus:border-[#1f6b5a] focus:outline-none focus:ring-2 focus:ring-[#b9d7cb]";
 const label = "block min-w-0 text-xs font-semibold text-[#52615b]";
@@ -47,10 +87,45 @@ export function EnglishRfqBillBuilder() {
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => { setHydrated(true); }, []);
   const nextId = useRef(2);
+  const [draftLoaded, setDraftLoaded] = useState(false);
+  const [importedCount, setImportedCount] = useState(0);
+  const [importWarning, setImportWarning] = useState(false);
   const [lines, setLines] = useState<RfqLine[]>([createLine(1)]);
   const [currency, setCurrency] = useState<"EUR" | "USD" | "GBP">("EUR");
   const [notes, setNotes] = useState("");
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
+
+  useEffect(() => {
+    // Same-tab only; restore edited bill before appending new calculations.
+    let existing: ReturnType<typeof storedEnglishBill> = null;
+    let queue: CalculatorRfqItem[] = [];
+    try {
+      existing = storedEnglishBill(window.sessionStorage.getItem(EN_BILL_SESSION_KEY));
+      queue = readCalculatorRfqQueue(window.sessionStorage);
+    } catch { /* Private browsing may block storage. Builder still works. */ }
+    const previous = existing?.lines ?? [];
+    const accepted = queue.slice(0, Math.max(0,50-previous.length));
+    const start = previous.length?Math.max(...previous.map(line=>line.id))+1:1;
+    const additions=accepted.map((item,i)=>fromCalculator(item,start+i));
+    nextId.current = start+additions.length;
+    setLines([...previous,...additions].length ? [...previous,...additions] : [createLine(1)]);
+    if(existing){ setCurrency(existing.currency); setNotes(existing.notes); }
+    if(accepted.length){
+      consumeCalculatorRfqIds(window.sessionStorage,accepted.map(item=>item.id));
+      setImportedCount(accepted.length);
+    }
+    setImportWarning(accepted.length<queue.length);
+    setDraftLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!draftLoaded) return;
+    try {
+      window.sessionStorage.setItem(EN_BILL_SESSION_KEY,JSON.stringify({
+        version:1,at:Date.now(),lines,notes,currency,
+      }));
+    } catch { /* Optional browser retention only. */ }
+  }, [draftLoaded,lines,notes,currency]);
 
   const calculated = useMemo(
     () =>
@@ -65,6 +140,7 @@ export function EnglishRfqBillBuilder() {
           thicknessMm: parseTubeNumber(line.thickness),
           bars: parseTubeNumber(line.bars),
           lengthM: parseTubeNumber(line.length),
+          densityKgM3: line.standard === "geometric" ? parseTubeNumber(line.density) : 7850,
         }),
         error:
           !line.grade.trim() || !/^[A-Za-z0-9 .+\/-]{1,50}$/.test(line.grade.trim())
@@ -95,7 +171,7 @@ export function EnglishRfqBillBuilder() {
     setLines((current) => current.length === 1 ? current : current.filter((line) => line.id !== id));
     setCopyState("idle");
   }
-  function field(item: RfqLine, key: keyof Pick<RfqLine, "grade" | "diameter" | "width" | "height" | "thickness" | "bars" | "length" | "targetPricePerTonne">, title: string, placeholder?: string) {
+  function field(item: RfqLine, key: keyof Pick<RfqLine, "grade" | "diameter" | "width" | "height" | "thickness" | "bars" | "length" | "targetPricePerTonne" | "density">, title: string, placeholder?: string) {
     const inputId = `rfq-en-${item.id}-${key}`;
     return (
       <label key={key} htmlFor={inputId} className={label}>
@@ -150,6 +226,13 @@ export function EnglishRfqBillBuilder() {
 
   return (
     <section aria-label="English RFQ bill of materials builder" className="space-y-5">
+      {importedCount ? (
+        <aside role="status" aria-live="polite" className="rounded-xl border border-[#b5d9c7] bg-[#edf8f1] p-4 text-sm text-[#123b34]">
+          <strong>{importedCount} calculation{importedCount === 1 ? "" : "s"} added to your RFQ bill ✓</strong>
+          <p className="mt-1 text-xs leading-5">Dimensions, standard or geometric method, bar count, length and density were transferred. Choose the steel grade before copying the supplier enquiry. No RFQ has been sent.</p>
+        </aside>
+      ) : null}
+      {importWarning ? <p role="alert" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">Bill full. Additional calculations remain pending in this tab.</p> : null}
       <div className="rounded-2xl border border-[#dce5e0] bg-white px-5 py-5 sm:px-7">
         <p className="text-xs font-extrabold uppercase tracking-[0.13em] text-[#1f6b5a]">Free public tool · no account required</p>
         <h2 className="mt-2 text-2xl font-bold text-[#123b34]">Prepare an RFQ bill of materials</h2>
@@ -192,6 +275,7 @@ export function EnglishRfqBillBuilder() {
               : field(line, "width", line.shape === "square" ? "Outside side (mm)" : "Outside width (mm)")}
             {line.shape === "rectangular" ? field(line, "height", "Outside height (mm)") : null}
             {field(line, "thickness", "Wall thickness (mm)")}
+            {line.standard === "geometric" ? field(line, "density", "Material density (kg/m³)") : null}
             {field(line, "length", "Bar length (m)")}
             {field(line, "bars", "Quantity (bars)")}
             {field(line, "targetPricePerTonne", `Optional target (${currency}/t)`, "Not specified")}

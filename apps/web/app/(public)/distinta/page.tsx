@@ -29,11 +29,15 @@ export const metadata: Metadata = {
 };
 
 export default async function BuyerDistintaPage() {
+  // Public builder is also available anonymously when the Supabase runtime
+  // is not provisioned (isolated browser QA, static preview, degraded mode).
+  // Configured environments still use the exact existing auth lookup.
+  const configured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY);
   const [supabase, publishedDimensions] = await Promise.all([
-    createClient(),
+    configured ? createClient() : Promise.resolve(null),
     listBuyerDistintaPublicDimensions(),
   ]);
-  const { data } = await supabase.auth.getUser();
+  const data = supabase ? (await supabase.auth.getUser()).data : { user: null };
   const catalogOptions = buildBuyerDistintaCatalogOptions(publishedDimensions);
   const authenticated = Boolean(data.user);
   const emailConfigured = Boolean(process.env.RESEND_API_KEY);
