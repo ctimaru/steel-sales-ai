@@ -237,7 +237,10 @@ export default function PublicHomePage() {
             <Link href="/distinta" className="font-semibold hover:text-[#173f35]">Crea distinta</Link>
             <Link href="/login" className="font-semibold hover:text-[#173f35]">Accedi</Link>
             <Link href="/register" className="font-semibold hover:text-[#173f35]">Registra azienda</Link>
-            <Link href="/privacy" className="font-semibold hover:text-[#173f35]">Privacy</Link>
+                        <Link href="/investitori" className="font-semibold hover:text-[#173f35]">Investitori</Link>
+            <a href="https://www.linkedin.com/company/smart-steel-sales" target="_blank" rel="noopener noreferrer" className="font-semibold hover:text-[#173f35]">LinkedIn ↗</a>
+            <a href="mailto:hello@smartsteelsales.com" className="font-semibold hover:text-[#173f35]">hello@smartsteelsales.com</a>
+<Link href="/privacy" className="font-semibold hover:text-[#173f35]">Privacy</Link>
             <Link href="/company-data" className="font-semibold hover:text-[#173f35]">Dati aziendali</Link>
             <Link href="/cookies" className="font-semibold hover:text-[#173f35]">Cookie</Link>
             <Link href="/terms" className="font-semibold hover:text-[#173f35]">Termini</Link>
