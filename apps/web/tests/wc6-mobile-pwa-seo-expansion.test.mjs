@@ -60,7 +60,7 @@ test("WC6 provides cross-platform Add to Home Screen guidance", () => {
   assert.match(installGuide, /Aggiungi alla schermata Home/);
   assert.match(installGuide, /Installa app/);
   assert.match(installGuide, /Nessun account richiesto/);
-  assert.match(calculator, /<CalculatorInstallGuide \/>/);
+  assert.match(calculator, /<CalculatorInstallGuide locale=\{locale\} \/>/);
 });
 
 test("WC6 hardens one-hand mobile interaction without removing the desktop cockpit", () => {

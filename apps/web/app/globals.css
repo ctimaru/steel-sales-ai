@@ -2898,3 +2898,22 @@ textarea {
   outline: 3px solid #f2cf9c;
   outline-offset: 3px;
 }
+
+/* I18N7: explicit visible controls in the shared EN/IT calculator, including Safari text fill. */
+#calcolatore-pesi .tube-calculator-copy-action {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+#calcolatore-pesi .tube-calculator-favourite-selected {
+  background-color: #ffffff !important;
+  color: #123d34 !important;
+  -webkit-text-fill-color: #123d34 !important;
+}
+#calcolatore-pesi .tube-calculator-rfq-link {
+  background-color: #e3f4eb !important;
+  color: #123b34 !important;
+  -webkit-text-fill-color: #123b34 !important;
+}
+#calcolatore-pesi .tube-calculator-rfq-link:hover {
+  background-color: #ccebdc !important;
+}

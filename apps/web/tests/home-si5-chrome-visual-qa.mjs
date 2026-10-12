@@ -253,6 +253,54 @@ try {
         });
         console.log("INVEST2 CHROME CTA PASS", viewport.name, investor.path, actual.color, actual.background);
       }
+      if (viewport.width === 390 || viewport.width === 1440) {
+        // I18N7: one source of truth for the IT and EN calculator.
+        await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: BASE });
+        for (const tube of [
+          { path: "/knowledge/tubes", locale: "it", copy: "Copia risultato", builder: "/distinta" },
+          { path: "/en/knowledge/tubes", locale: "en", copy: "Copy result", builder: "/en/distinta" },
+        ]) {
+          const tubeResponse = await page.goto(BASE + tube.path, { waitUntil: "domcontentloaded", timeout: 50000 });
+          assert.equal(tubeResponse?.status(), 200, "I18N7 calculator page HTTP status");
+          const calculator = page.locator("#calcolatore-pesi");
+          await calculator.waitFor({ state: "visible" });
+          check(await calculator.getByRole("button", { name: "EN 10219" }).count() === 1, "Missing shared standard control");
+          const copy = calculator.getByRole("button", { name: tube.copy, exact: true });
+          await copy.waitFor({ state: "visible" });
+          check(!(await copy.isDisabled()), "Copy should be enabled for valid default section");
+          await copy.click();
+          const copied = await page.evaluate(async () => navigator.clipboard.readText());
+          check(copied.includes("kg/m") && copied.includes("EN 10219") && copied.includes("12 m"),
+            "I18N7 clipboard result missing practical RFQ information: " + tube.locale);
+          const rfq = calculator.locator(".tube-calculator-rfq-link");
+          const actual = await rfq.evaluate((anchor) => {
+            const style = getComputedStyle(anchor);
+            const box = anchor.getBoundingClientRect();
+            return { href: anchor.getAttribute("href"), color: style.color,
+              fill: style.webkitTextFillColor, background: style.backgroundColor,
+              width: box.width, height: box.height,
+              viewport: document.documentElement.clientWidth,
+              scroll: document.documentElement.scrollWidth };
+          });
+          assert.equal(actual.href, tube.builder, "Wrong language-specific RFQ bill route");
+          assert.equal(actual.color, "rgb(18, 59, 52)", "Unreadable RFQ link label");
+          assert.equal(actual.fill, "rgb(18, 59, 52)", "Unreadable RFQ link in Safari");
+          assert.equal(actual.background, "rgb(227, 244, 235)", "RFQ link background");
+          check(actual.height >= 44 && actual.width >= 44, "RFQ link touch target");
+          check(actual.scroll <= actual.viewport + 12, "Tube calculator horizontal overflow");
+          const styles = await copy.evaluate((element) => ({
+            color: getComputedStyle(element).color,
+            fill: getComputedStyle(element).webkitTextFillColor,
+          }));
+          assert.equal(styles.color, "rgb(255, 255, 255)", "Copy label must be white on dark");
+          assert.equal(styles.fill, "rgb(255, 255, 255)", "Copy label Safari contrast");
+          await calculator.screenshot({
+            path: OUT + "/i18n7-calc-" + tube.locale + "-" + viewport.name + ".png",
+            animations: "disabled",
+          });
+          console.log("I18N7 CHROME PASS", tube.locale, viewport.name);
+        }
+      }
       results.push(viewport.name);
     } finally {
       await context.close();

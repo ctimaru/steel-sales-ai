@@ -33,8 +33,8 @@ test("WC3 exposes a target-tonnage commercial workflow", () => {
 });
 
 test("WC3 lets users adjust bar quantity without retyping the field", () => {
-  assert.match(calculator, /aria-label="Riduci di una barra"/);
-  assert.match(calculator, /aria-label="Aumenta di una barra"/);
+  assert.match(calculator, /aria-label=\{t\("Riduci di una barra"\)\}/);
+  assert.match(calculator, /aria-label=\{t\("Aumenta di una barra"\)\}/);
   assert.match(calculator, /setQuantity\(String\(Math\.max\(1, current - 1\)\)\)/);
   assert.match(calculator, /setQuantity\(String\(current \+ 1\)\)/);
 });

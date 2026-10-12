@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
+import { tubeCalculatorText, type TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
 import { trackProductEvent } from "@/lib/product-analytics-events.client";
 import type { PublicTubeDimensionSummary } from "@/lib/public-knowledge";
 
@@ -156,8 +157,9 @@ async function copyTextToClipboard(text: string) {
   textarea.style.opacity = "0";
   document.body.appendChild(textarea);
   textarea.select();
-  document.execCommand("copy");
+  const copied = document.execCommand("copy");
   document.body.removeChild(textarea);
+  if (!copied) throw new Error("Clipboard copy failed");
 }
 
 function standardCornerRadii(standard: NormativeStandard, thicknessMm: number) {
@@ -212,8 +214,8 @@ function parseNumber(value: string) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function formatNumber(value: number, digits = 3) {
-  return new Intl.NumberFormat("it-IT", {
+function formatNumber(value: number, digits = 3, locale: TubeCalculatorLocale = "it") {
+  return new Intl.NumberFormat(locale === "en" ? "en-GB" : "it-IT", {
     minimumFractionDigits: 0,
     maximumFractionDigits: digits,
   }).format(value);
@@ -298,6 +300,7 @@ function ParametricShapeDiagram({
   height,
   thickness,
   standard,
+  locale = "it",
 }: {
   family: TubeFamily;
   outerDiameter: string;
@@ -305,7 +308,9 @@ function ParametricShapeDiagram({
   height: string;
   thickness: string;
   standard: StandardValue;
+  locale?: TubeCalculatorLocale;
 }) {
+  const formatDiagramNumber = (value: number, digits = 3) => formatNumber(value, digits, locale);
   const d = positiveDimension(outerDiameter, 100);
   const b = positiveDimension(width, 100);
   const h = family === "square_tube" ? b : positiveDimension(height, 60);
@@ -355,27 +360,27 @@ function ParametricShapeDiagram({
 
   const primaryDimension =
     family === "round_tube"
-      ? `Ø ${formatNumber(d, 2)} mm`
-      : `B ${formatNumber(b, 2)} mm`;
+      ? `Ø ${formatDiagramNumber(d, 2)} mm`
+      : `B ${formatDiagramNumber(b, 2)} mm`;
   const secondaryDimension =
-    family === "rectangular_tube" ? `H ${formatNumber(h, 2)} mm` : null;
-  const thicknessDimension = `t ${formatNumber(t, 2)} mm`;
+    family === "rectangular_tube" ? `H ${formatDiagramNumber(h, 2)} mm` : null;
+  const thicknessDimension = `t ${formatDiagramNumber(t, 2)} mm`;
   const accessibleLabel =
     family === "round_tube"
-      ? `Sezione tubo tondo, diametro esterno ${formatNumber(d, 2)} millimetri e spessore ${formatNumber(t, 2)} millimetri`
+      ? (locale === "en" ? `Round section, outside diameter ${formatDiagramNumber(d, 2)} millimetres, wall thickness ${formatDiagramNumber(t, 2)} millimetres` : `Sezione tubo tondo, diametro esterno ${formatDiagramNumber(d, 2)} millimetri e spessore ${formatDiagramNumber(t, 2)} millimetri`)
       : family === "square_tube"
-        ? `Sezione profilo quadro, lato ${formatNumber(b, 2)} millimetri e spessore ${formatNumber(t, 2)} millimetri`
-        : `Sezione profilo rettangolare, base ${formatNumber(b, 2)} millimetri, altezza ${formatNumber(h, 2)} millimetri e spessore ${formatNumber(t, 2)} millimetri`;
+        ? (locale === "en" ? `Square section, side ${formatDiagramNumber(b, 2)} millimetres, thickness ${formatDiagramNumber(t, 2)} millimetres` : `Sezione profilo quadro, lato ${formatDiagramNumber(b, 2)} millimetri e spessore ${formatDiagramNumber(t, 2)} millimetri`)
+        : (locale === "en" ? `Rectangular section, width ${formatDiagramNumber(b, 2)} millimetres, height ${formatDiagramNumber(h, 2)} millimetres and thickness ${formatDiagramNumber(t, 2)} millimetres` : `Sezione profilo rettangolare, base ${formatDiagramNumber(b, 2)} millimetri, altezza ${formatDiagramNumber(h, 2)} millimetri e spessore ${formatDiagramNumber(t, 2)} millimetri`);
 
   return (
     <figure className="rounded-2xl border border-[#d3e1dc] bg-white p-3">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Vista proporzionale</p>
-          <p className="sr-only">Le quote seguono i valori inseriti e lo spessore viene rappresentato in proporzione.</p>
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">{locale === "en" ? "Proportional view" : "Vista proporzionale"}</p>
+          <p className="sr-only">{locale === "en" ? "The diagram scales with the dimensions and illustrates wall thickness proportionally." : "Le quote seguono i valori inseriti e lo spessore viene rappresentato in proporzione."}</p>
         </div>
         <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#1a5144]">
-          {standard === "geometric" ? "Libero" : standard === "en10210" ? "EN 10210" : "EN 10219"}
+          {standard === "geometric" ? (locale === "en" ? "Free" : "Libero") : standard === "en10210" ? "EN 10210" : "EN 10219"}
         </span>
       </div>
 
@@ -500,7 +505,7 @@ function ParametricShapeDiagram({
           <span className="rounded-lg bg-[#f6f8f7] px-2 py-1.5 font-semibold text-[#405049]">{secondaryDimension}</span>
         ) : (
           <span className="rounded-lg bg-[#f6f8f7] px-2 py-1.5 font-semibold text-[#405049]">
-            {family === "round_tube" ? "Sezione circolare" : "Sezione quadrata"}
+            {family === "round_tube" ? (locale === "en" ? "Circular section" : "Sezione circolare") : (locale === "en" ? "Square section" : "Sezione quadrata")}
           </span>
         )}
         <span className="rounded-lg bg-[#fbf0e9] px-2 py-1.5 font-semibold text-[#8b4a25]">{thicknessDimension}</span>
@@ -512,10 +517,14 @@ function ParametricShapeDiagram({
 export function PublicTubeWeightCalculator({
   references,
   initialValues,
+  locale = "it",
 }: {
   references: PublicTubeDimensionSummary[];
   initialValues?: PublicTubeCalculatorInitialValues;
+  locale?: TubeCalculatorLocale;
 }) {
+  const t = (text: string) => tubeCalculatorText(text, locale);
+  const formatOutput = (value: number, digits = 3) => formatNumber(value, digits, locale);
   const initialStandard = initialValues?.standard ?? "en10219";
   const [standard, setStandard] = useState<StandardValue>(initialStandard);
   const [family, setFamily] = useState<TubeFamily>(initialValues?.family ?? "round_tube");
@@ -747,16 +756,16 @@ export function PublicTubeWeightCalculator({
   }
 
   function calculationStandardLabel(calculation: StoredTubeCalculation) {
-    return standardOptions.find((option) => option.value === calculation.standard)?.label ?? calculation.standard;
+    return t(standardOptions.find((option) => option.value === calculation.standard)?.label ?? calculation.standard);
   }
 
   function resultText(calculation: StoredTubeCalculation) {
     return [
       `Smart Steel Sales · ${calculationStandardLabel(calculation)}`,
       calculationDimensionLabel(calculation),
-      `${formatNumber(calculation.kgM, 3)} kg/m`,
-      `${formatNumber(calculation.kgBar, 2)} kg/barra · ${calculation.length} m`,
-      `${calculation.quantity} barre · ${formatNumber(calculation.totalMeters, 1)} m · ${formatNumber(calculation.totalTonnes, 4)} t`,
+      `${formatOutput(calculation.kgM, 3)} kg/m`,
+      `${formatOutput(calculation.kgBar, 2)} ${t("kg/barra")} · ${calculation.length} m`,
+      `${calculation.quantity} ${locale === "en" ? "bars" : "barre"} · ${formatOutput(calculation.totalMeters, 1)} m · ${formatOutput(calculation.totalTonnes, 4)} t`,
     ].join("\n");
   }
 
@@ -908,17 +917,17 @@ export function PublicTubeWeightCalculator({
         <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[#dce7e3] bg-[linear-gradient(135deg,#f7fbf9_0%,#ffffff_62%,#edf5f2_100%)] px-3 py-2.5 sm:px-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="school-eyebrow hidden sm:inline-flex">Calcolatore pesi</span>
-              <span className="school-badge">Gratis</span>
+              <span className="school-eyebrow hidden sm:inline-flex">{t("Calcolatore pesi")}</span>
+              <span className="school-badge">{t("Gratis")}</span>
               <span className="school-badge hidden sm:inline-flex">Live</span>
             </div>
             <h1 className="mt-1 truncate text-lg font-semibold tracking-[-0.025em] text-[#15372f] sm:text-xl">
-              Peso tubo acciaio
+              {t("Peso tubo acciaio")}
             </h1>
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
-            <CalculatorInstallGuide />
+            <CalculatorInstallGuide locale={locale} />
             <button
               type="button"
               disabled={!currentSnapshot}
@@ -941,7 +950,7 @@ export function PublicTubeWeightCalculator({
               }
             >
               <span className="sm:hidden">{calculatorSaved ? "Salvato ✓" : "Salva"}</span>
-              <span className="hidden sm:inline">{calculatorSaved ? "Calcolatore salvato ✓" : "Salva il Calcolatore"}</span>
+              <span className="hidden sm:inline">{t(calculatorSaved ? "Calcolatore salvato ✓" : "Salva il Calcolatore")}</span>
             </button>
           </div>
         </header>
@@ -952,10 +961,10 @@ export function PublicTubeWeightCalculator({
               <section aria-labelledby="calculator-standard">
                 <div className="mb-1.5 flex items-center justify-between gap-2">
                   <h2 id="calculator-standard" className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-[#52615b]">
-                    Norma
+                    {t("Norma")}
                   </h2>
                   <span className="text-[10px] font-semibold text-[#7b8782]">
-                    {standard === "geometric" ? "Geometria libera" : "Massa da norma"}
+                    {t(standard === "geometric" ? "Geometria libera" : "Massa da norma")}
                   </span>
                 </div>
                 <div className="grid grid-cols-3 gap-1.5">
@@ -973,8 +982,8 @@ export function PublicTubeWeightCalculator({
                             : "min-h-11 rounded-xl border border-[#d7e1dd] bg-[#f8faf9] px-2 py-2 text-center text-xs font-bold text-[#334a42] hover:border-[#8fb5a8] hover:bg-[#f1f7f4]"
                         }
                       >
-                        {option.label}
-                        <span className="sr-only"> — {option.description}</span>
+                        {t(option.label)}
+                        <span className="sr-only"> — {t(option.description)}</span>
                       </button>
                     );
                   })}
@@ -984,9 +993,9 @@ export function PublicTubeWeightCalculator({
               <section aria-labelledby="calculator-shape">
                 <div className="mb-1.5 flex items-center justify-between gap-2">
                   <h2 id="calculator-shape" className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-[#52615b]">
-                    Sagoma
+                    {t("Sagoma")}
                   </h2>
-                  <span className="text-[10px] font-semibold text-[#7b8782]">{currentFamily.description}</span>
+                  <span className="text-[10px] font-semibold text-[#7b8782]">{t(currentFamily.description)}</span>
                 </div>
                 <div className="grid grid-cols-3 gap-1.5">
                   {familyOptions.map((option) => {
@@ -1004,7 +1013,7 @@ export function PublicTubeWeightCalculator({
                         }
                       >
                         <ShapeGraphic family={option.value} className={selected ? "h-9 w-10 text-white" : "h-9 w-10 text-[#1a5144]"} />
-                        <span className="text-xs font-bold">{option.short}</span>
+                        <span className="text-xs font-bold">{t(option.short)}</span>
                       </button>
                     );
                   })}
@@ -1018,7 +1027,7 @@ export function PublicTubeWeightCalculator({
                 <div className="min-w-0">
                   <div className="mb-1.5 flex items-center justify-between gap-2">
                     <h2 id="calculator-measures" className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-[#52615b]">
-                      Misure
+                      {t("Misure")}
                     </h2>
                     <span className="text-[10px] text-[#7b8782]">mm</span>
                   </div>
@@ -1026,7 +1035,7 @@ export function PublicTubeWeightCalculator({
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                     {family === "round_tube" ? (
                       <label className="text-[10px] font-bold text-[#52615b]">
-                        Diametro D
+                        {t("Diametro D")}
                         <input
                           value={outerDiameter}
                           onChange={(event) => handlePrimaryDimensionChange(setOuterDiameter, event.target.value)}
@@ -1036,7 +1045,7 @@ export function PublicTubeWeightCalculator({
                       </label>
                     ) : (
                       <label className="text-[10px] font-bold text-[#52615b]">
-                        {family === "square_tube" ? "Lato B" : "Base B"}
+                        {t(family === "square_tube" ? "Lato B" : "Base B")}
                         <input
                           value={width}
                           onChange={(event) => handlePrimaryDimensionChange(setWidth, event.target.value)}
@@ -1048,7 +1057,7 @@ export function PublicTubeWeightCalculator({
 
                     {family === "rectangular_tube" ? (
                       <label className="text-[10px] font-bold text-[#52615b]">
-                        Altezza H
+                        {t("Altezza H")}
                         <input
                           value={height}
                           onChange={(event) => setHeight(event.target.value)}
@@ -1059,7 +1068,7 @@ export function PublicTubeWeightCalculator({
                     ) : null}
 
                     <label className="text-[10px] font-bold text-[#52615b]">
-                      Spessore t
+                      {t("Spessore t")}
                       <input
                         value={thickness}
                         onChange={(event) => {
@@ -1073,14 +1082,14 @@ export function PublicTubeWeightCalculator({
 
                     {standard === "geometric" ? (
                       <label className="text-[10px] font-bold text-[#52615b]">
-                        Densità kg/m³
+                        {t("Densità kg/m³")}
                         <input
                           value={density}
                           onChange={(event) => setDensity(event.target.value)}
                           inputMode="decimal"
                           className={inputClass}
                         />
-                        <span className="sr-only">Nel calcolo libero la densità è modificabile. Default acciaio: 7.850 kg/m³.</span>
+                        <span className="sr-only">{t("Nel calcolo libero la densità è modificabile. Default acciaio: 7.850 kg/m³.")}</span>
                       </label>
                     ) : null}
                   </div>
@@ -1092,7 +1101,7 @@ export function PublicTubeWeightCalculator({
                           Assist {currentStandard.label}
                         </p>
                         <p className="text-[9px] text-[#66736e]">
-                          preferito {standardAssist.preferred} mm
+                          {t("preferito")} {standardAssist.preferred} mm
                         </p>
                       </div>
                       <div className="flex min-w-0 flex-1 gap-1 overflow-x-auto pb-0.5">
@@ -1104,7 +1113,7 @@ export function PublicTubeWeightCalculator({
                               key={candidate}
                               type="button"
                               aria-pressed={selected}
-                              aria-label={`${commercialSuggestionLabel(candidate)} mm${preferred ? ", spessore commerciale preferito" : ""}`}
+                              aria-label={`${commercialSuggestionLabel(candidate)} mm${preferred ? `, ${t("spessore commerciale preferito")}` : ""}`}
                               onClick={() => applyCommercialThickness(candidate)}
                               className={
                                 selected
@@ -1125,7 +1134,7 @@ export function PublicTubeWeightCalculator({
                   <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-[1.35fr_0.85fr]">
                     <div>
                       <div className="mb-1 flex items-center justify-between gap-2">
-                        <span className="text-[10px] font-bold text-[#52615b]">Lunghezza barra</span>
+                        <span className="text-[10px] font-bold text-[#52615b]">{t("Lunghezza barra")}</span>
                         <span className="text-[10px] text-[#7b8782]">m</span>
                       </div>
                       <div className="grid grid-cols-5 gap-1">
@@ -1147,18 +1156,18 @@ export function PublicTubeWeightCalculator({
                           value={length}
                           onChange={(event) => setLength(event.target.value)}
                           inputMode="decimal"
-                          aria-label="Lunghezza barra personalizzata"
+                          aria-label={t("Lunghezza barra personalizzata")}
                           className="min-h-11 min-w-0 rounded-xl border border-[#cfd9d5] bg-white px-2 text-center text-sm font-bold text-[#1d2824] outline-none focus:border-[#438d7a]"
                         />
                       </div>
                     </div>
 
                     <label className="text-[10px] font-bold text-[#52615b]">
-                      Numero barre
+                      {t("Numero barre")}
                       <div className="mt-1 grid grid-cols-[36px_1fr_36px] gap-1">
                         <button
                           type="button"
-                          aria-label="Riduci di una barra"
+                          aria-label={t("Riduci di una barra")}
                           onClick={() => {
                             const current = Math.max(1, Math.floor(parseNumber(quantity) ?? 1));
                             setQuantity(String(Math.max(1, current - 1)));
@@ -1175,7 +1184,7 @@ export function PublicTubeWeightCalculator({
                         />
                         <button
                           type="button"
-                          aria-label="Aumenta di una barra"
+                          aria-label={t("Aumenta di una barra")}
                           onClick={() => {
                             const current = Math.max(0, Math.floor(parseNumber(quantity) ?? 0));
                             setQuantity(String(current + 1));
@@ -1191,12 +1200,12 @@ export function PublicTubeWeightCalculator({
                   <div className="mt-3 rounded-xl border border-[#bed3cb] bg-[#edf5f2] p-2.5">
                     <div className="grid grid-cols-1 items-end gap-2 sm:grid-cols-[1fr_auto]">
                       <label className="text-[10px] font-bold text-[#52615b]">
-                        Parti dalle tonnellate · Tonnellate target
+                        {t("Parti dalle tonnellate · Tonnellate target")}
                         <input
                           value={targetTonnes}
                           onChange={(event) => setTargetTonnes(event.target.value)}
                           inputMode="decimal"
-                          placeholder="es. 25"
+                          placeholder={t("es. 25")}
                           className={inputClass}
                         />
                       </label>
@@ -1208,18 +1217,18 @@ export function PublicTubeWeightCalculator({
                         }}
                         className="school-primary-action min-h-11 w-full px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                       >
-                        Usa barre suggerite
+                        {t("Usa barre suggerite")}
                       </button>
                     </div>
                     <p className="sr-only">
-                      Barre necessarie: {values.targetBars ?? "—"}. Tonnellate reali: {values.targetActualTonnes ?? "—"}.
+                      {t("Barre necessarie")}: {values.targetBars ?? "—"}. {t("Tonnellate reali")}: {values.targetActualTonnes ?? "—"}.
                       Per lavorare con barre intere arrotondiamo sempre per eccesso.
                     </p>
                   </div>
 
                   {values.error ? (
                     <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-800">
-                      {values.error}
+                      {t(values.error)}
                     </p>
                   ) : null}
                 </div>
@@ -1232,13 +1241,14 @@ export function PublicTubeWeightCalculator({
                     height={height}
                     thickness={thickness}
                     standard={standard}
+                    locale={locale}
                   />
                 </div>
               </section>
 
               <div className="hidden text-xs text-[#66736e] lg:flex lg:items-center lg:justify-between">
-                <span>Il risultato si aggiorna mentre scrivi.</span>
-                <span>{standard === "geometric" ? "Densità modificabile" : "La densità non è modificabile in modalità normativa."}</span>
+                <span>{t("Il risultato si aggiorna mentre scrivi.")}</span>
+                <span>{t(standard === "geometric" ? "Densità modificabile" : "La densità non è modificabile in modalità normativa.")}</span>
               </div>
             </div>
           </div>
@@ -1251,37 +1261,37 @@ export function PublicTubeWeightCalculator({
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/55">
-                    {standard === "geometric" ? "Peso al metro · calcolo libero" : `Massa lineare · ${currentStandard.label}`}
+                    {standard === "geometric" ? t("Peso al metro · calcolo libero") : `${t("Massa lineare")} · ${currentStandard.label}`}
                   </p>
                   <p className="metric-number mt-1 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">
-                    {values.kgM == null ? "—" : formatNumber(values.kgM, 3)}
+                    {values.kgM == null ? "—" : formatOutput(values.kgM, 3)}
                     <span className="ml-1 text-base font-semibold tracking-normal text-white/65">kg/m</span>
                   </p>
                 </div>
                 <span className="rounded-full border border-white/15 bg-white/10 px-2 py-1 text-[10px] font-bold">
-                  {currentFamily.short}
+                  {t(currentFamily.short)}
                 </span>
               </div>
 
               <div className="mt-3 grid grid-cols-3 gap-1.5">
                 <div className="rounded-xl bg-white/8 p-2">
-                  <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-white/55">Peso per barra</p>
+                  <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-white/55">{t("Peso per barra")}</p>
                   <p className="metric-number mt-1 text-lg font-semibold">
-                    {values.kgBar == null ? "—" : formatNumber(values.kgBar, 2)}
+                    {values.kgBar == null ? "—" : formatOutput(values.kgBar, 2)}
                     <span className="ml-1 text-[10px] text-white/55">kg</span>
                   </p>
                 </div>
                 <div className="rounded-xl bg-white/8 p-2">
-                  <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-white/55">Metri totali</p>
+                  <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-white/55">{t("Metri totali")}</p>
                   <p className="metric-number mt-1 text-lg font-semibold">
-                    {values.totalMeters == null ? "—" : formatNumber(values.totalMeters, 1)}
+                    {values.totalMeters == null ? "—" : formatOutput(values.totalMeters, 1)}
                     <span className="ml-1 text-[10px] text-white/55">m</span>
                   </p>
                 </div>
                 <div className="rounded-xl bg-white/8 p-2">
-                  <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-white/55">Peso totale</p>
+                  <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-white/55">{t("Peso totale")}</p>
                   <p className="metric-number mt-1 text-lg font-semibold">
-                    {values.totalTonnes == null ? "—" : formatNumber(values.totalTonnes, 4)}
+                    {values.totalTonnes == null ? "—" : formatOutput(values.totalTonnes, 4)}
                     <span className="ml-1 text-[10px] text-white/55">t</span>
                   </p>
                 </div>
@@ -1289,8 +1299,8 @@ export function PublicTubeWeightCalculator({
 
               {values.targetBars != null ? (
                 <div className="mt-2 flex items-center justify-between gap-3 rounded-xl bg-white/10 px-3 py-2 text-xs">
-                  <span>Barre necessarie <strong>{values.targetBars}</strong></span>
-                  <span>Tonnellate reali <strong>{values.targetActualTonnes == null ? "—" : formatNumber(values.targetActualTonnes, 4)} t</strong></span>
+                  <span>{t("Barre necessarie")} <strong>{values.targetBars}</strong></span>
+                  <span>{t("Tonnellate reali")} <strong>{values.targetActualTonnes == null ? "—" : formatOutput(values.targetActualTonnes, 4)} t</strong></span>
                 </div>
               ) : null}
             </div>
@@ -1302,24 +1312,32 @@ export function PublicTubeWeightCalculator({
                   disabled={!currentSnapshot}
                   onClick={async () => {
                     if (!currentSnapshot) return;
-                    await copyTextToClipboard(resultText(currentSnapshot));
-                    setActionFeedback("Risultato copiato.");
+                    try {
+                      await copyTextToClipboard(resultText(currentSnapshot));
+                      setActionFeedback("Risultato copiato.");
+                    } catch {
+                      setActionFeedback(locale === "en" ? "Copy failed. Please check clipboard permissions." : "Copia non riuscita: controlla i permessi degli appunti.");
+                    }
                   }}
-                  className="min-h-11 rounded-xl border border-white/15 bg-white/10 px-2 py-2 text-[10px] font-bold hover:bg-white/15 disabled:opacity-40 sm:text-xs"
+                  className="tube-calculator-copy-action min-h-11 rounded-xl border border-white/15 bg-white/10 px-2 py-2 text-[10px] font-bold text-white hover:bg-white/15 disabled:opacity-40 sm:text-xs"
                 >
-                  Copia risultato
+                  {t("Copia risultato")}
                 </button>
                 <button
                   type="button"
                   disabled={!currentSnapshot}
                   onClick={async () => {
                     if (!currentSnapshot) return;
-                    await copyTextToClipboard(shareUrl(currentSnapshot));
-                    setActionFeedback("Link condivisibile copiato.");
+                    try {
+                      await copyTextToClipboard(shareUrl(currentSnapshot));
+                      setActionFeedback("Link condivisibile copiato.");
+                    } catch {
+                      setActionFeedback(locale === "en" ? "Copy failed. Please check clipboard permissions." : "Copia non riuscita: controlla i permessi degli appunti.");
+                    }
                   }}
                   className="min-h-11 rounded-xl border border-white/15 bg-white/10 px-2 py-2 text-[10px] font-bold hover:bg-white/15 disabled:opacity-40 sm:text-xs"
                 >
-                  Copia link
+                  {t("Copia link")}
                 </button>
                 <button
                   type="button"
@@ -1341,68 +1359,74 @@ export function PublicTubeWeightCalculator({
                   }}
                   className={
                     currentIsFavorite
-                      ? "min-h-11 rounded-xl border border-white bg-white px-2 py-2 text-[10px] font-bold text-[#123d34] sm:text-xs"
+                      ? "tube-calculator-favourite-selected min-h-11 rounded-xl border border-white bg-white px-2 py-2 text-[10px] font-bold text-[#123d34] sm:text-xs"
                       : "min-h-11 rounded-xl border border-white/15 bg-white/10 px-2 py-2 text-[10px] font-bold hover:bg-white/15 disabled:opacity-40 sm:text-xs"
                   }
                 >
-                  {currentIsFavorite ? "Preferito ★" : "Aggiungi ai preferiti ☆"}
+                  {t(currentIsFavorite ? "Preferito ★" : "Aggiungi ai preferiti ☆")}
                 </button>
               </div>
 
+              <Link
+                href={locale === "en" ? "/en/distinta" : "/distinta"}
+                className="tube-calculator-rfq-link mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[#c3e5d5] bg-[#e3f4eb] px-4 py-2 text-center text-xs font-bold text-[#123b34] hover:bg-[#ccebdc] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:text-sm"
+              >
+                {locale === "en" ? "Create an RFQ bill · Paste copied results →" : "Crea distinta RFQ · Incolla il risultato copiato →"}
+              </Link>
               <p aria-live="polite" className="mt-2 min-h-4 text-[10px] font-semibold text-white/70">
-                {actionFeedback}
+                {t(actionFeedback)}
               </p>
 
               <details className="mt-2 rounded-xl border border-white/10 bg-white/5">
                 <summary className="cursor-pointer px-3 py-2 text-xs font-bold">
-                  Metodo e provenienza
+                  {t("Metodo e provenienza")}
                 </summary>
                 <div className="border-t border-white/10 px-3 py-2 text-xs leading-5 text-white/65">
                   {standard === "geometric" ? (
                     <>
-                      <p className="font-semibold text-white">Riferimento tecnico trovato</p>
+                      <p className="font-semibold text-white">{t("Riferimento tecnico trovato")}</p>
                       {values.exactReference ? (
                         <>
-                          <p className="mt-1">{formatNumber(values.exactReference.weight_kg_m, 3)} kg/m · {values.exactReference.weight_method === "published" ? "Peso pubblicato" : "Verificato"}</p>
-                          {values.deltaPercent != null ? <p>Scostamento rispetto al calcolo geometrico: {formatNumber(values.deltaPercent, 2)}%.</p> : null}
+                          <p className="mt-1">{formatOutput(values.exactReference.weight_kg_m, 3)} kg/m · {t(values.exactReference.weight_method === "published" ? "Peso pubblicato" : "Verificato")}</p>
+                          {values.deltaPercent != null ? <p>{t("Scostamento rispetto al calcolo geometrico:")} {formatOutput(values.deltaPercent, 2)}%.</p> : null}
                           {values.exactReference.source_url ? (
                             <a href={values.exactReference.source_url} target="_blank" rel="noreferrer" className="mt-1 inline-flex underline">
-                              {values.exactReference.source_provider ?? "Fonte"} ↗
+                              {values.exactReference.source_provider ?? t("Fonte")} ↗
                             </a>
                           ) : null}
                         </>
                       ) : (
                         <>
-                          <p className="mt-1 font-semibold text-white">Nessun peso pubblicato per questa geometria</p>
-                          <p>Il risultato resta un calcolo teorico. Non viene trasformato in un riferimento normativo o in un peso verificato solo perché la geometria è matematicamente valida.</p>
+                          <p className="mt-1 font-semibold text-white">{t("Nessun peso pubblicato per questa geometria")}</p>
+                          <p>{t("Il risultato resta un calcolo teorico. Non viene trasformato in un riferimento normativo o in un peso verificato solo perché la geometria è matematicamente valida.")}</p>
                         </>
                       )}
                     </>
                   ) : (
                     <>
-                      <p className="font-semibold text-white">Metodo della norma applicato · {currentStandard.label}</p>
+                      <p className="font-semibold text-white">{t("Metodo della norma applicato")} · {currentStandard.label}</p>
                       {family !== "round_tube" ? (
                         <p className="mt-1">
-                          rₒ {values.outerRadiusMm == null ? "—" : formatNumber(values.outerRadiusMm, 2)} mm · rᵢ {values.innerRadiusMm == null ? "—" : formatNumber(values.innerRadiusMm, 2)} mm
+                          rₒ {values.outerRadiusMm == null ? "—" : formatOutput(values.outerRadiusMm, 2)} mm · rᵢ {values.innerRadiusMm == null ? "—" : formatOutput(values.innerRadiusMm, 2)} mm
                         </p>
                       ) : null}
                       <p className="mt-1">
-                        Questo valore alimenta anche peso per barra, tonnellaggio e calcolo inverso.
+                        {t("Questo valore alimenta anche peso per barra, tonnellaggio e calcolo inverso.")}
                       </p>
                     </>
                   )}
-                  <p className="mt-1">Area sezione: {values.areaMm2 == null ? "—" : `${formatNumber(values.areaMm2, 2)} mm²`}</p>
+                  <p className="mt-1">{t("Area sezione:")} {values.areaMm2 == null ? "—" : `${formatOutput(values.areaMm2, 2)} mm²`}</p>
                 </div>
               </details>
 
               <details className="mt-2 rounded-xl border border-white/10 bg-white/5">
                 <summary className="cursor-pointer px-3 py-2 text-xs font-bold">
-                  Ultimi calcoli e preferiti
+                  {t("Ultimi calcoli e preferiti")}
                 </summary>
                 <div className="grid gap-3 border-t border-white/10 p-2.5 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                   <div>
                     <div className="flex items-center justify-between">
-                      <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-white/55">Ultimi calcoli</p>
+                      <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-white/55">{t("Ultimi calcoli")}</p>
                       {recentCalculations.length ? (
                         <button
                           type="button"
@@ -1413,7 +1437,7 @@ export function PublicTubeWeightCalculator({
                           }}
                           className="text-[10px] font-bold underline"
                         >
-                          Svuota
+                          {t("Svuota")}
                         </button>
                       ) : null}
                     </div>
@@ -1426,16 +1450,16 @@ export function PublicTubeWeightCalculator({
                           className="block w-full rounded-lg bg-white/8 px-2 py-1.5 text-left text-[10px] hover:bg-white/12"
                         >
                           <span className="block truncate font-bold">{calculationStandardLabel(calculation)} · {calculationDimensionLabel(calculation)}</span>
-                          <span className="text-white/55">{formatNumber(calculation.kgM, 3)} kg/m · Ripristina</span>
+                          <span className="text-white/55">{formatOutput(calculation.kgM, 3)} kg/m · {t("Ripristina")}</span>
                         </button>
                       )) : (
-                        <p className="text-[10px] text-white/55">Nessun calcolo recente.</p>
+                        <p className="text-[10px] text-white/55">{t("Nessun calcolo recente.")}</p>
                       )}
                     </div>
                   </div>
 
                   <div>
-                    <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-white/55">Preferiti</p>
+                    <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-white/55">{t("Preferiti")}</p>
                     <div className="mt-1.5 space-y-1">
                       {favoriteCalculations.length ? favoriteCalculations.slice(0, 4).map((calculation) => (
                         <div key={calculation.key} className="flex items-center gap-1 rounded-lg bg-white/8 p-1">
@@ -1448,7 +1472,7 @@ export function PublicTubeWeightCalculator({
                           </button>
                           <button
                             type="button"
-                            aria-label={`Rimuovi ${calculationDimensionLabel(calculation)} dai preferiti`}
+                            aria-label={`${t("Rimuovi")} ${calculationDimensionLabel(calculation)} ${t("dai preferiti")}`}
                             onClick={() => saveFavorites(favoriteCalculations.filter((item) => item.key !== calculation.key))}
                             className="rounded-md px-2 py-1 text-xs font-bold hover:bg-white/10"
                           >
@@ -1456,14 +1480,14 @@ export function PublicTubeWeightCalculator({
                           </button>
                         </div>
                       )) : (
-                        <p className="text-[10px] text-white/55">Aggiungi ai preferiti le misure che usi più spesso.</p>
+                        <p className="text-[10px] text-white/55">{t("Aggiungi ai preferiti le misure che usi più spesso.")}</p>
                       )}
                     </div>
                   </div>
                 </div>
               </details>
 
-              <p className="sr-only">Nessuna misura o quantità viene inviata al backend per questa funzione.</p>
+              <p className="sr-only">{t("Nessuna misura o quantità viene inviata al backend per questa funzione.")}</p>
             </div>
           </aside>
         </div>
@@ -1472,19 +1496,19 @@ export function PublicTubeWeightCalculator({
       <section className="rounded-3xl border border-[#dce2df] bg-white p-5 sm:p-7">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Dimensioni di riferimento</p>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">{t("Dimensioni di riferimento")}</p>
             <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">
-              {familyCount} pesi verificati per {currentFamily.label.toLowerCase()}
+              {familyCount} {t("pesi verificati per")} {t(currentFamily.label).toLowerCase()}
             </h2>
             <p className="mt-1 text-sm text-[#66736e]">
-              Cerca una misura per confrontare il calcolo con valori già presenti nel catalogo tecnico.
+              {t("Cerca una misura per confrontare il calcolo con valori già presenti nel catalogo tecnico.")}
             </p>
           </div>
           <input
             value={referenceQuery}
             onChange={(event) => setReferenceQuery(event.target.value)}
-            placeholder="Cerca 168,3 × 6,3..."
-            aria-label="Cerca dimensione di riferimento"
+            placeholder={t("Cerca 168,3 × 6,3...")}
+            aria-label={t("Cerca dimensione di riferimento")}
             className="h-11 w-full rounded-xl border border-[#dce2df] px-3 text-base outline-none focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8] sm:max-w-xs"
           />
         </div>
@@ -1493,10 +1517,10 @@ export function PublicTubeWeightCalculator({
           <table className="min-w-full text-left text-sm">
             <thead className="school-table-head border-b border-[#dce2df] text-xs uppercase tracking-wide">
               <tr>
-                <th className="px-2 py-3 font-semibold">Dimensione</th>
-                <th className="px-2 py-3 font-semibold">Peso</th>
-                <th className="px-2 py-3 font-semibold">Metodo</th>
-                <th className="px-2 py-3 font-semibold">Fonte</th>
+                <th className="px-2 py-3 font-semibold">{t("Dimensione")}</th>
+                <th className="px-2 py-3 font-semibold">{t("Peso")}</th>
+                <th className="px-2 py-3 font-semibold">{t("Metodo")}</th>
+                <th className="px-2 py-3 font-semibold">{t("Fonte")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#edf1f6]">
@@ -1510,14 +1534,14 @@ export function PublicTubeWeightCalculator({
                       {referenceLabel(reference)}
                     </Link>
                   </td>
-                  <td className="px-2 py-3 text-[#40516a]">{formatNumber(reference.weight_kg_m, 3)} kg/m</td>
+                  <td className="px-2 py-3 text-[#40516a]">{formatOutput(reference.weight_kg_m, 3)} kg/m</td>
                   <td className="px-2 py-3 text-[#66736e]">
-                    {reference.weight_method === "published" ? "Pubblicato" : "Verificato"}
+                    {t(reference.weight_method === "published" ? "Pubblicato" : "Verificato")}
                   </td>
                   <td className="px-2 py-3 text-[#66736e]">
                     {reference.source_url ? (
                       <a href={reference.source_url} target="_blank" rel="noreferrer" className="school-inline-link">
-                        {reference.source_provider ?? "Fonte"} ↗
+                        {reference.source_provider ?? t("Fonte")} ↗
                       </a>
                     ) : reference.source_provider ?? "—"}
                   </td>
@@ -1528,7 +1552,7 @@ export function PublicTubeWeightCalculator({
         </div>
         {familyCount > familyReferences.length ? (
           <p className="mt-3 text-xs text-[#66736e]">
-            Mostrati i primi {familyReferences.length} riferimenti corrispondenti. Usa la ricerca per restringere la lista.
+            {t("Mostrati i primi")} {familyReferences.length} {t("riferimenti corrispondenti. Usa la ricerca per restringere la lista.")}
           </p>
         ) : null}
       </section>
