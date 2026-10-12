@@ -2861,3 +2861,40 @@ textarea {
 .investor-plan-cta:hover {
   background-color: #e6f3ed !important;
 }
+
+
+/* CONTACT-CTA1 — keep the public Get in touch CTA text readable on both
+   homepages even when global link styles or WebKit text fill are inherited. */
+#get-in-touch .public-contact-email {
+  background-color: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #123b34 !important;
+  -webkit-text-fill-color: #123b34 !important;
+}
+#get-in-touch .public-contact-email:hover {
+  background-color: #e6f3ed !important;
+}
+#get-in-touch .public-contact-linkedin {
+  background-color: transparent !important;
+  border-color: #93bbab !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+#get-in-touch .public-contact-linkedin:hover {
+  background-color: #26564a !important;
+}
+#get-in-touch .public-contact-investor {
+  background-color: #dff3e9 !important;
+  border-color: #c7e9d9 !important;
+  color: #123b34 !important;
+  -webkit-text-fill-color: #123b34 !important;
+}
+#get-in-touch .public-contact-investor:hover {
+  background-color: #c7e9d9 !important;
+}
+#get-in-touch .public-contact-email:focus-visible,
+#get-in-touch .public-contact-linkedin:focus-visible,
+#get-in-touch .public-contact-investor:focus-visible {
+  outline: 3px solid #f2cf9c;
+  outline-offset: 3px;
+}
