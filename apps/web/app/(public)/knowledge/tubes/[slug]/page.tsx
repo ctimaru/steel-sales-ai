@@ -11,6 +11,7 @@ import {
   type PublicTubeRelatedDimension,
 } from "@/lib/public-knowledge";
 import { absoluteUrl } from "@/lib/site";
+import { referenceEvidence, sourceMethodLabel, sourceStandardLabel } from "@/lib/tube-reference-evidence";
 import {
   getTubeFamilyByProductFamily,
   tubeFamilyHubPath,
@@ -149,6 +150,7 @@ export default async function TubeDimensionPage({
 
   const size = dimensionLabel(dimension);
   const product = familyName(dimension.product_family);
+  const provenance = referenceEvidence(dimension);
   const family = getTubeFamilyByProductFamily(dimension.product_family);
   const sizeSlug = tubeSizeSlug(dimension);
   const sizeHubs = family ? await listPublicTubeSizeHubs(family.slug) : [];
@@ -330,7 +332,7 @@ export default async function TubeDimensionPage({
             già presenti nel catalogo.
           </>
         }
-        badges={["Peso pubblicato", dimension.source_provider]}
+        badges={[sourceMethodLabel(provenance.declaredMethod, "it"), sourceStandardLabel(provenance.standard, "it"), dimension.source_provider]}
       />
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -412,6 +414,15 @@ export default async function TubeDimensionPage({
           Scuola Smart Steel Sales mostra la fonte pubblica e mantiene separati i dati di catalogo dai calcoli geometrici.
           Un peso pubblicato non sostituisce le tolleranze, la norma di prodotto o il certificato della fornitura.
         </p>
+        <div className="mt-4 rounded-xl border border-[#d4e2db] bg-[#f5f9f7] p-4 text-sm leading-6 text-[#234e42]">
+          <p><strong>Metodo dichiarato:</strong> {sourceMethodLabel(provenance.declaredMethod, "it")}</p>
+          <p><strong>Norma del documento:</strong> {sourceStandardLabel(provenance.standard, "it")}{provenance.grade ? " · " + provenance.grade : ""}</p>
+          <p className="mt-2 text-xs leading-5 text-[#52615b]">
+            {provenance.standard === "en10216-2"
+              ? "La fonte EN 10216-2/P265GH riguarda tubi per impieghi a pressione: la massa non certifica conformità EN 10219 o EN 10210 dei profilati strutturali."
+              : "La compatibilità con EN 10219 o EN 10210 non va dedotta dalla sola geometria. Confronta sempre le norme di prodotto e la documentazione della fornitura."}
+          </p>
+        </div>
         <a
           href={dimension.source_url}
           target="_blank"
