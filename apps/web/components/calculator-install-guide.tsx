@@ -39,7 +39,7 @@ export function CalculatorInstallGuide({ locale = "it" }: { locale?: "it" | "en"
             {english ? <>Open your browser menu and choose <strong>Install app</strong> or <strong>Add to Home Screen</strong>. Your shortcut opens Smart Steel Sales like an app, with direct access to the calculator.</> : <>Apri il menu del browser e scegli <strong>Installa app</strong> oppure <strong>Aggiungi alla schermata Home</strong>. Il collegamento apre Smart Steel Sales in modalità app e il manifest include un accesso rapido al calcolatore.</>}
           </p>
         )}
-        <p className="mt-2 text-[10px] leading-4 text-[#7b8782]">
+        <p className="mt-2 text-xs leading-5 text-[#52615b]">
           {english ? "No account required to use the calculator." : "Nessun account richiesto per usare il calcolatore."}
         </p>
       </div>
