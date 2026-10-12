@@ -353,6 +353,44 @@ export function ProductAnalyticsDashboard({
         <p className="mt-1 text-xs text-[#66736e]">Percorso alternativo gratuito: copia conclusa. Non è una RFQ creata o inviata.</p>
       </section>
 
+      <section className="rounded-3xl border border-[#dce2df] bg-white p-5 sm:p-6">
+        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#1a5144]">BD17 · Esperimento CTA</p>
+        <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">Dalla distinta gratuita alla scelta dei fornitori</h2>
+        <p className="mt-2 max-w-3xl text-xs leading-5 text-[#66736e]">
+          A/B 50/50 sul messaggio di accesso nella distinta pubblica. La variante resta nella singola
+          scheda del browser. Visualizzazioni e clic si contano una volta per scheda e solo con consenso
+          analytics valido. Il clic apre il login: non è un&apos;iscrizione, una RFQ completata o un utente unico.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {([snapshot.bd17CtaExperiment.control, snapshot.bd17CtaExperiment.clarity]).map((arm) => (
+            <div key={arm.label} className="rounded-2xl border border-[#e1e7e4] bg-[#f8faf9] p-4">
+              <h3 className="text-sm font-bold text-[#173f35]">{arm.label}</h3>
+              <p className="mt-2 text-xs text-[#52615b]">
+                <strong className="tabular-nums">{formatCount(arm.views)}</strong> visualizzazioni qualificate ·
+                <strong className="ml-1 tabular-nums">{formatCount(arm.clicks)}</strong> clic verso login
+              </p>
+              <p className="mt-3 text-2xl font-semibold tabular-nums text-[#173f35]">
+                {arm.clickRatePercent == null ? "—" : arm.clickRatePercent.toLocaleString("it-IT", { maximumFractionDigits: 1 }) + "%"}
+              </p>
+              <p className="mt-1 text-[11px] text-[#718078]">
+                {arm.consistency === "invalid_counts"
+                  ? "Conteggi non confrontabili: alcuni clic ricadono fuori dalla finestra delle visualizzazioni."
+                  : "Rapporto clic / visualizzazioni qualificate; non conversione utenti unici."}
+              </p>
+            </div>
+          ))}
+        </div>
+        <p role="status" className="mt-4 text-xs leading-5 text-[#52615b]">
+          {snapshot.bd17CtaExperiment.sampleSufficient
+            ? "Entrambe le versioni hanno almeno 100 visualizzazioni misurate. Risultato esplorativo: non prova statistica, nessun vincitore automatico."
+            : "Campione insufficiente per confrontare le versioni: servono almeno 100 visualizzazioni misurate per variante. Nessuna conclusione sul vincitore."}
+        </p>
+        <p className="mt-1 text-[11px] text-[#87938e]">
+          Il consenso può ridurre la copertura del test. I dati sono aggregati per eventi, senza identificatori condivisi
+          tra login e RFQ; le differenze nel funnel BD16 non dimostrano abbandoni individuali.
+        </p>
+      </section>
+
       <Funnel
         title="Utility → RFQ Hub"
         subtitle="Misura il percorso dalle utility concrete fino all'avvio e dispatch di una RFQ multi-fornitore."

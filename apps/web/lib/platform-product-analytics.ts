@@ -25,6 +25,21 @@ export type AnalyticsFunnelStep = {
   conversionFromPrevious: number | null;
 };
 
+export type Bd17CtaArmSnapshot = {
+  label: string;
+  views: number;
+  clicks: number;
+  clickRatePercent: number | null;
+  consistency: "ok" | "invalid_counts";
+};
+
+export type Bd17ExperimentSnapshot = {
+  control: Bd17CtaArmSnapshot;
+  clarity: Bd17CtaArmSnapshot;
+  minimumViewsPerArm: number;
+  sampleSufficient: boolean;
+};
+
 export type PlatformAnalyticsSnapshot = {
   configured: boolean;
   generatedAt: string;
@@ -50,6 +65,7 @@ export type PlatformAnalyticsSnapshot = {
   activationFunnel: AnalyticsFunnelStep[];
   rfqConversionFunnel: AnalyticsFunnelStep[];
   rfqBillCopies: number;
+  bd17CtaExperiment: Bd17ExperimentSnapshot;
 };
 
 const RANGE_CONFIG: Record<
@@ -186,6 +202,28 @@ function buildFunnel(
   });
 }
 
+function bd17Experiment(eventMap: Map<string, number>): Bd17ExperimentSnapshot {
+  const arm = (key: "control" | "clarity", label: string): Bd17CtaArmSnapshot => {
+    const views = eventMap.get("bd17_cta_" + key + "_view") ?? 0;
+    const clicks = eventMap.get("bd17_cta_" + key + "_click") ?? 0;
+    // Counts span calendar windows; a click's exposure may lie just outside
+    // the range. Don't display >100% or falsely truncate it to 100%.
+    const valid = views >= clicks;
+    return {
+      label, views, clicks,
+      clickRatePercent: views > 0 && valid ? Math.round((clicks / views) * 1000) / 10 : null,
+      consistency: valid ? "ok" : "invalid_counts",
+    };
+  };
+  const control = arm("control", "Testo attuale");
+  const clarity = arm("clarity", "Messaggio esplicito");
+  const minimumViewsPerArm = 100;
+  return { control, clarity, minimumViewsPerArm,
+    sampleSufficient: control.views >= minimumViewsPerArm &&
+      clarity.views >= minimumViewsPerArm &&
+      control.consistency === "ok" && clarity.consistency === "ok" };
+}
+
 function emptySnapshot(
   range: AnalyticsRangeKey,
   error: string | null,
@@ -215,6 +253,7 @@ function emptySnapshot(
     activationFunnel: buildFunnel(ACTIVATION_FUNNEL, new Map()),
     rfqConversionFunnel: buildFunnel(RFQ_CONVERSION_FUNNEL, new Map()),
     rfqBillCopies: 0,
+    bd17CtaExperiment: bd17Experiment(new Map()),
   };
 }
 
@@ -396,6 +435,7 @@ export async function getPlatformAnalyticsSnapshot(
       activationFunnel: buildFunnel(ACTIVATION_FUNNEL, eventMap),
       rfqConversionFunnel: buildFunnel(RFQ_CONVERSION_FUNNEL, eventMap),
       rfqBillCopies: eventMap.get("rfq_bill_copied") ?? 0,
+      bd17CtaExperiment: bd17Experiment(eventMap),
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Analytics unavailable";
