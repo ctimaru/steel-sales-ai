@@ -69,7 +69,9 @@ test("WC6 hardens one-hand mobile interaction without removing the desktop cockp
   assert.doesNotMatch(calculator, /overflow-y-auto/);
   assert.match(calculator, /safe-area-inset-bottom/);
   assert.match(calculator, /min-h-11/);
-  assert.match(calculator, /grid grid-cols-5 gap-1/);
+  // CALC-UX3 keeps every length preset >=44px and allows wrapping on narrow columns.
+  assert.match(calculator, /flex flex-wrap gap-1/);
+  assert.match(calculator, /min-h-11 min-w-11 flex-1/);
   assert.match(calculator, /grid grid-cols-1 gap-2 sm:grid-cols-\[1\.35fr_0\.85fr\]/);
   assert.doesNotMatch(calculator, /lg:h-\[calc\(100svh-6\.75rem\)\]/);
 });
