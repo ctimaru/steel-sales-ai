@@ -171,7 +171,7 @@ export function EnglishRfqBillBuilder() {
     setLines((current) => current.length === 1 ? current : current.filter((line) => line.id !== id));
     setCopyState("idle");
   }
-  function field(item: RfqLine, key: keyof Pick<RfqLine, "grade" | "diameter" | "width" | "height" | "thickness" | "bars" | "length" | "targetPricePerTonne | "density">, title: string, placeholder?: string) {
+  function field(item: RfqLine, key: keyof Pick<RfqLine, "grade" | "diameter" | "width" | "height" | "thickness" | "bars" | "length" | "targetPricePerTonne" | "density">, title: string, placeholder?: string) {
     const inputId = `rfq-en-${item.id}-${key}`;
     return (
       <label key={key} htmlFor={inputId} className={label}>
