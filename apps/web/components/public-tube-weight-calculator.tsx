@@ -756,7 +756,7 @@ export function PublicTubeWeightCalculator({
   }
 
   function calculationStandardLabel(calculation: StoredTubeCalculation) {
-    return standardOptions.find((option) => option.value === calculation.standard)?.label ?? calculation.standard;
+    return t(standardOptions.find((option) => option.value === calculation.standard)?.label ?? calculation.standard);
   }
 
   function resultText(calculation: StoredTubeCalculation) {
@@ -1450,7 +1450,7 @@ export function PublicTubeWeightCalculator({
                           className="block w-full rounded-lg bg-white/8 px-2 py-1.5 text-left text-[10px] hover:bg-white/12"
                         >
                           <span className="block truncate font-bold">{calculationStandardLabel(calculation)} · {calculationDimensionLabel(calculation)}</span>
-                          <span className="text-white/55">{formatOutput(calculation.kgM, 3)} kg/m · Ripristina</span>
+                          <span className="text-white/55">{formatOutput(calculation.kgM, 3)} kg/m · {t("Ripristina")}</span>
                         </button>
                       )) : (
                         <p className="text-[10px] text-white/55">{t("Nessun calcolo recente.")}</p>
