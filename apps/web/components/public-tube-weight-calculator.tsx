@@ -521,7 +521,7 @@ export function PublicTubeWeightCalculator({
   locale?: TubeCalculatorLocale;
 }) {
   const t = (text: string) => tubeCalculatorText(text, locale);
-  const formatOutput = (value: number, digits = 3) => formatOutput(value, digits, locale);
+  const formatOutput = (value: number, digits = 3) => formatNumber(value, digits, locale);
   const initialStandard = initialValues?.standard ?? "en10219";
   const [standard, setStandard] = useState<StandardValue>(initialStandard);
   const [family, setFamily] = useState<TubeFamily>(initialValues?.family ?? "round_tube");
@@ -1355,7 +1355,7 @@ export function PublicTubeWeightCalculator({
                   }}
                   className={
                     currentIsFavorite
-                      ? "min-h-11 rounded-xl border border-white bg-white px-2 py-2 text-[10px] font-bold text-[#123d34] sm:text-xs"
+                      ? "tube-calculator-favourite-selected min-h-11 rounded-xl border border-white bg-white px-2 py-2 text-[10px] font-bold text-[#123d34] sm:text-xs"
                       : "min-h-11 rounded-xl border border-white/15 bg-white/10 px-2 py-2 text-[10px] font-bold hover:bg-white/15 disabled:opacity-40 sm:text-xs"
                   }
                 >
