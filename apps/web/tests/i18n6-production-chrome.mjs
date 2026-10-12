@@ -1,6 +1,6 @@
 /**
  * I18N6 public conversion acceptance. No signup, company search submission,
- * auth requests, invites, legal acceptance or RFQ writes allowed.
+ * auth requests, invites, legal acceptance or RFQ writes allowed.\n * Known external Google consent-mode telemetry is also blocked, but not counted\n * as a first-party application mutation.
  * On PR the new routes may not yet be deployed; run strictly only on push/main
  * or manually on production.
  */
@@ -21,7 +21,22 @@ try {
     await context.route("**/*", async route => {
       const method = route.request().method();
       if (method !== "GET" && method !== "HEAD") {
-        writes++;
+        const url = new URL(route.request().url());
+        const googleAnalyticsHost =
+          url.hostname === "google-analytics.com" ||
+          url.hostname.endsWith(".google-analytics.com") ||
+          url.hostname === "google.com" ||
+          url.hostname.endsWith(".google.com") ||
+          url.hostname === "googletagmanager.com" ||
+          url.hostname.endsWith(".googletagmanager.com");
+        const blockedTelemetry = method === "POST" && googleAnalyticsHost &&
+          (url.pathname === "/td" || url.pathname === "/g/collect");
+        if (!blockedTelemetry) {
+          writes++;
+          // Diagnostics never include query parameters, bodies or headers.
+          console.error("I18N6 BLOCKED NON-READONLY REQUEST", method, url.hostname, url.pathname.split("/").slice(0, 3).join("/"));
+        }
+        // Every POST, including telemetry, is aborted before reaching production.
         await route.abort();
       } else {
         await route.continue();
