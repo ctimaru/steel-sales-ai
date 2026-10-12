@@ -40,6 +40,30 @@ export type Bd17ExperimentSnapshot = {
   sampleSufficient: boolean;
 };
 
+
+export type Bd18ReadinessState =
+  | "token_missing" | "api_error" | "partial_data" | "awaiting_data"
+  | "awaiting_exposure" | "invalid_counts" | "sample_imbalance"
+  | "collecting" | "exploratory_ready";
+
+export type Bd18ReadinessCheck = {
+  label: string;
+  status: "ok" | "pending" | "warning";
+  detail: string;
+};
+
+export type Bd18Readiness = {
+  state: Bd18ReadinessState;
+  usableForComparison: boolean;
+  observedFunnelSteps: number;
+  funnelSteps: number;
+  totalExposures: number;
+  balanceZ: number | null;
+  deltaClickRatePp: number | null;
+  checks: Bd18ReadinessCheck[];
+  nextAction: string;
+};
+
 export type PlatformAnalyticsSnapshot = {
   configured: boolean;
   generatedAt: string;
@@ -66,6 +90,7 @@ export type PlatformAnalyticsSnapshot = {
   rfqConversionFunnel: AnalyticsFunnelStep[];
   rfqBillCopies: number;
   bd17CtaExperiment: Bd17ExperimentSnapshot;
+  bd18Readiness: Bd18Readiness;
 };
 
 const RANGE_CONFIG: Record<
@@ -224,6 +249,85 @@ function bd17Experiment(eventMap: Map<string, number>): Bd17ExperimentSnapshot {
       control.consistency === "ok" && clarity.consistency === "ok" };
 }
 
+
+/**
+ * BD18 decision guard — no extra Vercel requests, no visitor identifiers.
+ * The experiment unit is one consenting browser TAB, not a person / customer.
+ * 50:50 mismatch uses a conservative normal approximation z threshold 2.576.
+ * A ready result permits DESCRIPTIVE comparison only; no winner/statistical
+ * significance because visitors are not linked and consent may bias samples.
+ */
+export function assessBd18Readiness(input: {
+  state: PlatformAnalyticsSnapshot["ingestion"]["state"];
+  experiment: Bd17ExperimentSnapshot;
+  funnel: AnalyticsFunnelStep[];
+}): Bd18Readiness {
+  const { state: collector, experiment, funnel } = input;
+  const a = experiment.control;
+  const b = experiment.clarity;
+  const totalExposures = a.views + b.views;
+  const hasAnyExposure = totalExposures > 0;
+  const badCounts = a.consistency === "invalid_counts" || b.consistency === "invalid_counts" ||
+    !Number.isSafeInteger(a.views) || !Number.isSafeInteger(b.views) ||
+    !Number.isSafeInteger(a.clicks) || !Number.isSafeInteger(b.clicks) ||
+    a.views < 0 || b.views < 0 || a.clicks < 0 || b.clicks < 0;
+  const balanceZ = totalExposures >= 100 && Number.isSafeInteger(totalExposures)
+    ? Math.round(((a.views - b.views) / Math.sqrt(totalExposures)) * 100) / 100
+    : null;
+  const imbalanced = balanceZ !== null && Math.abs(balanceZ) > 2.576;
+  const enoughSample = a.views >= experiment.minimumViewsPerArm &&
+    b.views >= experiment.minimumViewsPerArm;
+  const observedFunnelSteps = funnel.filter(s => s.value > 0).length;
+  let result: Bd18ReadinessState;
+  if (collector === "token_missing") result = "token_missing";
+  else if (collector === "api_error") result = "api_error";
+  else if (collector === "partial_data") result = "partial_data";
+  else if (collector === "awaiting_data") result = "awaiting_data";
+  else if (badCounts) result = "invalid_counts";
+  else if (!hasAnyExposure) result = "awaiting_exposure";
+  else if (imbalanced) result = "sample_imbalance";
+  else if (!enoughSample) result = "collecting";
+  else result = "exploratory_ready";
+
+  const ready = result === "exploratory_ready";
+  const delta = ready && a.clickRatePercent !== null && b.clickRatePercent !== null
+    ? Math.round((b.clickRatePercent - a.clickRatePercent) * 10) / 10
+    : null;
+  const nextAction: Record<Bd18ReadinessState, string> = {
+    token_missing: "Verifica la disponibilità del token Vercel Analytics sul server. Non inserire credenziali nella pagina.",
+    api_error: "Controlla accesso e permessi alla Web Analytics API, senza interpretare i contatori mancanti come zero.",
+    partial_data: "Riconcilia i contatori Vercel e le aggregazioni eventi prima di valutare l’esperimento.",
+    awaiting_data: "Verifica che Web Analytics sia attiva e che il dominio stia ricevendo visite nel periodo selezionato.",
+    awaiting_exposure: "Verifica l’attivazione dell’esperimento su /distinta, la visibilità del CTA e il consenso analytics. Nessun dato A/B osservato.",
+    invalid_counts: "Verifica intervallo temporale e qualità dell’aggregazione: i clic superano le impression o i conteggi non sono validi.",
+    sample_imbalance: "Verifica randomizzazione 50/50, consenso, traffico e filtri: le esposizioni mostrano uno sbilanciamento anomalo.",
+    collecting: "Continua a raccogliere esposizioni: servono almeno 100 visualizzazioni misurate per ciascuna variante.",
+    exploratory_ready: "Confronta i rapporti clic/visualizzazioni come segnale esplorativo. Non scegliere un vincitore senza un disegno sperimentale più rigoroso.",
+  };
+  const check = (label: string, status: Bd18ReadinessCheck["status"], detail: string): Bd18ReadinessCheck =>
+    ({ label, status, detail });
+  const checks: Bd18ReadinessCheck[] = [
+    check("API Analytics", collector === "receiving" ? "ok" : collector === "awaiting_data" ? "pending" : "warning",
+      collector === "receiving" ? "Dati raccolti nel periodo" : "Connessione o completezza del flusso da verificare"),
+    check("Eventi funnel BD16", observedFunnelSteps > 0 ? "ok" : "pending",
+      observedFunnelSteps + "/" + funnel.length + " passaggi con eventi osservati (non coorti individuali)"),
+    check("Esposizione esperimento BD17", hasAnyExposure ? "ok" : "pending",
+      totalExposures + " visualizzazioni misurate, ripartite fra due varianti"),
+    check("Integrità dei conteggi", badCounts ? "warning" : "ok",
+      badCounts ? "Clic maggiori delle visualizzazioni o contatori invalidi" : "Nessuna anomalia di conteggio rilevata"),
+    check("Allocazione 50/50", imbalanced ? "warning" : balanceZ === null ? "pending" : "ok",
+      balanceZ === null ? "Diagnosi dopo almeno 100 esposizioni complessive" :
+        "Z della ripartizione = " + balanceZ.toFixed(2) + (imbalanced ? " · possibile sbilanciamento" : " · nessun allarme")),
+    check("Campione A/B", enoughSample ? "ok" : "pending",
+      a.views + " / " + b.views + " visualizzazioni, minimo " + experiment.minimumViewsPerArm + " per variante"),
+  ];
+  return {
+    state: result, usableForComparison: ready,
+    observedFunnelSteps, funnelSteps: funnel.length, totalExposures,
+    balanceZ, deltaClickRatePp: delta, checks, nextAction: nextAction[result],
+  };
+}
+
 function emptySnapshot(
   range: AnalyticsRangeKey,
   error: string | null,
@@ -254,6 +358,11 @@ function emptySnapshot(
     rfqConversionFunnel: buildFunnel(RFQ_CONVERSION_FUNNEL, new Map()),
     rfqBillCopies: 0,
     bd17CtaExperiment: bd17Experiment(new Map()),
+    bd18Readiness: assessBd18Readiness({
+      state: error === "VERCEL_ANALYTICS_TOKEN_MISSING" ? "token_missing" : "api_error",
+      experiment: bd17Experiment(new Map()),
+      funnel: buildFunnel(RFQ_CONVERSION_FUNNEL, new Map()),
+    }),
   };
 }
 
@@ -372,7 +481,8 @@ export async function getPlatformAnalyticsSnapshot(
     const inconsistentVisitors =
       aggregatePageviews > 0 && (countedVisitors === null || countedVisitors === 0);
     const inconsistentEvents =
-      aggregateEvents > 0 && (countedEvents === null || countedEvents === 0);
+      (aggregateEvents > 0 && (countedEvents === null || countedEvents === 0 || aggregateEvents > countedEvents)) ||
+      ((countedEvents ?? 0) > 0 && !Array.isArray(eventsResponse.data));
     const inconsistentEventVisitors =
       aggregateEvents > 0 && (countedEventVisitors === null || countedEventVisitors === 0);
 
@@ -392,6 +502,14 @@ export async function getPlatformAnalyticsSnapshot(
       eventTotal === null ||
       eventVisitors === null;
 
+    const ingestionState: PlatformAnalyticsSnapshot["ingestion"]["state"] =
+      partialData ? "partial_data" : hasData ? "receiving" : "awaiting_data";
+    const rfqFunnel = buildFunnel(RFQ_CONVERSION_FUNNEL, eventMap);
+    const bd17 = bd17Experiment(eventMap);
+    const bd18 = assessBd18Readiness({
+      state: ingestionState, experiment: bd17, funnel: rfqFunnel,
+    });
+
     return {
       configured: true,
       generatedAt: new Date().toISOString(),
@@ -400,7 +518,7 @@ export async function getPlatformAnalyticsSnapshot(
       error: null,
       ingestion: {
         collector: "an1.2",
-        state: partialData ? "partial_data" : hasData ? "receiving" : "awaiting_data",
+        state: ingestionState,
       },
       totals: {
         pageviews,
@@ -433,9 +551,10 @@ export async function getPlatformAnalyticsSnapshot(
       events,
       acquisitionFunnel: buildFunnel(ACQUISITION_FUNNEL, eventMap),
       activationFunnel: buildFunnel(ACTIVATION_FUNNEL, eventMap),
-      rfqConversionFunnel: buildFunnel(RFQ_CONVERSION_FUNNEL, eventMap),
+      rfqConversionFunnel: rfqFunnel,
       rfqBillCopies: eventMap.get("rfq_bill_copied") ?? 0,
-      bd17CtaExperiment: bd17Experiment(eventMap),
+      bd17CtaExperiment: bd17,
+      bd18Readiness: bd18,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Analytics unavailable";

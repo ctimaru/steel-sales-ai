@@ -186,6 +186,55 @@ function Funnel({
   );
 }
 
+
+function Bd18ReadinessPanel({ snapshot }: { snapshot: PlatformAnalyticsSnapshot }) {
+  const { bd18Readiness: read, ingestion } = snapshot;
+  const headlines: Record<typeof read.state, string> = {
+    token_missing: "Accesso ai dati non configurato",
+    api_error: "Accesso alla Web Analytics API non riuscito",
+    partial_data: "Aggregazioni parziali · valutazione sospesa",
+    awaiting_data: "Nessun traffico confermato",
+    awaiting_exposure: "Traffico presente · nessuna esposizione BD17 misurata",
+    invalid_counts: "Anomalia fra clic e visualizzazioni",
+    sample_imbalance: "Ripartizione A/B da verificare",
+    collecting: "Esperimento in raccolta",
+    exploratory_ready: "Dati pronti per una lettura esplorativa",
+  };
+  return (
+    <section aria-labelledby="bd18-readiness" className="rounded-3xl border border-[#dce2df] bg-white p-4 sm:p-6">
+      <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#1a5144]">BD18 · Funnel Data Readiness</p>
+      <h2 id="bd18-readiness" className="mt-2 text-lg font-semibold text-[#173f35]">
+        {headlines[read.state]}
+      </h2>
+      <p className="mt-2 text-xs leading-5 text-[#52615b]">
+        Fonte: Web Analytics aggregata, {snapshot.rangeLabel.toLowerCase()}. Qualità raccolta: {ingestion.state}.
+        La pubblicazione Vercel non garantisce che la raccolta degli eventi sia attiva.
+      </p>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+        {read.checks.map((check) => (
+          <div key={check.label} className="rounded-xl border border-[#e2e9e5] bg-[#fafcfb] p-3">
+            <p className="text-xs font-bold text-[#17483a]">{check.label}</p>
+            <p className="mt-1 text-xs leading-5 text-[#52615b]">{check.detail}</p>
+            <p className="mt-1 text-[11px] font-medium text-[#697b72]">
+              {check.status === "ok" ? "Riscontro presente" : check.status === "warning" ? "Richiede verifica" : "In attesa"}
+            </p>
+          </div>
+        ))}
+      </div>
+      <p role="status" className="mt-4 border-t border-[#e0e8e3] pt-3 text-xs leading-5 font-semibold text-[#17483a]">
+        Prossima azione: {read.nextAction}
+      </p>
+      {read.usableForComparison && read.deltaClickRatePp !== null ? (
+        <p className="mt-2 text-xs leading-5 text-[#52615b]">
+          Differenza osservata (messaggio esplicito − testo attuale):
+          <strong className="ml-1 tabular-nums">{read.deltaClickRatePp > 0 ? "+" : ""}{read.deltaClickRatePp.toLocaleString("it-IT")} punti percentuali</strong>.
+          Solo indicatore descrittivo: non prova causale, non vincitore, non conversione a registrazione/RFQ.
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
 export function ProductAnalyticsDashboard({
   snapshot,
 }: {
@@ -193,6 +242,7 @@ export function ProductAnalyticsDashboard({
 }) {
   if (!snapshot.configured) {
     return (
+      <div className="space-y-4">
       <section className="rounded-3xl border border-[#e7d4ae] bg-[#fffaf1] p-6 sm:p-8">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#8b5d21]">
           Connessione Analytics
@@ -211,17 +261,22 @@ export function ProductAnalyticsDashboard({
           pagina inizierà a mostrare i dati senza altre modifiche.
         </p>
       </section>
+      <Bd18ReadinessPanel snapshot={snapshot} />
+      </div>
     );
   }
 
   if (snapshot.error) {
     return (
+      <div className="space-y-4">
       <section className="rounded-3xl border border-[#efc5bd] bg-[#fff5f3] p-6">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#9f2f24]">
           Analytics temporaneamente non disponibile
         </p>
-        <p className="mt-2 text-sm leading-6 text-[#744b45]">{snapshot.error}</p>
+        <p className="mt-2 text-sm leading-6 text-[#744b45]">Impossibile leggere le aggregazioni. Verifica accesso API, permessi del progetto e disponibilità del servizio.</p>
       </section>
+      <Bd18ReadinessPanel snapshot={snapshot} />
+      </div>
     );
   }
 
@@ -340,6 +395,8 @@ export function ProductAnalyticsDashboard({
         subtitle="Misura quante persone passano dalla ricerca azienda alla richiesta aziendale effettivamente inviata."
         steps={snapshot.acquisitionFunnel}
       />
+
+      <Bd18ReadinessPanel snapshot={snapshot} />
 
       <Funnel
         title="BD16 · Conversione calcolatore → RFQ"
