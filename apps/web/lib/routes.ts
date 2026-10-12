@@ -130,6 +130,7 @@ export const appRoutes = {
     pilot: "/platform/pilot",
     businessPlan: "/platform/business-plan",
     businessPlanDetails: "/platform/business-plan/details",
+    businessPlanMarketSizing: "/platform/business-plan/market-sizing",
     marketing: "/platform/marketing",
     marketingOnePager: "/platform/marketing/one-pager",
     marketingPitchDeck: "/platform/marketing/pitch-deck",

@@ -3,16 +3,18 @@ import Link from "next/link";
 import type { BusinessPlanLocale } from "@/lib/business-plan-locale";
 import { withBusinessPlanLocale } from "@/lib/business-plan-locale";
 
-type BusinessPlanTab = "highlights" | "details";
+type BusinessPlanTab = "highlights" | "details" | "market-sizing";
 
 export function BusinessPlanTabs({
   baseHref,
   active,
   locale = "en",
+  showPrivateMarketSizing = false,
 }: {
   baseHref: string;
   active: BusinessPlanTab;
   locale?: BusinessPlanLocale;
+  showPrivateMarketSizing?: boolean;
 }) {
   const tabs =
     locale === "it"
@@ -45,12 +47,24 @@ export function BusinessPlanTabs({
           },
         ];
 
+  const visibleTabs = showPrivateMarketSizing
+    ? [
+        ...tabs,
+        {
+          key: "market-sizing" as const,
+          label: locale === "it" ? "TAM · SAM · SOM" : "TAM · SAM · SOM",
+          description: locale === "it" ? "Dimensionamento SaaS privato · superadmin" : "Private SaaS market model · superadmin",
+          href: withBusinessPlanLocale(`${baseHref}/market-sizing`, locale),
+        },
+      ]
+    : tabs;
+
   return (
     <nav
       aria-label={locale === "it" ? "Pagine Business Plan" : "Business Plan pages"}
-      className="grid gap-2 rounded-2xl border border-[#dce2df] bg-white p-2 sm:grid-cols-2"
+      className={["grid gap-2 rounded-2xl border border-[#dce2df] bg-white p-2", showPrivateMarketSizing ? "sm:grid-cols-3" : "sm:grid-cols-2"].join(" ")}
     >
-      {tabs.map((tab) => {
+      {visibleTabs.map((tab) => {
         const selected = tab.key === active;
         return (
           <Link
