@@ -56,7 +56,8 @@ test("RFQH1 creates an append-only audit surface for campaign and supplier creat
 
 test("RFQH1 bridges a saved public Buyer Distinta into the private hub", () => {
   assert.match(distintaActions, /rfqh1_create_campaign_from_distinta/);
-  assert.match(distintaBuilder, /Avvia RFQ multi-fornitore/);
+  assert.match(distintaBuilder, /Crea RFQ privata →/);
+  assert.match(distintaBuilder, /nessun invio ai fornitori/);
   assert.match(distintaBuilder, /router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)\)/);
 });
 
