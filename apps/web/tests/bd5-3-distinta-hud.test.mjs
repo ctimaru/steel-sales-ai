@@ -21,7 +21,9 @@ test("BD5.3 sticky HUD exposes live completion, metres and tonnes from the canon
 });
 
 test("BD5.3 contextual CTA never copies incomplete entries; reuse canonical copy action", () => {
-  assert.match(builder, /onClick=\{allComplete \? copyDistinta : goToIncompleteRow\}/);
+  assert.match(builder, /onClick=\\{allComplete \\? \\(authenticated \\? createRfqHub : copyDistinta\\) : goToIncompleteRow\\}/);
+  assert.match(builder, /!allComplete \\? "Completa le righe"/);
+  assert.match(builder, /authenticated \\? \\(rfqPending \\? "Creazione RFQ…" : "Crea RFQ privata →"\\)/);
   assert.match(builder, /function goToIncompleteRow\(\)/);
   assert.match(builder, /calculated\.findIndex\(\(line\) => !line\.complete\)/);
   assert.match(builder, /if \(index < 0\) return/);
