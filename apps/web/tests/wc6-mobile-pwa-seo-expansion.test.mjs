@@ -64,14 +64,14 @@ test("WC6 provides cross-platform Add to Home Screen guidance", () => {
 });
 
 test("WC6 hardens one-hand mobile interaction without removing the desktop cockpit", () => {
-  assert.match(calculator, /grid-rows-\[minmax\(21rem,1\.15fr\)_minmax\(13\.5rem,0\.85fr\)\]/);
-  assert.match(calculator, /lg:grid-rows-1/);
-  assert.match(calculator, /overscroll-contain/);
+  assert.match(calculator, /grid-cols-1 lg:grid-cols-\[minmax\(0,1\.08fr\)_minmax\(330px,0\.92fr\)\]/);
+  assert.doesNotMatch(calculator, /overscroll-contain/);
+  assert.doesNotMatch(calculator, /overflow-y-auto/);
   assert.match(calculator, /safe-area-inset-bottom/);
   assert.match(calculator, /min-h-11/);
   assert.match(calculator, /grid grid-cols-5 gap-1/);
   assert.match(calculator, /grid grid-cols-1 gap-2 sm:grid-cols-\[1\.35fr_0\.85fr\]/);
-  assert.match(calculator, /lg:h-\[calc\(100svh-6\.75rem\)\]/);
+  assert.doesNotMatch(calculator, /lg:h-\[calc\(100svh-6\.75rem\)\]/);
 });
 
 test("WC6 turns the three existing family hubs into canonical SEO shape landings", () => {

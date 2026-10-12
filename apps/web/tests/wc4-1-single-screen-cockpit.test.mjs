@@ -14,9 +14,10 @@ const page = fs.readFileSync(
 test("WC4.1 makes the calculator the first-screen utility", () => {
   assert.doesNotMatch(page, /<SchoolHero/);
   assert.match(page, /<PublicTubeWeightCalculator/);
-  assert.match(calculator, /h-\[calc\(100svh-6\.75rem\)\]/);
-  assert.match(calculator, /max-h-\[820px\]/);
-  assert.match(calculator, /overflow-hidden/);
+  assert.match(calculator, /scroll-mt-20/);
+  assert.match(calculator, /overflow-hidden/); // Rounded card clipping only.
+  assert.doesNotMatch(calculator, /lg:h-\[calc\(100svh-6\.75rem\)\]/);
+  assert.doesNotMatch(calculator, /lg:max-h-\[820px\]/);
 });
 
 test("WC4.1 compacts standard and shape selection into dense controls", () => {

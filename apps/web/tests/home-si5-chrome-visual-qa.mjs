@@ -301,6 +301,43 @@ try {
           console.log("I18N7 CHROME PASS", tube.locale, viewport.name);
         }
       }
+      // WC7: physical wheel events over BOTH calculator panes must scroll the
+      // document itself, not a trapped internal panel. Run on both locales,
+      // desktop and a narrow mobile viewport.
+      if (viewport.width === 390 || viewport.width === 1440) {
+        for (const path of ["/knowledge/tubes", "/en/knowledge/tubes"]) {
+          const response = await page.goto(BASE + path, { waitUntil: "domcontentloaded", timeout: 50000 });
+          assert.equal(response?.status(), 200, "WC7 tube page should load " + path);
+          const calculator = page.locator("#calcolatore-pesi");
+          await calculator.waitFor({ state: "visible" });
+          for (const section of ["#calcolatore-pesi > div.grid > div", "#calcolatore-pesi aside"]) {
+            const pane = page.locator(section);
+            await pane.evaluate((element) => {
+              element.scrollIntoView({ block: "start", behavior: "instant" });
+              window.scrollBy({ top: -100, behavior: "instant" });
+            });
+            const scrollState = await pane.evaluate((element) => {
+              const r = element.getBoundingClientRect();
+              return { x: Math.round(Math.min(document.documentElement.clientWidth - 24, Math.max(24, r.left + 65))),
+                y: Math.round(Math.min(window.innerHeight - 80, Math.max(120, r.top + 65))),
+                overflowY: getComputedStyle(element).overflowY,
+                scrollY: window.scrollY,
+                documentHeight: document.documentElement.scrollHeight };
+            });
+            assert.notEqual(scrollState.overflowY, "auto", "WC7 unexpected inner scroll pane " + section);
+            check(scrollState.documentHeight > viewport.height + scrollState.scrollY + 280,
+              "WC7 test needs room to scroll below calculator pane: " + path + section);
+            await page.mouse.move(scrollState.x, scrollState.y);
+            await page.mouse.wheel(0, 260);
+            await page.waitForTimeout(150);
+            const after = await page.evaluate(() => window.scrollY);
+            check(after > scrollState.scrollY + 30,
+              "WC7 wheel did not scroll document " + JSON.stringify({ path, viewport: viewport.name,
+                section, before: scrollState.scrollY, after, pos: scrollState }));
+            console.log("WC7 DOCUMENT WHEEL PASS", viewport.name, path, section);
+          }
+        }
+      }
       results.push(viewport.name);
     } finally {
       await context.close();

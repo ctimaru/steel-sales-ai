@@ -912,7 +912,7 @@ export function PublicTubeWeightCalculator({
     >
       <section
         id="calcolatore-pesi"
-        className="flex h-auto min-h-0 max-h-none scroll-mt-20 flex-col overflow-hidden rounded-[1.6rem] border border-[#cddbd6] bg-white shadow-[0_18px_60px_rgba(11,47,39,0.08)] lg:h-[calc(100svh-6.75rem)] lg:min-h-[560px] lg:max-h-[820px]"
+        className="flex scroll-mt-20 flex-col overflow-hidden rounded-[1.6rem] border border-[#cddbd6] bg-white shadow-[0_18px_60px_rgba(11,47,39,0.08)]"
       >
         <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[#dce7e3] bg-[linear-gradient(135deg,#f7fbf9_0%,#ffffff_62%,#edf5f2_100%)] px-3 py-2.5 sm:px-4">
           <div className="min-w-0">
@@ -955,9 +955,9 @@ export function PublicTubeWeightCalculator({
           </div>
         </header>
 
-        <div className="grid min-h-0 flex-1 grid-rows-[minmax(21rem,1.15fr)_minmax(13.5rem,0.85fr)] lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)] lg:grid-rows-1">
-          <div className="min-h-0 overscroll-contain overflow-y-auto border-b border-[#dce7e3] p-3 sm:p-4 lg:overflow-hidden lg:border-b-0 lg:border-r">
-            <div className="grid gap-3 lg:h-full lg:grid-rows-[auto_auto_1fr_auto]">
+        <div className="grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)]">
+          <div className="min-w-0 border-b border-[#dce7e3] p-3 sm:p-4 lg:border-b-0 lg:border-r">
+            <div className="grid gap-3 lg:grid-rows-[auto_auto_1fr_auto]">
               <section aria-labelledby="calculator-standard">
                 <div className="mb-1.5 flex items-center justify-between gap-2">
                   <h2 id="calculator-standard" className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-[#52615b]">
@@ -1255,7 +1255,7 @@ export function PublicTubeWeightCalculator({
 
           <aside
             aria-live="polite"
-            className="flex min-h-0 flex-col bg-[#123d34] text-white lg:h-full"
+            className="flex min-w-0 flex-col bg-[#123d34] text-white"
           >
             <div className="shrink-0 border-b border-white/10 px-3 py-3 sm:px-4">
               <div className="flex items-start justify-between gap-3">
@@ -1305,7 +1305,7 @@ export function PublicTubeWeightCalculator({
               ) : null}
             </div>
 
-            <div className="min-h-0 flex-1 overscroll-contain overflow-y-auto p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:p-4 sm:pb-[calc(1rem+env(safe-area-inset-bottom))]">
+            <div className="min-w-0 flex-1 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:p-4 sm:pb-[calc(1rem+env(safe-area-inset-bottom))]">
               <div className="grid grid-cols-3 gap-1.5">
                 <button
                   type="button"
