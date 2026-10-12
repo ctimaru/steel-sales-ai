@@ -5,7 +5,7 @@ import { test } from "node:test";
 import { SourceTextModule, SyntheticModule } from "node:vm";
 
 const source = stripTypeScriptTypes(
-  await readFile(new URL("../app/(workspace)/review/actions.ts", import.meta.url), "utf8"),
+  await readFile(new URL("../app/(italian)/(workspace)/review/actions.ts", import.meta.url), "utf8"),
 );
 
 async function setup(options = {}) {
@@ -153,7 +153,7 @@ test("cache failure does not misreport an acknowledged write as failed", async (
 
 
 test("review page uses sales-facing correction language", async () => {
-  const page = await readFile(new URL("../app/(workspace)/review/page.tsx", import.meta.url), "utf8");
+  const page = await readFile(new URL("../app/(italian)/(workspace)/review/page.tsx", import.meta.url), "utf8");
   for (const forbidden of ["Data Quality", "Review Queue", "parser v3.1", "app-facing RLS", "% confidence", "schema staging"]) {
     assert.doesNotMatch(page, new RegExp(forbidden));
   }
