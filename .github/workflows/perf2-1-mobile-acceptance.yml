@@ -4,7 +4,9 @@ on:
   pull_request:
     paths:
       - "apps/web/app/page.tsx"
-      - "apps/web/app/layout.tsx"
+      - "apps/web/app/site-document.tsx"
+      - "apps/web/app/(italian)/**"
+      - "apps/web/app/(english)/**"
       - "apps/web/app/globals.css"
       - "apps/web/components/public-network-role-explorer.tsx"
       - "apps/web/components/public-registration-trust.tsx"
@@ -15,6 +17,7 @@ on:
       - "apps/web/components/public-tube-weight-calculator.tsx"
       - "apps/web/components/calculator-install-guide.tsx"
       - "apps/web/tests/calc-ux3-*"
+      - "apps/web/tests/i18n8-*"
       - ".github/workflows/perf2-1-mobile-acceptance.yml"
   workflow_dispatch:
 

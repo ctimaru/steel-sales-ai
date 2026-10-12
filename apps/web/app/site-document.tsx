@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export function SiteDocument({ children, lang }: { children: ReactNode; lang: "it" | "en" }) {
   // Keep the production Google tag canonical even if an older Vercel environment value lingers.
   const requestedGoogleAnalyticsId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID?.trim();
   const googleAnalyticsId =
@@ -85,7 +85,7 @@ window.gtag("set", "ads_data_redaction", true);
 `;
 
   return (
-    <html lang="it">
+    <html lang={lang}>
       <head>
         <script
           id="sss-google-consent-bootstrap"

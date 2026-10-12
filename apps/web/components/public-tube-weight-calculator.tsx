@@ -1232,7 +1232,7 @@ export function PublicTubeWeightCalculator({
                     </div>
                     <p className="sr-only">
                       {t("Barre necessarie")}: {values.targetBars ?? "—"}. {t("Tonnellate reali")}: {values.targetActualTonnes ?? "—"}.
-                      Per lavorare con barre intere arrotondiamo sempre per eccesso.
+                      {t("Per lavorare con barre intere arrotondiamo sempre per eccesso.")}
                     </p>
                   </div>
 

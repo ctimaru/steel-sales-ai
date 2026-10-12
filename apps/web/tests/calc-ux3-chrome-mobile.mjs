@@ -59,6 +59,8 @@ try {
       try {
         const res = await page.goto(BASE + path, { waitUntil: "domcontentloaded", timeout: 55000 });
         assert.equal(res?.status(), 200, tag + ": page must return HTTP 200");
+        assert.equal(await page.locator("html").getAttribute("lang"), path.startsWith("/en/") ? "en" : "it",
+          `I18N8: document html language must match ${path}`);
         const calc = page.locator("#calcolatore-pesi");
         await calc.waitFor({ state: "visible", timeout: 30000 });
         await page.waitForFunction(() => {
