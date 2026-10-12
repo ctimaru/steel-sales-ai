@@ -656,8 +656,14 @@ export default async function CompanyDiscoveryPage({
                           name="existing_company_id"
                           value={candidate.match_company_id}
                         />
-                        <button className="h-10 rounded-xl border border-amber-200 bg-amber-50 px-4 text-sm font-semibold text-amber-800">
-                          Segna duplicato
+                        <label className="flex flex-col gap-1 text-xs font-semibold text-[#43524c]">
+                          Motivazione della corrispondenza (obbligatoria)
+                          <input name="note" required minLength={12} maxLength={2000}
+                            placeholder="Nome legale e dominio verificati sul profilo esistente"
+                            className="min-h-11 rounded-xl border border-[#dce2df] bg-white px-3 text-sm font-normal" />
+                        </label>
+                        <button className="min-h-11 rounded-xl border border-amber-200 bg-amber-50 px-4 text-sm font-semibold text-amber-800">
+                          Conferma identità duplicata
                         </button>
                       </form>
                     ) : null}

@@ -150,6 +150,30 @@ export async function reviewCompanyDiscovery(formData: FormData) {
   }
 
   const supabase = await createClient();
+  if (decision === "duplicate_existing") {
+    if (!existingCompanyId || !note || note.length < 12) {
+      redirect(discoveryPath("error", "Per chiudere un duplicato indica azienda esistente e motivazione (almeno 12 caratteri)."));
+    }
+    const { data: detail, error: detailError } = await supabase.rpc("p3_admin_discovery_detail", { p_candidate_id: id });
+    const resolved = detail as {
+      candidate?: { legal_name?: string; canonical_domain?: string; match_company_id?: string };
+      matched_company?: { id?: string; legal_name?: string; website_domain?: string };
+    } | null;
+    const candidate = resolved?.candidate;
+    const existing = resolved?.matched_company;
+    if (detailError || !candidate?.legal_name || !existing?.legal_name) {
+      redirect(discoveryPath("error", "Identità non verificabile: nessuna decisione registrata."));
+    }
+    const normalize = (name: string) => name.normalize("NFKC").trim().replace(/\\s+/g, " ").toLocaleLowerCase("it");
+    if (
+      candidate.match_company_id !== existingCompanyId || existing.id !== existingCompanyId ||
+      normalize(candidate.legal_name) !== normalize(existing.legal_name) ||
+      !candidate.canonical_domain ||
+      candidate.canonical_domain.toLowerCase() !== existing.website_domain?.toLowerCase()
+    ) {
+      redirect(discoveryPath("error", "Corrispondenza ambigua: eseguire una revisione manuale dell'identità prima di segnare il duplicato."));
+    }
+  }
   const result =
     decision === "enrich_existing"
       ? await supabase.rpc("p3_enrich_existing_company_discovery_selected", {
