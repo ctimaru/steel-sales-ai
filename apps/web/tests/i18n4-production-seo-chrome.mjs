@@ -35,7 +35,10 @@ async function checkContext(label, viewport, mobile) {
       const analytics = method === "POST" &&
         (url.hostname.endsWith("google-analytics.com") || url.hostname === "www.google.com") &&
         (url.pathname === "/g/collect" || url.pathname === "/td");
-      if (!analytics) attemptedMutation = true;
+      if (!analytics) {
+        attemptedMutation = true;
+        console.error("I18N4 READ-ONLY BLOCK", method, url.origin + url.pathname);
+      }
       await route.abort();
       return;
     }
