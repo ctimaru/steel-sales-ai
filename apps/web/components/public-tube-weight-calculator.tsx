@@ -1019,7 +1019,7 @@ export function PublicTubeWeightCalculator({
                             : "group flex min-h-14 items-center justify-center min-w-0 flex-col gap-1 rounded-xl border border-[#d7e1dd] bg-white px-1 py-2 text-[#173f35] sm:flex-row sm:px-2 hover:-translate-y-0.5 hover:border-[#8fb5a8] focus-visible:ring-4 focus-visible:ring-[#d9e8e2]"
                         }
                       >
-                        <ShapeGraphic family={option.value} className={selected ? "h-7 w-9 text-white sm:h-9 sm:w-10" : "h-7 w-9 text-[#1a5144] sm:h-9 sm:w-10"} />
+                        <ShapeGraphic family={option.value} className={selected ? "h-9 w-10 text-white" : "h-9 w-10 text-[#1a5144]"} />
                         <span className="text-[11px] font-bold leading-tight sm:text-xs">{t(option.short)}</span>
                       </button>
                     );
