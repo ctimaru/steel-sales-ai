@@ -1015,8 +1015,8 @@ export function PublicTubeWeightCalculator({
                         onClick={() => setFamily(option.value)}
                         className={
                           selected
-                            ? "group flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-[#173f35] bg-[#173f35] px-1 py-2 text-white shadow-sm sm:flex-row sm:px-2 focus-visible:ring-4 focus-visible:ring-[#b8d2c8]"
-                            : "group flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-[#d7e1dd] bg-white px-1 py-2 text-[#173f35] sm:flex-row sm:px-2 hover:-translate-y-0.5 hover:border-[#8fb5a8] focus-visible:ring-4 focus-visible:ring-[#d9e8e2]"
+                            ? "group flex min-h-14 items-center justify-center min-w-0 flex-col gap-1 rounded-xl border border-[#173f35] bg-[#173f35] px-1 py-2 text-white shadow-sm sm:flex-row sm:px-2 focus-visible:ring-4 focus-visible:ring-[#b8d2c8]"
+                            : "group flex min-h-14 items-center justify-center min-w-0 flex-col gap-1 rounded-xl border border-[#d7e1dd] bg-white px-1 py-2 text-[#173f35] sm:flex-row sm:px-2 hover:-translate-y-0.5 hover:border-[#8fb5a8] focus-visible:ring-4 focus-visible:ring-[#d9e8e2]"
                         }
                       >
                         <ShapeGraphic family={option.value} className={selected ? "h-7 w-9 text-white sm:h-9 sm:w-10" : "h-7 w-9 text-[#1a5144] sm:h-9 sm:w-10"} />
@@ -1272,7 +1272,7 @@ export function PublicTubeWeightCalculator({
                   <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/85">
                     {standard === "geometric" ? t("Peso al metro · calcolo libero") : `${t("Massa lineare")} · ${currentStandard.label}`}
                   </p>
-                  <p aria-live="polite" aria-atomic="true" className="metric-number mt-1 break-words text-3xl font-semibold tracking-[-0.05em] sm:text-5xl">
+                  <p aria-live="polite" aria-atomic="true" className="metric-number mt-1 break-words text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">
                     {values.kgM == null ? "—" : formatOutput(values.kgM, 3)}
                     <span className="ml-1 text-base font-semibold tracking-normal text-white/85">kg/m</span>
                   </p>
