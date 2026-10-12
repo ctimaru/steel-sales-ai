@@ -1165,7 +1165,7 @@ export function PublicTubeWeightCalculator({
                           onChange={(event) => setLength(event.target.value)}
                           inputMode="decimal"
                           aria-label={t("Lunghezza barra personalizzata")}
-                          className="min-h-11 min-w-0 rounded-xl border border-[#cfd9d5] bg-white px-2 text-center text-sm font-bold text-[#1d2824] outline-none focus:border-[#438d7a]"
+                          className="min-h-11 min-w-14 flex-1 rounded-xl border border-[#cfd9d5] bg-white px-2 text-center text-sm font-bold text-[#1d2824] outline-none focus:border-[#438d7a]"
                         />
                       </div>
                     </div>
