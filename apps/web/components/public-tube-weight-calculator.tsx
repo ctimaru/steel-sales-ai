@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
 import { tubeCalculatorText, type TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
+import { referenceEvidence, relatedTubeReferences, sourceMethodLabel, sourceStandardLabel } from "@/lib/tube-reference-evidence";
 import { trackProductEvent } from "@/lib/product-analytics-events.client";
 import type { PublicTubeDimensionSummary } from "@/lib/public-knowledge";
 
@@ -878,6 +879,11 @@ export function PublicTubeWeightCalculator({
   }, [references, family, referenceQuery]);
 
   const familyCount = references.filter((reference) => reference.product_family === family).length;
+  // Only matching, explicitly documented product standards are comparable.
+  const contextualReferences = relatedTubeReferences(references, {
+    family, outerDiameter: values.d, width: values.b, height: values.h,
+    thickness: values.t, standard,
+  });
   const currentFamily = familyOptions.find((option) => option.value === family) ?? familyOptions[0];
   const currentStandard = standardOptions.find((option) => option.value === standard) ?? standardOptions[0];
   const standardAssist =
