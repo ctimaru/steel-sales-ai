@@ -2917,3 +2917,31 @@ textarea {
 #calcolatore-pesi .tube-calculator-rfq-link:hover {
   background-color: #ccebdc !important;
 }
+
+
+/* CALC-UX3 — keyboard focus, accessible controls, and narrow mobile widths.
+   Scoped to the shared IT/EN tube calculator: public site surfaces stay untouched. */
+#calcolatore-pesi :is(button, a, summary, input):focus-visible {
+  outline: 3px solid #1a5144;
+  outline-offset: 3px;
+}
+#calcolatore-pesi .tube-calculator-result :is(button, a, summary):focus-visible {
+  outline-color: #ffffff;
+  outline-offset: 2px;
+}
+#calcolatore-pesi .tube-calculator-result .metric-number {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 380px) {
+  #calcolatore-pesi [aria-pressed] {
+    overflow-wrap: anywhere;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #calcolatore-pesi button {
+    transition: none;
+    transform: none;
+  }
+}
