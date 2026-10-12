@@ -75,7 +75,8 @@ test("I18N2 validates all dimensions, quantity and malformed decimals", () => {
 });
 
 test("I18N2 serves two English functional routes and reciprocal canonical SEO", () => {
-  assert.match(calculatorPage, /EnglishTubeWeightCalculator/);
+  // I18N7: the English page now uses the SAME canonical component as Italian.
+  assert.match(calculatorPage, /PublicTubeWeightCalculator references=\{references\} initialValues=\{initialValues\} locale="en"/);
   assert.match(rfqPage, /EnglishRfqBillBuilder/);
   assert.match(calculatorPage, /canonical: absoluteUrl\("\/en\/knowledge\/tubes"\)/);
   assert.match(rfqPage, /canonical: absoluteUrl\("\/en\/distinta"\)/);
@@ -92,8 +93,8 @@ test("I18N2 tools remain local until user copies; mixed standards remain availab
   assert.match(rfq, /"en10219"/);
   assert.match(rfq, /"en10210"/);
   assert.match(rfq, /navigator\.clipboard\.writeText/);
-  assert.match(calculator, /navigator\.clipboard\.writeText/);
-  assert.doesNotMatch(rfq + calculator, /fetch\(|createClient\(|supabase|sendRfq|dispatchRfq/i);
+  assert.match(italianCalculator, /copyTextToClipboard\(resultText\(currentSnapshot\)\)/);
+  assert.doesNotMatch(rfq + italianCalculator, /fetch\(|createClient\(|supabase|sendRfq|dispatchRfq/i);
 });
 
 
