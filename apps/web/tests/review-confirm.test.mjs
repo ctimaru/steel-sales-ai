@@ -5,7 +5,7 @@ import { test } from "node:test";
 import { SourceTextModule, SyntheticModule } from "node:vm";
 
 const source = stripTypeScriptTypes(
-  await readFile(new URL("../app/(workspace)/review/actions.ts", import.meta.url), "utf8"),
+  await readFile(new URL("../app/(italian)/(workspace)/review/actions.ts", import.meta.url), "utf8"),
 );
 
 async function setup(options = {}) {

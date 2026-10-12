@@ -16,7 +16,7 @@ const permissions = read("../lib/platform-access-contract.ts");
 const modules = [...contract.matchAll(/key: "([a-zA-Z]+)", href:/g)].map((m) => m[1]);
 const routes = [...contract.matchAll(/\{ path: "(\/platform[^"]*)", module: "([a-zA-Z]+)" \}/g)]
   .map((m) => ({ path: m[1], module: m[2] }));
-const routeRoot = new URL("../app/(platform)/platform/", import.meta.url);
+const routeRoot = new URL("../app/(italian)/(platform)/platform/", import.meta.url);
 function discoverPages(directory, segment = "") {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     if (entry.isDirectory()) return discoverPages(new URL(entry.name + "/", directory), segment + "/" + entry.name);
