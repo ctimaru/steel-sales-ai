@@ -32,6 +32,13 @@ test("BP-MKT1 algebra produces repeatable TAM, Italy SAM and three conservative 
   assert.deepEqual(r.som.map(x => x.usersWithinPayingOrganizations), [153,575,1513]);
 });
 
+test("BP-MKT1 price-mix sensitivity is exact and never changes the number of payers", () => {
+  const variants = model.pricingMixSensitivity(230);
+  assert.deepEqual(variants.map(v=>v.monthlyArpaEur),[19.8,29.4,34.2]);
+  assert.deepEqual(variants.map(v=>v.arrEur),[54648,81144,94392]);
+  assert.equal(variants[1].plusShare,0.6);
+});
+
 test("BP-MKT1 is organization-billed and rejects pricing mixes that overcount buyers", () => {
   const base = model.calculateMarketModel();
   const varied = model.calculateMarketModel({ ...model.marketModelInputs, usersPerActivatedOrganization: 8 });
