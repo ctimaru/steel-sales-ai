@@ -1393,7 +1393,8 @@ export function PublicTubeWeightCalculator({
                       <p className="font-semibold text-white">{t("Riferimento tecnico trovato")}</p>
                       {values.exactReference ? (
                         <>
-                          <p className="mt-1">{formatOutput(values.exactReference.weight_kg_m, 3)} kg/m · {t(values.exactReference.weight_method === "published" ? "Peso pubblicato" : "Verificato")}</p>
+                          <p className="mt-1">{formatOutput(values.exactReference.weight_kg_m, 3)} kg/m · {sourceMethodLabel(referenceEvidence(values.exactReference).declaredMethod, locale)}</p>
+                          <p className="mt-1">{locale === "it" ? "Norma del documento" : "Document standard"}: {sourceStandardLabel(referenceEvidence(values.exactReference).standard, locale)} · {locale === "it" ? "confronto geometrico, non equivalenza di prodotto" : "geometric comparison, not product equivalence"}</p>
                           {values.deltaPercent != null ? <p>{t("Scostamento rispetto al calcolo geometrico:")} {formatOutput(values.deltaPercent, 2)}%.</p> : null}
                           {values.exactReference.source_url ? (
                             <a href={values.exactReference.source_url} target="_blank" rel="noreferrer" className="mt-1 inline-flex underline">
