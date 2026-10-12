@@ -192,6 +192,13 @@ try {
         assert.equal(actual.labelTextFill, "rgb(18, 59, 52)", "Investor label must override WebKit text fill");
         check(actual.width >= 210 && actual.height >= 48, "Investor CTA touch target or width too small");
         check(actual.href?.startsWith("mailto:hello@smartsteelsales.com"), "Investor CTA mailto destination wrong");
+        if (actual.scroll > actual.viewport + 12) {
+          const widest = await page.evaluate(() => [...document.querySelectorAll("body *")]
+            .map((element) => ({ tag: element.tagName.toLowerCase(), text: element.textContent?.trim().slice(0, 45), right: Math.round(element.getBoundingClientRect().right), width: Math.round(element.getBoundingClientRect().width) }))
+            .filter((item) => item.right > document.documentElement.clientWidth + 12)
+            .sort((a, b) => b.right - a.right).slice(0, 5));
+          console.error("INVEST2 MOBILE OVERFLOW DIAGNOSTIC", investor.path, viewport.name, actual.viewport, actual.scroll, JSON.stringify(widest));
+        }
         check(actual.scroll <= actual.viewport + 12, "Investor landing horizontal overflow at " + viewport.name);
         await page.screenshot({
           path: OUT + "/invest2-" + (investor.path === "/investitori" ? "it" : "en") + "-" + viewport.name + ".png",
