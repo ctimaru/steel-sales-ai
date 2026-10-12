@@ -353,7 +353,8 @@ try {
           await caption.waitFor({state:"visible"});
           const title = await caption.innerText();
           check(!title.includes("pesi verificati"),"Incorrect public 'verified' heading");
-          const summary = catalog.getByText(entry.summary,{exact:true});
+          const summary = catalog.locator("summary");
+          check((await summary.innerText()).includes(entry.summary),"Reference summary label lost");
           const style = await summary.evaluate(el => {
             const s=getComputedStyle(el);
             return {color:s.color,height:el.getBoundingClientRect().height,fill:s.webkitTextFillColor};
