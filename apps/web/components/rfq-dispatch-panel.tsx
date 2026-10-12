@@ -5,6 +5,7 @@ import { useMemo, useRef, useState, useTransition } from "react";
 
 import {
   launchBuyerRfq,
+  recordBuyerRfqRecipientReview,
   retryFailedBuyerRfq,
   sendBuyerRfqReminders,
 } from "@/app/(workspace)/marketplace/rfq-hub/actions";
@@ -42,6 +43,7 @@ export function RfqDispatchPanel({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmChecked, setConfirmChecked] = useState(false);
   const launchLock = useRef(false);
+  const reviewTrackedRef = useRef(false);
   const [launchPending, startLaunchTransition] = useTransition();
   const [retryPending, startRetryTransition] = useTransition();
   const [reminderPending, startReminderTransition] = useTransition();
@@ -104,6 +106,10 @@ export function RfqDispatchPanel({
     setConfirmChecked(false);
     setConfirmOpen(true);
     setFeedback(null);
+    if (!reviewTrackedRef.current) {
+      reviewTrackedRef.current = true;
+      void recordBuyerRfqRecipientReview(rfqId).catch(() => { /* Analytics must never block review. */ });
+    }
   }
 
   function retry() {

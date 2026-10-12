@@ -55,6 +55,7 @@ type AddSupplierInput = {
   supplierNetworkCompanyId?: string | null;
   supplierNetworkContactId?: string | null;
   supplierOrganizationId?: string | null;
+  suppressAnalytics?: boolean;
 };
 
 export async function searchBuyerRfqSuppliers(
@@ -233,6 +234,7 @@ export async function addSupplierToBuyerRfq(
 
   revalidatePath("/marketplace/rfq-hub");
   revalidatePath("/marketplace/rfq-hub/" + rfqId);
+  if (!input.suppressAnalytics) await trackServerProductEvent("rfq_supplier_added", { mode: "single", supplier_count: 1 });
   return { ok: true, supplierId };
 }
 
@@ -268,6 +270,7 @@ export async function addSuppliersToBuyerRfqBulk(input: {
         supplierNetworkCompanyId: candidate.supplier_network_company_id,
         supplierNetworkContactId: candidate.supplier_network_contact_id,
         supplierOrganizationId: candidate.supplier_organization_id,
+        suppressAnalytics: true,
       });
       if (result.ok) addedKeys.push(key);
       else failed.push({ key, error: result.error || "Aggiunta non riuscita." });
@@ -275,7 +278,26 @@ export async function addSuppliersToBuyerRfqBulk(input: {
       failed.push({ key, error: "Errore temporaneo durante l'aggiunta." });
     }
   }
+  if (addedKeys.length > 0) await trackServerProductEvent("rfq_supplier_added", { mode: "bulk", supplier_count: addedKeys.length });
   return { ok: failed.length === 0, addedKeys, failed };
+}
+
+// BD16: non-blocking operational funnel signal. Never accepts a supplier list,
+// email, campaign title, quote, recipient address or tracking identifier.
+export async function recordBuyerRfqRecipientReview(rfqId: string): Promise<void> {
+  if (!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(rfqId)) return;
+  const supabase = await createClient();
+  const { data: authData } = await supabase.auth.getUser();
+  if (!authData.user) return;
+  const { data: owned } = await supabase
+    .from("buyer_rfq_campaigns")
+    .select("id")
+    .eq("id", rfqId)
+    .eq("owner_user_id", authData.user.id)
+    .in("status", ["draft", "ready"])
+    .maybeSingle();
+  if (!owned) return;
+  await trackServerProductEvent("rfq_recipient_reviewed");
 }
 
 type LaunchBuyerRfqInput = {

@@ -150,7 +150,7 @@ function Funnel({
       </h2>
       <p className="mt-2 text-xs leading-5 text-[#718078]">{subtitle}</p>
       <p className="mt-1 text-[11px] leading-5 text-[#87938e]">
-        I passaggi confrontano volumi aggregati di eventi: non sono conversioni di utenti unici o coorti.
+        I passaggi confrontano volumi aggregati di eventi: non sono conversioni di utenti unici o coorti. Le differenze non quantificano abbandoni reali.
       </p>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -340,6 +340,18 @@ export function ProductAnalyticsDashboard({
         subtitle="Misura quante persone passano dalla ricerca azienda alla richiesta aziendale effettivamente inviata."
         steps={snapshot.acquisitionFunnel}
       />
+
+      <Funnel
+        title="BD16 · Conversione calcolatore → RFQ"
+        subtitle="Dal primo articolo inserito fino all’invio della RFQ. I rapporti confrontano operazioni nel periodo, non persone uniche o la stessa coorte. Non rappresentano abbandoni certi."
+        steps={snapshot.rfqConversionFunnel}
+      />
+
+      <section className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
+        <h2 className="text-sm font-semibold text-[#173f35]">Distinte copiate senza invio</h2>
+        <p className="mt-1 text-2xl font-semibold tabular-nums text-[#173f35]">{formatCount(snapshot.rfqBillCopies)}</p>
+        <p className="mt-1 text-xs text-[#66736e]">Percorso alternativo gratuito: copia conclusa. Non è una RFQ creata o inviata.</p>
+      </section>
 
       <Funnel
         title="Utility → RFQ Hub"

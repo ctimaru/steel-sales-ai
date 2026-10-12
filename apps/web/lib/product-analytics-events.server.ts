@@ -5,7 +5,9 @@ export type ServerProductAnalyticsEventName =
   | "registration_submit"
   | "distinta_save"
   | "rfq_start"
-  | "rfq_dispatch_launch";
+  | "rfq_dispatch_launch"
+  | "rfq_supplier_added"
+  | "rfq_recipient_reviewed";
 
 export async function trackServerProductEvent(
   name: ServerProductAnalyticsEventName,
