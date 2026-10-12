@@ -80,8 +80,8 @@ try {
 
         // Minimum actionable dimensions, including the scrolled thickness strip.
         const touchTargets = [
-          ...await calc.locator("#calculator-standard + div button, #calculator-standard ~ div button").all(),
-          ...await calc.locator("#calculator-shape + div button, #calculator-shape ~ div button").all(),
+          ...await calc.locator("section[aria-labelledby="calculator-standard"] button").all(),
+          ...await calc.locator("section[aria-labelledby="calculator-shape"] button").all(),
           ...await calc.locator('button[aria-label*="mm"]').all(),
           ...await calc.locator("button.school-primary-action").all(),
           ...await calc.locator("button.school-secondary-action").all(),
@@ -97,7 +97,7 @@ try {
         }
 
         for (const selector of [
-          "#calculator-standard + div button[aria-pressed=true]",
+          "section[aria-labelledby="calculator-standard"] button[aria-pressed=true]",
           ".tube-calculator-rfq-link",
         ]) {
           const item = calc.locator(selector);
@@ -111,7 +111,7 @@ try {
           assert.equal(style.fill, style.fg,
             tag + ": Safari text fill conflicts with foreground " + selector);
         }
-        const first = calc.locator("#calculator-standard + div button").first();
+        const first = calc.locator("section[aria-labelledby="calculator-standard"] button").first();
         await first.focus();
         const focus = await first.evaluate((element) => {
           const css = getComputedStyle(element);
@@ -119,7 +119,7 @@ try {
         });
         assert.equal(focus.style, "solid", tag + ": no keyboard focus ring");
         assert.ok(parseFloat(focus.width) >= 2, tag + ": focus ring below 2px");
-        const diagrams = calc.locator("#calculator-shape + div button");
+        const diagrams = calc.locator("section[aria-labelledby="calculator-shape"] button");
         if (await diagrams.count() === 3) {
           await diagrams.nth(1).click();
           assert.equal(await diagrams.nth(1).getAttribute("aria-pressed"), "true");
