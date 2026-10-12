@@ -1144,7 +1144,7 @@ export function PublicTubeWeightCalculator({
                         <span className="text-[10px] font-bold text-[#52615b]">{t("Lunghezza barra")}</span>
                         <span className="text-xs text-[#52615b]">m</span>
                       </div>
-                      <div className="grid grid-cols-5 gap-1">
+                      <div className="flex flex-wrap gap-1">
                         {lengthPresets.map((preset) => (
                           <button
                             key={preset}
@@ -1153,8 +1153,8 @@ export function PublicTubeWeightCalculator({
                              onClick={() => setLength(preset)}
                             className={
                               length === preset
-                                ? "school-selected-control min-h-11 rounded-xl px-3 py-2.5 text-xs font-bold"
-                                : "school-secondary-action min-h-11 px-3 py-2.5 text-xs"
+                                ? "school-selected-control min-h-11 min-w-11 flex-1 rounded-xl px-2 py-2.5 text-xs font-bold"
+                                : "school-secondary-action min-h-11 min-w-11 flex-1 px-2 py-2.5 text-xs"
                             }
                           >
                             {preset}
