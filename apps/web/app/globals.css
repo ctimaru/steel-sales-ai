@@ -2846,3 +2846,18 @@ textarea {
     font-size: 0.72rem;
   }
 }
+
+/* INVEST2 — Guard the investor CTA against inherited white text on a white button.
+   Keep the rule tightly scoped to the public investor landing. */
+.investor-plan-cta {
+  background-color: #ffffff !important;
+  color: #123b34 !important;
+  -webkit-text-fill-color: #123b34 !important;
+}
+.investor-plan-cta > span {
+  color: #123b34 !important;
+  -webkit-text-fill-color: #123b34 !important;
+}
+.investor-plan-cta:hover {
+  background-color: #e6f3ed !important;
+}
