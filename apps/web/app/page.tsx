@@ -1,3 +1,4 @@
+import { PublicHomeNavigation } from "@/components/public-home-navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -88,31 +89,13 @@ export default function PublicHomePage() {
       />
 
       <header className="border-b border-[#dce5e0] bg-white">
-        <div className="mx-auto flex min-h-[72px] max-w-[1180px] items-center justify-between gap-2 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex min-h-[72px] max-w-[1180px] items-center justify-between gap-2 px-3 sm:px-6 lg:px-8">
           <div className="hidden min-w-0 sm:block">
             <ProductBrand href="/" />
           </div>
           <div className="min-w-0 sm:hidden">
             <ProductBrand href="/" compact showDescriptor={false} markOnly />
           </div>
-
-          <nav className="hidden items-center gap-1 lg:flex" aria-label="Navigazione pubblica">
-            <Link href="#network" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3] hover:text-[#173f35]">
-              Network
-            </Link>
-            <Link href="/knowledge" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3] hover:text-[#173f35]">
-              Scuola
-            </Link>
-            <Link href="/knowledge/tubes?source=home&surface=header#calcolatore-pesi" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3] hover:text-[#173f35]">
-              Calcolo pesi
-            </Link>
-            <Link href="/distinta" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3] hover:text-[#173f35]">
-              Crea distinta
-            </Link>
-            <Link href="/azienda" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3] hover:text-[#173f35]">
-              Trova azienda
-            </Link>
-          </nav>
 
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <PublicLanguageSwitch locale="it" italianHref="/" englishHref="/en" />
@@ -126,15 +109,7 @@ export default function PublicHomePage() {
           </div>
         </div>
 
-        <nav className="border-t border-[#edf1ee] lg:hidden" aria-label="Navigazione pubblica mobile">
-          <div className="mx-auto flex max-w-[1180px] items-center gap-1 overflow-x-auto px-3 py-1.5 sm:px-5">
-            <Link href="#network" className="inline-flex min-h-10 shrink-0 items-center rounded-lg px-3 text-xs font-semibold text-[#52615b] hover:bg-[#f2f4f3] hover:text-[#173f35]">Network</Link>
-            <Link href="/distinta" className="inline-flex min-h-10 shrink-0 items-center rounded-lg px-3 text-xs font-semibold text-[#52615b] hover:bg-[#f2f4f3] hover:text-[#173f35]">Crea distinta</Link>
-            <Link href="/knowledge" className="inline-flex min-h-10 shrink-0 items-center rounded-lg px-3 text-xs font-semibold text-[#52615b] hover:bg-[#f2f4f3] hover:text-[#173f35]">Scuola</Link>
-            <Link href="/knowledge/tubes?source=home&surface=header#calcolatore-pesi" className="inline-flex min-h-10 shrink-0 items-center rounded-lg px-3 text-xs font-semibold text-[#52615b] hover:bg-[#f2f4f3] hover:text-[#173f35]">Calcolo pesi</Link>
-            <Link href="/azienda" className="inline-flex min-h-10 shrink-0 items-center rounded-lg px-3 text-xs font-semibold text-[#52615b] hover:bg-[#f2f4f3] hover:text-[#173f35]">Trova azienda</Link>
-          </div>
-        </nav>
+        <PublicHomeNavigation locale="it" />
       </header>
 
       <section aria-labelledby="home-hero-title" className="relative isolate overflow-hidden border-b border-[#dce5e0] bg-[#f6f8f7]">

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
+const publicNav = fs.readFileSync(new URL("../components/public-home-navigation.tsx", import.meta.url), "utf8");
 const home = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
 const network = fs.readFileSync(
   new URL("../components/public-network-role-explorer.tsx", import.meta.url),
@@ -9,10 +10,10 @@ const network = fs.readFileSync(
 );
 
 test("UXF4 preserves public discovery links in both desktop and mobile header", () => {
-  assert.match(home, /aria-label="Navigazione pubblica"/);
-  assert.match(home, /aria-label="Navigazione pubblica mobile"/);
-  assert.match(home, /surface=header#calcolatore-pesi/);
-  assert.match(home, />\s*Calcolo pesi\s*</);
+  assert.match(home, /<PublicHomeNavigation locale="it"/);
+  assert.match(publicNav, /Navigazione mobile/);
+  assert.match(publicNav, /surface=header#calcolatore-pesi/);
+  assert.match(publicNav, /Calcolo pesi/);
   assert.match(home, /href="\/distinta"/);
   assert.match(home, /href="\/azienda"/);
   assert.doesNotMatch(home, />\s*Calcolatore\s*</);

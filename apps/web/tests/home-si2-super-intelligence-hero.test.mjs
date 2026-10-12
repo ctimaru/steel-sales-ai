@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
+const publicNav = fs.readFileSync(new URL("../components/public-home-navigation.tsx", import.meta.url), "utf8");
 const home = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
 const proxy = fs.readFileSync(new URL("../lib/supabase/proxy.ts", import.meta.url), "utf8");
 const showcase = fs.readFileSync(new URL("../components/public-intelligence-showcase.tsx", import.meta.url), "utf8");
@@ -27,9 +28,9 @@ test("HOME-SI2 prioritizes conversion but preserves free utilities and role expl
 });
 
 test("HOME-SI2 keeps public navigation and registration accessible on narrow screens", () => {
-  assert.match(home, /aria-label="Navigazione pubblica mobile"/);
-  assert.match(home, /lg:hidden/);
-  assert.match(home, /overflow-x-auto/);
+  assert.match(publicNav, /Navigazione mobile/);
+  assert.match(publicNav, /xl:hidden/);
+  assert.doesNotMatch(publicNav, /overflow-x-auto/);
   assert.match(home, /<span className="sm:hidden">Registrati<\/span>/);
   assert.match(home, /min-h-11/);
   assert.match(home, /aria-labelledby="home-hero-title"/);
