@@ -161,6 +161,20 @@ export function calculateMarketModel(
   };
 }
 
+
+/** Price-mix sensitivity holds the base-case number of paying companies fixed. */
+export function pricingMixSensitivity(payingOrganizations = calculateMarketModel().som.find((s) => s.key === "base")!.payingOrganizations) {
+  return [
+    { key: "module-led", moduleShare: 0.80, plusShare: 0.20, labelIt: "Moduli prevalenti", labelEn: "Module-led" },
+    { key: "working", moduleShare: 0.40, plusShare: 0.60, labelIt: "Mix di lavoro", labelEn: "Working mix" },
+    { key: "plus-led", moduleShare: 0.20, plusShare: 0.80, labelIt: "Plus prevalente", labelEn: "Plus-led" },
+  ].map((mix) => {
+    const centsPerOrganization = Math.round((mix.moduleShare * marketModelInputs.modulePriceEurPerOrganizationMonth +
+      mix.plusShare * marketModelInputs.plusPriceEurPerOrganizationMonth) * 100);
+    return { ...mix, monthlyArpaEur: centsPerOrganization / 100,
+      arrEur: Math.round(payingOrganizations * centsPerOrganization * 12) / 100 };
+  });
+}
 export const marketModelGovernance = {
   classification: "PRIVATE · PLATFORM SUPERADMIN ONLY",
   confidence: "LOW · model, not audited company census",
