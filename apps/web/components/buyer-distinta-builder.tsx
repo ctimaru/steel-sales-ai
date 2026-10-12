@@ -3,6 +3,7 @@
 import { guidedTubeToBuyerLine } from "@/lib/buyer-guided-commercial-line";
 import { calculatorItemToBuyerLine, consumeCalculatorRfqIds, readCalculatorRfqQueue, type CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
 import { PublicTubeWeightCalculator } from "@/components/public-tube-weight-calculator";
+import { trackProductEvent } from "@/lib/product-analytics-events.client";
 import { createPrivateRfqOneStep } from "@/lib/buyer-distinta-rfq-one-step";
 
 import Link from "next/link";
@@ -307,6 +308,7 @@ export function BuyerDistintaBuilder({
       return existing.length >= 500 ? current : [...existing, nextLine];
     });
     setQuickAddedCount((count) => count + 1);
+    trackProductEvent("rfq_calculator_line_added", { surface: workspace ? "workspace" : "public", standard: item.standard });
     setCompactMode(true);
     setEditingRows((current) => ({ ...current, [id]: false }));
     setExpandedRows((current) => ({ ...current, [id]: false }));
@@ -554,6 +556,7 @@ export function BuyerDistintaBuilder({
       } else {
         await navigator.clipboard.writeText(plain);
       }
+      trackProductEvent("rfq_bill_copied", { surface: workspace ? "workspace" : "public", line_count: valid.length });
       setCopyState("copied");
       window.setTimeout(() => setCopyState("idle"), 2200);
     } catch {

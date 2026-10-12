@@ -48,6 +48,8 @@ export type PlatformAnalyticsSnapshot = {
   events: AnalyticsEventRow[];
   acquisitionFunnel: AnalyticsFunnelStep[];
   activationFunnel: AnalyticsFunnelStep[];
+  rfqConversionFunnel: AnalyticsFunnelStep[];
+  rfqBillCopies: number;
 };
 
 const RANGE_CONFIG: Record<
@@ -64,6 +66,15 @@ const ACQUISITION_FUNNEL = [
   ["company_claim_start", "Avvio claim"],
   ["registration_account_created", "Account creato"],
   ["registration_submit", "Registrazione inviata"],
+] as const;
+
+const RFQ_CONVERSION_FUNNEL = [
+  ["rfq_calculator_line_added", "Articolo aggiunto dal calcolatore"],
+  ["distinta_save", "Distinta salvata"],
+  ["rfq_start", "RFQ privata creata"],
+  ["rfq_supplier_added", "Selezione fornitori"],
+  ["rfq_recipient_reviewed", "Destinatari verificati"],
+  ["rfq_dispatch_launch", "RFQ inviata"],
 ] as const;
 
 const ACTIVATION_FUNNEL = [
@@ -202,6 +213,8 @@ function emptySnapshot(
     events: [],
     acquisitionFunnel: buildFunnel(ACQUISITION_FUNNEL, new Map()),
     activationFunnel: buildFunnel(ACTIVATION_FUNNEL, new Map()),
+    rfqConversionFunnel: buildFunnel(RFQ_CONVERSION_FUNNEL, new Map()),
+    rfqBillCopies: 0,
   };
 }
 
@@ -281,7 +294,7 @@ export async function getPlatformAnalyticsSnapshot(
         since,
         until,
         by: "eventName",
-        limit: 50,
+        limit: 100,
       }),
     ]);
 
@@ -381,6 +394,8 @@ export async function getPlatformAnalyticsSnapshot(
       events,
       acquisitionFunnel: buildFunnel(ACQUISITION_FUNNEL, eventMap),
       activationFunnel: buildFunnel(ACTIVATION_FUNNEL, eventMap),
+      rfqConversionFunnel: buildFunnel(RFQ_CONVERSION_FUNNEL, eventMap),
+      rfqBillCopies: eventMap.get("rfq_bill_copied") ?? 0,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Analytics unavailable";

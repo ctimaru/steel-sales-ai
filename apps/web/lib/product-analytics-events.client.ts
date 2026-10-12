@@ -5,7 +5,9 @@ import { track } from "@vercel/analytics";
 export type ProductAnalyticsEventName =
   | "company_search"
   | "company_claim_start"
-  | "weight_calculation";
+  | "weight_calculation"
+  | "rfq_calculator_line_added"
+  | "rfq_bill_copied";
 
 export function trackProductEvent(
   name: ProductAnalyticsEventName,
