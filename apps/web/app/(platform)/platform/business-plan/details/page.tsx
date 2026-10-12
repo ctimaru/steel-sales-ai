@@ -40,6 +40,7 @@ export default async function PlatformBusinessPlanDetailsPage({
         baseHref={appRoutes.platform.businessPlan}
         active="details"
         locale={locale}
+        showPrivateMarketSizing
       />
 
       <BusinessPlanInvestorDetails locale={locale} />
