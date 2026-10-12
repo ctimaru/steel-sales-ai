@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
 
 import { EnglishPublicSubpage } from "@/components/english-public-subpage";
-import { EnglishTubeWeightCalculator } from "@/components/english-tube-weight-calculator";
+import { PublicTubeWeightCalculator, type PublicTubeCalculatorInitialValues } from "@/components/public-tube-weight-calculator";
+import { listPublicTubeDimensionPages } from "@/lib/public-knowledge";
 import { absoluteUrl } from "@/lib/site";
 
-export const dynamic = "force-static";
+// Shareable query parameters must hydrate accurately, while dimension references
+// are cached for 24 hours to minimize repeated public Supabase RPC calls.
+export const dynamic = "force-dynamic";
+const cachedPublicTubeReferences = unstable_cache(listPublicTubeDimensionPages, ["i18n7-public-tube-references"], { revalidate: 86400 });
 
 export const metadata: Metadata = {
   title: "Steel Tube Weight Calculator — CHS, SHS, RHS | EN 10210 & EN 10219",
@@ -42,7 +47,24 @@ const faqs = [
   },
 ];
 
-export default function EnglishTubeWeightsPage() {
+type CalculatorSearchParams = Promise<{
+  standard?: string; family?: string; od?: string; width?: string;
+  height?: string; thickness?: string; length?: string; quantity?: string;
+  target?: string; density?: string;
+}>;
+
+export default async function EnglishTubeWeightsPage({ searchParams }: { searchParams: CalculatorSearchParams }) {
+  const params = await searchParams;
+  const references = await cachedPublicTubeReferences();
+  const supportedStandards = new Set(["en10219", "en10210", "geometric"]);
+  const supportedFamilies = new Set(["round_tube", "square_tube", "rectangular_tube"]);
+  const initialValues: PublicTubeCalculatorInitialValues = {
+    standard: supportedStandards.has(params.standard ?? "") ? params.standard as PublicTubeCalculatorInitialValues["standard"] : undefined,
+    family: supportedFamilies.has(params.family ?? "") ? params.family as PublicTubeCalculatorInitialValues["family"] : undefined,
+    outerDiameter: params.od ?? "168.3", width: params.width,
+    height: params.height, thickness: params.thickness, length: params.length,
+    quantity: params.quantity, targetTonnes: params.target, density: params.density,
+  };
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -70,13 +92,13 @@ export default function EnglishTubeWeightsPage() {
     <EnglishPublicSubpage
       eyebrow="Free technical tool · Steel Knowledge"
       title="Steel tube weight calculator: kg/m, bar weight and tonnes."
-      description="Estimate structural hollow section masses for circular (CHS), square (SHS) and rectangular (RHS) steel tubes. Select EN 10219, EN 10210 or the geometric method. The result updates immediately as you enter dimensions."
+      description="Estimate structural hollow section masses for circular (CHS), square (SHS) and rectangular (RHS) steel tubes. Select EN 10219, EN 10210 or the geometric method. Copy the result, save favourites, calculate bars from target tonnes and continue to the RFQ bill of materials."
       italianHref="/knowledge/tubes"
       englishHref="/en/knowledge/tubes"
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="mx-auto max-w-[1120px] px-4 py-10 sm:px-6 lg:px-8">
-        <EnglishTubeWeightCalculator />
+        <PublicTubeWeightCalculator references={references} initialValues={initialValues} locale="en" />
       </div>
       <section className="bg-white">
         <div className="mx-auto max-w-[1120px] px-4 py-12 sm:px-6 lg:px-8">
