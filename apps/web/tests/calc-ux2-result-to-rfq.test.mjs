@@ -84,7 +84,7 @@ test("CALC-UX2 two public builders consume the same tab queue without overwritin
   assert.match(it,/readCalculatorRfqQueue\(window\.sessionStorage\)/);
   assert.match(it,/if \(!draftReady \|\| restoreCandidate\) return;/);
   assert.match(it,/setLines\(\(current\) => \{/);
-  assert.match(it,/\.\.\.base, \.\.\.imported/);
+  assert.match(it,/\.\.\.base, \.\.\.imported\.slice/);
   assert.match(it,/consumeCalculatorRfqIds\(window\.sessionStorage,/);
   assert.match(en,/readCalculatorRfqQueue\(window\.sessionStorage\)/);
   assert.match(en,/storedEnglishBill\(window\.sessionStorage\.getItem/);
