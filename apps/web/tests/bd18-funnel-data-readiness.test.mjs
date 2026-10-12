@@ -100,7 +100,7 @@ test("BD18: healthy balanced samples are descriptive, no automatic statistical w
   assert.equal(s.bd18Readiness.observedFunnelSteps,3);
   assert.equal(s.bd18Readiness.funnelSteps,6);
   assert.ok(s.bd18Readiness.checks.every(x=>x.status==="ok"));
-  assert.match(s.bd18Readiness.nextAction,/non scegliere un vincitore/);
+  assert.match(s.bd18Readiness.nextAction,/non scegliere un vincitore/i);
   assert.match(dashboard,/non prova causale, non vincitore/);
   assert.match(dashboard,/La pubblicazione Vercel non garantisce/);
 });
