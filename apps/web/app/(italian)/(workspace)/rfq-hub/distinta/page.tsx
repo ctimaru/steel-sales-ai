@@ -32,7 +32,7 @@ export default async function PrivateBuyerDistintaPage() {
           <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--brand-primary)]">Workspace aziendale · acquisti</p>
           <h1 className="mt-1 text-xl font-extrabold text-[var(--brand-deep)]">Nuova distinta</h1>
           <p className="mt-1 text-xs text-[var(--text-secondary)]">
-            Un’unica distinta: inserisci gli articoli manualmente oppure prepara testo e file per le prossime funzioni AI. Rivedi e salva prima dell'invio ai fornitori.
+            Parti dalla calcolatrice, aggiungi le misure in un clic e rivedi la distinta sempre visibile. Gli altri metodi di inserimento restano opzionali.
           </p>
         </div>
         <Link href={appRoutes.rfqHub.home} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold">
