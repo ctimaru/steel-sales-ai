@@ -79,12 +79,18 @@ async function checkContext(label, viewport, mobile) {
       console.log("I18N4 CHROME PASS", label, "published technical guide", destination);
     }
     if (path === "/en/knowledge/tubes") {
-      const calc = page.getByRole("region", { name: "Interactive tube mass calculator" });
-      assert.ok(await calc.count(), "Interactive English calculator inaccessible");
-      await page.locator("#tube-thickness-en").fill("6");
-      await page.locator("#tube-bars-en").fill("25");
-      const readout = await page.getByText("Total tonnes").first().isVisible();
-      assert.ok(readout, "English calculator mass totals missing");
+      // I18N7 removed the standalone English component. Check the shared
+      // calculator that is already in production, without writing data.
+      const calc = page.locator("#calcolatore-pesi");
+      assert.ok(await calc.count(), "Shared English calculator missing");
+      assert.ok(await calc.getByRole("button", {name:"EN 10219"}).count() > 0,
+        "Standard selection missing");
+      assert.ok(await calc.getByRole("button", {name:"Copy result",exact:true}).count() > 0,
+        "English copy action missing");
+      assert.ok(await calc.locator('.tube-calculator-rfq-link[href="/en/distinta"]').count() === 1,
+        "English RFQ bill link missing");
+      assert.ok(await page.getByText("Total weight").first().count() > 0,
+        "English calculator total mass missing");
       checks++;
     }
     if (path === "/en/distinta") {

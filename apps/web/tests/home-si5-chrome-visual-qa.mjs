@@ -338,6 +338,52 @@ try {
           }
         }
       }
+      // CALC-UX1 — both locales: catalogue is secondary, readable and optional.
+      if (viewport.width === 390 || viewport.width === 1440) {
+        for (const entry of [
+          {path:"/knowledge/tubes", locale:"it", summary:"Esplora riferimenti e fonti"},
+          {path:"/en/knowledge/tubes", locale:"en", summary:"Explore references and sources"},
+        ]) {
+          const response = await page.goto(BASE + entry.path, {waitUntil:"domcontentloaded",timeout:50000});
+          assert.equal(response?.status(),200,"CALC-UX1 public route");
+          const catalog = page.locator('[data-testid="tube-reference-catalogue"]');
+          await catalog.waitFor({state:"attached"});
+          assert.equal(await catalog.evaluate(el => el.open),false,"Reference catalogue must start collapsed");
+          const caption = page.locator("#tube-reference-heading");
+          await caption.waitFor({state:"visible"});
+          const title = await caption.innerText();
+          check(!title.includes("pesi verificati"),"Incorrect public 'verified' heading");
+          const summary = catalog.locator("summary");
+          check((await summary.innerText()).includes(entry.summary),"Reference summary label lost");
+          const style = await summary.evaluate(el => {
+            const s=getComputedStyle(el);
+            return {color:s.color,height:el.getBoundingClientRect().height,fill:s.webkitTextFillColor};
+          });
+          assert.equal(style.color,"rgb(18, 59, 52)","Reference summary text contrast");
+          check(style.height>=44,"Reference disclosure touch target");
+          await summary.click();
+          assert.equal(await catalog.evaluate(el => el.open),true,"Catalogue did not expand");
+          const input = catalog.getByRole("textbox");
+          await input.waitFor({state:"visible"});
+          const sourceRows = catalog.locator("tbody tr");
+          const count = await sourceRows.count();
+          check(count<=18,"Reference table exceeds the maximum preview limit");
+          if(count>0){
+            const first=sourceRows.first();
+            check(await first.locator("a[href^='/knowledge/tubes/']").count()===1,"SEO detail link missing");
+            check(await first.locator("a[target='_blank']").count()===1,"External provenance link missing");
+          }
+          const overflow=await page.evaluate(()=>({
+            width:document.documentElement.clientWidth,
+            scroll:document.documentElement.scrollWidth,
+            escaped:document.body.innerText.includes(String.raw`\\n\\n`),
+          }));
+          check(!overflow.escaped,"CALC-UX1 literal escaped newlines remain");
+          check(overflow.scroll<=overflow.width+12,"CALC-UX1 document horizontal overflow");
+          await catalog.screenshot({path:OUT+"/calc-ux1-"+entry.locale+"-"+viewport.name+".png",animations:"disabled"});
+          console.log("CALC-UX1 CHROME PASS",entry.locale,viewport.name,count);
+        }
+      }
       results.push(viewport.name);
     } finally {
       await context.close();
