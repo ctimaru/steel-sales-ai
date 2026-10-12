@@ -30,7 +30,9 @@ async function createAnonymousContext(viewport, mobile = false) {
         parsed.hostname === "google-analytics.com" ||
         parsed.hostname.endsWith(".google-analytics.com") ||
         parsed.hostname === "google.com" ||
-        parsed.hostname === "www.google.com";
+        parsed.hostname.endsWith(".google.com") ||
+        parsed.hostname === "googletagmanager.com" ||
+        parsed.hostname.endsWith(".googletagmanager.com");
       const isBlockedAnalyticsPing =
         req.method() === "POST" &&
         knownGoogleTelemetryHost &&
