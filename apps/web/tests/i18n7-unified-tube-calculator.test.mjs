@@ -28,9 +28,9 @@ test("I18N7 localized public controls provide copy and an RFQ bill destination",
   assert.match(calculator,/copyTextToClipboard\(resultText\(currentSnapshot\)\)/);
   assert.match(calculator,/setActionFeedback\("Risultato copiato\."\)/);
   assert.match(words,/"Risultato copiato\.": "Result copied\. Paste it into your RFQ bill or an email\."/);
-  assert.match(calculator,/href=\{locale === "en" \? "\/en\/distinta" : "\/distinta"\}/);
-  assert.match(calculator,/Create an RFQ bill · Paste copied results/);
-  assert.match(calculator,/Crea distinta RFQ · Incolla il risultato copiato/);
+  assert.match(calculator,/window\.location\.assign\(locale === "en" \? "\/en\/distinta" : "\/distinta"\)/);
+  assert.match(calculator,/Add this calculation to an RFQ bill/);
+  assert.match(calculator,/Aggiungi questa misura alla distinta/);
   assert.match(calculator,/Copy failed\. Please check clipboard permissions\./);
   assert.match(calculator,/shareUrl\(currentSnapshot\)/);
   assert.match(words,/"Lunghezza barra": "Bar length"/);
