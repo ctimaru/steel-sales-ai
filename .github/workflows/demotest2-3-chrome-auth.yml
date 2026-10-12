@@ -6,6 +6,7 @@ on:
       - "apps/web/tests/demotest23-*.mjs"
       - "apps/web/tests/rfqh14-2-*.mjs"
       - "apps/web/tests/bd15-*.mjs"
+      - "apps/web/tests/bd18-*.mjs"
       - "supabase/tests/bd15_*.sql"
       - "apps/web/tests/rfqh14-2b-*.mjs"
       - "supabase/tests/rfqh14_2b_*.sql"

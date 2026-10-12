@@ -21,6 +21,9 @@ on:
       - "apps/web/tests/bd11-*"
       - "apps/web/tests/bd12-*"
       - "apps/web/tests/bd17-*"
+      - "apps/web/tests/bd18-*"
+      - "apps/web/lib/platform-product-analytics.ts"
+      - "apps/web/components/product-analytics-dashboard.tsx"
       - ".github/workflows/perf2-1-mobile-acceptance.yml"
   workflow_dispatch:
 

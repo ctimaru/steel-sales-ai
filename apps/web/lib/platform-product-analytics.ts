@@ -482,7 +482,7 @@ export async function getPlatformAnalyticsSnapshot(
       aggregatePageviews > 0 && (countedVisitors === null || countedVisitors === 0);
     const inconsistentEvents =
       (aggregateEvents > 0 && (countedEvents === null || countedEvents === 0 || aggregateEvents > countedEvents)) ||
-      ((countedEvents ?? 0) > 0 && !Array.isArray(eventsResponse.data));
+      ((countedEvents ?? 0) > 0 && (!Array.isArray(eventsResponse.data) || eventsResponse.data.length === 0));
     const inconsistentEventVisitors =
       aggregateEvents > 0 && (countedEventVisitors === null || countedEventVisitors === 0);
 

@@ -248,10 +248,10 @@ export function ProductAnalyticsDashboard({
           Connessione Analytics
         </p>
         <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#3d3429]">
-          Dashboard pronta: manca solo il token server-side Vercel.
+          Connessione Vercel Analytics da configurare.
         </h2>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-[#6e6253]">
-          AN1 raccoglie già i dati. AN1.1 legge la Web Analytics API solo dal server e
+          La raccolta effettiva degli eventi non è ancora verificabile da questa console. AN1.1 legge la Web Analytics API solo dal server e
           richiede un access token Vercel salvato come secret
           <code className="mx-1 rounded bg-white px-1.5 py-0.5 text-xs">VERCEL_ANALYTICS_TOKEN</code>.
           Il token non viene mai inviato al browser.
