@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
-import { calculatorRfqFromValues, enqueueCalculatorRfq } from "@/lib/calculator-rfq-handoff";
+import { calculatorRfqFromValues, enqueueCalculatorRfq, type CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
 import { tubeCalculatorText, type TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
 import { referenceEvidence, relatedTubeReferences, sourceMethodLabel, sourceStandardLabel } from "@/lib/tube-reference-evidence";
 import { trackProductEvent } from "@/lib/product-analytics-events.client";
@@ -520,10 +520,15 @@ export function PublicTubeWeightCalculator({
   references,
   initialValues,
   locale = "it",
+  onAddToDistinta,
+  canAddToDistinta = true,
 }: {
   references: PublicTubeDimensionSummary[];
   initialValues?: PublicTubeCalculatorInitialValues;
   locale?: TubeCalculatorLocale;
+  /** In-place RFQ bill composer; does not queue or navigate. */
+  onAddToDistinta?: (item: CalculatorRfqItem) => boolean;
+  canAddToDistinta?: boolean;
 }) {
   const t = (text: string) => tubeCalculatorText(text, locale);
   const formatOutput = (value: number, digits = 3) => formatNumber(value, digits, locale);
@@ -928,12 +933,10 @@ export function PublicTubeWeightCalculator({
               <span className="school-badge">{t("Gratis")}</span>
               <span className="school-badge hidden sm:inline-flex">Live</span>
             </div>
-            <h1 className="mt-1 break-words text-lg font-semibold tracking-[-0.025em] text-[#15372f] sm:text-xl">
-              {t("Peso tubo acciaio")}
-            </h1>
+            {onAddToDistinta ? <h3 className="mt-1 text-lg font-semibold text-[#15372f]">{t("Peso tubo acciaio")}</h3> : <h1 className="mt-1 break-words text-lg font-semibold tracking-[-0.025em] text-[#15372f] sm:text-xl">{t("Peso tubo acciaio")}</h1>}
           </div>
 
-          <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
+          {!onAddToDistinta ? <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
             <CalculatorInstallGuide locale={locale} />
             <button
               type="button"
@@ -959,10 +962,10 @@ export function PublicTubeWeightCalculator({
               <span className="sm:hidden">{locale === "en" ? (calculatorSaved ? "Saved ✓" : "Save") : (calculatorSaved ? "Salvato ✓" : "Salva")}</span>
               <span className="hidden sm:inline">{t(calculatorSaved ? "Calcolatore salvato ✓" : "Salva il Calcolatore")}</span>
             </button>
-          </div>
+          </div> : null}
         </header>
 
-        <div className="grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)]">
+        <div className={onAddToDistinta ? "grid min-w-0 grid-cols-1" : "grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)]"}>
           <div className="min-w-0 border-b border-[#dce7e3] p-3 sm:p-4 lg:border-b-0 lg:border-r">
             <div className="grid gap-3 lg:grid-rows-[auto_auto_1fr_auto]">
               <section aria-labelledby="calculator-standard">
@@ -1315,7 +1318,7 @@ export function PublicTubeWeightCalculator({
             </div>
 
             <div className="min-w-0 flex-1 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:p-4 sm:pb-[calc(1rem+env(safe-area-inset-bottom))]">
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {!onAddToDistinta ? <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 <button
                   type="button"
                   disabled={!currentSnapshot}
@@ -1374,15 +1377,23 @@ export function PublicTubeWeightCalculator({
                 >
                   {t(currentIsFavorite ? "Preferito ★" : "Aggiungi ai preferiti ☆")}
                 </button>
-              </div>
+              </div> : null}
 
               <button
                 type="button"
-                disabled={!currentSnapshot}
+                disabled={!currentSnapshot || (Boolean(onAddToDistinta) && !canAddToDistinta)}
                 onClick={() => {
                   if (!currentSnapshot) return;
                   const item = calculatorRfqFromValues(currentSnapshot,
                     typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "calc-"+Date.now()+"-"+Math.random().toString(36).slice(2));
+                  if (onAddToDistinta) {
+                    if (!item || !onAddToDistinta(item)) {
+                      setActionFeedback("Impossibile aggiungere la riga: controlla la quantità o lo spazio disponibile.");
+                    } else {
+                      setActionFeedback("Articolo aggiunto ✓ · puoi continuare con un’altra misura.");
+                    }
+                    return;
+                  }
                   if (!item || !enqueueCalculatorRfq(window.sessionStorage, item)) {
                     setActionFeedback(locale === "en" ? "Unable to transfer the item. Check browser session storage and try again." : "Impossibile trasferire l'articolo. Verifica lo spazio di sessione del browser e riprova.");
                     return;
@@ -1392,10 +1403,10 @@ export function PublicTubeWeightCalculator({
                 }}
                 className="tube-calculator-rfq-link mt-2 inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-[#c3e5d5] bg-[#e3f4eb] px-4 py-3 text-center text-sm font-bold leading-snug text-[#123b34] hover:bg-[#ccebdc] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
               >
-                {locale === "en" ? "Add this calculation to an RFQ bill →" : "Aggiungi questa misura alla distinta →"}
+                {onAddToDistinta ? "＋ Aggiungi alla distinta" : locale === "en" ? "Add this calculation to an RFQ bill →" : "Aggiungi questa misura alla distinta →"}
               </button>
               <p className="mt-1 text-[11px] leading-4 text-white/85">
-                {locale === "en" ? "Free · no login required. Product grade remains to be confirmed." : "Gratuito · nessun login richiesto. Il grado acciaio resta da confermare."}
+                {onAddToDistinta ? "Il peso è teorico: la riga appare subito a fianco, senza inviare una RFQ." : locale === "en" ? "Free · no login required. Product grade remains to be confirmed." : "Gratuito · nessun login richiesto. Il grado acciaio resta da confermare."}
               </p>
               <p aria-live="polite" className="mt-2 min-h-4 text-xs font-semibold text-white/85">
                 {t(actionFeedback)}
@@ -1519,7 +1530,7 @@ export function PublicTubeWeightCalculator({
       </section>
 
 
-      <section aria-labelledby="tube-reference-heading" className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
+      {!onAddToDistinta ? <section aria-labelledby="tube-reference-heading" className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="max-w-2xl">
             <p className="text-xs font-bold uppercase tracking-wide text-[#52615b]">{locale === "it" ? "Riferimenti di fonte" : "Source references"}</p>
@@ -1623,7 +1634,7 @@ export function PublicTubeWeightCalculator({
             ) : null}
           </div>
         </details>
-      </section>
+      </section> : null}
     </div>
   );
 }

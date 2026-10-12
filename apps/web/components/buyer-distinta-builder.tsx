@@ -1,7 +1,8 @@
 "use client";
 
 import { guidedTubeToBuyerLine } from "@/lib/buyer-guided-commercial-line";
-import { calculatorItemToBuyerLine, consumeCalculatorRfqIds, readCalculatorRfqQueue } from "@/lib/calculator-rfq-handoff";
+import { calculatorItemToBuyerLine, consumeCalculatorRfqIds, readCalculatorRfqQueue, type CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
+import { PublicTubeWeightCalculator } from "@/components/public-tube-weight-calculator";
 
 import Link from "next/link";
 import { BuyerTubeGuidedCreator } from "@/components/buyer-tube-guided-creator";
@@ -91,6 +92,8 @@ export function BuyerDistintaBuilder({
   const [wizardRestoreSerial, setWizardRestoreSerial] = useState(0);
   const [intakeMode, setIntakeMode] = useState<RfqAiIntakeMode>("manual");
   const [quickQuery, setQuickQuery] = useState("");
+  const [quickGrade, setQuickGrade] = useState("");
+  const [quickAddedCount, setQuickAddedCount] = useState(0);
   const [compactMode, setCompactMode] = useState(true);
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const [editingRows, setEditingRows] = useState<Record<string, boolean>>({});
@@ -285,6 +288,35 @@ export function BuyerDistintaBuilder({
     const a = Number(parts[1]), b = Number(parts[2]);
     const weight = guidedTubeMassKgM(option.family, standard, a, b, option.thicknessMm);
     return (weight ?? option.weightKgM).toLocaleString("it-IT", { maximumFractionDigits: 3 });
+  }
+
+  // BD11: numerical values are validated by the existing public calculator bridge.
+  // Append in the current React state so the user sees the editable RFQ bill immediately.
+  function addCalculatorLine(item: CalculatorRfqItem): boolean {
+    if (!draftReady || restoreCandidate) return false;
+    const reusable = lines.length === 1 && isUntouchedLine(lines[0]);
+    if (!reusable && lines.length >= 500) return false;
+    const id = reusable ? lines[0].id : newLineId();
+    const nextLine = { ...calculatorItemToBuyerLine(item, id), grade: quickGrade.trim() };
+    if (!calculateBuyerDistintaLine(nextLine).complete) return false;
+    setLines((current) => {
+      const empty = current.length === 1 && isUntouchedLine(current[0]);
+      const existing = empty ? [] : current;
+      return existing.length >= 500 ? current : [...existing, nextLine];
+    });
+    setQuickAddedCount((count) => count + 1);
+    setCompactMode(true);
+    setEditingRows((current) => ({ ...current, [id]: false }));
+    setExpandedRows((current) => ({ ...current, [id]: false }));
+    setSavedId(null);
+    setSaveMessage(null);
+    setSendMessage(null);
+    setRfqMessage(null);
+    setCopyState("idle");
+    if (window.matchMedia("(max-width: 900px)").matches) {
+      window.requestAnimationFrame(() => document.getElementById("buyer-live-preview")?.scrollIntoView({ block: "start", behavior: "smooth" }));
+    }
+    return true;
   }
 
   function addGuidedTube(draft: GuidedTubeDraft) {
@@ -679,7 +711,7 @@ export function BuyerDistintaBuilder({
               Articoli in distinta
             </h2>
             <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
-Configura ogni articolo in un unico passaggio; nel workspace aziendale puoi anche preparare testo, file ed email per l'importazione AI. La distinta resta unica e modificabile.
+Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga compare subito nella distinta a fianco.
             </p>
           </div>
           <label className="w-full max-w-sm text-xs font-semibold text-[var(--text-secondary)]">
@@ -699,6 +731,26 @@ Configura ogni articolo in un unico passaggio; nel workspace aziendale puoi anch
 
         <div className="bd7-workbench">
           <div className="bd7-workbench-editor">
+            <div className="mb-2 flex flex-wrap items-end justify-between gap-2 rounded-xl border border-[#cddbd6] bg-[#f4faf7] p-3">
+              <div className="min-w-0">
+                <h3 className="text-sm font-extrabold text-[#123d34]">1 · Calcola e aggiungi</h3>
+                <p className="mt-1 text-xs text-[#52615b]">Norma, forma, dimensioni e quantità. Un clic per aggiungere la riga senza uscire.</p>
+              </div>
+              <label className="min-w-[145px] flex-1 text-xs font-bold text-[#344e43] sm:max-w-[215px]">
+                Grado acciaio · facoltativo ora
+                <input list="buyer-quick-grades" value={quickGrade} onChange={(event) => setQuickGrade(event.target.value)}
+                  placeholder="Es. S355J2H" className="mt-1 h-11 w-full rounded-lg border border-[#b9d0c5] bg-white px-3 text-sm text-[#123d34]" />
+                <datalist id="buyer-quick-grades"><option value="S235JRH" /><option value="S275J0H" /><option value="S355J2H" /><option value="S355K2H" /></datalist>
+              </label>
+            </div>
+            <PublicTubeWeightCalculator references={[]} locale="it" onAddToDistinta={addCalculatorLine}
+              canAddToDistinta={draftReady && !restoreCandidate && (lines.length < 500 || initialEmptyRow)} />
+            <p role="status" aria-live="polite" className="mt-2 text-xs font-semibold text-[#1d5748]">
+              {quickAddedCount > 0 ? `${quickAddedCount} ${quickAddedCount === 1 ? "articolo aggiunto" : "articoli aggiunti"} · già visibili nella distinta.` : "Il peso teorico si aggiorna mentre scrivi; nessuna RFQ viene inviata automaticamente."}
+            </p>
+            <details className="mt-4 rounded-xl border border-[#d5e1db] bg-white">
+              <summary className="flex min-h-11 cursor-pointer items-center px-3 text-xs font-bold text-[#1d5748]">Altri metodi · testo AI, configuratore assistito e ricerca catalogo</summary>
+              <div className="border-t border-[#d5e1db] p-2 sm:p-3">
             <RfqAiIntakeUx
               mode={intakeMode}
               onModeChange={setIntakeMode}
@@ -783,12 +835,14 @@ Configura ogni articolo in un unico passaggio; nel workspace aziendale puoi anch
         </section>
         </details>
             </RfqAiIntakeUx>
+              </div>
+            </details>
           </div>
-          <aside className="bd7-preview" aria-label="Distinta in composizione">
+          <aside className="bd7-preview" id="buyer-live-preview" style={{ scrollMarginTop: "6rem" }} aria-label="Distinta in composizione">
             <div className="bd7-preview-head">
               <div>
                 <p className="bd6-eyebrow">Anteprima in tempo reale</p>
-                <h3 className="text-sm font-extrabold text-[var(--brand-deep)]">La tua distinta</h3>
+                <h3 className="text-sm font-extrabold text-[var(--brand-deep)]">2 · La tua distinta</h3>
               </div>
               <span className="bd7-preview-counter">{totals.completeLines}/{activeLineCount} righe</span>
             </div>
@@ -807,7 +861,7 @@ Configura ogni articolo in un unico passaggio; nel workspace aziendale puoi anch
               </div>
             ) : null}
             {activeLineCount === 0 ? (
-              <p className="bd9-preview-empty">Nessun articolo ancora inserito. Configura il primo articolo o compila una riga libera.</p>
+              <p className="bd9-preview-empty">Nessun articolo ancora inserito. Scegli misura e quantità nella calcolatrice e premi “Aggiungi alla distinta”.</p>
             ) : null}
                     <div className="bd10-preview-lines" aria-label="Articoli della distinta">
         <datalist id="buyer-standards"><option value="EN 10219" /><option value="EN 10210" /><option value="EN 10305" /></datalist>

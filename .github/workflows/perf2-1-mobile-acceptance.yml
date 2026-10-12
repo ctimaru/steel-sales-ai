@@ -18,6 +18,7 @@ on:
       - "apps/web/components/calculator-install-guide.tsx"
       - "apps/web/tests/calc-ux3-*"
       - "apps/web/tests/i18n8-*"
+      - "apps/web/tests/bd11-*"
       - ".github/workflows/perf2-1-mobile-acceptance.yml"
   workflow_dispatch:
 
@@ -67,6 +68,8 @@ jobs:
         run: node tests/perf2-1-chrome-mobile.mjs
       - name: CALC-UX3 Chrome IT/EN 320–1440px contrast / focus / touch QA
         run: node tests/calc-ux3-chrome-mobile.mjs
+      - name: BD11 Chrome calculator-first, one-click visible mixed-norm RFQ bill
+        run: node tests/bd11-chrome-quick-add.mjs
       - name: HOME-SI5 Chrome visual / WCAG / SEO acceptance
         run: node tests/home-si5-chrome-visual-qa.mjs
       - name: Upload CALC-UX3 calculator Chrome screenshots (public / no credentials)
