@@ -300,6 +300,7 @@ function ParametricShapeDiagram({
   height,
   thickness,
   standard,
+  locale = "it",
 }: {
   family: TubeFamily;
   outerDiameter: string;
@@ -307,7 +308,9 @@ function ParametricShapeDiagram({
   height: string;
   thickness: string;
   standard: StandardValue;
+  locale?: TubeCalculatorLocale;
 }) {
+  const formatDiagramNumber = (value: number, digits = 3) => formatNumber(value, digits, locale);
   const d = positiveDimension(outerDiameter, 100);
   const b = positiveDimension(width, 100);
   const h = family === "square_tube" ? b : positiveDimension(height, 60);
@@ -357,27 +360,27 @@ function ParametricShapeDiagram({
 
   const primaryDimension =
     family === "round_tube"
-      ? `Ø ${formatNumber(d, 2)} mm`
-      : `B ${formatNumber(b, 2)} mm`;
+      ? `Ø ${formatDiagramNumber(d, 2)} mm`
+      : `B ${formatDiagramNumber(b, 2)} mm`;
   const secondaryDimension =
-    family === "rectangular_tube" ? `H ${formatNumber(h, 2)} mm` : null;
-  const thicknessDimension = `t ${formatNumber(t, 2)} mm`;
+    family === "rectangular_tube" ? `H ${formatDiagramNumber(h, 2)} mm` : null;
+  const thicknessDimension = `t ${formatDiagramNumber(t, 2)} mm`;
   const accessibleLabel =
     family === "round_tube"
-      ? `Sezione tubo tondo, diametro esterno ${formatNumber(d, 2)} millimetri e spessore ${formatNumber(t, 2)} millimetri`
+      ? (locale === "en" ? `Round section, outside diameter ${formatDiagramNumber(d, 2)} millimetres, wall thickness ${formatDiagramNumber(t, 2)} millimetres` : `Sezione tubo tondo, diametro esterno ${formatDiagramNumber(d, 2)} millimetri e spessore ${formatDiagramNumber(t, 2)} millimetri`)
       : family === "square_tube"
-        ? `Sezione profilo quadro, lato ${formatNumber(b, 2)} millimetri e spessore ${formatNumber(t, 2)} millimetri`
-        : `Sezione profilo rettangolare, base ${formatNumber(b, 2)} millimetri, altezza ${formatNumber(h, 2)} millimetri e spessore ${formatNumber(t, 2)} millimetri`;
+        ? (locale === "en" ? `Square section, side ${formatDiagramNumber(b, 2)} millimetres, thickness ${formatDiagramNumber(t, 2)} millimetres` : `Sezione profilo quadro, lato ${formatDiagramNumber(b, 2)} millimetri e spessore ${formatDiagramNumber(t, 2)} millimetri`)
+        : (locale === "en" ? `Rectangular section, width ${formatDiagramNumber(b, 2)} millimetres, height ${formatDiagramNumber(h, 2)} millimetres and thickness ${formatDiagramNumber(t, 2)} millimetres` : `Sezione profilo rettangolare, base ${formatDiagramNumber(b, 2)} millimetri, altezza ${formatDiagramNumber(h, 2)} millimetri e spessore ${formatDiagramNumber(t, 2)} millimetri`);
 
   return (
     <figure className="rounded-2xl border border-[#d3e1dc] bg-white p-3">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Vista proporzionale</p>
-          <p className="sr-only">Le quote seguono i valori inseriti e lo spessore viene rappresentato in proporzione.</p>
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">{locale === "en" ? "Proportional view" : "Vista proporzionale"}</p>
+          <p className="sr-only">{locale === "en" ? "The diagram scales with the dimensions and illustrates wall thickness proportionally." : "Le quote seguono i valori inseriti e lo spessore viene rappresentato in proporzione."}</p>
         </div>
         <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#1a5144]">
-          {standard === "geometric" ? "Libero" : standard === "en10210" ? "EN 10210" : "EN 10219"}
+          {standard === "geometric" ? (locale === "en" ? "Free" : "Libero") : standard === "en10210" ? "EN 10210" : "EN 10219"}
         </span>
       </div>
 
@@ -502,7 +505,7 @@ function ParametricShapeDiagram({
           <span className="rounded-lg bg-[#f6f8f7] px-2 py-1.5 font-semibold text-[#405049]">{secondaryDimension}</span>
         ) : (
           <span className="rounded-lg bg-[#f6f8f7] px-2 py-1.5 font-semibold text-[#405049]">
-            {family === "round_tube" ? "Sezione circolare" : "Sezione quadrata"}
+            {family === "round_tube" ? (locale === "en" ? "Circular section" : "Sezione circolare") : (locale === "en" ? "Square section" : "Sezione quadrata")}
           </span>
         )}
         <span className="rounded-lg bg-[#fbf0e9] px-2 py-1.5 font-semibold text-[#8b4a25]">{thicknessDimension}</span>
@@ -1238,6 +1241,7 @@ export function PublicTubeWeightCalculator({
                     height={height}
                     thickness={thickness}
                     standard={standard}
+                    locale={locale}
                   />
                 </div>
               </section>
