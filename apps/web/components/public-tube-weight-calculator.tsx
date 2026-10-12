@@ -1184,8 +1184,9 @@ export function PublicTubeWeightCalculator({
                         >
                           −
                         </button>
-                        $1aria-label={t("Numero barre")}
-                           $2
+                        <input
+                          aria-label={t("Numero barre")}
+                           value={quantity}
                           onChange={(event) => setQuantity(event.target.value)}
                           inputMode="numeric"
                           className="min-h-11 min-w-0 rounded-xl border border-[#cfd9d5] bg-white px-2 text-center text-sm font-bold text-[#1d2824] outline-none focus:border-[#438d7a]"
@@ -1296,7 +1297,8 @@ export function PublicTubeWeightCalculator({
                     <span className="ml-1 text-[10px] text-white/85">m</span>
                   </p>
                 </div>
-                $1col-span-2 min-w-0 rounded-xl bg-white/8 p-2 sm:col-span-1$2</p>
+                <div className="col-span-2 min-w-0 rounded-xl bg-white/8 p-2 sm:col-span-1">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/85">{t("Peso totale")}</p>
                   <p className="metric-number mt-1 text-lg font-semibold">
                     {values.totalTonnes == null ? "—" : formatOutput(values.totalTonnes, 4)}
                     <span className="ml-1 text-[10px] text-white/85">t</span>
@@ -1313,7 +1315,10 @@ export function PublicTubeWeightCalculator({
             </div>
 
             <div className="min-w-0 flex-1 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:p-4 sm:pb-[calc(1rem+env(safe-area-inset-bottom))]">
-              $1grid grid-cols-2 gap-2 sm:grid-cols-3$2
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                <button
+                  type="button"
+                  disabled={!currentSnapshot}
                   onClick={async () => {
                     if (!currentSnapshot) return;
                     try {
@@ -1330,7 +1335,16 @@ export function PublicTubeWeightCalculator({
                 <button
                   type="button"
                   disabled={!currentSnapshot}
-                  $1min-h-11 rounded-xl border border-white/30 bg-white/10 px-2 py-2 text-xs font-bold text-white hover:bg-white/15 disabled:opacity-40$2
+                  onClick={async () => {
+                    if (!currentSnapshot) return;
+                    try {
+                      await copyTextToClipboard(shareUrl(currentSnapshot));
+                      setActionFeedback("Link condivisibile copiato.");
+                    } catch {
+                      setActionFeedback(locale === "en" ? "Copy failed. Please check clipboard permissions." : "Copia non riuscita: controlla i permessi degli appunti.");
+                    }
+                  }}
+                  className="min-h-11 rounded-xl border border-white/30 bg-white/10 px-2 py-2 text-xs font-bold text-white hover:bg-white/15 disabled:opacity-40"
                 >
                   {t("Copia link")}
                 </button>
@@ -1353,7 +1367,9 @@ export function PublicTubeWeightCalculator({
                     }
                   }}
                   className={
-                    $1col-span-2 min-h-11 rounded-xl border border-white/30 bg-white/10 px-2 py-2 text-xs font-bold text-white hover:bg-white/15 disabled:opacity-40 sm:col-span-1$2
+                    currentIsFavorite
+                      ? "tube-calculator-favourite-selected col-span-2 min-h-11 rounded-xl border border-white bg-white px-2 py-2 text-xs font-bold sm:col-span-1 text-[#123d34] sm:text-xs"
+                      : "col-span-2 min-h-11 rounded-xl border border-white/30 bg-white/10 px-2 py-2 text-xs font-bold text-white hover:bg-white/15 disabled:opacity-40 sm:col-span-1"
                   }
                 >
                   {t(currentIsFavorite ? "Preferito ★" : "Aggiungi ai preferiti ☆")}
