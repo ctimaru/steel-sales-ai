@@ -232,7 +232,9 @@ export default async function PublicTubeWeightsPage({
       />
 
       <PublicUtilityTelemetry source={discoverySource} surface={discoverySurface} />
-      <PublicTubeWeightCalculator references={references} initialValues={initialValues} />\n\n      <section aria-label="Esplora il catalogo per famiglia">
+      <PublicTubeWeightCalculator references={references} initialValues={initialValues} />
+
+      <section aria-label="Esplora il catalogo per famiglia">
         <div className="mb-4 max-w-3xl">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Catalogo dimensionale</p>
           <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">Esplora per famiglia e dimensione esterna</h2>
