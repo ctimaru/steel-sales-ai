@@ -93,6 +93,8 @@ test("CALC-UX2 two public builders consume the same tab queue without overwritin
   assert.match(en,/densityKgM3: line.standard === "geometric"/);
   assert.match(en,/consumeCalculatorRfqIds\(window\.sessionStorage,/);
   assert.match(itPage,/<BuyerDistintaBuilder/);
+  assert.match(itPage,/configured \? createClient\(\) : Promise\.resolve\(null\)/);
+  assert.match(itPage,/supabase \? \(await supabase\.auth\.getUser\(\)\)\.data : \{ user: null \}/);
   assert.match(enPage,/<EnglishRfqBillBuilder/);
 });
 
