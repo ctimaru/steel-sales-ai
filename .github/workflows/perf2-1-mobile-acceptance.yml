@@ -19,6 +19,7 @@ on:
       - "apps/web/tests/calc-ux3-*"
       - "apps/web/tests/i18n8-*"
       - "apps/web/tests/bd11-*"
+      - "apps/web/tests/bd12-*"
       - ".github/workflows/perf2-1-mobile-acceptance.yml"
   workflow_dispatch:
 

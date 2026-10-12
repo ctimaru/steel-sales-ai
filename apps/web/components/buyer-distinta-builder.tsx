@@ -3,6 +3,7 @@
 import { guidedTubeToBuyerLine } from "@/lib/buyer-guided-commercial-line";
 import { calculatorItemToBuyerLine, consumeCalculatorRfqIds, readCalculatorRfqQueue, type CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
 import { PublicTubeWeightCalculator } from "@/components/public-tube-weight-calculator";
+import { createPrivateRfqOneStep } from "@/lib/buyer-distinta-rfq-one-step";
 
 import Link from "next/link";
 import { BuyerTubeGuidedCreator } from "@/components/buyer-tube-guided-creator";
@@ -98,6 +99,7 @@ export function BuyerDistintaBuilder({
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const [editingRows, setEditingRows] = useState<Record<string, boolean>>({});
   const focusQuantityId = useRef<string | null>(null);
+  const rfqInFlightRef = useRef(false);
   const [selectedCatalog, setSelectedCatalog] = useState<Record<string, { family: string; sizeKey: string; optionId: string }>>({});
   const [guidedSpecsByLine, setGuidedSpecsByLine] = useState<Record<string, GuidedTubeDraft>>({});
   const [lines, setLines] = useState<BuyerDistintaDraftLine[]>([
@@ -561,6 +563,11 @@ export function BuyerDistintaBuilder({
   }
 
   function saveDistinta() {
+    if (savedId) {
+      setSaveMessage("Distinta già salvata: puoi creare la RFQ senza salvarla di nuovo.");
+      return;
+    }
+    if (savePending || rfqPending) return;
     setSaveMessage(null);
     startSaveTransition(async () => {
       const result = await saveBuyerDistinta({ title, lines, documents });
@@ -575,19 +582,35 @@ export function BuyerDistintaBuilder({
   }
 
   function createRfqHub() {
-    if (!savedId) {
-      setRfqMessage("Salva prima la distinta, poi puoi trasformarla in RFQ.");
+    // One deliberate click creates a private draft only: never send email, dispatch
+    // supplier invitations or publish a marketplace listing from this action.
+    if (!authenticated || !draftReady || restoreCandidate || !allComplete) {
+      setRfqMessage("Completa le righe della distinta e accedi con una azienda attiva prima di creare la RFQ.");
+      if (!allComplete) goToIncompleteRow();
       return;
     }
-
+    if (rfqInFlightRef.current || rfqPending || savePending) return;
+    rfqInFlightRef.current = true;
     setRfqMessage(null);
     startRfqTransition(async () => {
-      const result = await createBuyerRfqCampaign(savedId);
-      if (!result.ok || !result.rfqId) {
-        setRfqMessage(result.error ?? "Creazione RFQ non riuscita.");
-        return;
+      try {
+        const result = await createPrivateRfqOneStep({
+          existingDistintaId: savedId,
+          save: () => saveBuyerDistinta({ title, lines, documents }),
+          create: (savedId) => createBuyerRfqCampaign(savedId),
+          onSaved: (id) => {
+            setSavedId(id);
+            try { window.sessionStorage.removeItem(draftKey); } catch { /* optional tab-scoped draft */ }
+          },
+        });
+        if (!result.ok) {
+          setRfqMessage(result.error);
+          return;
+        }
+        router.push(appRoutes.rfqHub.campaign(result.rfqId));
+      } finally {
+        rfqInFlightRef.current = false;
       }
-      router.push(appRoutes.rfqHub.campaign(result.rfqId));
     });
   }
 
@@ -688,17 +711,13 @@ export function BuyerDistintaBuilder({
         </div>
         <button
           type="button"
-          onClick={allComplete ? copyDistinta : goToIncompleteRow}
-          disabled={allComplete && copyState === "copied"}
+          onClick={allComplete ? (authenticated ? createRfqHub : copyDistinta) : goToIncompleteRow}
+          disabled={(allComplete && !authenticated && copyState === "copied") || rfqPending || savePending || !draftReady || Boolean(restoreCandidate)}
           className="bd53-hud-action"
         >
-          {allComplete
-            ? copyState === "copied"
-              ? "Copiata ✓"
-              : copyState === "error"
-                ? "Riprova copia"
-                : "Copia distinta"
-            : "Completa le righe"}
+          {!allComplete ? "Completa le righe"
+            : authenticated ? (rfqPending ? "Creazione RFQ…" : "Crea RFQ privata →")
+              : copyState === "copied" ? "Copiata ✓" : copyState === "error" ? "Riprova copia" : "Copia distinta"}
         </button>
       </aside>
       <section className="rounded-3xl border border-[#d8e1dd] bg-white p-3 shadow-[0_16px_50px_rgba(18,61,52,0.06)] sm:p-5">
@@ -1211,6 +1230,24 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
               <span>{formatNumber(totals.totalMeters, 2)} m</span>
               <strong>{formatNumber(totals.totalTonnes, 3)} t</strong>
             </div>
+            {authenticated ? (
+              <div className="mt-3 rounded-xl border border-[#c5ddd0] bg-[#f0f8f3] p-3">
+                <button type="button" onClick={createRfqHub}
+                  disabled={!allComplete || !draftReady || Boolean(restoreCandidate) || rfqPending || savePending}
+                  className="platform-primary flex min-h-12 w-full items-center justify-center rounded-lg px-3 text-sm font-extrabold disabled:cursor-not-allowed disabled:opacity-50">
+                  {rfqPending ? "Salvataggio e creazione…" : "Crea RFQ privata →"}
+                </button>
+                <p className="mt-2 text-[11px] leading-4 text-[#34594c]">
+                  Salva la distinta e crea la RFQ con un clic. Bozza privata: nessun invio ai fornitori.
+                </p>
+                {rfqMessage ? <p role="alert" className="mt-2 text-xs font-semibold text-[#95420e]">{rfqMessage}</p> : null}
+              </div>
+            ) : (
+              <p className="mt-3 text-xs leading-5 text-[#52615b]">
+                La distinta è gratuita e copiabile. <Link href={"/login?next=" + encodeURIComponent(appRoutes.rfqHub.createDistinta)}
+                  onClick={persistBrowserDraft} className="font-bold underline underline-offset-2">Accedi per creare una RFQ privata</Link>.
+              </p>
+            )}
             <details className="bd7-global-documents">
               <summary className="bd7-doc-summary">
                 <span className="font-bold">Documentazione richiesta · intera distinta</span>
@@ -1260,14 +1297,17 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
 
       </section>
 
-      <section className="rounded-3xl border border-[#d8e1dd] bg-white p-5 sm:p-6">
-        <div className="grid gap-6 lg:grid-cols-2">
+      <details className="rounded-2xl border border-[#d8e1dd] bg-white shadow-sm">
+        <summary className="flex min-h-12 cursor-pointer items-center px-4 py-3 text-sm font-bold text-[#174e40]">
+          Altre opzioni · salva solo la distinta o invia direttamente via email
+        </summary>
+        <div className="grid gap-6 border-t border-[#d8e1dd] p-4 lg:grid-cols-2">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
               Spazio privato
             </p>
             <h3 className="mt-2 text-xl font-semibold text-[#1d2824]">
-              Salva la richiesta nel tuo account.
+              Salva soltanto la distinta.
             </h3>
             <p className="mt-2 text-sm leading-6 text-[#66736e]">
               Lo snapshot resta privato e separato dai contenuti pubblici. Potrai usarlo come base per richieste e invii ai fornitori.
@@ -1276,7 +1316,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
             {authenticated ? (
               <button
                 type="button"
-                disabled={!allComplete || savePending}
+                disabled={!allComplete || savePending || rfqPending}
                 onClick={saveDistinta}
                 className="platform-primary mt-4 inline-flex min-h-11 items-center justify-center rounded-xl px-5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50"
               >
@@ -1302,22 +1342,9 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
             )}
 
             {savedId ? (
-              <div className="mt-3 rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-4">
-                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-                  RFQ Hub
-                </p>
-                <p className="mt-1 text-sm leading-6 text-[#52615b]">
-                  Trasforma questa distinta salvata in una campagna privata e aggiungi più fornitori senza esporre gli indirizzi tra loro.
-                </p>
-                <button
-                  type="button"
-                  onClick={createRfqHub}
-                  disabled={rfqPending}
-                  className="mt-3 inline-flex min-h-11 items-center justify-center rounded-xl bg-[#173f35] px-5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {rfqPending ? "Creazione RFQ…" : "Avvia RFQ multi-fornitore"}
-                </button>
-              </div>
+              <p className="mt-3 rounded-xl bg-[#edf5f2] px-3 py-2 text-xs font-semibold text-[#173f35]">
+                Distinta salvata ✓ · per creare la RFQ usa il pulsante principale qui sopra.
+              </p>
             ) : null}
 
             {saveMessage ? (
@@ -1371,7 +1398,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
 
                 <button
                   type="button"
-                  disabled={!savedId || sendPending}
+                  disabled={!savedId || sendPending || rfqPending || savePending}
                   onClick={sendDistinta}
                   className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-5 text-sm font-bold text-[#173f35] disabled:cursor-not-allowed disabled:opacity-50"
                 >
@@ -1395,7 +1422,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
             ) : null}
           </div>
         </div>
-      </section>
+      </details>
     </div>
   );
 }

@@ -48,7 +48,20 @@ export async function createBuyerRfqCampaign(
     .eq("id", distintaId)
     .eq("owner_user_id", authData.user.id)
     .maybeSingle();
-  const documents = normalizeBuyerDocumentRequirements(distinta?.document_requirements);
+  if (!distinta) return { ok: false, error: "Distinta non trovata o non autorizzata." };
+  // A successful RPC may have committed even if the browser lost its response.
+  // Reusing the existing owner-scoped campaign makes retries safe without
+  // needing a second snapshot or a schema change.
+  const { data: previous, error: lookupError } = await supabase
+    .from("buyer_rfq_campaigns")
+    .select("id")
+    .eq("source_distinta_id", distintaId)
+    .eq("owner_user_id", authData.user.id)
+    .limit(1)
+    .maybeSingle();
+  if (lookupError) return { ok: false, error: "Impossibile verificare se esiste già una RFQ. Riprova." };
+  if (previous?.id) return { ok: true, rfqId: previous.id };
+  const documents = normalizeBuyerDocumentRequirements(distinta.document_requirements);
   const { data, error } = await supabase.rpc("rfqh1_create_campaign_from_distinta", {
     p_distinta_id: distintaId,
     p_due_at: null,
