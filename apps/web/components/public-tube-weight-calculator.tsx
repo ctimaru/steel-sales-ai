@@ -1015,8 +1015,8 @@ export function PublicTubeWeightCalculator({
                         onClick={() => setFamily(option.value)}
                         className={
                           selected
-                            ? "group flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-[#173f35] bg-[#173f35] px-2 py-1.5 text-white shadow-sm focus-visible:ring-4 focus-visible:ring-[#b8d2c8]"
-                            : "group flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-[#d7e1dd] bg-white px-2 py-1.5 text-[#173f35] hover:-translate-y-0.5 hover:border-[#8fb5a8] focus-visible:ring-4 focus-visible:ring-[#d9e8e2]"
+                            ? "group flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-[#173f35] bg-[#173f35] px-1 py-2 text-white shadow-sm sm:flex-row sm:px-2 focus-visible:ring-4 focus-visible:ring-[#b8d2c8]"
+                            : "group flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-xl border border-[#d7e1dd] bg-white px-1 py-2 text-[#173f35] sm:flex-row sm:px-2 hover:-translate-y-0.5 hover:border-[#8fb5a8] focus-visible:ring-4 focus-visible:ring-[#d9e8e2]"
                         }
                       >
                         <ShapeGraphic family={option.value} className={selected ? "h-7 w-9 text-white sm:h-9 sm:w-10" : "h-7 w-9 text-[#1a5144] sm:h-9 sm:w-10"} />
@@ -1104,10 +1104,10 @@ export function PublicTubeWeightCalculator({
                   {canShowStandardAssist && standardAssist ? (
                     <div className="mt-2 flex min-w-0 items-center gap-2 rounded-xl border border-[#d4e0db] bg-[#f6f8f7] px-2 py-1.5">
                       <div className="shrink-0">
-                        <p className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[#1a5144]">
+                        <p className="text-[11px] font-extrabold uppercase tracking-[0.1em] text-[#1a5144]">
                           Assist {currentStandard.label}
                         </p>
-                        <p className="text-[9px] text-[#66736e]">
+                        <p className="text-[11px] text-[#66736e]">
                           {t("preferito")} {standardAssist.preferred} mm
                         </p>
                       </div>
@@ -1149,7 +1149,8 @@ export function PublicTubeWeightCalculator({
                           <button
                             key={preset}
                             type="button"
-                            onClick={() => setLength(preset)}
+                            aria-pressed={length === preset}
+                             onClick={() => setLength(preset)}
                             className={
                               length === preset
                                 ? "school-selected-control min-h-11 rounded-xl px-3 py-2.5 text-xs font-bold"
@@ -1183,8 +1184,8 @@ export function PublicTubeWeightCalculator({
                         >
                           −
                         </button>
-                        <input
-                          value={quantity}
+                        $1aria-label={t("Numero barre")}
+                           $2
                           onChange={(event) => setQuantity(event.target.value)}
                           inputMode="numeric"
                           className="min-h-11 min-w-0 rounded-xl border border-[#cfd9d5] bg-white px-2 text-center text-sm font-bold text-[#1d2824] outline-none focus:border-[#438d7a]"
@@ -1282,21 +1283,20 @@ export function PublicTubeWeightCalculator({
 
               <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
                 <div className="rounded-xl bg-white/8 p-2">
-                  <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-white/85">{t("Peso per barra")}</p>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/85">{t("Peso per barra")}</p>
                   <p className="metric-number mt-1 text-lg font-semibold">
                     {values.kgBar == null ? "—" : formatOutput(values.kgBar, 2)}
                     <span className="ml-1 text-[10px] text-white/85">kg</span>
                   </p>
                 </div>
                 <div className="rounded-xl bg-white/8 p-2">
-                  <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-white/85">{t("Metri totali")}</p>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/85">{t("Metri totali")}</p>
                   <p className="metric-number mt-1 text-lg font-semibold">
                     {values.totalMeters == null ? "—" : formatOutput(values.totalMeters, 1)}
                     <span className="ml-1 text-[10px] text-white/85">m</span>
                   </p>
                 </div>
-                <div className="rounded-xl bg-white/8 p-2">
-                  <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-white/85">{t("Peso totale")}</p>
+                $1col-span-2 min-w-0 rounded-xl bg-white/8 p-2 sm:col-span-1$2</p>
                   <p className="metric-number mt-1 text-lg font-semibold">
                     {values.totalTonnes == null ? "—" : formatOutput(values.totalTonnes, 4)}
                     <span className="ml-1 text-[10px] text-white/85">t</span>
@@ -1305,7 +1305,7 @@ export function PublicTubeWeightCalculator({
               </div>
 
               {values.targetBars != null ? (
-                <div className="mt-2 flex items-center justify-between gap-3 rounded-xl bg-white/10 px-3 py-2 text-xs">
+                <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs">
                   <span>{t("Barre necessarie")} <strong>{values.targetBars}</strong></span>
                   <span>{t("Tonnellate reali")} <strong>{values.targetActualTonnes == null ? "—" : formatOutput(values.targetActualTonnes, 4)} t</strong></span>
                 </div>
@@ -1313,10 +1313,7 @@ export function PublicTubeWeightCalculator({
             </div>
 
             <div className="min-w-0 flex-1 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:p-4 sm:pb-[calc(1rem+env(safe-area-inset-bottom))]">
-              <div className="grid grid-cols-3 gap-1.5">
-                <button
-                  type="button"
-                  disabled={!currentSnapshot}
+              $1grid grid-cols-2 gap-2 sm:grid-cols-3$2
                   onClick={async () => {
                     if (!currentSnapshot) return;
                     try {
@@ -1333,16 +1330,7 @@ export function PublicTubeWeightCalculator({
                 <button
                   type="button"
                   disabled={!currentSnapshot}
-                  onClick={async () => {
-                    if (!currentSnapshot) return;
-                    try {
-                      await copyTextToClipboard(shareUrl(currentSnapshot));
-                      setActionFeedback("Link condivisibile copiato.");
-                    } catch {
-                      setActionFeedback(locale === "en" ? "Copy failed. Please check clipboard permissions." : "Copia non riuscita: controlla i permessi degli appunti.");
-                    }
-                  }}
-                  className="min-h-11 rounded-xl border border-white/15 bg-white/10 px-2 py-2 text-[10px] font-bold hover:bg-white/15 disabled:opacity-40 sm:text-xs"
+                  $1min-h-11 rounded-xl border border-white/30 bg-white/10 px-2 py-2 text-xs font-bold text-white hover:bg-white/15 disabled:opacity-40$2
                 >
                   {t("Copia link")}
                 </button>
@@ -1365,9 +1353,7 @@ export function PublicTubeWeightCalculator({
                     }
                   }}
                   className={
-                    currentIsFavorite
-                      ? "tube-calculator-favourite-selected col-span-2 min-h-11 rounded-xl border border-white bg-white px-2 py-2 text-xs font-bold sm:col-span-1 text-[#123d34] sm:text-xs"
-                      : "min-h-11 rounded-xl border border-white/15 bg-white/10 px-2 py-2 text-[10px] font-bold hover:bg-white/15 disabled:opacity-40 sm:text-xs"
+                    $1col-span-2 min-h-11 rounded-xl border border-white/30 bg-white/10 px-2 py-2 text-xs font-bold text-white hover:bg-white/15 disabled:opacity-40 sm:col-span-1$2
                   }
                 >
                   {t(currentIsFavorite ? "Preferito ★" : "Aggiungi ai preferiti ☆")}
@@ -1400,7 +1386,7 @@ export function PublicTubeWeightCalculator({
               </p>
 
               <details className="mt-2 rounded-xl border border-white/10 bg-white/5">
-                <summary className="cursor-pointer px-3 py-2 text-xs font-bold">
+                <summary className="flex min-h-11 cursor-pointer items-center px-3 py-2 text-xs font-bold">
                   {t("Metodo e provenienza")}
                 </summary>
                 <div className="border-t border-white/10 px-3 py-2 text-xs leading-5 text-white/85">
@@ -1443,7 +1429,7 @@ export function PublicTubeWeightCalculator({
               </details>
 
               <details className="mt-2 rounded-xl border border-white/10 bg-white/5">
-                <summary className="cursor-pointer px-3 py-2 text-xs font-bold">
+                <summary className="flex min-h-11 cursor-pointer items-center px-3 py-2 text-xs font-bold">
                   {t("Ultimi calcoli e preferiti")}
                 </summary>
                 <div className="grid gap-3 border-t border-white/10 p-2.5 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
@@ -1470,7 +1456,7 @@ export function PublicTubeWeightCalculator({
                           type="button"
                           key={`${calculation.key}-${calculation.savedAt}`}
                           onClick={() => restoreCalculation(calculation)}
-                          className="block w-full rounded-lg bg-white/8 px-2 py-1.5 text-left text-[10px] hover:bg-white/12"
+                          className="block min-h-11 w-full rounded-lg bg-white/8 px-2 py-2 text-left text-xs hover:bg-white/12"
                         >
                           <span className="block truncate font-bold">{calculationStandardLabel(calculation)} · {calculationDimensionLabel(calculation)}</span>
                           <span className="text-white/85">{formatOutput(calculation.kgM, 3)} kg/m · {t("Ripristina")}</span>
@@ -1489,7 +1475,7 @@ export function PublicTubeWeightCalculator({
                           <button
                             type="button"
                             onClick={() => restoreCalculation(calculation)}
-                            className="min-w-0 flex-1 px-1.5 py-1 text-left text-[10px]"
+                            className="min-h-11 min-w-0 flex-1 px-1.5 py-2 text-left text-xs"
                           >
                             <span className="block truncate font-bold">{calculationStandardLabel(calculation)} · {calculationDimensionLabel(calculation)}</span>
                           </button>
@@ -1497,7 +1483,7 @@ export function PublicTubeWeightCalculator({
                             type="button"
                             aria-label={`${t("Rimuovi")} ${calculationDimensionLabel(calculation)} ${t("dai preferiti")}`}
                             onClick={() => saveFavorites(favoriteCalculations.filter((item) => item.key !== calculation.key))}
-                            className="rounded-md px-2 py-1 text-xs font-bold hover:bg-white/10"
+                            className="min-h-11 min-w-11 rounded-md px-2 py-2 text-xs font-bold hover:bg-white/10"
                           >
                             ×
                           </button>
