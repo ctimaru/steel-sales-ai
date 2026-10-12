@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 
 import {
   launchBuyerRfq,
@@ -13,6 +13,9 @@ type SupplierState = {
   id: string;
   status: string;
   hasEmail: boolean;
+  name: string | null;
+  email: string | null;
+  deliveryChannel: string | null;
 };
 
 export function RfqDispatchPanel({
@@ -36,6 +39,9 @@ export function RfqDispatchPanel({
   );
   const [message, setMessage] = useState(buyerMessage ?? "");
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmChecked, setConfirmChecked] = useState(false);
+  const launchLock = useRef(false);
   const [launchPending, startLaunchTransition] = useTransition();
   const [retryPending, startRetryTransition] = useTransition();
   const [reminderPending, startReminderTransition] = useTransition();
@@ -56,30 +62,48 @@ export function RfqDispatchPanel({
   }, [suppliers]);
 
   function launch() {
+    if (!confirmOpen || !confirmChecked || !isDraft || !canExecute ||
+        suppliers.length < 1 || missingEmail > 0 || launchLock.current) return;
+    launchLock.current = true;
     setFeedback(null);
     startLaunchTransition(async () => {
-      const dueIso = deadline ? new Date(deadline).toISOString() : null;
-      const result = await launchBuyerRfq({
-        rfqId,
-        dueAt: dueIso,
-        buyerMessage: message,
-      });
-
-      if (!result.ok) {
-        setFeedback(result.error ?? "Invio RFQ non riuscito.");
-        return;
+      try {
+        const dueIso = deadline ? new Date(deadline).toISOString() : null;
+        const result = await launchBuyerRfq({
+          rfqId,
+          dueAt: dueIso,
+          buyerMessage: message,
+          expectedSupplierIds: suppliers.map(supplier => supplier.id),
+        });
+        if (!result.ok) {
+          setConfirmOpen(false);
+          setConfirmChecked(false);
+          setFeedback(result.error ?? "Invio RFQ non riuscito. Controlla i destinatari e riprova.");
+          return;
+        }
+        setConfirmOpen(false);
+        setConfirmChecked(false);
+        setFeedback(
+          "RFQ avviata: " + String(result.sentCount ?? 0) + " invii effettuati" +
+          ((result.failedCount ?? 0) > 0 ? ", " + String(result.failedCount) + " falliti." : "."),
+        );
+        router.refresh();
+      } catch {
+        setConfirmOpen(false);
+        setConfirmChecked(false);
+        setFeedback("Impossibile verificare l'esito dell'invio. Controlla lo stato della RFQ prima di riprovare.");
+        router.refresh();
+      } finally {
+        launchLock.current = false;
       }
-
-      setFeedback(
-        "RFQ avviata: " +
-          String(result.sentCount ?? 0) +
-          " invii effettuati" +
-          ((result.failedCount ?? 0) > 0
-            ? ", " + String(result.failedCount) + " falliti."
-            : "."),
-      );
-      router.refresh();
     });
+  }
+
+  function reviewRecipients() {
+    if (!isDraft || !canExecute || launchPending || suppliers.length < 1 || missingEmail > 0) return;
+    setConfirmChecked(false);
+    setConfirmOpen(true);
+    setFeedback(null);
   }
 
   function retry() {
@@ -159,7 +183,7 @@ export function RfqDispatchPanel({
             <input
               type="datetime-local"
               value={deadline}
-              onChange={(event) => setDeadline(event.target.value)}
+              onChange={(event) => { setDeadline(event.target.value); setConfirmOpen(false); setConfirmChecked(false); }}
               className="mt-1.5 h-11 w-full rounded-xl border border-[#cfd8d4] bg-white px-3 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
             />
           </label>
@@ -168,7 +192,7 @@ export function RfqDispatchPanel({
             Messaggio ai fornitori
             <textarea
               value={message}
-              onChange={(event) => setMessage(event.target.value)}
+              onChange={(event) => { setMessage(event.target.value); setConfirmOpen(false); setConfirmChecked(false); }}
               rows={3}
               maxLength={4000}
               placeholder="Es. Vi chiediamo la vostra migliore offerta e disponibilità."
@@ -178,14 +202,53 @@ export function RfqDispatchPanel({
 
           <button
             type="button"
-            onClick={launch}
+            onClick={reviewRecipients}
             disabled={launchPending || suppliers.length < 1 || missingEmail > 0}
             className="platform-primary inline-flex min-h-11 items-center justify-center rounded-xl px-5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50"
           >
             {launchPending
               ? "Invio in corso…"
-              : "Invia RFQ a " + String(suppliers.length) + " fornitori"}
+              : "Controlla " + String(suppliers.length) + " destinatari →"}
           </button>
+        </div>
+      ) : null}
+
+      {isDraft && canExecute && confirmOpen ? (
+        <div role="region" aria-label="Conferma finale invio RFQ"
+          className="mt-4 rounded-2xl border-2 border-[#174b3d] bg-white p-4 sm:p-5">
+          <h3 className="text-base font-extrabold text-[#173f35]">Conferma l&apos;invio a {suppliers.length} fornitori</h3>
+          <p className="mt-1 text-xs leading-5 text-[#52615b]">
+            Partiranno email separate, una per indirizzo, con il link personale alla richiesta.
+            Il Marketplace non verrà pubblicato e i prezzi target interni non saranno condivisi.
+          </p>
+          <ul className="mt-3 max-h-60 space-y-2 overflow-y-auto rounded-xl border border-[#e1e8e4] bg-[#f9fbfa] p-3">
+            {suppliers.map((supplier, index) => (
+              <li key={supplier.id} className="flex min-w-0 flex-col gap-1 border-b border-[#e4eae6] pb-2 text-xs last:border-0 last:pb-0 sm:flex-row sm:justify-between">
+                <span className="font-bold text-[#173f35]">{index + 1}. {supplier.name || "Fornitore"}</span>
+                <span className="break-all text-[#52615b]">{supplier.email || "Email mancante"}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="mt-3 space-y-1 text-xs leading-5 text-[#52615b]">
+            <p><strong>Canale effettivo:</strong> email individuali, non messaggio interno alla piattaforma.</p>
+            <p><strong>Scadenza offerta:</strong> {deadline ? new Date(deadline).toLocaleString("it-IT") : "non specificata"}</p>
+            <p><strong>Messaggio:</strong> {message.trim() || "Nessun messaggio aggiuntivo"}</p>
+          </div>
+          <label className="mt-4 flex min-h-11 cursor-pointer items-start gap-2 rounded-lg bg-[#f0f8f3] p-3 text-xs font-semibold text-[#173f35]">
+            <input type="checkbox" checked={confirmChecked} onChange={(event) => setConfirmChecked(event.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-[#174b3d]" />
+            Ho verificato destinatari e indirizzi. Confermo l&apos;invio reale delle email.
+          </label>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button type="button" onClick={launch} disabled={!confirmChecked || launchPending || missingEmail > 0}
+              className="platform-primary min-h-11 rounded-xl px-4 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50">
+              {launchPending ? "Invio in corso…" : "Conferma e invia a " + suppliers.length + " fornitori"}
+            </button>
+            <button type="button" onClick={() => { setConfirmOpen(false); setConfirmChecked(false); }}
+              disabled={launchPending} className="min-h-11 rounded-xl border border-[#c3d5cb] bg-white px-4 text-sm font-semibold text-[#174b3d] disabled:opacity-50">
+              Annulla, modifica la RFQ
+            </button>
+          </div>
         </div>
       ) : null}
 
