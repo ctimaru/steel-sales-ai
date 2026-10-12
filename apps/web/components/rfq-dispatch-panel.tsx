@@ -129,10 +129,10 @@ export function RfqDispatchPanel({
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-2xl">
           <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-            RFQH3 · Governed Dispatch
+            {isDraft ? "2 · Verifica e invia" : "Tracciamento inviti"}
           </p>
           <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
-            {isDraft ? "Invia la RFQ ai fornitori selezionati." : "Tracking inviti fornitori."}
+            {isDraft ? "Invia la richiesta ai fornitori scelti" : "Tracking inviti fornitori."}
           </h2>
           <p className="mt-2 text-sm leading-6 text-[#66736e]">
             Ogni fornitore riceve un&apos;email separata con link personale. Gli altri destinatari non sono visibili.
@@ -187,6 +187,12 @@ export function RfqDispatchPanel({
               : "Invia RFQ a " + String(suppliers.length) + " fornitori"}
           </button>
         </div>
+      ) : null}
+
+      {isDraft && canExecute && suppliers.length === 0 ? (
+        <p role="status" className="mt-3 rounded-xl bg-white px-3 py-2 text-xs font-semibold text-[#47675c]">
+          Seleziona almeno un fornitore qui sopra prima dell&apos;invio. Nessuna email parte finché non premi «Invia RFQ».
+        </p>
       ) : null}
 
       {missingEmail > 0 && isDraft && canExecute ? (
