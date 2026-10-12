@@ -5,6 +5,8 @@ on:
     paths:
       - "apps/web/tests/demotest23-*.mjs"
       - "apps/web/tests/rfqh14-2-*.mjs"
+      - "apps/web/tests/bd15-*.mjs"
+      - "supabase/tests/bd15_*.sql"
       - "apps/web/tests/rfqh14-2b-*.mjs"
       - "supabase/tests/rfqh14_2b_*.sql"
       - "supabase/tests/rfqh14_2_chrome_procurement_seed.sql"
@@ -129,6 +131,16 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 20
         run: node tests/rfqh14-2-chrome-procurement.mjs
+      - name: "BD15 — Chrome E2E calculator → RFQ → bulk suppliers → reviewed confirmation"
+        working-directory: apps/web
+        timeout-minutes: 15
+        run: node tests/bd15-chrome-rfq-funnel.mjs
+      - name: "BD15 — Assert LOCAL-only two private RFQs, mixed EN and zero dispatch"
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 -f supabase/tests/bd15_acceptance_no_send.sql
       - name: "RFQH14.2b — Seed pending second-user PO approval (LOCAL DB)"
         env:
           PGPASSWORD: postgres
