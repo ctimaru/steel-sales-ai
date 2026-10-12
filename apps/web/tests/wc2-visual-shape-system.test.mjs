@@ -30,10 +30,10 @@ test("WC2 renders dimension callouts around the section", () => {
   assert.match(calculator, /primaryDimension/);
   assert.match(calculator, /secondaryDimension/);
   assert.match(calculator, /thicknessDimension/);
-  assert.match(calculator, /Ø \$\{formatNumber\(d, 2\)\} mm/);
-  assert.match(calculator, /B \$\{formatNumber\(b, 2\)\} mm/);
-  assert.match(calculator, /H \$\{formatNumber\(h, 2\)\} mm/);
-  assert.match(calculator, /t \$\{formatNumber\(t, 2\)\} mm/);
+  assert.match(calculator, /Ø \$\{formatDiagramNumber\(d, 2\)\} mm/);
+  assert.match(calculator, /B \$\{formatDiagramNumber\(b, 2\)\} mm/);
+  assert.match(calculator, /H \$\{formatDiagramNumber\(h, 2\)\} mm/);
+  assert.match(calculator, /t \$\{formatDiagramNumber\(t, 2\)\} mm/);
 });
 
 test("WC2 keeps the SVG accessible and responsive", () => {
