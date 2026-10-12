@@ -57,8 +57,8 @@ export function isStandardComparable(reference: PublicReference, calculatorStand
 }
 
 /** A proximity search for discoverability, NEVER a normative or mass equivalence assertion. */
-export function relatedTubeReferences(
-  references: readonly PublicReference[],
+export function relatedTubeReferences<T extends PublicReference>(
+  references: readonly T[],
   selected: {
     family: PublicReference["product_family"];
     outerDiameter: number | null;
