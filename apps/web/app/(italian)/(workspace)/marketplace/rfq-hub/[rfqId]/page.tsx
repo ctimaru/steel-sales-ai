@@ -153,6 +153,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
     campaign.owner_user_id === authData.user?.id;
 
   const supplierRows = suppliers ?? [];
+  const isPreparation = campaign.status === "draft" || campaign.status === "ready";
   const lineRows = lines ?? [];
   const quoteRows = quotes ?? [];
   const comparisonData =
@@ -323,7 +324,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
 
       <header className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-7">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
-          RFQ multi-fornitore
+          {isPreparation ? "RFQ privata · preparazione" : "RFQ multi-fornitore"}
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-[#1d2824]">
           {campaign.title}
@@ -344,52 +345,32 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
         </div>
       </header>
 
-      <Rfqh13GovernancePanel
-        rfqId={campaign.id}
-        currentUserId={authData.user?.id ?? null}
-        state={governance}
-      />
-
-      <RfqDispatchPanel
-        rfqId={campaign.id}
-        campaignStatus={campaign.status}
-        dueAt={campaign.due_at}
-        buyerMessage={campaign.buyer_message}
-        canExecute={canExecuteCritical}
-        suppliers={supplierRows.map((supplier) => ({
-          id: supplier.id,
-          status: supplier.status,
-          hasEmail: Boolean(supplier.supplier_email_normalized),
-        }))}
-      />
-
-      {(campaign.status === "draft" || campaign.status === "ready") && canExecuteCritical ? (
-        <RfqSupplierAddForm rfqId={campaign.id} />
+      {isPreparation ? (
+        <nav aria-label="Percorso rapido RFQ" className="rounded-2xl border border-[#c6dcd0] bg-[#f3faf6] px-4 py-3">
+          <p className="text-sm font-bold text-[#123d34]">La distinta è pronta. Ora scegli come richiedere le offerte.</p>
+          <p className="mt-1 text-xs leading-5 text-[#47675c]">La RFQ è ancora privata: non è stata inviata a nessuno e non è pubblicata nel Marketplace.</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <a href="#rfq-select-suppliers" className="inline-flex min-h-11 items-center rounded-xl bg-[#174b3d] px-3 text-xs font-bold text-white hover:bg-[#12382f]">
+              1 · Scegli i fornitori
+            </a>
+            <a href="#rfq-review-send" className="inline-flex min-h-11 items-center rounded-xl border border-[#a6c7b7] bg-white px-3 text-xs font-bold text-[#174b3d] hover:bg-[#e7f4eb]">
+              2 · Verifica e invia
+            </a>
+            <a href="#rfq-marketplace-choice" className="inline-flex min-h-11 items-center px-2 text-xs font-semibold text-[#174b3d] underline underline-offset-2">
+              Oppure usa il Marketplace
+            </a>
+          </div>
+        </nav>
       ) : null}
 
-      <RfqMarketplaceBridgePanel
-        rfqId={campaign.id}
-        campaignStatus={campaign.status}
-        canExecute={canExecuteCritical}
-        sourceLines={lineRows.map((line) => ({
-          id: line.id,
-          line_position: line.line_position,
-          description: line.description,
-          standard_code: line.standard_code,
-          grade_code: line.grade_code,
-          finish_code: line.finish_code,
-          line_tonnes: line.line_tonnes,
-        }))}
-        state={
-          marketplaceBridgeState &&
-          typeof marketplaceBridgeState === "object" &&
-          !Array.isArray(marketplaceBridgeState)
-            ? (marketplaceBridgeState as Rfqh8BridgeState)
-            : null
-        }
-      />
+      {isPreparation && canExecuteCritical ? (
+        <div id="rfq-select-suppliers" className="scroll-mt-24">
+          <RfqSupplierAddForm rfqId={campaign.id} />
+        </div>
+      ) : null}
 
-      <section className="rounded-2xl border border-[#dce2df] bg-white">
+      {(supplierRows.length > 0 || !isPreparation) ? (
+        <section aria-label="Destinatari selezionati" className="rounded-2xl border border-[#dce2df] bg-white">
         <div className="border-b border-[#e7ece9] px-5 py-4">
           <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
             Fornitori target
@@ -443,7 +424,106 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
           </div>
         )}
       </section>
+      ) : null}
 
+      <div id="rfq-review-send" className="scroll-mt-24">
+      <RfqDispatchPanel
+        rfqId={campaign.id}
+        campaignStatus={campaign.status}
+        dueAt={campaign.due_at}
+        buyerMessage={campaign.buyer_message}
+        canExecute={canExecuteCritical}
+        suppliers={supplierRows.map((supplier) => ({
+          id: supplier.id,
+          status: supplier.status,
+          hasEmail: Boolean(supplier.supplier_email_normalized),
+        }))}
+      />
+      </div>
+
+      {isPreparation ? (
+        <details id="rfq-marketplace-choice" className="rounded-2xl border border-[#cddbd6] bg-white" >
+          <summary className="min-h-14 cursor-pointer px-4 py-4 text-sm font-bold text-[#173f35] sm:px-5">
+            Alternativa · Pubblica la RFQ nel Marketplace (facoltativo)
+          </summary>
+          <p className="border-t border-[#e1eae5] px-4 pt-3 text-xs leading-5 text-[#52615b] sm:px-5">
+            Modalità diversa dall&apos;invio privato: configura la richiesta e conferma esplicitamente la pubblicazione.
+            Non viene pubblicata aprendo questa sezione.
+          </p>
+          <div className="p-3 sm:p-4">
+      <RfqMarketplaceBridgePanel
+        rfqId={campaign.id}
+        campaignStatus={campaign.status}
+        canExecute={canExecuteCritical}
+        sourceLines={lineRows.map((line) => ({
+          id: line.id,
+          line_position: line.line_position,
+          description: line.description,
+          standard_code: line.standard_code,
+          grade_code: line.grade_code,
+          finish_code: line.finish_code,
+          line_tonnes: line.line_tonnes,
+        }))}
+        state={
+          marketplaceBridgeState &&
+          typeof marketplaceBridgeState === "object" &&
+          !Array.isArray(marketplaceBridgeState)
+            ? (marketplaceBridgeState as Rfqh8BridgeState)
+            : null
+        }
+      />
+          </div>
+        </details>
+      ) : (
+      <RfqMarketplaceBridgePanel
+        rfqId={campaign.id}
+        campaignStatus={campaign.status}
+        canExecute={canExecuteCritical}
+        sourceLines={lineRows.map((line) => ({
+          id: line.id,
+          line_position: line.line_position,
+          description: line.description,
+          standard_code: line.standard_code,
+          grade_code: line.grade_code,
+          finish_code: line.finish_code,
+          line_tonnes: line.line_tonnes,
+        }))}
+        state={
+          marketplaceBridgeState &&
+          typeof marketplaceBridgeState === "object" &&
+          !Array.isArray(marketplaceBridgeState)
+            ? (marketplaceBridgeState as Rfqh8BridgeState)
+            : null
+        }
+      />
+      )}
+
+      {isPreparation ? (
+        <details className="rounded-2xl border border-[#dce2df] bg-white">
+          <summary className="min-h-12 cursor-pointer px-4 py-3 text-sm font-bold text-[#173f35]">
+            Autorizzazioni e approvazioni aziendali · apri se necessario
+          </summary>
+          <div className="border-t border-[#e1eae5] p-3 sm:p-4">
+      <Rfqh13GovernancePanel
+        rfqId={campaign.id}
+        currentUserId={authData.user?.id ?? null}
+        state={governance}
+      />
+          </div>
+        </details>
+      ) : (
+      <Rfqh13GovernancePanel
+        rfqId={campaign.id}
+        currentUserId={authData.user?.id ?? null}
+        state={governance}
+      />
+      )}
+
+      <details open={!isPreparation} className="rounded-2xl border border-[#dce2df] bg-white">
+        <summary className="min-h-12 cursor-pointer px-4 py-3 text-sm font-bold text-[#173f35] sm:px-5">
+          {isPreparation ? "Fasi successive · offerte, negoziazione e ordini" : "Offerte, negoziazione e ordini"}
+        </summary>
+        <div className="space-y-5 border-t border-[#e1eae5] p-3 sm:p-4">
       <RfqQuoteComparison comparison={comparisonData} />
 
       <RfqBuyerNegotiationPanel
@@ -694,6 +774,8 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
           I PO generati dall&apos;assegnazione possono essere versionati, emessi e confermati dal fornitore tramite link personale, mantenendo prezzi e quantità della decisione commerciale.
         </p>
       </section>
+        </div>
+      </details>
     </div>
   );
 }

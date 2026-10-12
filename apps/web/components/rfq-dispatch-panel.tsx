@@ -189,6 +189,12 @@ export function RfqDispatchPanel({
         </div>
       ) : null}
 
+      {isDraft && canExecute && suppliers.length === 0 ? (
+        <p role="status" className="mt-3 rounded-xl bg-white px-3 py-2 text-xs font-semibold text-[#47675c]">
+          Seleziona almeno un fornitore qui sopra prima dell&apos;invio. Nessuna email parte finché non premi «Invia RFQ».
+        </p>
+      ) : null}
+
       {missingEmail > 0 && isDraft && canExecute ? (
         <p className="mt-3 rounded-xl border border-[#ead9c0] bg-[#fffaf1] px-4 py-3 text-xs font-semibold text-[#7b5e2b]">
           {missingEmail} fornitore/i non hanno ancora un indirizzo email utilizzabile. RFQH3 blocca il launch finché tutti i destinatari non sono inviabili.
