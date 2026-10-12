@@ -27,7 +27,7 @@ test("BD11: in-place add skips the queue, persists as an editable line, and keep
 });
 
 test("BD11: weight remains theoretical and per-line standard and grade are respected", () => {
-  assert.match(handoff, /kgM:item\.kgM\.toLocaleString/);
+  assert.match(handoff, /weightKgM:item\.kgM\.toLocaleString/);
   assert.match(dist, /\(meters \* weightKgM\) \/ 1000/);
   assert.match(builder, /grade: quickGrade\.trim\(\)/);
   assert.match(builder, /canAddToDistinta=\{draftReady && !restoreCandidate/);

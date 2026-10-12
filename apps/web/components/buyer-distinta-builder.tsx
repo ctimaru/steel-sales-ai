@@ -838,7 +838,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
               </div>
             </details>
           </div>
-          <aside id="buyer-live-preview" className="bd7-preview scroll-mt-24" aria-label="Distinta in composizione">
+          <aside className="bd7-preview" id="buyer-live-preview" style={{ scrollMarginTop: "6rem" }} aria-label="Distinta in composizione">
             <div className="bd7-preview-head">
               <div>
                 <p className="bd6-eyebrow">Anteprima in tempo reale</p>
@@ -861,7 +861,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
               </div>
             ) : null}
             {activeLineCount === 0 ? (
-              <p className="bd9-preview-empty">Nessun articolo ancora aggiunto. Scegli misura e quantità nella calcolatrice e premi “Aggiungi alla distinta”.</p>
+              <p className="bd9-preview-empty">Nessun articolo ancora inserito. Scegli misura e quantità nella calcolatrice e premi “Aggiungi alla distinta”.</p>
             ) : null}
                     <div className="bd10-preview-lines" aria-label="Articoli della distinta">
         <datalist id="buyer-standards"><option value="EN 10219" /><option value="EN 10210" /><option value="EN 10305" /></datalist>
