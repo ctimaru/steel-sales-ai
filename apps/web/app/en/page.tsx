@@ -210,7 +210,10 @@ export default function EnglishHomePage() {
             <Link href="/en/network" className="font-semibold hover:text-[#173f35]">Network</Link>
             <Link href="/en/knowledge/tubes" className="font-semibold hover:text-[#173f35]">Weight calculator</Link>
             <Link href="/en/distinta" className="font-semibold hover:text-[#173f35]">RFQ builder</Link>
-            <Link href="/privacy" hrefLang="it" className="font-semibold hover:text-[#173f35]">Privacy (IT)</Link>
+                        <Link href="/en/investors" className="font-semibold hover:text-[#173f35]">Investors</Link>
+            <a href="https://www.linkedin.com/company/smart-steel-sales" target="_blank" rel="noopener noreferrer" className="font-semibold hover:text-[#173f35]">LinkedIn ↗</a>
+            <a href="mailto:hello@smartsteelsales.com" className="font-semibold hover:text-[#173f35]">hello@smartsteelsales.com</a>
+<Link href="/privacy" hrefLang="it" className="font-semibold hover:text-[#173f35]">Privacy (IT)</Link>
             <Link href="/terms" hrefLang="it" className="font-semibold hover:text-[#173f35]">Terms (IT)</Link>
             <Link href="/" hrefLang="it" className="font-semibold hover:text-[#173f35]">Italiano</Link>
           </div>
