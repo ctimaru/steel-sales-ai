@@ -20,6 +20,7 @@ on:
       - "apps/web/tests/i18n8-*"
       - "apps/web/tests/bd11-*"
       - "apps/web/tests/bd12-*"
+      - "apps/web/tests/bd17-*"
       - ".github/workflows/perf2-1-mobile-acceptance.yml"
   workflow_dispatch:
 
@@ -71,6 +72,8 @@ jobs:
         run: node tests/calc-ux3-chrome-mobile.mjs
       - name: BD11 Chrome calculator-first, one-click visible mixed-norm RFQ bill
         run: node tests/bd11-chrome-quick-add.mjs
+      - name: BD17 Chrome A/B CTA variants, consent gating and login handoff
+        run: node tests/bd17-chrome-cta-variants.mjs
       - name: HOME-SI5 Chrome visual / WCAG / SEO acceptance
         run: node tests/home-si5-chrome-visual-qa.mjs
       - name: Upload CALC-UX3 calculator Chrome screenshots (public / no credentials)

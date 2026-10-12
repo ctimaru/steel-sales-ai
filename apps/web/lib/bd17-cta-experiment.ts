@@ -9,10 +9,10 @@ export type Bd17TabStorage = {
   setItem(key: string, value: string): void;
 };
 const ARM_KEY = "sss.bd17.cta.arm.v1";
-const eventName: Record<Bd17Arm, Record<Bd17Action, string>> = {
+const eventName = {
   control: { view: "bd17_cta_control_view", click: "bd17_cta_control_click" },
   clarity: { view: "bd17_cta_clarity_view", click: "bd17_cta_clarity_click" },
-};
+} as const;
 export function chooseBd17Arm(storage: Bd17TabStorage | null, random: number): Bd17Arm {
   try {
     const saved = storage?.getItem(ARM_KEY);
@@ -37,7 +37,7 @@ export function recordBd17Once(
   const key = "sss.bd17.cta." + arm + "." + action + ".v1";
   try {
     if (storage.getItem(key) === "1") return false;
-    track(eventName[arm][action] as "bd17_cta_control_view");
+    track(eventName[arm][action]);
     storage.setItem(key, "1");
     return true;
   } catch {
