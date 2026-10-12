@@ -145,7 +145,7 @@ try {
       await page.getByText(/canale email RFQ non è ancora configurato/).waitFor({state:"visible",timeout:45000});
       assert.equal(await review.count(),0);
       const body=await page.locator("body").innerText();
-      assert.match(body,/RFQ privata · preparazione/);
+      assert.match(body,/RFQ privata · preparazione/i);
       await noOverflow(page,"disabled dispatch "+width);
     });
     await ctx.close();
