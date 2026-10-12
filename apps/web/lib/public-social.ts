@@ -5,7 +5,7 @@
  */
 export function getLinkedInCompanyUrl(): string | null {
   const configured = process.env.NEXT_PUBLIC_LINKEDIN_COMPANY_URL?.trim();
-  if (!configured) return null;
+  if (!configured) return "https://www.linkedin.com/company/smart-steel-sales";
 
   try {
     const url = new URL(configured);

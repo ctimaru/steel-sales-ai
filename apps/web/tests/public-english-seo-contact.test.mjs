@@ -36,7 +36,8 @@ test("Contact is present on both homes without inventing a LinkedIn message URL"
   assert.match(englishHome, /<PublicContactSection locale="en" \/>/);
   assert.match(contact, /getLinkedInCompanyUrl/);
   assert.match(contact, /get-in-touch/);
-  assert.match(contact, /LinkedIn company page coming soon/);
+  assert.match(contact, /LinkedIn/);
+  assert.match(social, /https:\/\/www\.linkedin\.com\/company\/smart-steel-sales/);
   assert.doesNotMatch(contact, /linkedin\.com\/messaging\/compose/);
   assert.match(social, /NEXT_PUBLIC_LINKEDIN_COMPANY_URL/);
   assert.match(social, /linkedin\.com/);

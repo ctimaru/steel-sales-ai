@@ -46,6 +46,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticEntries: MetadataRoute.Sitemap = [
     {
+      url: absoluteUrl("/investitori"),
+      changeFrequency: "monthly",
+      priority: 0.65,
+      alternates: { languages: { it: absoluteUrl("/investitori"), en: absoluteUrl("/en/investors") } },
+    },
+    {
+      url: absoluteUrl("/en/investors"),
+      changeFrequency: "monthly",
+      priority: 0.65,
+      alternates: { languages: { it: absoluteUrl("/investitori"), en: absoluteUrl("/en/investors") } },
+    },
+    {
       url: absoluteUrl("/"),
       lastModified: knowledgeLastModified,
       changeFrequency: "weekly",
