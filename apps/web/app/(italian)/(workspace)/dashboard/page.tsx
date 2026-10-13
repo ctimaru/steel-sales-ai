@@ -120,6 +120,7 @@ export default async function DashboardPage({
       href: appRoutes.rfqHub.campaign(item.rfq_id!),
       value: null as number | null,
       title: item.headline || "RFQ da gestire",
+      description: "Apri la richiesta e completa la prossima azione.",
       accent: item.priority === "urgent"
         ? "border-[#ddb977] bg-[#fff6e7] text-[#815017]"
         : "border-[#a9ccbb] bg-[#f2f8f4] text-[#225c47]",
@@ -129,6 +130,7 @@ export default async function DashboardPage({
           href: appRoutes.operations.review,
           value: metrics.reviewFlags as number | null,
           title: "Elementi da verificare",
+          description: "Richiede una decisione umana.",
           accent: "border-[#ddb977] bg-[#fff6e7] text-[#815017]",
         }]
       : []),
@@ -217,6 +219,7 @@ export default async function DashboardPage({
           <div className="flex flex-wrap items-center gap-2">
             <h2 id="daily-priorities" className="mr-1 text-xs font-semibold text-[#754a18]">
               Cosa richiede attenzione
+              <span className="sr-only"> · Solo segnali con un’azione concreta.</span>
             </h2>
             <div className="flex min-w-0 flex-wrap gap-2">
               {attentionItems.map((item) => (
@@ -227,6 +230,7 @@ export default async function DashboardPage({
                 >
                   {item.value !== null ? <span className="font-bold tabular-nums">{item.value}</span> : null}
                   <span className="truncate">{item.title}</span>
+                  <span className="sr-only">{item.description}</span>
                   <span aria-hidden="true">→</span>
                 </Link>
               ))}
@@ -279,7 +283,7 @@ export default async function DashboardPage({
                 {operationalKpis.map((kpi) => (
                   <div key={kpi.label} className="flex items-center justify-between gap-2 py-2">
                     <dt className="text-xs text-[#52615b]">{kpi.label}</dt>
-                    <dd className="text-base font-semibold tabular-nums text-[#173f35]">{kpi.value.toLocaleString("it-IT")}</dd>
+                    <dd className="metric-number text-base font-semibold tabular-nums text-[#173f35]">{kpi.value.toLocaleString("it-IT")}</dd>
                   </div>
                 ))}
               </dl>
