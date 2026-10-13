@@ -62,7 +62,7 @@ test("DASH-FEED3 reads published, authenticated personal feed only; parallel, bo
     "sp6_my_article_engagement",
     "sp8_my_feed_interests",
   ]);
-  assert.deepEqual(calls.map((x) => x.args?.p_limit), [6, 12, undefined]);
+  assert.deepEqual(calls.map((x) => x.args?.p_limit), [12, 12, undefined]);
   assert.doesNotMatch(reader, /service_role|organization_memberships|select\(/i);
 });
 

@@ -34,7 +34,7 @@ export async function loadDashboardPulse(): Promise<DashboardPulseState> {
   try {
     const db = await createClient();
     const [feedResult, engagementResult, interestsResult] = await Promise.all([
-      db.rpc("sp5_my_steel_pulse_feed", { p_limit: 6 }),
+      db.rpc("sp5_my_steel_pulse_feed", { p_limit: 12 }),
       db.rpc("sp6_my_article_engagement", { p_limit: 12 }),
       db.rpc("sp8_my_feed_interests"),
     ]);
