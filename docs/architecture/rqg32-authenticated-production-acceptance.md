@@ -34,6 +34,17 @@ Workflow: \`.github/workflows/rqg32-production-auth-review.yml\` (manual workflo
 4. Browser sessions are isolated by context; login authorization and tenant markers are evaluated independently; no real evidence values are logged.
 5. A failure to log in, missing dedicated account/marker, unexpected lane, reviewer escalation, private-data leakage or unauthorized route reachability **fails** the run. The workflow is never triggered on a PR/push or scheduled; no additional Vercel build or app cron is required.
 
+
+## RQG3.2b — Consolidated production QA acceptance gate (2026-10-13)
+
+The earlier eight-persona workflow **has been retired**: it required a synthetic Platform Owner and could be confused with the strict seven-persona suite. Exactly one production Platform Owner remains; the real Owner's password is **never** placed in GitHub Secrets.
+
+**Single authorised workflow**: `.github/workflows/rqg32-production-auth-review.yml`, manual-only from `main`, environment `production-qa`. It refuses Chrome sign-in until a **read-only RQG3.2a readiness check** validates all seven trusted Auth users, precisely scoped staff and company memberships, two completed synthetic organizations and their two pending review markers. The privileged `RQG32A_AUTH_SECRET_KEY` is visible only to the preflight step, **not** the Chrome step; credentials are loaded from protected Actions secrets.
+
+Use the same `production-qa` environment for the RQG3.2a provisioning tool and the Chrome gate; restrict it to the `main` branch and use environment approvals when available. Do not store passwords in general repository secrets if you can use protected environment secrets. The seven emails and two markers must match the exact `RQG32` contract; no second owner persona is permitted.
+
+**Current real production result**: zero RQG32 users, zero demo organizations and zero demo Review items in Supabase, one active owner. RQG3.2b makes the test **safe to execute once authorized data exists**, but **the authenticated live production acceptance is BLOCKED and has NOT run**. No production accounts, permissions, records, decision RPCs or Review statuses were created/changed by this code.
+
 ## Exit gate
 
 - [x] Local authenticated Chrome with platform/company roles and RPCs (RQG3.1).

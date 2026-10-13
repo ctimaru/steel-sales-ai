@@ -18,7 +18,9 @@ concurrency:
 jobs:
   production-authenticated-review:
     name: Real Chrome / 7 synthetic users / production / read-only
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    environment: production-qa
     timeout-minutes: 25
     env:
       CI: "true"
@@ -70,10 +72,20 @@ jobs:
           node-version: "22"
           cache: npm
           cache-dependency-path: apps/web/package-lock.json
+      - name: Install dependencies for read-only RQG32a readiness verification
+        working-directory: apps/web
+        run: npm ci --no-audit --no-fund
+      - name: Enforce seven governed synthetic roles and two isolated Review markers
+        working-directory: apps/web
+        env:
+          RQG32A_MODE: ready
+          RQG32A_APPROVAL: RQG32A_INSPECT_SYNTHETIC_USERS
+          RQG32A_SUPABASE_URL: https://ecrafjdummcdfycznitx.supabase.co
+          RQG32A_AUTH_SECRET_KEY: ${{ secrets.RQG32A_AUTH_SECRET_KEY }}
+        run: node tests/rqg32a-provision-auth-personas.mjs
       - name: Install ephemeral Chrome QA dependencies
         working-directory: apps/web
         run: |
-          npm ci --no-audit --no-fund
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chrome
       - name: Test production with REAL Chrome and NO Review mutations
