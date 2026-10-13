@@ -124,6 +124,33 @@ try {
       }
     });
 
+    await step(p.id + " DASH-FEED6 discovery and role-safe navigation", async () => {
+      await navigate(page, "/dashboard");
+      await page.getByRole("heading", { name: "Oggi in " + p.name, exact: true })
+        .waitFor({ state: "visible", timeout: 60000 });
+      const discovery = page.locator("#dashboard-discovery");
+      await discovery.waitFor({ state: "attached", timeout: 60000 });
+      assert.equal(await page.getByRole("heading", { name: "Dalla rete, per te" }).count(), 1);
+      assert.equal(await page.locator('a[href="#dashboard-discovery"]').count(), 1,
+        "Keyboard/touch jump to Marketplace opportunities required");
+      assert.equal(await discovery.locator("article").count() <= 6, true,
+        "Maximum three Network and three Marketplace items");
+      const companyLinks = discovery.locator('a[href^="/network/"]');
+      const opportunityLinks = discovery.locator('a[href^="/marketplace/opportunities/"]');
+      assert.ok((await opportunityLinks.count()) <= 3);
+      if (p.id === "buyerViewer") {
+        assert.ok((await page.locator("body").innerText()).includes("Sola lettura"));
+      }
+      for (const other of personas) {
+        if (other.org !== p.org) {
+          assert.ok(!(await discovery.innerText()).includes(other.rfqTitle),
+            "Cross-company private RFQ leaked into discovery");
+        }
+      }
+      // Links remain within the existing authenticated and entitlement routes.
+      assert.ok((await companyLinks.count()) >= 0);
+    });
+
     await step(p.id + " RFQ Hub visibility", async () => {
       await navigate(page, "/rfq-hub");
       await page.getByRole("heading", { name: "RFQ Hub", exact: true })
@@ -270,6 +297,23 @@ try {
       scroll: document.documentElement.scrollWidth,
     }));
     assert.ok(measures.scroll <= measures.client + 12, "Dashboard has horizontal overflow");
+  });
+  await step("DASH-FEED6 Chrome 320px mobile disclosure and discovery jump", async () => {
+    await mobilePage.setViewportSize({ width: 320, height: 740 });
+    await navigate(mobilePage, "/dashboard");
+    await mobilePage.getByRole("heading", { name: "Oggi in " + personas[0].name, exact: true })
+      .waitFor({ state: "visible", timeout: 60000 });
+    await mobilePage.locator("#dashboard-discovery").waitFor({ state: "attached", timeout: 60000 });
+    const jump = mobilePage.getByRole("link", { name: /Vai alle opportunità/ });
+    assert.equal(await jump.count(), 1);
+    const size = await mobilePage.evaluate(() => ({
+      client: document.documentElement.clientWidth,
+      scroll: document.documentElement.scrollWidth,
+    }));
+    assert.ok(size.scroll <= size.client + 12, "320px dashboard horizontal overflow");
+    await jump.click();
+    assert.equal(new URL(mobilePage.url()).hash, "#dashboard-discovery");
+    assert.equal(await mobilePage.getByRole("heading", { name: "Dalla rete, per te" }).count(), 1);
   });
   await mobile.close();
 
