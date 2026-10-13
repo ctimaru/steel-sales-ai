@@ -95,7 +95,7 @@ try {
       assert.ok(!body.includes(excluded),id+" read another tenant review evidence");
       assert.ok(body.includes("Qualità dati aziendali"));
       await visit(page,"/review");
-      assert.equal(new URL(page.url()).pathname,"/review");
+      assert.equal(new URL(page.url()).pathname,"/operations/review", "Legacy /review should canonicalize to Company Review");
       await rejectPage(page,"/platform/review");
     });
   }
