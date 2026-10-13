@@ -89,7 +89,11 @@ try {
   ]) {
     await run(id+" Company Review sees ONLY current tenant",async()=>{
       const page=sessions.get(id).page;
-      const body=await visit(page,"/operations/review");
+      await visit(page,"/operations/review");
+      // Next may stream the private queue after the initial HTML shell.
+      // Await the *expected owned evidence*, rather than sampling a partial body.
+      await page.getByText(wanted,{exact:false}).first().waitFor({state:"visible",timeout:60000});
+      const body=await page.locator("body").innerText();
       assert.equal(new URL(page.url()).pathname,"/operations/review");
       assert.ok(body.includes(wanted),id+" missing own review evidence");
       assert.ok(!body.includes(excluded),id+" read another tenant review evidence");
@@ -105,7 +109,9 @@ try {
   });
   await run("Platform Owner has all Platform lanes but no automatic Company Review",async()=>{
     const page=sessions.get("owner").page;
-    const body=await visit(page,"/platform/review");
+    await visit(page,"/platform/review");
+    await page.getByRole("heading",{name:"Registrazioni e attivazioni"}).waitFor({state:"visible",timeout:60000});
+    const body=await page.locator("body").innerText();
     assert.equal(new URL(page.url()).pathname,"/platform/review");
     for(const name of ["Registrazioni e attivazioni","Rivendicazioni dei profili","Discovery e fonti","Identità e fiducia Network","Qualità Knowledge"])assert.ok(body.includes(name),"Missing owner lane "+name);
     assert.equal(await page.locator('section[aria-labelledby="platform-review-domains"] a').count(),5);
@@ -119,9 +125,11 @@ try {
   ]) {
     await run(id+" has exactly one delegated lane and no tenant privileges",async()=>{
       const page=sessions.get(id).page;
-      const body=await visit(page,"/platform/review");
-      assert.equal(new URL(page.url()).pathname,"/platform/review");
+      await visit(page,"/platform/review");
       const laneLinks=page.locator('section[aria-labelledby="platform-review-domains"] a');
+      await laneLinks.first().waitFor({state:"visible",timeout:60000});
+      const body=await page.locator("body").innerText();
+      assert.equal(new URL(page.url()).pathname,"/platform/review");
       assert.equal(await laneLinks.count(),1,"Unexpected delegated lanes");
       assert.equal(await laneLinks.first().getAttribute("href"),ownPath);
       assert.ok(body.includes("Decisioni abilitate:"));
@@ -132,7 +140,9 @@ try {
   }
   await run("Platform auditor can inspect 5 lanes without ANY decision",async()=>{
     const page=sessions.get("auditor").page;
-    const body=await visit(page,"/platform/review");
+    await visit(page,"/platform/review");
+    await page.locator('section[aria-labelledby="platform-review-domains"] a').first().waitFor({state:"visible",timeout:60000});
+    const body=await page.locator("body").innerText();
     assert.equal(new URL(page.url()).pathname,"/platform/review");
     assert.equal(await page.locator('section[aria-labelledby="platform-review-domains"] a').count(),5);
     assert.equal((body.match(/Sola lettura · nessuna decisione autorizzata/g)??[]).length,5);
