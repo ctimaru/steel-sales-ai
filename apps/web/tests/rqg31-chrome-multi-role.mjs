@@ -108,7 +108,7 @@ try {
     const body=await visit(page,"/platform/review");
     assert.equal(new URL(page.url()).pathname,"/platform/review");
     for(const name of ["Registrazioni e attivazioni","Rivendicazioni dei profili","Discovery e fonti","Identità e fiducia Network","Qualità Knowledge"])assert.ok(body.includes(name),"Missing owner lane "+name);
-    assert.equal(page.locator('section[aria-labelledby="platform-review-domains"] a').then(x=>x.count()) instanceof Promise,true);
+    assert.equal(await page.locator('section[aria-labelledby="platform-review-domains"] a').count(),5);
     assert.ok(!body.includes("RQG31 PRIVATE"),"Platform Review leaked commercial review");
     await rejectPage(page,"/operations/review");
   });
@@ -157,7 +157,7 @@ try {
       assert.equal(error.code,"42501",id+" RPC authorization failure");
     }
     const other=await actorClient("trader");
-    const {error}=await other.rpc("p1_apply_commercial_review_correction",{p_review_id:98032,p_corrected_values:{grade:"S355J2H"}});
+    const {error}=await other.rpc("p1_apply_commercial_review_correction",{p_review_id:98032,p_corrected_values:{grade:"P355GH"}});
     assert.equal(error?.code,"42501","Cross-tenant correction denied");
   });
   await run("auditor and registration staff cannot forge Claims/Trust decisions",async()=>{
@@ -201,7 +201,7 @@ try {
   await run("real Company correction RPC updates only tenant-owned test evidence",async()=>{
     const buyer=await actorClient("buyer");
     const {data,error}=await buyer.rpc("p1_apply_commercial_review_correction",{
-      p_review_id:98032,p_corrected_values:{grade:"S355J2H"},
+      p_review_id:98032,p_corrected_values:{grade:"P355GH"},
     });
     assert.ifError(error);
     assert.equal(data?.status,"corrected");
@@ -214,7 +214,7 @@ try {
     const {data:obs,error:obsError}=await buyer.from("commercial_observations")
       .select("grade,source_text").eq("id",98032).single();
     assert.ifError(obsError);
-    assert.equal(obs.grade,"S355J2H");
+    assert.equal(obs.grade,"P355GH");
     assert.equal(obs.source_text,"RQG31 ORIGINAL A CORRECT");
     const {error:repeat}=await buyer.rpc("p1_apply_commercial_review_correction",{
       p_review_id:98032,p_corrected_values:{grade:"P355GH"},
