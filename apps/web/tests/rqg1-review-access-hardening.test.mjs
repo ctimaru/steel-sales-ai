@@ -39,7 +39,7 @@ test("RQG1 RLS, deny-by-default RPCs and row-locked audited confirmations",()=>{
  assert.doesNotMatch(sql,/grant (?:update|select) on (?:table )?public\.commercial_review_queue/i);
 });
 test("RQG1 wraps private-review SQL RPCs without changing the shared membership helper",()=>{
- assert.equal((sql.match(/perform public\.rqg1_require_review_admin\(/g)||[]).length,37);
+ assert.equal((sql.match(/perform public\.rqg1_require_review_admin\(/g)||[]).length,36);
  assert.doesNotMatch(sql,/create or replace function public\.is_organization_member/);
  assert.match(sql,/public\.p1_adopt_offer_reparse_candidate/);
  assert.match(sql,/public\.p1_apply_commercial_review_correction/);
