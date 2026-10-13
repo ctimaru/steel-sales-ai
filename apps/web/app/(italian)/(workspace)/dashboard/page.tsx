@@ -4,9 +4,11 @@ import { PilotEvent } from "@/components/pilot-event";
 import { FocusHeader, FocusPage } from "@/components/focus-ui";
 import { getCompanySetupState } from "@/lib/company-setup";
 import { DashboardSteelPulse } from "@/components/dashboard-steel-pulse";
+import { DashboardDiscoveryFeed } from "@/components/dashboard-discovery-feed";
 import { loadDashboardPulse } from "@/lib/dashboard-pulse";
 import { getDashboardData } from "@/lib/commercial-data";
 import { getNetworkAccessState } from "@/lib/network-access";
+import { getMarketplaceFeed } from "@/lib/marketplace";
 import {
   getNetworkActivityFeed,
   getNetworkInquiries,
@@ -42,7 +44,7 @@ export default async function DashboardPage({
   const isAdmin = context.role === "admin";
   const canWrite = canWriteWorkspace(context.role);
 
-  const [setup, commercial, received, activity, sector, procurement, pulse] = await Promise.all([
+  const [setup, commercial, received, activity, sector, procurement, pulse, marketplace] = await Promise.all([
     isAdmin
       ? getCompanySetupState(context.organizationId)
       : Promise.resolve(null),
@@ -51,11 +53,14 @@ export default async function DashboardPage({
       ? getNetworkInquiries(context.organizationId, "received")
       : Promise.resolve({ items: [], total: 0 }),
     networkEntitled
-      ? getNetworkActivityFeed(context.organizationId, true)
+      ? getNetworkActivityFeed(context.organizationId, false)
       : Promise.resolve({ items: [], total: 0, unread: 0 }),
     networkEntitled ? getDashboardCompanySector(context.organizationId) : Promise.resolve("unknown" as const),
     canWrite ? createClient().then((db) => db.rpc("rfqh10_procurement_inbox", { p_limit: 5 })).catch(() => ({ data: null, error: true })) : Promise.resolve({ data: null, error: null }),
     loadDashboardPulse(),
+    // P5.2 already validates viewer identity, publication status and visibility.
+    // Fetch only the permitted public teaser projection; never private RFQ lines.
+    getMarketplaceFeed(context.organizationId, { limit: 10, offset: 0 }).catch(() => null),
   ]);
 
   const { metrics, recent, mode, operational } = commercial;
@@ -276,7 +281,16 @@ export default async function DashboardPage({
       ) : null}
 
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.85fr)_minmax(275px,0.85fr)] lg:gap-6">
-        <DashboardSteelPulse state={pulse} />
+        <div className="min-w-0 space-y-8">
+          <DashboardSteelPulse state={pulse} />
+          <DashboardDiscoveryFeed
+            networkEnabled={networkEnabled}
+            networkEntitled={networkEntitled}
+            activity={activity.items}
+            marketplace={marketplace}
+            interests={pulse.interests}
+          />
+        </div>
 
         <aside className="min-w-0 space-y-4" aria-label="Riepilogo del Workspace">
           <section aria-label="Indicatori commerciali" className="rounded-2xl border border-[#dce5df] bg-white p-4">
