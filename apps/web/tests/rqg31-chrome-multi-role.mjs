@@ -51,10 +51,32 @@ async function signIn(actor) {
   return page;
 }
 async function rejectPage(page,route) {
-  const body=await visit(page,route);
-  await page.waitForURL(u=>u.pathname!==route,{timeout:60000});
-  assert.notEqual(new URL(page.url()).pathname,route, "Direct access improperly granted "+route);
-  assert.ok(!body.includes("RQG31 PRIVATE A"),"Private data leaked via redirect");
+  // Deep-link redirects can cascade (legacy /review -> canonical -> dashboard).
+  // Use an isolated tab for every denial to avoid racing the previous Next redirect.
+  const probe=await page.context().newPage();
+  try {
+    try {
+      const response=await probe.goto(base+route,{waitUntil:"domcontentloaded",timeout:90000});
+      assert.ok(!response || response.status()<500,route+" HTTP failure");
+    } catch(error) {
+      // Next can cancel the initial browser navigation while following an auth
+      // redirect. Accept only this navigation abort, never a final protected URL.
+      if(!String(error).includes("net::ERR_ABORTED"))throw error;
+    }
+    const privateReview=route==="/review" || route.startsWith("/review/") ||
+      route==="/operations/review" || route.startsWith("/operations/review/");
+    await probe.waitForURL(u=>{
+      if(privateReview)return !u.pathname.startsWith("/review") && !u.pathname.startsWith("/operations/review");
+      return u.pathname!==route;
+    },{timeout:60000});
+    const finalPath=new URL(probe.url()).pathname;
+    if(privateReview)assert.ok(!finalPath.startsWith("/review")&&!finalPath.startsWith("/operations/review"));
+    else assert.notEqual(finalPath,route,"Direct access improperly granted "+route);
+    const body=await probe.locator("body").innerText({timeout:30000});
+    assert.ok(!body.includes("RQG31 PRIVATE A")&&!body.includes("RQG31 PRIVATE B"),"Private evidence leaked on denied route");
+  } finally {
+    await probe.close();
+  }
 }
 async function clientFor(id) {
   const actor=byId(id);
