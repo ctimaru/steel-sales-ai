@@ -43,12 +43,10 @@ test("HP16 starts independent workspace shell dependencies together", () => {
 test("HP16 keeps Dashboard critical reads in one parallel batch", () => {
   assert.match(
     dashboard,
-    /\[setup, commercial, received, activity, sector, procurement\] = await Promise\.all/,
+    /\[setup, commercial, received, activity, sector, procurement, pulse\] = await Promise\.all/,
   );
-  assert.doesNotMatch(
-    dashboard,
-    /const setup = isAdmin\s*\? await getCompanySetupState/,
-  );
+  assert.match(dashboard, /loadDashboardPulse\(\)/);
+  assert.doesNotMatch(dashboard, /const setup = isAdmin\s*\? await getCompanySetupState/);
 });
 
 test("HP16 removes the Platform Home queue waterfall", () => {

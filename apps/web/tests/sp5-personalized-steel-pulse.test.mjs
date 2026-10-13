@@ -9,6 +9,7 @@ const contract = read("../lib/steel-pulse-personalized.ts");
 const page = read("../app/(workspace)/pulse/page.tsx");
 const action = read("../app/(workspace)/pulse/actions.ts");
 const dash = read("../app/(workspace)/dashboard/page.tsx");
+const dashboardPulse = read("../components/dashboard-steel-pulse.tsx");
 const route = read("../lib/routes.ts");
 const migration = read("../../../supabase/migrations/20261008195000_sp5_steel_pulse_personalized_feed.sql");
 const hp13 = read("../../../supabase/tests/hp13_permissions_tenant_isolation.sql");
@@ -90,8 +91,9 @@ test("SP5 is authenticated and does not accept a user ID from input", () => {
 
 test("SP5 page is mobile-first, editable and reachable without bloating main navigation", () => {
   assert.match(route, /steelPulse: "\/pulse"/);
-  assert.match(dash, /href=\{appRoutes\.steelPulse\}/);
-  assert.match(dash, /Personalizza il feed/);
+  assert.match(dash, /<DashboardSteelPulse state=\{pulse\} \/>/);
+  assert.match(dashboardPulse, /href=\{appRoutes\.steelPulse\}/);
+  assert.match(dashboardPulse, /Personalizza il feed/);
   assert.match(page, /<form action=\{savePulseInterests\}/);
   assert.match(page, /defaultChecked=\{preferences\.topics\.includes\(key\)\}/);
   assert.match(page, /name="role_interest"/);

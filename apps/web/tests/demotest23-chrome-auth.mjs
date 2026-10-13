@@ -104,12 +104,20 @@ try {
         .waitFor({ state: "visible", timeout: 60000 });
       const actions = page.locator('section[aria-labelledby="quick-actions"]');
       const priorities = page.locator('section[aria-labelledby="daily-priorities"]');
+      const feed = page.getByRole("heading", { name: "Il tuo aggiornamento sull’acciaio" });
+      await feed.waitFor({ state: "visible", timeout: 60000 });
       assert.equal(await actions.count(), 1, "Missing quick action section");
-      assert.equal(await priorities.count(), 1, "Missing daily priorities section");
+      assert.ok((await priorities.count()) <= 1, "Duplicate daily priorities section");
       assert.equal(await actions.locator("a").count(), 4, "Expected four safe quick actions");
-      const a = await actions.boundingBox();
-      const b = await priorities.boundingBox();
-      assert.ok(a && b && a.y < b.y, "Quick actions must precede priority cards");
+      const actionBounds = await actions.boundingBox();
+      const feedBounds = await feed.boundingBox();
+      assert.ok(actionBounds && feedBounds && actionBounds.y < feedBounds.y,
+        "Quick actions must precede the news feed");
+      if (await priorities.count()) {
+        const priorityBounds = await priorities.boundingBox();
+        assert.ok(priorityBounds && actionBounds.y < priorityBounds.y && priorityBounds.y < feedBounds.y,
+          "Only actionable priorities may appear between shortcuts and feed");
+      }
       if (p.id === "buyerViewer") {
         assert.equal(await actions.getByRole("link", { name: /Apri RFQ Hub/ }).count(), 0,
           "Viewer must not receive buyer-action shortcut");
