@@ -283,7 +283,7 @@ insert into public.organization_memberships(
   'viewer','operations','active',true),
  ('00000000-0000-0000-0000-0000000013f1'::uuid,
   '00000000-0000-0000-0000-0000000013d1'::uuid,
-  'member','sales_rep','active',true);
+  'member','salesperson','active',true);
 
 insert into public.network_companies(
  id,legal_name,country_code,website_url,website_domain,
