@@ -43,9 +43,11 @@ export async function setPulseArticleEngagement(formData: FormData) {
   const action = formData.get("engagement_action");
   const selectedView = formData.get("view");
   const view = selectedView === "saved" || selectedView === "unread" ? selectedView : "all";
-  const nextPath = view === "all" ? "/pulse" : "/pulse?view=" + view;
+  // Only explicit first-party destinations are accepted; never redirect to a form URL.
+  const returnToDashboard = formData.get("return_to") === "dashboard";
+  const nextPath = returnToDashboard ? "/dashboard" : view === "all" ? "/pulse" : "/pulse?view=" + view;
   if (!validatePulseSourceUrl(sourceUrl) || !validatePulseAction(action)) {
-    redirect(nextPath + (view === "all" ? "?" : "&") + "engagement_error=invalid");
+    redirect(nextPath + (nextPath.includes("?") ? "&" : "?") + "engagement_error=invalid");
   }
 
   const supabase = await createClient();
@@ -65,6 +67,7 @@ export async function setPulseArticleEngagement(formData: FormData) {
   }
 
   revalidatePath("/pulse");
-  redirect(nextPath + (view === "all" ? "?" : "&") +
+  if (returnToDashboard) revalidatePath("/dashboard");
+  redirect(nextPath + (nextPath.includes("?") ? "&" : "?") +
     (success ? "engagement_updated=1" : "engagement_error=unavailable"));
 }
