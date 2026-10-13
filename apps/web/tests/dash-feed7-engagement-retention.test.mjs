@@ -5,7 +5,7 @@ import vm from "node:vm";
 import ts from "typescript";
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
-const sql = read("../../../supabase/migrations/20261013134500_dash_feed7_engagement_retention.sql");
+const sql = read("../../../supabase/migrations/20261013121141_dash_feed7_engagement_retention.sql");
 const hp = read("../../../supabase/tests/hp13_permissions_tenant_isolation.sql");
 const page = read("../app/(italian)/(platform)/platform/feed-insights/page.tsx");
 const product = read("../app/(italian)/(platform)/platform/product-analytics/page.tsx");
