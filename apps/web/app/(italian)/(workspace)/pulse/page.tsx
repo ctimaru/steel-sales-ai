@@ -5,6 +5,13 @@ import { redirect } from "next/navigation";
 import { FocusPage } from "@/components/focus-ui";
 import { parsePulseEngagement } from "@/lib/steel-pulse-engagement";
 import {
+  EMPTY_PULSE_ADVANCED_INTERESTS,
+  parsePulseAdvancedInterests,
+  pulseProductInterests,
+  pulseTerritoryInterests,
+  rankPersonalizedPulseCards,
+} from "@/lib/steel-pulse-advanced";
+import {
   EMPTY_PULSE_PREFERENCES,
   parsePulsePersonalizedFeed,
   pulseProfessionalInterests,
@@ -65,14 +72,22 @@ export default async function SteelPulsePage({
       engagementReady = false;
     }
   }
+  let advanced = EMPTY_PULSE_ADVANCED_INTERESTS;
+  try {
+    const { data, error } = await supabase.rpc("sp8_my_feed_interests");
+    if (!error) advanced = parsePulseAdvancedInterests(data) ?? EMPTY_PULSE_ADVANCED_INTERESTS;
+  } catch {
+    // Deployment compatibility: old SP5 preferences remain usable.
+  }
+  const rankedCards = rankPersonalizedPulseCards(cards, advanced, preferences.role_interest);
   const view = params.view === "saved" || params.view === "unread" ? params.view : "all";
   const savedUrls = new Set(engagement?.saved_urls ?? []);
   const readUrls = new Set(engagement?.read_urls ?? []);
   const visibleCards = view === "saved"
-    ? (engagement?.saved_items ?? [])
+    ? rankPersonalizedPulseCards(engagement?.saved_items ?? [], advanced, preferences.role_interest)
     : view === "unread"
-      ? cards.filter((card) => !readUrls.has(card.source_url))
-      : cards;
+      ? rankedCards.filter((card) => !readUrls.has(card.source_url))
+      : rankedCards;
 
   return (
     <FocusPage className="max-w-[1120px]">
@@ -121,7 +136,7 @@ export default async function SteelPulsePage({
           <fieldset>
             <legend className="text-base font-semibold text-[#123d34]">Quali argomenti vuoi seguire?</legend>
             <p className="mt-1 text-xs leading-5 text-[#5d6b64]">
-              Se non selezioni alcun tema vedrai tutte le categorie autorizzate.
+              Se non selezioni alcun tema vedrai tutte le categorie autorizzate. La personalizzazione è disponibile anche con l’account gratuito.
             </p>
             <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {pulseTopics.map(({ key, label }) => (
@@ -150,6 +165,36 @@ export default async function SteelPulsePage({
               </select>
             </label>
           </div>
+          <details className="mt-5 rounded-xl border border-[#d4e1d9] bg-white p-4" open={advanced.product_interests.length > 0 || advanced.territory_interests.length > 0}>
+            <summary className="cursor-pointer text-sm font-semibold text-[#173e34] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6b5a]">
+              Prodotti e territori che ti interessano
+            </summary>
+            <p className="mt-2 text-xs leading-5 text-[#52615b]">
+              Seleziona ciò che segui. L’ordine delle notizie considera parole presenti nei testi editoriali; le regioni non sono geolocalizzazioni certificate.
+            </p>
+            <fieldset className="mt-4">
+              <legend className="text-xs font-semibold text-[#24493d]">Famiglie di prodotti e lavorazioni</legend>
+              <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {pulseProductInterests.map(({ key, label }) => (
+                  <label key={key} className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-[#d4e1d9] px-3 py-2 text-xs font-medium text-[#24493d]">
+                    <input type="checkbox" name="product_interests" value={key} defaultChecked={advanced.product_interests.includes(key)} className="h-4 w-4 accent-[#1f6b5a]" />
+                    {label}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset className="mt-4">
+              <legend className="text-xs font-semibold text-[#24493d]">Territori di interesse</legend>
+              <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                {pulseTerritoryInterests.map(({ key, label }) => (
+                  <label key={key} className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-[#d4e1d9] px-3 py-2 text-xs font-medium text-[#24493d]">
+                    <input type="checkbox" name="territory_interests" value={key} defaultChecked={advanced.territory_interests.includes(key)} className="h-4 w-4 accent-[#1f6b5a]" />
+                    {label}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          </details>
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
             <p className="max-w-md text-xs leading-5 text-[#5d6b64]">
               Le preferenze appartengono solo a te e non cambiano l’accesso al Network o le autorizzazioni aziendali.

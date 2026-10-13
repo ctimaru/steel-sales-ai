@@ -10,16 +10,17 @@ const reader = read("../lib/dashboard-pulse.ts");
 const panel = read("../components/dashboard-steel-pulse.tsx");
 const actions = read("../app/(workspace)/pulse/actions.ts");
 
-function mockReader({ feedError = null, feedData = null, engagementError = null, engagementData = null, rejects = false } = {}) {
+function mockReader({ feedError = null, feedData = null, engagementError = null, engagementData = null, interestsError = null, interestsData = null, rejects = false } = {}) {
   const exports = {};
   const calls = [];
   const db = {
     rpc: async (name, args) => {
       calls.push({ name, args });
       if (rejects) throw new Error("RPC unavailable");
-      return name === "sp5_my_steel_pulse_feed"
-        ? { data: feedData, error: feedError }
-        : { data: engagementData, error: engagementError };
+      if (name === "sp5_my_steel_pulse_feed") return { data: feedData, error: feedError };
+      if (name === "sp6_my_article_engagement") return { data: engagementData, error: engagementError };
+      if (name === "sp8_my_feed_interests") return { data: interestsData, error: interestsError };
+      throw new Error("Unexpected RPC: " + name);
     },
   };
   const compiled = ts.transpileModule(reader, {
@@ -33,6 +34,12 @@ function mockReader({ feedError = null, feedData = null, engagementError = null,
       if (name === "@/lib/supabase/server") return { createClient: async () => db };
       if (name === "@/lib/steel-pulse-personalized") return {
         parsePulsePersonalizedFeed: (value) => value?.preferences && Array.isArray(value?.items) ? value : null,
+      };
+      if (name === "@/lib/steel-pulse-advanced") return {
+        EMPTY_PULSE_ADVANCED_INTERESTS: { product_interests: [], territory_interests: [] },
+        parsePulseAdvancedInterests: (value) =>
+          Array.isArray(value?.product_interests) && Array.isArray(value?.territory_interests) ? value : null,
+        rankPersonalizedPulseCards: (items) => [...items],
       };
       if (name === "@/lib/steel-pulse-engagement") return {
         parsePulseEngagement: (value) => Array.isArray(value?.saved_urls) && Array.isArray(value?.read_urls) ? value : null,
@@ -53,8 +60,9 @@ test("DASH-FEED3 reads published, authenticated personal feed only; parallel, bo
   assert.deepEqual(calls.map((x) => x.name), [
     "sp5_my_steel_pulse_feed",
     "sp6_my_article_engagement",
+    "sp8_my_feed_interests",
   ]);
-  assert.deepEqual(calls.map((x) => x.args.p_limit), [6, 12]);
+  assert.deepEqual(calls.map((x) => x.args?.p_limit), [6, 12, undefined]);
   assert.doesNotMatch(reader, /service_role|organization_memberships|select\(/i);
 });
 

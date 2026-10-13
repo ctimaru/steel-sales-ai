@@ -59,7 +59,15 @@ export default async function DashboardPage({
   ]);
 
   const { metrics, recent, mode, operational } = commercial;
-  const presentation = dashboardPresentation(context.role === "admin" || context.role === "viewer" ? context.role : "member", sector);
+  // A verified company sector takes precedence; free users can also self-declare
+  // a professional focus. This display-only fallback NEVER grants capabilities.
+  const selfDeclaredSector = pulse.feed?.preferences.role_interest === "producer" ? "produttore"
+    : pulse.feed?.preferences.role_interest === "trader" ? "commerciante"
+    : pulse.feed?.preferences.role_interest === "processor" ? "terzista"
+    : pulse.feed?.preferences.role_interest === "end_user" ? "utilizzatore"
+    : "unknown";
+  const displaySector = sector === "unknown" ? selfDeclaredSector : sector;
+  const presentation = dashboardPresentation(context.role === "admin" || context.role === "viewer" ? context.role : "member", displaySector);
   const setupIncomplete = Boolean(
     setup && (!setup.profile_ready || !setup.data_ready || !setup.first_value_ready),
   );
