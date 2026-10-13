@@ -1,0 +1,83 @@
+name: RQG3.2 — Production Review Chrome Auth Read-Only
+
+on:
+  workflow_dispatch:
+    inputs:
+      approval:
+        description: "Type I_APPROVE_READ_ONLY_RQG32 (dedicated synthetic accounts only)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rqg32-production-read-only
+  cancel-in-progress: false
+
+jobs:
+  production-authenticated-review:
+    name: Real Chrome / 7 synthetic users / production / read-only
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CI: "true"
+      RQG32_MODE: EXPLICIT_MANUAL_READ_ONLY
+      RQG32_CONFIRM: ${{ inputs.approval }}
+      RQG32_REGISTRATION_EMAIL: ${{ secrets.RQG32_REGISTRATION_EMAIL }}
+      RQG32_REGISTRATION_PASSWORD: ${{ secrets.RQG32_REGISTRATION_PASSWORD }}
+      RQG32_CLAIMS_EMAIL: ${{ secrets.RQG32_CLAIMS_EMAIL }}
+      RQG32_CLAIMS_PASSWORD: ${{ secrets.RQG32_CLAIMS_PASSWORD }}
+      RQG32_TRUST_EMAIL: ${{ secrets.RQG32_TRUST_EMAIL }}
+      RQG32_TRUST_PASSWORD: ${{ secrets.RQG32_TRUST_PASSWORD }}
+      RQG32_AUDITOR_EMAIL: ${{ secrets.RQG32_AUDITOR_EMAIL }}
+      RQG32_AUDITOR_PASSWORD: ${{ secrets.RQG32_AUDITOR_PASSWORD }}
+      RQG32_COMPANY_A_EMAIL: ${{ secrets.RQG32_COMPANY_A_EMAIL }}
+      RQG32_COMPANY_A_PASSWORD: ${{ secrets.RQG32_COMPANY_A_PASSWORD }}
+      RQG32_COMPANY_B_EMAIL: ${{ secrets.RQG32_COMPANY_B_EMAIL }}
+      RQG32_COMPANY_B_PASSWORD: ${{ secrets.RQG32_COMPANY_B_PASSWORD }}
+      RQG32_VIEWER_EMAIL: ${{ secrets.RQG32_VIEWER_EMAIL }}
+      RQG32_VIEWER_PASSWORD: ${{ secrets.RQG32_VIEWER_PASSWORD }}
+      RQG32_COMPANY_A_MARKER: ${{ secrets.RQG32_COMPANY_A_MARKER }}
+      RQG32_COMPANY_B_MARKER: ${{ secrets.RQG32_COMPANY_B_MARKER }}
+    steps:
+      - name: Enforce explicit review permission before accessing prod
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$RQG32_CONFIRM" != "I_APPROVE_READ_ONLY_RQG32" ]; then
+            echo "RQG3.2 BLOCKED: explicit approval phrase required."
+            exit 1
+          fi
+          for key in \
+            RQG32_REGISTRATION_EMAIL RQG32_REGISTRATION_PASSWORD \
+            RQG32_CLAIMS_EMAIL RQG32_CLAIMS_PASSWORD \
+            RQG32_TRUST_EMAIL RQG32_TRUST_PASSWORD \
+            RQG32_AUDITOR_EMAIL RQG32_AUDITOR_PASSWORD \
+            RQG32_COMPANY_A_EMAIL RQG32_COMPANY_A_PASSWORD \
+            RQG32_COMPANY_B_EMAIL RQG32_COMPANY_B_PASSWORD \
+            RQG32_VIEWER_EMAIL RQG32_VIEWER_PASSWORD \
+            RQG32_COMPANY_A_MARKER RQG32_COMPANY_B_MARKER; do
+            if [ -z "${!key:-}" ]; then
+              echo "RQG3.2 BLOCKED: dedicated synthetic credential/marker missing: $key"
+              exit 1
+            fi
+          done
+          echo "RQG3.2: manual approval and seven dedicated profiles configured"
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install ephemeral Chrome QA dependencies
+        working-directory: apps/web
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chrome
+      - name: Test production with REAL Chrome and NO Review mutations
+        working-directory: apps/web
+        timeout-minutes: 15
+        run: node tests/rqg32-production-authenticated-readonly.mjs
+      # No screenshots, videos, trace, auth cookies or other artifacts uploaded.
