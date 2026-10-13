@@ -142,6 +142,7 @@ export const appRoutes = {
     fundraising: "/platform/fundraising",
     investorKpis: "/platform/investor-kpis",
     productAnalytics: "/platform/product-analytics",
+    feedInsights: "/platform/feed-insights",
     registrations: "/platform/registrations",
     discovery: "/platform/company-discovery",
     claims: "/platform/company-claims",
