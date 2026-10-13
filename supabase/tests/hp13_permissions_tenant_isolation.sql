@@ -214,6 +214,8 @@ select pg_temp.hp13_assert(
         'sp6_set_article_engagement',
         'sp6_my_article_engagement',
         'sp6_platform_retention_summary',
+        -- DASH-FEED7: superadmin-only aggregated engagement, no private event rows.
+        'dash_feed7_platform_insights',
         -- SP7.1 reviewed owner-only rights readiness read model.
         'sp71_pilot_source_readiness',
         -- PLR2 reviewed owner-only Private Lab read RPCs (singleton active owner).
@@ -446,6 +448,12 @@ select pg_temp.hp13_assert_raises(
   'Platform permission required'
 );
 
+-- DASH-FEED7: an ordinary company admin cannot read platform-level usage.
+select pg_temp.hp13_assert_raises(
+  $select public.dash_feed7_platform_insights(7)$,
+  'platform superadmin required'
+);
+
 -- Browser roles cannot bypass governed RPCs by querying raw internals.
 select pg_temp.hp13_assert_raises(
   $$select count(*) from public.marketplace_requests$$,
@@ -467,6 +475,7 @@ select pg_temp.hp13_assert(
   'Tenant A must not read Tenant B memberships'
 );
 
+-- DASH-FEED7 remains inaccessible to ordinary tenant members.
 -- Viewer keeps allowed reads but cannot obtain write authority.
 select set_config(
   'request.jwt.claim.sub',
@@ -496,6 +505,11 @@ select pg_temp.hp13_assert_raises(
 
 reset role;
 set local role anon;
+
+select pg_temp.hp13_assert(
+  not has_function_privilege('anon','public.dash_feed7_platform_insights(integer)','EXECUTE'),
+  'DASH-FEED7 must never grant anonymous access'
+);
 
 select pg_temp.hp13_assert(
   has_function_privilege(

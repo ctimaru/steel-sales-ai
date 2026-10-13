@@ -244,6 +244,17 @@ try {
       assert.ok(!body.includes("Amministrazione Smart Steel Sales"), "Platform admin console leaked");
     });
 
+    await step(p.id + " DASH-FEED7 platform engagement denied", async () => {
+      await page.goto(base + "/platform/feed-insights", {
+        waitUntil: "domcontentloaded", timeout: 90000,
+      });
+      assert.notEqual(new URL(page.url()).pathname, "/platform/feed-insights",
+        "Company user must not access superadmin engagement analytics");
+      const body = await page.locator("body").innerText();
+      assert.ok(!body.includes("Engagement e ritorno alla Home"),
+        "Owner-only retention dashboard leaked to company account");
+    });
+
     await context.close();
   }
 
