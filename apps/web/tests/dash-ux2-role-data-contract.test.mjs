@@ -4,6 +4,7 @@ import test from "node:test";
 
 const read = (relative) => readFileSync(new URL(relative, import.meta.url), "utf8");
 const dashboard = read("../app/(workspace)/dashboard/page.tsx");
+const dashboardPulse = read("../components/dashboard-steel-pulse.tsx");
 const data = read("../lib/commercial-data.ts");
 const contract = read("../lib/dashboard-role-contract.ts");
 const policy = read("../lib/access-policy.ts");
@@ -17,7 +18,7 @@ test("DASH-UX2 fails closed when live dashboard metrics are unavailable", () => 
 
 test("DASH-UX2 retains existing quick actions and operational surfaces", () => {
   for (const name of ["Cerca nello storico", "Crea distinta", "Apri RFQ Hub", "Trova azienda", "Steel Pulse", "Cosa richiede attenzione"]) {
-    assert.ok(dashboard.includes(name), name);
+    assert.ok((dashboard + dashboardPulse).includes(name), name);
   }
   assert.match(dashboard, /getNetworkAccessState/);
   assert.match(dashboard, /getWorkspaceContext/);
