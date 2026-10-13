@@ -1,5 +1,7 @@
 "use server";
 
+import { requireWorkspaceAdmin } from "@/lib/workspace-context";
+
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
@@ -55,6 +57,7 @@ export async function loadConversationBackfillReadiness(): Promise<{
   data: ConversationBackfillReadiness | null;
   error?: string;
 }> {
+  await requireWorkspaceAdmin();
   const { client, organizationId } = await activeOrganization();
   if (!organizationId) return { data: null, error: "Workspace non disponibile." };
 
@@ -75,6 +78,7 @@ export async function applyConversationBackfill(
   entityId: string,
   conversationId: string,
 ): Promise<{ ok: boolean; status?: string; error?: string }> {
+  await requireWorkspaceAdmin();
   const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   if (!uuid.test(entityId) || !uuid.test(conversationId)) {
     return { ok: false, error: "Identificativo non valido." };

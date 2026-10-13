@@ -1,5 +1,7 @@
 "use server";
 
+import { requireWorkspaceAdmin } from "@/lib/workspace-context";
+
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
@@ -50,6 +52,7 @@ export async function loadRelationshipReadiness(): Promise<{
   data: RelationshipReadiness | null;
   error?: string;
 }> {
+  await requireWorkspaceAdmin();
   const { client, organizationId } = await activeOrganizationId();
   if (!organizationId) return { data: null, error: "Workspace non disponibile." };
 
@@ -70,6 +73,7 @@ export async function activateRelationship(
   sourceEntityId: string,
   targetEntityId: string,
 ): Promise<{ ok: boolean; status?: string; error?: string }> {
+  await requireWorkspaceAdmin();
   const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   if (!uuid.test(sourceEntityId) || !uuid.test(targetEntityId)) {
     return { ok: false, error: "Identificativo relazione non valido." };

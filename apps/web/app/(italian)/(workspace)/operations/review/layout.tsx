@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 
-import { requireWorkspaceWriteRole } from "@/lib/workspace-context";
+import { requireWorkspaceAdmin } from "@/lib/workspace-context";
 
 export default async function ReviewRoleLayout({ children }: { children: ReactNode }) {
-  await requireWorkspaceWriteRole();
+  await requireWorkspaceAdmin();
   return children;
 }

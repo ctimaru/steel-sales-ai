@@ -182,6 +182,8 @@ select pg_temp.hp13_assert(
         'p1_acknowledge_operational_alert',
         'p1_operational_alert_audit_read',
         'p1_apply_commercial_review_correction',
+        -- RQG1: row-locked, company-admin-only confirmation RPC.
+        'rqg1_confirm_review_item',
         'p1_operational_alerts_read',
         'p1_operational_alerts_summary',
         'p1_resolve_operational_alert',
@@ -257,7 +259,8 @@ select pg_temp.hp13_assert(
 insert into auth.users(id,email,email_confirmed_at) values
  ('00000000-0000-0000-0000-0000000013a1'::uuid,'hp13-a@example.test',now()),
  ('00000000-0000-0000-0000-0000000013b1'::uuid,'hp13-b@example.test',now()),
- ('00000000-0000-0000-0000-0000000013c1'::uuid,'hp13-viewer@example.test',now())
+ ('00000000-0000-0000-0000-0000000013c1'::uuid,'hp13-viewer@example.test',now()),
+ ('00000000-0000-0000-0000-0000000013d1'::uuid,'hp13-member@example.test',now())
 on conflict (id) do nothing;
 
 insert into public.organizations(id,name,slug,created_by,onboarding_status) values
@@ -277,7 +280,10 @@ insert into public.organization_memberships(
   'admin','sales_director','active',true),
  ('00000000-0000-0000-0000-0000000013f1'::uuid,
   '00000000-0000-0000-0000-0000000013c1'::uuid,
-  'viewer','operations','active',true);
+  'viewer','operations','active',true),
+ ('00000000-0000-0000-0000-0000000013f1'::uuid,
+  '00000000-0000-0000-0000-0000000013d1'::uuid,
+  'member','salesperson','active',true);
 
 insert into public.network_companies(
  id,legal_name,country_code,website_url,website_domain,
@@ -497,6 +503,60 @@ select pg_temp.hp13_assert_raises(
       'network'
     )$$,
   'active organization admin/member membership required'
+);
+
+-- RQG1: role boundary is SQL-level, not just URL redirects.
+select pg_temp.hp13_assert(
+  not has_function_privilege('anon','public.rqg1_confirm_review_item(bigint)','EXECUTE'),
+  'RQG1 confirmation must reject anonymous callers'
+);
+select pg_temp.hp13_assert(
+  not has_table_privilege('authenticated','public.commercial_review_queue','UPDATE'),
+  'RQG1 must preserve no direct review table UPDATE for authenticated'
+);
+select pg_temp.hp13_assert(
+  exists (
+    select 1 from pg_policies
+    where schemaname='public'
+      and tablename='commercial_review_queue'
+      and policyname='commercial_review_queue_organization_select'
+      and qual like '%role = ''admin''%'
+  ),
+  'RQG1 review SELECT RLS must require admin role'
+);
+select pg_temp.hp13_assert_raises(
+  'select public.p1_normalization_coverage(''00000000-0000-0000-0000-0000000013f1''::uuid)',
+  'company review administrator required'
+);
+select pg_temp.hp13_assert_raises(
+  'select public.rqg1_confirm_review_item(999999)',
+  'company review administrator required'
+);
+
+-- Members can still write commercial RFQs but cannot read/decide technical QA.
+select set_config(
+  'request.jwt.claim.sub',
+  '00000000-0000-0000-0000-0000000013d1',
+  true
+);
+select pg_temp.hp13_assert_raises(
+  'select public.p1_normalization_coverage(''00000000-0000-0000-0000-0000000013f1''::uuid)',
+  'company review administrator required'
+);
+select pg_temp.hp13_assert_raises(
+  'select public.rqg1_confirm_review_item(999999)',
+  'company review administrator required'
+);
+-- Active company A admin keeps own technical review, but never another tenant.
+select set_config(
+  'request.jwt.claim.sub',
+  '00000000-0000-0000-0000-0000000013a1',
+  true
+);
+select public.rqg1_require_review_admin('00000000-0000-0000-0000-0000000013f1'::uuid);
+select pg_temp.hp13_assert_raises(
+  'select public.rqg1_require_review_admin(''00000000-0000-0000-0000-0000000013f2''::uuid)',
+  'company review administrator required'
 );
 
 -- ---------------------------------------------------------------------------

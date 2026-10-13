@@ -28,7 +28,7 @@ test("Existing tenant-scoped technical review pipeline remains intact", () => {
   assert.match(review, /getReviewItems\(\)/);
   assert.match(review, /ReviewConfirmForm/);
   assert.match(review, /ReviewCorrectForm/);
-  assert.match(reviewLayout, /requireWorkspaceWriteRole\(\)/);
+  assert.match(reviewLayout, /requireWorkspaceAdmin\(\)/);
   assert.doesNotMatch(home, /<Link href=\{appRoutes\.operations\.review\}/);
 });
 

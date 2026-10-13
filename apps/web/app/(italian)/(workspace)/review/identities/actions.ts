@@ -1,5 +1,7 @@
 "use server";
 
+import { requireWorkspaceAdmin } from "@/lib/workspace-context";
+
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
@@ -18,6 +20,7 @@ export async function confirmIdentityMapping(
   _previousState: IdentityConfirmState,
   formData: FormData,
 ): Promise<IdentityConfirmState> {
+  await requireWorkspaceAdmin();
   const contactId = formData.get("contact_id");
   const companyId = formData.get("company_id");
 
