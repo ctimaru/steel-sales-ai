@@ -135,6 +135,7 @@ test("RQG3.2a production evidence SQL never creates users, staff roles or real-c
   assert.match(cleanup,/status='pending'/);
   assert.doesNotMatch(cleanup,/delete from auth\.users|delete from public\.organizations/i);
   assert.match(workflow,/workflow_dispatch:/);
+  assert.match(workflow,/environment: production-qa/);
   assert.doesNotMatch(workflow,/^\s+(pull_request|push|schedule):/m);
   assert.match(workflow,/RQG32A_AUTH_SECRET_KEY: \$\{\{ secrets\.RQG32A_AUTH_SECRET_KEY \}\}/);
 });

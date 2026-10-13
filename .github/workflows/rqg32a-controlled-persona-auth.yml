@@ -29,6 +29,7 @@ jobs:
   synthetic-auth-only:
     name: Production synthetic Auth bootstrap (owner & tenants unchanged)
     runs-on: ubuntu-latest
+    environment: production-qa
     timeout-minutes: 15
     env:
       CI: "true"
