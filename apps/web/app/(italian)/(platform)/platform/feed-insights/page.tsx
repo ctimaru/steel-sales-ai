@@ -88,8 +88,8 @@ export default async function DashFeed7InsightsPage({
             <dl className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {actionRows.map((item)=>(
                 <div key={item.key} className="rounded-xl border border-[#e2e9e4] bg-[#f8faf9] p-3">
-                  <dd className="text-xl font-semibold tabular-nums text-[#173f35]">{number(item.value)}</dd>
-                  <dt className="mt-1 text-xs font-medium text-[#52615b]">{item.label}</dt>
+                  <dt className="text-xs font-medium text-[#52615b]">{item.label}</dt>
+                  <dd className="mt-1 text-xl font-semibold tabular-nums text-[#173f35]">{number(item.value)}</dd>
                 </div>
               ))}
             </dl>
@@ -147,7 +147,7 @@ export default async function DashFeed7InsightsPage({
             </div>
           </section>
           <p className="pb-4 text-xs leading-5 text-[#63756a]">
-            Interpretatione: osservazione descrittiva del pilot, senza inferire valore prodotto, causalità
+            Interpretazione: osservazione descrittiva del pilot, senza inferire valore prodotto, causalità
             o retention generalizzabile da un account di test. Le metriche non alterano il ranking del feed.
           </p>
         </>
