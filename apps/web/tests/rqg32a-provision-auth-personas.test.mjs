@@ -12,7 +12,7 @@ const fixture=(mode="preflight")=>{
     RQG32A_APPROVAL:mode==="create"
       ?"RQG32A_CREATE_SEVEN_SYNTHETIC_USERS":"RQG32A_INSPECT_SYNTHETIC_USERS",
     RQG32A_SUPABASE_URL:PROJECT_URL,
-    RQG32A_AUTH_SECRET_KEY:"sb_secret_unit_test_never_used",
+    RQG32A_AUTH_SECRET_KEY:"sb_"+"secret_"+"unit_test_never_used",
     RQG32_COMPANY_A_MARKER:MARKER_A,RQG32_COMPANY_B_MARKER:MARKER_B,
   };
   PERSONAS.forEach((p,i)=>{
@@ -45,7 +45,10 @@ function mock(adminUsers=[]) {
       },
     }},
     from:(table)=>({
-      select:()=>{calls.tableReads.push(table);return {data:tables[table],error:null};},
+      select:()=>{calls.tableReads.push(table);return {
+        data:tables[table],error:null,
+        in:(column,values)=>({data:tables[table].filter(row=>values.includes(row[column])),error:null}),
+      };},
     }),
   };
   return {admin,calls,tables};

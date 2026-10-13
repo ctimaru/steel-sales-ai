@@ -66,8 +66,10 @@ export async function getAllUsers(admin) {
   }
   throw new Error("Account directory too large: safe pagination limit");
 }
-async function read(admin,table,fields="*") {
-  const {data,error}=await admin.from(table).select(fields);
+async function read(admin,table,fields="*",filter=null) {
+  let query=admin.from(table).select(fields);
+  if(filter) query=query.in(filter.column,filter.values);
+  const {data,error}=await query;
   assert.ifError(error);
   assert.ok(Array.isArray(data),"Missing database view "+table);
   return data;
@@ -80,7 +82,8 @@ export async function inspect(admin,accounts) {
     read(admin,"platform_staff_roles","user_id,role_key,status"),
     read(admin,"organizations","id,slug,onboarding_status"),
     read(admin,"organization_memberships","user_id,organization_id,role,status"),
-    read(admin,"commercial_review_queue","id,organization_id,status,source_text"),
+    read(admin,"commercial_review_queue","id,organization_id,status,source_text",
+      {column:"source_text",values:[MARKER_A,MARKER_B]}),
   ]);
   const ownerList=owners.filter(r=>r.role==="platform_superadmin"&&r.status==="active");
   assert.equal(ownerList.length,1,"Exactly one real Platform Owner required");
