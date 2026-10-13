@@ -11,7 +11,7 @@ const dashboard = read("../app/(workspace)/dashboard/page.tsx");
 const page = read("../app/(workspace)/pulse/page.tsx");
 const actions = read("../app/(workspace)/pulse/actions.ts");
 const panel = read("../components/dashboard-steel-pulse.tsx");
-const sql = read("../../../supabase/migrations/20261013121000_dash_feed4_personal_interests.sql");
+const sql = read("../../../supabase/migrations/20261013101853_dash_feed4_personal_interests.sql");
 
 const exports = {};
 vm.runInNewContext(ts.transpileModule(model, {
