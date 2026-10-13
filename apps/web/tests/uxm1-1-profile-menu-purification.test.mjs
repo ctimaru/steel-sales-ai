@@ -51,10 +51,9 @@ test("UXM1.1 keeps import reachable from data sources and first-use home states"
   assert.match(dashboard, /appRoutes\.operations\.uploads/);
 });
 
-test("UXM1.1 keeps review contextual instead of permanently duplicating it in the avatar menu", () => {
-  assert.match(dashboard, /metrics\.reviewFlags > 0/);
-  assert.match(dashboard, /href: appRoutes\.operations\.review/);
-  assert.match(dashboard, /Elementi da verificare/);
+test("UXM1.1 keeps technical data review separate from buyer Home and avatar menu", () => {
+  assert.match(dashboard, /procurementActions\.map/);
+  assert.doesNotMatch(dashboard, /metrics\.reviewFlags > 0|href: appRoutes\.operations\.review|Elementi da verificare/);
   assert.doesNotMatch(nav.slice(nav.indexOf("export function WorkspaceProfileMenu")), /Revisioni dati/);
 });
 

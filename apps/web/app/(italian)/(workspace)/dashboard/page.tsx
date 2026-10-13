@@ -129,8 +129,7 @@ export default async function DashboardPage({
   // Only user-owned buyer actions belong in the Workspace attention strip.
   // The tenant-scoped commercial_review_queue contains parser/extraction QA;
   // even though its rows are RLS-protected, it is NOT a buyer task.
-  // Keep that legacy review queue available through its existing governed
-  // operations route, but do not advertise technical QA on the customer Home.
+  // The governed correction workflow remains separate from customer priorities.
   // Read/unread news and recent RFQs are informational, not urgent.
   const attentionItems = [
     ...procurementActions.map((item) => ({

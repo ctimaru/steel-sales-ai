@@ -101,12 +101,14 @@ test("Home is a daily operational cockpit while Search owns the dedicated search
 });
 
 
-test("Home exposes corrections contextually only when review work exists", () => {
-  assert.match(dashboard, /metrics\.reviewFlags > 0/);
-  assert.match(dashboard, /decisione umana/);
-  assert.match(dashboard, /Elementi da verificare/);
-  assert.match(dashboard, /href: appRoutes\.operations\.review/);
-  assert.doesNotMatch(dashboard, /<h3 className="mt-3 font-semibold text-slate-950">Correggi i dati<\/h3>/);
+test("Home shows buyer RFQ actions, not technical extraction corrections", () => {
+  const attention = dashboard.slice(
+    dashboard.indexOf("const attentionItems = ["),
+    dashboard.indexOf("const attentionCount =")
+  );
+  assert.match(attention, /procurementActions\.map/);
+  assert.match(attention, /appRoutes\.rfqHub\.campaign/);
+  assert.doesNotMatch(attention, /metrics\.reviewFlags|appRoutes\.operations\.review|Elementi da verificare/);
 });
 
 
@@ -127,5 +129,5 @@ test("sales surfaces avoid infrastructure terminology", () => {
   assert.match(component, /Riferimento verificato/);
   assert.match(component, /Rilevanza/);
   assert.match(dashboard, /movimenti commerciali/i);
-  assert.match(dashboard, /decisione umana/);
+  assert.match(dashboard, /Cosa richiede attenzione/);
 });
