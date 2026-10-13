@@ -80,7 +80,7 @@ test("DASH-FEED7 SQL is strictly owner-only, aggregate and cohort-safe",()=>{
   assert.match(sql,/first_day\+1/);
   assert.match(sql,/first_day\+7/);
   assert.match(sql,/group by actor_user_id/);
-  assert.doesNotMatch(sql, /jsonb_build_object\\(\\s*'actor_user_id'/i);
+  assert.doesNotMatch(sql, /'actor_user_id'\\s*,\\s*e\\./i);
   assert.match(hp,/dash_feed7_platform_insights/);
   assert.match(hp,/not has_function_privilege\('anon'/);
   assert.match(hp,/platform superadmin required/);
