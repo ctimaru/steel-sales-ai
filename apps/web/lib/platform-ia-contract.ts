@@ -46,6 +46,11 @@ export const PLATFORM_IA_MODULES = [
     placement: "primary", rollout: "ready_for_plr2",
   },
   {
+    key: "review", href: appRoutes.platform.review, label: "Platform Review",
+    area: "overview", access: { kind: "permission", key: "platform.console.access" },
+    placement: "primary", rollout: "ready_for_plr2",
+  },
+  {
     key: "notifications", href: appRoutes.platform.notifications, label: "Centro notifiche",
     area: "overview", access: { kind: "permission", key: "platform.console.access" },
     placement: "utility", rollout: "ready_for_plr2",
@@ -132,6 +137,7 @@ export type PlatformIaModuleKey = (typeof PLATFORM_IA_MODULES)[number]["key"];
 /** Inventory of the app-router Platform page files (including nested paths). */
 export const PLATFORM_IA_ROUTE_INVENTORY = [
   { path: "/platform", module: "home" },
+  { path: "/platform/review", module: "review" },
   { path: "/platform/notifications", module: "notifications" },
   { path: "/platform/registrations", module: "registrations" },
   { path: "/platform/registrations/[id]", module: "registrations" },

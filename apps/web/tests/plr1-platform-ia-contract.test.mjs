@@ -30,7 +30,7 @@ test("PLR1 inventories every live Platform page route with exactly one domain", 
   assert.deepEqual(modeled, disk, "New Platform pages must be classified before release");
   assert.equal(new Set(modeled).size, modeled.length);
   assert.equal(new Set(modules).size, modules.length);
-  assert.equal(modules.length, 17);
+  assert.equal(modules.length, 18);
   for (const entry of routes) assert.ok(modules.includes(entry.module), entry.path + " has unknown module");
 });
 

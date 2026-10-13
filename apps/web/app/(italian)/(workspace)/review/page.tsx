@@ -5,11 +5,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { getReviewItems } from "@/lib/commercial-data";
 import { appRoutes } from "@/lib/routes";
 import { PilotEvent } from "@/components/pilot-event";
+import { requireWorkspaceAdmin } from "@/lib/workspace-context";
 
 import { ReviewConfirmForm } from "@/components/review-confirm-form";
 import { ReviewCorrectForm } from "@/components/review-correct-form";
 
 export default async function ReviewPage() {
+  const context = await requireWorkspaceAdmin();
   const { mode, items } = await getReviewItems();
   const pending = items.filter((item) => item.reviewStatus === "pending").length;
 
@@ -19,10 +21,10 @@ export default async function ReviewPage() {
       <div className="mx-auto max-w-6xl">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="text-sm font-semibold text-slate-500">Controllo dati</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">Correzioni</h1>
+          <p className="text-sm font-semibold text-slate-500">Qualità dati aziendali · {context.organizationName}</p>
+          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">Review dati commerciali</h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-            Controlla solo i casi in cui i dati estratti richiedono una verifica o una correzione.
+            Controlla le estrazioni e le evidenze della tua azienda che richiedono conferma o correzione. La governance del Network e dei contenuti pubblici è gestita separatamente dalla piattaforma.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
