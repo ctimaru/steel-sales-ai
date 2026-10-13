@@ -251,8 +251,16 @@ try {
     if (p.id === "buyerViewer") {
       await step(p.id + " RQG1 legacy and operations review denied", async () => {
         for (const route of ["/review","/review/offer-reparse","/operations/review","/operations/review/identities"]) {
-          await page.goto(base + route,{waitUntil:"domcontentloaded",timeout:90000});
-          assert.notEqual(new URL(page.url()).pathname,route,"Viewer gained technical review route: "+route);
+          // Next.js streams an auth redirect. A browser's pending navigation can be
+          // intentionally aborted by that redirect; confirm the final URL instead.
+          try {
+            await page.goto(base + route,{waitUntil:"domcontentloaded",timeout:90000});
+          } catch (error) {
+            if (!String(error).includes("net::ERR_ABORTED")) throw error;
+          }
+          await page.waitForURL(url => url.pathname === "/dashboard",{timeout:30000});
+          assert.equal(new URL(page.url()).pathname,"/dashboard",
+            "Review route failed to redirect viewer: "+route);
           assert.ok(!(await page.locator("body").innerText()).includes("Copertura di normalizzazione"),
             "Private technical review content leaked");
         }
