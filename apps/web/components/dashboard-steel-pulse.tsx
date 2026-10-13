@@ -3,6 +3,7 @@ import Link from "next/link";
 import { setPulseArticleEngagement } from "@/app/(italian)/(workspace)/pulse/actions";
 import { appRoutes } from "@/lib/routes";
 import type { DashboardPulseState } from "@/lib/dashboard-pulse";
+import { pulseProductInterests, pulseTerritoryInterests } from "@/lib/steel-pulse-advanced";
 import { pulseTopics } from "@/lib/steel-pulse-personalized";
 
 function publicationDate(value: string | null) {
@@ -19,6 +20,10 @@ export function DashboardSteelPulse({ state }: { state: DashboardPulseState }) {
   const cards = state.feed?.items ?? [];
   const saved = new Set(state.engagement?.saved_urls ?? []);
   const read = new Set(state.engagement?.read_urls ?? []);
+  const activeInterests = [
+    ...pulseProductInterests.filter((x) => state.interests.product_interests.includes(x.key)).map((x) => x.label),
+    ...pulseTerritoryInterests.filter((x) => state.interests.territory_interests.includes(x.key)).map((x) => x.label),
+  ];
 
   return (
     <section aria-labelledby="dashboard-pulse-heading" className="min-w-0 space-y-4">
@@ -35,6 +40,22 @@ export function DashboardSteelPulse({ state }: { state: DashboardPulseState }) {
         </Link>
       </div>
 
+      {activeInterests.length > 0 ? (
+        <div aria-label="Interessi personali" className="flex flex-wrap items-center gap-1.5">
+          <span className="mr-1 text-xs font-medium text-[#52615b]">Segui:</span>
+          {activeInterests.slice(0, 5).map((name) => (
+            <span key={name} className="rounded-full border border-[#c8dacd] bg-[#f3f9f5] px-2.5 py-1 text-[11px] text-[#245440]">{name}</span>
+          ))}
+          {activeInterests.length > 5 ? <span className="text-xs text-[#52615b]">+{activeInterests.length - 5}</span> : null}
+        </div>
+      ) : (
+        <p className="text-xs text-[#52615b]">
+          Scegli i tuoi prodotti e territori da “Personalizza il feed”. Disponibile anche con l’account gratuito.
+        </p>
+      )}
+      {state.interests.territory_interests.length > 0 ? (
+        <p className="text-[11px] leading-5 text-[#64736c]">Territori indicativi: ordinamento per contenuto editoriale, non per geolocalizzazione certificata.</p>
+      ) : null}
       <nav aria-label="Viste Steel Pulse" className="flex flex-wrap gap-2 text-xs">
         <span aria-current="page" className="inline-flex min-h-10 items-center rounded-full bg-[#173f35] px-4 font-semibold text-white">
           Per te

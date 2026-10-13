@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { validatePulsePreferences } from "@/lib/steel-pulse-personalized";
+import { parsePulseAdvancedInterests } from "@/lib/steel-pulse-advanced";
 import { validatePulseAction, validatePulseSourceUrl } from "@/lib/steel-pulse-engagement";
 import { createClient } from "@/lib/supabase/server";
 
@@ -14,7 +15,11 @@ export async function savePulseInterests(formData: FormData) {
     role_interest: formData.get("role_interest"),
     language_code: formData.get("language_code"),
   });
-  if (!preferences) redirect("/pulse?error=invalid");
+  const advanced = parsePulseAdvancedInterests({
+    product_interests: formData.getAll("product_interests"),
+    territory_interests: formData.getAll("territory_interests"),
+  });
+  if (!preferences || !advanced) redirect("/pulse?error=invalid");
 
   const supabase = await createClient();
   const { data: { user }, error: identityError } = await supabase.auth.getUser();
@@ -22,17 +27,30 @@ export async function savePulseInterests(formData: FormData) {
 
   let saved = false;
   try {
-    const { data, error } = await supabase.rpc("sp5_save_feed_preferences", {
+    const { data, error } = await supabase.rpc("sp8_save_feed_preferences", {
       p_topics: preferences.topics,
       p_role_interest: preferences.role_interest,
       p_language_code: preferences.language_code,
+      p_product_interests: advanced.product_interests,
+      p_territory_interests: advanced.territory_interests,
     });
-    saved = !error && !!validatePulsePreferences(data);
+    saved = !error && !!validatePulsePreferences(data) && !!parsePulseAdvancedInterests(data);
+    // Backward-compatible base preference updates during a rolling migration.
+    // Never silently discard explicitly selected advanced interests.
+    if (!saved && advanced.product_interests.length === 0 && advanced.territory_interests.length === 0) {
+      const fallback = await supabase.rpc("sp5_save_feed_preferences", {
+        p_topics: preferences.topics,
+        p_role_interest: preferences.role_interest,
+        p_language_code: preferences.language_code,
+      });
+      saved = !fallback.error && !!validatePulsePreferences(fallback.data);
+    }
   } catch {
     saved = false;
   }
   if (!saved) redirect("/pulse?error=unavailable");
   revalidatePath("/pulse");
+  revalidatePath("/dashboard");
   redirect("/pulse?saved=1");
 }
 
