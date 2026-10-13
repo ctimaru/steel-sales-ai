@@ -1,4 +1,6 @@
 import Link from "next/link";
+import type { SteelPulsePublicCard } from "@/lib/steel-pulse-public";
+import { DashboardTrackedLink } from "@/components/dashboard-tracked-link";
 
 import { setPulseArticleEngagement } from "@/app/(italian)/(workspace)/pulse/actions";
 import { appRoutes } from "@/lib/routes";
@@ -15,6 +17,66 @@ function publicationDate(value: string | null) {
 
 const actionClass =
   "inline-flex min-h-11 items-center justify-center rounded-lg border border-[#c4d6cb] bg-white px-3 text-xs font-semibold text-[#195543] transition hover:bg-[#edf5f0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246a50]";
+
+function PulseNewsArticle({card,saved,read,canEngage}:{
+  card:SteelPulsePublicCard;
+  saved:Set<string>;
+  read:Set<string>;
+  canEngage:boolean;
+}) {
+  return (
+    <article className="rounded-2xl border border-[#d7e3dc] bg-white p-4 shadow-[0_4px_20px_rgba(18,61,52,0.03)] sm:p-5">
+              <div className="flex flex-wrap items-center gap-2 text-xs text-[#586a60]">
+                <span className="rounded-full bg-[#e9f4ed] px-2.5 py-1 font-semibold text-[#205b45]">
+                  {pulseTopics.find((topic) => topic.key === card.topic)?.label ?? "Acciaio"}
+                </span>
+                <span className="font-medium">{card.source_name}</span>
+                {publicationDate(card.source_published_at) ? (
+                  <time dateTime={card.source_published_at ?? undefined}>· {publicationDate(card.source_published_at)}</time>
+                ) : null}
+                {read.has(card.source_url) ? <span className="ml-auto text-[#53655c]">Già letto</span> : null}
+              </div>
+              <h3 className="mt-3 text-lg font-semibold leading-snug text-[#173f35]">{card.headline}</h3>
+              <p className="mt-2 text-sm leading-6 text-[#43554d]">{card.summary}</p>
+              <div className="mt-3 rounded-xl border-l-[3px] border-[#49876e] bg-[#f3f8f4] px-3 py-2.5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[#27664c]">Perché ti interessa</p>
+                <p className="mt-1 text-sm leading-6 text-[#43584b]">{card.relevance}</p>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                <DashboardTrackedLink
+                  engagementKind="news_source"
+                  href={card.source_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-11 items-center text-xs font-semibold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2"
+                  aria-label={"Apri fonte originale: " + card.source_name + " (nuova scheda)"}
+                >Fonte originale ↗</DashboardTrackedLink>
+                {canEngage ? (
+                  <div className="flex flex-wrap gap-2">
+                    <form action={setPulseArticleEngagement}>
+                      <input type="hidden" name="return_to" value="dashboard" />
+                      <input type="hidden" name="source_url" value={card.source_url} />
+                      <input type="hidden" name="engagement_action" value={saved.has(card.source_url) ? "unsave" : "save"} />
+                      <button type="submit" className={actionClass} aria-label={saved.has(card.source_url) ? "Rimuovi la notizia dai salvati" : "Salva la notizia"}>
+                        {saved.has(card.source_url) ? "Salvato ✓" : "Salva"}
+                      </button>
+                    </form>
+                    <form action={setPulseArticleEngagement}>
+                      <input type="hidden" name="return_to" value="dashboard" />
+                      <input type="hidden" name="source_url" value={card.source_url} />
+                      <input type="hidden" name="engagement_action" value={read.has(card.source_url) ? "unread" : "read"} />
+                      <button type="submit" className={actionClass} aria-label={read.has(card.source_url) ? "Segna la notizia come da leggere" : "Segna la notizia come letta"}>
+                        {read.has(card.source_url) ? "Letto ✓" : "Segna letto"}
+                      </button>
+                    </form>
+                  </div>
+                ) : (
+                  <span className="text-xs text-[#52615b]">Salvataggi non disponibili</span>
+                )}
+              </div>
+            </article>
+  );
+}
 
 export function DashboardSteelPulse({ state }: { state: DashboardPulseState }) {
   const cards = state.feed?.items ?? [];
@@ -35,9 +97,9 @@ export function DashboardSteelPulse({ state }: { state: DashboardPulseState }) {
           </h2>
           <p className="mt-1 text-sm text-[#52615b]">Notizie e segnali selezionati in base ai tuoi interessi.</p>
         </div>
-        <Link href={appRoutes.steelPulse} className="inline-flex min-h-11 items-center rounded-lg border border-[#bcd5c7] bg-white px-3 text-xs font-semibold text-[#175640] hover:bg-[#f1f7f3] focus-visible:outline-2 focus-visible:outline-offset-2">
+        <DashboardTrackedLink engagementKind="interests" href={appRoutes.steelPulse} className="inline-flex min-h-11 items-center rounded-lg border border-[#bcd5c7] bg-white px-3 text-xs font-semibold text-[#175640] hover:bg-[#f1f7f3] focus-visible:outline-2 focus-visible:outline-offset-2">
           Personalizza il feed →
-        </Link>
+        </DashboardTrackedLink>
       </div>
 
       {activeInterests.length > 0 ? (
@@ -66,6 +128,9 @@ export function DashboardSteelPulse({ state }: { state: DashboardPulseState }) {
         <Link href="/pulse?view=saved" className="inline-flex min-h-10 items-center rounded-full border border-[#d1ded7] bg-white px-4 font-semibold text-[#245344] hover:bg-[#f2f7f4]">
           Salvati
         </Link>
+        <Link href="#dashboard-discovery" className="inline-flex min-h-10 items-center rounded-full border border-[#d1ded7] bg-white px-4 font-semibold text-[#245344] hover:bg-[#f2f7f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246a50]">
+          Vai alle opportunità ↓
+        </Link>
       </nav>
 
       {!state.available ? (
@@ -86,57 +151,22 @@ export function DashboardSteelPulse({ state }: { state: DashboardPulseState }) {
         </div>
       ) : (
         <div className="space-y-3" aria-label="Notizie Steel Pulse">
-          {cards.map((card) => (
-            <article key={card.source_url} className="rounded-2xl border border-[#d7e3dc] bg-white p-4 shadow-[0_4px_20px_rgba(18,61,52,0.03)] sm:p-5">
-              <div className="flex flex-wrap items-center gap-2 text-xs text-[#586a60]">
-                <span className="rounded-full bg-[#e9f4ed] px-2.5 py-1 font-semibold text-[#205b45]">
-                  {pulseTopics.find((topic) => topic.key === card.topic)?.label ?? "Acciaio"}
-                </span>
-                <span className="font-medium">{card.source_name}</span>
-                {publicationDate(card.source_published_at) ? (
-                  <time dateTime={card.source_published_at ?? undefined}>· {publicationDate(card.source_published_at)}</time>
-                ) : null}
-                {read.has(card.source_url) ? <span className="ml-auto text-[#53655c]">Già letto</span> : null}
-              </div>
-              <h3 className="mt-3 text-lg font-semibold leading-snug text-[#173f35]">{card.headline}</h3>
-              <p className="mt-2 text-sm leading-6 text-[#43554d]">{card.summary}</p>
-              <div className="mt-3 rounded-xl border-l-[3px] border-[#49876e] bg-[#f3f8f4] px-3 py-2.5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.05em] text-[#27664c]">Perché ti interessa</p>
-                <p className="mt-1 text-sm leading-6 text-[#43584b]">{card.relevance}</p>
-              </div>
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                <a
-                  href={card.source_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex min-h-11 items-center text-xs font-semibold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2"
-                  aria-label={"Apri fonte originale: " + card.source_name + " (nuova scheda)"}
-                >Fonte originale ↗</a>
-                {state.engagement ? (
-                  <div className="flex flex-wrap gap-2">
-                    <form action={setPulseArticleEngagement}>
-                      <input type="hidden" name="return_to" value="dashboard" />
-                      <input type="hidden" name="source_url" value={card.source_url} />
-                      <input type="hidden" name="engagement_action" value={saved.has(card.source_url) ? "unsave" : "save"} />
-                      <button type="submit" className={actionClass} aria-label={saved.has(card.source_url) ? "Rimuovi la notizia dai salvati" : "Salva la notizia"}>
-                        {saved.has(card.source_url) ? "Salvato ✓" : "Salva"}
-                      </button>
-                    </form>
-                    <form action={setPulseArticleEngagement}>
-                      <input type="hidden" name="return_to" value="dashboard" />
-                      <input type="hidden" name="source_url" value={card.source_url} />
-                      <input type="hidden" name="engagement_action" value={read.has(card.source_url) ? "unread" : "read"} />
-                      <button type="submit" className={actionClass} aria-label={read.has(card.source_url) ? "Segna la notizia come da leggere" : "Segna la notizia come letta"}>
-                        {read.has(card.source_url) ? "Letto ✓" : "Segna letto"}
-                      </button>
-                    </form>
-                  </div>
-                ) : (
-                  <span className="text-xs text-[#52615b]">Salvataggi non disponibili</span>
-                )}
-              </div>
-            </article>
+          {cards.slice(0, 2).map((card) => (
+            <PulseNewsArticle key={card.source_url} card={card} saved={saved} read={read} canEngage={state.engagement !== null} />
           ))}
+          {cards.length > 2 ? (
+            <details className="group rounded-2xl border border-[#d0ddd5] bg-white">
+              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-2 rounded-2xl px-4 py-3 text-sm font-semibold text-[#175640] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246a50] sm:px-5">
+                <span>Altre {cards.length - 2} notizie dal tuo settore</span>
+                <span aria-hidden="true" className="transition-transform group-open:rotate-180">⌄</span>
+              </summary>
+              <div className="space-y-3 border-t border-[#e4ece6] px-2 py-3 sm:px-3">
+                {cards.slice(2).map((card) => (
+                  <PulseNewsArticle key={card.source_url} card={card} saved={saved} read={read} canEngage={state.engagement !== null} />
+                ))}
+              </div>
+            </details>
+          ) : null}
         </div>
       )}
       <div className="flex justify-center">

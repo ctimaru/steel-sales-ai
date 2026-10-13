@@ -88,7 +88,8 @@ test("DASH-FEED3 Home uses governed cards; no invented content or dangerous rend
   assert.match(dashboard, /loadDashboardPulse\(\)/);
   assert.match(dashboard, /<DashboardSteelPulse state=\{pulse\} \/>/);
   assert.match(panel, /state\.feed\?\.items \?\? \[\]/);
-  assert.match(panel, /cards\.map/);
+  assert.match(panel, /cards\.slice\(0, 2\)\.map/);
+  assert.match(panel, /cards\.slice\(2\)\.map/);
   assert.match(panel, /card\.relevance/);
   assert.match(panel, /card\.source_url/);
   assert.match(panel, /rel="noopener noreferrer"/);
