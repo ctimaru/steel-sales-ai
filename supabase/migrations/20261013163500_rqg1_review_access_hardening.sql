@@ -3238,7 +3238,10 @@ using (exists (
     and m.status='active' and m.role='admin'
 ));
 drop policy if exists commercial_review_queue_organization_update on public.commercial_review_queue;
--- No authenticated UPDATE grant; direct mutation remains blocked for all.
+-- Historical schemas may still have a browser UPDATE GRANT even though the
+-- production schema did not. Remove both the privilege and its RLS policy.
+-- Reviewed mutations are ONLY allowed through audited, admin-gated RPCs.
+revoke update on table public.commercial_review_queue from public,anon,authenticated;
 drop policy if exists commercial_correction_events_organization_select on public.commercial_correction_events;
 create policy commercial_correction_events_organization_select
 on public.commercial_correction_events for select to authenticated
