@@ -148,6 +148,7 @@ export const PLATFORM_IA_ROUTE_INVENTORY = [
   { path: "/platform/novita", module: "privateLab" },
   { path: "/platform/novita/listini/[versionId]", module: "privateLab" },
   { path: "/platform/product-analytics", module: "productAnalytics" },
+  { path: "/platform/feed-insights", module: "productAnalytics" },
   { path: "/platform/pilot", module: "pilot" },
   { path: "/platform/business-plan", module: "businessPlan" },
   { path: "/platform/business-plan/details", module: "businessPlan" },
