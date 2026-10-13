@@ -23,23 +23,23 @@ jobs:
     env:
       CI: "true"
       RQG32_MODE: EXPLICIT_MANUAL_READ_ONLY
-      RQG32_CONFIRM: \${{ inputs.approval }}
-      RQG32_REGISTRATION_EMAIL: \${{ secrets.RQG32_REGISTRATION_EMAIL }}
-      RQG32_REGISTRATION_PASSWORD: \${{ secrets.RQG32_REGISTRATION_PASSWORD }}
-      RQG32_CLAIMS_EMAIL: \${{ secrets.RQG32_CLAIMS_EMAIL }}
-      RQG32_CLAIMS_PASSWORD: \${{ secrets.RQG32_CLAIMS_PASSWORD }}
-      RQG32_TRUST_EMAIL: \${{ secrets.RQG32_TRUST_EMAIL }}
-      RQG32_TRUST_PASSWORD: \${{ secrets.RQG32_TRUST_PASSWORD }}
-      RQG32_AUDITOR_EMAIL: \${{ secrets.RQG32_AUDITOR_EMAIL }}
-      RQG32_AUDITOR_PASSWORD: \${{ secrets.RQG32_AUDITOR_PASSWORD }}
-      RQG32_COMPANY_A_EMAIL: \${{ secrets.RQG32_COMPANY_A_EMAIL }}
-      RQG32_COMPANY_A_PASSWORD: \${{ secrets.RQG32_COMPANY_A_PASSWORD }}
-      RQG32_COMPANY_B_EMAIL: \${{ secrets.RQG32_COMPANY_B_EMAIL }}
-      RQG32_COMPANY_B_PASSWORD: \${{ secrets.RQG32_COMPANY_B_PASSWORD }}
-      RQG32_VIEWER_EMAIL: \${{ secrets.RQG32_VIEWER_EMAIL }}
-      RQG32_VIEWER_PASSWORD: \${{ secrets.RQG32_VIEWER_PASSWORD }}
-      RQG32_COMPANY_A_MARKER: \${{ secrets.RQG32_COMPANY_A_MARKER }}
-      RQG32_COMPANY_B_MARKER: \${{ secrets.RQG32_COMPANY_B_MARKER }}
+      RQG32_CONFIRM: ${{ inputs.approval }}
+      RQG32_REGISTRATION_EMAIL: ${{ secrets.RQG32_REGISTRATION_EMAIL }}
+      RQG32_REGISTRATION_PASSWORD: ${{ secrets.RQG32_REGISTRATION_PASSWORD }}
+      RQG32_CLAIMS_EMAIL: ${{ secrets.RQG32_CLAIMS_EMAIL }}
+      RQG32_CLAIMS_PASSWORD: ${{ secrets.RQG32_CLAIMS_PASSWORD }}
+      RQG32_TRUST_EMAIL: ${{ secrets.RQG32_TRUST_EMAIL }}
+      RQG32_TRUST_PASSWORD: ${{ secrets.RQG32_TRUST_PASSWORD }}
+      RQG32_AUDITOR_EMAIL: ${{ secrets.RQG32_AUDITOR_EMAIL }}
+      RQG32_AUDITOR_PASSWORD: ${{ secrets.RQG32_AUDITOR_PASSWORD }}
+      RQG32_COMPANY_A_EMAIL: ${{ secrets.RQG32_COMPANY_A_EMAIL }}
+      RQG32_COMPANY_A_PASSWORD: ${{ secrets.RQG32_COMPANY_A_PASSWORD }}
+      RQG32_COMPANY_B_EMAIL: ${{ secrets.RQG32_COMPANY_B_EMAIL }}
+      RQG32_COMPANY_B_PASSWORD: ${{ secrets.RQG32_COMPANY_B_PASSWORD }}
+      RQG32_VIEWER_EMAIL: ${{ secrets.RQG32_VIEWER_EMAIL }}
+      RQG32_VIEWER_PASSWORD: ${{ secrets.RQG32_VIEWER_PASSWORD }}
+      RQG32_COMPANY_A_MARKER: ${{ secrets.RQG32_COMPANY_A_MARKER }}
+      RQG32_COMPANY_B_MARKER: ${{ secrets.RQG32_COMPANY_B_MARKER }}
     steps:
       - name: Enforce explicit review permission before accessing prod
         shell: bash
@@ -58,7 +58,7 @@ jobs:
             RQG32_COMPANY_B_EMAIL RQG32_COMPANY_B_PASSWORD \
             RQG32_VIEWER_EMAIL RQG32_VIEWER_PASSWORD \
             RQG32_COMPANY_A_MARKER RQG32_COMPANY_B_MARKER; do
-            if [ -z "\${!key:-}" ]; then
+            if [ -z "${!key:-}" ]; then
               echo "RQG3.2 BLOCKED: dedicated synthetic credential/marker missing: $key"
               exit 1
             fi
