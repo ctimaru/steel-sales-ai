@@ -12,6 +12,8 @@ const loginPath = "/login";
 assert.equal(process.env.RQG32_MODE, "EXPLICIT_MANUAL_READ_ONLY", "Explicit manual mode required");
 assert.equal(process.env.CI, "true", "Use ephemeral protected CI runner only");
 assert.equal(process.env.RQG32_CONFIRM, "I_APPROVE_READ_ONLY_RQG32", "User acknowledgement required");
+assert.equal(process.env.GITHUB_EVENT_NAME, "workflow_dispatch", "Manual action required");
+assert.equal(process.env.GITHUB_REF, "refs/heads/main", "Protected main required");
 
 const defs = [
   { id: "registration", email: "RQG32_REGISTRATION_EMAIL", password: "RQG32_REGISTRATION_PASSWORD", lane: "/platform/registrations" },
@@ -22,11 +24,21 @@ const defs = [
   { id: "companyB", email: "RQG32_COMPANY_B_EMAIL", password: "RQG32_COMPANY_B_PASSWORD" },
   { id: "viewer", email: "RQG32_VIEWER_EMAIL", password: "RQG32_VIEWER_PASSWORD" },
 ];
+const requiredEmails = {
+  registration: "rqg32-registration@smartsteelsales.test",
+  claims: "rqg32-claims@smartsteelsales.test",
+  trust: "rqg32-trust@smartsteelsales.test",
+  auditor: "rqg32-auditor@smartsteelsales.test",
+  companyA: "rqg32-company-a@smartsteelsales.test",
+  companyB: "rqg32-company-b@smartsteelsales.test",
+  viewer: "rqg32-viewer@smartsteelsales.test",
+};
 const actors = [];
 for (const definition of defs) {
   const email = process.env[definition.email]?.trim().toLowerCase() ?? "";
   const password = process.env[definition.password] ?? "";
-  assert.ok(email && password.length >= 12, "Missing dedicated CI secret(s): " + definition.id);
+  assert.equal(email,requiredEmails[definition.id],"Only exact synthetic persona emails allowed: "+definition.id);
+  assert.ok(password.length >= 20, "Strong dedicated CI credential required: " + definition.id);
   // Never run against normal customers, real workers or the sole superadmin.
   const localPart = email.split("@")[0] ?? "";
   assert.ok(
@@ -42,12 +54,14 @@ for (const marker of markers) {
   assert.match(marker, /^RQG32-[A-Z0-9_-]{6,64}$/, "Must use dedicated test-only review marker");
 }
 assert.notEqual(markers[0], markers[1], "Companies need distinct evidence markers");
+assert.deepEqual(markers,["RQG32-ORG_A-20261013","RQG32-ORG_B-20261013"],
+  "Only reserved pre-approved synthetic evidence markers allowed");
 const browser = await chromium.launch({ headless: true, channel: "chrome" });
 let checks = 0;
 let transmittedLoginPosts = 0;
 let blockedNonAuthWrites = 0;
 let blockedFirstPartyWrites = 0;
-const deniedLandings = new Set(["/login", "/register", "/dashboard", "/onboarding", "/staff/access", "/platform"]);
+const deniedLandings = new Set(["/login", "/register", "/dashboard", "/onboarding", "/staff/access", "/platform", "/registration/status", "/legal/accept"]);
 
 async function check(label, action) {
   try {
