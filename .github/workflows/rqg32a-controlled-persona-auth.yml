@@ -28,6 +28,7 @@ concurrency:
 jobs:
   synthetic-auth-only:
     name: Production synthetic Auth bootstrap (owner & tenants unchanged)
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: production-qa
     timeout-minutes: 15

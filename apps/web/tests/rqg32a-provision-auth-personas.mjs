@@ -35,6 +35,7 @@ export function readConfiguration(env) {
     : "RQG32A_INSPECT_SYNTHETIC_USERS";
   assert.equal(env.RQG32A_APPROVAL,approval,"Explicit mode-specific approval required");
   assert.equal(env.CI,"true","Dedicated ephemeral GitHub CI runner only");
+  assert.equal(env.GITHUB_REF,"refs/heads/main","Only main can provision production Auth");
   assert.equal(env.RQG32A_SUPABASE_URL,PROJECT_URL,"Hosted project mismatch");
   assert.ok(env.RQG32A_AUTH_SECRET_KEY?.startsWith("sb_secret_") ||
     env.RQG32A_AUTH_SECRET_KEY?.startsWith("eyJ"),

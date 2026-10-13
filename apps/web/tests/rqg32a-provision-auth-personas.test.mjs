@@ -8,7 +8,7 @@ import {
 
 const fixture=(mode="preflight")=>{
   const env={
-    CI:"true",RQG32A_MODE:mode,
+    CI:"true",GITHUB_REF:"refs/heads/main",RQG32A_MODE:mode,
     RQG32A_APPROVAL:mode==="create"
       ?"RQG32A_CREATE_SEVEN_SYNTHETIC_USERS":"RQG32A_INSPECT_SYNTHETIC_USERS",
     RQG32A_SUPABASE_URL:PROJECT_URL,
@@ -59,6 +59,7 @@ test("RQG3.2a explicit approval, fixed project, exact .test identities and uniqu
     ["RQG32A_APPROVAL","none"],
     ["RQG32A_SUPABASE_URL","https://another-project.supabase.co"],
     ["CI","false"],
+    ["GITHUB_REF","refs/heads/dev"],
     ["RQG32_REGISTRATION_EMAIL","someone@company.com"],
     ["RQG32_COMPANY_A_MARKER","WRONG"],
     ["RQG32A_AUTH_SECRET_KEY","not-a-secret"],
