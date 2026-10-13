@@ -112,5 +112,10 @@ test("DASH-FEED2 hides informational Network updates from urgency while retainin
   assert.match(dashboard, /networkEntitled && \(received\.total > 0 \|\| activity\.unread > 0\)/);
   assert.match(dashboard, /appRoutes\.network\.activity/);
   assert.match(dashboard, /appRoutes\.network\.inquiries/);
-  assert.match(dashboard, /canWrite && metrics\.reviewFlags > 0/);
+  const attention = dashboard.slice(
+    dashboard.indexOf("const attentionItems = ["),
+    dashboard.indexOf("const attentionCount =")
+  );
+  assert.match(attention, /procurementActions\.map/);
+  assert.doesNotMatch(attention, /reviewFlags|appRoutes\.operations\.review|Elementi da verificare/);
 });

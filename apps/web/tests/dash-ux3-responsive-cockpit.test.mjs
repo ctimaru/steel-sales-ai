@@ -18,7 +18,7 @@ test("DASH-FEED2 attention contains only actionable work and disappears when emp
   assert.match(home, /attentionCount > 0/);
   assert.match(home, /Cosa richiede attenzione/);
   assert.match(home, /procurementActions\.map/);
-  assert.match(home, /metrics\.reviewFlags > 0/);
+  assert.doesNotMatch(home, /metrics\.reviewFlags > 0|href: appRoutes\.operations\.review/);
   assert.doesNotMatch(home, /recentRfq && canWrite/);
   assert.doesNotMatch(home, /title: "Aggiornamenti Network"/);
   assert.match(home, /min-h-10 max-w-full items-center gap-2 rounded-lg/);
