@@ -13,7 +13,7 @@ export type PlatformReviewLane = {
   description: string;
   href: string;
   readPermission: PlatformPermissionKey;
-  decisionPermission: PlatformPermissionKey;
+  decisionActions: readonly { label: string; permission: PlatformPermissionKey }[];
 };
 
 export const PLATFORM_REVIEW_LANES: readonly PlatformReviewLane[] = [
@@ -23,7 +23,14 @@ export const PLATFORM_REVIEW_LANES: readonly PlatformReviewLane[] = [
     description: "Identità del richiedente e ammissione di nuove aziende alla piattaforma.",
     href: appRoutes.platform.registrations,
     readPermission: "registrations.read",
-    decisionPermission: "registrations.review",
+    decisionActions: [
+      { label: "Esamina", permission: "registrations.review" },
+      { label: "Chiedi integrazioni", permission: "registrations.request_information" },
+      { label: "Approva", permission: "registrations.approve" },
+      { label: "Rifiuta", permission: "registrations.reject" },
+      { label: "Attiva", permission: "registrations.activate" },
+      { label: "Collega al Network", permission: "registrations.bridge_network" },
+    ],
   },
   {
     key: "claims",
@@ -31,7 +38,12 @@ export const PLATFORM_REVIEW_LANES: readonly PlatformReviewLane[] = [
     description: "Prove di titolarità dei profili nel Network pubblico.",
     href: appRoutes.platform.claims,
     readPermission: "claims.read",
-    decisionPermission: "claims.review_proof",
+    decisionActions: [
+      { label: "Verifica prova", permission: "claims.review_proof" },
+      { label: "Approva claim", permission: "claims.approve" },
+      { label: "Rifiuta claim", permission: "claims.reject" },
+      { label: "Revoca claim", permission: "claims.revoke" },
+    ],
   },
   {
     key: "discovery",
@@ -39,7 +51,13 @@ export const PLATFORM_REVIEW_LANES: readonly PlatformReviewLane[] = [
     description: "Qualità delle fonti, duplicati e candidati prima della pubblicazione.",
     href: appRoutes.platform.discovery,
     readPermission: "discovery.read",
-    decisionPermission: "discovery.review",
+    decisionActions: [
+      { label: "Revisiona candidato", permission: "discovery.review" },
+      { label: "Pubblica", permission: "discovery.publish" },
+      { label: "Arricchisci", permission: "discovery.enrich" },
+      { label: "Chiudi duplicati", permission: "discovery.close_duplicates" },
+      { label: "Valida fonti", permission: "discovery.governance_review" },
+    ],
   },
   {
     key: "network_trust",
@@ -47,7 +65,12 @@ export const PLATFORM_REVIEW_LANES: readonly PlatformReviewLane[] = [
     description: "Verifiche e conflitti di identità sulle aziende del Network.",
     href: appRoutes.platform.networkTrust,
     readPermission: "network_trust.read",
-    decisionPermission: "network_trust.review_changes",
+    decisionActions: [
+      { label: "Verifica", permission: "network_trust.verify" },
+      { label: "Revoca verifica", permission: "network_trust.revoke" },
+      { label: "Decidi conflitto", permission: "network_trust.review_changes" },
+      { label: "Decidi identità", permission: "network_trust.identity_review" },
+    ],
   },
   {
     key: "knowledge",
@@ -55,12 +78,22 @@ export const PLATFORM_REVIEW_LANES: readonly PlatformReviewLane[] = [
     description: "Norme, gradi, fonti e contenuti editoriali prima della pubblicazione.",
     href: appRoutes.platform.knowledge,
     readPermission: "knowledge.read_drafts",
-    decisionPermission: "knowledge.review",
+    decisionActions: [
+      { label: "Revisiona", permission: "knowledge.review" },
+      { label: "Pubblica", permission: "knowledge.publish" },
+    ],
   },
 ] as const;
 
 export function visiblePlatformReviewLanes(permissions: readonly PlatformPermissionKey[]) {
   return PLATFORM_REVIEW_LANES.filter((lane) => permissions.includes(lane.readPermission));
+}
+
+/** UI guidance only; destination Actions and RPCs must independently authorize decisions. */
+export function allowedPlatformReviewDecisions(
+  lane: PlatformReviewLane, permissions: readonly PlatformPermissionKey[],
+) {
+  return lane.decisionActions.filter((action) => permissions.includes(action.permission));
 }
 
 export const COMPANY_REVIEW_BOUNDARY = {

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { FocusHeader, FocusPage } from "@/components/focus-ui";
 import { requirePlatformConsoleContext } from "@/lib/platform-admin";
-import { visiblePlatformReviewLanes } from "@/lib/review-boundaries";
+import { allowedPlatformReviewDecisions, visiblePlatformReviewLanes } from "@/lib/review-boundaries";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +44,7 @@ export default async function PlatformReviewPage() {
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
             {lanes.map((lane) => {
-              const canDecide = context.permissions.includes(lane.decisionPermission);
+              const decisions = allowedPlatformReviewDecisions(lane, context.permissions);
               return (
                 <Link
                   key={lane.key}
@@ -55,8 +55,15 @@ export default async function PlatformReviewPage() {
                     <h3 className="text-base font-semibold text-[#173f35]">{lane.title}</h3>
                     <p className="mt-2 text-sm leading-6 text-[#56655e]">{lane.description}</p>
                   </div>
-                  <p className="mt-4 text-xs font-semibold text-[#1a5144]">
-                    {canDecide ? "Apri la revisione" : "Consulta la coda"} <span aria-hidden="true">→</span>
+                  <p className={decisions.length
+                    ? "mt-4 text-xs font-semibold leading-5 text-[#1a5144]"
+                    : "mt-4 text-xs font-semibold text-[#66736e]"}>
+                    {decisions.length
+                      ? `Decisioni abilitate: ${decisions.map((action) => action.label).join(" · ")}`
+                      : "Sola lettura · nessuna decisione autorizzata"}
+                  </p>
+                  <p className="mt-3 text-xs font-semibold text-[#1a5144]">
+                    Apri la coda <span aria-hidden="true">→</span>
                   </p>
                 </Link>
               );

@@ -27,7 +27,7 @@ test("RQG2 separates Platform governance from private Company Review with indepe
 test("RQG2 only exposes authorized Platform domain links, and no direct decision API", () => {
   assert.match(boundaries, /permissions\.includes\(lane\.readPermission\)/);
   assert.match(platformReview, /visiblePlatformReviewLanes\(context\.permissions\)/);
-  assert.match(platformReview, /permissions\.includes\(lane\.decisionPermission\)/);
+  assert.match(platformReview, /allowedPlatformReviewDecisions\(lane, context\.permissions\)/);
   for (const permission of ["registrations.read", "claims.read", "discovery.read", "network_trust.read", "knowledge.read_drafts"]) {
     assert.ok(boundaries.includes(permission), permission);
   }
