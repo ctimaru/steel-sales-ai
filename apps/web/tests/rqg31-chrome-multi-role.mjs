@@ -63,17 +63,17 @@ async function rejectPage(page,route) {
       // redirect. Accept only this navigation abort, never a final protected URL.
       if(!String(error).includes("net::ERR_ABORTED"))throw error;
     }
-    const privateReview=route==="/review" || route.startsWith("/review/") ||
-      route==="/operations/review" || route.startsWith("/operations/review/");
-    await probe.waitForURL(u=>{
-      if(privateReview)return !u.pathname.startsWith("/review") && !u.pathname.startsWith("/operations/review");
-      return u.pathname!==route;
-    },{timeout:60000});
+    const deniedLandingPaths=new Set([
+      "/login", "/dashboard", "/onboarding", "/register", "/staff/access", "/platform",
+    ]);
+    await probe.waitForURL(u=>u.origin===base&&deniedLandingPaths.has(u.pathname),{timeout:60000});
     const finalPath=new URL(probe.url()).pathname;
-    if(privateReview)assert.ok(!finalPath.startsWith("/review")&&!finalPath.startsWith("/operations/review"));
-    else assert.notEqual(finalPath,route,"Direct access improperly granted "+route);
+    assert.notEqual(finalPath,route,"Direct access improperly granted "+route);
+    assert.ok(deniedLandingPaths.has(finalPath),"Unexpected denial landing: "+finalPath);
     const body=await probe.locator("body").innerText({timeout:30000});
-    assert.ok(!body.includes("RQG31 PRIVATE A")&&!body.includes("RQG31 PRIVATE B"),"Private evidence leaked on denied route");
+    assert.ok(body.length>20,"Denied route did not render a safe destination");
+    assert.ok(!body.includes("RQG31 PRIVATE"),"Private evidence leaked on denied route");
+    assert.ok(!body.includes("Review dati commerciali"),"Company Review rendered on denied route");
   } finally {
     await probe.close();
   }
@@ -121,7 +121,7 @@ try {
       assert.ok(!body.includes(excluded),id+" read another tenant review evidence");
       assert.ok(body.includes("Qualità dati aziendali"));
       await visit(page,"/review");
-      assert.equal(new URL(page.url()).pathname,"/review", "Legacy Company Review URL remains guarded and addressable");
+      assert.equal(new URL(page.url()).pathname,"/operations/review", "Guarded legacy path redirects to canonical Company Review");
       await rejectPage(page,"/platform/review");
     });
   }
