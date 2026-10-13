@@ -4,11 +4,11 @@ import test from "node:test";
 
 const source = readFileSync(new URL("../app/(workspace)/dashboard/page.tsx", import.meta.url), "utf8");
 
-test("DASH-UX4 setup follows commercial priorities and precedes recent activity", () => {
-  const priority = source.indexOf('<section aria-labelledby="daily-priorities">');
+test("DASH-UX4 setup follows compact attention and precedes the feed", () => {
+  const priority = source.indexOf('<section aria-labelledby="daily-priorities"');
   const setup = source.indexOf('aria-label="Configurazione aziendale"');
-  const recent = source.indexOf('<section aria-labelledby="recent-activity">');
-  assert.ok(priority !== -1 && setup > priority && recent > setup);
+  const feed = source.indexOf('<DashboardSteelPulse state={pulse} />');
+  assert.ok(priority !== -1 && setup > priority && feed > setup);
 });
 
 test("DASH-UX4 keeps admin-only, incomplete-only company-scoped setup", () => {
