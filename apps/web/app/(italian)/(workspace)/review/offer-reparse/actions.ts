@@ -1,3 +1,4 @@
+import { requireWorkspaceAdmin } from "@/lib/workspace-context";
 "use server";
 
 import { revalidatePath } from "next/cache";
@@ -129,6 +130,7 @@ export async function loadOfferReparseCandidateReview(): Promise<{
   data: ReparseCandidateReviewPayload | null;
   error?: string;
 }> {
+  await requireWorkspaceAdmin();
   const { client, organizationId } = await activeOrganization();
   if (!organizationId) return { data: null, error: "Workspace non disponibile." };
 
@@ -153,6 +155,7 @@ export async function adoptOfferReparseCandidate(input: {
   selectedFields: string[];
   note?: string;
 }): Promise<{ ok: boolean; status?: string; error?: string }> {
+  await requireWorkspaceAdmin();
   if (!Number.isInteger(input.candidateId) || input.candidateId <= 0) {
     return { ok: false, error: "Candidate non valida." };
   }
@@ -203,6 +206,7 @@ export async function rejectOfferReparseCandidate(input: {
   candidateId: number;
   note?: string;
 }): Promise<{ ok: boolean; status?: string; error?: string }> {
+  await requireWorkspaceAdmin();
   if (!Number.isInteger(input.candidateId) || input.candidateId <= 0) {
     return { ok: false, error: "Candidate non valida." };
   }
@@ -245,6 +249,7 @@ export async function loadOfferReparseRemediationClosureReadiness(): Promise<{
   data: ReparseRemediationClosurePayload | null;
   error?: string;
 }> {
+  await requireWorkspaceAdmin();
   const { client, organizationId } = await activeOrganization();
   if (!organizationId) return { data: null, error: "Workspace non disponibile." };
 
@@ -267,6 +272,7 @@ export async function closeOfferReparseRemediation(input: {
   remediationQueueId: number;
   note?: string;
 }): Promise<{ ok: boolean; status?: string; reason?: string; error?: string }> {
+  await requireWorkspaceAdmin();
   if (!Number.isInteger(input.remediationQueueId) || input.remediationQueueId <= 0) {
     return { ok: false, error: "Remediation non valida." };
   }
@@ -430,6 +436,7 @@ export async function loadOfferRecoveryMatchingReadiness(): Promise<{
   data: RecoveryMatchingReadinessPayload | null;
   error?: string;
 }> {
+  await requireWorkspaceAdmin();
   const { client, organizationId } = await activeOrganization();
   if (!organizationId) return { data: null, error: "Workspace non disponibile." };
 
@@ -532,6 +539,7 @@ export async function loadOfferRecoveryOutcomeReconciliation(): Promise<{
   data: RecoveryOutcomeReconciliationPayload | null;
   error?: string;
 }> {
+  await requireWorkspaceAdmin();
   const { client, organizationId } = await activeOrganization();
   if (!organizationId) return { data: null, error: "Workspace non disponibile." };
 
@@ -589,6 +597,7 @@ export async function loadOfferRecoveryCandidateReentryAudit(): Promise<{
   data: RecoveryCandidateReentryPayload | null;
   error?: string;
 }> {
+  await requireWorkspaceAdmin();
   const { client, organizationId } = await activeOrganization();
   if (!organizationId) return { data: null, error: "Workspace non disponibile." };
 
@@ -614,6 +623,7 @@ export async function loadOfferSourceReingestReadiness(): Promise<{
   data: SourceReingestPayload | null;
   error?: string;
 }> {
+  await requireWorkspaceAdmin();
   const { client, organizationId } = await activeOrganization();
   if (!organizationId) return { data: null, error: "Workspace non disponibile." };
 
@@ -635,6 +645,7 @@ export async function reingestOfferSource(
   _previousState: SourceReingestActionState,
   formData: FormData,
 ): Promise<SourceReingestActionState> {
+  await requireWorkspaceAdmin();
   const threadId = String(formData.get("thread_id") ?? "").trim();
   const selectedSourceFilename = String(formData.get("selected_source_filename") ?? "").trim();
   const file = formData.get("file");
@@ -781,6 +792,7 @@ export async function bulkReingestOfferSources(
   _previousState: BulkSourceReingestActionState,
   formData: FormData,
 ): Promise<BulkSourceReingestActionState> {
+  await requireWorkspaceAdmin();
   const archive = formData.get("archive");
   if (!(archive instanceof File) || archive.size === 0) {
     return { status: "error", message: "Seleziona l’archivio ZIP originale." };
@@ -998,6 +1010,7 @@ export async function loadOfferRecoveryCandidateDecisionReadiness(): Promise<{
   data: RecoveryCandidateDecisionReadinessPayload | null;
   error?: string;
 }> {
+  await requireWorkspaceAdmin();
   const { client, organizationId } = await activeOrganization();
   if (!organizationId) return { data: null, error: "Workspace non disponibile." };
 
@@ -1077,6 +1090,7 @@ export async function loadOfferRecoveryRemediationDispositionReadiness(): Promis
   data: RecoveryRemediationDispositionPayload | null;
   error?: string;
 }> {
+  await requireWorkspaceAdmin();
   const { client, organizationId } = await activeOrganization();
   if (!organizationId) return { data: null, error: "Workspace non disponibile." };
 
@@ -1118,6 +1132,7 @@ export async function executeOfferRecoveryDispositionBatch(input: {
   result?: RecoveryDispositionBatchResult;
   error?: string;
 }> {
+  await requireWorkspaceAdmin();
   const ids = input.remediationQueueIds.filter(
     (id) => Number.isInteger(id) && id > 0,
   );
@@ -1191,6 +1206,7 @@ export async function loadOfferRecoveryDispositionBatchHistory(): Promise<{
   data: { items: RecoveryDispositionBatchHistoryItem[] } | null;
   error?: string;
 }> {
+  await requireWorkspaceAdmin();
   const { client, organizationId } = await activeOrganization();
   if (!organizationId) return { data: null, error: "Workspace non disponibile." };
 
@@ -1265,6 +1281,7 @@ export async function loadOfferRecoveryResidualCandidateResolutionReadiness(): P
   data: ResidualOfferResolutionPayload | null;
   error?: string;
 }> {
+  await requireWorkspaceAdmin();
   const { client, organizationId } = await activeOrganization();
   if (!organizationId) return { data: null, error: "Workspace non disponibile." };
 
@@ -1292,6 +1309,7 @@ export async function resolveOfferRecoveryResidualCandidate(input: {
   selectedFields: string[];
   note: string;
 }): Promise<{ ok: boolean; status?: string; error?: string }> {
+  await requireWorkspaceAdmin();
   if (!Number.isInteger(input.candidateId) || input.candidateId <= 0) {
     return { ok: false, error: "Candidate non valida." };
   }
@@ -1413,6 +1431,7 @@ export async function loadOfferRecoveryResidualGapReconciliationReadiness(): Pro
   data: ResidualGapReconciliationPayload | null;
   error?: string;
 }> {
+  await requireWorkspaceAdmin();
   const { client, organizationId } = await activeOrganization();
   if (!organizationId) return { data: null, error: "Workspace non disponibile." };
 

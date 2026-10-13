@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { requireWorkspaceWriteRole } from "@/lib/workspace-context";
+import { requireWorkspaceAdmin } from "@/lib/workspace-context";
 import { recordPilotUsageEvent } from "@/app/(workspace)/telemetry/actions";
 
 export type ReviewActionState = {
@@ -60,24 +60,21 @@ export async function confirmReviewItem(
   _previousState: ReviewActionState,
   formData: FormData,
 ): Promise<ReviewActionState> {
-  await requireWorkspaceWriteRole();
+  await requireWorkspaceAdmin();
   const rawId = formData.get("id");
   if (!validId(rawId)) return { status: "error", message: "Record non valido. Aggiorna la pagina e riprova." };
 
   try {
     const auth = await authenticatedClient();
     if (!auth.client) return { status: "error", message: auth.error ?? "Sessione non valida." };
-    const { data, error } = await auth.client
-      .from("commercial_review_queue")
-      .update({ status: "confirmed", reviewed_at: new Date().toISOString() })
-      .eq("id", Number(rawId))
-      .eq("owner_id", auth.user?.id)
-      .eq("status", "pending")
-      .select("id,status")
-      .maybeSingle();
+    // Governed RPC, with server-side tenant/admin authorization and atomic audit.
+    // Never rely on direct table UPDATE grants for authenticated users.
+    const { data, error } = await auth.client.rpc("rqg1_confirm_review_item", {
+      p_review_id: Number(rawId),
+    });
 
     if (error) return { status: "error", message: "Conferma non salvata. Riprova tra poco." };
-    if (!data || data.id !== Number(rawId) || data.status !== "confirmed") {
+    if (!data || Number(data.id) !== Number(rawId) || data.status !== "confirmed") {
       return { status: "error", message: "Nessuna conferma salvata: il record non è disponibile o è già stato revisionato." };
     }
     try {
@@ -96,7 +93,7 @@ export async function correctReviewItem(
   _previousState: ReviewActionState,
   formData: FormData,
 ): Promise<ReviewActionState> {
-  await requireWorkspaceWriteRole();
+  await requireWorkspaceAdmin();
   const rawId = formData.get("id");
   if (!validId(rawId)) return { status: "error", message: "Record non valido. Aggiorna la pagina e riprova." };
   const values = correctedValues(formData);

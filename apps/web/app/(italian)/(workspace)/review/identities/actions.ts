@@ -1,3 +1,4 @@
+import { requireWorkspaceAdmin } from "@/lib/workspace-context";
 "use server";
 
 import { revalidatePath } from "next/cache";
@@ -18,6 +19,7 @@ export async function confirmIdentityMapping(
   _previousState: IdentityConfirmState,
   formData: FormData,
 ): Promise<IdentityConfirmState> {
+  await requireWorkspaceAdmin();
   const contactId = formData.get("contact_id");
   const companyId = formData.get("company_id");
 

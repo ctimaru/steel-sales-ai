@@ -248,6 +248,17 @@ try {
       assert.ok(!body.includes("Amministrazione Smart Steel Sales"), "Platform admin console leaked");
     });
 
+    if (p.id === "buyerViewer") {
+      await step(p.id + " RQG1 legacy and operations review denied", async () => {
+        for (const route of ["/review","/review/offer-reparse","/operations/review","/operations/review/identities"]) {
+          await page.goto(base + route,{waitUntil:"domcontentloaded",timeout:90000});
+          assert.notEqual(new URL(page.url()).pathname,route,"Viewer gained technical review route: "+route);
+          assert.ok(!(await page.locator("body").innerText()).includes("Copertura di normalizzazione"),
+            "Private technical review content leaked");
+        }
+      });
+    }
+
     await step(p.id + " DASH-FEED7 platform engagement denied", async () => {
       await page.goto(base + "/platform/feed-insights", {
         waitUntil: "domcontentloaded", timeout: 90000,

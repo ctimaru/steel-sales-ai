@@ -1,3 +1,4 @@
+import { requireWorkspaceAdmin } from "@/lib/workspace-context";
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
@@ -138,6 +139,7 @@ export type OrderReadinessPayload = {
 };
 
 export async function loadNormalizationCoverage(): Promise<{ data: CoveragePayload | null; error?: string }> {
+  await requireWorkspaceAdmin();
   const client = await createClient();
   const { data: { user }, error: userError } = await client.auth.getUser();
   if (userError || !user) return { data: null, error: "Sessione non valida." };
@@ -166,6 +168,7 @@ export async function loadNormalizationCoverage(): Promise<{ data: CoveragePaylo
 export async function promoteReadyRfqObservation(
   observationId: number,
 ): Promise<{ ok: boolean; status?: string; rfqId?: string; error?: string }> {
+  await requireWorkspaceAdmin();
   if (!Number.isSafeInteger(observationId) || observationId <= 0) {
     return { ok: false, error: "Osservazione non valida." };
   }
@@ -202,6 +205,7 @@ export async function promoteReadyRfqObservation(
 
 
 export async function loadOfferPromotionReadiness(): Promise<{ data: OfferReadinessPayload | null; error?: string }> {
+  await requireWorkspaceAdmin();
   const client = await createClient();
   const { data: { user }, error: userError } = await client.auth.getUser();
   if (userError || !user) return { data: null, error: "Sessione non valida." };
@@ -229,6 +233,7 @@ export async function loadOfferPromotionReadiness(): Promise<{ data: OfferReadin
 export async function promoteReadyOfferThread(
   threadId: string,
 ): Promise<{ ok: boolean; status?: string; offerId?: string; error?: string }> {
+  await requireWorkspaceAdmin();
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(threadId)) {
     return { ok: false, error: "Thread non valido." };
   }
@@ -265,6 +270,7 @@ export async function promoteReadyOfferThread(
 
 
 export async function loadOrderPromotionReadiness(): Promise<{ data: OrderReadinessPayload | null; error?: string }> {
+  await requireWorkspaceAdmin();
   const client = await createClient();
   const { data: { user }, error: userError } = await client.auth.getUser();
   if (userError || !user) return { data: null, error: "Sessione non valida." };
@@ -292,6 +298,7 @@ export async function loadOrderPromotionReadiness(): Promise<{ data: OrderReadin
 export async function promoteReadyOrderThread(
   threadId: string,
 ): Promise<{ ok: boolean; status?: string; orderId?: string; error?: string }> {
+  await requireWorkspaceAdmin();
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(threadId)) {
     return { ok: false, error: "Thread non valido." };
   }

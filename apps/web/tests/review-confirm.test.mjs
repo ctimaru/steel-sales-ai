@@ -9,23 +9,20 @@ const source = stripTypeScriptTypes(
 );
 
 async function setup(options = {}) {
-  const calls = { auth: 0, writes: 0, filters: [], revalidated: [] };
+  const calls = { auth: 0, writes: 0, filters: [], revalidated: [], roleChecks: 0 };
   const result = options.result ?? { data: { id: 2, status: "confirmed" }, error: null };
-  const query = {
-    update(values) { calls.writes++; calls.values = values; return this; },
-    eq(key, value) { calls.filters.push([key, value]); return this; },
-    select(fields) { calls.fields = fields; return this; },
-    async maybeSingle() {
-      if (options.throwWrite) throw new Error("private transport error");
-      return result;
-    },
-  };
   const client = {
     auth: { async getUser() {
       calls.auth++;
       return options.auth ?? { data: { user: { id: "owner-a" } }, error: null };
     } },
-    from(table) { assert.equal(table, "commercial_review_queue"); return query; },
+    async rpc(name, args) {
+      assert.equal(name,"rqg1_confirm_review_item");
+      assert.deepEqual(args,{p_review_id:2});
+      calls.writes++;
+      if (options.throwWrite) throw new Error("private transport error");
+      return result;
+    },
   };
   const cache = new SyntheticModule(["revalidatePath"], function () {
     this.setExport("revalidatePath", (path) => {
@@ -39,8 +36,8 @@ async function setup(options = {}) {
   const telemetry = new SyntheticModule(["recordPilotUsageEvent"], function () {
     this.setExport("recordPilotUsageEvent", async () => ({ ok: true }));
   });
-  const workspaceContext = new SyntheticModule(["requireWorkspaceWriteRole"], function () {
-    this.setExport("requireWorkspaceWriteRole", async () => ({ role: "member" }));
+  const workspaceContext = new SyntheticModule(["requireWorkspaceAdmin"], function () {
+    this.setExport("requireWorkspaceAdmin", async () => { calls.roleChecks++; return { role: "admin" }; });
   });
   const mod = new SourceTextModule(source);
   await mod.link((specifier) => {
@@ -96,13 +93,11 @@ test("rejects missing users and auth errors without writes", async () => {
   }
 });
 
-test("saves only the authenticated owner's pending record and refreshes both views", async () => {
+test("uses governed confirmation RPC and refreshes both views", async () => {
   const { calls, run } = await setup();
   assert.equal((await run()).status, "success");
-  assert.deepEqual(calls.filters, [["id", 2], ["owner_id", "owner-a"], ["status", "pending"]]);
-  assert.equal(calls.fields, "id,status");
-  assert.equal(calls.values.status, "confirmed");
-  assert.ok(Number.isFinite(Date.parse(calls.values.reviewed_at)));
+  assert.equal(calls.writes, 1);
+  assert.equal(calls.roleChecks, 1);
   assert.deepEqual(calls.revalidated, ["/review", "/dashboard"]);
 });
 
