@@ -450,7 +450,7 @@ select pg_temp.hp13_assert_raises(
 
 -- DASH-FEED7: an ordinary company admin cannot read platform-level usage.
 select pg_temp.hp13_assert_raises(
-  $select public.dash_feed7_platform_insights(7)$,
+  'select public.dash_feed7_platform_insights(7)',
   'platform superadmin required'
 );
 
