@@ -1,0 +1,72 @@
+name: RQG3.2a Controlled Production Test Personas
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "preflight and verify are read-only; create generates ONLY seven synthetic Auth identities; ready checks owner-approved roles/orgs"
+        type: choice
+        required: true
+        default: preflight
+        options:
+          - preflight
+          - create
+          - verify
+          - ready
+      approval:
+        description: "For create type RQG32A_CREATE_SEVEN_SYNTHETIC_USERS; otherwise RQG32A_INSPECT_SYNTHETIC_USERS"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rqg32a-auth-provisioning
+  cancel-in-progress: false
+
+jobs:
+  synthetic-auth-only:
+    name: Production synthetic Auth bootstrap (owner & tenants unchanged)
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production-qa
+    timeout-minutes: 15
+    env:
+      CI: "true"
+      RQG32A_SUPABASE_URL: https://ecrafjdummcdfycznitx.supabase.co
+      RQG32A_MODE: ${{ inputs.mode }}
+      RQG32A_APPROVAL: ${{ inputs.approval }}
+      RQG32A_AUTH_SECRET_KEY: ${{ secrets.RQG32A_AUTH_SECRET_KEY }}
+      RQG32_REGISTRATION_EMAIL: ${{ secrets.RQG32_REGISTRATION_EMAIL }}
+      RQG32_REGISTRATION_PASSWORD: ${{ secrets.RQG32_REGISTRATION_PASSWORD }}
+      RQG32_CLAIMS_EMAIL: ${{ secrets.RQG32_CLAIMS_EMAIL }}
+      RQG32_CLAIMS_PASSWORD: ${{ secrets.RQG32_CLAIMS_PASSWORD }}
+      RQG32_TRUST_EMAIL: ${{ secrets.RQG32_TRUST_EMAIL }}
+      RQG32_TRUST_PASSWORD: ${{ secrets.RQG32_TRUST_PASSWORD }}
+      RQG32_AUDITOR_EMAIL: ${{ secrets.RQG32_AUDITOR_EMAIL }}
+      RQG32_AUDITOR_PASSWORD: ${{ secrets.RQG32_AUDITOR_PASSWORD }}
+      RQG32_COMPANY_A_EMAIL: ${{ secrets.RQG32_COMPANY_A_EMAIL }}
+      RQG32_COMPANY_A_PASSWORD: ${{ secrets.RQG32_COMPANY_A_PASSWORD }}
+      RQG32_COMPANY_B_EMAIL: ${{ secrets.RQG32_COMPANY_B_EMAIL }}
+      RQG32_COMPANY_B_PASSWORD: ${{ secrets.RQG32_COMPANY_B_PASSWORD }}
+      RQG32_VIEWER_EMAIL: ${{ secrets.RQG32_VIEWER_EMAIL }}
+      RQG32_VIEWER_PASSWORD: ${{ secrets.RQG32_VIEWER_PASSWORD }}
+      RQG32_COMPANY_A_MARKER: ${{ secrets.RQG32_COMPANY_A_MARKER }}
+      RQG32_COMPANY_B_MARKER: ${{ secrets.RQG32_COMPANY_B_MARKER }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install pinned Supabase client (no app deployment)
+        working-directory: apps/web
+        run: npm ci --no-audit --no-fund
+      - name: Safe production synthetic Auth admin preflight/create/verify/ready
+        working-directory: apps/web
+        timeout-minutes: 8
+        run: node tests/rqg32a-provision-auth-personas.mjs
+      # Auth credentials are GitHub Secrets, never generated as files or artifacts.
+      # No Platform roles, organization registrations, legal consent or Review rows are created.
