@@ -152,8 +152,8 @@ test("review page uses sales-facing correction language", async () => {
   for (const forbidden of ["Data Quality", "Review Queue", "parser v3.1", "app-facing RLS", "% confidence", "schema staging"]) {
     assert.doesNotMatch(page, new RegExp(forbidden));
   }
-  assert.match(page, /Controllo dati/);
-  assert.match(page, /Correzioni/);
+  assert.match(page, /Qualità dati aziendali/);
+  assert.match(page, /Review dati commerciali/);
   assert.match(page, /affidabilità/);
   assert.match(page, /Ogni modifica viene registrata nello storico/);
 });
