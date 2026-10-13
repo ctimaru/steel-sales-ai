@@ -27,7 +27,6 @@ jobs:
       GITHUB_EVENT_NAME: workflow_dispatch
       CI: "true"
       RQG32_APPROVED_READ_ONLY: "true"
-      RQG32_PERSONAS_JSON: ${{ secrets.RQG32_PRODUCTION_PERSONAS_JSON }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -38,6 +37,8 @@ jobs:
           cache: npm
           cache-dependency-path: apps/web/package-lock.json
       - name: Fail closed if no approved synthetic fixture credentials
+        env:
+          RQG32_PERSONAS_JSON: ${{ secrets.RQG32_PRODUCTION_PERSONAS_JSON }}
         shell: bash
         run: |
           if [ -z "$RQG32_PERSONAS_JSON" ]; then
@@ -51,6 +52,8 @@ jobs:
           npm install --no-save --no-package-lock playwright@1.56.1
           npx playwright install --with-deps chrome
       - name: Verify production roles and tenant isolation (no business writes)
+        env:
+          RQG32_PERSONAS_JSON: ${{ secrets.RQG32_PRODUCTION_PERSONAS_JSON }}
         working-directory: apps/web
         timeout-minutes: 15
         run: node tests/rqg32-production-authenticated-chrome.mjs
