@@ -1,5 +1,6 @@
-import { requireWorkspaceAdmin } from "@/lib/workspace-context";
 "use server";
+
+import { requireWorkspaceAdmin } from "@/lib/workspace-context";
 
 import { createClient } from "@/lib/supabase/server";
 
