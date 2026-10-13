@@ -511,6 +511,7 @@ export function WorkspaceProfileMenu({
                   <ProfileMenuLink href={appRoutes.company.profile} label="Profilo azienda" onNavigate={closeMenu} />
                   <ProfileMenuLink href={appRoutes.company.team} label="Team e accessi" onNavigate={closeMenu} />
                   <ProfileMenuLink href={appRoutes.company.dataSources} label="Dati e fonti" onNavigate={closeMenu} />
+                  <ProfileMenuLink href={appRoutes.operations.review} label="Qualità dati aziendali" onNavigate={closeMenu} />
                 </div>
               ) : null}
 
