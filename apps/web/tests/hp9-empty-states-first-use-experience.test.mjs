@@ -55,8 +55,9 @@ test("HP9 separates first-use zero data from filtered zero results in Commercial
 
 test("HP9 removes first-use dead ends from workspace home and search", () => {
   assert.match(dashboard, /recent\.length === 0/);
-  assert.match(dashboard, /FirstUseEmptyState/);
   assert.match(dashboard, /Importa i primi documenti/);
+  assert.match(dashboard, /canWrite \? appRoutes\.operations\.uploads : appRoutes\.commercial\.search/);
+  assert.match(dashboard, /Qui compariranno RFQ, offerte e ordini recenti/);
   assert.match(globalSearch, /Ricerca senza risultati/);
   assert.match(globalSearch, /Nuova ricerca/);
   assert.match(globalSearch, /Apri Product 360/);
