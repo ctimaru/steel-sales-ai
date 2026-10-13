@@ -7,7 +7,7 @@ const operations=read("../app/(italian)/(workspace)/operations/review/layout.tsx
 const core=read("../app/(italian)/(workspace)/review/actions.ts");
 const srcs=["coverage","conversations","conversation-coverage","identities","offer-recovery","offer-remediation","offer-reparse","relationships"]
   .map(s=>read("../app/(italian)/(workspace)/review/"+s+"/actions.ts"));
-const sql=read("../../../supabase/migrations/20261013163500_rqg1_review_access_hardening.sql");
+const sql=read("../../../supabase/migrations/20261013134506_rqg1_review_access_hardening.sql");
 test("RQG1 gates both review URL trees by company admin",()=>{
  assert.match(direct,/await requireWorkspaceAdmin\(\)/);
  assert.match(operations,/await requireWorkspaceAdmin\(\)/);
