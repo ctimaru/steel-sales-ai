@@ -250,19 +250,28 @@ try {
 
     if (p.id === "buyerViewer") {
       await step(p.id + " RQG1 legacy and operations review denied", async () => {
+        // Use an isolated tab per route: Next.js can cancel an in-flight
+        // streaming redirect when a tab is immediately navigated again.
         for (const route of ["/review","/review/offer-reparse","/operations/review","/operations/review/identities"]) {
-          // Next.js streams an auth redirect. A browser's pending navigation can be
-          // intentionally aborted by that redirect; confirm the final URL instead.
+          const denied = await context.newPage();
           try {
-            await page.goto(base + route,{waitUntil:"domcontentloaded",timeout:90000});
-          } catch (error) {
-            if (!String(error).includes("net::ERR_ABORTED")) throw error;
+            try {
+              await denied.goto(base + route,{waitUntil:"domcontentloaded",timeout:90000});
+            } catch (error) {
+              if (!String(error).includes("net::ERR_ABORTED")) throw error;
+            }
+            await denied.waitForURL(url => url.pathname === "/dashboard",{
+              waitUntil:"domcontentloaded",timeout:30000,
+            });
+            assert.equal(new URL(denied.url()).pathname,"/dashboard",
+              "Review route failed to redirect viewer: "+route);
+            const body = await denied.locator("body").innerText();
+            assert.ok(!body.includes("Copertura di normalizzazione") &&
+              !body.includes("Controllo dati") && !body.includes("Offer recovery controllato"),
+              "Private technical review content leaked: "+route);
+          } finally {
+            await denied.close();
           }
-          await page.waitForURL(url => url.pathname === "/dashboard",{timeout:30000});
-          assert.equal(new URL(page.url()).pathname,"/dashboard",
-            "Review route failed to redirect viewer: "+route);
-          assert.ok(!(await page.locator("body").innerText()).includes("Copertura di normalizzazione"),
-            "Private technical review content leaked");
         }
       });
     }
