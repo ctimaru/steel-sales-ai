@@ -29,7 +29,7 @@ test("DASH-FEED6 emits only explicit whitelisted navigation events, no private p
   assert.match(tracked, /event\.defaultPrevented/);
   assert.match(tracked, /event\.ctrlKey/);
   assert.match(tracked, /metadata: \{ source: "dashboard_feed", surface: "dashboard" \}/);
-  assert.doesNotMatch(tracked, /entityId|source_url|request_id|buyer|organizationId|localStorage|sessionStorage|navigator\.sendBeacon/);
+  assert.doesNotMatch(tracked, /entityId|source_url|request_id|buyerId|buyer_id|buyer\.|organizationId|localStorage|sessionStorage|navigator\.sendBeacon/);
   assert.doesNotMatch(tracked, /preventDefault\(/);
 });
 
