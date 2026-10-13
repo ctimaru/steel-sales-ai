@@ -1,0 +1,59 @@
+name: RQG3.2 Production Authenticated Review Acceptance
+
+on:
+  workflow_dispatch:
+    inputs:
+      approved_read_only:
+        description: "All eight accounts and two Review markers are PRE-APPROVED synthetic production fixtures; no business writes"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rqg32-production-authenticated-read-only
+  cancel-in-progress: false
+
+jobs:
+  authenticated-review:
+    name: Signed-in Chrome / production / 8 demo identities / read-only
+    if: ${{ inputs.approved_read_only == true }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: rqg32-production-readonly
+    env:
+      GITHUB_EVENT_NAME: workflow_dispatch
+      CI: "true"
+      RQG32_APPROVED_READ_ONLY: "true"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Fail closed if no approved synthetic fixture credentials
+        env:
+          RQG32_PERSONAS_JSON: ${{ secrets.RQG32_PRODUCTION_PERSONAS_JSON }}
+        shell: bash
+        run: |
+          if [ -z "$RQG32_PERSONAS_JSON" ]; then
+            echo 'RQG3.2 NOT ACCEPTED: no approved synthetic production personas'
+            exit 1
+          fi
+      - name: Install Chrome and pinned runner dependencies
+        working-directory: apps/web
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chrome
+      - name: Verify production roles and tenant isolation (no business writes)
+        env:
+          RQG32_PERSONAS_JSON: ${{ secrets.RQG32_PRODUCTION_PERSONAS_JSON }}
+        working-directory: apps/web
+        timeout-minutes: 15
+        run: node tests/rqg32-production-authenticated-chrome.mjs
