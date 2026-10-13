@@ -100,7 +100,13 @@ export default async function ReviewPage() {
                 ) : (
                   <button disabled className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white opacity-40">Conferma</button>
                 )}
-                <ReviewCorrectForm id={flag.id} reviewed={flag.reviewStatus !== "pending"} />
+                {mode === "live" ? (
+                  <ReviewCorrectForm id={flag.id} reviewed={flag.reviewStatus !== "pending"} />
+                ) : (
+                  <button disabled className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-500 opacity-60">
+                    Correzione non disponibile
+                  </button>
+                )}
               </div>
             </CardContent>
           </Card>
