@@ -3,6 +3,7 @@ name: DEMOTEST2.4 Production Smoke — Anonymous Read-Only
 on:
   pull_request:
     paths:
+      - "apps/web/tests/rqg31-production-anonymous-chrome.mjs"
       - "apps/web/tests/demotest24-*"
       - "apps/web/tests/i18n4-production-seo-*"
       - "apps/web/tests/i18n6-production-chrome.mjs"
@@ -25,6 +26,7 @@ on:
   push:
     branches: [main]
     paths:
+      - "apps/web/tests/rqg31-production-anonymous-chrome.mjs"
       - "apps/web/app/en/**"
       - "apps/web/components/public-company-lookup.tsx"
       - "apps/web/components/registration-journey.tsx"
@@ -88,3 +90,8 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 10
         run: node tests/demotest24-production-chrome.mjs
+
+      - name: "RQG3.1 — Production Chrome anonymous Review domain denial (GET only)"
+        working-directory: apps/web
+        timeout-minutes: 10
+        run: node tests/rqg31-production-anonymous-chrome.mjs

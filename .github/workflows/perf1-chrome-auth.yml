@@ -24,6 +24,8 @@ on:
       - "apps/web/tests/plr2-platform-navigation-shell.test.mjs"
       - "supabase/migrations/*plr2_private_lab_owner_boundary.sql"
       - "apps/web/tests/perf1-*.mjs"
+      - "apps/web/tests/rqg31-*.mjs"
+      - "supabase/tests/rqg31_*.sql"
       - "supabase/tests/perf1_chrome_seed.sql"
       - ".github/workflows/perf1-chrome-auth.yml"
   workflow_dispatch:
@@ -35,7 +37,7 @@ jobs:
   perf1-chrome:
     name: PERF1 / Google Chrome / 6 GoTrue identities / 4 tenants
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 50
     env:
       PERF1_WEB_URL: http://127.0.0.1:3000
       NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
@@ -94,6 +96,24 @@ jobs:
             -v ON_ERROR_STOP=1 \
             -f "$RUNNER_TEMP/perf1-psql-vars.sql" \
             -f supabase/tests/perf1_chrome_seed.sql
+      - name: "RQG3.1 — Create delegated Claims, Trust and Auditor GoTrue users (LOCAL ONLY)"
+        working-directory: apps/web
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/perf1-local.env"
+          DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+            SUPABASE_URL=http://127.0.0.1:54321 \
+            node tests/rqg31-seed-auth.mjs
+      - name: "RQG3.1 — Seed tenant-isolated synthetic review evidence and RBAC (LOCAL ONLY)"
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/perf1-psql-vars.sql" \
+            -f "$RUNNER_TEMP/rqg31-vars.sql" \
+            -f supabase/tests/rqg31_local_fixture.sql
       - name: Start local Next.js (not production/Vercel)
         working-directory: apps/web
         shell: bash
@@ -116,6 +136,10 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 20
         run: node tests/perf1-chrome-multi-account.mjs
+      - name: "RQG3.1 — Real Chrome multi-role UI, PostgREST RLS and RPC replay acceptance"
+        working-directory: apps/web
+        timeout-minutes: 16
+        run: node tests/rqg31-chrome-multi-role.mjs
       - name: Diagnose local Next failures (no auth secrets)
         if: failure()
         shell: bash
@@ -132,4 +156,5 @@ jobs:
             kill "$(cat "$RUNNER_TEMP/perf1-next.pid")" || true
           fi
           supabase stop --no-backup || true
-          rm -f "$RUNNER_TEMP/perf1-personas.json" "$RUNNER_TEMP/perf1-psql-vars.sql" "$RUNNER_TEMP/perf1-local.env"
+          rm -f "$RUNNER_TEMP/perf1-personas.json" "$RUNNER_TEMP/perf1-psql-vars.sql" "$RUNNER_TEMP/perf1-local.env" \
+            "$RUNNER_TEMP/rqg31-personas.json" "$RUNNER_TEMP/rqg31-vars.sql"
