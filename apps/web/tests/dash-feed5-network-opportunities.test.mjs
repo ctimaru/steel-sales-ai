@@ -82,7 +82,7 @@ test("DASH-FEED5 keeps org and entitlements at the data boundary", () => {
   assert.match(marketplaceModule, /p5_2_marketplace_feed/);
   assert.match(panel, /networkEntitled \? selectDashboardFollowedUpdates\(activity\) : \[\]/);
   assert.match(panel, /marketplace\?\.contract === "P5\.2-feed-v1"/);
-  assert.match(panel, /activity=\{activity\.items\}/);
+  assert.match(dashboard, /activity=\{activity\.items\}/);
 });
 
 test("DASH-FEED5 embeds the extra feed under Steel Pulse without altering actions or RFQ privacy", () => {
