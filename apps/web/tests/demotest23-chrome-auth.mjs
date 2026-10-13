@@ -109,6 +109,10 @@ try {
       assert.equal(await actions.count(), 1, "Missing quick action section");
       assert.ok((await priorities.count()) <= 1, "Duplicate daily priorities section");
       assert.equal(await actions.locator("a").count(), 4, "Expected four safe quick actions");
+      assert.equal(await page.locator('section[aria-labelledby="daily-priorities"] a[href="/operations/review"]').count(), 0,
+        "Technical parser review must not appear as a buyer dashboard action");
+      assert.equal(await page.getByRole("link", { name: /Elementi da verificare/ }).count(), 0,
+        "Technical data-quality queue is not a commercial priority");
       const actionBounds = await actions.boundingBox();
       const feedBounds = await feed.boundingBox();
       assert.ok(actionBounds && feedBounds && actionBounds.y < feedBounds.y,

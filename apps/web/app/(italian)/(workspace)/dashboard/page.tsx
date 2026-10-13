@@ -126,7 +126,11 @@ export default async function DashboardPage({
   const procurementActions = (procurementPayload?.items ?? [])
     .filter((item) => item.requires_action === true && typeof item.rfq_id === "string" && /^[0-9a-f-]{36}$/i.test(item.rfq_id))
     .slice(0, 2);
-  // Only real, human-actionable items belong in the attention strip.
+  // Only user-owned buyer actions belong in the Workspace attention strip.
+  // The tenant-scoped commercial_review_queue contains parser/extraction QA;
+  // even though its rows are RLS-protected, it is NOT a buyer task.
+  // Keep that legacy review queue available through its existing governed
+  // operations route, but do not advertise technical QA on the customer Home.
   // Read/unread news and recent RFQs are informational, not urgent.
   const attentionItems = [
     ...procurementActions.map((item) => ({
@@ -138,15 +142,6 @@ export default async function DashboardPage({
         ? "border-[#ddb977] bg-[#fff6e7] text-[#815017]"
         : "border-[#a9ccbb] bg-[#f2f8f4] text-[#225c47]",
     })),
-    ...(canWrite && metrics.reviewFlags > 0
-      ? [{
-          href: appRoutes.operations.review,
-          value: metrics.reviewFlags as number | null,
-          title: "Elementi da verificare",
-          description: "Richiede una decisione umana.",
-          accent: "border-[#ddb977] bg-[#fff6e7] text-[#815017]",
-        }]
-      : []),
   ];
   const attentionCount = attentionItems.length;
 
