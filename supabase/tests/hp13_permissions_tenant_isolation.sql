@@ -206,6 +206,10 @@ select pg_temp.hp13_assert(
         -- SP5 audited own-user preferences and licensed-feed projection.
         'sp5_save_feed_preferences',
         'sp5_my_steel_pulse_feed',
+        -- DASH-FEED4: strictly authenticated, auth.uid()-scoped profile signals.
+        -- Writes are atomic, limited to allowlisted interest tokens, never company ACL.
+        'sp8_save_feed_preferences',
+        'sp8_my_feed_interests',
         -- SP6 individually scoped explicit read/save actions and owner-only aggregate summary.
         'sp6_set_article_engagement',
         'sp6_my_article_engagement',
