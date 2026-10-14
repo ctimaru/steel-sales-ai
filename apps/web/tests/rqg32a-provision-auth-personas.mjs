@@ -40,20 +40,22 @@ export function readConfiguration(env) {
   assert.ok(env.RQG32A_AUTH_SECRET_KEY?.startsWith("sb_secret_") ||
     env.RQG32A_AUTH_SECRET_KEY?.startsWith("eyJ"),
     "Dedicated server-side Supabase secret required");
+  // Synthetic identities and markers are public, fixed QA identifiers.
+  // Passwords are required ONLY by the explicitly approved Auth CREATE action.
   const accounts = PERSONAS.map(p=>{
-    const email = (env["RQG32_"+p.key+"_EMAIL"] ?? "").trim().toLowerCase();
-    const password = env["RQG32_"+p.key+"_PASSWORD"] ?? "";
-    assert.equal(email,"rqg32-"+p.tag+"@smartsteelsales.test",
-      "Unexpected synthetic identity for "+p.id);
-    assert.ok(password.length>=20 && password.length<=128,
-      "Strong dedicated test credential missing: "+p.id);
+    const email = "rqg32-"+p.tag+"@smartsteelsales.test";
+    const password = mode === "create" ? (env["RQG32_"+p.key+"_PASSWORD"] ?? "") : "";
+    if (mode === "create") {
+      assert.ok(password.length>=20 && password.length<=128,
+        "Strong dedicated test credential missing: "+p.id);
+    }
     return {...p,email,password};
   });
-  assert.equal(new Set(accounts.map(a=>a.password)).size,7,
-    "Passwords must be distinct for every persona");
+  if (mode === "create") {
+    assert.equal(new Set(accounts.map(a=>a.password)).size,7,
+      "Passwords must be distinct for every persona");
+  }
   assert.equal(new Set(accounts.map(a=>a.email)).size,7);
-  assert.equal(env.RQG32_COMPANY_A_MARKER,MARKER_A,"Synthetic A marker mismatch");
-  assert.equal(env.RQG32_COMPANY_B_MARKER,MARKER_B,"Synthetic B marker mismatch");
   return {mode,accounts};
 }
 export async function getAllUsers(admin) {
