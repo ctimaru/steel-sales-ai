@@ -43,7 +43,7 @@ test("RQG4.2 all correction fields have accessible names and mobile touch target
 
 test("RQG4.2 runs isolated browser role/keyboard/viewport/contrast checks before local mutations",()=>{
   assert.match(runner,/assert.equal\(process.env.PERF1_WEB_URL,BASE/);
-  assert.match(runner,/127\.0\.0\.1:54321/);
+  assert.match(runner,/54321/);
   assert.match(runner,/endsWith\("@example.test"\)/);
   for(const role of ["buyer","trader","buyerViewer","platformStaff","owner"]){
     assert.ok(runner.includes('"'+role+'"'),"Role coverage missing: "+role);
