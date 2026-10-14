@@ -24,7 +24,9 @@ MAX_RESULTS = 20
 MAX_RESPONSE_BYTES = 512_000
 # Explicit Italy P17=Q38, siderurgia industry P452=Q2285982,
 # website P856; no people's contacts, descriptions or geo are retained.
-QUERY = """SELECT DISTINCT ?item ?website WHERE {
+QUERY = """PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+SELECT DISTINCT ?item ?website WHERE {
   ?item wdt:P452 wd:Q2285982 .
   ?item wdt:P17 wd:Q38 .
   ?item wdt:P856 ?website .
