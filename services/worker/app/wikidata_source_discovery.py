@@ -29,7 +29,7 @@ QUERY = """SELECT DISTINCT ?item ?website WHERE {
   ?item wdt:P17 wd:Q38 .
   ?item wdt:P856 ?website .
 } LIMIT 20"""
-ITEM_RE = re.compile(r"^https://www\\.wikidata\\.org/entity/(Q[1-9][0-9]{0,13})$")
+ITEM_RE = re.compile(r"^https://www\.wikidata\.org/entity/(Q[1-9][0-9]{0,13})$")
 EXCLUDED = frozenset({
     "facebook.com", "linkedin.com", "instagram.com", "youtube.com",
     "google.com", "twitter.com", "x.com", "tiktok.com", "wikipedia.org",
