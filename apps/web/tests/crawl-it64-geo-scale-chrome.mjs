@@ -53,12 +53,22 @@ try{
         .waitFor({state:"visible",timeout:60000});
       // Next.js may flush the heading before its async RPC-driven KPI sections.
       // Wait for the semantic content, not only domcontentloaded/heading.
-      await page.waitForFunction(()=>
-        document.body.innerText.includes("Aziende pubblicate") ||
-        document.body.innerText.includes("KPI non disponibili:") ||
-        window.location.pathname === "/login",
-        null,{timeout:60000}
-      );
+      try{
+        await page.waitForFunction(()=>
+          document.body.innerText.includes("Aziende pubblicate") ||
+          document.body.innerText.includes("KPI non disponibili:") ||
+          window.location.pathname !== "/platform/company-discovery/coverage",
+          null,{timeout:12000}
+        );
+      }catch(error){
+        const shown=await page.locator("body").innerText();
+        console.error("CRAWL-IT64 LOCAL RENDER DIAGNOSTIC",JSON.stringify({
+          route:new URL(page.url()).pathname,
+          excerpt:shown.slice(0,1200),
+          alerts:await page.locator('[role="alert"]').allInnerTexts()
+        }));
+        throw error;
+      }
       assert.equal(new URL(page.url()).pathname,route);
       const body=await page.locator("body").innerText();
       assert.ok(body.includes("Aziende pubblicate"),"Coverage page unavailable state: "+(await page.locator('[role="alert"]').allInnerTexts()).join(" | "));
