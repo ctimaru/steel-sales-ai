@@ -1,6 +1,11 @@
 -- CRAWL-IT6.5b acceptance: synthetic Supabase only; rollback every fixture.
 begin;
-do $$
+create or replace function pg_temp.crawl65_assert(ok boolean, message text)
+returns void language plpgsql as $
+begin
+  if not coalesce(ok,false) then raise exception 'CRAWL-IT6.5b %',message; end if;
+end $;
+do $
 begin
  if has_function_privilege('anon','public.crawl_it65b_source_preflight()','EXECUTE')
     or has_function_privilege('authenticated','public.crawl_it65b_source_preflight()','EXECUTE')
@@ -52,25 +57,22 @@ select public.crawl_it65b_commit_wikidata_leads(
 )::text as first_batch \gset
 reset role;
 
-do $$
-begin
- if (:'ready'::jsonb->>'eligible')::boolean is distinct from true then
-   raise exception 'Preflight failed despite explicitly approved synthetic source';
- end if;
- if (:'first_batch'::jsonb->>'inserted')::integer <> 1
-    or (:'first_batch'::jsonb->>'existing_leads')::integer <> 1
-    or (:'first_batch'::jsonb->>'published')::integer <> 0 then
-   raise exception 'Unexpected first batch counts: %',:'first_batch';
- end if;
- if (select count(*) from public.network_discovery_domain_leads
-      where domain='new-steel.example' and status='pending_review'
-        and evidence_url='https://www.wikidata.org/wiki/Q19999') <> 1 then
-   raise exception 'Source evidence or review status missing';
- end if;
- if (select count(*) from public.network_companies where lower(website_domain)='new-steel.example') <> 0 then
-   raise exception 'Crawler illegally published a company';
- end if;
-end $$;
+select pg_temp.crawl65_assert(
+ (:'ready'::jsonb->>'eligible')::boolean is true,
+ 'Approved synthetic source should be eligible');
+select pg_temp.crawl65_assert(
+ (:'first_batch'::jsonb->>'inserted')::integer=1
+ and (:'first_batch'::jsonb->>'existing_leads')::integer=1
+ and (:'first_batch'::jsonb->>'published')::integer=0,
+ 'Expected 1 new, 1 duplicate, 0 published');
+select pg_temp.crawl65_assert(
+ (select count(*) from public.network_discovery_domain_leads
+   where domain='new-steel.example' and status='pending_review'
+     and evidence_url='https://www.wikidata.org/wiki/Q19999')=1,
+ 'Missing single staging evidence');
+select pg_temp.crawl65_assert(
+ (select count(*) from public.network_companies where lower(website_domain)='new-steel.example')=0,
+ 'Crawler illegally published a company');
 
 set local role service_role;
 select public.crawl_it65b_source_preflight()::text as after_run \gset
@@ -84,12 +86,8 @@ begin
  end;
 end $$;
 reset role;
-do $$
-begin
- if (:'after_run'::jsonb->>'reason') <> 'not_due' then
-   raise exception 'Weekly source gate did not reset after batch';
- end if;
-end $$;
+select pg_temp.crawl65_assert(
+ (:'after_run'::jsonb->>'reason')='not_due','Weekly source cooldown failed');
 
 -- Move synthetic lease into previous week, then test stale duplicate and
 -- fail-closed invalid metadata without corrupting the due interval.
@@ -111,14 +109,12 @@ select public.crawl_it65b_commit_wikidata_leads(
  '[{"domain":"new-steel.example","website":"https://new-steel.example/","evidence":"https://www.wikidata.org/wiki/Q19999"}]'::jsonb
 )::text as replay \gset
 reset role;
-do $$
-begin
- if (:'replay'::jsonb->>'inserted')::integer <> 0
-    or (:'replay'::jsonb->>'existing_leads')::integer <> 1 then
-   raise exception 'Idempotent replay incorrectly added a lead';
- end if;
- if (select count(*) from public.network_discovery_domain_leads where domain='new-steel.example') <> 1 then
-   raise exception 'Duplicate lead persisted';
- end if;
-end $$;
+select pg_temp.crawl65_assert(
+ (:'replay'::jsonb->>'inserted')::integer=0
+ and (:'replay'::jsonb->>'existing_leads')::integer=1,
+ 'Idempotent replay must skip known lead');
+select pg_temp.crawl65_assert(
+ (select count(*) from public.network_discovery_domain_leads
+  where domain='new-steel.example')=1,'Duplicate lead persisted');
+
 rollback;
