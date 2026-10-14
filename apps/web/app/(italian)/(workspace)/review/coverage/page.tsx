@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { appRoutes } from "@/lib/routes";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { loadNormalizationCoverage, loadOfferPromotionReadiness, loadOrderPromotionReadiness } from "./actions";
@@ -36,7 +37,7 @@ export default async function NormalizationCoveragePage() {
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
           Misura il passaggio dalle evidenze legacy alle entità RFQ, Offer e Order. Questa vista non promuove automaticamente nessun dato. Le RFQ ready possono essere promosse solo una alla volta. Offer e Order vengono promossi solo come thread completi e coerenti, con nuova validazione server-side.
         </p>
-        <Link href="/review/relationships" className="mt-3 inline-block text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+        <Link href={appRoutes.operations.reviewRelationships} className="mt-3 inline-block text-xs font-semibold text-indigo-600 hover:text-indigo-800">
           Apri readiness relazioni RFQ → Offer → Order →
         </Link>
       </div>
@@ -159,7 +160,7 @@ export default async function NormalizationCoveragePage() {
                 <h2 className="font-semibold text-slate-950">Backlog controllato</h2>
                 <p className="mt-1 text-xs text-slate-500">Prime {data.backlog.length} evidenze ordinate per azionabilità.</p>
               </div>
-              <Link href="/review" className="text-xs font-semibold text-indigo-600">Apri correzioni →</Link>
+              <Link href={appRoutes.operations.review} className="text-xs font-semibold text-indigo-600">Apri correzioni →</Link>
             </div>
             {data.backlog.map((row) => (
               <Card key={row.observation_id} className="p-4">
