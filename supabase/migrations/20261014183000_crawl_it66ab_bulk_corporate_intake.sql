@@ -224,7 +224,10 @@ comment on function public.crawl_it66_bulk_intake(uuid,text,jsonb,boolean) is
 
 -- Operator audit: count DISTINCT identity, not repeated discovery observations.
 create or replace function private.crawl_it66_pipeline_audit_impl()
-returns jsonb language sql stable security definer set search_path='' as $$
+returns jsonb language plpgsql stable security definer set search_path='' as $$
+begin
+ perform private.require_platform_permission('discovery.read');
+ return (
  with q as (
   select count(*) as candidate_records,count(distinct canonical_domain) as candidate_domains,
    count(*) filter(where review_status='pending_review') as pending_records,
@@ -243,8 +246,9 @@ returns jsonb language sql stable security definer set search_path='' as $$
  'csv_end_user_proposals',s.staged_buyers,
  'published_italian_companies',(select count(*) from public.network_companies
    where country_code='IT' and publication_status='published' and archived_at is null))
- from q cross join s;
-$$;
+ from q cross join s
+ );
+end $$;
 revoke all on function private.crawl_it66_pipeline_audit_impl() from public,anon,authenticated;
 grant execute on function private.crawl_it66_pipeline_audit_impl() to authenticated,service_role;
 create or replace function public.crawl_it66_pipeline_audit()
@@ -269,8 +273,10 @@ where not exists (
 );
 
 create or replace function private.crawl_it66_staged_rows_impl()
-returns jsonb language sql stable security definer set search_path='' as $$
- select coalesce(jsonb_agg(jsonb_build_object(
+returns jsonb language plpgsql stable security definer set search_path='' as $$
+begin
+ perform private.require_platform_permission('discovery.read');
+ return (select coalesce(jsonb_agg(jsonb_build_object(
   'id',r.id,'company_name',r.company_name,'proposed_role',r.proposed_role,
   'province',r.province_code,'ateco_code',r.ateco_code,
   'status',r.intake_status,'source_name',s.source_name,
@@ -278,8 +284,8 @@ returns jsonb language sql stable security definer set search_path='' as $$
  from (
    select * from public.network_bulk_intake_rows
    where intake_status='pending_review' order by created_at desc limit 80
- ) r join public.network_discovery_source_registry s on s.id=r.source_id;
-$$;
+ ) r join public.network_discovery_source_registry s on s.id=r.source_id);
+end $$;
 revoke all on function private.crawl_it66_staged_rows_impl() from public,anon,authenticated;
 grant execute on function private.crawl_it66_staged_rows_impl() to authenticated,service_role;
 create or replace function public.crawl_it66_staged_rows()
