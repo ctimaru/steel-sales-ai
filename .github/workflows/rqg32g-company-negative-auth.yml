@@ -1,0 +1,67 @@
+name: RQG3.2g — Company QA Denial Chrome (Unassigned)
+
+on:
+  workflow_dispatch:
+    inputs:
+      approval:
+        description: "Type RQG32G_INSPECT_UNASSIGNED_COMPANY_TEST_USERS for three unassigned synthetic users"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rqg32g-company-negative-qa
+  cancel-in-progress: false
+
+jobs:
+  company-negative:
+    name: Protected production / unassigned QA / read-only
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: production-qa
+    timeout-minutes: 25
+    env:
+      CI: "true"
+      RQG32G_APPROVAL: ${{ inputs.approval }}
+      RQG32G_SUPABASE_URL: https://ecrafjdummcdfycznitx.supabase.co
+    steps:
+      - name: Check exact authorization
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RQG32G_APPROVAL" = "RQG32G_INSPECT_UNASSIGNED_COMPANY_TEST_USERS" || {
+            echo "RQG32G BLOCKED: explicit approval required"
+            exit 1
+          }
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install pinned dependencies (without secrets)
+        working-directory: apps/web
+        run: npm ci --no-audit --no-fund
+      - name: Require no Company membership, no legal acceptance and one Owner
+        working-directory: apps/web
+        env:
+          RQG32G_ADMIN_KEY: ${{ secrets.RQG32A_AUTH_SECRET_KEY }}
+        run: node tests/rqg32g-unassigned-company-preflight.mjs
+      - name: Install ephemeral Chrome (no secrets)
+        working-directory: apps/web
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chrome
+      - name: Authenticate three synthetic unassigned users and assert denial
+        working-directory: apps/web
+        timeout-minutes: 15
+        env:
+          RQG32_COMPANY_A_PASSWORD: ${{ secrets.RQG32_COMPANY_A_PASSWORD }}
+          RQG32_COMPANY_B_PASSWORD: ${{ secrets.RQG32_COMPANY_B_PASSWORD }}
+          RQG32_VIEWER_PASSWORD: ${{ secrets.RQG32_VIEWER_PASSWORD }}
+        run: node tests/rqg32g-company-negative-chrome.mjs
+      # No company activation, consent writes, Review decisions or persistent browser artifacts.
