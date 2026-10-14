@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import path from "node:path";
 import {chromium} from "playwright";
+import {createClient} from "@supabase/supabase-js";
 const WEB="http://127.0.0.1:3000";
 assert.equal(process.env.CI,"true","Ephemeral CI only");
 assert.equal(process.env.PERF1_WEB_URL,WEB);
@@ -36,12 +37,23 @@ try{
     const page=await owner.newPage();
     await login(page,"owner");
     await check("Platform Owner sees real authorization-gated geographic KPIs",async()=>{
+      const p=persona("owner");
+      const api=createClient("http://127.0.0.1:54321",process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,{
+        auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
+      });
+      const {error:loginError}=await api.auth.signInWithPassword({email:p.email,password:p.password});
+      assert.ifError(loginError);
+      const {data:rpcData,error:rpcError}=await api.rpc("crawl_it64_geographic_scale_snapshot");
+      assert.ifError(rpcError);
+      assert.equal(rpcData?.scope,"published_it_companies","Authorized DB response missing scope");
+      assert.equal(typeof rpcData?.published_companies,"number","KPI count must be numeric");
+      console.log("CRAWL-IT64 local RPC schema PASS",Object.keys(rpcData).length,"aggregate fields");
       await visit(page,route);
       await page.getByRole("heading",{name:"Copertura geografica e readiness",level:1})
         .waitFor({state:"visible",timeout:60000});
       assert.equal(new URL(page.url()).pathname,route);
       const body=await page.locator("body").innerText();
-      assert.ok(body.includes("Aziende pubblicate"));
+      assert.ok(body.includes("Aziende pubblicate"),"Coverage page unavailable state: "+(await page.locator(\'[role="alert"]\').allInnerTexts()).join(" | "));
       assert.ok(body.includes("Con città pubblicata"));
       assert.ok(body.includes("Località mancanti"));
       assert.ok(body.includes("Fonti abilitate idonee"));
