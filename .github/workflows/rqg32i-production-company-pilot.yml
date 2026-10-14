@@ -24,7 +24,7 @@ jobs:
     timeout-minutes: 25
     env:
       CI: "true"
-      RQG32I_APPROVAL: $\{{ inputs.approval }}
+      RQG32I_APPROVAL: ${{ inputs.approval }}
       RQG32I_SUPABASE_URL: https://ecrafjdummcdfycznitx.supabase.co
     steps:
       - name: Require exact manual approval and guarded main
@@ -49,8 +49,8 @@ jobs:
       - name: Validate existing admin membership, current real legal consent, own Review and sole Owner
         working-directory: apps/web
         env:
-          RQG32I_ADMIN_KEY: $\{{ secrets.RQG32A_AUTH_SECRET_KEY }}
-          RQG32I_PILOT_SCOPE_JSON: $\{{ secrets.RQG32I_PILOT_SCOPE_JSON }}
+          RQG32I_ADMIN_KEY: ${{ secrets.RQG32A_AUTH_SECRET_KEY }}
+          RQG32I_PILOT_SCOPE_JSON: ${{ secrets.RQG32I_PILOT_SCOPE_JSON }}
         run: node tests/rqg32i-production-company-preflight.mjs
       - name: Install ephemeral Chrome without production secrets
         working-directory: apps/web
@@ -61,9 +61,9 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 15
         env:
-          RQG32I_PILOT_SCOPE_JSON: $\{{ secrets.RQG32I_PILOT_SCOPE_JSON }}
-          RQG32I_PILOT_PASSWORD: $\{{ secrets.RQG32I_PILOT_PASSWORD }}
-          RQG32I_PUBLISHABLE_KEY: $\{{ secrets.RQG32I_PUBLISHABLE_KEY }}
+          RQG32I_PILOT_SCOPE_JSON: ${{ secrets.RQG32I_PILOT_SCOPE_JSON }}
+          RQG32I_PILOT_PASSWORD: ${{ secrets.RQG32I_PILOT_PASSWORD }}
+          RQG32I_PUBLISHABLE_KEY: ${{ secrets.RQG32I_PUBLISHABLE_KEY }}
         run: node tests/rqg32i-production-company-chrome.mjs
       # NO Review Confirm/Correct, Terms acceptance, Platform grant, preview,
       # customer-data artifacts, cookies, screenshots, traces or Vercel cron.
