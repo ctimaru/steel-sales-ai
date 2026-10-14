@@ -15,6 +15,7 @@ import httpx
 from .company_discovery import (
     CompanyDiscoveryService, _fetch_page, canonical_domain, canonicalize_seed_url
 )
+from .wikidata_source_discovery import SOURCE_URL as WIKIDATA_SOURCE_URL, preview_wikidata_steel_italy
 
 logger = logging.getLogger(__name__)
 MAX_LEADS_PER_SOURCE = 20
@@ -62,27 +63,40 @@ async def harvest_once() -> int:
     source_url = canonicalize_seed_url(str(source["source_url"]))
     if urlsplit(source_url).scheme != "https":
         return 0
-    async with httpx.AsyncClient(timeout=httpx.Timeout(10.0)) as client:
-        page = await _fetch_page(client, source_url, source_url)
-    if page is None:
-        return 0
-    n = 0
-    for domain, proposed_url in discover_external_domains(
-        page.url, page.links, min(int(source["max_domains_per_run"]), MAX_LEADS_PER_SOURCE)
-    ):
-        # Durable staging with source ID + domain idempotence. Never auto-crawl leads.
+    budget = min(max(1, int(source["max_domains_per_run"])), MAX_LEADS_PER_SOURCE)
+    if source_url.rstrip("/") == WIKIDATA_SOURCE_URL:
+        # Only source-level human approval in Supabase can reach this code path.
+        # A single 12s/one-request WDQS pass; nothing fetched from company sites.
+        leads = await preview_wikidata_steel_italy(limit=budget)
+    else:
+        async with httpx.AsyncClient(timeout=httpx.Timeout(10.0)) as client:
+            page = await _fetch_page(client, source_url, source_url)
+        if page is None:
+            return 0
+        leads = [(domain, proposed_url, page.url) for domain, proposed_url
+                 in discover_external_domains(page.url, page.links, budget)]
+    staged = 0
+    for domain, proposed_url, evidence_url in leads:
+        # Suppress exact-domain matches already in Network; fuzzy legal-name
+        # resolution remains in the human lead and candidate review.
+        known = await repo._request(
+            "GET", "/rest/v1/network_companies"
+            f"?website_domain=eq.{domain}&archived_at=is.null&select=id&limit=1"
+        )
+        if isinstance(known, list) and known:
+            continue
         await repo._request(
             "POST",
             "/rest/v1/network_discovery_domain_leads?on_conflict=source_id,domain",
             json={
                 "source_id": str(source["id"]), "country_code": "IT",
                 "domain": domain, "proposed_url": proposed_url,
-                "evidence_url": page.url, "status": "pending_review",
+                "evidence_url": evidence_url, "status": "pending_review",
             },
             prefer="resolution=ignore-duplicates,return=minimal",
         )
-        n += 1
-    return n
+        staged += 1
+    return staged
 
 
 async def approved_source_harvest_loop() -> None:

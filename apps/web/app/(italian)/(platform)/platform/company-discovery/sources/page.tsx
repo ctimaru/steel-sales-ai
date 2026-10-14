@@ -25,7 +25,13 @@ export default async function DiscoverySourcesPage({
     <header className="space-y-2">
       <p className="platform-kicker">CRAWL-IT2.1 · Italia</p>
       <h1 className="text-3xl font-semibold">Registro fonti Discovery</h1>
-      <p className="text-sm text-[#53637a]">Le fonti richiedono verifica dei diritti prima della scansione. Il motore di scoperta periodica non è attivo e nessuna registrazione avvia un crawl.</p>
+      <p className="text-sm text-[#53637a]">Le fonti richiedono verifica umana di licenza, riutilizzo e privacy. La registrazione non avvia mai un crawl. Per il pilot Wikidata sono previsti al massimo 5 domini per esecuzione e una sola interrogazione, senza visite ai siti delle aziende.</p>
+      <div className="rounded-xl border border-[#cbd9d3] bg-[#f6faf8] p-4 text-sm text-[#173f35]">
+        <p className="font-semibold">CRAWL-IT6.5 · Prima fonte proposta: Wikidata (CC0)</p>
+        <p className="mt-2">I dati strutturati sono CC0, ma la fonte deve essere revisionata dal Platform Owner. La schedulazione Railway resta disabilitata finché non viene attivata separatamente la variabile CRAWL_IT3_ENABLED. L’approvazione di una fonte non pubblica aziende.</p>
+        <a className="mt-2 inline-flex min-h-11 items-center underline" href="https://www.wikidata.org/wiki/Wikidata:Licensing" target="_blank" rel="noopener noreferrer">Verifica licenza e diritti Wikidata ↗</a>
+        <a className="ml-3 inline-flex min-h-11 items-center underline" href="https://www.mediawiki.org/wiki/Wikidata_Query_Service/User_Manual" target="_blank" rel="noopener noreferrer">Limiti del servizio query ↗</a>
+      </div>
     </header>
     {params.message ? <p role="status" className="rounded-xl bg-emerald-50 p-3 text-emerald-900">{params.message}</p> : null}
     {params.error || error ? <p role="alert" className="rounded-xl bg-rose-50 p-3 text-rose-900">{params.error ?? "Impossibile leggere il registro delle fonti."}</p> : null}
@@ -66,6 +72,7 @@ export default async function DiscoverySourcesPage({
           <div className="min-w-0"><h3 className="font-semibold">{s.source_name}</h3><p className="break-all text-sm">{s.source_url}</p><p className="text-xs text-[#66736e]">{s.source_type.replaceAll("_"," ")} · Italia</p></div>
           <span className="text-xs font-bold">{s.governance_status} · {s.enabled_for_discovery?"abilitata":"crawl disabilitato"}</span>
         </div>
+        {s.rights_evidence_url ? <a href={s.rights_evidence_url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-sm underline">Evidenza licenza e riutilizzo ↗</a> : null}
         {canReview ? <form action={reviewDiscoverySourceRegistry} className="grid gap-3 sm:grid-cols-2">
           <input type="hidden" name="id" value={s.id}/>
           <label className="grid gap-1 text-sm">Decisione<select name="decision" defaultValue="restricted" className="min-h-11 rounded-lg border px-2"><option value="restricted">Limitata</option><option value="blocked">Bloccata</option><option value="approved">Approvata</option></select></label>
@@ -74,7 +81,20 @@ export default async function DiscoverySourcesPage({
           <label className="grid gap-1 text-sm">Dati personali<select name="personal_data" defaultValue={s.personal_data_policy} className="min-h-11 rounded-lg border px-2">{["not_assessed","company_data_only","exclude_personal_data","legal_review_required"].map(x=><option key={x} value={x}>{x}</option>)}</select></label>
           <label className="grid gap-1 text-sm sm:col-span-2">URL evidenza diritti<input name="evidence_url" type="url" defaultValue={s.rights_evidence_url ?? ""} className="min-h-11 rounded-lg border px-3"/></label>
           <label className="grid gap-1 text-sm sm:col-span-2">Motivazione review<textarea name="note" required minLength={10} maxLength={4000} rows={2} className="rounded-lg border p-3"/></label>
-          <button className="min-h-11 rounded-xl border border-[#173f35] px-5 font-semibold text-[#173f35] sm:col-span-2">Registra decisione senza avviare scansioni</button>
+          {s.source_url === "https://query.wikidata.org/sparql" ? (
+            <label className="flex min-h-11 items-start gap-3 text-sm sm:col-span-2">
+              <input type="checkbox" name="enable" className="mt-1 h-4 w-4 accent-[#173f35]" />
+              Abilita esclusivamente questa fonte nel registro dopo la decisione &quot;Approvata&quot;.
+              Questo NON accende la schedulazione Railway.
+            </label>
+          ) : null}
+          {s.source_url === "https://query.wikidata.org/sparql" ? (
+            <label className="flex min-h-11 items-start gap-3 text-sm sm:col-span-2">
+              <input type="checkbox" name="activation_attested" className="mt-1 h-4 w-4 accent-[#173f35]" />
+              Ho verificato personalmente licenza CC0, limiti WDQS, riuso di soli dati societari e budget massimo di cinque domini per run.
+            </label>
+          ) : null}
+          <button className="min-h-11 rounded-xl border border-[#173f35] px-5 font-semibold text-[#173f35] sm:col-span-2">Registra decisione · nessuna scansione avviata</button>
         </form> : null}
       </article>)}
     </section>
