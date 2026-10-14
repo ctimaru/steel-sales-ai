@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { appRoutes } from "@/lib/routes";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -176,7 +177,7 @@ export default async function IdentityReviewPage() {
     <div className="mx-auto max-w-6xl">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <Link href="/review" className="text-xs font-semibold text-slate-500 hover:text-slate-900">
+          <Link href={appRoutes.operations.review} className="text-xs font-semibold text-slate-500 hover:text-slate-900">
             ← Correzioni
           </Link>
           <p className="mt-4 text-sm font-semibold text-slate-500">Controllo identità</p>

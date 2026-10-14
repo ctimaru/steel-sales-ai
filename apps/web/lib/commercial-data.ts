@@ -648,7 +648,7 @@ export async function getConversationData(id: string): Promise<ConversationData 
   };
 }
 
-export async function getReviewItems(): Promise<{ mode: DataMode; items: ReviewItem[] }> {
+export async function getReviewItems(): Promise<{ mode: DataMode | "unavailable"; items: ReviewItem[] }> {
   if (!isConfigured()) {
     return {
       mode: "demo",
@@ -664,10 +664,14 @@ export async function getReviewItems(): Promise<{ mode: DataMode; items: ReviewI
     )
     .order("id", { ascending: true });
 
-  if (error || !data?.length) {
-    const { count } = await supabase
+  // A failed queue read is NOT evidence that a workspace has no pending decisions.
+  // Keep transport/RLS errors separate from a genuinely empty queue.
+  if (error) return { mode: "unavailable", items: [] };
+  if (!data?.length) {
+    const { count, error: datasetError } = await supabase
       .from("commercial_datasets")
       .select("id", { count: "exact", head: true });
+    if (datasetError) return { mode: "unavailable", items: [] };
     if (!count) return { mode: "awaiting_assignment", items: [] };
   }
 

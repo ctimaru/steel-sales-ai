@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { appRoutes } from "@/lib/routes";
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -56,10 +57,10 @@ export default async function OfferReparseReviewPage() {
     <div className="mx-auto max-w-6xl space-y-6">
       <div>
         <div className="flex flex-wrap gap-3 text-xs font-semibold text-slate-500">
-          <Link href="/review/offer-remediation" className="hover:text-slate-950">
+          <Link href={appRoutes.operations.reviewOfferRemediation} className="hover:text-slate-950">
             ← Offer remediation
           </Link>
-          <Link href="/review" className="hover:text-slate-950">
+          <Link href={appRoutes.operations.review} className="hover:text-slate-950">
             Review hub
           </Link>
         </div>

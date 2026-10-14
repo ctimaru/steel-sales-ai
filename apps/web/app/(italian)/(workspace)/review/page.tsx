@@ -39,7 +39,12 @@ export default async function ReviewPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge tone={pending > 0 ? "amber" : "green"}>{pending} da verificare</Badge>
+          <Link href={appRoutes.home} className="inline-flex min-h-11 items-center rounded-full border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:border-slate-400 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">Torna al workspace</Link>
+          {mode === "unavailable"
+            ? <Badge tone="amber">Coda non disponibile</Badge>
+            : mode === "awaiting_assignment"
+              ? <Badge tone="neutral">In attesa del primo import</Badge>
+              : <Badge tone={pending > 0 ? "amber" : "green"}>{pending} da verificare</Badge>}
           {completed > 0 ? <Badge tone="neutral">{completed} completati</Badge> : null}
           <details className="group relative w-full sm:w-auto">
             <summary className="inline-flex min-h-11 cursor-pointer list-none items-center rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2">
@@ -47,19 +52,19 @@ export default async function ReviewPage() {
             </summary>
             <nav aria-label="Strumenti avanzati della Review" className="mt-2 flex flex-wrap gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2">
           <Link
-            href="/review/coverage"
+            href={appRoutes.operations.reviewCoverage}
             className="inline-flex min-h-11 items-center rounded-full border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:border-slate-400 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]"
           >
             Copertura normalizzazione
           </Link>
           <Link
-            href="/review/identities"
+            href={appRoutes.operations.reviewIdentities}
             className="inline-flex min-h-11 items-center rounded-full border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:border-slate-400 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]"
           >
             Identità aziendali
           </Link>
           <Link
-            href="/review/offer-reparse"
+            href={appRoutes.operations.reviewOfferReparse}
             className="inline-flex min-h-11 items-center rounded-full border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:border-slate-400 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]"
           >
             Candidate reparse
@@ -70,8 +75,16 @@ export default async function ReviewPage() {
       </div>
 
       {mode === "awaiting_assignment" ? (
-        <Card className="mt-7 border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          Le correzioni sono disponibili, ma lo storico deve ancora essere associato al primo utente del workspace.
+        <Card className="mt-7 space-y-3 border-slate-200 bg-slate-50 p-4 text-sm text-slate-800">
+          <p>Non ci sono ancora documenti commerciali associati a questo workspace. Importa il primo documento per iniziare a verificare le estrazioni.</p>
+          <Link href={appRoutes.operations.uploads} className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 bg-white px-3 py-2 font-semibold text-slate-800 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2">
+            Importa documenti →
+          </Link>
+        </Card>
+      ) : null}
+      {mode === "unavailable" ? (
+        <Card role="alert" className="mt-7 border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          Impossibile verificare la coda in questo momento. Riprova più tardi; nessuna decisione è stata modificata.
         </Card>
       ) : null}
 
@@ -81,7 +94,7 @@ export default async function ReviewPage() {
             Non ci sono verifiche aperte. Le {completed} decisioni completate rimangono consultabili sotto.
           </p>
         ) : null}
-        {items.length === 0 ? (
+        {items.length === 0 && (mode === "live" || mode === "demo") ? (
           <FirstUseEmptyState
             eyebrow="Coda pulita"
             title="Non ci sono correzioni da gestire"

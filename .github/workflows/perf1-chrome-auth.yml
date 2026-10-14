@@ -29,6 +29,12 @@ on:
       - "apps/web/app/(italian)/(workspace)/review/page.tsx"
       - "apps/web/tests/rqg41-*.mjs"
       - "apps/web/tests/rqg42-*.mjs"
+      - "apps/web/tests/rqg43-*.mjs"
+      - "apps/web/lib/commercial-data.ts"
+      - "apps/web/app/(italian)/(workspace)/review/coverage/page.tsx"
+      - "apps/web/app/(italian)/(workspace)/review/identities/page.tsx"
+      - "apps/web/app/(italian)/(workspace)/review/offer-reparse/page.tsx"
+      - "supabase/tests/rqg43_local_clean_queue_fixture.sql"
       - "apps/web/components/review-confirm-form.tsx"
       - "apps/web/components/review-correct-form.tsx"
       - ".github/workflows/rqg32h-disposable-company-review.yml"
@@ -122,6 +128,14 @@ jobs:
             -f "$RUNNER_TEMP/perf1-psql-vars.sql" \
             -f "$RUNNER_TEMP/rqg31-vars.sql" \
             -f supabase/tests/rqg31_local_fixture.sql
+      - name: "RQG4.3 — Seed clean empty Company Review state (LOCAL ONLY)"
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/perf1-psql-vars.sql" \
+            -f supabase/tests/rqg43_local_clean_queue_fixture.sql
       - name: Start local Next.js (not production/Vercel)
         working-directory: apps/web
         shell: bash
@@ -152,6 +166,10 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 15
         run: node tests/rqg42-company-review-a11y-chrome.mjs
+      - name: "RQG4.3 — Review navigation, no-data states, role denied deep links (LOCAL ONLY)"
+        working-directory: apps/web
+        timeout-minutes: 15
+        run: node tests/rqg43-company-review-navigation-chrome.mjs
       - name: "RQG3.1 — Real Chrome multi-role UI, PostgREST RLS and RPC replay acceptance"
         working-directory: apps/web
         timeout-minutes: 16

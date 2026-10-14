@@ -27,5 +27,5 @@ test("PA2.21 forbids unsafe relationship inference", () => {
   assert.match(page, /Nessuna inferenza da cliente/);
   assert.match(page, /dominio email/);
   assert.match(page, /thread legacy/);
-  assert.match(coverage, /review\/relationships/);
+  assert.match(coverage, /appRoutes\.operations\.reviewRelationships/);
 });
