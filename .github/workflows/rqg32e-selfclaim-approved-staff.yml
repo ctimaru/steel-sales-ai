@@ -55,4 +55,4 @@ jobs:
           RQG32_TRUST_PASSWORD: ${{ secrets.RQG32_TRUST_PASSWORD }}
           RQG32_AUDITOR_PASSWORD: ${{ secrets.RQG32_AUDITOR_PASSWORD }}
         run: node tests/rqg32e-selfclaim-approved-staff.mjs
-      # No owner credentials, Admin secret, service_role key, decisions, or browser artifacts.
+      # No privileged credentials, owner access, decision actions, or artifacts.
