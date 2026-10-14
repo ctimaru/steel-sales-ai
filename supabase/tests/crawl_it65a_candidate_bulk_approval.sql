@@ -72,7 +72,7 @@ select
  'https://it65a-'||i||'.example.test/',
  'IT65a Tubes Test '||i||' S.r.l.','IT',
  'IT65A' || i, 'Synthetic industrial company evidence only',
- array['merchant'], array[]::text[], '[]'::jsonb,
+ array['producer'], array['tube_pipe_producer'], '[{"key":"tubes_pipes","relationship_type":"produces"}]'::jsonb,
  jsonb_build_array(jsonb_build_object('url','https://it65a-approved.example.test/evidence/'||i,'snippet','Synthetic company-only evidence')),
  jsonb_build_array('https://it65a-approved.example.test/'||i),
  case when i=3 then '["possible_match"]'::jsonb else '[]'::jsonb end,
