@@ -1,0 +1,18 @@
+name: RQG3.2h — Disposable Company Review Positive Acceptance
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Reuse tested PERF1 / RQG3.1 local GoTrue+Postgres+Next+Chrome setup.
+# The reusable workflow runs BOTH the focused RQG3.2h positive suite and
+# the existing RQG3.1 cross-tenant RLS/RPC/decision regression suite.
+# No hosted service keys, no production Auth, no environment secrets.
+jobs:
+  positive-company-review:
+    name: Disposable multi-tenant Chrome acceptance
+    uses: ./.github/workflows/perf1-chrome-auth.yml
+    permissions:
+      contents: read

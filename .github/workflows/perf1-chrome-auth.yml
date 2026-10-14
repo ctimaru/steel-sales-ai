@@ -25,10 +25,13 @@ on:
       - "supabase/migrations/*plr2_private_lab_owner_boundary.sql"
       - "apps/web/tests/perf1-*.mjs"
       - "apps/web/tests/rqg31-*.mjs"
+      - "apps/web/tests/rqg32h-*.mjs"
+      - ".github/workflows/rqg32h-disposable-company-review.yml"
       - "supabase/tests/rqg31_*.sql"
       - "supabase/tests/perf1_chrome_seed.sql"
       - ".github/workflows/perf1-chrome-auth.yml"
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
@@ -136,6 +139,10 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 20
         run: node tests/perf1-chrome-multi-account.mjs
+      - name: "RQG3.2h — Real Chrome positive Company Review and viewer denial (DISPOSABLE LOCAL ONLY)"
+        working-directory: apps/web
+        timeout-minutes: 15
+        run: node tests/rqg32h-local-company-review-positive.mjs
       - name: "RQG3.1 — Real Chrome multi-role UI, PostgREST RLS and RPC replay acceptance"
         working-directory: apps/web
         timeout-minutes: 16
