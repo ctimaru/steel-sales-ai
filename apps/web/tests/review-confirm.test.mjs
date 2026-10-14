@@ -154,6 +154,6 @@ test("review page uses sales-facing correction language", async () => {
   }
   assert.match(page, /Qualità dati aziendali/);
   assert.match(page, /Review dati commerciali/);
-  assert.match(page, /affidabilità/);
+  assert.match(page, /Confidenza estrazione/);
   assert.match(page, /Ogni modifica viene registrata nello storico/);
 });
