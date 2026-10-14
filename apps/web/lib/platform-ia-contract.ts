@@ -143,6 +143,7 @@ export const PLATFORM_IA_ROUTE_INVENTORY = [
   { path: "/platform/registrations/[id]", module: "registrations" },
   { path: "/platform/people", module: "people" },
   { path: "/platform/company-discovery", module: "discovery" },
+  { path: "/platform/company-discovery/coverage", module: "discovery" },
   { path: "/platform/company-discovery/governance", module: "discovery" },
   { path: "/platform/company-discovery/geo-review", module: "discovery" },
   { path: "/platform/company-discovery/sources", module: "discovery" },

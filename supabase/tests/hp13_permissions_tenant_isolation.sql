@@ -232,7 +232,10 @@ select pg_temp.hp13_assert(
         'crawl_it3_review_lead',
         -- CRAWL-IT6.1: discovery RBAC gated geo evidence queue and review (no facility mutation).
         'crawl_it61_geo_review_queue',
-        'crawl_it61_review_geo_evidence'
+        'crawl_it61_review_geo_evidence',
+        -- CRAWL-IT6.4: reviewed read-only Italy coverage aggregate; explicit discovery.read,
+        -- pinned search_path and NO source activation, profile or facility mutation.
+        'crawl_it64_geographic_scale_snapshot'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
