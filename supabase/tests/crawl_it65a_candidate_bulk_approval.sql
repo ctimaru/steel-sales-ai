@@ -117,6 +117,7 @@ select public.crawl_it65a_bulk_approve_candidates(
  ],
  'Operator manually checked company evidence and legally approved source',true
 ) as bulk_result \gset
+reset role;
 
 select pg_temp.it65a_assert(
  (:'bulk_result'::jsonb->>'requested_count')::int=5
@@ -155,10 +156,14 @@ select pg_temp.it65a_assert(
   where x->>'reason'='source_rights_not_approved'),
  'excluded candidates receive actionable reason codes'
 );
+set local role authenticated;
+select set_config('request.jwt.claim.sub',:'owner_id',true);
+select set_config('request.jwt.claim.role','authenticated',true);
 select public.crawl_it65a_bulk_approve_candidates(
  array['00000000-0000-0000-0000-000000065001'::uuid],
  'Operator confirmed company-only evidence for replay',true
 ) as replay_result \gset
+reset role;
 select pg_temp.it65a_assert(
  (:'replay_result'::jsonb->>'approved_count')::int=0
  and (:'replay_result'::jsonb->>'excluded_count')::int=1
@@ -167,6 +172,7 @@ select pg_temp.it65a_assert(
  'replay must be idempotently excluded and cannot duplicate immutable audit'
 );
 
+set local role authenticated;
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000065099',true);
 select pg_temp.it65a_raises(
  $$select public.crawl_it65a_bulk_approve_candidates(
