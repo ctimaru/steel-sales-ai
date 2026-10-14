@@ -15,7 +15,7 @@ from app.italian_source_discovery import harvest_once
 
 def fixture():
     def row(qid, site):
-        return {"item":{"type":"uri","value":"https://www.wikidata.org/entity/"+qid},
+        return {"item":{"type":"uri","value":"http://www.wikidata.org/entity/"+qid},
                 "website":{"type":"uri","value":site}}
     return {"results":{"bindings":[
         row("Q12345","https://example-steel.it/about"),
