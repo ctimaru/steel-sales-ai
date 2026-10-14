@@ -316,6 +316,67 @@ export async function reviewDiscoveryCandidateGovernance(formData: FormData) {
   redirect(governancePath("message", "Gate del candidato aggiornato."));
 }
 
+const bulkExcludeLabels: Record<string, string> = {
+  not_found: "non trovati",
+  not_italian: "non italiani",
+  already_reviewed_or_closed: "già revisionati/chiusi",
+  personal_data_requires_individual_review: "dati personali",
+  identity_match_requires_individual_review: "identità da risolvere",
+  quality_flags_require_individual_review: "qualità da verificare",
+  source_evidence_missing: "evidenze mancanti",
+  source_rights_not_approved: "fonte non autorizzata",
+};
+
+export async function bulkApproveDiscoveryCandidates(formData: FormData) {
+  await requirePlatformPermission("discovery.governance_review");
+  const ids = formData.getAll("candidate_id").map(value => String(value).trim());
+  const note = String(formData.get("note") ?? "").trim();
+  const attested = formData.get("attested") === "on";
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+  if (!attested || ids.length < 1 || ids.length > 50 ||
+      new Set(ids).size !== ids.length || ids.some(id => !uuid.test(id)) ||
+      note.length < 12 || note.length > 1000) {
+    redirect(governancePath("error", "Bulk Approve non valido. Seleziona 1–50 candidati, verifica i dati e inserisci una motivazione."));
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("crawl_it65a_bulk_approve_candidates", {
+    p_candidate_ids: ids,
+    p_note: note,
+    p_attested: true,
+  });
+  if (error || !data || typeof data !== "object") {
+    redirect(governancePath("error", safeErrorMessage(error, "Bulk Approve non riuscito. Nessun candidato pubblicato.")));
+  }
+  const result = data as {
+    approved_count?: number;
+    excluded_count?: number;
+    excluded?: Array<{ id: string; reason: string }>;
+    network_publications?: number;
+  };
+  const approved = Number(result.approved_count);
+  const excluded = Number(result.excluded_count);
+  if (!Number.isInteger(approved) || !Number.isInteger(excluded) ||
+      approved < 0 || excluded < 0 || approved + excluded !== ids.length ||
+      result.network_publications !== 0) {
+    redirect(governancePath("error", "Risposta Bulk Approve inattesa. Verifica la coda prima di riprovare."));
+  }
+
+  const reasons = new Map<string, number>();
+  for (const item of result.excluded ?? []) {
+    reasons.set(item.reason, (reasons.get(item.reason) ?? 0) + 1);
+  }
+  const reasonsText = [...reasons.entries()]
+    .map(([reason, count]) => `${count} ${bulkExcludeLabels[reason] ?? "non idonei"}`)
+    .join(", ");
+  revalidatePath("/platform/company-discovery");
+  revalidatePath("/platform/company-discovery/governance");
+  redirect(governancePath("message",
+    `Bulk Approve: ${approved} approvati, ${excluded} esclusi${reasonsText ? " (" + reasonsText + ")" : ""}. Nessuna pubblicazione nel Network.`
+  ));
+}
+
 export async function reviewCompanyDataRequest(formData: FormData) {
   await requirePlatformPermission("discovery.governance_review");
 
