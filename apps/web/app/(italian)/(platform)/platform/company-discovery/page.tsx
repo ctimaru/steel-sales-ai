@@ -83,6 +83,12 @@ export default async function CompanyDiscoveryPage({
           </div>
           <div className="flex flex-wrap gap-2">
             <Link
+              href="/platform/company-discovery/coverage"
+              className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
+            >
+              Copertura Italia
+            </Link>
+            <Link
               href="/platform/company-discovery/governance"
               className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
             >
