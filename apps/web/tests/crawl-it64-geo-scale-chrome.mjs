@@ -55,8 +55,8 @@ try{
       // Wait for the semantic content, not only domcontentloaded/heading.
       try{
         await page.waitForFunction(()=>
-          document.body.innerText.includes("Aziende pubblicate") ||
-          document.body.innerText.includes("KPI non disponibili:") ||
+          document.body.innerText.toLocaleLowerCase("it-IT").includes("aziende pubblicate") ||
+          document.body.innerText.toLocaleLowerCase("it-IT").includes("kpi non disponibili:") ||
           window.location.pathname !== "/platform/company-discovery/coverage",
           null,{timeout:12000}
         );
@@ -71,10 +71,12 @@ try{
       }
       assert.equal(new URL(page.url()).pathname,route);
       const body=await page.locator("body").innerText();
-      assert.ok(body.includes("Aziende pubblicate"),"Coverage page unavailable state: "+(await page.locator('[role="alert"]').allInnerTexts()).join(" | "));
-      assert.ok(body.includes("Con città pubblicata"));
-      assert.ok(body.includes("Località mancanti"));
-      assert.ok(body.includes("Fonti abilitate idonee"));
+      // CSS text-transform: uppercase changes innerText's visual casing, not the KPI's meaning.
+      const labels=body.toLocaleLowerCase("it-IT");
+      assert.ok(labels.includes("aziende pubblicate"),"Coverage page unavailable state: "+(await page.locator('[role="alert"]').allInnerTexts()).join(" | "));
+      assert.ok(labels.includes("con città pubblicata"));
+      assert.ok(labels.includes("località mancanti"));
+      assert.ok(labels.includes("fonti abilitate idonee"));
       assert.ok(!body.includes("KPI non disponibili:"),"DB migration/read failed");
       assert.ok(!body.includes("RQG31 PRIVATE"),"Company private evidence leaked");
     });
