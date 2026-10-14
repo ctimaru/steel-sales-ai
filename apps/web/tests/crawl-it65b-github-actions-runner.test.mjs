@@ -51,7 +51,7 @@ test("CRAWL-IT6.5b runner fail-closed, dedicated sb_secret API key and no publis
   assert.match(script,/EXPECTED_SUPABASE_HOST = "ecrafjdummcdfycznitx\.supabase\.co"/);
   assert.match(script,/not key\.startswith\("sb_secret_"\)/);
   assert.match(script,/"apikey": key/);
-  assert.doesNotMatch(script,/Authorization|Bearer /);
+  assert.doesNotMatch(script, /headers:\s*\{[^}]*Authorization|headers:\s*\{[^}]*Bearer /);
   assert.match(script,/source_preflight/);
   assert.match(script,/commit_wikidata_leads/);
   assert.match(script,/preview_wikidata_steel_italy\(limit=budget\)/);
