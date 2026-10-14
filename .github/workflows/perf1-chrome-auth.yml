@@ -26,6 +26,8 @@ on:
       - "apps/web/tests/perf1-*.mjs"
       - "apps/web/tests/rqg31-*.mjs"
       - "apps/web/tests/rqg32h-*.mjs"
+      - "apps/web/app/(italian)/(workspace)/review/page.tsx"
+      - "apps/web/tests/rqg41-*.mjs"
       - ".github/workflows/rqg32h-disposable-company-review.yml"
       - "supabase/tests/rqg31_*.sql"
       - "supabase/tests/perf1_chrome_seed.sql"
