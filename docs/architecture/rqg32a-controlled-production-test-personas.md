@@ -1,70 +1,46 @@
-# RQG3.2a — Controlled Production Test Personas
+# RQG3.2a / RQG3.2c — Protected Production QA Activation
 
-## Status and safety contract
+**Status: not provisioned, NOT accepted.** The live Supabase inventory taken for RQG3.2c showed **one active Platform Owner, zero RQG32 synthetic users, zero QA organizations, zero QA Review records**. The test fixtures must never be confused with actual steel-industry companies or real customer documents.
 
-**Auth & personas are currently NOT provisioned.** This microblock supplies a gated, repeatable, test-only bootstrap and readiness checks; do **not** report completed production Chrome acceptance without a successful RQG3.2 workflow. No production mutations run from PR CI.
+## Fixed test identities (not credentials)
 
-Read-only inventory before this change (2026-10-13): one Platform Owner, zero active Platform Staff, zero organizations with slug \`rqg32-%\`, zero Auth users with prefix \`rqg32-%\`, zero synthetic Review markers. Required role keys already exist. **Never add a second Platform Owner**.
-
-### Seven synthetic GoTrue accounts
-
-| Persona | Synthetic email | Owner-approved access |
+| Persona | Synthetic Auth email | Role to grant ONLY through governed Owner workflow |
 | --- | --- | --- |
-| Registration | rqg32-registration@smartsteelsales.test | \`registration_admin\` |
-| Claims | rqg32-claims@smartsteelsales.test | \`claims_verification_admin\` |
-| Trust | rqg32-trust@smartsteelsales.test | \`network_trust_admin\` |
-| Auditor | rqg32-auditor@smartsteelsales.test | \`platform_auditor\` |
-| Company Admin A | rqg32-company-a@smartsteelsales.test | \`admin\` of \`rqg32-company-a\` ONLY |
-| Company Admin B | rqg32-company-b@smartsteelsales.test | \`admin\` of \`rqg32-company-b\` ONLY |
-| Company Viewer | rqg32-viewer@smartsteelsales.test | \`viewer\` of \`rqg32-company-a\` ONLY |
+| Registration | `rqg32-registration@smartsteelsales.test` | `registration_admin` |
+| Claims | `rqg32-claims@smartsteelsales.test` | `claims_verification_admin` |
+| Trust | `rqg32-trust@smartsteelsales.test` | `network_trust_admin` |
+| Auditor | `rqg32-auditor@smartsteelsales.test` | `platform_auditor` |
+| Company admin A | `rqg32-company-a@smartsteelsales.test` | admin of `rqg32-company-a` only |
+| Company admin B | `rqg32-company-b@smartsteelsales.test` | admin of `rqg32-company-b` only |
+| Company viewer | `rqg32-viewer@smartsteelsales.test` | viewer of `rqg32-company-a` only |
 
-The reserved \`.test\` domain prevents sending verification emails to real mailboxes. Supabase Auth Admin creates these **non-human synthetic** test identities with confirmed test email and explicitly supplied strong unique passwords; it **does not** signal real-user email ownership, accept legal terms, or activate companies.
+The reserved `.test` domain cannot receive real email messages. Auth Admin creates confirmed, synthetic accounts for isolated acceptance **without proving real email ownership or accepting legal consent**. Do not use `.test` addresses for real customer registration, invites, correspondence or marketplace dispatch.
 
-Each new account is tagged with trusted \`app_metadata.rqg32_suite = RQG3.2a\` and \`rqg32_persona\` (no app roles). Collision with an existing untagged email fails closed. There is **no automatic role grant, company activation, registration approval, privacy consent or commercial Review insertion**.
+## Minimal protected GitHub configuration — human setup required
 
-## Phase A: Auth bootstrap (manual only)
+1. In repository **Settings → Environments**, create `production-qa`. Restrict it to branch `main`, configure required reviewers where your GitHub plan permits, and limit who may configure credentials. **Do not run privileged QA if this environment is unprotected.**
+2. Within the protected `production-qa` **environment secrets** (not repository secrets), configure **eight** values: `RQG32A_AUTH_SECRET_KEY` (a short-lived, server-side Supabase secret with Auth Admin access) and **seven** independently random passwords, each at least 20 characters, named `RQG32_<ROLE>_PASSWORD` for REGISTRATION, CLAIMS, TRUST, AUDITOR, COMPANY_A, COMPANY_B and VIEWER. Avoid placing passwords or the Supabase key in this chat, Issues, Notion, PRs or logs; rotate the Supabase key after use. No QA email/marker secrets are required: they are fixed, non-sensitive identifiers.
+3. Launch **Actions → RQG3.2a Controlled Production Test Personas** on `main`. Select `preflight`, approval `RQG32A_INSPECT_SYNTHETIC_USERS`. This only reads the Auth directory, one active Owner, and QA-named records — it does not require any QA passwords to be populated or passed to the preflight step.
+4. When the preflight succeeds, select `create`, approval **`RQG32A_CREATE_SEVEN_SYNTHETIC_USERS`**. This invokes Supabase **Auth Admin** to create only missing, trusted, tagged QA identities. It does not insert SQL users, grant platform permissions, activate organizations, accept terms or seed commercial records. Unique strong passwords are used only for this step and never logged.
+5. Select `verify` with `RQG32A_INSPECT_SYNTHETIC_USERS` to verify seven tagged Auth users and exactly one Owner. The create operation is idempotent and fails closed on email collisions. **Do not create another superadmin.**
 
-1. In GitHub Actions secrets, store the 14 existing \`RQG32_*_EMAIL\` and \`RQG32_*_PASSWORD\` values expected by RQG3.2. Emails must EXACTLY match the seven in the table. Set \`RQG32_COMPANY_A_MARKER=RQG32-ORG_A-20261013\` and \`RQG32_COMPANY_B_MARKER=RQG32-ORG_B-20261013\`.
-2. **Before entering ANY production secret**, create GitHub Actions environment `production-qa` in repository Settings → Environments. Restrict deployments to the `main` branch, require an appropriate approving reviewer if your plan permits, and never grant other workflows this environment. The workflow now references `production-qa` so its secrets can be scoped narrowly. Do not configure or activate the secret until protection is set.
-3. Supply \`RQG32A_AUTH_SECRET_KEY\` through **protected `production-qa` GitHub Actions environment secrets** only, ideally an independently rotated Supabase secret key dedicated to the short-lived QA run. It bypasses RLS: restrict GitHub Actions permission, revoke it after completing provisioning; never paste it into ChatGPT, Notion, a PR or user-visible logs. Do not use the sole Platform Owner's password.
-4. Run **RQG3.2a Controlled Production Test Personas** manually on \`main\` with \`mode=preflight\` and exact approval phrase \`RQG32A_INSPECT_SYNTHETIC_USERS\`. This requires the secret for trustworthy account/owner preflight but makes **zero writes**.
-5. After verifying preflight, run \`mode=create\` with \`RQG32A_CREATE_SEVEN_SYNTHETIC_USERS\`. Only \`auth.admin.createUser()\` is called, once per missing account. Existing correctly tagged users are never overwritten; passwords are not rotated and neither credentials nor session state are uploaded.
-6. Run \`mode=verify\` with \`RQG32A_INSPECT_SYNTHETIC_USERS\` to confirm exactly seven tagged identities and exactly one active Platform Owner.
+## Owner-controlled role and organization governance
 
-If any step fails, stop and inspect the named QA users in Supabase Auth admin. Partial creation is safe to rerun only after collision diagnosis; no rollback or delete is automatic.
+After Auth bootstrap, the sole real Platform Owner can use `/platform/people` to invite and assign exactly four Platform Staff roles. Their ownership-invitation claim is handled by the existing login flow. These synthetic `.test` users cannot receive invite emails; use the existing-user path and explicitly confirm activation only through the governed UI/RPC lifecycle.
 
-## Phase B: standard owner-controlled privileges and registration
+The two synthetic company identities should follow the normal registration review and activation process; the company Viewer should be assigned via the established company membership workflow. **Do not forge actual legal acceptance**, do not invent a VAT/tax ID as if real, and do not bypass an activation gate simply because the entity is a demo. If the existing registration system requires an actual person or verifiable legal declaration, STOP instead of fabricating the information — resolve this with a separately audited synthetic-only test path.
 
-1. Log in as the **sole real Platform Owner**. Through the existing People & Access staff invitation/delegation workflow, assign the four distinct roles to their test email addresses. Do **not** grant Platform Owner, mix staff with tenant memberships, or bypass invitation acceptance.
-2. For company-a and company-b, submit the normal company registration forms (as synthetic organizations with fictional company names and obviously non-real VAT/tax identity) and have the Owner review/approve/activate through the existing registration governance workflow. No automated activation or false commercial legal identity. Ensure organizations have exactly the slugs \`rqg32-company-a\`, \`rqg32-company-b\`; coordinate the slug generated by onboarding.
-3. Through the normal company management workflow, add \`rqg32-viewer@smartsteelsales.test\` to company A with the \`viewer\` membership. No extra membership or Platform role.
-4. Complete any necessary test-account legal/consent UX through the actual dedicated synthetic user flows; **never insert forged \`user_legal_acceptances\`** as though a human approved them. Test identities must never send supplier communications or enter the public Network discovery feed.
+Only after both synthetic organizations are genuinely authorized and the staff/admin memberships exist may an approved operator use the optional transaction-scoped SQL file `supabase/ops/rqg32a_synthetic_review_seed.sql`. It checks exact test accounts, exact company slugs, a single Owner, approved memberships, and reserved IDs before creating two private synthetic Review records:
 
-## Phase C: strictly synthetic Company Review markers
+- Company A: `RQG32-ORG_A-20261013`
+- Company B: `RQG32-ORG_B-20261013`
 
-Only AFTER all owner-approved activation and tenant memberships succeed, an authorized operator may execute the checked-in **optional**, transactional seed file through an audited database operations session:
-\`supabase/ops/rqg32a_synthetic_review_seed.sql\`.
+This SQL **must not** be applied as a migration or automatically on deployment. Cleanup is separately guarded in `supabase/ops/rqg32a_synthetic_review_cleanup.sql`; it does not revoke staff or delete Auth accounts and refuses to erase rows after review decisions.
 
-It checks exactly one active Platform Owner, both trusted test Auth identities, two completed test organizations, two active company-admin memberships, absence of cross-tenant links, no collision of reserved fixture IDs/markers. Only then creates two private dataset/thread/observation/review records with:
+## Final strict gate
 
-- Company A: \`RQG32-ORG_A-20261013\`
-- Company B: \`RQG32-ORG_B-20261013\`
+Execute `mode=ready` with approval `RQG32A_INSPECT_SYNTHETIC_USERS`. This makes **no writes** and verifies exactly seven tagged Auth personas, a single Owner, their scoped staff/member roles, exactly two completed demo organizations and two pending tenant-isolated Review markers.
 
-These are **deliberately artificial QA records**, not parser-extracted emails or market evidence; they are never promoted into public Knowledge or Network. Do not run seed SQL automatically via workflow, migration or app request. Script is intentionally fail-closed if invoked twice.
+Then manually run **RQG3.2 — Production Review Chrome Auth Read-Only** on `main`, with `I_APPROVE_READ_ONLY_RQG32`. The protected environment workflow invokes readiness before launching Chrome; all application writes except sign-in are blocked. A green result is required before claiming authenticated production acceptance. No superadmin password is requested or exported, and no second Owner persona is created.
 
-After the test, \`supabase/ops/rqg32a_synthetic_review_cleanup.sql\` removes **only** the two untouched pending QA records after verifying identities and ownership. It refuses if Review decisions changed, and never deletes organizations, staff or Auth accounts. Removing/revoking test accounts and delegated roles must occur separately under the Owner's approved governance procedure.
-
-## Phase D: verify readiness and run Chrome
-
-Run manual \`mode=ready\` with phrase \`RQG32A_INSPECT_SYNTHETIC_USERS\`. It checks:
-- 7 tagged Auth identities, 1 Platform Owner.
-- 4 active scoped Platform Staff roles with **no tenant membership**.
-- 2 completed QA organizations with isolated admin members.
-- Viewer in A only, no Platform privileges.
-- Exactly 2 **pending** tenant-scoped Review markers, correct ownership.
-
-Only when ready is green, manually run existing **RQG3.2 — Production Review Chrome Auth Read-Only** with phrase \`I_APPROVE_READ_ONLY_RQG32\`. That workflow performs real Chrome logins/GET navigation, blocks all application mutation requests, and must prove tenant isolation. **This microblock alone does not certify live authenticated production acceptance.**
-
-## Mandatory non-goals
-
-No direct writes to \`auth.users\` via SQL, no automatic superadmin mutation, no fraudulent legal acceptance, no background schedulers, no real-contact email dispatch, no automatic production fixture seeding, no Google/Vercel paid background compute, no secret in source control, no regular business records modified.
+**Project exit state until these gated manual operations succeed: RQG3.2c code-ready / production activation pending.**

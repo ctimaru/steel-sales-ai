@@ -13,9 +13,12 @@ test("RQG3.2 production acceptance runs manually with dedicated synthetic identi
   assert.doesNotMatch(workflow.split("    steps:")[0],/RQG32_.*(EMAIL|PASSWORD|MARKER)/,
     "Dedicated production secrets must not be job-global");
   assert.match(workflow,/persist-credentials: false/);
-  assert.equal((workflow.match(/RQG32_REGISTRATION_PASSWORD: /g) ?? []).length,2,
-    "Secrets should be scoped only to readiness and Chrome");
-  assert.equal((workflow.match(/RQG32_COMPANY_A_MARKER: /g) ?? []).length,2);
+
+  assert.equal((workflow.match(/RQG32_REGISTRATION_PASSWORD: /g) ?? []).length,1,
+    "Passwords should be scoped ONLY to authenticated Chrome");
+  assert.equal((workflow.match(/RQG32_COMPANY_A_MARKER: /g) ?? []).length,1);
+  assert.match(workflow,/RQG32_REGISTRATION_EMAIL: rqg32-registration@smartsteelsales\\.test/);
+  assert.match(workflow,/RQG32_COMPANY_A_MARKER: RQG32-ORG_A-20261013/);
   assert.match(workflow,/if: github.ref == 'refs\/heads\/main' && github.event_name == 'workflow_dispatch'/);
   assert.match(workflow,/RQG32A_MODE: ready/);
   assert.match(workflow,/RQG32A_APPROVAL: RQG32A_INSPECT_SYNTHETIC_USERS/);

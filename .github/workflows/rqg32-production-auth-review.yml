@@ -54,22 +54,6 @@ jobs:
           RQG32A_APPROVAL: RQG32A_INSPECT_SYNTHETIC_USERS
           RQG32A_SUPABASE_URL: https://ecrafjdummcdfycznitx.supabase.co
           RQG32A_AUTH_SECRET_KEY: ${{ secrets.RQG32A_AUTH_SECRET_KEY }}
-          RQG32_REGISTRATION_EMAIL: ${{ secrets.RQG32_REGISTRATION_EMAIL }}
-          RQG32_REGISTRATION_PASSWORD: ${{ secrets.RQG32_REGISTRATION_PASSWORD }}
-          RQG32_CLAIMS_EMAIL: ${{ secrets.RQG32_CLAIMS_EMAIL }}
-          RQG32_CLAIMS_PASSWORD: ${{ secrets.RQG32_CLAIMS_PASSWORD }}
-          RQG32_TRUST_EMAIL: ${{ secrets.RQG32_TRUST_EMAIL }}
-          RQG32_TRUST_PASSWORD: ${{ secrets.RQG32_TRUST_PASSWORD }}
-          RQG32_AUDITOR_EMAIL: ${{ secrets.RQG32_AUDITOR_EMAIL }}
-          RQG32_AUDITOR_PASSWORD: ${{ secrets.RQG32_AUDITOR_PASSWORD }}
-          RQG32_COMPANY_A_EMAIL: ${{ secrets.RQG32_COMPANY_A_EMAIL }}
-          RQG32_COMPANY_A_PASSWORD: ${{ secrets.RQG32_COMPANY_A_PASSWORD }}
-          RQG32_COMPANY_B_EMAIL: ${{ secrets.RQG32_COMPANY_B_EMAIL }}
-          RQG32_COMPANY_B_PASSWORD: ${{ secrets.RQG32_COMPANY_B_PASSWORD }}
-          RQG32_VIEWER_EMAIL: ${{ secrets.RQG32_VIEWER_EMAIL }}
-          RQG32_VIEWER_PASSWORD: ${{ secrets.RQG32_VIEWER_PASSWORD }}
-          RQG32_COMPANY_A_MARKER: ${{ secrets.RQG32_COMPANY_A_MARKER }}
-          RQG32_COMPANY_B_MARKER: ${{ secrets.RQG32_COMPANY_B_MARKER }}
         run: node tests/rqg32a-provision-auth-personas.mjs
       - name: Install ephemeral Chrome QA dependencies
         working-directory: apps/web
@@ -80,21 +64,21 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 15
         env:
-          RQG32_REGISTRATION_EMAIL: ${{ secrets.RQG32_REGISTRATION_EMAIL }}
+          RQG32_REGISTRATION_EMAIL: rqg32-registration@smartsteelsales.test
           RQG32_REGISTRATION_PASSWORD: ${{ secrets.RQG32_REGISTRATION_PASSWORD }}
-          RQG32_CLAIMS_EMAIL: ${{ secrets.RQG32_CLAIMS_EMAIL }}
+          RQG32_CLAIMS_EMAIL: rqg32-claims@smartsteelsales.test
           RQG32_CLAIMS_PASSWORD: ${{ secrets.RQG32_CLAIMS_PASSWORD }}
-          RQG32_TRUST_EMAIL: ${{ secrets.RQG32_TRUST_EMAIL }}
+          RQG32_TRUST_EMAIL: rqg32-trust@smartsteelsales.test
           RQG32_TRUST_PASSWORD: ${{ secrets.RQG32_TRUST_PASSWORD }}
-          RQG32_AUDITOR_EMAIL: ${{ secrets.RQG32_AUDITOR_EMAIL }}
+          RQG32_AUDITOR_EMAIL: rqg32-auditor@smartsteelsales.test
           RQG32_AUDITOR_PASSWORD: ${{ secrets.RQG32_AUDITOR_PASSWORD }}
-          RQG32_COMPANY_A_EMAIL: ${{ secrets.RQG32_COMPANY_A_EMAIL }}
+          RQG32_COMPANY_A_EMAIL: rqg32-company-a@smartsteelsales.test
           RQG32_COMPANY_A_PASSWORD: ${{ secrets.RQG32_COMPANY_A_PASSWORD }}
-          RQG32_COMPANY_B_EMAIL: ${{ secrets.RQG32_COMPANY_B_EMAIL }}
+          RQG32_COMPANY_B_EMAIL: rqg32-company-b@smartsteelsales.test
           RQG32_COMPANY_B_PASSWORD: ${{ secrets.RQG32_COMPANY_B_PASSWORD }}
-          RQG32_VIEWER_EMAIL: ${{ secrets.RQG32_VIEWER_EMAIL }}
+          RQG32_VIEWER_EMAIL: rqg32-viewer@smartsteelsales.test
           RQG32_VIEWER_PASSWORD: ${{ secrets.RQG32_VIEWER_PASSWORD }}
-          RQG32_COMPANY_A_MARKER: ${{ secrets.RQG32_COMPANY_A_MARKER }}
-          RQG32_COMPANY_B_MARKER: ${{ secrets.RQG32_COMPANY_B_MARKER }}
+          RQG32_COMPANY_A_MARKER: RQG32-ORG_A-20261013
+          RQG32_COMPANY_B_MARKER: RQG32-ORG_B-20261013
         run: node tests/rqg32-production-authenticated-readonly.mjs
       # No screenshots, videos, trace, auth cookies or other artifacts uploaded.

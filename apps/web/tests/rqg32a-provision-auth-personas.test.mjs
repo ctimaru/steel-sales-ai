@@ -13,10 +13,8 @@ const fixture=(mode="preflight")=>{
       ?"RQG32A_CREATE_SEVEN_SYNTHETIC_USERS":"RQG32A_INSPECT_SYNTHETIC_USERS",
     RQG32A_SUPABASE_URL:PROJECT_URL,
     RQG32A_AUTH_SECRET_KEY:"sb_"+"secret_"+"unit_test_never_used",
-    RQG32_COMPANY_A_MARKER:MARKER_A,RQG32_COMPANY_B_MARKER:MARKER_B,
   };
-  PERSONAS.forEach((p,i)=>{
-    env["RQG32_"+p.key+"_EMAIL"]="rqg32-"+p.tag+"@smartsteelsales.test";
+  if(mode==="create") PERSONAS.forEach((p,i)=>{
     env["RQG32_"+p.key+"_PASSWORD"]="unit-test-synthetic-password-unique-"+i;
   });
   return env;
@@ -60,13 +58,22 @@ test("RQG3.2a explicit approval, fixed project, exact .test identities and uniqu
     ["RQG32A_SUPABASE_URL","https://another-project.supabase.co"],
     ["CI","false"],
     ["GITHUB_REF","refs/heads/dev"],
-    ["RQG32_REGISTRATION_EMAIL","someone@company.com"],
-    ["RQG32_COMPANY_A_MARKER","WRONG"],
     ["RQG32A_AUTH_SECRET_KEY","not-a-secret"],
   ]){
     assert.throws(()=>readConfiguration({...fixture(),[key]:val}),Error,key);
   }
   assert.throws(()=>readConfiguration({...fixture("create"),RQG32A_APPROVAL:"RQG32A_INSPECT_SYNTHETIC_USERS"}));
+  const noSecrets = readConfiguration(fixture("preflight"));
+  assert.ok(noSecrets.accounts.every(a=>a.password===""));
+  assert.deepEqual(noSecrets.accounts.map(a=>a.email),PERSONAS.map(p=>"rqg32-"+p.tag+"@smartsteelsales.test"));
+  for(const mode of ["verify","ready"]) {
+    assert.ok(readConfiguration(fixture(mode)).accounts.every(a=>a.password===""));
+  }
+  assert.throws(()=>readConfiguration({...fixture("create"),RQG32_REGISTRATION_PASSWORD:""}));
+  assert.throws(()=>readConfiguration({...fixture("create"),RQG32_REGISTRATION_PASSWORD:fixture("create").RQG32_CLAIMS_PASSWORD}));
+  // Ignore injected "email" and "marker" variables; there is no way to reroute production QA identities.
+  const injected=readConfiguration({...fixture(),RQG32_REGISTRATION_EMAIL:"human@company.com",RQG32_COMPANY_A_MARKER:"WRONG"});
+  assert.equal(injected.accounts[0].email,"rqg32-registration@smartsteelsales.test");
 });
 test("RQG3.2a preflight never creates users or roles",async()=>{
   const {admin,calls}=mock();
@@ -137,6 +144,14 @@ test("RQG3.2a production evidence SQL never creates users, staff roles or real-c
   assert.doesNotMatch(cleanup,/delete from auth\.users|delete from public\.organizations/i);
   assert.match(workflow,/workflow_dispatch:/);
   assert.match(workflow,/environment: production-qa/);
+  assert.ok(!workflow.split("    steps:")[0].includes("RQG32A_AUTH_SECRET_KEY"),
+    "Supabase admin key must never be job-global");
+  assert.match(workflow,/if: inputs.mode != 'create'/);
+  assert.match(workflow,/if: inputs.mode == 'create'/);
+  assert.match(workflow,/persist-credentials: false/);
+  assert.equal((workflow.match(/RQG32_REGISTRATION_PASSWORD:/g)??[]).length,1);
+  assert.doesNotMatch(workflow,/RQG32_REGISTRATION_EMAIL:/);
+  assert.doesNotMatch(workflow,/RQG32_COMPANY_A_MARKER:/);
   assert.doesNotMatch(workflow,/^\s+(pull_request|push|schedule):/m);
   assert.match(workflow,/RQG32A_AUTH_SECRET_KEY: \$\{\{ secrets\.RQG32A_AUTH_SECRET_KEY \}\}/);
 });
