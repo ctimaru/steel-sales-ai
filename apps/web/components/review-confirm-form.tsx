@@ -18,7 +18,7 @@ export function ReviewConfirmForm({ id, reviewed }: { id: string; reviewed: bool
         type="submit"
         disabled={pending || saved || reviewed}
         aria-describedby={state.message ? messageId : undefined}
-        className="w-full rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+        className="min-h-11 w-full rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] disabled:cursor-not-allowed disabled:opacity-50"
       >
         {pending ? "Salvataggio…" : saved ? "Confermata" : reviewed ? "Già revisionata" : "Conferma"}
       </button>
