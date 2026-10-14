@@ -51,6 +51,14 @@ try{
       await visit(page,route);
       await page.getByRole("heading",{name:"Copertura geografica e readiness",level:1})
         .waitFor({state:"visible",timeout:60000});
+      // Next.js may flush the heading before its async RPC-driven KPI sections.
+      // Wait for the semantic content, not only domcontentloaded/heading.
+      await page.waitForFunction(()=>
+        document.body.innerText.includes("Aziende pubblicate") ||
+        document.body.innerText.includes("KPI non disponibili:") ||
+        window.location.pathname === "/login",
+        {timeout:60000}
+      );
       assert.equal(new URL(page.url()).pathname,route);
       const body=await page.locator("body").innerText();
       assert.ok(body.includes("Aziende pubblicate"),"Coverage page unavailable state: "+(await page.locator('[role="alert"]').allInnerTexts()).join(" | "));
