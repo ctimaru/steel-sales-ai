@@ -10,10 +10,21 @@ import { requireWorkspaceAdmin } from "@/lib/workspace-context";
 import { ReviewConfirmForm } from "@/components/review-confirm-form";
 import { ReviewCorrectForm } from "@/components/review-correct-form";
 
+const reviewStateLabel = {
+  pending: "Da verificare",
+  confirmed: "Confermato",
+  corrected: "Corretto",
+} as const;
+
 export default async function ReviewPage() {
   const context = await requireWorkspaceAdmin();
   const { mode, items } = await getReviewItems();
   const pending = items.filter((item) => item.reviewStatus === "pending").length;
+  const completed = items.length - pending;
+  // Put actionable evidence first without changing the underlying queue or decisions.
+  const orderedItems = [...items].sort(
+    (a, b) => Number(b.reviewStatus === "pending") - Number(a.reviewStatus === "pending"),
+  );
 
   return (
     <>
@@ -24,11 +35,17 @@ export default async function ReviewPage() {
           <p className="text-sm font-semibold text-slate-500">Qualità dati aziendali · {context.organizationName}</p>
           <h1 className="mt-1 text-3xl font-semibold tracking-tight text-slate-950">Review dati commerciali</h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-            Controlla le estrazioni e le evidenze della tua azienda che richiedono conferma o correzione. La governance del Network e dei contenuti pubblici è gestita separatamente dalla piattaforma.
+            Verifica i dati estratti dai documenti della tua azienda. Conferma quelli corretti o segnala una correzione. La Review della piattaforma è separata e non compare qui.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge tone="amber">{pending} da verificare</Badge>
+          <Badge tone={pending > 0 ? "amber" : "green"}>{pending} da verificare</Badge>
+          {completed > 0 ? <Badge tone="neutral">{completed} completati</Badge> : null}
+          <details className="group relative w-full sm:w-auto">
+            <summary className="inline-flex min-h-10 cursor-pointer list-none items-center rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2">
+              Strumenti avanzati <span aria-hidden="true" className="ml-2">▾</span>
+            </summary>
+            <nav aria-label="Strumenti avanzati della Review" className="mt-2 flex flex-wrap gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2">
           <Link
             href="/review/coverage"
             className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-950"
@@ -47,6 +64,8 @@ export default async function ReviewPage() {
           >
             Candidate reparse
           </Link>
+            </nav>
+          </details>
         </div>
       </div>
 
@@ -57,6 +76,11 @@ export default async function ReviewPage() {
       ) : null}
 
       <div className="mt-7 space-y-4">
+        {items.length > 0 && pending === 0 ? (
+          <p role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-900">
+            Non ci sono verifiche aperte. Le {completed} decisioni completate rimangono consultabili sotto.
+          </p>
+        ) : null}
         {items.length === 0 ? (
           <FirstUseEmptyState
             eyebrow="Coda pulita"
@@ -73,13 +97,17 @@ export default async function ReviewPage() {
             note="Quando parser o identity resolution richiederanno una decisione, i casi compariranno automaticamente qui."
           />
         ) : null}
-        {items.map((flag) => (
+        {orderedItems.map((flag) => (
           <Card key={flag.id}>
             <CardContent className="grid gap-5 lg:grid-cols-[1fr_1fr_180px] lg:items-center">
               <div>
                 <div className="flex flex-wrap gap-2">
-                  <Badge tone={flag.reviewStatus === "pending" ? "amber" : "green"}>{flag.reviewStatus}</Badge>
-                  <Badge tone="neutral">{flag.status}</Badge>
+                  <Badge tone={flag.reviewStatus === "pending" ? "amber" : "green"}>
+                    {reviewStateLabel[flag.reviewStatus]}
+                  </Badge>
+                  {flag.reviewStatus === "pending" ? (
+                    <span className="text-xs text-slate-500">Richiede una decisione</span>
+                  ) : null}
                 </div>
                 <p className="mt-3 text-sm font-semibold text-slate-950">{flag.subject}</p>
                 <p className="mt-1 text-sm text-slate-500">{flag.product}</p>
@@ -93,7 +121,7 @@ export default async function ReviewPage() {
 
               <div className="flex flex-col gap-2">
                 <div className="rounded-lg border border-slate-200 px-3 py-2 text-center text-xs font-semibold text-slate-600">
-                  {Math.round(flag.confidence * 100)}% affidabilità
+                  Confidenza estrazione: {Math.round(Math.min(1, Math.max(0, Number.isFinite(flag.confidence) ? flag.confidence : 0)) * 100)}%
                 </div>
                 {mode === "live" ? (
                   <ReviewConfirmForm id={flag.id} reviewed={flag.reviewStatus !== "pending"} />
