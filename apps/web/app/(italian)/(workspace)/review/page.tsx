@@ -42,7 +42,7 @@ export default async function ReviewPage() {
           <Badge tone={pending > 0 ? "amber" : "green"}>{pending} da verificare</Badge>
           {completed > 0 ? <Badge tone="neutral">{completed} completati</Badge> : null}
           <details className="group relative w-full sm:w-auto">
-            <summary className="inline-flex min-h-10 cursor-pointer list-none items-center rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2">
+            <summary className="inline-flex min-h-11 cursor-pointer list-none items-center rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300 hover:text-slate-950 focus-visible:outline-2 focus-visible:outline-offset-2">
               Strumenti avanzati <span aria-hidden="true" className="ml-2">▾</span>
             </summary>
             <nav aria-label="Strumenti avanzati della Review" className="mt-2 flex flex-wrap gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2">
