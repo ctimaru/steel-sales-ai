@@ -9,7 +9,8 @@ begin
   end if;
 
   if has_function_privilege('anon',v_oid,'EXECUTE') or
-     has_function_privilege('public',v_oid,'EXECUTE') then
+     exists (select 1 from pg_proc p, aclexplode(p.proacl) acl
+       where p.oid=v_oid and acl.grantee=0 and acl.privilege_type='EXECUTE') then
     raise exception 'CRAWL-IT6.4 aggregate unexpectedly public';
   end if;
 
