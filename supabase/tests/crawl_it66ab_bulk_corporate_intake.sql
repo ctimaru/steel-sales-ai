@@ -22,6 +22,25 @@ select pg_temp.it66_assert(
 select pg_temp.it66_assert(
  not has_table_privilege('authenticated','public.network_bulk_intake_rows','SELECT'),
  'private rows cannot be selected by company members');
+-- Authenticated tenant must not call either private SECURITY DEFINER read report.
+set local role authenticated;
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000069999',true);
+select set_config('request.jwt.claim.role','authenticated',true);
+do $guard$
+begin
+ begin
+   perform private.crawl_it66_staged_rows_impl();
+   raise exception 'Tenant read private staging without discovery.read';
+ exception when insufficient_privilege then null;
+ end;
+ begin
+   perform private.crawl_it66_pipeline_audit_impl();
+   raise exception 'Tenant read internal discovery metrics without discovery.read';
+ exception when insufficient_privilege then null;
+ end;
+end $guard$;
+reset role;
+
 select pg_temp.it66_assert(
  (select count(*) from public.network_discovery_source_registry
   where source_url='https://registroimprese.infocamere.it/web/guest/elenchi-di-imprese'
