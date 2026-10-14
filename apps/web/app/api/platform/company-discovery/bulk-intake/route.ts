@@ -25,8 +25,8 @@ export async function POST(request: NextRequest) {
     const data = await request.formData();
     const mode = String(data.get("mode") ?? "");
     const sourceId = String(data.get("source_id") ?? "").trim();
-    const defaultRole = String(data.get("default_role") ?? "");
-    const atecoVersion = String(data.get("ateco_version") ?? "");
+    const defaultRole = String(data.get("default_role") ?? "") as "trader_distributor" | "end_user";
+    const atecoVersion = String(data.get("ateco_version") ?? "") as "" | "2022" | "2025";
     const uploaded = data.get("file");
     if (!["preview", "stage"].includes(mode) ||
       !/^[a-f0-9-]{36}$/.test(sourceId) ||
