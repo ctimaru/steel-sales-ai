@@ -1,11 +1,11 @@
 -- CRAWL-IT6.5b acceptance: synthetic Supabase only; rollback every fixture.
 begin;
 create or replace function pg_temp.crawl65_assert(ok boolean, message text)
-returns void language plpgsql as $
+returns void language plpgsql as $$
 begin
   if not coalesce(ok,false) then raise exception 'CRAWL-IT6.5b %',message; end if;
-end $;
-do $
+end $$;
+do $$
 begin
  if has_function_privilege('anon','public.crawl_it65b_source_preflight()','EXECUTE')
     or has_function_privilege('authenticated','public.crawl_it65b_source_preflight()','EXECUTE')
