@@ -309,7 +309,8 @@ jobs:
             sp6_steel_pulse_engagement_retention.sql \
             sp7_first_licensed_source_preflight.sql \
             sp71_steel_pulse_editorial_readiness.sql \
-            crawl_it64_geo_scale_readiness.sql; do
+            crawl_it64_geo_scale_readiness.sql \
+            crawl_it65a_candidate_bulk_approval.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done

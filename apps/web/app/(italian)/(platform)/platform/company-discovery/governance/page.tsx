@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CandidateBulkApproval } from "@/components/candidate-bulk-approval";
 
 import {
   getCompanyDataGovernanceRequests,
@@ -14,6 +15,7 @@ import {
 import {
   reviewCompanyDataRequest,
   reviewDiscoveryCandidateGovernance,
+  bulkApproveDiscoveryCandidates,
   reviewDiscoverySourceGovernance,
 } from "../actions";
 
@@ -53,6 +55,30 @@ export default async function CompanyDataGovernancePage({
   const candidateGovernance = new Map(
     governance.candidates.map((item) => [item.candidate_id, item]),
   );
+  // The UI only suggests safe candidates; the transactional RPC independently
+  // checks every source, identity conflict and personal-data marker under locks.
+  const bulkEligible = queue.items.slice(0, 80).filter(candidate => {
+    const source = runGovernance.get(candidate.run_id);
+    const state = candidateGovernance.get(candidate.id);
+    return candidate.country_code === "IT"
+      && candidate.review_status === "pending_review"
+      && state?.governance_status === "unreviewed"
+      && !state.personal_data_detected
+      && (state.personal_data_fields?.length ?? 0) === 0
+      && !candidate.match_company_id
+      && candidate.match_signals.length === 0
+      && candidate.quality_flags.length === 0
+      && candidate.evidence.length > 0
+      && source?.governance_status === "approved"
+      && ["allows_reuse","allows_limited_reuse"].includes(source.terms_status)
+      && ["low_risk","licensed"].includes(source.database_rights_status)
+      && ["company_data_only","exclude_personal_data"].includes(source.personal_data_policy)
+      && Boolean(source.governance_reviewed_at);
+  }).map(candidate => ({
+    id: candidate.id,
+    name: candidate.legal_name,
+    domain: candidate.canonical_domain,
+  }));
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -189,6 +215,12 @@ export default async function CompanyDataGovernancePage({
         <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">
           Dato societario vs dato personale
         </h2>
+
+        {canGovern ? (
+          <div className="mt-5">
+            <CandidateBulkApproval candidates={bulkEligible} action={bulkApproveDiscoveryCandidates} />
+          </div>
+        ) : null}
 
         <div className="mt-5 space-y-3">
           {queue.items.slice(0, 80).map((candidate) => {
