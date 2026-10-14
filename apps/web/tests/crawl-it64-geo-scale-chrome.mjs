@@ -53,7 +53,7 @@ try{
         .waitFor({state:"visible",timeout:60000});
       assert.equal(new URL(page.url()).pathname,route);
       const body=await page.locator("body").innerText();
-      assert.ok(body.includes("Aziende pubblicate"),"Coverage page unavailable state: "+(await page.locator(\'[role="alert"]\').allInnerTexts()).join(" | "));
+      assert.ok(body.includes("Aziende pubblicate"),"Coverage page unavailable state: "+(await page.locator('[role="alert"]').allInnerTexts()).join(" | "));
       assert.ok(body.includes("Con città pubblicata"));
       assert.ok(body.includes("Località mancanti"));
       assert.ok(body.includes("Fonti abilitate idonee"));
