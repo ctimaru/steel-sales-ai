@@ -312,7 +312,8 @@ jobs:
             crawl_it64_geo_scale_readiness.sql \
             crawl_it65a_candidate_bulk_approval.sql \
             crawl_it65_wikidata_source_pilot.sql \
-            crawl_it65b_github_actions_runner.sql; do
+            crawl_it65b_github_actions_runner.sql \
+            crawl_it66ab_bulk_corporate_intake.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
