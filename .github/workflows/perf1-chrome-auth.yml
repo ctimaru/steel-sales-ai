@@ -174,6 +174,10 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 15
         run: node tests/rqg43-company-review-navigation-chrome.mjs
+      - name: "CRAWL-IT6.4 — Italy geographic scale KPIs and protected activation readiness (LOCAL ONLY)"
+        working-directory: apps/web
+        timeout-minutes: 15
+        run: node tests/crawl-it64-geo-scale-chrome.mjs
       - name: "RQG3.1 — Real Chrome multi-role UI, PostgREST RLS and RPC replay acceptance"
         working-directory: apps/web
         timeout-minutes: 16
