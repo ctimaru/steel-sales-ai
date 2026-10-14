@@ -6,6 +6,7 @@ const HEADERS = {
   company_name: ["company_name","denominazione","denominazione_impresa","ragione_sociale","azienda","impresa","legal_name","company"],
   domain: ["domain","website","sito_web","sito","website_url","web"],
   vat_id: ["vat_id","partita_iva","partitaiva","piva","p_iva"],
+  corporate_tax_id: ["corporate_tax_id","codice_fiscale_impresa","cf_societario","company_fiscal_id"],
   province: ["province","provincia","sigla_provincia","provincia_sigla","prov"],
   municipality: ["municipality","comune","citta","localita","city"],
   ateco_code: ["ateco_code","codice_ateco","ateco","attivita_ateco"],
@@ -79,6 +80,7 @@ export function parseItalianCompanyCsv(text,options={}) {
       } catch {throw Error("Sito web non valido alla riga "+(i+1)+".");}
     }
     const vat=field("vat_id").toUpperCase().replace(/\s/g,"");
+    const corporateTax=field("corporate_tax_id").replace(/\s/g,"");
     const province=field("province").toUpperCase();
     const municipality=field("municipality");
     const ateco=field("ateco_code");
@@ -86,16 +88,17 @@ export function parseItalianCompanyCsv(text,options={}) {
     const role=field("role")||defaultRole;
     if(!["trader_distributor","end_user"].includes(role))throw Error("Segmento non valido alla riga "+(i+1)+".");
     if(vat && !/^(IT)?[0-9]{11}$/.test(vat))throw Error("P.IVA aziendale non valida alla riga "+(i+1)+".");
+    if(corporateTax && !/^[0-9]{11}$/.test(corporateTax))throw Error("Codice fiscale societario non valido alla riga "+(i+1)+".");
     if(province && !/^[A-Z]{2}$/.test(province))throw Error("Provincia: usare sigla di 2 lettere, riga "+(i+1)+".");
     if(ateco && (!/^\d{2}(\.\d{1,2}){0,2}$/.test(ateco) || !["2022","2025"].includes(version)))
       throw Error("ATECO richiede un codice valido e la versione 2022/2025, riga "+(i+1)+".");
-    if(!domain && !vat && !province)
+    if(!domain && !vat && !corporateTax && !province)
       throw Error("Servono almeno dominio, P.IVA aziendale o provincia alla riga "+(i+1)+".");
-    const key=vat?"vat:"+vat.replace(/^IT/,""):domain?"domain:"+domain:"name_province:"+company.toLowerCase().replace(/\s+/g," ")+":"+province;
+    const key=corporateTax?"tax:"+corporateTax:vat?"vat:"+vat.replace(/^IT/,""):domain?"domain:"+domain:"name_province:"+company.toLowerCase().replace(/\s+/g," ")+":"+province;
     if(seen.has(key)){duplicatesInFile++;continue;}
     seen.add(key);
     rows.push({
-      company_name:company,role,domain,vat_id:vat,province,municipality,
+      company_name:company,role,domain,vat_id:vat,corporate_tax_id:corporateTax,province,municipality,
       ateco_code:ateco,ateco_version:ateco?version:"",
       source_record_id:field("source_record_id")||"csv-line-"+(i+1),
       evidence_url:field("evidence_url")

@@ -69,6 +69,29 @@ export default async function ItalianDiscoveryBulkPage(){
    </div>)}
   </section>
   <section className="platform-surface space-y-4 rounded-3xl p-5 sm:p-7">
+   <h2 className="text-xl font-semibold text-[#18263d]">RNA — candidati open data senza acquisti</h2>
+   <p className="text-sm text-[#53637a]">
+     I dati RNA (Registro Nazionale Aiuti di Stato, MIMIT) possono aiutare a trovare società manifatturiere
+     e commercianti. La classificazione NACE dell&apos;aiuto è solo un indizio, non dimostra che l&apos;azienda
+     acquisti acciaio o tubi. L&apos;estrazione XML → CSV è una <strong>anteprima senza scritture</strong>.
+     La fonte rimane da verificare per uso commerciale, attribuzione e tutela dei dati personali.
+   </p>
+   <div className="flex flex-wrap gap-2">
+     <a href="https://www.rna.gov.it/open-data/aiuti" target="_blank" rel="noopener noreferrer"
+       className="platform-secondary rounded-xl px-4 py-2 text-sm font-semibold">
+       Dataset ufficiali RNA ↗
+     </a>
+     <a href="https://github.com/ctimaru/steel-sales-ai/actions/workflows/crawl-it66c-rna-corporate-preview.yml"
+       target="_blank" rel="noopener noreferrer" className="platform-secondary rounded-xl px-4 py-2 text-sm font-semibold">
+       Genera CSV da GitHub Actions ↗
+     </a>
+   </div>
+   <p className="text-xs text-[#53637a]">
+     Il file generato contiene solo denominazione societaria, codice fiscale a 11 cifre,
+     ruolo candidato, riferimento RNA e link di provenienza. Non recuperiamo persone fisiche o contatti.
+   </p>
+  </section>
+  <section className="platform-surface space-y-4 rounded-3xl p-5 sm:p-7">
    <h2 className="text-xl font-semibold text-[#18263d]">Importa CSV</h2>
    <p className="text-sm text-[#53637a]">
     La fonte Telemaco/InfoCamere è stata registrata solo come <strong>proposta, non approvata</strong>.

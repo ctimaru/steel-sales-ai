@@ -80,7 +80,7 @@ export function ItalianCompanyBulkImport({sources}:{sources:Source[]}) {
    </div>
    <p className="text-sm text-[#52615b]">
      Intestazioni supportate: <code>company_name</code> (o denominazione),
-     <code> website</code>, <code>vat_id</code>, <code>province</code>,
+     <code> website</code>, <code>vat_id</code>, <code>corporate_tax_id</code> (codice fiscale della persona giuridica, distinto dalla P.IVA), <code>province</code>,
      <code> municipality</code>, <code>ateco_code</code>, <code>ateco_version</code>,
      <code> source_record_id</code>, <code>evidence_url</code>. CSV separato da punto e virgola o virgola.
      Non caricare nomi di persone, contatti, PEC, email o numeri telefonici.
