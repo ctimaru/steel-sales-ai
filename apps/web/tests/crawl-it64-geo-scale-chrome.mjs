@@ -57,7 +57,7 @@ try{
         document.body.innerText.includes("Aziende pubblicate") ||
         document.body.innerText.includes("KPI non disponibili:") ||
         window.location.pathname === "/login",
-        {timeout:60000}
+        null,{timeout:60000}
       );
       assert.equal(new URL(page.url()).pathname,route);
       const body=await page.locator("body").innerText();
