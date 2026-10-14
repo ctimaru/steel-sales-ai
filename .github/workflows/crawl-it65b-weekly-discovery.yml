@@ -1,0 +1,80 @@
+name: "CRAWL-IT6.5b — Italy GitHub Actions Discovery"
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Preview is read-only; stage requires explicit activation variable and secret"
+        type: choice
+        required: true
+        default: preview
+        options:
+          - preview
+          - stage
+  schedule:
+    # Wednesday 15:47 UTC: off-hour, once weekly; DB enforces >=168h.
+    - cron: "47 15 * * 3"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: crawl-it65b-single-source
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    name: "Preview (no credentials, no writes)"
+    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'preview'
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: "Install public worker dependencies"
+        working-directory: services/worker
+        run: python -m pip install -e .
+      - name: "One public Wikidata query, no Supabase credentials"
+        working-directory: services/worker
+        run: python -m app.github_actions_crawler --mode preview --limit 5
+
+  stage:
+    name: "Stage at most five reviewed-source leads"
+    # OFF BY DEFAULT. GitHub repository variable must be deliberately set true.
+    # Forks, pull requests and feature branches cannot ingest data.
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      vars.CRAWL_IT65B_ENABLED == 'true' &&
+      (github.event_name == 'schedule' ||
+       (github.event_name == 'workflow_dispatch' && inputs.mode == 'stage'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: "Install only worker code"
+        working-directory: services/worker
+        run: python -m pip install -e .
+      - name: "Check explicitly scoped Supabase key and URL"
+        env:
+          CRAWL_IT65B_SUPABASE_URL: ${{ vars.CRAWL_IT65B_SUPABASE_URL }}
+          CRAWL_IT65B_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT65B_SUPABASE_SECRET_KEY }}
+        run: |
+          test -n "$CRAWL_IT65B_SUPABASE_URL" || { echo "Crawler project URL missing"; exit 1; }
+          test -n "$CRAWL_IT65B_SUPABASE_SECRET_KEY" || { echo "Crawler dedicated secret missing"; exit 1; }
+          echo "::add-mask::$CRAWL_IT65B_SUPABASE_SECRET_KEY"
+      - name: "Database preflight → max five Wikidata domains → atomic staging"
+        working-directory: services/worker
+        env:
+          CRAWL_IT65B_ENABLED: "true"
+          CRAWL_IT65B_SUPABASE_URL: ${{ vars.CRAWL_IT65B_SUPABASE_URL }}
+          CRAWL_IT65B_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT65B_SUPABASE_SECRET_KEY }}
+        run: python -m app.github_actions_crawler --mode stage --limit 5
