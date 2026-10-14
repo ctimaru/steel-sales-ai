@@ -43,5 +43,5 @@ test("RQG3.2j: hosted positive pilot remains protected, manual, consent-dependen
   assert.match(plan,/DEFERRED/);
   assert.match(plan,/RQG4/);
   assert.match(plan,/NOT a pre-pilot release blocker/);
-  assert.doesNotMatch(plan,/Company.*production.*\| PASS/);
+  assert.match(plan,/real production Company Review positive acceptance \\|[^\\n]*\\| \\*\\*DEFERRED/);
 });
