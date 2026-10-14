@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
+import { RQG32D_PLATFORM_TEST_INVITATIONS } from "@/lib/rqg32d-test-persona-invitations";
 import { DenseDisclosure, DenseStatStrip } from "@/components/dense-ui";
 import {
   PLATFORM_PERMISSIONS,
@@ -121,6 +122,13 @@ export default async function PlatformPeoplePage({
     getPlatformStaffInvitations(),
   ]);
 
+  const qaStaff = RQG32D_PLATFORM_TEST_INVITATIONS.map((persona) => ({
+    ...persona,
+    active: staff.some((entry) =>
+      entry.email.toLowerCase() === persona.email && entry.status === "active"),
+    pending: invitations.some((entry) =>
+      entry.email.toLowerCase() === persona.email && entry.status === "pending"),
+  }));
   const activeStaff = staff.filter((item) => item.status === "active").length;
   const suspendedStaff = staff.filter(
     (item) => item.status === "suspended",
@@ -186,6 +194,43 @@ export default async function PlatformPeoplePage({
           { label: "Inviti pendenti", value: pendingInvitations.length },
         ]}
       />
+
+      <section aria-label="RQG3.2d · Inviti Platform QA sintetici" className="rounded-3xl border border-[#cfdee7] bg-white p-5 sm:p-6">
+        <div className="max-w-3xl">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#315d73]">RQG3.2d · Test accessi</p>
+          <h2 className="mt-2 text-xl font-semibold text-[#18263d]">Inviti di test Platform Staff</h2>
+          <p className="mt-2 text-sm leading-6 text-[#536674]">
+            Questi sette account QA sono stati creati senza privilegi. Approva qui, uno per volta, i quattro
+            inviti Platform: ruolo e indirizzo sono già fissati e ogni operazione usa il normale registro audit.
+            Nessuna email viene inviata al dominio riservato .test. Gli altri tre account restano aziendali.
+          </p>
+        </div>
+        <div className="mt-5 grid gap-3 md:grid-cols-2">
+          {qaStaff.map((persona) => (
+            <div key={persona.id} className="rounded-2xl border border-[#dce6e8] bg-[#f8fbfc] px-4 py-4">
+              <p className="text-sm font-semibold text-[#1d3243]">{persona.label}</p>
+              <p className="mt-1 break-all text-xs text-[#536674]">{persona.email}</p>
+              <p className="mt-1 text-xs text-[#66736e]">Ruolo: <code>{persona.role}</code></p>
+              <form action={createPlatformStaffInvitation} className="mt-3">
+                <input type="hidden" name="email" value={persona.email} />
+                <input type="hidden" name="roles" value={persona.role} />
+                <input type="hidden" name="reason" value={`RQG3.2d - Invito QA sintetico autorizzato: ${persona.id}`} />
+                <button
+                  type="submit"
+                  disabled={persona.active || persona.pending}
+                  className="inline-flex min-h-10 w-full items-center justify-center rounded-xl bg-[#1a5144] px-3 text-sm font-semibold text-white hover:bg-[#226657] disabled:cursor-not-allowed disabled:bg-[#e6eeeb] disabled:text-[#496159]"
+                >
+                  {persona.active ? "Ruolo attivo" : persona.pending ? "Invito in attesa" : "Autorizza invito QA"}
+                </button>
+              </form>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-xs leading-5 text-[#637781]">
+          Il ruolo diventa attivo soltanto quando il corrispondente utente sintetico accede a /login e acquisisce
+          l'invito personale. Non viene creato un secondo superadmin e non viene concesso accesso alla Review aziendale.
+        </p>
+      </section>
 
       <section className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#d9e8df] bg-[#f1f8f4] px-4 py-3" aria-label="Steel Pulse editorial onboarding">
         <div>

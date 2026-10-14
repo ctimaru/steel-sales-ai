@@ -11,6 +11,7 @@ import {
 } from "@/lib/platform-access-contract";
 import { requirePlatformSuperadmin } from "@/lib/platform-admin";
 import { createClient } from "@/lib/supabase/server";
+import { RQG32D_PLATFORM_TEST_INVITATIONS } from "@/lib/rqg32d-test-persona-invitations";
 
 const ROLE_KEYS = new Set<PlatformStaffRoleKey>(
   PLATFORM_STAFF_ROLE_TEMPLATES.map((role) => role.key),
@@ -88,6 +89,19 @@ export async function createPlatformStaffInvitation(formData: FormData) {
 
   if (error) {
     redirect(peoplePath("error", safeErrorMessage(error, "Operazione accessi non completata. Aggiorna la pagina e riprova.")));
+  }
+
+  // .test is reserved by RFC 2606; a previously-created synthetic Auth identity
+  // does not have a deliverable mailbox. Only the exact fixed account/role pair
+  // skips mail; all normal invitations retain their usual delivery behavior.
+  const isGovernedQAInvitation = roles.length === 1 &&
+    RQG32D_PLATFORM_TEST_INVITATIONS.some(
+      (persona) => persona.email === email && persona.role === roles[0],
+    );
+  if (isGovernedQAInvitation) {
+    revalidatePath("/platform/people");
+    redirect(peoplePath("message",
+      "Invito QA creato e registrato. Effettua un accesso con questo account demo per acquisire il ruolo. Nessuna email inviata."));
   }
 
   const delivery = await sendPlatformStaffInviteEmail(email);
