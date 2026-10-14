@@ -255,3 +255,38 @@ begin
 end $$;
 revoke all on function public.crawl_it66_pipeline_audit() from public,anon,authenticated;
 grant execute on function public.crawl_it66_pipeline_audit() to authenticated,service_role;
+
+-- Proposed official extract source: NEVER approve rights based on the marketing page alone.
+insert into public.network_discovery_source_registry
+ (source_name,source_url,source_type,review_note)
+select 'Registro Imprese / Telemaco — CSV aziendale (licenza da verificare)',
+ 'https://registroimprese.infocamere.it/web/guest/elenchi-di-imprese',
+ 'licensed_search',
+ 'CRAWL-IT6.6b proposal only. Telemaco export purchase does NOT prove SaaS redistribution rights. Request explicit contractual review before accepting files.'
+where not exists (
+ select 1 from public.network_discovery_source_registry
+ where lower(source_url)=lower('https://registroimprese.infocamere.it/web/guest/elenchi-di-imprese')
+);
+
+create or replace function private.crawl_it66_staged_rows_impl()
+returns jsonb language sql stable security definer set search_path='' as $$
+ select coalesce(jsonb_agg(jsonb_build_object(
+  'id',r.id,'company_name',r.company_name,'proposed_role',r.proposed_role,
+  'province',r.province_code,'ateco_code',r.ateco_code,
+  'status',r.intake_status,'source_name',s.source_name,
+  'evidence_url',r.evidence_url,'created_at',r.created_at) order by r.created_at desc), '[]'::jsonb)
+ from (
+   select * from public.network_bulk_intake_rows
+   where intake_status='pending_review' order by created_at desc limit 80
+ ) r join public.network_discovery_source_registry s on s.id=r.source_id;
+$$;
+revoke all on function private.crawl_it66_staged_rows_impl() from public,anon,authenticated;
+grant execute on function private.crawl_it66_staged_rows_impl() to authenticated,service_role;
+create or replace function public.crawl_it66_staged_rows()
+returns jsonb language plpgsql stable security invoker set search_path='' as $$
+begin
+ perform private.require_platform_permission('discovery.read');
+ return private.crawl_it66_staged_rows_impl();
+end $$;
+revoke all on function public.crawl_it66_staged_rows() from public,anon,authenticated;
+grant execute on function public.crawl_it66_staged_rows() to authenticated,service_role;
