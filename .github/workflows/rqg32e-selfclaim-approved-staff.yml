@@ -1,0 +1,58 @@
+name: RQG3.2e — Controlled QA Staff Invitation Self-Claim
+
+on:
+  workflow_dispatch:
+    inputs:
+      approval:
+        description: "Type RQG32E_CLAIM_FOUR_APPROVED_INVITATIONS after Owner approval in People & Access"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rqg32e-governed-self-claim
+  cancel-in-progress: false
+
+jobs:
+  qa-staff-self-claim:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+    name: Owner-approved / 4 synthetic accounts / user-JWT only
+    environment: production-qa
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CI: "true"
+      RQG32E_SUPABASE_URL: https://ecrafjdummcdfycznitx.supabase.co
+      RQG32E_PUBLISHABLE_KEY: sb_publishable_pW9odHEb0Ui4NQFjxMlb8Q__xwrcyyw
+      RQG32E_APPROVAL: ${{ inputs.approval }}
+    steps:
+      - name: Check explicit authorization
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RQG32E_APPROVAL" = "RQG32E_CLAIM_FOUR_APPROVED_INVITATIONS" || {
+            echo "RQG32E BLOCKED: exact manual approval required."
+            exit 1
+          }
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install pinned project dependencies
+        working-directory: apps/web
+        run: npm ci --no-audit --no-fund
+      - name: Authenticate each QA actor and self-claim its Owner-approved invitation
+        working-directory: apps/web
+        env:
+          RQG32_REGISTRATION_PASSWORD: ${{ secrets.RQG32_REGISTRATION_PASSWORD }}
+          RQG32_CLAIMS_PASSWORD: ${{ secrets.RQG32_CLAIMS_PASSWORD }}
+          RQG32_TRUST_PASSWORD: ${{ secrets.RQG32_TRUST_PASSWORD }}
+          RQG32_AUDITOR_PASSWORD: ${{ secrets.RQG32_AUDITOR_PASSWORD }}
+        run: node tests/rqg32e-selfclaim-approved-staff.mjs
+      # No owner credentials, Admin secret, service_role key, decisions, or browser artifacts.
