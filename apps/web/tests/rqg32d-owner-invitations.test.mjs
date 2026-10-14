@@ -24,21 +24,21 @@ test("RQG3.2d four distinct synthetic QA identities have exactly one preselected
 });
 
 test("RQG3.2d invitation UI remains sole-Owner gated and delegates only to audited invitation RPC", () => {
-  assert.match(page,/requirePlatformConsoleContext\\(\\)/);
-  assert.match(page,/!context\\.is_platform_owner/);
-  assert.match(page,/qaStaff\\.map/);
-  assert.match(page,/action=\\{createPlatformStaffInvitation\\}/);
-  assert.match(page,/name="roles" value=\\{persona\\.role\\}/);
-  assert.match(page,/name="email" value=\\{persona\\.email\\}/);
-  assert.match(page,/disabled=\\{persona\\.active \\|\\| persona\\.pending\\}/);
-  assert.match(action,/await requirePlatformSuperadmin\\(\\)/);
+  assert.match(page,/requirePlatformConsoleContext\(\)/);
+  assert.match(page,/!context\.is_platform_owner/);
+  assert.match(page,/qaStaff\.map/);
+  assert.match(page,/action=\{createPlatformStaffInvitation\}/);
+  assert.match(page,/name="roles" value=\{persona\.role\}/);
+  assert.match(page,/name="email" value=\{persona\.email\}/);
+  assert.match(page,/disabled=\{persona\.active \|\| persona\.pending\}/);
+  assert.match(action,/await requirePlatformSuperadmin\(\)/);
   assert.match(action,/sa2_create_platform_staff_invitation/);
-  assert.doesNotMatch(action,/insert into platform_staff|insert into platform_staff_roles|auth\\.admin\\.createUser/);
+  assert.doesNotMatch(action,/insert into platform_staff|insert into platform_staff_roles|auth\.admin\.createUser/);
 });
 
 test("RQG3.2d bypasses deliverability only for exact synthetic email and matching role", () => {
-  assert.match(action,/roles\\.length === 1/);
-  assert.match(action,/persona\\.email === email && persona\\.role === roles\\[0\\]/);
+  assert.match(action,/roles\.length === 1/);
+  assert.match(action,/persona\.email === email && persona\.role === roles\[0\]/);
   assert.ok(action.indexOf("if (isGovernedQAInvitation)") < action.indexOf("const delivery = await sendPlatformStaffInviteEmail(email);"));
   assert.match(login,/sa2_claim_platform_staff_invitation/);
 });
