@@ -1,0 +1,60 @@
+name: RQG3.2f — Production Platform Review Chrome Acceptance
+
+on:
+  workflow_dispatch:
+    inputs:
+      approval:
+        description: "Type RQG32F_APPROVE_PLATFORM_READ_ONLY for 4 synthetic staff accounts"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rqg32f-platform-auth-production
+  cancel-in-progress: false
+
+jobs:
+  platform-review:
+    name: Chrome production / 4 scoped Platform staff / read-only
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+    environment: production-qa
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CI: "true"
+      RQG32F_APPROVAL: ${{ inputs.approval }}
+    steps:
+      - name: Check explicit authorization before accessing production
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RQG32F_APPROVAL" = "RQG32F_APPROVE_PLATFORM_READ_ONLY" || {
+            echo "RQG32F BLOCKED: explicit manual approval required"
+            exit 1
+          }
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install ephemeral Chrome runner (no production passwords)
+        working-directory: apps/web
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chrome
+      - name: Verify real authenticated Platform Review lanes and deny Company Review
+        working-directory: apps/web
+        timeout-minutes: 15
+        env:
+          RQG32_REGISTRATION_PASSWORD: ${{ secrets.RQG32_REGISTRATION_PASSWORD }}
+          RQG32_CLAIMS_PASSWORD: ${{ secrets.RQG32_CLAIMS_PASSWORD }}
+          RQG32_TRUST_PASSWORD: ${{ secrets.RQG32_TRUST_PASSWORD }}
+          RQG32_AUDITOR_PASSWORD: ${{ secrets.RQG32_AUDITOR_PASSWORD }}
+        run: node tests/rqg32f-production-platform-chrome.mjs
+      # No artifacts, browser traces, screenshots, session cookies or persisted credentials.
