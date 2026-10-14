@@ -13,7 +13,7 @@ test("CRAWL-IT2.1 Platform source registry is permission scoped", () => {
   assert.match(actions, /requirePlatformPermission\("discovery\.governance_review"\)/);
   assert.match(actions, /p_enable: enable/);
   assert.match(actions, /activation_attested/);
-  assert.match(actions, /item\\?\\.source_url !== "https:\\/\\/query\\.wikidata\\.org\\/sparql"/);
+  assert.ok(actions.includes('item?.source_url !== "https://query.wikidata.org/sparql"'));
   assert.match(page, /schedulazione Railway resta disabilitata/);
   assert.match(page, /name="activation_attested"/);
 });
