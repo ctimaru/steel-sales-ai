@@ -49,7 +49,8 @@ try{
     const section=page.locator("#calcolatore-pesi");
     await section.getByRole("combobox",{name:c.shape,exact:true}).selectOption("square");
     await section.getByRole("button",{name:c.bill}).click();
-    await page.waitForURL(url=>url.pathname==="/en/distinta",{timeout:60000});
+    await page.waitForURL(url=>url.pathname===`/${c.locale}/distinta`,{timeout:60000});
+    assert.equal(await page.locator("html").getAttribute("lang"),c.locale);
     await page.getByText(/EN 10219/i).first().waitFor({state:"visible",timeout:30000});
     const text=await page.locator("body").innerText();
     assert.match(text,/EN 10219/);
