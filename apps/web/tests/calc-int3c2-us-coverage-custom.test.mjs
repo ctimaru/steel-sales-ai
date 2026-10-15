@@ -58,7 +58,7 @@ test("CALC-INT3C.2 every additional size uses shared theoretical mass, not publi
     assert.equal(m.ok,true,row.id);
     assert.ok(m.weightKgM>0 && m.totalTonnes>0);
     assert.ok(Math.abs(m.weightKgM - Math.PI*row.thicknessMm*(row.outerDiameterMm-row.thicknessMm)*7850/1e6)<1e-9);
-    const item=bridge.buildUsPipeRfqItem({sampleId:row.id,productStandard:"api5l",lengthM:6,bars:5},"catalog-"+row.id+"-rfq",now);
+    const item=bridge.buildUsPipeRfqItem({sampleId:row.id,productStandard:"api5l",lengthM:6,bars:5},"catalog-"+row.id.replaceAll(".","-")+"-rfq",now);
     assert.ok(item,row.id);
     const spec=bridge.usPipeRfqSpecification(item);
     assert.equal(spec.theoreticalKgM,m.weightKgM);
