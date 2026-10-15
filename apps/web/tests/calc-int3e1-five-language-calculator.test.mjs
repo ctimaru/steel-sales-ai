@@ -47,7 +47,7 @@ test("CALC-INT3E.1 exactly one shared mass engine, no copied formulas or foreign
   assert.ok(ui.includes("parseTubeNumber(thickness)"));
   assert.match(ui,/calculatorRfqFromValues\(/);
   assert.match(ui,/enqueueCalculatorRfq\(window\.sessionStorage,item\)/);
-  assert.match(ui,/window\.location\.assign\("\/en\/distinta"\)/);
+  assert.match(ui,/window\.location\.assign\(CALCULATOR_PUBLIC_ROUTES\[locale\]\.rfqBill\)/);
   assert.doesNotMatch(ui,/Math\.PI|supabase\.from|fetch\(|dispatchRfq/);
   for(const standard of ["en10219","en10210","geometric"]){
     for(const shape of ["round","square","rectangular"]){
