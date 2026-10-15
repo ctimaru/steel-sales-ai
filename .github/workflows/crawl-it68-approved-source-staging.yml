@@ -36,19 +36,19 @@ jobs:
         run: python -m pip install -e .
       - name: "Validate deliberately configured service access"
         env:
-          SUPABASE_URL: ${{ vars.CRAWL_IT68_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.CRAWL_IT68_SERVICE_ROLE_JWT }}
+          CRAWL_IT68_SUPABASE_URL: ${{ vars.CRAWL_IT68_SUPABASE_URL }}
+          CRAWL_IT68_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT68_SUPABASE_SECRET_KEY }}
         run: |
-          test -n "$SUPABASE_URL" && test -n "$SUPABASE_SERVICE_ROLE_KEY"
+          test -n "$CRAWL_IT68_SUPABASE_URL" && test -n "$CRAWL_IT68_SUPABASE_SECRET_KEY"
           echo "::add-mask::$SUPABASE_SERVICE_ROLE_KEY"
-          test "${SUPABASE_URL}" = "https://ecrafjdummcdfycznitx.supabase.co"
-          case "$SUPABASE_SERVICE_ROLE_KEY" in eyJ*) ;; *) echo "Legacy service role JWT required by existing WorkerRepository"; exit 1;; esac
+          test "${CRAWL_IT68_SUPABASE_URL}" = "https://ecrafjdummcdfycznitx.supabase.co"
+          case "$CRAWL_IT68_SUPABASE_SECRET_KEY" in eyJ*) ;; *) echo "Legacy service role JWT required by existing WorkerRepository"; exit 1;; esac
       - name: "Stage due rights-approved sources into review only"
         working-directory: services/worker
         env:
           CRAWL_IT68_ENABLED: "true"
-          SUPABASE_URL: ${{ vars.CRAWL_IT68_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.CRAWL_IT68_SERVICE_ROLE_JWT }}
+          CRAWL_IT68_SUPABASE_URL: ${{ vars.CRAWL_IT68_SUPABASE_URL }}
+          CRAWL_IT68_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT68_SUPABASE_SECRET_KEY }}
           REQUESTED_BUDGET: ${{ github.event_name == 'workflow_dispatch' && inputs.source_budget || '1' }}
         run: |
           case "$REQUESTED_BUDGET" in 1|2|3) ;; *) exit 2;; esac
