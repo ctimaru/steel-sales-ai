@@ -216,7 +216,7 @@ export function usPipeRfqSpecification(input:UsPipeRfqItem):UsPipeRfqSpecificati
     ? findHssReference(valid.hssReferenceId) : null;
   const sourceEvidence=valid.mode==="hss"
     ? (hssRef
-      ? `Atlas Tube published nominal weight reference "${hssRef.sourceRow}", PDF p.${hssRef.sourcePage}; AISC 0.93*t_nom design-property model is separate and not a certified delivered weight`
+      ? `Atlas Tube nominal catalog reference "${hssRef.sourceRow}", PDF p.${hssRef.sourcePage}: ${hssRef.manufacturerNominalLbFt} lb/ft (${hssNominalPublishedKgM(hssRef).toFixed(3)} kg/m). Reference only, NOT the AISC 0.93*t_nom mass, product certification or actual delivered weight`
       : "User-entered ASTM A500 HSS dimensions; AISC section-property proxy t_design = 0.93 t_nom and r_out = 2 t_design (SHS/RHS). No manufacturer tabulated or certified weight")
     :row ? (row.sourcePage!=null ? `U.S. Steel manufacturer sample p.${row.sourcePage}`
       : `U.S. Steel public ${row.sourceLocation ?? "Pipe Tables"}`)
