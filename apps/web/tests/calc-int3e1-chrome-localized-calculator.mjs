@@ -54,7 +54,7 @@ try{
     // The newly imported line cannot be quoted before the buyer confirms grade.
     const grade={de:"Stahlgüte",fr:"Nuance d'acier",es:"Calidad de acero"}[c.locale];
     await page.getByRole("textbox",{name:grade}).first().fill("S355J2H");
-    await page.getByText(/EN 10219/i).first().waitFor({state:"visible",timeout:30000});
+    await page.locator('article div[aria-live="polite"] strong').filter({hasText:/EN 10219/}).first().waitFor({state:"visible",timeout:30000});
     await context.grantPermissions(["clipboard-read","clipboard-write"]);
     const copy={de:/Anfrage-E-Mail kopieren/,fr:/Copier le courriel/,es:/Copiar correo/}[c.locale];
     await page.getByRole("button",{name:copy}).click();
