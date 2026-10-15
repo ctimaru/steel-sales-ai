@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getPlatformAccessContext, requirePlatformPermission } from "@/lib/platform-admin";
-import { addDiscoverySource, reviewDiscoverySourceRegistry, reviewDiscoveredDomain } from "./actions";
+import { addDiscoverySource, reviewDiscoverySourceRegistry, reviewDiscoveredDomain, createGovernedDiscoveryRun } from "./actions";
 
 type Source = { id: string; source_name: string; source_url: string; source_type: string;
  governance_status: string; terms_status: string; database_rights_status: string;
@@ -14,6 +14,7 @@ export default async function DiscoverySourcesPage({
   await requirePlatformPermission("discovery.read");
   const context = await getPlatformAccessContext();
   const canReview = context?.permissions.includes("discovery.governance_review") ?? false;
+  const canRun = context?.permissions.includes("discovery.run") ?? false;
   const params = await searchParams;
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("crawl_it2_list_sources");
@@ -73,6 +74,13 @@ export default async function DiscoverySourcesPage({
           <span className="text-xs font-bold">{s.governance_status} · {s.enabled_for_discovery?"abilitata":"crawl disabilitato"}</span>
         </div>
         {s.rights_evidence_url ? <a href={s.rights_evidence_url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-sm underline">Evidenza licenza e riutilizzo ↗</a> : null}
+        {canRun && s.governance_status === "approved" && s.enabled_for_discovery ? (
+          <form action={createGovernedDiscoveryRun} className="rounded-xl border border-[#cbd9d3] p-3">
+            <input type="hidden" name="source_id" value={s.id}/>
+            <p className="mb-2 text-xs text-[#53637a]">Crea una run solo per i domini in attesa di questa fonte. La run nasce non revisionata; nessun crawl o pubblicazione parte automaticamente.</p>
+            <button type="submit" className="min-h-11 rounded-xl bg-[#173f35] px-4 font-semibold text-white">Crea run da fonte approvata</button>
+          </form>
+        ) : null}
         {canReview ? <form action={reviewDiscoverySourceRegistry} className="grid gap-3 sm:grid-cols-2">
           <input type="hidden" name="id" value={s.id}/>
           <label className="grid gap-1 text-sm">Decisione<select name="decision" defaultValue="restricted" className="min-h-11 rounded-lg border px-2"><option value="restricted">Limitata</option><option value="blocked">Bloccata</option><option value="approved">Approvata</option></select></label>
