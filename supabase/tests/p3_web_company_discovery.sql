@@ -184,6 +184,10 @@ select (public.p3_start_company_discovery(
   'IT',
   '["https://p32-new.example/products"]'::jsonb
 )->>'run_id') as duplicate_run_id \gset
+select public.pa1_5_review_discovery_run_governance(
+  :'duplicate_run_id'::uuid,'approved','allows_reuse','low_risk','company_data_only',
+  'P3.2 repeat discovery fixture governance approved'
+);
 reset role;
 
 set local role service_role;
