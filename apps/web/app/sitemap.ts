@@ -177,6 +177,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         languages: {
           it: absoluteUrl("/knowledge/tubes"),
           en: absoluteUrl("/en/knowledge/tubes"),
+          de: absoluteUrl("/de/knowledge/tubes"),
+          fr: absoluteUrl("/fr/knowledge/tubes"),
+          es: absoluteUrl("/es/knowledge/tubes"),
         },
       },
     },
@@ -189,9 +192,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         languages: {
           it: absoluteUrl("/knowledge/tubes"),
           en: absoluteUrl("/en/knowledge/tubes"),
+          de: absoluteUrl("/de/knowledge/tubes"),
+          fr: absoluteUrl("/fr/knowledge/tubes"),
+          es: absoluteUrl("/es/knowledge/tubes"),
         },
       },
     },
+    ...(["de","fr","es"] as const).map(lang=>({
+      url:absoluteUrl(`/${lang}/knowledge/tubes`),
+      lastModified:tubesLastModified,
+      changeFrequency:"weekly" as const,
+      priority:0.83,
+      alternates:{languages:{
+        it:absoluteUrl("/knowledge/tubes"),
+        en:absoluteUrl("/en/knowledge/tubes"),
+        de:absoluteUrl("/de/knowledge/tubes"),
+        fr:absoluteUrl("/fr/knowledge/tubes"),
+        es:absoluteUrl("/es/knowledge/tubes"),
+      }},
+    })),
     {
       url: absoluteUrl("/knowledge/tubes/tubi-americani"),
       changeFrequency: "monthly",

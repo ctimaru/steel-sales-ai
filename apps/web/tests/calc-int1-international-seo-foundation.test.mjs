@@ -20,25 +20,27 @@ const handoff = read("../lib/calculator-rfq-handoff.ts");
 const itRfq = read("../app/(public)/distinta/page.tsx");
 const enRfq = read("../app/en/distinta/page.tsx");
 
-test("CALC-INT1 protects published IT/EN calculator URLs and reserves untranslated paths", () => {
-  assert.deepEqual([...routes.PUBLISHED_CALCULATOR_LOCALES], ["it", "en"]);
-  assert.deepEqual([...routes.PLANNED_CALCULATOR_LOCALES], ["de", "fr", "es"]);
-  assert.deepEqual(routes.publishedCalculatorAlternatePaths(), {
-    it: "/knowledge/tubes", en: "/en/knowledge/tubes",
+test("CALC-INT1 preserves indexed IT EN URLs while CALC-INT3E activates translated DE FR ES",()=>{
+  assert.deepEqual([...routes.PUBLISHED_CALCULATOR_LOCALES],["it","en","de","fr","es"]);
+  assert.deepEqual([...routes.PLANNED_CALCULATOR_LOCALES],[]);
+  assert.deepEqual(routes.publishedCalculatorAlternatePaths(),{
+    it:"/knowledge/tubes",en:"/en/knowledge/tubes",
+    de:"/de/knowledge/tubes",fr:"/fr/knowledge/tubes",es:"/es/knowledge/tubes",
   });
-  assert.equal(routes.CALCULATOR_PUBLIC_ROUTES.it.rfqBill, "/distinta");
-  assert.equal(routes.CALCULATOR_PUBLIC_ROUTES.en.rfqBill, "/en/distinta");
-  assert.equal(routes.CALCULATOR_PUBLIC_ROUTES.it.documentLanguage, "it");
-  assert.equal(routes.CALCULATOR_PUBLIC_ROUTES.en.documentLanguage, "en");
-  assert.equal(routes.isPublishedCalculatorLocale("it"), true);
-  assert.equal(routes.isPublishedCalculatorLocale("en"), true);
-  for (const locale of ["de", "fr", "es", "xx"]) {
-    assert.equal(routes.isPublishedCalculatorLocale(locale), false);
-  }
-  for (const locale of ["de", "fr", "es"]) {
-    assert.equal(routes.RESERVED_CALCULATOR_PATHS[locale], `/${locale}/knowledge/tubes`);
-    assert.doesNotMatch(sitemap + italian + english, new RegExp(`/${locale}/knowledge/tubes`));
-    assert.doesNotMatch(sitemap + italian + english, new RegExp(`\\b${locale}: absoluteUrl`));
+  assert.equal(routes.CALCULATOR_PUBLIC_ROUTES.it.rfqBill,"/distinta");
+  assert.equal(routes.CALCULATOR_PUBLIC_ROUTES.en.rfqBill,"/en/distinta");
+  assert.equal(routes.CALCULATOR_PUBLIC_ROUTES.it.documentLanguage,"it");
+  assert.equal(routes.CALCULATOR_PUBLIC_ROUTES.en.documentLanguage,"en");
+  assert.equal(routes.isPublishedCalculatorLocale("it"),true);
+  assert.equal(routes.isPublishedCalculatorLocale("en"),true);
+  assert.equal(routes.isPublishedCalculatorLocale("xx"),false);
+  for(const lang of ["de","fr","es"]){
+    assert.equal(routes.isPublishedCalculatorLocale(lang),true);
+    assert.equal(routes.CALCULATOR_PUBLIC_ROUTES[lang].documentLanguage,lang);
+    assert.equal(routes.CALCULATOR_PUBLIC_ROUTES[lang].rfqBill,"/en/distinta");
+    assert.ok(sitemap.includes(`/${lang}/knowledge/tubes`));
+    assert.ok(italian.includes(`${lang}: absoluteUrl("/${lang}/knowledge/tubes")`));
+    assert.ok(english.includes(`${lang}: absoluteUrl("/${lang}/knowledge/tubes")`));
   }
 });
 

@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   },
 };
 
-export function SiteDocument({ children, lang }: { children: ReactNode; lang: "it" | "en" }) {
+export function SiteDocument({ children, lang }: { children: ReactNode; lang: "it" | "en" | "de" | "fr" | "es" }) {
   // Keep the production Google tag canonical even if an older Vercel environment value lingers.
   const requestedGoogleAnalyticsId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID?.trim();
   const googleAnalyticsId =
