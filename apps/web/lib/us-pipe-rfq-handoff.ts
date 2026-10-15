@@ -14,15 +14,25 @@ import { findUsPipeSample } from "@/lib/us-pipe-catalog-sample";
 export const US_PIPE_RFQ_KEY = "sss:us-pipe-rfq-handoff:v2";
 export const US_PIPE_RFQ_TTL_MS = 10 * 60 * 1000;
 export type UsProductStandard = "api5l" | "astm-a53" | "astm-a106";
-export type UsPipeRfqItem = {
+type UsPipeRfqBase = {
   version: 2;
   id: string;
   createdAt: number;
-  sampleId: string;
   productStandard: UsProductStandard;
   lengthM: number;
   bars: number;
 };
+/** Existing v2 catalog payload remains wire-compatible; mode is absent. */
+export type UsPipeRfqCatalogItem = UsPipeRfqBase & { sampleId: string; mode?: never };
+/** Explicitly user-supplied geometry, NOT an NPS/Schedule mapping. */
+export type UsPipeRfqCustomItem = UsPipeRfqBase & {
+  mode: "custom";
+  outerDiameterMm: number;
+  thicknessMm: number;
+  sampleId?: never;
+};
+export type UsPipeRfqItem = UsPipeRfqCatalogItem | UsPipeRfqCustomItem;
+
 export type UsPipeRfqSpecification = {
   standardLabel: string;
   designation: string;
@@ -32,8 +42,8 @@ export type UsPipeRfqSpecification = {
   bars: number;
   lengthM: number;
   theoreticalKgM: number;
-  publishedKgM: number;
-  publisherPage: number;
+  publishedKgM: number | null;
+  publisherPage: number | null;
   provenanceNote: string;
 };
 const productLabels: Record<UsProductStandard,string> = {
@@ -51,20 +61,34 @@ export function validUsPipeRfqItem(raw:unknown,now=Date.now()):UsPipeRfqItem|nul
     !/^[a-zA-Z0-9-]{6,90}$/.test(raw.id) ||
     typeof raw.createdAt!=="number" || !Number.isFinite(raw.createdAt) ||
     raw.createdAt>now+1000 || now-raw.createdAt>US_PIPE_RFQ_TTL_MS ||
-    typeof raw.sampleId!=="string" || !findUsPipeSample(raw.sampleId) ||
     typeof raw.productStandard!=="string" ||
     !["api5l","astm-a53","astm-a106"].includes(raw.productStandard) ||
     !validNum(raw.lengthM,1000) || !validNum(raw.bars,1_000_000) ||
     !Number.isSafeInteger(raw.bars)) return null;
-  return {
-    version:2,id:raw.id,createdAt:raw.createdAt,sampleId:raw.sampleId,
+  const common:UsPipeRfqBase = {
+    version:2,id:raw.id,createdAt:raw.createdAt,
     productStandard:raw.productStandard as UsProductStandard,
     lengthM:raw.lengthM as number,bars:raw.bars as number,
   };
+  if(raw.mode==="custom") {
+    if(raw.sampleId!==undefined ||
+      !validNum(raw.outerDiameterMm,2500) ||
+      !validNum(raw.thicknessMm,250) ||
+      (raw.thicknessMm as number)*2 >= (raw.outerDiameterMm as number)) return null;
+    // A user dimension is not evidence of a published size or API compliance.
+    return {...common,mode:"custom",
+      outerDiameterMm:raw.outerDiameterMm as number,
+      thicknessMm:raw.thicknessMm as number};
+  }
+  if(raw.mode!==undefined || typeof raw.sampleId!=="string" ||
+    !findUsPipeSample(raw.sampleId))return null;
+  return {...common,sampleId:raw.sampleId};
 }
 
 export function buildUsPipeRfqItem(
-  selection:{sampleId:string;productStandard:UsProductStandard;lengthM:number;bars:number},
+  selection:
+    | {sampleId:string;productStandard:UsProductStandard;lengthM:number;bars:number}
+    | {mode:"custom";outerDiameterMm:number;thicknessMm:number;productStandard:UsProductStandard;lengthM:number;bars:number},
   id:string,now=Date.now(),
 ):UsPipeRfqItem|null {
   return validUsPipeRfqItem({version:2,id,createdAt:now,...selection},now);
@@ -105,23 +129,33 @@ export function consumeUsPipeRfqIds(
   }catch{/* Do not dispatch, and never interfere with v1. */}
 }
 
-/** Only resolves catalog manufacturer evidence and recomputes theoretical mass. */
+/** Recalculate all masses; never trust client-side displayed kg/m. */
 export function usPipeRfqSpecification(input:UsPipeRfqItem):UsPipeRfqSpecification|null {
   const valid=validUsPipeRfqItem(input);
   if(!valid)return null;
-  const row=findUsPipeSample(valid.sampleId);
-  if(!row)return null;
+  const row=valid.mode==="custom"?null:findUsPipeSample(valid.sampleId);
+  if(valid.mode!=="custom" && !row)return null;
+  const diameter=valid.mode==="custom"?valid.outerDiameterMm:row!.outerDiameterMm;
+  const thickness=valid.mode==="custom"?valid.thicknessMm:row!.thicknessMm;
   const mass=estimatePublicTubeMass({
-    shape:"round",standard:"geometric",outerDiameterMm:row.outerDiameterMm,
-    thicknessMm:row.thicknessMm,lengthM:valid.lengthM,bars:valid.bars,densityKgM3:7850,
+    shape:"round",standard:"geometric",outerDiameterMm:diameter,
+    thicknessMm:thickness,lengthM:valid.lengthM,bars:valid.bars,densityKgM3:7850,
   });
   if(!mass.ok)return null;
+  const designation=row
+    ? `NPS ${row.nps} Sch/Class ${row.schedule}`
+    : `User dimensions OD ${diameter} × wall ${thickness} mm (no NPS/Schedule verification)`;
+  const sourceEvidence=row
+    ? (row.sourcePage!=null ? `U.S. Steel manufacturer sample p.${row.sourcePage}`
+      : `U.S. Steel public ${row.sourceLocation ?? "Pipe Tables"}`)
+    : "User-entered geometry with no manufacturer dimension source";
   return {
     standardLabel:productLabels[valid.productStandard],
-    designation:`NPS ${row.nps} Sch/Class ${row.schedule}`,
-    sampleId:row.id,outerDiameterMm:row.outerDiameterMm,wallMm:row.thicknessMm,
+    designation,sampleId:row?.id ?? "custom",
+    outerDiameterMm:diameter,wallMm:thickness,
     bars:valid.bars,lengthM:valid.lengthM,theoreticalKgM:mass.weightKgM,
-    publishedKgM:row.publishedWeightKgM,publisherPage:row.sourcePage,
-    provenanceNote:`Theoretical geometric mass (7850 kg/m³), not certified; U.S. Steel manufacturer sample p.${row.sourcePage} supplies the nominal NPS/Schedule geometry. Product grade, edition, PSL and tolerance require supplier confirmation.`,
+    publishedKgM:row?.publishedWeightKgM ?? null,
+    publisherPage:row?.sourcePage ?? null,
+    provenanceNote:`Theoretical geometric mass (7850 kg/m³), not certified; ${sourceEvidence}. Product grade, edition, PSL and tolerance require supplier confirmation.`,
   };
 }
