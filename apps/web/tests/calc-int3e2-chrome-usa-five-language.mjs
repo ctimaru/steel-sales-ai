@@ -50,7 +50,7 @@ try{
     assert.ok(customUrl.includes("system=us")&&customUrl.includes("usMode=custom"),customUrl);
     assert.ok(customUrl.includes("customDiameter=168%2C3"),customUrl);
     await eu.click();
-    assert.equal(await page.locator("#calcolatore-pesi").isVisible(),true);
+    await page.locator("#calcolatore-pesi").waitFor({state:"visible",timeout:15000});
     await us.click();
     assert.equal(await diameter.inputValue(),"168,3","US dimensions survive toggles");
     await pipe.getByRole("button",{name:/HSS · ASTM A500/}).click();
