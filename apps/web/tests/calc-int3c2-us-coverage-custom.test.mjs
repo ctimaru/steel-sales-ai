@@ -119,6 +119,6 @@ test("CALC-INT3C.2 SEO landings and cinematic region switching remain independen
   assert.match(metadataIt,/CalculatorRegionSwitch locale="it" initialRegion="us"/);
   assert.match(metadataEn,/CalculatorRegionSwitch locale="en" initialRegion="us"/);
   assert.match(switcher,/UsPipeSampleCalculator locale=\{locale\}/);
-  assert.match(ui,/window\.location\.assign\(locale === "it" \? "\/distinta" : "\/en\/distinta"\)/);
+  assert.match(ui,/window\.location\.assign\(usRfqBillPath\(locale\)\)/);
   assert.doesNotMatch(ui,/dispatchRfq|createClient\(|supabase\.from/);
 });
