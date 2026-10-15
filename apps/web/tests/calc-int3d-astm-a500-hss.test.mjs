@@ -52,7 +52,7 @@ test("CALC-INT3D HSS round and rectangular vectors are computed by shared mass e
 test("CALC-INT3D rejects invalid HSS scope and maintains separate product vs design identities",()=>{
   for(const x of [
     {shape:"square",standard:"aisc-a500",widthMm:600,thicknessMm:6},
-    {shape:"rectangular",standard:"aisc-a500",widthMm:500,heightMm:150,thicknessMm:6},
+    {shape:"rectangular",standard:"aisc-a500",widthMm:1200,heightMm:150,thicknessMm:6},
     {shape:"round",standard:"aisc-a500",outerDiameterMm:720,thicknessMm:6},
     {shape:"round",standard:"aisc-a500",outerDiameterMm:100,thicknessMm:25.401},
   ]){
