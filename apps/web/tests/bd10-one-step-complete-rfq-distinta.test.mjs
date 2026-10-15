@@ -6,6 +6,7 @@ import ts from "typescript";
 const read = (p) => fs.readFileSync(new URL(p, import.meta.url), "utf8");
 const buyerSource = read("../lib/buyer-distinta.ts");
 const guidanceSource = read("../lib/buyer-tube-guidance.ts");
+const coreSource = read("../lib/international-tube-mass.ts");
 const adapterSource = read("../lib/buyer-guided-commercial-line.ts");
 const builder = read("../components/buyer-distinta-builder.tsx");
 const creator = read("../components/buyer-tube-guided-creator.tsx");
@@ -18,7 +19,8 @@ const toJs = (source) => ts.transpileModule(
 ).outputText.replace(/^export /gmu, "");
 
 const buyer = new Function(toJs(buyerSource) + "\nreturn { calculateBuyerDistintaLine, calculateBuyerDistintaTotals };")();
-const guidance = new Function(toJs(guidanceSource) + "\nreturn { newGuidedTubeDraft, guidedTubeMeasurement };")();
+const calculateTubeSection = new Function(toJs(coreSource) + "\nreturn calculateTubeSection;")();
+const guidance = new Function("calculateTubeSection", toJs(guidanceSource) + "\nreturn { newGuidedTubeDraft, guidedTubeMeasurement };")(calculateTubeSection);
 const convert = new Function(
   "calculateBuyerDistintaLine", "guidedTubeMeasurement",
   toJs(adapterSource) + "\nreturn guidedTubeToBuyerLine;",
