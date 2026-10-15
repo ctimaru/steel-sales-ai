@@ -52,7 +52,8 @@ export function validUsPipeRfqItem(raw:unknown,now=Date.now()):UsPipeRfqItem|nul
     typeof raw.createdAt!=="number" || !Number.isFinite(raw.createdAt) ||
     raw.createdAt>now+1000 || now-raw.createdAt>US_PIPE_RFQ_TTL_MS ||
     typeof raw.sampleId!=="string" || !findUsPipeSample(raw.sampleId) ||
-    typeof raw.productStandard!=="string" || !(raw.productStandard in productLabels) ||
+    typeof raw.productStandard!=="string" ||
+    !["api5l","astm-a53","astm-a106"].includes(raw.productStandard) ||
     !validNum(raw.lengthM,1000) || !validNum(raw.bars,1_000_000) ||
     !Number.isSafeInteger(raw.bars)) return null;
   return {
