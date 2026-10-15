@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getPlatformAccessContext, requirePlatformPermission } from "@/lib/platform-admin";
-import { addDiscoverySource, reviewDiscoverySourceRegistry, reviewDiscoveredDomain, createGovernedDiscoveryRun } from "./actions";
+import { addDiscoverySource, reviewDiscoverySourceRegistry, reviewDiscoveredDomain, createGovernedDiscoveryRun, linkApprovedPilotRun } from "./actions";
 
 type Source = { id: string; source_name: string; source_url: string; source_type: string;
  governance_status: string; terms_status: string; database_rights_status: string;
@@ -43,6 +43,16 @@ export default async function DiscoverySourcesPage({
       <label className="grid gap-1 text-sm">Tipologia<select name="type" className="min-h-11 rounded-lg border px-3">{sourceTypes.map(type=><option key={type} value={type}>{type.replaceAll("_"," ")}</option>)}</select></label>
       <button className="min-h-11 rounded-xl bg-[#173f35] px-5 font-semibold text-white">Aggiungi come non revisionata</button>
     </form> : null}
+    {canRun && pendingLeads.length === 4 ? (
+      <form action={linkApprovedPilotRun} className="space-y-2 rounded-2xl border p-4">
+        <h2 className="font-semibold">Pilot controllato — collega quattro domini</h2>
+        <p className="text-sm">Utilizza soltanto una run già approvata in Governance e di tua proprietà. I collegamenti non approvano candidati e non avviano scansioni.</p>
+        <label className="grid gap-1 text-sm">ID della run approvata
+          <input name="run_id" required pattern="[0-9a-fA-F-]{36}" className="min-h-11 rounded-lg border px-3" placeholder="UUID run" />
+        </label>
+        <button type="submit" className="min-h-11 rounded-xl border px-4 font-semibold">Collega quattro lead alla run</button>
+      </form>
+    ) : null}
     <section className="space-y-3">
       <h2 className="text-lg font-semibold">Nuovi domini da valutare ({pendingLeads.length})</h2>
       {leadError ? <p role="alert" className="rounded-xl border p-3 text-sm">Coda dei domini temporaneamente non disponibile.</p> : null}
