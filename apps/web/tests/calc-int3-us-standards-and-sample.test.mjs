@@ -57,19 +57,20 @@ test("CALC-INT3 API 5L 47th is a product context, not a calculator method or con
 });
 
 test("CALC-INT3 limited US manufacturer sample is exactly provenance-located and distinct from ASME tables", () => {
-  assert.equal(sample.US_PIPE_MANUFACTURER_SAMPLE.length,13);
-  assert.deepEqual(sample.availableUsNps(),["6","8","10","12"]);
+  assert.equal(sample.US_PIPE_MANUFACTURER_SAMPLE.length,20);
+  assert.deepEqual(sample.availableUsNps(),["2","2 1/2","3","4","6","8","10","12"]);
   assert.equal(sample.rowsForNps("6").length,4);
   assert.equal(sample.findUsPipeSample("6-40").publishedWeightKgM,28.26);
   assert.equal(sample.findUsPipeSample("6-40").publishedWeightLbFt,18.99);
   assert.equal(sample.findUsPipeSample("6-40").sourcePage,49);
   assert.equal(sample.findUsPipeSample("12-STD").schedule,"STD");
   assert.equal(sample.findUsPipeSample("missing"),null);
-  assert.equal(new Set(sample.US_PIPE_MANUFACTURER_SAMPLE.map(x=>x.id)).size,13);
+  assert.equal(new Set(sample.US_PIPE_MANUFACTURER_SAMPLE.map(x=>x.id)).size,20);
   for(const row of sample.US_PIPE_MANUFACTURER_SAMPLE){
     assert.ok(row.thicknessMm>0 && row.outerDiameterMm>2*row.thicknessMm);
     assert.ok(row.publishedWeightLbFt>0 && row.publishedWeightKgM>0);
-    assert.ok(row.sourcePage>=49 && row.sourcePage<=63);
+    if (row.sourcePage != null) assert.ok(row.sourcePage>=49 && row.sourcePage<=63);
+    else assert.match(row.sourceLocation ?? "",/Pipe Tables · NPS/);
     assert.equal(sample.rowsForNps(row.nps).some(r=>r.id===row.id),true);
     // Published weights have independently rounded catalog values, not exactly
     // the same as calculating with rounded dimensions.
