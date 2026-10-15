@@ -107,7 +107,7 @@ test("CALC-INT3D.2 RFQ v2 binds manufacturer weight only when exact documented g
 
 test("CALC-INT3D.2 UI revokes Atlas reference on any dimensional edit; v1 and pipe v2 unchanged",()=>{
   assert.ok(ui.includes('setReferenceId("");'));
-  assert.ok(ui.includes('setReferenceId("");setStatus("");'));
+  assert.ok(ui.includes('setReferenceId("");setSearchText("");setWallFilter("");setStatus("");'));
   assert.match(ui,/\.\.\.\(reference \? \{hssReferenceId:reference\.id\}/);
   assert.match(enBill,/value\.calculationMethod/);
   assert.match(itBill,/spec\.publishedKgM != null/);
