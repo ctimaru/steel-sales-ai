@@ -142,8 +142,8 @@ export function EnglishRfqBillBuilder() {
     }
     if(acceptedUs.length){
       consumeUsPipeRfqIds(window.sessionStorage,acceptedUs.map(item=>item.id));
-      setImportedCount(accepted.length+acceptedUs.length);
     }
+    if(accepted.length || acceptedUs.length) setImportedCount(accepted.length+usAdditions.length);
     setImportWarning(accepted.length<queue.length || acceptedUs.length<usQueue.length);
     setDraftLoaded(true);
   }, []);
