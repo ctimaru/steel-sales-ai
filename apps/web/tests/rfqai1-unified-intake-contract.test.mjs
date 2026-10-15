@@ -8,6 +8,7 @@ const source = read("../lib/rfq-ai-intake-contract.ts");
 const adapterSource = read("../lib/rfq-ai-parser-v4-adapter.ts");
 const buyerSource = read("../lib/buyer-distinta.ts");
 const guidanceSource = read("../lib/buyer-tube-guidance.ts");
+const coreSource = read("../lib/international-tube-mass.ts");
 const audit = read("../../../docs/architecture/rfqai1-unified-intake-contract.md");
 
 const transpile = (input) => ts.transpileModule(input, {
@@ -15,7 +16,8 @@ const transpile = (input) => ts.transpileModule(input, {
 }).outputText.replace(/^import .*$/gm, "").replace(/^export /gm, "");
 const buyer = new Function(transpile(buyerSource) +
   "\nreturn { calculateBuyerDistintaLine, calculateBuyerDistintaTotals };")();
-const guided = new Function(transpile(guidanceSource) + "\nreturn { guidedTubeMassKgM };")();
+const calculateTubeSection = new Function(transpile(coreSource) + "\nreturn calculateTubeSection;")();
+const guided = new Function("calculateTubeSection", transpile(guidanceSource) + "\nreturn { guidedTubeMassKgM };")(calculateTubeSection);
 const engine = new Function("calculateBuyerDistintaLine", "guidedTubeMassKgM",
   transpile(source) + "\nreturn {RFQAI_INTAKE_CONTRACT,normalizeRfqAiCandidate,makeRfqAiIntakeBatch};",
 )(buyer.calculateBuyerDistintaLine, guided.guidedTubeMassKgM);

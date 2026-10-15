@@ -10,6 +10,7 @@ const calculator = fs.readFileSync(
   new URL("../components/public-tube-weight-calculator.tsx", import.meta.url),
   "utf8",
 );
+const core = fs.readFileSync(new URL("../lib/international-tube-mass.ts", import.meta.url), "utf8");
 const evidence = fs.readFileSync(
   new URL("../lib/tube-reference-evidence.ts", import.meta.url), "utf8",
 );
@@ -36,10 +37,11 @@ test("K5 calculator supports round, square and rectangular geometry", () => {
   assert.match(calculator, /round_tube/);
   assert.match(calculator, /square_tube/);
   assert.match(calculator, /rectangular_tube/);
-  assert.match(calculator, /Math\.PI \* t \* \(d - t\)/);
-  assert.match(calculator, /b \* b - \(b - 2 \* t\) \* \(b - 2 \* t\)/);
-  assert.match(calculator, /b \* h - \(b - 2 \* t\) \* \(h - 2 \* t\)/);
-  assert.match(calculator, /areaMm2 \* rho/);
+  assert.match(calculator, /calculateTubeSection/);
+  assert.match(core, /Math\.PI \* t \* \(d - t\)/);
+  assert.match(core, /freeAreaMm2 = width \* height - \(width - 2 \* t\) \* \(height - 2 \* t\)/);
+  assert.match(core, /shape === "square" \? width :/);
+  assert.match(core, /areaMm2 \* rho/);
 });
 
 test("K5 calculator produces commercial-friendly mass outputs without turning estimates into references", () => {

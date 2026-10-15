@@ -1,5 +1,6 @@
 import type { BuyerDistintaCatalogOption } from "@/lib/buyer-distinta-catalog";
 import type { BuyerQuantityMode } from "@/lib/buyer-distinta";
+import { calculateTubeSection } from "@/lib/international-tube-mass";
 
 export type GuidedTubeFamily = BuyerDistintaCatalogOption["family"];
 export type GuidedTubeStandard = "EN 10219" | "EN 10210";
@@ -33,9 +34,10 @@ export const guidedTubeGrades = [
   "S235JRH", "S275J0H", "S275J2H", "S355J0H", "S355J2H", "S355K2H",
 ] as const;
 
-/** Same nominal section assumptions used in the public K5/WC3.1 calculator.
- * EN 10219 has thicker corner radii than EN 10210 for SHS/RHS.
- * Rounding is for display only; never claim mill-certified/verified mass.
+/**
+ * The guided RFQ creator uses the same theoretical section model as
+ * the public IT/EN calculator. Published/certified masses are never inferred.
+ * Keep existing standard labels and null-on-invalid-input semantics.
  */
 export function guidedTubeMassKgM(
   family: GuidedTubeFamily,
@@ -44,19 +46,15 @@ export function guidedTubeMassKgM(
 ): number | null {
   if (![a,b,thickness].every((n) => Number.isFinite(n) && n > 0)) return null;
   if (thickness * 2 >= Math.min(a,b)) return null;
-  let areaMm2: number;
-  if (family === "round_tube") {
-    areaMm2 = Math.PI * thickness * (a - thickness);
-  } else {
-    const outerRadiusMm = standard === "EN 10210" ? 1.5 * thickness :
-      thickness <= 6 ? 2 * thickness : thickness <= 10 ? 2.5 * thickness : 3 * thickness;
-    const innerRadiusMm = standard === "EN 10210" ? thickness :
-      thickness <= 6 ? thickness : thickness <= 10 ? 1.5 * thickness : 2 * thickness;
-    areaMm2 = 2 * thickness * (a + b - 2 * thickness) -
-      (4 - Math.PI) * (outerRadiusMm ** 2 - innerRadiusMm ** 2);
-  }
-  const mass = areaMm2 * 7850 / 1_000_000;
-  return Number.isFinite(mass) && mass > 0 ? mass : null;
+  const section = calculateTubeSection({
+    shape: family === "round_tube" ? "round" : family === "square_tube" ? "square" : "rectangular",
+    standard: standard === "EN 10210" ? "en10210" : "en10219",
+    outerDiameterMm: family === "round_tube" ? a : undefined,
+    widthMm: family === "round_tube" ? undefined : a,
+    heightMm: family === "rectangular_tube" ? b : undefined,
+    thicknessMm: thickness,
+  });
+  return section.ok ? section.weightKgM : null;
 }
 
 export function guidedParseDimension(value: string): number | null {

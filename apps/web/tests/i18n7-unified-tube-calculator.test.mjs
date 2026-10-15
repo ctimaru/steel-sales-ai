@@ -7,6 +7,7 @@ const it=load("../app/(public)/knowledge/tubes/page.tsx");
 const en=load("../app/en/knowledge/tubes/page.tsx");
 const calculator=load("../components/public-tube-weight-calculator.tsx");
 const words=load("../lib/tube-calculator-locale.ts");
+const engine=load("../lib/international-tube-mass.ts");
 const css=load("../app/globals.css");
 
 test("I18N7 IT/EN share the same canonical standard-based estimator and catalogue",()=>{
@@ -17,7 +18,8 @@ test("I18N7 IT/EN share the same canonical standard-based estimator and catalogu
   assert.match(en,/revalidate: 86400/);
   assert.match(en,/supportedStandards/);
   for(const item of ["round_tube","square_tube","rectangular_tube","en10219","en10210","geometric"]) assert.ok(calculator.includes(item));
-  assert.match(calculator,/standardRectangularAreaMm2/);
+  assert.match(calculator,/calculateTubeSection/);
+  assert.match(engine,/standardRectangularAreaMm2/);
   assert.match(calculator,/targetBarsExact/);
   assert.match(calculator,/exactReference/);
 });

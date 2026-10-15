@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
 import { calculatorRfqFromValues, enqueueCalculatorRfq, type CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
 import { tubeCalculatorText, type TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
+import { calculateTubeSection, standardCornerRadii } from "@/lib/international-tube-mass";
 import { referenceEvidence, relatedTubeReferences, sourceMethodLabel, sourceStandardLabel } from "@/lib/tube-reference-evidence";
 import { trackProductEvent } from "@/lib/product-analytics-events.client";
 import type { PublicTubeDimensionSummary } from "@/lib/public-knowledge";
@@ -162,50 +163,6 @@ async function copyTextToClipboard(text: string) {
   const copied = document.execCommand("copy");
   document.body.removeChild(textarea);
   if (!copied) throw new Error("Clipboard copy failed");
-}
-
-function standardCornerRadii(standard: NormativeStandard, thicknessMm: number) {
-  if (standard === "en10210") {
-    return {
-      outerRadiusMm: 1.5 * thicknessMm,
-      innerRadiusMm: 1.0 * thicknessMm,
-    };
-  }
-
-  if (thicknessMm <= 6) {
-    return {
-      outerRadiusMm: 2.0 * thicknessMm,
-      innerRadiusMm: 1.0 * thicknessMm,
-    };
-  }
-
-  if (thicknessMm <= 10) {
-    return {
-      outerRadiusMm: 2.5 * thicknessMm,
-      innerRadiusMm: 1.5 * thicknessMm,
-    };
-  }
-
-  return {
-    outerRadiusMm: 3.0 * thicknessMm,
-    innerRadiusMm: 2.0 * thicknessMm,
-  };
-}
-
-function standardRectangularAreaMm2(
-  standard: NormativeStandard,
-  widthMm: number,
-  heightMm: number,
-  thicknessMm: number,
-) {
-  const { outerRadiusMm, innerRadiusMm } = standardCornerRadii(standard, thicknessMm);
-  return {
-    areaMm2:
-      2 * thicknessMm * (widthMm + heightMm - 2 * thicknessMm) -
-      (4 - Math.PI) * (outerRadiusMm ** 2 - innerRadiusMm ** 2),
-    outerRadiusMm,
-    innerRadiusMm,
-  };
 }
 
 const lengthPresets = ["6", "8", "10", "12"] as const;
@@ -571,51 +528,42 @@ export function PublicTubeWeightCalculator({
     if (qty == null || qty <= 0) error = "Inserisci una quantità maggiore di zero.";
     if (standard === "geometric" && (rho == null || rho <= 0)) error = "Inserisci una densità valida.";
 
-    let freeAreaMm2: number | null = null;
-    if (!error && family === "round_tube") {
-      if (d == null || d <= 0) error = "Inserisci un diametro esterno valido.";
-      else if (t != null && 2 * t >= d) error = "Lo spessore deve essere inferiore a metà del diametro.";
-      else if (t != null) freeAreaMm2 = Math.PI * t * (d - t);
-    }
-
-    if (!error && family === "square_tube") {
-      if (b == null || b <= 0) error = "Inserisci il lato esterno.";
-      else if (t != null && 2 * t >= b) error = "Lo spessore deve essere inferiore a metà del lato.";
-      else if (t != null) freeAreaMm2 = b * b - (b - 2 * t) * (b - 2 * t);
-    }
-
-    if (!error && family === "rectangular_tube") {
-      if (b == null || b <= 0 || h == null || h <= 0) error = "Inserisci base e altezza esterne.";
-      else if (t != null && 2 * t >= Math.min(b, h)) error = "Lo spessore deve essere inferiore a metà del lato minore.";
-      else if (t != null) freeAreaMm2 = b * h - (b - 2 * t) * (h - 2 * t);
-    }
-
-    let standardAreaMm2: number | null = null;
-    let outerRadiusMm: number | null = null;
-    let innerRadiusMm: number | null = null;
-
-    if (!error && standard !== "geometric") {
+    // One mathematical source of truth for the IT/EN calculator and EN RFQ.
+    // Keep localized validation messages and bar/target UX in this component.
+    const section = !error && t != null
+      ? calculateTubeSection({
+          shape: family === "round_tube" ? "round" : family === "square_tube" ? "square" : "rectangular",
+          standard,
+          outerDiameterMm: d ?? undefined,
+          widthMm: b ?? undefined,
+          heightMm: h ?? undefined,
+          thicknessMm: t,
+          densityKgM3: rho ?? undefined,
+        })
+      : null;
+    if (section && !section.ok) {
       if (family === "round_tube") {
-        standardAreaMm2 = freeAreaMm2;
-      } else if (b != null && h != null && t != null) {
-        const standardSection = standardRectangularAreaMm2(standard, b, h, t);
-        standardAreaMm2 = standardSection.areaMm2;
-        outerRadiusMm = standardSection.outerRadiusMm;
-        innerRadiusMm = standardSection.innerRadiusMm;
+        error = d == null || d <= 0 ? "Inserisci un diametro esterno valido."
+          : t != null && 2 * t >= d ? "Lo spessore deve essere inferiore a metà del diametro."
+          : section.error;
+      } else if (family === "square_tube") {
+        error = b == null || b <= 0 ? "Inserisci il lato esterno."
+          : t != null && 2 * t >= b ? "Lo spessore deve essere inferiore a metà del lato."
+          : section.error;
+      } else {
+        error = b == null || b <= 0 || h == null || h <= 0 ? "Inserisci base e altezza esterne."
+          : t != null && 2 * t >= Math.min(b, h) ? "Lo spessore deve essere inferiore a metà del lato minore."
+          : section.error;
       }
     }
-
-    const areaMm2 = standard === "geometric" ? freeAreaMm2 : standardAreaMm2;
-    const effectiveDensityKgM3 = standard === "geometric" ? rho : 7850;
-    const geometricKgM =
-      !error && areaMm2 != null && rho != null
-        ? (areaMm2 * rho) / 1_000_000
-        : null;
-    const standardKgM =
-      !error && areaMm2 != null
-        ? (areaMm2 * 7850) / 1_000_000
-        : null;
-    const kgM = standard === "geometric" ? geometricKgM : standardKgM;
+    const validSection = section?.ok ? section : null;
+    const freeAreaMm2 = validSection?.freeAreaMm2 ?? null;
+    const standardAreaMm2 = validSection?.standardAreaMm2 ?? null;
+    const outerRadiusMm = validSection?.outerRadiusMm ?? null;
+    const innerRadiusMm = validSection?.innerRadiusMm ?? null;
+    const areaMm2 = validSection?.areaMm2 ?? null;
+    const effectiveDensityKgM3 = validSection?.densityKgM3 ?? (standard === "geometric" ? rho : 7850);
+    const kgM = validSection?.weightKgM ?? null;
     const kgBar = kgM != null && l != null ? kgM * l : null;
     const totalKg = kgBar != null && qty != null ? kgBar * qty : null;
     const totalTonnes = totalKg != null ? totalKg / 1000 : null;

@@ -8,11 +8,14 @@ const builder = read("../components/buyer-distinta-builder.tsx");
 const wizard = read("../components/buyer-tube-guided-creator.tsx");
 const css = read("../app/globals.css");
 const guidance = read("../lib/buyer-tube-guidance.ts");
+const core = read("../lib/international-tube-mass.ts");
 const buyerSource = read("../lib/buyer-distinta.ts").replace(/^import[^;]+;\s*/u, "");
 const transpile = (source) => ts.transpileModule(source, { compilerOptions: {
   target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext,
 }}).outputText;
-const guide = await import("data:text/javascript;base64," + Buffer.from(transpile(guidance)).toString("base64"));
+const coreUri = "data:text/javascript;base64," + Buffer.from(transpile(core)).toString("base64");
+const compiledGuidance = transpile(guidance).replace('from "@/lib/international-tube-mass"', `from "${coreUri}"`);
+const guide = await import("data:text/javascript;base64," + Buffer.from(compiledGuidance).toString("base64"));
 const buyer = await import("data:text/javascript;base64," + Buffer.from(transpile(buyerSource)).toString("base64"));
 
 test("BD8 new article requires its own standard instead of silently reusing previous selection", () => {

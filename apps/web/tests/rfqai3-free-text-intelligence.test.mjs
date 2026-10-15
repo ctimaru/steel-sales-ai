@@ -6,6 +6,7 @@ import ts from "typescript";
 const read = (path) => fs.readFileSync(new URL(path, import.meta.url), "utf8");
 const buyerSource = read("../lib/buyer-distinta.ts");
 const guidedSource = read("../lib/buyer-tube-guidance.ts");
+const coreSource = read("../lib/international-tube-mass.ts");
 const contractSource = read("../lib/rfq-ai-intake-contract.ts");
 const textSource = read("../lib/rfq-ai-free-text.ts");
 const action = read("../app/(workspace)/rfq-hub/distinta/ai-actions.ts");
@@ -20,7 +21,8 @@ const toJs = (source) => ts.transpileModule(
 ).outputText.replace(/^export /gmu, "");
 
 const buyer = new Function(toJs(buyerSource) + "\nreturn { calculateBuyerDistintaLine };")();
-const guided = new Function(toJs(guidedSource) + "\nreturn { guidedTubeMassKgM };")();
+const calculateTubeSection = new Function(toJs(coreSource) + "\nreturn calculateTubeSection;")();
+const guided = new Function("calculateTubeSection", toJs(guidedSource) + "\nreturn { guidedTubeMassKgM };")(calculateTubeSection);
 const contract = new Function("calculateBuyerDistintaLine", "guidedTubeMassKgM",
   toJs(contractSource) + "\nreturn {makeRfqAiIntakeBatch,normalizeRfqAiCandidate};",
 )(buyer.calculateBuyerDistintaLine, guided.guidedTubeMassKgM);

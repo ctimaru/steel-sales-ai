@@ -8,9 +8,14 @@ const builder = read("../components/buyer-distinta-builder.tsx");
 const wizard = read("../components/buyer-tube-guided-creator.tsx");
 const calc = read("../components/public-tube-weight-calculator.tsx");
 const guidanceSource = read("../lib/buyer-tube-guidance.ts");
-const js = ts.transpileModule(guidanceSource, { compilerOptions: {
+const coreSource = read("../lib/international-tube-mass.ts");
+const compiledCore = ts.transpileModule(coreSource, { compilerOptions: {
   target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext,
 }}).outputText;
+const coreUri = "data:text/javascript;base64," + Buffer.from(compiledCore).toString("base64");
+const js = ts.transpileModule(guidanceSource, { compilerOptions: {
+  target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext,
+}}).outputText.replace('from "@/lib/international-tube-mass"', `from "${coreUri}"`);
 const guide = await import("data:text/javascript;base64," + Buffer.from(js).toString("base64"));
 const option = (family, a, b, t) => ({
   id: family + a + b + t, family, sizeKey: family + ":" + a + ":" + b,
@@ -26,9 +31,11 @@ const options = [
 ];
 
 test("BD6 mass follows the public calculator corner-radii difference", () => {
-  assert.match(calc, /outerRadiusMm: 1\.5 \* thicknessMm/);
-  assert.match(calc, /outerRadiusMm: 2\.0 \* thicknessMm/);
-  assert.match(guidanceSource, /7850 \/ 1_000_000/);
+  assert.match(calc, /calculateTubeSection/);
+  assert.match(coreSource, /outerRadiusMm: 1\.5 \* thicknessMm/);
+  assert.match(coreSource, /outerRadiusMm: 2\.0 \* thicknessMm/);
+  assert.match(coreSource, /areaMm2 \* rho/);
+  assert.match(guidanceSource, /calculateTubeSection\(/);
   const hot = guide.guidedTubeMassKgM("square_tube", "EN 10210", 100, 100, 5);
   const cold = guide.guidedTubeMassKgM("square_tube", "EN 10219", 100, 100, 5);
   assert.ok(Math.abs(hot - 14.7044) < 0.001);
