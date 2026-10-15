@@ -44,6 +44,23 @@ try {
     }
     const queued=await page.evaluate(key=>window.sessionStorage.getItem(key),sourceKey);
     assert.ok(queued===null || queued==="[]","v2 queue should be consumed after import");
+    // CALC-INT3C.2: new source-backed NPS band, and user-defined geometry.
+    await page.goto(BASE+scenario.start,{waitUntil:"domcontentloaded",timeout:60000});
+    const npsSelect=page.getByRole("combobox",{name:scenario.locale==="it"?"NPS nominale":"Nominal pipe size"});
+    await npsSelect.selectOption("2 1/2");
+    assert.ok(await page.getByRole("combobox",{name:/Schedule/i}).locator('option[value="2.5-80"]').count()>0);
+    await page.getByRole("button",{name:/Custom dimensions|Dimensioni libere/i}).click();
+    await page.getByRole("button",{name:"in",exact:true}).click();
+    await page.getByRole("textbox",{name:/Outside diameter \\(in\\)|Diametro esterno \\(in\\)/}).fill("4.5");
+    await page.getByRole("textbox",{name:/Wall thickness \\(in\\)|Spessore \\(in\\)/}).fill("0.237");
+    const customButton=page.getByRole("button",{name:scenario.button});
+    assert.equal(await customButton.isDisabled(),false);
+    await customButton.click();
+    await page.waitForURL(url=>url.pathname===scenario.bill,{timeout:60000});
+    await page.getByText(/User dimensions OD/i).first().waitFor({state:"visible",timeout:30000});
+    assert.match(await page.locator("body").innerText(),/114\\.3/);
+    assert.match(await page.locator("body").innerText(),/API Spec 5L|ASTM A106/);
+    console.log("CALC-INT3C.2 CUSTOM CHROME PASS",scenario.locale,"4.5 in × 0.237 in");
     console.log("CALC-INT3C CHROME PASS",scenario.locale,scenario.start,"→",scenario.bill);
     await context.close();
   }
