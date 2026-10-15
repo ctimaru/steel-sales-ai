@@ -7,7 +7,7 @@ on:
         description: "Read-only preflight or governed staging"
         type: choice
         default: preflight
-        options: [preflight, stage]
+        options: [preflight, readiness, stage]
         required: true
       source_budget:
         type: choice
@@ -29,7 +29,7 @@ jobs:
   stage:
     if: >-
       github.ref == 'refs/heads/main' &&
-      ((github.event_name == 'workflow_dispatch' && inputs.mode == 'preflight') ||
+      ((github.event_name == 'workflow_dispatch' && (inputs.mode == 'preflight' || inputs.mode == 'readiness')) ||
        (vars.CRAWL_IT68_ENABLED == 'true' &&
         (github.event_name == 'schedule' ||
          (github.event_name == 'workflow_dispatch' && inputs.mode == 'stage'))))
@@ -61,6 +61,13 @@ jobs:
           CRAWL_IT68_SUPABASE_URL: ${{ vars.CRAWL_IT68_SUPABASE_URL }}
           CRAWL_IT68_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT68_SUPABASE_SECRET_KEY }}
         run: python -m app.crawl_it68_preflight
+      - name: "Read-only multi-source inventory"
+        if: github.event_name == 'workflow_dispatch' && inputs.mode == 'readiness'
+        working-directory: services/worker
+        env:
+          CRAWL_IT68_SUPABASE_URL: ${{ vars.CRAWL_IT68_SUPABASE_URL }}
+          CRAWL_IT68_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT68_SUPABASE_SECRET_KEY }}
+        run: python -m app.crawl_it68b_source_audit
       - name: "Stage due rights-approved sources into review only"
         if: github.event_name == 'schedule' || inputs.mode == 'stage'
         working-directory: services/worker
