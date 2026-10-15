@@ -237,6 +237,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         languages: {
           it: absoluteUrl("/distinta"),
           en: absoluteUrl("/en/distinta"),
+          de: absoluteUrl("/de/distinta"),
+          fr: absoluteUrl("/fr/distinta"),
+          es: absoluteUrl("/es/distinta"),
         },
       },
     },
@@ -248,9 +251,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         languages: {
           it: absoluteUrl("/distinta"),
           en: absoluteUrl("/en/distinta"),
+          de: absoluteUrl("/de/distinta"),
+          fr: absoluteUrl("/fr/distinta"),
+          es: absoluteUrl("/es/distinta"),
         },
       },
     },
+    ...(["de","fr","es"] as const).map(lang=>({
+      url:absoluteUrl("/"+lang+"/distinta"),
+      changeFrequency:"monthly" as const,
+      priority:0.78,
+      alternates:{languages:{
+        it:absoluteUrl("/distinta"),
+        en:absoluteUrl("/en/distinta"),
+        de:absoluteUrl("/de/distinta"),
+        fr:absoluteUrl("/fr/distinta"),
+        es:absoluteUrl("/es/distinta"),
+      }},
+    })),
     {
       url: absoluteUrl("/listini"),
       lastModified: priceListsLastModified,

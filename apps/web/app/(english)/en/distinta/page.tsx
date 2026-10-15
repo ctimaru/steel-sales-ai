@@ -16,6 +16,9 @@ export const metadata: Metadata = {
     languages: {
       it: absoluteUrl("/distinta"),
       en: absoluteUrl("/en/distinta"),
+      de: absoluteUrl("/de/distinta"),
+      fr: absoluteUrl("/fr/distinta"),
+      es: absoluteUrl("/es/distinta"),
     },
   },
   openGraph: {
@@ -48,6 +51,14 @@ export default function EnglishRfqBuilderPage() {
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="mx-auto max-w-[1120px] px-4 py-10 sm:px-6 lg:px-8">
+        <nav aria-label="RFQ bill language" className="mb-5 flex flex-wrap items-center gap-2">
+          {(["en","de","fr","es"] as const).map((language)=><Link
+            key={language} href={language==="en"?"/en/distinta":"/"+language+"/distinta"}
+            hrefLang={language} lang={language} aria-current={language==="en"?"page":undefined}
+            className={"inline-flex min-h-11 min-w-12 items-center justify-center rounded-lg border px-3 text-xs font-bold "+(language==="en"?"border-[#155943] bg-[#155943] text-white":"border-[#bbd4c7] bg-white text-[#123b34]")}>
+            {language.toUpperCase()}
+          </Link>)}
+        </nav>
         <EnglishRfqBillBuilder />
       </div>
       <section className="bg-white">

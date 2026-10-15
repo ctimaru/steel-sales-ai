@@ -2,7 +2,7 @@
  * CALC-INT3E.1 — indexable EU mass calculator landing pages.
  * Existing Italian/English URLs stay untouched. These localized public pages
  * use the exact same CALC-INT2 pure numerical engine and EU RFQ v1 bridge.
- * The US pipe/HSS product UI has not been translated in this release.
+ * USA NPS/HSS and the DE/FR/ES public RFQ bills are localized via later blocks.
  */
 export type CalculatorLandingLocale = "de" | "fr" | "es";
 export type CalculatorSiteLocale = "it" | "en" | CalculatorLandingLocale;
@@ -55,7 +55,7 @@ export const CALCULATOR_TRANSLATIONS: Record<CalculatorLandingLocale,LandingCopy
   disclaimer:"Theoretischer Näherungswert auf Basis der gewählten Geometrie. Keine Herstellerwägung, kein zertifiziertes Gewicht und kein Nachweis der Produktkonformität.",
   methodTitle:"EN 10210 und EN 10219: Unterschied bei den Ecken",
   methodText:"Für quadratische und rechteckige Hohlprofile verwenden die Berechnungsmodelle unterschiedliche nominelle Eckradien. Dadurch können sich die berechneten kg/m bei gleichen Außenmaßen unterscheiden. Die tatsächliche Lieferung muss mit dem Hersteller abgeglichen werden.",
-  readMore:"Wählen Sie oben 🇺🇸 USA, um NPS/Schedule und HSS in Deutsch zu berechnen.",rfqEnglish:"Die anschließende Anfrage-Stückliste ist derzeit auf Englisch verfügbar; die Maße und die Methode bleiben erhalten.",noLogin:"Kostenlos, ohne Anmeldung.",
+  readMore:"Wählen Sie oben 🇺🇸 USA, um NPS/Schedule und HSS in Deutsch zu berechnen.",rfqEnglish:"Die Anfrage-Stückliste ist auf Deutsch verfügbar. Abmessungen und Berechnungsmethode werden übernommen; es erfolgt kein automatischer Versand.",noLogin:"Kostenlos, ohne Anmeldung.",
   usTitle:"USA-Rohrgewichte: NPS / Schedule, API und ASTM A500",
   usDescription:"Wechseln Sie oben mit dem Schalter 🇪🇺 / 🇺🇸 zwischen EN 10210/10219 und US-Rohrmaßen. Die amerikanische Berechnung umfasst ausgewählte NPS/Schedule-Rohre, freie Maße und HSS ASTM A500.",
   usNps:"NPS und Schedule: 20 herstellerbasierte U.S.-Steel-Beispiele, API 5L, ASTM A53 oder ASTM A106 nur als angefragte Produktspezifikation. Der berechnete kg/m-Wert bleibt geometrisch; Katalogwerte werden getrennt dargestellt.",
@@ -84,7 +84,7 @@ export const CALCULATOR_TRANSLATIONS: Record<CalculatorLandingLocale,LandingCopy
   disclaimer:"Estimation théorique de masse pour la géométrie sélectionnée : ce n'est ni un poids certifié, ni une mesure du fabricant, ni une preuve de conformité.",
   methodTitle:"EN 10210 et EN 10219 : différence de rayons d'angle",
   methodText:"Pour les sections creuses carrées ou rectangulaires, les modèles utilisent des rayons d'angle nominaux différents selon la fabrication. La masse calculée peut donc varier à dimensions extérieures identiques. Vérifiez les caractéristiques du produit auprès du fabricant.",
-  readMore:"Choisissez 🇺🇸 USA ci-dessus pour calculer NPS/Schedule et HSS en français.",rfqEnglish:"La liste de demande de prix suivante est actuellement en anglais. Les dimensions et la méthode de calcul sont conservées.",noLogin:"Gratuit, sans inscription.",
+  readMore:"Choisissez 🇺🇸 USA ci-dessus pour calculer NPS/Schedule et HSS en français.",rfqEnglish:"La nomenclature de demande de prix est disponible en français. Les dimensions et la méthode sont reprises sans envoi automatique.",noLogin:"Gratuit, sans inscription.",
   usTitle:"Poids des tubes USA : NPS / Schedule, API et ASTM A500",
   usDescription:"Utilisez le sélecteur 🇪🇺 / 🇺🇸 pour passer des normes EN 10210/10219 aux tubes américains. Le mode USA propose des mesures NPS/Schedule sourcées, des dimensions libres et des HSS ASTM A500.",
   usNps:"NPS et Schedule : 20 références choisies chez U.S. Steel ; API 5L, ASTM A53 et ASTM A106 expriment uniquement l'intention d'achat. La masse calculée reste géométrique et distincte de la référence publiée.",
@@ -113,7 +113,7 @@ export const CALCULATOR_TRANSLATIONS: Record<CalculatorLandingLocale,LandingCopy
   disclaimer:"Estimación teórica para la geometría seleccionada. No equivale a un peso certificado, una medición del fabricante ni una prueba de conformidad.",
   methodTitle:"EN 10210 frente a EN 10219: radios de las esquinas",
   methodText:"En perfiles huecos cuadrados y rectangulares, los modelos emplean distintos radios nominales de las esquinas según el método de fabricación. Esto puede cambiar los kg/m calculados para las mismas dimensiones exteriores. Confirme las características del producto con el fabricante.",
-  readMore:"Seleccione 🇺🇸 USA arriba para calcular NPS/Schedule y HSS en español.",rfqEnglish:"La siguiente lista de solicitud de presupuesto está disponible actualmente en inglés. Se conservan las medidas y el método de cálculo.",noLogin:"Gratis y sin registro.",
+  readMore:"Seleccione 🇺🇸 USA arriba para calcular NPS/Schedule y HSS en español.",rfqEnglish:"La lista de solicitud de oferta está disponible en español. Conserva dimensiones y método de cálculo, sin envío automático.",noLogin:"Gratis y sin registro.",
   usTitle:"Peso de tubos USA: NPS / Schedule, API y ASTM A500",
   usDescription:"Utilice el selector 🇪🇺 / 🇺🇸 para alternar entre EN 10210/10219 y tubos estadounidenses. El modo USA ofrece muestras NPS/Schedule documentadas, dimensiones libres y HSS ASTM A500.",
   usNps:"NPS y Schedule: 20 referencias del fabricante U.S. Steel; API 5L, ASTM A53 y ASTM A106 son solo especificaciones de producto solicitadas. El peso calculado sigue siendo geométrico y distinto del publicado.",

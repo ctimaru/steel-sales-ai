@@ -18,6 +18,7 @@ const compiled=asModule(source)
 const bridge=await import(data(compiled));
 const it=read("../components/buyer-distinta-builder.tsx");
 const en=read("../components/english-rfq-bill-builder.tsx");
+const enCopy=read("../lib/rfq-bill-localization.ts");
 const us=read("../components/us-pipe-sample-calculator.tsx");
 const original=read("../lib/calculator-rfq-handoff.ts");
 
@@ -93,14 +94,15 @@ test("CALC-INT3C bounded tab-local queue does not touch v1 or reimport consumed 
 test("CALC-INT3C wires full US source intent to both RFQ bills but never automatic sends",()=>{
   assert.match(us,/buildUsPipeRfqItem\(/);
   assert.match(us,/enqueueUsPipeRfq\(window\.sessionStorage,item\)/);
-  assert.match(us,/window\.location\.assign\(locale === "it" \? "\/distinta" : "\/en\/distinta"\)/);
+  assert.match(us,/window\.location\.assign\(usRfqBillPath\(locale\)\)/);
   assert.match(it,/readUsPipeRfqQueue\(window\.sessionStorage\)/);
   assert.match(it,/usPipeRfqSpecification\(item\)/);
   assert.match(it,/standard:spec\.standardLabel/);
   assert.match(it,/note:`\$\{spec\.provenanceNote\}/);
   assert.match(en,/readUsPipeRfqQueue\(window\.sessionStorage\)/);
   assert.match(en,/usPipeRfqSpecification\(item\)/);
-  assert.match(en,/Requested US product specification/);
+  assert.match(enCopy,/Requested US product specification/);
+  assert.match(en,/RFQ_BILL_TEXT\[locale\]/);
   assert.match(en,/usProductIntent/);
   assert.match(en,/consumeUsPipeRfqIds\(window\.sessionStorage/);
   assert.match(en,/usProductIntent:geometryChanged \? undefined : line\.usProductIntent/);

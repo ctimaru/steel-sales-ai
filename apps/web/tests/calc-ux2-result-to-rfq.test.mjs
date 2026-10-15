@@ -8,6 +8,7 @@ const source=read("../lib/calculator-rfq-handoff.ts");
 const calculator=read("../components/public-tube-weight-calculator.tsx");
 const it=read("../components/buyer-distinta-builder.tsx");
 const en=read("../components/english-rfq-bill-builder.tsx");
+const enCopy=read("../lib/rfq-bill-localization.ts");
 const enPage=read("../app/en/distinta/page.tsx");
 const itPage=read("../app/(public)/distinta/page.tsx");
 const compiled=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
@@ -104,6 +105,7 @@ test("CALC-UX2 remains no-login, no-catalog writes, no automatic dispatch and pr
   assert.match(itPage,/canonical: absoluteUrl\("\/distinta"\)/);
   assert.match(enPage,/canonical: absoluteUrl\("\/en\/distinta"\)/);
   assert.match(calculator,/Copy result|Copia risultato/);
-  assert.match(en,/No RFQ has been sent/);
+  assert.match(enCopy,/No RFQ has been sent/);
+  assert.match(en,/RFQ_BILL_TEXT\[locale\]/);
   assert.match(it,/Nessuna RFQ è stata inviata/);
 });

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { CalculatorFlagLanguages } from "@/components/calculator-flag-languages";
-import { US_HSS_I18N, usLocaleTag, type UsCalculatorLocale } from "@/lib/us-calculator-i18n";
+import { US_HSS_I18N, usLocaleTag, usRfqBillPath, type UsCalculatorLocale } from "@/lib/us-calculator-i18n";
 
 import { estimatePublicTubeMass } from "@/lib/international-tube-mass";
 import { buildUsPipeRfqItem, enqueueUsPipeRfq } from "@/lib/us-pipe-rfq-handoff";
@@ -159,7 +159,7 @@ export function UsHssCalculator({locale,initialReferenceId,initialValues={}}:{
     if(!item || !enqueueUsPipeRfq(window.sessionStorage,item)){
       setStatus(t.error);return;
     }
-    window.location.assign(locale==="it"?"/distinta":"/en/distinta");
+    window.location.assign(usRfqBillPath(locale));
   }
   return (
     <section aria-label={t.title} className="rounded-xl border border-[#b4d2c4] bg-white p-4 sm:p-5">

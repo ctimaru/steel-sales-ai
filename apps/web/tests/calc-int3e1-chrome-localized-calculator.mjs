@@ -49,8 +49,19 @@ try{
     const section=page.locator("#calcolatore-pesi");
     await section.getByRole("combobox",{name:c.shape,exact:true}).selectOption("square");
     await section.getByRole("button",{name:c.bill}).click();
-    await page.waitForURL(url=>url.pathname==="/en/distinta",{timeout:60000});
-    await page.getByText(/EN 10219/i).first().waitFor({state:"visible",timeout:30000});
+    await page.waitForURL(url=>url.pathname===`/${c.locale}/distinta`,{timeout:60000});
+    assert.equal(await page.locator("html").getAttribute("lang"),c.locale);
+    // The newly imported line cannot be quoted before the buyer confirms grade.
+    const grade={de:"Stahlgüte",fr:"Nuance d'acier",es:"Calidad de acero"}[c.locale];
+    await page.getByRole("textbox",{name:grade}).first().fill("S355J2H");
+    await page.locator('article div[aria-live="polite"] strong').filter({hasText:/EN 10219/}).first().waitFor({state:"visible",timeout:30000});
+    await context.grantPermissions(["clipboard-read","clipboard-write"]);
+    const copy={de:/Anfrage-E-Mail kopieren/,fr:/Copier le courriel/,es:/Copiar correo/}[c.locale];
+    await page.getByRole("button",{name:copy}).click();
+    const email=await page.evaluate(()=>navigator.clipboard.readText());
+    assert.match(email,/EN 10219/);
+    assert.match(email,{de:/Betreff:/,fr:/Objet :/,es:/Asunto:/}[c.locale]);
+    assert.match(email,/S355J2H/);
     const text=await page.locator("body").innerText();
     assert.match(text,/EN 10219/);
     console.log("CALC-INT3E.1 CHROME PASS",c.locale,"translated 200 / canonical hreflang / noindex / EU RFQ");

@@ -9,7 +9,7 @@ const intlTag:Record<UsCalculatorLocale,string>={
   it:"it-IT",en:"en-US",de:"de-DE",fr:"fr-FR",es:"es-ES",
 };
 export const usLocaleTag=(locale:UsCalculatorLocale)=>intlTag[locale];
-export const usRfqBillPath=(locale:UsCalculatorLocale)=>locale==="it"?"/distinta":"/en/distinta";
+export const usRfqBillPath=(locale:UsCalculatorLocale)=>locale==="it"?"/distinta":locale==="en"?"/en/distinta":"/"+locale+"/distinta";
 
 export const REGION_COPY={
   de:{

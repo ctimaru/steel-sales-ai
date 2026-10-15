@@ -1,8 +1,8 @@
 /**
- * CALC-INT1 + CALC-INT3E.1: published public calculator routing contract.
+ * CALC-INT1 + CALC-INT3E.3: public calculator and localized RFQ routing contract.
  * Legacy IT/EN paths stay fixed; translated DE/FR/ES pages are now live.
- * The three newer languages use the English RFQ bill until that workflow
- * is independently localized. This contract makes that limitation explicit.
+ * DE/FR/ES calculators transfer to localized RFQ bills with the original
+ * v1/v2 same-tab handoff and shared mass engine.
  * No redirects based on IP/browser language or unverified alternate URLs.
  */
 export const PUBLISHED_CALCULATOR_LOCALES=["it","en","de","fr","es"] as const;
@@ -15,9 +15,9 @@ export type PlannedCalculatorLocale=(typeof PLANNED_CALCULATOR_LOCALES)[number];
 export const CALCULATOR_PUBLIC_ROUTES={
   it:{calculator:"/knowledge/tubes",rfqBill:"/distinta",documentLanguage:"it"},
   en:{calculator:"/en/knowledge/tubes",rfqBill:"/en/distinta",documentLanguage:"en"},
-  de:{calculator:"/de/knowledge/tubes",rfqBill:"/en/distinta",documentLanguage:"de"},
-  fr:{calculator:"/fr/knowledge/tubes",rfqBill:"/en/distinta",documentLanguage:"fr"},
-  es:{calculator:"/es/knowledge/tubes",rfqBill:"/en/distinta",documentLanguage:"es"},
+  de:{calculator:"/de/knowledge/tubes",rfqBill:"/de/distinta",documentLanguage:"de"},
+  fr:{calculator:"/fr/knowledge/tubes",rfqBill:"/fr/distinta",documentLanguage:"fr"},
+  es:{calculator:"/es/knowledge/tubes",rfqBill:"/es/distinta",documentLanguage:"es"},
 } as const satisfies Record<PublishedCalculatorLocale,{
   calculator:`/${string}`;
   rfqBill:`/${string}`;

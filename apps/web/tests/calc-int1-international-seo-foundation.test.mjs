@@ -37,7 +37,7 @@ test("CALC-INT1 preserves indexed IT EN URLs while CALC-INT3E activates translat
   for(const lang of ["de","fr","es"]){
     assert.equal(routes.isPublishedCalculatorLocale(lang),true);
     assert.equal(routes.CALCULATOR_PUBLIC_ROUTES[lang].documentLanguage,lang);
-    assert.equal(routes.CALCULATOR_PUBLIC_ROUTES[lang].rfqBill,"/en/distinta");
+    assert.equal(routes.CALCULATOR_PUBLIC_ROUTES[lang].rfqBill,`/${lang}/distinta`);
     assert.ok(sitemap.includes(`/${lang}/knowledge/tubes`));
     assert.ok(italian.includes(`${lang}: absoluteUrl("/${lang}/knowledge/tubes")`));
     assert.ok(english.includes(`${lang}: absoluteUrl("/${lang}/knowledge/tubes")`));

@@ -124,6 +124,6 @@ test("CALC-INT3D leaves existing SEO routes, EU calculator switch and v1 flow un
   assert.match(itRoute,/CalculatorRegionSwitch locale="it" initialRegion="us"/);
   assert.match(read("../lib/calculator-rfq-handoff.ts"),/sss:calc-rfq-handoff:v1/);
   assert.match(src,/sss:us-pipe-rfq-handoff:v2/);
-  assert.match(hssUi,/window\.location\.assign\(locale==="it"\?"\/distinta":"\/en\/distinta"\)/);
+  assert.match(hssUi,/window\.location\.assign\(usRfqBillPath\(locale\)\)/);
   assert.doesNotMatch(hssUi,/dispatchRfq|fetch\(|createClient\(/);
 });

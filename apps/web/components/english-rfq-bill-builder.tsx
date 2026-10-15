@@ -5,11 +5,11 @@ import { consumeCalculatorRfqIds, readCalculatorRfqQueue, type CalculatorRfqItem
 import { consumeUsPipeRfqIds, readUsPipeRfqQueue, usPipeRfqSpecification } from "@/lib/us-pipe-rfq-handoff";
 import {
   estimatePublicTubeMass,
-  formatEnglishMass,
   parseTubeNumber,
   type PublicTubeShape,
   type PublicTubeStandard,
 } from "@/lib/international-tube-mass";
+import { RFQ_BILL_TEXT, formatBillNumber, type RfqBillLocale } from "@/lib/rfq-bill-localization";
 
 type RfqLine = {
   id: number;
@@ -93,16 +93,18 @@ function fromUsPipeCalculator(
 const control = "mt-1 w-full min-w-0 rounded-lg border border-[#c7d7cf] bg-white px-2.5 py-2.5 text-sm text-[#123b34] focus:border-[#1f6b5a] focus:outline-none focus:ring-2 focus:ring-[#b9d7cb]";
 const label = "block min-w-0 text-xs font-semibold text-[#52615b]";
 
-function describeLine(line: RfqLine) {
+function describeLine(line: RfqLine, locale: RfqBillLocale) {
+  const dim=(v:string)=>formatBillNumber(parseTubeNumber(v),locale);
   const geometry = line.shape === "round"
-    ? `CHS Ø${line.diameter} × ${line.thickness}`
+    ? `CHS Ø${dim(line.diameter)} × ${dim(line.thickness)}`
     : line.shape === "square"
-      ? `SHS ${line.width} × ${line.width} × ${line.thickness}`
-      : `RHS ${line.width} × ${line.height} × ${line.thickness}`;
+      ? `SHS ${dim(line.width)} × ${dim(line.width)} × ${dim(line.thickness)}`
+      : `RHS ${dim(line.width)} × ${dim(line.height)} × ${dim(line.thickness)}`;
   return `${geometry} mm, ${line.grade}, ${line.standard.toUpperCase().replace("EN", "EN ")}`;
 }
 
-export function EnglishRfqBillBuilder() {
+export function EnglishRfqBillBuilder({locale="en"}:{locale?:RfqBillLocale}={}) {
+  const t=RFQ_BILL_TEXT[locale];
   // Render actions disabled in SSR HTML until React handlers have hydrated.
   // This prevents a fast first click from appearing successful but doing nothing.
   const [hydrated, setHydrated] = useState(false);
@@ -176,11 +178,11 @@ export function EnglishRfqBillBuilder() {
         }),
         error:
           !line.grade.trim() || !/^[A-Za-z0-9 .+\/-]{1,50}$/.test(line.grade.trim())
-            ? "Enter a valid steel grade (letters, numbers and standard designators)."
+            ? t.invalidGrade
             : line.targetPricePerTonne.trim() &&
                 (!Number.isFinite(parseTubeNumber(line.targetPricePerTonne)) ||
                   parseTubeNumber(line.targetPricePerTonne) <= 0)
-              ? "Target price must be a positive number or left blank."
+              ? t.invalidTarget
               : null,
       })),
     [lines],
@@ -233,27 +235,27 @@ export function EnglishRfqBillBuilder() {
     const rows = calculated.map(({ line, mass }, index) => {
       if (!mass.ok) return "";
       const target = line.targetPricePerTonne.trim();
-      const targetText = target ? ` | Target ${currency}/t: ${target}` : "";
+      const targetText = target ? ` | ${t.emailTarget} ${currency}/t: ${formatBillNumber(parseTubeNumber(target),locale,2)}` : "";
       return [
-        `${index + 1}. ${describeLine(line)}`,
-        ...(line.usProductIntent ? [`   Requested US product specification: ${line.usProductIntent}`] : []),
-        `   ${line.bars} bars × ${line.length} m | ${formatEnglishMass(mass.totalMeters, 2)} m | ${formatEnglishMass(mass.weightKgM, 3)} kg/m | ${formatEnglishMass(mass.totalTonnes, 4)} t${targetText}`,
+        `${index + 1}. ${describeLine(line,locale)}`,
+        ...(line.usProductIntent ? [`   ${t.emailProduct}: ${line.usProductIntent}`] : []),
+        `   ${formatBillNumber(parseTubeNumber(line.bars),locale,0)} × ${formatBillNumber(parseTubeNumber(line.length),locale)} m | ${formatBillNumber(mass.totalMeters,locale,2)} m | ${formatBillNumber(mass.weightKgM,locale)} kg/m | ${formatBillNumber(mass.totalTonnes,locale,4)} t${targetText}`,
       ].join("\n");
     });
     const emailText = [
-      "Subject: Request for quotation — steel tubes",
+      t.emailSubject,
       "",
-      "Dear Supplier,",
-      "Please quote the following steel tube requirements:",
+      t.emailGreeting,
+      t.emailIntro,
       "",
       ...rows,
       "",
-      `Estimated total: ${formatEnglishMass(totalMeters, 2)} m / ${formatEnglishMass(totalTonnes, 4)} t`,
-      notes.trim() ? `\nAdditional requirements:\n${notes.trim()}\n` : "",
-      "Please confirm availability, delivery lead time, applicable standards, certificates and commercial terms.",
-      "Theoretical weights are indicative and require supplier confirmation.",
+      `${t.emailTotal}: ${formatBillNumber(totalMeters,locale,2)} m / ${formatBillNumber(totalTonnes,locale,4)} t`,
+      notes.trim() ? `\n${t.emailNotes}\n${notes.trim()}\n` : "",
+      t.emailConfirm,
+      t.emailTheory,
       "",
-      "Best regards,",
+      t.emailClosing,
     ].join("\n");
     try {
       await navigator.clipboard.writeText(emailText);
@@ -264,75 +266,74 @@ export function EnglishRfqBillBuilder() {
   }
 
   return (
-    <section aria-label="English RFQ bill of materials builder" className="space-y-5">
+    <section aria-label={t.aria} className="space-y-5">
       {importedCount ? (
         <aside role="status" aria-live="polite" className="rounded-xl border border-[#b5d9c7] bg-[#edf8f1] p-4 text-sm text-[#123b34]">
-          <strong>{importedCount} calculation{importedCount === 1 ? "" : "s"} added to your RFQ bill ✓</strong>
-          <p className="mt-1 text-xs leading-5">Dimensions, standard or geometric method, bar count, length and density were transferred. Choose the steel grade before copying the supplier enquiry. No RFQ has been sent.</p>
+          <strong>{importedCount} {t.imported}</strong>
+          <p className="mt-1 text-xs leading-5">{t.importedInfo}</p>
         </aside>
       ) : null}
-      {importWarning ? <p role="alert" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">Bill full. Additional calculations remain pending in this tab.</p> : null}
+      {importWarning ? <p role="alert" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">{t.full}</p> : null}
       <div className="rounded-2xl border border-[#dce5e0] bg-white px-5 py-5 sm:px-7">
-        <p className="text-xs font-extrabold uppercase tracking-[0.13em] text-[#1f6b5a]">Free public tool · no account required</p>
-        <h2 className="mt-2 text-2xl font-bold text-[#123b34]">Prepare an RFQ bill of materials</h2>
+        <p className="text-xs font-extrabold uppercase tracking-[0.13em] text-[#1f6b5a]">{t.eyebrow}</p>
+        <h2 className="mt-2 text-2xl font-bold text-[#123b34]">{t.title}</h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-[#52615b]">
-          Add mixed products and standards, calculate indicative tonnage, and copy a supplier-ready RFQ email.
-          This public tool does not send an enquiry, store a commercial record or publish it on a marketplace.
+          {t.description}
         </p>
       </div>
 
       {calculated.map(({ line, mass, error }, index) => (
         <article key={line.id} className="rounded-2xl border border-[#dce5e0] bg-white p-4 sm:p-6">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h3 className="text-base font-bold text-[#123b34]">Item {index + 1}</h3>
+            <h3 className="text-base font-bold text-[#123b34]">{t.item} {index + 1}</h3>
             <button type="button" onClick={() => removeLine(line.id)} disabled={!hydrated || lines.length === 1}
               className="min-h-10 rounded-lg border border-[#d4ddd8] px-3 text-xs font-semibold text-[#52615b] hover:bg-[#f2f4f3] disabled:cursor-not-allowed disabled:opacity-40">
-              Remove item
+              {t.remove}
             </button>
           </div>
 
           {line.usProductIntent ? (
             <div className="mb-3 rounded-lg border border-[#bdd8cb] bg-[#f0f7f3] p-3 text-xs leading-6 text-[#123b34]">
-              <strong>Requested product specification — supplier confirmation required:</strong> {line.usProductIntent}
+              <strong>{t.usSpecification}</strong> {line.usProductIntent}
               <p>{line.standard==="aisc-a500"
-                ? "Mass uses the AISC A500 design-section model (0.93 nominal wall), not certified delivered mass."
-                : "Calculated mass uses geometric mode; this is not API/ASTM certification."}</p>
+                ? t.usHssCaveat
+                : t.usPipeCaveat}</p>
             </div>
           ) : null}
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <label className={label}>
-              Section type
+              {t.shape}
               <select className={control} value={line.shape} onChange={(event) => updateLine(line.id, { shape: event.target.value as PublicTubeShape })}>
-                <option value="round">CHS — circular</option>
-                <option value="square">SHS — square</option>
-                <option value="rectangular">RHS — rectangular</option>
+                <option value="round">{t.round}</option>
+                <option value="square">{t.square}</option>
+                <option value="rectangular">{t.rectangular}</option>
               </select>
             </label>
             <label className={label}>
-              Standard
+              {t.standard}
               <select className={control} value={line.standard} onChange={(event) => updateLine(line.id, { standard: event.target.value as PublicTubeStandard })}>
                 <option value="en10219">EN 10219</option>
                 <option value="en10210">EN 10210</option>
-                <option value="geometric">Geometric estimate</option>
-                <option value="aisc-a500">AISC A500 HSS design-section estimate</option>
+                <option value="geometric">{t.geometric}</option>
+                <option value="aisc-a500">{t.aisc}</option>
               </select>
             </label>
-            {field(line, "grade", "Steel grade")}
+            {field(line, "grade", t.grade)}
             {line.shape === "round"
-              ? field(line, "diameter", "Outside diameter (mm)")
-              : field(line, "width", line.shape === "square" ? "Outside side (mm)" : "Outside width (mm)")}
-            {line.shape === "rectangular" ? field(line, "height", "Outside height (mm)") : null}
-            {field(line, "thickness", "Wall thickness (mm)")}
-            {line.standard === "geometric" ? field(line, "density", "Material density (kg/m³)") : null}
-            {field(line, "length", "Bar length (m)")}
-            {field(line, "bars", "Quantity (bars)")}
-            {field(line, "targetPricePerTonne", `Optional target (${currency}/t)`, "Not specified")}
+              ? field(line, "diameter", t.diameter)
+              : field(line, "width", line.shape === "square" ? t.side : t.width)}
+            {line.shape === "rectangular" ? field(line, "height", t.height) : null}
+            {field(line, "thickness", t.wall)}
+            {line.standard === "geometric" ? field(line, "density", t.density) : null}
+            {field(line, "length", t.length)}
+            {field(line, "bars", t.bars)}
+            {field(line, "targetPricePerTonne", `${t.target} (${currency}/t)`, t.notSpecified)}
           </div>
           <div aria-live="polite" className="mt-4 rounded-xl bg-[#f0f6f2] px-4 py-3 text-xs text-[#123b34]">
             {mass.ok && !error ? (
-              <p><strong>{describeLine(line)}</strong> · {formatEnglishMass(mass.weightKgM, 3)} kg/m · {formatEnglishMass(mass.totalMeters, 2)} m · <strong>{formatEnglishMass(mass.totalTonnes, 4)} t</strong></p>
+              <p><strong>{describeLine(line,locale)}</strong> · {formatBillNumber(mass.weightKgM,locale)} kg/m · {formatBillNumber(mass.totalMeters,locale,2)} m · <strong>{formatBillNumber(mass.totalTonnes,locale,4)} t</strong></p>
             ) : (
-              <p role="alert" className="font-semibold text-[#9a4e22]">{error || (mass.ok ? "" : mass.error)}</p>
+              <p role="alert" className="font-semibold text-[#9a4e22]">{error || (mass.ok ? "" : t.invalidGeometry)}</p>
             )}
           </div>
         </article>
@@ -340,11 +341,11 @@ export function EnglishRfqBillBuilder() {
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <button type="button" onClick={addLine} disabled={!hydrated} className="inline-flex min-h-11 items-center rounded-xl border border-[#99b8aa] bg-white px-5 text-sm font-bold text-[#123b34] hover:bg-[#edf5f1] disabled:cursor-wait disabled:opacity-60">
-          + Add another item
+          {t.add}
         </button>
         <label className="text-xs font-semibold text-[#52615b]">
-          Target price currency
-          <select aria-label="Target price currency" className="ml-2 rounded-lg border border-[#c7d7cf] bg-white px-3 py-2 text-sm" value={currency} onChange={(event) => { setCurrency(event.target.value as "EUR" | "USD" | "GBP"); setCopyState("idle"); }}>
+          {t.currency}
+          <select aria-label={t.currency} className="ml-2 rounded-lg border border-[#c7d7cf] bg-white px-3 py-2 text-sm" value={currency} onChange={(event) => { setCurrency(event.target.value as "EUR" | "USD" | "GBP"); setCopyState("idle"); }}>
             <option value="EUR">EUR</option>
             <option value="USD">USD</option>
             <option value="GBP">GBP</option>
@@ -353,25 +354,25 @@ export function EnglishRfqBillBuilder() {
       </div>
 
       <label className="block text-sm font-semibold text-[#123b34]">
-        Additional requirements (optional)
+        {t.notes}
         <textarea value={notes} onChange={(event) => { setNotes(event.target.value); setCopyState("idle"); }}
-          rows={3} maxLength={5000} placeholder="E.g. delivery destination, EN 10204 3.1 certificate, surface finish, requested delivery date…"
+          rows={3} maxLength={5000} placeholder={t.notesPlaceholder}
           className="mt-2 block w-full rounded-xl border border-[#c7d7cf] bg-white px-4 py-3 text-sm font-normal text-[#123b34] focus:border-[#1f6b5a] focus:outline-none focus:ring-2 focus:ring-[#b9d7cb]" />
       </label>
 
       <div className="flex flex-wrap items-center justify-between gap-5 rounded-2xl bg-[#123b34] px-5 py-5 text-white sm:px-7">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#b4e0d0]">Bill summary</p>
-          <p className="mt-1 text-xl font-bold">{lines.length} item{lines.length === 1 ? "" : "s"} · {formatEnglishMass(totalMeters, 2)} m · {formatEnglishMass(totalTonnes, 4)} t</p>
-          {invalidCount ? <p role="alert" className="mt-2 text-xs text-[#ffdec8]">Correct {invalidCount} invalid item{invalidCount === 1 ? "" : "s"} to enable copying.</p> : null}
-          <p className="mt-2 text-xs text-[#dbeae4]">Values are not stored on the server. Supplier quotations must confirm all quantities and weights.</p>
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#b4e0d0]">{t.summary}</p>
+          <p className="mt-1 text-xl font-bold">{lines.length} {t.items} · {formatBillNumber(totalMeters,locale,2)} m · {formatBillNumber(totalTonnes,locale,4)} t</p>
+          {invalidCount ? <p role="alert" className="mt-2 text-xs text-[#ffdec8]">{invalidCount} · {t.invalidItems}</p> : null}
+          <p className="mt-2 text-xs text-[#dbeae4]">{t.privacy}</p>
         </div>
         <div className="flex flex-col gap-2">
           <button type="button" disabled={!hydrated || invalidCount > 0} onClick={copyRfq}
             className="inline-flex min-h-12 items-center justify-center rounded-xl bg-white px-5 text-sm font-bold text-[#123b34] hover:bg-[#e6f3ed] disabled:cursor-not-allowed disabled:opacity-40">
-            {copyState === "copied" ? "RFQ copied" : "Copy RFQ email"}
+            {copyState === "copied" ? t.copied : t.copy}
           </button>
-          {copyState === "failed" ? <p role="alert" className="text-xs text-[#ffdec8]">Clipboard unavailable. Check browser clipboard permissions.</p> : null}
+          {copyState === "failed" ? <p role="alert" className="text-xs text-[#ffdec8]">{t.copyFailed}</p> : null}
         </div>
       </div>
     </section>
