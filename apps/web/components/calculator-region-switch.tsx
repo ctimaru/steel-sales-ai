@@ -46,9 +46,7 @@ export function CalculatorRegionSwitch({
 
   return (
     <section className={styles.root} aria-label={english ? "Steel calculator region" : "Area del calcolatore acciaio"}>
-      <div className="mb-3 flex justify-end">
-        <CalculatorFlagLanguages locale={locale} />
-      </div>
+      {region==="us"?<div className="mb-3 flex justify-end"><CalculatorFlagLanguages locale={locale}/></div>:null}
       <div className={styles.header}>
         <div className={styles.headerCopy}>
           <p className={styles.eyebrow}>{english ? "SELECT CALCULATION SYSTEM" : "SCEGLI IL SISTEMA DI CALCOLO"}</p>
@@ -90,7 +88,7 @@ export function CalculatorRegionSwitch({
           {visited.eu ? (
             <>
               <PublicTubeWeightCalculator references={references}
-                initialValues={initialValues} locale={locale} />
+                initialValues={initialValues} locale={locale} showLanguageSwitcher />
               {euAfter ? <div className={styles.evidence}>{euAfter}</div> : null}
             </>
           ) : null}
