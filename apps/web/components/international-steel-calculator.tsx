@@ -24,6 +24,17 @@ const familyFrom=(v:string|undefined):Shape=>v==="square_tube"?"square":v==="rec
 const familyTo=(v:Shape)=>v==="round"?"round_tube":v==="square"?"square_tube":"rectangular_tube";
 const validStandard=(v:string|undefined):Standard=>["en10219","en10210","geometric"].includes(v??"")?v as Standard:"en10219";
 
+const controlClass="mt-2 min-h-12 w-full rounded-xl border border-[#9bb9ab] bg-white px-3 text-base text-[#123b34] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#117958]";
+// Stable component identity: typing must not remount the text input / lose focus.
+function CalcInput({label,value,onChange}:{
+  label:string;value:string;onChange:(v:string)=>void;
+}){
+  return <label className="block min-w-0 text-sm font-semibold text-[#123b34]">{label}
+    <input value={value} inputMode="decimal" type="text" onChange={e=>onChange(e.target.value)}
+      className={controlClass}/>
+  </label>;
+}
+
 export function InternationalSteelCalculator({locale,seed={}}:{
   locale:CalculatorLandingLocale;seed?:InternationalCalculatorSeed;
 }){
@@ -90,13 +101,6 @@ export function InternationalSteelCalculator({locale,seed={}}:{
     // No false claim of a DE/FR/ES RFQ workspace: English bill is available.
     window.location.assign("/en/distinta");
   }
-  const control="mt-2 min-h-12 w-full rounded-xl border border-[#9bb9ab] bg-white px-3 text-base text-[#123b34] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#117958]";
-  const Input=({label,value,onChange}:{label:string;value:string;onChange:(v:string)=>void})=>(
-    <label className="block min-w-0 text-sm font-semibold text-[#123b34]">{label}
-      <input value={value} inputMode="decimal" type="text" onChange={e=>{onChange(e.target.value);setStatus("");}}
-        className={control}/>
-    </label>
-  );
   return <section id="calcolatore-pesi" className="space-y-5 rounded-2xl border border-[#cfe2d7] bg-white p-4 shadow-sm sm:p-6" aria-label={t.title}>
     <div className="flex flex-wrap items-center justify-between gap-3">
       <p className="text-xs font-bold uppercase tracking-wider text-[#17644c]">EN 10219 · EN 10210 · kg/m</p>
@@ -104,24 +108,24 @@ export function InternationalSteelCalculator({locale,seed={}}:{
     </div>
     <div className="grid gap-4 sm:grid-cols-2">
       <label className="block text-sm font-semibold text-[#123b34]">{t.shape}
-        <select aria-label={t.shape} className={control} value={shape} onChange={e=>{setShape(e.target.value as Shape);setStatus("");}}>
+        <select aria-label={t.shape} className={controlClass} value={shape} onChange={e=>{setShape(e.target.value as Shape);setStatus("");}}>
           <option value="round">{t.round}</option><option value="square">{t.square}</option>
           <option value="rectangular">{t.rectangular}</option>
         </select>
       </label>
       <label className="block text-sm font-semibold text-[#123b34]">{t.standard}
-        <select aria-label={t.standard} className={control} value={standard} onChange={e=>{setStandard(e.target.value as Standard);setStatus("");}}>
+        <select aria-label={t.standard} className={controlClass} value={standard} onChange={e=>{setStandard(e.target.value as Standard);setStatus("");}}>
           {options.map(o=><option key={o.value} value={o.value}>{o.value==="geometric"?t.geometric:o.value==="en10219"?t.cold:t.hot}</option>)}
         </select>
       </label>
-      {shape==="round"?<Input label={t.diameter} value={diameter} onChange={setDiameter}/>:<>
-        <Input label={t.width} value={width} onChange={setWidth}/>
-        {shape==="rectangular"?<Input label={t.height} value={height} onChange={setHeight}/>:null}
+      {shape==="round"?<CalcInput label={t.diameter} value={diameter} onChange={v=>{setDiameter(v);setStatus("");}}/>:<>
+        <CalcInput label={t.width} value={width} onChange={v=>{setWidth(v);setStatus("");}}/>
+        {shape==="rectangular"?<CalcInput label={t.height} value={height} onChange={v=>{setHeight(v);setStatus("");}}/>:null}
       </>}
-      <Input label={t.wall} value={thickness} onChange={setThickness}/>
-      <Input label={t.length} value={length} onChange={setLength}/>
-      <Input label={t.bars} value={bars} onChange={setBars}/>
-      {standard==="geometric"?<Input label={t.density} value={density} onChange={setDensity}/>:null}
+      <CalcInput label={t.wall} value={thickness} onChange={v=>{setThickness(v);setStatus("");}}/>
+      <CalcInput label={t.length} value={length} onChange={v=>{setLength(v);setStatus("");}}/>
+      <CalcInput label={t.bars} value={bars} onChange={v=>{setBars(v);setStatus("");}}/>
+      {standard==="geometric"?<CalcInput label={t.density} value={density} onChange={v=>{setDensity(v);setStatus("");}}/>:null}
     </div>
     {calculated?<div role="status" aria-live="polite" className="grid gap-3 rounded-xl bg-[#edf7f1] p-4 sm:grid-cols-2">
       {[{label:t.result,n:calculated.weightKgM,unit:"kg/m"},
