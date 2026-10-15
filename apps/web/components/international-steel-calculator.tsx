@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { CalculatorFlagLanguages } from "@/components/calculator-flag-languages";
 import { calculatorRfqFromValues, enqueueCalculatorRfq } from "@/lib/calculator-rfq-handoff";
 import { estimatePublicTubeMass, parseTubeNumber } from "@/lib/international-tube-mass";
@@ -146,7 +145,6 @@ export function InternationalSteelCalculator({locale,seed={}}:{
     </div>
     <p role="status" aria-live="polite" className="text-xs text-[#3c6654]">{status}</p>
     <p className="text-xs leading-6 text-[#52615b]">{t.noLogin} {t.rfqEnglish}</p>
-    <Link href="/en/knowledge/tubes/american-pipe" hrefLang="en"
-      className="inline-flex min-h-11 items-center text-sm font-semibold text-[#176c53] underline underline-offset-4">{t.readMore} →</Link>
+    <p className="text-sm font-semibold text-[#176c53]">{t.readMore}</p>
   </section>;
 }
