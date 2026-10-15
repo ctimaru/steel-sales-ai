@@ -23,7 +23,7 @@ import httpx
 
 OFFICIAL_INDEX = "https://www.rna.gov.it/open-data/aiuti"
 URL_PATTERN = re.compile(
-    r"^/sites/rna\.mise\.gov\.it/files/opendata/OpenData_Aiuti_20\d{2}_(?:0[1-9]|1[0-2])(?:_\d{3})?\.xml$"
+    r"^/sites/rna\.mise\.gov\.it/files/opendata/OpenData_Aiuti_20\d{2}_(?:0[1-9]|1[0-2])(?:_\d{3})?(?:\.xml)?$"
 )
 MAX_DOWNLOAD_BYTES = 180_000_000
 MAX_OUTPUT_ROWS = 300
@@ -119,7 +119,7 @@ def candidate_from_aiuto(element: ET.Element, target: str) -> dict[str, str] | N
 
 
 def export_rna_candidates(
-    input_file: Path, output_file: Path,
+    input_file: Path, output_file: Path | None,
     target: str = "both", max_rows: int = 200,
 ) -> dict[str, object]:
     if target not in ("trader", "buyer", "both"):
@@ -162,13 +162,16 @@ def export_rna_candidates(
             break
     if root is None:
         raise ValueError("Empty RNA XML")
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    with output_file.open("w", encoding="utf-8-sig", newline="") as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=[
-            "company_name", "corporate_tax_id", "role", "source_record_id", "evidence_url"
-        ])
-        writer.writeheader()
-        writer.writerows(selected)
+    # Public GitHub repositories MUST NOT upload artifacts containing company IDs.
+    # summary-only mode does not even materialize the CSV in the runner filesystem.
+    if output_file is not None:
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        with output_file.open("w", encoding="utf-8-sig", newline="") as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=[
+                "company_name", "corporate_tax_id", "role", "source_record_id", "evidence_url"
+            ])
+            writer.writeheader()
+            writer.writerows(selected)
     return {
         "source": "MIMIT_RNA_open_data_corporate_only",
         "mode": "OFFLINE_CSV_PREVIEW",
@@ -185,16 +188,21 @@ def export_rna_candidates(
 
 
 async def run(args: argparse.Namespace) -> int:
+    if args.summary_only and args.output:
+        raise ValueError("A public summary cannot include CSV output")
+    if not args.summary_only and not args.output:
+        raise ValueError("Local CSV conversion requires an output path")
+    output = None if args.summary_only else Path(args.output)
     if args.dataset_url:
         with tempfile.TemporaryDirectory(prefix="rna-preview-") as directory:
             input_file = Path(directory) / "official.xml"
             size = await download_rna_xml(args.dataset_url, input_file)
-            report = export_rna_candidates(input_file, Path(args.output), args.segment, args.limit)
+            report = export_rna_candidates(input_file, output, args.segment, args.limit)
             report["source_bytes"] = size
     else:
         if not args.input:
             raise ValueError("Provide --input or --dataset-url")
-        report = export_rna_candidates(Path(args.input), Path(args.output), args.segment, args.limit)
+        report = export_rna_candidates(Path(args.input), output, args.segment, args.limit)
     print(json.dumps(report, indent=2, sort_keys=True))
     return 0
 
@@ -205,7 +213,8 @@ def main() -> int:
     parser.add_argument("--dataset-url", help="Exact official RNA monthly XML download URL")
     parser.add_argument("--segment", choices=("trader", "buyer", "both"), default="both")
     parser.add_argument("--limit", type=int, default=200)
-    parser.add_argument("--output", required=True)
+    parser.add_argument("--output", help="Private local CSV file; forbidden with --summary-only")
+    parser.add_argument("--summary-only", action="store_true", help="Aggregate counts only, no CSV file or company identifiers")
     return asyncio.run(run(parser.parse_args()))
 
 
