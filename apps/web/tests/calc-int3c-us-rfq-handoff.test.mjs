@@ -102,6 +102,7 @@ test("CALC-INT3C wires full US source intent to both RFQ bills but never automat
   assert.match(en,/Requested US product specification/);
   assert.match(en,/usProductIntent/);
   assert.match(en,/consumeUsPipeRfqIds\(window\.sessionStorage/);
+  assert.match(en,/usProductIntent:geometryChanged \? undefined : line\.usProductIntent/);
   assert.match(original,/calculatorItemToBuyerLine\(/);
   assert.doesNotMatch(source,/dispatchRfq|createClient\(|supabase\.from|fetch\(/);
 });
