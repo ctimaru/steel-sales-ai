@@ -102,6 +102,15 @@ export default async function InternationalTubeCalculatorPage({params,searchPara
           <p className="mt-2 text-sm text-[#52615b]">{copy.rfqEnglish}</p>
         </div>
       </section>
+      <section aria-labelledby="international-calculator-us" className="rounded-xl border border-[#c7dcd1] bg-white p-5 sm:p-6">
+        <h2 id="international-calculator-us" className="text-lg font-bold text-[#123b34]">{copy.usTitle}</h2>
+        <p className="mt-3 max-w-4xl text-sm leading-7 text-[#52615b]">{copy.usDescription}</p>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <p className="rounded-xl bg-[#f3f9f5] p-4 text-sm leading-7 text-[#345649]">{copy.usNps}</p>
+          <p className="rounded-xl bg-[#f3f9f5] p-4 text-sm leading-7 text-[#345649]">{copy.usHss}</p>
+        </div>
+        <p className="mt-3 text-xs leading-6 text-[#4f6359]">{copy.usCaveat}</p>
+      </section>
       <section aria-labelledby="international-calculator-faq">
         <h2 id="international-calculator-faq" className="text-xl font-bold text-[#123b34]">{copy.faqTitle}</h2>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
