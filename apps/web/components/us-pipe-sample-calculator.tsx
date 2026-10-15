@@ -158,18 +158,19 @@ export function UsPipeSampleCalculator({ locale,initialValues={} }: { locale:Loc
 
   const copiedText = () => {
     if (!result || !selectedStandard) return "";
+    const i18n=locale==="it"||locale==="en"?null:US_PIPE_I18N[locale];
     return [
-      `Requested product specification (to verify): ${selectedStandard.title}`,
+      `${i18n?.clipProduct??"Requested product specification (to verify)"}: ${selectedStandard.title}`,
       inputMode==="catalog"
-        ? `Manufacturer sample designation: NPS ${row.nps}, Sch/Class ${row.schedule}`
-        : "User-supplied dimensions: no verified NPS/Schedule designation",
+        ? `${i18n?.clipCatalog??"Manufacturer sample designation"}: NPS ${row.nps}, Sch/Class ${row.schedule}`
+        : (i18n?.clipCustom??"User-supplied dimensions: no verified NPS/Schedule designation"),
       `OD ${activeDiameter} mm, nominal wall ${activeWall} mm`,
-      `Theoretical geometry-only mass: ${result.weightKgM.toFixed(3)} kg/m`,
+      `${i18n?.clipGeometry??"Theoretical geometry-only mass"}: ${result.weightKgM.toFixed(3)} kg/m`,
       inputMode==="catalog"
-        ? `Manufacturer-published reference: ${row.publishedWeightKgM} kg/m (U.S. Steel ${sampleLocator})`
-        : "No manufacturer-published reference for user-supplied dimensions.",
-      `Bars: ${quantity}, length: ${metres} m, theoretical total: ${result.totalKg.toFixed(3)} kg`,
-      "Product grade, edition, PSL, tolerances, NPS/Schedule mapping and certification to be confirmed by supplier.",
+        ? `${i18n?.clipPublished??"Manufacturer-published reference"}: ${row.publishedWeightKgM} kg/m (U.S. Steel ${sampleLocator})`
+        : (i18n?.clipNoPublished??"No manufacturer-published reference for user-supplied dimensions."),
+      `${i18n?.clipBars??"Bars"}: ${quantity}, ${copy.length}: ${metres} m, ${copy.total}: ${result.totalKg.toFixed(3)} kg`,
+      i18n?.clipFooter??"Product grade, edition, PSL, tolerances, NPS/Schedule mapping and certification to be confirmed by supplier.",
     ].join("\\n");
   };
 
