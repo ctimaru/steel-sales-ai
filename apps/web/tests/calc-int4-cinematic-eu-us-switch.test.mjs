@@ -64,7 +64,7 @@ test("CALC-INT4 preserves independent public canonical URLs and both RFQ handoff
   assert.match(enUs,/languages: \{ it: absoluteUrl\(other\), en: absoluteUrl\(path\) \}/);
   for(const path of ["/knowledge/tubes","/en/knowledge/tubes",
     "/knowledge/tubes/tubi-americani","/en/knowledge/tubes/american-pipe"]){
-    assert.match(sitemap,new RegExp(`url: absoluteUrl\\("${path}\\)"`));
+    assert.ok(sitemap.includes(`url: absoluteUrl("${path}")`), `Missing sitemap entry: ${path}`);
   }
   assert.match(it,/robotsForParameterizedPage\(hasParameters\)/);
   assert.match(en,/robotsForParameterizedPage\(hasParameters\)/);
