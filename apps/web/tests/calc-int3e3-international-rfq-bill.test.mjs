@@ -56,7 +56,7 @@ test("CALC-INT3E.3 all RFQ bill fields and supplier-email text translated withou
   assert.notEqual(copy.emailSubject,bill.RFQ_BILL_TEXT.en.emailSubject);
   assert.match(copy.usHssCaveat,/AISC/);
   assert.match(copy.usPipeCaveat,/API/);
-  assert.match(copy.privacy,/server|Server/i);
+  assert.match(copy.privacy,/server|serveur|servidor/i);
  }
  assert.equal(bill.formatBillNumber(168.3,"de"),"168,3");
  assert.equal(bill.formatBillNumber(168.3,"fr"),"168,3");
