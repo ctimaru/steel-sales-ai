@@ -50,6 +50,15 @@ select pg_temp.p32_assert(
   'superadmin must be able to create a queued discovery run'
 );
 
+select public.pa1_5_review_discovery_run_governance(
+  :'run_id'::uuid,
+  'approved',
+  'allows_reuse',
+  'low_risk',
+  'company_data_only',
+  'P3.2 fixture source approved under PA1.5'
+);
+
 reset role;
 
 set local role service_role;
@@ -97,15 +106,6 @@ select pg_temp.p32_assert(
     where x->>'id'='00000000-0000-0000-0000-0000000032c1'
   ),
   'pending crawler candidate must be visible to superadmin review queue'
-);
-
-select public.pa1_5_review_discovery_run_governance(
-  :'run_id'::uuid,
-  'approved',
-  'allows_reuse',
-  'low_risk',
-  'company_data_only',
-  'P3.2 fixture source approved under PA1.5'
 );
 
 select public.pa1_5_review_discovery_candidate_governance(
