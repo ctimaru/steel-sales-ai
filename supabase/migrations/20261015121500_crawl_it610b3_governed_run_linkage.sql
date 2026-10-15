@@ -1,6 +1,6 @@
 -- CRAWL-IT6.10b.3: operator-authorized, source-bound lead/run link.
 -- No candidate insert, auto-approval, publication or background activation.
-create or replace function public.crawl_it610b3_link_lead_run(
+create or replace function private.crawl_it610b3_link_lead_run_impl(
  p_lead_id uuid, p_run_id uuid
 ) returns jsonb
 language plpgsql security definer set search_path=''
@@ -50,7 +50,13 @@ begin
  set intake_run_id=p_run_id where id=p_lead_id;
  return jsonb_build_object('status','linked_for_review','updated',1,'published',0);
 end $$;
+revoke all on function private.crawl_it610b3_link_lead_run_impl(uuid,uuid) from public,anon,authenticated;
+grant execute on function private.crawl_it610b3_link_lead_run_impl(uuid,uuid) to authenticated;
+create or replace function public.crawl_it610b3_link_lead_run(p_lead_id uuid,p_run_id uuid)
+returns jsonb language sql security invoker set search_path='' as $$
+ select private.crawl_it610b3_link_lead_run_impl(p_lead_id,p_run_id);
+$$;
 revoke all on function public.crawl_it610b3_link_lead_run(uuid,uuid) from public,anon,authenticated;
 grant execute on function public.crawl_it610b3_link_lead_run(uuid,uuid) to authenticated;
 comment on function public.crawl_it610b3_link_lead_run(uuid,uuid) is
-'Platform discovery.run permission and own explicitly approved source-matched run required; links pending lead only, no publication.';
+'Platform operator verified by private implementation; source-matched owned approved run, pending lead only.';
