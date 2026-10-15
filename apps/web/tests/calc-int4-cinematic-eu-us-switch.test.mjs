@@ -21,15 +21,15 @@ test("CALC-INT4 integrates a single in-page switch in four existing localized pa
   for(const p of [itUs,enUs]){
     assert.match(p,/CalculatorRegionSwitch locale="(?:it|en)" initialRegion="us" references=\{\[\]\}/);
   }
-  assert.match(switcher,/PublicTubeWeightCalculator references=\{references\}/);
-  assert.match(switcher,/UsPipeSampleCalculator locale=\{locale\}/);
+  assert.match(switcher,/PublicTubeWeightCalculator references=\{references\?\?\[\]\}/);
+  assert.match(switcher,/UsPipeSampleCalculator locale=\{locale\} initialValues=\{usInitialValues\}/);
   assert.match(switcher,/euAfter\?: ReactNode/);
 });
 
 test("CALC-INT4 retains state after switching, supports both languages and keyboard accessibility",()=>{
   assert.match(switcher,/useState\(\{/);
-  assert.match(switcher,/eu: initialRegion === "eu"/);
-  assert.match(switcher,/us: initialRegion === "us"/);
+  assert.match(switcher,/eu: entryRegion === "eu"/);
+  assert.match(switcher,/us: entryRegion === "us"/);
   assert.match(switcher,/setVisited\(\(current\) => \(\{ \.\.\.current, \[next\]: true \}\)\)/);
   assert.match(switcher,/role="group"/);
   assert.match(switcher,/aria-pressed=\{region === "eu"\}/);
