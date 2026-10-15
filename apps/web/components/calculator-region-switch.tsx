@@ -6,6 +6,7 @@ import {
   PublicTubeWeightCalculator,
 } from "@/components/public-tube-weight-calculator";
 import { UsPipeSampleCalculator } from "@/components/us-pipe-sample-calculator";
+import { CalculatorFlagLanguages } from "@/components/calculator-flag-languages";
 import styles from "./calculator-region-switch.module.css";
 
 type Region = "eu" | "us";
@@ -45,6 +46,9 @@ export function CalculatorRegionSwitch({
 
   return (
     <section className={styles.root} aria-label={english ? "Steel calculator region" : "Area del calcolatore acciaio"}>
+      <div className="mb-3 flex justify-end">
+        <CalculatorFlagLanguages locale={locale} />
+      </div>
       <div className={styles.header}>
         <div className={styles.headerCopy}>
           <p className={styles.eyebrow}>{english ? "SELECT CALCULATION SYSTEM" : "SCEGLI IL SISTEMA DI CALCOLO"}</p>
