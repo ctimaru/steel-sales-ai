@@ -193,6 +193,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
     },
     {
+      url: absoluteUrl("/knowledge/tubes/tubi-americani"),
+      changeFrequency: "monthly",
+      priority: 0.8,
+      alternates: { languages: {
+        it: absoluteUrl("/knowledge/tubes/tubi-americani"),
+        en: absoluteUrl("/en/knowledge/tubes/american-pipe"),
+      } },
+    },
+    {
+      url: absoluteUrl("/en/knowledge/tubes/american-pipe"),
+      changeFrequency: "monthly",
+      priority: 0.82,
+      alternates: { languages: {
+        it: absoluteUrl("/knowledge/tubes/tubi-americani"),
+        en: absoluteUrl("/en/knowledge/tubes/american-pipe"),
+      } },
+    },
+    {
       url: absoluteUrl("/distinta"),
       changeFrequency: "monthly",
       priority: 0.88,
