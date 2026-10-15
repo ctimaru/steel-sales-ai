@@ -3,7 +3,7 @@
 create or replace function public.crawl_it610b3_link_lead_run(
  p_lead_id uuid, p_run_id uuid
 ) returns jsonb
-language plpgsql security invoker set search_path=''
+language plpgsql security definer set search_path=''
 as $$
 declare
  v_lead public.network_discovery_domain_leads%rowtype;
