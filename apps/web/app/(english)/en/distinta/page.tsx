@@ -16,6 +16,9 @@ export const metadata: Metadata = {
     languages: {
       it: absoluteUrl("/distinta"),
       en: absoluteUrl("/en/distinta"),
+      de: absoluteUrl("/de/distinta"),
+      fr: absoluteUrl("/fr/distinta"),
+      es: absoluteUrl("/es/distinta"),
     },
   },
   openGraph: {
