@@ -25,7 +25,7 @@ const migration = fs.readFileSync(
 
 test("K5 turns the public tube page into an indexable calculator landing page", () => {
   assert.match(page, /Calcolo peso tubo acciaio/);
-  assert.match(page, /PublicTubeWeightCalculator/);
+  assert.match(page, /CalculatorRegionSwitch/);
   assert.match(page, /Come si calcola il peso di un tubo in acciaio/);
   assert.match(page, /WebApplication/);
   assert.match(page, /TechArticle/);
