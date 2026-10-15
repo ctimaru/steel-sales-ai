@@ -237,7 +237,7 @@ export function BuyerDistintaBuilder({
         barLengthM:String(spec.lengthM),
         weightKgM:spec.theoreticalKgM.toLocaleString("it-IT",{maximumFractionDigits:3}),
         targetEurT:"",
-        note:`${spec.provenanceNote} Requested: ${spec.standardLabel}; ${spec.designation}. Manufacturer-published reference ${spec.publishedKgM} kg/m (comparison only, not RFQ mass).`,
+        note:`${spec.provenanceNote} Requested: ${spec.standardLabel}; ${spec.designation}. ${spec.publishedKgM != null ? `Manufacturer-published reference ${spec.publishedKgM} kg/m (comparison only, not RFQ mass).` : `No manufacturer-published weight exists for this user-supplied geometry.`}`,
       }];
     });
     if (imported.length) {
