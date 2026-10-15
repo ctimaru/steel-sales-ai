@@ -13,7 +13,7 @@ import { findUsPipeSample } from "@/lib/us-pipe-catalog-sample";
 
 export const US_PIPE_RFQ_KEY = "sss:us-pipe-rfq-handoff:v2";
 export const US_PIPE_RFQ_TTL_MS = 10 * 60 * 1000;
-export type UsProductStandard = "api5l" | "astm-a53" | "astm-a106";
+export type UsProductStandard = "api5l" | "astm-a53" | "astm-a106" | "astm-a500";
 type UsPipeRfqBase = {
   version: 2;
   id: string;
@@ -31,7 +31,17 @@ export type UsPipeRfqCustomItem = UsPipeRfqBase & {
   thicknessMm: number;
   sampleId?: never;
 };
-export type UsPipeRfqItem = UsPipeRfqCatalogItem | UsPipeRfqCustomItem;
+export type UsPipeRfqHssItem = UsPipeRfqBase & {
+  mode: "hss";
+  productStandard: "astm-a500";
+  hssShape: "round" | "square" | "rectangular";
+  outerDiameterMm?: number;
+  widthMm?: number;
+  heightMm?: number;
+  thicknessMm: number;
+  sampleId?: never;
+};
+export type UsPipeRfqItem = UsPipeRfqCatalogItem | UsPipeRfqCustomItem | UsPipeRfqHssItem;
 
 export type UsPipeRfqSpecification = {
   standardLabel: string;
@@ -45,11 +55,16 @@ export type UsPipeRfqSpecification = {
   publishedKgM: number | null;
   publisherPage: number | null;
   provenanceNote: string;
+  shape: "round" | "square" | "rectangular";
+  widthMm: number | null;
+  heightMm: number | null;
+  calculationMethod: "geometric" | "aisc-a500";
 };
 const productLabels: Record<UsProductStandard,string> = {
   api5l:"API Spec 5L (edition and PSL to confirm)",
   "astm-a53":"ASTM A53/A53M (grade/type to confirm)",
   "astm-a106":"ASTM A106/A106M (grade to confirm)",
+  "astm-a500":"ASTM A500/A500M-23 HSS (grade/certification to confirm)",
 };
 const obj=(value:unknown):value is Record<string,unknown> =>
   Boolean(value) && typeof value==="object" && !Array.isArray(value);
@@ -62,7 +77,7 @@ export function validUsPipeRfqItem(raw:unknown,now=Date.now()):UsPipeRfqItem|nul
     typeof raw.createdAt!=="number" || !Number.isFinite(raw.createdAt) ||
     raw.createdAt>now+1000 || now-raw.createdAt>US_PIPE_RFQ_TTL_MS ||
     typeof raw.productStandard!=="string" ||
-    !["api5l","astm-a53","astm-a106"].includes(raw.productStandard) ||
+    !["api5l","astm-a53","astm-a106","astm-a500"].includes(raw.productStandard) ||
     !validNum(raw.lengthM,1000) || !validNum(raw.bars,1_000_000) ||
     !Number.isSafeInteger(raw.bars)) return null;
   const common:UsPipeRfqBase = {
@@ -70,8 +85,29 @@ export function validUsPipeRfqItem(raw:unknown,now=Date.now()):UsPipeRfqItem|nul
     productStandard:raw.productStandard as UsProductStandard,
     lengthM:raw.lengthM as number,bars:raw.bars as number,
   };
+  if(raw.mode==="hss") {
+    if(raw.productStandard!=="astm-a500" || raw.sampleId!==undefined ||
+      !["round","square","rectangular"].includes(String(raw.hssShape)) ||
+      !validNum(raw.thicknessMm,25.4))return null;
+    const shape=raw.hssShape as UsPipeRfqHssItem["hssShape"];
+    const perimeter=shape==="round"
+      ? Math.PI*(raw.outerDiameterMm as number)
+      : 2*((raw.widthMm as number)+(shape==="square"?(raw.widthMm as number):(raw.heightMm as number)));
+    const validGeometry=shape==="round"
+      ? validNum(raw.outerDiameterMm,2500) && (raw.outerDiameterMm as number)>2*(raw.thicknessMm as number)
+        && raw.widthMm===undefined && raw.heightMm===undefined
+      : validNum(raw.widthMm,2500) && (raw.widthMm as number)>2*(raw.thicknessMm as number)
+        && (shape==="square" ? raw.heightMm===undefined :
+          validNum(raw.heightMm,2500) && (raw.heightMm as number)>2*(raw.thicknessMm as number))
+        && raw.outerDiameterMm===undefined;
+    if(!validGeometry || !Number.isFinite(perimeter) || perimeter>88*25.4)return null;
+    return {...common,mode:"hss",productStandard:"astm-a500",hssShape:shape,
+      thicknessMm:raw.thicknessMm as number,
+      ...(shape==="round"?{outerDiameterMm:raw.outerDiameterMm as number}
+        :{widthMm:raw.widthMm as number,...(shape==="rectangular"?{heightMm:raw.heightMm as number}:{})})};
+  }
   if(raw.mode==="custom") {
-    if(raw.sampleId!==undefined ||
+    if(raw.productStandard==="astm-a500" || raw.sampleId!==undefined ||
       !validNum(raw.outerDiameterMm,2500) ||
       !validNum(raw.thicknessMm,250) ||
       (raw.thicknessMm as number)*2 >= (raw.outerDiameterMm as number)) return null;
@@ -80,7 +116,7 @@ export function validUsPipeRfqItem(raw:unknown,now=Date.now()):UsPipeRfqItem|nul
       outerDiameterMm:raw.outerDiameterMm as number,
       thicknessMm:raw.thicknessMm as number};
   }
-  if(raw.mode!==undefined || typeof raw.sampleId!=="string" ||
+  if(raw.mode!==undefined || raw.productStandard==="astm-a500" || typeof raw.sampleId!=="string" ||
     !findUsPipeSample(raw.sampleId))return null;
   return {...common,sampleId:raw.sampleId};
 }
@@ -88,7 +124,8 @@ export function validUsPipeRfqItem(raw:unknown,now=Date.now()):UsPipeRfqItem|nul
 export function buildUsPipeRfqItem(
   selection:
     | {sampleId:string;productStandard:UsProductStandard;lengthM:number;bars:number}
-    | {mode:"custom";outerDiameterMm:number;thicknessMm:number;productStandard:UsProductStandard;lengthM:number;bars:number},
+    | {mode:"custom";outerDiameterMm:number;thicknessMm:number;productStandard:UsProductStandard;lengthM:number;bars:number}
+    | {mode:"hss";hssShape:"round"|"square"|"rectangular";outerDiameterMm?:number;widthMm?:number;heightMm?:number;thicknessMm:number;productStandard:"astm-a500";lengthM:number;bars:number},
   id:string,now=Date.now(),
 ):UsPipeRfqItem|null {
   return validUsPipeRfqItem({version:2,id,createdAt:now,...selection},now);
@@ -133,26 +170,38 @@ export function consumeUsPipeRfqIds(
 export function usPipeRfqSpecification(input:UsPipeRfqItem):UsPipeRfqSpecification|null {
   const valid=validUsPipeRfqItem(input);
   if(!valid)return null;
-  const row=valid.mode==="custom"?null:findUsPipeSample(valid.sampleId);
-  if(valid.mode!=="custom" && !row)return null;
-  const diameter=valid.mode==="custom"?valid.outerDiameterMm:row!.outerDiameterMm;
-  const thickness=valid.mode==="custom"?valid.thicknessMm:row!.thicknessMm;
+  const row=valid.mode==="custom" || valid.mode==="hss"?null:findUsPipeSample(valid.sampleId);
+  if(valid.mode!=="custom" && valid.mode!=="hss" && !row)return null;
+  const diameter=valid.mode==="custom"?valid.outerDiameterMm
+    :valid.mode==="hss"?valid.outerDiameterMm:row!.outerDiameterMm;
+  const thickness=valid.mode==="hss"?valid.thicknessMm
+    :valid.mode==="custom"?valid.thicknessMm:row!.thicknessMm;
+  const shape=valid.mode==="hss"?valid.hssShape:"round";
+  const width=valid.mode==="hss"?valid.widthMm:undefined;
+  const height=valid.mode==="hss"?valid.heightMm:undefined;
+  const method=valid.mode==="hss"?"aisc-a500":"geometric";
   const mass=estimatePublicTubeMass({
-    shape:"round",standard:"geometric",outerDiameterMm:diameter,
+    shape,standard:method,outerDiameterMm:diameter,
+    widthMm:width,heightMm:height,
     thicknessMm:thickness,lengthM:valid.lengthM,bars:valid.bars,densityKgM3:7850,
   });
   if(!mass.ok)return null;
-  const designation=row
-    ? `NPS ${row.nps} Sch/Class ${row.schedule}`
+  const designation=valid.mode==="hss"
+    ? (shape==="round"?`HSS Round OD ${diameter}`
+      :shape==="square"?`HSS Square ${width} × ${width}`
+      :`HSS Rectangular ${width} × ${height}`)+` × nominal wall ${thickness} mm`
+    :row ? `NPS ${row.nps} Sch/Class ${row.schedule}`
     : `User dimensions OD ${diameter} × wall ${thickness} mm (no NPS/Schedule verification)`;
-  const sourceEvidence=row
-    ? (row.sourcePage!=null ? `U.S. Steel manufacturer sample p.${row.sourcePage}`
+  const sourceEvidence=valid.mode==="hss"
+    ? "User-entered ASTM A500 HSS dimensions; AISC section-property proxy t_design = 0.93 t_nom and r_out = 2 t_design (SHS/RHS). No manufacturer tabulated or certified weight"
+    :row ? (row.sourcePage!=null ? `U.S. Steel manufacturer sample p.${row.sourcePage}`
       : `U.S. Steel public ${row.sourceLocation ?? "Pipe Tables"}`)
     : "User-entered geometry with no manufacturer dimension source";
   return {
     standardLabel:productLabels[valid.productStandard],
     designation,sampleId:row?.id ?? "custom",
-    outerDiameterMm:diameter,wallMm:thickness,
+    outerDiameterMm:diameter ?? 0,wallMm:thickness,
+    shape,widthMm:width ?? null,heightMm:height ?? null,calculationMethod:method,
     bars:valid.bars,lengthM:valid.lengthM,theoreticalKgM:mass.weightKgM,
     publishedKgM:row?.publishedWeightKgM ?? null,
     publisherPage:row?.sourcePage ?? null,
