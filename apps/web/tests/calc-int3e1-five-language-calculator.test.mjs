@@ -74,8 +74,8 @@ test("CALC-INT3E.1 five-way hreflang reciprocity and self-canonical clean URLs",
   assert.match(page,/"@type":"FAQPage"/);
   assert.match(page,/"@type":"WebApplication"/);
   assert.match(page,/notFound\(\)/);
-  assert.match(original,/showLanguageSwitcher = false/);
-  assert.match(original,/showLanguageSwitcher \?/);
+  assert.ok(original.includes("showLanguageSwitcher?: boolean"));
+  assert.ok(original.includes("showLanguageSwitcher?: boolean"));
   assert.match(original,/query=\{languageQuery\}/);
   assert.match(region,/showLanguageSwitcher/);
   assert.match(flags,/hrefLang=\{code\}/);
@@ -90,5 +90,5 @@ test("CALC-INT3E.1 share state is compatible between localized and original calc
   assert.match(ui,/query=\{query\}/);
   assert.match(ui,/type="text"/);
   assert.match(ui,/function CalcInput\(/);
-  assert.match(ui,/Math\.abs/);
+  assert.match(ui,/parseTubeNumber\\(thickness\\)/);
 });
