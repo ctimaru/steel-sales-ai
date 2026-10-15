@@ -44,7 +44,7 @@ function storedEnglishBill(value: string | null) {
     if (obj.version!==1 || typeof obj.at!=="number" ||
         obj.at>Date.now()+60_000 || Date.now()-obj.at>EN_BILL_SESSION_TTL ||
         !Array.isArray(obj.lines) || !obj.lines.length || obj.lines.length>50) return null;
-    const allowed = new Set(["en10219","en10210","geometric"]);
+    const allowed = new Set(["en10219","en10210","geometric","aisc-a500"]);
     const shapes = new Set(["round","square","rectangular"]);
     const keys = ["grade","diameter","width","height","thickness","bars","length","targetPricePerTonne","density"];
     const safeContext = (v:unknown):v is string => typeof v==="string" && v.length<=450 && !/[<>\r\n]/.test(v);
@@ -80,8 +80,10 @@ function fromUsPipeCalculator(
   if(!value)return null;
   const productIntent=`${value.standardLabel}; ${value.designation}; ${value.provenanceNote}`;
   return {
-    id,shape:"round",standard:"geometric",grade:"",
-    diameter:String(value.outerDiameterMm),width:"",height:"",
+    id,shape:value.shape,standard:value.calculationMethod,grade:"",
+    diameter:value.shape==="round"?String(value.outerDiameterMm):"",
+    width:value.shape==="round"?"":String(value.widthMm),
+    height:value.shape==="rectangular"?String(value.heightMm):"",
     thickness:String(value.wallMm),bars:String(value.bars),
     length:String(value.lengthM),targetPricePerTonne:"",
     density:"7850",usProductIntent:productIntent,
@@ -292,7 +294,9 @@ export function EnglishRfqBillBuilder() {
           {line.usProductIntent ? (
             <div className="mb-3 rounded-lg border border-[#bdd8cb] bg-[#f0f7f3] p-3 text-xs leading-6 text-[#123b34]">
               <strong>Requested product specification — supplier confirmation required:</strong> {line.usProductIntent}
-              <p>Calculated mass uses geometric mode; this is not API/ASTM certification.</p>
+              <p>{line.standard==="aisc-a500"
+                ? "Mass uses the AISC A500 design-section model (0.93 nominal wall), not certified delivered mass."
+                : "Calculated mass uses geometric mode; this is not API/ASTM certification."}</p>
             </div>
           ) : null}
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -310,6 +314,7 @@ export function EnglishRfqBillBuilder() {
                 <option value="en10219">EN 10219</option>
                 <option value="en10210">EN 10210</option>
                 <option value="geometric">Geometric estimate</option>
+                <option value="aisc-a500">AISC A500 HSS design-section estimate</option>
               </select>
             </label>
             {field(line, "grade", "Steel grade")}
