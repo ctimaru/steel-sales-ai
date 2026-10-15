@@ -35,6 +35,7 @@ type LandingCopy={
  copy:string;copied:string;copyFailed:string;addBill:string;addFailed:string;
  invalid:string;disclaimer:string;methodTitle:string;methodText:string;
  readMore:string;rfqEnglish:string;noLogin:string;
+ usTitle:string;usDescription:string;usNps:string;usHss:string;usCaveat:string;
  faqTitle:string;faq:[{q:string;a:string},{q:string;a:string},{q:string;a:string}];
 };
 export const CALCULATOR_TRANSLATIONS: Record<CalculatorLandingLocale,LandingCopy>={
@@ -55,6 +56,11 @@ export const CALCULATOR_TRANSLATIONS: Record<CalculatorLandingLocale,LandingCopy
   methodTitle:"EN 10210 und EN 10219: Unterschied bei den Ecken",
   methodText:"Für quadratische und rechteckige Hohlprofile verwenden die Berechnungsmodelle unterschiedliche nominelle Eckradien. Dadurch können sich die berechneten kg/m bei gleichen Außenmaßen unterscheiden. Die tatsächliche Lieferung muss mit dem Hersteller abgeglichen werden.",
   readMore:"Zum US-Rohrrechner (Englisch)",rfqEnglish:"Die anschließende Anfrage-Stückliste ist derzeit auf Englisch verfügbar; die Maße und die Methode bleiben erhalten.",noLogin:"Kostenlos, ohne Anmeldung.",
+  usTitle:"USA-Rohrgewichte: NPS / Schedule, API und ASTM A500",
+  usDescription:"Wechseln Sie oben mit dem Schalter 🇪🇺 / 🇺🇸 zwischen EN 10210/10219 und US-Rohrmaßen. Die amerikanische Berechnung umfasst ausgewählte NPS/Schedule-Rohre, freie Maße und HSS ASTM A500.",
+  usNps:"NPS und Schedule: 20 herstellerbasierte U.S.-Steel-Beispiele, API 5L, ASTM A53 oder ASTM A106 nur als angefragte Produktspezifikation. Der berechnete kg/m-Wert bleibt geometrisch; Katalogwerte werden getrennt dargestellt.",
+  usHss:"ASTM A500 HSS: 30 nachverfolgbare Atlas-Tube-Referenzmaße für runde, quadratische und rechteckige Profile. AISC-Bemessungsmasse und Hersteller-Nenngewicht werden getrennt ausgewiesen.",
+  usCaveat:"Keine vollständige ASME-Tabelle und keine Zertifizierung. Produktnorm, Güte, Abmessungen, Toleranzen, Verfügbarkeit und tatsächliche Liefermasse beim Lieferanten bestätigen lassen.",
   faqTitle:"Häufige Fragen",
   faq:[
    {q:"Wie wird das Gewicht eines runden Stahlrohrs berechnet?",a:"Für ein Rundrohr gilt A = π × t × (D − t). Die Fläche in mm² wird mit der Stahldichte multipliziert und durch 1.000.000 geteilt, um kg/m zu erhalten."},
@@ -79,6 +85,11 @@ export const CALCULATOR_TRANSLATIONS: Record<CalculatorLandingLocale,LandingCopy
   methodTitle:"EN 10210 et EN 10219 : différence de rayons d'angle",
   methodText:"Pour les sections creuses carrées ou rectangulaires, les modèles utilisent des rayons d'angle nominaux différents selon la fabrication. La masse calculée peut donc varier à dimensions extérieures identiques. Vérifiez les caractéristiques du produit auprès du fabricant.",
   readMore:"Calculateur de tubes américains (en anglais)",rfqEnglish:"La liste de demande de prix suivante est actuellement en anglais. Les dimensions et la méthode de calcul sont conservées.",noLogin:"Gratuit, sans inscription.",
+  usTitle:"Poids des tubes USA : NPS / Schedule, API et ASTM A500",
+  usDescription:"Utilisez le sélecteur 🇪🇺 / 🇺🇸 pour passer des normes EN 10210/10219 aux tubes américains. Le mode USA propose des mesures NPS/Schedule sourcées, des dimensions libres et des HSS ASTM A500.",
+  usNps:"NPS et Schedule : 20 références choisies chez U.S. Steel ; API 5L, ASTM A53 et ASTM A106 expriment uniquement l'intention d'achat. La masse calculée reste géométrique et distincte de la référence publiée.",
+  usHss:"HSS ASTM A500 : 30 dimensions Atlas Tube documentées pour sections rondes, carrées et rectangulaires. La masse de calcul AISC reste séparée de la masse nominale publiée par le fabricant.",
+  usCaveat:"Il ne s'agit ni du tableau ASME complet ni d'un certificat. Le fournisseur doit confirmer norme, nuance, dimensions, tolérances, disponibilité et masse réelle livrée.",
   faqTitle:"Questions fréquentes",
   faq:[
    {q:"Comment calculer le poids d'un tube rond en acier ?",a:"Pour un tube rond, la surface de section vaut A = π × t × (D − t). Multipliez par la masse volumique, puis divisez par 1 000 000 pour obtenir des kg/m."},
@@ -103,6 +114,11 @@ export const CALCULATOR_TRANSLATIONS: Record<CalculatorLandingLocale,LandingCopy
   methodTitle:"EN 10210 frente a EN 10219: radios de las esquinas",
   methodText:"En perfiles huecos cuadrados y rectangulares, los modelos emplean distintos radios nominales de las esquinas según el método de fabricación. Esto puede cambiar los kg/m calculados para las mismas dimensiones exteriores. Confirme las características del producto con el fabricante.",
   readMore:"Calculadora de tubos estadounidenses (en inglés)",rfqEnglish:"La siguiente lista de solicitud de presupuesto está disponible actualmente en inglés. Se conservan las medidas y el método de cálculo.",noLogin:"Gratis y sin registro.",
+  usTitle:"Peso de tubos USA: NPS / Schedule, API y ASTM A500",
+  usDescription:"Utilice el selector 🇪🇺 / 🇺🇸 para alternar entre EN 10210/10219 y tubos estadounidenses. El modo USA ofrece muestras NPS/Schedule documentadas, dimensiones libres y HSS ASTM A500.",
+  usNps:"NPS y Schedule: 20 referencias del fabricante U.S. Steel; API 5L, ASTM A53 y ASTM A106 son solo especificaciones de producto solicitadas. El peso calculado sigue siendo geométrico y distinto del publicado.",
+  usHss:"HSS ASTM A500: 30 dimensiones Atlas Tube trazables para perfiles redondos, cuadrados y rectangulares. La masa de diseño AISC se muestra por separado del peso nominal publicado.",
+  usCaveat:"No es una tabla ASME completa ni una certificación. Confirmar con el proveedor la norma, grado, dimensiones, tolerancias, disponibilidad y peso real suministrado.",
   faqTitle:"Preguntas frecuentes",
   faq:[
    {q:"¿Cómo se calcula el peso de un tubo redondo de acero?",a:"Para un tubo redondo, el área es A = π × t × (D − t). Se multiplica por la densidad del acero y se divide entre 1.000.000 para obtener kg/m."},
