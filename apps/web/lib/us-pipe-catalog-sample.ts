@@ -21,12 +21,31 @@ export type UsPipeCatalogRow = {
   thicknessMm: number;
   publishedWeightKgM: number;
   publishedWeightLbFt: number;
-  sourcePage: number;
+  sourcePage?: number;
+  /** Web source locator for additional manufacturer rows without verified PDF pagination. */
+  sourceLocation?: string;
   /** Identifies manufacturer's naming; does not establish a normative mapping. */
   classLabel?: string;
 };
 
 export const US_PIPE_MANUFACTURER_SAMPLE: readonly UsPipeCatalogRow[] = [
+  // CALC-INT3C.2: separately sourced manufacturing data from the public
+  // U.S. Steel Pipe Tables. No ASME size certification or schedule synthesis.
+  // Source wall and outside diameter are inch nominal values converted to mm.
+  { id:"2-80", nps:"2", schedule:"80", classLabel:"XS", outerDiameterMm:60.33, thicknessMm:5.54,
+    publishedWeightLbFt:5.03, publishedWeightKgM:7.48, sourceLocation:"Pipe Tables · NPS 2 · 0.218 in · Sch 80" },
+  { id:"2-160", nps:"2", schedule:"160", outerDiameterMm:60.33, thicknessMm:8.74,
+    publishedWeightLbFt:7.47, publishedWeightKgM:11.12, sourceLocation:"Pipe Tables · NPS 2 · 0.344 in · Sch 160" },
+  { id:"2.5-40", nps:"2 1/2", schedule:"40", classLabel:"STD", outerDiameterMm:73.03, thicknessMm:5.16,
+    publishedWeightLbFt:5.80, publishedWeightKgM:8.63, sourceLocation:"Pipe Tables · NPS 2 1/2 · 0.203 in · Sch 40" },
+  { id:"2.5-80", nps:"2 1/2", schedule:"80", classLabel:"XS", outerDiameterMm:73.03, thicknessMm:7.01,
+    publishedWeightLbFt:7.67, publishedWeightKgM:11.41, sourceLocation:"Pipe Tables · NPS 2 1/2 · 0.276 in · Sch 80" },
+  { id:"2.5-160", nps:"2 1/2", schedule:"160", outerDiameterMm:73.03, thicknessMm:9.53,
+    publishedWeightLbFt:10.02, publishedWeightKgM:14.91, sourceLocation:"Pipe Tables · NPS 2 1/2 · 0.375 in · Sch 160" },
+  { id:"3-40", nps:"3", schedule:"40", classLabel:"STD", outerDiameterMm:88.90, thicknessMm:5.49,
+    publishedWeightLbFt:7.58, publishedWeightKgM:11.28, sourceLocation:"Pipe Tables · NPS 3 · 0.216 in · Sch 40" },
+  { id:"4-40", nps:"4", schedule:"40", classLabel:"STD", outerDiameterMm:114.30, thicknessMm:6.02,
+    publishedWeightLbFt:10.80, publishedWeightKgM:16.07, sourceLocation:"Pipe Tables · NPS 4 · 0.237 in · Sch 40" },
   { id:"6-40", nps:"6", schedule:"40", classLabel:"STD", outerDiameterMm:168.30, thicknessMm:7.11, publishedWeightLbFt:18.99, publishedWeightKgM:28.26, sourcePage:49 },
   { id:"6-80", nps:"6", schedule:"80", classLabel:"XS", outerDiameterMm:168.30, thicknessMm:10.97, publishedWeightLbFt:28.60, publishedWeightKgM:42.56, sourcePage:50 },
   { id:"6-120", nps:"6", schedule:"120", outerDiameterMm:168.30, thicknessMm:14.27, publishedWeightLbFt:36.43, publishedWeightKgM:54.21, sourcePage:50 },
@@ -41,6 +60,10 @@ export const US_PIPE_MANUFACTURER_SAMPLE: readonly UsPipeCatalogRow[] = [
   { id:"12-60", nps:"12", schedule:"60", outerDiameterMm:323.90, thicknessMm:14.27, publishedWeightLbFt:73.22, publishedWeightKgM:108.96, sourcePage:62 },
   { id:"12-100", nps:"12", schedule:"100", outerDiameterMm:323.90, thicknessMm:21.44, publishedWeightLbFt:107.42, publishedWeightKgM:159.86, sourcePage:63 },
 ] as const;
+
+/** Original U.S. Steel public Pipe Tables, used for source-located additions. */
+export const US_PIPE_MANUFACTURER_WEB_SOURCE =
+  "https://www.ussteel.com/documents/d/home/standard-and-line-pipe-catalog";
 
 export const US_PIPE_MASS_CONVERSION = 1.48816394357; // kg/m per lb/ft, physical unit conversion only
 
