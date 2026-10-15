@@ -1,5 +1,6 @@
 import unittest
 from app.public_website_preview import normalize_seeds
+from app.company_discovery import CompanyDiscoveryError
 
 class PublicWebsitePreviewTest(unittest.TestCase):
     def test_https_single(self):
@@ -11,7 +12,7 @@ class PublicWebsitePreviewTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             normalize_seeds("https://example.com,https://www.example.com")
     def test_reject_private_ip(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(CompanyDiscoveryError):
             normalize_seeds("https://127.0.0.1")
     def test_reject_many(self):
         with self.assertRaises(ValueError):
