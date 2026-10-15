@@ -233,6 +233,12 @@ export default async function PublicTubeWeightsPage({
 
       <PublicUtilityTelemetry source={discoverySource} surface={discoverySurface} />
       <PublicTubeWeightCalculator references={references} initialValues={initialValues} />
+      <div className="rounded-2xl border border-[#c7ded3] bg-white p-4">
+        <Link href="/knowledge/tubes/tubi-americani"
+          className="inline-flex min-h-11 items-center text-sm font-bold text-[#156449] underline underline-offset-4">
+          Cerchi il peso dei tubi API 5L, NPS / Schedule o ASTM? Apri il calcolatore tubi americani →
+        </Link>
+      </div>
 
       <section aria-label="Esplora il catalogo per famiglia">
         <div className="mb-4 max-w-3xl">
