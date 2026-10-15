@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
+import { CalculatorFlagLanguages } from "@/components/calculator-flag-languages";
 import { calculatorRfqFromValues, enqueueCalculatorRfq, type CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
 import { tubeCalculatorText, type TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
 import { calculateTubeSection, standardCornerRadii } from "@/lib/international-tube-mass";
@@ -479,6 +480,7 @@ export function PublicTubeWeightCalculator({
   locale = "it",
   onAddToDistinta,
   canAddToDistinta = true,
+  showLanguageSwitcher = false,
 }: {
   references: PublicTubeDimensionSummary[];
   initialValues?: PublicTubeCalculatorInitialValues;
@@ -486,6 +488,7 @@ export function PublicTubeWeightCalculator({
   /** In-place RFQ bill composer; does not queue or navigate. */
   onAddToDistinta?: (item: CalculatorRfqItem) => boolean;
   canAddToDistinta?: boolean;
+  showLanguageSwitcher?: boolean;
 }) {
   const t = (text: string) => tubeCalculatorText(text, locale);
   const formatOutput = (value: number, digits = 3) => formatNumber(value, digits, locale);
@@ -503,6 +506,16 @@ export function PublicTubeWeightCalculator({
   const [quantity, setQuantity] = useState(initialValues?.quantity ?? "1");
   const [targetTonnes, setTargetTonnes] = useState(initialValues?.targetTonnes ?? "");
   const [density, setDensity] = useState(initialValues?.density ?? "7850");
+  // Switch languages with LIVE (not initial) geometry, quantities and method.
+  // All destinations use the same named share parameters.
+  const languageQuery=useMemo(()=>{
+    const params=new URLSearchParams({
+      standard,family,thickness,length,quantity,
+      ...(family==="round_tube"?{od:outerDiameter}:{width,...(family==="rectangular_tube"?{height}:{})}),
+      ...(standard==="geometric"?{density}:{}),
+    });
+    return params.toString();
+  },[standard,family,outerDiameter,width,height,thickness,length,quantity,density]);
   const [referenceQuery, setReferenceQuery] = useState("");
   const [recentCalculations, setRecentCalculations] = useState<StoredTubeCalculation[]>([]);
   const [favoriteCalculations, setFavoriteCalculations] = useState<StoredTubeCalculation[]>([]);
@@ -912,6 +925,12 @@ export function PublicTubeWeightCalculator({
             </button>
           </div> : null}
         </header>
+        {showLanguageSwitcher ? (
+          <div className="flex justify-end border-b border-[#dce7e3] bg-white px-3 py-2 sm:px-4">
+            <CalculatorFlagLanguages locale={locale} query={languageQuery} />
+          </div>
+        ) : null}
+
 
         <div className={onAddToDistinta ? "grid min-w-0 grid-cols-1" : "grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)]"}>
           <div className="min-w-0 border-b border-[#dce7e3] p-3 sm:p-4 lg:border-b-0 lg:border-r">
