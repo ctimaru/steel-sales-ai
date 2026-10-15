@@ -17,6 +17,7 @@ type CalculatorProps = ComponentProps<typeof PublicTubeWeightCalculator>;
 export function CalculatorRegionSwitch({
   locale,
   initialRegion = "eu",
+  requestedRegion,
   references,
   initialValues,
   euAfter,
@@ -25,19 +26,21 @@ export function CalculatorRegionSwitch({
 }: {
   locale: CalculatorSiteLocale;
   initialRegion?: Region;
+  requestedRegion?: Region;
   references?: CalculatorProps["references"];
   initialValues?: CalculatorProps["initialValues"];
   euAfter?: ReactNode;
   internationalSeed?:InternationalCalculatorSeed;
   usInitialValues?:UsPipeInitialValues;
 }) {
-  const [region, setRegion] = useState<Region>(initialRegion);
+  const entryRegion=requestedRegion??initialRegion;
+  const [region, setRegion] = useState<Region>(entryRegion);
   // Mount lazily, but keep each calculator mounted after its first visit.
   // This avoids duplicating hidden US SEO content on the original EN page
   // and prevents a switch from erasing entered dimensions or quantity.
   const [visited, setVisited] = useState({
-    eu: initialRegion === "eu",
-    us: initialRegion === "us",
+    eu: entryRegion === "eu",
+    us: entryRegion === "us",
   });
   const id = useId();
   const europeanId = `${id}-eu`;
