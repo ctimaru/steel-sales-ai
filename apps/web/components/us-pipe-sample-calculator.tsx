@@ -82,7 +82,7 @@ export function UsPipeSampleCalculator({ locale }: { locale:Locale }) {
   const row = US_PIPE_MANUFACTURER_SAMPLE.find((r)=>r.id===rowId && r.nps===nps) ?? rowsForNps(nps)[0];
   const parseInput = (v:string) => {
     const cleaned=v.trim().replace(",",".");
-    return /^\\d+(?:\\.\\d+)?$/.test(cleaned) ? Number(cleaned) : NaN;
+    return /^\d+(?:\.\d+)?$/.test(cleaned) ? Number(cleaned) : NaN;
   };
   const quantity=parseInput(bars);
   const metres=parseInput(length);
