@@ -30,7 +30,11 @@ export function CalculatorFlagLanguages({
         <Link key={code} href={CALCULATOR_ROUTES[code]+(suffix?"?"+suffix:"")}
           hrefLang={code} lang={code} aria-current={locale===code?"page":undefined}
           title={CALCULATOR_FLAGS[code].label}
-          className={`inline-flex min-h-11 min-w-12 items-center justify-center gap-1 rounded-lg px-2 text-xs font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#117958] ${locale===code?"bg-[#125743] text-white":"text-[#234e42] hover:bg-[#eaf4ee]"}`}>
+          className="inline-flex min-h-11 min-w-12 items-center justify-center gap-1 rounded-lg border border-[#bbd4c7] px-2 text-xs font-bold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#117958]"
+          style={{
+            color:locale===code?"#ffffff":"#123b34",
+            backgroundColor:locale===code?"#125743":"#ffffff",
+          }}>
           <span aria-hidden="true" className="text-base">{CALCULATOR_FLAGS[code].flag}</span>
           <span>{code.toUpperCase()}</span>
         </Link>
