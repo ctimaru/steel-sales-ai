@@ -12,9 +12,9 @@ const browser = await chromium.launch({ headless: true, channel: "chrome" });
 try {
   for (const spec of [
     {locale:"it",url:"/knowledge/tubes",usUrl:"/knowledge/tubes/tubi-americani",
-      eu:"EUROPA",usHeading:/Seleziona un tubo NPS/i},
+      eu:"EUROPA",usHeading:/Calcolatore tubi USA/i},
     {locale:"en",url:"/en/knowledge/tubes",usUrl:"/en/knowledge/tubes/american-pipe",
-      eu:"EUROPE",usHeading:/Select an NPS/i},
+      eu:"EUROPE",usHeading:/US pipe calculator/i},
   ]) {
     const context = await browser.newContext({
       viewport:{width:390,height:844},locale:spec.locale==="it"?"it-IT":"en-GB",
