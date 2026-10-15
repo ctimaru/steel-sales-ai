@@ -120,6 +120,12 @@ export default async function EnglishTubeWeightsPage({ searchParams }: { searchP
       <div className="mx-auto max-w-[1120px] px-4 py-10 sm:px-6 lg:px-8">
         <PublicTubeWeightCalculator references={references} initialValues={initialValues} locale="en" />
       </div>
+      <div className="mx-auto max-w-[1120px] px-4 pb-8 sm:px-6">
+        <Link href="/en/knowledge/tubes/american-pipe"
+          className="inline-flex min-h-12 items-center rounded-xl border border-[#c7ded3] bg-white px-4 text-sm font-bold text-[#123b34] hover:bg-[#f2f7f4]">
+          Looking for API 5L, NPS / Schedule or ASTM pipe weights? Explore US pipe →
+        </Link>
+      </div>
       <section className="bg-white">
         <div className="mx-auto max-w-[1120px] px-4 py-12 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-semibold text-[#123b34]">Calculating hollow section mass</h2>
