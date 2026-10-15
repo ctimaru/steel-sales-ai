@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { CalculatorFlagLanguages } from "@/components/calculator-flag-languages";
+import { US_HSS_I18N, usLocaleTag, type UsCalculatorLocale } from "@/lib/us-calculator-i18n";
 
 import { estimatePublicTubeMass } from "@/lib/international-tube-mass";
 import { buildUsPipeRfqItem, enqueueUsPipeRfq } from "@/lib/us-pipe-rfq-handoff";
@@ -10,7 +12,7 @@ import {
 } from "@/lib/us-hss-reference-samples";
 
 type HssShape="round"|"square"|"rectangular";
-type Locale="it"|"en";
+type Locale=UsCalculatorLocale;
 const text={
   it:{
     title:"HSS strutturali ASTM A500",
@@ -42,25 +44,27 @@ const text={
     copied:"Specification copied",copyError:"Copy unavailable",error:"Could not prepare RFQ bill in this tab.",
     source:"Technical sources: Steel Tube Institute and AISC",
   },
+  ...US_HSS_I18N,
 } as const;
 const parse=(s:string)=>{
   const v=s.trim().replace(",",".");
   return /^\d+(?:\.\d+)?$/.test(v)?Number(v):NaN;
 };
-const format=(n:number,loc:Locale)=>new Intl.NumberFormat(loc==="it"?"it-IT":"en-US",{maximumFractionDigits:3}).format(n);
+const format=(n:number,loc:Locale)=>new Intl.NumberFormat(usLocaleTag(loc),{maximumFractionDigits:3}).format(n);
 const SOURCE="https://steeltubeinstitute.org/resources/filling-the-void-a-central-resource-for-designing-concrete-filled-hss-columns/";
 
-export function UsHssCalculator({locale}:{locale:Locale}){
+export function UsHssCalculator({locale,initialReferenceId}:{locale:Locale;initialReferenceId?:string}){
+  const initialReference=initialReferenceId?findHssReference(initialReferenceId):null;
   const t=text[locale];
-  const [shape,setShape]=useState<HssShape>("square");
-  const [referenceId,setReferenceId]=useState("");
+  const [shape,setShape]=useState<HssShape>(initialReference?.shape??"square");
+  const [referenceId,setReferenceId]=useState(initialReference?.id??"");
   const [searchText,setSearchText]=useState("");
   const [wallFilter,setWallFilter]=useState("");
   const [units,setUnits]=useState<"mm"|"in">("in");
-  const [diameter,setDiameter]=useState("6");
-  const [width,setWidth]=useState("6");
-  const [height,setHeight]=useState("4");
-  const [thickness,setThickness]=useState("0.25");
+  const [diameter,setDiameter]=useState(String(initialReference?.diameterIn??6));
+  const [width,setWidth]=useState(String(initialReference?.widthIn??6));
+  const [height,setHeight]=useState(String(initialReference?.heightIn??4));
+  const [thickness,setThickness]=useState(String(initialReference?.nominalWallIn??0.25));
   const [length,setLength]=useState("12");
   const [bars,setBars]=useState("1");
   const [status,setStatus]=useState("");
@@ -85,6 +89,12 @@ export function UsHssCalculator({locale}:{locale:Locale}){
   const referenceOutsideFilter=reference && !filteredReferences.some(row=>row.id===reference.id);
   const walls=hssAvailableWalls(shape);
   const publishedKgM=reference ? hssNominalPublishedKgM(reference) : null;
+  const languageQuery=new URLSearchParams({
+    system:"us",usMode:"hss",hssReferenceId:reference?.id??"",
+    hssShape:shape,hssUnits:units,
+    hssDiameter:diameter,hssWidth:width,hssHeight:height,hssThickness:thickness,
+    hssLength:length,hssQuantity:bars,
+  }).toString();
   const descriptor=shape==="round"?`HSS round OD ${d}`:shape==="square"
     ?`HSS square ${w} × ${w}`:`HSS rectangular ${w} × ${h}`;
   const specification=calculated?[
@@ -141,6 +151,7 @@ export function UsHssCalculator({locale}:{locale:Locale}){
   }
   return (
     <section aria-label={t.title} className="rounded-xl border border-[#b4d2c4] bg-white p-4 sm:p-5">
+      <div className="mb-3 flex justify-end"><CalculatorFlagLanguages locale={locale} query={languageQuery}/></div>
       <h3 className="text-lg font-bold text-[#123b34]">{t.title}</h3>
       <p className="mt-2 text-sm leading-6 text-[#52615b]">{t.summary}</p>
       <div className="mt-4 rounded-xl border border-[#d1e2d8] bg-[#f4faf6] p-3 sm:p-4">
