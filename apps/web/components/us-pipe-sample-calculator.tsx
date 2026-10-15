@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { UsHssCalculator } from "@/components/us-hss-calculator";
 import { useState } from "react";
 
 import { estimatePublicTubeMass } from "@/lib/international-tube-mass";
@@ -15,7 +16,7 @@ type Locale = "it" | "en";
 const labels = {
   it: {
     title:"Calcolatore tubi USA: NPS / Schedule e misure libere",
-    catalogTab:"Misure NPS / Schedule",customTab:"Dimensioni libere",
+    catalogTab:"Misure NPS / Schedule",customTab:"Dimensioni libere",hssTab:"HSS · ASTM A500",
     customNote:"Inserisci direttamente diametro esterno e spessore, senza attribuire automaticamente NPS o Schedule.",
     units:"Unità", diameter:"Diametro esterno", wall:"Spessore",
     noPublished:"Nessun peso di catalogo: risultato solo teorico.",
@@ -38,7 +39,7 @@ const labels = {
   },
   en: {
     title:"US pipe calculator: NPS / Schedule and custom dimensions",
-    catalogTab:"NPS / Schedule samples",customTab:"Custom dimensions",
+    catalogTab:"NPS / Schedule samples",customTab:"Custom dimensions",hssTab:"HSS · ASTM A500",
     customNote:"Enter actual outside diameter and wall thickness. No NPS or Schedule is assigned automatically.",
     units:"Units", diameter:"Outside diameter", wall:"Wall thickness",
     noPublished:"No published catalog mass: theoretical result only.",
@@ -68,7 +69,7 @@ const numberFormatter = (value:number, locale:Locale, digits=3) =>
 export function UsPipeSampleCalculator({ locale }: { locale:Locale }) {
   const copy = labels[locale];
   const npsList = availableUsNps();
-  const [inputMode,setInputMode] = useState<"catalog"|"custom">("catalog");
+  const [inputMode,setInputMode] = useState<"catalog"|"custom"|"hss">("catalog");
   const [units,setUnits] = useState<"mm"|"in">("mm");
   const [customDiameter,setCustomDiameter] = useState("114.3");
   const [customWall,setCustomWall] = useState("6.02");
@@ -164,7 +165,7 @@ export function UsPipeSampleCalculator({ locale }: { locale:Locale }) {
       <h2 className="text-xl font-bold text-[#123b34]">{copy.title}</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-[#52615b]">{copy.subtitle}</p>
       <div role="group" aria-label={locale==="it"?"Modalità dimensionale USA":"US dimensional mode"}
-        className="mt-5 grid grid-cols-2 gap-1 rounded-xl bg-[#eaf3ed] p-1">
+        className="mt-5 grid grid-cols-3 gap-1 rounded-xl bg-[#eaf3ed] p-1">
         <button type="button" aria-pressed={inputMode==="catalog"} onClick={()=>setInputMode("catalog")}
           className={inputMode==="catalog"?"min-h-12 rounded-lg bg-[#165544] px-3 text-xs font-bold text-white":"min-h-12 rounded-lg px-3 text-xs font-bold text-[#123b34]"}>
           {copy.catalogTab}
@@ -173,7 +174,12 @@ export function UsPipeSampleCalculator({ locale }: { locale:Locale }) {
           className={inputMode==="custom"?"min-h-12 rounded-lg bg-[#165544] px-3 text-xs font-bold text-white":"min-h-12 rounded-lg px-3 text-xs font-bold text-[#123b34]"}>
           {copy.customTab}
         </button>
+        <button type="button" aria-pressed={inputMode==="hss"} onClick={()=>setInputMode("hss")}
+          className={inputMode==="hss"?"min-h-12 rounded-lg bg-[#165544] px-2 text-xs font-bold text-white":"min-h-12 rounded-lg px-2 text-xs font-bold text-[#123b34]"}>
+          {copy.hssTab}
+        </button>
       </div>
+      <div hidden={inputMode==="hss"} inert={inputMode==="hss"} aria-hidden={inputMode==="hss"}>
       {inputMode==="custom" ? <div className="mt-3 space-y-3 rounded-xl border border-[#a8c4b6] bg-[#f1f8f3] p-3">
         <p className="text-xs leading-5 text-[#355b4a]">{copy.customNote}</p>
         <div className="flex flex-wrap items-center gap-3">
@@ -277,6 +283,10 @@ export function UsPipeSampleCalculator({ locale }: { locale:Locale }) {
         {rfqError ? copy.addRfqFailed : ""}
         {copyState==="copied"?copy.copied:copyState==="failed"?copy.failed:""}
       </p>
+      </div>
+      <div hidden={inputMode!=="hss"} inert={inputMode!=="hss"} aria-hidden={inputMode!=="hss"} className="mt-4">
+        <UsHssCalculator locale={locale} />
+      </div>
     </section>
   );
 }
