@@ -28,7 +28,7 @@ test("CALC-INT3E.2 translated US/NPS/HSS context distinguishes source from certi
   ]){
    for(const k of keys)assert.ok(typeof obj[k]==="string"&&obj[k].length>=4,`${l} ${name} ${k}`);
   }
-  assert.equal(translations.usRfqBillPath(l),"/en/distinta");
+  assert.equal(translations.usRfqBillPath(l),`/${l}/distinta`);
   assert.notEqual(translations.usLocaleTag(l),"en-US");
  }
  assert.equal(translations.usRfqBillPath("it"),"/distinta");
@@ -54,8 +54,8 @@ test("CALC-INT3E.2 preserves same mass vector in any UI locale and 2 RFQ queues"
  assert.ok(us.includes('hssReferenceId'));
  assert.ok(pipe.includes('enqueueUsPipeRfq(window.sessionStorage,item)'));
  assert.ok(hss.includes('enqueueUsPipeRfq(window.sessionStorage,item)'));
- assert.ok(pipe.includes('locale === "it" ? "/distinta" : "/en/distinta"'));
- assert.ok(hss.includes('locale==="it"?"/distinta":"/en/distinta"'));
+ assert.ok(pipe.includes('window.location.assign(usRfqBillPath(locale))'));
+ assert.ok(hss.includes('window.location.assign(usRfqBillPath(locale))'));
 });
 
 test("CALC-INT3E.2 USA deep links are language-stable and bounded, no redirects",()=>{
