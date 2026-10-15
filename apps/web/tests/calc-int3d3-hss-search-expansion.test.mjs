@@ -97,7 +97,7 @@ test("CALC-INT3D.3 UI adds accessible source search, wall filter, live count and
   assert.match(ui,/aria-live="polite"/);
   assert.match(ui,/filteredReferences\.map/);
   assert.match(ui,/t\.clearFilters/);
-  assert.match(ui,/setReferenceId\("")/);
+  assert.ok(ui.includes('setReferenceId("");'));
   assert.match(ui,/referenceOutsideFilter/);
   assert.doesNotMatch(ui,/fetch\(|supabase|router\.push|window\.location\.reload/);
 });
