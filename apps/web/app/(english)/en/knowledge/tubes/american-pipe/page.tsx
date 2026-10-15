@@ -81,7 +81,7 @@ export default function AmericanPipeMassPage() {
             can differ because of rounding and catalog conventions.
           </p>
           <p className="mt-3 text-sm leading-7 text-[#52615b]">
-            The source sample covers selected NPS 6, 8, 10 and 12 combinations only.
+            The source sample covers selected NPS 2, 2½, 3, 4, 6, 8, 10 and 12 combinations only.
             It does not establish complete NPS-to-OD or Schedule-to-wall correspondences;
             do not extrapolate to sizes absent from the sample.
           </p>
