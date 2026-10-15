@@ -13,6 +13,7 @@ const engine=await import(data(asModule(read("../lib/international-tube-mass.ts"
 const source=read("../lib/us-pipe-rfq-handoff.ts");
 const compiled=asModule(source)
   .replaceAll('"@/lib/international-tube-mass"',JSON.stringify(data(asModule(read("../lib/international-tube-mass.ts")))))
+  .replaceAll('"@/lib/us-hss-reference-samples"',JSON.stringify(data(asModule(read("../lib/us-hss-reference-samples.ts")))))
   .replaceAll('"@/lib/us-pipe-catalog-sample"',JSON.stringify(data(asModule(read("../lib/us-pipe-catalog-sample.ts")))));
 const bridge=await import(data(compiled));
 const it=read("../components/buyer-distinta-builder.tsx");

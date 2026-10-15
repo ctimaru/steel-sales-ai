@@ -11,6 +11,7 @@ const mass=await import(data(read("../lib/international-tube-mass.ts")));
 const bridgeSource=read("../lib/us-pipe-rfq-handoff.ts");
 const bridge=await import("data:text/javascript;base64,"+Buffer.from(trans(bridgeSource)
   .replaceAll('"@/lib/international-tube-mass"',JSON.stringify(data(read("../lib/international-tube-mass.ts"))))
+  .replaceAll('"@/lib/us-hss-reference-samples"',JSON.stringify(data(read("../lib/us-hss-reference-samples.ts"))))
   .replaceAll('"@/lib/us-pipe-catalog-sample"',JSON.stringify(data(read("../lib/us-pipe-catalog-sample.ts"))))).toString("base64"));
 const ui=read("../components/us-pipe-sample-calculator.tsx");
 const buyer=read("../components/buyer-distinta-builder.tsx");

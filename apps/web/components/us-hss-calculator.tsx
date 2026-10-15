@@ -4,6 +4,10 @@ import { useState } from "react";
 
 import { estimatePublicTubeMass } from "@/lib/international-tube-mass";
 import { buildUsPipeRfqItem, enqueueUsPipeRfq } from "@/lib/us-pipe-rfq-handoff";
+import {
+  findHssReference, hssReferenceRowsForShape, hssNominalPublishedKgM,
+  hssAtlasSourceUrl, type HssReference,
+} from "@/lib/us-hss-reference-samples";
 
 type HssShape="round"|"square"|"rectangular";
 type Locale="it"|"en";
@@ -12,6 +16,7 @@ const text={
     title:"HSS strutturali ASTM A500",
     summary:"Profilati tondi, quadri e rettangolari. Massa indicativa calcolata con le convenzioni AISC per le proprietà di sezione; non è il peso effettivo certificato dal produttore.",
     shape:"Sezione",round:"Tondo HSS",square:"Quadro SHS",rectangular:"Rettangolare RHS",
+    library:"Libreria misure USA · Atlas Tube",free:"Dimensioni personalizzate",sourceWeight:"Peso nominale pubblicato Atlas",comparison:"Differenza rispetto alla massa AISC",sourceRow:"Tabella Atlas Tube, pagina",libraryCaveat:"Peso nominale di catalogo, NON massa AISC, peso effettivo o certificazione. Disponibilità e conformità da confermare.",
     unit:"Unità",od:"Diametro esterno",width:"Larghezza esterna",height:"Altezza esterna",
     thickness:"Spessore nominale",length:"Lunghezza barra (m)",bars:"Numero barre",
     model:"Modello AISC: t progetto = 0,93 × t nominale; r esterno = 2 × t progetto per quadri/rettangolari.",
@@ -25,6 +30,7 @@ const text={
     title:"ASTM A500 structural HSS",
     summary:"Round, square and rectangular hollow sections. Indicative mass based on AISC design section-property conventions, not certified as-delivered manufacturer weight.",
     shape:"Shape",round:"Round HSS",square:"Square HSS",rectangular:"Rectangular HSS",
+    library:"US size library · Atlas Tube",free:"Custom dimensions",sourceWeight:"Atlas published nominal weight",comparison:"Difference from AISC estimate",sourceRow:"Atlas Tube table, page",libraryCaveat:"Manufacturer nominal catalog weight, NOT AISC design mass, delivered weight or certification. Verify availability and conformity.",
     unit:"Units",od:"Outside diameter",width:"Outside width",height:"Outside height",
     thickness:"Nominal wall",length:"Bar length (m)",bars:"Number of bars",
     model:"AISC model: design wall = 0.93 × nominal wall; outside radius = 2 × design wall for SHS/RHS.",
@@ -45,6 +51,7 @@ const SOURCE="https://steeltubeinstitute.org/resources/filling-the-void-a-centra
 export function UsHssCalculator({locale}:{locale:Locale}){
   const t=text[locale];
   const [shape,setShape]=useState<HssShape>("square");
+  const [referenceId,setReferenceId]=useState("");
   const [units,setUnits]=useState<"mm"|"in">("in");
   const [diameter,setDiameter]=useState("6");
   const [width,setWidth]=useState("6");
@@ -67,6 +74,8 @@ export function UsHssCalculator({locale}:{locale:Locale}){
     thicknessMm:nominalT,lengthM:metres,bars:pieces,
   }):null;
   const calculated=result?.ok?result:null;
+  const reference=referenceId ? findHssReference(referenceId) : null;
+  const publishedKgM=reference ? hssNominalPublishedKgM(reference) : null;
   const descriptor=shape==="round"?`HSS round OD ${d}`:shape==="square"
     ?`HSS square ${w} × ${w}`:`HSS rectangular ${w} × ${h}`;
   const specification=calculated?[
@@ -74,9 +83,29 @@ export function UsHssCalculator({locale}:{locale:Locale}){
     `${descriptor} mm; nominal thickness ${nominalT} mm`,
     `AISC 0.93 wall design-section proxy: ${calculated.weightKgM.toFixed(3)} kg/m`,
     `${pieces} bars × ${metres} m; indicative total ${calculated.totalKg.toFixed(3)} kg`,
-    "This is NOT manufacturer-published mass or an ASTM compliance assessment.",
+    ...(reference ? [
+      `Atlas Tube published nominal reference: ${reference.manufacturerNominalLbFt} lb/ft; ${publishedKgM?.toFixed(3)} kg/m (PDF p.${reference.sourcePage}; ${reference.sourceRow}). NOT certified or design mass.`,
+    ] : ["No manufacturer-published reference for user-entered geometry."]),
+    "The AISC calculation is not an ASTM compliance assessment.",
     "Confirm specified grade, mill tolerances, availability, and certified delivered weight.",
   ].join("\n"):"";
+  function chooseReference(id:string){
+    setReferenceId(id);
+    const selected=findHssReference(id);
+    if(!selected)return;
+    setShape(selected.shape);
+    setUnits("in");
+    if(selected.diameterIn!==undefined)setDiameter(String(selected.diameterIn));
+    if(selected.widthIn!==undefined)setWidth(String(selected.widthIn));
+    if(selected.heightIn!==undefined)setHeight(String(selected.heightIn));
+    setThickness(String(selected.nominalWallIn));
+    setStatus("");
+  }
+  function editMeasurement(update:(value:string)=>void,value:string){
+    // Immediately revoke manufacturer provenance if any dimension is edited.
+    setReferenceId("");
+    update(value);setStatus("");
+  }
   function setUnit(next:"mm"|"in"){
     if(units===next)return;
     const conv=(s:string)=>{
@@ -93,6 +122,7 @@ export function UsHssCalculator({locale}:{locale:Locale}){
       ...(shape==="round"?{outerDiameterMm:d}:{widthMm:w,
         ...(shape==="rectangular"?{heightMm:h}:{})}),
       thicknessMm:nominalT,lengthM:metres,bars:pieces,
+      ...(reference ? {hssReferenceId:reference.id} : {}),
     };
     const item=buildUsPipeRfqItem(selection,crypto.randomUUID());
     if(!item || !enqueueUsPipeRfq(window.sessionStorage,item)){
@@ -104,9 +134,19 @@ export function UsHssCalculator({locale}:{locale:Locale}){
     <section aria-label={t.title} className="rounded-xl border border-[#b4d2c4] bg-white p-4 sm:p-5">
       <h3 className="text-lg font-bold text-[#123b34]">{t.title}</h3>
       <p className="mt-2 text-sm leading-6 text-[#52615b]">{t.summary}</p>
+      <label className="mt-4 block text-xs font-semibold text-[#123b34]">{t.library}
+        <select aria-label={t.library} value={referenceId}
+          onChange={e=>chooseReference(e.target.value)}
+          className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-sm text-[#123b34]">
+          <option value="">{t.free}</option>
+          {hssReferenceRowsForShape(shape).map(item=>(
+            <option key={item.id} value={item.id}>{item.designation}</option>
+          ))}
+        </select>
+      </label>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <label className="text-xs font-semibold text-[#123b34]">{t.shape}
-          <select value={shape} onChange={e=>setShape(e.target.value as HssShape)}
+          <select value={shape} onChange={e=>{setShape(e.target.value as HssShape);setReferenceId("");setStatus("");}}
             className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-[#123b34]">
             <option value="round">{t.round}</option>
             <option value="square">{t.square}</option>
@@ -123,12 +163,12 @@ export function UsHssCalculator({locale}:{locale:Locale}){
           ?[[t.width,width,setWidth]]:[[t.width,width,setWidth],[t.height,height,setHeight]]).map(([label,value,update])=>(
           <label key={label as string} className="text-xs font-semibold text-[#123b34]">{label as string} ({units})
             <input type="text" inputMode="decimal" value={value as string}
-              onChange={e=>(update as (v:string)=>void)(e.target.value)}
+              onChange={e=>editMeasurement(update as (v:string)=>void,e.target.value)}
               className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-sm text-[#123b34]"/>
           </label>
         ))}
         <label className="text-xs font-semibold text-[#123b34]">{t.thickness} ({units})
-          <input type="text" inputMode="decimal" value={thickness} onChange={e=>setThickness(e.target.value)}
+          <input type="text" inputMode="decimal" value={thickness} onChange={e=>editMeasurement(setThickness,e.target.value)}
             className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-sm text-[#123b34]"/>
         </label>
         <label className="text-xs font-semibold text-[#123b34]">{t.length}
@@ -151,6 +191,27 @@ export function UsHssCalculator({locale}:{locale:Locale}){
           <p className="text-xs text-[#52615b]">{format(calculated.totalTonnes,locale)} t</p>
         </div>
       </div>:<p role="status" className="mt-3 text-sm font-semibold text-[#985c25]">{t.invalid}</p>}
+      {calculated && reference && publishedKgM!==null ? (
+        <div className="mt-3 rounded-xl border border-[#b4d2c4] bg-[#f8fbf9] p-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <p className="text-xs font-semibold text-[#52615b]">{t.sourceWeight}</p>
+              <p className="text-lg font-bold text-[#123b34]">{format(reference.manufacturerNominalLbFt,locale)} lb/ft</p>
+              <p className="text-xs text-[#52615b]">{format(publishedKgM,locale)} kg/m</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-[#52615b]">{t.comparison}</p>
+              <p className="text-lg font-bold text-[#123b34]">{format(100*(publishedKgM/calculated.weightKgM-1),locale)}%</p>
+              <p className="text-xs text-[#52615b]">{t.libraryCaveat}</p>
+            </div>
+          </div>
+          <a href={hssAtlasSourceUrl(reference.shape)}
+            rel="noopener noreferrer" target="_blank"
+            className="mt-2 inline-block text-xs font-semibold text-[#156449] underline">
+            {t.sourceRow} {reference.sourcePage} · {reference.sourceRow} ↗
+          </a>
+        </div>
+      ) : null}
       <p className="mt-3 text-xs leading-6 text-[#52615b]">{t.status}
         {" "}<a href={SOURCE} className="font-semibold text-[#156449] underline" rel="noopener noreferrer" target="_blank">{t.source} →</a>
       </p>
