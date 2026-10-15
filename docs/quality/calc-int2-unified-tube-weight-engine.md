@@ -15,6 +15,9 @@ handoff contract.
 - The English RFQ bill continues to call `estimatePublicTubeMass`, which
   now delegates to the same `calculateTubeSection` and multiplies kg/m by
   bar length and integer quantity, maintaining the established API response.
+- The guided Italian RFQ tube configurator (`buyer-tube-guidance.ts`) also
+  delegates its normative section mass to this same engine, preserving the
+  original EN 10210 / EN 10219 labels, null-on-invalid behaviour and grade gate.
 - The Italian public RFQ bill continues to import the unchanged
   `calculator-rfq-handoff.ts` format and `/distinta` route.
 
