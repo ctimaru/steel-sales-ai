@@ -1,0 +1,33 @@
+name: "CRAWL-IT6.9 — Approved Domain Website Preview"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: crawl-it69-domain-preview
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install worker
+        working-directory: services/worker
+        run: python -m pip install -e .
+      - name: Preview websites from approved pending leads only
+        working-directory: services/worker
+        env:
+          CRAWL_IT68_SUPABASE_URL: ${{ vars.CRAWL_IT68_SUPABASE_URL }}
+          CRAWL_IT68_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT68_SUPABASE_SECRET_KEY }}
+        run: python -m app.crawl_it69_domain_preview
