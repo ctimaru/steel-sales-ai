@@ -40,9 +40,9 @@ jobs:
           CRAWL_IT68_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT68_SUPABASE_SECRET_KEY }}
         run: |
           test -n "$CRAWL_IT68_SUPABASE_URL" && test -n "$CRAWL_IT68_SUPABASE_SECRET_KEY"
-          echo "::add-mask::$SUPABASE_SERVICE_ROLE_KEY"
+          echo "::add-mask::$CRAWL_IT68_SUPABASE_SECRET_KEY"
           test "${CRAWL_IT68_SUPABASE_URL}" = "https://ecrafjdummcdfycznitx.supabase.co"
-          case "$CRAWL_IT68_SUPABASE_SECRET_KEY" in eyJ*) ;; *) echo "Legacy service role JWT required by existing WorkerRepository"; exit 1;; esac
+          case "$CRAWL_IT68_SUPABASE_SECRET_KEY" in sb_secret_*) ;; *) echo "Dedicated Supabase secret key required"; exit 1;; esac
       - name: "Stage due rights-approved sources into review only"
         working-directory: services/worker
         env:
