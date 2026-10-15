@@ -21,7 +21,7 @@ test("SI1 gives every top-level Scuola section the same hero grammar", () => {
     assert.match(source, /SchoolHero/);
   }
   assert.doesNotMatch(tubes, /SchoolHero/);
-  assert.match(tubes, /PublicTubeWeightCalculator/);
+  assert.match(tubes, /CalculatorRegionSwitch/);
   assert.match(schoolUi, /school-hero/);
   assert.match(schoolUi, /school-eyebrow/);
   assert.match(globals, /\.school-hero/);
