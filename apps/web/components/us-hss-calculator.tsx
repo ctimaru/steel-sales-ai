@@ -6,7 +6,7 @@ import { estimatePublicTubeMass } from "@/lib/international-tube-mass";
 import { buildUsPipeRfqItem, enqueueUsPipeRfq } from "@/lib/us-pipe-rfq-handoff";
 import {
   findHssReference, hssReferenceRowsForShape, hssNominalPublishedKgM,
-  hssAtlasSourceUrl, type HssReference,
+  hssAtlasSourceUrl, searchHssReferences, hssAvailableWalls,
 } from "@/lib/us-hss-reference-samples";
 
 type HssShape="round"|"square"|"rectangular";
@@ -16,6 +16,7 @@ const text={
     title:"HSS strutturali ASTM A500",
     summary:"Profilati tondi, quadri e rettangolari. Massa indicativa calcolata con le convenzioni AISC per le proprietà di sezione; non è il peso effettivo certificato dal produttore.",
     shape:"Sezione",round:"Tondo HSS",square:"Quadro SHS",rectangular:"Rettangolare RHS",
+    searchLabel:"Cerca misura HSS",searchPlaceholder:"Es. 6x4, 1/4, 0.375",wallFilter:"Spessore nominale",allWalls:"Tutti gli spessori",clearFilters:"Azzera filtri",noMatches:"Nessuna misura verificata per questi filtri; usa dimensioni personalizzate.",matches:"misure trovate",selectedOutside:"Misura selezionata (fuori dai filtri)",
     library:"Libreria misure USA · Atlas Tube",free:"Dimensioni personalizzate",sourceWeight:"Peso nominale pubblicato Atlas",comparison:"Differenza rispetto alla massa AISC",sourceRow:"Tabella Atlas Tube, pagina",libraryCaveat:"Peso nominale di catalogo, NON massa AISC, peso effettivo o certificazione. Disponibilità e conformità da confermare.",
     unit:"Unità",od:"Diametro esterno",width:"Larghezza esterna",height:"Altezza esterna",
     thickness:"Spessore nominale",length:"Lunghezza barra (m)",bars:"Numero barre",
@@ -30,6 +31,7 @@ const text={
     title:"ASTM A500 structural HSS",
     summary:"Round, square and rectangular hollow sections. Indicative mass based on AISC design section-property conventions, not certified as-delivered manufacturer weight.",
     shape:"Shape",round:"Round HSS",square:"Square HSS",rectangular:"Rectangular HSS",
+    searchLabel:"Search HSS sizes",searchPlaceholder:"e.g. 6x4, 1/4, 0.375",wallFilter:"Nominal wall filter",allWalls:"All wall sizes",clearFilters:"Clear filters",noMatches:"No source-backed size matches; use custom dimensions.",matches:"sizes found",selectedOutside:"Selected size (outside filters)",
     library:"US size library · Atlas Tube",free:"Custom dimensions",sourceWeight:"Atlas published nominal weight",comparison:"Difference from AISC estimate",sourceRow:"Atlas Tube table, page",libraryCaveat:"Manufacturer nominal catalog weight, NOT AISC design mass, delivered weight or certification. Verify availability and conformity.",
     unit:"Units",od:"Outside diameter",width:"Outside width",height:"Outside height",
     thickness:"Nominal wall",length:"Bar length (m)",bars:"Number of bars",
@@ -52,6 +54,8 @@ export function UsHssCalculator({locale}:{locale:Locale}){
   const t=text[locale];
   const [shape,setShape]=useState<HssShape>("square");
   const [referenceId,setReferenceId]=useState("");
+  const [searchText,setSearchText]=useState("");
+  const [wallFilter,setWallFilter]=useState("");
   const [units,setUnits]=useState<"mm"|"in">("in");
   const [diameter,setDiameter]=useState("6");
   const [width,setWidth]=useState("6");
@@ -75,6 +79,11 @@ export function UsHssCalculator({locale}:{locale:Locale}){
   }):null;
   const calculated=result?.ok?result:null;
   const reference=referenceId ? findHssReference(referenceId) : null;
+  const filteredReferences=searchHssReferences({
+    shape,query:searchText,nominalWallIn:wallFilter?Number(wallFilter):null,
+  });
+  const referenceOutsideFilter=reference && !filteredReferences.some(row=>row.id===reference.id);
+  const walls=hssAvailableWalls(shape);
   const publishedKgM=reference ? hssNominalPublishedKgM(reference) : null;
   const descriptor=shape==="round"?`HSS round OD ${d}`:shape==="square"
     ?`HSS square ${w} × ${w}`:`HSS rectangular ${w} × ${h}`;
@@ -134,19 +143,51 @@ export function UsHssCalculator({locale}:{locale:Locale}){
     <section aria-label={t.title} className="rounded-xl border border-[#b4d2c4] bg-white p-4 sm:p-5">
       <h3 className="text-lg font-bold text-[#123b34]">{t.title}</h3>
       <p className="mt-2 text-sm leading-6 text-[#52615b]">{t.summary}</p>
-      <label className="mt-4 block text-xs font-semibold text-[#123b34]">{t.library}
-        <select aria-label={t.library} value={referenceId}
-          onChange={e=>chooseReference(e.target.value)}
-          className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-sm text-[#123b34]">
-          <option value="">{t.free}</option>
-          {hssReferenceRowsForShape(shape).map(item=>(
-            <option key={item.id} value={item.id}>{item.designation}</option>
-          ))}
-        </select>
-      </label>
+      <div className="mt-4 rounded-xl border border-[#d1e2d8] bg-[#f4faf6] p-3 sm:p-4">
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+          <label className="text-xs font-semibold text-[#123b34]">{t.searchLabel}
+            <input type="search" autoComplete="off" maxLength={64} value={searchText}
+              placeholder={t.searchPlaceholder}
+              onChange={e=>setSearchText(e.target.value)}
+              className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-sm text-[#123b34]"/>
+          </label>
+          <label className="text-xs font-semibold text-[#123b34]">{t.wallFilter}
+            <select aria-label={t.wallFilter} value={wallFilter}
+              onChange={e=>setWallFilter(e.target.value)}
+              className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-sm text-[#123b34]">
+              <option value="">{t.allWalls}</option>
+              {walls.map(wall=>(
+                <option key={wall} value={String(wall)}>{wall} in</option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+          <p role="status" aria-live="polite" className="text-xs font-semibold text-[#1a5144]">
+            {filteredReferences.length} / {hssReferenceRowsForShape(shape).length} {t.matches}
+          </p>
+          {(searchText || wallFilter) ? <button type="button"
+            onClick={()=>{setSearchText("");setWallFilter("");}}
+            className="min-h-10 rounded-lg border border-[#9bb8a9] bg-white px-3 text-xs font-semibold text-[#165544]">
+            {t.clearFilters}
+          </button> : null}
+        </div>
+        <label className="mt-3 block text-xs font-semibold text-[#123b34]">{t.library}
+          <select aria-label={t.library} value={referenceId}
+            onChange={e=>chooseReference(e.target.value)}
+            className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-sm text-[#123b34]">
+            <option value="">{t.free}</option>
+            {referenceOutsideFilter ? <option value={reference.id}>{reference.designation} · {t.selectedOutside}</option> : null}
+            {filteredReferences.map(item=>(
+              <option key={item.id} value={item.id}>{item.designation}</option>
+            ))}
+          </select>
+        </label>
+        {filteredReferences.length===0 ? <p role="status" className="mt-2 text-xs text-[#76542e]">{t.noMatches}</p> : null}
+      </div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <label className="text-xs font-semibold text-[#123b34]">{t.shape}
-          <select value={shape} onChange={e=>{setShape(e.target.value as HssShape);setReferenceId("");setStatus("");}}
+          <select value={shape} onChange={e=>{setShape(e.target.value as HssShape);setReferenceId("");setSearchText("");setWallFilter("");setStatus("");}}
             className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-[#123b34]">
             <option value="round">{t.round}</option>
             <option value="square">{t.square}</option>
