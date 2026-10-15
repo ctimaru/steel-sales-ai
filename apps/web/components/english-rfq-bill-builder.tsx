@@ -190,7 +190,13 @@ export function EnglishRfqBillBuilder() {
   const totalMeters = valid.reduce((sum, item) => sum + (item.mass.ok ? item.mass.totalMeters : 0), 0);
 
   function updateLine(id: number, patch: Partial<RfqLine>) {
-    setLines((current) => current.map((line) => line.id === id ? { ...line, ...patch } : line));
+    // A new geometric dimension/standard invalidates an inherited NPS/Schedule
+    // manufacturer designation; never export stale API/ASTM context.
+    const geometryChanged = ["shape","standard","diameter","width","height","thickness","density"]
+      .some((key) => Object.prototype.hasOwnProperty.call(patch,key));
+    setLines((current) => current.map((line) => line.id === id
+      ? { ...line, ...patch, usProductIntent:geometryChanged ? undefined : line.usProductIntent }
+      : line));
     setCopyState("idle");
   }
   function addLine() {
