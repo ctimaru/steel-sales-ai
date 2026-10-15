@@ -36,7 +36,9 @@ test("CRAWL-IT6.6c read-only GitHub preview cannot stage, publish or access Supa
   const page=read("../app/(italian)/(platform)/platform/company-discovery/bulk-import/page.tsx");
   assert.match(workflow,/workflow_dispatch:/);
   assert.match(workflow,/max_candidates:/);
-  assert.match(workflow,/retention-days: 3/);
+  assert.match(workflow,/--summary-only/);
+  assert.doesNotMatch(workflow,/upload-artifact|retention-days:|--output|\.csv/);
+  assert.match(page,/Anteprima aggregata RNA su GitHub/);
   assert.doesNotMatch(workflow,/schedule:|\bpush:|secrets\.|CRAWL_IT65B_SUPABASE_SECRET_KEY/);
   assert.match(sql,/governance_status='approved'/);
   assert.match(sql,/alter table public\.network_bulk_intake_rows/);
