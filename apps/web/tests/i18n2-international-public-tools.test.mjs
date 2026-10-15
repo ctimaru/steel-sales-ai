@@ -30,7 +30,7 @@ function valid(input) {
 }
 
 test("I18N2 uses the existing CHS area and steel density formula", () => {
-  assert.match(italianCalculator, /Math\.PI \* t \* \(d - t\)/);
+  assert.match(engineCode, /Math\.PI \* t \* \(d - t\)/);
   const result = valid({ shape: "round", standard: "en10219", outerDiameterMm: 168.3, thicknessMm: 6, lengthM: 12, bars: 30 });
   const kgm = Math.PI * 6 * (168.3 - 6) * 7850 / 1_000_000;
   nearlyEqual(result.weightKgM, kgm);
@@ -39,7 +39,8 @@ test("I18N2 uses the existing CHS area and steel density formula", () => {
 });
 
 test("I18N2 follows EN 10219 vs EN 10210 corner radius bands exactly", () => {
-  assert.match(italianCalculator, /standardRectangularAreaMm2/);
+  assert.match(italianCalculator, /calculateTubeSection/);
+  assert.match(engineCode, /standardRectangularAreaMm2/);
   const base = { shape: "square", widthMm: 100, thicknessMm: 5, lengthM: 6, bars: 1 };
   const cold = valid({ ...base, standard: "en10219" });
   const hot = valid({ ...base, standard: "en10210" });
