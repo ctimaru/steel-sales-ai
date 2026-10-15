@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { estimatePublicTubeMass } from "@/lib/international-tube-mass";
+import { buildUsPipeRfqItem, enqueueUsPipeRfq } from "@/lib/us-pipe-rfq-handoff";
 import { standardById } from "@/lib/calculator-standards-registry";
 import {
   US_PIPE_MANUFACTURER_SAMPLE, US_PIPE_MANUFACTURER_SOURCE,
@@ -24,8 +25,10 @@ const labels = {
     provenance:"Fonte produttore", page:"pagina", data:"Dati campione",
     disclaimer:"Il confronto può differire per arrotondamenti e criteri del catalogo. Verificare dimensioni, tolleranze, grado e requisiti con il fornitore.",
     copy:"Copia specifica", copied:"Specifiche copiate", failed:"Impossibile copiare",
-    proceed:"Apri nel calcolatore e prepara la distinta",
-    bridge:"Il calcolatore successivo utilizza il metodo geometrico. La specifica API/ASTM non entra automaticamente nella distinta: copiarla e confermarla nella RFQ.",
+    proceed:"Apri il calcolatore geometrico",
+    addRfq:"Aggiungi alla distinta RFQ",
+    addRfqFailed:"Impossibile aprire la distinta: verifica la sessione del browser.",
+    bridge:"La distinta conserva la specifica API/ASTM come richiesta da confermare, insieme ai dati NPS/Schedule. Il peso resta geometrico teorico, mai certificato.",
     invalid:"Inserisci una lunghezza positiva e un numero intero di barre.",
     source:"Catalogo U.S. Steel — Pipe Tables",
   },
@@ -41,8 +44,10 @@ const labels = {
     provenance:"Manufacturer source",page:"page",data:"Sample data",
     disclaimer:"The calculated and published masses may differ because of rounding and catalog conventions. Verify dimensions, tolerances, grade and delivery requirements with the supplier.",
     copy:"Copy specification",copied:"Specification copied",failed:"Copy unavailable",
-    proceed:"Open in calculator and prepare RFQ bill",
-    bridge:"The next calculator uses geometric mode. API/ASTM product identity is not yet carried into the RFQ bill automatically: copy and confirm it in your enquiry.",
+    proceed:"Open geometric calculator",
+    addRfq:"Add to RFQ bill",
+    addRfqFailed:"Could not prepare the RFQ bill; check browser session storage.",
+    bridge:"The RFQ bill carries the requested API/ASTM designation and NPS/Schedule context for supplier confirmation. The mass remains a geometric estimate, never a certified weight.",
     invalid:"Enter a positive bar length and a positive whole number of bars.",
     source:"U.S. Steel Standard & Line Pipe Catalog — Pipe Tables",
   },
@@ -61,6 +66,7 @@ export function UsPipeSampleCalculator({ locale }: { locale:Locale }) {
   const [length,setLength] = useState("12");
   const [bars,setBars] = useState("1");
   const [copyState,setCopyState] = useState<"idle"|"copied"|"failed">("idle");
+  const [rfqError,setRfqError] = useState(false);
   const row = US_PIPE_MANUFACTURER_SAMPLE.find((r)=>r.id===rowId && r.nps===nps) ?? rowsForNps(nps)[0];
   const quantity=Number(bars.trim().replace(",","."));
   const metres=Number(length.trim().replace(",","."));
@@ -80,6 +86,20 @@ export function UsPipeSampleCalculator({ locale }: { locale:Locale }) {
   }) : null;
   const calculatorUrl = `${locale === "it" ? "/knowledge/tubes" : "/en/knowledge/tubes"}?${params?.toString() ?? ""}#calcolatore-pesi`;
   const resultLbFt = result ? result.weightKgM / US_PIPE_MASS_CONVERSION : 0;
+
+  const addToRfqBill = () => {
+    if (!row || !result || !valid) return;
+    const item = buildUsPipeRfqItem(
+      {sampleId:row.id,productStandard,lengthM:metres,bars:quantity},
+      crypto.randomUUID(),
+    );
+    if (!item || !enqueueUsPipeRfq(window.sessionStorage,item)) {
+      setRfqError(true);
+      return;
+    }
+    setRfqError(false);
+    window.location.assign(locale === "it" ? "/distinta" : "/en/distinta");
+  };
 
   const copiedText = () => {
     if (!row || !result || !selectedStandard) return "";
@@ -148,11 +168,16 @@ export function UsPipeSampleCalculator({ locale }: { locale:Locale }) {
           className="min-h-12 rounded-xl border border-[#1a5144] bg-white px-4 text-sm font-bold text-[#123b34] disabled:opacity-50">
           {copy.copy}
         </button>
-        <Link href={calculatorUrl} className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#123b34] px-4 text-sm font-bold text-white">
+        <button type="button" disabled={!result} onClick={addToRfqBill}
+          className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#123b34] px-4 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">
+          {copy.addRfq} →
+        </button>
+        <Link href={calculatorUrl} className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#1a5144] bg-white px-4 text-sm font-bold text-[#123b34]">
           {copy.proceed} →
         </Link>
       </div>
       <p role="status" aria-live="polite" className="mt-2 text-xs text-[#52615b]">
+        {rfqError ? copy.addRfqFailed : ""}
         {copyState==="copied"?copy.copied:copyState==="failed"?copy.failed:""}
       </p>
     </section>

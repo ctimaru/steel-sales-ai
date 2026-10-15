@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { consumeCalculatorRfqIds, readCalculatorRfqQueue, type CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
+import { consumeUsPipeRfqIds, readUsPipeRfqQueue, usPipeRfqSpecification } from "@/lib/us-pipe-rfq-handoff";
 import {
   estimatePublicTubeMass,
   formatEnglishMass,
@@ -23,6 +24,7 @@ type RfqLine = {
   length: string;
   targetPricePerTonne: string;
   density: string;
+  usProductIntent?: string;
 };
 
 const createLine = (id: number): RfqLine => ({
@@ -45,15 +47,18 @@ function storedEnglishBill(value: string | null) {
     const allowed = new Set(["en10219","en10210","geometric"]);
     const shapes = new Set(["round","square","rectangular"]);
     const keys = ["grade","diameter","width","height","thickness","bars","length","targetPricePerTonne","density"];
+    const safeContext = (v:unknown):v is string => typeof v==="string" && v.length<=450 && !/[<>\r\n]/.test(v);
     const parsed = obj.lines.map((r:unknown) => {
       if (!r || typeof r!=="object" || Array.isArray(r)) return null;
       const v=r as Record<string,unknown>;
       if (!Number.isSafeInteger(v.id) || (v.id as number)<1 || !shapes.has(String(v.shape)) ||
-          !allowed.has(String(v.standard)) || keys.some(k=>typeof v[k]!=="string" || (v[k] as string).length>200)) return null;
+          !allowed.has(String(v.standard)) || keys.some(k=>typeof v[k]!=="string" || (v[k] as string).length>200) ||
+           (v.usProductIntent!==undefined && !safeContext(v.usProductIntent))) return null;
       return {id:v.id as number, shape:v.shape as PublicTubeShape,standard:v.standard as PublicTubeStandard,
         grade:v.grade as string, diameter:v.diameter as string,width:v.width as string,height:v.height as string,
         thickness:v.thickness as string,bars:v.bars as string,length:v.length as string,
-        targetPricePerTonne:v.targetPricePerTonne as string,density:v.density as string} satisfies RfqLine;
+        targetPricePerTonne:v.targetPricePerTonne as string,density:v.density as string,
+        usProductIntent:v.usProductIntent as string|undefined} satisfies RfqLine;
     });
     if (parsed.some(v=>v===null) || new Set(parsed.map(v=>v!.id)).size!==parsed.length) return null;
     return {lines:parsed as RfqLine[],
@@ -67,6 +72,20 @@ function fromCalculator(item:CalculatorRfqItem,id:number):RfqLine {
     diameter:String(item.outerDiameter??""),width:String(item.width??""),height:String(item.height??""),
     thickness:String(item.thickness),bars:String(item.bars),length:String(item.length),
     density:String(item.density),targetPricePerTonne:""};
+}
+
+function fromUsPipeCalculator(
+  value:ReturnType<typeof usPipeRfqSpecification>,id:number,
+):RfqLine | null {
+  if(!value)return null;
+  const productIntent=`${value.standardLabel}; ${value.designation}; ${value.provenanceNote}`;
+  return {
+    id,shape:"round",standard:"geometric",grade:"",
+    diameter:String(value.outerDiameterMm),width:"",height:"",
+    thickness:String(value.wallMm),bars:String(value.bars),
+    length:String(value.lengthM),targetPricePerTonne:"",
+    density:"7850",usProductIntent:productIntent,
+  };
 }
 
 const control = "mt-1 w-full min-w-0 rounded-lg border border-[#c7d7cf] bg-white px-2.5 py-2.5 text-sm text-[#123b34] focus:border-[#1f6b5a] focus:outline-none focus:ring-2 focus:ring-[#b9d7cb]";
@@ -99,22 +118,33 @@ export function EnglishRfqBillBuilder() {
     // Same-tab only; restore edited bill before appending new calculations.
     let existing: ReturnType<typeof storedEnglishBill> = null;
     let queue: CalculatorRfqItem[] = [];
+    let usQueue = readUsPipeRfqQueue(window.sessionStorage);
     try {
       existing = storedEnglishBill(window.sessionStorage.getItem(EN_BILL_SESSION_KEY));
       queue = readCalculatorRfqQueue(window.sessionStorage);
+      usQueue = readUsPipeRfqQueue(window.sessionStorage);
     } catch { /* Private browsing may block storage. Builder still works. */ }
     const previous = existing?.lines ?? [];
     const accepted = queue.slice(0, Math.max(0,50-previous.length));
     const start = previous.length?Math.max(...previous.map(line=>line.id))+1:1;
     const additions=accepted.map((item,i)=>fromCalculator(item,start+i));
-    nextId.current = start+additions.length;
-    setLines([...previous,...additions].length ? [...previous,...additions] : [createLine(1)]);
+    const remainingCapacity=Math.max(0,50-previous.length-additions.length);
+    const acceptedUs=usQueue.slice(0,remainingCapacity);
+    const usAdditions=acceptedUs.flatMap((item,i)=>{
+      const line=fromUsPipeCalculator(usPipeRfqSpecification(item),start+additions.length+i);
+      return line?[line]:[];
+    });
+    nextId.current = start+additions.length+usAdditions.length;
+    setLines([...previous,...additions,...usAdditions].length ? [...previous,...additions,...usAdditions] : [createLine(1)]);
     if(existing){ setCurrency(existing.currency); setNotes(existing.notes); }
     if(accepted.length){
       consumeCalculatorRfqIds(window.sessionStorage,accepted.map(item=>item.id));
-      setImportedCount(accepted.length);
     }
-    setImportWarning(accepted.length<queue.length);
+    if(acceptedUs.length){
+      consumeUsPipeRfqIds(window.sessionStorage,acceptedUs.map(item=>item.id));
+    }
+    if(accepted.length || acceptedUs.length) setImportedCount(accepted.length+usAdditions.length);
+    setImportWarning(accepted.length<queue.length || acceptedUs.length<usQueue.length);
     setDraftLoaded(true);
   }, []);
 
@@ -160,7 +190,13 @@ export function EnglishRfqBillBuilder() {
   const totalMeters = valid.reduce((sum, item) => sum + (item.mass.ok ? item.mass.totalMeters : 0), 0);
 
   function updateLine(id: number, patch: Partial<RfqLine>) {
-    setLines((current) => current.map((line) => line.id === id ? { ...line, ...patch } : line));
+    // A new geometric dimension/standard invalidates an inherited NPS/Schedule
+    // manufacturer designation; never export stale API/ASTM context.
+    const geometryChanged = ["shape","standard","diameter","width","height","thickness","density"]
+      .some((key) => Object.prototype.hasOwnProperty.call(patch,key));
+    setLines((current) => current.map((line) => line.id === id
+      ? { ...line, ...patch, usProductIntent:geometryChanged ? undefined : line.usProductIntent }
+      : line));
     setCopyState("idle");
   }
   function addLine() {
@@ -198,6 +234,7 @@ export function EnglishRfqBillBuilder() {
       const targetText = target ? ` | Target ${currency}/t: ${target}` : "";
       return [
         `${index + 1}. ${describeLine(line)}`,
+        ...(line.usProductIntent ? [`   Requested US product specification: ${line.usProductIntent}`] : []),
         `   ${line.bars} bars × ${line.length} m | ${formatEnglishMass(mass.totalMeters, 2)} m | ${formatEnglishMass(mass.weightKgM, 3)} kg/m | ${formatEnglishMass(mass.totalTonnes, 4)} t${targetText}`,
       ].join("\n");
     });
@@ -252,6 +289,12 @@ export function EnglishRfqBillBuilder() {
             </button>
           </div>
 
+          {line.usProductIntent ? (
+            <div className="mb-3 rounded-lg border border-[#bdd8cb] bg-[#f0f7f3] p-3 text-xs leading-6 text-[#123b34]">
+              <strong>Requested product specification — supplier confirmation required:</strong> {line.usProductIntent}
+              <p>Calculated mass uses geometric mode; this is not API/ASTM certification.</p>
+            </div>
+          ) : null}
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <label className={label}>
               Section type
