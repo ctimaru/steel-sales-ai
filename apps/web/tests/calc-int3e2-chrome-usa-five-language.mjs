@@ -65,7 +65,8 @@ try{
     assert.ok(href.includes("system=us")&&href.includes("usMode=hss"),href);
     assert.ok(href.includes("hssReferenceId=x-6-4-250"),href);
     await hss.getByRole("button",{name:v.add}).click();
-    await page.waitForURL(url=>url.pathname==="/en/distinta",{timeout:60000});
+    await page.waitForURL(url=>url.pathname===`/${v.locale}/distinta`,{timeout:60000});
+    assert.equal(await page.locator("html").getAttribute("lang"),v.locale);
     await page.getByText(/HSS Rectangular/i).first().waitFor({state:"visible",timeout:30000});
     assert.match(await page.locator("body").innerText(),/ASTM A500/i);
     console.log("CALC-INT3E.2 CHROME PASS",v.locale,"NPS/custom/HSS, region retained, localized RFQ");
