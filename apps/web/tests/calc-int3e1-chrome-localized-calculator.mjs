@@ -34,7 +34,7 @@ try{
     await wall.fill("6,3");
     assert.match(await root.innerText(),/kg\/m/);
     assert.equal(await root.getByRole("button",{name:c.bill}).isDisabled(),false);
-    const frFlag=root.getByRole("link",{name:/🇫🇷 FR/});
+    const frFlag=root.getByRole("link",{name:"FR",exact:true});
     const href=await frFlag.getAttribute("href");
     assert.ok(href?.startsWith("/fr/knowledge/tubes?"));
     assert.match(href,/width=155%2C5/);
