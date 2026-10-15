@@ -27,6 +27,9 @@ const baseMetadata: Metadata = {
     languages: {
       it: absoluteUrl("/knowledge/tubes"),
       en: absoluteUrl("/en/knowledge/tubes"),
+      de: absoluteUrl("/de/knowledge/tubes"),
+      fr: absoluteUrl("/fr/knowledge/tubes"),
+      es: absoluteUrl("/es/knowledge/tubes"),
     },
   },
   openGraph: {
