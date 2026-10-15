@@ -9,10 +9,13 @@ const calculator=load("../components/public-tube-weight-calculator.tsx");
 const words=load("../lib/tube-calculator-locale.ts");
 const engine=load("../lib/international-tube-mass.ts");
 const css=load("../app/globals.css");
+const switcher=load("../components/calculator-region-switch.tsx");
 
 test("I18N7 IT/EN share the same canonical standard-based estimator and catalogue",()=>{
-  assert.match(it,/PublicTubeWeightCalculator/);
-  assert.match(en,/PublicTubeWeightCalculator references=\{references\} initialValues=\{initialValues\} locale="en"/);
+  assert.match(it,/CalculatorRegionSwitch locale="it" initialRegion="eu"/);
+  assert.match(en,/CalculatorRegionSwitch locale="en" initialRegion="eu"/);
+  assert.match(switcher,/PublicTubeWeightCalculator references=\{references\}/);
+  assert.match(switcher,/initialValues=\{initialValues\} locale=\{locale\}/);
   assert.doesNotMatch(en,/EnglishTubeWeightCalculator/);
   assert.match(en,/cachedPublicTubeReferences\(\)/);
   assert.match(en,/revalidate: 86400/);
