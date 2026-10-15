@@ -92,7 +92,7 @@ test("CALC-INT2 enforces shape, dimensions, quantity, density and overflow guard
 });
 
 test("CALC-INT2 keeps the live UI and RFQ bill on the one engine",()=>{
-  assert.match(ui,/import \{ calculateTubeSection \} from "@\/lib\/international-tube-mass"/);
+  assert.match(ui,/import \{ calculateTubeSection, standardCornerRadii \} from "@\/lib\/international-tube-mass"/);
   assert.match(ui,/const section = !error && t != null/);
   assert.match(ui,/const kgM = validSection\?\.weightKgM \?\? null/);
   assert.doesNotMatch(ui,/function standardRectangularAreaMm2\(/);
