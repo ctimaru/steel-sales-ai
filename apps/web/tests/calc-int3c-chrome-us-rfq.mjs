@@ -57,6 +57,12 @@ try {
     assert.equal(await customButton.isDisabled(),false);
     await customButton.click();
     await page.waitForURL(url=>url.pathname===scenario.bill,{timeout:60000});
+    // Italian RFQ deliberately requires consent to restore a previous same-tab
+    // commercial draft. Confirm it before importing the new v2 handoff.
+    if(scenario.locale==="it") {
+      const restore=page.getByRole("button",{name:"Riprendi la distinta"});
+      if(await restore.isVisible()) await restore.click();
+    }
     await page.getByText(/User dimensions OD/i).first().waitFor({state:"visible",timeout:30000});
     assert.match(await page.locator("body").innerText(),/114\.3/);
     assert.match(await page.locator("body").innerText(),/API Spec 5L|ASTM A106/);
