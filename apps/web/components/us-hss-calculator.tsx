@@ -53,20 +53,26 @@ const parse=(s:string)=>{
 const format=(n:number,loc:Locale)=>new Intl.NumberFormat(usLocaleTag(loc),{maximumFractionDigits:3}).format(n);
 const SOURCE="https://steeltubeinstitute.org/resources/filling-the-void-a-central-resource-for-designing-concrete-filled-hss-columns/";
 
-export function UsHssCalculator({locale,initialReferenceId}:{locale:Locale;initialReferenceId?:string}){
+export type UsHssSeed={
+  hssShape?:string;hssUnits?:string;hssDiameter?:string;hssWidth?:string;
+  hssHeight?:string;hssThickness?:string;hssLength?:string;hssQuantity?:string;
+};
+export function UsHssCalculator({locale,initialReferenceId,initialValues={}}:{
+  locale:Locale;initialReferenceId?:string;initialValues?:UsHssSeed;
+}){
   const initialReference=initialReferenceId?findHssReference(initialReferenceId):null;
   const t=text[locale];
-  const [shape,setShape]=useState<HssShape>(initialReference?.shape??"square");
+  const [shape,setShape]=useState<HssShape>(initialReference?.shape??(["round","square","rectangular"].includes(initialValues.hssShape??"")?initialValues.hssShape as HssShape:"square"));
   const [referenceId,setReferenceId]=useState(initialReference?.id??"");
   const [searchText,setSearchText]=useState("");
   const [wallFilter,setWallFilter]=useState("");
-  const [units,setUnits]=useState<"mm"|"in">("in");
-  const [diameter,setDiameter]=useState(String(initialReference?.diameterIn??6));
-  const [width,setWidth]=useState(String(initialReference?.widthIn??6));
-  const [height,setHeight]=useState(String(initialReference?.heightIn??4));
-  const [thickness,setThickness]=useState(String(initialReference?.nominalWallIn??0.25));
-  const [length,setLength]=useState("12");
-  const [bars,setBars]=useState("1");
+  const [units,setUnits]=useState<"mm"|"in">(initialValues.hssUnits==="mm"?"mm":"in");
+  const [diameter,setDiameter]=useState(String(initialReference?.diameterIn??initialValues.hssDiameter??6));
+  const [width,setWidth]=useState(String(initialReference?.widthIn??initialValues.hssWidth??6));
+  const [height,setHeight]=useState(String(initialReference?.heightIn??initialValues.hssHeight??4));
+  const [thickness,setThickness]=useState(String(initialReference?.nominalWallIn??initialValues.hssThickness??0.25));
+  const [length,setLength]=useState(initialValues.hssLength??"12");
+  const [bars,setBars]=useState(initialValues.hssQuantity??"1");
   const [status,setStatus]=useState("");
   const factor=units==="in"?25.4:1;
   const normalize=(value:string)=>Number((parse(value)*factor).toFixed(4));
@@ -95,17 +101,18 @@ export function UsHssCalculator({locale,initialReferenceId}:{locale:Locale;initi
     hssDiameter:diameter,hssWidth:width,hssHeight:height,hssThickness:thickness,
     hssLength:length,hssQuantity:bars,
   }).toString();
+  const i18n=locale==="it"||locale==="en"?null:US_HSS_I18N[locale];
   const descriptor=shape==="round"?`HSS round OD ${d}`:shape==="square"
     ?`HSS square ${w} × ${w}`:`HSS rectangular ${w} × ${h}`;
   const specification=calculated?[
-    "Requested standard: ASTM A500/A500M-23 (grade and certificate to confirm)",
-    `${descriptor} mm; nominal thickness ${nominalT} mm`,
-    `AISC 0.93 wall design-section proxy: ${calculated.weightKgM.toFixed(3)} kg/m`,
-    `${pieces} bars × ${metres} m; indicative total ${calculated.totalKg.toFixed(3)} kg`,
+    `${i18n?.specRequired??"Requested standard"}: ASTM A500/A500M-23 (${i18n?.specGrade??"grade and certificate to confirm"})`,
+    `${descriptor} mm; ${i18n?.specThickness??"nominal thickness"} ${nominalT} mm`,
+    `${i18n?.specAisc??"AISC 0.93 wall design-section proxy"}: ${calculated.weightKgM.toFixed(3)} kg/m`,
+    `${pieces} ${i18n?.specBars??"bars"} × ${metres} m; ${i18n?.specTotal??"indicative total"} ${calculated.totalKg.toFixed(3)} kg`,
     ...(reference ? [
-      `Atlas Tube published nominal reference: ${reference.manufacturerNominalLbFt} lb/ft; ${publishedKgM?.toFixed(3)} kg/m (PDF p.${reference.sourcePage}; ${reference.sourceRow}). NOT certified or design mass.`,
-    ] : ["No manufacturer-published reference for user-entered geometry."]),
-    "The AISC calculation is not an ASTM compliance assessment.",
+      `${i18n?.specPublished??"Atlas Tube published nominal reference"}: ${reference.manufacturerNominalLbFt} lb/ft; ${publishedKgM?.toFixed(3)} kg/m (PDF p.${reference.sourcePage}; ${reference.sourceRow}). NOT certified or design mass.`,
+    ] : [i18n?.specNoPublished??"No manufacturer-published reference for user-entered geometry."]),
+    i18n?.specCaveat??"The AISC calculation is not an ASTM compliance assessment.",
     "Confirm specified grade, mill tolerances, availability, and certified delivered weight.",
   ].join("\n"):"";
   function chooseReference(id:string){
