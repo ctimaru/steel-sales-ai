@@ -58,24 +58,41 @@ def safe_rna_url(url: str) -> str:
 
 async def download_rna_xml(url: str, path: Path) -> int:
     safe_rna_url(url)
-    total = 0
-    async with httpx.AsyncClient(timeout=httpx.Timeout(180.0, connect=12.0), follow_redirects=False) as client:
-        async with client.stream(
-            "GET", url,
-            headers={"User-Agent": "SmartSteelSales-RNA-CorporatePreview/1.0 (hello@smartsteelsales.com)"}
-        ) as response:
-            if response.status_code != 200:
-                raise RuntimeError(f"RNA official monthly XML returned HTTP {response.status_code}")
-            declared = response.headers.get("content-length")
-            if declared and int(declared) > MAX_DOWNLOAD_BYTES:
-                raise ValueError("RNA XML file above bounded 180MB budget")
-            with path.open("wb") as output:
-                async for part in response.aiter_bytes(chunk_size=65536):
-                    total += len(part)
-                    if total > MAX_DOWNLOAD_BYTES:
-                        raise ValueError("RNA XML download exceeded bounded byte budget")
-                    output.write(part)
-    return total
+    # Bounded retries cover transient official-host connection failures.
+    # Fail closed: never interpret an inaccessible source as zero candidates.
+    for attempt in range(1, 4):
+        total = 0
+        try:
+            async with httpx.AsyncClient(
+                timeout=httpx.Timeout(180.0, connect=30.0),
+                follow_redirects=False,
+            ) as client:
+                async with client.stream(
+                    "GET", url,
+                    headers={"User-Agent": "SmartSteelSales-RNA-CorporatePreview/1.0 (hello@smartsteelsales.com)"},
+                ) as response:
+                    if response.status_code != 200:
+                        raise RuntimeError(f"RNA official monthly XML returned HTTP {response.status_code}")
+                    declared = response.headers.get("content-length")
+                    if declared and int(declared) > MAX_DOWNLOAD_BYTES:
+                        raise ValueError("RNA XML file above bounded 180MB budget")
+                    with path.open("wb") as output:
+                        async for part in response.aiter_bytes(chunk_size=65536):
+                            total += len(part)
+                            if total > MAX_DOWNLOAD_BYTES:
+                                raise ValueError("RNA XML download exceeded bounded byte budget")
+                            output.write(part)
+            return total
+        except (httpx.ConnectTimeout, httpx.ConnectError, httpx.ReadTimeout) as exc:
+            if attempt == 3:
+                raise RuntimeError(
+                    "Official RNA host unreachable after 3 bounded attempts; "
+                    "no candidates generated or database writes performed. "
+                    "Check official dataset availability and URL."
+                ) from exc
+            print(f"RNA transient network failure on attempt {attempt}/3; retrying", flush=True)
+            await asyncio.sleep(2 ** attempt)
+    raise AssertionError("unreachable")
 
 
 def sector_roles(codes: list[str], target: str) -> tuple[str, str] | None:
