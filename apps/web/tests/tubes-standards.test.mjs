@@ -23,7 +23,7 @@ test("K1 separates the public tube Knowledge hub from the authenticated referenc
   assert.match(shell, /href: appRoutes\.knowledge\.schoolTubes/);
   assert.match(shell, /label: "Calcolo pesi"/);
   assert.match(publicKnowledgeRoute, /Calcolo peso tubo acciaio/);
-  assert.match(publicKnowledgeRoute, /PublicTubeWeightCalculator/);
+  assert.match(publicKnowledgeRoute, /CalculatorRegionSwitch/);
   assert.match(privateToolRoute, /tubi-norme\/page/);
   assert.match(page, /Steel Knowledge/);
   assert.match(page, /Tabella dimensionale/);

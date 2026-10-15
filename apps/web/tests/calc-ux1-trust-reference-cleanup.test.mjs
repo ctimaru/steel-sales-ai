@@ -79,8 +79,8 @@ test("CALC-UX1 public reference catalogue is opt-in while linked SEO entries rem
   assert.match(dimension, /canonical: absoluteUrl/);
   assert.match(dimension, /citation: dimension.source_url/);
   assert.match(rpc,/grant execute.*anon/s);
-  assert.match(english, /PublicTubeWeightCalculator references=\{references\}/);
-  assert.match(italian, /PublicTubeWeightCalculator references=\{references\}/);
+  assert.match(english, /CalculatorRegionSwitch locale="en" initialRegion="eu"/);
+  assert.match(italian, /CalculatorRegionSwitch locale="it" initialRegion="eu"/);
 });
 
 test("CALC-UX1 removes escaped literal backslashes between calculator and index without disturbing canonical SEO", () => {

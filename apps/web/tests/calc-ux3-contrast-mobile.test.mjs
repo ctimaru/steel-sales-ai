@@ -54,8 +54,8 @@ test("CALC-UX3 mobile targets, text and result grid are responsive", () => {
 });
 
 test("CALC-UX3 shared bilingual calculator keeps RFQ transfer, references and SEO", () => {
-  assert.match(italian, /PublicTubeWeightCalculator/);
-  assert.match(english, /PublicTubeWeightCalculator references=\{references\} initialValues=\{initialValues\} locale="en"/);
+  assert.match(italian, /CalculatorRegionSwitch/);
+  assert.match(english, /CalculatorRegionSwitch locale="en" initialRegion="eu"/);
   assert.match(calculator, /calculatorRfqFromValues\(currentSnapshot,/);
   assert.match(calculator, /enqueueCalculatorRfq\(window\.sessionStorage, item\)/);
   assert.match(calculator, /window\.location\.assign\(locale === "en" \? "\/en\/distinta" : "\/distinta"\)/);

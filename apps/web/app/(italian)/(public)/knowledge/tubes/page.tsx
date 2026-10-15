@@ -3,8 +3,8 @@ import Link from "next/link";
 
 import { PublicUtilityTelemetry } from "@/components/public-utility-telemetry";
 import { EnStructuralMethodEvidence } from "@/components/en-structural-method-evidence";
+import { CalculatorRegionSwitch } from "@/components/calculator-region-switch";
 import {
-  PublicTubeWeightCalculator,
   type PublicTubeCalculatorInitialValues,
 } from "@/components/public-tube-weight-calculator";
 import {
@@ -233,8 +233,9 @@ export default async function PublicTubeWeightsPage({
       />
 
       <PublicUtilityTelemetry source={discoverySource} surface={discoverySurface} />
-      <PublicTubeWeightCalculator references={references} initialValues={initialValues} />
-      <EnStructuralMethodEvidence locale="it" />
+      <CalculatorRegionSwitch locale="it" initialRegion="eu"
+        references={references} initialValues={initialValues}
+        euAfter={<EnStructuralMethodEvidence locale="it" />} />
       <div className="rounded-2xl border border-[#c7ded3] bg-white p-4">
         <Link href="/knowledge/tubes/tubi-americani"
           className="inline-flex min-h-11 items-center text-sm font-bold text-[#156449] underline underline-offset-4">

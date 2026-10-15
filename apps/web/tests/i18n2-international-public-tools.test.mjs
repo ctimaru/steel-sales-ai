@@ -77,7 +77,7 @@ test("I18N2 validates all dimensions, quantity and malformed decimals", () => {
 
 test("I18N2 serves two English functional routes and reciprocal canonical SEO", () => {
   // I18N7: the English page now uses the SAME canonical component as Italian.
-  assert.match(calculatorPage, /PublicTubeWeightCalculator references=\{references\} initialValues=\{initialValues\} locale="en"/);
+  assert.match(calculatorPage, /CalculatorRegionSwitch locale="en" initialRegion="eu"/);
   assert.match(rfqPage, /EnglishRfqBillBuilder/);
   assert.match(calculatorPage, /canonical: absoluteUrl\("\/en\/knowledge\/tubes"\)/);
   assert.match(rfqPage, /canonical: absoluteUrl\("\/en\/distinta"\)/);

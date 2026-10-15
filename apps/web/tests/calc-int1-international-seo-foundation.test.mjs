@@ -65,7 +65,7 @@ test("CALC-INT1 preserves shareable input hydration and one shared calculator co
     for (const key of ["standard", "family", "thickness", "length", "quantity", "target", "density"]) {
       assert.match(page, new RegExp(`\\b${key}\\?: string`));
     }
-    assert.match(page, /PublicTubeWeightCalculator/);
+    assert.match(page, /CalculatorRegionSwitch/);
     assert.match(page, /initialValues=\{initialValues\}/);
   }
   assert.match(english, /export const dynamic = "force-dynamic"/);

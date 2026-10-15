@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { EnglishPublicSubpage } from "@/components/english-public-subpage";
-import { UsPipeSampleCalculator } from "@/components/us-pipe-sample-calculator";
+import { CalculatorRegionSwitch } from "@/components/calculator-region-switch";
 import { CALCULATOR_STANDARDS } from "@/lib/calculator-standards-registry";
 import { absoluteUrl } from "@/lib/site";
 
@@ -44,7 +44,7 @@ export default function AmericanPipeMassPage() {
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(jsonLd)}}/>
       <div className="mx-auto max-w-[1120px] space-y-8 px-4 py-10 sm:px-6">
-        <UsPipeSampleCalculator locale="en"/>
+        <CalculatorRegionSwitch locale="en" initialRegion="us" references={[]} />
         <section className="rounded-2xl border border-[#dce5e0] bg-white p-5 sm:p-7">
           <h2 className="text-xl font-bold text-[#123b34]">API, ASME and ASTM are not interchangeable</h2>
           <p className="mt-3 text-sm leading-7 text-[#52615b]">
