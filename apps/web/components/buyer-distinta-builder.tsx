@@ -228,10 +228,10 @@ export function BuyerDistintaBuilder({
     const imported = accepted.flatMap((item) => {
       const spec=usPipeRfqSpecification(item);
       if (!spec) return [];
-      const summary=`${spec.designation}, OD ${spec.outerDiameterMm} × ${spec.wallMm} mm`;
+      const summary=spec.calculationMethod==="aisc-a500" ? spec.designation : `${spec.designation}, OD ${spec.outerDiameterMm} × ${spec.wallMm} mm`;
       return [{
         id:newLineId(),
-        description:`Tubo tondo ${summary}`,
+        description:spec.calculationMethod==="aisc-a500" ? `${summary} · HSS ASTM A500` : `Tubo tondo ${summary}`,
         standard:spec.standardLabel,
         grade:"",finish:"",quantityMode:"bars" as const,quantity:String(spec.bars),
         barLengthM:String(spec.lengthM),
