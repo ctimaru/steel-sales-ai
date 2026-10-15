@@ -183,7 +183,7 @@ export function UsPipeSampleCalculator({ locale,initialValues={} }: { locale:Loc
       </div>:null}
       <h2 className="text-xl font-bold text-[#123b34]">{copy.title}</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-[#52615b]">{copy.subtitle}</p>
-      <div role="group" aria-label={locale==="it"?"Modalità dimensionale USA":locale==="en"?"US dimensional mode":copy.dimensionalMode}
+      <div role="group" aria-label={locale==="it"?"Modalità dimensionale USA":locale==="en"?"US dimensional mode":US_PIPE_I18N[locale].dimensionalMode}
         className="mt-5 grid grid-cols-3 gap-1 rounded-xl bg-[#eaf3ed] p-1">
         <button type="button" aria-pressed={inputMode==="catalog"} onClick={()=>setInputMode("catalog")}
           className={inputMode==="catalog"?"min-h-12 rounded-lg bg-[#165544] px-3 text-xs font-bold text-white":"min-h-12 rounded-lg px-3 text-xs font-bold text-[#123b34]"}>
