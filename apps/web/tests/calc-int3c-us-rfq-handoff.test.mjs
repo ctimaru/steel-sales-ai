@@ -18,6 +18,7 @@ const compiled=asModule(source)
 const bridge=await import(data(compiled));
 const it=read("../components/buyer-distinta-builder.tsx");
 const en=read("../components/english-rfq-bill-builder.tsx");
+const enCopy=read("../lib/rfq-bill-localization.ts");
 const us=read("../components/us-pipe-sample-calculator.tsx");
 const original=read("../lib/calculator-rfq-handoff.ts");
 
@@ -100,7 +101,8 @@ test("CALC-INT3C wires full US source intent to both RFQ bills but never automat
   assert.match(it,/note:`\$\{spec\.provenanceNote\}/);
   assert.match(en,/readUsPipeRfqQueue\(window\.sessionStorage\)/);
   assert.match(en,/usPipeRfqSpecification\(item\)/);
-  assert.match(en,/Requested US product specification/);
+  assert.match(enCopy,/Requested US product specification/);
+  assert.match(en,/RFQ_BILL_TEXT\[locale\]/);
   assert.match(en,/usProductIntent/);
   assert.match(en,/consumeUsPipeRfqIds\(window\.sessionStorage/);
   assert.match(en,/usProductIntent:geometryChanged \? undefined : line\.usProductIntent/);
