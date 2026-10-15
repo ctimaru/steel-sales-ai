@@ -44,7 +44,7 @@ test("CALC-INT3E.1 DE/FR/ES translated landing pages are complete unique content
 
 test("CALC-INT3E.1 exactly one shared mass engine, no copied formulas or foreign norm promotion",()=>{
   assert.match(ui,/estimatePublicTubeMass\(/);
-  assert.match(ui,/parseTubeNumber/);
+  assert.ok(ui.includes("parseTubeNumber(thickness)"));
   assert.match(ui,/calculatorRfqFromValues\(/);
   assert.match(ui,/enqueueCalculatorRfq\(window\.sessionStorage,item\)/);
   assert.match(ui,/window\.location\.assign\("\/en\/distinta"\)/);
