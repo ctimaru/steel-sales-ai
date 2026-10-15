@@ -94,7 +94,7 @@ test("CALC-INT3C bounded tab-local queue does not touch v1 or reimport consumed 
 test("CALC-INT3C wires full US source intent to both RFQ bills but never automatic sends",()=>{
   assert.match(us,/buildUsPipeRfqItem\(/);
   assert.match(us,/enqueueUsPipeRfq\(window\.sessionStorage,item\)/);
-  assert.match(us,/window\.location\.assign\(locale === "it" \? "\/distinta" : "\/en\/distinta"\)/);
+  assert.match(us,/window\.location\.assign\(usRfqBillPath\(locale\)\)/);
   assert.match(it,/readUsPipeRfqQueue\(window\.sessionStorage\)/);
   assert.match(it,/usPipeRfqSpecification\(item\)/);
   assert.match(it,/standard:spec\.standardLabel/);
