@@ -2,6 +2,7 @@
 
 import { guidedTubeToBuyerLine } from "@/lib/buyer-guided-commercial-line";
 import { calculatorItemToBuyerLine, consumeCalculatorRfqIds, readCalculatorRfqQueue, type CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
+import { consumeUsPipeRfqIds, readUsPipeRfqQueue, usPipeRfqSpecification } from "@/lib/us-pipe-rfq-handoff";
 import { PublicTubeWeightCalculator } from "@/components/public-tube-weight-calculator";
 import { Bd17GuestRfqCta } from "@/components/bd17-guest-rfq-cta";
 import { trackProductEvent } from "@/lib/product-analytics-events.client";
@@ -215,6 +216,48 @@ export function BuyerDistintaBuilder({
   // consumed synchronously; StrictMode effect replay cannot double-import.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draftReady, restoreCandidate]);
+
+  // CALC-INT3C: independent opt-in US pipe queue. Never modify the EN/geometric
+  // v1 handoff, and do not auto-send a line or claim API/ASTM compliance.
+  useEffect(() => {
+    if (!draftReady || restoreCandidate) return;
+    const pending = readUsPipeRfqQueue(window.sessionStorage);
+    if (!pending.length) return;
+    const room = lines.length === 1 && isUntouchedLine(lines[0]) ? 500 : Math.max(0, 500 - lines.length);
+    const accepted = pending.slice(0,room);
+    const imported = accepted.flatMap((item) => {
+      const spec=usPipeRfqSpecification(item);
+      if (!spec) return [];
+      const summary=`${spec.designation}, OD ${spec.outerDiameterMm} × ${spec.wallMm} mm`;
+      return [{
+        id:newLineId(),
+        description:`Tubo tondo ${summary}`,
+        standard:spec.standardLabel,
+        grade:"",finish:"",quantityMode:"bars" as const,quantity:String(spec.bars),
+        barLengthM:String(spec.lengthM),
+        weightKgM:spec.theoreticalKgM.toLocaleString("it-IT",{maximumFractionDigits:3}),
+        targetEurT:"",
+        note:`${spec.provenanceNote} Requested: ${spec.standardLabel}; ${spec.designation}. Manufacturer-published reference ${spec.publishedKgM} kg/m (comparison only, not RFQ mass).`,
+      }];
+    });
+    if (imported.length) {
+      setLines(current => {
+        const base = current.length === 1 && isUntouchedLine(current[0]) ? [] : current;
+        return [...base,...imported.slice(0,Math.max(0,500-base.length))];
+      });
+      setCalculatorHandoffCount(count => count + imported.length);
+      setCompactMode(true);
+      setCopyState("idle");
+      setSavedId(null);
+      setSaveMessage(null);
+      setSendMessage(null);
+      setRfqMessage(null);
+    }
+    consumeUsPipeRfqIds(window.sessionStorage,accepted.map(v=>v.id));
+    setCalculatorHandoffOverflow(accepted.length < pending.length);
+    // The accepted v2 ids are consumed synchronously; replay cannot duplicate.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[draftReady,restoreCandidate]);
 
   function restoreBrowserDraft() {
     if (!restoreCandidate) return;
