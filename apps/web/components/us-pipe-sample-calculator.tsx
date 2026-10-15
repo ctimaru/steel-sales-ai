@@ -7,15 +7,19 @@ import { estimatePublicTubeMass } from "@/lib/international-tube-mass";
 import { buildUsPipeRfqItem, enqueueUsPipeRfq } from "@/lib/us-pipe-rfq-handoff";
 import { standardById } from "@/lib/calculator-standards-registry";
 import {
-  US_PIPE_MANUFACTURER_SAMPLE, US_PIPE_MANUFACTURER_SOURCE,
+  US_PIPE_MANUFACTURER_SAMPLE, US_PIPE_MANUFACTURER_SOURCE, US_PIPE_MANUFACTURER_WEB_SOURCE,
   US_PIPE_MASS_CONVERSION, availableUsNps, rowsForNps,
 } from "@/lib/us-pipe-catalog-sample";
 
 type Locale = "it" | "en";
 const labels = {
   it: {
-    title:"Seleziona un tubo NPS / Schedule",
-    subtitle:"Campione non esaustivo di dimensioni del produttore U.S. Steel; non è la tabella normativa ASME completa.",
+    title:"Calcolatore tubi USA: NPS / Schedule e misure libere",
+    catalogTab:"Misure NPS / Schedule",customTab:"Dimensioni libere",
+    customNote:"Inserisci direttamente diametro esterno e spessore, senza attribuire automaticamente NPS o Schedule.",
+    units:"Unità", diameter:"Diametro esterno", wall:"Spessore",
+    noPublished:"Nessun peso di catalogo: risultato solo teorico.",
+    subtitle:"20 combinazioni selezionate dal catalogo U.S. Steel, più calcolo geometrico libero. Non è la tabella normativa ASME completa.",
     nps:"NPS nominale", schedule:"Schedule / Classe", purpose:"Norma di prodotto richiesta (solo contesto)",
     length:"Lunghezza barra (m)", bars:"Numero barre",
     dimension:"Geometria ricavata dal catalogo",
@@ -28,13 +32,17 @@ const labels = {
     proceed:"Apri il calcolatore geometrico",
     addRfq:"Aggiungi alla distinta RFQ",
     addRfqFailed:"Impossibile aprire la distinta: verifica la sessione del browser.",
-    bridge:"La distinta conserva la specifica API/ASTM come richiesta da confermare, insieme ai dati NPS/Schedule. Il peso resta geometrico teorico, mai certificato.",
+    bridge:"La distinta conserva la norma API/ASTM richiesta; NPS/Schedule compare soltanto per misure di catalogo. Massa geometrica teorica, mai certificata.",
     invalid:"Inserisci una lunghezza positiva e un numero intero di barre.",
     source:"Catalogo U.S. Steel — Pipe Tables",
   },
   en: {
-    title:"Select an NPS / Schedule sample",
-    subtitle:"A limited U.S. Steel manufacturer dimensional sample, not a complete ASME normative schedule table.",
+    title:"US pipe calculator: NPS / Schedule and custom dimensions",
+    catalogTab:"NPS / Schedule samples",customTab:"Custom dimensions",
+    customNote:"Enter actual outside diameter and wall thickness. No NPS or Schedule is assigned automatically.",
+    units:"Units", diameter:"Outside diameter", wall:"Wall thickness",
+    noPublished:"No published catalog mass: theoretical result only.",
+    subtitle:"20 selected U.S. Steel manufacturer combinations plus custom geometric calculation. Not a complete ASME normative schedule table.",
     nps:"Nominal pipe size",schedule:"Schedule / Class",purpose:"Intended product specification (context only)",
     length:"Bar length (m)",bars:"Number of bars",
     dimension:"Manufacturer-reported geometry",
@@ -47,7 +55,7 @@ const labels = {
     proceed:"Open geometric calculator",
     addRfq:"Add to RFQ bill",
     addRfqFailed:"Could not prepare the RFQ bill; check browser session storage.",
-    bridge:"The RFQ bill carries the requested API/ASTM designation and NPS/Schedule context for supplier confirmation. The mass remains a geometric estimate, never a certified weight.",
+    bridge:"The RFQ carries the requested API/ASTM product context. NPS/Schedule is included only for sourced catalog sizes; mass remains theoretical, never certified.",
     invalid:"Enter a positive bar length and a positive whole number of bars.",
     source:"U.S. Steel Standard & Line Pipe Catalog — Pipe Tables",
   },
@@ -60,6 +68,10 @@ const numberFormatter = (value:number, locale:Locale, digits=3) =>
 export function UsPipeSampleCalculator({ locale }: { locale:Locale }) {
   const copy = labels[locale];
   const npsList = availableUsNps();
+  const [inputMode,setInputMode] = useState<"catalog"|"custom">("catalog");
+  const [units,setUnits] = useState<"mm"|"in">("mm");
+  const [customDiameter,setCustomDiameter] = useState("114.3");
+  const [customWall,setCustomWall] = useState("6.02");
   const [nps,setNps] = useState("6");
   const [rowId,setRowId] = useState("6-40");
   const [productStandard,setProductStandard] = useState<(typeof productChoices)[number]>("api5l");
@@ -68,31 +80,60 @@ export function UsPipeSampleCalculator({ locale }: { locale:Locale }) {
   const [copyState,setCopyState] = useState<"idle"|"copied"|"failed">("idle");
   const [rfqError,setRfqError] = useState(false);
   const row = US_PIPE_MANUFACTURER_SAMPLE.find((r)=>r.id===rowId && r.nps===nps) ?? rowsForNps(nps)[0];
-  const quantity=Number(bars.trim().replace(",","."));
-  const metres=Number(length.trim().replace(",","."));
-  const valid = Boolean(bars.trim() && length.trim() && Number.isSafeInteger(quantity) && quantity>0 &&
-    Number.isFinite(metres) && metres>0 && metres<=1000);
-  const estimate = row && valid ? estimatePublicTubeMass({
-    shape:"round",standard:"geometric",outerDiameterMm:row.outerDiameterMm,
-    thicknessMm:row.thicknessMm,lengthM:metres,bars:quantity,
+  const parseInput = (v:string) => {
+    const cleaned=v.trim().replace(",",".");
+    return /^\\d+(?:\\.\\d+)?$/.test(cleaned) ? Number(cleaned) : NaN;
+  };
+  const quantity=parseInput(bars);
+  const metres=parseInput(length);
+  const diameterInput=parseInput(customDiameter);
+  const wallInput=parseInput(customWall);
+  const factor=units==="in"?25.4:1;
+  const customDiameterMm=diameterInput*factor;
+  const customWallMm=wallInput*factor;
+  const activeDiameter=inputMode==="custom"?customDiameterMm:row?.outerDiameterMm;
+  const activeWall=inputMode==="custom"?customWallMm:row?.thicknessMm;
+  const valid=Number.isSafeInteger(quantity) && quantity>0 && quantity<=1_000_000 &&
+    Number.isFinite(metres) && metres>0 && metres<=1000;
+  const dimensionValid=Number.isFinite(activeDiameter) && Number.isFinite(activeWall) &&
+    activeDiameter! > 0 && activeDiameter!<=2500 && activeWall! > 0 &&
+    activeWall!<=250 && activeWall!*2<activeDiameter!;
+  const estimate = dimensionValid && valid ? estimatePublicTubeMass({
+    shape:"round",standard:"geometric",outerDiameterMm:activeDiameter,
+    thicknessMm:activeWall!,lengthM:metres,bars:quantity,
   }) : null;
-  const result = estimate?.ok ? estimate : null;
+  const result=estimate?.ok?estimate:null;
   const selectedStandard = standardById(productStandard);
-  const params = row ? new URLSearchParams({
+  const params = result ? new URLSearchParams({
     standard:"geometric",family:"round_tube",
-    od:String(row.outerDiameterMm),thickness:String(row.thicknessMm),
-    length:valid?String(metres):"12",quantity:valid?String(quantity):"1",
-    density:"7850",
+    od:String(activeDiameter),thickness:String(activeWall),
+    length:String(metres),quantity:String(quantity),density:"7850",
   }) : null;
   const calculatorUrl = `${locale === "it" ? "/knowledge/tubes" : "/en/knowledge/tubes"}?${params?.toString() ?? ""}#calcolatore-pesi`;
   const resultLbFt = result ? result.weightKgM / US_PIPE_MASS_CONVERSION : 0;
+  const sampleSource=row?.sourcePage!=null?US_PIPE_MANUFACTURER_SOURCE:US_PIPE_MANUFACTURER_WEB_SOURCE;
+  const sampleLocator=row?.sourcePage!=null
+    ? `${copy.page} ${row.sourcePage}` : (row?.sourceLocation ?? "Pipe Tables");
+  function setMeasurementUnit(next:"mm"|"in") {
+    if(next===units)return;
+    const convert=(value:string) => {
+      const numeric=parseInput(value);
+      if(!Number.isFinite(numeric))return value;
+      const converted=next==="in"?numeric/25.4:numeric*25.4;
+      return String(Number(converted.toFixed(next==="in"?5:3)));
+    };
+    setCustomDiameter(convert(customDiameter));
+    setCustomWall(convert(customWall));
+    setUnits(next);
+  }
 
   const addToRfqBill = () => {
-    if (!row || !result || !valid) return;
-    const item = buildUsPipeRfqItem(
-      {sampleId:row.id,productStandard,lengthM:metres,bars:quantity},
-      crypto.randomUUID(),
-    );
+    if (!result || !valid) return;
+    const selection = inputMode==="custom"
+      ? {mode:"custom" as const,outerDiameterMm:customDiameterMm,thicknessMm:customWallMm,
+          productStandard,lengthM:metres,bars:quantity}
+      : {sampleId:row.id,productStandard,lengthM:metres,bars:quantity};
+    const item = buildUsPipeRfqItem(selection,crypto.randomUUID());
     if (!item || !enqueueUsPipeRfq(window.sessionStorage,item)) {
       setRfqError(true);
       return;
@@ -102,23 +143,61 @@ export function UsPipeSampleCalculator({ locale }: { locale:Locale }) {
   };
 
   const copiedText = () => {
-    if (!row || !result || !selectedStandard) return "";
+    if (!result || !selectedStandard) return "";
     return [
       `Requested product specification (to verify): ${selectedStandard.title}`,
-      `Manufacturer sample designation: NPS ${row.nps}, Sch/Class ${row.schedule}`,
-      `OD ${row.outerDiameterMm} mm, nominal wall ${row.thicknessMm} mm`,
+      inputMode==="catalog"
+        ? `Manufacturer sample designation: NPS ${row.nps}, Sch/Class ${row.schedule}`
+        : "User-supplied dimensions: no verified NPS/Schedule designation",
+      `OD ${activeDiameter} mm, nominal wall ${activeWall} mm`,
       `Theoretical geometry-only mass: ${result.weightKgM.toFixed(3)} kg/m`,
-      `Manufacturer-published reference: ${row.publishedWeightKgM} kg/m (U.S. Steel catalog p. ${row.sourcePage})`,
+      inputMode==="catalog"
+        ? `Manufacturer-published reference: ${row.publishedWeightKgM} kg/m (U.S. Steel ${sampleLocator})`
+        : "No manufacturer-published reference for user-supplied dimensions.",
       `Bars: ${quantity}, length: ${metres} m, theoretical total: ${result.totalKg.toFixed(3)} kg`,
-      "Product grade, edition, PSL, tolerances, and certification to be confirmed by supplier.",
-    ].join("\n");
+      "Product grade, edition, PSL, tolerances, NPS/Schedule mapping and certification to be confirmed by supplier.",
+    ].join("\\n");
   };
 
   return (
     <section aria-label={copy.title} className="rounded-2xl border border-[#c7ded3] bg-white p-4 shadow-sm sm:p-6">
       <h2 className="text-xl font-bold text-[#123b34]">{copy.title}</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-[#52615b]">{copy.subtitle}</p>
+      <div role="group" aria-label={locale==="it"?"Modalità dimensionale USA":"US dimensional mode"}
+        className="mt-5 grid grid-cols-2 gap-1 rounded-xl bg-[#eaf3ed] p-1">
+        <button type="button" aria-pressed={inputMode==="catalog"} onClick={()=>setInputMode("catalog")}
+          className={inputMode==="catalog"?"min-h-12 rounded-lg bg-[#165544] px-3 text-xs font-bold text-white":"min-h-12 rounded-lg px-3 text-xs font-bold text-[#123b34]"}>
+          {copy.catalogTab}
+        </button>
+        <button type="button" aria-pressed={inputMode==="custom"} onClick={()=>setInputMode("custom")}
+          className={inputMode==="custom"?"min-h-12 rounded-lg bg-[#165544] px-3 text-xs font-bold text-white":"min-h-12 rounded-lg px-3 text-xs font-bold text-[#123b34]"}>
+          {copy.customTab}
+        </button>
+      </div>
+      {inputMode==="custom" ? <div className="mt-3 space-y-3 rounded-xl border border-[#a8c4b6] bg-[#f1f8f3] p-3">
+        <p className="text-xs leading-5 text-[#355b4a]">{copy.customNote}</p>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-xs font-bold text-[#123b34]">{copy.units}</span>
+          <button type="button" aria-pressed={units==="mm"} onClick={()=>setMeasurementUnit("mm")}
+            className="min-h-11 rounded-lg border border-[#8da99d] px-4 text-xs font-bold text-[#123b34]">mm</button>
+          <button type="button" aria-pressed={units==="in"} onClick={()=>setMeasurementUnit("in")}
+            className="min-h-11 rounded-lg border border-[#8da99d] px-4 text-xs font-bold text-[#123b34]">in</button>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <label className="text-xs font-semibold text-[#123b34]">{copy.diameter} ({units})
+            <input type="text" inputMode="decimal" value={customDiameter}
+              onChange={e=>setCustomDiameter(e.target.value)}
+              className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-sm text-[#123b34]"/>
+          </label>
+          <label className="text-xs font-semibold text-[#123b34]">{copy.wall} ({units})
+            <input type="text" inputMode="decimal" value={customWall}
+              onChange={e=>setCustomWall(e.target.value)}
+              className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-sm text-[#123b34]"/>
+          </label>
+        </div>
+      </div> : null}
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
+        {inputMode==="catalog" ? <>
         <label className="text-xs font-semibold text-[#123b34]">{copy.nps}
           <select value={nps} onChange={e=>{const next=e.target.value;setNps(next);setRowId(rowsForNps(next)[0]?.id ?? "");}}
             className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-sm text-[#123b34]">
@@ -131,6 +210,7 @@ export function UsPipeSampleCalculator({ locale }: { locale:Locale }) {
             {rowsForNps(nps).map(r=><option key={r.id} value={r.id}>Sch {r.schedule}{r.classLabel && r.classLabel!==r.schedule ? ` · ${r.classLabel}` : ""}</option>)}
           </select>
         </label>
+        </> : null}
         <label className="text-xs font-semibold text-[#123b34]">{copy.purpose}
           <select value={productStandard} onChange={e=>setProductStandard(e.target.value as typeof productStandard)}
             className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-sm text-[#123b34]">
@@ -149,18 +229,35 @@ export function UsPipeSampleCalculator({ locale }: { locale:Locale }) {
         </div>
       </div>
       <p className="mt-3 text-xs leading-5 text-[#52615b]">{copy.intent}</p>
-      {row ? <div className="mt-5 rounded-xl bg-[#f2f7f4] p-4">
-        <p className="text-xs font-bold uppercase tracking-wide text-[#1a5144]">{copy.dimension}</p>
-        <p className="mt-1 text-sm font-semibold text-[#123b34]">NPS {row.nps} · Sch {row.schedule} · OD {numberFormatter(row.outerDiameterMm,locale,2)} mm · t {numberFormatter(row.thicknessMm,locale,2)} mm</p>
-        {result ? <>
-          <div className="mt-4 grid gap-3 sm:grid-cols-3">
-            <div><p className="text-xs text-[#52615b]">{copy.theoretical}</p><p className="text-xl font-bold text-[#123b34]">{numberFormatter(result.weightKgM,locale)} kg/m</p><p className="text-xs text-[#52615b]">{numberFormatter(resultLbFt,locale)} lb/ft</p></div>
-            <div><p className="text-xs text-[#52615b]">{copy.published}</p><p className="text-xl font-bold text-[#123b34]">{numberFormatter(row.publishedWeightKgM,locale,2)} kg/m</p><p className="text-xs text-[#52615b]">{numberFormatter(row.publishedWeightLbFt,locale,2)} lb/ft</p></div>
-            <div><p className="text-xs text-[#52615b]">{copy.total}</p><p className="text-xl font-bold text-[#123b34]">{numberFormatter(result.totalKg,locale)} kg</p><p className="text-xs text-[#52615b]">{numberFormatter(result.totalTonnes,locale)} t</p></div>
+      <div className="mt-5 rounded-xl bg-[#f2f7f4] p-4">
+        <p className="text-xs font-bold uppercase tracking-wide text-[#1a5144]">
+          {inputMode==="catalog"?copy.dimension:copy.customNote}
+        </p>
+        <p className="mt-1 text-sm font-semibold text-[#123b34]">
+          {inputMode==="catalog"?`NPS ${row.nps} · Sch ${row.schedule} · `:""}
+          OD {numberFormatter(activeDiameter ?? 0,locale,2)} mm · t {numberFormatter(activeWall ?? 0,locale,2)} mm
+        </p>
+        {result ? <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div><p className="text-xs text-[#52615b]">{copy.theoretical}</p>
+            <p className="text-xl font-bold text-[#123b34]">{numberFormatter(result.weightKgM,locale)} kg/m</p>
+            <p className="text-xs text-[#52615b]">{numberFormatter(resultLbFt,locale)} lb/ft</p></div>
+          <div><p className="text-xs text-[#52615b]">{copy.published}</p>
+            {inputMode==="catalog" ? <>
+              <p className="text-xl font-bold text-[#123b34]">{numberFormatter(row.publishedWeightKgM,locale,2)} kg/m</p>
+              <p className="text-xs text-[#52615b]">{numberFormatter(row.publishedWeightLbFt,locale,2)} lb/ft</p>
+            </> : <p className="text-xs font-semibold leading-5 text-[#52615b]">{copy.noPublished}</p>}
           </div>
-        </>:<p role="status" className="mt-3 text-sm font-semibold text-[#8b4a25]">{copy.invalid}</p>}
-      </div> : null}
-      <p className="mt-4 text-xs leading-6 text-[#52615b]">{copy.disclaimer} <a className="font-semibold text-[#156449] underline" href={US_PIPE_MANUFACTURER_SOURCE} target="_blank" rel="noopener noreferrer">{copy.source} — {copy.page} {row?.sourcePage}</a>.</p>
+          <div><p className="text-xs text-[#52615b]">{copy.total}</p>
+            <p className="text-xl font-bold text-[#123b34]">{numberFormatter(result.totalKg,locale)} kg</p>
+            <p className="text-xs text-[#52615b]">{numberFormatter(result.totalTonnes,locale)} t</p>
+          </div>
+        </div> : <p role="status" className="mt-3 text-sm font-semibold text-[#8b4a25]">{copy.invalid}</p>}
+      </div>
+      {inputMode==="catalog" ? <p className="mt-4 text-xs leading-6 text-[#52615b]">{copy.disclaimer}
+        <a className="font-semibold text-[#156449] underline" href={sampleSource} target="_blank" rel="noopener noreferrer">
+          {copy.source} — {sampleLocator}
+        </a>.
+      </p> : <p className="mt-4 text-xs leading-6 text-[#52615b]">{copy.noPublished} {copy.disclaimer}</p>}
       <p className="mt-1 text-xs leading-5 text-[#52615b]">{copy.bridge}</p>
       <div className="mt-5 flex flex-wrap gap-3">
         <button type="button" disabled={!result}
