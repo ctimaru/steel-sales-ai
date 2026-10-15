@@ -3,6 +3,7 @@ import Link from "next/link";
 import { unstable_cache } from "next/cache";
 
 import { EnglishPublicSubpage } from "@/components/english-public-subpage";
+import { EnStructuralMethodEvidence } from "@/components/en-structural-method-evidence";
 import { PublicTubeWeightCalculator, type PublicTubeCalculatorInitialValues } from "@/components/public-tube-weight-calculator";
 import { listPublicTubeDimensionPages } from "@/lib/public-knowledge";
 import { absoluteUrl } from "@/lib/site";
@@ -119,6 +120,7 @@ export default async function EnglishTubeWeightsPage({ searchParams }: { searchP
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="mx-auto max-w-[1120px] px-4 py-10 sm:px-6 lg:px-8">
         <PublicTubeWeightCalculator references={references} initialValues={initialValues} locale="en" />
+        <div className="mt-5"><EnStructuralMethodEvidence locale="en" /></div>
       </div>
       <div className="mx-auto max-w-[1120px] px-4 pb-8 sm:px-6">
         <Link href="/en/knowledge/tubes/american-pipe"
