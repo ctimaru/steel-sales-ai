@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       official_xml_url:
-        description: "Exact download URL copied from MIMIT RNA Open Data (www.rna.gov.it/.../OpenData_Aiuti_YYYY_MM.xml)"
+        description: "Exact MIMIT XML URL (OpenData_Aiuti_YYYY_MM, optional .xml); summary only"
         type: string
         required: true
       segment:
@@ -14,7 +14,7 @@ on:
         required: true
         options: [trader, buyer, both]
       max_candidates:
-        description: "Maximum unique legal entities in private review CSV"
+        description: "Maximum distinct corporate entities counted in public-safe summary"
         type: choice
         required: true
         default: "200"
@@ -30,7 +30,7 @@ concurrency:
 jobs:
   rna-preview:
     if: github.ref == 'refs/heads/main'
-    name: "Read-only official XML -> corporate CSV artifact"
+    name: "Read-only official XML -> aggregate corporate candidate counts"
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
@@ -43,13 +43,12 @@ jobs:
       - name: "Install existing public worker dependencies"
         working-directory: services/worker
         run: python -m pip install -e .
-      - name: "Official public XML, corporate-only output, no database credentials"
+      - name: "Official public XML, aggregate counts only, no database credentials"
         working-directory: services/worker
         env:
           RNA_XML_URL: ${{ inputs.official_xml_url }}
           TARGET_SEGMENT: ${{ inputs.segment }}
           MAX_CANDIDATES: ${{ inputs.max_candidates }}
-          RUNNER_TEMP_DIR: ${{ runner.temp }}
         run: |
           set -euo pipefail
           case "$MAX_CANDIDATES" in 100|200|300) ;; *) exit 2 ;; esac
@@ -57,11 +56,4 @@ jobs:
           python -m app.rna_corporate_candidates \
             --dataset-url "$RNA_XML_URL" --segment "$TARGET_SEGMENT" \
             --limit "$MAX_CANDIDATES" \
-            --output "$RUNNER_TEMP_DIR/it66c-rna-candidate-proposals.csv"
-      - name: "Store operator-only preview for controlled source review"
-        uses: actions/upload-artifact@v4
-        with:
-          name: it66c-rna-candidates-unverified
-          path: ${{ runner.temp }}/it66c-rna-candidate-proposals.csv
-          if-no-files-found: error
-          retention-days: 3
+            --summary-only

@@ -14,6 +14,9 @@ def aid(name,tax,cor,sector):
 
 def test_only_official_monthly_xml_url():
     assert safe_rna_url("https://www.rna.gov.it/sites/rna.mise.gov.it/files/opendata/OpenData_Aiuti_2026_09.xml").endswith(".xml")
+    # Official dati.gov.it MIMIT distribution links may omit an .xml suffix.
+    assert safe_rna_url("https://www.rna.gov.it/sites/rna.mise.gov.it/files/opendata/OpenData_Aiuti_2024_02").endswith("2024_02")
+    assert safe_rna_url("https://www.rna.gov.it/sites/rna.mise.gov.it/files/opendata/OpenData_Aiuti_2024_02_002").endswith("_002")
     for bad in ["http://www.rna.gov.it/sites/rna.mise.gov.it/files/opendata/OpenData_Aiuti_2026_09.xml",
                 "https://unapproved.example/open-data/monthly.xml",
                 "https://www.rna.gov.it/sites/rna.mise.gov.it/files/opendata/OpenData_Aiuti_2026_09.xml?x=1"]:
@@ -51,3 +54,28 @@ def test_nace_component_hint_is_not_free_text():
     assert sector_roles(["46.72 other business"],"trader") is None
     assert sector_roles(["C.25.11"],"buyer")==("end_user","25.11")
     assert sector_roles(["46.82"],"trader")==("trader_distributor","46.82")
+
+
+def test_summary_only_zero_materialization_and_no_corporate_ids(tmp_path, capsys):
+    """Production workflow on a PUBLIC repository must not expose company CSV."""
+    import argparse
+    import asyncio
+    import json
+    from app.rna_corporate_candidates import run
+
+    source = tmp_path / "official.xml"
+    source.write_text("<LISTA_AIUTI>" + aid(
+        "TRADING COMPANY TEST S.R.L.", "01234567890", "901", "46.72"
+    ) + "</LISTA_AIUTI>", encoding="utf-8")
+    args = argparse.Namespace(input=str(source), dataset_url=None, segment="trader",
+                              limit=200, output=None, summary_only=True)
+    assert asyncio.run(run(args)) == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["candidates"] == 1 and report["network_publications"] == 0
+    assert "01234567890" not in json.dumps(report)
+    assert "TRADING COMPANY" not in json.dumps(report)
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["official.xml"]
+    args.output = str(tmp_path / "leaked.csv")
+    with pytest.raises(ValueError, match="public summary"):
+        asyncio.run(run(args))
+    assert not (tmp_path / "leaked.csv").exists()

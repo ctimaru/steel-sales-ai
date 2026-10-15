@@ -73,7 +73,7 @@ export default async function ItalianDiscoveryBulkPage(){
    <p className="text-sm text-[#53637a]">
      I dati RNA (Registro Nazionale Aiuti di Stato, MIMIT) possono aiutare a trovare società manifatturiere
      e commercianti. La classificazione NACE dell&apos;aiuto è solo un indizio, non dimostra che l&apos;azienda
-     acquisti acciaio o tubi. L&apos;estrazione XML → CSV è una <strong>anteprima senza scritture</strong>.
+     acquisti acciaio o tubi. Il workflow GitHub esegue un&apos;<strong>anteprima aggregata, senza CSV pubblici e senza scritture</strong>.
      La fonte rimane da verificare per uso commerciale, attribuzione e tutela dei dati personali.
    </p>
    <div className="flex flex-wrap gap-2">
@@ -83,12 +83,12 @@ export default async function ItalianDiscoveryBulkPage(){
      </a>
      <a href="https://github.com/ctimaru/steel-sales-ai/actions/workflows/crawl-it66c-rna-corporate-preview.yml"
        target="_blank" rel="noopener noreferrer" className="platform-secondary rounded-xl px-4 py-2 text-sm font-semibold">
-       Genera CSV da GitHub Actions ↗
+       Anteprima aggregata RNA su GitHub ↗
      </a>
    </div>
    <p className="text-xs text-[#53637a]">
-     Il file generato contiene solo denominazione societaria, codice fiscale a 11 cifre,
-     ruolo candidato, riferimento RNA e link di provenienza. Non recuperiamo persone fisiche o contatti.
+     La repository GitHub è pubblica: nei log vedrai solo conteggi aggregati. Nessun CSV o identificativo fiscale
+     viene pubblicato come artefatto. Per l&apos;eventuale importazione servono una procedura privata e l&apos;approvazione della fonte.
    </p>
   </section>
   <section className="platform-surface space-y-4 rounded-3xl p-5 sm:p-7">
