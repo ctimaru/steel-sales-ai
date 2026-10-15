@@ -61,16 +61,21 @@ export function UsHssCalculator({locale,initialReferenceId,initialValues={}}:{
   locale:Locale;initialReferenceId?:string;initialValues?:UsHssSeed;
 }){
   const initialReference=initialReferenceId?findHssReference(initialReferenceId):null;
+  const initialUnits=initialValues.hssUnits==="mm"?"mm":"in";
+  const seedDimension=(referenceIn:number|undefined,queryValue:string|undefined,fallback:number)=>{
+    if(referenceIn===undefined)return String(queryValue??fallback);
+    return String(Number((referenceIn*(initialUnits==="mm"?25.4:1)).toFixed(4)));
+  };
   const t=text[locale];
   const [shape,setShape]=useState<HssShape>(initialReference?.shape??(["round","square","rectangular"].includes(initialValues.hssShape??"")?initialValues.hssShape as HssShape:"square"));
   const [referenceId,setReferenceId]=useState(initialReference?.id??"");
   const [searchText,setSearchText]=useState("");
   const [wallFilter,setWallFilter]=useState("");
-  const [units,setUnits]=useState<"mm"|"in">(initialValues.hssUnits==="mm"?"mm":"in");
-  const [diameter,setDiameter]=useState(String(initialReference?.diameterIn??initialValues.hssDiameter??6));
-  const [width,setWidth]=useState(String(initialReference?.widthIn??initialValues.hssWidth??6));
-  const [height,setHeight]=useState(String(initialReference?.heightIn??initialValues.hssHeight??4));
-  const [thickness,setThickness]=useState(String(initialReference?.nominalWallIn??initialValues.hssThickness??0.25));
+  const [units,setUnits]=useState<"mm"|"in">(initialUnits);
+  const [diameter,setDiameter]=useState(seedDimension(initialReference?.diameterIn,initialValues.hssDiameter,6));
+  const [width,setWidth]=useState(seedDimension(initialReference?.widthIn,initialValues.hssWidth,6));
+  const [height,setHeight]=useState(seedDimension(initialReference?.heightIn,initialValues.hssHeight,4));
+  const [thickness,setThickness]=useState(seedDimension(initialReference?.nominalWallIn,initialValues.hssThickness,0.25));
   const [length,setLength]=useState(initialValues.hssLength??"12");
   const [bars,setBars]=useState(initialValues.hssQuantity??"1");
   const [status,setStatus]=useState("");
