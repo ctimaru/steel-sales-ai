@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { InternationalSteelCalculator } from "@/components/international-steel-calculator";
+import { CalculatorRegionSwitch } from "@/components/calculator-region-switch";
 import {
   CALCULATOR_ROUTES,CALCULATOR_TRANSLATIONS,localizedHrefLangPaths,
   isNewCalculatorLocale,
@@ -48,6 +48,18 @@ export default async function InternationalTubeCalculatorPage({params,searchPara
   const copy=CALCULATOR_TRANSLATIONS[locale];
   const raw=await searchParams;
   const seed=Object.fromEntries(queryKeys.map(k=>[k,inputValue(raw,k)]));
+  const usSeed={
+    mode:inputValue(raw,"usMode"),units:inputValue(raw,"units"),
+    customDiameter:inputValue(raw,"customDiameter"),customWall:inputValue(raw,"customWall"),
+    nps:inputValue(raw,"nps"),rowId:inputValue(raw,"rowId"),
+    productStandard:inputValue(raw,"productStandard"),
+    length:inputValue(raw,"length"),bars:inputValue(raw,"quantity"),
+    hssReferenceId:inputValue(raw,"hssReferenceId"),
+    hssShape:inputValue(raw,"hssShape"),hssUnits:inputValue(raw,"hssUnits"),
+    hssDiameter:inputValue(raw,"hssDiameter"),hssWidth:inputValue(raw,"hssWidth"),
+    hssHeight:inputValue(raw,"hssHeight"),hssThickness:inputValue(raw,"hssThickness"),
+    hssLength:inputValue(raw,"hssLength"),hssQuantity:inputValue(raw,"hssQuantity"),
+  };
   const path=CALCULATOR_ROUTES[locale];
   const data={
     "@context":"https://schema.org",
@@ -87,7 +99,8 @@ export default async function InternationalTubeCalculatorPage({params,searchPara
         <h1 className="mt-3 text-2xl font-bold leading-tight tracking-tight text-[#123b34] sm:text-4xl">{copy.title}</h1>
         <p className="mt-4 max-w-3xl text-sm leading-7 text-[#456052] sm:text-base">{copy.intro}</p>
       </section>
-      <InternationalSteelCalculator locale={locale} seed={seed}/>
+      <CalculatorRegionSwitch locale={locale} internationalSeed={seed} usInitialValues={usSeed}
+        initialRegion={inputValue(raw,"system")==="us"?"us":"eu"}/>
       <section className="grid gap-4 rounded-xl border border-[#d7e4dc] bg-white p-5 md:grid-cols-2">
         <div>
           <h2 className="text-lg font-bold text-[#123b34]">{copy.methodTitle}</h2>
