@@ -10,6 +10,7 @@
  */
 import { estimatePublicTubeMass } from "@/lib/international-tube-mass";
 import { findUsPipeSample } from "@/lib/us-pipe-catalog-sample";
+import { findHssReference, hssReferenceDimensionsMm, hssNominalPublishedKgM } from "@/lib/us-hss-reference-samples";
 
 export const US_PIPE_RFQ_KEY = "sss:us-pipe-rfq-handoff:v2";
 export const US_PIPE_RFQ_TTL_MS = 10 * 60 * 1000;
@@ -39,6 +40,7 @@ export type UsPipeRfqHssItem = UsPipeRfqBase & {
   widthMm?: number;
   heightMm?: number;
   thicknessMm: number;
+  hssReferenceId?: string;
   sampleId?: never;
 };
 export type UsPipeRfqItem = UsPipeRfqCatalogItem | UsPipeRfqCustomItem | UsPipeRfqHssItem;
@@ -101,8 +103,26 @@ export function validUsPipeRfqItem(raw:unknown,now=Date.now()):UsPipeRfqItem|nul
           validNum(raw.heightMm,2500) && (raw.heightMm as number)>2*(raw.thicknessMm as number))
         && raw.outerDiameterMm===undefined;
     if(!validGeometry || !Number.isFinite(perimeter) || perimeter>88*25.4)return null;
+    // A forged browser payload cannot attach Atlas weight/evidence to altered
+    // dimensions. Match the curated row and all nominal dimensions to 0.0002mm.
+    let matchedReferenceId: string | undefined;
+    if (raw.hssReferenceId!==undefined) {
+      if(typeof raw.hssReferenceId!=="string")return null;
+      const row=findHssReference(raw.hssReferenceId);
+      if(!row || row.shape!==shape)return null;
+      const dm=hssReferenceDimensionsMm(row);
+      const near=(value:unknown,expected:number|null)=>
+        expected===null ? value===undefined :
+        typeof value==="number" && Number.isFinite(value) && Math.abs(value-expected)<=0.0002;
+      if(!near(raw.outerDiameterMm,dm.outerDiameterMm) ||
+         !near(raw.widthMm,dm.widthMm) ||
+         !near(raw.heightMm,dm.heightMm) ||
+         !near(raw.thicknessMm,dm.thicknessMm))return null;
+      matchedReferenceId=row.id;
+    }
     return {...common,mode:"hss",productStandard:"astm-a500",hssShape:shape,
       thicknessMm:raw.thicknessMm as number,
+      ...(matchedReferenceId ? {hssReferenceId:matchedReferenceId} : {}),
       ...(shape==="round"?{outerDiameterMm:raw.outerDiameterMm as number}
         :{widthMm:raw.widthMm as number,...(shape==="rectangular"?{heightMm:raw.heightMm as number}:{})})};
   }
@@ -125,7 +145,7 @@ export function buildUsPipeRfqItem(
   selection:
     | {sampleId:string;productStandard:UsProductStandard;lengthM:number;bars:number}
     | {mode:"custom";outerDiameterMm:number;thicknessMm:number;productStandard:UsProductStandard;lengthM:number;bars:number}
-    | {mode:"hss";hssShape:"round"|"square"|"rectangular";outerDiameterMm?:number;widthMm?:number;heightMm?:number;thicknessMm:number;productStandard:"astm-a500";lengthM:number;bars:number},
+    | {mode:"hss";hssShape:"round"|"square"|"rectangular";outerDiameterMm?:number;widthMm?:number;heightMm?:number;thicknessMm:number;hssReferenceId?:string;productStandard:"astm-a500";lengthM:number;bars:number},
   id:string,now=Date.now(),
 ):UsPipeRfqItem|null {
   return validUsPipeRfqItem({version:2,id,createdAt:now,...selection},now);
@@ -192,19 +212,23 @@ export function usPipeRfqSpecification(input:UsPipeRfqItem):UsPipeRfqSpecificati
       :`HSS Rectangular ${width} × ${height}`)+` × nominal wall ${thickness} mm`
     :row ? `NPS ${row.nps} Sch/Class ${row.schedule}`
     : `User dimensions OD ${diameter} × wall ${thickness} mm (no NPS/Schedule verification)`;
+  const hssRef=valid.mode==="hss" && valid.hssReferenceId
+    ? findHssReference(valid.hssReferenceId) : null;
   const sourceEvidence=valid.mode==="hss"
-    ? "User-entered ASTM A500 HSS dimensions; AISC section-property proxy t_design = 0.93 t_nom and r_out = 2 t_design (SHS/RHS). No manufacturer tabulated or certified weight"
+    ? (hssRef
+      ? `Atlas Tube published nominal weight reference "${hssRef.sourceRow}", PDF p.${hssRef.sourcePage}; AISC 0.93*t_nom design-property model is separate and not a certified delivered weight`
+      : "User-entered ASTM A500 HSS dimensions; AISC section-property proxy t_design = 0.93 t_nom and r_out = 2 t_design (SHS/RHS). No manufacturer tabulated or certified weight")
     :row ? (row.sourcePage!=null ? `U.S. Steel manufacturer sample p.${row.sourcePage}`
       : `U.S. Steel public ${row.sourceLocation ?? "Pipe Tables"}`)
     : "User-entered geometry with no manufacturer dimension source";
   return {
     standardLabel:productLabels[valid.productStandard],
-    designation,sampleId:row?.id ?? "custom",
+    designation,sampleId:hssRef?.id ?? row?.id ?? "custom",
     outerDiameterMm:diameter ?? 0,wallMm:thickness,
     shape,widthMm:width ?? null,heightMm:height ?? null,calculationMethod:method,
     bars:valid.bars,lengthM:valid.lengthM,theoreticalKgM:mass.weightKgM,
-    publishedKgM:row?.publishedWeightKgM ?? null,
-    publisherPage:row?.sourcePage ?? null,
+    publishedKgM:hssRef ? hssNominalPublishedKgM(hssRef) : row?.publishedWeightKgM ?? null,
+    publisherPage:hssRef?.sourcePage ?? row?.sourcePage ?? null,
     provenanceNote:valid.mode==="hss"
       ? `AISC A500 theoretical design-section proxy (7850 kg/m³), not certified or representative of actual delivered weight; ${sourceEvidence}. Grade, section radii, edition and product tolerances require supplier confirmation.`
       : `Theoretical geometric mass (7850 kg/m³), not certified; ${sourceEvidence}. Product grade, edition, PSL and tolerance require supplier confirmation.`,
