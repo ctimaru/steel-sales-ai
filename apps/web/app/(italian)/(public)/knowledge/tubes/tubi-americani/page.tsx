@@ -73,7 +73,7 @@ export default function AmericanPipeItalianPage() {
           Per un tubo tondo con diametro esterno D e spessore nominale t, l'area geometrica è
           π × t × (D − t) mm². Moltiplichiamo per 7.850 kg/m³ e dividiamo per 1.000.000
           per ottenere kg/m teorici. La massa pubblicata dal catalogo U.S. Steel è mostrata separatamente.
-          I dati presenti riguardano soltanto alcune combinazioni NPS 6, 8, 10 e 12,
+          I dati presenti riguardano soltanto alcune combinazioni NPS 2, 2½, 3, 4, 6, 8, 10 e 12,
           non la copertura completa delle dimensioni o degli Schedule.
         </p>
       </section>
