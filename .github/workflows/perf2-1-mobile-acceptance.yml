@@ -23,6 +23,10 @@ on:
       - "apps/web/lib/us-hss-reference-samples.ts"
       - "apps/web/tests/calc-int3d2-*"
       - "apps/web/tests/calc-int3d3-*"
+      - "apps/web/app/(international-calculator)/**"
+      - "apps/web/components/international-steel-calculator.tsx"
+      - "apps/web/components/calculator-flag-languages.tsx"
+      - "apps/web/tests/calc-int3e1-*"
       - "apps/web/lib/us-pipe-rfq-handoff.ts"
       - "apps/web/components/calculator-install-guide.tsx"
       - "apps/web/tests/calc-ux3-*"
@@ -98,6 +102,8 @@ jobs:
         run: node tests/calc-int3d2-chrome-hss-library.mjs
       - name: CALC-INT3D.3 Chrome mobile HSS search/filter and RFQ
         run: node tests/calc-int3d3-chrome-hss-search.mjs
+      - name: CALC-INT3E.1 Chrome DE FR ES multilingual calculator and SEO RFQ
+        run: node tests/calc-int3e1-chrome-localized-calculator.mjs
       - name: BD17 Chrome A/B CTA variants, consent gating and login handoff
         run: node tests/bd17-chrome-cta-variants.mjs
       - name: HOME-SI5 Chrome visual / WCAG / SEO acceptance
