@@ -4,7 +4,7 @@ import Link from "next/link";
 import { UsHssCalculator } from "@/components/us-hss-calculator";
 import { CalculatorFlagLanguages } from "@/components/calculator-flag-languages";
 import { CALCULATOR_ROUTES } from "@/lib/international-calculator-landing";
-import { US_PIPE_I18N, usLocaleTag, type UsCalculatorLocale } from "@/lib/us-calculator-i18n";
+import { US_PIPE_I18N, usLocaleTag, usRfqBillPath, type UsCalculatorLocale } from "@/lib/us-calculator-i18n";
 import { useState } from "react";
 
 import { estimatePublicTubeMass } from "@/lib/international-tube-mass";
@@ -155,7 +155,7 @@ export function UsPipeSampleCalculator({ locale,initialValues={} }: { locale:Loc
       return;
     }
     setRfqError(false);
-    window.location.assign(locale === "it" ? "/distinta" : "/en/distinta");
+    window.location.assign(usRfqBillPath(locale));
   };
 
   const copiedText = () => {
