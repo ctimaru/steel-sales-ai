@@ -8,7 +8,9 @@ import json
 import httpx
 from urllib.parse import quote
 from .approved_source_batch import StagingRepository
-from .public_website_preview import preview_site, normalize_seeds
+from .public_website_preview import normalize_seeds, MAX_PAGES_PER_SITE
+from .company_discovery import (_fetch_page, _priority_links, extract_candidate,
+    canonical_domain, CompanyDiscoveryError)
 
 MAX_CANDIDATES = 10
 
@@ -54,18 +56,60 @@ async def eligible_urls(client: httpx.AsyncClient, repo: StagingRepository) -> l
             break
     return urls
 
+async def extract_preview(client: httpx.AsyncClient, url: str) -> dict[str, object]:
+    """Use the existing evidence-based candidate extraction; log aggregates only."""
+    try:
+        home = await _fetch_page(client, url, url)
+        if not home:
+            return {"status": "skipped_robots_or_unavailable", "pages": 0}
+        pages = [home]
+        for next_url in _priority_links(home)[:MAX_PAGES_PER_SITE - 1]:
+            try:
+                page = await _fetch_page(client, next_url, url)
+                if page and canonical_domain(page.url) == canonical_domain(url):
+                    pages.append(page)
+            except (httpx.HTTPError, CompanyDiscoveryError):
+                continue
+        candidate = extract_candidate(pages, "IT")
+        if candidate is None:
+            return {"status": "insufficient_tube_evidence", "pages": len(pages),
+                    "needs_human_review": True}
+        facilities = candidate["facility_candidates"]
+        return {
+            "status": "extraction_preview",
+            "pages": len(pages),
+            "confidence_band": (
+                "high" if candidate["confidence"] >= 0.8 else
+                "medium" if candidate["confidence"] >= 0.55 else "low"
+            ),
+            "role_keys": candidate["role_keys"],
+            "quality_flags": candidate["quality_flags"],
+            "capability_signal_count": len(candidate["capability_keys"]),
+            "market_signal_count": len(candidate["market_keys"]),
+            "evidence_page_count": len(candidate["evidence"]),
+            "structured_facility_count": len(facilities),
+            "city_evidence_count": sum(bool(f.get("city")) for f in facilities),
+            "province_evidence_count": sum(bool(f.get("province_code")) for f in facilities),
+            "region_evidence_count": sum(bool(f.get("region")) for f in facilities),
+            "needs_human_review": True,
+        }
+    except (httpx.HTTPError, CompanyDiscoveryError):
+        return {"status": "unavailable_or_blocked", "pages": 0}
+
+
 async def run() -> dict[str,object]:
     repo=StagingRepository()
     async with httpx.AsyncClient(timeout=httpx.Timeout(10),follow_redirects=False) as client:
         urls=await eligible_urls(client,repo)
         outcomes=[]
         for i,url in enumerate(urls,1):
-            result=await preview_site(client,url)
+            result=await extract_preview(client,url)
             outcomes.append({"candidate_index":i, **result})
             if i<len(urls):
                 await asyncio.sleep(2)
-    return {"mode":"READ_ONLY_APPROVED_DOMAIN_ENRICHMENT","reviewed_source_sites":len(urls),
+    return {"mode":"READ_ONLY_INTELLIGENT_EXTRACTION_PREVIEW","reviewed_source_sites":len(urls),
             "outcomes":outcomes,"supabase_writes":0,"published":0,"contacts_collected":0}
+
 
 if __name__=="__main__":
     print(json.dumps(asyncio.run(run()),sort_keys=True,indent=2))
