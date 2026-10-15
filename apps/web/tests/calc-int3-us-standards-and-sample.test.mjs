@@ -101,8 +101,8 @@ test("CALC-INT3 new multilingual SEO landings have reciprocal self-canonicals an
   assert.match(en,/canonical: absoluteUrl\(path\)/);
   assert.match(it,/languages: \{ it: absoluteUrl\(path\), en: absoluteUrl\(other\) \}/);
   assert.match(en,/languages: \{ it: absoluteUrl\(other\), en: absoluteUrl\(path\) \}/);
-  assert.match(it,/UsPipeSampleCalculator locale="it"/);
-  assert.match(en,/UsPipeSampleCalculator locale="en"/);
+  assert.match(it,/CalculatorRegionSwitch locale="it" initialRegion="us"/);
+  assert.match(en,/CalculatorRegionSwitch locale="en" initialRegion="us"/);
   assert.match(itOriginal,/href="\/knowledge\/tubes\/tubi-americani"/);
   assert.match(enOriginal,/href="\/en\/knowledge\/tubes\/american-pipe"/);
   for(const uri of ["/knowledge/tubes/tubi-americani","/en/knowledge/tubes/american-pipe"]){
