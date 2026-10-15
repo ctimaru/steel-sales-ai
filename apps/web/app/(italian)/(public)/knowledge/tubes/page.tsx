@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { PublicUtilityTelemetry } from "@/components/public-utility-telemetry";
+import { EnStructuralMethodEvidence } from "@/components/en-structural-method-evidence";
 import {
   PublicTubeWeightCalculator,
   type PublicTubeCalculatorInitialValues,
@@ -233,6 +234,7 @@ export default async function PublicTubeWeightsPage({
 
       <PublicUtilityTelemetry source={discoverySource} surface={discoverySurface} />
       <PublicTubeWeightCalculator references={references} initialValues={initialValues} />
+      <EnStructuralMethodEvidence locale="it" />
       <div className="rounded-2xl border border-[#c7ded3] bg-white p-4">
         <Link href="/knowledge/tubes/tubi-americani"
           className="inline-flex min-h-11 items-center text-sm font-bold text-[#156449] underline underline-offset-4">
