@@ -58,7 +58,7 @@ test("CALC-INT3C source-bound product intent and theoretical mass do not promote
     assert.match(spec.provenanceNote,/p\.49/);
   }
   assert.equal(bridge.buildUsPipeRfqItem({...input,sampleId:"999-40"},"us-rfq-123456",now),null);
-  assert.equal(sample.US_PIPE_MANUFACTURER_SAMPLE.length,13);
+  assert.equal(sample.US_PIPE_MANUFACTURER_SAMPLE.length,20);
 });
 test("CALC-INT3C fails closed on tampering, expiry, fractional bars and unknown standards",()=>{
   for(const patch of [
