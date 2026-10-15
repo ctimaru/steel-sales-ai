@@ -74,6 +74,8 @@ export type UsPipeInitialValues={
   mode?:string;units?:string;customDiameter?:string;customWall?:string;
   nps?:string;rowId?:string;productStandard?:string;length?:string;bars?:string;
   hssReferenceId?:string;
+  hssShape?:string;hssUnits?:string;hssDiameter?:string;hssWidth?:string;
+  hssHeight?:string;hssThickness?:string;hssLength?:string;hssQuantity?:string;
 };
 export function UsPipeSampleCalculator({ locale,initialValues={} }: { locale:Locale;initialValues?:UsPipeInitialValues }) {
   const copy = labels[locale];
@@ -302,7 +304,7 @@ export function UsPipeSampleCalculator({ locale,initialValues={} }: { locale:Loc
       </p>
       </div>
       <div hidden={inputMode!=="hss"} inert={inputMode!=="hss"} aria-hidden={inputMode!=="hss"} className="mt-4">
-        <UsHssCalculator locale={locale} initialReferenceId={initialValues.hssReferenceId}/>
+        <UsHssCalculator locale={locale} initialReferenceId={initialValues.hssReferenceId} initialValues={initialValues}/>
       </div>
     </section>
   );
