@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { CalculatorFlagLanguages } from "@/components/calculator-flag-languages";
+import { CALCULATOR_PUBLIC_ROUTES } from "@/lib/calculator-international-contract";
 import { calculatorRfqFromValues, enqueueCalculatorRfq } from "@/lib/calculator-rfq-handoff";
 import { estimatePublicTubeMass, parseTubeNumber } from "@/lib/international-tube-mass";
 import {
@@ -97,8 +98,8 @@ export function InternationalSteelCalculator({locale,seed={}}:{
     if(!item || !enqueueCalculatorRfq(window.sessionStorage,item)){
       setStatus(t.addFailed);return;
     }
-    // No false claim of a DE/FR/ES RFQ workspace: English bill is available.
-    window.location.assign("/en/distinta");
+    // The public bill matches the calculator language; no RFQ is dispatched.
+    window.location.assign(CALCULATOR_PUBLIC_ROUTES[locale].rfqBill);
   }
   return <section id="calcolatore-pesi" className="space-y-5 rounded-2xl border border-[#cfe2d7] bg-white p-4 shadow-sm sm:p-6" aria-label={t.title}>
     <div className="flex flex-wrap items-center justify-between gap-3">
