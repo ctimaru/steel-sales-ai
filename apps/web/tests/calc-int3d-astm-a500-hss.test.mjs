@@ -95,7 +95,7 @@ test("CALC-INT3D v2 HSS RFQ specification preserves actual shapes and AISC mass"
   assert.match(enBill,/value\.shape/);
   assert.match(enBill,/aisc-a500/);
   assert.match(itBill,/spec\.calculationMethod==="aisc-a500"/);
-  assert.match(usaUi,/UsHssCalculator locale=\{locale\}/);
+  assert.match(usaUi,/UsHssCalculator locale=\{locale\} initialReferenceId=/);
 });
 
 test("CALC-INT3D forged standards, incompatible A500 NPS catalog, oversized HSS rejected",()=>{

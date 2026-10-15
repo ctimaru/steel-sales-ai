@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { InternationalSteelCalculator } from "@/components/international-steel-calculator";
+import { CalculatorRegionSwitch } from "@/components/calculator-region-switch";
+import { calculatorRegionFromQuery, usPipeSeedFromQuery } from "@/lib/us-calculator-route-seed";
 import {
   CALCULATOR_ROUTES,CALCULATOR_TRANSLATIONS,localizedHrefLangPaths,
   isNewCalculatorLocale,
@@ -48,6 +49,7 @@ export default async function InternationalTubeCalculatorPage({params,searchPara
   const copy=CALCULATOR_TRANSLATIONS[locale];
   const raw=await searchParams;
   const seed=Object.fromEntries(queryKeys.map(k=>[k,inputValue(raw,k)]));
+  const usSeed=usPipeSeedFromQuery(raw);
   const path=CALCULATOR_ROUTES[locale];
   const data={
     "@context":"https://schema.org",
@@ -87,7 +89,8 @@ export default async function InternationalTubeCalculatorPage({params,searchPara
         <h1 className="mt-3 text-2xl font-bold leading-tight tracking-tight text-[#123b34] sm:text-4xl">{copy.title}</h1>
         <p className="mt-4 max-w-3xl text-sm leading-7 text-[#456052] sm:text-base">{copy.intro}</p>
       </section>
-      <InternationalSteelCalculator locale={locale} seed={seed}/>
+      <CalculatorRegionSwitch locale={locale} internationalSeed={seed} usInitialValues={usSeed}
+        initialRegion={calculatorRegionFromQuery(raw)}/>
       <section className="grid gap-4 rounded-xl border border-[#d7e4dc] bg-white p-5 md:grid-cols-2">
         <div>
           <h2 className="text-lg font-bold text-[#123b34]">{copy.methodTitle}</h2>
@@ -98,6 +101,15 @@ export default async function InternationalTubeCalculatorPage({params,searchPara
           <p className="mt-3 text-sm leading-7 text-[#52615b]">{copy.disclaimer}</p>
           <p className="mt-2 text-sm text-[#52615b]">{copy.rfqEnglish}</p>
         </div>
+      </section>
+      <section aria-labelledby="international-calculator-us" className="rounded-xl border border-[#c7dcd1] bg-white p-5 sm:p-6">
+        <h2 id="international-calculator-us" className="text-lg font-bold text-[#123b34]">{copy.usTitle}</h2>
+        <p className="mt-3 max-w-4xl text-sm leading-7 text-[#52615b]">{copy.usDescription}</p>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <p className="rounded-xl bg-[#f3f9f5] p-4 text-sm leading-7 text-[#345649]">{copy.usNps}</p>
+          <p className="rounded-xl bg-[#f3f9f5] p-4 text-sm leading-7 text-[#345649]">{copy.usHss}</p>
+        </div>
+        <p className="mt-3 text-xs leading-6 text-[#4f6359]">{copy.usCaveat}</p>
       </section>
       <section aria-labelledby="international-calculator-faq">
         <h2 id="international-calculator-faq" className="text-xl font-bold text-[#123b34]">{copy.faqTitle}</h2>
