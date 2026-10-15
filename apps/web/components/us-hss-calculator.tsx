@@ -54,7 +54,8 @@ export function UsHssCalculator({locale}:{locale:Locale}){
   const [bars,setBars]=useState("1");
   const [status,setStatus]=useState("");
   const factor=units==="in"?25.4:1;
-  const d=parse(diameter)*factor, w=parse(width)*factor,h=parse(height)*factor,nominalT=parse(thickness)*factor;
+  const normalize=(value:string)=>Number((parse(value)*factor).toFixed(4));
+  const d=normalize(diameter),w=normalize(width),h=normalize(height),nominalT=normalize(thickness);
   const metres=parse(length),pieces=parse(bars);
   const perimeter=shape==="round"?Math.PI*d:2*(w+(shape==="square"?w:h));
   const valid=Number.isFinite(perimeter) && perimeter>0 && perimeter<=88*25.4
