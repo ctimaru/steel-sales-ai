@@ -74,3 +74,21 @@ export async function reviewDiscoveredDomain(form: FormData) {
   revalidatePath("/platform/company-discovery");
   response("message", "Decisione registrata. Solo i domini accettati entrano nella coda crawler, senza pubblicazione automatica.");
 }
+
+/** CRAWL-IT6.10b.6: user-authenticated Platform operator action; run stays queued/unreviewed. */
+export async function createGovernedDiscoveryRun(form: FormData) {
+  await requirePlatformPermission("discovery.run");
+  const id = String(form.get("source_id") ?? "").trim();
+  if (!/^[0-9a-f-]{36}$/i.test(id)) response("error", "Identificativo della fonte non valido.");
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("crawl_it610b5_create_run", { p_source_id: id });
+  if (error) response("error", "Run non creata: verifica autorizzazione, fonte approvata e domini in attesa.");
+  const result = data as { status?: string; run_id?: string; seed_count?: number } | null;
+  if (result?.status !== "created_unreviewed" || !result.run_id) {
+    response("message", "Nessun dominio idoneo per una nuova run. Nessuna modifica eseguita.");
+  }
+  revalidatePath(route);
+  revalidatePath("/platform/company-discovery/governance");
+  response("message", "Run creata in stato queued e non revisionata (" + String(result.seed_count ?? 0) +
+    " domini). Apri Governance Discovery per la revisione: non è stato pubblicato nulla.");
+}
