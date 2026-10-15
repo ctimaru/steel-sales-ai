@@ -129,7 +129,7 @@ export default async function EnglishTubeWeightsPage({ searchParams }: { searchP
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="mx-auto max-w-[1120px] px-4 py-10 sm:px-6 lg:px-8">
-        <CalculatorRegionSwitch locale="en" initialRegion={calculatorRegionFromQuery(params)}
+        <CalculatorRegionSwitch locale="en" initialRegion="eu" requestedRegion={calculatorRegionFromQuery(params)}
           usInitialValues={usPipeSeedFromQuery(params)}
           references={references} initialValues={initialValues}
           euAfter={<EnStructuralMethodEvidence locale="en" />} />
