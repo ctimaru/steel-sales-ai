@@ -54,9 +54,9 @@ def discover_external_domains(source_url: str, links: tuple[str, ...], limit: in
     return list(found.items())
 
 
-async def harvest_once() -> int:
-    service = CompanyDiscoveryService()
-    repo = service.repo
+async def harvest_once(repo=None) -> int:
+    if repo is None:
+        repo = CompanyDiscoveryService().repo
     source = await repo._request("POST", "/rest/v1/rpc/crawl_it3_claim_due_source", json={})
     if not isinstance(source, dict) or not source.get("id"):
         return 0
