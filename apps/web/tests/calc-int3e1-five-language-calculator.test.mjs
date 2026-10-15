@@ -90,5 +90,5 @@ test("CALC-INT3E.1 share state is compatible between localized and original calc
   assert.match(ui,/query=\{query\}/);
   assert.match(ui,/type="text"/);
   assert.match(ui,/function CalcInput\(/);
-  assert.match(ui,/parseTubeNumber\\(thickness\\)/);
+  assert.ok(ui.includes("parseTubeNumber(thickness)"));
 });
