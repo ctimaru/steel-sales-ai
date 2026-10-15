@@ -92,3 +92,28 @@ export async function createGovernedDiscoveryRun(form: FormData) {
   response("message", "Run creata in stato queued e non revisionata (" + String(result.seed_count ?? 0) +
     " domini). Apri Governance Discovery per la revisione: non è stato pubblicato nulla.");
 }
+
+/** Only the logged-in Platform operator may link their approved run to pending leads. */
+export async function linkApprovedPilotRun(form: FormData) {
+  await requirePlatformPermission("discovery.run");
+  const runId = String(form.get("run_id") ?? "").trim();
+  if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(runId)) {
+    response("error", "ID run non valido.");
+  }
+  const supabase = await createClient();
+  const { data: leads, error } = await supabase.rpc("crawl_it3_list_pending_leads");
+  if (error || !Array.isArray(leads)) response("error", "Coda domini non disponibile.");
+  const batch = (leads as Array<{id: string}>).slice(0, 4);
+  if (batch.length !== 4 || leads.length !== 4) response("error", "Il pilot richiede esattamente quattro lead; nessuna modifica eseguita.");
+  for (const lead of batch) {
+    const result = await supabase.rpc("crawl_it610b3_link_lead_run", {
+      p_lead_id: lead.id, p_run_id: runId,
+    });
+    if (result.error || !["linked_for_review","already_linked"].includes(
+      (result.data as {status?: string} | null)?.status ?? "")) {
+      response("error", "Collegamento interrotto. Verifica run, proprietà e diritti: alcuni lead possono essere già collegati.");
+    }
+  }
+  revalidatePath(route);
+  response("message", "Quattro lead collegati alla run approvata. Ora avvia il workflow pilot in GitHub Actions.");
+}
