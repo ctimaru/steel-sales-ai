@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { UsHssCalculator } from "@/components/us-hss-calculator";
+import { CalculatorFlagLanguages } from "@/components/calculator-flag-languages";
+import { CALCULATOR_ROUTES } from "@/lib/international-calculator-landing";
+import { US_PIPE_I18N, usLocaleTag, type UsCalculatorLocale } from "@/lib/us-calculator-i18n";
 import { useState } from "react";
 
 import { estimatePublicTubeMass } from "@/lib/international-tube-mass";
@@ -12,7 +15,7 @@ import {
   US_PIPE_MASS_CONVERSION, availableUsNps, rowsForNps,
 } from "@/lib/us-pipe-catalog-sample";
 
-type Locale = "it" | "en";
+type Locale = UsCalculatorLocale;
 const labels = {
   it: {
     title:"Calcolatore tubi USA: NPS / Schedule e misure libere",
@@ -60,24 +63,30 @@ const labels = {
     invalid:"Enter a positive bar length and a positive whole number of bars.",
     source:"U.S. Steel Standard & Line Pipe Catalog — Pipe Tables",
   },
+  ...US_PIPE_I18N,
 } as const;
 
 const productChoices = ["api5l", "astm-a53", "astm-a106"] as const;
 const numberFormatter = (value:number, locale:Locale, digits=3) =>
-  new Intl.NumberFormat(locale === "it" ? "it-IT" : "en-US", { maximumFractionDigits:digits }).format(value);
+  new Intl.NumberFormat(usLocaleTag(locale), { maximumFractionDigits:digits }).format(value);
 
-export function UsPipeSampleCalculator({ locale }: { locale:Locale }) {
+export type UsPipeInitialValues={
+  mode?:string;units?:string;customDiameter?:string;customWall?:string;
+  nps?:string;rowId?:string;productStandard?:string;length?:string;bars?:string;
+  hssReferenceId?:string;
+};
+export function UsPipeSampleCalculator({ locale,initialValues={} }: { locale:Locale;initialValues?:UsPipeInitialValues }) {
   const copy = labels[locale];
   const npsList = availableUsNps();
-  const [inputMode,setInputMode] = useState<"catalog"|"custom"|"hss">("catalog");
-  const [units,setUnits] = useState<"mm"|"in">("mm");
-  const [customDiameter,setCustomDiameter] = useState("114.3");
-  const [customWall,setCustomWall] = useState("6.02");
-  const [nps,setNps] = useState("6");
-  const [rowId,setRowId] = useState("6-40");
-  const [productStandard,setProductStandard] = useState<(typeof productChoices)[number]>("api5l");
-  const [length,setLength] = useState("12");
-  const [bars,setBars] = useState("1");
+  const [inputMode,setInputMode] = useState<"catalog"|"custom"|"hss">(["catalog","custom","hss"].includes(initialValues.mode??"")?initialValues.mode as "catalog"|"custom"|"hss":"catalog");
+  const [units,setUnits] = useState<"mm"|"in">(initialValues.units==="in"?"in":"mm");
+  const [customDiameter,setCustomDiameter] = useState(initialValues.customDiameter??"114.3");
+  const [customWall,setCustomWall] = useState(initialValues.customWall??"6.02");
+  const [nps,setNps] = useState(availableUsNps().includes(initialValues.nps??"")?initialValues.nps!:"6");
+  const [rowId,setRowId] = useState(US_PIPE_MANUFACTURER_SAMPLE.some(x=>x.id===initialValues.rowId)?initialValues.rowId!:"6-40");
+  const [productStandard,setProductStandard] = useState<(typeof productChoices)[number]>(productChoices.includes(initialValues.productStandard as typeof productChoices[number])?initialValues.productStandard as typeof productChoices[number]:"api5l");
+  const [length,setLength] = useState(initialValues.length??"12");
+  const [bars,setBars] = useState(initialValues.bars??"1");
   const [copyState,setCopyState] = useState<"idle"|"copied"|"failed">("idle");
   const [rfqError,setRfqError] = useState(false);
   const row = US_PIPE_MANUFACTURER_SAMPLE.find((r)=>r.id===rowId && r.nps===nps) ?? rowsForNps(nps)[0];
@@ -110,8 +119,12 @@ export function UsPipeSampleCalculator({ locale }: { locale:Locale }) {
     od:String(activeDiameter),thickness:String(activeWall),
     length:String(metres),quantity:String(quantity),density:"7850",
   }) : null;
-  const calculatorUrl = `${locale === "it" ? "/knowledge/tubes" : "/en/knowledge/tubes"}?${params?.toString() ?? ""}#calcolatore-pesi`;
+  const calculatorUrl = `${CALCULATOR_ROUTES[locale]}?${params?.toString() ?? ""}#calcolatore-pesi`;
   const resultLbFt = result ? result.weightKgM / US_PIPE_MASS_CONVERSION : 0;
+  const languageQuery=new URLSearchParams({
+    system:"us",usMode:inputMode,nps,rowId,productStandard,
+    units,customDiameter,customWall,length,quantity:bars,
+  }).toString();
   const sampleSource=row?.sourcePage!=null?US_PIPE_MANUFACTURER_SOURCE:US_PIPE_MANUFACTURER_WEB_SOURCE;
   const sampleLocator=row?.sourcePage!=null
     ? `${copy.page} ${row.sourcePage}` : (row?.sourceLocation ?? "Pipe Tables");
@@ -162,9 +175,12 @@ export function UsPipeSampleCalculator({ locale }: { locale:Locale }) {
 
   return (
     <section aria-label={copy.title} className="rounded-2xl border border-[#c7ded3] bg-white p-4 shadow-sm sm:p-6">
+      {inputMode!=="hss"?<div className="mb-3 flex justify-end">
+        <CalculatorFlagLanguages locale={locale} query={languageQuery}/>
+      </div>:null}
       <h2 className="text-xl font-bold text-[#123b34]">{copy.title}</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-[#52615b]">{copy.subtitle}</p>
-      <div role="group" aria-label={locale==="it"?"Modalità dimensionale USA":"US dimensional mode"}
+      <div role="group" aria-label={locale==="it"?"Modalità dimensionale USA":locale==="en"?"US dimensional mode":copy.dimensionalMode}
         className="mt-5 grid grid-cols-3 gap-1 rounded-xl bg-[#eaf3ed] p-1">
         <button type="button" aria-pressed={inputMode==="catalog"} onClick={()=>setInputMode("catalog")}
           className={inputMode==="catalog"?"min-h-12 rounded-lg bg-[#165544] px-3 text-xs font-bold text-white":"min-h-12 rounded-lg px-3 text-xs font-bold text-[#123b34]"}>
@@ -285,7 +301,7 @@ export function UsPipeSampleCalculator({ locale }: { locale:Locale }) {
       </p>
       </div>
       <div hidden={inputMode!=="hss"} inert={inputMode!=="hss"} aria-hidden={inputMode!=="hss"} className="mt-4">
-        <UsHssCalculator locale={locale} />
+        <UsHssCalculator locale={locale} initialReferenceId={initialValues.hssReferenceId}/>
       </div>
     </section>
   );
