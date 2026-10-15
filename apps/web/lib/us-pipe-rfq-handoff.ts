@@ -205,6 +205,8 @@ export function usPipeRfqSpecification(input:UsPipeRfqItem):UsPipeRfqSpecificati
     bars:valid.bars,lengthM:valid.lengthM,theoreticalKgM:mass.weightKgM,
     publishedKgM:row?.publishedWeightKgM ?? null,
     publisherPage:row?.sourcePage ?? null,
-    provenanceNote:`Theoretical geometric mass (7850 kg/m³), not certified; ${sourceEvidence}. Product grade, edition, PSL and tolerance require supplier confirmation.`,
+    provenanceNote:valid.mode==="hss"
+      ? `AISC A500 theoretical design-section proxy (7850 kg/m³), not delivered or certified weight; ${sourceEvidence}. Grade, section radii, edition and product tolerances require supplier confirmation.`
+      : `Theoretical geometric mass (7850 kg/m³), not certified; ${sourceEvidence}. Product grade, edition, PSL and tolerance require supplier confirmation.`,
   };
 }
