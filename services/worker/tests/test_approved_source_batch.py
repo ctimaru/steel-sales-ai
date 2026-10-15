@@ -19,7 +19,7 @@ class ApprovedSourceBatchTests(unittest.IsolatedAsyncioTestCase):
     async def test_stages_only_without_publishing(self):
         from unittest.mock import AsyncMock
         with patch.dict(os.environ, {"CRAWL_IT68_ENABLED": "true"}):
-            with patch("app.approved_source_batch.harvest_once", new_callable=AsyncMock) as fn:
+            with patch("app.approved_source_batch.StagingRepository"), patch("app.approved_source_batch.harvest_once", new_callable=AsyncMock) as fn:
                 fn.side_effect = [7, 3]
                 result = await run(2)
                 self.assertEqual(result["staged_leads"], 10)
