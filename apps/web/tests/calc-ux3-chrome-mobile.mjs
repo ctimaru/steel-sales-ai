@@ -137,7 +137,9 @@ try {
           const severe = axe.violations.filter((v) => ["serious", "critical"].includes(v.impact));
           assert.deepEqual(severe.map((v) => v.id), [],
             tag + ": severe axe violations " + JSON.stringify(severe.map((v) =>
-              ({ id: v.id, impact: v.impact, nodes: v.nodes.length }))));
+              ({ id: v.id, impact: v.impact, nodes: v.nodes.map(n=>({
+                target:n.target,html:n.html?.slice(0,300),summary:n.failureSummary?.slice(0,340),
+              })) }))));
           console.log("CALC-UX3 AXE", tag, JSON.stringify(axe.violations.map((v) =>
             ({ id: v.id, impact: v.impact, nodes: v.nodes.length }))));
         }
