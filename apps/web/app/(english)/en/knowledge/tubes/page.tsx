@@ -6,13 +6,14 @@ import { EnglishPublicSubpage } from "@/components/english-public-subpage";
 import { PublicTubeWeightCalculator, type PublicTubeCalculatorInitialValues } from "@/components/public-tube-weight-calculator";
 import { listPublicTubeDimensionPages } from "@/lib/public-knowledge";
 import { absoluteUrl } from "@/lib/site";
+import { robotsForParameterizedPage } from "@/lib/seo";
 
 // Shareable query parameters must hydrate accurately, while dimension references
 // are cached for 24 hours to minimize repeated public Supabase RPC calls.
 export const dynamic = "force-dynamic";
 const cachedPublicTubeReferences = unstable_cache(listPublicTubeDimensionPages, ["i18n7-public-tube-references"], { revalidate: 86400 });
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   title: "Steel Tube Weight Calculator — CHS, SHS, RHS | EN 10210 & EN 10219",
   description:
     "Calculate theoretical steel tube weight in kg/m, mass per bar and tonnes. Free English calculator for CHS, SHS and RHS under EN 10210 or EN 10219, plus geometric mode.",
@@ -31,6 +32,25 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
+
+/**
+ * Shareable calculator inputs are useful for people, but each parameter
+ * combination is not a separate SEO landing page. Keep the established
+ * /en/knowledge/tubes self-canonical and index only the clean English URL,
+ * matching the existing Italian calculator behaviour.
+ */
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: CalculatorSearchParams;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const hasParameters = Object.values(params).some((value) => Boolean(value?.trim()));
+  return {
+    ...baseMetadata,
+    robots: robotsForParameterizedPage(hasParameters),
+  };
+}
 
 const faqs = [
   {
