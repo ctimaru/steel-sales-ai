@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "Read-only preflight or governed staging"
+        description: "Source readiness audit (default), credential preflight, or governed staging"
         type: choice
-        default: preflight
+        default: readiness
         options: [preflight, readiness, stage]
         required: true
       source_budget:
