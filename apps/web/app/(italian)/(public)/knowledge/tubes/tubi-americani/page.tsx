@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { UsPipeSampleCalculator } from "@/components/us-pipe-sample-calculator";
+import { CalculatorRegionSwitch } from "@/components/calculator-region-switch";
 import { CALCULATOR_STANDARDS } from "@/lib/calculator-standards-registry";
 import { absoluteUrl } from "@/lib/site";
 
@@ -42,7 +42,7 @@ export default function AmericanPipeItalianPage() {
           Il campione non sostituisce le tabelle dimensionali normative ASME.
         </p>
       </header>
-      <UsPipeSampleCalculator locale="it"/>
+      <CalculatorRegionSwitch locale="it" initialRegion="us" references={[]} />
       <section className="rounded-2xl border border-[#dce5e0] bg-white p-5 sm:p-7">
         <h2 className="text-xl font-bold text-[#123b34]">Differenza fra norme API, ASME, ASTM ed EN</h2>
         <p className="mt-3 text-sm leading-7 text-[#52615b]">
