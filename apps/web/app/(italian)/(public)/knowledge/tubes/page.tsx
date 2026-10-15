@@ -4,6 +4,7 @@ import Link from "next/link";
 import { PublicUtilityTelemetry } from "@/components/public-utility-telemetry";
 import { EnStructuralMethodEvidence } from "@/components/en-structural-method-evidence";
 import { CalculatorRegionSwitch } from "@/components/calculator-region-switch";
+import { calculatorRegionFromQuery, usPipeSeedFromQuery } from "@/lib/us-calculator-route-seed";
 import {
   type PublicTubeCalculatorInitialValues,
 } from "@/components/public-tube-weight-calculator";
@@ -90,6 +91,11 @@ type SearchParams = Promise<{
   density?: string;
   source?: string;
   surface?: string;
+  system?:string;usMode?:string;units?:string;nps?:string;rowId?:string;
+  productStandard?:string;customDiameter?:string;customWall?:string;
+  hssReferenceId?:string;hssShape?:string;hssUnits?:string;
+  hssDiameter?:string;hssWidth?:string;hssHeight?:string;
+  hssThickness?:string;hssLength?:string;hssQuantity?:string;
 }>;
 
 export default async function PublicTubeWeightsPage({
@@ -236,7 +242,8 @@ export default async function PublicTubeWeightsPage({
       />
 
       <PublicUtilityTelemetry source={discoverySource} surface={discoverySurface} />
-      <CalculatorRegionSwitch locale="it" initialRegion="eu"
+      <CalculatorRegionSwitch locale="it" initialRegion={calculatorRegionFromQuery(params)}
+        usInitialValues={usPipeSeedFromQuery(params)}
         references={references} initialValues={initialValues}
         euAfter={<EnStructuralMethodEvidence locale="it" />} />
       <div className="rounded-2xl border border-[#c7ded3] bg-white p-4">
