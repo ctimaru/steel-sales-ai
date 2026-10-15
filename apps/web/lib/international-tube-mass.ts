@@ -10,7 +10,7 @@
  * source-controlled dimensional rules and numerical acceptance vectors.
  */
 export type PublicTubeShape = "round" | "square" | "rectangular";
-export type PublicTubeStandard = "en10219" | "en10210" | "geometric";
+export type PublicTubeStandard = "en10219" | "en10210" | "geometric" | "aisc-a500";
 
 export type PublicTubeSectionInput = {
   shape: PublicTubeShape;
@@ -63,6 +63,11 @@ export function parseTubeNumber(value: string): number {
 
 /** Nominal section radii, used only for EN 10210/EN 10219 square and RHS. */
 export function standardCornerRadii(standard: Exclude<PublicTubeStandard, "geometric">, thicknessMm: number) {
+  // AISC A500 section-property convention: r_out = 2 t_design;
+  // distinct from European nominal corner models.
+  if (standard === "aisc-a500") {
+    return { outerRadiusMm: 2 * thicknessMm, innerRadiusMm: thicknessMm };
+  }
   if (standard === "en10210") {
     return { outerRadiusMm: 1.5 * thicknessMm, innerRadiusMm: 1.0 * thicknessMm };
   }
@@ -99,7 +104,7 @@ export function standardRectangularAreaMm2(
 export function calculateTubeSection(input: PublicTubeSectionInput): PublicTubeSectionResult {
   const { shape, standard, outerDiameterMm: d, widthMm: b, heightMm: h, thicknessMm: t } = input;
   if (!["round", "square", "rectangular"].includes(shape) ||
-      !["en10219", "en10210", "geometric"].includes(standard)) {
+      !["en10219", "en10210", "geometric", "aisc-a500"].includes(standard)) {
     return { ok: false, error: "Unsupported shape or calculation method." };
   }
   if (!Number.isFinite(t) || t <= 0) {
@@ -110,6 +115,16 @@ export function calculateTubeSection(input: PublicTubeSectionInput): PublicTubeS
     return { ok: false, error: "Enter a valid material density." };
   }
 
+  // ASTM A500 / AISC design-property proxy, NOT physical delivered mass.
+  // AISC uses t_design = 0.93 t_nom for ASTM A500 HSS.
+  const effectiveT = standard === "aisc-a500" ? 0.93 * t : t;
+  if (standard === "aisc-a500") {
+    const perimeterMm = shape === "round" ? Math.PI * (d ?? Number.NaN) :
+      2 * ((b ?? Number.NaN) + (shape === "square" ? (b ?? Number.NaN) : (h ?? Number.NaN)));
+    if (t > 25.4 || !Number.isFinite(perimeterMm) || perimeterMm > 88 * 25.4) {
+      return { ok: false, error: "ASTM A500 HSS exceeds supported 88 in perimeter / 1 in nominal wall scope." };
+    }
+  }
   let freeAreaMm2: number;
   let standardAreaMm2: number | null = null;
   let outerRadiusMm: number | null = null;
@@ -119,7 +134,8 @@ export function calculateTubeSection(input: PublicTubeSectionInput): PublicTubeS
       return { ok: false, error: "Outside diameter must be greater than twice the wall thickness." };
     }
     freeAreaMm2 = Math.PI * t * (d - t);
-    if (standard !== "geometric") standardAreaMm2 = freeAreaMm2;
+    if (standard === "aisc-a500") standardAreaMm2 = Math.PI * effectiveT * (d - effectiveT);
+    else if (standard !== "geometric") standardAreaMm2 = freeAreaMm2;
   } else {
     const width = b ?? Number.NaN;
     const height = shape === "square" ? width : (h ?? Number.NaN);
@@ -129,7 +145,7 @@ export function calculateTubeSection(input: PublicTubeSectionInput): PublicTubeS
     }
     freeAreaMm2 = width * height - (width - 2 * t) * (height - 2 * t);
     if (standard !== "geometric") {
-      const section = standardRectangularAreaMm2(standard, width, height, t);
+      const section = standardRectangularAreaMm2(standard, width, height, effectiveT);
       standardAreaMm2 = section.areaMm2;
       outerRadiusMm = section.outerRadiusMm;
       innerRadiusMm = section.innerRadiusMm;
