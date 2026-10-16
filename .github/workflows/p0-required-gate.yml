@@ -321,6 +321,7 @@ jobs:
             netfast2_structured_cc0.sql \
             netfast3_licensed_bulk_import.sql \
             netfast3b_cordis_monthly.sql \
+            netlaunch1_pro_discovery_read.sql \
             crawl_it65a_candidate_bulk_approval.sql \
             crawl_it65_wikidata_source_pilot.sql \
             crawl_it65b_github_actions_runner.sql \
