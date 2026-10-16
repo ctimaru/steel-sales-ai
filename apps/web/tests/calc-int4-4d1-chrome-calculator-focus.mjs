@@ -34,7 +34,7 @@ for(const width of [390,1440]){
  await bill.locator("article").first().waitFor({state:"visible"});
  assert.equal(await bill.locator("article").count(),1);
  assert.equal(new URL(page.url()).pathname,"/knowledge/tubes");
- await technical.locator("summary").click();
+ await technical.locator(":scope > summary").click();
  assert.equal(await technical.evaluate(el=>el.open),true);
  await page.locator("#tube-reference-heading").waitFor({state:"visible"});
  const sources=page.locator('[data-testid="tube-reference-catalogue"]');
@@ -42,15 +42,15 @@ for(const width of [390,1440]){
  assert.equal(await sources.evaluate(el=>el.open),false);
  await sources.locator("summary").click();
  assert.equal(await sources.evaluate(el=>el.open),true);
- await technical.locator("summary").click();
+ await technical.locator(":scope > summary").click();
  assert.equal(await technical.evaluate(el=>el.open),false);
- await editorial.locator("summary").click();
+ await editorial.locator(":scope > summary").click();
  assert.equal(await editorial.evaluate(el=>el.open),true);
  await page.getByRole("heading",{name:"Domande frequenti"}).waitFor({state:"visible"});
  await page.getByRole("heading",{name:"Come si calcola il peso di un tubo in acciaio"}).waitFor({state:"visible"});
  assert.ok(await editorial.locator('a[href="/knowledge/norme"]').count()>=1);
  assert.ok(await editorial.locator('a[href="/knowledge/gradi"]').count()>=1);
- await editorial.locator("summary").click();
+ await editorial.locator(":scope > summary").click();
  assert.equal(await editorial.evaluate(el=>el.open),false);
  const seo=await page.evaluate(()=>({
    canonical:document.querySelector('link[rel="canonical"]')?.getAttribute("href"),
