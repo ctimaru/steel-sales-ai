@@ -34,7 +34,7 @@ test("WC4.2 applies the standard preference as the primary dimension is entered"
 });
 
 test("WC4.2 exposes compact full-dimension commercial suggestions", () => {
-  assert.match(calculator, /Assist \{currentStandard\.label\}/);
+  assert.match(calculator, /t\("Spessori suggeriti"\) · \{currentStandard\.label\}/);
   assert.match(calculator, /\{t\("preferito"\)\} \{standardAssist\.preferred\} mm/);
   assert.match(calculator, /commercialSuggestionLabel/);
   assert.match(calculator, /standardAssist\.options\.map/);
