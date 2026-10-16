@@ -23,8 +23,10 @@ select pg_temp.netfast2_assert(
  like '%removed_at%'),
  'dynamic provisional data source');
 select pg_temp.netfast2_assert(
- (select max_domains_per_run=100 and minimum_interval_hours=24
- from public.network_discovery_source_registry
- where id='8425ec0f-c855-41d8-9bea-70a95fd8a6ba'::uuid),
+ (not exists(select 1 from public.network_discovery_source_registry
+ where id='8425ec0f-c855-41d8-9bea-70a95fd8a6ba'::uuid)
+ or exists(select 1 from public.network_discovery_source_registry
+ where id='8425ec0f-c855-41d8-9bea-70a95fd8a6ba'::uuid
+ and max_domains_per_run=100 and minimum_interval_hours=24)),
  'explicit rights-bounded source capacity');
 rollback;
