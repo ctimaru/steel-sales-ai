@@ -5,6 +5,7 @@ on:
     paths:
       - "apps/web/tests/rqg31-production-anonymous-chrome.mjs"
       - "apps/web/tests/demotest24-*"
+      - "apps/web/tests/calc-int3e5-production-readonly.mjs"
       - "apps/web/tests/i18n4-production-seo-*"
       - "apps/web/tests/i18n6-production-chrome.mjs"
       - ".github/workflows/demotest2-4-production-smoke.yml"
@@ -59,6 +60,9 @@ jobs:
         env:
           I18N4_STRICT_PRODUCTION: ${{ github.event_name == 'workflow_dispatch' }}
         run: node tests/i18n4-production-seo-http.mjs
+      - name: "CALC-INT3E.5 — Real production anonymous EU/US RFQ locales (GET only)"
+        working-directory: apps/web
+        run: node tests/calc-int3e5-production-readonly.mjs
       - name: "Read-only production HTTP: public SEO and private auth gates"
         working-directory: apps/web
         run: node tests/demotest24-production-http.mjs
