@@ -39,6 +39,9 @@ try{
       "Inline path must not create legacy transfer queue");
 
     await page.goto(BASE+c.start,{waitUntil:"domcontentloaded",timeout:60000});
+    if(c.locale==="en") {
+      await page.getByRole("combobox",{name:/Intended product specification/i}).selectOption("astm-a106");
+    }
     const nps=page.getByRole("combobox",{name:c.locale==="it"?"NPS nominale":"Nominal pipe size"});
     await nps.selectOption("2 1/2");
     assert.ok(await page.getByRole("combobox",{name:/Schedule/i}).locator('option[value="2.5-80"]').count()>0);
