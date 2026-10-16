@@ -74,7 +74,11 @@ test("CALC-INT4.1: new topics are statically routed with self canonicals, no unr
   assert.match(articlePage, /href=\{billPath\}/);
   assert.match(sitemap, /MARKET_TOPIC_ROUTES\[locale\]/);
   assert.match(sitemap, /MARKET_GUIDE_ROUTES\[locale\]/);
-  assert.doesNotMatch(calcLanding, /MARKET_TOPIC_GUIDES\[locale\]/);
+  // CALC-INT4.3: a compact direct satellite link is now intentional. Do not
+  // duplicate long editorial content below the calculator.
+  assert.match(calcLanding, /const topic=MARKET_TOPIC_GUIDES\[locale\]/);
+  assert.match(calcLanding, /href=\{MARKET_TOPIC_ROUTES\[locale\]\}/);
+  assert.doesNotMatch(calcLanding, /topic\.sections\.map|topic\.questions\.map|topic\.checklist\.map/);
   assert.match(region, /PublicTubeWeightCalculator/);
 });
 
