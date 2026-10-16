@@ -60,5 +60,12 @@ begin
   and rights_evidence_url='https://www.wikidata.org/wiki/Wikidata:Licensing'
   and reviewed_by is not null and reviewed_at is not null;
  get diagnostics n=row_count;
- if n<>1 then raise exception 'NET-FAST2: approved CC0 Wikidata source missing, leave disabled' using errcode='42501';end if;
+ if n<>1 and exists (
+    select 1 from public.network_discovery_source_registry
+    where id='8425ec0f-c855-41d8-9bea-70a95fd8a6ba'::uuid
+  ) then
+    raise exception 'NET-FAST2: existing source is not rights-approved; leave disabled' using errcode='42501';
+  end if;
+  -- Fresh DB / CI does not pretend a production-only human approval exists.
+  -- The worker's source preflight will remain disabled there.
 end $$;
