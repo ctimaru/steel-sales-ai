@@ -139,10 +139,10 @@ export async function getProNetworkDiscoveryDirectory(
   p_limit:50,
  });
  if(error||!data||typeof data!=="object")throw new Error("network_pro_discoveries_unavailable");
- const res=data as FreeDirectory & {contract:string};
+ const res=data as {contract?:string;items?:unknown[]};
  if(res.contract!=="netlaunch1-pro-discovery-v1"||!Array.isArray(res.items))
    throw new Error("network_pro_discoveries_invalid_contract");
- return {...res,contract:"netux11-free-v1"};
+ return {...(data as unknown as FreeDirectory),contract:"netux11-free-v1"};
 }
 
 export async function getProNetworkDiscoveryProfile(
@@ -154,8 +154,8 @@ export async function getProNetworkDiscoveryProfile(
  });
  if(error)throw new Error("network_pro_discovery_profile_unavailable");
  if(data===null)return null;
- const result=data as FreeProfile & {contract:string};
+ const result=data as {contract?:string};
  if(result.contract!=="netfast-discovery-profile-v1")
    throw new Error("network_pro_discovery_profile_invalid");
- return result;
+ return data as unknown as FreeProfile;
 }
