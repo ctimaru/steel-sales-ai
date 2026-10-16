@@ -64,7 +64,6 @@ try {
       sessionStorage.getItem("sss:inline-distinta:v1")));
     assert.equal(saved.lines.length,2);
     assert.ok(saved.lines.every(line => line.targetEurT === ""));
-    assert.equal(sessionStorage !== undefined, true);
     await page.reload({waitUntil:"domcontentloaded"});
     await page.locator("#distinta-inline article").first().waitFor({state:"visible"});
     assert.equal(await page.locator("#distinta-inline article").count(),2);
