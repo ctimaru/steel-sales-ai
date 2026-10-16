@@ -153,12 +153,13 @@ export function buildBuyerDistintaPlainText(
   title: string,
   lines: BuyerDistintaCalculatedLine[],
   documents?: BuyerDistintaDocumentRequirements,
+  includeBuyerTargets = true,
 ) {
   const totals = calculateBuyerDistintaTotals(lines);
   return [
     title.trim() || "Richiesta di offerta",
     "",
-    ["Articolo", "Norma", "Grado", "Finitura", "Quantità", "kg/m", "Target €/t", "Target €/m", "Note"].join("\t"),
+    ["Articolo", "Norma", "Grado", "Finitura", "Quantità", "kg/m", ...(includeBuyerTargets ? ["Target €/t", "Target €/m"] : []), "Note"].join("\t"),
     ...lines.map((line) =>
       [
         line.description,
@@ -167,8 +168,7 @@ export function buildBuyerDistintaPlainText(
         line.finish,
         quantityLabel(line),
         formatNumber(line.weightKgM, 3),
-        formatNumber(line.targetEurT, 2),
-        formatNumber(line.targetEurM, 4),
+        ...(includeBuyerTargets ? [formatNumber(line.targetEurT, 2), formatNumber(line.targetEurM, 4)] : []),
         line.note,
       ].join("\t"),
     ),
@@ -185,6 +185,7 @@ export function buildBuyerDistintaHtml(
   title: string,
   lines: BuyerDistintaCalculatedLine[],
   documents?: BuyerDistintaDocumentRequirements,
+  includeBuyerTargets = true,
 ) {
   const totals = calculateBuyerDistintaTotals(lines);
   const rows = lines
@@ -197,8 +198,8 @@ export function buildBuyerDistintaHtml(
           <td style="padding:8px;border-bottom:1px solid #e5e7eb;">${safeHtml(line.finish)}</td>
           <td style="padding:8px;border-bottom:1px solid #e5e7eb;">${safeHtml(quantityLabel(line))}</td>
           <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;">${formatNumber(line.weightKgM, 3)}</td>
-          <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;">${formatNumber(line.targetEurT, 2)}</td>
-          <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;">${formatNumber(line.targetEurM, 4)}</td>
+          ${includeBuyerTargets ? `<td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;">${formatNumber(line.targetEurT, 2)}</td>
+          <td style="padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;">${formatNumber(line.targetEurM, 4)}</td>` : ""}
           <td style="padding:8px;border-bottom:1px solid #e5e7eb;">${safeHtml(line.note)}</td>
         </tr>`,
     )
@@ -216,8 +217,8 @@ export function buildBuyerDistintaHtml(
             <th style="padding:8px;text-align:left;">Finitura</th>
             <th style="padding:8px;text-align:left;">Quantità</th>
             <th style="padding:8px;text-align:right;">kg/m</th>
-            <th style="padding:8px;text-align:right;">Target €/t</th>
-            <th style="padding:8px;text-align:right;">Target €/m</th>
+            ${includeBuyerTargets ? `<th style="padding:8px;text-align:right;">Target €/t</th>
+            <th style="padding:8px;text-align:right;">Target €/m</th>` : ""}
             <th style="padding:8px;text-align:left;">Note</th>
           </tr>
         </thead>
