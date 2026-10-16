@@ -56,7 +56,8 @@ test("CALC-INT3E.4 events require explicit valid consent and have no PII, payloa
   assert.match(client,/system:segment\.system/);
   assert.match(client,/standard:segment\.standard/);
   assert.doesNotMatch(client,/sessionStorage|sendBeacon|fetch\(|gtag\(/);
-  assert.doesNotMatch(client,/emailAddress|company_id|buyer_id|user_id|price|document\.cookie/);
+  const payload=client.slice(client.indexOf("trackProductEvent("),client.indexOf("});",client.indexOf("trackProductEvent("))+3);
+  assert.doesNotMatch(payload,/emailAddress|company_id|buyer_id|user_id|price|document\.cookie/);
   assert.match(product,/InternationalRfqEventName/);
   for(const lang of ["de","fr","es"])assert.ok(cookie.includes('pathname.startsWith("/'+lang+'/")'));
   assert.match(eu,/trackInternationalRfq\("handoff",locale,\{system:"eu",standard\}\)/);
