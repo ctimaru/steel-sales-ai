@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usCalculatorUi as ui } from "@/lib/us-calculator-visual";
 import { trackInternationalRfq } from "@/lib/international-rfq-analytics.client";
 import { US_HSS_I18N, usLocaleTag, usRfqBillPath, type UsCalculatorLocale } from "@/lib/us-calculator-i18n";
 
@@ -157,21 +158,26 @@ export function UsHssCalculator({locale,initialReferenceId,initialValues={}}:{
     window.location.assign(usRfqBillPath(locale));
   }
   return (
-    <section aria-label={t.title} className="rounded-xl border border-[#b4d2c4] bg-white p-4 sm:p-5">
-      <h3 className="text-lg font-bold text-[#123b34]">{t.title}</h3>
-      <p className="mt-2 text-sm leading-6 text-[#52615b]">{t.summary}</p>
-      <div className="mt-4 rounded-xl border border-[#d1e2d8] bg-[#f4faf6] p-3 sm:p-4">
+    <section aria-label={t.title} data-us-hss-calculator className="min-w-0 overflow-hidden border-t border-[#dce7e3] bg-white">
+      <header className={ui.header}>
+        <p className={ui.eyebrow}>ASTM A500 · AISC</p>
+        <h3 className={ui.heading}>{t.title}</h3>
+        <p className={ui.headingDescription}>{t.summary}</p>
+      </header>
+      <div className={ui.columns}>
+        <div className={ui.inputs}>
+      <div className="rounded-xl border border-[#dce7e1] bg-[#f7faf8] p-3">
         <div className="grid gap-3 sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
           <label className="text-xs font-semibold text-[#123b34]">{t.searchLabel}
             <input type="search" autoComplete="off" maxLength={64} value={searchText}
               placeholder={t.searchPlaceholder}
               onChange={e=>setSearchText(e.target.value)}
-              className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-sm text-[#123b34]"/>
+              className={ui.input}/>
           </label>
           <label className="text-xs font-semibold text-[#123b34]">{t.wallFilter}
             <select aria-label={t.wallFilter} value={wallFilter}
               onChange={e=>setWallFilter(e.target.value)}
-              className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-sm text-[#123b34]">
+              className={ui.input}>
               <option value="">{t.allWalls}</option>
               {walls.map(wall=>(
                 <option key={wall} value={String(wall)}>{wall} in</option>
@@ -192,7 +198,7 @@ export function UsHssCalculator({locale,initialReferenceId,initialValues={}}:{
         <label className="mt-3 block text-xs font-semibold text-[#123b34]">{t.library}
           <select aria-label={t.library} value={referenceId}
             onChange={e=>chooseReference(e.target.value)}
-            className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-sm text-[#123b34]">
+            className={ui.input}>
             <option value="">{t.free}</option>
             {referenceOutsideFilter ? <option value={reference.id}>{reference.designation} · {t.selectedOutside}</option> : null}
             {filteredReferences.map(item=>(
@@ -202,10 +208,10 @@ export function UsHssCalculator({locale,initialReferenceId,initialValues={}}:{
         </label>
         {filteredReferences.length===0 ? <p role="status" className="mt-2 text-xs text-[#76542e]">{t.noMatches}</p> : null}
       </div>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <label className="text-xs font-semibold text-[#123b34]">{t.shape}
           <select value={shape} onChange={e=>{setShape(e.target.value as HssShape);setReferenceId("");setSearchText("");setWallFilter("");setStatus("");}}
-            className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-[#123b34]">
+            className={ui.input}>
             <option value="round">{t.round}</option>
             <option value="square">{t.square}</option>
             <option value="rectangular">{t.rectangular}</option>
@@ -213,79 +219,83 @@ export function UsHssCalculator({locale,initialReferenceId,initialValues={}}:{
         </label>
         <div className="flex flex-wrap items-end gap-2" role="group" aria-label={t.unit}>
           <button type="button" aria-pressed={units==="mm"} onClick={()=>setUnit("mm")}
-            className="min-h-12 rounded-lg border border-[#8da99d] px-4 text-sm font-bold text-[#123b34]">mm</button>
+            className={ui.miniButton + " " + (units==="mm" ? ui.selectorActive : ui.selectorIdle)}>mm</button>
           <button type="button" aria-pressed={units==="in"} onClick={()=>setUnit("in")}
-            className="min-h-12 rounded-lg border border-[#8da99d] px-4 text-sm font-bold text-[#123b34]">in</button>
+            className={ui.miniButton + " " + (units==="in" ? ui.selectorActive : ui.selectorIdle)}>in</button>
         </div>
         {(shape==="round"?[[t.od,diameter,setDiameter]]:shape==="square"
           ?[[t.width,width,setWidth]]:[[t.width,width,setWidth],[t.height,height,setHeight]]).map(([label,value,update])=>(
           <label key={label as string} className="text-xs font-semibold text-[#123b34]">{label as string} ({units})
             <input type="text" inputMode="decimal" value={value as string}
               onChange={e=>editMeasurement(update as (v:string)=>void,e.target.value)}
-              className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-sm text-[#123b34]"/>
+              className={ui.input}/>
           </label>
         ))}
         <label className="text-xs font-semibold text-[#123b34]">{t.thickness} ({units})
           <input type="text" inputMode="decimal" value={thickness} onChange={e=>editMeasurement(setThickness,e.target.value)}
-            className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-sm text-[#123b34]"/>
+            className={ui.input}/>
         </label>
         <label className="text-xs font-semibold text-[#123b34]">{t.length}
           <input type="text" inputMode="decimal" value={length} onChange={e=>setLength(e.target.value)}
-            className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-sm text-[#123b34]"/>
+            className={ui.input}/>
         </label>
         <label className="text-xs font-semibold text-[#123b34]">{t.bars}
           <input type="text" inputMode="numeric" value={bars} onChange={e=>setBars(e.target.value)}
-            className="mt-2 min-h-12 w-full rounded-lg border border-[#8da99d] bg-white px-3 text-sm text-[#123b34]"/>
+            className={ui.input}/>
         </label>
       </div>
-      <p className="mt-4 text-xs font-semibold text-[#1a5144]">{t.model}</p>
-      {calculated?<div className="mt-3 grid gap-3 rounded-xl bg-[#f1f8f3] p-4 sm:grid-cols-2">
-        <div><p className="text-xs text-[#52615b]">{t.weight}</p>
-          <p className="text-xl font-bold text-[#123b34]">{format(calculated.weightKgM,locale)} kg/m</p>
-          <p className="text-xs text-[#52615b]">{format(calculated.weightKgM/1.48816394357,locale)} lb/ft</p>
         </div>
-        <div><p className="text-xs text-[#52615b]">{t.total}</p>
-          <p className="text-xl font-bold text-[#123b34]">{format(calculated.totalKg,locale)} kg</p>
-          <p className="text-xs text-[#52615b]">{format(calculated.totalTonnes,locale)} t</p>
+        <aside className={ui.results} aria-live="polite">
+        <p className="text-[11px] leading-5 text-white/75">{t.model}</p>
+      {calculated?<div className="mt-3 grid gap-2 rounded-xl border border-white/15 bg-white/5 p-3 sm:grid-cols-2">
+        <div className={ui.resultCard}><p className={ui.resultTitle}>{t.weight}</p>
+          <p className={ui.resultValue}>{format(calculated.weightKgM,locale)} kg/m</p>
+          <p className={ui.resultHint}>{format(calculated.weightKgM/1.48816394357,locale)} lb/ft</p>
         </div>
-      </div>:<p role="status" className="mt-3 text-sm font-semibold text-[#985c25]">{t.invalid}</p>}
+        <div className={ui.resultCard}><p className={ui.resultTitle}>{t.total}</p>
+          <p className={ui.resultValue}>{format(calculated.totalKg,locale)} kg</p>
+          <p className={ui.resultHint}>{format(calculated.totalTonnes,locale)} t</p>
+        </div>
+      </div>:<p role="status" className="mt-3 text-sm font-semibold text-[#ffcf9d]">{t.invalid}</p>}
       {calculated && reference && publishedKgM!==null ? (
-        <div className="mt-3 rounded-xl border border-[#b4d2c4] bg-[#f8fbf9] p-4">
+        <div className="mt-3 rounded-xl border border-white/15 bg-white/5 p-3">
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <p className="text-xs font-semibold text-[#52615b]">{t.sourceWeight}</p>
-              <p className="text-lg font-bold text-[#123b34]">{format(reference.manufacturerNominalLbFt,locale)} lb/ft</p>
-              <p className="text-xs text-[#52615b]">{format(publishedKgM,locale)} kg/m</p>
+              <p className={ui.resultHint}>{t.sourceWeight}</p>
+              <p className="text-lg font-bold text-white">{format(reference.manufacturerNominalLbFt,locale)} lb/ft</p>
+              <p className={ui.resultHint}>{format(publishedKgM,locale)} kg/m</p>
             </div>
             <div>
-              <p className="text-xs font-semibold text-[#52615b]">{t.comparison}</p>
-              <p className="text-lg font-bold text-[#123b34]">{format(100*(publishedKgM/calculated.weightKgM-1),locale)}%</p>
-              <p className="text-xs text-[#52615b]">{t.libraryCaveat}</p>
+              <p className={ui.resultHint}>{t.comparison}</p>
+              <p className="text-lg font-bold text-white">{format(100*(publishedKgM/calculated.weightKgM-1),locale)}%</p>
+              <p className={ui.resultHint}>{t.libraryCaveat}</p>
             </div>
           </div>
           <a href={hssAtlasSourceUrl(reference.shape)}
             rel="noopener noreferrer" target="_blank"
-            className="mt-2 inline-block text-xs font-semibold text-[#156449] underline">
+            className="mt-2 inline-block text-xs font-semibold text-white underline">
             {t.sourceRow} {reference.sourcePage} · {reference.sourceRow} ↗
           </a>
         </div>
       ) : null}
-      <p className="mt-3 text-xs leading-6 text-[#52615b]">{t.status}
-        {" "}<a href={SOURCE} className="font-semibold text-[#156449] underline" rel="noopener noreferrer" target="_blank">{t.source} →</a>
+      <p className="mt-3 text-xs leading-6 text-white/80">{t.status}
+        {" "}<a href={SOURCE} className="font-semibold text-white underline" rel="noopener noreferrer" target="_blank">{t.source} →</a>
       </p>
-      <div className="mt-4 flex flex-wrap gap-3">
+      <div className="mt-3 flex flex-col gap-2">
         <button disabled={!calculated} type="button" onClick={async()=>{
           try{await navigator.clipboard.writeText(specification);setStatus(t.copied);}
           catch{setStatus(t.copyError);}
-        }} className="min-h-12 rounded-xl border border-[#1a5144] px-4 text-sm font-bold text-[#123b34] disabled:opacity-50">
+        }} className={ui.secondaryAction + " order-2"}>
           {t.copy}
         </button>
         <button disabled={!calculated} type="button" onClick={addRfq}
-          className="min-h-12 rounded-xl bg-[#123b34] px-4 text-sm font-bold text-white disabled:opacity-50">
+          className={ui.primaryAction + " order-1"}>
           {t.add} →
         </button>
       </div>
-      <p role="status" aria-live="polite" className="mt-2 text-xs text-[#52615b]">{status}</p>
+      <p role="status" aria-live="polite" className={ui.resultHint}>{status}</p>
+        </aside>
+      </div>
     </section>
   );
 }
