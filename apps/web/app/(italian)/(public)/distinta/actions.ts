@@ -14,6 +14,7 @@ import {
   type BuyerDistintaDocumentRequirements,
 } from "@/lib/buyer-distinta-documents";
 import { trackServerProductEvent } from "@/lib/product-analytics-events.server";
+import { supplierVisibleBuyerLines } from "@/lib/buyer-distinta-supplier-redaction";
 import { createClient } from "@/lib/supabase/server";
 
 type SaveBuyerDistintaInput = {
@@ -243,7 +244,7 @@ export async function sendBuyerDistinta(
   const extraMessage = input.message?.trim() || "";
   const plain =
     (extraMessage ? extraMessage + "\n\n" : "") +
-    buildBuyerDistintaPlainText(title, exportLines, documents);
+    buildBuyerDistintaPlainText(title, supplierVisibleBuyerLines(exportLines), documents);
   const html =
     (extraMessage
       ? '<p style="font-family:Arial,sans-serif;color:#1f2937;">' +
@@ -253,7 +254,7 @@ export async function sendBuyerDistinta(
           .replaceAll(">", "&gt;")
           .replaceAll("\n", "<br/>") +
         "</p>"
-      : "") + buildBuyerDistintaHtml(title, exportLines, documents);
+      : "") + buildBuyerDistintaHtml(title, supplierVisibleBuyerLines(exportLines), documents);
 
   const subject = input.subject.trim() || title;
   const providerIds: string[] = [];
