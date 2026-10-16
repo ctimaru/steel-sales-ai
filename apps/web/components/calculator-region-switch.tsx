@@ -8,7 +8,7 @@ import {
 } from "@/components/public-tube-weight-calculator";
 import { UsPipeSampleCalculator, type UsPipeInitialValues } from "@/components/us-pipe-sample-calculator";
 import { type InternationalCalculatorSeed } from "@/components/international-steel-calculator";
-import type { CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
+import { CalculatorInlineDistintaExperience } from "@/components/calculator-inline-distinta-experience";
 import { isNewCalculatorLocale, type CalculatorSiteLocale } from "@/lib/international-calculator-landing";
 import { REGION_COPY } from "@/lib/us-calculator-i18n";
 import styles from "./calculator-region-switch.module.css";
@@ -40,11 +40,7 @@ export function CalculatorRegionSwitch({
   references,
   initialValues,
   euAfter,
-  onEuAddToDistinta,
-  euCanAddToDistinta,
-  euInlinePublicDistinta = false,
-  euInlineBill,
-  euInlineCount,
+  inlineItalianBill = false,
   internationalSeed,
   usInitialValues,
 }: {
@@ -54,12 +50,8 @@ export function CalculatorRegionSwitch({
   references?: CalculatorProps["references"];
   initialValues?: CalculatorProps["initialValues"];
   euAfter?: ReactNode;
-  /** Only the public Italian calculator opts into the in-place bill (4.4B). */
-  onEuAddToDistinta?: (item: CalculatorRfqItem) => boolean;
-  euCanAddToDistinta?: boolean;
-  euInlinePublicDistinta?: boolean;
-  euInlineBill?: ReactNode;
-  euInlineCount?: number;
+  /** Public Italian landing only. The US and international EU calculators stay unchanged. */
+  inlineItalianBill?: boolean;
   internationalSeed?:InternationalCalculatorSeed;
   usInitialValues?:UsPipeInitialValues;
 }) {
@@ -124,16 +116,15 @@ export function CalculatorRegionSwitch({
         <div className={styles.panelInner}>
           {visited.eu ? (
             <>
-              <PublicTubeWeightCalculator references={references??[]}
-                initialValues={isNewCalculatorLocale(locale)
-                  ? internationalEuInitialValues(internationalSeed)
-                  : initialValues}
-                locale={locale}
-                onAddToDistinta={onEuAddToDistinta}
-                canAddToDistinta={euCanAddToDistinta ?? true}
-                inlinePublicDistinta={euInlinePublicDistinta}
-                inlineBillCount={euInlineCount ?? 0} />
-              {euInlineBill}
+              {inlineItalianBill && locale === "it" ? (
+                <CalculatorInlineDistintaExperience references={references??[]} initialValues={initialValues} />
+              ) : (
+                <PublicTubeWeightCalculator references={references??[]}
+                  initialValues={isNewCalculatorLocale(locale)
+                    ? internationalEuInitialValues(internationalSeed)
+                    : initialValues}
+                  locale={locale} />
+              )}
               {euAfter ? <div className={styles.evidence}>{euAfter}</div> : null}
             </>
           ) : null}
