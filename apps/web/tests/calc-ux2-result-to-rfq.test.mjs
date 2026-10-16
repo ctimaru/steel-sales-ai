@@ -80,7 +80,7 @@ test("CALC-UX2 queue is one-time, bounded, distinct and tab scoped",()=>{
 test("CALC-UX2 two public builders consume the same tab queue without overwriting RFQ work",()=>{
   assert.match(calculator,/calculatorRfqFromValues\(currentSnapshot,/);
   assert.match(calculator,/enqueueCalculatorRfq\(window\.sessionStorage, item\)/);
-  assert.match(calculator,/window\.location\.assign\(locale === "en" \? "\/en\/distinta" : "\/distinta"\)/);
+  assert.match(calculator,/window\.location\.assign\(locale === "it" \? "\/distinta" : `\/\$\{locale\}\/distinta`\)/);
   assert.match(calculator,/disabled=\{!currentSnapshot\}/);
   assert.match(it,/readCalculatorRfqQueue\(window\.sessionStorage\)/);
   assert.match(it,/if \(!draftReady \|\| restoreCandidate\) return;/);
