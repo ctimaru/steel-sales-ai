@@ -1575,7 +1575,7 @@ export function PublicTubeWeightCalculator({
                           ) : null}
                         </td>
                         <td className="px-2 py-2.5 text-[#344e43]">
-                          <span>{sourceMethodLabel(evidence.declaredMethod, locale)}</span>
+                          <span>{sourceMethodLabel(evidence.declaredMethod, locale === "it" ? "it" : "en")}</span>
                           {reference.source_url ? (
                             <a href={reference.source_url} target="_blank" rel="noopener noreferrer" className="mt-0.5 block min-h-6 text-[#1d5748] underline underline-offset-2">
                               {reference.source_provider ?? t("Fonte")} ↗
