@@ -49,8 +49,13 @@ try {
       keys:Object.keys(sessionStorage),
     }));
     assert.ok(session.draft);
-    assert.ok(!session.draft.includes("850"));
-    assert.deepEqual(JSON.parse(session.draft).lines.map(x=>x.targetEurT),[""]);
+    // Check the persisted pricing boundary structurally. A raw "850"
+    // substring can occur legitimately inside a timestamp or random line ID.
+    const persistedLines = JSON.parse(session.draft).lines;
+    assert.ok(persistedLines.every(line =>
+      !Object.keys(line).some(key => /price|commercial|buyerTarget|targetEurM/i.test(key))),
+      "Session draft must not persist private commercial fields");
+    assert.deepEqual(persistedLines.map(x=>x.targetEurT),[""]);
     assert.ok(!session.keys.some(k=>/buyer-target|commercial-price/.test(k)));
 
     await page.reload({waitUntil:"domcontentloaded"});

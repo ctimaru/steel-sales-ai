@@ -882,6 +882,13 @@ export function PublicTubeWeightCalculator({
     "inline-flex min-w-0 items-center justify-center rounded-xl border transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15815a] active:scale-[0.98]";
   const selectionIdle =
     "border-[#cbdad3] bg-white text-[#23473a] hover:border-[#55977b] hover:bg-[#f0f7f3]";
+  // Compact high-frequency controls; keep larger mobile touch targets.
+  const compactSegmentBase =
+    "inline-flex min-w-0 items-center justify-center rounded-lg border border-transparent font-semibold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15815a] active:scale-[0.98]";
+  const compactSegmentActive =
+    "bg-[#123d34] text-white shadow-[0_1px_3px_rgba(18,61,52,0.18)]";
+  const compactSegmentIdle =
+    "text-[#426055] hover:bg-white hover:text-[#123d34]";
 
   // Preserve all reference/source HTML and device conveniences for people and
   // crawlers, but make them opt-in on the Italian public inline-bill experience.
@@ -1073,7 +1080,7 @@ export function PublicTubeWeightCalculator({
                     {t(standard === "geometric" ? "Geometria libera" : "Massa da norma")}
                   </span>
                 </div>
-                <div className="grid grid-cols-3 gap-1.5">
+                <div role="group" aria-label={t("Norma")} className="inline-flex w-full max-w-full gap-1 rounded-xl border border-[#dce7e1] bg-[#f3f7f5] p-1 sm:w-fit">
                   {standardOptions.map((option) => {
                     const selected = standard === option.value;
                     return (
@@ -1082,7 +1089,7 @@ export function PublicTubeWeightCalculator({
                         type="button"
                         aria-pressed={selected}
                         onClick={() => handleStandardChange(option.value)}
-                        className={`${selectionBase} min-h-11 px-1.5 py-2 text-center text-[11px] font-bold leading-tight sm:px-2 sm:text-xs ${selected ? "school-selected-control shadow-sm" : selectionIdle}`}
+                        className={`${compactSegmentBase} min-h-11 flex-1 px-2 text-center text-[11px] leading-tight sm:min-h-9 sm:flex-none sm:px-4 sm:text-xs ${selected ? compactSegmentActive : compactSegmentIdle}`}
                       >
                         {t(option.label)}
                         <span className="sr-only"> — {t(option.description)}</span>
@@ -1099,7 +1106,7 @@ export function PublicTubeWeightCalculator({
                   </h2>
                   <span className="text-xs font-semibold text-[#52615b]">{t(currentFamily.description)}</span>
                 </div>
-                <div className="grid grid-cols-3 gap-1.5">
+                <div role="group" aria-label={t("Sagoma")} className="inline-flex w-full max-w-full gap-1 rounded-xl border border-[#dce7e1] bg-[#f3f7f5] p-1 sm:w-fit">
                   {familyOptions.map((option) => {
                     const selected = family === option.value;
                     return (
@@ -1108,9 +1115,9 @@ export function PublicTubeWeightCalculator({
                         type="button"
                         aria-pressed={selected}
                         onClick={() => setFamily(option.value)}
-                        className={`${selectionBase} group flex min-h-14 flex-col gap-1 px-1 py-2 sm:flex-row sm:px-2 ${selected ? "school-selected-control shadow-sm" : selectionIdle}`}
+                        className={`${compactSegmentBase} group min-h-11 flex-1 gap-1.5 px-1.5 text-[11px] leading-tight sm:min-h-10 sm:flex-none sm:px-3 sm:text-xs ${selected ? compactSegmentActive : compactSegmentIdle}`}
                       >
-                        <ShapeGraphic family={option.value} className={selected ? "h-9 w-10 text-white" : "h-9 w-10 text-[#1a5144]"} />
+                        <ShapeGraphic family={option.value} className={selected ? "h-5 w-5 shrink-0 text-white" : "h-5 w-5 shrink-0 text-[#426055]"} />
                         <span className="text-[11px] font-bold leading-tight sm:text-xs">{t(option.short)}</span>
                       </button>
                     );
@@ -1230,14 +1237,14 @@ export function PublicTubeWeightCalculator({
                         <span className="text-[10px] font-bold text-[#52615b]">{t("Lunghezza barra")}</span>
                         <span className="text-xs text-[#52615b]">m</span>
                       </div>
-                      <div className="flex flex-wrap gap-1">
+                      <div role="group" aria-label={t("Lunghezza barra")} className="flex w-fit max-w-full items-center gap-1 rounded-xl border border-[#dce7e1] bg-[#f3f7f5] p-1">
                         {lengthPresets.map((preset) => (
                           <button
                             key={preset}
                             type="button"
                             aria-pressed={length === preset}
                             onClick={() => setLength(preset)}
-                            className={`${selectionBase} min-h-11 min-w-11 flex-1 px-2 py-2.5 text-xs font-bold ${length === preset ? "school-selected-control" : selectionIdle}`}
+                            className={`${compactSegmentBase} min-h-11 w-11 shrink-0 text-xs sm:min-h-9 sm:w-9 ${length === preset ? compactSegmentActive : compactSegmentIdle}`}
                           >
                             {preset}
                           </button>
@@ -1247,14 +1254,14 @@ export function PublicTubeWeightCalculator({
                           onChange={(event) => setLength(event.target.value)}
                           inputMode="decimal"
                           aria-label={t("Lunghezza barra personalizzata")}
-                          className="min-h-11 min-w-14 flex-1 rounded-xl border border-[#cfd9d5] bg-white px-2 text-center text-sm font-bold text-[#1d2824] outline-none focus:border-[#438d7a]"
+                          className="h-11 w-12 min-w-0 shrink-0 rounded-lg border border-[#d0dfd6] bg-white px-1 text-center text-xs font-semibold text-[#1d2824] outline-none transition-colors focus:border-[#438d7a] focus:ring-2 focus:ring-[#b5ddcd] sm:h-9"
                         />
                       </div>
                     </div>
 
                     <div className="text-xs font-bold text-[#52615b]">
                       <label htmlFor="tube-calculator-quantity">{t("Numero barre")}</label>
-                      <div className="mt-1 grid grid-cols-[44px_minmax(0,1fr)_44px] gap-1">
+                      <div className="mt-1 grid w-full max-w-[180px] grid-cols-[44px_minmax(36px,1fr)_44px] gap-1 rounded-xl border border-[#dce7e1] bg-[#f3f7f5] p-1 sm:grid-cols-[36px_minmax(36px,1fr)_36px]">
                         <button
                           type="button"
                           aria-label={t("Riduci di una barra")}
@@ -1262,7 +1269,7 @@ export function PublicTubeWeightCalculator({
                             const current = Math.max(1, Math.floor(parseNumber(quantity) ?? 1));
                             setQuantity(String(Math.max(1, current - 1)));
                           }}
-                          className="school-secondary-action min-h-11 px-0 py-0 text-base transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15815a] active:scale-[0.97]"
+                          className="min-h-11 rounded-lg text-base font-semibold text-[#31594c] transition-colors hover:bg-white hover:text-[#123d34] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15815a] active:scale-[0.97] sm:min-h-9"
                         >
                           −
                         </button>
@@ -1272,7 +1279,7 @@ export function PublicTubeWeightCalculator({
                           value={quantity}
                           onChange={(event) => setQuantity(event.target.value)}
                           inputMode="numeric"
-                          className="min-h-11 min-w-0 rounded-xl border border-[#cfd9d5] bg-white px-2 text-center text-sm font-bold text-[#1d2824] outline-none focus:border-[#438d7a]"
+                          className="h-11 min-w-0 rounded-lg border border-[#d0dfd6] bg-white px-1 text-center text-sm font-semibold text-[#1d2824] outline-none transition-colors focus:border-[#438d7a] focus:ring-2 focus:ring-[#b5ddcd] sm:h-9"
                         />
                         <button
                           type="button"
@@ -1281,7 +1288,7 @@ export function PublicTubeWeightCalculator({
                             const current = Math.max(0, Math.floor(parseNumber(quantity) ?? 0));
                             setQuantity(String(current + 1));
                           }}
-                          className="school-secondary-action min-h-11 px-0 py-0 text-base transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15815a] active:scale-[0.97]"
+                          className="min-h-11 rounded-lg text-base font-semibold text-[#31594c] transition-colors hover:bg-white hover:text-[#123d34] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15815a] active:scale-[0.97] sm:min-h-9"
                         >
                           +
                         </button>

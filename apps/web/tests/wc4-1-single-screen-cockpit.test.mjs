@@ -21,11 +21,12 @@ test("WC4.1 makes the calculator the first-screen utility", () => {
 });
 
 test("WC4.1 compacts standard and shape selection into dense controls", () => {
-  assert.match(calculator, /grid grid-cols-3 gap-1\.5/);
-  assert.match(calculator, /selectionBase} min-h-11/);
-  assert.match(calculator, /group flex min-h-14 flex-col/);
-  assert.match(calculator, /rounded-xl border transition-colors/);
-  assert.match(calculator, /h-9 w-10/);
+  assert.match(calculator, /role="group" aria-label=\{t\("Norma"\)\}/);
+  assert.match(calculator, /role="group" aria-label=\{t\("Sagoma"\)\}/);
+  assert.match(calculator, /compactSegmentBase} min-h-11/);
+  assert.match(calculator, /sm:min-h-9/);
+  assert.match(calculator, /h-5 w-5 shrink-0/);
+  assert.doesNotMatch(calculator, /group flex min-h-14 flex-col/);
 });
 
 test("WC4.1 keeps the key workflow in one cockpit", () => {
