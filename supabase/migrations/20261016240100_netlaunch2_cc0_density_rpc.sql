@@ -21,7 +21,7 @@ begin
  else array['Q2285982','Q1924906']::text[] end;
  select jsonb_object_agg(c.industry_qid,c.next_offset) into v_offsets
  from public.network_netlaunch2_cursors c where c.industry_qid=any(sectors);
- if v_offsets is null or jsonb_object_length(v_offsets)<>2
+ if v_offsets is null or (select count(*) from jsonb_object_keys(v_offsets))<>2
  then raise exception 'NET-LAUNCH2 cursor corruption' using errcode='22023';end if;
  insert into public.network_netlaunch2_runs(run_day,industry_ids,offsets)
  values(day_utc,sectors,v_offsets) on conflict(run_day) do nothing returning id into run_id;
