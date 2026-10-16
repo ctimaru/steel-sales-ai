@@ -145,6 +145,7 @@ export const PLATFORM_IA_ROUTE_INVENTORY = [
   { path: "/platform/company-discovery", module: "discovery" },
   { path: "/platform/company-discovery/bulk-import", module: "discovery" },
   { path: "/platform/company-discovery/coverage", module: "discovery" },
+  { path: "/platform/company-discovery/end-users", module: "discovery" },
   { path: "/platform/company-discovery/governance", module: "discovery" },
   { path: "/platform/company-discovery/geo-review", module: "discovery" },
   { path: "/platform/company-discovery/geo-review/municipalities", module: "discovery" },
