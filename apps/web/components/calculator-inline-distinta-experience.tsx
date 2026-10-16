@@ -429,7 +429,7 @@ export function CalculatorInlineDistintaExperience({
               {createdRfq ? "RFQ privata creata ✓" : rfqPending ? "Verifica e creazione…" : "Crea RFQ privata →"}
             </button>
             {rfqError ? <p role="alert" className="mt-2 text-xs font-semibold text-[#9b442a]">{rfqError}</p> : null}
-            {rfqAccess === "guest" ? (
+            {(rfqAccess === "guest" || rfqAccess === "unavailable") ? (
               <div data-inline-guest-handoff className="mt-3 rounded-lg bg-[#eef6f1] p-3">
                 <p className="text-xs text-[#315746]">Dopo il login torna su questo calcolatore dalla stessa scheda.
                   Recupererai la distinta tecnica e confermerai la creazione con un nuovo clic.
