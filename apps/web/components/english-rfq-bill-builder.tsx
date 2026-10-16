@@ -10,6 +10,8 @@ import {
   type PublicTubeStandard,
 } from "@/lib/international-tube-mass";
 import { RFQ_BILL_TEXT, formatBillNumber, type RfqBillLocale } from "@/lib/rfq-bill-localization";
+import { trackInternationalRfq } from "@/lib/international-rfq-analytics.client";
+import { internationalRfqSource, type InternationalRfqSegment } from "@/lib/international-rfq-funnel";
 
 type RfqLine = {
   id: number;
@@ -110,6 +112,8 @@ export function EnglishRfqBillBuilder({locale="en"}:{locale?:RfqBillLocale}={}) 
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => { setHydrated(true); }, []);
   const nextId = useRef(2);
+  const viewTracked = useRef(false);
+  const [analyticsSegment,setAnalyticsSegment]=useState<InternationalRfqSegment>({system:"direct",standard:"unknown"});
   const [draftLoaded, setDraftLoaded] = useState(false);
   const [importedCount, setImportedCount] = useState(0);
   const [importWarning, setImportWarning] = useState(false);
@@ -138,6 +142,13 @@ export function EnglishRfqBillBuilder({locale="en"}:{locale?:RfqBillLocale}={}) 
       const line=fromUsPipeCalculator(usPipeRfqSpecification(item),start+additions.length+i);
       return line?[line]:[];
     });
+    const segment=internationalRfqSource(accepted,acceptedUs);
+    setAnalyticsSegment(segment);
+    // A bill may be opened directly without any calculator. Never imply attribution.
+    if(!viewTracked.current){
+      viewTracked.current=true;
+      trackInternationalRfq("bill_opened",locale,segment);
+    }
     nextId.current = start+additions.length+usAdditions.length;
     setLines([...previous,...additions,...usAdditions].length ? [...previous,...additions,...usAdditions] : [createLine(1)]);
     if(existing){ setCurrency(existing.currency); setNotes(existing.notes); }
@@ -259,6 +270,7 @@ export function EnglishRfqBillBuilder({locale="en"}:{locale?:RfqBillLocale}={}) 
     ].join("\n");
     try {
       await navigator.clipboard.writeText(emailText);
+      trackInternationalRfq("email_copied",locale,analyticsSegment);
       setCopyState("copied");
     } catch {
       setCopyState("failed");
