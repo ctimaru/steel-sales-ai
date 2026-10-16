@@ -27,7 +27,7 @@ export function parseCommercialRate(input: string, locale: PriceLocale = "it"): 
   } else {
     // Support intuitive simple dot/comma entry in every locale. Disallow
     // malformed combinations rather than silently misprice a steel offer.
-    if (!/^\\d{1,9}(?:[,.]\\d{0,4})?$/.test(raw)) return null;
+    if (!/^\d{1,9}(?:[,.]\d{0,4})?$/.test(raw)) return null;
     normalized = raw.replace(",", ".");
   }
   const amount = Number(normalized);
