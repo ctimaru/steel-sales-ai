@@ -35,7 +35,7 @@ test("I18N7 localized public controls provide copy and an RFQ bill destination",
   assert.match(words,/"Risultato copiato\.": "Result copied\. Paste it into your RFQ bill or an email\."/);
   assert.match(calculator,/window\.location\.assign\(locale === "it" \? "\/distinta" : `\/\$\{locale\}\/distinta`\)/);
   assert.match(calculator,/t\(onAddToDistinta \? "＋ Aggiungi alla distinta" : "Aggiungi questa misura alla distinta →"\)/);
-  assert.match(read("../lib/tube-calculator-locale.ts"),/Add this calculation to an RFQ bill/);
+  assert.match(fs.readFileSync(new URL("../lib/tube-calculator-locale.ts", import.meta.url), "utf8"),/Add this calculation to an RFQ bill/);
   assert.match(calculator,/Aggiungi questa misura alla distinta/);
   assert.match(calculator,/Copy failed\. Please check clipboard permissions\./);
   assert.match(calculator,/shareUrl\(currentSnapshot\)/);
