@@ -103,6 +103,8 @@ jobs:
         run: node tests/calc-int4-4c-chrome-private-target.mjs
       - name: CALC-INT4.4D Chrome guest RFQ handoff and buyer target consent
         run: node tests/calc-int4-4d-chrome-guest-private-rfq.mjs
+      - name: CALC-INT4.4D.1 Chrome focused Italian calculator and SEO disclosure
+        run: node tests/calc-int4-4d1-chrome-calculator-focus.mjs
       - name: CALC-INT3C Chrome US NPS Schedule to IT/EN RFQ bills
         run: node tests/calc-int3c-chrome-us-rfq.mjs
       - name: CALC-INT4 Chrome cinematic EU/US switch and reduced-motion acceptance
