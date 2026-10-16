@@ -25,7 +25,7 @@ test("NETFAST2 ingestion is bounded and never canonical publication",()=>{
  assert.doesNotMatch(batch+storage+source,/insert into public.network_companies/);
  assert.match(worker,/no retry/i);
 });
-test("NETFAST2 daily worker on main, with source review and no browser credentials",()=>{
+test("NETFAST2 legacy worker remains manual on main with source review and no browser credentials",()=>{
  assert.match(schedule,/cron: "23 2 \* \* \*"/);
  assert.match(schedule,/github.ref == 'refs\/heads\/main'/);
  assert.match(schedule,/CRAWL_IT65B_SUPABASE_SECRET_KEY/);
