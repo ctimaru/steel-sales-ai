@@ -16,7 +16,7 @@ test("NET-LAUNCH1: Pro Network users see same unconfirmed Free discoveries",()=>
 });
 test("NET-LAUNCH1: Pro users can open unconfirmed profiles rather than 404",()=>{
  assert.match(detail,/getFreeNetworkProfile\(context\.organizationId,id\)/);
- assert.match(detail,/candidate\?\.company\.discovery_status === "unconfirmed"/);
+ assert.match(detail,/candidate\?\.item\.discovery_status === "unconfirmed"/);
  assert.match(detail,/return <FreeNetworkProfileView/);
  assert.match(detail,/await requireNetworkAccess\(\)/,"Keep existing Pro permission");
 });
