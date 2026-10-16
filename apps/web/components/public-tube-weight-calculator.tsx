@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { calculatorRfqFromValues, enqueueCalculatorRfq, type CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
 import { tubeCalculatorText, type TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
+import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
 import { calculateTubeSection, standardCornerRadii } from "@/lib/international-tube-mass";
 import { referenceEvidence, relatedTubeReferences, sourceMethodLabel, sourceStandardLabel } from "@/lib/tube-reference-evidence";
 import { trackProductEvent } from "@/lib/product-analytics-events.client";
@@ -1442,6 +1443,39 @@ export function PublicTubeWeightCalculator({
         </div>
       </section>
 
+      {/* Secondary device conveniences: OUTSIDE the calculator controls and result. */}
+      {!onAddToDistinta ? (
+        <details className="rounded-xl border border-[#dce5e0] bg-[#f8faf8] text-[#123b34]">
+          <summary className="flex min-h-11 cursor-pointer items-center justify-between px-4 py-2 text-xs font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#237858]">
+            {locale === "it" ? "Opzioni del dispositivo" : "Device options"}
+            <span aria-hidden="true">⌄</span>
+          </summary>
+          <div className="flex flex-wrap items-center gap-2 border-t border-[#dce5e0] px-4 py-3">
+            <CalculatorInstallGuide locale={locale} />
+            <button
+              type="button"
+              disabled={!currentSnapshot}
+              onClick={() => {
+                if (!currentSnapshot) return;
+                if (calculatorSaved) {
+                  writeSavedCalculator(null);
+                  setCalculatorSaved(false);
+                  setActionFeedback("Salvataggio del calcolatore rimosso.");
+                  return;
+                }
+                writeSavedCalculator(currentSnapshot);
+                setCalculatorSaved(true);
+                setActionFeedback("Calcolatore salvato su questo dispositivo.");
+              }}
+              className={calculatorSaved
+                ? "school-selected-control rounded-xl px-3 py-2.5 min-h-11 text-xs font-bold disabled:opacity-50"
+                : "school-secondary-action px-3 py-2.5 min-h-11 text-xs disabled:opacity-50"}
+            >
+              {t(calculatorSaved ? "Calcolatore salvato ✓" : "Salva il Calcolatore")}
+            </button>
+          </div>
+        </details>
+      ) : null}
 
       {!onAddToDistinta ? <section aria-labelledby="tube-reference-heading" className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
