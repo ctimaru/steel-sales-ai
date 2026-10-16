@@ -20,7 +20,7 @@ from pathlib import Path
 from openpyxl import load_workbook
 
 from app.repository import WorkerRepository
-from app.istat_import_legacy import load_verified_csv, normalize_name
+from app.istat_import_legacy import EXPECTED, load_verified_csv, normalize_name
 
 SOURCE = "https://www.istat.it/storage/codici-unita-amministrative/Elenco-comuni-italiani.xlsx"
 REFERENCE_DATE = date(2026, 2, 21)
