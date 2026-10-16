@@ -37,6 +37,11 @@ for(const width of [390,1440]){
  await technical.locator(":scope > summary").click();
  assert.equal(await technical.evaluate(el=>el.open),true);
  await page.locator("#tube-reference-heading").waitFor({state:"visible"});
+ assert.equal(await page.getByText("Opzioni del dispositivo",{exact:true}).count(),0);
+ assert.equal(await page.getByText("Salva il Calcolatore",{exact:true}).count(),0);
+ assert.equal(await page.getByText("Aggiungi a Home",{exact:true}).count(),0);
+ assert.equal(await page.getByRole("button",{name:/Installa|Aggiungi a Home/i}).count(),0);
+ assert.equal(await page.locator("#tube-reference-heading").isVisible(),true);
  const sources=page.locator('[data-testid="tube-reference-catalogue"]');
  await sources.waitFor({state:"attached"});
  assert.equal(await sources.evaluate(el=>el.open),false);
