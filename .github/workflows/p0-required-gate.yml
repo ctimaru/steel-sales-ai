@@ -318,6 +318,7 @@ jobs:
             netcov2_campaign_batch_acquisition.sql \
             netcov2b_licensed_first_party.sql \
             netfast_discovered_free.sql \
+            netfast2_structured_cc0.sql \
             crawl_it65a_candidate_bulk_approval.sql \
             crawl_it65_wikidata_source_pilot.sql \
             crawl_it65b_github_actions_runner.sql \
