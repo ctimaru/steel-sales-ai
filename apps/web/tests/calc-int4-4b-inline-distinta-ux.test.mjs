@@ -14,7 +14,9 @@ const existingBuilder = read("../components/buyer-distinta-builder.tsx");
 test("CALC-INT4.4B mounts inline bill only for public IT, not EN/DE/FR/ES or US calculator",()=>{
   assert.match(page,/import \{ CalculatorRegionSwitch \}/);
   assert.match(page,/<CalculatorRegionSwitch locale="it" initialRegion="eu" inlineItalianBill requestedRegion=\{calculatorRegionFromQuery\(params\)\}/);
-  assert.match(page,/euAfter=\{<EnStructuralMethodEvidence locale="it" \/>\}/);
+  assert.match(page,/<EnStructuralMethodEvidence locale="it" \/>/);
+  assert.match(page,/data-testid="calculator-editorial-disclosure"/);
+  assert.match(page,/references=\{references\} initialValues=\{initialValues\} \/>/);
   assert.match(switcher,/inlineItalianBill\?: boolean/);
   assert.match(switcher,/inlineItalianBill && locale === "it"/);
   assert.match(switcher,/<CalculatorInlineDistintaExperience references=\{references\?\?\[\]\}/);
