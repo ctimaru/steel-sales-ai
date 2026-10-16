@@ -163,8 +163,18 @@ begin
   where id=v.company_id and publication_status='published'
     and archived_at is null and country_code='IT';
   if not found then raise exception 'Target company no longer published' using errcode='42501'; end if;
-  if v.source_kind <> 'company_official_site' or v.region is null or v.city is null then
-    raise exception 'Official website with explicit city and region required' using errcode='42501';
+  if v.source_kind <> 'company_official_site' or v.region is null or v.city is null
+     or length(btrim(v.city))<2 or
+     strpos(lower(v.evidence_snippet),lower(btrim(v.city)))=0
+     or not exists (
+       select 1 from unnest(array[
+         'Abruzzo','Basilicata','Calabria','Campania','Emilia-Romagna',
+         'Friuli-Venezia Giulia','Lazio','Liguria','Lombardia','Marche',
+         'Molise','Piemonte','Puglia','Sardegna','Sicilia','Toscana',
+         'Trentino-Alto Adige','Umbria','Valle d''Aosta','Veneto'
+       ]) region where lower(region)=lower(btrim(v.region))
+     ) then
+    raise exception 'Official website, observed city and canonical region required' using errcode='42501';
   end if;
   v_host:=regexp_replace(lower(split_part(split_part(v.source_url,'/',3),':',1)),'^www\.','');
   v_domain:=regexp_replace(lower(coalesce(c.website_domain,'')),'^www\.','');
