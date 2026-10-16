@@ -18,7 +18,7 @@ type PageProps = {
 };
 const inputValue=(raw:Record<string,string|string[]|undefined>,key:string)=>
   typeof raw[key]==="string" ? raw[key] as string : undefined;
-const queryKeys=["standard","family","od","width","height","thickness","length","quantity","density"] as const;
+const queryKeys=["standard","family","od","width","height","thickness","length","quantity","target","density"] as const;
 
 export async function generateMetadata({params,searchParams}:PageProps):Promise<Metadata>{
   const {locale}=await params;
