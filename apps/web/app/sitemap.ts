@@ -11,6 +11,7 @@ import { schoolArticles } from "@/lib/school-articles";
 import { englishGradeForSlug, englishStandardForSlug } from "@/lib/international-steel-knowledge";
 import { listPublicPriceLists } from "@/lib/public-price-lists";
 import { finalizePublicSitemap, newestDate } from "@/lib/seo";
+import { MARKET_GUIDE_ROUTES } from "@/lib/calculator-market-editorial";
 import { absoluteUrl } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -230,6 +231,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         fr:absoluteUrl("/fr/knowledge/tubes"),
         es:absoluteUrl("/es/knowledge/tubes"),
       }},
+    })),
+    ...(["de", "fr", "es"] as const).map(locale => ({
+      url: absoluteUrl(MARKET_GUIDE_ROUTES[locale]),
+      lastModified: new Date("2026-10-16T00:00:00Z"),
+      changeFrequency: "monthly" as const,
+      priority: 0.78,
+      alternates: { languages: {
+        de: absoluteUrl(MARKET_GUIDE_ROUTES.de),
+        fr: absoluteUrl(MARKET_GUIDE_ROUTES.fr),
+        es: absoluteUrl(MARKET_GUIDE_ROUTES.es),
+      } },
     })),
     {
       url: absoluteUrl("/knowledge/tubes/tubi-americani"),
