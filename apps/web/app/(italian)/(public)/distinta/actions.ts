@@ -244,7 +244,7 @@ export async function sendBuyerDistinta(
   const extraMessage = input.message?.trim() || "";
   const plain =
     (extraMessage ? extraMessage + "\n\n" : "") +
-    buildBuyerDistintaPlainText(title, supplierVisibleBuyerLines(exportLines), documents);
+    buildBuyerDistintaPlainText(title, supplierVisibleBuyerLines(exportLines), documents, false);
   const html =
     (extraMessage
       ? '<p style="font-family:Arial,sans-serif;color:#1f2937;">' +
@@ -254,7 +254,7 @@ export async function sendBuyerDistinta(
           .replaceAll(">", "&gt;")
           .replaceAll("\n", "<br/>") +
         "</p>"
-      : "") + buildBuyerDistintaHtml(title, supplierVisibleBuyerLines(exportLines), documents);
+      : "") + buildBuyerDistintaHtml(title, supplierVisibleBuyerLines(exportLines), documents, false);
 
   const subject = input.subject.trim() || title;
   const providerIds: string[] = [];
