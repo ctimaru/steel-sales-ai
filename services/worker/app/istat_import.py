@@ -42,7 +42,7 @@ HEADERS = {
     "province_name": ("denominazione dell unita territoriale sovracomunale",
                       "denominazione provincia", "denominazione dell unita territoriale"),
     "region_code": ("codice regione",),
-    "region_name": ("denominazione regione",),
+    "region_name": ("denominazione regione", "denominazione della regione"),
 }
 
 
@@ -62,10 +62,13 @@ def _discover_header(worksheet) -> tuple[int, dict[str, int]]:
         normalized = [_h(x) for x in row]
         selected: dict[str,int] = {}
         for field, options in HEADERS.items():
-            candidates = [i for i,head in enumerate(normalized)
-                          if any(head.startswith(option) for option in options)]
-            if len(candidates)==1:
-                selected[field]=candidates[0]
+            # Prefer explicit alphanumeric municipality code over the numeric
+            # variant if both official ISTAT columns are present.
+            for option in options:
+                candidates = [i for i,head in enumerate(normalized) if head.startswith(option)]
+                if len(candidates)==1:
+                    selected[field]=candidates[0]
+                    break
         if len(selected)==len(HEADERS) and len(set(selected.values()))==len(HEADERS):
             return number, selected
     sample = [[str(x)[:100] for x in row[:8]] for row in
@@ -139,17 +142,27 @@ def download_official() -> bytes:
 
 async def apply_atomic(records: list[dict[str,str]],fingerprint: str)->dict:
     repo=WorkerRepository()
-    header=await repo._request("POST","/rest/v1/network_it_istat_import_batches",json={
-        "source_url":SOURCE,"file_sha256":fingerprint,
-        "reference_date":REFERENCE_DATE.isoformat(),"expected_count":EXPECTED_COUNT,
-    },prefer="return=representation")
-    if not isinstance(header,list) or len(header)!=1:
-        raise RuntimeError("ISTAT batch create failed: expected one returned batch")
-    batch_id=header[0]["id"]
+    previous=await repo._request(
+        "GET", "/rest/v1/network_it_istat_import_batches"
+               f"?file_sha256=eq.{fingerprint}&reference_date=eq.{REFERENCE_DATE.isoformat()}"
+               "&select=id,status&limit=1")
+    if previous:
+        batch_id=previous[0]["id"]
+        if previous[0]["status"]=="activated":
+            return {"status":"already_activated","batch_id":batch_id,
+                    "municipalities":EXPECTED_COUNT}
+    else:
+        header=await repo._request("POST","/rest/v1/network_it_istat_import_batches",json={
+            "source_url":SOURCE,"file_sha256":fingerprint,
+            "reference_date":REFERENCE_DATE.isoformat(),"expected_count":EXPECTED_COUNT,
+        },prefer="return=representation")
+        if not isinstance(header,list) or len(header)!=1:
+            raise RuntimeError("ISTAT batch create failed: expected one returned batch")
+        batch_id=header[0]["id"]
     for start in range(0,len(records),200):
         chunk=[dict(row,batch_id=batch_id) for row in records[start:start+200]]
-        await repo._request("POST","/rest/v1/network_it_istat_import_staging",
-                            json=chunk,prefer="return=minimal")
+        await repo._request("POST","/rest/v1/network_it_istat_import_staging?on_conflict=batch_id,istat_code",
+                            json=chunk,prefer="resolution=merge-duplicates,return=minimal")
     result=await repo._request("POST","/rest/v1/rpc/netux3a_activate_istat_import",
                                json={"p_batch_id":batch_id})
     if not isinstance(result,dict) or result.get("status")!="activated" or result.get("municipalities")!=7894:
