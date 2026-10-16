@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getPlatformAccessContext, requirePlatformPermission } from "@/lib/platform-admin";
 import { ITALY_REGION_PATHS } from "@/lib/italy-region-paths";
 import { safeNetworkWebsiteUrl } from "@/lib/network-free";
-import { decideGeoEvidence, publishReviewedGeoEvidence, stageOfficialGeoEvidence } from "./actions";
+import { decideGeoEvidence, publishReviewedGeoEvidence, stageOfficialGeoEvidence, stageOfficialGeoWithIstat } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -119,6 +119,42 @@ export default async function GeoReviewPage({
               </summary>
               {website ? <a className="mt-3 inline-block break-all text-sm text-[#175640] underline" href={website} target="_blank" rel="noopener noreferrer">Sito ufficiale aziendale ↗</a> : <p className="mt-2 text-sm text-amber-800">Sito ufficiale non disponibile: raccolta manuale disabilitata.</p>}
               {canEnrich && website ? (
+                <form action={stageOfficialGeoWithIstat} className="mt-4 grid gap-3 rounded-xl border border-[#b8d3c5] bg-[#f6fbf8] p-3 sm:grid-cols-2">
+                  <input type="hidden" name="company_id" value={company.id} />
+                  <p className="text-sm font-semibold text-[#173f35] sm:col-span-2">
+                    Nuova evidenza ISTAT · città e sigla provincia
+                  </p>
+                  <label className="grid gap-1 text-sm sm:col-span-2">Pagina ufficiale che documenta la sede
+                    <input name="source_url" type="url" required maxLength={1800} defaultValue={website}
+                      className="min-h-11 min-w-0 rounded-lg border bg-white px-3 text-sm" />
+                  </label>
+                  <label className="grid gap-1 text-sm">Città documentata
+                    <input name="city" required minLength={2} maxLength={120} placeholder="Es. Istrana"
+                      className="min-h-11 rounded-lg border bg-white px-3" />
+                  </label>
+                  <label className="grid gap-1 text-sm">Provincia esplicita nella fonte (2 lettere)
+                    <input name="province_code" required minLength={2} maxLength={2} placeholder="Es. TV"
+                      className="min-h-11 rounded-lg border bg-white px-3 uppercase" />
+                  </label>
+                  <label className="grid gap-1 text-sm sm:col-span-2">Estratto con città e sigla provincia (senza contatti personali)
+                    <textarea name="evidence_snippet" required minLength={20} maxLength={1500} rows={2}
+                      placeholder="Sede: Via ..., 31036 Istrana (TV), Italy"
+                      className="rounded-lg border bg-white px-3 py-2 text-sm" />
+                  </label>
+                  <p className="text-xs text-[#52615b] sm:col-span-2">
+                    Regione e codice ISTAT sono ricavati esclusivamente da un abbinamento univoco città + provincia.
+                    Il salvataggio crea una proposta in Review, mai una sede pubblicata.
+                  </p>
+                  <button className="min-h-11 rounded-xl bg-[#173f35] px-4 py-2 text-sm font-semibold text-white sm:col-span-2">
+                    Salva proposta verificabile · non pubblica
+                  </button>
+                </form>
+              ) : null}
+              {canEnrich && website ? (
+                <details className="mt-3 rounded-xl border bg-white p-3">
+                  <summary className="cursor-pointer text-sm font-semibold text-[#52615b]">
+                    Inserimento manuale precedente (senza codice ISTAT)
+                  </summary>
                 <form action={stageOfficialGeoEvidence} className="mt-4 grid gap-3 sm:grid-cols-2">
                   <input type="hidden" name="company_id" value={company.id}/>
                   <label className="grid gap-1 text-sm sm:col-span-2">
@@ -144,6 +180,7 @@ export default async function GeoReviewPage({
                     Invia alla revisione · non pubblica
                   </button>
                 </form>
+                </details>
               ) : null}
             </details>
           );

@@ -48,3 +48,24 @@ export async function publishReviewedGeoEvidence(form: FormData) {
   revalidatePath("/network");
   redirect(route + "?message=" + encodeURIComponent("Sede pubblicata con tracciabilità e stato non verificato. La mappa verrà aggiornata."));
 }
+
+/** NET-UX3B: evidence-first ISTAT staging. The backend derives the region;
+ * no facility, Company Memory or crawler candidate is promoted. */
+export async function stageOfficialGeoWithIstat(form: FormData) {
+  await requirePlatformPermission("discovery.enrich");
+  const supabase = await createClient();
+  const { error, data } = await supabase.rpc("netux3b_operator_stage_geo", {
+    p_company_id: String(form.get("company_id") ?? ""),
+    p_source_url: String(form.get("source_url") ?? "").trim(),
+    p_city: String(form.get("city") ?? "").trim(),
+    p_province_code: String(form.get("province_code") ?? "").trim().toUpperCase(),
+    p_evidence_snippet: String(form.get("evidence_snippet") ?? "").trim(),
+  });
+  if (error || !data) redirect(route + "?error=" + encodeURIComponent(
+    "Proposta non salvata: verifica dominio ufficiale, estratto città (provincia) e corrispondenza ISTAT unica."
+  ));
+  revalidatePath(route);
+  redirect(route + "?message=" + encodeURIComponent(
+    "Evidenza registrata per revisione. Nessuna località pubblicata automaticamente."
+  ));
+}
