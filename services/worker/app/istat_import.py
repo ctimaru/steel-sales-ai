@@ -175,7 +175,10 @@ def main()->None:
     parser.add_argument("--mode",choices=("preview","apply"),default="preview")
     parser.add_argument("--file",type=Path,help="Optional verified XLSX from the official permalink")
     parser.add_argument("--expected-sha256",help="Optional pinned workbook SHA-256")
+    parser.add_argument("--emit-reference-lines",action="store_true",help="Read-only JSON batches of CC-BY official reference for audited operator import")
     args=parser.parse_args()
+    if args.mode=="apply" and args.emit_reference_lines:
+        parser.error("production apply must not emit full reference into logs")
     if args.mode=="apply" and args.file:
         parser.error("apply mode must re-download directly from ISTAT; no user-supplied file")
     data=args.file.read_bytes() if args.file else download_official()
@@ -187,6 +190,9 @@ def main()->None:
                       "reference_date":REFERENCE_DATE.isoformat(),"sha256":sha,
                       "source":SOURCE,"regions":len(REGIONS),"apply":args.mode=="apply"},
                      ensure_ascii=False),flush=True)
+    if args.emit_reference_lines:
+        for start in range(0,len(records),60):
+            print("NETUX3A_ISTAT_ROWS|"+str(start)+"|"+json.dumps(records[start:start+60],ensure_ascii=True,separators=(",",":")),flush=True)
     if args.mode=="apply":
         print(json.dumps(asyncio.run(apply_atomic(records,sha))),flush=True)
 
