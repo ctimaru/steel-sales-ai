@@ -87,9 +87,9 @@ export async function getFreeNetworkProfile(
       p_organization_id:organizationId,p_discovery_id:companyId,
     });
     if(discoveryError || !discovery) return null;
-    const preview=discovery as FreeProfile & {contract:string};
+    const preview=discovery as {contract?:string};
     if(preview.contract!=="netfast-discovery-profile-v1") return null;
-    return preview as FreeProfile;
+    return discovery as unknown as FreeProfile;
   }
   if (typeof data !== "object" || (data as FreeProfile).contract !== "netux11-free-profile-v1") {
     throw new Error("network_free_profile_invalid_contract");
