@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { CalculatorRegionSwitch } from "@/components/calculator-region-switch";
+import { CalculatorPageLanguageSelector } from "@/components/calculator-page-language-selector";
 import { calculatorRegionFromQuery, usPipeSeedFromQuery } from "@/lib/us-calculator-route-seed";
 import {
   CALCULATOR_ROUTES,CALCULATOR_TRANSLATIONS,localizedHrefLangPaths,
@@ -84,6 +85,7 @@ export default async function InternationalTubeCalculatorPage({params,searchPara
       </div>
     </header>
     <div className="mx-auto max-w-6xl space-y-7 px-4 py-9 sm:px-6 lg:px-8">
+      <div className="flex flex-wrap justify-end gap-3"><CalculatorPageLanguageSelector locale={locale} /></div>
       <section className="max-w-4xl">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1d7358]">{copy.eyebrow}</p>
         <h1 className="mt-3 text-2xl font-bold leading-tight tracking-tight text-[#123b34] sm:text-4xl">{copy.title}</h1>
