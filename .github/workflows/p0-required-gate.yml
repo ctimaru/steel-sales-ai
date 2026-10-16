@@ -313,6 +313,7 @@ jobs:
             netux3_geo_governance.sql \
             netux3a_import_reconciliation.sql \
             netux3b_official_geo_controlled.sql \
+            netux3b1_review_source_governance.sql \
             crawl_it65a_candidate_bulk_approval.sql \
             crawl_it65_wikidata_source_pilot.sql \
             crawl_it65b_github_actions_runner.sql \
