@@ -52,6 +52,27 @@ function clearGoogleAnalyticsCookies() {
   }
 }
 
+const internationalConsentCopy = {
+  de: {
+    title: "Cookies und Datenschutz", necessary: "Nur notwendige Cookies", accept: "Analyse akzeptieren",
+    short: "Wir verwenden notwendige Cookies. Google Analytics kann cookielose Signale senden; Analyse-Cookies werden erst nach Ihrer Einwilligung aktiviert.",
+    desktop: "Wir verwenden notwendige Cookies und Google Analytics Consent Mode. Vor Ihrer Entscheidung bleibt die Analyse cookielos. Erst mit Einwilligung werden Analyse-Cookies auf öffentlichen Seiten aktiviert.",
+    reopen: "Cookie- und Datenschutzeinstellungen öffnen", declined: "Nur notwendige", accepted: "Akzeptiert", unknown: "Nicht ausgewählt",
+  },
+  fr: {
+    title: "Cookies et confidentialité", necessary: "Cookies essentiels uniquement", accept: "Accepter les statistiques",
+    short: "Nous utilisons des cookies essentiels. Google Analytics peut envoyer des signaux sans cookies ; les cookies statistiques nécessitent votre accord.",
+    desktop: "Nous utilisons des cookies essentiels et Google Analytics Consent Mode. Avant votre choix, les mesures restent sans cookies. Les cookies statistiques ne sont activés qu'avec votre accord sur les pages publiques.",
+    reopen: "Ouvrir les préférences de cookies et de confidentialité", declined: "Essentiels uniquement", accepted: "Accepté", unknown: "Non sélectionné",
+  },
+  es: {
+    title: "Cookies y privacidad", necessary: "Solo cookies necesarios", accept: "Aceptar analítica",
+    short: "Usamos cookies esenciales. Google Analytics puede enviar señales sin cookies; las cookies de analítica solo se activan con su consentimiento.",
+    desktop: "Usamos cookies necesarios y Google Analytics Consent Mode. Antes de su elección, la medición no usa cookies. Las cookies de analítica solo se activan con su consentimiento en páginas públicas.",
+    reopen: "Abrir preferencias de cookies y privacidad", declined: "Solo necesarios", accepted: "Aceptado", unknown: "Sin seleccionar",
+  },
+} as const;
+
 function PrivacyShield() {
   return (
     <svg
@@ -75,6 +96,10 @@ export function GoogleAnalyticsConsent({
 }) {
   const pathname = usePathname();
   const english = pathname === "/en" || pathname.startsWith("/en/");
+  const localizedConsent = pathname === "/de" || pathname.startsWith("/de/") ? internationalConsentCopy.de
+    : pathname === "/fr" || pathname.startsWith("/fr/") ? internationalConsentCopy.fr
+    : pathname === "/es" || pathname.startsWith("/es/") ? internationalConsentCopy.es
+    : null;
   const [consent, setConsent] = useState<AnalyticsConsent>(null);
   const [consentRecord, setConsentRecord] = useState<AnalyticsConsentRecord | null>(null);
   const [consentReady, setConsentReady] = useState(false);
@@ -198,17 +223,17 @@ export function GoogleAnalyticsConsent({
   const showPanel = consent === null || settingsOpen;
   const currentLabel =
     consent === "granted"
-      ? (english ? "Accepted" : "Accettato")
+      ? (localizedConsent?.accepted ?? (english ? "Accepted" : "Accettato"))
       : consent === "denied"
-        ? (english ? "Essential only" : "Necessari")
-        : english ? "Not selected" : "Scelta non espressa";
+        ? (localizedConsent?.declined ?? (english ? "Essential only" : "Necessari"))
+        : localizedConsent?.unknown ?? (english ? "Not selected" : "Scelta non espressa");
 
   return (
     <>
       {showPanel ? (
         <section
           role="dialog"
-          aria-label={english ? "Cookies and privacy" : "Cookie e privacy"}
+          aria-label={localizedConsent?.title ?? (english ? "Cookies and privacy" : "Cookie e privacy")}
           aria-modal="false"
           data-testid="mobile-cookie-consent"
           className="fixed bottom-[max(0.5rem,env(safe-area-inset-bottom))] left-2 right-2 z-[100] ml-auto max-w-[560px] rounded-2xl border border-[#c9d8d2] bg-white/98 p-3 shadow-[0_12px_36px_rgba(17,54,45,0.14)] backdrop-blur sm:bottom-4 sm:left-auto sm:right-4 sm:p-4"
@@ -216,8 +241,8 @@ export function GoogleAnalyticsConsent({
           <button
             type="button"
             onClick={() => choose("denied")}
-            aria-label={english ? "Continue with essential cookies only" : "Continua solo con cookie necessari"}
-            title={english ? "Essential cookies only" : "Accetta necessari"}
+            aria-label={localizedConsent?.necessary ?? (english ? "Continue with essential cookies only" : "Continua solo con cookie necessari")}
+            title={localizedConsent?.necessary ?? (english ? "Essential cookies only" : "Accetta necessari")}
             className="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-full text-base font-medium text-[#718078] transition hover:bg-[#f1f5f3] hover:text-[#173f35]"
           >
             ×
@@ -225,7 +250,7 @@ export function GoogleAnalyticsConsent({
 
           <div className="pr-8">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="text-sm font-bold text-[#173f35]">{english ? "Cookies and privacy" : "Cookie e privacy"}</p>
+              <p className="text-sm font-bold text-[#173f35]">{localizedConsent?.title ?? (english ? "Cookies and privacy" : "Cookie e privacy")}</p>
               {consent !== null ? (
                 <span className="rounded-full bg-[#f1f5f3] px-2 py-1 text-[10px] font-semibold text-[#66736e]">
                   {currentLabel}
@@ -233,10 +258,10 @@ export function GoogleAnalyticsConsent({
               ) : null}
             </div>
             <p className="mt-1 max-w-lg text-xs leading-[1.4] text-[#52615b] sm:hidden">
-              {english ? "We use essential cookies. Google Analytics may send cookieless signals; analytics cookies are enabled only with your consent on public pages." : "Usiamo cookie necessari. Google Analytics invia segnali senza cookie; solo se accetti abilitiamo i cookie statistici sulle pagine pubbliche."}
+              {localizedConsent?.short ?? (english ? "We use essential cookies. Google Analytics may send cookieless signals; analytics cookies are enabled only with your consent on public pages." : "Usiamo cookie necessari. Google Analytics invia segnali senza cookie; solo se accetti abilitiamo i cookie statistici sulle pagine pubbliche.")}
             </p>
             <p className="mt-1.5 hidden max-w-lg text-xs leading-5 text-[#52615b] sm:block">
-              {english ? "We use essential cookies and Google Analytics Consent Mode. Before your choice, analytics remains cookieless; accepting enables full analytics cookies on public pages only." : "Usiamo cookie necessari per il sito e Google Analytics in Consent Mode. Prima della tua scelta Analytics resta senza cookie; se accetti, abiliti la misurazione statistica completa sulle sole pagine pubbliche."}
+              {localizedConsent?.desktop ?? (english ? "We use essential cookies and Google Analytics Consent Mode. Before your choice, analytics remains cookieless; accepting enables full analytics cookies on public pages only." : "Usiamo cookie necessari per il sito e Google Analytics in Consent Mode. Prima della tua scelta Analytics resta senza cookie; se accetti, abiliti la misurazione statistica completa sulle sole pagine pubbliche.")}
             </p>
             <p className="mt-1 text-[11px] leading-5 text-[#718078] sm:mt-2">
               <Link href="/privacy" hrefLang="it" className="font-semibold text-[#1a5144] underline underline-offset-4">
@@ -255,14 +280,14 @@ export function GoogleAnalyticsConsent({
               onClick={() => choose("denied")}
               className="min-h-11 rounded-xl border border-[#b9cbc4] bg-white px-3 text-xs font-bold text-[#43524c] transition hover:bg-[#f6f8f7]"
             >
-              {english ? "Essential only" : "Accetta necessari"}
+              {localizedConsent?.necessary ?? (english ? "Essential only" : "Accetta necessari")}
             </button>
             <button
               type="button"
               onClick={() => choose("granted")}
               className="min-h-11 rounded-xl border border-[#9ebcaf] bg-[#edf5f2] px-3 text-xs font-bold text-[#173f35] transition hover:bg-[#e4efeb]"
             >
-              {english ? "Accept analytics" : "Accetta"}
+              {localizedConsent?.accept ?? (english ? "Accept analytics" : "Accetta")}
             </button>
           </div>
         </section>
@@ -270,8 +295,8 @@ export function GoogleAnalyticsConsent({
         <button
           type="button"
           onClick={() => setSettingsOpen(true)}
-          aria-label={english ? "Reopen cookie and privacy preferences" : "Riapri preferenze cookie e privacy"}
-          title={english ? "Cookies and privacy" : "Cookie e privacy"}
+          aria-label={localizedConsent?.reopen ?? (english ? "Reopen cookie and privacy preferences" : "Riapri preferenze cookie e privacy")}
+          title={localizedConsent?.title ?? (english ? "Cookies and privacy" : "Cookie e privacy")}
           className="group fixed bottom-4 left-0 z-[90] flex h-9 items-center gap-1.5 rounded-r-full border border-l-0 border-[#cbd8d3] bg-white/95 pl-2.5 pr-3 text-[10px] font-bold text-[#52615b] shadow-sm backdrop-blur transition hover:border-[#8fb5a8] hover:bg-white hover:text-[#173f35]"
         >
           <PrivacyShield />
