@@ -9,6 +9,7 @@ import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
 import { calculateTubeSection, standardCornerRadii } from "@/lib/international-tube-mass";
 import { referenceEvidence, relatedTubeReferences, sourceMethodLabel, sourceStandardLabel } from "@/lib/tube-reference-evidence";
 import { trackProductEvent } from "@/lib/product-analytics-events.client";
+import { trackInternationalRfq } from "@/lib/international-rfq-analytics.client";
 import type { PublicTubeDimensionSummary } from "@/lib/public-knowledge";
 
 type TubeFamily = PublicTubeDimensionSummary["product_family"];
@@ -1323,6 +1324,9 @@ export function PublicTubeWeightCalculator({
                     setActionFeedback(t("Impossibile trasferire l'articolo. Verifica lo spazio di sessione del browser e riprova."));
                     return;
                   }
+                  // CALC-INT3E.7: preserve the existing consent-gated EN/DE/FR/ES
+                  // handoff event after successful enqueue (never send RFQ content).
+                  if (locale !== "it") trackInternationalRfq("handoff",locale,{system:"eu",standard});
                   // The queue stays in this tab only: no calculator data in URLs or requests.
                   window.location.assign(locale === "it" ? "/distinta" : `/${locale}/distinta`);
                 }}
