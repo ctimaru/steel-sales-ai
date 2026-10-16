@@ -110,6 +110,7 @@ const englishText: Record<string, string> = {
   "Pubblicato": "Published",
   "Mostrati i primi": "Showing the first",
   "riferimenti corrispondenti. Usa la ricerca per restringere la lista.": "matching references. Search to narrow down the list.",
+  "Spessori suggeriti": "Suggested thicknesses",
   "kg/barra": "kg/bar",
   "barre":"bars",
   "Copia non riuscita: controlla i permessi degli appunti.":"Copy failed. Check clipboard permissions.",
