@@ -21,8 +21,10 @@ const BRAND = /\bsmart\s*steel\s*sales\b|\bsmartsteelsales\b/i;
 const REQUIRED = ['clicks', 'impressions', 'ctr', 'position'];
 const ALIASES = {
   query: ['query','queries','topqueries','searchqueries','suchanfragen','suchanfrage',
-    'requete','requetes','consultas','consulta','queryprincipali','querypiufrequenti','principalesrequetes'],
-  page: ['page','pages','url','urls','seiten','seite','pagina','pagine','paginas'],
+    'requete','requetes','consultas','consulta','queryprincipali','querypiufrequenti',
+    'principalesrequetes','requeteslesplusfrequentes','topquery','suchanfragenmitdenmeistenklicks'],
+  page: ['page','pages','toppages','toppage','url','urls','seiten','seite','pagina',
+    'pagine','paginas','pagesprincipales','paginasprincipales','pagineprincipali'],
   clicks: ['clicks','click','clics','clic','klicks','klick','clics'],
   impressions: ['impressions','impression','impressionen','impressioni','impresiones'],
   ctr: ['ctr','clickthroughrate','tauxdeclics','porcentajedeclics'],
@@ -85,6 +87,9 @@ function number(raw, metric) {
   if (pct && metric !== 'ctr') throw new Error('Unexpected % on ' + metric);
   if (!/^[-+]?\d[\d.,]*$/.test(s)) throw new Error('Invalid number ' + metric + ': ' + raw);
   // GSC locale-specific CSV: "1.234" is 1234 for counts, "7,3" is 7.3 for position.
+  if (!decimals && /[.,]/.test(s) && !/^[+\-]?\d{1,3}(?:[.,]\d{3})+$/.test(s)) {
+    throw new Error('Ambiguous non-integer count: ' + raw);
+  }
   if (s.includes(',') && s.includes('.')) {
     s = s.lastIndexOf(',') > s.lastIndexOf('.')
       ? s.replace(/\./g,'').replace(',', '.') : s.replace(/,/g,'');
