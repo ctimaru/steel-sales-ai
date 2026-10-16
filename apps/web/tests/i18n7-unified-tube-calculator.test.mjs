@@ -37,7 +37,8 @@ test("I18N7 localized public controls provide copy and an RFQ bill destination",
   assert.match(calculator,/t\(onAddToDistinta \? "＋ Aggiungi alla distinta" : "Aggiungi questa misura alla distinta →"\)/);
   assert.match(words,/Add this calculation to an RFQ bill/);
   assert.match(calculator,/Aggiungi questa misura alla distinta/);
-  assert.match(calculator,/Copy failed\. Please check clipboard permissions\./);
+  assert.match(calculator,/t\("Copia non riuscita: controlla i permessi degli appunti\."\)/);
+  assert.match(words,/Copy failed\. Check clipboard permissions\./);
   assert.match(calculator,/shareUrl\(currentSnapshot\)/);
   assert.match(words,/"Lunghezza barra": "Bar length"/);
   assert.match(words,/"Numero barre": "Number of bars"/);
