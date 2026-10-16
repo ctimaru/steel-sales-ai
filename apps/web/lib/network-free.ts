@@ -16,6 +16,7 @@ export type FreeCompany = {
   location: { region: string | null; city: string | null } | null;
   discovery_status?: "unconfirmed";
   source_url?: string | null;
+  license_url?: string | null;
   origin?: string;
   finished_only?: boolean;
 };
