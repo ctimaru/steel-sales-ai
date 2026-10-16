@@ -4,11 +4,9 @@
  * CALC-INT4.4B — Italian public calculator + inline technical bill.
  * Pure Buyer Distinta contract from 4.4A; NO RFQ creation or automatic prices.
  */
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { CalculatorRegionSwitch } from "@/components/calculator-region-switch";
-import type { PublicTubeCalculatorInitialValues } from "@/components/public-tube-weight-calculator";
-import type { UsPipeInitialValues } from "@/components/us-pipe-sample-calculator";
+import { PublicTubeWeightCalculator, type PublicTubeCalculatorInitialValues } from "@/components/public-tube-weight-calculator";
 import type { PublicTubeDimensionSummary } from "@/lib/public-knowledge";
 import type { CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
 import type { BuyerDistintaDraftLine } from "@/lib/buyer-distinta";
@@ -41,13 +39,10 @@ function makeId() {
 }
 
 export function CalculatorInlineDistintaExperience({
-  references, initialValues, requestedRegion, usInitialValues, euAfter,
+  references, initialValues,
 }: {
   references: PublicTubeDimensionSummary[];
   initialValues?: PublicTubeCalculatorInitialValues;
-  requestedRegion?: "eu" | "us";
-  usInitialValues?: UsPipeInitialValues;
-  euAfter?: ReactNode;
 }) {
   const [state, setState] = useState<InlineDistintaState>(emptyInlineDistinta);
   const liveState = useRef<InlineDistintaState>(state);
@@ -255,8 +250,10 @@ export function CalculatorInlineDistintaExperience({
     </section>
   );
 
-  return <CalculatorRegionSwitch locale="it" initialRegion="eu" requestedRegion={requestedRegion}
-    references={references} initialValues={initialValues} usInitialValues={usInitialValues}
-    onEuAddToDistinta={add} euCanAddToDistinta={ready && count < INLINE_DISTINTA_MAX_LINES}
-    euInlinePublicDistinta euInlineBill={bill} euInlineCount={count} euAfter={euAfter} />;
+  return <>
+    <PublicTubeWeightCalculator references={references} initialValues={initialValues} locale="it"
+      onAddToDistinta={add} canAddToDistinta={ready && count < INLINE_DISTINTA_MAX_LINES}
+      inlinePublicDistinta inlineBillCount={count} />
+    {bill}
+  </>;
 }
