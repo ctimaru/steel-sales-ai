@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { PublicUtilityTelemetry } from "@/components/public-utility-telemetry";
 import { EnStructuralMethodEvidence } from "@/components/en-structural-method-evidence";
-import { CalculatorRegionSwitch } from "@/components/calculator-region-switch";
+import { CalculatorInlineDistintaExperience } from "@/components/calculator-inline-distinta-experience";
 import { CalculatorPageLanguageSelector } from "@/components/calculator-page-language-selector";
 import { calculatorRegionFromQuery, usPipeSeedFromQuery } from "@/lib/us-calculator-route-seed";
 import {
@@ -246,7 +246,7 @@ export default async function PublicTubeWeightsPage({
       />
 
       <PublicUtilityTelemetry source={discoverySource} surface={discoverySurface} />
-      <CalculatorRegionSwitch locale="it" initialRegion="eu" requestedRegion={calculatorRegionFromQuery(params)}
+      <CalculatorInlineDistintaExperience requestedRegion={calculatorRegionFromQuery(params)}
         usInitialValues={usPipeSeedFromQuery(params)}
         references={references} initialValues={initialValues}
         euAfter={<EnStructuralMethodEvidence locale="it" />} />
