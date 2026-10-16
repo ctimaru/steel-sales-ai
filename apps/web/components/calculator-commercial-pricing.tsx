@@ -61,16 +61,16 @@ export function CalculatorCommercialPricing({
   const [source, setSource] = useState<{ basis: PriceBasis; raw: string }>({
     basis: "tonne", raw: "",
   });
-  const other = convertCommercialRate(source.raw, source.basis, weightKgM);
+  const other = convertCommercialRate(source.raw, source.basis, weightKgM, locale);
   const perTonne = source.basis === "tonne" ? source.raw : other === null ? "" : priceInputText(other, locale);
   const perMetre = source.basis === "metre" ? source.raw : other === null ? "" : priceInputText(other, locale);
   const hasRaw = source.raw.trim().length > 0;
-  const invalidRate = hasRaw && parseCommercialRate(source.raw) === null;
+  const invalidRate = hasRaw && parseCommercialRate(source.raw, locale) === null;
   const validWeight = weightKgM !== null && Number.isFinite(weightKgM) && weightKgM > 0;
   const priceInputClass = "mt-1 block h-11 w-full min-w-0 rounded-xl border border-[#b7d2c5] bg-white px-3 text-base font-semibold tabular-nums text-[#163c2e] outline-none transition-colors placeholder:font-normal placeholder:text-[#6b8276] hover:border-[#6b9c87] focus-visible:border-[#166f4b] focus-visible:ring-2 focus-visible:ring-[#96d5b6] disabled:cursor-not-allowed disabled:opacity-50";
 
   return (
-    <section aria-labelledby={id} className="mt-3 rounded-2xl border border-[#9ecab4]/45 bg-[#e7f3eb] p-3 text-[#173f31] shadow-[0_2px_12px_rgba(0,0,0,0.05)] sm:p-3.5">
+    <section data-commercial-price aria-labelledby={id} className="mt-3 rounded-2xl border border-[#9ecab4]/45 bg-[#e7f3eb] p-3 text-[#173f31] shadow-[0_2px_12px_rgba(0,0,0,0.05)] sm:p-3.5">
       <div className="flex flex-wrap items-baseline justify-between gap-1.5">
         <h3 id={id} className="text-[13px] font-bold tracking-tight">{labels.title}</h3>
         <span className="text-[10px] font-medium text-[#4a6b5b]">{labels.private}</span>
