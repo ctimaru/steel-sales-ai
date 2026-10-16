@@ -18,7 +18,7 @@ const options:ReadonlyArray<{value:Standard,label:string}>=[
 ];
 export type InternationalCalculatorSeed={
   standard?:string;family?:string;od?:string;width?:string;
-  height?:string;thickness?:string;length?:string;quantity?:string;density?:string;
+  height?:string;thickness?:string;length?:string;quantity?:string;target?:string;density?:string;
 };
 const familyFrom=(v:string|undefined):Shape=>v==="square_tube"?"square":v==="rectangular_tube"?"rectangular":"round";
 const familyTo=(v:Shape)=>v==="round"?"round_tube":v==="square"?"square_tube":"rectangular_tube";

@@ -9,6 +9,7 @@ import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
 import { calculateTubeSection, standardCornerRadii } from "@/lib/international-tube-mass";
 import { referenceEvidence, relatedTubeReferences, sourceMethodLabel, sourceStandardLabel } from "@/lib/tube-reference-evidence";
 import { trackProductEvent } from "@/lib/product-analytics-events.client";
+import { trackInternationalRfq } from "@/lib/international-rfq-analytics.client";
 import type { PublicTubeDimensionSummary } from "@/lib/public-knowledge";
 
 type TubeFamily = PublicTubeDimensionSummary["product_family"];
@@ -174,7 +175,7 @@ function parseNumber(value: string) {
 }
 
 function formatNumber(value: number, digits = 3, locale: TubeCalculatorLocale = "it") {
-  return new Intl.NumberFormat(locale === "en" ? "en-GB" : "it-IT", {
+  return new Intl.NumberFormat(({it:"it-IT",en:"en-GB",de:"de-DE",fr:"fr-FR",es:"es-ES"} as const)[locale], {
     minimumFractionDigits: 0,
     maximumFractionDigits: digits,
   }).format(value);
@@ -324,22 +325,23 @@ function ParametricShapeDiagram({
   const secondaryDimension =
     family === "rectangular_tube" ? `H ${formatDiagramNumber(h, 2)} mm` : null;
   const thicknessDimension = `t ${formatDiagramNumber(t, 2)} mm`;
+  const i18n = (key:string) => tubeCalculatorText(key,locale);
   const accessibleLabel =
     family === "round_tube"
-      ? (locale === "en" ? `Round section, outside diameter ${formatDiagramNumber(d, 2)} millimetres, wall thickness ${formatDiagramNumber(t, 2)} millimetres` : `Sezione tubo tondo, diametro esterno ${formatDiagramNumber(d, 2)} millimetri e spessore ${formatDiagramNumber(t, 2)} millimetri`)
+      ? `${i18n("Sezione tubo tondo")}, ${i18n("diametro esterno")} ${formatDiagramNumber(d, 2)} ${i18n("millimetri")}, ${i18n("spessore")} ${formatDiagramNumber(t, 2)} ${i18n("millimetri")}`
       : family === "square_tube"
-        ? (locale === "en" ? `Square section, side ${formatDiagramNumber(b, 2)} millimetres, thickness ${formatDiagramNumber(t, 2)} millimetres` : `Sezione profilo quadro, lato ${formatDiagramNumber(b, 2)} millimetri e spessore ${formatDiagramNumber(t, 2)} millimetri`)
-        : (locale === "en" ? `Rectangular section, width ${formatDiagramNumber(b, 2)} millimetres, height ${formatDiagramNumber(h, 2)} millimetres and thickness ${formatDiagramNumber(t, 2)} millimetres` : `Sezione profilo rettangolare, base ${formatDiagramNumber(b, 2)} millimetri, altezza ${formatDiagramNumber(h, 2)} millimetri e spessore ${formatDiagramNumber(t, 2)} millimetri`);
+        ? `${i18n("Sezione profilo quadro")}, ${i18n("lato")} ${formatDiagramNumber(b, 2)} ${i18n("millimetri")}, ${i18n("spessore")} ${formatDiagramNumber(t, 2)} ${i18n("millimetri")}`
+        : `${i18n("Sezione profilo rettangolare")}, ${i18n("base")} ${formatDiagramNumber(b, 2)} ${i18n("millimetri")}, ${i18n("altezza")} ${formatDiagramNumber(h, 2)} ${i18n("millimetri")}, ${i18n("spessore")} ${formatDiagramNumber(t, 2)} ${i18n("millimetri")}`;
 
   return (
     <figure className="rounded-2xl border border-[#d3e1dc] bg-white p-3">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">{locale === "en" ? "Proportional view" : "Vista proporzionale"}</p>
-          <p className="sr-only">{locale === "en" ? "The diagram scales with the dimensions and illustrates wall thickness proportionally." : "Le quote seguono i valori inseriti e lo spessore viene rappresentato in proporzione."}</p>
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">{i18n("Vista proporzionale")}</p>
+          <p className="sr-only">{i18n("Le quote seguono i valori inseriti e lo spessore viene rappresentato in proporzione.")}</p>
         </div>
         <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-[#1a5144]">
-          {standard === "geometric" ? (locale === "en" ? "Free" : "Libero") : standard === "en10210" ? "EN 10210" : "EN 10219"}
+          {standard === "geometric" ? i18n("Libero") : standard === "en10210" ? "EN 10210" : "EN 10219"}
         </span>
       </div>
 
@@ -464,7 +466,7 @@ function ParametricShapeDiagram({
           <span className="rounded-lg bg-[#f6f8f7] px-2 py-1.5 font-semibold text-[#405049]">{secondaryDimension}</span>
         ) : (
           <span className="rounded-lg bg-[#f6f8f7] px-2 py-1.5 font-semibold text-[#405049]">
-            {family === "round_tube" ? (locale === "en" ? "Circular section" : "Sezione circolare") : (locale === "en" ? "Square section" : "Sezione quadrata")}
+            {family === "round_tube" ? i18n("Sezione circolare") : i18n("Sezione quadrata")}
           </span>
         )}
         <span className="rounded-lg bg-[#fbf0e9] px-2 py-1.5 font-semibold text-[#8b4a25]">{thicknessDimension}</span>
@@ -722,7 +724,7 @@ export function PublicTubeWeightCalculator({
       calculationDimensionLabel(calculation),
       `${formatOutput(calculation.kgM, 3)} kg/m`,
       `${formatOutput(calculation.kgBar, 2)} ${t("kg/barra")} · ${calculation.length} m`,
-      `${calculation.quantity} ${locale === "en" ? "bars" : "barre"} · ${formatOutput(calculation.totalMeters, 1)} m · ${formatOutput(calculation.totalTonnes, 4)} t`,
+      `${calculation.quantity} ${t("barre")} · ${formatOutput(calculation.totalMeters, 1)} m · ${formatOutput(calculation.totalTonnes, 4)} t`,
     ].join("\n");
   }
 
@@ -881,9 +883,9 @@ export function PublicTubeWeightCalculator({
             <div className="flex items-center gap-2">
               <span className="school-eyebrow hidden sm:inline-flex">{t("Calcolatore pesi")}</span>
               <span className="school-badge">{t("Gratis")}</span>
-              <span className="school-badge hidden sm:inline-flex">Live</span>
+              <span className="school-badge hidden sm:inline-flex">{t("Live")}</span>
             </div>
-            {onAddToDistinta ? <h3 className="mt-1 text-lg font-semibold text-[#15372f]">{t("Peso tubo acciaio")}</h3> : <h1 className="mt-1 break-words text-lg font-semibold tracking-[-0.025em] text-[#15372f] sm:text-xl">{t("Peso tubo acciaio")}</h1>}
+            {onAddToDistinta || locale === "de" || locale === "fr" || locale === "es" ? <h2 className="mt-1 text-lg font-semibold text-[#15372f]">{t("Peso tubo acciaio")}</h2> : <h1 className="mt-1 break-words text-lg font-semibold tracking-[-0.025em] text-[#15372f] sm:text-xl">{t("Peso tubo acciaio")}</h1>}
           </div>
 
         </header>
@@ -1252,7 +1254,7 @@ export function PublicTubeWeightCalculator({
                       await copyTextToClipboard(resultText(currentSnapshot));
                       setActionFeedback("Risultato copiato.");
                     } catch {
-                      setActionFeedback(locale === "en" ? "Copy failed. Please check clipboard permissions." : "Copia non riuscita: controlla i permessi degli appunti.");
+                      setActionFeedback(t("Copia non riuscita: controlla i permessi degli appunti."));
                     }
                   }}
                   className="tube-calculator-copy-action min-h-11 rounded-xl border border-white/30 bg-white/10 px-2 py-2 text-xs font-bold text-white hover:bg-white/15 disabled:opacity-40 sm:text-xs"
@@ -1268,7 +1270,7 @@ export function PublicTubeWeightCalculator({
                       await copyTextToClipboard(shareUrl(currentSnapshot));
                       setActionFeedback("Link condivisibile copiato.");
                     } catch {
-                      setActionFeedback(locale === "en" ? "Copy failed. Please check clipboard permissions." : "Copia non riuscita: controlla i permessi degli appunti.");
+                      setActionFeedback(t("Copia non riuscita: controlla i permessi degli appunti."));
                     }
                   }}
                   className="min-h-11 rounded-xl border border-white/30 bg-white/10 px-2 py-2 text-xs font-bold text-white hover:bg-white/15 disabled:opacity-40"
@@ -1319,18 +1321,21 @@ export function PublicTubeWeightCalculator({
                     return;
                   }
                   if (!item || !enqueueCalculatorRfq(window.sessionStorage, item)) {
-                    setActionFeedback(locale === "en" ? "Unable to transfer the item. Check browser session storage and try again." : "Impossibile trasferire l'articolo. Verifica lo spazio di sessione del browser e riprova.");
+                    setActionFeedback(t("Impossibile trasferire l'articolo. Verifica lo spazio di sessione del browser e riprova."));
                     return;
                   }
+                  // CALC-INT3E.7: preserve the existing consent-gated EN/DE/FR/ES
+                  // handoff event after successful enqueue (never send RFQ content).
+                  if (locale !== "it") trackInternationalRfq("handoff",locale,{system:"eu",standard});
                   // The queue stays in this tab only: no calculator data in URLs or requests.
-                  window.location.assign(locale === "en" ? "/en/distinta" : "/distinta");
+                  window.location.assign(locale === "it" ? "/distinta" : `/${locale}/distinta`);
                 }}
                 className="tube-calculator-rfq-link mt-2 inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-[#c3e5d5] bg-[#e3f4eb] px-4 py-3 text-center text-sm font-bold leading-snug text-[#123b34] hover:bg-[#ccebdc] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
               >
-                {onAddToDistinta ? "＋ Aggiungi alla distinta" : locale === "en" ? "Add this calculation to an RFQ bill →" : "Aggiungi questa misura alla distinta →"}
+                {t(onAddToDistinta ? "＋ Aggiungi alla distinta" : "Aggiungi questa misura alla distinta →")}
               </button>
               <p className="mt-1 text-[11px] leading-4 text-white/85">
-                {onAddToDistinta ? "Il peso è teorico: la riga appare subito a fianco, senza inviare una RFQ." : locale === "en" ? "Free · no login required. Product grade remains to be confirmed." : "Gratuito · nessun login richiesto. Il grado acciaio resta da confermare."}
+                {t(onAddToDistinta ? "Il peso è teorico: la riga appare subito a fianco, senza inviare una RFQ." : "Gratuito · nessun login richiesto. Il grado acciaio resta da confermare.")}
               </p>
               <p aria-live="polite" className="mt-2 min-h-4 text-xs font-semibold text-white/85">
                 {t(actionFeedback)}
@@ -1346,8 +1351,8 @@ export function PublicTubeWeightCalculator({
                       <p className="font-semibold text-white">{t("Riferimento tecnico trovato")}</p>
                       {values.exactReference ? (
                         <>
-                          <p className="mt-1">{formatOutput(values.exactReference.weight_kg_m, 3)} kg/m · {sourceMethodLabel(referenceEvidence(values.exactReference).declaredMethod, locale)}</p>
-                          <p className="mt-1">{locale === "it" ? "Norma del documento" : "Document standard"}: {sourceStandardLabel(referenceEvidence(values.exactReference).standard, locale)} · {locale === "it" ? "confronto geometrico, non equivalenza di prodotto" : "geometric comparison, not product equivalence"}</p>
+                          <p className="mt-1">{formatOutput(values.exactReference.weight_kg_m, 3)} kg/m · {sourceMethodLabel(referenceEvidence(values.exactReference).declaredMethod, locale === "it" ? "it" : "en")}</p>
+                          <p className="mt-1">{t("Norma del documento")}: {sourceStandardLabel(referenceEvidence(values.exactReference).standard, locale === "it" ? "it" : "en")} · {t("confronto geometrico, non equivalenza di prodotto")}</p>
                           {values.deltaPercent != null ? <p>{t("Scostamento rispetto al calcolo geometrico:")} {formatOutput(values.deltaPercent, 2)}%.</p> : null}
                           {values.exactReference.source_url ? (
                             <a href={values.exactReference.source_url} target="_blank" rel="noreferrer" className="mt-1 inline-flex underline">
@@ -1457,7 +1462,7 @@ export function PublicTubeWeightCalculator({
       {!onAddToDistinta ? (
         <details className="rounded-xl border border-[#dce5e0] bg-[#f8faf8] text-[#123b34]">
           <summary className="flex min-h-11 cursor-pointer items-center justify-between px-4 py-2 text-xs font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#237858]">
-            {locale === "it" ? "Opzioni del dispositivo" : "Device options"}
+            {t("Opzioni del dispositivo")}
             <span aria-hidden="true">⌄</span>
           </summary>
           <div className="flex flex-wrap items-center gap-2 border-t border-[#dce5e0] px-4 py-3">
@@ -1487,33 +1492,33 @@ export function PublicTubeWeightCalculator({
         </details>
       ) : null}
 
-      {!onAddToDistinta ? <section aria-labelledby="tube-reference-heading" className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
+      {!onAddToDistinta && (locale === "it" || locale === "en" || references.length > 0) ? <section aria-labelledby="tube-reference-heading" className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="max-w-2xl">
-            <p className="text-xs font-bold uppercase tracking-wide text-[#52615b]">{locale === "it" ? "Riferimenti di fonte" : "Source references"}</p>
+            <p className="text-xs font-bold uppercase tracking-wide text-[#52615b]">{t("Riferimenti di fonte")}</p>
             <h2 id="tube-reference-heading" className="mt-1 text-lg font-semibold text-[#1d2824]">
-              {familyCount} {locale === "it" ? "riferimenti disponibili" : "available references"} · {t(currentFamily.label)}
+              {familyCount} {t("riferimenti disponibili")} · {t(currentFamily.label)}
             </h2>
             <p className="mt-1 text-xs leading-5 text-[#52615b]">
-              {locale === "it" ? "Pubblicato non significa verificato. La norma di prodotto della fonte può essere diversa da quella del calcolo." : "Published does not mean verified. A source's product standard may differ from the calculation standard."}
+              {t("Pubblicato non significa verificato. La norma di prodotto della fonte può essere diversa da quella del calcolo.")}
             </p>
           </div>
           <span className="rounded-full border border-[#cbded4] bg-[#eff7f2] px-3 py-1.5 text-xs font-semibold text-[#1d5748]">
-            {standard === "geometric" ? (locale === "it" ? "Calcolo libero" : "Geometric mode") : currentStandard.label}
+            {standard === "geometric" ? t("Calcolo libero") : currentStandard.label}
           </span>
         </div>
 
         {contextualReferences.length > 0 ? (
           <div className="mt-4">
             <p className="text-xs font-semibold text-[#1d5748]">
-              {locale === "it" ? "Misure vicine con la stessa norma dichiarata" : "Nearby sizes with the same documented product standard"}
+              {t("Misure vicine con la stessa norma dichiarata")}
             </p>
             <ul className="mt-2 grid gap-2 sm:grid-cols-3">
               {contextualReferences.map((reference) => (
                 <li key={reference.reference_id}>
                   <Link href={"/knowledge/tubes/" + reference.dimension_slug} className="flex min-h-14 flex-col justify-center rounded-xl border border-[#cbded4] bg-[#f7faf8] px-3 py-2 text-xs text-[#123b34] hover:border-[#719c87] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6b5a]">
                     <span className="font-semibold">{referenceLabel(reference)}</span>
-                    <span className="mt-1 text-[#40594e]">{formatOutput(reference.weight_kg_m, 3)} kg/m · {sourceMethodLabel(referenceEvidence(reference).declaredMethod, locale)}</span>
+                    <span className="mt-1 text-[#40594e]">{formatOutput(reference.weight_kg_m, 3)} kg/m · {sourceMethodLabel(referenceEvidence(reference).declaredMethod, locale === "it" ? "it" : "en")}</span>
                   </Link>
                 </li>
               ))}
@@ -1529,7 +1534,7 @@ export function PublicTubeWeightCalculator({
 
         <details className="mt-4 rounded-xl border border-[#dce7e1] bg-[#fafcfb]" data-testid="tube-reference-catalogue">
           <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 px-3 py-3 text-sm font-semibold text-[#123b34] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6b5a]">
-            {locale === "it" ? "Esplora riferimenti e fonti" : "Explore references and sources"}
+            {t("Esplora riferimenti e fonti")}
             <span aria-hidden="true" className="text-lg">⌄</span>
           </summary>
           <div className="border-t border-[#dce7e1] px-3 pb-3 pt-3">
@@ -1539,7 +1544,7 @@ export function PublicTubeWeightCalculator({
                 : "EN 10216-2/P265GH sources describe pressure-purpose tubes, not EN 10219/10210 structural conformity. 'Marked verified' reflects the stored method, not a new independent verification."}
             </p>
             <label className="mt-3 block text-xs font-semibold text-[#52615b]">
-              {locale === "it" ? "Cerca dimensione, peso o fonte" : "Search dimension, mass or source"}
+              {t("Cerca dimensione, peso o fonte")}
               <input value={referenceQuery} onChange={(event) => setReferenceQuery(event.target.value)}
                 placeholder={t("Cerca 168,3 × 6,3...")}
                 className="mt-1 block h-11 w-full rounded-xl border border-[#cbdcd3] bg-white px-3 text-base text-[#1d2824] outline-none focus:border-[#438d7a] focus:ring-2 focus:ring-[#d4eae0] sm:max-w-sm"
@@ -1550,8 +1555,8 @@ export function PublicTubeWeightCalculator({
                 <thead className="school-table-head border-b border-[#dce2df]"><tr>
                   <th className="px-2 py-3">{t("Dimensione")}</th>
                   <th className="px-2 py-3">kg/m</th>
-                  <th className="px-2 py-3">{locale === "it" ? "Norma fonte" : "Source standard"}</th>
-                  <th className="px-2 py-3">{locale === "it" ? "Metodo e provenienza" : "Method and provenance"}</th>
+                  <th className="px-2 py-3">{t("Norma fonte")}</th>
+                  <th className="px-2 py-3">{t("Metodo e provenienza")}</th>
                 </tr></thead>
                 <tbody className="divide-y divide-[#e5ede8]">
                   {familyReferences.map((reference) => {
@@ -1563,14 +1568,14 @@ export function PublicTubeWeightCalculator({
                         </td>
                         <td className="whitespace-nowrap px-2 py-2.5 text-[#344e43]">{formatOutput(reference.weight_kg_m, 3)}</td>
                         <td className="px-2 py-2.5 text-[#344e43]">
-                          <span>{sourceStandardLabel(evidence.standard, locale)}</span>
+                          <span>{sourceStandardLabel(evidence.standard, locale === "it" ? "it" : "en")}</span>
                           {evidence.grade ? <span className="block text-[11px] text-[#52615b]">{evidence.grade}</span> : null}
                           {standard !== "geometric" && evidence.standard !== standard ? (
-                            <span className="block text-[11px] font-semibold text-[#895400]">{locale === "it" ? "Non equivalente alla norma scelta" : "Not equivalent to selected standard"}</span>
+                            <span className="block text-[11px] font-semibold text-[#895400]">{t("Non equivalente alla norma scelta")}</span>
                           ) : null}
                         </td>
                         <td className="px-2 py-2.5 text-[#344e43]">
-                          <span>{sourceMethodLabel(evidence.declaredMethod, locale)}</span>
+                          <span>{sourceMethodLabel(evidence.declaredMethod, locale === "it" ? "it" : "en")}</span>
                           {reference.source_url ? (
                             <a href={reference.source_url} target="_blank" rel="noopener noreferrer" className="mt-0.5 block min-h-6 text-[#1d5748] underline underline-offset-2">
                               {reference.source_provider ?? t("Fonte")} ↗
@@ -1583,7 +1588,7 @@ export function PublicTubeWeightCalculator({
                 </tbody>
               </table>
             </div>
-            {!familyReferences.length ? <p className="mt-3 text-xs text-[#52615b]">{locale === "it" ? "Nessun riferimento corrispondente." : "No matching references."}</p> : null}
+            {!familyReferences.length ? <p className="mt-3 text-xs text-[#52615b]">{t("Nessun riferimento corrispondente.")}</p> : null}
             {familyCount > familyReferences.length ? (
               <p className="mt-3 text-xs text-[#52615b]">
                 {t("Mostrati i primi")} {familyReferences.length} {t("riferimenti corrispondenti. Usa la ricerca per restringere la lista.")}
