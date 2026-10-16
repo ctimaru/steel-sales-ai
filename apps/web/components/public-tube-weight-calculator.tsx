@@ -875,7 +875,10 @@ export function PublicTubeWeightCalculator({
   return (
     <div
       className="space-y-5"
-      onChangeCapture={() => {
+      onChangeCapture={(event) => {
+        // Commercial rate edits are ephemeral: do not count them as a change
+        // to geometry or emit a weight-calculation engagement signal.
+        if ((event.target as HTMLElement).closest("[data-commercial-price]")) return;
         calculationInteractedRef.current = true;
       }}
     >
@@ -1071,7 +1074,7 @@ export function PublicTubeWeightCalculator({
                             key={preset}
                             type="button"
                             aria-pressed={length === preset}
-                             onClick={() => setLength(preset)}
+                            onClick={() => setLength(preset)}
                             className={`${selectionBase} min-h-11 min-w-11 flex-1 px-2 py-2.5 text-xs font-bold ${length === preset ? "school-selected-control" : selectionIdle}`}
                           >
                             {preset}
