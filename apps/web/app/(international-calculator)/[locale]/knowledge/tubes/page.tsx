@@ -10,6 +10,7 @@ import {
   isNewCalculatorLocale,
 } from "@/lib/international-calculator-landing";
 import { MARKET_GUIDES, MARKET_GUIDE_ROUTES } from "@/lib/calculator-market-editorial";
+import { MARKET_TOPIC_GUIDES, MARKET_TOPIC_ROUTES } from "@/lib/calculator-topic-clusters";
 import { absoluteUrl } from "@/lib/site";
 import { robotsForParameterizedPage } from "@/lib/seo";
 
@@ -50,6 +51,7 @@ export default async function InternationalTubeCalculatorPage({params,searchPara
   if(!isNewCalculatorLocale(locale))notFound();
   const copy=CALCULATOR_TRANSLATIONS[locale];
   const guide=MARKET_GUIDES[locale];
+  const topic=MARKET_TOPIC_GUIDES[locale];
   const raw=await searchParams;
   const seed=Object.fromEntries(queryKeys.map(k=>[k,inputValue(raw,k)]));
   const usSeed=usPipeSeedFromQuery(raw);
@@ -101,6 +103,17 @@ export default async function InternationalTubeCalculatorPage({params,searchPara
         <h2 className="mt-2 text-lg font-bold text-[#123b34]">{guide.title}</h2>
         <p className="mt-2 text-sm leading-7 text-[#476355]">{guide.description}</p>
         <Link href={MARKET_GUIDE_ROUTES[locale]} className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-[#136044] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#237858]">{guide.title} →</Link>
+        {/* CALC-INT4.3: link directly to this market's distinctive satellite intent.
+            Keep the block compact and crawlable, without repeated editorial text
+            above the tool or artificial cross-language satellite translations. */}
+        <div className="mt-3 border-t border-[#e1eae4] pt-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#397258]">{topic.kicker}</p>
+          <Link href={MARKET_TOPIC_ROUTES[locale]}
+            className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold leading-6 text-[#136044] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#237858]">
+            {topic.title} →
+          </Link>
+          <p className="mt-1 text-xs leading-6 text-[#52675b]">{topic.description}</p>
+        </div>
       </section>
       {/* CALC-INT3E.7: keep references crawlable and genuinely localized,
           but avoid article-like columns and long repeated sections below the tool. */}
