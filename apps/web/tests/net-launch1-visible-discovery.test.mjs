@@ -16,7 +16,7 @@ test("NET-LAUNCH1: Pro Network users see same unconfirmed Free discoveries",()=>
 });
 test("NET-LAUNCH1: Pro users can open unconfirmed profiles rather than 404",()=>{
  assert.match(detail,/getProNetworkDiscoveryProfile\(context\.organizationId,id\)/);
- assert.match(detail,/candidate\?\.item\.discovery_status === "unconfirmed"/);
+ assert.match(detail,/candidate\?\.company\.discovery_status === "unconfirmed"/);
  assert.match(detail,/return <FreeNetworkProfileView/);
  assert.match(detail,/accessMode="pro"/);
  assert.match(detail,/await requireNetworkAccess\(\)/,"Keep existing Pro permission");
@@ -30,6 +30,6 @@ test("NET-LAUNCH1: Free users see discoveries first and map after company result
 test("NET-LAUNCH1: cards never assert discovery is verified business",()=>{
  assert.match(feed,/Da confermare/);
  assert.match(feed,/clienti confermati né fornitori qualificati/);
- assert.match(feed,/company\.discovery_status==="unconfirmed"/);
+ assert.match(feed,/item\.discovery_status==="unconfirmed"/);
  assert.doesNotMatch(feed,/service_role|supabase\.rpc\(/,"Presentation only, reuse existing RLS gate");
 });
