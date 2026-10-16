@@ -182,3 +182,20 @@ export async function linkApprovedFirstPartyRun(form:FormData){
  revalidatePath(route);
  response("message","Run collegata ai domini autorizzati. Solo ora puoi avviare manualmente NET-COV2B in GitHub Actions.");
 }
+
+/** NET-COV2B: only ready targets with a live permission for this exact source. */
+export async function enqueueConsentedDomainLeads(form:FormData){
+ await requirePlatformPermission("discovery.run");
+ await requirePlatformPermission("discovery.governance_review");
+ const supabase=await createClient();
+ const {data,error}=await supabase.rpc("netcov2b_enqueue_consented",{
+  p_source_id:String(form.get("source_id")??""),
+  p_limit:Number(form.get("limit")??10),
+ });
+ const result=data as {status?:string;enqueued?:number;skipped_duplicates?:number}|null;
+ if(error||result?.status!=="consent_only_pending_review")
+  response("error","Trasferimento negato: serve una fonte attiva e consenso valido su ogni azienda.");
+ revalidatePath(route);
+ revalidatePath("/platform/company-discovery/end-users");
+ response("message",String(result.enqueued??0)+" lead con consenso specifico trasferiti alla review; nessun crawler avviato.");
+}
