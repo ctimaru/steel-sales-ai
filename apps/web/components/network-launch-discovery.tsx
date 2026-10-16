@@ -13,12 +13,13 @@ const roleLabels: Record<string,string>={
 /** NET-LAUNCH1: also show Free unconfirmed discoveries to users with Pro entitlements.
  * No Pro-only data, personal contacts or provisional qualification claims. */
 export function NetworkLaunchDiscovery({
- directory, filters,
+ directory, filters, maxItems,
 }:{
  directory: FreeDirectory | null;
  filters: {q?:string;role?:string;region?:string};
+ maxItems?:number;
 }){
- const found=(directory?.items??[]).filter(item=>item.discovery_status==="unconfirmed");
+ const found=(directory?.items??[]).filter(item=>item.discovery_status==="unconfirmed").slice(0,maxItems??50);
  const total=directory?.discovered_total??0;
  const filtered=Boolean(filters.q?.trim()||filters.role||filters.region);
  const clearParams=new URLSearchParams();
