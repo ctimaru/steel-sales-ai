@@ -1,15 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FocusPage } from "@/components/focus-ui";
-import { getFreeNetworkProfile, safeNetworkWebsiteUrl } from "@/lib/network-free";
+import { getFreeNetworkProfile, getProNetworkDiscoveryProfile, safeNetworkWebsiteUrl } from "@/lib/network-free";
 
 export async function FreeNetworkProfileView({
-  organizationId, companyId,
-}: { organizationId: string; companyId: string }) {
+  organizationId, companyId, accessMode="free",
+}: { organizationId: string; companyId: string; accessMode?:"free"|"pro" }) {
   if (!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(companyId)) notFound();
   let profile;
   try {
-    profile = await getFreeNetworkProfile(organizationId, companyId);
+    profile = accessMode==="pro"
+      ? await getProNetworkDiscoveryProfile(organizationId,companyId)
+      : await getFreeNetworkProfile(organizationId, companyId);
   } catch {
     return (
       <FocusPage className="max-w-[960px]">
