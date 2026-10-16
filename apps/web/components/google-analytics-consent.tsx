@@ -29,6 +29,9 @@ function isPublicMeasurementPath(pathname: string) {
     pathname === "/" ||
     pathname === "/en" ||
     pathname.startsWith("/en/") ||
+    pathname === "/de" || pathname.startsWith("/de/") ||
+    pathname === "/fr" || pathname.startsWith("/fr/") ||
+    pathname === "/es" || pathname.startsWith("/es/") ||
     pathname.startsWith("/knowledge") ||
     pathname.startsWith("/azienda") ||
     pathname.startsWith("/distinta") ||
