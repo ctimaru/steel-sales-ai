@@ -1244,7 +1244,7 @@ export function PublicTubeWeightCalculator({
                             type="button"
                             aria-pressed={length === preset}
                             onClick={() => setLength(preset)}
-                            className={`${compactSegmentBase} min-h-11 w-10 shrink-0 text-xs sm:min-h-9 sm:w-9 ${length === preset ? compactSegmentActive : compactSegmentIdle}`}
+                            className={`${compactSegmentBase} min-h-11 w-11 shrink-0 text-xs sm:min-h-9 sm:w-9 ${length === preset ? compactSegmentActive : compactSegmentIdle}`}
                           >
                             {preset}
                           </button>
