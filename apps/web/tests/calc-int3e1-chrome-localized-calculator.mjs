@@ -16,6 +16,17 @@ try{
       serviceWorkers:"block"});
     const page=await context.newPage();
     const route=`/${c.locale}/knowledge/tubes`;
+    // CALC-INT3E.6: new localized homepage is the explicit entry point.
+    const homepage=`/${c.locale}`;
+    const landing=await page.goto(BASE+homepage,{waitUntil:"domcontentloaded",timeout:60000});
+    assert.equal(landing?.status(),200,homepage);
+    assert.equal(await page.locator("html").getAttribute("lang"),c.locale);
+    assert.equal(await page.locator('link[rel="canonical"]').getAttribute("href"),BASE+homepage);
+    assert.equal(await page.locator('main a[href="'+route+'"]').count()>=1,true);
+    assert.equal(await page.locator('main a[href="/'+c.locale+'/distinta"]').count()>=1,true);
+    for(const lang of ["it","en","de","fr","es"]){
+      assert.ok(await page.locator('link[rel="alternate"][hreflang="'+lang+'"]').count()>0);
+    }
     const r=await page.goto(BASE+route,{waitUntil:"domcontentloaded",timeout:60000});
     assert.equal(r?.status(),200,route);
     assert.equal(await page.locator("html").getAttribute("lang"),c.locale);
