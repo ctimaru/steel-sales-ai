@@ -376,13 +376,13 @@ try {
           const catalog = page.locator('[data-testid="tube-reference-catalogue"]');
           await catalog.waitFor({state:"attached"});
           assert.equal(await catalog.evaluate(el => el.open),false,"Reference catalogue must start collapsed");
-          if (entry.locale === "it") {
-            const supplemental = page.locator('[data-testid="calculator-technical-disclosure"]');
-            await supplemental.waitFor({state:"attached"});
-            assert.equal(await supplemental.evaluate(el=>el.open),false,
-              "IT technical catalogue must be closed on calculator-first landing");
-            await supplemental.locator(":scope > summary").click();
-          }
+          // One calculator-first UX for IT and EN: the technical appendix
+          // starts closed in both locales, but is accessible on demand.
+          const supplemental = page.locator('[data-testid="calculator-technical-disclosure"]');
+          await supplemental.waitFor({state:"attached"});
+          assert.equal(await supplemental.evaluate(el=>el.open),false,
+            "Technical catalogue must start closed in every inline calculator");
+          await supplemental.locator(":scope > summary").click();
           const caption = page.locator("#tube-reference-heading");
           await caption.waitFor({state:"visible"});
           const title = await caption.innerText();
