@@ -9,6 +9,7 @@ import {
   CALCULATOR_ROUTES,CALCULATOR_TRANSLATIONS,localizedHrefLangPaths,
   isNewCalculatorLocale,
 } from "@/lib/international-calculator-landing";
+import { MARKET_GUIDES, MARKET_GUIDE_ROUTES } from "@/lib/calculator-market-editorial";
 import { absoluteUrl } from "@/lib/site";
 import { robotsForParameterizedPage } from "@/lib/seo";
 
@@ -48,6 +49,7 @@ export default async function InternationalTubeCalculatorPage({params,searchPara
   const {locale}=await params;
   if(!isNewCalculatorLocale(locale))notFound();
   const copy=CALCULATOR_TRANSLATIONS[locale];
+  const guide=MARKET_GUIDES[locale];
   const raw=await searchParams;
   const seed=Object.fromEntries(queryKeys.map(k=>[k,inputValue(raw,k)]));
   const usSeed=usPipeSeedFromQuery(raw);
@@ -93,6 +95,13 @@ export default async function InternationalTubeCalculatorPage({params,searchPara
       </section>
       <CalculatorRegionSwitch locale={locale} internationalSeed={seed} usInitialValues={usSeed}
         initialRegion={calculatorRegionFromQuery(raw)}/>
+      {/* CALC-INT4: crawlable local technical resource; full guide lives on its own URL. */}
+      <section aria-label={guide.kicker} className="rounded-2xl border border-[#bfdacd] bg-white p-4 sm:p-5">
+        <p className="text-xs font-bold uppercase tracking-[0.13em] text-[#1b7052]">{guide.kicker}</p>
+        <h2 className="mt-2 text-lg font-bold text-[#123b34]">{guide.title}</h2>
+        <p className="mt-2 text-sm leading-7 text-[#476355]">{guide.description}</p>
+        <Link href={MARKET_GUIDE_ROUTES[locale]} className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-[#136044] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#237858]">{guide.title} →</Link>
+      </section>
       {/* CALC-INT3E.7: keep references crawlable and genuinely localized,
           but avoid article-like columns and long repeated sections below the tool. */}
       <section aria-label={copy.methodTitle} className="rounded-2xl border border-[#d7e4dc] bg-white p-4 sm:p-5">
