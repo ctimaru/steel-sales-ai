@@ -3,10 +3,9 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
-import { CalculatorFlagLanguages } from "@/components/calculator-flag-languages";
 import { calculatorRfqFromValues, enqueueCalculatorRfq, type CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
 import { tubeCalculatorText, type TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
+import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
 import { calculateTubeSection, standardCornerRadii } from "@/lib/international-tube-mass";
 import { referenceEvidence, relatedTubeReferences, sourceMethodLabel, sourceStandardLabel } from "@/lib/tube-reference-evidence";
 import { trackProductEvent } from "@/lib/product-analytics-events.client";
@@ -480,7 +479,6 @@ export function PublicTubeWeightCalculator({
   locale = "it",
   onAddToDistinta,
   canAddToDistinta = true,
-  showLanguageSwitcher = false,
 }: {
   references: PublicTubeDimensionSummary[];
   initialValues?: PublicTubeCalculatorInitialValues;
@@ -488,7 +486,6 @@ export function PublicTubeWeightCalculator({
   /** In-place RFQ bill composer; does not queue or navigate. */
   onAddToDistinta?: (item: CalculatorRfqItem) => boolean;
   canAddToDistinta?: boolean;
-  showLanguageSwitcher?: boolean;
 }) {
   const t = (text: string) => tubeCalculatorText(text, locale);
   const formatOutput = (value: number, digits = 3) => formatNumber(value, digits, locale);
@@ -506,16 +503,8 @@ export function PublicTubeWeightCalculator({
   const [quantity, setQuantity] = useState(initialValues?.quantity ?? "1");
   const [targetTonnes, setTargetTonnes] = useState(initialValues?.targetTonnes ?? "");
   const [density, setDensity] = useState(initialValues?.density ?? "7850");
-  // Switch languages with LIVE (not initial) geometry, quantities and method.
-  // All destinations use the same named share parameters.
-  const languageQuery=useMemo(()=>{
-    const params=new URLSearchParams({
-      standard,family,thickness,length,quantity,
-      ...(family==="round_tube"?{od:outerDiameter}:{width,...(family==="rectangular_tube"?{height}:{})}),
-      ...(standard==="geometric"?{density}:{}),
-    });
-    return params.toString();
-  },[standard,family,outerDiameter,width,height,thickness,length,quantity,density]);
+  // These stateful device conveniences remain available in the collapsed panel
+  // BELOW the calculator, independently of the removed language controls.
   const [referenceQuery, setReferenceQuery] = useState("");
   const [recentCalculations, setRecentCalculations] = useState<StoredTubeCalculation[]>([]);
   const [favoriteCalculations, setFavoriteCalculations] = useState<StoredTubeCalculation[]>([]);
@@ -897,39 +886,7 @@ export function PublicTubeWeightCalculator({
             {onAddToDistinta ? <h3 className="mt-1 text-lg font-semibold text-[#15372f]">{t("Peso tubo acciaio")}</h3> : <h1 className="mt-1 break-words text-lg font-semibold tracking-[-0.025em] text-[#15372f] sm:text-xl">{t("Peso tubo acciaio")}</h1>}
           </div>
 
-          {!onAddToDistinta ? <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
-            <CalculatorInstallGuide locale={locale} />
-            <button
-              type="button"
-              disabled={!currentSnapshot}
-              onClick={() => {
-                if (!currentSnapshot) return;
-                if (calculatorSaved) {
-                  writeSavedCalculator(null);
-                  setCalculatorSaved(false);
-                  setActionFeedback("Salvataggio del calcolatore rimosso.");
-                  return;
-                }
-                writeSavedCalculator(currentSnapshot);
-                setCalculatorSaved(true);
-                setActionFeedback("Calcolatore salvato su questo dispositivo.");
-              }}
-              className={
-                calculatorSaved
-                  ? "school-selected-control rounded-xl px-3 py-2.5 min-h-11 text-xs font-bold disabled:opacity-50"
-                  : "school-secondary-action px-3 py-2.5 min-h-11 text-xs disabled:opacity-50"
-              }
-            >
-              <span className="sm:hidden">{locale === "en" ? (calculatorSaved ? "Saved ✓" : "Save") : (calculatorSaved ? "Salvato ✓" : "Salva")}</span>
-              <span className="hidden sm:inline">{t(calculatorSaved ? "Calcolatore salvato ✓" : "Salva il Calcolatore")}</span>
-            </button>
-          </div> : null}
         </header>
-        {showLanguageSwitcher ? (
-          <div className="flex justify-end border-b border-[#dce7e3] bg-white px-3 py-2 sm:px-4">
-            <CalculatorFlagLanguages locale={locale} query={languageQuery} />
-          </div>
-        ) : null}
 
 
         <div className={onAddToDistinta ? "grid min-w-0 grid-cols-1" : "grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)]"}>
@@ -1496,6 +1453,39 @@ export function PublicTubeWeightCalculator({
         </div>
       </section>
 
+      {/* Secondary device conveniences: OUTSIDE the calculator controls and result. */}
+      {!onAddToDistinta ? (
+        <details className="rounded-xl border border-[#dce5e0] bg-[#f8faf8] text-[#123b34]">
+          <summary className="flex min-h-11 cursor-pointer items-center justify-between px-4 py-2 text-xs font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#237858]">
+            {locale === "it" ? "Opzioni del dispositivo" : "Device options"}
+            <span aria-hidden="true">⌄</span>
+          </summary>
+          <div className="flex flex-wrap items-center gap-2 border-t border-[#dce5e0] px-4 py-3">
+            <CalculatorInstallGuide locale={locale} />
+            <button
+              type="button"
+              disabled={!currentSnapshot}
+              onClick={() => {
+                if (!currentSnapshot) return;
+                if (calculatorSaved) {
+                  writeSavedCalculator(null);
+                  setCalculatorSaved(false);
+                  setActionFeedback("Salvataggio del calcolatore rimosso.");
+                  return;
+                }
+                writeSavedCalculator(currentSnapshot);
+                setCalculatorSaved(true);
+                setActionFeedback("Calcolatore salvato su questo dispositivo.");
+              }}
+              className={calculatorSaved
+                ? "school-selected-control rounded-xl px-3 py-2.5 min-h-11 text-xs font-bold disabled:opacity-50"
+                : "school-secondary-action px-3 py-2.5 min-h-11 text-xs disabled:opacity-50"}
+            >
+              {t(calculatorSaved ? "Calcolatore salvato ✓" : "Salva il Calcolatore")}
+            </button>
+          </div>
+        </details>
+      ) : null}
 
       {!onAddToDistinta ? <section aria-labelledby="tube-reference-heading" className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">

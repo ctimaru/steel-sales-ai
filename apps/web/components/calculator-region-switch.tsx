@@ -60,7 +60,7 @@ export function CalculatorRegionSwitch({
         <div className={styles.headerCopy}>
           <p className={styles.eyebrow}>{regional?.eyebrow??(english ? "SELECT CALCULATION SYSTEM" : "SCEGLI IL SISTEMA DI CALCOLO")}</p>
           <p className={styles.headline}>
-            {english ? "One calculator. Two steel markets." : "Un calcolatore. Due mercati dell'acciaio."}
+            {regional?.headline??(english ? "One calculator. Two steel markets." : "Un calcolatore. Due mercati dell'acciaio.")}
           </p>
         </div>
         <div className={styles.track} data-region={region} role="group"
@@ -68,14 +68,12 @@ export function CalculatorRegionSwitch({
           <button type="button" className={styles.option}
             aria-pressed={region === "eu"} aria-controls={europeanId}
             onClick={() => activate("eu")}>
-            <span aria-hidden="true" className={styles.flag}>🇪🇺</span>
             <span className={styles.optionLabel}>{regional?.europe??(english ? "EUROPE" : "EUROPA")}</span>
             <span className={styles.optionDetail}>EN 10219 / 10210</span>
           </button>
           <button type="button" className={styles.option}
             aria-pressed={region === "us"} aria-controls={americanId}
             onClick={() => activate("us")}>
-            <span aria-hidden="true" className={styles.flag}>🇺🇸</span>
             <span className={styles.optionLabel}>USA</span>
             <span className={styles.optionDetail}>NPS / SCHEDULE</span>
           </button>
@@ -99,7 +97,7 @@ export function CalculatorRegionSwitch({
               {isNewCalculatorLocale(locale)
                 ? <InternationalSteelCalculator locale={locale} seed={internationalSeed}/>
                 : <PublicTubeWeightCalculator references={references??[]}
-                    initialValues={initialValues} locale={locale} showLanguageSwitcher />}
+                    initialValues={initialValues} locale={locale} />}
               {euAfter ? <div className={styles.evidence}>{euAfter}</div> : null}
             </>
           ) : null}

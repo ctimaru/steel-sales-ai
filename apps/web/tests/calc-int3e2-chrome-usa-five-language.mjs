@@ -44,11 +44,13 @@ try{
     const diameter=pipe.getByRole("textbox",{name:/Außendurchmesser|Diamètre extérieur|Diámetro exterior/});
     await diameter.fill("168,3");
     assert.equal(await diameter.inputValue(),"168,3");
-    const customFlag=pipe.getByRole("link",{name:"FR",exact:true});
-    const customUrl=await customFlag.getAttribute("href");
-    assert.ok(customUrl?.startsWith("/fr/knowledge/tubes?"),customUrl);
-    assert.ok(customUrl.includes("system=us")&&customUrl.includes("usMode=custom"),customUrl);
-    assert.ok(customUrl.includes("customDiameter=168%2C3"),customUrl);
+    // Localized public entry lives in page navigation. No language buttons in NPS/HSS.
+    assert.equal(await pipe.getByRole("link",{name:"FR",exact:true}).count(),0);
+    const headerLanguage=page.locator('header nav[aria-label] summary').first();
+    await headerLanguage.click();
+    assert.equal(await page.locator('header nav[aria-label]').first()
+      .getByRole("link",{name:"Français",exact:true}).getAttribute("href"),"/fr/knowledge/tubes");
+    await page.keyboard.press("Escape");
     await eu.click();
     await page.locator("#calcolatore-pesi").waitFor({state:"visible",timeout:15000});
     await us.click();
@@ -59,11 +61,9 @@ try{
     await hss.getByRole("combobox",{name:v.library}).selectOption("x-6-4-250");
     assert.match(await hss.innerText(),/Atlas Tube/i);
     assert.match(await hss.innerText(),/kg\/m/);
-    const frFlag=hss.getByRole("link",{name:"FR",exact:true});
-    const href=await frFlag.getAttribute("href");
-    assert.ok(href?.startsWith("/fr/knowledge/tubes?"),href);
-    assert.ok(href.includes("system=us")&&href.includes("usMode=hss"),href);
-    assert.ok(href.includes("hssReferenceId=x-6-4-250"),href);
+    assert.equal(await hss.getByRole("link",{name:"FR",exact:true}).count(),0);
+    assert.equal(await page.locator('header nav[aria-label]').first()
+      .getByRole("link",{name:"Français",exact:true}).getAttribute("href"),"/fr/knowledge/tubes");
     await hss.getByRole("button",{name:v.add}).click();
     await page.waitForURL(url=>url.pathname===`/${v.locale}/distinta`,{timeout:60000});
     assert.equal(await page.locator("html").getAttribute("lang"),v.locale);
@@ -84,13 +84,21 @@ try{
   const hss=page.getByRole("region",{name:"ASTM A500: strukturelle HSS-Hohlprofile"});
   const library=hss.getByRole("combobox",{name:"USA-Abmessungen · Atlas Tube"});
   assert.equal(await library.inputValue(),"x-6-4-250");
-  await hss.getByRole("link",{name:"FR",exact:true}).click();
+  // Header language switch goes to the clean FR page, not an implicit technical
+  // state transfer. Explicit FR deep links STILL restore a referenced HSS row.
+  await page.locator('header nav[aria-label] summary').first().click();
+  await page.locator('header nav[aria-label]').first()
+    .getByRole("link",{name:"Français",exact:true}).click();
   await page.waitForURL(url=>url.pathname==="/fr/knowledge/tubes",{timeout:60000});
+  assert.equal(new URL(page.url()).search,"","Page language navigation must use the clean landing");
+  assert.equal(await page.locator('link[rel="canonical"]').getAttribute("href"),BASE+"/fr/knowledge/tubes");
+  await page.goto(BASE+"/fr/knowledge/tubes?system=us&usMode=hss&hssReferenceId=x-6-4-250&hssUnits=in",{
+    waitUntil:"domcontentloaded",timeout:60000,
+  });
   const fr=page.getByRole("region",{name:"Profilés creux structuraux ASTM A500 (HSS)"});
   assert.equal(await fr.getByRole("combobox",{name:"Dimensions américaines · Atlas Tube"}).inputValue(),"x-6-4-250");
   assert.match(await fr.innerText(),/AISC/i);
-  assert.equal(await page.locator('link[rel="canonical"]').getAttribute("href"),BASE+"/fr/knowledge/tubes");
   assert.match(await page.locator('meta[name="robots"]').getAttribute("content")??"",/noindex/i);
-  console.log("CALC-INT3E.2 LANG SWITCH CHROME PASS", "DE HSS -> FR HSS retained");
+  console.log("CALC-INT3E.2 LANG/DEEP LINK CHROME PASS", "Clean FR entry + explicit FR HSS deep link");
   await context.close();
 }finally{await browser.close();}

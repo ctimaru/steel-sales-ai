@@ -8,7 +8,7 @@ import { DeferredPublicCompanyLookup } from "@/components/deferred-public-compan
 import { PublicIntelligencePillars, PublicProductPreview } from "@/components/public-intelligence-showcase";
 import { PublicRegistrationTrust } from "@/components/public-registration-trust";
 import { PublicContactSection } from "@/components/public-contact-section";
-import { PublicLanguageSwitch } from "@/components/public-language-switch";
+import { PublicPageLanguageSelector } from "@/components/calculator-page-language-selector";
 import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -20,6 +20,9 @@ export const metadata: Metadata = {
     languages: {
       it: absoluteUrl("/"),
       en: absoluteUrl("/en"),
+      de: absoluteUrl("/de"),
+      fr: absoluteUrl("/fr"),
+      es: absoluteUrl("/es"),
       "x-default": absoluteUrl("/"),
     },
   },
@@ -98,7 +101,7 @@ export default function PublicHomePage() {
           </div>
 
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-            <PublicLanguageSwitch locale="it" italianHref="/" englishHref="/en" />
+            <PublicPageLanguageSelector locale="it" surface="home"/>
             <Link href="/login" className="inline-flex min-h-11 items-center justify-center rounded-xl px-2.5 text-sm font-semibold text-[#36574c] hover:bg-[#f2f4f3] sm:px-3">
               Accedi
             </Link>

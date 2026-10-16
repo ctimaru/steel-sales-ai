@@ -4,6 +4,7 @@ import Link from "next/link";
 import { PublicUtilityTelemetry } from "@/components/public-utility-telemetry";
 import { EnStructuralMethodEvidence } from "@/components/en-structural-method-evidence";
 import { CalculatorRegionSwitch } from "@/components/calculator-region-switch";
+import { CalculatorPageLanguageSelector } from "@/components/calculator-page-language-selector";
 import { calculatorRegionFromQuery, usPipeSeedFromQuery } from "@/lib/us-calculator-route-seed";
 import {
   type PublicTubeCalculatorInitialValues,
@@ -223,7 +224,10 @@ export default async function PublicTubeWeightsPage({
 
   return (
     <div className="mx-auto max-w-7xl space-y-8 px-3 py-3 sm:px-5 sm:py-5 lg:px-6">
-      <div className="flex justify-end"><Link href="/en/knowledge/tubes" hrefLang="en" lang="en" className="inline-flex min-h-10 items-center rounded-lg border border-[#dce5e0] bg-white px-3 text-xs font-bold text-[#123b34] hover:bg-[#edf5f1]">English calculator →</Link></div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-xs font-semibold text-[#52615b]">Calcolatore tubi · EN e USA</p>
+        <CalculatorPageLanguageSelector locale="it" />
+      </div>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(calculatorJsonLd) }}

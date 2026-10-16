@@ -66,6 +66,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         languages: {
           it: absoluteUrl("/"),
           en: absoluteUrl("/en"),
+          de: absoluteUrl("/de"),
+          fr: absoluteUrl("/fr"),
+          es: absoluteUrl("/es"),
           "x-default": absoluteUrl("/"),
         },
       },
@@ -79,10 +82,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         languages: {
           it: absoluteUrl("/"),
           en: absoluteUrl("/en"),
+          de: absoluteUrl("/de"),
+          fr: absoluteUrl("/fr"),
+          es: absoluteUrl("/es"),
           "x-default": absoluteUrl("/"),
         },
       },
     },
+    ...(["de","fr","es"] as const).map(lang=>({
+      url:absoluteUrl("/"+lang),
+      lastModified:knowledgeLastModified,
+      changeFrequency:"weekly" as const,
+      priority:0.85,
+      alternates:{languages:{
+        it:absoluteUrl("/"),
+        en:absoluteUrl("/en"),
+        de:absoluteUrl("/de"),
+        fr:absoluteUrl("/fr"),
+        es:absoluteUrl("/es"),
+        "x-default":absoluteUrl("/"),
+      }},
+    })),
     {
       url: absoluteUrl("/en/network"),
       changeFrequency: "monthly",

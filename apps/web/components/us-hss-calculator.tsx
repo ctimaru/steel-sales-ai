@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { CalculatorFlagLanguages } from "@/components/calculator-flag-languages";
 import { trackInternationalRfq } from "@/lib/international-rfq-analytics.client";
 import { US_HSS_I18N, usLocaleTag, usRfqBillPath, type UsCalculatorLocale } from "@/lib/us-calculator-i18n";
 
@@ -101,12 +100,6 @@ export function UsHssCalculator({locale,initialReferenceId,initialValues={}}:{
   const referenceOutsideFilter=reference && !filteredReferences.some(row=>row.id===reference.id);
   const walls=hssAvailableWalls(shape);
   const publishedKgM=reference ? hssNominalPublishedKgM(reference) : null;
-  const languageQuery=new URLSearchParams({
-    system:"us",usMode:"hss",hssReferenceId:reference?.id??"",
-    hssShape:shape,hssUnits:units,
-    hssDiameter:diameter,hssWidth:width,hssHeight:height,hssThickness:thickness,
-    hssLength:length,hssQuantity:bars,
-  }).toString();
   const i18n=locale==="it"||locale==="en"?null:US_HSS_I18N[locale];
   const descriptor=shape==="round"?`HSS round OD ${d}`:shape==="square"
     ?`HSS square ${w} × ${w}`:`HSS rectangular ${w} × ${h}`;
@@ -165,7 +158,6 @@ export function UsHssCalculator({locale,initialReferenceId,initialValues={}}:{
   }
   return (
     <section aria-label={t.title} className="rounded-xl border border-[#b4d2c4] bg-white p-4 sm:p-5">
-      <div className="mb-3 flex justify-end"><CalculatorFlagLanguages locale={locale} query={languageQuery}/></div>
       <h3 className="text-lg font-bold text-[#123b34]">{t.title}</h3>
       <p className="mt-2 text-sm leading-6 text-[#52615b]">{t.summary}</p>
       <div className="mt-4 rounded-xl border border-[#d1e2d8] bg-[#f4faf6] p-3 sm:p-4">

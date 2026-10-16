@@ -5,6 +5,7 @@ import { EnglishConversionHandoff } from "@/components/english-conversion-handof
 import { ProductBrand } from "@/components/product-brand";
 import { PublicContactSection } from "@/components/public-contact-section";
 import { PublicLanguageSwitch } from "@/components/public-language-switch";
+import { CalculatorPageLanguageSelector } from "@/components/calculator-page-language-selector";
 
 export function EnglishPublicSubpage({
   eyebrow,
@@ -13,6 +14,7 @@ export function EnglishPublicSubpage({
   italianHref,
   englishHref,
   children,
+  calculatorLanguageMenu = false,
 }: {
   eyebrow: string;
   title: string;
@@ -20,6 +22,8 @@ export function EnglishPublicSubpage({
   italianHref: string;
   englishHref: string;
   children: ReactNode;
+  /** Replaces the two-language header switch only on the calculator landing. */
+  calculatorLanguageMenu?: boolean;
 }) {
   return (
     <main lang="en" className="min-h-screen bg-[#f2f4f3] text-[#1d2824]">
@@ -36,7 +40,9 @@ export function EnglishPublicSubpage({
             <Link href="/en/distinta" className="rounded-lg px-3 py-2 text-sm font-semibold text-[#52615b] hover:bg-[#f2f4f3]">RFQ builder</Link>
           </nav>
           <div className="flex shrink-0 items-center gap-2">
-            <PublicLanguageSwitch locale="en" italianHref={italianHref} englishHref={englishHref} />
+            {calculatorLanguageMenu
+              ? <CalculatorPageLanguageSelector locale="en" />
+              : <PublicLanguageSwitch locale="en" italianHref={italianHref} englishHref={englishHref} />}
             <Link href="/en/register" className="platform-primary inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-bold">Join</Link>
           </div>
         </div>

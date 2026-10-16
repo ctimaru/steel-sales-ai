@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { ProductBrand } from "@/components/product-brand";
 import { PublicContactSection } from "@/components/public-contact-section";
-import { PublicLanguageSwitch } from "@/components/public-language-switch";
+import { PublicPageLanguageSelector } from "@/components/calculator-page-language-selector";
 import { absoluteUrl } from "@/lib/site";
 
 export const dynamic = "force-static";
@@ -18,6 +18,9 @@ export const metadata: Metadata = {
     languages: {
       it: absoluteUrl("/"),
       en: absoluteUrl("/en"),
+      de: absoluteUrl("/de"),
+      fr: absoluteUrl("/fr"),
+      es: absoluteUrl("/es"),
       "x-default": absoluteUrl("/"),
     },
   },
@@ -81,7 +84,7 @@ export default function EnglishHomePage() {
         <div className="mx-auto flex min-h-[72px] max-w-[1180px] items-center justify-between gap-2 px-3 sm:px-6 lg:px-8">
           <ProductBrand href="/en" compact />
           <div className="flex shrink-0 items-center gap-2">
-            <PublicLanguageSwitch locale="en" italianHref="/" englishHref="/en" />
+            <PublicPageLanguageSelector locale="en" surface="home"/>
             <Link href="/en/login" className="hidden min-h-11 items-center justify-center px-2 text-xs font-semibold text-[#52615b] hover:text-[#123b34] sm:inline-flex">Sign in</Link>
             <Link href="/en/register" className="platform-primary inline-flex min-h-11 items-center justify-center rounded-xl px-3 text-xs font-bold sm:px-4 sm:text-sm">
               <span className="sm:hidden">Join</span>

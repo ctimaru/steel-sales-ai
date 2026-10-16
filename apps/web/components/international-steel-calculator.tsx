@@ -1,7 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { CalculatorFlagLanguages } from "@/components/calculator-flag-languages";
+import { useState } from "react";
 import { trackInternationalRfq } from "@/lib/international-rfq-analytics.client";
 import { CALCULATOR_PUBLIC_ROUTES } from "@/lib/calculator-international-contract";
 import { calculatorRfqFromValues, enqueueCalculatorRfq } from "@/lib/calculator-rfq-handoff";
@@ -67,13 +66,6 @@ export function InternationalSteelCalculator({locale,seed={}}:{
   }):null;
   const calculated=result?.ok?result:null;
   const number=(n:number,digits=3)=>new Intl.NumberFormat(locale==="de"?"de-DE":locale==="fr"?"fr-FR":"es-ES",{maximumFractionDigits:digits}).format(n);
-  const query=useMemo(()=>{
-    const entries:Record<string,string>={
-      standard,family:familyTo(shape),od:diameter,width,height,thickness,
-      length,quantity:bars,density,
-    };
-    return new URLSearchParams(entries).toString();
-  },[standard,shape,diameter,width,height,thickness,length,bars,density]);
   const description=calculated?[
     `${standard==="geometric"?t.geometric:standard.toUpperCase()} · ${shape==="round"?t.round:shape==="square"?t.square:t.rectangular}`,
     `${shape==="round"?`D ${diameter}`:`B ${width}${shape==="rectangular"?`, H ${height}`:""}`}, t ${thickness} mm`,
@@ -104,10 +96,7 @@ export function InternationalSteelCalculator({locale,seed={}}:{
     window.location.assign(CALCULATOR_PUBLIC_ROUTES[locale].rfqBill);
   }
   return <section id="calcolatore-pesi" className="space-y-5 rounded-2xl border border-[#cfe2d7] bg-white p-4 shadow-sm sm:p-6" aria-label={t.title}>
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <p className="text-xs font-bold uppercase tracking-wider text-[#17644c]">EN 10219 · EN 10210 · kg/m</p>
-      <CalculatorFlagLanguages locale={locale} query={query} />
-    </div>
+    <p className="text-xs font-bold uppercase tracking-wider text-[#17644c]">EN 10219 · EN 10210 · kg/m</p>
     <div className="grid gap-4 sm:grid-cols-2">
       <label className="block text-sm font-semibold text-[#123b34]">{t.shape}
         <select aria-label={t.shape} className={controlClass} value={shape} onChange={e=>{setShape(e.target.value as Shape);setStatus("");}}>

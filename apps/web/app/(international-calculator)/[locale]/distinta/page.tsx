@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { EnglishRfqBillBuilder } from "@/components/english-rfq-bill-builder";
+import { PUBLIC_HOME_LOCALE_ROUTES } from "@/components/calculator-page-language-selector";
 import { InternationalRfqRegisterLink } from "@/components/international-rfq-register-link";
 import { isNewCalculatorLocale, type CalculatorLandingLocale } from "@/lib/international-calculator-landing";
 import { RFQ_BILL_LANDING, RFQ_BILL_ROUTES } from "@/lib/rfq-bill-localization";
@@ -60,7 +61,7 @@ export default async function LocalizedRfqBillPage({params}:PageProps){
     <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(jsonLd)}}/>
     <header className="border-b border-[#d8e6dc] bg-white">
       <div className="mx-auto flex max-w-[1120px] flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
-        <Link href={RFQ_BILL_ROUTES[language]} className="text-base font-bold">Smart Steel Sales <span className="text-[#237958]">· RFQ</span></Link>
+        <Link href={PUBLIC_HOME_LOCALE_ROUTES[language]} className="text-base font-bold">Smart Steel Sales <span className="text-[#237958]">· RFQ</span></Link>
         <nav aria-label={languageLabel[language]} className="flex flex-wrap gap-2">
           {(["en","de","fr","es"] as const).map(lang=><Link
             key={lang} href={RFQ_BILL_ROUTES[lang]} hrefLang={lang} lang={lang}

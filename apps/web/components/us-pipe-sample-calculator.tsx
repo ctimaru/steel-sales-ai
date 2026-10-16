@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { UsHssCalculator } from "@/components/us-hss-calculator";
-import { CalculatorFlagLanguages } from "@/components/calculator-flag-languages";
 import { trackInternationalRfq } from "@/lib/international-rfq-analytics.client";
 import { CALCULATOR_ROUTES } from "@/lib/international-calculator-landing";
 import { US_PIPE_I18N, usLocaleTag, usRfqBillPath, type UsCalculatorLocale } from "@/lib/us-calculator-i18n";
@@ -124,10 +123,6 @@ export function UsPipeSampleCalculator({ locale,initialValues={} }: { locale:Loc
   }) : null;
   const calculatorUrl = `${CALCULATOR_ROUTES[locale]}?${params?.toString() ?? ""}#calcolatore-pesi`;
   const resultLbFt = result ? result.weightKgM / US_PIPE_MASS_CONVERSION : 0;
-  const languageQuery=new URLSearchParams({
-    system:"us",usMode:inputMode,nps,rowId,productStandard,
-    units,customDiameter,customWall,length,quantity:bars,
-  }).toString();
   const sampleSource=row?.sourcePage!=null?US_PIPE_MANUFACTURER_SOURCE:US_PIPE_MANUFACTURER_WEB_SOURCE;
   const sampleLocator=row?.sourcePage!=null
     ? `${copy.page} ${row.sourcePage}` : (row?.sourceLocation ?? "Pipe Tables");
@@ -180,9 +175,6 @@ export function UsPipeSampleCalculator({ locale,initialValues={} }: { locale:Loc
 
   return (
     <section aria-label={copy.title} className="rounded-2xl border border-[#c7ded3] bg-white p-4 shadow-sm sm:p-6">
-      {inputMode!=="hss"?<div className="mb-3 flex justify-end">
-        <CalculatorFlagLanguages locale={locale} query={languageQuery}/>
-      </div>:null}
       <h2 className="text-xl font-bold text-[#123b34]">{copy.title}</h2>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-[#52615b]">{copy.subtitle}</p>
       <div role="group" aria-label={locale==="it"?"Modalità dimensionale USA":locale==="en"?"US dimensional mode":US_PIPE_I18N[locale].dimensionalMode}

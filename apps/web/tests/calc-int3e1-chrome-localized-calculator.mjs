@@ -16,6 +16,17 @@ try{
       serviceWorkers:"block"});
     const page=await context.newPage();
     const route=`/${c.locale}/knowledge/tubes`;
+    // CALC-INT3E.6: new localized homepage is the explicit entry point.
+    const homepage=`/${c.locale}`;
+    const landing=await page.goto(BASE+homepage,{waitUntil:"domcontentloaded",timeout:60000});
+    assert.equal(landing?.status(),200,homepage);
+    assert.equal(await page.locator("html").getAttribute("lang"),c.locale);
+    assert.equal(await page.locator('link[rel="canonical"]').getAttribute("href"),BASE+homepage);
+    assert.equal(await page.locator('main a[href="'+route+'"]').count()>=1,true);
+    assert.equal(await page.locator('main a[href="/'+c.locale+'/distinta"]').count()>=1,true);
+    for(const lang of ["it","en","de","fr","es"]){
+      assert.ok(await page.locator('link[rel="alternate"][hreflang="'+lang+'"]').count()>0);
+    }
     const r=await page.goto(BASE+route,{waitUntil:"domcontentloaded",timeout:60000});
     assert.equal(r?.status(),200,route);
     assert.equal(await page.locator("html").getAttribute("lang"),c.locale);
@@ -34,11 +45,15 @@ try{
     await wall.fill("6,3");
     assert.match(await root.innerText(),/kg\/m/);
     assert.equal(await root.getByRole("button",{name:c.bill}).isDisabled(),false);
-    const frFlag=root.getByRole("link",{name:"FR",exact:true});
-    const href=await frFlag.getAttribute("href");
-    assert.ok(href?.startsWith("/fr/knowledge/tubes?"));
-    assert.match(href,/width=155%2C5/);
-    assert.match(href,/standard=en10210/);
+    // CALC-INT3E.6: language lives in the PAGE HEADER, not inside the form.
+    assert.equal(await root.getByRole("link",{name:"FR",exact:true}).count(),0);
+    const languageMenu=page.locator('header nav[aria-label]');
+    await languageMenu.locator("summary").first().click();
+    const fr=languageMenu.getByRole("link",{name:"Français",exact:true});
+    assert.equal(await fr.getAttribute("href"),"/fr/knowledge/tubes");
+    await page.keyboard.press("Escape");
+    // Deliberate page language navigation starts from the canonical calculator landing;
+    // independently shareable param URLs are still accepted, with noindex.
     // Query links are shareable but noindex; canonical always points to clean route.
     const parameterized=await page.goto(BASE+route+"?standard=en10219&family=round_tube&od=219.1&thickness=8",{waitUntil:"domcontentloaded"});
     assert.equal(parameterized?.status(),200);

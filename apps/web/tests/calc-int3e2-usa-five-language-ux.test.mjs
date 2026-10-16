@@ -69,8 +69,10 @@ test("CALC-INT3E.2 USA deep links are language-stable and bounded, no redirects"
  assert.ok(region.includes('isNewCalculatorLocale(locale)'));
  assert.ok(region.includes('InternationalSteelCalculator locale={locale} seed={internationalSeed}'));
  assert.ok(region.includes('UsPipeSampleCalculator locale={locale} initialValues={usInitialValues}'));
- assert.ok(pipe.includes('system:"us",usMode:inputMode'));
- assert.ok(hss.includes('system:"us",usMode:"hss"'));
+ assert.doesNotMatch(pipe,/CalculatorFlagLanguages/);
+ assert.doesNotMatch(hss,/CalculatorFlagLanguages/);
+ assert.ok(pipe.includes('initialValues.mode'));
+ assert.ok(hss.includes('initialValues.hssShape'));
  assert.ok(pipe.includes('initialReferenceId={initialValues.hssReferenceId}'));
  for(const src of [itPage,enPage,intlPage]){
   assert.ok(src.includes('calculatorRegionFromQuery('));

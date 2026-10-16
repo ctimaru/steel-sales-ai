@@ -126,6 +126,7 @@ export default async function EnglishTubeWeightsPage({ searchParams }: { searchP
       description="Estimate structural hollow section masses for circular (CHS), square (SHS) and rectangular (RHS) steel tubes. Select EN 10219, EN 10210 or the geometric method. Copy the result, save favourites, calculate bars from target tonnes and continue to the RFQ bill of materials."
       italianHref="/knowledge/tubes"
       englishHref="/en/knowledge/tubes"
+      calculatorLanguageMenu
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="mx-auto max-w-[1120px] px-4 py-10 sm:px-6 lg:px-8">

@@ -12,6 +12,7 @@ const page=read("../app/(international-calculator)/[locale]/knowledge/tubes/page
 const layout=read("../app/(international-calculator)/[locale]/layout.tsx");
 const ui=read("../components/international-steel-calculator.tsx");
 const flags=read("../components/calculator-flag-languages.tsx");
+const selector=read("../components/calculator-page-language-selector.tsx");
 const region=read("../components/calculator-region-switch.tsx");
 const existingIt=read("../app/(public)/knowledge/tubes/page.tsx");
 const existingEn=read("../app/en/knowledge/tubes/page.tsx");
@@ -74,20 +75,23 @@ test("CALC-INT3E.1 five-way hreflang reciprocity and self-canonical clean URLs",
   assert.match(page,/"@type":"FAQPage"/);
   assert.match(page,/"@type":"WebApplication"/);
   assert.match(page,/notFound\(\)/);
-  assert.ok(original.includes("showLanguageSwitcher?: boolean"));
-  assert.ok(original.includes("showLanguageSwitcher?: boolean"));
-  assert.match(original,/query=\{languageQuery\}/);
-  assert.match(region,/showLanguageSwitcher/);
-  assert.match(flags,/hrefLang=\{code\}/);
-  assert.match(flags,/aria-current=\{locale===code\?"page":undefined\}/);
+  assert.doesNotMatch(original,/showLanguageSwitcher|CalculatorFlagLanguages/);
+  assert.doesNotMatch(region,/showLanguageSwitcher|CalculatorFlagLanguages/);
+  assert.match(selector,/CALCULATOR_LANGUAGE_ORDER\.map/);
+  assert.match(selector,/href=\{routes\[code\]\}/);
+  assert.match(selector,/hrefLang=\{code\}/);
+  assert.match(selector,/aria-current=\{code===locale\?"page":undefined\}/);
+  assert.match(page,/CalculatorPageLanguageSelector locale=\{locale\}/);
+  assert.doesNotMatch(ui,/CalculatorFlagLanguages/);
   for(const l of ["it","en","de","fr","es"])assert.ok(intl.CALCULATOR_ROUTES[l]);
 });
 
 test("CALC-INT3E.1 share state is compatible between localized and original calculator",()=>{
   assert.match(ui,/family:familyTo\(shape\)/);
-  assert.match(ui,/new URLSearchParams\(entries\)/);
+  assert.doesNotMatch(ui,/CalculatorFlagLanguages/);
+  assert.match(page,/usPipeSeedFromQuery\(raw\)/);
   assert.match(original,/new URLSearchParams\(\)/);
-  assert.match(ui,/query=\{query\}/);
+  assert.match(page,/internationalSeed=\{seed\}/);
   assert.match(ui,/type="text"/);
   assert.match(ui,/function CalcInput\(/);
   assert.ok(ui.includes("parseTubeNumber(thickness)"));
