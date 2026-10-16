@@ -126,3 +126,179 @@ alter table public.network_it_facility_geo_reviews
  add column if not exists evidence_snippet text;
 comment on function public.netux3a_activate_istat_import(uuid) is
  'Service-role-only atomic activation of 7894 ISTAT 2026 municipalities. No company/facility mutation; sourced from official ISTAT permalink.';
+
+
+-- Match is NEVER created solely from a municipality's name. A published facility,
+-- observed company-site URL, explicit province abbreviation and quote are required.
+create or replace function private.netux3a_reconciliation_queue_impl()
+returns jsonb language plpgsql stable security definer set search_path=''
+as $$
+declare v_result jsonb;
+begin
+  perform private.require_platform_permission('discovery.read');
+  select jsonb_build_object(
+    'contract','netux3a-reconcile-v1',
+    'reference_count',(select count(*) from public.network_it_municipalities where is_current),
+    'reference_date',(select max(reference_date) from public.network_it_municipalities where is_current),
+    'items',coalesce((
+       select jsonb_agg(jsonb_build_object(
+         'facility_id',f.id,'company_id',c.id,'company',c.legal_name,
+         'website_url',c.website_url,'city',f.city,'region',f.region,
+         'has_approved_match',exists(select 1 from public.network_it_facility_geo_reviews g
+             join public.network_it_municipalities m on m.istat_code=g.proposed_istat_code
+             where g.facility_id=f.id and g.status='approved' and m.is_current),
+         'pending_reviews',(select count(*) from public.network_it_facility_geo_reviews g
+             where g.facility_id=f.id and g.status='pending_review')
+       ) order by c.legal_name,f.city)
+       from public.network_facilities f
+       join public.network_companies c on c.id=f.company_id
+       where f.publication_status='published' and f.archived_at is null
+         and f.country_code='IT' and nullif(btrim(f.city),'') is not null
+         and c.publication_status='published' and c.archived_at is null
+         and c.country_code='IT'
+    ),'[]'::jsonb),
+    'pending',coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'id',g.id,'facility_id',f.id,'company',c.legal_name,
+        'city',f.city,'province_code',m.province_code,
+        'municipality_name',m.municipality_name,'region',m.region_name,
+        'istat_code',m.istat_code,'source_url',g.source_url,
+        'evidence_snippet',g.evidence_snippet,'created_at',g.created_at
+      ) order by g.created_at)
+      from public.network_it_facility_geo_reviews g
+      join public.network_facilities f on f.id=g.facility_id
+      join public.network_companies c on c.id=f.company_id
+      join public.network_it_municipalities m on m.istat_code=g.proposed_istat_code
+      where g.status='pending_review' and m.is_current
+        and f.publication_status='published' and f.archived_at is null
+        and c.publication_status='published' and c.archived_at is null
+    ),'[]'::jsonb)
+  ) into v_result;
+  return v_result;
+end $$;
+
+create or replace function private.netux3a_stage_facility_match_impl(
+ p_facility_id uuid,p_province_code text,p_source_url text,p_evidence_snippet text
+) returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare
+  f public.network_facilities%rowtype;
+  c public.network_companies%rowtype;
+  m public.network_it_municipalities%rowtype;
+  v_host text; v_domain text; v_count integer; v_review uuid;
+begin
+  perform private.require_platform_permission('discovery.enrich');
+  select * into f from public.network_facilities
+   where id=p_facility_id and publication_status='published' and archived_at is null
+     and country_code='IT' and nullif(btrim(city),'') is not null;
+  if not found then raise exception 'Published Italian facility with city required' using errcode='22023'; end if;
+  select * into c from public.network_companies where id=f.company_id
+   and publication_status='published' and archived_at is null and country_code='IT';
+  if not found then raise exception 'Published company required' using errcode='22023'; end if;
+  if p_province_code !~ '^[A-Za-z]{2}$'
+    or p_source_url !~* '^https://[a-z0-9][a-z0-9.-]+(/[^[:space:]]*)?$'
+    or length(p_source_url)>1800
+    or length(btrim(coalesce(p_evidence_snippet,''))) not between 20 and 1500
+    or strpos(lower(p_evidence_snippet),lower(btrim(f.city)))=0
+    or strpos(upper(p_evidence_snippet),upper(btrim(p_province_code)))=0
+  then raise exception 'Official company site must document city and province code' using errcode='22023'; end if;
+  v_host:=regexp_replace(lower(split_part(split_part(p_source_url,'/',3),':',1)),'^www\.','');
+  v_domain:=regexp_replace(lower(coalesce(c.website_domain,'')),'^www\.','');
+  if length(v_domain)<4 or position('.' in v_domain)=0
+     or (v_host<>v_domain and right(v_host,length(v_domain)+1)<>'.'||v_domain)
+  then raise exception 'Evidence URL does not match company official domain' using errcode='42501'; end if;
+  select count(*),min(istat_code) into v_count,m.istat_code
+  from public.network_it_municipalities
+  where is_current
+    and municipality_normalized=lower(btrim(regexp_replace(f.city,'[[:space:]]+',' ','g')))
+    and province_code=upper(p_province_code);
+  if v_count<>1 then raise exception 'No unambiguous active ISTAT city+province match' using errcode='22023'; end if;
+  select * into m from public.network_it_municipalities where istat_code=m.istat_code and is_current;
+  if lower(btrim(coalesce(f.region,'')))<>lower(btrim(m.region_name)) then
+    raise exception 'Published facility region conflicts with ISTAT; manual correction required'
+      using errcode='22023';
+  end if;
+  if exists(select 1 from public.network_it_facility_geo_reviews
+      where facility_id=p_facility_id and status='approved') then
+     raise exception 'Facility already has an approved municipality' using errcode='23505';
+  end if;
+  insert into public.network_it_facility_geo_reviews(
+    facility_id,proposed_istat_code,source_url,matching_basis,
+    status,evidence_snippet
+  ) values(
+    p_facility_id,m.istat_code,btrim(p_source_url),'municipality_and_province',
+    'pending_review',btrim(p_evidence_snippet)
+  ) on conflict(facility_id,proposed_istat_code) do update
+     set source_url=excluded.source_url,evidence_snippet=excluded.evidence_snippet,
+         created_at=now()
+     where public.network_it_facility_geo_reviews.status='pending_review'
+  returning id into v_review;
+  if v_review is null then
+    raise exception 'A previously decided match cannot be restaged' using errcode='22023';
+  end if;
+  return jsonb_build_object('status','pending_review','review_id',v_review,
+                            'istat_code',m.istat_code,'municipality',m.municipality_name,
+                            'province_code',m.province_code,'facility_changed',false);
+end $$;
+
+create or replace function private.netux3a_decide_facility_match_impl(
+ p_review_id uuid,p_decision text,p_note text
+) returns jsonb language plpgsql security definer set search_path=''
+as $$
+declare
+ g public.network_it_facility_geo_reviews%rowtype;
+ f public.network_facilities%rowtype;
+ m public.network_it_municipalities%rowtype;
+begin
+ perform private.require_platform_permission('discovery.governance_review');
+ perform private.require_platform_permission('discovery.publish');
+ if p_decision not in ('approved','rejected')
+    or length(btrim(coalesce(p_note,''))) not between 12 and 2000
+ then raise exception 'Explicit decision and review note required' using errcode='22023'; end if;
+ select * into g from public.network_it_facility_geo_reviews where id=p_review_id for update;
+ if not found or g.status<>'pending_review' then
+  raise exception 'Pending review not found' using errcode='22023'; end if;
+ select * into f from public.network_facilities where id=g.facility_id
+   and publication_status='published' and archived_at is null;
+ select * into m from public.network_it_municipalities
+   where istat_code=g.proposed_istat_code and is_current;
+ if f.id is null or m.istat_code is null
+   or lower(btrim(coalesce(f.region,'')))<>lower(m.region_name)
+   or lower(btrim(coalesce(f.city,'')))<>m.municipality_normalized then
+  raise exception 'Facility or ISTAT reference changed: human reconciliation required'
+    using errcode='42501'; end if;
+ if p_decision='approved' and exists(
+    select 1 from public.network_it_facility_geo_reviews other
+    where other.facility_id=f.id and other.status='approved'
+ ) then raise exception 'Another match is already approved' using errcode='23505'; end if;
+ update public.network_it_facility_geo_reviews
+   set status=p_decision,reviewed_by=auth.uid(),reviewed_at=now(),review_note=btrim(p_note)
+ where id=p_review_id;
+ return jsonb_build_object('status',p_decision,'review_id',p_review_id,
+                           'facility_changed',false,'company_verified',false);
+end $$;
+
+create or replace function public.netux3a_reconciliation_queue()
+returns jsonb language sql stable security invoker set search_path=''
+as 'select private.netux3a_reconciliation_queue_impl();';
+create or replace function public.netux3a_stage_facility_match(
+ p_facility_id uuid,p_province_code text,p_source_url text,p_evidence_snippet text
+) returns jsonb language sql security invoker set search_path=''
+as 'select private.netux3a_stage_facility_match_impl(p_facility_id,p_province_code,p_source_url,p_evidence_snippet);';
+create or replace function public.netux3a_decide_facility_match(
+ p_review_id uuid,p_decision text,p_note text
+) returns jsonb language sql security invoker set search_path=''
+as 'select private.netux3a_decide_facility_match_impl(p_review_id,p_decision,p_note);';
+
+revoke all on function private.netux3a_reconciliation_queue_impl() from public,anon,authenticated;
+revoke all on function private.netux3a_stage_facility_match_impl(uuid,text,text,text) from public,anon,authenticated;
+revoke all on function private.netux3a_decide_facility_match_impl(uuid,text,text) from public,anon,authenticated;
+grant execute on function private.netux3a_reconciliation_queue_impl() to authenticated;
+grant execute on function private.netux3a_stage_facility_match_impl(uuid,text,text,text) to authenticated;
+grant execute on function private.netux3a_decide_facility_match_impl(uuid,text,text) to authenticated;
+revoke all on function public.netux3a_reconciliation_queue() from public,anon,authenticated;
+revoke all on function public.netux3a_stage_facility_match(uuid,text,text,text) from public,anon,authenticated;
+revoke all on function public.netux3a_decide_facility_match(uuid,text,text) from public,anon,authenticated;
+grant execute on function public.netux3a_reconciliation_queue() to authenticated;
+grant execute on function public.netux3a_stage_facility_match(uuid,text,text,text) to authenticated;
+grant execute on function public.netux3a_decide_facility_match(uuid,text,text) to authenticated;
