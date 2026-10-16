@@ -310,6 +310,7 @@ jobs:
             sp7_first_licensed_source_preflight.sql \
             sp71_steel_pulse_editorial_readiness.sql \
             crawl_it64_geo_scale_readiness.sql \
+            netux3_geo_governance.sql \
             crawl_it65a_candidate_bulk_approval.sql \
             crawl_it65_wikidata_source_pilot.sql \
             crawl_it65b_github_actions_runner.sql \
