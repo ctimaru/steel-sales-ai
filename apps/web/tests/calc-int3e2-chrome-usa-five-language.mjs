@@ -65,11 +65,18 @@ try{
     assert.equal(await page.locator('header nav[aria-label]').first()
       .getByRole("link",{name:"Français",exact:true}).getAttribute("href"),"/fr/knowledge/tubes");
     await hss.getByRole("button",{name:v.add}).click();
-    await page.waitForURL(url=>url.pathname===`/${v.locale}/distinta`,{timeout:60000});
+    const bill=page.locator("#distinta-inline");
+    await bill.locator("article").first().waitFor({state:"visible",timeout:30000});
+    assert.equal(new URL(page.url()).pathname,pathname,"US HSS adds in place");
     assert.equal(await page.locator("html").getAttribute("lang"),v.locale);
-    await page.getByText(/HSS Rectangular/i).first().waitFor({state:"visible",timeout:30000});
-    assert.match(await page.locator("body").innerText(),/ASTM A500/i);
-    console.log("CALC-INT3E.2 CHROME PASS",v.locale,"NPS/custom/HSS, region retained, localized RFQ");
+    assert.match(await bill.locator("article").first().innerText(),/HSS Rectangular/i);
+    assert.match(await bill.locator("article").first().innerText(),/ASTM A500/i);
+    const stored=JSON.parse(await page.evaluate(()=>sessionStorage.getItem("sss:inline-distinta:v1")));
+    assert.equal(stored.lines.length,1);
+    assert.equal(stored.lines[0].targetEurT,"");
+    assert.match(stored.lines[0].note,/AISC.*not certified/i);
+    assert.ok(await bill.locator("[data-create-inline-private-rfq]").isVisible());
+    console.log("CALC-USA-FLOW1 CHROME PASS",v.locale,"NPS/custom/HSS inline private RFQ");
     await context.close();
   }
   // Cross-language HSS state uses the exact source record, without

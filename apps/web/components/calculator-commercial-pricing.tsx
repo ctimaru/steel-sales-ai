@@ -7,9 +7,10 @@ import type { TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
 const copy: Record<TubeCalculatorLocale, {
   title: string; private: string; tonne: string; metre: string;
   example: string; weight: string; unavailable: string; inputError: string;
-  note: string;
+  note: string; optInMessage: string; optInAction: string;
 }> = {
   it: {
+    optInMessage: "Il prezzo resta privato. Non entra nella distinta senza scegliere esplicitamente una riga.", optInAction: "Usa come target interno → scegli la riga",
     title: "Prezzo rapido", private: "Solo in questa schermata",
     tonne: "Prezzo €/ton", metre: "Prezzo €/m",
     example: "es. 850,00", weight: "Conversione su", unavailable: "Inserisci una misura valida",
@@ -17,6 +18,7 @@ const copy: Record<TubeCalculatorLocale, {
     note: "Stima da peso teorico · esclusa da link, storico e distinta",
   },
   en: {
+    optInMessage: "This price stays private. Choose a bill line explicitly before assigning a buyer target.", optInAction: "Use as private target → select a line",
     title: "Quick price", private: "This screen only",
     tonne: "Price €/t", metre: "Price €/m",
     example: "e.g. 850.00", weight: "Based on", unavailable: "Enter valid dimensions",
@@ -24,6 +26,7 @@ const copy: Record<TubeCalculatorLocale, {
     note: "Theoretical mass estimate · excluded from links, history and RFQ bill",
   },
   de: {
+    optInMessage: "Dieser Preis bleibt privat. Erst nach ausdrücklicher Auswahl einer Position wird er zum Einkaufzielpreis.", optInAction: "Als privaten Zielpreis nutzen → Position wählen",
     title: "Schnellpreis", private: "Nur auf dieser Seite",
     tonne: "Preis €/t", metre: "Preis €/m",
     example: "z. B. 850,00", weight: "Basis", unavailable: "Gültige Maße eingeben",
@@ -31,6 +34,7 @@ const copy: Record<TubeCalculatorLocale, {
     note: "Schätzung anhand theoretischer Masse · nicht in Links, Verlauf oder Stückliste",
   },
   fr: {
+    optInMessage: "Ce prix reste privé. Choisissez explicitement une ligne avant de définir un prix cible acheteur.", optInAction: "Utiliser comme prix cible privé → choisir la ligne",
     title: "Prix rapide", private: "Uniquement sur cet écran",
     tonne: "Prix €/t", metre: "Prix €/m",
     example: "ex. 850,00", weight: "Calcul basé sur", unavailable: "Saisir des dimensions valides",
@@ -38,6 +42,7 @@ const copy: Record<TubeCalculatorLocale, {
     note: "Estimation sur masse théorique · exclue des liens, historique et devis",
   },
   es: {
+    optInMessage: "Este precio sigue siendo privado. Elige expresamente una línea antes de asignar un objetivo de compra.", optInAction: "Usar como objetivo privado → elegir línea",
     title: "Precio rápido", private: "Solo en esta pantalla",
     tonne: "Precio €/t", metre: "Precio €/m",
     example: "p. ej. 850,00", weight: "Según", unavailable: "Introduce medidas válidas",
@@ -122,10 +127,10 @@ export function CalculatorCommercialPricing({
               { maximumFractionDigits: 3 },
             ).format(weightKgM)} kg/m.`}
         <span className="block text-[#547061]">{onChooseBuyerTarget
-          ? "Il prezzo resta privato. Non entra nella distinta senza scegliere esplicitamente una riga."
+          ? labels.optInMessage
           : labels.note}</span>
       </p>
-      {onChooseBuyerTarget && locale === "it" ? (
+      {onChooseBuyerTarget ? (
         <button type="button" data-target-opt-in
           disabled={!validBuyerTarget || weightKgM === null}
           onClick={() => {
@@ -133,7 +138,7 @@ export function CalculatorCommercialPricing({
             onChooseBuyerTarget({ basis: source.basis, raw: source.raw, weightKgM });
           }}
           className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[#277a58] bg-white px-3 py-2 text-sm font-bold text-[#13543c] hover:bg-[#f2fbf5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#13543c] disabled:cursor-not-allowed disabled:opacity-45">
-          Usa come target interno → scegli la riga
+          {labels.optInAction}
         </button>
       ) : null}
     </section>

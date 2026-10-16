@@ -36,11 +36,12 @@ test("4.5 all five languages implement the same localized inline bill contract",
   }
 });
 
-test("4.5 five-language EU calculator uses the SAME inline experience, with US mode separate",()=>{
+test("CALC-USA-FLOW1 five-language EU and USA calculators use one shared inline experience",()=>{
   assert.match(region,/<CalculatorInlineDistintaExperience references=\{references\?\?\[\]\}/);
-  assert.match(region,/locale=\{locale\} \/>/);
+  assert.match(region,/renderCalculator=/);
   assert.doesNotMatch(region,/inlineItalianBill/);
   assert.match(region,/<UsPipeSampleCalculator locale=\{locale\}/);
+  assert.match(region,/onAddToDistinta=\{onAddUsToDistinta\}/);
   assert.match(italian,/<CalculatorRegionSwitch locale="it" initialRegion="eu"/);
   assert.match(english,/<CalculatorRegionSwitch locale="en" initialRegion="eu"/);
   assert.match(international,/initialRegion=\{calculatorRegionFromQuery\(raw\)\}/);

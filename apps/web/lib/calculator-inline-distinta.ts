@@ -11,6 +11,7 @@ import {
   calculatorItemToBuyerLine, validatedCalculatorRfqItem,
   type CalculatorRfqItem,
 } from "@/lib/calculator-rfq-handoff";
+import { validUsPipeRfqItem, usPipeRfqSpecification, type UsPipeRfqItem } from "@/lib/us-pipe-rfq-handoff";
 import {
   calculateBuyerDistintaLine, calculateBuyerDistintaTotals,
   type BuyerDistintaDraftLine, type BuyerQuantityMode,
@@ -21,7 +22,13 @@ export const INLINE_DISTINTA_TTL_MS = 24 * 60 * 60 * 1000;
 export const INLINE_DISTINTA_MAX_LINES = 50;
 const MAX_SESSION_CHARS = 100_000;
 const ID = /^[a-zA-Z0-9-]{6,90}$/;
-const STANDARD = new Set(["EN 10210", "EN 10219", "Calcolo geometrico libero"]);
+const STANDARD = new Set([
+  "EN 10210", "EN 10219", "Calcolo geometrico libero",
+  "API Spec 5L (edition and PSL to confirm)",
+  "ASTM A53/A53M (grade/type to confirm)",
+  "ASTM A106/A106M (grade to confirm)",
+  "ASTM A500/A500M-23 HSS (grade/certification to confirm)",
+]);
 const QUANTITY_MODES = new Set<BuyerQuantityMode>(["bars", "meters", "tonnes"]);
 const LINE_KEYS = new Set<keyof BuyerDistintaDraftLine>([
   "id", "description", "standard", "grade", "finish", "quantityMode",
@@ -107,6 +114,38 @@ export function addInlineDistintaItem(
   const line = validatedLine(calculatorItemToBuyerLine(item, item.id));
   if (!line) return reject(state, "invalid");
   return { ok: true, state: { lines: [...state.lines, line] } };
+}
+
+/**
+ * CALC-USA-FLOW1: accept only a validated US size or HSS source reference.
+ * The existing US normalizer RECOMPUTES theoretical mass and provenance;
+ * never use a published/manufacturer nominal weight as the bill's kg/m.
+ * The stored technical line contains no commercial price, compliance claim,
+ * or forged source identifiers; price remains an explicit React-only opt-in.
+ */
+export function addInlineDistintaUsItem(
+  state: InlineDistintaState, input: UsPipeRfqItem, now = Date.now(),
+): InlineDistintaResult {
+  if (!validState(state)) return reject(state, "invalid");
+  const valid = validUsPipeRfqItem(input, now);
+  if (!valid) return reject(state, "invalid");
+  if (state.lines.some(line => line.id === valid.id)) return reject(state, "duplicate");
+  if (state.lines.length >= INLINE_DISTINTA_MAX_LINES) return reject(state, "full");
+  const spec = usPipeRfqSpecification(valid);
+  if (!spec) return reject(state, "invalid");
+  const line = validatedLine({
+    id: valid.id,
+    description: spec.designation.slice(0, 500),
+    standard: spec.standardLabel,
+    grade: "", finish: "",
+    quantityMode: "bars", quantity: String(spec.bars),
+    barLengthM: String(spec.lengthM),
+    weightKgM: String(Number(spec.theoreticalKgM.toFixed(6))),
+    targetEurT: "",
+    note: spec.provenanceNote.slice(0, 1200),
+  });
+  if (!line) return reject(state, "invalid");
+  return {ok:true,state:{lines:[...state.lines,line]}};
 }
 
 /** Quantity and buyer details only: editing geometry or kg/m requires a new calculation. */

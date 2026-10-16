@@ -1,7 +1,7 @@
 "use client";
 
 /** CALC-INT4.5 — One shared five-language calculator + private inline bill. */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { inlinePrivateRfqAccess } from "@/app/(italian)/(public)/knowledge/tubes/actions";
@@ -14,6 +14,7 @@ import { prepareInlinePrivateRfq, privateRfqSnapshotSignature } from "@/lib/calc
 import { PublicTubeWeightCalculator, type PublicTubeCalculatorInitialValues } from "@/components/public-tube-weight-calculator";
 import type { PublicTubeDimensionSummary } from "@/lib/public-knowledge";
 import type { CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
+import type { UsPipeRfqItem } from "@/lib/us-pipe-rfq-handoff";
 import type { BuyerDistintaDraftLine } from "@/lib/buyer-distinta";
 import { buildBuyerDistintaPlainText, calculateBuyerDistintaLine, calculateBuyerDistintaTotals } from "@/lib/buyer-distinta";
 import { priceInputText, type PriceBasis } from "@/lib/calculator-commercial-pricing";
@@ -26,7 +27,7 @@ import {
   removeBuyerTarget, type BuyerTargetCandidate, type BuyerTargetState,
 } from "@/lib/calculator-inline-buyer-target";
 import {
-  addInlineDistintaItem, duplicateInlineDistintaLine, editInlineDistintaLine,
+  addInlineDistintaItem, addInlineDistintaUsItem, duplicateInlineDistintaLine, editInlineDistintaLine,
   emptyInlineDistinta, inlineDistintaTotals, persistInlineDistintaSession,
   readInlineDistintaSession, removeInlineDistintaLine, INLINE_DISTINTA_MAX_LINES,
   type InlineDistintaResult, type InlineDistintaState,
@@ -44,12 +45,22 @@ function makeId() {
     : "line-" + Date.now() + "-" + Math.random().toString(36).slice(2, 12);
 }
 
+export type InlineCalculatorBridge = {
+  onAddToDistinta: (item: CalculatorRfqItem) => boolean;
+  onAddUsToDistinta: (item: UsPipeRfqItem) => boolean;
+  canAddToDistinta: boolean;
+  inlineBillCount: number;
+  inlineBill: ReactNode;
+  onChooseBuyerTarget: (value: {basis: PriceBasis; raw: string; weightKgM: number}) => void;
+};
+
 export function CalculatorInlineDistintaExperience({
-  references, initialValues, locale = "it",
+  references, initialValues, locale = "it", renderCalculator,
 }: {
   references: PublicTubeDimensionSummary[];
   initialValues?: PublicTubeCalculatorInitialValues;
   locale?: TubeCalculatorLocale;
+  renderCalculator?: (bridge: InlineCalculatorBridge) => ReactNode;
 }) {
   const router = useRouter();
   const c = localizedInlineBill(locale);
@@ -127,6 +138,11 @@ export function CalculatorInlineDistintaExperience({
     if (!ready) return false;
     const result = addInlineDistintaItem(liveState.current, item);
     return commit(result);
+  }
+
+  function addUs(item: UsPipeRfqItem): boolean {
+    if (!ready) return false;
+    return commit(addInlineDistintaUsItem(liveState.current, item));
   }
 
   function beginEdit(line: BuyerDistintaDraftLine) {
@@ -457,6 +473,14 @@ export function CalculatorInlineDistintaExperience({
     </section>
   );
 
+  if (renderCalculator) return renderCalculator({
+    onAddToDistinta: add,
+    onAddUsToDistinta: addUs,
+    canAddToDistinta: ready && count < INLINE_DISTINTA_MAX_LINES,
+    inlineBillCount: count,
+    inlineBill: bill,
+    onChooseBuyerTarget: chooseBuyerTarget,
+  });
   return <PublicTubeWeightCalculator references={references} initialValues={initialValues} locale={locale}
     onAddToDistinta={add} canAddToDistinta={ready && count < INLINE_DISTINTA_MAX_LINES}
     inlinePublicDistinta inlineBillCount={count} onChooseBuyerTarget={chooseBuyerTarget}

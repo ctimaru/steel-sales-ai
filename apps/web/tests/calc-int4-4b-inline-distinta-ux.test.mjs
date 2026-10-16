@@ -11,17 +11,17 @@ const experience = read("../components/calculator-inline-distinta-experience.tsx
 const model = read("../lib/calculator-inline-distinta.ts");
 const existingBuilder = read("../components/buyer-distinta-builder.tsx");
 
-test("CALC-INT4.5 mounts shared inline bill for all EU locales, US mode remains separate",()=>{
+test("CALC-USA-FLOW1 mounts one inline bill across EU and USA, retaining separate calculation engines",()=>{
   assert.match(page,/import \{ CalculatorRegionSwitch \}/);
   assert.match(page,/<CalculatorRegionSwitch locale="it" initialRegion="eu" requestedRegion/);
   assert.match(page,/<EnStructuralMethodEvidence locale="it" \/>/);
   assert.match(page,/data-testid="calculator-editorial-disclosure"/);
   assert.match(page,/references=\{references\} initialValues=\{initialValues\} \/>/);
   assert.doesNotMatch(switcher,/inlineItalianBill/);
-  assert.match(switcher,/locale=\{locale\} \/>/);
+  assert.match(switcher,/renderCalculator=/);
   assert.match(switcher,/<CalculatorInlineDistintaExperience references=\{references\?\?\[\]\}/);
   assert.match(switcher,/<UsPipeSampleCalculator locale=\{locale\}/);
-  assert.doesNotMatch(switcher,/UsPipeSampleCalculator[^\n]*onAddToDistinta/);
+  assert.match(switcher,/onAddToDistinta=\{onAddUsToDistinta\}/);
   assert.match(experience,/<PublicTubeWeightCalculator references=\{references\}/);
   assert.match(experience,/onAddToDistinta=\{add\}/);
   assert.doesNotMatch(read("../app/(international-calculator)/[locale]/knowledge/tubes/page.tsx"),/CalculatorInlineDistintaExperience/);

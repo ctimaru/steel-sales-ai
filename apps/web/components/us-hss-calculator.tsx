@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { CalculatorCommercialPricing } from "@/components/calculator-commercial-pricing";
+import { localizedInlineBill } from "@/lib/calculator-inline-distinta-copy";
+import type { PriceBasis } from "@/lib/calculator-commercial-pricing";
 import { usCalculatorUi as ui } from "@/lib/us-calculator-visual";
 import { trackInternationalRfq } from "@/lib/international-rfq-analytics.client";
 import { US_HSS_I18N, usLocaleTag, usRfqBillPath, type UsCalculatorLocale } from "@/lib/us-calculator-i18n";
 
 import { estimatePublicTubeMass } from "@/lib/international-tube-mass";
-import { buildUsPipeRfqItem, enqueueUsPipeRfq } from "@/lib/us-pipe-rfq-handoff";
+import { buildUsPipeRfqItem, enqueueUsPipeRfq, type UsPipeRfqItem } from "@/lib/us-pipe-rfq-handoff";
 import {
   findHssReference, hssReferenceRowsForShape, hssNominalPublishedKgM,
   hssAtlasSourceUrl, searchHssReferences, hssAvailableWalls,
@@ -58,8 +61,12 @@ export type UsHssSeed={
   hssShape?:string;hssUnits?:string;hssDiameter?:string;hssWidth?:string;
   hssHeight?:string;hssThickness?:string;hssLength?:string;hssQuantity?:string;
 };
-export function UsHssCalculator({locale,initialReferenceId,initialValues={}}:{
+export function UsHssCalculator({locale,initialReferenceId,initialValues={},onAddToDistinta,canAddToDistinta=true,inlineBillCount=0,onChooseBuyerTarget}:{
   locale:Locale;initialReferenceId?:string;initialValues?:UsHssSeed;
+  onAddToDistinta?: (item:UsPipeRfqItem) => boolean;
+  canAddToDistinta?: boolean;
+  inlineBillCount?: number;
+  onChooseBuyerTarget?: (value:{basis:PriceBasis;raw:string;weightKgM:number})=>void;
 }){
   const initialReference=initialReferenceId?findHssReference(initialReferenceId):null;
   const initialUnits=initialValues.hssUnits==="mm"?"mm":"in";
@@ -68,6 +75,7 @@ export function UsHssCalculator({locale,initialReferenceId,initialValues={}}:{
     return String(Number((referenceIn*(initialUnits==="mm"?25.4:1)).toFixed(4)));
   };
   const t=text[locale];
+  const billCopy=localizedInlineBill(locale);
   const [shape,setShape]=useState<HssShape>(initialReference?.shape??(["round","square","rectangular"].includes(initialValues.hssShape??"")?initialValues.hssShape as HssShape:"square"));
   const [referenceId,setReferenceId]=useState(initialReference?.id??"");
   const [searchText,setSearchText]=useState("");
@@ -151,7 +159,13 @@ export function UsHssCalculator({locale,initialReferenceId,initialValues={}}:{
       ...(reference ? {hssReferenceId:reference.id} : {}),
     };
     const item=buildUsPipeRfqItem(selection,crypto.randomUUID());
-    if(!item || !enqueueUsPipeRfq(window.sessionStorage,item)){
+    if(!item){setStatus(t.error);return;}
+    if(onAddToDistinta){
+      const added=canAddToDistinta && onAddToDistinta(item);
+      setStatus(added?billCopy.added:billCopy.addError);
+      return; // Shared same-page technical bill, no queue/navigation.
+    }
+    if(!enqueueUsPipeRfq(window.sessionStorage,item)){
       setStatus(t.error);return;
     }
     if(locale!=="it")trackInternationalRfq("handoff",locale,{system:"us",standard:"astm-a500"});
@@ -281,6 +295,8 @@ export function UsHssCalculator({locale,initialReferenceId,initialValues={}}:{
       <p className="mt-3 text-xs leading-6 text-white/80">{t.status}
         {" "}<a href={SOURCE} className="font-semibold text-white underline" rel="noopener noreferrer" target="_blank">{t.source} →</a>
       </p>
+      <CalculatorCommercialPricing weightKgM={calculated?.weightKgM ?? null}
+        locale={locale} onChooseBuyerTarget={onChooseBuyerTarget} />
       <div className="mt-3 flex flex-col gap-2">
         <button disabled={!calculated} type="button" onClick={async()=>{
           try{await navigator.clipboard.writeText(specification);setStatus(t.copied);}
@@ -288,11 +304,17 @@ export function UsHssCalculator({locale,initialReferenceId,initialValues={}}:{
         }} className={ui.secondaryAction + " order-2"}>
           {t.copy}
         </button>
-        <button disabled={!calculated} type="button" onClick={addRfq}
+        <button data-us-add-to-inline-bill={onAddToDistinta ? "" : undefined}
+          disabled={!calculated || (Boolean(onAddToDistinta) && !canAddToDistinta)} type="button" onClick={addRfq}
           className={ui.primaryAction + " order-1"}>
           {t.add} →
         </button>
       </div>
+      {onAddToDistinta && inlineBillCount > 0 ? (
+        <a href="#distinta-inline" className={ui.secondaryAction + " mt-2"}>
+          {billCopy.seeBill} · {inlineBillCount} {inlineBillCount===1 ? billCopy.row : billCopy.lines} ↓
+        </a>
+      ) : null}
       <p role="status" aria-live="polite" className={ui.resultHint}>{status}</p>
         </aside>
       </div>
