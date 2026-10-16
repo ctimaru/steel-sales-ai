@@ -36,8 +36,8 @@ alter table public.network_it_istat_import_batches enable row level security;
 alter table public.network_it_istat_import_staging enable row level security;
 revoke all on public.network_it_istat_import_batches from public,anon,authenticated;
 revoke all on public.network_it_istat_import_staging from public,anon,authenticated;
-grant select,insert on public.network_it_istat_import_batches to service_role;
-grant select,insert on public.network_it_istat_import_staging to service_role;
+grant select,insert,update on public.network_it_istat_import_batches to service_role;
+grant select,insert,update on public.network_it_istat_import_staging to service_role;
 
 -- Service-role-only, SECURITY INVOKER: satisfies existing HP13 definer allowlist.
 -- Transaction boundary ensures incomplete imports NEVER change active geography.
@@ -185,7 +185,7 @@ declare
   f public.network_facilities%rowtype;
   c public.network_companies%rowtype;
   m public.network_it_municipalities%rowtype;
-  v_host text; v_domain text; v_count integer; v_review uuid;
+  v_host text; v_domain text; v_count integer; v_review uuid; v_code text;
 begin
   perform private.require_platform_permission('discovery.enrich');
   select * into f from public.network_facilities
@@ -207,13 +207,13 @@ begin
   if length(v_domain)<4 or position('.' in v_domain)=0
      or (v_host<>v_domain and right(v_host,length(v_domain)+1)<>'.'||v_domain)
   then raise exception 'Evidence URL does not match company official domain' using errcode='42501'; end if;
-  select count(*),min(istat_code) into v_count,m.istat_code
+  select count(*),min(istat_code) into v_count,v_code
   from public.network_it_municipalities
   where is_current
     and municipality_normalized=lower(btrim(regexp_replace(f.city,'[[:space:]]+',' ','g')))
     and province_code=upper(p_province_code);
   if v_count<>1 then raise exception 'No unambiguous active ISTAT city+province match' using errcode='22023'; end if;
-  select * into m from public.network_it_municipalities where istat_code=m.istat_code and is_current;
+  select * into m from public.network_it_municipalities where istat_code=v_code and is_current;
   if lower(btrim(coalesce(f.region,'')))<>lower(btrim(m.region_name)) then
     raise exception 'Published facility region conflicts with ISTAT; manual correction required'
       using errcode='22023';
