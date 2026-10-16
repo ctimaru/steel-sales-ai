@@ -25,8 +25,11 @@ export async function generateMetadata({params}:PageProps):Promise<Metadata>{
     description:t.description,
     alternates:{
       canonical:absoluteUrl(url),
-      languages:Object.fromEntries(Object.entries(PUBLIC_HOME_LOCALE_ROUTES)
-        .map(([language,path])=>[language,absoluteUrl(path)])),
+      languages:{
+        ...Object.fromEntries(Object.entries(PUBLIC_HOME_LOCALE_ROUTES)
+          .map(([language,path])=>[language,absoluteUrl(path)])),
+        "x-default":absoluteUrl("/"),
+      },
     },
     openGraph:{
       title:t.title,description:t.description,url:absoluteUrl(url),
