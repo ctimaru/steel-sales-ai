@@ -54,3 +54,35 @@ export async function enqueueEndUserTargets(form:FormData){
  revalidatePath("/platform/company-discovery");
  redirect(msg("message","Lead inoltrati alla coda Discovery in attesa di revisione, senza scansioni o pubblicazioni automatiche."));
 }
+
+/**
+ * NET-COV2: paste a cohort directly from a spreadsheet (TSV, seven columns).
+ * This is research staging only: no source rights, crawler run or publication.
+ */
+export async function stageIndustrialCampaign(form:FormData){
+ await requirePlatformPermission("discovery.enrich");
+ const campaign=String(form.get("campaign")??"").trim();
+ const raw=String(form.get("rows")??"");
+ const rows=raw.replace(/\r/g,"").split("\n").map(r=>r.trim()).filter(Boolean);
+ const header="name\tdomain\tevidence_url\tsummary\tsegment\tmaterial_signal\trole";
+ if(rows[0]?.toLowerCase()===header)rows.shift();
+ if(rows.length<1||rows.length>40||raw.length>60000)
+  redirect(msg("error","Importa da 1 a 40 righe per campagna (massimo 60.000 caratteri)."));
+ const items=rows.map(row=>{
+  const parts=row.split("\t").map(x=>x.trim());
+  return parts.length===7&&parts.every(Boolean)?{
+   name:parts[0],domain:parts[1],evidence_url:parts[2],summary:parts[3],
+   segment:parts[4],material_signal:parts[5],role:parts[6],
+  }:null;
+ });
+ if(items.some(item=>item===null))
+  redirect(msg("error","Ogni riga deve avere esattamente 7 colonne TAB, senza campi vuoti."));
+ const supabase=await createClient();
+ const {data,error}=await supabase.rpc("netcov2_operator_batch_stage",{
+  p_items:items,p_campaign:campaign,p_attested:form.get("attested")==="yes",
+ });
+ if(error||!data||data.contract!=="netcov2-stage-v1")
+  redirect(msg("error","Import non accettato: verifica dominio/evidenza ufficiale, campagna e autorizzazione Platform."));
+ revalidatePath(path);
+ redirect(msg("message",`Campagna importata: ${data.staged_needs_review} in review, ${data.duplicate_existing} duplicati, ${data.already_staged} già presenti. Nessuna scansione o pubblicazione.`));
+}
