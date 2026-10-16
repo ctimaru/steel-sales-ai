@@ -23,7 +23,7 @@ export function italyRegionFilterHref(
 ) {
   const params = new URLSearchParams();
   // Explicit allowlist: flash/error params are never copied into navigation URLs.
-  for (const key of ["q", "role", "product", "capability", "country", "market", "province", "city"]) {
+  for (const key of ["q", "role", "product", "capability", "country", "market", "province", "city", "persona"]) {
     const value = filters[key];
     if (value) params.set(key, value);
   }
