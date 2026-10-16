@@ -9,6 +9,8 @@ type BulkBatch={id:string;campaign:string;received:number;added:number;
  duplicate:number;skipped:number;at:string};
 type Status={contract?:string;sources?:BulkSource[];recent_batches?:BulkBatch[];
  total_feed_entities?:number};
+type Cordis={contract?:string;source?:{id?:string;status?:string;rights_active?:boolean};
+ research_only?:number;website_evidence?:number;recent_runs?:Array<{month:string;status:string;scanned:number;new_research:number;new_unconfirmed:number}>};
 
 export default async function BulkDiscoveryPage({
  searchParams,
@@ -18,7 +20,11 @@ export default async function BulkDiscoveryPage({
  const canReview=context?.permissions.includes("discovery.governance_review")??false;
  const canImport=context?.permissions.includes("discovery.enrich")??false;
  const params=await searchParams;
- const {data,error}=await (await createClient()).rpc("netfast3_source_status");
+ const supabase=await createClient();
+ const [{data,error},{data:cordisData}]=await Promise.all([
+  supabase.rpc("netfast3_source_status"),supabase.rpc("netfast3b_status"),
+ ]);
+ const cordis=(cordisData as Cordis|null)?.contract==="netfast3b-cordis-status-v1" ? cordisData as Cordis : null;
  const status=data as Status|null;
  const sources=status?.contract==="netfast3-status-v1"?status.sources??[]:[];
  const approved=sources.filter(s=>s.approved);
@@ -37,6 +43,26 @@ export default async function BulkDiscoveryPage({
    <div className="rounded-xl border bg-white p-4"><p className="text-xs text-[#52615b]">Schede da feed nel database</p><p className="mt-1 text-2xl font-bold">{status?.total_feed_entities??0}</p></div>
    <div className="rounded-xl border bg-white p-4"><p className="text-xs text-[#52615b]">Dimensione per lotto</p><p className="mt-1 text-2xl font-bold">1.000</p></div>
   </div>
+  <section className="space-y-2 rounded-2xl border bg-white p-4">
+    <h2 className="text-lg font-semibold">NET-FAST3B · CORDIS Horizon Europe</h2>
+    <p className="text-sm leading-6 text-[#52615b]">
+      Aggiornamento automatico mensile il 5 del mese. Il feed raccoglie i record delle organizzazioni
+      italiane private e for-profit, ma <strong>senza sito ufficiale non crea profili Network</strong>.
+      Il diritto di redistribuzione deve essere approvato una sola volta nella sezione fonti.
+    </p>
+    <div className="grid gap-3 sm:grid-cols-3">
+      <div className="rounded-lg border p-3"><p className="text-xs text-[#52615b]">Organizzazioni da arricchire</p><p className="mt-1 text-xl font-bold">{cordis?.research_only??"—"}</p></div>
+      <div className="rounded-lg border p-3"><p className="text-xs text-[#52615b]">Con evidenza sito</p><p className="mt-1 text-xl font-bold">{cordis?.website_evidence??"—"}</p></div>
+      <div className="rounded-lg border p-3"><p className="text-xs text-[#52615b]">Licenza feed</p><p className="mt-1 text-sm font-semibold">{cordis?.source?.rights_active?"Autorizzata": "Da verificare"}</p></div>
+    </div>
+    <p className="text-xs text-[#52615b]">
+      Ultima esecuzione: {cordis?.recent_runs?.[0] ? `${cordis.recent_runs[0].month} · ${cordis.recent_runs[0].status} · ${cordis.recent_runs[0].scanned} record` : "Nessuna esecuzione di importazione autorizzata"}
+    </p>
+    <div className="flex flex-wrap gap-4 text-sm">
+      <Link href="/platform/company-discovery/sources" className="font-semibold underline">Revisiona fonte e licenza →</Link>
+      <a href="https://github.com/ctimaru/steel-sales-ai/actions/workflows/netfast3b-cordis-monthly.yml" target="_blank" rel="noopener noreferrer" className="font-semibold underline">Log import mensile ↗</a>
+    </div>
+  </section>
   <section className="space-y-3 rounded-2xl border bg-white p-4">
    <h2 className="text-lg font-semibold">1. Fonte e diritti di riutilizzo</h2>
    <p className="text-sm leading-6">Registra e revisiona prima una fonte di tipo <code>licensed_search</code> o <code>curated_public_source</code> nel <Link className="font-semibold underline" href="/platform/company-discovery/sources">Registro fonti</Link>, lasciando il crawler disattivato. Poi conferma una sola volta il diritto di riutilizzare e visualizzare le schede aziendali in un SaaS commerciale. Una licenza per analisi interne non basta.</p>

@@ -79,7 +79,7 @@ test("CALC-INT4.1: new topics are statically routed with self canonicals, no unr
   assert.match(calcLanding, /const topic=MARKET_TOPIC_GUIDES\[locale\]/);
   assert.match(calcLanding, /href=\{MARKET_TOPIC_ROUTES\[locale\]\}/);
   assert.doesNotMatch(calcLanding, /topic\.sections\.map|topic\.questions\.map|topic\.checklist\.map/);
-  assert.match(region, /PublicTubeWeightCalculator/);
+  assert.match(region, /CalculatorInlineDistintaExperience/);
 });
 
 test("CALC-INT4.1: no fabricated keyword metrics, protected norms or unapproved commercial actions", () => {

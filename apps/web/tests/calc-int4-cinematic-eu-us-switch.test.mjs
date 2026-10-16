@@ -21,7 +21,7 @@ test("CALC-INT4 integrates a single in-page switch in four existing localized pa
   for(const p of [itUs,enUs]){
     assert.match(p,/CalculatorRegionSwitch locale="(?:it|en)" initialRegion="us" references=\{\[\]\}/);
   }
-  assert.match(switcher,/PublicTubeWeightCalculator references=\{references\?\?\[\]\}/);
+  assert.match(switcher,/CalculatorInlineDistintaExperience references=\{references\?\?\[\]\}/);
   assert.match(switcher,/UsPipeSampleCalculator locale=\{locale\} initialValues=\{usInitialValues\}/);
   assert.match(switcher,/euAfter\?: ReactNode/);
 });
