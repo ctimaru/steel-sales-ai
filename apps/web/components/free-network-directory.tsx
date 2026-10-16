@@ -60,7 +60,7 @@ export async function FreeNetworkDirectoryView({
         <h1 className="mt-4 text-2xl font-semibold tracking-tight text-[#173f35] sm:text-3xl">Scopri le aziende dell'acciaio</h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-[#43524c]">
           Cerca produttori, commercianti, terzisti e utilizzatori in tutta Italia.
-          Usa la mappa interattiva per scoprire le sedi pubblicate regione per regione.
+          Le aziende scoperte vengono mostrate subito come "Da confermare". La mappa usa solo sedi con evidenza geografica già pubblicata.
         </p>
         <form action="/network" method="get" className="mt-5 flex flex-col gap-2 sm:flex-row">
           <label htmlFor="free-network-search" className="sr-only">Cerca aziende</label>
@@ -92,7 +92,10 @@ export async function FreeNetworkDirectoryView({
       </div>
       <section id="network-region-results" aria-label="Risultati del Network" className="mt-6">
         <h2 className="text-xl font-semibold text-[#173f35]">{data.total.toLocaleString("it-IT")} aziende</h2>
-        <p className="mt-1 text-sm text-[#52615b]">Solo dati aziendali condivisibili. Le sedi non disponibili non vengono inventate.</p>
+        {data.discovered_total ? <p className="mt-1 text-xs font-semibold text-[#52615b]">
+          {data.discovered_total.toLocaleString("it-IT")} profili scoperti · Da confermare · categoria indicativa
+        </p> : null}
+        <p className="mt-1 text-sm text-[#52615b]">Solo dati aziendali essenziali. Le aziende scoperte non sono necessariamente clienti, fornitori verificati o proprietarie dei profili; nessuna sede viene inventata.</p>
         {items.length ? (
           <div className="mt-4 divide-y divide-[#edf1ef] overflow-hidden rounded-2xl border border-[#dce2df] bg-white">
             {items.map((company) => {
@@ -103,9 +106,11 @@ export async function FreeNetworkDirectoryView({
                     <Link href={"/network/" + company.id} className="text-base font-semibold text-[#173f35] hover:underline">
                       {company.trading_name || company.legal_name}
                     </Link>
+                    {company.discovery_status==="unconfirmed" ? <p className="mt-1 text-xs font-semibold text-[#8a5a16]">Scoperta dal Network · Da confermare</p> : null}
                     <p className="mt-1 text-xs text-[#52615b]">
                       {company.roles.map((r) => r.name).join(" · ") || "Ruolo da completare"}
                       {" · "}{company.location?.region || "Regione non disponibile"}
+                      {company.discovery_status==="unconfirmed" ? " · Classificazione indicativa" : ""}
                     </p>
                     {company.products.length ? <p className="mt-2 text-xs text-[#52615b]">{company.products.slice(0, 3).join(" · ")}</p> : null}
                     {!hasFilters && networkRoleReason(company.roles,persona) ? <p className="mt-2 text-xs font-semibold text-[#27714f]">{networkRoleReason(company.roles,persona)}</p> : null}
