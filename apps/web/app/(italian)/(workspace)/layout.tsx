@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/app-shell";
 import { getNetworkAccessState } from "@/lib/network-access";
-import { isNetworkFrontendEnabled } from "@/lib/network-flags";
+import { isNetworkFreeReadEnabled, isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { parseWorkspaceNotificationSnapshot, type WorkspaceNotificationSnapshot } from "@/lib/workspace-notifications";
 import { privateNoIndexRobots } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
@@ -76,6 +76,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
       guidedSetupComplete={guidedSetupComplete}
       networkEnabled={networkEnabled}
       networkEntitled={networkEntitled}
+      networkFreeEnabled={networkEnabled && isNetworkFreeReadEnabled()}
     >
       {children}
     </AppShell>

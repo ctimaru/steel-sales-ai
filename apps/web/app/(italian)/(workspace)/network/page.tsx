@@ -7,6 +7,7 @@ import {
   saveNetworkCompany,
   unfollowNetworkCompany,
 } from "@/app/(workspace)/network/actions";
+import { FreeNetworkDirectoryView } from "@/components/free-network-directory";
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
 import { NetworkAccessGate } from "@/components/network-access-gate";
@@ -20,7 +21,7 @@ import {
   searchNetwork,
 } from "@/lib/network";
 import { getNetworkAccessState } from "@/lib/network-access";
-import { isNetworkFrontendEnabled } from "@/lib/network-flags";
+import { isNetworkFreeReadEnabled, isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { appRoutes } from "@/lib/routes";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 
@@ -90,6 +91,16 @@ export default async function NetworkDirectoryPage({
   const access = await getNetworkAccessState(context.organizationId);
 
   if (!access.can_access_network) {
+    if (isNetworkFreeReadEnabled()) {
+      const params = await searchParams;
+      return (
+        <FreeNetworkDirectoryView
+          organizationId={context.organizationId}
+          organizationName={context.organizationName}
+          filters={{ q: params.q, role: params.role, region: params.region }}
+        />
+      );
+    }
     return (
       <NetworkAccessGate
         access={access}
