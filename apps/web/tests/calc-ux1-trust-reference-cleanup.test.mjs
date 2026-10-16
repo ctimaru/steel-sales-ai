@@ -67,9 +67,9 @@ test("CALC-UX1 suggestions are short, geometric-near and prohibit cross-standard
 
 test("CALC-UX1 public reference catalogue is opt-in while linked SEO entries remain indexable", () => {
   assert.match(calculator, /<details[^>]*data-testid="tube-reference-catalogue"/);
-  assert.match(calculator, /familyCount\} \{locale === "it" \? "riferimenti disponibili"/);
-  assert.match(calculator, /sourceStandardLabel\(evidence.standard, locale\)/);
-  assert.match(calculator, /sourceMethodLabel\(evidence.declaredMethod, locale\)/);
+  assert.match(calculator, /familyCount\} \{t\("riferimenti disponibili"\)/);
+  assert.match(calculator, /sourceStandardLabel\(evidence.standard, locale === "it" \? "it" : "en"\)/);
+  assert.match(calculator, /sourceMethodLabel\(evidence.declaredMethod, locale === "it" \? "it" : "en"\)/);
   assert.match(calculator, /Non equivalente alla norma scelta/);
   assert.match(calculator, /relatedTubeReferences\(references,/);
   assert.match(calculator, /\/knowledge\/tubes\/\$\{reference.dimension_slug\}/);

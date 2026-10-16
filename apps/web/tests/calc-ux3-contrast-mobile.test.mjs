@@ -58,7 +58,7 @@ test("CALC-UX3 shared bilingual calculator keeps RFQ transfer, references and SE
   assert.match(english, /CalculatorRegionSwitch locale="en" initialRegion="eu"/);
   assert.match(calculator, /calculatorRfqFromValues\(currentSnapshot,/);
   assert.match(calculator, /enqueueCalculatorRfq\(window\.sessionStorage, item\)/);
-  assert.match(calculator, /window\.location\.assign\(locale === "en" \? "\/en\/distinta" : "\/distinta"\)/);
+  assert.match(calculator, /window\.location\.assign\(locale === "it" \? "\/distinta" : `\/\$\{locale\}\/distinta`\)/);
   assert.match(calculator, /relatedTubeReferences\(references,/);
   assert.match(calculator, /referenceEvidence\(values\.exactReference\)/);
 });

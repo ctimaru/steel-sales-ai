@@ -100,6 +100,6 @@ test("CALC-INT2 keeps the live UI and RFQ bill on the one engine",()=>{
   assert.match(enBill,/estimatePublicTubeMass\(/);
   assert.match(handoff,/CALC_RFQ_HANDOFF_KEY = "sss:calc-rfq-handoff:v1"/);
   assert.match(ui,/enqueueCalculatorRfq\(window\.sessionStorage, item\)/);
-  assert.match(ui,/window\.location\.assign\(locale === "en" \? "\/en\/distinta" : "\/distinta"\)/);
+  assert.match(ui,/window\.location\.assign\(locale === "it" \? "\/distinta" : `\/\$\{locale\}\/distinta`\)/);
   assert.doesNotMatch(source,/window\.|localStorage|sessionStorage|fetch\(|supabase|createClient\(/);
 });
