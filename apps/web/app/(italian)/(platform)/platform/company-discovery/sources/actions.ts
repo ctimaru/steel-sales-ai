@@ -199,3 +199,18 @@ export async function enqueueConsentedDomainLeads(form:FormData){
  revalidatePath("/platform/company-discovery/end-users");
  response("message",String(result.enqueued??0)+" lead con consenso specifico trasferiti alla review; nessun crawler avviato.");
 }
+
+export async function revokeFirstPartyPermission(form:FormData){
+ await requirePlatformPermission("discovery.governance_review");
+ const supabase=await createClient();
+ const {data,error}=await supabase.rpc("netcov2b_revoke_permission",{
+  p_source_id:String(form.get("source_id")??""),
+  p_domain:String(form.get("domain")??"").trim().toLowerCase(),
+  p_reason:String(form.get("reason")??"").trim(),
+  p_attested:form.get("attested")==="on",
+ });
+ if(error||(data as {status?:string}|null)?.status!=="revoked")
+  response("error","Revoca non registrata: controlla fonte, dominio, motivazione e autorizzazione.");
+ revalidatePath(route);
+ response("message","Consenso revocato: il dominio non è più idoneo a nuove scansioni o inserimenti Candidate Gate.");
+}
