@@ -30,6 +30,7 @@ on:
       - "apps/web/lib/us-calculator-i18n.ts"
       - "apps/web/lib/us-calculator-route-seed.ts"
       - "apps/web/tests/calc-int3e2-*"
+      - "apps/web/tests/calc-int3e5-*"
       - "apps/web/lib/us-pipe-rfq-handoff.ts"
       - "apps/web/components/calculator-install-guide.tsx"
       - "apps/web/tests/calc-ux3-*"
@@ -109,6 +110,8 @@ jobs:
         run: node tests/calc-int3e1-chrome-localized-calculator.mjs
       - name: CALC-INT3E.2 Chrome DE FR ES USA localization and RFQ
         run: node tests/calc-int3e2-chrome-usa-five-language.mjs
+      - name: CALC-INT3E.5 Chrome DE/FR/ES + EN US mobile RFQ conversion acceptance
+        run: node tests/calc-int3e5-chrome-rfq-funnel.mjs
       - name: BD17 Chrome A/B CTA variants, consent gating and login handoff
         run: node tests/bd17-chrome-cta-variants.mjs
       - name: HOME-SI5 Chrome visual / WCAG / SEO acceptance

@@ -27,7 +27,8 @@ test("UXF3 keeps the first-layer consent panel compact and non-blocking", () => 
 });
 
 test("UXF3 makes closing the panel equivalent to necessary-only consent", () => {
-  assert.match(consent, /aria-label=\{english \? "Continue with essential cookies only" : "Continua solo con cookie necessari"\}/);
+  assert.match(consent, /aria-label=\{localizedConsent\?\.necessary/);
+  assert.match(consent, /"Continue with essential cookies only" : "Continua solo con cookie necessari"/);
   assert.match(consent, /onClick=\{\(\) => choose\("denied"\)\}/);
 });
 
