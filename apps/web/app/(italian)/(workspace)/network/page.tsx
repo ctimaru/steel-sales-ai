@@ -8,6 +8,8 @@ import {
   unfollowNetworkCompany,
 } from "@/app/(workspace)/network/actions";
 import { FreeNetworkDirectoryView } from "@/components/free-network-directory";
+import { ItalyRegionMap } from "@/components/italy-region-map";
+import { getItalyRegionCoverage } from "@/lib/network-region-coverage";
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
 import { NetworkAccessGate } from "@/components/network-access-gate";
@@ -112,7 +114,7 @@ export default async function NetworkDirectoryPage({
   const params = await searchParams;
   const canWrite = canWriteWorkspace(context.role);
 
-  const [taxonomy, geoFacets, results, saved, followed] = await Promise.all([
+  const [taxonomy, geoFacets, results, saved, followed, coverage] = await Promise.all([
     getNetworkTaxonomy(),
     getNetworkGeoFacets(),
     searchNetwork({
@@ -128,6 +130,7 @@ export default async function NetworkDirectoryPage({
     }),
     getSavedNetworkCompanies(),
     getFollowedNetworkCompanies(context.organizationId),
+    getItalyRegionCoverage(context.organizationId).catch(() => null),
   ]);
 
   const savedIds = new Set(saved.map((item) => item.network_company_id));
@@ -168,6 +171,8 @@ export default async function NetworkDirectoryPage({
           </>
         }
       />
+
+      <ItalyRegionMap coverage={coverage} selectedRegion={params.region} filters={params} />
 
       {params.error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
@@ -321,7 +326,7 @@ export default async function NetworkDirectoryPage({
         </details>
       </section>
 
-      <section aria-labelledby="network-results">
+      <section id="network-region-results" aria-labelledby="network-results">
         <FocusSectionHeader
           eyebrow="Directory"
           title={
