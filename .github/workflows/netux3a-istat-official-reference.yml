@@ -1,0 +1,75 @@
+name: "NET-UX3A — ISTAT 2026 Official Reference"
+
+on:
+  pull_request:
+    paths:
+      - "services/worker/app/istat_import.py"
+      - "services/worker/tests/test_netux3a_official_import.py"
+      - ".github/workflows/netux3a-istat-official-reference.yml"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Preview (no writes) or explicitly enabled production apply"
+        type: choice
+        required: true
+        default: preview
+        options: [preview, apply]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: netux3a-official-reference
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    name: "Download official ISTAT / SHA-256 / schema validation (read-only)"
+    if: github.event_name == 'pull_request' || inputs.mode == 'preview'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: "Install worker parsers"
+        working-directory: services/worker
+        run: python -m pip install -e .
+      - name: "Validate 7,894 official municipalities, Sardinia 2026 and file SHA"
+        working-directory: services/worker
+        run: python -m app.istat_import --mode preview
+
+  apply:
+    name: "Controlled atomic ISTAT import — service-role only"
+    # Production activation requires TWO independent actions:
+    # repo var NETUX3A_APPLY_ENABLED=true AND explicit manual mode=apply.
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      inputs.mode == 'apply' &&
+      github.ref == 'refs/heads/main' &&
+      vars.NETUX3A_APPLY_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install worker parsers
+        working-directory: services/worker
+        run: python -m pip install -e .
+      - name: Apply only validated 2026 ISTAT file to reference tables
+        working-directory: services/worker
+        env:
+          SUPABASE_URL: ${{ vars.NETUX3A_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.NETUX3A_SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          test -n "$SUPABASE_URL" || { echo "Dedicated ISTAT project URL not configured"; exit 1; }
+          test -n "$SUPABASE_SERVICE_ROLE_KEY" || { echo "Dedicated ISTAT service key not configured"; exit 1; }
+          echo "::add-mask::$SUPABASE_SERVICE_ROLE_KEY"
+          python -m app.istat_import --mode apply
