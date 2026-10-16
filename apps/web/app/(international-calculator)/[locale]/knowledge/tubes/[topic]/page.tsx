@@ -108,9 +108,16 @@ export default async function MarketTechnicalGuide({ params }: Props) {
       </div>
     </header>
     <article className="mx-auto max-w-4xl space-y-8 px-4 py-10 sm:px-6">
-      <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-sm text-[#476355]">
-        <Link href={PUBLIC_HOME_LOCALE_ROUTES[locale]} className="underline underline-offset-4">Smart Steel Sales</Link><span aria-hidden="true">/</span>
-        <Link href={calculatorPath} className="underline underline-offset-4">{guide.calculatorCta}</Link>
+      <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-xs leading-6 text-[#476355] sm:text-sm">
+        <Link href={PUBLIC_HOME_LOCALE_ROUTES[locale]} className="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#124c38]">Smart Steel Sales</Link>
+        <span aria-hidden="true">/</span>
+        <Link href={calculatorPath} className="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#124c38]">{guide.calculatorCta}</Link>
+        <span aria-hidden="true">/</span>
+        {!isPillar ? <>
+          <Link href={MARKET_GUIDE_ROUTES[locale]} className="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#124c38]">{MARKET_GUIDES[locale].title}</Link>
+          <span aria-hidden="true">/</span>
+        </> : null}
+        <span aria-current="page" className="min-w-0 break-words font-semibold text-[#245842]">{guide.title}</span>
       </nav>
       <header>
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1b7052]">{guide.kicker}</p>
