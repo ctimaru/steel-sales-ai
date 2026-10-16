@@ -16,7 +16,7 @@ test("role-aware persona is presentation-only and does not grant access",()=>{
  assert.match(persona,/recommendedNetworkRoles/);
  assert.doesNotMatch(persona,/network_entitlement|grant |supabase\.from|auth\.uid/);
  assert.match(component,/non cambia la classificazione della tua azienda/);
- assert.match(component,/soltanto profili Network pubblicati/);
+ assert.match(component,/distingue profili pubblicati da aziende scoperte da confermare/);
 });
 test("both Free and Pro apply guided discovery while keeping server guards",()=>{
  assert.match(free,/NetworkRoleDiscovery/);
