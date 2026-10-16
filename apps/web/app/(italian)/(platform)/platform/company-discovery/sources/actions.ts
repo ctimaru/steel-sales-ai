@@ -123,7 +123,7 @@ export async function linkApprovedPilotRun(form: FormData) {
 export async function recordFirstPartyPermission(form:FormData){
  await requirePlatformPermission("discovery.governance_review");
  const date=String(form.get("expires_at")??"");
- if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date))
   response("error","Data di scadenza del consenso non valida.");
  const supabase=await createClient();
  const {data,error}=await supabase.rpc("netcov2b_record_permission",{
@@ -155,7 +155,7 @@ export async function activateConsentedSource(form:FormData){
 
 export async function prepareFirstPartyRun(form:FormData){
  await requirePlatformPermission("discovery.run");
- const ids=String(form.get("lead_ids")??"").split(/[\\s,;]+/).map(s=>s.trim()).filter(Boolean);
+ const ids=String(form.get("lead_ids")??"").split(/[\s,;]+/).map(s=>s.trim()).filter(Boolean);
  if(ids.length<1||ids.length>10 || ids.some(id=>! /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id)))
   response("error","Indica da 1 a 10 UUID di lead, separati da virgole.");
  const supabase=await createClient();
