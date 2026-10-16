@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getPlatformAccessContext, requirePlatformPermission } from "@/lib/platform-admin";
-import { stageEndUserTarget, reviewEndUserTargets, enqueueEndUserTargets } from "./actions";
+import { stageEndUserTarget, reviewEndUserTargets, enqueueEndUserTargets, stageIndustrialCampaign } from "./actions";
 
 export const dynamic="force-dynamic";
 
@@ -14,6 +14,9 @@ type Queue={
  contract:"netcov1-targets-v1";total:number;needs_review:number;ready_for_crawler:number;
  enqueued:number;published_end_users:number;items:Lead[];
 };
+
+type Campaign={campaign:string;total:number;needs_review:number;ready_for_crawler:number;enqueued_for_crawler:number;duplicates:number;rejected:number;end_users:number;traders:number};
+type Campaigns={contract:"netcov2-campaign-metrics-v1";campaigns:Campaign[]};
 
 const statusLabel:Record<string,string>={
  needs_review:"Da qualificare",ready_for_crawler:"Pronto per fonte approvata",
@@ -38,6 +41,8 @@ export default async function NetworkCoreCoveragePage({
  const params=await searchParams;
  const supabase=await createClient();
  const {data,error}=await supabase.rpc("netcov1_targets_queue");
+ const {data:campaignData,error:campaignError}=await supabase.rpc("netcov2_campaign_metrics");
+ const campaigns= !campaignError && (campaignData as Campaigns|null)?.contract==="netcov2-campaign-metrics-v1" ? (campaignData as Campaigns).campaigns : null;
  const queue= !error && (data as Queue|null)?.contract==="netcov1-targets-v1" ? data as Queue : null;
  const pending=queue?.items.filter(item=>item.status==="needs_review")??[];
  const ready=queue?.items.filter(item=>item.status==="ready_for_crawler")??[];
@@ -105,6 +110,59 @@ export default async function NetworkCoreCoveragePage({
     <button className={cta+" sm:col-span-2"}>Inserisci nella coda commerciale · non pubblica</button>
    </form>
   </section>:null}
+
+  {canEnrich ? <section className="rounded-2xl border border-[#b8d3c4] bg-white p-5">
+   <p className="platform-kicker">NET-COV2 · CAMPAGNE INDUSTRIALI</p>
+   <h2 className="mt-1 text-lg font-semibold text-[#173f35]">Importazione da Excel · fino a 40 aziende per lotto</h2>
+   <p className="mt-1 text-sm leading-6 text-[#52615b]">
+    Incolla righe separate da TAB (ad esempio da un foglio Excel), una per azienda.
+    È una coda di ricerca privata: nessun crawler viene avviato e nessuna azienda diventa pubblica.
+    Ripeti i lotti con una campagna riconoscibile per territorio e settore.
+   </p>
+   <div className="mt-3 overflow-x-auto rounded-lg bg-[#f1f6f2] p-3 text-xs text-[#173f35]">
+    Ordine delle 7 colonne: <code>name · domain · evidence_url · summary · segment · material_signal · role</code>
+   </div>
+   <p className="mt-2 text-xs leading-5 text-[#52615b]">
+    Segmenti: furniture, urban_furniture, scaffolding, industrial_equipment, agricultural_equipment, other.
+    Segnale: explicit_steel_tube_product oppure finished_equipment_only.
+    Ruolo: end_user oppure trader_distributor. URL HTTPS e dominio devono coincidere.
+   </p>
+   <form action={stageIndustrialCampaign} className="mt-4 space-y-3">
+    <label className="grid gap-1 text-sm">Nome campagna
+     <input name="campaign" required minLength={4} maxLength={90} className={input} placeholder="NET-COV2 Lombardia arredamento A"/>
+    </label>
+    <label className="grid gap-1 text-sm">Righe da foglio di calcolo (TAB, massimo 40)
+     <textarea required name="rows" maxLength={60000} rows={6}
+      className="w-full rounded-xl border border-[#cedbd2] p-3 font-mono text-xs text-[#173f35]"
+      placeholder={"name\\tdomain\\tevidence_url\\tsummary\\tsegment\\tmaterial_signal\\trole\\nNome azienda\\tesempio.it\\thttps://esempio.it/prodotti\\tTubolari in acciaio indicati nella descrizione ufficiale del prodotto\\tfurniture\\texplicit_steel_tube_product\\tend_user"} />
+    </label>
+    <label className="flex gap-2 text-xs leading-5">
+     <input type="checkbox" name="attested" value="yes" required className="h-5 w-5"/>
+     <span>Attesto che ogni riga proviene dal sito ufficiale dell'azienda e contiene soltanto dati aziendali/prodotto. La raccolta non autorizza automaticamente scraping, pubblicazione o trattamento di contatti personali.</span>
+    </label>
+    <button className={cta}>Importa e deduplica · solo staging</button>
+   </form>
+  </section>:null}
+
+  <section className="space-y-3">
+   <div className="flex flex-wrap items-center justify-between gap-2">
+    <h2 className="text-lg font-semibold text-[#173f35]">Rendimento delle campagne</h2>
+    <span className="text-xs text-[#64766c]">Importati ≠ qualificati ≠ pubblicati</span>
+   </div>
+   {campaigns===null ? <p role="status" className="text-sm text-[#52615b]">Metriche campagne non disponibili.</p> :
+    campaigns.length===0 ? <p className="rounded-xl border bg-white p-4 text-sm">Nessuna campagna importata finora.</p> :
+    <div className="grid gap-2 md:grid-cols-2">
+     {campaigns.map(item=><article key={item.campaign} className="rounded-xl border bg-white p-4">
+      <h3 className="font-semibold text-[#173f35]">{item.campaign}</h3>
+      <p className="mt-1 text-sm text-[#52615b]">
+       {item.total} in staging · {item.end_users} utilizzatori · {item.traders} commercianti
+      </p>
+      <p className="mt-1 text-xs text-[#52615b]">
+       {item.needs_review} da qualificare · {item.ready_for_crawler} pronti per gate fonte · {item.enqueued_for_crawler} inoltrati · {item.duplicates} duplicati · {item.rejected} scartati
+      </p>
+     </article>)}
+    </div>}
+  </section>
 
   <section className="space-y-3">
    <div className="flex flex-wrap items-center justify-between gap-2">
