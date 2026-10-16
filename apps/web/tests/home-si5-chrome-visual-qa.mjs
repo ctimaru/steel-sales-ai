@@ -300,7 +300,12 @@ try {
             animations: "disabled",
           });
           // CALC-INT4.5: both IT and EN add to the same-page inline bill.
-          // Session stays local to this browser tab; never dispatch an RFQ.
+          // The draft intentionally survives a locale switch in the same tab.
+          const previousCount=await page.evaluate(() => {
+            try {
+              return JSON.parse(sessionStorage.getItem("sss:inline-distinta:v1")||"null")?.lines?.length||0;
+            } catch { return 0; }
+          });
           for (let repeat = 0; repeat < 2; repeat++) {
             if (repeat) {
               await page.goto(BASE + tube.path, {waitUntil:"domcontentloaded",timeout:50000});
@@ -310,7 +315,7 @@ try {
             await move.click();
             const inline=page.locator("#distinta-inline");
             await inline.locator("article").last().waitFor({state:"visible",timeout:20000});
-            await page.waitForFunction(n=>document.querySelectorAll("#distinta-inline article").length===n,repeat+1);
+            await page.waitForFunction(n=>document.querySelectorAll("#distinta-inline article").length===n,previousCount+repeat+1);
             await page.waitForFunction(()=>Boolean(sessionStorage.getItem("sss:inline-distinta:v1")));
             assert.equal(new URL(page.url()).pathname,tube.path,"Inline bill must not navigate");
             const target=await page.evaluate(()=>JSON.parse(sessionStorage.getItem("sss:inline-distinta:v1")).lines);
