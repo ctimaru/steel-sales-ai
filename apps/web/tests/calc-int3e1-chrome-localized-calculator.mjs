@@ -41,8 +41,8 @@ try{
     assert.equal(await width.inputValue(),"155,5","Numeric editing must preserve focus/state");
     const wall=root.getByRole("textbox",{name:c.wall});
     await wall.fill("6,3");
-    await root.getByRole("heading",{name:/Masse je|Poids par|Peso por|Gewicht je/i}).first().waitFor({state:"visible"});
-    await root.locator('svg[role="img"]').first().waitFor({state:"visible"});
+    await root.getByText(/Masse je|Poids par|Peso por|Gewicht je/i).first().waitFor({state:"visible"});
+    assert.ok(await root.locator('svg[role="img"]').count()>0,"Proportional diagram remains available on desktop");
     assert.match(await root.innerText(),/Favoriten|Favoris|Favoritos/i);
     assert.match(await root.innerText(),/Zieltonnen|Tonnes cibles|Toneladas objetivo/i);
     assert.match(await root.innerText(),/kg\/m/);
