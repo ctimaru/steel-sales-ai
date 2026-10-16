@@ -52,4 +52,7 @@ select pg_temp.netcov2b_assert(
  not has_function_privilege('anon','public.netcov2b_enqueue_consented(uuid,integer)','EXECUTE')
  and exists(select 1 from pg_trigger where tgname='netcov2b_domain_lead_guard' and not tgisinternal),
  'source-specific consent-only enqueue');
+select pg_temp.netcov2b_assert(
+ not has_function_privilege('anon','public.netcov2b_revoke_permission(uuid,text,text,boolean)','EXECUTE'),
+ 'revocation private to reviewed operators');
 rollback;
