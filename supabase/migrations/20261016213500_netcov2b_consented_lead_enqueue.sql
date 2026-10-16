@@ -7,7 +7,7 @@ declare s public.network_discovery_source_registry%rowtype;
 begin
  perform private.require_platform_permission('discovery.run');
  perform private.require_platform_permission('discovery.governance_review');
- if auth.uid() is null or p_limit not between 1 and 10
+ if auth.uid() is null or p_limit is null or p_limit not between 1 and 10
  then raise exception 'Attested Platform operator and 1-10 budget required' using errcode='42501';end if;
  select * into s from public.network_discovery_source_registry
  where id=p_source_id for share;
