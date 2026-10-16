@@ -64,8 +64,11 @@ test("4.4D supplier email projection removes ALL private buyer target numbers",(
  assert.equal(publicLine.targetTotalEur,null);
  assert.equal(publicLine.weightKgM,priced.weightKgM);
  assert.match(redactionSource,/supplierVisibleBuyerLines\(exportLines\)/);
- assert.match(redactionSource,/buildBuyerDistintaPlainText\(title, supplierVisibleBuyerLines\(exportLines\), documents\)/);
- assert.match(redactionSource,/buildBuyerDistintaHtml\(title, supplierVisibleBuyerLines\(exportLines\), documents\)/);
+ assert.match(redactionSource,/buildBuyerDistintaPlainText\(title, supplierVisibleBuyerLines\(exportLines\), documents, false\)/);
+ assert.match(redactionSource,/buildBuyerDistintaHtml\(title, supplierVisibleBuyerLines\(exportLines\), documents, false\)/);
+ const formatSrc=read("../lib/buyer-distinta.ts");
+ assert.match(formatSrc,/includeBuyerTargets = true/);
+ assert.match(formatSrc,/includeBuyerTargets/);
  assert.doesNotMatch(portalSource,/target_eur_t|target_eur_m|target_total_eur/);
 });
 test("4.4D browser redaction remains 4.4A while auth is click-only and RFQ never auto-dispatches",()=>{
