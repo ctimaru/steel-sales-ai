@@ -134,7 +134,7 @@ export default async function NetworkCoreCoveragePage({
     <label className="grid gap-1 text-sm">Righe da foglio di calcolo (TAB, massimo 40)
      <textarea required name="rows" maxLength={60000} rows={6}
       className="w-full rounded-xl border border-[#cedbd2] p-3 font-mono text-xs text-[#173f35]"
-      placeholder={"name\\tdomain\\tevidence_url\\tsummary\\tsegment\\tmaterial_signal\\trole\\nNome azienda\\tesempio.it\\thttps://esempio.it/prodotti\\tTubolari in acciaio indicati nella descrizione ufficiale del prodotto\\tfurniture\\texplicit_steel_tube_product\\tend_user"} />
+      placeholder="Incolla le righe copiate da Excel: azienda, dominio, URL, prova, segmento, segnale, ruolo" />
     </label>
     <label className="flex gap-2 text-xs leading-5">
      <input type="checkbox" name="attested" value="yes" required className="h-5 w-5"/>
