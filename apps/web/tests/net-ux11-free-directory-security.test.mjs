@@ -61,5 +61,5 @@ test("NET-UX1.1 preserves product scope for discovery and shows no synthetic reg
   assert.match(directory, /data\.regions\.map/);
   assert.match(directory, /Regione non disponibile/);
   assert.match(freeProfile, /Località non ancora disponibili/);
-  assert.match(directory, /NET-UX2/);
+  assert.match(directory, /ItalyRegionMap/);
 });
