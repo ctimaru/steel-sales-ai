@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { CalculatorFlagLanguages } from "@/components/calculator-flag-languages";
+import { trackInternationalRfq } from "@/lib/international-rfq-analytics.client";
 import { CALCULATOR_PUBLIC_ROUTES } from "@/lib/calculator-international-contract";
 import { calculatorRfqFromValues, enqueueCalculatorRfq } from "@/lib/calculator-rfq-handoff";
 import { estimatePublicTubeMass, parseTubeNumber } from "@/lib/international-tube-mass";
@@ -98,6 +99,7 @@ export function InternationalSteelCalculator({locale,seed={}}:{
     if(!item || !enqueueCalculatorRfq(window.sessionStorage,item)){
       setStatus(t.addFailed);return;
     }
+    trackInternationalRfq("handoff",locale,{system:"eu",standard});
     // The public bill matches the calculator language; no RFQ is dispatched.
     window.location.assign(CALCULATOR_PUBLIC_ROUTES[locale].rfqBill);
   }
