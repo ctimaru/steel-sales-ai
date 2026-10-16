@@ -387,7 +387,7 @@ try {
             await supplemental.waitFor({state:"attached"});
             assert.equal(await supplemental.evaluate(el=>el.open),false,
               "IT technical catalogue must be closed on calculator-first landing");
-            await supplemental.locator("summary").click();
+            await supplemental.locator(":scope > summary").click();
           }
           const caption = page.locator("#tube-reference-heading");
           await caption.waitFor({state:"visible"});
