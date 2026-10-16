@@ -58,7 +58,7 @@ test("NET-UX1.1 Free RPC has explicit field allowlist and only published data", 
 
 test("NET-UX1.1 preserves product scope for discovery and shows no synthetic regions", () => {
   assert.match(directory, /orderNetworkDiscovery/);
-  assert.match(directory, /data\.regions\.map/);
+  assert.match(directory, /<ItalyRegionMap/);
   assert.match(directory, /Regione non disponibile/);
   assert.match(freeProfile, /Località non ancora disponibili/);
   assert.match(directory, /ItalyRegionMap/);
