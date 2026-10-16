@@ -124,3 +124,38 @@ export async function getFreeNetworkViewerRole(organizationId:string): Promise<N
   const known: readonly string[] = ["producer","trader_distributor","processor_service_provider","end_user"];
   return role && known.includes(role) ? role : null;
 }
+
+/** Pro/superadmin discovery uses PA1.3 entitlement, not the Free-only organization link.
+ * The SQL reader shares the exact provisional, source-governed record view. */
+export async function getProNetworkDiscoveryDirectory(
+ organizationId:string,filters:{q?:string;role?:string;region?:string},
+):Promise<FreeDirectory>{
+ const supabase=await createClient();
+ const {data,error}=await supabase.rpc("netlaunch1_pro_discovery",{
+  p_organization_id:organizationId,
+  p_query:(filters.q??"").trim().slice(0,120)||null,
+  p_role:filters.role||null,
+  p_region:(filters.region??"").trim().slice(0,90)||null,
+  p_limit:50,
+ });
+ if(error||!data||typeof data!=="object")throw new Error("network_pro_discoveries_unavailable");
+ const res=data as {contract?:string;items?:unknown[]};
+ if(res.contract!=="netlaunch1-pro-discovery-v1"||!Array.isArray(res.items))
+   throw new Error("network_pro_discoveries_invalid_contract");
+ return {...(data as unknown as FreeDirectory),contract:"netux11-free-v1"};
+}
+
+export async function getProNetworkDiscoveryProfile(
+ organizationId:string,companyId:string,
+):Promise<FreeProfile|null>{
+ const supabase=await createClient();
+ const {data,error}=await supabase.rpc("netlaunch1_pro_profile",{
+  p_organization_id:organizationId,p_discovery_id:companyId,
+ });
+ if(error)throw new Error("network_pro_discovery_profile_unavailable");
+ if(data===null)return null;
+ const result=data as {contract?:string};
+ if(result.contract!=="netfast-discovery-profile-v1")
+   throw new Error("network_pro_discovery_profile_invalid");
+ return data as unknown as FreeProfile;
+}

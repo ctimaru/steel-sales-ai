@@ -21,6 +21,7 @@ import {
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { getNetworkAccessState, requireNetworkAccess } from "@/lib/network-access";
 import { FreeNetworkProfileView } from "@/components/free-network-profile";
+import { getProNetworkDiscoveryProfile } from "@/lib/network-free";
 import { isNetworkFreeReadEnabled } from "@/lib/network-flags";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 import { createClient } from "@/lib/supabase/server";
@@ -146,6 +147,15 @@ export default async function NetworkCompanyProfilePage({
   const access = await getNetworkAccessState(context.organizationId);
   if (!access.can_access_network && isNetworkFreeReadEnabled()) {
     return <FreeNetworkProfileView organizationId={context.organizationId} companyId={id} />;
+  }
+  // NET-LAUNCH1: even entitled Pro viewers must open an unconfirmed discovery
+  // in the Free profile reader, not in the canonical Pro-company query.
+  // That reader enforces active company membership and returns no private data.
+  if (access.can_access_network) {
+    const candidate = await getProNetworkDiscoveryProfile(context.organizationId,id).catch(() => null);
+    if (candidate?.company.discovery_status === "unconfirmed") {
+      return <FreeNetworkProfileView organizationId={context.organizationId} companyId={id} accessMode="pro" />;
+    }
   }
   await requireNetworkAccess();
 

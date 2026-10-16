@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FocusPage } from "@/components/focus-ui";
 import { ItalyRegionMap } from "@/components/italy-region-map";
 import { NetworkRoleDiscovery } from "@/components/network-role-discovery";
+import { NetworkLaunchDiscovery } from "@/components/network-launch-discovery";
 import { getItalyRegionCoverage, type ItalyRegionCoverage } from "@/lib/network-region-coverage";
 import { NETWORK_COMPANY_ROLES, orderNetworkDiscovery } from "@/lib/network-experience";
 import { activeNetworkPersona, networkRoleReason } from "@/lib/network-role-discovery";
@@ -58,6 +59,17 @@ export async function FreeNetworkDirectoryView({
           <span className="text-xs font-medium text-[#52615b]">{organizationName}</span>
         </div>
         <h1 className="mt-4 text-2xl font-semibold tracking-tight text-[#173f35] sm:text-3xl">Scopri le aziende dell'acciaio</h1>
+        <div className="mt-4 flex flex-wrap gap-2" aria-label="Dimensione della directory">
+          <span className="rounded-full border border-[#b8d2c8] bg-white px-3 py-1.5 text-xs font-semibold text-[#173f35]">
+            {Math.max(data.total-(data.discovered_total??0),0)} profili pubblicati
+          </span>
+          <span className="rounded-full border border-[#e2d1a4] bg-[#fff7e6] px-3 py-1.5 text-xs font-semibold text-[#795521]">
+            {data.discovered_total??0} aziende scoperte · da confermare
+          </span>
+          <a href="#network-new-discoveries" className="inline-flex items-center px-2 text-xs font-semibold text-[#175640] underline">
+            Esplora le novità ↓
+          </a>
+        </div>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-[#43524c]">
           Cerca produttori, commercianti, terzisti e utilizzatori in tutta Italia.
           Le aziende scoperte vengono mostrate subito come "Da confermare". La mappa usa solo sedi con evidenza geografica già pubblicata.
@@ -87,8 +99,9 @@ export async function FreeNetworkDirectoryView({
       <div className="mt-6">
         <NetworkRoleDiscovery viewerRole={data.viewer_role} filters={filters} />
       </div>
-      <div className="mt-6">
-        <ItalyRegionMap coverage={coverage} selectedRegion={filters.region} filters={filters} />
+      <div className="mt-5">
+        <NetworkLaunchDiscovery directory={data} maxItems={6}
+          filters={{q:filters.q,role:filters.role,region:filters.region}} />
       </div>
       <section id="network-region-results" aria-label="Risultati del Network" className="mt-6">
         <h2 className="text-xl font-semibold text-[#173f35]">{data.total.toLocaleString("it-IT")} aziende</h2>
@@ -129,6 +142,9 @@ export async function FreeNetworkDirectoryView({
           </div>
         )}
       </section>
+      <div className="mt-6">
+        <ItalyRegionMap coverage={coverage} selectedRegion={filters.region} filters={filters} />
+      </div>
     </FocusPage>
   );
 }
