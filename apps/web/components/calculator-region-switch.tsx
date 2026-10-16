@@ -4,12 +4,30 @@ import { useId, useState, type ComponentProps, type ReactNode } from "react";
 
 import {
   PublicTubeWeightCalculator,
+  type PublicTubeCalculatorInitialValues,
 } from "@/components/public-tube-weight-calculator";
 import { UsPipeSampleCalculator, type UsPipeInitialValues } from "@/components/us-pipe-sample-calculator";
-import { InternationalSteelCalculator, type InternationalCalculatorSeed } from "@/components/international-steel-calculator";
+import { type InternationalCalculatorSeed } from "@/components/international-steel-calculator";
 import { isNewCalculatorLocale, type CalculatorSiteLocale } from "@/lib/international-calculator-landing";
 import { REGION_COPY } from "@/lib/us-calculator-i18n";
 import styles from "./calculator-region-switch.module.css";
+
+// Preserve established DE/FR/ES deep links when migrating from the old light
+// widget to the SAME complete EU calculator used by IT/EN.
+export function internationalEuInitialValues(seed:InternationalCalculatorSeed = {}):PublicTubeCalculatorInitialValues {
+  const validStandards=["en10219","en10210","geometric"];
+  const validFamilies=["round_tube","square_tube","rectangular_tube"];
+  return {
+    standard:validStandards.includes(seed.standard??"")
+      ? seed.standard as PublicTubeCalculatorInitialValues["standard"]:undefined,
+    family:validFamilies.includes(seed.family??"")
+      ? seed.family as PublicTubeCalculatorInitialValues["family"]:undefined,
+    outerDiameter:seed.od,
+    width:seed.width,height:seed.height,thickness:seed.thickness,
+    length:seed.length,quantity:seed.quantity,targetTonnes:seed.target,
+    density:seed.density,
+  };
+}
 
 type Region = "eu" | "us";
 type CalculatorProps = ComponentProps<typeof PublicTubeWeightCalculator>;
@@ -94,10 +112,11 @@ export function CalculatorRegionSwitch({
         <div className={styles.panelInner}>
           {visited.eu ? (
             <>
-              {isNewCalculatorLocale(locale)
-                ? <InternationalSteelCalculator locale={locale} seed={internationalSeed}/>
-                : <PublicTubeWeightCalculator references={references??[]}
-                    initialValues={initialValues} locale={locale} />}
+              <PublicTubeWeightCalculator references={references??[]}
+                initialValues={isNewCalculatorLocale(locale)
+                  ? internationalEuInitialValues(internationalSeed)
+                  : initialValues}
+                locale={locale} />
               {euAfter ? <div className={styles.evidence}>{euAfter}</div> : null}
             </>
           ) : null}
