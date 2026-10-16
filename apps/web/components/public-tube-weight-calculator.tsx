@@ -880,6 +880,154 @@ export function PublicTubeWeightCalculator({
   const selectionIdle =
     "border-[#cbdad3] bg-white text-[#23473a] hover:border-[#55977b] hover:bg-[#f0f7f3]";
 
+  // Preserve all reference/source HTML and device conveniences for people and
+  // crawlers, but make them opt-in on the Italian public inline-bill experience.
+  // Native <details> is not SEO cloaking: the content is equally available to
+  // visitors, and is not fetched separately for bots.
+  const secondaryTools = (
+    <>
+      {/* Secondary device conveniences: OUTSIDE the calculator controls and result. */}
+      {!inEmbeddedBuilder ? (
+        <details className="rounded-xl border border-[#dce5e0] bg-[#f8faf8] text-[#123b34]">
+          <summary className="flex min-h-11 cursor-pointer items-center justify-between px-4 py-2 text-xs font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#237858]">
+            {t("Opzioni del dispositivo")}
+            <span aria-hidden="true">⌄</span>
+          </summary>
+          <div className="flex flex-wrap items-center gap-2 border-t border-[#dce5e0] px-4 py-3">
+            <CalculatorInstallGuide locale={locale} />
+            <button
+              type="button"
+              disabled={!currentSnapshot}
+              onClick={() => {
+                if (!currentSnapshot) return;
+                if (calculatorSaved) {
+                  writeSavedCalculator(null);
+                  setCalculatorSaved(false);
+                  setActionFeedback("Salvataggio del calcolatore rimosso.");
+                  return;
+                }
+                writeSavedCalculator(currentSnapshot);
+                setCalculatorSaved(true);
+                setActionFeedback("Calcolatore salvato su questo dispositivo.");
+              }}
+              className={calculatorSaved
+                ? "school-selected-control rounded-xl px-3 py-2.5 min-h-11 text-xs font-bold disabled:opacity-50"
+                : "school-secondary-action px-3 py-2.5 min-h-11 text-xs disabled:opacity-50"}
+            >
+              {t(calculatorSaved ? "Calcolatore salvato ✓" : "Salva il Calcolatore")}
+            </button>
+          </div>
+        </details>
+      ) : null}
+
+      {!inEmbeddedBuilder && (locale === "it" || locale === "en" || references.length > 0) ? <section aria-labelledby="tube-reference-heading" className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="max-w-2xl">
+            <p className="text-xs font-bold uppercase tracking-wide text-[#52615b]">{t("Riferimenti di fonte")}</p>
+            <h2 id="tube-reference-heading" className="mt-1 text-lg font-semibold text-[#1d2824]">
+              {familyCount} {t("riferimenti disponibili")} · {t(currentFamily.label)}
+            </h2>
+            <p className="mt-1 text-xs leading-5 text-[#52615b]">
+              {t("Pubblicato non significa verificato. La norma di prodotto della fonte può essere diversa da quella del calcolo.")}
+            </p>
+          </div>
+          <span className="rounded-full border border-[#cbded4] bg-[#eff7f2] px-3 py-1.5 text-xs font-semibold text-[#1d5748]">
+            {standard === "geometric" ? t("Calcolo libero") : currentStandard.label}
+          </span>
+        </div>
+
+        {contextualReferences.length > 0 ? (
+          <div className="mt-4">
+            <p className="text-xs font-semibold text-[#1d5748]">
+              {t("Misure vicine con la stessa norma dichiarata")}
+            </p>
+            <ul className="mt-2 grid gap-2 sm:grid-cols-3">
+              {contextualReferences.map((reference) => (
+                <li key={reference.reference_id}>
+                  <Link href={"/knowledge/tubes/" + reference.dimension_slug} className="flex min-h-14 flex-col justify-center rounded-xl border border-[#cbded4] bg-[#f7faf8] px-3 py-2 text-xs text-[#123b34] hover:border-[#719c87] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6b5a]">
+                    <span className="font-semibold">{referenceLabel(reference)}</span>
+                    <span className="mt-1 text-[#40594e]">{formatOutput(reference.weight_kg_m, 3)} kg/m · {sourceMethodLabel(referenceEvidence(reference).declaredMethod, locale === "it" ? "it" : "en")}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <p className="mt-3 rounded-lg bg-[#f5f8f6] px-3 py-2 text-xs leading-5 text-[#52615b]">
+            {standard === "geometric"
+              ? (locale === "it" ? "Il calcolo libero è una stima geometrica: non implica equivalenza a uno specifico prodotto di catalogo." : "Geometric mode is an estimate, not an equivalent published product.")
+              : (locale === "it" ? "Nessun riferimento comparabile documentato per norma e dimensioni selezionate. Le altre fonti restano consultabili separatamente." : "No documented same-standard reference near these dimensions. Other source records can be explored separately.")}
+          </p>
+        )}
+
+        <details className="mt-4 rounded-xl border border-[#dce7e1] bg-[#fafcfb]" data-testid="tube-reference-catalogue">
+          <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 px-3 py-3 text-sm font-semibold text-[#123b34] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6b5a]">
+            {t("Esplora riferimenti e fonti")}
+            <span aria-hidden="true" className="text-lg">⌄</span>
+          </summary>
+          <div className="border-t border-[#dce7e1] px-3 pb-3 pt-3">
+            <p className="max-w-3xl text-xs leading-5 text-[#52615b]">
+              {locale === "it"
+                ? "Le fonti EN 10216-2/P265GH descrivono tubi per pressione, non attestano conformità strutturale EN 10219 o EN 10210. «Classificato verificato» indica il metodo registrato, non una nuova verifica indipendente."
+                : "EN 10216-2/P265GH sources describe pressure-purpose tubes, not EN 10219/10210 structural conformity. 'Marked verified' reflects the stored method, not a new independent verification."}
+            </p>
+            <label className="mt-3 block text-xs font-semibold text-[#52615b]">
+              {t("Cerca dimensione, peso o fonte")}
+              <input value={referenceQuery} onChange={(event) => setReferenceQuery(event.target.value)}
+                placeholder={t("Cerca 168,3 × 6,3...")}
+                className="mt-1 block h-11 w-full rounded-xl border border-[#cbdcd3] bg-white px-3 text-base text-[#1d2824] outline-none focus:border-[#438d7a] focus:ring-2 focus:ring-[#d4eae0] sm:max-w-sm"
+              />
+            </label>
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full min-w-[630px] text-left text-xs">
+                <thead className="school-table-head border-b border-[#dce2df]"><tr>
+                  <th className="px-2 py-3">{t("Dimensione")}</th>
+                  <th className="px-2 py-3">kg/m</th>
+                  <th className="px-2 py-3">{t("Norma fonte")}</th>
+                  <th className="px-2 py-3">{t("Metodo e provenienza")}</th>
+                </tr></thead>
+                <tbody className="divide-y divide-[#e5ede8]">
+                  {familyReferences.map((reference) => {
+                    const evidence = referenceEvidence(reference);
+                    return (
+                      <tr key={reference.reference_id} className="school-table-row">
+                        <td className="px-2 py-2.5 font-medium">
+                          <Link href={`/knowledge/tubes/${reference.dimension_slug}`} className="text-[#234e42] underline underline-offset-2 hover:text-[#123b34]">{referenceLabel(reference)}</Link>
+                        </td>
+                        <td className="whitespace-nowrap px-2 py-2.5 text-[#344e43]">{formatOutput(reference.weight_kg_m, 3)}</td>
+                        <td className="px-2 py-2.5 text-[#344e43]">
+                          <span>{sourceStandardLabel(evidence.standard, locale === "it" ? "it" : "en")}</span>
+                          {evidence.grade ? <span className="block text-[11px] text-[#52615b]">{evidence.grade}</span> : null}
+                          {standard !== "geometric" && evidence.standard !== standard ? (
+                            <span className="block text-[11px] font-semibold text-[#895400]">{t("Non equivalente alla norma scelta")}</span>
+                          ) : null}
+                        </td>
+                        <td className="px-2 py-2.5 text-[#344e43]">
+                          <span>{sourceMethodLabel(evidence.declaredMethod, locale === "it" ? "it" : "en")}</span>
+                          {reference.source_url ? (
+                            <a href={reference.source_url} target="_blank" rel="noopener noreferrer" className="mt-0.5 block min-h-6 text-[#1d5748] underline underline-offset-2">
+                              {reference.source_provider ?? t("Fonte")} ↗
+                            </a>
+                          ) : <span className="block">{reference.source_provider ?? "—"}</span>}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            {!familyReferences.length ? <p className="mt-3 text-xs text-[#52615b]">{t("Nessun riferimento corrispondente.")}</p> : null}
+            {familyCount > familyReferences.length ? (
+              <p className="mt-3 text-xs text-[#52615b]">
+                {t("Mostrati i primi")} {familyReferences.length} {t("riferimenti corrispondenti. Usa la ricerca per restringere la lista.")}
+              </p>
+            ) : null}
+          </div>
+        </details>
+      </section> : null}
+    </>
+  );
+
   return (
     <div
       className="space-y-5"
@@ -1470,145 +1618,18 @@ export function PublicTubeWeightCalculator({
         </div>
       </section>
 
-      {/* Secondary device conveniences: OUTSIDE the calculator controls and result. */}
-      {!inEmbeddedBuilder ? (
-        <details className="rounded-xl border border-[#dce5e0] bg-[#f8faf8] text-[#123b34]">
-          <summary className="flex min-h-11 cursor-pointer items-center justify-between px-4 py-2 text-xs font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#237858]">
-            {t("Opzioni del dispositivo")}
+      {inlinePublicDistinta && locale === "it" ? (
+        <details data-testid="calculator-technical-disclosure"
+          className="rounded-xl border border-[#dbe8e1] bg-[#fbfdfb] text-[#305d48]">
+          <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 px-4 py-2 text-xs font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176647]">
+            Riferimenti e opzioni del calcolatore
             <span aria-hidden="true">⌄</span>
           </summary>
-          <div className="flex flex-wrap items-center gap-2 border-t border-[#dce5e0] px-4 py-3">
-            <CalculatorInstallGuide locale={locale} />
-            <button
-              type="button"
-              disabled={!currentSnapshot}
-              onClick={() => {
-                if (!currentSnapshot) return;
-                if (calculatorSaved) {
-                  writeSavedCalculator(null);
-                  setCalculatorSaved(false);
-                  setActionFeedback("Salvataggio del calcolatore rimosso.");
-                  return;
-                }
-                writeSavedCalculator(currentSnapshot);
-                setCalculatorSaved(true);
-                setActionFeedback("Calcolatore salvato su questo dispositivo.");
-              }}
-              className={calculatorSaved
-                ? "school-selected-control rounded-xl px-3 py-2.5 min-h-11 text-xs font-bold disabled:opacity-50"
-                : "school-secondary-action px-3 py-2.5 min-h-11 text-xs disabled:opacity-50"}
-            >
-              {t(calculatorSaved ? "Calcolatore salvato ✓" : "Salva il Calcolatore")}
-            </button>
+          <div className="space-y-4 border-t border-[#e2eee7] p-3 sm:p-4">
+            {secondaryTools}
           </div>
         </details>
-      ) : null}
-
-      {!inEmbeddedBuilder && (locale === "it" || locale === "en" || references.length > 0) ? <section aria-labelledby="tube-reference-heading" className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="max-w-2xl">
-            <p className="text-xs font-bold uppercase tracking-wide text-[#52615b]">{t("Riferimenti di fonte")}</p>
-            <h2 id="tube-reference-heading" className="mt-1 text-lg font-semibold text-[#1d2824]">
-              {familyCount} {t("riferimenti disponibili")} · {t(currentFamily.label)}
-            </h2>
-            <p className="mt-1 text-xs leading-5 text-[#52615b]">
-              {t("Pubblicato non significa verificato. La norma di prodotto della fonte può essere diversa da quella del calcolo.")}
-            </p>
-          </div>
-          <span className="rounded-full border border-[#cbded4] bg-[#eff7f2] px-3 py-1.5 text-xs font-semibold text-[#1d5748]">
-            {standard === "geometric" ? t("Calcolo libero") : currentStandard.label}
-          </span>
-        </div>
-
-        {contextualReferences.length > 0 ? (
-          <div className="mt-4">
-            <p className="text-xs font-semibold text-[#1d5748]">
-              {t("Misure vicine con la stessa norma dichiarata")}
-            </p>
-            <ul className="mt-2 grid gap-2 sm:grid-cols-3">
-              {contextualReferences.map((reference) => (
-                <li key={reference.reference_id}>
-                  <Link href={"/knowledge/tubes/" + reference.dimension_slug} className="flex min-h-14 flex-col justify-center rounded-xl border border-[#cbded4] bg-[#f7faf8] px-3 py-2 text-xs text-[#123b34] hover:border-[#719c87] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6b5a]">
-                    <span className="font-semibold">{referenceLabel(reference)}</span>
-                    <span className="mt-1 text-[#40594e]">{formatOutput(reference.weight_kg_m, 3)} kg/m · {sourceMethodLabel(referenceEvidence(reference).declaredMethod, locale === "it" ? "it" : "en")}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : (
-          <p className="mt-3 rounded-lg bg-[#f5f8f6] px-3 py-2 text-xs leading-5 text-[#52615b]">
-            {standard === "geometric"
-              ? (locale === "it" ? "Il calcolo libero è una stima geometrica: non implica equivalenza a uno specifico prodotto di catalogo." : "Geometric mode is an estimate, not an equivalent published product.")
-              : (locale === "it" ? "Nessun riferimento comparabile documentato per norma e dimensioni selezionate. Le altre fonti restano consultabili separatamente." : "No documented same-standard reference near these dimensions. Other source records can be explored separately.")}
-          </p>
-        )}
-
-        <details className="mt-4 rounded-xl border border-[#dce7e1] bg-[#fafcfb]" data-testid="tube-reference-catalogue">
-          <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 px-3 py-3 text-sm font-semibold text-[#123b34] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f6b5a]">
-            {t("Esplora riferimenti e fonti")}
-            <span aria-hidden="true" className="text-lg">⌄</span>
-          </summary>
-          <div className="border-t border-[#dce7e1] px-3 pb-3 pt-3">
-            <p className="max-w-3xl text-xs leading-5 text-[#52615b]">
-              {locale === "it"
-                ? "Le fonti EN 10216-2/P265GH descrivono tubi per pressione, non attestano conformità strutturale EN 10219 o EN 10210. «Classificato verificato» indica il metodo registrato, non una nuova verifica indipendente."
-                : "EN 10216-2/P265GH sources describe pressure-purpose tubes, not EN 10219/10210 structural conformity. 'Marked verified' reflects the stored method, not a new independent verification."}
-            </p>
-            <label className="mt-3 block text-xs font-semibold text-[#52615b]">
-              {t("Cerca dimensione, peso o fonte")}
-              <input value={referenceQuery} onChange={(event) => setReferenceQuery(event.target.value)}
-                placeholder={t("Cerca 168,3 × 6,3...")}
-                className="mt-1 block h-11 w-full rounded-xl border border-[#cbdcd3] bg-white px-3 text-base text-[#1d2824] outline-none focus:border-[#438d7a] focus:ring-2 focus:ring-[#d4eae0] sm:max-w-sm"
-              />
-            </label>
-            <div className="mt-3 overflow-x-auto">
-              <table className="w-full min-w-[630px] text-left text-xs">
-                <thead className="school-table-head border-b border-[#dce2df]"><tr>
-                  <th className="px-2 py-3">{t("Dimensione")}</th>
-                  <th className="px-2 py-3">kg/m</th>
-                  <th className="px-2 py-3">{t("Norma fonte")}</th>
-                  <th className="px-2 py-3">{t("Metodo e provenienza")}</th>
-                </tr></thead>
-                <tbody className="divide-y divide-[#e5ede8]">
-                  {familyReferences.map((reference) => {
-                    const evidence = referenceEvidence(reference);
-                    return (
-                      <tr key={reference.reference_id} className="school-table-row">
-                        <td className="px-2 py-2.5 font-medium">
-                          <Link href={`/knowledge/tubes/${reference.dimension_slug}`} className="text-[#234e42] underline underline-offset-2 hover:text-[#123b34]">{referenceLabel(reference)}</Link>
-                        </td>
-                        <td className="whitespace-nowrap px-2 py-2.5 text-[#344e43]">{formatOutput(reference.weight_kg_m, 3)}</td>
-                        <td className="px-2 py-2.5 text-[#344e43]">
-                          <span>{sourceStandardLabel(evidence.standard, locale === "it" ? "it" : "en")}</span>
-                          {evidence.grade ? <span className="block text-[11px] text-[#52615b]">{evidence.grade}</span> : null}
-                          {standard !== "geometric" && evidence.standard !== standard ? (
-                            <span className="block text-[11px] font-semibold text-[#895400]">{t("Non equivalente alla norma scelta")}</span>
-                          ) : null}
-                        </td>
-                        <td className="px-2 py-2.5 text-[#344e43]">
-                          <span>{sourceMethodLabel(evidence.declaredMethod, locale === "it" ? "it" : "en")}</span>
-                          {reference.source_url ? (
-                            <a href={reference.source_url} target="_blank" rel="noopener noreferrer" className="mt-0.5 block min-h-6 text-[#1d5748] underline underline-offset-2">
-                              {reference.source_provider ?? t("Fonte")} ↗
-                            </a>
-                          ) : <span className="block">{reference.source_provider ?? "—"}</span>}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-            {!familyReferences.length ? <p className="mt-3 text-xs text-[#52615b]">{t("Nessun riferimento corrispondente.")}</p> : null}
-            {familyCount > familyReferences.length ? (
-              <p className="mt-3 text-xs text-[#52615b]">
-                {t("Mostrati i primi")} {familyReferences.length} {t("riferimenti corrispondenti. Usa la ricerca per restringere la lista.")}
-              </p>
-            ) : null}
-          </div>
-        </details>
-      </section> : null}
+      ) : secondaryTools}
     </div>
   );
 }
