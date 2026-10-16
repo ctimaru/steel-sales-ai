@@ -22,6 +22,7 @@ export async function FreeNetworkProfileView({
   if (!profile) notFound();
   const website = safeNetworkWebsiteUrl(profile.company.website_url);
   const source = safeNetworkWebsiteUrl(profile.source_url);
+  const license = safeNetworkWebsiteUrl(profile.license_url);
   const provisional = profile.company.discovery_status==="unconfirmed";
   return (
     <FocusPage className="max-w-[960px]">
@@ -37,6 +38,7 @@ export async function FreeNetworkProfileView({
           {profile.finished_only ? " L'uso di tubi in acciaio non è documentato in modo esplicito." : ""}
           <div className="mt-2 flex flex-wrap gap-4">
             {source ? <a href={source} target="_blank" rel="noopener noreferrer" className="font-semibold underline">Vedi fonte aziendale ↗</a> : null}
+            {license ? <a href={license} target="_blank" rel="noopener noreferrer" className="font-semibold underline">Licenza e attribuzione dei dati ↗</a> : null}
             <Link href="/company-data" className="font-semibold underline">Segnala una correzione o chiedi la rimozione →</Link>
           </div>
         </div> : null}
