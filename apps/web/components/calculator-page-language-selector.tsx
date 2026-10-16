@@ -5,21 +5,26 @@ import {
 } from "@/lib/international-calculator-landing";
 
 /**
- * CALC-INT3E.6 — language belongs to the PUBLIC PAGE, not either calculator engine.
- * One compact, crawlable menu. SEO URLs and browser-only RFQ queues stay untouched.
- * Changing language opens the destination calculator landing rather than editing
- * the currently active numeric values.
+ * CALC-INT3E.6 — language belongs to page navigation, not to calculator controls.
+ * Use public home routes on home pages, calculator routes on calculator pages.
+ * Explicit anchors only: no automatic redirect, cookies or calculation state mutation.
  */
-const labels: Record<CalculatorSiteLocale,{heading:string;choose:string}> = {
-  it:{heading:"Lingua",choose:"Scegli la lingua del calcolatore"},
-  en:{heading:"Language",choose:"Choose calculator language"},
-  de:{heading:"Sprache",choose:"Sprache des Rechners wählen"},
-  fr:{heading:"Langue",choose:"Choisir la langue du calculateur"},
-  es:{heading:"Idioma",choose:"Elegir idioma de la calculadora"},
+export const PUBLIC_HOME_LOCALE_ROUTES: Record<CalculatorSiteLocale,string> = {
+  it:"/",en:"/en",de:"/de",fr:"/fr",es:"/es",
+};
+const labels: Record<CalculatorSiteLocale,{heading:string;choose:string;chooseHome:string}> = {
+  it:{heading:"Lingua",choose:"Scegli la lingua del calcolatore",chooseHome:"Seleziona lingua del sito"},
+  en:{heading:"Language",choose:"Choose calculator language",chooseHome:"Choose website language"},
+  de:{heading:"Sprache",choose:"Sprache des Rechners wählen",chooseHome:"Sprache der Website auswählen"},
+  fr:{heading:"Langue",choose:"Choisir la langue du calculateur",chooseHome:"Choisir la langue du site"},
+  es:{heading:"Idioma",choose:"Elegir idioma de la calculadora",chooseHome:"Elegir idioma del sitio"},
 };
 
-export function CalculatorPageLanguageSelector({locale}:{locale:CalculatorSiteLocale}){
-  return <nav aria-label={labels[locale].choose} className="relative z-20 shrink-0">
+export function PublicPageLanguageSelector({
+  locale,surface,
+}:{locale:CalculatorSiteLocale;surface:"home"|"calculator"}){
+  const routes=surface==="home"?PUBLIC_HOME_LOCALE_ROUTES:CALCULATOR_ROUTES;
+  return <nav aria-label={surface==="home"?labels[locale].chooseHome:labels[locale].choose} className="relative z-20 shrink-0">
     <details className="group relative">
       <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-xl border border-[#c6d9cf] bg-white px-3.5 text-sm font-semibold text-[#123b34] shadow-sm transition-colors hover:bg-[#f2f8f4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#237858] [&::-webkit-details-marker]:hidden">
         <span className="text-xs font-medium text-[#52615b]">{labels[locale].heading}:</span>
@@ -30,7 +35,7 @@ export function CalculatorPageLanguageSelector({locale}:{locale:CalculatorSiteLo
       </summary>
       <div className="absolute right-0 top-full z-30 mt-2 w-[210px] rounded-xl border border-[#c6d9cf] bg-white p-1.5 shadow-[0_12px_36px_rgba(17,54,45,0.14)]">
         {CALCULATOR_LANGUAGE_ORDER.map(code=>(
-          <Link key={code} href={CALCULATOR_ROUTES[code]} hrefLang={code} lang={code}
+          <Link key={code} href={routes[code]} hrefLang={code} lang={code}
             aria-current={code===locale?"page":undefined}
             className={"flex min-h-10 items-center justify-between rounded-lg px-3 text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#237858] "+
               (code===locale?"bg-[#e9f3ee] font-bold text-[#14543f]":"font-medium text-[#294b3d] hover:bg-[#f2f8f4]")}>
@@ -41,4 +46,8 @@ export function CalculatorPageLanguageSelector({locale}:{locale:CalculatorSiteLo
       </div>
     </details>
   </nav>;
+}
+
+export function CalculatorPageLanguageSelector({locale}:{locale:CalculatorSiteLocale}){
+  return <PublicPageLanguageSelector locale={locale} surface="calculator"/>;
 }
