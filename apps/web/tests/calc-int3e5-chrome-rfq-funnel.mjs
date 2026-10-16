@@ -11,13 +11,13 @@ try{
   for(const c of [
     {locale:"de",region:"de-DE",start:"/de/knowledge/tubes",accept:"Analyse akzeptieren",
       fix:"Erste unvollständige Position prüfen",grade:"Stahlgüte",copy:"Anfrage-E-Mail kopieren",
-      confirmation:"Anfrage kopiert.",cta:"Firmenkonto für spätere RFQ-Hub-Funktionen erstellen"},
+      confirmation:"Anfrage kopiert.",cta:"Firmenkonto für spätere RFQ-Hub-Funktionen erstellen",disclaimer:"Die Registrierung speichert"},
     {locale:"fr",region:"fr-FR",start:"/fr/knowledge/tubes",accept:"Accepter les statistiques",
       fix:"Corriger la première ligne incomplète",grade:"Nuance d'acier",copy:"Copier le courriel de demande",
-      confirmation:"Demande copiée.",cta:"Créer un compte entreprise pour les futurs outils RFQ Hub"},
+      confirmation:"Demande copiée.",cta:"Créer un compte entreprise pour les futurs outils RFQ Hub",disclaimer:"L’inscription ne sauvegarde"},
     {locale:"es",region:"es-ES",start:"/es/knowledge/tubes",accept:"Aceptar analítica",
       fix:"Revisar la primera línea incompleta",grade:"Calidad de acero",copy:"Copiar correo de solicitud",
-      confirmation:"Solicitud copiada.",cta:"Crear cuenta de empresa para futuras funciones RFQ Hub"},
+      confirmation:"Solicitud copiada.",cta:"Crear cuenta de empresa para futuras funciones RFQ Hub",disclaimer:"El registro no guarda"},
   ]){
     const context=await browser.newContext({viewport:{width:360,height:780},locale:c.region,
       permissions:["clipboard-read","clipboard-write"],serviceWorkers:"block"});
@@ -55,7 +55,8 @@ try{
     const cta=page.getByRole("link",{name:new RegExp(c.cta)});
     await cta.waitFor({state:"visible"});
     assert.equal(await cta.getAttribute("href"),"/en/register");
-    assert.match(await page.getByRole("status").last().innerText(),/no|nicht|pas|transfiere|transfér|übertr/i);
+    assert.ok((await page.getByRole("status").last().innerText()).includes(c.disclaimer),
+      "Disclosure must match the actual current language");
     console.log("CALC-INT3E.5 LOCALE MOBILE PASS",c.locale,"valid copied synthetic RFQ, guided grade and non-persistent signup CTA");
     await context.close();
   }
