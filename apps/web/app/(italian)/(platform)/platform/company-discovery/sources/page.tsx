@@ -25,7 +25,7 @@ export default async function DiscoverySourcesPage({
   const { data: leads, error: leadError } = await supabase.rpc("crawl_it3_list_pending_leads");
   const pendingLeads = (leads ?? []) as Array<{ id:string; domain:string; proposed_url:string; evidence_url:string; source_name:string; created_at:string }>;
   return <main className="mx-auto max-w-5xl space-y-5 p-4 sm:p-6">
-    <Link href="/platform/company-discovery/governance" className="text-sm font-semibold underline">← Governance Discovery</Link>
+    <Link href="/platform/company-discovery/governance" className="text-sm font-semibold underline">← Governance Discovery</Link>\n    <Link href="/platform/company-discovery/bulk" className="ml-3 text-sm font-semibold underline">Import massivo dataset autorizzati →</Link>
     <header className="space-y-2">
       <p className="platform-kicker">CRAWL-IT2.1 · Italia</p>
       <h1 className="text-3xl font-semibold">Registro fonti Discovery</h1>

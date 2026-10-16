@@ -16,6 +16,7 @@ export type FreeCompany = {
   location: { region: string | null; city: string | null } | null;
   discovery_status?: "unconfirmed";
   source_url?: string | null;
+  license_url?: string | null;
   origin?: string;
   finished_only?: boolean;
 };
@@ -34,6 +35,7 @@ export type FreeProfile = {
   products: string[];
   facilities: { city: string | null; region: string | null; country_code: string }[];
   source_url?: string | null;
+  license_url?: string | null;
   origin?: string;
   finished_only?: boolean;
 };

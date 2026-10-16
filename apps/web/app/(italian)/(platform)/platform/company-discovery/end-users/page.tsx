@@ -49,6 +49,7 @@ export default async function NetworkCoreCoveragePage({
 
  return <main className="mx-auto max-w-6xl space-y-6 px-4 pb-12">
   <Link href="/platform/company-discovery" className="inline-flex min-h-11 items-center text-sm font-semibold text-[#175640] underline">← Company Discovery</Link>
+  <Link href="/platform/company-discovery/bulk" className="ml-3 inline-flex min-h-11 items-center text-sm font-semibold text-[#175640] underline">Import massivo aziende autorizzate →</Link>
   <header className="space-y-2">
     <p className="platform-kicker">NET-COV1 · CORE NETWORK</p>
     <h1 className="text-3xl font-semibold text-[#173f35]">Densità utilizzatori e commercianti</h1>
