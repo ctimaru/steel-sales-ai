@@ -5,9 +5,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/netfast2-wikidata-feed.yml"
-  schedule:
-    # Once each day, away from regular business hours; no repeated scraping.
-    - cron: "23 2 * * *"
+  # Legacy NET-FAST2 is manual-only; NET-LAUNCH2 owns the daily CC0 budget.
   workflow_dispatch:
 
 permissions:
