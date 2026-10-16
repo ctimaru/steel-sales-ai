@@ -2,15 +2,17 @@ import Link from "next/link";
 
 import { FocusPage } from "@/components/focus-ui";
 import { ItalyRegionMap } from "@/components/italy-region-map";
+import { NetworkRoleDiscovery } from "@/components/network-role-discovery";
 import { getItalyRegionCoverage, type ItalyRegionCoverage } from "@/lib/network-region-coverage";
 import { NETWORK_COMPANY_ROLES, orderNetworkDiscovery } from "@/lib/network-experience";
+import { activeNetworkPersona, networkRoleReason } from "@/lib/network-role-discovery";
 import { getFreeNetworkDirectory, safeNetworkWebsiteUrl } from "@/lib/network-free";
 
 const roleLabels: Record<string, string> = {
   producer: "Produttori", trader_distributor: "Commercianti",
   processor_service_provider: "Terzisti", end_user: "Utilizzatori",
 };
-function href(filters: { q?: string; role?: string; region?: string }) {
+function href(filters: { q?: string; role?: string; region?: string; persona?: string }) {
   const query = new URLSearchParams();
   for (const [key, value] of Object.entries(filters)) if (value) query.set(key, value);
   return "/network" + (query.size ? "?" + query.toString() : "");
@@ -20,7 +22,7 @@ export async function FreeNetworkDirectoryView({
 }: {
   organizationId: string;
   organizationName: string;
-  filters: { q?: string; role?: string; region?: string };
+  filters: { q?: string; role?: string; region?: string; persona?: string };
 }) {
   const role = NETWORK_COMPANY_ROLES.includes(filters.role as (typeof NETWORK_COMPANY_ROLES)[number])
     ? filters.role : undefined;
@@ -46,7 +48,8 @@ export async function FreeNetworkDirectoryView({
     );
   }
   const hasFilters = Boolean(filters.q?.trim() || role || filters.region);
-  const items = orderNetworkDiscovery(data.items, data.viewer_role, hasFilters);
+  const persona = activeNetworkPersona(filters.persona, data.viewer_role);
+  const items = orderNetworkDiscovery(data.items, persona, hasFilters);
   return (
     <FocusPage className="max-w-[1180px]">
       <section className="rounded-3xl border border-[#b8d2c8] bg-[#edf5f2] p-5 sm:p-7">
@@ -65,6 +68,7 @@ export async function FreeNetworkDirectoryView({
             defaultValue={filters.q || ""} placeholder="Ragione sociale..."
             className="h-11 min-w-0 flex-1 rounded-xl border border-[#b8d2c8] bg-white px-3 text-sm text-[#173f35]"/>
           {role ? <input name="role" type="hidden" value={role} /> : null}
+          {filters.persona ? <input name="persona" type="hidden" value={filters.persona} /> : null}
           {filters.region ? <input name="region" type="hidden" value={filters.region} /> : null}
           <button className="app-primary min-h-11 rounded-xl px-5 text-sm font-semibold">Cerca</button>
         </form>
@@ -80,6 +84,9 @@ export async function FreeNetworkDirectoryView({
         </nav>
 
       </section>
+      <div className="mt-6">
+        <NetworkRoleDiscovery viewerRole={data.viewer_role} filters={filters} />
+      </div>
       <div className="mt-6">
         <ItalyRegionMap coverage={coverage} selectedRegion={filters.region} filters={filters} />
       </div>
@@ -101,6 +108,7 @@ export async function FreeNetworkDirectoryView({
                       {" · "}{company.location?.region || "Regione non disponibile"}
                     </p>
                     {company.products.length ? <p className="mt-2 text-xs text-[#52615b]">{company.products.slice(0, 3).join(" · ")}</p> : null}
+                    {!hasFilters && networkRoleReason(company.roles,persona) ? <p className="mt-2 text-xs font-semibold text-[#27714f]">{networkRoleReason(company.roles,persona)}</p> : null}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {website ? <a href={website} rel="noopener noreferrer" target="_blank" className="app-secondary inline-flex min-h-10 items-center rounded-xl px-3 text-xs font-semibold">Sito web</a> : null}

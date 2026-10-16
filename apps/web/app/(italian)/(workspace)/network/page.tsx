@@ -9,7 +9,11 @@ import {
 } from "@/app/(workspace)/network/actions";
 import { FreeNetworkDirectoryView } from "@/components/free-network-directory";
 import { ItalyRegionMap } from "@/components/italy-region-map";
+import { NetworkRoleDiscovery } from "@/components/network-role-discovery";
 import { getItalyRegionCoverage } from "@/lib/network-region-coverage";
+import { orderNetworkDiscovery } from "@/lib/network-experience";
+import { activeNetworkPersona, networkRoleReason, validNetworkPersona } from "@/lib/network-role-discovery";
+import { getFreeNetworkViewerRole } from "@/lib/network-free";
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
 import { NetworkAccessGate } from "@/components/network-access-gate";
@@ -39,9 +43,11 @@ const companyTypeDoors = [
   { key: "end_user", label: "Utilizzatori" },
 ] as const;
 
-function companyTypeHref(role: string) {
+function companyTypeHref(role: string, persona?: string) {
   const query = new URLSearchParams();
   if (role) query.set("role", role);
+  const viewer = validNetworkPersona(persona);
+  if (viewer) query.set("persona", viewer);
   query.set("product", "tubes_pipes");
   query.set("country", "IT");
   return `/network?${query.toString()}`;
@@ -57,6 +63,7 @@ function currentDirectoryPath(params: {
   region?: string;
   province?: string;
   city?: string;
+  persona?: string;
 }) {
   const query = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
@@ -83,6 +90,7 @@ export default async function NetworkDirectoryPage({
     region?: string;
     province?: string;
     city?: string;
+    persona?: string;
     error?: string;
     message?: string;
   }>;
@@ -99,7 +107,7 @@ export default async function NetworkDirectoryPage({
         <FreeNetworkDirectoryView
           organizationId={context.organizationId}
           organizationName={context.organizationName}
-          filters={{ q: params.q, role: params.role, region: params.region }}
+          filters={{ q: params.q, role: params.role, region: params.region, persona: params.persona }}
         />
       );
     }
@@ -114,7 +122,7 @@ export default async function NetworkDirectoryPage({
   const params = await searchParams;
   const canWrite = canWriteWorkspace(context.role);
 
-  const [taxonomy, geoFacets, results, saved, followed, coverage] = await Promise.all([
+  const [taxonomy, geoFacets, results, saved, followed, coverage, viewerRole] = await Promise.all([
     getNetworkTaxonomy(),
     getNetworkGeoFacets(),
     searchNetwork({
@@ -131,6 +139,7 @@ export default async function NetworkDirectoryPage({
     getSavedNetworkCompanies(),
     getFollowedNetworkCompanies(context.organizationId),
     getItalyRegionCoverage(context.organizationId).catch(() => null),
+    getFreeNetworkViewerRole(context.organizationId).catch(() => null),
   ]);
 
   const savedIds = new Set(saved.map((item) => item.network_company_id));
@@ -145,6 +154,8 @@ export default async function NetworkDirectoryPage({
   const quickTubeContext =
     params.product === "tubes_pipes" && (params.country ?? "").toUpperCase() === "IT";
   const returnTo = currentDirectoryPath(params);
+  const persona = activeNetworkPersona(params.persona, viewerRole);
+  const orderedResults = orderNetworkDiscovery(results.items, persona, Boolean(params.q || hasAdvancedFilters));
 
   return (
     <FocusPage className="max-w-[1180px]">
@@ -171,6 +182,8 @@ export default async function NetworkDirectoryPage({
           </>
         }
       />
+
+      <NetworkRoleDiscovery viewerRole={viewerRole} filters={params} />
 
       <ItalyRegionMap coverage={coverage} selectedRegion={params.region} filters={params} />
 
@@ -209,6 +222,7 @@ export default async function NetworkDirectoryPage({
               className="h-12 min-w-0 flex-1 rounded-xl border border-[#c9d9d3] bg-white px-4 text-sm text-[#1d2824] outline-none placeholder:text-[#5d6a65] focus:border-[#438d7a] focus:ring-4 focus:ring-[#dcebe6]"
             />
             {params.role ? <input type="hidden" name="role" value={params.role} /> : null}
+            {validNetworkPersona(params.persona) ? <input type="hidden" name="persona" value={params.persona} /> : null}
             {params.product ? <input type="hidden" name="product" value={params.product} /> : null}
             {params.capability ? <input type="hidden" name="capability" value={params.capability} /> : null}
             {params.country ? <input type="hidden" name="country" value={params.country} /> : null}
@@ -237,7 +251,7 @@ export default async function NetworkDirectoryPage({
             return (
               <Link
                 key={door.key || "all"}
-                href={companyTypeHref(door.key)}
+                href={companyTypeHref(door.key, params.persona)}
                 aria-current={active ? "page" : undefined}
                 aria-label={door.key === "processor_service_provider" ? "Carpenterie & terzisti" : door.label}
                 className={[
@@ -264,6 +278,7 @@ export default async function NetworkDirectoryPage({
           </summary>
           <form className="grid gap-3 border-t border-[#d9e8e2] p-4 sm:grid-cols-2 lg:grid-cols-5">
             {params.q ? <input type="hidden" name="q" value={params.q} /> : null}
+            {validNetworkPersona(params.persona) ? <input type="hidden" name="persona" value={params.persona} /> : null}
             <select name="role" aria-label="Ruolo azienda" defaultValue={params.role ?? ""} className={selectClass()}>
               <option value="">Tutti i ruoli</option>
               {taxonomy.roles.map((item) => (
@@ -353,7 +368,7 @@ export default async function NetworkDirectoryPage({
           }
         />
 
-        {results.items.length === 0 ? (
+        {orderedResults.length === 0 ? (
           params.q || hasAdvancedFilters ? (
             <FirstUseEmptyState
               eyebrow="Ricerca senza risultati"
@@ -384,7 +399,7 @@ export default async function NetworkDirectoryPage({
           )
         ) : (
           <div className="overflow-hidden rounded-2xl border border-[#dce2df] bg-white">
-            {results.items.map((company, index) => {
+            {orderedResults.map((company, index) => {
               const isSaved = savedIds.has(company.id);
               const isFollowed = followedIds.has(company.id);
 
@@ -421,6 +436,9 @@ export default async function NetworkDirectoryPage({
                     <p className="mt-1 truncate text-xs text-[#5d6a65]">
                       {company.trading_name || company.website_domain || "Profilo Network"}
                     </p>
+                    {!params.q && !hasAdvancedFilters && networkRoleReason(company.roles, persona) ? (
+                      <p className="mt-1 text-xs font-semibold text-[#27714f]">{networkRoleReason(company.roles, persona)}</p>
+                    ) : null}
                   </div>
 
                   <div className="min-w-0">
