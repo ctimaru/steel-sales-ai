@@ -37,8 +37,8 @@ test("CALC-INT4 retains state after switching, supports both languages and keybo
   assert.match(switcher,/aria-hidden=\{region !== "eu"\} inert=\{region !== "eu"\}/);
   assert.match(switcher,/aria-hidden=\{region !== "us"\} inert=\{region !== "us"\}/);
   assert.match(switcher,/aria-live="polite"/);
-  assert.match(switcher,/🇪🇺/);
-  assert.match(switcher,/🇺🇸/);
+  assert.doesNotMatch(switcher,/className=\{styles\.flag\}/);
+  assert.match(switcher,/className=\{styles\.track\}/);
   assert.match(switcher,/EN 10219 \/ 10210/);
   assert.match(switcher,/NPS \/ SCHEDULE/);
   assert.doesNotMatch(switcher,/window\.location\.assign|router\.push|router\.replace|history\.pushState/);
