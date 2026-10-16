@@ -5,6 +5,13 @@ returns void language plpgsql as $$
 begin if not coalesce(ok,false) then raise exception 'NET-UX3: %',msg; end if; end $$;
 
 select pg_temp.netux3_assert(
+  not exists (
+    select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='public' and p.proname like 'netux3_%' and p.prosecdef
+  ),
+  'NET-UX3 public functions must be security invoker (HP13)'
+);
+select pg_temp.netux3_assert(
   has_function_privilege('authenticated','public.netux3_geographic_backlog()','EXECUTE')
   and not has_function_privilege('anon','public.netux3_geographic_backlog()','EXECUTE'),
   'privileged backlog must reject anonymous'

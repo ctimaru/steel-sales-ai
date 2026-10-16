@@ -9,6 +9,7 @@ const actions = read("../app/(platform)/platform/company-discovery/geo-review/ac
 const map = read("../components/italy-region-map.tsx");
 
 test("NET-UX3 identifies location gaps only among published, unarchived Italian companies", () => {
+  assert.match(sql, /create or replace function private\.netux3_geographic_backlog_impl/);
   assert.match(sql, /create or replace function public\.netux3_geographic_backlog/);
   assert.match(sql, /c\.publication_status='published' and c\.archived_at is null and c\.country_code='IT'/);
   assert.match(sql, /f\.publication_status='published' and f\.archived_at is null/);
@@ -18,6 +19,7 @@ test("NET-UX3 identifies location gaps only among published, unarchived Italian 
 });
 
 test("NET-UX3 official-source staging is never publication and requires platform enrichment", () => {
+  assert.match(sql, /create or replace function private\.netux3_stage_official_geo_impl/);
   assert.match(sql, /create or replace function public\.netux3_stage_official_geo/);
   assert.match(sql, /private\.require_platform_permission\('discovery.enrich'\)/);
   assert.match(sql, /Evidence source must match the published company website domain/);
@@ -31,6 +33,7 @@ test("NET-UX3 official-source staging is never publication and requires platform
 });
 
 test("NET-UX3 publication requires a prior human-reviewed evidence and second approval", () => {
+  assert.match(sql, /create or replace function private\.netux3_publish_reviewed_geo_impl/);
   assert.match(sql, /create or replace function public\.netux3_publish_reviewed_geo/);
   assert.match(sql, /private\.require_platform_permission\('discovery.publish'\)/);
   assert.match(sql, /private\.require_platform_permission\('discovery.governance_review'\)/);
@@ -46,6 +49,8 @@ test("NET-UX3 publication requires a prior human-reviewed evidence and second ap
 
 test("NET-UX3 does not leak privileged data or bypass network protections", () => {
   assert.match(sql, /alter table public\.network_it_geo_publication_ledger enable row level security/);
+  assert.match(sql, /language sql stable security invoker/);
+  assert.match(sql, /language sql security invoker/);
   assert.match(sql, /revoke all on public\.network_it_geo_publication_ledger from public,anon,authenticated/);
   assert.match(sql, /revoke all on function public\.netux3_stage_official_geo/);
   assert.doesNotMatch(sql, /drop policy|alter policy|disable row level security|network_company_discovery_candidates|commercial_memory|service_role_key/i);

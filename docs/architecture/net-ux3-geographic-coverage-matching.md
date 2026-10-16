@@ -32,3 +32,6 @@
 - NET-UX3A ISTAT 2026 actual municipality import and province lookup: official reviewed dataset required; do not seed arbitrary codes.
 - NET-UX3B controlled evidence extraction on approved first-party company sites, with explicit operator gates.
 - NET-UX4 role-personalized recommendations; NET-UX6 bilateral company graph.
+
+## HP13 hardening
+All new public RPCs are explicitly `SECURITY INVOKER`. Their privileged implementation is restricted to `private.netux3_*_impl`, with explicit authenticated-only execution grants and in-body platform RBAC. The existing HP13 regression suite prohibits exposed public SECURITY DEFINER functions; this architecture satisfies it without adding an exemption.

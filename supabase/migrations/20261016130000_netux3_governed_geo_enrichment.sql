@@ -16,7 +16,7 @@ grant select on public.network_it_geo_publication_ledger to service_role;
 
 -- Only the superadmin/operator with discovery.read can view the missing-region worklist.
 -- An empty staging table is shown as zero, not as evidence that locations do not exist.
-create or replace function public.netux3_geographic_backlog()
+create or replace function private.netux3_geographic_backlog_impl()
 returns jsonb language plpgsql stable security definer set search_path=''
 as $$
 declare v_data jsonb;
@@ -62,7 +62,7 @@ $$;
 
 -- Operator creates an evidence CANDIDATE only. City, region and source snippet
 -- must be explicitly observed on an official company website; NEVER inferred from the name.
-create or replace function public.netux3_stage_official_geo(
+create or replace function private.netux3_stage_official_geo_impl(
   p_company_id uuid,p_source_url text,p_city text,p_region text,p_evidence_snippet text
 ) returns jsonb language plpgsql security definer set search_path=''
 as $$
@@ -134,7 +134,7 @@ $$;
 -- A separate approval was already recorded through CRAWL-IT6.1.
 -- Publication requires an additional explicit decision + note and
 -- logs provenance. Never labels an unverified address as "verified".
-create or replace function public.netux3_publish_reviewed_geo(
+create or replace function private.netux3_publish_reviewed_geo_impl(
   p_evidence_id uuid,p_publication_note text
 ) returns jsonb language plpgsql security definer set search_path=''
 as $$
@@ -213,7 +213,7 @@ begin
 end;
 $$;
 
-create or replace function public.netux3_reviewed_geo_queue()
+create or replace function private.netux3_reviewed_geo_queue_impl()
 returns jsonb language plpgsql stable security definer set search_path=''
 as $$
 declare v_result jsonb;
@@ -236,6 +236,33 @@ begin
   return v_result;
 end;
 $$;
+
+
+-- Public API wrappers are SECURITY INVOKER: HP13 forbids newly exposed definer.
+-- Inner functions require platform permissions and run in the private schema.
+create or replace function public.netux3_geographic_backlog()
+returns jsonb language sql stable security invoker set search_path=''
+as $ select private.netux3_geographic_backlog_impl(); $;
+create or replace function public.netux3_stage_official_geo(
+  p_company_id uuid,p_source_url text,p_city text,p_region text,p_evidence_snippet text
+) returns jsonb language sql security invoker set search_path=''
+as $ select private.netux3_stage_official_geo_impl(p_company_id,p_source_url,p_city,p_region,p_evidence_snippet); $;
+create or replace function public.netux3_publish_reviewed_geo(
+  p_evidence_id uuid,p_publication_note text
+) returns jsonb language sql security invoker set search_path=''
+as $ select private.netux3_publish_reviewed_geo_impl(p_evidence_id,p_publication_note); $;
+create or replace function public.netux3_reviewed_geo_queue()
+returns jsonb language sql stable security invoker set search_path=''
+as $ select private.netux3_reviewed_geo_queue_impl(); $;
+
+revoke all on function private.netux3_geographic_backlog_impl() from public,anon,authenticated;
+revoke all on function private.netux3_stage_official_geo_impl(uuid,text,text,text,text) from public,anon,authenticated;
+revoke all on function private.netux3_publish_reviewed_geo_impl(uuid,text) from public,anon,authenticated;
+revoke all on function private.netux3_reviewed_geo_queue_impl() from public,anon,authenticated;
+grant execute on function private.netux3_geographic_backlog_impl() to authenticated;
+grant execute on function private.netux3_stage_official_geo_impl(uuid,text,text,text,text) to authenticated;
+grant execute on function private.netux3_publish_reviewed_geo_impl(uuid,text) to authenticated;
+grant execute on function private.netux3_reviewed_geo_queue_impl() to authenticated;
 
 revoke all on function public.netux3_geographic_backlog() from public,anon,authenticated;
 revoke all on function public.netux3_stage_official_geo(uuid,text,text,text,text) from public,anon,authenticated;
