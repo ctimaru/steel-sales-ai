@@ -460,10 +460,8 @@ export function CalculatorInlineDistintaExperience({
     </section>
   );
 
-  return <>
-    <PublicTubeWeightCalculator references={references} initialValues={initialValues} locale="it"
-      onAddToDistinta={add} canAddToDistinta={ready && count < INLINE_DISTINTA_MAX_LINES}
-      inlinePublicDistinta inlineBillCount={count} onChooseBuyerTarget={chooseBuyerTarget} />
-    {bill}
-  </>;
+  return <PublicTubeWeightCalculator references={references} initialValues={initialValues} locale="it"
+    onAddToDistinta={add} canAddToDistinta={ready && count < INLINE_DISTINTA_MAX_LINES}
+    inlinePublicDistinta inlineBillCount={count} onChooseBuyerTarget={chooseBuyerTarget}
+    inlineBill={bill} />;
 }
