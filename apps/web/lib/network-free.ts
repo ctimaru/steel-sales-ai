@@ -29,7 +29,7 @@ export type FreeDirectory = {
 };
 export type FreeProfile = {
   contract: "netux11-free-profile-v1";
-  company: Pick<FreeCompany, "id" | "legal_name" | "trading_name" | "country_code" | "website_url" | "claimed_status" | "verification_status"> & { description: string | null };
+  company: Pick<FreeCompany, "id" | "legal_name" | "trading_name" | "country_code" | "website_url" | "claimed_status" | "verification_status" | "discovery_status"> & { description: string | null };
   roles: FreeCompany["roles"];
   products: string[];
   facilities: { city: string | null; region: string | null; country_code: string }[];
