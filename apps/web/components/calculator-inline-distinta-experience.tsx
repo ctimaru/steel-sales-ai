@@ -88,7 +88,9 @@ export function CalculatorInlineDistintaExperience({
     liveState.current = result.state;
     setState(result.state);
     setOpen(result.state.lines.length > 0);
-    const saved = persistInlineDistintaSession(window.sessionStorage, result.state);
+    let saved = false;
+    try { saved = persistInlineDistintaSession(window.sessionStorage, result.state); }
+    catch { /* sessionStorage property itself may be denied */ }
     if (!saved) setStorageAvailable(false);
     setMessage(saved
       ? "Distinta aggiornata. Nessuna RFQ è stata inviata."
@@ -127,10 +129,13 @@ export function CalculatorInlineDistintaExperience({
     // This existing buyer formatter never gets commercial rate input because
     // the 4.4A contract forces blank targetEurT on all inline lines.
     const plain = buildBuyerDistintaPlainText("Richiesta di offerta", calculated);
-    void navigator.clipboard.writeText(plain).then(
-      () => setMessage("Distinta tecnica copiata. Nessun messaggio è stato inviato."),
-      () => setMessage("Copia non riuscita: verifica i permessi degli appunti."),
-    );
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error("clipboard unavailable");
+      void navigator.clipboard.writeText(plain).then(
+        () => setMessage("Distinta tecnica copiata. Nessun messaggio è stato inviato."),
+        () => setMessage("Copia non riuscita: verifica i permessi degli appunti."),
+      );
+    } catch { setMessage("Copia non riuscita: verifica i permessi degli appunti."); }
   }
 
   const totals = inlineDistintaTotals(state);
@@ -179,7 +184,10 @@ export function CalculatorInlineDistintaExperience({
                   <div className="flex flex-wrap gap-2">
                     <button type="button" className={action} aria-expanded={editing}
                       aria-controls={`distinta-inline-edit-${line.id}`}
-                      onClick={() => editing ? (setEditingId(null), setDraft(null)) : beginEdit(line)}>
+                      onClick={() => {
+                        if (editing) { setEditingId(null); setDraft(null); }
+                        else beginEdit(line);
+                      }}>
                       {editing ? "Chiudi" : "Modifica"}
                     </button>
                     <button type="button" className={action} disabled={count >= INLINE_DISTINTA_MAX_LINES}
