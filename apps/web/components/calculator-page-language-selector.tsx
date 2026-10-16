@@ -26,9 +26,10 @@ export function PublicPageLanguageSelector({
   const routes=surface==="home"?PUBLIC_HOME_LOCALE_ROUTES:CALCULATOR_ROUTES;
   return <nav aria-label={surface==="home"?labels[locale].chooseHome:labels[locale].choose} className="relative z-20 shrink-0">
     <details className="group relative">
-      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-xl border border-[#c6d9cf] bg-white px-3.5 text-sm font-semibold text-[#123b34] shadow-sm transition-colors hover:bg-[#f2f8f4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#237858] [&::-webkit-details-marker]:hidden">
-        <span className="text-xs font-medium text-[#52615b]">{labels[locale].heading}:</span>
-        <span>{CALCULATOR_FLAGS[locale].label}</span>
+      <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-xl border border-[#c6d9cf] bg-white px-2.5 text-sm font-semibold sm:gap-2 sm:px-3.5 text-[#123b34] shadow-sm transition-colors hover:bg-[#f2f8f4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#237858] [&::-webkit-details-marker]:hidden">
+        <span className="hidden text-xs font-medium text-[#52615b] sm:inline">{labels[locale].heading}:</span>
+        <span className="hidden sm:inline">{CALCULATOR_FLAGS[locale].label}</span>
+        <span className="sm:hidden">{locale.toUpperCase()}</span>
         <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="m6 9 6 6 6-6"/>
         </svg>
