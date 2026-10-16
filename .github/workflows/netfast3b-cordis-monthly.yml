@@ -1,0 +1,48 @@
+name: "NET-FAST3B — CORDIS Monthly Licensed Organisations"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/netfast3b-cordis-monthly.yml"
+  schedule:
+    # Once monthly. Source right grant is checked before ANY download.
+    - cron: "47 3 5 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: netfast3b-cordis-monthly
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install existing Python worker
+        working-directory: services/worker
+        run: python -m pip install -e .
+      - name: Verify dedicated service-only connection
+        env:
+          CRAWL_IT65B_SUPABASE_URL: ${{ vars.CRAWL_IT65B_SUPABASE_URL }}
+          CRAWL_IT65B_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT65B_SUPABASE_SECRET_KEY }}
+        run: |
+          test "$CRAWL_IT65B_SUPABASE_URL" = "https://ecrafjdummcdfycznitx.supabase.co" || exit 1
+          case "$CRAWL_IT65B_SUPABASE_SECRET_KEY" in sb_secret_*) ;; *) exit 1;; esac
+          echo "::add-mask::$CRAWL_IT65B_SUPABASE_SECRET_KEY"
+      - name: Import only from approved CORDIS license and preserve unconfirmed status
+        working-directory: services/worker
+        env:
+          CRAWL_IT65B_SUPABASE_URL: ${{ vars.CRAWL_IT65B_SUPABASE_URL }}
+          CRAWL_IT65B_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT65B_SUPABASE_SECRET_KEY }}
+        run: python -m app.netfast3b_cordis_feed
