@@ -55,7 +55,11 @@ export default async function GeoReviewPage({
   return (
     <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
       <Link className="text-sm font-medium text-[#175640] underline" href="/platform/company-discovery/governance">← Governance Discovery</Link>
-      <header className="space-y-2">
+      <Link href="/platform/company-discovery/geo-review/municipalities"
+  className="inline-flex min-h-11 items-center rounded-xl border border-[#bad4c5] bg-white px-4 py-2 text-sm font-semibold text-[#175640]">
+  Riconcilia comuni e province ISTAT →
+</Link>
+<header className="space-y-2">
         <p className="platform-kicker">NET-UX3 · Geographic Coverage</p>
         <h1 className="text-3xl font-semibold text-[#1d2824]">Abbina le aziende alle regioni</h1>
         <p className="max-w-4xl text-sm leading-6 text-[#52615b]">
