@@ -50,8 +50,8 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 }
 
 export default async function MarketTechnicalGuide({ params }: Props) {
-  const { locale, topic } = await params;
-  const { guide, path } = resolveGuide(locale, topic);
+  const requested = await params;
+  const { locale, guide, path } = resolveGuide(requested.locale, requested.topic);
   const calculatorPath = CALCULATOR_ROUTES[locale];
   const billPath = `/${locale}/distinta`;
   const structuredData = {
