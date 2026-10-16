@@ -67,7 +67,7 @@ test("CALC-INT3E.2 USA deep links are language-stable and bounded, no redirects"
  assert.equal(routeSeed.usPipeSeedFromQuery({usMode:["us","eu"]}).mode,undefined);
  assert.equal(routeSeed.usPipeSeedFromQuery({hssWidth:"x".repeat(400)}).hssWidth.length,80);
  assert.ok(region.includes('isNewCalculatorLocale(locale)'));
- assert.ok(region.includes('PublicTubeWeightCalculator references={references??[]}'));
+ assert.ok(region.includes('CalculatorInlineDistintaExperience references={references??[]}'));
  assert.ok(region.includes('internationalEuInitialValues(internationalSeed)'));
  assert.ok(!region.includes('<InternationalSteelCalculator'));
  assert.ok(region.includes('UsPipeSampleCalculator locale={locale} initialValues={usInitialValues}'));

@@ -299,37 +299,31 @@ try {
             path: OUT + "/i18n7-calc-" + tube.locale + "-" + viewport.name + ".png",
             animations: "disabled",
           });
-          // CALC-INT4.4B: IT adds directly beneath the calculator without
-          // changing URL; the existing EN calculator still uses CALC-UX2's
-          // one-time, same-tab /en/distinta handoff. No supplier dispatch.
+          // CALC-INT4.5: both IT and EN add to the same-page inline bill.
+          // The draft intentionally survives a locale switch in the same tab.
+          const previousCount=await page.evaluate(() => {
+            try {
+              return JSON.parse(sessionStorage.getItem("sss:inline-distinta:v1")||"null")?.lines?.length||0;
+            } catch { return 0; }
+          });
           for (let repeat = 0; repeat < 2; repeat++) {
             if (repeat) {
               await page.goto(BASE + tube.path, {waitUntil:"domcontentloaded",timeout:50000});
               await page.locator("#calcolatore-pesi").waitFor({state:"visible"});
             }
             const move=page.locator("#calcolatore-pesi .tube-calculator-rfq-link");
-            if (tube.locale === "it") {
-              await move.click();
-              const inline = page.locator("#distinta-inline");
-              await inline.locator("article").last().waitFor({state:"visible",timeout:20000});
-              await page.waitForFunction(n=>document.querySelectorAll("#distinta-inline article").length===n,repeat+1);
-              await page.waitForFunction(()=>Boolean(sessionStorage.getItem("sss:inline-distinta:v1")));
-              assert.equal(new URL(page.url()).pathname, tube.path, "IT inline bill must not navigate to /distinta");
-              const target=await page.evaluate(()=>JSON.parse(sessionStorage.getItem("sss:inline-distinta:v1")).lines);
-              check(target.every(line=>line.targetEurT===""),"Inline bill must not receive commercial price");
-              console.log("CALC-INT4.4B IN-PLACE PASS",tube.locale,viewport.name,repeat+1);
-            } else {
-              await Promise.all([page.waitForURL("**"+tube.builder,{timeout:50000}),move.click()]);
-              await page.getByText(/calculation(s)? added to your RFQ bill/).first().waitFor({state:"visible",timeout:20000});
-              await page.getByRole("heading",{name:"Item "+(repeat+1)}).waitFor({state:"visible"});
-              await page.waitForFunction(n=>document.querySelectorAll('[aria-label="English RFQ bill of materials builder"] article').length===n,repeat+1);
-              await page.waitForFunction(()=>Boolean(sessionStorage.getItem("sss:english-rfq-bill:v1")));
-              check(await page.getByLabel("Steel grade").first().inputValue()==="",
-                "CALC-UX2 must not invent a steel grade");
-              console.log("CALC-UX2 HANDOFF PASS",tube.locale,viewport.name,repeat+1);
-            }
+            await move.click();
+            const inline=page.locator("#distinta-inline");
+            await inline.locator("article").last().waitFor({state:"visible",timeout:20000});
+            await page.waitForFunction(n=>document.querySelectorAll("#distinta-inline article").length===n,previousCount+repeat+1);
+            await page.waitForFunction(()=>Boolean(sessionStorage.getItem("sss:inline-distinta:v1")));
+            assert.equal(new URL(page.url()).pathname,tube.path,"Inline bill must not navigate");
+            const target=await page.evaluate(()=>JSON.parse(sessionStorage.getItem("sss:inline-distinta:v1")).lines);
+            check(target.every(line=>line.targetEurT===""),"Inline bill must never persist commercial target");
+            check(target.every(line=>line.grade===""),"Inline bill must not invent steel grade");
+            console.log("CALC-INT4.5 IN-PLACE PASS",tube.locale,viewport.name,repeat+1);
             const queued=await page.evaluate(()=>sessionStorage.getItem("sss:calc-rfq-handoff:v1"));
-            check(!queued || queued==="[]","CALC-UX2 replay queue not consumed");
+            check(!queued || queued==="[]","Legacy RFQ handoff queue should remain empty");
           }
           console.log("I18N7 CHROME PASS", tube.locale, viewport.name);
         }
@@ -382,13 +376,13 @@ try {
           const catalog = page.locator('[data-testid="tube-reference-catalogue"]');
           await catalog.waitFor({state:"attached"});
           assert.equal(await catalog.evaluate(el => el.open),false,"Reference catalogue must start collapsed");
-          if (entry.locale === "it") {
-            const supplemental = page.locator('[data-testid="calculator-technical-disclosure"]');
-            await supplemental.waitFor({state:"attached"});
-            assert.equal(await supplemental.evaluate(el=>el.open),false,
-              "IT technical catalogue must be closed on calculator-first landing");
-            await supplemental.locator(":scope > summary").click();
-          }
+          // One calculator-first UX for IT and EN: the technical appendix
+          // starts closed in both locales, but is accessible on demand.
+          const supplemental = page.locator('[data-testid="calculator-technical-disclosure"]');
+          await supplemental.waitFor({state:"attached"});
+          assert.equal(await supplemental.evaluate(el=>el.open),false,
+            "Technical catalogue must start closed in every inline calculator");
+          await supplemental.locator(":scope > summary").click();
           const caption = page.locator("#tube-reference-heading");
           await caption.waitFor({state:"visible"});
           const title = await caption.innerText();

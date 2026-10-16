@@ -14,7 +14,7 @@ const switcher=load("../components/calculator-region-switch.tsx");
 test("I18N7 IT/EN share the same canonical standard-based estimator and catalogue",()=>{
   assert.match(it,/CalculatorRegionSwitch locale="it" initialRegion="eu"/);
   assert.match(en,/CalculatorRegionSwitch locale="en" initialRegion="eu"/);
-  assert.match(switcher,/PublicTubeWeightCalculator references=\{references\?\?\[\]\}/);
+  assert.match(switcher,/<CalculatorInlineDistintaExperience references=\{references\?\?\[\]\}/);
   assert.match(switcher,/internationalEuInitialValues\(internationalSeed\)/);
   assert.doesNotMatch(en,/EnglishTubeWeightCalculator/);
   assert.match(en,/cachedPublicTubeReferences\(\)/);

@@ -7,6 +7,7 @@ import { calculatorRfqFromValues, enqueueCalculatorRfq, type CalculatorRfqItem }
 import { tubeCalculatorText, type TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
 import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
 import { CalculatorCommercialPricing } from "@/components/calculator-commercial-pricing";
+import { localizedInlineBill } from "@/lib/calculator-inline-distinta-copy";
 import { calculateTubeSection, standardCornerRadii } from "@/lib/international-tube-mass";
 import { referenceEvidence, relatedTubeReferences, sourceMethodLabel, sourceStandardLabel } from "@/lib/tube-reference-evidence";
 import { trackProductEvent } from "@/lib/product-analytics-events.client";
@@ -502,6 +503,7 @@ export function PublicTubeWeightCalculator({
 }) {
   const inEmbeddedBuilder = Boolean(onAddToDistinta) && !inlinePublicDistinta;
   const t = (text: string) => tubeCalculatorText(text, locale);
+  const inlineCopy = localizedInlineBill(locale);
   const formatOutput = (value: number, digits = 3) => formatNumber(value, digits, locale);
   const initialStandard = initialValues?.standard ?? "en10219";
   const [standard, setStandard] = useState<StandardValue>(initialStandard);
@@ -900,7 +902,7 @@ export function PublicTubeWeightCalculator({
       {/* CALC-INT4.4D.2: these PWA / local save controls are temporarily
           absent on the public Italian calculator-first experience.
           Other localized calculators keep their existing functionality. */}
-      {!inEmbeddedBuilder && !(inlinePublicDistinta && locale === "it") ? (
+      {!inEmbeddedBuilder && !inlinePublicDistinta ? (
         <details className="rounded-xl border border-[#dce5e0] bg-[#f8faf8] text-[#123b34]">
           <summary className="flex min-h-11 cursor-pointer items-center justify-between px-4 py-2 text-xs font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#237858]">
             {t("Opzioni del dispositivo")}
@@ -1477,10 +1479,10 @@ export function PublicTubeWeightCalculator({
                     typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "calc-"+Date.now()+"-"+Math.random().toString(36).slice(2));
                   if (onAddToDistinta) {
                     if (!item || !onAddToDistinta(item)) {
-                      setActionFeedback("Impossibile aggiungere la riga: controlla la quantità o lo spazio disponibile.");
+                      setActionFeedback(inlineCopy.addError);
                     } else {
                       setActionFeedback(inlinePublicDistinta
-                        ? "Articolo aggiunto alla distinta qui sotto ✓ · puoi continuare con un’altra misura."
+                        ? inlineCopy.added
                         : "Articolo aggiunto ✓ · puoi continuare con un’altra misura.");
                     }
                     return;
@@ -1500,18 +1502,18 @@ export function PublicTubeWeightCalculator({
                 {t(onAddToDistinta ? "＋ Aggiungi alla distinta" : "Aggiungi questa misura alla distinta →")}
               </button>
               <p className="mt-1 text-[11px] leading-4 text-white/85">
-                {t(inlinePublicDistinta ? "Il peso è teorico: la riga appare subito sotto, senza inviare una RFQ."
-                  : onAddToDistinta ? "Il peso è teorico: la riga appare subito a fianco, senza inviare una RFQ."
+                {inlinePublicDistinta ? inlineCopy.billWeightNote : t(onAddToDistinta
+                  ? "Il peso è teorico: la riga appare subito a fianco, senza inviare una RFQ."
                   : "Gratuito · nessun login richiesto. Il grado acciaio resta da confermare.")}
               </p>
               {inlinePublicDistinta && inlineBillCount > 0 ? (
                 <a href="#distinta-inline"
                   className="mt-2 inline-flex min-h-11 items-center text-xs font-bold text-white underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-                  Vedi la distinta · {inlineBillCount} {inlineBillCount === 1 ? "riga" : "righe"} ↓
+                  {inlineCopy.seeBill} · {inlineBillCount} {inlineBillCount === 1 ? inlineCopy.row.toLowerCase() : inlineCopy.lines} ↓
                 </a>
               ) : null}
               <p aria-live="polite" className="mt-2 min-h-4 text-xs font-semibold text-white/85">
-                {t(actionFeedback)}
+                {inlinePublicDistinta ? actionFeedback : t(actionFeedback)}
               </p>
 
               <details className="mt-2 rounded-xl border border-white/10 bg-white/5">
@@ -1632,7 +1634,7 @@ export function PublicTubeWeightCalculator({
       </section>
 
       {inlineBill}
-      {inlinePublicDistinta && locale === "it" ? (
+      {inlinePublicDistinta ? (
         <details data-testid="calculator-technical-disclosure"
           className="rounded-xl border border-[#dbe8e1] bg-[#fbfdfb] text-[#305d48]">
           <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 px-4 py-2 text-xs font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176647]">
