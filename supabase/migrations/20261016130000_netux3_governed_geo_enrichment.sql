@@ -242,18 +242,18 @@ $$;
 -- Inner functions require platform permissions and run in the private schema.
 create or replace function public.netux3_geographic_backlog()
 returns jsonb language sql stable security invoker set search_path=''
-as $ select private.netux3_geographic_backlog_impl(); $;
+as 'select private.netux3_geographic_backlog_impl();';
 create or replace function public.netux3_stage_official_geo(
   p_company_id uuid,p_source_url text,p_city text,p_region text,p_evidence_snippet text
 ) returns jsonb language sql security invoker set search_path=''
-as $ select private.netux3_stage_official_geo_impl(p_company_id,p_source_url,p_city,p_region,p_evidence_snippet); $;
+as 'select private.netux3_stage_official_geo_impl(p_company_id,p_source_url,p_city,p_region,p_evidence_snippet);';
 create or replace function public.netux3_publish_reviewed_geo(
   p_evidence_id uuid,p_publication_note text
 ) returns jsonb language sql security invoker set search_path=''
-as $ select private.netux3_publish_reviewed_geo_impl(p_evidence_id,p_publication_note); $;
+as 'select private.netux3_publish_reviewed_geo_impl(p_evidence_id,p_publication_note);';
 create or replace function public.netux3_reviewed_geo_queue()
 returns jsonb language sql stable security invoker set search_path=''
-as $ select private.netux3_reviewed_geo_queue_impl(); $;
+as 'select private.netux3_reviewed_geo_queue_impl();';
 
 revoke all on function private.netux3_geographic_backlog_impl() from public,anon,authenticated;
 revoke all on function private.netux3_stage_official_geo_impl(uuid,text,text,text,text) from public,anon,authenticated;
