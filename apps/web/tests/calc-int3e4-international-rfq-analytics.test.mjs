@@ -27,6 +27,7 @@ const enCta=read("../components/english-conversion-handoff.tsx");
 const product=read("../lib/product-analytics-events.client.ts");
 const service=read("../lib/platform-product-analytics.ts");
 const dashboard=read("../components/product-analytics-dashboard.tsx");
+const cookie=read("../components/google-analytics-consent.tsx");
 
 test("CALC-INT3E.4 fixed 16-event vocabulary and low-cardinality EN/DE/FR/ES segmentation",()=>{
   assert.equal(pure.INTERNATIONAL_RFQ_LOCALES.length,4);
@@ -57,6 +58,7 @@ test("CALC-INT3E.4 events require explicit valid consent and have no PII, payloa
   assert.doesNotMatch(client,/sessionStorage|sendBeacon|fetch\(|gtag\(/);
   assert.doesNotMatch(client,/emailAddress|company_id|buyer_id|user_id|price|document\.cookie/);
   assert.match(product,/InternationalRfqEventName/);
+  for(const lang of ["de","fr","es"])assert.ok(cookie.includes('pathname.startsWith("/'+lang+'/")'));
   assert.match(eu,/trackInternationalRfq\("handoff",locale,\{system:"eu",standard\}\)/);
   assert.match(pipe,/if\(locale!=="it"\)trackInternationalRfq\("handoff",locale,\{system:"us",standard:productStandard\}\)/);
   assert.match(hss,/if\(locale!=="it"\)trackInternationalRfq\("handoff",locale,\{system:"us",standard:"astm-a500"\}\)/);
