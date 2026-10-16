@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { calculatorRfqFromValues, enqueueCalculatorRfq, type CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
 import { tubeCalculatorText, type TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
 import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
+import { CalculatorCommercialPricing } from "@/components/calculator-commercial-pricing";
 import { calculateTubeSection, standardCornerRadii } from "@/lib/international-tube-mass";
 import { referenceEvidence, relatedTubeReferences, sourceMethodLabel, sourceStandardLabel } from "@/lib/tube-reference-evidence";
 import { trackProductEvent } from "@/lib/product-analytics-events.client";
@@ -865,12 +866,19 @@ export function PublicTubeWeightCalculator({
   }
 
   const inputClass =
-    "mt-1 min-h-11 w-full rounded-xl border border-[#cfd9d5] bg-white px-3 py-2 text-sm font-semibold text-[#1d2824] outline-none transition focus:border-[#438d7a] focus:ring-4 focus:ring-[#d9e8e2]";
+    "mt-1 min-h-11 w-full rounded-xl border border-[#cfd9d5] bg-white px-3 py-2 text-sm font-semibold text-[#1d2824] outline-none transition-colors hover:border-[#8eb5a6] focus-visible:border-[#24745d] focus-visible:ring-2 focus-visible:ring-[#b5ddcd]";
+  const selectionBase =
+    "inline-flex min-w-0 items-center justify-center rounded-xl border transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15815a] active:scale-[0.98]";
+  const selectionIdle =
+    "border-[#cbdad3] bg-white text-[#23473a] hover:border-[#55977b] hover:bg-[#f0f7f3]";
 
   return (
     <div
       className="space-y-5"
-      onChangeCapture={() => {
+      onChangeCapture={(event) => {
+        // Commercial rate edits are ephemeral: do not count them as a change
+        // to geometry or emit a weight-calculation engagement signal.
+        if ((event.target as HTMLElement).closest("[data-commercial-price]")) return;
         calculationInteractedRef.current = true;
       }}
     >
@@ -912,11 +920,7 @@ export function PublicTubeWeightCalculator({
                         type="button"
                         aria-pressed={selected}
                         onClick={() => handleStandardChange(option.value)}
-                        className={
-                          selected
-                            ? "school-selected-control min-h-11 rounded-xl px-1.5 py-2 text-center text-[11px] font-bold leading-tight shadow-sm sm:px-2 sm:text-xs"
-                            : "min-h-11 rounded-xl border border-[#d7e1dd] bg-[#f8faf9] px-1.5 py-2 text-center text-[11px] font-bold leading-tight text-[#334a42] hover:border-[#8fb5a8] hover:bg-[#f1f7f4]"
-                        }
+                        className={`${selectionBase} min-h-11 px-1.5 py-2 text-center text-[11px] font-bold leading-tight sm:px-2 sm:text-xs ${selected ? "school-selected-control shadow-sm" : selectionIdle}`}
                       >
                         {t(option.label)}
                         <span className="sr-only"> — {t(option.description)}</span>
@@ -942,11 +946,7 @@ export function PublicTubeWeightCalculator({
                         type="button"
                         aria-pressed={selected}
                         onClick={() => setFamily(option.value)}
-                        className={
-                          selected
-                            ? "group flex min-h-14 items-center justify-center min-w-0 flex-col gap-1 rounded-xl border border-[#173f35] bg-[#173f35] px-1 py-2 text-white shadow-sm sm:flex-row sm:px-2 focus-visible:ring-4 focus-visible:ring-[#b8d2c8]"
-                            : "group flex min-h-14 items-center justify-center min-w-0 flex-col gap-1 rounded-xl border border-[#d7e1dd] bg-white px-1 py-2 text-[#173f35] sm:flex-row sm:px-2 hover:-translate-y-0.5 hover:border-[#8fb5a8] focus-visible:ring-4 focus-visible:ring-[#d9e8e2]"
-                        }
+                        className={`${selectionBase} group flex min-h-14 flex-col gap-1 px-1 py-2 sm:flex-row sm:px-2 ${selected ? "school-selected-control shadow-sm" : selectionIdle}`}
                       >
                         <ShapeGraphic family={option.value} className={selected ? "h-9 w-10 text-white" : "h-9 w-10 text-[#1a5144]"} />
                         <span className="text-[11px] font-bold leading-tight sm:text-xs">{t(option.short)}</span>
@@ -1031,40 +1031,35 @@ export function PublicTubeWeightCalculator({
                   </div>
 
                   {canShowStandardAssist && standardAssist ? (
-                    <div className="mt-2 flex min-w-0 items-center gap-2 rounded-xl border border-[#d4e0db] bg-[#f6f8f7] px-2 py-1.5">
-                      <div className="shrink-0">
-                        <p className="text-[11px] font-extrabold uppercase tracking-[0.1em] text-[#1a5144]">
-                          {t("Spessori suggeriti")} · {currentStandard.label}
-                        </p>
-                        <p className="text-[11px] text-[#66736e]">
+                    <details className="group/assist mt-1.5 min-w-0 text-[#617369]">
+                      <summary className="flex min-h-9 w-fit cursor-pointer list-none items-center gap-1.5 rounded-lg px-1.5 text-[11px] font-medium hover:bg-[#f1f7f3] hover:text-[#235e45] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15815a] [&::-webkit-details-marker]:hidden">
+                        <span aria-hidden="true" className="text-[10px] transition-transform group-open/assist:rotate-180">⌄</span>
+                        <span>{t("Spessori suggeriti")} · {currentStandard.label}</span>
+                      </summary>
+                      <div className="mt-1 rounded-xl border border-[#e1e9e5] bg-[#f9fbfa] p-2">
+                        <p className="mb-1.5 text-[11px] text-[#62756b]">
                           {t("preferito")} {standardAssist.preferred} mm
                         </p>
+                        <div className="flex min-w-0 gap-1.5 overflow-x-auto pb-1">
+                          {standardAssist.options.map((candidate) => {
+                            const selected = near(parseNumber(thickness), parseNumber(candidate));
+                            const preferred = candidate === standardAssist.preferred;
+                            return (
+                              <button
+                                key={candidate}
+                                type="button"
+                                aria-pressed={selected}
+                                aria-label={`${commercialSuggestionLabel(candidate)} mm${preferred ? `, ${t("spessore commerciale preferito")}` : ""}`}
+                                onClick={() => applyCommercialThickness(candidate)}
+                                className={`${selectionBase} min-h-11 shrink-0 px-2.5 py-2 text-xs font-semibold ${selected ? "school-selected-control" : selectionIdle}`}
+                              >
+                                {commercialSuggestionLabel(candidate)}
+                              </button>
+                            );
+                          })}
+                        </div>
                       </div>
-                      <div className="flex min-w-0 flex-1 gap-1 overflow-x-auto pb-0.5">
-                        {standardAssist.options.map((candidate) => {
-                          const selected = near(parseNumber(thickness), parseNumber(candidate));
-                          const preferred = candidate === standardAssist.preferred;
-                          return (
-                            <button
-                              key={candidate}
-                              type="button"
-                              aria-pressed={selected}
-                              aria-label={`${commercialSuggestionLabel(candidate)} mm${preferred ? `, ${t("spessore commerciale preferito")}` : ""}`}
-                              onClick={() => applyCommercialThickness(candidate)}
-                              className={
-                                selected
-                                  ? "school-selected-control min-h-11 shrink-0 rounded-lg px-3 py-2 text-xs font-bold"
-                                  : preferred
-                                    ? "min-h-11 shrink-0 rounded-lg border border-[#8fb5a8] bg-white px-3 py-2 text-xs font-bold text-[#173f35]"
-                                    : "min-h-11 shrink-0 rounded-lg border border-[#d7e1dd] bg-white px-3 py-2 text-xs font-semibold text-[#52615b] hover:border-[#8fb5a8]"
-                              }
-                            >
-                              {commercialSuggestionLabel(candidate)}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
+                    </details>
                   ) : null}
 
                   <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-[1.35fr_0.85fr]">
@@ -1079,12 +1074,8 @@ export function PublicTubeWeightCalculator({
                             key={preset}
                             type="button"
                             aria-pressed={length === preset}
-                             onClick={() => setLength(preset)}
-                            className={
-                              length === preset
-                                ? "school-selected-control min-h-11 min-w-11 flex-1 rounded-xl px-2 py-2.5 text-xs font-bold"
-                                : "school-secondary-action min-h-11 min-w-11 flex-1 px-2 py-2.5 text-xs"
-                            }
+                            onClick={() => setLength(preset)}
+                            className={`${selectionBase} min-h-11 min-w-11 flex-1 px-2 py-2.5 text-xs font-bold ${length === preset ? "school-selected-control" : selectionIdle}`}
                           >
                             {preset}
                           </button>
@@ -1109,7 +1100,7 @@ export function PublicTubeWeightCalculator({
                             const current = Math.max(1, Math.floor(parseNumber(quantity) ?? 1));
                             setQuantity(String(Math.max(1, current - 1)));
                           }}
-                          className="school-secondary-action min-h-11 px-0 py-0 text-base"
+                          className="school-secondary-action min-h-11 px-0 py-0 text-base transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15815a] active:scale-[0.97]"
                         >
                           −
                         </button>
@@ -1128,7 +1119,7 @@ export function PublicTubeWeightCalculator({
                             const current = Math.max(0, Math.floor(parseNumber(quantity) ?? 0));
                             setQuantity(String(current + 1));
                           }}
-                          className="school-secondary-action min-h-11 px-0 py-0 text-base"
+                          className="school-secondary-action min-h-11 px-0 py-0 text-base transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15815a] active:scale-[0.97]"
                         >
                           +
                         </button>
@@ -1154,7 +1145,7 @@ export function PublicTubeWeightCalculator({
                         onClick={() => {
                           if (values.targetBars != null) setQuantity(String(values.targetBars));
                         }}
-                        className="school-primary-action min-h-11 w-full px-3 py-2 text-xs disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                        className="school-primary-action min-h-11 w-full px-3 py-2 text-xs transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15815a] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                       >
                         {t("Usa barre suggerite")}
                       </button>
@@ -1234,6 +1225,8 @@ export function PublicTubeWeightCalculator({
                   </p>
                 </div>
               </div>
+
+              <CalculatorCommercialPricing weightKgM={values.error ? null : values.kgM} locale={locale} />
 
               {values.targetBars != null ? (
                 <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs">
@@ -1330,7 +1323,7 @@ export function PublicTubeWeightCalculator({
                   // The queue stays in this tab only: no calculator data in URLs or requests.
                   window.location.assign(locale === "it" ? "/distinta" : `/${locale}/distinta`);
                 }}
-                className="tube-calculator-rfq-link mt-2 inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-[#c3e5d5] bg-[#e3f4eb] px-4 py-3 text-center text-sm font-bold leading-snug text-[#123b34] hover:bg-[#ccebdc] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
+                className="tube-calculator-rfq-link mt-2 inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-[#c3e5d5] bg-[#e3f4eb] px-4 py-3 text-center text-sm font-bold leading-snug text-[#123b34] transition-colors hover:border-[#98d6b6] hover:bg-[#ccebdc] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
               >
                 {t(onAddToDistinta ? "＋ Aggiungi alla distinta" : "Aggiungi questa misura alla distinta →")}
               </button>
