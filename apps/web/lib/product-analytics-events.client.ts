@@ -3,7 +3,7 @@
 import { track } from "@vercel/analytics";
 import type { InternationalRfqEventName } from "@/lib/international-rfq-funnel";
 
-export type ProductAnalyticsEventName = InternationalRfqEventName |
+export type ProductAnalyticsEventName = InternationalRfqEventName
   | "company_search"
   | "company_claim_start"
   | "weight_calculation"
