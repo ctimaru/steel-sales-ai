@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { calculatorRfqFromValues, enqueueCalculatorRfq, type CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
 import { tubeCalculatorText, type TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
@@ -484,6 +484,7 @@ export function PublicTubeWeightCalculator({
   canAddToDistinta = true,
   inlinePublicDistinta = false,
   inlineBillCount = 0,
+  inlineBill,
   onChooseBuyerTarget,
 }: {
   references: PublicTubeDimensionSummary[];
@@ -495,6 +496,8 @@ export function PublicTubeWeightCalculator({
   /** Keep the original public two-column calculator UX, even when adding in place. */
   inlinePublicDistinta?: boolean;
   inlineBillCount?: number;
+  /** Mount the same-page bill immediately AFTER the tool, BEFORE secondary references. */
+  inlineBill?: ReactNode;
   onChooseBuyerTarget?: (value: { basis: "tonne" | "metre"; raw: string; weightKgM: number }) => void;
 }) {
   const inEmbeddedBuilder = Boolean(onAddToDistinta) && !inlinePublicDistinta;
@@ -1618,6 +1621,7 @@ export function PublicTubeWeightCalculator({
         </div>
       </section>
 
+      {inlineBill}
       {inlinePublicDistinta && locale === "it" ? (
         <details data-testid="calculator-technical-disclosure"
           className="rounded-xl border border-[#dbe8e1] bg-[#fbfdfb] text-[#305d48]">
