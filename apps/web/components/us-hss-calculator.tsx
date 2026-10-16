@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CalculatorFlagLanguages } from "@/components/calculator-flag-languages";
+import { trackInternationalRfq } from "@/lib/international-rfq-analytics.client";
 import { US_HSS_I18N, usLocaleTag, usRfqBillPath, type UsCalculatorLocale } from "@/lib/us-calculator-i18n";
 
 import { estimatePublicTubeMass } from "@/lib/international-tube-mass";
@@ -159,6 +160,7 @@ export function UsHssCalculator({locale,initialReferenceId,initialValues={}}:{
     if(!item || !enqueueUsPipeRfq(window.sessionStorage,item)){
       setStatus(t.error);return;
     }
+    if(locale!=="it")trackInternationalRfq("handoff",locale,{system:"us",standard:"astm-a500"});
     window.location.assign(usRfqBillPath(locale));
   }
   return (
