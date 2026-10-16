@@ -22,7 +22,7 @@ test("NET-COV1 bulk review needs human Platform governance and doesn't grant exe
  assert.match(sql,/grant execute on function private\.netcov1_stage_core\(text,text,text,text,text,text,text,text\) to service_role/);
  assert.doesNotMatch(sql,/grant execute on function private\.netcov1_stage_core\([^\n]+\) to authenticated/);
  assert.match(sql,/source_url='https:\/\/query.wikidata.org\/sparql'/);
- assert.match(sql,/source governance/i);
+ assert.match(sql,/properly licensed official-site curation source required/);
 });
 test("NET-COV1 guided Platform acquisition is wired without altering Free or Pro read policies",()=>{
  assert.match(ui,/Densità utilizzatori e commercianti/);
