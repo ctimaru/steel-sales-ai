@@ -52,7 +52,10 @@ def test_host_validation_rejects_redirects_and_nonofficial_urls():
 
 def test_zip_requires_exactly_one_bounded_organization_csv():
     with pytest.raises(ValueError,match="organization.csv"):
-        extract_organization_csv(make_zip("not the expected CSV")[:8])
+        out=io.BytesIO()
+        with zipfile.ZipFile(out,"w") as arc:
+            arc.writestr("project.csv","projectID;name\\n123;demo\\n")
+        extract_organization_csv(out.getvalue())
     with pytest.raises(ValueError,match="schema"):
         rows_from_organization_csv(b"foo;bar\nhello;world")
     with pytest.raises(ValueError,match="budget"):
