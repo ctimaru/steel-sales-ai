@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { CalculatorPageLanguageSelector, PUBLIC_HOME_LOCALE_ROUTES } from "@/components/calculator-page-language-selector";
 import { CALCULATOR_ROUTES } from "@/lib/international-calculator-landing";
 import { MARKET_GUIDES, MARKET_GUIDE_ROUTES, type MarketGuideLocale } from "@/lib/calculator-market-editorial";
+import { MARKET_TOPIC_GUIDES, MARKET_TOPIC_ROUTES, MARKET_TOPIC_INTENT } from "@/lib/calculator-topic-clusters";
 import { robotsForParameterizedPage } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
 
@@ -16,16 +17,20 @@ type Props = {
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return (["de", "fr", "es"] as const).map(locale => ({
-    locale, topic: MARKET_GUIDES[locale].slug
-  }));
+  return (["de", "fr", "es"] as const).flatMap(locale => ([
+    {locale, topic: MARKET_GUIDES[locale].slug},
+    {locale, topic: MARKET_TOPIC_GUIDES[locale].slug}
+  ]));
 }
 
 function resolveGuide(locale: string, topic: string) {
   if (locale !== "de" && locale !== "fr" && locale !== "es") notFound();
-  const guide = MARKET_GUIDES[locale];
+  const pillar = MARKET_GUIDES[locale];
+  const guide = topic === pillar.slug ? pillar : MARKET_TOPIC_GUIDES[locale];
   if (topic !== guide.slug) notFound();
-  return { locale: locale as MarketGuideLocale, guide, path: MARKET_GUIDE_ROUTES[locale] };
+  const isPillar = guide === pillar;
+  return { locale: locale as MarketGuideLocale, guide,
+    path: isPillar ? MARKET_GUIDE_ROUTES[locale] : MARKET_TOPIC_ROUTES[locale], isPillar };
 }
 
 const languageAlternates = Object.fromEntries(
@@ -34,13 +39,15 @@ const languageAlternates = Object.fromEntries(
 
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
   const { locale, topic } = await params;
-  const { guide, path } = resolveGuide(locale, topic);
+  const { guide, path, isPillar } = resolveGuide(locale, topic);
   const query = await searchParams;
   return {
     title: guide.title,
     description: guide.description,
     robots: robotsForParameterizedPage(Object.values(query).some(Boolean)),
-    alternates: { canonical: absoluteUrl(path), languages: languageAlternates },
+    alternates: isPillar
+      ? { canonical: absoluteUrl(path), languages: languageAlternates }
+      : { canonical: absoluteUrl(path) },
     openGraph: {
       type: "article", url: absoluteUrl(path), locale,
       title: guide.title, description: guide.description,
@@ -51,9 +58,11 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
 export default async function MarketTechnicalGuide({ params }: Props) {
   const requested = await params;
-  const { locale, guide, path } = resolveGuide(requested.locale, requested.topic);
+  const { locale, guide, path, isPillar } = resolveGuide(requested.locale, requested.topic);
   const calculatorPath = CALCULATOR_ROUTES[locale];
   const billPath = `/${locale}/distinta`;
+  const relatedPath = isPillar ? MARKET_TOPIC_ROUTES[locale] : MARKET_GUIDE_ROUTES[locale];
+  const relatedTitle = isPillar ? MARKET_TOPIC_GUIDES[locale].title : MARKET_GUIDES[locale].title;
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
@@ -76,7 +85,8 @@ export default async function MarketTechnicalGuide({ params }: Props) {
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "Smart Steel Sales", item: absoluteUrl(PUBLIC_HOME_LOCALE_ROUTES[locale]) },
           { "@type": "ListItem", position: 2, name: guide.calculatorCta, item: absoluteUrl(calculatorPath) },
-          { "@type": "ListItem", position: 3, name: guide.title, item: absoluteUrl(path) }
+          ...(!isPillar ? [{ "@type": "ListItem", position: 3, name: MARKET_GUIDES[locale].title, item: absoluteUrl(MARKET_GUIDE_ROUTES[locale]) }] : []),
+          { "@type": "ListItem", position: isPillar ? 3 : 4, name: guide.title, item: absoluteUrl(path) }
         ]
       },
       {
@@ -134,6 +144,11 @@ export default async function MarketTechnicalGuide({ params }: Props) {
           <h2 className="text-lg font-semibold">{item.question}</h2>
           <p className="mt-2 text-sm leading-7 text-[#405d50]">{item.answer}</p>
         </div>)}
+      </section>
+      <section aria-label={relatedTitle} className="rounded-2xl border border-[#bfdacd] bg-white p-5 sm:p-6">
+        <p className="text-xs font-bold uppercase tracking-wider text-[#1b7052]">{isPillar ? MARKET_TOPIC_INTENT[locale].audience : guide.kicker}</p>
+        <h2 className="mt-2 text-lg font-bold">{relatedTitle}</h2>
+        <Link href={relatedPath} className="mt-3 inline-flex min-h-11 items-center font-semibold text-[#126447] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#124c38]">{relatedTitle} →</Link>
       </section>
       <aside className="space-y-3 border-t border-[#d7e4dc] pt-6">
         <h2 className="text-lg font-semibold">{guide.sourcesTitle}</h2>
