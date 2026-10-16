@@ -141,6 +141,10 @@ export default async function ItalianGeographicCoveragePage() {
               </p>
             )}
             <div className="flex flex-wrap gap-2">
+              <Link href="/platform/company-discovery/end-users"
+                className="inline-flex min-h-11 items-center rounded-xl border border-[#d7dfdb] px-4 py-2 text-sm font-semibold text-[#173f35]">
+                Acquisizione utilizzatori →
+              </Link>
               <Link href="/platform/company-discovery/sources"
                 className="inline-flex min-h-11 items-center rounded-xl border border-[#d7dfdb] px-4 py-2 text-sm font-semibold text-[#173f35] focus-visible:outline-2 focus-visible:outline-offset-2">
                 Esamina le fonti →
