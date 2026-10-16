@@ -211,7 +211,7 @@ export function CalculatorInlineDistintaExperience({
           ? savedSnapshotRef.current.id : null,
         save: () => saveBuyerDistinta({
           title: built.snapshot.title, lines: built.snapshot.lines,
-          documents: emptyBuyerDocumentRequirements,
+          documents: emptyBuyerDocumentRequirements(),
         }),
         create: (savedId) => createBuyerRfqCampaign(savedId),
         onSaved: id => { savedSnapshotRef.current = {signature,id}; },
