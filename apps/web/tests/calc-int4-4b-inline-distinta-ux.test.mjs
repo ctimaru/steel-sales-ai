@@ -56,7 +56,8 @@ test("CALC-INT4.4B uses 4.4A pure state and existing canonical bill formatter wi
   assert.match(experience,/aria-live="polite"/);
   assert.match(experience,/aria-expanded=\{open\}/);
   assert.match(experience,/type="button"/);
-  assert.match(experience,/La creazione della RFQ privata direttamente da qui arriverà/);
+  assert.match(experience,/data-create-inline-private-rfq/);
+  assert.match(experience,/createPrivateRfqOneStep/);
   assert.doesNotMatch(experience,/fetch\(|supabase|localStorage|document\.cookie|createBuyerRfqCampaign|sendBuyerDistinta|marketplace_publish|trackProductEvent/);
   assert.match(model,/value\.targetEurT !== ""/);
   assert.match(model,/calculateBuyerDistintaTotals\(state\.lines\.map\(calculateBuyerDistintaLine\)\)/);
