@@ -58,7 +58,7 @@ test("K5 keeps canonical published weights distinct and exposes source links", (
   assert.match(calculator, /exactReference/);
   assert.match(evidence, /weight_method === "published"/);
   assert.match(evidence, /weight_method === "verified"/);
-  assert.match(calculator, /sourceMethodLabel\(referenceEvidence\(values.exactReference\).declaredMethod, locale\)/);
+  assert.match(calculator, /sourceMethodLabel\(referenceEvidence\(values.exactReference\).declaredMethod, locale === "it" \? "it" : "en"\)/);
   assert.match(calculator, /Scostamento rispetto al calcolo geometrico/);
   assert.match(calculator, /source_provider/);
   assert.match(calculator, /source_url/);
