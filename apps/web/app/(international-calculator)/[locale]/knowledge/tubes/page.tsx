@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { CalculatorRegionSwitch } from "@/components/calculator-region-switch";
-import { CalculatorPageLanguageSelector } from "@/components/calculator-page-language-selector";
+import { CalculatorPageLanguageSelector, PUBLIC_HOME_LOCALE_ROUTES } from "@/components/calculator-page-language-selector";
 import { calculatorRegionFromQuery, usPipeSeedFromQuery } from "@/lib/us-calculator-route-seed";
 import {
   CALCULATOR_ROUTES,CALCULATOR_TRANSLATIONS,localizedHrefLangPaths,
@@ -75,13 +75,13 @@ export default async function InternationalTubeCalculatorPage({params,searchPara
     <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(data)}}/>
     <header className="border-b border-[#d7e4dc] bg-white">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6">
-        <Link href={path} className="text-base font-bold tracking-tight text-[#123b34]">
+        <Link href={PUBLIC_HOME_LOCALE_ROUTES[locale]} className="text-base font-bold tracking-tight text-[#123b34]">
           Smart Steel Sales <span className="text-[#278664]">· Steel Knowledge</span>
         </Link>
         <CalculatorPageLanguageSelector locale={locale} />
-        <Link href="/en" hrefLang="en"
+        <Link href={PUBLIC_HOME_LOCALE_ROUTES[locale]}
           className="text-xs font-semibold text-[#196a51] underline underline-offset-4">
-          Smart Steel Sales →
+          ← Smart Steel Sales
         </Link>
       </div>
     </header>
