@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getPlatformAccessContext, requirePlatformPermission } from "@/lib/platform-admin";
-import { addDiscoverySource, reviewDiscoverySourceRegistry, reviewDiscoveredDomain, createGovernedDiscoveryRun, linkApprovedPilotRun, recordFirstPartyPermission, activateConsentedSource, prepareFirstPartyRun, linkApprovedFirstPartyRun, enqueueConsentedDomainLeads } from "./actions";
+import { addDiscoverySource, reviewDiscoverySourceRegistry, reviewDiscoveredDomain, createGovernedDiscoveryRun, linkApprovedPilotRun, recordFirstPartyPermission, activateConsentedSource, prepareFirstPartyRun, linkApprovedFirstPartyRun, enqueueConsentedDomainLeads, revokeFirstPartyPermission } from "./actions";
 
 type Source = { id: string; source_name: string; source_url: string; source_type: string;
  governance_status: string; terms_status: string; database_rights_status: string;
@@ -125,6 +125,16 @@ export default async function DiscoverySourcesPage({
                Attesto un'autorizzazione esplicita dell'azienda, separata dalla pagina prodotto, che copre recupero automatizzato e riutilizzo delle informazioni societarie nel SaaS.
              </label>
              <button className="min-h-11 rounded-xl border px-4 font-semibold">Registra consenso · non avvia crawler</button>
+           </form>
+           <form action={revokeFirstPartyPermission} className="space-y-2 border-t pt-3">
+             <input type="hidden" name="source_id" value={s.id}/>
+             <p className="text-xs font-semibold">Revoca un permesso di scansione già registrato</p>
+             <label className="grid gap-1 text-xs">Dominio aziendale
+               <input required name="domain" placeholder="azienda.it" className="min-h-11 rounded-lg border px-3"/></label>
+             <label className="grid gap-1 text-xs">Motivazione della revoca
+               <input required name="reason" minLength={15} maxLength={1000} className="min-h-11 rounded-lg border px-3"/></label>
+             <label className="flex gap-2 text-xs"><input required name="attested" type="checkbox"/>Confermo la revoca immediata per questo dominio.</label>
+             <button className="min-h-11 rounded-xl border border-rose-400 px-4 text-sm font-semibold text-rose-800">Revoca consenso</button>
            </form>
            <form action={activateConsentedSource} className="space-y-2 border-t pt-3">
              <input type="hidden" name="source_id" value={s.id}/>
