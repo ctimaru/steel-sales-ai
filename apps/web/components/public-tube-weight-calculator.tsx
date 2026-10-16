@@ -484,6 +484,7 @@ export function PublicTubeWeightCalculator({
   canAddToDistinta = true,
   inlinePublicDistinta = false,
   inlineBillCount = 0,
+  onChooseBuyerTarget,
 }: {
   references: PublicTubeDimensionSummary[];
   initialValues?: PublicTubeCalculatorInitialValues;
@@ -494,6 +495,7 @@ export function PublicTubeWeightCalculator({
   /** Keep the original public two-column calculator UX, even when adding in place. */
   inlinePublicDistinta?: boolean;
   inlineBillCount?: number;
+  onChooseBuyerTarget?: (value: { basis: "tonne" | "metre"; raw: string; weightKgM: number }) => void;
 }) {
   const inEmbeddedBuilder = Boolean(onAddToDistinta) && !inlinePublicDistinta;
   const t = (text: string) => tubeCalculatorText(text, locale);
@@ -1232,7 +1234,8 @@ export function PublicTubeWeightCalculator({
                 </div>
               </div>
 
-              <CalculatorCommercialPricing weightKgM={values.error ? null : values.kgM} locale={locale} />
+              <CalculatorCommercialPricing weightKgM={values.error ? null : values.kgM} locale={locale}
+                onChooseBuyerTarget={onChooseBuyerTarget} />
 
               {values.targetBars != null ? (
                 <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs">
