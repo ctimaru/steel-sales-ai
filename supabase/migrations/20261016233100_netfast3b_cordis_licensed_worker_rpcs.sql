@@ -89,7 +89,7 @@ begin
    on conflict(source_id,cordis_organisation_id) do nothing;
    get diagnostics row_added=row_count;
    research_added:=research_added+row_added;
-   if dom<>'' and not exists(
+   if dom<>'' and nm ~* '(acciai|siderurg|metall|steel|metal|meccanic|mechanic|automotiv|veicol|carpenter|machiner|macchin|tubif|tubi|fabricat|fonder|foundr|manufactur|engineering)' and not exists(
        select 1 from public.network_companies c
        where c.archived_at is null
        and regexp_replace(lower(coalesce(c.website_domain,'')),'^www[.]','')=dom)
