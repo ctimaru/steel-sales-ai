@@ -19,7 +19,10 @@ import {
   type PublicProfileProvenanceKind,
 } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
-import { requireNetworkAccess } from "@/lib/network-access";
+import { getNetworkAccessState, requireNetworkAccess } from "@/lib/network-access";
+import { FreeNetworkProfileView } from "@/components/free-network-profile";
+import { isNetworkFreeReadEnabled } from "@/lib/network-flags";
+import { getWorkspaceContext } from "@/lib/workspace-context";
 import { createClient } from "@/lib/supabase/server";
 
 const relationshipLabels: Record<string, string> = {
@@ -138,9 +141,14 @@ export default async function NetworkCompanyProfilePage({
   searchParams: Promise<{ error?: string; message?: string }>;
 }) {
   if (!isNetworkFrontendEnabled()) redirect("/dashboard");
+  const { id } = await params;
+  const context = await getWorkspaceContext();
+  const access = await getNetworkAccessState(context.organizationId);
+  if (!access.can_access_network && isNetworkFreeReadEnabled()) {
+    return <FreeNetworkProfileView organizationId={context.organizationId} companyId={id} />;
+  }
   await requireNetworkAccess();
 
-  const { id } = await params;
   const { error, message } = await searchParams;
   const profile = await getNetworkProfile(id);
   if (!profile) notFound();

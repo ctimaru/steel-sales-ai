@@ -41,7 +41,7 @@ test("M8 rollback flag removes Network navigation and disables all Network route
   assert.match(shell, /networkEnabled && networkEntitled[\s\S]*visibleItems\(networkNav, organizationRole\)/);
   assert.match(navigation, /\.\.\.\(networkEnabled[\s\S]*?key: "network"/);
   assert.match(navigation, /key: "marketplace"/);
-  assert.match(shell, /WorkspaceMobileBottomNavigation[\s\S]*networkEnabled=\{networkEnabled\}[\s\S]*networkEntitled=\{networkEntitled\}/);
+  assert.match(shell, /WorkspaceMobileBottomNavigation[\s\S]*networkEnabled=\{networkEnabled\}[\s\S]*networkEntitled=\{networkEntitled \\|\\| networkFreeEnabled\}/);
 
   for (const source of [directory, profile, managed]) {
     assert.match(source, /isNetworkFrontendEnabled/);

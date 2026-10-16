@@ -112,6 +112,7 @@ export function AppShell({
   guidedSetupComplete,
   networkEnabled,
   networkEntitled,
+  networkFreeEnabled,
 }: {
   children: ReactNode;
   viewerLabel: string;
@@ -125,12 +126,15 @@ export function AppShell({
   guidedSetupComplete: boolean;
   networkEnabled: boolean;
   networkEntitled: boolean;
+  networkFreeEnabled: boolean;
 }) {
   const commercialItems = visibleItems(commercialNav, organizationRole);
   const intelligenceItems = visibleItems(intelligenceNav, organizationRole);
   const rfqItems = visibleItems(rfqNav, organizationRole);
   const networkItems =
-    networkEnabled && networkEntitled ? visibleItems(networkNav, organizationRole) : [];
+    networkEnabled && networkEntitled ? visibleItems(networkNav, organizationRole)
+    : networkEnabled && networkFreeEnabled ? visibleItems(networkNav.slice(0, 1), organizationRole)
+    : [];
   const marketplaceItems = networkEnabled ? visibleItems(marketplaceNav, organizationRole) : [];
   const knowledgeItems = visibleItems(knowledgeNav, organizationRole);
   const canAdmin = canAdministerCompany(organizationRole);
@@ -171,7 +175,7 @@ export function AppShell({
           <div className="ml-auto hidden h-full lg:flex">
             <WorkspaceDesktopPrimaryNavigation
               networkEnabled={networkEnabled}
-              networkEntitled={networkEntitled}
+              networkEntitled={networkEntitled || networkFreeEnabled}
             />
           </div>
 
@@ -215,7 +219,7 @@ export function AppShell({
 
       <WorkspaceMobileBottomNavigation
         networkEnabled={networkEnabled}
-        networkEntitled={networkEntitled}
+        networkEntitled={networkEntitled || networkFreeEnabled}
       />
     </div></>
   );
