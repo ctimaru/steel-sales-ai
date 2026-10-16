@@ -14,7 +14,7 @@ import { NetworkRoleDiscovery } from "@/components/network-role-discovery";
 import { getItalyRegionCoverage } from "@/lib/network-region-coverage";
 import { orderNetworkDiscovery } from "@/lib/network-experience";
 import { activeNetworkPersona, networkRoleReason, validNetworkPersona } from "@/lib/network-role-discovery";
-import { getFreeNetworkViewerRole, getFreeNetworkDirectory } from "@/lib/network-free";
+import { getFreeNetworkViewerRole, getProNetworkDiscoveryDirectory } from "@/lib/network-free";
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
 import { NetworkAccessGate } from "@/components/network-access-gate";
@@ -142,7 +142,7 @@ export default async function NetworkDirectoryPage({
     getItalyRegionCoverage(context.organizationId).catch(() => null),
     getFreeNetworkViewerRole(context.organizationId).catch(() => null),
     // Pro users previously saw only the legacy canonical search, hiding NET-FAST discoveries.
-    getFreeNetworkDirectory(context.organizationId, {
+    getProNetworkDiscoveryDirectory(context.organizationId, {
       q: params.q, role: params.role, region: params.region,
     }).catch(() => null),
   ]);
