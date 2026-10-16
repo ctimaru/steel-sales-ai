@@ -36,8 +36,9 @@ test("BD7 docs are scoped to the entire request and not duplicated in tube notes
   assert.match(builder, /saveBuyerDistinta\(\{ title, lines, documents \}\)/);
   assert.match(actions, /document_requirements: normalizeBuyerDocumentRequirements\(input\.documents\)/);
   assert.match(actions, /p_buyer_message: formatBuyerDocumentRequirements\(documents\) \|\| null/);
-  assert.match(actions, /buildBuyerDistintaPlainText\(title, exportLines, documents\)/);
-  assert.match(actions, /buildBuyerDistintaHtml\(title, exportLines, documents\)/);
+  assert.match(actions, /buildBuyerDistintaPlainText\(title, supplierVisibleBuyerLines\(exportLines\), documents, false\)/);
+  // Supplier email excludes buyer-internal prices and even the target columns.
+  assert.match(actions, /buildBuyerDistintaHtml\(title, supplierVisibleBuyerLines\(exportLines\), documents, false\)/);
   assert.match(contract, /formatBuyerDocumentRequirements\(documents\)/);
   assert.match(migration, /document_requirements jsonb not null/);
   assert.match(migration, /insert into public\.buyer_distintas/);
