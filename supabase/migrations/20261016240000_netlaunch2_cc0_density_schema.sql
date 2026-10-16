@@ -35,7 +35,18 @@ grant select,insert,update on public.network_netlaunch2_runs to service_role;
 create policy netlaunch2_runs_deny_clients on public.network_netlaunch2_runs
  as restrictive for all to anon,authenticated using(false) with check(false);
 
-do $$
+-- Preserve global 100/site ceiling; only the existing, reviewed, named
+-- Wikidata CC0 structured API may batch 200 *records*, never website crawls.
+alter table public.network_discovery_source_registry
+ drop constraint network_discovery_source_registry_max_domains_per_run_check;
+alter table public.network_discovery_source_registry
+ add constraint network_discovery_source_registry_max_domains_per_run_check
+ check(max_domains_per_run between 1 and 100
+   or (id='8425ec0f-c855-41d8-9bea-70a95fd8a6ba'::uuid
+       and source_url='https://query.wikidata.org/sparql'
+       and max_domains_per_run between 101 and 200));
+
+do $
 declare n integer;
 begin
  update public.network_discovery_source_registry
