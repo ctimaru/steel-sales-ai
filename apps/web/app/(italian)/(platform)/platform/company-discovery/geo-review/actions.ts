@@ -16,3 +16,35 @@ export async function decideGeoEvidence(form:FormData) {
  revalidatePath(route);
  redirect(route+"?message="+encodeURIComponent("Decisione registrata. Nessuna sede pubblicata automaticamente."));
 }
+
+
+/** NET-UX3: source capture is a staging operation, never publication. */
+export async function stageOfficialGeoEvidence(form: FormData) {
+  await requirePlatformPermission("discovery.enrich");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("netux3_stage_official_geo", {
+    p_company_id: String(form.get("company_id") ?? ""),
+    p_source_url: String(form.get("source_url") ?? "").trim(),
+    p_city: String(form.get("city") ?? "").trim(),
+    p_region: String(form.get("region") ?? "").trim(),
+    p_evidence_snippet: String(form.get("evidence_snippet") ?? "").trim(),
+  });
+  if (error) redirect(route + "?error=" + encodeURIComponent("Evidenza non salvata: fonte ufficiale, identità, città e regione devono essere documentate."));
+  revalidatePath(route);
+  redirect(route + "?message=" + encodeURIComponent("Evidenza salvata nella coda. Nessuna sede pubblicata."));
+}
+
+/** NET-UX3: explicit second decision, with platform permission rechecked by RPC. */
+export async function publishReviewedGeoEvidence(form: FormData) {
+  await requirePlatformPermission("discovery.publish");
+  await requirePlatformPermission("discovery.governance_review");
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("netux3_publish_reviewed_geo", {
+    p_evidence_id: String(form.get("evidence_id") ?? ""),
+    p_publication_note: String(form.get("publication_note") ?? "").trim(),
+  });
+  if (error || !data) redirect(route + "?error=" + encodeURIComponent("Sede non pubblicata. Controlla il secondo gate di revisione."));
+  revalidatePath(route);
+  revalidatePath("/network");
+  redirect(route + "?message=" + encodeURIComponent("Sede pubblicata con tracciabilità e stato non verificato. La mappa verrà aggiornata."));
+}
