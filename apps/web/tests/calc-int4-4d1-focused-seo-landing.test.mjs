@@ -15,7 +15,9 @@ test("4.4D.1 keeps calculator and Distinta as the only primary visible content o
   assert.match(landing,/<summary[^>]*>[\s\S]*Guide, fonti e approfondimenti tecnici/);
   assert.doesNotMatch(landing,/<details[^>]*calculator-editorial-disclosure[^>]*\sopen/);
   assert.match(calc,/data-testid="calculator-technical-disclosure"/);
-  assert.match(calc,/Riferimenti e opzioni del calcolatore/);
+  assert.match(calc,/Riferimenti tecnici del calcolatore/);
+  assert.match(calc,/!inEmbeddedBuilder && !\(inlinePublicDistinta && locale === "it"\)/,
+    "The Italian inline workbench must not render Add to Home or Save Calculator actions");
   assert.match(bill,/inlineBill=\{bill\}/);
   const source=calc.indexOf("{inlineBill}");
   const supplemental=calc.indexOf('data-testid="calculator-technical-disclosure"');
