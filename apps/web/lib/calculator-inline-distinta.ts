@@ -91,8 +91,7 @@ function validState(state: InlineDistintaState): boolean {
   return true;
 }
 
-function reject(state: InlineDistintaState, reason: InlineDistintaResult extends never ? never :
-  "invalid" | "duplicate" | "full" | "missing"): InlineDistintaResult {
+function reject(state: InlineDistintaState, reason: "invalid" | "duplicate" | "full" | "missing"): InlineDistintaResult {
   return { ok: false, state, reason };
 }
 
