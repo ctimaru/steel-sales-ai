@@ -503,6 +503,16 @@ export function PublicTubeWeightCalculator({
   const [quantity, setQuantity] = useState(initialValues?.quantity ?? "1");
   const [targetTonnes, setTargetTonnes] = useState(initialValues?.targetTonnes ?? "");
   const [density, setDensity] = useState(initialValues?.density ?? "7850");
+  // These stateful device conveniences remain available in the collapsed panel
+  // BELOW the calculator, independently of the removed language controls.
+  const [referenceQuery, setReferenceQuery] = useState("");
+  const [recentCalculations, setRecentCalculations] = useState<StoredTubeCalculation[]>([]);
+  const [favoriteCalculations, setFavoriteCalculations] = useState<StoredTubeCalculation[]>([]);
+  const [calculatorSaved, setCalculatorSaved] = useState(false);
+  const [retentionReady, setRetentionReady] = useState(false);
+  const [actionFeedback, setActionFeedback] = useState("");
+  const calculationInteractedRef = useRef(false);
+  const lastTrackedCalculationKeyRef = useRef<string | null>(null);
 
   const values = useMemo(() => {
     const d = parseNumber(outerDiameter);
