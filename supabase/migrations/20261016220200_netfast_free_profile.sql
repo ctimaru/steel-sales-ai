@@ -14,10 +14,7 @@ begin
   'claimed_status','unclaimed','verification_status','unverified',
   'discovery_status','unconfirmed'),
  'roles',jsonb_build_array(jsonb_build_object(
-  'key',d.role_key,'name',coalesce((select r.display_name
-   from public.network_company_roles r
-   where r.canonical_key=d.role_key and r.status='active' limit 1),
-  'Categoria indicativa'),'is_primary',true)),
+  'key',d.role_key,'name','Categoria indicativa','is_primary',true)),
  'products','[]'::jsonb,'facilities','[]'::jsonb,
  'source_url',d.source_url,'origin',d.origin,
  'finished_only',d.finished_only
