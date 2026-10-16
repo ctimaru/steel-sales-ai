@@ -245,7 +245,7 @@ export default async function PublicTubeWeightsPage({
       />
 
       <PublicUtilityTelemetry source={discoverySource} surface={discoverySurface} />
-      <CalculatorRegionSwitch locale="it" initialRegion="eu" inlineItalianBill requestedRegion={calculatorRegionFromQuery(params)}
+      <CalculatorRegionSwitch locale="it" initialRegion="eu" requestedRegion={calculatorRegionFromQuery(params)}
         usInitialValues={usPipeSeedFromQuery(params)}
         references={references} initialValues={initialValues} />
 

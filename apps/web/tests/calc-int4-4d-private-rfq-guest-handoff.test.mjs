@@ -79,7 +79,7 @@ test("4.4D browser redaction remains 4.4A while auth is click-only and RFQ never
  assert.match(billSource,/savedSnapshotRef\.current\?\.signature === signature/);
  assert.match(billSource,/createBuyerRfqCampaign\(savedId\)/);
  assert.match(billSource,/router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)\)/);
- assert.match(billSource,/encodeURIComponent\("\/knowledge\/tubes"\)/);
+  assert.match(billSource,/encodeURIComponent\(CALCULATOR_ROUTES\[locale\]\)/);
  assert.doesNotMatch(billSource,/sendBuyerDistinta|sendSupplier|launchCampaign|publishMarketplace/);
  assert.doesNotMatch(privateSource,/sessionStorage|localStorage|cookie|fetch\(|sendBuyerDistinta/);
  const server=read("../app/(italian)/(public)/knowledge/tubes/actions.ts");

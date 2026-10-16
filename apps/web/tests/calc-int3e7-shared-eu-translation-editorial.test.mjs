@@ -14,7 +14,7 @@ const euBill=read("../lib/calculator-rfq-handoff.ts");
 
 test("CALC-INT3E.7 mounts exactly one EU calculator component for IT EN DE FR ES",()=>{
   assert.match(region,/isNewCalculatorLocale\(locale\)\s*\?\s*internationalEuInitialValues\(internationalSeed\)/);
-  assert.match(region,/PublicTubeWeightCalculator references=\{references\?\?\[\]\}/);
+  assert.match(region,/<CalculatorInlineDistintaExperience references=\{references\?\?\[\]\}/);
   assert.doesNotMatch(region,/<InternationalSteelCalculator/);
   assert.match(region,/UsPipeSampleCalculator locale=\{locale\}/);
   for(const literal of ["round_tube","square_tube","rectangular_tube","en10210","en10219","geometric"])

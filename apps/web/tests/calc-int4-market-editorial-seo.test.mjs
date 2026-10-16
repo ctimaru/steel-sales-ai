@@ -73,5 +73,5 @@ test("CALC-INT4: internal link from live calculator without changing engine or R
   assert.match(calculatorPage, /CalculatorRegionSwitch locale=\{locale\}/);
   assert.match(calculatorPage, /copy\.faq\.map/);
   assert.doesNotMatch(guidePage, /supabase|sendSupplierEmail|dispatchRfq|schoolArticles/);
-  assert.match(calculator, /PublicTubeWeightCalculator/);
+  assert.match(calculator, /CalculatorInlineDistintaExperience/);
 });

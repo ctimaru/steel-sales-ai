@@ -33,7 +33,7 @@ test("CALC-INT4.3: 5 known calculator routes stay unique and unchanged",()=>{
   assert.match(landing,/localizedHrefLangPaths\(\)/);
   assert.match(landing,/robotsForParameterizedPage\(hasParameters\)/);
   assert.match(selector,/hrefLang=\{code\} lang=\{code\}/);
-  assert.match(regions,/PublicTubeWeightCalculator/);
+  assert.match(regions,/CalculatorInlineDistintaExperience/);
 });
 
 test("CALC-INT4.3: three calculator landings link directly to BOTH local guides",()=>{
