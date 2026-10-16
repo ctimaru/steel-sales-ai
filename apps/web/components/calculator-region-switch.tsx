@@ -8,6 +8,7 @@ import {
 } from "@/components/public-tube-weight-calculator";
 import { UsPipeSampleCalculator, type UsPipeInitialValues } from "@/components/us-pipe-sample-calculator";
 import { type InternationalCalculatorSeed } from "@/components/international-steel-calculator";
+import type { CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
 import { isNewCalculatorLocale, type CalculatorSiteLocale } from "@/lib/international-calculator-landing";
 import { REGION_COPY } from "@/lib/us-calculator-i18n";
 import styles from "./calculator-region-switch.module.css";
@@ -39,6 +40,11 @@ export function CalculatorRegionSwitch({
   references,
   initialValues,
   euAfter,
+  onEuAddToDistinta,
+  euCanAddToDistinta,
+  euInlinePublicDistinta = false,
+  euInlineBill,
+  euInlineCount,
   internationalSeed,
   usInitialValues,
 }: {
@@ -48,6 +54,12 @@ export function CalculatorRegionSwitch({
   references?: CalculatorProps["references"];
   initialValues?: CalculatorProps["initialValues"];
   euAfter?: ReactNode;
+  /** Only the public Italian calculator opts into the in-place bill (4.4B). */
+  onEuAddToDistinta?: (item: CalculatorRfqItem) => boolean;
+  euCanAddToDistinta?: boolean;
+  euInlinePublicDistinta?: boolean;
+  euInlineBill?: ReactNode;
+  euInlineCount?: number;
   internationalSeed?:InternationalCalculatorSeed;
   usInitialValues?:UsPipeInitialValues;
 }) {
@@ -116,7 +128,12 @@ export function CalculatorRegionSwitch({
                 initialValues={isNewCalculatorLocale(locale)
                   ? internationalEuInitialValues(internationalSeed)
                   : initialValues}
-                locale={locale} />
+                locale={locale}
+                onAddToDistinta={onEuAddToDistinta}
+                canAddToDistinta={euCanAddToDistinta ?? true}
+                inlinePublicDistinta={euInlinePublicDistinta}
+                inlineBillCount={euInlineCount ?? 0} />
+              {euInlineBill}
               {euAfter ? <div className={styles.evidence}>{euAfter}</div> : null}
             </>
           ) : null}
