@@ -1,10 +1,12 @@
 -- NET-FAST3B: CORDIS Horizon Europe organisations adapter. Candidate source registration is
 -- unreviewed and NEVER a license grant or a permission to crawl company websites.
 insert into public.network_discovery_source_registry
- (source_name,source_url,source_type,country_code,enabled_for_discovery)
+ (source_name,source_url,source_type,country_code,enabled_for_discovery,
+  governance_status,terms_status,database_rights_status,personal_data_policy)
 select 'CORDIS Horizon Europe — organisations (licensed dataset preflight)',
  'https://data.europa.eu/data/datasets/cordis-eu-research-projects-under-horizon-europe-2021-2027',
- 'curated_public_source','IT',false
+ 'curated_public_source','IT',false,
+ 'unreviewed','not_checked','not_assessed','not_assessed'
 where not exists (
  select 1 from public.network_discovery_source_registry
  where source_url='https://data.europa.eu/data/datasets/cordis-eu-research-projects-under-horizon-europe-2021-2027'
