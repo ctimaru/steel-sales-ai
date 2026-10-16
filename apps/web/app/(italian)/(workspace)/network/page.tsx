@@ -8,12 +8,13 @@ import {
   unfollowNetworkCompany,
 } from "@/app/(workspace)/network/actions";
 import { FreeNetworkDirectoryView } from "@/components/free-network-directory";
+import { NetworkLaunchDiscovery } from "@/components/network-launch-discovery";
 import { ItalyRegionMap } from "@/components/italy-region-map";
 import { NetworkRoleDiscovery } from "@/components/network-role-discovery";
 import { getItalyRegionCoverage } from "@/lib/network-region-coverage";
 import { orderNetworkDiscovery } from "@/lib/network-experience";
 import { activeNetworkPersona, networkRoleReason, validNetworkPersona } from "@/lib/network-role-discovery";
-import { getFreeNetworkViewerRole } from "@/lib/network-free";
+import { getFreeNetworkViewerRole, getFreeNetworkDirectory } from "@/lib/network-free";
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
 import { NetworkAccessGate } from "@/components/network-access-gate";
@@ -122,7 +123,7 @@ export default async function NetworkDirectoryPage({
   const params = await searchParams;
   const canWrite = canWriteWorkspace(context.role);
 
-  const [taxonomy, geoFacets, results, saved, followed, coverage, viewerRole] = await Promise.all([
+  const [taxonomy, geoFacets, results, saved, followed, coverage, viewerRole, previewDirectory] = await Promise.all([
     getNetworkTaxonomy(),
     getNetworkGeoFacets(),
     searchNetwork({
@@ -140,6 +141,10 @@ export default async function NetworkDirectoryPage({
     getFollowedNetworkCompanies(context.organizationId),
     getItalyRegionCoverage(context.organizationId).catch(() => null),
     getFreeNetworkViewerRole(context.organizationId).catch(() => null),
+    // Pro users previously saw only the legacy canonical search, hiding NET-FAST discoveries.
+    getFreeNetworkDirectory(context.organizationId, {
+      q: params.q, role: params.role, region: params.region,
+    }).catch(() => null),
   ]);
 
   const savedIds = new Set(saved.map((item) => item.network_company_id));
@@ -183,10 +188,16 @@ export default async function NetworkDirectoryPage({
         }
       />
 
-      <NetworkRoleDiscovery viewerRole={viewerRole} filters={params} />
+      <NetworkLaunchDiscovery directory={previewDirectory}
+        filters={{q:params.q,role:params.role,region:params.region}} />
+      <div className="mt-6">
+        <NetworkRoleDiscovery viewerRole={viewerRole} filters={params} />
+      </div>
 
-      <ItalyRegionMap coverage={coverage} selectedRegion={params.region} filters={params} />
-
+      {previewDirectory?.discovered_total ? <p className="mt-4 text-xs text-[#52615b]">
+        La sezione di scoperta contiene {previewDirectory.discovered_total} profili aggiuntivi da confermare;
+        le funzionalità premium rimangono disponibili sulla directory pubblicata qui sotto.
+      </p> : null}
       {params.error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
           {params.error}
@@ -520,6 +531,9 @@ export default async function NetworkDirectoryPage({
           </div>
         )}
       </section>
+      <div className="mt-6">
+        <ItalyRegionMap coverage={coverage} selectedRegion={params.region} filters={params} />
+      </div>
     </FocusPage>
   );
 }
