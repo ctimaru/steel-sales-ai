@@ -80,7 +80,7 @@ test("CALC-INT1 does not change the calc -> public bill -> RFQ handoff contract"
   assert.match(handoff, /CALC_RFQ_HANDOFF_TTL_MS = 10 \* 60 \* 1000/);
   assert.match(handoff, /version: 1/);
   assert.match(handoff, /validatedCalculatorRfqItem/);
-  assert.match(calculator, /window\.location\.assign\(locale === "en" \? "\/en\/distinta" : "\/distinta"\)/);
+  assert.match(calculator, /window\.location\.assign\(locale === "it" \? "\/distinta" : `\/\$\{locale\}\/distinta`\)/);
   assert.match(itRfq, /<BuyerDistintaBuilder/);
   assert.match(enRfq, /<EnglishRfqBillBuilder/);
   assert.match(itRfq, /canonical: absoluteUrl\("\/distinta"\)/);
