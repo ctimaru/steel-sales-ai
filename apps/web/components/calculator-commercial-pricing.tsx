@@ -50,9 +50,12 @@ const copy: Record<TubeCalculatorLocale, {
 export function CalculatorCommercialPricing({
   weightKgM,
   locale,
+  onChooseBuyerTarget,
 }: {
   weightKgM: number | null;
   locale: TubeCalculatorLocale;
+  /** Opt-in only; pricing inputs remain ephemeral unless user selects a bill line. */
+  onChooseBuyerTarget?: (value: {basis: PriceBasis; raw: string; weightKgM: number}) => void;
 }) {
   const labels = copy[locale];
   const id = useId();
@@ -67,6 +70,8 @@ export function CalculatorCommercialPricing({
   const hasRaw = source.raw.trim().length > 0;
   const invalidRate = hasRaw && parseCommercialRate(source.raw, locale) === null;
   const validWeight = weightKgM !== null && Number.isFinite(weightKgM) && weightKgM > 0;
+  const validBuyerTarget = validWeight && !invalidRate && hasRaw &&
+    parseCommercialRate(source.raw, locale)! > 0 && other !== null && other > 0;
   const priceInputClass = "mt-1 block h-11 w-full min-w-0 rounded-xl border border-[#b7d2c5] bg-white px-3 text-base font-semibold tabular-nums text-[#163c2e] outline-none transition-colors placeholder:font-normal placeholder:text-[#6b8276] hover:border-[#6b9c87] focus-visible:border-[#166f4b] focus-visible:ring-2 focus-visible:ring-[#96d5b6] disabled:cursor-not-allowed disabled:opacity-50";
 
   return (
@@ -116,8 +121,21 @@ export function CalculatorCommercialPricing({
               { it:"it-IT", en:"en-GB", de:"de-DE", fr:"fr-FR", es:"es-ES" }[locale],
               { maximumFractionDigits: 3 },
             ).format(weightKgM)} kg/m.`}
-        <span className="block text-[#547061]">{labels.note}</span>
+        <span className="block text-[#547061]">{onChooseBuyerTarget
+          ? "Il prezzo resta privato. Non entra nella distinta senza scegliere esplicitamente una riga."
+          : labels.note}</span>
       </p>
+      {onChooseBuyerTarget && locale === "it" ? (
+        <button type="button" data-target-opt-in
+          disabled={!validBuyerTarget || weightKgM === null}
+          onClick={() => {
+            if (!validBuyerTarget || weightKgM === null) return;
+            onChooseBuyerTarget({ basis: source.basis, raw: source.raw, weightKgM });
+          }}
+          className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[#277a58] bg-white px-3 py-2 text-sm font-bold text-[#13543c] hover:bg-[#f2fbf5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#13543c] disabled:cursor-not-allowed disabled:opacity-45">
+          Usa come target interno → scegli la riga
+        </button>
+      ) : null}
     </section>
   );
 }
