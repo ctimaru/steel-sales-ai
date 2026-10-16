@@ -60,7 +60,7 @@ export function CalculatorRegionSwitch({
         <div className={styles.headerCopy}>
           <p className={styles.eyebrow}>{regional?.eyebrow??(english ? "SELECT CALCULATION SYSTEM" : "SCEGLI IL SISTEMA DI CALCOLO")}</p>
           <p className={styles.headline}>
-            {english ? "One calculator. Two steel markets." : "Un calcolatore. Due mercati dell'acciaio."}
+            {regional?.headline??(english ? "One calculator. Two steel markets." : "Un calcolatore. Due mercati dell'acciaio.")}
           </p>
         </div>
         <div className={styles.track} data-region={region} role="group"
