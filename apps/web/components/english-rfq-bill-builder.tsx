@@ -10,6 +10,7 @@ import {
   type PublicTubeStandard,
 } from "@/lib/international-tube-mass";
 import { RFQ_BILL_TEXT, formatBillNumber, type RfqBillLocale } from "@/lib/rfq-bill-localization";
+import { InternationalRfqRegisterLink } from "@/components/international-rfq-register-link";
 import { trackInternationalRfq } from "@/lib/international-rfq-analytics.client";
 import { internationalRfqSource, type InternationalRfqSegment } from "@/lib/international-rfq-funnel";
 
@@ -200,10 +201,24 @@ export function EnglishRfqBillBuilder({locale="en"}:{locale?:RfqBillLocale}={}) 
   );
 
   const invalidCount = calculated.filter((item) => !item.mass.ok || item.error).length;
+  const firstIncomplete = calculated.find((item) => !item.mass.ok || item.error);
   const valid = calculated.filter((item) => item.mass.ok && !item.error);
   const totalTonnes = valid.reduce((sum, item) => sum + (item.mass.ok ? item.mass.totalTonnes : 0), 0);
   const totalMeters = valid.reduce((sum, item) => sum + (item.mass.ok ? item.mass.totalMeters : 0), 0);
 
+  function focusFirstIncomplete() {
+    if (!firstIncomplete) return;
+    // An imported calculator line deliberately has no assumed steel grade.
+    // Focus the actual first invalid control instead of leaving a disabled CTA.
+    const key = firstIncomplete.error === t.invalidGrade
+      ? "grade" : firstIncomplete.error === t.invalidTarget
+        ? "targetPricePerTonne"
+        : firstIncomplete.line.shape === "round" ? "diameter" : "width";
+    const target = document.getElementById("rfq-en-" + firstIncomplete.line.id + "-" + key) as HTMLInputElement | null;
+    if (!target) return;
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+    target.focus({ preventScroll: true });
+  }
   function updateLine(id: number, patch: Partial<RfqLine>) {
     // A new geometric dimension/standard invalidates an inherited NPS/Schedule
     // manufacturer designation; never export stale API/ASTM context.
@@ -283,6 +298,10 @@ export function EnglishRfqBillBuilder({locale="en"}:{locale?:RfqBillLocale}={}) 
         <aside role="status" aria-live="polite" className="rounded-xl border border-[#b5d9c7] bg-[#edf8f1] p-4 text-sm text-[#123b34]">
           <strong>{importedCount} {t.imported}</strong>
           <p className="mt-1 text-xs leading-5">{t.importedInfo}</p>
+          {firstIncomplete ? <button type="button" disabled={!hydrated} onClick={focusFirstIncomplete}
+            className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-[#217454] bg-white px-4 text-sm font-bold text-[#155943] hover:bg-[#e4f4e9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#155943] disabled:opacity-50">
+            {t.fixFirst} →
+          </button> : null}
         </aside>
       ) : null}
       {importWarning ? <p role="alert" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">{t.full}</p> : null}
@@ -375,8 +394,13 @@ export function EnglishRfqBillBuilder({locale="en"}:{locale?:RfqBillLocale}={}) 
       <div className="flex flex-wrap items-center justify-between gap-5 rounded-2xl bg-[#123b34] px-5 py-5 text-white sm:px-7">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#b4e0d0]">{t.summary}</p>
-          <p className="mt-1 text-xl font-bold">{lines.length} {t.items} · {formatBillNumber(totalMeters,locale,2)} m · {formatBillNumber(totalTonnes,locale,4)} t</p>
-          {invalidCount ? <p role="alert" className="mt-2 text-xs text-[#ffdec8]">{invalidCount} · {t.invalidItems}</p> : null}
+          <p className="mt-1 text-xl font-bold">{lines.length} {lines.length === 1 ? t.item : t.items} · {formatBillNumber(totalMeters,locale,2)} m · {formatBillNumber(totalTonnes,locale,4)} t</p>
+          {invalidCount ? <div className="mt-2"><p role="alert" className="text-xs text-[#ffdec8]">{invalidCount} · {t.invalidItems}</p>
+            <button type="button" onClick={focusFirstIncomplete} disabled={!hydrated}
+              className="mt-2 inline-flex min-h-11 items-center rounded-lg border border-[#b4e0d0] px-3 text-xs font-bold text-white underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:opacity-50">
+              {t.fixFirst} →
+            </button>
+          </div> : null}
           <p className="mt-2 text-xs text-[#dbeae4]">{t.privacy}</p>
         </div>
         <div className="flex flex-col gap-2">
@@ -387,6 +411,15 @@ export function EnglishRfqBillBuilder({locale="en"}:{locale?:RfqBillLocale}={}) 
           {copyState === "failed" ? <p role="alert" className="text-xs text-[#ffdec8]">{t.copyFailed}</p> : null}
         </div>
       </div>
+      {copyState === "copied" ? (
+        <div role="status" aria-live="polite" className="rounded-2xl border border-[#a9d2ba] bg-[#edf8f1] p-4 text-sm text-[#123b34] sm:p-5">
+          <p className="font-semibold">{t.copyNext}</p>
+          <InternationalRfqRegisterLink locale={locale} className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-[#155943] px-4 py-2 text-sm font-bold text-white hover:bg-[#114d39] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#155943]">
+            {t.registerNext} →
+          </InternationalRfqRegisterLink>
+          <p className="mt-2 text-xs leading-5 text-[#52615b]">{t.registerCaveat}</p>
+        </div>
+      ) : null}
     </section>
   );
 }
