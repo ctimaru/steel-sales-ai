@@ -890,7 +890,10 @@ export function PublicTubeWeightCalculator({
   const secondaryTools = (
     <>
       {/* Secondary device conveniences: OUTSIDE the calculator controls and result. */}
-      {!inEmbeddedBuilder ? (
+      {/* CALC-INT4.4D.2: these PWA / local save controls are temporarily
+          absent on the public Italian calculator-first experience.
+          Other localized calculators keep their existing functionality. */}
+      {!inEmbeddedBuilder && !(inlinePublicDistinta && locale === "it") ? (
         <details className="rounded-xl border border-[#dce5e0] bg-[#f8faf8] text-[#123b34]">
           <summary className="flex min-h-11 cursor-pointer items-center justify-between px-4 py-2 text-xs font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#237858]">
             {t("Opzioni del dispositivo")}
