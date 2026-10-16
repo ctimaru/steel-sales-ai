@@ -76,3 +76,19 @@ export function safeNetworkWebsiteUrl(value: string | null | undefined) {
     return null;
   }
 }
+
+/** Lightweight viewer role for Pro's discovery ordering.
+ * Authorization remains in NET-UX1.1's active-company guard; read failure
+ * means "no known role", never assume an entitlement or company classification.
+ */
+export async function getFreeNetworkViewerRole(organizationId:string): Promise<NetworkCompanyRole|null> {
+  const supabase = await createClient();
+  const {data,error} = await supabase.rpc("netux11_free_directory",{
+    p_organization_id:organizationId,
+    p_query:null,p_role:null,p_region:null,p_limit:1,
+  });
+  if (error || !data || (data as FreeDirectory).contract !== "netux11-free-v1") return null;
+  const role = (data as FreeDirectory).viewer_role;
+  const known: readonly string[] = ["producer","trader_distributor","processor_service_provider","end_user"];
+  return role && known.includes(role) ? role : null;
+}
