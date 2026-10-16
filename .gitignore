@@ -27,3 +27,6 @@ venv/
 
 # Supabase local
 supabase/.temp/
+
+# CALC-INT4.2 — private Google Search Console CSV exports/reports (never commit)
+apps/web/private/gsc-evidence/
