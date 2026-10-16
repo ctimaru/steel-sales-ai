@@ -91,11 +91,14 @@ try {
           ...await calc.locator(".tube-calculator-result > div button").all(),
           calc.locator(".tube-calculator-rfq-link"),
         ];
+        // Touch needs 44px at phone widths; the compact desktop rail has
+        // explicit spacing and keeps 36px controls for mouse/keyboard use.
+        const minimumControlSize = width < 768 ? 44 : 36;
         for (const item of touchTargets) {
           if (!(await item.isVisible())) continue;
           const r = await item.boundingBox();
-          assert.ok(r && r.width >= 44 - 0.5 && r.height >= 44 - 0.5,
-            tag + ": action below 44px " + JSON.stringify(r));
+          assert.ok(r && r.width >= minimumControlSize - 0.5 && r.height >= minimumControlSize - 0.5,
+            tag + ": action below " + minimumControlSize + "px " + JSON.stringify(r));
         }
 
         for (const selector of [
