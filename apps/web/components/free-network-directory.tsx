@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import { FocusPage } from "@/components/focus-ui";
+import { ItalyRegionMap } from "@/components/italy-region-map";
+import { getItalyRegionCoverage, type ItalyRegionCoverage } from "@/lib/network-region-coverage";
 import { NETWORK_COMPANY_ROLES, orderNetworkDiscovery } from "@/lib/network-experience";
 import { getFreeNetworkDirectory, safeNetworkWebsiteUrl } from "@/lib/network-free";
 
@@ -23,8 +25,12 @@ export async function FreeNetworkDirectoryView({
   const role = NETWORK_COMPANY_ROLES.includes(filters.role as (typeof NETWORK_COMPANY_ROLES)[number])
     ? filters.role : undefined;
   let data;
+  let coverage: ItalyRegionCoverage | null = null;
   try {
-    data = await getFreeNetworkDirectory(organizationId, { ...filters, role });
+    [data, coverage] = await Promise.all([
+      getFreeNetworkDirectory(organizationId, { ...filters, role }),
+      getItalyRegionCoverage(organizationId).catch(() => null),
+    ]);
   } catch {
     return (
       <FocusPage className="max-w-[1180px]">
@@ -50,9 +56,8 @@ export async function FreeNetworkDirectoryView({
         </div>
         <h1 className="mt-4 text-2xl font-semibold tracking-tight text-[#173f35] sm:text-3xl">Scopri le aziende dell'acciaio</h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-[#43524c]">
-          Cerca produttori, commercianti, terzisti e utilizzatori. La mappa interattiva
-          per regioni arriverà con NET-UX2: i risultati attuali sono profili pubblicati,
-          anche se privi di una regione associata.
+          Cerca produttori, commercianti, terzisti e utilizzatori in tutta Italia.
+          Usa la mappa interattiva per scoprire le sedi pubblicate regione per regione.
         </p>
         <form action="/network" method="get" className="mt-5 flex flex-col gap-2 sm:flex-row">
           <label htmlFor="free-network-search" className="sr-only">Cerca aziende</label>
@@ -73,20 +78,12 @@ export async function FreeNetworkDirectoryView({
             </Link>
           ))}
         </nav>
-        <form action="/network" method="get" className="mt-4 flex flex-wrap items-center gap-2">
-          {filters.q ? <input name="q" type="hidden" value={filters.q} /> : null}
-          {role ? <input name="role" type="hidden" value={role} /> : null}
-          <label htmlFor="free-network-region" className="text-xs font-semibold text-[#43524c]">Regione</label>
-          <select id="free-network-region" name="region" defaultValue={filters.region || ""}
-            className="min-h-10 rounded-xl border border-[#bfd6ca] bg-white px-3 text-sm text-[#173f35]">
-            <option value="">Tutte le regioni</option>
-            {data.regions.map((r) => <option key={r} value={r}>{r}</option>)}
-          </select>
-          <button className="app-secondary min-h-10 rounded-xl px-3 text-xs font-semibold">Applica</button>
-          {hasFilters ? <Link href="/network" className="text-xs font-semibold text-[#173f35] underline">Azzera filtri</Link> : null}
-        </form>
+
       </section>
-      <section aria-label="Risultati del Network" className="mt-6">
+      <div className="mt-6">
+        <ItalyRegionMap coverage={coverage} selectedRegion={filters.region} filters={filters} />
+      </div>
+      <section id="network-region-results" aria-label="Risultati del Network" className="mt-6">
         <h2 className="text-xl font-semibold text-[#173f35]">{data.total.toLocaleString("it-IT")} aziende</h2>
         <p className="mt-1 text-sm text-[#52615b]">Solo dati aziendali condivisibili. Le sedi non disponibili non vengono inventate.</p>
         {items.length ? (
