@@ -299,31 +299,37 @@ try {
             path: OUT + "/i18n7-calc-" + tube.locale + "-" + viewport.name + ".png",
             animations: "disabled",
           });
-          // CALC-UX2: full same-tab commercial bridge. No POST is allowed
-          // by the read-only browser harness; no RFQ dispatch is performed.
+          // CALC-INT4.4B: IT adds directly beneath the calculator without
+          // changing URL; the existing EN calculator still uses CALC-UX2's
+          // one-time, same-tab /en/distinta handoff. No supplier dispatch.
           for (let repeat = 0; repeat < 2; repeat++) {
             if (repeat) {
               await page.goto(BASE + tube.path, {waitUntil:"domcontentloaded",timeout:50000});
               await page.locator("#calcolatore-pesi").waitFor({state:"visible"});
             }
             const move=page.locator("#calcolatore-pesi .tube-calculator-rfq-link");
-            await Promise.all([page.waitForURL("**"+tube.builder,{timeout:50000}),move.click()]);
             if (tube.locale === "it") {
-              if (repeat) await page.getByRole("button",{name:"Riprendi la distinta"}).click();
-              await page.getByText(/misur[ae] importat[ae] dal calcolatore/i).first().waitFor({state:"visible",timeout:20000});
-              await page.waitForFunction(n=>document.querySelectorAll('[id^="buyer-row-"][data-stage]:not([hidden])').length===n,repeat+1);
-              await page.waitForFunction(()=>Boolean(sessionStorage.getItem("smart-steel-sales:buyer-distinta:v1:guest")));
+              await move.click();
+              const inline = page.locator("#distinta-inline");
+              await inline.locator("article").last().waitFor({state:"visible",timeout:20000});
+              await page.waitForFunction(n=>document.querySelectorAll("#distinta-inline article").length===n,repeat+1);
+              await page.waitForFunction(()=>Boolean(sessionStorage.getItem("sss:inline-distinta:v1")));
+              assert.equal(new URL(page.url()).pathname, tube.path, "IT inline bill must not navigate to /distinta");
+              const target=await page.evaluate(()=>JSON.parse(sessionStorage.getItem("sss:inline-distinta:v1")).lines);
+              check(target.every(line=>line.targetEurT===""),"Inline bill must not receive commercial price");
+              console.log("CALC-INT4.4B IN-PLACE PASS",tube.locale,viewport.name,repeat+1);
             } else {
+              await Promise.all([page.waitForURL("**"+tube.builder,{timeout:50000}),move.click()]);
               await page.getByText(/calculation(s)? added to your RFQ bill/).first().waitFor({state:"visible",timeout:20000});
               await page.getByRole("heading",{name:"Item "+(repeat+1)}).waitFor({state:"visible"});
               await page.waitForFunction(n=>document.querySelectorAll('[aria-label="English RFQ bill of materials builder"] article').length===n,repeat+1);
               await page.waitForFunction(()=>Boolean(sessionStorage.getItem("sss:english-rfq-bill:v1")));
               check(await page.getByLabel("Steel grade").first().inputValue()==="",
                 "CALC-UX2 must not invent a steel grade");
+              console.log("CALC-UX2 HANDOFF PASS",tube.locale,viewport.name,repeat+1);
             }
             const queued=await page.evaluate(()=>sessionStorage.getItem("sss:calc-rfq-handoff:v1"));
             check(!queued || queued==="[]","CALC-UX2 replay queue not consumed");
-            console.log("CALC-UX2 HANDOFF PASS",tube.locale,viewport.name,repeat+1);
           }
           console.log("I18N7 CHROME PASS", tube.locale, viewport.name);
         }

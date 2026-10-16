@@ -482,6 +482,8 @@ export function PublicTubeWeightCalculator({
   locale = "it",
   onAddToDistinta,
   canAddToDistinta = true,
+  inlinePublicDistinta = false,
+  inlineBillCount = 0,
 }: {
   references: PublicTubeDimensionSummary[];
   initialValues?: PublicTubeCalculatorInitialValues;
@@ -489,7 +491,11 @@ export function PublicTubeWeightCalculator({
   /** In-place RFQ bill composer; does not queue or navigate. */
   onAddToDistinta?: (item: CalculatorRfqItem) => boolean;
   canAddToDistinta?: boolean;
+  /** Keep the original public two-column calculator UX, even when adding in place. */
+  inlinePublicDistinta?: boolean;
+  inlineBillCount?: number;
 }) {
+  const inEmbeddedBuilder = Boolean(onAddToDistinta) && !inlinePublicDistinta;
   const t = (text: string) => tubeCalculatorText(text, locale);
   const formatOutput = (value: number, digits = 3) => formatNumber(value, digits, locale);
   const initialStandard = initialValues?.standard ?? "en10219";
@@ -893,13 +899,13 @@ export function PublicTubeWeightCalculator({
               <span className="school-badge">{t("Gratis")}</span>
               <span className="school-badge hidden sm:inline-flex">{t("Live")}</span>
             </div>
-            {onAddToDistinta || locale === "de" || locale === "fr" || locale === "es" ? <h2 className="mt-1 text-lg font-semibold text-[#15372f]">{t("Peso tubo acciaio")}</h2> : <h1 className="mt-1 break-words text-lg font-semibold tracking-[-0.025em] text-[#15372f] sm:text-xl">{t("Peso tubo acciaio")}</h1>}
+            {inEmbeddedBuilder || locale === "de" || locale === "fr" || locale === "es" ? <h2 className="mt-1 text-lg font-semibold text-[#15372f]">{t("Peso tubo acciaio")}</h2> : <h1 className="mt-1 break-words text-lg font-semibold tracking-[-0.025em] text-[#15372f] sm:text-xl">{t("Peso tubo acciaio")}</h1>}
           </div>
 
         </header>
 
 
-        <div className={onAddToDistinta ? "grid min-w-0 grid-cols-1" : "grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)]"}>
+        <div className={inEmbeddedBuilder ? "grid min-w-0 grid-cols-1" : "grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)]"}>
           <div className="min-w-0 border-b border-[#dce7e3] p-3 sm:p-4 lg:border-b-0 lg:border-r">
             <div className="grid gap-3 lg:grid-rows-[auto_auto_1fr_auto]">
               <section aria-labelledby="calculator-standard">
@@ -1237,7 +1243,7 @@ export function PublicTubeWeightCalculator({
             </div>
 
             <div className="min-w-0 flex-1 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:p-4 sm:pb-[calc(1rem+env(safe-area-inset-bottom))]">
-              {!onAddToDistinta ? <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {!inEmbeddedBuilder ? <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 <button
                   type="button"
                   disabled={!currentSnapshot}
@@ -1309,7 +1315,9 @@ export function PublicTubeWeightCalculator({
                     if (!item || !onAddToDistinta(item)) {
                       setActionFeedback("Impossibile aggiungere la riga: controlla la quantità o lo spazio disponibile.");
                     } else {
-                      setActionFeedback("Articolo aggiunto ✓ · puoi continuare con un’altra misura.");
+                      setActionFeedback(inlinePublicDistinta
+                        ? "Articolo aggiunto alla distinta qui sotto ✓ · puoi continuare con un’altra misura."
+                        : "Articolo aggiunto ✓ · puoi continuare con un’altra misura.");
                     }
                     return;
                   }
@@ -1328,8 +1336,16 @@ export function PublicTubeWeightCalculator({
                 {t(onAddToDistinta ? "＋ Aggiungi alla distinta" : "Aggiungi questa misura alla distinta →")}
               </button>
               <p className="mt-1 text-[11px] leading-4 text-white/85">
-                {t(onAddToDistinta ? "Il peso è teorico: la riga appare subito a fianco, senza inviare una RFQ." : "Gratuito · nessun login richiesto. Il grado acciaio resta da confermare.")}
+                {t(inlinePublicDistinta ? "Il peso è teorico: la riga appare subito sotto, senza inviare una RFQ."
+                  : onAddToDistinta ? "Il peso è teorico: la riga appare subito a fianco, senza inviare una RFQ."
+                  : "Gratuito · nessun login richiesto. Il grado acciaio resta da confermare.")}
               </p>
+              {inlinePublicDistinta && inlineBillCount > 0 ? (
+                <a href="#distinta-inline"
+                  className="mt-2 inline-flex min-h-11 items-center text-xs font-bold text-white underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                  Vedi la distinta · {inlineBillCount} {inlineBillCount === 1 ? "riga" : "righe"} ↓
+                </a>
+              ) : null}
               <p aria-live="polite" className="mt-2 min-h-4 text-xs font-semibold text-white/85">
                 {t(actionFeedback)}
               </p>
@@ -1452,7 +1468,7 @@ export function PublicTubeWeightCalculator({
       </section>
 
       {/* Secondary device conveniences: OUTSIDE the calculator controls and result. */}
-      {!onAddToDistinta ? (
+      {!inEmbeddedBuilder ? (
         <details className="rounded-xl border border-[#dce5e0] bg-[#f8faf8] text-[#123b34]">
           <summary className="flex min-h-11 cursor-pointer items-center justify-between px-4 py-2 text-xs font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#237858]">
             {t("Opzioni del dispositivo")}
@@ -1485,7 +1501,7 @@ export function PublicTubeWeightCalculator({
         </details>
       ) : null}
 
-      {!onAddToDistinta && (locale === "it" || locale === "en" || references.length > 0) ? <section aria-labelledby="tube-reference-heading" className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
+      {!inEmbeddedBuilder && (locale === "it" || locale === "en" || references.length > 0) ? <section aria-labelledby="tube-reference-heading" className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="max-w-2xl">
             <p className="text-xs font-bold uppercase tracking-wide text-[#52615b]">{t("Riferimenti di fonte")}</p>
