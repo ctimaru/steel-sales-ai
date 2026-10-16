@@ -14,6 +14,10 @@ export type FreeCompany = {
   roles: { key: string; name: string; is_primary: boolean }[];
   products: string[];
   location: { region: string | null; city: string | null } | null;
+  discovery_status?: "unconfirmed";
+  source_url?: string | null;
+  origin?: string;
+  finished_only?: boolean;
 };
 export type FreeDirectory = {
   contract: "netux11-free-v1";
@@ -21,13 +25,17 @@ export type FreeDirectory = {
   total: number;
   regions: string[];
   viewer_role: NetworkCompanyRole | null;
+  discovered_total?: number;
 };
 export type FreeProfile = {
   contract: "netux11-free-profile-v1";
-  company: Pick<FreeCompany, "id" | "legal_name" | "trading_name" | "country_code" | "website_url" | "claimed_status" | "verification_status"> & { description: string | null };
+  company: Pick<FreeCompany, "id" | "legal_name" | "trading_name" | "country_code" | "website_url" | "claimed_status" | "verification_status" | "discovery_status"> & { description: string | null };
   roles: FreeCompany["roles"];
   products: string[];
   facilities: { city: string | null; region: string | null; country_code: string }[];
+  source_url?: string | null;
+  origin?: string;
+  finished_only?: boolean;
 };
 
 export async function getFreeNetworkDirectory(
@@ -47,7 +55,21 @@ export async function getFreeNetworkDirectory(
   if (result.contract !== "netux11-free-v1" || !Array.isArray(result.items)) {
     throw new Error("network_free_directory_invalid_contract");
   }
-  return result;
+  // Provisional company discoveries share the same active-company access boundary.
+  // No per-company review required; source/role stay explicitly unconfirmed.
+  const {data: discoveries, error: discoveryError} = await supabase.rpc("netfast_free_directory",{
+    p_organization_id:organizationId,
+    p_query:(filters.q || "").trim().slice(0,120) || null,
+    p_role:filters.role || null,
+    p_region:(filters.region || "").trim().slice(0,90) || null,
+    p_limit:50,
+  });
+  if(discoveryError || !discoveries || typeof discoveries!=="object" ||
+    (discoveries as {contract?:string}).contract!=="netfast-discovery-v1") return result;
+  const additional=discoveries as {items:FreeCompany[];total:number};
+  if(!Array.isArray(additional.items) || typeof additional.total!=="number") return result;
+  return {...result,items:[...result.items,...additional.items],
+    total:result.total+additional.total, discovered_total:additional.total};
 }
 
 export async function getFreeNetworkProfile(
@@ -60,7 +82,15 @@ export async function getFreeNetworkProfile(
     p_company_id: companyId,
   });
   if (error) throw new Error("network_free_profile_unavailable");
-  if (data === null) return null;
+  if (data === null) {
+    const {data:discovery,error:discoveryError}=await supabase.rpc("netfast_free_profile",{
+      p_organization_id:organizationId,p_discovery_id:companyId,
+    });
+    if(discoveryError || !discovery) return null;
+    const preview=discovery as {contract?:string};
+    if(preview.contract!=="netfast-discovery-profile-v1") return null;
+    return discovery as unknown as FreeProfile;
+  }
   if (typeof data !== "object" || (data as FreeProfile).contract !== "netux11-free-profile-v1") {
     throw new Error("network_free_profile_invalid_contract");
   }

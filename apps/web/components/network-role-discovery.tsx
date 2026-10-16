@@ -101,7 +101,7 @@ export function NetworkRoleDiscovery({
         </div>
         <p className="mt-3 text-xs leading-5 text-[#64796a]">
           Le categorie sono suggerimenti, non garanzie di idoneità. La ricerca mantiene disponibili
-          tutti i ruoli e mostra soltanto profili Network pubblicati. I filtri geografici
+          tutti i ruoli e distingue profili pubblicati da aziende scoperte da confermare. I filtri geografici
           usano unicamente sedi già pubblicate.
         </p>
       </div>
