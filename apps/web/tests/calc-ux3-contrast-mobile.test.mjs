@@ -40,7 +40,8 @@ test("CALC-UX3 selected, muted and result text pass WCAG AA at 4.5:1", () => {
 
 test("CALC-UX3 mobile targets, text and result grid are responsive", () => {
   assert.match(calculator, /grid-cols-\[44px_minmax\(0,1fr\)_44px\]/);
-  assert.match(calculator, /min-h-11 shrink-0 rounded-lg/);
+  assert.match(calculator, /min-h-11 shrink-0 px-2\.5 py-2 text-xs/);
+  assert.match(calculator, /<details className="group\/assist/);
   assert.match(calculator, /grid grid-cols-2 gap-2 sm:grid-cols-3/);
   assert.match(calculator, /col-span-2 min-w-0 rounded-xl bg-white\/8 p-2 sm:col-span-1/);
   assert.match(calculator, /tube-calculator-favourite-selected col-span-2 min-h-11/);
