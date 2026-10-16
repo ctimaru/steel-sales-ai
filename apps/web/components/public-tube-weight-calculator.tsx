@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
-import { CalculatorFlagLanguages } from "@/components/calculator-flag-languages";
 import { calculatorRfqFromValues, enqueueCalculatorRfq, type CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
 import { tubeCalculatorText, type TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
 import { calculateTubeSection, standardCornerRadii } from "@/lib/international-tube-mass";
@@ -480,7 +478,6 @@ export function PublicTubeWeightCalculator({
   locale = "it",
   onAddToDistinta,
   canAddToDistinta = true,
-  showLanguageSwitcher = false,
 }: {
   references: PublicTubeDimensionSummary[];
   initialValues?: PublicTubeCalculatorInitialValues;
@@ -488,7 +485,6 @@ export function PublicTubeWeightCalculator({
   /** In-place RFQ bill composer; does not queue or navigate. */
   onAddToDistinta?: (item: CalculatorRfqItem) => boolean;
   canAddToDistinta?: boolean;
-  showLanguageSwitcher?: boolean;
 }) {
   const t = (text: string) => tubeCalculatorText(text, locale);
   const formatOutput = (value: number, digits = 3) => formatNumber(value, digits, locale);
@@ -506,24 +502,6 @@ export function PublicTubeWeightCalculator({
   const [quantity, setQuantity] = useState(initialValues?.quantity ?? "1");
   const [targetTonnes, setTargetTonnes] = useState(initialValues?.targetTonnes ?? "");
   const [density, setDensity] = useState(initialValues?.density ?? "7850");
-  // Switch languages with LIVE (not initial) geometry, quantities and method.
-  // All destinations use the same named share parameters.
-  const languageQuery=useMemo(()=>{
-    const params=new URLSearchParams({
-      standard,family,thickness,length,quantity,
-      ...(family==="round_tube"?{od:outerDiameter}:{width,...(family==="rectangular_tube"?{height}:{})}),
-      ...(standard==="geometric"?{density}:{}),
-    });
-    return params.toString();
-  },[standard,family,outerDiameter,width,height,thickness,length,quantity,density]);
-  const [referenceQuery, setReferenceQuery] = useState("");
-  const [recentCalculations, setRecentCalculations] = useState<StoredTubeCalculation[]>([]);
-  const [favoriteCalculations, setFavoriteCalculations] = useState<StoredTubeCalculation[]>([]);
-  const [calculatorSaved, setCalculatorSaved] = useState(false);
-  const [retentionReady, setRetentionReady] = useState(false);
-  const [actionFeedback, setActionFeedback] = useState("");
-  const calculationInteractedRef = useRef(false);
-  const lastTrackedCalculationKeyRef = useRef<string | null>(null);
 
   const values = useMemo(() => {
     const d = parseNumber(outerDiameter);
@@ -897,39 +875,7 @@ export function PublicTubeWeightCalculator({
             {onAddToDistinta ? <h3 className="mt-1 text-lg font-semibold text-[#15372f]">{t("Peso tubo acciaio")}</h3> : <h1 className="mt-1 break-words text-lg font-semibold tracking-[-0.025em] text-[#15372f] sm:text-xl">{t("Peso tubo acciaio")}</h1>}
           </div>
 
-          {!onAddToDistinta ? <div className="flex min-w-0 flex-wrap items-center justify-end gap-2">
-            <CalculatorInstallGuide locale={locale} />
-            <button
-              type="button"
-              disabled={!currentSnapshot}
-              onClick={() => {
-                if (!currentSnapshot) return;
-                if (calculatorSaved) {
-                  writeSavedCalculator(null);
-                  setCalculatorSaved(false);
-                  setActionFeedback("Salvataggio del calcolatore rimosso.");
-                  return;
-                }
-                writeSavedCalculator(currentSnapshot);
-                setCalculatorSaved(true);
-                setActionFeedback("Calcolatore salvato su questo dispositivo.");
-              }}
-              className={
-                calculatorSaved
-                  ? "school-selected-control rounded-xl px-3 py-2.5 min-h-11 text-xs font-bold disabled:opacity-50"
-                  : "school-secondary-action px-3 py-2.5 min-h-11 text-xs disabled:opacity-50"
-              }
-            >
-              <span className="sm:hidden">{locale === "en" ? (calculatorSaved ? "Saved ✓" : "Save") : (calculatorSaved ? "Salvato ✓" : "Salva")}</span>
-              <span className="hidden sm:inline">{t(calculatorSaved ? "Calcolatore salvato ✓" : "Salva il Calcolatore")}</span>
-            </button>
-          </div> : null}
         </header>
-        {showLanguageSwitcher ? (
-          <div className="flex justify-end border-b border-[#dce7e3] bg-white px-3 py-2 sm:px-4">
-            <CalculatorFlagLanguages locale={locale} query={languageQuery} />
-          </div>
-        ) : null}
 
 
         <div className={onAddToDistinta ? "grid min-w-0 grid-cols-1" : "grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)]"}>
