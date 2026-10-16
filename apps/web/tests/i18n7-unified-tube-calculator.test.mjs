@@ -15,7 +15,7 @@ test("I18N7 IT/EN share the same canonical standard-based estimator and catalogu
   assert.match(it,/CalculatorRegionSwitch locale="it" initialRegion="eu"/);
   assert.match(en,/CalculatorRegionSwitch locale="en" initialRegion="eu"/);
   assert.match(switcher,/PublicTubeWeightCalculator references=\{references\?\?\[\]\}/);
-  assert.match(switcher,/initialValues=\{initialValues\} locale=\{locale\}/);
+  assert.match(switcher,/internationalEuInitialValues\(internationalSeed\)/);
   assert.doesNotMatch(en,/EnglishTubeWeightCalculator/);
   assert.match(en,/cachedPublicTubeReferences\(\)/);
   assert.match(en,/revalidate: 86400/);
@@ -33,7 +33,7 @@ test("I18N7 localized public controls provide copy and an RFQ bill destination",
   assert.match(calculator,/copyTextToClipboard\(resultText\(currentSnapshot\)\)/);
   assert.match(calculator,/setActionFeedback\("Risultato copiato\."\)/);
   assert.match(words,/"Risultato copiato\.": "Result copied\. Paste it into your RFQ bill or an email\."/);
-  assert.match(calculator,/window\.location\.assign\(locale === "en" \? "\/en\/distinta" : "\/distinta"\)/);
+  assert.match(calculator,/window\.location\.assign\(locale === "it" \? "\/distinta" : `\/\$\{locale\}\/distinta`\)/);
   assert.match(calculator,/Add this calculation to an RFQ bill/);
   assert.match(calculator,/Aggiungi questa misura alla distinta/);
   assert.match(calculator,/Copy failed\. Please check clipboard permissions\./);
