@@ -223,9 +223,8 @@ export default async function PublicTubeWeightsPage({
   };
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 px-3 py-3 sm:px-5 sm:py-5 lg:px-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-xs font-semibold text-[#52615b]">Calcolatore tubi · EN e USA</p>
+    <div className="mx-auto max-w-7xl space-y-3 px-3 py-3 sm:px-5 sm:py-5 lg:px-6">
+      <div className="flex justify-end" aria-label="Selezione lingua calcolatore">
         <CalculatorPageLanguageSelector locale="it" />
       </div>
       <script
@@ -248,9 +247,19 @@ export default async function PublicTubeWeightsPage({
       <PublicUtilityTelemetry source={discoverySource} surface={discoverySurface} />
       <CalculatorRegionSwitch locale="it" initialRegion="eu" inlineItalianBill requestedRegion={calculatorRegionFromQuery(params)}
         usInitialValues={usPipeSeedFromQuery(params)}
-        references={references} initialValues={initialValues}
-        euAfter={<EnStructuralMethodEvidence locale="it" />} />
-      <div className="rounded-2xl border border-[#c7ded3] bg-white p-4">
+        references={references} initialValues={initialValues} />
+
+      {/* Secondary editorial content is user-accessible on demand, not hidden
+          from visitors for search robots. Preserve the indexed HTML and SEO. */}
+      <details data-testid="calculator-editorial-disclosure"
+        className="group rounded-xl border border-[#dbe8e1] bg-[#fbfdfb] text-[#305d48]">
+        <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-2 px-4 py-2.5 text-xs font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176647]">
+          Guide, fonti e approfondimenti tecnici
+          <span aria-hidden="true" className="text-base transition-transform group-open:rotate-180">⌄</span>
+        </summary>
+        <div className="space-y-6 border-t border-[#e2eee7] p-3 sm:p-5">
+          <EnStructuralMethodEvidence locale="it" />
+          <div className="rounded-2xl border border-[#c7ded3] bg-white p-4">
         <Link href="/knowledge/tubes/tubi-americani"
           className="inline-flex min-h-11 items-center text-sm font-bold text-[#156449] underline underline-offset-4">
           Cerchi il peso dei tubi API 5L, NPS / Schedule o ASTM? Apri il calcolatore tubi americani →
@@ -408,6 +417,8 @@ export default async function PublicTubeWeightsPage({
           </aside>
         </div>
       </article>
+        </div>
+      </details>
     </div>
   );
 }
