@@ -26,26 +26,22 @@ try{
     assert.match(await hss.innerText(),/0[,.]93|0\.93/);
     assert.match(await hss.innerText(),/kg\/m/);
     const add=hss.getByRole("button",{name:scenario.button});
-    assert.equal(await add.isDisabled(),false);
+    await page.waitForFunction(()=>!!document.querySelector("button[data-us-add-to-inline-bill]:not(:disabled)"));
     await add.click();
-    await page.waitForURL(url=>url.pathname===scenario.bill,{timeout:60000});
-    await page.getByText(/HSS (Rectangular|Square)/i).first().waitFor({state:"visible",timeout:30000});
-    const pageText=await page.locator("body").innerText();
-    assert.match(pageText,/ASTM A500/i);
-    if(scenario.locale==="en") assert.match(pageText,/0\.93/);
-    // Italian RFQ keeps technical provenance inside editable line fields;
-    // original AISC values are covered by the pure numerical contract tests.
-    if(scenario.locale==="en"){
-      assert.match(pageText,/AISC A500 HSS design-section/i);
-      assert.match(pageText,/supplier confirmation required/i);
-      // English output uses the same AISC mass; changing the geometry must
-      // invalidate the inherited product intent rather than forging a grade.
-      const width=page.getByRole("textbox",{name:/Outside side \(mm\)/i}).first();
-      await width.fill("180");
-      assert.equal(await page.getByText(/Requested product specification — supplier confirmation required/i).count(),0);
-    }else{
-      assert.doesNotMatch(pageText,/OD 0 ×/);
-    }
+    const bill=page.locator("#distinta-inline");
+    await bill.locator("article").first().waitFor({state:"visible",timeout:30000});
+    assert.equal(new URL(page.url()).pathname,scenario.start,"US HSS must add without navigation");
+    const stored=JSON.parse(await page.evaluate(()=>sessionStorage.getItem("sss:inline-distinta:v1")));
+    assert.equal(stored.lines.length,1);
+    assert.match(stored.lines[0].description,/HSS (Square|Rectangular)/i);
+    assert.match(stored.lines[0].standard,/ASTM A500/);
+    assert.match(stored.lines[0].note,/AISC A500 theoretical design-section proxy/);
+    assert.match(stored.lines[0].note,/not certified/);
+    assert.equal(stored.lines[0].grade,"");
+    assert.equal(stored.lines[0].targetEurT,"");
+    assert.ok(await bill.locator("[data-create-inline-private-rfq]").isVisible());
+    assert.ok(Number(stored.lines[0].weightKgM)>0);
+    assert.doesNotMatch(stored.lines[0].description,/OD 0 ×/);
     console.log("CALC-INT3D CHROME PASS",scenario.locale,scenario.shape);
     await context.close();
   }
