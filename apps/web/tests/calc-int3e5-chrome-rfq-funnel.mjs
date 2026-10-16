@@ -76,7 +76,9 @@ try{
     await bill.getByRole("button",{name:"Copy bill"}).click();
     const technical=await page.evaluate(()=>navigator.clipboard.readText());
     assert.match(technical,/API Spec 5L|ASTM A106/i);
-    assert.doesNotMatch(technical,/Target €|850/);
+    // The technical note legitimately contains steel density 7850 kg/m³,
+    // so never assert the incidental substring "850" is absent.
+    assert.doesNotMatch(technical,/Target €|private buyer|internal target/i);
     console.log("CALC-USA-FLOW1 US PIPE MOBILE PASS","source provenance + private RFQ boundary");
     await context.close();
   }
