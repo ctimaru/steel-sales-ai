@@ -5,6 +5,14 @@
  * Pure Buyer Distinta contract from 4.4A; NO RFQ creation or automatic prices.
  */
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { inlinePrivateRfqAccess } from "@/app/(italian)/(public)/knowledge/tubes/actions";
+import { createBuyerRfqCampaign, saveBuyerDistinta } from "@/app/(public)/distinta/actions";
+import { createPrivateRfqOneStep } from "@/lib/buyer-distinta-rfq-one-step";
+import { emptyBuyerDocumentRequirements } from "@/lib/buyer-distinta-documents";
+import { appRoutes } from "@/lib/routes";
+import { prepareInlinePrivateRfq, privateRfqSnapshotSignature } from "@/lib/calculator-inline-private-rfq";
 
 import { PublicTubeWeightCalculator, type PublicTubeCalculatorInitialValues } from "@/components/public-tube-weight-calculator";
 import type { PublicTubeDimensionSummary } from "@/lib/public-knowledge";
@@ -50,6 +58,7 @@ export function CalculatorInlineDistintaExperience({
   references: PublicTubeDimensionSummary[];
   initialValues?: PublicTubeCalculatorInitialValues;
 }) {
+  const router = useRouter();
   const [state, setState] = useState<InlineDistintaState>(emptyInlineDistinta);
   const liveState = useRef<InlineDistintaState>(state);
   const [ready, setReady] = useState(false);
@@ -65,6 +74,13 @@ export function CalculatorInlineDistintaExperience({
   const [editingTargetId, setEditingTargetId] = useState<string | null>(null);
   const [targetRaw, setTargetRaw] = useState("");
   const [targetBasis, setTargetBasis] = useState<PriceBasis>("tonne");
+  const [includePrivateTargets, setIncludePrivateTargets] = useState(false);
+  const [rfqPending, setRfqPending] = useState(false);
+  const [rfqError, setRfqError] = useState("");
+  const [rfqAccess, setRfqAccess] = useState<"guest"|"ready"|"needs-company"|"unavailable"|null>(null);
+  const [createdRfq, setCreatedRfq] = useState<string|null>(null);
+  const creatingRef = useRef(false);
+  const savedSnapshotRef = useRef<{signature:string;id:string}|null>(null);
 
   // Restore only in this browser tab, after hydration. No account, cookies or
   // URL payload; keep calculator SEO/server markup unchanged on initial render.
@@ -165,6 +181,56 @@ export function CalculatorInlineDistintaExperience({
     setTargets(result.targets);
     setEditingTargetId(null);
     setMessage("Target interno modificato. Resta solo in questa schermata, non nella copia tecnica.");
+  }
+
+  async function createPrivateRfq() {
+    if (creatingRef.current || createdRfq || !ready || !liveState.current.lines.length) return;
+    const built = prepareInlinePrivateRfq(liveState.current, targets, includePrivateTargets);
+    if (!built.ok) { setRfqError(built.error); return; }
+    creatingRef.current = true;
+    setRfqPending(true);
+    setRfqError("");
+    setRfqAccess(null);
+    try {
+      const access = await inlinePrivateRfqAccess();
+      if (access.state !== "ready") {
+        setRfqAccess(access.state);
+        setRfqError(access.state === "guest"
+          ? "Per creare la RFQ privata accedi o registra la tua azienda. Le righe tecniche restano in questa scheda."
+          : access.state === "needs-company"
+            ? "Serve un'azienda attiva. Completa la registrazione o l'attivazione aziendale."
+            : "Impossibile verificare l'accesso adesso. Riprova.");
+        return;
+      }
+      setRfqAccess("ready");
+      // If a snapshot was already saved but campaign creation failed, reuse it
+      // only when all rows AND the optional target-consent snapshot are unchanged.
+      const signature = privateRfqSnapshotSignature(built.snapshot);
+      const result = await createPrivateRfqOneStep({
+        existingDistintaId: savedSnapshotRef.current?.signature === signature
+          ? savedSnapshotRef.current.id : null,
+        save: () => saveBuyerDistinta({
+          title: built.snapshot.title, lines: built.snapshot.lines,
+          documents: emptyBuyerDocumentRequirements,
+        }),
+        create: (savedId) => createBuyerRfqCampaign(savedId),
+        onSaved: id => { savedSnapshotRef.current = {signature,id}; },
+      });
+      if (!result.ok) {
+        setRfqError(result.error);
+        return;
+      }
+      setCreatedRfq(result.rfqId);
+      try { window.sessionStorage.removeItem("sss:inline-distinta:v1"); }
+      catch { /* restore already handled; no failure of private creation */ }
+      setMessage("RFQ privata creata. Nessun fornitore è stato contattato.");
+      router.push(appRoutes.rfqHub.campaign(result.rfqId));
+    } catch {
+      setRfqError("Non è stato possibile completare la creazione. La distinta tecnica rimane disponibile; riprova.");
+    } finally {
+      creatingRef.current = false;
+      setRfqPending(false);
+    }
   }
 
   function copyBill() {
@@ -341,10 +407,51 @@ export function CalculatorInlineDistintaExperience({
             <button type="button" className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#166346] px-5 py-3 text-sm font-bold text-white hover:bg-[#0e5035] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#166346]"
               onClick={copyBill}>Copia distinta</button>
           </div>
-          <p className="mt-3 text-xs leading-5 text-[#577263]">
-            La creazione della RFQ privata direttamente da qui arriverà con CALC-INT4.4D.
-            Per ora puoi copiare gratuitamente le righe, senza inviarle a fornitori.
-          </p>
+          <section aria-label="Crea RFQ privata" className="mt-4 rounded-xl border border-[#b7d6c4] bg-white p-4">
+            <h3 className="text-base font-bold text-[#123c2c]">Crea RFQ privata</h3>
+            <p className="mt-1 text-xs leading-5 text-[#4a6756]">
+              Salva le righe nel tuo spazio aziendale e prepara la richiesta su RFQ Hub.
+              Non vengono selezionati o contattati fornitori, né pubblicata sul Marketplace.
+            </p>
+            {Object.keys(targets).length > 0 ? (
+              <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-lg bg-[#f4f8f3] p-3 text-xs leading-5 text-[#27523e]">
+                <input type="checkbox" className="mt-1 size-4" checked={includePrivateTargets}
+                  onChange={event=>setIncludePrivateTargets(event.target.checked)}/>
+                <span><strong>Includi i target buyer nel salvataggio aziendale privato.</strong>
+                  <span className="block">Opzione disattivata per impostazione predefinita. I target non saranno inviati ai fornitori.</span>
+                </span>
+              </label>
+            ) : null}
+            <button type="button" data-create-inline-private-rfq
+              className="mt-3 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#176647] px-5 py-3 text-sm font-bold text-white hover:bg-[#104d35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176647] disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={rfqPending || Boolean(createdRfq) || !ready}
+              onClick={()=>{void createPrivateRfq();}}>
+              {createdRfq ? "RFQ privata creata ✓" : rfqPending ? "Verifica e creazione…" : "Crea RFQ privata →"}
+            </button>
+            {rfqError ? <p role="alert" className="mt-2 text-xs font-semibold text-[#9b442a]">{rfqError}</p> : null}
+            {rfqAccess === "guest" ? (
+              <div data-inline-guest-handoff className="mt-3 rounded-lg bg-[#eef6f1] p-3">
+                <p className="text-xs text-[#315746]">Dopo il login torna su questo calcolatore dalla stessa scheda.
+                  Recupererai la distinta tecnica e confermerai la creazione con un nuovo clic.
+                  I target economici, per sicurezza, non sopravvivono al cambio pagina.</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link className={action} href={"/login?next="+encodeURIComponent("/knowledge/tubes")}>Accedi e riprendi</Link>
+                  <Link className={action} href="/register">Registra azienda</Link>
+                </div>
+              </div>
+            ) : null}
+            {rfqAccess === "needs-company" ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Link href="/register" className={action}>Completa registrazione azienda</Link>
+                <Link href="/registration/status" className={action}>Verifica attivazione</Link>
+              </div>
+            ) : null}
+            {createdRfq ? <Link href={appRoutes.rfqHub.campaign(createdRfq)} className={action+" mt-3"}>Apri in RFQ Hub →</Link> : null}
+            <p className="mt-2 text-xs text-[#5a7164]">
+              La composizione resta gratuita. Solo un utente con azienda attiva può salvare
+              lo snapshot e creare una campagna privata.
+            </p>
+          </section>
         </div>
       ) : null}
       <p aria-live="polite" role="status" className="px-4 pb-3 text-xs font-semibold text-[#246044] sm:px-5">
