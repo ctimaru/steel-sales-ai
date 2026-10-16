@@ -5,7 +5,7 @@
  */
 export type MarketGuideLocale = "de" | "fr" | "es";
 
-type MarketGuide = {
+export type MarketGuide = {
   slug: string;
   title: string;
   description: string;
