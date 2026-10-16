@@ -10,6 +10,15 @@ select pg_temp.netux3b1_assert(
   'provenance tables must have RLS'
 );
 select pg_temp.netux3b1_assert(
+  (select count(*) from pg_policies where schemaname='public'
+    and tablename='network_it_geo_source_recheck_ledger'
+    and policyname='netux3b1_source_ledger_deny_clients')=1
+  and (select count(*) from pg_policies where schemaname='public'
+    and tablename='network_it_geo_conflict_reopen_ledger'
+    and policyname='netux3b1_reopen_ledger_deny_clients')=1,
+  'explicit denial policies should exist on both private ledgers'
+);
+select pg_temp.netux3b1_assert(
   not has_table_privilege('authenticated','public.network_it_geo_source_recheck_ledger','SELECT')
   and not has_table_privilege('anon','public.network_it_geo_conflict_reopen_ledger','SELECT'),
   'internal ledgers must not be readable by end users'
