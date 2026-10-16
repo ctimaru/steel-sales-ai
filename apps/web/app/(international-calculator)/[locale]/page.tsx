@@ -60,7 +60,12 @@ export default async function InternationalPublicHome({params}:PageProps){
     <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(jsonld)}}/>
     <header className="border-b border-[#dce5e0] bg-white">
       <div className="mx-auto flex min-h-[72px] max-w-[1180px] items-center justify-between gap-2 px-3 sm:px-6 lg:px-8">
-        <ProductBrand href={PUBLIC_HOME_LOCALE_ROUTES[locale]} compact/>
+        <div className="hidden min-w-0 sm:block">
+          <ProductBrand href={PUBLIC_HOME_LOCALE_ROUTES[locale]} compact/>
+        </div>
+        <div className="min-w-0 sm:hidden">
+          <ProductBrand href={PUBLIC_HOME_LOCALE_ROUTES[locale]} compact markOnly/>
+        </div>
         <div className="flex items-center gap-2">
           <PublicPageLanguageSelector locale={locale} surface="home"/>
           <Link href="/en/login" hrefLang="en" lang="en" className="hidden min-h-11 items-center px-3 text-xs font-semibold text-[#345a4b] hover:text-[#123b34] sm:inline-flex">
