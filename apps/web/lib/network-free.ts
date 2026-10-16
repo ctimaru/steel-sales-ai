@@ -35,6 +35,7 @@ export type FreeProfile = {
   products: string[];
   facilities: { city: string | null; region: string | null; country_code: string }[];
   source_url?: string | null;
+  license_url?: string | null;
   origin?: string;
   finished_only?: boolean;
 };
