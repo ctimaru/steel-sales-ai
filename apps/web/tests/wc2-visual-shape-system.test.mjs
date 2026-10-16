@@ -46,7 +46,8 @@ test("WC2 keeps the SVG accessible and responsive", () => {
 
 test("WC2 preserves selected hover and keyboard focus states on shape controls", () => {
   assert.match(calculator, /aria-pressed=\{selected\}/);
-  assert.match(calculator, /hover:-translate-y-0\.5/);
-  assert.match(calculator, /focus-visible:ring-4 focus-visible:ring-\[#b8d2c8\]/);
-  assert.match(calculator, /focus-visible:ring-4 focus-visible:ring-\[#d9e8e2\]/);
+  assert.match(calculator, /selectionBase/);
+  assert.match(calculator, /hover:border-\[#55977b\]/);
+  assert.match(calculator, /focus-visible:outline-2 focus-visible:outline-offset-2/);
+  assert.match(calculator, /active:scale-\[0\.98\]/);
 });
