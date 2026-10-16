@@ -164,7 +164,7 @@ begin
  perform private.require_platform_permission('discovery.governance_review');
  v_actor:=auth.uid();
  if v_actor is null or coalesce(p_attested,false) is not true
-   or cardinality(p_target_ids) not between 1 and 40
+   or p_target_ids is null or cardinality(p_target_ids) not between 1 and 40
    or length(btrim(coalesce(p_note,''))) not between 15 and 2000
    or p_decision not in ('ready_for_crawler','rejected','duplicate_existing')
  then raise exception 'Authenticated attested Platform cohort decision required' using errcode='42501';end if;
@@ -257,7 +257,7 @@ revoke all on function public.netcov1_operator_stage(text,text,text,text,text,te
 revoke all on function public.netcov1_seed_official_cohort(jsonb,text) from public,anon,authenticated;
 revoke all on function public.netcov1_review_targets(uuid[],text,text,boolean) from public,anon;
 revoke all on function public.netcov1_enqueue_reviewed(uuid,integer) from public,anon;
-grant execute on function private.netcov1_stage_core(text,text,text,text,text,text,text,text) to authenticated,service_role;
+grant execute on function private.netcov1_stage_core(text,text,text,text,text,text,text,text) to service_role;
 grant execute on function private.netcov1_targets_queue_impl() to authenticated;
 grant execute on function private.netcov1_operator_stage_impl(text,text,text,text,text,text,text) to authenticated;
 grant execute on function private.netcov1_review_targets_impl(uuid[],text,text,boolean) to authenticated;
