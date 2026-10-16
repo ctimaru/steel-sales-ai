@@ -93,34 +93,39 @@ export default async function InternationalTubeCalculatorPage({params,searchPara
       </section>
       <CalculatorRegionSwitch locale={locale} internationalSeed={seed} usInitialValues={usSeed}
         initialRegion={calculatorRegionFromQuery(raw)}/>
-      <section className="grid gap-4 rounded-xl border border-[#d7e4dc] bg-white p-5 md:grid-cols-2">
-        <div>
-          <h2 className="text-lg font-bold text-[#123b34]">{copy.methodTitle}</h2>
-          <p className="mt-3 text-sm leading-7 text-[#52615b]">{copy.methodText}</p>
-        </div>
-        <div>
-          <h2 className="text-lg font-bold text-[#123b34]">EN 10219 · EN 10210 · CHS / SHS / RHS</h2>
-          <p className="mt-3 text-sm leading-7 text-[#52615b]">{copy.disclaimer}</p>
-          <p className="mt-2 text-sm text-[#52615b]">{copy.rfqEnglish}</p>
-        </div>
-      </section>
-      <section aria-labelledby="international-calculator-us" className="rounded-xl border border-[#c7dcd1] bg-white p-5 sm:p-6">
-        <h2 id="international-calculator-us" className="text-lg font-bold text-[#123b34]">{copy.usTitle}</h2>
-        <p className="mt-3 max-w-4xl text-sm leading-7 text-[#52615b]">{copy.usDescription}</p>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          <p className="rounded-xl bg-[#f3f9f5] p-4 text-sm leading-7 text-[#345649]">{copy.usNps}</p>
-          <p className="rounded-xl bg-[#f3f9f5] p-4 text-sm leading-7 text-[#345649]">{copy.usHss}</p>
-        </div>
-        <p className="mt-3 text-xs leading-6 text-[#4f6359]">{copy.usCaveat}</p>
-      </section>
-      <section aria-labelledby="international-calculator-faq">
-        <h2 id="international-calculator-faq" className="text-xl font-bold text-[#123b34]">{copy.faqTitle}</h2>
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {copy.faq.map(item=><article key={item.q} className="rounded-xl border border-[#d7e4dc] bg-white p-5">
-            <h3 className="text-sm font-bold text-[#123b34]">{item.q}</h3>
-            <p className="mt-3 text-sm leading-6 text-[#52615b]">{item.a}</p>
-          </article>)}
-        </div>
+      {/* CALC-INT3E.7: keep references crawlable and genuinely localized,
+          but avoid article-like columns and long repeated sections below the tool. */}
+      <section aria-label={copy.methodTitle} className="rounded-2xl border border-[#d7e4dc] bg-white p-4 sm:p-5">
+        <p className="text-xs leading-6 text-[#52615b]">{copy.disclaimer}</p>
+        <details className="mt-4 rounded-xl border border-[#dce5df] bg-[#f6faf7]">
+          <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 px-4 py-3 text-sm font-bold text-[#123b34] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#237858]">
+            {copy.methodTitle}<span aria-hidden="true">⌄</span>
+          </summary>
+          <div className="border-t border-[#dce5df] px-4 py-3">
+            <p className="text-sm leading-7 text-[#52615b]">{copy.methodText}</p>
+            <p className="mt-3 text-xs leading-6 text-[#52615b]">{copy.rfqEnglish}</p>
+          </div>
+        </details>
+        <details className="mt-2 rounded-xl border border-[#dce5df] bg-[#f6faf7]">
+          <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 px-4 py-3 text-sm font-bold text-[#123b34] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#237858]">
+            {copy.usTitle}<span aria-hidden="true">⌄</span>
+          </summary>
+          <div className="space-y-2 border-t border-[#dce5df] px-4 py-3 text-sm leading-7 text-[#52615b]">
+            <p>{copy.usDescription}</p><p>{copy.usNps}</p><p>{copy.usHss}</p>
+            <p className="text-xs">{copy.usCaveat}</p>
+          </div>
+        </details>
+        <details className="mt-2 rounded-xl border border-[#dce5df] bg-[#f6faf7]">
+          <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 px-4 py-3 text-sm font-bold text-[#123b34] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#237858]">
+            {copy.faqTitle}<span aria-hidden="true">⌄</span>
+          </summary>
+          <div className="space-y-4 border-t border-[#dce5df] px-4 py-4">
+            {copy.faq.map(item=><article key={item.q}>
+              <h3 className="text-sm font-semibold text-[#123b34]">{item.q}</h3>
+              <p className="mt-1 text-sm leading-6 text-[#52615b]">{item.a}</p>
+            </article>)}
+          </div>
+        </details>
       </section>
     </div>
   </main>;
