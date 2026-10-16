@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getPlatformAccessContext, requirePlatformPermission } from "@/lib/platform-admin";
-import { addDiscoverySource, reviewDiscoverySourceRegistry, reviewDiscoveredDomain, createGovernedDiscoveryRun, linkApprovedPilotRun } from "./actions";
+import { addDiscoverySource, reviewDiscoverySourceRegistry, reviewDiscoveredDomain, createGovernedDiscoveryRun, linkApprovedPilotRun, recordFirstPartyPermission, activateConsentedSource, prepareFirstPartyRun, linkApprovedFirstPartyRun, enqueueConsentedDomainLeads, revokeFirstPartyPermission } from "./actions";
 
 type Source = { id: string; source_name: string; source_url: string; source_type: string;
  governance_status: string; terms_status: string; database_rights_status: string;
@@ -19,6 +19,9 @@ export default async function DiscoverySourcesPage({
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("crawl_it2_list_sources");
   const sources = (data ?? []) as Source[];
+  const {data: permissionsData}=await supabase.rpc("netcov2b_source_readiness");
+  const rights=(permissionsData as {contract?:string;items?:Array<{source_id:string;consented_domains:number;max_sites_per_run:number}>}|null);
+  const bySource=new Map(rights?.contract==="netcov2b-source-readiness-v1" ? rights.items?.map(item=>[item.source_id,item]) ?? [] : []);
   const { data: leads, error: leadError } = await supabase.rpc("crawl_it3_list_pending_leads");
   const pendingLeads = (leads ?? []) as Array<{ id:string; domain:string; proposed_url:string; evidence_url:string; source_name:string; created_at:string }>;
   return <main className="mx-auto max-w-5xl space-y-5 p-4 sm:p-6">
@@ -60,6 +63,7 @@ export default async function DiscoverySourcesPage({
       {pendingLeads.map(lead => <article key={lead.id} className="rounded-2xl border bg-white p-4">
         <p className="font-semibold">{lead.domain}</p>
         <p className="text-xs text-[#53637a]">Fonte: {lead.source_name}</p>
+        <p className="mt-1 text-xs text-[#53637a]">ID lead: <code className="break-all">{lead.id}</code></p>
         <a href={lead.evidence_url} target="_blank" rel="noopener noreferrer" className="block break-all text-xs underline">Evidenza della provenienza</a>
         {canReview ? <form action={reviewDiscoveredDomain} className="mt-3 grid gap-3 sm:grid-cols-2">
           <input type="hidden" name="lead_id" value={lead.id}/>
@@ -75,6 +79,14 @@ export default async function DiscoverySourcesPage({
         </form> : null}
       </article>)}
     </section>
+    {canReview && canRun ? <section className="rounded-2xl border bg-white p-4">
+      <h2 className="text-lg font-semibold text-[#173f35]">NET-COV2B · collega la run dopo la governance</h2>
+      <p className="mt-1 text-xs leading-5">Usa soltanto la run NET-COV2B approvata in Governance. Il collegamento controlla ancora i consensi di ogni dominio. Dopo il collegamento, il workflow GitHub Actions resta manuale.</p>
+      <form action={linkApprovedFirstPartyRun} className="mt-3 flex flex-wrap gap-2">
+       <input required name="run_id" placeholder="UUID run approvata" className="min-h-11 flex-1 rounded-lg border px-3"/>
+       <button className="min-h-11 rounded-xl bg-[#173f35] px-4 font-semibold text-white">Collega run autorizzata</button>
+      </form>
+     </section>:null}
     <section className="space-y-3">
       <h2 className="text-lg font-semibold">Fonti registrate ({sources.length})</h2>
       {sources.length===0 ? <p className="rounded-xl border p-4 text-sm">Nessuna fonte inserita. La scoperta autonoma rimane disattivata.</p> : null}
@@ -91,6 +103,60 @@ export default async function DiscoverySourcesPage({
             <button type="submit" className="min-h-11 rounded-xl bg-[#173f35] px-4 font-semibold text-white">Crea run da fonte approvata</button>
           </form>
         ) : null}
+        {s.source_type==="company_submission" ? <section className="space-y-3 rounded-xl border border-[#b8d3c4] bg-[#f6faf8] p-4">
+          <h4 className="font-semibold text-[#173f35]">NET-COV2B · autorizzazione first-party</h4>
+          <p className="text-xs leading-5 text-[#52615b]">
+            {bySource.get(s.id)?.consented_domains ?? 0} domini con consenso non scaduto · massimo {bySource.get(s.id)?.max_sites_per_run ?? 10} per run.
+            La fonte va revisionata qui come company_submission prima della registrazione dei consensi.
+            L'approvazione di un archivio di aziende NON autorizza il crawl dei siti di quelle aziende.
+          </p>
+          {canReview && s.governance_status==="approved" ? <>
+           <form action={recordFirstPartyPermission} className="grid gap-2">
+             <input type="hidden" name="source_id" value={s.id}/>
+             <label className="grid gap-1 text-xs">Dominio già qualificato NET-COV1
+               <input required name="domain" placeholder="azienda.it" className="min-h-11 rounded-lg border px-3"/></label>
+             <label className="grid gap-1 text-xs">URL ufficiale della prova di consenso al crawl e riutilizzo
+               <input required name="permission_url" type="url" placeholder="https://azienda.it/autorizzazione" className="min-h-11 rounded-lg border px-3"/></label>
+             <label className="grid gap-1 text-xs">Scadenza consenso
+               <input required name="expires_at" type="date" className="min-h-11 rounded-lg border px-3"/></label>
+             <label className="grid gap-1 text-xs">Motivazione verificata (almeno 40 caratteri)
+               <textarea name="note" required minLength={40} maxLength={2000} rows={2} className="rounded-lg border p-3"/></label>
+             <label className="flex gap-2 text-xs leading-5"><input type="checkbox" name="attested" required className="mt-1"/>
+               Attesto un'autorizzazione esplicita dell'azienda, separata dalla pagina prodotto, che copre recupero automatizzato e riutilizzo delle informazioni societarie nel SaaS.
+             </label>
+             <button className="min-h-11 rounded-xl border px-4 font-semibold">Registra consenso · non avvia crawler</button>
+           </form>
+           <form action={revokeFirstPartyPermission} className="space-y-2 border-t pt-3">
+             <input type="hidden" name="source_id" value={s.id}/>
+             <p className="text-xs font-semibold">Revoca un permesso di scansione già registrato</p>
+             <label className="grid gap-1 text-xs">Dominio aziendale
+               <input required name="domain" placeholder="azienda.it" className="min-h-11 rounded-lg border px-3"/></label>
+             <label className="grid gap-1 text-xs">Motivazione della revoca
+               <input required name="reason" minLength={15} maxLength={1000} className="min-h-11 rounded-lg border px-3"/></label>
+             <label className="flex gap-2 text-xs"><input required name="attested" type="checkbox"/>Confermo la revoca immediata per questo dominio.</label>
+             <button className="min-h-11 rounded-xl border border-rose-400 px-4 text-sm font-semibold text-rose-800">Revoca consenso</button>
+           </form>
+           <form action={activateConsentedSource} className="space-y-2 border-t pt-3">
+             <input type="hidden" name="source_id" value={s.id}/>
+             <label className="flex gap-2 text-xs"><input type="checkbox" name="attested" required/>Confermo esplicitamente licenza, privacy, limiti e permessi aziendali distinti.</label>
+             <button className="min-h-11 rounded-xl border border-[#173f35] px-4 font-semibold text-[#173f35]">Abilita fonte con consensi validi</button>
+           </form>
+          </> : null}
+          {canRun && canReview && s.enabled_for_discovery && s.governance_status==="approved" ? <form action={enqueueConsentedDomainLeads} className="space-y-2 border-t pt-3">
+             <input type="hidden" name="source_id" value={s.id}/>
+             <p className="text-xs">Trasferisci SOLO prospect già qualificati che hanno una prova di consenso attiva per questa fonte. I lead restano in review.</p>
+             <label className="grid gap-1 text-xs">Limite per lotto (1-10)
+              <input required type="number" name="limit" min={1} max={10} defaultValue={10} className="min-h-11 rounded-lg border px-3"/></label>
+             <button className="min-h-11 rounded-xl border px-4 font-semibold">Inoltra soltanto domini autorizzati</button>
+          </form>:null}
+          {canRun && s.enabled_for_discovery && s.governance_status==="approved" ? <form action={prepareFirstPartyRun} className="space-y-2 border-t pt-3">
+             <input type="hidden" name="source_id" value={s.id}/>
+             <p className="text-xs">Inserisci gli ID dei lead già qualificati e inoltrati da NET-COV1, separati da virgole. La run richiederà una seconda approvazione in Governance.</p>
+             <label className="grid gap-1 text-xs">ID lead (1-10)
+              <textarea name="lead_ids" required rows={2} className="rounded-lg border p-3 font-mono text-xs" placeholder="UUID lead, UUID lead"/></label>
+             <button className="min-h-11 rounded-xl border px-4 font-semibold">Prepara run non approvata</button>
+          </form>:null}
+        </section>:null}
         {canReview ? <form action={reviewDiscoverySourceRegistry} className="grid gap-3 sm:grid-cols-2">
           <input type="hidden" name="id" value={s.id}/>
           <label className="grid gap-1 text-sm">Decisione<select name="decision" defaultValue="restricted" className="min-h-11 rounded-lg border px-2"><option value="restricted">Limitata</option><option value="blocked">Bloccata</option><option value="approved">Approvata</option></select></label>

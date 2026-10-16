@@ -1,0 +1,48 @@
+name: "NET-COV2B — Licensed First-Party Controlled Run"
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Platform-owned, separately approved and fully linked run UUID"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: netcov2b-licensed-first-party
+  cancel-in-progress: false
+
+jobs:
+  run:
+    # Never scheduled. Operator must dispatch an approved, consented run.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned project worker dependencies
+        working-directory: services/worker
+        run: python -m pip install -e .
+      - name: Verify dedicated project credentials
+        env:
+          CRAWL_IT68_SUPABASE_URL: ${{ vars.CRAWL_IT68_SUPABASE_URL }}
+          CRAWL_IT68_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT68_SUPABASE_SECRET_KEY }}
+        run: |
+          test "${CRAWL_IT68_SUPABASE_URL}" = "https://ecrafjdummcdfycznitx.supabase.co" || exit 1
+          case "${CRAWL_IT68_SUPABASE_SECRET_KEY}" in sb_secret_*) ;; *) exit 1;; esac
+          echo "::add-mask::${CRAWL_IT68_SUPABASE_SECRET_KEY}"
+      - name: Execute only prelinked, separately approved and consented sites
+        working-directory: services/worker
+        env:
+          CRAWL_IT68_SUPABASE_URL: ${{ vars.CRAWL_IT68_SUPABASE_URL }}
+          CRAWL_IT68_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT68_SUPABASE_SECRET_KEY }}
+          NETCOV2B_RUN_ID: ${{ inputs.run_id }}
+        run: python -m app.netcov2b_controlled_worker

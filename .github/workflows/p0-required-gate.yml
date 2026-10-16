@@ -316,6 +316,7 @@ jobs:
             netux3b1_review_source_governance.sql \
             netcov1_end_user_density.sql \
             netcov2_campaign_batch_acquisition.sql \
+            netcov2b_licensed_first_party.sql \
             crawl_it65a_candidate_bulk_approval.sql \
             crawl_it65_wikidata_source_pilot.sql \
             crawl_it65b_github_actions_runner.sql \

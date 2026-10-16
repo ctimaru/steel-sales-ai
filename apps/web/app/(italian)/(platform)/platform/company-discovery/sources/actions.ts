@@ -117,3 +117,100 @@ export async function linkApprovedPilotRun(form: FormData) {
   revalidatePath(route);
   response("message", "Quattro lead collegati alla run approvata. Ora avvia il workflow pilot in GitHub Actions.");
 }
+
+
+/** NET-COV2B: the URL must document an explicit permission, not product evidence. */
+export async function recordFirstPartyPermission(form:FormData){
+ await requirePlatformPermission("discovery.governance_review");
+ const date=String(form.get("expires_at")??"");
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date))
+  response("error","Data di scadenza del consenso non valida.");
+ const supabase=await createClient();
+ const {data,error}=await supabase.rpc("netcov2b_record_permission",{
+  p_source_id:String(form.get("source_id")??""),
+  p_domain:String(form.get("domain")??"").trim().toLowerCase(),
+  p_permission_url:String(form.get("permission_url")??"").trim(),
+  p_expires_at:date+"T23:59:59Z",
+  p_note:String(form.get("note")??"").trim(),
+  p_attested:form.get("attested")==="on",
+ });
+ if(error||(data as {status?:string}|null)?.status!=="permission_recorded")
+  response("error","Consenso non registrato: controlla fonte approvata, lead qualificato, URL ufficiale separata e scadenza.");
+ revalidatePath(route);
+ response("message","Permesso verificato registrato; nessuna scansione o pubblicazione.");
+}
+
+export async function activateConsentedSource(form:FormData){
+ await requirePlatformPermission("discovery.governance_review");
+ const supabase=await createClient();
+ const {data,error}=await supabase.rpc("netcov2b_activate_source",{
+  p_source_id:String(form.get("source_id")??""),
+  p_attested:form.get("attested")==="on",
+ });
+ if(error||(data as {status?:string}|null)?.status!=="source_enabled")
+  response("error","Attivazione negata: mancano consenso per dominio, fonte approvata o attestazione.");
+ revalidatePath(route);
+ response("message","Fonte autorizzata nel registro; il worker NON è stato avviato.");
+}
+
+export async function prepareFirstPartyRun(form:FormData){
+ await requirePlatformPermission("discovery.run");
+ const ids=String(form.get("lead_ids")??"").split(/[\s,;]+/).map(s=>s.trim()).filter(Boolean);
+ if(ids.length<1||ids.length>10 || ids.some(id=>! /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(id)))
+  response("error","Indica da 1 a 10 UUID di lead, separati da virgole.");
+ const supabase=await createClient();
+ const {data,error}=await supabase.rpc("netcov2b_prepare_run",{
+  p_source_id:String(form.get("source_id")??""),p_lead_ids:ids,
+ });
+ const result=data as {status?:string;run_id?:string}|null;
+ if(error||result?.status!=="queued_unreviewed"||!result.run_id)
+  response("error","Run negata: verifica consensi, dedup, lead già inoltrati e limite della fonte.");
+ revalidatePath(route);
+ response("message","Run "+result.run_id+" creata NON revisionata: approva in Governance e collegala prima del dispatch Actions.");
+}
+
+export async function linkApprovedFirstPartyRun(form:FormData){
+ await requirePlatformPermission("discovery.run");
+ await requirePlatformPermission("discovery.governance_review");
+ const runId=String(form.get("run_id")??"").trim();
+ if(!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(runId))
+  response("error","ID run non valido.");
+ const supabase=await createClient();
+ const {data,error}=await supabase.rpc("netcov2b_link_run",{p_run_id:runId});
+ if(error||(data as {status?:string}|null)?.status!=="linked_for_worker")
+  response("error","Link negato: la run deve essere approvata, di tua proprietà, con consensi validi.");
+ revalidatePath(route);
+ response("message","Run collegata ai domini autorizzati. Solo ora puoi avviare manualmente NET-COV2B in GitHub Actions.");
+}
+
+/** NET-COV2B: only ready targets with a live permission for this exact source. */
+export async function enqueueConsentedDomainLeads(form:FormData){
+ await requirePlatformPermission("discovery.run");
+ await requirePlatformPermission("discovery.governance_review");
+ const supabase=await createClient();
+ const {data,error}=await supabase.rpc("netcov2b_enqueue_consented",{
+  p_source_id:String(form.get("source_id")??""),
+  p_limit:Number(form.get("limit")??10),
+ });
+ const result=data as {status?:string;enqueued?:number;skipped_duplicates?:number}|null;
+ if(error||result?.status!=="consent_only_pending_review")
+  response("error","Trasferimento negato: serve una fonte attiva e consenso valido su ogni azienda.");
+ revalidatePath(route);
+ revalidatePath("/platform/company-discovery/end-users");
+ response("message",String(result.enqueued??0)+" lead con consenso specifico trasferiti alla review; nessun crawler avviato.");
+}
+
+export async function revokeFirstPartyPermission(form:FormData){
+ await requirePlatformPermission("discovery.governance_review");
+ const supabase=await createClient();
+ const {data,error}=await supabase.rpc("netcov2b_revoke_permission",{
+  p_source_id:String(form.get("source_id")??""),
+  p_domain:String(form.get("domain")??"").trim().toLowerCase(),
+  p_reason:String(form.get("reason")??"").trim(),
+  p_attested:form.get("attested")==="on",
+ });
+ if(error||(data as {status?:string}|null)?.status!=="revoked")
+  response("error","Revoca non registrata: controlla fonte, dominio, motivazione e autorizzazione.");
+ revalidatePath(route);
+ response("message","Consenso revocato: il dominio non è più idoneo a nuove scansioni o inserimenti Candidate Gate.");
+}
