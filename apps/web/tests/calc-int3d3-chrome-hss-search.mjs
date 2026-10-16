@@ -48,18 +48,22 @@ try{
     assert.equal(await region.getByText(/Peso nominale pubblicato Atlas|Atlas published nominal weight/i).count(),0);
     await select.selectOption(x.chosen);
     assert.equal(await select.inputValue(),x.chosen);
+    await page.waitForFunction(()=>!!document.querySelector("button[data-us-add-to-inline-bill]:not(:disabled)"));
     await region.getByRole("button",{name:x.add}).click();
-    await page.waitForURL(url=>url.pathname===x.bill,{timeout:60000});
-    await page.getByText(/HSS (Square|Rectangular)/i).first().waitFor({state:"visible",timeout:30000});
-    if(x.locale==="it"){
-      const value=await page.locator("input, textarea").evaluateAll(els=>els.map(el=>el.value??"").join(" "));
-      assert.match(value,/Atlas Tube nominal catalog reference/);
-      assert.match(value,/not certified/i);
-    }else{
-      const text=await page.locator("body").innerText();
-      assert.match(text,/Atlas Tube nominal catalog reference/);
-      assert.match(text,/AISC A500 design-section/i);
-    }
+    const bill=page.locator("#distinta-inline");
+    await bill.locator("article").first().waitFor({state:"visible",timeout:30000});
+    assert.equal(new URL(page.url()).pathname,x.start,"US HSS must add without navigation");
+    const stored=JSON.parse(await page.evaluate(()=>sessionStorage.getItem("sss:inline-distinta:v1")));
+    assert.equal(stored.lines.length,1);
+    assert.match(stored.lines[0].description,/HSS (Square|Rectangular)/i);
+    assert.match(stored.lines[0].standard,/ASTM A500/);
+    assert.match(stored.lines[0].note,/AISC A500 theoretical design-section proxy/);
+    assert.match(stored.lines[0].note,/not certified/);
+    assert.equal(stored.lines[0].grade,"");
+    assert.equal(stored.lines[0].targetEurT,"");
+    assert.ok(await bill.locator("[data-create-inline-private-rfq]").isVisible());
+    assert.match(stored.lines[0].note,/Atlas Tube nominal catalog reference/);
+    assert.equal(await page.evaluate(()=>sessionStorage.getItem("sss:us-pipe-rfq-handoff:v2")),null);
     console.log("CALC-INT3D.3 SEARCH CHROME PASS",x.locale,x.chosen);
     await context.close();
   }

@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { UsHssCalculator } from "@/components/us-hss-calculator";
+import { CalculatorCommercialPricing } from "@/components/calculator-commercial-pricing";
+import { localizedInlineBill } from "@/lib/calculator-inline-distinta-copy";
+import type { PriceBasis } from "@/lib/calculator-commercial-pricing";
 import { trackInternationalRfq } from "@/lib/international-rfq-analytics.client";
 import { CALCULATOR_ROUTES } from "@/lib/international-calculator-landing";
 import { US_PIPE_I18N, usLocaleTag, usRfqBillPath, type UsCalculatorLocale } from "@/lib/us-calculator-i18n";
@@ -9,7 +12,7 @@ import { useState } from "react";
 import { usCalculatorUi as ui } from "@/lib/us-calculator-visual";
 
 import { estimatePublicTubeMass } from "@/lib/international-tube-mass";
-import { buildUsPipeRfqItem, enqueueUsPipeRfq } from "@/lib/us-pipe-rfq-handoff";
+import { buildUsPipeRfqItem, enqueueUsPipeRfq, type UsPipeRfqItem } from "@/lib/us-pipe-rfq-handoff";
 import { standardById } from "@/lib/calculator-standards-registry";
 import {
   US_PIPE_MANUFACTURER_SAMPLE, US_PIPE_MANUFACTURER_SOURCE, US_PIPE_MANUFACTURER_WEB_SOURCE,
@@ -78,8 +81,15 @@ export type UsPipeInitialValues={
   hssShape?:string;hssUnits?:string;hssDiameter?:string;hssWidth?:string;
   hssHeight?:string;hssThickness?:string;hssLength?:string;hssQuantity?:string;
 };
-export function UsPipeSampleCalculator({ locale,initialValues={} }: { locale:Locale;initialValues?:UsPipeInitialValues }) {
+export function UsPipeSampleCalculator({ locale,initialValues={},onAddToDistinta,canAddToDistinta=true,inlineBillCount=0,onChooseBuyerTarget }: {
+  locale: Locale; initialValues?: UsPipeInitialValues;
+  onAddToDistinta?: (item: UsPipeRfqItem) => boolean;
+  canAddToDistinta?: boolean;
+  inlineBillCount?: number;
+  onChooseBuyerTarget?: (value: {basis: PriceBasis; raw: string; weightKgM: number}) => void;
+}) {
   const copy = labels[locale];
+  const billCopy = localizedInlineBill(locale);
   const npsList = availableUsNps();
   const [inputMode,setInputMode] = useState<"catalog"|"custom"|"hss">(["catalog","custom","hss"].includes(initialValues.mode??"")?initialValues.mode as "catalog"|"custom"|"hss":"catalog");
   const [units,setUnits] = useState<"mm"|"in">(initialValues.units==="in"?"in":"mm");
@@ -92,6 +102,7 @@ export function UsPipeSampleCalculator({ locale,initialValues={} }: { locale:Loc
   const [bars,setBars] = useState(initialValues.bars??"1");
   const [copyState,setCopyState] = useState<"idle"|"copied"|"failed">("idle");
   const [rfqError,setRfqError] = useState(false);
+  const [inlineAdded,setInlineAdded] = useState(false);
   const row = US_PIPE_MANUFACTURER_SAMPLE.find((r)=>r.id===rowId && r.nps===nps) ?? rowsForNps(nps)[0];
   const parseInput = (v:string) => {
     const cleaned=v.trim().replace(",",".");
@@ -147,9 +158,14 @@ export function UsPipeSampleCalculator({ locale,initialValues={} }: { locale:Loc
           productStandard,lengthM:metres,bars:quantity}
       : {sampleId:row.id,productStandard,lengthM:metres,bars:quantity};
     const item = buildUsPipeRfqItem(selection,crypto.randomUUID());
-    if (!item || !enqueueUsPipeRfq(window.sessionStorage,item)) {
-      setRfqError(true);
-      return;
+    if (!item) { setRfqError(true); setInlineAdded(false); return; }
+    if (onAddToDistinta) {
+      const added = canAddToDistinta && onAddToDistinta(item);
+      setRfqError(!added); setInlineAdded(added);
+      return; // The EU + US bill is already visible on this page.
+    }
+    if (!enqueueUsPipeRfq(window.sessionStorage,item)) {
+      setRfqError(true); return;
     }
     setRfqError(false);
     if(locale!=="it")trackInternationalRfq("handoff",locale,{system:"us",standard:productStandard});
@@ -290,13 +306,16 @@ export function UsPipeSampleCalculator({ locale,initialValues={} }: { locale:Loc
         <p className="mt-2">{copy.bridge}</p>
         </div>
       </details>
+      <CalculatorCommercialPricing weightKgM={result?.weightKgM ?? null} locale={locale}
+        onChooseBuyerTarget={onChooseBuyerTarget} />
       <div className="mt-3 flex flex-col gap-2">
         <button type="button" disabled={!result}
           onClick={async()=>{try{await navigator.clipboard.writeText(copiedText());setCopyState("copied");}catch{setCopyState("failed");}}}
           className={ui.secondaryAction + " order-2"}>
           {copy.copy}
         </button>
-        <button type="button" disabled={!result} onClick={addToRfqBill}
+        <button data-us-add-to-inline-bill={onAddToDistinta ? "" : undefined} type="button"
+          disabled={!result || (Boolean(onAddToDistinta) && !canAddToDistinta)} onClick={addToRfqBill}
           className={ui.primaryAction + " order-1"}>
           {copy.addRfq} →
         </button>
@@ -304,14 +323,21 @@ export function UsPipeSampleCalculator({ locale,initialValues={} }: { locale:Loc
           {copy.proceed} →
         </Link>
       </div>
+      {onAddToDistinta && inlineBillCount > 0 ? (
+        <a href="#distinta-inline" className={ui.secondaryAction + " mt-2"}>
+          {billCopy.seeBill} · {inlineBillCount} {inlineBillCount===1 ? billCopy.row : billCopy.lines} ↓
+        </a>
+      ) : null}
       <p role="status" aria-live="polite" className={ui.resultHint}>
-        {rfqError ? copy.addRfqFailed : ""}
+        {rfqError ? billCopy.addError : inlineAdded ? billCopy.added : ""}
         {copyState==="copied"?copy.copied:copyState==="failed"?copy.failed:""}
       </p>
         </aside>
       </div>
       <div hidden={inputMode!=="hss"} inert={inputMode!=="hss"} aria-hidden={inputMode!=="hss"} className="mt-3">
-        <UsHssCalculator locale={locale} initialReferenceId={initialValues.hssReferenceId} initialValues={initialValues}/>
+        <UsHssCalculator locale={locale} initialReferenceId={initialValues.hssReferenceId} initialValues={initialValues}
+          onAddToDistinta={onAddToDistinta} canAddToDistinta={canAddToDistinta}
+          inlineBillCount={inlineBillCount} onChooseBuyerTarget={onChooseBuyerTarget}/>
       </div>
     </section>
   );

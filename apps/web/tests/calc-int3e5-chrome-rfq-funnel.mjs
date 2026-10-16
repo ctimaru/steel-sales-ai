@@ -61,21 +61,25 @@ try{
     assert.equal(start?.status(),200);
     const add=page.getByRole("button",{name:/Add to RFQ bill/i}).first();
     await add.waitFor({state:"visible",timeout:30000});
+    await page.waitForFunction(()=>!!document.querySelector("button[data-us-add-to-inline-bill]:not(:disabled)"));
     await add.click();
-    await page.waitForURL(url=>url.pathname==="/en/distinta",{timeout:60000});
-    await page.getByText(/Requested product specification — supplier confirmation required/i).first().waitFor({state:"visible"});
-    const grade=page.getByRole("textbox",{name:"Steel grade"}).first();
-    assert.equal(await grade.inputValue(),"");
-    await page.getByRole("button",{name:"Review first incomplete item"}).first().click();
-    assert.equal(await grade.evaluate(el=>document.activeElement===el),true);
-    await grade.fill("ASTM A106 Gr B");
-    await page.getByRole("button",{name:"Copy RFQ email"}).click();
-    const email=await page.evaluate(()=>navigator.clipboard.readText());
-    assert.match(email,/ASTM A106|API Spec 5L/i);
-    assert.match(email,/supplier/i);
-    assert.equal(await page.getByRole("link",{name:/Create a company account for future RFQ Hub workflows/}).getAttribute("href"),"/en/register");
-    assert.match(await page.locator("body").innerText(),/Registration does not save or transfer this public bill/);
-    console.log("CALC-INT3E.5 US PIPE MOBILE PASS", "source provenance + supplier approval + copy-only");
+    const bill=page.locator("#distinta-inline");
+    await bill.locator("article").first().waitFor({state:"visible",timeout:30000});
+    assert.equal(new URL(page.url()).pathname,"/en/knowledge/tubes/american-pipe");
+    const stored=JSON.parse(await page.evaluate(()=>sessionStorage.getItem("sss:inline-distinta:v1")));
+    assert.equal(stored.lines.length,1);
+    assert.match(stored.lines[0].standard,/API Spec 5L|ASTM A106/i);
+    assert.match(stored.lines[0].note,/not certified|supplier confirmation/i);
+    assert.equal(stored.lines[0].grade,"");
+    assert.equal(stored.lines[0].targetEurT,"");
+    assert.ok(await bill.locator("[data-create-inline-private-rfq]").isVisible());
+    await bill.getByRole("button",{name:"Copy bill"}).click();
+    const technical=await page.evaluate(()=>navigator.clipboard.readText());
+    assert.match(technical,/API Spec 5L|ASTM A106/i);
+    // The technical note legitimately contains steel density 7850 kg/m³,
+    // so never assert the incidental substring "850" is absent.
+    assert.doesNotMatch(technical,/Target €|private buyer|internal target/i);
+    console.log("CALC-USA-FLOW1 US PIPE MOBILE PASS","source provenance + private RFQ boundary");
     await context.close();
   }
 }finally{await browser.close();}

@@ -39,22 +39,23 @@ try{
     assert.equal(await library.inputValue(),spec.row);
 
     const button=hss.getByRole("button",{name:spec.add});
-    assert.equal(await button.isDisabled(),false);
+    await page.waitForFunction(()=>!!document.querySelector("button[data-us-add-to-inline-bill]:not(:disabled)"));
     await button.click();
-    await page.waitForURL(url=>url.pathname===spec.bill,{timeout:60000});
-    await page.getByText(/HSS (Square|Rectangular)/i).first().waitFor({state:"visible",timeout:30000});
-    const text=await page.locator("body").innerText();
-    assert.match(text,/ASTM A500/);
-    if(spec.locale==="en"){
-      assert.match(text,/Atlas Tube nominal catalog reference/);
-      assert.match(text,/not certified/i);
-    }else{
-      const fields=await page.locator("input, textarea").evaluateAll(els=>
-        els.map(el=>el.value).filter(Boolean).join(" ")
-      );
-      assert.match(fields,/Atlas Tube nominal catalog reference/);
-      assert.doesNotMatch(text,/OD 0 ×/);
-    }
+    const bill=page.locator("#distinta-inline");
+    await bill.locator("article").first().waitFor({state:"visible",timeout:30000});
+    assert.equal(new URL(page.url()).pathname,spec.start,"US HSS must add without navigation");
+    const stored=JSON.parse(await page.evaluate(()=>sessionStorage.getItem("sss:inline-distinta:v1")));
+    assert.equal(stored.lines.length,1);
+    assert.match(stored.lines[0].description,/HSS (Square|Rectangular)/i);
+    assert.match(stored.lines[0].standard,/ASTM A500/);
+    assert.match(stored.lines[0].note,/AISC A500 theoretical design-section proxy/);
+    assert.match(stored.lines[0].note,/not certified/);
+    assert.equal(stored.lines[0].grade,"");
+    assert.equal(stored.lines[0].targetEurT,"");
+    assert.ok(await bill.locator("[data-create-inline-private-rfq]").isVisible());
+    assert.match(stored.lines[0].note,/Atlas Tube nominal catalog reference/);
+    assert.ok(Number(stored.lines[0].weightKgM)>0);
+    assert.equal(await page.evaluate(()=>sessionStorage.getItem("sss:us-pipe-rfq-handoff:v2")),null);
     console.log("CALC-INT3D.2 CHROME PASS",spec.locale,spec.row);
     await context.close();
   }

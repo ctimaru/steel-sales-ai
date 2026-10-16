@@ -2,7 +2,7 @@
 
 import { useId, useState, type ReactNode } from "react";
 
-import type { PublicTubeCalculatorInitialValues } from "@/components/public-tube-weight-calculator";
+import { PublicTubeWeightCalculator, type PublicTubeCalculatorInitialValues } from "@/components/public-tube-weight-calculator";
 import { UsPipeSampleCalculator, type UsPipeInitialValues } from "@/components/us-pipe-sample-calculator";
 import { type InternationalCalculatorSeed } from "@/components/international-steel-calculator";
 import { CalculatorInlineDistintaExperience } from "@/components/calculator-inline-distinta-experience";
@@ -71,6 +71,12 @@ export function CalculatorRegionSwitch({
   }
 
   return (
+    <CalculatorInlineDistintaExperience references={references??[]}
+      initialValues={isNewCalculatorLocale(locale)
+        ? internationalEuInitialValues(internationalSeed) : initialValues}
+      locale={locale}
+      renderCalculator={({onAddToDistinta,onAddUsToDistinta,canAddToDistinta,inlineBillCount,inlineBill,onChooseBuyerTarget}) => (
+      <>
     <section className={styles.root} aria-label={regional?.region??(english ? "Steel calculator region" : "Area del calcolatore acciaio")}>
       <div className={styles.header}>
         <div className={styles.headerCopy}>
@@ -110,11 +116,13 @@ export function CalculatorRegionSwitch({
         <div className={styles.panelInner}>
           {visited.eu ? (
             <>
-              <CalculatorInlineDistintaExperience references={references??[]}
+              <PublicTubeWeightCalculator references={references??[]}
                 initialValues={isNewCalculatorLocale(locale)
-                  ? internationalEuInitialValues(internationalSeed)
-                  : initialValues}
-                locale={locale} />
+                  ? internationalEuInitialValues(internationalSeed) : initialValues}
+                locale={locale} onAddToDistinta={onAddToDistinta}
+                canAddToDistinta={canAddToDistinta} inlinePublicDistinta
+                inlineBillCount={inlineBillCount} onChooseBuyerTarget={onChooseBuyerTarget}
+                inlineBill={region==="eu" ? inlineBill : undefined} />
               {euAfter ? <div className={styles.evidence}>{euAfter}</div> : null}
             </>
           ) : null}
@@ -123,9 +131,14 @@ export function CalculatorRegionSwitch({
       <div id={americanId} className={styles.panel} data-active={region === "us"}
         aria-hidden={region !== "us"} inert={region !== "us"}>
         <div className={styles.panelInner}>
-          {visited.us ? <UsPipeSampleCalculator locale={locale} initialValues={usInitialValues}/> : null}
+          {visited.us ? <UsPipeSampleCalculator locale={locale} initialValues={usInitialValues}
+            onAddToDistinta={onAddUsToDistinta} canAddToDistinta={canAddToDistinta}
+            inlineBillCount={inlineBillCount} onChooseBuyerTarget={onChooseBuyerTarget}/> : null}
         </div>
       </div>
     </section>
+    {region==="us" ? inlineBill : null}
+    </>
+    )} />
   );
 }
