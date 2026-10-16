@@ -9,15 +9,16 @@ const directory=read("../components/free-network-directory.tsx");
 const feed=read("../components/network-launch-discovery.tsx");
 
 test("NET-LAUNCH1: Pro Network users see same unconfirmed Free discoveries",()=>{
- assert.match(page,/getFreeNetworkDirectory\(context\.organizationId/);
+ assert.match(page,/getProNetworkDiscoveryDirectory\(context\.organizationId/);
  assert.match(page,/<NetworkLaunchDiscovery directory=\{previewDirectory\}/);
  assert.ok(page.indexOf("<NetworkLaunchDiscovery")<page.indexOf("<ItalyRegionMap"),"Show discovery before map");
  assert.match(page,/searchNetwork\(\{/,"Keep canonical Pro search intact");
 });
 test("NET-LAUNCH1: Pro users can open unconfirmed profiles rather than 404",()=>{
- assert.match(detail,/getFreeNetworkProfile\(context\.organizationId,id\)/);
+ assert.match(detail,/getProNetworkDiscoveryProfile\(context\.organizationId,id\)/);
  assert.match(detail,/candidate\?\.item\.discovery_status === "unconfirmed"/);
  assert.match(detail,/return <FreeNetworkProfileView/);
+ assert.match(detail,/accessMode="pro"/);
  assert.match(detail,/await requireNetworkAccess\(\)/,"Keep existing Pro permission");
 });
 test("NET-LAUNCH1: Free users see discoveries first and map after company results",()=>{
