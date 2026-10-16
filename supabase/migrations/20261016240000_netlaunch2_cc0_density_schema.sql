@@ -46,7 +46,7 @@ alter table public.network_discovery_source_registry
        and source_url='https://query.wikidata.org/sparql'
        and max_domains_per_run between 101 and 200));
 
-do $
+do $$
 declare n integer;
 begin
  update public.network_discovery_source_registry
