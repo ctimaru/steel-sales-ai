@@ -1,5 +1,6 @@
 /** Shared calculator UI translations; the calculation and validation engine is language independent. */
-export type TubeCalculatorLocale = "it" | "en";
+import { internationalTubeCalculatorCopy } from "@/lib/international-tube-calculator-copy";
+export type TubeCalculatorLocale = "it" | "en" | "de" | "fr" | "es";
 const englishText: Record<string, string> = {
   "Tubo tondo": "Round tube",
   "Tondo": "CHS",
@@ -112,5 +113,9 @@ const englishText: Record<string, string> = {
   "kg/barra": "kg/bar"
 };
 export function tubeCalculatorText(value: string, locale: TubeCalculatorLocale): string {
-  return locale === "en" ? englishText[value] ?? value : value;
+  if (locale === "it") return value;
+  if (locale === "en") return englishText[value] ?? value;
+  const translations: Record<string,string> = internationalTubeCalculatorCopy[locale];
+  // Never fall back to Italian on international pages.
+  return translations[value] ?? englishText[value] ?? value;
 }
