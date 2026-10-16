@@ -28,6 +28,7 @@ test("NET-COV2B Platform wiring requires human attestation",()=>{
  assert.match(ui,/prepareFirstPartyRun/);
  assert.match(ui,/linkApprovedFirstPartyRun/);
  assert.match(ui,/enqueueConsentedDomainLeads/);
+ assert.match(ui,/revokeFirstPartyPermission/);
  assert.match(actions,/netcov2b_record_permission/);
  assert.match(actions,/requirePlatformPermission\("discovery.governance_review"\)/);
 });
