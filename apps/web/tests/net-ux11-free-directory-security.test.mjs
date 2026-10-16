@@ -13,8 +13,8 @@ const rpc = read("../lib/network-free.ts");
 const shell = read("../components/app-shell.tsx");
 const layout = read("../app/(workspace)/layout.tsx");
 
-test("NET-UX1.1 has a default-off Free read feature flag and preserves PA1.3", () => {
-  assert.match(flags, /NETWORK_FREE_READ_ENABLED === "true"/);
+test("NET-UX1.1 activates Free read with an explicit rollback flag and preserves PA1.3", () => {
+  assert.match(flags, /NETWORK_FREE_READ_ENABLED !== "false"/);
   assert.match(page, /!access\.can_access_network/);
   assert.match(page, /isNetworkFreeReadEnabled\(\)/);
   assert.match(page, /<NetworkAccessGate/);
