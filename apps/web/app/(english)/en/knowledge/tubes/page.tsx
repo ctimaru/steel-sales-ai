@@ -5,7 +5,6 @@ import { unstable_cache } from "next/cache";
 import { EnglishPublicSubpage } from "@/components/english-public-subpage";
 import { EnStructuralMethodEvidence } from "@/components/en-structural-method-evidence";
 import { CalculatorRegionSwitch } from "@/components/calculator-region-switch";
-import { CalculatorPageLanguageSelector } from "@/components/calculator-page-language-selector";
 import { calculatorRegionFromQuery, usPipeSeedFromQuery } from "@/lib/us-calculator-route-seed";
 import type { PublicTubeCalculatorInitialValues } from "@/components/public-tube-weight-calculator";
 import { listPublicTubeDimensionPages } from "@/lib/public-knowledge";
@@ -127,13 +126,10 @@ export default async function EnglishTubeWeightsPage({ searchParams }: { searchP
       description="Estimate structural hollow section masses for circular (CHS), square (SHS) and rectangular (RHS) steel tubes. Select EN 10219, EN 10210 or the geometric method. Copy the result, save favourites, calculate bars from target tonnes and continue to the RFQ bill of materials."
       italianHref="/knowledge/tubes"
       englishHref="/en/knowledge/tubes"
+      calculatorLanguageMenu
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="mx-auto max-w-[1120px] px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs font-semibold text-[#52615b]">Steel tube calculator · EU and USA</p>
-          <CalculatorPageLanguageSelector locale="en" />
-        </div>
         <CalculatorRegionSwitch locale="en" initialRegion="eu" requestedRegion={calculatorRegionFromQuery(params)}
           usInitialValues={usPipeSeedFromQuery(params)}
           references={references} initialValues={initialValues}
