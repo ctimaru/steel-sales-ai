@@ -1,3 +1,5 @@
+import type { InternationalRfqLocaleCounts } from "@/lib/international-rfq-funnel";
+
 export type AnalyticsRangeKey = "1d" | "7d" | "30d";
 
 export type AnalyticsPoint = {
@@ -89,6 +91,7 @@ export type PlatformAnalyticsSnapshot = {
   activationFunnel: AnalyticsFunnelStep[];
   rfqConversionFunnel: AnalyticsFunnelStep[];
   rfqBillCopies: number;
+  internationalRfqFunnel: InternationalRfqLocaleCounts[];
   bd17CtaExperiment: Bd17ExperimentSnapshot;
   bd18Readiness: Bd18Readiness;
 };
@@ -117,6 +120,22 @@ const RFQ_CONVERSION_FUNNEL = [
   ["rfq_recipient_reviewed", "Destinatari verificati"],
   ["rfq_dispatch_launch", "RFQ inviata"],
 ] as const;
+
+/** CALC-INT3E.4 — event totals by locale, not linked visitors or cohorts. */
+const INTERNATIONAL_RFQ_LOCALES=["en","de","fr","es"] as const;
+function internationalRfqFunnel(eventMap:ReadonlyMap<string,number>):InternationalRfqLocaleCounts[]{
+  const count=(stage:"handoff"|"bill_opened"|"email_copied"|"registration_click",locale:typeof INTERNATIONAL_RFQ_LOCALES[number])=>{
+    const value=eventMap.get("intl_rfq_"+stage+"_"+locale);
+    return typeof value==="number" && Number.isSafeInteger(value) && value>=0?value:0;
+  };
+  return INTERNATIONAL_RFQ_LOCALES.map(locale=>({
+    locale,
+    handoff:count("handoff",locale),
+    billOpened:count("bill_opened",locale),
+    emailCopied:count("email_copied",locale),
+    registrationClicks:count("registration_click",locale),
+  }));
+}
 
 const ACTIVATION_FUNNEL = [
   ["weight_calculation", "Calcolo peso usato"],
@@ -357,6 +376,7 @@ function emptySnapshot(
     activationFunnel: buildFunnel(ACTIVATION_FUNNEL, new Map()),
     rfqConversionFunnel: buildFunnel(RFQ_CONVERSION_FUNNEL, new Map()),
     rfqBillCopies: 0,
+    internationalRfqFunnel: internationalRfqFunnel(new Map()),
     bd17CtaExperiment: bd17Experiment(new Map()),
     bd18Readiness: assessBd18Readiness({
       state: error === "VERCEL_ANALYTICS_TOKEN_MISSING" ? "token_missing" : "api_error",
@@ -553,6 +573,7 @@ export async function getPlatformAnalyticsSnapshot(
       activationFunnel: buildFunnel(ACTIVATION_FUNNEL, eventMap),
       rfqConversionFunnel: rfqFunnel,
       rfqBillCopies: eventMap.get("rfq_bill_copied") ?? 0,
+      internationalRfqFunnel: internationalRfqFunnel(eventMap),
       bd17CtaExperiment: bd17,
       bd18Readiness: bd18,
     };

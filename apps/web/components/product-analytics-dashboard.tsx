@@ -404,6 +404,48 @@ export function ProductAnalyticsDashboard({
         steps={snapshot.rfqConversionFunnel}
       />
 
+      <section aria-labelledby="international-rfq-funnel-title" className="rounded-3xl border border-[#dce2df] bg-white p-4 sm:p-6">
+        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#1a5144]">CALC-INT3E.4 · International RFQ</p>
+        <h2 id="international-rfq-funnel-title" className="mt-1 text-xl font-semibold text-[#1d2824]">
+          Calcolatore → distinta → copia → registrazione
+        </h2>
+        <p className="mt-2 max-w-4xl text-xs leading-6 text-[#66736e]">
+          Conteggi di eventi con consenso analytics, separati per lingua della distinta.
+          Sono azioni aggregate, non utenti unici né coorti: non calcolare tassi di abbandono
+          o conversioni individuali dividendo le colonne. La registrazione indica solo il clic
+          verso il modulo, NON la creazione effettiva di un account.
+        </p>
+        <div className="mt-4 overflow-x-auto rounded-xl border border-[#dce5e0]">
+          <table className="w-full min-w-[570px] text-left text-xs">
+            <thead className="bg-[#f2f7f4] text-[#345749]">
+              <tr>
+                <th scope="col" className="p-3">Lingua</th>
+                <th scope="col" className="p-3 text-right">Aggiunte RFQ</th>
+                <th scope="col" className="p-3 text-right">Distinte aperte</th>
+                <th scope="col" className="p-3 text-right">Email copiate</th>
+                <th scope="col" className="p-3 text-right">Clic registrazione</th>
+              </tr>
+            </thead>
+            <tbody>
+              {snapshot.internationalRfqFunnel.map((row)=>(
+                <tr key={row.locale} className="border-t border-[#e5ece8]">
+                  <th scope="row" className="p-3 font-semibold uppercase text-[#173f35]">{row.locale}</th>
+                  <td className="p-3 text-right tabular-nums">{formatCount(row.handoff)}</td>
+                  <td className="p-3 text-right tabular-nums">{formatCount(row.billOpened)}</td>
+                  <td className="p-3 text-right tabular-nums">{formatCount(row.emailCopied)}</td>
+                  <td className="p-3 text-right tabular-nums">{formatCount(row.registrationClicks)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-3 text-xs leading-6 text-[#66736e]">
+          Sistema EN/USA e norma di origine sono categorie a basso numero di valori negli eventi Vercel.
+          La sezione Paesi rappresenta traffico geografico aggregato, NON un&apos;attribuzione paese → RFQ.
+          La distinta italiana continua ad avere la propria misurazione BD16; non è mischiata a questa.
+        </p>
+      </section>
+
       <section className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
         <h2 className="text-sm font-semibold text-[#173f35]">Distinte copiate senza invio</h2>
         <p className="mt-1 text-2xl font-semibold tabular-nums text-[#173f35]">{formatCount(snapshot.rfqBillCopies)}</p>

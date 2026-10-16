@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { UsHssCalculator } from "@/components/us-hss-calculator";
 import { CalculatorFlagLanguages } from "@/components/calculator-flag-languages";
+import { trackInternationalRfq } from "@/lib/international-rfq-analytics.client";
 import { CALCULATOR_ROUTES } from "@/lib/international-calculator-landing";
 import { US_PIPE_I18N, usLocaleTag, usRfqBillPath, type UsCalculatorLocale } from "@/lib/us-calculator-i18n";
 import { useState } from "react";
@@ -155,6 +156,7 @@ export function UsPipeSampleCalculator({ locale,initialValues={} }: { locale:Loc
       return;
     }
     setRfqError(false);
+    if(locale!=="it")trackInternationalRfq("handoff",locale,{system:"us",standard:productStandard});
     window.location.assign(usRfqBillPath(locale));
   };
 

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { InternationalRfqRegisterLink } from "@/components/international-rfq-register-link";
 
 /**
  * I18N5 — Shared static, consent-free international handoff.
@@ -66,9 +67,15 @@ export function EnglishConversionHandoff({ context }: { context: EnglishConversi
             <li><span className="font-bold text-[#1f6b5a]">2.</span> Create an account and verify your email</li>
             <li><span className="font-bold text-[#1f6b5a]">3.</span> Submit your company request for review</li>
           </ol>
-          <Link href="/en/register" className="platform-primary mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl px-4 text-center text-sm font-bold">
-            Start company registration →
-          </Link>
+          {context === "rfq" ? (
+            <InternationalRfqRegisterLink locale="en" className="platform-primary mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl px-4 text-center text-sm font-bold">
+              Start company registration →
+            </InternationalRfqRegisterLink>
+          ) : (
+            <Link href="/en/register" className="platform-primary mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl px-4 text-center text-sm font-bold">
+              Start company registration →
+            </Link>
+          )}
           <p className="mt-3 text-xs leading-5 text-[#52615b]">
             The company application is available in English; the private workspace and legal documents currently remain in Italian. Company approval is required before private access.
           </p>

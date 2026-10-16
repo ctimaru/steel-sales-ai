@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { EnglishRfqBillBuilder } from "@/components/english-rfq-bill-builder";
+import { InternationalRfqRegisterLink } from "@/components/international-rfq-register-link";
 import { isNewCalculatorLocale, type CalculatorLandingLocale } from "@/lib/international-calculator-landing";
 import { RFQ_BILL_LANDING, RFQ_BILL_ROUTES } from "@/lib/rfq-bill-localization";
 import { absoluteUrl } from "@/lib/site";
@@ -86,9 +87,9 @@ export default async function LocalizedRfqBillPage({params}:PageProps){
         <p className="mt-3 max-w-3xl text-sm leading-7 text-[#52615b]">{t.detail}</p>
         <div className="mt-5 border-t border-[#d6e5dc] pt-5">
           <p className="max-w-3xl text-xs leading-6 text-[#52615b]">{t.registerDetail}</p>
-          <Link href="/en/register" hrefLang="en" lang="en" className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-[#155943] px-5 text-sm font-bold text-white">
+          <InternationalRfqRegisterLink locale={language} className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-[#155943] px-5 text-sm font-bold text-white">
             {t.register} →
-          </Link>
+          </InternationalRfqRegisterLink>
         </div>
       </section>
     </div>
