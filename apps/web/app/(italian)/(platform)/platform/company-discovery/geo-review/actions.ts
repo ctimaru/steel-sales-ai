@@ -69,3 +69,22 @@ export async function stageOfficialGeoWithIstat(form: FormData) {
     "Evidenza registrata per revisione. Nessuna località pubblicata automaticamente."
   ));
 }
+
+
+/** NET-UX3B.1: authenticated human-only recovery from an accidentally
+ * selected conflict. Source and prior reviewer decision stay in audit ledger. */
+export async function reopenConflictEvidence(form: FormData) {
+  await requirePlatformPermission("discovery.governance_review");
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("netux3b1_reopen_conflict", {
+    p_evidence_id: String(form.get("evidence_id") ?? ""),
+    p_note: String(form.get("note") ?? "").trim(),
+  });
+  if (error) redirect(route+"?error="+encodeURIComponent(
+    "Non è stato possibile riaprire il conflitto. Verifica sessione e motivazione."
+  ));
+  revalidatePath(route);
+  redirect(route+"?message="+encodeURIComponent(
+    "Conflitto riaperto e registrato nel ledger. Richiede nuova approvazione separata."
+  ));
+}

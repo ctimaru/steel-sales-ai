@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getPlatformAccessContext, requirePlatformPermission } from "@/lib/platform-admin";
 import { ITALY_REGION_PATHS } from "@/lib/italy-region-paths";
 import { safeNetworkWebsiteUrl } from "@/lib/network-free";
-import { decideGeoEvidence, publishReviewedGeoEvidence, stageOfficialGeoEvidence, stageOfficialGeoWithIstat } from "./actions";
+import { decideGeoEvidence, publishReviewedGeoEvidence, stageOfficialGeoEvidence, stageOfficialGeoWithIstat, reopenConflictEvidence } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +13,12 @@ type Entry = {
   address_line_1: string | null; source_url: string; source_kind: string;
   evidence_snippet: string; created_at: string;
 };
+type ConflictEntry = {
+  id: string; legal_name: string; city: string; province_code: string | null;
+  region: string | null; source_url: string; evidence_snippet: string;
+  review_note: string | null; reviewed_at: string | null;
+};
+type ConflictQueue = { contract: "netux3b1-conflicts-v1"; items: ConflictEntry[] };
 type BacklogCompany = {
   id: string; legal_name: string; website_url: string | null;
   website_domain: string | null; pending_evidence: number; approved_evidence: number;
@@ -40,17 +46,21 @@ export default async function GeoReviewPage({
   const params = await searchParams;
   const supabase = await createClient();
 
-  const [pendingResult, backlogResult, approvedResult] = await Promise.all([
+  const [pendingResult, backlogResult, approvedResult, conflictResult] = await Promise.all([
     supabase.rpc("crawl_it61_geo_review_queue"),
     supabase.rpc("netux3_geographic_backlog"),
     supabase.rpc("netux3_reviewed_geo_queue"),
+    supabase.rpc("netux3b1_conflicts_queue"),
   ]);
   const items = (pendingResult.data ?? []) as Entry[];
   const backlog = !backlogResult.error && (backlogResult.data as Backlog | null)?.contract === "netux3-backlog-v1"
     ? (backlogResult.data as Backlog) : null;
   const approved = !approvedResult.error && (approvedResult.data as { contract?: string } | null)?.contract === "netux3-approved-v1"
     ? (approvedResult.data as { items: ApprovedEntry[] }).items : null;
-  const hasError = pendingResult.error || backlogResult.error || approvedResult.error;
+  const conflicts = !conflictResult.error
+    && (conflictResult.data as ConflictQueue | null)?.contract === "netux3b1-conflicts-v1"
+    ? (conflictResult.data as ConflictQueue).items : null;
+  const hasError = pendingResult.error || backlogResult.error || approvedResult.error || conflictResult.error;
 
   return (
     <main className="mx-auto max-w-6xl space-y-6 px-4 py-6">
@@ -200,16 +210,49 @@ export default async function GeoReviewPage({
           {canReview ? <form action={decideGeoEvidence} className="grid gap-3 sm:grid-cols-2">
             <input type="hidden" name="id" value={e.id}/>
             <label className="grid gap-1 text-sm">Decisione
-              <select name="decision" className="min-h-11 rounded-lg border px-3 text-sm">
-                <option value="conflict">Conflitto</option>
-                <option value="rejected">Rifiuta</option>
+              <select name="decision" required defaultValue="" className="min-h-11 rounded-lg border bg-white px-3 text-sm">
+                <option value="" disabled>Seleziona esplicitamente una decisione</option>
                 <option value="approved_for_facility_review">Approva per revisione sede</option>
+                <option value="rejected">Rifiuta evidenza</option>
+                <option value="conflict">Segnala conflitto</option>
               </select>
             </label>
             <label className="grid gap-1 text-sm">Motivazione
               <input name="note" required minLength={12} maxLength={2000} className="min-h-11 rounded-lg border px-3 text-sm" placeholder="Motivazione e controlli eseguiti"/>
             </label>
             <button className="min-h-11 rounded-xl border border-[#173f35] px-4 font-semibold sm:col-span-2">Registra prima revisione</button>
+          </form> : null}
+        </article>)}
+      </section>
+
+      <section aria-labelledby="geo-conflicts" className="space-y-3">
+        <h2 id="geo-conflicts" className="text-xl font-semibold">
+          Evidenze in conflitto ({conflicts?.length ?? "—"})
+        </h2>
+        <p className="text-sm text-[#52615b]">
+          Il conflitto non equivale ad approvazione. Una riapertura richiede una nuova
+          decisione esplicita e conserva nel ledger la valutazione originale.
+        </p>
+        {conflicts?.length === 0
+          ? <p className="rounded-xl border bg-white p-4 text-sm text-[#52615b]">Nessun conflitto aperto.</p>
+          : null}
+        {conflicts?.map((e) => <article key={e.id} className="space-y-3 rounded-2xl border border-amber-300 bg-white p-4">
+          <h3 className="font-semibold text-[#173f35]">{e.legal_name} — {e.city}{e.province_code ? " (" + e.province_code + ")" : ""}</h3>
+          <p className="text-xs text-[#52615b]">Evidenza: {e.evidence_snippet}</p>
+          <p className="text-sm text-amber-950">Motivazione precedente: {e.review_note || "non specificata"}</p>
+          <a href={e.source_url} target="_blank" rel="noopener noreferrer" className="block break-all text-sm text-[#175640] underline">
+            Verifica fonte ufficiale ↗
+          </a>
+          {canReview ? <form action={reopenConflictEvidence} className="grid gap-2">
+            <input type="hidden" name="evidence_id" value={e.id} />
+            <label className="grid gap-1 text-sm">Motivazione della riapertura
+              <input name="note" minLength={12} maxLength={2000} required
+                className="min-h-11 rounded-lg border px-3 text-sm"
+                placeholder="Es. Selezione Conflitto errata; fonte aziendale e ISTAT da riverificare" />
+            </label>
+            <button className="min-h-11 rounded-xl border border-amber-500 px-4 text-sm font-semibold">
+              Riapri per una nuova revisione — non approva
+            </button>
           </form> : null}
         </article>)}
       </section>
