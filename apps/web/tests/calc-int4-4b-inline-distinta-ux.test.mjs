@@ -11,14 +11,14 @@ const experience = read("../components/calculator-inline-distinta-experience.tsx
 const model = read("../lib/calculator-inline-distinta.ts");
 const existingBuilder = read("../components/buyer-distinta-builder.tsx");
 
-test("CALC-INT4.4B mounts inline bill only for public IT, not EN/DE/FR/ES or US calculator",()=>{
+test("CALC-INT4.5 mounts shared inline bill for all EU locales, US mode remains separate",()=>{
   assert.match(page,/import \{ CalculatorRegionSwitch \}/);
-  assert.match(page,/<CalculatorRegionSwitch locale="it" initialRegion="eu" inlineItalianBill requestedRegion=\{calculatorRegionFromQuery\(params\)\}/);
+  assert.match(page,/<CalculatorRegionSwitch locale="it" initialRegion="eu" requestedRegion/);
   assert.match(page,/<EnStructuralMethodEvidence locale="it" \/>/);
   assert.match(page,/data-testid="calculator-editorial-disclosure"/);
   assert.match(page,/references=\{references\} initialValues=\{initialValues\} \/>/);
-  assert.match(switcher,/inlineItalianBill\?: boolean/);
-  assert.match(switcher,/inlineItalianBill && locale === "it"/);
+  assert.doesNotMatch(switcher,/inlineItalianBill/);
+  assert.match(switcher,/locale=\{locale\} \/>/);
   assert.match(switcher,/<CalculatorInlineDistintaExperience references=\{references\?\?\[\]\}/);
   assert.match(switcher,/<UsPipeSampleCalculator locale=\{locale\}/);
   assert.doesNotMatch(switcher,/UsPipeSampleCalculator[^\n]*onAddToDistinta/);
@@ -34,12 +34,12 @@ test("CALC-INT4.4B preserves calculator first-screen 2 columns, commercial prici
   assert.match(calculator,/<CalculatorCommercialPricing/);
   assert.match(calculator,/!inEmbeddedBuilder \? <div/);
   assert.match(calculator,/!inEmbeddedBuilder && \(locale === "it" \|\| locale === "en"/);
-  assert.match(calculator,/!inEmbeddedBuilder && !\(inlinePublicDistinta && locale === "it"\) \? \(\s*<details/);
+  assert.match(calculator,/!inEmbeddedBuilder && !inlinePublicDistinta \? \(\s*<details/);
   assert.match(calculator,/inlinePublicDistinta && inlineBillCount > 0/);
   assert.match(calculator,/href="#distinta-inline"/);
   assert.match(calculator,/if \(onAddToDistinta\) \{/);
   assert.match(calculator,/enqueueCalculatorRfq\(window\.sessionStorage, item\)/);
-  assert.match(calculator,/Articolo aggiunto alla distinta qui sotto/);
+  assert.match(calculator,/inlineCopy.added/);
 });
 
 test("CALC-INT4.4B uses 4.4A pure state and existing canonical bill formatter with zero prices",()=>{
@@ -49,7 +49,7 @@ test("CALC-INT4.4B uses 4.4A pure state and existing canonical bill formatter wi
     "readInlineDistintaSession", "INLINE_DISTINTA_MAX_LINES",
   ];
   expected.forEach(name => assert.match(experience,new RegExp(name)));
-  assert.match(experience,/buildBuyerDistintaPlainText\("Richiesta di offerta", calculated\)/);
+  assert.match(experience,/buildBuyerDistintaPlainText\(c.quoteTitle, calculated\)/);
   assert.match(experience,/liveState\.current = result\.state/);
   assert.match(experience,/return commit\(result\)/);
   assert.match(experience,/setOpen\(result\.state\.lines\.length > 0\)/);

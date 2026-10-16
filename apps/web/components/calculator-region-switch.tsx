@@ -1,11 +1,8 @@
 "use client";
 
-import { useId, useState, type ComponentProps, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 
-import {
-  PublicTubeWeightCalculator,
-  type PublicTubeCalculatorInitialValues,
-} from "@/components/public-tube-weight-calculator";
+import type { PublicTubeCalculatorInitialValues } from "@/components/public-tube-weight-calculator";
 import { UsPipeSampleCalculator, type UsPipeInitialValues } from "@/components/us-pipe-sample-calculator";
 import { type InternationalCalculatorSeed } from "@/components/international-steel-calculator";
 import { CalculatorInlineDistintaExperience } from "@/components/calculator-inline-distinta-experience";
@@ -31,7 +28,7 @@ export function internationalEuInitialValues(seed:InternationalCalculatorSeed = 
 }
 
 type Region = "eu" | "us";
-type CalculatorProps = ComponentProps<typeof PublicTubeWeightCalculator>;
+
 
 export function CalculatorRegionSwitch({
   locale,
@@ -40,18 +37,15 @@ export function CalculatorRegionSwitch({
   references,
   initialValues,
   euAfter,
-  inlineItalianBill = false,
   internationalSeed,
   usInitialValues,
 }: {
   locale: CalculatorSiteLocale;
   initialRegion?: Region;
   requestedRegion?: Region;
-  references?: CalculatorProps["references"];
-  initialValues?: CalculatorProps["initialValues"];
+  references?: Parameters<typeof CalculatorInlineDistintaExperience>[0]["references"];
+  initialValues?: PublicTubeCalculatorInitialValues;
   euAfter?: ReactNode;
-  /** Public Italian landing only. The US and international EU calculators stay unchanged. */
-  inlineItalianBill?: boolean;
   internationalSeed?:InternationalCalculatorSeed;
   usInitialValues?:UsPipeInitialValues;
 }) {
@@ -116,15 +110,11 @@ export function CalculatorRegionSwitch({
         <div className={styles.panelInner}>
           {visited.eu ? (
             <>
-              {inlineItalianBill && locale === "it" ? (
-                <CalculatorInlineDistintaExperience references={references??[]} initialValues={initialValues} />
-              ) : (
-                <PublicTubeWeightCalculator references={references??[]}
-                  initialValues={isNewCalculatorLocale(locale)
-                    ? internationalEuInitialValues(internationalSeed)
-                    : initialValues}
-                  locale={locale} />
-              )}
+              <CalculatorInlineDistintaExperience references={references??[]}
+                initialValues={isNewCalculatorLocale(locale)
+                  ? internationalEuInitialValues(internationalSeed)
+                  : initialValues}
+                locale={locale} />
               {euAfter ? <div className={styles.evidence}>{euAfter}</div> : null}
             </>
           ) : null}

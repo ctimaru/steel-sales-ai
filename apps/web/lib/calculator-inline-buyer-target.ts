@@ -6,7 +6,7 @@
  * This module reuses CALC-UX4's bidirectional converter and canonical buyer
  * bill's weight and pricing calculations; it is a pure in-memory adapter.
  */
-import type { PriceBasis } from "@/lib/calculator-commercial-pricing";
+import type { PriceBasis, PriceLocale } from "@/lib/calculator-commercial-pricing";
 import { convertCommercialRate, parseCommercialRate } from "@/lib/calculator-commercial-pricing";
 import { calculateBuyerDistintaLine, type BuyerDistintaDraftLine } from "@/lib/buyer-distinta";
 import type { InlineDistintaState } from "@/lib/calculator-inline-distinta";
@@ -27,12 +27,13 @@ export function captureBuyerTargetCandidate(
   raw: string,
   basis: PriceBasis,
   kgM: number,
+  locale: PriceLocale = "it",
 ): BuyerTargetCandidate | null {
   if ((basis !== "tonne" && basis !== "metre") ||
       !Number.isFinite(kgM) || kgM <= 0 ||
-      parseCommercialRate(raw, "it") === null) return null;
-  const tonne = basis === "tonne" ? parseCommercialRate(raw, "it") :
-    convertCommercialRate(raw, "metre", kgM, "it");
+      parseCommercialRate(raw, locale) === null) return null;
+  const tonne = basis === "tonne" ? parseCommercialRate(raw, locale) :
+    convertCommercialRate(raw, "metre", kgM, locale);
   if (tonne === null || !safePrice(tonne)) return null;
   return { priceEurT: tonne, sourceKgM: kgM };
 }
@@ -61,13 +62,13 @@ export function assignBuyerTargetToLine(
 
 export function editBuyerTargetForLine(
   state: InlineDistintaState, targets: BuyerTargetState,
-  id: string, raw: string, basis: PriceBasis,
+  id: string, raw: string, basis: PriceBasis, locale: PriceLocale = "it",
 ): BuyerTargetResult {
   const line = state.lines.find(row => row.id === id);
   if (!line || !validLine(line)) return { ok: false, reason: "missing" };
   const kgM = calculateBuyerDistintaLine(line).weightKgM;
   if (kgM === null) return { ok: false, reason: "invalid" };
-  const candidate = captureBuyerTargetCandidate(raw, basis, kgM);
+  const candidate = captureBuyerTargetCandidate(raw, basis, kgM, locale);
   if (!candidate) return { ok: false, reason: "invalid" };
   return assignBuyerTargetToLine(state, targets, id, candidate);
 }

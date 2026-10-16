@@ -10,13 +10,13 @@ const regional=read("../components/calculator-region-switch.tsx");
 const english=read("../app/(international-calculator)/[locale]/knowledge/tubes/page.tsx");
 
 test("4.4D.1 keeps calculator and Distinta as the only primary visible content on IT",()=>{
-  assert.match(landing,/<CalculatorRegionSwitch locale="it" initialRegion="eu" inlineItalianBill/);
+  assert.match(landing,/<CalculatorRegionSwitch locale="it" initialRegion="eu" requestedRegion/);
   assert.match(landing,/data-testid="calculator-editorial-disclosure"/);
   assert.match(landing,/<summary[^>]*>[\s\S]*Guide, fonti e approfondimenti tecnici/);
   assert.doesNotMatch(landing,/<details[^>]*calculator-editorial-disclosure[^>]*\sopen/);
   assert.match(calc,/data-testid="calculator-technical-disclosure"/);
   assert.match(calc,/Riferimenti tecnici del calcolatore/);
-  assert.match(calc,/!inEmbeddedBuilder && !\(inlinePublicDistinta && locale === "it"\)/,
+  assert.match(calc,/!inEmbeddedBuilder && !inlinePublicDistinta/,
     "The Italian inline workbench must not render Add to Home or Save Calculator actions");
   assert.match(bill,/inlineBill=\{bill\}/);
   const source=calc.indexOf("{inlineBill}");
@@ -50,7 +50,7 @@ test("4.4D.1 preserves international pages and EU/USA switch, device option and 
   assert.match(regional,/aria-pressed=\{region === "eu"\}/);
   assert.match(regional,/aria-pressed=\{region === "us"\}/);
   assert.match(regional,/<UsPipeSampleCalculator locale=\{locale\}/);
-  assert.match(regional,/inlineItalianBill && locale === "it"/);
+  assert.match(regional,/<CalculatorInlineDistintaExperience/);
   assert.doesNotMatch(english,/data-testid="calculator-editorial-disclosure"/);
   assert.match(calc,/data-testid="tube-reference-catalogue"/);
   assert.match(calc,/tube-reference-heading/);

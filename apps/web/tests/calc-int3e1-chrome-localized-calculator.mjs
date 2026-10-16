@@ -4,9 +4,9 @@ const BASE=process.env.NEXT_PUBLIC_SITE_URL||"http://127.0.0.1:3000";
 const browser=await chromium.launch({headless:true,channel:"chrome"});
 try{
   for(const c of [
-    {locale:"de",title:/Stahlrohr-Gewichtsrechner/,shape:/Rechteck/,width:"Breite B",wall:"Wanddicke t",bill:/Anfrage-Stückliste hinzufügen/i},
-    {locale:"fr",title:/Calculateur de poids de tubes acier/,shape:/Rectangulaire/,width:"Largeur B",wall:"Épaisseur t",bill:/liste de demande de prix/i},
-    {locale:"es",title:/Calculadora de peso de tubos de acero/,shape:/Rectangular/,width:"Ancho B",wall:"Espesor t",bill:/lista de solicitud/i},
+    {locale:"de",title:/Stahlrohr-Gewichtsrechner/,shape:/Rechteck/,width:"Breite B",wall:"Wanddicke t",bill:/Zur Stückliste hinzufügen/i},
+    {locale:"fr",title:/Calculateur de poids de tubes acier/,shape:/Rectangulaire/,width:"Largeur B",wall:"Épaisseur t",bill:/Ajouter à la liste/i},
+    {locale:"es",title:/Calculadora de peso de tubos de acero/,shape:/Rectangular/,width:"Ancho B",wall:"Espesor t",bill:/Añadir a la lista/i},
   ]){
     const context=await browser.newContext({viewport:{width:360,height:780},locale:
       c.locale==="de"?"de-DE":c.locale==="fr"?"fr-FR":"es-ES",
@@ -66,22 +66,15 @@ try{
     const section=page.locator("#calcolatore-pesi");
     await section.getByRole("button",{name:/Quadrat|Carré|Cuadrado/i}).click();
     await section.getByRole("button",{name:c.bill}).click();
-    await page.waitForURL(url=>url.pathname===`/${c.locale}/distinta`,{timeout:60000});
-    assert.equal(await page.locator("html").getAttribute("lang"),c.locale);
-    // The newly imported line cannot be quoted before the buyer confirms grade.
-    const grade={de:"Stahlgüte",fr:"Nuance d'acier",es:"Calidad de acero"}[c.locale];
-    await page.getByRole("textbox",{name:grade}).first().fill("S355J2H");
-    await page.locator('article div[aria-live="polite"] strong').filter({hasText:/EN 10219/}).first().waitFor({state:"visible",timeout:30000});
-    await context.grantPermissions(["clipboard-read","clipboard-write"]);
-    const copy={de:/Anfrage-E-Mail kopieren/,fr:/Copier le courriel/,es:/Copiar correo/}[c.locale];
-    await page.getByRole("button",{name:copy}).click();
-    const email=await page.evaluate(()=>navigator.clipboard.readText());
-    assert.match(email,/EN 10219/);
-    assert.match(email,{de:/Betreff:/,fr:/Objet :/,es:/Asunto:/}[c.locale]);
-    assert.match(email,/S355J2H/);
-    const text=await page.locator("body").innerText();
-    assert.match(text,/EN 10219/);
-    console.log("CALC-INT3E.1 CHROME PASS",c.locale,"translated 200 / canonical hreflang / noindex / EU RFQ");
+    const inline=page.locator("#distinta-inline");
+    await inline.locator("article").first().waitFor({state:"visible",timeout:30000});
+    assert.equal(new URL(page.url()).pathname,route,"Inline EU bill must not navigate");
+    assert.equal(await inline.locator("article").count(),1);
+    const expectedTitle={de:"Ihre Stückliste",fr:"Votre liste de matériaux",es:"Tu lista de materiales"}[c.locale];
+    assert.equal(await inline.getByRole("heading",{name:expectedTitle}).count(),1);
+    assert.equal(await inline.locator("[data-create-inline-private-rfq]").count(),1);
+    assert.equal(JSON.parse(await page.evaluate(()=>sessionStorage.getItem("sss:inline-distinta:v1"))).lines[0].targetEurT,"");
+    console.log("CALC-INT4.5 CHROME PASS",c.locale,"translated / canonical hreflang / noindex / inline bill");
     await context.close();
   }
 }finally{await browser.close();}
