@@ -28,6 +28,7 @@ test("CALC-INT3E.7 mounts exactly one EU calculator component for IT EN DE FR ES
   assert.match(calc,/WC4_MAX_RECENTS = 6/);
   assert.match(calc,/new URLSearchParams\(\)/);
   assert.match(euBill,/sss:calc-rfq-handoff:v1/);
+  assert.match(calc,/if \(locale !== "it"\) trackInternationalRfq\("handoff",locale,\{system:"eu",standard\}\)/);
   assert.match(calc,/window\.location\.assign\(locale === "it" \? "\/distinta" : \x60\/\$\{locale\}\/distinta\x60\)/);
   assert.doesNotMatch(calc,/dispatchRfq|sendSupplierEmail|supabase\.from/);
 });
