@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getPlatformAccessContext, requirePlatformPermission } from "@/lib/platform-admin";
-import { addDiscoverySource, reviewDiscoverySourceRegistry, reviewDiscoveredDomain, createGovernedDiscoveryRun, linkApprovedPilotRun, recordFirstPartyPermission, activateConsentedSource, prepareFirstPartyRun, linkApprovedFirstPartyRun } from "./actions";
+import { addDiscoverySource, reviewDiscoverySourceRegistry, reviewDiscoveredDomain, createGovernedDiscoveryRun, linkApprovedPilotRun, recordFirstPartyPermission, activateConsentedSource, prepareFirstPartyRun, linkApprovedFirstPartyRun, enqueueConsentedDomainLeads } from "./actions";
 
 type Source = { id: string; source_name: string; source_url: string; source_type: string;
  governance_status: string; terms_status: string; database_rights_status: string;
@@ -132,6 +132,13 @@ export default async function DiscoverySourcesPage({
              <button className="min-h-11 rounded-xl border border-[#173f35] px-4 font-semibold text-[#173f35]">Abilita fonte con consensi validi</button>
            </form>
           </> : null}
+          {canRun && canReview && s.enabled_for_discovery && s.governance_status==="approved" ? <form action={enqueueConsentedDomainLeads} className="space-y-2 border-t pt-3">
+             <input type="hidden" name="source_id" value={s.id}/>
+             <p className="text-xs">Trasferisci SOLO prospect già qualificati che hanno una prova di consenso attiva per questa fonte. I lead restano in review.</p>
+             <label className="grid gap-1 text-xs">Limite per lotto (1-10)
+              <input required type="number" name="limit" min={1} max={10} defaultValue={10} className="min-h-11 rounded-lg border px-3"/></label>
+             <button className="min-h-11 rounded-xl border px-4 font-semibold">Inoltra soltanto domini autorizzati</button>
+          </form>:null}
           {canRun && s.enabled_for_discovery && s.governance_status==="approved" ? <form action={prepareFirstPartyRun} className="space-y-2 border-t pt-3">
              <input type="hidden" name="source_id" value={s.id}/>
              <p className="text-xs">Inserisci gli ID dei lead già qualificati e inoltrati da NET-COV1, separati da virgole. La run richiederà una seconda approvazione in Governance.</p>
