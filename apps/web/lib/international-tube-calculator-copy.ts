@@ -165,7 +165,8 @@ export const internationalTubeCalculatorCopy = {
     "Usa il calcolatore come un’app": "Rechner wie eine App verwenden",
     "Su iPhone o iPad: apri il menu Condividi di Safari e scegli Aggiungi alla schermata Home.": "Auf dem iPhone oder iPad in Safari auf Teilen und anschließend Zum Home-Bildschirm klicken.",
     "Apri il menu del browser e scegli Installa app oppure Aggiungi alla schermata Home. Il collegamento apre Smart Steel Sales in modalità app e il manifest include un accesso rapido al calcolatore.": "Im Browser-Menü App installieren oder Zum Startbildschirm wählen. Die Verknüpfung öffnet Smart Steel Sales wie eine App.",
-    "Nessun account richiesto per usare il calcolatore.": "Für den Rechner ist kein Konto erforderlich."
+    "Nessun account richiesto per usare il calcolatore.": "Für den Rechner ist kein Konto erforderlich.",
+    "Spessori suggeriti": "Empfohlene Wanddicken"
   },
   "fr": {
     "Tubo tondo": "Tube rond",
@@ -329,7 +330,8 @@ export const internationalTubeCalculatorCopy = {
     "Usa il calcolatore come un’app": "Utiliser le calculateur comme une application",
     "Su iPhone o iPad: apri il menu Condividi di Safari e scegli Aggiungi alla schermata Home.": "Sur iPhone ou iPad, ouvrez Partager dans Safari, puis Sur l'écran d'accueil.",
     "Apri il menu del browser e scegli Installa app oppure Aggiungi alla schermata Home. Il collegamento apre Smart Steel Sales in modalità app e il manifest include un accesso rapido al calcolatore.": "Dans le navigateur, choisissez Installer l'application ou Ajouter à l'écran d'accueil pour accéder rapidement au calculateur.",
-    "Nessun account richiesto per usare il calcolatore.": "Aucun compte requis pour utiliser le calculateur."
+    "Nessun account richiesto per usare il calcolatore.": "Aucun compte requis pour utiliser le calculateur.",
+    "Spessori suggeriti": "Épaisseurs proposées"
   },
   "es": {
     "Tubo tondo": "Tubo redondo",
@@ -493,6 +495,7 @@ export const internationalTubeCalculatorCopy = {
     "Usa il calcolatore come un’app": "Usar la calculadora como una aplicación",
     "Su iPhone o iPad: apri il menu Condividi di Safari e scegli Aggiungi alla schermata Home.": "En iPhone o iPad, abra Compartir en Safari y elija Añadir a pantalla de inicio.",
     "Apri il menu del browser e scegli Installa app oppure Aggiungi alla schermata Home. Il collegamento apre Smart Steel Sales in modalità app e il manifest include un accesso rapido al calcolatore.": "En el navegador elija Instalar aplicación o Añadir a pantalla de inicio para acceder rápidamente a la calculadora.",
-    "Nessun account richiesto per usare il calcolatore.": "No se necesita cuenta para usar la calculadora."
+    "Nessun account richiesto per usare il calcolatore.": "No se necesita cuenta para usar la calculadora.",
+    "Spessori suggeriti": "Espesores sugeridos"
   }
 } as const;

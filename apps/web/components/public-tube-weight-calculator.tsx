@@ -1034,7 +1034,7 @@ export function PublicTubeWeightCalculator({
                     <div className="mt-2 flex min-w-0 items-center gap-2 rounded-xl border border-[#d4e0db] bg-[#f6f8f7] px-2 py-1.5">
                       <div className="shrink-0">
                         <p className="text-[11px] font-extrabold uppercase tracking-[0.1em] text-[#1a5144]">
-                          Assist {currentStandard.label}
+                          {t("Spessori suggeriti")} · {currentStandard.label}
                         </p>
                         <p className="text-[11px] text-[#66736e]">
                           {t("preferito")} {standardAssist.preferred} mm
