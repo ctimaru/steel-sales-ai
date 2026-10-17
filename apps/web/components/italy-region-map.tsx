@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { ITALY_REGION_PATHS } from "@/lib/italy-region-paths";
-import type { ItalyRegionCoverage } from "@/lib/network-region-coverage";
+import type { ItalyProvisionalGeoCoverage, ItalyRegionCoverage } from "@/lib/network-region-coverage";
 
 /** Only geography names from the known official 20-region set are accepted as map input. */
 export const ITALY_REGION_NAMES = ITALY_REGION_PATHS.map((region) => region.name);
@@ -41,15 +41,22 @@ export function regionCoverageCount(coverage: ItalyRegionCoverage | null, name: 
     .reduce((sum, entry) => sum + entry.count, 0);
 }
 
+export function provisionalRegionCount(coverage: ItalyProvisionalGeoCoverage | null | undefined, name: string): number {
+  return coverage?.regions.filter(entry => canonicalItalianRegion(entry.name) === name)
+    .reduce((sum, entry) => sum + entry.count, 0) ?? 0;
+}
+
 export function ItalyRegionMap({
-  coverage, selectedRegion, filters,
+  coverage, provisionalCoverage, selectedRegion, filters,
 }: {
   coverage: ItalyRegionCoverage | null;
+  provisionalCoverage?: ItalyProvisionalGeoCoverage | null;
   selectedRegion?: string | null;
   filters: Record<string, string | undefined>;
 }) {
   const selected = canonicalItalianRegion(selectedRegion);
   const selectedCount = selected ? regionCoverageCount(coverage, selected) : null;
+  const selectedProvisional = selected ? provisionalRegionCount(provisionalCoverage, selected) : 0;
 
   return (
     <section id="network-regional-map" aria-labelledby="network-regional-map-heading"
@@ -69,9 +76,9 @@ export function ItalyRegionMap({
         ) : null}
       </div>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-[#52615b]">
-        Scegli una regione per filtrare le aziende. Il conteggio indica le aziende
-        pubblicate con almeno una sede localizzata in quella regione, non tutte le
-        aziende che potrebbero operare nel territorio.
+        Scegli una regione per filtrare le aziende: il verde indica i profili pubblicati,
+        l'oro le aziende individuate con un comune ricavato dal loro sito ufficiale.
+        I dati provvisori rimangono distinti e contrassegnati come Da confermare.
       </p>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
@@ -81,22 +88,23 @@ export function ItalyRegionMap({
             className="h-auto max-h-[540px] w-full max-w-[480px]">
             {ITALY_REGION_PATHS.map((region) => {
               const count = regionCoverageCount(coverage, region.name);
+              const provisional = provisionalRegionCount(provisionalCoverage, region.name);
               const active = selected === region.name;
               return (
                 <a key={region.code}
                   href={italyRegionFilterHref(filters, active ? null : region.name)}
                   aria-label={region.name + " · " + (count === null ? "copertura non disponibile" :
-                    count + (count === 1 ? " azienda localizzata" : " aziende localizzate"))}
+                    count + (count === 1 ? " profilo pubblicato" : " profili pubblicati")) + (provisional ? " · " + provisional + " da confermare" : "")}
                   aria-current={active ? "location" : undefined}
                   data-region={region.name}
                   className="group cursor-pointer outline-none">
                   <path
                     d={region.path}
-                    fill={active ? "#17604e" : count !== null && count > 0 ? "#79bda5" : "#dbe9e1"}
+                    fill={active ? "#17604e" : count !== null && count > 0 ? "#79bda5" : provisional > 0 ? "#e6cb85" : "#dbe9e1"}
                     stroke="#ffffff" strokeWidth={2}
                     className="transition-colors group-hover:fill-[#2c8669] group-focus-visible:fill-[#256e58] group-focus-visible:stroke-[#b56a22] group-focus-visible:stroke-[4px]"
                   />
-                  <title>{region.name}: {count === null ? "copertura non disponibile" : count + " aziende localizzate"}</title>
+                  <title>{region.name}: {count === null ? "copertura non disponibile" : count + " pubblicate"} · {provisional} da confermare</title>
                 </a>
               );
             })}
@@ -120,13 +128,14 @@ export function ItalyRegionMap({
           </p>}
           {selected && (
             <div aria-live="polite" className="rounded-xl border border-[#bcd8ca] bg-[#f3f9f5] px-3 py-2 text-sm font-medium text-[#173f35]">
-              {selected} · {selectedCount === null ? "copertura non disponibile" : selectedCount + " aziende con sede localizzata"}
+              {selected} · {selectedCount === null ? "copertura non disponibile" : selectedCount + " pubblicate"} · {selectedProvisional} da confermare
             </div>
           )}
           <nav className="grid grid-cols-2 gap-x-2 gap-y-1.5 sm:grid-cols-3 lg:grid-cols-2"
             aria-label="Seleziona regione dalla lista">
             {ITALY_REGION_PATHS.map((region) => {
               const count = regionCoverageCount(coverage, region.name);
+              const provisional = provisionalRegionCount(provisionalCoverage, region.name);
               const active = selected === region.name;
               return (
                 <Link key={region.code} href={italyRegionFilterHref(filters, active ? null : region.name)}
@@ -135,7 +144,7 @@ export function ItalyRegionMap({
                     (active ? "bg-[#173f35] text-white" : "bg-[#f3f7f5] text-[#335b49] hover:bg-[#dfece5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17604e]")}>
                   <span className="min-w-0 truncate">{region.name}</span>
                   <span className={"shrink-0 tabular-nums " + (active ? "text-white" : "text-[#476557]")}>
-                    {count ?? "—"}
+                    {count ?? "—"}{provisional > 0 ? <span className="ml-1 font-semibold text-[#795521]">+{provisional}?</span> : null}
                   </span>
                 </Link>
               );
@@ -144,8 +153,9 @@ export function ItalyRegionMap({
         </div>
       </div>
       <p className="mt-4 text-[11px] leading-5 text-[#63766c]">
-        La mappa riporta solo geografie attendibili presenti nei profili pubblicati.
-        Le aziende senza sede geolocalizzata restano nella ricerca nazionale.
+        Le sedi pubblicate restano separate dai comuni indicati nelle schede provvisorie.
+        Il colore oro segnala geografie ricavate da siti aziendali, non sedi verificate o acquirenti di tubi.
+        Le aziende prive di riferimenti geografici restano nella ricerca nazionale.
         Confini regionali: ISTAT, rielaborazione
         {" "}<a className="underline" href="https://github.com/guglielmo/geojson-italy" target="_blank" rel="noopener noreferrer">geojson-italy</a>
         {" "}(CC BY 4.0). La mappa non indica sedi puntuali.

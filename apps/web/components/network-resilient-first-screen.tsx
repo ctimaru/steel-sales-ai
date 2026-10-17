@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 import { ITALY_REGION_PATHS } from "@/lib/italy-region-paths";
-import { italyRegionFilterHref } from "@/components/italy-region-map";
-import type { ItalyRegionCoverage } from "@/lib/network-region-coverage";
+import { italyRegionFilterHref, provisionalRegionCount } from "@/components/italy-region-map";
+import type { ItalyRegionCoverage, ItalyProvisionalGeoCoverage } from "@/lib/network-region-coverage";
 
 const intents = [
   { role:"trader_distributor", label:"Cerco fornitori", detail:"Commercianti e distributori" },
@@ -36,8 +36,8 @@ export function NetworkIntentShortcuts({
 
 /** A compact real Italy region map, always usable even if DB coverage is unavailable. */
 export function NetworkMiniMap({
- filters,coverage,
-}: {filters:Record<string,string|undefined>;coverage?:ItalyRegionCoverage|null}) {
+ filters,coverage,provisionalCoverage,
+}: {filters:Record<string,string|undefined>;coverage?:ItalyRegionCoverage|null;provisionalCoverage?:ItalyProvisionalGeoCoverage|null}) {
  const coverageByRegion=new Map(coverage?.regions.map(item=>[item.name,item.count])??[]);
  return <section aria-label="Esplora l'Italia per regione" className="flex h-full flex-col rounded-2xl border border-[#d6e5dc] bg-white px-4 py-3">
    <div className="flex flex-wrap items-center justify-between gap-2">
@@ -52,11 +52,12 @@ export function NetworkMiniMap({
      {ITALY_REGION_PATHS.map(region=>{
        const selected=filters.region===region.name;
        const count=coverageByRegion.get(region.name);
+       const provisional=provisionalRegionCount(provisionalCoverage,region.name);
        return <a key={region.code} href={italyRegionFilterHref(filters,selected?null:region.name)}
-         aria-label={region.name+(count!==undefined?" · "+count+" profili localizzati":"")}
+         aria-label={region.name+(count!==undefined?" · "+count+" profili pubblicati":"")+(provisional?" · "+provisional+" da confermare":"")}
          aria-current={selected?"location":undefined}
          className="group cursor-pointer outline-none">
-         <path d={region.path} fill={selected?"#12573d":count?"#8abb9f":"#dcebe2"}
+         <path d={region.path} fill={selected?"#12573d":count?"#8abb9f":provisional?"#e6cb85":"#dcebe2"}
            stroke="#fff" strokeWidth={3}
            className="transition-colors group-hover:fill-[#277e5b] group-focus-visible:fill-[#277e5b] group-focus-visible:stroke-[#a56523] group-focus-visible:stroke-[8px]"/>
          <title>{region.name}</title>
@@ -64,7 +65,7 @@ export function NetworkMiniMap({
      })}
     </svg>
    </div>
-   <p className="mt-auto text-center text-[11px] leading-4 text-[#64766a]">Seleziona una regione. Nessuna sede viene stimata.</p>
+   <p className="mt-auto text-center text-[11px] leading-4 text-[#64766a]">Verde: pubblicate · Oro: da confermare. Nessuna sede viene stimata.</p>
  </section>;
 }
 
