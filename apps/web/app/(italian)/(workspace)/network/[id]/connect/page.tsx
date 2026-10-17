@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {notFound,redirect} from "next/navigation";
 import {submitNetworkConnection} from "@/app/(workspace)/network/actions";
-import {getInquiryEligibility} from "@/lib/network";
+import {getNetworkRecipientReadiness} from "@/lib/network-recipient-readiness";
 import {canInteractWithNetwork} from "@/lib/access-policy";
 import {getWorkspaceContext} from "@/lib/workspace-context";
 import {getFreeNetworkProfile} from "@/lib/network-free";
@@ -24,9 +24,9 @@ export default async function NetworkConnectCompanyPage({
  const actor=await getWorkspaceContext();
  const profile=await getFreeNetworkProfile(actor.organizationId,id);
  if(!profile)notFound();
- const eligibility=canInteractWithNetwork(actor.role)
-   ? await getInquiryEligibility(actor.organizationId,id).catch(()=>({eligible:false,reason:"unavailable"}))
-   : {eligible:false,reason:"viewer"};
+ const status=profile.company.discovery_status==="unconfirmed"?"unavailable":canInteractWithNetwork(actor.role)
+   ? (await getNetworkRecipientReadiness(actor.organizationId,[id]).catch(()=>null))?.get(id)
+   : "unavailable";
  const error=(await searchParams).error;
  return <main className="mx-auto max-w-3xl space-y-5 pb-16">
   <Link href={"/network/"+id} className="text-sm font-semibold text-[#276f52] hover:underline">← Torna all'azienda</Link>
@@ -39,10 +39,11 @@ export default async function NetworkConnectCompanyPage({
    </p>
   </header>
   {error?<p role="alert" className="rounded-xl border border-[#e0cba3] bg-[#fff8e9] p-4 text-sm text-[#765821]">{error}</p>:null}
-  {!eligibility.eligible?(
+  {status!=="available"?(
    <section className="rounded-2xl border border-[#d8e5dd] bg-white p-5">
     <h2 className="text-base font-semibold text-[#173f35]">Connessione non ancora disponibile</h2>
-    <p className="mt-2 text-sm leading-6 text-[#52615b]">Questo profilo non è collegato a un'azienda attiva che possa ricevere richieste sulla piattaforma, oppure non accetta nuove richieste. Puoi consultarlo, ma nessun invito viene inviato automaticamente.</p>
+    <p className="mt-2 text-sm leading-6 text-[#52615b]">{status==="pending"?"Hai già inviato una richiesta a questa azienda. Una seconda richiesta in attesa non è consentita.":status==="connected"?"Una tua richiesta è già stata accettata. Consulta le connessioni esistenti.":status===undefined?"La disponibilità delle connessioni non è verificabile in questo momento. Riprova più tardi.":"Questa azienda non è attualmente abilitata a ricevere richieste da questa organizzazione. Nessun invito viene inviato automaticamente."}</p>
+    {status==="pending"||status==="connected"?<Link href="/network/connections?box=sent" className="mt-3 inline-flex min-h-10 items-center rounded-xl border border-[#bdd3c7] px-4 text-sm font-semibold text-[#173f35]">Le mie richieste →</Link>:null}
     <Link href={"/network/"+id} className="mt-4 inline-flex min-h-10 items-center rounded-xl border border-[#bdd3c7] px-4 text-sm font-semibold text-[#173f35]">Torna al profilo</Link>
    </section>
   ):(

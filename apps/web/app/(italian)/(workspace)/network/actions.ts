@@ -927,6 +927,9 @@ export async function submitNetworkConnection(formData: FormData) {
   if(error)redirect("/network/"+companyId+"/connect?error="+encodeURIComponent(
     safeErrorMessage(error,"Richiesta non inviata. Verifica che l'azienda sia attiva e riprova.")));
   revalidatePath("/network/connections");
+  revalidatePath("/network/start");
+  revalidatePath("/network");
+  revalidatePath("/network/"+companyId);
   redirect("/network/connections?box=sent&message="+encodeURIComponent("Richiesta di connessione inviata. In attesa della risposta dell'azienda."));
 }
 
@@ -945,6 +948,8 @@ export async function decideNetworkConnection(formData: FormData) {
   if(error)redirect("/network/connections?box="+box+"&error="+encodeURIComponent(
     safeErrorMessage(error,"Impossibile aggiornare la richiesta.")));
   revalidatePath("/network/connections");
+  revalidatePath("/network/start");
+  revalidatePath("/network");
   redirect("/network/connections?box="+box+"&message="+encodeURIComponent(
    decision==="accepted"?"Connessione accettata. Potete iniziare a collaborare.":
    decision==="declined"?"Richiesta rifiutata.":"Richiesta ritirata."));

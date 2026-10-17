@@ -1,5 +1,7 @@
 import Link from "next/link";
 import {NetworkCompanyGrowthEntry} from "@/components/network-company-growth-entry";
+import {NetworkReadyConnections,NetworkReadinessAction} from "@/components/network-ready-connections";
+import {getNetworkRecipientReadiness} from "@/lib/network-recipient-readiness";
 
 import { FocusPage } from "@/components/focus-ui";
 import { ItalyRegionMap } from "@/components/italy-region-map";
@@ -27,11 +29,12 @@ function href(filters: { q?: string; role?: string; region?: string; persona?: s
   return "/network" + (query.size ? "?" + query.toString() : "");
 }
 export async function FreeNetworkDirectoryView({
-  organizationId, organizationName, filters, isWorkspaceAdmin=false,
+  organizationId, organizationName, filters, isWorkspaceAdmin=false, canConnect=false,
 }: {
   organizationId: string;
   organizationName: string;
   isWorkspaceAdmin?:boolean;
+  canConnect?:boolean;
   filters: { q?: string; role?: string; region?: string; persona?: string; p?: string; dpage?: string };
 }) {
   const role = NETWORK_COMPANY_ROLES.includes(filters.role as (typeof NETWORK_COMPANY_ROLES)[number])
@@ -53,6 +56,8 @@ export async function FreeNetworkDirectoryView({
   const hasFilters = Boolean(filters.q?.trim() || role || filters.region);
   const persona = activeNetworkPersona(filters.persona, data.viewer_role);
   const items = data.published_page.items; // role ordering is global and enforced by SQL before pagination
+  const readiness = await getNetworkRecipientReadiness(organizationId,items.map(x=>x.id)).catch(()=>null);
+  const readyItems = items.map(x=>({id:x.id,name:x.trading_name||x.legal_name,role:x.roles[0]?.name,region:x.location?.region}));
   return (
     <FocusPage className="max-w-[1180px]">
       <NetworkCompanyGrowthEntry />
@@ -120,6 +125,7 @@ export async function FreeNetworkDirectoryView({
           filters={{q:filters.q,role:filters.role,region:filters.region}}
           pagination={data.discovery_page} navigationParams={filters} />
       </div>
+      <div className="mt-5"><NetworkReadyConnections items={readyItems} statuses={readiness} canAct={canConnect} /></div>
       <section id="network-region-results" aria-label="Risultati del Network" className="mt-6">
         <h2 className="text-xl font-semibold text-[#173f35]">{data.total.toLocaleString("it-IT")} aziende</h2>
         {data.discovered_total ? <p className="mt-1 text-xs font-semibold text-[#52615b]">
@@ -146,6 +152,7 @@ export async function FreeNetworkDirectoryView({
                     {!hasFilters && networkRoleReason(company.roles,persona) ? <p className="mt-2 text-xs font-semibold text-[#27714f]">{networkRoleReason(company.roles,persona)}</p> : null}
                   </div>
                   <div className="flex flex-wrap gap-2">
+                    <NetworkReadinessAction companyId={company.id} status={readiness?.get(company.id)} canAct={canConnect}/>
                     {website ? <a href={website} rel="noopener noreferrer" target="_blank" className="app-secondary inline-flex min-h-10 items-center rounded-xl px-3 text-xs font-semibold">Sito web</a> : null}
                     <Link href={"/network/" + company.id} className="app-primary inline-flex min-h-10 items-center rounded-xl px-3 text-xs font-semibold">Profilo</Link>
                     {isWorkspaceAdmin && ["unclaimed","revoked"].includes(company.claimed_status)
