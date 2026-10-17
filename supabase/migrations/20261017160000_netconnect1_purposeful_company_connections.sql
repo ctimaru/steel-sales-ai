@@ -32,7 +32,7 @@ declare
  v_inquiry_id uuid;
  v_recipient_org uuid;
 begin
- perform private.pa1_3_require_network_access(p_sender_organization_id);
+ perform private.netux11_require_active_company(p_sender_organization_id);
  if p_purpose not in ('offer_products_services','request_products_services','collaboration') or p_purpose is null
  then raise exception 'Select a valid commercial connection purpose' using errcode='22023'; end if;
  if length(btrim(coalesce(p_message,''))) not between 30 and 2000
@@ -80,7 +80,7 @@ declare v_req public.network_connection_requests%rowtype;
         v_inq public.network_inquiries%rowtype;
         v_target text;
 begin
- perform private.pa1_3_require_network_access(p_actor_organization_id);
+ perform private.netux11_require_active_company(p_actor_organization_id);
  if p_decision not in ('accepted','declined','withdrawn') or p_decision is null
  then raise exception 'Invalid connection decision' using errcode='22023'; end if;
  select * into v_req from public.network_connection_requests
@@ -118,7 +118,7 @@ create or replace function private.netconnect1_list_impl(
 ) returns jsonb language plpgsql stable security definer set search_path='' as $$
 declare v_items jsonb;v_total bigint;
 begin
- perform private.pa1_3_require_network_access(p_organization_id);
+ perform private.netux11_require_active_company(p_organization_id);
  if p_box not in ('sent','received') or p_box is null then
   raise exception 'Invalid connection inbox' using errcode='22023';end if;
  if not exists(select 1 from public.organization_memberships m
