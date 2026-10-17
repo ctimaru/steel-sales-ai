@@ -90,6 +90,7 @@ export type PlatformAnalyticsSnapshot = {
   acquisitionFunnel: AnalyticsFunnelStep[];
   activationFunnel: AnalyticsFunnelStep[];
   rfqConversionFunnel: AnalyticsFunnelStep[];
+  calculatorFunnel: AnalyticsFunnelStep[];
   rfqBillCopies: number;
   internationalRfqFunnel: InternationalRfqLocaleCounts[];
   bd17CtaExperiment: Bd17ExperimentSnapshot;
@@ -110,6 +111,15 @@ const ACQUISITION_FUNNEL = [
   ["company_claim_start", "Avvio claim"],
   ["registration_account_created", "Account creato"],
   ["registration_submit", "Registrazione inviata"],
+] as const;
+
+const CALCULATOR_FUNNEL = [
+  ["calc_funnel_bill_line_added", "Righe aggiunte"],
+  ["calc_funnel_rfq_create_click", "Tentativi creazione RFQ"],
+  ["calc_funnel_guest_handoff", "Passaggi ospite"],
+  ["calc_funnel_registration_click", "Clic registrazione"],
+  ["calc_funnel_login_click", "Clic login"],
+  ["calc_funnel_rfq_created", "RFQ private create"],
 ] as const;
 
 const RFQ_CONVERSION_FUNNEL = [
@@ -375,6 +385,7 @@ function emptySnapshot(
     acquisitionFunnel: buildFunnel(ACQUISITION_FUNNEL, new Map()),
     activationFunnel: buildFunnel(ACTIVATION_FUNNEL, new Map()),
     rfqConversionFunnel: buildFunnel(RFQ_CONVERSION_FUNNEL, new Map()),
+    calculatorFunnel: buildFunnel(CALCULATOR_FUNNEL, new Map()),
     rfqBillCopies: 0,
     internationalRfqFunnel: internationalRfqFunnel(new Map()),
     bd17CtaExperiment: bd17Experiment(new Map()),
@@ -572,6 +583,7 @@ export async function getPlatformAnalyticsSnapshot(
       acquisitionFunnel: buildFunnel(ACQUISITION_FUNNEL, eventMap),
       activationFunnel: buildFunnel(ACTIVATION_FUNNEL, eventMap),
       rfqConversionFunnel: rfqFunnel,
+      calculatorFunnel: buildFunnel(CALCULATOR_FUNNEL, eventMap),
       rfqBillCopies: eventMap.get("rfq_bill_copied") ?? 0,
       internationalRfqFunnel: internationalRfqFunnel(eventMap),
       bd17CtaExperiment: bd17,
