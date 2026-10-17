@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FocusPage } from "@/components/focus-ui";
+import { NetworkActivationCta, NetworkActivationHelp } from "@/components/network-activation-cta";
 import { getInquiryEligibility } from "@/lib/network";
 import { getFreeNetworkProfile, getProNetworkDiscoveryProfile, safeNetworkWebsiteUrl } from "@/lib/network-free";
 
 export async function FreeNetworkProfileView({
-  organizationId, companyId, accessMode="free",
-}: { organizationId: string; companyId: string; accessMode?:"free"|"pro" }) {
+  organizationId, companyId, accessMode="free", isWorkspaceAdmin=false,
+}: { organizationId: string; companyId: string; accessMode?:"free"|"pro"; isWorkspaceAdmin?:boolean }) {
   if (!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(companyId)) notFound();
   let profile;
   try {
@@ -30,7 +31,7 @@ export async function FreeNetworkProfileView({
   const eligibility = provisional ? {eligible:false} : await getInquiryEligibility(organizationId,companyId).catch(()=>({eligible:false}));
   return (
     <FocusPage className="max-w-[960px]">
-      <Link href="/network" className="text-sm font-semibold text-[#173f35] underline">← Torna alla directory</Link>
+      <Link href="/network" className="text-sm font-semibold text-[#173f35] underline">← Torna a Esplora aziende</Link>
       <section className="mt-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-xs font-semibold text-[#173f35]">
           {provisional ? "Scoperta dal Network · Da confermare" : "Profilo Network Free"}
@@ -48,6 +49,25 @@ export async function FreeNetworkProfileView({
         </div> : null}
         {profile.company.description ? <p className="mt-5 max-w-3xl whitespace-pre-wrap text-sm leading-6 text-[#43524c]">{profile.company.description}</p> : null}
         {website ? <a href={website} target="_blank" rel="noopener noreferrer" className="app-secondary mt-5 inline-flex min-h-10 items-center rounded-xl px-4 text-sm font-semibold">Visita sito aziendale</a> : null}
+        <section aria-label="Attivazione del profilo aziendale"
+          className="mt-5 flex flex-col gap-3 rounded-xl border border-[#bcd7c8] bg-[#f1f8f3] p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="max-w-lg">
+            <h2 className="text-sm font-semibold text-[#173f35]">
+              {provisional ? "Rappresenti questa azienda?" :
+                profile.company.claimed_status==="claimed" ? "Azienda già rappresentata nel Network" : "Questa è la tua azienda?"}
+            </h2>
+            <div className="mt-1">
+              <NetworkActivationHelp mode={provisional?"discovered":"published"}/>
+            </div>
+          </div>
+          {provisional ?
+            <NetworkActivationCta mode="discovered" companyId={companyId}
+              companyName={profile.company.legal_name} source="network_profile"/> :
+            isWorkspaceAdmin && ["unclaimed","revoked"].includes(profile.company.claimed_status) ?
+              <NetworkActivationCta mode="published" companyId={companyId}
+                companyName={profile.company.legal_name} source="network_profile" /> :
+            null}
+        </section>
         {eligibility.eligible ? <Link href={"/network/"+companyId+"/connect"}
            className="app-primary mt-5 ml-2 inline-flex min-h-10 items-center rounded-xl px-4 text-sm font-semibold">
            Richiedi connessione
