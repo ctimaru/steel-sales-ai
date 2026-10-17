@@ -4,6 +4,12 @@ import { track } from "@vercel/analytics";
 import type { InternationalRfqEventName } from "@/lib/international-rfq-funnel";
 
 export type ProductAnalyticsEventName = InternationalRfqEventName
+  | "calc_funnel_bill_line_added"
+  | "calc_funnel_rfq_create_click"
+  | "calc_funnel_guest_handoff"
+  | "calc_funnel_registration_click"
+  | "calc_funnel_login_click"
+  | "calc_funnel_rfq_created"
   | "company_search"
   | "company_claim_start"
   | "weight_calculation"
