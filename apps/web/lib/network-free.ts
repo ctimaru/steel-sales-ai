@@ -50,7 +50,7 @@ export async function getFreeNetworkDirectory(
     p_query: (filters.q || "").trim().slice(0, 120) || null,
     p_role: filters.role || null,
     p_region: (filters.region || "").trim().slice(0, 90) || null,
-    p_limit: 50,
+    p_limit: 100,
   });
   if (error || !data || typeof data !== "object") throw new Error("network_free_directory_unavailable");
   const result = data as FreeDirectory;
@@ -64,7 +64,7 @@ export async function getFreeNetworkDirectory(
     p_query:(filters.q || "").trim().slice(0,120) || null,
     p_role:filters.role || null,
     p_region:(filters.region || "").trim().slice(0,90) || null,
-    p_limit:50,
+    p_limit: 100,
   });
   if(discoveryError || !discoveries || typeof discoveries!=="object" ||
     (discoveries as {contract?:string}).contract!=="netfast-discovery-v1") return result;
@@ -136,7 +136,7 @@ export async function getProNetworkDiscoveryDirectory(
   p_query:(filters.q??"").trim().slice(0,120)||null,
   p_role:filters.role||null,
   p_region:(filters.region??"").trim().slice(0,90)||null,
-  p_limit:50,
+  p_limit: 100,
  });
  if(error||!data||typeof data!=="object")throw new Error("network_pro_discoveries_unavailable");
  const res=data as {contract?:string;items?:unknown[]};
