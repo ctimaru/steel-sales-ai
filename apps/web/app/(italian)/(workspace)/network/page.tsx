@@ -177,7 +177,7 @@ export default async function NetworkDirectoryPage({
 
       <FocusHeader
         eyebrow="Network"
-        title="Trova aziende nella filiera dell’acciaio"
+        title="Trova aziende steel"
         description={
           <>
             Cerca aziende per nome o dominio e restringi solo quando serve per ruolo, prodotto,
