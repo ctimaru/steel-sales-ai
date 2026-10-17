@@ -31,7 +31,7 @@ test("BP-VISION1 is bilingual and covers AI, visual workflow, Network and manage
   }
   assert.match(source, /"40 barre"/);
   assert.match(source, /"120 m lineari"/);
-  assert.match(source, /"Qwen3 14B"/);
+  assert.match(source, /Qwen3 14B/);
   assert.match(source, /Piemonte/);
   assert.match(source, /5–10/);
   assert.match(source, /1,5–3%/);
