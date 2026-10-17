@@ -17,7 +17,7 @@ export async function FreeNetworkProfileView({
       <FocusPage className="max-w-[960px]">
         <h1 className="text-xl font-semibold text-[#173f35]">Profilo non disponibile</h1>
         <p className="mt-2 text-sm text-[#52615b]">Verifica l'attivazione della tua azienda oppure riprova.</p>
-        <Link href="/network" className="mt-4 inline-block text-sm font-semibold text-[#173f35] underline">Torna alla directory</Link>
+        <Link href="/network" className="mt-4 inline-block text-sm font-semibold text-[#173f35] underline">Torna a Esplora aziende</Link>
       </FocusPage>
     );
   }
@@ -65,7 +65,7 @@ export async function FreeNetworkProfileView({
       </section>
       <p className="mt-4 text-xs text-[#647269]">
         Questo profilo include solo dati aziendali condivisibili. Contatti privati,
-        storico commerciale, offerte e prezzi restano esclusi. Le connessioni arriveranno con NET-UX6.
+        storico commerciale, offerte e prezzi restano esclusi. Le richieste di connessione possono essere inviate solo ad aziende attive e raggiungibili sulla piattaforma. I profili da confermare non ricevono inviti automatici.
       </p>
     </FocusPage>
   );
