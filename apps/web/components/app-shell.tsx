@@ -130,7 +130,7 @@ export function AppShell({
   const rfqItems = visibleItems(rfqNav, organizationRole);
   const networkItems =
     networkEnabled && networkEntitled ? visibleItems(networkNav, organizationRole)
-    : networkEnabled && networkFreeEnabled ? visibleItems(networkNav.slice(0, 1), organizationRole)
+    : networkEnabled && networkFreeEnabled ? visibleItems(networkNav, organizationRole)
     : [];
   const marketplaceItems = networkEnabled ? visibleItems(marketplaceNav, organizationRole) : [];
   const knowledgeItems = visibleItems(knowledgeNav, organizationRole);
