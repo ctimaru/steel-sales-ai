@@ -31,12 +31,11 @@ const networkLib = fs.readFileSync(
   "utf8",
 );
 
-test("P4.7 profile keeps follow semantically separate from save and inquiry", () => {
-  assert.match(profile, /Segui aggiornamenti/);
-  assert.match(profile, /Non seguire più/);
-  assert.match(profile, /Salva azienda/);
-  assert.match(profile, /Invia inquiry/);
-  assert.match(profile, /getNetworkFollowState/);
+test("NET-CONNECT1 leaves legacy private follow actions stored, but removes social profile CTA", () => {
+  assert.doesNotMatch(profile, /Segui aggiornamenti|Non seguire più|Salva azienda/);
+  assert.match(profile, /Richiedi connessione/);
+  assert.match(actions, /p4_follow_company/);
+  assert.match(actions, /p4_unfollow_company/);
 });
 
 test("P4.7 followed-company UX is explicitly private and non-social", () => {
@@ -57,11 +56,9 @@ test("P4.7 activity feed exposes only Network activity semantics and read contro
   assert.match(networkLib, /p4_list_activity_feed/);
 });
 
-test("PF3 keeps follow and activity governed while surfacing follow directly in directory results", () => {
-  assert.match(shell, /href: appRoutes\.network\.activity/);
-  assert.match(shell, /href: appRoutes\.network\.following/);
-  assert.match(directory, /followNetworkCompany/);
-  assert.match(directory, /unfollowNetworkCompany/);
-  assert.match(directory, /Seguite · \{followed\.total\}/);
-  assert.doesNotMatch(directory, />Activity</);
+test("NET-CONNECT1 keeps legacy history while removing social entry points", () => {
+  assert.match(shell, /href: appRoutes\.network\.connections/);
+  assert.doesNotMatch(shell, /href: appRoutes\.network\.activity|href: appRoutes\.network\.following/);
+  assert.doesNotMatch(directory, /followNetworkCompany|unfollowNetworkCompany|Seguite · /);
+  assert.match(directory, /Connessioni aziendali/);
 });
