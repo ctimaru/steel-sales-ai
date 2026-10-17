@@ -22,7 +22,7 @@ begin
  else
   raise exception 'Invalid Network access mode' using errcode='22023';
  end if;
- if p_source not in ('published','unconfirmed')
+ if p_source is null or p_source not in ('published','unconfirmed')
     or v_page<1 or v_page>100000
     or length(coalesce(p_query,''))>120
     or length(coalesce(p_region,''))>90
