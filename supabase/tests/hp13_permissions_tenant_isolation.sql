@@ -246,7 +246,9 @@ select pg_temp.hp13_assert(
         'netconnect1_list',
         -- NET-CONNECT2B: owner-only aggregated activation/reconciliation insight.
         -- No personal contact fields, claim mutation or direct table grants.
-        'netconnect2b_activation_overview'
+        'netconnect2b_activation_overview',
+        -- NET-CONNECT2D: read-only, active-member-scoped counts; no PII or ownership mutation.
+        'netconnect2d_company_progress'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
