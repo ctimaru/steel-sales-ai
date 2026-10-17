@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {redirect} from "next/navigation";
 import {decideNetworkConnection} from "@/app/(workspace)/network/actions";
-import {getActiveOrganizationContext} from "@/lib/network";
+import {getWorkspaceContext} from "@/lib/workspace-context";
 import {createClient} from "@/lib/supabase/server";
 import {canInteractWithNetwork} from "@/lib/access-policy";
 
@@ -23,11 +23,10 @@ export default async function NetworkConnectionsPage({
 }:{searchParams:Promise<{box?:string;error?:string;message?:string}>}){
  const params=await searchParams;
  const box=params.box==="sent"?"sent":"received";
- const actor=await getActiveOrganizationContext();
- if(!actor)redirect("/network");
+ const actor=await getWorkspaceContext();
  const supabase=await createClient();
  const {data,error}=await supabase.rpc("netconnect1_list",{
-  p_organization_id:actor.organization_id,p_box:box,p_limit:50,p_offset:0,
+  p_organization_id:actor.organizationId,p_box:box,p_limit:50,p_offset:0,
  });
  const records=(data??{}) as {items?:Connection[];total?:number};
  const unavailable=Boolean(error)||!Array.isArray(records.items);
