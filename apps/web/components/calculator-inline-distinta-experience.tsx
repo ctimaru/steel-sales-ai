@@ -295,8 +295,11 @@ export function CalculatorInlineDistintaExperience({
           </p>
         </div>
         {count > 0 ? (
-          <button type="button" className={action + " w-full sm:w-auto"} aria-expanded={open} aria-controls="distinta-inline-lines"
-            onClick={() => setOpen(v => !v)}>{open ? c.collapse : `${c.show} ${count} ${c.lines}`}</button>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            <button type="button" className={action + " w-full sm:w-auto"} aria-expanded={open} aria-controls="distinta-inline-lines"
+              onClick={() => setOpen(v => !v)}>{open ? c.collapse : `${c.show} ${count} ${c.lines}`}</button>
+            {open ? <a href="#distinta-inline-rfq" className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-[#176647] px-4 py-2 text-xs font-bold text-white hover:bg-[#104d35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176647] sm:hidden">{c.createRfqButton}</a> : null}
+          </div>
         ) : <span className="rounded-lg bg-[#edf5f0] px-3 py-2 text-xs font-semibold text-[#347055]">{c.free}</span>}
       </div>
 
@@ -428,7 +431,7 @@ export function CalculatorInlineDistintaExperience({
             <button type="button" className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#166346] px-5 py-3 text-sm font-bold text-white hover:bg-[#0e5035] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#166346]"
               onClick={copyBill}>{c.copyBill}</button>
           </div>
-          <section aria-label={c.privateRfq} className="mt-4 rounded-xl border border-[#b7d6c4] bg-white p-4">
+          <section id="distinta-inline-rfq" aria-label={c.privateRfq} className="mt-4 scroll-mt-24 rounded-xl border border-[#b7d6c4] bg-white p-4">
             <h3 className="text-base font-bold text-[#123c2c]">{c.privateRfq}</h3>
             <p className="mt-1 text-xs leading-5 text-[#4a6756]">{c.rfqIntro}</p>
             {Object.keys(targets).length > 0 ? (
