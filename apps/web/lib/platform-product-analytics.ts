@@ -66,6 +66,37 @@ export type Bd18Readiness = {
   nextAction: string;
 };
 
+export type CalculatorFunnelQuality = {
+  state: "unavailable" | "awaiting_events" | "partial" | "observed";
+  observedSteps: number;
+  totalSteps: number;
+  registrationAccounts: number;
+  registrationSubmissions: number;
+  note: string;
+};
+
+function calculatorFunnelQuality(
+  eventMap: ReadonlyMap<string, number>,
+  ingestion: PlatformAnalyticsSnapshot["ingestion"]["state"],
+): CalculatorFunnelQuality {
+  const events = CALCULATOR_FUNNEL.map(([key]) => eventMap.get(key) ?? 0);
+  const observedSteps = events.filter(value => Number.isSafeInteger(value) && value > 0).length;
+  const unavailable = ingestion === "token_missing" || ingestion === "api_error" || ingestion === "partial_data";
+  return {
+    state: unavailable ? "unavailable" : observedSteps === 0 ? "awaiting_events" :
+      observedSteps === events.length ? "observed" : "partial",
+    observedSteps,
+    totalSteps: events.length,
+    registrationAccounts: eventMap.get("registration_account_created") ?? 0,
+    registrationSubmissions: eventMap.get("registration_submit") ?? 0,
+    note: unavailable
+      ? "Aggregazioni non affidabili: verificare prima accesso API e completezza dei conteggi."
+      : observedSteps === 0
+        ? "Nessun evento del nuovo funnel rilevato: controllare consenso, traffico e data di rilascio."
+        : "Conteggi eventi indipendenti: registrazioni e RFQ non sono attribuibili agli utenti del calcolatore.",
+  };
+}
+
 export type PlatformAnalyticsSnapshot = {
   configured: boolean;
   generatedAt: string;
@@ -91,6 +122,7 @@ export type PlatformAnalyticsSnapshot = {
   activationFunnel: AnalyticsFunnelStep[];
   rfqConversionFunnel: AnalyticsFunnelStep[];
   calculatorFunnel: AnalyticsFunnelStep[];
+  calculatorFunnelQuality: CalculatorFunnelQuality;
   rfqBillCopies: number;
   internationalRfqFunnel: InternationalRfqLocaleCounts[];
   bd17CtaExperiment: Bd17ExperimentSnapshot;
@@ -386,6 +418,7 @@ function emptySnapshot(
     activationFunnel: buildFunnel(ACTIVATION_FUNNEL, new Map()),
     rfqConversionFunnel: buildFunnel(RFQ_CONVERSION_FUNNEL, new Map()),
     calculatorFunnel: buildFunnel(CALCULATOR_FUNNEL, new Map()),
+    calculatorFunnelQuality: calculatorFunnelQuality(new Map(), error === "VERCEL_ANALYTICS_TOKEN_MISSING" ? "token_missing" : "api_error"),
     rfqBillCopies: 0,
     internationalRfqFunnel: internationalRfqFunnel(new Map()),
     bd17CtaExperiment: bd17Experiment(new Map()),
@@ -584,6 +617,7 @@ export async function getPlatformAnalyticsSnapshot(
       activationFunnel: buildFunnel(ACTIVATION_FUNNEL, eventMap),
       rfqConversionFunnel: rfqFunnel,
       calculatorFunnel: buildFunnel(CALCULATOR_FUNNEL, eventMap),
+      calculatorFunnelQuality: calculatorFunnelQuality(eventMap, ingestionState),
       rfqBillCopies: eventMap.get("rfq_bill_copied") ?? 0,
       internationalRfqFunnel: internationalRfqFunnel(eventMap),
       bd17CtaExperiment: bd17,
