@@ -246,7 +246,9 @@ select pg_temp.hp13_assert(
         'netconnect1_list',
         -- NET-CONNECT2B: owner-only aggregated activation/reconciliation insight.
         -- No personal contact fields, claim mutation or direct table grants.
-        'netconnect2b_activation_overview'
+        'netconnect2b_activation_overview',
+        -- NET-CONNECT2D: read-only, active-member-scoped counts; no PII or ownership mutation.
+        'netconnect2d_company_progress'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
@@ -466,6 +468,12 @@ select pg_temp.hp13_assert_raises(
       'HP13 attempted self escalation'
     )$$,
   'Platform permission required'
+);
+
+-- NET-CONNECT2D: tenant A cannot query tenant B's company progress.
+select pg_temp.hp13_assert_raises(
+  'select public.netconnect2d_company_progress(''00000000-0000-0000-0000-0000000013f2''::uuid)',
+  'Active organization membership required'
 );
 
 -- DASH-FEED7: an ordinary company admin cannot read platform-level usage.

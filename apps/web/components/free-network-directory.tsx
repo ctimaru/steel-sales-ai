@@ -1,4 +1,5 @@
 import Link from "next/link";
+import {NetworkCompanyGrowthEntry} from "@/components/network-company-growth-entry";
 
 import { FocusPage } from "@/components/focus-ui";
 import { ItalyRegionMap } from "@/components/italy-region-map";
@@ -54,6 +55,7 @@ export async function FreeNetworkDirectoryView({
   const items = data.published_page.items; // role ordering is global and enforced by SQL before pagination
   return (
     <FocusPage className="max-w-[1180px]">
+      <NetworkCompanyGrowthEntry />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_245px]">
       <section className="rounded-3xl border border-[#b8d2c8] bg-[#edf5f2] p-5 sm:p-7">
         <div className="flex flex-wrap items-center gap-2">

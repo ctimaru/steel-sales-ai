@@ -1,4 +1,5 @@
 import Link from "next/link";
+import {NetworkCompanyGrowthEntry} from "@/components/network-company-growth-entry";
 import { redirect } from "next/navigation";
 
 import { FreeNetworkDirectoryView } from "@/components/free-network-directory";
@@ -176,6 +177,7 @@ export default async function NetworkDirectoryPage({
 
   return (
     <FocusPage className="max-w-[1180px]">
+      <NetworkCompanyGrowthEntry />
       <PilotEvent eventName="network_directory_viewed" metadata={{ surface: "network_directory" }} />
       {params.q || hasAdvancedFilters ? (
         <PilotEvent
