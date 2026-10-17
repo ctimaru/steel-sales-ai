@@ -327,6 +327,7 @@ jobs:
             netlaunch4b_server_pagination.sql \
             netconnect1_purposeful_connections.sql \
             netconnect2b_activation_reconciliation.sql \
+            netconnect2c_activation_growth.sql \
             netconnect2b_activation_reconciliation.sql \
             crawl_it65a_candidate_bulk_approval.sql \
             crawl_it65_wikidata_source_pilot.sql \
