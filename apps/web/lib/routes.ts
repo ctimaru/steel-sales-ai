@@ -148,6 +148,7 @@ export const appRoutes = {
     registrations: "/platform/registrations",
     discovery: "/platform/company-discovery",
     claims: "/platform/company-claims",
+    networkActivation: "/platform/network-activation",
     registration: (id: string) => `/platform/registrations/${id}`,
     knowledge: "/platform/knowledge",
     knowledgePage: (type: "standard" | "grade", id: string) =>
