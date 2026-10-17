@@ -2,7 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FocusPage } from "@/components/focus-ui";
 import { NetworkActivationCta, NetworkActivationHelp } from "@/components/network-activation-cta";
-import { getInquiryEligibility } from "@/lib/network";
+import {getNetworkRecipientReadiness} from "@/lib/network-recipient-readiness";
+import {getWorkspaceContext} from "@/lib/workspace-context";
+import {canInteractWithNetwork} from "@/lib/access-policy";
 import { getFreeNetworkProfile, getProNetworkDiscoveryProfile, safeNetworkWebsiteUrl } from "@/lib/network-free";
 
 export async function FreeNetworkProfileView({
@@ -28,7 +30,8 @@ export async function FreeNetworkProfileView({
   const source = safeNetworkWebsiteUrl(profile.source_url);
   const license = safeNetworkWebsiteUrl(profile.license_url);
   const provisional = profile.company.discovery_status==="unconfirmed";
-  const eligibility = provisional ? {eligible:false} : await getInquiryEligibility(organizationId,companyId).catch(()=>({eligible:false}));
+  const status=provisional?"unavailable":(await getNetworkRecipientReadiness(organizationId,[companyId]).catch(()=>null))?.get(companyId);
+  const canConnect=canInteractWithNetwork((await getWorkspaceContext()).role);
   return (
     <FocusPage className="max-w-[960px]">
       <Link href="/network" className="text-sm font-semibold text-[#173f35] underline">← Torna a Esplora aziende</Link>
@@ -68,11 +71,15 @@ export async function FreeNetworkProfileView({
                 companyName={profile.company.legal_name} source="network_profile" /> :
             null}
         </section>
-        {eligibility.eligible ? <Link href={"/network/"+companyId+"/connect"}
-           className="app-primary mt-5 ml-2 inline-flex min-h-10 items-center rounded-xl px-4 text-sm font-semibold">
-           Richiedi connessione
-         </Link> : <p className="mt-4 text-xs leading-5 text-[#647269]">
-           La connessione sulla piattaforma sarà disponibile quando questo profilo sarà rappresentato da un'azienda attiva e abilitata a ricevere richieste.
+        {status==="available"&&canConnect ? <Link href={"/network/"+companyId+"/connect"}
+          className="app-primary mt-5 inline-flex min-h-10 items-center rounded-xl px-4 text-sm font-semibold">Richiedi connessione →</Link>
+        : <p className="mt-4 text-xs leading-5 text-[#647269]">
+          {status==="pending" ? <Link className="font-semibold text-[#176647] underline" href="/network/connections?box=sent">Richiesta già inviata · In attesa di risposta →</Link> :
+           status==="connected" ? <Link className="font-semibold text-[#176647] underline" href="/network/connections?box=sent">Connessione già accettata · Apri richieste →</Link> :
+           status===undefined ? "Disponibilità delle connessioni temporaneamente non verificabile." :
+           provisional ? "Azienda scoperta · Da confermare: nessuna richiesta viene inviata." :
+           !canConnect ? "Per inviare richieste serve il ruolo di amministratore o collaboratore commerciale." :
+           "Questa azienda non può attualmente ricevere richieste sulla piattaforma."}
          </p>}
 
         <div className="mt-7 grid gap-6 sm:grid-cols-2">
