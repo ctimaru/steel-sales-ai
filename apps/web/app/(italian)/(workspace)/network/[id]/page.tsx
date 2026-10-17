@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { PilotEvent } from "@/components/pilot-event";
+import { NetworkActivationCta } from "@/components/network-activation-cta";
 import { canInteractWithNetwork } from "@/lib/access-policy";
 import { getMyCompanyClaim, type CompanyClaimState } from "@/lib/company-claims";
 import {
@@ -139,7 +140,7 @@ export default async function NetworkCompanyProfilePage({
   const context = await getWorkspaceContext();
   const access = await getNetworkAccessState(context.organizationId);
   if (!access.can_access_network && isNetworkFreeReadEnabled()) {
-    return <FreeNetworkProfileView organizationId={context.organizationId} companyId={id} />;
+    return <FreeNetworkProfileView organizationId={context.organizationId} companyId={id} isWorkspaceAdmin={context.role==="admin"} />;
   }
   // NET-LAUNCH1: even entitled Pro viewers must open an unconfirmed discovery
   // in the Free profile reader, not in the canonical Pro-company query.
@@ -147,7 +148,7 @@ export default async function NetworkCompanyProfilePage({
   if (access.can_access_network) {
     const candidate = await getProNetworkDiscoveryProfile(context.organizationId,id).catch(() => null);
     if (candidate?.company.discovery_status === "unconfirmed") {
-      return <FreeNetworkProfileView organizationId={context.organizationId} companyId={id} accessMode="pro" />;
+      return <FreeNetworkProfileView organizationId={context.organizationId} companyId={id} accessMode="pro" isWorkspaceAdmin={context.role==="admin"} />;
     }
   }
   await requireNetworkAccess();
@@ -286,7 +287,7 @@ export default async function NetworkCompanyProfilePage({
       />
 
       <Link href="/network" className="text-sm font-semibold text-[#66736e] hover:text-[#1a5144]">
-        ← Torna alla directory
+        ← Torna a Esplora aziende
       </Link>
 
       {error ? (
@@ -368,6 +369,12 @@ export default async function NetworkCompanyProfilePage({
                 </a>
               ) : null}
 
+              {["unclaimed", "revoked"].includes(profile.company.claimed_status)
+                  && adminOrganizationId
+                  && (!claimState || ["rejected","revoked"].includes(claimState.status)) ? (
+                <NetworkActivationCta mode="published" companyId={profile.company.id}
+                  companyName={displayName} source="network_profile" />
+              ) : null}
               {inquiryEligible && canInteract ? (
                 <Link
                   href={"/network/" + profile.company.id + "/connect"}
@@ -447,26 +454,6 @@ export default async function NetworkCompanyProfilePage({
           </div>
           <Link href="/network/manage" className="inline-flex h-10 items-center justify-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657]">
             Gestisci profilo
-          </Link>
-        </section>
-      ) : null}
-
-      {["unclaimed", "revoked"].includes(profile.company.claimed_status) &&
-      adminOrganizationId &&
-      (!claimState || ["rejected", "revoked"].includes(claimState.status)) ? (
-        <section className="flex flex-col gap-3 rounded-2xl border border-[#dfe7f1] bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="font-semibold text-[#1d2824]">Rappresenti questa azienda?</p>
-            <p className="mt-1 text-sm text-[#66736e]">
-              Verifica prima identità, ownership e metodo di prova. Il claim abilita la gestione del profilo,
-              ma non rende automaticamente l&apos;azienda verificata.
-            </p>
-          </div>
-          <Link
-            href={"/network/" + profile.company.id + "/claim"}
-            className="inline-flex h-10 items-center justify-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657]"
-          >
-            Rivendica questo profilo
           </Link>
         </section>
       ) : null}
