@@ -47,7 +47,7 @@ test("NET-UX1.1 Free RPC has explicit field allowlist and only published data", 
   for (const forbidden of ["network_contacts", "commercial_threads", "network_inquiries", "rfqs", "orders", "price_history", "network_data_assertions"]) {
     assert.doesNotMatch(migration, new RegExp("from public\\." + forbidden));
   }
-  assert.match(directory, /getFreeNetworkDirectory/);
+  assert.match(directory, /getFreeNetworkPagedDirectory/);
   assert.match(freeProfile, /getFreeNetworkProfile/);
   assert.match(rpc, /netux11_free_directory/);
   assert.match(rpc, /netux11_free_profile/);
@@ -57,7 +57,7 @@ test("NET-UX1.1 Free RPC has explicit field allowlist and only published data", 
 });
 
 test("NET-UX1.1 preserves product scope for discovery and shows no synthetic regions", () => {
-  assert.match(directory, /orderNetworkDiscovery/);
+  assert.match(directory, /items = data\.published_page\.items/);
   assert.match(directory, /<ItalyRegionMap/);
   assert.match(directory, /Regione non disponibile/);
   assert.match(freeProfile, /Località non ancora disponibili/);
