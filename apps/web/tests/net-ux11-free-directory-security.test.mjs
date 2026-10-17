@@ -22,7 +22,7 @@ test("NET-UX1.1 activates Free read with an explicit rollback flag and preserves
   assert.match(profile, /FreeNetworkProfileView/);
   assert.match(layout, /networkFreeEnabled/);
   assert.match(shell, /networkEnabled && networkEntitled/);
-  assert.match(shell, /networkNav\.slice\(0, 1\)/);
+  assert.match(shell, /networkFreeEnabled \? visibleItems\(networkNav, organizationRole\)/);
 });
 
 test("NET-UX1.1 database keeps PA1.3 restrictive RLS and uses private definer", () => {

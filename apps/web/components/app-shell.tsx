@@ -41,11 +41,8 @@ const intelligenceNav: NavItem[] = [
 ];
 
 const networkNav: NavItem[] = [
-  { href: appRoutes.network.directory, label: "Directory", contextKey: "network:directory" },
-  { href: appRoutes.network.saved, label: "Salvate", contextKey: "network:saved" },
-  { href: appRoutes.network.following, label: "Seguite", contextKey: "network:following" },
-  { href: appRoutes.network.activity, label: "Attività", contextKey: "network:activity" },
-  { href: appRoutes.network.inquiries, label: "Richieste", contextKey: "network:inquiries" },
+  { href: appRoutes.network.directory, label: "Esplora aziende", contextKey: "network:directory" },
+  { href: appRoutes.network.connections, label: "Connessioni", contextKey: "network:connections" },
 ];
 
 // RFQ Hub is a private procurement domain, independently of the Marketplace
@@ -133,7 +130,7 @@ export function AppShell({
   const rfqItems = visibleItems(rfqNav, organizationRole);
   const networkItems =
     networkEnabled && networkEntitled ? visibleItems(networkNav, organizationRole)
-    : networkEnabled && networkFreeEnabled ? visibleItems(networkNav.slice(0, 1), organizationRole)
+    : networkEnabled && networkFreeEnabled ? visibleItems(networkNav, organizationRole)
     : [];
   const marketplaceItems = networkEnabled ? visibleItems(marketplaceNav, organizationRole) : [];
   const knowledgeItems = visibleItems(knowledgeNav, organizationRole);

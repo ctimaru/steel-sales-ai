@@ -90,14 +90,14 @@ export function NetworkRecoveryScreen({retry}:{retry?:()=>void}){
    </form>
    <div className="mt-4"><NetworkIntentShortcuts filters={{}} /></div>
   </section>
-  <div className="mt-4"><NetworkAvailabilityNotice label="La directory non si è caricata completamente." /></div>
+  <div className="mt-4"><NetworkAvailabilityNotice label="L'elenco aziende non si è caricato completamente." /></div>
   <div className="mt-4 grid gap-4 sm:grid-cols-[minmax(0,1fr)_290px]">
     <section className="rounded-2xl border border-[#dce6e0] bg-white p-5">
       <h2 className="text-lg font-semibold text-[#173f35]">Continua a esplorare</h2>
       <p className="mt-2 text-sm leading-6 text-[#52615b]">Puoi utilizzare i percorsi di ricerca e la mappa; i profili aziendali verranno mostrati quando il servizio tornerà disponibile. Nessun dato è stato inventato.</p>
       <div className="mt-4 flex flex-wrap gap-2">
        {retry?<button type="button" onClick={retry} className="app-primary min-h-11 rounded-xl px-4 text-sm font-semibold">Riprova caricamento</button>:null}
-       <Link href="/network/saved" className="app-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-semibold">Le mie salvate</Link>
+       <Link href="/network/connections" className="app-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-semibold">Connessioni aziendali</Link>
        <Link href="/dashboard" className="app-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-semibold">Workspace</Link>
       </div>
     </section>
