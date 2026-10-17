@@ -2,6 +2,9 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
+const activationCta = fs.readFileSync(
+  new URL("../components/network-activation-cta.tsx", import.meta.url), "utf8"
+);
 const actions = fs.readFileSync(
   new URL("../app/(workspace)/network/actions.ts", import.meta.url),
   "utf8",
@@ -33,8 +36,9 @@ test("P4.1 save company is a private user action backed by network_saved_compani
 test("P4.1 Network profile exposes save/remove controls while preserving governed claim semantics", () => {
   assert.doesNotMatch(profile, /Salva azienda|Rimuovi dai salvati/);
   assert.match(profile, /Richiedi connessione/);
-  assert.match(profile, /Rivendica questo profilo/);
-  assert.match(profile, /\/claim"/);
+  assert.match(profile, /NetworkActivationCta mode="published"/);
+  assert.match(activationCta, /Rivendica il profilo/);
+  assert.match(activationCta, /\/claim"/);
   assert.match(profile, /adminOrganizationId/);
   assert.match(claimPage, /requestNetworkClaim/);
 });
