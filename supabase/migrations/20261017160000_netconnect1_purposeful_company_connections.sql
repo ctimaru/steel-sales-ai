@@ -5,6 +5,8 @@
 
 create table if not exists public.network_connection_requests (
   inquiry_id uuid primary key references public.network_inquiries(id) on delete restrict,
+  sender_organization_id uuid not null references public.organizations(id),
+  recipient_network_company_id uuid not null references public.network_companies(id),
   purpose text not null check (purpose in ('offer_products_services','request_products_services','collaboration')),
   status text not null default 'pending'
     check (status in ('pending','accepted','declined','withdrawn')),
@@ -13,6 +15,9 @@ create table if not exists public.network_connection_requests (
 );
 alter table public.network_connection_requests enable row level security;
 revoke all on public.network_connection_requests from public, anon, authenticated;
+create unique index if not exists netconnect1_one_pending_pair
+ on public.network_connection_requests(sender_organization_id,recipient_network_company_id)
+ where status='pending';
 create index if not exists netconnect1_recent_status_idx
  on public.network_connection_requests(status,created_at desc);
 
@@ -52,8 +57,9 @@ begin
  v_result:=private.p4_submit_inquiry_impl(
     p_sender_organization_id,p_recipient_network_company_id,v_subject,btrim(p_message));
  v_inquiry_id:=(v_result->>'inquiry_id')::uuid;
- insert into public.network_connection_requests(inquiry_id,purpose,status)
- values(v_inquiry_id,p_purpose,'pending');
+ insert into public.network_connection_requests(
+  inquiry_id,sender_organization_id,recipient_network_company_id,purpose,status)
+ values(v_inquiry_id,p_sender_organization_id,p_recipient_network_company_id,p_purpose,'pending');
  return jsonb_build_object('request_id',v_inquiry_id,'status','pending',
    'purpose',p_purpose,'recipient_organization_id',v_result->>'recipient_organization_id');
 end $$;
@@ -61,7 +67,7 @@ end $$;
 create or replace function public.netconnect1_submit(
  p_sender_organization_id uuid,p_recipient_network_company_id uuid,
  p_purpose text,p_message text
-) returns jsonb language sql volatile set search_path='' as $$
+) returns jsonb language sql volatile security definer set search_path='' as $$
  select private.netconnect1_submit_impl(
   p_sender_organization_id,p_recipient_network_company_id,p_purpose,p_message
  );
@@ -102,7 +108,7 @@ end $$;
 
 create or replace function public.netconnect1_decide(
  p_request_id uuid,p_actor_organization_id uuid,p_decision text
-) returns jsonb language sql volatile set search_path='' as $$
+ ) returns jsonb language sql volatile security definer set search_path='' as $$
  select private.netconnect1_decide_impl(p_request_id,p_actor_organization_id,p_decision);
 $$;
 
@@ -131,11 +137,12 @@ begin
  'recipient_organization_id',q.recipient_organization_id,
  'sender_name',q.sender_name,'recipient_name',q.recipient_name,
  'company_id',q.recipient_network_company_id,
+ 'inquiry_status',q.inquiry_status,
  'created_at',q.created_at,'decided_at',q.decided_at
  ) order by q.created_at desc,q.inquiry_id),'[]'::jsonb)
  into v_items from (
   select r.inquiry_id,r.purpose,r.status,r.created_at,r.decided_at,
-    i.subject,i.body,i.sender_organization_id,i.recipient_organization_id,
+    i.subject,i.body,i.status inquiry_status,i.sender_organization_id,i.recipient_organization_id,
     i.recipient_network_company_id,
     sender.name sender_name,nc.legal_name recipient_name
   from public.network_connection_requests r
@@ -154,7 +161,7 @@ end $$;
 create or replace function public.netconnect1_list(
  p_organization_id uuid,p_box text default 'received',
  p_limit integer default 50,p_offset integer default 0
-) returns jsonb language sql stable set search_path='' as $$
+ ) returns jsonb language sql stable security definer set search_path='' as $$
  select private.netconnect1_list_impl(p_organization_id,p_box,p_limit,p_offset);
 $$;
 
