@@ -284,8 +284,8 @@ export function CalculatorInlineDistintaExperience({
   const count = state.lines.length;
   const bill = (
     <section id="distinta-inline" aria-labelledby="distinta-inline-title"
-      className="mt-4 scroll-mt-24 rounded-[1.35rem] border border-[#c7ded0] bg-white shadow-[0_8px_30px_rgba(20,70,43,0.07)]">
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-5">
+      className="mt-4 min-w-0 scroll-mt-24 overflow-hidden rounded-[1.35rem] border border-[#c7ded0] bg-white shadow-[0_8px_30px_rgba(20,70,43,0.07)]">
+      <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div className="min-w-0">
           <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#31755a]">{c.eyebrow}</p>
           <h2 id="distinta-inline-title" className="mt-1 text-lg font-bold text-[#123b30]">{c.title}</h2>
@@ -295,13 +295,13 @@ export function CalculatorInlineDistintaExperience({
           </p>
         </div>
         {count > 0 ? (
-          <button type="button" className={action} aria-expanded={open} aria-controls="distinta-inline-lines"
+          <button type="button" className={action + " w-full sm:w-auto"} aria-expanded={open} aria-controls="distinta-inline-lines"
             onClick={() => setOpen(v => !v)}>{open ? c.collapse : `${c.show} ${count} ${c.lines}`}</button>
         ) : <span className="rounded-lg bg-[#edf5f0] px-3 py-2 text-xs font-semibold text-[#347055]">{c.free}</span>}
       </div>
 
       {count > 0 && open ? (
-        <div id="distinta-inline-lines" className="border-t border-[#dce9df] p-3 sm:p-5">
+        <div id="distinta-inline-lines" className="min-w-0 border-t border-[#dce9df] p-3 sm:p-5">
           {pendingTarget ? (
             <div data-target-pending className="mb-4 rounded-xl border border-[#c8d8a4] bg-[#f5f7eb] p-3 text-sm text-[#31452a]">
               <strong>{c.pendingTarget}</strong> {number(pendingTarget.priceEurT, 2)} €/t
@@ -315,7 +315,7 @@ export function CalculatorInlineDistintaExperience({
               const editing = editingId === line.id;
               const privateTarget = buyerTargetPreview(line, targets);
               const matchingPending = pendingTarget && matchesBuyerTargetWeight(line, pendingTarget);
-              return <article key={line.id} className="rounded-xl border border-[#d5e4dc] bg-[#f7faf8] p-3 sm:p-4"
+              return <article key={line.id} className="min-w-0 rounded-xl border border-[#d5e4dc] bg-[#f7faf8] p-3 sm:p-4"
                 aria-label={`${c.row} ${index + 1}: ${line.description}`}>
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
@@ -417,7 +417,7 @@ export function CalculatorInlineDistintaExperience({
             })}
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[#eaf5ee] p-4">
+          <div className="mt-4 flex flex-col gap-3 rounded-xl bg-[#eaf5ee] p-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-bold text-[#29644c]">{c.totalsTitle}</p>
               <p className="mt-1 text-lg font-bold text-[#123c2c]">
@@ -425,7 +425,7 @@ export function CalculatorInlineDistintaExperience({
               </p>
               <p className="mt-1 text-xs text-[#476658]">{c.targetSafety}</p>
             </div>
-            <button type="button" className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#166346] px-5 py-3 text-sm font-bold text-white hover:bg-[#0e5035] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#166346]"
+            <button type="button" className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#166346] px-5 py-3 text-sm font-bold text-white hover:bg-[#0e5035] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#166346]"
               onClick={copyBill}>{c.copyBill}</button>
           </div>
           <section aria-label={c.privateRfq} className="mt-4 rounded-xl border border-[#b7d6c4] bg-white p-4">
