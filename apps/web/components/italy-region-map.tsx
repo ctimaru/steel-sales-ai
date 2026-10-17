@@ -69,7 +69,7 @@ export function ItalyRegionMap({
         ) : null}
       </div>
       <p className="mt-2 max-w-3xl text-sm leading-6 text-[#52615b]">
-        Scegli una regione per filtrare la directory. Il conteggio indica le aziende
+        Scegli una regione per filtrare le aziende. Il conteggio indica le aziende
         pubblicate con almeno una sede localizzata in quella regione, non tutte le
         aziende che potrebbero operare nel territorio.
       </p>

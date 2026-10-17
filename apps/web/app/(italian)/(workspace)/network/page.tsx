@@ -1,12 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import {
-  followNetworkCompany,
-  removeSavedNetworkCompany,
-  saveNetworkCompany,
-  unfollowNetworkCompany,
-} from "@/app/(workspace)/network/actions";
 import { FreeNetworkDirectoryView } from "@/components/free-network-directory";
 import { NetworkLaunchDiscovery } from "@/components/network-launch-discovery";
 import { NetworkDiscoveryOverview } from "@/components/network-discovery-overview";
@@ -22,12 +16,9 @@ import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
 import { NetworkAccessGate } from "@/components/network-access-gate";
 import { PilotEvent } from "@/components/pilot-event";
-import { canWriteWorkspace } from "@/lib/access-policy";
 import {
-  getFollowedNetworkCompanies,
   getNetworkTaxonomy,
   getNetworkGeoFacets,
-  getSavedNetworkCompanies,
   searchNetwork,
 } from "@/lib/network";
 import { getNetworkAccessState } from "@/lib/network-access";
@@ -126,7 +117,7 @@ export default async function NetworkDirectoryPage({
   }
 
   const params = await searchParams;
-  const [taxonomyResult, geoResult, resultsResult, savedResult, followedResult, coverageResult, roleResult, previewResult] = await Promise.allSettled([
+  const [taxonomyResult, geoResult, resultsResult, coverageResult, roleResult, previewResult] = await Promise.allSettled([
     getNetworkTaxonomy(),
     getNetworkGeoFacets(),
     searchNetwork({
@@ -141,8 +132,6 @@ export default async function NetworkDirectoryPage({
       city: params.city,
       page:parseNetworkPage(params.p),
     }),
-    getSavedNetworkCompanies(),
-    getFollowedNetworkCompanies(context.organizationId),
     getItalyRegionCoverage(context.organizationId).catch(() => null),
     getFreeNetworkViewerRole(context.organizationId).catch(() => null),
     // Pro users previously saw only the legacy canonical search, hiding NET-FAST discoveries.
@@ -160,22 +149,15 @@ export default async function NetworkDirectoryPage({
     : {regions:[],cities:[],provinces:[]};
   const canonicalUnavailable = resultsResult.status === "rejected";
   const results = resultsResult.status === "fulfilled" ? resultsResult.value : {items:[],total:0};
-  const saved = savedResult.status === "fulfilled" ? savedResult.value : [];
-  const followed = followedResult.status === "fulfilled" ? followedResult.value : {items:[],total:0};
   const coverage = coverageResult.status === "fulfilled" ? coverageResult.value : null;
   const viewerRole = roleResult.status === "fulfilled" ? roleResult.value : null;
   const previewDirectory = previewResult.status === "fulfilled" ? previewResult.value : null;
-  const canWrite = canWriteWorkspace(context.role)
-    && savedResult.status === "fulfilled" && followedResult.status === "fulfilled";
   const unavailableSections = [
     canonicalUnavailable ? "profili pubblicati" : null,
     !previewDirectory ? "aziende da confermare" : null,
-    savedResult.status === "rejected" || followedResult.status === "rejected" ? "salvate e seguite" : null,
     geoResult.status === "rejected" ? "filtri geografici avanzati" : null,
   ].filter(Boolean);
 
-  const savedIds = new Set(saved.map((item) => item.network_company_id));
-  const followedIds = new Set(followed.items.map((item) => item.network_company_id));
   const hasAdvancedFilters = Boolean(
     params.role ||
       params.product ||
@@ -185,7 +167,6 @@ export default async function NetworkDirectoryPage({
   );
   const quickTubeContext =
     params.product === "tubes_pipes" && (params.country ?? "").toUpperCase() === "IT";
-  const returnTo = currentDirectoryPath(params);
   const persona = activeNetworkPersona(params.persona, viewerRole);
   const orderedResults = orderNetworkDiscovery(results.items, persona, Boolean(params.q || hasAdvancedFilters));
 
@@ -211,7 +192,7 @@ export default async function NetworkDirectoryPage({
             Cerca aziende per nome o dominio e restringi solo quando serve per ruolo, prodotto,
             capability, mercato o paese.
             <span className="mt-2 block text-xs font-semibold text-[#5d6a65]">
-              Directory privata del Network · la Commercial Memory resta separata
+              Rete aziendale riservata · la Commercial Memory resta separata
             </span>
           </>
         }
@@ -403,29 +384,16 @@ export default async function NetworkDirectoryPage({
       </div>
       <section id="network-region-results" aria-labelledby="network-results">
         <FocusSectionHeader
-          eyebrow="Directory"
+          eyebrow="Esplora aziende"
           title={
             <span id="network-results">
               {canonicalUnavailable ? "Profili pubblicati" : results.total.toLocaleString("it-IT") + (results.total === 1 ? " azienda" : " aziende")}
             </span>
           }
           description="Profili industriali pubblicati nel Network."
-          action={
-            <div className="flex flex-wrap gap-2 text-xs">
-              <Link
-                href={appRoutes.network.saved}
-                className="rounded-full border border-[#d7dfdb] bg-white px-3 py-1.5 font-semibold text-[#43524c] hover:border-[#9db9af]"
-              >
-                Salvate · {saved.length}
-              </Link>
-              <Link
-                href={appRoutes.network.following}
-                className="rounded-full border border-[#d7dfdb] bg-white px-3 py-1.5 font-semibold text-[#43524c] hover:border-[#9db9af]"
-              >
-                Seguite · {followed.total}
-              </Link>
-            </div>
-          }
+          action={<Link href={appRoutes.network.connections}
+            className="inline-flex min-h-10 items-center rounded-xl border border-[#c6d9cf] px-4 text-xs font-semibold text-[#173f35]">Connessioni aziendali →</Link>}
+
         />
 
         {canonicalUnavailable ? (
@@ -437,14 +405,14 @@ export default async function NetworkDirectoryPage({
             <FirstUseEmptyState
               eyebrow="Ricerca senza risultati"
               title="Nessuna azienda trovata con questi filtri"
-              description="Il Network non inventa profili mancanti. Azzera i filtri oppure amplia la ricerca per tornare alla directory completa."
+              description="Il Network non inventa profili mancanti. Azzera i filtri oppure amplia la ricerca per tornare all'elenco completo."
               primaryAction={{
                 href: appRoutes.network.directory,
                 label: "Azzera ricerca e filtri",
               }}
               secondaryAction={{
-                href: appRoutes.network.saved,
-                label: "Apri aziende salvate",
+                href: appRoutes.network.connections,
+                label: "Connessioni aziendali",
               }}
             />
           ) : (
@@ -464,8 +432,7 @@ export default async function NetworkDirectoryPage({
         ) : (
           <div className="overflow-hidden rounded-2xl border border-[#dce2df] bg-white">
             {orderedResults.map((company, index) => {
-              const isSaved = savedIds.has(company.id);
-              const isFollowed = followedIds.has(company.id);
+              
 
               return (
                 <article
@@ -539,38 +506,6 @@ export default async function NetworkDirectoryPage({
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-                    {canWrite ? (
-                      <>
-                        <form action={isSaved ? removeSavedNetworkCompany : saveNetworkCompany}>
-                          <input type="hidden" name="network_company_id" value={company.id} />
-                          <input type="hidden" name="return_to" value={returnTo} />
-                          <button
-                            className={[
-                              "inline-flex min-h-10 items-center rounded-xl border px-3 text-xs font-semibold transition",
-                              isSaved
-                                ? "border-[#9db9af] bg-[#edf5f2] text-[#173f35]"
-                                : "border-[#d7dfdb] bg-white text-[#43524c] hover:border-[#9db9af]",
-                            ].join(" ")}
-                          >
-                            {isSaved ? "Salvata" : "Salva"}
-                          </button>
-                        </form>
-                        <form action={isFollowed ? unfollowNetworkCompany : followNetworkCompany}>
-                          <input type="hidden" name="network_company_id" value={company.id} />
-                          <input type="hidden" name="return_to" value={returnTo} />
-                          <button
-                            className={[
-                              "inline-flex min-h-10 items-center rounded-xl border px-3 text-xs font-semibold transition",
-                              isFollowed
-                                ? "border-[#9db9af] bg-[#edf5f2] text-[#173f35]"
-                                : "border-[#d7dfdb] bg-white text-[#43524c] hover:border-[#9db9af]",
-                            ].join(" ")}
-                          >
-                            {isFollowed ? "Seguita" : "Segui"}
-                          </button>
-                        </form>
-                      </>
-                    ) : null}
                     <Link
                       href={appRoutes.network.company(company.id)}
                       className="app-primary inline-flex min-h-10 items-center rounded-xl px-3.5 text-xs font-semibold"
