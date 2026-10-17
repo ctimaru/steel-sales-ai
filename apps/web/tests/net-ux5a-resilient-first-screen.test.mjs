@@ -11,11 +11,11 @@ const overview = read("../components/network-discovery-overview.tsx");
 
 test("NET-UX5A: Pro data sources fail independently, never take down the directory", () => {
  assert.match(pro,/await Promise\.allSettled\(\[/);
- for(const name of ["canonicalUnavailable","previewDirectory","savedResult","followedResult","geoResult"])assert.ok(pro.includes(name));
+ for(const name of ["canonicalUnavailable","previewDirectory","geoResult"])assert.ok(pro.includes(name));
  assert.match(pro,/resultsResult\.status === "rejected"/);
  assert.match(pro,/canonicalUnavailable \? \(/);
  assert.match(pro,/<NetworkAvailabilityNotice/);
- assert.match(pro,/savedResult\.status === "fulfilled" && followedResult\.status === "fulfilled"/);
+ assert.doesNotMatch(pro,/getSavedNetworkCompanies|getFollowedNetworkCompanies/);
  assert.match(pro,/getNetworkAccessState\(context\.organizationId\)/);
  assert.ok(pro.indexOf("getNetworkAccessState(context.organizationId)") < pro.indexOf("Promise.allSettled"));
 });

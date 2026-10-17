@@ -38,15 +38,11 @@ test("PF3 renders dense industrial rows instead of oversized linked cards", () =
   assert.doesNotMatch(directory, /grid gap-4 lg:grid-cols-2/);
 });
 
-test("PF3 exposes save follow and open actions directly in search results", () => {
-  assert.match(directory, /saveNetworkCompany/);
-  assert.match(directory, /removeSavedNetworkCompany/);
-  assert.match(directory, /followNetworkCompany/);
-  assert.match(directory, /unfollowNetworkCompany/);
-  assert.match(directory, /Salva/);
-  assert.match(directory, /Segui/);
+test("NET-CONNECT1 replaces social actions with purposeful company links", () => {
+  assert.doesNotMatch(directory, /saveNetworkCompany|followNetworkCompany|unfollowNetworkCompany|removeSavedNetworkCompany/);
+  assert.match(directory, /appRoutes.network.connections/);
+  assert.match(directory, /Connessioni aziendali/);
   assert.match(directory, /Apri/);
-  assert.match(directory, /return_to/);
 });
 
 test("PF3 preserves directory filters after interaction actions", () => {
@@ -57,9 +53,9 @@ test("PF3 preserves directory filters after interaction actions", () => {
   assert.match(actions, /network_directory/);
 });
 
-test("PF3 shows saved and followed counts without duplicating the full Network navigation", () => {
-  assert.match(directory, /Salvate · \{saved\.length\}/);
-  assert.match(directory, /Seguite · \{followed\.total\}/);
+test("NET-CONNECT1 removes saved and followed counters from company exploration", () => {
+  assert.doesNotMatch(directory, /Salvate · |Seguite · /);
+  assert.match(directory, /Esplora aziende/);
   assert.doesNotMatch(directory, />Activity</);
   assert.doesNotMatch(directory, />Inquiry</);
 });
