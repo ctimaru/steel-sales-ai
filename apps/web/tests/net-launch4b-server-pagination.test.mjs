@@ -29,7 +29,7 @@ test("NET-LAUNCH4B: role relevance ordered globally in SQL, not within a downloa
  assert.match(db,/when d\.finished_only then 3/);
  assert.match(db,/role_priority,source_priority,lower\(company_name\),id/);
  assert.match(db,/order by role_priority,lower\(legal_name\),id/);
- assert.match(db,/nullif\(btrim\(coalesce\(p_region,''\)\),'\)' is null/); // no synthetic geography
+ assert.match(db,/and nullif\(btrim\(coalesce\(p_region,''\)\),''\) is null/); // no synthetic geography
 });
 test("NET-LAUNCH4B: Free uses two real page windows and preserves each navigation cursor",()=>{
  assert.match(lib,/getFreeNetworkPagedDirectory/);
