@@ -192,7 +192,7 @@ export default async function NetworkDirectoryPage({
             Cerca aziende per nome o dominio e restringi solo quando serve per ruolo, prodotto,
             capability, mercato o paese.
             <span className="mt-2 block text-xs font-semibold text-[#5d6a65]">
-              Directory privata del Network · la Commercial Memory resta separata
+              Rete aziendale riservata · la Commercial Memory resta separata
             </span>
           </>
         }
@@ -405,7 +405,7 @@ export default async function NetworkDirectoryPage({
             <FirstUseEmptyState
               eyebrow="Ricerca senza risultati"
               title="Nessuna azienda trovata con questi filtri"
-              description="Il Network non inventa profili mancanti. Azzera i filtri oppure amplia la ricerca per tornare alla directory completa."
+              description="Il Network non inventa profili mancanti. Azzera i filtri oppure amplia la ricerca per tornare all'elenco completo."
               primaryAction={{
                 href: appRoutes.network.directory,
                 label: "Azzera ricerca e filtri",
