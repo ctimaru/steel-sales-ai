@@ -20,7 +20,8 @@ test("role-aware persona is presentation-only and does not grant access",()=>{
 });
 test("both Free and Pro apply guided discovery while keeping server guards",()=>{
  assert.match(free,/NetworkRoleDiscovery/);
- assert.match(free,/orderNetworkDiscovery\(data\.items, persona, hasFilters\)/);
+ assert.match(free,/items = data\.published_page\.items/);
+ assert.match(service,/getFreeNetworkPagedDirectory/);
  assert.match(pro,/NetworkRoleDiscovery/);
  assert.match(pro,/getFreeNetworkViewerRole\(context\.organizationId\)/);
  assert.match(pro,/orderNetworkDiscovery\(results\.items, persona, Boolean\(params\.q \|\| hasAdvancedFilters\)\)/);
