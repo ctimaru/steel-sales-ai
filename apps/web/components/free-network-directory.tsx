@@ -2,6 +2,7 @@ import Link from "next/link";
 import {NetworkCompanyGrowthEntry} from "@/components/network-company-growth-entry";
 import {NetworkReadyConnections,NetworkReadinessAction} from "@/components/network-ready-connections";
 import {getNetworkRecipientReadiness} from "@/lib/network-recipient-readiness";
+import {getNetworkReplyIntelligence,sharedPublicProducts} from "@/lib/network-reply-intelligence";
 
 import { FocusPage } from "@/components/focus-ui";
 import { ItalyRegionMap } from "@/components/italy-region-map";
@@ -56,8 +57,11 @@ export async function FreeNetworkDirectoryView({
   const hasFilters = Boolean(filters.q?.trim() || role || filters.region);
   const persona = activeNetworkPersona(filters.persona, data.viewer_role);
   const items = data.published_page.items; // role ordering is global and enforced by SQL before pagination
-  const readiness = await getNetworkRecipientReadiness(organizationId,items.map(x=>x.id)).catch(()=>null);
-  const readyItems = items.map(x=>({id:x.id,name:x.trading_name||x.legal_name,role:x.roles[0]?.name,region:x.location?.region}));
+  const [readiness,intelligence]=await Promise.all([
+    getNetworkRecipientReadiness(organizationId,items.map(x=>x.id)).catch(()=>null),
+    getNetworkReplyIntelligence(organizationId,items.map(x=>x.id)).catch(()=>null),
+  ]);
+  const readyItems = items.map(x=>({id:x.id,name:x.trading_name||x.legal_name,role:x.roles[0]?.name,region:x.location?.region,roles:x.roles.map(r=>({key:r.key}))}));
   return (
     <FocusPage className="max-w-[1180px]">
       <NetworkCompanyGrowthEntry />
@@ -125,7 +129,8 @@ export async function FreeNetworkDirectoryView({
           filters={{q:filters.q,role:filters.role,region:filters.region}}
           pagination={data.discovery_page} navigationParams={filters} />
       </div>
-      <div className="mt-5"><NetworkReadyConnections items={readyItems} statuses={readiness} canAct={canConnect} /></div>
+      <div className="mt-5"><NetworkReadyConnections items={readyItems} statuses={readiness} canAct={canConnect}
+         persona={persona} sharedProducts={sharedPublicProducts(intelligence)} /></div>
       <section id="network-region-results" aria-label="Risultati del Network" className="mt-6">
         <h2 className="text-xl font-semibold text-[#173f35]">{data.total.toLocaleString("it-IT")} aziende</h2>
         {data.discovered_total ? <p className="mt-1 text-xs font-semibold text-[#52615b]">
