@@ -85,11 +85,15 @@ revoke all on function private.netconnect2b_capture_exact_canonical(uuid) from p
 create or replace function private.netconnect2b_canonical_capture_trigger()
 returns trigger language plpgsql security definer set search_path='' as $$
 begin
- if new.archived_at is null and new.publication_status='published'
-   and (tg_op='INSERT' or new.website_domain is distinct from old.website_domain
-        or new.legal_name is distinct from old.legal_name
-        or new.publication_status is distinct from old.publication_status)
- then perform private.netconnect2b_capture_exact_canonical(new.id); end if;
+ if new.archived_at is null and new.publication_status='published' then
+   if tg_op='INSERT' then
+     perform private.netconnect2b_capture_exact_canonical(new.id);
+   elsif new.website_domain is distinct from old.website_domain
+       or new.legal_name is distinct from old.legal_name
+       or new.publication_status is distinct from old.publication_status then
+     perform private.netconnect2b_capture_exact_canonical(new.id);
+   end if;
+ end if;
  return new;
 end $$;
 revoke all on function private.netconnect2b_canonical_capture_trigger() from public,anon,authenticated;
