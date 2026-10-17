@@ -235,7 +235,15 @@ select pg_temp.hp13_assert(
         'crawl_it61_review_geo_evidence',
         -- CRAWL-IT6.4: reviewed read-only Italy coverage aggregate; explicit discovery.read,
         -- pinned search_path and NO source activation, profile or facility mutation.
-        'crawl_it64_geographic_scale_snapshot'
+        'crawl_it64_geographic_scale_snapshot',
+        -- NET-CONNECT1 reviewed, authenticated only: public facades have pinned
+        -- empty search_path, no anon execute, no direct table/private execute.
+        -- Impl requires an active linked company per auth.uid() and reuses
+        -- P4 participant authorization, recipient ownership, rate limits,
+        -- anti-blocking controls and immutable inquiry event ledger.
+        'netconnect1_submit',
+        'netconnect1_decide',
+        'netconnect1_list'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
