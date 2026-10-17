@@ -468,6 +468,12 @@ select pg_temp.hp13_assert_raises(
   'Platform permission required'
 );
 
+-- NET-CONNECT2C — cross-tenant denied at SQL level even if client directly calls RPC.
+select pg_temp.hp13_assert_raises(
+  'select public.netconnect2c_growth_overview()',
+  'Platform owner required'
+);
+
 -- DASH-FEED7: an ordinary company admin cannot read platform-level usage.
 select pg_temp.hp13_assert_raises(
   'select public.dash_feed7_platform_insights(7)',
