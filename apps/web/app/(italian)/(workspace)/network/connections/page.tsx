@@ -7,7 +7,7 @@ import {createClient} from "@/lib/supabase/server";
 import {canInteractWithNetwork} from "@/lib/access-policy";
 
 type Connection={
- id:string;purpose:string;status:string;subject:string;message:string;
+ id:string;purpose:string;status:string;inquiry_status:string;subject:string;message:string;
  sender_organization_id:string;recipient_organization_id:string;
  sender_name:string;recipient_name:string;company_id:string;created_at:string;decided_at:string|null;
 };
@@ -68,7 +68,7 @@ export default async function NetworkConnectionsPage({
       <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[#43524c]">{item.message}</p>
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
        <Link href={"/network/"+item.company_id} className="text-xs font-semibold text-[#176647] underline">Apri profilo aziendale</Link>
-       {canAct&&item.status==="pending"?<div className="flex flex-wrap gap-2">
+       {canAct&&item.status==="pending" && (box==="received" || item.inquiry_status==="submitted")?<div className="flex flex-wrap gap-2">
          {(box==="received"?[{decision:"accepted",label:"Accetta connessione"},{decision:"declined",label:"Rifiuta"}]:[{decision:"withdrawn",label:"Ritira richiesta"}]).map(a=>
           <form action={decideNetworkConnection} key={a.decision}>
            <input type="hidden" name="request_id" value={item.id}/>
