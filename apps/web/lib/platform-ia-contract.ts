@@ -165,6 +165,7 @@ export const PLATFORM_IA_ROUTE_INVENTORY = [
   { path: "/platform/business-plan", module: "businessPlan" },
   { path: "/platform/business-plan/details", module: "businessPlan" },
   { path: "/platform/business-plan/market-sizing", module: "businessPlan" },
+  { path: "/platform/business-plan/vision", module: "businessPlan" },
   { path: "/platform/marketing", module: "marketing" },
   { path: "/platform/marketing/one-pager", module: "marketing" },
   { path: "/platform/marketing/pitch-deck", module: "marketing" },
