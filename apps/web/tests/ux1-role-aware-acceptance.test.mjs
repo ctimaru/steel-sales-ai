@@ -52,7 +52,7 @@ test("UX1.5 direct-route boundaries protect write and company-admin surfaces", (
 
 test("UX1.5 Viewer is read-only on Network interaction surfaces", () => {
   assert.match(networkProfile, /canInteractWithNetwork\(membership\.role\)/);
-  assert.match(networkProfile, /organizationId && canInteract/);
+  assert.match(networkProfile, /canInteractWithNetwork\(membership\.role\)/);
   assert.match(networkProfile, /inquiryEligible && canInteract/);
   assert.match(inquiries, /const canInteract = canInteractWithNetwork\(context\.role\)/);
   assert.match(inquiries, /canInteract && box === "received"/);

@@ -31,8 +31,8 @@ test("P4.1 save company is a private user action backed by network_saved_compani
 });
 
 test("P4.1 Network profile exposes save/remove controls while preserving governed claim semantics", () => {
-  assert.match(profile, /Salva azienda/);
-  assert.match(profile, /Rimuovi dai salvati/);
+  assert.doesNotMatch(profile, /Salva azienda|Rimuovi dai salvati/);
+  assert.match(profile, /Richiedi connessione/);
   assert.match(profile, /Rivendica questo profilo/);
   assert.match(profile, /\/claim"/);
   assert.match(profile, /adminOrganizationId/);

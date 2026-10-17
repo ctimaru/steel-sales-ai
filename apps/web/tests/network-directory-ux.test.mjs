@@ -14,7 +14,7 @@ const shell = fs.readFileSync(
 test("PF3 Network home starts with discovery instead of explanatory copy", () => {
   assert.match(directory, /Trova aziende steel/);
   assert.match(directory, /Ricerca aziende/);
-  assert.match(directory, /Directory privata del Network/);
+  assert.match(directory, /Rete aziendale riservata/);
   assert.match(directory, /Commercial Memory resta separata/);
 });
 
@@ -25,7 +25,7 @@ test("Network home does not duplicate contextual navigation with a CTA wall", ()
   assert.doesNotMatch(directory, />Inquiry</);
   assert.doesNotMatch(directory, />Aziende salvate</);
   assert.doesNotMatch(directory, />Gestisci profilo azienda</);
-  for (const label of ["Directory", "Salvate", "Seguite", "Attività", "Richieste"]) {
+  for (const label of ["Esplora aziende", "Connessioni"]) {
     assert.match(shell, new RegExp(`label: "${label}"`));
   }
 });
