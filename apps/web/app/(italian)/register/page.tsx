@@ -35,9 +35,10 @@ type ClaimRegistrationContext = {
 export default async function RegisterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string; claim_ref?: string }>;
+  searchParams: Promise<{ error?: string; message?: string; claim_ref?: string; company?: string }>;
 }) {
-  const { error, message, claim_ref: rawClaimRef } = await searchParams;
+  const { error, message, claim_ref: rawClaimRef, company: companyHint } = await searchParams;
+  const initialCompanySearch = String(companyHint ?? "").trim().slice(0, 120);
   const normalizedClaimRef = String(rawClaimRef ?? "").trim().toLowerCase();
   const claimRef = /^[0-9a-f]{64}$/.test(normalizedClaimRef)
     ? normalizedClaimRef
@@ -115,6 +116,7 @@ export default async function RegisterPage({
                 ) : (
                   <PublicCompanyLookup
                     context="registration"
+                    initialQuery={initialCompanySearch}
                     notFoundHref="#account"
                     notFoundLabel="Non è presente: continua con una nuova registrazione ↓"
                     showNetworkNote={false}
@@ -374,6 +376,7 @@ export default async function RegisterPage({
             <div className="mt-6">
               <PublicCompanyLookup
                 context="registration"
+                initialQuery={initialCompanySearch}
                 notFoundHref="#company-form"
                 notFoundLabel="Non è presente: compila una nuova azienda ↓"
                 showNetworkNote={false}
