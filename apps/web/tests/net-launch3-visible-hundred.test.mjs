@@ -8,7 +8,8 @@ const presentation = read("../components/network-launch-discovery.tsx");
 const migration = read("../../../supabase/migrations/20261017150000_netlaunch3_read_100_discoveries.sql");
 
 test("NET-LAUNCH3: all existing company read paths request 100, role probe stays one", () => {
-  assert.ok([...library.matchAll(/p_limit:\s*100/g)].length >= 2);\n  assert.match(library,/netlaunch4b_browse_page/);
+  assert.ok([...library.matchAll(/p_limit:\s*100/g)].length >= 2);
+  assert.match(library,/netlaunch4b_browse_page/);
   assert.match(library, /p_limit:1,/);
   assert.match(presentation, /\.slice\(0,maxItems\?\?24\)/);
 });
