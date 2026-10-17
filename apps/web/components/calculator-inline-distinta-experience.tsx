@@ -450,13 +450,17 @@ export function CalculatorInlineDistintaExperience({
               {createdRfq ? c.rfqCreated : rfqPending ? c.rfqPending : c.createRfqButton}
             </button>
             {rfqError ? <p role="alert" className="mt-2 text-xs font-semibold text-[#9b442a]">{rfqError}</p> : null}
-            {(rfqAccess === "guest" || rfqAccess === "unavailable") ? (
-              <div data-inline-guest-handoff className="mt-3 rounded-lg bg-[#eef6f1] p-3">
-                <p className="text-xs text-[#315746]">{c.guestDescription}</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <Link className={action} href={"/login?next="+encodeURIComponent(CALCULATOR_ROUTES[locale])}>{c.loginResume}</Link>
-                  <Link className={action} href="/register">{c.registerCompany}</Link>
+            {rfqAccess === "guest" ? (
+              <div data-inline-guest-handoff className="mt-3 rounded-xl border border-[#c6e0d1] bg-[#eef6f1] p-4">
+                <p className="text-sm font-bold text-[#174b37]">{c.guestError}</p>
+                <p className="mt-2 text-xs leading-5 text-[#315746]">{c.guestDescription}</p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  <Link className="inline-flex min-h-12 items-center justify-center rounded-lg bg-[#176647] px-4 py-3 text-center text-sm font-bold text-white hover:bg-[#104d35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176647]"
+                    href="/register">{c.registerCompany}</Link>
+                  <Link className={action + " min-h-12 text-center text-sm"} href={"/login?next="+encodeURIComponent(CALCULATOR_ROUTES[locale])}>{c.loginResume}</Link>
                 </div>
+                <button type="button" className={action + " mt-3 w-full sm:w-auto"} onClick={copyBill}>{c.copyBill}</button>
+                {!storageAvailable ? <p className="mt-2 text-xs font-semibold text-[#8b472c]">{c.noStorage}</p> : null}
               </div>
             ) : null}
             {rfqAccess === "needs-company" ? (
