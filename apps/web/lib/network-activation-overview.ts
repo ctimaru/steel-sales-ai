@@ -5,7 +5,8 @@ import {createClient} from "@/lib/supabase/server";
 export type NetworkActivationCounts = {
  published:number;provisional_visible:number;registration_applications:number;
  registrations_activated:number;claims_pending:number;claims_approved:number;
- companies_linked_and_claim_approved:number;canonical_evidence_links:number;
+ companies_linked_and_claim_approved:number;connection_requests_sent:number;
+ connections_accepted:number;canonical_evidence_links:number;
  registration_strong_matches:number;registration_ambiguous_matches:number;
 };
 export type NetworkReconciliationProposal = {
