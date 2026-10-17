@@ -1,8 +1,8 @@
 import Link from "next/link";
 import {notFound,redirect} from "next/navigation";
 import {submitNetworkConnection} from "@/app/(workspace)/network/actions";
-import {getActiveOrganizationContext,getInquiryEligibility,getNetworkProfile} from "@/lib/network";
-import {requireNetworkAccess} from "@/lib/network-access";
+import {getActiveOrganizationContext,getInquiryEligibility} from "@/lib/network";
+import {getFreeNetworkProfile} from "@/lib/network-free";
 import {isNetworkFrontendEnabled} from "@/lib/network-flags";
 
 const reasons=[
@@ -19,10 +19,10 @@ export default async function NetworkConnectCompanyPage({
 }){
  if(!isNetworkFrontendEnabled())redirect("/dashboard");
  const {id}=await params;
- await requireNetworkAccess();
- const [profile,actor]=await Promise.all([getNetworkProfile(id),getActiveOrganizationContext()]);
- if(!profile)notFound();
+ const actor=await getActiveOrganizationContext();
  if(!actor)redirect("/network?error=Organizzazione%20attiva%20richiesta");
+ const profile=await getFreeNetworkProfile(actor.organization_id,id);
+ if(!profile)notFound();
  const eligibility=await getInquiryEligibility(actor.organization_id,id).catch(()=>({eligible:false,reason:"unavailable"}));
  const error=(await searchParams).error;
  return <main className="mx-auto max-w-3xl space-y-5 pb-16">
