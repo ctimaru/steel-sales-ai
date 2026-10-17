@@ -468,6 +468,12 @@ select pg_temp.hp13_assert_raises(
   'Platform permission required'
 );
 
+-- NET-CONNECT2D: tenant A cannot query tenant B's company progress.
+select pg_temp.hp13_assert_raises(
+  'select public.netconnect2d_company_progress(''00000000-0000-0000-0000-0000000013f2''::uuid)',
+  'Active organization membership required'
+);
+
 -- DASH-FEED7: an ordinary company admin cannot read platform-level usage.
 select pg_temp.hp13_assert_raises(
   'select public.dash_feed7_platform_insights(7)',

@@ -38,6 +38,7 @@ export default async function NetworkConnectionsPage({
     <h1 className="mt-2 text-2xl font-semibold text-[#173f35]">Connessioni aziendali</h1>
     <p className="mt-2 max-w-2xl text-sm leading-6 text-[#52615b]">Proposte con un obiettivo commerciale, inviate e ricevute tra aziende. Una connessione esiste soltanto quando il destinatario l'ha accettata.</p>
     <Link href="/network" className="mt-4 inline-flex min-h-10 items-center rounded-xl border border-[#b8d2c8] bg-white px-4 text-sm font-semibold text-[#173f35]">Esplora aziende →</Link>
+    <Link href="/network/start" className="ml-2 inline-flex min-h-10 items-center rounded-xl border border-[#b8d2c8] bg-white px-4 text-sm font-semibold text-[#173f35]">Il mio percorso →</Link>
    </div>
    <nav aria-label="Richieste di connessione" className="flex flex-wrap gap-2">
     {[{key:"received",label:"Ricevute"},{key:"sent",label:"Inviate"}].map(t=>
