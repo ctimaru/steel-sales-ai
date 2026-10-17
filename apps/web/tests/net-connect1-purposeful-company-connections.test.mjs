@@ -39,12 +39,13 @@ test("NET-CONNECT1: explicit purpose, 30+ character message and no empty invitat
 });
 
 test("NET-CONNECT1: recipient must be real and reachable, no fake delivery for provisional",()=>{
- assert.match(compose,/getInquiryEligibility\(actor\.organizationId,id\)/);
- assert.match(compose,/!eligibility\.eligible/);
+ assert.match(compose,/getNetworkRecipientReadiness\(actor\.organizationId,\[id\]\)/);
+ assert.match(compose,/profile\.company\.discovery_status==="unconfirmed"/);
+ assert.match(compose,/status!=="available"/);
  assert.match(profile,/inquiryEligible && canInteract/);
  assert.match(profile,/Richiedi connessione/);
- assert.match(free,/eligibility\.eligible/);
- assert.match(free,/La connessione sulla piattaforma sarà disponibile/);
+ assert.match(free,/status==="available"&&canConnect/);
+ assert.match(free,/Azienda scoperta · Da confermare/);
  assert.match(db,/private\.netux11_require_active_company/);
  assert.match(db,/private\.p4_submit_inquiry_impl/);
  assert.doesNotMatch(compose,/service_role|email\.send\(/);
