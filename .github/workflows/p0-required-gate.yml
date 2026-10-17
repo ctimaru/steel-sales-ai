@@ -324,6 +324,7 @@ jobs:
             netlaunch1_pro_discovery_read.sql \
             netlaunch2_cc0_density.sql \
             netlaunch3_read_100_discoveries.sql \
+            netlaunch4b_server_pagination.sql \
             crawl_it65a_candidate_bulk_approval.sql \
             crawl_it65_wikidata_source_pilot.sql \
             crawl_it65b_github_actions_runner.sql \
