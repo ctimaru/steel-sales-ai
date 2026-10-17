@@ -490,6 +490,28 @@ export function ProductAnalyticsDashboard({
         </p>
       </section>
 
+      <section className="rounded-3xl border border-[#dce2df] bg-white p-5 sm:p-6" aria-labelledby="calculator-funnel-heading">
+        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#1a5144]">CALC-UX3.5 · Conversioni</p>
+        <h2 id="calculator-funnel-heading" className="mt-2 text-xl font-semibold text-[#1d2824]">Dal calcolatore alla RFQ privata</h2>
+        <p className="mt-2 text-xs leading-5 text-[#66736e]">
+          Eventi aggregati con consenso analytics, per tutte le lingue. I clic su registrazione e login
+          non rappresentano account creati; le RFQ private create non equivalgono a richieste inviate ai fornitori.
+          Le azioni possono ripetersi e non descrivono utenti unici né un percorso individuale.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {snapshot.calculatorFunnel.map((step) => (
+            <div key={step.key} className="rounded-xl border border-[#dfe8e2] bg-[#f8faf9] p-4">
+              <p className="text-2xl font-bold tabular-nums text-[#174b37]">{formatCount(step.value)}</p>
+              <p className="mt-1 text-xs font-semibold text-[#52615b]">{step.label}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-xs text-[#718078]">
+          Fonte: Vercel Web Analytics · {snapshot.rangeLabel.toLowerCase()}. Nessun prezzo, nominativo o identificativo RFQ raccolto.
+          I conteggi zero possono indicare assenza di consenso o traffico, non necessariamente assenza di attività.
+        </p>
+      </section>
+
       <Funnel
         title="Utility → RFQ Hub"
         subtitle="Misura il percorso dalle utility concrete fino all'avvio e dispatch di una RFQ multi-fornitore."
