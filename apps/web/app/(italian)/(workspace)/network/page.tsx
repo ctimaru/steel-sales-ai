@@ -10,6 +10,7 @@ import {
 import { FreeNetworkDirectoryView } from "@/components/free-network-directory";
 import { NetworkLaunchDiscovery } from "@/components/network-launch-discovery";
 import { NetworkDiscoveryOverview } from "@/components/network-discovery-overview";
+import { NetworkPagination, parseNetworkPage } from "@/components/network-pagination";
 import { ItalyRegionMap } from "@/components/italy-region-map";
 import { NetworkRoleDiscovery } from "@/components/network-role-discovery";
 import { getItalyRegionCoverage } from "@/lib/network-region-coverage";
@@ -93,6 +94,8 @@ export default async function NetworkDirectoryPage({
     province?: string;
     city?: string;
     persona?: string;
+    p?: string;
+    dpage?: string;
     error?: string;
     message?: string;
   }>;
@@ -109,7 +112,7 @@ export default async function NetworkDirectoryPage({
         <FreeNetworkDirectoryView
           organizationId={context.organizationId}
           organizationName={context.organizationName}
-          filters={{ q: params.q, role: params.role, region: params.region, persona: params.persona }}
+          filters={{ q: params.q, role: params.role, region: params.region, persona: params.persona, p:params.p,dpage:params.dpage }}
         />
       );
     }
@@ -137,6 +140,7 @@ export default async function NetworkDirectoryPage({
       region: params.region,
       province: params.province,
       city: params.city,
+      page:parseNetworkPage(params.p),
     }),
     getSavedNetworkCompanies(),
     getFollowedNetworkCompanies(context.organizationId),
@@ -145,6 +149,7 @@ export default async function NetworkDirectoryPage({
     // Pro users previously saw only the legacy canonical search, hiding NET-FAST discoveries.
     getProNetworkDiscoveryDirectory(context.organizationId, {
       q: params.q, role: params.role, region: params.region,
+      persona: validNetworkPersona(params.persona) || undefined, page:parseNetworkPage(params.dpage),
     }).catch(() => null),
   ]);
 
@@ -361,7 +366,8 @@ export default async function NetworkDirectoryPage({
       </div>
       <div className="mt-5">
         <NetworkLaunchDiscovery directory={previewDirectory}
-          filters={{q:params.q,role:params.role,region:params.region}} />
+          filters={{q:params.q,role:params.role,region:params.region}}
+          pagination={previewDirectory?.discovery_page} navigationParams={params} />
       </div>
       <section id="network-region-results" aria-labelledby="network-results">
         <FocusSectionHeader
@@ -541,6 +547,10 @@ export default async function NetworkDirectoryPage({
             })}
           </div>
         )}
+        <NetworkPagination
+          page={parseNetworkPage(params.p)} total={results.total} pageSize={18}
+          parameter="p" params={params} anchor="network-region-results"
+        />
       </section>
       <div className="mt-6">
         <ItalyRegionMap coverage={coverage} selectedRegion={params.region} filters={params} />
