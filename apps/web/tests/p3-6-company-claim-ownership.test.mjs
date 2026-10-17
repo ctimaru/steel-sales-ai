@@ -11,6 +11,9 @@ const profile = fs.readFileSync(
   new URL("../app/(workspace)/network/[id]/page.tsx", import.meta.url),
   "utf8",
 );
+const activationCta = fs.readFileSync(
+  new URL("../components/network-activation-cta.tsx", import.meta.url), "utf8"
+);
 const networkActions = fs.readFileSync(
   new URL("../app/(workspace)/network/actions.ts", import.meta.url),
   "utf8",
@@ -47,7 +50,8 @@ test("P3.6 approved direct claim creates a control link without changing verific
 
 test("P3.6 claim workflow is available to company admins and Platform Superadmin", () => {
   assert.match(networkActions, /p3_6_request_company_claim/);
-  assert.match(profile, /Rivendica questo profilo/);
+  assert.match(profile, /NetworkActivationCta mode="published"/);
+  assert.match(activationCta, /Rivendica il profilo/);
   assert.match(profile, /Ownership verificata/);
   assert.match(platformIa, /appRoutes\.platform\.claims/);
   assert.match(platformClaims, /Company Claims/);
