@@ -101,7 +101,7 @@ export default async function PlatformNetworkActivationPage(){
         <td className="px-3 py-3 font-semibold text-[#173f35]">{item.discovered_name}</td>
         <td className="px-3 py-3 text-[#52615b]">{item.domain}</td>
         <td className="px-3 py-3 text-[#52615b]">{item.applicant_company}</td>
-        <td className="px-3 py-3 text-[#52615b]">{item.match_state==="strong_evidence"?"Prove coerenti · non approvata":"Richiede verifica"}</td>
+        <td className="px-3 py-3 text-[#52615b]">{item.match_state==="strong_evidence"?"Prove coerenti · nessun claim automatico":"Richiede verifica"}</td>
        </tr>)}
       </tbody>
      </table>
