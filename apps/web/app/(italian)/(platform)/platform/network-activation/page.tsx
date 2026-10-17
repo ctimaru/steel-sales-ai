@@ -14,6 +14,7 @@ const stages=[
   {key:"provisional_visible",name:"Schede da confermare",hint:"Scoperte da fonti governate, senza ownership"},
   {key:"registration_applications",name:"Domande inoltrate",hint:"Registrazioni non in bozza"},
   {key:"registrations_activated",name:"Registrazioni attivate",hint:"Account aziendali attivati dopo le verifiche"},
+  {key:"claims_pending",name:"Rivendicazioni in attesa",hint:"Richieste ancora da approvare"},
   {key:"claims_approved",name:"Rivendicazioni approvate",hint:"Titolarità approvata; non prova di verifica dei dati"},
   {key:"companies_linked_and_claim_approved",name:"Aziende con titolarità attiva",hint:"Profilo pubblicato + link attivo + claim approvato + membro attivo"},
 ] as const;
