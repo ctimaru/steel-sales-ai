@@ -4,6 +4,7 @@ import { FocusPage } from "@/components/focus-ui";
 import { ItalyRegionMap } from "@/components/italy-region-map";
 import { NetworkRoleDiscovery } from "@/components/network-role-discovery";
 import { NetworkLaunchDiscovery } from "@/components/network-launch-discovery";
+import { NetworkDiscoveryOverview } from "@/components/network-discovery-overview";
 import { getItalyRegionCoverage, type ItalyRegionCoverage } from "@/lib/network-region-coverage";
 import { NETWORK_COMPANY_ROLES, orderNetworkDiscovery } from "@/lib/network-experience";
 import { activeNetworkPersona, networkRoleReason } from "@/lib/network-role-discovery";
@@ -96,6 +97,16 @@ export async function FreeNetworkDirectoryView({
         </nav>
 
       </section>
+      <div className="mt-4">
+        <NetworkDiscoveryOverview
+          published={Math.max(data.total - (data.discovered_total ?? 0), 0)}
+          discovered={data.discovered_total ?? 0}
+          persona={filters.persona}
+          role={filters.role}
+          region={filters.region}
+          discoveryUnavailable={data.discovery_unavailable}
+        />
+      </div>
       <div className="mt-6">
         <NetworkRoleDiscovery viewerRole={data.viewer_role} filters={filters} />
       </div>
