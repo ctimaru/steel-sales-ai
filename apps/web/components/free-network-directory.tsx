@@ -17,7 +17,10 @@ const roleLabels: Record<string, string> = {
 };
 function href(filters: { q?: string; role?: string; region?: string; persona?: string }) {
   const query = new URLSearchParams();
-  for (const [key, value] of Object.entries(filters)) if (value) query.set(key, value);
+  // Changing a category restarts both page windows; never carry stale p/dpage.
+  for (const key of ["q","role","region","persona"] as const) {
+    const value=filters[key]; if(value)query.set(key,value);
+  }
   return "/network" + (query.size ? "?" + query.toString() : "");
 }
 export async function FreeNetworkDirectoryView({
