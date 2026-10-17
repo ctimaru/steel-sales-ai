@@ -90,7 +90,7 @@ export function NetworkRecoveryScreen({retry}:{retry?:()=>void}){
    </form>
    <div className="mt-4"><NetworkIntentShortcuts filters={{}} /></div>
   </section>
-  <div className="mt-4"><NetworkAvailabilityNotice label="La directory non si è caricata completamente." /></div>
+  <div className="mt-4"><NetworkAvailabilityNotice label="L'elenco aziende non si è caricato completamente." /></div>
   <div className="mt-4 grid gap-4 sm:grid-cols-[minmax(0,1fr)_290px]">
     <section className="rounded-2xl border border-[#dce6e0] bg-white p-5">
       <h2 className="text-lg font-semibold text-[#173f35]">Continua a esplorare</h2>
