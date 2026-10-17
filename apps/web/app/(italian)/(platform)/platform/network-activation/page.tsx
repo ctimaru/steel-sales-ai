@@ -17,6 +17,8 @@ const stages=[
   {key:"claims_pending",name:"Rivendicazioni in attesa",hint:"Richieste ancora da approvare"},
   {key:"claims_approved",name:"Rivendicazioni approvate",hint:"Titolarità approvata; non prova di verifica dei dati"},
   {key:"companies_linked_and_claim_approved",name:"Aziende con titolarità attiva",hint:"Profilo pubblicato + link attivo + claim approvato + membro attivo"},
+  {key:"connection_requests_sent",name:"Richieste di connessione inviate",hint:"Richieste realmente registrate nel database"},
+  {key:"connections_accepted",name:"Connessioni accettate",hint:"Consenso effettivo del destinatario; non implica contratti o ordini"},
 ] as const;
 
 export default async function PlatformNetworkActivationPage(){
