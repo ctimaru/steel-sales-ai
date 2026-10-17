@@ -35,9 +35,10 @@ type ClaimRegistrationContext = {
 export default async function RegisterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string; claim_ref?: string }>;
+  searchParams: Promise<{ error?: string; message?: string; claim_ref?: string; company?: string }>;
 }) {
-  const { error, message, claim_ref: rawClaimRef } = await searchParams;
+  const { error, message, claim_ref: rawClaimRef, company: companyHint } = await searchParams;
+  const initialCompanySearch = String(companyHint ?? "").trim().slice(0, 120);
   const normalizedClaimRef = String(rawClaimRef ?? "").trim().toLowerCase();
   const claimRef = /^[0-9a-f]{64}$/.test(normalizedClaimRef)
     ? normalizedClaimRef
@@ -113,12 +114,22 @@ export default async function RegisterPage({
                     </div>
                   </div>
                 ) : (
+                  <>
+                  {initialCompanySearch ? (
+                    <p className="mb-3 rounded-xl border border-[#cde1d5] bg-[#f0f7f3] px-4 py-3 text-xs leading-5 text-[#285b45]">
+                      Hai aperto una scheda aziendale dal Network. Verifica ragione sociale e Partita IVA:
+                      le aziende ancora da confermare non vengono rivendicate automaticamente.
+                      Se non compare un profilo pubblicato, puoi proseguire con la registrazione.
+                    </p>
+                  ) : null}
                   <PublicCompanyLookup
                     context="registration"
+                    initialQuery={initialCompanySearch}
                     notFoundHref="#account"
                     notFoundLabel="Non è presente: continua con una nuova registrazione ↓"
                     showNetworkNote={false}
                   />
+                  </>
                 )}
               </section>
 
@@ -372,8 +383,16 @@ export default async function RegisterPage({
 
           {!application && !claimRef && !activeClaim ? (
             <div className="mt-6">
+              {initialCompanySearch ? (
+                <p className="mb-3 rounded-xl border border-[#cde1d5] bg-[#f0f7f3] px-4 py-3 text-xs leading-5 text-[#285b45]">
+                  Hai aperto una scheda aziendale dal Network. Verifica ragione sociale e Partita IVA:
+                  le aziende ancora da confermare non vengono rivendicate automaticamente.
+                  Se non compare un profilo pubblicato, puoi proseguire con la registrazione.
+                </p>
+                  ) : null}
               <PublicCompanyLookup
                 context="registration"
+                initialQuery={initialCompanySearch}
                 notFoundHref="#company-form"
                 notFoundLabel="Non è presente: compila una nuova azienda ↓"
                 showNetworkNote={false}
