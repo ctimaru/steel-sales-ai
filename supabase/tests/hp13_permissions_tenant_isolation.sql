@@ -243,7 +243,10 @@ select pg_temp.hp13_assert(
         -- anti-blocking controls and immutable inquiry event ledger.
         'netconnect1_submit',
         'netconnect1_decide',
-        'netconnect1_list'
+        'netconnect1_list',
+        -- NET-CONNECT2B: owner-only aggregated activation/reconciliation insight.
+        -- No personal contact fields, claim mutation or direct table grants.
+        'netconnect2b_activation_overview'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
