@@ -268,7 +268,7 @@ export const businessPlanVisionCopy = {
     ],
     "references": [
       [
-        "Masterplan audit",
+        "Product strategy (Notion)",
         "https://app.notion.com/p/3e6f059cecb581539311d7b014bfa537"
       ],
       [
