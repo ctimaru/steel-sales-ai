@@ -193,13 +193,15 @@ export async function getFreeNetworkPagedDirectory(
  organizationId:string,
  filters:{q?:string;role?:string;region?:string;persona?:string;page?:number;discoveryPage?:number},
 ):Promise<NetworkPagedDirectory>{
- const published=await getNetworkBrowsePage(organizationId,"free","published",filters);
+ const viewerRole=await getFreeNetworkViewerRole(organizationId);
+ const rankedFilters={...filters,persona:filters.persona||viewerRole||undefined};
+ const published=await getNetworkBrowsePage(organizationId,"free","published",rankedFilters);
  const provisional=await getNetworkBrowsePage(organizationId,"free","unconfirmed",{
-  ...filters,page:filters.discoveryPage,
+  ...rankedFilters,page:filters.discoveryPage,
  }).catch(()=>null);
  return {
   contract:"netux11-free-v1",items:[...published.items,...(provisional?.items??[])],
-  total:published.total+(provisional?.total??0),viewer_role:null,regions:[],
+  total:published.total+(provisional?.total??0),viewer_role:viewerRole,regions:[],
   discovered_total:provisional?.total??0,discovery_unavailable:!provisional,
   published_page:published,discovery_page:provisional,
  };
