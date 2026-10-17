@@ -10,7 +10,7 @@ import { NetworkPagination, parseNetworkPage } from "@/components/network-pagina
 import { getItalyRegionCoverage, type ItalyRegionCoverage } from "@/lib/network-region-coverage";
 import { NETWORK_COMPANY_ROLES } from "@/lib/network-experience";
 import { activeNetworkPersona, networkRoleReason } from "@/lib/network-role-discovery";
-import { getFreeNetworkPagedElenco aziende, safeNetworkWebsiteUrl } from "@/lib/network-free";
+import { getFreeNetworkPagedDirectory, safeNetworkWebsiteUrl } from "@/lib/network-free";
 
 const roleLabels: Record<string, string> = {
   producer: "Produttori", trader_distributor: "Commercianti",
