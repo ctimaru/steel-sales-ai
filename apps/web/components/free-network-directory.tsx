@@ -7,6 +7,7 @@ import { NetworkLaunchDiscovery } from "@/components/network-launch-discovery";
 import { NetworkDiscoveryOverview } from "@/components/network-discovery-overview";
 import { NetworkMiniMap, NetworkRecoveryScreen } from "@/components/network-resilient-first-screen";
 import { NetworkPagination, parseNetworkPage } from "@/components/network-pagination";
+import { NetworkActivationCta } from "@/components/network-activation-cta";
 import { getItalyRegionCoverage, type ItalyRegionCoverage } from "@/lib/network-region-coverage";
 import { NETWORK_COMPANY_ROLES } from "@/lib/network-experience";
 import { activeNetworkPersona, networkRoleReason } from "@/lib/network-role-discovery";
@@ -25,10 +26,11 @@ function href(filters: { q?: string; role?: string; region?: string; persona?: s
   return "/network" + (query.size ? "?" + query.toString() : "");
 }
 export async function FreeNetworkDirectoryView({
-  organizationId, organizationName, filters,
+  organizationId, organizationName, filters, isWorkspaceAdmin=false,
 }: {
   organizationId: string;
   organizationName: string;
+  isWorkspaceAdmin?:boolean;
   filters: { q?: string; role?: string; region?: string; persona?: string; p?: string; dpage?: string };
 }) {
   const role = NETWORK_COMPANY_ROLES.includes(filters.role as (typeof NETWORK_COMPANY_ROLES)[number])
@@ -142,6 +144,10 @@ export async function FreeNetworkDirectoryView({
                   <div className="flex flex-wrap gap-2">
                     {website ? <a href={website} rel="noopener noreferrer" target="_blank" className="app-secondary inline-flex min-h-10 items-center rounded-xl px-3 text-xs font-semibold">Sito web</a> : null}
                     <Link href={"/network/" + company.id} className="app-primary inline-flex min-h-10 items-center rounded-xl px-3 text-xs font-semibold">Profilo</Link>
+                    {isWorkspaceAdmin && ["unclaimed","revoked"].includes(company.claimed_status)
+                      ? <NetworkActivationCta mode="published" companyId={company.id}
+                          companyName={company.legal_name} source="network_free_results" compact />
+                      : null}
                   </div>
                 </article>
               );
