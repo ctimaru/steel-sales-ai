@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-import type { FreeDirectory } from "@/lib/network-free";
+import type { FreeDirectory, NetworkBrowsePage } from "@/lib/network-free";
+import { NetworkPagination } from "@/components/network-pagination";
 import { safeNetworkWebsiteUrl } from "@/lib/network-free";
 
 const roleLabels: Record<string,string>={
@@ -13,13 +14,15 @@ const roleLabels: Record<string,string>={
 /** NET-LAUNCH1: also show Free unconfirmed discoveries to users with Pro entitlements.
  * No Pro-only data, personal contacts or provisional qualification claims. */
 export function NetworkLaunchDiscovery({
- directory, filters, maxItems,
+ directory, filters, maxItems, pagination, navigationParams,
 }:{
  directory: FreeDirectory | null;
  filters: {q?:string;role?:string;region?:string};
  maxItems?:number;
+ pagination?:NetworkBrowsePage | null;
+ navigationParams?: Record<string,string|undefined>;
 }){
- const found=(directory?.items??[]).filter(item=>item.discovery_status==="unconfirmed").slice(0,maxItems??100);
+ const found=(directory?.items??[]).filter(item=>item.discovery_status==="unconfirmed").slice(0,maxItems??24);
  const total=directory?.discovered_total??0;
  const filtered=Boolean(filters.q?.trim()||filters.role||filters.region);
  const clearParams=new URLSearchParams();
@@ -67,6 +70,10 @@ export function NetworkLaunchDiscovery({
        "Nessuna nuova azienda ammissibile al momento. Le aziende pubblicate restano consultabili nella directory."}
      {filters.region?<Link href={resetPath} className="ml-2 font-semibold text-[#175640] underline">Mostra aziende senza regione →</Link>:null}
    </div>}
+   {pagination && navigationParams ? <NetworkPagination
+     page={pagination.page} total={pagination.total} pageSize={pagination.page_size}
+     parameter="dpage" params={navigationParams} anchor="network-new-discoveries"
+   /> : null}
    <p className="mt-4 text-xs leading-5 text-[#52615b]">
      I profili da confermare sono distinti dalle aziende pubblicate. Puoi segnalare errori o richiedere la rimozione attraverso la scheda.
    </p>

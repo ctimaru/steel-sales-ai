@@ -59,7 +59,7 @@ test("NET-UX2 appears on both Free and paid Network discovery", () => {
   assert.match(paid, /<ItalyRegionMap coverage=\{coverage\}/);
   assert.match(free, /id="network-region-results"/);
   assert.match(paid, /id="network-region-results"/);
-  assert.match(free, /getFreeNetworkDirectory/);
+  assert.match(free, /getFreeNetworkPagedDirectory/);
   assert.match(basic, /netux11_free_directory/);
 });
 

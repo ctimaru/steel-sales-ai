@@ -5,10 +5,11 @@ import { ItalyRegionMap } from "@/components/italy-region-map";
 import { NetworkRoleDiscovery } from "@/components/network-role-discovery";
 import { NetworkLaunchDiscovery } from "@/components/network-launch-discovery";
 import { NetworkDiscoveryOverview } from "@/components/network-discovery-overview";
+import { NetworkPagination, parseNetworkPage } from "@/components/network-pagination";
 import { getItalyRegionCoverage, type ItalyRegionCoverage } from "@/lib/network-region-coverage";
-import { NETWORK_COMPANY_ROLES, orderNetworkDiscovery } from "@/lib/network-experience";
+import { NETWORK_COMPANY_ROLES } from "@/lib/network-experience";
 import { activeNetworkPersona, networkRoleReason } from "@/lib/network-role-discovery";
-import { getFreeNetworkDirectory, safeNetworkWebsiteUrl } from "@/lib/network-free";
+import { getFreeNetworkPagedDirectory, safeNetworkWebsiteUrl } from "@/lib/network-free";
 
 const roleLabels: Record<string, string> = {
   producer: "Produttori", trader_distributor: "Commercianti",
@@ -16,7 +17,10 @@ const roleLabels: Record<string, string> = {
 };
 function href(filters: { q?: string; role?: string; region?: string; persona?: string }) {
   const query = new URLSearchParams();
-  for (const [key, value] of Object.entries(filters)) if (value) query.set(key, value);
+  // Changing a category restarts both page windows; never carry stale p/dpage.
+  for (const key of ["q","role","region","persona"] as const) {
+    const value=filters[key]; if(value)query.set(key,value);
+  }
   return "/network" + (query.size ? "?" + query.toString() : "");
 }
 export async function FreeNetworkDirectoryView({
@@ -24,7 +28,7 @@ export async function FreeNetworkDirectoryView({
 }: {
   organizationId: string;
   organizationName: string;
-  filters: { q?: string; role?: string; region?: string; persona?: string };
+  filters: { q?: string; role?: string; region?: string; persona?: string; p?: string; dpage?: string };
 }) {
   const role = NETWORK_COMPANY_ROLES.includes(filters.role as (typeof NETWORK_COMPANY_ROLES)[number])
     ? filters.role : undefined;
@@ -32,7 +36,7 @@ export async function FreeNetworkDirectoryView({
   let coverage: ItalyRegionCoverage | null = null;
   try {
     [data, coverage] = await Promise.all([
-      getFreeNetworkDirectory(organizationId, { ...filters, role }),
+      getFreeNetworkPagedDirectory(organizationId, { ...filters, role, page:parseNetworkPage(filters.p), discoveryPage:parseNetworkPage(filters.dpage) }),
       getItalyRegionCoverage(organizationId).catch(() => null),
     ]);
   } catch {
@@ -51,7 +55,7 @@ export async function FreeNetworkDirectoryView({
   }
   const hasFilters = Boolean(filters.q?.trim() || role || filters.region);
   const persona = activeNetworkPersona(filters.persona, data.viewer_role);
-  const items = orderNetworkDiscovery(data.items, persona, hasFilters);
+  const items = data.published_page.items; // role ordering is global and enforced by SQL before pagination
   return (
     <FocusPage className="max-w-[1180px]">
       <section className="rounded-3xl border border-[#b8d2c8] bg-[#edf5f2] p-5 sm:p-7">
@@ -111,8 +115,9 @@ export async function FreeNetworkDirectoryView({
         <NetworkRoleDiscovery viewerRole={data.viewer_role} filters={filters} />
       </div>
       <div className="mt-5">
-        <NetworkLaunchDiscovery directory={data} maxItems={6}
-          filters={{q:filters.q,role:filters.role,region:filters.region}} />
+        <NetworkLaunchDiscovery directory={data}
+          filters={{q:filters.q,role:filters.role,region:filters.region}}
+          pagination={data.discovery_page} navigationParams={filters} />
       </div>
       <section id="network-region-results" aria-label="Risultati del Network" className="mt-6">
         <h2 className="text-xl font-semibold text-[#173f35]">{data.total.toLocaleString("it-IT")} aziende</h2>
@@ -152,6 +157,10 @@ export async function FreeNetworkDirectoryView({
             Nessuna azienda trovata. Cambia regione, categoria oppure azzera i filtri.
           </div>
         )}
+        <NetworkPagination
+          page={data.published_page.page} total={data.published_page.total} pageSize={data.published_page.page_size}
+          parameter="p" params={filters} anchor="network-region-results"
+        />
       </section>
       <div className="mt-6">
         <ItalyRegionMap coverage={coverage} selectedRegion={filters.region} filters={filters} />

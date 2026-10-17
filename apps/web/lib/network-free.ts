@@ -129,21 +129,11 @@ export async function getFreeNetworkViewerRole(organizationId:string): Promise<N
 /** Pro/superadmin discovery uses PA1.3 entitlement, not the Free-only organization link.
  * The SQL reader shares the exact provisional, source-governed record view. */
 export async function getProNetworkDiscoveryDirectory(
- organizationId:string,filters:{q?:string;role?:string;region?:string},
-):Promise<FreeDirectory>{
- const supabase=await createClient();
- const {data,error}=await supabase.rpc("netlaunch1_pro_discovery",{
-  p_organization_id:organizationId,
-  p_query:(filters.q??"").trim().slice(0,120)||null,
-  p_role:filters.role||null,
-  p_region:(filters.region??"").trim().slice(0,90)||null,
-  p_limit: 100,
- });
- if(error||!data||typeof data!=="object")throw new Error("network_pro_discoveries_unavailable");
- const res=data as {contract?:string;items?:unknown[]};
- if(res.contract!=="netlaunch1-pro-discovery-v1"||!Array.isArray(res.items))
-   throw new Error("network_pro_discoveries_invalid_contract");
- return {...(data as unknown as FreeDirectory),contract:"netux11-free-v1"};
+ organizationId:string,filters:{q?:string;role?:string;region?:string;persona?:string;page?:number},
+):Promise<FreeDirectory & {discovery_page:NetworkBrowsePage}>{
+ const page=await getNetworkBrowsePage(organizationId,"pro","unconfirmed",filters);
+ return {contract:"netux11-free-v1",items:page.items,total:page.total,
+  discovered_total:page.total,viewer_role:null,regions:[],discovery_page:page};
 }
 
 export async function getProNetworkDiscoveryProfile(
@@ -159,4 +149,60 @@ export async function getProNetworkDiscoveryProfile(
  if(result.contract!=="netfast-discovery-profile-v1")
    throw new Error("network_pro_discovery_profile_invalid");
  return data as unknown as FreeProfile;
+}
+
+/** NET-LAUNCH4B: one independently paged, authorized company source.
+ * The server controls ranking, totals, and page boundaries; the browser never sorts a partial collection.
+ */
+export type NetworkBrowsePage = {
+  contract: "netlaunch4b-page-v1";
+  source: "published" | "unconfirmed";
+  items: FreeCompany[];
+  total: number;
+  page: number;
+  page_size: number;
+  has_more: boolean;
+};
+export type NetworkPagedDirectory = FreeDirectory & {
+  published_page: NetworkBrowsePage;
+  discovery_page: NetworkBrowsePage | null;
+};
+function validPage(value: number | undefined): number {
+  return typeof value === "number" && Number.isInteger(value) && value > 0
+    ? Math.min(value,100000) : 1;
+}
+export async function getNetworkBrowsePage(
+  organizationId: string,access: "free" | "pro",source: "published" | "unconfirmed",
+  filters:{q?:string;role?:string;region?:string;persona?:string;page?:number},
+):Promise<NetworkBrowsePage>{
+ const supabase=await createClient();
+ const {data,error}=await supabase.rpc("netlaunch4b_browse_page",{
+  p_organization_id:organizationId,p_access:access,p_source:source,
+  p_query:(filters.q??"").trim().slice(0,120)||null,
+  p_role:filters.role||null,p_region:(filters.region??"").trim().slice(0,90)||null,
+  p_persona:filters.persona||null,p_page:validPage(filters.page),p_limit:18,
+ });
+ if(error || !data || typeof data!=="object") throw new Error("network_browse_page_unavailable");
+ const page=data as NetworkBrowsePage;
+ if(page.contract!=="netlaunch4b-page-v1"||page.source!==source||!Array.isArray(page.items)
+    ||typeof page.total!=="number"||typeof page.has_more!=="boolean"
+    ||!Number.isInteger(page.page)||!Number.isInteger(page.page_size))throw new Error("network_browse_page_invalid_contract");
+ return page;
+}
+export async function getFreeNetworkPagedDirectory(
+ organizationId:string,
+ filters:{q?:string;role?:string;region?:string;persona?:string;page?:number;discoveryPage?:number},
+):Promise<NetworkPagedDirectory>{
+ const viewerRole=await getFreeNetworkViewerRole(organizationId);
+ const rankedFilters={...filters,persona:filters.persona||viewerRole||undefined};
+ const published=await getNetworkBrowsePage(organizationId,"free","published",rankedFilters);
+ const provisional=await getNetworkBrowsePage(organizationId,"free","unconfirmed",{
+  ...rankedFilters,page:filters.discoveryPage,
+ }).catch(()=>null);
+ return {
+  contract:"netux11-free-v1",items:[...published.items,...(provisional?.items??[])],
+  total:published.total+(provisional?.total??0),viewer_role:viewerRole,regions:[],
+  discovered_total:provisional?.total??0,discovery_unavailable:!provisional,
+  published_page:published,discovery_page:provisional,
+ };
 }

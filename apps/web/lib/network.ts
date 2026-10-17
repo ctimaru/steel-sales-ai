@@ -205,6 +205,7 @@ export async function searchNetwork(filters: {
   region?: string | null;
   province?: string | null;
   city?: string | null;
+  page?: number;
 }) {
   const supabase = await createClient();
   const isGeo = Boolean(filters.region || filters.province || filters.city);
@@ -216,8 +217,8 @@ export async function searchNetwork(filters: {
     p_country_codes: filters.country ? [filters.country.toUpperCase()] : null,
     p_market_keys: filters.market ? [filters.market] : null,
     ...(isGeo ? { p_region: filters.region || null, p_province: filters.province || null, p_city: filters.city || null } : {}),
-    p_limit: 50,
-    p_offset: 0,
+    p_limit: 18,
+    p_offset: (Math.max(1,Math.min(100000,typeof filters.page === "number" && Number.isInteger(filters.page) ? filters.page : 1))-1)*18,
   });
 
   if (error) throw new Error(error.message);
