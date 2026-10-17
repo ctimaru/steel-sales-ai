@@ -217,37 +217,6 @@ export default async function NetworkDirectoryPage({
         }
       />
 
-      <NetworkDiscoveryOverview
-        published={results.total}
-        discovered={previewDirectory?.discovered_total ?? 0}
-        persona={params.persona}
-        role={params.role}
-        region={params.region}
-        discoveryUnavailable={!previewDirectory}
-        publishedUnavailable={canonicalUnavailable}
-      />
-        </div>
-        <NetworkMiniMap coverage={coverage} filters={params} />
-      </div>
-      {unavailableSections.length ? <div className="mt-4">
-        <NetworkAvailabilityNotice label={"Servizi temporaneamente non disponibili: "+unavailableSections.join(", ")+ "."}/>
-      </div> : null}
-
-      {previewDirectory?.discovered_total ? <p className="mt-4 text-xs text-[#52615b]">
-        La sezione di scoperta contiene {previewDirectory.discovered_total} profili aggiuntivi da confermare;
-        le funzionalità premium rimangono disponibili sulla directory pubblicata qui sotto.
-      </p> : null}
-      {params.error ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
-          {params.error}
-        </div>
-      ) : null}
-      {params.message ? (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-900">
-          {params.message}
-        </div>
-      ) : null}
-
       <section className="rounded-3xl border border-[#b8d2c8] bg-[#edf5f2] p-5 sm:p-6">
         <p className="app-kicker">Ricerca aziende</p>
         <h2 className="mt-2 text-xl font-semibold text-[#173f35] sm:text-2xl">
@@ -390,6 +359,39 @@ export default async function NetworkDirectoryPage({
           </form>
         </details>
       </section>
+
+      <NetworkDiscoveryOverview
+        published={results.total}
+        discovered={previewDirectory?.discovered_total ?? 0}
+        persona={params.persona}
+        role={params.role}
+        region={params.region}
+        discoveryUnavailable={!previewDirectory}
+        publishedUnavailable={canonicalUnavailable}
+      />
+        </div>
+        <NetworkMiniMap coverage={coverage} filters={params} />
+      </div>
+      {unavailableSections.length ? <div className="mt-4">
+        <NetworkAvailabilityNotice label={"Servizi temporaneamente non disponibili: "+unavailableSections.join(", ")+ "."}/>
+      </div> : null}
+
+      {previewDirectory?.discovered_total ? <p className="mt-4 text-xs text-[#52615b]">
+        La sezione di scoperta contiene {previewDirectory.discovered_total} profili aggiuntivi da confermare;
+        le funzionalità premium rimangono disponibili sulla directory pubblicata qui sotto.
+      </p> : null}
+      {params.error ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
+          {params.error}
+        </div>
+      ) : null}
+      {params.message ? (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-900">
+          {params.message}
+        </div>
+      ) : null}
+
+
 
       <div className="mt-5">
         <NetworkRoleDiscovery viewerRole={viewerRole} filters={params} />
