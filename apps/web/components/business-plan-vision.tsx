@@ -3,7 +3,6 @@ import { businessPlanVisionCopy } from "@/lib/business-plan-vision-content";
 
 const section = "rounded-[28px] border border-[#dce2df] bg-white p-5 sm:p-8";
 const overline = "text-[11px] font-bold uppercase tracking-[0.17em] text-[#1a5144]";
-const muted = "text-sm leading-7 text-[#52615b]";
 
 function Heading({eyebrow,title,description}:{eyebrow:string;title:string;description?:string}) {
   return <div className="max-w-4xl"><p className={overline}>{eyebrow}</p><h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824] sm:text-3xl">{title}</h2>{description ? <p className="mt-3 text-sm leading-7 text-[#66736e]">{description}</p> : null}</div>;
