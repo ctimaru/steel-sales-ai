@@ -5,6 +5,7 @@ import { ItalyRegionMap } from "@/components/italy-region-map";
 import { NetworkRoleDiscovery } from "@/components/network-role-discovery";
 import { NetworkLaunchDiscovery } from "@/components/network-launch-discovery";
 import { NetworkDiscoveryOverview } from "@/components/network-discovery-overview";
+import { NetworkMiniMap, NetworkRecoveryScreen } from "@/components/network-resilient-first-screen";
 import { NetworkPagination, parseNetworkPage } from "@/components/network-pagination";
 import { getItalyRegionCoverage, type ItalyRegionCoverage } from "@/lib/network-region-coverage";
 import { NETWORK_COMPANY_ROLES } from "@/lib/network-experience";
@@ -40,24 +41,16 @@ export async function FreeNetworkDirectoryView({
       getItalyRegionCoverage(organizationId).catch(() => null),
     ]);
   } catch {
-    return (
-      <FocusPage className="max-w-[1180px]">
-        <section className="rounded-2xl border border-[#d7dfdb] bg-white p-6">
-          <h1 className="text-2xl font-semibold text-[#173f35]">Attiva la tua azienda per esplorare il Network</h1>
-          <p className="mt-3 text-sm text-[#52615b]">
-            La directory Free richiede un account autenticato e una registrazione aziendale attiva.
-            Controlla lo stato della tua azienda oppure riprova.
-          </p>
-          <Link href="/registration" className="mt-5 inline-flex rounded-xl border border-[#173f35] px-4 py-2 text-sm font-semibold text-[#173f35]">Verifica registrazione</Link>
-        </section>
-      </FocusPage>
-    );
+    // DB timeouts are not registration failures. Keep entitlement enforcement
+    // in the original RPCs; expose no company rows on failed authorized reads.
+    return <NetworkRecoveryScreen />;
   }
   const hasFilters = Boolean(filters.q?.trim() || role || filters.region);
   const persona = activeNetworkPersona(filters.persona, data.viewer_role);
   const items = data.published_page.items; // role ordering is global and enforced by SQL before pagination
   return (
     <FocusPage className="max-w-[1180px]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_245px]">
       <section className="rounded-3xl border border-[#b8d2c8] bg-[#edf5f2] p-5 sm:p-7">
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full bg-[#173f35] px-3 py-1 text-xs font-semibold text-white">Network Free</span>
@@ -101,6 +94,8 @@ export async function FreeNetworkDirectoryView({
         </nav>
 
       </section>
+      <NetworkMiniMap coverage={coverage} filters={filters} />
+      </div>
       <div className="mt-4">
         <NetworkDiscoveryOverview
           published={Math.max(data.total - (data.discovered_total ?? 0), 0)}

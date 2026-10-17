@@ -3,10 +3,10 @@ import Link from "next/link";
 type Role = "trader_distributor" | "processor_service_provider" | "end_user" | "producer";
 
 const paths: {role: Role; heading: string; description: string}[] = [
-  { role: "trader_distributor", heading: "Commercianti", description: "Distribuzione e stock di acciaio" },
-  { role: "processor_service_provider", heading: "Terzisti", description: "Lavorazioni e servizi industriali" },
-  { role: "end_user", heading: "Utilizzatori potenziali", description: "Produttori di beni e impianti" },
-  { role: "producer", heading: "Produttori", description: "Acciaierie e fabbricanti" },
+  { role: "trader_distributor", heading: "Cerco fornitori", description: "Commercianti e distributori" },
+  { role: "processor_service_provider", heading: "Cerco terzisti", description: "Lavorazioni e servizi industriali" },
+  { role: "end_user", heading: "Cerco clienti", description: "Utilizzatori potenziali" },
+  { role: "producer", heading: "Cerco produttori", description: "Aziende della filiera" },
 ];
 
 function rolePath(role: Role, persona?: string) {
@@ -18,7 +18,7 @@ function rolePath(role: Role, persona?: string) {
 
 /** Accessible, shared Free/Pro orientation. No inferred location or lead qualification. */
 export function NetworkDiscoveryOverview({
-  published, discovered, persona, role, region, discoveryUnavailable = false,
+  published, discovered, persona, role, region, discoveryUnavailable = false, publishedUnavailable = false,
 }: {
   published: number;
   discovered: number;
@@ -26,18 +26,20 @@ export function NetworkDiscoveryOverview({
   role?: string;
   region?: string;
   discoveryUnavailable?: boolean;
+  publishedUnavailable?: boolean;
 }) {
   const total = published + discovered;
+  const anyUnavailable = publishedUnavailable || discoveryUnavailable;
   return (
     <section aria-label="Esplora la rete industriale" className="rounded-2xl border border-[#d4e2db] bg-white p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#277052]">Directory industriale</p>
           <h2 className="mt-1 text-xl font-semibold tracking-tight text-[#173f35] sm:text-2xl">
-            {total.toLocaleString("it-IT")} aziende da esplorare
+            {anyUnavailable ? "Scopri la filiera industriale" : total.toLocaleString("it-IT")+" aziende da esplorare"}
           </h2>
           <p className="mt-1 text-xs leading-5 text-[#52615b]">
-            {published.toLocaleString("it-IT")} profili pubblicati · {discovered.toLocaleString("it-IT")} scoperti, da confermare
+            {publishedUnavailable ? "—" : published.toLocaleString("it-IT")} profili pubblicati · {discoveryUnavailable ? "—" : discovered.toLocaleString("it-IT")} scoperti, da confermare
           </p>
         </div>
         <Link href="/network#network-region-results"
