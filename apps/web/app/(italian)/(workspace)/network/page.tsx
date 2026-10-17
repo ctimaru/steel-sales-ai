@@ -9,6 +9,7 @@ import {
 } from "@/app/(workspace)/network/actions";
 import { FreeNetworkDirectoryView } from "@/components/free-network-directory";
 import { NetworkLaunchDiscovery } from "@/components/network-launch-discovery";
+import { NetworkDiscoveryOverview } from "@/components/network-discovery-overview";
 import { ItalyRegionMap } from "@/components/italy-region-map";
 import { NetworkRoleDiscovery } from "@/components/network-role-discovery";
 import { getItalyRegionCoverage } from "@/lib/network-region-coverage";
@@ -188,11 +189,14 @@ export default async function NetworkDirectoryPage({
         }
       />
 
-      <NetworkLaunchDiscovery directory={previewDirectory}
-        filters={{q:params.q,role:params.role,region:params.region}} />
-      <div className="mt-6">
-        <NetworkRoleDiscovery viewerRole={viewerRole} filters={params} />
-      </div>
+      <NetworkDiscoveryOverview
+        published={results.total}
+        discovered={previewDirectory?.discovered_total ?? 0}
+        persona={params.persona}
+        role={params.role}
+        region={params.region}
+        discoveryUnavailable={!previewDirectory}
+      />
 
       {previewDirectory?.discovered_total ? <p className="mt-4 text-xs text-[#52615b]">
         La sezione di scoperta contiene {previewDirectory.discovered_total} profili aggiuntivi da confermare;
@@ -352,6 +356,13 @@ export default async function NetworkDirectoryPage({
         </details>
       </section>
 
+      <div className="mt-5">
+        <NetworkRoleDiscovery viewerRole={viewerRole} filters={params} />
+      </div>
+      <div className="mt-5">
+        <NetworkLaunchDiscovery directory={previewDirectory}
+          filters={{q:params.q,role:params.role,region:params.region}} />
+      </div>
       <section id="network-region-results" aria-labelledby="network-results">
         <FocusSectionHeader
           eyebrow="Directory"

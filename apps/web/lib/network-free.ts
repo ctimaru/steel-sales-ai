@@ -27,6 +27,7 @@ export type FreeDirectory = {
   regions: string[];
   viewer_role: NetworkCompanyRole | null;
   discovered_total?: number;
+  discovery_unavailable?: boolean;
 };
 export type FreeProfile = {
   contract: "netux11-free-profile-v1";
@@ -50,7 +51,7 @@ export async function getFreeNetworkDirectory(
     p_query: (filters.q || "").trim().slice(0, 120) || null,
     p_role: filters.role || null,
     p_region: (filters.region || "").trim().slice(0, 90) || null,
-    p_limit: 50,
+    p_limit: 100,
   });
   if (error || !data || typeof data !== "object") throw new Error("network_free_directory_unavailable");
   const result = data as FreeDirectory;
@@ -64,14 +65,14 @@ export async function getFreeNetworkDirectory(
     p_query:(filters.q || "").trim().slice(0,120) || null,
     p_role:filters.role || null,
     p_region:(filters.region || "").trim().slice(0,90) || null,
-    p_limit:50,
+    p_limit: 100,
   });
   if(discoveryError || !discoveries || typeof discoveries!=="object" ||
-    (discoveries as {contract?:string}).contract!=="netfast-discovery-v1") return result;
+    (discoveries as {contract?:string}).contract!=="netfast-discovery-v1") return {...result,discovery_unavailable:true};
   const additional=discoveries as {items:FreeCompany[];total:number};
-  if(!Array.isArray(additional.items) || typeof additional.total!=="number") return result;
+  if(!Array.isArray(additional.items) || typeof additional.total!=="number") return {...result,discovery_unavailable:true};
   return {...result,items:[...result.items,...additional.items],
-    total:result.total+additional.total, discovered_total:additional.total};
+    total:result.total+additional.total, discovered_total:additional.total, discovery_unavailable:false};
 }
 
 export async function getFreeNetworkProfile(
@@ -136,7 +137,7 @@ export async function getProNetworkDiscoveryDirectory(
   p_query:(filters.q??"").trim().slice(0,120)||null,
   p_role:filters.role||null,
   p_region:(filters.region??"").trim().slice(0,90)||null,
-  p_limit:50,
+  p_limit: 100,
  });
  if(error||!data||typeof data!=="object")throw new Error("network_pro_discoveries_unavailable");
  const res=data as {contract?:string;items?:unknown[]};

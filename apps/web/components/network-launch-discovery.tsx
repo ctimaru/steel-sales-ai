@@ -19,7 +19,7 @@ export function NetworkLaunchDiscovery({
  filters: {q?:string;role?:string;region?:string};
  maxItems?:number;
 }){
- const found=(directory?.items??[]).filter(item=>item.discovery_status==="unconfirmed").slice(0,maxItems??50);
+ const found=(directory?.items??[]).filter(item=>item.discovery_status==="unconfirmed").slice(0,maxItems??100);
  const total=directory?.discovered_total??0;
  const filtered=Boolean(filters.q?.trim()||filters.role||filters.region);
  const clearParams=new URLSearchParams();
