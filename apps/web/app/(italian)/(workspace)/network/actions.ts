@@ -910,7 +910,6 @@ export async function markAllNetworkActivityRead() {
  */
 export async function submitNetworkConnection(formData: FormData) {
   const context=await requireWorkspaceWriteRole();
-  await requireNetworkAccess();
   const companyId=textValue(formData,"network_company_id");
   const purpose=textValue(formData,"purpose");
   const message=textValue(formData,"message");
@@ -933,7 +932,6 @@ export async function submitNetworkConnection(formData: FormData) {
 
 export async function decideNetworkConnection(formData: FormData) {
   const context=await requireWorkspaceWriteRole();
-  await requireNetworkAccess();
   const requestId=textValue(formData,"request_id");
   const decision=textValue(formData,"decision");
   const box=decision==="withdrawn"?"sent":"received";
