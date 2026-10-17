@@ -1,19 +1,12 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-import {
-  followNetworkCompany,
-  removeSavedNetworkCompany,
-  saveNetworkCompany,
-  unfollowNetworkCompany,
-} from "@/app/(workspace)/network/actions";
 import { PilotEvent } from "@/components/pilot-event";
 import { canInteractWithNetwork } from "@/lib/access-policy";
 import { getMyCompanyClaim, type CompanyClaimState } from "@/lib/company-claims";
 import {
   getInquiryEligibility,
   getNetworkCompanyLogoUrl,
-  getNetworkFollowState,
   getNetworkProfile,
   type PublicProductTechnicalScope,
   type PublicProfileProvenanceKind,
@@ -169,9 +162,7 @@ export default async function NetworkCompanyProfilePage({
   let organizationId: string | null = null;
   let adminOrganizationId: string | null = null;
   let canInteract = false;
-  let isSaved = false;
   let inquiryEligible = false;
-  let isFollowed = false;
   let claimState: CompanyClaimState | null = null;
 
   if (userId) {
@@ -193,23 +184,9 @@ export default async function NetworkCompanyProfilePage({
     }
 
     if (organizationId) {
-      const { data: saved } = await supabase
-        .from("network_saved_companies")
-        .select("id")
-        .eq("organization_id", organizationId)
-        .eq("user_id", userId)
-        .eq("network_company_id", profile.company.id)
-        .maybeSingle();
-
-      isSaved = Boolean(saved);
-
-      const [eligibility, followState] = await Promise.all([
-        getInquiryEligibility(organizationId, profile.company.id),
-        getNetworkFollowState(organizationId, profile.company.id),
-      ]);
-
+      const eligibility = await getInquiryEligibility(organizationId, profile.company.id)
+        .catch(() => ({eligible:false,reason:"unavailable"}));
       inquiryEligible = eligibility.eligible;
-      isFollowed = followState.followed;
     }
   }
 
@@ -391,30 +368,12 @@ export default async function NetworkCompanyProfilePage({
                 </a>
               ) : null}
 
-              {organizationId && canInteract ? (
-                <form action={isSaved ? removeSavedNetworkCompany : saveNetworkCompany}>
-                  <input type="hidden" name="network_company_id" value={profile.company.id} />
-                  <button className="h-10 w-full rounded-xl border border-[#d7dfdb] bg-white px-4 text-sm font-semibold text-[#43524c] transition hover:border-[#bcd0ed] hover:bg-[#f7faff] hover:text-[#1a5144]">
-                    {isSaved ? "Rimuovi dai salvati" : "Salva azienda"}
-                  </button>
-                </form>
-              ) : null}
-
-              {organizationId && canInteract ? (
-                <form action={isFollowed ? unfollowNetworkCompany : followNetworkCompany}>
-                  <input type="hidden" name="network_company_id" value={profile.company.id} />
-                  <button className="h-10 w-full rounded-xl border border-[#cbdcf7] bg-[#edf5f2] px-4 text-sm font-semibold text-[#1a5144] transition hover:bg-[#e5efff]">
-                    {isFollowed ? "Non seguire più" : "Segui aggiornamenti"}
-                  </button>
-                </form>
-              ) : null}
-
               {inquiryEligible && canInteract ? (
                 <Link
-                  href={"/network/" + profile.company.id + "/inquiry"}
+                  href={"/network/" + profile.company.id + "/connect"}
                   className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white transition hover:bg-[#226657]"
                 >
-                  Invia inquiry
+                  Richiedi connessione
                 </Link>
               ) : null}
             </div>
