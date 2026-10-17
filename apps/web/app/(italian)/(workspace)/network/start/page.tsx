@@ -46,7 +46,10 @@ export default async function NetworkCompanyStartPage(){
   ]);
   const growth=progressResult.status==="fulfilled"?progressResult.value:null;
   // A failed authorized RPC is NOT a zero count or proof of missing ownership.
-  const managed=managedResult.status==="fulfilled"?managedResult.value:null;
+  const managed=growth&&managedResult.status==="fulfilled" &&
+    managedResult.value?.organization_id===actor.organizationId &&
+    managedResult.value.network_company_id===growth.owned_company_id
+    ?managedResult.value:null;
   const ownershipUnknown=progressResult.status==="rejected"|| (admin&&managedResult.status==="rejected");
   const profile=managed?await getManagedNetworkProfileState(managed.network_company_id).catch(()=>null):null;
   const preferences=managed?await getInquiryPreferences(actor.organizationId).catch(()=>null):null;
