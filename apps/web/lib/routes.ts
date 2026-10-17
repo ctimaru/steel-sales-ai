@@ -133,6 +133,7 @@ export const appRoutes = {
     businessPlan: "/platform/business-plan",
     businessPlanDetails: "/platform/business-plan/details",
     businessPlanMarketSizing: "/platform/business-plan/market-sizing",
+    businessPlanVision: "/platform/business-plan/vision",
     marketing: "/platform/marketing",
     marketingOnePager: "/platform/marketing/one-pager",
     marketingPitchDeck: "/platform/marketing/pitch-deck",
