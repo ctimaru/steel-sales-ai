@@ -10,7 +10,7 @@ import { NetworkPagination, parseNetworkPage } from "@/components/network-pagina
 import { getItalyRegionCoverage, type ItalyRegionCoverage } from "@/lib/network-region-coverage";
 import { NETWORK_COMPANY_ROLES } from "@/lib/network-experience";
 import { activeNetworkPersona, networkRoleReason } from "@/lib/network-role-discovery";
-import { getFreeNetworkPagedDirectory, safeNetworkWebsiteUrl } from "@/lib/network-free";
+import { getFreeNetworkPagedElenco aziende, safeNetworkWebsiteUrl } from "@/lib/network-free";
 
 const roleLabels: Record<string, string> = {
   producer: "Produttori", trader_distributor: "Commercianti",
@@ -57,7 +57,7 @@ export async function FreeNetworkDirectoryView({
           <span className="text-xs font-medium text-[#52615b]">{organizationName}</span>
         </div>
         <h1 className="mt-4 text-2xl font-semibold tracking-tight text-[#173f35] sm:text-3xl">Scopri le aziende dell'acciaio</h1>
-        <div className="mt-4 flex flex-wrap gap-2" aria-label="Dimensione della directory">
+        <div className="mt-4 flex flex-wrap gap-2" aria-label="Dimensione della rete aziendale">
           <span className="rounded-full border border-[#b8d2c8] bg-white px-3 py-1.5 text-xs font-semibold text-[#173f35]">
             {Math.max(data.total-(data.discovered_total??0),0)} profili pubblicati
           </span>
