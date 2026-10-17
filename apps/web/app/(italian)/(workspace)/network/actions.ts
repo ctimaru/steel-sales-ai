@@ -904,3 +904,50 @@ export async function markAllNetworkActivityRead() {
   revalidatePath("/network/activity");
   redirect("/network/activity?message=Activity%20segnate%20come%20lette");
 }
+
+/** NET-CONNECT1. A commercial connection is a consent-based, purpose-tagged
+ * private request; it does not imply supplier qualification or a follow.
+ */
+export async function submitNetworkConnection(formData: FormData) {
+  const context=await requireWorkspaceWriteRole();
+  await requireNetworkAccess();
+  const companyId=textValue(formData,"network_company_id");
+  const purpose=textValue(formData,"purpose");
+  const message=textValue(formData,"message");
+  const allowed=["offer_products_services","request_products_services","collaboration"];
+  if(!/^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/i.test(companyId))
+    redirect("/network?error="+encodeURIComponent("Azienda non valida."));
+  if(!allowed.includes(purpose)||message.length<30||message.length>2000)
+    redirect("/network/"+companyId+"/connect?error="+encodeURIComponent("Seleziona uno scopo e descrivi la proposta (30–2000 caratteri)."));
+  const supabase=await createClient();
+  const {error}=await supabase.rpc("netconnect1_submit",{
+   p_sender_organization_id:context.organizationId,
+   p_recipient_network_company_id:companyId,
+   p_purpose:purpose,p_message:message,
+  });
+  if(error)redirect("/network/"+companyId+"/connect?error="+encodeURIComponent(
+    safeErrorMessage(error,"Richiesta non inviata. Verifica che l'azienda sia attiva e riprova.")));
+  revalidatePath("/network/connections");
+  redirect("/network/connections?box=sent&message="+encodeURIComponent("Richiesta di connessione inviata. In attesa della risposta dell'azienda."));
+}
+
+export async function decideNetworkConnection(formData: FormData) {
+  const context=await requireWorkspaceWriteRole();
+  await requireNetworkAccess();
+  const requestId=textValue(formData,"request_id");
+  const decision=textValue(formData,"decision");
+  const box=decision==="withdrawn"?"sent":"received";
+  if(!/^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/i.test(requestId)||
+    !["accepted","declined","withdrawn"].includes(decision))
+    redirect("/network/connections?error="+encodeURIComponent("Azione non valida."));
+  const supabase=await createClient();
+  const {error}=await supabase.rpc("netconnect1_decide",{
+   p_request_id:requestId,p_actor_organization_id:context.organizationId,p_decision:decision
+  });
+  if(error)redirect("/network/connections?box="+box+"&error="+encodeURIComponent(
+    safeErrorMessage(error,"Impossibile aggiornare la richiesta.")));
+  revalidatePath("/network/connections");
+  redirect("/network/connections?box="+box+"&message="+encodeURIComponent(
+   decision==="accepted"?"Connessione accettata. Potete iniziare a collaborare.":
+   decision==="declined"?"Richiesta rifiutata.":"Richiesta ritirata."));
+}
