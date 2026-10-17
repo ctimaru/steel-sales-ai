@@ -96,6 +96,12 @@ export const PLATFORM_IA_MODULES = [
     placement: "secondary", rollout: "ready_for_plr2",
   },
   {
+    key: "networkActivation", href: appRoutes.platform.networkActivation,
+    label: "Attivazione Network & riconciliazione",
+    area: "growth", access: { kind: "owner_only" },
+    placement: "secondary", rollout: "ready_for_plr2",
+  },
+  {
     key: "productAnalytics", href: appRoutes.platform.productAnalytics, label: "Product Analytics",
     area: "growth", access: { kind: "owner_only" },
     placement: "primary", rollout: "ready_for_plr2",
