@@ -126,3 +126,25 @@ test("AN1.4 shows partial-data warnings, null KPI placeholders and honest funnel
   assert.match(dashboardSource, /non sono conversioni di utenti unici/);
   assert.match(serviceSource, /unique visitors are NOT/);
 });
+
+test("CALC-UX3.6 distinguishes observed calculator steps from site-wide registration outcomes", async () => {
+  const snapshot = await loadSnapshot({
+    pageviews: 20, visitors: 10, events: 7, eventVisitors: 4,
+    eventRows: [
+      {eventName:"calc_funnel_bill_line_added",count:4,visitors:3},
+      {eventName:"registration_account_created",count:2,visitors:2},
+      {eventName:"registration_submit",count:1,visitors:1},
+    ],
+  });
+  assert.equal(snapshot.calculatorFunnelQuality.observedSteps, 1);
+  assert.equal(snapshot.calculatorFunnelQuality.state, "partial");
+  assert.equal(snapshot.calculatorFunnelQuality.registrationAccounts, 2);
+  assert.equal(snapshot.calculatorFunnelQuality.registrationSubmissions, 1);
+  assert.match(snapshot.calculatorFunnelQuality.note, /non sono attribuibili/);
+});
+
+test("CALC-UX3.6 never treats unavailable analytics as successful activation measurement", async () => {
+  const snapshot = await loadSnapshot({ missingCounts: true });
+  assert.equal(snapshot.calculatorFunnelQuality.state, "unavailable");
+  assert.match(dashboardSource, /Attivazioni aziendali approvate: non disponibili/);
+});

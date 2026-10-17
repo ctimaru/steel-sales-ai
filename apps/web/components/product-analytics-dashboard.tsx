@@ -506,6 +506,24 @@ export function ProductAnalyticsDashboard({
             </div>
           ))}
         </div>
+        <div className="mt-4 rounded-xl border border-[#dae5dd] bg-[#f8faf9] p-4" role="status">
+          <p className="text-xs font-bold text-[#174b37]">
+            Qualità dati: {snapshot.calculatorFunnelQuality.state === "unavailable" ? "da verificare"
+              : snapshot.calculatorFunnelQuality.state === "awaiting_events" ? "in attesa di eventi"
+              : snapshot.calculatorFunnelQuality.state === "partial" ? "raccolta parziale" : "tutte le fasi osservate"}
+          </p>
+          <p className="mt-1 text-xs text-[#52615b]">
+            {snapshot.calculatorFunnelQuality.observedSteps} / {snapshot.calculatorFunnelQuality.totalSteps} fasi con eventi osservati.
+            {" "}{snapshot.calculatorFunnelQuality.note}
+          </p>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <div><p className="text-xl font-bold tabular-nums text-[#174b37]">{formatCount(snapshot.calculatorFunnelQuality.registrationAccounts)}</p>
+              <p className="text-xs text-[#52615b]">Account creati · sito intero</p></div>
+            <div><p className="text-xl font-bold tabular-nums text-[#174b37]">{formatCount(snapshot.calculatorFunnelQuality.registrationSubmissions)}</p>
+              <p className="text-xs text-[#52615b]">Registrazioni inviate · sito intero</p></div>
+          </div>
+          <p className="mt-2 text-xs text-[#66736e]">Metriche indipendenti, non attribuite al calcolatore. Attivazioni aziendali approvate: non disponibili in questa fonte; verificare nel ledger registrazioni.</p>
+        </div>
         <p className="mt-3 text-xs text-[#718078]">
           Fonte: Vercel Web Analytics · {snapshot.rangeLabel.toLowerCase()}. Nessun prezzo, nominativo o identificativo RFQ raccolto.
           I conteggi zero possono indicare assenza di consenso o traffico, non necessariamente assenza di attività.
