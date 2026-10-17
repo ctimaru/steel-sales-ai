@@ -2,6 +2,7 @@ import { GovernanceQueueFeedback } from "@/components/governance-queue-feedback"
 import { GovernanceQueueControls } from "@/components/governance-queue-controls";
 import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
 import Link from "next/link";
+import { appRoutes } from "@/lib/routes";
 
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 
@@ -115,6 +116,8 @@ export default async function AdminRegistrationsPage({
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <GovernanceWorkspaceNav current="registrations" permissions={access?.permissions ?? []} />
+      {access?.is_platform_owner ? <Link href={appRoutes.platform.networkActivation}
+        className="inline-flex min-h-11 items-center rounded-xl border border-[#bbd4c7] bg-[#f0f7f2] px-4 text-sm font-semibold text-[#175640]">Conversione aziende & riconciliazione →</Link> : null}
       <GovernanceQueueControls title="Registrazioni" total={queue.total} readOnly={!((access?.permissions ?? []).some((permission) => permission === 'registrations.approve' || permission === 'registrations.activate'))} tabs={FILTERS.map(([value, label]) => ({ value, label }))} current={activeStatus ?? 'all'} baseHref="/platform/registrations" priorityValues={["pending_review", "approved"]} searchQuery={query} />
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">

@@ -141,6 +141,7 @@ export const PLATFORM_IA_ROUTE_INVENTORY = [
   { path: "/platform/notifications", module: "notifications" },
   { path: "/platform/registrations", module: "registrations" },
   { path: "/platform/registrations/[id]", module: "registrations" },
+  { path: "/platform/network-activation", module: "registrations" },
   { path: "/platform/people", module: "people" },
   { path: "/platform/company-discovery", module: "discovery" },
   { path: "/platform/company-discovery/bulk", module: "discovery" },
