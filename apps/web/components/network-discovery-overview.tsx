@@ -62,7 +62,7 @@ export function NetworkDiscoveryOverview({
       </nav>
       {region ? (
         <p className="mt-3 rounded-lg bg-[#fff7e6] px-3 py-2 text-xs leading-5 text-[#765821]">
-          Il filtro regionale mostra solo sedi pubblicate: le aziende scoperte senza una sede confermata restano fuori.
+          Il filtro regionale mostra i profili pubblicati e, separatamente, le aziende scoperte con una località documentata dal sito aziendale. Queste ultime restano Da confermare.
           {" "}<Link href="/network#network-new-discoveries" className="font-semibold underline">Mostra anche quelle senza regione</Link>
         </p>
       ) : null}

@@ -10,7 +10,7 @@ import { NetworkPagination, parseNetworkPage } from "@/components/network-pagina
 import { NetworkActivationCta } from "@/components/network-activation-cta";
 import { ItalyRegionMap } from "@/components/italy-region-map";
 import { NetworkRoleDiscovery } from "@/components/network-role-discovery";
-import { getItalyRegionCoverage } from "@/lib/network-region-coverage";
+import { getItalyRegionCoverage, getItalyProvisionalGeoCoverage } from "@/lib/network-region-coverage";
 import { orderNetworkDiscovery } from "@/lib/network-experience";
 import { activeNetworkPersona, networkRoleReason, validNetworkPersona } from "@/lib/network-role-discovery";
 import { getFreeNetworkViewerRole, getProNetworkDiscoveryDirectory } from "@/lib/network-free";
@@ -120,7 +120,7 @@ export default async function NetworkDirectoryPage({
   }
 
   const params = await searchParams;
-  const [taxonomyResult, geoResult, resultsResult, coverageResult, roleResult, previewResult] = await Promise.allSettled([
+  const [taxonomyResult, geoResult, resultsResult, coverageResult, roleResult, previewResult, provisionalGeoResult] = await Promise.allSettled([
     getNetworkTaxonomy(),
     getNetworkGeoFacets(),
     searchNetwork({
@@ -142,6 +142,7 @@ export default async function NetworkDirectoryPage({
       q: params.q, role: params.role, region: params.region,
       persona: validNetworkPersona(params.persona) || undefined, page:parseNetworkPage(params.dpage),
     }),
+    getItalyProvisionalGeoCoverage(context.organizationId,"pro").catch(() => null),
   ]);
 
   // Never let one unavailable feed take down the whole Network. Auth and
@@ -153,6 +154,7 @@ export default async function NetworkDirectoryPage({
   const canonicalUnavailable = resultsResult.status === "rejected";
   const results = resultsResult.status === "fulfilled" ? resultsResult.value : {items:[],total:0};
   const coverage = coverageResult.status === "fulfilled" ? coverageResult.value : null;
+  const provisionalCoverage = provisionalGeoResult.status === "fulfilled" ? provisionalGeoResult.value : null;
   const viewerRole = roleResult.status === "fulfilled" ? roleResult.value : null;
   const previewDirectory = previewResult.status === "fulfilled" ? previewResult.value : null;
   const unavailableSections = [
@@ -355,7 +357,7 @@ export default async function NetworkDirectoryPage({
         publishedUnavailable={canonicalUnavailable}
       />
         </div>
-        <NetworkMiniMap coverage={coverage} filters={params} />
+        <NetworkMiniMap coverage={coverage} provisionalCoverage={provisionalCoverage} filters={params} />
       </div>
       {unavailableSections.length ? <div className="mt-4">
         <NetworkAvailabilityNotice label={"Servizi temporaneamente non disponibili: "+unavailableSections.join(", ")+ "."}/>
@@ -532,7 +534,7 @@ export default async function NetworkDirectoryPage({
         />
       </section>
       <div className="mt-6">
-        <ItalyRegionMap coverage={coverage} selectedRegion={params.region} filters={params} />
+        <ItalyRegionMap coverage={coverage} provisionalCoverage={provisionalCoverage} selectedRegion={params.region} filters={params} />
       </div>
     </FocusPage>
   );

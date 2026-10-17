@@ -22,8 +22,8 @@ test("NET-UX5A: Pro data sources fail independently, never take down the directo
 
 test("NET-UX5A: entry screen puts search and live Italy navigation in sight", () => {
  assert.ok(pro.indexOf('id="network-company-search"')<pro.indexOf("<NetworkDiscoveryOverview"));
- assert.match(pro,/<NetworkMiniMap coverage=\{coverage\} filters=\{params\}/);
- assert.match(free,/<NetworkMiniMap coverage=\{coverage\} filters=\{filters\}/);
+ assert.match(pro,/<NetworkMiniMap coverage=\{coverage\} provisionalCoverage=\{provisionalCoverage\} filters=\{params\}/);
+ assert.match(free,/<NetworkMiniMap coverage=\{coverage\} provisionalCoverage=\{provisionalCoverage\} filters=\{filters\}/);
  for(const term of ["Cerco fornitori","Cerco clienti","Cerco terzisti","Cerco produttori"])assert.ok(overview.includes(term));
  assert.match(firstScreen,/ITALY_REGION_PATHS\.map/);
  assert.match(firstScreen,/italyRegionFilterHref/);

@@ -9,7 +9,7 @@ import { NetworkDiscoveryOverview } from "@/components/network-discovery-overvie
 import { NetworkMiniMap, NetworkRecoveryScreen } from "@/components/network-resilient-first-screen";
 import { NetworkPagination, parseNetworkPage } from "@/components/network-pagination";
 import { NetworkActivationCta } from "@/components/network-activation-cta";
-import { getItalyRegionCoverage, type ItalyRegionCoverage } from "@/lib/network-region-coverage";
+import { getItalyRegionCoverage, getItalyProvisionalGeoCoverage, type ItalyRegionCoverage, type ItalyProvisionalGeoCoverage } from "@/lib/network-region-coverage";
 import { NETWORK_COMPANY_ROLES } from "@/lib/network-experience";
 import { activeNetworkPersona, networkRoleReason } from "@/lib/network-role-discovery";
 import { getFreeNetworkPagedDirectory, safeNetworkWebsiteUrl } from "@/lib/network-free";
@@ -38,10 +38,12 @@ export async function FreeNetworkDirectoryView({
     ? filters.role : undefined;
   let data;
   let coverage: ItalyRegionCoverage | null = null;
+  let provisionalCoverage: ItalyProvisionalGeoCoverage | null = null;
   try {
-    [data, coverage] = await Promise.all([
+    [data, coverage, provisionalCoverage] = await Promise.all([
       getFreeNetworkPagedDirectory(organizationId, { ...filters, role, page:parseNetworkPage(filters.p), discoveryPage:parseNetworkPage(filters.dpage) }),
       getItalyRegionCoverage(organizationId).catch(() => null),
+      getItalyProvisionalGeoCoverage(organizationId,"free").catch(() => null),
     ]);
   } catch {
     // DB timeouts are not registration failures. Keep entitlement enforcement
@@ -74,7 +76,7 @@ export async function FreeNetworkDirectoryView({
         </div>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-[#43524c]">
           Cerca produttori, commercianti, terzisti e utilizzatori in tutta Italia.
-          Le aziende scoperte vengono mostrate subito come "Da confermare". La mappa usa solo sedi con evidenza geografica già pubblicata.
+          Le aziende scoperte vengono mostrate subito come "Da confermare". La mappa distingue sedi pubblicate da località aziendali provvisorie, sempre da confermare.
         </p>
         <form action="/network" method="get" className="mt-5 flex flex-col gap-2 sm:flex-row">
           <label htmlFor="free-network-search" className="sr-only">Cerca aziende</label>
@@ -98,7 +100,7 @@ export async function FreeNetworkDirectoryView({
         </nav>
 
       </section>
-      <NetworkMiniMap coverage={coverage} filters={filters} />
+      <NetworkMiniMap coverage={coverage} provisionalCoverage={provisionalCoverage} filters={filters} />
       </div>
       <div className="mt-4">
         <NetworkDiscoveryOverview
@@ -166,7 +168,7 @@ export async function FreeNetworkDirectoryView({
         />
       </section>
       <div className="mt-6">
-        <ItalyRegionMap coverage={coverage} selectedRegion={filters.region} filters={filters} />
+        <ItalyRegionMap coverage={coverage} provisionalCoverage={provisionalCoverage} selectedRegion={filters.region} filters={filters} />
       </div>
     </FocusPage>
   );

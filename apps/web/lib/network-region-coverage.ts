@@ -23,3 +23,24 @@ export async function getItalyRegionCoverage(organizationId: string): Promise<It
   }
   return coverage;
 }
+
+
+export type ItalyProvisionalGeoCoverage = {
+  contract: "neteima2-geo-coverage-v1";
+  mapped_candidates: number;
+  regions: { name: string; count: number }[];
+};
+
+/** Source-observed provisional research only. Never merge these counts with published locations. */
+export async function getItalyProvisionalGeoCoverage(
+  organizationId: string, access: "free" | "pro",
+): Promise<ItalyProvisionalGeoCoverage | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("neteima2_region_coverage", {
+    p_organization_id: organizationId, p_access: access,
+  });
+  if (error || !data || typeof data !== "object") return null;
+  const result = data as ItalyProvisionalGeoCoverage;
+  return result.contract === "neteima2-geo-coverage-v1" && Array.isArray(result.regions)
+    ? result : null;
+}
