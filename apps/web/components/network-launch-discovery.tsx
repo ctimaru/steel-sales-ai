@@ -58,6 +58,10 @@ export function NetworkLaunchDiscovery({
          {company.roles[0]?.key&&roleLabels[company.roles[0].key]||"Settore da classificare"}
         </p>
         {company.finished_only?<p className="mt-2 text-[11px] leading-5 text-[#7c6244]">Utilizzo di tubi non documentato</p>:null}
+        {company.location?.region ? <p className="mt-2 text-[11px] font-medium leading-5 text-[#4c6256]">
+          <span aria-label="Geografia ricavata da sito aziendale">{company.location.city} · {company.location.region}</span>
+          {" · "}Sede indicata, da confermare
+        </p> : null}
        </div>
        <div className="mt-4 flex flex-wrap gap-2">
         <Link href={"/network/"+company.id} className="inline-flex min-h-10 items-center rounded-lg bg-[#173f35] px-3 text-xs font-semibold text-white">Apri profilo</Link>
