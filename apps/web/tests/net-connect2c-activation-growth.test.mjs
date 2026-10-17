@@ -33,6 +33,6 @@ test("NET-CONNECT2C: owner-only SQL, UI and CI gate",()=>{
  assert.match(migration,/revoke all on function public\.netconnect2c_growth_overview\(\) from public,anon/);
  assert.match(migration,/revoke all on function private\.netconnect2c_growth_impl\(\) from public,anon,authenticated/);
  assert.match(helper,/rpc\("netconnect2c_growth_overview"\)/);
- assert.match(hp13,/'netconnect2c_growth_overview'/);
+ assert.match(hp13,/public\.netconnect2c_growth_overview\(\)/);
  assert.match(gate,/netconnect2c_activation_growth\.sql/);
 });
