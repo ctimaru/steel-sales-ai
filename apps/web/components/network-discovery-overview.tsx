@@ -34,7 +34,7 @@ export function NetworkDiscoveryOverview({
     <section aria-label="Esplora la rete industriale" className="rounded-2xl border border-[#d4e2db] bg-white p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#277052]">Directory industriale</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#277052]">Rete industriale</p>
           <h2 className="mt-1 text-xl font-semibold tracking-tight text-[#173f35] sm:text-2xl">
             {anyUnavailable ? "Scopri la filiera industriale" : total.toLocaleString("it-IT")+" aziende da esplorare"}
           </h2>
