@@ -250,7 +250,9 @@ select pg_temp.hp13_assert(
         -- NET-CONNECT2D: read-only, active-member-scoped counts; no PII or ownership mutation.
         'netconnect2d_company_progress',
         -- NET-CONNECT2E: bounded, active-organization, privacy-preserving recipient readiness.
-        'netconnect2e_readiness'
+        'netconnect2e_readiness',
+        -- NET-CONNECT2F: own-organization aggregate with approved-claim public-product overlap.
+        'netconnect2f_intelligence'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
@@ -475,6 +477,12 @@ select pg_temp.hp13_assert_raises(
 -- NET-CONNECT2E: never accept a forged organization or anonymous sender.
 select pg_temp.hp13_assert_raises(
   'select public.netconnect2e_readiness(''00000000-0000-0000-0000-0000000013f2''::uuid,array[]::uuid[])',
+  'No active authorized company for Network Free'
+);
+
+-- NET-CONNECT2F: a caller cannot substitute another company organization ID.
+select pg_temp.hp13_assert_raises(
+  'select public.netconnect2f_intelligence(''00000000-0000-0000-0000-0000000013f2''::uuid,array[]::uuid[])',
   'No active authorized company for Network Free'
 );
 

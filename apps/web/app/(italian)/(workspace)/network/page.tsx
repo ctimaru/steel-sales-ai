@@ -2,6 +2,7 @@ import Link from "next/link";
 import {NetworkCompanyGrowthEntry} from "@/components/network-company-growth-entry";
 import {NetworkReadyConnections,NetworkReadinessAction} from "@/components/network-ready-connections";
 import {getNetworkRecipientReadiness} from "@/lib/network-recipient-readiness";
+import {getNetworkReplyIntelligence,sharedPublicProducts} from "@/lib/network-reply-intelligence";
 import {canInteractWithNetwork} from "@/lib/access-policy";
 import { redirect } from "next/navigation";
 
@@ -178,10 +179,13 @@ export default async function NetworkDirectoryPage({
     params.product === "tubes_pipes" && (params.country ?? "").toUpperCase() === "IT";
   const persona = activeNetworkPersona(params.persona, viewerRole);
   const orderedResults = orderNetworkDiscovery(results.items, persona, Boolean(params.q || hasAdvancedFilters));
-  const readiness = canonicalUnavailable ? null :
-    await getNetworkRecipientReadiness(context.organizationId,orderedResults.map(x=>x.id)).catch(()=>null);
-  const readyItems = orderedResults.map(x=>({id:x.id,name:x.trading_name||x.legal_name,
-    role:x.roles[0]?.name,region:null}));
+  const [readiness,intelligence]=canonicalUnavailable ? [null,null] :
+    await Promise.all([
+      getNetworkRecipientReadiness(context.organizationId,orderedResults.map(x=>x.id)).catch(()=>null),
+      getNetworkReplyIntelligence(context.organizationId,orderedResults.map(x=>x.id)).catch(()=>null),
+    ]);
+  const readyItems=orderedResults.map(x=>({id:x.id,name:x.trading_name||x.legal_name,
+    role:x.roles[0]?.name,region:null,roles:x.roles.map(r=>({key:r.key}))}));
 
   return (
     <FocusPage className="max-w-[1180px]">
@@ -396,7 +400,8 @@ export default async function NetworkDirectoryPage({
           filters={{q:params.q,role:params.role,region:params.region}}
           pagination={previewDirectory?.discovery_page} navigationParams={params} />
       </div>
-      <div className="mt-5"><NetworkReadyConnections items={readyItems} statuses={readiness} canAct={canInteractWithNetwork(context.role)} /></div>
+      <div className="mt-5"><NetworkReadyConnections items={readyItems} statuses={readiness} canAct={canInteractWithNetwork(context.role)}
+         persona={persona} sharedProducts={sharedPublicProducts(intelligence)} /></div>
       <section id="network-region-results" aria-labelledby="network-results">
         <FocusSectionHeader
           eyebrow="Esplora aziende"

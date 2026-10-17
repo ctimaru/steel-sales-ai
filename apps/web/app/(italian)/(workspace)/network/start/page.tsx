@@ -3,6 +3,8 @@ import {redirect} from "next/navigation";
 
 import {getWorkspaceContext} from "@/lib/workspace-context";
 import {getCompanyNetworkGrowth} from "@/lib/network-company-growth";
+import {getNetworkReplyIntelligence} from "@/lib/network-reply-intelligence";
+import {NetworkReplyPulse} from "@/components/network-reply-pulse";
 import {getManagedNetworkCompany,getManagedNetworkProfileState,getInquiryPreferences} from "@/lib/network";
 import {getFreeNetworkViewerRole} from "@/lib/network-free";
 import {isNetworkFrontendEnabled} from "@/lib/network-flags";
@@ -39,10 +41,11 @@ export default async function NetworkCompanyStartPage(){
   const actor=await getWorkspaceContext();
   const admin=actor.role==="admin";
   const canSend=canInteractWithNetwork(actor.role);
-  const [progressResult,managedResult,personaResult]=await Promise.allSettled([
+  const [progressResult,managedResult,personaResult,replyResult]=await Promise.allSettled([
     getCompanyNetworkGrowth(actor.organizationId),
     admin?getManagedNetworkCompany():Promise.resolve(null),
     getFreeNetworkViewerRole(actor.organizationId),
+    getNetworkReplyIntelligence(actor.organizationId),
   ]);
   const growth=progressResult.status==="fulfilled"?progressResult.value:null;
   // A failed authorized RPC is NOT a zero count or proof of missing ownership.
@@ -115,6 +118,7 @@ export default async function NetworkCompanyStartPage(){
     {!growth?<section role="status" className="rounded-2xl border border-[#e2d0a3] bg-[#fff9ed] p-4 text-sm text-[#795521]">
       Dati delle connessioni temporaneamente non disponibili. Il percorso resta consultabile, ma i conteggi non sono mostrati come zero.
     </section>:null}
+    <NetworkReplyPulse data={replyResult.status==="fulfilled"?replyResult.value:null}/>
     <section aria-label="Stato connessioni" className="grid gap-3 sm:grid-cols-3">
       {([
         {label:"Richieste inviate",value:growth?.requests_sent,note:"Invii effettivi, anche se non ancora accettati"},

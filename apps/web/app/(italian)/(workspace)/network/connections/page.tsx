@@ -5,6 +5,9 @@ import {getWorkspaceContext} from "@/lib/workspace-context";
 import {createClient} from "@/lib/supabase/server";
 import {canInteractWithNetwork} from "@/lib/access-policy";
 import {getCompanyNetworkGrowth} from "@/lib/network-company-growth";
+import {getNetworkReplyIntelligence} from "@/lib/network-reply-intelligence";
+import {NetworkReplyPulse} from "@/components/network-reply-pulse";
+import {CopyConnectionReminder} from "@/components/copy-connection-reminder";
 
 type Connection={
  id:string;purpose:string;status:string;inquiry_status:string;subject:string;message:string;
@@ -34,7 +37,10 @@ export default async function NetworkConnectionsPage({
  const items=unavailable?[]:records.items??[];
  const ordered=box==="received"?[...items].sort((a,b)=>Number(b.status==="pending")-Number(a.status==="pending")):items;
  const canAct=canInteractWithNetwork(actor.role);
- const growth=await getCompanyNetworkGrowth(actor.organizationId).catch(()=>null);
+ const [growth,intelligence]=await Promise.all([
+  getCompanyNetworkGrowth(actor.organizationId).catch(()=>null),
+  getNetworkReplyIntelligence(actor.organizationId).catch(()=>null),
+ ]);
  const pendingReceived=growth?.requests_received_pending;
  const currentPending=box==="received"?ordered.filter(x=>x.status==="pending").length:0;
  return <main className="mx-auto max-w-5xl space-y-5 pb-16">
@@ -53,6 +59,7 @@ export default async function NetworkConnectionsPage({
      </div>
      <Link href="/network/connections?box=received" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-[#c4dccc] bg-[#edf7f0] px-4 text-xs font-semibold text-[#175640]">Esamina le ricevute →</Link>
    </div>
+   <NetworkReplyPulse data={intelligence}/>
    <nav aria-label="Richieste di connessione" className="flex flex-wrap gap-2">
     {[{key:"received",label:"Ricevute"},{key:"sent",label:"Inviate"}].map(t=>
       <Link key={t.key} href={"/network/connections?box="+t.key}
@@ -79,6 +86,12 @@ export default async function NetworkConnectionsPage({
       </div>
       {box==="received"&&item.status==="pending"?<p className="mt-3 text-xs font-semibold text-[#176647]">Decisione richiesta · leggi la proposta prima di rispondere</p>:null}
       <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[#43524c]">{item.message}</p>
+      {box==="sent"&&item.status==="pending"&&canAct&&Number.isFinite(Date.parse(item.created_at))&&
+        Date.now()-Date.parse(item.created_at)>=7*24*60*60*1000?
+       <div className="mt-3 rounded-xl border border-[#dae6dc] bg-[#f7faf8] p-3">
+         <p className="mb-2 text-xs leading-5 text-[#52615b]">In attesa da almeno 7 giorni. Copia una bozza solo per un eventuale canale già autorizzato: la piattaforma non invia solleciti.</p>
+         <CopyConnectionReminder recipient={item.recipient_name} purpose={purposeLabels[item.purpose]||"Richiesta commerciale"} createdAt={item.created_at}/>
+       </div>:null}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
        <Link href={"/network/"+item.company_id} className="text-xs font-semibold text-[#176647] underline">Apri profilo aziendale</Link>
        {canAct&&item.status==="pending" && (box==="received" || item.inquiry_status==="submitted")?<div className="flex flex-wrap gap-2">
