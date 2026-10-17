@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { BusinessPlanLocale } from "@/lib/business-plan-locale";
 import { withBusinessPlanLocale } from "@/lib/business-plan-locale";
 
-type BusinessPlanTab = "highlights" | "details" | "market-sizing";
+type BusinessPlanTab = "highlights" | "details" | "market-sizing" | "vision";
 
 export function BusinessPlanTabs({
   baseHref,
@@ -56,13 +56,19 @@ export function BusinessPlanTabs({
           description: locale === "it" ? "Dimensionamento SaaS privato · superadmin" : "Private SaaS market model · superadmin",
           href: withBusinessPlanLocale(`${baseHref}/market-sizing`, locale),
         },
+        {
+          key: "vision" as const,
+          label: locale === "it" ? "AI · Visual · Buyer" : "AI · Visual · Buyer",
+          description: locale === "it" ? "Masterplan 2027 · visione e execution" : "2027 masterplan · vision and execution",
+          href: withBusinessPlanLocale(`${baseHref}/vision`, locale),
+        },
       ]
     : tabs;
 
   return (
     <nav
       aria-label={locale === "it" ? "Pagine Business Plan" : "Business Plan pages"}
-      className={["grid gap-2 rounded-2xl border border-[#dce2df] bg-white p-2", showPrivateMarketSizing ? "sm:grid-cols-3" : "sm:grid-cols-2"].join(" ")}
+      className={["grid gap-2 rounded-2xl border border-[#dce2df] bg-white p-2", showPrivateMarketSizing ? "sm:grid-cols-4" : "sm:grid-cols-2"].join(" ")}
     >
       {visibleTabs.map((tab) => {
         const selected = tab.key === active;
