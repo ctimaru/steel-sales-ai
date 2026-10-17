@@ -30,11 +30,22 @@ try {
   assert.equal(await consent.isChecked(),true);
   const create=bill.locator("[data-create-inline-private-rfq]");
   await create.click();
-  await bill.locator("[data-inline-guest-handoff]").waitFor({state:"visible",timeout:15000});
+  // Without configured credentials the local production server may report
+  // "unavailable" rather than an authenticated guest. Do not mislabel an
+  // outage as an invitation to register.
+  await bill.getByRole("alert").waitFor({state:"visible",timeout:15000});
   assert.match(await bill.innerText(),/RFQ privata/);
-  const login=bill.getByRole("link",{name:"Accedi e riprendi"});
-  assert.equal(await login.getAttribute("href"),"/login?next=%2Fknowledge%2Ftubes");
-  assert.equal(await bill.getByRole("link",{name:"Registra azienda"}).getAttribute("href"),"/register");
+  const guestHandoff=bill.locator("[data-inline-guest-handoff]");
+  if (await guestHandoff.count()) {
+    const login=bill.getByRole("link",{name:"Accedi e riprendi"});
+    assert.equal(await login.getAttribute("href"),"/login?next=%2Fknowledge%2Ftubes");
+    assert.equal(await bill.getByRole("link",{name:"Registra azienda"}).getAttribute("href"),"/register");
+    assert.equal(await guestHandoff.getByRole("button",{name:"Copia distinta"}).count(),1);
+  } else {
+    assert.match(await bill.getByRole("alert").innerText(),/Impossibile verificare l'accesso/);
+    assert.equal(await bill.getByRole("link",{name:"Registra azienda"}).count(),0,
+      "Unavailable access must not masquerade as guest registration");
+  }
   const restored=JSON.parse(await page.evaluate(()=>sessionStorage.getItem("sss:inline-distinta:v1")));
   assert.equal(restored.lines.length,1);
   assert.equal(restored.lines[0].targetEurT,"","No private buyer target in guest session");
