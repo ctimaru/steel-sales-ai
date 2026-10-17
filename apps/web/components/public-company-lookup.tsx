@@ -67,6 +67,7 @@ type PublicCompanyLookupProps = {
   notFoundLabel?: string;
   showNetworkNote?: boolean;
   locale?: "it" | "en";
+  initialQuery?: string;
 };
 
 export function PublicCompanyLookup({
@@ -75,6 +76,7 @@ export function PublicCompanyLookup({
   notFoundLabel = "Registra la tua azienda →",
   showNetworkNote = true,
   locale = "it",
+  initialQuery = "",
 }: PublicCompanyLookupProps = {}) {
   const registrationContext = context === "registration";
   const [state, setState] = useState<PublicCompanyLookupState>(
@@ -156,6 +158,7 @@ export function PublicCompanyLookup({
           <div className="flex flex-col gap-2 sm:flex-row">
             <input
               name="company_query"
+              defaultValue={initialQuery.slice(0,120)}
               type="search"
               required
               minLength={3}
