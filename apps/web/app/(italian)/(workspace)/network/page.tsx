@@ -10,6 +10,7 @@ import {
 import { FreeNetworkDirectoryView } from "@/components/free-network-directory";
 import { NetworkLaunchDiscovery } from "@/components/network-launch-discovery";
 import { NetworkDiscoveryOverview } from "@/components/network-discovery-overview";
+import { NetworkMiniMap, NetworkAvailabilityNotice } from "@/components/network-resilient-first-screen";
 import { NetworkPagination, parseNetworkPage } from "@/components/network-pagination";
 import { ItalyRegionMap } from "@/components/italy-region-map";
 import { NetworkRoleDiscovery } from "@/components/network-role-discovery";
@@ -125,9 +126,7 @@ export default async function NetworkDirectoryPage({
   }
 
   const params = await searchParams;
-  const canWrite = canWriteWorkspace(context.role);
-
-  const [taxonomy, geoFacets, results, saved, followed, coverage, viewerRole, previewDirectory] = await Promise.all([
+  const [taxonomyResult, geoResult, resultsResult, savedResult, followedResult, coverageResult, roleResult, previewResult] = await Promise.allSettled([
     getNetworkTaxonomy(),
     getNetworkGeoFacets(),
     searchNetwork({
@@ -150,8 +149,30 @@ export default async function NetworkDirectoryPage({
     getProNetworkDiscoveryDirectory(context.organizationId, {
       q: params.q, role: params.role, region: params.region,
       persona: validNetworkPersona(params.persona) || undefined, page:parseNetworkPage(params.dpage),
-    }).catch(() => null),
+    }),
   ]);
+
+  // Never let one unavailable feed take down the whole Network. Auth and
+  // entitlement checks above remain mandatory; this only isolates data reads.
+  const taxonomy = taxonomyResult.status === "fulfilled" ? taxonomyResult.value
+    : {roles:[],products:[],capabilities:[],markets:[]};
+  const geoFacets = geoResult.status === "fulfilled" ? geoResult.value
+    : {regions:[],cities:[],provinces:[]};
+  const canonicalUnavailable = resultsResult.status === "rejected";
+  const results = resultsResult.status === "fulfilled" ? resultsResult.value : {items:[],total:0};
+  const saved = savedResult.status === "fulfilled" ? savedResult.value : [];
+  const followed = followedResult.status === "fulfilled" ? followedResult.value : {items:[],total:0};
+  const coverage = coverageResult.status === "fulfilled" ? coverageResult.value : null;
+  const viewerRole = roleResult.status === "fulfilled" ? roleResult.value : null;
+  const previewDirectory = previewResult.status === "fulfilled" ? previewResult.value : null;
+  const canWrite = canWriteWorkspace(context.role)
+    && savedResult.status === "fulfilled" && followedResult.status === "fulfilled";
+  const unavailableSections = [
+    canonicalUnavailable ? "profili pubblicati" : null,
+    !previewDirectory ? "aziende da confermare" : null,
+    savedResult.status === "rejected" || followedResult.status === "rejected" ? "salvate e seguite" : null,
+    geoResult.status === "rejected" ? "filtri geografici avanzati" : null,
+  ].filter(Boolean);
 
   const savedIds = new Set(saved.map((item) => item.network_company_id));
   const followedIds = new Set(followed.items.map((item) => item.network_company_id));
@@ -180,6 +201,8 @@ export default async function NetworkDirectoryPage({
         />
       ) : null}
 
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_245px]">
+        <div className="min-w-0">
       <FocusHeader
         eyebrow="Network"
         title="Trova aziende steel"
@@ -193,30 +216,6 @@ export default async function NetworkDirectoryPage({
           </>
         }
       />
-
-      <NetworkDiscoveryOverview
-        published={results.total}
-        discovered={previewDirectory?.discovered_total ?? 0}
-        persona={params.persona}
-        role={params.role}
-        region={params.region}
-        discoveryUnavailable={!previewDirectory}
-      />
-
-      {previewDirectory?.discovered_total ? <p className="mt-4 text-xs text-[#52615b]">
-        La sezione di scoperta contiene {previewDirectory.discovered_total} profili aggiuntivi da confermare;
-        le funzionalità premium rimangono disponibili sulla directory pubblicata qui sotto.
-      </p> : null}
-      {params.error ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
-          {params.error}
-        </div>
-      ) : null}
-      {params.message ? (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-900">
-          {params.message}
-        </div>
-      ) : null}
 
       <section className="rounded-3xl border border-[#b8d2c8] bg-[#edf5f2] p-5 sm:p-6">
         <p className="app-kicker">Ricerca aziende</p>
@@ -361,6 +360,39 @@ export default async function NetworkDirectoryPage({
         </details>
       </section>
 
+      <NetworkDiscoveryOverview
+        published={results.total}
+        discovered={previewDirectory?.discovered_total ?? 0}
+        persona={params.persona}
+        role={params.role}
+        region={params.region}
+        discoveryUnavailable={!previewDirectory}
+        publishedUnavailable={canonicalUnavailable}
+      />
+        </div>
+        <NetworkMiniMap coverage={coverage} filters={params} />
+      </div>
+      {unavailableSections.length ? <div className="mt-4">
+        <NetworkAvailabilityNotice label={"Servizi temporaneamente non disponibili: "+unavailableSections.join(", ")+ "."}/>
+      </div> : null}
+
+      {previewDirectory?.discovered_total ? <p className="mt-4 text-xs text-[#52615b]">
+        La sezione di scoperta contiene {previewDirectory.discovered_total} profili aggiuntivi da confermare;
+        le funzionalità premium rimangono disponibili sulla directory pubblicata qui sotto.
+      </p> : null}
+      {params.error ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
+          {params.error}
+        </div>
+      ) : null}
+      {params.message ? (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-900">
+          {params.message}
+        </div>
+      ) : null}
+
+
+
       <div className="mt-5">
         <NetworkRoleDiscovery viewerRole={viewerRole} filters={params} />
       </div>
@@ -374,7 +406,7 @@ export default async function NetworkDirectoryPage({
           eyebrow="Directory"
           title={
             <span id="network-results">
-              {results.total.toLocaleString("it-IT")} {results.total === 1 ? "azienda" : "aziende"}
+              {canonicalUnavailable ? "Profili pubblicati" : results.total.toLocaleString("it-IT") + (results.total === 1 ? " azienda" : " aziende")}
             </span>
           }
           description="Profili industriali pubblicati nel Network."
@@ -396,7 +428,11 @@ export default async function NetworkDirectoryPage({
           }
         />
 
-        {orderedResults.length === 0 ? (
+        {canonicalUnavailable ? (
+          <div role="status" className="rounded-2xl border border-[#e4d4b3] bg-[#fffaf1] p-5 text-sm text-[#72542b]">
+            Impossibile caricare i profili pubblicati adesso. Prova la ricerca o esplora le nuove scoperte e la mappa.
+          </div>
+        ) : orderedResults.length === 0 ? (
           params.q || hasAdvancedFilters ? (
             <FirstUseEmptyState
               eyebrow="Ricerca senza risultati"
