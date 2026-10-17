@@ -1,7 +1,6 @@
 import Link from "next/link";
 import {redirect} from "next/navigation";
 import {decideNetworkConnection} from "@/app/(workspace)/network/actions";
-import {requireNetworkAccess} from "@/lib/network-access";
 import {getActiveOrganizationContext} from "@/lib/network";
 import {createClient} from "@/lib/supabase/server";
 import {canInteractWithNetwork} from "@/lib/access-policy";
@@ -24,17 +23,16 @@ export default async function NetworkConnectionsPage({
 }:{searchParams:Promise<{box?:string;error?:string;message?:string}>}){
  const params=await searchParams;
  const box=params.box==="sent"?"sent":"received";
- const ctx=await requireNetworkAccess();
  const actor=await getActiveOrganizationContext();
  if(!actor)redirect("/network");
  const supabase=await createClient();
  const {data,error}=await supabase.rpc("netconnect1_list",{
-  p_organization_id:ctx.context.organizationId,p_box:box,p_limit:50,p_offset:0,
+  p_organization_id:actor.organization_id,p_box:box,p_limit:50,p_offset:0,
  });
  const records=(data??{}) as {items?:Connection[];total?:number};
  const unavailable=Boolean(error)||!Array.isArray(records.items);
  const items=unavailable?[]:records.items??[];
- const canAct=canInteractWithNetwork(ctx.context.role);
+ const canAct=canInteractWithNetwork(actor.role);
  return <main className="mx-auto max-w-5xl space-y-5 pb-16">
    <div className="rounded-2xl border border-[#d4e3da] bg-[#f3f8f5] p-5 sm:p-7">
     <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#32745a]">Network professionale</p>
