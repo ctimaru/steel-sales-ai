@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 const read=p=>readFileSync(new URL(p,import.meta.url),"utf8");
-const migration=read("../../../supabase/migrations/20261017180000_netconnect2c_activation_growth.sql");
+const migration=read("../../../supabase/migrations/20261017183000_netconnect2c_activation_growth.sql");
 const helper=read("../lib/network-growth-overview.ts");
 const page=read("../app/(italian)/(platform)/platform/network-activation/page.tsx");
 const gate=read("../../../.github/workflows/p0-required-gate.yml");
