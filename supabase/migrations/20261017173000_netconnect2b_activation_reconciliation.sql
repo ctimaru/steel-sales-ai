@@ -162,6 +162,9 @@ begin
        where l.link_status='active'
          and exists(select 1 from public.organization_memberships m
              where m.organization_id=l.organization_id and m.status='active')),
+   'connection_requests_sent', (select count(*) from public.network_connection_requests),
+   'connections_accepted', (select count(*) from public.network_connection_requests
+       where status='accepted'),
    'canonical_evidence_links', (select count(*) from private.netconnect2b_canonical_evidence),
    'registration_strong_matches', (select count(*) from private.netconnect2b_registration_proposals
       where match_state='strong_evidence'),
