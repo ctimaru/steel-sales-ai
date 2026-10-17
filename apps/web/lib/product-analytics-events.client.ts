@@ -12,6 +12,7 @@ export type ProductAnalyticsEventName = InternationalRfqEventName
   | "calc_funnel_rfq_created"
   | "company_search"
   | "company_claim_start"
+  | "network_activation_registration_click"
   | "weight_calculation"
   | "rfq_calculator_line_added"
   | "rfq_bill_copied"

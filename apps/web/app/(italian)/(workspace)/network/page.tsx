@@ -6,6 +6,7 @@ import { NetworkLaunchDiscovery } from "@/components/network-launch-discovery";
 import { NetworkDiscoveryOverview } from "@/components/network-discovery-overview";
 import { NetworkMiniMap, NetworkAvailabilityNotice } from "@/components/network-resilient-first-screen";
 import { NetworkPagination, parseNetworkPage } from "@/components/network-pagination";
+import { NetworkActivationCta } from "@/components/network-activation-cta";
 import { ItalyRegionMap } from "@/components/italy-region-map";
 import { NetworkRoleDiscovery } from "@/components/network-role-discovery";
 import { getItalyRegionCoverage } from "@/lib/network-region-coverage";
@@ -104,6 +105,7 @@ export default async function NetworkDirectoryPage({
         <FreeNetworkDirectoryView
           organizationId={context.organizationId}
           organizationName={context.organizationName}
+          isWorkspaceAdmin={context.role==="admin"}
           filters={{ q: params.q, role: params.role, region: params.region, persona: params.persona, p:params.p,dpage:params.dpage }}
         />
       );
@@ -506,6 +508,10 @@ export default async function NetworkDirectoryPage({
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                    {context.role==="admin" && ["unclaimed","revoked"].includes(company.claimed_status)
+                      ? <NetworkActivationCta mode="published" companyId={company.id}
+                          companyName={company.legal_name} source="network_pro_results" compact />
+                      : null}
                     <Link
                       href={appRoutes.network.company(company.id)}
                       className="app-primary inline-flex min-h-10 items-center rounded-xl px-3.5 text-xs font-semibold"

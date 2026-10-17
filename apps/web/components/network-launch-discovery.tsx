@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import type { FreeDirectory, NetworkBrowsePage } from "@/lib/network-free";
 import { NetworkPagination } from "@/components/network-pagination";
+import { NetworkActivationCta } from "@/components/network-activation-cta";
 import { safeNetworkWebsiteUrl } from "@/lib/network-free";
 
 const roleLabels: Record<string,string>={
@@ -62,6 +63,8 @@ export function NetworkLaunchDiscovery({
         <Link href={"/network/"+company.id} className="inline-flex min-h-10 items-center rounded-lg bg-[#173f35] px-3 text-xs font-semibold text-white">Apri profilo</Link>
         {url?<a href={url} target="_blank" rel="noopener noreferrer"
            className="inline-flex min-h-10 items-center rounded-lg border border-[#d2ded6] px-3 text-xs font-semibold text-[#173f35]">Sito aziendale ↗</a>:null}
+        <NetworkActivationCta mode="discovered" companyId={company.id}
+           companyName={company.legal_name} source="network_discoveries" compact />
        </div>
       </article>;
      })}
@@ -75,7 +78,7 @@ export function NetworkLaunchDiscovery({
      parameter="dpage" params={navigationParams} anchor="network-new-discoveries"
    /> : null}
    <p className="mt-4 text-xs leading-5 text-[#52615b]">
-     I profili da confermare sono distinti dalle aziende pubblicate. Puoi segnalare errori o richiedere la rimozione attraverso la scheda.
+     I profili da confermare sono distinti dalle aziende pubblicate. Registrarsi non comporta la rivendicazione automatica della scheda: identità e titolarità saranno verificate. Puoi segnalare errori o richiedere la rimozione attraverso la scheda.
    </p>
  </section>;
 }
