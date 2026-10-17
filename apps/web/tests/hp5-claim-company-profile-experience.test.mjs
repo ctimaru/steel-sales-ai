@@ -17,6 +17,9 @@ const profilePage = fs.readFileSync(
   new URL("../app/(workspace)/network/[id]/page.tsx", import.meta.url),
   "utf8",
 );
+const activationCta = fs.readFileSync(
+  new URL("../components/network-activation-cta.tsx", import.meta.url), "utf8"
+);
 const networkActions = fs.readFileSync(
   new URL("../app/(workspace)/network/actions.ts", import.meta.url),
   "utf8",
@@ -72,8 +75,9 @@ test("HP5 derives Organization from the active workspace instead of trusting cla
 });
 
 test("HP5 routes public profile claim CTA through a guided experience", () => {
-  assert.match(profilePage, /\/claim"/);
-  assert.match(profilePage, /Rivendica questo profilo/);
+  assert.match(activationCta, /\/claim"/);
+  assert.match(profilePage, /NetworkActivationCta mode="published"/);
+  assert.match(activationCta, /Rivendica il profilo/);
   assert.doesNotMatch(profilePage, /form action=\{requestNetworkClaim\}/);
   assert.match(claimPage, /HP5 · Claim Company Profile/);
   assert.match(claimPage, /Step 1 · Ownership proof/);
