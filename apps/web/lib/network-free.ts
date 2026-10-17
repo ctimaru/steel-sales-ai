@@ -19,6 +19,7 @@ export type FreeCompany = {
   license_url?: string | null;
   origin?: string;
   finished_only?: boolean;
+  geography_status?: "sourced_unverified" | "unknown";
 };
 export type FreeDirectory = {
   contract: "netux11-free-v1";
