@@ -218,7 +218,7 @@ export async function searchNetwork(filters: {
     p_market_keys: filters.market ? [filters.market] : null,
     ...(isGeo ? { p_region: filters.region || null, p_province: filters.province || null, p_city: filters.city || null } : {}),
     p_limit: 18,
-    p_offset: (Math.max(1,Math.min(100000,Number.isInteger(filters.page) ? filters.page! : 1))-1)*18,
+    p_offset: (Math.max(1,Math.min(100000,typeof filters.page === "number" && Number.isInteger(filters.page) ? filters.page : 1))-1)*18,
   });
 
   if (error) throw new Error(error.message);
