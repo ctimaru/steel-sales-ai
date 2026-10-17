@@ -114,6 +114,13 @@ export default async function RegisterPage({
                     </div>
                   </div>
                 ) : (
+                  {initialCompanySearch ? (
+                    <p className="mb-3 rounded-xl border border-[#cde1d5] bg-[#f0f7f3] px-4 py-3 text-xs leading-5 text-[#285b45]">
+                      Hai aperto una scheda aziendale dal Network. Verifica ragione sociale e Partita IVA:
+                      le aziende ancora da confermare non vengono rivendicate automaticamente.
+                      Se non compare un profilo pubblicato, puoi proseguire con la registrazione.
+                    </p>
+                  ) : null}
                   <PublicCompanyLookup
                     context="registration"
                     initialQuery={initialCompanySearch}
@@ -374,6 +381,13 @@ export default async function RegisterPage({
 
           {!application && !claimRef && !activeClaim ? (
             <div className="mt-6">
+              {initialCompanySearch ? (
+                <p className="mb-3 rounded-xl border border-[#cde1d5] bg-[#f0f7f3] px-4 py-3 text-xs leading-5 text-[#285b45]">
+                  Hai aperto una scheda aziendale dal Network. Verifica ragione sociale e Partita IVA:
+                  le aziende ancora da confermare non vengono rivendicate automaticamente.
+                  Se non compare un profilo pubblicato, puoi proseguire con la registrazione.
+                </p>
+                  ) : null}
               <PublicCompanyLookup
                 context="registration"
                 initialQuery={initialCompanySearch}
