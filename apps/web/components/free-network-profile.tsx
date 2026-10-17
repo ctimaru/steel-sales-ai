@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FocusPage } from "@/components/focus-ui";
+import { getInquiryEligibility } from "@/lib/network";
 import { getFreeNetworkProfile, getProNetworkDiscoveryProfile, safeNetworkWebsiteUrl } from "@/lib/network-free";
 
 export async function FreeNetworkProfileView({
@@ -26,6 +27,7 @@ export async function FreeNetworkProfileView({
   const source = safeNetworkWebsiteUrl(profile.source_url);
   const license = safeNetworkWebsiteUrl(profile.license_url);
   const provisional = profile.company.discovery_status==="unconfirmed";
+  const eligibility = provisional ? {eligible:false} : await getInquiryEligibility(organizationId,companyId).catch(()=>({eligible:false}));
   return (
     <FocusPage className="max-w-[960px]">
       <Link href="/network" className="text-sm font-semibold text-[#173f35] underline">← Torna alla directory</Link>
@@ -46,6 +48,13 @@ export async function FreeNetworkProfileView({
         </div> : null}
         {profile.company.description ? <p className="mt-5 max-w-3xl whitespace-pre-wrap text-sm leading-6 text-[#43524c]">{profile.company.description}</p> : null}
         {website ? <a href={website} target="_blank" rel="noopener noreferrer" className="app-secondary mt-5 inline-flex min-h-10 items-center rounded-xl px-4 text-sm font-semibold">Visita sito aziendale</a> : null}
+        {eligibility.eligible ? <Link href={"/network/"+companyId+"/connect"}
+           className="app-primary mt-5 ml-2 inline-flex min-h-10 items-center rounded-xl px-4 text-sm font-semibold">
+           Richiedi connessione
+         </Link> : <p className="mt-4 text-xs leading-5 text-[#647269]">
+           La connessione sulla piattaforma sarà disponibile quando questo profilo sarà rappresentato da un'azienda attiva e abilitata a ricevere richieste.
+         </p>}
+
         <div className="mt-7 grid gap-6 sm:grid-cols-2">
           <div>
             <h2 className="text-base font-semibold text-[#173f35]">Prodotti dichiarati</h2>
