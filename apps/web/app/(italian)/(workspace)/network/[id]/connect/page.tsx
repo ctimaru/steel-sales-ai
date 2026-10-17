@@ -2,6 +2,7 @@ import Link from "next/link";
 import {notFound,redirect} from "next/navigation";
 import {submitNetworkConnection} from "@/app/(workspace)/network/actions";
 import {getInquiryEligibility} from "@/lib/network";
+import {canInteractWithNetwork} from "@/lib/access-policy";
 import {getWorkspaceContext} from "@/lib/workspace-context";
 import {getFreeNetworkProfile} from "@/lib/network-free";
 import {isNetworkFrontendEnabled} from "@/lib/network-flags";
@@ -23,7 +24,9 @@ export default async function NetworkConnectCompanyPage({
  const actor=await getWorkspaceContext();
  const profile=await getFreeNetworkProfile(actor.organizationId,id);
  if(!profile)notFound();
- const eligibility=await getInquiryEligibility(actor.organizationId,id).catch(()=>({eligible:false,reason:"unavailable"}));
+ const eligibility=canInteractWithNetwork(actor.role)
+   ? await getInquiryEligibility(actor.organizationId,id).catch(()=>({eligible:false,reason:"unavailable"}))
+   : {eligible:false,reason:"viewer"};
  const error=(await searchParams).error;
  return <main className="mx-auto max-w-3xl space-y-5 pb-16">
   <Link href={"/network/"+id} className="text-sm font-semibold text-[#276f52] hover:underline">← Torna all'azienda</Link>
