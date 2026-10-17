@@ -28,6 +28,7 @@ export type WorkspaceContextKey =
   | "rfq:suppliers"
   | "rfq:intelligence"
   | "network:directory"
+  | "network:connections"
   | "network:saved"
   | "network:following"
   | "network:activity"
@@ -116,6 +117,7 @@ function marketplaceContext(pathname: string): WorkspaceContextKey {
 }
 
 function networkContext(pathname: string): WorkspaceContextKey {
+  if (isPath(pathname, appRoutes.network.connections)) return "network:connections";
   if (isPath(pathname, appRoutes.network.saved)) return "network:saved";
   if (isPath(pathname, appRoutes.network.following)) return "network:following";
   if (isPath(pathname, appRoutes.network.activity)) return "network:activity";
