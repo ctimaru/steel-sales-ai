@@ -19,6 +19,7 @@ import type { BuyerDistintaDraftLine } from "@/lib/buyer-distinta";
 import { buildBuyerDistintaPlainText, calculateBuyerDistintaLine, calculateBuyerDistintaTotals } from "@/lib/buyer-distinta";
 import { priceInputText, type PriceBasis } from "@/lib/calculator-commercial-pricing";
 import { localizedInlineBill } from "@/lib/calculator-inline-distinta-copy";
+import { trackCalculatorFunnel } from "@/lib/calculator-conversion-funnel.client";
 import type { TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
 import { CALCULATOR_ROUTES } from "@/lib/international-calculator-landing";
 import {
@@ -131,6 +132,7 @@ export function CalculatorInlineDistintaExperience({
     catch { /* sessionStorage property itself may be denied */ }
     if (!saved) setStorageAvailable(false);
     setMessage(saved ? c.updated : c.noStorage);
+    if (result.state.lines.length > state.lines.length) trackCalculatorFunnel("bill_line_added", locale);
     return true;
   }
 
@@ -202,6 +204,7 @@ export function CalculatorInlineDistintaExperience({
     const built = prepareInlinePrivateRfq(liveState.current, targets, includePrivateTargets);
     if (!built.ok) { setRfqError(built.error); return; }
     creatingRef.current = true;
+    trackCalculatorFunnel("rfq_create_click", locale);
     setRfqPending(true);
     setRfqError("");
     setRfqAccess(null);
@@ -209,6 +212,7 @@ export function CalculatorInlineDistintaExperience({
       const access = await inlinePrivateRfqAccess();
       if (access.state !== "ready") {
         setRfqAccess(access.state);
+        if (access.state === "guest") trackCalculatorFunnel("guest_handoff", locale);
         setRfqError(access.state === "guest" ? c.guestError
           : access.state === "needs-company" ? c.companyError : c.accessError);
         return;
@@ -232,6 +236,7 @@ export function CalculatorInlineDistintaExperience({
         return;
       }
       setCreatedRfq(result.rfqId);
+      trackCalculatorFunnel("rfq_created", locale);
       try { window.sessionStorage.removeItem("sss:inline-distinta:v1"); }
       catch { /* restore already handled; no failure of private creation */ }
       setMessage(c.rfqCreatedNotice);
@@ -456,8 +461,8 @@ export function CalculatorInlineDistintaExperience({
                 <p className="mt-2 text-xs leading-5 text-[#315746]">{c.guestDescription}</p>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
                   <Link className="inline-flex min-h-12 items-center justify-center rounded-lg bg-[#176647] px-4 py-3 text-center text-sm font-bold text-white hover:bg-[#104d35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176647]"
-                    href="/register">{c.registerCompany}</Link>
-                  <Link className={action + " min-h-12 text-center text-sm"} href={"/login?next="+encodeURIComponent(CALCULATOR_ROUTES[locale])}>{c.loginResume}</Link>
+                    href="/register" onClick={() => trackCalculatorFunnel("registration_click", locale)}>{c.registerCompany}</Link>
+                  <Link className={action + " min-h-12 text-center text-sm"} href={"/login?next="+encodeURIComponent(CALCULATOR_ROUTES[locale])} onClick={() => trackCalculatorFunnel("login_click", locale)}>{c.loginResume}</Link>
                 </div>
                 <button type="button" className={action + " mt-3 w-full sm:w-auto"} onClick={copyBill}>{c.copyBill}</button>
                 {!storageAvailable ? <p className="mt-2 text-xs font-semibold text-[#8b472c]">{c.noStorage}</p> : null}
