@@ -114,6 +114,7 @@ export default async function RegisterPage({
                     </div>
                   </div>
                 ) : (
+                  <>
                   {initialCompanySearch ? (
                     <p className="mb-3 rounded-xl border border-[#cde1d5] bg-[#f0f7f3] px-4 py-3 text-xs leading-5 text-[#285b45]">
                       Hai aperto una scheda aziendale dal Network. Verifica ragione sociale e Partita IVA:
@@ -128,6 +129,7 @@ export default async function RegisterPage({
                     notFoundLabel="Non è presente: continua con una nuova registrazione ↓"
                     showNetworkNote={false}
                   />
+                  </>
                 )}
               </section>
 
