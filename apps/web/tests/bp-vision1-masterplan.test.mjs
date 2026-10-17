@@ -11,7 +11,7 @@ const tabs = read("../components/business-plan-tabs.tsx");
 const page = read("../app/(italian)/(platform)/platform/business-plan/vision/page.tsx");
 const view = read("../components/business-plan-vision.tsx");
 const source = read("../lib/business-plan-vision-content.ts");
-const publicInvestorPage = read("../app/(public)/investor/business-plan/[inviteToken]/page.tsx");
+const publicInvestorPage = read("../app/(italian)/(public)/investor/business-plan/[inviteToken]/page.tsx");
 
 test("BP-VISION1 keeps the full masterplan inside owner-only console", () => {
   assert.match(routes, /businessPlanVision: "\/platform\/business-plan\/vision"/);
