@@ -27,7 +27,7 @@ export function NetworkRoleDiscovery({
 
   return (
     <section id="network-role-discovery" aria-labelledby="network-role-discovery-title"
-      className="rounded-3xl border border-[#c8ded2] bg-[#f4f9f6] p-5 sm:p-6">
+      className="rounded-2xl border border-[#d9e5df] bg-[#f7faf8] p-5 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.11em] text-[#256a50]">
@@ -55,9 +55,7 @@ export function NetworkRoleDiscovery({
             <Link key={role}
               href={networkDiscoveryHref(filters,{persona:role},"#network-role-discovery")}
               aria-current={selected ? "page" : undefined}
-              className={"inline-flex min-h-10 items-center rounded-full border px-3.5 py-2 text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 " +
-                (selected ? "border-[#173f35] bg-[#173f35] text-white" :
-                  "border-[#b9d3c6] bg-white text-[#173f35] hover:bg-[#e3f0e9]")}>
+              className={"network-role-chip " + (selected ? "network-role-chip-active" : "")}>
               {role === "end_user" ? "Sono un utilizzatore" :
                role === "trader_distributor" ? "Sono un commerciante" :
                role === "processor_service_provider" ? "Sono un terzista" :
@@ -67,7 +65,7 @@ export function NetworkRoleDiscovery({
         })}
         {manualPersona && viewerRole ? (
           <Link href={networkDiscoveryHref(filters,{persona:null},"#network-role-discovery")}
-            className="inline-flex min-h-10 items-center rounded-full border border-[#c4d4cb] px-3 text-xs font-semibold text-[#315845]">
+            className="network-role-chip network-role-chip-reset">
             Torna al mio ruolo
           </Link>
         ) : null}
@@ -84,17 +82,13 @@ export function NetworkRoleDiscovery({
         <div className="mt-2 flex flex-wrap gap-2" aria-label="Ricerca aziende per categoria">
           <Link href={networkDiscoveryHref(filters,{role:null},"#network-region-results")}
             aria-current={!currentRole ? "page" : undefined}
-            className={"inline-flex min-h-10 items-center rounded-xl border px-3 text-xs font-semibold " +
-              (!currentRole ? "border-[#173f35] bg-white text-[#173f35]" :
-              "border-[#c9ddd1] bg-white/60 text-[#315845] hover:bg-white")}>
+            className={"network-category-chip " + (!currentRole ? "network-category-chip-active" : "")}>
             Tutta la filiera
           </Link>
           {priority.map((role,index)=>(
             <Link key={role} href={networkDiscoveryHref(filters,{role},"#network-region-results")}
               aria-current={currentRole === role ? "page" : undefined}
-              className={"inline-flex min-h-10 items-center rounded-xl border px-3 text-xs font-semibold " +
-                (currentRole===role ? "border-[#173f35] bg-[#173f35] text-white" :
-                "border-[#c9ddd1] bg-white text-[#315845] hover:bg-[#e5f2ea]")}>
+              className={"network-category-chip " + (currentRole===role ? "network-category-chip-active" : "")}>
               {persona && index===0 ? "Prima scelta · " : ""}{networkRoleLabels[role]}
             </Link>
           ))}
