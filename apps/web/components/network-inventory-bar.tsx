@@ -63,6 +63,10 @@ export function NetworkInventoryBar({
         </Link>;
       })}
     </nav>
+    <nav className="mt-3 flex flex-wrap items-center gap-3 border-t border-[#edf1ed] pt-3 text-xs font-semibold" aria-label="Esplora il Network">
+      <a href="#network-regional-map" className="text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2">Esplora la mappa Italia ↓</a>
+      <a href="#network-company-list" className="text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2">Consulta le aziende ↓</a>
+    </nav>
     {!complete ? <p role="status" className="mt-3 text-xs text-[#805a26]">Una delle fonti è temporaneamente indisponibile: il totale non viene mostrato come zero.</p>:null}
   </section>;
 }
