@@ -1,0 +1,55 @@
+/**
+ * UI-SYSTEM4 — browser-computed contrast audit, read-only.
+ * Run with UI4_BASE_URL=https://... node tests/ui-system4-chrome-contrast.mjs
+ * Browser computed values include cascade, Safari-independent theme tokens,
+ * hover and focus states, unlike string-based Tailwind source checks.
+ */
+import { chromium } from "playwright";
+
+const base = (process.env.UI4_BASE_URL || "https://www.smartsteelsales.com").replace(/\/$/, "");
+const routes = ["/network?persona=trader_distributor#network-role-discovery", "/knowledge/tubes#calcolatore-pesi", "/login"];
+const targets = ".ui-action, .network-role-chip, .network-category-chip, .platform-primary, .app-primary, .brand-button";
+const errors = [];
+const browser = await chromium.launch({headless:true,channel:process.env.UI4_BROWSER_CHANNEL || "chrome"});
+try {
+  for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
+    const page = await browser.newPage({viewport, locale:"it-IT"});
+    for (const route of routes) {
+      const response = await page.goto(base + route,{waitUntil:"domcontentloaded",timeout:45000});
+      if (!response || response.status()>=500) { errors.push(`${route}: unavailable HTTP ${response?.status()}`); continue; }
+      const elements = page.locator(targets);
+      const count = Math.min(await elements.count(),60);
+      for(let i=0;i<count;i++){
+        const element=elements.nth(i);
+        if(!(await element.isVisible()))continue;
+        for (const state of ["normal","hover","focus"]) {
+          try {
+            if(state==="hover") await element.hover({timeout:1500});
+            if(state==="focus") await element.focus({timeout:1500});
+            const data=await element.evaluate(node=>{
+              const rgb=(input)=>{const m=input.match(/rgba?\(([^)]+)\)/);if(!m)return null;const q=m[1].trim().split(/[\s,\/]+/).map(Number);return q.length>=3?{r:q[0],g:q[1],b:q[2],a:q.length>3?q[3]:1}:null;};
+              const blend=(fg,bg)=>({r:fg.r*fg.a+bg.r*(1-fg.a),g:fg.g*fg.a+bg.g*(1-fg.a),b:fg.b*fg.a+bg.b*(1-fg.a),a:1});
+              let background={r:255,g:255,b:255,a:1};
+              const chain=[];let current=node;
+              while(current){chain.unshift(current);current=current.parentElement;}
+              for(const part of chain){const c=rgb(getComputedStyle(part).backgroundColor);if(c&&c.a>0)background=blend(c,background);}
+              const style=getComputedStyle(node);
+              const foreground=rgb(style.webkitTextFillColor&&style.webkitTextFillColor!=="currentcolor"?style.webkitTextFillColor:style.color) || rgb(style.color);
+              if(!foreground)return {skip:true};
+              const channel=n=>{const x=n/255;return x<=0.04045?x/12.92:((x+0.055)/1.055)**2.4};
+              const luminance=c=>.2126*channel(c.r)+.7152*channel(c.g)+.0722*channel(c.b);
+              const fore=blend(foreground,background);
+              const a=luminance(fore),b=luminance(background);
+              return {ratio:(Math.max(a,b)+.05)/(Math.min(a,b)+.05),text:(node.textContent||"").trim().slice(0,52),foreground:style.color,background:style.backgroundColor};
+            });
+            if(!data.skip && data.ratio<4.5) errors.push(`${viewport.width}px ${route} [${state}] "${data.text}" contrast ${data.ratio.toFixed(2)}:1 (${data.foreground} / ${data.background})`);
+          }catch(e){errors.push(`${viewport.width}px ${route} [${state}] element ${i}: ${String(e).slice(0,120)}`);}
+        }
+      }
+      console.log("UI4 scanned", viewport.width,route,count);
+    }
+    await page.close();
+  }
+}finally{await browser.close();}
+if(errors.length){console.error("UI-SYSTEM4 computed contrast failures:\n"+errors.join("\n"));process.exitCode=1;}
+else console.log("UI-SYSTEM4 computed button contrast verified for tested public routes.");
