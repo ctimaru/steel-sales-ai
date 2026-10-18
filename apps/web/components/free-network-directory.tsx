@@ -8,6 +8,7 @@ import { FocusPage } from "@/components/focus-ui";
 import { ItalyRegionMap } from "@/components/italy-region-map";
 import { NetworkRoleDiscovery } from "@/components/network-role-discovery";
 import { NetworkLaunchDiscovery } from "@/components/network-launch-discovery";
+import { NetworkInventoryBar, networkListingView } from "@/components/network-inventory-bar";
 import { NetworkDiscoveryOverview } from "@/components/network-discovery-overview";
 import { NetworkMiniMap, NetworkRecoveryScreen } from "@/components/network-resilient-first-screen";
 import { NetworkPagination, parseNetworkPage } from "@/components/network-pagination";
@@ -36,7 +37,7 @@ export async function FreeNetworkDirectoryView({
   organizationName: string;
   isWorkspaceAdmin?:boolean;
   canConnect?:boolean;
-  filters: { q?: string; role?: string; region?: string; persona?: string; p?: string; dpage?: string };
+  filters: { q?: string; role?: string; region?: string; persona?: string; p?: string; dpage?: string; view?: string };
 }) {
   const role = NETWORK_COMPANY_ROLES.includes(filters.role as (typeof NETWORK_COMPANY_ROLES)[number])
     ? filters.role : undefined;
@@ -55,6 +56,7 @@ export async function FreeNetworkDirectoryView({
     return <NetworkRecoveryScreen />;
   }
   const hasFilters = Boolean(filters.q?.trim() || role || filters.region);
+  const listingView = networkListingView(filters.view);
   const persona = activeNetworkPersona(filters.persona, data.viewer_role);
   const items = data.published_page.items; // role ordering is global and enforced by SQL before pagination
   const [readiness,intelligence]=await Promise.all([
@@ -65,6 +67,9 @@ export async function FreeNetworkDirectoryView({
   return (
     <FocusPage className="max-w-[1180px]">
       <NetworkCompanyGrowthEntry />
+      <NetworkInventoryBar accessMode="free" published={data.published_page.total}
+        unconfirmed={data.discovery_page?.total??0} discoveryUnavailable={data.discovery_unavailable}
+        view={listingView} filters={filters} />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_245px]">
       <section className="rounded-3xl border border-[#b8d2c8] bg-[#edf5f2] p-5 sm:p-7">
         <div className="flex flex-wrap items-center gap-2">
@@ -93,6 +98,7 @@ export async function FreeNetworkDirectoryView({
             defaultValue={filters.q || ""} placeholder="Ragione sociale..."
             className="h-11 min-w-0 flex-1 rounded-xl border border-[#b8d2c8] bg-white px-3 text-sm text-[#173f35]"/>
           {role ? <input name="role" type="hidden" value={role} /> : null}
+          {listingView!=="all" ? <input name="view" type="hidden" value={listingView} /> : null}
           {filters.persona ? <input name="persona" type="hidden" value={filters.persona} /> : null}
           {filters.region ? <input name="region" type="hidden" value={filters.region} /> : null}
           <button className="app-primary min-h-11 rounded-xl px-5 text-sm font-semibold">Cerca</button>
@@ -124,15 +130,15 @@ export async function FreeNetworkDirectoryView({
       <div className="mt-6">
         <NetworkRoleDiscovery viewerRole={data.viewer_role} filters={filters} />
       </div>
-      <div className="mt-5">
-        <NetworkLaunchDiscovery directory={data}
+      <div id="network-company-list" className="mt-5">
+        {listingView!=="published" ? <NetworkLaunchDiscovery directory={data}
           filters={{q:filters.q,role:filters.role,region:filters.region}}
-          pagination={data.discovery_page} navigationParams={filters} />
+          pagination={data.discovery_page} navigationParams={filters} /> : null}
       </div>
       <div className="mt-5"><NetworkReadyConnections items={readyItems} statuses={readiness} canAct={canConnect}
          persona={persona} sharedProducts={sharedPublicProducts(intelligence)} /></div>
-      <section id="network-region-results" aria-label="Risultati del Network" className="mt-6">
-        <h2 className="text-xl font-semibold text-[#173f35]">{data.total.toLocaleString("it-IT")} aziende</h2>
+      {listingView!=="unconfirmed" ? <section id="network-region-results" aria-label="Risultati del Network" className="mt-6">
+        <h2 className="text-xl font-semibold text-[#173f35]">{data.published_page.total.toLocaleString("it-IT")} profili pubblicati</h2>
         {data.discovered_total ? <p className="mt-1 text-xs font-semibold text-[#52615b]">
           {data.discovered_total.toLocaleString("it-IT")} profili scoperti · Da confermare · categoria indicativa
         </p> : null}
@@ -178,7 +184,7 @@ export async function FreeNetworkDirectoryView({
           page={data.published_page.page} total={data.published_page.total} pageSize={data.published_page.page_size}
           parameter="p" params={filters} anchor="network-region-results"
         />
-      </section>
+      </section> : null}
       <div className="mt-6">
         <ItalyRegionMap coverage={coverage} provisionalCoverage={provisionalCoverage} selectedRegion={filters.region} filters={filters} />
       </div>
