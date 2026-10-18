@@ -2983,3 +2983,53 @@ textarea {
 }
 /* The shared button's secondary/ghost variants and white inverse CTAs retain
    their dark-on-light contrast; this deliberately does not target text alone. */
+
+
+/* NET-ROLE-UX — scoped, legible role/category selectors.
+   Do not rely on inherited text utilities on solid active chips. */
+#network-role-discovery .network-role-chip,
+#network-role-discovery .network-category-chip {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #c8d9d0;
+  background: #ffffff;
+  color: #234b3f;
+  -webkit-text-fill-color: #234b3f;
+  border-radius: 0.65rem;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+#network-role-discovery .network-role-chip:hover,
+#network-role-discovery .network-category-chip:hover {
+  border-color: #98b7aa;
+  background: #edf5f0;
+}
+#network-role-discovery .network-role-chip-active,
+#network-role-discovery .network-category-chip-active {
+  border-color: #185247 !important;
+  background-color: #185247 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+#network-role-discovery .network-role-chip-active:hover,
+#network-role-discovery .network-category-chip-active:hover {
+  background-color: #123b34 !important;
+}
+#network-role-discovery .network-role-chip-active :where(*),
+#network-role-discovery .network-category-chip-active :where(*) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+#network-role-discovery .network-role-chip-reset {
+  background: transparent;
+  border-style: dashed;
+}
+#network-role-discovery :is(.network-role-chip, .network-category-chip):focus-visible {
+  outline: 3px solid #315c74;
+  outline-offset: 3px;
+}
