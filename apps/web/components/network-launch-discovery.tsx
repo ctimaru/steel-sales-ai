@@ -1,3 +1,5 @@
+import { actionClasses } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import type { FreeDirectory, NetworkBrowsePage } from "@/lib/network-free";
@@ -64,7 +66,7 @@ export function NetworkLaunchDiscovery({
         </p> : null}
        </div>
        <div className="mt-4 flex flex-wrap gap-2">
-        <Link href={"/network/"+company.id} className="inline-flex min-h-10 items-center rounded-lg bg-[#173f35] px-3 text-xs font-semibold text-white">Apri profilo</Link>
+        <Link href={"/network/"+company.id} className={cn(actionClasses({ variant: "default", size: "sm" }), "min-h-10 rounded-lg")}>Apri profilo</Link>
         {url?<a href={url} target="_blank" rel="noopener noreferrer"
            className="inline-flex min-h-10 items-center rounded-lg border border-[#d2ded6] px-3 text-xs font-semibold text-[#173f35]">Sito aziendale ↗</a>:null}
         <NetworkActivationCta mode="discovered" companyId={company.id}
