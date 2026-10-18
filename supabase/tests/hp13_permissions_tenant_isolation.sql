@@ -252,7 +252,11 @@ select pg_temp.hp13_assert(
         -- NET-CONNECT2E: bounded, active-organization, privacy-preserving recipient readiness.
         'netconnect2e_readiness',
         -- NET-CONNECT2F: own-organization aggregate with approved-claim public-product overlap.
-        'netconnect2f_intelligence'
+        'netconnect2f_intelligence',
+        -- NET-LAUNCH5E: authenticated-only, read-only facade delegates to
+        -- guarded private impl (Free linked-company or Pro entitlement).
+        -- No anon execution; private impl remains inaccessible directly.
+        'netlaunch4b_browse_page'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
