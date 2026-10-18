@@ -42,7 +42,7 @@ test("NET-CONNECT1 replaces social actions with purposeful company links", () =>
   assert.doesNotMatch(directory, /saveNetworkCompany|followNetworkCompany|unfollowNetworkCompany|removeSavedNetworkCompany/);
   assert.match(directory, /appRoutes.network.connections/);
   assert.match(directory, /Connessioni aziendali/);
-  assert.match(directory, /Apri/);
+  assert.match(directory, /Esplora azienda/);
 });
 
 test("PF3 preserves directory filters after interaction actions", () => {
