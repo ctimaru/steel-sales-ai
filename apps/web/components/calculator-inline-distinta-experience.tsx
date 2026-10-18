@@ -3,6 +3,8 @@
 /** CALC-INT4.5 — One shared five-language calculator + private inline bill. */
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
+import { actionClasses } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { inlinePrivateRfqAccess } from "@/app/(italian)/(public)/knowledge/tubes/actions";
 import { createBuyerRfqCampaign, saveBuyerDistinta } from "@/app/(public)/distinta/actions";
@@ -38,7 +40,7 @@ type Editable = Pick<BuyerDistintaDraftLine,
   "quantityMode" | "quantity" | "barLengthM" | "grade" | "finish" | "note">;
 
 const control = "min-h-11 w-full rounded-lg border border-[#b8cfc3] bg-white px-3 text-sm text-[#143b2d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#146747]";
-const action = "inline-flex min-h-11 items-center justify-center rounded-lg border border-[#b8d4c5] bg-white px-3 py-2 text-xs font-bold text-[#175840] hover:bg-[#edf7f1] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175840] disabled:cursor-not-allowed disabled:opacity-50";
+const action = cn(actionClasses({ variant: "secondary", size: "sm" }), "min-h-11 rounded-lg px-3 py-2");
 
 function makeId() {
   return typeof crypto !== "undefined" && crypto.randomUUID
@@ -303,7 +305,7 @@ export function CalculatorInlineDistintaExperience({
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
             <button type="button" className={action + " w-full sm:w-auto"} aria-expanded={open} aria-controls="distinta-inline-lines"
               onClick={() => setOpen(v => !v)}>{open ? c.collapse : `${c.show} ${count} ${c.lines}`}</button>
-            {open ? <a href="#distinta-inline-rfq" className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-[#176647] px-4 py-2 text-xs font-bold text-white hover:bg-[#104d35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176647] sm:hidden">{c.createRfqButton}</a> : null}
+            {open ? <a href="#distinta-inline-rfq" className={cn(actionClasses({ variant: "default", size: "sm" }), "min-h-11 w-full sm:hidden")}>{c.createRfqButton}</a> : null}
           </div>
         ) : <span className="rounded-lg bg-[#edf5f0] px-3 py-2 text-xs font-semibold text-[#347055]">{c.free}</span>}
       </div>
@@ -415,7 +417,7 @@ export function CalculatorInlineDistintaExperience({
                     </label>;
                   })}
                   <div className="sm:col-span-2 flex flex-wrap gap-2">
-                    <button type="button" className="inline-flex min-h-11 items-center rounded-lg bg-[#176647] px-5 py-2 text-sm font-bold text-white hover:bg-[#104d35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176647]"
+                    <button type="button" className={cn(actionClasses({ variant: "default" }), "min-h-11 px-5 rounded-lg")}
                       onClick={() => saveEdit(line.id)}>{c.saveRow}</button>
                     <button type="button" className={action} onClick={() => {setEditingId(null);setDraft(null);}}>{c.cancel}</button>
                   </div>
@@ -433,7 +435,7 @@ export function CalculatorInlineDistintaExperience({
               </p>
               <p className="mt-1 text-xs text-[#476658]">{c.targetSafety}</p>
             </div>
-            <button type="button" className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#166346] px-5 py-3 text-sm font-bold text-white hover:bg-[#0e5035] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#166346]"
+            <button type="button" className={cn(actionClasses({ variant: "default" }), "min-h-12 w-full px-5")}
               onClick={copyBill}>{c.copyBill}</button>
           </div>
           <section id="distinta-inline-rfq" aria-label={c.privateRfq} className="mt-4 scroll-mt-24 rounded-xl border border-[#b7d6c4] bg-white p-4">
@@ -449,7 +451,7 @@ export function CalculatorInlineDistintaExperience({
               </label>
             ) : null}
             <button type="button" data-create-inline-private-rfq
-              className="mt-3 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#176647] px-5 py-3 text-sm font-bold text-white hover:bg-[#104d35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176647] disabled:cursor-not-allowed disabled:opacity-50"
+              className={cn(actionClasses({ variant: "default" }), "mt-3 min-h-12 w-full px-5")}
               disabled={rfqPending || Boolean(createdRfq) || !ready}
               onClick={()=>{void createPrivateRfq();}}>
               {createdRfq ? c.rfqCreated : rfqPending ? c.rfqPending : c.createRfqButton}
@@ -460,7 +462,7 @@ export function CalculatorInlineDistintaExperience({
                 <p className="text-sm font-bold text-[#174b37]">{c.guestError}</p>
                 <p className="mt-2 text-xs leading-5 text-[#315746]">{c.guestDescription}</p>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                  <Link className="inline-flex min-h-12 items-center justify-center rounded-lg bg-[#176647] px-4 py-3 text-center text-sm font-bold text-white hover:bg-[#104d35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176647]"
+                  <Link className={cn(actionClasses({ variant: "default" }), "min-h-12 rounded-lg px-4 text-center")}
                     href="/register" onClick={() => trackCalculatorFunnel("registration_click", locale)}>{c.registerCompany}</Link>
                   <Link className={action + " min-h-12 text-center text-sm"} href={"/login?next="+encodeURIComponent(CALCULATOR_ROUTES[locale])} onClick={() => trackCalculatorFunnel("login_click", locale)}>{c.loginResume}</Link>
                 </div>
