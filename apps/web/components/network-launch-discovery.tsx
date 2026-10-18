@@ -4,8 +4,6 @@ import Link from "next/link";
 
 import type { FreeDirectory, NetworkBrowsePage } from "@/lib/network-free";
 import { NetworkPagination } from "@/components/network-pagination";
-import { NetworkActivationCta } from "@/components/network-activation-cta";
-import { safeNetworkWebsiteUrl } from "@/lib/network-free";
 
 const roleLabels: Record<string,string>={
  producer:"Produttore (indicativo)",
@@ -38,23 +36,20 @@ export function NetworkLaunchDiscovery({
    <div className="flex flex-wrap items-start justify-between gap-3">
     <div>
      <p className="text-[11px] font-bold uppercase tracking-[0.13em] text-[#277052]">Network in crescita</p>
-     <h2 id="network-new-discoveries-title" className="mt-1 text-xl font-semibold text-[#173f35]">Nuove aziende scoperte</h2>
+     <h2 id="network-new-discoveries-title" className="mt-1 text-xl font-semibold text-[#173f35]">Esplora aziende</h2>
      <p className="mt-2 max-w-3xl text-sm leading-6 text-[#52615b]">
-       Profili individuati da ricerca e fonti strutturate. La categoria è indicativa:
-       non sono aziende verificate, clienti confermati né fornitori qualificati.
+       Trova le aziende della filiera e consulta un profilo dedicato per conoscerne attività, territorio e fonti.
      </p>
     </div>
     <div className="rounded-xl border border-[#c5ddcb] bg-white px-4 py-2 text-center">
      <p className="text-2xl font-bold tabular-nums text-[#173f35]">{total.toLocaleString("it-IT")}</p>
-     <p className="text-[11px] text-[#52615b]">Da confermare{filtered?" · filtro corrente":""}</p>
+     <p className="text-[11px] text-[#52615b]">Aziende disponibili{filtered?" · filtro corrente":""}</p>
     </div>
    </div>
    {found.length ? <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
      {found.map(company=>{
-      const url=safeNetworkWebsiteUrl(company.website_url);
       return <article key={company.id} className="flex min-w-0 flex-col justify-between rounded-2xl border border-[#d6e4dc] bg-white p-4">
        <div>
-        <span className="inline-block rounded-full bg-[#f8efd9] px-2.5 py-1 text-[10px] font-semibold text-[#795521]">Da confermare</span>
         <h3 className="mt-3 break-words text-sm font-bold text-[#173f35]">{company.legal_name}</h3>
         <p className="mt-1 text-xs text-[#64746a]">
          {company.roles[0]?.key&&roleLabels[company.roles[0].key]||"Settore da classificare"}
@@ -65,12 +60,8 @@ export function NetworkLaunchDiscovery({
           {" · "}Sede indicata, da confermare
         </p> : null}
        </div>
-       <div className="mt-4 flex flex-wrap gap-2">
-        <Link href={"/network/"+company.id} className={cn(actionClasses({ variant: "default", size: "sm" }), "min-h-10 rounded-lg")}>Apri profilo</Link>
-        {url?<a href={url} target="_blank" rel="noopener noreferrer"
-           className="inline-flex min-h-10 items-center rounded-lg border border-[#d2ded6] px-3 text-xs font-semibold text-[#173f35]">Sito aziendale ↗</a>:null}
-        <NetworkActivationCta mode="discovered" companyId={company.id}
-           companyName={company.legal_name} source="network_discoveries" compact />
+       <div className="mt-4">
+        <Link href={"/network/"+company.id} className={cn(actionClasses({ variant: "default", size: "sm" }), "min-h-10 w-full justify-center rounded-lg")}>Esplora azienda</Link>
        </div>
       </article>;
      })}
@@ -84,7 +75,7 @@ export function NetworkLaunchDiscovery({
      parameter="dpage" params={navigationParams} anchor="network-new-discoveries"
    /> : null}
    <p className="mt-4 text-xs leading-5 text-[#52615b]">
-     I profili da confermare sono distinti dalle aziende pubblicate. Registrarsi non comporta la rivendicazione automatica della scheda: identità e titolarità saranno verificate. Puoi segnalare errori o richiedere la rimozione attraverso la scheda.
+     Le schede raccolgono informazioni pubbliche con fonti consultabili. La presenza nel Network non implica adesione al servizio né verifica di ogni dettaglio. La rivendicazione e le segnalazioni sono disponibili nel profilo.
    </p>
  </section>;
 }
