@@ -1,0 +1,50 @@
+name: UI-SYSTEM4 Vercel Preview Contrast
+
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      preview_url:
+        description: "Full HTTPS Vercel preview URL to audit (not production)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  preview-contrast:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment.environment != 'Production' &&
+       github.event.deployment_status.environment_url != '')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: npx playwright install --with-deps chrome
+      - name: Verify preview URL
+        env:
+          PREVIEW_URL: ${{ inputs.preview_url || github.event.deployment_status.environment_url }}
+        run: |
+          node -e 'const u=new URL(process.env.PREVIEW_URL);if(u.protocol!=="https:"||!u.hostname.endsWith(".vercel.app")) process.exit(1);'
+      - name: Verify browser test can execute
+        run: node --check tests/ui-system4-chrome-contrast.mjs
+      - name: Audit actual preview computed contrast
+        env:
+          UI4_BASE_URL: ${{ inputs.preview_url || github.event.deployment_status.environment_url }}
+          UI4_BROWSER_CHANNEL: chrome
+        run: node tests/ui-system4-chrome-contrast.mjs
