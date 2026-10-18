@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { actionClasses } from "@/components/ui/button";
 
 import {
   NETWORK_COMPANY_ROLES,
@@ -55,7 +57,7 @@ export function NetworkRoleDiscovery({
             <Link key={role}
               href={networkDiscoveryHref(filters,{persona:role},"#network-role-discovery")}
               aria-current={selected ? "page" : undefined}
-              className={"network-role-chip " + (selected ? "network-role-chip-active" : "")}>
+              className={cn(actionClasses({ variant: selected ? "default" : "secondary", size: "sm" }), "network-role-chip", selected && "network-role-chip-active")}>
               {role === "end_user" ? "Sono un utilizzatore" :
                role === "trader_distributor" ? "Sono un commerciante" :
                role === "processor_service_provider" ? "Sono un terzista" :
@@ -65,7 +67,7 @@ export function NetworkRoleDiscovery({
         })}
         {manualPersona && viewerRole ? (
           <Link href={networkDiscoveryHref(filters,{persona:null},"#network-role-discovery")}
-            className="network-role-chip network-role-chip-reset">
+            className={cn(actionClasses({ variant: "ghost", size: "sm" }), "network-role-chip network-role-chip-reset")}>
             Torna al mio ruolo
           </Link>
         ) : null}
@@ -82,13 +84,13 @@ export function NetworkRoleDiscovery({
         <div className="mt-2 flex flex-wrap gap-2" aria-label="Ricerca aziende per categoria">
           <Link href={networkDiscoveryHref(filters,{role:null},"#network-region-results")}
             aria-current={!currentRole ? "page" : undefined}
-            className={"network-category-chip " + (!currentRole ? "network-category-chip-active" : "")}>
+            className={cn(actionClasses({ variant: !currentRole ? "default" : "secondary", size: "sm" }), "network-category-chip", !currentRole && "network-category-chip-active")}>
             Tutta la filiera
           </Link>
           {priority.map((role,index)=>(
             <Link key={role} href={networkDiscoveryHref(filters,{role},"#network-region-results")}
               aria-current={currentRole === role ? "page" : undefined}
-              className={"network-category-chip " + (currentRole===role ? "network-category-chip-active" : "")}>
+              className={cn(actionClasses({ variant: currentRole===role ? "default" : "secondary", size: "sm" }), "network-category-chip", currentRole===role && "network-category-chip-active")}>
               {persona && index===0 ? "Prima scelta · " : ""}{networkRoleLabels[role]}
             </Link>
           ))}
