@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 
 import { FreeNetworkDirectoryView } from "@/components/free-network-directory";
 import { NetworkLaunchDiscovery } from "@/components/network-launch-discovery";
+import { NetworkInventoryBar, networkListingView } from "@/components/network-inventory-bar";
 import { NetworkDiscoveryOverview } from "@/components/network-discovery-overview";
 import { NetworkMiniMap, NetworkAvailabilityNotice } from "@/components/network-resilient-first-screen";
 import { NetworkPagination, parseNetworkPage } from "@/components/network-pagination";
@@ -17,7 +18,7 @@ import { NetworkRoleDiscovery } from "@/components/network-role-discovery";
 import { getItalyRegionCoverage, getItalyProvisionalGeoCoverage } from "@/lib/network-region-coverage";
 import { orderNetworkDiscovery } from "@/lib/network-experience";
 import { activeNetworkPersona, networkRoleReason, validNetworkPersona } from "@/lib/network-role-discovery";
-import { getFreeNetworkViewerRole, getProNetworkDiscoveryDirectory } from "@/lib/network-free";
+import { getFreeNetworkViewerRole, getProNetworkDiscoveryDirectory, getNetworkBrowsePage } from "@/lib/network-free";
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
 import { NetworkAccessGate } from "@/components/network-access-gate";
@@ -26,6 +27,7 @@ import {
   getNetworkTaxonomy,
   getNetworkGeoFacets,
   searchNetwork,
+  type NetworkSearchItem,
 } from "@/lib/network";
 import { getNetworkAccessState } from "@/lib/network-access";
 import { isNetworkFreeReadEnabled, isNetworkFrontendEnabled } from "@/lib/network-flags";
@@ -94,6 +96,7 @@ export default async function NetworkDirectoryPage({
     persona?: string;
     p?: string;
     dpage?: string;
+    view?: string;
     error?: string;
     message?: string;
   }>;
@@ -112,7 +115,7 @@ export default async function NetworkDirectoryPage({
           organizationName={context.organizationName}
           isWorkspaceAdmin={context.role==="admin"}
           canConnect={canInteractWithNetwork(context.role)}
-          filters={{ q: params.q, role: params.role, region: params.region, persona: params.persona, p:params.p,dpage:params.dpage }}
+          filters={{ q: params.q, role: params.role, region: params.region, persona: params.persona, p:params.p,dpage:params.dpage,view:params.view }}
         />
       );
     }
@@ -125,7 +128,12 @@ export default async function NetworkDirectoryPage({
   }
 
   const params = await searchParams;
-  const [taxonomyResult, geoResult, resultsResult, coverageResult, roleResult, previewResult, provisionalGeoResult] = await Promise.allSettled([
+  const listingView = networkListingView(params.view);
+  // Normal discovery must use the same published source as Free, otherwise
+  // the old technical m6 reader omits published Network profiles on the default page.
+  const simplePublishedSearch = !params.product && !params.capability && !params.market
+    && !params.province && !params.city && (!params.country || params.country.toUpperCase()==="IT");
+  const [taxonomyResult, geoResult, resultsResult, coverageResult, roleResult, previewResult, provisionalGeoResult, publishedBrowseResult] = await Promise.allSettled([
     getNetworkTaxonomy(),
     getNetworkGeoFacets(),
     searchNetwork({
@@ -148,6 +156,10 @@ export default async function NetworkDirectoryPage({
       persona: validNetworkPersona(params.persona) || undefined, page:parseNetworkPage(params.dpage),
     }),
     getItalyProvisionalGeoCoverage(context.organizationId,"pro").catch(() => null),
+    getNetworkBrowsePage(context.organizationId,"pro","published",{
+      q:params.q,role:params.role,region:params.region,persona:validNetworkPersona(params.persona)||undefined,
+      page:parseNetworkPage(params.p),
+    }),
   ]);
 
   // Never let one unavailable feed take down the whole Network. Auth and
@@ -156,8 +168,21 @@ export default async function NetworkDirectoryPage({
     : {roles:[],products:[],capabilities:[],markets:[]};
   const geoFacets = geoResult.status === "fulfilled" ? geoResult.value
     : {regions:[],cities:[],provinces:[]};
-  const canonicalUnavailable = resultsResult.status === "rejected";
-  const results = resultsResult.status === "fulfilled" ? resultsResult.value : {items:[],total:0};
+  const olderResults = resultsResult.status === "fulfilled" ? resultsResult.value : {items:[],total:0};
+  const authoritativePublishedPage = publishedBrowseResult.status==="fulfilled" ? publishedBrowseResult.value : null;
+  const canonicalUnavailable = resultsResult.status === "rejected" && !(simplePublishedSearch && authoritativePublishedPage);
+  const knownPublished = new Map(olderResults.items.map(item=>[item.id,item]));
+  const results = simplePublishedSearch && authoritativePublishedPage ? {
+    total:authoritativePublishedPage.total,
+    items:authoritativePublishedPage.items.map(item=>knownPublished.get(item.id) ?? ({
+      id:item.id,legal_name:item.legal_name,trading_name:item.trading_name,
+      country_code:item.country_code,website_url:item.website_url,
+      website_domain:item.website_url ? (()=>{try{return new URL(item.website_url).hostname.replace(/^www\\./,"");}catch{return null;}})() : null,
+      verification_status:item.verification_status,claimed_status:item.claimed_status,
+      roles:item.roles,products:item.products.map(name=>({key:name,name,relationship_type:"unspecified"})),
+      markets:[],capabilities:[],facility_countries:[item.country_code],
+    } satisfies NetworkSearchItem)),
+  } : olderResults;
   const coverage = coverageResult.status === "fulfilled" ? coverageResult.value : null;
   const provisionalCoverage = provisionalGeoResult.status === "fulfilled" ? provisionalGeoResult.value : null;
   const viewerRole = roleResult.status === "fulfilled" ? roleResult.value : null;
@@ -190,6 +215,10 @@ export default async function NetworkDirectoryPage({
   return (
     <FocusPage className="max-w-[1180px]">
       <NetworkCompanyGrowthEntry />
+      <NetworkInventoryBar accessMode="pro" published={results.total}
+        unconfirmed={previewDirectory?.discovered_total??0}
+        publishedUnavailable={canonicalUnavailable} discoveryUnavailable={!previewDirectory}
+        view={listingView} filters={params} />
       <PilotEvent eventName="network_directory_viewed" metadata={{ surface: "network_directory" }} />
       {params.q || hasAdvancedFilters ? (
         <PilotEvent
@@ -240,6 +269,7 @@ export default async function NetworkDirectoryPage({
               className="h-12 min-w-0 flex-1 rounded-xl border border-[#c9d9d3] bg-white px-4 text-sm text-[#1d2824] outline-none placeholder:text-[#5d6a65] focus:border-[#438d7a] focus:ring-4 focus:ring-[#dcebe6]"
             />
             {params.role ? <input type="hidden" name="role" value={params.role} /> : null}
+            {listingView!=="all" ? <input type="hidden" name="view" value={listingView} /> : null}
             {validNetworkPersona(params.persona) ? <input type="hidden" name="persona" value={params.persona} /> : null}
             {params.product ? <input type="hidden" name="product" value={params.product} /> : null}
             {params.capability ? <input type="hidden" name="capability" value={params.capability} /> : null}
@@ -296,6 +326,7 @@ export default async function NetworkDirectoryPage({
           </summary>
           <form className="grid gap-3 border-t border-[#d9e8e2] p-4 sm:grid-cols-2 lg:grid-cols-5">
             {params.q ? <input type="hidden" name="q" value={params.q} /> : null}
+            {listingView!=="all" ? <input type="hidden" name="view" value={listingView} /> : null}
             {validNetworkPersona(params.persona) ? <input type="hidden" name="persona" value={params.persona} /> : null}
             <select name="role" aria-label="Ruolo azienda" defaultValue={params.role ?? ""} className={selectClass()}>
               <option value="">Tutti i ruoli</option>
@@ -395,19 +426,19 @@ export default async function NetworkDirectoryPage({
       <div className="mt-5">
         <NetworkRoleDiscovery viewerRole={viewerRole} filters={params} />
       </div>
-      <div className="mt-5">
-        <NetworkLaunchDiscovery directory={previewDirectory}
+      <div id="network-company-list" className="mt-5">
+        {listingView!=="published" ? <NetworkLaunchDiscovery directory={previewDirectory}
           filters={{q:params.q,role:params.role,region:params.region}}
-          pagination={previewDirectory?.discovery_page} navigationParams={params} />
+          pagination={previewDirectory?.discovery_page} navigationParams={params} /> : null}
       </div>
       <div className="mt-5"><NetworkReadyConnections items={readyItems} statuses={readiness} canAct={canInteractWithNetwork(context.role)}
          persona={persona} sharedProducts={sharedPublicProducts(intelligence)} /></div>
-      <section id="network-region-results" aria-labelledby="network-results">
+      {listingView!=="unconfirmed" ? <section id="network-region-results" aria-labelledby="network-results">
         <FocusSectionHeader
           eyebrow="Esplora aziende"
           title={
             <span id="network-results">
-              {canonicalUnavailable ? "Profili pubblicati" : results.total.toLocaleString("it-IT") + (results.total === 1 ? " azienda" : " aziende")}
+              {canonicalUnavailable ? "Profili pubblicati" : results.total.toLocaleString("it-IT") + (results.total === 1 ? " profilo pubblicato" : " profili pubblicati")}
             </span>
           }
           description="Profili industriali pubblicati nel Network."
@@ -547,7 +578,7 @@ export default async function NetworkDirectoryPage({
           page={parseNetworkPage(params.p)} total={results.total} pageSize={18}
           parameter="p" params={params} anchor="network-region-results"
         />
-      </section>
+      </section> : null}
       <div className="mt-6">
         <ItalyRegionMap coverage={coverage} provisionalCoverage={provisionalCoverage} selectedRegion={params.region} filters={params} />
       </div>
