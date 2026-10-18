@@ -14,10 +14,14 @@ const errors = [];
 const browser = await chromium.launch({headless:true,channel:process.env.UI4_BROWSER_CHANNEL || "chrome"});
 try {
   for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
-    const page = await browser.newPage({viewport, locale:"it-IT"});
+    const page = await browser.newPage({viewport, locale:"it-IT", ...(process.env.UI4_VERCEL_BYPASS ? {extraHTTPHeaders: {"x-vercel-protection-bypass": process.env.UI4_VERCEL_BYPASS}} : {})});
     for (const route of routes) {
       const response = await page.goto(base + route,{waitUntil:"domcontentloaded",timeout:45000});
       if (!response || response.status()>=500) { errors.push(`${route}: unavailable HTTP ${response?.status()}`); continue; }
+      if ((await page.locator('[data-testid="geistcn/skip-nav-link"]').count()) > 0) {
+        errors.push(`${route}: Vercel Deployment Protection is blocking the preview. Configure VERCEL_AUTOMATION_BYPASS_SECRET for the browser CI runner.`);
+        break;
+      }
       const elements = page.locator(targets);
       const count = Math.min(await elements.count(),150);
       for(let i=0;i<count;i++){
