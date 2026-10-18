@@ -3032,3 +3032,51 @@ textarea {
   outline: 3px solid #315c74;
   outline-offset: 3px;
 }
+
+
+/* UI-SYSTEM1 — semantic action contract.
+   Keep these variants self-contained and use them in new UI rather than
+   mixing arbitrary Tailwind background/text utilities. */
+.ui-action { text-decoration: none; }
+.ui-action-primary {
+  background-color: var(--brand-primary);
+  border: 1px solid var(--brand-primary);
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+.ui-action-primary:hover { background-color: var(--brand-primary-hover); border-color: var(--brand-primary-hover); }
+.ui-action-secondary {
+  background-color: #ffffff;
+  border: 1px solid var(--border-strong);
+  color: var(--brand-deep) !important;
+  -webkit-text-fill-color: var(--brand-deep) !important;
+}
+.ui-action-secondary:hover { background-color: var(--surface-subtle); border-color: var(--brand-500); }
+.ui-action-soft {
+  background-color: var(--brand-primary-soft);
+  border: 1px solid var(--brand-200);
+  color: var(--brand-deep) !important;
+  -webkit-text-fill-color: var(--brand-deep) !important;
+}
+.ui-action-soft:hover { background-color: #c9ebdd; }
+.ui-action-ghost {
+  background-color: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary) !important;
+  -webkit-text-fill-color: var(--text-secondary) !important;
+}
+.ui-action-ghost:hover { background-color: var(--surface-muted); }
+.ui-action-danger {
+  background-color: var(--semantic-error);
+  border: 1px solid var(--semantic-error);
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+.ui-action-danger:hover { filter: brightness(0.9); }
+.ui-action-primary :where(*), .ui-action-secondary :where(*),
+.ui-action-soft :where(*), .ui-action-ghost :where(*),
+.ui-action-danger :where(*) {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+}
+.ui-action:focus-visible { outline: 3px solid var(--steel-blue); outline-offset: 3px; }
