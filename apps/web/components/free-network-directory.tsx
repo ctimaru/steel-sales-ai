@@ -35,6 +35,7 @@ export async function FreeNetworkDirectoryView({
   organizationId: string;
   organizationName: string;
   canConnect?:boolean;
+  isWorkspaceAdmin?:boolean;
   filters: { q?: string; role?: string; region?: string; persona?: string; p?: string; dpage?: string; view?: string };
 }) {
   const role = NETWORK_COMPANY_ROLES.includes(filters.role as (typeof NETWORK_COMPANY_ROLES)[number])
