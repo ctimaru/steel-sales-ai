@@ -2945,3 +2945,41 @@ textarea {
     transform: none;
   }
 }
+
+
+/* A11Y-BTN1 — site-wide contrast contract for solid brand actions.
+   Apply only to explicit solid action styles, not white/soft/outlined buttons.
+   Includes WebKit text fill and nested labels that otherwise inherit dark utilities. */
+:root {
+  --action-solid-foreground: #ffffff;
+}
+:is(button, a, [role="button"]):is(
+  .brand-button, .platform-primary, .app-primary,
+  .platform-selected-solid, .app-selected-solid,
+  .public-primary-cta, .school-primary-action, .school-selected-control,
+  .bg-indigo-600, .bg-brand-700, .bg-brand-800,
+  [class~="bg-[#1a5144]"], [class~="bg-[#123d34]"],
+  [class~="bg-[var(--brand-primary)]"],
+  [class~="bg-[var(--brand-primary-hover)]"],
+  [class~="bg-[var(--brand-700)]"],
+  [class~="bg-[var(--brand-800)]"]
+) {
+  color: var(--action-solid-foreground) !important;
+  -webkit-text-fill-color: var(--action-solid-foreground) !important;
+}
+:is(button, a, [role="button"]):is(
+  .brand-button, .platform-primary, .app-primary,
+  .platform-selected-solid, .app-selected-solid,
+  .public-primary-cta, .school-primary-action, .school-selected-control,
+  .bg-indigo-600, .bg-brand-700, .bg-brand-800,
+  [class~="bg-[#1a5144]"], [class~="bg-[#123d34]"],
+  [class~="bg-[var(--brand-primary)]"],
+  [class~="bg-[var(--brand-primary-hover)]"],
+  [class~="bg-[var(--brand-700)]"],
+  [class~="bg-[var(--brand-800)]"]
+) :is(span, strong, small, svg, i) {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+}
+/* The shared button's secondary/ghost variants and white inverse CTAs retain
+   their dark-on-light contrast; this deliberately does not target text alone. */
