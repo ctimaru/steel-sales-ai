@@ -1,0 +1,29 @@
+name: UI-SYSTEM2 Action Contrast Guard
+
+on:
+  pull_request:
+    paths:
+      - "apps/web/app/**/*.tsx"
+      - "apps/web/components/**/*.tsx"
+      - "apps/web/scripts/check-action-contrast.mjs"
+      - "apps/web/tests/ui-system2-action-guard.test.mjs"
+      - ".github/workflows/ui-system2-action-contrast.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  action-contrast:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test apps/web/tests/ui-system2-action-guard.test.mjs
+      - name: Check newly added button styles
+        if: github.event_name == 'pull_request'
+        run: node apps/web/scripts/check-action-contrast.mjs "${{ github.event.pull_request.base.sha }}"
