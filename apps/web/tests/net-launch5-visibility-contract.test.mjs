@@ -20,7 +20,7 @@ test("NET-LAUNCH5: Free and Pro always use actual published and provisional tota
 test("NET-LAUNCH5: provisional companies remain visible, labeled, and paged in both tiers", () => {
   assert.match(free, /<NetworkLaunchDiscovery/);
   assert.match(pro, /<NetworkLaunchDiscovery/);
-  assert.match(discovered, /Da confermare/);
+  assert.match(discovered, /Esplora azienda/);
   assert.match(discovered, /<NetworkPagination/);
   assert.match(directory, /getNetworkBrowsePage\(organizationId,"free","unconfirmed"/);
   assert.match(directory, /getNetworkBrowsePage\(organizationId,"pro","unconfirmed"/);
