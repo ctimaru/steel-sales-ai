@@ -41,7 +41,10 @@ try {
               const chain=[];let current=node;
               while(current){chain.unshift(current);current=current.parentElement;}
               for(const part of chain){const c=rgb(getComputedStyle(part).backgroundColor);if(c&&c.a>0)background=blend(c,background);}
-              const style=getComputedStyle(node);\n              // Sliding region choice uses a colored ::before layer, not the button background.\n              const choice = node.matches("button[aria-pressed=true]") && node.parentElement?.getAttribute("data-region");\n              if (choice && getComputedStyle(node.parentElement,"::before").backgroundImage !== "none") return {skip:true};
+              const style=getComputedStyle(node);
+              // Sliding region choice uses a colored ::before layer, not the button background.
+              const choice = node.matches("button[aria-pressed=true]") && node.parentElement?.getAttribute("data-region");
+              if (choice && getComputedStyle(node.parentElement,"::before").backgroundImage !== "none") return {skip:true};
               const foreground=rgb(style.webkitTextFillColor&&style.webkitTextFillColor!=="currentcolor"?style.webkitTextFillColor:style.color) || rgb(style.color);
               if(!foreground)return {skip:true};
               const channel=n=>{const x=n/255;return x<=0.04045?x/12.92:((x+0.055)/1.055)**2.4};
