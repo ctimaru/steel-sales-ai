@@ -47,4 +47,5 @@ jobs:
         env:
           UI4_BASE_URL: ${{ inputs.preview_url || github.event.deployment_status.environment_url }}
           UI4_BROWSER_CHANNEL: chrome
+          UI4_VERCEL_BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: node tests/ui-system4-chrome-contrast.mjs
