@@ -8,7 +8,8 @@ import { chromium } from "playwright";
 
 const base = (process.env.UI4_BASE_URL || "https://www.smartsteelsales.com").replace(/\/$/, "");
 const routes = ["/", "/network?persona=trader_distributor#network-role-discovery", "/network?status=discovered", "/knowledge/tubes#calcolatore-pesi", "/login", "/register"];
-// Audit every actionable button/link, including legacy links nested within company cards.\nconst targets = "button, a[href], [role=button], .ui-action, .network-role-chip, .network-category-chip";
+// Audit every actionable button/link, including legacy links nested within company cards.
+const targets = "button, a[href], [role=button], .ui-action, .network-role-chip, .network-category-chip";
 const errors = [];
 const browser = await chromium.launch({headless:true,channel:process.env.UI4_BROWSER_CHANNEL || "chrome"});
 try {
