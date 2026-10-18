@@ -5,6 +5,8 @@ import { useState, useTransition } from "react";
 
 import { createBuyerRfqCampaign } from "@/app/(public)/distinta/actions";
 import { appRoutes } from "@/lib/routes";
+import { actionClasses } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export function RfqHubCreateFromSnapshot({ distintaId }: { distintaId: string }) {
   const router = useRouter();
@@ -27,7 +29,7 @@ export function RfqHubCreateFromSnapshot({ distintaId }: { distintaId: string })
             router.push(appRoutes.rfqHub.campaign(result.rfqId));
           });
         }}
-        className="platform-primary inline-flex min-h-11 items-center rounded-lg px-4 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50"
+        className={cn(actionClasses({ variant: "default" }), "min-h-11 rounded-lg disabled:cursor-not-allowed")}
       >
         {pending ? "Creazione RFQ…" : "Avvia RFQ multi-fornitore"}
       </button>
