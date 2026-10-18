@@ -177,7 +177,7 @@ export default async function NetworkDirectoryPage({
     items:authoritativePublishedPage.items.map(item=>knownPublished.get(item.id) ?? ({
       id:item.id,legal_name:item.legal_name,trading_name:item.trading_name,
       country_code:item.country_code,website_url:item.website_url,
-      website_domain:item.website_url ? (()=>{try{return new URL(item.website_url).hostname.replace(/^www\\./,"");}catch{return null;}})() : null,
+      website_domain:item.website_url ? (()=>{try{return new URL(item.website_url).hostname.replace(/^www\./,"");}catch{return null;}})() : null,
       verification_status:item.verification_status,claimed_status:item.claimed_status,
       roles:item.roles,products:item.products.map(name=>({key:name,name,relationship_type:"unspecified"})),
       markets:[],capabilities:[],facility_countries:[item.country_code],
