@@ -65,8 +65,9 @@ test("K1 Knowledge is a public technical discovery surface", () => {
 test("UXA1 propagates the forest-neutral system through shared primitives", () => {
   assert.match(globals, /--primary: var\(--brand-primary\)/);
   assert.match(globals, /--brand-primary: #1f6b5a/);
-  assert.match(button, /bg-\[var\(--brand-primary\)\]/);
-  assert.match(button, /hover:bg-\[var\(--brand-primary-hover\)\]/);
+  assert.match(button, /ui-action-primary/);
+  assert.match(globals, /\.ui-action-primary\s*\{/);
+  assert.match(globals, /\.ui-action-primary:hover\s*\{/);
   assert.match(input, /border-\[var\(--border\)\]/);
   assert.match(input, /focus:ring-4 focus:ring-\[var\(--steel-blue-soft\)\]/);
 });
