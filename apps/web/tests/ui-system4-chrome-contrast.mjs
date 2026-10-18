@@ -7,8 +7,8 @@
 import { chromium } from "playwright";
 
 const base = (process.env.UI4_BASE_URL || "https://www.smartsteelsales.com").replace(/\/$/, "");
-const routes = ["/network?persona=trader_distributor#network-role-discovery", "/knowledge/tubes#calcolatore-pesi", "/login"];
-const targets = ".ui-action, .network-role-chip, .network-category-chip, .platform-primary, .app-primary, .brand-button";
+const routes = ["/", "/network?persona=trader_distributor#network-role-discovery", "/network?status=discovered", "/knowledge/tubes#calcolatore-pesi", "/login", "/register"];
+// Audit every actionable button/link, including legacy links nested within company cards.\nconst targets = "button, a[href], [role=button], .ui-action, .network-role-chip, .network-category-chip";
 const errors = [];
 const browser = await chromium.launch({headless:true,channel:process.env.UI4_BROWSER_CHANNEL || "chrome"});
 try {
@@ -18,10 +18,10 @@ try {
       const response = await page.goto(base + route,{waitUntil:"domcontentloaded",timeout:45000});
       if (!response || response.status()>=500) { errors.push(`${route}: unavailable HTTP ${response?.status()}`); continue; }
       const elements = page.locator(targets);
-      const count = Math.min(await elements.count(),60);
+      const count = Math.min(await elements.count(),150);
       for(let i=0;i<count;i++){
         const element=elements.nth(i);
-        if(!(await element.isVisible()))continue;
+        if(!(await element.isVisible()))continue;\n        // Skip anchor text without interactive chrome; native page links may inherit context.\n        const isAuditable = await element.evaluate(node => {\n          const css = getComputedStyle(node);\n          const rect = node.getBoundingClientRect();\n          return rect.width > 0 && rect.height > 0 && css.visibility !== "hidden" && (node.tagName === "BUTTON" || node.getAttribute("role") === "button" || css.backgroundColor !== "rgba(0, 0, 0, 0)" || node.classList.contains("ui-action"));\n        });\n        if (!isAuditable) continue;
         for (const state of ["normal","hover","focus"]) {
           try {
             if(state==="hover") await element.hover({timeout:1500});
