@@ -85,15 +85,21 @@ export async function getFreeNetworkProfile(
     p_organization_id: organizationId,
     p_company_id: companyId,
   });
-  if (error) throw new Error("network_free_profile_unavailable");
-  if (data === null) {
+  // Provisional UUIDs are not canonical company IDs. Some canonical readers
+  // reject an unknown UUID rather than returning null, so always try the
+  // separately authorized provisional reader before declaring a dead link.
+  if (error || data === null) {
     const {data:discovery,error:discoveryError}=await supabase.rpc("netfast_free_profile",{
       p_organization_id:organizationId,p_discovery_id:companyId,
     });
-    if(discoveryError || !discovery) return null;
-    const preview=discovery as {contract?:string};
-    if(preview.contract!=="netfast-discovery-profile-v1") return null;
-    return discovery as unknown as FreeProfile;
+    if (!discoveryError && discovery && typeof discovery === "object" &&
+        (discovery as {contract?:string}).contract === "netfast-discovery-profile-v1") {
+      return discovery as unknown as FreeProfile;
+    }
+    // Keep canonical outages visible, never silently turn them into 404s.
+    if (error) throw new Error("network_free_profile_unavailable");
+    if (discoveryError) throw new Error("network_discovery_profile_unavailable");
+    return null;
   }
   if (typeof data !== "object" || (data as FreeProfile).contract !== "netux11-free-profile-v1") {
     throw new Error("network_free_profile_invalid_contract");
