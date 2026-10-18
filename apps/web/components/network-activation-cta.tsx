@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { actionClasses } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { trackProductEvent } from "@/lib/product-analytics-events.client";
 
 export type NetworkActivationMode = "published" | "discovered";
@@ -30,9 +32,7 @@ export function NetworkActivationCta({
      published?"company_claim_start":"network_activation_registration_click",
      {source,profile_state:mode}
    )}
-   className={compact
-     ? "inline-flex min-h-10 items-center rounded-xl border border-[#9bbfb0] bg-[#f0f7f2] px-3 text-xs font-semibold text-[#175640] hover:bg-[#dfeee4]"
-     : "inline-flex min-h-11 items-center justify-center rounded-xl bg-[#1a6048] px-4 text-sm font-semibold text-white hover:bg-[#17533f]"}>
+   className={cn(actionClasses({ variant: compact ? "soft" : "default", size: compact ? "sm" : "md" }), compact ? "min-h-10" : "min-h-11")}>
    {published?"Rivendica il profilo":"Registra la tua azienda"}
  </Link>;
 }
