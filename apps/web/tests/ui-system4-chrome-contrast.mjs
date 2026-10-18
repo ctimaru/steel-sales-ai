@@ -21,7 +21,14 @@ try {
       const count = Math.min(await elements.count(),150);
       for(let i=0;i<count;i++){
         const element=elements.nth(i);
-        if(!(await element.isVisible()))continue;\n        // Skip anchor text without interactive chrome; native page links may inherit context.\n        const isAuditable = await element.evaluate(node => {\n          const css = getComputedStyle(node);\n          const rect = node.getBoundingClientRect();\n          return rect.width > 0 && rect.height > 0 && css.visibility !== "hidden" && (node.tagName === "BUTTON" || node.getAttribute("role") === "button" || css.backgroundColor !== "rgba(0, 0, 0, 0)" || node.classList.contains("ui-action"));\n        });\n        if (!isAuditable) continue;
+        if(!(await element.isVisible()))continue; 
+        // Skip anchor text without interactive chrome; native page links may inherit context. 
+        const isAuditable = await element.evaluate(node => { 
+          const css = getComputedStyle(node); 
+          const rect = node.getBoundingClientRect(); 
+          return rect.width > 0 && rect.height > 0 && css.visibility !== "hidden" && (node.tagName === "BUTTON" || node.getAttribute("role") === "button" || css.backgroundColor !== "rgba(0, 0, 0, 0)" || node.classList.contains("ui-action")); 
+        }); 
+        if (!isAuditable) continue;
         for (const state of ["normal","hover","focus"]) {
           try {
             if(state==="hover") await element.hover({timeout:1500});
