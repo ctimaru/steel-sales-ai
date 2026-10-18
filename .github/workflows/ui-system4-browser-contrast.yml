@@ -1,0 +1,39 @@
+name: UI-SYSTEM4 Computed Contrast Chrome
+
+on:
+  pull_request:
+    paths:
+      - "apps/web/components/ui/button.tsx"
+      - "apps/web/components/network-role-discovery.tsx"
+      - "apps/web/components/calculator-inline-distinta-experience.tsx"
+      - "apps/web/components/rfq-hub-create-from-snapshot.tsx"
+      - "apps/web/app/globals.css"
+      - "apps/web/tests/ui-system4-chrome-contrast.mjs"
+      - ".github/workflows/ui-system4-browser-contrast.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  computed-contrast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: npx playwright install --with-deps chrome
+      - name: Check real browser-computed action contrasts on public routes
+        run: node tests/ui-system4-chrome-contrast.mjs
+        env:
+          UI4_BASE_URL: https://www.smartsteelsales.com
+          UI4_BROWSER_CHANNEL: chrome
