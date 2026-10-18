@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { actionClasses } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 import type { NetworkAccessState } from "@/lib/network-access";
 import { appRoutes } from "@/lib/routes";
@@ -71,13 +73,13 @@ export function NetworkAccessGate({
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 href={appRoutes.company.profile}
-                className="platform-primary inline-flex min-h-11 items-center justify-center rounded-xl px-4 text-sm font-semibold"
+                className={cn(actionClasses({ variant: "default" }), "min-h-11")}
               >
                 Gestisci il profilo azienda
               </Link>
               <Link
                 href={appRoutes.home}
-                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#d7dfdb] bg-white px-4 text-sm font-semibold text-[#52615b] hover:bg-[#f4f7f5] hover:text-[#173f35]"
+                className={cn(actionClasses({ variant: "secondary" }), "min-h-11")}
               >
                 Torna alla Home
               </Link>
