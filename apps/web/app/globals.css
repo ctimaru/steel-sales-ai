@@ -3080,3 +3080,10 @@ textarea {
   -webkit-text-fill-color: inherit !important;
 }
 .ui-action:focus-visible { outline: 3px solid var(--steel-blue); outline-offset: 3px; }
+
+/* UI-SYSTEM4: prevent white-on-white on the calculator company lookup CTA.
+   Scoped to the white-background /azienda action; do not recolor all links. */
+a[href="/azienda"][class~="bg-white"] {
+  color: #123d34 !important;
+  -webkit-text-fill-color: #123d34 !important;
+}
