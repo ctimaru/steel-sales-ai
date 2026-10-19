@@ -10,6 +10,7 @@ import type {ItalyRegionCoverage,ItalyProvisionalGeoCoverage} from "@/lib/networ
 
 type Props={
   accessMode:"free"|"pro"; directory:CompactNetworkPage; filters:CompactNetworkFilters;
+  userId:string;organizationId:string;canCompose:boolean;
   coverage?:ItalyRegionCoverage|null; provisionalCoverage?:ItalyProvisionalGeoCoverage|null;
   regions?:string[]; capabilityLabels?:Record<string,string[]>; additionalFilters?:{
     products:{canonical_key:string;display_name:string}[];
@@ -121,7 +122,7 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
 }
 
 export function NetworkCompactExperience({
-  accessMode,directory,filters,coverage,provisionalCoverage,regions=[],additionalFilters,capabilityLabels={},
+  accessMode,directory,filters,userId,organizationId,canCompose,coverage,provisionalCoverage,regions=[],additionalFilters,capabilityLabels={},
 }:Props){
   const filterActive=Boolean(filters.q||filters.role||filters.region||filters.product||filters.capability||filters.market||filters.country);
   const italySelected=!filters.country||filters.country==="IT";
@@ -170,7 +171,7 @@ export function NetworkCompactExperience({
 
     <section aria-label="Ricerca e filtri delle aziende" className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-3 sm:p-4">
       <NetworkLiveSearch filters={filters}/>
-      <NetworkConversation/>
+      <NetworkConversation userId={userId} organizationId={organizationId} canCompose={canCompose}/>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <span className="mr-1 text-[11px] font-bold uppercase tracking-wider text-[#175640]">Ruolo</span>
         <nav aria-label="Ruolo nella filiera" className="flex flex-wrap gap-1.5">
