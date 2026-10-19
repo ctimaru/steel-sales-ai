@@ -17,6 +17,9 @@ on:
       - "apps/web/tests/school-growth1e-*"
       - "apps/web/tests/school-unify1-*"
       - "apps/web/tests/school-unify2-*"
+      - "apps/web/tests/school-unify2b-*"
+      - "apps/web/lib/school-explorer-locales.ts"
+      - "apps/web/components/knowledge-explorer.tsx"
       - "apps/web/components/school-private-*"
       - "apps/web/components/school-localized-workspace-home.tsx"
       - "apps/web/lib/school-workspace-i18n.ts"
@@ -102,6 +105,8 @@ jobs:
           done
           tail -n 70 "$RUNNER_TEMP/perf21-next.log"
           exit 1
+      - name: SCHOOL-UNIFY2B Complete Explorer filter localization Chrome (demo only)
+        run: node tests/school-unify2b-chrome-explorer.mjs
       - name: SCHOOL-UNIFY2 Five private workspace languages Chrome UX (demo only)
         run: node tests/school-unify2-chrome-private.mjs
       - name: SCHOOL-UNIFY1 Five public School languages Chrome layout and SEO
@@ -142,6 +147,14 @@ jobs:
         run: node tests/bd17-chrome-cta-variants.mjs
       - name: HOME-SI5 Chrome visual / WCAG / SEO acceptance
         run: node tests/home-si5-chrome-visual-qa.mjs
+      - name: Upload SCHOOL-UNIFY2B Explorer localization screenshots (demo only)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: school-unify2b-explorer-localized-demo
+          path: /tmp/school-unify2b
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Upload SCHOOL-UNIFY2 private UX demo screenshots (no users or company data)
         if: always()
         uses: actions/upload-artifact@v4
