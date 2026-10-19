@@ -73,6 +73,7 @@ export const appRoutes = {
 
   knowledge: {
     workspace: "/school",
+    assistant: "/school/assistant",
     explorer: "/school/explorer",
     catalog: "/school/catalogo",
     schoolStandards: "/school/norme",
