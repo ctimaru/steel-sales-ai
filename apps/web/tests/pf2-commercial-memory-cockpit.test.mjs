@@ -12,7 +12,7 @@ const ia = fs.readFileSync(
   "utf8",
 );
 
-test("PF2 makes search the dominant Commercial Memory action", () => {
+test("PF2 keeps Commercial Memory search available below actionable work", () => {
   assert.match(commercial, /Cerca nella Commercial Memory/);
   assert.match(commercial, /Prodotto, cliente, RFQ, offerta, ordine o prezzo/);
   assert.match(commercial, /action=\{appRoutes\.commercial\.search\}/);
@@ -26,7 +26,7 @@ test("PF2 shows real workspace memory and recent commercial movement", () => {
   assert.match(commercial, /operational\.rfqs/);
   assert.match(commercial, /operational\.offers/);
   assert.match(commercial, /operational\.orders/);
-  assert.match(commercial, /metrics\.reviewFlags/);
+  assert.match(commercial, /RFQ acquisti attive/);
   assert.match(commercial, /Ultimi movimenti/);
   assert.match(commercial, /recent\.slice\(0, 5\)/);
 });
@@ -74,6 +74,6 @@ test("PF2 simplifies Commercial navigation and moves Explorer under Intelligence
 
 test("PF2 explicitly preserves Commercial Memory privacy boundaries", () => {
   assert.match(commercial, /workspace privato/);
-  assert.match(commercial, /Network e Marketplace restano spazi separati/);
-  assert.match(commercial, /non pubblicano automaticamente dati commerciali interni/);
+  assert.match(commercial, /confini dei dati restano distinti/);
+  assert.match(commercial, /non condividono automaticamente prezzi, contatti o documenti/);
 });
