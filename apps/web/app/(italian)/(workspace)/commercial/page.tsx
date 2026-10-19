@@ -10,6 +10,7 @@ import { CommercialUnifiedWorklist } from "@/components/commercial-unified-workl
 import type { CommercialOperationsTab } from "@/components/commercial-campaign-operations";
 import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
 import { loadUnifiedCommercialData, type CommercialView } from "@/lib/commercial-unified-data";
+import { isCommercialPagedView, loadCommercialPagedData, parseCommercialPage } from "@/lib/commercial-unified-paged";
 import { listBuyerDistintaPublicDimensions } from "@/lib/public-knowledge";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
@@ -77,7 +78,7 @@ const intelligenceGroups = [
 export default async function CommercialHomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string; tab?: string }>;
+  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string; tab?: string; page?: string }>;
 }) {
   const params = await searchParams;
   const context = await getWorkspaceContext();
@@ -86,6 +87,7 @@ export default async function CommercialHomePage({
   const allowedViews: CommercialView[] = ["all", "received", "sent", "offers", "orders", "drafts"];
   const view: CommercialView = allowedViews.includes(params.view as CommercialView) ? params.view as CommercialView : "all";
   const query = typeof params.q === "string" ? params.q.trim().slice(0, 80) : "";
+  const page = parseCommercialPage(params.page);
   const selected = typeof params.item === "string" ? params.item.slice(0, 90) : "";
   const allowedTabs: CommercialOperationsTab[] = ["compare", "negotiate", "award", "po"];
   const tab: CommercialOperationsTab = allowedTabs.includes(params.tab as CommercialOperationsTab) ? params.tab as CommercialOperationsTab : "compare";
@@ -96,7 +98,9 @@ export default async function CommercialHomePage({
       ? createClient().then((db) => db.rpc("rfqh10_procurement_inbox", { p_limit: 4 }))
           .catch(() => ({ data: null, error: true }))
       : Promise.resolve({ data: null, error: null }),
-    loadUnifiedCommercialData(context.organizationId),
+    isCommercialPagedView(view)
+      ? loadCommercialPagedData({ organizationId: context.organizationId, view, query, page })
+      : loadUnifiedCommercialData(context.organizationId),
     composing ? listBuyerDistintaPublicDimensions().then(buildBuyerDistintaCatalogOptions) : Promise.resolve(null),
   ]);
   const { recent, mode, operational } = commercial;
@@ -209,6 +213,7 @@ export default async function CommercialHomePage({
 
       <CommercialUnifiedWorklist
         data={unified}
+        page={page}
         selected={selected}
         query={query}
         view={view}
