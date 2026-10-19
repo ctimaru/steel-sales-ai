@@ -38,14 +38,14 @@ export async function FreeNetworkDirectoryView({
   organizationName: string;
   canConnect?:boolean;
   isWorkspaceAdmin?:boolean;
-  filters: { q?: string; role?: string; region?: string; persona?: string; p?: string; dpage?: string; view?: string; np?: string };
+  filters: { q?: string; role?: string; region?: string; persona?: string; p?: string; dpage?: string; view?: string; np?: string; map?: string };
 }) {
   const role = NETWORK_COMPANY_ROLES.includes(filters.role as (typeof NETWORK_COMPANY_ROLES)[number])
     ? filters.role : undefined;
   // Default Free view uses the same one-screen design and source ordering as Pro.
   // All read RPCs enforce active-company access; retain the legacy recovery below.
   const compactFilters={q:filters.q,role,region:filters.region,persona:filters.persona,np:filters.np};
-  const compact=await getCompactNetworkPage(organizationId,"free",compactFilters).catch(()=>null);
+  const compact=filters.map==="1"?null:await getCompactNetworkPage(organizationId,"free",compactFilters).catch(()=>null);
   if(compact){
     const [compactCoverage,compactProvisional]=await Promise.all([
       getItalyRegionCoverage(organizationId).catch(()=>null),
@@ -54,7 +54,8 @@ export async function FreeNetworkDirectoryView({
     return <FocusPage className="max-w-[1560px]">
       <NetworkCompactExperience accessMode="free" directory={compact}
         filters={compactFilters} coverage={compactCoverage}
-        provisionalCoverage={compactProvisional}/>
+        provisionalCoverage={compactProvisional}
+        regions={compactCoverage?.regions.map(r=>r.name)||[]}/>
     </FocusPage>;
   }
   let data;
