@@ -32,6 +32,6 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
         </div>
       </div>
     </div>,
-    size,
+    { ...size, headers: { "Content-Type": "image/png" } },
   );
 }

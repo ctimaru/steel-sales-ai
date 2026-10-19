@@ -22,6 +22,6 @@ export function GET() {
           <div style={{ display: "flex", width: 88, height: 62, borderRadius: 9, border: "12px solid #2e7356" }}/>
         </div>
       </div>
-    </div>, size,
+    </div>, { ...size, headers: { "Content-Type": "image/png" } },
   );
 }

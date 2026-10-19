@@ -43,7 +43,7 @@ test("SCHOOL-GROWTH1C: mobile-first editorial covers render on all public articl
 test("SCHOOL-GROWTH1C: verifiable social previews have valid image/png media and 1200x630 dimensions", () => {
   for (const f of [og,homeOg]) {
     assert.match(f, /import \{ ImageResponse \} from "next\/og"/);
-    assert.match(f, /contentType = "image\/png"/);
+    assert.match(f, /"Content-Type": "image\/png"/);
     assert.match(f, /width: 1200, height: 630/);
     assert.match(f, /return new ImageResponse/);
     assert.doesNotMatch(f, /fetch\(|https?:\/\/[^" ]+\.png|fontFile|service_role/);
