@@ -193,3 +193,11 @@ export function commercialHref(view: CommercialView, query = "", selected?: stri
   const suffix = params.toString();
   return appRoutes.commercial.home + (suffix ? "?" + suffix : "") + "#commercial-worklist";
 }
+
+// Page navigation is deliberately separate so tab changes reset to page 1.
+export function commercialPageHref(view: CommercialView, query: string, page: number, selected?: string) {
+  const href = commercialHref(view, query, selected);
+  if (page <= 1) return href;
+  const [path, fragment] = href.split("#");
+  return path + (path.includes("?") ? "&" : "?") + "page=" + Math.floor(page) + "#" + fragment;
+}
