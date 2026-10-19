@@ -23,7 +23,7 @@ const familyPatterns = [
 ];
 
 /** Facts are deliberately incomplete when the input does not contain verified dimensions. */
-export function parseSteelAssistantInput(input) {
+export function parseSteelAssistantInput(input, previous = {}) {
   const text = String(input ?? "").trim().slice(0, 500);
   const foundStandards = [...text.matchAll(standardPattern)].map(m => norm(m[1]));
   const foundGrades = [...text.matchAll(gradePattern)].map(m => m[1].toUpperCase().replace("16MO3", "16Mo3"));
@@ -41,20 +41,21 @@ export function parseSteelAssistantInput(input) {
     if (partial) facts.partialGrade = partial[1].toUpperCase();
   }
   if (family) facts.family = family;
+  const familyForDimensions = family || previous.family;
   const count = toNumber(quantityMatch?.[1]);
   if (within(count, 1, 100000) && Number.isInteger(count)) facts.quantityBars = count;
   const len = toNumber(lengthMatch?.[1]);
   if (within(len, 0.05, 30)) facts.lengthM = len;
-  if (family && dimensions) {
+  if (familyForDimensions && dimensions) {
     const a = toNumber(dimensions[1]), b = toNumber(dimensions[2]), c = toNumber(dimensions[3]);
-    if (family === "round_tube" && c === undefined && within(a, 5, 2000) && within(b, 0.1, 100) && b < a / 2) {
+    if (familyForDimensions === "round_tube" && c === undefined && within(a, 5, 2000) && within(b, 0.1, 100) && b < a / 2) {
       facts.odMm = a; facts.thicknessMm = b;
-    } else if (family === "square_tube" && within(a, 5, 2000)) {
+    } else if (familyForDimensions === "square_tube" && within(a, 5, 2000)) {
       const thickness = c === undefined ? b : c;
       if ((c === undefined || a === b) && within(thickness, 0.1, 100) && thickness < a / 2) {
         facts.widthMm = a; facts.heightMm = a; facts.thicknessMm = thickness;
       }
-    } else if (family === "rectangular_tube" && c !== undefined && within(a, 5, 2000) && within(b, 5, 2000) && within(c, 0.1, 100) && c < Math.min(a, b) / 2) {
+    } else if (familyForDimensions === "rectangular_tube" && c !== undefined && within(a, 5, 2000) && within(b, 5, 2000) && within(c, 0.1, 100) && c < Math.min(a, b) / 2) {
       facts.widthMm = a; facts.heightMm = b; facts.thicknessMm = c;
     }
   }
