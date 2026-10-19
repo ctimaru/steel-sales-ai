@@ -369,20 +369,22 @@ export default async function NetworkCompanyProfilePage({
                 </a>
               ) : null}
 
-              {["unclaimed", "revoked"].includes(profile.company.claimed_status)
+              {inquiryEligible && canInteract ? (
+                <Link
+                  href={"/network/" + profile.company.id + "/connect"}
+                  className="app-primary inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-semibold"
+                >
+                  Richiedi connessione
+                </Link>
+              ) : null}
+              {!inquiryEligible ? <p className="max-w-xs text-xs leading-5 text-[#52615b]">Connessione disponibile quando l'azienda è attiva e abilitata a ricevere richieste.</p> : null}
+              <details className="w-full text-xs text-[#52615b]"><summary className="cursor-pointer font-semibold text-[#175640]">Rappresenti questa azienda?</summary><div className="mt-3">              {["unclaimed", "revoked"].includes(profile.company.claimed_status)
                   && adminOrganizationId
                   && (!claimState || ["rejected","revoked"].includes(claimState.status)) ? (
                 <NetworkActivationCta mode="published" companyId={profile.company.id}
                   companyName={displayName} source="network_profile" />
               ) : null}
-              {inquiryEligible && canInteract ? (
-                <Link
-                  href={"/network/" + profile.company.id + "/connect"}
-                  className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white transition hover:bg-[#226657]"
-                >
-                  Richiedi connessione
-                </Link>
-              ) : null}
+</div></details>
             </div>
           </div>
 

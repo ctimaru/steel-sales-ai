@@ -28,6 +28,6 @@ test("NETFAST unconfirmed cards and profile route are unmistakable",()=>{
  assert.match(model,/netfast_free_directory/);
  assert.match(model,/netfast_free_profile/);
  assert.match(component,/company.discovery_status==="unconfirmed"/);
- assert.match(detail,/Scoperta dal Network · Da confermare/);
+ assert.match(detail,/Origine e attendibilità delle informazioni/);
  assert.match(detail,/company-data/);
 });
