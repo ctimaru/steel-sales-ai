@@ -173,6 +173,22 @@ try {
         if (p.id === "buyerViewer") {
           assert.equal(await page.getByRole("link", { name: "+ Nuova distinta" }).count(), 0);
         } else {
+          await navigate(page, "/commercial?view=sent&page=2");
+          const pager = page.getByRole("navigation", { name: "Pagine attività commerciali" });
+          await pager.getByRole("link", { name: "Precedente" }).click();
+          await page.waitForURL((url) => url.pathname === "/commercial" &&
+            url.searchParams.get("view") === "sent" && !url.searchParams.has("page"), { timeout: 60000 });
+          const originalViewport = page.viewportSize();
+          try {
+            await page.setViewportSize({ width: 390, height: 844 });
+            await navigate(page, "/commercial?item=campaign:" + p.rfq);
+            await page.locator("#commercial-detail").waitFor({ state: "visible", timeout: 60000 });
+            assert.equal(await page.locator('[data-testid="commercial-list-pane"]').isVisible(), false,
+              "On mobile the detail should take priority over the list");
+            assert.equal(await page.locator("#commercial-detail").isVisible(), true);
+          } finally {
+            if (originalViewport) await page.setViewportSize(originalViewport);
+          }
           await navigate(page, "/commercial?item=campaign:" + p.rfq);
           await page.locator("#commercial-detail").waitFor({ state: "visible", timeout: 60000 });
           const operations = page.locator("#commercial-operations");

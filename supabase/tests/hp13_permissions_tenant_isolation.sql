@@ -256,7 +256,11 @@ select pg_temp.hp13_assert(
         -- NET-PROFILE1D: vetted evidence only, tenant-gated by Free/Pro access.
         'netprofile1d_profile_evidence',
         -- NET-UX COMPACT4: read only sourced published/suggested geography, active organization guard.
-        'netcompact4_geo_overlay'
+        'netcompact4_geo_overlay',
+        -- NET-UX COMPACT6C reviewed, user-self-scoped, UTC-day atomic AI cost meter.
+        -- 5/user/day + 60/project/day; zero prompts/audio; no tenant/profile reads.
+        -- Pinned empty search_path, anon revoked, tables private and no browser CRUD grants.
+        'netux6c_claim_ai_budget'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
@@ -275,6 +279,46 @@ select pg_temp.hp13_assert(
   ),
   'authenticated SECURITY DEFINER functions must pin an empty search_path'
 );
+
+-- NET-UX COMPACT6C: reviewed RPC security and non-exposure of quota tables.
+select pg_temp.hp13_assert(
+  has_function_privilege('authenticated','public.netux6c_claim_ai_budget()','EXECUTE')
+  and not has_function_privilege('anon','public.netux6c_claim_ai_budget()','EXECUTE'),
+  'NETUX6C must restrict budget RPC to authenticated only'
+);
+select pg_temp.hp13_assert(
+  (select prosecdef from pg_proc where oid='public.netux6c_claim_ai_budget()'::regprocedure)
+  and (select coalesce(array_to_string(proconfig,','),'') like '%search_path=""%'
+       from pg_proc where oid='public.netux6c_claim_ai_budget()'::regprocedure),
+  'NETUX6C privileged RPC needs fixed search path'
+);
+select pg_temp.hp13_assert(
+  (select relrowsecurity from pg_class where oid='private.netux6c_ai_quota_user'::regclass)
+  and (select relrowsecurity from pg_class where oid='private.netux6c_ai_quota_global'::regclass)
+  and not has_table_privilege('anon','private.netux6c_ai_quota_user','SELECT,INSERT,UPDATE,DELETE')
+  and not has_table_privilege('authenticated','private.netux6c_ai_quota_user','SELECT,INSERT,UPDATE,DELETE')
+  and not has_table_privilege('anon','private.netux6c_ai_quota_global','SELECT,INSERT,UPDATE,DELETE')
+  and not has_table_privilege('authenticated','private.netux6c_ai_quota_global','SELECT,INSERT,UPDATE,DELETE'),
+  'NETUX6C quota counters must remain private and RLS-protected'
+);
+-- Claim five permits and reject the sixth. No external model call or content.
+select pg_catalog.set_config('request.jwt.claim.sub','00000000-0000-0000-0000-0000000060c1',true);
+set local role authenticated;
+select pg_temp.hp13_assert(public.netux6c_claim_ai_budget(),'NETUX6C claim 1');
+select pg_temp.hp13_assert(public.netux6c_claim_ai_budget(),'NETUX6C claim 2');
+select pg_temp.hp13_assert(public.netux6c_claim_ai_budget(),'NETUX6C claim 3');
+select pg_temp.hp13_assert(public.netux6c_claim_ai_budget(),'NETUX6C claim 4');
+select pg_temp.hp13_assert(public.netux6c_claim_ai_budget(),'NETUX6C claim 5');
+select pg_temp.hp13_assert(not public.netux6c_claim_ai_budget(),'NETUX6C reject claim 6');
+reset role;
+select pg_temp.hp13_assert(
+  (select used=5 from private.netux6c_ai_quota_user
+   where user_id='00000000-0000-0000-0000-0000000060c1')
+  and (select used>=5 from private.netux6c_ai_quota_global
+   where day_utc=(now() at time zone 'UTC')::date),
+  'NETUX6C bounded request accounting'
+);
+select pg_catalog.set_config('request.jwt.claim.sub','',true);
 
 -- ---------------------------------------------------------------------------
 -- 2. Two-tenant BOLA / role fixtures
