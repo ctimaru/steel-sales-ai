@@ -29,3 +29,6 @@ This initial block provides a **working, transparent multi-turn UI** in the auth
 
 ## Next stage SCHOOL-UNIFY6B (not implemented here)
 A *real*, metered LLM-orchestrated response using a provisioned model (AI Gateway), explicit sources, prompt injection resistance, bounded retrieval, tenant isolation and structured draft confirmation. Add voice only as an opt-in with transcript preview, consent and feature detection; no free-text private prompt to a public endpoint. Cost/rate-limit/error budgets and user entitlements are prerequisites for enabling it to end users.
+
+## Release sequencing record — 2026-10-19
+SCHOOL-UNIFY5 was merged to main via PR #746 at 66364467df9677cd4210305890b057fd40c3c40d after a safe main synchronization and successful P0 gate. The SCHOOL-UNIFY6A branch was subsequently synchronized with that main commit and PR #748 retargeted to main; the final 12-file diff only contains 6A. Run required P0 and Vercel Preview for this final head before merge and verify production independently. No branch rules were bypassed.
