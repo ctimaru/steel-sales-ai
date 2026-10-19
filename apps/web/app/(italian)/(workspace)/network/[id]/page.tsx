@@ -15,7 +15,7 @@ import {
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { getNetworkAccessState, requireNetworkAccess } from "@/lib/network-access";
 import { FreeNetworkProfileView } from "@/components/free-network-profile";
-import { getProNetworkDiscoveryProfile } from "@/lib/network-free";
+import { getProNetworkDiscoveryProfile, safeNetworkWebsiteUrl } from "@/lib/network-free";
 import { isNetworkFreeReadEnabled } from "@/lib/network-flags";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 import { createClient } from "@/lib/supabase/server";
@@ -192,6 +192,7 @@ export default async function NetworkCompanyProfilePage({
   }
 
   const displayName = profile.company.trading_name || profile.company.legal_name;
+  const website = safeNetworkWebsiteUrl(profile.company.website_url);
   const logoUrl = getNetworkCompanyLogoUrl(
     profile.company.logo_path,
     profile.company.logo_updated_at,
@@ -278,7 +279,7 @@ export default async function NetworkCompanyProfilePage({
   );
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 pb-16">
+    <div className="mx-auto max-w-6xl space-y-6 pb-16">
       <PilotEvent
         eventName="network_profile_viewed"
         entityType="network_company"
@@ -358,9 +359,9 @@ export default async function NetworkCompanyProfilePage({
                   Richiedi connessione
                 </Link>
               ) : null}
-              {profile.company.website_url ? (
+              {website ? (
                 <a
-                  href={profile.company.website_url}
+                  href={website}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex h-10 items-center justify-center rounded-xl border border-[#d7dfdb] bg-white px-4 text-sm font-semibold text-[#43524c] transition hover:border-[#bcd0ed] hover:bg-[#f7faff] hover:text-[#1a5144]"
@@ -369,14 +370,18 @@ export default async function NetworkCompanyProfilePage({
                 </a>
               ) : null}
 
-              {!inquiryEligible ? <p className="max-w-xs text-xs leading-5 text-[#52615b]">Connessione disponibile quando l'azienda è attiva e abilitata a ricevere richieste.</p> : null}
-              {["unclaimed", "revoked"].includes(profile.company.claimed_status) && adminOrganizationId && (!claimState || ["rejected","revoked"].includes(claimState.status)) ? <details className="w-full text-xs text-[#52615b]"><summary className="cursor-pointer font-semibold text-[#175640]">Rappresenti questa azienda?</summary><div className="mt-3">              {["unclaimed", "revoked"].includes(profile.company.claimed_status)
-                  && adminOrganizationId
-                  && (!claimState || ["rejected","revoked"].includes(claimState.status)) ? (
-                <NetworkActivationCta mode="published" companyId={profile.company.id}
-                  companyName={displayName} source="network_profile" />
+              {inquiryEligible && !canInteract ? <p className="max-w-xs text-xs leading-5 text-[#52615b]">Per richiedere una connessione serve un ruolo commerciale abilitato.</p> :
+                !inquiryEligible ? <p className="max-w-xs text-xs leading-5 text-[#52615b]">Connessione disponibile quando l'azienda è attiva e abilitata a ricevere richieste.</p> : null}
+              {["unclaimed", "revoked"].includes(profile.company.claimed_status) &&
+                adminOrganizationId && (!claimState || ["rejected","revoked"].includes(claimState.status)) ? (
+                <details className="w-full text-xs text-[#52615b]">
+                  <summary className="cursor-pointer font-semibold text-[#175640]">Rappresenti questa azienda?</summary>
+                  <div className="mt-3">
+                    <NetworkActivationCta mode="published" companyId={profile.company.id}
+                      companyName={displayName} source="network_profile" />
+                  </div>
+                </details>
               ) : null}
-</div></details> : null}
             </div>
           </div>
 
@@ -579,7 +584,7 @@ export default async function NetworkCompanyProfilePage({
                       {hasTechnicalScope ? (
                         <div className="mt-5 space-y-4 border-t border-[#e5ecf5] pt-4">
                           <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-                            Technical scope
+                            Ambito tecnico
                           </p>
 
                           {product.technical_scope.standards.length ? (
