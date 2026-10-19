@@ -40,7 +40,7 @@ test("COMMERCIAL-UNIFY1 puts workflow, live buyer actions and Network entry befo
   assert.match(commercial, /item\.requires_action === true/);
   assert.match(commercial, /Priorità non disponibili al momento/);
   assert.match(commercial, /\?compose=1#commercial-compose/);
-  assert.match(commercial, /appRoutes\.rfqHub\.home/);
+  assert.match(commercial, /appRoutes\.commercial\.home/);
   assert.match(commercial, /appRoutes\.network\.directory/);
   assert.match(commercial, /canWriteWorkspace\(context\.role\)/);
   assert.match(dashboard, /title: "Gestisci richieste e offerte"/);
