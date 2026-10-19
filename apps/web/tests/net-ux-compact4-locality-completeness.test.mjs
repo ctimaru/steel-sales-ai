@@ -5,9 +5,9 @@ const read=path=>readFileSync(new URL(path,import.meta.url),"utf8");
 const page=read("../components/network-compact-experience.tsx");
 const listing=read("../lib/network-compact-directory.ts");
 const geo=read("../lib/network-compact-geo.ts");
-const facade=read("../../supabase/migrations/20261019103000_netcompact4_geo_evidence_overlay.sql");
-const region=read("../../supabase/migrations/20261019103500_netcompact4_sourced_region_filter.sql");
-const security=read("../../supabase/tests/hp13_permissions_tenant_isolation.sql");
+const facade=read("../../../supabase/migrations/20261019103000_netcompact4_geo_evidence_overlay.sql");
+const region=read("../../../supabase/migrations/20261019103500_netcompact4_sourced_region_filter.sql");
+const security=read("../../../supabase/tests/hp13_permissions_tenant_isolation.sql");
 
 test("COMPACT4 shows published or sourced locality without claiming a verified office",()=>{
   assert.match(page,/Località indicativa/);
