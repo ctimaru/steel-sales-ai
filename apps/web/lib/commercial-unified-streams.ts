@@ -122,8 +122,8 @@ function mapSource(source: StreamId, rows: Row[]): UnifiedCommercialItem[] {
       source === "quotes" ? str(campaignTitle, "Offerta fornitore") :
       source === "purchaseOrders" ? str(r.po_draft_ref, "Ordine acquisti") :
       str(r.title, "Distinta privata");
-    const status = source === "campaigns" ? rfqCampaignStatusLabel(r.status) :
-      source === "purchaseOrders" ? rfqOrderStatusLabel(r.status) :
+    const status = source === "campaigns" ? rfqCampaignStatusLabel(text(r.status)) :
+      source === "purchaseOrders" ? rfqOrderStatusLabel(text(r.status)) :
       source === "quotes" ? "Offerta ricevuta" :
       source === "drafts" ? "Salvata" : str(r.status, "—");
     const subtitle = source === "quotes" ? "Risposta fornitore · revisione " + String(r.revision_no ?? "—") :
