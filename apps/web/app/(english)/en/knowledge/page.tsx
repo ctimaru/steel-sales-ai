@@ -44,9 +44,9 @@ const topics = [
   {
     title: "Tube dimensions and weights",
     description:
-      "Compare circular, square and rectangular hollow sections. Calculate indicative kilograms per metre, piece weights and total mass from the relevant dimensions.",
+      "Calculate theoretical kg/m, bar mass and tonnes for circular (CHS), square (SHS) and rectangular (RHS) hollow sections using EN 10210 or EN 10219.",
     href: "/en/knowledge/tubes",
-    linkText: "Open the English tube weight calculator"
+    linkText: "Calculate steel tube weight in kg/m (CHS, SHS, RHS)"
   },
   {
     title: "RFQ bill of materials",
@@ -66,6 +66,16 @@ export default function EnglishKnowledgePage() {
       italianHref="/knowledge"
       englishHref="/en/knowledge"
     >
+      <section aria-label="Featured steel tube calculator" className="px-4 pt-8 sm:px-6">
+        <div className="mx-auto flex max-w-[1120px] flex-col gap-4 rounded-2xl border border-[#bcd6c9] bg-[#eaf4ee] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-wide text-[#225a45]">Free technical tool</p>
+            <h2 className="mt-2 text-xl font-semibold text-[#123b34]">Steel tube weight calculator: CHS, SHS & RHS</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#496257]">Calculate kg/m, bar weights and total tonnes for hollow sections, then prepare an RFQ bill of materials.</p>
+          </div>
+          <Link href="/en/knowledge/tubes" className="school-primary-action shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#123b34]">Calculate steel tube weight <span className="ml-2" aria-hidden="true">→</span></Link>
+        </div>
+      </section>
       <section aria-label="Knowledge topics" className="bg-white">
         <div className="mx-auto grid max-w-[1120px] gap-4 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:px-8">
           {topics.map((topic) => (
