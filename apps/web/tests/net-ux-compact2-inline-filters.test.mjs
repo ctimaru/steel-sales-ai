@@ -13,6 +13,7 @@ test("COMPACT2 keeps technical filters inside the same compact page",()=>{
   assert.match(pro,new RegExp("params\\."+key));
   assert.match(free,new RegExp("filters\\."+key));
  }
+ assert.match(ui,/name=\{group.name\}/);
  assert.match(ui,/Applica filtri/);
  assert.match(ui,/Paese/);
  assert.match(ui,/Regione/);
@@ -29,7 +30,7 @@ test("COMPACT2 respects tenant guard, accurate totals and 6 per page",()=>{
  assert.match(search,/capabilityLabels:Object.fromEntries/);
  assert.match(search,/published:total,discovered:0/);
  assert.match(ui,/Le aziende censite senza attributi tecnici non sono incluse/);
- assert.match(ui,/capabilities\[\]/.source? /capabilityLabels\[company.id\]/ : /unknown/);
+ assert.match(ui,/capabilityLabels\[company.id\]/);
 });
 test("COMPACT2 searching preserves active filters without stale page numbers",()=>{
  assert.match(ui,/name="q"/);
