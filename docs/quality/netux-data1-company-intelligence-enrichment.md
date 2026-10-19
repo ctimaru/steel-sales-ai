@@ -1,7 +1,7 @@
 # NET-UX DATA1 — Company Intelligence Enrichment
 ## Verità dei dati | 19 ottobre 2026
 - Production readback: 501 profili = 32 canonical pubblicati in Italia + 469 discovered (427 official_company_research, 35 Wikidata CC0, 7 governed_candidate).
-- Località documentate o pubblicate: 69/501 (13,77%). Composizione: 40 discovered source_observed, 26 canonical geo evidence pending, 3 facilities canonical pubblicate. Non equiparare le 66 osservazioni a sedi verificate.
+- Tracce geo grezze: 69/501 (13,77%), di cui **1 canonical segnata conflict**. Copertura geo utilizzabile nell'audit: **68/501 (13,57%)** = 40 discovered source_observed + 25 canonical pending_review + 3 facilities canonical pubblicate. 1 geo in conflitto va tenuta separata; nessuna osservazione equivale a sede verificata.
 - Profili con evidenza tecnica privata: 9/501 (3 con arricchimenti accettati, 6 con nuovi servizi candidati). SOLO 3 società canoniche hanno capacità pubblicate nelle facilities (8 assegnazioni). Altri 49 discovery candidates con capability_keys non sono pubblicati.
 - Verifica SQL per UUID della coorte fissa COMPACT4B (file approved_25.json): 25/25 già con un'evidenza geografica. La nota storica '16 originali da completare' era obsoleta rispetto al manifest reale; evitare duplicati.
 - La RPC next_eligible mostrava 379 candidati prima delle tre nuove osservazioni. Va aggiornata dopo il lotto; non presumere che il risultato resti costante.
