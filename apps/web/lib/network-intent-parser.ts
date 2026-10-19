@@ -174,14 +174,15 @@ export function interpretNetworkIntent(
     key:name,label:name,terms:[name,...(REGIONAL_ALIASES[name]||[])],
   })).sort((a,b)=>b.key.length-a.key.length);
   const regional=collect(countries.remainder,regionEntries);
-  let remaining=regional.remainder;
+  // Prefer exact longest public taxonomy labels before colloquial tube aliases,
+  // so a genuine "stainless steel tubes" product is not truncated to "tubes".
+  const taxonomy=extractTaxonomy(regional.remainder,{products,capabilities,markets});
+  let remaining=taxonomy.remainder;
   let tubeMentioned=false;
   for(const term of TUBE_TERMS){
     const out=removePhrase(remaining,term);
     if(out.found){tubeMentioned=true;remaining=out.remainder;}
   }
-  const taxonomy=extractTaxonomy(remaining,{products,capabilities,markets});
-  remaining=taxonomy.remainder;
   const unsupported=[...taxonomy.unsupported,...remaining.split(" ").filter(word=>word&&!FILLER.has(word))];
   const filters:NetworkIntentFilters={};
   const chips:string[]=[];
