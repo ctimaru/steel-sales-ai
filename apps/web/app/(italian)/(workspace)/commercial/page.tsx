@@ -11,6 +11,7 @@ import type { CommercialOperationsTab } from "@/components/commercial-campaign-o
 import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
 import { loadUnifiedCommercialData, type CommercialView } from "@/lib/commercial-unified-data";
 import { isCommercialPagedView, loadCommercialPagedData, parseCommercialPage } from "@/lib/commercial-unified-paged";
+import { isStreamView, loadCommercialStreams } from "@/lib/commercial-unified-streams";
 import { listBuyerDistintaPublicDimensions } from "@/lib/public-knowledge";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
@@ -78,7 +79,7 @@ const intelligenceGroups = [
 export default async function CommercialHomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string; tab?: string; page?: string }>;
+  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string; tab?: string; page?: string; cursor?: string }>;
 }) {
   const params = await searchParams;
   const context = await getWorkspaceContext();
@@ -100,7 +101,9 @@ export default async function CommercialHomePage({
       : Promise.resolve({ data: null, error: null }),
     isCommercialPagedView(view)
       ? loadCommercialPagedData({ organizationId: context.organizationId, view, query, page })
-      : loadUnifiedCommercialData(context.organizationId),
+      : isStreamView(view)
+        ? loadCommercialStreams({ organizationId: context.organizationId, view, query, cursor: params.cursor })
+        : loadUnifiedCommercialData(context.organizationId),
     composing ? listBuyerDistintaPublicDimensions().then(buildBuyerDistintaCatalogOptions) : Promise.resolve(null),
   ]);
   const { recent, mode, operational } = commercial;
