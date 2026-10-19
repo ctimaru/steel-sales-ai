@@ -1,3 +1,5 @@
+import {NetworkCompactExperience} from "@/components/network-compact-experience";
+import {getCompactNetworkPage} from "@/lib/network-compact-directory";
 import Link from "next/link";
 import {NetworkCompanyGrowthEntry} from "@/components/network-company-growth-entry";
 import {NetworkReadyConnections} from "@/components/network-ready-connections";
@@ -96,6 +98,9 @@ export default async function NetworkDirectoryPage({
     p?: string;
     dpage?: string;
     view?: string;
+    np?: string;
+    advanced?: string;
+    map?: string;
     error?: string;
     message?: string;
   }>;
@@ -114,7 +119,7 @@ export default async function NetworkDirectoryPage({
           organizationName={context.organizationName}
           isWorkspaceAdmin={context.role==="admin"}
           canConnect={canInteractWithNetwork(context.role)}
-          filters={{ q: params.q, role: params.role, region: params.region, persona: params.persona, p:params.p,dpage:params.dpage,view:params.view }}
+          filters={{ q: params.q, role: params.role, region: params.region, persona: params.persona, p:params.p,dpage:params.dpage,view:params.view, np:params.np, map:params.map }}
         />
       );
     }
@@ -127,6 +132,35 @@ export default async function NetworkDirectoryPage({
   }
 
   const params = await searchParams;
+  // NET-UX COMPACT1: fast, unified first-screen browse. Keep the existing rich
+  // technical finder as an explicit advanced route and as a resilient fallback.
+  const compactFilters={q:params.q,role:params.role,region:params.region,persona:params.persona,np:params.np};
+  const needsTechnicalFinder=Boolean(params.advanced==="1"||params.product||params.capability||
+    params.market||params.province||params.city||(params.country&&params.country.toUpperCase()!=="IT"));
+  if(!needsTechnicalFinder){
+    const compact=await getCompactNetworkPage(context.organizationId,"pro",compactFilters).catch(()=>null);
+    if(compact){
+      const [compactCoverage,compactProvisional,compactGeo,compactLegacyResults]=await Promise.all([
+        getItalyRegionCoverage(context.organizationId).catch(()=>null),
+        getItalyProvisionalGeoCoverage(context.organizationId,"pro").catch(()=>null),
+        getNetworkGeoFacets().catch(()=>({regions:[],cities:[],provinces:[]})),
+        searchNetwork({query:params.q,role:params.role,region:params.region,
+          page:Math.max(1,Math.floor(((compact.page-1)*6)/18)+1)}).catch(()=>({items:[],total:0})),
+
+      ]);
+      const capabilityLabels=Object.fromEntries(compactLegacyResults.items.map(item=>[
+        item.id,item.capabilities.map(cap=>cap.name),
+      ]));
+      return <FocusPage className="max-w-[1560px]">
+        <PilotEvent eventName="network_directory_viewed" metadata={{surface:"network_compact"}}/>
+        <NetworkCompactExperience accessMode="pro" directory={compact} filters={compactFilters}
+          coverage={compactCoverage} provisionalCoverage={compactProvisional}
+          regions={compactGeo.regions.length?compactGeo.regions:compactCoverage?.regions.map(r=>r.name)||[]}
+          capabilityLabels={capabilityLabels}
+          additionalFilters={{products:[],capabilities:[],markets:[]}}/>
+      </FocusPage>;
+    }
+  }
   const listingView = networkListingView(params.view);
   // Normal discovery must use the same published source as Free, otherwise
   // the old technical m6 reader omits published Network profiles on the default page.
