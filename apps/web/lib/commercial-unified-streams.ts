@@ -13,7 +13,8 @@ import { createClient } from "@/lib/supabase/server";
 
 export const STREAM_PAGE_SIZE = 30;
 const FETCH_PER_STREAM = STREAM_PAGE_SIZE + 1;
-const MAX_HISTORY = 60;
+// Compact history supports 200 pages / 6,000 activities without URL explosion.
+const MAX_HISTORY = 200;
 type StreamId = "rfqs" | "offers" | "orders" | "campaigns" | "quotes" | "purchaseOrders" | "drafts";
 type StreamView = Extract<CommercialView, "all" | "offers" | "orders">;
 type Offsets = Record<StreamId, number>;
@@ -26,7 +27,8 @@ const streams: Record<StreamView, readonly StreamId[]> = {
 const zero = (): Offsets => ({
   rfqs: 0, offers: 0, orders: 0, campaigns: 0, quotes: 0, purchaseOrders: 0, drafts: 0,
 });
-type State = { v: 1; view: StreamView; query: string; page: number; offsets: Offsets; history: Offsets[] };
+type OffsetVector = [number, number, number, number, number, number, number];
+type State = { v: 1; view: StreamView; query: string; page: number; offsets: Offsets; history: OffsetVector[] };
 
 const uuid = (v: unknown): v is string =>
   typeof v === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
@@ -35,13 +37,21 @@ export function isStreamView(view: CommercialView): view is StreamView {
   return view === "all" || view === "offers" || view === "orders";
 }
 
+function validNumber(value: unknown) {
+  return Number.isSafeInteger(value) && Number(value) >= 0 && Number(value) <= 100_000;
+}
 function validOffsets(value: unknown): value is Offsets {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
-  return ids.every((id) =>
-    Number.isSafeInteger((value as Record<string, unknown>)[id]) &&
-    Number((value as Record<string, unknown>)[id]) >= 0 &&
-    Number((value as Record<string, unknown>)[id]) <= 100_000
-  );
+  return ids.every((id) => validNumber((value as Record<string, unknown>)[id]));
+}
+function validVector(value: unknown): value is OffsetVector {
+  return Array.isArray(value) && value.length === ids.length && value.every(validNumber);
+}
+function toVector(offsets: Offsets): OffsetVector {
+  return ids.map((id) => offsets[id]) as OffsetVector;
+}
+function fromVector(vector: OffsetVector): Offsets {
+  return Object.fromEntries(ids.map((id, index) => [id, vector[index]])) as Offsets;
 }
 
 // This cursor is navigation state, NOT authorization. Supabase RLS always
@@ -64,7 +74,7 @@ function decode(value: string | undefined, view: StreamView, query: string): Sta
       !Array.isArray(candidate.history) ||
       candidate.history.length !== candidate.page - 1 ||
       candidate.history.length >= MAX_HISTORY ||
-      !candidate.history.every(validOffsets)
+      !candidate.history.every(validVector)
     ) return first;
     return candidate as State;
   } catch {
@@ -257,11 +267,11 @@ export async function loadCommercialStreams({
   const canAdvance = state.page < MAX_HISTORY;
   const nextCursor = hasNext && canAdvance ? encode({
     ...state, page: state.page + 1, offsets: nextOffsets,
-    history: [...state.history, state.offsets],
+    history: [...state.history, toVector(state.offsets)],
   }) : null;
   const prevCursor = state.page > 1 ? encode({
     ...state, page: state.page - 1,
-    offsets: state.history[state.history.length - 1],
+    offsets: fromVector(state.history[state.history.length - 1]),
     history: state.history.slice(0, -1),
   }) : null;
   return {
