@@ -36,6 +36,15 @@ try {
      assert.ok(await page.locator('a[href="/school/explorer?lang='+locale+'"]').count()>0,locale+" documents link");
    }
    const dim=await page.evaluate(()=>({viewport:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}));
+   if(dim.scroll>dim.viewport+12){
+     const offenders=await page.evaluate(()=>Array.from(document.querySelectorAll("body *")).flatMap(el=>{
+       const r=el.getBoundingClientRect();
+       return r.right>document.documentElement.clientWidth+9&&r.width>0
+         ? [{tag:el.tagName,classes:typeof el.className==="string"?el.className.slice(0,100):"",text:(el.textContent||"").trim().slice(0,100),left:Math.round(r.left),right:Math.round(r.right),width:Math.round(r.width)}] : [];
+     }).slice(0,18));
+     console.error("SCHOOL-UNIFY2 OVERFLOW DIAGNOSTIC",locale,width,JSON.stringify({dim,offenders}));
+     await page.screenshot({path:dir+"/"+locale+"-"+width+"-overflow.png",fullPage:true,animations:"disabled"});
+   }
    assert.ok(dim.scroll<=dim.viewport+12,locale+" mobile overflow "+JSON.stringify(dim));
    await page.screenshot({path:dir+"/"+locale+"-"+width+".png",fullPage:true,animations:"disabled"});
    console.log("SCHOOL-UNIFY2 CHROME PASS",locale,width);
