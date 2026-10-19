@@ -131,7 +131,9 @@ type Facet={type:FacetType;key:string;label:string;term:string};
 function extractTaxonomy(text:string,taxonomy:NetworkIntentTaxonomy){
   const candidates:Facet[]=[];
   for(const type of ["product","capability","market"] as const){
-    for(const item of taxonomy[type]||[]){
+    const entries=type==="product"?taxonomy.products||[]:
+      type==="capability"?taxonomy.capabilities||[]:taxonomy.markets||[];
+    for(const item of entries){
       const term=normalize(item.display_name);
       if(term.length<4||!item.canonical_key)continue;
       if(type==="product"&&item.canonical_key==="tubes_pipes")continue;
