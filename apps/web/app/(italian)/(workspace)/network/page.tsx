@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {NetworkCompanyGrowthEntry} from "@/components/network-company-growth-entry";
-import {NetworkReadyConnections,NetworkReadinessAction} from "@/components/network-ready-connections";
+import {NetworkReadyConnections} from "@/components/network-ready-connections";
 import {getNetworkRecipientReadiness} from "@/lib/network-recipient-readiness";
 import {getNetworkReplyIntelligence,sharedPublicProducts} from "@/lib/network-reply-intelligence";
 import {canInteractWithNetwork} from "@/lib/access-policy";
@@ -12,7 +12,6 @@ import { NetworkInventoryBar, networkListingView } from "@/components/network-in
 import { NetworkDiscoveryOverview } from "@/components/network-discovery-overview";
 import { NetworkMiniMap, NetworkAvailabilityNotice } from "@/components/network-resilient-first-screen";
 import { NetworkPagination, parseNetworkPage } from "@/components/network-pagination";
-import { NetworkActivationCta } from "@/components/network-activation-cta";
 import { ItalyRegionMap } from "@/components/italy-region-map";
 import { NetworkRoleDiscovery } from "@/components/network-role-discovery";
 import { getItalyRegionCoverage, getItalyProvisionalGeoCoverage } from "@/lib/network-region-coverage";
@@ -427,21 +426,21 @@ export default async function NetworkDirectoryPage({
         <NetworkRoleDiscovery viewerRole={viewerRole} filters={params} />
       </div>
       <div id="network-company-list" className="mt-5">
-        {listingView!=="published" ? <NetworkLaunchDiscovery directory={previewDirectory}
+        {<NetworkLaunchDiscovery directory={previewDirectory}
           filters={{q:params.q,role:params.role,region:params.region}}
-          pagination={previewDirectory?.discovery_page} navigationParams={params} /> : null}
+          pagination={previewDirectory?.discovery_page} navigationParams={params} />}
       </div>
       <div className="mt-5"><NetworkReadyConnections items={readyItems} statuses={readiness} canAct={canInteractWithNetwork(context.role)}
          persona={persona} sharedProducts={sharedPublicProducts(intelligence)} /></div>
-      {listingView!=="unconfirmed" ? <section id="network-region-results" aria-labelledby="network-results">
+      {<section id="network-region-results" aria-labelledby="network-results">
         <FocusSectionHeader
           eyebrow="Esplora aziende"
           title={
             <span id="network-results">
-              {canonicalUnavailable ? "Profili pubblicati" : results.total.toLocaleString("it-IT") + (results.total === 1 ? " profilo pubblicato" : " profili pubblicati")}
+              {canonicalUnavailable ? "Profili pubblicati" : results.total.toLocaleString("it-IT") + (results.total === 1 ? " azienda" : " aziende")}
             </span>
           }
-          description="Profili industriali pubblicati nel Network."
+          description="Esplora i profili aziendali della filiera e approfondisci le informazioni nelle schede."
           action={<Link href={appRoutes.network.connections}
             className="inline-flex min-h-10 items-center rounded-xl border border-[#c6d9cf] px-4 text-xs font-semibold text-[#173f35]">Connessioni aziendali →</Link>}
 
@@ -556,18 +555,8 @@ export default async function NetworkDirectoryPage({
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-                    <NetworkReadinessAction companyId={company.id} status={readiness?.get(company.id)} canAct={canInteractWithNetwork(context.role)}/>
-                    {context.role==="admin" && ["unclaimed","revoked"].includes(company.claimed_status)
-                      ? <NetworkActivationCta mode="published" companyId={company.id}
-                          companyName={company.legal_name} source="network_pro_results" compact />
-                      : null}
-                    <Link
-                      href={appRoutes.network.company(company.id)}
-                      className="app-primary inline-flex min-h-10 items-center rounded-xl px-3.5 text-xs font-semibold"
-                    >
-                      Apri
-                    </Link>
+                  <div className="flex items-center lg:justify-end">
+                    <Link href={appRoutes.network.company(company.id)} className="app-primary inline-flex min-h-10 items-center rounded-xl px-3.5 text-xs font-semibold">Esplora azienda</Link>
                   </div>
                 </article>
               );
@@ -578,7 +567,7 @@ export default async function NetworkDirectoryPage({
           page={parseNetworkPage(params.p)} total={results.total} pageSize={18}
           parameter="p" params={params} anchor="network-region-results"
         />
-      </section> : null}
+      </section>}
       <div className="mt-6">
         <ItalyRegionMap coverage={coverage} provisionalCoverage={provisionalCoverage} selectedRegion={params.region} filters={params} />
       </div>
