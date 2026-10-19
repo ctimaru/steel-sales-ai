@@ -122,7 +122,7 @@ begin
           when domain_appearances>1 then 'shared_domain_identity_review'
           else 'needs_official_source' end,
     'reuse_rights','not_assessed',
-    'profile_verified',false
+    'verified_by_data1',false
   ) order by case when kind='canonical' then 0 else 1 end,lower(name),id),'[]'::jsonb)
    into v_items
   from page;
