@@ -10,6 +10,7 @@ const school = read("../app/(workspace)/school/page.tsx");
 const shell = read("../components/app-shell.tsx");
 const quick = read("../components/school-quick-access.tsx");
 const layout = read("../app/(workspace)/school/layout.tsx");
+const schoolCopy = read("../lib/school-workspace-i18n.ts");
 
 test("PF5 makes the weight calculator the primary School tool", () => {
   assert.match(school, /Il toolbox tecnico per acciaio e tubi/);
@@ -43,7 +44,9 @@ test("PF5 persists recent and favorite School tools locally without a database d
   assert.match(quick, /school:recent:v1/);
   assert.match(quick, /school:favorites:v1/);
   assert.match(quick, /aria-pressed=\{active\}/);
-  assert.match(quick, /Salvati su questo dispositivo/);
+  assert.match(quick, /copy.savedHint/);
+  assert.match(schoolCopy, /Salvati su questo dispositivo/);
+  assert.match(quick, /schoolWorkspaceHref\(item.href,locale\)/);
   assert.match(layout, /SchoolVisitTracker/);
 });
 
