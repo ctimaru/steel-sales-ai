@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { EnglishPublicSubpage } from "@/components/english-public-subpage";
+import { SchoolJourney, SchoolTechnicalSections } from "@/components/school-unified-experience";
 import { absoluteUrl } from "@/lib/site";
 
 export const dynamic = "force-static";
@@ -15,6 +16,9 @@ export const metadata: Metadata = {
     languages: {
       it: absoluteUrl("/knowledge"),
       en: absoluteUrl("/en/knowledge"),
+      de: absoluteUrl("/de/knowledge"),
+      fr: absoluteUrl("/fr/knowledge"),
+      es: absoluteUrl("/es/knowledge"),
     },
   },
   openGraph: {
@@ -65,7 +69,17 @@ export default function EnglishKnowledgePage() {
       description="The steel and tube supply chain uses precise terminology. Start with standards, material grades, hollow section geometries and theoretical weight calculations, then turn requirements into a structured enquiry."
       italianHref="/knowledge"
       englishHref="/en/knowledge"
+      knowledgeLanguageMenu
     >
+      <section className="mx-auto grid max-w-[1120px] items-center gap-4 px-4 pt-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] lg:px-8" aria-label="Steel sections technical overview">
+        <div className="rounded-3xl border border-[#cddfd5] bg-white p-6">
+          <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#1a5144]">Smart Steel School</p>
+          <h2 className="mt-2 text-2xl font-semibold text-[#123b34]">One consistent technical workspace</h2>
+          <p className="mt-3 text-sm leading-7 text-[#52615b]">Explore the same tools and reference categories as the Italian School. Public information remains separate from private company documents.</p>
+        </div>
+        <SchoolTechnicalSections locale="en"/>
+      </section>
+      <div className="mx-auto max-w-[1120px] px-4 pt-8 sm:px-6 lg:px-8"><SchoolJourney locale="en"/></div>
       <section aria-label="Featured steel tube calculator" className="px-4 pt-8 sm:px-6">
         <div className="mx-auto flex max-w-[1120px] flex-col gap-4 rounded-2xl border border-[#bcd6c9] bg-[#eaf4ee] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div>

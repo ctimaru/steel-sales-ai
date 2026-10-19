@@ -5,7 +5,7 @@ import { EnglishConversionHandoff } from "@/components/english-conversion-handof
 import { ProductBrand } from "@/components/product-brand";
 import { PublicContactSection } from "@/components/public-contact-section";
 import { PublicLanguageSwitch } from "@/components/public-language-switch";
-import { CalculatorPageLanguageSelector } from "@/components/calculator-page-language-selector";
+import { CalculatorPageLanguageSelector, SchoolPageLanguageSelector } from "@/components/calculator-page-language-selector";
 
 export function EnglishPublicSubpage({
   eyebrow,
@@ -15,6 +15,7 @@ export function EnglishPublicSubpage({
   englishHref,
   children,
   calculatorLanguageMenu = false,
+  knowledgeLanguageMenu = false,
 }: {
   eyebrow: string;
   title: string;
@@ -24,6 +25,8 @@ export function EnglishPublicSubpage({
   children: ReactNode;
   /** Replaces the two-language header switch only on the calculator landing. */
   calculatorLanguageMenu?: boolean;
+  /** Five-language School switch, only where every target hub really exists. */
+  knowledgeLanguageMenu?: boolean;
 }) {
   return (
     <main lang="en" className="min-h-screen bg-[#f2f4f3] text-[#1d2824]">
@@ -42,6 +45,7 @@ export function EnglishPublicSubpage({
           <div className="flex shrink-0 items-center gap-2">
             {calculatorLanguageMenu
               ? <CalculatorPageLanguageSelector locale="en" />
+              : knowledgeLanguageMenu ? <SchoolPageLanguageSelector locale="en" />
               : <PublicLanguageSwitch locale="en" italianHref={italianHref} englishHref={englishHref} />}
             <Link href="/en/register" className="platform-primary inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-bold">Join</Link>
           </div>

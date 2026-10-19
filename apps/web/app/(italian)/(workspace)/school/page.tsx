@@ -3,6 +3,8 @@ import Link from "next/link";
 import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
 import { PilotEvent } from "@/components/pilot-event";
 import { SchoolQuickAccess } from "@/components/school-quick-access";
+import { SchoolJourney, SchoolTechnicalSections } from "@/components/school-unified-experience";
+import { SchoolPageLanguageSelector } from "@/components/calculator-page-language-selector";
 import { appRoutes } from "@/lib/routes";
 
 const technicalShortcuts = [
@@ -28,6 +30,20 @@ export default function SchoolPage() {
           </>
         }
       />
+
+      <section className="grid items-center gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.78fr)]" aria-label="Scuola tecnica e lingue">
+        <div className="rounded-3xl border border-[#dce2df] bg-white p-5 sm:p-6">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Scuola Smart Steel Sales</p>
+          <h2 className="mt-2 text-xl font-semibold text-[#173f35]">Stessi strumenti, un'unica esperienza</h2>
+          <p className="mt-2 max-w-lg text-sm leading-7 text-[#506157]">La conoscenza tecnica è pubblica e consultabile in cinque lingue. I documenti aziendali restano nel workspace riservato.</p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <SchoolPageLanguageSelector locale="it"/>
+            <Link href="/knowledge" className="school-secondary-action">Apri la Scuola pubblica →</Link>
+          </div>
+        </div>
+        <SchoolTechnicalSections locale="it"/>
+      </section>
+      <SchoolJourney locale="it" workspace />
 
       <section className="grid gap-4 lg:grid-cols-[1.25fr_0.75fr]">
         <div className="rounded-3xl border border-[#b8d2c8] bg-[#edf5f2] p-5 sm:p-6">
