@@ -185,16 +185,19 @@ export async function CommercialCampaignOperations({
       unavailable = true;
     } else {
       let state = data as Rfqh9PoState;
-      // Shareable supplier confirmation tokens are never generated for viewers.
-      if (canExecuteCritical && state.purchase_orders?.length) {
+      // Strip any supplier URLs supplied by the RPC and only generate fresh
+      // links when existing governance authorizes a critical PO action.
+      if (state.purchase_orders?.length) {
         state = { ...state, purchase_orders: state.purchase_orders.map((po) => ({
           ...po,
           versions: (po.versions ?? []).map((version) => {
             let supplierUrl: string | null = null;
-            try {
-              const security = createRfqh9PoSecurity({ poDraftId: po.id, versionNo: Number(version.version_no) });
-              supplierUrl = buildRfqh9SupplierUrl(security.token);
-            } catch { /* Missing signing configuration: no link */ }
+            if (canExecuteCritical) {
+              try {
+                const security = createRfqh9PoSecurity({ poDraftId: po.id, versionNo: Number(version.version_no) });
+                supplierUrl = buildRfqh9SupplierUrl(security.token);
+              } catch { /* Missing signing configuration: no link */ }
+            }
             return { ...version, supplier_url: supplierUrl };
           }),
         })) };
