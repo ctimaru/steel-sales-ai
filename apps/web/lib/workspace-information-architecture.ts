@@ -203,7 +203,8 @@ export function getWorkspaceNavigationContext(
       appRoutes.marketplace.procurementIntelligence,
     ])
   ) {
-    return { primary: "rfq", context: rfqContext(pathname) };
+    // Procurement is one part of the Commercial workspace, not a primary destination.
+    return { primary: "commercial", context: rfqContext(pathname) };
   }
 
   if (isPath(pathname, appRoutes.network.directory)) {

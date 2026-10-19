@@ -17,7 +17,7 @@ test("DASH-UX2 fails closed when live dashboard metrics are unavailable", () => 
 });
 
 test("DASH-UX2 retains existing quick actions and operational surfaces", () => {
-  for (const name of ["Cerca nello storico", "Crea distinta", "Apri RFQ Hub", "Trova azienda", "Steel Pulse", "Cosa richiede attenzione"]) {
+  for (const name of ["Cerca nello storico", "Crea distinta", "Gestisci richieste e offerte", "Trova azienda", "Steel Pulse", "Cosa richiede attenzione"]) {
     assert.ok((dashboard + dashboardPulse).includes(name), name);
   }
   assert.match(dashboard, /getNetworkAccessState/);
