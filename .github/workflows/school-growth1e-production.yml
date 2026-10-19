@@ -7,9 +7,9 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: school-growth1e-production
-  cancel-in-progress: true
+# Do not set workflow-level concurrency here: preview deployment_status events
+# also instantiate this workflow (with a skipped job), and would cancel
+# a real Production QA run if cancel-in-progress were enabled.
 
 jobs:
   production-school-qa:
