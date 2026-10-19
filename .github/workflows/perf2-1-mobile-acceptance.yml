@@ -16,6 +16,10 @@ on:
       - "apps/web/tests/perf2-1-*"
       - "apps/web/tests/school-growth1e-*"
       - "apps/web/tests/school-unify1-*"
+      - "apps/web/tests/school-unify2-*"
+      - "apps/web/components/school-private-*"
+      - "apps/web/components/school-localized-workspace-home.tsx"
+      - "apps/web/lib/school-workspace-i18n.ts"
       - "apps/web/components/school-unified-experience.tsx"
       - "apps/web/lib/school-locales.ts"
       - "apps/web/lib/school-articles.ts"
@@ -98,6 +102,8 @@ jobs:
           done
           tail -n 70 "$RUNNER_TEMP/perf21-next.log"
           exit 1
+      - name: SCHOOL-UNIFY2 Five private workspace languages Chrome UX (demo only)
+        run: node tests/school-unify2-chrome-private.mjs
       - name: SCHOOL-UNIFY1 Five public School languages Chrome layout and SEO
         run: node tests/school-unify1-chrome-five-hubs.mjs
       - name: SCHOOL-GROWTH1E Chrome Scuola SEO / contrast / images (mobile and desktop)
@@ -136,6 +142,14 @@ jobs:
         run: node tests/bd17-chrome-cta-variants.mjs
       - name: HOME-SI5 Chrome visual / WCAG / SEO acceptance
         run: node tests/home-si5-chrome-visual-qa.mjs
+      - name: Upload SCHOOL-UNIFY2 private UX demo screenshots (no users or company data)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: school-unify2-private-ux-demo
+          path: /tmp/school-unify2
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Upload SCHOOL-UNIFY1 international public School screenshots
         if: always()
         uses: actions/upload-artifact@v4

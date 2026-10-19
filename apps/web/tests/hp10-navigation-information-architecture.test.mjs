@@ -19,8 +19,8 @@ const canonicalWrappers = [
   "../app/(workspace)/commercial/explorer/page.tsx",
   "../app/(workspace)/commercial/price-intelligence/page.tsx",
   "../app/(workspace)/commercial/market-intelligence/page.tsx",
-  "../app/(workspace)/school/explorer/page.tsx",
 ].map(read);
+const schoolExplorer = read("../app/(workspace)/school/explorer/page.tsx");
 
 test("HP10 gives daily tools canonical routes inside their product space", () => {
   assert.match(routes, /explorer: "\/commercial\/explorer"/);
@@ -32,6 +32,11 @@ test("HP10 gives daily tools canonical routes inside their product space", () =>
   for (const wrapper of canonicalWrappers) {
     assert.match(wrapper, /export \{ default \} from/);
   }
+  // School's canonical route now provides a language-aware wrapper while
+  // preserving the identical authorized KnowledgeExplorer server action.
+  assert.match(schoolExplorer, /<KnowledgeExplorer locale=\{locale\}/);
+  assert.match(schoolExplorer, /SchoolPrivateTopbar/);
+  assert.match(schoolExplorer, /force-dynamic/);
 });
 
 test("HP10 keeps legacy route aliases explicit instead of using them as primary navigation", () => {
