@@ -123,7 +123,7 @@ try {
           "Only actionable priorities may appear between shortcuts and feed");
       }
       if (p.id === "buyerViewer") {
-        assert.equal(await actions.getByRole("link", { name: /Apri RFQ Hub/ }).count(), 0,
+        assert.equal(await actions.getByRole("link", { name: /Gestisci richieste e offerte/ }).count(), 0,
           "Viewer must not receive buyer-action shortcut");
       }
     });
@@ -159,6 +159,11 @@ try {
       await navigate(page, "/rfq-hub");
       await page.getByRole("heading", { name: "RFQ Hub", exact: true })
         .waitFor({ state: "visible", timeout: 60000 });
+      const primaryNav = page.getByRole("navigation", { name: "Navigazione principale" });
+      assert.equal(await primaryNav.getByRole("link", { name: "Commerciale", exact: true }).getAttribute("aria-current"), "page",
+        "Procurement must belong to the single Commerciale primary destination");
+      assert.equal(await primaryNav.getByRole("link", { name: "RFQ Hub", exact: true }).count(), 0,
+        "RFQ Hub must no longer be a second primary destination");
       const body = await page.locator("body").innerText();
       if (p.id === "buyerViewer") {
         assert.ok(!body.includes(p.rfqTitle), "Viewer accessed owner-only buyer campaign");
