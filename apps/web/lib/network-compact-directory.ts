@@ -3,6 +3,7 @@ import "server-only";
 import {getNetworkBrowsePage, type FreeCompany, type NetworkBrowsePage} from "@/lib/network-free";
 import {parseNetworkPage} from "@/components/network-pagination";
 import {searchNetwork} from "@/lib/network";
+import {withCompactGeoEvidence} from "@/lib/network-compact-geo";
 
 /** NET-UX COMPACT1: one honest, stable server-side pagination across BOTH feeds.
  * Keep each existing RLS/entitlement-gated source and its original provenance.
@@ -78,14 +79,16 @@ export async function getCompactNetworkPage(
     });
     const startIndex=((page-1)*COMPACT_NETWORK_PAGE_SIZE)%18;
     const selected=resolved.items.slice(startIndex,startIndex+COMPACT_NETWORK_PAGE_SIZE);
-    return {
-      items:selected.map(company=>({
+    const items=selected.map(company=>({
         id:company.id,legal_name:company.legal_name,trading_name:company.trading_name,
         country_code:company.country_code,website_url:company.website_url,
         claimed_status:company.claimed_status,verification_status:company.verification_status,
         roles:company.roles,products:company.products.map(product=>product.name),
         location:null,
-      })),total,published:total,discovered:0,page,pages,
+      }));
+    return {
+      items:await withCompactGeoEvidence(organizationId,access,items),
+      total,published:total,discovered:0,page,pages,
       first:total?(page-1)*COMPACT_NETWORK_PAGE_SIZE+1:0,
       last:Math.min(page*COMPACT_NETWORK_PAGE_SIZE,total),
       discoveryUnavailable:false,technicalOnly:true,
@@ -109,7 +112,8 @@ export async function getCompactNetworkPage(
     discovered ? sourceSlice(organizationId,access,"unconfirmed",filters,discovered,windows.discovered):Promise.resolve([]),
   ]);
   return {
-    items:[...publishedItems,...discoveredItems],total,published:publishedCount,discovered:discoveredCount,
+    items:await withCompactGeoEvidence(organizationId,access,[...publishedItems,...discoveredItems]),
+    total,published:publishedCount,discovered:discoveredCount,
     page,pages,first:total?offset+1:0,last:Math.min(offset+COMPACT_NETWORK_PAGE_SIZE,total),
     discoveryUnavailable:!discovered,
   };
