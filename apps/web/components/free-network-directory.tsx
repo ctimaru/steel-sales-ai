@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {NetworkCompanyGrowthEntry} from "@/components/network-company-growth-entry";
-import {NetworkReadyConnections,NetworkReadinessAction} from "@/components/network-ready-connections";
+import {NetworkReadyConnections} from "@/components/network-ready-connections";
 import {getNetworkRecipientReadiness} from "@/lib/network-recipient-readiness";
 import {getNetworkReplyIntelligence,sharedPublicProducts} from "@/lib/network-reply-intelligence";
 
@@ -8,15 +8,14 @@ import { FocusPage } from "@/components/focus-ui";
 import { ItalyRegionMap } from "@/components/italy-region-map";
 import { NetworkRoleDiscovery } from "@/components/network-role-discovery";
 import { NetworkLaunchDiscovery } from "@/components/network-launch-discovery";
-import { NetworkInventoryBar, networkListingView } from "@/components/network-inventory-bar";
+import { NetworkInventoryBar } from "@/components/network-inventory-bar";
 import { NetworkDiscoveryOverview } from "@/components/network-discovery-overview";
 import { NetworkMiniMap, NetworkRecoveryScreen } from "@/components/network-resilient-first-screen";
 import { NetworkPagination, parseNetworkPage } from "@/components/network-pagination";
-import { NetworkActivationCta } from "@/components/network-activation-cta";
 import { getItalyRegionCoverage, getItalyProvisionalGeoCoverage, type ItalyRegionCoverage, type ItalyProvisionalGeoCoverage } from "@/lib/network-region-coverage";
 import { NETWORK_COMPANY_ROLES } from "@/lib/network-experience";
 import { activeNetworkPersona, networkRoleReason } from "@/lib/network-role-discovery";
-import { getFreeNetworkPagedDirectory, safeNetworkWebsiteUrl } from "@/lib/network-free";
+import { getFreeNetworkPagedDirectory } from "@/lib/network-free";
 
 const roleLabels: Record<string, string> = {
   producer: "Produttori", trader_distributor: "Commercianti",
@@ -31,12 +30,12 @@ function href(filters: { q?: string; role?: string; region?: string; persona?: s
   return "/network" + (query.size ? "?" + query.toString() : "");
 }
 export async function FreeNetworkDirectoryView({
-  organizationId, organizationName, filters, isWorkspaceAdmin=false, canConnect=false,
+  organizationId, organizationName, filters, canConnect=false,
 }: {
   organizationId: string;
   organizationName: string;
-  isWorkspaceAdmin?:boolean;
   canConnect?:boolean;
+  isWorkspaceAdmin?:boolean;
   filters: { q?: string; role?: string; region?: string; persona?: string; p?: string; dpage?: string; view?: string };
 }) {
   const role = NETWORK_COMPANY_ROLES.includes(filters.role as (typeof NETWORK_COMPANY_ROLES)[number])
@@ -56,7 +55,6 @@ export async function FreeNetworkDirectoryView({
     return <NetworkRecoveryScreen />;
   }
   const hasFilters = Boolean(filters.q?.trim() || role || filters.region);
-  const listingView = networkListingView(filters.view);
   const persona = activeNetworkPersona(filters.persona, data.viewer_role);
   const items = data.published_page.items; // role ordering is global and enforced by SQL before pagination
   const [readiness,intelligence]=await Promise.all([
@@ -69,7 +67,7 @@ export async function FreeNetworkDirectoryView({
       <NetworkCompanyGrowthEntry />
       <NetworkInventoryBar accessMode="free" published={data.published_page.total}
         unconfirmed={data.discovery_page?.total??0} discoveryUnavailable={data.discovery_unavailable}
-        view={listingView} filters={filters} />
+        filters={filters} />
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_245px]">
       <section className="rounded-3xl border border-[#b8d2c8] bg-[#edf5f2] p-5 sm:p-7">
         <div className="flex flex-wrap items-center gap-2">
@@ -77,28 +75,13 @@ export async function FreeNetworkDirectoryView({
           <span className="text-xs font-medium text-[#52615b]">{organizationName}</span>
         </div>
         <h1 className="mt-4 text-2xl font-semibold tracking-tight text-[#173f35] sm:text-3xl">Scopri le aziende dell'acciaio</h1>
-        <div className="mt-4 flex flex-wrap gap-2" aria-label="Dimensione della rete aziendale">
-          <span className="rounded-full border border-[#b8d2c8] bg-white px-3 py-1.5 text-xs font-semibold text-[#173f35]">
-            {Math.max(data.total-(data.discovered_total??0),0)} profili pubblicati
-          </span>
-          <span className="rounded-full border border-[#e2d1a4] bg-[#fff7e6] px-3 py-1.5 text-xs font-semibold text-[#795521]">
-            {data.discovered_total??0} aziende scoperte · da confermare
-          </span>
-          <a href="#network-new-discoveries" className="inline-flex items-center px-2 text-xs font-semibold text-[#175640] underline">
-            Esplora le novità ↓
-          </a>
-        </div>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-[#43524c]">
-          Cerca produttori, commercianti, terzisti e utilizzatori in tutta Italia.
-          Le aziende scoperte vengono mostrate subito come "Da confermare". La mappa distingue sedi pubblicate da località aziendali provvisorie, sempre da confermare.
-        </p>
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-[#43524c]">Esplora tutte le aziende della filiera in un unico Network. Consulta il profilo per informazioni, fonti e disponibilità di una connessione commerciale.</p>
         <form action="/network" method="get" className="mt-5 flex flex-col gap-2 sm:flex-row">
           <label htmlFor="free-network-search" className="sr-only">Cerca aziende</label>
           <input id="free-network-search" name="q" type="search" maxLength={120}
             defaultValue={filters.q || ""} placeholder="Ragione sociale..."
             className="h-11 min-w-0 flex-1 rounded-xl border border-[#b8d2c8] bg-white px-3 text-sm text-[#173f35]"/>
           {role ? <input name="role" type="hidden" value={role} /> : null}
-          {listingView!=="all" ? <input name="view" type="hidden" value={listingView} /> : null}
           {filters.persona ? <input name="persona" type="hidden" value={filters.persona} /> : null}
           {filters.region ? <input name="region" type="hidden" value={filters.region} /> : null}
           <button className="app-primary min-h-11 rounded-xl px-5 text-sm font-semibold">Cerca</button>
@@ -131,22 +114,18 @@ export async function FreeNetworkDirectoryView({
         <NetworkRoleDiscovery viewerRole={data.viewer_role} filters={filters} />
       </div>
       <div id="network-company-list" className="mt-5">
-        {listingView!=="published" ? <NetworkLaunchDiscovery directory={data}
+        {<NetworkLaunchDiscovery directory={data}
           filters={{q:filters.q,role:filters.role,region:filters.region}}
-          pagination={data.discovery_page} navigationParams={filters} /> : null}
+          pagination={data.discovery_page} navigationParams={filters} />}
       </div>
       <div className="mt-5"><NetworkReadyConnections items={readyItems} statuses={readiness} canAct={canConnect}
          persona={persona} sharedProducts={sharedPublicProducts(intelligence)} /></div>
-      {listingView!=="unconfirmed" ? <section id="network-region-results" aria-label="Risultati del Network" className="mt-6">
-        <h2 className="text-xl font-semibold text-[#173f35]">{data.published_page.total.toLocaleString("it-IT")} profili pubblicati</h2>
-        {data.discovered_total ? <p className="mt-1 text-xs font-semibold text-[#52615b]">
-          {data.discovered_total.toLocaleString("it-IT")} profili scoperti · Da confermare · categoria indicativa
-        </p> : null}
-        <p className="mt-1 text-sm text-[#52615b]">Solo dati aziendali essenziali. Le aziende scoperte non sono necessariamente clienti, fornitori verificati o proprietarie dei profili; nessuna sede viene inventata.</p>
+      {<section id="network-region-results" aria-label="Risultati del Network" className="mt-6">
+        <h2 className="text-xl font-semibold text-[#173f35]">Aziende nella filiera</h2>
+        <p className="mt-1 text-sm text-[#52615b]">Esplora i profili aziendali e le relative informazioni di provenienza.</p>
         {items.length ? (
           <div className="mt-4 divide-y divide-[#edf1ef] overflow-hidden rounded-2xl border border-[#dce2df] bg-white">
             {items.map((company) => {
-              const website = safeNetworkWebsiteUrl(company.website_url);
               return (
                 <article key={company.id} className="grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
                   <div className="min-w-0">
@@ -162,14 +141,8 @@ export async function FreeNetworkDirectoryView({
                     {company.products.length ? <p className="mt-2 text-xs text-[#52615b]">{company.products.slice(0, 3).join(" · ")}</p> : null}
                     {!hasFilters && networkRoleReason(company.roles,persona) ? <p className="mt-2 text-xs font-semibold text-[#27714f]">{networkRoleReason(company.roles,persona)}</p> : null}
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <NetworkReadinessAction companyId={company.id} status={readiness?.get(company.id)} canAct={canConnect}/>
-                    {website ? <a href={website} rel="noopener noreferrer" target="_blank" className="app-secondary inline-flex min-h-10 items-center rounded-xl px-3 text-xs font-semibold">Sito web</a> : null}
-                    <Link href={"/network/" + company.id} className="app-primary inline-flex min-h-10 items-center rounded-xl px-3 text-xs font-semibold">Profilo</Link>
-                    {isWorkspaceAdmin && ["unclaimed","revoked"].includes(company.claimed_status)
-                      ? <NetworkActivationCta mode="published" companyId={company.id}
-                          companyName={company.legal_name} source="network_free_results" compact />
-                      : null}
+                  <div>
+                    <Link href={"/network/" + company.id} className="app-primary inline-flex min-h-10 items-center rounded-xl px-3 text-xs font-semibold">Esplora azienda</Link>
                   </div>
                 </article>
               );
@@ -184,7 +157,7 @@ export async function FreeNetworkDirectoryView({
           page={data.published_page.page} total={data.published_page.total} pageSize={data.published_page.page_size}
           parameter="p" params={filters} anchor="network-region-results"
         />
-      </section> : null}
+      </section>}
       <div className="mt-6">
         <ItalyRegionMap coverage={coverage} provisionalCoverage={provisionalCoverage} selectedRegion={filters.region} filters={filters} />
       </div>

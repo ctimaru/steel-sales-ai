@@ -26,9 +26,9 @@ test("NET-CONNECT2: activation differentiates published company claim and unconf
 });
 
 test("NET-CONNECT2: all discovery cards can offer voluntary company registration without fake delivery",()=>{
- assert.match(provisional,/<NetworkActivationCta mode="discovered"/);
- assert.match(provisional,/source="network_discoveries"/);
- assert.match(provisional,/Registrarsi non comporta la rivendicazione automatica/);
+ assert.match(provisional,/Esplora azienda/);
+ assert.doesNotMatch(provisional,/<NetworkActivationCta/);
+ assert.match(provisional,/La rivendicazione e le segnalazioni sono disponibili nel profilo/);
  assert.doesNotMatch(provisional,/submitNetworkConnection|netconnect1_submit/);
  assert.match(freeProfile,/provisional \?/);
  assert.match(freeProfile,/<NetworkActivationCta mode="discovered"/);
@@ -36,12 +36,12 @@ test("NET-CONNECT2: all discovery cards can offer voluntary company registration
 
 test("NET-CONNECT2: claim only from admin context; same guarded claim path in Free and Pro",()=>{
  assert.match(proList,/isWorkspaceAdmin=\{context\.role==="admin"\}/);
- assert.match(proList,/context\.role==="admin" && \["unclaimed","revoked"\]/);
- assert.match(proList,/mode="published"/);
+ assert.doesNotMatch(proList,/<NetworkActivationCta/);
+ assert.match(proList,/Esplora azienda/);
  assert.match(proProfile,/isWorkspaceAdmin=\{context\.role==="admin"\}/g);
  assert.match(proProfile,/adminOrganizationId/);
  assert.match(proProfile,/<NetworkActivationCta mode="published"/);
- assert.match(freeList,/isWorkspaceAdmin && \["unclaimed","revoked"\]/);
+ assert.doesNotMatch(freeList,/<NetworkActivationCta/);
  assert.match(freeProfile,/isWorkspaceAdmin && \["unclaimed","revoked"\]/);
  assert.match(claims,/requireWorkspaceAdmin/);
  assert.match(claims,/getCompanyClaimExperience/);

@@ -40,7 +40,7 @@ test("Network discovery starts simple and progressively reveals advanced filters
 });
 
 test("Network results use customer-facing language and restrained metadata", () => {
-  assert.match(directory, /Profili industriali pubblicati nel Network/);
+  assert.match(directory, /Esplora i profili aziendali della filiera/);
   assert.match(directory, /Nessuna azienda trovata/);
   assert.match(directory, /compactList\(company\.roles\)/);
   assert.match(directory, /compactList\(company\.products\)/);
