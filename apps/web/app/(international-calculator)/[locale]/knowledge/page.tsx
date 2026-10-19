@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProductBrand } from "@/components/product-brand";
 import { SchoolJourney, SchoolTechnicalSections } from "@/components/school-unified-experience";
+import { SchoolInternationalReferences } from "@/components/school-international-references";
 import { SchoolUnifiedNavigation, SchoolConversionPath } from "@/components/school-unified-navigation";
 import { SchoolPageLanguageSelector, PUBLIC_HOME_LOCALE_ROUTES } from "@/components/calculator-page-language-selector";
 import { SCHOOL_HUB_ROUTES } from "@/lib/school-locales";
@@ -105,6 +106,7 @@ export default async function LocalizedSchoolHome({params}:{params:Promise<{loca
         <SchoolTechnicalSections locale={locale}/>
       </section>
       <SchoolJourney locale={locale}/>
+      <SchoolInternationalReferences locale={locale}/>
       <SchoolConversionPath locale={locale}/>
       <aside className="rounded-2xl border border-[#d4e2d8] bg-white p-5 sm:p-6">
         <h2 className="text-lg font-semibold text-[#173f35]">{t.privacy}</h2>

@@ -9,6 +9,7 @@ import {
   englishStandardForSlug,
 } from "@/lib/international-steel-knowledge";
 import { getPublicStandard, listPublicGrades } from "@/lib/public-knowledge";
+import {localizedKnowledgeGuide,localizedKnowledgePath} from "@/lib/localized-steel-knowledge";
 import { absoluteUrl } from "@/lib/site";
 
 const readPublishedStandard = cache(getPublicStandard);
@@ -32,6 +33,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       languages: {
         it: absoluteUrl(`/knowledge/norme/${copy.slug}`),
         en: absoluteUrl(path),
+        ...(localizedKnowledgeGuide("de","standards",slug)?{
+          de:absoluteUrl(localizedKnowledgePath("de","standards",slug)),
+          fr:absoluteUrl(localizedKnowledgePath("fr","standards",slug)),
+          es:absoluteUrl(localizedKnowledgePath("es","standards",slug)),
+        }:{}),
       },
     },
     openGraph: {
