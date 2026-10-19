@@ -118,13 +118,15 @@ test("COMPACT6B rejects missing taxonomy rather than inventing a technical match
 });
 test("COMPACT6B Free/Pro shares sourced taxonomy and never creates a competing search backend",()=>{
   const ui=read("../components/network-compact-experience.tsx");
-  const panel=read("../components/network-intent-search.tsx");
+  const panel=read("../components/network-conversation.tsx");
+  const action=read("../app/(italian)/(workspace)/network/conversation-actions.ts");
   const data=read("../lib/network-compact-directory.ts");
-  assert.match(ui,/capabilities=\{additionalFilters\?\.capabilities\|\|\[\]\} markets=\{additionalFilters\?\.markets\|\|\[\]\}/);
-  assert.match(panel,/interpretNetworkIntent\(draft,\{regions,products,capabilities,markets\}\)/);
+  assert.match(ui,/<NetworkConversation\/>/);
+  assert.match(action,/interpretNetworkIntent\(query,taxonomy\)/);
   assert.match(panel,/IT · EN · DE · FR · ES/);
-  assert.match(panel,/I filtri per prodotti, capacità, mercati o Paesi esteri/);
-  assert.match(panel,/disabled=\{!href\|\|pending\}/);
+  assert.match(action,/I dati tecnici si riferiscono ai soli profili pubblicati/);
+  assert.match(panel,/disabled=\{busy\|\|draft.trim\(\).length<3\}/);
   assert.match(data,/await getNetworkBrowsePage\(organizationId,access,"published"/);
   assert.doesNotMatch(panel,/fetch\(|service_role|generateText|apiKey/);
+  assert.match(action,/getNetworkAccessState\(context.organizationId\)/);
 });
