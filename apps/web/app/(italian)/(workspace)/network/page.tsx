@@ -100,6 +100,7 @@ export default async function NetworkDirectoryPage({
     view?: string;
     np?: string;
     advanced?: string;
+    map?: string;
     error?: string;
     message?: string;
   }>;
@@ -118,7 +119,7 @@ export default async function NetworkDirectoryPage({
           organizationName={context.organizationName}
           isWorkspaceAdmin={context.role==="admin"}
           canConnect={canInteractWithNetwork(context.role)}
-          filters={{ q: params.q, role: params.role, region: params.region, persona: params.persona, p:params.p,dpage:params.dpage,view:params.view, np:params.np }}
+          filters={{ q: params.q, role: params.role, region: params.region, persona: params.persona, p:params.p,dpage:params.dpage,view:params.view, np:params.np, map:params.map }}
         />
       );
     }
@@ -139,15 +140,23 @@ export default async function NetworkDirectoryPage({
   if(!needsTechnicalFinder){
     const compact=await getCompactNetworkPage(context.organizationId,"pro",compactFilters).catch(()=>null);
     if(compact){
-      const [compactCoverage,compactProvisional,compactGeo]=await Promise.all([
+      const [compactCoverage,compactProvisional,compactGeo,compactLegacyResults]=await Promise.all([
         getItalyRegionCoverage(context.organizationId).catch(()=>null),
         getItalyProvisionalGeoCoverage(context.organizationId,"pro").catch(()=>null),
         getNetworkGeoFacets().catch(()=>({regions:[],cities:[],provinces:[]})),
+        searchNetwork({query:params.q,role:params.role,region:params.region,
+          page:Math.max(1,Math.floor(((compact.page-1)*6)/18)+1)}).catch(()=>({items:[],total:0})),
+
       ]);
+      const capabilityLabels=Object.fromEntries(compactLegacyResults.items.map(item=>[
+        item.id,item.capabilities.map(cap=>cap.name),
+      ]));
       return <FocusPage className="max-w-[1560px]">
         <PilotEvent eventName="network_directory_viewed" metadata={{surface:"network_compact"}}/>
         <NetworkCompactExperience accessMode="pro" directory={compact} filters={compactFilters}
-          coverage={compactCoverage} provisionalCoverage={compactProvisional} regions={compactGeo.regions}
+          coverage={compactCoverage} provisionalCoverage={compactProvisional}
+          regions={compactGeo.regions.length?compactGeo.regions:compactCoverage?.regions.map(r=>r.name)||[]}
+          capabilityLabels={capabilityLabels}
           additionalFilters={{products:[],capabilities:[],markets:[]}}/>
       </FocusPage>;
     }
