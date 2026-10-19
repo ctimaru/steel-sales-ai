@@ -1,7 +1,7 @@
 import {NetworkCountryFlag} from "@/components/network-country-flag";
 import {NetworkCountryRegionFilters} from "@/components/network-country-region-filters";
 import {NetworkLiveSearch} from "@/components/network-live-search";
-import {NetworkIntentSearch} from "@/components/network-intent-search";
+import {NetworkConversation} from "@/components/network-conversation";
 import Link from "next/link";
 import {safeNetworkWebsiteUrl, type FreeCompany} from "@/lib/network-free";
 import type {CompactNetworkFilters,CompactNetworkPage} from "@/lib/network-compact-directory";
@@ -170,8 +170,7 @@ export function NetworkCompactExperience({
 
     <section aria-label="Ricerca e filtri delle aziende" className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-3 sm:p-4">
       <NetworkLiveSearch filters={filters}/>
-      <NetworkIntentSearch regions={regions} products={additionalFilters?.products||[]}
-        capabilities={additionalFilters?.capabilities||[]} markets={additionalFilters?.markets||[]}/>
+      <NetworkConversation/>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <span className="mr-1 text-[11px] font-bold uppercase tracking-wider text-[#175640]">Ruolo</span>
         <nav aria-label="Ruolo nella filiera" className="flex flex-wrap gap-1.5">
