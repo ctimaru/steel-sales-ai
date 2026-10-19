@@ -9,11 +9,12 @@ const search=read("../lib/network-compact-directory.ts");
 const live=read("../components/network-live-search.tsx");
 
 test("COMPACT2 keeps technical filters inside the same compact page",()=>{
- for(const key of ["product","capability","market","country"]){
-  assert.match(ui,new RegExp('name="'+key+'"'));
+ for(const key of ["product","capability","market"]){
+  assert.match(ui,new RegExp('name:"'+key+'"'));
   assert.match(pro,new RegExp("params\\."+key));
   assert.match(free,new RegExp("filters\\."+key));
  }
+ assert.match(ui,/name="country"/);
  assert.match(ui,/name=\{group.name\}/);
  assert.match(ui,/Applica filtri/);
  assert.match(ui,/Paese/);
@@ -37,9 +38,11 @@ test("COMPACT2 searching preserves active filters without stale page numbers",()
  assert.match(live,/name="q"/);
  assert.match(ui,/name="region"/);
  assert.match(ui,/name="role"/);
- for(const key of ["product","capability","market","country"]){
-  assert.match(ui,new RegExp('name="'+key+'"'));
+ for(const key of ["product","capability","market"]){
+  assert.match(ui,new RegExp('name:"'+key+'"'));
  }
+ assert.match(ui,/name="country"/);
+ assert.match(ui,/name=\{group.name\}/);
  assert.match(ui,/key!=="np"/);
  assert.match(free,/return <NetworkRecoveryScreen \/>/);
 });
