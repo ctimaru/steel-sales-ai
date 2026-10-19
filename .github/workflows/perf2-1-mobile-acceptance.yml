@@ -14,6 +14,10 @@ on:
       - "apps/web/tests/home-si5-*"
       - "apps/web/components/deferred-public-company-lookup.tsx"
       - "apps/web/tests/perf2-1-*"
+      - "apps/web/tests/school-growth1e-*"
+      - "apps/web/lib/school-articles.ts"
+      - "apps/web/public/school/visuals/**"
+      - "apps/web/app/api/school-og/**"
       - "apps/web/components/public-tube-weight-calculator.tsx"
       - "apps/web/components/calculator-region-switch.tsx"
       - "apps/web/components/calculator-region-switch.module.css"
@@ -91,6 +95,8 @@ jobs:
           done
           tail -n 70 "$RUNNER_TEMP/perf21-next.log"
           exit 1
+      - name: SCHOOL-GROWTH1E Chrome Scuola SEO / contrast / images (mobile and desktop)
+        run: node tests/school-growth1e-chrome-acceptance.mjs
       - name: Chrome keyboard / no-JS / lazy lookup / consent acceptance
         run: node tests/perf2-1-chrome-mobile.mjs
       - name: CALC-UX3 Chrome IT/EN 320–1440px contrast / focus / touch QA
@@ -125,6 +131,14 @@ jobs:
         run: node tests/bd17-chrome-cta-variants.mjs
       - name: HOME-SI5 Chrome visual / WCAG / SEO acceptance
         run: node tests/home-si5-chrome-visual-qa.mjs
+      - name: Upload SCHOOL-GROWTH1E public screenshots and binary HTTP report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: school-growth1e-chrome-local-qa
+          path: /tmp/school-growth1e
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Upload CALC-UX3 calculator Chrome screenshots (public / no credentials)
         if: always()
         uses: actions/upload-artifact@v4
@@ -160,6 +174,30 @@ jobs:
               console.log("PERF2.1 LIGHTHOUSE", JSON.stringify({run:i+1,score:Math.round(r.categories.performance.score*100),fcpMs:Math.round(a["first-contentful-paint"].numericValue),lcpMs:Math.round(a["largest-contentful-paint"].numericValue),tbtMs:Math.round(a["total-blocking-time"].numericValue),cls:a["cumulative-layout-shift"].numericValue,bytes:a["total-byte-weight"]?.numericValue}));
             }
             console.log("PERF2.1 LIGHTHOUSE NOTE: localhost CI and PSI production are not directly comparable");
+          '
+      - name: SCHOOL-GROWTH1E Mobile Lighthouse (diagnostic only)
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          node node_modules/lighthouse/cli/index.js http://127.0.0.1:3000/knowledge \
+            --only-categories=performance,accessibility,seo --form-factor=mobile \
+            --throttling-method=simulate \
+            --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" \
+            --quiet --output=json --output-path="/tmp/school-growth1e/lighthouse-school-mobile.json"
+          node --input-type=module -e '
+            import fs from "node:fs";
+            const r=JSON.parse(fs.readFileSync("/tmp/school-growth1e/lighthouse-school-mobile.json","utf8"));
+            const a=r.audits;
+            console.log("SCHOOL-GROWTH1E LIGHTHOUSE",JSON.stringify({
+              performance:Math.round(r.categories.performance.score*100),
+              accessibility:Math.round(r.categories.accessibility.score*100),
+              seo:Math.round(r.categories.seo.score*100),
+              lcpMs:Math.round(a["largest-contentful-paint"].numericValue),
+              cls:a["cumulative-layout-shift"].numericValue,
+              tbtMs:Math.round(a["total-blocking-time"].numericValue),
+              totalBytes:a["total-byte-weight"]?.numericValue,
+            }));
+            console.log("Diagnostics on localhost Chrome CI, not production Core Web Vitals field data.");
           '
       - name: Local Next diagnostics
         if: failure()
