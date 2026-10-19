@@ -53,16 +53,16 @@ export function SchoolLocalizedWorkspaceHome({locale}:{locale:SchoolWorkspaceLoc
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         {(["norme","gradi"] as const).map(group=><form key={group} method="get"
           action={"/school/"+group} role="search"
-          className="rounded-xl border border-[#dce5df] bg-[#f7faf8] p-4">
+          className="min-w-0 rounded-xl border border-[#dce5df] bg-[#f7faf8] p-4">
           <label htmlFor={"school-private-"+group+"-"+locale} className="block text-xs font-bold text-[#365247]">
             {group==="norme"?c.standards:c.grades}
           </label>
-          <div className="mt-2 flex min-w-0 gap-2">
+          <div className="mt-2 flex min-w-0 flex-col gap-2 sm:flex-row">
             <input id={"school-private-"+group+"-"+locale} name="q" required maxLength={120} type="search"
               placeholder={group==="norme"?"EN 10219":"S355J2H"}
-              className="min-h-11 min-w-0 flex-1 rounded-xl border border-[#b8cac0] bg-white px-3 text-base text-[#1d2824] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]"/>
+              className="min-h-11 min-w-0 w-full flex-1 rounded-xl border border-[#b8cac0] bg-white px-3 text-base text-[#1d2824] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]"/>
             {locale!=="it"?<input type="hidden" name="lang" value={locale}/>:null}
-            <button type="submit" className="school-primary-action">{c.searchAction}</button>
+            <button type="submit" className="school-primary-action w-full shrink-0 sm:w-auto">{c.searchAction}</button>
           </div>
         </form>)}
       </div>
