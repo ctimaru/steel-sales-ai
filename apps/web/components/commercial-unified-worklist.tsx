@@ -221,7 +221,7 @@ export async function CommercialUnifiedWorklist({
       </form>
 
       <div className={active ? (active.campaignId ? "grid min-w-0 gap-3" : "grid min-w-0 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]") : ""}>
-        <div className={(active ? "hidden lg:block " : "") + "min-w-0 overflow-hidden rounded-xl border border-[var(--border)] bg-white"}>
+        <div data-testid="commercial-list-pane" className={(active ? "hidden lg:block " : "") + "min-w-0 overflow-hidden rounded-xl border border-[var(--border)] bg-white"}>
           <div className="flex items-center justify-between border-b border-[var(--border)] px-3 py-2.5">
             <p className="text-xs font-semibold text-[var(--brand-deep)]">Attività visibili</p>
             <span className="text-xs tabular-nums text-[var(--text-secondary)]">{data.paging?.exact && data.paging.total !== null
