@@ -66,7 +66,7 @@ test("COMMERCIAL-UNIFY2C keeps mobile detail usable without hiding desktop list 
   assert.match(worklist, /tabIndex=\{-1\}/);
   assert.match(worklist, /overflow-x-auto/);
   assert.match(worklist, /min-h-11/);
-  assert.match(worklist, /"Chiudi"/);
+  assert.match(worklist, /Chiudi <span/);
   assert.match(worklist, /Dettaglio nella stessa pagina/);
   assert.match(query, /return failure\(view, page,/);
   assert.doesNotMatch(query + worklist, /send\(|dispatch\(|award\(/);
