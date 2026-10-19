@@ -46,13 +46,13 @@ test("P3.7F gives the profiles commercially useful industrial depth", () => {
 });
 
 test("P3.7F moves buyer-relevant information above governance metrics", () => {
-  assert.match(profile, /Commercial snapshot/);
+  assert.match(profile, /Sintesi commerciale/);
   assert.match(profile, /Quello che serve sapere a colpo d'occhio/);
   assert.match(profile, /Norme e materiali/);
   assert.match(profile, /Servizi e mercati/);
-  assert.match(profile, /Technical scope/);
+  assert.match(profile, /Ambito tecnico/);
 
-  const products = profile.indexOf('eyebrow="Products"');
+  const products = profile.indexOf('eyebrow="Prodotti"');
   const positioning = profile.indexOf('eyebrow="Industrial positioning"');
   assert.ok(products >= 0 && positioning >= 0 && products < positioning);
 });
