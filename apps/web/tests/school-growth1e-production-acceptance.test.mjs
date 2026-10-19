@@ -40,6 +40,7 @@ test("SCHOOL-GROWTH1E has both localhost build validation and production deploym
   assert.match(local,/name: school-growth1e-chrome-local-qa/);
   assert.match(local,/LIGHTHOUSE/);
   assert.match(production,/deployment_status:/);
+  assert.doesNotMatch(production,/cancel-in-progress:\s*true/);
   assert.match(production,/deployment\.environment == 'Production'/);
   assert.match(production,/https:\/\/www\.smartsteelsales\.com/);
   assert.match(production,/school-growth1e-production-evidence/);
