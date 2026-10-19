@@ -26,7 +26,7 @@ begin
  if j->>'contract'<>'netux-data1-audit-v1'
     or (j->>'profiles_total')::int<>(j->>'canonical_published')::int+(j->>'discovered')::int
     or jsonb_array_length(j->'items')>25
-    or j->>'scope'<>'501-network-profiles-dynamic' then
+    or j->>'scope'<>'all-visible-network-profiles-dynamic' then
     raise exception 'DATA1 bounded counts/page contract invalid';
  end if;
  if (j->>'geographic_source_coverage')::int>(j->>'profiles_total')::int
