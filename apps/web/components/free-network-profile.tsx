@@ -19,7 +19,7 @@ export async function FreeNetworkProfileView({
       : await getFreeNetworkProfile(organizationId, companyId);
   } catch {
     return (
-      <FocusPage className="max-w-[960px]">
+      <FocusPage className="max-w-6xl">
         <h1 className="text-xl font-semibold text-[#173f35]">Profilo non disponibile</h1>
         <p className="mt-2 text-sm text-[#52615b]">Verifica l'attivazione della tua azienda oppure riprova.</p>
         <Link href="/network" className="mt-4 inline-block text-sm font-semibold text-[#173f35] underline">Torna a Esplora aziende</Link>
@@ -39,7 +39,7 @@ export async function FreeNetworkProfileView({
       <Link href="/network" className="text-sm font-semibold text-[#173f35] underline">← Torna a Esplora aziende</Link>
       <section className="mt-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <div className="flex min-w-0 items-start gap-4 sm:gap-5">
-          <div aria-hidden="true" className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#dce2df] bg-[#edf5f2] text-xl font-bold text-[#173f35] sm:h-18 sm:w-18">
+          <div aria-hidden="true" className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#dce2df] bg-[#edf5f2] text-xl font-bold text-[#173f35] sm:h-20 sm:w-20">
             {(profile.company.trading_name || profile.company.legal_name).trim().slice(0,2).toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
