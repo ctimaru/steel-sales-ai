@@ -45,7 +45,7 @@ export function NetworkMiniMap({
       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#32745a]">Mappa Italia</p>
       <h2 className="text-sm font-semibold text-[#173f35]">20 regioni da esplorare</h2>
     </div>
-    <Link href="/network#network-regional-map" className="text-xs font-semibold text-[#175640] underline">Mappa completa ↗</Link>
+    <Link href={filters.advanced==="1"?"/network?advanced=1#network-regional-map":filters.map==="1"?"/network?map=1#network-regional-map":"/network#network-regional-map"} className="text-xs font-semibold text-[#175640] underline">Mappa completa ↗</Link>
    </div>
    <div className="mx-auto mt-2 w-full max-w-[190px]">
     <svg viewBox="0 0 800 875" role="group" aria-label="Seleziona una regione d'Italia" className="h-auto max-h-[185px] w-full">
