@@ -4,6 +4,7 @@ import { PilotEvent } from "@/components/pilot-event";
 import { SchoolPrivateTopbar } from "@/components/school-private-language-switch";
 import { SchoolQuickAccess } from "@/components/school-quick-access";
 import { SchoolTechnicalSections } from "@/components/school-unified-experience";
+import { SchoolUnifiedNavigation, SchoolConversionPath } from "@/components/school-unified-navigation";
 import { CALCULATOR_ROUTES } from "@/lib/international-calculator-landing";
 import { schoolWorkspaceHref,SCHOOL_PRIVATE_COPY,type SchoolWorkspaceLocale } from "@/lib/school-workspace-i18n";
 
@@ -22,6 +23,7 @@ export function SchoolLocalizedWorkspaceHome({locale}:{locale:SchoolWorkspaceLoc
   return <div lang={locale}><FocusPage className="max-w-[1180px]">
     <PilotEvent eventName="school_home_viewed" metadata={{surface:"school_home"}} />
     <SchoolPrivateTopbar locale={locale}/>
+    <SchoolUnifiedNavigation locale={locale} scope="workspace"/>
     <section className="grid items-center gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]" aria-label={c.welcome}>
       <div className="space-y-3">
         <p className="text-xs font-extrabold uppercase tracking-[.12em] text-[#1a5144]">{c.brand} · Smart Steel Sales</p>
@@ -47,6 +49,7 @@ export function SchoolLocalizedWorkspaceHome({locale}:{locale:SchoolWorkspaceLoc
       </div>
       <p className="text-xs leading-6 text-[#52615b]">{c.publicNote}</p>
     </section>
+    <SchoolConversionPath locale={locale}/>
     <section aria-labelledby="school-private-search" className="rounded-3xl border border-[#dce2df] bg-white p-5 sm:p-7">
       <h2 id="school-private-search" className="text-xl font-semibold text-[#173f35]">{c.search}</h2>
       <p className="mt-2 text-sm leading-6 text-[#52615b]">{c.searchHint}</p>
