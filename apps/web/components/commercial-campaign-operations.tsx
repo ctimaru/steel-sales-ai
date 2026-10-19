@@ -9,7 +9,7 @@ import { createRfqh9PoSecurity, buildRfqh9SupplierUrl } from "@/lib/rfqh9-po";
 import { createClient } from "@/lib/supabase/server";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 import { appRoutes } from "@/lib/routes";
-import { commercialHref, type CommercialView } from "@/lib/commercial-unified-data";
+import { commercialHref, commercialPageHref, type CommercialView } from "@/lib/commercial-unified-data";
 
 export type CommercialOperationsTab = "compare" | "negotiate" | "award" | "po";
 
@@ -20,8 +20,8 @@ const operationsTabs: ReadonlyArray<{ id: CommercialOperationsTab; title: string
   { id: "po", title: "Ordini PO" },
 ];
 
-function operationsHref(view: CommercialView, query: string, selected: string, tab: CommercialOperationsTab) {
-  const path = commercialHref(view, query, selected).replace(/#.*$/, "");
+function operationsHref(view: CommercialView, query: string, selected: string, tab: CommercialOperationsTab, page: number) {
+  const path = (page > 1 ? commercialPageHref(view, query, page, selected) : commercialHref(view, query, selected)).replace(/#.*$/, "");
   return path + (path.includes("?") ? "&" : "?") + "tab=" + tab + "#commercial-operations";
 }
 
@@ -30,13 +30,14 @@ function operationsHref(view: CommercialView, query: string, selected: string, t
  * No alternative mutation endpoint or permission model is introduced.
  */
 export async function CommercialCampaignOperations({
-  rfqId, selected, tab, view, query,
+  rfqId, selected, tab, view, query, page,
 }: {
   rfqId: string;
   selected: string;
   tab: CommercialOperationsTab;
   view: CommercialView;
   query: string;
+  page: number;
 }) {
   const context = await getWorkspaceContext();
   const db = await createClient();
@@ -211,7 +212,7 @@ export async function CommercialCampaignOperations({
       <h4 className="text-sm font-bold text-[var(--brand-deep)]">Lavora sulla RFQ qui</h4>
       <nav aria-label="Fasi della trattativa" className="flex max-w-full gap-1 overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-1">
         {operationsTabs.map((option) => (
-          <Link key={option.id} href={operationsHref(view, query, selected, option.id)}
+          <Link key={option.id} href={operationsHref(view, query, selected, option.id, page)}
             aria-current={tab === option.id ? "page" : undefined}
             className={"inline-flex min-h-10 shrink-0 items-center rounded-lg px-2.5 text-xs font-semibold " +
               (tab === option.id ? "bg-[var(--brand-deep)] text-white" : "text-[var(--brand-deep)] hover:bg-[var(--brand-primary-soft)]")}>
