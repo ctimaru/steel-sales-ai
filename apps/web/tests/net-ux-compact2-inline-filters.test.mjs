@@ -6,6 +6,7 @@ const pro=read("../app/(italian)/(workspace)/network/page.tsx");
 const free=read("../components/free-network-directory.tsx");
 const ui=read("../components/network-compact-experience.tsx");
 const search=read("../lib/network-compact-directory.ts");
+const live=read("../components/network-live-search.tsx");
 
 test("COMPACT2 keeps technical filters inside the same compact page",()=>{
  for(const key of ["product","capability","market","country"]){
@@ -33,7 +34,7 @@ test("COMPACT2 respects tenant guard, accurate totals and 6 per page",()=>{
  assert.match(ui,/capabilityLabels\[company.id\]/);
 });
 test("COMPACT2 searching preserves active filters without stale page numbers",()=>{
- assert.match(ui,/name="q"/);
+ assert.match(live,/name="q"/);
  assert.match(ui,/name="region"/);
  assert.match(ui,/name="role"/);
  for(const key of ["product","capability","market","country"]){
