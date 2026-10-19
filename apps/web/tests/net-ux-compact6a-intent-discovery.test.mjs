@@ -83,7 +83,8 @@ test("COMPACT6A UI keeps real Network access gating and existing search",()=>{
   const discover=read("../components/network-intent-search.tsx");
   const list=read("../lib/network-compact-directory.ts");
   assert.match(ui,/<NetworkLiveSearch filters=\{filters\}\/>/);
-  assert.match(ui,/<NetworkIntentSearch regions=\{regions\} products=\{additionalFilters\?\.products\|\|\[\]\}\/>/);
+  assert.match(ui,/<NetworkIntentSearch regions=\{regions\} products=\{additionalFilters\?\.products\|\|\[\]\}/);
+  assert.match(ui,/capabilities=\{additionalFilters\?\.capabilities\|\|\[\]\} markets=\{additionalFilters\?\.markets\|\|\[\]\}/);
   assert.match(discover,/networkIntentHref\(parsed\)/);
   assert.match(discover,/disabled=\{!href\|\|pending\}/);
   assert.match(discover,/Filtri riconosciuti/);
