@@ -1,0 +1,64 @@
+name: SCHOOL-UNIFY2B — Authenticated Multilingual School (Manual Read-Only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      approval:
+        description: "For seven synthetic QA users type SCHOOL_UNIFY2B_APPROVE_SYNTHETIC_READ_ONLY"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: school-unify2b-manual-auth-only
+  cancel-in-progress: false
+
+jobs:
+  school-auth-production:
+    name: Seven synthetic users / Chrome read-only / no screenshots
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: production-qa
+    timeout-minutes: 25
+    env:
+      CI: "true"
+      SCHOOL_UNIFY2B_APPROVAL: ${{ inputs.approval }}
+    steps:
+      - name: Require explicit QA approval
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$SCHOOL_UNIFY2B_APPROVAL" = "SCHOOL_UNIFY2B_APPROVE_SYNTHETIC_READ_ONLY" || {
+            echo "SCHOOL-UNIFY2B BLOCKED: manual owner approval required"
+            exit 1
+          }
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install dependencies and temporary Chrome
+        working-directory: apps/web
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chrome
+      - name: Verify authorized / denied School UI across roles and languages
+        working-directory: apps/web
+        timeout-minutes: 15
+        env:
+          RQG32_REGISTRATION_PASSWORD: ${{ secrets.RQG32_REGISTRATION_PASSWORD }}
+          RQG32_CLAIMS_PASSWORD: ${{ secrets.RQG32_CLAIMS_PASSWORD }}
+          RQG32_TRUST_PASSWORD: ${{ secrets.RQG32_TRUST_PASSWORD }}
+          RQG32_AUDITOR_PASSWORD: ${{ secrets.RQG32_AUDITOR_PASSWORD }}
+          RQG32_COMPANY_A_PASSWORD: ${{ secrets.RQG32_COMPANY_A_PASSWORD }}
+          RQG32_COMPANY_B_PASSWORD: ${{ secrets.RQG32_COMPANY_B_PASSWORD }}
+          RQG32_VIEWER_PASSWORD: ${{ secrets.RQG32_VIEWER_PASSWORD }}
+        run: node tests/school-unify2b-production-multirole-readonly.mjs
+      # No screenshots, traces, cookies, private snippets, fixtures, search POSTs,
+      # membership mutations, or Review decisions.

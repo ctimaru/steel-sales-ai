@@ -2,13 +2,8 @@
 
 import Link from "next/link";
 import type { SchoolWorkspaceLocale } from "@/lib/school-workspace-i18n";
-const explorerLabels: Record<SchoolWorkspaceLocale,{title:string;description:string;search:string;searching:string;placeholder:string;filters:string;entities:string;sources:string;results:string;documents:string;empty:string;emptyHelp:string}> = {
-  it:{title:"Cerca nel knowledge layer",description:"Ricerca su documenti e dati aziendali con fonti e provenance verificabili.",search:"Cerca",searching:"Ricerca...",placeholder:"Es. offerte S355J2H EN 10219 tubi rettangolari",filters:"Filtri strutturati",entities:"Entità e dati commerciali",sources:"Fonte e documento",results:"risultati",documents:"documenti",empty:"Nessuna evidence trovata",emptyHelp:"Prova una query più ampia oppure rimuovi uno dei filtri strutturati."},
-  en:{title:"Search company knowledge",description:"Search company documents and commercial data with traceable sources and provenance.",search:"Search",searching:"Searching...",placeholder:"e.g. S355J2H EN 10219 rectangular tube offers",filters:"Structured filters",entities:"Entities and commercial data",sources:"Source and document",results:"results",documents:"documents",empty:"No evidence found",emptyHelp:"Try a broader query or remove a filter."},
-  de:{title:"Firmenwissen durchsuchen",description:"Firmendokumente und Geschäftsdaten mit nachvollziehbarer Quelle und Herkunft durchsuchen.",search:"Suchen",searching:"Suche läuft...",placeholder:"z. B. Angebote S355J2H EN 10219",filters:"Strukturierte Filter",entities:"Entitäten und Geschäftsdaten",sources:"Quelle und Dokument",results:"Ergebnisse",documents:"Dokumente",empty:"Keine Nachweise gefunden",emptyHelp:"Versuchen Sie eine allgemeinere Suche oder entfernen Sie einen Filter."},
-  fr:{title:"Rechercher dans les documents",description:"Recherchez les documents et données commerciales avec leurs sources et provenance.",search:"Rechercher",searching:"Recherche...",placeholder:"ex. offres S355J2H EN 10219",filters:"Filtres structurés",entities:"Entités et données commerciales",sources:"Source et document",results:"résultats",documents:"documents",empty:"Aucune preuve trouvée",emptyHelp:"Élargissez la requête ou retirez un filtre."},
-  es:{title:"Buscar en el conocimiento empresarial",description:"Busca documentos y datos comerciales con fuentes y procedencia comprobables.",search:"Buscar",searching:"Buscando...",placeholder:"ej. ofertas S355J2H EN 10219",filters:"Filtros estructurados",entities:"Entidades y datos comerciales",sources:"Origen y documento",results:"resultados",documents:"documentos",empty:"No se encontraron evidencias",emptyHelp:"Prueba una consulta más amplia o elimina un filtro."},
-};
+import { EXPLORER_LOCALES } from "@/lib/school-explorer-locales";
+const explorerLabels = EXPLORER_LOCALES;
 
 import { useActionState, useMemo, useState } from "react";
 
@@ -27,12 +22,6 @@ const initialState: KnowledgeSearchState = {
   results: [],
   count: 0,
 };
-
-const examples = [
-  "Trova offerte S355J2H EN 10219 tubi rettangolari",
-  "Ordini EN 10224 L275 spessore 7,1 mm",
-  "Tubi P265GH diametro 406,4 mm disponibili",
-];
 
 function percent(value: number | null) {
   if (value === null || !Number.isFinite(value)) return "—";
@@ -55,17 +44,32 @@ function sourceTarget(result: KnowledgeSearchResult) {
   return null;
 }
 
-function locationLabel(result: KnowledgeSearchResult) {
+function locationLabel(result: KnowledgeSearchResult, locale: SchoolWorkspaceLocale) {
+  const c=EXPLORER_LOCALES[locale];
   const parts: string[] = [];
   if (result.page_start) {
     parts.push(
       result.page_end && result.page_end !== result.page_start
-        ? `pagine ${result.page_start}–${result.page_end}`
-        : `pagina ${result.page_start}`,
+        ? `${c.pages} ${result.page_start}–${result.page_end}`
+        : `${c.page} ${result.page_start}`,
     );
   }
   if (result.section_path?.length) parts.push(result.section_path.join(" › "));
   return parts.join(" · ");
+}
+
+function displaySearchMessage(message: string, locale: SchoolWorkspaceLocale): string {
+  if (locale === "it") return message;
+  // Translate only well-known UI errors. Preserve unrecognized worker diagnostics.
+  const known: Record<string,string> = {
+    "Inserisci almeno 2 caratteri per la ricerca.": EXPLORER_LOCALES[locale].errorShort,
+    "Sessione scaduta. Accedi di nuovo.": EXPLORER_LOCALES[locale].errorAuth,
+    "Knowledge Explorer richiede Supabase Auth configurato.": EXPLORER_LOCALES[locale].errorConfig,
+    "Worker non configurato nell'ambiente web.": EXPLORER_LOCALES[locale].errorWorker,
+    "La ricerca semantica non è disponibile.": EXPLORER_LOCALES[locale].errorUnavailable,
+    "Worker di ricerca non raggiungibile.": EXPLORER_LOCALES[locale].errorOffline,
+  };
+  return known[message] ?? message;
 }
 
 export function KnowledgeExplorer({locale="it"}:{locale?:SchoolWorkspaceLocale}) {
@@ -119,7 +123,7 @@ export function KnowledgeExplorer({locale="it"}:{locale?:SchoolWorkspaceLocale})
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {examples.map((example) => (
+            {ui.examples.map((example) => (
               <button
                 key={example}
                 type="button"
@@ -141,27 +145,27 @@ export function KnowledgeExplorer({locale="it"}:{locale?:SchoolWorkspaceLocale})
                   {ui.entities}
                 </p>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  <Input name="company" placeholder="Azienda" />
-                  <Input name="grade" placeholder="Qualità / materiale" />
-                  <Input name="standard" placeholder="Norma, es. EN 10219" />
-                  <Input name="product_family" placeholder="Famiglia prodotto" />
-                  <Input name="country" placeholder="Paese" />
+                  <Input name="company" placeholder={ui.company} />
+                  <Input name="grade" placeholder={ui.grade} />
+                  <Input name="standard" placeholder={ui.standard} />
+                  <Input name="product_family" placeholder={ui.family} />
+                  <Input name="country" placeholder={ui.country} />
                   <select
                     name="item_role"
                     defaultValue=""
                     className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700"
                   >
-                    <option value="">Ruolo automatico</option>
-                    <option value="requested">Requested</option>
-                    <option value="offered">Offered</option>
-                    <option value="ordered">Ordered</option>
-                    <option value="delivered">Delivered</option>
+                    <option value="">{ui.role}</option>
+                    <option value="requested">{ui.roles[0]}</option>
+                    <option value="offered">{ui.roles[1]}</option>
+                    <option value="ordered">{ui.roles[2]}</option>
+                    <option value="delivered">{ui.roles[3]}</option>
                   </select>
-                  <Input name="outer_diameter_mm" inputMode="decimal" placeholder="Diametro mm" />
-                  <Input name="thickness_mm" inputMode="decimal" placeholder="Spessore mm" />
-                  <Input name="width_mm" inputMode="decimal" placeholder="Larghezza mm" />
-                  <Input name="height_mm" inputMode="decimal" placeholder="Altezza mm" />
-                  <Input name="length_mm" inputMode="decimal" placeholder="Lunghezza mm" />
+                  <Input name="outer_diameter_mm" inputMode="decimal" placeholder={ui.diameter} />
+                  <Input name="thickness_mm" inputMode="decimal" placeholder={ui.thickness} />
+                  <Input name="width_mm" inputMode="decimal" placeholder={ui.width} />
+                  <Input name="height_mm" inputMode="decimal" placeholder={ui.height} />
+                  <Input name="length_mm" inputMode="decimal" placeholder={ui.length} />
                 </div>
               </div>
 
@@ -170,12 +174,12 @@ export function KnowledgeExplorer({locale="it"}:{locale?:SchoolWorkspaceLocale})
                   {ui.sources}
                 </p>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  <Input name="source_class" placeholder="Classe fonte, es. internal" />
-                  <Input name="source_type" placeholder="Tipo fonte" />
-                  <Input name="document_type" placeholder="Tipo documento" />
-                  <Input name="document_query" placeholder="Titolo / filename" />
+                  <Input name="source_class" placeholder={ui.sourceClass} />
+                  <Input name="source_type" placeholder={ui.sourceType} />
+                  <Input name="document_type" placeholder={ui.documentType} />
+                  <Input name="document_query" placeholder={ui.filename} />
                   <label className="text-xs font-medium text-slate-500">
-                    Da data
+                    {ui.from}
                     <input
                       name="date_from"
                       type="date"
@@ -183,7 +187,7 @@ export function KnowledgeExplorer({locale="it"}:{locale?:SchoolWorkspaceLocale})
                     />
                   </label>
                   <label className="text-xs font-medium text-slate-500">
-                    A data
+                    {ui.to}
                     <input
                       name="date_to"
                       type="date"
@@ -195,10 +199,10 @@ export function KnowledgeExplorer({locale="it"}:{locale?:SchoolWorkspaceLocale})
                     defaultValue="12"
                     className="h-10 self-end rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700"
                   >
-                    <option value="10">10 risultati</option>
-                    <option value="12">12 risultati</option>
-                    <option value="20">20 risultati</option>
-                    <option value="30">30 risultati</option>
+                    <option value="10">10 {ui.resultLimit}</option>
+                    <option value="12">12 {ui.resultLimit}</option>
+                    <option value="20">20 {ui.resultLimit}</option>
+                    <option value="30">30 {ui.resultLimit}</option>
                   </select>
                 </div>
               </div>
@@ -209,7 +213,7 @@ export function KnowledgeExplorer({locale="it"}:{locale?:SchoolWorkspaceLocale})
 
       {state.status === "error" ? (
         <Card className="border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
-          {state.message}
+          {displaySearchMessage(state.message,locale)}
         </Card>
       ) : null}
 
@@ -221,7 +225,7 @@ export function KnowledgeExplorer({locale="it"}:{locale?:SchoolWorkspaceLocale})
                 {(state.count ?? 0).toLocaleString(locale)} {ui.results}
               </p>
               <p className="mt-1 text-xs text-slate-500">
-                {groups.length.toLocaleString(locale)} {ui.documents} · modello {state.model?.model_name ?? "active"}
+                {groups.length.toLocaleString(locale)} {ui.documents} · {ui.model} {state.model?.model_name ?? ui.noModel}
               </p>
             </div>
             <div className="flex max-w-3xl flex-wrap justify-end gap-2">
@@ -258,7 +262,7 @@ export function KnowledgeExplorer({locale="it"}:{locale?:SchoolWorkspaceLocale})
                       {lead.language_code ? <Badge tone="neutral">{lead.language_code}</Badge> : null}
                     </div>
                     <h3 className="mt-2 truncate text-sm font-semibold text-slate-950">
-                      {lead.title || lead.filename || "Documento senza titolo"}
+                      {lead.title || lead.filename || ui.untitled}
                     </h3>
                     <p className="mt-1 truncate text-xs text-slate-500">
                       {lead.filename || lead.source_name || lead.document_id}
@@ -272,14 +276,14 @@ export function KnowledgeExplorer({locale="it"}:{locale?:SchoolWorkspaceLocale})
                         rel="noreferrer"
                         className="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300"
                       >
-                        Apri fonte ↗
+                        {ui.openSource} ↗
                       </a>
                     ) : (
                       <Link
                         href={target.href}
                         className="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300"
                       >
-                        Apri thread →
+                        {ui.openThread} →
                       </Link>
                     )
                   ) : null}
@@ -287,14 +291,14 @@ export function KnowledgeExplorer({locale="it"}:{locale?:SchoolWorkspaceLocale})
 
                 <div className="divide-y divide-slate-100">
                   {results.map((result, index) => {
-                    const location = locationLabel(result);
+                    const location = locationLabel(result, locale);
                     return (
                       <div key={result.chunk_id} className="p-4 sm:p-5">
                         <div className="flex flex-col gap-3 lg:flex-row lg:justify-between">
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="text-xs font-semibold text-slate-400">
-                                Evidence {index + 1}
+                                {ui.evidence} {index + 1}
                               </span>
                               {result.matched_entities.map((entity) => (
                                 <Badge key={`${result.chunk_id}-${entity.entity_id}`} tone="green">
@@ -312,19 +316,19 @@ export function KnowledgeExplorer({locale="it"}:{locale?:SchoolWorkspaceLocale})
 
                           <div className="grid shrink-0 grid-cols-2 gap-2 text-xs sm:grid-cols-4 lg:w-[360px] lg:grid-cols-2">
                             <div className="rounded-lg bg-slate-50 p-2.5">
-                              <p className="text-slate-400">Semantic</p>
+                              <p className="text-slate-400">{ui.semantic}</p>
                               <p className="mt-1 font-semibold text-slate-800">
                                 {percent(result.vector_similarity)}
                               </p>
                             </div>
                             <div className="rounded-lg bg-slate-50 p-2.5">
-                              <p className="text-slate-400">Full-text</p>
+                              <p className="text-slate-400">{ui.fulltext}</p>
                               <p className="mt-1 font-semibold text-slate-800">
                                 {fixed(result.lexical_score)}
                               </p>
                             </div>
                             <div className="rounded-lg bg-slate-50 p-2.5">
-                              <p className="text-slate-400">Entità</p>
+                              <p className="text-slate-400">{ui.entitiesScore}</p>
                               <p className="mt-1 font-semibold text-slate-800">
                                 {result.entity_match_count}
                               </p>
@@ -357,21 +361,21 @@ export function KnowledgeExplorer({locale="it"}:{locale?:SchoolWorkspaceLocale})
       {state.status === "idle" ? (
         <div className="grid gap-4 md:grid-cols-3">
           <Card className="p-5">
-            <p className="text-sm font-semibold text-slate-900">Ricerca cross-language</p>
+            <p className="text-sm font-semibold text-slate-900">{ui.idleTitles[0]}</p>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Query in italiano o inglese sullo stesso corpus grazie agli embedding multilingual.
+              {ui.idleDescriptions[0]}
             </p>
           </Card>
           <Card className="p-5">
-            <p className="text-sm font-semibold text-slate-900">Filtri tecnici e documentali</p>
+            <p className="text-sm font-semibold text-slate-900">{ui.idleTitles[1]}</p>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Combina grade, norme, aziende, ruoli, dimensioni, fonte, documento e intervallo date.
+              {ui.idleDescriptions[1]}
             </p>
           </Card>
           <Card className="p-5">
-            <p className="text-sm font-semibold text-slate-900">Provenance verificabile</p>
+            <p className="text-sm font-semibold text-slate-900">{ui.idleTitles[2]}</p>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Ogni match mostra evidence, documento, chunk, entità e segnali di ranking.
+              {ui.idleDescriptions[2]}
             </p>
           </Card>
         </div>

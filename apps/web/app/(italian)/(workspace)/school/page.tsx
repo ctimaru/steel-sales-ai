@@ -4,6 +4,7 @@ import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-u
 import { PilotEvent } from "@/components/pilot-event";
 import { SchoolQuickAccess } from "@/components/school-quick-access";
 import { SchoolJourney, SchoolTechnicalSections } from "@/components/school-unified-experience";
+import { SchoolUnifiedNavigation, SchoolConversionPath } from "@/components/school-unified-navigation";
 import { SchoolPrivateTopbar } from "@/components/school-private-language-switch";
 import { SchoolLocalizedWorkspaceHome } from "@/components/school-localized-workspace-home";
 import { schoolWorkspaceLocale } from "@/lib/school-workspace-i18n";
@@ -23,6 +24,7 @@ export default async function SchoolPage({searchParams}:{searchParams:Promise<{l
     <FocusPage className="max-w-[1120px]">
       <PilotEvent eventName="school_home_viewed" metadata={{ surface: "school_home" }} />
       <SchoolPrivateTopbar locale="it"/>
+      <SchoolUnifiedNavigation locale="it" scope="workspace" />
       <FocusHeader
         eyebrow="Scuola"
         title="Il toolbox tecnico per acciaio e tubi"
@@ -49,7 +51,14 @@ export default async function SchoolPage({searchParams}:{searchParams:Promise<{l
         <SchoolTechnicalSections locale="it"/>
       </section>
       <SchoolJourney locale="it" workspace />
+      <SchoolConversionPath locale="it" />
 
+      <details className="group rounded-2xl border border-[#d5e3da] bg-white px-4 py-4 sm:px-5">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-[#174b3c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c] [&::-webkit-details-marker]:hidden">
+          Altri strumenti e cataloghi tecnici
+          <span aria-hidden="true" className="text-base transition group-open:rotate-45">+</span>
+        </summary>
+        <div className="mt-4 space-y-5">
       <section className="grid gap-4 lg:grid-cols-[1.25fr_0.75fr]">
         <div className="rounded-3xl border border-[#b8d2c8] bg-[#edf5f2] p-5 sm:p-6">
           <p className="app-kicker">Strumento principale</p>
@@ -189,6 +198,9 @@ export default async function SchoolPage({searchParams}:{searchParams:Promise<{l
           </Link>
         </div>
       </section>
+
+        </div>
+      </details>
 
       <SchoolQuickAccess />
 

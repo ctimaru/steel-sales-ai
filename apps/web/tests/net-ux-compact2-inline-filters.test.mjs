@@ -5,19 +5,21 @@ const read=p=>readFileSync(new URL(p,import.meta.url),"utf8");
 const pro=read("../app/(italian)/(workspace)/network/page.tsx");
 const free=read("../components/free-network-directory.tsx");
 const ui=read("../components/network-compact-experience.tsx");
+const geo=read("../components/network-country-region-filters.tsx");
 const search=read("../lib/network-compact-directory.ts");
 const live=read("../components/network-live-search.tsx");
 
 test("COMPACT2 keeps technical filters inside the same compact page",()=>{
- for(const key of ["product","capability","market","country"]){
-  assert.match(ui,new RegExp('name="'+key+'"'));
+ for(const key of ["product","capability","market"]){
+  assert.match(ui,new RegExp('name:"'+key+'"'));
   assert.match(pro,new RegExp("params\\."+key));
   assert.match(free,new RegExp("filters\\."+key));
  }
+ assert.match(geo,/name="country"/);
  assert.match(ui,/name=\{group.name\}/);
  assert.match(ui,/Applica filtri/);
- assert.match(ui,/Paese/);
- assert.match(ui,/Regione/);
+ assert.match(geo,/Paese/);
+ assert.match(geo,/Regione/);
  assert.match(ui,/Azzera/);
  assert.match(ui,/Modalità \{accessMode===/);
  assert.doesNotMatch(ui,/Filtri tecnici: prodotto, capability, mercato e paese/);
@@ -35,11 +37,13 @@ test("COMPACT2 respects tenant guard, accurate totals and 6 per page",()=>{
 });
 test("COMPACT2 searching preserves active filters without stale page numbers",()=>{
  assert.match(live,/name="q"/);
- assert.match(ui,/name="region"/);
+ assert.match(geo,/name="region"/);
  assert.match(ui,/name="role"/);
- for(const key of ["product","capability","market","country"]){
-  assert.match(ui,new RegExp('name="'+key+'"'));
+ for(const key of ["product","capability","market"]){
+  assert.match(ui,new RegExp('name:"'+key+'"'));
  }
+ assert.match(geo,/name="country"/);
+ assert.match(ui,/name=\{group.name\}/);
  assert.match(ui,/key!=="np"/);
  assert.match(free,/return <NetworkRecoveryScreen \/>/);
 });

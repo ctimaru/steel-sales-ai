@@ -12,6 +12,7 @@ import {
 } from "@/lib/knowledge-labels";
 import { getPublicGrade } from "@/lib/public-knowledge";
 import { englishGradeForSlug } from "@/lib/international-steel-knowledge";
+import {localizedKnowledgeGuide,localizedKnowledgePath} from "@/lib/localized-steel-knowledge";
 import { absoluteUrl } from "@/lib/site";
 
 const loadGrade = cache(getPublicGrade);
@@ -48,6 +49,11 @@ export async function generateMetadata({
       ...(englishGradeForSlug(grade.slug) ? { languages: {
         it: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
         en: absoluteUrl(`/en/knowledge/grades/${grade.slug}`),
+        ...(localizedKnowledgeGuide("de","grades",slug)?{
+          de:absoluteUrl(localizedKnowledgePath("de","grades",slug)),
+          fr:absoluteUrl(localizedKnowledgePath("fr","grades",slug)),
+          es:absoluteUrl(localizedKnowledgePath("es","grades",slug)),
+        }:{}),
       }} : {}),
     },
     openGraph: {
