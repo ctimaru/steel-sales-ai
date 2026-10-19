@@ -27,6 +27,7 @@ export type DashboardData = {
 };
 
 export type ExplorerFilters = {
+  organizationId?: string;
   q?: string;
   role?: ItemRole | "all";
   grade?: string;
@@ -319,7 +320,11 @@ export async function getExplorerData(filters: ExplorerFilters): Promise<Explore
     .eq("user_id", user.id)
     .eq("status", "active");
 
-  const membership = memberships?.find((row) => row.is_default) ?? memberships?.[0];
+  // An explicitly requested workspace must match an active membership; never
+  // silently fall back to the default organization when composing a unified view.
+  const membership = filters.organizationId
+    ? memberships?.find((row) => row.organization_id === filters.organizationId)
+    : memberships?.find((row) => row.is_default) ?? memberships?.[0];
   if (!membership) {
     return { mode: "awaiting_assignment", rows: [], total: 0, page, pageSize };
   }
