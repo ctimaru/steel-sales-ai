@@ -260,7 +260,11 @@ select pg_temp.hp13_assert(
         -- NET-UX COMPACT6C reviewed, user-self-scoped, UTC-day atomic AI cost meter.
         -- 5/user/day + 60/project/day; zero prompts/audio; no tenant/profile reads.
         -- Pinned empty search_path, anon revoked, tables private and no browser CRUD grants.
-        'netux6c_claim_ai_budget'
+        'netux6c_claim_ai_budget',
+        -- SCHOOL-UNIFY6B reviewed: auth.uid-scoped UTC-day atomic AI cost meter.
+        -- 3/user/day and 30/project/day; no prompts, audio or tenant data.
+        -- Empty pinned search_path, anon revoke, RLS on private counter tables.
+        'school6b_claim_ai_budget'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'

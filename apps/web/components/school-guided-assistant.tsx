@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { askSchoolGroundedAI } from "@/app/(italian)/(workspace)/school/assistant/grounded-ai-actions";
+import type { SchoolGroundedAIResult } from "@/lib/school-grounded-ai-contract";
 import Link from "next/link";
 import {
   parseSteelAssistantInput, mergeSteelAssistantFacts, missingSteelAssistantFields,
@@ -13,7 +15,10 @@ import type { SchoolWorkspaceLocale } from "@/lib/school-workspace-i18n";
 type EvidenceCitation={url:string;label:string;role:string};
 type Evidence={id:string;code:string;title:string;summary:string;caution:string|null;rfqGuidance:string|null;citations:EvidenceCitation[];provenance?:{k2LastReviewedAt:string}};
 type Turn={id:number;input:string;evidence:Evidence[];missing:SchoolAssistantMissing[];error:boolean};
-type Props={locale:SchoolWorkspaceLocale};
+type Props={locale:SchoolWorkspaceLocale;aiEnabled?:boolean;voiceEnabled?:boolean};
+type VoiceResult={results:ArrayLike<ArrayLike<{transcript:string}>>};
+type VoiceRecognition={lang:string;continuous:boolean;interimResults:boolean;onresult:((event:VoiceResult)=>void)|null;onend:(()=>void)|null;onerror:(()=>void)|null;start:()=>void;stop:()=>void};
+type VoiceWindow=Window&{SpeechRecognition?:new()=>VoiceRecognition;webkitSpeechRecognition?:new()=>VoiceRecognition};
 const familyCodes:Record<NonNullable<SchoolAssistantFacts["family"]>,string>={
   round_tube:"CHS",square_tube:"SHS",rectangular_tube:"RHS",
 };
@@ -49,12 +54,48 @@ function sanitizedEvidence(value:unknown):Evidence[] {
     }));
 }
 
-export function SchoolGuidedAssistant({locale}:Props) {
+export function SchoolGuidedAssistant({locale,aiEnabled=false,voiceEnabled=false}:Props) {
   const c=SCHOOL_ASSISTANT_COPY[locale];
   const [draft,setDraft]=useState("");
   const [facts,setFacts]=useState<SchoolAssistantFacts>({});
   const [turns,setTurns]=useState<Turn[]>([]);
   const [busy,setBusy]=useState(false);
+  const [aiBusy,setAiBusy]=useState(false);
+  const [aiResult,setAiResult]=useState<SchoolGroundedAIResult|null>(null);
+  const [voiceSupported,setVoiceSupported]=useState(false);
+  const [recording,setRecording]=useState(false);
+  const [voiceIssue,setVoiceIssue]=useState("");
+  const recognition=useRef<VoiceRecognition|null>(null);
+  useEffect(()=>{
+    if(!voiceEnabled)return;
+    const w=window as VoiceWindow;
+    setVoiceSupported(Boolean(window.isSecureContext&&(w.SpeechRecognition||w.webkitSpeechRecognition)));
+    return ()=>recognition.current?.stop();
+  },[voiceEnabled]);
+  function toggleMicrophone(){
+    if(recording){recognition.current?.stop();setRecording(false);return;}
+    const w=window as VoiceWindow;
+    const Speech=w.SpeechRecognition||w.webkitSpeechRecognition;
+    if(!window.isSecureContext||!Speech){setVoiceIssue(c.voiceUnsupported);return;}
+    try{
+      setVoiceIssue("");const engine=new Speech();recognition.current=engine;
+      const speechLocale={it:"it-IT",en:"en-GB",de:"de-DE",fr:"fr-FR",es:"es-ES"}[locale];
+      engine.lang=speechLocale;engine.continuous=false;engine.interimResults=false;
+      engine.onresult=event=>{const transcript=event.results[0]?.[0]?.transcript??"";
+        if(transcript)setDraft(transcript.slice(0,500));setRecording(false);};
+      engine.onerror=()=>{setVoiceIssue(c.voiceError);setRecording(false);};
+      engine.onend=()=>setRecording(false);engine.start();setRecording(true);
+    }catch{setVoiceIssue(c.voiceError);setRecording(false);}
+  }
+  async function requestAI(){
+    if(!aiEnabled||aiBusy||busy||!turns.length)return;
+    const codes=schoolAssistantEvidenceCodes(turns[turns.length-1].input,facts);
+    if(!codes.length)return;
+    setAiBusy(true);setAiResult(null);
+    try{setAiResult(await askSchoolGroundedAI({locale,codes}));}
+    catch{setAiResult({status:"unavailable",answer:c.aiError,sources:[],reviewRequired:true});}
+    finally{setAiBusy(false);}
+  }
   const missing=missingSteelAssistantFields(facts);
   const calcHref=schoolAssistantCalculatorUrl(locale,facts);
   const billHref=(locale==="it"?"/distinta":"/"+locale+"/distinta");
@@ -68,6 +109,7 @@ export function SchoolGuidedAssistant({locale}:Props) {
     const next=mergeSteelAssistantFacts(facts,parsed.facts);
     const queries=schoolAssistantEvidenceCodes(input,next);
     setBusy(true);
+    setAiResult(null);
     setDraft("");
     let evidence:Evidence[]=[];
     let failed=false;
@@ -95,7 +137,7 @@ export function SchoolGuidedAssistant({locale}:Props) {
     setBusy(false);
   }
 
-  function reset(){setTurns([]);setFacts({});setDraft("");}
+  function reset(){recognition.current?.stop();setRecording(false);setVoiceIssue("");setAiResult(null);setTurns([]);setFacts({});setDraft("");}
   return <div lang={locale} className="grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(290px,0.75fr)]">
     <section className="min-w-0 overflow-hidden rounded-2xl border border-[#c6dacf] bg-white shadow-sm" aria-label={c.title}>
       <header className="border-b border-[#d7e7dc] bg-[#eef6f0] px-4 py-4 sm:px-5">
@@ -154,11 +196,34 @@ export function SchoolGuidedAssistant({locale}:Props) {
         </article>)}
         {busy?<p role="status" className="text-sm font-semibold text-[#174b3c]">{c.loading}</p>:null}
       </div>
+      {aiEnabled&&turns.length>0?<section className="border-t border-[#d7e7dc] bg-[#f0f7f2] p-4 sm:p-5" aria-label={c.aiLabel}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div><h3 className="text-sm font-bold text-[#173f35]">{c.aiLabel}</h3>
+            <p className="mt-1 text-xs leading-5 text-[#52615b]">{c.aiPrivacy}</p></div>
+          <button type="button" disabled={aiBusy||busy} onClick={requestAI}
+            className="school-secondary-action disabled:cursor-not-allowed disabled:opacity-50">{aiBusy?c.aiWorking:c.aiAction} →</button>
+        </div>
+        {aiResult?<div role="status" className="mt-3 rounded-xl border border-[#c9ddcf] bg-white p-3">
+          <p className="text-sm leading-6 text-[#173f35]">{aiResult.answer}</p>
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
+            {aiResult.sources.map(source=><a key={source.id} href={source.url} target="_blank" rel="noopener noreferrer"
+              className="text-xs font-bold text-[#174b3c] underline underline-offset-4">{source.title} ↗</a>)}
+          </div>
+          <p className="mt-2 text-xs font-medium text-[#52615b]">{c.aiReview}</p>
+        </div>:null}
+      </section>:null}
       <form onSubmit={submit} className="border-t border-[#d7e7dc] bg-white p-4 sm:p-5">
         <label htmlFor={"school-assistant-input-"+locale} className="sr-only">{c.placeholder}</label>
         <textarea id={"school-assistant-input-"+locale} value={draft} onChange={event=>setDraft(event.target.value)}
           maxLength={500} rows={2} disabled={busy} placeholder={c.placeholder}
           className="block min-h-20 w-full resize-y rounded-xl border border-[#b7cec0] bg-white px-3 py-3 text-base leading-6 text-[#173f35] placeholder:text-[#687970] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]"/>
+        {voiceEnabled?<div className="mt-2 flex flex-wrap items-center gap-3">
+          {voiceSupported?<button type="button" onClick={toggleMicrophone} disabled={busy}
+            aria-pressed={recording} className="school-secondary-action">{recording?c.voiceStop:c.voiceStart}</button>
+            :<p className="text-xs text-[#52615b]">{c.voiceUnsupported}</p>}
+          <p className="text-xs leading-5 text-[#52615b]">{c.voiceCaution}</p>
+          {voiceIssue?<p role="alert" className="text-xs text-[#8b422e]">{voiceIssue}</p>:null}
+        </div>:null}
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
           <p className="max-w-md text-xs leading-5 text-[#52615b]">{c.privacy}</p>
           <button type="submit" disabled={busy||!draft.trim()} className="school-primary-action disabled:cursor-not-allowed disabled:opacity-50">
