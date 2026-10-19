@@ -1,3 +1,5 @@
+import {NetworkCompactExperience} from "@/components/network-compact-experience";
+import {getCompactNetworkPage} from "@/lib/network-compact-directory";
 import Link from "next/link";
 import {NetworkCompanyGrowthEntry} from "@/components/network-company-growth-entry";
 import {NetworkReadyConnections} from "@/components/network-ready-connections";
@@ -36,10 +38,25 @@ export async function FreeNetworkDirectoryView({
   organizationName: string;
   canConnect?:boolean;
   isWorkspaceAdmin?:boolean;
-  filters: { q?: string; role?: string; region?: string; persona?: string; p?: string; dpage?: string; view?: string };
+  filters: { q?: string; role?: string; region?: string; persona?: string; p?: string; dpage?: string; view?: string; np?: string };
 }) {
   const role = NETWORK_COMPANY_ROLES.includes(filters.role as (typeof NETWORK_COMPANY_ROLES)[number])
     ? filters.role : undefined;
+  // Default Free view uses the same one-screen design and source ordering as Pro.
+  // All read RPCs enforce active-company access; retain the legacy recovery below.
+  const compactFilters={q:filters.q,role,region:filters.region,persona:filters.persona,np:filters.np};
+  const compact=await getCompactNetworkPage(organizationId,"free",compactFilters).catch(()=>null);
+  if(compact){
+    const [compactCoverage,compactProvisional]=await Promise.all([
+      getItalyRegionCoverage(organizationId).catch(()=>null),
+      getItalyProvisionalGeoCoverage(organizationId,"free").catch(()=>null),
+    ]);
+    return <FocusPage className="max-w-[1560px]">
+      <NetworkCompactExperience accessMode="free" directory={compact}
+        filters={compactFilters} coverage={compactCoverage}
+        provisionalCoverage={compactProvisional}/>
+    </FocusPage>;
+  }
   let data;
   let coverage: ItalyRegionCoverage | null = null;
   let provisionalCoverage: ItalyProvisionalGeoCoverage | null = null;
