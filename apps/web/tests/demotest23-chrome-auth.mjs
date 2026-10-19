@@ -175,6 +175,21 @@ try {
         } else {
           await navigate(page, "/commercial?item=campaign:" + p.rfq);
           await page.locator("#commercial-detail").waitFor({ state: "visible", timeout: 60000 });
+          const operations = page.locator("#commercial-operations");
+          await operations.waitFor({ state: "visible", timeout: 60000 });
+          for (const [tab, name] of [
+            ["negotiate", "Negozia"],
+            ["award", "Aggiudica"],
+            ["po", "Ordini PO"],
+            ["compare", "Confronta offerte"],
+          ]) {
+            await operations.getByRole("link", { name, exact: true }).click();
+            await page.waitForURL((url) =>
+              url.pathname === "/commercial" && url.searchParams.get("tab") === tab &&
+              url.searchParams.get("item") === "campaign:" + p.rfq, { timeout: 60000 });
+            await page.locator("#commercial-operations").waitFor({ state: "visible", timeout: 60000 });
+            assert.equal(await page.locator("#commercial-worklist").count(), 1);
+          }
           await page.getByRole("link", { name: "Chiudi" }).click();
           await navigate(page, "/commercial?compose=1");
           await page.getByRole("heading", { name: "Crea distinta e RFQ senza lasciare Commerciale" })
