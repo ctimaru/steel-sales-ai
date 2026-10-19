@@ -7,7 +7,7 @@ import type {ItalyRegionCoverage,ItalyProvisionalGeoCoverage} from "@/lib/networ
 type Props={
   accessMode:"free"|"pro"; directory:CompactNetworkPage; filters:CompactNetworkFilters;
   coverage?:ItalyRegionCoverage|null; provisionalCoverage?:ItalyProvisionalGeoCoverage|null;
-  regions?:string[]; additionalFilters?:{
+  regions?:string[]; capabilityLabels?:Record<string,string[]>; additionalFilters?:{
     products:{canonical_key:string;display_name:string}[];
     capabilities:{canonical_key:string;display_name:string}[];
     markets:{canonical_key:string;display_name:string}[];
@@ -46,7 +46,7 @@ function initialLetters(name:string){
   const words=name.trim().split(/\s+/).filter(Boolean);
   return (words.length>1?words.slice(0,2).map(x=>x[0]).join(""):name.slice(0,2)).toUpperCase();
 }
-function CompactCompanyRow({company}:{company:FreeCompany}){
+function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabilities?:string[]}){
   const name=company.trading_name||company.legal_name;
   const role=company.roles[0];
   const domain=companyDomain(company);
@@ -77,7 +77,7 @@ function CompactCompanyRow({company}:{company:FreeCompany}){
       ):<span className="text-xs text-[#647269]">Non indicati</span>}
     </div>
     <div className="hidden min-w-0 lg:block">
-      <span className="text-xs text-[#647269]">Da completare nel profilo</span>
+      {capabilities.length?<div className="flex flex-wrap gap-1">{capabilities.slice(0,2).map((name,i)=><span key={i} className="max-w-full truncate rounded-full border border-[#d7e3dc] bg-[#f9fbfa] px-2 py-1 text-[11px] text-[#43524c]" title={name}>{name}</span>)}</div>:<span className="text-xs text-[#647269]">Non indicate</span>}
     </div>
     <div className="hidden min-w-0 lg:block">
       <p className="truncate text-xs font-medium text-[#43524c]">{company.country_code==="IT"?"Italia":company.country_code}</p>
@@ -91,7 +91,7 @@ function CompactCompanyRow({company}:{company:FreeCompany}){
 }
 
 export function NetworkCompactExperience({
-  accessMode,directory,filters,coverage,provisionalCoverage,regions=[],additionalFilters,
+  accessMode,directory,filters,coverage,provisionalCoverage,regions=[],additionalFilters,capabilityLabels={},
 }:Props){
   const filterActive=Boolean(filters.q||filters.role||filters.region);
   const knownTotals=!directory.discoveryUnavailable;
@@ -122,7 +122,10 @@ export function NetworkCompactExperience({
         </div>
       </div>
       <div className="hidden lg:block [&_svg]:max-h-[112px] [&_section]:h-full [&_section]:px-3 [&_section]:py-2 [&_p:last-child]:hidden">
-        <NetworkMiniMap coverage={coverage} provisionalCoverage={provisionalCoverage} filters={filters}/>
+        <NetworkMiniMap coverage={coverage} provisionalCoverage={provisionalCoverage} filters={{
+          ...filters, advanced: accessMode==="pro" ? "1" : undefined,
+          map: accessMode==="free" ? "1" : undefined,
+        }}/>
       </div>
     </div>
 
@@ -166,7 +169,10 @@ export function NetworkCompactExperience({
               {regions.map(item=><option key={item} value={item}>{item}</option>)}
             </select>
             <button type="submit" className="app-primary min-h-10 rounded-lg px-4 text-xs font-semibold">Applica</button>
-            {accessMode==="pro" && additionalFilters?<p className="max-w-xs text-[11px] leading-5 text-[#52615b]">Ricerca tecnica per prodotto, capability e mercato disponibile nella vista approfondita del Network.</p>:null}
+            {accessMode==="pro" && additionalFilters?<Link href={filterUrl(filters,{advanced:"1"},"#network-company-list")}
+              className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-2">
+              Filtri tecnici: prodotto, capability, mercato e paese ↗
+            </Link>:null}
           </form>
         </details>
       </div>
@@ -189,7 +195,7 @@ export function NetworkCompactExperience({
       <div className="hidden grid-cols-[minmax(180px,1.65fr)_minmax(90px,.75fr)_minmax(145px,1fr)_minmax(110px,.8fr)_minmax(100px,.8fr)_auto] gap-3 border-b border-[#e8eeeb] bg-[#f9fbfa] px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[#52615b] lg:grid">
         <span>Azienda</span><span>Ruolo</span><span>Prodotti dichiarati</span><span>Capability</span><span>Località</span><span className="sr-only">Azione</span>
       </div>
-      {directory.items.length?directory.items.map(company=><CompactCompanyRow key={company.id} company={company}/>):
+      {directory.items.length?directory.items.map(company=><CompactCompanyRow key={company.id} company={company} capabilities={capabilityLabels[company.id]||[]}/>):
         <div className="px-4 py-9 text-center text-sm text-[#52615b]">Nessuna azienda trovata. Prova un altro nome o azzera i filtri.</div>}
       <p className="border-t border-[#e8eeeb] bg-[#f9fbfa] px-4 py-2 text-[11px] leading-5 text-[#52615b]">
         I profili comprendono aziende registrate e dati raccolti da fonti pubbliche. Per verifiche, fonti e rivendicazione apri il profilo. Le connessioni sono disponibili solo verso aziende attive.
