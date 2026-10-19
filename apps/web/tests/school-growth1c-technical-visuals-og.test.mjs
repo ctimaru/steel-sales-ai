@@ -15,7 +15,7 @@ test("SCHOOL-GROWTH1C: three original technical SVG covers with alternative desc
   assert.match(data, /visual: \{ src: string; alt: string; caption: string \}/);
   for (const slug of visuals) {
     assert.match(data, new RegExp('slug: "'+slug+'"'));
-    assert.match(data, new RegExp('src: "/school/visuals/'+slug+'.svg"'));
+    assert.ok(data.includes('"src":"/school/visuals/'+slug+'.svg"'), "visual route for "+slug);
     const img = read("../public/school/visuals/"+slug+".svg");
     assert.match(img, /<svg[^>]*viewBox="0 0 1200 675"/);
     assert.match(img, /<title id="art-title">/);
@@ -50,6 +50,7 @@ test("SCHOOL-GROWTH1C: verifiable social previews have valid image/png media and
   }
   assert.match(og, /getSchoolArticle\(slug\)/);
   assert.match(og, /generateStaticParams/);
+  assert.match(og, /runtime = "nodejs"/);
   assert.match(detail, /images: \[\{ url: absoluteUrl\(/);
   assert.match(detail, /card: "summary_large_image"/);
   assert.match(detail, /image: absoluteUrl\(/);
