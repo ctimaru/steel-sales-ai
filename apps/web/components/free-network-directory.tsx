@@ -33,9 +33,11 @@ function href(filters: { q?: string; role?: string; region?: string; persona?: s
   return "/network" + (query.size ? "?" + query.toString() : "");
 }
 export async function FreeNetworkDirectoryView({
-  organizationId, organizationName, filters, canConnect=false,
+  organizationId, organizationName, filters, canConnect=false, userId, canCompose=false,
 }: {
   organizationId: string;
+  userId: string;
+  canCompose?:boolean;
   organizationName: string;
   canConnect?:boolean;
   isWorkspaceAdmin?:boolean;
@@ -56,6 +58,7 @@ export async function FreeNetworkDirectoryView({
     ]);
     return <FocusPage className="max-w-[1560px]">
       <NetworkCompactExperience accessMode="free" directory={compact}
+        userId={userId} organizationId={organizationId} canCompose={canCompose}
         filters={compactFilters} coverage={compactCoverage}
         provisionalCoverage={compactProvisional}
         regions={compactCoverage?.regions.map(r=>r.name)||[]}

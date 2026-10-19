@@ -3,11 +3,12 @@
 import {useEffect,useRef,useState,useTransition} from "react";
 import type {FormEvent} from "react";
 import Link from "next/link";
+import {NetworkRfqBridge} from "@/components/network-rfq-bridge";
 import {askNetworkConversation,type NetworkConversationAnswer}
   from "@/app/(workspace)/network/conversation-actions";
 import type {NetworkIntentFilters} from "@/lib/network-intent-parser";
 
-type Turn={id:number;speaker:"user"|"assistant";text:string;result?:NetworkConversationAnswer};
+type Turn={id:number;speaker:"user"|"assistant";text:string;sourceText?:string;result?:NetworkConversationAnswer};
 type VoiceResult={results:ArrayLike<ArrayLike<{transcript:string}>>};
 type VoiceRecognition={
   lang:string;continuous:boolean;interimResults:boolean;
@@ -30,7 +31,7 @@ const EXAMPLES=[
  * messages stored in localStorage, database or analytics. Backend alone may
  * route an eligible request to the capped, audited AI provider.
  */
-export function NetworkConversation(){
+export function NetworkConversation({userId,organizationId,canCompose}:{userId:string;organizationId:string;canCompose:boolean}){
   const [draft,setDraft]=useState("");
   const [turns,setTurns]=useState<Turn[]>([]);
   const [busy,startTransition]=useTransition();
@@ -41,6 +42,8 @@ export function NetworkConversation(){
   const recognition=useRef<VoiceRecognition|null>(null);
   const latestFilters=useRef<NetworkIntentFilters|undefined>(undefined);
   const id=useRef(0);
+  const latestAssistant=[...turns].reverse().find(turn=>turn.speaker==="assistant");
+  const rfqSource=latestAssistant?.result?.status==="rfq"?latestAssistant.sourceText:null;
   useEffect(()=>{
     const w=window as VoiceWindow;
     setVoiceSupported(Boolean(window.isSecureContext&&(w.SpeechRecognition||w.webkitSpeechRecognition)));
@@ -61,7 +64,7 @@ export function NetworkConversation(){
         const response=await askNetworkConversation(query,latestFilters.current);
         if(response.status==="ready"&&response.filters)latestFilters.current=response.filters;
         setTurns(prev=>[...prev,{
-          id:++id.current,speaker:"assistant" as const,text:response.answer,result:response,
+          id:++id.current,speaker:"assistant" as const,text:response.answer,sourceText:query,result:response,
         }].slice(-12));
       }catch{
         setTurns(prev=>[...prev,{id:++id.current,speaker:"assistant" as const,
@@ -150,9 +153,9 @@ export function NetworkConversation(){
             {turn.result.chips.map(chip=><span key={chip}
               className="rounded-full border border-[#bad0c2] bg-[#eaf4ee] px-2 py-0.5 text-[10px]">
               {chip}</span>)}</div>:null}
-          {turn.result?.href?<Link href={turn.result.href}
+          {turn.result?.href&&turn.result.status!=="rfq"?<Link href={turn.result.href}
             className="ui-action ui-action-primary mt-2 inline-flex min-h-9 items-center rounded-lg px-3 text-xs font-semibold">
-            {turn.result.status==="rfq"?"Apri Commerciale / RFQ":"Mostra risultati verificabili →"}
+            Mostra risultati verificabili →
           </Link>:null}
           {turn.speaker==="assistant"?<button type="button"
             onClick={()=>readAnswer(turn.text)}
@@ -164,6 +167,8 @@ export function NetworkConversation(){
         </p>}
         {busy?<p role="status" className="text-[11px] text-[#52615b]">Sto verificando la richiesta…</p>:null}
       </div>
+      {rfqSource?<NetworkRfqBridge key={latestAssistant?.id} sourceText={rfqSource}
+        userId={userId} organizationId={organizationId} canCompose={canCompose}/>:null}
       <div className="mt-2 flex flex-wrap gap-1" aria-label="Esempi di richieste">
         {EXAMPLES.map(example=><button key={example} type="button" onClick={()=>setDraft(example)}
           className="ui-action ui-action-secondary inline-flex min-h-8 items-center rounded-full px-2 text-[11px]">
