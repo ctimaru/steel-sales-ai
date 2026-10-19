@@ -43,7 +43,7 @@ test("COMMERCIAL-UNIFY2C.2 stable deterministic merge returns consumed offsets a
   assert.match(stream, /firstPage = ordered\.slice\(0, STREAM_PAGE_SIZE\)/);
   assert.match(stream, /for \(const row of firstPage\) nextOffsets\[row\.source\]\+\+/);
   assert.match(stream, /batches\.reduce\(\(sum, x\) => sum \+ \(x\.total \?\? 0\), 0\)/);
-  assert.match(stream, /history: \[\.\.\.state\.history, state\.offsets\]/);
+  assert.match(stream, /history: \[\.\.\.state\.history, toVector\(state\.offsets\)\]/);
   assert.match(stream, /previousCursor: prevCursor/);
   assert.match(stream, /currentCursor: state\.page > 1 \? encode\(state\) : null/);
 });
@@ -53,8 +53,10 @@ test("COMMERCIAL-UNIFY2C.2 validates navigation cursor without making it an auth
   assert.match(stream, /candidate\.view !== view/);
   assert.match(stream, /candidate\.query !== query/);
   assert.match(stream, /validOffsets\(candidate\.offsets\)/);
-  assert.match(stream, /candidate\.history\.every\(validOffsets\)/);
+  assert.match(stream, /candidate\.history\.every\(validVector\)/);
   assert.match(stream, /candidate\.page > MAX_HISTORY/);
+  assert.match(stream, /MAX_HISTORY = 200/);
+  assert.match(stream, /fromVector\(state\.history\[state\.history\.length - 1\]\)/);
   assert.match(stream, /authorization/);
   assert.match(list, /mergedCommercialHref\(view, query, data\.paging\.nextCursor \?\? undefined\)/);
   assert.match(list, /mergedCommercialHref\(view, query, data\.paging\.previousCursor \?\? undefined\)/);
