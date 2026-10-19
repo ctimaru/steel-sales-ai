@@ -43,7 +43,7 @@ function asLabel(value: unknown, fallback: string): string {
 export async function loadUnifiedCommercialData(organizationId: string): Promise<UnifiedCommercialData> {
   const db = await createClient();
   const [inbound, campaigns, quotes, purchaseOrders, saved] = await Promise.all([
-    getExplorerData({ role: "all" }).catch(() => null),
+    getExplorerData({ role: "all", organizationId }).catch(() => null),
     db.from("buyer_rfq_campaigns")
       .select("id,title,status,due_at,created_at,source_distinta_id")
       .eq("organization_id", organizationId)
