@@ -52,7 +52,8 @@ test("COMMERCIAL-UNIFY2B fails closed on role, membership and tenant mismatch", 
 });
 
 test("COMMERCIAL-UNIFY2B creates no supplier confirmation URL for viewer or non-owner", () => {
-  assert.match(operations, /if \(canExecuteCritical && state\.purchase_orders\?\.length\)/);
+  assert.match(operations, /if \(state\.purchase_orders\?\.length\)/);
+  assert.match(operations, /if \(canExecuteCritical\)/);
   assert.match(operations, /createRfqh9PoSecurity/);
   assert.match(operations, /buildRfqh9SupplierUrl/);
   assert.match(operations, /supplier_url: supplierUrl/);
