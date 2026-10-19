@@ -252,7 +252,9 @@ select pg_temp.hp13_assert(
         -- NET-CONNECT2E: bounded, active-organization, privacy-preserving recipient readiness.
         'netconnect2e_readiness',
         -- NET-CONNECT2F: own-organization aggregate with approved-claim public-product overlap.
-        'netconnect2f_intelligence'
+        'netconnect2f_intelligence',
+        -- NET-PROFILE1D: vetted evidence only, tenant-gated by Free/Pro access.
+        'netprofile1d_profile_evidence'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
