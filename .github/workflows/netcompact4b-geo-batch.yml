@@ -3,6 +3,12 @@ name: "NET-UX COMPACT4B — Geographic first-party batch"
 on:
   workflow_dispatch:
     inputs:
+      source_mode:
+        description: "Fixed pilot, fresh eligible companies, or read-only source audit"
+        required: true
+        default: "next_eligible"
+        type: choice
+        options: ["next_eligible", "quality_audit", "approved_25"]
       max_sites:
         description: "Number of official-company sites to process (1–25)"
         required: true
@@ -38,7 +44,7 @@ jobs:
         working-directory: services/worker
         run: python -m pip install -e .
       - name: Check secure runtime configuration
-        if: inputs.persist_candidates
+        if: inputs.persist_candidates || inputs.source_mode != 'approved_25'
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -51,12 +57,27 @@ jobs:
         working-directory: services/worker
         env:
           PERSIST_CANDIDATES: ${{ inputs.persist_candidates }}
+          SOURCE_MODE: ${{ inputs.source_mode }}
           MAX_SITES: ${{ inputs.max_sites }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
-          if [ "$PERSIST_CANDIDATES" = "true" ]; then
-            python -m app.netcompact4b_geo_batch --manifest data/netcompact4b_approved_25.json --max-sites "$MAX_SITES" --persist
+          set -euo pipefail
+          if [ "$SOURCE_MODE" = "quality_audit" ]; then
+            if [ "$PERSIST_CANDIDATES" = "true" ]; then
+              echo "::error::Audit mode cannot write"; exit 1
+            fi
+            python -m app.netcompact4d_geo_scale --quality-audit
+          elif [ "$SOURCE_MODE" = "next_eligible" ]; then
+            if [ "$PERSIST_CANDIDATES" = "true" ]; then
+              python -m app.netcompact4d_geo_scale --max-sites "$MAX_SITES" --persist
+            else
+              python -m app.netcompact4d_geo_scale --max-sites "$MAX_SITES"
+            fi
           else
-            python -m app.netcompact4b_geo_batch --manifest data/netcompact4b_approved_25.json --max-sites "$MAX_SITES"
+            if [ "$PERSIST_CANDIDATES" = "true" ]; then
+              python -m app.netcompact4b_geo_batch --manifest data/netcompact4b_approved_25.json --max-sites "$MAX_SITES" --persist
+            else
+              python -m app.netcompact4b_geo_batch --manifest data/netcompact4b_approved_25.json --max-sites "$MAX_SITES"
+            fi
           fi
