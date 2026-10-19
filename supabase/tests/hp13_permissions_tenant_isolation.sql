@@ -254,7 +254,9 @@ select pg_temp.hp13_assert(
         -- NET-CONNECT2F: own-organization aggregate with approved-claim public-product overlap.
         'netconnect2f_intelligence',
         -- NET-PROFILE1D: vetted evidence only, tenant-gated by Free/Pro access.
-        'netprofile1d_profile_evidence'
+        'netprofile1d_profile_evidence',
+        -- NET-UX COMPACT4: read only sourced published/suggested geography, active organization guard.
+        'netcompact4_geo_overlay'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
