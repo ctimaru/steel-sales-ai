@@ -65,6 +65,7 @@ begin
       'canonical_published',count(*) filter (where kind='canonical'),
       'discovered',count(*) filter (where kind='discovered'),
       'geographic_source_coverage',count(*) filter (where geo_published or geo_candidate),
+      'geographic_conflicted',(select count(distinct g.company_id) from public.network_it_geo_evidence_candidates g where g.status='conflict'),
       'geographic_published',count(*) filter (where geo_published),
       'geographic_candidate_only',count(*) filter (where geo_candidate and not geo_published),
       'capability_published',count(*) filter (where capability_published),
@@ -89,12 +90,17 @@ begin
       lower(regexp_replace(coalesce(e.company_domain,''),'^www[.]','')) domain_norm,
       lower(regexp_replace(split_part(coalesce(e.website_url,''),'/',3),'^www[.]','')) site_host,
       case when e.kind='canonical' then exists(
-        select 1 from public.network_it_geo_evidence_candidates g where g.company_id=e.id)
+        select 1 from public.network_it_geo_evidence_candidates g where g.company_id=e.id
+          and g.status in ('pending_review','approved','source_observed'))
         or exists(select 1 from public.network_facilities f where f.company_id=e.id
           and f.publication_status='published' and f.archived_at is null
           and f.country_code='IT' and nullif(btrim(f.city),'') is not null)
         else exists(select 1 from public.network_neteima2_provisional_geo g where g.target_id=e.id)
       end has_geo,
+      case when e.kind='canonical' then exists(
+        select 1 from public.network_it_geo_evidence_candidates g
+        where g.company_id=e.id and g.status='conflict')
+        else false end geo_conflict,
       exists(select 1 from private.network_company_enrichment n
         where ((e.kind='canonical' and n.canonical_company_id=e.id)
             or (e.kind='discovered' and n.discovered_record_id=e.id))
@@ -116,7 +122,7 @@ begin
     'company_id',id,'kind',kind,'name',name,'domain',domain_norm,
     'site',case when site_candidate then website_url else null end,
     'source_type',source_type,
-    'geo_status',case when has_geo then 'evidence_present_or_published' else 'unknown' end,
+    'geo_status',case when has_geo then 'evidence_present_or_published' when geo_conflict then 'conflict_manual_review' else 'unknown' end,
     'capability_status',case when has_technical_evidence then 'evidence_candidate_or_accepted' else 'unknown' end,
     'source_identity_status',case when site_candidate then 'site_domain_matches_unconfirmed_identity'
           when domain_appearances>1 then 'shared_domain_identity_review'
