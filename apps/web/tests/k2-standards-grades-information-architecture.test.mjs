@@ -4,6 +4,7 @@ import test from "node:test";
 
 const routes = fs.readFileSync(new URL("../lib/routes.ts", import.meta.url), "utf8");
 const home = fs.readFileSync(new URL("../app/(public)/knowledge/page.tsx", import.meta.url), "utf8");
+const sharedSchool = fs.readFileSync(new URL("../components/school-unified-experience.tsx", import.meta.url), "utf8");
 const standardsIndex = fs.readFileSync(new URL("../app/(public)/knowledge/norme/page.tsx", import.meta.url), "utf8");
 const standardDetail = fs.readFileSync(new URL("../app/(public)/knowledge/norme/[slug]/page.tsx", import.meta.url), "utf8");
 const gradesIndex = fs.readFileSync(new URL("../app/(public)/knowledge/gradi/page.tsx", import.meta.url), "utf8");
@@ -17,8 +18,9 @@ test("K2 defines stable public URL families for standards and grades", () => {
   assert.match(routes, /standard: \(slug: string\) =>/);
   assert.match(routes, /grades: "\/knowledge\/gradi"/);
   assert.match(routes, /grade: \(slug: string\) =>/);
-  assert.match(home, /href: "\/knowledge\/norme"/);
-  assert.match(home, /href: "\/knowledge\/gradi"/);
+  assert.match(home, /SchoolJourney locale="it"/);
+  assert.match(sharedSchool, /href:"\/knowledge\/norme"/);
+  assert.match(sharedSchool, /href:"\/knowledge\/gradi"/);
 });
 
 test("K2 indexes are useful without exposing internal catalog state", () => {

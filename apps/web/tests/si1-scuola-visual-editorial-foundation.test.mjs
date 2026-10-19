@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
+const sharedSchool = fs.readFileSync(new URL("../components/school-unified-experience.tsx", import.meta.url), "utf8");
 const layout = fs.readFileSync(new URL("../app/(public)/knowledge/layout.tsx", import.meta.url), "utf8");
 const home = fs.readFileSync(new URL("../app/(public)/knowledge/page.tsx", import.meta.url), "utf8");
 const standards = fs.readFileSync(new URL("../app/(public)/knowledge/norme/page.tsx", import.meta.url), "utf8");
@@ -46,7 +47,8 @@ test("SI1 centralizes high-contrast primary and secondary Scuola actions", () =>
 test("SI2 exposes an editorial hub from desktop and mobile Scuola navigation", () => {
   assert.match(layout, /href="\/knowledge\/articoli"/);
   assert.match(layout, /\["\/knowledge\/articoli", "Articoli"\]/);
-  assert.match(home, /href: "\/knowledge\/articoli"/);
+  assert.match(home, /SchoolJourney locale="it"/);
+  assert.match(sharedSchool, /href:"\/knowledge\/articoli"/);
   assert.match(home, /schoolArticles\.slice\(0, 3\)/);
   assert.match(articlesIndex, /Biblioteca editoriale/);
 });

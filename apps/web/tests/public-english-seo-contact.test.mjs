@@ -25,7 +25,9 @@ test("English knowledge and network pages are independently indexable", () => {
   assert.match(englishKnowledge, /it: absoluteUrl\("\/knowledge"\)/);
   assert.match(englishNetwork, /canonical: absoluteUrl\("\/en\/network"\)/);
   assert.match(sitemap, /url: absoluteUrl\("\/en"\)/);
-  assert.match(sitemap, /url: absoluteUrl\("\/en\/knowledge"\)/);
+  assert.match(sitemap, /url: absoluteUrl\(locale==="it"\?"\/knowledge":/);
+  assert.match(sitemap, /en: absoluteUrl\("\/en\/knowledge"\)/);
+  assert.match(sitemap, /de: absoluteUrl\("\/de\/knowledge"\)/);
   assert.match(sitemap, /url: absoluteUrl\("\/en\/network"\)/);
   assert.ok(robots.includes('allow: ["/", "/azienda", "/knowledge", "/knowledge/"]'));
   assert.ok(!robots.includes('"/en",'));

@@ -14,7 +14,8 @@ const runbook = read("../../../docs/quality/i18n4-international-seo-acceptance.m
 test("I18N4 repairs missing Italian Knowledge reciprocal page metadata, not just sitemap", () => {
   assert.match(italian, /canonical: absoluteUrl\("\/knowledge"\)/);
   assert.match(italian, /languages:\s*\{\s*it: absoluteUrl\("\/knowledge"\),\s*en: absoluteUrl\("\/en\/knowledge"\)/);
-  assert.match(italian, /PublicLanguageSwitch locale="it"/);
+  assert.match(italian, /SchoolPageLanguageSelector locale="it"/);
+  assert.match(italian, /de: absoluteUrl\("\/de\/knowledge"\)/);
   assert.match(english, /it: absoluteUrl\("\/knowledge"\)/);
   assert.match(sitemap, /en: absoluteUrl\("\/en\/knowledge"\)/);
 });
