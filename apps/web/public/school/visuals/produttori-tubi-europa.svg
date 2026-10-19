@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="art-title art-desc"><title id="art-title">Filiera dei tubi in Europa</title><desc id="art-desc">Diagramma astratto della filiera produttiva; le posizioni non indicano siti o aziende reali.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eff8f3"/><stop offset="1" stop-color="#cfe8dc"/></linearGradient><linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#92b9a6"/><stop offset="1" stop-color="#275a4a"/></linearGradient><pattern id="grid" width="56" height="56" patternUnits="userSpaceOnUse"><path d="M56 0H0V56" stroke="#95b5a5" stroke-width="1" fill="none" opacity=".27"/></pattern></defs>
+<rect width="1200" height="675" fill="url(#bg)"/><rect width="1200" height="675" fill="url(#grid)"/>
+<path d="M0 582H1200" stroke="#9ac4b0" stroke-width="2"/><text x="70" y="79" font-size="21" font-family="Arial,sans-serif" font-weight="700" letter-spacing="3" fill="#1b5544">SMART STEEL SCHOOL</text>
+
+<text x="70" y="150" fill="#123d34" font-family="Arial,sans-serif" font-size="44" font-weight="700">LA FILIERA DEI TUBI IN EUROPA</text>
+<g stroke="#4b9979" stroke-width="10" fill="none" stroke-linecap="round" opacity=".6">
+<path d="M235 358L545 245L885 330L1028 485L625 492Z"/><path d="M545 245L625 492"/><path d="M235 358L625 492"/><path d="M885 330L625 492"/>
+</g>
+<g>
+ <circle cx="235" cy="358" r="95" fill="#3c8267" stroke="#164c39" stroke-width="9"/><circle cx="235" cy="358" r="63" fill="#e8f6ed" stroke="#164c39" stroke-width="9"/>
+ <rect x="478" y="178" width="134" height="134" rx="13" fill="url(#steel)" stroke="#184b38" stroke-width="9"/><rect x="507" y="207" width="76" height="76" rx="4" fill="#edf9f1" stroke="#184b38" stroke-width="6"/>
+ <rect x="780" y="263" width="202" height="134" rx="16" fill="url(#steel)" stroke="#184b38" stroke-width="9"/><rect x="814" y="292" width="134" height="76" rx="5" fill="#edf9f1" stroke="#184b38" stroke-width="6"/>
+ <circle cx="625" cy="492" r="58" fill="#2e775b" stroke="#184b38" stroke-width="8"/><circle cx="625" cy="492" r="37" fill="#e8f6ed" stroke="#184b38" stroke-width="6"/>
+ <circle cx="1028" cy="485" r="46" fill="#5d9d7e" stroke="#164b39" stroke-width="7"/><circle cx="1028" cy="485" r="27" fill="#e8f6ed" stroke="#164b39" stroke-width="5"/>
+</g>
+<text x="72" y="623" font-family="Arial,sans-serif" font-size="18" fill="#416d58">RELAZIONI CONCETTUALI • NESSUNA LOCALIZZAZIONE REALE</text>
+
+</svg>

@@ -51,6 +51,7 @@ export type SchoolArticle = {
   keywords: string[];
   about: string[];
   relatedArticleSlugs: string[];
+  visual: { src: string; alt: string; caption: string };
   timeline?: SchoolArticleTimelineItem[];
   processFlows?: SchoolArticleProcessFlow[];
   comparison?: SchoolArticleComparisonRow[];
@@ -62,6 +63,7 @@ export type SchoolArticle = {
 export const schoolArticles: SchoolArticle[] = [
   {
     slug: "storia-tubi-acciaio",
+    visual: {"src":"/school/visuals/storia-tubi-acciaio.svg","alt":"Illustrazione tecnica della storia delle condotte: da una tubazione antica al tubo industriale e a una sezione moderna senza saldatura.","caption":"Evoluzione illustrativa dei tubi; non è un disegno costruttivo né una scala cronologica completa."},
     category: "Storia",
     title: "Quando sono nati i tubi? Dalle condotte antiche al tubo d’acciaio moderno",
     description:
@@ -178,6 +180,7 @@ export const schoolArticles: SchoolArticle[] = [
   },
   {
     slug: "produttori-tubi-europa",
+    visual: {"src":"/school/visuals/produttori-tubi-europa.svg","alt":"Schema astratto di una filiera europea dei tubi con sezioni circolari, quadre e rettangolari collegate tra loro.","caption":"Schema concettuale della filiera, non rappresenta sedi, ubicazioni o capacità produttive reali."},
     category: "Industria",
     title: "Chi produce tubi in Europa? Una mappa dei principali gruppi industriali",
     description:
@@ -294,6 +297,7 @@ export const schoolArticles: SchoolArticle[] = [
   },
   {
     slug: "come-si-producono-tubi-acciaio",
+    visual: {"src":"/school/visuals/come-si-producono-tubi-acciaio.svg","alt":"Diagramma illustrativo di due processi: tubo saldato ottenuto dalla formatura del nastro e tubo seamless ottenuto da un pieno forato.","caption":"Schemi semplificati delle route saldata e seamless; verifiche e fasi reali variano secondo impianto e prodotto."},
     category: "Tecnologia",
     title: "Come si producono i tubi d’acciaio? Saldati, seamless e trafilati a freddo",
     description:
