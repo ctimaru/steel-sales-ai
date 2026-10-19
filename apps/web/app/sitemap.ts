@@ -9,6 +9,7 @@ import {
 } from "@/lib/public-knowledge";
 import { schoolArticles } from "@/lib/school-articles";
 import { englishGradeForSlug, englishStandardForSlug } from "@/lib/international-steel-knowledge";
+import {localizedKnowledgeGuide,localizedKnowledgePath,MARKET_TECHNICAL_RECORDS} from "@/lib/localized-steel-knowledge";
 import { listPublicPriceLists } from "@/lib/public-price-lists";
 import { finalizePublicSitemap, newestDate } from "@/lib/seo";
 import { MARKET_GUIDE_ROUTES } from "@/lib/calculator-market-editorial";
@@ -148,6 +149,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       alternates: { languages: {
         it: absoluteUrl("/knowledge/norme"),
         en: absoluteUrl("/en/knowledge/standards"),
+        de: absoluteUrl("/de/knowledge/standards"),
+        fr: absoluteUrl("/fr/knowledge/standards"),
+        es: absoluteUrl("/es/knowledge/standards"),
       } },
     },
     {
@@ -158,6 +162,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       alternates: { languages: {
         it: absoluteUrl("/knowledge/norme"),
         en: absoluteUrl("/en/knowledge/standards"),
+        de: absoluteUrl("/de/knowledge/standards"),
+        fr: absoluteUrl("/fr/knowledge/standards"),
+        es: absoluteUrl("/es/knowledge/standards"),
       } },
     },
     {
@@ -168,6 +175,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       alternates: { languages: {
         it: absoluteUrl("/knowledge/gradi"),
         en: absoluteUrl("/en/knowledge/grades"),
+        de: absoluteUrl("/de/knowledge/grades"),
+        fr: absoluteUrl("/fr/knowledge/grades"),
+        es: absoluteUrl("/es/knowledge/grades"),
       } },
     },
     {
@@ -178,8 +188,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       alternates: { languages: {
         it: absoluteUrl("/knowledge/gradi"),
         en: absoluteUrl("/en/knowledge/grades"),
+        de: absoluteUrl("/de/knowledge/grades"),
+        fr: absoluteUrl("/fr/knowledge/grades"),
+        es: absoluteUrl("/es/knowledge/grades"),
       } },
     },
+    ...(["de","fr","es"] as const).flatMap(locale=>(["standards","grades"] as const).map(kind=>({
+      url:absoluteUrl(localizedKnowledgePath(locale,kind)),
+      lastModified:kind==="standards"?standardsLastModified:gradesLastModified,
+      changeFrequency:"weekly" as const, priority:0.79,
+      alternates:{languages:{
+        it:absoluteUrl(kind==="standards"?"/knowledge/norme":"/knowledge/gradi"),
+        en:absoluteUrl(kind==="standards"?"/en/knowledge/standards":"/en/knowledge/grades"),
+        de:absoluteUrl(localizedKnowledgePath("de",kind)),
+        fr:absoluteUrl(localizedKnowledgePath("fr",kind)),
+        es:absoluteUrl(localizedKnowledgePath("es",kind)),
+      }},
+    }))),
     {
       url: absoluteUrl("/knowledge/tubes"),
       lastModified: tubesLastModified,
@@ -323,6 +348,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ? { alternates: { languages: {
           it: absoluteUrl(`/knowledge/norme/${standard.slug}`),
           en: absoluteUrl(`/en/knowledge/standards/${standard.slug}`),
+          ...(localizedKnowledgeGuide("de","standards",standard.slug)?{
+            de:absoluteUrl(localizedKnowledgePath("de","standards",standard.slug)),
+            fr:absoluteUrl(localizedKnowledgePath("fr","standards",standard.slug)),
+            es:absoluteUrl(localizedKnowledgePath("es","standards",standard.slug)),
+          }:{}),
         } } }
       : {}),
   }));
@@ -337,6 +367,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       alternates: { languages: {
         it: absoluteUrl(`/knowledge/norme/${standard.slug}`),
         en: absoluteUrl(`/en/knowledge/standards/${standard.slug}`),
+          ...(localizedKnowledgeGuide("de","standards",standard.slug)?{
+            de:absoluteUrl(localizedKnowledgePath("de","standards",standard.slug)),
+            fr:absoluteUrl(localizedKnowledgePath("fr","standards",standard.slug)),
+            es:absoluteUrl(localizedKnowledgePath("es","standards",standard.slug)),
+          }:{}),
       } },
     }));
 
@@ -349,6 +384,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ? { alternates: { languages: {
           it: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
           en: absoluteUrl(`/en/knowledge/grades/${grade.slug}`),
+          ...(localizedKnowledgeGuide("de","grades",grade.slug)?{
+            de:absoluteUrl(localizedKnowledgePath("de","grades",grade.slug)),
+            fr:absoluteUrl(localizedKnowledgePath("fr","grades",grade.slug)),
+            es:absoluteUrl(localizedKnowledgePath("es","grades",grade.slug)),
+          }:{}),
         } } }
       : {}),
   }));
@@ -363,7 +403,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       alternates: { languages: {
         it: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
         en: absoluteUrl(`/en/knowledge/grades/${grade.slug}`),
+          ...(localizedKnowledgeGuide("de","grades",grade.slug)?{
+            de:absoluteUrl(localizedKnowledgePath("de","grades",grade.slug)),
+            fr:absoluteUrl(localizedKnowledgePath("fr","grades",grade.slug)),
+            es:absoluteUrl(localizedKnowledgePath("es","grades",grade.slug)),
+          }:{}),
       } },
+    }));
+
+  const newInternationalEntries:MetadataRoute.Sitemap = (["de","fr","es"] as const).flatMap(locale=>
+    (["standards","grades"] as const).flatMap(kind=>{
+      const published=kind==="standards"?standards:grades;
+      const publishedBySlug=new Map(published.map(x=>[x.slug,x]));
+      return MARKET_TECHNICAL_RECORDS[locale][kind].flatMap(x=>{
+        const record=publishedBySlug.get(x.slug);
+        if(!record)return[];
+        return [{
+          url:absoluteUrl(localizedKnowledgePath(locale,kind,x.slug)),
+          lastModified:new Date(record.last_reviewed_at+"T00:00:00Z"),
+          changeFrequency:"monthly" as const,priority:0.77,
+          alternates:{languages:{
+            it:absoluteUrl((kind==="standards"?"/knowledge/norme/":"/knowledge/gradi/")+x.slug),
+            en:absoluteUrl((kind==="standards"?"/en/knowledge/standards/":"/en/knowledge/grades/")+x.slug),
+            de:absoluteUrl(localizedKnowledgePath("de",kind,x.slug)),
+            fr:absoluteUrl(localizedKnowledgePath("fr",kind,x.slug)),
+            es:absoluteUrl(localizedKnowledgePath("es",kind,x.slug)),
+          }},
+        }];
+      });
     }));
 
   const familyHubEntries: MetadataRoute.Sitemap = familyHubs.map((hub) => ({
@@ -406,6 +473,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...englishStandardEntries,
     ...gradeEntries,
     ...englishGradeEntries,
+    ...newInternationalEntries,
     ...familyHubEntries,
     ...sizeHubEntries,
     ...dimensionEntries,

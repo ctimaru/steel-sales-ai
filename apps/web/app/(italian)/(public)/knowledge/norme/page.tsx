@@ -16,7 +16,11 @@ const baseMetadata: Metadata = {
     "Catalogo pubblico delle principali norme per tubi e acciaio: EN 10210, EN 10219, EN 10216, EN 10217, EN 10224 e altre guide tecniche.",
   alternates: {
     canonical: absoluteUrl("/knowledge/norme"),
-    languages: { it: absoluteUrl("/knowledge/norme"), en: absoluteUrl("/en/knowledge/standards") },
+    languages: {
+      it: absoluteUrl("/knowledge/norme"),en: absoluteUrl("/en/knowledge/standards"),
+      de: absoluteUrl("/de/knowledge/standards"),fr: absoluteUrl("/fr/knowledge/standards"),
+      es: absoluteUrl("/es/knowledge/standards"),
+    },
   },
   openGraph: {
     title: "Norme per tubi e acciaio · Scuola Smart Steel Sales",

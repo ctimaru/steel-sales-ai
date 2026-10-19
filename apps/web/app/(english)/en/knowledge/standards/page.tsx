@@ -18,7 +18,11 @@ const baseMetadata: Metadata = {
   description: copy.description,
   alternates: {
     canonical: absoluteUrl(canonical),
-    languages: { it: absoluteUrl("/knowledge/norme"), en: absoluteUrl(canonical) },
+    languages: {
+      it: absoluteUrl("/knowledge/norme"),en: absoluteUrl("/en/knowledge/standards"),
+      de: absoluteUrl("/de/knowledge/standards"),fr: absoluteUrl("/fr/knowledge/standards"),
+      es: absoluteUrl("/es/knowledge/standards"),
+    },
   },
   openGraph: {
     title: copy.title,

@@ -4,6 +4,7 @@ import { MARKET_GUIDE_ROUTES } from "@/lib/calculator-market-editorial";
 import { MARKET_TOPIC_ROUTES } from "@/lib/calculator-topic-clusters";
 import { SCHOOL_HUB_ROUTES } from "@/lib/school-locales";
 import { schoolWorkspaceHref } from "@/lib/school-workspace-i18n";
+import {localizedKnowledgePath} from "@/lib/localized-steel-knowledge";
 
 type Scope = "public"|"workspace";
 /** Preserve consent-aware School → calculator funnel attribution on public entry. */
@@ -76,6 +77,8 @@ function schoolNavigationItems(locale:CalculatorSiteLocale,scope:Scope){
     {label:t.standards,href:"/en/knowledge/standards"},
     {label:t.grades,href:"/en/knowledge/grades"},
   ]:[
+    {label:t.standards,href:localizedKnowledgePath(locale,"standards")},
+    {label:t.grades,href:localizedKnowledgePath(locale,"grades")},
     {label:t.guides,href:MARKET_GUIDE_ROUTES[locale]},
     {label:t.topics,href:MARKET_TOPIC_ROUTES[locale]},
   ];

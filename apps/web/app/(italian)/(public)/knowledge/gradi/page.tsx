@@ -16,7 +16,11 @@ const baseMetadata: Metadata = {
     "Catalogo pubblico dei principali gradi di acciaio per tubi e profilati: P235GH, P265GH, 16Mo3, P235TR1/TR2, P265TR1/TR2, S355J2H, S355NH e S355NLH.",
   alternates: {
     canonical: absoluteUrl("/knowledge/gradi"),
-    languages: { it: absoluteUrl("/knowledge/gradi"), en: absoluteUrl("/en/knowledge/grades") },
+    languages: {
+      it: absoluteUrl("/knowledge/gradi"),en: absoluteUrl("/en/knowledge/grades"),
+      de: absoluteUrl("/de/knowledge/grades"),fr: absoluteUrl("/fr/knowledge/grades"),
+      es: absoluteUrl("/es/knowledge/grades"),
+    },
   },
   openGraph: {
     title: "Gradi di acciaio e materiali · Scuola Smart Steel Sales",
