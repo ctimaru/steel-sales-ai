@@ -45,10 +45,10 @@ test("WC5 keeps the calculator discoverable from hero, header and Scuola section
 test("WC5 keeps Scuola discovery visible on desktop, mobile and Scuola home", () => {
   assert.match(schoolLayout, /source=school&surface=nav#calcolatore-pesi/);
   assert.match(schoolLayout, />\s*Calcolo pesi\s*</);
-  assert.match(schoolHome, /eyebrow: "Calcolatore"/);
-  assert.match(schoolHome, /status: "Utility"/);
+  assert.match(schoolHome, /Strumento principale/);
+  assert.match(schoolHome, /Calcola peso, barre e tonnellate/);
   assert.match(schoolHome, /source=school&surface=home_card#calcolatore-pesi/);
-  assert.match(schoolHome, /Calcola ora/);
+  assert.match(schoolHome, /Calcola e crea la distinta/);
 });
 
 test("WC5 calculator page validates discovery attribution and records the open", () => {

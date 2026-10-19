@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { FocusLink, FocusPage, FocusPanel } from "@/components/focus-ui";
+import { FocusPage } from "@/components/focus-ui";
 import { SchoolHero } from "@/components/school-ui";
 import { PublicLanguageSwitch } from "@/components/public-language-switch";
 import { schoolArticles } from "@/lib/school-articles";
@@ -24,107 +24,221 @@ export const metadata: Metadata = {
   },
 };
 
-const knowledgeAreas = [
+const discoveryPaths = [
   {
-    eyebrow: "Calcolatore",
-    title: "Calcola peso, barre e tonnellate",
-    description: "EN 10210, EN 10219 e calcolo libero con kg/m, peso barra e tonnellaggio.",
-    status: "Utility",
-    href: "/knowledge/tubes",
-  },
-  {
-    eyebrow: "Norme",
-    title: "Capire cosa disciplina ogni standard",
-    description: "Ambito, prodotti e collegamenti tecnici.",
-    status: "Catalogo",
+    label: "Norme",
+    title: "Norme tecniche",
+    description: "EN 10210, EN 10219 e altre specifiche: campo di applicazione e famiglie di prodotto.",
     href: "/knowledge/norme",
+    code: "EN",
   },
   {
-    eyebrow: "Gradi di acciaio",
-    title: "Leggere designazioni e materiali",
-    description: "Designazioni, materiali e norme collegate.",
-    status: "Catalogo",
+    label: "Materiali",
+    title: "Gradi di acciaio",
+    description: "P235TR2, P265GH, S355J2H: designazioni e riferimenti da confrontare.",
     href: "/knowledge/gradi",
+    code: "S355",
   },
   {
-    eyebrow: "Articoli",
-    title: "Storia, processi e industria",
-    description: "Approfondimenti originali sul settore steel e tube.",
-    status: "Editoriale",
+    label: "Guide",
+    title: "Processi e industria",
+    description: "Come si producono i tubi e come scegliere il riferimento tecnico da approfondire.",
     href: "/knowledge/articoli",
+    code: "HFI",
   },
 ] as const;
+
+/** Original decorative SVG: cross-sections are schematic, not dimensioned drawings. */
+function TubeSectionIllustration() {
+  return (
+    <div className="relative overflow-hidden rounded-3xl border border-[#c9dfd4] bg-[#e9f3ee] p-4 sm:p-5" aria-label="Illustrazione schematica di sezioni tubolari tonde, quadre e rettangolari">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-[#174b3c]">Geometrie dei tubi</p>
+        <span className="rounded-lg border border-[#bdd8c9] bg-white/90 px-2.5 py-1 font-mono text-[10px] font-semibold text-[#174b3c]">CHS / SHS / RHS</span>
+      </div>
+      <svg aria-hidden="true" focusable="false" viewBox="0 0 360 205" className="mt-3 h-auto w-full" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="schoolTubeSteel" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#cce5d8" />
+            <stop offset="1" stopColor="#80baa2" />
+          </linearGradient>
+        </defs>
+        <g stroke="#c9ded3" strokeWidth="1" opacity=".85">
+          <path d="M0 31H360M0 74H360M0 117H360M0 160H360" />
+          <path d="M40 0V205M100 0V205M160 0V205M220 0V205M280 0V205M340 0V205" />
+        </g>
+        <circle cx="73" cy="94" r="46" fill="url(#schoolTubeSteel)" stroke="#195845" strokeWidth="3" />
+        <circle cx="73" cy="94" r="30" fill="#edf6f1" stroke="#195845" strokeWidth="2" />
+        <rect x="147" y="51" width="87" height="87" rx="8" fill="url(#schoolTubeSteel)" stroke="#195845" strokeWidth="3" />
+        <rect x="161" y="65" width="59" height="59" rx="3" fill="#edf6f1" stroke="#195845" strokeWidth="2" />
+        <rect x="254" y="62" width="99" height="64" rx="7" fill="url(#schoolTubeSteel)" stroke="#195845" strokeWidth="3" />
+        <rect x="268" y="76" width="71" height="36" rx="2" fill="#edf6f1" stroke="#195845" strokeWidth="2" />
+        <g fill="#174b3c" fontSize="12" fontWeight="700" textAnchor="middle">
+          <text x="73" y="167">Tondo</text>
+          <text x="190" y="167">Quadro</text>
+          <text x="303" y="167">Rettangolare</text>
+        </g>
+      </svg>
+      <p className="mt-1 text-xs leading-5 text-[#405a4e]">Sezioni illustrative, non in scala. Calcola i valori inserendo norma e dimensioni reali.</p>
+    </div>
+  );
+}
 
 export default function KnowledgeHomePage() {
   return (
     <FocusPage className="px-4 py-7 sm:px-6 sm:py-9 lg:px-8">
-      <div className="mb-3 flex justify-end"><PublicLanguageSwitch locale="it" italianHref="/knowledge" englishHref="/en/knowledge" /></div>
-      <SchoolHero
-        eyebrow="Scuola"
-        title="Conoscenza tecnica per chi lavora con acciaio e tubi"
-        description={
-          <>
-            Parti dal problema tecnico: calcola un peso, poi approfondisci norma o grado. È consultabile senza account. La Scuola è
-            pubblica e separata dai dati commerciali privati delle aziende.
-          </>
-        }
-        badges={["Pubblico", "Pesi & dimensioni"]}
-        compact
-      />
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs font-semibold text-[#405a4e]">Risorse tecniche pubbliche · accesso gratuito</p>
+        <PublicLanguageSwitch locale="it" italianHref="/knowledge" englishHref="/en/knowledge" />
+      </div>
 
-      <FocusPanel>
-        <p className="app-kicker">Strumento principale</p>
-        <FocusLink
-          href={`${knowledgeAreas[0].href}?source=school&surface=home_card#calcolatore-pesi`}
-          title={knowledgeAreas[0].title}
-          description={knowledgeAreas[0].description}
-          meta={`${knowledgeAreas[0].eyebrow} · Calcola ora`}
-          primary
-        />
-
-        <div className="mt-5 grid gap-2 sm:grid-cols-3">
-          {knowledgeAreas.slice(1).map((area) => (
-            <FocusLink
-              key={area.href}
-              href={area.href}
-              title={area.eyebrow}
-              description={area.description}
-            />
-          ))}
+      <section className="grid items-center gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]" aria-label="Benvenuto nella Scuola">
+        <div>
+          <SchoolHero
+            eyebrow="Scuola Smart Steel Sales"
+            title="La tua officina tecnica per tubi e acciaio"
+            description={
+              <>
+                Parti dal problema concreto: calcola un peso, consulta una norma o un grado e approfondisci i processi produttivi.
+                La Scuola è consultabile senza account ed è separata dai dati commerciali privati delle aziende.
+              </>
+            }
+            badges={["Pubblica e gratuita", "Norme · Materiali · Calcoli"]}
+            compact
+          />
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Link href="/knowledge/tubes?source=school&surface=home_card#calcolatore-pesi" className="school-primary-action">
+              Apri il calcolatore <span aria-hidden="true" className="ml-2">↗</span>
+            </Link>
+            <Link href="#ricerca-tecnica" className="school-secondary-action">
+              Cerca norma o grado
+            </Link>
+          </div>
         </div>
-      </FocusPanel>
+        <TubeSectionIllustration />
+      </section>
 
-      <details className="rounded-2xl border border-[#dce2df] bg-white">
-        <summary className="cursor-pointer list-none px-5 py-4 text-sm font-semibold text-[#43524c]">
-          Approfondimenti editoriali
-          <span className="ml-2 text-xs font-normal text-[#7b8782]">· ultimi articoli</span>
-        </summary>
-        <div className="grid gap-3 border-t border-[#e7ece9] p-4 lg:grid-cols-3">
-          {schoolArticles.slice(0, 3).map((article) => (
-            <Link
-              key={article.slug}
-              href={`/knowledge/articoli/${article.slug}`}
-              className="rounded-xl border border-[#e2e7e4] bg-[#f8faf9] p-4 hover:border-[#b8d2c8]"
-            >
-              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">{article.category}</p>
-              <h2 className="mt-2 text-base font-semibold text-[#1d2824]">{article.title}</h2>
-              <p className="mt-2 line-clamp-3 text-sm leading-6 text-[#66736e]">{article.description}</p>
-              <p className="mt-3 text-xs font-semibold text-[#173f35]">{article.readMinutes} min · Leggi →</p>
+      <section id="strumenti" className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]" aria-labelledby="school-tools-heading">
+        <div className="school-card flex flex-col justify-between gap-5 border-[#b6d5c6] bg-[#f7faf8] p-5 sm:p-7">
+          <div>
+            <p className="school-kicker">Strumento principale</p>
+            <h2 id="school-tools-heading" className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824] sm:text-3xl">Calcola peso, barre e tonnellate</h2>
+            <p className="mt-3 max-w-xl text-sm leading-7 text-[#43554b]">
+              Tubi tondi, quadri e rettangolari. EN 10210, EN 10219 e geometria libera: passa dai kg/m alla distinta nello stesso flusso.
+            </p>
+          </div>
+          <div>
+            <div className="mb-4 grid grid-cols-3 gap-2">
+              {[
+                ["kg/m", "Massa lineare"],
+                ["Barre", "Lunghezza e quantità"],
+                ["t", "Tonnellaggio"],
+              ].map(([value, label]) => (
+                <div key={value} className="rounded-xl border border-[#d1dfd7] bg-white px-3 py-3">
+                  <p className="text-base font-bold text-[#184638]">{value}</p>
+                  <p className="mt-1 text-xs leading-4 text-[#506157]">{label}</p>
+                </div>
+              ))}
+            </div>
+            <Link href="/knowledge/tubes?source=school&surface=home_card#calcolatore-pesi" className="school-primary-action">
+              Calcola e crea la distinta <span aria-hidden="true" className="ml-2">→</span>
+            </Link>
+          </div>
+        </div>
+
+        <div id="ricerca-tecnica" className="school-card p-5 sm:p-7" aria-labelledby="school-search-heading">
+          <p className="school-kicker">Ricerca tecnica</p>
+          <h2 id="school-search-heading" className="mt-2 text-xl font-semibold text-[#1d2824]">Hai già una sigla?</h2>
+          <p className="mt-2 text-sm leading-6 text-[#506157]">Cerca direttamente nei cataloghi verificabili. Sono due ricerche distinte: scegli cosa vuoi consultare.</p>
+          <form action="/knowledge/norme" method="get" role="search" aria-label="Cerca norme tecniche" className="mt-5">
+            <label htmlFor="school-standard-q" className="block text-xs font-bold text-[#365247]">Norma tecnica</label>
+            <div className="mt-2 flex gap-2">
+              <input id="school-standard-q" name="q" type="search" required maxLength={64} placeholder="Es. EN 10219" className="min-h-11 min-w-0 flex-1 rounded-xl border border-[#b8cac0] bg-white px-3 text-sm text-[#1d2824] placeholder:text-[#66756c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]" />
+              <button type="submit" className="school-primary-action shrink-0">Cerca</button>
+            </div>
+          </form>
+          <form action="/knowledge/gradi" method="get" role="search" aria-label="Cerca gradi di acciaio" className="mt-4">
+            <label htmlFor="school-grade-q" className="block text-xs font-bold text-[#365247]">Grado di acciaio</label>
+            <div className="mt-2 flex gap-2">
+              <input id="school-grade-q" name="q" type="search" required maxLength={64} placeholder="Es. P235TR2" className="min-h-11 min-w-0 flex-1 rounded-xl border border-[#b8cac0] bg-white px-3 text-sm text-[#1d2824] placeholder:text-[#66756c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]" />
+              <button type="submit" className="school-secondary-action shrink-0">Cerca</button>
+            </div>
+          </form>
+          <div className="mt-5 flex flex-wrap gap-2" aria-label="Esempi di ricerche">
+            <Link href="/knowledge/norme?q=EN%2010210" className="rounded-lg border border-[#b8cac0] bg-[#f2f7f4] px-3 py-2 text-xs font-semibold text-[#184638] hover:bg-[#e5f0e9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">EN 10210 ↗</Link>
+            <Link href="/knowledge/gradi?q=S355J2H" className="rounded-lg border border-[#b8cac0] bg-[#f2f7f4] px-3 py-2 text-xs font-semibold text-[#184638] hover:bg-[#e5f0e9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">S355J2H ↗</Link>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="school-paths-heading">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="school-kicker">Esplora per argomento</p>
+            <h2 id="school-paths-heading" className="mt-1 text-2xl font-semibold text-[#1d2824]">Un percorso per ogni esigenza tecnica</h2>
+          </div>
+        </div>
+        <div className="grid gap-3 md:grid-cols-3">
+          {discoveryPaths.map((path) => (
+            <Link key={path.href} href={path.href} className="school-card group flex flex-col gap-3 p-5 transition hover:border-[#86b4a0] hover:bg-[#fbfdfc] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">
+              <div className="flex items-center justify-between">
+                <span className="school-kicker">{path.label}</span>
+                <span aria-hidden="true" className="rounded-lg bg-[#e5f0e9] px-2.5 py-1 font-mono text-xs font-bold text-[#184638]">{path.code}</span>
+              </div>
+              <h3 className="text-lg font-semibold text-[#1d2824]">{path.title}</h3>
+              <p className="flex-1 text-sm leading-6 text-[#506157]">{path.description}</p>
+              <span className="text-sm font-bold text-[#174b3c]">Esplora <span aria-hidden="true">→</span></span>
             </Link>
           ))}
         </div>
-      </details>
+      </section>
 
-      <details className="rounded-2xl border border-[#dce2df] bg-[#f7f9f8]">
-        <summary className="cursor-pointer list-none px-5 py-4 text-sm font-semibold text-[#43524c]">
-          Come leggere dati, calcoli e fonti
-        </summary>
-        <div className="border-t border-[#e2e7e4] px-5 py-4 text-sm leading-6 text-[#66736e]">
-          Le pagine distinguono spiegazioni editoriali, valori calcolati e riferimenti tecnici verificati.
-          La sezione tubi include cluster per famiglia, dimensione esterna e spessore. Il testo ufficiale
-          delle norme non viene riprodotto quando protetto da licenza o copyright.
+      <section id="approfondimenti" aria-labelledby="school-articles-heading">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="school-kicker">Biblioteca editoriale</p>
+            <h2 id="school-articles-heading" className="mt-1 text-2xl font-semibold text-[#1d2824]">Approfondimenti per comprendere l’industria</h2>
+            <p className="mt-2 text-sm leading-6 text-[#506157]">Storia, tecnologia e produzione: contenuti originali, con fonti e data di revisione.</p>
+          </div>
+          <Link href="/knowledge/articoli" className="school-secondary-action">Tutti gli articoli <span aria-hidden="true" className="ml-2">→</span></Link>
         </div>
-      </details>
+        <div className="grid gap-3 md:grid-cols-3">
+          {schoolArticles.slice(0, 3).map((article, index) => (
+            <Link
+              key={article.slug}
+              href={"/knowledge/articoli/" + article.slug}
+              className="school-card group flex h-full flex-col overflow-hidden transition hover:border-[#86b4a0] hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]"
+            >
+              <div className="flex items-center justify-between border-b border-[#dce9e1] bg-[#edf5f0] px-5 py-4">
+                <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-[#184638]">{article.category}</span>
+                <span aria-hidden="true" className="font-mono text-2xl font-semibold text-[#6a947e]">{String(index + 1).padStart(2, "0")}</span>
+              </div>
+              <div className="flex flex-1 flex-col p-5">
+                <h3 className="text-base font-semibold leading-6 text-[#1d2824]">{article.title}</h3>
+                <p className="mt-2 flex-1 text-sm leading-6 text-[#506157]">{article.description}</p>
+                <div className="mt-4 flex items-center justify-between gap-2 border-t border-[#e4eae6] pt-4">
+                  <span className="text-xs text-[#506157]">{article.readMinutes} min di lettura</span>
+                  <span className="text-xs font-bold text-[#174b3c]">Leggi <span aria-hidden="true">→</span></span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-[#d7e2db] bg-[#f5f8f6] px-5 py-4 sm:px-6" aria-labelledby="school-trust-heading">
+        <h2 id="school-trust-heading" className="text-sm font-bold text-[#294c3d]">Dati tecnici, formule e fonti: come interpretarli</h2>
+        <p className="mt-2 text-sm leading-6 text-[#506157]">
+          La Scuola distingue contenuti editoriali, valori calcolati e riferimenti pubblicati. Le sintesi non sostituiscono i testi ufficiali delle norme o le specifiche contrattuali applicabili.
+        </p>
+        <details className="mt-2 text-sm text-[#405a4e]">
+          <summary className="cursor-pointer py-2 font-semibold underline underline-offset-4">Consulta la metodologia</summary>
+          <p className="mt-2 leading-6">
+            La sezione tubi include cluster per famiglia, dimensione esterna e spessore. I riferimenti tecnici sono contestualizzati per norma e fonte; un peso pubblicato per tubi in pressione non certifica automaticamente un profilato strutturale.
+            I testi normativi protetti non vengono riprodotti. Consulta sempre le fonti e la data di revisione delle schede.
+          </p>
+        </details>
+      </section>
     </FocusPage>
   );
 }
