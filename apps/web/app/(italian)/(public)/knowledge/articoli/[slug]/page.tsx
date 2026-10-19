@@ -33,7 +33,7 @@ export async function generateMetadata({
       canonical: absoluteUrl(`/knowledge/articoli/${article.slug}`),
     },
     openGraph: {
-      images: [{ url: absoluteUrl(`/knowledge/articoli/${article.slug}/opengraph-image`), width: 1200, height: 630, alt: article.visual.alt }],
+      images: [{ url: absoluteUrl(`/api/school-og/${article.slug}`), width: 1200, height: 630, alt: article.visual.alt }],
       title: article.title,
       description: article.description,
       url: absoluteUrl(`/knowledge/articoli/${article.slug}`),
@@ -43,7 +43,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      images: [absoluteUrl(`/knowledge/articoli/${article.slug}/opengraph-image`)],
+      images: [absoluteUrl(`/api/school-og/${article.slug}`)],
     },
   };
 }
@@ -71,7 +71,7 @@ export default async function SchoolArticlePage({
     "@type": "Article",
     headline: article.title,
     description: article.description,
-    image: absoluteUrl(`/knowledge/articoli/${article.slug}/opengraph-image`),
+    image: absoluteUrl(`/api/school-og/${article.slug}`),
     datePublished: article.publishedAt,
     dateModified: article.lastReviewedAt,
     mainEntityOfPage: absoluteUrl(`/knowledge/articoli/${article.slug}`),

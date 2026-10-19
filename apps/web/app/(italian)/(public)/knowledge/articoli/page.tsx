@@ -19,7 +19,9 @@ export const metadata: Metadata = {
       "Storia, tecnologia e industria del tubo raccontate con fonti verificabili e collegamenti agli strumenti tecnici della Scuola.",
     url: absoluteUrl("/knowledge/articoli"),
     type: "website",
+    images: [{ url: absoluteUrl("/api/school-og"), width: 1200, height: 630, alt: "Scuola tecnica Smart Steel Sales" }],
   },
+  twitter: { card: "summary_large_image", images: [absoluteUrl("/api/school-og")] },
 };
 
 function formatDate(value: string) {
