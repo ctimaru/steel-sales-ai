@@ -54,9 +54,9 @@ test("COMMERCIAL-UNIFY2C routes only supported views to paged loader", () => {
 });
 
 test("COMMERCIAL-UNIFY2C keeps deep links, selected tab and current page", () => {
-  assert.match(worklist, /route\(view, query, item\.key, page\)/);
+  assert.match(worklist, /route\(view, query, item\.key, data\.paging\?\.page \?\? page, data\.paging\?\.currentCursor\)/);
   assert.match(worklist, /commercialPageHref\(view, query, page\)/);
-  assert.match(tabs, /operationsHref\(view, query, selected, option\.id, page\)/);
+  assert.match(tabs, /operationsHref\(view, query, selected, option\.id, page, cursor\)/);
   assert.match(tabs, /commercialPageHref\(view, query, page, selected\)/);
   assert.match(worklist, /page=\{page\}/);
 });

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { getOperationalEntityData } from "@/lib/commercial-data";
+import { isStreamView, mergedCommercialHref } from "@/lib/commercial-unified-streams";
 import { CommercialCampaignOperations, type CommercialOperationsTab } from "@/components/commercial-campaign-operations";
 import {
   commercialHref,
@@ -32,13 +33,14 @@ function itemType(item: UnifiedCommercialItem) {
   return "Distinta salvata";
 }
 
-function route(view: CommercialView, query: string, key: string, page: number) {
-  const href = page > 1 ? commercialPageHref(view, query, page, key) : commercialHref(view, query, key);
+function route(view: CommercialView, query: string, key: string, page: number, cursor?: string | null) {
+  const href = cursor && isStreamView(view) ? mergedCommercialHref(view, query, cursor, key) :
+    page > 1 ? commercialPageHref(view, query, page, key) : commercialHref(view, query, key);
   return href.replace("#commercial-worklist", "#commercial-detail");
 }
 
 async function SelectedDetail({
-  item, related, canWrite, tab, view, query, page,
+  item, related, canWrite, tab, view, query, page, cursor,
 }: {
   item: UnifiedCommercialItem;
   related: UnifiedCommercialItem[];
@@ -47,6 +49,7 @@ async function SelectedDetail({
   view: CommercialView;
   query: string;
   page: number;
+  cursor?: string | null;
 }) {
   const inboundKind = item.kind === "inbound-rfq" ? "rfq" :
     item.kind === "inbound-offer" ? "offer" :
@@ -132,6 +135,7 @@ async function SelectedDetail({
           view={view}
           query={query}
           page={page}
+          cursor={cursor}
         />
       ) : null}
       <div className="flex flex-wrap gap-2 border-t border-[var(--border)] pt-3">
@@ -197,7 +201,7 @@ export async function CommercialUnifiedWorklist({
       ) : null}
       {data.truncated ? (
         <p className="text-xs text-[var(--text-secondary)]">
-          Vista rapida delle attività più recenti, non archivio completo. Usa la ricerca nello storico per i record precedenti.
+          {data.paging ? "Hai raggiunto il limite di navigazione: restringi la ricerca per trovare altre attività." : "Vista rapida delle attività più recenti, non archivio completo. Usa la ricerca nello storico per i record precedenti."}
         </p>
       ) : null}
 
@@ -215,10 +219,18 @@ export async function CommercialUnifiedWorklist({
         {view !== "all" ? <input type="hidden" name="view" value={view} /> : null}
         <label htmlFor="commercial-worklist-q" className="sr-only">Filtra le attività visibili</label>
         <input id="commercial-worklist-q" type="search" name="q" maxLength={80} defaultValue={query}
-          placeholder="Filtra azienda, articolo o stato..."
+          placeholder={isStreamView(view) ? "Cerca titolo RFQ, stato o riferimento ordine..." : "Filtra azienda, articolo o stato..."}
           className="min-h-10 min-w-0 flex-1 rounded-lg border border-[var(--border-strong)] bg-white px-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]" />
         <button className="app-secondary min-h-10 rounded-lg px-4 text-xs font-semibold" type="submit">Filtra</button>
       </form>
+
+      {isStreamView(view) ? (
+        <p className="text-xs text-[var(--text-secondary)]">
+          Ricerca sui campi operativi di testata. Per clienti, articoli, misure e norme usa{" "}
+          <Link href={appRoutes.commercial.search + (query ? "?q=" + encodeURIComponent(query) : "")}
+            className="font-semibold text-[var(--brand-deep)] underline-offset-2 hover:underline">la ricerca nello storico commerciale →</Link>
+        </p>
+      ) : null}
 
       <div className={active ? (active.campaignId ? "grid min-w-0 gap-3" : "grid min-w-0 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]") : ""}>
         <div data-testid="commercial-list-pane" className={(active ? "hidden lg:block " : "") + "min-w-0 overflow-hidden rounded-xl border border-[var(--border)] bg-white"}>
@@ -231,7 +243,7 @@ export async function CommercialUnifiedWorklist({
           {filtered.length ? (
             <div className="max-h-[520px] divide-y divide-[var(--border)] overflow-y-auto">
               {filtered.map((item) => (
-                <Link key={item.key} href={route(view, query, item.key, page)}
+                <Link key={item.key} href={route(view, query, item.key, data.paging?.page ?? page, data.paging?.currentCursor)}
                   aria-current={item.key === active?.key ? "true" : undefined}
                   className={"flex min-h-16 items-start justify-between gap-2 p-3 transition hover:bg-[var(--brand-primary-soft)] " +
                     (item.key === active?.key ? "bg-[var(--brand-primary-soft)]" : "")}>
@@ -262,11 +274,11 @@ export async function CommercialUnifiedWorklist({
           {data.paging ? (
             <nav aria-label="Pagine attività commerciali" className="flex items-center justify-between gap-2 border-t border-[var(--border)] p-3">
               {data.paging.page > 1 ? (
-                <Link href={commercialPageHref(view, query, data.paging.page - 1)} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold">← Precedente</Link>
+                <Link href={isStreamView(view) ? mergedCommercialHref(view, query, data.paging.previousCursor ?? undefined) : commercialPageHref(view, query, data.paging.page - 1)} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold">← Precedente</Link>
               ) : <span />}
               <span className="text-xs tabular-nums text-[var(--text-secondary)]">Pagina {data.paging.page}</span>
               {data.paging.hasNext ? (
-                <Link href={commercialPageHref(view, query, data.paging.page + 1)} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold">Successiva →</Link>
+                <Link href={isStreamView(view) ? mergedCommercialHref(view, query, data.paging.nextCursor ?? undefined) : commercialPageHref(view, query, data.paging.page + 1)} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold">Successiva →</Link>
               ) : <span />}
             </nav>
           ) : null}
@@ -277,12 +289,12 @@ export async function CommercialUnifiedWorklist({
             className="scroll-mt-24 min-w-0 max-w-full rounded-xl border border-[var(--border-strong)] bg-white p-3 sm:scroll-mt-36 sm:p-5">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-[var(--brand-deep)]">Dettaglio nella stessa pagina</h3>
-              <Link href={commercialPageHref(view, query, page)} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold">
+              <Link href={isStreamView(view) ? mergedCommercialHref(view, query, data.paging?.currentCursor ?? undefined) : commercialPageHref(view, query, page)} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold">
                 Chiudi <span aria-hidden="true" className="ml-1">×</span>
               </Link>
             </div>
             <div className="min-w-0 max-w-full overflow-x-auto">
-              <SelectedDetail item={active} related={related} canWrite={canWrite} tab={tab} view={view} query={query} page={page} />
+              <SelectedDetail item={active} related={related} canWrite={canWrite} tab={tab} view={view} query={query} page={data.paging?.page ?? page} cursor={data.paging?.currentCursor} />
             </div>
           </aside>
         ) : selected ? (

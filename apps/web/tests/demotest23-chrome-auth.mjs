@@ -173,6 +173,24 @@ try {
         if (p.id === "buyerViewer") {
           assert.equal(await page.getByRole("link", { name: "+ Nuova distinta" }).count(), 0);
         } else {
+          // COMMERCIAL-UNIFY2C.2: every composed tab uses real, RLS-scoped
+          // stream pagination. An unavailable source must never masquerade
+          // as an empty company history.
+          for (const [tabLabel, expected] of [
+            ["Tutte", null],
+            ["Offerte", "offers"],
+            ["Ordini", "orders"],
+          ]) {
+            await worklist.getByRole("link", { name: tabLabel, exact: true }).click();
+            await page.waitForURL((url) => url.pathname === "/commercial" &&
+              url.searchParams.get("view") === expected, { timeout: 60000 });
+            await worklist.getByRole("navigation", { name: "Pagine attività commerciali" })
+              .getByText("Pagina 1", { exact: true }).waitFor({ state: "visible", timeout: 60000 });
+            assert.ok(!(await worklist.innerText()).includes("Alcuni dati commerciali e di acquisto non sono disponibili."),
+              tabLabel + " must not show an incomplete multi-source list");
+            assert.ok(!(await worklist.innerText()).includes("Il caricamento di alcune attività acquisti non è riuscito."),
+              tabLabel + " must not hide an error as an empty result");
+          }
           await navigate(page, "/commercial?view=sent&page=2");
           const pager = page.getByRole("navigation", { name: "Pagine attività commerciali" });
           await pager.getByRole("link", { name: "Precedente" }).click();
