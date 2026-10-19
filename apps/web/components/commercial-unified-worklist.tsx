@@ -4,6 +4,7 @@ import { getOperationalEntityData } from "@/lib/commercial-data";
 import { CommercialCampaignOperations, type CommercialOperationsTab } from "@/components/commercial-campaign-operations";
 import {
   commercialHref,
+  commercialPageHref,
   filterCommercialItems,
   type CommercialView,
   type UnifiedCommercialData,
@@ -31,12 +32,13 @@ function itemType(item: UnifiedCommercialItem) {
   return "Distinta salvata";
 }
 
-function route(view: CommercialView, query: string, key: string) {
-  return commercialHref(view, query, key).replace("#commercial-worklist", "#commercial-detail");
+function route(view: CommercialView, query: string, key: string, page: number) {
+  const href = page > 1 ? commercialPageHref(view, query, page, key) : commercialHref(view, query, key);
+  return href.replace("#commercial-worklist", "#commercial-detail");
 }
 
 async function SelectedDetail({
-  item, related, canWrite, tab, view, query,
+  item, related, canWrite, tab, view, query, page,
 }: {
   item: UnifiedCommercialItem;
   related: UnifiedCommercialItem[];
@@ -44,6 +46,7 @@ async function SelectedDetail({
   tab: CommercialOperationsTab;
   view: CommercialView;
   query: string;
+  page: number;
 }) {
   const inboundKind = item.kind === "inbound-rfq" ? "rfq" :
     item.kind === "inbound-offer" ? "offer" :
@@ -128,6 +131,7 @@ async function SelectedDetail({
           tab={tab}
           view={view}
           query={query}
+          page={page}
         />
       ) : null}
       <div className="flex flex-wrap gap-2 border-t border-[var(--border)] pt-3">
@@ -148,7 +152,7 @@ async function SelectedDetail({
 }
 
 export async function CommercialUnifiedWorklist({
-  data, selected, query, view, canWrite, tab,
+  data, selected, query, view, canWrite, tab, page,
 }: {
   data: UnifiedCommercialData;
   selected: string;
@@ -156,8 +160,10 @@ export async function CommercialUnifiedWorklist({
   view: CommercialView;
   canWrite: boolean;
   tab: CommercialOperationsTab;
+  page: number;
 }) {
-  const filtered = filterCommercialItems(data.items, view, query);
+  // Paged views have already been searched inside SQL/RPC.
+  const filtered = data.paging ? data.items : filterCommercialItems(data.items, view, query);
   const active = filtered.find((item) => item.key === selected) ?? null;
   const related = active?.campaignId
     ? data.items.filter((item) => item.campaignId === active.campaignId && item.key !== active.key)
@@ -186,6 +192,9 @@ export async function CommercialUnifiedWorklist({
           {" "}La lista potrebbe essere incompleta: nessun dato dimostrativo è presentato come reale.
         </p>
       ) : null}
+      {data.paging?.pageSize === 50 ? (
+        <p className="text-xs text-[var(--text-secondary)]">Le richieste cliente sono paginate per righe di origine; più righe possono riferirsi alla stessa richiesta.</p>
+      ) : null}
       {data.truncated ? (
         <p className="text-xs text-[var(--text-secondary)]">
           Vista rapida delle attività più recenti, non archivio completo. Usa la ricerca nello storico per i record precedenti.
@@ -212,15 +221,17 @@ export async function CommercialUnifiedWorklist({
       </form>
 
       <div className={active ? (active.campaignId ? "grid min-w-0 gap-3" : "grid min-w-0 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]") : ""}>
-        <div className="min-w-0 overflow-hidden rounded-xl border border-[var(--border)] bg-white">
+        <div className={(active ? "hidden lg:block " : "") + "min-w-0 overflow-hidden rounded-xl border border-[var(--border)] bg-white"}>
           <div className="flex items-center justify-between border-b border-[var(--border)] px-3 py-2.5">
             <p className="text-xs font-semibold text-[var(--brand-deep)]">Attività visibili</p>
-            <span className="text-xs tabular-nums text-[var(--text-secondary)]">{filtered.length}</span>
+            <span className="text-xs tabular-nums text-[var(--text-secondary)]">{data.paging?.exact && data.paging.total !== null
+              ? data.paging.total + " totali"
+              : filtered.length + " visualizzate"}</span>
           </div>
           {filtered.length ? (
             <div className="max-h-[520px] divide-y divide-[var(--border)] overflow-y-auto">
               {filtered.map((item) => (
-                <Link key={item.key} href={route(view, query, item.key)}
+                <Link key={item.key} href={route(view, query, item.key, page)}
                   aria-current={item.key === active?.key ? "true" : undefined}
                   className={"flex min-h-16 items-start justify-between gap-2 p-3 transition hover:bg-[var(--brand-primary-soft)] " +
                     (item.key === active?.key ? "bg-[var(--brand-primary-soft)]" : "")}>
@@ -248,18 +259,31 @@ export async function CommercialUnifiedWorklist({
               </Link> : null}
             </div>
           )}
+          {data.paging ? (
+            <nav aria-label="Pagine attività commerciali" className="flex items-center justify-between gap-2 border-t border-[var(--border)] p-3">
+              {data.paging.page > 1 ? (
+                <Link href={commercialPageHref(view, query, data.paging.page - 1)} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold">← Precedente</Link>
+              ) : <span />}
+              <span className="text-xs tabular-nums text-[var(--text-secondary)]">Pagina {data.paging.page}</span>
+              {data.paging.hasNext ? (
+                <Link href={commercialPageHref(view, query, data.paging.page + 1)} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold">Successiva →</Link>
+              ) : <span />}
+            </nav>
+          ) : null}
         </div>
 
         {active ? (
-          <aside id="commercial-detail" aria-label="Dettaglio attività selezionata"
-            className="scroll-mt-36 min-w-0 rounded-xl border border-[var(--border-strong)] bg-white p-4 sm:p-5">
+          <aside id="commercial-detail" aria-label="Dettaglio attività selezionata" tabIndex={-1}
+            className="scroll-mt-24 min-w-0 max-w-full rounded-xl border border-[var(--border-strong)] bg-white p-3 sm:scroll-mt-36 sm:p-5">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-[var(--brand-deep)]">Dettaglio nella stessa pagina</h3>
-              <Link href={commercialHref(view, query)} className="inline-flex min-h-10 items-center rounded-lg px-2 text-xs font-semibold text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]">
+              <Link href={commercialPageHref(view, query, page)} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold">
                 Chiudi <span aria-hidden="true" className="ml-1">×</span>
               </Link>
             </div>
-            <SelectedDetail item={active} related={related} canWrite={canWrite} tab={tab} view={view} query={query} />
+            <div className="min-w-0 max-w-full overflow-x-auto">
+              <SelectedDetail item={active} related={related} canWrite={canWrite} tab={tab} view={view} query={query} page={page} />
+            </div>
           </aside>
         ) : selected ? (
           <p role="status" className="rounded-lg border border-[var(--border)] bg-white p-4 text-xs text-[var(--text-secondary)]">
