@@ -131,7 +131,9 @@ export function SchoolGuidedAssistant({locale}:Props) {
               {turn.evidence.map(item=><div key={item.id} className="rounded-xl border border-[#dce8df] bg-[#f6faf7] p-3">
                 <h4 className="text-sm font-bold text-[#173f35]">{item.code} · {item.title}</h4>
                 <p className="mt-2 text-sm leading-6 text-[#475b50]">{item.summary}</p>
+                {item.rfqGuidance?<p className="mt-2 text-xs leading-5 text-[#476255]"><strong>RFQ:</strong> {item.rfqGuidance}</p>:null}
                 {item.caution?<p className="mt-2 text-xs leading-5 text-[#815128]">{item.caution}</p>:null}
+                {item.provenance?.k2LastReviewedAt?<p className="mt-2 text-[11px] font-medium text-[#52615b]">K2 · {item.provenance.k2LastReviewedAt}</p>:null}
                 <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
                   {item.citations.slice(0,3).map(source=><a key={source.url} href={source.url} target="_blank"
                     rel="noopener noreferrer" className="font-bold text-[#174b3c] underline underline-offset-4">
