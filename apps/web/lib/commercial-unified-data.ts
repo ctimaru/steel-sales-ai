@@ -26,6 +26,13 @@ export type UnifiedCommercialData = {
   inboundUnavailable: boolean;
   procurementUnavailable: boolean;
   truncated: boolean;
+  paging?: {
+    page: number;
+    pageSize: number;
+    total: number | null;
+    hasNext: boolean;
+    exact: boolean;
+  };
 };
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
