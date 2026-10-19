@@ -4,6 +4,7 @@ import {readFileSync} from "node:fs";
 
 const page=readFileSync(new URL("../components/network-compact-experience.tsx",import.meta.url),"utf8");
 const live=readFileSync(new URL("../components/network-live-search.tsx",import.meta.url),"utf8");
+const geo=readFileSync(new URL("../components/network-country-region-filters.tsx",import.meta.url),"utf8");
 
 test("COMPACT5 keeps the dashboard summary compact and free of filler metrics",()=>{
   assert.match(page,/aria-label="Statistiche Network"/);
@@ -16,9 +17,9 @@ test("COMPACT5 keeps the dashboard summary compact and free of filler metrics",(
 
 test("COMPACT5 places the region within the single filter form instead of a separate disclosure",()=>{
   assert.equal((page.match(/<form method="get" action="\/network"/g)||[]).length,1);
-  assert.equal((page.match(/name="region"/g)||[]).length,1);
-  assert.match(page,/name="region" aria-label="Regione" defaultValue=\{filters.region\|\|""\}/);
-  assert.match(page,/Tutte le regioni/);
+  assert.equal((geo.match(/name="region"/g)||[]).length,1);
+  assert.match(geo,/name="region" aria-label="Regione"/);
+  assert.match(geo,/Tutte le regioni/);
   assert.match(page,/xl:grid-cols-\[repeat\(5,minmax\(0,1fr\)\)_auto\]/);
   assert.match(page,/Applica filtri/);
   assert.doesNotMatch(page,/open=\{Boolean\(filters.region\)\}/);

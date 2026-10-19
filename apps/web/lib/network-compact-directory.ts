@@ -19,6 +19,15 @@ export type CompactNetworkPage={
   page:number;pages:number;first:number;last:number;discoveryUnavailable:boolean;
   technicalOnly?:boolean;capabilityLabels?:Record<string,string[]>;
 };
+/** Normalize URL-originated geographic facets before any Free/Pro data query.
+ * Region names here belong to Italy; never combine them with a foreign country.
+ */
+export function normalizeCompactGeoFilters(filters:CompactNetworkFilters):CompactNetworkFilters{
+  const requested=filters.country?.trim().toUpperCase();
+  const country=requested&&["IT","DE","FR","ES","US","GB","CH"].includes(requested)?requested:undefined;
+  return {...filters,country,region:country&&country!=="IT"?undefined:filters.region};
+}
+
 export type SourceWindow={start:number;end:number};
 
 export function compactSourceWindows(offset:number,count:number,published:number,discovered:number){
@@ -52,6 +61,7 @@ async function sourceSlice(
 export async function getCompactNetworkPage(
   organizationId:string,access:"free"|"pro",filters:CompactNetworkFilters,
 ):Promise<CompactNetworkPage>{
+  filters=normalizeCompactGeoFilters(filters);
   const technicalOnly=Boolean(filters.product||filters.capability||filters.market||
     (filters.country && filters.country.toUpperCase()!=="IT"));
   if(technicalOnly){

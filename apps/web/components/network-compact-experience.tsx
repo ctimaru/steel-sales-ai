@@ -1,4 +1,5 @@
 import {NetworkCountryFlag} from "@/components/network-country-flag";
+import {NetworkCountryRegionFilters} from "@/components/network-country-region-filters";
 import {NetworkLiveSearch} from "@/components/network-live-search";
 import Link from "next/link";
 import {safeNetworkWebsiteUrl, type FreeCompany} from "@/lib/network-free";
@@ -111,8 +112,9 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
       </p>:null}
     </div>
     <Link href={"/network/"+company.id}
-      className="ui-action ui-action-primary inline-flex min-h-10 w-full min-w-[112px] items-center justify-center whitespace-nowrap rounded-lg px-3 text-xs font-semibold">
-      Esplora azienda <span className="ml-1 hidden sm:inline" aria-hidden="true">→</span>
+      aria-label={"Apri profilo di "+name}
+      className="ui-action ui-action-primary inline-flex min-h-10 w-full min-w-[80px] sm:min-w-[112px] items-center justify-center whitespace-nowrap rounded-lg px-2 sm:px-3 text-xs font-semibold">
+      <span className="sm:hidden">Apri</span><span className="hidden sm:inline">Esplora azienda</span><span className="ml-1 hidden sm:inline" aria-hidden="true">→</span>
     </Link>
   </article>;
 }
@@ -121,12 +123,13 @@ export function NetworkCompactExperience({
   accessMode,directory,filters,coverage,provisionalCoverage,regions=[],additionalFilters,capabilityLabels={},
 }:Props){
   const filterActive=Boolean(filters.q||filters.role||filters.region||filters.product||filters.capability||filters.market||filters.country);
+  const italySelected=!filters.country||filters.country==="IT";
   const knownTotals=!directory.discoveryUnavailable;
   const technicalOnly=Boolean(directory.technicalOnly);
   const companyCount=directory.total;
   const listedLocationCount=directory.items.filter(company=>Boolean(company.location?.city||company.location?.region)).length;
   return <main className="mx-auto w-full max-w-[1560px] space-y-3 pb-8" data-testid="network-compact-experience">
-    <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_235px]">
+    <div className={italySelected?"grid gap-3 lg:grid-cols-[minmax(0,1fr)_235px]":"grid gap-3"}>
       <div className="min-w-0">
         <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
           <div>
@@ -149,12 +152,12 @@ export function NetworkCompactExperience({
           </div>)}
         </div>
       </div>
-      <div className="hidden lg:block [&_svg]:max-h-[112px] [&_section]:h-full [&_section]:px-3 [&_section]:py-2 [&_p:last-child]:hidden">
+{italySelected?<div className="hidden lg:block [&_svg]:max-h-[112px] [&_section]:h-full [&_section]:px-3 [&_section]:py-2 [&_p:last-child]:hidden">
         <NetworkMiniMap coverage={coverage} provisionalCoverage={provisionalCoverage}
           filters={filters} fullMapHref={accessMode==="pro"?"/network?advanced=1#network-regional-map":"/network?map=1#network-regional-map"}/>
-      </div>
+      </div>:null}
     </div>
-    <details className="rounded-xl border border-[#d8e5dd] bg-white lg:hidden" data-testid="network-compact-mobile-map">
+    {italySelected?<details className="rounded-xl border border-[#d8e5dd] bg-white lg:hidden" data-testid="network-compact-mobile-map">
       <summary className="cursor-pointer px-3 py-2 text-xs font-semibold text-[#175640] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
         Mappa delle aziende in Italia <span aria-hidden="true">⌄</span>
       </summary>
@@ -162,7 +165,7 @@ export function NetworkCompactExperience({
         <NetworkMiniMap coverage={coverage} provisionalCoverage={provisionalCoverage}
           filters={filters} fullMapHref={accessMode==="pro"?"/network?advanced=1#network-regional-map":"/network?map=1#network-regional-map"}/>
       </div>
-    </details>
+    </details>:null}
 
     <section aria-label="Ricerca e filtri delle aziende" className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-3 sm:p-4">
       <NetworkLiveSearch filters={filters}/>
@@ -199,27 +202,7 @@ export function NetworkCompactExperience({
               {group.options.map(option=><option key={option.canonical_key} value={option.canonical_key}>{option.display_name}</option>)}
             </select>
           </label>)}
-          <label className="min-w-0">
-            <span className="sr-only">Regione</span>
-            <select name="region" aria-label="Regione" defaultValue={filters.region||""}
-              className="h-10 w-full min-w-0 rounded-lg border border-[#b7cfc2] bg-white px-2.5 text-xs font-semibold text-[#173f35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
-              <option value="">Tutte le regioni</option>
-              {regions.map(item=><option key={item} value={item}>{item}</option>)}
-            </select>
-          </label>
-          <label className="min-w-0">
-            <span className="sr-only">Paese</span>
-            <select name="country" aria-label="Paese" defaultValue={filters.country||"IT"}
-              className="h-10 w-full min-w-0 rounded-lg border border-[#b7cfc2] bg-white px-2.5 text-xs font-semibold text-[#173f35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
-              <option value="IT">Italia</option>
-              <option value="DE">Germania</option>
-              <option value="FR">Francia</option>
-              <option value="ES">Spagna</option>
-              <option value="US">USA</option>
-              <option value="GB">Regno Unito</option>
-              <option value="CH">Svizzera</option>
-            </select>
-          </label>
+          <NetworkCountryRegionFilters key={(filters.country||"IT")+"|"+(filters.region||"")} country={filters.country||"IT"} region={filters.region||""} regions={regions}/>
           <button type="submit" className="ui-action ui-action-secondary col-span-2 inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold sm:col-span-1">Applica filtri</button>
         </form>
         {filterActive?<Link href="/network" className="ui-action ui-action-secondary inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold">Azzera filtri</Link>:null}
