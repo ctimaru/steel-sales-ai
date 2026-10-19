@@ -5,6 +5,11 @@ import { PilotEvent } from "@/components/pilot-event";
 import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
 import { Badge } from "@/components/ui/badge";
 import { getDashboardData } from "@/lib/commercial-data";
+import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
+import { CommercialUnifiedWorklist } from "@/components/commercial-unified-worklist";
+import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
+import { loadUnifiedCommercialData, type CommercialView } from "@/lib/commercial-unified-data";
+import { listBuyerDistintaPublicDimensions } from "@/lib/public-knowledge";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { createClient } from "@/lib/supabase/server";
@@ -68,16 +73,28 @@ const intelligenceGroups = [
   },
 ] as const;
 
-export default async function CommercialHomePage() {
+export default async function CommercialHomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string }>;
+}) {
+  const params = await searchParams;
   const context = await getWorkspaceContext();
   const canWrite = canWriteWorkspace(context.role);
   const networkAvailable = isNetworkFrontendEnabled();
-  const [commercial, procurement] = await Promise.all([
+  const allowedViews: CommercialView[] = ["all", "received", "sent", "offers", "orders", "drafts"];
+  const view: CommercialView = allowedViews.includes(params.view as CommercialView) ? params.view as CommercialView : "all";
+  const query = typeof params.q === "string" ? params.q.trim().slice(0, 80) : "";
+  const selected = typeof params.item === "string" ? params.item.slice(0, 90) : "";
+  const composing = canWrite && params.compose === "1";
+  const [commercial, procurement, unified, catalogOptions] = await Promise.all([
     getDashboardData(),
     canWrite
       ? createClient().then((db) => db.rpc("rfqh10_procurement_inbox", { p_limit: 4 }))
           .catch(() => ({ data: null, error: true }))
       : Promise.resolve({ data: null, error: null }),
+    loadUnifiedCommercialData(context.organizationId),
+    composing ? listBuyerDistintaPublicDimensions().then(buildBuyerDistintaCatalogOptions) : Promise.resolve(null),
   ]);
   const { recent, mode, operational } = commercial;
   // Procurement is a distinct tenant-owned lifecycle; never mix its active
@@ -102,7 +119,7 @@ export default async function CommercialHomePage() {
   ];
 
   return (
-    <FocusPage className="max-w-[1120px]">
+    <FocusPage className="max-w-[1280px]">
       <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
       <FocusHeader
         eyebrow="Commerciale"
@@ -129,11 +146,11 @@ export default async function CommercialHomePage() {
           <p className="mt-1 text-sm text-[#d6e9dd]">Dalla distinta all’offerta, con le aziende giuste.</p>
           <div className="mt-4 flex flex-wrap gap-2">
             {canWrite ? (
-              <Link href={appRoutes.rfqHub.createDistinta} className="inline-flex min-h-10 items-center rounded-lg bg-white px-3 text-sm font-semibold text-[#173f35] hover:bg-[#e7f3eb] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+              <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"} className="inline-flex min-h-10 items-center rounded-lg bg-white px-3 text-sm font-semibold text-[#173f35] hover:bg-[#e7f3eb] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
                 + Nuova richiesta
               </Link>
             ) : null}
-            <Link href={appRoutes.rfqHub.home} className="inline-flex min-h-10 items-center rounded-lg border border-[#9fcdb6] px-3 text-sm font-semibold text-white hover:bg-[#275a49] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+            <Link href={appRoutes.commercial.home + "#commercial-worklist"} className="inline-flex min-h-10 items-center rounded-lg border border-[#9fcdb6] px-3 text-sm font-semibold text-white hover:bg-[#275a49] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
               RFQ e offerte →
             </Link>
             {networkAvailable ? (
@@ -166,6 +183,40 @@ export default async function CommercialHomePage() {
         </div>
       </section>
 
+      {composing && catalogOptions ? (
+        <section id="commercial-compose" aria-labelledby="commercial-compose-heading" className="scroll-mt-36 space-y-3 rounded-2xl border border-[var(--border-strong)] bg-white p-3 sm:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--brand-primary)]">La tua nuova richiesta</p>
+              <h2 id="commercial-compose-heading" className="text-lg font-semibold text-[var(--brand-deep)]">Crea distinta e RFQ senza lasciare Commerciale</h2>
+              <p className="mt-1 text-xs text-[var(--text-secondary)]">La creazione genera una bozza privata. Nessun invio ai fornitori avviene automaticamente.</p>
+            </div>
+            <Link href={appRoutes.commercial.home + "#commercial-worklist"} className="app-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold">Chiudi editor</Link>
+          </div>
+          <BuyerDistintaBuilder
+            workspace
+            authenticated
+            returnToCommercial
+            userId={context.userId}
+            emailConfigured={Boolean(process.env.RESEND_API_KEY)}
+            catalogOptions={catalogOptions}
+          />
+        </section>
+      ) : null}
+
+      <CommercialUnifiedWorklist
+        data={unified}
+        selected={selected}
+        query={query}
+        view={view}
+        canWrite={canWrite}
+      />
+
+      <details className="rounded-2xl border border-[var(--border)] bg-white p-3 sm:p-4">
+        <summary className="min-h-10 cursor-pointer select-none text-sm font-semibold text-[var(--brand-deep)]">
+          Storico, memoria commerciale e intelligence · Apri approfondimenti
+        </summary>
+        <div className="space-y-4 pt-4">
       <section className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-4 sm:p-5">
         <p className="app-kicker">Cerca nella Commercial Memory</p>
         <h2 className="mt-2 text-lg font-semibold text-[#173f35] sm:text-xl">
@@ -332,6 +383,9 @@ export default async function CommercialHomePage() {
           ))}
         </div>
       </section>
+
+        </div>
+      </details>
 
       <p className="rounded-xl border border-[#d9e8e2] bg-[#f3f7f5] px-4 py-3 text-xs leading-5 text-[#52615b]">
         Commerciale riunisce i tuoi flussi di lavoro, ma i confini dei dati restano distinti: la memoria privata, le RFQ buyer, il Network e il Marketplace non condividono automaticamente prezzi, contatti o documenti.
