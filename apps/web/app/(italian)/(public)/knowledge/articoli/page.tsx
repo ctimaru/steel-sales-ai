@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 
 import { SchoolHero } from "@/components/school-ui";
 import { schoolArticles } from "@/lib/school-articles";
@@ -85,8 +86,12 @@ export default function SchoolArticlesPage() {
             <Link
               key={article.slug}
               href={`/knowledge/articoli/${article.slug}`}
-              className="group school-card flex h-full flex-col p-6 transition hover:-translate-y-0.5 hover:border-[#9fbfb3] hover:shadow-sm"
+              className="group school-card flex h-full flex-col overflow-hidden transition hover:-translate-y-0.5 hover:border-[#9fbfb3] hover:shadow-sm"
             >
+              <Image src={article.visual.src} alt={article.visual.alt} width={1200} height={675}
+                unoptimized sizes="(max-width: 1024px) 100vw, 50vw"
+                className="aspect-video h-auto w-full border-b border-[#dce9e1] object-cover" />
+              <div className="flex flex-1 flex-col p-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <span className="school-eyebrow">{article.category}</span>
                 <span className="text-xs font-semibold text-[#68736f]">
@@ -104,6 +109,7 @@ export default function SchoolArticlesPage() {
                   Rivisto {formatDate(article.lastReviewedAt)}
                 </span>
                 <span className="text-sm font-bold text-[#173f35]">Leggi articolo →</span>
+              </div>
               </div>
             </Link>
           ))}

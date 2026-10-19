@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { SchoolHero } from "@/components/school-ui";
@@ -32,12 +33,17 @@ export async function generateMetadata({
       canonical: absoluteUrl(`/knowledge/articoli/${article.slug}`),
     },
     openGraph: {
+      images: [{ url: absoluteUrl(`/knowledge/articoli/${article.slug}/opengraph-image`), width: 1200, height: 630, alt: article.visual.alt }],
       title: article.title,
       description: article.description,
       url: absoluteUrl(`/knowledge/articoli/${article.slug}`),
       type: "article",
       publishedTime: `${article.publishedAt}T00:00:00Z`,
       modifiedTime: `${article.lastReviewedAt}T00:00:00Z`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: [absoluteUrl(`/knowledge/articoli/${article.slug}/opengraph-image`)],
     },
   };
 }
@@ -65,6 +71,7 @@ export default async function SchoolArticlePage({
     "@type": "Article",
     headline: article.title,
     description: article.description,
+    image: absoluteUrl(`/knowledge/articoli/${article.slug}/opengraph-image`),
     datePublished: article.publishedAt,
     dateModified: article.lastReviewedAt,
     mainEntityOfPage: absoluteUrl(`/knowledge/articoli/${article.slug}`),
@@ -148,6 +155,15 @@ export default async function SchoolArticlePage({
           `Rivisto ${formatDate(article.lastReviewedAt)}`,
         ]}
       />
+
+      <figure className="school-card overflow-hidden">
+        <Image src={article.visual.src} alt={article.visual.alt} width={1200} height={675}
+          unoptimized sizes="(max-width: 1024px) 100vw, 960px"
+          priority className="aspect-video h-auto w-full object-cover" />
+        <figcaption className="border-t border-[#dce8e1] px-5 py-3 text-xs leading-5 text-[#52615b]">
+          {article.visual.caption}
+        </figcaption>
+      </figure>
 
       {article.timeline?.length ? (
         <section className="school-card p-6 sm:p-8" aria-labelledby="article-timeline">

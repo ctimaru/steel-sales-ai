@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 
 import { FocusPage } from "@/components/focus-ui";
 import { SchoolHero } from "@/components/school-ui";
@@ -209,9 +210,14 @@ export default function KnowledgeHomePage() {
               href={"/knowledge/articoli/" + article.slug}
               className="school-card group flex h-full flex-col overflow-hidden transition hover:border-[#86b4a0] hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]"
             >
-              <div className="flex items-center justify-between border-b border-[#dce9e1] bg-[#edf5f0] px-5 py-4">
-                <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-[#184638]">{article.category}</span>
-                <span aria-hidden="true" className="font-mono text-2xl font-semibold text-[#6a947e]">{String(index + 1).padStart(2, "0")}</span>
+              <div className="relative overflow-hidden border-b border-[#dce9e1] bg-[#edf5f0]">
+                <Image src={article.visual.src} alt={article.visual.alt} width={1200} height={675}
+                  unoptimized sizes="(max-width: 768px) 100vw, 33vw"
+                  className="aspect-video h-auto w-full object-cover" />
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-[#f7fbf8]/95 px-5 py-2.5">
+                  <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-[#184638]">{article.category}</span>
+                  <span aria-hidden="true" className="font-mono text-sm font-bold text-[#6a947e]">{String(index + 1).padStart(2, "0")}</span>
+                </div>
               </div>
               <div className="flex flex-1 flex-col p-5">
                 <h3 className="text-base font-semibold leading-6 text-[#1d2824]">{article.title}</h3>

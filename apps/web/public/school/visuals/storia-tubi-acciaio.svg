@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="art-title art-desc"><title id="art-title">Storia dei tubi d'acciaio</title><desc id="art-desc">Illustrazione schematica: condotta, tubazione industriale saldata e tubo senza saldatura.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eff8f3"/><stop offset="1" stop-color="#cfe8dc"/></linearGradient><linearGradient id="steel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#92b9a6"/><stop offset="1" stop-color="#275a4a"/></linearGradient><pattern id="grid" width="56" height="56" patternUnits="userSpaceOnUse"><path d="M56 0H0V56" stroke="#95b5a5" stroke-width="1" fill="none" opacity=".27"/></pattern></defs>
+<rect width="1200" height="675" fill="url(#bg)"/><rect width="1200" height="675" fill="url(#grid)"/>
+<path d="M0 582H1200" stroke="#9ac4b0" stroke-width="2"/><text x="70" y="79" font-size="21" font-family="Arial,sans-serif" font-weight="700" letter-spacing="3" fill="#1b5544">SMART STEEL SCHOOL</text>
+
+<text x="70" y="150" fill="#123d34" font-family="Arial,sans-serif" font-size="44" font-weight="700">DALLE CONDOTTE AL TUBO MODERNO</text>
+<g fill="none" stroke="#2c6d53" stroke-width="10" stroke-linecap="round">
+<path d="M125 405H1080" stroke="#87b7a1" stroke-width="4" stroke-dasharray="12 17"/>
+</g>
+<g>
+  <rect x="115" y="284" width="220" height="170" rx="70" fill="#a5d0b9" stroke="#2c7057" stroke-width="8"/>
+  <ellipse cx="115" cy="369" rx="72" ry="85" fill="#497d63" stroke="#19503e" stroke-width="9"/><ellipse cx="115" cy="369" rx="43" ry="52" fill="#e9f6ee" stroke="#19503e" stroke-width="7"/>
+  <path d="M210 290V450" stroke="#e9f8ed" stroke-width="3" stroke-dasharray="12 11"/>
+</g>
+<g transform="translate(390 0)">
+  <rect x="105" y="265" width="220" height="205" rx="90" fill="url(#steel)" stroke="#1e5642" stroke-width="8"/>
+  <ellipse cx="105" cy="367" rx="85" ry="102" fill="#2c654f" stroke="#164a37" stroke-width="10"/>
+  <ellipse cx="105" cy="367" rx="58" ry="72" fill="#dbeee3" stroke="#164a37" stroke-width="8"/>
+  <path d="M175 266V468" stroke="#d6eee2" stroke-width="6" stroke-dasharray="8 12"/>
+</g>
+<g transform="translate(805 0)">
+  <rect x="0" y="284" width="220" height="170" rx="75" fill="#9ac3b2" stroke="#1b5c46" stroke-width="8"/>
+  <ellipse cx="0" cy="369" rx="80" ry="85" fill="#245d47" stroke="#144433" stroke-width="9"/>
+  <ellipse cx="0" cy="369" rx="58" ry="61" fill="#e5f3ea" stroke="#144433" stroke-width="7"/>
+  <path d="M72 280L72 457" stroke="#f4fcf6" stroke-width="3" opacity=".6"/>
+</g>
+<g font-family="Arial,sans-serif" text-anchor="middle">
+<text x="215" y="550" font-size="26" font-weight="700" fill="#124b39">CONDOTTE</text>
+<text x="600" y="550" font-size="26" font-weight="700" fill="#124b39">PRODUZIONE</text>
+<text x="915" y="550" font-size="26" font-weight="700" fill="#124b39">SEAMLESS</text>
+</g>
+<text x="70" y="627" fill="#416d58" font-family="Arial,sans-serif" font-size="18">ILLUSTRAZIONE CONCETTUALE • NON IN SCALA</text>
+
+</svg>
