@@ -35,7 +35,7 @@ test("NET-CONNECT2E defends privacy, authenticated only, fail-closed data",()=>{
 test("NET-CONNECT2E shares role-aware discovery but no provisional outreach",()=>{
  for(const view of [free,pro]){
   assert.match(view,/NetworkReadyConnections/);
-  assert.match(view,/NetworkReadinessAction/);
+  assert.doesNotMatch(view,/<NetworkReadinessAction/);
   assert.match(view,/getNetworkRecipientReadiness/);
  }
  assert.match(profile,/provisional\?"unavailable"/);
