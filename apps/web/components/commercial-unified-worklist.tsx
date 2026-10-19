@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { getOperationalEntityData } from "@/lib/commercial-data";
+import { CommercialCampaignOperations, type CommercialOperationsTab } from "@/components/commercial-campaign-operations";
 import {
   commercialHref,
   filterCommercialItems,
@@ -35,11 +36,14 @@ function route(view: CommercialView, query: string, key: string) {
 }
 
 async function SelectedDetail({
-  item, related, canWrite,
+  item, related, canWrite, tab, view, query,
 }: {
   item: UnifiedCommercialItem;
   related: UnifiedCommercialItem[];
   canWrite: boolean;
+  tab: CommercialOperationsTab;
+  view: CommercialView;
+  query: string;
 }) {
   const inboundKind = item.kind === "inbound-rfq" ? "rfq" :
     item.kind === "inbound-offer" ? "offer" :
@@ -117,6 +121,15 @@ async function SelectedDetail({
           ) : null}
         </div>
       )}
+      {item.campaignId ? (
+        <CommercialCampaignOperations
+          rfqId={item.campaignId}
+          selected={item.key}
+          tab={tab}
+          view={view}
+          query={query}
+        />
+      ) : null}
       <div className="flex flex-wrap gap-2 border-t border-[var(--border)] pt-3">
         <Link href={item.href}
           className="app-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold">
@@ -135,13 +148,14 @@ async function SelectedDetail({
 }
 
 export async function CommercialUnifiedWorklist({
-  data, selected, query, view, canWrite,
+  data, selected, query, view, canWrite, tab,
 }: {
   data: UnifiedCommercialData;
   selected: string;
   query: string;
   view: CommercialView;
   canWrite: boolean;
+  tab: CommercialOperationsTab;
 }) {
   const filtered = filterCommercialItems(data.items, view, query);
   const active = filtered.find((item) => item.key === selected) ?? null;
@@ -197,7 +211,7 @@ export async function CommercialUnifiedWorklist({
         <button className="app-secondary min-h-10 rounded-lg px-4 text-xs font-semibold" type="submit">Filtra</button>
       </form>
 
-      <div className={active ? "grid gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]" : ""}>
+      <div className={active ? (active.campaignId ? "grid min-w-0 gap-3" : "grid min-w-0 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]") : ""}>
         <div className="min-w-0 overflow-hidden rounded-xl border border-[var(--border)] bg-white">
           <div className="flex items-center justify-between border-b border-[var(--border)] px-3 py-2.5">
             <p className="text-xs font-semibold text-[var(--brand-deep)]">Attività visibili</p>
@@ -245,7 +259,7 @@ export async function CommercialUnifiedWorklist({
                 Chiudi <span aria-hidden="true" className="ml-1">×</span>
               </Link>
             </div>
-            <SelectedDetail item={active} related={related} canWrite={canWrite} />
+            <SelectedDetail item={active} related={related} canWrite={canWrite} tab={tab} view={view} query={query} />
           </aside>
         ) : selected ? (
           <p role="status" className="rounded-lg border border-[var(--border)] bg-white p-4 text-xs text-[var(--text-secondary)]">
