@@ -23,6 +23,12 @@ begin
 end;
 $check$;
 
+-- Technical standards must match common human formatting variations.
+select case when
+  pg_catalog.regexp_replace('EN 10219','[^[:alnum:]]','','g')
+    ilike '%' || pg_catalog.regexp_replace('EN10219','[^[:alnum:]]','','g') || '%'
+then 1 else 1/0 end as standard_spacing_equivalence;
+
 -- No authentication context, no membership, no results.
 set local role authenticated;
 select case when (
