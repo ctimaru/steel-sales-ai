@@ -5,7 +5,7 @@ import {NetworkCompanyGrowthEntry} from "@/components/network-company-growth-ent
 import {NetworkReadyConnections} from "@/components/network-ready-connections";
 import {getNetworkRecipientReadiness} from "@/lib/network-recipient-readiness";
 import {getNetworkReplyIntelligence,sharedPublicProducts} from "@/lib/network-reply-intelligence";
-import {canInteractWithNetwork} from "@/lib/access-policy";
+import {canInteractWithNetwork,canWriteWorkspace} from "@/lib/access-policy";
 import { redirect } from "next/navigation";
 
 import { FreeNetworkDirectoryView } from "@/components/free-network-directory";
@@ -116,6 +116,8 @@ export default async function NetworkDirectoryPage({
       return (
         <FreeNetworkDirectoryView
           organizationId={context.organizationId}
+          userId={context.userId}
+          canCompose={canWriteWorkspace(context.role)}
           organizationName={context.organizationName}
           isWorkspaceAdmin={context.role==="admin"}
           canConnect={canInteractWithNetwork(context.role)}
@@ -155,6 +157,7 @@ export default async function NetworkDirectoryPage({
       return <FocusPage className="max-w-[1560px]">
         <PilotEvent eventName="network_directory_viewed" metadata={{surface:"network_compact"}}/>
         <NetworkCompactExperience accessMode="pro" directory={compact} filters={compactFilters}
+          userId={context.userId} organizationId={context.organizationId} canCompose={canWriteWorkspace(context.role)}
           coverage={compactCoverage} provisionalCoverage={compactProvisional}
           regions={compactGeo.regions.length?compactGeo.regions:compactCoverage?.regions.map(r=>r.name)||[]}
           capabilityLabels={capabilityLabels}
