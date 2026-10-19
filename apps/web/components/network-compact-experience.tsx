@@ -1,3 +1,4 @@
+import {NetworkCountryFlag} from "@/components/network-country-flag";
 import {NetworkLiveSearch} from "@/components/network-live-search";
 import Link from "next/link";
 import type {FreeCompany} from "@/lib/network-free";
@@ -23,11 +24,9 @@ const roles=[
 ] as const;
 // One source of truth for widths: header and rows share the exact grid columns.
 const COMPANY_COLUMNS="lg:grid-cols-[minmax(210px,2fr)_minmax(110px,.84fr)_minmax(140px,1.05fr)_minmax(125px,.95fr)_minmax(165px,1.12fr)_136px]";
-const countries:Record<string,{flag:string;label:string}>={
-  IT:{flag:"🇮🇹",label:"Italia"},DE:{flag:"🇩🇪",label:"Germania"},
-  FR:{flag:"🇫🇷",label:"Francia"},ES:{flag:"🇪🇸",label:"Spagna"},
-  US:{flag:"🇺🇸",label:"USA"},GB:{flag:"🇬🇧",label:"Regno Unito"},
-  CH:{flag:"🇨🇭",label:"Svizzera"},
+const countries:Record<string,string>={
+  IT:"Italia",DE:"Germania",FR:"Francia",ES:"Spagna",
+  US:"USA",GB:"Regno Unito",CH:"Svizzera",
 };
 const keys:Record<string,string>={
   producer:"Produttore",trader_distributor:"Commerciante",
@@ -60,7 +59,8 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
   const role=company.roles[0];
   const domain=companyDomain(company);
   const location=[company.location?.city,company.location?.region].filter(Boolean).join(" · ");
-  const nation=countries[company.country_code?.toUpperCase()]||{flag:"",label:company.country_code||"Paese non indicato"};
+  const countryCode=(company.country_code||"").toUpperCase();
+  const countryLabel=countries[countryCode]||countryCode||"Paese non indicato";
   return <article className={"grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[#e8eeeb] px-3 py-3 last:border-b-0 sm:px-4 lg:py-2.5 "+COMPANY_COLUMNS}
     data-testid="network-compact-company-row">
     <div className="flex min-w-0 items-center gap-3">
@@ -71,7 +71,7 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
         <h3 className="truncate text-sm font-semibold text-[#173f35]" title={name}>{name}</h3>
         {domain?<p className="truncate text-xs text-[#52615b]">{domain}</p>:null}
         <p className="mt-0.5 truncate text-[11px] text-[#52615b] lg:hidden">
-          {role?(keys[role.key]||role.name):"Ruolo non indicato"}{" · "}{nation.flag} {nation.label}{location?" · "+location:""}
+          {role?(keys[role.key]||role.name):"Ruolo non indicato"}{" · "}<NetworkCountryFlag code={countryCode}/> {countryLabel}{location?" · "+location:""}
         </p>
       </div>
     </div>
@@ -91,8 +91,8 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
     </div>
     <div className="hidden min-w-0 lg:block">
       <p className="flex items-center gap-1.5 truncate text-xs font-semibold text-[#173f35]">
-        {nation.flag?<span aria-hidden="true" className="text-sm">{nation.flag}</span>:null}
-        <span className="truncate">{nation.label}</span>
+        <NetworkCountryFlag code={countryCode}/>
+        <span className="truncate">{countryLabel}</span>
       </p>
       <p className="truncate text-[11px] text-[#52615b]">{location||"Sede non indicata"}</p>
     </div>
