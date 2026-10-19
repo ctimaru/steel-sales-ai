@@ -1,6 +1,6 @@
 import {getNetworkTaxonomy} from "@/lib/network";
 import {NetworkCompactExperience} from "@/components/network-compact-experience";
-import {getCompactNetworkPage} from "@/lib/network-compact-directory";
+import {getCompactNetworkPage,normalizeCompactGeoFilters} from "@/lib/network-compact-directory";
 import Link from "next/link";
 import {NetworkCompanyGrowthEntry} from "@/components/network-company-growth-entry";
 import {NetworkReadyConnections} from "@/components/network-ready-connections";
@@ -45,8 +45,8 @@ export async function FreeNetworkDirectoryView({
     ? filters.role : undefined;
   // Default Free view uses the same one-screen design and source ordering as Pro.
   // All read RPCs enforce active-company access; retain the legacy recovery below.
-  const compactFilters={q:filters.q,role,region:filters.region,persona:filters.persona,np:filters.np,
-    product:filters.product,capability:filters.capability,market:filters.market,country:filters.country};
+  const compactFilters=normalizeCompactGeoFilters({q:filters.q,role,region:filters.region,persona:filters.persona,np:filters.np,
+    product:filters.product,capability:filters.capability,market:filters.market,country:filters.country});
   const compact=filters.map==="1"?null:await getCompactNetworkPage(organizationId,"free",compactFilters).catch(()=>null);
   if(compact){
     const [compactCoverage,compactProvisional,compactTaxonomy]=await Promise.all([

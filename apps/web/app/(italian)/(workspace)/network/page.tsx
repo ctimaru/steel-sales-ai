@@ -1,5 +1,5 @@
 import {NetworkCompactExperience} from "@/components/network-compact-experience";
-import {getCompactNetworkPage} from "@/lib/network-compact-directory";
+import {getCompactNetworkPage,normalizeCompactGeoFilters} from "@/lib/network-compact-directory";
 import Link from "next/link";
 import {NetworkCompanyGrowthEntry} from "@/components/network-company-growth-entry";
 import {NetworkReadyConnections} from "@/components/network-ready-connections";
@@ -134,8 +134,8 @@ export default async function NetworkDirectoryPage({
   const params = await searchParams;
   // NET-UX COMPACT1: fast, unified first-screen browse. Keep the existing rich
   // technical finder as an explicit advanced route and as a resilient fallback.
-  const compactFilters={q:params.q,role:params.role,region:params.region,persona:params.persona,np:params.np,
-    product:params.product,capability:params.capability,market:params.market,country:params.country};
+  const compactFilters=normalizeCompactGeoFilters({q:params.q,role:params.role,region:params.region,persona:params.persona,np:params.np,
+    product:params.product,capability:params.capability,market:params.market,country:params.country});
   const needsTechnicalFinder=Boolean(params.advanced==="1"||params.province||params.city);
   if(!needsTechnicalFinder){
     const compact=await getCompactNetworkPage(context.organizationId,"pro",compactFilters).catch(()=>null);
