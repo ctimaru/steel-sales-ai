@@ -159,7 +159,7 @@ export function NetworkCompactExperience({
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <form method="get" action="/network" aria-label="Filtri tecnici e geografici"
-          className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+          className="grid w-full min-w-0 flex-1 grid-cols-2 items-center gap-2 sm:grid-cols-[repeat(4,minmax(0,1fr))_auto]">
           {filters.q?<input type="hidden" name="q" value={filters.q}/>:null}
           {filters.role?<input type="hidden" name="role" value={filters.role}/>:null}
           {filters.persona?<input type="hidden" name="persona" value={filters.persona}/>:null}
@@ -168,19 +168,19 @@ export function NetworkCompactExperience({
             {name:"product",label:"Prodotti",options:additionalFilters?.products||[]},
             {name:"capability",label:"Capability",options:additionalFilters?.capabilities||[]},
             {name:"market",label:"Mercato",options:additionalFilters?.markets||[]},
-          ].map(group=><label key={group.name} className="sr-only-wrapper">
+          ].map(group=><label key={group.name} className="min-w-0">
             <span className="sr-only">{group.label}</span>
             <select name={group.name} aria-label={group.label}
               defaultValue={filters[group.name as "product"|"capability"|"market"]||""}
-              className="min-h-9 max-w-[165px] rounded-lg border border-[#c5d8cd] bg-white px-2.5 text-xs font-semibold text-[#175640] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+              className="h-10 w-full min-w-0 rounded-lg border border-[#b7cfc2] bg-white px-2.5 text-xs font-semibold text-[#173f35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
               <option value="">{group.label}</option>
               {group.options.map(option=><option key={option.canonical_key} value={option.canonical_key}>{option.display_name}</option>)}
             </select>
           </label>)}
-          <label>
+          <label className="min-w-0">
             <span className="sr-only">Paese</span>
             <select name="country" aria-label="Paese" defaultValue={filters.country||"IT"}
-              className="min-h-9 rounded-lg border border-[#c5d8cd] bg-white px-2.5 text-xs font-semibold text-[#175640] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+              className="h-10 w-full min-w-0 rounded-lg border border-[#b7cfc2] bg-white px-2.5 text-xs font-semibold text-[#173f35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
               <option value="IT">Italia</option>
               <option value="DE">Germania</option>
               <option value="FR">Francia</option>
@@ -190,8 +190,9 @@ export function NetworkCompactExperience({
               <option value="CH">Svizzera</option>
             </select>
           </label>
-          <button type="submit" className="ui-action ui-action-secondary inline-flex min-h-9 items-center justify-center rounded-lg px-3 text-xs font-semibold">Applica filtri</button>
+          <button type="submit" className="ui-action ui-action-secondary col-span-2 inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold sm:col-span-1">Applica filtri</button>
         </form>
+        {filterActive?<Link href="/network" className="ui-action ui-action-secondary inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold">Azzera filtri</Link>:null}
         <details className="group ml-auto text-xs text-[#175640]" open={Boolean(filters.region)}>
           <summary className="ui-action ui-action-secondary inline-flex min-h-9 cursor-pointer list-none items-center gap-2 rounded-lg px-3 font-semibold">
             Regione {filters.region?"· "+filters.region:""} <span aria-hidden="true">⌄</span>
