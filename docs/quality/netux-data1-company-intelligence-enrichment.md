@@ -22,6 +22,12 @@
 - CPS — stockholding — https://www.cpssrl.com/it/
 Si tratta di dichiarazioni aziendali osservate su fonte ufficiale, non di capacità certificate né di disponibilità attuale. Le 7 osservazioni rimangono con review_status=candidate.
 
+## Read-only audit realmente eseguito su tutta la base
+- Prova transazionale production SQL con rollback, usando la RPC DATA1: 21 pagine da 25 (ultima 1), **501 righe, 501 UUID unici, 0 duplicazioni**.
+- 499 siti HTTPS con dominio tecnicamente coerente ma identità/diritti di riutilizzo non attestati; 2 record che condividono marcegaglia.com (Marcegaglia Carbon Steel e Marcegaglia Specialties), da trattare come aziende distinte e non associare automaticamente gli attributi.
+- **432 senza geo utilizzabile**, **68 con geo osservata/pubblicata**, **1 geo in conflitto**. 9 con evidenza tecnica candidata/accettata.
+- La nuova RPC è stata testata in una transazione con ROLLBACK: **non è ancora stata applicata come migrazione produzione**. Nessuno dei 501 siti è stato dichiarato visitato tramite questa prova.
+
 ## Scansione sistematica della base
 - La nuova funzione netdata1_company_audit è read-only, service-role-only, limit 25 con offset; riporta copertura di tutto il Network, provenienza e status di geo/capability, siti ufficiali potenziali e domini condivisi o ignoti. Nessuna promozione, claim, o write.
 - Il worker netdata1_company_audit.py riusa l'extractor già protetto (robots.txt, anti-SSRF, HTTPS, limiti, privacy), preserva gli esclusi dalla scansione; dry run predefinito. --scan --persist richiede scelta esplicita e inserisce soltanto private source candidates tramite RPC esistente.
@@ -29,7 +35,7 @@ Si tratta di dichiarazioni aziendali osservate su fonte ufficiale, non di capaci
 - Protezione: niente credenziali nel browser, niente nuovi endpoint public, nessun dato personale, nessuna attribuzione automatica di certificazioni, sedi legali o capacità di servizio da attività produttive interne.
 
 ## Prossimi passi
-1. Audit effettivo delle 21 pagine, con priorità ai company-domain match e ai rischi di identity collision.
+1. Audit strutturale delle 21 pagine completato e reconciliato; resta verificare le fonti esterne e i diritti delle 499 schede con sito e le due identità a dominio condiviso.
 2. Nuovi lotti da 25 siti: leggere fonti, diritti e robots prima; stage candidate solo dove utile. Bloccare siti con restrizioni di riutilizzo.
 3. Revisione manuale dei casi multi-sede, parent-brand, ufficio commerciale vs sede, comune ISTAT e filiera.
 4. Console Platform Company Intelligence (KPI, queue, source links e tabella comparativa) e promozione dei dati soltanto con review/autorizzazione.
