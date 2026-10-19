@@ -1,3 +1,4 @@
+import {NetworkLiveSearch} from "@/components/network-live-search";
 import Link from "next/link";
 import type {FreeCompany} from "@/lib/network-free";
 import type {CompactNetworkFilters,CompactNetworkPage} from "@/lib/network-compact-directory";
@@ -20,6 +21,14 @@ const roles=[
   {key:"processor_service_provider",label:"Terzisti"},
   {key:"end_user",label:"Utilizzatori"},
 ] as const;
+// One source of truth for widths: header and rows share the exact grid columns.
+const COMPANY_COLUMNS="lg:grid-cols-[minmax(210px,2fr)_minmax(110px,.84fr)_minmax(140px,1.05fr)_minmax(125px,.95fr)_minmax(165px,1.12fr)_136px]";
+const countries:Record<string,{flag:string;label:string}>={
+  IT:{flag:"🇮🇹",label:"Italia"},DE:{flag:"🇩🇪",label:"Germania"},
+  FR:{flag:"🇫🇷",label:"Francia"},ES:{flag:"🇪🇸",label:"Spagna"},
+  US:{flag:"🇺🇸",label:"USA"},GB:{flag:"🇬🇧",label:"Regno Unito"},
+  CH:{flag:"🇨🇭",label:"Svizzera"},
+};
 const keys:Record<string,string>={
   producer:"Produttore",trader_distributor:"Commerciante",
   processor_service_provider:"Terzista",end_user:"Utilizzatore",
@@ -51,7 +60,8 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
   const role=company.roles[0];
   const domain=companyDomain(company);
   const location=[company.location?.city,company.location?.region].filter(Boolean).join(" · ");
-  return <article className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[#e8eeeb] px-3 py-3 last:border-b-0 sm:px-4 lg:grid-cols-[minmax(180px,1.65fr)_minmax(90px,.75fr)_minmax(145px,1fr)_minmax(110px,.8fr)_minmax(100px,.8fr)_auto] lg:gap-3 lg:py-2.5"
+  const nation=countries[company.country_code?.toUpperCase()]||{flag:"",label:company.country_code||"Paese non indicato"};
+  return <article className={"grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[#e8eeeb] px-3 py-3 last:border-b-0 sm:px-4 lg:py-2.5 "+COMPANY_COLUMNS}
     data-testid="network-compact-company-row">
     <div className="flex min-w-0 items-center gap-3">
       <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#e4f0e9] text-[11px] font-bold text-[#175640]">
@@ -61,7 +71,7 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
         <h3 className="truncate text-sm font-semibold text-[#173f35]" title={name}>{name}</h3>
         {domain?<p className="truncate text-xs text-[#52615b]">{domain}</p>:null}
         <p className="mt-0.5 truncate text-[11px] text-[#52615b] lg:hidden">
-          {role?(keys[role.key]||role.name):"Ruolo non indicato"}{location?" · "+location:""}
+          {role?(keys[role.key]||role.name):"Ruolo non indicato"}{" · "}{nation.flag} {nation.label}{location?" · "+location:""}
         </p>
       </div>
     </div>
@@ -80,11 +90,14 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
       {capabilities.length?<div className="flex flex-wrap gap-1">{capabilities.slice(0,2).map((name,i)=><span key={i} className="max-w-full truncate rounded-full border border-[#d7e3dc] bg-[#f9fbfa] px-2 py-1 text-[11px] text-[#43524c]" title={name}>{name}</span>)}</div>:<span className="text-xs text-[#647269]">Non indicate</span>}
     </div>
     <div className="hidden min-w-0 lg:block">
-      <p className="truncate text-xs font-medium text-[#43524c]">{company.country_code==="IT"?"Italia":company.country_code}</p>
+      <p className="flex items-center gap-1.5 truncate text-xs font-semibold text-[#173f35]">
+        {nation.flag?<span aria-hidden="true" className="text-sm">{nation.flag}</span>:null}
+        <span className="truncate">{nation.label}</span>
+      </p>
       <p className="truncate text-[11px] text-[#52615b]">{location||"Sede non indicata"}</p>
     </div>
     <Link href={"/network/"+company.id}
-      className="app-primary inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg px-3 text-xs font-semibold sm:px-4">
+      className="ui-action ui-action-primary inline-flex min-h-10 w-full min-w-[112px] items-center justify-center whitespace-nowrap rounded-lg px-3 text-xs font-semibold">
       Esplora azienda <span className="ml-1 hidden sm:inline" aria-hidden="true">→</span>
     </Link>
   </article>;
@@ -129,21 +142,7 @@ export function NetworkCompactExperience({
     </div>
 
     <section aria-label="Ricerca e filtri delle aziende" className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-3 sm:p-4">
-      <form action="/network" method="get" className="flex flex-col gap-2 sm:flex-row sm:items-center">
-        <label className="sr-only" htmlFor="network-compact-search">Nome azienda o dominio</label>
-        <input id="network-compact-search" type="search" name="q" maxLength={120}
-          placeholder="Nome azienda o dominio (es. Padana Tubi, acciaitubi.it)"
-          defaultValue={filters.q||""} className="h-11 min-w-0 flex-1 rounded-xl border border-[#c9d9d3] bg-white px-4 text-sm text-[#173f35] outline-none placeholder:text-[#68766f] focus-visible:ring-2 focus-visible:ring-[#438d7a]"/>
-        {filters.role?<input type="hidden" name="role" value={filters.role}/>:null}
-        {filters.region?<input type="hidden" name="region" value={filters.region}/>:null}
-        {filters.product?<input type="hidden" name="product" value={filters.product}/>:null}
-        {filters.capability?<input type="hidden" name="capability" value={filters.capability}/>:null}
-        {filters.market?<input type="hidden" name="market" value={filters.market}/>:null}
-        {filters.country?<input type="hidden" name="country" value={filters.country}/>:null}
-        {filters.persona?<input type="hidden" name="persona" value={filters.persona}/>:null}
-        <button type="submit" className="app-primary min-h-11 rounded-xl px-6 text-sm font-semibold">Cerca</button>
-        {filterActive?<Link href="/network" className="app-secondary inline-flex min-h-11 items-center justify-center rounded-xl px-3 text-sm font-semibold">Azzera</Link>:null}
-      </form>
+      <NetworkLiveSearch filters={filters}/>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <span className="mr-1 text-[11px] font-bold uppercase tracking-wider text-[#175640]">Ruolo</span>
         <nav aria-label="Ruolo nella filiera" className="flex flex-wrap gap-1.5">
@@ -151,8 +150,8 @@ export function NetworkCompactExperience({
             const selected=(filters.role||"")===item.key;
             return <Link key={item.key||"all"} href={filterUrl(filters,{role:item.key||null},"#network-results")}
               aria-current={selected?"page":undefined}
-              className={"inline-flex min-h-9 items-center rounded-full border px-3 text-xs font-semibold transition-colors "+
-                (selected?"border-[#175640] bg-[#175640] text-white":"border-[#c6d9cf] bg-white text-[#175640] hover:bg-[#f7faf8]")}>
+              className={"ui-action inline-flex min-h-9 items-center justify-center rounded-full px-3 text-xs font-semibold transition-colors "+
+                (selected?"ui-action-primary":"ui-action-secondary")}>
               {item.label}
             </Link>;
           })}
@@ -160,7 +159,7 @@ export function NetworkCompactExperience({
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <form method="get" action="/network" aria-label="Filtri tecnici e geografici"
-          className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+          className="grid w-full min-w-0 flex-1 grid-cols-2 items-center gap-2 sm:grid-cols-[repeat(4,minmax(0,1fr))_auto]">
           {filters.q?<input type="hidden" name="q" value={filters.q}/>:null}
           {filters.role?<input type="hidden" name="role" value={filters.role}/>:null}
           {filters.persona?<input type="hidden" name="persona" value={filters.persona}/>:null}
@@ -169,19 +168,19 @@ export function NetworkCompactExperience({
             {name:"product",label:"Prodotti",options:additionalFilters?.products||[]},
             {name:"capability",label:"Capability",options:additionalFilters?.capabilities||[]},
             {name:"market",label:"Mercato",options:additionalFilters?.markets||[]},
-          ].map(group=><label key={group.name} className="sr-only-wrapper">
+          ].map(group=><label key={group.name} className="min-w-0">
             <span className="sr-only">{group.label}</span>
             <select name={group.name} aria-label={group.label}
               defaultValue={filters[group.name as "product"|"capability"|"market"]||""}
-              className="min-h-9 max-w-[165px] rounded-lg border border-[#c5d8cd] bg-white px-2.5 text-xs font-semibold text-[#175640] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+              className="h-10 w-full min-w-0 rounded-lg border border-[#b7cfc2] bg-white px-2.5 text-xs font-semibold text-[#173f35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
               <option value="">{group.label}</option>
               {group.options.map(option=><option key={option.canonical_key} value={option.canonical_key}>{option.display_name}</option>)}
             </select>
           </label>)}
-          <label>
+          <label className="min-w-0">
             <span className="sr-only">Paese</span>
             <select name="country" aria-label="Paese" defaultValue={filters.country||"IT"}
-              className="min-h-9 rounded-lg border border-[#c5d8cd] bg-white px-2.5 text-xs font-semibold text-[#175640] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+              className="h-10 w-full min-w-0 rounded-lg border border-[#b7cfc2] bg-white px-2.5 text-xs font-semibold text-[#173f35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
               <option value="IT">Italia</option>
               <option value="DE">Germania</option>
               <option value="FR">Francia</option>
@@ -191,10 +190,11 @@ export function NetworkCompactExperience({
               <option value="CH">Svizzera</option>
             </select>
           </label>
-          <button type="submit" className="app-secondary inline-flex min-h-9 items-center rounded-lg px-3 text-xs font-semibold">Applica filtri</button>
+          <button type="submit" className="ui-action ui-action-secondary col-span-2 inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold sm:col-span-1">Applica filtri</button>
         </form>
+        {filterActive?<Link href="/network" className="ui-action ui-action-secondary inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold">Azzera filtri</Link>:null}
         <details className="group ml-auto text-xs text-[#175640]" open={Boolean(filters.region)}>
-          <summary className="inline-flex min-h-9 cursor-pointer list-none items-center gap-2 rounded-lg border border-[#bcd4c7] bg-white px-3 font-semibold">
+          <summary className="ui-action ui-action-secondary inline-flex min-h-9 cursor-pointer list-none items-center gap-2 rounded-lg px-3 font-semibold">
             Regione {filters.region?"· "+filters.region:""} <span aria-hidden="true">⌄</span>
           </summary>
           <form method="get" action="/network" className="mt-2 flex flex-wrap items-center gap-2 rounded-xl border border-[#d7e3dc] bg-white p-3">
@@ -211,7 +211,7 @@ export function NetworkCompactExperience({
               <option value="">Tutte le regioni</option>
               {regions.map(item=><option key={item} value={item}>{item}</option>)}
             </select>
-            <button type="submit" className="app-primary min-h-10 rounded-lg px-4 text-xs font-semibold">Applica</button>
+            <button type="submit" className="ui-action ui-action-primary min-h-10 rounded-lg px-4 text-xs font-semibold">Applica</button>
           </form>
         </details>
       </div>
@@ -229,12 +229,12 @@ export function NetworkCompactExperience({
           <span className="hidden tabular-nums sm:inline">{directory.total?directory.first+"–"+directory.last+" di "+directory.total:"Nessun risultato"}</span>
           <span className="tabular-nums">{directory.page} / {directory.pages}</span>
           <nav aria-label="Pagine del Network" className="inline-flex overflow-hidden rounded-lg border border-[#d7e3dc]">
-            {directory.page>1?<Link rel="prev" href={filterUrl(filters,{np:String(directory.page-1)},"#network-results")} className="inline-flex min-h-9 items-center px-3 font-semibold text-[#175640] hover:bg-[#edf5f2]" aria-label="Pagina precedente">←</Link>:<span className="inline-flex min-h-9 items-center px-3 text-[#b0bdb4]" aria-hidden="true">←</span>}
-            {directory.page<directory.pages?<Link rel="next" href={filterUrl(filters,{np:String(directory.page+1)},"#network-results")} className="inline-flex min-h-9 items-center border-l border-[#d7e3dc] px-3 font-semibold text-[#175640] hover:bg-[#edf5f2]" aria-label="Pagina successiva">→</Link>:<span className="inline-flex min-h-9 items-center border-l border-[#d7e3dc] px-3 text-[#b0bdb4]" aria-hidden="true">→</span>}
+            {directory.page>1?<Link rel="prev" href={filterUrl(filters,{np:String(directory.page-1)},"#network-results")} className="ui-action ui-action-secondary inline-flex min-h-9 items-center rounded-none border-0 px-3 font-semibold" aria-label="Pagina precedente">←</Link>:<span className="inline-flex min-h-9 items-center px-3 text-[#52615b]" aria-hidden="true">←</span>}
+            {directory.page<directory.pages?<Link rel="next" href={filterUrl(filters,{np:String(directory.page+1)},"#network-results")} className="ui-action ui-action-secondary inline-flex min-h-9 items-center rounded-none border-y-0 border-r-0 px-3 font-semibold" aria-label="Pagina successiva">→</Link>:<span className="inline-flex min-h-9 items-center border-l border-[#d7e3dc] px-3 text-[#b0bdb4]" aria-hidden="true">→</span>}
           </nav>
         </div>
       </div>
-      <div className="hidden grid-cols-[minmax(180px,1.65fr)_minmax(90px,.75fr)_minmax(145px,1fr)_minmax(110px,.8fr)_minmax(100px,.8fr)_auto] gap-3 border-b border-[#e8eeeb] bg-[#f9fbfa] px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[#52615b] lg:grid">
+      <div className={"hidden gap-3 border-b border-[#e8eeeb] bg-[#f9fbfa] px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[#52615b] lg:grid "+COMPANY_COLUMNS}>
         <span>Azienda</span><span>Ruolo</span><span>Prodotti dichiarati</span><span>Capability</span><span>Località</span><span className="sr-only">Azione</span>
       </div>
       {directory.items.length?directory.items.map(company=><CompactCompanyRow key={company.id} company={company} capabilities={capabilityLabels[company.id]||[]}/>):
