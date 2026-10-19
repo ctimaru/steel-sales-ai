@@ -122,6 +122,7 @@ export type PlatformAnalyticsSnapshot = {
   activationFunnel: AnalyticsFunnelStep[];
   rfqConversionFunnel: AnalyticsFunnelStep[];
   calculatorFunnel: AnalyticsFunnelStep[];
+  schoolFunnel: AnalyticsFunnelStep[];
   calculatorFunnelQuality: CalculatorFunnelQuality;
   rfqBillCopies: number;
   internationalRfqFunnel: InternationalRfqLocaleCounts[];
@@ -143,6 +144,19 @@ const ACQUISITION_FUNNEL = [
   ["company_claim_start", "Avvio claim"],
   ["registration_account_created", "Account creato"],
   ["registration_submit", "Registrazione inviata"],
+] as const;
+
+const SCHOOL_FUNNEL = [
+  ["school_funnel_content_view", "Visite contenuti Scuola"],
+  ["school_funnel_calculator_click", "Clic verso calcolatore"],
+  ["school_funnel_calculator_open", "Calcolatore aperto"],
+  ["school_funnel_distinta_click", "Clic distinta diretta"],
+  ["school_funnel_bill_line_added", "Righe aggiunte"],
+  ["school_funnel_rfq_create_click", "Tentativi creazione RFQ"],
+  ["school_funnel_guest_handoff", "Ospiti verso accesso"],
+  ["school_funnel_registration_click", "Clic registrazione"],
+  ["school_funnel_login_click", "Clic login"],
+  ["school_funnel_rfq_created", "RFQ privata creata (non inviata)"],
 ] as const;
 
 const CALCULATOR_FUNNEL = [
@@ -418,6 +432,7 @@ function emptySnapshot(
     activationFunnel: buildFunnel(ACTIVATION_FUNNEL, new Map()),
     rfqConversionFunnel: buildFunnel(RFQ_CONVERSION_FUNNEL, new Map()),
     calculatorFunnel: buildFunnel(CALCULATOR_FUNNEL, new Map()),
+    schoolFunnel: buildFunnel(SCHOOL_FUNNEL, new Map()),
     calculatorFunnelQuality: calculatorFunnelQuality(new Map(), error === "VERCEL_ANALYTICS_TOKEN_MISSING" ? "token_missing" : "api_error"),
     rfqBillCopies: 0,
     internationalRfqFunnel: internationalRfqFunnel(new Map()),
@@ -617,6 +632,7 @@ export async function getPlatformAnalyticsSnapshot(
       activationFunnel: buildFunnel(ACTIVATION_FUNNEL, eventMap),
       rfqConversionFunnel: rfqFunnel,
       calculatorFunnel: buildFunnel(CALCULATOR_FUNNEL, eventMap),
+      schoolFunnel: buildFunnel(SCHOOL_FUNNEL, eventMap),
       calculatorFunnelQuality: calculatorFunnelQuality(eventMap, ingestionState),
       rfqBillCopies: eventMap.get("rfq_bill_copied") ?? 0,
       internationalRfqFunnel: internationalRfqFunnel(eventMap),
