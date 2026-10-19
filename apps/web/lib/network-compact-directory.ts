@@ -1,6 +1,6 @@
 import "server-only";
 
-import {getNetworkBrowsePage, type FreeCompany, type NetworkBrowsePage} from "@/lib/network-free";
+import {getNetworkBrowsePage,getNetworkDiscoveredMarketPage, type FreeCompany, type NetworkBrowsePage} from "@/lib/network-free";
 import {parseNetworkPage} from "@/components/network-pagination";
 import {searchNetwork} from "@/lib/network";
 import {withCompactGeoEvidence} from "@/lib/network-compact-geo";
@@ -17,7 +17,7 @@ export type CompactNetworkFilters={
 export type CompactNetworkPage={
   items:FreeCompany[];total:number;published:number;discovered:number;
   page:number;pages:number;first:number;last:number;discoveryUnavailable:boolean;
-  technicalOnly?:boolean;capabilityLabels?:Record<string,string[]>;
+  technicalOnly?:boolean;marketEvidence?:boolean;capabilityLabels?:Record<string,string[]>;
 };
 /** Normalize URL-originated geographic facets before any Free/Pro data query.
  * Region names here belong to Italy; never combine them with a foreign country.
@@ -64,6 +64,65 @@ export async function getCompactNetworkPage(
   filters=normalizeCompactGeoFilters(filters);
   const technicalOnly=Boolean(filters.product||filters.capability||filters.market||
     (filters.country && filters.country.toUpperCase()!=="IT"));
+  // DATA1C: a market-only search spans BOTH published and sourced provisional
+  // companies. The exact legacy product/capability combinations still use the
+  // canonical technical finder, to avoid silently dropping technical constraints.
+  const sectorSearch=Boolean(filters.market && !filters.product && !filters.capability &&
+    (!filters.country || filters.country==="IT"));
+  if(sectorSearch && filters.market){
+    // Preserve per-org authorization before both SQL evidence and M6 search.
+    await getNetworkBrowsePage(organizationId,access,"published",{
+      q:filters.q,role:filters.role,region:filters.region,persona:filters.persona,page:1,
+    });
+    const [publishedFirst,discoveredFirst]=await Promise.all([
+      searchNetwork({query:filters.q,role:filters.role,region:filters.region,
+        market:filters.market,country:"IT",page:1}),
+      getNetworkDiscoveredMarketPage(organizationId,access,{
+        market:filters.market,q:filters.q,role:filters.role,region:filters.region,
+        offset:0,limit:1,
+      }).catch(()=>null),
+    ]);
+    const publishedCount=Math.max(0,publishedFirst.total);
+    const discoveredCount=discoveredFirst?.total??0;
+    const total=publishedCount+discoveredCount;
+    const pages=Math.max(1,Math.ceil(total/COMPACT_NETWORK_PAGE_SIZE));
+    const page=Math.min(parseNetworkPage(filters.np),pages);
+    const offset=(page-1)*COMPACT_NETWORK_PAGE_SIZE;
+    const windows=compactSourceWindows(offset,COMPACT_NETWORK_PAGE_SIZE,publishedCount,discoveredCount);
+    const publishedOffset=windows.published.start;
+    const m6Page=Math.floor(publishedOffset/18)+1;
+    const canonical=m6Page===1?publishedFirst:
+      await searchNetwork({query:filters.q,role:filters.role,region:filters.region,
+        market:filters.market,country:"IT",page:m6Page});
+    const start=publishedOffset%18;
+    const take=windows.published.end-windows.published.start;
+    const selected=take>0?canonical.items.slice(start,start+take):[];
+    const publishedItems:FreeCompany[]=selected.map(company=>({
+      id:company.id,legal_name:company.legal_name,trading_name:company.trading_name,
+      country_code:company.country_code,website_url:company.website_url,
+      claimed_status:company.claimed_status,verification_status:company.verification_status,
+      roles:company.roles,products:company.products.map(product=>product.name),
+      location:null,
+    }));
+    const provisionalTake=windows.discovered.end-windows.discovered.start;
+    const provisional=provisionalTake>0 && discoveredFirst?
+      await getNetworkDiscoveredMarketPage(organizationId,access,{
+        market:filters.market,q:filters.q,role:filters.role,region:filters.region,
+        offset:windows.discovered.start,limit:provisionalTake,
+      }).catch(()=>null):null;
+    return {
+      items:await withCompactGeoEvidence(organizationId,access,[
+        ...publishedItems,...(provisional?.items||[]),
+      ]),
+      total,published:publishedCount,discovered:discoveredCount,page,pages,
+      first:total?offset+1:0,last:Math.min(offset+COMPACT_NETWORK_PAGE_SIZE,total),
+      discoveryUnavailable:!discoveredFirst||(provisionalTake>0&&!provisional),
+      technicalOnly:true,marketEvidence:true,
+      capabilityLabels:Object.fromEntries(selected.map(company=>[
+        company.id,company.capabilities.map(x=>x.name),
+      ])),
+    };
+  }
   if(technicalOnly){
     // Keep the Free/Pro tenant access guard before querying published technical data.
     // M6 exposes published structured company attributes, not unverified discoveries.

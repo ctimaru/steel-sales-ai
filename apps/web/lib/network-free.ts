@@ -21,6 +21,9 @@ export type FreeCompany = {
   finished_only?: boolean;
   geography_status?: "published" | "sourced_unverified" | "unknown";
   geo_source_url?: string | null;
+  market_name?: string | null;
+  market_source_url?: string | null;
+  market_evidence_status?: "candidate" | "accepted";
 };
 export type FreeDirectory = {
   contract: "netux11-free-v1";
@@ -213,4 +216,30 @@ export async function getFreeNetworkPagedDirectory(
   discovered_total:provisional?.total??0,discovery_unavailable:!provisional,
   published_page:published,discovery_page:provisional,
  };
+}
+
+
+/** DATA1C: sourced market matches from the *existing* provisional directory.
+ * This RPC enforces the same Free/Pro organization permission as normal browsing.
+ * A candidate means the company website describes the sector: never a verified firm.
+ */
+export async function getNetworkDiscoveredMarketPage(
+ organizationId:string,access:"free"|"pro",filters:{
+  market:string;q?:string;role?:string;region?:string;offset:number;limit:number;
+ }
+):Promise<{items:FreeCompany[];total:number}>{
+ const supabase=await createClient();
+ const {data,error}=await supabase.rpc("netdata1c_market_discovery_page",{
+  p_organization_id:organizationId,p_access:access,p_market:filters.market,
+  p_query:(filters.q||"").trim().slice(0,120)||null,
+  p_role:filters.role||null,
+  p_region:(filters.region||"").trim().slice(0,90)||null,
+  p_offset:filters.offset,p_limit:filters.limit,
+ });
+ if(error||!data||typeof data!=="object")throw new Error("network_market_discovery_unavailable");
+ const obj=data as {contract?:string;items?:FreeCompany[];total?:number;candidate_not_verified?:boolean};
+ if(obj.contract!=="netdata1c-market-discovery-v1"||obj.candidate_not_verified!==true||
+    !Array.isArray(obj.items)||typeof obj.total!=="number"||obj.items.length>filters.limit)
+   throw new Error("network_market_discovery_invalid_contract");
+ return {items:obj.items,total:obj.total};
 }
