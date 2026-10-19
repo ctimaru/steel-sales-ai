@@ -33,7 +33,7 @@ test("COMPACT1 pagination crosses canonical and discovered boundary",()=>{
  assert.match(paging,/getNetworkBrowsePage\(organizationId,access,"published"/);
  assert.match(paging,/getNetworkBrowsePage\(organizationId,access,"unconfirmed"/);
  assert.match(paging,/compactSourceWindows\(offset,COMPACT_NETWORK_PAGE_SIZE,publishedCount,discoveredCount\)/);
- assert.match(paging,/items:\[\.\.\.publishedItems,\.\.\.discoveredItems\]/);
+ assert.match(paging,/withCompactGeoEvidence\(organizationId,access,\[\.\.\.publishedItems,\.\.\.discoveredItems\]\)/);
  assert.match(ui,/aria-label="Pagina successiva"/);
  assert.match(ui,/aria-label="Pagina precedente"/);
 });

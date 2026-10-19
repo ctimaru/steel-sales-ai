@@ -1,7 +1,7 @@
 import {NetworkCountryFlag} from "@/components/network-country-flag";
 import {NetworkLiveSearch} from "@/components/network-live-search";
 import Link from "next/link";
-import type {FreeCompany} from "@/lib/network-free";
+import {safeNetworkWebsiteUrl, type FreeCompany} from "@/lib/network-free";
 import type {CompactNetworkFilters,CompactNetworkPage} from "@/lib/network-compact-directory";
 import {NetworkMiniMap} from "@/components/network-resilient-first-screen";
 import type {ItalyRegionCoverage,ItalyProvisionalGeoCoverage} from "@/lib/network-region-coverage";
@@ -59,6 +59,8 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
   const role=company.roles[0];
   const domain=companyDomain(company);
   const location=[company.location?.city,company.location?.region].filter(Boolean).join(" · ");
+  const locationIndicative=company.geography_status==="sourced_unverified";
+  const locationSource=safeNetworkWebsiteUrl(company.geo_source_url);
   const countryCode=(company.country_code||"").toUpperCase();
   const countryLabel=countries[countryCode]||countryCode||"Paese non indicato";
   return <article className={"grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[#e8eeeb] px-3 py-3 last:border-b-0 sm:px-4 lg:py-2.5 "+COMPANY_COLUMNS}
@@ -71,8 +73,12 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
         <h3 className="truncate text-sm font-semibold text-[#173f35]" title={name}>{name}</h3>
         {domain?<p className="truncate text-xs text-[#52615b]">{domain}</p>:null}
         <p className="mt-0.5 truncate text-[11px] text-[#52615b] lg:hidden">
-          {role?(keys[role.key]||role.name):"Ruolo non indicato"}{" · "}<NetworkCountryFlag code={countryCode}/> {countryLabel}{location?" · "+location:""}
+          {role?(keys[role.key]||role.name):"Ruolo non indicato"}{" · "}<NetworkCountryFlag code={countryCode}/> {countryLabel}{location?" · "+location:""}{locationIndicative && location?" · località indicativa":""}
         </p>
+        {locationSource&&locationIndicative&&location?
+          <a href={locationSource} target="_blank" rel="noopener noreferrer"
+            className="mt-0.5 inline-flex text-[11px] font-semibold text-[#175640] underline underline-offset-2 lg:hidden"
+            aria-label={"Fonte della località indicativa di "+name}>Fonte località ↗</a>:null}
       </div>
     </div>
     <div className="hidden min-w-0 lg:block">
@@ -94,7 +100,15 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
         <NetworkCountryFlag code={countryCode}/>
         <span className="truncate">{countryLabel}</span>
       </p>
-      <p className="truncate text-[11px] text-[#52615b]">{location||"Sede non indicata"}</p>
+      <p className="truncate text-[11px] text-[#52615b]" title={location||"Località da integrare"}>
+        {location||"Località da integrare"}
+      </p>
+      {locationIndicative&&location?<p className="mt-0.5 flex items-center gap-1.5 text-[10px] text-[#52615b]">
+        <span>Località indicativa</span>
+        {locationSource?<a href={locationSource} target="_blank" rel="noopener noreferrer"
+          aria-label={"Fonte della località indicativa di "+name}
+          className="font-semibold text-[#175640] underline underline-offset-2">Fonte ↗</a>:null}
+      </p>:null}
     </div>
     <Link href={"/network/"+company.id}
       className="ui-action ui-action-primary inline-flex min-h-10 w-full min-w-[112px] items-center justify-center whitespace-nowrap rounded-lg px-3 text-xs font-semibold">
@@ -110,6 +124,7 @@ export function NetworkCompactExperience({
   const knownTotals=!directory.discoveryUnavailable;
   const technicalOnly=Boolean(directory.technicalOnly);
   const companyCount=directory.total;
+  const listedLocationCount=directory.items.filter(company=>Boolean(company.location?.city||company.location?.region)).length;
   return <main className="mx-auto w-full max-w-[1560px] space-y-3 pb-8" data-testid="network-compact-experience">
     <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_235px]">
       <div className="min-w-0">
@@ -226,6 +241,7 @@ export function NetworkCompactExperience({
           {knownTotals?companyCount.toLocaleString("it-IT")+" aziende trovate":"Profili disponibili"}
         </h2>
         <div className="flex items-center gap-2 text-xs text-[#52615b]">
+          <span className="hidden text-[11px] text-[#52615b] md:inline" title="Località pubblicate o provenienti da fonti consultabili; quelle indicative non equivalgono a una sede certificata">Località disponibili: {listedLocationCount}/{directory.items.length}</span>
           <span className="hidden tabular-nums sm:inline">{directory.total?directory.first+"–"+directory.last+" di "+directory.total:"Nessun risultato"}</span>
           <span className="tabular-nums">{directory.page} / {directory.pages}</span>
           <nav aria-label="Pagine del Network" className="inline-flex overflow-hidden rounded-lg border border-[#d7e3dc]">

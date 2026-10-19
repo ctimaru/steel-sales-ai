@@ -47,7 +47,7 @@ test("COMPACT3.3 uses built-in vector flags rather than OS emoji rendering",()=>
     "country icon must appear in both desktop and compact/mobile layouts");
   assert.match(page,/countryLabel/);
   assert.match(page,/company.location\?\.city/);
-  assert.match(page,/Sede non indicata/);
+  assert.match(page,/Località da integrare/);
   assert.doesNotMatch(page,/nation.flag/);
 });
 
