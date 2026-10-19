@@ -53,6 +53,12 @@ as $function$
               or l.raw_spec_text ilike p.pattern
               or l.requested_grade ilike p.pattern
               or l.requested_standard ilike p.pattern
+              -- EN10219 and EN 10219 refer to the same steel norm.
+              or (
+                length(pg_catalog.regexp_replace(p.q,'[^[:alnum:]]','','g')) >= 3
+                and pg_catalog.regexp_replace(coalesce(l.requested_standard,''),'[^[:alnum:]]','','g')
+                  ilike '%' || pg_catalog.regexp_replace(p.q,'[^[:alnum:]]','','g') || '%'
+              )
               or l.notes ilike p.pattern
             )
         )
