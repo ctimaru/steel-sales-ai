@@ -1,0 +1,177 @@
+[
+  {
+    "kind": "canonical",
+    "company_id": "2d66cd55-4b53-4e0a-8242-ac6762b46c08",
+    "company_name": "996 MECART S.r.l.",
+    "site": "https://mecart-piegatura-tubi.it/ita/",
+    "domain": "mecart-piegatura-tubi.it"
+  },
+  {
+    "kind": "canonical",
+    "company_id": "63ffbb8b-f361-4371-b10e-d21854aac87d",
+    "company_name": "Commercio Tubi S.r.l.",
+    "site": "https://www.commerciotubi.it/",
+    "domain": "commerciotubi.it"
+  },
+  {
+    "kind": "canonical",
+    "company_id": "84e64990-7a88-47c7-8445-d5e75e96fd42",
+    "company_name": "CPS S.r.l.",
+    "site": "https://www.cpssrl.com/",
+    "domain": "cpssrl.com"
+  },
+  {
+    "kind": "canonical",
+    "company_id": "efe1cf9c-1de3-4754-9572-95cdb77b6188",
+    "company_name": "Diego Buttignol S.r.l.",
+    "site": "https://www.diegobuttignol.it/",
+    "domain": "diegobuttignol.it"
+  },
+  {
+    "kind": "canonical",
+    "company_id": "576fa0d7-4a96-4ebe-bc2f-8c18d6a9d38d",
+    "company_name": "Ecor S.p.A.",
+    "site": "https://ecor.com/",
+    "domain": "ecor.com"
+  },
+  {
+    "kind": "canonical",
+    "company_id": "3f5817a1-607b-4b02-8cc3-e2abf2dc9bf5",
+    "company_name": "Ferro Tubi S.p.A.",
+    "site": "https://www.ferrotubi.com/",
+    "domain": "ferrotubi.com"
+  },
+  {
+    "kind": "canonical",
+    "company_id": "51100000-0000-5000-8000-000000000004",
+    "company_name": "Generaltubi S.p.A.",
+    "site": "https://www.generaltubi.com/",
+    "domain": "generaltubi.com"
+  },
+  {
+    "kind": "canonical",
+    "company_id": "51100000-0000-5000-8000-000000000007",
+    "company_name": "ILT PROCESS TUBE S.r.l.",
+    "site": "https://www.iltsrl.it/",
+    "domain": "iltsrl.it"
+  },
+  {
+    "kind": "canonical",
+    "company_id": "b6dfc4cc-ceb4-461e-a1b6-be482f43811c",
+    "company_name": "Inossidabile S.r.l.",
+    "site": "https://www.inossidabilesrl.com/",
+    "domain": "inossidabilesrl.com"
+  },
+  {
+    "kind": "canonical",
+    "company_id": "b3789bb2-edb8-4623-9e84-f77a2c35813f",
+    "company_name": "Off Borsari S.r.l.",
+    "site": "https://www.offborsari.it/",
+    "domain": "offborsari.it"
+  },
+  {
+    "kind": "canonical",
+    "company_id": "d9dddbe2-f433-401c-b08f-837325296417",
+    "company_name": "pec.it L.C.F. S.r.l.",
+    "site": "https://www.lcfitalia.it/it/",
+    "domain": "lcfitalia.it"
+  },
+  {
+    "kind": "canonical",
+    "company_id": "977a73ea-a45b-4eba-92cd-49e0da936841",
+    "company_name": "SCALTRITTI S.p.A.",
+    "site": "https://www.scaltritti.it/",
+    "domain": "scaltritti.it"
+  },
+  {
+    "kind": "canonical",
+    "company_id": "59d32df2-22c9-48f9-b00c-edb2ac68141b",
+    "company_name": "TAD Long Products S.p.A.",
+    "site": "https://tadlongproducts.it/",
+    "domain": "tadlongproducts.it"
+  },
+  {
+    "kind": "canonical",
+    "company_id": "f156ae34-1ca2-457f-b1ee-13055b4ce17b",
+    "company_name": "Tecnica Tre S.r.l.",
+    "site": "https://www.tecnicatre.it/",
+    "domain": "tecnicatre.it"
+  },
+  {
+    "kind": "canonical",
+    "company_id": "a0edd4af-8343-4054-b7ea-f561e49078b6",
+    "company_name": "Tecno Meccaniche Moderne S.r.l.",
+    "site": "https://www.tecnomeccaniche.it/",
+    "domain": "tecnomeccaniche.it"
+  },
+  {
+    "kind": "canonical",
+    "company_id": "fd23dc11-4968-4720-90ba-101780e2032d",
+    "company_name": "Tecnocurve S.r.l.",
+    "site": "https://www.tecnocurve.it/",
+    "domain": "tecnocurve.it"
+  },
+  {
+    "kind": "canonical",
+    "company_id": "b4d0ec01-fb5d-4f27-92be-ba94c95f1765",
+    "company_name": "Tubauto S.r.l.",
+    "site": "https://www.tubauto.it/it/",
+    "domain": "tubauto.it"
+  },
+  {
+    "kind": "canonical",
+    "company_id": "af292b87-c7f8-48fd-888f-771469c48ef9",
+    "company_name": "Tubificio del Friuli S.p.A.",
+    "site": "https://www.tubificiodelfriuli.com/",
+    "domain": "tubificiodelfriuli.com"
+  },
+  {
+    "kind": "discovered",
+    "company_id": "17584c17-4391-4644-b24d-432db2bcba95",
+    "company_name": "GBM Building Equipment",
+    "site": "https://gbmitaly.it/",
+    "domain": "gbmitaly.it"
+  },
+  {
+    "kind": "discovered",
+    "company_id": "3a968b27-35e6-4441-be55-657553b91166",
+    "company_name": "Metalco",
+    "site": "https://metalco.it/",
+    "domain": "metalco.it"
+  },
+  {
+    "kind": "discovered",
+    "company_id": "5a55b200-ce25-465d-9b15-620868c21296",
+    "company_name": "Colnago",
+    "site": "https://colnago.com/",
+    "domain": "colnago.com"
+  },
+  {
+    "kind": "discovered",
+    "company_id": "6dcac18d-16b1-4141-ba2a-3ed3702d445b",
+    "company_name": "Pedrali",
+    "site": "https://pedrali.com/",
+    "domain": "pedrali.com"
+  },
+  {
+    "kind": "discovered",
+    "company_id": "6e9c9637-c6c5-4bb4-85fc-899c0cd252fe",
+    "company_name": "SCAB Design",
+    "site": "https://scabdesign.com/",
+    "domain": "scabdesign.com"
+  },
+  {
+    "kind": "discovered",
+    "company_id": "850d0a3d-2ff5-4819-b70b-3389251da850",
+    "company_name": "RIMA",
+    "site": "https://rimaspa.com/",
+    "domain": "rimaspa.com"
+  },
+  {
+    "kind": "discovered",
+    "company_id": "aa8a06e3-af25-40d5-b78d-ec3cf77c4cd6",
+    "company_name": "Cinelli",
+    "site": "https://cinelli-milano.com/",
+    "domain": "cinelli-milano.com"
+  }
+]
