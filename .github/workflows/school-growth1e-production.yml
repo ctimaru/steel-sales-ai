@@ -1,0 +1,52 @@
+name: SCHOOL-GROWTH1E Public Production Visual & SEO Acceptance
+
+on:
+  deployment_status:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: school-growth1e-production
+  cancel-in-progress: true
+
+jobs:
+  production-school-qa:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    defaults:
+      run:
+        working-directory: apps/web
+    env:
+      SCHOOL_QA_BASE_URL: https://www.smartsteelsales.com
+      SCHOOL_QA_OUT: /tmp/school-growth1e-production
+      SCHOOL_QA_BROWSER: chrome
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install public Chrome QA dependencies (no production secrets)
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chrome
+      - name: Audit live public Scuola HTML, visual, contrast, OG PNG MIME/pixels
+        run: node tests/school-growth1e-chrome-acceptance.mjs
+      - name: Upload public screenshots, binary image evidence, and result JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: school-growth1e-production-evidence
+          path: /tmp/school-growth1e-production
+          if-no-files-found: ignore
+          retention-days: 7
