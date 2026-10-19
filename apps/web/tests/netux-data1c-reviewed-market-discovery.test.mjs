@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 const read=p=>readFileSync(new URL(p,import.meta.url),"utf8");
-const sql=read("../../supabase/migrations/20261019190000_netdata1c_market_evidence_and_discovery.sql");
+const sql=read("../../../supabase/migrations/20261019190000_netdata1c_market_evidence_and_discovery.sql");
 const filters=read("../lib/network-compact-directory.ts");
 const free=read("../lib/network-free.ts");
 const ui=read("../components/network-compact-experience.tsx");
