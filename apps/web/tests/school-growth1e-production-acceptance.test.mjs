@@ -27,6 +27,8 @@ test("SCHOOL-GROWTH1E mobile and desktop screenshots, computed contrast and over
   assert.match(browser,/ratio>=4\.5/);
   assert.match(browser,/geom\.scroll <= geom\.viewport\+12/);
   assert.match(browser,/page\.screenshot/);
+  assert.match(browser,/scrollIntoViewIfNeeded/);
+  assert.match(browser,/coverIndex<coverCount/);
   assert.match(browser,/school-primary-action, .school-secondary-action/);
   assert.match(browser,/isMobile:width===390/);
   assert.match(browser,/if \(!\["GET","HEAD"\]\.includes\(req\.method\(\)\)/);

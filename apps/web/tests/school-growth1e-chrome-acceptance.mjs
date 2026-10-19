@@ -80,9 +80,19 @@ try {
         const covers=await page.locator('img[src*="/school/visuals/"]').evaluateAll(nodes =>
           nodes.map(img=>({alt:img.getAttribute("alt"),width:img.naturalWidth,height:img.naturalHeight,complete:img.complete})));
         if (item.image) {
-          await page.locator('img[src*="/school/visuals/"]').first().waitFor({state:"visible",timeout:25000});
-          await page.waitForFunction(()=>Array.from(document.querySelectorAll('img[src*="/school/visuals/"]')).every(img=>img.complete&&img.naturalWidth>0),null,{timeout:12000});
-          const valid=await page.locator('img[src*="/school/visuals/"]').evaluateAll(nodes=>nodes.every(n=>n.alt?.trim()&&n.naturalWidth===1200&&n.naturalHeight===675));
+          // Images below the mobile fold are intentionally lazy. Scroll each
+          // into the viewport before expecting the browser to download it.
+          const coverLocators = page.locator('img[src*="/school/visuals/"]');
+          const coverCount = await coverLocators.count();
+          assert.ok(coverCount > 0,label+" missing article covers");
+          for(let coverIndex=0;coverIndex<coverCount;coverIndex++){
+            await coverLocators.nth(coverIndex).scrollIntoViewIfNeeded({timeout:10000});
+            await page.waitForFunction((index)=>{
+              const img=document.querySelectorAll('img[src*="/school/visuals/"]')[index];
+              return Boolean(img&&img.complete&&img.naturalWidth>0);
+            },coverIndex,{timeout:20000});
+          }
+          const valid=await coverLocators.evaluateAll(nodes=>nodes.every(n=>n.alt?.trim()&&n.naturalWidth===1200&&n.naturalHeight===675));
           assert.ok(valid,label+" broken editorial visual or missing alt");
           if (item.canonical.startsWith("/knowledge/articoli/")) {
             assert.ok(await page.locator("figure figcaption").count()>0,label+" missing educational caption");
