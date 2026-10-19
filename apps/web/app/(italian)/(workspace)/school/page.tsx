@@ -4,7 +4,9 @@ import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-u
 import { PilotEvent } from "@/components/pilot-event";
 import { SchoolQuickAccess } from "@/components/school-quick-access";
 import { SchoolJourney, SchoolTechnicalSections } from "@/components/school-unified-experience";
-import { SchoolPageLanguageSelector } from "@/components/calculator-page-language-selector";
+import { SchoolPrivateTopbar } from "@/components/school-private-language-switch";
+import { SchoolLocalizedWorkspaceHome } from "@/components/school-localized-workspace-home";
+import { schoolWorkspaceLocale } from "@/lib/school-workspace-i18n";
 import { appRoutes } from "@/lib/routes";
 
 const technicalShortcuts = [
@@ -14,10 +16,13 @@ const technicalShortcuts = [
   { label: "P265GH", href: `${appRoutes.knowledge.schoolGrades}?q=P265GH` },
 ] as const;
 
-export default function SchoolPage() {
+export default async function SchoolPage({searchParams}:{searchParams:Promise<{lang?:string}>}) {
+  const locale=schoolWorkspaceLocale((await searchParams).lang);
+  if(locale!=="it") return <SchoolLocalizedWorkspaceHome locale={locale}/>;
   return (
     <FocusPage className="max-w-[1120px]">
       <PilotEvent eventName="school_home_viewed" metadata={{ surface: "school_home" }} />
+      <SchoolPrivateTopbar locale="it"/>
       <FocusHeader
         eyebrow="Scuola"
         title="Il toolbox tecnico per acciaio e tubi"
@@ -37,7 +42,7 @@ export default function SchoolPage() {
           <h2 className="mt-2 text-xl font-semibold text-[#173f35]">Stessi strumenti, un'unica esperienza</h2>
           <p className="mt-2 max-w-lg text-sm leading-7 text-[#506157]">La conoscenza tecnica è pubblica e consultabile in cinque lingue. I documenti aziendali restano nel workspace riservato.</p>
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            <SchoolPageLanguageSelector locale="it"/>
+            <span className="text-xs font-semibold text-[#174b3c]">IT · Workspace</span>
             <Link href="/knowledge" className="school-secondary-action">Apri la Scuola pubblica →</Link>
           </div>
         </div>

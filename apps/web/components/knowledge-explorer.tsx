@@ -1,6 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import type { SchoolWorkspaceLocale } from "@/lib/school-workspace-i18n";
+const explorerLabels: Record<SchoolWorkspaceLocale,{title:string;description:string;search:string;searching:string;placeholder:string;filters:string;entities:string;sources:string;results:string;documents:string;empty:string;emptyHelp:string}> = {
+  it:{title:"Cerca nel knowledge layer",description:"Ricerca su documenti e dati aziendali con fonti e provenance verificabili.",search:"Cerca",searching:"Ricerca...",placeholder:"Es. offerte S355J2H EN 10219 tubi rettangolari",filters:"Filtri strutturati",entities:"Entità e dati commerciali",sources:"Fonte e documento",results:"risultati",documents:"documenti",empty:"Nessuna evidence trovata",emptyHelp:"Prova una query più ampia oppure rimuovi uno dei filtri strutturati."},
+  en:{title:"Search company knowledge",description:"Search company documents and commercial data with traceable sources and provenance.",search:"Search",searching:"Searching...",placeholder:"e.g. S355J2H EN 10219 rectangular tube offers",filters:"Structured filters",entities:"Entities and commercial data",sources:"Source and document",results:"results",documents:"documents",empty:"No evidence found",emptyHelp:"Try a broader query or remove a filter."},
+  de:{title:"Firmenwissen durchsuchen",description:"Firmendokumente und Geschäftsdaten mit nachvollziehbarer Quelle und Herkunft durchsuchen.",search:"Suchen",searching:"Suche läuft...",placeholder:"z. B. Angebote S355J2H EN 10219",filters:"Strukturierte Filter",entities:"Entitäten und Geschäftsdaten",sources:"Quelle und Dokument",results:"Ergebnisse",documents:"Dokumente",empty:"Keine Nachweise gefunden",emptyHelp:"Versuchen Sie eine allgemeinere Suche oder entfernen Sie einen Filter."},
+  fr:{title:"Rechercher dans les documents",description:"Recherchez les documents et données commerciales avec leurs sources et provenance.",search:"Rechercher",searching:"Recherche...",placeholder:"ex. offres S355J2H EN 10219",filters:"Filtres structurés",entities:"Entités et données commerciales",sources:"Source et document",results:"résultats",documents:"documents",empty:"Aucune preuve trouvée",emptyHelp:"Élargissez la requête ou retirez un filtre."},
+  es:{title:"Buscar en el conocimiento empresarial",description:"Busca documentos y datos comerciales con fuentes y procedencia comprobables.",search:"Buscar",searching:"Buscando...",placeholder:"ej. ofertas S355J2H EN 10219",filters:"Filtros estructurados",entities:"Entidades y datos comerciales",sources:"Origen y documento",results:"resultados",documents:"documentos",empty:"No se encontraron evidencias",emptyHelp:"Prueba una consulta más amplia o elimina un filtro."},
+};
+
 import { useActionState, useMemo, useState } from "react";
 
 import {
@@ -59,7 +68,8 @@ function locationLabel(result: KnowledgeSearchResult) {
   return parts.join(" · ");
 }
 
-export function KnowledgeExplorer() {
+export function KnowledgeExplorer({locale="it"}:{locale?:SchoolWorkspaceLocale}) {
+  const ui=explorerLabels[locale];
   const [state, formAction, pending] = useActionState(searchKnowledge, initialState);
   const [query, setQuery] = useState("");
 
@@ -81,10 +91,9 @@ export function KnowledgeExplorer() {
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
             Hybrid semantic retrieval
           </p>
-          <h2 className="mt-2 text-xl font-semibold">Cerca nel knowledge layer</h2>
+          <h2 className="mt-2 text-xl font-semibold">{ui.title}</h2>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-300">
-            La query combina embedding E5, full-text, entità canoniche e filtri commerciali.
-            I risultati mantengono sempre documento, chunk e provenance.
+            {ui.description}
           </p>
         </div>
 
@@ -94,8 +103,8 @@ export function KnowledgeExplorer() {
               name="query"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Es. offerte S355J2H EN 10219 tubi rettangolari"
-              aria-label="Query semantica"
+              placeholder={ui.placeholder}
+              aria-label={ui.title}
               required
               minLength={2}
               className="h-12 flex-1 text-base"
@@ -105,7 +114,7 @@ export function KnowledgeExplorer() {
               disabled={pending || query.trim().length < 2}
               className="h-12 rounded-xl bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-wait disabled:opacity-50"
             >
-              {pending ? "Ricerca..." : "Cerca"}
+              {pending ? ui.searching : ui.search}
             </button>
           </div>
 
@@ -124,12 +133,12 @@ export function KnowledgeExplorer() {
 
           <details className="rounded-xl border border-slate-200 bg-slate-50/70">
             <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-slate-800">
-              Filtri strutturati
+              {ui.filters}
             </summary>
             <div className="space-y-4 border-t border-slate-200 p-4">
               <div>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Entità e dati commerciali
+                  {ui.entities}
                 </p>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   <Input name="company" placeholder="Azienda" />
@@ -158,7 +167,7 @@ export function KnowledgeExplorer() {
 
               <div>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-                  Fonte e documento
+                  {ui.sources}
                 </p>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   <Input name="source_class" placeholder="Classe fonte, es. internal" />
@@ -209,10 +218,10 @@ export function KnowledgeExplorer() {
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
               <p className="text-sm font-semibold text-slate-950">
-                {(state.count ?? 0).toLocaleString("it-IT")} risultati
+                {(state.count ?? 0).toLocaleString(locale)} {ui.results}
               </p>
               <p className="mt-1 text-xs text-slate-500">
-                {groups.length.toLocaleString("it-IT")} documenti · modello {state.model?.model_name ?? "active"}
+                {groups.length.toLocaleString(locale)} {ui.documents} · modello {state.model?.model_name ?? "active"}
               </p>
             </div>
             <div className="flex max-w-3xl flex-wrap justify-end gap-2">
@@ -336,9 +345,9 @@ export function KnowledgeExplorer() {
 
           {(state.results ?? []).length === 0 ? (
             <Card className="p-10 text-center">
-              <p className="font-semibold text-slate-800">Nessuna evidence trovata</p>
+              <p className="font-semibold text-slate-800">{ui.empty}</p>
               <p className="mt-2 text-sm text-slate-500">
-                Prova una query più ampia oppure rimuovi uno dei filtri strutturati.
+                {ui.emptyHelp}
               </p>
             </Card>
           ) : null}

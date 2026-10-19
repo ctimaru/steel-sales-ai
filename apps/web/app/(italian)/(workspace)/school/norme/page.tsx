@@ -1,12 +1,15 @@
 import StandardsIndexPage from "@/app/(public)/knowledge/norme/page";
 import { PilotEvent } from "@/components/pilot-event";
+import { SchoolPrivateReferenceIndex } from "@/components/school-private-reference-index";
+import { schoolWorkspaceLocale } from "@/lib/school-workspace-i18n";
 
 export default async function SchoolStandardsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; lang?: string }>;
 }) {
   const params = await searchParams;
+  const locale = schoolWorkspaceLocale(params.lang);
   return (
     <>
       {params.q?.trim() ? (
@@ -15,7 +18,9 @@ export default async function SchoolStandardsPage({
           metadata={{ surface: "school_standards", format: "standard" }}
         />
       ) : null}
-      <StandardsIndexPage searchParams={Promise.resolve(params)} />
+      {locale==="it"
+        ? <StandardsIndexPage searchParams={Promise.resolve(params)} />
+        : <SchoolPrivateReferenceIndex locale={locale} kind="norme" query={params.q??""}/>}
     </>
   );
 }
