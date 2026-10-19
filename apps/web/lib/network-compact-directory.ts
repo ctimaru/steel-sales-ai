@@ -51,7 +51,8 @@ async function sourceSlice(
 export async function getCompactNetworkPage(
   organizationId:string,access:"free"|"pro",filters:CompactNetworkFilters,
 ):Promise<CompactNetworkPage>{
-  const technicalOnly=Boolean(filters.product||filters.capability||filters.market||filters.country);
+  const technicalOnly=Boolean(filters.product||filters.capability||filters.market||
+    (filters.country && filters.country.toUpperCase()!=="IT"));
   if(technicalOnly){
     // Keep the Free/Pro tenant access guard before querying published technical data.
     // M6 exposes published structured company attributes, not unverified discoveries.
