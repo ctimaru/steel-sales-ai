@@ -41,3 +41,11 @@ Si tratta di dichiarazioni aziendali osservate su fonte ufficiale, non di capaci
 4. Console Platform Company Intelligence (KPI, queue, source links e tabella comparativa) e promozione dei dati soltanto con review/autorizzazione.
 
 Riferimenti: https://github.com/ctimaru/steel-sales-ai/issues/736 e https://www.smartsteelsales.com/network
+
+## Progressivo DATA1B — 19 ottobre 2026 (nuovi settori)
+- 6 nuove località official-site osservate nel lotto dinamico: SCM Group (Rimini RN), Merlo (Cervasca CN), Fassi Gru (Albino BG), Comer Industries (Reggiolo RE), Casappa (Collecchio PR), Peruzzo (Curtarolo PD). Il contatore discovered geo passa da 40 a **46**; tutte `source_observed` senza verifica/publishing.
+- 7 nuove entità discovered tramite `netdensity3_seed_first_party`: Fincantieri (marine), Ansaldo Energia (energy), Cimolai e Webuild (construction), SACMI (industrial equipment/packaging), Aermec e CAREL (HVAC). Tutte `needs_review`, senza pubblicazioni o verifiche di acquirente: 7 inserite, 0 duplicate o invalide. Siti aziendali come fonti primarie.
+- Totale ora **508**: 32 published canonical + **476** discovered. Geo utilizzabile **74** = 46 discovered osservate, 25 pending canonical, 3 facilities published; **1 conflict** separato; 508 - 74 - 1 = 433 senza geo utilizzabile e senza conflict (verifica via audit quando pronto).
+- Le segmentazioni del modello legacy sono ancora `other` per 6 nuove entità, e `industrial_equipment` per SACMI. La mappatura puntuale ai `network_markets` esistenti è una **proposta da validare** e non ancora un filtro reale per le schede discovered.
+- Diritti: il sito Orsi Group ha restrizioni esplicite al riuso commerciale; Orsi non è stato inserito nel lotto geografico. Le fonti di Dallara hanno restrizioni analoghe e non sono state importate in questo ciclo. Dati personali non estratti.
+- Il label costante `scope` della RPC è stato corretto da un numero fisso a `all-visible-network-profiles-dynamic`, perché il Network continua a crescere.
