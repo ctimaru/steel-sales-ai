@@ -5,13 +5,13 @@ create or replace function public.netdata1_company_audit(
   p_limit integer default 25,
   p_offset integer default 0
 ) returns jsonb
-language plpgsql stable security invoker
+language plpgsql stable security definer
 set search_path=''
 as $function$
 declare v_summary jsonb;
 declare v_items jsonb;
 begin
-  if current_user <> 'service_role' then
+  if current_setting('role',true) is distinct from 'service_role' then
     raise exception 'Service-only company intelligence audit' using errcode='42501';
   end if;
   if p_limit is null or p_limit < 1 or p_limit > 25
