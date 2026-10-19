@@ -121,7 +121,7 @@ test("COMPACT6B Free/Pro shares sourced taxonomy and never creates a competing s
   const panel=read("../components/network-conversation.tsx");
   const action=read("../app/(italian)/(workspace)/network/conversation-actions.ts");
   const data=read("../lib/network-compact-directory.ts");
-  assert.match(ui,/<NetworkConversation\/>/);
+  assert.match(ui,/<NetworkConversation userId=\{userId\} organizationId=\{organizationId\} canCompose=\{canCompose\}\/>/);
   assert.match(action,/interpretNetworkIntent\(query,taxonomy\)/);
   assert.match(panel,/IT · EN · DE · FR · ES/);
   assert.match(action,/I dati tecnici si riferiscono ai soli profili pubblicati/);

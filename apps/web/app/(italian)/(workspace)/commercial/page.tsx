@@ -208,6 +208,7 @@ export default async function CommercialHomePage({
             authenticated
             returnToCommercial
             userId={context.userId}
+            organizationId={context.organizationId}
             emailConfigured={Boolean(process.env.RESEND_API_KEY)}
             catalogOptions={catalogOptions}
           />

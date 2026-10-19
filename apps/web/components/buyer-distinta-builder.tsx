@@ -20,6 +20,7 @@ import {
   type BuyerSessionDraft,
 } from "@/lib/buyer-distinta-session-draft";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import {networkReviewedHandoffKey,parseNetworkReviewedHandoff,type NetworkReviewedHandoff} from "@/lib/network-reviewed-rfq-handoff";
 
 import {
   createBuyerRfqCampaign,
@@ -82,6 +83,7 @@ export function BuyerDistintaBuilder({
   catalogOptions,
   workspace = false,
   userId = null,
+  organizationId = null,
   returnToCommercial = false,
 }: {
   authenticated: boolean;
@@ -89,6 +91,7 @@ export function BuyerDistintaBuilder({
   catalogOptions: BuyerDistintaCatalogOption[];
   workspace?: boolean;
   userId?: string | null;
+  organizationId?: string | null;
   returnToCommercial?: boolean;
 }) {
   const router = useRouter();
@@ -113,6 +116,8 @@ export function BuyerDistintaBuilder({
   const [copyState, setCopyState] = useState<"idle" | "copied" | "error">("idle");
   const [calculatorHandoffCount, setCalculatorHandoffCount] = useState(0);
   const [calculatorHandoffOverflow, setCalculatorHandoffOverflow] = useState(false);
+  const [networkHandoff,setNetworkHandoff]=useState<NetworkReviewedHandoff|null>(null);
+  const [networkHandoffError,setNetworkHandoffError]=useState("");
   const [savedId, setSavedId] = useState<string | null>(null);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [recipientInput, setRecipientInput] = useState("");
@@ -126,6 +131,8 @@ export function BuyerDistintaBuilder({
   const [draftReady, setDraftReady] = useState(false);
   const [restoreCandidate, setRestoreCandidate] = useState<{ key: string; draft: BuyerSessionDraft } | null>(null);
   const draftKey = buyerDraftKey(authenticated ? userId : null);
+  const networkHandoffKey = authenticated&&userId&&organizationId
+    ? networkReviewedHandoffKey(userId,organizationId):null;
   const [savePending, startSaveTransition] = useTransition();
   const [sendPending, startSendTransition] = useTransition();
   const [rfqPending, startRfqTransition] = useTransition();
@@ -190,6 +197,33 @@ export function BuyerDistintaBuilder({
     // recipients or subject; none of these can be sent from browser storage.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draftReady, draftKey, title, lines, documents, guidedSpecsByLine, selectedCatalog, previewDraft]);
+
+  // NET-UX COMPACT6D: an independent, user+tenant-bound reviewed handoff.
+  // Never overwrite a saved or unsaved current draft and never auto-import.
+  useEffect(()=>{
+    if(!draftReady||restoreCandidate||!workspace||!networkHandoffKey)return;
+    try{
+      const raw=window.sessionStorage.getItem(networkHandoffKey);
+      const imported=parseNetworkReviewedHandoff(raw);
+      if(imported)setNetworkHandoff(imported);
+      else if(raw)window.sessionStorage.removeItem(networkHandoffKey);
+    }catch{
+      setNetworkHandoffError("Archivio temporaneo non disponibile: nessuna riga importata.");
+    }
+  },[draftReady,restoreCandidate,workspace,networkHandoffKey]);
+
+  function discardNetworkHandoff(){
+    try{if(networkHandoffKey)window.sessionStorage.removeItem(networkHandoffKey);}catch{/* no-op */}
+    setNetworkHandoff(null);setNetworkHandoffError("");
+  }
+  function importNetworkHandoff(){
+    if(!networkHandoff||!draftReady||restoreCandidate)return;
+    if(!insertRfqAiTextLines(networkHandoff.lines)){
+      setNetworkHandoffError("Impossibile aggiungere le righe: verifica validità o capienza (500 articoli).");
+      return;
+    }
+    discardNetworkHandoff();
+  }
 
   // CALC-UX2: read only after the optional existing draft has been either
   // restored or explicitly discarded. Never overwrite previous RFQ lines.
@@ -702,6 +736,32 @@ export function BuyerDistintaBuilder({
 
   return (
     <div className="bd54-page space-y-4 sm:space-y-5">
+      {networkHandoff&&workspace&&!restoreCandidate?<aside aria-label="Articoli approvati dal Network"
+        data-testid="network-reviewed-rfq-import"
+        className="rounded-xl border border-[#b7d1c4] bg-[#f1faf4] p-3 sm:p-4">
+        <p className="text-sm font-bold text-[#173f35]">Dal Network · {networkHandoff.lines.length} articoli verificati</p>
+        <p className="mt-1 text-xs leading-5 text-[#52615b]">
+          Hai confermato queste righe nella chat Network. Puoi aggiungerle alla distinta qui sotto,
+          mantenendo gli articoli già presenti. Non viene creata o inviata alcuna RFQ.
+        </p>
+        <ul className="mt-2 max-h-36 space-y-1 overflow-y-auto text-xs text-[#173f35]">
+          {networkHandoff.lines.map(line=><li key={line.id}>
+            {line.description} · {line.standard} · {line.grade} · {line.quantity} {line.quantityMode==="bars"?"barre":line.quantityMode==="meters"?"m":"t"} · {line.barLengthM} m/barra
+          </li>)}
+        </ul>
+        {networkHandoffError?<p role="alert" className="mt-2 text-xs text-[#875117]">{networkHandoffError}</p>:null}
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button type="button" onClick={importNetworkHandoff}
+            className="ui-action ui-action-primary min-h-10 rounded-lg px-3 text-xs font-semibold">
+            Aggiungi {networkHandoff.lines.length} articoli alla distinta
+          </button>
+          <button type="button" onClick={discardNetworkHandoff}
+            className="ui-action ui-action-secondary min-h-10 rounded-lg px-3 text-xs font-semibold">
+            Scarta passaggio
+          </button>
+        </div>
+      </aside>:null}
+      {networkHandoffError&&!networkHandoff?<p role="alert" className="text-xs text-[#875117]">{networkHandoffError}</p>:null}
       {calculatorHandoffCount > 0 ? (
         <aside role="status" aria-live="polite" className="rounded-xl border border-[#b5d9c7] bg-[#edf8f1] px-4 py-3 text-sm text-[#123b34]">
           <strong>{calculatorHandoffCount === 1 ? "Misura importata dal calcolatore" : calculatorHandoffCount + " misure importate dal calcolatore"} ✓</strong>
