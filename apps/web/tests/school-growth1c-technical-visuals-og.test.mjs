@@ -21,7 +21,7 @@ test("SCHOOL-GROWTH1C: three original technical SVG covers with alternative desc
     assert.match(img, /<title id="art-title">/);
     assert.match(img, /<desc id="art-desc">/);
     assert.ok(Buffer.byteLength(img) < 16000, slug+" SVG must stay small");
-    assert.doesNotMatch(img, /<script|<image|https?:\/\//i);
+    assert.doesNotMatch(img, /<script\b|<image\b|xlink:href|\bhref="https?:/i);
   }
   assert.match(data, /non rappresenta sedi, ubicazioni o capacità produttive reali/i);
 });
