@@ -22,16 +22,17 @@ test("NET-VISIBLE1: canonical Pro default no longer uses the limited technical r
  assert.match(pro,/getProNetworkDiscoveryDirectory\(context\.organizationId/);
  assert.match(lib,/getNetworkBrowsePage\(organizationId,"free","unconfirmed"/);
 });
-test("NET-VISIBLE1: main Network inventory includes provisional companies and filter tabs",()=>{
+test("NET-PROFILE1: both tiers expose unified discovery with profile-first actions",()=>{
  assert.match(banner,/published\+unconfirmed/);
  assert.match(banner,/aziende nel Network/);
- assert.match(banner,/Tutte/);
- assert.match(banner,/Da confermare/);
+ assert.doesNotMatch(banner,/Mostra aziende/);
  assert.match(banner,/network-company-list/);
- assert.match(pro,/listingView!=="published" \? <NetworkLaunchDiscovery/);
- assert.match(free,/listingView!=="published" \? <NetworkLaunchDiscovery/);
- assert.match(pro,/listingView!=="unconfirmed" \? <section id="network-region-results"/);
- assert.match(free,/listingView!=="unconfirmed" \? <section id="network-region-results"/);
+ assert.match(pro,/<NetworkLaunchDiscovery directory=\{previewDirectory\}/);
+ assert.match(free,/<NetworkLaunchDiscovery directory=\{data\}/);
+ assert.match(pro,/<section id="network-region-results"/);
+ assert.match(free,/<section id="network-region-results"/);
+ assert.match(pro,/Esplora azienda/);
+ assert.match(free,/Esplora azienda/);
  assert.match(pro,/view:params\.view/);
  assert.match(free,/view\?: string/);
 });

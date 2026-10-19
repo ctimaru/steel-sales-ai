@@ -25,11 +25,11 @@ test("NET-LAUNCH1: Free users see discoveries first and map after company result
  assert.match(directory,/NetworkLaunchDiscovery directory=\{data\}/);
  assert.ok(directory.indexOf("<NetworkLaunchDiscovery") < directory.indexOf('id="network-region-results"'));
  assert.ok(directory.indexOf("<ItalyRegionMap") > directory.indexOf('id="network-region-results"'));
- assert.match(directory,/aziende scoperte · da confermare/);
+ assert.match(directory,/Esplora tutte le aziende della filiera/);
 });
 test("NET-LAUNCH1: cards never assert discovery is verified business",()=>{
- assert.match(feed,/Da confermare/);
- assert.match(feed,/clienti confermati né fornitori qualificati/);
+ assert.match(feed,/La presenza nel Network non implica adesione al servizio/);
+ assert.match(feed,/fonti consultabili/);
  assert.match(feed,/item\.discovery_status==="unconfirmed"/);
  assert.doesNotMatch(feed,/service_role|supabase\.rpc\(/,"Presentation only, reuse existing RLS gate");
 });
