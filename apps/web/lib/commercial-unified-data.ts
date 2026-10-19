@@ -32,6 +32,9 @@ export type UnifiedCommercialData = {
     total: number | null;
     hasNext: boolean;
     exact: boolean;
+    currentCursor?: string | null;
+    nextCursor?: string | null;
+    previousCursor?: string | null;
   };
 };
 
