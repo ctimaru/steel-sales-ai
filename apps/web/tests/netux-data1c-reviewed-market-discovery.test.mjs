@@ -43,7 +43,7 @@ test("DATA1C market-only search mixes paged published and reviewed-source discov
  assert.match(filters,/await getNetworkBrowsePage\(organizationId,access,"published"/);
  assert.match(filters,/getNetworkDiscoveredMarketPage\(organizationId,access/);
  assert.match(filters,/compactSourceWindows\(offset,COMPACT_NETWORK_PAGE_SIZE,publishedCount,discoveredCount\)/);
- assert.match(filters,/provisionalTake>0&&discoveredFirst/);
+ assert.match(filters,/provisionalTake>0 && discoveredFirst/);
  assert.match(filters,/marketEvidence:true/);
  assert.match(filters,/filters\.market && !filters\.product && !filters\.capability/);
  assert.match(free,/p_organization_id:organizationId,p_access:access,p_market:filters.market/);
@@ -60,7 +60,7 @@ test("DATA1C says sector indicator, never validated tube buyer or production cap
 });
 test("DATA1C platform review requires permission and stays distinct from company claim",()=>{
  assert.match(platform,/requirePlatformPermission\("discovery.read"\)/);
- assert.match(platform,/market-review/);
+ assert.match(actions,/const route="\/platform\/company-discovery\/market-review"/);
  assert.match(platform,/Approva settore documentato/);
  assert.match(platform,/Rifiuta evidenza/);
  assert.match(actions,/requirePlatformPermission\("discovery.enrich"\)/);
