@@ -170,7 +170,8 @@ export function NetworkCompactExperience({
 
     <section aria-label="Ricerca e filtri delle aziende" className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-3 sm:p-4">
       <NetworkLiveSearch filters={filters}/>
-      <NetworkIntentSearch regions={regions} products={additionalFilters?.products||[]}/>
+      <NetworkIntentSearch regions={regions} products={additionalFilters?.products||[]}
+        capabilities={additionalFilters?.capabilities||[]} markets={additionalFilters?.markets||[]}/>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <span className="mr-1 text-[11px] font-bold uppercase tracking-wider text-[#175640]">Ruolo</span>
         <nav aria-label="Ruolo nella filiera" className="flex flex-wrap gap-1.5">
