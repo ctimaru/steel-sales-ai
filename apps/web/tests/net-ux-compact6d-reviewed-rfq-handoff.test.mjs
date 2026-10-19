@@ -67,7 +67,7 @@ test("COMPACT6D reuses existing verified RFQAI3 parser and human approval UI",()
  const chat=read("../components/network-conversation.tsx");
  const review=read("../components/rfq-ai-text-review.tsx");
  const aiAction=read("../app/(italian)/(workspace)/rfq-hub/distinta/ai-actions.ts");
- assert.match(bridge,/analyzeRfqAiFreeText\(sourceText\)/);
+ assert.match(bridge,/analyzeRfqAiFreeText\(snapshot\)/);
  assert.match(bridge,/<RfqAiTextReview/);
  assert.match(bridge,/serializeNetworkReviewedHandoff\(lines\)/);
  assert.match(bridge,/parseNetworkReviewedHandoff\(window.sessionStorage.getItem\(key\)\)/);
