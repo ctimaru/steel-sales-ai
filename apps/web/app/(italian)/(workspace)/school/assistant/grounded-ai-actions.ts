@@ -2,72 +2,23 @@
 
 import {createClient} from "@/lib/supabase/server";
 import {getWorkspaceContext} from "@/lib/workspace-context";
+import {SCHOOL_GROUNDED_FORMAT,sanitizeGroundedRequest,validateSchoolGroundedOutput,
+  type SchoolGroundedAIResult} from "@/lib/school-grounded-ai-contract";
 import {
-  retrieveSchoolTechnicalEvidence,isSchoolEvidenceLocale,
+  retrieveSchoolTechnicalEvidence,
   type SchoolTechnicalEvidence,type SchoolEvidenceLocale,
 } from "@/lib/school-knowledge-evidence";
 
 /** SCHOOL-UNIFY6B: opt-in only. No raw prompt, audio, company/CRM data or private documents go to the gateway. */
-export type SchoolGroundedAIResult={
-  status:"grounded"|"disabled"|"no_evidence"|"quota"|"unavailable";
-  answer:string;
-  sources:Array<{id:string;title:string;url:string}>;
-  reviewRequired:true;
-};
 const fail=(status:Exclude<SchoolGroundedAIResult["status"],"grounded">,answer:string):SchoolGroundedAIResult=>
   ({status,answer,sources:[],reviewRequired:true});
-const idPattern=/^(?:en\s*[- ]?\s*\d{4,5}(?:\s*[- ]?\d)?|s\d{3}[a-z0-9]{1,8}|p\d{3}[a-z0-9]{1,8}|16mo3)$/i;
 const localeLabels:Record<SchoolEvidenceLocale,string>={it:"Italian",en:"English",de:"German",fr:"French",es:"Spanish"};
 type AIRequest={locale:string;codes:string[]};
-export const SCHOOL_GROUNDED_FORMAT={
-  type:"json_schema",
-  json_schema:{
-    name:"school_grounded_answer",
-    strict:true,
-    schema:{
-      type:"object",additionalProperties:false,
-      properties:{
-        answer:{type:"string"},
-        sourceIds:{type:"array",items:{type:"string"}},
-        uncertain:{type:"boolean"},
-      },
-      required:["answer","sourceIds","uncertain"],
-    },
-  },
-} as const;
-/** Used by server actions only; full free text is deliberately not an argument. */
-export function sanitizeGroundedRequest(input:unknown):{locale:SchoolEvidenceLocale;codes:string[]}|null{
-  if(!input||typeof input!=="object"||Array.isArray(input))return null;
-  const obj=input as Partial<AIRequest>;
-  if(typeof obj.locale!=="string"||!isSchoolEvidenceLocale(obj.locale)||
-    !Array.isArray(obj.codes)||obj.codes.length<1||obj.codes.length>2)return null;
-  const codes=obj.codes.filter((code):code is string=>typeof code==="string"&&
-    code.length>=3&&code.length<=24&&idPattern.test(code.trim()))
-    .map(code=>code.trim()).map(code=>code.toUpperCase().replace(/\s|-/g,""));
-  if(codes.length!==obj.codes.length||new Set(codes).size!==codes.length)return null;
-  return {locale:obj.locale,codes};
-}
 function citationsFor(evidence:SchoolTechnicalEvidence[]){
   return evidence.flatMap(item=>{
     const page=item.citations.find(x=>x.role==="public_page");
     return page?[{id:item.id,title:item.code,url:page.url}]:[];
   });
-}
-export function validateSchoolGroundedOutput(value:unknown,evidence:SchoolTechnicalEvidence[]):{
-  answer:string;sourceIds:string[];
-}|null{
-  if(!value||typeof value!=="object"||Array.isArray(value))return null;
-  const x=value as {answer?:unknown;sourceIds?:unknown;uncertain?:unknown};
-  if(Object.keys(x).some(k=>!["answer","sourceIds","uncertain"].includes(k))||
-    typeof x.answer!=="string"||x.answer.trim().length<25||x.answer.length>1000||
-    x.uncertain!==false||!Array.isArray(x.sourceIds)||x.sourceIds.length<1||
-    x.sourceIds.length>4||!x.sourceIds.every(s=>typeof s==="string"))return null;
-  const existing=new Set(evidence.map(item=>item.id));
-  if(x.sourceIds.some(id=>!existing.has(id)))return null;
-  // Reject promises/claims that the source cards themselves do not establish.
-  if(/(?:€\s*\d|\d\s*€|in\s+stock|immediately\s+available|garanti(?:ert|to|e)|certificat(?:o|ed|ion)|gleichwertig|[ée]quivalent|equivalent|sustituible)/i.test(x.answer))
-    return null;
-  return {answer:x.answer.trim(),sourceIds:[...new Set(x.sourceIds)]};
 }
 export async function askSchoolGroundedAI(input:unknown):Promise<SchoolGroundedAIResult>{
   if(process.env.SCHOOL6B_AI_ENABLED!=="true"||!process.env.AI_GATEWAY_API_KEY)
