@@ -157,9 +157,9 @@ export default async function DashboardPage({
     },
     canWrite
       ? {
-          href: appRoutes.marketplace.rfqHub,
-          title: "Apri RFQ Hub",
-          description: "Gestisci richieste multi-fornitore e risposte ricevute.",
+          href: appRoutes.commercial.home,
+          title: "Gestisci richieste e offerte",
+          description: "Un unico Commerciale per RFQ, risposte e lavoro quotidiano.",
         }
       : {
           href: appRoutes.marketplace.home,

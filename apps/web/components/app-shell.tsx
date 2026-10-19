@@ -23,7 +23,8 @@ type NavItem = WorkspaceNavItem & {
 };
 
 const commercialNav: NavItem[] = [
-  { href: appRoutes.commercial.home, label: "Home", contextKey: "commercial:home" },
+  { href: appRoutes.commercial.home, label: "Panoramica", contextKey: "commercial:home" },
+  { href: appRoutes.rfqHub.home, label: "RFQ e offerte", contextKey: "rfq:home" },
   { href: appRoutes.commercial.search, label: "Cerca", contextKey: "commercial:search" },
   { href: appRoutes.commercial.products, label: "Prodotti", contextKey: "commercial:products" },
   { href: appRoutes.commercial.companies, label: "Aziende", contextKey: "commercial:companies" },

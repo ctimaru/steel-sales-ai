@@ -24,18 +24,18 @@ const { getWorkspaceNavigationContext: location } = await import(
   Buffer.from(transpile(routeSource) + "\n" + transpile(iaCode)).toString("base64")
 );
 
-test("RFQ-IA1 routes private procurement into a first-class primary space", () => {
+test("COMMERCIAL-UNIFY1 places private procurement inside Commerciale while retaining RFQ contexts", () => {
   const mappings = [
-    ["/rfq-hub", "rfq", "rfq:home"],
-    ["/rfq-hub/123e4567-e89b-12d3-a456-426614174000", "rfq", "rfq:home"],
-    ["/rfq-hub/inbox", "rfq", "rfq:inbox"],
-    ["/rfq-hub/suppliers", "rfq", "rfq:suppliers"],
-    ["/rfq-hub/intelligence", "rfq", "rfq:intelligence"],
-    ["/marketplace/rfq-hub", "rfq", "rfq:home"],
-    ["/marketplace/rfq-hub/demo", "rfq", "rfq:home"],
-    ["/marketplace/inbox", "rfq", "rfq:inbox"],
-    ["/marketplace/suppliers/demo", "rfq", "rfq:suppliers"],
-    ["/marketplace/intelligence", "rfq", "rfq:intelligence"],
+    ["/rfq-hub", "commercial", "rfq:home"],
+    ["/rfq-hub/123e4567-e89b-12d3-a456-426614174000", "commercial", "rfq:home"],
+    ["/rfq-hub/inbox", "commercial", "rfq:inbox"],
+    ["/rfq-hub/suppliers", "commercial", "rfq:suppliers"],
+    ["/rfq-hub/intelligence", "commercial", "rfq:intelligence"],
+    ["/marketplace/rfq-hub", "commercial", "rfq:home"],
+    ["/marketplace/rfq-hub/demo", "commercial", "rfq:home"],
+    ["/marketplace/inbox", "commercial", "rfq:inbox"],
+    ["/marketplace/suppliers/demo", "commercial", "rfq:suppliers"],
+    ["/marketplace/intelligence", "commercial", "rfq:intelligence"],
     ["/marketplace", "marketplace", "marketplace:opportunities"],
     ["/marketplace/requests", "marketplace", "marketplace:requests"],
     ["/marketplace/responses/abc", "marketplace", "marketplace:responses"],
@@ -68,16 +68,14 @@ test("RFQ-IA1 canonical routes reuse the existing private engine and leave legac
   assert.match(buyer, /router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)\)/);
 });
 
-test("RFQ-IA1 shows RFQ Hub in primary navigation without a Network subscription", () => {
-  assert.match(nav, /key: "rfq" as const/);
-  assert.match(nav, /href: appRoutes\.rfqHub\.home/);
-  assert.match(nav, /label: "RFQ Hub"/);
-  assert.match(nav, /mobileLabel: "RFQ"/);
-  assert.match(nav, /current === "rfq"/);
-  assert.match(nav, /rfqItems: WorkspaceNavItem\[\]/);
+test("COMMERCIAL-UNIFY1 exposes procurement under Commerciale independently of Network access", () => {
+  const primary = nav.slice(nav.indexOf("function primaryItems("), nav.indexOf("export function WorkspaceDesktopPrimaryNavigation("));
+  assert.match(primary, /key: "commercial" as const/);
+  assert.doesNotMatch(primary, /key: "rfq" as const/);
+  assert.match(shell, /label: "RFQ e offerte", contextKey: "rfq:home"/);
   assert.match(shell, /const rfqItems = visibleItems\(rfqNav, organizationRole\)/);
-  assert.match(shell, /rfqItems=\{rfqItems\}/);
-  assert.ok(nav.indexOf('key: "rfq" as const') < nav.indexOf('...(networkEnabled'), "RFQ must be independent from Marketplace/Network feature flag");
+  assert.match(nav, /item.contextKey === "rfq:home"/);
+  assert.ok(primary.indexOf('key: "commercial" as const') < primary.indexOf('...(networkEnabled'), "Commerciale must not depend on Network entitlement");
 });
 
 test("RFQ-IA1 distinguishes procurement from Marketplace and preserves viewer access", () => {

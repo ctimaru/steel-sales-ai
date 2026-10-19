@@ -5,6 +5,16 @@ import { PilotEvent } from "@/components/pilot-event";
 import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
 import { Badge } from "@/components/ui/badge";
 import { getDashboardData } from "@/lib/commercial-data";
+import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
+import { CommercialUnifiedWorklist } from "@/components/commercial-unified-worklist";
+import type { CommercialOperationsTab } from "@/components/commercial-campaign-operations";
+import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
+import { loadUnifiedCommercialData, type CommercialView } from "@/lib/commercial-unified-data";
+import { listBuyerDistintaPublicDimensions } from "@/lib/public-knowledge";
+import { canWriteWorkspace } from "@/lib/access-policy";
+import { isNetworkFrontendEnabled } from "@/lib/network-flags";
+import { createClient } from "@/lib/supabase/server";
+import { getWorkspaceContext } from "@/lib/workspace-context";
 import { appRoutes } from "@/lib/routes";
 
 export const dynamic = "force-dynamic";
@@ -64,26 +74,63 @@ const intelligenceGroups = [
   },
 ] as const;
 
-export default async function CommercialHomePage() {
-  const { metrics, recent, mode, operational } = await getDashboardData();
-
+export default async function CommercialHomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string; tab?: string }>;
+}) {
+  const params = await searchParams;
+  const context = await getWorkspaceContext();
+  const canWrite = canWriteWorkspace(context.role);
+  const networkAvailable = isNetworkFrontendEnabled();
+  const allowedViews: CommercialView[] = ["all", "received", "sent", "offers", "orders", "drafts"];
+  const view: CommercialView = allowedViews.includes(params.view as CommercialView) ? params.view as CommercialView : "all";
+  const query = typeof params.q === "string" ? params.q.trim().slice(0, 80) : "";
+  const selected = typeof params.item === "string" ? params.item.slice(0, 90) : "";
+  const allowedTabs: CommercialOperationsTab[] = ["compare", "negotiate", "award", "po"];
+  const tab: CommercialOperationsTab = allowedTabs.includes(params.tab as CommercialOperationsTab) ? params.tab as CommercialOperationsTab : "compare";
+  const composing = canWrite && params.compose === "1";
+  const [commercial, procurement, unified, catalogOptions] = await Promise.all([
+    getDashboardData(),
+    canWrite
+      ? createClient().then((db) => db.rpc("rfqh10_procurement_inbox", { p_limit: 4 }))
+          .catch(() => ({ data: null, error: true }))
+      : Promise.resolve({ data: null, error: null }),
+    loadUnifiedCommercialData(context.organizationId),
+    composing ? listBuyerDistintaPublicDimensions().then(buildBuyerDistintaCatalogOptions) : Promise.resolve(null),
+  ]);
+  const { recent, mode, operational } = commercial;
+  // Procurement is a distinct tenant-owned lifecycle; never mix its active
+  // counts with the total historical commercial RFQ count.
+  const procurementPayload = !procurement.error && procurement.data && typeof procurement.data === "object" && !Array.isArray(procurement.data)
+    ? procurement.data as {
+        summary?: { attention_total?: number; active_rfqs?: number };
+        items?: Array<{ rfq_id?: string; headline?: string; requires_action?: boolean }>;
+      }
+    : null;
+  const attentionTotal = procurementPayload?.summary?.attention_total;
+  const actionableRfqs = (procurementPayload?.items ?? []).filter((item) =>
+    item.requires_action === true && typeof item.rfq_id === "string" && /^[0-9a-f-]{36}$/i.test(item.rfq_id)
+  ).slice(0, 3);
   const metricCards = [
-    { label: "RFQ", value: operational.rfqs },
-    { label: "Offerte", value: operational.offers },
-    { label: "Ordini", value: operational.orders },
-    { label: "Da verificare", value: metrics.reviewFlags },
+    { label: "Richieste nello storico", value: operational.rfqs },
+    { label: "Offerte nello storico", value: operational.offers },
+    { label: "Ordini nello storico", value: operational.orders },
+    ...(typeof procurementPayload?.summary?.active_rfqs === "number"
+      ? [{ label: "RFQ acquisti attive", value: procurementPayload.summary.active_rfqs }]
+      : []),
   ];
 
   return (
-    <FocusPage className="max-w-[1120px]">
+    <FocusPage className="max-w-[1280px]">
       <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
       <FocusHeader
         eyebrow="Commerciale"
-        title="La memoria commerciale della tua azienda"
+        title="Tutto il lavoro commerciale, in un unico posto"
         description={
           <>
-            Cerca subito ciò che ti serve e usa Product 360, Company 360 e intelligence solo quando
-            vuoi approfondire. Tutto resta nel workspace privato della tua organizzazione.
+            La memoria commerciale della tua azienda, le richieste ai fornitori e le opportunità di Network e Marketplace.
+            Parti da ciò che devi fare, senza cambiare ambiente. Tutto resta nel workspace privato della tua organizzazione.
             <span className="mt-2 block text-xs font-semibold text-[#5d6a65]">
               {mode === "live"
                 ? "Dati live"
@@ -95,9 +142,88 @@ export default async function CommercialHomePage() {
         }
       />
 
-      <section className="rounded-3xl border border-[#b8d2c8] bg-[#edf5f2] p-5 sm:p-6">
+      <section aria-labelledby="commercial-today" className="grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="rounded-2xl bg-[#173f35] p-4 text-white sm:p-5">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-[#c3e0d2]">Le tue attività</p>
+          <h2 id="commercial-today" className="mt-1 text-xl font-semibold">Che cosa vuoi fare oggi?</h2>
+          <p className="mt-1 text-sm text-[#d6e9dd]">Dalla distinta all’offerta, con le aziende giuste.</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {canWrite ? (
+              <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"} className="inline-flex min-h-10 items-center rounded-lg bg-white px-3 text-sm font-semibold text-[#173f35] hover:bg-[#e7f3eb] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                + Nuova richiesta
+              </Link>
+            ) : null}
+            <Link href={appRoutes.commercial.home + "#commercial-worklist"} className="inline-flex min-h-10 items-center rounded-lg border border-[#9fcdb6] px-3 text-sm font-semibold text-white hover:bg-[#275a49] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+              RFQ e offerte →
+            </Link>
+            {networkAvailable ? (
+              <Link href={appRoutes.network.directory} className="inline-flex min-h-10 items-center rounded-lg border border-[#9fcdb6] px-3 text-sm font-semibold text-white hover:bg-[#275a49] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                Trova aziende →
+              </Link>
+            ) : null}
+          </div>
+        </div>
+        <div className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-base font-semibold text-[#173f35]">Cosa richiede attenzione</h2>
+            <Link href={appRoutes.rfqHub.inbox} className="text-xs font-semibold text-[#175640] underline-offset-2 hover:underline">Apri inbox →</Link>
+          </div>
+          {!canWrite ? (
+            <p className="mt-3 text-sm text-[#52615b]">Consultazione disponibile in sola lettura. Le azioni operative sono riservate ai ruoli autorizzati.</p>
+          ) : procurementPayload === null ? (
+            <p className="mt-3 text-sm text-[#52615b]">Priorità non disponibili al momento. Puoi comunque aprire le tue RFQ.</p>
+          ) : actionableRfqs.length ? (
+            <div className="mt-3 space-y-2">
+              {actionableRfqs.map((item) => (
+                <Link key={item.rfq_id} href={appRoutes.rfqHub.campaign(item.rfq_id!)} className="flex min-h-10 items-center justify-between gap-2 rounded-lg border border-[#d6e5dd] bg-[#f7faf8] px-3 py-2 text-sm font-medium text-[#173f35] hover:border-[#8db9a2]">
+                  <span className="min-w-0 truncate">{item.headline || "RFQ da gestire"}</span><span aria-hidden="true">→</span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-[#52615b]">{attentionTotal === 0 ? "Nessuna azione buyer in sospeso." : "Controlla l’inbox per eventuali altre azioni."}</p>
+          )}
+        </div>
+      </section>
+
+      {composing && catalogOptions ? (
+        <section id="commercial-compose" aria-labelledby="commercial-compose-heading" className="scroll-mt-36 space-y-3 rounded-2xl border border-[var(--border-strong)] bg-white p-3 sm:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--brand-primary)]">La tua nuova richiesta</p>
+              <h2 id="commercial-compose-heading" className="text-lg font-semibold text-[var(--brand-deep)]">Crea distinta e RFQ senza lasciare Commerciale</h2>
+              <p className="mt-1 text-xs text-[var(--text-secondary)]">La creazione genera una bozza privata. Nessun invio ai fornitori avviene automaticamente.</p>
+            </div>
+            <Link href={appRoutes.commercial.home + "#commercial-worklist"} className="app-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold">Chiudi editor</Link>
+          </div>
+          <BuyerDistintaBuilder
+            workspace
+            authenticated
+            returnToCommercial
+            userId={context.userId}
+            emailConfigured={Boolean(process.env.RESEND_API_KEY)}
+            catalogOptions={catalogOptions}
+          />
+        </section>
+      ) : null}
+
+      <CommercialUnifiedWorklist
+        data={unified}
+        selected={selected}
+        query={query}
+        view={view}
+        canWrite={canWrite}
+        tab={tab}
+      />
+
+      <details className="rounded-2xl border border-[var(--border)] bg-white p-3 sm:p-4">
+        <summary className="min-h-10 cursor-pointer select-none text-sm font-semibold text-[var(--brand-deep)]">
+          Storico, memoria commerciale e intelligence · Apri approfondimenti
+        </summary>
+        <div className="space-y-4 pt-4">
+      <section className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-4 sm:p-5">
         <p className="app-kicker">Cerca nella Commercial Memory</p>
-        <h2 className="mt-2 text-xl font-semibold text-[#173f35] sm:text-2xl">
+        <h2 className="mt-2 text-lg font-semibold text-[#173f35] sm:text-xl">
           Prodotto, cliente, RFQ, offerta, ordine o prezzo
         </h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-[#52615b]">
@@ -262,9 +388,11 @@ export default async function CommercialHomePage() {
         </div>
       </section>
 
+        </div>
+      </details>
+
       <p className="rounded-xl border border-[#d9e8e2] bg-[#f3f7f5] px-4 py-3 text-xs leading-5 text-[#52615b]">
-        La Commercial Memory è privata per la tua organizzazione. Network e Marketplace restano spazi separati
-        e non pubblicano automaticamente dati commerciali interni.
+        Commerciale riunisce i tuoi flussi di lavoro, ma i confini dei dati restano distinti: la memoria privata, le RFQ buyer, il Network e il Marketplace non condividono automaticamente prezzi, contatti o documenti.
       </p>
     </FocusPage>
   );

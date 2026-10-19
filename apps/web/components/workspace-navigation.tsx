@@ -145,14 +145,6 @@ function primaryItems(networkEnabled: boolean, networkEntitled: boolean) {
       icon: "commercial" as const,
       locked: false,
     },
-    {
-      key: "rfq" as const,
-      href: appRoutes.rfqHub.home,
-      label: "RFQ Hub",
-      mobileLabel: "RFQ",
-      icon: "rfq" as const,
-      locked: false,
-    },
     ...(networkEnabled
       ? [
           {
@@ -339,7 +331,7 @@ export function WorkspaceContextNavigation({
           <ContextLink
             key={item.contextKey}
             item={item}
-            selected={navigation.context === item.contextKey}
+            selected={navigation.context === item.contextKey || (item.contextKey === "rfq:home" && navigation.context?.startsWith("rfq:") === true)}
           />
         ))}
 

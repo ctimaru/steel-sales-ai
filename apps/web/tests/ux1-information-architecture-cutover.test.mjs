@@ -63,7 +63,7 @@ test("UX2 Company shell and Home use the canonical space contract", () => {
   assert.match(shell, /appRoutes\.knowledge\.schoolGrades/);
   assert.match(shell, /appRoutes\.knowledge\.schoolTubes/);
   assert.match(dashboard, /appRoutes\.commercial\.search/);
-  assert.match(dashboard, /appRoutes\.marketplace\.rfqHub/);
+  assert.match(dashboard, /appRoutes\.commercial\.home/);
   assert.match(dashboard, /appRoutes\.network\.directory/);
   assert.doesNotMatch(dashboard, /action=\{appRoutes\.commercial\.search\}/);
 });
