@@ -1,4 +1,5 @@
 import Link from "next/link";
+import {SchoolAssistantEntry} from "@/components/school-assistant-entry";
 
 import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
 import { PilotEvent } from "@/components/pilot-event";
@@ -50,6 +51,7 @@ export default async function SchoolPage({searchParams}:{searchParams:Promise<{l
         </div>
         <SchoolTechnicalSections locale="it"/>
       </section>
+      <SchoolAssistantEntry locale="it"/>
       <SchoolJourney locale="it" workspace />
       <SchoolConversionPath locale="it" />
 

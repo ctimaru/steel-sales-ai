@@ -1,4 +1,5 @@
 import Link from "next/link";
+import {SchoolAssistantEntry} from "@/components/school-assistant-entry";
 import { FocusPage } from "@/components/focus-ui";
 import { PilotEvent } from "@/components/pilot-event";
 import { SchoolPrivateTopbar } from "@/components/school-private-language-switch";
@@ -33,6 +34,7 @@ export function SchoolLocalizedWorkspaceHome({locale}:{locale:SchoolWorkspaceLoc
       </div>
       <SchoolTechnicalSections locale={locale}/>
     </section>
+    <SchoolAssistantEntry locale={locale}/>
     <section className="space-y-3" aria-labelledby="school-private-tools">
       <div>
         <p className="text-xs font-bold uppercase tracking-[.12em] text-[#1a5144]">{c.kicker}</p>

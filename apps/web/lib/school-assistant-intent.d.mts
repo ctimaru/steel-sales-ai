@@ -1,0 +1,20 @@
+export type SchoolAssistantFacts = {
+  purpose?: "rfq" | "knowledge";
+  standard?: string;
+  grade?: string;
+  partialGrade?: string;
+  family?: "round_tube" | "square_tube" | "rectangular_tube";
+  quantityBars?: number;
+  lengthM?: number;
+  odMm?: number;
+  widthMm?: number;
+  heightMm?: number;
+  thicknessMm?: number;
+};
+export type SchoolAssistantMissing = "standard" | "grade" | "family" | "dimensions" | "thickness" | "quantity" | "length";
+export function parseSteelAssistantInput(input: string, previous?: SchoolAssistantFacts): { facts: SchoolAssistantFacts; codes: string[] };
+export function mergeSteelAssistantFacts(previous?: SchoolAssistantFacts, next?: SchoolAssistantFacts): SchoolAssistantFacts;
+export function missingSteelAssistantFields(facts: SchoolAssistantFacts): SchoolAssistantMissing[];
+export function hasCalculatorGeometry(facts: SchoolAssistantFacts): boolean;
+export function schoolAssistantEvidenceCodes(text: string, facts: SchoolAssistantFacts): string[];
+export function schoolAssistantCalculatorUrl(locale: string, facts: SchoolAssistantFacts): string | null;

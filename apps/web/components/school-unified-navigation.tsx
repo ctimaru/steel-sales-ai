@@ -18,7 +18,7 @@ const billRoute:Record<CalculatorSiteLocale,string> = {
  * EN/DE/FR/ES article translations are not inferred from the Italian library. */
 const translations={
   it:{public:"Scuola aperta",private:"Area aziendale",navigate:"Navigazione Scuola",
-    home:"Scuola",calculator:"Calcolatore",standards:"Norme",grades:"Materiali",
+    home:"Scuola",calculator:"Calcolatore",standards:"Norme",grades:"Materiali",assistant:"Assistente",
     guides:"Guide",topics:"Approfondimenti",bill:"Distinta",documents:"Documenti",
     enter:"Area aziendale",publicLabel:"Scuola pubblica",
     pathway:"Dalla conoscenza alla richiesta",step1:"Consulta",step2:"Calcola",step3:"Prepara la distinta",
@@ -26,7 +26,7 @@ const translations={
     next:"Crea la distinta",privacy:"I documenti aziendali restano riservati.",
   },
   en:{public:"Open School",private:"Company workspace",navigate:"School navigation",
-    home:"School",calculator:"Calculator",standards:"Standards",grades:"Grades",
+    home:"School",calculator:"Calculator",standards:"Standards",grades:"Grades",assistant:"Assistant",
     guides:"Guides",topics:"Technical topics",bill:"RFQ bill",documents:"Documents",
     enter:"Company workspace",publicLabel:"Public School",
     pathway:"From knowledge to a structured enquiry",step1:"Explore",step2:"Calculate",step3:"Prepare a bill",
@@ -34,7 +34,7 @@ const translations={
     next:"Create an RFQ bill",privacy:"Company documents remain private.",
   },
   de:{public:"Öffentliche Stahlschule",private:"Firmen-Workspace",navigate:"Navigation Stahlschule",
-    home:"Stahlschule",calculator:"Rechner",standards:"Normen",grades:"Werkstoffe",
+    home:"Stahlschule",calculator:"Rechner",standards:"Normen",grades:"Werkstoffe",assistant:"Assistent",
     guides:"Leitfaden",topics:"Fachartikel",bill:"Stückliste",documents:"Firmendokumente",
     enter:"Firmen-Workspace",publicLabel:"Öffentliche Stahlschule",
     pathway:"Vom Fachwissen zur Anfrage",step1:"Informieren",step2:"Berechnen",step3:"Stückliste erstellen",
@@ -42,7 +42,7 @@ const translations={
     next:"Stückliste erstellen",privacy:"Firmendokumente bleiben privat.",
   },
   fr:{public:"École publique",private:"Espace entreprise",navigate:"Navigation de l’École",
-    home:"École",calculator:"Calculateur",standards:"Normes",grades:"Nuances",
+    home:"École",calculator:"Calculateur",standards:"Normes",grades:"Nuances",assistant:"Assistant",
     guides:"Guide",topics:"Ressources",bill:"Liste de demande",documents:"Documents privés",
     enter:"Espace entreprise",publicLabel:"École publique",
     pathway:"Du savoir à la demande de prix",step1:"Consulter",step2:"Calculer",step3:"Créer la liste",
@@ -50,7 +50,7 @@ const translations={
     next:"Créer la liste",privacy:"Les documents d’entreprise restent privés.",
   },
   es:{public:"Escuela pública",private:"Espacio empresarial",navigate:"Navegación de la Escuela",
-    home:"Escuela",calculator:"Calculadora",standards:"Normas",grades:"Calidades",
+    home:"Escuela",calculator:"Calculadora",standards:"Normas",grades:"Calidades",assistant:"Asistente",
     guides:"Guía",topics:"Recursos",bill:"Lista de oferta",documents:"Documentos privados",
     enter:"Espacio empresarial",publicLabel:"Escuela pública",
     pathway:"Del conocimiento a la solicitud",step1:"Consultar",step2:"Calcular",step3:"Preparar lista",
@@ -63,6 +63,7 @@ function schoolNavigationItems(locale:CalculatorSiteLocale,scope:Scope){
   const t=translations[locale];
   if(scope==="workspace") return [
     {label:t.home,href:schoolWorkspaceHref("/school",locale)},
+    {label:t.assistant,href:schoolWorkspaceHref("/school/assistant",locale)},
     {label:t.calculator,href:locale==="it"?"/school/tubes?source=school&surface=school_nav":calculatorFromSchool(locale)},
     {label:t.standards,href:schoolWorkspaceHref("/school/norme",locale)},
     {label:t.grades,href:schoolWorkspaceHref("/school/gradi",locale)},
