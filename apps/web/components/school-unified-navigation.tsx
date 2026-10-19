@@ -6,6 +6,9 @@ import { SCHOOL_HUB_ROUTES } from "@/lib/school-locales";
 import { schoolWorkspaceHref } from "@/lib/school-workspace-i18n";
 
 type Scope = "public"|"workspace";
+/** Preserve consent-aware School → calculator funnel attribution on public entry. */
+const calculatorFromSchool=(locale:CalculatorSiteLocale)=>CALCULATOR_ROUTES[locale]+"?source=school&surface=school_nav";
+
 const billRoute:Record<CalculatorSiteLocale,string> = {
   it:"/distinta",en:"/en/distinta",de:"/de/distinta",fr:"/fr/distinta",es:"/es/distinta",
 };
@@ -59,7 +62,7 @@ function schoolNavigationItems(locale:CalculatorSiteLocale,scope:Scope){
   const t=translations[locale];
   if(scope==="workspace") return [
     {label:t.home,href:schoolWorkspaceHref("/school",locale)},
-    {label:t.calculator,href:locale==="it"?"/school/tubes":CALCULATOR_ROUTES[locale]},
+    {label:t.calculator,href:locale==="it"?"/school/tubes?source=school&surface=school_nav":calculatorFromSchool(locale)},
     {label:t.standards,href:schoolWorkspaceHref("/school/norme",locale)},
     {label:t.grades,href:schoolWorkspaceHref("/school/gradi",locale)},
     {label:t.documents,href:schoolWorkspaceHref("/school/explorer",locale)},
@@ -78,7 +81,7 @@ function schoolNavigationItems(locale:CalculatorSiteLocale,scope:Scope){
   ];
   return [
     {label:t.home,href:SCHOOL_HUB_ROUTES[locale]},
-    {label:t.calculator,href:CALCULATOR_ROUTES[locale]},
+    {label:t.calculator,href:calculatorFromSchool(locale)},
     ...other,
     {label:t.bill,href:billRoute[locale]},
   ];
