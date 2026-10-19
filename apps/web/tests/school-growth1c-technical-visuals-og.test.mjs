@@ -7,8 +7,8 @@ const data = read("../lib/school-articles.ts");
 const home = read("../app/(public)/knowledge/page.tsx");
 const index = read("../app/(public)/knowledge/articoli/page.tsx");
 const detail = read("../app/(public)/knowledge/articoli/[slug]/page.tsx");
-const og = read("../app/(public)/knowledge/articoli/[slug]/opengraph-image.tsx");
-const homeOg = read("../app/(public)/knowledge/opengraph-image.tsx");
+const og = read("../app/api/school-og/[slug]/route.tsx");
+const homeOg = read("../app/api/school-og/route.tsx");
 const visuals = ["storia-tubi-acciaio", "produttori-tubi-europa", "come-si-producono-tubi-acciaio"];
 
 test("SCHOOL-GROWTH1C: three original technical SVG covers with alternative descriptions", () => {
@@ -49,11 +49,16 @@ test("SCHOOL-GROWTH1C: verifiable social previews have valid image/png media and
     assert.doesNotMatch(f, /fetch\(|https?:\/\/[^" ]+\.png|fontFile|service_role/);
   }
   assert.match(og, /getSchoolArticle\(slug\)/);
-  assert.match(og, /generateStaticParams/);
+  assert.match(og, /export async function GET/);
+  assert.match(homeOg, /export function GET/);
   assert.match(og, /runtime = "nodejs"/);
+  assert.match(detail, /\/api\/school-og\/\$\{article.slug\}/);
+  assert.match(index, /images: \[\{ url: absoluteUrl\("\/api\/school-og"\)/);
+  assert.match(index, /summary_large_image/);
   assert.match(detail, /images: \[\{ url: absoluteUrl\(/);
   assert.match(detail, /card: "summary_large_image"/);
   assert.match(detail, /image: absoluteUrl\(/);
+  assert.doesNotMatch(detail, /knowledge\/articoli\/\$\{article.slug\}\/opengraph-image/);
   assert.match(detail, /canonical: absoluteUrl\(/);
   assert.match(detail, /citation: article.sources.map/);
 });

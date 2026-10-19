@@ -1,16 +1,9 @@
 import { ImageResponse } from "next/og";
-import { getSchoolArticle, schoolArticles } from "@/lib/school-articles";
+import { getSchoolArticle } from "@/lib/school-articles";
 
 export const runtime = "nodejs";
-export const alt = "Copertina editoriale della Scuola Smart Steel Sales";
 export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
-
-export function generateStaticParams() {
-  return schoolArticles.map((article) => ({ slug: article.slug }));
-}
-
-export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
+export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const article = getSchoolArticle(slug);
   if (!article) return new Response("Articolo non trovato", { status: 404 });
