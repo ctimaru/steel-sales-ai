@@ -60,7 +60,7 @@ begin
   )
   select jsonb_build_object(
       'contract','netux-data1-audit-v1',
-      'scope','501-network-profiles-dynamic',
+      'scope','all-visible-network-profiles-dynamic',
       'profiles_total',count(*),
       'canonical_published',count(*) filter (where kind='canonical'),
       'discovered',count(*) filter (where kind='discovered'),
