@@ -27,7 +27,7 @@ test("P3.7C consumes a dedicated safe public profile read model", () => {
 });
 
 test("P3.7C composes trust, provenance and industrial sections on the public profile", () => {
-  assert.match(page, /Steel Industry Network/);
+  assert.match(page, /Profilo aziendale/);
   assert.match(page, /Profilo rivendicato/);
   assert.match(page, /Azienda verificata/);
   assert.match(page, /Ruolo nella filiera/);
