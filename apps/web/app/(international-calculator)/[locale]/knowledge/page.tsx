@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProductBrand } from "@/components/product-brand";
 import { SchoolJourney, SchoolTechnicalSections } from "@/components/school-unified-experience";
+import { SchoolUnifiedNavigation, SchoolConversionPath } from "@/components/school-unified-navigation";
 import { SchoolPageLanguageSelector, PUBLIC_HOME_LOCALE_ROUTES } from "@/components/calculator-page-language-selector";
 import { SCHOOL_HUB_ROUTES } from "@/lib/school-locales";
 import { isNewCalculatorLocale, type CalculatorLandingLocale } from "@/lib/international-calculator-landing";
@@ -85,7 +86,8 @@ export default async function LocalizedSchoolHome({params}:{params:Promise<{loca
         </div>
       </div>
     </header>
-    <div id="school-main" className="mx-auto max-w-[1180px] space-y-9 px-4 py-9 sm:px-6 sm:py-12 lg:px-8">
+    <div id="school-main" className="mx-auto max-w-[1180px] space-y-7 px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+      <SchoolUnifiedNavigation locale={locale} scope="public" />
       <section className="grid items-center gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]"
         aria-label="Smart Steel School">
         <div>
@@ -103,6 +105,7 @@ export default async function LocalizedSchoolHome({params}:{params:Promise<{loca
         <SchoolTechnicalSections locale={locale}/>
       </section>
       <SchoolJourney locale={locale}/>
+      <SchoolConversionPath locale={locale}/>
       <aside className="rounded-2xl border border-[#d4e2d8] bg-white p-5 sm:p-6">
         <h2 className="text-lg font-semibold text-[#173f35]">{t.privacy}</h2>
         <p className="mt-2 text-sm leading-7 text-[#506157]">{t.disclaimer}</p>

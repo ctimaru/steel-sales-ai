@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { EnglishPublicSubpage } from "@/components/english-public-subpage";
 import { SchoolJourney, SchoolTechnicalSections } from "@/components/school-unified-experience";
+import { SchoolUnifiedNavigation, SchoolConversionPath } from "@/components/school-unified-navigation";
 import { absoluteUrl } from "@/lib/site";
 
 export const dynamic = "force-static";
@@ -71,6 +72,7 @@ export default function EnglishKnowledgePage() {
       englishHref="/en/knowledge"
       knowledgeLanguageMenu
     >
+      <div className="mx-auto max-w-[1120px] px-4 pt-6 sm:px-6 lg:px-8"><SchoolUnifiedNavigation locale="en" scope="public" /></div>
       <section className="mx-auto grid max-w-[1120px] items-center gap-4 px-4 pt-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] lg:px-8" aria-label="Steel sections technical overview">
         <div className="rounded-3xl border border-[#cddfd5] bg-white p-6">
           <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#1a5144]">Smart Steel School</p>
@@ -80,6 +82,7 @@ export default function EnglishKnowledgePage() {
         <SchoolTechnicalSections locale="en"/>
       </section>
       <div className="mx-auto max-w-[1120px] px-4 pt-8 sm:px-6 lg:px-8"><SchoolJourney locale="en"/></div>
+      <div className="mx-auto max-w-[1120px] px-4 pt-5 sm:px-6 lg:px-8"><SchoolConversionPath locale="en"/></div>
       <section aria-label="Featured steel tube calculator" className="px-4 pt-8 sm:px-6">
         <div className="mx-auto flex max-w-[1120px] flex-col gap-4 rounded-2xl border border-[#bcd6c9] bg-[#eaf4ee] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div>

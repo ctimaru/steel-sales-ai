@@ -6,6 +6,7 @@ import { FocusPage } from "@/components/focus-ui";
 import { SchoolHero } from "@/components/school-ui";
 import { SchoolPageLanguageSelector } from "@/components/calculator-page-language-selector";
 import { SchoolJourney } from "@/components/school-unified-experience";
+import { SchoolUnifiedNavigation, SchoolConversionPath } from "@/components/school-unified-navigation";
 import { schoolArticles } from "@/lib/school-articles";
 import { absoluteUrl } from "@/lib/site";
 
@@ -69,6 +70,8 @@ export default function KnowledgeHomePage() {
         <p className="text-xs font-semibold text-[#405a4e]">Risorse tecniche pubbliche · accesso gratuito</p>
         <SchoolPageLanguageSelector locale="it" />
       </div>
+
+      <SchoolUnifiedNavigation locale="it" scope="public" />
 
       <section className="grid items-center gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]" aria-label="Benvenuto nella Scuola">
         <div>
@@ -150,6 +153,7 @@ export default function KnowledgeHomePage() {
       </section>
 
       <SchoolJourney locale="it" />
+      <SchoolConversionPath locale="it" />
 
       <section id="approfondimenti" aria-labelledby="school-articles-heading">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
