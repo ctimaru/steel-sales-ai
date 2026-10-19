@@ -8,7 +8,7 @@ const client=source("../components/school-guided-assistant.tsx");
 const page=source("../app/(italian)/(workspace)/school/assistant/page.tsx");
 const translations=source("../lib/school-assistant-i18n.ts");
 const env=source("../.env.example");
-const migration=source("../../supabase/migrations/20261019170000_school6b_ai_budget.sql");
+const migration=source("../../../supabase/migrations/20261019170000_school6b_ai_budget.sql");
 
 test("SCHOOL6B — real model explicitly OFF in all environments without opt-in",()=>{
   assert.match(env,/SCHOOL6B_AI_ENABLED=false/);
