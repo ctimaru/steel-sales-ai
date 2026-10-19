@@ -9,14 +9,15 @@ begin
     not has_function_privilege('service_role',p,'EXECUTE') then
     raise exception 'DATA1 source audit must only be executable by service_role';
  end if;
- if (select prosecdef or provolatile<>'s'
+ if (select not prosecdef or provolatile<>'s'
       from pg_proc where oid=p) then
-    raise exception 'DATA1 must be stable security invoker';
+    raise exception 'DATA1 must be stable security definer with fixed search path';
  end if;
- if (select pg_get_functiondef(p) not like '%current_user <> ''service_role''%') then
+ if (select pg_get_functiondef(p) not like '%current_setting(''role'',true) is distinct from ''service_role''%') then
     raise exception 'DATA1 missing service role runtime enforcement';
  end if;
 end $test$;
+-- A service-only definer must reject a caller with anon role.
 set local role service_role;
 do $test$
 declare j jsonb;
