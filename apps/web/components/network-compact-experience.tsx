@@ -93,15 +93,16 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
 export function NetworkCompactExperience({
   accessMode,directory,filters,coverage,provisionalCoverage,regions=[],additionalFilters,capabilityLabels={},
 }:Props){
-  const filterActive=Boolean(filters.q||filters.role||filters.region);
+  const filterActive=Boolean(filters.q||filters.role||filters.region||filters.product||filters.capability||filters.market||filters.country);
   const knownTotals=!directory.discoveryUnavailable;
+  const technicalOnly=Boolean(directory.technicalOnly);
   const companyCount=directory.total;
   return <main className="mx-auto w-full max-w-[1560px] space-y-3 pb-8" data-testid="network-compact-experience">
     <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_235px]">
       <div className="min-w-0">
         <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[.13em] text-[#176647]">Smart Steel Sales · Network</p>
+            <p className="text-[10px] font-bold uppercase tracking-[.13em] text-[#176647]">Smart Steel Sales · Network <span data-testid="network-access-mode" className="ml-2 rounded-full bg-[#e4f0e9] px-2 py-1 tracking-normal">Modalità {accessMode==="pro"?"Pro":"Free"}</span></p>
             <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#173f35] sm:text-3xl">Trova aziende steel</h1>
             <p className="mt-1 text-xs leading-5 text-[#52615b] sm:text-sm">
               Cerca produttori, commercianti, terzisti e utilizzatori della filiera dell’acciaio.
@@ -111,9 +112,9 @@ export function NetworkCompactExperience({
         </div>
         <div className="grid grid-cols-2 gap-2 md:grid-cols-4" aria-label="Statistiche Network">
           {[
-            {value:knownTotals?companyCount.toLocaleString("it-IT"):"—",label:"Aziende nel Network"},
+            {value:knownTotals?companyCount.toLocaleString("it-IT"):"—",label:filterActive?"Aziende nei risultati":"Aziende nel Network"},
             {value:directory.published.toLocaleString("it-IT"),label:"Profili pubblicati"},
-            {value:knownTotals?directory.discovered.toLocaleString("it-IT"):"—",label:"Aziende censite"},
+            {value:knownTotals?directory.discovered.toLocaleString("it-IT"):"—",label:technicalOnly?"Censite non filtrabili":"Aziende censite"},
             {value:"4",label:"Ruoli nella filiera"},
           ].map(card=><div key={card.label} className="rounded-xl border border-[#d8e5dd] bg-white px-3 py-2.5">
             <p className="text-xl font-bold tabular-nums text-[#173f35]">{card.value}</p>
@@ -135,6 +136,10 @@ export function NetworkCompactExperience({
           defaultValue={filters.q||""} className="h-11 min-w-0 flex-1 rounded-xl border border-[#c9d9d3] bg-white px-4 text-sm text-[#173f35] outline-none placeholder:text-[#68766f] focus-visible:ring-2 focus-visible:ring-[#438d7a]"/>
         {filters.role?<input type="hidden" name="role" value={filters.role}/>:null}
         {filters.region?<input type="hidden" name="region" value={filters.region}/>:null}
+        {filters.product?<input type="hidden" name="product" value={filters.product}/>:null}
+        {filters.capability?<input type="hidden" name="capability" value={filters.capability}/>:null}
+        {filters.market?<input type="hidden" name="market" value={filters.market}/>:null}
+        {filters.country?<input type="hidden" name="country" value={filters.country}/>:null}
         {filters.persona?<input type="hidden" name="persona" value={filters.persona}/>:null}
         <button type="submit" className="app-primary min-h-11 rounded-xl px-6 text-sm font-semibold">Cerca</button>
         {filterActive?<Link href="/network" className="app-secondary inline-flex min-h-11 items-center justify-center rounded-xl px-3 text-sm font-semibold">Azzera</Link>:null}
@@ -152,14 +157,54 @@ export function NetworkCompactExperience({
             </Link>;
           })}
         </nav>
-        <details className="group ml-auto min-w-0 text-xs text-[#175640]" open={Boolean(filters.region)}>
+      </div>
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <form method="get" action="/network" aria-label="Filtri tecnici e geografici"
+          className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+          {filters.q?<input type="hidden" name="q" value={filters.q}/>:null}
+          {filters.role?<input type="hidden" name="role" value={filters.role}/>:null}
+          {filters.persona?<input type="hidden" name="persona" value={filters.persona}/>:null}
+          {filters.region?<input type="hidden" name="region" value={filters.region}/>:null}
+          {[
+            {name:"product",label:"Prodotti",options:additionalFilters?.products||[]},
+            {name:"capability",label:"Capability",options:additionalFilters?.capabilities||[]},
+            {name:"market",label:"Mercato",options:additionalFilters?.markets||[]},
+          ].map(group=><label key={group.name} className="sr-only-wrapper">
+            <span className="sr-only">{group.label}</span>
+            <select name={group.name} aria-label={group.label}
+              defaultValue={filters[group.name as "product"|"capability"|"market"]||""}
+              className="min-h-9 max-w-[165px] rounded-lg border border-[#c5d8cd] bg-white px-2.5 text-xs font-semibold text-[#175640] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+              <option value="">{group.label}</option>
+              {group.options.map(option=><option key={option.canonical_key} value={option.canonical_key}>{option.display_name}</option>)}
+            </select>
+          </label>)}
+          <label>
+            <span className="sr-only">Paese</span>
+            <select name="country" aria-label="Paese" defaultValue={filters.country||"IT"}
+              className="min-h-9 rounded-lg border border-[#c5d8cd] bg-white px-2.5 text-xs font-semibold text-[#175640] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+              <option value="IT">Italia</option>
+              <option value="DE">Germania</option>
+              <option value="FR">Francia</option>
+              <option value="ES">Spagna</option>
+              <option value="US">USA</option>
+              <option value="GB">Regno Unito</option>
+              <option value="CH">Svizzera</option>
+            </select>
+          </label>
+          <button type="submit" className="app-secondary inline-flex min-h-9 items-center rounded-lg px-3 text-xs font-semibold">Applica filtri</button>
+        </form>
+        <details className="group ml-auto text-xs text-[#175640]" open={Boolean(filters.region)}>
           <summary className="inline-flex min-h-9 cursor-pointer list-none items-center gap-2 rounded-lg border border-[#bcd4c7] bg-white px-3 font-semibold">
-            <span aria-hidden="true">☷</span> Filtri avanzati {filters.region?"· attivi":""} <span aria-hidden="true">⌄</span>
+            Regione {filters.region?"· "+filters.region:""} <span aria-hidden="true">⌄</span>
           </summary>
           <form method="get" action="/network" className="mt-2 flex flex-wrap items-center gap-2 rounded-xl border border-[#d7e3dc] bg-white p-3">
             {filters.q?<input type="hidden" name="q" value={filters.q}/>:null}
             {filters.role?<input type="hidden" name="role" value={filters.role}/>:null}
             {filters.persona?<input type="hidden" name="persona" value={filters.persona}/>:null}
+            {filters.product?<input type="hidden" name="product" value={filters.product}/>:null}
+            {filters.capability?<input type="hidden" name="capability" value={filters.capability}/>:null}
+            {filters.market?<input type="hidden" name="market" value={filters.market}/>:null}
+            {filters.country?<input type="hidden" name="country" value={filters.country}/>:null}
             <label htmlFor="compact-region" className="text-xs font-semibold">Regione</label>
             <select id="compact-region" name="region" defaultValue={filters.region||""}
               className="min-h-10 min-w-[160px] rounded-lg border border-[#c9d9d3] bg-white px-3 text-sm text-[#173f35]">
@@ -167,13 +212,12 @@ export function NetworkCompactExperience({
               {regions.map(item=><option key={item} value={item}>{item}</option>)}
             </select>
             <button type="submit" className="app-primary min-h-10 rounded-lg px-4 text-xs font-semibold">Applica</button>
-            {accessMode==="pro" && additionalFilters?<Link href={filterUrl(filters,{advanced:"1"},"#network-company-list")}
-              className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-2">
-              Filtri tecnici: prodotto, capability, mercato e paese ↗
-            </Link>:null}
           </form>
         </details>
       </div>
+      {technicalOnly?<p role="status" className="mt-2 text-[11px] leading-5 text-[#52615b]">
+        Filtri tecnici applicati ai soli profili con dati strutturati pubblicati. Le aziende censite senza attributi tecnici non sono incluse; non significa che non offrano questi prodotti o servizi.
+      </p>:null}
     </section>
 
     <section id="network-results" aria-label="Risultati aziende" className="overflow-hidden rounded-2xl border border-[#d7e3dc] bg-white">
