@@ -1,0 +1,62 @@
+name: "NET-UX COMPACT4B — Geographic first-party batch"
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_sites:
+        description: "Number of official-company sites to process (1–25)"
+        required: true
+        default: "5"
+        type: choice
+        options: ["1", "5", "10", "25"]
+      persist_candidates:
+        description: "Explicitly save sourced, unverified geography candidates"
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: netcompact4b-first-party-geo
+  cancel-in-progress: false
+
+jobs:
+  geo-evidence:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install bounded worker dependencies
+        working-directory: services/worker
+        run: python -m pip install -e .
+      - name: Check secure runtime configuration
+        if: inputs.persist_candidates
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::Missing worker-only Supabase secrets; no writes performed"
+            exit 1
+          fi
+      - name: Collect geography from exact-domain company pages
+        working-directory: services/worker
+        env:
+          PERSIST_CANDIDATES: ${{ inputs.persist_candidates }}
+          MAX_SITES: ${{ inputs.max_sites }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ "$PERSIST_CANDIDATES" = "true" ]; then
+            python -m app.netcompact4b_geo_batch --manifest data/netcompact4b_approved_25.json --max-sites "$MAX_SITES" --persist
+          else
+            python -m app.netcompact4b_geo_batch --manifest data/netcompact4b_approved_25.json --max-sites "$MAX_SITES"
+          fi
