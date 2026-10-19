@@ -1,4 +1,5 @@
 import Link from "next/link";
+import {getReviewedCompanyEvidence} from "@/lib/network-profile-evidence";
 import { notFound } from "next/navigation";
 import { FocusPage } from "@/components/focus-ui";
 import { NetworkActivationCta, NetworkActivationHelp } from "@/components/network-activation-cta";
@@ -26,6 +27,7 @@ export async function FreeNetworkProfileView({
     );
   }
   if (!profile) notFound();
+  const reviewedEvidence=await getReviewedCompanyEvidence(organizationId,companyId,accessMode).catch(()=>[]);
   const website = safeNetworkWebsiteUrl(profile.company.website_url);
   const source = safeNetworkWebsiteUrl(profile.source_url);
   const license = safeNetworkWebsiteUrl(profile.license_url);
@@ -50,6 +52,19 @@ export async function FreeNetworkProfileView({
             <Link href="/company-data" className="font-semibold underline">Segnala una correzione o chiedi la rimozione →</Link>
           </div>
         </div> : null}
+        {reviewedEvidence.length>0 ? <section aria-label="Informazioni aziendali con fonte" className="mt-5 rounded-xl border border-[#d5e5da] bg-[#f8fbf9] p-4">
+          <h2 className="text-base font-semibold text-[#173f35]">Attività e competenze</h2>
+          <p className="mt-1 text-xs text-[#52615b]">Informazioni ricavate da fonti aziendali consultabili; non equivalgono a certificazione o adesione al Network.</p>
+          <ul className="mt-3 space-y-3">{reviewedEvidence.map((entry,index)=>{
+            const value=typeof entry.field_value==="string"?entry.field_value:Array.isArray(entry.field_value)?entry.field_value.filter((x):x is string=>typeof x==="string").join(" · "):"";
+            const url=safeNetworkWebsiteUrl(entry.evidence_url);
+            return value ? <li key={index} className="text-sm leading-6 text-[#43524c]">
+              <span className="block text-xs font-semibold capitalize text-[#175640]">{entry.field_key==="description"?"Attività":entry.field_key==="industry"?"Settori":entry.field_key==="products"?"Prodotti":entry.field_key==="services"?"Servizi":entry.field_key}</span>
+              {value}
+              {url?<a href={url} target="_blank" rel="noopener noreferrer" className="ml-2 text-xs font-semibold text-[#176647] underline">Fonte ↗</a>:null}
+            </li> : null;
+          })}</ul>
+        </section> : null}
         {profile.company.description ? <p className="mt-5 max-w-3xl whitespace-pre-wrap text-sm leading-6 text-[#43524c]">{profile.company.description}</p> : null}
         {website ? <a href={website} target="_blank" rel="noopener noreferrer" className="app-secondary mt-5 inline-flex min-h-10 items-center rounded-xl px-4 text-sm font-semibold">Visita sito aziendale</a> : null}
         <section aria-label="Attivazione del profilo aziendale"
