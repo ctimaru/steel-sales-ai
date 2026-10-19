@@ -57,7 +57,7 @@ test("COMPACT3.4 desktop header and rows use one column contract; mobile remains
   assert.equal(n,2,"header and rows must share the same columns");
   assert.match(page,/lg:grid-cols-\[minmax\(210px/);
   assert.match(page,/grid-cols-\[minmax\(0,1fr\)_auto\]/);
-  assert.match(page,/sm:grid-cols-\[repeat\(4,minmax\(0,1fr\)\)_auto\]/);
+  assert.match(page,/xl:grid-cols-\[repeat\(5,minmax\(0,1fr\)\)_auto\]/);
   assert.match(page,/w-full min-w-0 rounded-lg border/);
   assert.match(page,/aria-label="Pagina successiva"/);
   assert.match(page,/min-h-10 w-full/);
