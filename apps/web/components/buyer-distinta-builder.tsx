@@ -82,12 +82,14 @@ export function BuyerDistintaBuilder({
   catalogOptions,
   workspace = false,
   userId = null,
+  returnToCommercial = false,
 }: {
   authenticated: boolean;
   emailConfigured: boolean;
   catalogOptions: BuyerDistintaCatalogOption[];
   workspace?: boolean;
   userId?: string | null;
+  returnToCommercial?: boolean;
 }) {
   const router = useRouter();
   const [title, setTitle] = useState("Richiesta di offerta");
@@ -654,7 +656,9 @@ export function BuyerDistintaBuilder({
           setRfqMessage(result.error);
           return;
         }
-        router.push(appRoutes.rfqHub.campaign(result.rfqId));
+        router.push(returnToCommercial
+          ? appRoutes.commercial.home + "?item=campaign:" + encodeURIComponent(result.rfqId) + "#commercial-detail"
+          : appRoutes.rfqHub.campaign(result.rfqId));
       } finally {
         rfqInFlightRef.current = false;
       }
