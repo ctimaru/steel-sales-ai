@@ -10,6 +10,7 @@ import {
 import { schoolArticles } from "@/lib/school-articles";
 import { englishGradeForSlug, englishStandardForSlug } from "@/lib/international-steel-knowledge";
 import {localizedKnowledgeGuide,localizedKnowledgePath,MARKET_TECHNICAL_RECORDS} from "@/lib/localized-steel-knowledge";
+import {SCHOOL_EDITORIAL_DRAFT_DATE} from "@/lib/school-technical-editorial-trust";
 import { listPublicPriceLists } from "@/lib/public-price-lists";
 import { finalizePublicSitemap, newestDate } from "@/lib/seo";
 import { MARKET_GUIDE_ROUTES } from "@/lib/calculator-market-editorial";
@@ -420,7 +421,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         if(!record)return[];
         return [{
           url:absoluteUrl(localizedKnowledgePath(locale,kind,x.slug)),
-          lastModified:new Date(record.last_reviewed_at+"T00:00:00Z"),
+          lastModified:new Date((record.last_reviewed_at>SCHOOL_EDITORIAL_DRAFT_DATE?record.last_reviewed_at:SCHOOL_EDITORIAL_DRAFT_DATE)+"T00:00:00Z"),
           changeFrequency:"monthly" as const,priority:0.77,
           alternates:{languages:{
             it:absoluteUrl((kind==="standards"?"/knowledge/norme/":"/knowledge/gradi/")+x.slug),

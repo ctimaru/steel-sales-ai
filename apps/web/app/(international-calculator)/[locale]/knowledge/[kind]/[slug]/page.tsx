@@ -3,6 +3,8 @@ import Link from "next/link";
 import {notFound} from "next/navigation";
 import {cache} from "react";
 import {LocalizedKnowledgeLayout} from "@/components/localized-knowledge-layout";
+import {SchoolEditorialTrust,SchoolTechnicalGlossary} from "@/components/school-technical-editorial-trust";
+import {TECHNICAL_RELATED_SLUGS,SCHOOL_EDITORIAL_DRAFT_DATE} from "@/lib/school-technical-editorial-trust";
 import {MARKET_TECHNICAL_RECORDS,MARKET_TECHNICAL_UI,localizedKnowledgeGuide,localizedKnowledgePath,type KnowledgeMarketLocale} from "@/lib/localized-steel-knowledge";
 import {getPublicStandard,getPublicGrade,listPublicStandards,listPublicGrades} from "@/lib/public-knowledge";
 import {isNewCalculatorLocale} from "@/lib/international-calculator-landing";
@@ -39,7 +41,7 @@ export async function generateMetadata({params}:Params):Promise<Metadata>{
   }},
   openGraph:{type:"article",title:copy.code+" — "+copy.title,description:copy.summary,
    url:absoluteUrl(path),locale,publishedTime:published.published_at,
-   modifiedTime:published.last_reviewed_at+"T00:00:00Z"},
+   modifiedTime:(published.last_reviewed_at>SCHOOL_EDITORIAL_DRAFT_DATE?published.last_reviewed_at:SCHOOL_EDITORIAL_DRAFT_DATE)+"T00:00:00Z"},
  };
 }
 export default async function LocalizedTechnicalDetail({params}:Params){
@@ -55,14 +57,12 @@ export default async function LocalizedTechnicalDetail({params}:Params){
  const otherKind:Kind=group==="standards"?"grades":"standards";
  const opposite=group==="standards"?await listPublicGrades():await listPublicStandards();
  const allowed=new Set(opposite.map(x=>x.slug));
- const relevantSlugs=group==="standards"
-  ?slug==="en-10216-2"?["p265gh"]:["s355j2h"]
-  :slug==="p265gh"?["en-10216-2"]:["en-10210","en-10219"];
+ const relevantSlugs=TECHNICAL_RELATED_SLUGS[group][slug]??[];
  const linked=MARKET_TECHNICAL_RECORDS[locale][otherKind].filter(x=>relevantSlugs.includes(x.slug)&&allowed.has(x.slug));
  const jsonLd={"@context":"https://schema.org","@graph":[
   {"@type":"TechArticle",headline:copy.code+" — "+copy.title,
    description:copy.summary,inLanguage:locale,
-   datePublished:published.published_at,dateModified:published.last_reviewed_at,
+   datePublished:published.published_at,dateModified:published.last_reviewed_at>SCHOOL_EDITORIAL_DRAFT_DATE?published.last_reviewed_at:SCHOOL_EDITORIAL_DRAFT_DATE,
    mainEntityOfPage:absoluteUrl(path),
    author:{"@type":"Organization",name:"Smart Steel Sales"},
    citation:uniqueSources},
@@ -89,12 +89,7 @@ export default async function LocalizedTechnicalDetail({params}:Params){
          <p className="mt-2 text-sm leading-7 text-[#52615b]">{copy.caution}</p></section>
      </article>
      <aside className="space-y-4">
-       <div className="rounded-2xl border border-[#d0e0d6] bg-[#f8faf8] p-5">
-         <p className="text-xs font-bold uppercase tracking-[.1em] text-[#1b6349]">{ui.publicRecord}</p>
-         <p className="mt-2 font-semibold text-[#173f35]">{copy.code}</p>
-         <p className="mt-2 text-xs leading-5 text-[#506157]">{ui.checked}: {published.last_reviewed_at}</p>
-         <p className="mt-3 text-xs leading-6 text-[#506157]">{ui.sourceNote}</p>
-       </div>
+       <SchoolEditorialTrust locale={locale} recordLastReviewed={published.last_reviewed_at} sourceUrl={copy.source}/>
        <Link href={"/"+locale+"/distinta"} className="school-primary-action w-full justify-center">{ui.bill} →</Link>
        <Link href={"/"+locale+"/knowledge/tubes"} className="school-secondary-action w-full justify-center">{ui.calculator} →</Link>
      </aside>
@@ -109,6 +104,7 @@ export default async function LocalizedTechnicalDetail({params}:Params){
      </div>
      <p className="mt-2 text-xs leading-6 text-[#52615b]">{ui.sourceNote}</p>
    </section>:null}
+   <SchoolTechnicalGlossary locale={locale}/>
    <section className="rounded-2xl border border-[#d0e0d6] bg-white p-5">
      <h2 className="text-xl font-semibold text-[#173f35]">{ui.resources}</h2>
      <ul className="mt-3 list-disc space-y-2 pl-5 text-sm">
