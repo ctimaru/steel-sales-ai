@@ -26,6 +26,13 @@ export type UnifiedCommercialData = {
   inboundUnavailable: boolean;
   procurementUnavailable: boolean;
   truncated: boolean;
+  paging?: {
+    page: number;
+    pageSize: number;
+    total: number | null;
+    hasNext: boolean;
+    exact: boolean;
+  };
 };
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -185,4 +192,12 @@ export function commercialHref(view: CommercialView, query = "", selected?: stri
   if (selected) params.set("item", selected);
   const suffix = params.toString();
   return appRoutes.commercial.home + (suffix ? "?" + suffix : "") + "#commercial-worklist";
+}
+
+// Page navigation is deliberately separate so tab changes reset to page 1.
+export function commercialPageHref(view: CommercialView, query: string, page: number, selected?: string) {
+  const href = commercialHref(view, query, selected);
+  if (page <= 1) return href;
+  const [path, fragment] = href.split("#");
+  return path + (path.includes("?") ? "&" : "?") + "page=" + Math.floor(page) + "#" + fragment;
 }
