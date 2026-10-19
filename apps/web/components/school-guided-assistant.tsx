@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { askSchoolGroundedAI, type SchoolGroundedAIResult } from "@/app/(italian)/(workspace)/school/assistant/grounded-ai-actions";
+import { askSchoolGroundedAI } from "@/app/(italian)/(workspace)/school/assistant/grounded-ai-actions";
+import type { SchoolGroundedAIResult } from "@/lib/school-grounded-ai-contract";
 import Link from "next/link";
 import {
   parseSteelAssistantInput, mergeSteelAssistantFacts, missingSteelAssistantFields,
