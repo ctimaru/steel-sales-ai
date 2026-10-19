@@ -4,7 +4,8 @@ import Image from "next/image";
 
 import { FocusPage } from "@/components/focus-ui";
 import { SchoolHero } from "@/components/school-ui";
-import { PublicLanguageSwitch } from "@/components/public-language-switch";
+import { SchoolPageLanguageSelector } from "@/components/calculator-page-language-selector";
+import { SchoolJourney } from "@/components/school-unified-experience";
 import { schoolArticles } from "@/lib/school-articles";
 import { absoluteUrl } from "@/lib/site";
 
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
     "La Scuola di Smart Steel Sales è la base tecnica pubblica per il settore steel e tube: norme, gradi di acciaio, pesi, dimensioni e strumenti pratici.",
   alternates: {
     canonical: absoluteUrl("/knowledge"),
-    languages: { it: absoluteUrl("/knowledge"), en: absoluteUrl("/en/knowledge") },
+    languages: { it: absoluteUrl("/knowledge"), en: absoluteUrl("/en/knowledge"), de: absoluteUrl("/de/knowledge"), fr: absoluteUrl("/fr/knowledge"), es: absoluteUrl("/es/knowledge") },
   },
   openGraph: {
     title: "Scuola Smart Steel Sales — Norme, gradi, pesi e dimensioni",
@@ -24,30 +25,6 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
-
-const discoveryPaths = [
-  {
-    label: "Norme",
-    title: "Norme tecniche",
-    description: "EN 10210, EN 10219 e altre specifiche: campo di applicazione e famiglie di prodotto.",
-    href: "/knowledge/norme",
-    code: "EN",
-  },
-  {
-    label: "Materiali",
-    title: "Gradi di acciaio",
-    description: "P235TR2, P265GH, S355J2H: designazioni e riferimenti da confrontare.",
-    href: "/knowledge/gradi",
-    code: "S355",
-  },
-  {
-    label: "Guide",
-    title: "Processi e industria",
-    description: "Come si producono i tubi e come scegliere il riferimento tecnico da approfondire.",
-    href: "/knowledge/articoli",
-    code: "HFI",
-  },
-] as const;
 
 /** Original decorative SVG: cross-sections are schematic, not dimensioned drawings. */
 function TubeSectionIllustration() {
@@ -90,7 +67,7 @@ export default function KnowledgeHomePage() {
     <FocusPage className="px-4 py-7 sm:px-6 sm:py-9 lg:px-8">
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs font-semibold text-[#405a4e]">Risorse tecniche pubbliche · accesso gratuito</p>
-        <PublicLanguageSwitch locale="it" italianHref="/knowledge" englishHref="/en/knowledge" />
+        <SchoolPageLanguageSelector locale="it" />
       </div>
 
       <section className="grid items-center gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]" aria-label="Benvenuto nella Scuola">
@@ -172,27 +149,7 @@ export default function KnowledgeHomePage() {
         </div>
       </section>
 
-      <section aria-labelledby="school-paths-heading">
-        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="school-kicker">Esplora per argomento</p>
-            <h2 id="school-paths-heading" className="mt-1 text-2xl font-semibold text-[#1d2824]">Un percorso per ogni esigenza tecnica</h2>
-          </div>
-        </div>
-        <div className="grid gap-3 md:grid-cols-3">
-          {discoveryPaths.map((path) => (
-            <Link key={path.href} href={path.href} className="school-card group flex flex-col gap-3 p-5 transition hover:border-[#86b4a0] hover:bg-[#fbfdfc] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">
-              <div className="flex items-center justify-between">
-                <span className="school-kicker">{path.label}</span>
-                <span aria-hidden="true" className="rounded-lg bg-[#e5f0e9] px-2.5 py-1 font-mono text-xs font-bold text-[#184638]">{path.code}</span>
-              </div>
-              <h3 className="text-lg font-semibold text-[#1d2824]">{path.title}</h3>
-              <p className="flex-1 text-sm leading-6 text-[#506157]">{path.description}</p>
-              <span className="text-sm font-bold text-[#174b3c]">Esplora <span aria-hidden="true">→</span></span>
-            </Link>
-          ))}
-        </div>
-      </section>
+      <SchoolJourney locale="it" />
 
       <section id="approfondimenti" aria-labelledby="school-articles-heading">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">

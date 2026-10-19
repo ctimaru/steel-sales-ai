@@ -90,9 +90,16 @@ async function checkContext(label, viewport, mobile) {
         "English copy action missing");
       // Production smoke checks deployed main, which may still have the old
       // link until this PR merges; local Chrome E2E gates the new transfer.
-      const newAction = await calc.getByRole("button", { name: /Add this calculation to an RFQ bill/ }).count();
-      const oldLink = await calc.locator('a.tube-calculator-rfq-link[href="/en/distinta"]').count();
-      assert.ok(newAction === 1 || oldLink === 1, "English RFQ bill action inaccessible");
+      // The calculator now uses a localized inline-distinta CTA. Check its
+      // stable actionable contract rather than a retired English label.
+      const inlineAction = calc.locator("button.tube-calculator-rfq-link");
+      const oldLink = calc.locator('a.tube-calculator-rfq-link[href="/en/distinta"]');
+      assert.ok(await inlineAction.count() === 1 || await oldLink.count() === 1,
+        "English RFQ bill action inaccessible");
+      if (await inlineAction.count()) {
+        assert.ok(await inlineAction.isVisible(), "English RFQ bill action hidden");
+        assert.ok(await inlineAction.isEnabled(), "English RFQ bill action disabled");
+      }
       assert.ok(await page.getByText("Total weight").first().count() > 0,
         "English calculator total mass missing");
       checks++;

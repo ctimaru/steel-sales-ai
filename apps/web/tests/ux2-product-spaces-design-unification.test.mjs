@@ -7,6 +7,7 @@ const nav = fs.readFileSync(new URL("../components/workspace-navigation.tsx", im
 const dashboard = fs.readFileSync(new URL("../app/(workspace)/dashboard/page.tsx", import.meta.url), "utf8");
 const marketplace = fs.readFileSync(new URL("../app/(workspace)/marketplace/page.tsx", import.meta.url), "utf8");
 const knowledge = fs.readFileSync(new URL("../app/(public)/knowledge/page.tsx", import.meta.url), "utf8");
+const sharedSchool = fs.readFileSync(new URL("../components/school-unified-experience.tsx", import.meta.url), "utf8");
 const knowledgeLayout = fs.readFileSync(new URL("../app/(public)/knowledge/layout.tsx", import.meta.url), "utf8");
 const publicSessionAction = fs.readFileSync(new URL("../components/public-session-action.tsx", import.meta.url), "utf8");
 const routes = fs.readFileSync(new URL("../lib/routes.ts", import.meta.url), "utf8");
@@ -51,8 +52,9 @@ test("K1 Knowledge is a public technical discovery surface", () => {
   assert.match(knowledge, /id="school-tools-heading"/);
   assert.match(knowledge, /id="school-search-heading"/);
   assert.match(knowledge, /id="school-articles-heading"/);
-  assert.match(knowledge, /href: "\/knowledge\/norme"/);
-  assert.match(knowledge, /href: "\/knowledge\/gradi"/);
+  assert.match(knowledge, /SchoolJourney locale="it"/);
+  assert.match(sharedSchool, /href:"\/knowledge\/norme"/);
+  assert.match(sharedSchool, /href:"\/knowledge\/gradi"/);
   assert.match(knowledge, /schoolArticles\.slice\(0, 3\)/);
   assert.match(knowledge, /Pubblica e gratuita/);
   assert.match(knowledgeLayout, /PublicSessionAction/);

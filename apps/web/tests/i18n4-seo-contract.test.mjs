@@ -14,7 +14,8 @@ const runbook = read("../../../docs/quality/i18n4-international-seo-acceptance.m
 test("I18N4 repairs missing Italian Knowledge reciprocal page metadata, not just sitemap", () => {
   assert.match(italian, /canonical: absoluteUrl\("\/knowledge"\)/);
   assert.match(italian, /languages:\s*\{\s*it: absoluteUrl\("\/knowledge"\),\s*en: absoluteUrl\("\/en\/knowledge"\)/);
-  assert.match(italian, /PublicLanguageSwitch locale="it"/);
+  assert.match(italian, /SchoolPageLanguageSelector locale="it"/);
+  assert.match(italian, /de: absoluteUrl\("\/de\/knowledge"\)/);
   assert.match(english, /it: absoluteUrl\("\/knowledge"\)/);
   assert.match(sitemap, /en: absoluteUrl\("\/en\/knowledge"\)/);
 });
@@ -34,7 +35,9 @@ test("I18N4 production acceptance is read-only and manually strict after deploym
   assert.match(chrome, /"GET" && method !== "HEAD"/);
   assert.match(chrome, /width: 390/);
   assert.match(chrome, /Shared English calculator missing/);
-  assert.match(chrome, /Add this calculation to an RFQ bill/);
+  assert.match(chrome, /button\.tube-calculator-rfq-link/);
+  assert.match(chrome, /inlineAction\.isVisible\(\)/);
+  assert.match(chrome, /inlineAction\.isEnabled\(\)/);
   assert.match(chrome, /Add another item/);
   assert.doesNotMatch(http + chrome, /method:\s*["']POST|fetch\([^)]*,\s*\{\s*method:\s*["']POST/i);
 });

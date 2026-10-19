@@ -120,30 +120,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.5,
     },
-    {
-      url: absoluteUrl("/knowledge"),
+    ...(["it","en","de","fr","es"] as const).map(locale=>({
+      url: absoluteUrl(locale==="it"?"/knowledge":"/"+locale+"/knowledge"),
       lastModified: knowledgeLastModified,
-      changeFrequency: "weekly",
-      priority: 0.9,
-      alternates: {
-        languages: {
-          it: absoluteUrl("/knowledge"),
-          en: absoluteUrl("/en/knowledge"),
-        },
-      },
-    },
-    {
-      url: absoluteUrl("/en/knowledge"),
-      lastModified: knowledgeLastModified,
-      changeFrequency: "weekly",
-      priority: 0.8,
-      alternates: {
-        languages: {
-          it: absoluteUrl("/knowledge"),
-          en: absoluteUrl("/en/knowledge"),
-        },
-      },
-    },
+      changeFrequency: "weekly" as const,
+      priority: locale==="it"?0.9:locale==="en"?0.86:0.8,
+      alternates: {languages:{
+        it: absoluteUrl("/knowledge"),
+        en: absoluteUrl("/en/knowledge"),
+        de: absoluteUrl("/de/knowledge"),
+        fr: absoluteUrl("/fr/knowledge"),
+        es: absoluteUrl("/es/knowledge"),
+        "x-default": absoluteUrl("/knowledge"),
+      }},
+    })),
     {
       url: absoluteUrl("/knowledge/articoli"),
       lastModified: articlesLastModified,

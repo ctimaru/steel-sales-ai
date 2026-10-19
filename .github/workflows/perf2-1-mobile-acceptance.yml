@@ -15,6 +15,9 @@ on:
       - "apps/web/components/deferred-public-company-lookup.tsx"
       - "apps/web/tests/perf2-1-*"
       - "apps/web/tests/school-growth1e-*"
+      - "apps/web/tests/school-unify1-*"
+      - "apps/web/components/school-unified-experience.tsx"
+      - "apps/web/lib/school-locales.ts"
       - "apps/web/lib/school-articles.ts"
       - "apps/web/public/school/visuals/**"
       - "apps/web/app/api/school-og/**"
@@ -95,6 +98,8 @@ jobs:
           done
           tail -n 70 "$RUNNER_TEMP/perf21-next.log"
           exit 1
+      - name: SCHOOL-UNIFY1 Five public School languages Chrome layout and SEO
+        run: node tests/school-unify1-chrome-five-hubs.mjs
       - name: SCHOOL-GROWTH1E Chrome Scuola SEO / contrast / images (mobile and desktop)
         run: node tests/school-growth1e-chrome-acceptance.mjs
       - name: Chrome keyboard / no-JS / lazy lookup / consent acceptance
@@ -131,6 +136,14 @@ jobs:
         run: node tests/bd17-chrome-cta-variants.mjs
       - name: HOME-SI5 Chrome visual / WCAG / SEO acceptance
         run: node tests/home-si5-chrome-visual-qa.mjs
+      - name: Upload SCHOOL-UNIFY1 international public School screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: school-unify1-five-locales-qa
+          path: /tmp/school-unify1
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Upload SCHOOL-GROWTH1E public screenshots and binary HTTP report
         if: always()
         uses: actions/upload-artifact@v4
