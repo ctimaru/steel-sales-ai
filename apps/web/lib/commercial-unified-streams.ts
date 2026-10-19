@@ -242,6 +242,9 @@ export async function loadCommercialStreams({
   const flat = batches.flatMap((batch) => batch.rows.map((item, index) => ({ item, source: batch.id, index })));
   const ordered = flat.sort((a, b) =>
     normalizedTime(b.item.at).localeCompare(normalizedTime(a.item.at)) ||
+    // Preserve the database id-DESC order inside each stream on equal dates,
+    // otherwise an offset cursor could skip/duplicate simultaneous records.
+    (a.source === b.source ? a.index - b.index : a.source.localeCompare(b.source)) ||
     a.item.key.localeCompare(b.item.key)
   );
   const firstPage = ordered.slice(0, STREAM_PAGE_SIZE);
