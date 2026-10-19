@@ -122,10 +122,8 @@ export function NetworkCompactExperience({
         </div>
       </div>
       <div className="hidden lg:block [&_svg]:max-h-[112px] [&_section]:h-full [&_section]:px-3 [&_section]:py-2 [&_p:last-child]:hidden">
-        <NetworkMiniMap coverage={coverage} provisionalCoverage={provisionalCoverage} filters={{
-          ...filters, advanced: accessMode==="pro" ? "1" : undefined,
-          map: accessMode==="free" ? "1" : undefined,
-        }}/>
+        <NetworkMiniMap coverage={coverage} provisionalCoverage={provisionalCoverage}
+          filters={filters} fullMapHref={accessMode==="pro"?"/network?advanced=1#network-regional-map":"/network?map=1#network-regional-map"}/>
       </div>
     </div>
 
