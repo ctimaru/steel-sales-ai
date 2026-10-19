@@ -34,15 +34,21 @@ test("COMPACT3.2 semantic buttons have legible primary / secondary text",()=>{
   assert.doesNotMatch(page,/className="app-primary inline-flex/);
 });
 
-test("COMPACT3.3 flags respect ISO country, not invented geography",()=>{
+test("COMPACT3.3 uses built-in vector flags rather than OS emoji rendering",()=>{
+  const flags=source("../components/network-country-flag.tsx");
   for(const country of ["IT","DE","FR","ES","US","GB","CH"]){
-    assert.match(page,new RegExp(country+":\\{flag:"));
+    assert.match(flags,new RegExp('case "'+country+'":'));
   }
-  assert.match(page,/company\.country_code\?\.toUpperCase\(\)/);
-  assert.match(page,/nation\.flag/);
-  assert.match(page,/nation\.label/);
-  assert.match(page,/company\.location\?\.city/);
+  assert.match(flags,/viewBox=/);
+  assert.match(flags,/<FlagShapes country=/);
+  assert.match(flags,/country==="CH"/);
+  assert.match(page,/countryCode=\(company.country_code\|\|""\).toUpperCase\(\)/);
+  assert.equal((page.match(/<NetworkCountryFlag code=\{countryCode\}\/>/g)||[]).length,2,
+    "country icon must appear in both desktop and compact/mobile layouts");
+  assert.match(page,/countryLabel/);
+  assert.match(page,/company.location\?\.city/);
   assert.match(page,/Sede non indicata/);
+  assert.doesNotMatch(page,/nation.flag/);
 });
 
 test("COMPACT3.4 desktop header and rows use one column contract; mobile remains compact",()=>{
