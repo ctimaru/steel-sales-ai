@@ -656,9 +656,12 @@ export function BuyerDistintaBuilder({
           setRfqMessage(result.error);
           return;
         }
-        router.push(returnToCommercial
-          ? appRoutes.commercial.home + "?item=campaign:" + encodeURIComponent(result.rfqId) + "#commercial-detail"
-          : appRoutes.rfqHub.campaign(result.rfqId));
+        if (returnToCommercial) {
+          router.push(appRoutes.commercial.home + "?item=campaign:" + encodeURIComponent(result.rfqId) + "#commercial-detail");
+        } else {
+          // Existing public and RFQ Hub flows keep their canonical deep link.
+          router.push(appRoutes.rfqHub.campaign(result.rfqId));
+        }
       } finally {
         rfqInFlightRef.current = false;
       }
