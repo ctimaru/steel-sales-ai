@@ -10,6 +10,8 @@ export async function SchoolInternationalReferences({locale}:{locale:KnowledgeMa
  const availableGrades=new Set(grds.map(x=>x.slug));
  const countStd=MARKET_TECHNICAL_RECORDS[locale].standards.filter(x=>availableStandards.has(x.slug)).length;
  const countGrade=MARKET_TECHNICAL_RECORDS[locale].grades.filter(x=>availableGrades.has(x.slug)).length;
+ const visibleStandardNames=MARKET_TECHNICAL_RECORDS[locale].standards.filter(x=>availableStandards.has(x.slug)).map(x=>x.code);
+ const visibleGradeNames=MARKET_TECHNICAL_RECORDS[locale].grades.filter(x=>availableGrades.has(x.slug)).map(x=>x.code);
  if(countStd+countGrade===0)return null;
  return <section aria-label={ui.more} lang={locale}>
   <div className="mb-4">
@@ -19,13 +21,13 @@ export async function SchoolInternationalReferences({locale}:{locale:KnowledgeMa
   </div>
   <div className="grid gap-3 sm:grid-cols-2">
    {countStd>0?<Link href={localizedKnowledgePath(locale,"standards")} className="group rounded-2xl border border-[#c9dfd4] bg-white p-5 transition hover:border-[#88b79e] hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">
-     <p className="text-xs font-bold text-[#1b6349]">EN 10210 · EN 10219 · EN 10216-2</p>
+     <p className="text-xs font-bold text-[#1b6349]">{visibleStandardNames.slice(0,4).join(" · ")}{visibleStandardNames.length>4?" · …":""}</p>
      <h3 className="mt-2 text-lg font-semibold text-[#173f35]">{ui.standards}</h3>
      <p className="mt-2 text-sm text-[#52615b]">{ui.leadStd}</p>
      <span className="mt-4 inline-block text-sm font-bold text-[#174b3c]">{countStd} · {ui.more} →</span>
    </Link>:null}
    {countGrade>0?<Link href={localizedKnowledgePath(locale,"grades")} className="group rounded-2xl border border-[#c9dfd4] bg-white p-5 transition hover:border-[#88b79e] hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">
-     <p className="text-xs font-bold text-[#1b6349]">S355J2H · P265GH</p>
+     <p className="text-xs font-bold text-[#1b6349]">{visibleGradeNames.slice(0,4).join(" · ")}{visibleGradeNames.length>4?" · …":""}</p>
      <h3 className="mt-2 text-lg font-semibold text-[#173f35]">{ui.grades}</h3>
      <p className="mt-2 text-sm text-[#52615b]">{ui.leadGrade}</p>
      <span className="mt-4 inline-block text-sm font-bold text-[#174b3c]">{countGrade} · {ui.more} →</span>

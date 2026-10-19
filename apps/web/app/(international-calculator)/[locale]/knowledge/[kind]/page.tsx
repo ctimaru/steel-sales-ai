@@ -2,6 +2,8 @@ import type {Metadata} from "next";
 import Link from "next/link";
 import {notFound} from "next/navigation";
 import {LocalizedKnowledgeLayout} from "@/components/localized-knowledge-layout";
+import {SchoolTechnicalGlossary} from "@/components/school-technical-editorial-trust";
+import {TECHNICAL_EDITORIAL_COPY} from "@/lib/school-technical-editorial-trust";
 import {MARKET_TECHNICAL_RECORDS,MARKET_TECHNICAL_UI,localizedKnowledgePath,type KnowledgeMarketLocale} from "@/lib/localized-steel-knowledge";
 import {isNewCalculatorLocale} from "@/lib/international-calculator-landing";
 import {listPublicStandards,listPublicGrades} from "@/lib/public-knowledge";
@@ -81,7 +83,9 @@ export default async function TechnicalKnowledgeIndex({params,searchParams}:Para
        <span className="mt-3 text-sm font-bold text-[#174b3c]">{ui.read} →</span>
      </Link>)}
    </section>:<p role="status" className="rounded-xl border border-[#d0e0d6] bg-white p-6 text-sm text-[#52615b]">{ui.noResults}. {ui.empty}</p>}
+   <SchoolTechnicalGlossary locale={locale}/>
    <aside className="rounded-2xl border border-[#d0e0d6] bg-[#eaf4ee] p-5 text-xs leading-6 text-[#425e50]">
+     <p className="font-semibold text-[#174b3c]">{TECHNICAL_EDITORIAL_COPY[locale].evidenceNote}</p>
      {ui.sourceNote}
    </aside>
  </LocalizedKnowledgeLayout>;
