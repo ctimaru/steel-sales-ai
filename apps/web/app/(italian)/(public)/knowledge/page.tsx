@@ -100,7 +100,7 @@ export default function KnowledgeHomePage() {
             description={
               <>
                 Parti dal problema concreto: calcola un peso, consulta una norma o un grado e approfondisci i processi produttivi.
-                Informazioni tecniche pubbliche, senza account e separate dai dati commerciali privati.
+                La Scuola è consultabile senza account ed è separata dai dati commerciali privati delle aziende.
               </>
             }
             badges={["Pubblica e gratuita", "Norme · Materiali · Calcoli"]}
@@ -234,7 +234,7 @@ export default function KnowledgeHomePage() {
         <details className="mt-2 text-sm text-[#405a4e]">
           <summary className="cursor-pointer py-2 font-semibold underline underline-offset-4">Consulta la metodologia</summary>
           <p className="mt-2 leading-6">
-            I riferimenti tecnici sono contestualizzati per norma e fonte; un peso pubblicato per tubi in pressione non certifica automaticamente un profilato strutturale.
+            La sezione tubi include cluster per famiglia, dimensione esterna e spessore. I riferimenti tecnici sono contestualizzati per norma e fonte; un peso pubblicato per tubi in pressione non certifica automaticamente un profilato strutturale.
             I testi normativi protetti non vengono riprodotti. Consulta sempre le fonti e la data di revisione delle schede.
           </p>
         </details>

@@ -47,14 +47,14 @@ test("PF4 Marketplace separates buyer and supplier jobs without internal program
 });
 
 test("K1 Knowledge is a public technical discovery surface", () => {
-  assert.match(knowledge, /Conoscenza tecnica per chi lavora con acciaio e tubi/);
-  assert.match(knowledge, /Norme/);
-  assert.match(knowledge, /Gradi di acciaio/);
-  assert.match(knowledge, /Pesi & dimensioni/);
+  assert.match(knowledge, /La tua officina tecnica per tubi e acciaio/);
+  assert.match(knowledge, /id="school-tools-heading"/);
+  assert.match(knowledge, /id="school-search-heading"/);
+  assert.match(knowledge, /id="school-articles-heading"/);
   assert.match(knowledge, /href: "\/knowledge\/norme"/);
   assert.match(knowledge, /href: "\/knowledge\/gradi"/);
-  assert.match(knowledge, /Articoli/);
-  assert.match(knowledge, /Pubblico/);
+  assert.match(knowledge, /schoolArticles\.slice\(0, 3\)/);
+  assert.match(knowledge, /Pubblica e gratuita/);
   assert.match(knowledgeLayout, /PublicSessionAction/);
   assert.match(publicSessionAction, /authenticated \? "Workspace" : "Accedi"/);
   assert.match(knowledgeLayout, /Trova azienda/);
