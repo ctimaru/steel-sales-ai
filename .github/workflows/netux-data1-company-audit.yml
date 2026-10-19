@@ -1,0 +1,75 @@
+name: "NET-UX DATA1 — Full company source audit"
+
+on:
+  workflow_dispatch:
+    inputs:
+      offset:
+        description: "Start index: 0,25,...,500; page max 25"
+        required: true
+        type: string
+        default: "0"
+      scan_official_sites:
+        description: "Visit matched official candidate domains, respect robots"
+        type: boolean
+        required: true
+        default: false
+      stage_unverified_evidence:
+        description: "Explicit candidate-only staging, never publication"
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: netux-data1-enrichment
+  cancel-in-progress: false
+
+jobs:
+  company-intelligence:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install existing worker dependencies
+        working-directory: services/worker
+        run: python -m pip install -e .
+      - name: Validate bounded inputs
+        env:
+          OFFSET: ${{ inputs.offset }}
+          SCAN: ${{ inputs.scan_official_sites }}
+          STAGE: ${{ inputs.stage_unverified_evidence }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          python - <<'PY'
+          import os
+          raw = os.environ["OFFSET"]
+          if not raw.isdecimal() or int(raw) < 0 or int(raw) > 500 or int(raw)%25:
+            raise SystemExit("Offset must be 0,25,...,500")
+          if os.environ["STAGE"] == "true" and os.environ["SCAN"] != "true":
+            raise SystemExit("Stage requires explicit scan approval")
+          if not os.environ["SUPABASE_URL"] or not os.environ["SUPABASE_SERVICE_ROLE_KEY"]:
+            raise SystemExit("Missing private worker credentials")
+          PY
+      - name: Compute full audit and optional source scan
+        working-directory: services/worker
+        env:
+          OFFSET: ${{ inputs.offset }}
+          SCAN: ${{ inputs.scan_official_sites }}
+          STAGE: ${{ inputs.stage_unverified_evidence }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          args=(--offset "$OFFSET" --limit 25)
+          if [ "$SCAN" = "true" ]; then args+=(--scan); fi
+          if [ "$STAGE" = "true" ]; then args+=(--persist); fi
+          python -m app.netdata1_company_audit "${args[@]}"
