@@ -398,6 +398,33 @@ export function ProductAnalyticsDashboard({
 
       <Bd18ReadinessPanel snapshot={snapshot} />
 
+      <section className="rounded-3xl border border-[#dce2df] bg-white p-5 sm:p-6" aria-labelledby="school-growth1d-heading">
+        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#1a5144]">SCHOOL-GROWTH1D · Acquisizione organica</p>
+        <h2 id="school-growth1d-heading" className="mt-2 text-xl font-semibold text-[#1d2824]">Scuola → calcolatore → distinta → RFQ</h2>
+        <p className="mt-2 text-xs leading-6 text-[#66736e]">
+          Eventi indipendenti con consenso analytics, non visitatori unici né una coorte.
+          Le fasi del calcolatore sono attribuite alla Scuola solo per la URL pubblica con source=school.
+          Non calcolare tassi di conversione o abbandono da questi conteggi; una RFQ creata
+          non equivale all&apos;invio ai fornitori.
+        </p>
+        {snapshot.ingestion.state === "token_missing" || snapshot.ingestion.state === "api_error" || snapshot.ingestion.state === "partial_data" ? (
+          <p role="status" className="mt-4 text-xs font-semibold text-[#8b5d21]">
+            Raccolta non verificabile: controllare la Web Analytics API, non interpretare gli zeri come assenza di interesse.
+          </p>
+        ) : null}
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {snapshot.schoolFunnel.map(step => (
+            <div key={step.key} className="rounded-xl border border-[#dfe8e2] bg-[#f8faf9] p-4">
+              <p className="text-2xl font-bold tabular-nums text-[#174b37]">
+                {snapshot.ingestion.state === "receiving" || snapshot.ingestion.state === "awaiting_data" ? formatCount(step.value) : "—"}
+              </p>
+              <p className="mt-1 text-xs font-semibold text-[#52615b]">{step.label}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-xs leading-5 text-[#718078]">Zero può indicare assenza di consenso, traffico basso o mancata azione osservata. Le visite al contenuto e i clic non sono collegati a un visitatore identificabile.</p>
+      </section>
+
       <Funnel
         title="BD16 · Conversione calcolatore → RFQ"
         subtitle="Dal primo articolo inserito fino all’invio della RFQ. I rapporti confrontano operazioni nel periodo, non persone uniche o la stessa coorte. Non rappresentano abbandoni certi."

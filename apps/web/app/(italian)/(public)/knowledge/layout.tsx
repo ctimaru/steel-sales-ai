@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { ProductBrand } from "@/components/product-brand";
 import { PublicSessionAction } from "@/components/public-session-action";
 import { SchoolClaimCta } from "@/components/school-claim-cta";
+import { SchoolAcquisitionTracker } from "@/components/school-acquisition-tracker";
 import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -106,6 +107,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
         </div>
       </header>
 
+      <SchoolAcquisitionTracker />
       <main id="main-content" tabIndex={-1} className="mvp-focus-shell">{children}</main>
 
       <SchoolClaimCta />

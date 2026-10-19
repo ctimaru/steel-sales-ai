@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 
 import { createPublicSupabaseClient } from "@/lib/supabase/public";
+import { hasCurrentAnalyticsConsent, trackSchoolStage } from "@/lib/school-acquisition.client";
 
 export type PublicUtilityDiscoverySource = "direct" | "home" | "school";
 export type PublicUtilityDiscoverySurface =
@@ -25,7 +26,10 @@ export function PublicUtilityTelemetry({
 
   useEffect(() => {
     if (sent.current) return;
+    // Honor explicit consent before any analytics insert.
+    if (!hasCurrentAnalyticsConsent()) return;
     sent.current = true;
+    if (source === "school") trackSchoolStage("calculator_open", "calculator");
 
     const supabase = createPublicSupabaseClient();
     if (!supabase) return;
