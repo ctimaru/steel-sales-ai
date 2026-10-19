@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { getDashboardData } from "@/lib/commercial-data";
 import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
 import { CommercialUnifiedWorklist } from "@/components/commercial-unified-worklist";
+import type { CommercialOperationsTab } from "@/components/commercial-campaign-operations";
 import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
 import { loadUnifiedCommercialData, type CommercialView } from "@/lib/commercial-unified-data";
 import { listBuyerDistintaPublicDimensions } from "@/lib/public-knowledge";
@@ -76,7 +77,7 @@ const intelligenceGroups = [
 export default async function CommercialHomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string }>;
+  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string; tab?: string }>;
 }) {
   const params = await searchParams;
   const context = await getWorkspaceContext();
@@ -86,6 +87,8 @@ export default async function CommercialHomePage({
   const view: CommercialView = allowedViews.includes(params.view as CommercialView) ? params.view as CommercialView : "all";
   const query = typeof params.q === "string" ? params.q.trim().slice(0, 80) : "";
   const selected = typeof params.item === "string" ? params.item.slice(0, 90) : "";
+  const allowedTabs: CommercialOperationsTab[] = ["compare", "negotiate", "award", "po"];
+  const tab: CommercialOperationsTab = allowedTabs.includes(params.tab as CommercialOperationsTab) ? params.tab as CommercialOperationsTab : "compare";
   const composing = canWrite && params.compose === "1";
   const [commercial, procurement, unified, catalogOptions] = await Promise.all([
     getDashboardData(),
@@ -210,6 +213,7 @@ export default async function CommercialHomePage({
         query={query}
         view={view}
         canWrite={canWrite}
+        tab={tab}
       />
 
       <details className="rounded-2xl border border-[var(--border)] bg-white p-3 sm:p-4">
