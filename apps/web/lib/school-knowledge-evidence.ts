@@ -96,6 +96,15 @@ function rank(query: string, code: string, slug: string, title: string, summary:
   const matches = terms.filter(term => hay.includes(term)).length;
   return matches >= Math.min(2, terms.length) ? matches * 10 : 0;
 }
+function candidateSearchText(locale: SchoolEvidenceLocale, kind: SchoolEvidenceKind, slug: string, fallback: { title: string; summary: string }) {
+  if (locale === "it") return fallback;
+  if (locale === "en") {
+    const guide = kind === "standards" ? englishStandardForSlug(slug) : englishGradeForSlug(slug);
+    return guide ? { title: guide.title, summary: guide.summary } : null;
+  }
+  const guide = localizedKnowledgeGuide(locale, kind, slug);
+  return guide ? { title: guide.title, summary: guide.summary } : null;
+}
 function uniqueCitations(citations: SchoolEvidenceCitation[]) {
   return citations.filter((value, index) => citations.findIndex(item => item.url === value.url) === index);
 }
@@ -107,7 +116,7 @@ function makeEvidence(
   const relatedKind = kind === "standards" ? "grades" : "standards";
   const sourceCitations: SchoolEvidenceCitation[] = record.source_references
     .filter(source => /^https:\/\//i.test(source.url))
-    .slice(0, 8).map(source => ({ url: source.url, label: source.label, role: "k2_public_reference" }));
+    .slice(0, 8).map(source => ({ url: source.url, label: source.label, role: "k2_public_reference" as const }));
   const citations = uniqueCitations([
     { url: absoluteUrl(knowledgePath(locale, kind, slug)), label: code + " — Smart Steel School", role: "public_page" },
     ...(editorial.publisherScopeUrl && /^https:\/\//i.test(editorial.publisherScopeUrl)
@@ -150,8 +159,12 @@ export async function retrieveSchoolTechnicalEvidence(input: SchoolEvidenceQuery
     ...(!input.kind || input.kind === "grades" ? gradeList.map(item =>
       ({ kind: "grades" as const, slug: item.slug, code: item.designation, title: item.seo_title,
         summary: item.short_description || item.seo_description })) : []),
-  ].map(item => ({ ...item, score: rank(input.query, item.code, item.slug, item.title, item.summary) }))
-    .filter(item => item.score > 0).sort((a, b) => b.score - a.score || a.code.localeCompare(b.code));
+  ].map(item => {
+    const authored = candidateSearchText(input.locale, item.kind, item.slug, item);
+    return authored ? { ...item, score: rank(input.query, item.code, item.slug, authored.title, authored.summary) } : null;
+  }).filter((item): item is NonNullable<typeof item> => item !== null && item.score > 0)
+    .sort((a, b) => b.score - a.score || a.code.localeCompare(b.code))
+    .slice(0, Math.max(12, limit * 4)); // cap K2 detail RPCs per request
 
   const output: SchoolTechnicalEvidence[] = [];
   for (const item of ranked) {
