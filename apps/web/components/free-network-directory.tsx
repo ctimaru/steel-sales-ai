@@ -1,3 +1,4 @@
+import {getNetworkTaxonomy} from "@/lib/network";
 import {NetworkCompactExperience} from "@/components/network-compact-experience";
 import {getCompactNetworkPage} from "@/lib/network-compact-directory";
 import Link from "next/link";
@@ -38,25 +39,34 @@ export async function FreeNetworkDirectoryView({
   organizationName: string;
   canConnect?:boolean;
   isWorkspaceAdmin?:boolean;
-  filters: { q?: string; role?: string; region?: string; persona?: string; p?: string; dpage?: string; view?: string; np?: string; map?: string };
+  filters: { q?: string; role?: string; region?: string; persona?: string; p?: string; dpage?: string; view?: string; np?: string; map?: string; product?:string;capability?:string;market?:string;country?:string };
 }) {
   const role = NETWORK_COMPANY_ROLES.includes(filters.role as (typeof NETWORK_COMPANY_ROLES)[number])
     ? filters.role : undefined;
   // Default Free view uses the same one-screen design and source ordering as Pro.
   // All read RPCs enforce active-company access; retain the legacy recovery below.
-  const compactFilters={q:filters.q,role,region:filters.region,persona:filters.persona,np:filters.np};
+  const compactFilters={q:filters.q,role,region:filters.region,persona:filters.persona,np:filters.np,
+    product:filters.product,capability:filters.capability,market:filters.market,country:filters.country};
   const compact=filters.map==="1"?null:await getCompactNetworkPage(organizationId,"free",compactFilters).catch(()=>null);
   if(compact){
-    const [compactCoverage,compactProvisional]=await Promise.all([
+    const [compactCoverage,compactProvisional,compactTaxonomy]=await Promise.all([
       getItalyRegionCoverage(organizationId).catch(()=>null),
       getItalyProvisionalGeoCoverage(organizationId,"free").catch(()=>null),
+      getNetworkTaxonomy().catch(()=>({roles:[],products:[],capabilities:[],markets:[]})),
     ]);
     return <FocusPage className="max-w-[1560px]">
       <NetworkCompactExperience accessMode="free" directory={compact}
         filters={compactFilters} coverage={compactCoverage}
         provisionalCoverage={compactProvisional}
-        regions={compactCoverage?.regions.map(r=>r.name)||[]}/>
+        regions={compactCoverage?.regions.map(r=>r.name)||[]}
+        capabilityLabels={compact.capabilityLabels}
+        additionalFilters={{products:compactTaxonomy.products,capabilities:compactTaxonomy.capabilities,markets:compactTaxonomy.markets}}/>
     </FocusPage>;
+  }
+  // Never silently discard a technical filter when its structured search fails.
+  if(filters.product||filters.capability||filters.market||
+    (filters.country && filters.country.toUpperCase()!=="IT")){
+    return <NetworkRecoveryScreen />;
   }
   let data;
   let coverage: ItalyRegionCoverage | null = null;
