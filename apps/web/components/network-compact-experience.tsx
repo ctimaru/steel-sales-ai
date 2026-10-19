@@ -100,8 +100,8 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
         <NetworkCountryFlag code={countryCode}/>
         <span className="truncate">{countryLabel}</span>
       </p>
-      <p className="truncate text-[11px] text-[#52615b]" title={location||"Sede non indicata"}>
-        {location||"Sede non indicata"}
+      <p className="truncate text-[11px] text-[#52615b]" title={location||"Località da integrare"}>
+        {location||"Località da integrare"}
       </p>
       {locationIndicative&&location?<p className="mt-0.5 flex items-center gap-1.5 text-[10px] text-[#52615b]">
         <span>Località indicativa</span>
