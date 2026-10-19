@@ -19,9 +19,9 @@ as $function$
   with
   params as (
     select
-      left(pg_catalog.trim(coalesce(p_query,'')),80) as q,
+      left(pg_catalog.btrim(coalesce(p_query,'')),80) as q,
       '%' || pg_catalog.regexp_replace(
-        left(pg_catalog.trim(coalesce(p_query,'')),80), '[%_(),"]', ' ', 'g'
+        left(pg_catalog.btrim(coalesce(p_query,'')),80), '[%_(),"]', ' ', 'g'
       ) || '%' as pattern,
       greatest(1,least(coalesce(p_limit,30),31)) as take,
       greatest(0,least(coalesce(p_offset,0),100000)) as skip
