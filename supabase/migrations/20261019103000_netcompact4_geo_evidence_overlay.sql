@@ -69,7 +69,7 @@ begin
       and nullif(btrim(g.city),'') is not null
       and nullif(btrim(g.region),'') is not null
       and g.source_url like 'https://%'
-    order by g.target_id, g.created_at desc, g.id
+    order by g.target_id, g.created_at desc, g.source_url
   ),
   chosen as (
     select * from published_locations
