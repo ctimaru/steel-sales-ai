@@ -67,7 +67,7 @@ def test_multiple_distinct_localities_not_promoted():
     async def fake_fetch(_client,url,_site):
         if url==OFFICIAL:
             return page(text="20863 Concorezzo (MB)",links=["/it/contacts.php"])
-        return page(url=url,text="20100 Milano (MI)")
+        return page(url=url,text="Contatti: Via Milano 1, 20100 Milano (MI), Lombardia.")
     with patch("app.netcompact4b_geo_batch._fetch_page",side_effect=fake_fetch):
         async def run():
             async with __import__("httpx").AsyncClient() as client:
