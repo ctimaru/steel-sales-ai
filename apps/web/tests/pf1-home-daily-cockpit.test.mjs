@@ -23,7 +23,7 @@ test("PF1 keeps setup contextual and only when incomplete", () => {
 test("PF1 provides four concrete quick actions", () => {
   assert.match(home, /Cerca nello storico/);
   assert.match(home, /Crea distinta/);
-  assert.match(home, /Apri RFQ Hub/);
+  assert.match(home, /Gestisci richieste e offerte/);
   assert.match(home, /Trova azienda/);
 });
 
