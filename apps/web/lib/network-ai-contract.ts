@@ -90,6 +90,10 @@ export function validateNetworkAIOutput(
   }
   if(!Object.keys(filters).length)return null;
   const rule=interpretNetworkIntent(query,taxonomy);
+  // EUROPE1E never invents a foreign region for an unrecognized city or
+  // discards an unsupported explicit request. Ask the user to clarify.
+  if(rule.status==="unsupported"&&rule.unsupported.length)return null;
+  if(filters.region&&!rule.filters.region)return null;
   // Never let a model replace or contradict something our trusted parser
   // explicitly recognized, even for an otherwise unsupported query.
   for(const key of ["role","region","country","product","capability","market"] as const){

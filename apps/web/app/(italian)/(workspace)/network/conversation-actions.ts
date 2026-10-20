@@ -133,7 +133,13 @@ function promptFor(query:string,taxonomy:NetworkIntentTaxonomy){
     "If a purchasing request is detected return intent rfq, empty filters, uncertain true.",
     "If ambiguous return clarify, uncertain true. If requesting company count return count.",
     "Never access or infer private company memory.",
-    "Public taxonomy: "+JSON.stringify(taxonomy).slice(0,14500),
+    "Allowed countries: "+JSON.stringify(taxonomy.countries||[]).slice(0,3500),
+    "Official European region codes: "+JSON.stringify((taxonomy.europeanRegions||[])
+      .map(({code,country,name})=>({code,country,name}))).slice(0,11000),
+    "Italian regions and published technical facets: "+JSON.stringify({
+      regions:taxonomy.regions,products:taxonomy.products,capabilities:taxonomy.capabilities,
+      markets:taxonomy.markets,
+    }).slice(0,7000),
   ].join(" ");
   return [{role:"system",content:system},{role:"user",content:query}];
 }
@@ -192,10 +198,6 @@ export async function askNetworkConversation(
     const inherited=parsed?mergeNetworkFollowup(parsed,previous,query,taxonomy).filters:previous;
     // European territory must not silently fall back to Italy's evidence ranking.
     // Explicit foreign geography uses canonical published-company discovery.
-    if(parsed?.status==="ready"&&inherited?.country==="IT"&&
-      !parsed.filters.product&&taxonomy.products?.some(x=>x.canonical_key==="tubes_pipes")){
-      // Preserve the existing DATA1B.4 Italy evidence mode, never for EU foreign searches.
-    }
     if(!inherited?.country||inherited.country==="IT"){
       const safeFilters:NetworkIntentFilters={country:"IT"};
       if(inherited?.role)safeFilters.role=inherited.role;
