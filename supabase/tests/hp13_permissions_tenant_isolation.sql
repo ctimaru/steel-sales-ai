@@ -255,6 +255,11 @@ select pg_temp.hp13_assert(
         'netconnect2f_intelligence',
         -- NET-PROFILE1D: vetted evidence only, tenant-gated by Free/Pro access.
         'netprofile1d_profile_evidence',
+        -- NET-UX DATA1C: platform-guarded human sector review/queue;
+        -- tenant-gated Free/Pro sourced market lookup (no company verification).
+        'netdata1c_review_market',
+        'netdata1c_market_review_queue',
+        'netdata1c_market_discovery_page',
         -- NET-UX COMPACT4: read only sourced published/suggested geography, active organization guard.
         'netcompact4_geo_overlay',
         -- NET-UX COMPACT6C reviewed, user-self-scoped, UTC-day atomic AI cost meter.

@@ -64,6 +64,7 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
   const location=[company.location?.city,company.location?.region].filter(Boolean).join(" · ");
   const locationIndicative=company.geography_status==="sourced_unverified";
   const locationSource=safeNetworkWebsiteUrl(company.geo_source_url);
+  const marketSource=safeNetworkWebsiteUrl(company.market_source_url);
   const countryCode=(company.country_code||"").toUpperCase();
   const countryLabel=countries[countryCode]||countryCode||"Paese non indicato";
   return <article className={"grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[#e8eeeb] px-3 py-3 last:border-b-0 sm:px-4 lg:py-2.5 "+COMPANY_COLUMNS}
@@ -75,6 +76,14 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
       <div className="min-w-0">
         <h3 className="truncate text-sm font-semibold text-[#173f35]" title={name}>{name}</h3>
         {domain?<p className="truncate text-xs text-[#52615b]">{domain}</p>:null}
+        {company.market_name?<p className="mt-0.5 truncate text-[11px] text-[#52615b]"
+          title={company.market_evidence_status==="accepted"?"Settore documentato, revisionato":"Settore indicativo da confermare"}>
+          <span className="font-semibold text-[#175640]">{company.market_name}</span>
+          {" · "}{company.market_evidence_status==="accepted"?"settore documentato":"settore indicativo"}
+          {marketSource?<a href={marketSource} target="_blank" rel="noopener noreferrer"
+            className="ml-1 font-semibold text-[#175640] underline underline-offset-2"
+            aria-label={"Fonte del settore per "+name}>Fonte ↗</a>:null}
+        </p>:null}
         <p className="mt-0.5 truncate text-[11px] text-[#52615b] lg:hidden">
           {role?(keys[role.key]||role.name):"Ruolo non indicato"}{" · "}<NetworkCountryFlag code={countryCode}/> {countryLabel}{location?" · "+location:""}{locationIndicative && location?" · località indicativa":""}
         </p>
@@ -147,7 +156,7 @@ export function NetworkCompactExperience({
           {[
             {value:knownTotals?companyCount.toLocaleString("it-IT"):"—",label:filterActive?"Aziende nei risultati":"Aziende nel Network"},
             {value:directory.published.toLocaleString("it-IT"),label:"Profili pubblicati"},
-            {value:knownTotals?directory.discovered.toLocaleString("it-IT"):"—",label:technicalOnly?"Censite non filtrabili":"Aziende censite"},
+            {value:knownTotals?directory.discovered.toLocaleString("it-IT"):"—",label:directory.marketEvidence?"Settore da fonte":technicalOnly?"Censite non filtrabili":"Aziende censite"},
           ].map(card=><div key={card.label} className="flex items-baseline gap-2">
             <p className="text-sm font-bold tabular-nums text-[#173f35]">{card.value}</p>
             <p className="text-[11px] font-medium leading-4 text-[#43524c]">{card.label}</p>
@@ -211,7 +220,9 @@ export function NetworkCompactExperience({
         {filterActive?<Link href="/network" className="ui-action ui-action-secondary inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold">Azzera filtri</Link>:null}
       </div>
       {technicalOnly?<p role="status" className="mt-2 text-[11px] leading-5 text-[#52615b]">
-        Filtri tecnici applicati ai soli profili con dati strutturati pubblicati. Le aziende censite senza attributi tecnici non sono incluse; non significa che non offrano questi prodotti o servizi.
+        {directory.marketEvidence?
+          "Mercato: include profili pubblicati e schede scoperte con fonte ufficiale. Settore indicativo non significa azienda verificata, acquirente confermato o capacità produttiva certificata.":
+          "Filtri tecnici applicati ai soli profili con dati strutturati pubblicati. Le aziende censite senza attributi tecnici non sono incluse; non significa che non offrano questi prodotti o servizi."}
       </p>:null}
     </section>
 

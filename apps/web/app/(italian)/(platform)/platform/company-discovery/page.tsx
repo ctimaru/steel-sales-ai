@@ -95,6 +95,12 @@ export default async function CompanyDiscoveryPage({
               Importa aziende CSV
             </Link>
             <Link
+              href="/platform/company-discovery/market-review"
+              className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
+            >
+              Mercati · fonti e revisione
+            </Link>
+            <Link
               href="/platform/company-discovery/coverage"
               className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
             >
