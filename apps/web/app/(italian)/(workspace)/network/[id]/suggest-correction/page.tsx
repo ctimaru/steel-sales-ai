@@ -100,10 +100,11 @@ export default async function ItalianCorrectionSuggestionPage({
                <option disabled value="">Seleziona</option>
                <option value="owner_supported">Confermo il contenuto della segnalazione</option>
                <option value="owner_disputed">Contesto il contenuto della segnalazione</option>
+               {item.resolution!=="awaiting_owner"?<option value="owner_withdrawn">Ritiro il mio precedente riscontro</option>:null}
              </select>
              <label htmlFor={"note-"+item.id} className={labelClass}>Motivazione</label>
              <textarea id={"note-"+item.id} name="decision_note" required minLength={12} maxLength={600} rows={2} className={fieldClass} placeholder="Spiega il tuo riscontro aziendale."/>
-             <PendingSubmitButton className="ui-action ui-action-secondary inline-flex min-h-10 items-center rounded-xl px-3 text-xs font-semibold" pendingLabel="Registrazione…">Registra attestazione</PendingSubmitButton>
+             <PendingSubmitButton className="ui-action ui-action-secondary inline-flex min-h-10 items-center rounded-xl px-3 text-xs font-semibold" pendingLabel="Registrazione…">Registra nuovo evento nello storico</PendingSubmitButton>
            </form>:null}
          </article>)}
          {queue.items.length===0?<p className="rounded-lg border border-[#dce6de] bg-[#f8faf9] p-4 text-sm text-[#52615b]">Nessuna segnalazione visibile su questa scheda.</p>:null}
