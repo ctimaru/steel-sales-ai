@@ -271,6 +271,10 @@ select pg_temp.hp13_assert(
         -- first-party link, append-only private proposals, strict rate limits.
         -- Never grants claim, ownership, verified status, merge or publication.
         'netit_identity2d2_submit_correction',
+        -- IDENTITY2D.3: bounded current-org queue or claimed canonical-company
+        -- owner evidence. No edits, legal verification, merging, or publishing.
+        'netit_identity2d3_correction_queue',
+        'netit_identity2d3_owner_attest',
         -- TRADER1D.2: reviewed singleton-owner-only bridge; private data never
         -- granted to browser roles, append-only decisions, no publish action.
         'trader1d2_superadmin_queue',
