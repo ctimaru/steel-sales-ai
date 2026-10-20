@@ -267,17 +267,21 @@ export async function getNetworkSteelRelevancePage(
  if(error||!data||typeof data!=="object")throw new Error("network_steel_ranking_unavailable");
  const obj=data as {contract?:string;items?:FreeCompany[];total?:number;
    published?:number;discovered?:number;evidence_total?:number;candidate_not_verified?:boolean};
+ const total=obj.total??-1;
+ const published=obj.published??-1;
+ const discovered=obj.discovered??-1;
+ const evidenceTotal=obj.evidence_total??-1;
  if(obj.contract!=="netdata1b4-steel-ranking-v1"||obj.candidate_not_verified!==true||
    !Array.isArray(obj.items)||obj.items.length>filters.limit||
-   !Number.isInteger(obj.total)||!Number.isInteger(obj.published)||
-   !Number.isInteger(obj.discovered)||!Number.isInteger(obj.evidence_total)||
-   obj.total!==obj.published+obj.discovered||
+   !Number.isInteger(total)||!Number.isInteger(published)||
+   !Number.isInteger(discovered)||!Number.isInteger(evidenceTotal)||
+   total<0||published<0||discovered<0||evidenceTotal<0||
+   total!==published+discovered||
    !obj.items.every(item=>typeof item.id==="string" && typeof item.steel_priority==="number" &&
      item.steel_priority>=1 && item.steel_priority<=5 &&
      typeof item.steel_reason==="string" &&
      (item.steel_evidence_status===null || item.steel_evidence_status==="candidate" ||
        item.steel_evidence_status==="accepted")))
    throw new Error("network_steel_ranking_invalid_contract");
- return {items:obj.items,total:obj.total,published:obj.published,
-   discovered:obj.discovered,evidenceTotal:obj.evidence_total};
+ return {items:obj.items,total,published,discovered,evidenceTotal};
 }
