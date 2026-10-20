@@ -41,14 +41,14 @@ export async function FreeNetworkDirectoryView({
   organizationName: string;
   canConnect?:boolean;
   isWorkspaceAdmin?:boolean;
-  filters: { q?: string; role?: string; region?: string; persona?: string; p?: string; dpage?: string; view?: string; np?: string; map?: string; product?:string;capability?:string;market?:string;country?:string };
+  filters: { q?: string; role?: string; region?: string; persona?: string; p?: string; dpage?: string; view?: string; np?: string; map?: string; product?:string;capability?:string;market?:string;country?:string;steel?:string };
 }) {
   const role = NETWORK_COMPANY_ROLES.includes(filters.role as (typeof NETWORK_COMPANY_ROLES)[number])
     ? filters.role : undefined;
   // Default Free view uses the same one-screen design and source ordering as Pro.
   // All read RPCs enforce active-company access; retain the legacy recovery below.
   const compactFilters=normalizeCompactGeoFilters({q:filters.q,role,region:filters.region,persona:filters.persona,np:filters.np,
-    product:filters.product,capability:filters.capability,market:filters.market,country:filters.country});
+    product:filters.product,capability:filters.capability,market:filters.market,country:filters.country,steel:filters.steel});
   const compact=filters.map==="1"?null:await getCompactNetworkPage(organizationId,"free",compactFilters).catch(()=>null);
   if(compact){
     const [compactCoverage,compactProvisional,compactTaxonomy]=await Promise.all([
