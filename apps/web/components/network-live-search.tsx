@@ -20,9 +20,10 @@ export function NetworkLiveSearch({filters}: {filters:CompactNetworkFilters}) {
     const next=value.trim().slice(0,120);
     if(next===serverQuery)return;
     const query=new URLSearchParams();
-    for(const key of ["role","region","persona","product","capability","market","country","steel"] as const){
+    for(const key of ["role","region","persona","product","capability","market","country"] as const){
       if(filters[key])query.set(key,filters[key]);
     }
+    if(filters.steel)query.set("steel",filters.steel);
     if(next)query.set("q",next);
     // Reset np to page 1, preserve the user's selected filters.
     const href="/network"+(query.size?"?"+query.toString():"");
