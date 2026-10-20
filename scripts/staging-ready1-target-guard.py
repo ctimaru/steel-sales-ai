@@ -7,7 +7,7 @@ Only project lwrrrphakpbjhbzljqhn may receive schema updates.
 from __future__ import annotations
 
 import os
-from urllib.parse import unquote, urlsplit
+from urllib.parse import parse_qsl, unquote, urlsplit
 
 STAGING_REF = "lwrrrphakpbjhbzljqhn"
 PRODUCTION_REF = "ecrafjdummcdfycznitx"
@@ -45,6 +45,12 @@ def verify_target(project_ref: str, mode: str, database_url: str) -> None:
     )
     if not (direct or pooled):
         raise ValueError("Connection is not to the explicitly approved staging Supabase database")
+    # libpq accepts connection overrides via query parameters. Restrict to a
+    # single safe TLS option so ?host= or ?service= cannot bypass URL checks.
+    params = parse_qsl(parsed.query, keep_blank_values=True)
+    if params and (len(params) != 1 or params[0][0] != "sslmode"
+                   or params[0][1] not in {"require", "verify-ca", "verify-full"}):
+        raise ValueError("Connection query options are not approved for isolated staging")
     if PRODUCTION_REF in database_url:
         raise ValueError("Production project reference is forbidden")
 
