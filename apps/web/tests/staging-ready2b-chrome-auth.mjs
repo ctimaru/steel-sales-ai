@@ -27,10 +27,26 @@ try{
         const context=await browser.newContext({
           viewport:{width,height:width===390?844:900},
           locale:"it-IT",serviceWorkers:"block",acceptDownloads:false,
-          ...(process.env.UI4_VERCEL_BYPASS?
-             {extraHTTPHeaders:{"x-vercel-protection-bypass":process.env.UI4_VERCEL_BYPASS}}:{})
         });
         try {
+          // Restrict preview automation credentials to the matching Vercel host.
+          // Never forward protection headers to Supabase or external origins.
+          assert.ok((process.env.UI4_VERCEL_BYPASS||"").length >= 15,
+            "Protected-preview automation secret required");
+          await context.route("**/*",async route=>{
+            const request=route.request();
+            const url=new URL(request.url());
+            const method=request.method();
+            if(!["GET","HEAD"].includes(method) &&
+               !(method==="POST" && url.origin===origin && url.pathname==="/login")) {
+              return route.abort("blockedbyclient");
+            }
+            if(url.origin!==origin) return route.continue();
+            return route.continue({headers:{
+              ...request.headers(),
+              "x-vercel-protection-bypass":process.env.UI4_VERCEL_BYPASS
+            }});
+          });
           const page=await context.newPage();
           const response=await page.goto(origin+"/login?next=%2Fdashboard",{waitUntil:"domcontentloaded",timeout:60000});
           assert.ok(response&&response.status()===200,"Staging login unavailable");
