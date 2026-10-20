@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 const read=p=>readFileSync(new URL(p,import.meta.url),"utf8");
-const sql=read("../../../supabase/migrations/20261020110000_netux_data1b5_full_coverage_platform_queue.sql");
+const sql=read("../../../supabase/migrations/20261020130500_netux_data1b5_full_coverage_platform_queue.sql");
 const ui=read("../app/(italian)/(platform)/platform/company-discovery/steel-coverage/page.tsx");
 const parent=read("../app/(italian)/(platform)/platform/company-discovery/page.tsx");
 const policy=read("../../../supabase/tests/hp13_permissions_tenant_isolation.sql");
