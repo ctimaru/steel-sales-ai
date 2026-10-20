@@ -114,7 +114,11 @@ begin
    limit 1;
  end if;
  with visible as(
-   select r.id,r.field_key,r.proposed_value,r.source_url,r.evidence_note,
+   select r.id,r.field_key,r.proposed_value,
+     case when r.organization_id=p_organization_id then r.source_url
+       else split_part(split_part(r.source_url,'?',1),'#',1) end as source_url,
+     case when r.organization_id=p_organization_id then r.evidence_note
+       else null::text end as evidence_note,
      r.created_at,r.organization_id=p_organization_id as is_my_organization,
      d.decision_key,d.created_at as decided_at
    from private.netit_identity_correction_requests r
