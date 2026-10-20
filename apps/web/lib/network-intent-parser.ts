@@ -81,7 +81,7 @@ const TUBE_TERMS=["tubi","tubo","tubazioni","tubazione","tubolari",
   "tubos","rohre","rohr"];
 const FILLER=new Set([
   "cerco","cerca","cercami","cercando","sto","trova","trovami","trovare",
-  "mostra","mostrami","elenca","elencami","dimmi","vorrei","voglio",
+  "mostra","mostrami","elenca","elencami","dimmi","vorrei","voglio","invece",
   "quanti","quante","quanto","numero","ci","sono","esistono","presenti",
   "aziende","azienda","imprese","impresa","operatori",
   "di","dei","degli","delle","del","della","da","a","ad","e","ed","o",
