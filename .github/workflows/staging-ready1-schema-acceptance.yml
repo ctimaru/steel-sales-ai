@@ -1,6 +1,16 @@
 name: STAGING-READY1 Isolated Schema Acceptance
 
 on:
+  # Temporary, branch-scoped, read-only inspection after a trusted code push.
+  # NEVER run an apply during this event; apply requires manual dispatch.
+  push:
+    branches:
+      - feat/staging-ready1-isolated-schema-acceptance
+    paths:
+      - .github/workflows/staging-ready1-schema-acceptance.yml
+      - scripts/staging-ready1-target-guard.py
+      - supabase/tests/staging_ready1_isolation_preflight.sql
+      - apps/web/tests/staging-ready1-schema-acceptance.test.mjs
   workflow_dispatch:
     inputs:
       project_ref:
@@ -31,8 +41,8 @@ jobs:
     env:
       STAGING_READY1_DB_URL: ${{ secrets.STAGING_READY1_DB_URL }}
       STAGING_READY1_REF: lwrrrphakpbjhbzljqhn
-      REQUESTED_PROJECT_REF: ${{ inputs.project_ref }}
-      REQUESTED_RUN_MODE: ${{ inputs.run_mode }}
+      REQUESTED_PROJECT_REF: ${{ github.event_name == 'push' && 'lwrrrphakpbjhbzljqhn' || inputs.project_ref }}
+      REQUESTED_RUN_MODE: ${{ github.event_name == 'push' && 'plan' || inputs.run_mode }}
     steps:
       - uses: actions/checkout@v4
       - name: Check target identity and secret without exposing credentials
@@ -60,13 +70,13 @@ jobs:
           set -euo pipefail
           supabase db push --db-url "$STAGING_READY1_DB_URL" --dry-run
       - name: Apply schema to isolated staging (explicit approval only)
-        if: inputs.run_mode == 'apply'
+        if: github.event_name == 'workflow_dispatch' && inputs.run_mode == 'apply'
         shell: bash
         run: |
           set -euo pipefail
           supabase db push --db-url "$STAGING_READY1_DB_URL" --yes
       - name: Confirm core tables and RLS; synthetic data is never persisted
-        if: inputs.run_mode == 'apply'
+        if: github.event_name == 'workflow_dispatch' && inputs.run_mode == 'apply'
         shell: bash
         run: |
           set -euo pipefail
