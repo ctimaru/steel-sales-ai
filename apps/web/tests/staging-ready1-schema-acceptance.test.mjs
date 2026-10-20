@@ -28,6 +28,7 @@ function check(url, ref = staging, mode = "plan") {
 test("staging accepts exact direct or pooler connection with staging confirmation", () => {
   for (const url of [
     direct,
+    direct + "?sslmode=require",
     `postgresql://postgres.${staging}:fictional-test-value@aws-0-eu-west-3.pooler.supabase.com:5432/postgres`,
   ]) {
     const outcome = check(url);
@@ -43,6 +44,8 @@ test("guard fails closed for production, spoofed hosts and missing confirmation"
     [`postgresql://postgres:secret@db.${production}.supabase.co:5432/postgres`, staging, "plan"],
     [`postgresql://postgres:secret@db.${staging}.supabase.co.attacker.tld:5432/postgres`, staging, "apply"],
     [`postgresql://postgres.${production}:secret@aws-0-eu-west-3.pooler.supabase.com:5432/postgres`, staging, "plan"],
+    [direct + "?host=db." + production + ".supabase.co", staging, "plan"],
+    [direct + "?sslmode=disable", staging, "apply"],
     ["", staging, "plan"],
   ]) {
     const outcome = check(url, ref, mode);
