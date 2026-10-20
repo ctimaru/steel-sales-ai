@@ -53,3 +53,38 @@ export async function submitItalianIdentityCorrection(formData: FormData) {
   revalidatePath("/network/"+discoveryId);
   redirect(returnPath+"?submitted=1");
 }
+
+
+// An attestation is a company statement against a candidate, NOT a change
+// to the discovered identity, an approved claim, or public technical evidence.
+export async function attestItalianIdentityCorrection(formData: FormData) {
+ const context=await requireWorkspaceAdmin();
+ const discoveryId=value(formData,"discovery_id");
+ const requestId=value(formData,"request_id");
+ const decision=value(formData,"decision");
+ const note=value(formData,"decision_note");
+ if(!UUID.test(discoveryId)) redirect("/network");
+ const returnPath="/network/"+encodeURIComponent(discoveryId)+"/suggest-correction";
+ if(!UUID.test(requestId)
+    || !["owner_supported","owner_disputed","owner_withdrawn"].includes(decision)
+    || note.length<12 || note.length>600)
+   redirect(returnPath+"?resolution_error=invalid");
+ const supabase=await createClient();
+ const {data,error}=await supabase.rpc("netit_identity2d3_owner_attest",{
+   p_request_id:requestId,
+   p_organization_id:context.organizationId,
+   p_decision:decision,
+   p_note:note,
+ });
+ const receipt=data as {
+  contract?:string;resolution?:string;claim_created?:boolean;
+  published?:boolean;legal_identity_verified?:boolean;merge_performed?:boolean;
+ }|null;
+ if(error || receipt?.contract!=="netit-identity2d3-attestation-v1"
+   || receipt?.resolution!==decision || receipt.claim_created!==false
+   || receipt.published!==false || receipt.legal_identity_verified!==false
+   || receipt.merge_performed!==false)
+   redirect(returnPath+"?resolution_error=unavailable");
+ revalidatePath(returnPath);
+ redirect(returnPath+"?attested=1");
+}
