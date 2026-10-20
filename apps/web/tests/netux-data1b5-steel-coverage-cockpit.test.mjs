@@ -16,10 +16,10 @@ test("DATA1B.5 508+ coverage is platform guarded, read-only and explicitly bound
  assert.match(sql,/revoke all on function public\.netdata1b5_coverage_queue/);
  assert.match(sql,/from public,anon/);
  assert.match(sql,/to authenticated/);
- assert.match(sql,/create table if not exists private\\.netdata1b5_source_holds/);
- assert.match(sql,/alter table private\\.netdata1b5_source_holds enable row level security/);
+ assert.match(sql,/create table if not exists private\.netdata1b5_source_holds/);
+ assert.match(sql,/alter table private\.netdata1b5_source_holds enable row level security/);
  const fn=sql.slice(sql.indexOf("create or replace function public.netdata1b5_coverage_queue("));
- assert.doesNotMatch(fn,/\\b(insert|update|delete)\\s+(?:into|from)?\\s*(public|private)\\./i);
+ assert.doesNotMatch(fn,/\b(insert|update|delete)\s+(?:into|from)?\s*(public|private)\./i);
  assert.match(policy,/'netdata1b5_coverage_queue'/);
 });
 test("DATA1B.5 aggregates real canonical + discovered, not capped preview or fake 500",()=>{
