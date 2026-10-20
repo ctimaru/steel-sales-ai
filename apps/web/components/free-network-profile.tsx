@@ -67,7 +67,8 @@ export async function FreeNetworkProfileView({
           <div className="mt-2 flex flex-wrap gap-4">
             {source ? <a href={source} target="_blank" rel="noopener noreferrer" className="font-semibold underline">Vedi fonte aziendale ↗</a> : null}
             {license ? <a href={license} target="_blank" rel="noopener noreferrer" className="font-semibold underline">Licenza e attribuzione dei dati ↗</a> : null}
-            <Link href="/company-data" className="font-semibold underline">Segnala una correzione o chiedi la rimozione →</Link>
+            {isWorkspaceAdmin ? <Link href={"/network/"+companyId+"/suggest-correction"} className="font-semibold text-[#175640] underline underline-offset-4">Proponi correzione documentata →</Link> : null}
+            <Link href="/company-data" className="font-semibold underline">Correzione, rimozione e diritti sui dati →</Link>
           </div>
         </div></details> : null}
         {reviewedEvidence.length>0 ? <section aria-label="Informazioni aziendali con fonte" className="mt-5 rounded-xl border border-[#d5e5da] bg-[#f8fbf9] p-4">
