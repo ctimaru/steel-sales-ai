@@ -53,7 +53,7 @@ begin
    and l.link_status='active'
  join public.network_company_claims cl
     on cl.network_company_id=c.id and cl.organization_id=p_organization_id
-   and cl.status='approved'
+   and cl.status='approved' and cl.proof_status='verified'
  where c.publication_status='published' and c.country_code='IT' and c.archived_at is null
    and private.hp4_normalize_domain(c.website_domain)=v_domain
  limit 1;
