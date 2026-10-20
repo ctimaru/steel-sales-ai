@@ -15,7 +15,7 @@ test("Customer Home urgency includes only actionable RFQ buyer tasks, not parser
     home.indexOf("const attentionCount =")
   );
   assert.match(attention, /procurementActions\.map/);
-  assert.match(attention, /appRoutes\.rfqHub\.campaign/);
+  assert.match(attention, /appRoutes\.commercial\.home \+ "\\?view=sent&item=campaign:"/);
   assert.doesNotMatch(attention, /metrics\.reviewFlags|appRoutes\.operations\.review|Elementi da verificare/);
   assert.match(home, /procurementActions =/);
   assert.match(home, /\.filter\(\(item\) => item\.requires_action === true/);
