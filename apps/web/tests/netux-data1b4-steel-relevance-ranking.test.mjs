@@ -50,6 +50,6 @@ test("DATA1B.4 uses the same Free/Pro compact page and keeps filters when search
  assert.match(compact,/!filters\.market && \(!filters\.country/);
  assert.match(ui,/network-steel-ranking-toggle/);
  assert.match(ui,/Priorità acciaio/);
- assert.match(live,/,"steel"\] as const/);
+ assert.match(live,/if\(filters\.steel\)query\.set\("steel",filters\.steel\)/);
  assert.match(live,/filters\.country,filters\.steel/);
 });
