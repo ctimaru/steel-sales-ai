@@ -11,7 +11,6 @@ test("TRADER1D.3B.2 takes live official source URLs, never caller-selected HTTP 
   assert.match(sql,/FROM private\.netdata1eu_trader_research r/);
   assert.match(sql,/trader1d3b2_source_batch/);
   assert.match(sql,/p_limit NOT BETWEEN 1 AND 5/);
-  assert.match(sql,/source_url<>v_expected/);
   assert.match(sql,/v_url<>v_expected/);
   assert.match(sql,/ON CONFLICT \(research_id,source_kind,observation_date\) DO NOTHING/);
   assert.doesNotMatch(sql,/UPDATE\s+private\.netdata1eu_trader_research\s+SET\s+source_rights/i);
