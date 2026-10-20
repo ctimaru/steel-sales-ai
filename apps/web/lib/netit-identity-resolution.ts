@@ -7,7 +7,7 @@ export type IdentityCorrectionResolution={
  field_key:"company_name"|"website_domain"|"location"|"brand_group";
  proposed_value:string;
  source_url:string;
- evidence_note:string;
+ evidence_note:string|null;
  created_at:string;
  is_my_organization:boolean;
  resolution:"awaiting_owner"|"owner_supported"|"owner_disputed";
@@ -47,8 +47,8 @@ export async function getItalianCorrectionQueue(
      UUID.test(item.id)&&typeof item.proposed_value==="string"
      &&item.proposed_value.length<=180
      &&typeof item.source_url==="string"
-     &&typeof item.evidence_note==="string"
-     &&item.evidence_note.length<=800
+     &&(item.evidence_note===null||(typeof item.evidence_note==="string"
+       &&item.evidence_note.length<=800))
      &&typeof item.is_my_organization==="boolean"
      &&typeof item.can_attest==="boolean"
      &&["awaiting_owner","owner_supported","owner_disputed"].includes(item.resolution)
