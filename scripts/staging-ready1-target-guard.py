@@ -40,7 +40,7 @@ def verify_target(project_ref: str, mode: str, database_url: str) -> None:
     direct = hostname == f"db.{STAGING_REF}.supabase.co" and username == "postgres"
     pooled = (
         hostname.endswith(".pooler.supabase.com")
-        and hostname.count(".") >= 4
+        and hostname.count(".") >= 3
         and username == f"postgres.{STAGING_REF}"
     )
     if not (direct or pooled):
