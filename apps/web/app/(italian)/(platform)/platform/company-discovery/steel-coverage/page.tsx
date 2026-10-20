@@ -19,7 +19,7 @@ type Coverage={
  scan_candidates:number;selected_total:number;source_rights_verified:false;
  companies_verified_by_data1b5:0;items:CompanyAuditRow[];
 };
-const intPage=(v:string|undefined)=>v&&/^\d{1,4}$/.test(v)&&+v>0?+v:1;
+const intPage=(v:string|undefined)=>v&&/^\d{1,4}$/.test(v)&&+v>0&&+v<=400?+v:1;
 const roleName=(key:string|null)=>({
  producer:"Produttore",trader_distributor:"Commerciante",
  processor_service_provider:"Terzista",end_user:"Utilizzatore",
