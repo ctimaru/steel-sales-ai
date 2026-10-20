@@ -19,7 +19,8 @@ concurrency:
 
 jobs:
   inspect:
-    if: github.ref == 'refs/heads/main'
+    # Legacy manifest rotation stops once live Supabase refresh is enabled.
+    if: github.ref == 'refs/heads/main' && vars.TRADER1D3B2_ENABLED != 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 9
     steps:
