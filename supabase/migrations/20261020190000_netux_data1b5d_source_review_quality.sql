@@ -57,19 +57,9 @@ where m.domain_uses=1 and (m.url is null or
  lower(regexp_replace(split_part(m.url,'/',3),'^www[.]',''))=m.domain)
 on conflict (entity_kind,entity_id,assessment_batch) do nothing;
 
--- Correct only the discovered/indicative ASG role from an exact first-party
--- statement, preserving its research audit. No canonical/published role is granted.
-update private.netfast_discovered_records d set role_key='trader_distributor'
-where d.domain='asgspa.it' and d.company_name='ASG S.p.A.'
-  and d.role_key='processor_service_provider'
-  and exists (
-    select 1 from private.netdata1b5_source_assessments a
-    where a.entity_kind='discovered' and a.entity_id=d.id
-      and a.role_suggestion='trader_distributor'
-      and a.source_url='https://www.asgspa.it/it/company'
-      and a.assessment_batch='netux-data1b5d-research-v1'
-  );
-
+-- The ASG staging role is derived from a governed discovery candidate.
+-- Keep the original source immutable; propose trader_distributor for
+-- editorial review instead of mutating an aggregated view or its source.
 create or replace function public.netdata1b5_coverage_queue(
  p_limit integer default 25,
  p_offset integer default 0,
