@@ -17,6 +17,10 @@ export type NetworkIntentResult={
 export type NetworkIntentProduct={canonical_key:string;display_name:string};
 export type NetworkIntentTaxonomy={
   regions?:string[];
+  /** Trusted ISO country code and localized names, sourced from EU_MEMBER_COUNTRIES. */
+  countries?:{code:string;name:string;aliases?:string[]}[];
+  /** Official NUTS2024 code and source display label. These are not company evidence. */
+  europeanRegions?:{code:string;country:string;name:string;aliases?:string[]}[];
   products?:NetworkIntentProduct[];
   capabilities?:NetworkIntentProduct[];
   markets?:NetworkIntentProduct[];
@@ -123,6 +127,34 @@ function collect<T extends {key:string;label:string;terms:string[]}>(
   }
   return {matches,remainder};
 }
+type RegionMatch={key:string;label:string;country:string;terms:string[]};
+/** Region names can repeat across countries. Keep every competing NUTS code
+ * for the same phrase so we reject ambiguous geography instead of guessing.
+ * Italian admin regions take precedence over Italy's statistical NUTS2 units.
+ */
+function collectGeography(text:string,options:RegionMatch[]){
+  const groups=new Map<string,RegionMatch[]>();
+  for(const option of options){
+    for(const alias of option.terms){
+      const term=normalize(alias);
+      if(term.length<3)continue;
+      const candidates=groups.get(term)||[];
+      if(!candidates.some(item=>item.country===option.country&&item.key===option.key)){
+        candidates.push(option);groups.set(term,candidates);
+      }
+    }
+  }
+  const matches:RegionMatch[]=[];
+  let remainder=text;
+  for(const [term,candidates] of [...groups.entries()].sort((a,b)=>b[0].length-a[0].length)){
+    const hit=removePhrase(remainder,term);
+    if(!hit.found)continue;
+    remainder=hit.remainder;
+    for(const item of candidates)if(!matches.some(x=>x.key===item.key&&x.country===item.country))matches.push(item);
+  }
+  return {matches,remainder};
+}
+
 type FacetType="product"|"capability"|"market";
 type Facet={type:FacetType;key:string;label:string;term:string};
 /** Match *only exact source-taxonomy display names*. Never guess a translation
@@ -162,7 +194,7 @@ function extractTaxonomy(text:string,taxonomy:NetworkIntentTaxonomy){
 
 export function interpretNetworkIntent(
   raw:string,
-  {regions=[],products=[],capabilities=[],markets=[]}:NetworkIntentTaxonomy={},
+  {regions=[],countries:countryCatalog=[],europeanRegions=[],products=[],capabilities=[],markets=[]}:NetworkIntentTaxonomy={},
 ):NetworkIntentResult{
   const text=normalize(raw.slice(0,240));
   const empty:NetworkIntentResult={status:"empty",intent:"browse",filters:{},chips:[],unsupported:[],technicalOnly:false};
@@ -170,12 +202,22 @@ export function interpretNetworkIntent(
   const intent=/\b(quanti|quante|numero|combien|cuantos|cuantas|anzahl)\b/.test(text)||
     /\bhow many\b|\bwie viele\b/.test(text)?"count":"browse";
   const roles=collect(text,ROLES);
-  const countries=collect(roles.remainder,COUNTRIES);
+  const countryEntries=countryCatalog.length?countryCatalog.map(item=>({
+    key:item.code,label:item.name,
+    terms:[item.name,...(item.aliases||[])],
+  })):COUNTRIES;
+  const countries=collect(roles.remainder,countryEntries);
   const availableRegions=regions.length?regions:REGIONS;
-  const regionEntries=availableRegions.map(name=>({
-    key:name,label:name,terms:[name,...(REGIONAL_ALIASES[name]||[])],
-  })).sort((a,b)=>b.key.length-a.key.length);
-  const regional=collect(countries.remainder,regionEntries);
+  const regionEntries:RegionMatch[]=[
+    ...availableRegions.map(name=>({
+      key:name,label:name,country:"IT",terms:[name,...(REGIONAL_ALIASES[name]||[])],
+    })),
+    ...europeanRegions.filter(item=>item.country!=="IT").map(item=>({
+      key:item.code,label:item.name,country:item.country,
+      terms:[item.name,...(item.aliases||[]),item.code],
+    })),
+  ];
+  const regional=collectGeography(countries.remainder,regionEntries);
   // Prefer exact longest public taxonomy labels before colloquial tube aliases,
   // so a genuine "stainless steel tubes" product is not truncated to "tubes".
   const taxonomy=extractTaxonomy(regional.remainder,{products,capabilities,markets});
@@ -195,13 +237,15 @@ export function interpretNetworkIntent(
     filters.country=countries.matches[0].key;chips.push(countries.matches[0].label);
   }else if(countries.matches.length>1)unsupported.push("più paesi");
   if(regional.matches.length===1){
-    if(filters.country&&filters.country!=="IT")unsupported.push("regione italiana con paese estero");
-    else {
-      filters.region=regional.matches[0].key;
-      filters.country="IT";
-      chips.push(regional.matches[0].label);
+    const chosen=regional.matches[0];
+    if(filters.country&&filters.country!==chosen.country){
+      unsupported.push(chosen.country==="IT"?"regione italiana con paese estero":"regione di paese diverso");
+    }else {
+      filters.region=chosen.key;
+      filters.country=chosen.country;
+      chips.push(chosen.label);
     }
-  }else if(regional.matches.length>1)unsupported.push("più regioni");
+  }else if(regional.matches.length>1)unsupported.push("più regioni o aree geografiche ambigue");
   if(tubeMentioned){
     if(products.some(product=>product.canonical_key==="tubes_pipes")){
       filters.product="tubes_pipes";chips.push("Tubi (prodotti dichiarati)");

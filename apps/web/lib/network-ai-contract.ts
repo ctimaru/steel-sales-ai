@@ -23,6 +23,24 @@ export const NETWORK_AI_FORMAT={
 } as const;
 const ROLES=new Set(["producer","trader_distributor","processor_service_provider","end_user"]);
 const COUNTRIES=new Set(["IT","DE","FR","ES","US","GB","CH"]);
+function allowedCountry(country:string,taxonomy:NetworkIntentTaxonomy){
+  return (taxonomy.countries?.length
+    ?taxonomy.countries.some(item=>item.code===country)
+    :COUNTRIES.has(country));
+}
+function resolveRegion(candidate:string,country:string|undefined,taxonomy:NetworkIntentTaxonomy){
+  const regions=taxonomy.regions?.length?taxonomy.regions:REGIONS;
+  const italian=regions.find(name=>norm(name)===norm(candidate));
+  const foreign=(taxonomy.europeanRegions||[]).filter(item=>
+    (item.code===candidate.toUpperCase()||
+     norm(item.name)===norm(candidate)||
+     (item.aliases||[]).some(alias=>norm(alias)===norm(candidate)))&&item.country!=="IT");
+  if(italian&&(!country||country==="IT")&&!foreign.length)return {region:italian,country:"IT"};
+  if(foreign.length===1&&(!country||country===foreign[0].country)&&!italian){
+    return {region:foreign[0].code,country:foreign[0].country};
+  }
+  return null;
+}
 const REGIONS=[
   "Abruzzo","Basilicata","Calabria","Campania","Emilia-Romagna",
   "Friuli-Venezia Giulia","Lazio","Liguria","Lombardia","Marche","Molise",
@@ -56,12 +74,12 @@ export function validateNetworkAIOutput(
   }
   const filters:NetworkIntentFilters={};
   if(x.role){if(!has(ROLES,x.role))return null;filters.role=x.role;}
-  if(x.country){if(!has(COUNTRIES,x.country))return null;filters.country=x.country;}
+  if(x.country){if(!allowedCountry(x.country,taxonomy))return null;filters.country=x.country;}
   if(x.region){
-    const regions=taxonomy.regions?.length?taxonomy.regions:REGIONS;
-    const name=regions.find(r=>norm(r)===norm(x.region!));
-    if(!name||filters.country&&filters.country!=="IT")return null;
-    filters.region=name;filters.country="IT";
+    const resolved=resolveRegion(x.region,filters.country,taxonomy);
+    if(!resolved)return null;
+    filters.region=resolved.region;
+    filters.country=resolved.country;
   }
   for(const kind of ["product","capability","market"] as const){
     const candidates=taxonomy[kind==="product"?"products":kind==="capability"?"capabilities":"markets"]||[];
@@ -115,16 +133,22 @@ export function mergeNetworkFollowup(
 ):NetworkAiValidated{
   if(!previous||!acceptedFollowup(query))return result;
   const proposed={...previous,...result.filters};
-  // When changing country, never retain an obsolete Italian region.
-  if(result.filters.country&&result.filters.country!=="IT")delete proposed.region;
-  if(result.filters.region)proposed.country="IT";
+  // An explicit country-only follow-up broadens from region to country.
+  // A region follow-up replaces previous country's region; never mix DE2/FR10.
+  if(result.filters.country&&!result.filters.region)delete proposed.region;
+  if(result.filters.region){
+    const resolved=resolveRegion(result.filters.region,result.filters.country,taxonomy);
+    if(!resolved)return result;
+    proposed.country=resolved.country;
+    proposed.region=resolved.region;
+  }
   const safe:NetworkIntentFilters={};
   if(proposed.role&&ROLES.has(proposed.role))safe.role=proposed.role;
   const c=proposed.country;
-  if(c&&COUNTRIES.has(c))safe.country=c;
-  const regs=taxonomy.regions?.length?taxonomy.regions:REGIONS;
-  if(proposed.region&&regs.includes(proposed.region)&&(!safe.country||safe.country==="IT")){
-    safe.region=proposed.region;safe.country="IT";
+  if(c&&allowedCountry(c,taxonomy))safe.country=c;
+  if(proposed.region){
+    const resolved=resolveRegion(proposed.region,safe.country,taxonomy);
+    if(resolved){safe.region=resolved.region;safe.country=resolved.country;}
   }
   for(const kind of ["product","capability","market"] as const){
     const items=taxonomy[kind==="product"?"products":kind==="capability"?"capabilities":"markets"]||[];

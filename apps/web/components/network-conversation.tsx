@@ -22,8 +22,9 @@ type VoiceWindow=Window&{
 };
 const EXAMPLES=[
   "Quanti commercianti ci sono in Lombardia?",
-  "Cerco produttori di tubi in Veneto",
-  "E invece in Piemonte?",
+  "Cerco commercianti di tubi in Baviera",
+  "Mostrami i produttori in Île-de-France",
+  "E invece in Polonia?",
   "40 tubi EN 10219 S235 da 3 metri",
 ] as const;
 
@@ -139,7 +140,7 @@ export function NetworkConversation({userId,organizationId,canCompose}:{userId:s
     </summary>
     <div className="border-t border-[#e6efea] px-3 pb-3 pt-3">
       <p className="text-xs leading-5 text-[#52615b]">
-        Chiedi in modo naturale. La chat prepara filtri e ti rimanda ai risultati reali del Network.
+        Cerca per ruolo, prodotto, Paese o regione europea. La chat prepara filtri e ti rimanda ai risultati reali del Network.
         Non inventa aziende, numeri o capacità. Nessuna RFQ viene inviata senza la tua azione.
       </p>
       <div className="mt-2 max-h-[260px] space-y-2 overflow-y-auto rounded-lg bg-[#f7faf8] p-2"
@@ -163,7 +164,7 @@ export function NetworkConversation({userId,organizationId,canCompose}:{userId:s
             <span aria-hidden="true">◖))</span> Ascolta risposta
           </button>:null}
         </div>):<p className="text-xs text-[#52615b]">
-          Esempio: “Quanti commercianti ci sono in Lombardia?” o “40 tubi EN 10219 S235 da 3 metri”.
+          Esempio: “Quanti commercianti ci sono in Baviera?” oppure “40 tubi EN 10219 S235 da 3 metri”.
         </p>}
         {busy?<p role="status" className="text-[11px] text-[#52615b]">Sto verificando la richiesta…</p>:null}
       </div>
