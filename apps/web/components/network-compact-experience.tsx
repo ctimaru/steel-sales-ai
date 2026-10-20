@@ -148,7 +148,7 @@ export function NetworkCompactExperience({
   const companyCount=directory.total;
   const listedLocationCount=directory.items.filter(company=>Boolean(company.location?.city||company.location?.region)).length;
   return <main className="mx-auto w-full max-w-[1560px] space-y-3 pb-8" data-testid="network-compact-experience">
-    <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
+    <div className="min-w-0" data-testid="network-europe1d-compact-header">
       <div className="min-w-0">
         <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
           <div>
@@ -171,25 +171,12 @@ export function NetworkCompactExperience({
           </div>)}
         </div>
       </div>
-      <div className="hidden min-w-0 lg:block">
-        <NetworkEuropeanMap filters={filters} coverage={europeCoverage}
-          fullMapHref={accessMode==="pro"?"/network?advanced=1#network-regional-map":"/network?map=1#network-regional-map"}/>
-      </div>
     </div>
-    <details className="rounded-xl border border-[#d8e5dd] bg-white lg:hidden" data-testid="network-compact-mobile-map">
-      <summary className="cursor-pointer px-3 py-2 text-xs font-semibold text-[#175640] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
-        Mappa interattiva dell'Unione europea <span aria-hidden="true">⌄</span>
-      </summary>
-      <div className="px-3 pb-3">
-        <NetworkEuropeanMap filters={filters} coverage={europeCoverage}
-          fullMapHref={accessMode==="pro"?"/network?advanced=1#network-regional-map":"/network?map=1#network-regional-map"}/>
-      </div>
-    </details>
-
+    <div data-testid="network-europe1d-one-screen-shell" className="grid items-stretch gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
     <section aria-label="Ricerca e filtri delle aziende" className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-3 sm:p-4">
       <NetworkLiveSearch filters={filters}/>
       <NetworkConversation userId={userId} organizationId={organizationId} canCompose={canCompose}/>
-      <div className="mt-3 flex flex-wrap items-center gap-2">
+      <div className="mt-2 flex flex-wrap items-center gap-2">
         {!filters.product&&!filters.capability&&!filters.market&&(!filters.country||filters.country==="IT")?
           <Link href={filterUrl(filters,{steel:directory.steelMode?null:"1",np:null},"#network-results")}
             aria-current={directory.steelMode?"page":undefined}
@@ -202,7 +189,7 @@ export function NetworkCompactExperience({
           {directory.steelEvidenceTotal??0} profili con evidenza tecnica pertinente o generica; gli altri restano consultabili.
         </span>:null}
       </div>
-      <div className="mt-3 flex flex-wrap items-center gap-2">
+      <div className="mt-2 flex flex-wrap items-center gap-2">
         <span className="mr-1 text-[11px] font-bold uppercase tracking-wider text-[#175640]">Ruolo</span>
         <nav aria-label="Ruolo nella filiera" className="flex flex-wrap gap-1.5">
           {roles.map(item=>{
@@ -218,7 +205,7 @@ export function NetworkCompactExperience({
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <form method="get" action="/network" aria-label="Filtri tecnici e geografici"
-          className="grid w-full min-w-0 flex-1 grid-cols-2 items-center gap-2 md:grid-cols-[repeat(3,minmax(0,1fr))_auto] xl:grid-cols-[repeat(5,minmax(0,1fr))_auto]">
+          className="grid w-full min-w-0 flex-1 grid-cols-2 items-end gap-2 md:grid-cols-[repeat(3,minmax(0,1fr))_auto] xl:grid-cols-[repeat(5,minmax(0,1fr))_auto]">
           {filters.q?<input type="hidden" name="q" value={filters.q}/>:null}
           {filters.role?<input type="hidden" name="role" value={filters.role}/>:null}
           {filters.persona?<input type="hidden" name="persona" value={filters.persona}/>:null}
@@ -227,8 +214,8 @@ export function NetworkCompactExperience({
             {name:"product",label:"Prodotti",options:additionalFilters?.products||[]},
             {name:"capability",label:"Capability",options:additionalFilters?.capabilities||[]},
             {name:"market",label:"Mercato",options:additionalFilters?.markets||[]},
-          ].map(group=><label key={group.name} className="min-w-0">
-            <span className="sr-only">{group.label}</span>
+          ].map(group=><label key={group.name} className="flex min-w-0 flex-col gap-1">
+            <span className="text-[11px] font-semibold text-[#315d4a]">{group.label}</span>
             <select name={group.name} aria-label={group.label}
               defaultValue={filters[group.name as "product"|"capability"|"market"]||""}
               className="h-10 w-full min-w-0 rounded-lg border border-[#b7cfc2] bg-white px-2.5 text-xs font-semibold text-[#173f35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
@@ -236,10 +223,23 @@ export function NetworkCompactExperience({
               {group.options.map(option=><option key={option.canonical_key} value={option.canonical_key}>{option.display_name}</option>)}
             </select>
           </label>)}
-          <button type="submit" className="ui-action ui-action-secondary col-span-2 inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold sm:col-span-1">Applica filtri</button>
+          <button type="submit" className="ui-action ui-action-secondary col-span-2 inline-flex min-h-10 items-center justify-center self-end rounded-lg px-3 text-xs font-semibold sm:col-span-1">Applica filtri</button>
         </form>
         {filterActive?<Link href="/network" className="ui-action ui-action-secondary inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold">Azzera filtri</Link>:null}
       </div>
+      {filters.country||filters.region?<nav aria-label="Territorio selezionato" data-testid="network-europe1d-active-geography"
+        className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-[#365a48]">
+        <span className="font-semibold">Territorio:</span>
+        <span className="inline-flex min-h-7 items-center rounded-full border border-[#c6ded0] bg-white px-2.5 font-semibold text-[#174b38]">
+          {networkCountryName(filters.country||"IT")||"Italia"}
+        </span>
+        {filters.region?<Link href={filterUrl(filters,{region:null,np:null},"#network-results")}
+          aria-label={"Rimuovi filtro regione "+(europeNutsRegionName(filters.country||"",filters.region)||filters.region)}
+          className="ui-action ui-action-secondary inline-flex min-h-8 items-center rounded-full px-2.5 font-semibold">
+          {europeNutsRegionName(filters.country||"",filters.region)||filters.region} <span aria-hidden="true" className="ml-1">×</span>
+        </Link>:null}
+        <span className="text-[#52615b]">Mappa e risultati sincronizzati</span>
+      </nav>:null}
       {directory.regionPublishedOnly?<p role="status" className="mt-2 text-[11px] leading-5 text-[#52615b]">
         {directory.geoInvalid?"Regione europea non riconosciuta. Seleziona una regione valida dai filtri. Nessuna ricerca nazionale è stata eseguita.":"Area "+(europeNutsRegionName(filters.country||"",filters.region||"")||filters.region)+" · risultati limitati a sedi pubblicate associate con codice NUTS 2024 o nome ufficiale. L'assenza di risultati non dimostra che non esistano aziende nella regione."}
       </p>:technicalOnly?<p role="status" className="mt-2 text-[11px] leading-5 text-[#52615b]">
@@ -250,6 +250,20 @@ export function NetworkCompactExperience({
           "Filtri tecnici applicati ai soli profili con dati strutturati pubblicati. Le aziende censite senza attributi tecnici non sono incluse; non significa che non offrano questi prodotti o servizi."}
       </p>:null}
     </section>
+      <div className="hidden min-w-0 lg:block">
+        <NetworkEuropeanMap filters={filters} coverage={europeCoverage}
+          fullMapHref={accessMode==="pro"?"/network?advanced=1#network-regional-map":"/network?map=1#network-regional-map"}/>
+      </div>
+    </div>
+    <details className="rounded-xl border border-[#d8e5dd] bg-white lg:hidden" data-testid="network-compact-mobile-map">
+      <summary className="cursor-pointer px-3 py-2 text-xs font-semibold text-[#175640] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+        Mappa interattiva dell'Unione europea <span aria-hidden="true">⌄</span>
+      </summary>
+      <div className="px-3 pb-3">
+        <NetworkEuropeanMap filters={filters} coverage={europeCoverage}
+          fullMapHref={accessMode==="pro"?"/network?advanced=1#network-regional-map":"/network?map=1#network-regional-map"}/>
+      </div>
+    </details>
 
     <section id="network-results" aria-label="Risultati aziende" className="overflow-hidden rounded-2xl border border-[#d7e3dc] bg-white">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e8eeeb] px-3 py-2.5 sm:px-4">
