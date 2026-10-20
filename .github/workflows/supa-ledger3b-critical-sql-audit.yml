@@ -6,6 +6,9 @@ on:
     paths:
       - "supabase/tools/migration_sql_critical_risk.py"
       - "supabase/tools/test_migration_sql_critical_risk.py"
+      - "supabase/tools/migration_sql_token_compare.py"
+      - "supabase/tools/test_migration_sql_token_compare.py"
+      - "supabase/audits/20261020_critical_sql_token_comparison.json"
       - ".github/workflows/supa-ledger3b-critical-sql-audit.yml"
   push:
     branches: [main]
@@ -28,7 +31,10 @@ jobs:
         with:
           python-version: "3.12"
       - name: Validate no-approval risk index
-        run: python -m unittest discover -s supabase/tools -p 'test_migration_sql_critical_risk.py' -v
+        run: |
+          python -m unittest discover -s supabase/tools -p 'test_migration_sql_critical_risk.py' -v
+          python -m unittest discover -s supabase/tools -p 'test_migration_sql_token_compare.py' -v
+          python supabase/tools/migration_sql_token_compare.py --manifest supabase/audits/20261020_critical_sql_token_comparison.json
       - name: Regenerate snapshot-based divergence report
         run: |
           python supabase/tools/migration_sql_divergence_audit.py \
