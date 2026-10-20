@@ -99,6 +99,7 @@ export default async function NetworkDirectoryPage({
     dpage?: string;
     view?: string;
     np?: string;
+    steel?: string;
     advanced?: string;
     map?: string;
     error?: string;
@@ -137,7 +138,7 @@ export default async function NetworkDirectoryPage({
   // NET-UX COMPACT1: fast, unified first-screen browse. Keep the existing rich
   // technical finder as an explicit advanced route and as a resilient fallback.
   const compactFilters=normalizeCompactGeoFilters({q:params.q,role:params.role,region:params.region,persona:params.persona,np:params.np,
-    product:params.product,capability:params.capability,market:params.market,country:params.country});
+    product:params.product,capability:params.capability,market:params.market,country:params.country,steel:params.steel});
   const needsTechnicalFinder=Boolean(params.advanced==="1"||params.province||params.city);
   if(!needsTechnicalFinder){
     const compact=await getCompactNetworkPage(context.organizationId,"pro",compactFilters).catch(()=>null);
