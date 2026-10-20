@@ -52,7 +52,7 @@ test("EUROPE1B: compact, full-screen dialog, focus, native links and keyboard li
   assert.match(map,/modal\.showModal\(\)/);
   assert.match(map,/onClose=\{\(\)=>setExpanded\(false\)\}/);
   assert.match(map,/aria-label="Chiudi mappa europea"/);
-  assert.match(map,/europeMapViewBox\(zoomCountry\)/);
+  assert.match(map,/europeMapViewBox\(compact\?null:zoomCountry\)/);
   assert.match(map,/aria-label=\{"Cerca aziende in "\+name\}/);
   assert.match(map,/aria-current=\{isCurrent\?"location":undefined\}/);
   assert.match(map,/EU_MEMBER_COUNTRIES\.map/);
