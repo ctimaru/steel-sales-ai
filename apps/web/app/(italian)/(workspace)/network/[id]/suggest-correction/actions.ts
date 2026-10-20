@@ -66,7 +66,7 @@ export async function attestItalianIdentityCorrection(formData: FormData) {
  if(!UUID.test(discoveryId)) redirect("/network");
  const returnPath="/network/"+encodeURIComponent(discoveryId)+"/suggest-correction";
  if(!UUID.test(requestId)
-    || !["owner_supported","owner_disputed"].includes(decision)
+    || !["owner_supported","owner_disputed","owner_withdrawn"].includes(decision)
     || note.length<12 || note.length>600)
    redirect(returnPath+"?resolution_error=invalid");
  const supabase=await createClient();
