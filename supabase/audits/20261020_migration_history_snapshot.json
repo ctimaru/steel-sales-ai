@@ -1,0 +1,1868 @@
+{
+  "source": "Supabase connected project's list_migrations read-only response",
+  "source_project_ref": "ecrafjdummcdfycznitx",
+  "source_date_utc": "2026-10-20",
+  "caveat": "Read-only timestamped migration-history snapshot. Does not establish SQL equivalence. Recheck immediately before any repair; this snapshot may become stale.",
+  "migrations": [
+    {
+      "version": "20260907145044",
+      "name": "initial_commercial_schema"
+    },
+    {
+      "version": "20260907150818",
+      "name": "create_private_import_staging"
+    },
+    {
+      "version": "20260907151653",
+      "name": "create_temporary_sample_ingest_gateway"
+    },
+    {
+      "version": "20260907151754",
+      "name": "remove_temporary_sample_ingest_gateway"
+    },
+    {
+      "version": "20260907151833",
+      "name": "add_staging_thread_payloads"
+    },
+    {
+      "version": "20260907152728",
+      "name": "add_staging_review_flags"
+    },
+    {
+      "version": "20260907152747",
+      "name": "add_foreign_key_indexes_for_import_scale"
+    },
+    {
+      "version": "20260907155145",
+      "name": "add_parser_v3_audit_tables"
+    },
+    {
+      "version": "20260907155233",
+      "name": "add_parser_v3_payload_and_regression"
+    },
+    {
+      "version": "20260907155400",
+      "name": "drop_unused_v3_row_table"
+    },
+    {
+      "version": "20260907160644",
+      "name": "create_v31_archive_staging"
+    },
+    {
+      "version": "20260907160822",
+      "name": "add_archive_payload_columns"
+    },
+    {
+      "version": "20260907173523",
+      "name": "secure_staging_and_add_payload_chunks"
+    },
+    {
+      "version": "20260907173650",
+      "name": "enable_pg_net_for_internal_import"
+    },
+    {
+      "version": "20260907173731",
+      "name": "add_one_time_archive_import_tokens"
+    },
+    {
+      "version": "20260907192936",
+      "name": "create_app_facing_commercial_read_models"
+    },
+    {
+      "version": "20260907193238",
+      "name": "link_review_queue_to_commercial_observations"
+    },
+    {
+      "version": "20260907193505",
+      "name": "stage_validated_archive_in_app_read_models"
+    },
+    {
+      "version": "20260907193535",
+      "name": "add_app_facing_fk_indexes"
+    },
+    {
+      "version": "20260907193743",
+      "name": "add_commercial_search_and_metrics"
+    },
+    {
+      "version": "20260912150428",
+      "name": "promote_worker_jobs_to_commercial_dataset"
+    },
+    {
+      "version": "20260912152827",
+      "name": "dedupe_subject_observations"
+    },
+    {
+      "version": "20260912155128",
+      "name": "add_owner_scoped_latest_price_rpc"
+    },
+    {
+      "version": "20260912161002",
+      "name": "add_price_history_and_unconverted_offers_rpc"
+    },
+    {
+      "version": "20260913122944",
+      "name": "add_owner_scoped_commercial_search_rpc"
+    },
+    {
+      "version": "20260913190841",
+      "name": "add_market_data_foundation"
+    },
+    {
+      "version": "20260914115320",
+      "name": "add_m5_knowledge_schema"
+    },
+    {
+      "version": "20260914115545",
+      "name": "add_m5_knowledge_fk_indexes"
+    },
+    {
+      "version": "20260914122440",
+      "name": "add_m5_pgvector_embeddings"
+    },
+    {
+      "version": "20260914122556",
+      "name": "harden_m5_embedding_access_and_fk"
+    },
+    {
+      "version": "20260914122800",
+      "name": "add_m5_embedding_batch_rpc"
+    },
+    {
+      "version": "20260914123339",
+      "name": "add_m5_knowledge_ingest_rpc"
+    },
+    {
+      "version": "20260914123521",
+      "name": "link_worker_jobs_to_knowledge_documents"
+    },
+    {
+      "version": "20260914124111",
+      "name": "add_m5_commercial_archive_backfill"
+    },
+    {
+      "version": "20260914124126",
+      "name": "fix_m5_commercial_archive_backfill_chunk_order"
+    },
+    {
+      "version": "20260914124215",
+      "name": "fix_m5_commercial_archive_backfill_hash_encoding"
+    },
+    {
+      "version": "20260914124544",
+      "name": "add_m5_embedding_benchmark_rpcs"
+    },
+    {
+      "version": "20260914130321",
+      "name": "add_m5_embedding_activation_rpc"
+    },
+    {
+      "version": "20260914140709",
+      "name": "replace_unsupported_m5_embedding_candidates"
+    },
+    {
+      "version": "20260914152019",
+      "name": "add_m5_entity_resolution"
+    },
+    {
+      "version": "20260914152201",
+      "name": "fix_m5_entity_resolution_owner_cast"
+    },
+    {
+      "version": "20260914152255",
+      "name": "add_m5_entity_resolution_job_trigger"
+    },
+    {
+      "version": "20260914152416",
+      "name": "add_m5_entity_resolution_fk_indexes"
+    },
+    {
+      "version": "20260914154402",
+      "name": "add_m5_hybrid_retrieval"
+    },
+    {
+      "version": "20260914154602",
+      "name": "relax_m5_hybrid_lexical_and_seed_aliases"
+    },
+    {
+      "version": "20260915080849",
+      "name": "add_m5_6_document_filtered_hybrid_search"
+    },
+    {
+      "version": "20260915090227",
+      "name": "add_m5_golden_query_set_v1"
+    },
+    {
+      "version": "20260915090452",
+      "name": "add_golden_query_service_policies"
+    },
+    {
+      "version": "20260915091802",
+      "name": "add_m5_retrieval_evaluation_runs"
+    },
+    {
+      "version": "20260915092918",
+      "name": "correct_golden_relevance_and_fallback_eval"
+    },
+    {
+      "version": "20260915121303",
+      "name": "add_organization_tenant_foundation"
+    },
+    {
+      "version": "20260915121317",
+      "name": "lock_tenant_identity_columns"
+    },
+    {
+      "version": "20260915121345",
+      "name": "make_worker_promotion_tenant_aware"
+    },
+    {
+      "version": "20260915121415",
+      "name": "make_hybrid_retrieval_tenant_aware"
+    },
+    {
+      "version": "20260915121857",
+      "name": "add_organizations_created_by_index"
+    },
+    {
+      "version": "20260915123857",
+      "name": "add_p0_steel_ontology_v1"
+    },
+    {
+      "version": "20260915131013",
+      "name": "add_p0_parser_v4_review_routing"
+    },
+    {
+      "version": "20260915131728",
+      "name": "realign_commercial_import_sequences"
+    },
+    {
+      "version": "20260915134725",
+      "name": "harden_p0_entity_resolution"
+    },
+    {
+      "version": "20260915135329",
+      "name": "harden_p0_entity_resolution_advisors"
+    },
+    {
+      "version": "20260915143217",
+      "name": "add_p0_observability"
+    },
+    {
+      "version": "20260915143237",
+      "name": "add_p0_job_observability_trigger"
+    },
+    {
+      "version": "20260915153232",
+      "name": "add_p0_data_lifecycle"
+    },
+    {
+      "version": "20260916123101",
+      "name": "add_p1_tenant_onboarding"
+    },
+    {
+      "version": "20260916123120",
+      "name": "add_p1_team_directory"
+    },
+    {
+      "version": "20260916125032",
+      "name": "ensure_private_schema"
+    },
+    {
+      "version": "20260916125115",
+      "name": "harden_p1_onboarding_security_definers"
+    },
+    {
+      "version": "20260916125849",
+      "name": "harden_p1_onboarding_performance_advisors"
+    },
+    {
+      "version": "20260916133950",
+      "name": "add_p1_bulk_import"
+    },
+    {
+      "version": "20260916134958",
+      "name": "add_p1_bulk_import_owner_index"
+    },
+    {
+      "version": "20260916141653",
+      "name": "add_p1_data_source_center"
+    },
+    {
+      "version": "20260916144839",
+      "name": "add_p1_global_search"
+    },
+    {
+      "version": "20260916145040",
+      "name": "noop_p14_verification_marker"
+    },
+    {
+      "version": "20260916152945",
+      "name": "add_p1_product_360"
+    },
+    {
+      "version": "20260916153530",
+      "name": "drop_p1_product_360_duplicate_index"
+    },
+    {
+      "version": "20260916154728",
+      "name": "fix_p1_product_catalog_query_scope"
+    },
+    {
+      "version": "20260917083240",
+      "name": "add_p1_price_history"
+    },
+    {
+      "version": "20260917123840",
+      "name": "add_shared_steel_knowledge"
+    },
+    {
+      "version": "20260917123904",
+      "name": "seed_en10224_reference"
+    },
+    {
+      "version": "20260917123933",
+      "name": "add_shared_steel_reference_api"
+    },
+    {
+      "version": "20260917130712",
+      "name": "add_reference_database_v2"
+    },
+    {
+      "version": "20260917130734",
+      "name": "harden_reference_observation_staging"
+    },
+    {
+      "version": "20260917131212",
+      "name": "reconcile_reference_v2_index_sentinels"
+    },
+    {
+      "version": "20260917152531",
+      "name": "seed_en10210_en10219_structural_catalog"
+    },
+    {
+      "version": "20260917152545",
+      "name": "reconcile_structural_weight_references"
+    },
+    {
+      "version": "20260917152559",
+      "name": "link_en10210_hot_shs_shared_geometries"
+    },
+    {
+      "version": "20260917162110",
+      "name": "seed_en10216_en10217_pressure_catalog"
+    },
+    {
+      "version": "20260917163331",
+      "name": "add_en10217_range_envelopes"
+    },
+    {
+      "version": "20260917164940",
+      "name": "seed_en10217_discrete_matrix"
+    },
+    {
+      "version": "20260917171312",
+      "name": "seed_en10217_discrete_matrix_tranche2"
+    },
+    {
+      "version": "20260917180942",
+      "name": "seed_en10216_p235gh_brr_sample"
+    },
+    {
+      "version": "20260917183259",
+      "name": "cross_verify_p265gh_weights"
+    },
+    {
+      "version": "20260917185202",
+      "name": "add_weight_reconciliation_rule"
+    },
+    {
+      "version": "20260917185656",
+      "name": "harden_weight_reconciliation_execute"
+    },
+    {
+      "version": "20260918051832",
+      "name": "add_weight_reconciliation_candidates"
+    },
+    {
+      "version": "20260918065136",
+      "name": "add_weight_reconciliation_decision_ledger"
+    },
+    {
+      "version": "20260918071537",
+      "name": "add_weight_reconciliation_review_queue"
+    },
+    {
+      "version": "20260920122244",
+      "name": "add_weight_promotion_readiness"
+    },
+    {
+      "version": "20260920123717",
+      "name": "add_controlled_verified_weight_promotion"
+    },
+    {
+      "version": "20260920124126",
+      "name": "index_verified_weight_actor"
+    },
+    {
+      "version": "20260920125245",
+      "name": "add_canonical_selection_readiness"
+    },
+    {
+      "version": "20260920130211",
+      "name": "add_canonical_decision_ledger"
+    },
+    {
+      "version": "20260920131249",
+      "name": "add_controlled_canonical_promotion"
+    },
+    {
+      "version": "20260920134325",
+      "name": "add_effective_weight_contract"
+    },
+    {
+      "version": "20260920140427",
+      "name": "add_grade_cross_reference_policy"
+    },
+    {
+      "version": "20260920140831",
+      "name": "index_grade_cross_reference_foreign_keys"
+    },
+    {
+      "version": "20260920141734",
+      "name": "add_reference_production_audit"
+    },
+    {
+      "version": "20260920144317",
+      "name": "add_shared_reference_commercial_resolver"
+    },
+    {
+      "version": "20260920151614",
+      "name": "seed_us_api_reference_foundation"
+    },
+    {
+      "version": "20260920152351",
+      "name": "seed_us_api_nps_schedule_sample"
+    },
+    {
+      "version": "20260920153907",
+      "name": "expand_us_api_nps_schedule_sample"
+    },
+    {
+      "version": "20260920155107",
+      "name": "add_sa_dn_designation_foundation"
+    },
+    {
+      "version": "20260921101417",
+      "name": "human_correction_promotion_loop"
+    },
+    {
+      "version": "20260921101420",
+      "name": "harden_parser_v4_review_taxonomy_trigger"
+    },
+    {
+      "version": "20260921105625",
+      "name": "fix_p1_global_search_multiterm"
+    },
+    {
+      "version": "20260921143339",
+      "name": "add_membership_business_role"
+    },
+    {
+      "version": "20260921144605",
+      "name": "add_org_safe_fk_foundation"
+    },
+    {
+      "version": "20260921145925",
+      "name": "add_rfq_relationship_foundation"
+    },
+    {
+      "version": "20260921150655",
+      "name": "add_offer_order_relationship_foundation"
+    },
+    {
+      "version": "20260921152209",
+      "name": "add_immutable_commercial_entity_promotions"
+    },
+    {
+      "version": "20260921154839",
+      "name": "add_controlled_promotion_read_bridge"
+    },
+    {
+      "version": "20260921155529",
+      "name": "add_controlled_requested_promotion_service"
+    },
+    {
+      "version": "20260921160703",
+      "name": "add_promotion_readiness_queue"
+    },
+    {
+      "version": "20260922073348",
+      "name": "add_grouped_rfq_promotion"
+    },
+    {
+      "version": "20260922075208",
+      "name": "add_rfq_source_identity_enrichment"
+    },
+    {
+      "version": "20260922092027",
+      "name": "add_structured_message_identity"
+    },
+    {
+      "version": "20260922100946",
+      "name": "add_exact_email_contact_resolution"
+    },
+    {
+      "version": "20260922102454",
+      "name": "add_verified_company_identity"
+    },
+    {
+      "version": "20260922102528",
+      "name": "add_verified_company_identity"
+    },
+    {
+      "version": "20260922103756",
+      "name": "add_identity_confirmation_workflow"
+    },
+    {
+      "version": "20260922105518",
+      "name": "add_company_360_read_model"
+    },
+    {
+      "version": "20260922112158",
+      "name": "add_company_activation_search_links"
+    },
+    {
+      "version": "20260922123425",
+      "name": "add_controlled_ready_rfq_backlog_promotion"
+    },
+    {
+      "version": "20260922125641",
+      "name": "add_controlled_offer_promotion"
+    },
+    {
+      "version": "20260922130701",
+      "name": "add_controlled_order_promotion"
+    },
+    {
+      "version": "20260922131851",
+      "name": "add_normalized_commercial_explorer_union"
+    },
+    {
+      "version": "20260922135012",
+      "name": "add_operational_relationship_activation"
+    },
+    {
+      "version": "20260922140533",
+      "name": "add_conversation_backfill_readiness"
+    },
+    {
+      "version": "20260922142102",
+      "name": "add_structured_conversation_coverage_expansion"
+    },
+    {
+      "version": "20260922145142",
+      "name": "add_relationship_gap_offer_recovery"
+    },
+    {
+      "version": "20260922151017",
+      "name": "add_offer_evidence_remediation_readiness"
+    },
+    {
+      "version": "20260922154208",
+      "name": "add_offer_source_reparse_execution_contract"
+    },
+    {
+      "version": "20260922154236",
+      "name": "index_offer_source_reparse_fks"
+    },
+    {
+      "version": "20260922154706",
+      "name": "harden_offer_source_reparse_readiness"
+    },
+    {
+      "version": "20260922155705",
+      "name": "add_controlled_offer_source_reparse_execution"
+    },
+    {
+      "version": "20260922163657",
+      "name": "add_reparse_candidate_review_controlled_adoption"
+    },
+    {
+      "version": "20260922164327",
+      "name": "index_offer_reparse_decision_actor"
+    },
+    {
+      "version": "20260922170229",
+      "name": "add_reparse_remediation_resolution_closure"
+    },
+    {
+      "version": "20260923044412",
+      "name": "add_reparse_provenance_integrity_quarantine"
+    },
+    {
+      "version": "20260923052203",
+      "name": "add_source_reingest_provenance_recovery"
+    },
+    {
+      "version": "20260923054346",
+      "name": "index_source_reingest_predecessor"
+    },
+    {
+      "version": "20260923055641",
+      "name": "add_source_reingest_bulk_archive_selection"
+    },
+    {
+      "version": "20260923123156",
+      "name": "add_ambiguous_source_selection"
+    },
+    {
+      "version": "20260923124615",
+      "name": "add_recovery_candidate_reentry_audit"
+    },
+    {
+      "version": "20260923130741",
+      "name": "add_recovery_outcome_reconciliation"
+    },
+    {
+      "version": "20260923132642",
+      "name": "add_recovery_matching_readiness"
+    },
+    {
+      "version": "20260923135215",
+      "name": "add_recovery_adoption_guard"
+    },
+    {
+      "version": "20260923140814",
+      "name": "add_recovery_closure_handoff"
+    },
+    {
+      "version": "20260923144506",
+      "name": "add_controlled_production_recovery_batch"
+    },
+    {
+      "version": "20260923150847",
+      "name": "add_recovery_transfer_chunk_writer"
+    },
+    {
+      "version": "20260923151946",
+      "name": "add_recovery_transfer_chunk_writer"
+    },
+    {
+      "version": "20260923155447",
+      "name": "add_recovery_candidate_review_cutover"
+    },
+    {
+      "version": "20260924112556",
+      "name": "add_recovery_remediation_disposition_cutover"
+    },
+    {
+      "version": "20260924114209",
+      "name": "add_controlled_recovery_disposition_execution"
+    },
+    {
+      "version": "20260924115327",
+      "name": "add_controlled_residual_offer_candidate_resolution"
+    },
+    {
+      "version": "20260924121508",
+      "name": "add_residual_evidence_gap_reconciliation"
+    },
+    {
+      "version": "20260925094847",
+      "name": "pa2_30_24_automated_regression_check_alert_surface"
+    },
+    {
+      "version": "20260925095042",
+      "name": "pa2_30_25_alert_consumption_operational_escalation_contract"
+    },
+    {
+      "version": "20260925095546",
+      "name": "pa2_30_26_operational_alert_read_model_frontend_readiness"
+    },
+    {
+      "version": "20260925115930",
+      "name": "pa2_32_global_search_product_navigation_bridge_v2"
+    },
+    {
+      "version": "20260925143133",
+      "name": "p0a_1_platform_superadmin_foundation"
+    },
+    {
+      "version": "20260925144356",
+      "name": "p0a_2_registration_application_schema"
+    },
+    {
+      "version": "20260925150043",
+      "name": "p0a_3_registration_audit_ledger"
+    },
+    {
+      "version": "20260925150921",
+      "name": "p0a_4_review_decision_rpcs"
+    },
+    {
+      "version": "20260925152011",
+      "name": "p0a_5_organization_activation"
+    },
+    {
+      "version": "20260925154606",
+      "name": "p0a_7_superadmin_registration_read_rpcs"
+    },
+    {
+      "version": "20260925160902",
+      "name": "m1_network_taxonomy_foundation"
+    },
+    {
+      "version": "20260925183129",
+      "name": "m2_network_core_identity"
+    },
+    {
+      "version": "20260925183159",
+      "name": "m2_network_core_identity_company_facility_integrity"
+    },
+    {
+      "version": "20260925184220",
+      "name": "m3_network_relationship_graph"
+    },
+    {
+      "version": "20260925185411",
+      "name": "m4_governance_trust"
+    },
+    {
+      "version": "20260925190738",
+      "name": "m5_seed_identity_resolution"
+    },
+    {
+      "version": "20260925191708",
+      "name": "m6_network_read_model"
+    },
+    {
+      "version": "20260925192705",
+      "name": "m7_registration_bridge"
+    },
+    {
+      "version": "20260925192851",
+      "name": "m7_registration_bridge_integrity_fix"
+    },
+    {
+      "version": "20260925193303",
+      "name": "m7_registration_bridge_link_lifecycle"
+    },
+    {
+      "version": "20260925194259",
+      "name": "m8_managed_profile_cutover"
+    },
+    {
+      "version": "20260925201732",
+      "name": "p4_1_saved_companies_foundation"
+    },
+    {
+      "version": "20260925202757",
+      "name": "p4_3_inquiry_foundation"
+    },
+    {
+      "version": "20260925202825",
+      "name": "p4_3_inquiry_actor_context_fix"
+    },
+    {
+      "version": "20260925203614",
+      "name": "p4_4_inquiry_routing_anti_abuse"
+    },
+    {
+      "version": "20260925204253",
+      "name": "p4_5_interaction_read_models"
+    },
+    {
+      "version": "20260926122823",
+      "name": "p4_7_follow_activity_foundation"
+    },
+    {
+      "version": "20260926122952",
+      "name": "p4_7_follow_activity_ordering_fix"
+    },
+    {
+      "version": "20260926123115",
+      "name": "p4_7_follow_activity_statement_dedupe_fix"
+    },
+    {
+      "version": "20260926123201",
+      "name": "p4_7_activity_event_identity_fix"
+    },
+    {
+      "version": "20260926125258",
+      "name": "p4_8_interaction_pilot_p5_readiness"
+    },
+    {
+      "version": "20260926152758",
+      "name": "p2_dormant_accounts_reengagement"
+    },
+    {
+      "version": "20260926153404",
+      "name": "p2_reengagement_ordering_fix"
+    },
+    {
+      "version": "20260926155251",
+      "name": "p2_demand_signal_foundation"
+    },
+    {
+      "version": "20260926162021",
+      "name": "p2_legacy_message_identity_recovery"
+    },
+    {
+      "version": "20260926163019",
+      "name": "p2_legacy_identity_status_compatibility"
+    },
+    {
+      "version": "20260926163437",
+      "name": "p2_legacy_identity_rfq_link_compatibility"
+    },
+    {
+      "version": "20260926174759",
+      "name": "p2_identity_confirmation_intelligence_activation"
+    },
+    {
+      "version": "20260926183245",
+      "name": "p2_commercial_conversion_foundation"
+    },
+    {
+      "version": "20260926184035",
+      "name": "p2_conversion_confirmation_hook"
+    },
+    {
+      "version": "20260926192728",
+      "name": "p2_cross_thread_relationship_evidence"
+    },
+    {
+      "version": "20260926195401",
+      "name": "p3_italy_tube_network_seed"
+    },
+    {
+      "version": "20260926203030",
+      "name": "p3_web_company_discovery"
+    },
+    {
+      "version": "20260926210446",
+      "name": "p3_discovery_quality_scale"
+    },
+    {
+      "version": "20260927094352",
+      "name": "p3_4_company_profile_enrichment"
+    },
+    {
+      "version": "20260927111951",
+      "name": "p3_4_selective_enrichment_review"
+    },
+    {
+      "version": "20260927185645",
+      "name": "p3_6_company_claim_ownership_verification"
+    },
+    {
+      "version": "20260927193130",
+      "name": "p3_7a_profile_data_ownership_contract"
+    },
+    {
+      "version": "20260927194619",
+      "name": "p3_7b_company_profile_structured_editing"
+    },
+    {
+      "version": "20260927195931",
+      "name": "p3_7c_public_company_profile"
+    },
+    {
+      "version": "20260927200325",
+      "name": "p3_7c_provenance_boundary"
+    },
+    {
+      "version": "20260927205940",
+      "name": "p3_7d_company_identity_public_contacts"
+    },
+    {
+      "version": "20260927212118",
+      "name": "p3_7e_product_scope_marketplace_readiness"
+    },
+    {
+      "version": "20260928072947",
+      "name": "p3_7f_real_profile_validation"
+    },
+    {
+      "version": "20260928072951",
+      "name": "p3_7f_real_profile_validation"
+    },
+    {
+      "version": "20260928094207",
+      "name": "k2_public_knowledge_information_architecture"
+    },
+    {
+      "version": "20260928100743",
+      "name": "k3_public_standards_catalog"
+    },
+    {
+      "version": "20260928102705",
+      "name": "k4_public_grades_catalog"
+    },
+    {
+      "version": "20260928104650",
+      "name": "k5_public_tube_weight_calculator"
+    },
+    {
+      "version": "20260928111327",
+      "name": "k6_indexable_dimension_pages"
+    },
+    {
+      "version": "20260928113254",
+      "name": "k7_knowledge_seo_clusters"
+    },
+    {
+      "version": "20260928114851",
+      "name": "k8_organic_discovery_quality"
+    },
+    {
+      "version": "20260928123813",
+      "name": "sa2_platform_rbac_foundation"
+    },
+    {
+      "version": "20260928134102",
+      "name": "sa4_registration_delegation_cutover"
+    },
+    {
+      "version": "20260928140824",
+      "name": "sa5_network_operations_delegation_cutover"
+    },
+    {
+      "version": "20260928143333",
+      "name": "sa6_claims_verification_delegation_cutover"
+    },
+    {
+      "version": "20260928151050",
+      "name": "sa7_knowledge_operations_delegation_cutover"
+    },
+    {
+      "version": "20260928155950",
+      "name": "sa8_network_verification_moderation_delegation_cutover"
+    },
+    {
+      "version": "20260929101019",
+      "name": "p5_1_demand_listing_foundation"
+    },
+    {
+      "version": "20260929114513",
+      "name": "p5_2_marketplace_feed_countdown"
+    },
+    {
+      "version": "20260929125225",
+      "name": "p5_3_entitlement_unlock_foundation"
+    },
+    {
+      "version": "20260929130034",
+      "name": "p5_3a_deterministic_entitlement_ordering"
+    },
+    {
+      "version": "20260929130814",
+      "name": "p5_3b_entitlement_fk_index_hardening"
+    },
+    {
+      "version": "20260929135228",
+      "name": "p5_4_governed_supplier_response"
+    },
+    {
+      "version": "20260929145214",
+      "name": "p5_5_matching_notifications"
+    },
+    {
+      "version": "20260929175607",
+      "name": "p5_6a_pilot_cohort_activation"
+    },
+    {
+      "version": "20260929180233",
+      "name": "p5_6aa_pilot_fk_index_hardening"
+    },
+    {
+      "version": "20260929183550",
+      "name": "p5_6b_end_to_end_telemetry"
+    },
+    {
+      "version": "20260930091057",
+      "name": "hp1_1_registration_gate_integrity"
+    },
+    {
+      "version": "20260930104842",
+      "name": "hp3_registration_state_machine_hardening"
+    },
+    {
+      "version": "20261001113800",
+      "name": "hp4_duplicate_company_resolution"
+    },
+    {
+      "version": "20261001115740",
+      "name": "hp5_claim_company_profile_experience"
+    },
+    {
+      "version": "20261001122621",
+      "name": "hp6_superadmin_registration_operations"
+    },
+    {
+      "version": "20261001125350",
+      "name": "hp7_first_login_guided_company_setup"
+    },
+    {
+      "version": "20261001132810",
+      "name": "hp8_team_invitations_role_onboarding"
+    },
+    {
+      "version": "20261001132908",
+      "name": "hp8a_deterministic_legacy_invitation_claim"
+    },
+    {
+      "version": "20261001144739",
+      "name": "hp11_marketplace_readiness_read_model"
+    },
+    {
+      "version": "20261001153625",
+      "name": "hp12_error_handling_recovery"
+    },
+    {
+      "version": "20261002093505",
+      "name": "hp18_registration_dml_grants"
+    },
+    {
+      "version": "20261002100645",
+      "name": "l27_1_drop_duplicate_conversations_index"
+    },
+    {
+      "version": "20261002104317",
+      "name": "l272a_investor_business_plan_room"
+    },
+    {
+      "version": "20261002105152",
+      "name": "l272a_investor_room_rpc_hardening"
+    },
+    {
+      "version": "20261002144736",
+      "name": "l272d2_investor_scopes_kpi_snapshot"
+    },
+    {
+      "version": "20261003165147",
+      "name": "pa1_2_public_company_lookup"
+    },
+    {
+      "version": "20261003184232",
+      "name": "pa1_3_network_paid_entitlement_boundary"
+    },
+    {
+      "version": "20261003191704",
+      "name": "pa1_4_claim_conversion_registration_handoff"
+    },
+    {
+      "version": "20261004051359",
+      "name": "pa1_4_claim_conversion_registration_handoff"
+    },
+    {
+      "version": "20261004062640",
+      "name": "pa1_5_public_company_data_governance"
+    },
+    {
+      "version": "20261004063430",
+      "name": "pa1_5_public_company_data_governance"
+    },
+    {
+      "version": "20261004064117",
+      "name": "pa1_5a_policy_contract_alignment"
+    },
+    {
+      "version": "20261004113212",
+      "name": "wc5_public_utility_discovery_telemetry"
+    },
+    {
+      "version": "20261004170548",
+      "name": "lr4_company_directory_claim_governance"
+    },
+    {
+      "version": "20261004170718",
+      "name": "lr4a_privacy_governance_advisor_hardening"
+    },
+    {
+      "version": "20261005070448",
+      "name": "lr5_registration_account_compliance"
+    },
+    {
+      "version": "20261005070713",
+      "name": "lr5a_account_compliance_advisor_hardening"
+    },
+    {
+      "version": "20261005120831",
+      "name": "pl1_3a_physical_schema_foundation"
+    },
+    {
+      "version": "20261005120950",
+      "name": "pl1_3a_visibility_helper_hardening"
+    },
+    {
+      "version": "20261005121015",
+      "name": "pl1_3a_policy_hardening"
+    },
+    {
+      "version": "20261005121137",
+      "name": "pl1_3a_fail_closed_publication_guard"
+    },
+    {
+      "version": "20261005122514",
+      "name": "pl1_4_price_list_import_staging"
+    },
+    {
+      "version": "20261005122954",
+      "name": "pl1_4_import_retry_hardening"
+    },
+    {
+      "version": "20261005125629",
+      "name": "pl1_5_padana_full_import_promotion"
+    },
+    {
+      "version": "20261005125751",
+      "name": "pl1_5_generated_geometry_key_fix"
+    },
+    {
+      "version": "20261005125935",
+      "name": "pl1_5_wc31_weight_resolution"
+    },
+    {
+      "version": "20261005130000",
+      "name": "pl1_5_wc31_weight_update_join_fix"
+    },
+    {
+      "version": "20261005132419",
+      "name": "pl1_5a_residual_weight_special_profile_resolution"
+    },
+    {
+      "version": "20261005132539",
+      "name": "pl1_5a_pricing_readiness_anon"
+    },
+    {
+      "version": "20261005132945",
+      "name": "pl1_5a_explicit_standard_compatibility_fix"
+    },
+    {
+      "version": "20261005133023",
+      "name": "pl1_5a_finalize_standard_correction"
+    },
+    {
+      "version": "20261005134301",
+      "name": "pl1_6_public_price_list_explorer"
+    },
+    {
+      "version": "20261005135137",
+      "name": "pl1_6_preview_permission_helper"
+    },
+    {
+      "version": "20261005135424",
+      "name": "pl1_6_rls_preview_hardening"
+    },
+    {
+      "version": "20261005140849",
+      "name": "pl1_7_discount_profiles_private_pricing"
+    },
+    {
+      "version": "20261005141626",
+      "name": "pl1_7_private_pricing_fk_indexes"
+    },
+    {
+      "version": "20261005151727",
+      "name": "pl1_11_save_history_export"
+    },
+    {
+      "version": "20261005152756",
+      "name": "pl1_11_snapshot_lifecycle_hardening"
+    },
+    {
+      "version": "20261005153341",
+      "name": "pl1_11_lifecycle_cascade_fix"
+    },
+    {
+      "version": "20261005185135",
+      "name": "pp1_padana_publication_readiness"
+    },
+    {
+      "version": "20261005185503",
+      "name": "pp1_readiness_precision"
+    },
+    {
+      "version": "20261005185549",
+      "name": "pp1_restore_preview_helper"
+    },
+    {
+      "version": "20261005190047",
+      "name": "pp1_rls_notice_hardening"
+    },
+    {
+      "version": "20261005191330",
+      "name": "pp1_1_publication_rights_source_terms"
+    },
+    {
+      "version": "20261005191450",
+      "name": "pp1_1_source_rights_review_rpc"
+    },
+    {
+      "version": "20261005191558",
+      "name": "pp1_1_readiness_rights_event_filter"
+    },
+    {
+      "version": "20261006091207",
+      "name": "rfqh1_campaign_supplier_foundation"
+    },
+    {
+      "version": "20261006093714",
+      "name": "rfqh2_supplier_selection_identity_resolution"
+    },
+    {
+      "version": "20261006093847",
+      "name": "rfqh2_candidate_canonical_dedupe"
+    },
+    {
+      "version": "20261006094058",
+      "name": "rfqh2_verified_vat_match_fix"
+    },
+    {
+      "version": "20261006094154",
+      "name": "rfqh2_fk_index_hardening"
+    },
+    {
+      "version": "20261006094449",
+      "name": "rfqh2_entitlement_safe_private_resolution"
+    },
+    {
+      "version": "20261006103754",
+      "name": "rfqh3_governed_dispatch_engine"
+    },
+    {
+      "version": "20261006104559",
+      "name": "rfqh3_capability_schema_hardening"
+    },
+    {
+      "version": "20261006111155",
+      "name": "rfqh3_reminder_message_ledger"
+    },
+    {
+      "version": "20261006113158",
+      "name": "rfqh4_supplier_response_portal"
+    },
+    {
+      "version": "20261006113947",
+      "name": "rfqh4_quote_fk_index_hardening"
+    },
+    {
+      "version": "20261006115418",
+      "name": "rfqh5_quote_normalization_comparison"
+    },
+    {
+      "version": "20261006115741",
+      "name": "rfqh5_quantity_coverage_hardening"
+    },
+    {
+      "version": "20261006122102",
+      "name": "rfqh6_clarifications_revisions_negotiation"
+    },
+    {
+      "version": "20261006122859",
+      "name": "rfqh6_negotiation_delivery_ledger"
+    },
+    {
+      "version": "20261006123025",
+      "name": "rfqh6_supplier_buyer_notification_context"
+    },
+    {
+      "version": "20261006134458",
+      "name": "rfqh7_award_commercial_conversion"
+    },
+    {
+      "version": "20261006135541",
+      "name": "rfqh7_fk_index_hardening"
+    },
+    {
+      "version": "20261006142403",
+      "name": "rfqh8_network_marketplace_bridge"
+    },
+    {
+      "version": "20261006142814",
+      "name": "rfqh8_bridge_state_read_model"
+    },
+    {
+      "version": "20261006143144",
+      "name": "rfqh8_bridge_state_hardening"
+    },
+    {
+      "version": "20261006152146",
+      "name": "rfqh9_po_issuance_supplier_confirmation"
+    },
+    {
+      "version": "20261006153101",
+      "name": "rfqh9_exact_confirmation_hardening"
+    },
+    {
+      "version": "20261006155731",
+      "name": "rfqh10_procurement_inbox"
+    },
+    {
+      "version": "20261006155911",
+      "name": "rfqh10_procurement_inbox_hardening"
+    },
+    {
+      "version": "20261007082452",
+      "name": "rfqh11_supplier_address_book"
+    },
+    {
+      "version": "20261007082729",
+      "name": "rfqh11_supplier_crm_read_models"
+    },
+    {
+      "version": "20261007083429",
+      "name": "rfqh11_supplier_profile_fk_indexes"
+    },
+    {
+      "version": "20261007085945",
+      "name": "rfqh12_procurement_intelligence"
+    },
+    {
+      "version": "20261007090704",
+      "name": "rfqh12_profile_uuid_aggregate_fix"
+    },
+    {
+      "version": "20261007095803",
+      "name": "rfqh13_governance_team_rls"
+    },
+    {
+      "version": "20261007100300",
+      "name": "rfqh13_approval_recovery_audit"
+    },
+    {
+      "version": "20261007100440",
+      "name": "rfqh13_core_approval_gate_enforcement"
+    },
+    {
+      "version": "20261007111127",
+      "name": "pf7_usage_validation_events"
+    },
+    {
+      "version": "20261007111845",
+      "name": "rfqh13_core_approval_gate_enforcement"
+    },
+    {
+      "version": "20261007112905",
+      "name": "rfqh13_approval_payload_snapshot"
+    },
+    {
+      "version": "20261007115403",
+      "name": "mkt1_marketing_investor_scope"
+    },
+    {
+      "version": "20261007135353",
+      "name": "mkt8_investor_outreach_data_room_operations"
+    },
+    {
+      "version": "20261007140122",
+      "name": "mkt8_investor_outreach_fk_indexes"
+    },
+    {
+      "version": "20261008082446",
+      "name": "nc12_operational_alert_baseline_reconciliation"
+    },
+    {
+      "version": "20261008082455",
+      "name": "nc12_operational_alert_authorization_audit"
+    },
+    {
+      "version": "20261008085109",
+      "name": "nc21_segregated_notification_inbox_schema"
+    },
+    {
+      "version": "20261008091654",
+      "name": "nc22_router_idempotency_outbox"
+    },
+    {
+      "version": "20261008094421",
+      "name": "nc23_verified_rfq_router"
+    },
+    {
+      "version": "20261008094425",
+      "name": "nc23_source_bridge_queue"
+    },
+    {
+      "version": "20261008094428",
+      "name": "nc23_source_event_capture_triggers"
+    },
+    {
+      "version": "20261008094431",
+      "name": "nc23_marketplace_unlock_wakeup"
+    },
+    {
+      "version": "20261008094528",
+      "name": "nc23_source_bridge_cron"
+    },
+    {
+      "version": "20261008100850",
+      "name": "nc31_workspace_notification_rpc"
+    },
+    {
+      "version": "20261008100854",
+      "name": "nc31_workspace_notification_destination"
+    },
+    {
+      "version": "20261008102605",
+      "name": "nc32_platform_governance_inbox"
+    },
+    {
+      "version": "20261008104552",
+      "name": "nc33_notification_realtime_publication"
+    },
+    {
+      "version": "20261008123415",
+      "name": "bd3_optional_target_rfqh_consistency"
+    },
+    {
+      "version": "20261008135525",
+      "name": "sp2_steel_pulse_ingestion_foundation"
+    },
+    {
+      "version": "20261008135549",
+      "name": "sp3_steel_pulse_editorial_publish_gate"
+    },
+    {
+      "version": "20261008135553",
+      "name": "sp4_steel_pulse_public_feed"
+    },
+    {
+      "version": "20261008135556",
+      "name": "sp5_steel_pulse_personalized_feed"
+    },
+    {
+      "version": "20261008135600",
+      "name": "sp6_steel_pulse_engagement_retention"
+    },
+    {
+      "version": "20261008141027",
+      "name": "sp7_dg_trade_pilot_candidate"
+    },
+    {
+      "version": "20261008142031",
+      "name": "bd7_distinta_global_documents"
+    },
+    {
+      "version": "20261008143147",
+      "name": "sp71_steel_pulse_source_readiness"
+    },
+    {
+      "version": "20261009084602",
+      "name": "rfq_ia4_bridge_privacy_gate"
+    },
+    {
+      "version": "20261009094631",
+      "name": "demotest2_rfq_insert_source_rls_cycle_fix"
+    },
+    {
+      "version": "20261010132154",
+      "name": "plr2_private_lab_owner_boundary"
+    },
+    {
+      "version": "20261010191701",
+      "name": "crawl_it2_approved_source_registry"
+    },
+    {
+      "version": "20261010191705",
+      "name": "crawl_it2_source_registry_console_rpcs"
+    },
+    {
+      "version": "20261010191709",
+      "name": "crawl_it3_domain_leads"
+    },
+    {
+      "version": "20261010191711",
+      "name": "crawl_it3_1_reviewed_lead_intake"
+    },
+    {
+      "version": "20261011081449",
+      "name": "crawl_it4_geographic_intelligence"
+    },
+    {
+      "version": "20261011082257",
+      "name": "crawl_it5_network_geo_filters"
+    },
+    {
+      "version": "20261011083549",
+      "name": "crawl_it6_geo_coverage_staging"
+    },
+    {
+      "version": "20261011083559",
+      "name": "crawl_it61_geo_review_console"
+    },
+    {
+      "version": "20261013101853",
+      "name": "dash_feed4_personal_interests"
+    },
+    {
+      "version": "20261013113154",
+      "name": "dash_feed6_engagement_events"
+    },
+    {
+      "version": "20261013121141",
+      "name": "dash_feed7_engagement_retention"
+    },
+    {
+      "version": "20261013134506",
+      "name": "rqg1_review_access_hardening"
+    },
+    {
+      "version": "20261014120327",
+      "name": "crawl_it64_geographic_scale_readiness"
+    },
+    {
+      "version": "20261014123744",
+      "name": "crawl_it65a_candidate_bulk_approval"
+    },
+    {
+      "version": "20261014130708",
+      "name": "crawl_it65_wikidata_source_proposal"
+    },
+    {
+      "version": "20261014135219",
+      "name": "crawl_it65b_github_actions_runner"
+    },
+    {
+      "version": "20261014145115",
+      "name": "crawl_it66ab_bulk_corporate_intake"
+    },
+    {
+      "version": "20261014151551",
+      "name": "crawl_it66c_rna_corporate_tax_source"
+    },
+    {
+      "version": "20261015101527",
+      "name": "crawl_it610b2_atomic_candidate_bridge"
+    },
+    {
+      "version": "20261015101535",
+      "name": "crawl_it610b3_governed_run_linkage"
+    },
+    {
+      "version": "20261015102637",
+      "name": "crawl_it610b5_operator_run"
+    },
+    {
+      "version": "20261015105113",
+      "name": "crawl_it610b7_approved_queue_gate"
+    },
+    {
+      "version": "20261015114317",
+      "name": "crawl_it610b7b_prelink_approved_run"
+    },
+    {
+      "version": "20261016083621",
+      "name": "netux11_free_network_read"
+    },
+    {
+      "version": "20261016091727",
+      "name": "netux2_region_coverage"
+    },
+    {
+      "version": "20261016095403",
+      "name": "netux3_governed_geo_enrichment"
+    },
+    {
+      "version": "20261016103052",
+      "name": "netux3a_istat_import_atomic"
+    },
+    {
+      "version": "20261016103542",
+      "name": "netux3a_province_token_hardening"
+    },
+    {
+      "version": "20261016110039",
+      "name": "netux3b_controlled_geo_evidence"
+    },
+    {
+      "version": "20261016110043",
+      "name": "netux3b_reviewed_publication_istat_guard"
+    },
+    {
+      "version": "20261016112608",
+      "name": "netux3b1_pending_source_recheck"
+    },
+    {
+      "version": "20261016112613",
+      "name": "netux3b1_conflict_reopen_governance"
+    },
+    {
+      "version": "20261016113107",
+      "name": "netux3b1_ledger_explicit_deny_rls"
+    },
+    {
+      "version": "20261016120818",
+      "name": "netcov1_end_user_core_density"
+    },
+    {
+      "version": "20261016123247",
+      "name": "netcov2_campaign_batch_acquisition"
+    },
+    {
+      "version": "20261016125955",
+      "name": "netcov2b_domain_permissions"
+    },
+    {
+      "version": "20261016125958",
+      "name": "netcov2b_source_activation"
+    },
+    {
+      "version": "20261016130001",
+      "name": "netcov2b_operator_run_preparation"
+    },
+    {
+      "version": "20261016130005",
+      "name": "netcov2b_atomic_link_and_candidate_gate"
+    },
+    {
+      "version": "20261016130009",
+      "name": "netcov2b_generic_worker_isolation"
+    },
+    {
+      "version": "20261016130012",
+      "name": "netcov2b_consented_lead_enqueue"
+    },
+    {
+      "version": "20261016130127",
+      "name": "netcov2b_explicit_deny_rls"
+    },
+    {
+      "version": "20261016130328",
+      "name": "netcov2b_permission_revocation"
+    },
+    {
+      "version": "20261016134850",
+      "name": "netfast_provisional_source_view"
+    },
+    {
+      "version": "20261016134853",
+      "name": "netfast_free_directory"
+    },
+    {
+      "version": "20261016134940",
+      "name": "netfast_profile_private"
+    },
+    {
+      "version": "20261016134949",
+      "name": "netfast_profile_api_grants"
+    },
+    {
+      "version": "20261016135052",
+      "name": "netfast_free_profile"
+    },
+    {
+      "version": "20261016141721",
+      "name": "netfast2_structured_cc0_storage"
+    },
+    {
+      "version": "20261016141725",
+      "name": "netfast2_daily_batch_rpc"
+    },
+    {
+      "version": "20261016141730",
+      "name": "netfast2_free_discovered_union"
+    },
+    {
+      "version": "20261016144748",
+      "name": "netfast3_licensed_bulk_schema"
+    },
+    {
+      "version": "20261016144753",
+      "name": "netfast3_feed_rights_and_suppression"
+    },
+    {
+      "version": "20261016144757",
+      "name": "netfast3_licensed_bulk_rpc"
+    },
+    {
+      "version": "20261016144802",
+      "name": "netfast3_unconfirmed_free_union"
+    },
+    {
+      "version": "20261016144806",
+      "name": "netfast3_public_license_attribution"
+    },
+    {
+      "version": "20261016151441",
+      "name": "netfast3b_cordis_research_schema"
+    },
+    {
+      "version": "20261016151445",
+      "name": "netfast3b_cordis_licensed_worker_rpcs"
+    },
+    {
+      "version": "20261016151448",
+      "name": "netfast3b_cordis_platform_read"
+    },
+    {
+      "version": "20261016153905",
+      "name": "netlaunch1_pro_discovery_read"
+    },
+    {
+      "version": "20261016160852",
+      "name": "netlaunch2_cc0_density_schema"
+    },
+    {
+      "version": "20261016160908",
+      "name": "netlaunch2_cc0_density_rpc"
+    },
+    {
+      "version": "20261016160911",
+      "name": "netlaunch2_latest_companies_first"
+    },
+    {
+      "version": "20261016161918",
+      "name": "netlaunch2_failed_run_recovery"
+    },
+    {
+      "version": "20261017114111",
+      "name": "netlaunch3_read_100_discoveries"
+    },
+    {
+      "version": "20261017120905",
+      "name": "netlaunch4b_server_browse_paging"
+    },
+    {
+      "version": "20261017130850",
+      "name": "netconnect1_purposeful_company_connections"
+    },
+    {
+      "version": "20261017141003",
+      "name": "netconnect2b_activation_reconciliation"
+    },
+    {
+      "version": "20261017152521",
+      "name": "netconnect2d_company_progress"
+    },
+    {
+      "version": "20261017153812",
+      "name": "net_eima2_provisional_geo_map"
+    },
+    {
+      "version": "20261017154746",
+      "name": "neteima2b_source_url_regex_fix"
+    },
+    {
+      "version": "20261017155112",
+      "name": "netconnect2e_recipient_readiness"
+    },
+    {
+      "version": "20261017161250",
+      "name": "netconnect2f_reply_intelligence"
+    },
+    {
+      "version": "20261017162531",
+      "name": "netdensity3_resilient_first_party_bulk"
+    },
+    {
+      "version": "20261018210526",
+      "name": "netlaunch5e_fix_authenticated_browse_rpc_permissions"
+    },
+    {
+      "version": "20261018222311",
+      "name": "netprofile1c3_enrichment_evidence"
+    },
+    {
+      "version": "20261019070306",
+      "name": "netprofile1d_approved_evidence_reader"
+    },
+    {
+      "version": "20261019102741",
+      "name": "netcompact4_geo_evidence_overlay"
+    },
+    {
+      "version": "20261019102753",
+      "name": "netcompact4_sourced_region_filter"
+    },
+    {
+      "version": "20261019105651",
+      "name": "netcompact4b_canonical_geo_ingest"
+    },
+    {
+      "version": "20261019110422",
+      "name": "netcompact4b_canonical_https_regex_fix"
+    },
+    {
+      "version": "20261019114434",
+      "name": "netcompact4d_confidence_scaling"
+    },
+    {
+      "version": "20261019115210",
+      "name": "netcompact4d_service_view_runtime"
+    },
+    {
+      "version": "20261019140938",
+      "name": "netux6c_ai_budget"
+    },
+    {
+      "version": "20261019151555",
+      "name": "commercial_unify2c3_entity_search"
+    },
+    {
+      "version": "20261019163540",
+      "name": "netux_data1_company_intelligence_audit"
+    },
+    {
+      "version": "20261020070637",
+      "name": "netdata1c_market_evidence_and_discovery"
+    },
+    {
+      "version": "20261020080124",
+      "name": "net_europe1c_regional_intelligence"
+    },
+    {
+      "version": "20261020080500",
+      "name": "net_europe1c_company_country_provenance"
+    },
+    {
+      "version": "20261020080539",
+      "name": "netux_data1b4_steel_relevance_ranking"
+    },
+    {
+      "version": "20261020085056",
+      "name": "netux_data1b5_full_coverage_platform_queue"
+    },
+    {
+      "version": "20261020093224",
+      "name": "netux_data1b5c_negation_safe_steel_ranking"
+    },
+    {
+      "version": "20261020095410",
+      "name": "netux_data1b5d_source_review_quality"
+    },
+    {
+      "version": "20261020110925",
+      "name": "netdata1eu_trader1a_research_foundation"
+    },
+    {
+      "version": "20261020110953",
+      "name": "netdata1eu_trader1b_firstparty_pilot"
+    },
+    {
+      "version": "20261020110955",
+      "name": "netdata1eu_trader1b2_source_research"
+    },
+    {
+      "version": "20261020110957",
+      "name": "netdata1eu_trader1c1_source_research"
+    },
+    {
+      "version": "20261020111000",
+      "name": "netdata1eu_trader1c2_source_research"
+    },
+    {
+      "version": "20261020111030",
+      "name": "netdata1eu_trader1d_review_readiness"
+    },
+    {
+      "version": "20261020111032",
+      "name": "trader1d2_superadmin_review_console"
+    },
+    {
+      "version": "20261020125416",
+      "name": "netit_identity2b_discovery_links"
+    }
+  ]
+}
