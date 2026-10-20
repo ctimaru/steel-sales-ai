@@ -60,11 +60,11 @@ type CanvasProps={
   counts:Record<string,number>|null;
 };
 function EuropeCanvas({filters,selectedCountry,zoomCountry,compact,onSelect,regionShapes,selectedRegion,onSelectRegion,counts}:CanvasProps){
-  return <svg viewBox={europeMapViewBox(zoomCountry)}
+  return <svg viewBox={europeMapViewBox(compact?null:zoomCountry)}
     preserveAspectRatio="xMidYMid meet"
     role="group" aria-label="Mappa europea: scegli uno dei 27 Stati dell'Unione europea"
     data-testid={compact?"network-eu-map-mini-svg":"network-eu-map-expanded-svg"}
-    className={compact?"block h-[155px] w-full":"block h-auto max-h-[470px] w-full"}>
+    className={compact?"block h-[190px] w-full":"block h-auto max-h-[470px] w-full"}>
     <rect x="-200" y="-200" width="1600" height="1200" fill="#f3f8f5"/>
     {EUROPE_COUNTRY_SHAPES.map(shape=>{
       const isCurrent=selectedCountry===shape.code;
@@ -164,6 +164,7 @@ export function NetworkEuropeanMap({filters,fullMapHref,coverage}:MapProps){
   },[expanded,zoomCountry]);
   const chooseRegion=(code:string)=>{
     if(!europeRegionForCountry(country,code))return;
+    setExpanded(false);
     router.replace(europeMapRegionHref(filters,country,code),{scroll:false});
   };
   const choose=(code:string)=>{
@@ -192,15 +193,12 @@ export function NetworkEuropeanMap({filters,fullMapHref,coverage}:MapProps){
           Espandi ↗
         </button>
       </div>
-      <div className="mt-1 overflow-hidden rounded-md bg-[#f3f8f5]">{canvas(true)}</div>
+      <div className="mt-1 overflow-hidden rounded-md bg-[#f3f8f5]" data-testid="network-europe1d-overview">{canvas(true)}</div>
       <div className="mt-1 flex items-center justify-between gap-2">
         <p className="truncate text-[11px] font-medium text-[#365a48]" title={countryLabel}>
           {euSelected?"Filtro: "+countryLabel:"Filtro esterno UE: "+countryLabel}
         </p>
-        {zoomCountry?<button type="button" onClick={()=>setZoomCountry(null)}
-          className="min-h-7 shrink-0 text-[11px] font-semibold text-[#175640] underline underline-offset-2">
-          Vista UE
-        </button>:null}
+        <span className="shrink-0 text-[10px] text-[#52615b]">Tocca un Paese</span>
       </div>
     </section>
     <dialog ref={dialogRef} onClose={()=>setExpanded(false)}

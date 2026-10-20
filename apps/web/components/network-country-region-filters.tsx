@@ -19,7 +19,7 @@ export function NetworkCountryRegionFilters({
   const foreignRegions=italy?[]:europeRegionsForCountry(selectedCountry);
   const canSelectRegion=italy||foreignRegions.length>0;
   // URL is the shared contract for Free/Pro, live search and future map clicks.
-  // Never carry an Italian region (or pagination) into another country.
+  // Never carry an old region (or pagination) into another country.
   const navigateGeo=(nextCountry:string,nextRegion:string)=>{
     const params=new URLSearchParams(window.location.search);
     params.set("country",nextCountry);
@@ -29,8 +29,8 @@ export function NetworkCountryRegionFilters({
   };
   const inputStyle="h-10 w-full min-w-0 rounded-lg border border-[#b7cfc2] bg-white px-2.5 text-xs font-semibold text-[#173f35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] disabled:cursor-not-allowed disabled:border-[#d7e3dc] disabled:bg-[#eef2ef] disabled:text-[#53635b]";
   return <>
-    <label className="min-w-0">
-      <span className="sr-only">Paese</span>
+    <label className="flex min-w-0 flex-col gap-1">
+      <span className="text-[11px] font-semibold text-[#315d4a]">Paese</span>
       <select name="country" aria-label="Paese" value={selectedCountry}
         onChange={event=>{setSelectedCountry(event.target.value);setSelectedRegion("");navigateGeo(event.target.value,"");}}
         className={inputStyle}>
@@ -42,8 +42,8 @@ export function NetworkCountryRegionFilters({
         </optgroup>
       </select>
     </label>
-    <label className="min-w-0">
-      <span className="sr-only">Regione</span>
+    <label className="flex min-w-0 flex-col gap-1">
+      <span className="text-[11px] font-semibold text-[#315d4a]">Regione</span>
       <select name="region" aria-label="Regione" aria-describedby="network-region-country-hint"
         value={selectedRegion} disabled={!canSelectRegion}
         onChange={event=>{setSelectedRegion(event.target.value);navigateGeo(selectedCountry,event.target.value);}}
