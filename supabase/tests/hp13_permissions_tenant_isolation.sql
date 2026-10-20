@@ -266,6 +266,9 @@ select pg_temp.hp13_assert(
         -- granted to browser roles, append-only decisions, no publish action.
         'trader1d2_superadmin_queue',
         'trader1d2_record_decision',
+        -- TRADER1D.3B.2: bounded active-owner-only HTTP metadata health.
+        -- No company content, tenant data, approval or public publication.
+        'trader1d3b2_owner_health',
         'netdata1c_review_market',
         'netdata1c_market_review_queue',
         'netdata1c_market_discovery_page',
