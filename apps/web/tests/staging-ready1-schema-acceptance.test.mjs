@@ -88,7 +88,7 @@ test("push is branch-scoped dry-run; remote write is manual-only", () => {
   assert.ok(pristine.includes("$staging_ready1_pristine$;"));
   assert.ok(pristine.includes("auth.users"));
   assert.ok(pristine.includes("table_schema = 'public'"));
-  assert.ok(!/\\b(?:INSERT|DELETE|TRUNCATE)\\b/i.test(pristine));
+  assert.doesNotMatch(pristine, /\b(?:INSERT|DELETE|TRUNCATE)\b/i);
   assert.match(preflight, /auth\.users/);
   assert.match(preflight, /relrowsecurity/);
   assert.doesNotMatch(preflight, /\bINSERT\b|\bDELETE\b|\bTRUNCATE\b/i);
