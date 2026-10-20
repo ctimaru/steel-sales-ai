@@ -1,0 +1,48 @@
+name: "SUPA-LEDGER3C — Current Security Catalog Evidence (snapshot)"
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "supabase/tools/ledger3c_current_security_audit.py"
+      - "supabase/tools/test_ledger3c_current_security_audit.py"
+      - "supabase/audits/20261020_current_security_catalog_snapshot.json"
+      - ".github/workflows/supa-ledger3c-security-catalog-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dated-snapshot-evidence:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Five permission/RLS catalog regression tests (offline, no Supabase credentials)
+        run: python -m unittest discover -s supabase/tools -p 'test_ledger3c_current_security_audit.py' -v
+      - name: Validate dated LIVE-readback catalog evidence, without database changes
+        run: |
+          python supabase/tools/ledger3c_current_security_audit.py \
+            --snapshot supabase/audits/20261020_current_security_catalog_snapshot.json \
+            --report security-catalog-validation.json
+          python - <<'PY'
+          import json
+          obj=json.load(open('security-catalog-validation.json',encoding='utf-8'))
+          assert obj['functions_verified'] == 15
+          assert obj['rls_tables_verified'] == 11
+          assert obj['automatic_migration_repair_allowed'] is False
+          assert obj['catalog_evidence_only'] is True
+          print('Catalog snapshot accepted; browser/tenant tests and migration repair remain separate.')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: supa-ledger3c-live-readback-validation-${{ github.run_id }}
+          path: security-catalog-validation.json
+          retention-days: 30
+          if-no-files-found: error

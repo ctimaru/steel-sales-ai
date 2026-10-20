@@ -1,0 +1,396 @@
+{
+  "contract": "supa-ledger3c-live-current-security-snapshot-v1",
+  "project_ref": "ecrafjdummcdfycznitx",
+  "snapshot_date_utc": "2026-10-20",
+  "migration_history_count": 466,
+  "scope": "Read-only PostgreSQL pg_catalog access/grants/RLS/function-definition hashes for selected live security-critical objects. Not full tenant/browser authorization acceptance, not full 15-migration object mapping.",
+  "safe_for_automatic_repair": false,
+  "database_writes": 0,
+  "migration_repairs": 0,
+  "limitations": [
+    "Functions identified by name without checking overloaded signatures beyond the selected live inventory",
+    "Word-presence in a function is not runtime security proof",
+    "Access grants alone do not establish RLS row isolation",
+    "Private schema USAGE must be checked in addition to EXECUTE",
+    "No business/user/customer data or SQL function bodies exported"
+  ],
+  "functions": [
+    {
+      "schema_name": "private",
+      "function_name": "is_platform_superadmin",
+      "exists_in_db": true,
+      "security_definer": true,
+      "runtime_settings": [
+        "search_path=\"\""
+      ],
+      "anon_schema_usage": false,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "definition_sha256": "5620c019ed0bc2c30a0e0ca429e9fb7b70a74cef66bc08c825b954ca84ae750b",
+      "references_auth_uid": true,
+      "references_org_membership": false,
+      "references_platform_permission": false,
+      "references_company_manager_guard": false
+    },
+    {
+      "schema_name": "private",
+      "function_name": "m4_request_company_claim_impl",
+      "exists_in_db": true,
+      "security_definer": true,
+      "runtime_settings": [
+        "search_path=\"\""
+      ],
+      "anon_schema_usage": false,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "definition_sha256": "ea70b8350f5c2d967623ef4fbd5680efeb997969111e6f264bd8548899078a06",
+      "references_auth_uid": false,
+      "references_org_membership": false,
+      "references_platform_permission": false,
+      "references_company_manager_guard": false
+    },
+    {
+      "schema_name": "private",
+      "function_name": "m4_review_company_claim_impl",
+      "exists_in_db": true,
+      "security_definer": true,
+      "runtime_settings": [
+        "search_path=\"\""
+      ],
+      "anon_schema_usage": false,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "definition_sha256": "8eba6641d660c5206366f0c6ed50fa7e702467e5e934e06c5cce0ffd43c4bbf9",
+      "references_auth_uid": true,
+      "references_org_membership": false,
+      "references_platform_permission": true,
+      "references_company_manager_guard": false
+    },
+    {
+      "schema_name": "private",
+      "function_name": "m7_user_can_manage_network_company",
+      "exists_in_db": true,
+      "security_definer": true,
+      "runtime_settings": [
+        "search_path=\"\""
+      ],
+      "anon_schema_usage": false,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "definition_sha256": "9ec767e4fdcf40bfaed4406a7d8a4af9b58608eec911d403d5b6aed519d930da",
+      "references_auth_uid": true,
+      "references_org_membership": false,
+      "references_platform_permission": false,
+      "references_company_manager_guard": true
+    },
+    {
+      "schema_name": "private",
+      "function_name": "m8_update_managed_network_company_impl",
+      "exists_in_db": true,
+      "security_definer": true,
+      "runtime_settings": [
+        "search_path=\"\""
+      ],
+      "anon_schema_usage": false,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "definition_sha256": "a1c02223cfae78424cc47cc0de4338eac6d2be4d22246673ff5fe647e6e6772c",
+      "references_auth_uid": true,
+      "references_org_membership": false,
+      "references_platform_permission": false,
+      "references_company_manager_guard": true
+    },
+    {
+      "schema_name": "private",
+      "function_name": "p2_finalize_legacy_conversation_identity_impl",
+      "exists_in_db": true,
+      "security_definer": true,
+      "runtime_settings": [
+        "search_path=\"\""
+      ],
+      "anon_schema_usage": false,
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "definition_sha256": "b609b185576fd94f52aca26c10ebc3a30292d2c6874806afdf895f401ef5f0df",
+      "references_auth_uid": true,
+      "references_org_membership": true,
+      "references_platform_permission": false,
+      "references_company_manager_guard": false
+    },
+    {
+      "schema_name": "private",
+      "function_name": "p2_recover_legacy_message_identity_impl",
+      "exists_in_db": true,
+      "security_definer": true,
+      "runtime_settings": [
+        "search_path=\"\""
+      ],
+      "anon_schema_usage": false,
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "definition_sha256": "3207bb8d6e11528dd81a462bbebd48b754ec29b462bf59a8d6e35c4da891f261",
+      "references_auth_uid": true,
+      "references_org_membership": true,
+      "references_platform_permission": false,
+      "references_company_manager_guard": false
+    },
+    {
+      "schema_name": "private",
+      "function_name": "p4_7_follow_company_impl",
+      "exists_in_db": true,
+      "security_definer": true,
+      "runtime_settings": [
+        "search_path=\"\""
+      ],
+      "anon_schema_usage": false,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "definition_sha256": "2266fdc7668b95736e260cc455e5d77dff766fcc032ea81d9363e716353ea918",
+      "references_auth_uid": false,
+      "references_org_membership": false,
+      "references_platform_permission": false,
+      "references_company_manager_guard": false
+    },
+    {
+      "schema_name": "private",
+      "function_name": "p4_7_list_followed_companies_impl",
+      "exists_in_db": true,
+      "security_definer": true,
+      "runtime_settings": [
+        "search_path=\"\""
+      ],
+      "anon_schema_usage": false,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "definition_sha256": "84b2c141096f938b5de13c7fb1deb2889f3a151dba81a8a92eb696f4e7a1a659",
+      "references_auth_uid": false,
+      "references_org_membership": false,
+      "references_platform_permission": false,
+      "references_company_manager_guard": false
+    },
+    {
+      "schema_name": "public",
+      "function_name": "m4_request_company_claim",
+      "exists_in_db": true,
+      "security_definer": false,
+      "runtime_settings": [
+        "search_path=\"\""
+      ],
+      "anon_schema_usage": true,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "definition_sha256": "6acb4badd06982d52984f67ab2314f6ccae1ec0512188f5c336fb3407b088c32",
+      "references_auth_uid": false,
+      "references_org_membership": false,
+      "references_platform_permission": false,
+      "references_company_manager_guard": false
+    },
+    {
+      "schema_name": "public",
+      "function_name": "m4_review_company_claim",
+      "exists_in_db": true,
+      "security_definer": false,
+      "runtime_settings": [
+        "search_path=\"\""
+      ],
+      "anon_schema_usage": true,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "definition_sha256": "e0d969845d8bd3575730fdf2ca65aca2c7cc5f59f6ff609b2391d88c1fdcd562",
+      "references_auth_uid": false,
+      "references_org_membership": false,
+      "references_platform_permission": false,
+      "references_company_manager_guard": false
+    },
+    {
+      "schema_name": "public",
+      "function_name": "m6_search_network",
+      "exists_in_db": true,
+      "security_definer": false,
+      "runtime_settings": [
+        "search_path=\"\""
+      ],
+      "anon_schema_usage": true,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "definition_sha256": "1354de3f24eeeca9d07732264de593f661b033658031f141cfe74e3f9253b291",
+      "references_auth_uid": false,
+      "references_org_membership": false,
+      "references_platform_permission": false,
+      "references_company_manager_guard": false
+    },
+    {
+      "schema_name": "public",
+      "function_name": "m7_bridge_registration",
+      "exists_in_db": true,
+      "security_definer": false,
+      "runtime_settings": [
+        "search_path=\"\""
+      ],
+      "anon_schema_usage": true,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "definition_sha256": "cf89b7c77f597a48d6654d39688ba20b54ce52097da8f5440b7f377b0b60bb41",
+      "references_auth_uid": false,
+      "references_org_membership": false,
+      "references_platform_permission": false,
+      "references_company_manager_guard": false
+    },
+    {
+      "schema_name": "public",
+      "function_name": "m8_update_managed_network_company",
+      "exists_in_db": true,
+      "security_definer": false,
+      "runtime_settings": [
+        "search_path=\"\""
+      ],
+      "anon_schema_usage": true,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "definition_sha256": "3e74c3e6da08099ee103c705528902ee8e6a45979eca331520c910bfb3418a3f",
+      "references_auth_uid": false,
+      "references_org_membership": false,
+      "references_platform_permission": false,
+      "references_company_manager_guard": false
+    },
+    {
+      "schema_name": "public",
+      "function_name": "p0a_approve_registration_application",
+      "exists_in_db": true,
+      "security_definer": false,
+      "runtime_settings": [
+        "search_path=\"\""
+      ],
+      "anon_schema_usage": true,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "definition_sha256": "24253c3f535f6647742baa32136d5d1da8006b8f0a5d18d6ee797543589e385f",
+      "references_auth_uid": false,
+      "references_org_membership": false,
+      "references_platform_permission": false,
+      "references_company_manager_guard": false
+    }
+  ],
+  "tables": [
+    {
+      "name": "private.netdata1eu_trader_facility_evidence",
+      "exists_in_db": true,
+      "rls": true,
+      "anon_select": false,
+      "authenticated_select": false,
+      "anon_insert": false,
+      "authenticated_update": false,
+      "policy_count": 0
+    },
+    {
+      "name": "private.netdata1eu_trader_research",
+      "exists_in_db": true,
+      "rls": true,
+      "anon_select": false,
+      "authenticated_select": false,
+      "anon_insert": false,
+      "authenticated_update": false,
+      "policy_count": 0
+    },
+    {
+      "name": "public.company_registration_applications",
+      "exists_in_db": true,
+      "rls": true,
+      "anon_select": false,
+      "authenticated_select": true,
+      "anon_insert": false,
+      "authenticated_update": true,
+      "policy_count": 3
+    },
+    {
+      "name": "public.network_activity_events",
+      "exists_in_db": true,
+      "rls": true,
+      "anon_select": false,
+      "authenticated_select": false,
+      "anon_insert": false,
+      "authenticated_update": false,
+      "policy_count": 0
+    },
+    {
+      "name": "public.network_companies",
+      "exists_in_db": true,
+      "rls": true,
+      "anon_select": false,
+      "authenticated_select": true,
+      "anon_insert": false,
+      "authenticated_update": false,
+      "policy_count": 2
+    },
+    {
+      "name": "public.network_company_claims",
+      "exists_in_db": true,
+      "rls": true,
+      "anon_select": false,
+      "authenticated_select": false,
+      "anon_insert": false,
+      "authenticated_update": false,
+      "policy_count": 0
+    },
+    {
+      "name": "public.network_company_follows",
+      "exists_in_db": true,
+      "rls": true,
+      "anon_select": false,
+      "authenticated_select": false,
+      "anon_insert": false,
+      "authenticated_update": false,
+      "policy_count": 0
+    },
+    {
+      "name": "public.network_data_assertions",
+      "exists_in_db": true,
+      "rls": true,
+      "anon_select": false,
+      "authenticated_select": false,
+      "anon_insert": false,
+      "authenticated_update": false,
+      "policy_count": 0
+    },
+    {
+      "name": "public.organization_invitations",
+      "exists_in_db": true,
+      "rls": true,
+      "anon_select": false,
+      "authenticated_select": true,
+      "anon_insert": false,
+      "authenticated_update": false,
+      "policy_count": 1
+    },
+    {
+      "name": "public.organization_memberships",
+      "exists_in_db": true,
+      "rls": true,
+      "anon_select": false,
+      "authenticated_select": true,
+      "anon_insert": false,
+      "authenticated_update": false,
+      "policy_count": 1
+    },
+    {
+      "name": "public.platform_user_roles",
+      "exists_in_db": true,
+      "rls": true,
+      "anon_select": false,
+      "authenticated_select": false,
+      "anon_insert": false,
+      "authenticated_update": false,
+      "policy_count": 0
+    }
+  ],
+  "summary": {
+    "functions_count": 15,
+    "tables_count": 11,
+    "rls_enabled_count": 11,
+    "anon_grant_private_with_no_schema_usage": [
+      "p2_finalize_legacy_conversation_identity_impl",
+      "p2_recover_legacy_message_identity_impl"
+    ],
+    "anon_executable_public": []
+  }
+}
