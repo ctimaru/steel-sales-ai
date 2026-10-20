@@ -52,7 +52,7 @@ test("DASH-FEED2 retains governed procurement and deep links", () => {
     /procurementSummary\.active_rfqs/,
     /procurementSummary\.urgent/,
     /item\.rfq_id!/,
-    /appRoutes\.commercial\.home \+ "\\?view=sent&item=campaign:"/,
+    /appRoutes\.commercial\.home \+ "\?view=sent&item=campaign:"/,
     /procurement\.error/,
   ]) assert.match(home, pattern);
 });
