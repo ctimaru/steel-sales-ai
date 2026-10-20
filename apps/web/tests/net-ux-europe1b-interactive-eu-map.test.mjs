@@ -55,7 +55,7 @@ test("EUROPE1B: compact, full-screen dialog, focus, native links and keyboard li
   assert.match(map,/aria-current=\{isCurrent\?"location":undefined\}/);
   assert.match(map,/EU_MEMBER_COUNTRIES\.map/);
   assert.match(map,/setZoomCountry\(null\)/);
-  assert.match(map,/Italia/);
+  assert.match(map,/20 regioni italiane/);
   assert.match(map,/Confini europei: © Eurostat/);
   assert.doesNotMatch(map,/count\(\)|source_role|service_role|supabase|Math\.random\(/);
 });

@@ -3,16 +3,17 @@
 import {useEffect,useRef,useState} from "react";
 import {useRouter} from "next/navigation";
 import {EU_MEMBER_COUNTRIES,networkCountryName} from "@/lib/network-eu-countries";
+import type {CompactNetworkFilters} from "@/lib/network-compact-directory";
 import {EUROPE_COUNTRY_SHAPES,EUROPE_MAP_VIEWBOX} from "@/lib/network-europe-geometry";
 
 /** Same URL facets as the Network filters; never preserve Italian region or page
  * across a country change. Access controls stay in the server-side query path.
  */
 export function europeMapCountryHref(
-  filters:Record<string,string|undefined>,country:string,
+  filters:CompactNetworkFilters,country:string,
 ):string{
   const params=new URLSearchParams();
-  for(const key of ["q","role","persona","product","capability","market"]){
+  for(const key of ["q","role","persona","product","capability","market"] as const){
     const value=filters[key];
     if(value)params.set(key,value);
   }
@@ -34,12 +35,12 @@ export function europeMapViewBox(code:string|null):string{
 }
 
 type MapProps={
-  filters:Record<string,string|undefined>;
+  filters:CompactNetworkFilters;
   fullMapHref?:string;
 };
 
 type CanvasProps={
-  filters:Record<string,string|undefined>;
+  filters:CompactNetworkFilters;
   selectedCountry:string;
   zoomCountry:string|null;
   compact:boolean;
@@ -98,7 +99,10 @@ export function NetworkEuropeanMap({filters,fullMapHref}:MapProps){
   const country=requestedCountry||selectedFromUrl;
   const euSelected=EUROPE_COUNTRY_SHAPES.some(x=>x.code===country);
   const countryLabel=networkCountryName(country)||country;
-  useEffect(()=>{setRequestedCountry(null);},[filters.country]);
+  useEffect(()=>{
+    setRequestedCountry(null);
+    setZoomCountry(filters.country && EUROPE_COUNTRY_SHAPES.some(x=>x.code===filters.country)?filters.country:null);
+  },[filters.country]);
   useEffect(()=>{
     const modal=dialogRef.current;
     if(!modal)return;
