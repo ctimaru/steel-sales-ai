@@ -114,6 +114,22 @@ export default async function NetworkDirectoryPage({
   if (!access.can_access_network) {
     if (isNetworkFreeReadEnabled()) {
       const params = await searchParams;
+      // The same governed source ranking is available in Free without any Pro upgrade.
+      // Failure falls back to the existing Free listing, never bypassing the Free guard.
+      if(params.steel==="1" && !params.product && !params.capability && !params.market &&
+         (!params.country || params.country.toUpperCase()==="IT")){
+        const filters=normalizeCompactGeoFilters({q:params.q,role:params.role,region:params.region,
+          persona:params.persona,np:params.np,steel:"1",country:params.country});
+        const ranked=await getCompactNetworkPage(context.organizationId,"free",filters).catch(()=>null);
+        if(ranked){
+          return <FocusPage className="max-w-[1560px]">
+            <NetworkCompactExperience accessMode="free" directory={ranked} filters={filters}
+              userId={context.userId} organizationId={context.organizationId}
+              canCompose={canWriteWorkspace(context.role)}
+              regions={[]}/>
+          </FocusPage>;
+        }
+      }
       return (
         <FreeNetworkDirectoryView
           organizationId={context.organizationId}
