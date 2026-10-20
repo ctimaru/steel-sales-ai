@@ -73,6 +73,15 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
       <div className="min-w-0">
         <h3 className="truncate text-sm font-semibold text-[#173f35]" title={name}>{name}</h3>
         {domain?<p className="truncate text-xs text-[#52615b]">{domain}</p>:null}
+        {company.steel_priority?<p className="mt-1 flex flex-wrap items-center gap-x-1.5 text-[11px] leading-4 text-[#43524c]">
+          <span className="font-semibold text-[#175640]">{company.steel_reason}</span>
+          {company.steel_evidence_status==="candidate"?<span>· Da confermare</span>:
+           company.steel_evidence_status==="accepted"?<span>· Fonte revisionata</span>:null}
+          {safeNetworkWebsiteUrl(company.steel_source_url)?<a
+            href={safeNetworkWebsiteUrl(company.steel_source_url)||"#"} target="_blank" rel="noopener noreferrer"
+            className="font-semibold text-[#175640] underline underline-offset-2"
+            aria-label={"Fonte rilevanza acciaio per "+name}>Fonte ↗</a>:null}
+        </p>:null}
         {company.market_name?<p className="mt-0.5 truncate text-[11px] text-[#52615b]"
           title={company.market_evidence_status==="accepted"?"Settore documentato, revisionato":"Settore indicativo da confermare"}>
           <span className="font-semibold text-[#175640]">{company.market_name}</span>
@@ -130,7 +139,7 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
 export function NetworkCompactExperience({
   accessMode,directory,filters,userId,organizationId,canCompose,regions=[],additionalFilters,capabilityLabels={},
 }:Props){
-  const filterActive=Boolean(filters.q||filters.role||filters.region||filters.product||filters.capability||filters.market||filters.country);
+  const filterActive=Boolean(filters.q||filters.role||filters.region||filters.product||filters.capability||filters.market||filters.country||filters.steel);
   const knownTotals=!directory.discoveryUnavailable;
   const technicalOnly=Boolean(directory.technicalOnly);
   const companyCount=directory.total;
@@ -178,6 +187,19 @@ export function NetworkCompactExperience({
       <NetworkLiveSearch filters={filters}/>
       <NetworkConversation userId={userId} organizationId={organizationId} canCompose={canCompose}/>
       <div className="mt-3 flex flex-wrap items-center gap-2">
+        {!filters.product&&!filters.capability&&!filters.market&&(!filters.country||filters.country==="IT")?
+          <Link href={filterUrl(filters,{steel:directory.steelMode?null:"1",np:null},"#network-results")}
+            aria-current={directory.steelMode?"page":undefined}
+            data-testid="network-steel-ranking-toggle"
+            className={"ui-action inline-flex min-h-9 items-center rounded-full px-3 text-xs font-semibold "+
+              (directory.steelMode?"ui-action-primary":"ui-action-secondary")}>
+            {directory.steelMode?"✓ Priorità acciaio attiva":"✦ Priorità acciaio"}
+          </Link>:null}
+        {directory.steelMode?<span className="text-[11px] text-[#43524c]">
+          {directory.steelEvidenceTotal??0} profili con evidenza tecnica pertinente o generica; gli altri restano consultabili.
+        </span>:null}
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
         <span className="mr-1 text-[11px] font-bold uppercase tracking-wider text-[#175640]">Ruolo</span>
         <nav aria-label="Ruolo nella filiera" className="flex flex-wrap gap-1.5">
           {roles.map(item=>{
@@ -216,7 +238,9 @@ export function NetworkCompactExperience({
         {filterActive?<Link href="/network" className="ui-action ui-action-secondary inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold">Azzera filtri</Link>:null}
       </div>
       {technicalOnly?<p role="status" className="mt-2 text-[11px] leading-5 text-[#52615b]">
-        {directory.marketEvidence?
+        {directory.steelMode?
+          "Priorità acciaio: ordinamento sull’intero Network per prove tecniche disponibili. Le fonti candidate sono indicative e non attestano acquisti di tubi, capacità produttiva, disponibilità o qualifica di fornitore.":
+        directory.marketEvidence?
           "Mercato: include profili pubblicati e schede scoperte con fonte ufficiale. Settore indicativo non significa azienda verificata, acquirente confermato o capacità produttiva certificata.":
           "Filtri tecnici applicati ai soli profili con dati strutturati pubblicati. Le aziende censite senza attributi tecnici non sono incluse; non significa che non offrano questi prodotti o servizi."}
       </p>:null}
