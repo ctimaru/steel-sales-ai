@@ -27,7 +27,8 @@ test("DATA1B.5 aggregates real canonical + discovered, not capped preview or fak
  assert.match(sql,/count\(\*\)::integer from marked/);
  assert.match(sql,/limit p_limit offset p_offset/);
  assert.match(sql,/domain_uses>1/);
- assert.match(sql,/'reuse_rights','not_assessed'/);
+ assert.match(sql,/'reuse_rights',case when q.hold_reason='rights_review'/);
+ assert.match(sql,/'explicit_governance_holds'/);
  assert.match(sql,/'company_identity_verified',false/);
  assert.match(sql,/'commercial_capability_verified',false/);
  assert.match(sql,/'companies_verified_by_data1b5',0/);
@@ -42,6 +43,7 @@ test("DATA1B.5 visual Platform queue preserves rights and evidence disclaimers",
  assert.match(ui,/Da documentare/);
  assert.match(ui,/Tutte le aziende/);
  assert.match(ui,/Senza evidenza/);
+ assert.match(ui,/Blocchi governance/);
  assert.match(ui,/non avvia scansioni/);
  assert.match(ui,/ui-action ui-action-secondary/);
  assert.match(parent,/href="\/platform\/company-discovery\/steel-coverage"/);
