@@ -1,0 +1,54 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+const read=p=>readFileSync(new URL(p,import.meta.url),"utf8");
+const sql=read("../../../supabase/migrations/20261020130500_netux_data1b5_full_coverage_platform_queue.sql");
+const ui=read("../app/(italian)/(platform)/platform/company-discovery/steel-coverage/page.tsx");
+const parent=read("../app/(italian)/(platform)/platform/company-discovery/page.tsx");
+const policy=read("../../../supabase/tests/hp13_permissions_tenant_isolation.sql");
+const ia=read("../lib/platform-ia-contract.ts");
+
+test("DATA1B.5 508+ coverage is platform guarded, read-only and explicitly bounded",()=>{
+ assert.match(sql,/private\.require_platform_permission\('discovery.read'\)/);
+ assert.match(sql,/security definer set search_path=''/);
+ assert.match(sql,/p_limit > 25/);
+ assert.match(sql,/p_offset > 10000/);
+ assert.match(sql,/revoke all on function public\.netdata1b5_coverage_queue/);
+ assert.match(sql,/from public,anon/);
+ assert.match(sql,/to authenticated/);
+ assert.match(sql,/create table if not exists private\.netdata1b5_source_holds/);
+ assert.match(sql,/alter table private\.netdata1b5_source_holds enable row level security/);
+ const fn=sql.slice(sql.indexOf("create or replace function public.netdata1b5_coverage_queue("));
+ assert.doesNotMatch(fn,/\b(insert|update|delete)\s+(?:into|from)?\s*(public|private)\./i);
+ assert.match(policy,/'netdata1b5_coverage_queue'/);
+});
+test("DATA1B.5 aggregates real canonical + discovered, not capped preview or fake 500",()=>{
+ assert.match(sql,/from public\.network_companies c/);
+ assert.match(sql,/from private\.netfast_discovered_records d/);
+ assert.match(sql,/from private\.network_company_enrichment n/);
+ assert.match(sql,/source_backed/);
+ assert.match(sql,/count\(\*\)::integer from marked/);
+ assert.match(sql,/limit p_limit offset p_offset/);
+ assert.match(sql,/domain_uses>1/);
+ assert.match(sql,/'reuse_rights',case when q.hold_reason='rights_review'/);
+ assert.match(sql,/'explicit_governance_holds'/);
+ assert.match(sql,/'company_identity_verified',false/);
+ assert.match(sql,/'commercial_capability_verified',false/);
+ assert.match(sql,/'companies_verified_by_data1b5',0/);
+});
+test("DATA1B.5 visual Platform queue preserves rights and evidence disclaimers",()=>{
+ assert.match(ui,/requirePlatformPermission\("discovery.read"\)/);
+ assert.match(ui,/netdata1b5_coverage_queue/);
+ assert.match(ui,/technical_source_present:boolean/);
+ assert.match(ui,/data-testid="network-steel-coverage-cockpit"/);
+ assert.match(ui,/data-testid="network-steel-coverage-item"/);
+ assert.match(ui,/Copertura industriale del Network/);
+ assert.match(ui,/Da documentare/);
+ assert.match(ui,/Tutte le aziende/);
+ assert.match(ui,/Senza evidenza/);
+ assert.match(ui,/Blocchi governance/);
+ assert.match(ui,/non avvia scansioni/);
+ assert.match(ui,/ui-action ui-action-secondary/);
+ assert.match(parent,/href="\/platform\/company-discovery\/steel-coverage"/);
+ assert.match(ia,/path: "\/platform\/company-discovery\/steel-coverage"/);
+});
