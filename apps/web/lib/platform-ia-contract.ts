@@ -157,6 +157,7 @@ export const PLATFORM_IA_ROUTE_INVENTORY = [
   { path: "/platform/company-discovery/governance", module: "discovery" },
   { path: "/platform/company-discovery/geo-review", module: "discovery" },
   { path: "/platform/company-discovery/geo-review/municipalities", module: "discovery" },
+  { path: "/platform/company-discovery/italian-identities", module: "discovery" },
   { path: "/platform/company-discovery/market-review", module: "discovery" },
   { path: "/platform/company-discovery/steel-coverage", module: "discovery" },
   { path: "/platform/company-discovery/trader-verification", module: "traderVerification" },

@@ -37,6 +37,15 @@ test("staging accepts exact direct or pooler connection with staging confirmatio
   }
 });
 
+test("reserved password characters are normalized without printing credentials", () => {
+  for (const rawPassword of ["a#b/c?d@e", "abc%2Fxyz", "abc:xyz", "a[b]c"]) {
+    const url = `postgresql://postgres.${staging}:${rawPassword}@aws-1-eu-west-3.pooler.supabase.com:5432/postgres`;
+    const result = check(url);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.doesNotMatch(result.stdout + result.stderr, /a#b|abc%2F|abc:xyz|a\\[b\\]c/);
+  }
+});
+
 test("guard fails closed for production, spoofed hosts and missing confirmation", () => {
   for (const [url, ref, mode] of [
     [direct, production, "plan"],
@@ -71,6 +80,7 @@ test("push is branch-scoped dry-run; remote write is manual-only", () => {
   assert.match(workflow, /p0_staging_baseline\.sql/);
   assert.match(workflow, /p0_tenant_isolation\.sql/);
   assert.match(workflow, /p1_tenant_onboarding\.sql/);
+  assert.match(workflow, /Reject nonempty staging before schema application/);
   assert.match(preflight, /auth\.users/);
   assert.match(preflight, /relrowsecurity/);
   assert.doesNotMatch(preflight, /\bINSERT\b|\bDELETE\b|\bTRUNCATE\b/i);
