@@ -12,7 +12,7 @@ create or replace function public.netdata1b4_steel_relevance_page(
 ) returns jsonb
 language plpgsql stable security definer set search_path=''
 as $function$
-declare v_total integer;v_evidence_total integer;v_items jsonb;
+declare v_total integer;v_published integer;v_evidence_total integer;v_items jsonb;
 begin
  if p_access='free' then
    perform private.netux11_require_active_company(p_organization_id);
@@ -120,6 +120,7 @@ begin
    limit p_limit offset p_offset
  )
  select (select count(*)::integer from filtered),
+   (select count(*)::integer from filtered where source_kind='published'),
    (select count(*)::integer from filtered where priority<5),
    coalesce((select jsonb_agg(jsonb_build_object(
      'id',s.id,'legal_name',s.name,'trading_name',s.trading_name,
@@ -137,9 +138,10 @@ begin
      'steel_source_url',s.evidence_url,'steel_evidence_status',s.review_status
    ) order by s.priority,case when s.review_status='accepted' then 0 else 1 end,
      lower(s.name),s.id) from selected s),'[]'::jsonb)
- into v_total,v_evidence_total,v_items;
+ into v_total,v_published,v_evidence_total,v_items;
  return jsonb_build_object(
    'contract','netdata1b4-steel-ranking-v1','total',v_total,
+   'published',v_published,'discovered',v_total-v_published,
    'evidence_total',v_evidence_total,'limit',p_limit,'offset',p_offset,
    'items',v_items,'candidate_not_verified',true,
    'score_version','deterministic-steel-tier-v1'
