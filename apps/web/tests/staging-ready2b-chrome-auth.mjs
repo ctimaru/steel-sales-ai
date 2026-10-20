@@ -65,6 +65,13 @@ try{
             if(actor.id==="adminB") assert.ok(!body.includes(titles.adminA),"Tenant A leakage");
             if(actor.id==="viewerA") assert.ok(!body.includes(titles.adminB),"Viewer leakage");
           }
+          if(actor.id!=="viewerA") {
+            const own=actor.id;
+            await page.goto(origin+"/commercial?item=campaign:"+ids[own],{waitUntil:"domcontentloaded",timeout:60000});
+            await page.locator("#commercial-detail").waitFor({state:"visible",timeout:45000});
+            assert.ok((await page.locator("#commercial-detail").innerText()).includes(titles[own]),
+              "Own campaign not reachable from canonical Commerciale");
+          }
           const foreign=actor.id==="adminB"?"adminA":"adminB";
           await page.goto(origin+"/commercial?item=campaign:"+ids[foreign],{waitUntil:"domcontentloaded"});
           assert.ok(!(await page.locator("body").innerText()).includes(titles[foreign]),"Foreign RFQ leaked");
