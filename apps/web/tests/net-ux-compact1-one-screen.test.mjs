@@ -44,6 +44,7 @@ test("COMPACT1 does not inflate totals or bypass roles and map navigation",()=>{
  assert.match(ui,/Ruolo indicativo/);
  assert.match(map,/fullMapHref/);
  assert.match(ui,/fullMapHref=/);
+ assert.match(ui,/<NetworkEuropeanMap filters=\{filters\}/);
  assert.match(free,/filters.map==="1"\?null/);
  assert.match(pro,/getNetworkAccessState\(context.organizationId\)/);
 });

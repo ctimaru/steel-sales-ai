@@ -29,13 +29,13 @@ test("COMPACT5 places the region within the single filter form instead of a sepa
   }
 });
 
-test("COMPACT5 exposes an optional Italy map on mobile and preserves the desktop version",()=>{
+test("EUROPE1B preserves COMPACT5 optional map and desktop location",()=>{
   assert.match(page,/data-testid="network-compact-mobile-map"/);
   assert.match(page,/<details className="rounded-xl border/);
-  assert.match(page,/Mappa delle aziende in Italia/);
-  assert.equal((page.match(/<NetworkMiniMap /g)||[]).length,2);
+  assert.match(page,/Mappa interattiva dell'Unione europea/);
+  assert.equal((page.match(/<NetworkEuropeanMap /g)||[]).length,2);
   assert.match(page,/lg:hidden/);
-  assert.match(page,/hidden lg:block/);
+  assert.match(page,/hidden min-w-0 lg:block/);
   assert.match(page,/aria-label="Ricerca e filtri delle aziende"/);
 });
 

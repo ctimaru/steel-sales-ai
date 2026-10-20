@@ -32,12 +32,11 @@ test("COMPACT5B server defends URL imports and Free/Pro against a foreign-region
   assert.match(listing,/await getNetworkBrowsePage\(organizationId,access,"published"/);
 });
 
-test("COMPACT5B contextual Italy map does not describe foreign search results",()=>{
-  assert.match(ui,/const italySelected=!filters.country\|\|filters.country==="IT"/);
-  assert.match(ui,/italySelected\?<div className="hidden lg:block/);
-  assert.match(ui,/italySelected\?<details className="rounded-xl border/);
+test("EUROPE1B updates COMPACT5B: European map is contextual for every supported country",()=>{
+  assert.doesNotMatch(ui,/const italySelected=!filters.country/);
+  assert.match(ui,/NetworkEuropeanMap filters=\{filters\}/);
   assert.match(ui,/data-testid="network-compact-mobile-map"/);
-  assert.equal((ui.match(/<NetworkMiniMap /g)||[]).length,2);
+  assert.equal((ui.match(/<NetworkEuropeanMap /g)||[]).length,2);
 });
 
 test("COMPACT5B mobile rows show a short usable action with descriptive accessible name",()=>{

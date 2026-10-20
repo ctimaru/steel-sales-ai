@@ -6,7 +6,7 @@ import {NetworkConversation} from "@/components/network-conversation";
 import Link from "next/link";
 import {safeNetworkWebsiteUrl, type FreeCompany} from "@/lib/network-free";
 import type {CompactNetworkFilters,CompactNetworkPage} from "@/lib/network-compact-directory";
-import {NetworkMiniMap} from "@/components/network-resilient-first-screen";
+import {NetworkEuropeanMap} from "@/components/network-europe-map";
 import type {ItalyRegionCoverage,ItalyProvisionalGeoCoverage} from "@/lib/network-region-coverage";
 
 type Props={
@@ -128,16 +128,15 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
 }
 
 export function NetworkCompactExperience({
-  accessMode,directory,filters,userId,organizationId,canCompose,coverage,provisionalCoverage,regions=[],additionalFilters,capabilityLabels={},
+  accessMode,directory,filters,userId,organizationId,canCompose,regions=[],additionalFilters,capabilityLabels={},
 }:Props){
   const filterActive=Boolean(filters.q||filters.role||filters.region||filters.product||filters.capability||filters.market||filters.country);
-  const italySelected=!filters.country||filters.country==="IT";
   const knownTotals=!directory.discoveryUnavailable;
   const technicalOnly=Boolean(directory.technicalOnly);
   const companyCount=directory.total;
   const listedLocationCount=directory.items.filter(company=>Boolean(company.location?.city||company.location?.region)).length;
   return <main className="mx-auto w-full max-w-[1560px] space-y-3 pb-8" data-testid="network-compact-experience">
-    <div className={italySelected?"grid gap-3 lg:grid-cols-[minmax(0,1fr)_235px]":"grid gap-3"}>
+    <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
       <div className="min-w-0">
         <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
           <div>
@@ -160,20 +159,20 @@ export function NetworkCompactExperience({
           </div>)}
         </div>
       </div>
-{italySelected?<div className="hidden lg:block [&_svg]:max-h-[112px] [&_section]:h-full [&_section]:px-3 [&_section]:py-2 [&_p:last-child]:hidden">
-        <NetworkMiniMap coverage={coverage} provisionalCoverage={provisionalCoverage}
-          filters={filters} fullMapHref={accessMode==="pro"?"/network?advanced=1#network-regional-map":"/network?map=1#network-regional-map"}/>
-      </div>:null}
-    </div>
-    {italySelected?<details className="rounded-xl border border-[#d8e5dd] bg-white lg:hidden" data-testid="network-compact-mobile-map">
-      <summary className="cursor-pointer px-3 py-2 text-xs font-semibold text-[#175640] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
-        Mappa delle aziende in Italia <span aria-hidden="true">⌄</span>
-      </summary>
-      <div className="px-3 pb-3 [&_svg]:max-h-[160px]">
-        <NetworkMiniMap coverage={coverage} provisionalCoverage={provisionalCoverage}
-          filters={filters} fullMapHref={accessMode==="pro"?"/network?advanced=1#network-regional-map":"/network?map=1#network-regional-map"}/>
+      <div className="hidden min-w-0 lg:block">
+        <NetworkEuropeanMap filters={filters}
+          fullMapHref={accessMode==="pro"?"/network?advanced=1#network-regional-map":"/network?map=1#network-regional-map"}/>
       </div>
-    </details>:null}
+    </div>
+    <details className="rounded-xl border border-[#d8e5dd] bg-white lg:hidden" data-testid="network-compact-mobile-map">
+      <summary className="cursor-pointer px-3 py-2 text-xs font-semibold text-[#175640] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+        Mappa interattiva dell'Unione europea <span aria-hidden="true">⌄</span>
+      </summary>
+      <div className="px-3 pb-3">
+        <NetworkEuropeanMap filters={filters}
+          fullMapHref={accessMode==="pro"?"/network?advanced=1#network-regional-map":"/network?map=1#network-regional-map"}/>
+      </div>
+    </details>
 
     <section aria-label="Ricerca e filtri delle aziende" className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-3 sm:p-4">
       <NetworkLiveSearch filters={filters}/>
