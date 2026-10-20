@@ -1,0 +1,64 @@
+name: "SUPA-LEDGER3B — Critical SQL Differences (read-only)"
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "supabase/tools/migration_sql_critical_risk.py"
+      - "supabase/tools/test_migration_sql_critical_risk.py"
+      - "supabase/tools/migration_sql_token_compare.py"
+      - "supabase/tools/test_migration_sql_token_compare.py"
+      - "supabase/audits/20261020_critical_sql_token_comparison.json"
+      - ".github/workflows/supa-ledger3b-critical-sql-audit.yml"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/supa-ledger3b-critical-sql-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  security-priorities:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate no-approval risk index
+        run: |
+          python -m unittest discover -s supabase/tools -p 'test_migration_sql_critical_risk.py' -v
+          python -m unittest discover -s supabase/tools -p 'test_migration_sql_token_compare.py' -v
+          python supabase/tools/migration_sql_token_compare.py --manifest supabase/audits/20261020_critical_sql_token_comparison.json
+      - name: Regenerate snapshot-based divergence report
+        run: |
+          python supabase/tools/migration_sql_divergence_audit.py \
+            --local supabase/migrations \
+            --raw-remote supabase/audits/20261020_migration_sql_sha256_snapshot.json \
+            --normalized-remote supabase/audits/20261020_migration_normalized_sql_sha256_snapshot.json \
+            --report migration-sql-divergence-report.json
+      - name: Prioritize unresolved SQL changes without remote writes
+        run: |
+          python supabase/tools/migration_sql_critical_risk.py \
+            --divergence-report migration-sql-divergence-report.json \
+            --local supabase/migrations \
+            --output migration-sql-critical-risk-report.json
+          python - <<'PY'
+          import json
+          d=json.load(open("migration-sql-critical-risk-report.json"))
+          assert d["source_counts"]["unresolved"] == 59
+          assert sum(d["summary"].values()) == 59
+          assert d["safe_for_automatic_repair"] is False
+          print("All 59 cases queued for scoped review, no repair authorized.")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: supa-ledger3b-critical-review-${{ github.run_id }}
+          path: migration-sql-critical-risk-report.json
+          retention-days: 30
+          if-no-files-found: error
