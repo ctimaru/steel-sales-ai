@@ -14,7 +14,7 @@ const errors = [];
 const browser = await chromium.launch({headless:true,channel:process.env.UI4_BROWSER_CHANNEL || "chrome"});
 try {
   for (const viewport of [{width:1440,height:900},{width:390,height:844}]) {
-    const page = await browser.newPage({viewport, locale:"it-IT", ...(process.env.UI4_VERCEL_BYPASS ? {extraHTTPHeaders: {"x-vercel-protection-bypass": process.env.UI4_VERCEL_BYPASS}} : {})});
+    const page = await browser.newPage({viewport, locale:"it-IT", ...(process.env.UI4_VERCEL_BYPASS ? {extraHTTPHeaders: {"x-vercel-protection-bypass": process.env.UI4_VERCEL_BYPASS, "x-vercel-set-bypass-cookie": "true"}} : {})});
     for (const route of routes) {
       const response = await page.goto(base + route,{waitUntil:"domcontentloaded",timeout:45000});
       if (!response || response.status()>=500) { errors.push(`${route}: unavailable HTTP ${response?.status()}`); continue; }
