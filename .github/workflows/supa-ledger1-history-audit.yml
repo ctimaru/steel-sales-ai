@@ -1,0 +1,103 @@
+name: "SUPA-LEDGER1 — Global Migration History Audit (read-only)"
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "supabase/tools/migration_ledger_audit.py"
+      - "supabase/tools/test_migration_ledger_audit.py"
+      - "supabase/audits/**"
+      - ".github/workflows/supa-ledger1-history-audit.yml"
+  workflow_dispatch:
+    inputs:
+      linked_cli:
+        description: "Also query the CURRENT linked Supabase CLI migration list (requires separate GitHub secrets). READ ONLY."
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supa-ledger1-audit-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  offline-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test audit classifier and ensure it never modifies DB
+        run: python -m unittest discover -s supabase/tools -p 'test_migration_ledger_audit.py' -v
+      - name: Report all version/name mismatches from dated Supabase read-only snapshot
+        run: |
+          python supabase/tools/migration_ledger_audit.py \
+            --local supabase/migrations \
+            --remote supabase/audits/20261020_migration_history_snapshot.json \
+            --output migration-drift-report.json
+          python - <<'PY'
+          import json
+          data=json.load(open("migration-drift-report.json"))
+          assert data["clean"] is False, "Expected legacy migration history divergence"
+          assert data["summary"]["same_name_version_mismatch"] >= 300
+          print("Snapshot audit passes: known drift accounted for; remote production not modified")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: supa-ledger1-snapshot-drift-${{ github.run_id }}
+          path: migration-drift-report.json
+          retention-days: 30
+          if-no-files-found: error
+
+  live-linked-cli-audit:
+    # Manually opted-in read-only CLI comparison; this job NEVER runs repair,
+    # db push, db reset, SQL or anything that updates migration history.
+    if: github.event_name == 'workflow_dispatch' && inputs.linked_cli == true && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: supabase/setup-cli@v1
+        with:
+          version: "2.118.0"
+      - name: Verify isolated and approved CLI credentials are present
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          test -n "$SUPABASE_ACCESS_TOKEN" || { echo "Missing SUPABASE_ACCESS_TOKEN"; exit 1; }
+          test -n "$SUPABASE_DB_PASSWORD" || { echo "Missing SUPABASE_DB_PASSWORD"; exit 1; }
+          echo "::add-mask::$SUPABASE_ACCESS_TOKEN"
+          echo "::add-mask::$SUPABASE_DB_PASSWORD"
+          supabase --version
+          supabase migration list --help >/dev/null
+      - name: Link to EXACT approved production project (no schema/data writes)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: supabase link --project-ref ecrafjdummcdfycznitx
+      - name: Audit CURRENT local/remote migration list — NO repair and NO push
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          set -euo pipefail
+          supabase migration list --linked > live-migration-list.txt
+          sed -n '1,25p' live-migration-list.txt
+          echo "Live CLI migration list captured as audit artifact. NO mutations performed."
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: supa-ledger1-live-cli-history-${{ github.run_id }}
+          path: live-migration-list.txt
+          retention-days: 30
+          if-no-files-found: error
