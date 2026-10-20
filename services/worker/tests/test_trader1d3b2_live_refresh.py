@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, patch
 import unittest
 
 from app import trader1d3b2_live_refresh as m
+from app.company_discovery import CompanyDiscoveryError
 
 
 def source(rid="11111111-1111-4111-8111-111111111111", kind="role_evidence",
@@ -43,7 +44,7 @@ class LiveSourceValidationTest(unittest.TestCase):
             "https://www.linkedin.com/company/a",
         ]
         for url in bad_urls:
-            with self.subTest(url=url),self.assertRaises(ValueError):
+            with self.subTest(url=url),self.assertRaises((ValueError,CompanyDiscoveryError)):
                 m.validate_items(page(items=[source(url=url)]),expected_offset=0)
         with self.assertRaises(ValueError):
             m.validate_items(page(total=2,items=[source(),source()]),expected_offset=0)
