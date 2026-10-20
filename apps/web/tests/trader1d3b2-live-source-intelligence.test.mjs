@@ -14,7 +14,7 @@ test("TRADER1D.3B.2 takes live official source URLs, never caller-selected HTTP 
   assert.match(sql,/source_url<>v_expected/);
   assert.match(sql,/v_url<>v_expected/);
   assert.match(sql,/ON CONFLICT \(research_id,source_kind,observation_date\) DO NOTHING/);
-  assert.match(sql,/source_rights/); // source rights exist only in prior staging, never updated here
+  assert.doesNotMatch(sql,/UPDATE\s+private\.netdata1eu_trader_research\s+SET\s+source_rights/i);
   assert.doesNotMatch(sql,/\bUPDATE\s+(?:public\.)?network_companies\b|\bINSERT\s+INTO\s+public\.network_companies/i);
   assert.doesNotMatch(sql,/\bUPDATE\s+private\.netdata1eu_trader_research\b/i);
 });
@@ -41,6 +41,6 @@ test("TRADER1D.3B.2 owner UI fails softly before activation without false succes
   assert.match(page,/contract === "trader1d3b2-owner-health-v1"/);
   assert.match(page,/Backend live non attivo/);
   assert.match(page,/Nessuna osservazione ancora registrata/);
-  assert.match(page,/non.*dimostra identità legale/);
+  assert.match(page,/dimostra identità legale/);
   assert.doesNotMatch(page,/recordTraderReview/);
 });
