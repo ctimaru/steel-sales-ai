@@ -71,6 +71,12 @@ export const PLATFORM_IA_MODULES = [
     placement: "primary", rollout: "ready_for_plr2",
   },
   {
+    key: "traderVerification", href: "/platform/company-discovery/trader-verification",
+    label: "Verifica commercianti UE",
+    area: "network", access: { kind: "owner_only" },
+    placement: "secondary", rollout: "ready_for_plr2",
+  },
+  {
     key: "claims", href: appRoutes.platform.claims, label: "Rivendicazioni profili",
     area: "network", access: { kind: "permission", key: "claims.read" },
     placement: "primary", rollout: "ready_for_plr2",
@@ -153,6 +159,7 @@ export const PLATFORM_IA_ROUTE_INVENTORY = [
   { path: "/platform/company-discovery/geo-review/municipalities", module: "discovery" },
   { path: "/platform/company-discovery/market-review", module: "discovery" },
   { path: "/platform/company-discovery/steel-coverage", module: "discovery" },
+  { path: "/platform/company-discovery/trader-verification", module: "traderVerification" },
   { path: "/platform/company-discovery/sources", module: "discovery" },
   { path: "/platform/company-claims", module: "claims" },
   { path: "/platform/network-trust", module: "networkTrust" },
