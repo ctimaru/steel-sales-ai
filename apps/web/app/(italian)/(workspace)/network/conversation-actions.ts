@@ -110,6 +110,15 @@ export async function askNetworkConversation(
       href:"/commercial?compose=1#commercial-compose",
     };
   }
+  // Material / geometry qualifiers cannot be silently replaced by a generic steel tier.
+  const tubeWithUnsupportedDetail=/(tub(i|o|olari|olare)|tubular|pipes?)/i.test(query) &&
+    /(inox|stainless|carbonio|galvanizz|zincat|corten|quadri|quadrati|rettangolari|tondi|saldati|seamless)/i.test(query);
+  if(tubeWithUnsupportedDetail){
+    return {status:"clarify",mode:"safe_fallback",
+      answer:"Hai indicato caratteristiche specifiche dei tubi che il ranking industriale non può ancora filtrare con certezza. "+
+        "Posso mostrarti la rilevanza generica per l'acciaio, ma non presentarla come corrispondenza al materiale o alla geometria richiesti. "+
+        "Per requisiti precisi usa i filtri tecnici pubblicati o Commerciale → Nuova RFQ."};
+  }
   if(hasUnmappableConditions(query)){
     return {
       status:"clarify",mode:"safe_fallback",
@@ -124,6 +133,32 @@ export async function askNetworkConversation(
   ]);
   const taxonomy=safeTaxonomy({...rawTaxonomy,regions:geo.regions});
   const previous=normalizePrevious(previousFilters,taxonomy);
+  // DATA1B.4: direct industrial evidence discovery from natural language.
+  // A tube-use request is NOT the legacy published-only technical product filter:
+  // it deliberately searches candidate/accepted source evidence across the governed Network.
+  const tubeEvidenceIntent=/(tub(i|o|olari|olare)|tubular|pipes?)/i.test(query) &&
+    /(aziend|utilizz|impieg|produc|produtt|fabbric|struttur|carpenter|commerciant|fornitor|lavorazion)/i.test(query);
+  if(tubeEvidenceIntent){
+    const parsed=fromRules(query,taxonomy);
+    const inherited=parsed?mergeNetworkFollowup(parsed,previous,query,taxonomy).filters:previous;
+    if(!inherited?.country||inherited.country==="IT"){
+      const safeFilters:NetworkIntentFilters={country:"IT"};
+      if(inherited?.role)safeFilters.role=inherited.role;
+      if(inherited?.region)safeFilters.region=inherited.region;
+      const params=new URLSearchParams({steel:"1",country:"IT"});
+      if(safeFilters.role)params.set("role",safeFilters.role);
+      if(safeFilters.region)params.set("region",safeFilters.region);
+      return {
+        status:"ready",mode:"rules",filters:safeFilters,
+        answer:"Ho attivato Priorità acciaio: i risultati distinguono siti con riferimenti documentati a tubi e tubolari, strutture metalliche e lavorazioni. "+
+          "Una fonte candidata non dimostra che l'azienda acquisti tubi o sia un fornitore qualificato. "+
+          "I profili senza prova rimangono consultabili e sono indicati come non documentati.",
+        href:"/network?"+params.toString()+"#network-results",
+        chips:["Priorità acciaio","Fonti candidate segnalate"],
+        technicalOnly:false,
+      };
+    }
+  }
   const rule=fromRules(query,taxonomy);
   if(rule)return responseFor(mergeNetworkFollowup(rule,previous,query,taxonomy),"rules");
 

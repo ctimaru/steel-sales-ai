@@ -257,6 +257,9 @@ select pg_temp.hp13_assert(
         'netprofile1d_profile_evidence',
         -- NET-UX DATA1C: platform-guarded human sector review/queue;
         -- tenant-gated Free/Pro sourced market lookup (no company verification).
+        -- NET-UX DATA1B.4: audited, bounded Free/Pro steel ranking over sourced
+        -- companies only; URL/domain matching and no candidate promotion.
+        'netdata1b4_steel_relevance_page',
         'netdata1c_review_market',
         'netdata1c_market_review_queue',
         'netdata1c_market_discovery_page',

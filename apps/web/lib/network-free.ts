@@ -24,6 +24,10 @@ export type FreeCompany = {
   market_name?: string | null;
   market_source_url?: string | null;
   market_evidence_status?: "candidate" | "accepted";
+  steel_priority?: number;
+  steel_reason?: string;
+  steel_source_url?: string | null;
+  steel_evidence_status?: "candidate" | "accepted" | null;
 };
 export type FreeDirectory = {
   contract: "netux11-free-v1";
@@ -242,4 +246,42 @@ export async function getNetworkDiscoveredMarketPage(
     !Array.isArray(obj.items)||typeof obj.total!=="number"||obj.items.length>filters.limit)
    throw new Error("network_market_discovery_invalid_contract");
  return {items:obj.items,total:obj.total};
+}
+
+
+/** DATA1B.4: a globally ranked, tenant-gated page from the full authorized pool.
+ * Unknown evidence is explicit and candidates are never supplier qualification.
+ */
+export async function getNetworkSteelRelevancePage(
+ organizationId:string,access:"free"|"pro",filters:{
+  q?:string;role?:string;region?:string;offset:number;limit:number;
+ }
+):Promise<{items:FreeCompany[];total:number;published:number;discovered:number;evidenceTotal:number}>{
+ const supabase=await createClient();
+ const {data,error}=await supabase.rpc("netdata1b4_steel_relevance_page",{
+  p_organization_id:organizationId,p_access:access,
+  p_query:(filters.q||"").trim().slice(0,120)||null,
+  p_role:filters.role||null,p_region:(filters.region||"").trim().slice(0,90)||null,
+  p_offset:filters.offset,p_limit:filters.limit,
+ });
+ if(error||!data||typeof data!=="object")throw new Error("network_steel_ranking_unavailable");
+ const obj=data as {contract?:string;items?:FreeCompany[];total?:number;
+   published?:number;discovered?:number;evidence_total?:number;candidate_not_verified?:boolean};
+ const total=obj.total??-1;
+ const published=obj.published??-1;
+ const discovered=obj.discovered??-1;
+ const evidenceTotal=obj.evidence_total??-1;
+ if(obj.contract!=="netdata1b4-steel-ranking-v1"||obj.candidate_not_verified!==true||
+   !Array.isArray(obj.items)||obj.items.length>filters.limit||
+   !Number.isInteger(total)||!Number.isInteger(published)||
+   !Number.isInteger(discovered)||!Number.isInteger(evidenceTotal)||
+   total<0||published<0||discovered<0||evidenceTotal<0||
+   total!==published+discovered||
+   !obj.items.every(item=>typeof item.id==="string" && typeof item.steel_priority==="number" &&
+     item.steel_priority>=1 && item.steel_priority<=5 &&
+     typeof item.steel_reason==="string" &&
+     (item.steel_evidence_status===null || item.steel_evidence_status==="candidate" ||
+       item.steel_evidence_status==="accepted")))
+   throw new Error("network_steel_ranking_invalid_contract");
+ return {items:obj.items,total,published,discovered,evidenceTotal};
 }

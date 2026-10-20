@@ -23,6 +23,7 @@ export function NetworkLiveSearch({filters}: {filters:CompactNetworkFilters}) {
     for(const key of ["role","region","persona","product","capability","market","country"] as const){
       if(filters[key])query.set(key,filters[key]);
     }
+    if(filters.steel)query.set("steel",filters.steel);
     if(next)query.set("q",next);
     // Reset np to page 1, preserve the user's selected filters.
     const href="/network"+(query.size?"?"+query.toString():"");
@@ -40,7 +41,7 @@ export function NetworkLiveSearch({filters}: {filters:CompactNetworkFilters}) {
     return ()=>window.clearTimeout(handle);
     // Depend on the current server query to cancel a stale timer after navigation.
   },[draft,serverQuery,filters.role,filters.region,filters.persona,
-     filters.product,filters.capability,filters.market,filters.country]);
+     filters.product,filters.capability,filters.market,filters.country,filters.steel]);
 
   const submit=(event:FormEvent<HTMLFormElement>)=>{
     event.preventDefault();
