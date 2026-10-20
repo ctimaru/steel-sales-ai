@@ -1,0 +1,58 @@
+name: "SUPA-LEDGER2 — Stored SQL Fingerprint Equivalence Audit"
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "supabase/tools/migration_sql_fingerprint_audit.py"
+      - "supabase/tools/test_migration_sql_fingerprint_audit.py"
+      - "supabase/audits/20261020_migration_sql_sha256_snapshot.json"
+      - ".github/workflows/supa-ledger2-sql-audit.yml"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/supa-ledger2-sql-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supa-ledger2-sql-audit-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  offline-content-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Unit tests — no DB credentials or SQL execution
+        run: python -m unittest discover -s supabase/tools -p 'test_migration_sql_fingerprint_audit.py' -v
+      - name: Compare repo SQL bytes to production ledger original SHA256 snapshot
+        run: |
+          python supabase/tools/migration_sql_fingerprint_audit.py \
+            --local supabase/migrations \
+            --remote-hashes supabase/audits/20261020_migration_sql_sha256_snapshot.json \
+            --report migration-sql-equivalence-report.json \
+            --require-seven-trader-matches
+          python - <<'PY'
+          import json
+          report=json.load(open("migration-sql-equivalence-report.json"))
+          assert report["safe_for_automatic_repair"] is False
+          assert report["summary"]["local_total"] >= 436
+          assert report["summary"]["remote_total"] >= 465
+          print("SQL fingerprint audit completed without database access or side effects")
+          PY
+      - name: Archive full SQL equality / divergence classification
+        uses: actions/upload-artifact@v4
+        with:
+          name: supa-ledger2-sql-equivalence-${{ github.run_id }}
+          path: migration-sql-equivalence-report.json
+          retention-days: 30
+          if-no-files-found: error
