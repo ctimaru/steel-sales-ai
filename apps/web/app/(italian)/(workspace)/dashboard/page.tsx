@@ -236,7 +236,7 @@ export default async function DashboardPage({
           <span className="shrink-0 text-[11px] font-semibold text-[#176045]">Cerca <span aria-hidden="true">↗</span></span>
         </Link>
 
-        <div className="mt-3 flex flex-wrap items-center gap-2">
+        <div data-testid="quick-action-shortcuts" className="mt-3 flex flex-wrap items-center gap-2">
           <span aria-hidden="true" className="mr-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[#53675b]">Azioni rapide</span>
           {orderedQuickActions.map((action) => (
             <Link
