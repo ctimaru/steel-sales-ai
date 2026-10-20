@@ -113,7 +113,8 @@ begin
    raise exception 'Invalid bounded correction' using errcode='22023';
  end if;
  if v_url is null or char_length(v_url) not between 12 and 500
-    or v_url !~ '^https://[a-zA-Z0-9.-]+(/|[?]|[#]|$)' then
+    or v_url !~ '^https://[a-zA-Z0-9.-]+(/|[?]|[#]|$)'
+    or v_url ~ '[[:space:]<>]' then
    raise exception 'An official HTTPS source URL is required' using errcode='22023';
  end if;
  v_host:=lower(split_part(split_part(split_part(v_url,'/',3),'?',1),'#',1));
@@ -130,9 +131,11 @@ begin
  end if;
  -- First-party references only: exact company domain or its subdomains.
  -- A changed-domain proposal may cite the proposed domain, but is NEVER proof of ownership.
- v_match := v_host=v_profile_domain or v_host like '%.'||v_profile_domain;
+ v_match := v_host=v_profile_domain
+   or right(v_host,char_length(v_profile_domain)+1)='.'||v_profile_domain;
  if p_field='website_domain' then
-   v_match := v_match or v_host=v_proposed_domain or v_host like '%.'||v_proposed_domain;
+   v_match := v_match or v_host=v_proposed_domain
+      or right(v_host,char_length(v_proposed_domain)+1)='.'||v_proposed_domain;
  end if;
  if not v_match then
    raise exception 'Source must be hosted on the company or proposed domain' using errcode='22023';
