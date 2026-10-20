@@ -206,7 +206,6 @@ export function interpretNetworkIntent(
     key:item.code,label:item.name,
     terms:[item.name,...(item.aliases||[])],
   })):COUNTRIES;
-  const countries=collect(roles.remainder,countryEntries);
   const availableRegions=regions.length?regions:REGIONS;
   const regionEntries:RegionMatch[]=[
     ...availableRegions.map(name=>({
@@ -217,10 +216,13 @@ export function interpretNetworkIntent(
       terms:[item.name,...(item.aliases||[]),item.code],
     })),
   ];
-  const regional=collectGeography(countries.remainder,regionEntries);
+  // Resolve full region names before country tokens: "Île-de-France"
+  // contains the standalone token "France", which must not be stripped.
+  const regional=collectGeography(roles.remainder,regionEntries);
+  const countries=collect(regional.remainder,countryEntries);
   // Prefer exact longest public taxonomy labels before colloquial tube aliases,
   // so a genuine "stainless steel tubes" product is not truncated to "tubes".
-  const taxonomy=extractTaxonomy(regional.remainder,{products,capabilities,markets});
+  const taxonomy=extractTaxonomy(countries.remainder,{products,capabilities,markets});
   let remaining=taxonomy.remainder;
   let tubeMentioned=false;
   for(const term of TUBE_TERMS){
