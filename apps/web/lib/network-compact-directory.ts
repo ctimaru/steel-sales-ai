@@ -4,6 +4,7 @@ import {getNetworkBrowsePage,getNetworkDiscoveredMarketPage, type FreeCompany, t
 import {parseNetworkPage} from "@/components/network-pagination";
 import {searchNetwork} from "@/lib/network";
 import {withCompactGeoEvidence} from "@/lib/network-compact-geo";
+import {isSupportedNetworkCountry} from "@/lib/network-eu-countries";
 
 /** NET-UX COMPACT1: one honest, stable server-side pagination across BOTH feeds.
  * Keep each existing RLS/entitlement-gated source and its original provenance.
@@ -24,7 +25,8 @@ export type CompactNetworkPage={
  */
 export function normalizeCompactGeoFilters(filters:CompactNetworkFilters):CompactNetworkFilters{
   const requested=filters.country?.trim().toUpperCase();
-  const country=requested&&["IT","DE","FR","ES","US","GB","CH"].includes(requested)?requested:undefined;
+  const legacyCountries=["IT","DE","FR","ES","US","GB","CH"];
+  const country=requested&&(legacyCountries.includes(requested)||isSupportedNetworkCountry(requested))?requested:undefined;
   return {...filters,country,region:country&&country!=="IT"?undefined:filters.region};
 }
 

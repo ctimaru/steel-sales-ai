@@ -1,5 +1,6 @@
 import {NetworkCountryFlag} from "@/components/network-country-flag";
 import {NetworkCountryRegionFilters} from "@/components/network-country-region-filters";
+import {networkCountryName} from "@/lib/network-eu-countries";
 import {NetworkLiveSearch} from "@/components/network-live-search";
 import {NetworkConversation} from "@/components/network-conversation";
 import Link from "next/link";
@@ -27,10 +28,6 @@ const roles=[
 ] as const;
 // One source of truth for widths: header and rows share the exact grid columns.
 const COMPANY_COLUMNS="lg:grid-cols-[minmax(210px,2fr)_minmax(110px,.84fr)_minmax(140px,1.05fr)_minmax(125px,.95fr)_minmax(165px,1.12fr)_136px]";
-const countries:Record<string,string>={
-  IT:"Italia",DE:"Germania",FR:"Francia",ES:"Spagna",
-  US:"USA",GB:"Regno Unito",CH:"Svizzera",
-};
 const keys:Record<string,string>={
   producer:"Produttore",trader_distributor:"Commerciante",
   processor_service_provider:"Terzista",end_user:"Utilizzatore",
@@ -66,7 +63,7 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
   const locationSource=safeNetworkWebsiteUrl(company.geo_source_url);
   const marketSource=safeNetworkWebsiteUrl(company.market_source_url);
   const countryCode=(company.country_code||"").toUpperCase();
-  const countryLabel=countries[countryCode]||countryCode||"Paese non indicato";
+  const countryLabel=networkCountryName(countryCode)||countryCode||"Paese non indicato";
   return <article className={"grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[#e8eeeb] px-3 py-3 last:border-b-0 sm:px-4 lg:py-2.5 "+COMPANY_COLUMNS}
     data-testid="network-compact-company-row">
     <div className="flex min-w-0 items-center gap-3">
@@ -201,6 +198,7 @@ export function NetworkCompactExperience({
           {filters.q?<input type="hidden" name="q" value={filters.q}/>:null}
           {filters.role?<input type="hidden" name="role" value={filters.role}/>:null}
           {filters.persona?<input type="hidden" name="persona" value={filters.persona}/>:null}
+          <NetworkCountryRegionFilters key={(filters.country||"IT")+"|"+(filters.region||"")} country={filters.country||"IT"} region={filters.region||""} regions={regions}/>
           {[
             {name:"product",label:"Prodotti",options:additionalFilters?.products||[]},
             {name:"capability",label:"Capability",options:additionalFilters?.capabilities||[]},
@@ -214,7 +212,6 @@ export function NetworkCompactExperience({
               {group.options.map(option=><option key={option.canonical_key} value={option.canonical_key}>{option.display_name}</option>)}
             </select>
           </label>)}
-          <NetworkCountryRegionFilters key={(filters.country||"IT")+"|"+(filters.region||"")} country={filters.country||"IT"} region={filters.region||""} regions={regions}/>
           <button type="submit" className="ui-action ui-action-secondary col-span-2 inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold sm:col-span-1">Applica filtri</button>
         </form>
         {filterActive?<Link href="/network" className="ui-action ui-action-secondary inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold">Azzera filtri</Link>:null}
