@@ -106,5 +106,5 @@ test("NEXT1B historic totals are not mistaken for actionable counts or an empty 
   assert.match(dashboard, /Apri attività commerciali/);
   assert.match(dashboard, /procurementSummary\.attention_total/);
   assert.match(dashboard, /procurementSummary\.active_rfqs/);
-  assert.match(dashboard, /!canWrite \? appRoutes\.marketplace\.home/);
+  assert.match(dashboard, /href: appRoutes\.marketplace\.home/);
 });
