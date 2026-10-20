@@ -267,6 +267,10 @@ select pg_temp.hp13_assert(
         -- Pinned empty search_path, anon execute revoked; table private,
         -- no legal identity verification, merging, claim or grant changes.
         'netit_identity2c_review_queue',
+        -- IDENTITY2D.2: auth.uid+confirmed-email, active company/admin guard,
+        -- first-party link, append-only private proposals, strict rate limits.
+        -- Never grants claim, ownership, verified status, merge or publication.
+        'netit_identity2d2_submit_correction',
         -- TRADER1D.2: reviewed singleton-owner-only bridge; private data never
         -- granted to browser roles, append-only decisions, no publish action.
         'trader1d2_superadmin_queue',
