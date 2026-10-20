@@ -87,7 +87,7 @@ export default async function ItalianCorrectionSuggestionPage({
                {item.resolution==="owner_supported"?"Supportata da azienda con claim":item.resolution==="owner_disputed"?"Contestata da azienda con claim":"In attesa di riscontro aziendale"}
              </span>
            </div>
-           <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[#52615b]">{item.evidence_note}</p>
+           {item.evidence_note ? <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[#52615b]">{item.evidence_note}</p>:null}
            {safeNetworkWebsiteUrl(item.source_url)?.startsWith("https://") ?
             <a href={safeNetworkWebsiteUrl(item.source_url)||"#"} target="_blank" rel="noopener noreferrer"
                className="mt-2 inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4">Consulta la fonte HTTPS ↗</a>:null}
