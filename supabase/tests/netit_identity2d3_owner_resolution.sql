@@ -30,6 +30,7 @@ begin
  end if;
  if position('private.hp4_normalize_domain' in v_owner)=0
    or position('cl.status=''approved''' in v_owner)=0
+   or position('cl.proof_status=''verified''' in v_owner)=0
    or position('l.link_status=''active''' in v_owner)=0
    or position('c.country_code=''IT''' in v_owner)=0
    or position('count(*)' in v_owner)=0 then
