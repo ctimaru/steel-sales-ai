@@ -1,0 +1,43 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+const read=p=>readFileSync(new URL(p,import.meta.url),"utf8");
+const sql=read("../../../supabase/migrations/20261020190000_netux_data1b5d_source_review_quality.sql");
+const ui=read("../app/(italian)/(platform)/platform/company-discovery/steel-coverage/page.tsx");
+test("DATA1B.5D audit decisions are explicit, private and cannot assert certified identity",()=>{
+ assert.match(sql,/create table if not exists private\.netdata1b5_source_assessments/);
+ assert.match(sql,/enable row level security/);
+ assert.match(sql,/revoke all on private\.netdata1b5_source_assessments from public,anon,authenticated/);
+ assert.match(sql,/legal_identity_verified boolean not null default false check\(not legal_identity_verified\)/);
+ assert.match(sql,/commercial_capability_verified boolean not null default false check\(not commercial_capability_verified\)/);
+ assert.match(sql,/unique\(entity_kind,entity_id,assessment_batch\)/);
+ assert.match(sql,/\('source_observed','needs_followup','no_source_after_review','identity_review','rights_review'\)/);
+ assert.match(sql,/assessment_batch='netux-data1b5d-research-v1'/);
+ assert.doesNotMatch(sql,/update private\.netfast_discovered_records/);
+ assert.doesNotMatch(sql,/update public\.network_company_discovery_candidates/);
+});
+test("DATA1B.5D counts real visited pages separately from technical enrichment and followup",()=>{
+ assert.match(sql,/'source_assessed_profiles'/);
+ assert.match(sql,/'audit_followup_profiles'/);
+ assert.match(sql,/'role_suggestions_pending'/);
+ assert.match(sql,/audit_outcome='source_observed'/);
+ assert.match(sql,/source_backed/);
+ assert.match(sql,/private\.require_platform_permission\('discovery.read'\)/);
+ assert.match(sql,/'company_identity_verified',false/);
+ assert.match(sql,/'commercial_capability_verified',false/);
+ assert.match(ui,/Fonti effettivamente esaminate/);
+ assert.match(ui,/Verifica esterna non registrata/);
+ assert.match(ui,/Ruolo suggerito:/);
+ assert.match(ui,/ruolo/i);
+ assert.match(ui,/snapshot\.source_assessed_profiles/);
+ assert.match(ui,/data-testid="network-steel-coverage-cockpit"/);
+});
+test("DATA1B.5D no automatic supplier qualification or rights approval",()=>{
+ assert.match(sql,/source_reuse_rights text not null default 'not_assessed'/);
+ assert.match(sql,/role_suggestion='trader_distributor'|trader_distributor/);
+ assert.match(sql,/rights_review/);
+ assert.match(sql,/needs_followup/);
+ assert.match(sql,/no_source_after_review/);
+ assert.match(sql,/from public,anon/);
+ assert.match(sql,/to authenticated/);
+});
