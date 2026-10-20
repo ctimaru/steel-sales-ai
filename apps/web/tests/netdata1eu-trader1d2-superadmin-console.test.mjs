@@ -43,7 +43,7 @@ test("TRADER1D.2 preserves independent evidence dimensions, source rights and im
 });
 
 test("TRADER1D.2 fails closed when migration unavailable and lives only in owner menu", () => {
-  assert.match(route,/value\.contract === "trader1d2-superadmin-v1"/);
+  assert.match(route,/value\?\.contract === "trader1d2-superadmin-v1"/);
   assert.match(route,/Console non ancora attiva/);
   assert.match(route,/issue[s]?\/771/);
   assert.match(route,/25/);
