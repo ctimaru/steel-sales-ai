@@ -12,8 +12,12 @@ const workflow=readFileSync(new URL("../../../.github/workflows/p0-required-gate
 
 test("IDENTITY2D.3 immutable resolutions cannot merge, publish or create ownership",()=>{
  assert.match(migration,/create table private\.netit_identity_correction_resolutions/);
- assert.match(migration,/decision_key in \('owner_supported','owner_disputed'\)/);
- assert.match(migration,/unique references private\.netit_identity_correction_requests\(id\)/);
+ assert.match(migration,/decision_key in \('owner_supported','owner_disputed','owner_withdrawn'\)/);
+ assert.match(migration,/netit_identity2d3_request_history/);
+ assert.match(migration,/left join lateral/);
+ assert.match(migration,/pg_advisory_xact_lock/);
+ assert.match(migration,/interval '24 hours'/);
+ assert.match(migration,/request_id uuid not null references private\.netit_identity_correction_requests\(id\)/);
  assert.match(migration,/default false check \(not legal_identity_verified\)/);
  assert.match(migration,/default false check \(not automatic_publication\)/);
  assert.match(migration,/default false check \(not merge_performed\)/);
@@ -38,7 +42,7 @@ test("IDENTITY2D.3 owner resolution requires one-to-one Italian domain AND appro
  assert.match(migration,/m\.user_id=v_actor/);
  assert.match(migration,/m\.role='admin'/);
  assert.match(migration,/email_confirmed_at is not null/);
- assert.match(migration,/p_decision not in \('owner_supported','owner_disputed'\)/);
+ assert.match(migration,/p_decision not in \('owner_supported','owner_disputed','owner_withdrawn'\)/);
 });
 
 test("IDENTITY2D.3 query and writer guard private per-company data",()=>{
