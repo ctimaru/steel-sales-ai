@@ -9,6 +9,7 @@ const ui=read("../components/network-compact-experience.tsx");
 const live=read("../components/network-live-search.tsx");
 const page=read("../app/(italian)/(workspace)/network/page.tsx");
 const freePage=read("../components/free-network-directory.tsx");
+const conversation=read("../app/(italian)/(workspace)/network/conversation-actions.ts");
 
 test("DATA1B.4 enforces existing tenant gates and forbids anon",()=>{
  assert.match(sql,/private\.netux11_require_active_company\(p_organization_id\)/);
@@ -52,4 +53,12 @@ test("DATA1B.4 uses the same Free/Pro compact page and keeps filters when search
  assert.match(ui,/Priorità acciaio/);
  assert.match(live,/if\(filters\.steel\)query\.set\("steel",filters\.steel\)/);
  assert.match(live,/filters\.country,filters\.steel/);
+});
+
+test("DATA1B.4 conversation routes tube-company questions to sourced ranking and preserves unhandled qualifiers",()=>{
+ assert.match(conversation,/tubeEvidenceIntent/);
+ assert.match(conversation,/params=new URLSearchParams\(\{steel:"1",country:"IT"\}\)/);
+ assert.match(conversation,/tubeWithUnsupportedDetail/);
+ assert.match(conversation,/status:"clarify",mode:"safe_fallback"/);
+ assert.match(conversation,/Nessuna richiesta o ordine è stato creato/);
 });
