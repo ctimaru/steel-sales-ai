@@ -1,6 +1,6 @@
 import "server-only";
 
-import {getNetworkBrowsePage,getNetworkDiscoveredMarketPage, type FreeCompany, type NetworkBrowsePage} from "@/lib/network-free";
+import {getNetworkBrowsePage,getNetworkDiscoveredMarketPage,getNetworkSteelRelevancePage, type FreeCompany, type NetworkBrowsePage} from "@/lib/network-free";
 import {parseNetworkPage} from "@/components/network-pagination";
 import {searchNetwork} from "@/lib/network";
 import {withCompactGeoEvidence} from "@/lib/network-compact-geo";
@@ -13,12 +13,12 @@ import {isSupportedNetworkCountry} from "@/lib/network-eu-countries";
 export const COMPACT_NETWORK_PAGE_SIZE=6;
 export type CompactNetworkFilters={
   q?:string;role?:string;region?:string;persona?:string;np?:string;
-  product?:string;capability?:string;market?:string;country?:string;
+  product?:string;capability?:string;market?:string;country?:string;steel?:string;
 };
 export type CompactNetworkPage={
   items:FreeCompany[];total:number;published:number;discovered:number;
   page:number;pages:number;first:number;last:number;discoveryUnavailable:boolean;
-  technicalOnly?:boolean;marketEvidence?:boolean;capabilityLabels?:Record<string,string[]>;
+  technicalOnly?:boolean;marketEvidence?:boolean;steelMode?:boolean;steelEvidenceTotal?:number;capabilityLabels?:Record<string,string[]>;
 };
 /** Normalize URL-originated geographic facets before any Free/Pro data query.
  * Region names here belong to Italy; never combine them with a foreign country.
@@ -64,6 +64,26 @@ export async function getCompactNetworkPage(
   organizationId:string,access:"free"|"pro",filters:CompactNetworkFilters,
 ):Promise<CompactNetworkPage>{
   filters=normalizeCompactGeoFilters(filters);
+  // DATA1B.4: intentional opt-in ranking; do not ignore technical facets.
+  // Full source ordering is computed in SQL before limit/offset, not in the browser.
+  const steelMode=filters.steel==="1" && !filters.product && !filters.capability &&
+    !filters.market && (!filters.country || filters.country==="IT");
+  if(steelMode){
+    const requestedPage=parseNetworkPage(filters.np);
+    const first=await getNetworkSteelRelevancePage(organizationId,access,{
+      q:filters.q,role:filters.role,region:filters.region,offset:0,limit:COMPACT_NETWORK_PAGE_SIZE,
+    });
+    const pages=Math.max(1,Math.ceil(first.total/COMPACT_NETWORK_PAGE_SIZE));
+    const page=Math.min(requestedPage,pages);
+    const offset=(page-1)*COMPACT_NETWORK_PAGE_SIZE;
+    const selected=page===1?first:await getNetworkSteelRelevancePage(organizationId,access,{
+      q:filters.q,role:filters.role,region:filters.region,offset,limit:COMPACT_NETWORK_PAGE_SIZE,
+    });
+    return {items:selected.items,total:selected.total,published:selected.published,
+      discovered:selected.discovered,page,pages,
+      first:selected.total?offset+1:0,last:Math.min(offset+COMPACT_NETWORK_PAGE_SIZE,selected.total),
+      discoveryUnavailable:false,technicalOnly:true,steelMode:true,steelEvidenceTotal:selected.evidenceTotal};
+  }
   const technicalOnly=Boolean(filters.product||filters.capability||filters.market||
     (filters.country && filters.country.toUpperCase()!=="IT"));
   // DATA1C: a market-only search spans BOTH published and sourced provisional
