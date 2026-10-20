@@ -1,6 +1,34 @@
 -- NET-UX DATA1B.5: dynamic, platform-only, read-only 508+ steel source coverage.
 -- IMPORTANT: count of source evidence is not number of legally verified companies.
 -- No scan, claim, publication, credential exposure, or manual review implied.
+-- Existing identity/rights conflicts stay on manual hold, NEVER scanned by default.
+-- Holds are conservative workflow blockers; they do not decide legal identity or license.
+create table if not exists private.netdata1b5_source_holds (
+ entity_kind text not null check (entity_kind in ('canonical','discovered')),
+ entity_id uuid not null,
+ hold_reason text not null check (hold_reason in ('identity_conflict','rights_review')),
+ note text not null check (length(note) between 12 and 300),
+ created_at timestamptz not null default now(),
+ primary key(entity_kind,entity_id)
+);
+alter table private.netdata1b5_source_holds enable row level security;
+revoke all on private.netdata1b5_source_holds from public,anon,authenticated;
+grant select on private.netdata1b5_source_holds to service_role;
+comment on table private.netdata1b5_source_holds is
+ 'DATA1B.5 manual hold: no auto scan, promotion, company identity assertion or license clearance.';
+with manual_holds(kind,domain,name,reason,note) as (values
+ ('discovered','cmscinox.it','CMC Costruzioni Metalliche','identity_conflict','Nome scheda CMC e sito CMSC richiedono riconciliazione societaria prima di ogni import.'),
+ ('discovered','tekna.it','Tekna S.p.A.','identity_conflict','Relazione tra Tekna e Voilap da riconciliare prima di attribuire informazioni societarie.'),
+ ('discovered','orsigroup.it','ORSI Group S.r.l.','rights_review','Condizioni di riutilizzo sito da verificare: nessun crawling o ripubblicazione automatica.'),
+ ('discovered','carraro.com','Carraro Group','rights_review','Condizioni di riutilizzo sito da verificare prima di estrarre evidenze industriali.'),
+ ('discovered','dallara.it','Dallara','rights_review','Condizioni di riutilizzo sito da verificare prima di estrarre evidenze industriali.')
+)
+insert into private.netdata1b5_source_holds(entity_kind,entity_id,hold_reason,note)
+select m.kind,d.id,m.reason,m.note from manual_holds m
+join private.netfast_discovered_records d on m.kind='discovered'
+ and d.domain=m.domain and d.company_name=m.name
+on conflict do nothing;
+
 create or replace function public.netdata1b5_coverage_queue(
  p_limit integer default 25,
  p_offset integer default 0,
@@ -41,8 +69,12 @@ begin
  ), marked as (
    select x.*,
      (x.website_url ~ '^https://[^/?#[:space:]]+' and x.domain_norm<>''
-       and x.site_host=x.domain_norm and x.domain_uses=1) as scan_candidate,
-     case when x.domain_uses>1 then 'shared_domain_identity_review'
+       and x.site_host=x.domain_norm and x.domain_uses=1
+       and h.entity_id is null) as scan_candidate,
+     h.hold_reason,
+     case when h.hold_reason='identity_conflict' then 'identity_hold_manual_review'
+       when h.hold_reason='rights_review' then 'source_reuse_rights_hold'
+       when x.domain_uses>1 then 'shared_domain_identity_review'
        when x.site_host<>x.domain_norm or x.website_url !~ '^https://' then 'needs_official_site'
        when x.source_backed then 'technical_source_candidate_or_accepted'
        else 'needs_technical_source' end source_state,
@@ -50,6 +82,7 @@ begin
        '(tub(i|o|if|olari)|steel|metall|acciai|carpenter|curv|sald|pieg|pontegg|rimorch|serre|scaff|struttur|agri|macchin)'
        then 0 else 1 end as priority_band
    from candidates x
+   left join private.netdata1b5_source_holds h on h.entity_id=x.id and h.entity_kind=x.kind
  ), chosen as (
    select * from marked
    where not p_only_missing or not source_backed
@@ -67,6 +100,7 @@ begin
    'accepted_source_profiles',(select count(*)::integer from marked where accepted_evidence),
    'missing_technical',(select count(*)::integer from marked where not source_backed),
    'shared_domain_profiles',(select count(*)::integer from marked where domain_uses>1),
+   'explicit_governance_holds',(select count(*)::integer from marked where hold_reason is not null),
    'scan_candidates',(select count(*)::integer from marked where scan_candidate and not source_backed),
    'selected_total',(select count(*)::integer from marked where not p_only_missing or not source_backed),
    'source_rights_verified',false,
@@ -79,7 +113,8 @@ begin
      'source_state',q.source_state,
      'technical_source_present',q.source_backed,
      'accepted_source_present',q.accepted_evidence,
-     'reuse_rights','not_assessed',
+     'reuse_rights',case when q.hold_reason='rights_review' then 'requires_review' else 'not_assessed' end,
+     'governance_hold',q.hold_reason,
      'company_identity_verified',false,
      'commercial_capability_verified',false,
      'priority_band',q.priority_band
