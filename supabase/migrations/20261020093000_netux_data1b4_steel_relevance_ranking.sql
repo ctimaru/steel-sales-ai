@@ -42,9 +42,9 @@ begin
      order by ra.is_primary desc,ra.id limit 1
    ) r on true
    left join lateral (
-     select city,region from public.network_facilities
-     where company_id=c.id and publication_status='published' and archived_at is null
-     order by created_at,id limit 1
+     select f2.city,f2.region from public.network_facilities f2
+     where f2.company_id=c.id and f2.publication_status='published' and f2.archived_at is null
+     order by f2.created_at,f2.id limit 1
    ) f on true
    where c.publication_status='published' and c.archived_at is null
    union all
@@ -57,9 +57,9 @@ begin
    from private.netfast_discovered_records d
    left join public.network_company_roles rr on rr.canonical_key=d.role_key and rr.status='active'
    left join lateral (
-     select city,region from public.network_neteima2_provisional_geo
-     where target_id=d.id and status='source_observed'
-     order by created_at desc,id limit 1
+     select g2.city,g2.region from public.network_neteima2_provisional_geo g2
+     where g2.target_id=d.id and g2.status='source_observed'
+     order by g2.created_at desc,g2.city,g2.region limit 1
    ) g on true
  ), unique_sources as (
    select v.*,count(*) over(partition by lower(coalesce(v.domain,''))) as domain_uses
