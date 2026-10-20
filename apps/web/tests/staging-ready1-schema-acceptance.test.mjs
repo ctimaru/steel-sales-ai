@@ -54,9 +54,12 @@ test("guard fails closed for production, spoofed hosts and missing confirmation"
   }
 });
 
-test("remote write is manual-only, plan precedes apply, no local CI baseline is committed", () => {
+test("push is branch-scoped dry-run; remote write is manual-only", () => {
   assert.match(workflow, /workflow_dispatch:/);
-  assert.doesNotMatch(workflow, /\n  pull_request:|\n  push:/);
+  assert.match(workflow, /push:\\n    branches:\\n      - feat\\/staging-ready1-isolated-schema-acceptance/);
+  assert.doesNotMatch(workflow, /\\n  pull_request:/);
+  assert.match(workflow, /github.event_name == 'push' && 'plan'/);
+  assert.match(workflow, /github.event_name == 'workflow_dispatch' && inputs.run_mode == 'apply'/);
   assert.match(workflow, /STAGING_READY1_DB_URL: \$\{\{ secrets\.STAGING_READY1_DB_URL \}\}/);
   assert.match(workflow, /supabase db push --db-url "\$STAGING_READY1_DB_URL" --dry-run/);
   assert.match(workflow, /if: inputs\.run_mode == 'apply'/);
