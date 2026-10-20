@@ -46,6 +46,7 @@ test("guard fails closed for production, spoofed hosts and missing confirmation"
     [`postgresql://postgres.${production}:secret@aws-0-eu-west-3.pooler.supabase.com:5432/postgres`, staging, "plan"],
     [direct + "?host=db." + production + ".supabase.co", staging, "plan"],
     [direct + "?sslmode=disable", staging, "apply"],
+    [`postgresql://postgres:[YOUR-PASSWORD]@db.${staging}.supabase.co:5432/postgres`, staging, "plan"],
     ["", staging, "plan"],
   ]) {
     const outcome = check(url, ref, mode);
@@ -56,13 +57,13 @@ test("guard fails closed for production, spoofed hosts and missing confirmation"
 
 test("push is branch-scoped dry-run; remote write is manual-only", () => {
   assert.match(workflow, /workflow_dispatch:/);
-  assert.match(workflow, /push:\\n    branches:\\n      - feat\\/staging-ready1-isolated-schema-acceptance/);
-  assert.doesNotMatch(workflow, /\\n  pull_request:/);
+  assert.match(workflow, /push:\n    branches:\n      - feat\/staging-ready1-isolated-schema-acceptance/);
+  assert.doesNotMatch(workflow, /\n  pull_request:/);
   assert.match(workflow, /github.event_name == 'push' && 'plan'/);
   assert.match(workflow, /github.event_name == 'workflow_dispatch' && inputs.run_mode == 'apply'/);
   assert.match(workflow, /STAGING_READY1_DB_URL: \$\{\{ secrets\.STAGING_READY1_DB_URL \}\}/);
   assert.match(workflow, /supabase db push --db-url "\$STAGING_READY1_DB_URL" --dry-run/);
-  assert.match(workflow, /if: inputs\.run_mode == 'apply'/);
+  assert.match(workflow, /if: github\.event_name == 'workflow_dispatch' && inputs\.run_mode == 'apply'/);
   assert.match(workflow, /supabase db push --db-url "\$STAGING_READY1_DB_URL" --yes/);
   assert.ok(workflow.indexOf("Check target identity") < workflow.indexOf("Plan all remote"));
   assert.ok(workflow.indexOf("Plan all remote") < workflow.indexOf("Apply schema"));
