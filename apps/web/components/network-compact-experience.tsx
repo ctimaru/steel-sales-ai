@@ -1,6 +1,8 @@
 import {NetworkCountryFlag} from "@/components/network-country-flag";
 import {NetworkCountryRegionFilters} from "@/components/network-country-region-filters";
 import {networkCountryName} from "@/lib/network-eu-countries";
+import {europeNutsRegionName} from "@/lib/network-eu-regions";
+import type {EuropeRegionCoverage} from "@/lib/network-europe-regional";
 import {NetworkLiveSearch} from "@/components/network-live-search";
 import {NetworkConversation} from "@/components/network-conversation";
 import Link from "next/link";
@@ -13,6 +15,7 @@ type Props={
   accessMode:"free"|"pro"; directory:CompactNetworkPage; filters:CompactNetworkFilters;
   userId:string;organizationId:string;canCompose:boolean;
   coverage?:ItalyRegionCoverage|null; provisionalCoverage?:ItalyProvisionalGeoCoverage|null;
+  europeCoverage?:EuropeRegionCoverage|null;
   regions?:string[]; capabilityLabels?:Record<string,string[]>; additionalFilters?:{
     products:{canonical_key:string;display_name:string}[];
     capabilities:{canonical_key:string;display_name:string}[];
@@ -137,7 +140,7 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
 }
 
 export function NetworkCompactExperience({
-  accessMode,directory,filters,userId,organizationId,canCompose,regions=[],additionalFilters,capabilityLabels={},
+  accessMode,directory,filters,userId,organizationId,canCompose,regions=[],europeCoverage,additionalFilters,capabilityLabels={},
 }:Props){
   const filterActive=Boolean(filters.q||filters.role||filters.region||filters.product||filters.capability||filters.market||filters.country||filters.steel);
   const knownTotals=!directory.discoveryUnavailable;
@@ -169,7 +172,7 @@ export function NetworkCompactExperience({
         </div>
       </div>
       <div className="hidden min-w-0 lg:block">
-        <NetworkEuropeanMap filters={filters}
+        <NetworkEuropeanMap filters={filters} coverage={europeCoverage}
           fullMapHref={accessMode==="pro"?"/network?advanced=1#network-regional-map":"/network?map=1#network-regional-map"}/>
       </div>
     </div>
@@ -178,7 +181,7 @@ export function NetworkCompactExperience({
         Mappa interattiva dell'Unione europea <span aria-hidden="true">⌄</span>
       </summary>
       <div className="px-3 pb-3">
-        <NetworkEuropeanMap filters={filters}
+        <NetworkEuropeanMap filters={filters} coverage={europeCoverage}
           fullMapHref={accessMode==="pro"?"/network?advanced=1#network-regional-map":"/network?map=1#network-regional-map"}/>
       </div>
     </details>
@@ -237,7 +240,9 @@ export function NetworkCompactExperience({
         </form>
         {filterActive?<Link href="/network" className="ui-action ui-action-secondary inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold">Azzera filtri</Link>:null}
       </div>
-      {technicalOnly?<p role="status" className="mt-2 text-[11px] leading-5 text-[#52615b]">
+      {directory.regionPublishedOnly?<p role="status" className="mt-2 text-[11px] leading-5 text-[#52615b]">
+        {directory.geoInvalid?"Regione europea non riconosciuta. Seleziona una regione valida dai filtri. Nessuna ricerca nazionale è stata eseguita.":"Area "+(europeNutsRegionName(filters.country||"",filters.region||"")||filters.region)+" · risultati limitati a sedi pubblicate associate con codice NUTS 2024 o nome ufficiale. L'assenza di risultati non dimostra che non esistano aziende nella regione."}
+      </p>:technicalOnly?<p role="status" className="mt-2 text-[11px] leading-5 text-[#52615b]">
         {directory.steelMode?
           "Priorità acciaio: ordinamento sull’intero Network per prove tecniche disponibili. Le fonti candidate sono indicative e non attestano acquisti di tubi, capacità produttiva, disponibilità o qualifica di fornitore.":
         directory.marketEvidence?
@@ -265,7 +270,7 @@ export function NetworkCompactExperience({
         <span>Azienda</span><span>Ruolo</span><span>Prodotti dichiarati</span><span>Capability</span><span>Località</span><span className="sr-only">Azione</span>
       </div>
       {directory.items.length?directory.items.map(company=><CompactCompanyRow key={company.id} company={company} capabilities={capabilityLabels[company.id]||[]}/>):
-        <div className="px-4 py-9 text-center text-sm text-[#52615b]">Nessuna azienda trovata. Prova un altro nome o azzera i filtri.</div>}
+        <div className="px-4 py-9 text-center text-sm text-[#52615b]">{directory.regionPublishedOnly?"Nessuna sede pubblicata mappata per questa selezione; la copertura geografica del Network è ancora parziale.":"Nessuna azienda trovata. Prova un altro nome o azzera i filtri."}</div>}
       <p className="border-t border-[#e8eeeb] bg-[#f9fbfa] px-4 py-2 text-[11px] leading-5 text-[#52615b]">
         I profili comprendono aziende registrate e dati raccolti da fonti pubbliche. Per verifiche, fonti e rivendicazione apri il profilo. Le connessioni sono disponibili solo verso aziende attive.
         {directory.discoveryUnavailable?" Alcune aziende censite sono temporaneamente indisponibili.":""}

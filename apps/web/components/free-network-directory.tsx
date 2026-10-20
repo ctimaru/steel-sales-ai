@@ -1,6 +1,7 @@
 import {getNetworkTaxonomy} from "@/lib/network";
 import {NetworkCompactExperience} from "@/components/network-compact-experience";
 import {getCompactNetworkPage,normalizeCompactGeoFilters} from "@/lib/network-compact-directory";
+import {getEuropeRegionCoverage} from "@/lib/network-europe-regional";
 import Link from "next/link";
 import {NetworkCompanyGrowthEntry} from "@/components/network-company-growth-entry";
 import {NetworkReadyConnections} from "@/components/network-ready-connections";
@@ -51,15 +52,17 @@ export async function FreeNetworkDirectoryView({
     product:filters.product,capability:filters.capability,market:filters.market,country:filters.country,steel:filters.steel});
   const compact=filters.map==="1"?null:await getCompactNetworkPage(organizationId,"free",compactFilters).catch(()=>null);
   if(compact){
-    const [compactCoverage,compactProvisional,compactTaxonomy]=await Promise.all([
+    const [compactCoverage,compactProvisional,compactTaxonomy,europeCoverage]=await Promise.all([
       getItalyRegionCoverage(organizationId).catch(()=>null),
       getItalyProvisionalGeoCoverage(organizationId,"free").catch(()=>null),
       getNetworkTaxonomy().catch(()=>({roles:[],products:[],capabilities:[],markets:[]})),
+      compactFilters.country&&compactFilters.country!=="IT"?
+        getEuropeRegionCoverage(organizationId,"free",compactFilters.country).catch(()=>null):Promise.resolve(null),
     ]);
     return <FocusPage className="max-w-[1560px]">
       <NetworkCompactExperience accessMode="free" directory={compact}
         userId={userId} organizationId={organizationId} canCompose={canCompose}
-        filters={compactFilters} coverage={compactCoverage}
+        filters={compactFilters} coverage={compactCoverage} europeCoverage={europeCoverage}
         provisionalCoverage={compactProvisional}
         regions={compactCoverage?.regions.map(r=>r.name)||[]}
         capabilityLabels={compact.capabilityLabels}
