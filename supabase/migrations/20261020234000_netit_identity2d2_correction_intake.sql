@@ -4,7 +4,8 @@
 
 create table private.netit_identity_correction_requests (
   id uuid primary key default gen_random_uuid(),
-  discovery_id uuid not null references private.netfast_discovered_records(id),
+  -- netfast_discovered_records is a private VIEW (not FK-eligible); RPC checks the UUID.
+  discovery_id uuid not null,
   organization_id uuid not null references public.organizations(id),
   submitted_by uuid not null references auth.users(id),
   field_key text not null check (field_key in ('company_name','website_domain','location','brand_group')),
