@@ -52,7 +52,7 @@ test("Identity2D.2 UI is discovered-only with no claim or legal publication",()=
  assert.match(route,/type="url"/);
  assert.match(route,/type="checkbox"/);
  assert.match(route,/ui-action-primary/);
- assert.match(profile,/isWorkspaceAdmin \? <Link href=\{"\/network\/"\+companyId\+"\/suggest-correction"\}/);
+ assert.match(profile,/provisional && isWorkspaceAdmin \? <Link href=\{"\/network\/"\+companyId\+"\/suggest-correction"\}/);
  assert.match(action,/requireWorkspaceAdmin\(\)/);
  assert.match(action,/p_organization_id:context\.organizationId/);
  assert.match(action,/netit_identity2d2_submit_correction/);
