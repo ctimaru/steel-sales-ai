@@ -95,6 +95,12 @@ export default async function CompanyDiscoveryPage({
               Importa aziende CSV
             </Link>
             <Link
+              href="/platform/company-discovery/italian-identities"
+              className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
+            >
+              Identità aziende · Italia
+            </Link>
+            <Link
               href="/platform/company-discovery/steel-coverage"
               className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
             >
