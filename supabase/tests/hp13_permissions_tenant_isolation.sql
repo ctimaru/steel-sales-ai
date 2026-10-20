@@ -260,6 +260,8 @@ select pg_temp.hp13_assert(
         -- NET-UX DATA1B.4: audited, bounded Free/Pro steel ranking over sourced
         -- companies only; URL/domain matching and no candidate promotion.
         'netdata1b4_steel_relevance_page',
+        -- DATA1B.5: Platform-only, read-only, bounded 508+ coverage queue.
+        'netdata1b5_coverage_queue',
         'netdata1c_review_market',
         'netdata1c_market_review_queue',
         'netdata1c_market_discovery_page',
