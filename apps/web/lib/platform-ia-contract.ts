@@ -77,11 +77,6 @@ export const PLATFORM_IA_MODULES = [
     placement: "secondary", rollout: "ready_for_plr2",
   },
   {
-    key: "italianIdentities", href: "/platform/company-discovery/italian-identities", label: "Identità italiane candidate",
-    area: "network", access: { kind: "permission", key: "discovery.read" },
-    placement: "secondary", rollout: "ready_for_plr2",
-  },
-  {
     key: "claims", href: appRoutes.platform.claims, label: "Rivendicazioni profili",
     area: "network", access: { kind: "permission", key: "claims.read" },
     placement: "primary", rollout: "ready_for_plr2",
@@ -162,6 +157,7 @@ export const PLATFORM_IA_ROUTE_INVENTORY = [
   { path: "/platform/company-discovery/governance", module: "discovery" },
   { path: "/platform/company-discovery/geo-review", module: "discovery" },
   { path: "/platform/company-discovery/geo-review/municipalities", module: "discovery" },
+  { path: "/platform/company-discovery/italian-identities", module: "discovery" },
   { path: "/platform/company-discovery/market-review", module: "discovery" },
   { path: "/platform/company-discovery/steel-coverage", module: "discovery" },
   { path: "/platform/company-discovery/trader-verification", module: "traderVerification" },
