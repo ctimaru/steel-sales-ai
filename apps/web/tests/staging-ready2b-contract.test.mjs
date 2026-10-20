@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 const read = (p) => readFileSync(new URL(p,import.meta.url),"utf8");
@@ -68,4 +70,12 @@ test("STAGING-READY2B browser compares tenants, protected previews and both view
   assert.match(browser,/\/commercial\?item=campaign:/);
   assert.match(browser,/Horizontal overflow/);
   assert.doesNotMatch(browser,/screenshot\(|video:|trace:|www\.smartsteelsales\.com/);
+});
+
+test("hosted QA entrypoints parse under Node 22 before any hosted writes",()=>{
+  for(const file of ["staging-ready2b-fixtures.mjs","staging-ready2b-chrome-auth.mjs"]){
+    const input=fileURLToPath(new URL("./"+file,import.meta.url));
+    const result=spawnSync(process.execPath,["--check",input],{encoding:"utf8"});
+    assert.equal(result.status,0,file+" syntax rejected: "+result.stderr);
+  }
 });
