@@ -10,7 +10,7 @@ begin
  end if;
  if pg_get_functiondef(f) not like '%private.require_platform_permission%'
     or lower(pg_get_functiondef(f)) not like '%security definer%'
-    or pg_get_functiondef(f) not like '%set search_path%'
+    or lower(pg_get_functiondef(f)) not like '%set search_path%'
     or pg_get_functiondef(f) not like '%source_rights_verified%' then
    raise exception 'DATA1B.5 source governance guard missing';
  end if;
