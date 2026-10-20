@@ -110,6 +110,15 @@ export async function askNetworkConversation(
       href:"/commercial?compose=1#commercial-compose",
     };
   }
+  // Material / geometry qualifiers cannot be silently replaced by a generic steel tier.
+  const tubeWithUnsupportedDetail=/(tub(i|o|olari|olare)|tubular|pipes?)/i.test(query) &&
+    /(inox|stainless|carbonio|galvanizz|zincat|corten|quadri|quadrati|rettangolari|tondi|saldati|seamless)/i.test(query);
+  if(tubeWithUnsupportedDetail){
+    return {status:"clarify",mode:"safe_fallback",
+      answer:"Hai indicato caratteristiche specifiche dei tubi che il ranking industriale non può ancora filtrare con certezza. "+
+        "Posso mostrarti la rilevanza generica per l'acciaio, ma non presentarla come corrispondenza al materiale o alla geometria richiesti. "+
+        "Per requisiti precisi usa i filtri tecnici pubblicati o Commerciale → Nuova RFQ."};
+  }
   if(hasUnmappableConditions(query)){
     return {
       status:"clarify",mode:"safe_fallback",
