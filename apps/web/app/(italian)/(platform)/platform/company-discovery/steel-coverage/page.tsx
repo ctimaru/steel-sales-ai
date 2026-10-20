@@ -11,12 +11,14 @@ type CompanyAuditRow={
  technical_source_present:boolean;accepted_source_present:boolean;
  company_identity_verified:false;commercial_capability_verified:false;
  reuse_rights:"not_assessed"|"requires_review";governance_hold:string|null;priority_band:number;
+ audit_outcome:string|null;audit_source_url:string|null;role_suggestion:string|null;
 };
 type Coverage={
  contract:"netux-data1b5-source-coverage-v1";
  total:number;published:number;discovered:number;source_backed:number;
  accepted_source_profiles:number;missing_technical:number;shared_domain_profiles:number;
  scan_candidates:number;explicit_governance_holds:number;selected_total:number;source_rights_verified:false;
+ source_assessed_profiles:number;audit_followup_profiles:number;role_suggestions_pending:number;
  companies_verified_by_data1b5:0;items:CompanyAuditRow[];
 };
 const intPage=(v:string|undefined)=>v&&/^\d{1,4}$/.test(v)&&+v>0&&+v<=400?+v:1;
@@ -49,11 +51,16 @@ export default async function SteelCompanyCoveragePage({searchParams}:{
  const valid=!error&&v?.contract==="netux-data1b5-source-coverage-v1"&&
    Number.isInteger(v.total)&&Number.isInteger(v.source_backed)&&
    v.total===v.published+v.discovered&&
-   v.total===v.source_backed+v.missing_technical&&Array.isArray(v.items)&&v.items.length<=SIZE;
+   v.total===v.source_backed+v.missing_technical&&
+   Number.isInteger(v.source_assessed_profiles)&&Number.isInteger(v.audit_followup_profiles)&&
+   Number.isInteger(v.role_suggestions_pending)&&
+   v.source_assessed_profiles>=0&&v.source_assessed_profiles<=v.total&&
+   Array.isArray(v.items)&&v.items.length<=SIZE;
  const snapshot=valid?v:null;
  const pages=snapshot?Math.max(1,Math.ceil(snapshot.selected_total/SIZE)):1;
  const page=Math.min(requested,pages);
  const pct=snapshot?.total?Math.round(snapshot.source_backed/snapshot.total*1000)/10:0;
+ const auditPct=snapshot?.total?Math.round(snapshot.source_assessed_profiles/snapshot.total*1000)/10:0;
  const items=page===requested?snapshot?.items||[]:[];
  const mode=onlyMissing?"missing":"all";
  return <main className="mx-auto w-full max-w-[1340px] space-y-4 px-4 py-6" data-testid="network-steel-coverage-cockpit">
@@ -72,10 +79,12 @@ export default async function SteelCompanyCoveragePage({searchParams}:{
   {!snapshot?<p role="alert" className="rounded-xl border border-[#e5c8a4] bg-white p-4 text-sm text-[#7b4b1b]">
    Copertura non disponibile: controlla la migrazione DATA1B.5 e la permission Platform. Nessun valore mancante viene interpretato come zero.
   </p>:<>
-   <section aria-label="Stato copertura industriale" className="grid grid-cols-2 gap-2 md:grid-cols-4">
+   <section aria-label="Stato copertura industriale" className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-6">
     {[
       {name:"Schede Network",value:snapshot.total,note:snapshot.published+" pubblicate · "+snapshot.discovered+" censite"},
       {name:"Con fonte tecnica",value:snapshot.source_backed,note:"Candidate o accettate, non certificate"},
+      {name:"Fonti esaminate",value:snapshot.source_assessed_profiles,note:"Visita documentata, non accettazione"},
+      {name:"Da approfondire",value:snapshot.audit_followup_profiles,note:"Verifica sospesa, non fonte assente"},
       {name:"Senza evidenza",value:snapshot.missing_technical,note:"Nessuna prova tecnica registrata"},
       {name:"Blocchi governance",value:snapshot.shared_domain_profiles+snapshot.explicit_governance_holds,note:snapshot.shared_domain_profiles+" domini condivisi · "+snapshot.explicit_governance_holds+" altri blocchi"},
     ].map(metric=><article key={metric.name} className="min-w-0 rounded-xl border border-[#d7e3dc] bg-white p-3">
@@ -91,9 +100,16 @@ export default async function SteelCompanyCoveragePage({searchParams}:{
     </div>
     <progress className="mt-2 h-3 w-full accent-[#175640]" value={snapshot.source_backed} max={Math.max(1,snapshot.total)}
      aria-label="Aziende con evidenza tecnica privata candidata o accettata"/>
+    <div className="mt-3 flex items-center justify-between gap-2 text-xs">
+     <span className="font-semibold text-[#173f35]">Fonti effettivamente esaminate</span>
+     <span className="font-bold tabular-nums text-[#175640]">{snapshot.source_assessed_profiles}/{snapshot.total} · {auditPct}%</span>
+    </div>
+    <progress className="mt-2 h-2 w-full accent-[#175640]" value={snapshot.source_assessed_profiles} max={Math.max(1,snapshot.total)}
+     aria-label="Profili con visita documentale della fonte, non qualifica certificata"/>
     <p className="mt-2 text-[11px] leading-4 text-[#52615b]">
      {snapshot.scan_candidates} siti tecnicamente candidabili a verifica, non autorizzazioni al crawl.
      {snapshot.accepted_source_profiles} profili con almeno un attributo tecnico già accettato.
+     {snapshot.role_suggestions_pending} proposte di ruolo da riesaminare.
      Diritti di riutilizzo non accertati; nessuna certificazione aziendale prodotta da DATA1B.5.
     </p>
    </section>
@@ -119,7 +135,11 @@ export default async function SteelCompanyCoveragePage({searchParams}:{
       <p className="text-xs text-[#43524c]">{roleName(item.role_key)}</p>
       <div className="min-w-0">
        <p className="text-xs font-semibold text-[#173f35]">{stateName(item.source_state)}</p>
-       <p className="text-[11px] text-[#52615b]">Identità e diritti ancora da accertare</p>
+       {item.audit_outcome==="source_observed"?<p className="mt-0.5 text-[11px] font-semibold text-[#175640]">Fonte esaminata · diritti non verificati</p>:
+        item.audit_outcome==="needs_followup"?<p className="mt-0.5 text-[11px] font-semibold text-[#85541c]">Fonte da riesaminare · esito non conclusivo</p>:
+        <p className="text-[11px] text-[#52615b]">Verifica esterna non registrata</p>}
+       {item.role_suggestion&&item.role_suggestion!==item.role_key?<p className="mt-0.5 text-[11px] font-semibold text-[#85541c]">Ruolo suggerito: {roleName(item.role_suggestion)} · revisione richiesta</p>:null}
+       <p className="text-[11px] text-[#52615b]">Identità giuridica e riuso non certificati</p>
       </div>
       {safeNetworkWebsiteUrl(item.site)?<a target="_blank" rel="noopener noreferrer"
        href={safeNetworkWebsiteUrl(item.site)||"#"} className="ui-action ui-action-secondary inline-flex min-h-9 items-center justify-center rounded-lg px-3 text-xs font-semibold">Esamina sito ↗</a>:
