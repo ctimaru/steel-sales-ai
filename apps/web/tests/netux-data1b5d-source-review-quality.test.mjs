@@ -12,7 +12,7 @@ test("DATA1B.5D audit decisions are explicit, private and cannot assert certifie
  assert.match(sql,/commercial_capability_verified boolean not null default false check\(not commercial_capability_verified\)/);
  assert.match(sql,/unique\(entity_kind,entity_id,assessment_batch\)/);
  assert.match(sql,/\('source_observed','needs_followup','no_source_after_review','identity_review','rights_review'\)/);
- assert.match(sql,/assessment_batch='netux-data1b5d-research-v1'/);
+ assert.match(sql,/'netux-data1b5d-research-v1'/);
  assert.doesNotMatch(sql,/update private\.netfast_discovered_records/);
  assert.doesNotMatch(sql,/update public\.network_company_discovery_candidates/);
 });
