@@ -34,7 +34,9 @@ CREATE TABLE private.netdata1eu_trader_research (
  role_assertion text NOT NULL DEFAULT 'candidate'
    CHECK (role_assertion IN ('candidate','source_observed','reviewed')),
  canonical_company_id uuid REFERENCES public.network_companies(id),
- discovered_record_id uuid REFERENCES private.netfast_discovered_records(id),
+ -- netfast_discovered_records is a governed read VIEW (not a base table):
+ -- record its UUID as a reconciliation hint; audit on live view before linking.
+ discovered_record_id uuid,
  target_lead_id uuid REFERENCES public.network_core_target_leads(id),
  review_note text,
  created_at timestamptz NOT NULL DEFAULT now(),
