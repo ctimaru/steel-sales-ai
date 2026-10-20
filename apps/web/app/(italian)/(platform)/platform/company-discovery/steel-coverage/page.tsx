@@ -67,6 +67,7 @@ export default async function SteelCompanyCoveragePage({searchParams}:{
   <Link href="/platform/company-discovery" className="inline-flex min-h-10 items-center text-sm font-semibold text-[#175640] underline underline-offset-4">
    ← Discovery aziende
   </Link>
+  <div className="flex justify-end"><Link href="/platform/company-discovery/italian-identities" className="ui-action ui-action-secondary inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold">Relazioni societarie · Italia →</Link></div>
   <header className="rounded-2xl border border-[#d4e2da] bg-white p-4 sm:p-5">
    <p className="text-xs font-bold uppercase tracking-wider text-[#175640]">NET-UX DATA1B.5 · Company Intelligence</p>
    <h1 className="mt-1 text-2xl font-bold text-[#173f35]">Copertura industriale del Network</h1>
