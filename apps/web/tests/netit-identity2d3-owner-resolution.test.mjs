@@ -38,6 +38,7 @@ test("IDENTITY2D.3 owner resolution requires one-to-one Italian domain AND appro
  assert.match(migration,/c\.country_code='IT'/);
  assert.match(migration,/l\.link_status='active'/);
  assert.match(migration,/cl\.status='approved'/);
+ assert.match(migration,/cl\.proof_status='verified'/);
  assert.match(migration,/private\.netux11_require_active_company\(p_organization_id\)/);
  assert.match(migration,/m\.user_id=v_actor/);
  assert.match(migration,/m\.role='admin'/);
