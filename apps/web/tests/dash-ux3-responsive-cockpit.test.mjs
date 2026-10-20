@@ -21,7 +21,7 @@ test("DASH-FEED2 attention contains only actionable work and disappears when emp
   assert.doesNotMatch(home, /metrics\.reviewFlags > 0|href: appRoutes\.operations\.review/);
   assert.doesNotMatch(home, /recentRfq && canWrite/);
   assert.doesNotMatch(home, /title: "Aggiornamenti Network"/);
-  assert.match(home, /min-h-10 max-w-full items-center gap-2 rounded-lg/);
+  assert.match(home, /min-h-10 max-w-full flex-col gap-2 rounded-lg/);
 });
 
 test("DASH-FEED2 retains viewer isolation and approved Network entitlement", () => {
@@ -52,7 +52,7 @@ test("DASH-FEED2 retains governed procurement and deep links", () => {
     /procurementSummary\.active_rfqs/,
     /procurementSummary\.urgent/,
     /item\.rfq_id!/,
-    /appRoutes\.rfqHub\.campaign/,
+    /appRoutes\.commercial\.home \+ "\\?view=sent&item=campaign:"/,
     /procurement\.error/,
   ]) assert.match(home, pattern);
 });
