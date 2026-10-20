@@ -74,19 +74,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          psql "$STAGING_READY1_DB_URL" --no-psqlrc -X -v ON_ERROR_STOP=1 <<'SQL'
-          DO $
-          BEGIN
-            IF (SELECT count(*) FROM auth.users) > 0 THEN
-              RAISE EXCEPTION 'Unsafe staging state: existing auth users found';
-            END IF;
-            IF (SELECT count(*) FROM information_schema.tables
-                WHERE table_schema='public' AND table_type='BASE TABLE') > 0 THEN
-              RAISE EXCEPTION 'Unsafe staging state: existing public tables found';
-            END IF;
-          END;
-          $;
-          SQL
+          psql "$STAGING_READY1_DB_URL" --no-psqlrc -X -v ON_ERROR_STOP=1 \
+            -f supabase/tests/staging_ready1_pristine_guard.sql
       - name: Apply schema to isolated staging (explicit approval only)
         if: github.event_name == 'workflow_dispatch' && inputs.run_mode == 'apply'
         shell: bash
