@@ -141,7 +141,7 @@ BEGIN
     SELECT c.*,
       -- A positive record means evidence is ready for PLATFORM editorial
       -- inspection, NOT a legally verified/public company.
-      (c.identity_decision='accepted'
+      coalesce((c.identity_decision='accepted'
        AND c.role_decision='accepted'
        AND c.product_decision='accepted'
        AND c.domain_decision='accepted'
@@ -150,7 +150,7 @@ BEGIN
        AND c.source_rights='license_approved'
        AND c.legal_name IS NOT NULL AND c.legal_country_code IS NOT NULL
        AND c.legal_identity_evidence_url IS NOT NULL
-       AND c.research_state='ready_for_review') AS editorial_evidence_ready,
+       AND c.research_state='ready_for_review'),false) AS editorial_evidence_ready,
       array_remove(ARRAY[
         CASE WHEN c.identity_decision IS DISTINCT FROM 'accepted'
           THEN 'legal_identity_review' END,
