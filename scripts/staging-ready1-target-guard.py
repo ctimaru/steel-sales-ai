@@ -21,11 +21,27 @@ def verify_target(project_ref: str, mode: str, database_url: str) -> None:
     if not database_url:
         raise ValueError("Missing GitHub Actions repository secret STAGING_READY1_DB_URL")
 
+    if any(marker in database_url.lower() for marker in (
+        "[your-password]", "[password]", "<password>", "your_database_password"
+    )):
+        raise ValueError(
+            "Supabase connection URL still contains a password placeholder; "
+            "replace it with the staging DB password (URL-encode special characters)"
+        )
+    if database_url != database_url.strip() or database_url.startswith(('"', "'")):
+        raise ValueError(
+            "GitHub secret must contain only the PostgreSQL URI, "
+            "without quotation marks, whitespace or line breaks"
+        )
     try:
         parsed = urlsplit(database_url)
         port = parsed.port
     except (ValueError, TypeError) as exc:
-        raise ValueError("Invalid staging database connection URL") from exc
+        raise ValueError(
+            "Invalid staging database URI: copy the Connection string from "
+            "Supabase Connect, replace the password placeholder and URL-encode "
+            "special characters in the password"
+        ) from exc
 
     hostname = (parsed.hostname or "").lower()
     username = unquote(parsed.username or "")
