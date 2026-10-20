@@ -10,13 +10,13 @@ type CompanyAuditRow={
  role_key:string|null;site:string|null;source_state:string;
  technical_source_present:boolean;accepted_source_present:boolean;
  company_identity_verified:false;commercial_capability_verified:false;
- reuse_rights:"not_assessed";priority_band:number;
+ reuse_rights:"not_assessed"|"requires_review";governance_hold:string|null;priority_band:number;
 };
 type Coverage={
  contract:"netux-data1b5-source-coverage-v1";
  total:number;published:number;discovered:number;source_backed:number;
  accepted_source_profiles:number;missing_technical:number;shared_domain_profiles:number;
- scan_candidates:number;selected_total:number;source_rights_verified:false;
+ scan_candidates:number;explicit_governance_holds:number;selected_total:number;source_rights_verified:false;
  companies_verified_by_data1b5:0;items:CompanyAuditRow[];
 };
 const intPage=(v:string|undefined)=>v&&/^\d{1,4}$/.test(v)&&+v>0&&+v<=400?+v:1;
@@ -26,6 +26,8 @@ const roleName=(key:string|null)=>({
  } as Record<string,string>)[key||""]||"Da confermare";
 const stateName=(key:string)=>({
  shared_domain_identity_review:"Dominio condiviso: verifica identità",
+ identity_hold_manual_review:"Identità societaria da riconciliare",
+ source_reuse_rights_hold:"Riuso della fonte bloccato, revisione necessaria",
  needs_official_site:"Fonte ufficiale da trovare",
  needs_technical_source:"Evidenza industriale mancante",
  technical_source_candidate_or_accepted:"Evidenza presente (stato separato)",
@@ -75,7 +77,7 @@ export default async function SteelCompanyCoveragePage({searchParams}:{
       {name:"Schede Network",value:snapshot.total,note:snapshot.published+" pubblicate · "+snapshot.discovered+" censite"},
       {name:"Con fonte tecnica",value:snapshot.source_backed,note:"Candidate o accettate, non certificate"},
       {name:"Senza evidenza",value:snapshot.missing_technical,note:"Nessuna prova tecnica registrata"},
-      {name:"Identità condivisa",value:snapshot.shared_domain_profiles,note:"Dominio comune: review separata"},
+      {name:"Blocchi governance",value:snapshot.shared_domain_profiles+snapshot.explicit_governance_holds,note:snapshot.shared_domain_profiles+" domini condivisi · "+snapshot.explicit_governance_holds+" altri blocchi"},
     ].map(metric=><article key={metric.name} className="min-w-0 rounded-xl border border-[#d7e3dc] bg-white p-3">
      <p className="text-[11px] font-semibold leading-4 text-[#52615b]">{metric.name}</p>
      <p className="mt-1 text-2xl font-bold tabular-nums text-[#173f35]">{metric.value.toLocaleString("it-IT")}</p>
