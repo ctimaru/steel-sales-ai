@@ -105,8 +105,8 @@ def main() -> int:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(output, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(output["summary"], sort_keys=True))
-    print("Top 25 local-source risk-priority cases (not semantic equivalence):")
-    for row in output["queue"][:25]:
+    print("All unresolved local-source risk-priority cases (not semantic equivalence):")
+    for row in output["queue"]:
         print(f"{row['priority']} {row['name']} "
               f"({row['local_version']} vs {row['remote_version']}) "
               f"[{','.join(row['local_source_indicators']) or 'none'}]")
