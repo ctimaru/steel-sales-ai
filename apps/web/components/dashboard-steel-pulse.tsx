@@ -131,7 +131,11 @@ export function DashboardSteelPulse({ state }: { state: DashboardPulseState }) {
         <a href="#dashboard-discovery" className="inline-flex min-h-10 items-center rounded-full border border-[#d1ded7] bg-white px-4 font-semibold text-[#245344] hover:bg-[#f2f7f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246a50]">
           Vai alle opportunità ↓
         </a>
-      </nav> : null}
+      </nav> : (
+        <a href="#dashboard-discovery" className="inline-flex min-h-10 self-start items-center rounded-lg border border-[#d1ded7] bg-white px-3 text-xs font-semibold text-[#245344] hover:bg-[#f2f7f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246a50]">
+          Vai alle opportunità ↓
+        </a>
+      )}
 
       {!state.available ? (
         <div role="status" className="rounded-xl border border-[#d3e0d8] bg-white px-4 py-3">
