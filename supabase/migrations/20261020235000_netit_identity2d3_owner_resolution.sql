@@ -4,11 +4,11 @@
 
 create table private.netit_identity_correction_resolutions (
  id uuid primary key default gen_random_uuid(),
- request_id uuid not null unique references private.netit_identity_correction_requests(id),
+ request_id uuid not null references private.netit_identity_correction_requests(id),
  canonical_company_id uuid not null references public.network_companies(id),
  organization_id uuid not null references public.organizations(id),
  actor_id uuid not null references auth.users(id),
- decision_key text not null check (decision_key in ('owner_supported','owner_disputed')),
+ decision_key text not null check (decision_key in ('owner_supported','owner_disputed','owner_withdrawn')),
  decision_note text not null check (char_length(decision_note) between 12 and 600),
  legal_identity_verified boolean not null default false check (not legal_identity_verified),
  automatic_publication boolean not null default false check (not automatic_publication),
@@ -16,6 +16,7 @@ create table private.netit_identity_correction_resolutions (
  created_at timestamptz not null default now()
 );
 create index netit_identity2d3_org_decisions on private.netit_identity_correction_resolutions(organization_id,created_at desc);
+create index netit_identity2d3_request_history on private.netit_identity_correction_resolutions(request_id,created_at desc,id desc);
 alter table private.netit_identity_correction_resolutions enable row level security;
 revoke all on table private.netit_identity_correction_resolutions from public,anon,authenticated;
 grant select on table private.netit_identity_correction_resolutions to service_role;
@@ -122,7 +123,10 @@ begin
      r.created_at,r.organization_id=p_organization_id as is_my_organization,
      d.decision_key,d.created_at as decided_at
    from private.netit_identity_correction_requests r
-   left join private.netit_identity_correction_resolutions d on d.request_id=r.id
+   left join lateral (
+     select e.decision_key,e.created_at from private.netit_identity_correction_resolutions e
+     where e.request_id=r.id order by e.created_at desc,e.id desc limit 1
+   ) d on true
    where r.discovery_id=p_discovery_id
      and (r.organization_id=p_organization_id or v_owner_company is not null)
    order by r.created_at desc,r.id desc
@@ -141,9 +145,10 @@ begin
      'id',id,'field_key',field_key,'proposed_value',proposed_value,
      'source_url',source_url,'evidence_note',evidence_note,
      'created_at',created_at,'is_my_organization',is_my_organization,
-     'resolution',coalesce(decision_key,'awaiting_owner'),
+     'resolution',case when decision_key='owner_withdrawn' or decision_key is null
+       then 'awaiting_owner' else decision_key end,
      'decided_at',decided_at,
-     'can_attest',v_owner_company is not null and decision_key is null
+     'can_attest',v_owner_company is not null
    ) order by created_at desc,id desc) from visible),'[]'::jsonb),
    'changes_published',0,'legal_identity_verifications',0,'new_claims',0
  ) into v_result;
@@ -165,12 +170,13 @@ declare
  v_request private.netit_identity_correction_requests%rowtype;
  v_owner uuid;
  v_id uuid;
+ v_last text;
 begin
  if v_actor is null or coalesce((select (auth.jwt()->>'is_anonymous')::boolean),false) then
    raise exception 'Authenticated company admin required' using errcode='42501';
  end if;
  if p_request_id is null or p_organization_id is null
-   or p_decision is null or p_decision not in ('owner_supported','owner_disputed')
+   or p_decision is null or p_decision not in ('owner_supported','owner_disputed','owner_withdrawn')
    or p_note is null or char_length(btrim(p_note)) not between 12 and 600 then
    raise exception 'Invalid company attestation' using errcode='22023';
  end if;
@@ -190,6 +196,22 @@ begin
  v_owner:=private.netit_identity2d3_owner_company(p_organization_id,v_request.discovery_id);
  if v_owner is null then
    raise exception 'Approved canonical company claim required' using errcode='42501';
+ end if;
+ -- Serialize decisions per correction and require a new event for any amendment.
+ perform pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended('netit2d3:'||p_request_id::text,0));
+ select e.decision_key into v_last from private.netit_identity_correction_resolutions e
+ where e.request_id=p_request_id order by e.created_at desc,e.id desc limit 1;
+ if p_decision='owner_withdrawn' and v_last is null then
+   raise exception 'No previous attestation to withdraw' using errcode='22023';
+ end if;
+ if v_last is not null and v_last=p_decision then
+   raise exception 'Identical attestation already recorded' using errcode='23505';
+ end if;
+ if (select count(*) from private.netit_identity_correction_resolutions e
+   where e.request_id=p_request_id and e.created_at>now()-interval '24 hours')>=3
+   or exists(select 1 from private.netit_identity_correction_resolutions e
+     where e.request_id=p_request_id and e.created_at>now()-interval '60 seconds') then
+   raise exception 'Attestation amendments are rate limited' using errcode='22023';
  end if;
  insert into private.netit_identity_correction_resolutions(
    request_id,canonical_company_id,organization_id,actor_id,decision_key,decision_note
