@@ -72,7 +72,7 @@ export const PLATFORM_IA_MODULES = [
   },
   {
     key: "traderVerification", href: "/platform/company-discovery/trader-verification",
-    label: "Verifica commercianti UE",
+    label: "Qualità automatica UE",
     area: "network", access: { kind: "owner_only" },
     placement: "secondary", rollout: "ready_for_plr2",
   },
