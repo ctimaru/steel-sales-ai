@@ -77,6 +77,11 @@ export const PLATFORM_IA_MODULES = [
     placement: "secondary", rollout: "ready_for_plr2",
   },
   {
+    key: "italianIdentities", href: "/platform/company-discovery/italian-identities", label: "Identità italiane candidate",
+    area: "network", access: { kind: "permission", key: "discovery.read" },
+    placement: "secondary", rollout: "ready_for_plr2",
+  },
+  {
     key: "claims", href: appRoutes.platform.claims, label: "Rivendicazioni profili",
     area: "network", access: { kind: "permission", key: "claims.read" },
     placement: "primary", rollout: "ready_for_plr2",
