@@ -38,7 +38,9 @@ test("EUROPE1B: country navigation preserves filters but never stale region or p
   assert.match(map,/export function europeMapCountryHref/);
   for(const key of ["q","role","persona","product","capability","market"])assert.ok(map.includes('"'+key+'"'));
   assert.match(map,/params\.set\("country",country\)/);
-  assert.doesNotMatch(map,/params\.set\("region"/);
+  const countryBuilder=map.split("export function europeMapCountryHref")[1].split("export function europeMapRegionHref")[0];
+  assert.doesNotMatch(countryBuilder,/params\.set\("region"/);
+  assert.match(map,/export function europeMapRegionHref/);
   assert.doesNotMatch(map,/params\.set\("np"/);
   assert.match(map,/router\.replace\(europeMapCountryHref\(filters,code\),\{scroll:false\}\)/);
   assert.match(countryFilters,/router\.replace\(/);

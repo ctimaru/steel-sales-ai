@@ -3,6 +3,7 @@
 import {useState} from "react";
 import {useRouter} from "next/navigation";
 import {EU_MEMBER_COUNTRIES,OTHER_NETWORK_COUNTRIES} from "@/lib/network-eu-countries";
+import {europeRegionsForCountry} from "@/lib/network-eu-regions";
 
 /** Country and region must share one state boundary. Italian regions are not
  * applicable to other countries; changing country clears any stale region.
@@ -13,8 +14,10 @@ export function NetworkCountryRegionFilters({
 }:{country?:string;region?:string;regions?:string[]}){
   const router=useRouter();
   const [selectedCountry,setSelectedCountry]=useState(country);
-  const [selectedRegion,setSelectedRegion]=useState(country==="IT"?region:"");
+  const [selectedRegion,setSelectedRegion]=useState(region);
   const italy=selectedCountry==="IT";
+  const foreignRegions=italy?[]:europeRegionsForCountry(selectedCountry);
+  const canSelectRegion=italy||foreignRegions.length>0;
   // URL is the shared contract for Free/Pro, live search and future map clicks.
   // Never carry an Italian region (or pagination) into another country.
   const navigateGeo=(nextCountry:string,nextRegion:string)=>{
@@ -42,15 +45,16 @@ export function NetworkCountryRegionFilters({
     <label className="min-w-0">
       <span className="sr-only">Regione</span>
       <select name="region" aria-label="Regione" aria-describedby="network-region-country-hint"
-        value={selectedRegion} disabled={!italy}
+        value={selectedRegion} disabled={!canSelectRegion}
         onChange={event=>{setSelectedRegion(event.target.value);navigateGeo(selectedCountry,event.target.value);}}
         className={inputStyle}>
-        <option value="">{italy?"Tutte le regioni":"Solo per Italia · regioni in arrivo"}</option>
-        {italy?regions.map(item=><option key={item} value={item}>{item}</option>):null}
+        <option value="">{canSelectRegion?"Tutte le regioni":"Regioni non disponibili"}</option>
+        {italy?regions.map(item=><option key={item} value={item}>{item}</option>):
+          foreignRegions.map(item=><option key={item.code} value={item.code}>{item.name}</option>)}
       </select>
     </label>
     <span id="network-region-country-hint" className="sr-only" role="status">
-      {italy?"Puoi filtrare per regione italiana.":"La ricerca per Paese è disponibile; le regioni estere saranno attivate dopo la classificazione geografica europea."}
+      {italy?"Puoi filtrare per regione italiana.":foreignRegions.length?"Aree statistiche Eurostat NUTS 2024. Filtra soltanto sedi pubblicate con geografia collegata.":"Nessuna classificazione regionale disponibile per questo Paese."}
     </span>
   </>;
 }

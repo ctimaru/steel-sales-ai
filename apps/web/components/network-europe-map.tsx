@@ -4,6 +4,8 @@ import {useEffect,useRef,useState} from "react";
 import {useRouter} from "next/navigation";
 import {EU_MEMBER_COUNTRIES,networkCountryName} from "@/lib/network-eu-countries";
 import type {CompactNetworkFilters} from "@/lib/network-compact-directory";
+import {europeRegionsForCountry,europeRegionForCountry} from "@/lib/network-eu-regions";
+import type {EuropeRegionCoverage} from "@/lib/network-europe-regional";
 import {EUROPE_COUNTRY_SHAPES,EUROPE_MAP_VIEWBOX} from "@/lib/network-europe-geometry";
 
 /** Same URL facets as the Network filters; never preserve Italian region or page
@@ -24,6 +26,11 @@ export function europeMapCountryHref(
 /** Zoom changes visualization only, NOT a search filter; never infer business
  * counts or facilities from map geometry.
  */
+export function europeMapRegionHref(filters:CompactNetworkFilters,country:string,region:string):string{
+  const params=new URLSearchParams(europeMapCountryHref(filters,country).split("?")[1].split("#")[0]);
+  params.set("region",region);
+  return "/network?"+params.toString()+"#network-results";
+}
 export function europeMapViewBox(code:string|null):string{
   const region=EUROPE_COUNTRY_SHAPES.find(x=>x.code===code);
   if(!region)return EUROPE_MAP_VIEWBOX;
@@ -37,7 +44,9 @@ export function europeMapViewBox(code:string|null):string{
 type MapProps={
   filters:CompactNetworkFilters;
   fullMapHref?:string;
+  coverage?:EuropeRegionCoverage|null;
 };
+type RegionOutline={code:string;name:string;path:string;bounds:number[]|null};
 
 type CanvasProps={
   filters:CompactNetworkFilters;
@@ -45,9 +54,12 @@ type CanvasProps={
   zoomCountry:string|null;
   compact:boolean;
   onSelect:(code:string)=>void;
+  regionShapes:RegionOutline[];
+  selectedRegion:string;
+  onSelectRegion:(code:string)=>void;
+  counts:Record<string,number>|null;
 };
-
-function EuropeCanvas({filters,selectedCountry,zoomCountry,compact,onSelect}:CanvasProps){
+function EuropeCanvas({filters,selectedCountry,zoomCountry,compact,onSelect,regionShapes,selectedRegion,onSelectRegion,counts}:CanvasProps){
   return <svg viewBox={europeMapViewBox(zoomCountry)}
     preserveAspectRatio="xMidYMid meet"
     role="group" aria-label="Mappa europea: scegli uno dei 27 Stati dell'Unione europea"
@@ -80,6 +92,24 @@ function EuropeCanvas({filters,selectedCountry,zoomCountry,compact,onSelect}:Can
         <title>{name} · Seleziona come filtro Paese</title>
       </a>;
     })}
+    {!compact&&zoomCountry&&zoomCountry!=="IT"&&zoomCountry===selectedCountry?regionShapes.map(region=>{
+      const count=counts?.[region.code];
+      return <a key={region.code} href={europeMapRegionHref(filters,zoomCountry,region.code)}
+        data-nuts-region={region.code}
+        aria-current={selectedRegion===region.code?"location":undefined}
+        aria-label={"Filtra "+region.name+" · "+(count===undefined?"copertura geografica non disponibile":count+" aziende con sede pubblicata mappata")}
+        className="group cursor-pointer outline-none"
+        onClick={event=>{
+          if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+          event.preventDefault();onSelectRegion(region.code);
+        }}>
+        <path d={region.path} fillRule="evenodd"
+          fill={selectedRegion===region.code?"#155c43":count?"#87bda4":"#d4e7da"}
+          stroke="#ffffff" strokeWidth={2} vectorEffect="non-scaling-stroke"
+          className="transition-colors group-hover:fill-[#398766] group-focus-visible:fill-[#398766] group-focus-visible:stroke-[#9b621e]"/>
+        <title>{region.name} · {count===undefined?"Copertura non disponibile":count+" sedi aziendali mappate"}</title>
+      </a>;
+    }):null}
   </svg>;
 }
 
@@ -87,7 +117,7 @@ function EuropeCanvas({filters,selectedCountry,zoomCountry,compact,onSelect}:Can
  * dialog supports Escape, close and a keyboard-accessible 27-country list.
  * Italy's verified-region map remains reachable without rewriting its data.
  */
-export function NetworkEuropeanMap({filters,fullMapHref}:MapProps){
+export function NetworkEuropeanMap({filters,fullMapHref,coverage}:MapProps){
   const router=useRouter();
   const selectedFromUrl=filters.country||"IT";
   const [requestedCountry,setRequestedCountry]=useState<string|null>(null);
@@ -95,6 +125,12 @@ export function NetworkEuropeanMap({filters,fullMapHref}:MapProps){
     filters.country && EUROPE_COUNTRY_SHAPES.some(x=>x.code===filters.country)?filters.country:null,
   );
   const [expanded,setExpanded]=useState(false);
+  const [regionShapes,setRegionShapes]=useState<RegionOutline[]>([]);
+  const [loadedRegionCountry,setLoadedRegionCountry]=useState<string|null>(null);
+  const availableRegions=europeRegionsForCountry(requestedCountry||selectedFromUrl);
+  const selectedRegion=filters.region||"";
+  const reliableCoverage=coverage?.country===(requestedCountry||selectedFromUrl)?coverage:null;
+  const regionCounts=reliableCoverage?Object.fromEntries(reliableCoverage.regions.map(r=>[r.code,r.count])):null;
   const dialogRef=useRef<HTMLDialogElement>(null);
   const country=requestedCountry||selectedFromUrl;
   const euSelected=EUROPE_COUNTRY_SHAPES.some(x=>x.code===country);
@@ -109,13 +145,37 @@ export function NetworkEuropeanMap({filters,fullMapHref}:MapProps){
     if(expanded&&!modal.open)modal.showModal();
     if(!expanded&&modal.open)modal.close();
   },[expanded]);
+  useEffect(()=>{
+    if(!expanded||!zoomCountry||zoomCountry==="IT"||!europeRegionsForCountry(zoomCountry).length){
+      setRegionShapes([]);setLoadedRegionCountry(null);return;
+    }
+    const code=zoomCountry;
+    const controller=new AbortController();
+    setRegionShapes([]);setLoadedRegionCountry(null);
+    fetch("/network-eu-regions/"+code+".json",{signal:controller.signal})
+      .then(response=>{if(!response.ok)throw new Error("Geometry unavailable");return response.json();})
+      .then((payload:{country?:string;regions?:RegionOutline[]})=>{
+        if(payload.country===code&&Array.isArray(payload.regions)){
+          setRegionShapes(payload.regions.filter(r=>typeof r.code==="string"&&typeof r.path==="string"));
+          setLoadedRegionCountry(code);
+        }
+      }).catch(()=>{if(!controller.signal.aborted){setRegionShapes([]);setLoadedRegionCountry(null);}});
+    return ()=>controller.abort();
+  },[expanded,zoomCountry]);
+  const chooseRegion=(code:string)=>{
+    if(!europeRegionForCountry(country,code))return;
+    router.replace(europeMapRegionHref(filters,country,code),{scroll:false});
+  };
   const choose=(code:string)=>{
     setRequestedCountry(code);
     setZoomCountry(code);
     router.replace(europeMapCountryHref(filters,code),{scroll:false});
   };
   const canvas=(compact:boolean)=><EuropeCanvas filters={filters} selectedCountry={country}
-    zoomCountry={zoomCountry} compact={compact} onSelect={choose}/>;
+    zoomCountry={zoomCountry} compact={compact} onSelect={choose}
+    selectedRegion={selectedRegion} onSelectRegion={chooseRegion}
+    counts={regionCounts}
+    regionShapes={!compact&&loadedRegionCountry===zoomCountry?regionShapes:[]}/>;
   const italyDetailHref=europeMapCountryHref(filters,"IT").replace("#network-results","")
     +(fullMapHref?.includes("advanced=1")?"&advanced=1":"&map=1")+"#network-regional-map";
   return <>
@@ -172,6 +232,25 @@ export function NetworkEuropeanMap({filters,fullMapHref}:MapProps){
           </div>
         </div>
         <div className="min-w-0">
+          {country!=="IT"&&availableRegions.length?<section aria-label="Regioni del Paese selezionato" className="mb-3">
+            <p className="mb-1.5 text-xs font-semibold text-[#173f35]">Aree statistiche NUTS 2024 · {countryLabel}</p>
+            <p className="mb-2 text-[11px] text-[#52615b]">Conteggi solo delle sedi pubblicate collegate, copertura parziale.</p>
+            <nav aria-label="Scegli area regionale" className="grid max-h-44 grid-cols-1 gap-1 overflow-y-auto">
+              {availableRegions.map(region=><a key={region.code}
+                href={europeMapRegionHref(filters,country,region.code)}
+                aria-current={selectedRegion===region.code?"page":undefined}
+                onClick={event=>{
+                  if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+                  event.preventDefault();chooseRegion(region.code);
+                }}
+                className={"flex min-h-9 items-center justify-between gap-2 rounded-lg px-2.5 text-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] "+
+                  (selectedRegion===region.code?"bg-[#165b43] text-white":"bg-[#f0f5f1] text-[#24543f] hover:bg-[#dcece2]")}>
+                <span className="truncate">{region.name}</span>
+                <span className="shrink-0 tabular-nums">{regionCounts?.[region.code]??"—"}</span>
+              </a>)}
+            </nav>
+          </section>:null}
+          {country==="IT"?<p className="mb-2 text-xs text-[#52615b]">Per l'Italia resta attiva la mappa delle 20 regioni amministrative.</p>:null}
           <p className="mb-2 text-xs font-semibold text-[#173f35]">Vai direttamente a un Paese</p>
           <nav aria-label="Elenco dei 27 Paesi europei" className="grid max-h-[400px] grid-cols-2 gap-1.5 overflow-y-auto lg:grid-cols-1">
             {EU_MEMBER_COUNTRIES.map(item=><a key={item.code}
@@ -192,7 +271,7 @@ export function NetworkEuropeanMap({filters,fullMapHref}:MapProps){
         </div>
       </div>
       <p className="px-5 pb-4 text-[11px] leading-5 text-[#52615b]">
-        Mappa di selezione, non densità di aziende. Per le regioni degli altri Paesi è in corso l'integrazione geografica EUROPE1C.
+        Mappa di selezione, non densità industriale: i confini NUTS 2024 sono disponibili per i Paesi UE, ma il Network include solo sedi pubblicate collegate per le ricerche regionali; l'assenza di risultati non significa assenza di aziende.
         Confini europei: © Eurostat/GISCO, NUTS 2024 (rielaborazione e ritaglio della vista europea),
         <a className="ml-1 underline" href="https://github.com/eurostat/Nuts2json" target="_blank" rel="noopener noreferrer">Nuts2json · EUPL 1.2 ↗</a>.
         La vista esclude le isole atlantiche remote e i territori d'oltremare; i filtri aziendali non ne sono modificati.

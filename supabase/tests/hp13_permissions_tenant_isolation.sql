@@ -272,7 +272,14 @@ select pg_temp.hp13_assert(
         -- SCHOOL-UNIFY6B reviewed: auth.uid-scoped UTC-day atomic AI cost meter.
         -- 3/user/day and 30/project/day; no prompts, audio or tenant data.
         -- Empty pinned search_path, anon revoke, RLS on private counter tables.
-        'school6b_claim_ai_budget'
+        'school6b_claim_ai_budget',
+        -- EUROPE1C security reviewed: read-only, pinned empty search_path,
+        -- explicit auth.uid() and Free/Pro organization entitlement guards.
+        -- Only published company + published facility rows; canonical NUTS
+        -- or exact published region; no private memory, PII, candidate data,
+        -- verification writes, claim changes or browser table grants.
+        'net_europe1c_region_search',
+        'net_europe1c_region_coverage'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'

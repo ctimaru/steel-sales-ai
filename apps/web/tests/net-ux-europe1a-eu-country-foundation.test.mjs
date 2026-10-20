@@ -36,5 +36,5 @@ test("EUROPE1A: Country before Region and native automatic navigation",()=>{
   assert.match(geo,/params\.delete\("region"\)/);
   assert.match(geo,/params\.delete\("np"\)/);
   assert.match(directory,/isSupportedNetworkCountry\(requested\)/);
-  assert.match(directory,/country&&country!=="IT"\?undefined:filters\.region/);
+  assert.match(directory,/country&&country!=="IT"\?filters.region\?\.trim\(\)\.toUpperCase\(\):filters\.region/);
 });

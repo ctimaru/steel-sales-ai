@@ -5,6 +5,8 @@ import {parseNetworkPage} from "@/components/network-pagination";
 import {searchNetwork} from "@/lib/network";
 import {withCompactGeoEvidence} from "@/lib/network-compact-geo";
 import {isSupportedNetworkCountry} from "@/lib/network-eu-countries";
+import {europeRegionForCountry} from "@/lib/network-eu-regions";
+import {getEuropeRegionalSearch} from "@/lib/network-europe-regional";
 
 /** NET-UX COMPACT1: one honest, stable server-side pagination across BOTH feeds.
  * Keep each existing RLS/entitlement-gated source and its original provenance.
@@ -19,6 +21,7 @@ export type CompactNetworkPage={
   items:FreeCompany[];total:number;published:number;discovered:number;
   page:number;pages:number;first:number;last:number;discoveryUnavailable:boolean;
   technicalOnly?:boolean;marketEvidence?:boolean;steelMode?:boolean;steelEvidenceTotal?:number;capabilityLabels?:Record<string,string[]>;
+  geoInvalid?:boolean;regionPublishedOnly?:boolean;
 };
 /** Normalize URL-originated geographic facets before any Free/Pro data query.
  * Region names here belong to Italy; never combine them with a foreign country.
@@ -27,7 +30,7 @@ export function normalizeCompactGeoFilters(filters:CompactNetworkFilters):Compac
   const requested=filters.country?.trim().toUpperCase();
   const legacyCountries=["IT","DE","FR","ES","US","GB","CH"];
   const country=requested&&(legacyCountries.includes(requested)||isSupportedNetworkCountry(requested))?requested:undefined;
-  return {...filters,country,region:country&&country!=="IT"?undefined:filters.region};
+  return {...filters,country,region:country&&country!=="IT"?filters.region?.trim().toUpperCase():filters.region};
 }
 
 export type SourceWindow={start:number;end:number};
@@ -64,6 +67,29 @@ export async function getCompactNetworkPage(
   organizationId:string,access:"free"|"pro",filters:CompactNetworkFilters,
 ):Promise<CompactNetworkPage>{
   filters=normalizeCompactGeoFilters(filters);
+  if(filters.country&&filters.country!=="IT"&&filters.region){
+    const region=europeRegionForCountry(filters.country,filters.region);
+    if(!region)return {
+      items:[],total:0,published:0,discovered:0,page:1,pages:1,first:0,last:0,
+      discoveryUnavailable:false,technicalOnly:true,geoInvalid:true,regionPublishedOnly:true,
+    };
+    const requestedPage=parseNetworkPage(filters.np);
+    const initial=await getEuropeRegionalSearch(organizationId,access,filters,requestedPage,COMPACT_NETWORK_PAGE_SIZE);
+    const total=Math.max(0,initial.total);
+    const pages=Math.max(1,Math.ceil(total/COMPACT_NETWORK_PAGE_SIZE));
+    const page=Math.min(requestedPage,pages);
+    const actual=page===requestedPage?initial:
+      await getEuropeRegionalSearch(organizationId,access,filters,page,COMPACT_NETWORK_PAGE_SIZE);
+    return {
+      items:actual.items,total,published:total,discovered:0,page,pages,
+      first:total?(page-1)*COMPACT_NETWORK_PAGE_SIZE+1:0,
+      last:Math.min(page*COMPACT_NETWORK_PAGE_SIZE,total),
+      discoveryUnavailable:false,technicalOnly:true,regionPublishedOnly:true,
+      capabilityLabels:Object.fromEntries(actual.items.map(company=>[
+        company.id,(company.capabilities||[]).map(cap=>cap.name),
+      ])),
+    };
+  }
   // DATA1B.4: intentional opt-in ranking; do not ignore technical facets.
   // Full source ordering is computed in SQL before limit/offset, not in the browser.
   const steelMode=filters.steel==="1" && !filters.product && !filters.capability &&

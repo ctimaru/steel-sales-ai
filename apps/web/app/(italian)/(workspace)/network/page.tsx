@@ -1,5 +1,6 @@
 import {NetworkCompactExperience} from "@/components/network-compact-experience";
 import {getCompactNetworkPage,normalizeCompactGeoFilters} from "@/lib/network-compact-directory";
+import {getEuropeRegionCoverage} from "@/lib/network-europe-regional";
 import Link from "next/link";
 import {NetworkCompanyGrowthEntry} from "@/components/network-company-growth-entry";
 import {NetworkReadyConnections} from "@/components/network-ready-connections";
@@ -143,14 +144,15 @@ export default async function NetworkDirectoryPage({
   if(!needsTechnicalFinder){
     const compact=await getCompactNetworkPage(context.organizationId,"pro",compactFilters).catch(()=>null);
     if(compact){
-      const [compactCoverage,compactProvisional,compactGeo,compactLegacyResults,compactTaxonomy]=await Promise.all([
+      const [compactCoverage,compactProvisional,compactGeo,compactLegacyResults,compactTaxonomy,europeCoverage]=await Promise.all([
         getItalyRegionCoverage(context.organizationId).catch(()=>null),
         getItalyProvisionalGeoCoverage(context.organizationId,"pro").catch(()=>null),
         getNetworkGeoFacets().catch(()=>({regions:[],cities:[],provinces:[]})),
         compact.technicalOnly?Promise.resolve({items:[],total:0}):searchNetwork({query:params.q,role:params.role,region:params.region,
           page:Math.max(1,Math.floor(((compact.page-1)*6)/18)+1)}).catch(()=>({items:[],total:0})),
         getNetworkTaxonomy().catch(()=>({roles:[],products:[],capabilities:[],markets:[]})),
-
+        compactFilters.country&&compactFilters.country!=="IT"?
+          getEuropeRegionCoverage(context.organizationId,"pro",compactFilters.country).catch(()=>null):Promise.resolve(null),
       ]);
       const capabilityLabels=compact.capabilityLabels??Object.fromEntries(compactLegacyResults.items.map(item=>[
         item.id,item.capabilities.map(cap=>cap.name),
@@ -159,7 +161,7 @@ export default async function NetworkDirectoryPage({
         <PilotEvent eventName="network_directory_viewed" metadata={{surface:"network_compact"}}/>
         <NetworkCompactExperience accessMode="pro" directory={compact} filters={compactFilters}
           userId={context.userId} organizationId={context.organizationId} canCompose={canWriteWorkspace(context.role)}
-          coverage={compactCoverage} provisionalCoverage={compactProvisional}
+          coverage={compactCoverage} provisionalCoverage={compactProvisional} europeCoverage={europeCoverage}
           regions={compactGeo.regions.length?compactGeo.regions:compactCoverage?.regions.map(r=>r.name)||[]}
           capabilityLabels={capabilityLabels}
           additionalFilters={{products:compactTaxonomy.products,capabilities:compactTaxonomy.capabilities,markets:compactTaxonomy.markets}}/>

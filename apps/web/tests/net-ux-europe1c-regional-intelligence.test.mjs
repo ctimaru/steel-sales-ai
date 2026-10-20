@@ -1,0 +1,45 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import ts from "typescript";
+const read=p=>readFileSync(new URL(p,import.meta.url),"utf8");
+const catalog=read("../lib/network-eu-regions.ts");
+const js=ts.transpileModule(catalog,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
+const runtime={exports:{}};new Function("module","exports",js)(runtime,runtime.exports);
+const {EUROPE_NUTS2024_REGIONS,europeRegionsForCountry,europeRegionForCountry}=runtime.exports;
+test("EUROPE1C catalogue: 27 countries, unique region identifiers and correct Germany/Belgium levels",()=>{
+ assert.equal(new Set(EUROPE_NUTS2024_REGIONS.map(x=>x.country)).size,27);
+ assert.equal(new Set(EUROPE_NUTS2024_REGIONS.map(x=>x.code)).size,EUROPE_NUTS2024_REGIONS.length);
+ assert.equal(europeRegionsForCountry("DE").length,16);
+ assert.equal(europeRegionsForCountry("BE").length,3);
+ assert.ok(europeRegionsForCountry("DE").every(x=>x.level===1));
+ assert.ok(europeRegionsForCountry("FR").every(x=>x.level===2));
+ assert.equal(europeRegionForCountry("DE","DE2")?.name,"Bayern");
+ assert.equal(europeRegionForCountry("GR","EL30")?.country,"GR");
+ assert.equal(europeRegionForCountry("FR","DE2"),undefined);
+});
+test("EUROPE1C region selection is real, safe and not passed to Italy-only M6 geo",()=>{
+ const filter=read("../components/network-country-region-filters.tsx");
+ const list=read("../lib/network-compact-directory.ts");
+ const server=read("../lib/network-europe-regional.ts");
+ assert.match(filter,/europeRegionsForCountry\(selectedCountry\)/);
+ assert.match(filter,/foreignRegions.map/);
+ assert.match(list,/europeRegionForCountry\(filters.country,filters.region\)/);
+ assert.match(list,/if\(!region\)return/);
+ assert.match(list,/getEuropeRegionalSearch\(organizationId,access,filters/);
+ assert.match(server,/net_europe1c_region_search/);
+ assert.match(server,/net_europe1c_region_coverage/);
+ assert.match(server,/p_organization_id:org,p_access:access/);
+});
+test("EUROPE1C migration is tenant gated and only counts published facilities",()=>{
+ const sql=read("../../../supabase/migrations/20261020110000_net_europe1c_regional_intelligence.sql");
+ assert.match(sql,/private.netux11_require_active_company/);
+ assert.match(sql,/private.pa1_3_require_network_access/);
+ assert.match(sql,/f.publication_status='published'/);
+ assert.match(sql,/c.publication_status='published'/);
+ assert.match(sql,/net_europe1c_region_search/);
+ assert.match(sql,/net_europe1c_region_coverage/);
+ assert.match(sql,/coverage_complete',false/);
+ assert.match(sql,/auth.uid\(\) IS NULL/);
+ assert.doesNotMatch(sql,/service_role.*grant|disable row level security|UPDATE public.network_facilities SET/i);
+});

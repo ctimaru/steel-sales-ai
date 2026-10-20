@@ -13,18 +13,18 @@ const live=read("../components/network-live-search.tsx");
 test("COMPACT5B selection: changing country clears a stale Italian region",()=>{
   assert.match(geo,/"use client"/);
   assert.match(geo,/setSelectedCountry\(event.target.value\);setSelectedRegion\(""\)/);
-  assert.match(geo,/disabled=\{!italy\}/);
+  assert.match(geo,/disabled=\{!canSelectRegion\}/);
   assert.match(geo,/value=\{selectedRegion\}/);
   assert.match(geo,/name="region"/);
   assert.match(geo,/name="country"/);
-  assert.match(geo,/Solo per Italia/);
+  assert.match(geo,/europeRegionsForCountry/);
   assert.match(geo,/aria-describedby="network-region-country-hint"/);
   assert.match(geo,/role="status"/);
 });
 
 test("COMPACT5B server defends URL imports and Free/Pro against a foreign-region combination",()=>{
   assert.match(listing,/export function normalizeCompactGeoFilters/);
-  assert.match(listing,/country&&country!=="IT"\?undefined:filters.region/);
+  assert.match(listing,/country&&country!=="IT"\?filters.region\?\.trim\(\)\.toUpperCase\(\):filters\.region/);
   assert.match(listing,/filters=normalizeCompactGeoFilters\(filters\)/);
   assert.match(pro,/const compactFilters=normalizeCompactGeoFilters\(/);
   assert.match(free,/const compactFilters=normalizeCompactGeoFilters\(/);
