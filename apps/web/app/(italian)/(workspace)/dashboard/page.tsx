@@ -427,7 +427,10 @@ export default async function DashboardPage({
               <div className="mt-3 space-y-2">
                 <p className="text-xs leading-5 text-[#52615b]">
                   {mode === "live"
-                    ? "Sono presenti dati commerciali nello storico, ma non ci sono movimenti recenti in questa vista."
+                    ? operational.rfqs + operational.offers + operational.orders > 0
+                      ? "Lo storico contiene dati commerciali, ma non ci sono movimenti recenti in questa vista."
+                      : "Nessun movimento recente nello storico commerciale."
+
                     : "Nessun movimento recente disponibile per questo workspace."}
                 </p>
                 <Link
