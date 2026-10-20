@@ -262,6 +262,10 @@ select pg_temp.hp13_assert(
         'netdata1b4_steel_relevance_page',
         -- DATA1B.5: Platform-only, read-only, bounded 508+ coverage queue.
         'netdata1b5_coverage_queue',
+        -- TRADER1D.2: reviewed singleton-owner-only bridge; private data never
+        -- granted to browser roles, append-only decisions, no publish action.
+        'trader1d2_superadmin_queue',
+        'trader1d2_record_decision',
         'netdata1c_review_market',
         'netdata1c_market_review_queue',
         'netdata1c_market_discovery_page',
