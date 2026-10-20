@@ -25,7 +25,7 @@ test("DATA1B.4 ranks the complete source pool BEFORE SQL pagination",()=>{
  assert.match(sql,/limit p_limit offset p_offset/);
  assert.match(sql,/'published',v_published,'discovered',v_total-v_published/);
  assert.match(free,/netdata1b4_steel_relevance_page/);
- assert.match(free,/obj\.total!==obj\.published\+obj\.discovered/);
+ assert.match(free,/total!==published\+discovered/);
  assert.match(compact,/const steelMode=filters\.steel==="1"/);
  assert.match(compact,/getNetworkSteelRelevancePage\(organizationId,access/);
  assert.match(compact,/offset,limit:COMPACT_NETWORK_PAGE_SIZE/);
