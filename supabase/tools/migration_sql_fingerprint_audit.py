@@ -18,6 +18,22 @@ SHA = re.compile(r"^[0-9a-f]{64}$")
 EXPECTED_CONTRACT = "supa-ledger2-sql-sha256-v1"
 
 
+def _normalize_cosmetic_prefix_and_suffix(raw: bytes) -> bytes:
+    """Diagnostics only: remove leading full-line -- comments and blank lines,
+    plus trailing spaces, CR, LF and tabs. NEVER permit automatic history repair.
+    """
+    text = raw.decode("utf-8")
+    text = text.rstrip(" \n\r\t")
+    lines = text.splitlines(keepends=True)
+    offset = 0
+    for line in lines:
+        if not line.strip() or line.lstrip(" \t").startswith("--"):
+            offset += len(line)
+        else:
+            break
+    return text[offset:].encode("utf-8")
+
+
 def load_local(folder: Path) -> list[dict]:
     if not folder.is_dir():
         raise ValueError("Missing local migration directory")
@@ -27,8 +43,11 @@ def load_local(folder: Path) -> list[dict]:
         if match is None:
             raise ValueError("Invalid migration filename " + path.name)
         data = path.read_bytes()
+        normalized = _normalize_cosmetic_prefix_and_suffix(data)
         result.append({**match.groupdict(), "sha256": sha256(data).hexdigest(),
-                       "bytes": len(data)})
+                       "bytes": len(data),
+                       "normalized_sha256": sha256(normalized).hexdigest(),
+                       "normalized_bytes": len(normalized)})
     if not result:
         raise ValueError("No local migration files")
     return result
@@ -53,8 +72,15 @@ def load_remote(path: Path) -> list[dict]:
             or not isinstance(fingerprint, str) or not SHA.fullmatch(fingerprint)
             or not isinstance(size, int) or isinstance(size, bool) or size < 0):
             raise ValueError("Invalid remote SQL fingerprint field")
+        n_hash = item.get("normalized_sha256")
+        n_size = item.get("normalized_bytes")
+        if (n_hash is not None or n_size is not None) and (
+            not isinstance(n_hash, str) or not SHA.fullmatch(n_hash)
+            or type(n_size) is not int or n_size < 0):
+            raise ValueError("Invalid normalized remote fingerprint field")
         records.append({"name": name, "version": version, "sha256": fingerprint,
-                        "bytes": size})
+                        "bytes": size, "normalized_sha256": n_hash,
+                        "normalized_bytes": n_size})
     return records
 
 
@@ -75,12 +101,18 @@ def classify(local: list[dict], remote: list[dict]) -> dict:
         matched_sql = [r for r in group
                        if r["sha256"] == item["sha256"] and r["bytes"] == item["bytes"]]
         exact = [r for r in matched_sql if r["version"] == item["version"]]
+        cosmetically_equal = [r for r in group
+            if r.get("normalized_sha256") == item.get("normalized_sha256")
+            and r.get("normalized_bytes") == item.get("normalized_bytes")
+            and r.get("normalized_sha256") is not None]
         if len(group) > 1 or len(local_by_name[item["name"]]) > 1:
             kind = "ambiguous_duplicate_name"
         elif len(exact) == 1:
             kind = "exact_version_and_sql"
         elif len(matched_sql) == 1:
             kind = "identical_sql_different_version"
+        elif cosmetically_equal:
+            kind = "cosmetic_prefix_or_trailing_space_difference"
         elif group:
             kind = "different_sql_same_name"
         else:
@@ -97,6 +129,7 @@ def classify(local: list[dict], remote: list[dict]) -> dict:
             "same_name_remote_versions": [r["version"] for r in group],
             "remote_version_name_collisions": [r["name"] for r in version_collision],
             "content_hash": item["sha256"],
+            "cosmetically_equal_remote_versions": [r["version"] for r in cosmetically_equal],
         })
     remote_only = [
         {"name": r["name"], "remote_version": r["version"],
@@ -114,6 +147,7 @@ def classify(local: list[dict], remote: list[dict]) -> dict:
         "exact_version_and_sql": category_counts["exact_version_and_sql"],
         "identical_sql_different_version": category_counts["identical_sql_different_version"],
         "different_sql_same_name": category_counts["different_sql_same_name"],
+        "cosmetic_prefix_or_trailing_space_difference": category_counts["cosmetic_prefix_or_trailing_space_difference"],
         "only_in_local": category_counts["only_in_local"],
         "ambiguous_duplicate_name": category_counts["ambiguous_duplicate_name"],
         "only_in_remote": len(remote_only),

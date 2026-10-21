@@ -6,7 +6,7 @@ on:
     paths:
       - "supabase/tools/migration_sql_fingerprint_audit.py"
       - "supabase/tools/test_migration_sql_fingerprint_audit.py"
-      - "supabase/audits/20261020_migration_sql_sha256_snapshot.json"
+      - "supabase/audits/20261021_migration_content_fingerprints.json"
       - ".github/workflows/supa-ledger2-sql-audit.yml"
   push:
     branches: [main]
@@ -38,7 +38,7 @@ jobs:
         run: |
           python supabase/tools/migration_sql_fingerprint_audit.py \
             --local supabase/migrations \
-            --remote-hashes supabase/audits/20261020_migration_sql_sha256_snapshot.json \
+            --remote-hashes supabase/audits/20261021_migration_content_fingerprints.json \
             --report migration-sql-equivalence-report.json \
             --require-seven-trader-matches
           python - <<'PY'
