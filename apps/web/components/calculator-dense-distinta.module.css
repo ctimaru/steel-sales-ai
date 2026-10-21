@@ -1,0 +1,30 @@
+/* CALC-DENSE1R-B — professional high-density technical bill. */
+.rows{display:grid;gap:2px}
+.gridHeader,.mainRow{display:grid;grid-template-columns:minmax(0,1fr) 62px 79px 120px;gap:4px;align-items:center}
+.gridHeader{padding:0 4px 5px;color:#527260;font-size:10px;font-weight:800;border-bottom:1px solid #d7e6db}
+.gridHeader span:last-child{text-align:center}
+.row{min-width:0;padding:3px 4px;border-bottom:1px solid #e2ebe5;background:#fff}
+.row:nth-child(even){background:#f8fbf9}
+.mainRow{min-height:44px}
+.description,.quantity,.metrics{min-width:0}
+.description strong{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:#183c2e;line-height:17px}
+.description span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;line-height:15px;color:#577361}
+.quantity input{display:block;width:100%;min-width:0;height:36px;padding:0 5px;border:1px solid #aecdbb;border-radius:6px;background:#fff;color:#173e2d;text-align:center;font-variant-numeric:tabular-nums;font-size:13px;font-weight:750}
+.quantity input:focus-visible,.action:focus-visible,.saveQuantity:focus-visible{outline:2px solid #198158;outline-offset:2px}
+.metrics{text-align:right;font-variant-numeric:tabular-nums}
+.metrics strong{display:block;color:#173d2d;font-size:11px;line-height:17px;white-space:nowrap}
+.metrics span{display:block;color:#527463;font-size:9px;line-height:14px;white-space:nowrap}
+.actions{display:flex;gap:2px;align-items:center;justify-content:flex-end;min-width:0}
+.action{display:inline-flex;align-items:center;justify-content:center;flex:0 0 28px;width:28px;height:36px;padding:0;border:1px solid #d4e4d9;border-radius:6px;background:#f0f8f3;color:#15583b;font-size:16px;font-weight:750;cursor:pointer}
+.action:hover{background:#daeee2;border-color:#9ecbb2}
+.action:disabled{opacity:.4;cursor:not-allowed}
+.saveQuantity{display:block;width:100%;min-height:40px;margin:3px 0 0;padding:5px 8px;border-radius:6px;background:#145a41;color:white;font-size:12px;font-weight:700}
+@media (max-width:639px){
+ .gridHeader{display:none}
+ .mainRow{grid-template-columns:minmax(0,1fr) 65px 84px;row-gap:2px;column-gap:6px;min-height:0}
+ .description strong{font-size:12px}
+ .quantity input{height:36px}
+ .actions{grid-column:1/-1;justify-content:flex-start;gap:6px}
+ .action{flex-basis:36px;width:36px;height:36px}
+ .row{padding:3px 5px}
+}
