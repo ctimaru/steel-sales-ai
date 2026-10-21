@@ -34,6 +34,7 @@ on:
       - "apps/web/tests/calc-int4-*"
       - "apps/web/tests/calc-dense1c-*"
       - "apps/web/tests/calc-dense1r-*"
+      - "apps/web/components/calculator-dense-distinta.module.css"
       - "apps/web/components/calculator-inline-distinta-experience.tsx"
       - "apps/web/components/us-hss-calculator.tsx"
       - "apps/web/tests/calc-int3d-*"
@@ -125,6 +126,8 @@ jobs:
         run: node tests/calc-int4-4b-chrome-inline-distinta.mjs
       - name: CALC-DENSE1R-A Chrome one-screen calculator cockpit and screenshot evidence
         run: node tests/calc-dense1r-a-chrome-cockpit.mjs
+      - name: CALC-DENSE1R-B Chrome narrow bill, 48px tabular rows and actions
+        run: node tests/calc-dense1r-b-chrome-tabular-cart.mjs
       - name: CALC-DENSE1C Chrome compact cart quantities, fixed footer and restore
         run: node tests/calc-dense1c-chrome-quantity-grid.mjs
       - name: CALC-INT4.4C Chrome commercial buyer-only target opt-in and privacy
@@ -183,6 +186,14 @@ jobs:
         with:
           name: school-growth1e-chrome-local-qa
           path: /tmp/school-growth1e
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload CALC-DENSE1R-B four viewport tabular drawer screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calc-dense1r-b-visual-qa
+          path: /tmp/calc-dense1r-b
           if-no-files-found: ignore
           retention-days: 7
       - name: Upload CALC-DENSE1R-A four viewport cockpit screenshots

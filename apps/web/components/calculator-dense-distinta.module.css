@@ -13,7 +13,7 @@
 .quantity input:focus-visible,.action:focus-visible,.saveQuantity:focus-visible{outline:2px solid #198158;outline-offset:2px}
 .metrics{text-align:right;font-variant-numeric:tabular-nums}
 .metrics strong{display:block;color:#173d2d;font-size:11px;line-height:17px;white-space:nowrap}
-.metrics span{display:block;color:#527463;font-size:9px;line-height:14px;white-space:nowrap}
+.metrics span{display:block;color:#527463;font-size:9px;line-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .actions{display:flex;gap:2px;align-items:center;justify-content:flex-end;min-width:0}
 .action{display:inline-flex;align-items:center;justify-content:center;flex:0 0 28px;width:28px;height:36px;padding:0;border:1px solid #d4e4d9;border-radius:6px;background:#f0f8f3;color:#15583b;font-size:16px;font-weight:750;cursor:pointer}
 .action:hover{background:#daeee2;border-color:#9ecbb2}
@@ -25,6 +25,6 @@
  .description strong{font-size:12px}
  .quantity input{height:36px}
  .actions{grid-column:1/-1;justify-content:flex-start;gap:6px}
- .action{flex-basis:36px;width:36px;height:36px}
+ .action{flex-basis:42px;width:42px;height:42px}
  .row{padding:3px 5px}
 }
