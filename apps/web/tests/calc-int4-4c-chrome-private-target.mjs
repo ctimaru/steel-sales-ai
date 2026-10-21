@@ -13,8 +13,13 @@ try {
     const response=await page.goto("http://127.0.0.1:3000/knowledge/tubes",
       {waitUntil:"domcontentloaded",timeout:60000});
     assert.equal(response?.status(),200);
-    const calculator=page.locator("#calcolatore-pesi"),bill=page.locator("#distinta-inline");
+    const calculator=page.locator("#calcolatore-pesi"),bill=page.locator("#distinta-inline-dialog");
+    const trigger=page.locator('[data-testid="calculator-cart-trigger"]');
     await calculator.waitFor({state:"visible"});
+    // Dismiss the platform's first-visit consent overlay before exercising
+    // the floating cart. Never bypass consent or force clicks behind it.
+    await page.locator('[data-testid="mobile-cookie-consent"]')
+      .getByRole("button",{name:"Accetta necessari"}).click();
     const eurT=calculator.getByLabel("Prezzo €/ton");
     const eurM=calculator.getByLabel("Prezzo €/m");
     await eurT.fill("850");
@@ -23,9 +28,11 @@ try {
     assert.equal(await page.evaluate(()=>sessionStorage.getItem("sss:inline-distinta:v1")),null);
 
     await calculator.getByRole("button",{name:/Aggiungi alla distinta/}).click();
+    await trigger.click();
     await bill.locator("article").first().waitFor({state:"visible"});
     assert.equal(await bill.locator("[data-buyer-target]").count(),0,
       "Adding a tube may never automatically import the quick price.");
+    await bill.getByRole("button",{name:/Chiudi/}).click();
     await calculator.locator("[data-target-opt-in]").click();
     assert.equal(await bill.locator("[data-target-pending]").count(),1);
     assert.equal(await bill.locator("[data-buyer-target]").count(),0);
@@ -59,10 +66,11 @@ try {
     assert.ok(!session.keys.some(k=>/buyer-target|commercial-price/.test(k)));
 
     await page.reload({waitUntil:"domcontentloaded"});
-    await page.locator("#distinta-inline article").first().waitFor({state:"visible"});
-    assert.equal(await page.locator("[data-buyer-target]").count(),0,
+    await trigger.click();
+    await bill.locator("article").first().waitFor({state:"visible"});
+    assert.equal(await bill.locator("[data-buyer-target]").count(),0,
       "Private prices must disappear on reload, unlike the public bill");
-    assert.equal(await page.locator("#distinta-inline article").count(),1);
+    assert.equal(await bill.locator("article").count(),1);
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+12),false);
     await ctx.close();
     console.log("CALC-INT4.4C CHROME PASS",width,"explicit target, metre editing, no clipboard/session leakage");

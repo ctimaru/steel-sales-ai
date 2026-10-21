@@ -1,0 +1,623 @@
+{
+  "contract": "supa-ledger3b-original-sql-token-comparison-v1",
+  "snapshot_date_utc": "2026-10-20",
+  "remote_history_at_comparison": 466,
+  "scope": "59 SQL byte-divergent (beyond outer whitespace) migration name pairs in the stable 465-history SUPA-LEDGER3 snapshot",
+  "comparison_method": "Live read-only original stored SQL vs GitHub committed migration SQL; recursive lexical scanner omits SQL comments and external whitespace but preserves quoted string contents and recursively tokenizes dollar-quoted PL/pgSQL bodies.",
+  "warning": "Lexical identity is a conservative evidence candidate, NOT SQL parser certification, proof of current database schema/permissions, or authorization to repair, replay or push. Positional token difference counts are NOT counts of changed SQL statements.",
+  "source_sql_exported": false,
+  "db_writes": 0,
+  "company_publications": 0,
+  "auto_repair_authorized": false,
+  "summary": {
+    "compared": 59,
+    "lexical_match_candidates": 38,
+    "token_differences": 21
+  },
+  "priorities": {
+    "P0_SECURITY_OR_OWNERSHIP": {
+      "lexical_match": 33,
+      "token_difference": 15
+    },
+    "P1_NETWORK_OR_DML": {
+      "lexical_match": 4,
+      "token_difference": 2
+    },
+    "P2_GENERAL_SQL_OR_COMMENTS": {
+      "lexical_match": 1,
+      "token_difference": 4
+    }
+  },
+  "results": [
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "add_controlled_ready_rfq_backlog_promotion",
+      "local_version": "20260922150000",
+      "remote_version": "20260922123425",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "add_en10217_range_envelopes",
+      "local_version": "20260917203000",
+      "remote_version": "20260917163331",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 853,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "add_m5_golden_query_set_v1",
+      "local_version": "20260915090000",
+      "remote_version": "20260915090227",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 1375,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "add_market_data_foundation",
+      "local_version": "20260913190841",
+      "remote_version": "20260913190841",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "add_organization_tenant_foundation",
+      "local_version": "20260915112000",
+      "remote_version": "20260915121303",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "add_p0_data_lifecycle",
+      "local_version": "20260915150000",
+      "remote_version": "20260915153232",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "add_p0_observability",
+      "local_version": "20260915141000",
+      "remote_version": "20260915143217",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "add_p1_bulk_import",
+      "local_version": "20260916131500",
+      "remote_version": "20260916133950",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "add_p1_tenant_onboarding",
+      "local_version": "20260916120000",
+      "remote_version": "20260916123101",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "add_reference_database_v2",
+      "local_version": "20260917183000",
+      "remote_version": "20260917130712",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 6,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "add_weight_reconciliation_candidates",
+      "local_version": "20260918073000",
+      "remote_version": "20260918051832",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 165,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "correct_golden_relevance_and_fallback_eval",
+      "local_version": "20260915094000",
+      "remote_version": "20260915092918",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "harden_p0_entity_resolution",
+      "local_version": "20260915134000",
+      "remote_version": "20260915134725",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "harden_p0_entity_resolution_advisors",
+      "local_version": "20260915135500",
+      "remote_version": "20260915135329",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "harden_p1_onboarding_security_definers",
+      "local_version": "20260916124500",
+      "remote_version": "20260916125115",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "hp18_registration_dml_grants",
+      "local_version": "20261002093505",
+      "remote_version": "20261002093505",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "hp4_duplicate_company_resolution",
+      "local_version": "20261001113800",
+      "remote_version": "20261001113800",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "hp5_claim_company_profile_experience",
+      "local_version": "20261001115740",
+      "remote_version": "20261001115740",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "hp6_superadmin_registration_operations",
+      "local_version": "20261001122621",
+      "remote_version": "20261001122621",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "hp7_first_login_guided_company_setup",
+      "local_version": "20261001125350",
+      "remote_version": "20261001125350",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "hp8_team_invitations_role_onboarding",
+      "local_version": "20261001132810",
+      "remote_version": "20261001132810",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "hp8a_deterministic_legacy_invitation_claim",
+      "local_version": "20261001132908",
+      "remote_version": "20261001132908",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "l272a_investor_business_plan_room",
+      "local_version": "20261002104317",
+      "remote_version": "20261002104317",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "l272a_investor_room_rpc_hardening",
+      "local_version": "20261002105152",
+      "remote_version": "20261002105152",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "m4_governance_trust",
+      "local_version": "20260925185411",
+      "remote_version": "20260925185411",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 4102,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "m5_seed_identity_resolution",
+      "local_version": "20260925190738",
+      "remote_version": "20260925190738",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "m6_network_read_model",
+      "local_version": "20260925191708",
+      "remote_version": "20260925191708",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 1799,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "m7_registration_bridge",
+      "local_version": "20260925192705",
+      "remote_version": "20260925192705",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 2447,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "m8_managed_profile_cutover",
+      "local_version": "20260925194259",
+      "remote_version": "20260925194259",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 625,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "make_hybrid_retrieval_tenant_aware",
+      "local_version": "20260915113000",
+      "remote_version": "20260915121415",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "p0a_1_platform_superadmin_foundation",
+      "local_version": "20260925143133",
+      "remote_version": "20260925143133",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 47,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "p2_legacy_identity_rfq_link_compatibility",
+      "local_version": "20260926163437",
+      "remote_version": "20260926163437",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "p2_legacy_identity_status_compatibility",
+      "local_version": "20260926163019",
+      "remote_version": "20260926163019",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "p2_legacy_message_identity_recovery",
+      "local_version": "20260926162021",
+      "remote_version": "20260926162021",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 663,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "p3_4_selective_enrichment_review",
+      "local_version": "20260927115000",
+      "remote_version": "20260927111951",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "p4_3_inquiry_foundation",
+      "local_version": "20260925202757",
+      "remote_version": "20260925202757",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "p4_4_inquiry_routing_anti_abuse",
+      "local_version": "20260925203614",
+      "remote_version": "20260925203614",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "p4_5_interaction_read_models",
+      "local_version": "20260925204253",
+      "remote_version": "20260925204253",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 1092,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "p4_7_follow_activity_foundation",
+      "local_version": "20260926122823",
+      "remote_version": "20260926122823",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 4978,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "p4_8_interaction_pilot_p5_readiness",
+      "local_version": "20260926125258",
+      "remote_version": "20260926125258",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "pf7_usage_validation_events",
+      "local_version": "20261007111127",
+      "remote_version": "20261007111127",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "pl1_5_padana_full_import_promotion",
+      "local_version": "20261005130000",
+      "remote_version": "20261005125629",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 632,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "pl1_5_wc31_weight_resolution",
+      "local_version": "20261005130500",
+      "remote_version": "20261005125935",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 11,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "rfqh13_governance_team_rls",
+      "local_version": "20261007095803",
+      "remote_version": "20261007095803",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "rfqh1_campaign_supplier_foundation",
+      "local_version": "20261006101500",
+      "remote_version": "20261006091207",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "seed_en10216_en10217_pressure_catalog",
+      "local_version": "20260917193000",
+      "remote_version": "20260917162110",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 2030,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "seed_en10217_discrete_matrix",
+      "local_version": "20260917204000",
+      "remote_version": "20260917164940",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P0_SECURITY_OR_OWNERSHIP",
+      "name": "wc5_public_utility_discovery_telemetry",
+      "local_version": "20261004113212",
+      "remote_version": "20261004113212",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P1_NETWORK_OR_DML",
+      "name": "add_organizations_created_by_index",
+      "local_version": "20260915121857",
+      "remote_version": "20260915121857",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P1_NETWORK_OR_DML",
+      "name": "cross_verify_p265gh_weights",
+      "local_version": "20260917213000",
+      "remote_version": "20260917183259",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P1_NETWORK_OR_DML",
+      "name": "link_en10210_hot_shs_shared_geometries",
+      "local_version": "20260917190200",
+      "remote_version": "20260917152559",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P1_NETWORK_OR_DML",
+      "name": "reconcile_structural_weight_references",
+      "local_version": "20260917190100",
+      "remote_version": "20260917152545",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P1_NETWORK_OR_DML",
+      "name": "seed_en10210_en10219_structural_catalog",
+      "local_version": "20260917190000",
+      "remote_version": "20260917152531",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 4518,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P1_NETWORK_OR_DML",
+      "name": "seed_en10216_p235gh_brr_sample",
+      "local_version": "20260917212000",
+      "remote_version": "20260917180942",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 1193,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P2_GENERAL_SQL_OR_COMMENTS",
+      "name": "l27_1_drop_duplicate_conversations_index",
+      "local_version": "20261002100645",
+      "remote_version": "20261002100645",
+      "lexical_category": "LEXICAL_TOKENS_IDENTICAL_CANDIDATE",
+      "positional_token_differences": 0,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P2_GENERAL_SQL_OR_COMMENTS",
+      "name": "m7_registration_bridge_integrity_fix",
+      "local_version": "20260925192851",
+      "remote_version": "20260925192851",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 2208,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P2_GENERAL_SQL_OR_COMMENTS",
+      "name": "p4_7_activity_event_identity_fix",
+      "local_version": "20260926123201",
+      "remote_version": "20260926123201",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 161,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P2_GENERAL_SQL_OR_COMMENTS",
+      "name": "p4_7_follow_activity_ordering_fix",
+      "local_version": "20260926122952",
+      "remote_version": "20260926122952",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 483,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    },
+    {
+      "priority": "P2_GENERAL_SQL_OR_COMMENTS",
+      "name": "p4_7_follow_activity_statement_dedupe_fix",
+      "local_version": "20260926123115",
+      "remote_version": "20260926123115",
+      "lexical_category": "EXECUTABLE_TOKEN_DIFFERENCE",
+      "positional_token_differences": 233,
+      "actual_database_schema_state_verified": false,
+      "auto_repair_authorized": false
+    }
+  ]
+}

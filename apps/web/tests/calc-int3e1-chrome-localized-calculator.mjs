@@ -66,7 +66,10 @@ try{
     const section=page.locator("#calcolatore-pesi");
     await section.getByRole("button",{name:/Quadrat|Carré|Cuadrado/i}).click();
     await section.getByRole("button",{name:c.bill}).click();
-    const inline=page.locator("#distinta-inline");
+    const inline=page.locator("#distinta-inline-dialog");
+    if (await page.locator('[data-testid="mobile-cookie-consent"] > button').isVisible())
+      await page.locator('[data-testid="mobile-cookie-consent"] > button').click();
+    await page.locator('[data-testid="calculator-cart-trigger"]').click();
     await inline.locator("article").first().waitFor({state:"visible",timeout:30000});
     assert.equal(new URL(page.url()).pathname,route,"Inline EU bill must not navigate");
     assert.equal(await inline.locator("article").count(),1);

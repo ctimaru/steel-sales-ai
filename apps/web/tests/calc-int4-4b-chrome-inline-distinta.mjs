@@ -19,16 +19,31 @@ try {
     assert.equal(response?.status(), 200);
     assert.equal(await page.locator("html").getAttribute("lang"), "it");
     const calculator = page.locator("#calcolatore-pesi");
+    const finder=page.locator('[data-testid="calculator-dimension-discovery"]');
+    await finder.getByRole("searchbox").fill("zz_unavailable_123");
+    assert.match(await finder.innerText(),/Nessun risultato|Nessuna misura pubblicata/);
+    await finder.getByRole("searchbox").fill("");
+    assert.ok(await calculator.locator("svg[aria-label]").count()>0,"Mobile section preview exposed");
     await calculator.waitFor({state:"visible"});
-    const bill = page.locator("#distinta-inline");
-    assert.equal(await bill.count(), 1, "compact preview mounted under calculator");
-    assert.equal(await bill.getByText("La tua distinta").count(), 1);
-    assert.match(await bill.innerText(), /Aggiungi una misura dal calcolatore/);
-    assert.equal(await bill.locator("article").count(), 0);
+    // Dismiss the platform's first-visit consent overlay before exercising
+    // the floating cart. Never bypass consent or force clicks behind it.
+    await page.locator('[data-testid="mobile-cookie-consent"]')
+      .getByRole("button",{name:"Accetta necessari"}).click();
+    const dock=page.locator("#distinta-inline"),bill=page.locator("#distinta-inline-dialog");
+    const trigger=page.locator('[data-testid="calculator-cart-trigger"]');
+    assert.equal(await dock.count(),1);
+    assert.equal(await trigger.count(),0);
+    assert.equal(await bill.count(),0);
 
     await calculator.getByLabel("Numero barre").fill("3");
     await calculator.getByRole("button", { name: /Aggiungi alla distinta/ }).click();
+    assert.equal(await bill.count(),0);
+    await trigger.click();
     await bill.locator("article").first().waitFor({state:"visible"});
+    await page.keyboard.press("Escape");
+    assert.equal(await bill.count(), 0, "Escape closes the shared cart");
+    assert.equal(await trigger.evaluate(node => node === document.activeElement), true, "Focus returns to cart trigger");
+    await trigger.click();
     assert.equal(await bill.locator("article").count(), 1);
     assert.match(await bill.innerText(), /EN 10219/);
     assert.match(await bill.innerText(), /36(?:[,.]0+)? m/);
@@ -41,10 +56,12 @@ try {
     assert.match(await bill.innerText(), /S355J2H/);
     assert.match(await bill.innerText(), /60(?:[,.]0+)? m/);
 
+    await bill.getByRole("button",{name:/Chiudi/}).click();
     await calculator.getByRole("button", { name: /EN 10210/ }).click();
     await calculator.getByRole("button",{name:/Aggiungi alla distinta/}).click();
+    await trigger.click();
     await page.waitForFunction(() =>
-      document.querySelectorAll("#distinta-inline article").length === 2);
+      document.querySelectorAll("#distinta-inline-dialog article").length === 2);
     assert.match(await bill.innerText(), /EN 10210/);
     assert.match(await bill.innerText(), /EN 10219/);
     assert.match(await bill.innerText(), /96(?:[,.]0+)? m/);
@@ -54,7 +71,7 @@ try {
     await bill.getByRole("button",{name:"Rimuovi riga 3"}).click();
     assert.equal(await bill.locator("article").count(),2);
     await bill.getByRole("button",{name:"Copia distinta"}).click();
-    await page.getByText(/Distinta tecnica copiata/).waitFor({state:"visible"});
+    await bill.getByText(/Distinta tecnica copiata/).waitFor({state:"visible"});
     const copied = await page.evaluate(() => navigator.clipboard.readText());
     assert.match(copied,/EN 10219/);
     assert.match(copied,/EN 10210/);
@@ -65,9 +82,10 @@ try {
     assert.equal(saved.lines.length,2);
     assert.ok(saved.lines.every(line => line.targetEurT === ""));
     await page.reload({waitUntil:"domcontentloaded"});
-    await page.locator("#distinta-inline article").first().waitFor({state:"visible"});
-    assert.equal(await page.locator("#distinta-inline article").count(),2);
-    assert.match(await page.locator("#distinta-inline").innerText(), /recuperata da questa scheda/);
+    await trigger.click();
+    await bill.locator("article").first().waitFor({state:"visible"});
+    assert.equal(await bill.locator("article").count(),2);
+    assert.match(await dock.getByRole("status").textContent(), /recuperata da questa scheda/);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 12),false);
     await context.close();
     console.log("CALC-INT4.4B CHROME PASS",width,"edit duplicate remove copy restore, zero prices and no navigation");

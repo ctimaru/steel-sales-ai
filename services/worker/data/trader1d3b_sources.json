@@ -1,0 +1,309 @@
+{
+  "contract": "trader1d3b-source-seeds-v1",
+  "source": "private EU research official role-evidence URLs (read-only snapshot)",
+  "snapshot_date": "2026-10-20",
+  "source_rights": "not_assessed",
+  "operator_policy": "robots-aware HEAD metadata only; no third-party content capture, reuse or publication",
+  "items": [
+    {
+      "domain": "abcsteel.cz",
+      "market": "CZ",
+      "source_url": "https://www.abcsteel.cz/"
+    },
+    {
+      "domain": "arabesque.ro",
+      "market": "RO",
+      "source_url": "https://arabesque.ro/"
+    },
+    {
+      "domain": "begroup.com",
+      "market": "SE",
+      "source_url": "https://www.begroup.com/about-be-group"
+    },
+    {
+      "domain": "bowim.pl",
+      "market": "PL",
+      "source_url": "https://www.bowim.pl/profile-stalowe/"
+    },
+    {
+      "domain": "buhlmann-group.com",
+      "market": "DE",
+      "source_url": "https://buhlmann-group.com/en/who-we-are/"
+    },
+    {
+      "domain": "claessens-wettstein.be",
+      "market": "BE",
+      "source_url": "https://www.claessens-wettstein.be/home-fr"
+    },
+    {
+      "domain": "cooprabuis.nl",
+      "market": "NL",
+      "source_url": "https://cooprabuis.nl/stalen_buizen/en/"
+    },
+    {
+      "domain": "damstahl.com",
+      "market": "DK",
+      "source_url": "https://www.damstahl.com/en/"
+    },
+    {
+      "domain": "deneuve.fr",
+      "market": "FR",
+      "source_url": "https://www.deneuve.fr/distributeur-de-tubes-et-verins/"
+    },
+    {
+      "domain": "distribution.arcelormittal.com",
+      "market": "FR",
+      "source_url": "https://distribution.arcelormittal.com/fr-FR/services/specialiste-du-tube"
+    },
+    {
+      "domain": "drozapol.pl",
+      "market": "PL",
+      "source_url": "https://drozapol.pl/"
+    },
+    {
+      "domain": "eduardocortina.com",
+      "market": "ES",
+      "source_url": "https://www.eduardocortina.com/"
+    },
+    {
+      "domain": "ehg-stahl.com",
+      "market": "AT",
+      "source_url": "https://www.ehg-stahl.com/de"
+    },
+    {
+      "domain": "ferona.cz",
+      "market": "CZ",
+      "source_url": "https://www.ferona.cz/ferona-a.s"
+    },
+    {
+      "domain": "ferrum-mb.cz",
+      "market": "CZ",
+      "source_url": "https://ferrum-mb.cz/prodej-hutniho-materialu/"
+    },
+    {
+      "domain": "fleischmann.stappert.biz",
+      "market": "AT",
+      "source_url": "https://fleischmann.stappert.biz/"
+    },
+    {
+      "domain": "globalmetal.es",
+      "market": "ES",
+      "source_url": "https://globalmetal.es/"
+    },
+    {
+      "domain": "h-metal.ro",
+      "market": "RO",
+      "source_url": "https://www.h-metal.ro/ro/"
+    },
+    {
+      "domain": "heitmann-stahl.de",
+      "market": "DE",
+      "source_url": "https://www.heitmann-stahl.de/produkte/stahlrohre/"
+    },
+    {
+      "domain": "heitonsteel.ie",
+      "market": "IE",
+      "source_url": "https://www.heitonsteel.ie/"
+    },
+    {
+      "domain": "hierrosgil.com",
+      "market": "ES",
+      "source_url": "https://hierrosgil.com/"
+    },
+    {
+      "domain": "hierrosmoraanton.com",
+      "market": "ES",
+      "source_url": "https://hierrosmoraanton.com/hierros-mora-anton-tu-aliado-en-siderurgia-y-construccion/"
+    },
+    {
+      "domain": "hoberg-driesch.com",
+      "market": "DE",
+      "source_url": "https://www.hoberg-driesch.com/en/"
+    },
+    {
+      "domain": "impextb.cz",
+      "market": "CZ",
+      "source_url": "https://www.impextb.cz/cs"
+    },
+    {
+      "domain": "kdi.fr",
+      "market": "FR",
+      "source_url": "https://kdi.fr/nos-produits/"
+    },
+    {
+      "domain": "kloeckner.com",
+      "market": "DE",
+      "source_url": "https://www.kloeckner.com/en/"
+    },
+    {
+      "domain": "koenigfrankstahl.cz",
+      "market": "CZ",
+      "source_url": "https://www.koenigfrankstahl.cz/"
+    },
+    {
+      "domain": "koenigstahl.pl",
+      "market": "PL",
+      "source_url": "https://www.koenigstahl.pl/pl/"
+    },
+    {
+      "domain": "konsorcjumstali.pl",
+      "market": "PL",
+      "source_url": "https://www.konsorcjumstali.pl/kategorie/rury"
+    },
+    {
+      "domain": "kovintrade.com",
+      "market": "SI",
+      "source_url": "https://kovintrade.com/en/sales-program"
+    },
+    {
+      "domain": "lemu.dk",
+      "market": "DK",
+      "source_url": "https://www.lemu.dk/da/om-lemvigh-mueller/om-os"
+    },
+    {
+      "domain": "leontubos.com",
+      "market": "ES",
+      "source_url": "https://www.leontubos.com/"
+    },
+    {
+      "domain": "ltbfrance.com",
+      "market": "FR",
+      "source_url": "https://www.ltbfrance.com/contactez-nous/"
+    },
+    {
+      "domain": "mairon.ro",
+      "market": "RO",
+      "source_url": "https://www.mairon.ro/"
+    },
+    {
+      "domain": "marcelianomartin.com",
+      "market": "ES",
+      "source_url": "https://marcelianomartin.com/"
+    },
+    {
+      "domain": "mcb.eu",
+      "market": "NL",
+      "source_url": "https://www.mcb.eu/en/steel-construction"
+    },
+    {
+      "domain": "metalunion.be",
+      "market": "BE",
+      "source_url": "https://metalunion.be/staalproducten/"
+    },
+    {
+      "domain": "polska.ims-group.com",
+      "market": "PL",
+      "source_url": "https://polska.ims-group.com/"
+    },
+    {
+      "domain": "pouchard.fr",
+      "market": "FR",
+      "source_url": "https://www.pouchard.fr/entreprise/notre-societe/"
+    },
+    {
+      "domain": "psi-steel.nl",
+      "market": "NL",
+      "source_url": "https://psi-steel.nl/"
+    },
+    {
+      "domain": "rff.de",
+      "market": "DE",
+      "source_url": "https://www.rff.de/de/"
+    },
+    {
+      "domain": "salzgitter-mannesmann-stahlhandel.de",
+      "market": "DE",
+      "source_url": "https://www.salzgitter-mannesmann-stahlhandel.de/de/produkte-leistungen/lieferprogramm-rohre/rohrprodukte.html"
+    },
+    {
+      "domain": "solines.nl",
+      "market": "NL",
+      "source_url": "https://www.solines.nl/stalen-buizen-kopen/"
+    },
+    {
+      "domain": "sopromet.fr",
+      "market": "FR",
+      "source_url": "https://www.sopromet.fr/"
+    },
+    {
+      "domain": "spaeter.de",
+      "market": "DE",
+      "source_url": "https://www.spaeter.de/produkte"
+    },
+    {
+      "domain": "stad.fr",
+      "market": "FR",
+      "source_url": "https://www.stad.fr/stock-tubes"
+    },
+    {
+      "domain": "stalprofil.com.pl",
+      "market": "PL",
+      "source_url": "https://www.stalprofil.com.pl/dystrybucja"
+    },
+    {
+      "domain": "steel-tubes.ro",
+      "market": "RO",
+      "source_url": "https://steel-tubes.ro/despre-noi"
+    },
+    {
+      "domain": "stenastal.se",
+      "market": "SE",
+      "source_url": "https://www.stenastal.se/vad-vi-erbjuder/stal/"
+    },
+    {
+      "domain": "teham-pongers.nl",
+      "market": "NL",
+      "source_url": "https://www.teham-pongers.nl/grote-magazijnvoorraad/"
+    },
+    {
+      "domain": "thyssenkrupp-materials.nl",
+      "market": "NL",
+      "source_url": "https://www.thyssenkrupp-materials.nl/nl/producten/staal/kokerprofielen"
+    },
+    {
+      "domain": "thyssenkrupp-materials.pl",
+      "market": "PL",
+      "source_url": "https://www.thyssenkrupp-materials.pl/pl/stal-weglowa"
+    },
+    {
+      "domain": "thyssenkrupp-schulte.de",
+      "market": "DE",
+      "source_url": "https://www.thyssenkrupp-schulte.de/de"
+    },
+    {
+      "domain": "tibnor.se",
+      "market": "SE",
+      "source_url": "https://www.tibnor.se/"
+    },
+    {
+      "domain": "tubosparis.es",
+      "market": "ES",
+      "source_url": "https://tubosparis.es/empresa/"
+    },
+    {
+      "domain": "valsteel.pt",
+      "market": "PT",
+      "source_url": "https://valsteel.pt/"
+    },
+    {
+      "domain": "vanleeuwen.com",
+      "market": "NL",
+      "source_url": "https://www.vanleeuwen.com/"
+    },
+    {
+      "domain": "weyland.at",
+      "market": "AT",
+      "source_url": "https://www.weyland.at/produkte/stahl/rohre/"
+    },
+    {
+      "domain": "weylandstahlhandel.cz",
+      "market": "CZ",
+      "source_url": "https://weylandstahlhandel.cz/"
+    },
+    {
+      "domain": "wuppermann.com",
+      "market": "DE",
+      "source_url": "https://www.wuppermann.com/en/locations/wuppermann-stahl-gmbh/"
+    }
+  ]
+}

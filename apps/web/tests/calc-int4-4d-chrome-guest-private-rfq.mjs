@@ -12,15 +12,22 @@ try {
   const page=await context.newPage();
   const response=await page.goto("http://127.0.0.1:3000/knowledge/tubes",{waitUntil:"domcontentloaded",timeout:60000});
   assert.equal(response?.status(),200);
-  const calculator=page.locator("#calcolatore-pesi"),bill=page.locator("#distinta-inline");
+  const calculator=page.locator("#calcolatore-pesi"),bill=page.locator("#distinta-inline-dialog");
+  const trigger=page.locator('[data-testid="calculator-cart-trigger"]');
   await calculator.waitFor({state:"visible"});
+    // Dismiss the platform's first-visit consent overlay before exercising
+    // the floating cart. Never bypass consent or force clicks behind it.
+    await page.locator('[data-testid="mobile-cookie-consent"]')
+      .getByRole("button",{name:"Accetta necessari"}).click();
   assert.equal(await bill.locator("[data-create-inline-private-rfq]").count(),0,
    "No empty RFQ button before there is a bill");
   await calculator.getByLabel("Numero barre").fill("3");
   await calculator.getByRole("button",{name:/Aggiungi alla distinta/}).click();
+  await trigger.click();
   await bill.locator("article").first().waitFor({state:"visible"});
   assert.equal(await bill.locator("[data-create-inline-private-rfq]").count(),1);
   assert.equal(await bill.getByRole("checkbox",{name:/Includi i target buyer/}).count(),0);
+  await bill.getByRole("button",{name:/Chiudi/}).click();
   await calculator.getByLabel("Prezzo €/ton").fill("850");
   await calculator.locator("[data-target-opt-in]").click();
   await bill.getByRole("button",{name:"Associa target interno alla riga 1"}).click();
@@ -52,7 +59,8 @@ try {
   assert.equal(new URL(page.url()).pathname,"/knowledge/tubes",
    "Guest click does not navigate/dispatch or create RFQ");
   await page.reload({waitUntil:"domcontentloaded"});
-  await page.locator("#distinta-inline article").first().waitFor({state:"visible"});
+  await trigger.click();
+  await bill.locator("article").first().waitFor({state:"visible"});
   assert.equal(await page.locator("[data-buyer-target]").count(),0);
   assert.equal(await page.locator("[data-create-inline-private-rfq]").count(),1);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+12),false);

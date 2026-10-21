@@ -28,6 +28,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.deployment.sha || github.sha }}
+      - name: Require Vercel preview automation bypass
+        env:
+          UI4_VERCEL_BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        shell: bash
+        run: |
+          if [[ -z "$UI4_VERCEL_BYPASS" ]]; then
+            echo "::error title=Missing Vercel bypass::Set repository Actions secret VERCEL_AUTOMATION_BYPASS_SECRET from the Vercel project's Deployment Protection settings. Do not disable protection."
+            exit 1
+          fi
+          echo "Protected preview bypass is configured (value redacted)."
       - uses: actions/setup-node@v4
         with:
           node-version: 22

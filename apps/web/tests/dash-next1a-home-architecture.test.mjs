@@ -6,6 +6,7 @@ const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const home = read("../app/(italian)/(workspace)/dashboard/page.tsx");
 const pulse = read("../components/dashboard-steel-pulse.tsx");
 const discovery = read("../components/dashboard-discovery-feed.tsx");
+const chrome = read("./demotest23-chrome-auth.mjs");
 
 test("DASH-NEXT1A Home places a truthful action-first entry above feed", () => {
   const hero = home.indexOf('<section aria-labelledby="quick-actions"');
@@ -51,4 +52,11 @@ test("DASH-NEXT1A hides redundant Steel Pulse controls during true empty state",
   assert.match(pulse, /card\.source_url/);
   assert.match(discovery, /Le RFQ private e i dettagli riservati non compaiono/);
   assert.doesNotMatch(home + pulse + discovery, /dangerouslySetInnerHTML/);
+});
+
+test("DASH-NEXT1A reconciled Chrome acceptance preserves CALC-NEXT1F and action links", () => {
+  assert.match(chrome, /CALC-NEXT1F: exercise the real private route/);
+  assert.match(chrome, /viewer cannot open private buyer composer by locale URL/);
+  assert.match(chrome, /Dedicated search must open the existing private commercial history/);
+  assert.match(chrome, /Mobile actions must retain touch targets/);
 });
