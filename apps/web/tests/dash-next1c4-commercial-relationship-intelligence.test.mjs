@@ -98,6 +98,10 @@ test("NEXT1C.4 Commerciale clearly differentiates saved prospect from verified C
   assert.match(commercial, /non sono automaticamente collegate alla Company 360/);
   assert.match(commercial, /canWrite \? \(/);
   assert.match(commercial, /Solo i ruoli commerciali autorizzati/);
+  assert.match(commercial, /action={removeCommercialNetworkProspect}/);
+  assert.match(commercial, /name="confirm_remove" value="yes" required/);
+  assert.match(commercial, /Rimuovi dalla mia lista/);
+  assert.match(commercial, /Azienda rimossa dalla tua lista privata/);
 });
 
 test("NEXT1C.4 does not create CRM identities, RFQs, emails or external outreach on save", () => {
@@ -121,4 +125,14 @@ test("NEXT1C.4 shortlist remains in Commerciale, loads only on explicit request 
   assert.match(model, /\.eq\("user_id", userId\)/);
   assert.match(model, /\.eq\("network_companies\.publication_status", "published"\)/);
   assert.match(model, /\.limit\(12\)/);
+});
+
+test("NEXT1C.4 explicit reversal never touches other user's prospects or CRM activity", () => {
+  assert.match(action, /export async function removeCommercialNetworkProspect/);
+  assert.match(action, /formData\.get\("confirm_remove"\) !== "yes"/);
+  assert.match(action, /if \(!canWriteWorkspace\(context\.role\)\) redirect/);
+  assert.match(action, /getCommercialNetworkContext\(context\.organizationId, companyId\)/);
+  assert.match(action, /\.delete\(\)[\s\S]*\.eq\("organization_id", context\.organizationId\)[\s\S]*\.eq\("user_id", context\.userId\)[\s\S]*\.eq\("network_company_id", companyId\)/);
+  assert.match(action, /eventName: "network_saved_removed"/);
+  assert.doesNotMatch(action, /from\("companies"\)|delete.*company_360|email\.send/);
 });
