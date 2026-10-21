@@ -24,6 +24,13 @@ try {
     ]);
     assert.ok(toolbarBox&&fieldsBox&&resultBox&&actionBox);
     assert.ok(fieldsBox.y>=toolbarBox.y+toolbarBox.height-3,"Toolbar first");
+    if(width===320) {
+      const normative=root.locator('[data-cockpit-controls] section').first().locator('button').first();
+      const rect=await normative.boundingBox();
+      assert.ok(rect && rect.height<=48,"EN designation should not break into two lines at 320px");
+      const kgBar=await root.locator('[data-cockpit-kpis] > div').first().locator('p').nth(1).boundingBox();
+      assert.ok(kgBar && kgBar.height<24,"kg/bar should stay on one line at 320px");
+    }
     if(width===1440) {
       assert.ok(Math.abs(fieldsBox.y-resultBox.y)<4,"Form and preview + KPI must share desktop row");
       assert.ok(actionBox.y-(toolbarBox.y)<730,

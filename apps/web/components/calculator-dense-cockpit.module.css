@@ -56,4 +56,24 @@
   .fields {padding:8px}
   .preview {width:100px;flex-basis:100px}
   .preview figure > svg {max-width:90px}
+  /* At 320px, preserve full norm designations and steel shapes without splitting words. */
+  .toolbarControls section:first-child [role="group"] button {
+    white-space:nowrap;
+    min-width:0;
+    padding-inline:4px;
+  }
+  .toolbarControls section:nth-child(2) [role="group"] button svg {display:none}
+  .toolbarControls section:nth-child(2) [role="group"] button span {
+    white-space:nowrap;
+    font-size:10px;
+  }
+}
+@media (max-width:400px){
+  /* The theoretical weight stays readable, with units intact in narrow KPI tiles. */
+  .results [data-cockpit-kpis] > div > p:nth-of-type(2) {
+    font-size:clamp(12px,3.8vw,15px);
+    line-height:1.25;
+    overflow-wrap:normal;
+    word-break:normal;
+  }
 }

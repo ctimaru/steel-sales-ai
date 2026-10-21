@@ -1440,6 +1440,44 @@ export function PublicTubeWeightCalculator({
                 </div>
               </div>
 
+              <button
+                type="button"
+                disabled={!currentSnapshot || (Boolean(onAddToDistinta) && !canAddToDistinta)}
+                onClick={() => {
+                  if (!currentSnapshot) return;
+                  const item = calculatorRfqFromValues(currentSnapshot,
+                    typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "calc-"+Date.now()+"-"+Math.random().toString(36).slice(2));
+                  if (onAddToDistinta) {
+                    if (!item || !onAddToDistinta(item)) {
+                      setActionFeedback(inlineCopy.addError);
+                    } else {
+                      setActionFeedback(inlinePublicDistinta
+                        ? inlineCopy.added
+                        : "Articolo aggiunto ✓ · puoi continuare con un’altra misura.");
+                    }
+                    return;
+                  }
+                  if (!item || !enqueueCalculatorRfq(window.sessionStorage, item)) {
+                    setActionFeedback(t("Impossibile trasferire l'articolo. Verifica lo spazio di sessione del browser e riprova."));
+                    return;
+                  }
+                  // CALC-INT3E.7: preserve the existing consent-gated EN/DE/FR/ES
+                  // handoff event after successful enqueue (never send RFQ content).
+                  if (locale !== "it") trackInternationalRfq("handoff",locale,{system:"eu",standard});
+                  // The queue stays in this tab only: no calculator data in URLs or requests.
+                  window.location.assign(locale === "it" ? "/distinta" : `/${locale}/distinta`);
+                }}
+                data-cockpit-add
+                className="tube-calculator-rfq-link mt-1.5 inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-[#c3e5d5] bg-[#e3f4eb] px-3 py-2 text-center text-sm font-bold leading-snug text-[#123b34] transition-colors hover:border-[#98d6b6] hover:bg-[#ccebdc] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {t(onAddToDistinta ? "＋ Aggiungi alla distinta" : "Aggiungi questa misura alla distinta →")}
+              </button>
+              <p className="mt-1 text-[11px] leading-4 text-white/85">
+                {inlinePublicDistinta ? inlineCopy.billWeightNote : t(onAddToDistinta
+                  ? "Il peso è teorico: la riga appare subito a fianco, senza inviare una RFQ."
+                  : "Gratuito · nessun login richiesto. Il grado acciaio resta da confermare.")}
+              </p>
+
               <CalculatorCommercialPricing weightKgM={values.error ? null : values.kgM} locale={locale}
                 onChooseBuyerTarget={onChooseBuyerTarget} />
 
@@ -1518,43 +1556,6 @@ export function PublicTubeWeightCalculator({
                 </div>
               </details> : null}
 
-              <button
-                type="button"
-                disabled={!currentSnapshot || (Boolean(onAddToDistinta) && !canAddToDistinta)}
-                onClick={() => {
-                  if (!currentSnapshot) return;
-                  const item = calculatorRfqFromValues(currentSnapshot,
-                    typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "calc-"+Date.now()+"-"+Math.random().toString(36).slice(2));
-                  if (onAddToDistinta) {
-                    if (!item || !onAddToDistinta(item)) {
-                      setActionFeedback(inlineCopy.addError);
-                    } else {
-                      setActionFeedback(inlinePublicDistinta
-                        ? inlineCopy.added
-                        : "Articolo aggiunto ✓ · puoi continuare con un’altra misura.");
-                    }
-                    return;
-                  }
-                  if (!item || !enqueueCalculatorRfq(window.sessionStorage, item)) {
-                    setActionFeedback(t("Impossibile trasferire l'articolo. Verifica lo spazio di sessione del browser e riprova."));
-                    return;
-                  }
-                  // CALC-INT3E.7: preserve the existing consent-gated EN/DE/FR/ES
-                  // handoff event after successful enqueue (never send RFQ content).
-                  if (locale !== "it") trackInternationalRfq("handoff",locale,{system:"eu",standard});
-                  // The queue stays in this tab only: no calculator data in URLs or requests.
-                  window.location.assign(locale === "it" ? "/distinta" : `/${locale}/distinta`);
-                }}
-                data-cockpit-add
-                className="tube-calculator-rfq-link mt-1.5 inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-[#c3e5d5] bg-[#e3f4eb] px-3 py-2 text-center text-sm font-bold leading-snug text-[#123b34] transition-colors hover:border-[#98d6b6] hover:bg-[#ccebdc] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {t(onAddToDistinta ? "＋ Aggiungi alla distinta" : "Aggiungi questa misura alla distinta →")}
-              </button>
-              <p className="mt-1 text-[11px] leading-4 text-white/85">
-                {inlinePublicDistinta ? inlineCopy.billWeightNote : t(onAddToDistinta
-                  ? "Il peso è teorico: la riga appare subito a fianco, senza inviare una RFQ."
-                  : "Gratuito · nessun login richiesto. Il grado acciaio resta da confermare.")}
-              </p>
               {inlinePublicDistinta && inlineBillCount > 0 ? (
                 <button type="button" onClick={onOpenInlineBill} aria-haspopup="dialog"
                   className="mt-1 inline-flex min-h-9 items-center text-xs font-bold text-white underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
