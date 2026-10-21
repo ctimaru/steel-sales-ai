@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import {
   dimensionLabel, dimensionNumber, searchCalculatorDimensions,
   type CalculatorDimension, type DimensionFamilyFilter,
@@ -73,6 +73,7 @@ export function CalculatorDimensionDiscovery({
   onChoose:(item:CalculatorDimension)=>void;
 }) {
   const c=copy[locale];
+  const familyGroupName=useId();
   const [query,setQuery]=useState("");
   const [family,setFamily]=useState<DimensionFamilyFilter>("all");
   const [wall,setWall]=useState<"all"|number>("all");
@@ -112,11 +113,15 @@ export function CalculatorDimensionDiscovery({
       </label>
     </div>
     <div role="group" aria-label={c.title} className="mt-2 flex gap-1.5 overflow-x-auto pb-1">
-      {families.map(([value,label])=><button key={value} type="button" aria-pressed={family===value}
-        onClick={()=>{setFamily(value);setWall("all");}}
-        className={`min-h-10 shrink-0 rounded-xl border px-3 text-xs font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#16714c] ${family===value
+      {families.map(([value,label])=><label key={value}
+        className={`inline-flex min-h-10 shrink-0 cursor-pointer items-center rounded-xl border px-3 text-xs font-bold focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#16714c] ${family===value
           ?"border-[#123d34] bg-[#123d34] text-white"
-          :"border-[#bfd9cc] bg-white text-[#20513e] hover:bg-[#e2f2e8]"}`}>{label}</button>)}
+          :"border-[#bfd9cc] bg-white text-[#20513e] hover:bg-[#e2f2e8]"}`}>
+        <input type="radio" name={familyGroupName} value={value} checked={family===value}
+          onChange={()=>{setFamily(value);setWall("all");}}
+          className="sr-only" />
+        <span>{label}</span>
+      </label>)}
     </div>
     {items.length===0 ? <p className="mt-2 text-xs text-[#52695d]">{c.noData}</p> :
       found.matchCount===0 ? <p role="status" className="mt-2 text-xs text-[#52695d]">{c.empty}</p> :
