@@ -44,10 +44,10 @@ test("CALC-UX3 mobile targets, text and result grid are responsive", () => {
   assert.match(calculator, /min-h-11 shrink-0 px-2\.5 py-2 text-xs/);
   assert.match(calculator, /<details className="group\/assist/);
   assert.match(calculator, /grid grid-cols-2 gap-2 sm:grid-cols-3/);
-  assert.match(calculator, /col-span-2 min-w-0 rounded-xl bg-white\/8 p-2 sm:col-span-1/);
+  assert.match(calculator, /min-w-0 rounded-lg bg-white\/8 px-2 py-1\.5/);
   assert.match(calculator, /tube-calculator-favourite-selected col-span-2 min-h-11/);
-  assert.match(calculator, /tube-calculator-rfq-link mt-2 inline-flex min-h-12/);
-  assert.match(calculator, /flex flex-col items-stretch gap-2 border-b/);
+  assert.match(calculator, /tube-calculator-rfq-link mt-1\.5 inline-flex min-h-11/);
+  assert.match(calculator, /flex items-center border-b border/);
   assert.doesNotMatch(calculator, /mt-1 truncate text-lg/);
   assert.match(calculator, /aria-pressed=\{length === preset\}/);
   assert.match(calculator, /aria-label=\{t\("Numero barre"\)\}/);
