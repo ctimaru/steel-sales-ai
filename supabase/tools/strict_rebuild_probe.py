@@ -36,11 +36,11 @@ def classify_failure(output: str) -> str:
 # Only schema object identifiers / migration file basenames can leave the CI runner.
 # No raw SQL, log lines, connection strings or error messages are persisted.
 OBJECT_ERROR_RE = re.compile(
-    r'(?:relation|table|type|schema)\\s+["\\x27]?([a-z_][a-z_0-9.]*)["\\x27]?\\s+does not exist',
+    r'(?:relation|table|type|schema)\s+["\x27]?([a-z_][a-z_0-9.]*)["\x27]?\s+does not exist',
     re.IGNORECASE,
 )
 MIGRATION_TRACE_RE = re.compile(
-    r'(?:applying migration|failed to apply migration)\\s+([0-9]{14}_[a-zA-Z0-9_]+\\.sql)',
+    r'(?:applying migration|failed to apply migration)\s+([0-9]{14}_[a-zA-Z0-9_]+\.sql)',
     re.IGNORECASE,
 )
 
