@@ -313,9 +313,14 @@ try {
             }
             const move=page.locator("#calcolatore-pesi .tube-calculator-rfq-link");
             await move.click();
-            const inline=page.locator("#distinta-inline");
+            // The technical cart is now collapsed by default. Respect the
+            // cookie overlay and explicitly open the visible buyer drawer.
+            if (await page.locator('[data-testid="mobile-cookie-consent"] > button').isVisible())
+              await page.locator('[data-testid="mobile-cookie-consent"] > button').click();
+            await page.locator('[data-testid="calculator-cart-trigger"]').click();
+            const inline=page.locator("#distinta-inline-dialog");
             await inline.locator("article").last().waitFor({state:"visible",timeout:20000});
-            await page.waitForFunction(n=>document.querySelectorAll("#distinta-inline article").length===n,previousCount+repeat+1);
+            await page.waitForFunction(n=>document.querySelectorAll("#distinta-inline-dialog article").length===n,previousCount+repeat+1);
             await page.waitForFunction(()=>Boolean(sessionStorage.getItem("sss:inline-distinta:v1")));
             assert.equal(new URL(page.url()).pathname,tube.path,"Inline bill must not navigate");
             const target=await page.evaluate(()=>JSON.parse(sessionStorage.getItem("sss:inline-distinta:v1")).lines);

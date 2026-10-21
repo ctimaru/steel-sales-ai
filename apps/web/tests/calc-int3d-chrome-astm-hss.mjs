@@ -28,7 +28,10 @@ try{
     const add=hss.getByRole("button",{name:scenario.button});
     await page.waitForFunction(()=>!!document.querySelector("button[data-us-add-to-inline-bill]:not(:disabled)"));
     await add.click();
-    const bill=page.locator("#distinta-inline");
+    const bill=page.locator("#distinta-inline-dialog");
+    if (await page.locator('[data-testid="mobile-cookie-consent"] > button').isVisible())
+      await page.locator('[data-testid="mobile-cookie-consent"] > button').click();
+    await page.locator('[data-testid="calculator-cart-trigger"]').click();
     await bill.locator("article").first().waitFor({state:"visible",timeout:30000});
     assert.equal(new URL(page.url()).pathname,scenario.start,"US HSS must add without navigation");
     const stored=JSON.parse(await page.evaluate(()=>sessionStorage.getItem("sss:inline-distinta:v1")));

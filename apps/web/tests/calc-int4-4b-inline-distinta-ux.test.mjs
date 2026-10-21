@@ -8,6 +8,8 @@ const page = read("../app/(italian)/(public)/knowledge/tubes/page.tsx");
 const switcher = read("../components/calculator-region-switch.tsx");
 const calculator = read("../components/public-tube-weight-calculator.tsx");
 const experience = read("../components/calculator-inline-distinta-experience.tsx");
+const shell = read("../components/technical-cart-shell.tsx");
+const shellCss = read("../components/technical-cart-shell.module.css");
 const model = read("../lib/calculator-inline-distinta.ts");
 const existingBuilder = read("../components/buyer-distinta-builder.tsx");
 
@@ -36,7 +38,7 @@ test("CALC-INT4.4B preserves calculator first-screen 2 columns, commercial prici
   assert.match(calculator,/!inEmbeddedBuilder && \(locale === "it" \|\| locale === "en"/);
   assert.match(calculator,/!inEmbeddedBuilder && !inlinePublicDistinta \? \(\s*<details/);
   assert.match(calculator,/inlinePublicDistinta && inlineBillCount > 0/);
-  assert.match(calculator,/href="#distinta-inline"/);
+  assert.match(calculator,/onClick=\{onOpenInlineBill\}/);
   assert.match(calculator,/if \(onAddToDistinta\) \{/);
   assert.match(calculator,/enqueueCalculatorRfq\(window\.sessionStorage, item\)/);
   assert.match(calculator,/inlineCopy.added/);
@@ -52,11 +54,18 @@ test("CALC-INT4.4B uses 4.4A pure state and existing canonical bill formatter wi
   assert.match(experience,/buildBuyerDistintaPlainText\(c.quoteTitle, calculated\)/);
   assert.match(experience,/liveState\.current = result\.state/);
   assert.match(experience,/return commit\(result\)/);
-  assert.match(experience,/setOpen\(result\.state\.lines\.length > 0\)/);
+  assert.match(experience,/if \(!result\.state\.lines\.length\) setOpen\(false\)/);
   assert.match(experience,/navigator\.clipboard\.writeText/);
   assert.match(experience,/id="distinta-inline"/);
+  assert.match(experience,/<TechnicalCartShell/);
+  assert.match(experience,/triggerTestId="calculator-cart-trigger"/);
+  assert.match(shell,/createPortal\(/);
+  assert.match(shell,/role="dialog" aria-modal="true"/);
+  assert.match(shell,/document\.body\.style\.overflow/);
+  assert.match(shell,/event\.key === "Escape"/);
+  assert.match(shellCss,/\.dialogWide/);
   assert.match(experience,/aria-live="polite"/);
-  assert.match(experience,/aria-expanded=\{open\}/);
+  assert.match(shell,/aria-expanded=\{open\}/);
   assert.match(experience,/type="button"/);
   assert.match(experience,/data-create-inline-private-rfq/);
   assert.match(experience,/createPrivateRfqOneStep/);

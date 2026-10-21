@@ -31,6 +31,35 @@ type Payload = {
   contract: "trader1d2-superadmin-v1"; scope: "private_research_only";
   total: number; items: Item[]; selected: Selected | null; published_by_trader1d2: 0;
 };
+type SourceHealth = { status: string; checked_at: string; change: string } | null;
+type SourceHealthRow = {
+  research_id: string; role: SourceHealth; product: SourceHealth;
+};
+type HealthPayload = {
+  contract: "trader1d3b2-owner-health-v1"; items: SourceHealthRow[];
+};
+function sourceHealthLabel(value: SourceHealth) {
+  if (!value) return "Non ancora controllata";
+  if (value.status === "reachable_html" || value.status === "reachable_unknown_type")
+    return "HEAD raggiungibile";
+  if (value.status === "method_not_supported") return "HEAD non supportato";
+  if (value.status === "robots_or_unavailable") return "Robots / accesso non disponibile";
+  if (value.status === "redirect_observed") return "Reindirizzamento da esaminare";
+  if (value.status === "rate_limited") return "Limite richieste";
+  return "Esito HTTP: " + value.status.replaceAll("_", " ");
+}
+function SourceHealthCard({title, observation}: {title:string; observation:SourceHealth}) {
+  const date = observation && Number.isFinite(Date.parse(observation.checked_at))
+    ? new Date(observation.checked_at).toLocaleDateString("it-IT") : null;
+  return <div className="rounded-xl border border-[#d5e4db] bg-[#f8faf8] px-3 py-3">
+    <p className="text-xs font-bold text-[#244c38]">{title}</p>
+    <p className="mt-1 text-sm font-semibold text-[#283f35]">{sourceHealthLabel(observation)}</p>
+    <p className="mt-1 text-xs leading-5 text-[#66766b]">
+      {date ? `Ultima osservazione ${date} · ${observation?.change?.replaceAll("_"," ")}`
+        : "Nessuna osservazione ancora registrata"}
+    </p>
+  </div>;
+}
 
 /** Presence + same-domain checks, NOT a website recrawl, legal identity proof or reuse licence. */
 function firstPartyEvidence(value: string | null | undefined, domain: string) {
@@ -123,6 +152,18 @@ export default async function TraderQualityMonitor({
   const pageCount = snapshot ? Math.max(1, Math.ceil(snapshot.total / 25)) : 1;
   const items = snapshot && requestedPage <= pageCount ? snapshot.items : [];
   const selected = snapshot?.selected ?? null;
+  // Separate bounded authenticated RPC. Null is "not activated", never zero checks.
+  const ids = items.map(item => item.id);
+  if (selected && !ids.includes(selected.id) && ids.length < 25) ids.push(selected.id);
+  const healthResult = snapshot && ids.length
+    ? await supabase.rpc("trader1d3b2_owner_health", {p_ids: ids}) : null;
+  const healthValue = healthResult && !healthResult.error && healthResult.data
+    && typeof healthResult.data === "object"
+    ? healthResult.data as HealthPayload : null;
+  const liveAvailable = healthValue?.contract === "trader1d3b2-owner-health-v1"
+    && Array.isArray(healthValue.items) && healthValue.items.length <= 25;
+  const liveRows = liveAvailable ? healthValue!.items : null;
+  const selectedHealth = liveRows?.find(row => row.research_id === selected?.id) ?? null;
   const selectedRow = items.find(r => r.id === selected?.id);
   const profile = selected ? signals({
     ...selected,
@@ -141,14 +182,16 @@ export default async function TraderQualityMonitor({
     </div>
     <header className="rounded-2xl border border-[#d7e5da] bg-white p-4 sm:p-5">
       <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#175640]">
-        TRADER1D.3A · Source-Trust Intelligence</p>
+        TRADER1D.3B.2 · Live Source Intelligence</p>
       <div className="mt-2 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-[#183e33] sm:text-3xl">
             Qualità automatica · Commercianti UE</h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-[#52635b]">
             Le verifiche strutturali individuano fonti presenti, lacune e conflitti senza
-            approvazioni manuali. I controlli sul dossier non certificano un&apos;azienda:
+            approvazioni manuali. Dove disponibili, i controlli HEAD vengono letti dal
+            registro Supabase corrente; non validano il contenuto della pagina.
+            I controlli sul dossier non certificano un&apos;azienda:
             la gestione dei dati pubblici spetterà all&apos;impresa dopo il claim del profilo.
           </p>
         </div>
@@ -229,6 +272,24 @@ export default async function TraderQualityMonitor({
             <p className="text-xs font-bold uppercase tracking-wide text-[#175640]">Ricerca privata</p>
             <h2 className="mt-1 text-xl font-bold text-[#173f35]">{selected.name}</h2>
             <p className="mt-1 text-xs text-[#556960]">Mercato {selected.market} · {selected.domain}</p>
+            <div className="mt-3 rounded-xl border border-[#cee0d4] bg-white p-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm font-bold text-[#174c35]">Monitor live delle fonti</p>
+                <span className="rounded-full bg-[#ecf5ed] px-2 py-1 text-xs font-semibold text-[#31543e]">
+                  {liveAvailable ? "Storico HTTP Supabase" : "Backend live non attivo"}
+                </span>
+              </div>
+              <p className="mt-1 text-xs leading-5 text-[#607167]">
+                Metadati HEAD e data dell&apos;ultima osservazione. Una risposta positiva non
+                dimostra identità legale, contenuti attuali, diritti di riuso o disponibilità a magazzino.
+              </p>
+              {liveAvailable ? <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <SourceHealthCard title="Fonte ruolo" observation={selectedHealth?.role ?? null} />
+                <SourceHealthCard title="Fonte prodotti" observation={selectedHealth?.product ?? null} />
+              </div> : <p className="mt-2 text-xs font-semibold text-[#755421]">
+                Nessun risultato live disponibile: migrazione e worker da attivare dopo il controllo versioni Supabase.
+              </p>}
+            </div>
             <div className="mt-3 rounded-xl border border-[#d6e5db] bg-[#f3f9f5] px-4 py-3">
               <div className="flex items-end justify-between">
                 <div>

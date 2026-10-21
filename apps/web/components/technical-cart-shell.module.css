@@ -1,0 +1,111 @@
+/* CALC-NEXT1E — single technical cart visual grammar for both surfaces. */
+.trigger {
+  position: fixed;
+  z-index: 80;
+  bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  left: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: calc(100% - 1.5rem);
+  min-height: 3.5rem;
+  max-width: calc(100vw - 1.5rem);
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--brand-200, #abd3c7);
+  border-radius: 1rem;
+  background: var(--brand-deep, #123b34);
+  color: #fff;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 12px 36px rgba(5, 39, 28, .27);
+}
+.trigger:hover { background: var(--brand-primary-hover, #185247); }
+.trigger:focus-visible, .close:focus-visible {
+  outline: 3px solid #d4a348;
+  outline-offset: 3px;
+}
+.icon { flex: none; font-size: 1.45rem; line-height: 1; }
+.triggerContent { display: block; min-width: 0; flex: 1; }
+.triggerTitle { display: block; font-size: .875rem; font-weight: 800; }
+.triggerSummary { display: block; font-size: .75rem; color: #def0e5; font-variant-numeric: tabular-nums; }
+.arrow { flex: none; font-size: 1.25rem; }
+.overlay { position: fixed; inset: 0; z-index: 120; display: flex; align-items: end; justify-content: center; }
+.backdrop { position: absolute; inset: 0; background: rgba(9,38,27,.62); cursor: pointer; }
+.dialog, .dialogWide {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  max-height: 92dvh;
+  overflow: hidden;
+  border: 1px solid var(--border-strong, #c7d3ce);
+  border-radius: 1.5rem 1.5rem 0 0;
+  background: var(--surface-base, white);
+  color: var(--brand-deep, #123b34);
+  box-shadow: 0 -15px 60px rgba(3,27,17,.25);
+}
+.dialog:focus, .dialogWide:focus { outline: none; }
+.header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border, #dde4e1);
+}
+.headingContent { min-width: 0; }
+.eyebrow {
+  margin: 0;
+  color: var(--brand-primary, #1f6b5a);
+  font-size: .6875rem;
+  line-height: 1.4;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.heading { margin: .25rem 0; color: var(--brand-deep, #123b34); font-size: 1.0625rem; font-weight: 800; }
+.summary { margin: 0; color: var(--text-secondary, #475569); font-size: .75rem; font-variant-numeric: tabular-nums; }
+.close {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  gap: .25rem;
+  padding: .55rem .95rem;
+  border: 1px solid var(--border-strong, #c7d3ce);
+  border-radius: .75rem;
+  background: var(--brand-50, #f0faf6);
+  color: var(--brand-deep, #123b34);
+  font-size: .875rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.close:hover { background: var(--brand-primary-soft, #ddf5ec); }
+.body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: .75rem .75rem 2rem; }
+@media (min-width: 640px) {
+  .trigger {
+    left: auto;
+    right: 1.25rem;
+    bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    width: auto;
+    min-width: 16.5rem;
+  }
+  .overlay { justify-content: flex-end; align-items: stretch; }
+  .dialog, .dialogWide {
+    width: min(720px, 95vw);
+    max-height: 100dvh;
+    height: 100dvh;
+    border-radius: 1.5rem 0 0 1.5rem;
+  }
+  .dialogWide { width: min(760px, 95vw); }
+  .header { padding: 1rem 1.5rem; }
+  .body { padding: 1.25rem 1.25rem 2rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trigger { scroll-behavior: auto; transition: none; }
+}

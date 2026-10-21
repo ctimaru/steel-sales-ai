@@ -75,7 +75,7 @@ export function CalculatorRegionSwitch({
       initialValues={isNewCalculatorLocale(locale)
         ? internationalEuInitialValues(internationalSeed) : initialValues}
       locale={locale}
-      renderCalculator={({onAddToDistinta,onAddUsToDistinta,canAddToDistinta,inlineBillCount,inlineBill,onChooseBuyerTarget}) => (
+      renderCalculator={({onAddToDistinta,onAddUsToDistinta,canAddToDistinta,inlineBillCount,inlineBill,onOpenInlineBill,onChooseBuyerTarget}) => (
       <>
     <section className={styles.root} aria-label={regional?.region??(english ? "Steel calculator region" : "Area del calcolatore acciaio")}>
       <div className={styles.header}>
@@ -121,7 +121,7 @@ export function CalculatorRegionSwitch({
                   ? internationalEuInitialValues(internationalSeed) : initialValues}
                 locale={locale} onAddToDistinta={onAddToDistinta}
                 canAddToDistinta={canAddToDistinta} inlinePublicDistinta
-                inlineBillCount={inlineBillCount} onChooseBuyerTarget={onChooseBuyerTarget}
+                inlineBillCount={inlineBillCount} onOpenInlineBill={onOpenInlineBill} onChooseBuyerTarget={onChooseBuyerTarget}
                 inlineBill={region==="eu" ? inlineBill : undefined} />
               {euAfter ? <div className={styles.evidence}>{euAfter}</div> : null}
             </>

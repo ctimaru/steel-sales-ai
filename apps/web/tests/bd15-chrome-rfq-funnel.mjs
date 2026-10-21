@@ -39,13 +39,25 @@ async function fillTwoTubularLines(page) {
   const calc = page.locator("#calcolatore-pesi");
   const bill = page.locator("#buyer-live-preview");
   await calc.waitFor({ state: "visible", timeout: 60000 });
+  const cookie = page.locator('[data-testid="mobile-cookie-consent"]');
+  if (await cookie.isVisible()) {
+    await cookie.getByRole("button",{name:"Accetta necessari"}).click();
+  }
+  const trigger=page.locator('[data-testid="private-cart-trigger"]');
+  assert.equal(await bill.count(),0,"Drawer starts intentionally closed");
   await calc.getByLabel("Numero barre").fill("3");
   const add = calc.getByRole("button", { name: /Aggiungi alla distinta/ });
   await add.click();
+  assert.equal(await bill.count(),0,"Adding a line must not auto-open drawer");
+  await trigger.click();
   await page.waitForFunction(() =>
     document.querySelectorAll("#buyer-live-preview .bd10-preview-row:not([hidden])").length === 1);
+  await page.getByRole("dialog",{name:"Carrello della distinta privata"})
+    .getByRole("button",{name:/Chiudi/}).click();
+  assert.equal(await bill.count(),0,"Drawer must close before next calculation");
   await calc.getByRole("button", { name: /EN 10210/ }).click();
   await add.click();
+  await trigger.click();
   await page.waitForFunction(() =>
     document.querySelectorAll("#buyer-live-preview .bd10-preview-row:not([hidden])").length === 2);
   const summary = await bill.innerText();
