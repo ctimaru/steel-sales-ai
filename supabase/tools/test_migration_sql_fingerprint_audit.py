@@ -43,8 +43,8 @@ class SqlFingerprintAuditTests(unittest.TestCase):
         self.assertEqual(out["summary"]["remote_duplicate_names"],1)
 
     def test_comment_prefix_and_trailing_newline_are_diagnostic_only(self):
-        local_raw=b"-- source header\\n-- legal note\\n\\nCREATE TABLE t(a integer);\\n"
-        remote_raw=b"\\nCREATE TABLE t(a integer);"
+        local_raw=b"-- source header\n-- legal note\n\nCREATE TABLE t(a integer);\n"
+        remote_raw=b"\nCREATE TABLE t(a integer);"
         normalized_local=_normalize_cosmetic_prefix_and_suffix(local_raw)
         normalized_remote=_normalize_cosmetic_prefix_and_suffix(remote_raw)
         self.assertEqual(normalized_local,normalized_remote)
