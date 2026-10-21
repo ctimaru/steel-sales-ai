@@ -25,7 +25,7 @@
   display:grid;
   grid-template-columns:minmax(235px,.9fr) minmax(0,1.8fr);
   align-items:end;
-  gap:10px;
+  gap:8px;
   padding:8px 12px;
   border-bottom:1px solid #dce7e3;
   background:#f7faf8;
@@ -96,3 +96,14 @@
 @media (max-width:639px) {
   .detailStrip { padding:8px; gap:6px; }
 }
+
+/* CALC-DENSE1R-D: search results float above the cockpit, never reflow
+ * the standard / shape selectors or push the measurement panel off-screen. */
+.toolbar [data-testid="calculator-dimension-discovery"] {isolation:isolate;}
+.toolbar [data-dense-discovery-popover] {
+  box-shadow:0 16px 36px rgba(12,42,29,.20);
+  color:#173e30;
+}
+.toolbar [role="option"] strong {font-variant-numeric:tabular-nums}
+.toolbar [role="option"] [title] {min-width:0}
+.toolbar [role="option"]:focus-visible {outline:2px solid #16714c;outline-offset:-2px}
