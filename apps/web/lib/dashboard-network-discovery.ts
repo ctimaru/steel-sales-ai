@@ -83,7 +83,7 @@ export function selectDashboardNetworkCompanies(
       .filter((product) => product && typeof product.name === "string" && typeof product.key === "string")
       : [];
     // Only present a company with at least one explicitly catalogued product.
-    if (!products.length) return [];
+    if (!products.some((product) => product.key === "tubes_pipes")) return [];
     const roles = Array.isArray(company.roles) ? company.roles
       .filter((role) => role && typeof role.key === "string" && typeof role.name === "string")
       : [];
