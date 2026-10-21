@@ -107,3 +107,18 @@ test("NEXT1C.4 does not create CRM identities, RFQs, emails or external outreach
   assert.match(commercial, /getCommercialNetworkProspect\(context\.organizationId, context\.userId, networkContext\.id\)/);
   assert.match(commercial, /\.slice\(0, 3\)/);
 });
+
+test("NEXT1C.4 shortlist remains in Commerciale, loads only on explicit request and entitlement", () => {
+  assert.match(commercial, /params\.prospects === "1"/);
+  assert.match(commercial, /getNetworkAccessState\(context\.organizationId\)/);
+  assert.match(commercial, /prospectAccess\?\.can_access_network && prospectAccess\.organization_id === context\.organizationId/);
+  assert.match(commercial, /listCommercialNetworkProspects\(context\.organizationId, context\.userId\)/);
+  assert.match(commercial, /data-testid="commercial-prospect-list"/);
+  assert.match(commercial, /Aziende da seguire →/);
+  assert.match(commercial, /Apri in Commerciale →/);
+  assert.match(commercial, /Fino alle ultime 12 aziende salvate/);
+  assert.match(model, /\.eq\("organization_id", organizationId\)/);
+  assert.match(model, /\.eq\("user_id", userId\)/);
+  assert.match(model, /\.eq\("network_companies\.publication_status", "published"\)/);
+  assert.match(model, /\.limit\(12\)/);
+});
