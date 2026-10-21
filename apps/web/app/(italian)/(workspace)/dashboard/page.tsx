@@ -14,6 +14,8 @@ import {
   getNetworkInquiries,
 } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
+import { searchNetwork } from "@/lib/network";
+import { selectDashboardNetworkCompanies } from "@/lib/dashboard-network-discovery";
 import { appRoutes } from "@/lib/routes";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 import { canWriteWorkspace } from "@/lib/access-policy";
@@ -44,7 +46,7 @@ export default async function DashboardPage({
   const isAdmin = context.role === "admin";
   const canWrite = canWriteWorkspace(context.role);
 
-  const [setup, commercial, received, activity, sector, procurement, pulse, marketplace] = await Promise.all([
+  const [setup, commercial, received, activity, sector, procurement, pulse, marketplace, networkCatalog] = await Promise.all([
     isAdmin
       ? getCompanySetupState(context.organizationId)
       : Promise.resolve(null),
@@ -61,6 +63,11 @@ export default async function DashboardPage({
     // P5.2 already validates viewer identity, publication status and visibility.
     // Fetch only the permitted public teaser projection; never private RFQ lines.
     getMarketplaceFeed(context.organizationId, { limit: 10, offset: 0 }).catch(() => null),
+    // Published M6 catalog only. Never query Network companies without entitlement.
+    // The product filter is a broad industrial first page, not an AI recommendation.
+    networkEnabled && networkEntitled
+      ? searchNetwork({ product: "tubes_pipes", page: 1 }).catch(() => null)
+      : Promise.resolve(null),
   ]);
 
   const { metrics, recent, mode, operational } = commercial;
@@ -73,6 +80,9 @@ export default async function DashboardPage({
     : "unknown";
   const displaySector = sector === "unknown" ? selfDeclaredSector : sector;
   const presentation = dashboardPresentation(context.role === "admin" || context.role === "viewer" ? context.role : "member", displaySector);
+  const networkCompanies = networkEnabled && networkEntitled && networkCatalog
+    ? selectDashboardNetworkCompanies(networkCatalog.items, displaySector, pulse.interests, context.organizationName)
+    : [];
   const setupIncomplete = Boolean(
     setup && (!setup.profile_ready || !setup.data_ready || !setup.first_value_ready),
   );
@@ -328,6 +338,8 @@ export default async function DashboardPage({
             activity={activity.items}
             marketplace={marketplace}
             interests={pulse.interests}
+            networkCompanies={networkCompanies}
+            networkDiscoveryAvailable={networkCatalog !== null}
           />
           <section aria-label="Aree di lavoro" className="grid gap-3 sm:grid-cols-2">
             <Link
