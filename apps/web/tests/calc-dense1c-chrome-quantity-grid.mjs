@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import { chromium } from "playwright";
+import { mkdir } from "node:fs/promises";
 
 // DENSE1C: disposable local browser; no credentials or live RFQ dispatch.
+await mkdir("/tmp/calc-dense1c",{recursive:true});
 const browser = await chromium.launch({headless:true,channel:"chrome"});
 try {
-  for (const width of [390,1440]) {
+  for (const width of [320,390,768,1440]) {
     const context = await browser.newContext({viewport:{width,height:860},reducedMotion:"reduce"});
     await context.route("**/*", route => route.request().url().startsWith("http://127.0.0.1:3000") ? route.continue() : route.abort());
     const page = await context.newPage();
@@ -41,6 +43,11 @@ try {
     assert.equal(await footer.locator("[data-create-inline-private-rfq]").isEnabled(),true);
     const dimensions = await bill.evaluate(element=>({scroll:element.scrollWidth,client:element.clientWidth}));
     assert.ok(dimensions.scroll<=dimensions.client+12,"Drawer horizontal overflow: "+JSON.stringify(dimensions));
+    // Chrome visual artifact: non-sensitive synthetic rows; never create a real RFQ.
+    await bill.getByRole("button",{name:/Duplica/}).first().click();
+    await bill.getByRole("button",{name:/Duplica/}).first().click();
+    assert.equal(await bill.locator("[data-distinta-compact-row]").count(),3);
+    await page.screenshot({path:"/tmp/calc-dense1c/cart-"+width+".png",animations:"disabled"});
     await bill.getByRole("button",{name:/Chiudi/}).click();
     await page.reload({waitUntil:"domcontentloaded"});
     await page.locator('[data-testid="calculator-cart-trigger"]').click();

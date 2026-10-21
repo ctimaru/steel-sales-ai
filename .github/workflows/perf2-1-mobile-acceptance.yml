@@ -182,6 +182,14 @@ jobs:
           path: /tmp/school-growth1e
           if-no-files-found: ignore
           retention-days: 7
+      - name: Upload CALC-DENSE1C compact cart desktop/mobile screenshots (synthetic, no credentials)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calc-dense1c-visual-qa
+          path: /tmp/calc-dense1c
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Upload CALC-UX3 calculator Chrome screenshots (public / no credentials)
         if: always()
         uses: actions/upload-artifact@v4
