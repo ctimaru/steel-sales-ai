@@ -99,7 +99,7 @@
 
 /* CALC-DENSE1R-D: search results float above the cockpit, never reflow
  * the standard / shape selectors or push the measurement panel off-screen. */
-.toolbar [data-testid="calculator-dimension-discovery"] {isolation:isolate;}
+.toolbar [data-testid="calculator-dimension-discovery"] {position:relative;z-index:5;isolation:isolate;}
 .toolbar [data-dense-discovery-popover] {
   box-shadow:0 16px 36px rgba(12,42,29,.20);
   color:#173e30;

@@ -5,7 +5,7 @@ import ts from "typescript";
 const read=p=>readFileSync(new URL(p,import.meta.url),"utf8");
 const finder=read("../components/calculator-dimension-discovery.tsx");
 const css=read("../components/calculator-dense-cockpit.module.css");
-const workflow=read("../../.github/workflows/perf2-1-mobile-acceptance.yml");
+const workflow=read("../../../.github/workflows/perf2-1-mobile-acceptance.yml");
 test("DENSE1R-D: five-language compact suggestions float, never reflow cockpit",()=>{
   const parsed=ts.transpileModule(finder,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.Preserve},reportDiagnostics:true});
   assert.equal(parsed.diagnostics?.filter(x=>x.category===ts.DiagnosticCategory.Error).length??0,0);
