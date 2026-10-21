@@ -340,6 +340,7 @@ export default async function DashboardPage({
             interests={pulse.interests}
             networkCompanies={networkCompanies}
             networkDiscoveryAvailable={networkCatalog !== null}
+            canWriteCommercial={canWrite}
           />
           <section aria-label="Aree di lavoro" className="grid gap-3 sm:grid-cols-2">
             <Link

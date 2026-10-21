@@ -17,7 +17,7 @@ import { appRoutes } from "@/lib/routes";
  * This is not a generated AI recommendation, urgency queue, or a private RFQ feed.
  */
 export function DashboardDiscoveryFeed({
-  networkEnabled, networkEntitled, activity, marketplace, interests, networkCompanies, networkDiscoveryAvailable,
+  networkEnabled, networkEntitled, activity, marketplace, interests, networkCompanies, networkDiscoveryAvailable, canWriteCommercial,
 }: {
   networkEnabled: boolean;
   networkEntitled: boolean;
@@ -26,6 +26,7 @@ export function DashboardDiscoveryFeed({
   interests: PulseAdvancedInterests;
   networkCompanies: readonly DashboardNetworkMatch[];
   networkDiscoveryAvailable: boolean;
+  canWriteCommercial: boolean;
 }) {
   // Do not derive Network facts for non-entitled users, even from provided props.
   const updates = networkEnabled && networkEntitled
@@ -98,13 +99,22 @@ export function DashboardDiscoveryFeed({
                             Perché compare: {company.reasons.join(" · ")}
                           </p>
                         ) : null}
-                        <DashboardTrackedLink
-                          engagementKind="network_profile"
-                          href={appRoutes.network.company(company.id)}
-                          className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2"
-                        >
-                          Esamina scheda Network →
-                        </DashboardTrackedLink>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <DashboardTrackedLink
+                            engagementKind="network_profile"
+                            href={appRoutes.network.company(company.id)}
+                            className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2"
+                          >
+                            Profilo Network →
+                          </DashboardTrackedLink>
+                          <Link
+                            href={appRoutes.commercial.home + "?network=" + encodeURIComponent(company.id) +
+                              (canWriteCommercial ? "&compose=1#commercial-compose" : "#network-commercial-context")}
+                            className="inline-flex min-h-10 items-center rounded-lg border border-[#a9cdb7] bg-[#eff7f2] px-2.5 text-xs font-semibold text-[#175640] hover:bg-[#e2f0e7] focus-visible:outline-2 focus-visible:outline-offset-2"
+                          >
+                            {canWriteCommercial ? "Prepara richiesta →" : "Consulta in Commerciale →"}
+                          </Link>
+                        </div>
                       </article>
                     ))}
                   </div>
