@@ -265,6 +265,8 @@ try {
           const calculator = page.locator("#calcolatore-pesi");
           await calculator.waitFor({ state: "visible" });
           check(await calculator.getByRole("button", { name: "EN 10219" }).count() === 1, "Missing shared standard control");
+          // DENSE1A: copy and sharing are secondary actions behind an explicit disclosure.
+          await calculator.locator("details[class*=\'group/extra\'] > summary").click();
           const copy = calculator.getByRole("button", { name: tube.copy, exact: true });
           await copy.waitFor({ state: "visible" });
           check(!(await copy.isDisabled()), "Copy should be enabled for valid default section");
