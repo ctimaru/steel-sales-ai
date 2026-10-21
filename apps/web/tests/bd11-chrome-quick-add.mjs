@@ -26,6 +26,9 @@ try {
     const trigger=page.locator('[data-testid="private-cart-trigger"]');
     await trigger.click();
     await preview.locator(".bd10-preview-row").first().waitFor({state:"visible"});
+    await page.keyboard.press("Escape");
+    assert.equal(await preview.count(),0,"Escape closes the private cart");
+    await trigger.click();
     assert.match(await preview.innerText(), /EN 10219/);
     assert.match(await preview.innerText(), /36(?:[,.]0+)? m/);
     await page.getByRole("dialog",{name:"Carrello della distinta privata"}).getByRole("button",{name:/Chiudi/}).click();

@@ -20,7 +20,7 @@ import {
   type BuyerSessionDraft,
 } from "@/lib/buyer-distinta-session-draft";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { createPortal } from "react-dom";
+import { TechnicalCartShell } from "@/components/technical-cart-shell";
 import {networkReviewedHandoffKey,parseNetworkReviewedHandoff,type NetworkReviewedHandoff} from "@/lib/network-reviewed-rfq-handoff";
 
 import {
@@ -108,8 +108,6 @@ export function BuyerDistintaBuilder({
   // CALC-NEXT1D: the private draft uses the same intentional-access cart
   // interaction as the public calculator, without sharing commercial data.
   const [cartOpen, setCartOpen] = useState(false);
-  const cartTriggerRef = useRef<HTMLButtonElement>(null);
-  const cartDialogRef = useRef<HTMLDivElement>(null);
   const cartReturnFocusRef = useRef<HTMLElement | null>(null);
   const pendingCartRowRef = useRef<string | null>(null);
   function openPrivateCart() {
@@ -148,42 +146,6 @@ export function BuyerDistintaBuilder({
   const [savePending, startSaveTransition] = useTransition();
   const [sendPending, startSendTransition] = useTransition();
   const [rfqPending, startRfqTransition] = useTransition();
-
-  useEffect(() => {
-    if (!cartOpen) return;
-    const dialog = cartDialogRef.current;
-    if (!dialog) return;
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    // When the HUD requests completion, focus the missing row after mount.
-    const id = pendingCartRowRef.current;
-    pendingCartRowRef.current = null;
-    const row = id ? document.getElementById("buyer-row-" + id) : null;
-    (row ?? dialog).focus({preventScroll:true});
-    row?.scrollIntoView({block:"nearest"});
-    const keydown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") { event.preventDefault(); setCartOpen(false); return; }
-      if (event.key !== "Tab") return;
-      const controls = Array.from(dialog.querySelectorAll<HTMLElement>(
-        'button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
-      )).filter(el => el.getClientRects().length > 0);
-      if (!controls.length) {event.preventDefault(); dialog.focus(); return;}
-      const first = controls[0], last = controls[controls.length - 1];
-      if (event.shiftKey && (document.activeElement === first || document.activeElement === dialog)) {
-        event.preventDefault(); last.focus();
-      } else if (!event.shiftKey && (document.activeElement === last || document.activeElement === dialog)) {
-        event.preventDefault(); first.focus();
-      }
-    };
-    document.addEventListener("keydown",keydown);
-    return () => {
-      document.removeEventListener("keydown",keydown);
-      document.body.style.overflow = overflow;
-      const target = cartReturnFocusRef.current;
-      if (target?.isConnected) target.focus({preventScroll:true});
-      else cartTriggerRef.current?.focus({preventScroll:true});
-    };
-  }, [cartOpen]);
 
   const calculated = useMemo(
     () => lines.map(calculateBuyerDistintaLine),
@@ -1035,38 +997,14 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic. Il carrell
               </div>
             </details>
           </div>
-          {typeof document !== "undefined" ? createPortal(
-            <>
-              {activeLineCount > 0 ? (
-                <button type="button" ref={cartTriggerRef} data-testid="private-cart-trigger"
-                  onClick={openPrivateCart} aria-expanded={cartOpen} aria-haspopup="dialog" aria-controls="buyer-live-preview-dialog"
-                  className="fixed bottom-3 left-3 right-3 z-[80] inline-flex min-h-14 max-w-[calc(100vw-24px)] items-center gap-3 rounded-2xl border border-[#7db39b] bg-[#123d34] px-4 py-3 text-left text-white shadow-[0_12px_36px_rgba(5,39,28,0.27)] hover:bg-[#195342] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4a348] sm:bottom-5 sm:left-auto sm:right-5 sm:min-w-[265px]">
-                  <span aria-hidden="true" className="text-2xl">▤</span>
-                  <span className="min-w-0 flex-1 text-left">
-                    <span className="block text-sm font-extrabold">La tua distinta · {activeLineCount}</span>
-                    <span className="block text-xs text-[#deefe5]">{formatNumber(totals.totalMeters,2)} m · {formatNumber(totals.totalTonnes,3)} t</span>
-                  </span>
-                  <span aria-hidden="true" className="text-xl">↗</span>
-                </button>
-              ) : null}
-              {cartOpen ? (
-                <div data-testid="private-cart-overlay" className="fixed inset-0 z-[120] flex items-end justify-center sm:items-stretch sm:justify-end">
-                  <div className="absolute inset-0 bg-[#09261b]/60" aria-hidden="true" onClick={() => setCartOpen(false)} />
-                  <div id="buyer-live-preview-dialog" role="dialog" aria-modal="true"
-                    aria-label="Carrello della distinta privata" ref={cartDialogRef} tabIndex={-1}
-                    className="relative z-10 flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[1.5rem] border border-[#c6dccc] bg-white text-[#143b2c] shadow-[0_-15px_60px_rgba(3,27,17,0.25)] focus:outline-none sm:h-dvh sm:max-h-dvh sm:w-[min(760px,95vw)] sm:rounded-l-[1.5rem] sm:rounded-tr-none">
-                    <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[#d9e7de] px-4 py-3 sm:px-6">
-                      <div className="min-w-0">
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-[#31755a]">COMMERCIALE · CARRELLO PRIVATO</p>
-                        <h2 className="text-base font-extrabold text-[#123b30]">La tua distinta · {activeLineCount}</h2>
-                        <p className="mt-1 text-xs text-[#52685b]">{formatNumber(totals.totalMeters,2)} m · {formatNumber(totals.totalTonnes,3)} t · {totals.completeLines}/{activeLineCount} righe pronte</p>
-                      </div>
-                      <button type="button" onClick={() => setCartOpen(false)}
-                        className="ui-action ui-action-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-bold">
-                        Chiudi ×
-                      </button>
-                    </div>
-                    <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 pb-8 sm:p-5">
+          <TechnicalCartShell visible={activeLineCount > 0} open={cartOpen}
+            onOpen={openPrivateCart} onClose={() => setCartOpen(false)}
+            count={activeLineCount} title="La tua distinta" eyebrow="Commerciale · Carrello privato"
+            summary={`${formatNumber(totals.totalMeters, 2)} m · ${formatNumber(totals.totalTonnes, 3)} t · ${totals.completeLines}/${activeLineCount} righe pronte`}
+            closeLabel="Chiudi" dialogId="buyer-live-preview-dialog"
+            dialogAriaLabel="Carrello della distinta privata" titleId="buyer-live-preview-title"
+            triggerTestId="private-cart-trigger" overlayTestId="private-cart-overlay"
+            restoreFocusRef={cartReturnFocusRef} pendingFocusRowRef={pendingCartRowRef} wide>
           <aside className="bd7-preview" id="buyer-live-preview" style={{ scrollMarginTop: "6rem",position:"static",top:"auto" }} aria-label="Distinta in composizione">
             <div className="bd7-preview-head">
               <div>
@@ -1502,11 +1440,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic. Il carrell
               <p className="bd7-preview-doc-note">{formatBuyerDocumentRequirements(documents)}</p>
             ) : null}
           </aside>
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-            </>, document.body) : null}
+          </TechnicalCartShell>
         </div>
 
 

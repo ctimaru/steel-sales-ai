@@ -2,7 +2,7 @@
 
 /** CALC-INT4.5 — One shared five-language calculator + private inline bill. */
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { createPortal } from "react-dom";
+import { TechnicalCartShell } from "@/components/technical-cart-shell";
 import Link from "next/link";
 import { actionClasses } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -85,8 +85,6 @@ export function CalculatorInlineDistintaExperience({
   const liveState = useRef<InlineDistintaState>(state);
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
-  const cartTriggerRef = useRef<HTMLButtonElement>(null);
-  const cartDialogRef = useRef<HTMLDivElement>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Editable | null>(null);
   const [message, setMessage] = useState("");
@@ -120,36 +118,6 @@ export function CalculatorInlineDistintaExperience({
     }
     setReady(true);
   }, []);
-
-  // Escape, trapped Tab, focus restoration and body scroll lock for modal.
-  useEffect(() => {
-    if (!open) return;
-    const dialog = cartDialogRef.current;
-    if (!dialog) return;
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    dialog.focus({ preventScroll: true });
-    const keydown = (ev: KeyboardEvent) => {
-      if (ev.key === "Escape") { ev.preventDefault(); setOpen(false); return; }
-      if (ev.key !== "Tab") return;
-      const nodes = Array.from(dialog.querySelectorAll<HTMLElement>(
-        'button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
-      )).filter(n => n.getClientRects().length > 0);
-      if (!nodes.length) { ev.preventDefault(); dialog.focus(); return; }
-      const first = nodes[0], last = nodes[nodes.length - 1];
-      if (ev.shiftKey && (document.activeElement === first || document.activeElement === dialog)) {
-        ev.preventDefault(); last.focus();
-      } else if (!ev.shiftKey && (document.activeElement === last || document.activeElement === dialog)) {
-        ev.preventDefault(); first.focus();
-      }
-    };
-    document.addEventListener("keydown", keydown);
-    return () => {
-      document.removeEventListener("keydown", keydown);
-      document.body.style.overflow = overflow;
-      cartTriggerRef.current?.focus({preventScroll:true});
-    };
-  }, [open]);
 
   function commit(result: InlineDistintaResult): boolean {
     if (!result.ok) {
@@ -333,36 +301,13 @@ export function CalculatorInlineDistintaExperience({
       <p aria-live="polite" role="status" className="sr-only">
         {message || (!ready ? c.preparing : !storageAvailable ? c.storageUnavailable : "")}
       </p>
-      {ready && count > 0 && typeof document !== "undefined" ? createPortal(
-        <>
-          <button type="button" data-testid="calculator-cart-trigger" ref={cartTriggerRef}
-            aria-haspopup="dialog" aria-expanded={open} aria-controls="distinta-inline-dialog"
-            onClick={() => setOpen(true)}
-            className="fixed bottom-3 left-3 right-3 z-[80] inline-flex min-h-14 max-w-[calc(100vw-24px)] items-center gap-3 rounded-2xl border border-[#7db39b] bg-[#123d34] px-4 py-3 text-left text-white shadow-[0_12px_36px_rgba(5,39,28,0.27)] hover:bg-[#195342] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#d4a348] sm:bottom-5 sm:left-auto sm:right-5 sm:min-w-[265px]">
-            <span aria-hidden="true" className="text-2xl">▤</span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-sm font-extrabold">{c.title} · {count}</span>
-              <span className="block text-xs text-[#deefe5]">{number(totals?.totalMeters ?? null,2)} m · {number(totals?.totalTonnes ?? null,3)} t</span>
-            </span>
-            <span aria-hidden="true" className="text-xl">↗</span>
-          </button>
-          {open ? <div data-testid="calculator-cart-overlay" className="fixed inset-0 z-[120] flex items-end justify-center sm:items-stretch sm:justify-end">
-            <div aria-hidden="true" onClick={() => setOpen(false)} className="absolute inset-0 bg-[#09261b]/60" />
-            <div id="distinta-inline-dialog" role="dialog" aria-modal="true" aria-labelledby="distinta-inline-title"
-              tabIndex={-1} ref={cartDialogRef}
-              className="relative z-10 flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[1.5rem] border border-[#c6dccc] bg-white text-[#143b2c] shadow-[0_-15px_60px_rgba(3,27,17,0.25)] focus:outline-none sm:h-dvh sm:max-h-dvh sm:w-[min(720px,95vw)] sm:rounded-l-[1.5rem] sm:rounded-tr-none">
-              <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[#d9e7de] bg-white px-4 py-4 sm:px-6">
-                <div className="min-w-0">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-[#31755a]">{c.eyebrow}</p>
-                  <h2 id="distinta-inline-title" className="mt-1 text-lg font-extrabold text-[#123b30]">{c.title} · {count}</h2>
-                  <p className="mt-1 text-xs text-[#52685b]">{number(totals?.totalMeters ?? null,2)} m · {number(totals?.totalTonnes ?? null,3)} t</p>
-                </div>
-                <button type="button" onClick={() => setOpen(false)}
-                  className="inline-flex min-h-11 items-center rounded-xl border border-[#cbded3] bg-[#eff7f2] px-4 text-sm font-bold text-[#164d38] hover:bg-[#dcefe4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#267b59]">
-                  {c.close} ×
-                </button>
-              </div>
-              <div id="distinta-inline-lines" className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 pb-8 sm:p-5">
+      <TechnicalCartShell
+        visible={ready && count > 0} open={open}
+        onOpen={() => setOpen(true)} onClose={() => setOpen(false)}
+        count={count} title={c.title} eyebrow={c.eyebrow} closeLabel={c.close}
+        summary={`${number(totals?.totalMeters ?? null, 2)} m · ${number(totals?.totalTonnes ?? null, 3)} t`}
+        dialogId="distinta-inline-dialog" titleId="distinta-inline-title" bodyId="distinta-inline-lines"
+        triggerTestId="calculator-cart-trigger" overlayTestId="calculator-cart-overlay">
                 {message ? <p role="status" aria-live="polite"
                   className="mb-3 rounded-lg border border-[#c7e3d2] bg-[#edf8f0] px-3 py-2 text-xs font-semibold text-[#215a40]">
                   {message}
@@ -535,10 +480,8 @@ export function CalculatorInlineDistintaExperience({
             <p className="mt-2 text-xs text-[#5a7164]">{c.freeCreation}</p>
           </section>
 
-              </div>
-            </div>
-          </div> : null}
-        </>, document.body) : null}
+
+      </TechnicalCartShell>
     </section>
   );
 
