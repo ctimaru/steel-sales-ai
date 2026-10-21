@@ -12,6 +12,12 @@ try {
     const page = await ctx.newPage();
     const response = await page.goto("http://127.0.0.1:3000/distinta", { waitUntil: "domcontentloaded", timeout: 60000 });
     assert.equal(response?.status(), 200);
+    const language=page.locator('[data-testid="buyer-private-language-switch"] select');
+    await language.selectOption("en");
+    await page.getByRole("heading",{name:"Bill items"}).waitFor({state:"visible"});
+    await language.selectOption("de");
+    await page.getByRole("heading",{name:"Stücklistenpositionen"}).waitFor({state:"visible"});
+    await language.selectOption("it");
     const calculator = page.locator("#calcolatore-pesi");
     const preview = page.locator("#buyer-live-preview");
     const finder=page.locator('[data-testid="calculator-dimension-discovery"]');
