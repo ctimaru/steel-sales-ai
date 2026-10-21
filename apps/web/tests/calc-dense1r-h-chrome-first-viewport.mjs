@@ -50,7 +50,7 @@ try {
       const [h,input]=await Promise.all([hero.boundingBox(),firstInput.boundingBox()]);
       assert.ok(h&&input,"International bill input and heading visible: "+route);
       assert.ok(h.height<270,"International hero needs to stay compact on 390px: "+route+" "+h.height);
-      assert.ok(input.y<900,"First RFQ field should be in initial viewport: "+route+" "+input.y);
+      assert.ok(input.y<800,"First RFQ field should be well inside the initial viewport: "+route+" "+input.y);
       assert.ok(await hero.getByRole("heading",{level:1}).isVisible(),"localized H1 preserved "+route);
       console.log("CALC-DENSE1R-H LOCALE",route,JSON.stringify({heroHeight:Math.round(h.height),firstInputY:Math.round(input.y)}));
     }

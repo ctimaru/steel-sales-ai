@@ -293,7 +293,7 @@ export function EnglishRfqBillBuilder({locale="en"}:{locale?:RfqBillLocale}={}) 
   }
 
   return (
-    <section aria-label={t.aria} className="space-y-5">
+    <section aria-label={t.aria} data-international-bill-editor className="space-y-3 sm:space-y-5">
       {importedCount ? (
         <aside role="status" aria-live="polite" className="rounded-xl border border-[#b5d9c7] bg-[#edf8f1] p-4 text-sm text-[#123b34]">
           <strong>{importedCount} {t.imported}</strong>
@@ -305,17 +305,17 @@ export function EnglishRfqBillBuilder({locale="en"}:{locale?:RfqBillLocale}={}) 
         </aside>
       ) : null}
       {importWarning ? <p role="alert" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">{t.full}</p> : null}
-      <div className="rounded-2xl border border-[#dce5e0] bg-white px-5 py-5 sm:px-7">
-        <p className="text-xs font-extrabold uppercase tracking-[0.13em] text-[#1f6b5a]">{t.eyebrow}</p>
-        <h2 className="mt-2 text-2xl font-bold text-[#123b34]">{t.title}</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-[#52615b]">
+      <div data-international-bill-intro className="rounded-xl border border-[#dce5e0] bg-white px-3 py-2 sm:rounded-2xl sm:px-7 sm:py-5">
+        <p className="hidden text-xs font-extrabold uppercase tracking-[0.13em] text-[#1f6b5a] sm:block">{t.eyebrow}</p>
+        <h2 className="text-sm font-bold text-[#123b34] sm:mt-2 sm:text-2xl">{t.title}</h2>
+        <p className="mt-2 hidden max-w-3xl text-sm leading-6 text-[#52615b] sm:block">
           {t.description}
         </p>
       </div>
 
       {calculated.map(({ line, mass, error }, index) => (
-        <article key={line.id} className="rounded-2xl border border-[#dce5e0] bg-white p-4 sm:p-6">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <article key={line.id} data-international-bill-line className="rounded-xl border border-[#dce5e0] bg-white p-3 sm:rounded-2xl sm:p-6">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2 sm:mb-4 sm:gap-3">
             <h3 className="text-base font-bold text-[#123b34]">{t.item} {index + 1}</h3>
             <button type="button" onClick={() => removeLine(line.id)} disabled={!hydrated || lines.length === 1}
               className="min-h-10 rounded-lg border border-[#d4ddd8] px-3 text-xs font-semibold text-[#52615b] hover:bg-[#f2f4f3] disabled:cursor-not-allowed disabled:opacity-40">
