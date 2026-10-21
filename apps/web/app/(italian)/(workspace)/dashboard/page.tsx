@@ -115,9 +115,9 @@ export default async function DashboardPage({
     : null;
   const procurementSummary = procurementPayload?.summary;
   const procurementKpis = procurementSummary && [
-    { label: "Azioni buyer", value: procurementSummary.attention_total, href: appRoutes.rfqHub.inbox },
-    { label: "Urgenti", value: procurementSummary.urgent, href: appRoutes.rfqHub.inbox },
-    { label: "RFQ attive", value: procurementSummary.active_rfqs, href: appRoutes.rfqHub.home },
+    { label: "Azioni buyer", value: procurementSummary.attention_total, href: appRoutes.commercial.home + "?view=sent#commercial-worklist" },
+    { label: "Urgenti", value: procurementSummary.urgent, href: appRoutes.commercial.home + "?view=sent#commercial-worklist" },
+    { label: "RFQ attive", value: procurementSummary.active_rfqs, href: appRoutes.commercial.home + "?view=sent#commercial-worklist" },
   ].flatMap((entry) =>
     typeof entry.value === "number" && Number.isFinite(entry.value) && entry.value >= 0
       ? [{ ...entry, value: entry.value }]
@@ -125,7 +125,10 @@ export default async function DashboardPage({
   );
   const procurementActions = (procurementPayload?.items ?? [])
     .filter((item) => item.requires_action === true && typeof item.rfq_id === "string" && /^[0-9a-f-]{36}$/i.test(item.rfq_id))
-    .slice(0, 2);
+    // Urgency is explicitly supplied by the tenant-scoped procurement inbox;
+    // never infer urgency from recent news, parser QA, or unrelated records.
+    .sort((a, b) => Number(b.priority === "urgent") - Number(a.priority === "urgent"))
+    .slice(0, 3);
   // Only user-owned buyer actions belong in the Workspace attention strip.
   // The tenant-scoped commercial_review_queue contains parser/extraction QA;
   // even though its rows are RLS-protected, it is NOT a buyer task.
@@ -133,10 +136,15 @@ export default async function DashboardPage({
   // Read/unread news and recent RFQs are informational, not urgent.
   const attentionItems = [
     ...procurementActions.map((item) => ({
-      href: appRoutes.rfqHub.campaign(item.rfq_id!),
+      // Commerciale is the canonical surface; the campaign key is resolved
+      // with an organization-scoped read even if not on the first worklist page.
+      href: appRoutes.commercial.home + "?view=sent&item=campaign:" + item.rfq_id! + "#commercial-detail",
       value: null as number | null,
-      title: item.headline || "RFQ da gestire",
-      description: "Apri la richiesta e completa la prossima azione.",
+      title: typeof item.headline === "string" && item.headline.trim()
+        ? item.headline.trim().slice(0, 120) : "RFQ da gestire",
+      description: typeof item.detail === "string" && item.detail.trim()
+        ? item.detail.trim().slice(0, 170) : "Apri la richiesta e completa la prossima azione.",
+      priorityLabel: item.priority === "urgent" ? "Urgente" : "Da gestire",
       accent: item.priority === "urgent"
         ? "border-[#ddb977] bg-[#fff6e7] text-[#815017]"
         : "border-[#a9ccbb] bg-[#f2f8f4] text-[#225c47]",
@@ -253,26 +261,32 @@ export default async function DashboardPage({
       </section>
 
       {attentionCount > 0 ? (
-        <section aria-labelledby="daily-priorities" className="rounded-xl border border-[#e7d4b4] bg-[#fffbf5] px-3 py-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 id="daily-priorities" className="mr-1 text-xs font-semibold text-[#754a18]">
-              Cosa richiede attenzione
-              <span className="sr-only"> · Solo segnali con un’azione concreta.</span>
-            </h2>
-            <div className="flex min-w-0 flex-wrap gap-2">
-              {attentionItems.map((item) => (
-                <Link
-                  key={item.href + item.title}
-                  href={item.href}
-                  className={"inline-flex min-h-10 max-w-full items-center gap-2 rounded-lg border px-3 text-xs font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 " + item.accent}
-                >
-                  {item.value !== null ? <span className="font-bold tabular-nums">{item.value}</span> : null}
-                  <span className="truncate">{item.title}</span>
-                  <span className="sr-only">{item.description}</span>
-                  <span aria-hidden="true">→</span>
-                </Link>
-              ))}
+        <section aria-labelledby="daily-priorities" className="rounded-2xl border border-[#e7d4b4] bg-[#fffbf5] px-3 py-3 sm:px-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#805c31]">Cosa richiede attenzione</p>
+              <h2 id="daily-priorities" className="mt-0.5 text-base font-semibold text-[#173f35]">
+                Da fare adesso
+                <span className="sr-only"> · Solo segnali con un’azione concreta.</span>
+              </h2>
             </div>
+            <Link href={appRoutes.commercial.home + "?view=sent#commercial-worklist"} className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2">
+              Tutte le richieste →
+            </Link>
+          </div>
+          <div className="mt-3 grid gap-2 lg:grid-cols-3">
+            {attentionItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={"group flex min-h-10 max-w-full flex-col gap-2 rounded-lg border px-3 py-3 text-xs focus-visible:outline-2 focus-visible:outline-offset-2 hover:shadow-[0_3px_12px_rgba(18,61,52,0.06)] " + item.accent}
+              >
+                <span className="text-[10px] font-semibold uppercase tracking-[0.06em]">{item.priorityLabel}</span>
+                <span className="break-words text-sm font-semibold text-[#173f35]">{item.title}</span>
+                <span className="line-clamp-2 leading-5 text-[#52615b]">{item.description}</span>
+                <span className="mt-auto font-semibold text-[#175640]">Apri nel Commerciale <span aria-hidden="true">→</span></span>
+              </Link>
+            ))}
           </div>
         </section>
       ) : null}
@@ -411,12 +425,19 @@ export default async function DashboardPage({
               </p>
             ) : recent.length === 0 ? (
               <div className="mt-3 space-y-2">
-                <p className="text-xs text-[#52615b]">Qui compariranno RFQ, offerte e ordini recenti.</p>
+                <p className="text-xs leading-5 text-[#52615b]">
+                  {mode === "live"
+                    ? operational.rfqs + operational.offers + operational.orders > 0
+                      ? "Lo storico contiene dati commerciali, ma non ci sono movimenti recenti in questa vista."
+                      : "Nessun movimento recente nello storico commerciale."
+
+                    : "Nessun movimento recente disponibile per questo workspace."}
+                </p>
                 <Link
-                  href={canWrite ? appRoutes.operations.uploads : appRoutes.commercial.search}
+                  href={mode === "live" || !canWrite ? appRoutes.commercial.home + "#commercial-worklist" : appRoutes.operations.uploads}
                   className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4"
                 >
-                  {canWrite ? "Importa i primi documenti →" : "Apri Commerciale →"}
+                  {mode === "live" || !canWrite ? "Apri attività commerciali →" : "Importa i primi documenti →"}
                 </Link>
               </div>
             ) : (

@@ -107,7 +107,8 @@ test("Home shows buyer RFQ actions, not technical extraction corrections", () =>
     dashboard.indexOf("const attentionCount =")
   );
   assert.match(attention, /procurementActions\.map/);
-  assert.match(attention, /appRoutes\.rfqHub\.campaign/);
+  assert.match(attention, /appRoutes\.commercial\.home \+ "\?view=sent&item=campaign:" \+ item\.rfq_id!/);
+  assert.doesNotMatch(attention, /appRoutes\.rfqHub\.campaign/);
   assert.doesNotMatch(attention, /metrics\.reviewFlags|appRoutes\.operations\.review|Elementi da verificare/);
 });
 
