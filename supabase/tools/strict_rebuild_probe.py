@@ -33,6 +33,27 @@ def classify_failure(output: str) -> str:
     return "unclassified_failure"
 
 
+# Only schema object identifiers / migration file basenames can leave the CI runner.
+# No raw SQL, log lines, connection strings or error messages are persisted.
+OBJECT_ERROR_RE = re.compile(
+    r'(?:relation|table|type|schema)\\s+["\\x27]?([a-z_][a-z_0-9.]*)["\\x27]?\\s+does not exist',
+    re.IGNORECASE,
+)
+MIGRATION_TRACE_RE = re.compile(
+    r'(?:applying migration|failed to apply migration)\\s+([0-9]{14}_[a-zA-Z0-9_]+\\.sql)',
+    re.IGNORECASE,
+)
+
+
+def sanitized_dependency(output: str) -> dict[str, str | None]:
+    objects = OBJECT_ERROR_RE.findall(output)
+    migrations = MIGRATION_TRACE_RE.findall(output)
+    return {
+        "missing_object": objects[-1].lower()[:128] if objects else None,
+        "last_migration": migrations[-1][:180] if migrations else None,
+    }
+
+
 def command(args: list[str], timeout: int) -> tuple[bool, str, str]:
     try:
         result = subprocess.run(
@@ -80,28 +101,35 @@ def main() -> int:
         raise SystemExit("Linked Supabase project detected: refusing probe")
     start_ok = reset_ok = False
     failure = None
+    dependency = {"missing_object": None, "last_migration": None}
     try:
         start_ok, output, state = command(["supabase", "start"], options.start_timeout)
         if not start_ok:
             failure = "start_timeout" if state == "timeout" else classify_failure(output)
+            dependency = sanitized_dependency(output)
         else:
             reset_ok, output, state = command(
                 ["supabase", "db", "reset", "--local"], options.reset_timeout
             )
             if not reset_ok:
                 failure = "reset_timeout" if state == "timeout" else classify_failure(output)
+                dependency = sanitized_dependency(output)
     finally:
         # All operations restricted to the LOCAL Docker stack. Avoid persisting
         # a partially initialized local database into assisted acceptance.
         command(["supabase", "stop", "--no-backup"], 120)
 
     result = assess(start_ok=start_ok, reset_ok=reset_ok, failure=failure)
+    result.update(dependency)
+    result["diagnostic_contract"] = "supa-ledger5e-sanitized-first-dependency-v1"
     result["executed_utc"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
     options.output.parent.mkdir(parents=True, exist_ok=True)
     options.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     print(json.dumps({
         "strict_rebuild_passed": result["strict_rebuild_passed"],
         "blocker_category": result["blocker_category"],
+        "missing_object": result["missing_object"],
+        "last_migration": result["last_migration"],
         "production_touched": False,
         "automatic_release_authorized": False,
     }, sort_keys=True))
