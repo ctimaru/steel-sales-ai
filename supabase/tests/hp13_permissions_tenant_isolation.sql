@@ -262,10 +262,18 @@ select pg_temp.hp13_assert(
         'netdata1b4_steel_relevance_page',
         -- DATA1B.5: Platform-only, read-only, bounded 508+ coverage queue.
         'netdata1b5_coverage_queue',
+        -- NET-IT IDENTITY2C reviewed: Platform discovery.read-guarded,
+        -- bounded and read-only presentation of candidate discovery links.
+        -- Pinned empty search_path, anon execute revoked; table private,
+        -- no legal identity verification, merging, claim or grant changes.
+        'netit_identity2c_review_queue',
         -- TRADER1D.2: reviewed singleton-owner-only bridge; private data never
         -- granted to browser roles, append-only decisions, no publish action.
         'trader1d2_superadmin_queue',
         'trader1d2_record_decision',
+        -- TRADER1D.3B.2: bounded active-owner-only HTTP metadata health.
+        -- No company content, tenant data, approval or public publication.
+        'trader1d3b2_owner_health',
         'netdata1c_review_market',
         'netdata1c_market_review_queue',
         'netdata1c_market_discovery_page',

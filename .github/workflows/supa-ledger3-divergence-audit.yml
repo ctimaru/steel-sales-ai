@@ -1,0 +1,58 @@
+name: "SUPA-LEDGER3 — SQL Divergence Triage (read-only)"
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "supabase/tools/migration_sql_divergence_audit.py"
+      - "supabase/tools/test_migration_sql_divergence_audit.py"
+      - "supabase/audits/20261020_migration_normalized_sql_sha256_snapshot.json"
+      - ".github/workflows/supa-ledger3-divergence-audit.yml"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/supa-ledger3-divergence-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supa-ledger3-triage-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  read-only-triage:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test no-approval SQL divergence categorization
+        run: python -m unittest discover -s supabase/tools -p 'test_migration_sql_divergence_audit.py' -v
+      - name: Compare stored original SQL normalization hashes against Github
+        run: |
+          python supabase/tools/migration_sql_divergence_audit.py \
+            --local supabase/migrations \
+            --raw-remote supabase/audits/20261020_migration_sql_sha256_snapshot.json \
+            --normalized-remote supabase/audits/20261020_migration_normalized_sql_sha256_snapshot.json \
+            --report migration-sql-divergence-report.json
+          python - <<'PY'
+          import json
+          report=json.load(open("migration-sql-divergence-report.json"))
+          assert report["safe_for_automatic_repair"] is False
+          assert report["baseline_summary"]["different_sql_same_name"] == 115
+          assert sum(report["divergence_summary"].values()) == 115
+          print("Classified 115 byte-different name-matched migrations; no automatic repair enabled.")
+          PY
+      - name: Archive source-divergence triage and unresolved list
+        uses: actions/upload-artifact@v4
+        with:
+          name: supa-ledger3-sql-divergence-${{ github.run_id }}
+          path: migration-sql-divergence-report.json
+          retention-days: 30
+          if-no-files-found: error

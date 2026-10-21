@@ -85,6 +85,37 @@ try {
     const page = await context.newPage();
 
     await step(p.id + " real GoTrue UI login", () => login(page, p));
+    // CALC-NEXT1F: exercise the real private route with GoTrue sessions and
+    // local four-tenant fixtures. No emails, snapshots or RFQs are created.
+    if (p.id === "buyerViewer") {
+      await step("viewer cannot open private buyer composer by locale URL", async () => {
+        await page.goto(base + "/rfq-hub/distinta?lang=de", {
+          waitUntil: "domcontentloaded", timeout: 90000,
+        });
+        await page.waitForURL(url => url.pathname !== "/rfq-hub/distinta",
+          { timeout: 30000 });
+        assert.equal(await page.locator('[data-testid="buyer-private-language-switch"]').count(), 0);
+      });
+    } else if (p.id === personas[0].id) {
+      await step("owner private bill locale switch keeps unsaved commercial draft in one tenant", async () => {
+        await navigate(page, "/rfq-hub/distinta?lang=de");
+        const picker = page.locator('[data-testid="buyer-private-language-switch"] select');
+        await picker.waitFor({state:"visible",timeout:30000});
+        assert.equal(await picker.inputValue(),"de");
+        await page.getByRole("heading",{name:"Stücklistenpositionen"}).waitFor({state:"visible"});
+        const name = page.getByLabel("Titel der Stückliste");
+        await name.fill("DEMO-NEXT1F-local-tab");
+        await picker.selectOption("fr");
+        await page.getByRole("heading",{name:"Articles de la liste"}).waitFor({state:"visible"});
+        await picker.selectOption("en");
+        await page.getByRole("heading",{name:"Bill items"}).waitFor({state:"visible"});
+        assert.equal(await page.getByLabel("Bill title").inputValue(),"DEMO-NEXT1F-local-tab");
+        assert.equal(await page.locator('[data-testid="private-cart-trigger"]').count(),0);
+        assert.equal(new URL(page.url()).searchParams.get("lang"),"de",
+          "Client-side locale switches must not pass commercial data through URLs");
+      });
+    }
+
     await step(p.id + " own company workspace", async () => {
       await navigate(page, "/dashboard");
       // Wait for the streamed Dashboard component after the temporary shell.

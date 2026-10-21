@@ -19,8 +19,16 @@ export type BuyerSessionDraft = {
   wizardDraft: GuidedTubeDraft | null;
 };
 
-export function buyerDraftKey(userId: string | null): string {
-  return PREFIX + (userId ? "user:" + userId.replace(/[^a-zA-Z0-9-]/g, "") : "guest");
+export function buyerDraftKey(userId: string | null, organizationId: string | null = null): string {
+  if (!userId) return PREFIX + "guest";
+  const cleanUser = userId.replace(/[^a-zA-Z0-9-]/g,"");
+  // Separate workspace drafts by tenant, even when one user belongs to two
+  // organizations. Public-user drafts retain their legacy key for compatibility.
+  if (organizationId) {
+    const cleanOrg = organizationId.replace(/[^a-zA-Z0-9-]/g,"");
+    if (cleanOrg) return PREFIX + "organization:" + cleanOrg + ":user:" + cleanUser;
+  }
+  return PREFIX + "user:" + cleanUser;
 }
 
 function bounded(value: unknown, limit: number): string {

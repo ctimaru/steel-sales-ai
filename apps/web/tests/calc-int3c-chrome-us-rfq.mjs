@@ -24,7 +24,10 @@ try{
     await page.waitForFunction(()=>!!document.querySelector("button[data-us-add-to-inline-bill]:not(:disabled)"));
     assert.equal(await add.isDisabled(),false);
     await add.click();
-    const bill=page.locator("#distinta-inline");
+    const bill=page.locator("#distinta-inline-dialog");
+    if (await page.locator('[data-testid="mobile-cookie-consent"] > button').isVisible())
+      await page.locator('[data-testid="mobile-cookie-consent"] > button').click();
+    await page.locator('[data-testid="calculator-cart-trigger"]').click();
     await bill.locator("article").first().waitFor({state:"visible",timeout:30000});
     assert.equal(new URL(page.url()).pathname,c.start,"US calculator must stay on same page");
     const stored=JSON.parse(await page.evaluate(()=>sessionStorage.getItem("sss:inline-distinta:v1")));
@@ -51,6 +54,7 @@ try{
     await page.getByRole("textbox",{name:/Wall thickness \(in\)|Spessore \(in\)/}).fill("0.237");
     await page.waitForFunction(()=>!!document.querySelector("button[data-us-add-to-inline-bill]:not(:disabled)"));
     await page.getByRole("button",{name:c.add}).click();
+    await page.locator('[data-testid="calculator-cart-trigger"]').click();
     await bill.locator("article").nth(1).waitFor({state:"visible",timeout:30000});
     const two=JSON.parse(await page.evaluate(()=>sessionStorage.getItem("sss:inline-distinta:v1")));
     assert.equal(two.lines.length,2);

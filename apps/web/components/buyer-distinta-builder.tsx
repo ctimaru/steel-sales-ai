@@ -4,6 +4,7 @@ import { guidedTubeToBuyerLine } from "@/lib/buyer-guided-commercial-line";
 import { calculatorItemToBuyerLine, consumeCalculatorRfqIds, readCalculatorRfqQueue, type CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
 import { consumeUsPipeRfqIds, readUsPipeRfqQueue, usPipeRfqSpecification } from "@/lib/us-pipe-rfq-handoff";
 import { PublicTubeWeightCalculator } from "@/components/public-tube-weight-calculator";
+import { dimensionsFromBuyerCatalog } from "@/lib/calculator-dimension-discovery";
 import { Bd17GuestRfqCta } from "@/components/bd17-guest-rfq-cta";
 import { trackProductEvent } from "@/lib/product-analytics-events.client";
 import { createPrivateRfqOneStep } from "@/lib/buyer-distinta-rfq-one-step";
@@ -20,6 +21,8 @@ import {
   type BuyerSessionDraft,
 } from "@/lib/buyer-distinta-session-draft";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { TechnicalCartShell } from "@/components/technical-cart-shell";
+import { buyerUiText, safeBuyerUiLocale, type BuyerUiLocale } from "@/lib/buyer-ui-locale";
 import {networkReviewedHandoffKey,parseNetworkReviewedHandoff,type NetworkReviewedHandoff} from "@/lib/network-reviewed-rfq-handoff";
 
 import {
@@ -85,6 +88,7 @@ export function BuyerDistintaBuilder({
   userId = null,
   organizationId = null,
   returnToCommercial = false,
+  locale = "it",
 }: {
   authenticated: boolean;
   emailConfigured: boolean;
@@ -93,8 +97,11 @@ export function BuyerDistintaBuilder({
   userId?: string | null;
   organizationId?: string | null;
   returnToCommercial?: boolean;
+  locale?: BuyerUiLocale;
 }) {
   const router = useRouter();
+  const [uiLocale,setUiLocale]=useState<BuyerUiLocale>(safeBuyerUiLocale(locale));
+  const t=(key:keyof typeof import("@/lib/buyer-ui-locale").buyerUiCopy)=>buyerUiText(key,uiLocale);
   const [title, setTitle] = useState("Richiesta di offerta");
   const [documents, setDocuments] = useState<BuyerDistintaDocumentRequirements>(emptyBuyerDocumentRequirements);
   const [previewDraft, setPreviewDraft] = useState<GuidedTubeDraft | null>(null);
@@ -104,6 +111,15 @@ export function BuyerDistintaBuilder({
   const [quickGrade, setQuickGrade] = useState("");
   const [quickAddedCount, setQuickAddedCount] = useState(0);
   const [compactMode, setCompactMode] = useState(true);
+  // CALC-NEXT1D: the private draft uses the same intentional-access cart
+  // interaction as the public calculator, without sharing commercial data.
+  const [cartOpen, setCartOpen] = useState(false);
+  const cartReturnFocusRef = useRef<HTMLElement | null>(null);
+  const pendingCartRowRef = useRef<string | null>(null);
+  function openPrivateCart() {
+    cartReturnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setCartOpen(true);
+  }
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const [editingRows, setEditingRows] = useState<Record<string, boolean>>({});
   const focusQuantityId = useRef<string | null>(null);
@@ -130,7 +146,7 @@ export function BuyerDistintaBuilder({
   // Only a same-tab session draft; no cookie, URL payload, remote autosave or email data.
   const [draftReady, setDraftReady] = useState(false);
   const [restoreCandidate, setRestoreCandidate] = useState<{ key: string; draft: BuyerSessionDraft } | null>(null);
-  const draftKey = buyerDraftKey(authenticated ? userId : null);
+  const draftKey = buyerDraftKey(authenticated ? userId : null, workspace ? organizationId : null);
   const networkHandoffKey = authenticated&&userId&&organizationId
     ? networkReviewedHandoffKey(userId,organizationId):null;
   const [savePending, startSaveTransition] = useTransition();
@@ -151,6 +167,7 @@ export function BuyerDistintaBuilder({
   const activeLineCount = initialEmptyRow ? 0 : lines.length;
   const allComplete =
     calculated.length > 0 && calculated.every((line) => line.complete);
+  const discoveredBuyerDimensions = useMemo(() => dimensionsFromBuyerCatalog(catalogOptions), [catalogOptions]);
   const quickMatches = useMemo(
     () => searchBuyerDistintaCatalog(catalogOptions, quickQuery, 8),
     [catalogOptions, quickQuery],
@@ -397,9 +414,7 @@ export function BuyerDistintaBuilder({
     setSendMessage(null);
     setRfqMessage(null);
     setCopyState("idle");
-    if (window.matchMedia("(max-width: 900px)").matches) {
-      window.requestAnimationFrame(() => document.getElementById("buyer-live-preview")?.scrollIntoView({ block: "start", behavior: "smooth" }));
-    }
+    // NEXT1D: never auto-open or scroll to the cart after adding.
     return true;
   }
 
@@ -601,6 +616,12 @@ export function BuyerDistintaBuilder({
     if (row.targetEurT.trim() && calculated[index].targetEurT === null) {
       setExpandedRows((current) => ({ ...current, [row.id]: true }));
     }
+    // The row editor is now portaled into the drawer on demand.
+    if (!cartOpen) {
+      pendingCartRowRef.current = row.id;
+      openPrivateCart();
+      return;
+    }
     const element = document.getElementById("buyer-row-" + row.id);
     if (!element) return;
     element.focus({ preventScroll: true });
@@ -735,7 +756,16 @@ export function BuyerDistintaBuilder({
   }
 
   return (
-    <div className="bd54-page space-y-4 sm:space-y-5">
+    <div className="bd54-page space-y-4 sm:space-y-5" lang={uiLocale}>
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-strong)] bg-white px-3 py-2" data-testid="buyer-private-language-switch">
+        <p className="text-xs font-semibold text-[var(--brand-deep)]">{t("RFQ privata · nessun invio automatico")}</p>
+        <label className="flex items-center gap-2 text-xs font-bold text-[var(--brand-deep)]">{t("Scegli la lingua")}
+          <select aria-label={t("Scegli la lingua")} value={uiLocale} onChange={e=>setUiLocale(safeBuyerUiLocale(e.target.value))}
+            className="min-h-11 rounded-lg border border-[var(--border-strong)] bg-white px-2 text-sm text-[var(--brand-deep)]">
+            {(["it","en","de","fr","es"] as const).map(lang=><option key={lang} value={lang}>{lang.toUpperCase()}</option>)}
+          </select>
+        </label>
+      </div>
       {networkHandoff&&workspace&&!restoreCandidate?<aside aria-label="Articoli approvati dal Network"
         data-testid="network-reviewed-rfq-import"
         className="rounded-xl border border-[#b7d1c4] bg-[#f1faf4] p-3 sm:p-4">
@@ -757,7 +787,7 @@ export function BuyerDistintaBuilder({
           </button>
           <button type="button" onClick={discardNetworkHandoff}
             className="ui-action ui-action-secondary min-h-10 rounded-lg px-3 text-xs font-semibold">
-            Scarta passaggio
+            {t("Scarta passaggio")}
           </button>
         </div>
       </aside>:null}
@@ -771,7 +801,7 @@ export function BuyerDistintaBuilder({
       {calculatorHandoffOverflow ? <p role="alert" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">Distinta piena: alcune misure rimangono in attesa nella scheda. Rimuovi righe prima di importarle.</p> : null}
       {restoreCandidate ? (
         <aside className="rounded-xl border border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] p-3 sm:p-4" aria-label="Bozza da recuperare">
-          <p className="text-sm font-bold text-[var(--brand-deep)]">Bozza trovata in questa scheda</p>
+          <p className="text-sm font-bold text-[var(--brand-deep)]">{t("Bozza trovata in questa scheda")}</p>
           <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
             {restoreCandidate.draft.lines.length} righe, ultima modifica in questa sessione.
             Riprendila soltanto se è la tua richiesta: niente è stato inviato o salvato online.
@@ -779,11 +809,11 @@ export function BuyerDistintaBuilder({
           <div className="mt-3 flex flex-wrap gap-2">
             <button type="button" onClick={restoreBrowserDraft}
               className="platform-primary min-h-11 rounded-lg px-4 text-sm font-bold">
-              Riprendi la distinta
+              {t("Riprendi la distinta")}
             </button>
             <button type="button" onClick={discardBrowserDraft}
               className="app-secondary min-h-11 rounded-lg px-4 text-sm font-semibold">
-              Scarta e crea nuova
+              {t("Scarta e crea nuova")}
             </button>
           </div>
         </aside>
@@ -796,7 +826,7 @@ export function BuyerDistintaBuilder({
       ) : null}
       <aside className="bd53-hud" aria-label="Riepilogo in tempo reale della distinta">
         <div className="bd53-hud-progress">
-          <span className="bd53-hud-caption">Righe pronte</span>
+          <span className="bd53-hud-caption">{t("Righe pronte")}</span>
           <span className="bd53-hud-complete">{totals.completeLines}/{activeLineCount}</span>
           <div
             className="bd53-hud-track"
@@ -814,14 +844,14 @@ export function BuyerDistintaBuilder({
         </div>
         <div className="bd53-hud-metrics">
           <div className="bd53-hud-metric">
-            <span>Metri</span>
+            <span>{t("Metri")}</span>
             <strong>{formatNumber(totals.totalMeters, 2)}</strong>
           </div>
           <div className="bd53-hud-metric">
-            <span>Tonnellate</span>
+            <span>{t("Tonnellate")}</span>
             <strong>{formatNumber(totals.totalTonnes, 3)}</strong>
           </div>
-          {!allComplete ? <span className="bd53-hud-partial">Totali parziali</span> : null}
+          {!allComplete ? <span className="bd53-hud-partial">{t("Totali parziali")}</span> : null}
         </div>
         <button
           type="button"
@@ -829,26 +859,38 @@ export function BuyerDistintaBuilder({
           disabled={(allComplete && !authenticated && copyState === "copied") || rfqPending || savePending || !draftReady || Boolean(restoreCandidate)}
           className="bd53-hud-action"
         >
-          {!allComplete ? "Completa le righe"
-            : authenticated ? (rfqPending ? "Creazione RFQ…" : "Crea RFQ privata →")
-              : copyState === "copied" ? "Copiata ✓" : copyState === "error" ? "Riprova copia" : "Copia distinta"}
+          {!allComplete ? t("Completa le righe")
+            : authenticated ? (rfqPending ? t("Creazione RFQ…") : t("Crea RFQ privata →"))
+              : copyState === "copied" ? t("Copiata ✓") : copyState === "error" ? t("Riprova copia") : t("Copia distinta")}
         </button>
       </aside>
       <section className="rounded-3xl border border-[#d8e1dd] bg-white p-3 shadow-[0_16px_50px_rgba(18,61,52,0.06)] sm:p-5">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#c6dccc] bg-[#f4faf7] px-3 py-2">
+          <div className="min-w-0">
+            <p className="text-xs font-extrabold text-[#173f35]">{t("Calcola qui, gestisci nel carrello")}</p>
+            <p className="text-[11px] text-[#50695a]">{activeLineCount} {t("righe")} · {formatNumber(totals.totalMeters,2)} m · {formatNumber(totals.totalTonnes,3)} t</p>
+          </div>
+          <button type="button" data-testid="private-cart-inline-open"
+            onClick={openPrivateCart} aria-haspopup="dialog" aria-expanded={cartOpen}
+            aria-controls="buyer-live-preview-dialog"
+            className="ui-action ui-action-secondary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-xs font-bold">
+            <span aria-hidden="true">▤</span> {t("Apri carrello")} · {activeLineCount}
+          </button>
+        </div>
         <div className="flex flex-col gap-3 border-b border-[var(--border)] pb-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
-              {workspace ? "RFQ Hub · Distinta privata" : "Creazione articoli"}
+              {t(workspace ? "RFQ Hub · Distinta privata" : "Creazione articoli")}
             </p>
             <h2 className="mt-1 text-lg font-bold tracking-tight text-[var(--brand-deep)]">
-              Articoli in distinta
+              {t("Articoli in distinta")}
             </h2>
             <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
-Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga compare subito nella distinta a fianco.
+Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic. Il carrello aggiorna righe e peso senza aprirsi automaticamente.
             </p>
           </div>
           <label className="w-full max-w-sm text-xs font-semibold text-[var(--text-secondary)]">
-            Titolo distinta
+            {t("Titolo distinta")}
             <input
               value={title}
               onChange={(event) => {
@@ -862,27 +904,27 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
         </div>
 
 
-        <div className="bd7-workbench">
+        <div className="bd7-workbench" style={{gridTemplateColumns:"minmax(0,1fr)"}}>
           <div className="bd7-workbench-editor">
             <div className="mb-2 flex flex-wrap items-end justify-between gap-2 rounded-xl border border-[#cddbd6] bg-[#f4faf7] p-3">
               <div className="min-w-0">
-                <h3 className="text-sm font-extrabold text-[#123d34]">1 · Calcola e aggiungi</h3>
+                <h3 className="text-sm font-extrabold text-[#123d34]">{t("1 · Calcola e aggiungi")}</h3>
                 <p className="mt-1 text-xs text-[#52615b]">Norma, forma, dimensioni e quantità. Un clic per aggiungere la riga senza uscire.</p>
               </div>
               <label className="min-w-[145px] flex-1 text-xs font-bold text-[#344e43] sm:max-w-[215px]">
-                Grado acciaio · facoltativo ora
+                {t("Grado acciaio · facoltativo ora")}
                 <input list="buyer-quick-grades" value={quickGrade} onChange={(event) => setQuickGrade(event.target.value)}
                   placeholder="Es. S355J2H" className="mt-1 h-11 w-full rounded-lg border border-[#b9d0c5] bg-white px-3 text-sm text-[#123d34]" />
                 <datalist id="buyer-quick-grades"><option value="S235JRH" /><option value="S275J0H" /><option value="S355J2H" /><option value="S355K2H" /></datalist>
               </label>
             </div>
-            <PublicTubeWeightCalculator references={[]} locale="it" onAddToDistinta={addCalculatorLine}
+            <PublicTubeWeightCalculator references={[]} discoveryOptions={discoveredBuyerDimensions} locale={uiLocale} onAddToDistinta={addCalculatorLine}
               canAddToDistinta={draftReady && !restoreCandidate && (lines.length < 500 || initialEmptyRow)} />
             <p role="status" aria-live="polite" className="mt-2 text-xs font-semibold text-[#1d5748]">
-              {quickAddedCount > 0 ? `${quickAddedCount} ${quickAddedCount === 1 ? "articolo aggiunto" : "articoli aggiunti"} · già visibili nella distinta.` : "Il peso teorico si aggiorna mentre scrivi; nessuna RFQ viene inviata automaticamente."}
+              {quickAddedCount > 0 ? `${quickAddedCount} ${quickAddedCount === 1 ? "articolo nel carrello" : "articoli nel carrello"} · aprilo quando vuoi.` : "Il peso teorico si aggiorna mentre scrivi; nessuna RFQ viene inviata automaticamente."}
             </p>
             <details className="mt-4 rounded-xl border border-[#d5e1db] bg-white">
-              <summary className="flex min-h-11 cursor-pointer items-center px-3 text-xs font-bold text-[#1d5748]">Altri metodi · testo AI, configuratore assistito e ricerca catalogo</summary>
+              <summary className="flex min-h-11 cursor-pointer items-center px-3 text-xs font-bold text-[#1d5748]">{t("Altri metodi · testo AI, configuratore assistito e ricerca catalogo")}</summary>
               <div className="border-t border-[#d5e1db] p-2 sm:p-3">
             <RfqAiIntakeUx
               mode={intakeMode}
@@ -971,17 +1013,25 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
               </div>
             </details>
           </div>
-          <aside className="bd7-preview" id="buyer-live-preview" style={{ scrollMarginTop: "6rem" }} aria-label="Distinta in composizione">
+          <TechnicalCartShell visible={activeLineCount > 0} open={cartOpen}
+            onOpen={openPrivateCart} onClose={() => setCartOpen(false)}
+            count={activeLineCount} title={t("La tua distinta")} eyebrow={t("Commerciale · Carrello privato")}
+            summary={`${formatNumber(totals.totalMeters, 2)} m · ${formatNumber(totals.totalTonnes, 3)} t · ${totals.completeLines}/${activeLineCount} ${t("righe pronte")}`}
+            closeLabel={t("Chiudi")} dialogId="buyer-live-preview-dialog"
+            dialogAriaLabel={t("Carrello della distinta privata")} titleId="buyer-live-preview-title"
+            triggerTestId="private-cart-trigger" overlayTestId="private-cart-overlay"
+            restoreFocusRef={cartReturnFocusRef} pendingFocusRowRef={pendingCartRowRef} wide>
+          <aside className="bd7-preview" id="buyer-live-preview" style={{ scrollMarginTop: "6rem",position:"static",top:"auto" }} aria-label="Distinta in composizione">
             <div className="bd7-preview-head">
               <div>
-                <p className="bd6-eyebrow">Anteprima in tempo reale</p>
-                <h3 className="text-sm font-extrabold text-[var(--brand-deep)]">2 · La tua distinta</h3>
+                <p className="bd6-eyebrow">{t("Anteprima in tempo reale")}</p>
+                <h3 className="text-sm font-extrabold text-[var(--brand-deep)]">2 · {t("La tua distinta")}</h3>
               </div>
               <span className="bd7-preview-counter">{totals.completeLines}/{activeLineCount} righe</span>
             </div>
             {previewDraft && (previewDraft.family || previewDraft.standard || previewDraft.grade) ? (
               <div className="bd7-draft-pending">
-                <span className="text-[10px] font-bold uppercase tracking-wide text-[var(--text-secondary)]">In configurazione</span>
+                <span className="text-[10px] font-bold uppercase tracking-wide text-[var(--text-secondary)]">{t("In configurazione")}</span>
                 <p className="mt-1 text-xs font-semibold text-[var(--brand-deep)]">
                   {guidedTubeMeasurement(previewDraft)?.description ||
                     [previewDraft.family ? buyerTubeFamilyLabels[previewDraft.family] : "", previewDraft.standard, previewDraft.grade].filter(Boolean).join(" · ")}
@@ -1028,12 +1078,12 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                 <div className="bd10-row-summary">
                   <span className="bd7-preview-number" aria-hidden="true">{index + 1}</span>
                   <div className="bd10-row-summary-content">
-                    <strong>{line.description.trim() || "Articolo da compilare"}</strong>
-                    <span>{line.standard || "Norma da scegliere"}{line.grade ? " · " + line.grade : ""}</span>
+                    <strong>{line.description.trim() || t("Articolo da compilare")}</strong>
+                    <span>{line.standard || t("Norma da scegliere")}{line.grade ? " · " + line.grade : ""}</span>
                     <span>{calc.quantity !== null
                       ? formatNumber(calc.quantity, line.quantityMode === "bars" ? 0 : 2) + " " +
                         (line.quantityMode === "bars" ? "barre" : line.quantityMode === "meters" ? "m" : "t")
-                      : "Quantità mancante"} · {formatNumber(calc.meters, 2)} m · {formatNumber(calc.tonnes, 3)} t
+                      : t("Quantità mancante")} · {formatNumber(calc.meters, 2)} m · {formatNumber(calc.tonnes, 3)} t
                       {" · "}{formatNumber(calc.weightKgM, 3)} kg/m
                       {calc.targetEurT !== null ? " · Target " + formatNumber(calc.targetEurT, 2) + " €/t" : ""}</span>
                   </div>
@@ -1042,7 +1092,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                       aria-expanded={editOpen}
                       aria-controls={"buyer-inline-editor-" + line.id}
                       onClick={() => setEditingRows((current) => ({ ...current, [line.id]: !editOpen }))}>
-                      {editOpen ? "Chiudi" : "Modifica"}
+                      {t(editOpen ? "Chiudi" : "Modifica")}
                     </button>
                     <button type="button" className="bd10-mini-action" title="Duplica articolo"
                       aria-label={`Duplica articolo riga ${index + 1}`}
@@ -1057,7 +1107,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                   <div className="bd5-row-header">
                   <span className="bd5-row-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
                   <label className="bd52-field bd52-field-description">
-                    Articolo *
+                    {t("Articolo *")}
                     <input
                       value={line.description}
                       onChange={(event) => updateLine(line.id, { description: event.target.value })}
@@ -1066,14 +1116,14 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                     />
                   </label>
                   <label className="bd8-inline-norm bd52-field">
-                    Norma
+                    {t("Norma")}
                     <select
                       aria-label={`Norma della riga ${index + 1}`}
                       value={line.standard}
                       onChange={(event) => changeLineStandard(line.id, event.target.value)}
                       className="bd52-input"
                     >
-                      <option value="">Scegli</option>
+                      <option value="">{t("Scegli")}</option>
                       <option value="EN 10219">EN 10219</option>
                       <option value="EN 10210">EN 10210</option>
                       {line.standard && !["EN 10219", "EN 10210"].includes(line.standard)
@@ -1081,7 +1131,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                     </select>
                   </label>
                   <label className="bd8-inline-grade bd52-field">
-                    Grado
+                    {t("Grado")}
                     <input
                       list="buyer-grades"
                       aria-label={`Grado della riga ${index + 1}`}
@@ -1100,7 +1150,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                   <div className="bd52-core">
                     <div className="bd52-core-fields">
                       <label className="bd52-field bd52-field-quantity">
-                        Quantità *
+                        {t("Quantità *")}
                         <input
                           id={"buyer-quantity-" + line.id}
                           inputMode="decimal"
@@ -1112,20 +1162,20 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                         />
                       </label>
                       <label className="bd52-field bd52-field-unit">
-                        Unità
+                        {t("Unità")}
                         <select
                           value={line.quantityMode}
                           onChange={(event) => updateLine(line.id, { quantityMode: event.target.value as BuyerQuantityMode })}
                           className="bd52-input"
                         >
-                          <option value="meters">Metri</option>
-                          <option value="bars">Barre / pezzi</option>
-                          <option value="tonnes">Tonnellate</option>
+                          <option value="meters">{t("Metri")}</option>
+                          <option value="bars">{t("Barre / pezzi")}</option>
+                          <option value="tonnes">{t("Tonnellate")}</option>
                         </select>
                       </label>
                       {line.quantityMode === "bars" ? (
                         <label className="bd52-field bd52-field-bars">
-                          Barra (m) *
+                          {t("Barra (m) *")}
                           <input
                             inputMode="decimal"
                             value={line.barLengthM}
@@ -1136,7 +1186,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                         </label>
                       ) : null}
                       <label className="bd52-field bd52-field-weight">
-                        Peso kg/m *
+                        {t("Peso kg/m *")}
                         <input
                           inputMode="decimal"
                           value={line.weightKgM}
@@ -1146,7 +1196,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                         />
                       </label>
                       <div className="bd8-tonnes" aria-label={`Peso riga ${index + 1}`}>
-                        <span>Tonnellate</span>
+                        <span>{t("Tonnellate")}</span>
                         <strong className="bd52-weight-pill">{formatNumber(calc.tonnes, 3)} t</strong>
                       </div>
                       <button
@@ -1157,7 +1207,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                         onClick={() => toggleRowDetails(line.id)}
                         className="bd52-details-toggle"
                       >
-                        {detailOpen ? "Chiudi" : invalidTarget ? "Correggi target" : "Dettagli e opzioni"}
+                        {t(detailOpen ? "Chiudi" : invalidTarget ? "Correggi target" : "Dettagli e opzioni")}
                         <span aria-hidden="true" className={detailOpen ? "bd52-chevron bd52-chevron-open" : "bd52-chevron"}>⌄</span>
                       </button>
                       <div className="bd5-row-actions flex items-center gap-1">
@@ -1169,7 +1219,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                           aria-label={`Duplica articolo riga ${index + 1}`}
                           className="bd5-row-action bd8-icon-button"
                         >
-                          <span aria-hidden="true">⧉</span><span className="sr-only">Duplica articolo</span>
+                          <span aria-hidden="true">⧉</span><span className="sr-only">{t("Duplica articolo")}</span>
                         </button>
                         <button
                           type="button"
@@ -1178,7 +1228,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                           aria-label={`Rimuovi riga ${index + 1}`}
                           title="Rimuovi articolo"
                         >
-                          <span aria-hidden="true">×</span><span className="sr-only">Rimuovi</span>
+                          <span aria-hidden="true">×</span><span className="sr-only">{t("Rimuovi")}</span>
                         </button>
                       </div>
                     </div>
@@ -1262,7 +1312,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                     <p className="bd52-detail-heading">Specifiche e condizioni (facoltative)</p>
                     <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                       <label className="bd52-field">
-                        Norma
+                        {t("Norma")}
                         <input
                           list="buyer-standards"
                           value={line.standard}
@@ -1272,7 +1322,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                         />
                       </label>
                       <label className="bd52-field">
-                        Grado
+                        {t("Grado")}
                         <input
                           list="buyer-grades"
                           value={line.grade}
@@ -1336,7 +1386,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
           disabled={lines.length >= 500}
           className="mt-4 inline-flex min-h-11 items-center rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-4 text-sm font-bold text-[#173f35] hover:bg-[#e1ece8]"
         >
-          + Aggiungi riga libera
+          + {t("Aggiungi riga libera").replace(/^\+\s*/, "")}
         </button>
         <p className="mt-2 text-xs text-[var(--text-secondary)]">{lines.length} / 500 righe · Duplica per riutilizzare le specifiche senza ripetere la quantità.</p>
         </div>
@@ -1349,7 +1399,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                 <button type="button" onClick={createRfqHub}
                   disabled={!allComplete || !draftReady || Boolean(restoreCandidate) || rfqPending || savePending}
                   className="platform-primary flex min-h-12 w-full items-center justify-center rounded-lg px-3 text-sm font-extrabold disabled:cursor-not-allowed disabled:opacity-50">
-                  {rfqPending ? "Salvataggio e creazione…" : "Crea RFQ privata →"}
+                  {rfqPending ? t("Salvataggio e creazione…") : t("Crea RFQ privata →")}
                 </button>
                 <p className="mt-2 text-[11px] leading-4 text-[#34594c]">
                   Salva la distinta e crea la RFQ con un clic. Bozza privata: nessun invio ai fornitori.
@@ -1364,12 +1414,12 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
             )}
             <details className="bd7-global-documents">
               <summary className="bd7-doc-summary">
-                <span className="font-bold">Documentazione richiesta · intera distinta</span>
-                <span className="bd7-doc-caption">{formatBuyerDocumentRequirements(documents) ? "Condizioni impostate" : "Facoltativa"}</span>
+                <span className="font-bold">{t("Documentazione richiesta · intera distinta")}</span>
+                <span className="bd7-doc-caption">{t(formatBuyerDocumentRequirements(documents) ? "Condizioni impostate" : "Facoltativa")}</span>
               </summary>
               <div className="bd7-doc-fields">
                 <label className="bd6-dimension-field">
-                  Certificato di controllo EN 10204
+                  {t("Certificato di controllo EN 10204")}
                   <select
                     value={documents.inspectionDocument}
                     onChange={(event) => {
@@ -1378,7 +1428,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                     }}
                     className="bd6-input"
                   >
-                    <option value="">Non specificato</option>
+                    <option value="">{t("Non specificato")}</option>
                     <option value="2.1">2.1 · Dichiarazione conformità</option>
                     <option value="2.2">2.2 · Rapporto di prova</option>
                     <option value="3.1">3.1 · Certificato materiale</option>
@@ -1389,13 +1439,13 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                   <input type="checkbox" checked={documents.ceDop} onChange={(event) => {
                     setDocuments((current) => ({ ...current, ceDop: event.target.checked })); setSavedId(null);
                   }} />
-                  Marcatura CE + DoP, se applicabili
+                  {t("Marcatura CE + DoP, se applicabili")}
                 </label>
                 <label className="bd6-check">
                   <input type="checkbox" checked={documents.iso9001} onChange={(event) => {
                     setDocuments((current) => ({ ...current, iso9001: event.target.checked })); setSavedId(null);
                   }} />
-                  Produttore certificato UNI EN ISO 9001
+                  {t("Produttore certificato UNI EN ISO 9001")}
                 </label>
                 <p className="text-[11px] leading-4 text-[var(--text-secondary)]">
                   Vale per tutta la richiesta; non viene ripetuto in ogni articolo. CE/DoP, EN 10204 e ISO 9001 hanno finalità differenti.
@@ -1406,6 +1456,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
               <p className="bd7-preview-doc-note">{formatBuyerDocumentRequirements(documents)}</p>
             ) : null}
           </aside>
+          </TechnicalCartShell>
         </div>
 
 
@@ -1413,15 +1464,15 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
 
       <details className="rounded-2xl border border-[#d8e1dd] bg-white shadow-sm">
         <summary className="flex min-h-12 cursor-pointer items-center px-4 py-3 text-sm font-bold text-[#174e40]">
-          Altre opzioni · salva solo la distinta o invia direttamente via email
+          {t("Altre opzioni · salva solo la distinta o invia direttamente via email")}
         </summary>
         <div className="grid gap-6 border-t border-[#d8e1dd] p-4 lg:grid-cols-2">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-              Spazio privato
+              {t("Spazio privato")}
             </p>
             <h3 className="mt-2 text-xl font-semibold text-[#1d2824]">
-              Salva soltanto la distinta.
+              {t("Salva soltanto la distinta.")}
             </h3>
             <p className="mt-2 text-sm leading-6 text-[#66736e]">
               Lo snapshot resta privato e separato dai contenuti pubblici. Potrai usarlo come base per richieste e invii ai fornitori.
@@ -1434,7 +1485,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                 onClick={saveDistinta}
                 className="platform-primary mt-4 inline-flex min-h-11 items-center justify-center rounded-xl px-5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {savePending ? "Salvataggio…" : savedId ? "Salvata ✓" : "Salva distinta"}
+                {t(savePending ? "Salvataggio…" : savedId ? "Salvata ✓" : "Salva distinta")}
               </button>
             ) : (
               <div className="mt-4 flex flex-wrap gap-2">
@@ -1471,10 +1522,10 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
 
           <div className="border-t border-[#e5eae8] pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
             <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-              Invio fornitori
+              {t("Invio fornitori")}
             </p>
             <h3 className="mt-2 text-xl font-semibold text-[#1d2824]">
-              Invia direttamente a più fornitori.
+              {t("Invia direttamente a più fornitori.")}
             </h3>
             <p className="mt-2 text-sm leading-6 text-[#66736e]">
               Gli indirizzi vengono gestiti separatamente: ogni fornitore riceve la propria email e può rispondere direttamente al tuo indirizzo.
@@ -1483,7 +1534,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
             {authenticated ? (
               <div className="mt-4 space-y-3">
                 <label className="block text-xs font-semibold text-[#52615b]">
-                  Email fornitori
+                  {t("Email fornitori")}
                   <textarea
                     value={recipientInput}
                     onChange={(event) => setRecipientInput(event.target.value)}
@@ -1493,7 +1544,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                   />
                 </label>
                 <label className="block text-xs font-semibold text-[#52615b]">
-                  Oggetto
+                  {t("Oggetto")}
                   <input
                     value={emailSubject}
                     onChange={(event) => setEmailSubject(event.target.value)}
@@ -1501,7 +1552,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                   />
                 </label>
                 <label className="block text-xs font-semibold text-[#52615b]">
-                  Messaggio
+                  {t("Messaggio")}
                   <textarea
                     value={emailMessage}
                     onChange={(event) => setEmailMessage(event.target.value)}
@@ -1516,7 +1567,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic: ogni riga 
                   onClick={sendDistinta}
                   className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-5 text-sm font-bold text-[#173f35] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {sendPending ? "Invio…" : "Invia ai fornitori"}
+                  {t(sendPending ? "Invio…" : "Invia ai fornitori")}
                 </button>
 
                 {!emailConfigured ? (
