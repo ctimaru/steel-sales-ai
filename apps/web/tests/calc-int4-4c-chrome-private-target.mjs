@@ -16,6 +16,10 @@ try {
     const calculator=page.locator("#calcolatore-pesi"),bill=page.locator("#distinta-inline-dialog");
     const trigger=page.locator('[data-testid="calculator-cart-trigger"]');
     await calculator.waitFor({state:"visible"});
+    // Dismiss the platform's first-visit consent overlay before exercising
+    // the floating cart. Never bypass consent or force clicks behind it.
+    await page.locator('[data-testid="mobile-cookie-consent"]')
+      .getByRole("button",{name:"Accetta necessari"}).click();
     const eurT=calculator.getByLabel("Prezzo €/ton");
     const eurM=calculator.getByLabel("Prezzo €/m");
     await eurT.fill("850");

@@ -15,6 +15,10 @@ try {
   const calculator=page.locator("#calcolatore-pesi"),bill=page.locator("#distinta-inline-dialog");
   const trigger=page.locator('[data-testid="calculator-cart-trigger"]');
   await calculator.waitFor({state:"visible"});
+    // Dismiss the platform's first-visit consent overlay before exercising
+    // the floating cart. Never bypass consent or force clicks behind it.
+    await page.locator('[data-testid="mobile-cookie-consent"]')
+      .getByRole("button",{name:"Accetta necessari"}).click();
   assert.equal(await bill.locator("[data-create-inline-private-rfq]").count(),0,
    "No empty RFQ button before there is a bill");
   await calculator.getByLabel("Numero barre").fill("3");

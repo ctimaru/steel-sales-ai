@@ -20,6 +20,10 @@ try {
     assert.equal(await page.locator("html").getAttribute("lang"), "it");
     const calculator = page.locator("#calcolatore-pesi");
     await calculator.waitFor({state:"visible"});
+    // Dismiss the platform's first-visit consent overlay before exercising
+    // the floating cart. Never bypass consent or force clicks behind it.
+    await page.locator('[data-testid="mobile-cookie-consent"]')
+      .getByRole("button",{name:"Accetta necessari"}).click();
     const dock=page.locator("#distinta-inline"),bill=page.locator("#distinta-inline-dialog");
     const trigger=page.locator('[data-testid="calculator-cart-trigger"]');
     assert.equal(await dock.count(),1);
