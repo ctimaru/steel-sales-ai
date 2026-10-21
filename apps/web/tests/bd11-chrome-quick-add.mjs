@@ -14,6 +14,11 @@ try {
     assert.equal(response?.status(), 200);
     const calculator = page.locator("#calcolatore-pesi");
     const preview = page.locator("#buyer-live-preview");
+    const finder=page.locator('[data-testid="calculator-dimension-discovery"]');
+    await finder.getByRole("searchbox").fill("zz_unavailable_123");
+    assert.match(await finder.innerText(),/Nessun risultato|Nessuna misura pubblicata/);
+    await finder.getByRole("searchbox").fill("");
+    assert.ok(await page.locator("svg[aria-label]").count()>0,"Mobile parametric section must be available");
     await calculator.waitFor({ state: "visible" });
     assert.equal(await preview.count(),0,"Cart starts closed");
     assert.equal(await page.locator('[data-testid="private-cart-trigger"]').count(),0);
