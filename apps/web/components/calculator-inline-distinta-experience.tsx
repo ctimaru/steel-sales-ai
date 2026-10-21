@@ -329,7 +329,28 @@ export function CalculatorInlineDistintaExperience({
         count={count} title={c.title} eyebrow={c.eyebrow} closeLabel={c.close}
         summary={`${number(totals?.totalMeters ?? null, 2)} m · ${number(totals?.totalTonnes ?? null, 3)} t`}
         dialogId="distinta-inline-dialog" titleId="distinta-inline-title" bodyId="distinta-inline-lines"
-        triggerTestId="calculator-cart-trigger" overlayTestId="calculator-cart-overlay">
+        triggerTestId="calculator-cart-trigger" overlayTestId="calculator-cart-overlay"
+        footer={<div data-distinta-sticky-footer className="grid gap-1.5">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold text-[#416653]">{c.totalsTitle}</p>
+              <p className="text-base font-extrabold tabular-nums text-[#123d34]">{number(totals?.totalMeters ?? null, 2)} m · {number(totals?.totalTonnes ?? null, 4)} t</p>
+            </div>
+            <span className="shrink-0 rounded-md bg-[#eef6f0] px-2 py-1 text-xs font-bold text-[#285a43]">{count} {c.lines}</span>
+          </div>
+          {hasUnsavedQuantity ? <p role="status" className="text-[11px] font-semibold text-[#915421]">{c.unsavedQuantity}</p> : null}
+          <div className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-2">
+            <button type="button" className={cn(actionClasses({variant:"secondary",size:"sm"}),"min-h-11 rounded-lg px-2 text-xs sm:text-sm")}
+              disabled={hasUnsavedQuantity} onClick={copyBill}>{c.copyBill}</button>
+            <button type="button" data-create-inline-private-rfq
+              className={cn(actionClasses({variant:"default"}),"min-h-11 rounded-lg px-2 text-xs sm:text-sm")}
+              disabled={rfqPending || Boolean(createdRfq) || !ready || hasUnsavedQuantity}
+              onClick={() => { void createPrivateRfq(); }}>
+              {createdRfq ? c.rfqCreated : rfqPending ? c.rfqPending : c.createRfqButton}
+            </button>
+          </div>
+          {rfqError ? <p role="alert" className="text-xs font-semibold text-[#9b442a]">{rfqError}</p> : null}
+        </div>}>
                 {message ? <p role="status" aria-live="polite"
                   className="mb-3 rounded-lg border border-[#c7e3d2] bg-[#edf8f0] px-3 py-2 text-xs font-semibold text-[#215a40]">
                   {message}
@@ -479,17 +500,7 @@ export function CalculatorInlineDistintaExperience({
             })}
           </div>
 
-          <div className="mt-4 flex flex-col gap-3 rounded-xl bg-[#eaf5ee] p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs font-bold text-[#29644c]">{c.totalsTitle}</p>
-              <p className="mt-1 text-lg font-bold text-[#123c2c]">
-                {number(totals?.totalMeters ?? null, 2)} m · {number(totals?.totalTonnes ?? null, 4)} t
-              </p>
-              <p className="mt-1 text-xs text-[#476658]">{c.targetSafety}</p>
-            </div>
-            <button type="button" className={cn(actionClasses({ variant: "default" }), "min-h-12 w-full px-5")}
-              onClick={copyBill}>{c.copyBill}</button>
-          </div>
+          <p className="mt-3 rounded-lg bg-[#f2f8f4] px-3 py-2 text-[11px] leading-4 text-[#486858]">{c.targetSafety}</p>
           <section id="distinta-inline-rfq" aria-label={c.privateRfq} className="mt-4 scroll-mt-24 rounded-xl border border-[#b7d6c4] bg-white p-4">
             <h3 className="text-base font-bold text-[#123c2c]">{c.privateRfq}</h3>
             <p className="mt-1 text-xs leading-5 text-[#4a6756]">{c.rfqIntro}</p>
@@ -502,13 +513,6 @@ export function CalculatorInlineDistintaExperience({
                 </span>
               </label>
             ) : null}
-            <button type="button" data-create-inline-private-rfq
-              className={cn(actionClasses({ variant: "default" }), "mt-3 min-h-12 w-full px-5")}
-              disabled={rfqPending || Boolean(createdRfq) || !ready}
-              onClick={()=>{void createPrivateRfq();}}>
-              {createdRfq ? c.rfqCreated : rfqPending ? c.rfqPending : c.createRfqButton}
-            </button>
-            {rfqError ? <p role="alert" className="mt-2 text-xs font-semibold text-[#9b442a]">{rfqError}</p> : null}
             {rfqAccess === "guest" ? (
               <div data-inline-guest-handoff className="mt-3 rounded-xl border border-[#c6e0d1] bg-[#eef6f1] p-4">
                 <p className="text-sm font-bold text-[#174b37]">{c.guestError}</p>
