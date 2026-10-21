@@ -139,10 +139,10 @@ export function CalculatorDimensionDiscovery({
             }
           }}
           placeholder={c.placeholder}
-          role="searchbox" aria-autocomplete="list"
-          aria-expanded={showResults && found.matchCount>0}
+          role={compact ? "combobox" : "searchbox"} aria-autocomplete="list"
+          aria-expanded={compact ? (showResults && found.matchCount>0) : undefined}
           aria-controls={showResults && found.matchCount>0 ? resultsId : undefined}
-          aria-activedescendant={showResults && found.matchCount>0 ? resultsId+"-item-"+Math.min(activeIndex,found.results.length-1) : undefined}
+          aria-activedescendant={compact && showResults && found.matchCount>0 ? resultsId+"-item-"+Math.min(activeIndex,found.results.length-1) : undefined}
           aria-describedby={resultsId+"-hint"}
           className="min-h-11 w-full min-w-0 rounded-lg border border-[#b8d6c8] bg-white px-3 text-sm text-[#173e30] outline-none focus-visible:ring-2 focus-visible:ring-[#1f6b5a] sm:min-h-10"/>
       </label>
