@@ -42,6 +42,7 @@ type Editable = Pick<BuyerDistintaDraftLine,
 
 const control = "min-h-11 w-full rounded-lg border border-[#b8cfc3] bg-white px-3 text-sm text-[#143b2d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#146747]";
 const action = cn(actionClasses({ variant: "secondary", size: "sm" }), "min-h-11 rounded-lg px-3 py-2 sm:min-h-9 sm:px-2.5 sm:py-1.5");
+const rowAction = cn(actionClasses({ variant: "secondary", size: "sm" }), "min-h-11 rounded-md px-2 py-1 text-[11px] sm:min-h-9 sm:text-xs");
 
 function makeId() {
   return typeof crypto !== "undefined" && crypto.randomUUID
@@ -344,12 +345,18 @@ export function CalculatorInlineDistintaExperience({
           {hasUnsavedQuantity ? <p role="status" className="text-[11px] font-semibold text-[#915421]">{c.unsavedQuantity}</p> : null}
           <div className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-2">
             <button type="button" className={cn(actionClasses({variant:"secondary",size:"sm"}),"min-h-11 rounded-lg px-2 text-xs sm:text-sm")}
-              disabled={hasUnsavedQuantity} onClick={copyBill}>{c.copyBill}</button>
+              disabled={hasUnsavedQuantity} onClick={copyBill} aria-label={c.copyBill}>
+              <span className="sm:hidden">{c.shortCopy}</span><span className="hidden sm:inline">{c.copyBill}</span>
+            </button>
             <button type="button" data-create-inline-private-rfq
               className={cn(actionClasses({variant:"default"}),"min-h-11 rounded-lg px-2 text-xs sm:text-sm")}
               disabled={rfqPending || Boolean(createdRfq) || !ready || hasUnsavedQuantity}
+              aria-label={createdRfq ? c.rfqCreated : rfqPending ? c.rfqPending : c.createRfqButton}
               onClick={() => { void createPrivateRfq(); }}>
-              {createdRfq ? c.rfqCreated : rfqPending ? c.rfqPending : c.createRfqButton}
+              {createdRfq ? c.rfqCreated : rfqPending ? c.rfqPending : <>
+                <span className="sm:hidden">{c.shortRfq} →</span>
+                <span className="hidden sm:inline">{c.createRfqButton}</span>
+              </>}
             </button>
           </div>
           {rfqError ? <p role="alert" className="text-xs font-semibold text-[#9b442a]">{rfqError}</p> : null}
@@ -427,40 +434,39 @@ export function CalculatorInlineDistintaExperience({
                     <span className="block font-normal">{c.estimate} {number(privateTarget.estimatedTotal, 2)} € {c.onlyScreen}</span>
                   </p>
                 ) : null}
-                <div className="mt-1.5 flex flex-wrap items-center gap-1.5 border-t border-[#e4eee7] pt-1.5">
-                  <button type="button" className={action} aria-expanded={editing}
+                <div className="mt-1.5 flex flex-wrap items-center gap-1 border-t border-[#e4eee7] pt-1.5 sm:gap-1.5">
+                  <button type="button" className={rowAction} aria-expanded={editing}
                     aria-controls={editing ? "distinta-inline-edit-" + line.id : undefined}
                     onClick={() => {
                       if (editing) { setEditingId(null); setDraft(null); }
                       else beginEdit(line);
                     }}>{editing ? c.close : c.edit}</button>
-                  <button type="button" className={action} disabled={count >= INLINE_DISTINTA_MAX_LINES}
+                  <button type="button" className={rowAction} disabled={count >= INLINE_DISTINTA_MAX_LINES}
                     aria-label={c.duplicateLine + " " + c.row.toLowerCase() + " " + (index + 1)}
                     onClick={() => commit(duplicateInlineDistintaLine(liveState.current, line.id, makeId()))}>{c.duplicateLine}</button>
-                  <button type="button" className={action} aria-label={c.remove + " " + c.row.toLowerCase() + " " + (index + 1)}
+                  <button type="button" className={rowAction} aria-label={c.remove + " " + c.row.toLowerCase() + " " + (index + 1)}
                     onClick={() => {
                       if (commit(removeInlineDistintaLine(liveState.current, line.id)) && editing) {
                         setEditingId(null); setDraft(null);
                       }
                     }}>{c.remove}</button>
-                </div>
-                {pendingTarget && matchingPending ? (
-                  <button type="button" data-apply-private-target className={action + " mt-3"}
-                    onClick={() => assignTarget(line.id)}>{c.assignTarget} {index + 1}</button>
-                ) : null}
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <button type="button" className={action}
+                  <button type="button" className={rowAction}
+                    aria-label={privateTarget ? c.editTarget : c.setTarget}
                     aria-expanded={editingTargetId === line.id}
                     aria-controls={editingTargetId === line.id ? `private-target-edit-${line.id}` : undefined}
                     onClick={() => editingTargetId === line.id ? setEditingTargetId(null) : startTargetEdit(line)}>
-                    {privateTarget ? c.editTarget : c.setTarget}
+                    {c.shortTarget}
                   </button>
-                  {privateTarget ? <button type="button" className={action} onClick={() => {
+                  {privateTarget ? <button type="button" className={rowAction} onClick={() => {
                     setTargets(current => removeBuyerTarget(current, line.id));
                     setEditingTargetId(null);
                     setMessage(c.targetRemoved);
                   }}>{c.removeTarget}</button> : null}
                 </div>
+                {pendingTarget && matchingPending ? (
+                  <button type="button" data-apply-private-target className={action + " mt-2"}
+                    onClick={() => assignTarget(line.id)}>{c.assignTarget} {index + 1}</button>
+                ) : null}
                 {editingTargetId === line.id ? (
                   <div id={`private-target-edit-${line.id}`} className="mt-3 flex flex-wrap items-end gap-2 rounded-xl border border-[#d7e5dc] bg-white p-3">
                     <label className="text-xs font-bold text-[#315846]">{c.targetUnit}<select className={control} value={targetBasis}
