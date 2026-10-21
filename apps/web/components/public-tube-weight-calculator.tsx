@@ -485,6 +485,7 @@ export function PublicTubeWeightCalculator({
   canAddToDistinta = true,
   inlinePublicDistinta = false,
   inlineBillCount = 0,
+  onOpenInlineBill,
   inlineBill,
   onChooseBuyerTarget,
 }: {
@@ -497,6 +498,7 @@ export function PublicTubeWeightCalculator({
   /** Keep the original public two-column calculator UX, even when adding in place. */
   inlinePublicDistinta?: boolean;
   inlineBillCount?: number;
+  onOpenInlineBill?: () => void;
   /** Mount the same-page bill immediately AFTER the tool, BEFORE secondary references. */
   inlineBill?: ReactNode;
   onChooseBuyerTarget?: (value: { basis: "tonne" | "metre"; raw: string; weightKgM: number }) => void;
@@ -1507,10 +1509,10 @@ export function PublicTubeWeightCalculator({
                   : "Gratuito · nessun login richiesto. Il grado acciaio resta da confermare.")}
               </p>
               {inlinePublicDistinta && inlineBillCount > 0 ? (
-                <a href="#distinta-inline"
+                <button type="button" onClick={onOpenInlineBill} aria-haspopup="dialog"
                   className="mt-2 inline-flex min-h-11 items-center text-xs font-bold text-white underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-                  {inlineCopy.seeBill} · {inlineBillCount} {inlineBillCount === 1 ? inlineCopy.row.toLowerCase() : inlineCopy.lines} ↓
-                </a>
+                  {inlineCopy.seeBill} · {inlineBillCount} {inlineBillCount === 1 ? inlineCopy.row.toLowerCase() : inlineCopy.lines} ↗
+                </button>
               ) : null}
               <p aria-live="polite" className="mt-2 min-h-4 text-xs font-semibold text-white/85">
                 {inlinePublicDistinta ? actionFeedback : t(actionFeedback)}

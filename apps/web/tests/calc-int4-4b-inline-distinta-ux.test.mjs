@@ -36,7 +36,7 @@ test("CALC-INT4.4B preserves calculator first-screen 2 columns, commercial prici
   assert.match(calculator,/!inEmbeddedBuilder && \(locale === "it" \|\| locale === "en"/);
   assert.match(calculator,/!inEmbeddedBuilder && !inlinePublicDistinta \? \(\s*<details/);
   assert.match(calculator,/inlinePublicDistinta && inlineBillCount > 0/);
-  assert.match(calculator,/href="#distinta-inline"/);
+  assert.match(calculator,/onClick=\{onOpenInlineBill\}/);
   assert.match(calculator,/if \(onAddToDistinta\) \{/);
   assert.match(calculator,/enqueueCalculatorRfq\(window\.sessionStorage, item\)/);
   assert.match(calculator,/inlineCopy.added/);
@@ -52,9 +52,14 @@ test("CALC-INT4.4B uses 4.4A pure state and existing canonical bill formatter wi
   assert.match(experience,/buildBuyerDistintaPlainText\(c.quoteTitle, calculated\)/);
   assert.match(experience,/liveState\.current = result\.state/);
   assert.match(experience,/return commit\(result\)/);
-  assert.match(experience,/setOpen\(result\.state\.lines\.length > 0\)/);
+  assert.match(experience,/if \(!result\.state\.lines\.length\) setOpen\(false\)/);
   assert.match(experience,/navigator\.clipboard\.writeText/);
   assert.match(experience,/id="distinta-inline"/);
+  assert.match(experience,/createPortal\(/);
+  assert.match(experience,/data-testid="calculator-cart-trigger"/);
+  assert.match(experience,/role="dialog" aria-modal="true"/);
+  assert.match(experience,/document\.body\.style\.overflow/);
+  assert.match(experience,/ev\.key === "Escape"/);
   assert.match(experience,/aria-live="polite"/);
   assert.match(experience,/aria-expanded=\{open\}/);
   assert.match(experience,/type="button"/);
