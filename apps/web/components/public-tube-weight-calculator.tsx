@@ -1494,6 +1494,27 @@ export function PublicTubeWeightCalculator({
             </div>
 
             <div className="min-w-0 flex-1 p-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))] sm:p-3">
+
+
+              {inlinePublicDistinta && inlineBillCount > 0 ? (
+                <button type="button" onClick={onOpenInlineBill} aria-haspopup="dialog"
+                  className="mt-1 inline-flex min-h-9 items-center text-xs font-bold text-white underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                  {inlineCopy.seeBill} · {inlineBillCount} {inlineBillCount === 1 ? inlineCopy.row.toLowerCase() : inlineCopy.lines} ↗
+                </button>
+              ) : null}
+              <p aria-live="polite" className="mt-2 min-h-4 text-xs font-semibold text-white/85">
+                {inlinePublicDistinta ? actionFeedback : t(actionFeedback)}
+              </p>
+
+
+
+
+
+              <p className="sr-only">{t("Nessuna misura o quantità viene inviata al backend per questa funzione.")}</p>
+            </div>
+          </aside>
+        </div>
+        <div data-cockpit-details className={styles.detailStrip}>
               {!inEmbeddedBuilder ? <details className="group/extra mt-1 rounded-lg border border-white/15 px-2 py-1.5">
                 <summary className="flex min-h-11 cursor-pointer items-center justify-between text-[11px] font-semibold text-white sm:min-h-9 focus-visible:outline-2 focus-visible:outline-white">
                   {t("Copia risultato")} · {t("Copia link")} · ★ <span aria-hidden="true" className="transition-transform group-open/extra:rotate-180">⌄</span>
@@ -1559,26 +1580,6 @@ export function PublicTubeWeightCalculator({
                 </button>
                 </div>
               </details> : null}
-
-              {inlinePublicDistinta && inlineBillCount > 0 ? (
-                <button type="button" onClick={onOpenInlineBill} aria-haspopup="dialog"
-                  className="mt-1 inline-flex min-h-9 items-center text-xs font-bold text-white underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-                  {inlineCopy.seeBill} · {inlineBillCount} {inlineBillCount === 1 ? inlineCopy.row.toLowerCase() : inlineCopy.lines} ↗
-                </button>
-              ) : null}
-              <p aria-live="polite" className="mt-2 min-h-4 text-xs font-semibold text-white/85">
-                {inlinePublicDistinta ? actionFeedback : t(actionFeedback)}
-              </p>
-
-
-
-
-
-              <p className="sr-only">{t("Nessuna misura o quantità viene inviata al backend per questa funzione.")}</p>
-            </div>
-          </aside>
-        </div>
-        <div data-cockpit-details className={styles.detailStrip}>
               <details className="mt-2 rounded-xl border border-white/10 bg-white/5">
                 <summary className="flex min-h-11 cursor-pointer items-center px-3 py-2 text-xs font-bold">
                   {t("Metodo e provenienza")}
