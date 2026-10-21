@@ -6,6 +6,8 @@ on:
     paths:
       - "supabase/tools/migration_sql_fingerprint_audit.py"
       - "supabase/tools/test_migration_sql_fingerprint_audit.py"
+      - "supabase/tools/migration_reconciliation_plan.py"
+      - "supabase/tools/test_migration_reconciliation_plan.py"
       - "supabase/audits/20261021_migration_content_fingerprints.json"
       - ".github/workflows/supa-ledger2-sql-audit.yml"
   push:
@@ -34,6 +36,8 @@ jobs:
           python-version: "3.12"
       - name: Unit tests — no DB credentials or SQL execution
         run: python -m unittest discover -s supabase/tools -p 'test_migration_sql_fingerprint_audit.py' -v
+      - name: Test fail-closed version, ordering and collision guards
+        run: python -m unittest discover -s supabase/tools -p 'test_migration_reconciliation_plan.py' -v
       - name: Compare repo SQL bytes to production ledger original SHA256 snapshot
         run: |
           python supabase/tools/migration_sql_fingerprint_audit.py \
@@ -49,10 +53,28 @@ jobs:
           assert report["summary"]["remote_total"] >= 465
           print("SQL fingerprint audit completed without database access or side effects")
           PY
+      - name: Produce conservative NO-REPAIR decision ledger
+        run: |
+          python supabase/tools/migration_reconciliation_plan.py \
+            --local supabase/migrations \
+            --remote-hashes supabase/audits/20261021_migration_content_fingerprints.json \
+            --output migration-conservative-history-plan.json
+          python - <<'PY'
+          import json
+          plan=json.load(open("migration-conservative-history-plan.json"))
+          assert plan["safe_for_automatic_repair"] is False
+          assert plan["history_mutations_allowed"] is False
+          assert plan["repair_commands"] == []
+          assert plan["summary"]["local_total"] >= 437
+          assert plan["summary"]["remote_total"] == 466
+          print("Fail-closed historical plan generated; no repair authorized.")
+          PY
       - name: Archive full SQL equality / divergence classification
         uses: actions/upload-artifact@v4
         with:
           name: supa-ledger2-sql-equivalence-${{ github.run_id }}
-          path: migration-sql-equivalence-report.json
+          path: |
+            migration-sql-equivalence-report.json
+            migration-conservative-history-plan.json
           retention-days: 30
           if-no-files-found: error
