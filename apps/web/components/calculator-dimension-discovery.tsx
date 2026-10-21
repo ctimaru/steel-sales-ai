@@ -71,11 +71,12 @@ function ShapePreview({item}:{item:CalculatorDimension}) {
 
 /** A client-only deterministic selector. It never saves/sends a line or changes a standard. */
 export function CalculatorDimensionDiscovery({
-  items, locale, onChoose,
+  items, locale, onChoose, compact = false,
 }: {
   items:CalculatorDimension[];
   locale:TubeCalculatorLocale;
   onChoose:(item:CalculatorDimension)=>void;
+  compact?:boolean;
 }) {
   const c=copy[locale];
   const familyGroupName=useId();
@@ -101,12 +102,12 @@ export function CalculatorDimensionDiscovery({
     setExpandedResults(false);
   };
   return <section data-testid="calculator-dimension-discovery" aria-label={c.title}
-    className="border-b border-[#d8e8df] bg-[#f6faf8] px-3 py-2 sm:px-4">
-    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+    className={compact ? "relative min-w-0" : "border-b border-[#d8e8df] bg-[#f6faf8] px-3 py-2 sm:px-4"}>
+    <div className={compact ? "sr-only" : "flex flex-wrap items-center justify-between gap-x-3 gap-y-1"}>
       <h2 className="text-xs font-bold text-[#123d34]">{c.title}</h2>
       <span className="text-[11px] text-[#446454]">{c.subtitle}</span>
     </div>
-    <div className="mt-1.5 flex min-w-0 flex-wrap items-start gap-2 sm:flex-nowrap">
+    <div className={compact ? "flex min-w-0 items-start gap-2" : "mt-1.5 flex min-w-0 flex-wrap items-start gap-2 sm:flex-nowrap"}>
       <label className="min-w-0 flex-1 text-[11px] font-semibold text-[#375c4b]">
         <span className="sr-only">{c.search}</span>
         <input type="search" autoComplete="off" value={query}
@@ -123,8 +124,8 @@ export function CalculatorDimensionDiscovery({
           aria-describedby={resultsId+"-hint"}
           className="min-h-11 w-full min-w-0 rounded-lg border border-[#b8d6c8] bg-white px-3 text-sm text-[#173e30] outline-none focus-visible:ring-2 focus-visible:ring-[#1f6b5a] sm:min-h-10"/>
       </label>
-      <details className="group/filter w-full shrink-0 sm:w-auto">
-        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-[#b8d6c8] bg-white px-3 text-xs font-semibold text-[#23513e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#16714c] sm:min-h-10">
+      <details className={compact ? "group/filter min-w-0 shrink-0" : "group/filter w-full shrink-0 sm:w-auto"}>
+        <summary className={compact ? "flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-[#b8d6c8] bg-white px-2 text-[11px] font-semibold text-[#23513e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#16714c]" : "flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-[#b8d6c8] bg-white px-3 text-xs font-semibold text-[#23513e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#16714c] sm:min-h-10"}>
           {c.filters}{activeFilters ? " · 1+" : ""}<span aria-hidden="true" className="transition-transform group-open/filter:rotate-180">⌄</span>
         </summary>
         <div className="mt-1.5 space-y-2 rounded-lg border border-[#d0e2d7] bg-white p-2">
