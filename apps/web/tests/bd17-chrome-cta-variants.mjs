@@ -28,6 +28,11 @@ try {
       await calculator.waitFor({state:"visible"});
       await calculator.getByLabel("Numero barre").fill("3");
       await calculator.getByRole("button",{name:/Aggiungi alla distinta/}).click();
+      assert.equal(await page.locator("#buyer-live-preview").count(),0,
+        "Private RFQ CTA must not be exposed before the cart is intentionally opened");
+      const cookie = page.locator('[data-testid="mobile-cookie-consent"] > button');
+      if (await cookie.isVisible()) await cookie.click();
+      await page.locator('[data-testid="private-cart-trigger"]').click();
       await page.waitForFunction(() => document.querySelectorAll("#buyer-live-preview .bd10-preview-row:not([hidden])").length === 1);
       const label = arm === "control" ? "Accedi per creare una RFQ privata"
         : "Accedi e scegli i fornitori per una RFQ privata";
@@ -71,6 +76,9 @@ try {
   const calc=page.locator("#calcolatore-pesi");
   await calc.getByLabel("Numero barre").fill("3");
   await calc.getByRole("button",{name:/Aggiungi alla distinta/}).click();
+  const cookieDenied = page.locator('[data-testid="mobile-cookie-consent"] > button');
+  if (await cookieDenied.isVisible()) await cookieDenied.click();
+  await page.locator('[data-testid="private-cart-trigger"]').click();
   const link=page.locator("#buyer-live-preview").getByRole("link",{name:"Accedi e scegli i fornitori per una RFQ privata",exact:true});
   await link.scrollIntoViewIfNeeded();
   await link.click();
