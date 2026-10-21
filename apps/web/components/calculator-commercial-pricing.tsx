@@ -80,12 +80,13 @@ export function CalculatorCommercialPricing({
   const priceInputClass = "mt-1 block h-11 w-full min-w-0 rounded-xl border border-[#b7d2c5] bg-white px-3 text-base font-semibold tabular-nums text-[#163c2e] outline-none transition-colors placeholder:font-normal placeholder:text-[#6b8276] hover:border-[#6b9c87] focus-visible:border-[#166f4b] focus-visible:ring-2 focus-visible:ring-[#96d5b6] disabled:cursor-not-allowed disabled:opacity-50";
 
   return (
-    <section data-commercial-price aria-labelledby={id} className="mt-3 rounded-2xl border border-[#9ecab4]/45 bg-[#e7f3eb] p-3 text-[#173f31] shadow-[0_2px_12px_rgba(0,0,0,0.05)] sm:p-3.5">
-      <div className="flex flex-wrap items-baseline justify-between gap-1.5">
-        <h3 id={id} className="text-[13px] font-bold tracking-tight">{labels.title}</h3>
-        <span className="text-[10px] font-medium text-[#4a6b5b]">{labels.private}</span>
-      </div>
-      <div className="mt-2 grid grid-cols-2 gap-2.5">
+    <details data-commercial-price className="group/price mt-2 rounded-lg border border-[#9ecab4]/45 bg-[#e7f3eb] text-[#173f31]">
+      <summary className="flex min-h-10 cursor-pointer items-center justify-between gap-2 px-3 py-1.5 text-xs font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#166f4b]">
+        <span id={id}>{labels.title} <span className="ml-1 text-[10px] font-medium text-[#4a6b5b]">· {labels.private}</span></span>
+        <span aria-hidden="true" className="transition-transform group-open/price:rotate-180">⌄</span>
+      </summary>
+      <div className="border-t border-[#bfdcca] px-3 pb-3 pt-2">
+      <div className="grid grid-cols-2 gap-2.5">
         <label htmlFor={id+"-tonne"} className="min-w-0 text-[11px] font-bold text-[#2b5744]">
           {labels.tonne}
           <input
@@ -141,6 +142,7 @@ export function CalculatorCommercialPricing({
           {labels.optInAction}
         </button>
       ) : null}
-    </section>
+      </div>
+    </details>
   );
 }
