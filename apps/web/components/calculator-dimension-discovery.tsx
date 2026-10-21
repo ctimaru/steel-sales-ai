@@ -119,7 +119,7 @@ export function CalculatorDimensionDiscovery({
             }
             if(event.key==="Escape")setExpandedResults(false);
           }}
-          placeholder={c.placeholder} aria-controls={resultsId}
+          placeholder={c.placeholder}
           aria-describedby={resultsId+"-hint"}
           className="min-h-11 w-full min-w-0 rounded-lg border border-[#b8d6c8] bg-white px-3 text-sm text-[#173e30] outline-none focus-visible:ring-2 focus-visible:ring-[#1f6b5a] sm:min-h-10"/>
       </label>
