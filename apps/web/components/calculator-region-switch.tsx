@@ -77,7 +77,7 @@ export function CalculatorRegionSwitch({
       locale={locale}
       renderCalculator={({onAddToDistinta,onAddUsToDistinta,canAddToDistinta,inlineBillCount,inlineBill,onOpenInlineBill,onChooseBuyerTarget}) => (
       <>
-    <section className={styles.root} aria-label={regional?.region??(english ? "Steel calculator region" : "Area del calcolatore acciaio")}>
+    <section data-calc-region-switch className={styles.root} aria-label={regional?.region??(english ? "Steel calculator region" : "Area del calcolatore acciaio")}>
       <div className={styles.header}>
         <div className={styles.headerCopy}>
           <p className={styles.eyebrow}>{regional?.eyebrow??(english ? "SELECT CALCULATION SYSTEM" : "SCEGLI IL SISTEMA DI CALCOLO")}</p>
