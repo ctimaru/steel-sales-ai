@@ -413,7 +413,7 @@ export function CalculatorInlineDistintaExperience({
                   </div>
                   <div data-distinta-row-actions className={styles.actions}>
                     <button type="button" className={styles.action} title={editing ? c.close : c.edit}
-                      aria-label={(editing ? c.close : c.edit)+" "+c.row.toLowerCase()+" "+(index + 1)}
+                      aria-label={editing ? c.close : c.edit}
                       aria-expanded={editing} aria-controls={editing ? "distinta-inline-edit-" + line.id : undefined}
                       onClick={() => { if (editing) { setEditingId(null); setDraft(null); } else beginEdit(line); }}>✎</button>
                     <button type="button" className={styles.action} title={c.duplicateLine}
