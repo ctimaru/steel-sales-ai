@@ -1120,6 +1120,7 @@ export function PublicTubeWeightCalculator({
                         key={option.value}
                         type="button"
                         aria-pressed={selected}
+                        aria-label={t(option.label)}
                         title={t(option.label)}
                         onClick={() => handleStandardChange(option.value)}
                         className={`${compactSegmentBase} min-h-11 flex-1 px-2 text-center text-[11px] leading-tight sm:min-h-9 sm:flex-none sm:px-4 sm:text-xs ${selected ? compactSegmentActive : compactSegmentIdle}`}
