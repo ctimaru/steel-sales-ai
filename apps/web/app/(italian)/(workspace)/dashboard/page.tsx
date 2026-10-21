@@ -320,7 +320,15 @@ export default async function DashboardPage({
       ) : null}
 
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.85fr)_minmax(275px,0.85fr)] lg:gap-6">
-        <div className="min-w-0 space-y-6">
+        <div className="min-w-0 space-y-4">
+          {/* DASH-NEXT1C.1: actionable permitted discovery before large navigation cards and news. */}
+          <DashboardDiscoveryFeed
+            networkEnabled={networkEnabled}
+            networkEntitled={networkEntitled}
+            activity={activity.items}
+            marketplace={marketplace}
+            interests={pulse.interests}
+          />
           <section aria-label="Aree di lavoro" className="grid gap-3 sm:grid-cols-2">
             <Link
               href={appRoutes.commercial.home}
@@ -348,13 +356,6 @@ export default async function DashboardPage({
             </Link>
           </section>
           <DashboardSteelPulse state={pulse} />
-          <DashboardDiscoveryFeed
-            networkEnabled={networkEnabled}
-            networkEntitled={networkEntitled}
-            activity={activity.items}
-            marketplace={marketplace}
-            interests={pulse.interests}
-          />
         </div>
 
         <aside className="min-w-0 space-y-3" aria-label="Riepilogo del Workspace">
