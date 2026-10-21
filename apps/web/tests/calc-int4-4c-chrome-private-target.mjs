@@ -20,6 +20,8 @@ try {
     // the floating cart. Never bypass consent or force clicks behind it.
     await page.locator('[data-testid="mobile-cookie-consent"]')
       .getByRole("button",{name:"Accetta necessari"}).click();
+    // DENSE1A: secondary pricing is an explicit, accessible disclosure.
+    await calculator.locator("[data-commercial-price] summary").click();
     const eurT=calculator.getByLabel("Prezzo €/ton");
     const eurM=calculator.getByLabel("Prezzo €/m");
     await eurT.fill("850");
