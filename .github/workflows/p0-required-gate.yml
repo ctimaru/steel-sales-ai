@@ -145,6 +145,15 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: 2.118.0
+      - name: Verify original foundation SHA evidence and CI-only coverage
+        run: |
+          python -m unittest discover -s supabase/tools -p 'test_original_baseline_provenance.py' -v
+          python supabase/tools/original_baseline_provenance.py \
+            --manifest supabase/audits/supa_ledger5e_original_baseline_provenance.json \
+            --snapshot supabase/audits/20261021_migration_content_fingerprints.json \
+            --migrations supabase/migrations \
+            --ci-foundation supabase/ci/p0_pre_worker_baseline.sql supabase/ci/p0_staging_baseline.sql \
+            --output original-baseline-preflight.json
       - name: Probe STRICT repo-only rebuild before CI baselines (diagnostic, no remote)
         run: |
           python supabase/tools/strict_rebuild_probe.py \
@@ -162,7 +171,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: strict-rebuild-probe
-          path: strict-rebuild-diagnostic.json
+          path: |
+            strict-rebuild-diagnostic.json
+            original-baseline-preflight.json
           retention-days: 14
       - name: Inject CI-only historical baselines
         run: |
