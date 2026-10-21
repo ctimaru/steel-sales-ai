@@ -57,7 +57,7 @@ test("STAGING-READY2B creates only 2 orgs, 3 memberships and private draft RFQs"
   assert.match(cleanup,/public\.organizations/);
   assert.match(cleanup,/Unexpected organization identity: cleanup denied/);
   assert.match(cleanup,/LR5 compliance evidence is immutable/);
-  assert.doesNotMatch(cleanup,/DELETE\\s+FROM\\s+public\\.user_legal_acceptances/i,
+  assert.doesNotMatch(cleanup,/DELETE\s+FROM\s+public\.user_legal_acceptances/i,
     "Immutable LR5 acceptance records must not be deleted by staging cleanup");
   assert.doesNotMatch(cleanup,/\b(?:TRUNCATE|DROP TABLE|ALTER TABLE)\b/i);
 });
