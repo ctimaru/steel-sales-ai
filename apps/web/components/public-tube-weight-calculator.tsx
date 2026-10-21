@@ -1327,7 +1327,7 @@ export function PublicTubeWeightCalculator({
                   </div>
 
                   <details defaultOpen={Boolean(targetTonnes.trim())} className="group/tonnes mt-2 rounded-lg border border-[#bed3cb] bg-[#edf5f2] px-2.5 py-1.5">
-                    <summary className="flex min-h-9 cursor-pointer items-center justify-between text-[11px] font-semibold text-[#1f5a43] focus-visible:outline-2 focus-visible:outline-[#15815a]">
+                    <summary className="flex min-h-11 cursor-pointer items-center justify-between text-[11px] font-semibold text-[#1f5a43] sm:min-h-9 focus-visible:outline-2 focus-visible:outline-[#15815a]">
                       {t("Parti dalle tonnellate · Tonnellate target")} <span aria-hidden="true" className="transition-transform group-open/tonnes:rotate-180">⌄</span>
                     </summary>
                     <div className="border-t border-[#bed3cb] pt-2">
@@ -1443,7 +1443,7 @@ export function PublicTubeWeightCalculator({
 
             <div className="min-w-0 flex-1 p-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))] sm:p-3">
               {!inEmbeddedBuilder ? <details className="group/extra mt-1 rounded-lg border border-white/15 px-2 py-1.5">
-                <summary className="flex min-h-9 cursor-pointer items-center justify-between text-[11px] font-semibold text-white focus-visible:outline-2 focus-visible:outline-white">
+                <summary className="flex min-h-11 cursor-pointer items-center justify-between text-[11px] font-semibold text-white sm:min-h-9 focus-visible:outline-2 focus-visible:outline-white">
                   {t("Copia risultato")} · {t("Copia link")} · ★ <span aria-hidden="true" className="transition-transform group-open/extra:rotate-180">⌄</span>
                 </summary>
                 <div className="grid grid-cols-2 gap-1.5 border-t border-white/15 pt-2 sm:grid-cols-3">
