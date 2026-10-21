@@ -1,0 +1,32 @@
+/* CALC-DENSE1R-F: narrow the chrome around the SAME public/private EU
+ * technical cockpit without altering the private RFQ source of truth. */
+.page {min-width:0;}
+.shell {min-width:0;}
+.cartBar {min-height:54px;}
+.cartBar > div:first-child {min-width:0;}
+.heading {min-width:0;}
+.heading h2 {font-size:16px;line-height:22px;}
+.heading > div:first-child p:last-child {max-width:74ch;line-height:1.35;}
+.gradeBar {min-height:64px;}
+.gradeBar > div:first-child {min-width:0;}
+.gradeBar label {min-width:170px;}
+@media (min-width:1024px) {
+  .cartBar {min-height:50px;}
+  .heading {gap:12px;align-items:center;}
+  .heading > div:first-child {display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:12px;}
+  .heading > div:first-child > p:first-child {grid-column:1/-1;font-size:9px;letter-spacing:.09em;}
+  .heading > div:first-child h2 {margin:0;}
+  .heading > div:first-child > p:last-child {margin:0;font-size:11px;}
+  .gradeBar {min-height:56px;}
+  .gradeBar > div:first-child p {margin-top:2px;font-size:11px;}
+}
+@media (max-width:639px){
+  .shell {padding:8px;}
+  .cartBar {gap:6px;padding:7px 8px;}
+  .cartBar > div:first-child p:last-child {font-size:10px;}
+  .heading {padding-bottom:8px;}
+  .heading > div:first-child h2 {font-size:15px;}
+  .heading > div:first-child p:last-child {font-size:11px;line-height:1.4;}
+  .gradeBar {gap:7px;padding:8px;}
+  .gradeBar label {width:100%;min-width:0;}
+}
