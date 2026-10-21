@@ -41,7 +41,7 @@ type Editable = Pick<BuyerDistintaDraftLine,
   "quantityMode" | "quantity" | "barLengthM" | "grade" | "finish" | "note">;
 
 const control = "min-h-11 w-full rounded-lg border border-[#b8cfc3] bg-white px-3 text-sm text-[#143b2d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#146747]";
-const action = cn(actionClasses({ variant: "secondary", size: "sm" }), "min-h-11 rounded-lg px-3 py-2");
+const action = cn(actionClasses({ variant: "secondary", size: "sm" }), "min-h-11 rounded-lg px-3 py-2 sm:min-h-9 sm:px-2.5 sm:py-1.5");
 
 function makeId() {
   return typeof crypto !== "undefined" && crypto.randomUUID
@@ -155,9 +155,12 @@ export function CalculatorInlineDistintaExperience({
   }
 
   function beginEdit(line: BuyerDistintaDraftLine) {
+    // Move any unsaved compact quantity into the expanded form rather than lose it.
+    const quantity = quickQuantities[line.id] ?? line.quantity;
+    setQuickQuantities(current => { const next = { ...current }; delete next[line.id]; return next; });
     setEditingId(line.id);
     setDraft({
-      quantityMode: line.quantityMode, quantity: line.quantity,
+      quantityMode: line.quantityMode, quantity,
       barLengthM: line.barLengthM, grade: line.grade,
       finish: line.finish, note: line.note,
     });
@@ -448,7 +451,7 @@ export function CalculatorInlineDistintaExperience({
                 <div className="mt-2 flex flex-wrap gap-2">
                   <button type="button" className={action}
                     aria-expanded={editingTargetId === line.id}
-                    aria-controls={`private-target-edit-${line.id}`}
+                    aria-controls={editingTargetId === line.id ? `private-target-edit-${line.id}` : undefined}
                     onClick={() => editingTargetId === line.id ? setEditingTargetId(null) : startTargetEdit(line)}>
                     {privateTarget ? c.editTarget : c.setTarget}
                   </button>
