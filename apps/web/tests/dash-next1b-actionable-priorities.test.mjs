@@ -8,6 +8,7 @@ const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const dashboard = read("../app/(italian)/(workspace)/dashboard/page.tsx");
 const commercial = read("../app/(italian)/(workspace)/commercial/page.tsx");
 const paged = read("../lib/commercial-unified-paged.ts");
+const chrome = read("./demotest23-chrome-auth.mjs");
 
 const UUID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
 
@@ -107,4 +108,11 @@ test("NEXT1B historic totals are not mistaken for actionable counts or an empty 
   assert.match(dashboard, /procurementSummary\.attention_total/);
   assert.match(dashboard, /procurementSummary\.active_rfqs/);
   assert.match(dashboard, /href: appRoutes\.marketplace\.home/);
+});
+
+test("NEXT1B retains NEXT1A cockpit actions and CALC-NEXT1F locale isolation on merged main", () => {
+  assert.match(dashboard, /quick-action-shortcuts/);
+  assert.match(chrome, /CALC-NEXT1F: exercise the real private route/);
+  assert.match(chrome, /viewer cannot open private buyer composer by locale URL/);
+  assert.match(chrome, /Dedicated search must open the existing private commercial history/);
 });
