@@ -12,6 +12,12 @@ try {
     const page = await ctx.newPage();
     const response = await page.goto("http://127.0.0.1:3000/distinta", { waitUntil: "domcontentloaded", timeout: 60000 });
     assert.equal(response?.status(), 200);
+    const language=page.locator('[data-testid="buyer-private-language-switch"] select');
+    await language.selectOption("en");
+    await page.getByRole("heading",{name:"Bill items"}).waitFor({state:"visible"});
+    await language.selectOption("de");
+    await page.getByRole("heading",{name:"Stücklistenpositionen"}).waitFor({state:"visible"});
+    await language.selectOption("it");
     const calculator = page.locator("#calcolatore-pesi");
     const preview = page.locator("#buyer-live-preview");
     const finder=page.locator('[data-testid="calculator-dimension-discovery"]');
@@ -26,6 +32,12 @@ try {
     await calculator.getByLabel("Numero barre").fill("3");
     await calculator.getByRole("button", { name: /Aggiungi alla distinta/ }).click();
     assert.equal(await preview.count(),0,"Adding must not auto-open the private cart");
+    const sameTabTitle=await page.locator('input').filter({hasNot:page.locator("[type=hidden]")}).count();
+    assert.ok(sameTabTitle>0);
+    await language.selectOption("en");
+    await page.getByRole("heading",{name:"Bill items"}).waitFor({state:"visible"});
+    await language.selectOption("it");
+    assert.equal(await preview.count(),0,"Changing language must not auto-open cart");
     const cookie=page.locator('[data-testid="mobile-cookie-consent"] > button');
     if(await cookie.isVisible()) await cookie.click();
     const trigger=page.locator('[data-testid="private-cart-trigger"]');
