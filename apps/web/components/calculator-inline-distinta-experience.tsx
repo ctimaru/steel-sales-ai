@@ -363,6 +363,10 @@ export function CalculatorInlineDistintaExperience({
                 </button>
               </div>
               <div id="distinta-inline-lines" className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 pb-8 sm:p-5">
+                {message ? <p role="status" aria-live="polite"
+                  className="mb-3 rounded-lg border border-[#c7e3d2] bg-[#edf8f0] px-3 py-2 text-xs font-semibold text-[#215a40]">
+                  {message}
+                </p> : null}
           {pendingTarget ? (
             <div data-target-pending className="mb-4 rounded-xl border border-[#c8d8a4] bg-[#f5f7eb] p-3 text-sm text-[#31452a]">
               <strong>{c.pendingTarget}</strong> {number(pendingTarget.priceEurT, 2)} €/t
