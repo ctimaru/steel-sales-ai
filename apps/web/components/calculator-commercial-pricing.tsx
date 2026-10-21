@@ -81,7 +81,7 @@ export function CalculatorCommercialPricing({
 
   return (
     <details data-commercial-price className="group/price mt-2 rounded-lg border border-[#9ecab4]/45 bg-[#e7f3eb] text-[#173f31]">
-      <summary className="flex min-h-10 cursor-pointer items-center justify-between gap-2 px-3 py-1.5 text-xs font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#166f4b]">
+      <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-2 px-3 py-1.5 text-xs font-bold sm:min-h-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#166f4b]">
         <span id={id}>{labels.title} <span className="ml-1 text-[10px] font-medium text-[#4a6b5b]">· {labels.private}</span></span>
         <span aria-hidden="true" className="transition-transform group-open/price:rotate-180">⌄</span>
       </summary>
