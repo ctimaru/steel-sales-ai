@@ -1496,12 +1496,7 @@ export function PublicTubeWeightCalculator({
             <div className="min-w-0 flex-1 p-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))] sm:p-3">
 
 
-              {inlinePublicDistinta && inlineBillCount > 0 ? (
-                <button type="button" onClick={onOpenInlineBill} aria-haspopup="dialog"
-                  className="mt-1 inline-flex min-h-9 items-center text-xs font-bold text-white underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-                  {inlineCopy.seeBill} · {inlineBillCount} {inlineBillCount === 1 ? inlineCopy.row.toLowerCase() : inlineCopy.lines} ↗
-                </button>
-              ) : null}
+
               <p aria-live="polite" className="mt-2 min-h-4 text-xs font-semibold text-white/85">
                 {inlinePublicDistinta ? actionFeedback : t(actionFeedback)}
               </p>
