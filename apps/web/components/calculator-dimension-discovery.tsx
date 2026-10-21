@@ -195,7 +195,7 @@ export function CalculatorDimensionDiscovery({
         </div>}
       {found.matchCount>found.results.length ? <p className="mt-1 text-[11px] text-[#5c7367]">{c.more}</p>:null}
       <p className={compact ? "mt-1 border-t border-[#e7eee9] px-1.5 pt-1.5 text-[10px] leading-4 text-[#536b5d]" : "mt-1 text-[11px] leading-4 text-[#536b5d]"}>{c.onlySource}</p>
-    </div> : null>
+    </div> : null}
     <p className="sr-only" aria-live="polite">{selected ? c.applied : ""}</p>
   </section>;
 }
