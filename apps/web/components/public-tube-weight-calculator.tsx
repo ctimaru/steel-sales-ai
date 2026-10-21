@@ -1120,10 +1120,14 @@ export function PublicTubeWeightCalculator({
                         key={option.value}
                         type="button"
                         aria-pressed={selected}
+                        title={t(option.label)}
                         onClick={() => handleStandardChange(option.value)}
                         className={`${compactSegmentBase} min-h-11 flex-1 px-2 text-center text-[11px] leading-tight sm:min-h-9 sm:flex-none sm:px-4 sm:text-xs ${selected ? compactSegmentActive : compactSegmentIdle}`}
                       >
-                        {t(option.label)}
+                        <span className="sm:hidden">{option.value === "geometric"
+                          ? ({it:"Libero",en:"Free",de:"Frei",fr:"Libre",es:"Libre"} as const)[locale]
+                          : t(option.label)}</span>
+                        <span className="hidden sm:inline">{t(option.label)}</span>
                         <span className="sr-only"> — {t(option.description)}</span>
                       </button>
                     );

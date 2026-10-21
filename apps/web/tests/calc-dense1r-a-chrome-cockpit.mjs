@@ -28,6 +28,12 @@ try {
       const normative=root.locator('[data-cockpit-controls] section').first().locator('button').first();
       const rect=await normative.boundingBox();
       assert.ok(rect && rect.height<=48,"EN designation should not break into two lines at 320px");
+      const normButtons=await root.locator('[data-cockpit-controls] section').first().locator('button').all();
+      const visibleLabels=await Promise.all(normButtons.map(button=>button.locator("span").first().boundingBox()));
+      assert.ok(visibleLabels.every(Boolean),"Condensed norm labels should render");
+      for(let i=1;i<visibleLabels.length;i++)
+        assert.ok(visibleLabels[i-1].x+visibleLabels[i-1].width+1<=visibleLabels[i].x,
+          "Norm labels must not visually collide at 320px");
       const kgBar=await root.locator('[data-cockpit-kpis] > div').first().locator('p').nth(1).boundingBox();
       assert.ok(kgBar && kgBar.height<24,"kg/bar should stay on one line at 320px");
     }
