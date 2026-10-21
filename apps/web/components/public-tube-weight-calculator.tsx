@@ -1570,6 +1570,15 @@ export function PublicTubeWeightCalculator({
                 {inlinePublicDistinta ? actionFeedback : t(actionFeedback)}
               </p>
 
+
+
+
+
+              <p className="sr-only">{t("Nessuna misura o quantità viene inviata al backend per questa funzione.")}</p>
+            </div>
+          </aside>
+        </div>
+        <div data-cockpit-details className={styles.detailStrip}>
               <details className="mt-2 rounded-xl border border-white/10 bg-white/5">
                 <summary className="flex min-h-11 cursor-pointer items-center px-3 py-2 text-xs font-bold">
                   {t("Metodo e provenienza")}
@@ -1612,7 +1621,6 @@ export function PublicTubeWeightCalculator({
                   <p className="mt-1">{t("Area sezione:")} {values.areaMm2 == null ? "—" : `${formatOutput(values.areaMm2, 2)} mm²`}</p>
                 </div>
               </details>
-
               <details className="mt-2 rounded-xl border border-white/10 bg-white/5">
                 <summary className="flex min-h-11 cursor-pointer items-center px-3 py-2 text-xs font-bold">
                   {t("Ultimi calcoli e preferiti")}
@@ -1680,10 +1688,6 @@ export function PublicTubeWeightCalculator({
                   </div>
                 </div>
               </details>
-
-              <p className="sr-only">{t("Nessuna misura o quantità viene inviata al backend per questa funzione.")}</p>
-            </div>
-          </aside>
         </div>
       </section>
 
