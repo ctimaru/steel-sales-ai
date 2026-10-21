@@ -490,9 +490,15 @@ export function CalculatorInlineDistintaExperience({
           </div>
 
           <p className="mt-3 rounded-lg bg-[#f2f8f4] px-3 py-2 text-[11px] leading-4 text-[#486858]">{c.targetSafety}</p>
-          <section id="distinta-inline-rfq" aria-label={c.privateRfq} className="mt-4 scroll-mt-24 rounded-xl border border-[#b7d6c4] bg-white p-4">
-            <h3 className="text-base font-bold text-[#123c2c]">{c.privateRfq}</h3>
-            <p className="mt-1 text-xs leading-5 text-[#4a6756]">{c.rfqIntro}</p>
+          <section id="distinta-inline-rfq" aria-label={c.privateRfq} className="mt-2 scroll-mt-24">
+            <details data-distinta-rfq-help
+              open={Boolean(createdRfq) || Object.keys(targets).length > 0 || (rfqAccess !== null && rfqAccess !== "ready")}
+              className="rounded-lg border border-[#c5decf] bg-white">
+              <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-2 px-3 py-2 text-xs font-bold text-[#21563c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#16724e]">
+                {c.privateRfq} <span aria-hidden="true">ⓘ</span>
+              </summary>
+              <div className="border-t border-[#e0ece5] px-3 py-3">
+                <p className="text-xs leading-5 text-[#4a6756]">{c.rfqIntro}</p>
             {Object.keys(targets).length > 0 ? (
               <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-lg bg-[#f4f8f3] p-3 text-xs leading-5 text-[#27523e]">
                 <input type="checkbox" className="mt-1 size-4" checked={includePrivateTargets}
@@ -523,6 +529,8 @@ export function CalculatorInlineDistintaExperience({
             ) : null}
             {createdRfq ? <Link href={appRoutes.rfqHub.campaign(createdRfq)} className={action+" mt-3"}>{c.openHub}</Link> : null}
             <p className="mt-2 text-xs text-[#5a7164]">{c.freeCreation}</p>
+              </div>
+            </details>
           </section>
 
 
