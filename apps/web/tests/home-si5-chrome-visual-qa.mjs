@@ -344,6 +344,15 @@ try {
           assert.equal(response?.status(), 200, "WC7 tube page should load " + path);
           const calculator = page.locator("#calcolatore-pesi");
           await calculator.waitFor({ state: "visible" });
+          // WC7 measures the wheel routing, not a minimum page length. With the
+          // genuinely dense cockpit the document can be too short at 1440px.
+          // Add a test-only inert tail so wheel behaviour remains measurable.
+          await page.evaluate(() => {
+            const spacer = document.createElement("div");
+            spacer.setAttribute("data-wc7-scroll-fixture", "");
+            spacer.style.cssText = "height:1600px;pointer-events:none";
+            document.body.appendChild(spacer);
+          });
           for (const section of ["#calcolatore-pesi [data-cockpit-fields]", "#calcolatore-pesi [data-cockpit-results]"]) {
             const pane = page.locator(section);
             await pane.evaluate((element) => {
