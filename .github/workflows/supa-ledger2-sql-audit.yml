@@ -8,6 +8,8 @@ on:
       - "supabase/tools/test_migration_sql_fingerprint_audit.py"
       - "supabase/tools/migration_reconciliation_plan.py"
       - "supabase/tools/test_migration_reconciliation_plan.py"
+      - "supabase/tools/migration_orphan_duplicate_provenance.py"
+      - "supabase/tools/test_migration_orphan_duplicate_provenance.py"
       - "supabase/audits/20261021_migration_content_fingerprints.json"
       - ".github/workflows/supa-ledger2-sql-audit.yml"
   push:
@@ -38,6 +40,8 @@ jobs:
         run: python -m unittest discover -s supabase/tools -p 'test_migration_sql_fingerprint_audit.py' -v
       - name: Test fail-closed version, ordering and collision guards
         run: python -m unittest discover -s supabase/tools -p 'test_migration_reconciliation_plan.py' -v
+      - name: Unit tests — orphan and duplicate evidence, no repair
+        run: python -m unittest discover -s supabase/tools -p 'test_migration_orphan_duplicate_provenance.py' -v
       - name: Compare repo SQL bytes to production ledger original SHA256 snapshot
         run: |
           python supabase/tools/migration_sql_fingerprint_audit.py \
@@ -69,6 +73,27 @@ jobs:
           assert plan["summary"]["remote_total"] == 466
           print("Fail-closed historical plan generated; no repair authorized.")
           PY
+      - name: Generate all orphan/duplicate provenance holdings — NO REPAIR
+        run: |
+          python supabase/tools/migration_orphan_duplicate_provenance.py \
+            --local supabase/migrations \
+            --remote-hashes supabase/audits/20261021_migration_content_fingerprints.json \
+            --output migration-orphan-duplicate-provenance.json
+          python - <<'PY'
+          import json
+          doc=json.load(open("migration-orphan-duplicate-provenance.json"))
+          assert doc["safe_for_automatic_repair"] is False
+          assert doc["history_mutations_allowed"] is False
+          assert doc["repair_commands"] == []
+          counts=doc["counts"]
+          assert counts["local_only_entries"] == 12
+          assert counts["remote_only_entries"] == 36
+          assert counts["remote_duplicate_name_groups"] == 6
+          assert counts["local_duplicate_name_groups"] == 1
+          assert counts["identical_sql_remote_duplicate_groups"] == 5
+          assert counts["divergent_sql_remote_duplicate_groups"] == 1
+          print("Historical provenance holds confirmed; NO REPAIR.")
+          PY
       - name: Archive full SQL equality / divergence classification
         uses: actions/upload-artifact@v4
         with:
@@ -76,5 +101,6 @@ jobs:
           path: |
             migration-sql-equivalence-report.json
             migration-conservative-history-plan.json
+            migration-orphan-duplicate-provenance.json
           retention-days: 30
           if-no-files-found: error
