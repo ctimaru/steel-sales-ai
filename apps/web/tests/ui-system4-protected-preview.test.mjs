@@ -20,4 +20,6 @@ test("UI4 Chrome bypasses preview safely with header and persistent in-browser c
   assert.match(browser, /"x-vercel-set-bypass-cookie": "true"/);
   assert.match(browser, /Deployment Protection is blocking the preview/);
   assert.doesNotMatch(browser, /x-vercel-protection-bypass=[A-Za-z0-9]{32}/);
+  assert.doesNotMatch(browser, /[?&]x-vercel-protection-bypass=/,
+    "Bypass must never be placed in a URL query string");
 });
