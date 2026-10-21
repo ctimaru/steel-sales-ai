@@ -107,3 +107,21 @@
 .toolbar [role="option"] strong {font-variant-numeric:tabular-nums}
 .toolbar [role="option"] [title] {min-width:0}
 .toolbar [role="option"]:focus-visible {outline:2px solid #16714c;outline-offset:-2px}
+
+/* CALC-DENSE1R-E: the standard two measurement inputs should fill their pane,
+   instead of leaving a third phantom grid column on 640px+ viewports. */
+.measurements,.measurementsRect {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;min-width:0}
+.lengthQuantity {display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin-top:10px}
+.fields [data-cockpit-measurements] > label { min-width:0; font-size:11px; }
+.fields [data-cockpit-measurements] > label > input { font-size:14px; }
+.results [data-cockpit-kpis] > div > p:first-child {font-size:10px;line-height:1.35;letter-spacing:.05em}
+@media (min-width:640px) {
+  .measurementsRect {grid-template-columns:repeat(3,minmax(0,1fr))}
+  .lengthQuantity {grid-template-columns:minmax(0,1.15fr) minmax(170px,.85fr)}
+}
+@media (min-width:1024px) {
+  .results [data-cockpit-kpis] > div > p:first-child {font-size:10px}
+}
+@media (max-width:400px) {
+  .results [data-cockpit-kpis] > div > p:first-child {font-size:9px;letter-spacing:.025em}
+}

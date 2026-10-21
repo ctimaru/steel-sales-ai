@@ -1181,7 +1181,7 @@ export function PublicTubeWeightCalculator({
                     <span className="text-xs text-[#52615b]">mm</span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  <div data-cockpit-measurements className={family === "rectangular_tube" ? styles.measurementsRect : styles.measurements}>
                     {family === "round_tube" ? (
                       <label className="text-[10px] font-bold text-[#52615b]">
                         {t("Diametro D")}
@@ -1275,7 +1275,7 @@ export function PublicTubeWeightCalculator({
                     </details>
                   ) : null}
 
-                  <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-[1.45fr_0.85fr]">
+                  <div data-cockpit-length-quantity className={styles.lengthQuantity}>
                     <div>
                       <div className="mb-1 flex items-center justify-between gap-2">
                         <span className="text-[10px] font-bold text-[#52615b]">{t("Lunghezza barra")}</span>
@@ -1305,7 +1305,7 @@ export function PublicTubeWeightCalculator({
 
                     <div className="text-xs font-bold text-[#52615b]">
                       <label htmlFor="tube-calculator-quantity">{t("Numero barre")}</label>
-                      <div className="mt-1 grid w-full max-w-[180px] grid-cols-[44px_minmax(36px,1fr)_44px] gap-1 rounded-xl border border-[#dce7e1] bg-[#f3f7f5] p-1 sm:grid-cols-[36px_minmax(36px,1fr)_36px]">
+                      <div className="mt-1 grid w-full max-w-[216px] grid-cols-[44px_minmax(36px,1fr)_44px] gap-1 rounded-xl border border-[#dce7e1] bg-[#f3f7f5] p-1 sm:grid-cols-[36px_minmax(36px,1fr)_36px]">
                         <button
                           type="button"
                           aria-label={t("Riduci di una barra")}
@@ -1494,7 +1494,7 @@ export function PublicTubeWeightCalculator({
               ) : null}
             </div>
 
-            <div className="min-w-0 flex-1 p-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))] sm:p-3">
+            <div data-cockpit-feedback className={actionFeedback ? "min-w-0 px-3 pb-2" : "sr-only"}>
 
 
 
