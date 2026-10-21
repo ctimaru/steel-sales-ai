@@ -32,7 +32,8 @@ try {
       const [first,second]=await Promise.all(inputs.map(x=>x.boundingBox()));
       assert.ok(first&&second&&second.x>first.x+first.width-2,"Geometry fields should align as two useful columns");
     }
-    assert.equal(await footer.isVisible(),false,"Empty result status should not reserve visible blank padding");
+    const blankStatus=await footer.boundingBox();
+    assert.ok(blankStatus && blankStatus.height<=2,"Empty status should keep a screen reader live region without visual padding");
     const pageWidth=await page.evaluate(()=>({client:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}));
     assert.ok(pageWidth.scroll<=pageWidth.client+4,"Global overflow "+width+" "+JSON.stringify(pageWidth));
     await region.screenshot({path:"/tmp/calc-dense1r-e/cockpit-"+width+".png",animations:"disabled",timeout:30000});
