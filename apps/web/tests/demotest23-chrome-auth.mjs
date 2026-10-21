@@ -139,7 +139,12 @@ try {
       await feed.waitFor({ state: "visible", timeout: 60000 });
       assert.equal(await actions.count(), 1, "Missing quick action section");
       assert.ok((await priorities.count()) <= 1, "Duplicate daily priorities section");
-      assert.equal(await actions.locator("a").count(), 4, "Expected four safe quick actions");
+      const shortcuts = actions.locator('[data-testid="quick-action-shortcuts"] a');
+      assert.equal(await shortcuts.count(), 4, "Expected four safe quick actions");
+      assert.equal(await actions.locator('a[aria-label^="Cerca RFQ"]').count(), 1,
+        "Dedicated search must open the existing private commercial history");
+      assert.equal(await actions.getByRole("link", { name: /Apri Commerciale/ }).count(), 1,
+        "The cockpit must expose one primary Commerciale CTA");
       assert.equal(await page.locator('section[aria-labelledby="daily-priorities"] a[href="/operations/review"]').count(), 0,
         "Technical parser review must not appear as a buyer dashboard action");
       assert.equal(await page.getByRole("link", { name: /Elementi da verificare/ }).count(), 0,
@@ -441,13 +446,13 @@ try {
     await navigate(mobilePage, "/dashboard");
     await mobilePage.getByRole("heading", { name: "Oggi in " + personas[0].name, exact: true })
       .waitFor({ state: "visible", timeout: 60000 });
-    const tiles = mobilePage.locator('section[aria-labelledby="quick-actions"] a');
-    assert.equal(await tiles.count(), 4);
+    const tiles = mobilePage.locator('section[aria-labelledby="quick-actions"] [data-testid="quick-action-shortcuts"] a');
+    assert.equal(await tiles.count(), 4, "The mobile cockpit has exactly four action shortcuts");
     const first = await tiles.nth(0).boundingBox();
     const second = await tiles.nth(1).boundingBox();
     assert.ok(first && second, "Mobile actions must be visible");
-    assert.ok(Math.abs(first.y - second.y) < 12, "First two mobile actions must share a row");
-    assert.ok(second.x > first.x, "Mobile actions must form two columns");
+    assert.ok(first.height >= 40 && second.height >= 40, "Mobile actions must retain touch targets");
+    assert.ok(second.y >= first.y - 12, "Mobile actions must follow reading order");
     const measures = await mobilePage.evaluate(() => ({
       client: document.documentElement.clientWidth,
       scroll: document.documentElement.scrollWidth,

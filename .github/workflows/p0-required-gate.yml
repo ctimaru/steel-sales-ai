@@ -145,6 +145,44 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: 2.118.0
+      - name: Verify original foundation SHA evidence and CI-only coverage
+        run: |
+          python -m unittest discover -s supabase/tools -p 'test_original_baseline_provenance.py' -v
+          python -m unittest discover -s supabase/tools -p 'test_resolve_first_baseline_dependency.py' -v
+          python -m unittest discover -s supabase/tools -p 'test_prepare_original_foundation_candidate.py' -v
+          python supabase/tools/original_baseline_provenance.py \
+            --manifest supabase/audits/supa_ledger5e_original_baseline_provenance.json \
+            --snapshot supabase/audits/20261021_migration_content_fingerprints.json \
+            --migrations supabase/migrations \
+            --ci-foundation supabase/ci/p0_pre_worker_baseline.sql supabase/ci/p0_staging_baseline.sql \
+            --output original-baseline-preflight.json
+      - name: Probe STRICT repo-only rebuild before CI baselines (diagnostic, no remote)
+        run: |
+          python supabase/tools/strict_rebuild_probe.py \
+            --output strict-rebuild-diagnostic.json \
+            --start-timeout 240 --reset-timeout 240
+          python - <<'PY'
+          import json
+          report=json.load(open("strict-rebuild-diagnostic.json"))
+          assert report["production_touched"] is False
+          assert report["automatic_release_authorized"] is False
+          assert report["migration_history_repair_authorized"] is False
+          print("Strict result is diagnostic only; assisted P0 suite runs next.")
+          PY
+          python supabase/tools/resolve_first_baseline_dependency.py \
+            --strict strict-rebuild-diagnostic.json \
+            --manifest supabase/audits/supa_ledger5e_original_baseline_provenance.json \
+            --migrations supabase/migrations \
+            --output first-baseline-dependency.json
+      - name: Retain minimal strict-rebuild evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: strict-rebuild-probe
+          path: |
+            strict-rebuild-diagnostic.json
+            original-baseline-preflight.json
+            first-baseline-dependency.json
+          retention-days: 14
       - name: Inject CI-only historical baselines
         run: |
           cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
@@ -294,6 +332,8 @@ jobs:
             pl1_11_save_history_export.sql \
             pp1_padana_publication_readiness.sql \
             rfqh13_production_hardening_pilot.sql \
+            supa_ledger5c_security_negative.sql \
+            supa_ledger5c_assisted_rebuild_invariants.sql \
             rfqh14_pilot_readiness.sql \
             nc12_operational_alert_authorization_audit.sql \
             nc21_segregated_notification_inbox_schema.sql \
@@ -340,6 +380,8 @@ jobs:
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
+      - name: Real local JWT / PostgREST two-tenant authorization acceptance
+        run: python supabase/tools/local_jwt_tenant_acceptance.py
       - name: Verify tenant helper and lint
         env:
           PGPASSWORD: postgres

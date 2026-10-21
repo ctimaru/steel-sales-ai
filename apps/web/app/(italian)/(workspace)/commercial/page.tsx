@@ -10,11 +10,12 @@ import { CommercialUnifiedWorklist } from "@/components/commercial-unified-workl
 import type { CommercialOperationsTab } from "@/components/commercial-campaign-operations";
 import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
 import { loadUnifiedCommercialData, type CommercialView } from "@/lib/commercial-unified-data";
-import { isCommercialPagedView, loadCommercialPagedData, parseCommercialPage } from "@/lib/commercial-unified-paged";
+import { includeSelectedCommercialCampaign, isCommercialPagedView, loadCommercialPagedData, parseCommercialPage } from "@/lib/commercial-unified-paged";
 import { isStreamView, loadCommercialStreams } from "@/lib/commercial-unified-streams";
 import { listBuyerDistintaPublicDimensions } from "@/lib/public-knowledge";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
+import { getCommercialNetworkContext } from "@/lib/commercial-network-context";
 import { createClient } from "@/lib/supabase/server";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 import { appRoutes } from "@/lib/routes";
@@ -79,7 +80,7 @@ const intelligenceGroups = [
 export default async function CommercialHomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string; tab?: string; page?: string; cursor?: string }>;
+  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string; tab?: string; page?: string; cursor?: string; network?: string }>;
 }) {
   const params = await searchParams;
   const context = await getWorkspaceContext();
@@ -93,7 +94,7 @@ export default async function CommercialHomePage({
   const allowedTabs: CommercialOperationsTab[] = ["compare", "negotiate", "award", "po"];
   const tab: CommercialOperationsTab = allowedTabs.includes(params.tab as CommercialOperationsTab) ? params.tab as CommercialOperationsTab : "compare";
   const composing = canWrite && params.compose === "1";
-  const [commercial, procurement, unified, catalogOptions] = await Promise.all([
+  const [commercial, procurement, unified, catalogOptions, networkContext] = await Promise.all([
     getDashboardData(),
     canWrite
       ? createClient().then((db) => db.rpc("rfqh10_procurement_inbox", { p_limit: 4 }))
@@ -105,7 +106,14 @@ export default async function CommercialHomePage({
         ? loadCommercialStreams({ organizationId: context.organizationId, view, query, cursor: params.cursor })
         : loadUnifiedCommercialData(context.organizationId),
     composing ? listBuyerDistintaPublicDimensions().then(buildBuyerDistintaCatalogOptions) : Promise.resolve(null),
+    // Explicit GET-only handoff; invalid/locked Network ids never trigger a profile read.
+    getCommercialNetworkContext(context.organizationId, params.network),
   ]);
+  // Resolve a specifically selected RFQ with tenant RLS when it is older than
+  // the first paginated Commerciale worklist page. Normal visits add no query.
+  const displayedUnified = view === "sent" && selected.startsWith("campaign:")
+    ? await includeSelectedCommercialCampaign(context.organizationId, selected, unified)
+    : unified;
   const { recent, mode, operational } = commercial;
   // Procurement is a distinct tenant-owned lifecycle; never mix its active
   // counts with the total historical commercial RFQ count.
@@ -148,6 +156,55 @@ export default async function CommercialHomePage({
           </>
         }
       />
+
+      {networkContext ? (
+        <section
+          id="network-commercial-context"
+          aria-labelledby="network-commercial-heading"
+          data-testid="commercial-network-context"
+          className="scroll-mt-24 rounded-xl border border-[#bdd8c8] bg-[#f4faf6] px-3 py-3 sm:px-4"
+        >
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-bold uppercase tracking-[0.11em] text-[#246c53]">Dal Network al Commerciale</p>
+              <h2 id="network-commercial-heading" className="mt-0.5 break-words text-base font-semibold text-[#173f35]">
+                {networkContext.name}
+              </h2>
+              <p className="mt-0.5 text-xs leading-5 text-[#53665b]">
+                {networkContext.role ? networkContext.role + " · " : ""}{networkContext.country}
+                {" · "}{networkContext.verifiedIdentity ? "Identità verificata" : "Profilo Network pubblicato"}
+                {networkContext.products.length ? " · Catalogo: " + networkContext.products.join(", ") : ""}
+              </p>
+              <p className="mt-1 text-xs leading-5 text-[#52615b]">
+                Contesto pubblico per valutazione commerciale, non una relazione CRM salvata.
+                L’azienda non viene aggiunta ai destinatari RFQ: selezione e invio restano manuali.
+              </p>
+            </div>
+            <Link
+              href={appRoutes.commercial.home}
+              className="inline-flex min-h-10 items-center rounded-lg px-2 text-xs font-semibold text-[#175640] underline underline-offset-4"
+            >Rimuovi contesto</Link>
+          </div>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <Link
+              href={appRoutes.commercial.search + "?q=" + encodeURIComponent(networkContext.name)}
+              className="inline-flex min-h-10 items-center rounded-lg border border-[#b6d3c0] bg-white px-3 text-xs font-semibold text-[#175640] hover:bg-[#e7f3eb] focus-visible:outline-2 focus-visible:outline-offset-2"
+            >Cerca nello storico →</Link>
+            {canWrite ? (
+              <Link
+                href={appRoutes.commercial.home + "?network=" + encodeURIComponent(networkContext.id) + "&compose=1#commercial-compose"}
+                className="inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-3 text-xs font-semibold text-white hover:bg-[#246c53] focus-visible:outline-2 focus-visible:outline-offset-2"
+              >Prepara RFQ privata →</Link>
+            ) : (
+              <span className="text-xs text-[#52615b]">Consultazione: nessuna modifica o invio disponibile.</span>
+            )}
+            <Link
+              href={appRoutes.network.company(networkContext.id)}
+              className="inline-flex min-h-10 items-center px-1 text-xs font-semibold text-[#175640] underline underline-offset-4"
+            >Rivedi il profilo Network →</Link>
+          </div>
+        </section>
+      ) : null}
 
       <section aria-labelledby="commercial-today" className="grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
         <div className="rounded-2xl bg-[#173f35] p-4 text-white sm:p-5">
@@ -200,6 +257,11 @@ export default async function CommercialHomePage({
               <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--brand-primary)]">La tua nuova richiesta</p>
               <h2 id="commercial-compose-heading" className="text-lg font-semibold text-[var(--brand-deep)]">Crea distinta e RFQ senza lasciare Commerciale</h2>
               <p className="mt-1 text-xs text-[var(--text-secondary)]">La creazione genera una bozza privata. Nessun invio ai fornitori avviene automaticamente.</p>
+              {networkContext ? (
+                <p className="mt-1 text-xs font-medium leading-5 text-[#175640]" data-testid="commercial-network-draft-disclaimer">
+                  Provenienza: Network · {networkContext.name}. Compila la distinta e scegli i destinatari manualmente: questo contesto non precompila, collega né invia richieste all’azienda.
+                </p>
+              ) : null}
             </div>
             <Link href={appRoutes.commercial.home + "#commercial-worklist"} className="app-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold">Chiudi editor</Link>
           </div>
@@ -216,7 +278,7 @@ export default async function CommercialHomePage({
       ) : null}
 
       <CommercialUnifiedWorklist
-        data={unified}
+        data={displayedUnified}
         page={page}
         selected={selected}
         query={query}

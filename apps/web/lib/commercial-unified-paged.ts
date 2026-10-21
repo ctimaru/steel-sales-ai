@@ -163,3 +163,46 @@ export async function loadCommercialPagedData({
     },
   };
 }
+
+/**
+ * DASH-NEXT1B: a Home priority can reference a campaign older than the first
+ * 30 rows of the sent worklist. Resolve only that selected campaign with both
+ * organization scoping and RLS, instead of sending users to the legacy Hub.
+ * Never return a campaign from another tenant or infer its status.
+ */
+export async function includeSelectedCommercialCampaign(
+  organizationId: string,
+  selected: string,
+  data: UnifiedCommercialData,
+): Promise<UnifiedCommercialData> {
+  const match = /^campaign:([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i.exec(selected);
+  if (!match || data.items.some((item) => item.key === selected)) return data;
+
+  const db = await createClient();
+  const result = await db.from("buyer_rfq_campaigns")
+    .select("id,title,status,due_at,created_at")
+    .eq("organization_id", organizationId)
+    .eq("id", match[1])
+    .maybeSingle();
+
+  // An unowned/nonexistent campaign is indistinguishable to the caller.
+  if (result.error || !result.data || !isUuid(result.data.id)) return data;
+  const campaign = result.data;
+  return {
+    ...data,
+    items: [{
+      id: campaign.id,
+      key: "campaign:" + campaign.id,
+      kind: "campaign", view: "sent",
+      title: campaign.title?.trim() || "Richiesta ai fornitori",
+      subtitle: campaign.due_at
+        ? "Campagna · scadenza " + new Date(campaign.due_at).toLocaleDateString("it-IT")
+        : "Campagna privata multi-fornitore",
+      status: rfqCampaignStatusLabel(campaign.status),
+      at: campaign.created_at,
+      href: appRoutes.rfqHub.campaign(campaign.id),
+      campaignId: campaign.id,
+      origin: "acquisti privati",
+    }, ...data.items],
+  };
+}

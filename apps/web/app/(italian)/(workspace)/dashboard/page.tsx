@@ -14,6 +14,8 @@ import {
   getNetworkInquiries,
 } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
+import { searchNetwork } from "@/lib/network";
+import { selectDashboardNetworkCompanies } from "@/lib/dashboard-network-discovery";
 import { appRoutes } from "@/lib/routes";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 import { canWriteWorkspace } from "@/lib/access-policy";
@@ -44,7 +46,7 @@ export default async function DashboardPage({
   const isAdmin = context.role === "admin";
   const canWrite = canWriteWorkspace(context.role);
 
-  const [setup, commercial, received, activity, sector, procurement, pulse, marketplace] = await Promise.all([
+  const [setup, commercial, received, activity, sector, procurement, pulse, marketplace, networkCatalog] = await Promise.all([
     isAdmin
       ? getCompanySetupState(context.organizationId)
       : Promise.resolve(null),
@@ -61,6 +63,11 @@ export default async function DashboardPage({
     // P5.2 already validates viewer identity, publication status and visibility.
     // Fetch only the permitted public teaser projection; never private RFQ lines.
     getMarketplaceFeed(context.organizationId, { limit: 10, offset: 0 }).catch(() => null),
+    // Published M6 catalog only. Never query Network companies without entitlement.
+    // The product filter is a broad industrial first page, not an AI recommendation.
+    networkEnabled && networkEntitled
+      ? searchNetwork({ product: "tubes_pipes", page: 1 }).catch(() => null)
+      : Promise.resolve(null),
   ]);
 
   const { metrics, recent, mode, operational } = commercial;
@@ -73,6 +80,9 @@ export default async function DashboardPage({
     : "unknown";
   const displaySector = sector === "unknown" ? selfDeclaredSector : sector;
   const presentation = dashboardPresentation(context.role === "admin" || context.role === "viewer" ? context.role : "member", displaySector);
+  const networkCompanies = networkEnabled && networkEntitled && networkCatalog
+    ? selectDashboardNetworkCompanies(networkCatalog.items, displaySector, pulse.interests, context.organizationName)
+    : [];
   const setupIncomplete = Boolean(
     setup && (!setup.profile_ready || !setup.data_ready || !setup.first_value_ready),
   );
@@ -115,9 +125,9 @@ export default async function DashboardPage({
     : null;
   const procurementSummary = procurementPayload?.summary;
   const procurementKpis = procurementSummary && [
-    { label: "Azioni buyer", value: procurementSummary.attention_total, href: appRoutes.rfqHub.inbox },
-    { label: "Urgenti", value: procurementSummary.urgent, href: appRoutes.rfqHub.inbox },
-    { label: "RFQ attive", value: procurementSummary.active_rfqs, href: appRoutes.rfqHub.home },
+    { label: "Azioni buyer", value: procurementSummary.attention_total, href: appRoutes.commercial.home + "?view=sent#commercial-worklist" },
+    { label: "Urgenti", value: procurementSummary.urgent, href: appRoutes.commercial.home + "?view=sent#commercial-worklist" },
+    { label: "RFQ attive", value: procurementSummary.active_rfqs, href: appRoutes.commercial.home + "?view=sent#commercial-worklist" },
   ].flatMap((entry) =>
     typeof entry.value === "number" && Number.isFinite(entry.value) && entry.value >= 0
       ? [{ ...entry, value: entry.value }]
@@ -125,7 +135,10 @@ export default async function DashboardPage({
   );
   const procurementActions = (procurementPayload?.items ?? [])
     .filter((item) => item.requires_action === true && typeof item.rfq_id === "string" && /^[0-9a-f-]{36}$/i.test(item.rfq_id))
-    .slice(0, 2);
+    // Urgency is explicitly supplied by the tenant-scoped procurement inbox;
+    // never infer urgency from recent news, parser QA, or unrelated records.
+    .sort((a, b) => Number(b.priority === "urgent") - Number(a.priority === "urgent"))
+    .slice(0, 3);
   // Only user-owned buyer actions belong in the Workspace attention strip.
   // The tenant-scoped commercial_review_queue contains parser/extraction QA;
   // even though its rows are RLS-protected, it is NOT a buyer task.
@@ -133,10 +146,15 @@ export default async function DashboardPage({
   // Read/unread news and recent RFQs are informational, not urgent.
   const attentionItems = [
     ...procurementActions.map((item) => ({
-      href: appRoutes.rfqHub.campaign(item.rfq_id!),
+      // Commerciale is the canonical surface; the campaign key is resolved
+      // with an organization-scoped read even if not on the first worklist page.
+      href: appRoutes.commercial.home + "?view=sent&item=campaign:" + item.rfq_id! + "#commercial-detail",
       value: null as number | null,
-      title: item.headline || "RFQ da gestire",
-      description: "Apri la richiesta e completa la prossima azione.",
+      title: typeof item.headline === "string" && item.headline.trim()
+        ? item.headline.trim().slice(0, 120) : "RFQ da gestire",
+      description: typeof item.detail === "string" && item.detail.trim()
+        ? item.detail.trim().slice(0, 170) : "Apri la richiesta e completa la prossima azione.",
+      priorityLabel: item.priority === "urgent" ? "Urgente" : "Da gestire",
       accent: item.priority === "urgent"
         ? "border-[#ddb977] bg-[#fff6e7] text-[#815017]"
         : "border-[#a9ccbb] bg-[#f2f8f4] text-[#225c47]",
@@ -194,7 +212,7 @@ export default async function DashboardPage({
         title={<>Oggi in {context.organizationName}</>}
         description={
           <>
-            Le notizie del tuo settore, gli strumenti e le attività che contano.
+            Attività, aziende e strumenti utili per il tuo prossimo passo.
             <span className="mt-1 block text-xs font-medium text-[#53645b]">
               {workspaceRoleLabel(context.role)} · Workspace privato
             </span>
@@ -202,17 +220,48 @@ export default async function DashboardPage({
         }
       />
 
-      <section aria-labelledby="quick-actions" className="rounded-xl border border-[#dce5df] bg-white px-3 py-2.5">
-        <h2 id="quick-actions" className="sr-only">Azioni rapide</h2>
-        <div className="flex flex-wrap items-center gap-2">
-          <span aria-hidden="true" className="mr-1 hidden text-[11px] font-bold uppercase tracking-[0.08em] text-[#506459] sm:inline">
-            Azioni rapide
+      <section aria-labelledby="quick-actions" className="overflow-hidden rounded-2xl border border-[#c5d8cd] bg-[linear-gradient(120deg,#edf6f0_0%,#ffffff_72%)] px-4 py-4 sm:px-5 sm:py-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-5">
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#28634f]">Il tuo punto di partenza</p>
+            <h2 id="quick-actions" className="mt-1 text-lg font-semibold tracking-tight text-[#173f35] sm:text-xl">
+              Dalle informazioni alle opportunità.
+            </h2>
+            <p className="mt-1 max-w-2xl text-xs leading-5 text-[#52645a] sm:text-sm">
+              Gestisci il lavoro commerciale e trova aziende industriali da un unico spazio.
+            </p>
+          </div>
+          <Link
+            href={appRoutes.commercial.home}
+            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 self-start rounded-xl bg-[#176045] px-4 text-xs font-semibold text-white transition hover:bg-[#114b36] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176045]"
+          >
+            Apri Commerciale <span aria-hidden="true">→</span>
+          </Link>
+        </div>
+
+        <Link
+          href={appRoutes.commercial.search}
+          aria-label="Cerca RFQ, offerte, ordini, aziende e documenti nello storico commerciale"
+          className="mt-4 flex min-h-12 min-w-0 items-center gap-3 rounded-xl border border-[#c2d7ca] bg-white px-3 text-left shadow-[0_2px_10px_rgba(18,61,52,0.04)] transition hover:border-[#82b099] hover:bg-[#f9fcfa] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176045] sm:px-4"
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4 shrink-0 text-[#32654f]">
+            <circle cx="10.8" cy="10.8" r="6.8" />
+            <path d="m16 16 5 5" strokeLinecap="round" />
+          </svg>
+          <span className="min-w-0 flex-1 truncate text-xs text-[#59695e] sm:text-sm">
+            Cerca RFQ, offerte, ordini, aziende e documenti...
           </span>
+          <span className="shrink-0 text-[11px] font-semibold text-[#176045]">Cerca <span aria-hidden="true">↗</span></span>
+        </Link>
+
+        <div data-testid="quick-action-shortcuts" className="mt-3 flex flex-wrap items-center gap-2">
+          <span aria-hidden="true" className="mr-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[#53675b]">Azioni rapide</span>
           {orderedQuickActions.map((action) => (
             <Link
               key={action.href}
               href={action.href}
-              className="inline-flex min-h-10 max-w-full items-center gap-2 rounded-full border border-[#b9d2c5] bg-[#f5faf7] px-3 text-xs font-semibold text-[#175640] transition hover:border-[#7fae97] hover:bg-[#e8f3ed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246a50]"
+              title={action.description}
+              className="inline-flex min-h-10 max-w-full items-center gap-2 rounded-full border border-[#b9d2c5] bg-[#f9fcfa] px-3 text-xs font-semibold text-[#175640] transition hover:border-[#7fae97] hover:bg-[#e8f3ed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246a50]"
             >
               <span className="truncate">{action.title}</span>
               <span aria-hidden="true">↗</span>
@@ -222,26 +271,32 @@ export default async function DashboardPage({
       </section>
 
       {attentionCount > 0 ? (
-        <section aria-labelledby="daily-priorities" className="rounded-xl border border-[#e7d4b4] bg-[#fffbf5] px-3 py-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 id="daily-priorities" className="mr-1 text-xs font-semibold text-[#754a18]">
-              Cosa richiede attenzione
-              <span className="sr-only"> · Solo segnali con un’azione concreta.</span>
-            </h2>
-            <div className="flex min-w-0 flex-wrap gap-2">
-              {attentionItems.map((item) => (
-                <Link
-                  key={item.href + item.title}
-                  href={item.href}
-                  className={"inline-flex min-h-10 max-w-full items-center gap-2 rounded-lg border px-3 text-xs font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 " + item.accent}
-                >
-                  {item.value !== null ? <span className="font-bold tabular-nums">{item.value}</span> : null}
-                  <span className="truncate">{item.title}</span>
-                  <span className="sr-only">{item.description}</span>
-                  <span aria-hidden="true">→</span>
-                </Link>
-              ))}
+        <section aria-labelledby="daily-priorities" className="rounded-2xl border border-[#e7d4b4] bg-[#fffbf5] px-3 py-3 sm:px-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#805c31]">Cosa richiede attenzione</p>
+              <h2 id="daily-priorities" className="mt-0.5 text-base font-semibold text-[#173f35]">
+                Da fare adesso
+                <span className="sr-only"> · Solo segnali con un’azione concreta.</span>
+              </h2>
             </div>
+            <Link href={appRoutes.commercial.home + "?view=sent#commercial-worklist"} className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2">
+              Tutte le richieste →
+            </Link>
+          </div>
+          <div className="mt-3 grid gap-2 lg:grid-cols-3">
+            {attentionItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={"group flex min-h-10 max-w-full flex-col gap-2 rounded-lg border px-3 py-3 text-xs focus-visible:outline-2 focus-visible:outline-offset-2 hover:shadow-[0_3px_12px_rgba(18,61,52,0.06)] " + item.accent}
+              >
+                <span className="text-[10px] font-semibold uppercase tracking-[0.06em]">{item.priorityLabel}</span>
+                <span className="break-words text-sm font-semibold text-[#173f35]">{item.title}</span>
+                <span className="line-clamp-2 leading-5 text-[#52615b]">{item.description}</span>
+                <span className="mt-auto font-semibold text-[#175640]">Apri nel Commerciale <span aria-hidden="true">→</span></span>
+              </Link>
+            ))}
           </div>
         </section>
       ) : null}
@@ -274,19 +329,49 @@ export default async function DashboardPage({
         </p>
       ) : null}
 
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.85fr)_minmax(275px,0.85fr)] lg:gap-6">
-        <div className="min-w-0 space-y-8">
-          <DashboardSteelPulse state={pulse} />
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.85fr)_minmax(275px,0.85fr)] lg:gap-6">
+        <div className="min-w-0 space-y-4">
+          {/* DASH-NEXT1C.1: actionable permitted discovery before large navigation cards and news. */}
           <DashboardDiscoveryFeed
             networkEnabled={networkEnabled}
             networkEntitled={networkEntitled}
             activity={activity.items}
             marketplace={marketplace}
             interests={pulse.interests}
+            networkCompanies={networkCompanies}
+            networkDiscoveryAvailable={networkCatalog !== null}
+            canWriteCommercial={canWrite}
           />
+          <section aria-label="Aree di lavoro" className="grid gap-3 sm:grid-cols-2">
+            <Link
+              href={appRoutes.commercial.home}
+              className="group flex min-h-[146px] flex-col justify-between rounded-2xl border border-[#d9e5dc] bg-white p-4 transition hover:border-[#9ebfac] hover:shadow-[0_5px_22px_rgba(18,61,52,0.06)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176045]"
+            >
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#537263]">01 / Commerciale</p>
+                <h2 className="mt-2 text-base font-semibold text-[#173f35]">Richieste, offerte e ordini</h2>
+                <p className="mt-1 text-xs leading-5 text-[#52645a]">Il lavoro quotidiano e le tue trattative in un'unica vista.</p>
+              </div>
+              <span className="mt-3 text-xs font-semibold text-[#176045]">Vai al Commerciale <span aria-hidden="true" className="inline-block transition group-hover:translate-x-1">→</span></span>
+            </Link>
+            <Link
+              href={networkEnabled ? appRoutes.network.directory : appRoutes.knowledge.workspace}
+              className="group flex min-h-[146px] flex-col justify-between rounded-2xl border border-[#cddfd2] bg-[#f3f8f4] p-4 transition hover:border-[#8cb99e] hover:shadow-[0_5px_22px_rgba(18,61,52,0.06)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176045]"
+            >
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#537263]">02 / {networkEnabled ? "Network" : "Scuola"}</p>
+                <h2 className="mt-2 text-base font-semibold text-[#173f35]">{networkEnabled ? "Scopri aziende industriali" : "Esplora la conoscenza tecnica"}</h2>
+                <p className="mt-1 text-xs leading-5 text-[#52645a]">
+                  {networkEnabled ? "Ricerca per territorio, prodotti e capacità documentate." : "Norme, materiali e strumenti tecnici per il tuo lavoro."}
+                </p>
+              </div>
+              <span className="mt-3 text-xs font-semibold text-[#176045]">{networkEnabled ? "Esplora Network" : "Apri Scuola"} <span aria-hidden="true" className="inline-block transition group-hover:translate-x-1">→</span></span>
+            </Link>
+          </section>
+          <DashboardSteelPulse state={pulse} />
         </div>
 
-        <aside className="min-w-0 space-y-4" aria-label="Riepilogo del Workspace">
+        <aside className="min-w-0 space-y-3" aria-label="Riepilogo del Workspace">
           <section aria-label="Indicatori commerciali" className="rounded-2xl border border-[#dce5df] bg-white p-4">
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-sm font-semibold text-[#173f35]">Il tuo Workspace</h2>
@@ -295,14 +380,17 @@ export default async function DashboardPage({
               </Link>
             </div>
             {mode === "live" && operationalKpis.length > 0 ? (
-              <dl className="mt-3 divide-y divide-[#eaf0eb]">
-                {operationalKpis.map((kpi) => (
-                  <div key={kpi.label} className="flex items-center justify-between gap-2 py-2">
-                    <dt className="text-xs text-[#52615b]">{kpi.label}</dt>
-                    <dd className="metric-number text-base font-semibold tabular-nums text-[#173f35]">{kpi.value.toLocaleString("it-IT")}</dd>
-                  </div>
-                ))}
-              </dl>
+              <>
+                <dl className="mt-3 grid grid-cols-3 gap-2">
+                  {operationalKpis.map((kpi) => (
+                    <div key={kpi.label} className="min-w-0 rounded-xl bg-[#f3f8f5] px-2 py-3 text-center">
+                      <dd className="metric-number text-xl font-semibold tabular-nums text-[#173f35]">{kpi.value.toLocaleString("it-IT")}</dd>
+                      <dt className="mt-1 text-[10px] leading-4 text-[#53645b]">{kpi.label}</dt>
+                    </div>
+                  ))}
+                </dl>
+                <p className="mt-2 text-[11px] leading-4 text-[#68766d]">Totali registrati · non rappresentano attività aperte.</p>
+              </>
             ) : (
               <p role="status" className="mt-3 text-xs leading-5 text-[#52615b]">
                 I dati commerciali non sono disponibili o non ancora associati al workspace. Nessun dato dimostrativo viene mostrato come reale.
@@ -351,12 +439,19 @@ export default async function DashboardPage({
               </p>
             ) : recent.length === 0 ? (
               <div className="mt-3 space-y-2">
-                <p className="text-xs text-[#52615b]">Qui compariranno RFQ, offerte e ordini recenti.</p>
+                <p className="text-xs leading-5 text-[#52615b]">
+                  {mode === "live"
+                    ? operational.rfqs + operational.offers + operational.orders > 0
+                      ? "Lo storico contiene dati commerciali, ma non ci sono movimenti recenti in questa vista."
+                      : "Nessun movimento recente nello storico commerciale."
+
+                    : "Nessun movimento recente disponibile per questo workspace."}
+                </p>
                 <Link
-                  href={canWrite ? appRoutes.operations.uploads : appRoutes.commercial.search}
+                  href={mode === "live" || !canWrite ? appRoutes.commercial.home + "#commercial-worklist" : appRoutes.operations.uploads}
                   className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4"
                 >
-                  {canWrite ? "Importa i primi documenti →" : "Apri Commerciale →"}
+                  {mode === "live" || !canWrite ? "Apri attività commerciali →" : "Importa i primi documenti →"}
                 </Link>
               </div>
             ) : (

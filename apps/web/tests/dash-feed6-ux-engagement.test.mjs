@@ -51,7 +51,7 @@ test("DASH-FEED6 tracks governed link intent without changing privacy/entitlemen
   assert.match(discovery, /engagementKind="marketplace_teaser"/);
   assert.match(discovery, /appRoutes\.network\.company\(item\.companyId\)/);
   assert.match(discovery, /appRoutes\.marketplace\.opportunity\(item\.id\)/);
-  assert.match(discovery, /networkEntitled \? selectDashboardFollowedUpdates\(activity\) : \[\]/);
+  assert.match(discovery, /networkEnabled && networkEntitled\s*\?\s*selectDashboardFollowedUpdates\(activity, 2\)\s*:\s*\[\]/);
   assert.match(dashboard, /getMarketplaceFeed\(context\.organizationId, \{ limit: 10, offset: 0 \}\)/);
   assert.doesNotMatch(discovery + tracked, /buyer\.display_name|inquiry\.body|service_role/);
 });
