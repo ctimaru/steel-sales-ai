@@ -87,6 +87,8 @@ export function CalculatorInlineDistintaExperience({
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Editable | null>(null);
+  // DENSE1C: local drafts per row; no session/RFQ data is changed before Save.
+  const [quickQuantities, setQuickQuantities] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
   const [storageAvailable, setStorageAvailable] = useState(true);
   // Commercial rates intentionally live only in this mounted React experience.
@@ -168,6 +170,23 @@ export function CalculatorInlineDistintaExperience({
     setDraft(null);
   }
 
+  function hasPendingQuantities(): boolean {
+    return liveState.current.lines.some(line =>
+      quickQuantities[line.id] !== undefined && quickQuantities[line.id] !== line.quantity);
+  }
+
+  function saveQuickQuantity(id: string) {
+    const current = liveState.current.lines.find(line => line.id === id);
+    const value = quickQuantities[id];
+    if (!current || value === undefined) return;
+    if (value !== current.quantity && !commit(editInlineDistintaLine(liveState.current, id, { quantity: value }))) return;
+    setQuickQuantities(previous => {
+      const next = { ...previous };
+      delete next[id];
+      return next;
+    });
+  }
+
   function chooseBuyerTarget(value: { basis: PriceBasis; raw: string; weightKgM: number }) {
     const candidate = captureBuyerTargetCandidate(value.raw, value.basis, value.weightKgM, locale);
     if (!candidate) { setMessage(c.priceInvalid); return; }
@@ -206,6 +225,7 @@ export function CalculatorInlineDistintaExperience({
 
   async function createPrivateRfq() {
     if (creatingRef.current || createdRfq || !ready || !liveState.current.lines.length) return;
+    if (hasPendingQuantities()) { setRfqError(c.unsavedQuantity); return; }
     const built = prepareInlinePrivateRfq(liveState.current, targets, includePrivateTargets);
     if (!built.ok) { setRfqError(built.error); return; }
     creatingRef.current = true;
@@ -255,6 +275,7 @@ export function CalculatorInlineDistintaExperience({
   }
 
   function copyBill() {
+    if (hasPendingQuantities()) { setMessage(c.unsavedQuantity); return; }
     const calculated = liveState.current.lines.map(calculateBuyerDistintaLine);
     if (!calculated.length || calculated.some(line => !line.complete)) {
       setMessage(c.copyIncomplete);
@@ -292,6 +313,7 @@ export function CalculatorInlineDistintaExperience({
 
   const totals = inlineDistintaTotals(state);
   const count = state.lines.length;
+  const hasUnsavedQuantity = hasPendingQuantities();
   // Technical cart always monitorable; details open in a real portal dialog.
   const bill = (
     <section id="distinta-inline" aria-label={c.title} className="mt-2 min-w-0 scroll-mt-24">
