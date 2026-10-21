@@ -149,6 +149,7 @@ jobs:
         run: |
           python -m unittest discover -s supabase/tools -p 'test_original_baseline_provenance.py' -v
           python -m unittest discover -s supabase/tools -p 'test_resolve_first_baseline_dependency.py' -v
+          python -m unittest discover -s supabase/tools -p 'test_prepare_original_foundation_candidate.py' -v
           python supabase/tools/original_baseline_provenance.py \
             --manifest supabase/audits/supa_ledger5e_original_baseline_provenance.json \
             --snapshot supabase/audits/20261021_migration_content_fingerprints.json \
