@@ -62,7 +62,7 @@ try {
     await bill.getByRole("button",{name:"Rimuovi riga 3"}).click();
     assert.equal(await bill.locator("article").count(),2);
     await bill.getByRole("button",{name:"Copia distinta"}).click();
-    await page.getByText(/Distinta tecnica copiata/).waitFor({state:"visible"});
+    await bill.getByText(/Distinta tecnica copiata/).waitFor({state:"visible"});
     const copied = await page.evaluate(() => navigator.clipboard.readText());
     assert.match(copied,/EN 10219/);
     assert.match(copied,/EN 10210/);
