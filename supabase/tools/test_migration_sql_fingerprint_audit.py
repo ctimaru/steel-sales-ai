@@ -6,7 +6,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 
-from migration_sql_fingerprint_audit import classify, load_local, load_remote
+from migration_sql_fingerprint_audit import classify, load_local, load_remote, _normalize_cosmetic_prefix_and_suffix
 
 
 def item(version: str, name: str, sql: bytes) -> dict:
@@ -41,6 +41,23 @@ class SqlFingerprintAuditTests(unittest.TestCase):
         self.assertEqual(out["summary"]["only_in_local"],1)
         self.assertEqual(out["summary"]["only_in_remote"],1)
         self.assertEqual(out["summary"]["remote_duplicate_names"],1)
+
+    def test_comment_prefix_and_trailing_newline_are_diagnostic_only(self):
+        local_raw=b"-- source header\\n-- legal note\\n\\nCREATE TABLE t(a integer);\\n"
+        remote_raw=b"\\nCREATE TABLE t(a integer);"
+        normalized_local=_normalize_cosmetic_prefix_and_suffix(local_raw)
+        normalized_remote=_normalize_cosmetic_prefix_and_suffix(remote_raw)
+        self.assertEqual(normalized_local,normalized_remote)
+        local=[item("20261020090000","t",local_raw)]
+        remote=[item("20261020081000","t",remote_raw)]
+        local[0]["normalized_sha256"]=hashlib.sha256(normalized_local).hexdigest()
+        local[0]["normalized_bytes"]=len(normalized_local)
+        remote[0]["normalized_sha256"]=hashlib.sha256(normalized_remote).hexdigest()
+        remote[0]["normalized_bytes"]=len(normalized_remote)
+        report=classify(local,remote)
+        self.assertEqual(report["summary"]["cosmetic_prefix_or_trailing_space_difference"],1)
+        self.assertEqual(report["summary"]["different_sql_same_name"],0)
+        self.assertFalse(report["safe_for_automatic_repair"])
 
     def test_hashes_from_original_bytes_and_invalid_remote_rejected(self):
         with TemporaryDirectory() as dirname:
