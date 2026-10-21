@@ -23,11 +23,11 @@ def _normalize_cosmetic_prefix_and_suffix(raw: bytes) -> bytes:
     plus trailing spaces, CR, LF and tabs. NEVER permit automatic history repair.
     """
     text = raw.decode("utf-8")
-    text = text.rstrip(" \\n\\r\\t")
+    text = text.rstrip(" \n\r\t")
     lines = text.splitlines(keepends=True)
     offset = 0
     for line in lines:
-        if not line.strip() or line.lstrip(" \\t").startswith("--"):
+        if not line.strip() or line.lstrip(" \t").startswith("--"):
             offset += len(line)
         else:
             break
