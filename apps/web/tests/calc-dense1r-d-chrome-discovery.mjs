@@ -21,7 +21,7 @@ try{
     const norms=root.locator("[data-cockpit-controls]");
     const editor=root.locator("[data-cockpit-fields]");
     const finder=root.locator('[data-testid="calculator-dimension-discovery"]');
-    const input=finder.getByRole("combobox");
+    const input=finder.getByRole("searchbox");
     const before=await Promise.all([toolbar.boundingBox(),norms.boundingBox(),editor.boundingBox()]);
     await input.fill("200x100");
     const panel=finder.locator("[data-dense-discovery-popover]");
@@ -42,7 +42,7 @@ try{
     assert.ok(body.scroll<=body.width+2,"Document horizontal overflow: "+width+" "+JSON.stringify(body));
     await root.screenshot({path:"/tmp/calc-dense1r-d/search-"+width+".png",animations:"disabled"});
     await input.press("ArrowDown");
-    assert.equal(await input.getAttribute("aria-expanded"),"true");
+    assert.ok(await input.getAttribute("aria-controls"),"Search results connected to input");
     assert.ok((await input.getAttribute("aria-activedescendant"))?.endsWith("-item-1"),"ArrowDown chooses second suggestion");
     await input.press("Enter");
     await panel.waitFor({state:"detached"});
@@ -53,7 +53,7 @@ try{
     await panel.waitFor({state:"visible"});
     await input.press("Escape");
     await panel.waitFor({state:"detached"});
-    assert.equal(await input.getAttribute("aria-expanded"),"false");
+    assert.equal(await input.getAttribute("aria-controls"),null,"Esc removes suggestions linkage");
     console.log("CALC-DENSE1R-D CHROME PASS",width,"rows",heights.join(","),"toolbarHeight",after[0].height);
     await context.close();
   }
