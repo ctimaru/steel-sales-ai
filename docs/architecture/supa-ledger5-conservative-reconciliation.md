@@ -22,6 +22,23 @@ GitHub `main` currently contains **437 migration files / 436 unique names**; Sup
 
 Counts above describe the preserved fingerprint snapshot and should be regenerated after any `main` migration change.
 
+### Exact offline planner results — CI run #39581325030
+
+The **first successful CI execution** produced the following decision counts (all entries remain immutable until a separate approved action):
+- **33** `RETAIN_EXACT_NO_ACTION`.
+- **270** `HOLD_SAME_SQL_VERSION_MISMATCH`.
+- **68** `HOLD_COSMETIC_TEXT_DIFFERENCE`.
+- **46** `HOLD_DIFFERENT_SQL`, plus **1** `HOLD_VERSION_COLLISION` which originates from the SQL-different category (the original SQL-body-difference count remains **47**).
+- **7** `HOLD_AMBIGUOUS_NAME`, **12** `HOLD_ONLY_LOCAL`, plus 36 remote-only entries.
+
+**Exact blocking timestamp collision:** GitHub `20261005130000_pl1_5_padana_full_import_promotion.sql` uses `20261005130000`, but production already uses the same timestamp for `pl1_5_wc31_weight_update_join_fix`. This single collision **prohibits a naive "mark local version applied" operation**. Do not rewrite/deallocate that production timestamp without an independently reviewed provenance and recovery procedure.
+
+**Relative order guard:** **10** local-to-production ordering inversions were detected among unique-name mappings. They include older golden-search ordering, RFQ/Distinta, Network geographic batches, and the European TRADER research versions. A flagged inversion is a **sequence-review signal**, not proof that a later object is missing or that database operations were executed in a different order. Rebuild/migration dependency tests must review the relationships before any approved history action.
+
+The classifier found **1 remote-only migration with byte-identical SQL under another local name**. Even byte identity does not justify deleting or renaming that remote record; its role in the historical version sequence needs separate verification.
+
+
+
 ## 2. Critical discovery: Supabase CLI operates on timestamps
 
 Supabase documentation says `supabase migration list` compares local/remote migration **timestamps**, not SQL text; `supabase migration repair --status ...` adjusts recorded migration history **without** applying/reverting schema SQL. It is not a safe way to turn historically different SQL into equivalent DDL.
