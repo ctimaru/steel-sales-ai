@@ -1,0 +1,2805 @@
+{
+  "contract": "supa-ledger2-migration-byte-digests-v1",
+  "observed_on": "2026-10-21",
+  "source": "Supabase read-only supabase_migrations.schema_migrations: MD5(statements[1]), octet_length(statements[1])",
+  "target": "ecrafjdummcdfycznitx",
+  "warning": "Read-only forensic snapshot; do not use as authorization to repair migration history",
+  "entries": [
+    {
+      "version": "20260907145044",
+      "name": "initial_commercial_schema",
+      "content_md5": "ed5e5263270142bbc7985ea8d4ab1077",
+      "content_bytes": 13234
+    },
+    {
+      "version": "20260907150818",
+      "name": "create_private_import_staging",
+      "content_md5": "1f99e260c3651317f01c53528d34e6c7",
+      "content_bytes": 2745
+    },
+    {
+      "version": "20260907151653",
+      "name": "create_temporary_sample_ingest_gateway",
+      "content_md5": "11cfa113db6922a3f4228f776a156c51",
+      "content_bytes": 622
+    },
+    {
+      "version": "20260907151754",
+      "name": "remove_temporary_sample_ingest_gateway",
+      "content_md5": "6be8738fbcebcd7d53fbea17a14cbcc1",
+      "content_bytes": 50
+    },
+    {
+      "version": "20260907151833",
+      "name": "add_staging_thread_payloads",
+      "content_md5": "6b6a531318fd8a87778813fcda19e789",
+      "content_bytes": 398
+    },
+    {
+      "version": "20260907152728",
+      "name": "add_staging_review_flags",
+      "content_md5": "ff0c8d008fde9e72a9acdd17cadf5874",
+      "content_bytes": 506
+    },
+    {
+      "version": "20260907152747",
+      "name": "add_foreign_key_indexes_for_import_scale",
+      "content_md5": "676e5fe46ba8b4217c6fe5b87b58b8fe",
+      "content_bytes": 2262
+    },
+    {
+      "version": "20260907155145",
+      "name": "add_parser_v3_audit_tables",
+      "content_md5": "82976448cb4ab237700ce77fc16bfe8f",
+      "content_bytes": 1314
+    },
+    {
+      "version": "20260907155233",
+      "name": "add_parser_v3_payload_and_regression",
+      "content_md5": "e5271d31f2e5d2c91f4a45c41f3890cf",
+      "content_bytes": 431
+    },
+    {
+      "version": "20260907155400",
+      "name": "drop_unused_v3_row_table",
+      "content_md5": "e8043bdc75f72d2e87edfc2b26854faa",
+      "content_bytes": 51
+    },
+    {
+      "version": "20260907160644",
+      "name": "create_v31_archive_staging",
+      "content_md5": "ced836dea1a19d2f52d1d9550ae28dab",
+      "content_bytes": 2991
+    },
+    {
+      "version": "20260907160822",
+      "name": "add_archive_payload_columns",
+      "content_md5": "a699357aec1d52478652f6631f2470c0",
+      "content_bytes": 354
+    },
+    {
+      "version": "20260907173523",
+      "name": "secure_staging_and_add_payload_chunks",
+      "content_md5": "d6003c88dc1643daf7416476784bfeeb",
+      "content_bytes": 610
+    },
+    {
+      "version": "20260907173650",
+      "name": "enable_pg_net_for_internal_import",
+      "content_md5": "b575d941e06b05a77f5f50d32b2a5c31",
+      "content_bytes": 61
+    },
+    {
+      "version": "20260907173731",
+      "name": "add_one_time_archive_import_tokens",
+      "content_md5": "712c4c8451977128290c62a61994ec9e",
+      "content_bytes": 611
+    },
+    {
+      "version": "20260907192936",
+      "name": "create_app_facing_commercial_read_models",
+      "content_md5": "13765bdae9a6063a93c3154eabfbf6b0",
+      "content_bytes": 6369
+    },
+    {
+      "version": "20260907193238",
+      "name": "link_review_queue_to_commercial_observations",
+      "content_md5": "d673fafb954a50a8215a25d4d6ba5fb1",
+      "content_bytes": 260
+    },
+    {
+      "version": "20260907193505",
+      "name": "stage_validated_archive_in_app_read_models",
+      "content_md5": "b0d85f3969c0e85a0c05f7ce22eda6bd",
+      "content_bytes": 6325
+    },
+    {
+      "version": "20260907193535",
+      "name": "add_app_facing_fk_indexes",
+      "content_md5": "93c0c57c791cf792810ac4a9e077b2ae",
+      "content_bytes": 671
+    },
+    {
+      "version": "20260907193743",
+      "name": "add_commercial_search_and_metrics",
+      "content_md5": "7307ece76ca09074d65dd09ce61b77fe",
+      "content_bytes": 2335
+    },
+    {
+      "version": "20260912150428",
+      "name": "promote_worker_jobs_to_commercial_dataset",
+      "content_md5": "95e76579c68dab994c1f4814bff0344b",
+      "content_bytes": 7753
+    },
+    {
+      "version": "20260912152827",
+      "name": "dedupe_subject_observations",
+      "content_md5": "e3d7ee61c9a12d48ef7819303f4bc44e",
+      "content_bytes": 8411
+    },
+    {
+      "version": "20260912155128",
+      "name": "add_owner_scoped_latest_price_rpc",
+      "content_md5": "3127660754e031f7e852e22a21dbb7d1",
+      "content_bytes": 2381
+    },
+    {
+      "version": "20260912161002",
+      "name": "add_price_history_and_unconverted_offers_rpc",
+      "content_md5": "dc7754ebac0ecaa77becaa2505336fee",
+      "content_bytes": 4881
+    },
+    {
+      "version": "20260913122944",
+      "name": "add_owner_scoped_commercial_search_rpc",
+      "content_md5": "1cbe48db39ecd019a9dec9930ca7321c",
+      "content_bytes": 3178
+    },
+    {
+      "version": "20260913190841",
+      "name": "add_market_data_foundation",
+      "content_md5": "443a55b717e7beb321b021af183d6295",
+      "content_bytes": 3988
+    },
+    {
+      "version": "20260914115320",
+      "name": "add_m5_knowledge_schema",
+      "content_md5": "5cd130101d1ba4add4359628d375897a",
+      "content_bytes": 8834
+    },
+    {
+      "version": "20260914115545",
+      "name": "add_m5_knowledge_fk_indexes",
+      "content_md5": "6613a3f379f63b623fb089b5c93ddfbd",
+      "content_bytes": 531
+    },
+    {
+      "version": "20260914122440",
+      "name": "add_m5_pgvector_embeddings",
+      "content_md5": "91ed9a4b36369180e83cfceea9c2e188",
+      "content_bytes": 4748
+    },
+    {
+      "version": "20260914122556",
+      "name": "harden_m5_embedding_access_and_fk",
+      "content_md5": "ee4a4f74c9a2b3edccac4f3493eaa484",
+      "content_bytes": 444
+    },
+    {
+      "version": "20260914122800",
+      "name": "add_m5_embedding_batch_rpc",
+      "content_md5": "23f8d679c883edcd4ca97ce2ba44d383",
+      "content_bytes": 1412
+    },
+    {
+      "version": "20260914123339",
+      "name": "add_m5_knowledge_ingest_rpc",
+      "content_md5": "e9ea7d500e7f807bc9d98b15eafd2547",
+      "content_bytes": 4859
+    },
+    {
+      "version": "20260914123521",
+      "name": "link_worker_jobs_to_knowledge_documents",
+      "content_md5": "6843064987f8777648d33851a186ca36",
+      "content_bytes": 474
+    },
+    {
+      "version": "20260914124111",
+      "name": "add_m5_commercial_archive_backfill",
+      "content_md5": "1982b6af0882f5aa503eb2899d3fba8c",
+      "content_bytes": 3749
+    },
+    {
+      "version": "20260914124126",
+      "name": "fix_m5_commercial_archive_backfill_chunk_order",
+      "content_md5": "4654c3ef9abe8ffcb3fc0c38590719e2",
+      "content_bytes": 3366
+    },
+    {
+      "version": "20260914124215",
+      "name": "fix_m5_commercial_archive_backfill_hash_encoding",
+      "content_md5": "6b7034d1465fdd7b6665cd675187301a",
+      "content_bytes": 3344
+    },
+    {
+      "version": "20260914124544",
+      "name": "add_m5_embedding_benchmark_rpcs",
+      "content_md5": "f7e5a2d4a5ce082110395312c1d04103",
+      "content_bytes": 5281
+    },
+    {
+      "version": "20260914130321",
+      "name": "add_m5_embedding_activation_rpc",
+      "content_md5": "5c5e83e62577a5e08db2b59b2f82023e",
+      "content_bytes": 1247
+    },
+    {
+      "version": "20260914140709",
+      "name": "replace_unsupported_m5_embedding_candidates",
+      "content_md5": "93d8dc08a16d5bc2a3861ff3284e6fba",
+      "content_bytes": 2025
+    },
+    {
+      "version": "20260914152019",
+      "name": "add_m5_entity_resolution",
+      "content_md5": "a1462b9aeb8d8710aa9e01dd6c2e3579",
+      "content_bytes": 24759
+    },
+    {
+      "version": "20260914152201",
+      "name": "fix_m5_entity_resolution_owner_cast",
+      "content_md5": "acf89841faae1d92a1e314f1f283861f",
+      "content_bytes": 9627
+    },
+    {
+      "version": "20260914152255",
+      "name": "add_m5_entity_resolution_job_trigger",
+      "content_md5": "8ddaeb4b6b5bbdbe2be1a0b9931a9fa5",
+      "content_bytes": 1507
+    },
+    {
+      "version": "20260914152416",
+      "name": "add_m5_entity_resolution_fk_indexes",
+      "content_md5": "c0ccedb65a830dbac3be026bb2b49dc5",
+      "content_bytes": 740
+    },
+    {
+      "version": "20260914154402",
+      "name": "add_m5_hybrid_retrieval",
+      "content_md5": "586403119d4c1a4af8288558731399be",
+      "content_bytes": 11719
+    },
+    {
+      "version": "20260914154602",
+      "name": "relax_m5_hybrid_lexical_and_seed_aliases",
+      "content_md5": "3b9ad5315c5a58d366338d0c70c57d6d",
+      "content_bytes": 12975
+    },
+    {
+      "version": "20260915080849",
+      "name": "add_m5_6_document_filtered_hybrid_search",
+      "content_md5": "20f4574ba3dab23212050b005b0d6909",
+      "content_bytes": 3544
+    },
+    {
+      "version": "20260915090227",
+      "name": "add_m5_golden_query_set_v1",
+      "content_md5": "b5eec59d5d044315d314e8984deff678",
+      "content_bytes": 14370
+    },
+    {
+      "version": "20260915090452",
+      "name": "add_golden_query_service_policies",
+      "content_md5": "2aebbf7fc6369b65fa6e7d109ce53212",
+      "content_bytes": 334
+    },
+    {
+      "version": "20260915091802",
+      "name": "add_m5_retrieval_evaluation_runs",
+      "content_md5": "600f42113a4b77d572cf7135910de52c",
+      "content_bytes": 3825
+    },
+    {
+      "version": "20260915092918",
+      "name": "correct_golden_relevance_and_fallback_eval",
+      "content_md5": "a4d606195fb70de5d45244088e987874",
+      "content_bytes": 2735
+    },
+    {
+      "version": "20260915121303",
+      "name": "add_organization_tenant_foundation",
+      "content_md5": "8753f13bf541ad5a623ee1ed001034fd",
+      "content_bytes": 29301
+    },
+    {
+      "version": "20260915121317",
+      "name": "lock_tenant_identity_columns",
+      "content_md5": "781ea06dc7d8534e1ec0ab217a1298a2",
+      "content_bytes": 1837
+    },
+    {
+      "version": "20260915121345",
+      "name": "make_worker_promotion_tenant_aware",
+      "content_md5": "c63dfd0920b205883464ec17b8a384e3",
+      "content_bytes": 9004
+    },
+    {
+      "version": "20260915121415",
+      "name": "make_hybrid_retrieval_tenant_aware",
+      "content_md5": "f437de587f0097ca38444883c7bdf7e3",
+      "content_bytes": 11636
+    },
+    {
+      "version": "20260915121857",
+      "name": "add_organizations_created_by_index",
+      "content_md5": "fb97c8805d1b5d7bfc209f37fadcebda",
+      "content_bytes": 92
+    },
+    {
+      "version": "20260915123857",
+      "name": "add_p0_steel_ontology_v1",
+      "content_md5": "ac86a2226b5e097c666d5a3c3799d3ec",
+      "content_bytes": 9115
+    },
+    {
+      "version": "20260915131013",
+      "name": "add_p0_parser_v4_review_routing",
+      "content_md5": "42bfc45a0fc51738fd74b80ae6cc1da4",
+      "content_bytes": 4351
+    },
+    {
+      "version": "20260915131728",
+      "name": "realign_commercial_import_sequences",
+      "content_md5": "51912ebc70cad5efe39cf3b3c2da2a9e",
+      "content_bytes": 1527
+    },
+    {
+      "version": "20260915134725",
+      "name": "harden_p0_entity_resolution",
+      "content_md5": "41ca48bc1df43fa18aeebd4a0e622abe",
+      "content_bytes": 32334
+    },
+    {
+      "version": "20260915135329",
+      "name": "harden_p0_entity_resolution_advisors",
+      "content_md5": "34451366e1f31ceef435b9c0d40e1d04",
+      "content_bytes": 880
+    },
+    {
+      "version": "20260915143217",
+      "name": "add_p0_observability",
+      "content_md5": "48958336fbf9fb8c5d61109afb1fcc4d",
+      "content_bytes": 8192
+    },
+    {
+      "version": "20260915143237",
+      "name": "add_p0_job_observability_trigger",
+      "content_md5": "a03a8292c2b0609d19020934bf98445c",
+      "content_bytes": 3375
+    },
+    {
+      "version": "20260915153232",
+      "name": "add_p0_data_lifecycle",
+      "content_md5": "694a4ac292c2ca2f6f65d18876366c53",
+      "content_bytes": 25465
+    },
+    {
+      "version": "20260916123101",
+      "name": "add_p1_tenant_onboarding",
+      "content_md5": "5bf747c1eaf62cc34d9a062791abddb3",
+      "content_bytes": 15441
+    },
+    {
+      "version": "20260916123120",
+      "name": "add_p1_team_directory",
+      "content_md5": "8c7ac7527159922851e2fa69799b8b57",
+      "content_bytes": 1418
+    },
+    {
+      "version": "20260916125032",
+      "name": "ensure_private_schema",
+      "content_md5": "80b283f35abcb4ec4a6bba3faa07f4cd",
+      "content_bytes": 275
+    },
+    {
+      "version": "20260916125115",
+      "name": "harden_p1_onboarding_security_definers",
+      "content_md5": "f0536fc2ae5d42b9056d25b05aaf5839",
+      "content_bytes": 16792
+    },
+    {
+      "version": "20260916125849",
+      "name": "harden_p1_onboarding_performance_advisors",
+      "content_md5": "325d57a43a6f20c54a5ca9924d2b4ce5",
+      "content_bytes": 951
+    },
+    {
+      "version": "20260916133950",
+      "name": "add_p1_bulk_import",
+      "content_md5": "1e659aa8a9cb63af5e45a5a85ccd94f1",
+      "content_bytes": 9641
+    },
+    {
+      "version": "20260916134958",
+      "name": "add_p1_bulk_import_owner_index",
+      "content_md5": "a38116a729953dac0af52191c9b3184a",
+      "content_bytes": 205
+    },
+    {
+      "version": "20260916141653",
+      "name": "add_p1_data_source_center",
+      "content_md5": "18393749dcb2300a21451b3f980ae70c",
+      "content_bytes": 10969
+    },
+    {
+      "version": "20260916144839",
+      "name": "add_p1_global_search",
+      "content_md5": "a51352a73521ab3062890cc16f60c7b9",
+      "content_bytes": 15229
+    },
+    {
+      "version": "20260916145040",
+      "name": "noop_p14_verification_marker",
+      "content_md5": "1c61cdfc761ab2c0c83756de88ae2da1",
+      "content_bytes": 246
+    },
+    {
+      "version": "20260916152945",
+      "name": "add_p1_product_360",
+      "content_md5": "ad0d2d6f3b052e1e27a1fc1f40f5a76b",
+      "content_bytes": 13787
+    },
+    {
+      "version": "20260916153530",
+      "name": "drop_p1_product_360_duplicate_index",
+      "content_md5": "2022674df6dce6ae86e7b17b1b06382f",
+      "content_bytes": 277
+    },
+    {
+      "version": "20260916154728",
+      "name": "fix_p1_product_catalog_query_scope",
+      "content_md5": "eb1be0d2b95eb4956beabc08d8b9bf5a",
+      "content_bytes": 5347
+    },
+    {
+      "version": "20260917083240",
+      "name": "add_p1_price_history",
+      "content_md5": "9dd7e8f75adc9f98b3e216f5d8d091fe",
+      "content_bytes": 21680
+    },
+    {
+      "version": "20260917123840",
+      "name": "add_shared_steel_knowledge",
+      "content_md5": "779a04485bd1f68393f8e138cc7c0f49",
+      "content_bytes": 9359
+    },
+    {
+      "version": "20260917123904",
+      "name": "seed_en10224_reference",
+      "content_md5": "f517301b9d107ee41789aa28b0fce6db",
+      "content_bytes": 5801
+    },
+    {
+      "version": "20260917123933",
+      "name": "add_shared_steel_reference_api",
+      "content_md5": "702a56cc90e593a7edb8b35db87753a6",
+      "content_bytes": 8265
+    },
+    {
+      "version": "20260917130712",
+      "name": "add_reference_database_v2",
+      "content_md5": "a24b131c50ec9d717f4b297337c819ca",
+      "content_bytes": 27419
+    },
+    {
+      "version": "20260917130734",
+      "name": "harden_reference_observation_staging",
+      "content_md5": "73c53bd5ef292ac88788d0bb9b1119bd",
+      "content_bytes": 585
+    },
+    {
+      "version": "20260917131212",
+      "name": "reconcile_reference_v2_index_sentinels",
+      "content_md5": "71957fd33c2cac4caba61df5432ded9b",
+      "content_bytes": 1523
+    },
+    {
+      "version": "20260917152531",
+      "name": "seed_en10210_en10219_structural_catalog",
+      "content_md5": "e3feee8d3fac2376a0ae592928c410e8",
+      "content_bytes": 23145
+    },
+    {
+      "version": "20260917152545",
+      "name": "reconcile_structural_weight_references",
+      "content_md5": "9e2dcd3dd22145b2aab41a7a434df907",
+      "content_bytes": 1057
+    },
+    {
+      "version": "20260917152559",
+      "name": "link_en10210_hot_shs_shared_geometries",
+      "content_md5": "92a929afd0f6981a35502db5b92909c7",
+      "content_bytes": 1292
+    },
+    {
+      "version": "20260917162110",
+      "name": "seed_en10216_en10217_pressure_catalog",
+      "content_md5": "94711c26c746c573ba482a56820e41b3",
+      "content_bytes": 27272
+    },
+    {
+      "version": "20260917163331",
+      "name": "add_en10217_range_envelopes",
+      "content_md5": "f459d7ef047dc1196cf4344cd1557b1f",
+      "content_bytes": 17227
+    },
+    {
+      "version": "20260917164940",
+      "name": "seed_en10217_discrete_matrix",
+      "content_md5": "f5eae51fe140d46c775e98ad38f3b16b",
+      "content_bytes": 8287
+    },
+    {
+      "version": "20260917171312",
+      "name": "seed_en10217_discrete_matrix_tranche2",
+      "content_md5": "ea2aca05b3a18da9094f6873a37185a8",
+      "content_bytes": 10334
+    },
+    {
+      "version": "20260917180942",
+      "name": "seed_en10216_p235gh_brr_sample",
+      "content_md5": "15aca0398616912e17c5148a223a60ac",
+      "content_bytes": 10597
+    },
+    {
+      "version": "20260917183259",
+      "name": "cross_verify_p265gh_weights",
+      "content_md5": "ab3679a223b4be661586889800cc78d1",
+      "content_bytes": 8495
+    },
+    {
+      "version": "20260917185202",
+      "name": "add_weight_reconciliation_rule",
+      "content_md5": "ee677d7bb6722c2321fc38938ed8a5b4",
+      "content_bytes": 10976
+    },
+    {
+      "version": "20260917185656",
+      "name": "harden_weight_reconciliation_execute",
+      "content_md5": "1c40424fc879c096c166d693e9d2331e",
+      "content_bytes": 1626
+    },
+    {
+      "version": "20260918051832",
+      "name": "add_weight_reconciliation_candidates",
+      "content_md5": "638d6a11a89509adc3c3c387ce8632dc",
+      "content_bytes": 7396
+    },
+    {
+      "version": "20260918065136",
+      "name": "add_weight_reconciliation_decision_ledger",
+      "content_md5": "9037a7e0f8601cd80cd8cc647f1d6b8d",
+      "content_bytes": 8911
+    },
+    {
+      "version": "20260918071537",
+      "name": "add_weight_reconciliation_review_queue",
+      "content_md5": "101e1d8af6d8a02d3f5d7286e594f969",
+      "content_bytes": 5140
+    },
+    {
+      "version": "20260920122244",
+      "name": "add_weight_promotion_readiness",
+      "content_md5": "e331a5e8de00112048f865d1460f2f57",
+      "content_bytes": 10241
+    },
+    {
+      "version": "20260920123717",
+      "name": "add_controlled_verified_weight_promotion",
+      "content_md5": "0acd423cad5cb5393957c8cde7b9b33d",
+      "content_bytes": 23904
+    },
+    {
+      "version": "20260920124126",
+      "name": "index_verified_weight_actor",
+      "content_md5": "0cfe8efb3433873785e2367d5f2f443a",
+      "content_bytes": 420
+    },
+    {
+      "version": "20260920125245",
+      "name": "add_canonical_selection_readiness",
+      "content_md5": "6ced9b4113c94c676688195b099ab08c",
+      "content_bytes": 22428
+    },
+    {
+      "version": "20260920130211",
+      "name": "add_canonical_decision_ledger",
+      "content_md5": "3a1c259f641c7fc0cbc8cfd31c986fe3",
+      "content_bytes": 25141
+    },
+    {
+      "version": "20260920131249",
+      "name": "add_controlled_canonical_promotion",
+      "content_md5": "e271d27c092b332f4fc0f496947a2228",
+      "content_bytes": 32906
+    },
+    {
+      "version": "20260920134325",
+      "name": "add_effective_weight_contract",
+      "content_md5": "3887a3033ffb2415cb44209fb7a6b735",
+      "content_bytes": 16196
+    },
+    {
+      "version": "20260920140427",
+      "name": "add_grade_cross_reference_policy",
+      "content_md5": "73474a429b86b4e7e594b0e656e91c2d",
+      "content_bytes": 22950
+    },
+    {
+      "version": "20260920140831",
+      "name": "index_grade_cross_reference_foreign_keys",
+      "content_md5": "1e5fa3ad7ac4233e171745db14f31e6f",
+      "content_bytes": 568
+    },
+    {
+      "version": "20260920141734",
+      "name": "add_reference_production_audit",
+      "content_md5": "1e5ebc982818cb99f4b479710fd1e3e2",
+      "content_bytes": 18071
+    },
+    {
+      "version": "20260920144317",
+      "name": "add_shared_reference_commercial_resolver",
+      "content_md5": "28889bc8b0f7f00caf8e76bc926bbfc6",
+      "content_bytes": 11760
+    },
+    {
+      "version": "20260920151614",
+      "name": "seed_us_api_reference_foundation",
+      "content_md5": "f865dc24a298a022e7f860da8bc29848",
+      "content_bytes": 17257
+    },
+    {
+      "version": "20260920152351",
+      "name": "seed_us_api_nps_schedule_sample",
+      "content_md5": "a8f8dccebaa1ac61664ca53753bcf68c",
+      "content_bytes": 7311
+    },
+    {
+      "version": "20260920153907",
+      "name": "expand_us_api_nps_schedule_sample",
+      "content_md5": "e2174649061b5d2ed0cd365d33815c95",
+      "content_bytes": 9311
+    },
+    {
+      "version": "20260920155107",
+      "name": "add_sa_dn_designation_foundation",
+      "content_md5": "2cc6f387289b270345f951979adf6e63",
+      "content_bytes": 10982
+    },
+    {
+      "version": "20260921101417",
+      "name": "human_correction_promotion_loop",
+      "content_md5": "e655c0a8e860ba68e8e29e0f02eacef6",
+      "content_bytes": 12811
+    },
+    {
+      "version": "20260921101420",
+      "name": "harden_parser_v4_review_taxonomy_trigger",
+      "content_md5": "37db59f1d8d445c3d16cd2f1ff0d19b6",
+      "content_bytes": 1503
+    },
+    {
+      "version": "20260921105625",
+      "name": "fix_p1_global_search_multiterm",
+      "content_md5": "c6f85c8d8c5033b442f6b91d704e7d61",
+      "content_bytes": 11147
+    },
+    {
+      "version": "20260921143339",
+      "name": "add_membership_business_role",
+      "content_md5": "1e84dece6e59a1507d92f062757bf302",
+      "content_bytes": 5261
+    },
+    {
+      "version": "20260921144605",
+      "name": "add_org_safe_fk_foundation",
+      "content_md5": "d7f72887e09d79c55a485fe3687b4a6b",
+      "content_bytes": 9716
+    },
+    {
+      "version": "20260921145925",
+      "name": "add_rfq_relationship_foundation",
+      "content_md5": "8f99de5ae33974f7d6eb1754317c7dea",
+      "content_bytes": 6063
+    },
+    {
+      "version": "20260921150655",
+      "name": "add_offer_order_relationship_foundation",
+      "content_md5": "989bd29822c76cfd506102096a2ebedb",
+      "content_bytes": 9532
+    },
+    {
+      "version": "20260921152209",
+      "name": "add_immutable_commercial_entity_promotions",
+      "content_md5": "95a7b6c2e3bcf2cb446667f414a8653a",
+      "content_bytes": 13505
+    },
+    {
+      "version": "20260921154839",
+      "name": "add_controlled_promotion_read_bridge",
+      "content_md5": "255332ee7538622671eec3335b978920",
+      "content_bytes": 9091
+    },
+    {
+      "version": "20260921155529",
+      "name": "add_controlled_requested_promotion_service",
+      "content_md5": "e4b4bcf1ba85e95cac5408e526db99a3",
+      "content_bytes": 4474
+    },
+    {
+      "version": "20260921160703",
+      "name": "add_promotion_readiness_queue",
+      "content_md5": "04750e56be4f1212f3c553f2ee8e8fd2",
+      "content_bytes": 4278
+    },
+    {
+      "version": "20260922073348",
+      "name": "add_grouped_rfq_promotion",
+      "content_md5": "555d961940e13e335e993d1b0fa81f31",
+      "content_bytes": 12804
+    },
+    {
+      "version": "20260922075208",
+      "name": "add_rfq_source_identity_enrichment",
+      "content_md5": "b29535d92580adeaca7bbbff8c13cf77",
+      "content_bytes": 8934
+    },
+    {
+      "version": "20260922092027",
+      "name": "add_structured_message_identity",
+      "content_md5": "24ba84a8c6802f7f996886d23d7950cf",
+      "content_bytes": 5135
+    },
+    {
+      "version": "20260922100946",
+      "name": "add_exact_email_contact_resolution",
+      "content_md5": "0b20d52aff6c07c96119bee744b93c40",
+      "content_bytes": 13634
+    },
+    {
+      "version": "20260922102454",
+      "name": "add_verified_company_identity",
+      "content_md5": "3eba631f261414e52de630daefc537b2",
+      "content_bytes": 16023
+    },
+    {
+      "version": "20260922102528",
+      "name": "add_verified_company_identity",
+      "content_md5": "3eba631f261414e52de630daefc537b2",
+      "content_bytes": 16023
+    },
+    {
+      "version": "20260922103756",
+      "name": "add_identity_confirmation_workflow",
+      "content_md5": "e7598f164722d0375c570e5b22b751d2",
+      "content_bytes": 6359
+    },
+    {
+      "version": "20260922105518",
+      "name": "add_company_360_read_model",
+      "content_md5": "021ed1b5023a4ae48ec181471df246c5",
+      "content_bytes": 20389
+    },
+    {
+      "version": "20260922112158",
+      "name": "add_company_activation_search_links",
+      "content_md5": "8ea4128da58560e48ef122e41f7a5eae",
+      "content_bytes": 12823
+    },
+    {
+      "version": "20260922123425",
+      "name": "add_controlled_ready_rfq_backlog_promotion",
+      "content_md5": "f8502bddb5e9226b458febeedcdc457f",
+      "content_bytes": 3045
+    },
+    {
+      "version": "20260922125641",
+      "name": "add_controlled_offer_promotion",
+      "content_md5": "518a18facb01ec31cdb89028fc1d8ae1",
+      "content_bytes": 22395
+    },
+    {
+      "version": "20260922130701",
+      "name": "add_controlled_order_promotion",
+      "content_md5": "223a28da3c04272ae3437a56bfb9b0b9",
+      "content_bytes": 22775
+    },
+    {
+      "version": "20260922131851",
+      "name": "add_normalized_commercial_explorer_union",
+      "content_md5": "543ccca5a99d9f14287a1a09f7569bf0",
+      "content_bytes": 7510
+    },
+    {
+      "version": "20260922135012",
+      "name": "add_operational_relationship_activation",
+      "content_md5": "0bbe53674e8626f33ebe00742121d1a4",
+      "content_bytes": 17254
+    },
+    {
+      "version": "20260922140533",
+      "name": "add_conversation_backfill_readiness",
+      "content_md5": "d508f0b60d14fbc2ab2f66f039d176be",
+      "content_bytes": 13506
+    },
+    {
+      "version": "20260922142102",
+      "name": "add_structured_conversation_coverage_expansion",
+      "content_md5": "6a68094c589d8d251cd9b51807c51d1a",
+      "content_bytes": 9143
+    },
+    {
+      "version": "20260922145142",
+      "name": "add_relationship_gap_offer_recovery",
+      "content_md5": "775b30c96a91426b35b3ffa70ffc01d5",
+      "content_bytes": 22081
+    },
+    {
+      "version": "20260922151017",
+      "name": "add_offer_evidence_remediation_readiness",
+      "content_md5": "8e894df359b200def09d4ffdf514ef6f",
+      "content_bytes": 14641
+    },
+    {
+      "version": "20260922154208",
+      "name": "add_offer_source_reparse_execution_contract",
+      "content_md5": "be0fc07a827f43407fed3b62484e3fe0",
+      "content_bytes": 13996
+    },
+    {
+      "version": "20260922154236",
+      "name": "index_offer_source_reparse_fks",
+      "content_md5": "f5759a7886eb23e9daa38e8549731431",
+      "content_bytes": 594
+    },
+    {
+      "version": "20260922154706",
+      "name": "harden_offer_source_reparse_readiness",
+      "content_md5": "f1c8950e41d935df07d7b7a2aa33bb70",
+      "content_bytes": 4862
+    },
+    {
+      "version": "20260922155705",
+      "name": "add_controlled_offer_source_reparse_execution",
+      "content_md5": "fd1c0e22bf7900f1b03f3b8504570540",
+      "content_bytes": 6254
+    },
+    {
+      "version": "20260922163657",
+      "name": "add_reparse_candidate_review_controlled_adoption",
+      "content_md5": "f209d2287f915c600a1c46daf4c93aee",
+      "content_bytes": 22885
+    },
+    {
+      "version": "20260922164327",
+      "name": "index_offer_reparse_decision_actor",
+      "content_md5": "745cd07d0b4d5b20e98e83960a07c86e",
+      "content_bytes": 269
+    },
+    {
+      "version": "20260922170229",
+      "name": "add_reparse_remediation_resolution_closure",
+      "content_md5": "ae63440f21dd934c6393bba0e0cb3f0b",
+      "content_bytes": 19175
+    },
+    {
+      "version": "20260923044412",
+      "name": "add_reparse_provenance_integrity_quarantine",
+      "content_md5": "9e6961c1ab2de8ac6bee92231f98321c",
+      "content_bytes": 35340
+    },
+    {
+      "version": "20260923052203",
+      "name": "add_source_reingest_provenance_recovery",
+      "content_md5": "58e91f81bc98e9b1a0fe759c2a42fd71",
+      "content_bytes": 21764
+    },
+    {
+      "version": "20260923054346",
+      "name": "index_source_reingest_predecessor",
+      "content_md5": "4f0a1b3461669aef3a97607473cbf98b",
+      "content_bytes": 219
+    },
+    {
+      "version": "20260923055641",
+      "name": "add_source_reingest_bulk_archive_selection",
+      "content_md5": "2d7895cc9f6db97bdc3d9f1190af1556",
+      "content_bytes": 9459
+    },
+    {
+      "version": "20260923123156",
+      "name": "add_ambiguous_source_selection",
+      "content_md5": "a24418137fc7c84d08c54ca0cb059546",
+      "content_bytes": 19000
+    },
+    {
+      "version": "20260923124615",
+      "name": "add_recovery_candidate_reentry_audit",
+      "content_md5": "50255cef6d4bf8197db755a0c77a9f64",
+      "content_bytes": 10410
+    },
+    {
+      "version": "20260923130741",
+      "name": "add_recovery_outcome_reconciliation",
+      "content_md5": "b69d9baf3931743161343572aa17168b",
+      "content_bytes": 11484
+    },
+    {
+      "version": "20260923132642",
+      "name": "add_recovery_matching_readiness",
+      "content_md5": "0bb9fc2e0a50d7583cb9a88f27c4a0e8",
+      "content_bytes": 10790
+    },
+    {
+      "version": "20260923135215",
+      "name": "add_recovery_adoption_guard",
+      "content_md5": "6f9c99f29b90acc2b2332c8365749723",
+      "content_bytes": 8048
+    },
+    {
+      "version": "20260923140814",
+      "name": "add_recovery_closure_handoff",
+      "content_md5": "dcc1d8e5b5867be0a405b6f14c9a9fdc",
+      "content_bytes": 8371
+    },
+    {
+      "version": "20260923144506",
+      "name": "add_controlled_production_recovery_batch",
+      "content_md5": "41e8a9fc4ced81165a1e5dc1d36a51ef",
+      "content_bytes": 9282
+    },
+    {
+      "version": "20260923150847",
+      "name": "add_recovery_transfer_chunk_writer",
+      "content_md5": "d36c5aedf89f0049b98c6c9c87f617b4",
+      "content_bytes": 1771
+    },
+    {
+      "version": "20260923151946",
+      "name": "add_recovery_transfer_chunk_writer",
+      "content_md5": "d36c5aedf89f0049b98c6c9c87f617b4",
+      "content_bytes": 1771
+    },
+    {
+      "version": "20260923155447",
+      "name": "add_recovery_candidate_review_cutover",
+      "content_md5": "964b65b9b2cc24c9c18a467114ffc4c7",
+      "content_bytes": 12448
+    },
+    {
+      "version": "20260924112556",
+      "name": "add_recovery_remediation_disposition_cutover",
+      "content_md5": "ae11414450af34349854f4773f298ae2",
+      "content_bytes": 16640
+    },
+    {
+      "version": "20260924114209",
+      "name": "add_controlled_recovery_disposition_execution",
+      "content_md5": "9b5ea6e027caa3eaa6f706e5628459cd",
+      "content_bytes": 10529
+    },
+    {
+      "version": "20260924115327",
+      "name": "add_controlled_residual_offer_candidate_resolution",
+      "content_md5": "882e938dc21cdc05d90fad5cee419371",
+      "content_bytes": 15163
+    },
+    {
+      "version": "20260924121508",
+      "name": "add_residual_evidence_gap_reconciliation",
+      "content_md5": "435ae57c1bc8ceb77b56b8c829463622",
+      "content_bytes": 21220
+    },
+    {
+      "version": "20260925094847",
+      "name": "pa2_30_24_automated_regression_check_alert_surface",
+      "content_md5": "ea2851791529a0d905ae056c35a81fed",
+      "content_bytes": 2642
+    },
+    {
+      "version": "20260925095042",
+      "name": "pa2_30_25_alert_consumption_operational_escalation_contract",
+      "content_md5": "e569af6060a3f680912253b96412b79c",
+      "content_bytes": 7254
+    },
+    {
+      "version": "20260925095546",
+      "name": "pa2_30_26_operational_alert_read_model_frontend_readiness",
+      "content_md5": "d4450d2008117e012fc42861508e561e",
+      "content_bytes": 3833
+    },
+    {
+      "version": "20260925115930",
+      "name": "pa2_32_global_search_product_navigation_bridge_v2",
+      "content_md5": "9b6c3420a80278dccb1f9ee6d2724e74",
+      "content_bytes": 1583
+    },
+    {
+      "version": "20260925143133",
+      "name": "p0a_1_platform_superadmin_foundation",
+      "content_md5": "cdeafa9ca68760528ab8b90853f478e4",
+      "content_bytes": 2620
+    },
+    {
+      "version": "20260925144356",
+      "name": "p0a_2_registration_application_schema",
+      "content_md5": "7279e4c2522409072bcb5884a9ace806",
+      "content_bytes": 8946
+    },
+    {
+      "version": "20260925150043",
+      "name": "p0a_3_registration_audit_ledger",
+      "content_md5": "d44e9795a7c4eede5149923958cf7785",
+      "content_bytes": 6752
+    },
+    {
+      "version": "20260925150921",
+      "name": "p0a_4_review_decision_rpcs",
+      "content_md5": "fdb2391060ef3df8434fa665c8756ac0",
+      "content_bytes": 12320
+    },
+    {
+      "version": "20260925152011",
+      "name": "p0a_5_organization_activation",
+      "content_md5": "8c303cf9ae5392ed97127dfa66ad4c62",
+      "content_bytes": 5382
+    },
+    {
+      "version": "20260925154606",
+      "name": "p0a_7_superadmin_registration_read_rpcs",
+      "content_md5": "80addbdf8e7dec32c0935262f0af63d9",
+      "content_bytes": 4980
+    },
+    {
+      "version": "20260925160902",
+      "name": "m1_network_taxonomy_foundation",
+      "content_md5": "06dcae682ea94fdf091b8c93e7eb5429",
+      "content_bytes": 14841
+    },
+    {
+      "version": "20260925183129",
+      "name": "m2_network_core_identity",
+      "content_md5": "ad7031589c4ddbde602bbf27a2b619d0",
+      "content_bytes": 10542
+    },
+    {
+      "version": "20260925183159",
+      "name": "m2_network_core_identity_company_facility_integrity",
+      "content_md5": "2885bd8f61971be15b157deda9e8ab50",
+      "content_bytes": 330
+    },
+    {
+      "version": "20260925184220",
+      "name": "m3_network_relationship_graph",
+      "content_md5": "6dcbb0df5c126bc43356c7df0415d7d6",
+      "content_bytes": 11778
+    },
+    {
+      "version": "20260925185411",
+      "name": "m4_governance_trust",
+      "content_md5": "b0c1dfb638b6d01e0101fa517812016f",
+      "content_bytes": 32720
+    },
+    {
+      "version": "20260925190738",
+      "name": "m5_seed_identity_resolution",
+      "content_md5": "95c64dd1349554e12724b4da97c275f1",
+      "content_bytes": 16976
+    },
+    {
+      "version": "20260925191708",
+      "name": "m6_network_read_model",
+      "content_md5": "af46087dd1371d1d1f7074355d71f113",
+      "content_bytes": 11125
+    },
+    {
+      "version": "20260925192705",
+      "name": "m7_registration_bridge",
+      "content_md5": "a6b659a98412785a4e91bc34f0be9285",
+      "content_bytes": 18707
+    },
+    {
+      "version": "20260925192851",
+      "name": "m7_registration_bridge_integrity_fix",
+      "content_md5": "e43f72bd491f5edf67a2b15059d5ae23",
+      "content_bytes": 14281
+    },
+    {
+      "version": "20260925193303",
+      "name": "m7_registration_bridge_link_lifecycle",
+      "content_md5": "9256054eb29015147307bdd1c4a4e723",
+      "content_bytes": 947
+    },
+    {
+      "version": "20260925194259",
+      "name": "m8_managed_profile_cutover",
+      "content_md5": "cefb229ecf77c4b378106f424214cf6f",
+      "content_bytes": 6781
+    },
+    {
+      "version": "20260925201732",
+      "name": "p4_1_saved_companies_foundation",
+      "content_md5": "9431f0ad22510870f9a4bfdb86974bc0",
+      "content_bytes": 2401
+    },
+    {
+      "version": "20260925202757",
+      "name": "p4_3_inquiry_foundation",
+      "content_md5": "a3b7527b967f641bcab6d0f5e538d8b6",
+      "content_bytes": 16533
+    },
+    {
+      "version": "20260925202825",
+      "name": "p4_3_inquiry_actor_context_fix",
+      "content_md5": "39b6c6400fd8b24756b518fea805bcc7",
+      "content_bytes": 4546
+    },
+    {
+      "version": "20260925203614",
+      "name": "p4_4_inquiry_routing_anti_abuse",
+      "content_md5": "05111550558db75d2023e2b7646999c8",
+      "content_bytes": 25173
+    },
+    {
+      "version": "20260925204253",
+      "name": "p4_5_interaction_read_models",
+      "content_md5": "caa43dd4dff05ba617ec481f2661871b",
+      "content_bytes": 7682
+    },
+    {
+      "version": "20260926122823",
+      "name": "p4_7_follow_activity_foundation",
+      "content_md5": "b74e798ed534f2b50c06739ae2e46451",
+      "content_bytes": 35507
+    },
+    {
+      "version": "20260926122952",
+      "name": "p4_7_follow_activity_ordering_fix",
+      "content_md5": "e51c0d5a5e6dd60897ad1eecdf7e9f7d",
+      "content_bytes": 3201
+    },
+    {
+      "version": "20260926123115",
+      "name": "p4_7_follow_activity_statement_dedupe_fix",
+      "content_md5": "9bb8c429fb2ba84ada2222c01d1c7404",
+      "content_bytes": 1447
+    },
+    {
+      "version": "20260926123201",
+      "name": "p4_7_activity_event_identity_fix",
+      "content_md5": "006ace2799f90dcb243c5ac665442e4e",
+      "content_bytes": 1027
+    },
+    {
+      "version": "20260926125258",
+      "name": "p4_8_interaction_pilot_p5_readiness",
+      "content_md5": "0908279f78383857ce68afd1fd4a0fee",
+      "content_bytes": 14942
+    },
+    {
+      "version": "20260926152758",
+      "name": "p2_dormant_accounts_reengagement",
+      "content_md5": "39700b37b4d2a157861811aec928a051",
+      "content_bytes": 6813
+    },
+    {
+      "version": "20260926153404",
+      "name": "p2_reengagement_ordering_fix",
+      "content_md5": "8a9a84d7bd599a35e07e2ed93a6fbd5a",
+      "content_bytes": 6960
+    },
+    {
+      "version": "20260926155251",
+      "name": "p2_demand_signal_foundation",
+      "content_md5": "138d3f95e66ca14b6195a5e244d68acb",
+      "content_bytes": 9400
+    },
+    {
+      "version": "20260926162021",
+      "name": "p2_legacy_message_identity_recovery",
+      "content_md5": "dc2683747df653aa04ad21d73d0416e0",
+      "content_bytes": 21449
+    },
+    {
+      "version": "20260926163019",
+      "name": "p2_legacy_identity_status_compatibility",
+      "content_md5": "33a25eb7dba2b99ec16893c214353641",
+      "content_bytes": 7464
+    },
+    {
+      "version": "20260926163437",
+      "name": "p2_legacy_identity_rfq_link_compatibility",
+      "content_md5": "f4516ec5dc67708684778724b2c96561",
+      "content_bytes": 7793
+    },
+    {
+      "version": "20260926174759",
+      "name": "p2_identity_confirmation_intelligence_activation",
+      "content_md5": "f1443376e7e43b2f39a38e42a421b2cb",
+      "content_bytes": 25550
+    },
+    {
+      "version": "20260926183245",
+      "name": "p2_commercial_conversion_foundation",
+      "content_md5": "60b19a24a21b72101a1da69832df999a",
+      "content_bytes": 19245
+    },
+    {
+      "version": "20260926184035",
+      "name": "p2_conversion_confirmation_hook",
+      "content_md5": "5ffb5b7348ee29b6dedeb0db5d071984",
+      "content_bytes": 6990
+    },
+    {
+      "version": "20260926192728",
+      "name": "p2_cross_thread_relationship_evidence",
+      "content_md5": "6595698b539be5f06a9a3c2a19d4ed3e",
+      "content_bytes": 30973
+    },
+    {
+      "version": "20260926195401",
+      "name": "p3_italy_tube_network_seed",
+      "content_md5": "f364ae466b1cac564ec07f10b2218b2f",
+      "content_bytes": 17039
+    },
+    {
+      "version": "20260926203030",
+      "name": "p3_web_company_discovery",
+      "content_md5": "5ac159b1ae04629657ba88e71192f08d",
+      "content_bytes": 25453
+    },
+    {
+      "version": "20260926210446",
+      "name": "p3_discovery_quality_scale",
+      "content_md5": "c4422ef0d87aaa5ef93bb6a997d268f3",
+      "content_bytes": 12975
+    },
+    {
+      "version": "20260927094352",
+      "name": "p3_4_company_profile_enrichment",
+      "content_md5": "e68a7469be94b782a311ecd0255fed78",
+      "content_bytes": 20358
+    },
+    {
+      "version": "20260927111951",
+      "name": "p3_4_selective_enrichment_review",
+      "content_md5": "287d3d062c9338176b00b7af1dd2548b",
+      "content_bytes": 14497
+    },
+    {
+      "version": "20260927185645",
+      "name": "p3_6_company_claim_ownership_verification",
+      "content_md5": "1b5dc51f8e7d27795b943e1532a6d5e3",
+      "content_bytes": 22182
+    },
+    {
+      "version": "20260927193130",
+      "name": "p3_7a_profile_data_ownership_contract",
+      "content_md5": "7ffbd37c6e9745df933b74e90008dce1",
+      "content_bytes": 23171
+    },
+    {
+      "version": "20260927194619",
+      "name": "p3_7b_company_profile_structured_editing",
+      "content_md5": "1a83464f09cced447101c8e2ff271a82",
+      "content_bytes": 47466
+    },
+    {
+      "version": "20260927195931",
+      "name": "p3_7c_public_company_profile",
+      "content_md5": "ab9fab892afc2eb30b39e9cc19eed530",
+      "content_bytes": 11837
+    },
+    {
+      "version": "20260927200325",
+      "name": "p3_7c_provenance_boundary",
+      "content_md5": "c78d3c46dfa0dbc8cc88490839f6d925",
+      "content_bytes": 12439
+    },
+    {
+      "version": "20260927205940",
+      "name": "p3_7d_company_identity_public_contacts",
+      "content_md5": "0b33536ed06f2fa6d9c7075653ff43d8",
+      "content_bytes": 22279
+    },
+    {
+      "version": "20260927212118",
+      "name": "p3_7e_product_scope_marketplace_readiness",
+      "content_md5": "f4291707da999d2627d9288defae7172",
+      "content_bytes": 40384
+    },
+    {
+      "version": "20260928072947",
+      "name": "p3_7f_real_profile_validation",
+      "content_md5": "ca3717a0657e698f9be7a902de806e5d",
+      "content_bytes": 25063
+    },
+    {
+      "version": "20260928072951",
+      "name": "p3_7f_real_profile_validation",
+      "content_md5": "ca3717a0657e698f9be7a902de806e5d",
+      "content_bytes": 25063
+    },
+    {
+      "version": "20260928094207",
+      "name": "k2_public_knowledge_information_architecture",
+      "content_md5": "a4a2ec77013beebcdacf5a76e63dceb7",
+      "content_bytes": 18286
+    },
+    {
+      "version": "20260928100743",
+      "name": "k3_public_standards_catalog",
+      "content_md5": "159b1cae4ca79e2e6f2ad845d68272c6",
+      "content_bytes": 35981
+    },
+    {
+      "version": "20260928102705",
+      "name": "k4_public_grades_catalog",
+      "content_md5": "ec3243216657656a1da82f9c1f47f609",
+      "content_bytes": 48297
+    },
+    {
+      "version": "20260928104650",
+      "name": "k5_public_tube_weight_calculator",
+      "content_md5": "2ffd19fd5226b256219fd1c3852261a8",
+      "content_bytes": 3064
+    },
+    {
+      "version": "20260928111327",
+      "name": "k6_indexable_dimension_pages",
+      "content_md5": "1e7714ec1be4024887754b7394760fec",
+      "content_bytes": 7921
+    },
+    {
+      "version": "20260928113254",
+      "name": "k7_knowledge_seo_clusters",
+      "content_md5": "22d8621387fb54048276a936a8515019",
+      "content_bytes": 10378
+    },
+    {
+      "version": "20260928114851",
+      "name": "k8_organic_discovery_quality",
+      "content_md5": "9aa9d8a02cbce0070372dc8c19cdc10c",
+      "content_bytes": 10463
+    },
+    {
+      "version": "20260928123813",
+      "name": "sa2_platform_rbac_foundation",
+      "content_md5": "d53b5461b9f8952ff9849b7dcb3702cc",
+      "content_bytes": 42421
+    },
+    {
+      "version": "20260928134102",
+      "name": "sa4_registration_delegation_cutover",
+      "content_md5": "87da71674343e359d41e77de542be471",
+      "content_bytes": 33177
+    },
+    {
+      "version": "20260928140824",
+      "name": "sa5_network_operations_delegation_cutover",
+      "content_md5": "89a8ec749b23692b5920969b6df52775",
+      "content_bytes": 50783
+    },
+    {
+      "version": "20260928143333",
+      "name": "sa6_claims_verification_delegation_cutover",
+      "content_md5": "9656fdcedb84128e48b17fcefb4f766c",
+      "content_bytes": 13391
+    },
+    {
+      "version": "20260928151050",
+      "name": "sa7_knowledge_operations_delegation_cutover",
+      "content_md5": "8d1e8fc363bec2d299ea38f2844efabf",
+      "content_bytes": 44415
+    },
+    {
+      "version": "20260928155950",
+      "name": "sa8_network_verification_moderation_delegation_cutover",
+      "content_md5": "332cf356b8d4bf419a4268e0b413d2d9",
+      "content_bytes": 36358
+    },
+    {
+      "version": "20260929101019",
+      "name": "p5_1_demand_listing_foundation",
+      "content_md5": "81ff5d53a01a4846cdec2129965fd73e",
+      "content_bytes": 35324
+    },
+    {
+      "version": "20260929114513",
+      "name": "p5_2_marketplace_feed_countdown",
+      "content_md5": "d2ee5f399ffbcf404de12f6ab275647e",
+      "content_bytes": 14402
+    },
+    {
+      "version": "20260929125225",
+      "name": "p5_3_entitlement_unlock_foundation",
+      "content_md5": "739076bcc4c10d676a9f92cbf51ea28b",
+      "content_bytes": 29435
+    },
+    {
+      "version": "20260929130034",
+      "name": "p5_3a_deterministic_entitlement_ordering",
+      "content_md5": "67f7292181c2b7887cef91d350dd75b6",
+      "content_bytes": 4516
+    },
+    {
+      "version": "20260929130814",
+      "name": "p5_3b_entitlement_fk_index_hardening",
+      "content_md5": "fc554c0dc30005ae9c652506f76c3d38",
+      "content_bytes": 666
+    },
+    {
+      "version": "20260929135228",
+      "name": "p5_4_governed_supplier_response",
+      "content_md5": "d5484d1db7f7e71f87136af24f888f4c",
+      "content_bytes": 51410
+    },
+    {
+      "version": "20260929145214",
+      "name": "p5_5_matching_notifications",
+      "content_md5": "6f8f057007dc2122e8a160a6380108c4",
+      "content_bytes": 40243
+    },
+    {
+      "version": "20260929175607",
+      "name": "p5_6a_pilot_cohort_activation",
+      "content_md5": "9c0134dbacb578a1d3479c0afa1a4bc6",
+      "content_bytes": 30361
+    },
+    {
+      "version": "20260929180233",
+      "name": "p5_6aa_pilot_fk_index_hardening",
+      "content_md5": "2c0d3128ad9f69fb17ba04068cb05822",
+      "content_bytes": 799
+    },
+    {
+      "version": "20260929183550",
+      "name": "p5_6b_end_to_end_telemetry",
+      "content_md5": "8bbc72d2e3967061589d15958b396466",
+      "content_bytes": 26841
+    },
+    {
+      "version": "20260930091057",
+      "name": "hp1_1_registration_gate_integrity",
+      "content_md5": "79c198784db541188aa65a7f72acfb67",
+      "content_bytes": 9793
+    },
+    {
+      "version": "20260930104842",
+      "name": "hp3_registration_state_machine_hardening",
+      "content_md5": "3519a2ebccf51f70e21c98b427adf0ed",
+      "content_bytes": 21627
+    },
+    {
+      "version": "20261001113800",
+      "name": "hp4_duplicate_company_resolution",
+      "content_md5": "e36765e69700419948cfa9a6f374c27c",
+      "content_bytes": 10363
+    },
+    {
+      "version": "20261001115740",
+      "name": "hp5_claim_company_profile_experience",
+      "content_md5": "a110577dc82feb4a9691f8b831905c5a",
+      "content_bytes": 12686
+    },
+    {
+      "version": "20261001122621",
+      "name": "hp6_superadmin_registration_operations",
+      "content_md5": "8931668a3cbba1d3a6eb149608831ccb",
+      "content_bytes": 15733
+    },
+    {
+      "version": "20261001125350",
+      "name": "hp7_first_login_guided_company_setup",
+      "content_md5": "22a297b9d904796ac1e11b3dfca17efb",
+      "content_bytes": 7796
+    },
+    {
+      "version": "20261001132810",
+      "name": "hp8_team_invitations_role_onboarding",
+      "content_md5": "28601f7279a124e8635a59d82df6dcfc",
+      "content_bytes": 21165
+    },
+    {
+      "version": "20261001132908",
+      "name": "hp8a_deterministic_legacy_invitation_claim",
+      "content_md5": "8ab67d688f363c83b9e428ce868baef1",
+      "content_bytes": 2582
+    },
+    {
+      "version": "20261001144739",
+      "name": "hp11_marketplace_readiness_read_model",
+      "content_md5": "0610e4bd596ba67e014a9acbb2217030",
+      "content_bytes": 4795
+    },
+    {
+      "version": "20261001153625",
+      "name": "hp12_error_handling_recovery",
+      "content_md5": "d3c045af7f8e62dc4fddcb605d65a542",
+      "content_bytes": 8149
+    },
+    {
+      "version": "20261002093505",
+      "name": "hp18_registration_dml_grants",
+      "content_md5": "8b070eeff27bbf9e2a330ffb9ad2304e",
+      "content_bytes": 88
+    },
+    {
+      "version": "20261002100645",
+      "name": "l27_1_drop_duplicate_conversations_index",
+      "content_md5": "da3bc2dc19c88b3d39c35921b4959d49",
+      "content_bytes": 65
+    },
+    {
+      "version": "20261002104317",
+      "name": "l272a_investor_business_plan_room",
+      "content_md5": "f6dbd258cc0e427b6938f19444242f15",
+      "content_bytes": 14494
+    },
+    {
+      "version": "20261002105152",
+      "name": "l272a_investor_room_rpc_hardening",
+      "content_md5": "4cec8953a33550d9008eec537a8c336d",
+      "content_bytes": 14187
+    },
+    {
+      "version": "20261002144736",
+      "name": "l272d2_investor_scopes_kpi_snapshot",
+      "content_md5": "6f004b640f0d377630e8ed3c2fb3e62a",
+      "content_bytes": 17047
+    },
+    {
+      "version": "20261003165147",
+      "name": "pa1_2_public_company_lookup",
+      "content_md5": "d72de49dd44322ec9a185bd8057e4cbc",
+      "content_bytes": 6275
+    },
+    {
+      "version": "20261003184232",
+      "name": "pa1_3_network_paid_entitlement_boundary",
+      "content_md5": "f75138c70e16e667d46be07a8fb827da",
+      "content_bytes": 31819
+    },
+    {
+      "version": "20261003191704",
+      "name": "pa1_4_claim_conversion_registration_handoff",
+      "content_md5": "e819dc88a9a619db9691eb5d56e37d9b",
+      "content_bytes": 22916
+    },
+    {
+      "version": "20261004051359",
+      "name": "pa1_4_claim_conversion_registration_handoff",
+      "content_md5": "cb32399f8413ebefd483d7cd6b5e73cd",
+      "content_bytes": 23226
+    },
+    {
+      "version": "20261004062640",
+      "name": "pa1_5_public_company_data_governance",
+      "content_md5": "5e490c9c57571da1402253d013e0dcb5",
+      "content_bytes": 34188
+    },
+    {
+      "version": "20261004063430",
+      "name": "pa1_5_public_company_data_governance",
+      "content_md5": "5e490c9c57571da1402253d013e0dcb5",
+      "content_bytes": 34188
+    },
+    {
+      "version": "20261004064117",
+      "name": "pa1_5a_policy_contract_alignment",
+      "content_md5": "0976288de07fa9428d95b02d3c731150",
+      "content_bytes": 1717
+    },
+    {
+      "version": "20261004113212",
+      "name": "wc5_public_utility_discovery_telemetry",
+      "content_md5": "80c7ca36eb6aa3ccb4eff6a6525632a9",
+      "content_bytes": 1722
+    },
+    {
+      "version": "20261004170548",
+      "name": "lr4_company_directory_claim_governance",
+      "content_md5": "8dee8db5215ea0667983d5abcf3ffce8",
+      "content_bytes": 45150
+    },
+    {
+      "version": "20261004170718",
+      "name": "lr4a_privacy_governance_advisor_hardening",
+      "content_md5": "90430f0f443eda5d59e4b45a2db51650",
+      "content_bytes": 1130
+    },
+    {
+      "version": "20261005070448",
+      "name": "lr5_registration_account_compliance",
+      "content_md5": "7744553eccf79a23d04dc75a77b2a52e",
+      "content_bytes": 25855
+    },
+    {
+      "version": "20261005070713",
+      "name": "lr5a_account_compliance_advisor_hardening",
+      "content_md5": "82a4f1cdb1f28ba76e2170b50359fe13",
+      "content_bytes": 256
+    },
+    {
+      "version": "20261005120831",
+      "name": "pl1_3a_physical_schema_foundation",
+      "content_md5": "f3c932a8a54988d7b31600ac129ab958",
+      "content_bytes": 49033
+    },
+    {
+      "version": "20261005120950",
+      "name": "pl1_3a_visibility_helper_hardening",
+      "content_md5": "b9ef1c540fd4bd56a04dd2d4b493fabb",
+      "content_bytes": 2171
+    },
+    {
+      "version": "20261005121015",
+      "name": "pl1_3a_policy_hardening",
+      "content_md5": "5dd610884bac4521d49d7a2cb9d41919",
+      "content_bytes": 3398
+    },
+    {
+      "version": "20261005121137",
+      "name": "pl1_3a_fail_closed_publication_guard",
+      "content_md5": "a8dc519870d32aa17ee8b3f1b5b2a204",
+      "content_bytes": 5501
+    },
+    {
+      "version": "20261005122514",
+      "name": "pl1_4_price_list_import_staging",
+      "content_md5": "e9b887163a218ee2f2efb2009b3a72a8",
+      "content_bytes": 10994
+    },
+    {
+      "version": "20261005122954",
+      "name": "pl1_4_import_retry_hardening",
+      "content_md5": "6746c9cc9ed77deafd9c663bd782fa53",
+      "content_bytes": 453
+    },
+    {
+      "version": "20261005125629",
+      "name": "pl1_5_padana_full_import_promotion",
+      "content_md5": "7e10a0c4ff17a3733d062cb03c97109f",
+      "content_bytes": 17259
+    },
+    {
+      "version": "20261005125751",
+      "name": "pl1_5_generated_geometry_key_fix",
+      "content_md5": "75b0062eee10e486389a41a2b1927ced",
+      "content_bytes": 13967
+    },
+    {
+      "version": "20261005125935",
+      "name": "pl1_5_wc31_weight_resolution",
+      "content_md5": "2bb0ce9638bc0d8d163997e5085e7b13",
+      "content_bytes": 3197
+    },
+    {
+      "version": "20261005130000",
+      "name": "pl1_5_wc31_weight_update_join_fix",
+      "content_md5": "8beb2ca51b944f67a3a69fe20890cf13",
+      "content_bytes": 3116
+    },
+    {
+      "version": "20261005132419",
+      "name": "pl1_5a_residual_weight_special_profile_resolution",
+      "content_md5": "f74310db3a5a4bfd313f46b8edcdfc69",
+      "content_bytes": 8177
+    },
+    {
+      "version": "20261005132539",
+      "name": "pl1_5a_pricing_readiness_anon",
+      "content_md5": "0fdd70f7586c343acdaaa6233bfcc5b8",
+      "content_bytes": 156
+    },
+    {
+      "version": "20261005132945",
+      "name": "pl1_5a_explicit_standard_compatibility_fix",
+      "content_md5": "2e00def67472ea88684ec2233e3422da",
+      "content_bytes": 8613
+    },
+    {
+      "version": "20261005133023",
+      "name": "pl1_5a_finalize_standard_correction",
+      "content_md5": "0fe499e48614d70fe282489e36ed2854",
+      "content_bytes": 335
+    },
+    {
+      "version": "20261005134301",
+      "name": "pl1_6_public_price_list_explorer",
+      "content_md5": "10731490eb1daa57ad3406b2fe756026",
+      "content_bytes": 8033
+    },
+    {
+      "version": "20261005135137",
+      "name": "pl1_6_preview_permission_helper",
+      "content_md5": "de19b01db26943b2531d9f026cf57056",
+      "content_bytes": 7010
+    },
+    {
+      "version": "20261005135424",
+      "name": "pl1_6_rls_preview_hardening",
+      "content_md5": "ea5a264c7a575d499f145d4acb874d5a",
+      "content_bytes": 6070
+    },
+    {
+      "version": "20261005140849",
+      "name": "pl1_7_discount_profiles_private_pricing",
+      "content_md5": "5a1777afa02da367a786d6a546cd1611",
+      "content_bytes": 25459
+    },
+    {
+      "version": "20261005141626",
+      "name": "pl1_7_private_pricing_fk_indexes",
+      "content_md5": "2297e0cd369066fc0c902368e9419c96",
+      "content_bytes": 1065
+    },
+    {
+      "version": "20261005151727",
+      "name": "pl1_11_save_history_export",
+      "content_md5": "bc8d1e0f7163f925a2c024a1981c7b44",
+      "content_bytes": 13049
+    },
+    {
+      "version": "20261005152756",
+      "name": "pl1_11_snapshot_lifecycle_hardening",
+      "content_md5": "2475ff64b050a619f16e8a2c8ce92ac0",
+      "content_bytes": 1088
+    },
+    {
+      "version": "20261005153341",
+      "name": "pl1_11_lifecycle_cascade_fix",
+      "content_md5": "0d9c6644cfe2961b7cd265fb3927081d",
+      "content_bytes": 600
+    },
+    {
+      "version": "20261005185135",
+      "name": "pp1_padana_publication_readiness",
+      "content_md5": "2c594f8f813643a3f022a97d0e629ed8",
+      "content_bytes": 11677
+    },
+    {
+      "version": "20261005185503",
+      "name": "pp1_readiness_precision",
+      "content_md5": "4a924796067c465833b2efefac96d093",
+      "content_bytes": 10227
+    },
+    {
+      "version": "20261005185549",
+      "name": "pp1_restore_preview_helper",
+      "content_md5": "0b8cc63cfa94699e8254c664703262cc",
+      "content_bytes": 2449
+    },
+    {
+      "version": "20261005190047",
+      "name": "pp1_rls_notice_hardening",
+      "content_md5": "1c5b78a28105afbee817ea0ebb6d3d11",
+      "content_bytes": 2007
+    },
+    {
+      "version": "20261005191330",
+      "name": "pp1_1_publication_rights_source_terms",
+      "content_md5": "942415358a003e7c8317f4bb4b32f16b",
+      "content_bytes": 3924
+    },
+    {
+      "version": "20261005191450",
+      "name": "pp1_1_source_rights_review_rpc",
+      "content_md5": "21c7e18318fbd2f06cc9a8131f550160",
+      "content_bytes": 2163
+    },
+    {
+      "version": "20261005191558",
+      "name": "pp1_1_readiness_rights_event_filter",
+      "content_md5": "1a57bb06a84051d636e3f6e84e77783f",
+      "content_bytes": 10028
+    },
+    {
+      "version": "20261006091207",
+      "name": "rfqh1_campaign_supplier_foundation",
+      "content_md5": "a136731e1824e1bc9cde20e649cf4d9f",
+      "content_bytes": 13041
+    },
+    {
+      "version": "20261006093714",
+      "name": "rfqh2_supplier_selection_identity_resolution",
+      "content_md5": "592b980f8918da807b3242a438e1254e",
+      "content_bytes": 30712
+    },
+    {
+      "version": "20261006093847",
+      "name": "rfqh2_candidate_canonical_dedupe",
+      "content_md5": "336203a437c95f11e1bc1f49802e114a",
+      "content_bytes": 8729
+    },
+    {
+      "version": "20261006094058",
+      "name": "rfqh2_verified_vat_match_fix",
+      "content_md5": "f74302def5d09ff31f73c25c7b699a51",
+      "content_bytes": 1101
+    },
+    {
+      "version": "20261006094154",
+      "name": "rfqh2_fk_index_hardening",
+      "content_md5": "aa4b2fb02406a00dee9c4116a0570cd6",
+      "content_bytes": 1352
+    },
+    {
+      "version": "20261006094449",
+      "name": "rfqh2_entitlement_safe_private_resolution",
+      "content_md5": "815fc97cf689f54a32683f2313c89b6f",
+      "content_bytes": 1203
+    },
+    {
+      "version": "20261006103754",
+      "name": "rfqh3_governed_dispatch_engine",
+      "content_md5": "c0f7451778b949d6ee702d00a5406626",
+      "content_bytes": 32720
+    },
+    {
+      "version": "20261006104559",
+      "name": "rfqh3_capability_schema_hardening",
+      "content_md5": "012866ec0c53d075ac3af140e30ba0f4",
+      "content_bytes": 8683
+    },
+    {
+      "version": "20261006111155",
+      "name": "rfqh3_reminder_message_ledger",
+      "content_md5": "eca49e3b5b56f2f96e9e6cf149a92771",
+      "content_bytes": 21733
+    },
+    {
+      "version": "20261006113158",
+      "name": "rfqh4_supplier_response_portal",
+      "content_md5": "6d4e250e90b40017aad81c18a8760319",
+      "content_bytes": 31774
+    },
+    {
+      "version": "20261006113947",
+      "name": "rfqh4_quote_fk_index_hardening",
+      "content_md5": "cdbb436a91685bdceac92dd73fbb7e96",
+      "content_bytes": 405
+    },
+    {
+      "version": "20261006115418",
+      "name": "rfqh5_quote_normalization_comparison",
+      "content_md5": "0a38227bafdd6c3b1b2dce7a243e8084",
+      "content_bytes": 14384
+    },
+    {
+      "version": "20261006115741",
+      "name": "rfqh5_quantity_coverage_hardening",
+      "content_md5": "5d4a97bb9b2b775da7174e9d1f1e9e36",
+      "content_bytes": 16859
+    },
+    {
+      "version": "20261006122102",
+      "name": "rfqh6_clarifications_revisions_negotiation",
+      "content_md5": "20e88b997f7621d6f323e303bf285d31",
+      "content_bytes": 31102
+    },
+    {
+      "version": "20261006122859",
+      "name": "rfqh6_negotiation_delivery_ledger",
+      "content_md5": "efbf4d257175896a7791cb0450720d00",
+      "content_bytes": 11193
+    },
+    {
+      "version": "20261006123025",
+      "name": "rfqh6_supplier_buyer_notification_context",
+      "content_md5": "568935eca1535989559d3e7d3bc08e86",
+      "content_bytes": 2165
+    },
+    {
+      "version": "20261006134458",
+      "name": "rfqh7_award_commercial_conversion",
+      "content_md5": "00f1b4857689bddbce14124ff4912400",
+      "content_bytes": 26686
+    },
+    {
+      "version": "20261006135541",
+      "name": "rfqh7_fk_index_hardening",
+      "content_md5": "ce0576fec36d372ac7a1477f3cab69e3",
+      "content_bytes": 698
+    },
+    {
+      "version": "20261006142403",
+      "name": "rfqh8_network_marketplace_bridge",
+      "content_md5": "fb4092cf783f216d10d4aefe5f024098",
+      "content_bytes": 38107
+    },
+    {
+      "version": "20261006142814",
+      "name": "rfqh8_bridge_state_read_model",
+      "content_md5": "42de06168cec244cd716d2b99094cb0c",
+      "content_bytes": 4063
+    },
+    {
+      "version": "20261006143144",
+      "name": "rfqh8_bridge_state_hardening",
+      "content_md5": "f23eb54ffbe4f335f44387b59f19e0f5",
+      "content_bytes": 3796
+    },
+    {
+      "version": "20261006152146",
+      "name": "rfqh9_po_issuance_supplier_confirmation",
+      "content_md5": "564238a1cdaa8bd1acd7cb91b23a4250",
+      "content_bytes": 32823
+    },
+    {
+      "version": "20261006153101",
+      "name": "rfqh9_exact_confirmation_hardening",
+      "content_md5": "c402802dab2e83a1fe7f8610ad089595",
+      "content_bytes": 4560
+    },
+    {
+      "version": "20261006155731",
+      "name": "rfqh10_procurement_inbox",
+      "content_md5": "179c64631af12de3294923d9f65fc68d",
+      "content_bytes": 15772
+    },
+    {
+      "version": "20261006155911",
+      "name": "rfqh10_procurement_inbox_hardening",
+      "content_md5": "7a3f0677eab405c81b2bf1b84655468b",
+      "content_bytes": 15294
+    },
+    {
+      "version": "20261007082452",
+      "name": "rfqh11_supplier_address_book",
+      "content_md5": "8bec5a664baebff1ff3ceea8d4123c8f",
+      "content_bytes": 10396
+    },
+    {
+      "version": "20261007082729",
+      "name": "rfqh11_supplier_crm_read_models",
+      "content_md5": "d4f4379b59b1b2aefbb7f820e039f0d8",
+      "content_bytes": 19686
+    },
+    {
+      "version": "20261007083429",
+      "name": "rfqh11_supplier_profile_fk_indexes",
+      "content_md5": "c6469dfed6ebf924fc837aa32e2d57f4",
+      "content_bytes": 851
+    },
+    {
+      "version": "20261007085945",
+      "name": "rfqh12_procurement_intelligence",
+      "content_md5": "b4a0e2be9d2286b80e313dbbf130b3ea",
+      "content_bytes": 17284
+    },
+    {
+      "version": "20261007090704",
+      "name": "rfqh12_profile_uuid_aggregate_fix",
+      "content_md5": "72c7f1255dbd5eab29acc39ab7443a66",
+      "content_bytes": 17363
+    },
+    {
+      "version": "20261007095803",
+      "name": "rfqh13_governance_team_rls",
+      "content_md5": "a54f43757d8b025315608134a0ff3fd4",
+      "content_bytes": 12380
+    },
+    {
+      "version": "20261007100300",
+      "name": "rfqh13_approval_recovery_audit",
+      "content_md5": "fe45cb0edbab185fd220f1c4c6939f54",
+      "content_bytes": 33099
+    },
+    {
+      "version": "20261007100440",
+      "name": "rfqh13_core_approval_gate_enforcement",
+      "content_md5": "b7a3b06206259a556d32660834752ff5",
+      "content_bytes": 20547
+    },
+    {
+      "version": "20261007111127",
+      "name": "pf7_usage_validation_events",
+      "content_md5": "c16fc523c565fd514e88f1607cd040bc",
+      "content_bytes": 6631
+    },
+    {
+      "version": "20261007111845",
+      "name": "rfqh13_core_approval_gate_enforcement",
+      "content_md5": "b7a3b06206259a556d32660834752ff5",
+      "content_bytes": 20547
+    },
+    {
+      "version": "20261007112905",
+      "name": "rfqh13_approval_payload_snapshot",
+      "content_md5": "3caa439e9873f65ded0948fdcd2bb9ec",
+      "content_bytes": 2912
+    },
+    {
+      "version": "20261007115403",
+      "name": "mkt1_marketing_investor_scope",
+      "content_md5": "e85e27e15ba422d82c3d9ff28c7ef865",
+      "content_bytes": 4666
+    },
+    {
+      "version": "20261007135353",
+      "name": "mkt8_investor_outreach_data_room_operations",
+      "content_md5": "b321b25d7ac8a792957e795262f98b5c",
+      "content_bytes": 19010
+    },
+    {
+      "version": "20261007140122",
+      "name": "mkt8_investor_outreach_fk_indexes",
+      "content_md5": "781370c86b3ef9519a06313958e7457f",
+      "content_bytes": 388
+    },
+    {
+      "version": "20261008082446",
+      "name": "nc12_operational_alert_baseline_reconciliation",
+      "content_md5": "71891a96f0f858d786c370336926bca8",
+      "content_bytes": 1723
+    },
+    {
+      "version": "20261008082455",
+      "name": "nc12_operational_alert_authorization_audit",
+      "content_md5": "a1d7db672c35d8869e7a7c62ec3c58d5",
+      "content_bytes": 12375
+    },
+    {
+      "version": "20261008085109",
+      "name": "nc21_segregated_notification_inbox_schema",
+      "content_md5": "8165e1dec3fab700e5af43980140cc96",
+      "content_bytes": 9394
+    },
+    {
+      "version": "20261008091654",
+      "name": "nc22_router_idempotency_outbox",
+      "content_md5": "210e3e61c8983a05c08006873fe51752",
+      "content_bytes": 16640
+    },
+    {
+      "version": "20261008094421",
+      "name": "nc23_verified_rfq_router",
+      "content_md5": "04e736de3d606d534f5d9ed2a35ddd1f",
+      "content_bytes": 16502
+    },
+    {
+      "version": "20261008094425",
+      "name": "nc23_source_bridge_queue",
+      "content_md5": "d5a3895eae656d3d7e5dc5ae71c8864c",
+      "content_bytes": 3856
+    },
+    {
+      "version": "20261008094428",
+      "name": "nc23_source_event_capture_triggers",
+      "content_md5": "65eef72331c710726d4340b932078665",
+      "content_bytes": 4634
+    },
+    {
+      "version": "20261008094431",
+      "name": "nc23_marketplace_unlock_wakeup",
+      "content_md5": "4589f3986ef802f8d11697a0d85aecdc",
+      "content_bytes": 1443
+    },
+    {
+      "version": "20261008094528",
+      "name": "nc23_source_bridge_cron",
+      "content_md5": "bac8185fba15bef6c769bbe471ea6382",
+      "content_bytes": 481
+    },
+    {
+      "version": "20261008100850",
+      "name": "nc31_workspace_notification_rpc",
+      "content_md5": "076d75ddea9271d6bc5eccb55c96de11",
+      "content_bytes": 6420
+    },
+    {
+      "version": "20261008100854",
+      "name": "nc31_workspace_notification_destination",
+      "content_md5": "56455ff9ce8fce5943352e0d2ee27f5f",
+      "content_bytes": 3924
+    },
+    {
+      "version": "20261008102605",
+      "name": "nc32_platform_governance_inbox",
+      "content_md5": "1843b4743eb9bd1bd146271a60f82f3d",
+      "content_bytes": 8934
+    },
+    {
+      "version": "20261008104552",
+      "name": "nc33_notification_realtime_publication",
+      "content_md5": "12887535b6d3bc6f14b28b398c8cd866",
+      "content_bytes": 1211
+    },
+    {
+      "version": "20261008123415",
+      "name": "bd3_optional_target_rfqh_consistency",
+      "content_md5": "86c520553ed4ce047327483abcc4dd6a",
+      "content_bytes": 32054
+    },
+    {
+      "version": "20261008135525",
+      "name": "sp2_steel_pulse_ingestion_foundation",
+      "content_md5": "c69d67fc61cc0ae9044635edf5d9e8c4",
+      "content_bytes": 14421
+    },
+    {
+      "version": "20261008135549",
+      "name": "sp3_steel_pulse_editorial_publish_gate",
+      "content_md5": "792c6c9866d5a38a10834232c0c531b1",
+      "content_bytes": 20957
+    },
+    {
+      "version": "20261008135553",
+      "name": "sp4_steel_pulse_public_feed",
+      "content_md5": "29aa39ed6b58759a1929aeae0000202f",
+      "content_bytes": 2547
+    },
+    {
+      "version": "20261008135556",
+      "name": "sp5_steel_pulse_personalized_feed",
+      "content_md5": "a6392647e59bfa7d8bf88356fb9c963e",
+      "content_bytes": 6081
+    },
+    {
+      "version": "20261008135600",
+      "name": "sp6_steel_pulse_engagement_retention",
+      "content_md5": "0179144075faa1838afa494b9287dfb1",
+      "content_bytes": 8733
+    },
+    {
+      "version": "20261008141027",
+      "name": "sp7_dg_trade_pilot_candidate",
+      "content_md5": "cb20f908d2c2a401501dab1606a13a60",
+      "content_bytes": 989
+    },
+    {
+      "version": "20261008142031",
+      "name": "bd7_distinta_global_documents",
+      "content_md5": "40c251d4368ece1d8bc06353f41155a4",
+      "content_bytes": 3425
+    },
+    {
+      "version": "20261008143147",
+      "name": "sp71_steel_pulse_source_readiness",
+      "content_md5": "d91c16bd5d443d4176f10f03f1843183",
+      "content_bytes": 2920
+    },
+    {
+      "version": "20261009084602",
+      "name": "rfq_ia4_bridge_privacy_gate",
+      "content_md5": "cfafe1085022e7149ce2b8691f651ec1",
+      "content_bytes": 15038
+    },
+    {
+      "version": "20261009094631",
+      "name": "demotest2_rfq_insert_source_rls_cycle_fix",
+      "content_md5": "587d6389c8874f9ee0d66b6269deaf54",
+      "content_bytes": 2070
+    },
+    {
+      "version": "20261010132154",
+      "name": "plr2_private_lab_owner_boundary",
+      "content_md5": "0732a779574dd1203520a775d3300a6e",
+      "content_bytes": 2473
+    },
+    {
+      "version": "20261010191701",
+      "name": "crawl_it2_approved_source_registry",
+      "content_md5": "65fcb8653286a64096339323bbde425e",
+      "content_bytes": 3255
+    },
+    {
+      "version": "20261010191705",
+      "name": "crawl_it2_source_registry_console_rpcs",
+      "content_md5": "79ba1d468ee9cee4e6a2bc7d568a72e6",
+      "content_bytes": 3629
+    },
+    {
+      "version": "20261010191709",
+      "name": "crawl_it3_domain_leads",
+      "content_md5": "42e17f3471a9c74a78d9272940bee652",
+      "content_bytes": 2716
+    },
+    {
+      "version": "20261010191711",
+      "name": "crawl_it3_1_reviewed_lead_intake",
+      "content_md5": "7070afd9bcbac1bffe17ed4025daa734",
+      "content_bytes": 3628
+    },
+    {
+      "version": "20261011081449",
+      "name": "crawl_it4_geographic_intelligence",
+      "content_md5": "57f2aa56f9eca3aadfb157d2fc09a518",
+      "content_bytes": 3369
+    },
+    {
+      "version": "20261011082257",
+      "name": "crawl_it5_network_geo_filters",
+      "content_md5": "9a34d4a6ed4541c9c7c366953a5d3ac7",
+      "content_bytes": 8218
+    },
+    {
+      "version": "20261011083549",
+      "name": "crawl_it6_geo_coverage_staging",
+      "content_md5": "9a1af48bf06639a90dee2c9783ea0afc",
+      "content_bytes": 2971
+    },
+    {
+      "version": "20261011083559",
+      "name": "crawl_it61_geo_review_console",
+      "content_md5": "cf2fffc7a0be3ec16ccd46bde79f5f70",
+      "content_bytes": 2553
+    },
+    {
+      "version": "20261013101853",
+      "name": "dash_feed4_personal_interests",
+      "content_md5": "625ba9ba330c65814b5669f512df0007",
+      "content_bytes": 5590
+    },
+    {
+      "version": "20261013113154",
+      "name": "dash_feed6_engagement_events",
+      "content_md5": "ea3d139837a7f6d001587d44fd4568a3",
+      "content_bytes": 4429
+    },
+    {
+      "version": "20261013121141",
+      "name": "dash_feed7_engagement_retention",
+      "content_md5": "804e029292f391a0951072b9765ad339",
+      "content_bytes": 6112
+    },
+    {
+      "version": "20261013134506",
+      "name": "rqg1_review_access_hardening",
+      "content_md5": "b650708750949e73ea39906ec8970c1f",
+      "content_bytes": 135508
+    },
+    {
+      "version": "20261014120327",
+      "name": "crawl_it64_geographic_scale_readiness",
+      "content_md5": "edee85c68d0e982ddb08856fa1fee559",
+      "content_bytes": 4355
+    },
+    {
+      "version": "20261014123744",
+      "name": "crawl_it65a_candidate_bulk_approval",
+      "content_md5": "b2d4f22b7b3c26a25cefadbd4c32f546",
+      "content_bytes": 5248
+    },
+    {
+      "version": "20261014130708",
+      "name": "crawl_it65_wikidata_source_proposal",
+      "content_md5": "6394ef0719156ed9390068544d848016",
+      "content_bytes": 1099
+    },
+    {
+      "version": "20261014135219",
+      "name": "crawl_it65b_github_actions_runner",
+      "content_md5": "fe44def401e4b02a0172f360c2658d22",
+      "content_bytes": 7482
+    },
+    {
+      "version": "20261014145115",
+      "name": "crawl_it66ab_bulk_corporate_intake",
+      "content_md5": "a1bbe35e6133dbe1596210ed5a117dd6",
+      "content_bytes": 17320
+    },
+    {
+      "version": "20261014151551",
+      "name": "crawl_it66c_rna_corporate_tax_source",
+      "content_md5": "83629ed1e7b20df90780c01d4f16fae4",
+      "content_bytes": 11430
+    },
+    {
+      "version": "20261015101527",
+      "name": "crawl_it610b2_atomic_candidate_bridge",
+      "content_md5": "24d6dda435723196de173c698f527d5a",
+      "content_bytes": 5911
+    },
+    {
+      "version": "20261015101535",
+      "name": "crawl_it610b3_governed_run_linkage",
+      "content_md5": "bf232bf03d73ad45692c14875f8ec021",
+      "content_bytes": 3488
+    },
+    {
+      "version": "20261015102637",
+      "name": "crawl_it610b5_operator_run",
+      "content_md5": "2ff95730dc41f5695c02d2665c7622d3",
+      "content_bytes": 2356
+    },
+    {
+      "version": "20261015105113",
+      "name": "crawl_it610b7_approved_queue_gate",
+      "content_md5": "b45dbf73c6cb2a8151181775453ea7eb",
+      "content_bytes": 1034
+    },
+    {
+      "version": "20261015114317",
+      "name": "crawl_it610b7b_prelink_approved_run",
+      "content_md5": "ab38144d0b68d22406574ce67dd0a08f",
+      "content_bytes": 2632
+    },
+    {
+      "version": "20261016083621",
+      "name": "netux11_free_network_read",
+      "content_md5": "3197125af1ef68d90f073dc37986f071",
+      "content_bytes": 10115
+    },
+    {
+      "version": "20261016091727",
+      "name": "netux2_region_coverage",
+      "content_md5": "09e4cc6506935aa38933070d88638776",
+      "content_bytes": 2407
+    },
+    {
+      "version": "20261016095403",
+      "name": "netux3_governed_geo_enrichment",
+      "content_md5": "b355ef57f5c1e93006514f0f40423a40",
+      "content_bytes": 15402
+    },
+    {
+      "version": "20261016103052",
+      "name": "netux3a_istat_import_atomic",
+      "content_md5": "a7400cc4e33c668909c3478b0e791734",
+      "content_bytes": 17854
+    },
+    {
+      "version": "20261016103542",
+      "name": "netux3a_province_token_hardening",
+      "content_md5": "7c1cd5c6a074d4a018f0b696acf11519",
+      "content_bytes": 4274
+    },
+    {
+      "version": "20261016110039",
+      "name": "netux3b_controlled_geo_evidence",
+      "content_md5": "df7f697ce223b6023f592decec56810c",
+      "content_bytes": 9318
+    },
+    {
+      "version": "20261016110043",
+      "name": "netux3b_reviewed_publication_istat_guard",
+      "content_md5": "d311e2ffd59cb8acfa928e026a13f488",
+      "content_bytes": 4240
+    },
+    {
+      "version": "20261016112608",
+      "name": "netux3b1_pending_source_recheck",
+      "content_md5": "2269c4365c0df04ec2569ab97f832492",
+      "content_bytes": 4042
+    },
+    {
+      "version": "20261016112613",
+      "name": "netux3b1_conflict_reopen_governance",
+      "content_md5": "722fec41289d4341f4d12fa4902abc6b",
+      "content_bytes": 5192
+    },
+    {
+      "version": "20261016113107",
+      "name": "netux3b1_ledger_explicit_deny_rls",
+      "content_md5": "fc1a6a4657b4d083810e4c30244e25c1",
+      "content_bytes": 589
+    },
+    {
+      "version": "20261016120818",
+      "name": "netcov1_end_user_core_density",
+      "content_md5": "a80d4a8c720a5b67011386d498d27ac3",
+      "content_bytes": 16963
+    },
+    {
+      "version": "20261016123247",
+      "name": "netcov2_campaign_batch_acquisition",
+      "content_md5": "a81d9bb4ede13b2a863538f666f6d2f6",
+      "content_bytes": 5460
+    },
+    {
+      "version": "20261016125955",
+      "name": "netcov2b_domain_permissions",
+      "content_md5": "b68611d11462c9c7f9afe3bce90b889e",
+      "content_bytes": 4788
+    },
+    {
+      "version": "20261016125958",
+      "name": "netcov2b_source_activation",
+      "content_md5": "e7a2a81fa8ecb11d8bd8df60aa1075ef",
+      "content_bytes": 4043
+    },
+    {
+      "version": "20261016130001",
+      "name": "netcov2b_operator_run_preparation",
+      "content_md5": "6ee88a7fc25540c777f1203949c983fb",
+      "content_bytes": 3444
+    },
+    {
+      "version": "20261016130005",
+      "name": "netcov2b_atomic_link_and_candidate_gate",
+      "content_md5": "6153bda5aeccdfccf64c425bd9b7010e",
+      "content_bytes": 5390
+    },
+    {
+      "version": "20261016130009",
+      "name": "netcov2b_generic_worker_isolation",
+      "content_md5": "7cb6685a5cc8a97ada2016a12abe2394",
+      "content_bytes": 3894
+    },
+    {
+      "version": "20261016130012",
+      "name": "netcov2b_consented_lead_enqueue",
+      "content_md5": "cc17b2b4b50d7725e9645c5285387da0",
+      "content_bytes": 4730
+    },
+    {
+      "version": "20261016130127",
+      "name": "netcov2b_explicit_deny_rls",
+      "content_md5": "2c2db445f4cca9e90688b456a7d1b89a",
+      "content_bytes": 173
+    },
+    {
+      "version": "20261016130328",
+      "name": "netcov2b_permission_revocation",
+      "content_md5": "2217d01b5f86ebfb693350b0279ec45e",
+      "content_bytes": 2089
+    },
+    {
+      "version": "20261016134850",
+      "name": "netfast_provisional_source_view",
+      "content_md5": "6d2a883b207c6efe08248ed1cdf63643",
+      "content_bytes": 2627
+    },
+    {
+      "version": "20261016134853",
+      "name": "netfast_free_directory",
+      "content_md5": "a5d32c0ba77d6c2efbbea0682c0c5b3a",
+      "content_bytes": 2815
+    },
+    {
+      "version": "20261016134940",
+      "name": "netfast_profile_private",
+      "content_md5": "23d4f6f11f2753dce9e0d68a4f8b846e",
+      "content_bytes": 945
+    },
+    {
+      "version": "20261016134949",
+      "name": "netfast_profile_api_grants",
+      "content_md5": "d47766f94506d6f704ea787957953962",
+      "content_bytes": 602
+    },
+    {
+      "version": "20261016135052",
+      "name": "netfast_free_profile",
+      "content_md5": "3f80408d8af6356683f7ffb4eed564bc",
+      "content_bytes": 1627
+    },
+    {
+      "version": "20261016141721",
+      "name": "netfast2_structured_cc0_storage",
+      "content_md5": "1a21ff3136a2b0c519fb840150730fc8",
+      "content_bytes": 3886
+    },
+    {
+      "version": "20261016141725",
+      "name": "netfast2_daily_batch_rpc",
+      "content_md5": "6d8f094f67e1c5fe9fdaeaf6a6d8b4db",
+      "content_bytes": 4838
+    },
+    {
+      "version": "20261016141730",
+      "name": "netfast2_free_discovered_union",
+      "content_md5": "c5bbdabdef197f6fac1305429cae3651",
+      "content_bytes": 3121
+    },
+    {
+      "version": "20261016144748",
+      "name": "netfast3_licensed_bulk_schema",
+      "content_md5": "5b36f1c3d869c6a3a0eafd75b5ea55fa",
+      "content_bytes": 4275
+    },
+    {
+      "version": "20261016144753",
+      "name": "netfast3_feed_rights_and_suppression",
+      "content_md5": "36beb776201d0e9bea51853125a156d7",
+      "content_bytes": 6016
+    },
+    {
+      "version": "20261016144757",
+      "name": "netfast3_licensed_bulk_rpc",
+      "content_md5": "db0a43fb2b990d4e36bac070aefe6742",
+      "content_bytes": 6652
+    },
+    {
+      "version": "20261016144802",
+      "name": "netfast3_unconfirmed_free_union",
+      "content_md5": "1836aa422cdb640210c0405ecbecd79f",
+      "content_bytes": 4114
+    },
+    {
+      "version": "20261016144806",
+      "name": "netfast3_public_license_attribution",
+      "content_md5": "0fee8503c5dd603c22fddc6db80ce0df",
+      "content_bytes": 2020
+    },
+    {
+      "version": "20261016151441",
+      "name": "netfast3b_cordis_research_schema",
+      "content_md5": "6c6302a90aedd8a2554c0e3519bae8af",
+      "content_bytes": 3496
+    },
+    {
+      "version": "20261016151445",
+      "name": "netfast3b_cordis_licensed_worker_rpcs",
+      "content_md5": "5be295581bb90b0f114d65c755edf97e",
+      "content_bytes": 7973
+    },
+    {
+      "version": "20261016151448",
+      "name": "netfast3b_cordis_platform_read",
+      "content_md5": "bee2d3706ddef8566ccf007e8a7d24c0",
+      "content_bytes": 1984
+    },
+    {
+      "version": "20261016153905",
+      "name": "netlaunch1_pro_discovery_read",
+      "content_md5": "a9908a2364d016945a87b1c8c2132d7c",
+      "content_bytes": 5077
+    },
+    {
+      "version": "20261016160852",
+      "name": "netlaunch2_cc0_density_schema",
+      "content_md5": "fc1e030df5dd1b9df7c116c8388920ac",
+      "content_bytes": 3579
+    },
+    {
+      "version": "20261016160908",
+      "name": "netlaunch2_cc0_density_rpc",
+      "content_md5": "ffa5334b73429c3207b9639086cae6b0",
+      "content_bytes": 7347
+    },
+    {
+      "version": "20261016160911",
+      "name": "netlaunch2_latest_companies_first",
+      "content_md5": "6472746f8adc3e2cdeaa7398aa52b1a5",
+      "content_bytes": 2831
+    },
+    {
+      "version": "20261016161918",
+      "name": "netlaunch2_failed_run_recovery",
+      "content_md5": "cae1f3cff4dac3c940231d758b9efb23",
+      "content_bytes": 7918
+    },
+    {
+      "version": "20261017114111",
+      "name": "netlaunch3_read_100_discoveries",
+      "content_md5": "cdda6a8bcfe049182b9e65d19778233b",
+      "content_bytes": 8867
+    },
+    {
+      "version": "20261017120905",
+      "name": "netlaunch4b_server_browse_paging",
+      "content_md5": "79b0f2782d8422f4c82304d372580c9f",
+      "content_bytes": 7809
+    },
+    {
+      "version": "20261017130850",
+      "name": "netconnect1_purposeful_company_connections",
+      "content_md5": "b5f35bf918a7bb19ef87e6c7a5342f8c",
+      "content_bytes": 9738
+    },
+    {
+      "version": "20261017141003",
+      "name": "netconnect2b_activation_reconciliation",
+      "content_md5": "c05c56cd8b8461cef38bd686902ee51d",
+      "content_bytes": 11206
+    },
+    {
+      "version": "20261017152521",
+      "name": "netconnect2d_company_progress",
+      "content_md5": "e91af6db0e33ed58aa634269332af65b",
+      "content_bytes": 2645
+    },
+    {
+      "version": "20261017153812",
+      "name": "net_eima2_provisional_geo_map",
+      "content_md5": "297932805669b0259c65357ae21d23b0",
+      "content_bytes": 14667
+    },
+    {
+      "version": "20261017154746",
+      "name": "neteima2b_source_url_regex_fix",
+      "content_md5": "120712c0998537ea116bf735c403fa76",
+      "content_bytes": 3351
+    },
+    {
+      "version": "20261017155112",
+      "name": "netconnect2e_recipient_readiness",
+      "content_md5": "285944f499cfca1b4dba9729447a50a2",
+      "content_bytes": 2738
+    },
+    {
+      "version": "20261017161250",
+      "name": "netconnect2f_reply_intelligence",
+      "content_md5": "1f263db597e374d740df6ac91ec131e9",
+      "content_bytes": 4592
+    },
+    {
+      "version": "20261017162531",
+      "name": "netdensity3_resilient_first_party_bulk",
+      "content_md5": "05e9cde2be6d836ba1511cdcd73294cb",
+      "content_bytes": 3115
+    },
+    {
+      "version": "20261018210526",
+      "name": "netlaunch5e_fix_authenticated_browse_rpc_permissions",
+      "content_md5": "82acf6bce75459045e2882d7bb4bda6f",
+      "content_bytes": 945
+    },
+    {
+      "version": "20261018222311",
+      "name": "netprofile1c3_enrichment_evidence",
+      "content_md5": "b54452fb9e24878aff1d830b59bd00ed",
+      "content_bytes": 5176
+    },
+    {
+      "version": "20261019070306",
+      "name": "netprofile1d_approved_evidence_reader",
+      "content_md5": "db98deac4ba7ff24cfef4ebfe1ee9874",
+      "content_bytes": 1338
+    },
+    {
+      "version": "20261019102741",
+      "name": "netcompact4_geo_evidence_overlay",
+      "content_md5": "8c413d2579b4ce6ab8b655a9d53577a6",
+      "content_bytes": 4064
+    },
+    {
+      "version": "20261019102753",
+      "name": "netcompact4_sourced_region_filter",
+      "content_md5": "0b052a626f98c2568350febb0370c5a5",
+      "content_bytes": 7988
+    },
+    {
+      "version": "20261019105651",
+      "name": "netcompact4b_canonical_geo_ingest",
+      "content_md5": "928b393f3a88a84a498c072f152c5cb8",
+      "content_bytes": 4878
+    },
+    {
+      "version": "20261019110422",
+      "name": "netcompact4b_canonical_https_regex_fix",
+      "content_md5": "38fba038ee9f2a5fc5535999b83d6fa5",
+      "content_bytes": 5020
+    },
+    {
+      "version": "20261019114434",
+      "name": "netcompact4d_confidence_scaling",
+      "content_md5": "d9a2b29d9b7ce1b827c4bf25218e816c",
+      "content_bytes": 6170
+    },
+    {
+      "version": "20261019115210",
+      "name": "netcompact4d_service_view_runtime",
+      "content_md5": "e7aeac00bbadfa6c5d90ccf1679db2ed",
+      "content_bytes": 6392
+    },
+    {
+      "version": "20261019140938",
+      "name": "netux6c_ai_budget",
+      "content_md5": "cc16fee28d6cd1e7ccf9f4ed18a02d49",
+      "content_bytes": 2405
+    },
+    {
+      "version": "20261019151555",
+      "name": "commercial_unify2c3_entity_search",
+      "content_md5": "e708b811812131ebfe2ec68a240e16c1",
+      "content_bytes": 6383
+    },
+    {
+      "version": "20261019163540",
+      "name": "netux_data1_company_intelligence_audit",
+      "content_md5": "b6673ccc8539deee5b82a6afb764e61a",
+      "content_bytes": 8067
+    },
+    {
+      "version": "20261020070637",
+      "name": "netdata1c_market_evidence_and_discovery",
+      "content_md5": "26c4fe846811db72bad567be84302e0b",
+      "content_bytes": 12406
+    },
+    {
+      "version": "20261020080124",
+      "name": "net_europe1c_regional_intelligence",
+      "content_md5": "cbd9b14d10a0496f3c8dd7339c9cf0ff",
+      "content_bytes": 18016
+    },
+    {
+      "version": "20261020080500",
+      "name": "net_europe1c_company_country_provenance",
+      "content_md5": "1cf036e173c071bfbcbc42b672c4de9e",
+      "content_bytes": 5930
+    },
+    {
+      "version": "20261020080539",
+      "name": "netux_data1b4_steel_relevance_ranking",
+      "content_md5": "d0bf5583d83c58be89852bab47527901",
+      "content_bytes": 8073
+    },
+    {
+      "version": "20261020085056",
+      "name": "netux_data1b5_full_coverage_platform_queue",
+      "content_md5": "1946d25616083b53f7f9e2f6406ef099",
+      "content_bytes": 7902
+    },
+    {
+      "version": "20261020093224",
+      "name": "netux_data1b5c_negation_safe_steel_ranking",
+      "content_md5": "394314613f12ddc7d9ccbb9a843a937f",
+      "content_bytes": 8700
+    },
+    {
+      "version": "20261020095410",
+      "name": "netux_data1b5d_source_review_quality",
+      "content_md5": "37f67787aff16b6538d6ee617b2f0099",
+      "content_bytes": 12844
+    },
+    {
+      "version": "20261020110925",
+      "name": "netdata1eu_trader1a_research_foundation",
+      "content_md5": "fff44c180ca003e1516528c705e59034",
+      "content_bytes": 8207
+    },
+    {
+      "version": "20261020110953",
+      "name": "netdata1eu_trader1b_firstparty_pilot",
+      "content_md5": "168742daff775e68de3c8e2638afe52b",
+      "content_bytes": 3365
+    },
+    {
+      "version": "20261020110955",
+      "name": "netdata1eu_trader1b2_source_research",
+      "content_md5": "7ea813ba631f44377cde3e774f80b96f",
+      "content_bytes": 7749
+    },
+    {
+      "version": "20261020110957",
+      "name": "netdata1eu_trader1c1_source_research",
+      "content_md5": "f7b48cdd8948233e390e55ada6d4ba97",
+      "content_bytes": 6743
+    },
+    {
+      "version": "20261020111000",
+      "name": "netdata1eu_trader1c2_source_research",
+      "content_md5": "5492db9ba1cc864971937acb72b62a34",
+      "content_bytes": 10501
+    },
+    {
+      "version": "20261020111030",
+      "name": "netdata1eu_trader1d_review_readiness",
+      "content_md5": "aba514c911d527230518b478e2d15cbe",
+      "content_bytes": 11777
+    },
+    {
+      "version": "20261020111032",
+      "name": "trader1d2_superadmin_review_console",
+      "content_md5": "5623d69e9e13986bc9da4068faff8aaf",
+      "content_bytes": 8779
+    },
+    {
+      "version": "20261020125416",
+      "name": "netit_identity2b_discovery_links",
+      "content_md5": "a573c5e3a2621fef97e8232c1e1b823f",
+      "content_bytes": 4190
+    },
+    {
+      "version": "20261020135439",
+      "name": "netit_identity2c_review_queue",
+      "content_md5": "b58e637cb65f864542366569cd261024",
+      "content_bytes": 2387
+    }
+  ]
+}
