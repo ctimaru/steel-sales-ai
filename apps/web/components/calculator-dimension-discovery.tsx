@@ -9,11 +9,12 @@ import type { TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
 
 const copy: Record<TubeCalculatorLocale,{
   title:string;subtitle:string;search:string;placeholder:string;all:string;round:string;square:string;rect:string;
-  wall:string;results:string;apply:string;empty:string;noData:string;onlySource:string;more:string;applied:string;
+  wall:string;filters:string;enterHint:string;results:string;apply:string;empty:string;noData:string;onlySource:string;more:string;applied:string;
 }> = {
   it:{title:"Trova la tua misura",subtitle:"Misure pubblicate · selezione rapida",
     search:"Cerca dimensione",placeholder:"Es. 168,3x6,3 · 100x100x4",
     all:"Tutte",round:"Tondi",square:"Quadri",rect:"Rettangolari",wall:"Spessore",
+     filters:"Filtri misura",enterHint:"Invio per applicare",
     results:"misure trovate",apply:"Usa misura",empty:"Nessun risultato: modifica i filtri o inserisci le misure manualmente.",
     noData:"Nessuna misura pubblicata disponibile. La compilazione manuale resta attiva.",
     onlySource:"Misura tratta da fonte pubblicata; la norma e il peso teorico vengono calcolati separatamente.",
@@ -21,6 +22,7 @@ const copy: Record<TubeCalculatorLocale,{
   en:{title:"Find your size",subtitle:"Published dimensions · quick selection",
     search:"Search dimensions",placeholder:"e.g. 168.3x6.3 · 100x100x4",
     all:"All",round:"Round",square:"Square",rect:"Rectangular",wall:"Wall",
+     filters:"Size filters",enterHint:"Enter to apply",
     results:"matching sizes",apply:"Use size",empty:"No matches. Adjust filters or enter dimensions manually.",
     noData:"No published dimensions available. Manual entry remains enabled.",
     onlySource:"Published-source geometry only; standard and theoretical mass are calculated separately.",
@@ -28,6 +30,7 @@ const copy: Record<TubeCalculatorLocale,{
   de:{title:"Abmessung finden",subtitle:"Veröffentlichte Maße · Schnellauswahl",
     search:"Abmessungen suchen",placeholder:"z. B. 168,3x6,3 · 100x100x4",
     all:"Alle",round:"Rund",square:"Quadrat",rect:"Rechteck",wall:"Wanddicke",
+     filters:"Maßfilter",enterHint:"Enter zum Übernehmen",
     results:"passende Maße",apply:"Übernehmen",empty:"Keine Treffer. Filter anpassen oder Maße manuell eingeben.",
     noData:"Keine veröffentlichten Maße verfügbar. Manuelle Eingabe bleibt möglich.",
     onlySource:"Geometrie aus veröffentlichter Quelle; Norm und theoretische Masse werden separat berechnet.",
@@ -35,6 +38,7 @@ const copy: Record<TubeCalculatorLocale,{
   fr:{title:"Trouver une dimension",subtitle:"Dimensions publiées · sélection rapide",
     search:"Rechercher une dimension",placeholder:"ex. 168,3x6,3 · 100x100x4",
     all:"Toutes",round:"Ronds",square:"Carrés",rect:"Rectangulaires",wall:"Épaisseur",
+     filters:"Filtres de dimensions",enterHint:"Entrée pour utiliser",
     results:"dimensions trouvées",apply:"Utiliser",empty:"Aucun résultat. Modifiez les filtres ou saisissez les dimensions.",
     noData:"Aucune dimension publiée disponible. La saisie manuelle reste possible.",
     onlySource:"Géométrie issue d'une source publiée ; norme et masse théorique calculées séparément.",
@@ -42,6 +46,7 @@ const copy: Record<TubeCalculatorLocale,{
   es:{title:"Buscar una medida",subtitle:"Medidas publicadas · selección rápida",
     search:"Buscar dimensiones",placeholder:"p. ej. 168,3x6,3 · 100x100x4",
     all:"Todas",round:"Redondos",square:"Cuadrados",rect:"Rectangulares",wall:"Espesor",
+     filters:"Filtros de medidas",enterHint:"Intro para aplicar",
     results:"medidas encontradas",apply:"Usar medida",empty:"Sin resultados. Ajusta los filtros o introduce las medidas.",
     noData:"No hay medidas publicadas. La introducción manual sigue disponible.",
     onlySource:"Geometría de una fuente publicada; la norma y el peso teórico se calculan por separado.",
@@ -78,6 +83,8 @@ export function CalculatorDimensionDiscovery({
   const [family,setFamily]=useState<DimensionFamilyFilter>("all");
   const [wall,setWall]=useState<"all"|number>("all");
   const [selected,setSelected]=useState<string|null>(null);
+  const [expandedResults,setExpandedResults]=useState(false);
+  const resultsId=useId();
   const found=useMemo(
     ()=>searchCalculatorDimensions(items,query,family,wall,8),
     [items,query,family,wall]
@@ -85,62 +92,86 @@ export function CalculatorDimensionDiscovery({
   const families:[DimensionFamilyFilter,string][]=[
     ["all",c.all],["round_tube",c.round],["square_tube",c.square],["rectangular_tube",c.rect],
   ];
+  const activeFilters = family !== "all" || wall !== "all";
+  const showResults = (expandedResults || activeFilters) && (query.trim().length > 0 || activeFilters);
+  const chooseDimension = (item: CalculatorDimension) => {
+    onChoose(item);
+    setSelected(item.id);
+    setQuery(dimensionLabel(item));
+    setExpandedResults(false);
+  };
   return <section data-testid="calculator-dimension-discovery" aria-label={c.title}
-    className="border-b border-[#d8e8df] bg-[#f5faf7] px-3 py-3 sm:px-4">
-    <div className="flex flex-wrap items-start justify-between gap-2">
-      <div>
-        <p className="text-[10px] font-extrabold uppercase tracking-[.12em] text-[#28634c]">{c.subtitle}</p>
-        <h2 className="mt-1 text-sm font-extrabold text-[#123d34]">{c.title}</h2>
-      </div>
-      <span role="status" aria-live="polite" className="rounded-lg bg-white px-2.5 py-1.5 text-[11px] font-bold text-[#245640]">
-        {found.matchCount} {c.results}
-      </span>
+    className="border-b border-[#d8e8df] bg-[#f6faf8] px-3 py-2 sm:px-4">
+    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+      <h2 className="text-xs font-bold text-[#123d34]">{c.title}</h2>
+      <span className="text-[11px] text-[#446454]">{c.subtitle}</span>
     </div>
-    <div className="mt-2 grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(130px,170px)]">
-      <label className="min-w-0 text-[11px] font-semibold text-[#375c4b]">
-        {c.search}
-        <input type="search" autoComplete="off" value={query} onChange={event=>setQuery(event.target.value)}
-          placeholder={c.placeholder}
-          className="mt-1 min-h-11 w-full min-w-0 rounded-xl border border-[#b8d6c8] bg-white px-3 text-sm text-[#173e30] outline-none focus-visible:ring-2 focus-visible:ring-[#1f6b5a]"/>
+    <div className="mt-1.5 flex min-w-0 flex-wrap items-start gap-2 sm:flex-nowrap">
+      <label className="min-w-0 flex-1 text-[11px] font-semibold text-[#375c4b]">
+        <span className="sr-only">{c.search}</span>
+        <input type="search" autoComplete="off" value={query}
+          onChange={event=>{setQuery(event.target.value);setExpandedResults(true);}}
+          onFocus={()=>{if(query.trim())setExpandedResults(true);}}
+          onKeyDown={event=>{
+            if(event.key==="Enter" && query.trim() && found.results.length){
+              event.preventDefault();
+              chooseDimension(found.results[0]);
+            }
+            if(event.key==="Escape")setExpandedResults(false);
+          }}
+          placeholder={c.placeholder} aria-controls={resultsId}
+          aria-describedby={resultsId+"-hint"}
+          className="min-h-11 w-full min-w-0 rounded-lg border border-[#b8d6c8] bg-white px-3 text-sm text-[#173e30] outline-none focus-visible:ring-2 focus-visible:ring-[#1f6b5a] sm:min-h-10"/>
       </label>
-      <label className="text-[11px] font-semibold text-[#375c4b]">
-        {c.wall}
-        <select value={wall} onChange={event=>setWall(event.target.value==="all"?"all":Number(event.target.value))}
-          className="mt-1 min-h-11 w-full rounded-xl border border-[#b8d6c8] bg-white px-3 text-sm text-[#173e30] focus-visible:ring-2 focus-visible:ring-[#1f6b5a]">
-          <option value="all">{c.all}</option>
-          {found.thicknesses.map(x=><option key={x} value={x}>{dimensionNumber(x)} mm</option>)}
-        </select>
-      </label>
+      <details className="group/filter w-full shrink-0 sm:w-auto">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-[#b8d6c8] bg-white px-3 text-xs font-semibold text-[#23513e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#16714c] sm:min-h-10">
+          {c.filters}{activeFilters ? " · 1+" : ""}<span aria-hidden="true" className="transition-transform group-open/filter:rotate-180">⌄</span>
+        </summary>
+        <div className="mt-1.5 space-y-2 rounded-lg border border-[#d0e2d7] bg-white p-2">
+          <div role="group" aria-label={c.title} className="flex max-w-full gap-1 overflow-x-auto">
+            {families.map(([value,label])=><label key={value}
+              className={`inline-flex min-h-10 shrink-0 cursor-pointer items-center rounded-lg border px-2.5 text-[11px] font-semibold focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#16714c] ${family===value
+                ?"border-[#123d34] bg-[#123d34] text-white"
+                :"border-[#bfd9cc] bg-white text-[#20513e] hover:bg-[#e2f2e8]"}`}>
+              <input type="radio" name={familyGroupName} value={value} checked={family===value}
+                onChange={()=>{setFamily(value);setWall("all");setExpandedResults(true);}} className="sr-only"/>
+              {label}
+            </label>)}
+          </div>
+          <label className="flex items-center gap-2 text-[11px] font-semibold text-[#375c4b]">
+            {c.wall}
+            <select value={wall} onChange={event=>{setWall(event.target.value==="all"?"all":Number(event.target.value));setExpandedResults(true);}}
+              className="min-h-10 flex-1 rounded-lg border border-[#b8d6c8] bg-white px-2 text-xs text-[#173e30] focus-visible:ring-2 focus-visible:ring-[#1f6b5a]">
+              <option value="all">{c.all}</option>
+              {found.thicknesses.map(x=><option key={x} value={x}>{dimensionNumber(x)} mm</option>)}
+            </select>
+          </label>
+        </div>
+      </details>
     </div>
-    <div role="group" aria-label={c.title} className="mt-2 flex gap-1.5 overflow-x-auto pb-1">
-      {families.map(([value,label])=><label key={value}
-        className={`inline-flex min-h-10 shrink-0 cursor-pointer items-center rounded-xl border px-3 text-xs font-bold focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-[#16714c] ${family===value
-          ?"border-[#123d34] bg-[#123d34] text-white"
-          :"border-[#bfd9cc] bg-white text-[#20513e] hover:bg-[#e2f2e8]"}`}>
-        <input type="radio" name={familyGroupName} value={value} checked={family===value}
-          onChange={()=>{setFamily(value);setWall("all");}}
-          className="sr-only" />
-        <span>{label}</span>
-      </label>)}
-    </div>
-    {items.length===0 ? <p className="mt-2 text-xs text-[#52695d]">{c.noData}</p> :
-      found.matchCount===0 ? <p role="status" className="mt-2 text-xs text-[#52695d]">{c.empty}</p> :
-      <div className="mt-2 grid max-h-[210px] grid-cols-1 gap-1.5 overflow-y-auto overscroll-contain sm:grid-cols-2">
-        {found.results.map(item=><button key={[item.family,item.primaryMm,item.secondaryMm,item.thicknessMm].join(":")}
-          type="button" onClick={()=>{onChoose(item);setSelected(item.id);}}
-          aria-label={`${c.apply}: ${dimensionLabel(item)}`}
-          className="group flex min-h-16 items-center gap-2 rounded-xl border border-[#d0e2d7] bg-white p-2 text-left text-[#173e30] hover:border-[#237455] hover:bg-[#eef7f2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#16714c]">
-          <ShapePreview item={item}/>
-          <span className="min-w-0 flex-1">
-            <strong className="block text-[12px] font-extrabold">{dimensionLabel(item)}</strong>
-            <span className="block truncate text-[10px] text-[#597263]" title={item.source}>{item.source}</span>
-          </span>
-          <span aria-hidden="true" className="text-[#21674c]">↗</span>
-        </button>)}
-      </div>
-    }
-    {found.matchCount>found.results.length ? <p className="mt-1 text-[11px] text-[#5c7367]">{c.more}</p>:null}
-    <p className="mt-2 text-[10px] leading-4 text-[#536b5d]">{c.onlySource}</p>
+    <span id={resultsId+"-hint"} className="sr-only">{c.enterHint}</span>
+    {showResults ? <>
+      <p role="status" aria-live="polite" className="mt-1.5 text-[11px] text-[#446454]">
+        {found.matchCount} {c.results} · {c.enterHint}
+      </p>
+      {items.length===0 ? <p className="mt-1 text-xs text-[#52695d]">{c.noData}</p> :
+        found.matchCount===0 ? <p className="mt-1 text-xs text-[#52695d]">{c.empty}</p> :
+        <div id={resultsId} className="mt-1 grid max-h-[176px] grid-cols-1 gap-1 overflow-y-auto overscroll-contain">
+          {found.results.map(item=><button key={[item.family,item.primaryMm,item.secondaryMm,item.thicknessMm].join(":")}
+            type="button" onClick={()=>chooseDimension(item)}
+            aria-label={`${c.apply}: ${dimensionLabel(item)}`}
+            className="flex min-h-11 items-center gap-2 rounded-lg border border-[#d0e2d7] bg-white px-2 py-1 text-left text-[#173e30] hover:border-[#237455] hover:bg-[#eef7f2] focus-visible:outline-2 focus-visible:outline-[#16714c]">
+            <span className="flex h-9 w-11 shrink-0 items-center justify-center overflow-hidden"><ShapePreview item={item}/></span>
+            <span className="min-w-0 flex-1">
+              <strong className="block text-xs font-bold">{dimensionLabel(item)}</strong>
+              <span className="block truncate text-[11px] text-[#597263]" title={item.source}>{item.source}</span>
+            </span>
+            <span aria-hidden="true" className="text-[#21674c]">↵</span>
+          </button>)}
+        </div>}
+      {found.matchCount>found.results.length ? <p className="mt-1 text-[11px] text-[#5c7367]">{c.more}</p>:null}
+      <p className="mt-1 text-[11px] leading-4 text-[#536b5d]">{c.onlySource}</p>
+    </> : null}
     <p className="sr-only" aria-live="polite">{selected ? c.applied : ""}</p>
   </section>;
 }
