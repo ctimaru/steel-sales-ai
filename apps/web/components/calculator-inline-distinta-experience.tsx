@@ -341,54 +341,84 @@ export function CalculatorInlineDistintaExperience({
               <button type="button" className={action} onClick={() => setPendingTarget(null)}>{c.cancelSelection}</button>
             </div>
           ) : null}
-          <div className="space-y-3">
+          <div data-distinta-grid-header className="mb-1 hidden grid-cols-[minmax(0,1fr)_112px_72px_72px_80px] gap-2 border-b border-[#d5e4dc] px-2 pb-1 text-[11px] font-bold text-[#486b57] md:grid">
+            <span>{c.oneItem}</span><span>{c.quantity}</span><span>{c.meters}</span><span>kg/m</span><span>{c.tonnes}</span>
+          </div>
+          <div data-distinta-compact-grid className="space-y-1.5">
             {state.lines.map((line, index) => {
               const computed = calculateBuyerDistintaLine(line);
               const editing = editingId === line.id;
               const privateTarget = buyerTargetPreview(line, targets);
               const matchingPending = pendingTarget && matchesBuyerTargetWeight(line, pendingTarget);
-              return <article key={line.id} className="min-w-0 rounded-xl border border-[#d5e4dc] bg-[#f7faf8] p-3 sm:p-4"
-                aria-label={`${c.row} ${index + 1}: ${line.description}`}>
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-md bg-[#e2f2e8] px-2 py-1 text-xs font-bold text-[#145a41]">{index + 1}</span>
-                      <strong className="break-words text-sm leading-6 text-[#163b2d]">{line.description}</strong>
+              const quickValue = quickQuantities[line.id] ?? line.quantity;
+              const quickChanged = quickValue !== line.quantity;
+              return <article key={line.id} data-distinta-compact-row
+                className="min-w-0 rounded-lg border border-[#d5e4dc] bg-[#fbfdfb] px-2.5 py-2 sm:px-3"
+                aria-label={c.row + " " + (index + 1) + ": " + line.description}>
+                <div className="grid min-w-0 grid-cols-2 items-start gap-2 md:grid-cols-[minmax(0,1fr)_112px_72px_72px_80px]">
+                  <div className="col-span-2 min-w-0 md:col-span-1">
+                    <div className="flex min-w-0 items-start gap-1.5">
+                      <span className="shrink-0 rounded-md bg-[#e2f2e8] px-1.5 py-0.5 text-[11px] font-bold text-[#145a41]">{index + 1}</span>
+                      <strong className="min-w-0 break-words text-xs leading-5 text-[#163b2d]">{line.description}</strong>
                     </div>
-                    <p className="mt-1 text-xs text-[#496757]">{line.standard}{line.grade ? ` · ${line.grade}` : ` · ${c.gradePending}`}</p>
-                    <p className="mt-2 text-xs leading-6 text-[#365748]">
-                      <strong>{number(computed.quantity, 2)}</strong> {line.quantityMode === "bars" ? c.bars : line.quantityMode === "meters" ? "m" : "t"}
-                      {line.quantityMode === "bars" ? ` × ${number(computed.barLengthM, 2)} m` : ""}
-                      {" · "}{number(computed.meters, 2)} m
-                      {" · "}{number(computed.weightKgM, 3)} kg/m
-                      {" · "}<strong>{number(computed.tonnes, 4)} t</strong>
-                    </p>
-                    {privateTarget ? (
-                      <p data-buyer-target className="mt-2 rounded-lg bg-[#e6f3ea] px-3 py-2 text-xs font-semibold text-[#14553c]">
-                        {c.targetPrivate} · {number(privateTarget.eurT, 2)} €/t · {number(privateTarget.eurM, 4)} €/m
-                        <span className="block font-normal">{c.estimate} {number(privateTarget.estimatedTotal, 2)} € {c.onlyScreen}</span>
-                      </p>
-                    ) : null}
+                    <p className="mt-0.5 pl-0.5 text-[11px] leading-4 text-[#496757]">{line.standard}{line.grade ? " · " + line.grade : " · " + c.gradePending}</p>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <button type="button" className={action} aria-expanded={editing}
-                      aria-controls={`distinta-inline-edit-${line.id}`}
-                      onClick={() => {
-                        if (editing) { setEditingId(null); setDraft(null); }
-                        else beginEdit(line);
-                      }}>
-                      {editing ? c.close : c.edit}
-                    </button>
-                    <button type="button" className={action} disabled={count >= INLINE_DISTINTA_MAX_LINES}
-                      aria-label={`${c.duplicateLine} ${c.row.toLowerCase()} ${index + 1}`}
-                      onClick={() => commit(duplicateInlineDistintaLine(liveState.current, line.id, makeId()))}>{c.duplicateLine}</button>
-                    <button type="button" className={action} aria-label={`${c.remove} ${c.row.toLowerCase()} ${index + 1}`}
-                      onClick={() => {
-                        if (commit(removeInlineDistintaLine(liveState.current, line.id)) && editing) {
-                          setEditingId(null); setDraft(null);
-                        }
-                      }}>{c.remove}</button>
+                  <div data-inline-quantity className="min-w-0">
+                    <label className="block min-w-0">
+                      <span className="sr-only">{c.quantity} {c.row.toLowerCase()} {index + 1}</span>
+                      <input type="text" inputMode={line.quantityMode === "bars" ? "numeric" : "decimal"}
+                        value={quickValue} maxLength={45} disabled={editing}
+                        aria-label={c.quantity + " " + c.row.toLowerCase() + " " + (index + 1)}
+                        aria-describedby={"distinta-inline-quantity-unit-" + line.id}
+                        onChange={event => setQuickQuantities(current => ({ ...current, [line.id]: event.target.value }))}
+                        onKeyDown={event => {
+                          if (event.key === "Enter") { event.preventDefault(); saveQuickQuantity(line.id); }
+                          else if (event.key === "Escape") { setQuickQuantities(current => { const next = { ...current }; delete next[line.id]; return next; }); }
+                        }}
+                        className="h-10 w-full min-w-0 rounded-md border border-[#aecdbb] bg-white px-2 text-sm font-semibold tabular-nums text-[#153d2e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15815a] disabled:opacity-50"/>
+                    </label>
+                    <span id={"distinta-inline-quantity-unit-" + line.id} className="mt-0.5 block text-[10px] text-[#526e5e]">{line.quantityMode === "bars" ? c.bars : line.quantityMode === "meters" ? c.meters : c.tonnes}{line.quantityMode === "bars" ? " × " + number(computed.barLengthM, 2) + " m" : ""}</span>
+                    {quickChanged ? <button type="button" data-save-quick-quantity
+                      onClick={() => saveQuickQuantity(line.id)}
+                      className="mt-1 min-h-10 w-full rounded-md bg-[#145a41] px-2 text-xs font-bold text-white hover:bg-[#1c6c4d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1c6c4d]">
+                      {c.saveQuantity}
+                    </button> : null}
                   </div>
+                  <div className="min-w-0 text-[11px] tabular-nums text-[#254b37]">
+                    <span className="block font-medium text-[#58705e] md:sr-only">{c.meters}</span>
+                    <strong className="block break-all text-xs">{number(computed.meters, 2)} <span className="font-normal">m</span></strong>
+                  </div>
+                  <div className="min-w-0 text-[11px] tabular-nums text-[#254b37]">
+                    <span className="block font-medium text-[#58705e] md:sr-only">kg/m</span>
+                    <strong className="block break-all text-xs">{number(computed.weightKgM, 3)}</strong>
+                  </div>
+                  <div className="min-w-0 text-[11px] tabular-nums text-[#123d34]">
+                    <span className="block font-medium text-[#58705e] md:sr-only">{c.tonnes}</span>
+                    <strong className="block break-all text-xs">{number(computed.tonnes, 4)} <span className="font-normal">t</span></strong>
+                  </div>
+                </div>
+                {privateTarget ? (
+                  <p data-buyer-target className="mt-1.5 rounded-md bg-[#e6f3ea] px-2 py-1.5 text-[11px] font-semibold text-[#14553c]">
+                    {c.targetPrivate} · {number(privateTarget.eurT, 2)} €/t · {number(privateTarget.eurM, 4)} €/m
+                    <span className="block font-normal">{c.estimate} {number(privateTarget.estimatedTotal, 2)} € {c.onlyScreen}</span>
+                  </p>
+                ) : null}
+                <div className="mt-1.5 flex flex-wrap items-center gap-1.5 border-t border-[#e4eee7] pt-1.5">
+                  <button type="button" className={action} aria-expanded={editing}
+                    aria-controls={editing ? "distinta-inline-edit-" + line.id : undefined}
+                    onClick={() => {
+                      if (editing) { setEditingId(null); setDraft(null); }
+                      else beginEdit(line);
+                    }}>{editing ? c.close : c.edit}</button>
+                  <button type="button" className={action} disabled={count >= INLINE_DISTINTA_MAX_LINES}
+                    aria-label={c.duplicateLine + " " + c.row.toLowerCase() + " " + (index + 1)}
+                    onClick={() => commit(duplicateInlineDistintaLine(liveState.current, line.id, makeId()))}>{c.duplicateLine}</button>
+                  <button type="button" className={action} aria-label={c.remove + " " + c.row.toLowerCase() + " " + (index + 1)}
+                    onClick={() => {
+                      if (commit(removeInlineDistintaLine(liveState.current, line.id)) && editing) {
+                        setEditingId(null); setDraft(null);
+                      }
+                    }}>{c.remove}</button>
                 </div>
                 {pendingTarget && matchingPending ? (
                   <button type="button" data-apply-private-target className={action + " mt-3"}
