@@ -38,6 +38,11 @@ on:
       - "apps/web/tests/calc-dense1c-*"
       - "apps/web/tests/calc-dense1r-*"
       - "apps/web/components/calculator-dense-distinta.module.css"
+      - "apps/web/app/(italian)/(public)/distinta/**"
+      - "apps/web/app/(english)/en/distinta/page.tsx"
+      - "apps/web/components/buyer-dense-builder.module.css"
+      - "apps/web/components/buyer-distinta-builder.tsx"
+      - "apps/web/components/english-public-subpage.tsx"
       - "apps/web/components/calculator-inline-distinta-experience.tsx"
       - "apps/web/components/us-hss-calculator.tsx"
       - "apps/web/tests/calc-int3d-*"
@@ -127,6 +132,8 @@ jobs:
         run: node tests/bd11-chrome-quick-add.mjs
       - name: CALC-INT4.4B Chrome inline bill IT mobile/desktop, edit, session restore and privacy
         run: node tests/calc-int4-4b-chrome-inline-distinta.mjs
+      - name: CALC-DENSE1R-H Chrome mobile-first bill cockpit public and international landing
+        run: node tests/calc-dense1r-h-chrome-first-viewport.mjs
       - name: CALC-DENSE1R-G Chrome non-overlapping mobile privacy and revocation
         run: node tests/calc-dense1r-g-chrome-privacy.mjs
       - name: CALC-DENSE1R-F Chrome private builder compact shared calculator layout
@@ -197,6 +204,14 @@ jobs:
         with:
           name: school-growth1e-chrome-local-qa
           path: /tmp/school-growth1e
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload CALC-DENSE1R-H public bill first-viewport screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calc-dense1r-h-first-viewport
+          path: /tmp/calc-dense1r-h
           if-no-files-found: ignore
           retention-days: 7
       - name: Upload CALC-DENSE1R-G privacy consent calculator screenshots
