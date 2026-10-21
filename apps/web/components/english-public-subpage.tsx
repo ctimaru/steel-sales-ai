@@ -16,6 +16,7 @@ export function EnglishPublicSubpage({
   children,
   calculatorLanguageMenu = false,
   knowledgeLanguageMenu = false,
+  compactMobileHero = false,
 }: {
   eyebrow: string;
   title: string;
@@ -27,6 +28,8 @@ export function EnglishPublicSubpage({
   calculatorLanguageMenu?: boolean;
   /** Five-language School switch, only where every target hub really exists. */
   knowledgeLanguageMenu?: boolean;
+  /** Short public RFQ intro on mobile; other English pages unchanged. */
+  compactMobileHero?: boolean;
 }) {
   return (
     <main lang="en" className="min-h-screen bg-[#f2f4f3] text-[#1d2824]">
@@ -61,11 +64,11 @@ export function EnglishPublicSubpage({
       </header>
 
       <section className="border-b border-[#dce5e0] bg-[#f6f8f7]">
-        <div className="mx-auto max-w-[1120px] px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+        <div data-rfq-hero={compactMobileHero ? "true" : undefined} className={compactMobileHero ? "mx-auto max-w-[1120px] px-4 py-3 sm:px-6 sm:py-20 lg:px-8" : "mx-auto max-w-[1120px] px-4 py-14 sm:px-6 sm:py-20 lg:px-8"}>
           <Link href="/en" className="text-xs font-semibold text-[#1f6b5a] underline underline-offset-4">← Smart Steel Sales</Link>
-          <p className="mt-7 text-xs font-extrabold uppercase tracking-[0.14em] text-[#1a5144]">{eyebrow}</p>
-          <h1 className="mt-3 max-w-3xl text-4xl font-semibold leading-[1.12] tracking-[-0.045em] text-[#123b34] sm:text-5xl">{title}</h1>
-          <p className="mt-5 max-w-3xl text-base leading-8 text-[#52615b]">{description}</p>
+          <p className={compactMobileHero ? "mt-2 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[#1a5144] sm:mt-7 sm:text-xs" : "mt-7 text-xs font-extrabold uppercase tracking-[0.14em] text-[#1a5144]"}>{eyebrow}</p>
+          <h1 className={compactMobileHero ? "mt-1 max-w-3xl text-xl font-semibold leading-tight tracking-tight text-[#123b34] sm:mt-3 sm:text-5xl" : "mt-3 max-w-3xl text-4xl font-semibold leading-[1.12] tracking-[-0.045em] text-[#123b34] sm:text-5xl"}>{title}</h1>
+          <p className={compactMobileHero ? "mt-2 line-clamp-2 max-w-3xl text-xs leading-5 text-[#52615b] sm:mt-5 sm:line-clamp-none sm:text-base sm:leading-8" : "mt-5 max-w-3xl text-base leading-8 text-[#52615b]"}>{description}</p>
         </div>
       </section>
 

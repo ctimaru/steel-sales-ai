@@ -98,7 +98,16 @@ async function checkContext(label, viewport, mobile) {
         "English RFQ bill action inaccessible");
       if (await inlineAction.count()) {
         assert.ok(await inlineAction.isVisible(), "English RFQ bill action hidden");
-        assert.ok(await inlineAction.isEnabled(), "English RFQ bill action disabled");
+        // The production page hydrates the EU weight calculator after
+        // domcontentloaded. The CTA is deliberately disabled until the
+        // theoretical mass and RFQ snapshot are valid. Verify it BECOMES
+        // actionable, not that it is enabled in the very first browser tick.
+        // This remains read-only: no RFQ is created or transmitted.
+        await page.waitForFunction(() => {
+          const action = document.querySelector("button.tube-calculator-rfq-link");
+          return action instanceof HTMLButtonElement && !action.disabled;
+        }, null, { timeout: 12000 });
+        assert.ok(await inlineAction.isEnabled(), "English RFQ bill action remains disabled after calculator readiness wait");
       }
       assert.ok(await page.getByText("Total weight").first().count() > 0,
         "English calculator total mass missing");

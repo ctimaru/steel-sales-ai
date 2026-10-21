@@ -4,6 +4,7 @@ import { guidedTubeToBuyerLine } from "@/lib/buyer-guided-commercial-line";
 import { calculatorItemToBuyerLine, consumeCalculatorRfqIds, readCalculatorRfqQueue, type CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
 import { consumeUsPipeRfqIds, readUsPipeRfqQueue, usPipeRfqSpecification } from "@/lib/us-pipe-rfq-handoff";
 import { PublicTubeWeightCalculator } from "@/components/public-tube-weight-calculator";
+import styles from "./buyer-dense-builder.module.css";
 import { dimensionsFromBuyerCatalog } from "@/lib/calculator-dimension-discovery";
 import { Bd17GuestRfqCta } from "@/components/bd17-guest-rfq-cta";
 import { trackProductEvent } from "@/lib/product-analytics-events.client";
@@ -89,6 +90,7 @@ export function BuyerDistintaBuilder({
   organizationId = null,
   returnToCommercial = false,
   locale = "it",
+  compactLanding = false,
 }: {
   authenticated: boolean;
   emailConfigured: boolean;
@@ -98,6 +100,8 @@ export function BuyerDistintaBuilder({
   organizationId?: string | null;
   returnToCommercial?: boolean;
   locale?: BuyerUiLocale;
+  /** Compact only the public /distinta landing, not authenticated RFQ Hub. */
+  compactLanding?: boolean;
 }) {
   const router = useRouter();
   const [uiLocale,setUiLocale]=useState<BuyerUiLocale>(safeBuyerUiLocale(locale));
@@ -756,7 +760,7 @@ export function BuyerDistintaBuilder({
   }
 
   return (
-    <div className="bd54-page space-y-4 sm:space-y-5" lang={uiLocale}>
+    <div data-private-calculator-page data-public-bill-mobile-compact={compactLanding ? "true" : undefined} className={`bd54-page ${styles.page} ${compactLanding ? styles.publicMobileLanding : ""} space-y-3 sm:space-y-4`} lang={uiLocale}>
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-strong)] bg-white px-3 py-2" data-testid="buyer-private-language-switch">
         <p className="text-xs font-semibold text-[var(--brand-deep)]">{t("RFQ privata · nessun invio automatico")}</p>
         <label className="flex items-center gap-2 text-xs font-bold text-[var(--brand-deep)]">{t("Scegli la lingua")}
@@ -824,7 +828,7 @@ export function BuyerDistintaBuilder({
           Salva la distinta per registrarla nel tuo account aziendale.
         </p>
       ) : null}
-      <aside className="bd53-hud" aria-label="Riepilogo in tempo reale della distinta">
+      <aside data-public-bill-summary className="bd53-hud" aria-label="Riepilogo in tempo reale della distinta">
         <div className="bd53-hud-progress">
           <span className="bd53-hud-caption">{t("Righe pronte")}</span>
           <span className="bd53-hud-complete">{totals.completeLines}/{activeLineCount}</span>
@@ -864,8 +868,8 @@ export function BuyerDistintaBuilder({
               : copyState === "copied" ? t("Copiata ✓") : copyState === "error" ? t("Riprova copia") : t("Copia distinta")}
         </button>
       </aside>
-      <section className="rounded-3xl border border-[#d8e1dd] bg-white p-3 shadow-[0_16px_50px_rgba(18,61,52,0.06)] sm:p-5">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#c6dccc] bg-[#f4faf7] px-3 py-2">
+      <section data-private-calculator-shell className={`rounded-2xl border border-[#d8e1dd] bg-white p-2.5 shadow-[0_12px_36px_rgba(18,61,52,0.045)] sm:p-3 ${styles.shell}`}>
+        <div data-private-calculator-toolbar className={`mb-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#c6dccc] bg-[#f4faf7] px-2.5 py-1.5 ${styles.cartBar}`}>
           <div className="min-w-0">
             <p className="text-xs font-extrabold text-[#173f35]">{t("Calcola qui, gestisci nel carrello")}</p>
             <p className="text-[11px] text-[#50695a]">{activeLineCount} {t("righe")} · {formatNumber(totals.totalMeters,2)} m · {formatNumber(totals.totalTonnes,3)} t</p>
@@ -877,7 +881,7 @@ export function BuyerDistintaBuilder({
             <span aria-hidden="true">▤</span> {t("Apri carrello")} · {activeLineCount}
           </button>
         </div>
-        <div className="flex flex-col gap-3 border-b border-[var(--border)] pb-3 lg:flex-row lg:items-center lg:justify-between">
+        <div data-private-calculator-heading className={`flex flex-col gap-2 border-b border-[var(--border)] pb-2 lg:flex-row lg:items-center lg:justify-between ${styles.heading}`}>
           <div className="max-w-2xl">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
               {t(workspace ? "RFQ Hub · Distinta privata" : "Creazione articoli")}
@@ -906,9 +910,9 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic. Il carrell
 
         <div className="bd7-workbench" style={{gridTemplateColumns:"minmax(0,1fr)"}}>
           <div className="bd7-workbench-editor">
-            <div className="mb-2 flex flex-wrap items-end justify-between gap-2 rounded-xl border border-[#cddbd6] bg-[#f4faf7] p-3">
+            <div data-private-calculator-grade className={`mb-2 flex flex-wrap items-end justify-between gap-2 rounded-lg border border-[#cddbd6] bg-[#f4faf7] p-2 ${styles.gradeBar}`}>
               <div className="min-w-0">
-                <h3 className="text-sm font-extrabold text-[#123d34]">{t("1 · Calcola e aggiungi")}</h3>
+                <h3 className="text-xs font-extrabold text-[#123d34]">{t("1 · Calcola e aggiungi")}</h3>
                 <p className="mt-1 text-xs text-[#52615b]">Norma, forma, dimensioni e quantità. Un clic per aggiungere la riga senza uscire.</p>
               </div>
               <label className="min-w-[145px] flex-1 text-xs font-bold text-[#344e43] sm:max-w-[215px]">

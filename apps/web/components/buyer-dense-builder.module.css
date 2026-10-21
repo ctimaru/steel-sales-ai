@@ -1,0 +1,86 @@
+/* CALC-DENSE1R-F: narrow the chrome around the SAME public/private EU
+ * technical cockpit without altering the private RFQ source of truth. */
+.page {min-width:0;}
+.shell {min-width:0;}
+.cartBar {min-height:54px;}
+.cartBar > div:first-child {min-width:0;}
+.heading {min-width:0;}
+.heading h2 {font-size:16px;line-height:22px;}
+.heading > div:first-child p:last-child {max-width:74ch;line-height:1.35;}
+.gradeBar {min-height:64px;}
+.gradeBar > div:first-child {min-width:0;}
+.gradeBar label {min-width:170px;}
+@media (min-width:1024px) {
+  .cartBar {min-height:50px;}
+  .heading {gap:12px;align-items:center;}
+  .heading > div:first-child {display:grid;grid-template-columns:auto 1fr;align-items:center;column-gap:12px;}
+  .heading > div:first-child > p:first-child {grid-column:1/-1;font-size:9px;letter-spacing:.09em;}
+  .heading > div:first-child h2 {margin:0;}
+  .heading > div:first-child > p:last-child {margin:0;font-size:11px;}
+  .gradeBar {min-height:56px;}
+  .gradeBar > div:first-child p {margin-top:2px;font-size:11px;}
+}
+@media (max-width:639px){
+  .shell {padding:8px;}
+  .cartBar {gap:6px;padding:7px 8px;}
+  .cartBar > div:first-child p:last-child {font-size:10px;}
+  .heading {padding-bottom:8px;}
+  .heading > div:first-child h2 {font-size:15px;}
+  .heading > div:first-child p:last-child {font-size:11px;line-height:1.4;}
+  .gradeBar {gap:7px;padding:8px;}
+  .gradeBar {display:grid;grid-template-columns:minmax(0,1fr);gap:4px;align-items:center;}
+  .gradeBar label {display:block;width:100%;max-width:none;min-width:0;flex:auto;}
+  .gradeBar label input {width:100%;margin-top:4px;}
+  .gradeBar > div:first-child {min-width:0;}
+  /* Repeated instructions are not part of the commercial task. Leave all
+   * editable inputs and the private cart action visible at 320px. */
+  .cartBar > div:first-child p:first-child {display:none;}
+  .heading > div:first-child p:last-child {display:none;}
+  .gradeBar > div:first-child p {display:none;}
+  .heading h2 {line-height:19px;}
+  .gradeBar {min-height:0;}
+}
+
+/* Compact the duplicated summary only for the public mobile buyer landing.
+ * Keep the real complete-row / copy / create-RFQ action intact. */
+@media(max-width:639px){
+ /* Public landing: language and existing completion/RFQ action share one
+  * operational row, instead of 2 stacked bars before the calculator. */
+ .publicMobileLanding {
+   display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;
+   column-gap:6px;row-gap:6px
+ }
+ .publicMobileLanding > * {grid-column:1/-1;min-width:0}
+ .publicMobileLanding > * + * {margin-top:0}
+ .publicMobileLanding [data-testid="buyer-private-language-switch"] {
+   grid-column:1;grid-row:1;justify-content:flex-start;max-width:100%
+ }
+ .publicMobileLanding [data-testid="buyer-private-language-switch"] > p {display:none}
+ .publicMobileLanding [data-testid="buyer-private-language-switch"] label {font-size:0}
+ .publicMobileLanding [data-public-bill-summary] {
+   grid-column:2;grid-row:1;min-width:0;max-width:100%
+ }
+ .publicMobileLanding [data-testid="buyer-private-language-switch"]{min-height:44px;padding:3px 8px;gap:6px;border-radius:8px}
+ .publicMobileLanding [data-testid="buyer-private-language-switch"] > p{max-width:50%;font-size:10px;line-height:1.3}
+ .publicMobileLanding [data-testid="buyer-private-language-switch"] label{gap:0;font-size:0}
+ .publicMobileLanding [data-testid="buyer-private-language-switch"] select{font-size:12px}
+ .publicMobileLanding [data-testid="buyer-private-language-switch"] select{min-height:44px;font-size:12px}
+ .publicMobileLanding [data-public-bill-summary]{display:flex;justify-content:flex-end;align-items:center;gap:8px;min-height:44px;padding:0;border:none;background:transparent;box-shadow:none}
+ .publicMobileLanding [data-public-bill-summary] :global(.bd53-hud-progress),
+ .publicMobileLanding [data-public-bill-summary] :global(.bd53-hud-metrics){display:none}
+ .publicMobileLanding [data-public-bill-summary] :global(.bd53-hud-action){width:auto;min-width:135px;min-height:44px;margin:0;padding:0 8px;border-radius:8px;font-size:11px}
+ .publicMobileLanding .cartBar{min-height:44px;margin-bottom:5px;padding:5px 8px;flex-wrap:nowrap}
+ .publicMobileLanding .cartBar > div:first-child p:first-child{display:none}
+ .publicMobileLanding .cartBar > div:first-child p:last-child{font-size:11px;line-height:1.4}
+ .publicMobileLanding .cartBar button{padding:0 9px;min-height:44px;white-space:nowrap}
+ .publicMobileLanding .heading{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);align-items:end;gap:8px;padding-bottom:6px}
+ .publicMobileLanding .heading > div:first-child{min-width:0}
+ .publicMobileLanding .heading > div:first-child p:first-child{display:none}
+ .publicMobileLanding .heading h2{font-size:13px;line-height:18px}
+ .publicMobileLanding .heading label{min-width:0;margin:0;font-size:10px;line-height:1.3}
+ .publicMobileLanding .heading label input{margin-top:3px;height:40px;padding:0 6px;font-size:12px}
+ .publicMobileLanding .gradeBar{margin-bottom:5px;padding:6px}
+ .publicMobileLanding .gradeBar h3{font-size:11px}
+ .publicMobileLanding .gradeBar label{font-size:11px}
+ .publicMobileLanding .gradeBar label input{margin-top:3px;height:44px}
+}

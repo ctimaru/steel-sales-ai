@@ -72,13 +72,13 @@ export default async function LocalizedRfqBillPage({params}:PageProps){
         </nav>
       </div>
     </header>
-    <div className="mx-auto max-w-[1120px] px-4 py-9 sm:px-6">
-      <div className="mb-7 max-w-4xl">
+    <div data-international-bill-workspace className="mx-auto max-w-[1120px] px-3 py-3 sm:px-6 sm:py-9">
+      <div data-rfq-hero="true" className="mb-3 max-w-4xl sm:mb-7">
         <p className="text-xs font-bold uppercase tracking-wider text-[#17644c]">{t.eyebrow}</p>
-        <h1 className="mt-3 text-2xl font-bold leading-tight sm:text-4xl">{t.title}</h1>
-        <p className="mt-4 text-sm leading-7 text-[#456052] sm:text-base">{t.lead}</p>
+        <h1 className="mt-1 text-xl font-bold leading-tight sm:mt-3 sm:text-4xl">{t.title}</h1>
+        <p className="mt-1 line-clamp-2 text-xs leading-5 text-[#456052] sm:mt-4 sm:line-clamp-none sm:text-base sm:leading-7">{t.lead}</p>
         <Link href={"/"+language+"/knowledge/tubes"} hrefLang={language}
-          className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-[#17644c] underline underline-offset-4">
+          className="mt-1 inline-flex min-h-11 items-center text-xs font-semibold text-[#17644c] underline underline-offset-4 sm:mt-4 sm:text-sm">
           ← {t.back}
         </Link>
       </div>

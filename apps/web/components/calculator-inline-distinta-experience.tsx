@@ -3,6 +3,7 @@
 /** CALC-INT4.5 — One shared five-language calculator + private inline bill. */
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { TechnicalCartShell } from "@/components/technical-cart-shell";
+import styles from "./calculator-dense-distinta.module.css";
 import Link from "next/link";
 import { actionClasses } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -41,7 +42,13 @@ type Editable = Pick<BuyerDistintaDraftLine,
   "quantityMode" | "quantity" | "barLengthM" | "grade" | "finish" | "note">;
 
 const control = "min-h-11 w-full rounded-lg border border-[#b8cfc3] bg-white px-3 text-sm text-[#143b2d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#146747]";
-const action = cn(actionClasses({ variant: "secondary", size: "sm" }), "min-h-11 rounded-lg px-3 py-2");
+const action = cn(actionClasses({ variant: "secondary", size: "sm" }), "min-h-11 rounded-lg px-3 py-2 sm:min-h-9 sm:px-2.5 sm:py-1.5");
+const rowAction = cn(actionClasses({ variant: "secondary", size: "sm" }), "min-h-11 min-w-0 whitespace-nowrap rounded-md !px-1.5 !text-xs !leading-none sm:min-h-9 sm:!px-2");
+
+/** Compact display only. The canonical full description is retained in the saved bill. */
+function compactTechnicalLabel(description: string) {
+  return description.replace(/^(?:Tubo (?:tondo|quadro|rettangolare)|Round tube|Square tube|Rectangular tube)\s*/i, "").trim() || description;
+}
 
 function makeId() {
   return typeof crypto !== "undefined" && crypto.randomUUID
@@ -87,6 +94,8 @@ export function CalculatorInlineDistintaExperience({
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Editable | null>(null);
+  // DENSE1C: local drafts per row; no session/RFQ data is changed before Save.
+  const [quickQuantities, setQuickQuantities] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
   const [storageAvailable, setStorageAvailable] = useState(true);
   // Commercial rates intentionally live only in this mounted React experience.
@@ -153,9 +162,12 @@ export function CalculatorInlineDistintaExperience({
   }
 
   function beginEdit(line: BuyerDistintaDraftLine) {
+    // Move any unsaved compact quantity into the expanded form rather than lose it.
+    const quantity = quickQuantities[line.id] ?? line.quantity;
+    setQuickQuantities(current => { const next = { ...current }; delete next[line.id]; return next; });
     setEditingId(line.id);
     setDraft({
-      quantityMode: line.quantityMode, quantity: line.quantity,
+      quantityMode: line.quantityMode, quantity,
       barLengthM: line.barLengthM, grade: line.grade,
       finish: line.finish, note: line.note,
     });
@@ -166,6 +178,23 @@ export function CalculatorInlineDistintaExperience({
     if (!draft || !commit(editInlineDistintaLine(liveState.current, id, draft))) return;
     setEditingId(null);
     setDraft(null);
+  }
+
+  function hasPendingQuantities(): boolean {
+    return liveState.current.lines.some(line =>
+      quickQuantities[line.id] !== undefined && quickQuantities[line.id] !== line.quantity);
+  }
+
+  function saveQuickQuantity(id: string) {
+    const current = liveState.current.lines.find(line => line.id === id);
+    const value = quickQuantities[id];
+    if (!current || value === undefined) return;
+    if (value !== current.quantity && !commit(editInlineDistintaLine(liveState.current, id, { quantity: value }))) return;
+    setQuickQuantities(previous => {
+      const next = { ...previous };
+      delete next[id];
+      return next;
+    });
   }
 
   function chooseBuyerTarget(value: { basis: PriceBasis; raw: string; weightKgM: number }) {
@@ -206,6 +235,7 @@ export function CalculatorInlineDistintaExperience({
 
   async function createPrivateRfq() {
     if (creatingRef.current || createdRfq || !ready || !liveState.current.lines.length) return;
+    if (hasPendingQuantities()) { setRfqError(c.unsavedQuantity); return; }
     const built = prepareInlinePrivateRfq(liveState.current, targets, includePrivateTargets);
     if (!built.ok) { setRfqError(built.error); return; }
     creatingRef.current = true;
@@ -255,6 +285,7 @@ export function CalculatorInlineDistintaExperience({
   }
 
   function copyBill() {
+    if (hasPendingQuantities()) { setMessage(c.unsavedQuantity); return; }
     const calculated = liveState.current.lines.map(calculateBuyerDistintaLine);
     if (!calculated.length || calculated.some(line => !line.complete)) {
       setMessage(c.copyIncomplete);
@@ -292,6 +323,7 @@ export function CalculatorInlineDistintaExperience({
 
   const totals = inlineDistintaTotals(state);
   const count = state.lines.length;
+  const hasUnsavedQuantity = hasPendingQuantities();
   // Technical cart always monitorable; details open in a real portal dialog.
   const bill = (
     <section id="distinta-inline" aria-label={c.title} className="mt-2 min-w-0 scroll-mt-24">
@@ -302,12 +334,39 @@ export function CalculatorInlineDistintaExperience({
         {message || (!ready ? c.preparing : !storageAvailable ? c.storageUnavailable : "")}
       </p>
       <TechnicalCartShell
-        visible={ready && count > 0} open={open}
+        compact visible={ready && count > 0} open={open}
         onOpen={() => setOpen(true)} onClose={() => setOpen(false)}
         count={count} title={c.title} eyebrow={c.eyebrow} closeLabel={c.close}
         summary={`${number(totals?.totalMeters ?? null, 2)} m · ${number(totals?.totalTonnes ?? null, 3)} t`}
         dialogId="distinta-inline-dialog" titleId="distinta-inline-title" bodyId="distinta-inline-lines"
-        triggerTestId="calculator-cart-trigger" overlayTestId="calculator-cart-overlay">
+        triggerTestId="calculator-cart-trigger" overlayTestId="calculator-cart-overlay"
+        footer={<div data-distinta-sticky-footer className="grid gap-1.5">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold text-[#416653]">{c.totalsTitle}</p>
+              <p className="text-base font-extrabold tabular-nums text-[#123d34]">{number(totals?.totalMeters ?? null, 2)} m · {number(totals?.totalTonnes ?? null, 4)} t</p>
+            </div>
+            <span className="shrink-0 rounded-md bg-[#eef6f0] px-2 py-1 text-xs font-bold text-[#285a43]">{count} {c.lines}</span>
+          </div>
+          {hasUnsavedQuantity ? <p role="status" className="text-[11px] font-semibold text-[#915421]">{c.unsavedQuantity}</p> : null}
+          <div className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-2">
+            <button type="button" className={cn(actionClasses({variant:"secondary",size:"sm"}),"min-h-11 rounded-lg px-2 text-xs sm:text-sm")}
+              disabled={hasUnsavedQuantity} onClick={copyBill} aria-label={c.copyBill}>
+              <span className="sm:hidden">{c.shortCopy}</span><span className="hidden sm:inline">{c.copyBill}</span>
+            </button>
+            <button type="button" data-create-inline-private-rfq
+              className={cn(actionClasses({variant:"default"}),"min-h-11 rounded-lg px-2 text-xs sm:text-sm")}
+              disabled={rfqPending || Boolean(createdRfq) || !ready || hasUnsavedQuantity}
+              aria-label={createdRfq ? c.rfqCreated : rfqPending ? c.rfqPending : c.createRfqButton}
+              onClick={() => { void createPrivateRfq(); }}>
+              {createdRfq ? c.rfqCreated : rfqPending ? c.rfqPending : <>
+                <span className="sm:hidden">{c.shortRfq} →</span>
+                <span className="hidden sm:inline">{c.createRfqButton}</span>
+              </>}
+            </button>
+          </div>
+          {rfqError ? <p role="alert" className="text-xs font-semibold text-[#9b442a]">{rfqError}</p> : null}
+        </div>}>
                 {message ? <p role="status" aria-live="polite"
                   className="mb-3 rounded-lg border border-[#c7e3d2] bg-[#edf8f0] px-3 py-2 text-xs font-semibold text-[#215a40]">
                   {message}
@@ -319,72 +378,80 @@ export function CalculatorInlineDistintaExperience({
               <button type="button" className={action} onClick={() => setPendingTarget(null)}>{c.cancelSelection}</button>
             </div>
           ) : null}
-          <div className="space-y-3">
+
+          <div data-distinta-grid-header className={styles.gridHeader} aria-hidden="true">
+            <span>{c.oneItem}</span><span>{c.quantity}</span><span>{c.tonnes}</span><span>•••</span>
+          </div>
+          <div data-distinta-compact-grid className={styles.rows}>
             {state.lines.map((line, index) => {
               const computed = calculateBuyerDistintaLine(line);
               const editing = editingId === line.id;
               const privateTarget = buyerTargetPreview(line, targets);
               const matchingPending = pendingTarget && matchesBuyerTargetWeight(line, pendingTarget);
-              return <article key={line.id} className="min-w-0 rounded-xl border border-[#d5e4dc] bg-[#f7faf8] p-3 sm:p-4"
-                aria-label={`${c.row} ${index + 1}: ${line.description}`}>
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-md bg-[#e2f2e8] px-2 py-1 text-xs font-bold text-[#145a41]">{index + 1}</span>
-                      <strong className="break-words text-sm leading-6 text-[#163b2d]">{line.description}</strong>
-                    </div>
-                    <p className="mt-1 text-xs text-[#496757]">{line.standard}{line.grade ? ` · ${line.grade}` : ` · ${c.gradePending}`}</p>
-                    <p className="mt-2 text-xs leading-6 text-[#365748]">
-                      <strong>{number(computed.quantity, 2)}</strong> {line.quantityMode === "bars" ? c.bars : line.quantityMode === "meters" ? "m" : "t"}
-                      {line.quantityMode === "bars" ? ` × ${number(computed.barLengthM, 2)} m` : ""}
-                      {" · "}{number(computed.meters, 2)} m
-                      {" · "}{number(computed.weightKgM, 3)} kg/m
-                      {" · "}<strong>{number(computed.tonnes, 4)} t</strong>
-                    </p>
-                    {privateTarget ? (
-                      <p data-buyer-target className="mt-2 rounded-lg bg-[#e6f3ea] px-3 py-2 text-xs font-semibold text-[#14553c]">
-                        {c.targetPrivate} · {number(privateTarget.eurT, 2)} €/t · {number(privateTarget.eurM, 4)} €/m
-                        <span className="block font-normal">{c.estimate} {number(privateTarget.estimatedTotal, 2)} € {c.onlyScreen}</span>
-                      </p>
-                    ) : null}
+              const quickValue = quickQuantities[line.id] ?? line.quantity;
+              const quickChanged = quickValue !== line.quantity;
+              return <article key={line.id} data-distinta-compact-row data-distinta-tabular-row
+                className={styles.row} aria-label={c.row + " " + (index + 1) + ": " + line.description}>
+                <div className={styles.mainRow}>
+                  <div className={styles.description} title={line.description+" · "+line.standard+(line.grade ? " · "+line.grade : "")}>
+                    <strong>{index + 1}. {compactTechnicalLabel(line.description)}</strong>
+                    <span>{line.standard}{line.grade ? " · "+line.grade : " · "+c.gradePending}</span>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <button type="button" className={action} aria-expanded={editing}
-                      aria-controls={`distinta-inline-edit-${line.id}`}
-                      onClick={() => {
-                        if (editing) { setEditingId(null); setDraft(null); }
-                        else beginEdit(line);
-                      }}>
-                      {editing ? c.close : c.edit}
-                    </button>
-                    <button type="button" className={action} disabled={count >= INLINE_DISTINTA_MAX_LINES}
-                      aria-label={`${c.duplicateLine} ${c.row.toLowerCase()} ${index + 1}`}
-                      onClick={() => commit(duplicateInlineDistintaLine(liveState.current, line.id, makeId()))}>{c.duplicateLine}</button>
-                    <button type="button" className={action} aria-label={`${c.remove} ${c.row.toLowerCase()} ${index + 1}`}
+                  <div data-inline-quantity className={styles.quantity}>
+                    <input type="text" inputMode={line.quantityMode === "bars" ? "numeric" : "decimal"}
+                      value={quickValue} maxLength={45} disabled={editing}
+                      aria-label={c.quantity + " " + c.row.toLowerCase() + " " + (index + 1)}
+                      aria-describedby={"distinta-inline-quantity-unit-" + line.id}
+                      onChange={event => setQuickQuantities(current => ({ ...current, [line.id]: event.target.value }))}
+                      onKeyDown={event => {
+                        if (event.key === "Enter") { event.preventDefault(); saveQuickQuantity(line.id); }
+                        else if (event.key === "Escape") { setQuickQuantities(current => { const next = { ...current }; delete next[line.id]; return next; }); }
+                      }}/>
+                    <span id={"distinta-inline-quantity-unit-" + line.id} className="sr-only">
+                      {line.quantityMode === "bars" ? c.bars : line.quantityMode === "meters" ? c.meters : c.tonnes}
+                      {line.quantityMode === "bars" ? " × " + number(computed.barLengthM, 2) + " m" : ""}
+                    </span>
+                  </div>
+                  <div className={styles.metrics} title={"kg/m: "+number(computed.weightKgM,3)}>
+                    <strong>{number(computed.tonnes, 4)} t</strong>
+                    <span>{number(computed.meters, 2)} m · {number(computed.weightKgM, 2)} kg/m</span>
+                  </div>
+                  <div data-distinta-row-actions className={styles.actions}>
+                    <button type="button" className={styles.action} title={editing ? c.close : c.edit}
+                      aria-label={editing ? c.close : c.edit}
+                      aria-expanded={editing} aria-controls={editing ? "distinta-inline-edit-" + line.id : undefined}
+                      onClick={() => { if (editing) { setEditingId(null); setDraft(null); } else beginEdit(line); }}>✎</button>
+                    <button type="button" className={styles.action} title={c.duplicateLine}
+                      disabled={count >= INLINE_DISTINTA_MAX_LINES}
+                      aria-label={c.duplicateLine + " " + c.row.toLowerCase() + " " + (index + 1)}
+                      onClick={() => commit(duplicateInlineDistintaLine(liveState.current, line.id, makeId()))}>⧉</button>
+                    <button type="button" className={styles.action} title={c.remove}
+                      aria-label={c.remove + " " + c.row.toLowerCase() + " " + (index + 1)}
                       onClick={() => {
                         if (commit(removeInlineDistintaLine(liveState.current, line.id)) && editing) {
                           setEditingId(null); setDraft(null);
                         }
-                      }}>{c.remove}</button>
+                      }}>×</button>
+                    <button type="button" className={styles.action} title={privateTarget ? c.editTarget : c.setTarget}
+                      aria-label={privateTarget ? c.editTarget : c.setTarget}
+                      aria-expanded={editingTargetId === line.id}
+                      aria-controls={editingTargetId === line.id ? `private-target-edit-${line.id}` : undefined}
+                      onClick={() => editingTargetId === line.id ? setEditingTargetId(null) : startTargetEdit(line)}>€</button>
                   </div>
                 </div>
+                {quickChanged ? <button type="button" data-save-quick-quantity
+                  onClick={() => saveQuickQuantity(line.id)}
+                  className={styles.saveQuantity}>{c.saveQuantity}</button> : null}
+                {privateTarget ? (
+                  <p data-buyer-target className="mt-1.5 rounded-md bg-[#e6f3ea] px-2 py-1.5 text-[11px] font-semibold text-[#14553c]">
+                    {c.targetPrivate} · {number(privateTarget.eurT, 2)} €/t · {number(privateTarget.eurM, 4)} €/m
+                    <span className="block font-normal">{c.estimate} {number(privateTarget.estimatedTotal, 2)} € {c.onlyScreen}</span>
+                  </p>
+                ) : null}
                 {pendingTarget && matchingPending ? (
-                  <button type="button" data-apply-private-target className={action + " mt-3"}
+                  <button type="button" data-apply-private-target className={action + " mt-2"}
                     onClick={() => assignTarget(line.id)}>{c.assignTarget} {index + 1}</button>
                 ) : null}
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <button type="button" className={action}
-                    aria-expanded={editingTargetId === line.id}
-                    aria-controls={`private-target-edit-${line.id}`}
-                    onClick={() => editingTargetId === line.id ? setEditingTargetId(null) : startTargetEdit(line)}>
-                    {privateTarget ? c.editTarget : c.setTarget}
-                  </button>
-                  {privateTarget ? <button type="button" className={action} onClick={() => {
-                    setTargets(current => removeBuyerTarget(current, line.id));
-                    setEditingTargetId(null);
-                    setMessage(c.targetRemoved);
-                  }}>{c.removeTarget}</button> : null}
-                </div>
                 {editingTargetId === line.id ? (
                   <div id={`private-target-edit-${line.id}`} className="mt-3 flex flex-wrap items-end gap-2 rounded-xl border border-[#d7e5dc] bg-white p-3">
                     <label className="text-xs font-bold text-[#315846]">{c.targetUnit}<select className={control} value={targetBasis}
@@ -427,20 +494,16 @@ export function CalculatorInlineDistintaExperience({
             })}
           </div>
 
-          <div className="mt-4 flex flex-col gap-3 rounded-xl bg-[#eaf5ee] p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs font-bold text-[#29644c]">{c.totalsTitle}</p>
-              <p className="mt-1 text-lg font-bold text-[#123c2c]">
-                {number(totals?.totalMeters ?? null, 2)} m · {number(totals?.totalTonnes ?? null, 4)} t
-              </p>
-              <p className="mt-1 text-xs text-[#476658]">{c.targetSafety}</p>
-            </div>
-            <button type="button" className={cn(actionClasses({ variant: "default" }), "min-h-12 w-full px-5")}
-              onClick={copyBill}>{c.copyBill}</button>
-          </div>
-          <section id="distinta-inline-rfq" aria-label={c.privateRfq} className="mt-4 scroll-mt-24 rounded-xl border border-[#b7d6c4] bg-white p-4">
-            <h3 className="text-base font-bold text-[#123c2c]">{c.privateRfq}</h3>
-            <p className="mt-1 text-xs leading-5 text-[#4a6756]">{c.rfqIntro}</p>
+          <p className="mt-3 rounded-lg bg-[#f2f8f4] px-3 py-2 text-[11px] leading-4 text-[#486858]">{c.targetSafety}</p>
+          <section id="distinta-inline-rfq" aria-label={c.privateRfq} className="mt-2 scroll-mt-24">
+            <details data-distinta-rfq-help
+              open={Boolean(createdRfq) || Object.keys(targets).length > 0 || (rfqAccess !== null && rfqAccess !== "ready")}
+              className="rounded-lg border border-[#c5decf] bg-white">
+              <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-2 px-3 py-2 text-xs font-bold text-[#21563c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#16724e]">
+                {c.privateRfq} <span aria-hidden="true">ⓘ</span>
+              </summary>
+              <div className="border-t border-[#e0ece5] px-3 py-3">
+                <p className="text-xs leading-5 text-[#4a6756]">{c.rfqIntro}</p>
             {Object.keys(targets).length > 0 ? (
               <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-lg bg-[#f4f8f3] p-3 text-xs leading-5 text-[#27523e]">
                 <input type="checkbox" className="mt-1 size-4" checked={includePrivateTargets}
@@ -450,13 +513,6 @@ export function CalculatorInlineDistintaExperience({
                 </span>
               </label>
             ) : null}
-            <button type="button" data-create-inline-private-rfq
-              className={cn(actionClasses({ variant: "default" }), "mt-3 min-h-12 w-full px-5")}
-              disabled={rfqPending || Boolean(createdRfq) || !ready}
-              onClick={()=>{void createPrivateRfq();}}>
-              {createdRfq ? c.rfqCreated : rfqPending ? c.rfqPending : c.createRfqButton}
-            </button>
-            {rfqError ? <p role="alert" className="mt-2 text-xs font-semibold text-[#9b442a]">{rfqError}</p> : null}
             {rfqAccess === "guest" ? (
               <div data-inline-guest-handoff className="mt-3 rounded-xl border border-[#c6e0d1] bg-[#eef6f1] p-4">
                 <p className="text-sm font-bold text-[#174b37]">{c.guestError}</p>
@@ -478,6 +534,8 @@ export function CalculatorInlineDistintaExperience({
             ) : null}
             {createdRfq ? <Link href={appRoutes.rfqHub.campaign(createdRfq)} className={action+" mt-3"}>{c.openHub}</Link> : null}
             <p className="mt-2 text-xs text-[#5a7164]">{c.freeCreation}</p>
+              </div>
+            </details>
           </section>
 
 

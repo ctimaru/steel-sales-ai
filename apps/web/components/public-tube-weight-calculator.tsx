@@ -8,6 +8,7 @@ import { tubeCalculatorText, type TubeCalculatorLocale } from "@/lib/tube-calcul
 import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
 import { CalculatorCommercialPricing } from "@/components/calculator-commercial-pricing";
 import { CalculatorDimensionDiscovery } from "@/components/calculator-dimension-discovery";
+import styles from "./calculator-dense-cockpit.module.css";
 import {
   dimensionNumber, dimensionsFromPublicReferences, type CalculatorDimension,
 } from "@/lib/calculator-dimension-discovery";
@@ -526,6 +527,7 @@ export function PublicTubeWeightCalculator({
   const [length, setLength] = useState(initialValues?.length ?? "12");
   const [quantity, setQuantity] = useState(initialValues?.quantity ?? "1");
   const [targetTonnes, setTargetTonnes] = useState(initialValues?.targetTonnes ?? "");
+  const [targetDisclosureOpen, setTargetDisclosureOpen] = useState(Boolean(initialValues?.targetTonnes?.trim()));
   const [density, setDensity] = useState(initialValues?.density ?? "7850");
   // These stateful device conveniences remain available in the collapsed panel
   // BELOW the calculator, independently of the removed language controls.
@@ -905,7 +907,7 @@ export function PublicTubeWeightCalculator({
   }
 
   const inputClass =
-    "mt-1 min-h-11 w-full rounded-xl border border-[#cfd9d5] bg-white px-3 py-2 text-sm font-semibold text-[#1d2824] outline-none transition-colors hover:border-[#8eb5a6] focus-visible:border-[#24745d] focus-visible:ring-2 focus-visible:ring-[#b5ddcd]";
+    "mt-1 min-h-11 w-full rounded-lg border border-[#cfd9d5] bg-white px-2.5 py-1.5 text-sm font-semibold tabular-nums text-[#1d2824] outline-none transition-colors hover:border-[#8eb5a6] focus-visible:border-[#24745d] focus-visible:ring-2 focus-visible:ring-[#b5ddcd] sm:min-h-10";
   const selectionBase =
     "inline-flex min-w-0 items-center justify-center rounded-xl border transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15815a] active:scale-[0.98]";
   const selectionIdle =
@@ -1071,7 +1073,7 @@ export function PublicTubeWeightCalculator({
 
   return (
     <div
-      className="space-y-5"
+      className="space-y-3"
       onChangeCapture={(event) => {
         // Commercial rate edits are ephemeral: do not count them as a change
         // to geometry or emit a weight-calculation engagement signal.
@@ -1081,26 +1083,26 @@ export function PublicTubeWeightCalculator({
     >
       <section
         id="calcolatore-pesi"
-        className="flex scroll-mt-20 flex-col overflow-hidden rounded-[1.6rem] border border-[#cddbd6] bg-white shadow-[0_18px_60px_rgba(11,47,39,0.08)]"
+        className="flex scroll-mt-20 flex-col overflow-hidden rounded-xl border border-[#cddbd6] bg-white shadow-[0_8px_28px_rgba(11,47,39,0.05)]"
       >
-        <header className="flex flex-col items-stretch gap-2 border-b border-[#dce7e3] bg-[linear-gradient(135deg,#f7fbf9_0%,#ffffff_62%,#edf5f2_100%)] px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+        <header data-cockpit-header className={styles.header}>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="school-eyebrow hidden sm:inline-flex">{t("Calcolatore pesi")}</span>
-              <span className="school-badge">{t("Gratis")}</span>
-              <span className="school-badge hidden sm:inline-flex">{t("Live")}</span>
+              {inEmbeddedBuilder || locale === "de" || locale === "fr" || locale === "es" ? <h2 className="text-sm font-bold text-[#15372f] sm:text-base">{t("Peso tubo acciaio")}</h2> : <h1 className="text-sm font-bold text-[#15372f] sm:text-base">{t("Peso tubo acciaio")}</h1>}
+              <span className="school-badge hidden lg:inline-flex">{t("Gratis")}</span>
             </div>
-            {inEmbeddedBuilder || locale === "de" || locale === "fr" || locale === "es" ? <h2 className="mt-1 text-lg font-semibold text-[#15372f]">{t("Peso tubo acciaio")}</h2> : <h1 className="mt-1 break-words text-lg font-semibold tracking-[-0.025em] text-[#15372f] sm:text-xl">{t("Peso tubo acciaio")}</h1>}
           </div>
-
+          {inlinePublicDistinta && inlineBillCount > 0 ? (
+            <button type="button" className={styles.cartShortcut} onClick={onOpenInlineBill} aria-haspopup="dialog">
+              {inlineCopy.seeBill} · {inlineBillCount} ↗
+            </button>
+          ) : null}
         </header>
-
-
-        <CalculatorDimensionDiscovery items={availableDimensions} locale={locale}
-          onChoose={applyDiscoveredDimension} />
-        <div className={inEmbeddedBuilder ? "grid min-w-0 grid-cols-1" : "grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)]"}>
-          <div className="min-w-0 border-b border-[#dce7e3] p-3 sm:p-4 lg:border-b-0 lg:border-r">
-            <div className="grid gap-3 lg:grid-rows-[auto_auto_1fr_auto]">
+        <div data-cockpit-toolbar className={styles.toolbar}>
+          <CalculatorDimensionDiscovery items={availableDimensions} locale={locale}
+            compact onChoose={applyDiscoveredDimension} />
+          <div data-cockpit-controls className={styles.toolbarControls}>
+              <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.04fr)]">
               <section aria-labelledby="calculator-standard">
                 <div className="mb-1.5 flex items-center justify-between gap-2">
                   <h2 id="calculator-standard" className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-[#52615b]">
@@ -1118,10 +1120,15 @@ export function PublicTubeWeightCalculator({
                         key={option.value}
                         type="button"
                         aria-pressed={selected}
+                        aria-label={t(option.label)}
+                        title={t(option.label)}
                         onClick={() => handleStandardChange(option.value)}
                         className={`${compactSegmentBase} min-h-11 flex-1 px-2 text-center text-[11px] leading-tight sm:min-h-9 sm:flex-none sm:px-4 sm:text-xs ${selected ? compactSegmentActive : compactSegmentIdle}`}
                       >
-                        {t(option.label)}
+                        <span className="sm:hidden">{option.value === "geometric"
+                          ? ({it:"Libero",en:"Free",de:"Frei",fr:"Libre",es:"Libre"} as const)[locale]
+                          : t(option.label)}</span>
+                        <span className="hidden sm:inline">{t(option.label)}</span>
                         <span className="sr-only"> — {t(option.description)}</span>
                       </button>
                     );
@@ -1154,10 +1161,17 @@ export function PublicTubeWeightCalculator({
                   })}
                 </div>
               </section>
+              </div>
 
+
+          </div>
+        </div>
+        <div data-cockpit-workspace className={styles.workspace}>
+          <div data-cockpit-fields className={styles.fields}>
+            <div className="grid gap-2">
               <section
                 aria-labelledby="calculator-measures"
-                className="grid min-h-0 gap-3 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-center"
+                className="min-w-0"
               >
                 <div className="min-w-0">
                   <div className="mb-1.5 flex items-center justify-between gap-2">
@@ -1167,7 +1181,7 @@ export function PublicTubeWeightCalculator({
                     <span className="text-xs text-[#52615b]">mm</span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  <div data-cockpit-measurements className={family === "rectangular_tube" ? styles.measurementsRect : styles.measurements}>
                     {family === "round_tube" ? (
                       <label className="text-[10px] font-bold text-[#52615b]">
                         {t("Diametro D")}
@@ -1261,7 +1275,7 @@ export function PublicTubeWeightCalculator({
                     </details>
                   ) : null}
 
-                  <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-[1.35fr_0.85fr]">
+                  <div data-cockpit-length-quantity className={styles.lengthQuantity}>
                     <div>
                       <div className="mb-1 flex items-center justify-between gap-2">
                         <span className="text-[10px] font-bold text-[#52615b]">{t("Lunghezza barra")}</span>
@@ -1291,7 +1305,7 @@ export function PublicTubeWeightCalculator({
 
                     <div className="text-xs font-bold text-[#52615b]">
                       <label htmlFor="tube-calculator-quantity">{t("Numero barre")}</label>
-                      <div className="mt-1 grid w-full max-w-[180px] grid-cols-[44px_minmax(36px,1fr)_44px] gap-1 rounded-xl border border-[#dce7e1] bg-[#f3f7f5] p-1 sm:grid-cols-[36px_minmax(36px,1fr)_36px]">
+                      <div className="mt-1 grid w-full max-w-[216px] grid-cols-[44px_minmax(36px,1fr)_44px] gap-1 rounded-xl border border-[#dce7e1] bg-[#f3f7f5] p-1 sm:grid-cols-[36px_minmax(36px,1fr)_36px]">
                         <button
                           type="button"
                           aria-label={t("Riduci di una barra")}
@@ -1326,7 +1340,11 @@ export function PublicTubeWeightCalculator({
                     </div>
                   </div>
 
-                  <div className="mt-3 rounded-xl border border-[#bed3cb] bg-[#edf5f2] p-2.5">
+                  <details open={targetDisclosureOpen} onToggle={(event) => setTargetDisclosureOpen(event.currentTarget.open)} className="group/tonnes mt-2 rounded-lg border border-[#bed3cb] bg-[#edf5f2] px-2.5 py-1.5">
+                    <summary className="flex min-h-11 cursor-pointer items-center justify-between text-[11px] font-semibold text-[#1f5a43] sm:min-h-9 focus-visible:outline-2 focus-visible:outline-[#15815a]">
+                      {t("Parti dalle tonnellate · Tonnellate target")} <span aria-hidden="true" className="transition-transform group-open/tonnes:rotate-180">⌄</span>
+                    </summary>
+                    <div className="border-t border-[#bed3cb] pt-2">
                     <div className="grid grid-cols-1 items-end gap-2 sm:grid-cols-[1fr_auto]">
                       <label className="text-[10px] font-bold text-[#52615b]">
                         {t("Parti dalle tonnellate · Tonnellate target")}
@@ -1353,7 +1371,8 @@ export function PublicTubeWeightCalculator({
                       {t("Barre necessarie")}: {values.targetBars ?? "—"}. {t("Tonnellate reali")}: {values.targetActualTonnes ?? "—"}.
                       {t("Per lavorare con barre intere arrotondiamo sempre per eccesso.")}
                     </p>
-                  </div>
+                    </div>
+                  </details>
 
                   {values.error ? (
                     <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-800">
@@ -1362,17 +1381,6 @@ export function PublicTubeWeightCalculator({
                   ) : null}
                 </div>
 
-                <div className="mt-1 block lg:mt-0">
-                  <ParametricShapeDiagram
-                    family={family}
-                    outerDiameter={outerDiameter}
-                    width={width}
-                    height={height}
-                    thickness={thickness}
-                    standard={standard}
-                    locale={locale}
-                  />
-                </div>
               </section>
 
               <div className="hidden text-xs text-[#66736e] lg:flex lg:items-center lg:justify-between">
@@ -1383,47 +1391,97 @@ export function PublicTubeWeightCalculator({
           </div>
 
           <aside
-            className="tube-calculator-result flex min-w-0 flex-col bg-[#123d34] text-white"
+            data-cockpit-results
+            className={`tube-calculator-result ${styles.results}`}
           >
-            <div className="shrink-0 border-b border-white/10 px-3 py-3 sm:px-4">
+            <div className="shrink-0 border-b border-white/10 px-3 py-2.5">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/85">
                     {standard === "geometric" ? t("Peso al metro · calcolo libero") : `${t("Massa lineare")} · ${currentStandard.label}`}
                   </p>
-                  <p aria-live="polite" aria-atomic="true" className="metric-number mt-1 break-words text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">
+                  <p aria-live="polite" aria-atomic="true" className="metric-number mt-0.5 break-words text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
                     {values.kgM == null ? "—" : formatOutput(values.kgM, 3)}
                     <span className="ml-1 text-base font-semibold tracking-normal text-white/85">kg/m</span>
                   </p>
                 </div>
-                <span className="rounded-full border border-white/15 bg-white/10 px-2 py-1 text-[10px] font-bold">
-                  {t(currentFamily.short)}
-                </span>
+                <div data-cockpit-preview className={styles.preview}>
+                <div className="min-w-0">
+                  <ParametricShapeDiagram
+                    family={family}
+                    outerDiameter={outerDiameter}
+                    width={width}
+                    height={height}
+                    thickness={thickness}
+                    standard={standard}
+                    locale={locale}
+                  />
+                </div>
+
+                </div>
               </div>
 
-              <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                <div className="rounded-xl bg-white/8 p-2">
+              <div data-cockpit-kpis className="mt-2 grid grid-cols-3 gap-1.5">
+                <div className="min-w-0 rounded-lg bg-white/8 px-2 py-1.5">
                   <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/85">{t("Peso per barra")}</p>
-                  <p className="metric-number mt-1 text-lg font-semibold">
+                  <p className="metric-number mt-1 break-words text-base font-semibold tabular-nums">
                     {values.kgBar == null ? "—" : formatOutput(values.kgBar, 2)}
                     <span className="ml-1 text-[10px] text-white/85">kg</span>
                   </p>
                 </div>
-                <div className="rounded-xl bg-white/8 p-2">
+                <div className="min-w-0 rounded-lg bg-white/8 px-2 py-1.5">
                   <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/85">{t("Metri totali")}</p>
-                  <p className="metric-number mt-1 text-lg font-semibold">
+                  <p className="metric-number mt-1 break-words text-base font-semibold tabular-nums">
                     {values.totalMeters == null ? "—" : formatOutput(values.totalMeters, 1)}
                     <span className="ml-1 text-[10px] text-white/85">m</span>
                   </p>
                 </div>
-                <div className="col-span-2 min-w-0 rounded-xl bg-white/8 p-2 sm:col-span-1">
+                <div className="min-w-0 rounded-lg bg-white/8 px-2 py-1.5">
                   <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/85">{t("Peso totale")}</p>
-                  <p className="metric-number mt-1 text-lg font-semibold">
+                  <p className="metric-number mt-1 break-words text-base font-semibold tabular-nums">
                     {values.totalTonnes == null ? "—" : formatOutput(values.totalTonnes, 4)}
                     <span className="ml-1 text-[10px] text-white/85">t</span>
                   </p>
                 </div>
               </div>
+
+              <button
+                type="button"
+                disabled={!currentSnapshot || (Boolean(onAddToDistinta) && !canAddToDistinta)}
+                onClick={() => {
+                  if (!currentSnapshot) return;
+                  const item = calculatorRfqFromValues(currentSnapshot,
+                    typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "calc-"+Date.now()+"-"+Math.random().toString(36).slice(2));
+                  if (onAddToDistinta) {
+                    if (!item || !onAddToDistinta(item)) {
+                      setActionFeedback(inlineCopy.addError);
+                    } else {
+                      setActionFeedback(inlinePublicDistinta
+                        ? inlineCopy.added
+                        : "Articolo aggiunto ✓ · puoi continuare con un’altra misura.");
+                    }
+                    return;
+                  }
+                  if (!item || !enqueueCalculatorRfq(window.sessionStorage, item)) {
+                    setActionFeedback(t("Impossibile trasferire l'articolo. Verifica lo spazio di sessione del browser e riprova."));
+                    return;
+                  }
+                  // CALC-INT3E.7: preserve the existing consent-gated EN/DE/FR/ES
+                  // handoff event after successful enqueue (never send RFQ content).
+                  if (locale !== "it") trackInternationalRfq("handoff",locale,{system:"eu",standard});
+                  // The queue stays in this tab only: no calculator data in URLs or requests.
+                  window.location.assign(locale === "it" ? "/distinta" : `/${locale}/distinta`);
+                }}
+                data-cockpit-add
+                className="tube-calculator-rfq-link mt-1.5 inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-[#c3e5d5] bg-[#e3f4eb] px-3 py-2 text-center text-sm font-bold leading-snug text-[#123b34] transition-colors hover:border-[#98d6b6] hover:bg-[#ccebdc] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {t(onAddToDistinta ? "＋ Aggiungi alla distinta" : "Aggiungi questa misura alla distinta →")}
+              </button>
+              <p className="mt-1 text-[11px] leading-4 text-white/85">
+                {inlinePublicDistinta ? inlineCopy.billWeightNote : t(onAddToDistinta
+                  ? "Il peso è teorico: la riga appare subito a fianco, senza inviare una RFQ."
+                  : "Gratuito · nessun login richiesto. Il grado acciaio resta da confermare.")}
+              </p>
 
               <CalculatorCommercialPricing weightKgM={values.error ? null : values.kgM} locale={locale}
                 onChooseBuyerTarget={onChooseBuyerTarget} />
@@ -1436,8 +1494,28 @@ export function PublicTubeWeightCalculator({
               ) : null}
             </div>
 
-            <div className="min-w-0 flex-1 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:p-4 sm:pb-[calc(1rem+env(safe-area-inset-bottom))]">
-              {!inEmbeddedBuilder ? <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <div data-cockpit-feedback className={actionFeedback ? "min-w-0 px-3 pb-2" : "sr-only"}>
+
+
+
+              <p aria-live="polite" className="mt-2 min-h-4 text-xs font-semibold text-white/85">
+                {inlinePublicDistinta ? actionFeedback : t(actionFeedback)}
+              </p>
+
+
+
+
+
+              <p className="sr-only">{t("Nessuna misura o quantità viene inviata al backend per questa funzione.")}</p>
+            </div>
+          </aside>
+        </div>
+        <div data-cockpit-details className={styles.detailStrip}>
+              {!inEmbeddedBuilder ? <details className="group/extra mt-1 rounded-lg border border-white/15 px-2 py-1.5">
+                <summary className="flex min-h-11 cursor-pointer items-center justify-between text-[11px] font-semibold text-white sm:min-h-9 focus-visible:outline-2 focus-visible:outline-white">
+                  {t("Copia risultato")} · {t("Copia link")} · ★ <span aria-hidden="true" className="transition-transform group-open/extra:rotate-180">⌄</span>
+                </summary>
+                <div className="grid grid-cols-2 gap-1.5 border-t border-white/15 pt-2 sm:grid-cols-3">
                 <button
                   type="button"
                   disabled={!currentSnapshot}
@@ -1496,54 +1574,8 @@ export function PublicTubeWeightCalculator({
                 >
                   {t(currentIsFavorite ? "Preferito ★" : "Aggiungi ai preferiti ☆")}
                 </button>
-              </div> : null}
-
-              <button
-                type="button"
-                disabled={!currentSnapshot || (Boolean(onAddToDistinta) && !canAddToDistinta)}
-                onClick={() => {
-                  if (!currentSnapshot) return;
-                  const item = calculatorRfqFromValues(currentSnapshot,
-                    typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : "calc-"+Date.now()+"-"+Math.random().toString(36).slice(2));
-                  if (onAddToDistinta) {
-                    if (!item || !onAddToDistinta(item)) {
-                      setActionFeedback(inlineCopy.addError);
-                    } else {
-                      setActionFeedback(inlinePublicDistinta
-                        ? inlineCopy.added
-                        : "Articolo aggiunto ✓ · puoi continuare con un’altra misura.");
-                    }
-                    return;
-                  }
-                  if (!item || !enqueueCalculatorRfq(window.sessionStorage, item)) {
-                    setActionFeedback(t("Impossibile trasferire l'articolo. Verifica lo spazio di sessione del browser e riprova."));
-                    return;
-                  }
-                  // CALC-INT3E.7: preserve the existing consent-gated EN/DE/FR/ES
-                  // handoff event after successful enqueue (never send RFQ content).
-                  if (locale !== "it") trackInternationalRfq("handoff",locale,{system:"eu",standard});
-                  // The queue stays in this tab only: no calculator data in URLs or requests.
-                  window.location.assign(locale === "it" ? "/distinta" : `/${locale}/distinta`);
-                }}
-                className="tube-calculator-rfq-link mt-2 inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-[#c3e5d5] bg-[#e3f4eb] px-4 py-3 text-center text-sm font-bold leading-snug text-[#123b34] transition-colors hover:border-[#98d6b6] hover:bg-[#ccebdc] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
-              >
-                {t(onAddToDistinta ? "＋ Aggiungi alla distinta" : "Aggiungi questa misura alla distinta →")}
-              </button>
-              <p className="mt-1 text-[11px] leading-4 text-white/85">
-                {inlinePublicDistinta ? inlineCopy.billWeightNote : t(onAddToDistinta
-                  ? "Il peso è teorico: la riga appare subito a fianco, senza inviare una RFQ."
-                  : "Gratuito · nessun login richiesto. Il grado acciaio resta da confermare.")}
-              </p>
-              {inlinePublicDistinta && inlineBillCount > 0 ? (
-                <button type="button" onClick={onOpenInlineBill} aria-haspopup="dialog"
-                  className="mt-2 inline-flex min-h-11 items-center text-xs font-bold text-white underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-                  {inlineCopy.seeBill} · {inlineBillCount} {inlineBillCount === 1 ? inlineCopy.row.toLowerCase() : inlineCopy.lines} ↗
-                </button>
-              ) : null}
-              <p aria-live="polite" className="mt-2 min-h-4 text-xs font-semibold text-white/85">
-                {inlinePublicDistinta ? actionFeedback : t(actionFeedback)}
-              </p>
-
+                </div>
+              </details> : null}
               <details className="mt-2 rounded-xl border border-white/10 bg-white/5">
                 <summary className="flex min-h-11 cursor-pointer items-center px-3 py-2 text-xs font-bold">
                   {t("Metodo e provenienza")}
@@ -1586,7 +1618,6 @@ export function PublicTubeWeightCalculator({
                   <p className="mt-1">{t("Area sezione:")} {values.areaMm2 == null ? "—" : `${formatOutput(values.areaMm2, 2)} mm²`}</p>
                 </div>
               </details>
-
               <details className="mt-2 rounded-xl border border-white/10 bg-white/5">
                 <summary className="flex min-h-11 cursor-pointer items-center px-3 py-2 text-xs font-bold">
                   {t("Ultimi calcoli e preferiti")}
@@ -1654,10 +1685,6 @@ export function PublicTubeWeightCalculator({
                   </div>
                 </div>
               </details>
-
-              <p className="sr-only">{t("Nessuna misura o quantità viene inviata al backend per questa funzione.")}</p>
-            </div>
-          </aside>
         </div>
       </section>
 

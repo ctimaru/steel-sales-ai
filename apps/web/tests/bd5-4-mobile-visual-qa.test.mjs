@@ -20,7 +20,9 @@ test("BD5.4 mobile viewport rules keep input readable and touch controls >=44px"
     ".bd7-doc-summary", ".bd8-icon-button", ".bd52-details-toggle", ".bd53-hud-action",
   ]) assert.ok(bd54.includes(selector), "Missing mobile target: " + selector);
   assert.match(bd54, /min-height: 44px/);
-  assert.match(builder, /className="bd54-page space-y-4 sm:space-y-5"/);
+  assert.match(builder, /data-private-calculator-page/);
+  assert.match(builder, /bd54-page \$\{styles\.page\}/);
+  assert.match(builder, /data-public-bill-mobile-compact/);
 });
 
 test("BD5.4 no overlay/sideways scroll on 320-380px; HUD adapts and rows scroll into view", () => {

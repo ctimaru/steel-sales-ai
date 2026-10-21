@@ -1,0 +1,141 @@
+/* CALC-DENSE1R-A: one shared public/private calculator cockpit. The
+ * dimension/rate/mass engines and commercial state stay in their existing owners. */
+.header {
+  display:flex;
+  min-width:0;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:8px 12px;
+  border-bottom:1px solid #dce7e3;
+  background:#f8faf9;
+}
+.cartShortcut {
+  min-height:44px;
+  flex-shrink:0;
+  padding:6px 9px;
+  color:#15503a;
+  border:1px solid #b6d9c6;
+  border-radius:8px;
+  background:#edf7f1;
+  font-size:12px;
+  font-weight:700;
+}
+.toolbar {
+  display:grid;
+  grid-template-columns:minmax(235px,.9fr) minmax(0,1.8fr);
+  align-items:end;
+  gap:8px;
+  padding:8px 12px;
+  border-bottom:1px solid #dce7e3;
+  background:#f7faf8;
+}
+.toolbarControls {min-width:0}
+.toolbarControls > div {gap:8px}
+.toolbarControls section {min-width:0}
+.toolbarControls section > div:first-child {margin-bottom:4px}
+.toolbarControls [role="group"] {min-width:0;max-width:100%;width:100%}
+.workspace {display:grid;min-width:0;grid-template-columns:minmax(0,1fr);}
+.fields {min-width:0;padding:10px 12px;border-bottom:1px solid #dce7e3}
+.results {display:flex;min-width:0;flex-direction:column;background:#123d34;color:white}
+.preview {width:120px;flex:0 0 120px;align-self:start;}
+.preview figure {margin:0;padding:4px;border-radius:10px}
+.preview figure > div:first-child {display:none}
+.preview figure > svg {display:block;width:100%;max-width:102px;height:auto;max-height:100px;margin:0 auto}
+.preview figcaption {display:none}
+@media (min-width:1024px){
+  .workspace {grid-template-columns:minmax(0,1.25fr) minmax(340px,.85fr);}
+  .fields {border-bottom:0;border-right:1px solid #dce7e3}
+}
+@media (max-width:1199px){
+  .toolbar {grid-template-columns:minmax(0,1fr);align-items:stretch;gap:6px}
+}
+@media (max-width:639px){
+  .toolbar {padding:8px;gap:8px}
+  .toolbarControls > div {grid-template-columns:minmax(0,1fr);gap:8px}
+  .fields {padding:8px}
+  .preview {width:100px;flex-basis:100px}
+  .preview figure > svg {max-width:90px}
+  /* At 320px, preserve full norm designations and steel shapes without splitting words. */
+  .toolbarControls section:first-child [role="group"] button {
+    white-space:nowrap;
+    min-width:0;
+    padding-inline:4px;
+  }
+  .toolbarControls section:nth-child(2) [role="group"] button svg {display:none}
+  .toolbarControls section:nth-child(2) [role="group"] button span {
+    white-space:nowrap;
+    font-size:10px;
+  }
+}
+@media (max-width:400px){
+  /* The theoretical weight stays readable, with units intact in narrow KPI tiles. */
+  .results [data-cockpit-kpis] > div > p:nth-of-type(2) {
+    font-size:clamp(12px,3.8vw,15px);
+    line-height:1.25;
+    overflow-wrap:normal;
+    word-break:normal;
+  }
+}
+
+/* Deferred professional tools never stretch the live editor/result columns. */
+.detailStrip {
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:8px;
+  padding:8px 12px;
+  border-top:1px solid rgba(255,255,255,.13);
+  background:#123d34;
+  color:#fff;
+}
+.detailStrip details { min-width:0; margin:0; }
+.detailStrip details summary { min-height:44px; }
+@media (min-width:700px) {
+  .detailStrip { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@media (max-width:639px) {
+  .detailStrip { padding:8px; gap:6px; }
+}
+
+/* CALC-DENSE1R-D: search results float above the cockpit, never reflow
+ * the standard / shape selectors or push the measurement panel off-screen. */
+.toolbar [data-testid="calculator-dimension-discovery"] {position:relative;z-index:5;isolation:isolate;}
+.toolbar [data-dense-discovery-popover] {
+  box-shadow:0 16px 36px rgba(12,42,29,.20);
+  color:#173e30;
+}
+.toolbar [role="option"] strong {font-variant-numeric:tabular-nums}
+.toolbar [role="option"] [title] {min-width:0}
+.toolbar [role="option"]:focus-visible {outline:2px solid #16714c;outline-offset:-2px}
+
+/* CALC-DENSE1R-E: the standard two measurement inputs should fill their pane,
+   instead of leaving a third phantom grid column on 640px+ viewports. */
+.measurements,.measurementsRect {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;min-width:0}
+.lengthQuantity {display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin-top:10px}
+.fields [data-cockpit-measurements] > label { min-width:0; font-size:11px; }
+.fields [data-cockpit-measurements] > label > input { font-size:14px; }
+.results [data-cockpit-kpis] > div > p:first-child {font-size:10px;line-height:1.35;letter-spacing:.05em}
+@media (min-width:640px) {
+  .measurementsRect {grid-template-columns:repeat(3,minmax(0,1fr))}
+  .lengthQuantity {grid-template-columns:minmax(0,1.15fr) minmax(170px,.85fr)}
+}
+@media (min-width:1024px) {
+  .results [data-cockpit-kpis] > div > p:first-child {font-size:10px}
+}
+@media (max-width:400px) {
+  .results [data-cockpit-kpis] > div > p:first-child {font-size:9px;letter-spacing:.025em}
+}
+
+/* DENSE1R-F: protect numbers and units from wrapping in the narrow private
+ * builder and the shared public calculator at genuine 320px viewports. */
+@media (max-width:400px) {
+  .preview {width:80px;flex-basis:80px}
+  .preview figure > svg {max-width:74px}
+  .results [data-cockpit-kpis] > div > p:nth-of-type(2) {
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    font-size:12px;
+  }
+  .results [data-cockpit-kpis] > div > p:nth-of-type(2) span {
+    margin-left:2px; font-size:9px;
+  }
+}

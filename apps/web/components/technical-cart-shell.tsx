@@ -26,17 +26,21 @@ type TechnicalCartShellProps = {
   triggerTestId: string;
   overlayTestId: string;
   wide?: boolean;
+  /** Use narrow 460px drawer only for the technical bill, not private workbench. */
+  compact?: boolean;
   /** Private workspace only: return focus to the initiating inline/HUD CTA. */
   restoreFocusRef?: RefObject<HTMLElement | null>;
   /** Private workspace only: focus a row after opening the dialog. */
   pendingFocusRowRef?: RefObject<string | null>;
   children: ReactNode;
+  /** Optional fixed footer outside the scrollable body. */
+  footer?: ReactNode;
 };
 
 export function TechnicalCartShell({
   visible, open, onOpen, onClose, count, title, eyebrow, summary, closeLabel,
   dialogId, titleId, bodyId, dialogAriaLabel, triggerTestId, overlayTestId,
-  wide = false, restoreFocusRef, pendingFocusRowRef, children,
+  wide = false, compact = false, restoreFocusRef, pendingFocusRowRef, children, footer,
 }: TechnicalCartShellProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -112,7 +116,7 @@ export function TechnicalCartShell({
           <div id={dialogId} role="dialog" aria-modal="true" ref={dialogRef}
             aria-labelledby={dialogAriaLabel ? undefined : titleId}
             aria-label={dialogAriaLabel}
-            tabIndex={-1} className={wide ? styles.dialogWide : styles.dialog}>
+            tabIndex={-1} className={wide ? styles.dialogWide : compact ? styles.dialogCompact : styles.dialog}>
             <div className={styles.header}>
               <div className={styles.headingContent}>
                 <p className={styles.eyebrow}>{eyebrow}</p>
@@ -124,6 +128,7 @@ export function TechnicalCartShell({
               </button>
             </div>
             <div id={bodyId} className={styles.body}>{children}</div>
+            {footer ? <div className={styles.footer}>{footer}</div> : null}
           </div>
         </div>
       ) : null}

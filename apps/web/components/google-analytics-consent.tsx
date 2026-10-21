@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
+import styles from "./calculator-consent-placement.module.css";
 
 import {
   ANALYTICS_CONSENT_STORAGE_KEY,
@@ -96,6 +97,11 @@ export function GoogleAnalyticsConsent({
 }) {
   const pathname = usePathname();
   const english = pathname === "/en" || pathname.startsWith("/en/");
+  // On narrow public calculator / bill surfaces, park an already-decided
+  // preference control after the page content: it must never cover inputs,
+  // per-row actions or the fixed RFQ/cart footer. Full consent panel remains
+  // unchanged until the visitor has explicitly chosen.
+  const flowPrivacyOnMobile = /^\/(?:en\/|de\/|fr\/|es\/)?(?:knowledge\/tubes(?:\/|$)|distinta(?:\/|$))/.test(pathname);
   const localizedConsent = pathname === "/de" || pathname.startsWith("/de/") ? internationalConsentCopy.de
     : pathname === "/fr" || pathname.startsWith("/fr/") ? internationalConsentCopy.fr
     : pathname === "/es" || pathname.startsWith("/es/") ? internationalConsentCopy.es
@@ -295,9 +301,10 @@ export function GoogleAnalyticsConsent({
         <button
           type="button"
           onClick={() => setSettingsOpen(true)}
+          data-testid="privacy-reopen-button"
           aria-label={localizedConsent?.reopen ?? (english ? "Reopen cookie and privacy preferences" : "Riapri preferenze cookie e privacy")}
           title={localizedConsent?.title ?? (english ? "Cookies and privacy" : "Cookie e privacy")}
-          className="group fixed bottom-4 left-0 z-[90] flex h-9 items-center gap-1.5 rounded-r-full border border-l-0 border-[#cbd8d3] bg-white/95 pl-2.5 pr-3 text-[10px] font-bold text-[#52615b] shadow-sm backdrop-blur transition hover:border-[#8fb5a8] hover:bg-white hover:text-[#173f35]"
+          className={`group fixed bottom-4 left-0 z-[90] flex h-9 items-center gap-1.5 rounded-r-full border border-l-0 border-[#cbd8d3] bg-white/95 pl-2.5 pr-3 text-[10px] font-bold text-[#52615b] shadow-sm backdrop-blur transition hover:border-[#8fb5a8] hover:bg-white hover:text-[#173f35] ${flowPrivacyOnMobile ? styles.calculatorMobileFlow : ""}`}
         >
           <PrivacyShield />
           <span>Privacy</span>

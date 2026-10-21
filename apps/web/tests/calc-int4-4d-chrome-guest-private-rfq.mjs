@@ -28,6 +28,8 @@ try {
   assert.equal(await bill.locator("[data-create-inline-private-rfq]").count(),1);
   assert.equal(await bill.getByRole("checkbox",{name:/Includi i target buyer/}).count(),0);
   await bill.getByRole("button",{name:/Chiudi/}).click();
+  // DENSE1A: pricing is intentionally secondary and opens on demand.
+  await calculator.locator("[data-commercial-price] summary").click();
   await calculator.getByLabel("Prezzo €/ton").fill("850");
   await calculator.locator("[data-target-opt-in]").click();
   await bill.getByRole("button",{name:"Associa target interno alla riga 1"}).click();

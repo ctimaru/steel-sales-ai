@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
+import styles from "./distinta-first-viewport.module.css";
 import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
 import { listBuyerDistintaPublicDimensions } from "@/lib/public-knowledge";
 import { absoluteUrl } from "@/lib/site";
@@ -46,29 +47,29 @@ export default async function BuyerDistintaPage() {
   const emailConfigured = Boolean(process.env.RESEND_API_KEY);
 
   return (
-    <div className="mx-auto max-w-[1180px] px-4 py-7 sm:px-6 sm:py-9 lg:px-8">
-      <div className="mb-3 flex justify-end"><Link href="/en/distinta" hrefLang="en" lang="en" className="inline-flex min-h-10 items-center rounded-lg border border-[#dce5e0] bg-white px-3 text-xs font-bold text-[#123b34] hover:bg-[#edf5f1]">English version →</Link></div>
-      <header className="rounded-2xl border border-[var(--border-strong)] bg-white px-4 py-4 shadow-sm sm:px-5">
+    <div data-public-bill-landing className={`mx-auto max-w-[1180px] px-3 py-2.5 sm:px-6 sm:py-9 lg:px-8 ${styles.landing}`}>
+      <header data-public-bill-hero className={`rounded-xl border border-[var(--border-strong)] bg-white px-3 py-2.5 shadow-sm sm:rounded-2xl sm:px-5 sm:py-4 ${styles.hero}`}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[var(--brand-primary)]">
-              Buyer tool · gratuito
-            </p>
-            <h1 className="mt-1 text-xl font-extrabold tracking-tight text-[var(--brand-deep)] sm:text-2xl">
+            <div className={styles.eyebrowRow}>
+              <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--brand-primary)]">Buyer tool · gratuito</p>
+              <Link href="/en/distinta" hrefLang="en" lang="en" aria-label="English version" className={styles.languageLink}>EN <span aria-hidden="true">↗</span></Link>
+            </div>
+            <h1 className="mt-1 text-lg font-extrabold tracking-tight text-[var(--brand-deep)] sm:text-2xl">
               Crea distinta per i tuoi fornitori
             </h1>
-            <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)] sm:text-sm">
+            <p className={`${styles.heroDescription} mt-1 text-xs leading-5 text-[var(--text-secondary)] sm:text-sm`}>
               Parti dal calcolatore: scegli misura e quantità, aggiungi con un clic e componi la tua RFQ. Nessun riferimento a listini produttore.
             </p>
           </div>
-          <span className="rounded-full bg-[var(--brand-primary-soft)] px-3 py-1.5 text-xs font-bold text-[var(--brand-deep)]">
+          <span className={`${styles.optionalBadge} rounded-full bg-[var(--brand-primary-soft)] px-3 py-1.5 text-xs font-bold text-[var(--brand-deep)]`}>
             Compilazione libera · prezzo facoltativo
           </span>
         </div>
       </header>
 
       {authenticated ? (
-        <aside className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-strong)] bg-[var(--brand-primary-soft)] px-4 py-3" aria-label="Percorso RFQ aziendale">
+        <aside className={`${styles.workspaceNotice} mt-2 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-strong)] bg-[var(--brand-primary-soft)] px-3 py-2 sm:px-4 sm:py-3`} aria-label="Percorso RFQ aziendale">
           <div className="min-w-0">
             <p className="text-sm font-semibold text-[var(--brand-deep)]">
               Questa è la distinta pubblica. La gestione aziendale si trova in RFQ Hub.
@@ -86,8 +87,9 @@ export default async function BuyerDistintaPage() {
         </aside>
       ) : null}
 
-      <div className="mt-3">
+      <div className="mt-2 sm:mt-3" data-public-bill-builder>
         <BuyerDistintaBuilder
+          compactLanding
           authenticated={authenticated}
           emailConfigured={emailConfigured}
           catalogOptions={catalogOptions}

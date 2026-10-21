@@ -139,3 +139,25 @@
   }
   .track[data-region="us"]::before { transform: translateX(100%); }
 }
+
+/* CALC-DENSE1R-E: market selector is a compact context bar, not a second hero.
+   Preserve market provenance and full copy in the HTML for SEO and screen readers. */
+@media (min-width: 850px) {
+  .header { padding: 7px 12px; gap: 2px 12px; border-radius: 12px; }
+  .headerCopy { display:flex; align-items:baseline; gap:12px; }
+  .eyebrow { font-size:9px; letter-spacing:.07em; white-space:nowrap; }
+  .headline { margin:0; font-size:14px; }
+  .explainer { grid-column:1; grid-row:2; font-size:10px; line-height:1.3; }
+  .track { grid-column:2; grid-row:1 / span 2; width:204px; padding:3px; }
+  .track::before { top:3px; bottom:3px; left:3px; width:calc(50% - 3px); }
+  .option { min-height:40px; padding:3px 6px; }
+  .optionLabel { font-size:11px; }
+  .optionDetail { font-size:8px; }
+}
+@media (max-width:660px) {
+  .header { padding:8px 10px; gap:6px; border-radius:12px; }
+  .track { padding:3px; }
+  .option { min-height:44px; }
+  .headline { font-size:14px; }
+  .explainer {font-size:10px;line-height:1.4}
+}

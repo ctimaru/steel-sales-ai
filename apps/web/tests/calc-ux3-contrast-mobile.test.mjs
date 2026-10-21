@@ -4,6 +4,7 @@ import test from "node:test";
 
 const read = (name) => readFileSync(new URL(name, import.meta.url), "utf8");
 const calculator = read("../components/public-tube-weight-calculator.tsx");
+const denseStyles = read("../components/calculator-dense-cockpit.module.css");
 const styles = read("../app/globals.css");
 const install = read("../components/calculator-install-guide.tsx");
 const italian = read("../app/(public)/knowledge/tubes/page.tsx");
@@ -43,11 +44,13 @@ test("CALC-UX3 mobile targets, text and result grid are responsive", () => {
   assert.match(calculator, /sm:grid-cols-\[36px_minmax\(36px,1fr\)_36px\]/);
   assert.match(calculator, /min-h-11 shrink-0 px-2\.5 py-2 text-xs/);
   assert.match(calculator, /<details className="group\/assist/);
-  assert.match(calculator, /grid grid-cols-2 gap-2 sm:grid-cols-3/);
-  assert.match(calculator, /col-span-2 min-w-0 rounded-xl bg-white\/8 p-2 sm:col-span-1/);
+  assert.match(calculator, /data-cockpit-measurements/);
+  assert.match(calculator, /styles\.measurementsRect : styles\.measurements/);
+  assert.match(denseStyles, /\.measurements,.measurementsRect/);
+  assert.match(calculator, /min-w-0 rounded-lg bg-white\/8 px-2 py-1\.5/);
   assert.match(calculator, /tube-calculator-favourite-selected col-span-2 min-h-11/);
-  assert.match(calculator, /tube-calculator-rfq-link mt-2 inline-flex min-h-12/);
-  assert.match(calculator, /flex flex-col items-stretch gap-2 border-b/);
+  assert.match(calculator, /tube-calculator-rfq-link mt-1\.5 inline-flex min-h-11/);
+  assert.match(calculator, /data-cockpit-header/);
   assert.doesNotMatch(calculator, /mt-1 truncate text-lg/);
   assert.match(calculator, /aria-pressed=\{length === preset\}/);
   assert.match(calculator, /aria-label=\{t\("Numero barre"\)\}/);

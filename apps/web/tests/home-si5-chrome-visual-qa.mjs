@@ -265,6 +265,8 @@ try {
           const calculator = page.locator("#calcolatore-pesi");
           await calculator.waitFor({ state: "visible" });
           check(await calculator.getByRole("button", { name: "EN 10219" }).count() === 1, "Missing shared standard control");
+          // DENSE1A: copy and sharing are secondary actions behind an explicit disclosure.
+          await calculator.locator("details[class*=\'group/extra\'] > summary").click();
           const copy = calculator.getByRole("button", { name: tube.copy, exact: true });
           await copy.waitFor({ state: "visible" });
           check(!(await copy.isDisabled()), "Copy should be enabled for valid default section");
@@ -342,7 +344,16 @@ try {
           assert.equal(response?.status(), 200, "WC7 tube page should load " + path);
           const calculator = page.locator("#calcolatore-pesi");
           await calculator.waitFor({ state: "visible" });
-          for (const section of ["#calcolatore-pesi > div.grid > div", "#calcolatore-pesi aside"]) {
+          // WC7 measures the wheel routing, not a minimum page length. With the
+          // genuinely dense cockpit the document can be too short at 1440px.
+          // Add a test-only inert tail so wheel behaviour remains measurable.
+          await page.evaluate(() => {
+            const spacer = document.createElement("div");
+            spacer.setAttribute("data-wc7-scroll-fixture", "");
+            spacer.style.cssText = "height:1600px;pointer-events:none";
+            document.body.appendChild(spacer);
+          });
+          for (const section of ["#calcolatore-pesi [data-cockpit-fields]", "#calcolatore-pesi [data-cockpit-results]"]) {
             const pane = page.locator(section);
             await pane.evaluate((element) => {
               element.scrollIntoView({ block: "start", behavior: "instant" });
