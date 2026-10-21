@@ -526,6 +526,7 @@ export function PublicTubeWeightCalculator({
   const [length, setLength] = useState(initialValues?.length ?? "12");
   const [quantity, setQuantity] = useState(initialValues?.quantity ?? "1");
   const [targetTonnes, setTargetTonnes] = useState(initialValues?.targetTonnes ?? "");
+  const [targetDisclosureOpen, setTargetDisclosureOpen] = useState(Boolean(initialValues?.targetTonnes?.trim()));
   const [density, setDensity] = useState(initialValues?.density ?? "7850");
   // These stateful device conveniences remain available in the collapsed panel
   // BELOW the calculator, independently of the removed language controls.
@@ -1326,7 +1327,7 @@ export function PublicTubeWeightCalculator({
                     </div>
                   </div>
 
-                  <details defaultOpen={Boolean(targetTonnes.trim())} className="group/tonnes mt-2 rounded-lg border border-[#bed3cb] bg-[#edf5f2] px-2.5 py-1.5">
+                  <details open={targetDisclosureOpen} onToggle={(event) => setTargetDisclosureOpen(event.currentTarget.open)} className="group/tonnes mt-2 rounded-lg border border-[#bed3cb] bg-[#edf5f2] px-2.5 py-1.5">
                     <summary className="flex min-h-11 cursor-pointer items-center justify-between text-[11px] font-semibold text-[#1f5a43] sm:min-h-9 focus-visible:outline-2 focus-visible:outline-[#15815a]">
                       {t("Parti dalle tonnellate · Tonnellate target")} <span aria-hidden="true" className="transition-transform group-open/tonnes:rotate-180">⌄</span>
                     </summary>
