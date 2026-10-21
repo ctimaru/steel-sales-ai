@@ -344,7 +344,7 @@ try {
           assert.equal(response?.status(), 200, "WC7 tube page should load " + path);
           const calculator = page.locator("#calcolatore-pesi");
           await calculator.waitFor({ state: "visible" });
-          for (const section of ["#calcolatore-pesi > div.grid > div", "#calcolatore-pesi aside"]) {
+          for (const section of ["#calcolatore-pesi [data-cockpit-fields]", "#calcolatore-pesi [data-cockpit-results]"]) {
             const pane = page.locator(section);
             await pane.evaluate((element) => {
               element.scrollIntoView({ block: "start", behavior: "instant" });
