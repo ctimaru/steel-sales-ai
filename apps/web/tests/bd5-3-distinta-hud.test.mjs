@@ -15,15 +15,15 @@ test("BD5.3 sticky HUD exposes live completion, metres and tonnes from the canon
   assert.match(builder, /totals\.completeLines \/ activeLineCount/);
   assert.match(builder, /formatNumber\(totals\.totalMeters, 2\)/);
   assert.match(builder, /formatNumber\(totals\.totalTonnes, 3\)/);
-  assert.match(builder, /!allComplete \? <span className="bd53-hud-partial">Totali parziali/);
+  assert.match(builder, /!allComplete \? <span className="bd53-hud-partial">\{t\("Totali parziali"\)\}/);
   assert.match(builder, /calculateBuyerDistintaTotals\(calculated\)/);
   assert.match(contract, /calculateBuyerDistintaTotals/);
 });
 
 test("BD5.3 contextual CTA never copies incomplete entries; reuse canonical copy action", () => {
   assert.ok(builder.includes("onClick={allComplete ? (authenticated ? createRfqHub : copyDistinta) : goToIncompleteRow}"));
-  assert.ok(builder.includes('!allComplete ? "Completa le righe"'));
-  assert.ok(builder.includes('authenticated ? (rfqPending ? "Creazione RFQ…" : "Crea RFQ privata →")'));
+  assert.ok(builder.includes('!allComplete ? t("Completa le righe")'));
+  assert.ok(builder.includes('authenticated ? (rfqPending ? t("Creazione RFQ…") : t("Crea RFQ privata →"))'));
   assert.match(builder, /function goToIncompleteRow\(\)/);
   assert.match(builder, /calculated\.findIndex\(\(line\) => !line\.complete\)/);
   assert.match(builder, /if \(index < 0\) return/);

@@ -65,6 +65,10 @@ test("RFQ-IA2 same-tab draft preserves mixed EN norms, global documents, wizard 
   assert.equal(restored.wizardDraft.standard,"EN 10219");
   assert.equal(restored.title,"Acciai strutturali");
   assert.notEqual(session.buyerDraftKey(null),session.buyerDraftKey("33333333-3333-3333-3333-333333333333"));
+  assert.notEqual(session.buyerDraftKey("33333333-3333-3333-3333-333333333333","11111111-1111-1111-1111-111111111111"),
+    session.buyerDraftKey("33333333-3333-3333-3333-333333333333","22222222-2222-2222-2222-222222222222"));
+  assert.notEqual(session.buyerDraftKey("33333333-3333-3333-3333-333333333333"),
+    session.buyerDraftKey("33333333-3333-3333-3333-333333333333","11111111-1111-1111-1111-111111111111"));
 });
 
 test("RFQ-IA2 expired/corrupt/malicious drafts fail closed without creating a server artifact", () => {

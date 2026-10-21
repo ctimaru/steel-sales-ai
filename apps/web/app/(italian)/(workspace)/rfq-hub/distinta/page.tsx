@@ -47,6 +47,7 @@ export default async function PrivateBuyerDistintaPage({searchParams}: {searchPa
         locale={locale}
         authenticated
         userId={context.userId}
+        organizationId={context.organizationId}
         emailConfigured={Boolean(process.env.RESEND_API_KEY)}
         catalogOptions={catalogOptions}
       />

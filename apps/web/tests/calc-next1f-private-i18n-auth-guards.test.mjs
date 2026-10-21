@@ -40,10 +40,10 @@ test("NEXT1F workspace remains write-role protected, authorization server-owned"
 });
 test("NEXT1F selector is client-only and cannot change existing ownership or draft state",()=>{
  assert.match(builder,/setUiLocale\(safeBuyerUiLocale\(e\.target\.value\)\)/);
- assert.match(builder,/data-testid="buyer-private-language-switch"/);
+ assert.match(builder,/data-testid="buyer-private-language-switch"/);\n assert.match(builder,/t\("Articoli in distinta"\)/);\n assert.match(builder,/t\("Righe pronte"\)/);
  assert.match(builder,/locale=\{uiLocale\} onAddToDistinta=\{addCalculatorLine\}/);
  assert.match(builder,/createPrivateRfqOneStep\(/);
- assert.match(builder,/buyerDraftKey\(authenticated \? userId : null\)/);
+ assert.match(builder,/buyerDraftKey\(authenticated \? userId : null, workspace \? organizationId : null\)/);\n assert.match(route,/organizationId=\{context\.organizationId\}/);
  assert.match(builder,/window\.sessionStorage/);
  assert.match(builder,/returnToCommercial/);
  assert.match(builder,/TechnicalCartShell/);

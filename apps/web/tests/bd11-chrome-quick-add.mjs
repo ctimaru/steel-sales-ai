@@ -32,6 +32,12 @@ try {
     await calculator.getByLabel("Numero barre").fill("3");
     await calculator.getByRole("button", { name: /Aggiungi alla distinta/ }).click();
     assert.equal(await preview.count(),0,"Adding must not auto-open the private cart");
+    const sameTabTitle=await page.locator('input').filter({hasNot:page.locator("[type=hidden]")}).count();
+    assert.ok(sameTabTitle>0);
+    await language.selectOption("en");
+    await page.getByRole("heading",{name:"Bill items"}).waitFor({state:"visible"});
+    await language.selectOption("it");
+    assert.equal(await preview.count(),0,"Changing language must not auto-open cart");
     const cookie=page.locator('[data-testid="mobile-cookie-consent"] > button');
     if(await cookie.isVisible()) await cookie.click();
     const trigger=page.locator('[data-testid="private-cart-trigger"]');
