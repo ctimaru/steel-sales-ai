@@ -8,6 +8,7 @@ import {
 import type { MarketplaceFeedResponse } from "@/lib/marketplace";
 import type { NetworkActivityItem } from "@/lib/network";
 import type { PulseAdvancedInterests } from "@/lib/steel-pulse-advanced";
+import type { DashboardNetworkMatch } from "@/lib/dashboard-network-discovery";
 import { appRoutes } from "@/lib/routes";
 
 /**
@@ -16,13 +17,15 @@ import { appRoutes } from "@/lib/routes";
  * This is not a generated AI recommendation, urgency queue, or a private RFQ feed.
  */
 export function DashboardDiscoveryFeed({
-  networkEnabled, networkEntitled, activity, marketplace, interests,
+  networkEnabled, networkEntitled, activity, marketplace, interests, networkCompanies, networkDiscoveryAvailable,
 }: {
   networkEnabled: boolean;
   networkEntitled: boolean;
   activity: readonly NetworkActivityItem[];
   marketplace: MarketplaceFeedResponse | null;
   interests: PulseAdvancedInterests;
+  networkCompanies: readonly DashboardNetworkMatch[];
+  networkDiscoveryAvailable: boolean;
 }) {
   // Do not derive Network facts for non-entitled users, even from provided props.
   const updates = networkEnabled && networkEntitled
@@ -55,7 +58,7 @@ export function DashboardDiscoveryFeed({
         {networkEnabled ? (
           <section aria-label="Aggiornamenti dalle aziende seguite" className="min-w-0 rounded-xl border border-[#d5e4da] bg-[#f9fcfa] p-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 className="text-sm font-semibold text-[#173f35]">Aziende che segui</h3>
+              <h3 className="text-sm font-semibold text-[#173f35]">Network industriale</h3>
               <Link
                 href={networkEntitled ? appRoutes.network.activity : appRoutes.network.directory}
                 className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2"
@@ -63,6 +66,61 @@ export function DashboardDiscoveryFeed({
                 {networkEntitled ? "Tutte le attività →" : "Esplora Network →"}
               </Link>
             </div>
+            {networkEntitled ? (
+              <div aria-label="Aziende pertinenti dal catalogo Network" className="mt-2 rounded-lg border border-[#dbe9df] bg-white px-3 py-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h4 className="text-xs font-semibold text-[#173f35]">Aziende da esplorare</h4>
+                  <Link
+                    href={appRoutes.network.directory + "?product=tubes_pipes&advanced=1"}
+                    className="inline-flex min-h-10 items-center text-[11px] font-semibold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2"
+                  >
+                    Ricerca completa →
+                  </Link>
+                </div>
+                {networkCompanies.length > 0 ? (
+                  <div className="divide-y divide-[#e5eee8]">
+                    {networkCompanies.slice(0, 2).map((company) => (
+                      <article key={company.id} className="min-w-0 py-2">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <h5 className="min-w-0 flex-1 break-words text-xs font-semibold text-[#173f35]">{company.name}</h5>
+                          <span className="shrink-0 text-[10px] font-medium text-[#53665b]">
+                            {company.verifiedProfile ? "Identità verificata" : "Scheda pubblicata"}
+                          </span>
+                        </div>
+                        <p className="mt-0.5 break-words text-xs leading-5 text-[#52615b]">
+                          {company.category ? company.category + " · " : ""}{company.countryCode} · Prodotto a catalogo: {company.product}
+                        </p>
+                        {company.capability ? (
+                          <p className="line-clamp-1 text-[11px] leading-4 text-[#53665b]">Capacità a catalogo: {company.capability}</p>
+                        ) : null}
+                        {company.reasons.length > 0 ? (
+                          <p className="mt-0.5 line-clamp-2 text-[11px] leading-4 text-[#246c53]">
+                            Perché compare: {company.reasons.join(" · ")}
+                          </p>
+                        ) : null}
+                        <DashboardTrackedLink
+                          engagementKind="network_profile"
+                          href={appRoutes.network.company(company.id)}
+                          className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2"
+                        >
+                          Esamina scheda Network →
+                        </DashboardTrackedLink>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <p role="status" className="mt-1 text-xs leading-5 text-[#52615b]">
+                    {networkDiscoveryAvailable
+                      ? "Nessuna azienda pertinente nei primi risultati pubblicati. Usa i filtri Network per ampliare la ricerca."
+                      : "La ricerca delle aziende non è disponibile adesso. Il Network completo rimane consultabile."}
+                  </p>
+                )}
+                <p className="text-[10px] leading-4 text-[#65746c]">
+                  Selezione dai primi risultati pubblicati; prodotti e capacità a catalogo non attestano l’idoneità tecnica per una RFQ.
+                </p>
+              </div>
+            ) : null}
+            {networkEntitled ? <p className="mt-2 text-[11px] font-semibold text-[#53665b]">Aziende che segui</p> : null}
             {updates.length > 0 ? (
               <div className="mt-1 divide-y divide-[#dfebe2]">
                 {updates.map((item) => (
