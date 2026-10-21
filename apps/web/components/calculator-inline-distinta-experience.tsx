@@ -45,6 +45,11 @@ const control = "min-h-11 w-full rounded-lg border border-[#b8cfc3] bg-white px-
 const action = cn(actionClasses({ variant: "secondary", size: "sm" }), "min-h-11 rounded-lg px-3 py-2 sm:min-h-9 sm:px-2.5 sm:py-1.5");
 const rowAction = cn(actionClasses({ variant: "secondary", size: "sm" }), "min-h-11 min-w-0 whitespace-nowrap rounded-md !px-1.5 !text-xs !leading-none sm:min-h-9 sm:!px-2");
 
+/** Compact display only. The canonical full description is retained in the saved bill. */
+function compactTechnicalLabel(description: string) {
+  return description.replace(/^(?:Tubo (?:tondo|quadro|rettangolare)|Round tube|Square tube|Rectangular tube)\s*/i, "").trim() || description;
+}
+
 function makeId() {
   return typeof crypto !== "undefined" && crypto.randomUUID
     ? crypto.randomUUID()
@@ -389,7 +394,7 @@ export function CalculatorInlineDistintaExperience({
                 className={styles.row} aria-label={c.row + " " + (index + 1) + ": " + line.description}>
                 <div className={styles.mainRow}>
                   <div className={styles.description} title={line.description+" · "+line.standard+(line.grade ? " · "+line.grade : "")}>
-                    <strong>{index + 1}. {line.description}</strong>
+                    <strong>{index + 1}. {compactTechnicalLabel(line.description)}</strong>
                     <span>{line.standard}{line.grade ? " · "+line.grade : " · "+c.gradePending}</span>
                   </div>
                   <div data-inline-quantity className={styles.quantity}>
