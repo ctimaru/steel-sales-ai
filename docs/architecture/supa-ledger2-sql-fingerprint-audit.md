@@ -10,6 +10,23 @@
 - Comparatore: `supabase/tools/migration_sql_fingerprint_audit.py`. Legge i file SQL GitHub come **byte**, calcola SHA256/byte-size e classifica con il report completo.
 - Test: `supabase/tools/test_migration_sql_fingerprint_audit.py`. Workflow `.github/workflows/supa-ledger2-sql-audit.yml`: **offline**, senza segreti o accesso a Supabase, con artifact `migration-sql-equivalence-report.json`.
 
+## Risultato effettivo da GitHub Actions (21 ottobre 2026)
+Workflow [SUPA-LEDGER2 run #39558805507](https://github.com/ctimaru/steel-sales-ai/actions/runs/39558805507) **SUCCESS**; artifact `supa-ledger2-sql-equivalence-39558805507` contiene 437 classificazioni e tutte le 36 voci senza corrispondente nome locale.
+
+| Gruppo | Numero | Azione consentita |
+|---|---:|---|
+| Stessa versione e SHA-256 del testo SQL | **33** | Conservare, non riparare |
+| SQL byte-identico ma versione diversa | **270** | Candidato a valutazione di riallineamento selettivo, non autorizzato automaticamente |
+| Solo commenti introduttivi / spazi di fine file diversi | **68** | Verificare la sequenza, documentare la provenienza; non assumere automaticamente equivalenza operativa |
+| Differenze nel corpo SQL dopo normalizzazione conservativa | **47** | **Bloccare repair e valutare la modifica** |
+| Nomi duplicati / ambigui | **7 file GitHub** | Distinguere ogni versione; non eseguire repair massivo |
+| Solo file GitHub | **12** | Analizzare schema/presenza degli oggetti |
+| Solo storico Supabase | **36** | Conservare cronologia/provenienza e analizzare la funzione originaria |
+
+La prima esecuzione grezza identificava 115 file con SHA-256 differente. Il secondo comparatore separa **68 differenze cosmetiche** dai **47 casi con corpo SQL non identico**. Nessuna delle due categorie autorizza modifiche allo storico senza verifiche aggiuntive.
+
+**Priorità dei 47:** sicurezza/tenant e ruoli (es. `add_organization_tenant_foundation`, `harden_p1_onboarding_security_definers`, `p0a_1_platform_superadmin_foundation`, `hp8_team_invitations_role_onboarding`); core Network/claim (es. `m4_governance_trust`, `m7_registration_bridge`, `m8_managed_profile_cutover`); RFQ e governance (`rfqh1_campaign_supplier_foundation`, `rfqh13_governance_team_rls`); catalogo EN 10210/10219/10216/10217 e riferimenti di peso. Questi richiedono diff di SQL e schema prima di qualunque decisione.
+
 ## Regole di classificazione
 - `exact_version_and_sql`: stesso nome, versione e SQL identico.
 - `identical_sql_different_version`: nome e SQL **byte-identici**, versione diversa. È una prova forte per progettare una possibile riparazione, ma non autorizza la riparazione.
