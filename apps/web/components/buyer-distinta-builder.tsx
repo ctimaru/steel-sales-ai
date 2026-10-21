@@ -4,6 +4,7 @@ import { guidedTubeToBuyerLine } from "@/lib/buyer-guided-commercial-line";
 import { calculatorItemToBuyerLine, consumeCalculatorRfqIds, readCalculatorRfqQueue, type CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
 import { consumeUsPipeRfqIds, readUsPipeRfqQueue, usPipeRfqSpecification } from "@/lib/us-pipe-rfq-handoff";
 import { PublicTubeWeightCalculator } from "@/components/public-tube-weight-calculator";
+import { dimensionsFromBuyerCatalog } from "@/lib/calculator-dimension-discovery";
 import { Bd17GuestRfqCta } from "@/components/bd17-guest-rfq-cta";
 import { trackProductEvent } from "@/lib/product-analytics-events.client";
 import { createPrivateRfqOneStep } from "@/lib/buyer-distinta-rfq-one-step";
@@ -161,6 +162,7 @@ export function BuyerDistintaBuilder({
   const activeLineCount = initialEmptyRow ? 0 : lines.length;
   const allComplete =
     calculated.length > 0 && calculated.every((line) => line.complete);
+  const discoveredBuyerDimensions = useMemo(() => dimensionsFromBuyerCatalog(catalogOptions), [catalogOptions]);
   const quickMatches = useMemo(
     () => searchBuyerDistintaCatalog(catalogOptions, quickQuery, 8),
     [catalogOptions, quickQuery],
@@ -902,7 +904,7 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic. Il carrell
                 <datalist id="buyer-quick-grades"><option value="S235JRH" /><option value="S275J0H" /><option value="S355J2H" /><option value="S355K2H" /></datalist>
               </label>
             </div>
-            <PublicTubeWeightCalculator references={[]} locale="it" onAddToDistinta={addCalculatorLine}
+            <PublicTubeWeightCalculator references={[]} discoveryOptions={discoveredBuyerDimensions} locale="it" onAddToDistinta={addCalculatorLine}
               canAddToDistinta={draftReady && !restoreCandidate && (lines.length < 500 || initialEmptyRow)} />
             <p role="status" aria-live="polite" className="mt-2 text-xs font-semibold text-[#1d5748]">
               {quickAddedCount > 0 ? `${quickAddedCount} ${quickAddedCount === 1 ? "articolo nel carrello" : "articoli nel carrello"} · aprilo quando vuoi.` : "Il peso teorico si aggiorna mentre scrivi; nessuna RFQ viene inviata automaticamente."}

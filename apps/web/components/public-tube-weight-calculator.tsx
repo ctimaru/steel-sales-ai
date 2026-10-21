@@ -7,6 +7,10 @@ import { calculatorRfqFromValues, enqueueCalculatorRfq, type CalculatorRfqItem }
 import { tubeCalculatorText, type TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
 import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
 import { CalculatorCommercialPricing } from "@/components/calculator-commercial-pricing";
+import { CalculatorDimensionDiscovery } from "@/components/calculator-dimension-discovery";
+import {
+  dimensionNumber, dimensionsFromPublicReferences, type CalculatorDimension,
+} from "@/lib/calculator-dimension-discovery";
 import { localizedInlineBill } from "@/lib/calculator-inline-distinta-copy";
 import { calculateTubeSection, standardCornerRadii } from "@/lib/international-tube-mass";
 import { referenceEvidence, relatedTubeReferences, sourceMethodLabel, sourceStandardLabel } from "@/lib/tube-reference-evidence";
@@ -479,6 +483,7 @@ function ParametricShapeDiagram({
 
 export function PublicTubeWeightCalculator({
   references,
+  discoveryOptions,
   initialValues,
   locale = "it",
   onAddToDistinta,
@@ -490,6 +495,7 @@ export function PublicTubeWeightCalculator({
   onChooseBuyerTarget,
 }: {
   references: PublicTubeDimensionSummary[];
+  discoveryOptions?: CalculatorDimension[];
   initialValues?: PublicTubeCalculatorInitialValues;
   locale?: TubeCalculatorLocale;
   /** In-place RFQ bill composer; does not queue or navigate. */
@@ -837,6 +843,24 @@ export function PublicTubeWeightCalculator({
     writeSavedCalculator({ ...currentSnapshot, savedAt: new Date().toISOString() });
   }, [retentionReady, calculatorSaved, currentSnapshot]);
 
+  const availableDimensions = useMemo(
+    () => discoveryOptions ?? dimensionsFromPublicReferences(references),
+    [discoveryOptions,references]
+  );
+  // Selecting a documented geometry never silently changes the chosen EN
+  // calculation method, commercial grade, quantity or RFQ draft.
+  function applyDiscoveredDimension(item:CalculatorDimension) {
+    setFamily(item.family);
+    if(item.family==="round_tube")setOuterDiameter(dimensionNumber(item.primaryMm));
+    else {
+      setWidth(dimensionNumber(item.primaryMm));
+      if(item.family==="rectangular_tube")setHeight(dimensionNumber(item.secondaryMm));
+    }
+    setThickness(dimensionNumber(item.thicknessMm));
+    setThicknessTouched(true);
+    setActionFeedback("");
+  }
+
   const familyReferences = useMemo(() => {
     const q = referenceQuery.trim().toLowerCase().replace(",", ".");
     return references
@@ -1072,6 +1096,8 @@ export function PublicTubeWeightCalculator({
         </header>
 
 
+        <CalculatorDimensionDiscovery items={availableDimensions} locale={locale}
+          onChoose={applyDiscoveredDimension} />
         <div className={inEmbeddedBuilder ? "grid min-w-0 grid-cols-1" : "grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)]"}>
           <div className="min-w-0 border-b border-[#dce7e3] p-3 sm:p-4 lg:border-b-0 lg:border-r">
             <div className="grid gap-3 lg:grid-rows-[auto_auto_1fr_auto]">
@@ -1336,7 +1362,7 @@ export function PublicTubeWeightCalculator({
                   ) : null}
                 </div>
 
-                <div className="hidden lg:block">
+                <div className="mt-1 block lg:mt-0">
                   <ParametricShapeDiagram
                     family={family}
                     outerDiameter={outerDiameter}
