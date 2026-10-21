@@ -62,7 +62,8 @@
  }
  .publicMobileLanding [data-testid="buyer-private-language-switch"]{min-height:44px;padding:3px 8px;gap:6px;border-radius:8px}
  .publicMobileLanding [data-testid="buyer-private-language-switch"] > p{max-width:50%;font-size:10px;line-height:1.3}
- .publicMobileLanding [data-testid="buyer-private-language-switch"] label{gap:5px;font-size:10px}
+ .publicMobileLanding [data-testid="buyer-private-language-switch"] label{gap:0;font-size:0}
+ .publicMobileLanding [data-testid="buyer-private-language-switch"] select{font-size:12px}
  .publicMobileLanding [data-testid="buyer-private-language-switch"] select{min-height:44px;font-size:12px}
  .publicMobileLanding [data-public-bill-summary]{display:flex;justify-content:flex-end;align-items:center;gap:8px;min-height:44px;padding:0;border:none;background:transparent;box-shadow:none}
  .publicMobileLanding [data-public-bill-summary] :global(.bd53-hud-progress),
