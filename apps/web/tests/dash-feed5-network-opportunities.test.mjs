@@ -80,15 +80,15 @@ test("DASH-FEED5 keeps org and entitlements at the data boundary", () => {
   assert.match(dashboard, /networkEntitled\s*\?\s*getNetworkActivityFeed/);
   assert.match(dashboard, /getMarketplaceFeed\(context\.organizationId, \{ limit: 10, offset: 0 \}\)/);
   assert.match(marketplaceModule, /p5_2_marketplace_feed/);
-  assert.match(panel, /networkEntitled \? selectDashboardFollowedUpdates\(activity\) : \[\]/);
+  assert.match(panel, /networkEnabled && networkEntitled\s*\?\s*selectDashboardFollowedUpdates\(activity, 2\)\s*:\s*\[\]/);
   assert.match(panel, /marketplace\?\.contract === "P5\.2-feed-v1"/);
   assert.match(dashboard, /activity=\{activity\.items\}/);
 });
 
-test("DASH-FEED5 embeds the extra feed under Steel Pulse without altering actions or RFQ privacy", () => {
+test("DASH-FEED5 prioritizes the compact discovery above Steel Pulse while retaining RFQ privacy", () => {
   const pulse = dashboard.indexOf("<DashboardSteelPulse state={pulse} />");
   const discovery = dashboard.indexOf("<DashboardDiscoveryFeed");
-  assert.ok(pulse > 0 && discovery > pulse);
+  assert.ok(pulse > 0 && discovery > 0 && discovery < pulse);
   assert.match(panel, /appRoutes\.marketplace\.opportunity\(item\.id\)/);
   assert.match(panel, /appRoutes\.network\.company\(item\.companyId\)/);
   assert.match(panel, /Le RFQ private e i dettagli riservati non compaiono/);
