@@ -6,6 +6,8 @@ const calculator = fs.readFileSync(
   new URL("../components/public-tube-weight-calculator.tsx", import.meta.url),
   "utf8",
 );
+const denseStyles = fs.readFileSync(new URL("../components/calculator-dense-cockpit.module.css", import.meta.url), "utf8");
+const cartStyles = fs.readFileSync(new URL("../components/technical-cart-shell.module.css", import.meta.url), "utf8");
 const installGuide = fs.readFileSync(
   new URL("../components/calculator-install-guide.tsx", import.meta.url),
   "utf8",
@@ -64,16 +66,18 @@ test("WC6 provides cross-platform Add to Home Screen guidance", () => {
 });
 
 test("WC6 hardens one-hand mobile interaction without removing the desktop cockpit", () => {
-  assert.match(calculator, /grid-cols-1 lg:grid-cols-\[minmax\(0,1\.4fr\)_minmax\(310px,0\.85fr\)\]/);
+  assert.match(calculator, /data-cockpit-workspace/);
+  assert.match(denseStyles, /\.workspace \{grid-template-columns:minmax\(0,1\.25fr\) minmax\(340px,\.85fr\)/);
   assert.doesNotMatch(calculator, /overscroll-contain/);
   assert.doesNotMatch(calculator, /overflow-y-auto/);
-  assert.match(calculator, /safe-area-inset-bottom/);
+  assert.match(cartStyles, /safe-area-inset-bottom/);
   assert.match(calculator, /min-h-11/);
   // CALC-UX uses a 44px mobile preset inside a single compact rail;
   // at desktop widths presets shrink to 36px to fit the measures panel.
   assert.match(calculator, /flex w-fit max-w-full items-center gap-1/);
   assert.match(calculator, /min-h-11 w-11 shrink-0 text-xs sm:min-h-9 sm:w-9/);
-  assert.match(calculator, /grid grid-cols-1 gap-2 sm:grid-cols-\[1\.45fr_0\.85fr\]/);
+  assert.match(calculator, /data-cockpit-length-quantity/);
+  assert.match(denseStyles, /\.lengthQuantity \{grid-template-columns:minmax\(0,1\.15fr\) minmax\(170px,\.85fr\)/);
   assert.doesNotMatch(calculator, /lg:h-\[calc\(100svh-6\.75rem\)\]/);
 });
 

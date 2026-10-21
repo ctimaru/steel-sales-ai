@@ -42,6 +42,6 @@ test("DENSE1C: explicit validated quantity save never writes a second state mode
   assert.ok(component.includes("prepareInlinePrivateRfq(liveState.current, targets, includePrivateTargets)"));
   assert.ok(chrome.includes('data-save-quick-quantity'));
   for (const key of ["it:", "en:", "de:", "fr:", "es:"]) assert.ok(copies.includes(key));
-  assert.equal((copies.match(/saveQuantity:/g) ?? []).length, 5);
-  assert.equal((copies.match(/unsavedQuantity:/g) ?? []).length, 5);
+  assert.equal((copies.match(/^\s*saveQuantity:\s*"/gm) ?? []).length, 5);
+  assert.equal((copies.match(/unsavedQuantity:\s*"/g) ?? []).length, 5);
 });

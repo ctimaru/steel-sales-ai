@@ -75,7 +75,7 @@ test("4.4D browser redaction remains 4.4A while auth is click-only and RFQ never
  assert.match(billSource,/createPrivateRfqOneStep\(\{/);
  assert.match(billSource,/await inlinePrivateRfqAccess\(\)/);
  assert.match(billSource,/includePrivateTargets, setIncludePrivateTargets\] = useState\(false\)/);
- assert.match(billSource,/onClick=\{\(\)=>\{void createPrivateRfq\(\);\}\}/);
+   assert.match(billSource,/data-create-inline-private-rfq[\s\S]*?onClick=\{\(\)\s*=>\s*\{\s*void createPrivateRfq\(\);\s*\}\}/);
  assert.match(billSource,/savedSnapshotRef\.current\?\.signature === signature/);
  assert.match(billSource,/createBuyerRfqCampaign\(savedId\)/);
  assert.match(billSource,/router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)\)/);

@@ -14,7 +14,8 @@ test("NEXT1C TSX parses; source choices and price/private boundaries retained",(
   assert.match(calc,/availableDimensions = useMemo/);
   assert.match(calc,/<CalculatorDimensionDiscovery items=\{availableDimensions\}/);
   assert.match(calc,/setThicknessTouched\(true\)/);
-  assert.match(calc,/className="mt-1 block lg:mt-0"/);
+  assert.match(calc,/data-cockpit-measurements/);
+  assert.match(calc,/data-cockpit-length-quantity/);
   assert.match(buyer,/discoveryOptions=\{discoveredBuyerDimensions\}/);
   assert.match(modelSource,/Only actual published Public Knowledge records/);
   assert.doesNotMatch(ui,/fetch\(|supabase|localStorage|targetEurT|createBuyerRfqCampaign|sendBuyerDistinta/);
