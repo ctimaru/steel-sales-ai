@@ -32,6 +32,7 @@ on:
       - "apps/web/components/calculator-region-switch.tsx"
       - "apps/web/components/calculator-region-switch.module.css"
       - "apps/web/tests/calc-int4-*"
+      - "apps/web/tests/calc-dense1c-*"
       - "apps/web/components/calculator-inline-distinta-experience.tsx"
       - "apps/web/components/us-hss-calculator.tsx"
       - "apps/web/tests/calc-int3d-*"
@@ -121,6 +122,8 @@ jobs:
         run: node tests/bd11-chrome-quick-add.mjs
       - name: CALC-INT4.4B Chrome inline bill IT mobile/desktop, edit, session restore and privacy
         run: node tests/calc-int4-4b-chrome-inline-distinta.mjs
+      - name: CALC-DENSE1C Chrome compact cart quantities, fixed footer and restore
+        run: node tests/calc-dense1c-chrome-quantity-grid.mjs
       - name: CALC-INT4.4C Chrome commercial buyer-only target opt-in and privacy
         run: node tests/calc-int4-4c-chrome-private-target.mjs
       - name: CALC-INT4.4D Chrome guest RFQ handoff and buyer target consent
