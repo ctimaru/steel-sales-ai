@@ -90,6 +90,7 @@ export function BuyerDistintaBuilder({
   organizationId = null,
   returnToCommercial = false,
   locale = "it",
+  compactLanding = false,
 }: {
   authenticated: boolean;
   emailConfigured: boolean;
@@ -99,6 +100,8 @@ export function BuyerDistintaBuilder({
   organizationId?: string | null;
   returnToCommercial?: boolean;
   locale?: BuyerUiLocale;
+  /** Compact only the public /distinta landing, not authenticated RFQ Hub. */
+  compactLanding?: boolean;
 }) {
   const router = useRouter();
   const [uiLocale,setUiLocale]=useState<BuyerUiLocale>(safeBuyerUiLocale(locale));
@@ -757,7 +760,7 @@ export function BuyerDistintaBuilder({
   }
 
   return (
-    <div data-private-calculator-page className={`bd54-page ${styles.page} space-y-3 sm:space-y-4`} lang={uiLocale}>
+    <div data-private-calculator-page data-public-bill-mobile-compact={compactLanding ? "true" : undefined} className={`bd54-page ${styles.page} ${compactLanding ? styles.publicMobileLanding : ""} space-y-3 sm:space-y-4`} lang={uiLocale}>
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-strong)] bg-white px-3 py-2" data-testid="buyer-private-language-switch">
         <p className="text-xs font-semibold text-[var(--brand-deep)]">{t("RFQ privata · nessun invio automatico")}</p>
         <label className="flex items-center gap-2 text-xs font-bold text-[var(--brand-deep)]">{t("Scegli la lingua")}
@@ -825,7 +828,7 @@ export function BuyerDistintaBuilder({
           Salva la distinta per registrarla nel tuo account aziendale.
         </p>
       ) : null}
-      <aside className="bd53-hud" aria-label="Riepilogo in tempo reale della distinta">
+      <aside data-public-bill-summary className="bd53-hud" aria-label="Riepilogo in tempo reale della distinta">
         <div className="bd53-hud-progress">
           <span className="bd53-hud-caption">{t("Righe pronte")}</span>
           <span className="bd53-hud-complete">{totals.completeLines}/{activeLineCount}</span>
