@@ -19,7 +19,7 @@ import { getCommercialNetworkContext } from "@/lib/commercial-network-context";
 import { getNetworkInquiries } from "@/lib/network";
 import { getCommercialNetworkProspect, listCommercialNetworkProspects } from "@/lib/commercial-network-prospect";
 import { getNetworkAccessState } from "@/lib/network-access";
-import { confirmCommercialNetworkProspect } from "./network-prospect-actions";
+import { confirmCommercialNetworkProspect, removeCommercialNetworkProspect } from "./network-prospect-actions";
 import { loadCompanyDirectory } from "@/app/(workspace)/customers/actions";
 import { createClient } from "@/lib/supabase/server";
 import { getWorkspaceContext } from "@/lib/workspace-context";
@@ -225,12 +225,27 @@ export default async function CommercialHomePage({
               >La mia lista →</Link>
             </div>
             {prospect.status === "saved" ? (
-              <div role="status" className="mt-2 rounded-md bg-[#eaf6ee] px-3 py-2 text-xs font-semibold text-[#175640]">
-                Salvata nella tua lista privata
-                {prospect.savedAt && !Number.isNaN(Date.parse(prospect.savedAt))
-                  ? " · " + new Intl.DateTimeFormat("it-IT", { dateStyle: "medium", timeZone: "Europe/Rome" }).format(new Date(prospect.savedAt))
-                  : ""}
-                . Nessuna RFQ inviata.
+              <div>
+                <div role="status" className="mt-2 rounded-md bg-[#eaf6ee] px-3 py-2 text-xs font-semibold text-[#175640]">
+                  Salvata nella tua lista privata
+                  {prospect.savedAt && !Number.isNaN(Date.parse(prospect.savedAt))
+                    ? " · " + new Intl.DateTimeFormat("it-IT", { dateStyle: "medium", timeZone: "Europe/Rome" }).format(new Date(prospect.savedAt))
+                    : ""}
+                  . Nessuna RFQ inviata.
+                </div>
+                {canWrite ? (
+                  <form action={removeCommercialNetworkProspect} className="mt-2 flex flex-wrap items-center gap-2">
+                    <input type="hidden" name="network_company_id" value={networkContext.id} />
+                    <label className="flex items-center gap-2 text-xs text-[#52615b]">
+                      <input type="checkbox" name="confirm_remove" value="yes" required
+                        className="h-4 w-4 accent-[#175640]" />
+                      Confermo la rimozione dalla mia lista personale
+                    </label>
+                    <button type="submit"
+                      className="inline-flex min-h-10 items-center rounded-lg border border-[#c9d7cf] px-3 text-xs font-semibold text-[#795521] hover:bg-[#fff6e9] focus-visible:outline-2 focus-visible:outline-offset-2"
+                    >Rimuovi dalla mia lista</button>
+                  </form>
+                ) : null}
               </div>
             ) : prospect.status === "unavailable" ? (
               <p role="status" className="mt-2 text-xs text-[#75582a]">
@@ -253,9 +268,9 @@ export default async function CommercialHomePage({
                 Solo i ruoli commerciali autorizzati possono salvare nuove aziende.
               </p>
             )}
-            {params.prospect === "saved" || params.prospect === "existing" ? (
+            {params.prospect === "saved" || params.prospect === "existing" || params.prospect === "removed" ? (
               <p role="status" className="mt-2 text-xs text-[#175640]">
-                {params.prospect === "existing" ? "Azienda già presente nella tua lista: nessun duplicato creato." : "Azienda aggiunta alla tua lista privata."}
+                {params.prospect === "existing" ? "Azienda già presente nella tua lista: nessun duplicato creato." : params.prospect === "removed" ? "Azienda rimossa dalla tua lista privata." : "Azienda aggiunta alla tua lista privata."}
               </p>
             ) : params.prospect === "invalid" || params.prospect === "unavailable" || params.prospect === "denied" ? (
               <p role="alert" className="mt-2 text-xs text-[#945321]">
