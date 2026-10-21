@@ -86,7 +86,14 @@
   cursor: pointer;
 }
 .close:hover { background: var(--brand-primary-soft, #ddf5ec); }
-.body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: .75rem .75rem 2rem; }
+.body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: .75rem .75rem 1rem; }
+.footer {
+  flex: none;
+  border-top: 1px solid var(--border, #dde4e1);
+  background: var(--surface-base, white);
+  padding: .625rem .75rem calc(.625rem + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -6px 20px rgba(9,38,27,.05);
+}
 @media (min-width: 640px) {
   .trigger {
     left: auto;
@@ -104,7 +111,8 @@
   }
   .dialogWide { width: min(760px, 95vw); }
   .header { padding: 1rem 1.5rem; }
-  .body { padding: 1.25rem 1.25rem 2rem; }
+  .body { padding: .75rem 1rem 1rem; }
+  .footer { padding: .75rem 1rem calc(.75rem + env(safe-area-inset-bottom, 0px)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .trigger { scroll-behavior: auto; transition: none; }
