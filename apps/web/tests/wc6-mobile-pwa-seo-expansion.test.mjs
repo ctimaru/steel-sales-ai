@@ -64,7 +64,7 @@ test("WC6 provides cross-platform Add to Home Screen guidance", () => {
 });
 
 test("WC6 hardens one-hand mobile interaction without removing the desktop cockpit", () => {
-  assert.match(calculator, /grid-cols-1 lg:grid-cols-\[minmax\(0,1\.08fr\)_minmax\(330px,0\.92fr\)\]/);
+  assert.match(calculator, /grid-cols-1 lg:grid-cols-\[minmax\(0,1\.4fr\)_minmax\(310px,0\.85fr\)\]/);
   assert.doesNotMatch(calculator, /overscroll-contain/);
   assert.doesNotMatch(calculator, /overflow-y-auto/);
   assert.match(calculator, /safe-area-inset-bottom/);
@@ -73,7 +73,7 @@ test("WC6 hardens one-hand mobile interaction without removing the desktop cockp
   // at desktop widths presets shrink to 36px to fit the measures panel.
   assert.match(calculator, /flex w-fit max-w-full items-center gap-1/);
   assert.match(calculator, /min-h-11 w-11 shrink-0 text-xs sm:min-h-9 sm:w-9/);
-  assert.match(calculator, /grid grid-cols-1 gap-2 sm:grid-cols-\[1\.35fr_0\.85fr\]/);
+  assert.match(calculator, /grid grid-cols-1 gap-2 sm:grid-cols-\[1\.45fr_0\.85fr\]/);
   assert.doesNotMatch(calculator, /lg:h-\[calc\(100svh-6\.75rem\)\]/);
 });
 
