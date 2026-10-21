@@ -16,6 +16,7 @@ import { listBuyerDistintaPublicDimensions } from "@/lib/public-knowledge";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { getCommercialNetworkContext } from "@/lib/commercial-network-context";
+import { getNetworkInquiries } from "@/lib/network";
 import { getCommercialNetworkProspect } from "@/lib/commercial-network-prospect";
 import { confirmCommercialNetworkProspect } from "./network-prospect-actions";
 import { loadCompanyDirectory } from "@/app/(workspace)/customers/actions";
@@ -112,14 +113,18 @@ export default async function CommercialHomePage({
     // Explicit GET-only handoff; invalid/locked Network ids never trigger a profile read.
     getCommercialNetworkContext(context.organizationId, params.network),
   ]);
-  const [prospect, possibleCompanies] = networkContext
+  const [prospect, possibleCompanies, inquiries] = networkContext
     ? await Promise.all([
         getCommercialNetworkProspect(context.organizationId, context.userId, networkContext.id),
         loadCompanyDirectory(networkContext.name).catch(() => ({ total: 0, companies: [] })),
+        getNetworkInquiries(context.organizationId, "sent").catch(() => null),
       ])
-    : [{ status: "unavailable" as const, savedAt: null }, { total: 0, companies: [] }];
+    : [{ status: "unavailable" as const, savedAt: null }, { total: 0, companies: [] }, null];
   // A name match is only a candidate for manual identity review. It is NOT a verified
   // Network-to-Company360 link, and never mutates canonical identities.
+  const relevantInquiries = (inquiries?.items ?? [])
+    .filter((inquiry) => inquiry.recipient_network_company_id === networkContext?.id)
+    .slice(0, 3);
   const possibleMatches = possibleCompanies.companies
     .filter((candidate) => candidate.name.trim().toLocaleLowerCase("it-IT") === networkContext?.name.toLocaleLowerCase("it-IT"))
     .slice(0, 2);
@@ -250,6 +255,32 @@ export default async function CommercialHomePage({
               </p>
             ) : null}
           </div>
+          {relevantInquiries.length > 0 ? (
+            <section aria-label="Storico interazioni Network" className="mt-2 rounded-lg border border-[#d6e7dc] bg-white p-3" data-testid="commercial-prospect-activity">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-xs font-semibold text-[#173f35]">Attività Network già avviate</h3>
+                <Link href={appRoutes.network.inquiries}
+                  className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4"
+                >Apri interazioni →</Link>
+              </div>
+              <p className="text-[11px] leading-4 text-[#53665b]">
+                Ultime richieste inviate dalla tua organizzazione a questa azienda; non sono automaticamente collegate alla Company 360.
+              </p>
+              <div className="mt-1 divide-y divide-[#e2ece6]">
+                {relevantInquiries.map((inquiry) => (
+                  <div key={inquiry.id} className="py-2">
+                    <p className="break-words text-xs font-medium text-[#173f35]">{inquiry.subject}</p>
+                    <p className="mt-0.5 text-[11px] text-[#52615b]">
+                      Stato: {inquiry.status}
+                      {inquiry.submitted_at && !Number.isNaN(Date.parse(inquiry.submitted_at))
+                        ? " · " + new Intl.DateTimeFormat("it-IT", { dateStyle: "short", timeZone: "Europe/Rome" }).format(new Date(inquiry.submitted_at))
+                        : ""}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
           {possibleMatches.length > 0 ? (
             <div className="mt-2 rounded-lg border border-[#eadbbc] bg-[#fffaf0] p-3" data-testid="commercial-identity-candidates">
               <p className="text-xs font-semibold text-[#795521]">Possibile azienda già nello storico commerciale</p>
