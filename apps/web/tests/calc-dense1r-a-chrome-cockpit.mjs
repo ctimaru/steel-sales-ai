@@ -16,6 +16,8 @@ try {
     const root=page.locator("#calcolatore-pesi"), toolbar=root.locator("[data-cockpit-toolbar]");
     const fields=root.locator("[data-cockpit-fields]"), outcomes=root.locator("[data-cockpit-results]");
     const svg=root.locator("[data-cockpit-preview] svg"), action=root.locator("[data-cockpit-add]");
+    const details=root.locator("[data-cockpit-details]");
+    assert.equal(await details.isVisible(),true,"Advanced tools must remain available below core cockpit");
     for(const element of [toolbar,fields,outcomes,svg,action])
       assert.equal(await element.isVisible(),true,"Cockpit landmark missing at "+width);
     assert.equal(await root.locator("[data-cockpit-controls] [aria-label]").count()>=2,true);
@@ -39,6 +41,8 @@ try {
     }
     if(width===1440) {
       assert.ok(Math.abs(fieldsBox.y-resultBox.y)<4,"Form and preview + KPI must share desktop row");
+      assert.ok(Math.abs(fieldsBox.height-resultBox.height)<140,"Compact result must not stretch the measurement editor");
+      assert.ok(actionBox.y-(toolbarBox.y)<430,"Primary add belongs above deferred technical tools");
       assert.ok(actionBox.y-(toolbarBox.y)<730,
         "Core action must fit condensed desktop work surface: "+Math.round(actionBox.y-toolbarBox.y));
     }
