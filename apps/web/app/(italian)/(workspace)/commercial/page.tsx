@@ -16,6 +16,9 @@ import { listBuyerDistintaPublicDimensions } from "@/lib/public-knowledge";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { getCommercialNetworkContext } from "@/lib/commercial-network-context";
+import { getCommercialNetworkProspect } from "@/lib/commercial-network-prospect";
+import { confirmCommercialNetworkProspect } from "./network-prospect-actions";
+import { loadCompanyDirectory } from "@/app/(workspace)/customers/actions";
 import { createClient } from "@/lib/supabase/server";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 import { appRoutes } from "@/lib/routes";
@@ -80,7 +83,7 @@ const intelligenceGroups = [
 export default async function CommercialHomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string; tab?: string; page?: string; cursor?: string; network?: string }>;
+  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string; tab?: string; page?: string; cursor?: string; network?: string; prospect?: string }>;
 }) {
   const params = await searchParams;
   const context = await getWorkspaceContext();
@@ -109,6 +112,17 @@ export default async function CommercialHomePage({
     // Explicit GET-only handoff; invalid/locked Network ids never trigger a profile read.
     getCommercialNetworkContext(context.organizationId, params.network),
   ]);
+  const [prospect, possibleCompanies] = networkContext
+    ? await Promise.all([
+        getCommercialNetworkProspect(context.organizationId, context.userId, networkContext.id),
+        loadCompanyDirectory(networkContext.name).catch(() => ({ total: 0, companies: [] })),
+      ])
+    : [{ status: "unavailable" as const, savedAt: null }, { total: 0, companies: [] }];
+  // A name match is only a candidate for manual identity review. It is NOT a verified
+  // Network-to-Company360 link, and never mutates canonical identities.
+  const possibleMatches = possibleCompanies.companies
+    .filter((candidate) => candidate.name.trim().toLocaleLowerCase("it-IT") === networkContext?.name.toLocaleLowerCase("it-IT"))
+    .slice(0, 2);
   // Resolve a specifically selected RFQ with tenant RLS when it is older than
   // the first paginated Commerciale worklist page. Normal visits add no query.
   const displayedUnified = view === "sent" && selected.startsWith("campaign:")
@@ -185,6 +199,70 @@ export default async function CommercialHomePage({
               className="inline-flex min-h-10 items-center rounded-lg px-2 text-xs font-semibold text-[#175640] underline underline-offset-4"
             >Rimuovi contesto</Link>
           </div>
+          <div className="mt-3 rounded-lg border border-[#d6e7dc] bg-white px-3 py-3" data-testid="commercial-private-prospect">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-[#173f35]">Relazione da seguire · lista privata</p>
+                <p className="mt-0.5 text-xs leading-5 text-[#52615b]">
+                  Salva questa azienda nella tua lista personale di opportunità. Non crea una Company 360, non associa contatti e non comunica nulla all’azienda.
+                </p>
+              </div>
+              <Link href={appRoutes.network.saved}
+                className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4"
+              >La mia lista →</Link>
+            </div>
+            {prospect.status === "saved" ? (
+              <div role="status" className="mt-2 rounded-md bg-[#eaf6ee] px-3 py-2 text-xs font-semibold text-[#175640]">
+                Salvata nella tua lista privata
+                {prospect.savedAt && !Number.isNaN(Date.parse(prospect.savedAt))
+                  ? " · " + new Intl.DateTimeFormat("it-IT", { dateStyle: "medium", timeZone: "Europe/Rome" }).format(new Date(prospect.savedAt))
+                  : ""}
+                . Nessuna RFQ inviata.
+              </div>
+            ) : prospect.status === "unavailable" ? (
+              <p role="status" className="mt-2 text-xs text-[#75582a]">
+                Salvataggio non verificabile al momento. Riprova dopo aver aggiornato la pagina.
+              </p>
+            ) : canWrite ? (
+              <form action={confirmCommercialNetworkProspect} className="mt-2 flex flex-col gap-2">
+                <input type="hidden" name="network_company_id" value={networkContext.id} />
+                <label className="flex items-start gap-2 text-xs leading-5 text-[#52615b]">
+                  <input name="confirm_prospect" type="checkbox" value="yes" required
+                    className="mt-1 h-4 w-4 shrink-0 accent-[#175640]" />
+                  Confermo il salvataggio privato nel mio workspace personale: nessuna associazione CRM e nessun invio automatico.
+                </label>
+                <button type="submit"
+                  className="inline-flex min-h-10 w-fit items-center rounded-lg bg-[#175640] px-3 text-xs font-semibold text-white hover:bg-[#246c53] focus-visible:outline-2 focus-visible:outline-offset-2"
+                >Salva azienda da seguire</button>
+              </form>
+            ) : (
+              <p className="mt-2 text-xs leading-5 text-[#52615b]">
+                Solo i ruoli commerciali autorizzati possono salvare nuove aziende.
+              </p>
+            )}
+            {params.prospect === "saved" || params.prospect === "existing" ? (
+              <p role="status" className="mt-2 text-xs text-[#175640]">
+                {params.prospect === "existing" ? "Azienda già presente nella tua lista: nessun duplicato creato." : "Azienda aggiunta alla tua lista privata."}
+              </p>
+            ) : params.prospect === "invalid" || params.prospect === "unavailable" || params.prospect === "denied" ? (
+              <p role="alert" className="mt-2 text-xs text-[#945321]">
+                Operazione non eseguita. Verifica autorizzazioni, conferma e disponibilità del Network.
+              </p>
+            ) : null}
+          </div>
+          {possibleMatches.length > 0 ? (
+            <div className="mt-2 rounded-lg border border-[#eadbbc] bg-[#fffaf0] p-3" data-testid="commercial-identity-candidates">
+              <p className="text-xs font-semibold text-[#795521]">Possibile azienda già nello storico commerciale</p>
+              <p className="mt-1 text-xs leading-5 text-[#715d40]">
+                Il nome coincide, ma l’identità non è stata verificata. Controlla la Company 360 prima di creare altre associazioni.
+              </p>
+              {possibleMatches.map((candidate) => (
+                <Link key={candidate.company_id} href={appRoutes.commercial.company(candidate.company_id)}
+                  className="mt-1 inline-flex min-h-10 items-center text-xs font-semibold text-[#795521] underline underline-offset-4"
+                >Verifica {candidate.name} in Company 360 →</Link>
+              ))}
+            </div>
+          ) : null}
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <Link
               href={appRoutes.commercial.search + "?q=" + encodeURIComponent(networkContext.name)}
