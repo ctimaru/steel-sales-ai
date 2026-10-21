@@ -20,7 +20,7 @@ for(const width of [390,1440]){
  assert.equal(await technical.evaluate(el=>el.open),false);
  assert.equal(await page.getByRole("heading",{name:"Domande frequenti"}).isVisible(),false);
  assert.equal(await page.getByRole("heading",{name:/pesi di riferimento|riferimenti disponibili/i}).isVisible(),false);
- assert.equal(await bill.getByRole("heading",{name:"La tua distinta"}).isVisible(),true);
+ assert.match(await bill.innerText(),/La tua distinta/);
  const rects=await page.evaluate(()=>({
   calculator:document.querySelector("#calcolatore-pesi").getBoundingClientRect().top+scrollY,
   bill:document.querySelector("#distinta-inline").getBoundingClientRect().top+scrollY,
@@ -31,8 +31,13 @@ for(const width of [390,1440]){
   "Expected calculator → bill → collapsed references → collapsed editorial, got "+JSON.stringify(rects));
 
  await calc.getByRole("button",{name:/Aggiungi alla distinta/}).click();
- await bill.locator("article").first().waitFor({state:"visible"});
- assert.equal(await bill.locator("article").count(),1);
+ const drawer=page.locator("#distinta-inline-dialog");
+ if (await page.locator('[data-testid="mobile-cookie-consent"] > button').isVisible())
+      await page.locator('[data-testid="mobile-cookie-consent"] > button').click();
+    await page.locator('[data-testid="calculator-cart-trigger"]').click();
+ await drawer.locator("article").first().waitFor({state:"visible"});
+ assert.equal(await drawer.locator("article").count(),1);
+ await drawer.getByRole("button",{name:/Chiudi/}).click();
  assert.equal(new URL(page.url()).pathname,"/knowledge/tubes");
  await technical.locator(":scope > summary").click();
  assert.equal(await technical.evaluate(el=>el.open),true);

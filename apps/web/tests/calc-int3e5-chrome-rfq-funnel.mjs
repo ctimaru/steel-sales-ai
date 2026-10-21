@@ -28,8 +28,11 @@ try{
     await accept.waitFor({state:"visible",timeout:25000});
     await accept.click();
     assert.match(await page.evaluate(()=>localStorage.getItem("sss.analytics-consent.v2")||""),/"decision":"granted"/);
-    const source=page.locator("#calcolatore-pesi"),bill=page.locator("#distinta-inline");
+    const source=page.locator("#calcolatore-pesi"),bill=page.locator("#distinta-inline-dialog");
     await source.getByRole("button",{name:/RFQ|Anfrage|liste|lista/i}).first().click();
+    if (await page.locator('[data-testid="mobile-cookie-consent"] > button').isVisible())
+      await page.locator('[data-testid="mobile-cookie-consent"] > button').click();
+    await page.locator('[data-testid="calculator-cart-trigger"]').click();
     await bill.locator("article").first().waitFor({state:"visible",timeout:30000});
     assert.equal(page.url(),BASE+route,"EU calculator must not navigate on add");
     await bill.getByRole("heading",{name:c.title}).waitFor({state:"visible"});
@@ -63,7 +66,10 @@ try{
     await add.waitFor({state:"visible",timeout:30000});
     await page.waitForFunction(()=>!!document.querySelector("button[data-us-add-to-inline-bill]:not(:disabled)"));
     await add.click();
-    const bill=page.locator("#distinta-inline");
+    const bill=page.locator("#distinta-inline-dialog");
+    if (await page.locator('[data-testid="mobile-cookie-consent"] > button').isVisible())
+      await page.locator('[data-testid="mobile-cookie-consent"] > button').click();
+    await page.locator('[data-testid="calculator-cart-trigger"]').click();
     await bill.locator("article").first().waitFor({state:"visible",timeout:30000});
     assert.equal(new URL(page.url()).pathname,"/en/knowledge/tubes/american-pipe");
     const stored=JSON.parse(await page.evaluate(()=>sessionStorage.getItem("sss:inline-distinta:v1")));
