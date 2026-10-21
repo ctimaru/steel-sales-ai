@@ -21,7 +21,7 @@ try{
     const norms=root.locator("[data-cockpit-controls]");
     const editor=root.locator("[data-cockpit-fields]");
     const finder=root.locator('[data-testid="calculator-dimension-discovery"]');
-    const input=finder.getByRole("combobox");
+    const input=finder.getByRole("searchbox");
     const before=await Promise.all([toolbar.boundingBox(),norms.boundingBox(),editor.boundingBox()]);
     await input.fill("200x100");
     const panel=finder.locator("[data-dense-discovery-popover]");

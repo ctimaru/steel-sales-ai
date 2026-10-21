@@ -139,7 +139,7 @@ export function CalculatorDimensionDiscovery({
             }
           }}
           placeholder={c.placeholder}
-          role="combobox" aria-autocomplete="list"
+          role="searchbox" aria-autocomplete="list"
           aria-expanded={showResults && found.matchCount>0}
           aria-controls={showResults && found.matchCount>0 ? resultsId : undefined}
           aria-activedescendant={showResults && found.matchCount>0 ? resultsId+"-item-"+Math.min(activeIndex,found.results.length-1) : undefined}
