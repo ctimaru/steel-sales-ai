@@ -34,3 +34,41 @@ export async function getCommercialNetworkProspect(
     ? { status: "saved", savedAt: typeof data.created_at === "string" ? data.created_at : null }
     : { status: "not_saved", savedAt: null };
 }
+
+/** Explicitly requested personal shortlist: never read other users' prospects. */
+export type CommercialProspectListItem = {
+  id: string;
+  name: string;
+  country: string;
+  savedAt: string;
+};
+
+export async function listCommercialNetworkProspects(
+  organizationId: string,
+  userId: string,
+): Promise<CommercialProspectListItem[] | null> {
+  if (!UUID.test(organizationId) || !UUID.test(userId)) return null;
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("network_saved_companies")
+    .select("network_company_id,created_at,network_companies!inner(legal_name,trading_name,country_code,publication_status)")
+    .eq("organization_id", organizationId)
+    .eq("user_id", userId)
+    .eq("network_companies.publication_status", "published")
+    .order("created_at", { ascending: false })
+    .limit(12);
+  if (error) return null;
+  return (data ?? []).flatMap((saved) => {
+    const company = Array.isArray(saved.network_companies)
+      ? saved.network_companies[0] : saved.network_companies;
+    if (!UUID.test(saved.network_company_id) || !company) return [];
+    const name = String(company.trading_name || company.legal_name || "").trim().slice(0, 115);
+    if (!name) return [];
+    return [{
+      id: saved.network_company_id,
+      name,
+      country: String(company.country_code || "—").slice(0, 2),
+      savedAt: String(saved.created_at || ""),
+    }];
+  });
+}
