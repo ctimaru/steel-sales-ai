@@ -145,6 +145,25 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: 2.118.0
+      - name: Probe STRICT repo-only rebuild before CI baselines (diagnostic, no remote)
+        run: |
+          python supabase/tools/strict_rebuild_probe.py \
+            --output strict-rebuild-diagnostic.json \
+            --start-timeout 240 --reset-timeout 240
+          python - <<'PY'
+          import json
+          report=json.load(open("strict-rebuild-diagnostic.json"))
+          assert report["production_touched"] is False
+          assert report["automatic_release_authorized"] is False
+          assert report["migration_history_repair_authorized"] is False
+          print("Strict result is diagnostic only; assisted P0 suite runs next.")
+          PY
+      - name: Retain minimal strict-rebuild evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: strict-rebuild-probe
+          path: strict-rebuild-diagnostic.json
+          retention-days: 14
       - name: Inject CI-only historical baselines
         run: |
           cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
@@ -342,6 +361,8 @@ jobs:
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
+      - name: Real local JWT / PostgREST two-tenant authorization acceptance
+        run: python supabase/tools/local_jwt_tenant_acceptance.py
       - name: Verify tenant helper and lint
         env:
           PGPASSWORD: postgres
