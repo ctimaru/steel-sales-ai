@@ -29,4 +29,11 @@
   .heading > div:first-child p:last-child {font-size:11px;line-height:1.4;}
   .gradeBar {gap:7px;padding:8px;}
   .gradeBar label {width:100%;min-width:0;}
+  /* Repeated instructions are not part of the commercial task. Leave all
+   * editable inputs and the private cart action visible at 320px. */
+  .cartBar > div:first-child p:first-child {display:none;}
+  .heading > div:first-child p:last-child {display:none;}
+  .gradeBar > div:first-child p {display:none;}
+  .heading h2 {line-height:19px;}
+  .gradeBar {min-height:0;}
 }

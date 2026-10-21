@@ -21,13 +21,15 @@ try{
     assert.equal(await area.isVisible(),true,"Private workbench must expose same cockpit at "+width);
   const regionBoxes=await Promise.all([shell.boundingBox(),bar.boundingBox(),heading.boundingBox(),grade.boundingBox(),cockpit.boundingBox()]);
   assert.ok(regionBoxes.every(Boolean));
-  assert.ok(regionBoxes[4].y-regionBoxes[0].y<(width>=1024?280:430),"Excess pre-cockpit private chrome "+width);
+  const preludeHeight=Math.round(regionBoxes[4].y-regionBoxes[0].y);
+  console.log("DENSE1R-F private prelude",width,preludeHeight);
+  await shell.screenshot({path:"/tmp/calc-dense1r-f/private-"+width+".png",animations:"disabled",timeout:30000});
+  assert.ok(preludeHeight<(width>=1024?280:430),"Excess pre-cockpit private chrome "+width+": "+preludeHeight+"px");
   assert.ok(regionBoxes[1].height<=100&&regionBoxes[3].height<=140,"Compact header or optional grade too tall at "+width);
   const pageWidth=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
   assert.ok(pageWidth.scroll<=pageWidth.client+8,"Private page overflow "+width+" "+JSON.stringify(pageWidth));
   assert.equal(await cockpit.getByRole("searchbox").count(),1,"Public/private must share dimension search semantics");
   assert.ok(await shell.getByRole("button",{name:/carrello/i}).count()>0,"Private cart remains directly reachable");
-  await shell.screenshot({path:"/tmp/calc-dense1r-f/private-"+width+".png",animations:"disabled",timeout:30000});
   console.log("CALC-DENSE1R-F PRIVATE CHROME PASS",width,JSON.stringify({preludeHeight:Math.round(regionBoxes[4].y-regionBoxes[0].y),barHeight:Math.round(regionBoxes[1].height)}));
   await context.close();
  }
