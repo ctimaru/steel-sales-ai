@@ -31,12 +31,14 @@ type TechnicalCartShellProps = {
   /** Private workspace only: focus a row after opening the dialog. */
   pendingFocusRowRef?: RefObject<string | null>;
   children: ReactNode;
+  /** Optional fixed footer outside the scrollable body. */
+  footer?: ReactNode;
 };
 
 export function TechnicalCartShell({
   visible, open, onOpen, onClose, count, title, eyebrow, summary, closeLabel,
   dialogId, titleId, bodyId, dialogAriaLabel, triggerTestId, overlayTestId,
-  wide = false, restoreFocusRef, pendingFocusRowRef, children,
+  wide = false, restoreFocusRef, pendingFocusRowRef, children, footer,
 }: TechnicalCartShellProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -124,6 +126,7 @@ export function TechnicalCartShell({
               </button>
             </div>
             <div id={bodyId} className={styles.body}>{children}</div>
+            {footer ? <div className={styles.footer}>{footer}</div> : null}
           </div>
         </div>
       ) : null}
