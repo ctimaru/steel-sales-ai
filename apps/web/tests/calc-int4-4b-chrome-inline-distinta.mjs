@@ -35,6 +35,10 @@ try {
     assert.equal(await bill.count(),0);
     await trigger.click();
     await bill.locator("article").first().waitFor({state:"visible"});
+    await page.keyboard.press("Escape");
+    assert.equal(await bill.count(), 0, "Escape closes the shared cart");
+    assert.equal(await trigger.evaluate(node => node === document.activeElement), true, "Focus returns to cart trigger");
+    await trigger.click();
     assert.equal(await bill.locator("article").count(), 1);
     assert.match(await bill.innerText(), /EN 10219/);
     assert.match(await bill.innerText(), /36(?:[,.]0+)? m/);
