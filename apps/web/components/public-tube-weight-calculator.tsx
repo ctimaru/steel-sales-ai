@@ -905,7 +905,7 @@ export function PublicTubeWeightCalculator({
   }
 
   const inputClass =
-    "mt-1 min-h-11 w-full rounded-xl border border-[#cfd9d5] bg-white px-3 py-2 text-sm font-semibold text-[#1d2824] outline-none transition-colors hover:border-[#8eb5a6] focus-visible:border-[#24745d] focus-visible:ring-2 focus-visible:ring-[#b5ddcd]";
+    "mt-1 min-h-11 w-full rounded-lg border border-[#cfd9d5] bg-white px-2.5 py-1.5 text-sm font-semibold tabular-nums text-[#1d2824] outline-none transition-colors hover:border-[#8eb5a6] focus-visible:border-[#24745d] focus-visible:ring-2 focus-visible:ring-[#b5ddcd] sm:min-h-10";
   const selectionBase =
     "inline-flex min-w-0 items-center justify-center rounded-xl border transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15815a] active:scale-[0.98]";
   const selectionIdle =
@@ -1071,7 +1071,7 @@ export function PublicTubeWeightCalculator({
 
   return (
     <div
-      className="space-y-5"
+      className="space-y-3"
       onChangeCapture={(event) => {
         // Commercial rate edits are ephemeral: do not count them as a change
         // to geometry or emit a weight-calculation engagement signal.
@@ -1081,16 +1081,14 @@ export function PublicTubeWeightCalculator({
     >
       <section
         id="calcolatore-pesi"
-        className="flex scroll-mt-20 flex-col overflow-hidden rounded-[1.6rem] border border-[#cddbd6] bg-white shadow-[0_18px_60px_rgba(11,47,39,0.08)]"
+        className="flex scroll-mt-20 flex-col overflow-hidden rounded-xl border border-[#cddbd6] bg-white shadow-[0_8px_28px_rgba(11,47,39,0.05)]"
       >
-        <header className="flex flex-col items-stretch gap-2 border-b border-[#dce7e3] bg-[linear-gradient(135deg,#f7fbf9_0%,#ffffff_62%,#edf5f2_100%)] px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+        <header className="flex items-center border-b border-[#dce7e3] bg-[#f8faf9] px-3 py-2 sm:px-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <span className="school-eyebrow hidden sm:inline-flex">{t("Calcolatore pesi")}</span>
-              <span className="school-badge">{t("Gratis")}</span>
-              <span className="school-badge hidden sm:inline-flex">{t("Live")}</span>
+              {inEmbeddedBuilder || locale === "de" || locale === "fr" || locale === "es" ? <h2 className="text-sm font-bold text-[#15372f] sm:text-base">{t("Peso tubo acciaio")}</h2> : <h1 className="text-sm font-bold text-[#15372f] sm:text-base">{t("Peso tubo acciaio")}</h1>}
+              <span className="school-badge hidden sm:inline-flex">{t("Gratis")}</span>
             </div>
-            {inEmbeddedBuilder || locale === "de" || locale === "fr" || locale === "es" ? <h2 className="mt-1 text-lg font-semibold text-[#15372f]">{t("Peso tubo acciaio")}</h2> : <h1 className="mt-1 break-words text-lg font-semibold tracking-[-0.025em] text-[#15372f] sm:text-xl">{t("Peso tubo acciaio")}</h1>}
           </div>
 
         </header>
@@ -1098,9 +1096,10 @@ export function PublicTubeWeightCalculator({
 
         <CalculatorDimensionDiscovery items={availableDimensions} locale={locale}
           onChoose={applyDiscoveredDimension} />
-        <div className={inEmbeddedBuilder ? "grid min-w-0 grid-cols-1" : "grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)]"}>
-          <div className="min-w-0 border-b border-[#dce7e3] p-3 sm:p-4 lg:border-b-0 lg:border-r">
-            <div className="grid gap-3 lg:grid-rows-[auto_auto_1fr_auto]">
+        <div className={inEmbeddedBuilder ? "grid min-w-0 grid-cols-1" : "grid min-w-0 grid-cols-1 lg:grid-cols-[minmax(0,1.4fr)_minmax(310px,0.85fr)]"}>
+          <div className="min-w-0 border-b border-[#dce7e3] p-3 lg:border-b-0 lg:border-r">
+            <div className="grid gap-2">
+              <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]">
               <section aria-labelledby="calculator-standard">
                 <div className="mb-1.5 flex items-center justify-between gap-2">
                   <h2 id="calculator-standard" className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-[#52615b]">
@@ -1154,10 +1153,11 @@ export function PublicTubeWeightCalculator({
                   })}
                 </div>
               </section>
+              </div>
 
               <section
                 aria-labelledby="calculator-measures"
-                className="grid min-h-0 gap-3 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-center"
+                className="grid min-h-0 gap-2 lg:grid-cols-[minmax(0,1fr)_150px] lg:items-start"
               >
                 <div className="min-w-0">
                   <div className="mb-1.5 flex items-center justify-between gap-2">
@@ -1261,7 +1261,7 @@ export function PublicTubeWeightCalculator({
                     </details>
                   ) : null}
 
-                  <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-[1.35fr_0.85fr]">
+                  <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-[1.45fr_0.85fr]">
                     <div>
                       <div className="mb-1 flex items-center justify-between gap-2">
                         <span className="text-[10px] font-bold text-[#52615b]">{t("Lunghezza barra")}</span>
