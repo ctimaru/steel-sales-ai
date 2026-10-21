@@ -43,6 +43,7 @@ export default function EnglishRfqBuilderPage() {
   };
   return (
     <EnglishPublicSubpage
+      compactMobileHero
       eyebrow="Free public buyer tool"
       title="Create a steel RFQ bill of materials in English."
       description="Prepare one clear enquiry for multiple suppliers. Mix CHS, SHS and RHS items, including EN 10210 and EN 10219, with quantities, material grades, indicative weights and optional price targets."
@@ -50,8 +51,8 @@ export default function EnglishRfqBuilderPage() {
       englishHref="/en/distinta"
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <div className="mx-auto max-w-[1120px] px-4 py-10 sm:px-6 lg:px-8">
-        <nav aria-label="RFQ bill language" className="mb-5 flex flex-wrap items-center gap-2">
+      <div data-international-bill-workspace className="mx-auto max-w-[1120px] px-3 py-2 sm:px-6 sm:py-10 lg:px-8">
+        <nav aria-label="RFQ bill language" className="mb-2 flex flex-wrap items-center gap-1.5 sm:mb-5 sm:gap-2">
           {(["en","de","fr","es"] as const).map((language)=><Link
             key={language} href={language==="en"?"/en/distinta":"/"+language+"/distinta"}
             hrefLang={language} lang={language} aria-current={language==="en"?"page":undefined}
