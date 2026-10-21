@@ -28,7 +28,10 @@
   .heading > div:first-child h2 {font-size:15px;}
   .heading > div:first-child p:last-child {font-size:11px;line-height:1.4;}
   .gradeBar {gap:7px;padding:8px;}
-  .gradeBar label {width:100%;min-width:0;}
+  .gradeBar {display:grid;grid-template-columns:minmax(0,1fr);gap:4px;align-items:center;}
+  .gradeBar label {display:block;width:100%;max-width:none;min-width:0;flex:auto;}
+  .gradeBar label input {width:100%;margin-top:4px;}
+  .gradeBar > div:first-child {min-width:0;}
   /* Repeated instructions are not part of the commercial task. Leave all
    * editable inputs and the private cart action visible at 320px. */
   .cartBar > div:first-child p:first-child {display:none;}

@@ -11,6 +11,8 @@ try{
   const page=await context.newPage();
   const response=await page.goto(BASE+"/distinta",{waitUntil:"domcontentloaded",timeout:60000});
   assert.equal(response?.status(),200);
+  const cookieAction=page.getByRole("button",{name:/Accetta necessari/i}).first();
+  if(await cookieAction.isVisible()) await cookieAction.click();
   const shell=page.locator("[data-private-calculator-shell]");
   const bar=shell.locator("[data-private-calculator-toolbar]");
   const heading=shell.locator("[data-private-calculator-heading]");
@@ -26,6 +28,13 @@ try{
   await shell.screenshot({path:"/tmp/calc-dense1r-f/private-"+width+".png",animations:"disabled",timeout:30000});
   assert.ok(preludeHeight<(width>=1024?280:430),"Excess pre-cockpit private chrome "+width+": "+preludeHeight+"px");
   assert.ok(regionBoxes[1].height<=100&&regionBoxes[3].height<=140,"Compact header or optional grade too tall at "+width);
+  if(width<=390){
+    const gradeInput=await grade.locator("input").boundingBox();
+    assert.ok(gradeInput && gradeInput.width>=regionBoxes[3].width*.8,
+      "Steel grade must use the available mobile width, not a cramped second column: "+width);
+    const massPerBar=await cockpit.locator("[data-cockpit-kpis] > div").first().locator("p").last().boundingBox();
+    assert.ok(massPerBar && massPerBar.height<=24,"Weight and kg must remain on one line at "+width);
+  }
   const pageWidth=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
   assert.ok(pageWidth.scroll<=pageWidth.client+8,"Private page overflow "+width+" "+JSON.stringify(pageWidth));
   assert.equal(await cockpit.getByRole("searchbox").count(),1,"Public/private must share dimension search semantics");

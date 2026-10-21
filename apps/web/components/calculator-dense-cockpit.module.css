@@ -125,3 +125,17 @@
 @media (max-width:400px) {
   .results [data-cockpit-kpis] > div > p:first-child {font-size:9px;letter-spacing:.025em}
 }
+
+/* DENSE1R-F: protect numbers and units from wrapping in the narrow private
+ * builder and the shared public calculator at genuine 320px viewports. */
+@media (max-width:400px) {
+  .preview {width:80px;flex-basis:80px}
+  .preview figure > svg {max-width:74px}
+  .results [data-cockpit-kpis] > div > p:nth-of-type(2) {
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    font-size:12px;
+  }
+  .results [data-cockpit-kpis] > div > p:nth-of-type(2) span {
+    margin-left:2px; font-size:9px;
+  }
+}
