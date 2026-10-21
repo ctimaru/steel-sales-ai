@@ -16,6 +16,11 @@ import { listBuyerDistintaPublicDimensions } from "@/lib/public-knowledge";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { getCommercialNetworkContext } from "@/lib/commercial-network-context";
+import { getNetworkInquiries } from "@/lib/network";
+import { getCommercialNetworkProspect, listCommercialNetworkProspects } from "@/lib/commercial-network-prospect";
+import { getNetworkAccessState } from "@/lib/network-access";
+import { confirmCommercialNetworkProspect, removeCommercialNetworkProspect } from "./network-prospect-actions";
+import { loadCompanyDirectory } from "@/app/(workspace)/customers/actions";
 import { createClient } from "@/lib/supabase/server";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 import { appRoutes } from "@/lib/routes";
@@ -80,12 +85,19 @@ const intelligenceGroups = [
 export default async function CommercialHomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string; tab?: string; page?: string; cursor?: string; network?: string }>;
+  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string; tab?: string; page?: string; cursor?: string; network?: string; prospect?: string; prospects?: string }>;
 }) {
   const params = await searchParams;
   const context = await getWorkspaceContext();
   const canWrite = canWriteWorkspace(context.role);
   const networkAvailable = isNetworkFrontendEnabled();
+  const showProspects = networkAvailable && params.prospects === "1";
+  const prospectAccess = showProspects
+    ? await getNetworkAccessState(context.organizationId).catch(() => null)
+    : null;
+  const prospectList = showProspects && prospectAccess?.can_access_network && prospectAccess.organization_id === context.organizationId
+    ? await listCommercialNetworkProspects(context.organizationId, context.userId)
+    : null;
   const allowedViews: CommercialView[] = ["all", "received", "sent", "offers", "orders", "drafts"];
   const view: CommercialView = allowedViews.includes(params.view as CommercialView) ? params.view as CommercialView : "all";
   const query = typeof params.q === "string" ? params.q.trim().slice(0, 80) : "";
@@ -109,6 +121,21 @@ export default async function CommercialHomePage({
     // Explicit GET-only handoff; invalid/locked Network ids never trigger a profile read.
     getCommercialNetworkContext(context.organizationId, params.network),
   ]);
+  const [prospect, possibleCompanies, inquiries] = networkContext
+    ? await Promise.all([
+        getCommercialNetworkProspect(context.organizationId, context.userId, networkContext.id),
+        loadCompanyDirectory(networkContext.name).catch(() => ({ total: 0, companies: [] })),
+        getNetworkInquiries(context.organizationId, "sent").catch(() => null),
+      ])
+    : [{ status: "unavailable" as const, savedAt: null }, { total: 0, companies: [] }, null];
+  // A name match is only a candidate for manual identity review. It is NOT a verified
+  // Network-to-Company360 link, and never mutates canonical identities.
+  const relevantInquiries = (inquiries?.items ?? [])
+    .filter((inquiry) => inquiry.recipient_network_company_id === networkContext?.id)
+    .slice(0, 3);
+  const possibleMatches = possibleCompanies.companies
+    .filter((candidate) => candidate.name.trim().toLocaleLowerCase("it-IT") === networkContext?.name.toLocaleLowerCase("it-IT"))
+    .slice(0, 2);
   // Resolve a specifically selected RFQ with tenant RLS when it is older than
   // the first paginated Commerciale worklist page. Normal visits add no query.
   const displayedUnified = view === "sent" && selected.startsWith("campaign:")
@@ -185,6 +212,111 @@ export default async function CommercialHomePage({
               className="inline-flex min-h-10 items-center rounded-lg px-2 text-xs font-semibold text-[#175640] underline underline-offset-4"
             >Rimuovi contesto</Link>
           </div>
+          <div className="mt-3 rounded-lg border border-[#d6e7dc] bg-white px-3 py-3" data-testid="commercial-private-prospect">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-[#173f35]">Relazione da seguire · lista privata</p>
+                <p className="mt-0.5 text-xs leading-5 text-[#52615b]">
+                  Salva questa azienda nella tua lista personale di opportunità. Non crea una Company 360, non associa contatti e non comunica nulla all’azienda.
+                </p>
+              </div>
+              <Link href={appRoutes.commercial.home + "?prospects=1#commercial-prospects"}
+                className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4"
+              >La mia lista →</Link>
+            </div>
+            {prospect.status === "saved" ? (
+              <div>
+                <div role="status" className="mt-2 rounded-md bg-[#eaf6ee] px-3 py-2 text-xs font-semibold text-[#175640]">
+                  Salvata nella tua lista privata
+                  {prospect.savedAt && !Number.isNaN(Date.parse(prospect.savedAt))
+                    ? " · " + new Intl.DateTimeFormat("it-IT", { dateStyle: "medium", timeZone: "Europe/Rome" }).format(new Date(prospect.savedAt))
+                    : ""}
+                  . Nessuna RFQ inviata.
+                </div>
+                {canWrite ? (
+                  <form action={removeCommercialNetworkProspect} className="mt-2 flex flex-wrap items-center gap-2">
+                    <input type="hidden" name="network_company_id" value={networkContext.id} />
+                    <label className="flex items-center gap-2 text-xs text-[#52615b]">
+                      <input type="checkbox" name="confirm_remove" value="yes" required
+                        className="h-4 w-4 accent-[#175640]" />
+                      Confermo la rimozione dalla mia lista personale
+                    </label>
+                    <button type="submit"
+                      className="inline-flex min-h-10 items-center rounded-lg border border-[#c9d7cf] px-3 text-xs font-semibold text-[#795521] hover:bg-[#fff6e9] focus-visible:outline-2 focus-visible:outline-offset-2"
+                    >Rimuovi dalla mia lista</button>
+                  </form>
+                ) : null}
+              </div>
+            ) : prospect.status === "unavailable" ? (
+              <p role="status" className="mt-2 text-xs text-[#75582a]">
+                Salvataggio non verificabile al momento. Riprova dopo aver aggiornato la pagina.
+              </p>
+            ) : canWrite ? (
+              <form action={confirmCommercialNetworkProspect} className="mt-2 flex flex-col gap-2">
+                <input type="hidden" name="network_company_id" value={networkContext.id} />
+                <label className="flex items-start gap-2 text-xs leading-5 text-[#52615b]">
+                  <input name="confirm_prospect" type="checkbox" value="yes" required
+                    className="mt-1 h-4 w-4 shrink-0 accent-[#175640]" />
+                  Confermo il salvataggio privato nel mio workspace personale: nessuna associazione CRM e nessun invio automatico.
+                </label>
+                <button type="submit"
+                  className="inline-flex min-h-10 w-fit items-center rounded-lg bg-[#175640] px-3 text-xs font-semibold text-white hover:bg-[#246c53] focus-visible:outline-2 focus-visible:outline-offset-2"
+                >Salva azienda da seguire</button>
+              </form>
+            ) : (
+              <p className="mt-2 text-xs leading-5 text-[#52615b]">
+                Solo i ruoli commerciali autorizzati possono salvare nuove aziende.
+              </p>
+            )}
+            {params.prospect === "saved" || params.prospect === "existing" || params.prospect === "removed" ? (
+              <p role="status" className="mt-2 text-xs text-[#175640]">
+                {params.prospect === "existing" ? "Azienda già presente nella tua lista: nessun duplicato creato." : params.prospect === "removed" ? "Azienda rimossa dalla tua lista privata." : "Azienda aggiunta alla tua lista privata."}
+              </p>
+            ) : params.prospect === "invalid" || params.prospect === "unavailable" || params.prospect === "denied" ? (
+              <p role="alert" className="mt-2 text-xs text-[#945321]">
+                Operazione non eseguita. Verifica autorizzazioni, conferma e disponibilità del Network.
+              </p>
+            ) : null}
+          </div>
+          {relevantInquiries.length > 0 ? (
+            <section aria-label="Storico interazioni Network" className="mt-2 rounded-lg border border-[#d6e7dc] bg-white p-3" data-testid="commercial-prospect-activity">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-xs font-semibold text-[#173f35]">Attività Network già avviate</h3>
+                <Link href={appRoutes.network.inquiries}
+                  className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4"
+                >Apri interazioni →</Link>
+              </div>
+              <p className="text-[11px] leading-4 text-[#53665b]">
+                Ultime richieste inviate dalla tua organizzazione a questa azienda; non sono automaticamente collegate alla Company 360.
+              </p>
+              <div className="mt-1 divide-y divide-[#e2ece6]">
+                {relevantInquiries.map((inquiry) => (
+                  <div key={inquiry.id} className="py-2">
+                    <p className="break-words text-xs font-medium text-[#173f35]">{inquiry.subject}</p>
+                    <p className="mt-0.5 text-[11px] text-[#52615b]">
+                      Stato: {inquiry.status}
+                      {inquiry.submitted_at && !Number.isNaN(Date.parse(inquiry.submitted_at))
+                        ? " · " + new Intl.DateTimeFormat("it-IT", { dateStyle: "short", timeZone: "Europe/Rome" }).format(new Date(inquiry.submitted_at))
+                        : ""}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
+          {possibleMatches.length > 0 ? (
+            <div className="mt-2 rounded-lg border border-[#eadbbc] bg-[#fffaf0] p-3" data-testid="commercial-identity-candidates">
+              <p className="text-xs font-semibold text-[#795521]">Possibile azienda già nello storico commerciale</p>
+              <p className="mt-1 text-xs leading-5 text-[#715d40]">
+                Il nome coincide, ma l’identità non è stata verificata. Controlla la Company 360 prima di creare altre associazioni.
+              </p>
+              {possibleMatches.map((candidate) => (
+                <Link key={candidate.company_id} href={appRoutes.commercial.company(candidate.company_id)}
+                  className="mt-1 inline-flex min-h-10 items-center text-xs font-semibold text-[#795521] underline underline-offset-4"
+                >Verifica {candidate.name} in Company 360 →</Link>
+              ))}
+            </div>
+          ) : null}
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <Link
               href={appRoutes.commercial.search + "?q=" + encodeURIComponent(networkContext.name)}
@@ -206,7 +338,52 @@ export default async function CommercialHomePage({
         </section>
       ) : null}
 
-      <section aria-labelledby="commercial-today" className="grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
+      {showProspects ? (
+        <section id="commercial-prospects" aria-labelledby="commercial-prospects-heading"
+          className="scroll-mt-24 rounded-xl border border-[#d6e7dc] bg-white p-3 sm:p-4" data-testid="commercial-prospect-list">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#246c53]">Relazioni da esplorare</p>
+              <h2 id="commercial-prospects-heading" className="mt-0.5 text-base font-semibold text-[#173f35]">La mia lista privata</h2>
+              <p className="mt-0.5 text-xs leading-5 text-[#52615b]">
+                Prospect salvati personalmente dal Network. Nessuna Company 360 o relazione CRM verificata viene creata automaticamente.
+              </p>
+            </div>
+            <Link href={appRoutes.commercial.home}
+              className="inline-flex min-h-10 items-center px-2 text-xs font-semibold text-[#175640] underline underline-offset-4"
+            >Chiudi lista</Link>
+          </div>
+          {!prospectList ? (
+            <p role="status" className="mt-3 text-xs text-[#795521]">
+              Lista non disponibile: verifica il tuo accesso Network o riprova.
+            </p>
+          ) : prospectList.length === 0 ? (
+            <p role="status" className="mt-3 text-xs text-[#52615b]">
+              Nessuna azienda salvata per questo utente. Esplora il Network e conferma un prospect nel Commerciale.
+            </p>
+          ) : (
+            <div className="mt-3 grid min-w-0 gap-2 sm:grid-cols-2">
+              {prospectList.map((item) => (
+                <article key={item.id} className="min-w-0 rounded-lg border border-[#dce9df] bg-[#f9fcfa] p-3">
+                  <h3 className="truncate text-sm font-semibold text-[#173f35]">{item.name}</h3>
+                  <p className="mt-0.5 text-xs text-[#53665b]">
+                    {item.country}
+                    {item.savedAt && !Number.isNaN(Date.parse(item.savedAt))
+                      ? " · Salvata " + new Intl.DateTimeFormat("it-IT", { dateStyle: "short", timeZone: "Europe/Rome" }).format(new Date(item.savedAt))
+                      : ""}
+                  </p>
+                  <Link href={appRoutes.commercial.home + "?network=" + encodeURIComponent(item.id) + "#network-commercial-context"}
+                    className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4"
+                  >Apri in Commerciale →</Link>
+                </article>
+              ))}
+            </div>
+          )}
+          <p className="mt-2 text-[11px] text-[#64746a]">Fino alle ultime 12 aziende salvate, visibili esclusivamente a te.</p>
+        </section>
+      ) : null}
+
+            <section aria-labelledby="commercial-today" className="grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
         <div className="rounded-2xl bg-[#173f35] p-4 text-white sm:p-5">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-[#c3e0d2]">Le tue attività</p>
           <h2 id="commercial-today" className="mt-1 text-xl font-semibold">Che cosa vuoi fare oggi?</h2>
@@ -220,6 +397,11 @@ export default async function CommercialHomePage({
             <Link href={appRoutes.commercial.home + "#commercial-worklist"} className="inline-flex min-h-10 items-center rounded-lg border border-[#9fcdb6] px-3 text-sm font-semibold text-white hover:bg-[#275a49] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
               RFQ e offerte →
             </Link>
+            {networkAvailable ? (
+              <Link href={appRoutes.commercial.home + "?prospects=1#commercial-prospects"}
+                className="inline-flex min-h-10 items-center rounded-lg border border-[#9fcdb6] px-3 text-sm font-semibold text-white hover:bg-[#275a49] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >Aziende da seguire →</Link>
+            ) : null}
             {networkAvailable ? (
               <Link href={appRoutes.network.directory} className="inline-flex min-h-10 items-center rounded-lg border border-[#9fcdb6] px-3 text-sm font-semibold text-white hover:bg-[#275a49] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
                 Trova aziende →
