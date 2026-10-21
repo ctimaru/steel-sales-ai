@@ -1,0 +1,19 @@
+/* CALC-DENSE1R-G: a persisted privacy choice must remain revocable,
+ * but the reopen control must not float over active 320/390px technical fields.
+ * On calculator / bill surfaces only, park it in normal document flow on
+ * mobile. The first-layer consent dialog is intentionally NOT affected. */
+@media (max-width:639px) {
+  .calculatorMobileFlow {
+    position:relative;
+    inset:auto;
+    display:inline-flex;
+    min-height:44px;
+    height:auto;
+    margin:8px 12px 16px;
+    padding:8px 12px;
+    border:1px solid #cbd8d3;
+    border-radius:999px;
+    background:#f4f8f5;
+    box-shadow:none;
+  }
+}
