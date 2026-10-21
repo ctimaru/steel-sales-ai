@@ -11,7 +11,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const feedbackPath = (id: string, state: "saved" | "existing" | "invalid" | "unavailable" | "denied") =>
+const feedbackPath = (id: string, state: "saved" | "existing" | "removed" | "invalid" | "unavailable" | "denied") =>
   "/commercial?network=" + encodeURIComponent(id) + "&prospect=" + state + "#network-commercial-context";
 
 /** Explicit user-confirmed private bookmark. Never writes Company 360 or RFQ. */
@@ -58,4 +58,39 @@ export async function confirmCommercialNetworkProspect(formData: FormData) {
   revalidatePath("/commercial");
   revalidatePath("/network/saved");
   redirect(feedbackPath(companyId, data?.id ? "saved" : "existing"));
+}
+
+/** Explicit removal of only the current user's own Network shortlist item. */
+export async function removeCommercialNetworkProspect(formData: FormData) {
+  const companyId = String(formData.get("network_company_id") ?? "").trim();
+  if (!UUID.test(companyId)) redirect("/commercial?prospect=invalid");
+  if (formData.get("confirm_remove") !== "yes") {
+    redirect(feedbackPath(companyId, "invalid"));
+  }
+  const context = await getWorkspaceContext();
+  if (!canWriteWorkspace(context.role)) redirect(feedbackPath(companyId, "denied"));
+  // Check live entitlement and published identity again on POST.
+  const publicProfile = await getCommercialNetworkContext(context.organizationId, companyId);
+  if (!publicProfile) redirect(feedbackPath(companyId, "unavailable"));
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("network_saved_companies")
+    .delete()
+    .eq("organization_id", context.organizationId)
+    .eq("user_id", context.userId)
+    .eq("network_company_id", companyId)
+    .select("id")
+    .maybeSingle();
+  if (error) redirect(feedbackPath(companyId, "unavailable"));
+  if (data?.id) {
+    await recordPilotUsageEvent({
+      eventName: "network_saved_removed",
+      entityType: "network_company",
+      entityId: companyId,
+      metadata: { surface: "commercial_network_prospect" },
+    }).catch(() => undefined);
+  }
+  revalidatePath("/commercial");
+  revalidatePath("/network/saved");
+  redirect(feedbackPath(companyId, "removed"));
 }
