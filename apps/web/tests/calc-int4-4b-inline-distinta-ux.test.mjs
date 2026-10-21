@@ -31,7 +31,7 @@ test("CALC-USA-FLOW1 mounts one inline bill across EU and USA, retaining separat
 
 test("CALC-INT4.4B preserves calculator first-screen 2 columns, commercial pricing and h1",()=>{
   assert.match(calculator,/const inEmbeddedBuilder = Boolean\(onAddToDistinta\) && !inlinePublicDistinta/);
-  assert.match(calculator,/inEmbeddedBuilder \? "grid min-w-0 grid-cols-1"/);
+  assert.match(calculator,/data-cockpit-workspace/);
   assert.match(calculator,/inEmbeddedBuilder \|\| locale === "de"/);
   assert.match(calculator,/<CalculatorCommercialPricing/);
   assert.match(calculator,/!inEmbeddedBuilder \? <details className="group\/extra/);

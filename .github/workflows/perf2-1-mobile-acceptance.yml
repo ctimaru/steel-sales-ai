@@ -33,6 +33,7 @@ on:
       - "apps/web/components/calculator-region-switch.module.css"
       - "apps/web/tests/calc-int4-*"
       - "apps/web/tests/calc-dense1c-*"
+      - "apps/web/tests/calc-dense1r-*"
       - "apps/web/components/calculator-inline-distinta-experience.tsx"
       - "apps/web/components/us-hss-calculator.tsx"
       - "apps/web/tests/calc-int3d-*"
@@ -122,6 +123,8 @@ jobs:
         run: node tests/bd11-chrome-quick-add.mjs
       - name: CALC-INT4.4B Chrome inline bill IT mobile/desktop, edit, session restore and privacy
         run: node tests/calc-int4-4b-chrome-inline-distinta.mjs
+      - name: CALC-DENSE1R-A Chrome one-screen calculator cockpit and screenshot evidence
+        run: node tests/calc-dense1r-a-chrome-cockpit.mjs
       - name: CALC-DENSE1C Chrome compact cart quantities, fixed footer and restore
         run: node tests/calc-dense1c-chrome-quantity-grid.mjs
       - name: CALC-INT4.4C Chrome commercial buyer-only target opt-in and privacy
@@ -180,6 +183,14 @@ jobs:
         with:
           name: school-growth1e-chrome-local-qa
           path: /tmp/school-growth1e
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Upload CALC-DENSE1R-A four viewport cockpit screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calc-dense1r-a-visual-qa
+          path: /tmp/calc-dense1r-a
           if-no-files-found: ignore
           retention-days: 7
       - name: Upload CALC-DENSE1C compact cart desktop/mobile screenshots (synthetic, no credentials)

@@ -1401,7 +1401,7 @@ export function PublicTubeWeightCalculator({
                   </p>
                 </div>
                 <div data-cockpit-preview className={styles.preview}>
-                <div className={styles.diagram}>
+                <div className="min-w-0">
                   <ParametricShapeDiagram
                     family={family}
                     outerDiameter={outerDiameter}

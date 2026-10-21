@@ -18,8 +18,10 @@ test("DENSE1A: compact editor and responsive result preserve core controls", () 
     assert.equal(parsed.diagnostics?.filter(d => d.category === ts.DiagnosticCategory.Error).length ?? 0, 0);
   }
   for (const marker of [
-    "md:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)]",
-    "lg:grid-cols-[minmax(0,1fr)_150px]",
+    "data-cockpit-toolbar",
+    "data-cockpit-fields",
+    "data-cockpit-results",
+    "data-cockpit-preview",
     "tube-calculator-result",
     "mt-2 grid grid-cols-3 gap-1.5",
     "onAddToDistinta(item)",
@@ -38,7 +40,7 @@ test("DENSE1B: instant discovery starts collapsed and selects only explicitly", 
     'event.key==="Enter"',
     'chooseDimension(found.results[0])',
     'onChoose(item)',
-    '<details className="group/filter',
+    'group/filter',
     'aria-label={c.title}',
     'min-h-11',
   ]) assert.ok(discovery.includes(marker), marker);
