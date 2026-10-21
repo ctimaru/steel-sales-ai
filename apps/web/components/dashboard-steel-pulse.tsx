@@ -88,11 +88,11 @@ export function DashboardSteelPulse({ state }: { state: DashboardPulseState }) {
   ];
 
   return (
-    <section aria-labelledby="dashboard-pulse-heading" className="min-w-0 space-y-4">
+    <section aria-labelledby="dashboard-pulse-heading" className="min-w-0 space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#22634f]">Steel Pulse · Per te</p>
-          <h2 id="dashboard-pulse-heading" className="mt-1 text-2xl font-semibold tracking-tight text-[#173f35] sm:text-[1.7rem]">
+          <h2 id="dashboard-pulse-heading" className="mt-1 text-xl font-semibold tracking-tight text-[#173f35] sm:text-[1.4rem]">
             Il tuo aggiornamento sull’acciaio
           </h2>
           <p className="mt-1 text-sm text-[#52615b]">Notizie e segnali selezionati in base ai tuoi interessi.</p>
@@ -118,7 +118,7 @@ export function DashboardSteelPulse({ state }: { state: DashboardPulseState }) {
       {state.interests.territory_interests.length > 0 ? (
         <p className="text-[11px] leading-5 text-[#64736c]">Territori indicativi: ordinamento per contenuto editoriale, non per geolocalizzazione certificata.</p>
       ) : null}
-      <nav aria-label="Viste Steel Pulse" className="flex flex-wrap gap-2 text-xs">
+      {cards.length > 0 ? <nav aria-label="Viste Steel Pulse" className="flex flex-wrap gap-2 text-xs">
         <span aria-current="page" className="inline-flex min-h-10 items-center rounded-full bg-[#173f35] px-4 font-semibold text-white">
           Per te
         </span>
@@ -131,10 +131,14 @@ export function DashboardSteelPulse({ state }: { state: DashboardPulseState }) {
         <a href="#dashboard-discovery" className="inline-flex min-h-10 items-center rounded-full border border-[#d1ded7] bg-white px-4 font-semibold text-[#245344] hover:bg-[#f2f7f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246a50]">
           Vai alle opportunità ↓
         </a>
-      </nav>
+      </nav> : (
+        <a href="#dashboard-discovery" className="inline-flex min-h-10 self-start items-center rounded-lg border border-[#d1ded7] bg-white px-3 text-xs font-semibold text-[#245344] hover:bg-[#f2f7f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246a50]">
+          Vai alle opportunità ↓
+        </a>
+      )}
 
       {!state.available ? (
-        <div role="status" className="rounded-2xl border border-[#d3e0d8] bg-white p-5">
+        <div role="status" className="rounded-xl border border-[#d3e0d8] bg-white px-4 py-3">
           <h3 className="text-base font-semibold text-[#173f35]">Steel Pulse temporaneamente non disponibile</h3>
           <p className="mt-2 text-sm leading-6 text-[#53655c]">
             Non possiamo mostrare gli aggiornamenti verificati in questo momento. Le tue attività commerciali rimangono disponibili.
@@ -142,10 +146,10 @@ export function DashboardSteelPulse({ state }: { state: DashboardPulseState }) {
           <Link href={appRoutes.steelPulse} className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-[#175640] underline underline-offset-4">Apri Steel Pulse →</Link>
         </div>
       ) : cards.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#bdcfc6] bg-white p-5 sm:p-6">
+        <div className="rounded-xl border border-dashed border-[#bdcfc6] bg-white px-4 py-3">
           <h3 className="text-base font-semibold text-[#173f35]">Nessuna notizia verificata per ora</h3>
           <p className="mt-2 text-sm leading-6 text-[#53655c]">
-            Il feed mostra soltanto contenuti approvati e con fonti verificabili. Personalizza gli interessi oppure consulta la Scuola.
+            Mostriamo solo notizie approvate e con fonti verificabili. Nel frattempo trovi contenuti tecnici nella Scuola.
           </p>
           <Link href={appRoutes.knowledge.home} className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-[#175640] underline underline-offset-4">Esplora la Scuola →</Link>
         </div>
@@ -169,11 +173,11 @@ export function DashboardSteelPulse({ state }: { state: DashboardPulseState }) {
           ) : null}
         </div>
       )}
-      <div className="flex justify-center">
+      {cards.length > 0 ? <div className="flex justify-center">
         <Link href={appRoutes.steelPulse} className="inline-flex min-h-11 items-center rounded-xl border border-[#b9d1c4] bg-[#f5faf7] px-5 text-sm font-semibold text-[#175640] hover:bg-[#eaf4ed]">
           Apri tutto Steel Pulse →
         </Link>
-      </div>
+      </div> : null}
     </section>
   );
 }
