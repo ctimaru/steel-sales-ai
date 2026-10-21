@@ -65,7 +65,10 @@ try{
     assert.equal(await page.locator('header nav[aria-label]').first()
       .getByRole("link",{name:"Français",exact:true}).getAttribute("href"),"/fr/knowledge/tubes");
     await hss.getByRole("button",{name:v.add}).click();
-    const bill=page.locator("#distinta-inline");
+    const bill=page.locator("#distinta-inline-dialog");
+    if (await page.locator('[data-testid="mobile-cookie-consent"] > button').isVisible())
+      await page.locator('[data-testid="mobile-cookie-consent"] > button').click();
+    await page.locator('[data-testid="calculator-cart-trigger"]').click();
     await bill.locator("article").first().waitFor({state:"visible",timeout:30000});
     assert.equal(new URL(page.url()).pathname,pathname,"US HSS adds in place");
     assert.equal(await page.locator("html").getAttribute("lang"),v.locale);
