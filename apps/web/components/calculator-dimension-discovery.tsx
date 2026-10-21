@@ -137,7 +137,7 @@ export function CalculatorDimensionDiscovery({
             } else if(event.key==="Escape") {
               setExpandedResults(false);
             }
-          }
+          }}
           placeholder={c.placeholder}
           role="combobox" aria-autocomplete="list"
           aria-expanded={showResults && found.matchCount>0}
@@ -179,7 +179,7 @@ export function CalculatorDimensionDiscovery({
       </p>
       {items.length===0 ? <p className="mt-1 text-xs text-[#52695d]">{c.noData}</p> :
         found.matchCount===0 ? <p className="mt-1 text-xs text-[#52695d]">{c.empty}</p> :
-        <div id={resultsId} role="listbox" aria-label={c.title} className={compact ? "mt-0.5 grid max-h-[216px] grid-cols-1 gap-0.5 overflow-y-auto overscroll-contain" : "mt-1 grid max-h-[176px] grid-cols-1 gap-1 overflow-y-auto overscroll-contain"}>
+        <div id={resultsId} role="listbox" aria-label={c.title} className={compact ? "mt-0.5 grid max-h-[184px] grid-cols-1 gap-0.5 overflow-y-auto overscroll-contain" : "mt-1 grid max-h-[176px] grid-cols-1 gap-1 overflow-y-auto overscroll-contain"}>
           {found.results.map((item,index)=><button key={[item.family,item.primaryMm,item.secondaryMm,item.thicknessMm].join(":")}
             id={resultsId+"-item-"+index} role="option" aria-selected={index===activeIndex}
             type="button" onMouseEnter={()=>setActiveIndex(index)} onClick={()=>chooseDimension(item)}
