@@ -52,8 +52,9 @@ test("WC4.1 keeps secondary information collapsible", () => {
   assert.match(calculator, /<summary/);
 });
 
-test("WC4.1 preserves the compact parametric diagram on desktop", () => {
-  assert.match(calculator, /hidden lg:block/);
+test("WC4.1 preserves compact parametric geometry and extends it to mobile", () => {
+  assert.match(calculator, /className="mt-1 block lg:mt-0"/);
+  assert.doesNotMatch(calculator, /className="hidden lg:block">\s*<ParametricShapeDiagram/);
   assert.match(calculator, /<ParametricShapeDiagram/);
   assert.match(calculator, /max-w-\[13rem\] lg:max-w-\[15rem\]/);
 });

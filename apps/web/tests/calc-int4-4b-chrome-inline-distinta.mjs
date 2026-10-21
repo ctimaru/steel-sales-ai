@@ -19,6 +19,11 @@ try {
     assert.equal(response?.status(), 200);
     assert.equal(await page.locator("html").getAttribute("lang"), "it");
     const calculator = page.locator("#calcolatore-pesi");
+    const finder=page.locator('[data-testid="calculator-dimension-discovery"]');
+    await finder.getByRole("searchbox").fill("zz_unavailable_123");
+    assert.match(await finder.innerText(),/Nessun risultato|Nessuna misura pubblicata/);
+    await finder.getByRole("searchbox").fill("");
+    assert.ok(await calculator.locator("svg[aria-label]").count()>0,"Mobile section preview exposed");
     await calculator.waitFor({state:"visible"});
     // Dismiss the platform's first-visit consent overlay before exercising
     // the floating cart. Never bypass consent or force clicks behind it.
