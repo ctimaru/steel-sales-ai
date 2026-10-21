@@ -52,7 +52,7 @@ export async function confirmCommercialNetworkProspect(formData: FormData) {
       eventName: "network_saved_created",
       entityType: "network_company",
       entityId: companyId,
-      metadata: { surface: "commercial_network_prospect", intent: "manual_shortlist" },
+      metadata: { surface: "commercial_network_prospect" },
     }).catch(() => undefined);
   }
   revalidatePath("/commercial");
