@@ -42,7 +42,7 @@ type Editable = Pick<BuyerDistintaDraftLine,
 
 const control = "min-h-11 w-full rounded-lg border border-[#b8cfc3] bg-white px-3 text-sm text-[#143b2d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#146747]";
 const action = cn(actionClasses({ variant: "secondary", size: "sm" }), "min-h-11 rounded-lg px-3 py-2 sm:min-h-9 sm:px-2.5 sm:py-1.5");
-const rowAction = cn(actionClasses({ variant: "secondary", size: "sm" }), "min-h-11 rounded-md px-2 py-1 text-[11px] sm:min-h-9 sm:text-xs");
+const rowAction = cn(actionClasses({ variant: "secondary", size: "sm" }), "min-h-11 min-w-0 whitespace-nowrap rounded-md !px-1.5 !text-xs !leading-none sm:min-h-9 sm:!px-2");
 
 function makeId() {
   return typeof crypto !== "undefined" && crypto.randomUUID
@@ -434,7 +434,7 @@ export function CalculatorInlineDistintaExperience({
                     <span className="block font-normal">{c.estimate} {number(privateTarget.estimatedTotal, 2)} € {c.onlyScreen}</span>
                   </p>
                 ) : null}
-                <div className="mt-1.5 flex flex-wrap items-center gap-1 border-t border-[#e4eee7] pt-1.5 sm:gap-1.5">
+                <div data-distinta-row-actions className="mt-1.5 flex flex-wrap items-center gap-1 border-t border-[#e4eee7] pt-1.5 sm:gap-1.5">
                   <button type="button" className={rowAction} aria-expanded={editing}
                     aria-controls={editing ? "distinta-inline-edit-" + line.id : undefined}
                     onClick={() => {
