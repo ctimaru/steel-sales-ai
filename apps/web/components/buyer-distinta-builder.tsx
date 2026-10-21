@@ -756,7 +756,16 @@ export function BuyerDistintaBuilder({
   }
 
   return (
-    <div className="bd54-page space-y-4 sm:space-y-5" lang={uiLocale}>\n      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-strong)] bg-white px-3 py-2" data-testid="buyer-private-language-switch">\n        <p className="text-xs font-semibold text-[var(--brand-deep)]">{t("RFQ privata · nessun invio automatico")}</p>\n        <label className="flex items-center gap-2 text-xs font-bold text-[var(--brand-deep)]">{t("Scegli la lingua")}\n          <select aria-label={t("Scegli la lingua")} value={uiLocale} onChange={e=>setUiLocale(safeBuyerUiLocale(e.target.value))}\n            className="min-h-11 rounded-lg border border-[var(--border-strong)] bg-white px-2 text-sm text-[var(--brand-deep)]">\n            {(["it","en","de","fr","es"] as const).map(lang=><option key={lang} value={lang}>{lang.toUpperCase()}</option>)}\n          </select>\n        </label>\n      </div>
+    <div className="bd54-page space-y-4 sm:space-y-5" lang={uiLocale}>
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-strong)] bg-white px-3 py-2" data-testid="buyer-private-language-switch">
+        <p className="text-xs font-semibold text-[var(--brand-deep)]">{t("RFQ privata · nessun invio automatico")}</p>
+        <label className="flex items-center gap-2 text-xs font-bold text-[var(--brand-deep)]">{t("Scegli la lingua")}
+          <select aria-label={t("Scegli la lingua")} value={uiLocale} onChange={e=>setUiLocale(safeBuyerUiLocale(e.target.value))}
+            className="min-h-11 rounded-lg border border-[var(--border-strong)] bg-white px-2 text-sm text-[var(--brand-deep)]">
+            {(["it","en","de","fr","es"] as const).map(lang=><option key={lang} value={lang}>{lang.toUpperCase()}</option>)}
+          </select>
+        </label>
+      </div>
       {networkHandoff&&workspace&&!restoreCandidate?<aside aria-label="Articoli approvati dal Network"
         data-testid="network-reviewed-rfq-import"
         className="rounded-xl border border-[#b7d1c4] bg-[#f1faf4] p-3 sm:p-4">
