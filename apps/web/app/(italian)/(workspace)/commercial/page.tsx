@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { getDashboardData } from "@/lib/commercial-data";
 import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
 import { CommercialUnifiedWorklist } from "@/components/commercial-unified-worklist";
+import { CommercialRelationshipLedger } from "@/components/commercial-relationship-ledger";
 import type { CommercialOperationsTab } from "@/components/commercial-campaign-operations";
 import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
 import { loadUnifiedCommercialData, type CommercialView } from "@/lib/commercial-unified-data";
@@ -16,6 +17,7 @@ import { listBuyerDistintaPublicDimensions } from "@/lib/public-knowledge";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { getCommercialNetworkContext } from "@/lib/commercial-network-context";
+import { getCommercialRelationshipLedger, listCommercialOrganizationRelationships } from "@/lib/commercial-relationship-ledger";
 import { getNetworkInquiries } from "@/lib/network";
 import { getCommercialNetworkProspect, listCommercialNetworkProspects } from "@/lib/commercial-network-prospect";
 import { getNetworkAccessState } from "@/lib/network-access";
@@ -85,18 +87,22 @@ const intelligenceGroups = [
 export default async function CommercialHomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string; tab?: string; page?: string; cursor?: string; network?: string; prospect?: string; prospects?: string }>;
+  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string; tab?: string; page?: string; cursor?: string; network?: string; prospect?: string; prospects?: string; relationships?: string; ledger?: string }> ;
 }) {
   const params = await searchParams;
   const context = await getWorkspaceContext();
   const canWrite = canWriteWorkspace(context.role);
   const networkAvailable = isNetworkFrontendEnabled();
   const showProspects = networkAvailable && params.prospects === "1";
-  const prospectAccess = showProspects
+  const showRelationships = networkAvailable && params.relationships === "1";
+  const prospectAccess = showProspects || showRelationships
     ? await getNetworkAccessState(context.organizationId).catch(() => null)
     : null;
   const prospectList = showProspects && prospectAccess?.can_access_network && prospectAccess.organization_id === context.organizationId
     ? await listCommercialNetworkProspects(context.organizationId, context.userId)
+    : null;
+  const teamRelationships = showRelationships && prospectAccess?.can_access_network && prospectAccess.organization_id === context.organizationId
+    ? await listCommercialOrganizationRelationships(context.organizationId)
     : null;
   const allowedViews: CommercialView[] = ["all", "received", "sent", "offers", "orders", "drafts"];
   const view: CommercialView = allowedViews.includes(params.view as CommercialView) ? params.view as CommercialView : "all";
@@ -128,6 +134,9 @@ export default async function CommercialHomePage({
         getNetworkInquiries(context.organizationId, "sent").catch(() => null),
       ])
     : [{ status: "unavailable" as const, savedAt: null }, { total: 0, companies: [] }, null];
+  const relationshipLedger = networkContext
+    ? await getCommercialRelationshipLedger(context.organizationId, networkContext.id)
+    : { status: "unavailable" as const, relationship: null };
   // A name match is only a candidate for manual identity review. It is NOT a verified
   // Network-to-Company360 link, and never mutates canonical identities.
   const relevantInquiries = (inquiries?.items ?? [])
@@ -338,6 +347,16 @@ export default async function CommercialHomePage({
         </section>
       ) : null}
 
+      {networkContext ? (
+        <CommercialRelationshipLedger
+          networkCompanyId={networkContext.id}
+          name={networkContext.name}
+          canWrite={canWrite}
+          state={relationshipLedger}
+          feedback={params.ledger}
+        />
+      ) : null}
+
       {showProspects ? (
         <section id="commercial-prospects" aria-labelledby="commercial-prospects-heading"
           className="scroll-mt-24 rounded-xl border border-[#d6e7dc] bg-white p-3 sm:p-4" data-testid="commercial-prospect-list">
@@ -383,7 +402,49 @@ export default async function CommercialHomePage({
         </section>
       ) : null}
 
-            <section aria-labelledby="commercial-today" className="grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
+            {showRelationships ? (
+        <section id="commercial-relationships" aria-labelledby="commercial-team-relationships-heading"
+          data-testid="commercial-team-relationships"
+          className="scroll-mt-24 rounded-xl border border-[#bdd8c8] bg-white p-3 sm:p-4">
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.11em] text-[#246c53]">Relazioni condivise</p>
+              <h2 id="commercial-team-relationships-heading" className="mt-0.5 text-base font-semibold text-[#173f35]">
+                Aziende seguite dal team
+              </h2>
+              <p className="mt-1 text-xs leading-5 text-[#52615b]">
+                Tutte le persone autorizzate della tua organizzazione vedono lo stesso registro.
+                Nessun collegamento Company 360 viene creato automaticamente.
+              </p>
+            </div>
+            <Link href={appRoutes.commercial.home}
+              className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4">
+              Chiudi elenco
+            </Link>
+          </div>
+          {!teamRelationships ? <p role="status" className="mt-2 text-xs text-[#795521]">
+            Elenco non disponibile: verifica il tuo accesso Network o riprova.
+          </p> : teamRelationships.length === 0 ? <p role="status" className="mt-2 text-xs text-[#52615b]">
+            Nessuna relazione condivisa registrata. Apri un’azienda Network e conferma la prima relazione.
+          </p> : (
+            <div className="mt-2 grid min-w-0 gap-2 sm:grid-cols-2">
+              {teamRelationships.map((item) => (
+                <article key={item.id} className="min-w-0 rounded-lg border border-[#dce9df] bg-[#f9fcfa] p-3">
+                  <h3 className="truncate text-sm font-semibold text-[#173f35]">{item.name}</h3>
+                  <p className="mt-0.5 text-[11px] text-[#53665b]">{item.country}</p>
+                  <Link href={appRoutes.commercial.home + "?network=" + encodeURIComponent(item.id) + "#commercial-relationship-ledger"}
+                    className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4">
+                    Apri relazione →
+                  </Link>
+                </article>
+              ))}
+            </div>
+          )}
+          <p className="mt-2 text-[10px] text-[#64746a]">Ultime 20 relazioni, ordinate per data di creazione.</p>
+        </section>
+      ) : null}
+
+      <section aria-labelledby="commercial-today" className="grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
         <div className="rounded-2xl bg-[#173f35] p-4 text-white sm:p-5">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-[#c3e0d2]">Le tue attività</p>
           <h2 id="commercial-today" className="mt-1 text-xl font-semibold">Che cosa vuoi fare oggi?</h2>
@@ -397,6 +458,11 @@ export default async function CommercialHomePage({
             <Link href={appRoutes.commercial.home + "#commercial-worklist"} className="inline-flex min-h-10 items-center rounded-lg border border-[#9fcdb6] px-3 text-sm font-semibold text-white hover:bg-[#275a49] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
               RFQ e offerte →
             </Link>
+            {networkAvailable ? (
+              <Link href={appRoutes.commercial.home + "?relationships=1#commercial-relationships"}
+                className="inline-flex min-h-10 items-center rounded-lg border border-[#9fcdb6] px-3 text-sm font-semibold text-white hover:bg-[#275a49] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >Relazioni del team →</Link>
+            ) : null}
             {networkAvailable ? (
               <Link href={appRoutes.commercial.home + "?prospects=1#commercial-prospects"}
                 className="inline-flex min-h-10 items-center rounded-lg border border-[#9fcdb6] px-3 text-sm font-semibold text-white hover:bg-[#275a49] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
