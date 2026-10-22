@@ -11,6 +11,7 @@ from .embeddings import EmbeddingConfigurationError, EmbeddingProviderError
 from .repository import RepositoryConfigurationError, RepositoryError, WorkerRepository
 from .retrieval import search_knowledge
 from .retrieval_api import require_worker_token
+from .search_quality import balanced_preview, missing_preview_families, source_reference_available
 from .shared_reference import enrich_records_with_shared_reference
 
 GlobalResultType = Literal[
@@ -255,20 +256,66 @@ class GlobalSearchService:
         if not isinstance(structured_results, list):
             structured_results = []
         structured_dicts = [row for row in structured_results if isinstance(row, dict)]
-        structured_results = await enrich_records_with_shared_reference(self.repo, structured_dicts)
-        results = [*document_results, *structured_results]
-        results.sort(
-            key=lambda item: (
-                float(item.get("score") or 0),
-                str(item.get("event_at") or ""),
-            ),
-            reverse=True,
-        )
-        results = results[: request.limit]
-
         counts = dict(structured_payload.get("counts") or {})
+
+        # Live-search coverage: a single score-sorted SQL page can hide all
+        # products or companies behind commercial events. Only backfill indexed
+        # families absent from that page, up to two small calls in total.
+        missing = missing_preview_families(counts, structured_dicts, requested_types)
+        backfill_errors = 0
+        for family in missing:
+            try:
+                extra = await self.repo._request(
+                    "POST",
+                    "/rest/v1/rpc/p1_global_structured_search_bridge_v2",
+                    json={
+                        "p_organization_id": str(organization_id),
+                        "p_query": request.query.strip(),
+                        "p_types": [family],
+                        "p_filters": structured_filters,
+                        "p_limit": min(8, max(2, request.limit // 5)),
+                    },
+                )
+                if isinstance(extra, dict) and isinstance(extra.get("results"), list):
+                    structured_dicts.extend(
+                        row for row in extra["results"]
+                        if isinstance(row, dict) and row.get("result_type") == family
+                    )
+                else:
+                    backfill_errors += 1
+            except (RepositoryError, RepositoryConfigurationError):
+                # Optional breadth expansion must never hide primary results.
+                backfill_errors += 1
+
+        # Score scales vary (SQL fixed-score vs semantic RRF); group-balanced
+        # preview prevents entire result families disappearing from the page.
+        selected = balanced_preview([*document_results, *structured_dicts], request.limit)
+        structured_selected = [row for row in selected if row.get("result_type") != "document"]
+        # Reference resolution is expensive: only enrich rows actually shown.
+        enriched = iter(await enrich_records_with_shared_reference(self.repo, structured_selected))
+        results = [
+            row if row.get("result_type") == "document" else next(enriched)
+            for row in selected
+        ]
+
         if include_documents:
             counts["document"] = len(document_results)
+        total_structured = int(structured_payload.get("total") or 0)
+        shown_structured = sum(row.get("result_type") != "document" for row in results)
+        potential_document_overflow = include_documents and len(document_results) >= min(request.limit, 50)
+        partial_preview = (
+            total_structured > shown_structured
+            or potential_document_overflow
+            or backfill_errors > 0
+        )
+        quality = {
+            "preview_limited": partial_preview,
+            "limit": request.limit,
+            "structured_matches": total_structured,
+            "document_candidates": len(document_results) if include_documents else 0,
+            "source_references": sum(source_reference_available(row) for row in results),
+            "backfill_incomplete": backfill_errors > 0,
+        }
 
         return {
             "query": request.query.strip(),
@@ -280,6 +327,7 @@ class GlobalSearchService:
             "results": results,
             "model": model,
             "retrieval": retrieval,
+            "quality": quality,
         }
 
 
