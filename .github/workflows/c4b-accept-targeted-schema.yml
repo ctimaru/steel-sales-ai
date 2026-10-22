@@ -1,6 +1,11 @@
 name: "C4B-ACCEPT — Targeted Schema Promotion"
 
 on:
+  pull_request:
+    paths:
+      - ".github/workflows/c4b-accept-targeted-schema.yml"
+      - "scripts/c4b_accept_promotion.py"
+      - "scripts/test_c4b_accept_promotion.py"
   workflow_dispatch:
     inputs:
       target:
@@ -41,9 +46,25 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  offline-guard:
+    if: github.event_name == 'pull_request'
+    name: C4B target, history and atomicity guard regression
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and test promotion tool (no databases touched)
+        run: |
+          python3 -m py_compile scripts/c4b_accept_promotion.py
+          python3 -m unittest discover -s scripts -p 'test_c4b_accept_promotion.py' -v
   targeted-promotion:
     name: Reviewed C4B-only migration / no full history push
-    if: github.repository == 'ctimaru/steel-sales-ai' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'workflow_dispatch' && github.repository == 'ctimaru/steel-sales-ai' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     environment: ${{ inputs.target == 'production' && 'production' || 'staging' }}
