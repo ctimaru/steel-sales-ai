@@ -11,6 +11,10 @@ const appShell = fs.readFileSync(
   new URL("../components/app-shell.tsx", import.meta.url),
   "utf8",
 );
+const analysisHub = fs.readFileSync(
+  new URL("../app/(italian)/(workspace)/commercial/analysis/page.tsx", import.meta.url),
+  "utf8",
+);
 const workspaceNav = fs.readFileSync(
   new URL("../components/workspace-navigation.tsx", import.meta.url),
   "utf8",
@@ -54,9 +58,9 @@ test("UXA1 exposes previously orphaned daily analysis tools", () => {
     assert.match(routes, new RegExp(routeKey + ":"));
   }
 
-  assert.match(appShell, /Commercial Explorer|Explorer/);
-  assert.match(appShell, /label: "Prezzi"/);
-  assert.match(appShell, /label: "Mercato"/);
+  assert.match(analysisHub, /Commercial Explorer/);
+  assert.match(analysisHub, /Storico prezzi/);
+  assert.match(analysisHub, /Indicatori di mercato/);
   assert.match(appShell, /label: "Documenti"/);
   assert.match(appShell, /label: "Calcolo pesi"/);
   assert.match(routes, /tubesStandards: "\/company\/tools\/tubi-norme"/);
