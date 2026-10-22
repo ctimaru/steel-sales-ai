@@ -72,7 +72,7 @@ test("COMM-UX1C auto-searches only a user-provided query using the existing serv
 test("COMM-UX1C makes commercial memory and procurement two explicit, linked search contexts", () => {
   assert.match(page, /Categorie ricerca commerciale/);
   const css = read("../app/globals.css");
-  assert.match(css, /nav\\[aria-label="Categorie ricerca commerciale"\\] a\\[aria-current="page"\\]/);
+  assert.match(css, /nav\[aria-label="Categorie ricerca commerciale"\] a\[aria-current="page"\]/);
   assert.match(css, /-webkit-text-fill-color: #ffffff !important/);
   assert.match(page, /commercialSearchScopes\.map/);
   assert.match(page, /commercialSearchHref\(initialQuery, entry\.value\)/);
