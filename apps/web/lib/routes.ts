@@ -6,6 +6,7 @@ export const appRoutes = {
 
   commercial: {
     home: "/commercial",
+    analysis: "/commercial/analysis",
     search: "/commercial/search",
     products: "/commercial/products",
     product: (productId: string) => `/commercial/products/${productId}`,
