@@ -1,0 +1,165 @@
+name: "C4B-ACCEPT — Targeted Schema Promotion"
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/c4b-accept-targeted-schema.yml"
+      - "scripts/c4b_accept_promotion.py"
+      - "scripts/test_c4b_accept_promotion.py"
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Only exact staging or production Supabase targets"
+        type: choice
+        required: true
+        options: [staging, production]
+        default: staging
+      mode:
+        description: "Read-only plan / explicit apply / read-only verify"
+        type: choice
+        required: true
+        options: [plan, apply, verify]
+        default: plan
+      project_ref:
+        description: "Exact Supabase ref for target, never the other environment"
+        type: string
+        required: true
+      approved_head_sha:
+        description: "Exact HEAD SHA of reviewed C4B product PR #837"
+        type: string
+        required: true
+      approved_sql_sha256:
+        description: "For APPLY only: copy the SQL SHA256 from the matching PLAN run"
+        type: string
+        required: false
+      approval:
+        description: "Mode-specific explicit intent (see workflow instructions)"
+        type: string
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: c4b-accept-single-target-${{ inputs.target }}
+  cancel-in-progress: false
+
+jobs:
+  offline-guard:
+    if: github.event_name == 'pull_request'
+    name: C4B target, history and atomicity guard regression
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and test promotion tool (no databases touched)
+        run: |
+          python3 -m py_compile scripts/c4b_accept_promotion.py
+          python3 -m unittest discover -s scripts -p 'test_c4b_accept_promotion.py' -v
+  targeted-promotion:
+    name: Reviewed C4B-only migration / no full history push
+    if: github.event_name == 'workflow_dispatch' && github.repository == 'ctimaru/steel-sales-ai' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: ${{ inputs.target == 'production' && 'production' || 'staging' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate exact target, approval and reviewed PR HEAD
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET: ${{ inputs.target }}
+          MODE: ${{ inputs.mode }}
+          REQUESTED_REF: ${{ inputs.project_ref }}
+          REVIEWED_HEAD: ${{ inputs.approved_head_sha }}
+          REVIEWED_SQL_SHA256: ${{ inputs.approved_sql_sha256 }}
+          APPROVAL: ${{ inputs.approval }}
+        run: |
+          set -euo pipefail
+          [[ "$REVIEWED_HEAD" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::Invalid SHA"; exit 1; }
+          case "$TARGET:$MODE:$REQUESTED_REF:$APPROVAL" in
+            staging:plan:lwrrrphakpbjhbzljqhn:C4B_STAGING_READ_ONLY) ;;
+            staging:verify:lwrrrphakpbjhbzljqhn:C4B_STAGING_READ_ONLY) ;;
+            staging:apply:lwrrrphakpbjhbzljqhn:C4B_STAGING_APPLY_REVIEWED) ;;
+            production:plan:ecrafjdummcdfycznitx:C4B_PRODUCTION_READ_ONLY) ;;
+            production:verify:ecrafjdummcdfycznitx:C4B_PRODUCTION_READ_ONLY) ;;
+            production:apply:ecrafjdummcdfycznitx:C4B_PRODUCTION_APPLY_REVIEWED) ;;
+            *) echo "::error::Wrong target/mode/ref/approval; no DB connection"; exit 1 ;;
+          esac
+          if [[ "$MODE" == "apply" && ! "$REVIEWED_SQL_SHA256" =~ ^[0-9a-f]{64}$ ]]; then
+            echo "::error::Apply requires exact 64-character reviewed SQL SHA256"
+            exit 1
+          fi
+          pr_head="$(gh api repos/ctimaru/steel-sales-ai/pulls/837 --jq '.head.sha')"
+          pr_branch="$(gh api repos/ctimaru/steel-sales-ai/pulls/837 --jq '.head.ref')"
+          pr_base="$(gh api repos/ctimaru/steel-sales-ai/pulls/837 --jq '.base.ref')"
+          test "$pr_head" = "$REVIEWED_HEAD"
+          test "$pr_branch" = "feat/dash-next1c4b-crm-relationship-ledger"
+          test "$pr_base" = "main"
+          echo "Reviewed open C4B PR #837 exact head: OK; no arbitrary code ref."
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.approved_head_sha }}
+          path: candidate
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Offline regression of database target and atomic history guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s scripts -p 'test_c4b_accept_promotion.py' -v
+      - name: Verify single target file and expected head contents
+        shell: bash
+        env:
+          HEAD: ${{ inputs.approved_head_sha }}
+        run: |
+          set -euo pipefail
+          test "$(git -C candidate rev-parse HEAD)" = "$HEAD"
+          test -f candidate/supabase/migrations/20261022085100_dash_next1c4b_crm_relationship_ledger.sql
+          command -v psql
+          echo "Single reviewed SQL migration available. Unrelated migrations excluded."
+      - name: Verify staging was promoted first (production only)
+        if: inputs.target == 'production'
+        shell: bash
+        env:
+          C4B_TARGET: staging
+          C4B_MODE: verify
+          C4B_DATABASE_URL: ${{ secrets.STAGING_READY1_DB_URL }}
+        run: |
+          set -euo pipefail
+          python3 scripts/c4b_accept_promotion.py
+      - name: Targeted schema plan/verification/promotion
+        shell: bash
+        env:
+          C4B_TARGET: ${{ inputs.target }}
+          C4B_MODE: ${{ inputs.mode }}
+          C4B_APPROVED_SQL_SHA256: ${{ inputs.approved_sql_sha256 }}
+          C4B_DATABASE_URL: ${{ inputs.target == 'staging' && secrets.STAGING_READY1_DB_URL || secrets.C4B_PRODUCTION_DB_URL }}
+        run: |
+          set -euo pipefail
+          python3 scripts/c4b_accept_promotion.py
+      - name: Authenticate four role-scoped synthetic users across two tenants (rolled back)
+        if: inputs.target == 'staging' && inputs.mode == 'apply'
+        shell: bash
+        env:
+          C4B_TARGET: staging
+          C4B_MODE: accept
+          C4B_DATABASE_URL: ${{ secrets.STAGING_READY1_DB_URL }}
+        run: |
+          set -euo pipefail
+          python3 scripts/c4b_accept_promotion.py
+      - name: Report
+        shell: bash
+        run: |
+          echo "No full-history push, reset or migration repair performed."
+          echo "C4B database promotion and history are one audited transaction."
