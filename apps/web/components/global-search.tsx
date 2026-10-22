@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { startTransition, useActionState, useEffect, useRef, useState } from "react";
 
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import {
@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { appRoutes } from "@/lib/routes";
+import type { CommercialSearchScope } from "@/lib/commercial-search-context";
 
 const initialState: GlobalSearchState = { status: "idle", message: "", results: [], count: 0, counts: {} };
 
@@ -128,22 +129,28 @@ function sourceTarget(result: GlobalSearchResult) {
   return null;
 }
 
-export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
+export function GlobalSearch({ initialQuery = "", scope = "all" }: { initialQuery?: string; scope?: CommercialSearchScope }) {
   const [state, formAction, pending] = useActionState(globalSearch, initialState);
   const [query, setQuery] = useState(initialQuery);
+  const submittedFromUrl = useRef<string | null>(null);
+  // Header GET -> search result without a second click. This invokes the same
+  // authenticated server action as manual search; no public/Network lookup.
+  useEffect(() => {
+    if (initialQuery.trim().length < 2) return;
+    const requestKey = initialQuery + ":" + scope;
+    if (submittedFromUrl.current === requestKey) return;
+    submittedFromUrl.current = requestKey;
+    const formData = new FormData();
+    formData.set("query", initialQuery);
+    formData.set("scope", scope);
+    startTransition(() => formAction(formData));
+  }, [initialQuery, scope, formAction]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <Card className="overflow-hidden border-slate-200 bg-white">
-        <div className="border-b border-[#dce2df] bg-[#f6f8f7] px-5 py-5 sm:px-6">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#1a5144]">Ricerca commerciale</p>
-          <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">Cerca in tutta la Commercial Memory</h2>
-          <p className="mt-1 max-w-3xl text-sm leading-6 text-[#66736e]">
-            Un'unica ricerca combina documenti, prodotti e attività commerciali con filtri per qualità, norma, dimensioni, prezzo e fonte.
-          </p>
-        </div>
-
-        <form action={formAction} className="space-y-5 p-5 sm:p-6">
+        <form action={formAction} className="space-y-3 p-3 sm:p-4">
+          <input type="hidden" name="scope" value={scope} />
           <div className="flex flex-col gap-2 sm:flex-row">
             <Input
               name="query"
@@ -152,19 +159,20 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
               placeholder="Es. P265GH 406,4 x 6,3 EN 10224"
               aria-label="Global Search"
               minLength={2}
+              maxLength={160}
               required
-              className="h-12 flex-1 text-base"
+              className="h-11 flex-1 text-base"
             />
             <button
               type="submit"
               disabled={pending || query.trim().length < 2}
-              className="h-12 rounded-xl bg-[#1a5144] px-6 text-sm font-semibold text-white transition hover:bg-[#226657] disabled:cursor-wait disabled:opacity-50"
+              className="app-primary h-11 rounded-lg px-4 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-50"
             >
               {pending ? "Ricerca..." : "Cerca"}
             </button>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          {!initialQuery ? <div className="flex flex-wrap gap-1.5">
             {examples.map((example) => (
               <button
                 key={example}
@@ -175,10 +183,10 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
                 {example}
               </button>
             ))}
-          </div>
+          </div> : null}
 
-          <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#66736e]">Mostra solo · nessuna selezione = tutti</p>
+          {scope === "all" ? <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#66736e]">Tipi di risultati · nessuna selezione = tutti</p>
             <div className="flex flex-wrap gap-2">
               {resultTypes.map((entry) => (
                 <label key={entry.value} className="flex cursor-pointer items-center gap-2 rounded-lg border border-[#dce2df] bg-white px-3 py-2 text-xs font-medium text-[#43524c]">
@@ -187,10 +195,10 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
                 </label>
               ))}
             </div>
-          </div>
+          </div> : null}
 
-          <details className="rounded-xl border border-[#dce2df] bg-[#f6f8f7]/70">
-            <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-[#43524c]">Filtri avanzati</summary>
+          <details className="rounded-lg border border-[#dce2df] bg-[#f6f8f7]/70">
+            <summary className="cursor-pointer px-3 py-2 text-xs font-semibold text-[#43524c]">Filtri tecnici opzionali</summary>
             <div className="space-y-4 border-t border-slate-200 p-4">
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <Input name="company" aria-label="Cliente o azienda" placeholder="Cliente / azienda" />
@@ -223,6 +231,7 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
         </form>
       </Card>
 
+      {pending ? <p role="status" className="text-xs font-medium text-[#53665b]">Ricerca privata in corso…</p> : null}
       {state.status === "error" ? <Card role="alert" className="border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">{state.message}</Card> : null}
 
       {state.status === "success" ? (
@@ -332,11 +341,10 @@ export function GlobalSearch({ initialQuery = "" }: { initialQuery?: string }) {
       ) : null}
 
       {state.status === "idle" ? (
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card className="p-5"><p className="font-semibold text-[#1d2824]">Una ricerca, tutto lo storico</p><p className="mt-2 text-sm leading-6 text-[#66736e]">Documenti, prodotti, RFQ, offerte, ordini e aziende confluiscono nella stessa ricerca.</p></Card>
-          <Card className="p-5"><p className="font-semibold text-[#1d2824]">Filtri prodotto</p><p className="mt-2 text-sm leading-6 text-[#66736e]">Diametro, spessore, dimensioni, grade, standard, prezzo, data e fonte.</p></Card>
-          <Card className="p-5"><p className="font-semibold text-[#1d2824]">Fonte sempre disponibile</p><p className="mt-2 text-sm leading-6 text-[#66736e]">Ogni risultato mantiene il collegamento al documento o alla conversazione da cui proviene.</p></Card>
-        </div>
+        <p className="rounded-lg border border-[#dce2df] bg-white px-3 py-3 text-xs leading-5 text-[#53665b]">
+          Una ricerca, tutto lo storico: prodotti, documenti, richieste, offerte, ordini e aziende.
+          Usa i filtri tecnici solo quando servono. Fonte sempre disponibile, senza creare collegamenti CRM automatici.
+        </p>
       ) : null}
     </div>
   );
