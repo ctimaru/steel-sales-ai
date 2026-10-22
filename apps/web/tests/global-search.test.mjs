@@ -96,7 +96,9 @@ test("Home is a daily operational cockpit while Search owns the dedicated search
   assert.doesNotMatch(dashboard, /<GlobalSearch/);
   assert.match(page, /searchParams/);
   assert.match(page, /initialQuery/);
-  assert.match(page, /<GlobalSearch initialQuery=\{initialQuery\}/);
+  assert.match(page, /initialQuery=\{initialQuery\} scope=\{scope\}/);
+  assert.match(page, /commercialSearchScopes/);
+  assert.match(page, /operationalSearchHref/);
   assert.match(component, /initialQuery = ""/);
   assert.match(component, /useState\(initialQuery\)/);
 });
