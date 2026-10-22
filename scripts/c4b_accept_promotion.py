@@ -140,7 +140,7 @@ def promotion_transaction(sql: str) -> str:
 def main() -> None:
     target = os.environ.get("C4B_TARGET", "")
     mode = os.environ.get("C4B_MODE", "")
-    if target not in {"staging", "production"} or mode not in {"plan", "apply", "verify"}:
+    if target not in {"staging", "production"} or mode not in {"plan", "apply", "verify", "accept"}:
         raise ValueError("target or mode is invalid")
     url = validate_connection(os.environ.get("C4B_DATABASE_URL", ""), target)
     sql = MIGRATION_PATH.read_text(encoding="utf-8")
@@ -160,6 +160,23 @@ def main() -> None:
         if name != MIGRATION_NAME or stored_md5 != md5:
             raise RuntimeError("migration version/name or registered SQL differs; STOP")
         verify_installed(url, md5)
+        if mode == "accept":
+            if target != "staging":
+                raise ValueError("synthetic acceptance must never run in production")
+            test_file = Path("candidate/supabase/tests/dash_next1c4b_tenant_auth_acceptance.sql")
+            acceptance = test_file.read_text(encoding="utf8")
+            if not acceptance.lstrip().startswith("-- C4B staging-only") or not acceptance.rstrip().endswith(
+                "select 'C4B synthetic membership, viewer and tenant acceptance PASSED with ROLLBACK' as result;"
+            ):
+                raise ValueError("unexpected synthetic acceptance contract")
+            before = run_sql(url, "select (select count(*) from auth.users),(select count(*) from public.organizations);")
+            result = run_sql(url, acceptance)
+            after = run_sql(url, "select (select count(*) from auth.users),(select count(*) from public.organizations);")
+            if before != "0|0" or after != before or "PASSED with ROLLBACK" not in result:
+                raise RuntimeError("synthetic acceptance not clean; stop")
+            verify_installed(url, md5)
+            print("Synthetic role/tenant acceptance PASSED. Staging auth and orgs remain empty.")
+            return
         print("Migration already installed and verified. No changes made.")
         return
     if rel != "ABSENT" or evt != "ABSENT":
@@ -173,7 +190,7 @@ def main() -> None:
     if preflight != "t":
         raise RuntimeError("missing C4B parent tables or entitlement helper")
     print("Exactly one candidate migration, absent from history; baseline dependencies OK.")
-    if mode == "verify":
+    if mode in {"verify", "accept"}:
         raise RuntimeError("migration not installed yet")
     if mode == "plan":
         print("READ ONLY plan complete. No migration or test data written.")
