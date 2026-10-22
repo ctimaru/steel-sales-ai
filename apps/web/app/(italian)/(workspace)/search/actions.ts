@@ -185,7 +185,7 @@ export async function globalSearch(
       outcome: resultCount > 0 ? "success" : "empty",
       resultCount,
       durationMs: Date.now() - startedAt,
-      metadata: { surface: "global_search", scope },
+      metadata: { surface: "global_search" },
     });
 
     return {
