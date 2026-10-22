@@ -69,6 +69,14 @@ try {
       assert.equal(await page.locator('[data-testid="commercial-compact-filters"]').count(), 1);
       assert.equal(await page.locator('#commercial-worklist').count(), 1);
       assert.equal(await page.locator('#commercial-worklist input[name="q"]').count(), 1);
+      // A11Y: real computed color AND WebKit text fill must be white on solid brand.
+      const selectedFilter = page.getByRole("navigation", { name: "Filtra attività commerciali" })
+        .getByRole("link", { name: "Tutte", exact: true });
+      const selectedColors = await selectedFilter.evaluate(el => ({
+        color: getComputedStyle(el).color, fill: getComputedStyle(el).webkitTextFillColor,
+      }));
+      assert.equal(selectedColors.color, "rgb(255, 255, 255)", "Active filter must be white on green");
+      assert.equal(selectedColors.fill, "rgb(255, 255, 255)", "Active filter WebKit fill must be white");
       const rowArea = page.locator('[data-testid="commercial-list-pane"]');
       await rowArea.waitFor({ state: "visible", timeout: 60000 });
       assert.equal(await rowArea.locator(".max-h-\\[520px\\]").count(), 0,
@@ -83,8 +91,13 @@ try {
         assert.equal(await actions.getByRole("link", { name: /Nuova richiesta/ }).count(), 0,
           "Viewer must not gain a create action");
       } else {
-        assert.equal(await actions.getByRole("link", { name: /Nuova richiesta/ }).count(), 1,
-          "One primary CTA must be offered to writers");
+        const create = actions.getByRole("link", { name: /Nuova richiesta/ });
+        assert.equal(await create.count(), 1, "One primary CTA must be offered to writers");
+        const primaryColors = await create.evaluate(el => ({
+          color: getComputedStyle(el).color, fill: getComputedStyle(el).webkitTextFillColor,
+        }));
+        assert.equal(primaryColors.color, "rgb(255, 255, 255)", "Solid create CTA must use white text");
+        assert.equal(primaryColors.fill, "rgb(255, 255, 255)", "Solid create CTA WebKit fill must be white");
       }
       assert.equal(await page.getByRole("link", { name: "+ Nuova distinta" }).count(), 0,
         "Duplicate create action must not return");
