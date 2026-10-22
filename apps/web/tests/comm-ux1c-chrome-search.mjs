@@ -37,6 +37,16 @@ async function tabs(page, expected) {
   await nav.waitFor({ state: "visible", timeout: 60000 });
   assert.deepEqual(await nav.locator("a").allTextContents(), ["Tutto", "RFQ e offerte", "Aziende", "Prodotti", "Documenti"]);
   assert.equal(await nav.getByRole("link", { name: expected, exact: true }).getAttribute("aria-current"), "page");
+  // Wait for browser paint/style stabilization, not a transitional color.
+  await page.waitForFunction(label => {
+    const nav = document.querySelector('nav[aria-label="Categorie ricerca commerciale"]');
+    const selected = nav?.querySelector('a[aria-current="page"]');
+    if (!selected || selected.textContent?.trim() !== label) return false;
+    const style = getComputedStyle(selected);
+    return style.color === "rgb(255, 255, 255)" &&
+      style.webkitTextFillColor === "rgb(255, 255, 255)" &&
+      style.backgroundColor === "rgb(31, 107, 90)";
+  }, expected, { timeout: 6000 });
   const color = await nav.getByRole("link", { name: expected, exact: true }).evaluate(el => ({
     color: getComputedStyle(el).color,
     fill: getComputedStyle(el).webkitTextFillColor,
