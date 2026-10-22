@@ -83,8 +83,8 @@ test("RFQ-IA1 distinguishes procurement from Marketplace while keeping authorize
   const marketplaceEntries = shell.slice(shell.indexOf("const marketplaceNav:"), shell.indexOf("const knowledgeNav:"));
   assert.equal((menu.match(/contextKey:/g) || []).length, 3);
   assert.match(menu, /label: "Attività"/);
-  assert.match(routes, /home: "\/rfq-hub"/);
-  assert.match(routes, /savedDistinte: "\/rfq-hub\/distinte"/);
+  assert.match(routeSource, /home: "\/rfq-hub"/);
+  assert.match(routeSource, /savedDistinte: "\/rfq-hub\/distinte"/);
   assert.match(marketplaceEntries, /label: "Opportunità"/);
   assert.match(marketplaceEntries, /label: "Le mie pubblicazioni"/);
   assert.doesNotMatch(marketplaceEntries, /label: "Acquisti"|label: "RFQ"/);
