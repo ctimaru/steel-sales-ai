@@ -22,23 +22,12 @@ type NavItem = WorkspaceNavItem & {
   writeRole?: boolean;
 };
 
+// COMM-UX1A: three task-oriented destinations. All specialist routes remain
+// reachable from their work area; the top-level menu is not a feature inventory.
 const commercialNav: NavItem[] = [
-  { href: appRoutes.commercial.home, label: "Panoramica", contextKey: "commercial:home" },
-  { href: appRoutes.rfqHub.home, label: "RFQ e offerte", contextKey: "rfq:home" },
-  { href: appRoutes.commercial.search, label: "Cerca", contextKey: "commercial:search" },
-  { href: appRoutes.commercial.products, label: "Prodotti", contextKey: "commercial:products" },
-  { href: appRoutes.commercial.companies, label: "Aziende", contextKey: "commercial:companies" },
-  { href: appRoutes.commercial.assistant, label: "Assistente", contextKey: "commercial:assistant" },
-];
-
-const intelligenceNav: NavItem[] = [
-  { href: appRoutes.commercial.priceIntelligence, label: "Prezzi", contextKey: "commercial:intelligence:prices" },
-  { href: appRoutes.commercial.marketIntelligence, label: "Mercato", contextKey: "commercial:intelligence:market" },
-  { href: appRoutes.commercial.explorer, label: "Explorer", contextKey: "commercial:intelligence:explorer" },
-  { href: appRoutes.commercial.demand, label: "Domanda", contextKey: "commercial:intelligence:demand" },
-  { href: appRoutes.commercial.reengagement, label: "Riattivazione", contextKey: "commercial:intelligence:reengagement" },
-  { href: appRoutes.commercial.conversion, label: "Conversione", contextKey: "commercial:intelligence:conversion" },
-  { href: appRoutes.commercial.crossThreadRelationships, label: "Relazioni", contextKey: "commercial:intelligence:relationships" },
+  { href: appRoutes.commercial.home, label: "Attività", contextKey: "commercial:home" },
+  { href: appRoutes.commercial.companies, label: "Relazioni", contextKey: "commercial:companies" },
+  { href: appRoutes.commercial.analysis, label: "Analisi", contextKey: "commercial:analysis" },
 ];
 
 const networkNav: NavItem[] = [
@@ -46,18 +35,8 @@ const networkNav: NavItem[] = [
   { href: appRoutes.network.connections, label: "Connessioni", contextKey: "network:connections" },
 ];
 
-// RFQ Hub is a private procurement domain, independently of the Marketplace
-// feature flag. Viewers may consult RFQs authorized by database RLS; only
-// writers should see the entry to create new Distinta work and owner-scoped work queues.
-const rfqNav: NavItem[] = [
-  { href: appRoutes.rfqHub.home, label: "Le mie RFQ", contextKey: "rfq:home" },
-  { href: appRoutes.rfqHub.createDistinta, label: "Nuova distinta ↗", contextKey: "rfq:distinta", writeRole: true },
-  { href: appRoutes.rfqHub.savedDistinte, label: "Distinte salvate", contextKey: "rfq:archive" },
-  { href: appRoutes.rfqHub.inbox, label: "Inbox acquisti", contextKey: "rfq:inbox", writeRole: true },
-  { href: appRoutes.rfqHub.suppliers, label: "Fornitori", contextKey: "rfq:suppliers", writeRole: true },
-  { href: appRoutes.rfqHub.intelligence, label: "Intelligence", contextKey: "rfq:intelligence", writeRole: true },
-];
-
+// RFQ Hub and its historical URLs remain private, directly addressable
+// workflows, but no longer create a second navigation bar.
 const marketplaceNav: NavItem[] = [
   { href: appRoutes.marketplace.home, label: "Opportunità", contextKey: "marketplace:opportunities" },
   { href: appRoutes.marketplace.myRequests, label: "Le mie pubblicazioni", contextKey: "marketplace:requests" },
@@ -127,8 +106,6 @@ export function AppShell({
   networkFreeEnabled: boolean;
 }) {
   const commercialItems = visibleItems(commercialNav, organizationRole);
-  const intelligenceItems = visibleItems(intelligenceNav, organizationRole);
-  const rfqItems = visibleItems(rfqNav, organizationRole);
   const networkItems =
     networkEnabled && networkEntitled ? visibleItems(networkNav, organizationRole)
     : networkEnabled && networkFreeEnabled ? visibleItems(networkNav, organizationRole)
@@ -203,8 +180,6 @@ export function AppShell({
 
         <WorkspaceContextNavigation
           commercialItems={commercialItems}
-          intelligenceItems={intelligenceItems}
-          rfqItems={rfqItems}
           networkItems={networkItems}
           marketplaceItems={marketplaceItems}
           knowledgeItems={knowledgeItems}
