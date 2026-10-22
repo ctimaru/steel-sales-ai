@@ -4,12 +4,14 @@ import type { ReactNode } from "react";
 export function FocusPage({
   children,
   className = "",
+  compact = false,
 }: {
   children: ReactNode;
   className?: string;
+  compact?: boolean;
 }) {
   return (
-    <div className={["mvp-focus-page mx-auto w-full max-w-[1180px] space-y-7", className].filter(Boolean).join(" ")}>
+    <div className={["mvp-focus-page mx-auto w-full max-w-[1180px]", compact ? "space-y-4" : "space-y-7", className].filter(Boolean).join(" ")}>
       {children}
     </div>
   );
@@ -20,21 +22,27 @@ export function FocusHeader({
   title,
   description,
   actions,
+  compact = false,
 }: {
   eyebrow?: string;
   title: ReactNode;
   description?: ReactNode;
   actions?: ReactNode;
+  compact?: boolean;
 }) {
   return (
-    <header className="mvp-focus-header flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-      <div className="max-w-3xl">
+    <header className={"mvp-focus-header flex flex-col lg:flex-row lg:justify-between " + (compact ? "gap-2 lg:items-center" : "gap-4 lg:items-end")}>
+      <div className={compact ? "min-w-0 max-w-4xl" : "max-w-3xl"}>
         {eyebrow ? <p className="app-kicker">{eyebrow}</p> : null}
-        <h1 className="mt-2 text-3xl font-semibold tracking-[-0.025em] text-[var(--text-primary)] sm:text-[2.15rem]">
+        <h1 className={compact
+          ? "mt-0.5 text-xl font-semibold tracking-[-0.02em] text-[var(--text-primary)] sm:text-2xl"
+          : "mt-2 text-3xl font-semibold tracking-[-0.025em] text-[var(--text-primary)] sm:text-[2.15rem]"}>
           {title}
         </h1>
         {description ? (
-          <div className="mt-3 max-w-2xl text-sm leading-6 text-[var(--text-secondary)] sm:text-base">
+          <div className={compact
+            ? "mt-1 max-w-4xl text-xs leading-5 text-[var(--text-secondary)] sm:text-sm"
+            : "mt-3 max-w-2xl text-sm leading-6 text-[var(--text-secondary)] sm:text-base"}>
             {description}
           </div>
         ) : null}
@@ -43,7 +51,6 @@ export function FocusHeader({
     </header>
   );
 }
-
 
 export function FocusSectionHeader({
   eyebrow,
