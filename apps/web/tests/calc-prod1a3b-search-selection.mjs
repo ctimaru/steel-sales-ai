@@ -27,7 +27,7 @@ try {
    item.stages.searchStable=item.stages.searchValue==="100";
    if(!item.stages.searchStable) item.errors.push("Dimension search did not retain user input after retry");
    await page.waitForTimeout(400);
-   const suggestions=container.getByRole("option");
+   const suggestions=container.getByRole("button",{name:/^(Usa misura|Use size|Maß|Utiliser|Usar)/i});
    item.stages.suggestionCount=await suggestions.count();
    item.stages.suggestionLabels=await suggestions.allTextContents().then(a=>a.slice(0,8).map(s=>s.trim().slice(0,100)));
    if(item.stages.suggestionCount){
