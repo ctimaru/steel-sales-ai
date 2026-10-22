@@ -3091,6 +3091,7 @@ a[href="/azienda"][class~="bg-white"] {
    Some workspace link styles take precedence over generic selected buttons;
    aria-current is the authoritative active state across SSR and hydration. */
 nav[aria-label="Categorie ricerca commerciale"] a[aria-current="page"] {
+  transition: none !important; /* immediate readable foreground, no grey-to-white tween */
   background-color: var(--brand-primary) !important;
   border-color: var(--brand-primary) !important;
   color: #ffffff !important;
