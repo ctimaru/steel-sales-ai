@@ -60,8 +60,8 @@ test("HP9 removes first-use dead ends from workspace home and search", () => {
   assert.match(dashboard, /Lo storico contiene dati commerciali, ma non ci sono movimenti recenti in questa vista/);
   assert.match(dashboard, /Nessun movimento recente nello storico commerciale/);
   assert.match(globalSearch, /Ricerca senza risultati/);
-  assert.match(globalSearch, /Nuova ricerca/);
-  assert.match(globalSearch, /Apri Product 360/);
+  assert.match(globalSearch, /Cerca in tutto lo storico/);
+  assert.match(globalSearch, /Cerca nei documenti/);
 });
 
 test("HP9 makes operational empty states actionable", () => {
