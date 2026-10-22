@@ -65,7 +65,7 @@ test("COMM-UX1C auto-searches only a user-provided query using the existing serv
   assert.match(search, /<input type="hidden" name="scope" value=\{scope\}/);
   assert.match(search, /state\.status === "success"/);
   assert.match(search, /state\.status === "error"/);
-  assert.match(search, /Fonte sempre disponibile/);
+  assert.match(search, /Se esiste un riferimento navigabile/);
   assert.match(search, /app-primary/);
 });
 
