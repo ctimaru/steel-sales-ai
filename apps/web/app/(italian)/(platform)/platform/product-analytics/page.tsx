@@ -64,6 +64,48 @@ export default async function PlatformProductAnalyticsPage({
             ))}
           </div>
         )}
+        {activation !== null ? (
+          <div className="mt-5 border-t border-[#e0e8e3] pt-4">
+            <h3 className="text-sm font-bold text-[#173f35]">Priorità operative · acquisizione → attivazione</h3>
+            <p className="mt-1 text-xs leading-5 text-[#66736e]">
+              Indicazioni basate sulla coda attuale, non su attribuzione utenti o tassi di conversione fra sistemi.
+            </p>
+            <div className="mt-3 grid gap-3 md:grid-cols-2">
+              <div className="rounded-xl border border-[#dfe8e2] bg-[#f8faf9] p-4">
+                <p className="text-sm font-bold text-[#174b37]">
+                  {activation.ready > 0 ? "Attivazioni da completare" : "Nessuna attivazione in attesa"}
+                </p>
+                <p className="mt-1 text-xs text-[#52615b]">
+                  {activation.ready > 0
+                    ? `${activation.ready} pratiche pronte richiedono un intervento operativo.`
+                    : "La coda non segnala pratiche pronte per l'attivazione."}
+                </p>
+                <Link href="/platform/registrations?status=approved"
+                  className="mt-3 inline-flex min-h-11 items-center text-xs font-bold text-[#176647] underline underline-offset-4">
+                  Apri pratiche approvate →
+                </Link>
+              </div>
+              <div className="rounded-xl border border-[#dfe8e2] bg-[#f8faf9] p-4">
+                <p className="text-sm font-bold text-[#174b37]">Monitoraggio acquisizione</p>
+                <p className="mt-1 text-xs text-[#52615b]">
+                  {snapshot.calculatorFunnelQuality.state === "unavailable"
+                    ? "I dati Web Analytics non sono affidabili: verifica la raccolta prima di dedurre tendenze."
+                    : snapshot.calculatorFunnelQuality.state === "awaiting_events"
+                      ? "Nessun evento del nuovo funnel rilevato nel periodo: controlla consenso, traffico e rilascio."
+                      : "Eventi del calcolatore osservati. Confronta i trend nel tempo; registrazioni e attivazioni restano indipendenti."}
+                </p>
+                <Link href="/platform/registrations"
+                  className="mt-3 inline-flex min-h-11 items-center text-xs font-bold text-[#176647] underline underline-offset-4">
+                  Apri tutte le registrazioni →
+                </Link>
+              </div>
+            </div>
+            <p className="mt-3 text-xs text-[#718078]">
+              Le pratiche totali includono anche bozze e rifiuti; le approvate e le attivate sono stati distinti.
+              Non dividere attivazioni per visite o clic: periodi e popolazioni non coincidono.
+            </p>
+          </div>
+        ) : null}
         <p className="mt-3 text-xs text-[#718078]">
           Fonte: RPC di governance già autorizzate per la piattaforma. L'attivazione indica lo stato della pratica,
           non prova di utilizzo continuativo del prodotto; nessun dato identificativo viene mostrato.
