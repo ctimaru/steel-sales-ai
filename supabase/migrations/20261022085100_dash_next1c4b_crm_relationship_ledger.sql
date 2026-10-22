@@ -53,8 +53,8 @@ for select to authenticated
 using (
   exists(select 1 from public.organization_memberships om
     where om.user_id=(select auth.uid())
-      and om.organization_id=organization_id and om.status='active')
-  and private.pa1_3_network_access_allowed_for(organization_id)
+      and om.organization_id=crm_network_relationships.organization_id and om.status='active')
+  and private.pa1_3_network_access_allowed_for(crm_network_relationships.organization_id)
 );
 create policy crm_c4b_relationship_create on public.crm_network_relationships
 for insert to authenticated
@@ -62,19 +62,19 @@ with check (
   created_by=(select auth.uid())
   and exists(select 1 from public.organization_memberships om
     where om.user_id=(select auth.uid())
-      and om.organization_id=organization_id and om.status='active'
+      and om.organization_id=crm_network_relationships.organization_id and om.status='active'
       and om.role in ('admin','member'))
-  and private.pa1_3_network_access_allowed_for(organization_id)
+  and private.pa1_3_network_access_allowed_for(crm_network_relationships.organization_id)
   and exists(select 1 from public.network_companies nc
-    where nc.id=network_company_id and nc.publication_status='published')
+    where nc.id=crm_network_relationships.network_company_id and nc.publication_status='published')
 );
 create policy crm_c4b_event_read on public.crm_network_relationship_events
 for select to authenticated
 using (
   exists(select 1 from public.organization_memberships om
     where om.user_id=(select auth.uid())
-      and om.organization_id=organization_id and om.status='active')
-  and private.pa1_3_network_access_allowed_for(organization_id)
+      and om.organization_id=crm_network_relationship_events.organization_id and om.status='active')
+  and private.pa1_3_network_access_allowed_for(crm_network_relationship_events.organization_id)
 );
 create policy crm_c4b_event_append on public.crm_network_relationship_events
 for insert to authenticated
@@ -83,11 +83,11 @@ with check (
   and event_type in ('note','call','meeting','follow_up')
   and exists(select 1 from public.organization_memberships om
     where om.user_id=(select auth.uid())
-      and om.organization_id=organization_id and om.status='active'
+      and om.organization_id=crm_network_relationship_events.organization_id and om.status='active'
       and om.role in ('admin','member'))
-  and private.pa1_3_network_access_allowed_for(organization_id)
+  and private.pa1_3_network_access_allowed_for(crm_network_relationship_events.organization_id)
   and exists(select 1 from public.crm_network_relationships r
-    where r.id=relationship_id and r.organization_id=organization_id)
+    where r.id=crm_network_relationship_events.relationship_id and r.organization_id=crm_network_relationship_events.organization_id)
 );
 -- No UPDATE/DELETE policies and no user GRANT: ledger and identity keys immutable.
 -- Inserting a new relationship atomically creates its provenance event.
