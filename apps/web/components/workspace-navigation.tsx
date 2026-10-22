@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { appRoutes } from "@/lib/routes";
 import {
   getWorkspaceNavigationContext,
+  getCommercialNavigationArea,
   type WorkspaceContextKey,
 } from "@/lib/workspace-information-architecture";
 
@@ -286,15 +287,11 @@ function ContextLink({
 
 export function WorkspaceContextNavigation({
   commercialItems,
-  intelligenceItems,
-  rfqItems,
   networkItems,
   marketplaceItems,
   knowledgeItems,
 }: {
   commercialItems: WorkspaceNavItem[];
-  intelligenceItems: WorkspaceNavItem[];
-  rfqItems: WorkspaceNavItem[];
   networkItems: WorkspaceNavItem[];
   marketplaceItems: WorkspaceNavItem[];
   knowledgeItems: WorkspaceNavItem[];
@@ -306,73 +303,32 @@ export function WorkspaceContextNavigation({
   if (current === "home") return null;
 
   const items =
-    current === "rfq"
-      ? rfqItems
-      : current === "network"
-        ? networkItems
-      : current === "marketplace"
-        ? marketplaceItems
-        : current === "knowledge"
-          ? knowledgeItems
-          : commercialItems;
+    current === "network" ? networkItems
+      : current === "marketplace" ? marketplaceItems
+      : current === "knowledge" ? knowledgeItems
+      : commercialItems;
 
   if (current === "network" && items.length === 0) return null;
 
-  const intelligenceSelected =
-    current === "commercial" &&
-    Boolean(
-      navigation.context?.startsWith("commercial:intelligence:"),
-    );
+  const selectedCommercialArea = current === "commercial"
+    ? getCommercialNavigationArea(navigation.context)
+    : null;
 
   return (
-    <div className="border-t border-[#eef1ef] bg-white">
+    <nav aria-label={current === "commercial" ? "Sezioni Commerciale" : "Sezioni workspace"}
+      className="border-t border-[#eef1ef] bg-white">
       <div className="workspace-context-scroll mx-auto flex max-w-[1280px] items-center gap-1 overflow-x-auto px-3 sm:px-5 lg:px-8">
         {items.map((item) => (
           <ContextLink
             key={item.contextKey}
             item={item}
-            selected={navigation.context === item.contextKey || (item.contextKey === "rfq:home" && navigation.context?.startsWith("rfq:") === true)}
+            selected={current === "commercial"
+              ? selectedCommercialArea === item.contextKey
+              : navigation.context === item.contextKey}
           />
         ))}
-
-        {current === "commercial" && intelligenceItems.length ? (
-          <details className="relative shrink-0">
-            <summary
-              aria-current={intelligenceSelected ? "page" : undefined}
-              className={[
-                "flex min-h-11 cursor-pointer list-none items-center gap-1 rounded-t-lg border-b-2 px-3 text-xs font-semibold transition sm:text-sm",
-                intelligenceSelected
-                  ? "border-[#173f35] bg-[#f7faf8] text-[#173f35]"
-                  : "border-transparent text-[#5d6a65] hover:border-[#c8d5d0] hover:bg-[#fafcfb] hover:text-[#1d2824]",
-              ].join(" ")}
-            >
-              Intelligence
-              <NavIcon name="chevron" className="h-4 w-4" />
-            </summary>
-            <div className="fixed left-3 right-3 top-[calc(112px+env(safe-area-inset-top))] z-50 grid max-h-[calc(100dvh-9rem-env(safe-area-inset-top))] gap-1 overflow-y-auto rounded-2xl border border-[#dce2df] bg-white p-2 shadow-xl sm:left-auto sm:right-6 sm:w-72 lg:absolute lg:left-auto lg:right-0 lg:top-full lg:max-h-none lg:overflow-visible">
-              {intelligenceItems.map((item) => {
-                const selected = navigation.context === item.contextKey;
-                return (
-                  <Link
-                    key={item.contextKey}
-                    href={item.href}
-                    aria-current={selected ? "page" : undefined}
-                    className={[
-                      "rounded-xl px-3 py-2.5 text-sm font-semibold transition",
-                      selected
-                        ? "bg-[#e1ece8] text-[#173f35]"
-                        : "text-[#43524c] hover:bg-[#edf5f2] hover:text-[#173f35]",
-                    ].join(" ")}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
-          </details>
-        ) : null}
       </div>
-    </div>
+    </nav>
   );
 }
 
