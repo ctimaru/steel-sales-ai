@@ -42,8 +42,8 @@ test("HP15 reserves display cutouts and the workspace bottom navigation safe are
   assert.match(appShell, /pt-\[env\(safe-area-inset-top\)\]/);
   assert.match(appShell, /pb-\[calc\(5rem\+env\(safe-area-inset-bottom\)\)\]/);
   assert.match(workspaceNav, /pb-\[env\(safe-area-inset-bottom\)\]/);
-  assert.match(workspaceNav, /100dvh/);
-  assert.match(workspaceNav, /safe-area-inset-top/);
+  assert.match(workspaceNav, /workspace-context-scroll/);
+  assert.match(workspaceNav, /min-h-11/);
 });
 
 test("HP15 makes Platform navigation and access controls fit narrow phones", () => {
