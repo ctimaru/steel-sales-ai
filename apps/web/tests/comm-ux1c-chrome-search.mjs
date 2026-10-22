@@ -43,6 +43,9 @@ async function tabs(page, expected) {
   }));
   assert.equal(color.color, "rgb(255, 255, 255)", "Selected category needs white text on green");
   assert.equal(color.fill, "rgb(255, 255, 255)", "Selected category WebKit text fill must be white");
+  const background = await nav.getByRole("link", { name: expected, exact: true })
+    .evaluate(el => getComputedStyle(el).backgroundColor);
+  assert.equal(background, "rgb(31, 107, 90)", "Selected category must have a solid brand background");
 }
 async function noOverflow(page, label) {
   const w = await page.evaluate(() => [document.documentElement.clientWidth, document.documentElement.scrollWidth]);
