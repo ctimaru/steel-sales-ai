@@ -102,7 +102,7 @@ test("RFQH10 keeps legacy routes and is now owned by private RFQ Hub", () => {
   assert.match(routes, /procurementInbox: "\/marketplace\/inbox"/);
   assert.match(ia, /"marketplace:inbox"/);
   assert.match(ia, /appRoutes\.marketplace\.procurementInbox/);
-  assert.match(shell, /label: "Inbox acquisti"/);
+  assert.match(shell, /label: "Attività"/);
   assert.match(ia, /"rfq:inbox"/);
   assert.match(hub, /Apri Inbox/);
 });
