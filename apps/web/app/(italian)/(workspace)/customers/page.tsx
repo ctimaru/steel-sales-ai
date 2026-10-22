@@ -36,11 +36,16 @@ export default async function CustomersPage({
     <div className="mx-auto max-w-7xl space-y-7">
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">Commercial Memory</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Clienti / aziende</h1>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Relazioni commerciali</h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-          Una vista unica delle Company normalizzate del workspace: contatti, conversazioni, RFQ,
-          offerte, ordini e attività prodotto collegate solo tramite identità verificate.
+          Company 360: clienti, fornitori, contatti, richieste, offerte e ordini collegati
+          soltanto tramite identità verificate e autorizzate. Le nuove aziende si scoprono nel Network.
         </p>
+      </div>
+
+      <div className="flex flex-wrap gap-2 text-xs font-semibold">
+        <Link href={appRoutes.commercial.home + "?prospects=1#commercial-prospects"} className="inline-flex min-h-10 items-center rounded-lg border border-[#d7dfdb] bg-white px-3 text-[#173f35] hover:bg-[#edf5f2]">Aziende da seguire →</Link>
+        <Link href={appRoutes.network.directory} className="inline-flex min-h-10 items-center rounded-lg border border-[#d7dfdb] bg-white px-3 text-[#173f35] hover:bg-[#edf5f2]">Scopri aziende nel Network →</Link>
       </div>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
