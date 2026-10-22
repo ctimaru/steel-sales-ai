@@ -53,8 +53,8 @@ test("global search exposes P1.4 result families and steel filters", () => {
 test("commercial search is first-class sales navigation", () => {
   assert.match(page, /Cerca nello storico commerciale/);
   assert.match(page, /Trova prodotti, clienti, richieste, offerte, ordini e documenti/);
-  assert.match(shell, /href: appRoutes\.commercial\.search/);
-  assert.match(shell, /label: "Cerca"/);
+  assert.match(navigation, /action=\{appRoutes\.commercial\.search\}/);
+  assert.match(shell, /label: "Attività"/);
   assert.match(navigation, /action=\{appRoutes\.commercial\.search\}/);
 });
 
@@ -76,9 +76,10 @@ test("sales navigation uses stable macros with contextual tools and avatar drawe
   }
   assert.match(shell, /WorkspaceContextNavigation/);
   assert.match(shell, /WorkspaceProfileMenu/);
-  for (const label of ["Assistente", "Norme", "Gradi", "Calcolo pesi", "Dati e fonti"]) {
+  for (const label of ["Norme", "Gradi", "Calcolo pesi", "Dati e fonti"]) {
     assert.match(shell + navigation, new RegExp(label));
   }
+  assert.match(shell, /label: "Analisi"/);
   assert.doesNotMatch(navigation, /label="Importa documenti"/);
   assert.doesNotMatch(navigation, /label="Revisioni dati"/);
 });
