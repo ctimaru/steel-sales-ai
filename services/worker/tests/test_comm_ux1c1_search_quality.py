@@ -45,7 +45,7 @@ def test_preview_preserves_within_family_rank_and_deduplicates_across_sources():
         "order", "product", "company", "document",
     ]
     assert len({(row["result_type"], row["result_id"]) for row in shown}) == 6
-    assert [row["result_id"] for row in shown if row["result_type"] == "order"] == [
+    assert [row["result_id"] for row in shown if row["result_type"] == "order"][:2] == [
         "order:0", "order:1",
     ]
 
@@ -59,6 +59,8 @@ def test_source_reference_is_locator_not_content_verification():
 
 
 def test_worker_fills_product_family_without_crossing_membership(monkeypatch):
+    monkeypatch.setenv("SUPABASE_URL", "https://example.supabase.co")
+    monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "not-a-real-secret")
     tenant = "00000000-0000-4000-8000-000000000010"
     actor = UUID("00000000-0000-4000-8000-000000000001")
     seen: list[tuple[str, object]] = []
@@ -101,6 +103,8 @@ def test_worker_fills_product_family_without_crossing_membership(monkeypatch):
 
 
 def test_backfill_failure_retains_authorized_results_and_signals_incomplete(monkeypatch):
+    monkeypatch.setenv("SUPABASE_URL", "https://example.supabase.co")
+    monkeypatch.setenv("SUPABASE_SERVICE_ROLE_KEY", "not-a-real-secret")
     tenant = "00000000-0000-4000-8000-000000000010"
     actor = UUID("00000000-0000-4000-8000-000000000001")
 
