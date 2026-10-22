@@ -122,6 +122,16 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/c4b_accept_promotion.py
+      - name: Authenticate four role-scoped synthetic users across two tenants (rolled back)
+        if: inputs.target == 'staging' && inputs.mode == 'apply'
+        shell: bash
+        env:
+          C4B_TARGET: staging
+          C4B_MODE: accept
+          C4B_DATABASE_URL: ${{ secrets.STAGING_READY1_DB_URL }}
+        run: |
+          set -euo pipefail
+          python3 scripts/c4b_accept_promotion.py
       - name: Report
         shell: bash
         run: |
