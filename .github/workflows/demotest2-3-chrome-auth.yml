@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "apps/web/tests/demotest23-*.mjs"
+      - "apps/web/tests/comm-ux1c-chrome-search.mjs"
       - "apps/web/tests/comm-ux1-chrome-auth.mjs"
       - "apps/web/tests/rfqh14-2-*.mjs"
       - "apps/web/tests/bd15-*.mjs"
@@ -135,6 +136,18 @@ jobs:
         with:
           name: comm-ux1-synthetic-visual-qa
           path: ${{ runner.temp }}/comm-ux1-safe-screenshots/*.png
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: "COMM-UX1C Chrome authenticated search, roles, categories and 390px"
+        working-directory: apps/web
+        timeout-minutes: 12
+        run: node tests/comm-ux1c-chrome-search.mjs
+      - name: "COMM-UX1C synthetic search visual evidence"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: comm-ux1c-synthetic-search
+          path: ${{ runner.temp }}/comm-ux1c-search-screenshots/*.png
           if-no-files-found: ignore
           retention-days: 7
       - name: "Google Chrome browser: login, tenant isolation, RFQ Hub, Marketplace, mobile"
