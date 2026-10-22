@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "apps/web/tests/demotest23-*.mjs"
+      - "apps/web/tests/comm-ux1-chrome-auth.mjs"
       - "apps/web/tests/rfqh14-2-*.mjs"
       - "apps/web/tests/bd15-*.mjs"
       - "apps/web/tests/bd18-*.mjs"
@@ -124,6 +125,18 @@ jobs:
           echo "LOCAL NEXT FAILED to start"
           tail -n 70 "$RUNNER_TEMP/demotest23-next.log"
           exit 1
+      - name: "COMM-UX1 authenticated navigation: 5 real accounts, 4 isolated tenants, desktop and 390px"
+        working-directory: apps/web
+        timeout-minutes: 12
+        run: node tests/comm-ux1-chrome-auth.mjs
+      - name: "Save visual QA evidence from synthetic identities only"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: comm-ux1-synthetic-visual-qa
+          path: ${{ runner.temp }}/comm-ux1-safe-screenshots/*.png
+          if-no-files-found: ignore
+          retention-days: 7
       - name: "Google Chrome browser: login, tenant isolation, RFQ Hub, Marketplace, mobile"
         working-directory: apps/web
         timeout-minutes: 20
