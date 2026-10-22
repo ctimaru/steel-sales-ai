@@ -1,0 +1,30 @@
+name: CALC-PROD1A.3D.3 Geometry-Bound Numeric Acceptance
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  geometry-mass:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm install --no-save --no-package-lock playwright@1.56.1
+      - run: npx playwright install --with-deps chrome
+      - run: node --check tests/calc-prod1a3d3-geometry-mass.mjs
+      - run: node tests/calc-prod1a3d3-geometry-mass.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: calc-prod1a3d3-geometry-mass-evidence
+          path: apps/web/artifacts/calc-prod1a3d3/
+          retention-days: 7
