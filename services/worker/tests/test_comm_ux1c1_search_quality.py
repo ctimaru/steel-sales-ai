@@ -1,7 +1,6 @@
 """Synthetic, no-credentials acceptance for private Commercial Search quality."""
 from uuid import UUID
-
-import pytest
+import asyncio
 
 from app import global_search
 from app.search_quality import (
@@ -59,8 +58,7 @@ def test_source_reference_is_locator_not_content_verification():
     assert not source_reference_available({"metadata": {"source_uri": None}})
 
 
-@pytest.mark.asyncio
-async def test_worker_fills_product_family_without_crossing_membership(monkeypatch):
+def test_worker_fills_product_family_without_crossing_membership(monkeypatch):
     tenant = "00000000-0000-4000-8000-000000000010"
     actor = UUID("00000000-0000-4000-8000-000000000001")
     seen: list[tuple[str, object]] = []
@@ -88,10 +86,10 @@ async def test_worker_fills_product_family_without_crossing_membership(monkeypat
     monkeypatch.setattr(global_search.WorkerRepository, "_request", fake_request)
     monkeypatch.setattr(global_search, "enrich_records_with_shared_reference", fake_enrich)
     service = global_search.GlobalSearchService()
-    payload = await service.search(
+    payload = asyncio.run(service.search(
         global_search.GlobalSearchRequest(actor_user_id=actor,
                                           query="S355J2H", types=["rfq", "product"], limit=10)
-    )
+    ))
     assert payload["count"] == 10
     assert {row["result_type"] for row in payload["results"]} == {"rfq", "product"}
     assert payload["quality"]["preview_limited"] is True
@@ -102,8 +100,7 @@ async def test_worker_fills_product_family_without_crossing_membership(monkeypat
     assert "other-tenant" not in str(payload)
 
 
-@pytest.mark.asyncio
-async def test_backfill_failure_retains_authorized_results_and_signals_incomplete(monkeypatch):
+def test_backfill_failure_retains_authorized_results_and_signals_incomplete(monkeypatch):
     tenant = "00000000-0000-4000-8000-000000000010"
     actor = UUID("00000000-0000-4000-8000-000000000001")
 
@@ -122,10 +119,10 @@ async def test_backfill_failure_retains_authorized_results_and_signals_incomplet
 
     monkeypatch.setattr(global_search.WorkerRepository, "_request", fake_request)
     monkeypatch.setattr(global_search, "enrich_records_with_shared_reference", fake_enrich)
-    payload = await global_search.GlobalSearchService().search(
+    payload = asyncio.run(global_search.GlobalSearchService().search(
         global_search.GlobalSearchRequest(actor_user_id=actor, query="S355J2H",
                                           types=["rfq", "product"], limit=5)
-    )
+    ))
     assert payload["count"] == 5
     assert payload["quality"]["backfill_incomplete"] is True
     assert payload["quality"]["preview_limited"] is True
