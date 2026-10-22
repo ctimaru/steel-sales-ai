@@ -20,6 +20,7 @@ test("COMM-UX1B uses opt-in compact layout without compressing other workspaces"
 
 test("COMM-UX1B replaces the tall action cards with one accessible task strip", () => {
   assert.match(commercial, /data-testid="commercial-compact-actions"/);
+  assert.match(commercial, /className="app-primary inline-flex min-h-10/);
   assert.match(commercial, /data-testid="commercial-compact-attention"/);
   assert.match(commercial, /aria-labelledby="commercial-today"/);
   assert.match(commercial, /Che cosa vuoi fare oggi\?/);
@@ -34,6 +35,7 @@ test("COMM-UX1B replaces the tall action cards with one accessible task strip", 
 
 test("COMM-UX1B shows filters on one desktop row and preserves search and six views", () => {
   assert.match(worklist, /data-testid="commercial-compact-filters"/);
+  assert.match(worklist, /app-selected-solid/);
   assert.match(worklist, /lg:flex-row lg:items-center/);
   assert.match(worklist, /aria-label="Filtra attività commerciali"/);
   assert.match(worklist, /role="search"/);
