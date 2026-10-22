@@ -347,7 +347,10 @@ export function WorkspaceSearchBar() {
         name="q"
         type="search"
         aria-label="Cerca nello storico commerciale"
-        placeholder="Cerca"
+        placeholder="Cerca nello storico..."
+        minLength={2}
+        maxLength={160}
+        required
         className="h-10 w-full rounded-xl border border-[#cfd8d4] bg-[#f7f9f8] pl-9 pr-4 text-sm text-[#1d2824] outline-none transition placeholder:text-[#5d6a65] focus:border-[#86a99e] focus:bg-white focus:ring-4 focus:ring-[#e1ece8]"
       />
     </form>
