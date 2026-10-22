@@ -72,22 +72,19 @@ test("COMMERCIAL-UNIFY1 exposes procurement under Commerciale independently of N
   const primary = nav.slice(nav.indexOf("function primaryItems("), nav.indexOf("export function WorkspaceDesktopPrimaryNavigation("));
   assert.match(primary, /key: "commercial" as const/);
   assert.doesNotMatch(primary, /key: "rfq" as const/);
-  assert.match(shell, /label: "RFQ e offerte", contextKey: "rfq:home"/);
-  assert.match(shell, /const rfqItems = visibleItems\(rfqNav, organizationRole\)/);
-  assert.match(nav, /item.contextKey === "rfq:home"/);
+  assert.match(shell, /label: "Attività", contextKey: "commercial:home"/);
+  assert.doesNotMatch(shell, /label: "RFQ e offerte"/);
+  assert.match(nav, /getCommercialNavigationArea\(navigation.context\)/);
   assert.ok(primary.indexOf('key: "commercial" as const') < primary.indexOf('...(networkEnabled'), "Commerciale must not depend on Network entitlement");
 });
 
-test("RFQ-IA1 distinguishes procurement from Marketplace and preserves viewer access", () => {
-  const rfqEntries = shell.slice(shell.indexOf("const rfqNav:"), shell.indexOf("const marketplaceNav:"));
+test("RFQ-IA1 distinguishes procurement from Marketplace while keeping authorized deep links", () => {
+  const menu = shell.slice(shell.indexOf("const commercialNav:"), shell.indexOf("const networkNav:"));
   const marketplaceEntries = shell.slice(shell.indexOf("const marketplaceNav:"), shell.indexOf("const knowledgeNav:"));
-  assert.match(rfqEntries, /label: "Le mie RFQ"/);
-  assert.match(rfqEntries, /label: "Nuova distinta ↗".*writeRole: true/);
-  assert.match(rfqEntries, /label: "Inbox acquisti"/);
-  assert.match(rfqEntries, /label: "Fornitori"/);
-  assert.doesNotMatch(rfqEntries.match(/label: "Le mie RFQ"[^\n]*/)[0], /writeRole: true/);
-  assert.match(rfqEntries.match(/label: "Inbox acquisti"[^\n]*/)[0], /writeRole: true/);
-  assert.match(rfqEntries.match(/label: "Fornitori"[^\n]*/)[0], /writeRole: true/);
+  assert.equal((menu.match(/contextKey:/g) || []).length, 3);
+  assert.match(menu, /label: "Attività"/);
+  assert.match(routeSource, /home: "\/rfq-hub"/);
+  assert.match(routeSource, /savedDistinte: "\/rfq-hub\/distinte"/);
   assert.match(marketplaceEntries, /label: "Opportunità"/);
   assert.match(marketplaceEntries, /label: "Le mie pubblicazioni"/);
   assert.doesNotMatch(marketplaceEntries, /label: "Acquisti"|label: "RFQ"/);

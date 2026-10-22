@@ -18,9 +18,10 @@ test("COMMERCIAL-UNIFY1 shows one primary Commerciale destination on desktop and
   assert.match(primary, /key: "commercial" as const/);
   assert.doesNotMatch(primary, /key: "rfq" as const/);
   assert.match(primary, /label: "Commerciale"/);
-  assert.match(shell, /label: "RFQ e offerte", contextKey: "rfq:home"/);
-  assert.match(nav, /item.contextKey === "rfq:home"/);
-  assert.match(nav, /navigation.context\?\.startsWith\("rfq:"\)/);
+  assert.match(shell, /label: "Attività", contextKey: "commercial:home"/);
+  assert.match(shell, /label: "Relazioni", contextKey: "commercial:companies"/);
+  assert.match(shell, /label: "Analisi", contextKey: "commercial:analysis"/);
+  assert.match(nav, /getCommercialNavigationArea\(navigation.context\)/);
 });
 
 test("COMMERCIAL-UNIFY1 retains deep links but resolves private procurement within Commerciale", () => {

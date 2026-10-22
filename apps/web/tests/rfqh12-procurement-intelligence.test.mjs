@@ -86,5 +86,5 @@ test("RFQH12 stays integrated while PF4 keeps Marketplace navigation compact", (
   assert.match(marketplaceHome, /Intelligence acquisti/);
   const marketplaceNav = shell.slice(shell.indexOf("const marketplaceNav:"), shell.indexOf("const knowledgeNav:"));
   assert.doesNotMatch(marketplaceNav, /label: "Intelligence"/);
-  assert.match(shell, /label: "Intelligence".*contextKey: "rfq:intelligence"/);
+  assert.match(shell, /label: "Analisi", contextKey: "commercial:analysis"/);
 });

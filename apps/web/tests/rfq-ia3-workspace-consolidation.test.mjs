@@ -95,6 +95,6 @@ test("RFQ-IA3 saved archive is paginated, noindex, organization-scoped and acces
   assert.match(archive, /data\.map\(\(draft\) =>/);
   assert.match(archive, /href=\{appRoutes\.rfqHub\.savedDistinta\(draft\.id\)\}/);
   assert.match(ia, /return "rfq:archive"/);
-  assert.match(shell, /label: "Distinte salvate", contextKey: "rfq:archive"/);
+  assert.match(shell, /label: "Attività", contextKey: "commercial:home"/);
   assert.match(overview, /href=\{appRoutes\.rfqHub\.savedDistinte\} action="Archivio completo"/);
 });

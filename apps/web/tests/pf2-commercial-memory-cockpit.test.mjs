@@ -54,21 +54,15 @@ test("PF2 groups intelligence by commercial goal instead of a flat seven-tool li
   assert.doesNotMatch(commercial, /7 strumenti/);
 });
 
-test("PF2 simplifies Commercial navigation and moves Explorer under Intelligence", () => {
+test("PF2 groups Explorer and specialist tools under task-based Analisi", () => {
   const commercialBlock = shell.slice(
     shell.indexOf("const commercialNav"),
-    shell.indexOf("const intelligenceNav"),
-  );
-  const intelligenceBlock = shell.slice(
-    shell.indexOf("const intelligenceNav"),
     shell.indexOf("const networkNav"),
   );
-
-  assert.doesNotMatch(commercialBlock, /appRoutes\.commercial\.explorer/);
-  assert.match(intelligenceBlock, /appRoutes\.commercial\.explorer/);
-  assert.match(intelligenceBlock, /label: "Prezzi"/);
-  assert.match(intelligenceBlock, /label: "Mercato"/);
-  assert.match(intelligenceBlock, /label: "Relazioni"/);
+  assert.equal((commercialBlock.match(/contextKey:/g) || []).length, 3);
+  assert.match(commercialBlock, /label: "Analisi"/);
+  assert.doesNotMatch(commercialBlock, /label: "Explorer"|label: "Prezzi"|label: "Mercato"/);
+  assert.match(commercial, /appRoutes\.commercial\.explorer/);
   assert.match(ia, /commercial:intelligence:explorer/);
 });
 

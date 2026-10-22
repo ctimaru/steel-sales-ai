@@ -20,7 +20,7 @@ test("P5.2 promotes Marketplace home to supplier opportunities and preserves buy
   assert.match(shell, /label: "Opportunità"/);
   assert.match(shell, /label: "Le mie pubblicazioni"/);
   assert.match(shell, /label: "Risposte Marketplace"/);
-  assert.match(shell, /label: "Le mie RFQ"/);
+  assert.match(shell, /label: "Attività"/);
   assert.match(feedPage, /Compra o vendi, in un unico spazio/);
   assert.match(feedPage, /getMarketplaceFeed/);
   assert.match(buyerPage, /getMyMarketplaceRequests/);

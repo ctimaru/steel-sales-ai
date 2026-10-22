@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
+const analysisHub = fs.readFileSync(new URL("../app/(italian)/(workspace)/commercial/analysis/page.tsx", import.meta.url), "utf8");
 const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
 const nav = fs.readFileSync(new URL("../components/workspace-navigation.tsx", import.meta.url), "utf8");
 const dashboard = fs.readFileSync(new URL("../app/(workspace)/dashboard/page.tsx", import.meta.url), "utf8");
@@ -27,7 +28,7 @@ test("UXA2 exposes five stable macro destinations over the product spaces", () =
 
 test("PF1 keeps Commercial Memory private while Home becomes a daily cockpit", () => {
   assert.match(shell, /WorkspaceSearchBar/);
-  assert.match(shell, /appRoutes\.commercial\.products/);
+  assert.match(analysisHub, /appRoutes\.commercial\.products/);
   assert.match(shell, /appRoutes\.commercial\.companies/);
 
   assert.match(dashboard, /Workspace privato/);

@@ -16,7 +16,8 @@ const routes=read("../lib/routes.ts");
 test("NET-CONNECT1: navigation is professional and has no social follow/save feeds",()=>{
  assert.match(shell,/label: "Esplora aziende"/);
  assert.match(shell,/label: "Connessioni"/);
- assert.doesNotMatch(shell,/label: "Salvate"|label: "Seguite"|label: "Attività"/);
+ const networkMenu=shell.slice(shell.indexOf("const networkNav:"),shell.indexOf("const marketplaceNav:"));
+ assert.doesNotMatch(networkMenu,/label: "Salvate"|label: "Seguite"|label: "Attività"/);
  assert.match(shell,/networkEnabled && networkEntitled/);
  assert.match(shell,/networkFreeEnabled/);
  assert.match(routes,/connections: "\/network\/connections"/);

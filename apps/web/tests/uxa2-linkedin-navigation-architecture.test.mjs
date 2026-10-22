@@ -100,7 +100,7 @@ test("UXA2 keeps contextual subnavigation scoped to the active macro-space", () 
   assert.match(nav, /current === "network"/);
   assert.match(nav, /current === "knowledge"/);
   assert.match(nav, /current === "commercial"/);
-  assert.match(nav, /Intelligence/);
+  assert.match(shell, /label: "Analisi"/);
   assert.match(shell, /commercialItems=\{commercialItems\}/);
   assert.match(shell, /networkItems=\{networkItems\}/);
   assert.match(shell, /marketplaceItems=\{marketplaceItems\}/);

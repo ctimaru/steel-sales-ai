@@ -14,6 +14,7 @@ export type WorkspaceContextKey =
   | "commercial:products"
   | "commercial:companies"
   | "commercial:assistant"
+  | "commercial:analysis"
   | "commercial:intelligence:explorer"
   | "commercial:intelligence:prices"
   | "commercial:intelligence:market"
@@ -53,6 +54,23 @@ export type WorkspaceNavigationContext = {
   primary: WorkspacePrimarySpace;
   context: WorkspaceContextKey | null;
 };
+
+// The three persistent Commerciale destinations classify existing deep links
+// without changing their routes, authentication or data ownership.
+export type CommercialNavigationArea = "commercial:home" | "commercial:companies" | "commercial:analysis";
+
+export function getCommercialNavigationArea(context: WorkspaceContextKey | null): CommercialNavigationArea {
+  if (context === "commercial:companies" || context === "commercial:intelligence:relationships") {
+    return "commercial:companies";
+  }
+  if (context === "commercial:analysis" || context === "commercial:products" ||
+      context?.startsWith("commercial:intelligence:")) {
+    return "commercial:analysis";
+  }
+  // RFQ Hub, saved distinte, historic offers, search and assistant stay within
+  // Attività even when opened via legacy bookmarks.
+  return "commercial:home";
+}
 
 function isPath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(href + "/");
@@ -142,6 +160,7 @@ function knowledgeContext(pathname: string): WorkspaceContextKey {
 }
 
 function commercialContext(pathname: string): WorkspaceContextKey {
+  if (isPath(pathname, appRoutes.commercial.analysis)) return "commercial:analysis";
   if (
     isAnyPath(pathname, [
       appRoutes.commercial.search,

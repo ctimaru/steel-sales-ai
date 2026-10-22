@@ -10,6 +10,7 @@ function read(path) {
 const routes = read("../lib/routes.ts");
 const ia = read("../lib/workspace-information-architecture.ts");
 const shell = read("../components/app-shell.tsx");
+const analysisHub = read("../app/(italian)/(workspace)/commercial/analysis/page.tsx");
 const nav = read("../components/workspace-navigation.tsx");
 const platformNav = read("../components/platform-navigation.tsx");
 const commercialHome = read("../app/(workspace)/commercial/page.tsx");
@@ -49,9 +50,9 @@ test("HP10 keeps legacy route aliases explicit instead of using them as primary 
     assert.ok(routes.includes(alias), "missing legacy alias " + alias);
   }
 
-  assert.match(shell, /appRoutes\.commercial\.explorer/);
-  assert.match(shell, /appRoutes\.commercial\.priceIntelligence/);
-  assert.match(shell, /appRoutes\.commercial\.marketIntelligence/);
+  assert.match(analysisHub, /appRoutes\.commercial\.explorer/);
+  assert.match(analysisHub, /appRoutes\.commercial\.priceIntelligence/);
+  assert.match(analysisHub, /appRoutes\.commercial\.marketIntelligence/);
   assert.match(shell, /appRoutes\.knowledge\.explorer/);
   assert.match(schoolHome, /appRoutes\.knowledge\.explorer/);
 });
@@ -66,20 +67,18 @@ test("HP10 centralizes route-to-context resolution so root tabs do not double-se
 
   assert.match(nav, /navigation\.context === item\.contextKey/);
   assert.doesNotMatch(nav, /pathname === href \|\| pathname\.startsWith\(href \+ "\/"\)/);
-  assert.match(nav, /intelligenceSelected/);
-  assert.match(nav, /aria-current=\{intelligenceSelected \? "page"/);
+  assert.match(nav, /getCommercialNavigationArea/);
+  assert.match(nav, /selectedCommercialArea === item.contextKey/);
 });
 
 test("HP10 gives Commerciale a real contextual home and complete intelligence entry points", () => {
   assert.match(shell, /contextKey: "commercial:home"/);
-  assert.match(shell, /contextKey: "commercial:search"/);
-  assert.match(shell, /contextKey: "commercial:products"/);
-  assert.match(shell, /contextKey: "commercial:companies"/);
-  assert.match(shell, /contextKey: "commercial:assistant"/);
-  assert.match(shell, /contextKey: "commercial:intelligence:explorer"/);
-  assert.match(shell, /commercial:intelligence:prices/);
-  assert.match(shell, /commercial:intelligence:market/);
-  assert.match(shell, /commercial:intelligence:relationships/);
+  assert.match(shell, /label: "Relazioni", contextKey: "commercial:companies"/);
+  assert.match(shell, /label: "Analisi", contextKey: "commercial:analysis"/);
+  for (const key of ["commercial:search", "commercial:products", "commercial:assistant", "commercial:intelligence:explorer", "commercial:intelligence:prices", "commercial:intelligence:market", "commercial:intelligence:relationships"]) {
+    assert.ok(ia.includes(key), key);
+  }
+  assert.match(analysisHub, /appRoutes\.commercial\.crossThreadRelationships/);
   assert.match(commercialHome, /Relazioni cross-thread/);
 });
 
