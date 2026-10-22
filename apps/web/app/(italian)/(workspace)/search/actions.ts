@@ -49,6 +49,7 @@ export type GlobalSearchState = {
   results?: GlobalSearchResult[];
   filters?: Record<string, unknown>;
   model?: { model_key: string; model_name: string; dimensions: number } | null;
+  quality?: { preview_limited: boolean; limit: number; structured_matches: number; document_candidates: number; source_references: number; backfill_incomplete: boolean } | null;
 };
 
 function text(formData: FormData, key: string): string | undefined {
@@ -167,6 +168,7 @@ export async function globalSearch(
           results?: GlobalSearchResult[];
           filters?: Record<string, unknown>;
           model?: GlobalSearchState["model"];
+          quality?: GlobalSearchState["quality"];
         }
       | null;
 
@@ -197,6 +199,7 @@ export async function globalSearch(
       results: payload?.results ?? [],
       filters: payload?.filters ?? filters,
       model: payload?.model ?? null,
+      quality: payload?.quality ?? null,
     };
   } catch {
     return { status: "error", message: "Worker Global Search non raggiungibile.", query };
