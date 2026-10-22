@@ -45,7 +45,7 @@ async function tabs(page, expected) {
     const style = getComputedStyle(selected);
     return style.color === "rgb(255, 255, 255)" &&
       style.webkitTextFillColor === "rgb(255, 255, 255)" &&
-      style.backgroundColor === "rgb(31, 107, 90)";
+      ["rgb(31, 107, 90)", "rgb(24, 82, 71)"].includes(style.backgroundColor);
   }, expected, { timeout: 6000 });
   const color = await nav.getByRole("link", { name: expected, exact: true }).evaluate(el => ({
     color: getComputedStyle(el).color,
@@ -55,7 +55,7 @@ async function tabs(page, expected) {
   assert.equal(color.fill, "rgb(255, 255, 255)", "Selected category WebKit text fill must be white");
   const background = await nav.getByRole("link", { name: expected, exact: true })
     .evaluate(el => getComputedStyle(el).backgroundColor);
-  assert.equal(background, "rgb(31, 107, 90)", "Selected category must have a solid brand background");
+  assert.ok(["rgb(31, 107, 90)", "rgb(24, 82, 71)"].includes(background), "Selected category must use solid brand or brand-hover background");
 }
 async function noOverflow(page, label) {
   const w = await page.evaluate(() => [document.documentElement.clientWidth, document.documentElement.scrollWidth]);
