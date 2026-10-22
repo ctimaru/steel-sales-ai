@@ -7,6 +7,8 @@ from uuid import UUID
 
 import httpx
 
+from .supabase_credentials import get_supabase_admin_key, supabase_admin_headers
+
 BUCKET_NAME = os.getenv("SUPABASE_UPLOAD_BUCKET", "commercial-uploads")
 CONTENT_TYPES = {
     ".zip": "application/zip",
@@ -39,17 +41,14 @@ async def upload_private_object(
     created_at: datetime,
 ) -> str:
     supabase_url = os.getenv("SUPABASE_URL", "").rstrip("/")
-    service_role_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
-    if not supabase_url or not service_role_key:
-        raise StorageConfigurationError(
-            "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for Storage uploads."
-        )
+    service_role_key = get_supabase_admin_key()
+    if not supabase_url:
+        raise StorageConfigurationError("SUPABASE_URL is required for Storage uploads.")
 
     path = build_storage_path(job_id, filename, created_at)
     endpoint = f"{supabase_url}/storage/v1/object/{BUCKET_NAME}/{path}"
     headers = {
-        "Authorization": f"Bearer {service_role_key}",
-        "apikey": service_role_key,
+        **supabase_admin_headers(service_role_key),
         "Content-Type": CONTENT_TYPES.get(extension, "application/octet-stream"),
         "x-upsert": "false",
     }
@@ -64,16 +63,13 @@ async def upload_private_object(
 
 async def download_private_object(*, storage_path: str) -> bytes:
     supabase_url = os.getenv("SUPABASE_URL", "").rstrip("/")
-    service_role_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
-    if not supabase_url or not service_role_key:
-        raise StorageConfigurationError(
-            "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for Storage downloads."
-        )
+    service_role_key = get_supabase_admin_key()
+    if not supabase_url:
+        raise StorageConfigurationError("SUPABASE_URL is required for Storage downloads.")
 
     endpoint = f"{supabase_url}/storage/v1/object/{BUCKET_NAME}/{storage_path}"
     headers = {
-        "Authorization": f"Bearer {service_role_key}",
-        "apikey": service_role_key,
+        **supabase_admin_headers(service_role_key),
     }
     async with httpx.AsyncClient(timeout=30) as client:
         response = await client.get(endpoint, headers=headers)
