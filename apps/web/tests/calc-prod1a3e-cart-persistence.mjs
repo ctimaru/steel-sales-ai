@@ -15,10 +15,17 @@ try {
    if(!res||res.status()>=400)throw Error("HTTP "+res?.status());
    const panel=page.locator('[data-testid="calculator-dimension-discovery"]');
    const search=panel.getByRole("searchbox");await search.waitFor({state:"visible",timeout:15000});
-   await page.waitForTimeout(550);await search.fill("100");
+   await page.waitForTimeout(550);
+   const consent=page.getByTestId("mobile-cookie-consent");
+   if(await consent.isVisible().catch(()=>false)){
+     const necessary=consent.getByRole("button",{name:/necessar|essential|erforderlich|nécessair|necesari/i}).first();
+     if(await necessary.count())await necessary.click();
+     else throw Error("Cookie banner open: necessary-only action missing");
+   }
+   await search.fill("100");
    const choice=panel.locator('button[aria-label*="150"][aria-label*="100"][aria-label*="5"]:visible').first();
-   await choice.waitFor({state:"visible",timeout:9000});await choice.click();result.steps.push("selected");
-   const add=page.getByRole("button",{name:/Aggiungi alla distinta|Add to bill|Add to list|Zur Liste|Ajouter|Añadir/i}).first();
+   await choice.waitFor({state:"visible",timeout:18000});await choice.click();result.steps.push("selected");
+   const add=page.locator("button[data-cockpit-add]:visible").first();
    await add.click({timeout:8000});result.steps.push("added");
    await page.getByTestId("calculator-cart-trigger").click({timeout:8000});
    let row=page.getByTestId("calculator-cart-overlay").locator("[data-distinta-compact-row]");
