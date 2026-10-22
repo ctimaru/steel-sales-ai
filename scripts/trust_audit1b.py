@@ -70,9 +70,18 @@ def main():
             header=proc.stdout.readline().strip().split()
             if len(header)!=3 or header[0].decode()!=sha or header[1]!=b"blob" or int(header[2])!=size:
                 raise RuntimeError("Git blob stream mismatch")
-            data=proc.stdout.read(size)
-            if len(data)!=size or proc.stdout.read(1)!=b"\n":
-                raise RuntimeError("Incomplete blob read")
+            # Raw pipes may return fewer bytes than requested; read exactly size.
+            chunks=[]
+            remaining=size
+            while remaining:
+                part=proc.stdout.read(remaining)
+                if not part:
+                    raise RuntimeError("Incomplete blob read")
+                chunks.append(part)
+                remaining-=len(part)
+            data=b"".join(chunks)
+            if proc.stdout.read(1)!=b"\n":
+                raise RuntimeError("Missing blob separator")
             scanned+=1
             bytes_read+=size
             if b"\x00" in data[:4096]:
