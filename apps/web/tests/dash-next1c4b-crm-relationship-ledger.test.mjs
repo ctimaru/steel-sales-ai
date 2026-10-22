@@ -26,7 +26,12 @@ test("C4B reader and writer are tenant-scoped, with explicit entitlement and wri
   assert.match(migration, /om\.user_id=\(select auth\.uid\(\)\)/);
   assert.match(migration, /om\.status='active'/);
   assert.match(migration, /om\.role in \('admin','member'\)/);
-  assert.match(migration, /private\.pa1_3_network_access_allowed_for\(organization_id\)/);
+  assert.match(migration, /om\.organization_id=crm_network_relationships\.organization_id/);
+  assert.match(migration, /om\.organization_id=crm_network_relationship_events\.organization_id/);
+  assert.match(migration, /r\.organization_id=crm_network_relationship_events\.organization_id/);
+  assert.match(migration, /private\.pa1_3_network_access_allowed_for\(crm_network_relationships\.organization_id\)/);
+  assert.match(migration, /private\.pa1_3_network_access_allowed_for\(crm_network_relationship_events\.organization_id\)/);
+  assert.doesNotMatch(migration, /om\.organization_id=organization_id|r\.organization_id=organization_id/);
   assert.match(migration, /nc\.publication_status='published'/);
   assert.match(actions, /requireWorkspaceWriteRole\(\)/);
   assert.match(actions, /getCommercialNetworkContext\(context\.organizationId, companyId\)/);
