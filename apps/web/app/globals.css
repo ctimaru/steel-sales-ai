@@ -3086,3 +3086,21 @@ a[href="/azienda"][class~="bg-white"] {
   color: #123d34 !important;
   -webkit-text-fill-color: #123d34 !important;
 }
+
+/* COMM-UX1C — private Commerciale search category tab.
+   Some workspace link styles take precedence over generic selected buttons;
+   aria-current is the authoritative active state across SSR and hydration. */
+nav[aria-label="Categorie ricerca commerciale"] a[aria-current="page"] {
+  transition: none !important; /* immediate readable foreground, no grey-to-white tween */
+  background-color: var(--brand-primary) !important;
+  border-color: var(--brand-primary) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+nav[aria-label="Categorie ricerca commerciale"] a[aria-current="page"]:hover {
+  background-color: var(--brand-primary-hover) !important;
+}
+nav[aria-label="Categorie ricerca commerciale"] a:focus-visible {
+  outline: 2px solid var(--steel-blue);
+  outline-offset: 2px;
+}

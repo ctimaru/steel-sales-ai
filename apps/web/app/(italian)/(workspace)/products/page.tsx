@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { appRoutes } from "@/lib/routes";
+import { commercialSearchHref } from "@/lib/commercial-search-context";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 
 import { loadProductCatalog, type ProductCatalogItem } from "./actions";
@@ -56,6 +57,14 @@ export default async function ProductsPage({
           Un prodotto, tutta la sua storia: richieste, offerte, ordini, consegne, prezzi, quantità,
           conversazioni e documenti originali.
         </p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 text-xs">
+        <Link href={commercialSearchHref(query, "products")}
+          className="inline-flex min-h-10 items-center rounded-lg border border-[#d7dfdb] bg-white px-3 font-semibold text-[#173f35] hover:bg-[#edf5f2]">
+          Cerca anche nelle evidenze prodotto →
+        </Link>
+        <span className="text-[#66736e]">Solo memoria privata, non catalogo pubblico.</span>
       </div>
 
       <section className="rounded-3xl border border-[#dce2df] bg-white p-5 shadow-sm sm:p-6">

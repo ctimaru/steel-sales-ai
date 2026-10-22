@@ -56,7 +56,7 @@ test("UXA2 desktop primary navigation uses icons plus labels and active underlin
 });
 
 test("UXA2 keeps daily search and alerts in the top header", () => {
-  assert.match(nav, /placeholder="Cerca"/);
+  assert.match(nav, /placeholder="Cerca nello storico\.\.\."/);
   assert.match(nav, /action=\{appRoutes\.commercial\.search\}/);
   assert.match(shell, /WorkspaceNotificationBell/);
   assert.match(bell, /Alert operativi/);

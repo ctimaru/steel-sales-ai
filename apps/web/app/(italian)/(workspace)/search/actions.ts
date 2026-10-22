@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { commercialSearchScopeTypes, parseCommercialSearchScope } from "@/lib/commercial-search-context";
 import { recordPilotUsageEvent } from "@/app/(workspace)/telemetry/actions";
 
 export type GlobalResultType =
@@ -77,6 +78,7 @@ export async function globalSearch(
 ): Promise<GlobalSearchState> {
   const startedAt = Date.now();
   const query = text(formData, "query") ?? "";
+  if (query.length > 160) return { status: "error", message: "La ricerca può contenere al massimo 160 caratteri." };
   if (query.length < 2) {
     return { status: "error", message: "Inserisci almeno 2 caratteri per la ricerca." };
   }
@@ -102,9 +104,18 @@ export async function globalSearch(
     "order",
     "delivery",
   ]);
-  const types = formData
+  const requestedTypes = formData
     .getAll("types")
     .filter((value): value is GlobalResultType => typeof value === "string" && allowedTypes.has(value as GlobalResultType));
+  // Only narrower searches within the existing private worker. Invalid scopes
+  // revert to all, not to a new/unsafe data source. Client checkboxes cannot
+  // broaden a category-selected query back to other result families.
+  const scope = parseCommercialSearchScope(text(formData, "scope"));
+  const restrictedTypes = commercialSearchScopeTypes(scope);
+  const matchedTypes = requestedTypes.filter((type) => restrictedTypes.includes(type));
+  const types = restrictedTypes.length
+    ? matchedTypes.length ? matchedTypes : restrictedTypes
+    : requestedTypes;
 
   const role = text(formData, "item_role");
   const filters = Object.fromEntries(

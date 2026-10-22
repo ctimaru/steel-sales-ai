@@ -13,6 +13,7 @@ import {
 } from "@/lib/commercial-unified-data";
 import { formatHubDate } from "@/lib/rfq-hub-overview";
 import { appRoutes } from "@/lib/routes";
+import { commercialSearchHref } from "@/lib/commercial-search-context";
 
 const views: ReadonlyArray<{ key: CommercialView; title: string }> = [
   { key: "all", title: "Tutte" },
@@ -220,13 +221,15 @@ export async function CommercialUnifiedWorklist({
         </form>
       </div>
 
-      {isStreamView(view) ? (
-        <p className="text-xs text-[var(--text-secondary)]">
-          Ricerca sui campi operativi di testata. Per clienti, articoli, misure e norme usa{" "}
-          <Link href={appRoutes.commercial.search + (query ? "?q=" + encodeURIComponent(query) : "")}
-            className="font-semibold text-[var(--brand-deep)] underline-offset-2 hover:underline">la ricerca nello storico commerciale →</Link>
-        </p>
-      ) : null}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-[var(--text-secondary)]">
+        <span>{isStreamView(view)
+          ? "Il filtro qui cerca nelle intestazioni RFQ, offerte e ordini."
+          : "Qui filtri le attività visibili, non tutto l’archivio documentale."}</span>
+        <Link href={commercialSearchHref(query)}
+          className="font-semibold text-[var(--brand-deep)] underline-offset-2 hover:underline">
+          Cerca anche aziende, articoli, misure e norme nello storico →
+        </Link>
+      </div>
 
       <div className={active ? (active.campaignId ? "grid min-w-0 gap-3" : "grid min-w-0 gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]") : ""}>
         <div data-testid="commercial-list-pane" className={(active ? "hidden lg:block " : "") + "min-w-0 overflow-hidden rounded-xl border border-[var(--border)] bg-white"}>
