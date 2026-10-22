@@ -4,6 +4,7 @@ import test from "node:test";
 
 const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
 const navigation = fs.readFileSync(new URL("../components/workspace-navigation.tsx", import.meta.url), "utf8");
+const commercial = fs.readFileSync(new URL("../app/(italian)/(workspace)/commercial/page.tsx", import.meta.url), "utf8");
 const bell = fs.readFileSync(new URL("../components/workspace-notification-bell.tsx", import.meta.url), "utf8");
 const product = fs.readFileSync(new URL("../app/(workspace)/products/[productId]/page.tsx", import.meta.url), "utf8");
 const prices = fs.readFileSync(new URL("../app/(workspace)/products/[productId]/prices/page.tsx", import.meta.url), "utf8");
@@ -14,7 +15,8 @@ const dataSources = fs.readFileSync(new URL("../app/(workspace)/data-sources/pag
 test("PA2.33 mobile keeps secondary sales tools reachable without duplicating operations in the avatar drawer", () => {
   assert.match(shell, /WorkspaceMobileBottomNavigation/);
   assert.match(shell, /WorkspaceProfileMenu/);
-  assert.match(shell, /appRoutes\.commercial\.assistant/);
+  assert.match(shell, /label: "Attività"/);
+  assert.match(commercial, /href: appRoutes\.commercial\.assistant/);
   assert.match(bell, /appRoutes\.operations\.alerts/);
   assert.match(navigation, /appRoutes\.company\.dataSources/);
   assert.doesNotMatch(dashboard, /appRoutes\.operations\.review/);
