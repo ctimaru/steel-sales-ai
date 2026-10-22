@@ -164,16 +164,17 @@ export default async function CommercialHomePage({
   ];
 
   return (
-    <FocusPage className="max-w-[1280px]">
+    <FocusPage compact className="max-w-[1280px]">
       <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
       <FocusHeader
+        compact
         eyebrow="Commerciale"
         title="Tutto il lavoro commerciale, in un unico posto"
         description={
           <>
-            La memoria commerciale della tua azienda, le richieste ai fornitori e le opportunità di Network e Marketplace.
-            Parti da ciò che devi fare, senza cambiare ambiente. Tutto resta nel workspace privato della tua organizzazione.
-            <span className="mt-2 block text-xs font-semibold text-[#5d6a65]">
+            La memoria commerciale della tua azienda: RFQ, offerte, ordini e opportunità,
+            nel workspace privato della tua organizzazione.
+            <span className="ml-2 inline-block text-xs font-semibold text-[#5d6a65]">
               {mode === "live"
                 ? "Dati live"
                 : mode === "demo"
@@ -383,51 +384,58 @@ export default async function CommercialHomePage({
         </section>
       ) : null}
 
-            <section aria-labelledby="commercial-today" className="grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="rounded-2xl bg-[#173f35] p-4 text-white sm:p-5">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-[#c3e0d2]">Le tue attività</p>
-          <h2 id="commercial-today" className="mt-1 text-xl font-semibold">Che cosa vuoi fare oggi?</h2>
-          <p className="mt-1 text-sm text-[#d6e9dd]">Dalla distinta all’offerta, con le aziende giuste.</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {canWrite ? (
-              <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"} className="inline-flex min-h-10 items-center rounded-lg bg-white px-3 text-sm font-semibold text-[#173f35] hover:bg-[#e7f3eb] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-                + Nuova richiesta
-              </Link>
-            ) : null}
-            <Link href={appRoutes.commercial.home + "#commercial-worklist"} className="inline-flex min-h-10 items-center rounded-lg border border-[#9fcdb6] px-3 text-sm font-semibold text-white hover:bg-[#275a49] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-              RFQ e offerte →
-            </Link>
-            {networkAvailable ? (
-              <Link href={appRoutes.commercial.home + "?prospects=1#commercial-prospects"}
-                className="inline-flex min-h-10 items-center rounded-lg border border-[#9fcdb6] px-3 text-sm font-semibold text-white hover:bg-[#275a49] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-              >Aziende da seguire →</Link>
-            ) : null}
-            {networkAvailable ? (
-              <Link href={appRoutes.network.directory} className="inline-flex min-h-10 items-center rounded-lg border border-[#9fcdb6] px-3 text-sm font-semibold text-white hover:bg-[#275a49] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-                Trova aziende →
-              </Link>
-            ) : null}
+      <section aria-labelledby="commercial-today" className="rounded-xl border border-[#dce2df] bg-white px-3 py-2.5 sm:px-4" data-testid="commercial-compact-actions">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <div className="min-w-0 sm:mr-1">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-[#246c53]">Le tue attività</p>
+            <h2 id="commercial-today" className="text-sm font-semibold text-[#173f35]">Che cosa vuoi fare oggi?</h2>
           </div>
+          {canWrite ? (
+            <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
+              className="inline-flex min-h-10 items-center rounded-lg bg-[#173f35] px-3 text-xs font-semibold text-white hover:bg-[#276853] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
+              + Nuova richiesta
+            </Link>
+          ) : null}
+          <Link href={appRoutes.commercial.home + "#commercial-worklist"}
+            className="inline-flex min-h-10 items-center rounded-lg border border-[#d5dfda] px-3 text-xs font-semibold text-[#173f35] hover:bg-[#edf5f2]">
+            RFQ e offerte →
+          </Link>
+          {networkAvailable ? (
+            <Link href={appRoutes.commercial.home + "?prospects=1#commercial-prospects"}
+              className="inline-flex min-h-10 items-center rounded-lg border border-[#d5dfda] px-3 text-xs font-semibold text-[#173f35] hover:bg-[#edf5f2]">
+              Aziende da seguire →
+            </Link>
+          ) : null}
+          {networkAvailable ? (
+            <Link href={appRoutes.network.directory}
+              className="inline-flex min-h-10 items-center rounded-lg border border-[#d5dfda] px-3 text-xs font-semibold text-[#173f35] hover:bg-[#edf5f2]">
+              Trova aziende →
+            </Link>
+          ) : null}
         </div>
-        <div className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="text-base font-semibold text-[#173f35]">Cosa richiede attenzione</h2>
-            <Link href={appRoutes.rfqHub.inbox} className="text-xs font-semibold text-[#175640] underline-offset-2 hover:underline">Apri inbox →</Link>
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-[#e5ece8] pt-2 text-xs" data-testid="commercial-compact-attention">
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-[#173f35]">Cosa richiede attenzione</h3>
+            <Link href={appRoutes.rfqHub.inbox} className="font-semibold text-[#246c53] underline-offset-2 hover:underline">Apri inbox →</Link>
           </div>
           {!canWrite ? (
-            <p className="mt-3 text-sm text-[#52615b]">Consultazione disponibile in sola lettura. Le azioni operative sono riservate ai ruoli autorizzati.</p>
+            <p className="text-[#53665b]">Consultazione in sola lettura; azioni riservate ai ruoli autorizzati.</p>
           ) : procurementPayload === null ? (
-            <p className="mt-3 text-sm text-[#52615b]">Priorità non disponibili al momento. Puoi comunque aprire le tue RFQ.</p>
+            <p className="text-[#53665b]">Priorità non disponibili al momento. Puoi comunque aprire le tue RFQ.</p>
           ) : actionableRfqs.length ? (
-            <div className="mt-3 space-y-2">
-              {actionableRfqs.map((item) => (
-                <Link key={item.rfq_id} href={appRoutes.rfqHub.campaign(item.rfq_id!)} className="flex min-h-10 items-center justify-between gap-2 rounded-lg border border-[#d6e5dd] bg-[#f7faf8] px-3 py-2 text-sm font-medium text-[#173f35] hover:border-[#8db9a2]">
-                  <span className="min-w-0 truncate">{item.headline || "RFQ da gestire"}</span><span aria-hidden="true">→</span>
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+              {actionableRfqs.slice(0, 2).map((item) => (
+                <Link key={item.rfq_id} href={appRoutes.rfqHub.campaign(item.rfq_id!)}
+                  className="inline-flex min-h-9 max-w-full items-center gap-2 rounded-md border border-[#d6e5dd] bg-[#f7faf8] px-2.5 py-1.5 font-medium text-[#173f35] hover:border-[#8db9a2]">
+                  <span className="max-w-[19rem] truncate">{item.headline || "RFQ da gestire"}</span><span aria-hidden="true">→</span>
                 </Link>
               ))}
+              {actionableRfqs.length > 2 ? (
+                <Link href={appRoutes.rfqHub.inbox} className="font-semibold text-[#246c53]">Altre priorità →</Link>
+              ) : null}
             </div>
           ) : (
-            <p className="mt-3 text-sm text-[#52615b]">{attentionTotal === 0 ? "Nessuna azione buyer in sospeso." : "Controlla l’inbox per eventuali altre azioni."}</p>
+            <p className="text-[#53665b]">{attentionTotal === 0 ? "Nessuna azione buyer in sospeso." : "Controlla l’inbox per eventuali altre azioni."}</p>
           )}
         </div>
       </section>
