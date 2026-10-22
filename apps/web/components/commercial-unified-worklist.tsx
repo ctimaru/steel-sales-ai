@@ -241,7 +241,7 @@ export async function CommercialUnifiedWorklist({
               {filtered.map((item) => (
                 <Link key={item.key} href={route(view, query, item.key, data.paging?.page ?? page, data.paging?.currentCursor)}
                   aria-current={item.key === active?.key ? "true" : undefined}
-                  className={"flex min-h-[64px] items-center justify-between gap-2 px-3 py-2 transition hover:bg-[var(--brand-primary-soft)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--brand-primary)] " +
+                  className={"flex min-h-[64px] items-center justify-between gap-2 px-3 py-2 transition hover:bg-[var(--brand-primary-soft)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] " +
                     (item.key === active?.key ? "bg-[var(--brand-primary-soft)]" : "")}>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[10px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">{itemType(item)} · {item.origin}</p>
