@@ -51,7 +51,7 @@ test("COMM-UX1C confines server action filters even when user form is tampered w
   assert.match(server, /restrictedTypes\.length/);
   assert.match(server, /query\.length > 160/);
   assert.match(server, /cache: "no-store"/);
-  assert.match(server, /metadata: \{ surface: "global_search", scope \}/);
+  assert.match(server, /metadata: \{ surface: "global_search" \}/);
   assert.doesNotMatch(server, /network\.directory|SUPABASE_SERVICE_ROLE_KEY|owner_id:/);
 });
 
