@@ -112,8 +112,9 @@ export async function globalSearch(
   // broaden a category-selected query back to other result families.
   const scope = parseCommercialSearchScope(text(formData, "scope"));
   const restrictedTypes = commercialSearchScopeTypes(scope);
+  const matchedTypes = requestedTypes.filter((type) => restrictedTypes.includes(type));
   const types = restrictedTypes.length
-    ? requestedTypes.length ? requestedTypes.filter((type) => restrictedTypes.includes(type)) : restrictedTypes
+    ? matchedTypes.length ? matchedTypes : restrictedTypes
     : requestedTypes;
 
   const role = text(formData, "item_role");
