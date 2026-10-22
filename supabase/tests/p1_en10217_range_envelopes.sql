@@ -266,16 +266,17 @@ select pg_temp.p115_en10217_assert(
 select pg_temp.p115_en10217_assert(
   exists (
     select 1
-    from public.p1_shared_steel_dimensions(
-      'EN 10217','round_tube',219.1,8,1000,12,50,0
+    from public.p1_shared_steel_effective_dimensions(
+      'EN 10217',null,'round_tube',219.1,8,1000,12,50,0
     ) d
-    where d.theoretical_weight_kg_m=41.6483
-      and d.reference_price_eur_m=41.6483
-      and d.reference_price_eur_piece=499.7796
-      and d.price_semantic='reference_price'
-      and d.not_normative_complete
+    where d.effective_weight_status='canonical_missing'
+      and d.effective_weight_reference_id is null
+      and d.effective_weight_kg_m is null
+      and d.reference_price_eur_m is null
+      and d.reference_price_eur_piece is null
+      and d.price_semantic='unavailable_without_canonical'
   ),
-  'SK4 RPC must calculate reference €/m and €/piece from the discrete EN 10217 row'
+  'SK4.5j must keep EN 10217 calculated mass as evidence but withhold pricing until a neutral canonical exists'
 );
 
 select pg_temp.p115_en10217_assert(

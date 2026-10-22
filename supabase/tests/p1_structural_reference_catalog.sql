@@ -153,10 +153,10 @@ select pg_temp.p115_struct_assert(
     where r.width_mm=100 and r.height_mm=100
       and r.theoretical_weight_kg_m=11.7
       and r.reference_price_eur_m=9.9450
-      and r.price_semantic='reference_price'
+      and r.price_semantic='canonical_reference_price'
       and r.not_normative_complete
   ),
-  'SK4 RPC must expose SHS geometry and 11.7 kg/m at 850 EUR/t as 9.9450 EUR/m'
+  'SK4 RPC must expose SHS geometry and canonical 11.7 kg/m at 850 EUR/t as 9.9450 EUR/m'
 );
 
 select pg_temp.p115_struct_assert(
@@ -170,9 +170,9 @@ select pg_temp.p115_struct_assert(
       and r.theoretical_weight_kg_m=33.9
       and r.reference_price_eur_m=28.8150
       and r.reference_price_eur_piece=345.7800
-      and r.price_semantic='reference_price'
+      and r.price_semantic='canonical_reference_price'
   ),
-  'SK4 RPC must calculate RHS reference EUR/m and EUR/piece deterministically'
+  'SK4 RPC must calculate RHS canonical-reference EUR/m and EUR/piece deterministically'
 );
 
 reset role;
