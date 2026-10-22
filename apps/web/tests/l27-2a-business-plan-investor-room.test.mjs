@@ -311,8 +311,8 @@ test("L27.2D.2 adds governed owner and investor KPI surfaces", () => {
 
 
 test("Founder evidence is explicit in the investor Business Plan", () => {
-  assert.match(investorCopy, /4 years of direct commercial sales experience at Alessio Tubi/);
-  assert.match(investorCopy, /4 anni di esperienza commerciale diretta nella vendita presso Alessio Tubi/);
+  assert.match(investorCopy, /4 years of direct commercial sales experience in the steel-tube sector/);
+  assert.match(investorCopy, /4 anni di esperienza commerciale diretta nel settore dei tubi in acciaio/);
   assert.match(investorCopy, /https:\/\/www\.linkedin\.com\/in\/ctimaru\/\?isSelfProfile=true/);
   assert.match(investorDetails, /Founder LinkedIn profile/);
   assert.match(investorDetails, /Profilo LinkedIn del founder/);

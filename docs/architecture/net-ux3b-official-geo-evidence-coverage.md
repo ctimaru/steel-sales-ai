@@ -20,7 +20,7 @@
 - Relevant first-party company URLs and short address excerpts are recorded in the Platform review queue, not on public site until independently approved.
 
 ## Controlled source pilot
-The first cohort includes **8** companies with observed first-party web pages/documents: Alessio Tubi, BM Laser, BST Tubi, DAMATEK, Giulipas, Padana Tubi, Tubi S.p.A. and Tubilaser. Each source must show company identity and city+province; the database uses ISTAT to derive the corresponding region. Official PDFs on a company's own domain are accepted only after inspection of the actual company identity. Source pages are rechecked by the human reviewer.
+The first cohort includes **8** companies with observed first-party web pages/documents: eight independently documented industrial sources (details retained in source provenance records). Each source must show company identity and city+province; the database uses ISTAT to derive the corresponding region. Official PDFs on a company's own domain are accepted only after inspection of the actual company identity. Source pages are rechecked by the human reviewer.
 
 ## Acceptance
 - P0 frontend tests, local Supabase reset and SQL rollback fixture, HP13.

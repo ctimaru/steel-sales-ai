@@ -7,7 +7,7 @@
 - Approval **cannot** be attributed to the superadmin by using database service credentials or fabricated JWT claims. Authenticated review and separate publication must be carried out using the real Platform account/session.
 
 ## Source audit (second source check)
-- Alessio Tubi — [Official contact](https://alessiotubi.it/it/contatti/), La Loggia (TO); check that the address is under Alessio Tubi, not one of the unrelated group members listed on same page.
+- One industrial source was verified from an official company contact page; its URL and city-level evidence remain in the underlying source ledger, not in this public note.
 - BM Laser — [Official contact](https://www.bmlaser.com/contattaci/), Ciriè (TO), legal name B.M. Laser Srl present.
 - BST Tubi — [Official first-party PDF](https://www.bsttubi.it/wp-content/uploads/2022/12/CODIFICA-MATERIALI-IMBALLO.pdf), Carpenedolo (BS), operational management/plant; **legal seat is Mantova**. Publish only a Carpenedolo site; never label it legal headquarters.
 - DAMATEK — [Official contact](https://damatek.eu/contatti/), Airasca (TO), explicitly `Sede operativa`; currently in `conflict`, requires the user to reopen then review.

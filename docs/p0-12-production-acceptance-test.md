@@ -60,7 +60,7 @@ The transaction was rolled back and residue checks returned zero jobs, threads, 
 
 ## PAT blocker found and fixed — semantic indexing
 
-The PAT discovered a real Foundation gap: 66 ready chunks from the most recent spreadsheet upload (`CLIENTI ITA ALESSIO.xls`) had no embedding for the active model. Ingestion/chunking had completed, but semantic indexing still depended on an operator-triggered embedding batch.
+The PAT discovered a real Foundation gap: 66 ready chunks from the most recent spreadsheet upload (`[restricted commercial spreadsheet — now quarantined]`) had no embedding for the active model. Ingestion/chunking had completed, but semantic indexing still depended on an operator-triggered embedding batch.
 
 This was treated as a P0.12 blocker rather than accepted as historical backlog.
 
@@ -98,7 +98,7 @@ The result included filename/document provenance and a `source_locator` down to 
 
 ### Newly indexed spreadsheet
 
-After the semantic-index fix, a query for `A.M. MORSCIA Piacenza` using the newly generated active-model embedding returned the expected chunk from `CLIENTI ITA ALESSIO.xls` as result #1 with:
+After the semantic-index fix, a query for `A.M. MORSCIA Piacenza` using the newly generated active-model embedding returned the expected chunk from `[restricted commercial spreadsheet — now quarantined]` as result #1 with:
 
 - vector similarity 1.0;
 - lexical contribution present;

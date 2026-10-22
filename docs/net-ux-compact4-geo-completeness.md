@@ -17,7 +17,7 @@
 7. No online geocoding, arbitrary website inference, contact/address harvesting, or scheduled crawling is introduced by this block.
 
 ## Acceptance
-CI frontend + Supabase foundation + HP13 green; apply both migrations in order; verify grants and counts through SQL; verify an authenticated user in Chrome on desktop (1366×768) and mobile (390px): a canonical company with sourced candidate (e.g., Alessio Tubi, La Loggia) shows `Località indicativa · Fonte`, a published-facility company shows city/region without candidate label, and a discovery with source-observed geography retains its indicativeness and provenance. Confirm Piemonte regional filter includes the documented canonical candidate while conflicting candidates remain hidden.
+CI frontend + Supabase foundation + HP13 green; apply both migrations in order; verify grants and counts through SQL; verify an authenticated user in Chrome on desktop (1366×768) and mobile (390px): a canonical company with sourced candidate (e.g., a verified industrial company) shows `Località indicativa · Fonte`, a published-facility company shows city/region without candidate label, and a discovery with source-observed geography retains its indicativeness and provenance. Confirm Piemonte regional filter includes the documented canonical candidate while conflicting candidates remain hidden.
 
 ## Next small batch
 After this UI release, NET-UX COMPACT4B can expand geographic density by selecting 25 official company contact pages, extracting locality with explicit source URL and evidence excerpt, storing only candidate rows, and calculating new coverage. Do not automatically write `network_facilities` or increase "verified office" counts.

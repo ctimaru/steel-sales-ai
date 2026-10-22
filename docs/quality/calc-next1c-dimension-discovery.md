@@ -2,7 +2,7 @@
 Date: 2026-10-21.
 
 ## Scope implemented
-- Search in current published Public Knowledge geometry only: round CHS, square SHS, rectangular RHS. Private builder uses its existing public-derived catalog, never the proprietary Alessio Tubi list.
+- Search in current published Public Knowledge geometry only: round CHS, square SHS, rectangular RHS. Private builder uses its existing public-derived catalog, never any proprietary third-party price list.
 - Instant local search tolerant of decimal comma/dot, multiplication signs, spacing and shape names. Filter by geometry and exact available wall thickness. Zero data fallback to manual entry (no fabricated "stock" values).
 - Cards with inline source label and small proportional cross-section SVG; applying a candidate updates only `family/diameter/width/height/thickness`. Norm EN 10210/EN 10219/geometric, density, qty, length, commercial targets and RFQ state do not change.
 - Existing `ParametricShapeDiagram` now visible on mobile rather than hidden on viewports below 1024px, and continues to use the current calculation standard and geometric validation.
