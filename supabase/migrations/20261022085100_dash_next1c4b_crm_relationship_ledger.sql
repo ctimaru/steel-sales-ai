@@ -37,8 +37,12 @@ alter table public.crm_network_relationships enable row level security;
 alter table public.crm_network_relationship_events enable row level security;
 revoke all on public.crm_network_relationships from public,anon,authenticated;
 revoke all on public.crm_network_relationship_events from public,anon,authenticated;
-grant select,insert on public.crm_network_relationships to authenticated;
-grant select,insert on public.crm_network_relationship_events to authenticated;
+grant select on public.crm_network_relationships to authenticated;
+grant insert(organization_id,network_company_id,created_by)
+  on public.crm_network_relationships to authenticated;
+grant select on public.crm_network_relationship_events to authenticated;
+grant insert(relationship_id,organization_id,actor_user_id,event_type,note)
+  on public.crm_network_relationship_events to authenticated;
 grant select,insert,update,delete on public.crm_network_relationships to service_role;
 grant select,insert,update,delete on public.crm_network_relationship_events to service_role;
 
