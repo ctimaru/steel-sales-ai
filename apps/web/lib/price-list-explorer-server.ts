@@ -104,6 +104,9 @@ export async function getPrivateLabPriceListExplorerVersion(
 export async function getPrivateLabPriceListExplorerItems(
   versionId: string,
 ) {
+  if (!(await getPrivateLabPriceListExplorerVersion(versionId))) {
+    return [] as PriceListExplorerItem[];
+  }
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("pl1_private_lab_explorer_items", {
     p_version_id: versionId,
