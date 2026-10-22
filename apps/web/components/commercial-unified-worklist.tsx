@@ -205,7 +205,7 @@ export async function CommercialUnifiedWorklist({
           {views.map(({ key, title }) => (
             <Link key={key} href={commercialHref(key, query)} aria-current={key === view ? "page" : undefined}
               className={"inline-flex min-h-10 shrink-0 items-center rounded-md px-2.5 text-xs font-semibold transition " +
-                (key === view ? "bg-[var(--brand-deep)] text-white" : "text-[var(--text-secondary)] hover:bg-[var(--brand-primary-soft)] hover:text-[var(--brand-deep)]")}>
+                (key === view ? "app-selected-solid" : "text-[var(--text-secondary)] hover:bg-[var(--brand-primary-soft)] hover:text-[var(--brand-deep)]")}>
               {title}
             </Link>
           ))}
