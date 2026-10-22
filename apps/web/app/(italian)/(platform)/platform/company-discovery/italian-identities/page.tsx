@@ -1,12 +1,14 @@
 import Link from "next/link";
 import {createClient} from "@/lib/supabase/server";
-import {requirePlatformPermission} from "@/lib/platform-admin";
+import {getPlatformAccessContext, requirePlatformPermission} from "@/lib/platform-admin";
 import {safeNetworkWebsiteUrl} from "@/lib/network-free";
 
 export const dynamic="force-dynamic";
 const PAGE_SIZE=25;
+const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 type LinkCandidate={
- id:string;name_a:string;domain_a:string;name_b:string;domain_b:string;
+ id:string;entity_a_id:string;entity_b_id:string;
+ name_a:string;domain_a:string;name_b:string;domain_b:string;
  relation_hint:"possible_alias"|"possible_brand_alias"|"shared_group_signal";
  proposal_status:"candidate";source_url:string;source_note:string;
  source_reuse_rights:"not_assessed";legal_identity_verified:false;
@@ -25,6 +27,8 @@ export default async function ItalianIdentityReviewPage({searchParams}:{
  searchParams:Promise<{page?:string}>
 }){
  await requirePlatformPermission("discovery.read");
+ const platformAccess=await getPlatformAccessContext();
+ const canReadClaims=platformAccess?.permissions?.includes("claims.read")===true;
  const {page:queryPage}=await searchParams;
  const requested=pageValue(queryPage);
  const supabase=await createClient();
@@ -34,7 +38,8 @@ export default async function ItalianIdentityReviewPage({searchParams}:{
  const v=data as Snapshot|null;
  const valid=!error&&v?.contract==="net-it-identity2c-review-v1"&&
   Number.isInteger(v.total)&&v.total>=0&&Array.isArray(v.items)&&
-  v.items.length<=PAGE_SIZE&&v.items.every(item=>item.proposal_status==="candidate"&&
+  v.items.length<=PAGE_SIZE&&v.items.every(item=>UUID.test(item.entity_a_id)&&
+   UUID.test(item.entity_b_id)&&item.entity_a_id!==item.entity_b_id&&item.proposal_status==="candidate"&&
    item.legal_identity_verified===false&&item.merge_performed===false&&
    item.source_reuse_rights==="not_assessed");
  const current=valid?v:null;
@@ -52,6 +57,10 @@ export default async function ItalianIdentityReviewPage({searchParams}:{
     Le schede rimangono distinte. Nessuna proposta è una verifica della persona giuridica,
     una decisione di fusione o un&apos;autorizzazione a riutilizzare i contenuti.
    </p>
+   <div className="mt-4 flex flex-wrap items-center gap-3">
+    <p className="text-xs leading-5 text-[#52615b]">Le aziende discovered non sono rivendicabili direttamente: apri il profilo per il percorso di registrazione; il claim HP5 è riservato ai profili canonici pubblicati.</p>
+    {canReadClaims?<Link href="/platform/company-claims" className="ui-action ui-action-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold">Apri Company Claims →</Link>:null}
+   </div>
   </header>
   {!current?<p role="alert" className="rounded-xl border border-[#e5c8a4] bg-white p-4 text-sm text-[#7b4b1b]">
    Registro temporaneamente non disponibile. Nessun conteggio viene interpretato come zero.
@@ -87,11 +96,13 @@ export default async function ItalianIdentityReviewPage({searchParams}:{
       <div className="min-w-0 rounded-xl border border-[#dce8e0] bg-[#f8fbf9] p-3">
        <h3 className="break-words text-sm font-bold text-[#173f35]">{item.name_a}</h3>
        <p className="mt-1 break-all text-xs text-[#52615b]">{item.domain_a}</p>
+       <Link href={"/network/"+encodeURIComponent(item.entity_a_id)} className="mt-3 inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4">Apri scheda A →</Link>
       </div>
       <div aria-hidden="true" className="flex items-center justify-center text-lg text-[#597467]">↔</div>
       <div className="min-w-0 rounded-xl border border-[#dce8e0] bg-[#f8fbf9] p-3">
        <h3 className="break-words text-sm font-bold text-[#173f35]">{item.name_b}</h3>
        <p className="mt-1 break-all text-xs text-[#52615b]">{item.domain_b}</p>
+       <Link href={"/network/"+encodeURIComponent(item.entity_b_id)} className="mt-3 inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4">Apri scheda B →</Link>
       </div>
      </div>
      <p className="mt-3 text-sm leading-6 text-[#43524c]">{item.source_note}</p>
