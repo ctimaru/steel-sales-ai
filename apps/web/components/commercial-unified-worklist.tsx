@@ -174,18 +174,13 @@ export async function CommercialUnifiedWorklist({
     : [];
 
   return (
-    <section id="commercial-worklist" aria-labelledby="commercial-worklist-title" className="scroll-mt-36 space-y-3">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+    <section id="commercial-worklist" aria-labelledby="commercial-worklist-title" className="scroll-mt-28 space-y-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--brand-primary)]">Una pagina · Due flussi collegati</p>
-          <h2 id="commercial-worklist-title" className="mt-1 text-xl font-bold text-[var(--brand-deep)]">Richieste, offerte e ordini</h2>
+          <h2 id="commercial-worklist-title" className="mt-0.5 text-lg font-semibold text-[var(--brand-deep)]">Richieste, offerte e ordini</h2>
           <p className="mt-1 text-xs text-[var(--text-secondary)]">Ricevute dai clienti e inviate ai fornitori, con identità e permessi distinti.</p>
         </div>
-        {canWrite ? (
-          <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"} className="app-primary inline-flex min-h-10 items-center rounded-lg px-4 text-sm font-semibold">
-            + Nuova distinta
-          </Link>
-        ) : null}
       </div>
 
       {data.partial ? (
@@ -205,24 +200,25 @@ export async function CommercialUnifiedWorklist({
         </p>
       ) : null}
 
-      <nav aria-label="Filtra attività commerciali" className="flex gap-1 overflow-x-auto rounded-xl border border-[var(--border)] bg-white p-1.5">
-        {views.map(({ key, title }) => (
-          <Link key={key} href={commercialHref(key, query)} aria-current={key === view ? "page" : undefined}
-            className={"inline-flex min-h-10 shrink-0 items-center rounded-lg px-3 text-xs font-semibold " +
-              (key === view ? "bg-[var(--brand-deep)] text-white" : "text-[var(--text-secondary)] hover:bg-[var(--brand-primary-soft)] hover:text-[var(--brand-deep)]")}>
-            {title}
-          </Link>
-        ))}
-      </nav>
-
-      <form action={appRoutes.commercial.home} method="get" role="search" className="flex flex-col gap-2 sm:flex-row">
-        {view !== "all" ? <input type="hidden" name="view" value={view} /> : null}
-        <label htmlFor="commercial-worklist-q" className="sr-only">Filtra le attività visibili</label>
-        <input id="commercial-worklist-q" type="search" name="q" maxLength={80} defaultValue={query}
-          placeholder={isStreamView(view) ? "Cerca titolo RFQ, stato o riferimento ordine..." : "Filtra azienda, articolo o stato..."}
-          className="min-h-10 min-w-0 flex-1 rounded-lg border border-[var(--border-strong)] bg-white px-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]" />
-        <button className="app-secondary min-h-10 rounded-lg px-4 text-xs font-semibold" type="submit">Filtra</button>
-      </form>
+      <div className="flex min-w-0 flex-col gap-2 lg:flex-row lg:items-center" data-testid="commercial-compact-filters">
+        <nav aria-label="Filtra attività commerciali" className="flex min-w-0 shrink-0 gap-0.5 overflow-x-auto rounded-lg border border-[var(--border)] bg-white p-1">
+          {views.map(({ key, title }) => (
+            <Link key={key} href={commercialHref(key, query)} aria-current={key === view ? "page" : undefined}
+              className={"inline-flex min-h-10 shrink-0 items-center rounded-md px-2.5 text-xs font-semibold transition " +
+                (key === view ? "app-selected-solid" : "text-[var(--text-secondary)] hover:bg-[var(--brand-primary-soft)] hover:text-[var(--brand-deep)]")}>
+              {title}
+            </Link>
+          ))}
+        </nav>
+        <form action={appRoutes.commercial.home} method="get" role="search" className="flex min-w-0 flex-1 gap-2">
+          {view !== "all" ? <input type="hidden" name="view" value={view} /> : null}
+          <label htmlFor="commercial-worklist-q" className="sr-only">Filtra le attività visibili</label>
+          <input id="commercial-worklist-q" type="search" name="q" maxLength={80} defaultValue={query}
+            placeholder={isStreamView(view) ? "Cerca titolo RFQ, stato o riferimento ordine..." : "Filtra azienda, articolo o stato..."}
+            className="min-h-10 min-w-0 flex-1 rounded-lg border border-[var(--border-strong)] bg-white px-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]" />
+          <button className="app-secondary min-h-10 shrink-0 rounded-lg px-3 text-xs font-semibold" type="submit">Filtra</button>
+        </form>
+      </div>
 
       {isStreamView(view) ? (
         <p className="text-xs text-[var(--text-secondary)]">
@@ -241,19 +237,21 @@ export async function CommercialUnifiedWorklist({
               : filtered.length + " visualizzate"}</span>
           </div>
           {filtered.length ? (
-            <div className="max-h-[520px] divide-y divide-[var(--border)] overflow-y-auto">
+            <div className="divide-y divide-[var(--border)]">
               {filtered.map((item) => (
                 <Link key={item.key} href={route(view, query, item.key, data.paging?.page ?? page, data.paging?.currentCursor)}
                   aria-current={item.key === active?.key ? "true" : undefined}
-                  className={"flex min-h-16 items-start justify-between gap-2 p-3 transition hover:bg-[var(--brand-primary-soft)] " +
+                  className={"flex min-h-[64px] items-center justify-between gap-2 px-3 py-2 transition hover:bg-[var(--brand-primary-soft)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] " +
                     (item.key === active?.key ? "bg-[var(--brand-primary-soft)]" : "")}>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">{itemType(item)} · {item.origin}</p>
-                    <p className="mt-1 truncate text-sm font-bold text-[var(--brand-deep)]">{item.title}</p>
-                    <p className="mt-0.5 truncate text-xs text-[var(--text-secondary)]">{item.subtitle}</p>
-                    <p className="mt-1 text-[11px] font-medium text-[var(--brand-primary)]">{item.status}</p>
+                    <p className="truncate text-[10px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">{itemType(item)} · {item.origin}</p>
+                    <p className="mt-0.5 truncate text-sm font-semibold text-[var(--brand-deep)]">{item.title}</p>
+                    <p className="truncate text-xs text-[var(--text-secondary)]">{item.subtitle}</p>
                   </div>
-                  <span className="shrink-0 pt-1 text-[11px] text-[var(--text-secondary)]">{item.at ? formatHubDate(item.at) : "→"}</span>
+                  <div className="flex max-w-[30%] shrink-0 flex-col items-end gap-1 text-right">
+                    <span className="whitespace-nowrap text-[10px] tabular-nums text-[var(--text-secondary)]">{item.at ? formatHubDate(item.at) : "→"}</span>
+                    <span className="max-w-full truncate text-[11px] font-medium text-[var(--brand-primary)]">{item.status}</span>
+                  </div>
                 </Link>
               ))}
             </div>
