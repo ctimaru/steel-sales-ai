@@ -67,7 +67,8 @@ export async function FreeNetworkProfileView({
           <div className="mt-2 flex flex-wrap gap-4">
             {source ? <a href={source} target="_blank" rel="noopener noreferrer" className="font-semibold underline">Vedi fonte aziendale ↗</a> : null}
             {license ? <a href={license} target="_blank" rel="noopener noreferrer" className="font-semibold underline">Licenza e attribuzione dei dati ↗</a> : null}
-            <Link href="/company-data" className="font-semibold underline">Segnala una correzione o chiedi la rimozione →</Link>
+            
+            <Link href="/company-data" className="font-semibold underline">Correzione, rimozione e diritti sui dati →</Link>
           </div>
         </div></details> : null}
         {reviewedEvidence.length>0 ? <section aria-label="Informazioni aziendali con fonte" className="mt-5 rounded-xl border border-[#d5e5da] bg-[#f8fbf9] p-4">
@@ -85,6 +86,7 @@ export async function FreeNetworkProfileView({
         </section> : null}
         {profile.company.description ? <p className="mt-5 max-w-3xl whitespace-pre-wrap text-sm leading-6 text-[#43524c]">{profile.company.description}</p> : null}
         {website ? <a href={website} target="_blank" rel="noopener noreferrer" className="app-secondary mt-5 inline-flex min-h-10 items-center rounded-xl px-4 text-sm font-semibold">Visita sito aziendale</a> : null}
+        {provisional && isWorkspaceAdmin ? <Link href={"/network/"+companyId+"/suggest-correction"} className="ui-action ui-action-secondary mt-3 inline-flex min-h-10 items-center rounded-xl px-4 text-sm font-semibold">Segnala dati inesatti →</Link> : null}
         {(provisional || isWorkspaceAdmin && ["unclaimed","revoked"].includes(profile.company.claimed_status)) ?
           <details className="mt-4 border-t border-[#edf1ef] pt-4 text-xs text-[#52615b]">
             <summary className="cursor-pointer font-semibold text-[#175640]">Rappresenti questa azienda?</summary>
