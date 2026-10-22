@@ -1,6 +1,5 @@
 import "server-only";
 
-import { getExplorerData } from "@/lib/commercial-data";
 import {
   type CommercialView,
   type UnifiedCommercialData,
@@ -10,10 +9,9 @@ import { rfqCampaignStatusLabel } from "@/lib/rfq-hub-overview";
 import { appRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
 
-// The normalized inbound RPC currently pages 50 line-level records. Keep the
-// native page size until the RPC supports a stable entity-level cursor.
+// The same bounded window is used for saved drafts, buyer RFQs and real
+// inbound customer RFQ entities. No line-level count may masquerade as a total.
 export const COMMERCIAL_PAGE_SIZE = 30;
-const INBOUND_PAGE_SIZE = 50;
 export type CommercialPagedView = Extract<CommercialView, "received" | "sent" | "drafts">;
 
 export function isCommercialPagedView(view: CommercialView): view is CommercialPagedView {
@@ -61,44 +59,49 @@ export async function loadCommercialPagedData({
   query: string;
   page: number;
 }): Promise<UnifiedCommercialData> {
-  // Inbound ownership and pagination live in the existing RLS/RPC contract;
-  // do not load another tenant's data or substitute demo records.
+  // Entity-level read: each request has one ID and one count, even when it
+  // contains many tube lines. SQL SECURITY INVOKER + tenant membership + RLS.
   if (view === "received") {
-    const inbound = await getExplorerData({
-      organizationId,
-      role: "requested",
-      q: query,
-      page,
-    }).catch(() => null);
-    if (!inbound || inbound.mode !== "live") return failure(view, page, INBOUND_PAGE_SIZE);
-
-    const seen = new Set<string>();
-    const items: UnifiedCommercialItem[] = [];
-    for (const row of inbound.rows) {
-      const href = row.operationalHref;
-      const id = href?.split("/").at(-1);
-      if (!isUuid(id) || !href || seen.has(id)) continue;
-      seen.add(id);
-      items.push({
+    const db = await createClient();
+    const { data, error } = await db.rpc("commercial_unify_entity_search_v1", {
+      p_organization_id: organizationId,
+      p_source: "rfqs",
+      p_query: query,
+      p_limit: COMMERCIAL_PAGE_SIZE,
+      p_offset: (page - 1) * COMMERCIAL_PAGE_SIZE,
+    });
+    if (error || !data || typeof data !== "object" || Array.isArray(data))
+      return failure(view, page, COMMERCIAL_PAGE_SIZE);
+    const payload = data as { error?: unknown; total?: unknown; rows?: unknown };
+    if (payload.error || !Number.isSafeInteger(payload.total) ||
+      Number(payload.total) < 0 || !Array.isArray(payload.rows))
+      return failure(view, page, COMMERCIAL_PAGE_SIZE);
+    type EntityRow = { id?: unknown; company_name?: unknown; product_preview?: unknown;
+      status?: unknown; created_at?: unknown };
+    const rows = payload.rows as EntityRow[];
+    const items: UnifiedCommercialItem[] = rows.filter((row) => isUuid(row.id)).map((row) => {
+      const id = row.id as string;
+      const company = typeof row.company_name === "string" && row.company_name.trim()
+        ? row.company_name.trim() : "Cliente non attribuito";
+      const product = typeof row.product_preview === "string"
+        ? row.product_preview.trim().slice(0, 140) : "";
+      return {
         id, key: "inbound-rfq:" + id, kind: "inbound-rfq", view: "received",
-        title: row.company || "Cliente non attribuito",
-        subtitle: [row.product, row.standard, row.grade].filter(Boolean).join(" · "),
-        status: "Richiesta nello storico",
-        at: null, href, campaignId: null, origin: "memoria privata",
-      });
-    }
-
+        title: company, subtitle: product || "Richiesta commerciale ricevuta",
+        status: typeof row.status === "string" ? row.status : "Richiesta nello storico",
+        at: typeof row.created_at === "string" ? row.created_at : null,
+        href: appRoutes.commercial.rfq(id), campaignId: null,
+        origin: "memoria privata",
+      };
+    });
+    const total = Number(payload.total);
     return {
-      items,
-      partial: false, inboundUnavailable: false, procurementUnavailable: false,
+      items, partial: false, inboundUnavailable: false, procurementUnavailable: false,
       truncated: false,
       paging: {
-        page,
-        pageSize: INBOUND_PAGE_SIZE,
-        total: inbound.total,
-        hasNext: page * INBOUND_PAGE_SIZE < inbound.total,
-        // The RPC pages commercial lines, not unique entity identifiers.
-        exact: false,
+        page, pageSize: COMMERCIAL_PAGE_SIZE, total,
+        hasNext: page * COMMERCIAL_PAGE_SIZE < total,
+        exact: true,
       },
     };
   }

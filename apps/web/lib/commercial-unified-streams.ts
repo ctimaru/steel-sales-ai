@@ -124,7 +124,7 @@ function mapSource(source: StreamId, rows: Row[]): UnifiedCommercialItem[] {
     const campaignId = uuid(r.rfq_id) && (source === "quotes" || source === "purchaseOrders") ? r.rfq_id :
       source === "campaigns" ? id : null;
     const campaignTitle = title(r.campaign);
-    const customer = name(r.company);
+    const customer = name(r.company) ?? text(r.company_name);
     const headline = source === "rfqs" ? str(customer, "Richiesta cliente") :
       source === "offers" ? str(customer, "Offerta commerciale") :
       source === "orders" ? str(customer, "Ordine cliente") :
@@ -140,8 +140,9 @@ function mapSource(source: StreamId, rows: Row[]): UnifiedCommercialItem[] {
       source === "purchaseOrders" ? str(r.supplier_name_snapshot, str(campaignTitle, "Fornitore")) :
       source === "drafts" ? String(r.line_count ?? "—") + " righe · distinta privata" :
       source === "campaigns" ? "Campagna privata ai fornitori" :
-      source === "rfqs" ? "Richiesta commerciale ricevuta" :
-      source === "offers" ? "Offerta commerciale inviata" : "Ordine cliente";
+      source === "rfqs" ? str(r.product_preview, "Richiesta commerciale ricevuta") :
+      source === "offers" ? str(r.product_preview, "Offerta commerciale inviata") :
+      str(r.product_preview, "Ordine cliente");
     const href = source === "rfqs" ? appRoutes.commercial.rfq(id) :
       source === "offers" ? appRoutes.commercial.offer(id) :
       source === "orders" ? appRoutes.commercial.order(id) :
@@ -166,27 +167,26 @@ async function fetchSource(
   offset: number,
 ): Promise<Loaded> {
   const from = offset, to = offset + FETCH_PER_STREAM - 1;
+  // For inbound commercial entities use the same invoker/RLS reader as the
+  // Ricevute tab. SQL EXISTS matches company and product without multiplying
+  // rows, preserving exact entity totals and k-way cursor offsets.
+  if (source === "rfqs" || source === "offers" || source === "orders") {
+    const { data, error } = await db.rpc("commercial_unify_entity_search_v1", {
+      p_organization_id: organizationId, p_source: source,
+      p_query: q, p_limit: FETCH_PER_STREAM, p_offset: from,
+    });
+    if (error || !data || typeof data !== "object" || Array.isArray(data))
+      return { id: source, rows: [], total: null, error: true };
+    const payload = data as { error?: unknown; rows?: unknown; total?: unknown };
+    if (payload.error || !Array.isArray(payload.rows) ||
+      !Number.isSafeInteger(payload.total) || Number(payload.total) < 0)
+      return { id: source, rows: [], total: null, error: true };
+    return { id: source, rows: mapSource(source, payload.rows as Row[]),
+      total: Number(payload.total), error: false };
+  }
   // Authored select strings avoid dynamic SQL and never include private quote prices.
   let request;
-  if (source === "rfqs") {
-    request = db.from("rfqs")
-      .select("id,status,created_at,company:companies!rfqs_company_id_fkey(name)", { count: "exact" })
-      .eq("organization_id", organizationId).order("created_at", { ascending: false })
-      .order("id", { ascending: false }).range(from, to);
-    if (q) request = request.ilike("status", "%" + q + "%");
-  } else if (source === "offers") {
-    request = db.from("offers")
-      .select("id,status,created_at,company:companies!offers_company_id_fkey(name)", { count: "exact" })
-      .eq("organization_id", organizationId).order("created_at", { ascending: false })
-      .order("id", { ascending: false }).range(from, to);
-    if (q) request = request.ilike("status", "%" + q + "%");
-  } else if (source === "orders") {
-    request = db.from("orders")
-      .select("id,status,created_at,company:companies!orders_company_id_fkey(name)", { count: "exact" })
-      .eq("organization_id", organizationId).order("created_at", { ascending: false })
-      .order("id", { ascending: false }).range(from, to);
-    if (q) request = request.ilike("status", "%" + q + "%");
-  } else if (source === "campaigns") {
+  if (source === "campaigns") {
     request = db.from("buyer_rfq_campaigns")
       .select("id,title,status,created_at", { count: "exact" })
       .eq("organization_id", organizationId).order("created_at", { ascending: false })

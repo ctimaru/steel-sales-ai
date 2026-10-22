@@ -219,14 +219,14 @@ export async function CommercialUnifiedWorklist({
         {view !== "all" ? <input type="hidden" name="view" value={view} /> : null}
         <label htmlFor="commercial-worklist-q" className="sr-only">Filtra le attività visibili</label>
         <input id="commercial-worklist-q" type="search" name="q" maxLength={80} defaultValue={query}
-          placeholder={isStreamView(view) ? "Cerca titolo RFQ, stato o riferimento ordine..." : "Filtra azienda, articolo o stato..."}
+          placeholder={isStreamView(view) || view === "received" ? "Cerca cliente, prodotto, norma o riferimento..." : "Filtra titolo o stato..."}
           className="min-h-10 min-w-0 flex-1 rounded-lg border border-[var(--border-strong)] bg-white px-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]" />
         <button className="app-secondary min-h-10 rounded-lg px-4 text-xs font-semibold" type="submit">Filtra</button>
       </form>
 
       {isStreamView(view) ? (
         <p className="text-xs text-[var(--text-secondary)]">
-          Ricerca sui campi operativi di testata. Per clienti, articoli, misure e norme usa{" "}
+          Cerca anche clienti, norme e prodotti nelle attività commerciali. Per email e dettagli di catalogo usa{" "}
           <Link href={appRoutes.commercial.search + (query ? "?q=" + encodeURIComponent(query) : "")}
             className="font-semibold text-[var(--brand-deep)] underline-offset-2 hover:underline">la ricerca nello storico commerciale →</Link>
         </p>

@@ -9,10 +9,14 @@ const list = read("../components/commercial-unified-worklist.tsx");
 const operations = read("../components/commercial-campaign-operations.tsx");
 
 test("COMMERCIAL-UNIFY2C.2 composes all real entity sources, no normalized line duplication", () => {
-  for (const source of [
-    "rfqs", "offers", "orders", "buyer_rfq_campaigns", "buyer_rfq_quotes",
-    "buyer_purchase_order_drafts", "buyer_distintas",
-  ]) assert.match(stream, new RegExp('from\\("' + source + '"\\)'));
+  for (const source of ["buyer_rfq_campaigns", "buyer_rfq_quotes",
+    "buyer_purchase_order_drafts", "buyer_distintas"]) {
+    assert.match(stream, new RegExp('from\\("' + source + '"\\)'));
+  }
+  for (const source of ['"rfqs"', '"offers"', '"orders"']) {
+    assert.match(stream, new RegExp(source));
+  }
+  assert.match(stream, /commercial_unify_entity_search_v1/);
   assert.doesNotMatch(stream, /getExplorerData|p1_normalized_commercial_explorer/);
   assert.match(stream, /["']all["']|all: ids/);
   assert.match(stream, /offers: \["offers", "quotes"\]/);

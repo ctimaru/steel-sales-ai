@@ -28,16 +28,16 @@ test("COMMERCIAL-UNIFY2C pages sent RFQs and saved draft lists inside SQL under 
 
 test("COMMERCIAL-UNIFY2C uses existing scoped line-level RPC pagination for received requests", () => {
   assert.match(query, /view === "received"/);
-  assert.match(query, /getExplorerData\(\{/);
+  assert.match(query, /db\.rpc\("commercial_unify_entity_search_v1"/);
   assert.match(query, /organizationId,/);
-  assert.match(query, /role: "requested"/);
-  assert.match(query, /page,/);
-  assert.match(query, /inbound\.mode !== "live"/);
-  assert.match(query, /seen\.has\(id\)/);
-  assert.match(query, /exact: false/);
-  assert.match(query, /INBOUND_PAGE_SIZE = 50/);
-  assert.match(query, /total: inbound\.total/);
-  assert.match(query, /hasNext: page \* INBOUND_PAGE_SIZE < inbound\.total/);
+  assert.match(query, /p_source: "rfqs"/);
+  assert.match(query, /p_offset: \(page - 1\) \* COMMERCIAL_PAGE_SIZE/);
+  assert.match(query, /return failure\(view, page, COMMERCIAL_PAGE_SIZE\)/);
+  assert.match(query, /key: "inbound-rfq:" \+ id/);
+  assert.match(query, /exact: true/);
+  assert.match(query, /export const COMMERCIAL_PAGE_SIZE = 30/);
+  assert.match(query, /total = Number\(payload\.total\)/);
+  assert.match(query, /hasNext: page \* COMMERCIAL_PAGE_SIZE < total/);
 });
 
 test("COMMERCIAL-UNIFY2C routes only supported views to paged loader", () => {

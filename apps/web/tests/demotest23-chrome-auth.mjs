@@ -203,6 +203,19 @@ try {
         );
         const worklist = page.locator("#commercial-worklist");
         assert.equal(await worklist.count(), 1);
+        // COMMERCIAL-UNIFY2C.3: the entity-level search RPC must resolve for
+        // both buyer and viewer in the active organization, never fall back to
+        // a demo set or confuse an RPC error with zero matches.
+        for (const viewToCheck of ["received", "offers", "all"]) {
+          await navigate(page, "/commercial?view=" + viewToCheck + "&q=S235");
+          await worklist.getByRole("navigation", { name: "Pagine attività commerciali" })
+            .getByText("Pagina 1", { exact: true }).waitFor({ state: "visible", timeout: 60000 });
+          const rendered = await worklist.innerText();
+          assert.ok(!rendered.includes("Lo storico commerciale non è disponibile"), viewToCheck + " search RPC unavailable");
+          assert.ok(!rendered.includes("Il caricamento di alcune attività acquisti non è riuscito"), viewToCheck + " search streams unavailable");
+          assert.ok(!rendered.includes("Alcuni dati commerciali e di acquisto non sono disponibili"), viewToCheck + " incomplete worklist");
+        }
+        await navigate(page, "/commercial");
         await worklist.getByRole("link", { name: "Inviate", exact: true }).click();
         await page.waitForURL((url) => url.pathname === "/commercial" && url.searchParams.get("view") === "sent");
         assert.equal(await page.locator("#commercial-worklist").count(), 1);
