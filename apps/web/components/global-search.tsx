@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { appRoutes } from "@/lib/routes";
-import type { CommercialSearchScope } from "@/lib/commercial-search-context";
+import { commercialSearchHref, type CommercialSearchScope } from "@/lib/commercial-search-context";
 
 const initialState: GlobalSearchState = { status: "idle", message: "", results: [], count: 0, counts: {} };
 
@@ -240,7 +240,7 @@ export function GlobalSearch({ initialQuery = "", scope = "all" }: { initialQuer
             <div>
               <p className="text-sm font-semibold text-[#1d2824]">{(state.count ?? 0).toLocaleString("it-IT")} risultati restituiti</p>
               <p className="mt-1 text-xs text-[#66736e]">
-                {state.model?.model_name ? `Ricerca su tutta la memoria commerciale` : "Ricerca commerciale"}
+                Risultati disponibili nella tua memoria privata, non nel Network pubblico.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -249,6 +249,19 @@ export function GlobalSearch({ initialQuery = "", scope = "all" }: { initialQuer
               ))}
             </div>
           </div>
+          {state.quality?.preview_limited ? (
+            <p role="status" className="rounded-lg border border-[#dce2df] bg-[#f5f8f6] px-3 py-2.5 text-xs leading-5 text-[#43524c]">
+              <strong>Anteprima dei risultati.</strong> Alcuni elementi dell'archivio potrebbero non essere mostrati.
+              Restringi la ricerca o seleziona una categoria per vedere altre corrispondenze.
+              {state.quality.backfill_incomplete ? " Alcune categorie non sono state caricate completamente." : ""}
+            </p>
+          ) : null}
+          {state.quality ? (
+            <p className="text-xs text-[#66736e]">
+              {state.quality.source_references} risultati con un riferimento registrato alla fonte su {(state.results ?? []).length} visualizzati.
+              Il riferimento non equivale a una verifica del contenuto.
+            </p>
+          ) : null}
 
           {(state.results ?? []).map((result) => {
             const facts = technicalFacts(result);
@@ -289,7 +302,9 @@ export function GlobalSearch({ initialQuery = "", scope = "all" }: { initialQuer
                     {result.source_filename ? <p className="mt-3 truncate text-xs text-[#66736e]">Fonte: {result.source_filename}</p> : null}
                   </div>
                   <div className="flex shrink-0 flex-row items-start gap-2 lg:flex-col lg:items-end">
-                    <span className="rounded-lg border border-[#b8d2c8] bg-[#e1ece8] px-2.5 py-1.5 text-xs font-semibold text-[#1a5144]">Rilevanza {Number(result.score ?? 0).toFixed(4)}</span>
+                    <span className="rounded-lg border border-[#dce2df] bg-[#f6f8f7] px-2.5 py-1.5 text-xs font-semibold text-[#43524c]">
+                      {target ? "Riferimento alla fonte" : result.result_type === "company" ? "Scheda CRM" : "Fonte diretta non disponibile"}
+                    </span>
                     {customerTarget ? (
                       <Link
                         href={customerTarget}
@@ -324,15 +339,17 @@ export function GlobalSearch({ initialQuery = "", scope = "all" }: { initialQuer
           {(state.results ?? []).length === 0 ? (
             <FirstUseEmptyState
               eyebrow="Ricerca senza risultati"
-              title="Nessun elemento corrisponde alla ricerca"
-              description="Prova una query più ampia oppure riparti dalle viste normalizzate per prodotto e azienda. La ricerca non crea record mancanti e mantiene sempre il collegamento alla fonte."
+              title={scope === "companies" ? "Nessuna azienda normalizzata trovata" : "Nessun elemento corrisponde alla ricerca"}
+              description={scope === "companies"
+                ? "Le aziende compaiono qui solo se collegate a una scheda CRM autorizzata. Una menzione in email o RFQ non crea automaticamente un'azienda: prova a cercarla nelle attività o nei documenti."
+                : "Prova una ricerca più ampia o un'altra categoria. I dati non vengono inventati e le fonti non sono sempre disponibili per ogni record."}
               primaryAction={{
-                href: appRoutes.commercial.search,
-                label: "Nuova ricerca",
+                href: commercialSearchHref(query, scope === "companies" ? "activities" : "all"),
+                label: scope === "companies" ? "Cerca in RFQ e offerte" : "Cerca in tutto lo storico",
               }}
               secondaryAction={{
-                href: appRoutes.commercial.products,
-                label: "Apri Product 360",
+                href: commercialSearchHref(query, "documents"),
+                label: "Cerca nei documenti",
               }}
               compact
             />
@@ -343,7 +360,7 @@ export function GlobalSearch({ initialQuery = "", scope = "all" }: { initialQuer
       {state.status === "idle" ? (
         <p className="rounded-lg border border-[#dce2df] bg-white px-3 py-3 text-xs leading-5 text-[#53665b]">
           Una ricerca, tutto lo storico: prodotti, documenti, richieste, offerte, ordini e aziende.
-          Usa i filtri tecnici solo quando servono. Fonte sempre disponibile, senza creare collegamenti CRM automatici.
+          Usa i filtri tecnici solo quando servono. Se esiste un riferimento navigabile puoi aprire la fonte originale; nessun collegamento CRM automatico.
         </p>
       ) : null}
     </div>
