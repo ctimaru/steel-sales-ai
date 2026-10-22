@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - scripts/trust_audit1b.py
+      - scripts/trust_audit1b2.py
       - .github/workflows/trust-audit1b-history.yml
   workflow_dispatch:
 permissions:
@@ -26,6 +27,10 @@ jobs:
           set -euo pipefail
           git fetch --prune origin '+refs/heads/*:refs/remotes/origin/*' '+refs/tags/*:refs/tags/*'
       - name: Run synthetic non-secret scanner self-test
-        run: python3 scripts/trust_audit1b.py --self-test
+        run: |
+          python3 scripts/trust_audit1b.py --self-test
+          python3 scripts/trust_audit1b2.py --self-test
       - name: Audit reachable history (aggregates only, no credentials)
         run: python3 scripts/trust_audit1b.py
+      - name: Controlled candidate triage (no raw values or paths)
+        run: python3 scripts/trust_audit1b2.py
