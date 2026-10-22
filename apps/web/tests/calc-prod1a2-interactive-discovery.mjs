@@ -21,7 +21,7 @@ try{
      const res=await page.goto(record.url,{waitUntil:"domcontentloaded",timeout:45000});
      if(!res||res.status()>=400)throw new Error("HTTP "+res?.status());
      await page.waitForTimeout(900);
-     const search=page.locator('input[placeholder*="imension" i],input[placeholder*="measure" i],input[placeholder*="Abmess" i],input[placeholder*="medid" i],input[aria-label*="dimension" i],input[aria-label*="misur" i]').first();
+     const search=page.locator('[data-testid="calculator-dimension-discovery"]').getByRole("searchbox");
      // Discovery must be identifiable semantically; no opportunistic random input.
      record.stages.searchLocated=await search.count()>0 && await search.isVisible();
      if(record.stages.searchLocated){
