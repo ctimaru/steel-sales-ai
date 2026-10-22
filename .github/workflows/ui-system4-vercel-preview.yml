@@ -16,9 +16,11 @@ jobs:
   preview-contrast:
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      (github.event.deployment_status.state == 'success' &&
+      (github.event_name == 'deployment_status' &&
+       github.event.deployment_status.state == 'success' &&
        github.event.deployment.environment != 'Production' &&
-       github.event.deployment_status.environment_url != '')
+       startsWith(github.event.deployment_status.environment_url, 'https://') &&
+       contains(github.event.deployment_status.environment_url, '.vercel.app'))
     runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
