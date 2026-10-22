@@ -128,7 +128,7 @@ test("sales surfaces avoid infrastructure terminology", () => {
   ]) {
     assert.doesNotMatch(component + dashboard, new RegExp(forbidden));
   }
-  assert.match(component, /Ricerca commerciale/);
+  assert.match(component, /Risultati disponibili nella tua memoria privata/);
   assert.match(component, /Riferimento alla fonte/);
   assert.match(component, /Riferimento verificato/);
   assert.match(component, /Anteprima dei risultati/);
