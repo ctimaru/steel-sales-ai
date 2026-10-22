@@ -12,7 +12,8 @@ const page = fs.readFileSync(
 );
 const routes = fs.readFileSync(new URL("../lib/routes.ts", import.meta.url), "utf8");
 const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
-const navigation = fs.readFileSync(new URL("../components/workspace-navigation.tsx", import.meta.url), "utf8");
+
+const analysisHub = fs.readFileSync(new URL("../app/(italian)/(workspace)/commercial/analysis/page.tsx", import.meta.url), "utf8");const navigation = fs.readFileSync(new URL("../components/workspace-navigation.tsx", import.meta.url), "utf8");
 
 test("P2.1 uses a tenant-scoped deterministic RPC", () => {
   assert.match(actions, /p2_reengagement_signals/);
@@ -32,6 +33,6 @@ test("P2.1 exposes explainable re-engagement signals without predictive scoring"
 
 test("P2.1 is wired into canonical Commercial Intelligence navigation", () => {
   assert.match(routes, /reengagement: "\/commercial\/reengagement"/);
-  assert.match(shell, /label: "Riattivazione"/);
-  assert.match(navigation, /Intelligence/);
+  assert.match(analysisHub, /appRoutes\.commercial\.reengagement/);
+  assert.match(shell, /label: "Analisi"/);
 });
