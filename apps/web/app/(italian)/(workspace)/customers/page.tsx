@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { appRoutes } from "@/lib/routes";
+import { commercialSearchHref } from "@/lib/commercial-search-context";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 
 import { loadCompanyActivationStatus, loadCompanyDirectory } from "./actions";
@@ -46,6 +47,7 @@ export default async function CustomersPage({
       <div className="flex flex-wrap gap-2 text-xs font-semibold">
         <Link href={appRoutes.commercial.home + "?prospects=1#commercial-prospects"} className="inline-flex min-h-10 items-center rounded-lg border border-[#d7dfdb] bg-white px-3 text-[#173f35] hover:bg-[#edf5f2]">Aziende da seguire →</Link>
         <Link href={appRoutes.network.directory} className="inline-flex min-h-10 items-center rounded-lg border border-[#d7dfdb] bg-white px-3 text-[#173f35] hover:bg-[#edf5f2]">Scopri aziende nel Network →</Link>
+        <Link href={commercialSearchHref(query, "companies")} className="inline-flex min-h-10 items-center rounded-lg border border-[#d7dfdb] bg-white px-3 text-[#173f35] hover:bg-[#edf5f2]">Cerca nello storico aziende →</Link>
       </div>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
