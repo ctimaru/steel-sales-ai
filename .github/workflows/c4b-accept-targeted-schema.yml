@@ -92,6 +92,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Offline regression of database target and atomic history guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s scripts -p 'test_c4b_accept_promotion.py' -v
       - name: Verify single target file and expected head contents
         shell: bash
         env:
