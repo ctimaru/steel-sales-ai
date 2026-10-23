@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
 import { notFound } from "next/navigation";
 
 import { CalculatorRegionSwitch } from "@/components/calculator-region-switch";
@@ -11,8 +12,12 @@ import {
 } from "@/lib/international-calculator-landing";
 import { MARKET_GUIDES, MARKET_GUIDE_ROUTES } from "@/lib/calculator-market-editorial";
 import { MARKET_TOPIC_GUIDES, MARKET_TOPIC_ROUTES } from "@/lib/calculator-topic-clusters";
+import { listPublicTubeDimensionPages } from "@/lib/public-knowledge";
 import { absoluteUrl } from "@/lib/site";
 import { robotsForParameterizedPage } from "@/lib/seo";
+
+// Same public dimension source as IT/EN; cache feed for 24h.
+const cachedPublicTubeReferences = unstable_cache(listPublicTubeDimensionPages, ["calc-international-published-dimensions"], { revalidate: 86400 });
 
 type PageProps = {
   params:Promise<{locale:string}>;
@@ -55,6 +60,7 @@ export default async function InternationalTubeCalculatorPage({params,searchPara
   const raw=await searchParams;
   const seed=Object.fromEntries(queryKeys.map(k=>[k,inputValue(raw,k)]));
   const usSeed=usPipeSeedFromQuery(raw);
+  const references=await cachedPublicTubeReferences();
   const path=CALCULATOR_ROUTES[locale];
   const data={
     "@context":"https://schema.org",
@@ -95,7 +101,7 @@ export default async function InternationalTubeCalculatorPage({params,searchPara
         <h1 className="mt-3 text-2xl font-bold leading-tight tracking-tight text-[#123b34] sm:text-4xl">{copy.title}</h1>
         <p className="mt-4 max-w-3xl text-sm leading-7 text-[#456052] sm:text-base">{copy.intro}</p>
       </section>
-      <CalculatorRegionSwitch locale={locale} internationalSeed={seed} usInitialValues={usSeed}
+      <CalculatorRegionSwitch locale={locale} references={references} internationalSeed={seed} usInitialValues={usSeed}
         initialRegion={calculatorRegionFromQuery(raw)}/>
       {/* CALC-INT4: crawlable local technical resource; full guide lives on its own URL. */}
       <section aria-label={guide.kicker} className="rounded-2xl border border-[#bfdacd] bg-white p-4 sm:p-5">

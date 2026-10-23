@@ -57,7 +57,7 @@ try {
     assert.match(await bill.innerText(), /60(?:[,.]0+)? m/);
 
     await bill.getByRole("button",{name:/Chiudi/}).click();
-    await calculator.getByRole("button", { name: /EN 10210/ }).click();
+    await calculator.getByRole("combobox", { name: "Norma" }).selectOption("en10210");
     await calculator.getByRole("button",{name:/Aggiungi alla distinta/}).click();
     await trigger.click();
     await page.waitForFunction(() =>

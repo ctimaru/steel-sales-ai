@@ -25,7 +25,8 @@ test("CALC-USA-UX1 both USA systems share EU-style compact responsive workbench"
   assert.match(hss,/className=\{ui.columns\}/);
   assert.match(hss,/className=\{ui.inputs\}/);
   assert.match(hss,/className=\{ui.results\}/);
-  assert.match(eu,/lg:grid-cols-\[minmax/);
+  assert.match(eu,/data-cockpit-workspace/);
+  assert.match(eu,/<select aria-label=\{t\("Norma"\)\}/);
   assert.match(region,/<UsPipeSampleCalculator locale=\{locale\}/);
 });
 

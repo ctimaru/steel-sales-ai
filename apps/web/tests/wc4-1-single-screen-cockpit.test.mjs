@@ -20,12 +20,11 @@ test("WC4.1 makes the calculator the first-screen utility", () => {
   assert.doesNotMatch(calculator, /lg:max-h-\[820px\]/);
 });
 
-test("WC4.1 compacts standard and shape selection into dense controls", () => {
-  assert.match(calculator, /role="group" aria-label=\{t\("Norma"\)\}/);
-  assert.match(calculator, /role="group" aria-label=\{t\("Sagoma"\)\}/);
-  assert.match(calculator, /compactSegmentBase} min-h-11/);
-  assert.match(calculator, /sm:min-h-9/);
-  assert.match(calculator, /h-5 w-5 shrink-0/);
+test("WC4.1 compacts standards and shape into native selectors", () => {
+  assert.match(calculator, /<select aria-label=\{t\("Norma"\)\} value=\{standard\}/);
+  assert.match(calculator, /<select aria-label=\{t\("Sagoma"\)\} value=\{family\}/);
+  assert.match(calculator, /handleStandardChange\(event.target.value as StandardValue\)/);
+  assert.match(calculator, /setFamily\(event.target.value as TubeFamily\)/);
   assert.doesNotMatch(calculator, /group flex min-h-14 flex-col/);
 });
 

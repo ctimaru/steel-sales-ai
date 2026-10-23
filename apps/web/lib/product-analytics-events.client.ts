@@ -1,6 +1,7 @@
 "use client";
 
 import { track } from "@vercel/analytics";
+import { trackConsentedGa4FunnelEvent } from "@/lib/seo-growth1c-ga4-funnel.client";
 import type { InternationalRfqEventName } from "@/lib/international-rfq-funnel";
 
 export type ProductAnalyticsEventName = InternationalRfqEventName
@@ -35,6 +36,7 @@ export function trackProductEvent(
   name: ProductAnalyticsEventName,
   properties?: Record<string, string | number | boolean>,
 ) {
+  trackConsentedGa4FunnelEvent(name, properties);
   try {
     track(name, properties);
   } catch (error) {

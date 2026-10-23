@@ -49,7 +49,7 @@ try {
     assert.match(await preview.innerText(), /EN 10219/);
     assert.match(await preview.innerText(), /36(?:[,.]0+)? m/);
     await page.getByRole("dialog",{name:"Carrello della distinta privata"}).getByRole("button",{name:/Chiudi/}).click();
-    await calculator.getByRole("button", { name: /EN 10210/ }).click();
+    await calculator.getByRole("combobox", { name: "Norma" }).selectOption("en10210");
     await calculator.getByRole("button", { name: /Aggiungi alla distinta/ }).click();
     await trigger.click();
     await page.waitForFunction(() => document.querySelectorAll("#buyer-live-preview .bd10-preview-row:not([hidden])").length === 2);
