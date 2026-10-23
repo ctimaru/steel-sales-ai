@@ -1,0 +1,107 @@
+name: TRUST-C2G3D PostgreSQL Lint Hardening & Network Repair
+
+on:
+  push:
+    branches:
+      - audit/trust-audit1c2g3d-network-lint-hardening-20261023
+    paths:
+      - "supabase/migrations/20261023123000_trust_audit1c2g3d_network_plpgsql_lint_fixes.sql"
+      - "supabase/tests/trust_c2g3d_plpgsql_function_contract.sql"
+      - "scripts/trust_c2g3d_fail_closed_lint.py"
+      - "scripts/test_trust_c2g3d_fail_closed_lint.py"
+      - ".github/workflows/trust-c2g3d-network-lint.yml"
+      - "docs/security/trust-audit1c2g3d-postgresql-lint-repair.md"
+  pull_request:
+    types: [labeled]
+    branches:
+      - audit/trust-audit1c2g3c-migration-release-20261023
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: trust-c2g3d-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-gate-unit:
+    name: Fail-closed PLpgSQL lint gate unit tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test error-severity detection and malformed-input blocking
+        run: python -m unittest discover -s scripts -p 'test_trust_c2g3d_fail_closed_lint.py' -v
+
+  isolated-lint-and-runtime:
+    name: Explicitly approved isolated rebuild, functions and zero-error lint
+    if: >-
+      ${{
+        github.event_name == 'pull_request' &&
+        github.event.label.name == 'trust-c2g3d-approve-isolated-lint' &&
+        github.head_ref == 'audit/trust-audit1c2g3d-network-lint-hardening-20261023' &&
+        github.base_ref == 'audit/trust-audit1c2g3c-migration-release-20261023'
+      }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Assert allowed PR and no remote Supabase target
+        env:
+          LABEL: ${{ github.event.label.name }}
+          HEAD: ${{ github.head_ref }}
+          BASE: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = "pull_request"
+          test "$GITHUB_REPOSITORY" = "ctimaru/steel-sales-ai"
+          test "$LABEL" = "trust-c2g3d-approve-isolated-lint"
+          test "$HEAD" = "audit/trust-audit1c2g3d-network-lint-hardening-20261023"
+          test "$BASE" = "audit/trust-audit1c2g3c-migration-release-20261023"
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.118.0
+      - name: Inject historical baselines into runner only
+        run: |
+          set -euo pipefail
+          test -f supabase/ci/p0_pre_worker_baseline.sql
+          test -f supabase/ci/p0_staging_baseline.sql
+          test ! -f supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          test ! -f supabase/migrations/20260908000001_ci_staging_baseline.sql
+          cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          cp supabase/ci/p0_staging_baseline.sql supabase/migrations/20260908000001_ci_staging_baseline.sql
+      - name: Rebuild all SQL in isolated Docker Postgres
+        run: |
+          set -euo pipefail
+          supabase start
+          supabase db reset --local
+      - name: Assert functions, privileges and behavior contracts
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -X -v ON_ERROR_STOP=1 -f supabase/tests/trust_c2g3d_plpgsql_function_contract.sql
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -X -v ON_ERROR_STOP=1 -f supabase/tests/trust_c2g3c_behavioral_parity.sql
+      - name: Fail CI on ANY PLpgSQL error in structured report
+        run: |
+          set -euo pipefail
+          supabase db lint --local --level warning > "$RUNNER_TEMP/trust-c2g3d-lint.log" 2>&1
+          python3 scripts/trust_c2g3d_fail_closed_lint.py "$RUNNER_TEMP/trust-c2g3d-lint.log"
+      - name: Destroy only local Docker resources and temporary baseline copies
+        if: always()
+        run: |
+          supabase stop --no-backup || true
+          rm -f supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          rm -f supabase/migrations/20260908000001_ci_staging_baseline.sql
+          rm -f "$RUNNER_TEMP/trust-c2g3d-lint.log"
