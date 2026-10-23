@@ -37,7 +37,9 @@ try {
         assert.ok(searchBox.y<=650,"Dimension search must be in first viewport "+width+": "+searchBox.y);
         assert.ok(summaryBox.height<=64,"Duplicate summary pushes operational editor down: "+summaryBox.height);
         assert.ok(await builder.locator('[data-private-calculator-heading] input').isVisible(),"Bill title remains editable");
-        assert.ok(await builder.locator('[data-private-calculator-grade] input').isVisible(),"Steel grade remains editable");
+        const grade=builder.locator("[data-private-calculator-grade]");
+        await grade.locator("summary").click();
+        assert.ok(await grade.locator("input").isVisible(),"Steel grade remains editable behind compact disclosure");
         assert.ok(await builder.locator('[data-testid="private-cart-inline-open"]').isVisible(),"Cart remains reachable");
         assert.ok(await hud.getByRole("button").count()===1,"Summary must keep completion/RFQ action");
       }
