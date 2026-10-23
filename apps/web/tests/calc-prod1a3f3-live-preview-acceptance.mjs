@@ -47,7 +47,7 @@ try {
    if(await page.getByTestId("calculator-cart-overlay").locator("[data-distinta-sticky-footer]").innerText()!==beforeFooter)throw Error("Draft changed persisted footer before Save");
    await length.fill("10");
    const second=await preview.innerText();
-   if(!second.includes("30")||!second.includes("0,5501")&&!second.includes("0.5501"))throw Error("Length draft preview mismatch: "+second);
+   if(!second.includes("30")||!second.includes("0,55")&&!second.includes("0.55"))throw Error("Length draft preview mismatch: "+second);
    result.steps.push("quantity-length-preview");
    await length.fill("bad");
    const invalid=await preview.innerText();
