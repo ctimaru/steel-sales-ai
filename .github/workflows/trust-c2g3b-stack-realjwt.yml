@@ -10,6 +10,7 @@ on:
       - "supabase/audits/trust_c2g3b_stack_migration_snapshot.json"
       - ".github/workflows/trust-c2g3b-stack-realjwt.yml"
       - "apps/web/tests/trust-c2g3b-real-jwt-negative-chrome.mjs"
+      - "docs/security/trust-audit1c2g3b-real-jwt-stack-release-preflight.md"
   workflow_dispatch:
     inputs:
       mode:
