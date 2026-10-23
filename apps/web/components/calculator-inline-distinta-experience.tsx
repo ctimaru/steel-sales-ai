@@ -419,16 +419,6 @@ export function CalculatorInlineDistintaExperience({
                       {line.quantityMode === "bars" ? c.bars : line.quantityMode === "meters" ? c.meters : c.tonnes}
                       {line.quantityMode === "bars" ? " × " + number(computed.barLengthM, 2) + " m" : ""}
                     </span>
-                  {line.quantityMode === "bars" ? <label className="mt-0.5 flex min-w-0 items-center justify-center gap-1 text-[10px] font-semibold text-[#315846]">
-                    <span className="sr-only">{c.barLength}</span>
-                    <input data-inline-bar-length type="text" inputMode="decimal" className="h-6 w-10 min-w-0 rounded-md border border-[#b8cfc3] bg-white px-1 text-center text-[11px] text-[#143b2d]"
-                      aria-label={c.barLength + " " + c.row.toLowerCase() + " " + (index + 1)} value={quickLength} disabled={editing}
-                      onChange={event => setQuickLengths(current => ({ ...current, [line.id]: event.target.value }))}
-                      onKeyDown={event => {
-                        if (event.key === "Enter") { event.preventDefault(); saveQuickQuantity(line.id); }
-                        else if (event.key === "Escape") setQuickLengths(current => { const next={...current}; delete next[line.id]; return next; });
-                      }}/><span>m</span>
-                  </label> : null}
                   </div>
                   <div className={styles.metrics} title={"kg/m: "+number(computed.weightKgM,3)}>
                     <strong>{number(computed.tonnes, 4)} t</strong>
@@ -455,6 +445,17 @@ export function CalculatorInlineDistintaExperience({
                       aria-expanded={editingTargetId === line.id}
                       aria-controls={editingTargetId === line.id ? `private-target-edit-${line.id}` : undefined}
                       onClick={() => editingTargetId === line.id ? setEditingTargetId(null) : startTargetEdit(line)}>€</button>
+                  {line.quantityMode === "bars" ? <label className="mt-0.5 flex min-w-0 items-center justify-center gap-1 text-[10px] font-semibold text-[#315846]">
+                    <span className="sr-only">{c.barLength}</span>
+                    <input data-inline-bar-length type="text" inputMode="decimal" className="h-6 w-10 min-w-0 rounded-md border border-[#b8cfc3] bg-white px-1 text-center text-[11px] text-[#143b2d]"
+                      aria-label={c.barLength + " " + c.row.toLowerCase() + " " + (index + 1)} value={quickLength} disabled={editing}
+                      onChange={event => setQuickLengths(current => ({ ...current, [line.id]: event.target.value }))}
+                      onKeyDown={event => {
+                        if (event.key === "Enter") { event.preventDefault(); saveQuickQuantity(line.id); }
+                        else if (event.key === "Escape") setQuickLengths(current => { const next={...current}; delete next[line.id]; return next; });
+                      }}/><span>m</span>
+                  </label> : null}
+
                   </div>
                 </div>
                 {quickChanged ? <button type="button" data-save-quick-quantity
