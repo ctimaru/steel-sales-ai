@@ -66,7 +66,7 @@ def status(snapshot, sql_dir=SQLDIR, git=run_git):
         "audit":snapshot["audit"],"safe_to_merge":not problems,
         "production_migration_files_present":sum(reviewed.values()),
         "production_migration_expected":len(prod),
-        "production_and_staging_versions_same":all(stage_by_name.get(k)==v for k,v in prod_by_name.items()) and len(stage)==len(prod),
+        "production_and_staging_versions_same":all(stage_by_name.get(k)==v for k,v in prod_by_name.items()) and len(staging)==len(prod),
         "stack_reference_state":counts if isinstance(counts,str) else "unknown",
         "blocking_findings":sorted(set(problems)),
         "policy":"Report only: never reconcile ledger, merge or deploy automatically"
