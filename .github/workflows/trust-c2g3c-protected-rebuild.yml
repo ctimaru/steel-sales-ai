@@ -11,6 +11,10 @@ on:
       - "supabase/tests/trust_c2g3c_behavioral_parity.sql"
       - "docs/security/trust-audit1c2g3c-migration-reconciliation.md"
       - ".github/workflows/trust-c2g3c-protected-rebuild.yml"
+  pull_request:
+    types: [labeled]
+    branches:
+      - audit/trust-audit1c2g3b-realjwt-stack-preflight-20261023
   workflow_dispatch:
     inputs:
       mode:
@@ -65,9 +69,20 @@ jobs:
 
   isolated-clean-rebuild:
     name: Manually Approved Ephemeral Supabase Clean Rebuild (No Remote DB)
-    # This workflow_dispatch can only run from main after code integration.
-    # Strictly NEVER connects to production or staging and never touches migration ledger.
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'isolated_rebuild' && inputs.approval == 'TRUST_C2G3C_EPHEMERAL_REBUILD' && github.ref == 'refs/heads/main' }}
+    # A maintainer-added PR label can authorize a pre-merge local rebuild.
+    # Also supports a protected main-only manual dispatch after integration.
+    # NEVER connects to production or staging or touches their migration ledgers.
+    if: >-
+      ${{
+        (github.event_name == 'pull_request' &&
+         github.event.label.name == 'trust-c2g3c-approve-ephemeral-rebuild' &&
+         github.head_ref == 'audit/trust-audit1c2g3c-migration-release-20261023')
+        ||
+        (github.event_name == 'workflow_dispatch' &&
+         inputs.mode == 'isolated_rebuild' &&
+         inputs.approval == 'TRUST_C2G3C_EPHEMERAL_REBUILD' &&
+         github.ref == 'refs/heads/main')
+      }}
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     steps:
@@ -77,11 +92,20 @@ jobs:
       - name: Assert isolated main and explicit approval before Docker
         env:
           APPROVAL: ${{ inputs.approval }}
+          LABEL: ${{ github.event.label.name }}
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
         run: |
           set -euo pipefail
-          test "$GITHUB_REF" = 'refs/heads/main'
-          test "$APPROVAL" = 'TRUST_C2G3C_EPHEMERAL_REBUILD'
           test "$GITHUB_REPOSITORY" = 'ctimaru/steel-sales-ai'
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            test "$LABEL" = 'trust-c2g3c-approve-ephemeral-rebuild'
+            test "$HEAD_REF" = 'audit/trust-audit1c2g3c-migration-release-20261023'
+            test "$BASE_REF" = 'audit/trust-audit1c2g3b-realjwt-stack-preflight-20261023'
+          else
+            test "$GITHUB_REF" = 'refs/heads/main'
+            test "$APPROVAL" = 'TRUST_C2G3C_EPHEMERAL_REBUILD'
+          fi
           test -f supabase/ci/p0_pre_worker_baseline.sql
           test -f supabase/ci/p0_staging_baseline.sql
           test ! -f supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
