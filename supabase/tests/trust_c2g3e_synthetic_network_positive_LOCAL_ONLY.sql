@@ -12,20 +12,35 @@ BEGIN
   VALUES(v_id,'00000000-0000-0000-0000-000000000000','authenticated','authenticated',
     'trust-c2g3e-synthetic@example.invalid','',now(),now(),now())
   ON CONFLICT (id) DO NOTHING;
-  INSERT INTO public.network_discovery_source_registry(
-     id,source_name,source_url,source_type,country_code,
-     governance_status,terms_status,database_rights_status,personal_data_policy,
-     rights_evidence_url,review_note,reviewed_by,reviewed_at,
-     enabled_for_discovery,max_domains_per_run,minimum_interval_hours
-  ) VALUES (
-     '8425ec0f-c855-41d8-9bea-70a95fd8a6ba'::uuid,
-     'Synthetic local Wikidata test fixture only',
-     'https://query.wikidata.org/sparql','curated_public_source','IT',
-     'approved','allows_reuse','low_risk','exclude_personal_data',
-     'https://www.wikidata.org/wiki/Wikidata:Licensing',
-     'Synthetic local fixture; not a real licensing decision or production permission',
-     v_id,now(),true,200,24)
-  ON CONFLICT (id) DO NOTHING;
+  -- A historical baseline may already contain this URL under a different ID.
+  -- Adjust it only in the disposable Docker transaction, never on hosted DBs.
+  UPDATE public.network_discovery_source_registry
+    SET id='8425ec0f-c855-41d8-9bea-70a95fd8a6ba'::uuid,
+        source_name='Synthetic local Wikidata test fixture only',
+        governance_status='approved',
+        terms_status='allows_reuse',
+        database_rights_status='low_risk',
+        personal_data_policy='exclude_personal_data',
+        rights_evidence_url='https://www.wikidata.org/wiki/Wikidata:Licensing',
+        review_note='Synthetic local fixture; not a real licensing decision or production permission',
+        reviewed_by=v_id,reviewed_at=now(),
+        enabled_for_discovery=true,max_domains_per_run=200,minimum_interval_hours=24
+  WHERE source_url='https://query.wikidata.org/sparql';
+  IF NOT FOUND THEN
+    INSERT INTO public.network_discovery_source_registry(
+       id,source_name,source_url,source_type,country_code,
+       governance_status,terms_status,database_rights_status,personal_data_policy,
+       rights_evidence_url,review_note,reviewed_by,reviewed_at,
+       enabled_for_discovery,max_domains_per_run,minimum_interval_hours
+    ) VALUES (
+       '8425ec0f-c855-41d8-9bea-70a95fd8a6ba'::uuid,
+       'Synthetic local Wikidata test fixture only',
+       'https://query.wikidata.org/sparql','curated_public_source','IT',
+       'approved','allows_reuse','low_risk','exclude_personal_data',
+       'https://www.wikidata.org/wiki/Wikidata:Licensing',
+       'Synthetic local fixture; not a real licensing decision or production permission',
+       v_id,now(),true,200,24);
+  END IF;
   INSERT INTO public.network_netlaunch2_cursors(industry_qid,next_offset)
   VALUES ('Q2285982',0),('Q1924906',0)
   ON CONFLICT (industry_qid) DO NOTHING;
