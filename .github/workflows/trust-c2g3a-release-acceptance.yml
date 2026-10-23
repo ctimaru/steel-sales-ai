@@ -1,0 +1,43 @@
+name: TRUST-C2G3A Rights Console Release Acceptance
+
+on:
+  push:
+    branches:
+      - audit/trust-audit1c2g3-superadmin-console-20261023
+    paths:
+      - 'apps/web/app/(italian)/(platform)/platform/network-trust/source-rights/**'
+      - 'apps/web/tests/trust-c2g3-rights-console.test.mjs'
+      - 'apps/web/app/(italian)/(platform)/platform/network-trust/page.tsx'
+      - '.github/workflows/trust-c2g3a-release-acceptance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: trust-c2g3a-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rights-console:
+    name: Focused source rights tests and TypeScript
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install locked dependencies (no audit network sweep)
+        run: npm ci --no-audit --no-fund
+      - name: Console security source regressions
+        run: node --test tests/trust-c2g3-rights-console.test.mjs
+      - name: TypeScript validation
+        run: npm run typecheck
