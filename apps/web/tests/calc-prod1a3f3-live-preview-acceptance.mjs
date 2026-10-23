@@ -38,13 +38,13 @@ try {
    const length=row.locator("[data-inline-bar-length]");
    const beforeQty=await qty.inputValue();
    const beforeLength=await length.inputValue();
-   const beforeFooter=await page.getByTestId("calculator-cart-overlay").locator("[data-distinta-sticky-footer]").innerText();
+   const beforeFooter=await page.getByTestId("calculator-cart-overlay").locator("[data-distinta-sticky-footer] .tabular-nums").innerText();
    await qty.fill("3");
    const preview=row.locator("[data-inline-draft-preview]");
    await preview.waitFor({state:"visible"});
    const first=await preview.innerText();
    if(!first.includes("36")||!first.includes("0,6601")&&!first.includes("0.6601"))throw Error("Quantity draft preview mismatch: "+first);
-   if(await page.getByTestId("calculator-cart-overlay").locator("[data-distinta-sticky-footer]").innerText()!==beforeFooter)throw Error("Draft changed persisted footer before Save");
+   if(await page.getByTestId("calculator-cart-overlay").locator("[data-distinta-sticky-footer] .tabular-nums").innerText()!==beforeFooter)throw Error("Draft changed persisted footer before Save");
    await length.fill("10");
    const second=await preview.innerText();
    if(!second.includes("30")||!second.includes("0,55")&&!second.includes("0.55"))throw Error("Length draft preview mismatch: "+second);
@@ -57,7 +57,7 @@ try {
    await row.locator("[data-save-quick-quantity]").click();
    if(await qty.inputValue()!=="3"||await length.inputValue()!=="10")throw Error("Quantity and length not saved");
    if(await preview.count())throw Error("Draft preview remained after Save");
-   const newFooter=await page.getByTestId("calculator-cart-overlay").locator("[data-distinta-sticky-footer]").innerText();
+   const newFooter=await page.getByTestId("calculator-cart-overlay").locator("[data-distinta-sticky-footer] .tabular-nums").innerText();
    if(!newFooter.includes("30"))throw Error("Saved totals did not update: "+newFooter);
    result.steps.push("combined-save");
    result.totals=newFooter;
