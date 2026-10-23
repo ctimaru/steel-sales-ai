@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { GOVERNANCE_ROW_CLASS } from "@/lib/governance-row-contract";
 import { GovernanceQueueControls } from "@/components/governance-queue-controls";
 import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
@@ -61,6 +62,17 @@ export default async function PlatformNetworkTrustPage({
     <div className="mx-auto max-w-7xl space-y-6">
       <GovernanceWorkspaceNav current="trust" permissions={access?.permissions ?? []} />
       <GovernanceQueueControls title="Network Trust" total={queue.counts.open_change_reviews} totalLabel="Change review aperte" readOnly={readOnly} />
+      {access?.is_platform_owner ? (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-[#bcd8c8] bg-[#f1f7f2] px-4 py-3">
+          <div>
+            <p className="text-xs font-semibold text-[#204d35]">Source Rights · Superadmin</p>
+            <p className="mt-0.5 text-[11px] text-[#637a69]">Matrice diritti, prova documentale e cronologia delle decisioni per utilizzo.</p>
+          </div>
+          <Link href="/platform/network-trust/source-rights" className="inline-flex min-h-9 items-center rounded-lg bg-[#205b49] px-3 text-xs font-semibold text-white hover:bg-[#184939]">
+            Apri Rights Console →
+          </Link>
+        </div>
+      ) : null}
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <p className="platform-kicker">SA8 · Network Trust</p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#18263d] sm:text-4xl">
