@@ -823,9 +823,8 @@ export function BuyerDistintaBuilder({
         </aside>
       ) : null}
       {workspace && !restoreCandidate ? (
-        <p className="rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-xs text-[var(--text-secondary)]">
-          RFQ Hub · Le modifiche non ancora salvate sono temporanee e rimangono solo in questa scheda.
-          Salva la distinta per registrarla nel tuo account aziendale.
+        <p className="text-[11px] leading-4 text-[var(--text-secondary)]" role="note">
+          Bozza locale: le modifiche restano in questa scheda finché non salvi la distinta aziendale.
         </p>
       ) : null}
       <aside data-public-bill-summary className="bd53-hud" aria-label="Riepilogo in tempo reale della distinta">
@@ -872,7 +871,7 @@ export function BuyerDistintaBuilder({
         <div data-private-calculator-toolbar className={`mb-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#c6dccc] bg-[#f4faf7] px-2.5 py-1.5 ${styles.cartBar}`}>
           <div className="min-w-0">
             <p className="text-xs font-extrabold text-[#173f35]">{t("Calcola qui, gestisci nel carrello")}</p>
-            <p className="text-[11px] text-[#50695a]">{activeLineCount} {t("righe")} · {formatNumber(totals.totalMeters,2)} m · {formatNumber(totals.totalTonnes,3)} t</p>
+            {!workspace ? <p className="text-[11px] text-[#50695a]">{activeLineCount} {t("righe")} · {formatNumber(totals.totalMeters,2)} m · {formatNumber(totals.totalTonnes,3)} t</p> : null}
           </div>
           <button type="button" data-testid="private-cart-inline-open"
             onClick={openPrivateCart} aria-haspopup="dialog" aria-expanded={cartOpen}
@@ -882,16 +881,20 @@ export function BuyerDistintaBuilder({
           </button>
         </div>
         <div data-private-calculator-heading className={`flex flex-col gap-2 border-b border-[var(--border)] pb-2 lg:flex-row lg:items-center lg:justify-between ${styles.heading}`}>
-          <div className="max-w-2xl">
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
-              {t(workspace ? "RFQ Hub · Distinta privata" : "Creazione articoli")}
-            </p>
-            <h2 className="mt-1 text-lg font-bold tracking-tight text-[var(--brand-deep)]">
-              {t("Articoli in distinta")}
-            </h2>
-            <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
-Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic. Il carrello aggiorna righe e peso senza aprirsi automaticamente.
-            </p>
+          <div className="min-w-0">
+            {workspace ? (
+              <h2 className="text-sm font-bold tracking-tight text-[var(--brand-deep)]">
+                {t("Articoli in distinta")}
+              </h2>
+            ) : (
+              <>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">{t("Creazione articoli")}</p>
+                <h2 className="mt-1 text-lg font-bold tracking-tight text-[var(--brand-deep)]">{t("Articoli in distinta")}</h2>
+                <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
+                  Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic. Il carrello aggiorna righe e peso senza aprirsi automaticamente.
+                </p>
+              </>
+            )}
           </div>
           <label className="w-full max-w-sm text-xs font-semibold text-[var(--text-secondary)]">
             {t("Titolo distinta")}
@@ -910,17 +913,21 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic. Il carrell
 
         <div className="bd7-workbench" style={{gridTemplateColumns:"minmax(0,1fr)"}}>
           <div className="bd7-workbench-editor">
-            <div data-private-calculator-grade className={`mb-2 flex flex-wrap items-end justify-between gap-2 rounded-lg border border-[#cddbd6] bg-[#f4faf7] p-2 ${styles.gradeBar}`}>
-              <div className="min-w-0">
-                <h3 className="text-xs font-extrabold text-[#123d34]">{t("1 · Calcola e aggiungi")}</h3>
-                <p className="mt-1 text-xs text-[#52615b]">Norma, forma, dimensioni e quantità. Un clic per aggiungere la riga senza uscire.</p>
-              </div>
-              <label className="min-w-[145px] flex-1 text-xs font-bold text-[#344e43] sm:max-w-[215px]">
-                {t("Grado acciaio · facoltativo ora")}
-                <input list="buyer-quick-grades" value={quickGrade} onChange={(event) => setQuickGrade(event.target.value)}
-                  placeholder="Es. S355J2H" className="mt-1 h-11 w-full rounded-lg border border-[#b9d0c5] bg-white px-3 text-sm text-[#123d34]" />
-                <datalist id="buyer-quick-grades"><option value="S235JRH" /><option value="S275J0H" /><option value="S355J2H" /><option value="S355K2H" /></datalist>
-              </label>
+            <div data-private-calculator-grade className="mb-1.5">
+              <details className="group rounded-lg border border-[#d5e1db] bg-[#f7faf8]">
+                <summary className="flex min-h-10 cursor-pointer flex-wrap items-center justify-between gap-2 px-3 py-1.5 text-xs font-semibold text-[#234d3f]">
+                  <span>{t("Grado acciaio · facoltativo ora")}{quickGrade.trim() ? ` · ${quickGrade.trim()}` : ""}</span>
+                  <span aria-hidden="true" className="text-[#557467] group-open:rotate-180">⌄</span>
+                </summary>
+                <div className="border-t border-[#d5e1db] px-3 py-2">
+                  <label className="block max-w-xs text-xs font-semibold text-[#344e43]">
+                    {t("Grado acciaio · facoltativo ora")}
+                    <input list="buyer-quick-grades" value={quickGrade} onChange={(event) => setQuickGrade(event.target.value)}
+                      placeholder="Es. S355J2H" className="mt-1 h-10 w-full rounded-lg border border-[#b9d0c5] bg-white px-2.5 text-xs text-[#123d34]" />
+                    <datalist id="buyer-quick-grades"><option value="S235JRH" /><option value="S275J0H" /><option value="S355J2H" /><option value="S355K2H" /></datalist>
+                  </label>
+                </div>
+              </details>
             </div>
             <PublicTubeWeightCalculator references={[]} discoveryOptions={discoveredBuyerDimensions} locale={uiLocale} onAddToDistinta={addCalculatorLine}
               canAddToDistinta={draftReady && !restoreCandidate && (lines.length < 500 || initialEmptyRow)} />
