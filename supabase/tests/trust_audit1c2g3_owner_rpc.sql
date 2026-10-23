@@ -16,7 +16,7 @@ SELECT pg_temp.c2g3_assert(
   AND has_function_privilege('authenticated','public.trust_c2g3_rights_console(text,text,integer,integer,uuid,text,uuid)','EXECUTE')
   AND NOT has_function_privilege('anon','public.trust_c2g3_record_rights_decision(text,uuid,text,text,text,text,text,text,text,timestamptz,uuid)','EXECUTE')
   AND NOT has_function_privilege('service_role','public.trust_c2g3_record_rights_decision(text,uuid,text,text,text,text,text,text,text,timestamptz,uuid)','EXECUTE')
-  AND has_function_privilege('authenticated','public.trust_c2g3_record_rights_decision(text,uuid,text,text,text,text,text,text,text,text,timestamptz,uuid)','EXECUTE'),
+  AND has_function_privilege('authenticated','public.trust_c2g3_record_rights_decision(text,uuid,text,text,text,text,text,text,text,timestamptz,uuid)','EXECUTE'),
   'public/worker denied, signed-in callers must still pass owner check');
 SELECT pg_temp.c2g3_assert(
   NOT EXISTS (SELECT 1 FROM private.trust_c2g2_rights_decisions
