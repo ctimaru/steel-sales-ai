@@ -1,0 +1,92 @@
+name: TRUST-C2G3B Stack & Real-JWT Release Preflight
+
+on:
+  push:
+    branches:
+      - audit/trust-audit1c2g3b-realjwt-stack-preflight-20261023
+    paths:
+      - "scripts/trust_c2g3b_stack_preflight.py"
+      - "scripts/test_trust_c2g3b_stack_preflight.py"
+      - "supabase/audits/trust_c2g3b_stack_migration_snapshot.json"
+      - ".github/workflows/trust-c2g3b-stack-realjwt.yml"
+      - "apps/web/tests/trust-c2g3b-real-jwt-negative-chrome.mjs"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Protected MAIN only. audit reports gates; jwt_negative runs production synthetic logins, read-only"
+        type: choice
+        required: true
+        default: audit
+        options:
+          - audit
+          - jwt_negative
+      approval:
+        description: "For jwt_negative type TRUST_C2G3B_READ_ONLY_PRODUCTION_JWT"
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: trust-c2g3b-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lineage:
+    name: Strict release-readiness report (read-only, no credentials)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Test safe preflight logic
+        run: python3 -m unittest discover -s scripts -p test_trust_c2g3b_stack_preflight.py -v
+      - name: Report merge and migration readiness (not a release approval)
+        run: python3 scripts/trust_c2g3b_stack_preflight.py --json
+
+  production-jwt-negative:
+    name: Protected main real-JWT Chrome negative acceptance (no source writes)
+    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.mode == 'jwt_negative' }}
+    runs-on: ubuntu-latest
+    environment: production-qa
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: apps/web
+    env:
+      CI: "true"
+      C2G3B_APPROVAL: ${{ inputs.approval }}
+      RQG32_REGISTRATION_PASSWORD: ${{ secrets.RQG32_REGISTRATION_PASSWORD }}
+      RQG32_CLAIMS_PASSWORD: ${{ secrets.RQG32_CLAIMS_PASSWORD }}
+      RQG32_TRUST_PASSWORD: ${{ secrets.RQG32_TRUST_PASSWORD }}
+      RQG32_AUDITOR_PASSWORD: ${{ secrets.RQG32_AUDITOR_PASSWORD }}
+      RQG32_COMPANY_A_PASSWORD: ${{ secrets.RQG32_COMPANY_A_PASSWORD }}
+      RQG32_COMPANY_B_PASSWORD: ${{ secrets.RQG32_COMPANY_B_PASSWORD }}
+    steps:
+      - name: Strict approval and target guard before fetching code
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = "workflow_dispatch"
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$GITHUB_REPOSITORY" = "ctimaru/steel-sales-ai"
+          test "$C2G3B_APPROVAL" = "TRUST_C2G3B_READ_ONLY_PRODUCTION_JWT"
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install locked frontend and ephemeral Chrome
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chrome
+      - name: Deny Source Rights for six real signed-in nonowners
+        run: node tests/trust-c2g3b-real-jwt-negative-chrome.mjs
+      # No artifacts, credentials, browser storage, traces, or screenshots.
