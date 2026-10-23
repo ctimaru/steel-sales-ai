@@ -40,10 +40,9 @@ test("CALC-UX3 selected, muted and result text pass WCAG AA at 4.5:1", () => {
 });
 
 test("CALC-UX3 mobile targets, text and result grid are responsive", () => {
-  assert.match(calculator, /grid-cols-\[44px_minmax\(36px,1fr\)_44px\]/);
-  assert.match(calculator, /sm:grid-cols-\[36px_minmax\(36px,1fr\)_36px\]/);
-  assert.match(calculator, /min-h-11 shrink-0 px-2\.5 py-2 text-xs/);
-  assert.match(calculator, /<details className="group\/assist/);
+  assert.match(calculator, /grid-cols-\\[36px_52px_36px\\]/);
+  assert.match(calculator, /<CalculatorDimensionDiscovery/);
+  assert.doesNotMatch(calculator, /group\\/assist/);
   assert.match(calculator, /data-cockpit-measurements/);
   assert.match(calculator, /styles\.measurementsRect : styles\.measurements/);
   assert.match(denseStyles, /\.measurements,.measurementsRect/);
@@ -52,7 +51,7 @@ test("CALC-UX3 mobile targets, text and result grid are responsive", () => {
   assert.match(calculator, /tube-calculator-rfq-link mt-1\.5 inline-flex min-h-11/);
   assert.match(calculator, /data-cockpit-header/);
   assert.doesNotMatch(calculator, /mt-1 truncate text-lg/);
-  assert.match(calculator, /aria-pressed=\{length === preset\}/);
+  assert.match(calculator, /aria-label=\{t\("Lunghezza barra personalizzata"\)\}/);
   assert.match(calculator, /aria-label=\{t\("Numero barre"\)\}/);
   assert.match(styles, /#calcolatore-pesi :is\(button, a, summary, input\):focus-visible/);
   assert.match(styles, /#calcolatore-pesi \.tube-calculator-result :is\(button, a, summary\):focus-visible/);
