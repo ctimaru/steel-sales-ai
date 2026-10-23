@@ -1,0 +1,102 @@
+name: TRUST-C2G3E Controlled Promotion & Network E2E
+
+on:
+  push:
+    branches:
+      - audit/trust-audit1c2g3e-controlled-network-acceptance-20261023
+    paths:
+      - "supabase/tests/trust_c2g3e_*"
+      - ".github/workflows/trust-c2g3e-network-acceptance.yml"
+      - "docs/security/trust-audit1c2g3e-controlled-migration-network-e2e.md"
+  pull_request:
+    types: [labeled]
+    branches:
+      - audit/trust-audit1c2g3d-network-lint-hardening-20261023
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: trust-c2g3e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dry-preflight:
+    name: Static protected SQL fixtures and source policy preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Ensure positive fixture cannot be executed on hosted database by normal workflow
+        run: |
+          set -euo pipefail
+          test -f supabase/tests/trust_c2g3e_synthetic_network_positive_LOCAL_ONLY.sql
+          test -f supabase/tests/trust_c2g3e_staging_unlicensed_worker_denial.sql
+          grep -F 'ROLLBACK;' supabase/tests/trust_c2g3e_synthetic_network_positive_LOCAL_ONLY.sql
+          grep -F "synthetic-c2g3e.invalid" supabase/tests/trust_c2g3e_synthetic_network_positive_LOCAL_ONLY.sql
+          grep -F "source governance denial bypassed" supabase/tests/trust_c2g3e_staging_unlicensed_worker_denial.sql
+          ! grep -Ei 'SUPABASE_DB_URL|SERVICE_ROLE_KEY|\bDROP TABLE\b|\bDELETE FROM\b' supabase/tests/trust_c2g3e_*sql
+
+  positive-local:
+    name: Approved Docker-only positive Network batch with rollback
+    if: >-
+      ${{
+        github.event_name == 'pull_request' &&
+        github.event.label.name == 'trust-c2g3e-approve-local-network-e2e' &&
+        github.head_ref == 'audit/trust-audit1c2g3e-controlled-network-acceptance-20261023' &&
+        github.base_ref == 'audit/trust-audit1c2g3d-network-lint-hardening-20261023'
+      }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Protected approval gate
+        env:
+          LABEL: ${{ github.event.label.name }}
+          HEAD: ${{ github.head_ref }}
+          BASE: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = 'pull_request'
+          test "$GITHUB_REPOSITORY" = 'ctimaru/steel-sales-ai'
+          test "$LABEL" = 'trust-c2g3e-approve-local-network-e2e'
+          test "$HEAD" = 'audit/trust-audit1c2g3e-controlled-network-acceptance-20261023'
+          test "$BASE" = 'audit/trust-audit1c2g3d-network-lint-hardening-20261023'
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.118.0
+      - name: Inject historical baselines on runner only
+        run: |
+          set -euo pipefail
+          test -f supabase/ci/p0_pre_worker_baseline.sql
+          test -f supabase/ci/p0_staging_baseline.sql
+          test ! -f supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          test ! -f supabase/migrations/20260908000001_ci_staging_baseline.sql
+          cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          cp supabase/ci/p0_staging_baseline.sql supabase/migrations/20260908000001_ci_staging_baseline.sql
+      - name: Reproduce all schema migrations in ephemeral Docker
+        run: |
+          set -euo pipefail
+          supabase start
+          supabase db reset --local
+      - name: Validate batch success without live crawl or external source rights
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -X -v ON_ERROR_STOP=1 \
+             -f supabase/tests/trust_c2g3e_synthetic_network_positive_LOCAL_ONLY.sql
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -X -v ON_ERROR_STOP=1 \
+             -f supabase/tests/trust_c2g3d_plpgsql_function_contract.sql
+          echo "C2G3E synthetic Network E2E complete, no rights or production data changed"
+      - name: Clean Docker, synthetic fixture and temporary baseline
+        if: always()
+        run: |
+          supabase stop --no-backup || true
+          rm -f supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          rm -f supabase/migrations/20260908000001_ci_staging_baseline.sql
