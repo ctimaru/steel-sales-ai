@@ -60,8 +60,8 @@ try{
       await panel.waitFor({state:"detached"});
       assert.match(await input.inputValue(),/200/);
     }
-    const standard=norms.getByRole("button",{name:/EN 10219/}).first();
-    assert.equal(await standard.getAttribute("aria-pressed"),"true","Picking geometry must not silently change standard");
+    const standard=norms.getByRole("combobox",{name:"Norma"});
+    assert.equal(await standard.inputValue(),"en10219","Picking geometry must not silently change standard");
     await input.fill("200x100");
     await panel.waitFor({state:"visible"});
     await input.press("Escape");
