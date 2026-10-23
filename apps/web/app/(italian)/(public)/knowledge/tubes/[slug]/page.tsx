@@ -292,6 +292,20 @@ export default async function TubeDimensionPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
+      <div className="rounded-xl border border-[#c8ded1] bg-[#f2f8f4] p-3 sm:p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-[#194a39]">Calcola peso e quantità di questa misura</p>
+            <p className="mt-1 text-xs leading-5 text-[#526a5c]">
+              Apri la calcolatrice con geometria e spessore già inseriti. Modifica lunghezza e barre, senza ricopiare le dimensioni.
+            </p>
+          </div>
+          <Link href={calculatorHref(dimension)}
+            className="inline-flex min-h-11 items-center rounded-lg bg-[#155c43] px-4 py-2 text-sm font-semibold text-white hover:bg-[#104b37] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#155c43]">
+            Calcola peso e quantità →
+          </Link>
+        </div>
+      </div>
       <nav aria-label="Breadcrumb" className="school-breadcrumb">
         <Link href="/knowledge" className="hover:text-[#1a5144]">Scuola</Link>
         <span className="mx-2">/</span>
