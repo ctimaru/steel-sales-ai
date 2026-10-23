@@ -451,9 +451,9 @@ export function CalculatorInlineDistintaExperience({
                       aria-expanded={editingTargetId === line.id}
                       aria-controls={editingTargetId === line.id ? `private-target-edit-${line.id}` : undefined}
                       onClick={() => editingTargetId === line.id ? setEditingTargetId(null) : startTargetEdit(line)}>€</button>
-                  {line.quantityMode === "bars" ? <label className="mt-0.5 flex min-w-0 items-center justify-center gap-1 text-[10px] font-semibold text-[#315846]">
+                  {line.quantityMode === "bars" ? <label className={styles.lengthControl}>
                     <span className="sr-only">{c.barLength}</span>
-                    <input data-inline-bar-length type="text" inputMode="decimal" className="h-6 w-10 min-w-0 rounded-md border border-[#b8cfc3] bg-white px-1 text-center text-[11px] text-[#143b2d]"
+                    <input data-inline-bar-length type="text" inputMode="decimal" className={styles.lengthInput}
                       aria-label={c.barLength + " " + c.row.toLowerCase() + " " + (index + 1)} value={quickLength} disabled={editing}
                       onChange={event => setQuickLengths(current => ({ ...current, [line.id]: event.target.value }))}
                       onKeyDown={event => {
