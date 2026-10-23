@@ -22,4 +22,35 @@ SELECT pg_temp.c2g3_assert(
   NOT EXISTS (SELECT 1 FROM private.trust_c2g2_rights_decisions
   WHERE reviewed_by IS NULL AND decision IN('allowed','limited')),
   'no unreviewed grant');
+
+-- Execute in a transaction so test permissions and any synthetic event roll back.
+DO $case$
+DECLARE owner_id uuid; k text; eid uuid; outcome jsonb; forbidden boolean:=false;
+BEGIN
+  BEGIN
+    PERFORM public.trust_c2g3_rights_console('paid_network','all',10,0,NULL,NULL,NULL);
+  EXCEPTION WHEN insufficient_privilege THEN forbidden:=true;
+  END;
+  IF NOT forbidden THEN RAISE EXCEPTION 'unauthenticated call unexpectedly succeeded'; END IF;
+
+  SELECT user_id INTO owner_id FROM public.platform_user_roles
+   WHERE role='platform_superadmin' AND status='active' LIMIT 1;
+  IF owner_id IS NOT NULL THEN
+    PERFORM set_config('request.jwt.claim.sub',owner_id::text,true);
+    outcome:=public.trust_c2g3_rights_console('paid_network','all',10,0,NULL,NULL,NULL);
+    IF outcome->>'contract'<>'trust-c2g3-rights-console-v1' THEN
+      RAISE EXCEPTION 'owner read failed';
+    END IF;
+    SELECT evidence_kind,evidence_id INTO k,eid
+      FROM private.trust_c2g1_source_evidence_links ORDER BY evidence_id LIMIT 1;
+    IF eid IS NOT NULL THEN
+      outcome:=public.trust_c2g3_record_rights_decision(k,eid,'ai_training','blocked',
+        NULL,NULL,NULL,'Synthetic rights review; rolled back',NULL,NULL,NULL);
+      IF outcome->>'status'<>'recorded' THEN
+        RAISE EXCEPTION 'owner append-only decision failed';
+      END IF;
+    END IF;
+  END IF;
+END $case$;
+SELECT (SELECT count(*) FROM private.trust_c2g2_rights_decisions) AS transient_decisions;
 ROLLBACK;
