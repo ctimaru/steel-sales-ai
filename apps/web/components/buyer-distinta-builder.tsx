@@ -910,17 +910,21 @@ Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic. Il carrell
 
         <div className="bd7-workbench" style={{gridTemplateColumns:"minmax(0,1fr)"}}>
           <div className="bd7-workbench-editor">
-            <div data-private-calculator-grade className={`mb-2 flex flex-wrap items-end justify-between gap-2 rounded-lg border border-[#cddbd6] bg-[#f4faf7] p-2 ${styles.gradeBar}`}>
-              <div className="min-w-0">
-                <h3 className="text-xs font-extrabold text-[#123d34]">{t("1 · Calcola e aggiungi")}</h3>
-                <p className="mt-1 text-xs text-[#52615b]">Norma, forma, dimensioni e quantità. Un clic per aggiungere la riga senza uscire.</p>
-              </div>
-              <label className="min-w-[145px] flex-1 text-xs font-bold text-[#344e43] sm:max-w-[215px]">
-                {t("Grado acciaio · facoltativo ora")}
-                <input list="buyer-quick-grades" value={quickGrade} onChange={(event) => setQuickGrade(event.target.value)}
-                  placeholder="Es. S355J2H" className="mt-1 h-11 w-full rounded-lg border border-[#b9d0c5] bg-white px-3 text-sm text-[#123d34]" />
-                <datalist id="buyer-quick-grades"><option value="S235JRH" /><option value="S275J0H" /><option value="S355J2H" /><option value="S355K2H" /></datalist>
-              </label>
+            <div data-private-calculator-grade className="mb-1.5">
+              <details className="group rounded-lg border border-[#d5e1db] bg-[#f7faf8]">
+                <summary className="flex min-h-10 cursor-pointer flex-wrap items-center justify-between gap-2 px-3 py-1.5 text-xs font-semibold text-[#234d3f]">
+                  <span>{t("Grado acciaio · facoltativo ora")}{quickGrade.trim() ? ` · ${quickGrade.trim()}` : ""}</span>
+                  <span aria-hidden="true" className="text-[#557467] group-open:rotate-180">⌄</span>
+                </summary>
+                <div className="border-t border-[#d5e1db] px-3 py-2">
+                  <label className="block max-w-xs text-xs font-semibold text-[#344e43]">
+                    {t("Grado acciaio · facoltativo ora")}
+                    <input list="buyer-quick-grades" value={quickGrade} onChange={(event) => setQuickGrade(event.target.value)}
+                      placeholder="Es. S355J2H" className="mt-1 h-10 w-full rounded-lg border border-[#b9d0c5] bg-white px-2.5 text-xs text-[#123d34]" />
+                    <datalist id="buyer-quick-grades"><option value="S235JRH" /><option value="S275J0H" /><option value="S355J2H" /><option value="S355K2H" /></datalist>
+                  </label>
+                </div>
+              </details>
             </div>
             <PublicTubeWeightCalculator references={[]} discoveryOptions={discoveredBuyerDimensions} locale={uiLocale} onAddToDistinta={addCalculatorLine}
               canAddToDistinta={draftReady && !restoreCandidate && (lines.length < 500 || initialEmptyRow)} />
