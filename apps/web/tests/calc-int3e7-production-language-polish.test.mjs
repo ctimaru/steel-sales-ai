@@ -9,7 +9,7 @@ const translated=read("../lib/international-tube-calculator-copy.ts");
 const landing=read("../lib/international-calculator-landing.ts");
 
 test("CALC-INT3E.7 production final polish: no obsolete flags or untranslated thickness assist",()=>{
-  assert.match(calculator,/t\("Spessori suggeriti"\)/);
+  assert.doesNotMatch(calculator,/t\("Spessori suggeriti"\)/);
   assert.doesNotMatch(calculator,/>\s*Assist \{currentStandard.label\}/);
   assert.match(itEn,/"Spessori suggeriti": "Suggested thicknesses"/);
   const data=JSON.parse(translated.slice(translated.indexOf("= ")+2,translated.lastIndexOf(" as const;")));
