@@ -27,7 +27,7 @@ The single-purpose C2G.3D migration fixes 3 existing PL/pgSQL errors: two undefi
 The positive fixture only verifies the SQL flow with synthetic conditions. It does **not** verify external Wikidata crawling, real licensing or actual signed worker credentials.
 
 ## GitHub implementation and bounded-cost acceptance
-- [PR #887 — Controlled Migration Promotion & Network E2E](https://github.com/ctimaru/steel-sales-ai/pull/887), Draft stacked after #886; no merge.
+- [PR #889 — Controlled Migration Promotion & Network E2E](https://github.com/ctimaru/steel-sales-ai/pull/889), Draft stacked after #886; no merge.
 - `.github/workflows/trust-c2g3e-network-acceptance.yml`: cheap static preflight on branch; expensive Docker job only on a **reviewer-added** PR label `trust-c2g3e-approve-local-network-e2e`. The workflow hardcodes the expected head/base branch, requires no remote Supabase credentials, calls Docker locally and always cleans up. Max 35 minutes.
 - Staging denial SQL persisted in `supabase/tests/trust_c2g3e_staging_unlicensed_worker_denial.sql`, already tested with rollback.
 
@@ -35,7 +35,7 @@ The positive fixture only verifies the SQL flow with synthetic conditions. It do
 **STAGING FUNCTION PROMOTION PASS; PRODUCTION REMAINS NO-GO** until:
 1. Positive synthetic Docker E2E and cleanup PASS;
 2. source governance and company enrichment behavior confirmed in a controlled environment with valid fixtures and no legal hold;
-3. explicit migration review/commit and stack PR #861 through #887 integration readiness;
+3. explicit migration review/commit and stack PR #861 through #889 integration readiness;
 4. production readiness/rollback of function definitions and original grants assessed;
 5. protected real JWT owner/non-owner acceptance and Vercel preview for the rights console;
 6. source reuse rights/AI/premium Network remains blocked absent documented approval.
