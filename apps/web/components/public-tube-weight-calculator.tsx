@@ -203,58 +203,6 @@ function referenceLabel(reference: PublicTubeDimensionSummary) {
   return `${formatNumber(reference.width_mm ?? 0)} × ${formatNumber(reference.height_mm ?? 0)} × ${formatNumber(reference.thickness_mm)} mm`;
 }
 
-function ShapeGraphic({
-  family,
-  className = "",
-}: {
-  family: TubeFamily;
-  className?: string;
-}) {
-  if (family === "round_tube") {
-    return (
-      <svg
-        viewBox="0 0 120 120"
-        aria-hidden="true"
-        className={className}
-        fill="none"
-        stroke="currentColor"
-      >
-        <circle cx="60" cy="60" r="38" strokeWidth="9" />
-        <circle cx="60" cy="60" r="20" strokeWidth="2" opacity="0.22" />
-      </svg>
-    );
-  }
-
-  if (family === "square_tube") {
-    return (
-      <svg
-        viewBox="0 0 120 120"
-        aria-hidden="true"
-        className={className}
-        fill="none"
-        stroke="currentColor"
-      >
-        <rect x="25" y="25" width="70" height="70" rx="7" strokeWidth="9" />
-        <rect x="43" y="43" width="34" height="34" rx="3" strokeWidth="2" opacity="0.22" />
-      </svg>
-    );
-  }
-
-  return (
-    <svg
-      viewBox="0 0 140 110"
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-    >
-      <rect x="20" y="25" width="100" height="60" rx="7" strokeWidth="9" />
-      <rect x="40" y="43" width="60" height="24" rx="3" strokeWidth="2" opacity="0.22" />
-    </svg>
-  );
-}
-
-
 function positiveDimension(value: string, fallback: number) {
   const parsed = parseNumber(value);
   return parsed != null && parsed > 0 ? parsed : fallback;
@@ -1164,7 +1112,7 @@ export function PublicTubeWeightCalculator({
                         <span className="text-xs text-[#52615b]">m</span>
                       </div>
                       <div className="flex w-fit items-center gap-1.5">
-                        <select aria-label={t("Lunghezza barra")} value={lengthPresets.includes(length) ? length : "custom"} onChange={(event) => { if (event.target.value !== "custom") setLength(event.target.value); }} className="h-10 w-[90px] rounded-lg border border-[#d0dfd6] bg-white px-2 text-xs font-semibold text-[#173f34]">
+                        <select aria-label={t("Lunghezza barra")} value={lengthPresets.some((preset) => preset === length) ? length : "custom"} onChange={(event) => { if (event.target.value !== "custom") setLength(event.target.value); }} className="h-10 w-[90px] rounded-lg border border-[#d0dfd6] bg-white px-2 text-xs font-semibold text-[#173f34]">
                           {lengthPresets.map((preset) => <option key={preset} value={preset}>{preset} m</option>)}
                           <option value="custom">{t("Personalizzata")}</option>
                         </select>
