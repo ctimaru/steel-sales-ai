@@ -10,11 +10,21 @@ SELECT pg_temp.assert_c2g2(
   (SELECT count(*) FROM private.trust_c2g2_evidence_use_matrix)
    = (SELECT count(*)*7 FROM private.trust_c2g1_source_evidence_links),'7 scopes for every evidence');
 SELECT pg_temp.assert_c2g2(
-  (SELECT count(*) FROM private.trust_c2g2_rights_decisions)=0,
-  'no automatic grants in the new ledger');
+  NOT EXISTS(
+    SELECT 1 FROM private.trust_c2g2_rights_decisions
+    WHERE decision IN('allowed','limited')
+      AND (rights_basis IS NULL OR evidence_url IS NULL OR reviewed_by IS NULL
+           OR reviewed_at IS NULL OR nullif(btrim(coalesce(terms_version,'')),'') IS NULL)
+  ),
+  'all future granted rights must have documented evidence');
 SELECT pg_temp.assert_c2g2(
-  NOT EXISTS(SELECT 1 FROM private.trust_c2g2_company_allowed_use_matrix WHERE company_use_state IN('allowed','limited')),
-  'no company rights auto-cleared');
+  NOT EXISTS(
+    SELECT 1 FROM private.trust_c2g2_company_allowed_use_matrix
+    WHERE company_use_state IN('allowed','limited')
+      AND (reviewed_links <> linked_evidence_count OR hold_count > 0
+           OR (company_use_state='allowed' AND allowed_links <> linked_evidence_count))
+  ),
+  'future allowed/limited scopes require full explicit rights coverage and no holds');
 SELECT pg_temp.assert_c2g2(
   NOT has_table_privilege('anon','private.trust_c2g2_rights_decisions','SELECT')
   AND NOT has_table_privilege('authenticated','private.trust_c2g2_rights_decisions','SELECT')
