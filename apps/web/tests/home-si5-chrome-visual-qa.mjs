@@ -264,7 +264,7 @@ try {
           assert.equal(tubeResponse?.status(), 200, "I18N7 calculator page HTTP status");
           const calculator = page.locator("#calcolatore-pesi");
           await calculator.waitFor({ state: "visible" });
-          check(await calculator.getByRole("button", { name: "EN 10219" }).count() === 1, "Missing shared standard control");
+          check(await calculator.locator('select option[value="en10219"]').count() === 1, "Missing shared standard control");
           // DENSE1A: copy and sharing are secondary actions behind an explicit disclosure.
           await calculator.locator("details[class*=\'group/extra\'] > summary").click();
           const copy = calculator.getByRole("button", { name: tube.copy, exact: true });

@@ -76,16 +76,11 @@ test("CALC-UX4: pricing is only inside EU result preview; not in RFQ, clipboard,
   assert.match(calculator,/const kgM = validSection\?\.weightKgM/);
 });
 
-test("CALC-UX4: quiet collapsed assist and coherent accessible pressed controls",()=>{
-  assert.match(calculator,/<details className="group\/assist/);
-  assert.match(calculator,/<summary[^>]+>/);
-  assert.match(calculator, /\{t\("Spessori suggeriti"\)\} · \{currentStandard.label\}/);
-  assert.match(calculator, /\{t\("preferito"\)\} \{standardAssist.preferred\} mm/);
-  assert.match(calculator, /selectionBase/);
-  assert.match(calculator, /selectionIdle/);
-  assert.match(calculator, /focus-visible:outline/);
-  assert.match(calculator, /aria-pressed=\{selected\}/);
-  assert.match(calculator, /aria-pressed=\{length === preset\}/);
-  assert.match(calculator, /aria-label=\{\x60\$\{commercialSuggestionLabel\(candidate\)\}/);
-  assert.match(locale, /"Spessori suggeriti"/);
+test("CALC-UX4: compact accessible selectors replace redundant assist", () => {
+  assert.doesNotMatch(calculator, /group\/assist|commercialSuggestionLabel/);
+  assert.match(calculator, /<CalculatorDimensionDiscovery/);
+  assert.match(calculator, /<select aria-label=\{t\("Norma"\)\} value=\{standard\}/);
+  assert.match(calculator, /<select aria-label=\{t\("Sagoma"\)\} value=\{family\}/);
+  assert.match(calculator, /focus-visible:ring-2/);
+  assert.match(calculator, /aria-label=\{t\("Lunghezza barra personalizzata"\)\}/);
 });

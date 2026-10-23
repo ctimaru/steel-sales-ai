@@ -7,6 +7,8 @@ from uuid import UUID
 
 import httpx
 
+from .supabase_credentials import get_supabase_admin_key, supabase_admin_headers
+
 
 class RepositoryConfigurationError(RuntimeError):
     pass
@@ -51,14 +53,11 @@ def normalize_observation(job_id: UUID, observation: dict[str, Any]) -> dict[str
 class WorkerRepository:
     def __init__(self) -> None:
         self.base_url = os.getenv("SUPABASE_URL", "").rstrip("/")
-        self.key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
-        if not self.base_url or not self.key:
-            raise RepositoryConfigurationError(
-                "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required."
-            )
+        self.key = get_supabase_admin_key()
+        if not self.base_url:
+            raise RepositoryConfigurationError("SUPABASE_URL is required.")
         self.headers = {
-            "Authorization": f"Bearer {self.key}",
-            "apikey": self.key,
+            **supabase_admin_headers(self.key),
             "Content-Type": "application/json",
         }
 

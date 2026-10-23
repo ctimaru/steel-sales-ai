@@ -96,6 +96,7 @@ export function CalculatorInlineDistintaExperience({
   const [draft, setDraft] = useState<Editable | null>(null);
   // DENSE1C: local drafts per row; no session/RFQ data is changed before Save.
   const [quickQuantities, setQuickQuantities] = useState<Record<string, string>>({});
+  const [quickLengths, setQuickLengths] = useState<Record<string, string>>({});
   const [message, setMessage] = useState("");
   const [storageAvailable, setStorageAvailable] = useState(true);
   // Commercial rates intentionally live only in this mounted React experience.
@@ -164,11 +165,13 @@ export function CalculatorInlineDistintaExperience({
   function beginEdit(line: BuyerDistintaDraftLine) {
     // Move any unsaved compact quantity into the expanded form rather than lose it.
     const quantity = quickQuantities[line.id] ?? line.quantity;
+    const barLengthM = quickLengths[line.id] ?? line.barLengthM;
+    setQuickLengths(current => { const next = { ...current }; delete next[line.id]; return next; });
     setQuickQuantities(current => { const next = { ...current }; delete next[line.id]; return next; });
     setEditingId(line.id);
     setDraft({
       quantityMode: line.quantityMode, quantity,
-      barLengthM: line.barLengthM, grade: line.grade,
+      barLengthM, grade: line.grade,
       finish: line.finish, note: line.note,
     });
     setMessage("");
@@ -182,14 +185,18 @@ export function CalculatorInlineDistintaExperience({
 
   function hasPendingQuantities(): boolean {
     return liveState.current.lines.some(line =>
-      quickQuantities[line.id] !== undefined && quickQuantities[line.id] !== line.quantity);
+      (quickQuantities[line.id] !== undefined && quickQuantities[line.id] !== line.quantity ||
+        line.quantityMode === "bars" && quickLengths[line.id] !== undefined && quickLengths[line.id] !== line.barLengthM));
   }
 
   function saveQuickQuantity(id: string) {
     const current = liveState.current.lines.find(line => line.id === id);
-    const value = quickQuantities[id];
-    if (!current || value === undefined) return;
-    if (value !== current.quantity && !commit(editInlineDistintaLine(liveState.current, id, { quantity: value }))) return;
+    const value = quickQuantities[id] ?? current?.quantity;
+    const barLengthM = quickLengths[id] ?? current?.barLengthM;
+    if (!current || value === undefined || barLengthM === undefined) return;
+    if ((value !== current.quantity || current.quantityMode === "bars" && barLengthM !== current.barLengthM) &&
+      !commit(editInlineDistintaLine(liveState.current, id, { quantity: value, barLengthM }))) return;
+    setQuickLengths(previous => { const next = { ...previous }; delete next[id]; return next; });
     setQuickQuantities(previous => {
       const next = { ...previous };
       delete next[id];
@@ -389,7 +396,14 @@ export function CalculatorInlineDistintaExperience({
               const privateTarget = buyerTargetPreview(line, targets);
               const matchingPending = pendingTarget && matchesBuyerTargetWeight(line, pendingTarget);
               const quickValue = quickQuantities[line.id] ?? line.quantity;
-              const quickChanged = quickValue !== line.quantity;
+              const quickLength = quickLengths[line.id] ?? line.barLengthM;
+              const quickChanged = quickValue !== line.quantity || line.quantityMode === "bars" && quickLength !== line.barLengthM;
+              // Draft-only calculation: preserve the canonical bill until explicit Save.
+              const previewResult = quickChanged
+                ? editInlineDistintaLine(state, line.id, { quantity: quickValue, barLengthM: quickLength }) : null;
+              const previewLine = previewResult?.ok ? previewResult.state.lines.find(item => item.id === line.id) : null;
+              const preview = previewLine ? calculateBuyerDistintaLine(previewLine) : null;
+              const previewLabel = { it: "Anteprima", en: "Preview", de: "Vorschau", fr: "Aperçu", es: "Vista previa" }[locale];
               return <article key={line.id} data-distinta-compact-row data-distinta-tabular-row
                 className={styles.row} aria-label={c.row + " " + (index + 1) + ": " + line.description}>
                 <div className={styles.mainRow}>
@@ -437,8 +451,25 @@ export function CalculatorInlineDistintaExperience({
                       aria-expanded={editingTargetId === line.id}
                       aria-controls={editingTargetId === line.id ? `private-target-edit-${line.id}` : undefined}
                       onClick={() => editingTargetId === line.id ? setEditingTargetId(null) : startTargetEdit(line)}>€</button>
+                  {line.quantityMode === "bars" ? <label className={styles.lengthControl}>
+                    <span className="sr-only">{c.barLength}</span>
+                    <input data-inline-bar-length type="text" inputMode="decimal" className={styles.lengthInput}
+                      aria-label={c.barLength + " " + c.row.toLowerCase() + " " + (index + 1)} value={quickLength} disabled={editing}
+                      onChange={event => setQuickLengths(current => ({ ...current, [line.id]: event.target.value }))}
+                      onKeyDown={event => {
+                        if (event.key === "Enter") { event.preventDefault(); saveQuickQuantity(line.id); }
+                        else if (event.key === "Escape") setQuickLengths(current => { const next={...current}; delete next[line.id]; return next; });
+                      }}/><span>m</span>
+                  </label> : null}
+
                   </div>
                 </div>
+                {quickChanged ? <p data-inline-draft-preview aria-live="polite"
+                  className="mt-1 truncate px-1 text-[10px] font-semibold leading-4 text-[#23644d]">
+                  {preview?.complete
+                    ? `${previewLabel} · ${number(preview.meters, 2)} m · ${number(preview.tonnes, 4)} t`
+                    : `${previewLabel} · ${c.invalid}`}
+                </p> : null}
                 {quickChanged ? <button type="button" data-save-quick-quantity
                   onClick={() => saveQuickQuantity(line.id)}
                   className={styles.saveQuantity}>{c.saveQuantity}</button> : null}

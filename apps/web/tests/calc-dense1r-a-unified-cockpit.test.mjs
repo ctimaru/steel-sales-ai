@@ -32,8 +32,8 @@ test("DENSE1R-A one toolbar and one workspace preserve calculator technical cont
 test("DENSE1R-A no leaked price or auto dispatched RFQ in merged discovery",()=>{
   for(const forbidden of ["supabase", "fetch(", "sessionStorage", "localStorage", "onChooseBuyerTarget"])
     assert.ok(!finder.includes(forbidden),"finder must stay local: "+forbidden);
-  assert.ok(calculator.includes("onClick={() => handleStandardChange(option.value)}"));
-  assert.ok(calculator.includes("onClick={() => setFamily(option.value)}"));
+  assert.ok(calculator.includes("handleStandardChange(event.target.value as StandardValue)"));
+  assert.ok(calculator.includes("setFamily(event.target.value as TubeFamily)"));
   assert.ok(calculator.includes("<CalculatorCommercialPricing"));
   assert.ok(calculator.includes("<details open={targetDisclosureOpen}"));
 });

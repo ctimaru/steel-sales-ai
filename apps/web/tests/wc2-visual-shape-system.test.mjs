@@ -44,10 +44,8 @@ test("WC2 keeps the SVG accessible and responsive", () => {
   assert.match(calculator, /<title>\{accessibleLabel\}<\/title>/);
 });
 
-test("WC2 preserves selected hover and keyboard focus states on shape controls", () => {
-  assert.match(calculator, /aria-pressed=\{selected\}/);
-  assert.match(calculator, /selectionBase/);
-  assert.match(calculator, /hover:border-\[#55977b\]/);
-  assert.match(calculator, /focus-visible:outline-2 focus-visible:outline-offset-2/);
-  assert.match(calculator, /active:scale-\[0\.98\]/);
+test("WC2 preserves accessible shape selection and keyboard native focus", () => {
+  assert.match(calculator, /<select aria-label=\{t\("Sagoma"\)\} value=\{family\}/);
+  assert.match(calculator, /setFamily\(event.target.value as TubeFamily\)/);
+  assert.match(calculator, /focus-visible:ring-2/);
 });
