@@ -1,0 +1,392 @@
+{
+  "audit": "TRUST-AUDIT1C.2G.3C",
+  "captured_on": "2026-10-23",
+  "source": "read-only metadata from production/staging Supabase; sanitized catalog/ledger hashes only",
+  "reproduction_notice": "This file is a dated evidence snapshot, not a remote validation nor a legal clearance. MD5 only for accidental SQL textual-drift detection; not cryptographic attestation.",
+  "production": {
+    "catalog": [
+      {
+        "kind": "function",
+        "key": "private.is_platform_superadmin()",
+        "digest": "66e189a8a7efa0885c7bd700bd202397"
+      },
+      {
+        "kind": "function",
+        "key": "private.trust_c2e_prevent_quarantined_reingest()",
+        "digest": "1974fb1079c7d1dc79bcc88839cabfd9"
+      },
+      {
+        "kind": "function",
+        "key": "private.trust_c2g2_decision_integrity()",
+        "digest": "8cb1171fc472a672baaca11df67873e3"
+      },
+      {
+        "kind": "function",
+        "key": "public.is_platform_superadmin()",
+        "digest": "445b3ffcd494477e1405b3fdc4fa9b88"
+      },
+      {
+        "kind": "function",
+        "key": "public.trust_c2g3_record_rights_decision(p_evidence_kind text, p_evidence_id uuid, p_use_scope text, p_decision text, p_rights_basis text, p_evidence_url text, p_terms_version text, p_review_note text, p_attribution_requirements text, p_valid_until timestamp with time zone, p_expected_decision_id uuid)",
+        "digest": "1aadfa89b636baac7f5a0272cf74fb1f"
+      },
+      {
+        "kind": "function",
+        "key": "public.trust_c2g3_rights_console(p_scope text, p_filter text, p_limit integer, p_offset integer, p_company_id uuid, p_evidence_kind text, p_evidence_id uuid)",
+        "digest": "34d251bb98989f035c4cf2ca36dee106"
+      },
+      {
+        "kind": "policy",
+        "key": "knowledge_chunks:trust_no_superseded_knowledge_chunks",
+        "digest": "767a18517e83afd00d99250d55989f94"
+      },
+      {
+        "kind": "policy",
+        "key": "knowledge_documents:trust_no_superseded_knowledge_documents",
+        "digest": "c0b987590e7728a0cba7a28647f0688b"
+      },
+      {
+        "kind": "policy",
+        "key": "knowledge_entity_mentions:trust_no_superseded_entity_mentions",
+        "digest": "173a4096c3a92fb63bc093fb0bae51fc"
+      },
+      {
+        "kind": "policy",
+        "key": "knowledge_evidence:trust_no_superseded_knowledge_evidence",
+        "digest": "b09cf4fac51d2ca8dc96868d05efc521"
+      },
+      {
+        "kind": "policy",
+        "key": "price_list_components:trust_c2d_active_component_read",
+        "digest": "b1b39b03c761e2771e5e69ee1ed5831d"
+      },
+      {
+        "kind": "policy",
+        "key": "price_list_items:trust_c2d_active_item_read",
+        "digest": "d08abe220a47a0d27df01a65da064200"
+      },
+      {
+        "kind": "policy",
+        "key": "price_list_sections:trust_c2d_active_section_read",
+        "digest": "4cd25aad5e9acc7d5b8674a53f08de16"
+      },
+      {
+        "kind": "policy",
+        "key": "price_list_versions:trust_c2d_active_version_read",
+        "digest": "3a0c9f831a4941267d00599b734e05a8"
+      },
+      {
+        "kind": "policy",
+        "key": "price_lists:trust_c2d_active_list_read",
+        "digest": "7b21c7e656a751432c2c8b43ea9d4e60"
+      },
+      {
+        "kind": "trigger",
+        "key": "commercial_offer_source_reingests:trust_c2e_block_offer_reingest",
+        "digest": "9ed5811d8609ce4e3845a1e2c48c178c"
+      },
+      {
+        "kind": "trigger",
+        "key": "knowledge_documents:trust_c2e_block_knowledge_reingest",
+        "digest": "75692a568455ed2a8f22aea00a323e7e"
+      },
+      {
+        "kind": "trigger",
+        "key": "price_list_import_runs:trust_c2e_block_price_import",
+        "digest": "4ae79650a169e789e72e3a189209115b"
+      },
+      {
+        "kind": "trigger",
+        "key": "private.trust_c2g2_rights_decisions:trust_c2g2_decision_guard",
+        "digest": "35b9cbe6c2c19f1af9e9f1328ac6f5d2"
+      },
+      {
+        "kind": "trigger",
+        "key": "worker_jobs:trust_c2e_block_worker_reingest",
+        "digest": "cd638e6890dd01871a498bea0953f291"
+      },
+      {
+        "kind": "view",
+        "key": "private.trust_c2g1_company_evidence_summary",
+        "digest": "6d697938fa45f718e1e2dfdc3eb7beaf"
+      },
+      {
+        "kind": "view",
+        "key": "private.trust_c2g1_source_evidence_links",
+        "digest": "83ab6395268576412e274ce2059fa9b8"
+      },
+      {
+        "kind": "view",
+        "key": "private.trust_c2g2_company_allowed_use_matrix",
+        "digest": "48fdabbead7bb1f784c42e3c2e7bfda6"
+      },
+      {
+        "kind": "view",
+        "key": "private.trust_c2g2_evidence_use_matrix",
+        "digest": "a152500912c019f6729446242edfa853"
+      },
+      {
+        "kind": "view",
+        "key": "private.trust_c2g_company_provenance_readiness",
+        "digest": "7f928ba95cba463219d4eb174601a957"
+      },
+      {
+        "kind": "view",
+        "key": "private.trust_c2g_source_assessment_queue",
+        "digest": "2141d97391dedb7842e970cc4583f0a1"
+      },
+      {
+        "kind": "view",
+        "key": "private.trust_c2g_source_hold_queue",
+        "digest": "964200c493750e0d8bc0384446900346"
+      }
+    ],
+    "migrations": [
+      {
+        "version": "20261022153144",
+        "name": "trust_audit1c2c_restrict_quarantined_derivatives",
+        "sql_digest": "0e2aed429f51ab5059cf3cb5f307b577"
+      },
+      {
+        "version": "20261022155021",
+        "name": "trust_audit1c2d_retired_source_privileged_read_gate",
+        "sql_digest": "3a1297e74afb471a6f80a45be9fdde9b"
+      },
+      {
+        "version": "20261022160734",
+        "name": "trust_audit1c2e_checksum_reingest_quarantine",
+        "sql_digest": "a4452f5d9b03d420abef18af3fd9de0c"
+      },
+      {
+        "version": "20261023090236",
+        "name": "trust_audit1c2g_private_source_provenance_readiness",
+        "sql_digest": "b9db89d75d026162a5ff19bf2917c51e"
+      },
+      {
+        "version": "20261023090328",
+        "name": "trust_audit1c2g_orphan_source_holds_queue",
+        "sql_digest": "287ab212af573aa4caf4e142d627ca59"
+      },
+      {
+        "version": "20261023092823",
+        "name": "trust_audit1c2g1_automated_source_evidence_links",
+        "sql_digest": "4096f0a05a2b59a986d488a6db0162a9"
+      },
+      {
+        "version": "20261023101229",
+        "name": "trust_audit1c2g2_rights_use_matrix",
+        "sql_digest": "486661e6a24c1ac1affa6eb930369ef3"
+      },
+      {
+        "version": "20261023103723",
+        "name": "trust_audit1c2g3_superadmin_rights_rpc",
+        "sql_digest": "5b54b799bbd6dba1a107d252777c82a6"
+      }
+    ]
+  },
+  "staging": {
+    "catalog": [
+      {
+        "kind": "function",
+        "key": "private.is_platform_superadmin()",
+        "digest": "66e189a8a7efa0885c7bd700bd202397"
+      },
+      {
+        "kind": "function",
+        "key": "private.trust_c2e_prevent_quarantined_reingest()",
+        "digest": "d6e79afeac02a5a3ecce2039d88c1f1d"
+      },
+      {
+        "kind": "function",
+        "key": "private.trust_c2g2_decision_integrity()",
+        "digest": "8cb1171fc472a672baaca11df67873e3"
+      },
+      {
+        "kind": "function",
+        "key": "public.is_platform_superadmin()",
+        "digest": "445b3ffcd494477e1405b3fdc4fa9b88"
+      },
+      {
+        "kind": "function",
+        "key": "public.trust_c2g3_record_rights_decision(p_evidence_kind text, p_evidence_id uuid, p_use_scope text, p_decision text, p_rights_basis text, p_evidence_url text, p_terms_version text, p_review_note text, p_attribution_requirements text, p_valid_until timestamp with time zone, p_expected_decision_id uuid)",
+        "digest": "1aadfa89b636baac7f5a0272cf74fb1f"
+      },
+      {
+        "kind": "function",
+        "key": "public.trust_c2g3_rights_console(p_scope text, p_filter text, p_limit integer, p_offset integer, p_company_id uuid, p_evidence_kind text, p_evidence_id uuid)",
+        "digest": "34d251bb98989f035c4cf2ca36dee106"
+      },
+      {
+        "kind": "policy",
+        "key": "knowledge_chunks:trust_no_superseded_knowledge_chunks",
+        "digest": "767a18517e83afd00d99250d55989f94"
+      },
+      {
+        "kind": "policy",
+        "key": "knowledge_documents:trust_no_superseded_knowledge_documents",
+        "digest": "c0b987590e7728a0cba7a28647f0688b"
+      },
+      {
+        "kind": "policy",
+        "key": "knowledge_entity_mentions:trust_no_superseded_entity_mentions",
+        "digest": "173a4096c3a92fb63bc093fb0bae51fc"
+      },
+      {
+        "kind": "policy",
+        "key": "knowledge_evidence:trust_no_superseded_knowledge_evidence",
+        "digest": "b09cf4fac51d2ca8dc96868d05efc521"
+      },
+      {
+        "kind": "policy",
+        "key": "price_list_components:trust_c2d_active_component_read",
+        "digest": "b1b39b03c761e2771e5e69ee1ed5831d"
+      },
+      {
+        "kind": "policy",
+        "key": "price_list_items:trust_c2d_active_item_read",
+        "digest": "d08abe220a47a0d27df01a65da064200"
+      },
+      {
+        "kind": "policy",
+        "key": "price_list_sections:trust_c2d_active_section_read",
+        "digest": "4cd25aad5e9acc7d5b8674a53f08de16"
+      },
+      {
+        "kind": "policy",
+        "key": "price_list_versions:trust_c2d_active_version_read",
+        "digest": "3a0c9f831a4941267d00599b734e05a8"
+      },
+      {
+        "kind": "policy",
+        "key": "price_lists:trust_c2d_active_list_read",
+        "digest": "7b21c7e656a751432c2c8b43ea9d4e60"
+      },
+      {
+        "kind": "trigger",
+        "key": "commercial_offer_source_reingests:trust_c2e_block_offer_reingest",
+        "digest": "9ed5811d8609ce4e3845a1e2c48c178c"
+      },
+      {
+        "kind": "trigger",
+        "key": "knowledge_documents:trust_c2e_block_knowledge_reingest",
+        "digest": "75692a568455ed2a8f22aea00a323e7e"
+      },
+      {
+        "kind": "trigger",
+        "key": "price_list_import_runs:trust_c2e_block_price_import",
+        "digest": "4ae79650a169e789e72e3a189209115b"
+      },
+      {
+        "kind": "trigger",
+        "key": "private.trust_c2g2_rights_decisions:trust_c2g2_decision_guard",
+        "digest": "35b9cbe6c2c19f1af9e9f1328ac6f5d2"
+      },
+      {
+        "kind": "trigger",
+        "key": "worker_jobs:trust_c2e_block_worker_reingest",
+        "digest": "cd638e6890dd01871a498bea0953f291"
+      },
+      {
+        "kind": "view",
+        "key": "private.trust_c2g1_company_evidence_summary",
+        "digest": "6d697938fa45f718e1e2dfdc3eb7beaf"
+      },
+      {
+        "kind": "view",
+        "key": "private.trust_c2g1_source_evidence_links",
+        "digest": "83ab6395268576412e274ce2059fa9b8"
+      },
+      {
+        "kind": "view",
+        "key": "private.trust_c2g2_company_allowed_use_matrix",
+        "digest": "48fdabbead7bb1f784c42e3c2e7bfda6"
+      },
+      {
+        "kind": "view",
+        "key": "private.trust_c2g2_evidence_use_matrix",
+        "digest": "a152500912c019f6729446242edfa853"
+      },
+      {
+        "kind": "view",
+        "key": "private.trust_c2g_company_provenance_readiness",
+        "digest": "216c32c194144631cd78045433e6914d"
+      },
+      {
+        "kind": "view",
+        "key": "private.trust_c2g_source_assessment_queue",
+        "digest": "2141d97391dedb7842e970cc4583f0a1"
+      },
+      {
+        "kind": "view",
+        "key": "private.trust_c2g_source_hold_queue",
+        "digest": "964200c493750e0d8bc0384446900346"
+      }
+    ],
+    "migrations": [
+      {
+        "version": "20261022153103",
+        "name": "trust_audit1c2c_restrict_quarantined_derivatives",
+        "sql_digest": "0e2aed429f51ab5059cf3cb5f307b577"
+      },
+      {
+        "version": "20261022154722",
+        "name": "trust_audit1c2d_inactive_list_read_gate",
+        "sql_digest": "a862cf5f25a4c04f637c4c1cd92c1975"
+      },
+      {
+        "version": "20261022154931",
+        "name": "trust_audit1c2d_nonrecursive_read_policy_repair",
+        "sql_digest": "2de5d836cd344e43d6acf0fffeb7e2d6"
+      },
+      {
+        "version": "20261022160611",
+        "name": "trust_audit1c2e_checksum_reingest_quarantine",
+        "sql_digest": "983f84c3f1a7e9bba608950e469da554"
+      },
+      {
+        "version": "20261023090159",
+        "name": "trust_audit1c2g_private_source_provenance_readiness",
+        "sql_digest": "d4bc90aaa4abd63fb9c734f053722b86"
+      },
+      {
+        "version": "20261023090323",
+        "name": "trust_audit1c2g_orphan_source_holds_queue",
+        "sql_digest": "287ab212af573aa4caf4e142d627ca59"
+      },
+      {
+        "version": "20261023092821",
+        "name": "trust_audit1c2g1_automated_source_evidence_links",
+        "sql_digest": "4096f0a05a2b59a986d488a6db0162a9"
+      },
+      {
+        "version": "20261023101227",
+        "name": "trust_audit1c2g2_rights_use_matrix",
+        "sql_digest": "486661e6a24c1ac1affa6eb930369ef3"
+      },
+      {
+        "version": "20261023103643",
+        "name": "trust_audit1c2g3_superadmin_rights_rpc",
+        "sql_digest": "8689e686e0db20ea2edecc397d6ec0a8"
+      }
+    ]
+  },
+  "observed_behavioral_probe": {
+    "test": "supabase/tests/trust_c2g3c_behavioral_parity.sql",
+    "staging": "PASS: 10 company rows, zero implicit grants, four anti-reingest triggers",
+    "production": "PASS: 34 company rows, zero implicit grants, four anti-reingest triggers",
+    "synthetic_writes_rolled_back": true
+  },
+  "reviewed_textual_differences": {
+    "function:private.trust_c2e_prevent_quarantined_reingest()": "Whitespace/comments and local variable names differ; same guard conditions were inspected; synthetic worker denial passes both environments",
+    "view:private.trust_c2g_company_provenance_readiness": "SQL lateral subquery aliases differ; projected calculations and assessment integrity checks passed on both environments"
+  },
+  "release_gates": {
+    "live_real_jwt_owner": "OPEN",
+    "live_real_jwt_nonowner": "OPEN",
+    "protected_preview": "CANCELED",
+    "isolated_strict_clean_rebuild": "NOT_RUN",
+    "historical_migration_reconciliation": "OPEN",
+    "upstream_main_divergence": "OPEN",
+    "legal_rights_and_retention": "OPEN"
+  }
+}
