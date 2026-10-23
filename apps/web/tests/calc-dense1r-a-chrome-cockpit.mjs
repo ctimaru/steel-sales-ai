@@ -27,15 +27,17 @@ try {
     assert.ok(toolbarBox&&fieldsBox&&resultBox&&actionBox);
     assert.ok(fieldsBox.y>=toolbarBox.y+toolbarBox.height-3,"Toolbar first");
     if(width===320) {
-      const normative=root.locator('[data-cockpit-controls] section').first().locator('button').first();
-      const rect=await normative.boundingBox();
-      assert.ok(rect && rect.height<=48,"EN designation should not break into two lines at 320px");
-      const normButtons=await root.locator('[data-cockpit-controls] section').first().locator('button').all();
-      const visibleLabels=await Promise.all(normButtons.map(button=>button.locator("span").first().boundingBox()));
-      assert.ok(visibleLabels.every(Boolean),"Condensed norm labels should render");
-      for(let i=1;i<visibleLabels.length;i++)
-        assert.ok(visibleLabels[i-1].x+visibleLabels[i-1].width+1<=visibleLabels[i].x,
-          "Norm labels must not visually collide at 320px");
+      const norm=root.locator('[data-cockpit-controls] select[aria-label="Norma"]');
+      const shape=root.locator('[data-cockpit-controls] select[aria-label="Sagoma"]');
+      const boxes=await Promise.all([norm.boundingBox(),shape.boundingBox()]);
+      assert.ok(boxes.every(Boolean),"Compact norm and shape selectors must render at 320px");
+      assert.ok(boxes.every(box=>box.width>=100&&box.height>=44),
+        "Selectors must remain readable and touch-accessible at 320px");
+      const overlapX=Math.min(boxes[0].x+boxes[0].width,boxes[1].x+boxes[1].width)-Math.max(boxes[0].x,boxes[1].x);
+      const overlapY=Math.min(boxes[0].y+boxes[0].height,boxes[1].y+boxes[1].height)-Math.max(boxes[0].y,boxes[1].y);
+      assert.ok(overlapX<=2||overlapY<=2,
+        "Norm and shape selectors must not visually overlap at 320px");
+      assert.ok(boxes[1].y>=boxes[0].y-2,"Shape selector remains after norm selector");
       const kgBar=await root.locator('[data-cockpit-kpis] > div').first().locator('p').nth(1).boundingBox();
       assert.ok(kgBar && kgBar.height<24,"kg/bar should stay on one line at 320px");
     }

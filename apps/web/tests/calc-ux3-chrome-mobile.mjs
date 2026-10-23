@@ -82,8 +82,7 @@ try {
 
         // Minimum actionable dimensions, including the scrolled thickness strip.
         const touchTargets = [
-          ...await calc.locator('section[aria-labelledby="calculator-standard"] button').all(),
-          ...await calc.locator('section[aria-labelledby="calculator-shape"] button').all(),
+          ...await calc.locator('select[aria-label]').all(),
           ...await calc.locator('button[aria-label*="mm"]').all(),
           ...await calc.locator("button.school-primary-action").all(),
           ...await calc.locator("button.school-secondary-action").all(),
@@ -102,7 +101,7 @@ try {
         }
 
         for (const selector of [
-          'section[aria-labelledby="calculator-standard"] button[aria-pressed=true]',
+          'select[aria-label]',
           ".tube-calculator-rfq-link",
         ]) {
           const item = calc.locator(selector);
@@ -116,21 +115,21 @@ try {
           assert.equal(style.fill, style.fg,
             tag + ": Safari text fill conflicts with foreground " + selector);
         }
-        const first = calc.locator('section[aria-labelledby="calculator-standard"] button').first();
+        const first = calc.locator('select[aria-label]').first();
         await first.focus();
         const focus = await first.evaluate((element) => {
           const css = getComputedStyle(element);
-          return { style: css.outlineStyle, width: css.outlineWidth };
+          return { outline: css.outlineStyle, width: css.outlineWidth, shadow: css.boxShadow };
         });
-        assert.equal(focus.style, "solid", tag + ": no keyboard focus ring");
-        assert.ok(parseFloat(focus.width) >= 2, tag + ": focus ring below 2px");
-        const diagrams = calc.locator('section[aria-labelledby="calculator-shape"] button');
-        if (await diagrams.count() === 3) {
-          await diagrams.nth(1).click();
-          assert.equal(await diagrams.nth(1).getAttribute("aria-pressed"), "true");
-          await diagrams.first().click();
-          assert.equal(await diagrams.first().getAttribute("aria-pressed"), "true");
-        }
+        assert.ok((focus.outline === "solid" && parseFloat(focus.width) >= 2) ||
+          (focus.shadow !== "none" && focus.shadow.length > 5),
+          tag + ": no visible keyboard focus indicator");
+        // Verify the actual shared shape state through native selection.
+        const shape = calc.locator('select').filter({ has: page.locator('option[value="round_tube"]') }).first();
+        await shape.selectOption("square_tube");
+        assert.equal(await shape.inputValue(), "square_tube");
+        await shape.selectOption("round_tube");
+        assert.equal(await shape.inputValue(), "round_tube");
         assert.ok(await calc.locator(".tube-calculator-rfq-link").isEnabled(),
           tag + ": theoretical RFQ handoff disappeared");
 

@@ -33,15 +33,12 @@ test("WC4.2 applies the standard preference as the primary dimension is entered"
   assert.match(calculator, /handlePrimaryDimensionChange\(setWidth/);
 });
 
-test("WC4.2 exposes compact full-dimension commercial suggestions", () => {
-  assert.match(calculator, /\{t\("Spessori suggeriti"\)\} · \{currentStandard\.label\}/);
-  assert.match(calculator, /\{t\("preferito"\)\} \{standardAssist\.preferred\} mm/);
-  assert.match(calculator, /commercialSuggestionLabel/);
-  assert.match(calculator, /standardAssist\.options\.map/);
-  assert.match(calculator, /overflow-x-auto/);
+test("WC4.2 replaces separate thickness suggestions with dimension discovery", () => {
+  assert.match(calculator, /<CalculatorDimensionDiscovery/);
+  assert.doesNotMatch(calculator, /Spessori suggeriti|group\/assist/);
+  assert.match(calculator, /preferredThicknessForStandard/);
 });
 
-test("WC4.2 keeps free calculation outside normative assistance", () => {
-  assert.match(calculator, /standard === "geometric" \? null : standardThicknessAssist\[standard\]/);
+test("WC4.2 retains normative and free calculation defaults", () => {
   assert.match(calculator, /standard === "geometric" \? "6,3"/);
 });
