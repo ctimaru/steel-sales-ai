@@ -40,9 +40,9 @@ test("CALC-UX3 selected, muted and result text pass WCAG AA at 4.5:1", () => {
 });
 
 test("CALC-UX3 mobile targets, text and result grid are responsive", () => {
-  assert.match(calculator, /grid-cols-\\[36px_52px_36px\\]/);
+  assert.match(calculator, /grid-cols-\[36px_52px_36px\]/);
   assert.match(calculator, /<CalculatorDimensionDiscovery/);
-  assert.doesNotMatch(calculator, /group\\/assist/);
+  assert.doesNotMatch(calculator, /group\/assist/);
   assert.match(calculator, /data-cockpit-measurements/);
   assert.match(calculator, /styles\.measurementsRect : styles\.measurements/);
   assert.match(denseStyles, /\.measurements,.measurementsRect/);
