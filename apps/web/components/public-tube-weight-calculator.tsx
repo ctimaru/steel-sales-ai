@@ -1015,12 +1015,12 @@ export function PublicTubeWeightCalculator({
           <div data-cockpit-controls className={styles.toolbarControls}>
               <div className="flex min-w-0 flex-wrap items-end gap-2.5">
                 <label className="min-w-[150px] flex-1 text-[10px] font-bold uppercase tracking-wide text-[#52615b] sm:max-w-[210px]">{t("Norma")}
-                  <select aria-label={t("Norma")} value={standard} onChange={(event) => handleStandardChange(event.target.value as StandardValue)} className="mt-1 h-10 w-full rounded-lg border border-[#cfdfd6] bg-white px-2.5 text-xs font-semibold text-[#173f34]">
+                  <select aria-label={t("Norma")} value={standard} onChange={(event) => handleStandardChange(event.target.value as StandardValue)} className="mt-1 h-11 sm:h-10 w-full rounded-lg border border-[#cfdfd6] bg-white px-2.5 text-xs font-semibold text-[#173f34]">
                     {standardOptions.map((option) => <option key={option.value} value={option.value}>{t(option.label)}</option>)}
                   </select>
                 </label>
                 <label className="min-w-[150px] flex-1 text-[10px] font-bold uppercase tracking-wide text-[#52615b] sm:max-w-[210px]">{t("Sagoma")}
-                  <select aria-label={t("Sagoma")} value={family} onChange={(event) => setFamily(event.target.value as TubeFamily)} className="mt-1 h-10 w-full rounded-lg border border-[#cfdfd6] bg-white px-2.5 text-xs font-semibold text-[#173f34]">
+                  <select aria-label={t("Sagoma")} value={family} onChange={(event) => setFamily(event.target.value as TubeFamily)} className="mt-1 h-11 sm:h-10 w-full rounded-lg border border-[#cfdfd6] bg-white px-2.5 text-xs font-semibold text-[#173f34]">
                     {familyOptions.map((option) => <option key={option.value} value={option.value}>{t(option.short)}</option>)}
                   </select>
                 </label>
@@ -1112,17 +1112,17 @@ export function PublicTubeWeightCalculator({
                         <span className="text-xs text-[#52615b]">m</span>
                       </div>
                       <div className="flex w-fit items-center gap-1.5">
-                        <select aria-label={t("Lunghezza barra")} value={lengthPresets.some((preset) => preset === length) ? length : "custom"} onChange={(event) => { if (event.target.value !== "custom") setLength(event.target.value); }} className="h-10 w-[90px] rounded-lg border border-[#d0dfd6] bg-white px-2 text-xs font-semibold text-[#173f34]">
+                        <select aria-label={t("Lunghezza barra")} value={lengthPresets.some((preset) => preset === length) ? length : "custom"} onChange={(event) => { if (event.target.value !== "custom") setLength(event.target.value); }} className="h-11 sm:h-10 w-[112px] rounded-lg border border-[#d0dfd6] bg-white px-2 text-xs font-semibold text-[#173f34]">
                           {lengthPresets.map((preset) => <option key={preset} value={preset}>{preset} m</option>)}
                           <option value="custom">{t("Personalizzata")}</option>
                         </select>
-                        <input value={length} onChange={(event) => setLength(event.target.value)} inputMode="decimal" aria-label={t("Lunghezza barra personalizzata")} className="h-10 w-[66px] rounded-lg border border-[#d0dfd6] bg-white px-1 text-center text-xs font-semibold text-[#1d2824]" />
+                        <input value={length} onChange={(event) => setLength(event.target.value)} inputMode="decimal" aria-label={t("Lunghezza barra personalizzata")} className="h-11 sm:h-10 w-[66px] rounded-lg border border-[#d0dfd6] bg-white px-1 text-center text-xs font-semibold text-[#1d2824]" />
                       </div>
                     </div>
 
                     <div className="text-xs font-bold text-[#52615b]">
                       <label htmlFor="tube-calculator-quantity">{t("Numero barre")}</label>
-                      <div className="mt-1 grid w-fit grid-cols-[36px_52px_36px] gap-1 rounded-xl border border-[#dce7e1] bg-[#f3f7f5] p-1">
+                      <div className="mt-1 grid w-fit grid-cols-[44px_52px_44px] sm:grid-cols-[36px_52px_36px] gap-1 rounded-xl border border-[#dce7e1] bg-[#f3f7f5] p-1">
                         <button
                           type="button"
                           aria-label={t("Riduci di una barra")}
