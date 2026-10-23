@@ -723,11 +723,6 @@ export function PublicTubeWeightCalculator({
     }
   }
 
-  function applyCommercialThickness(nextThickness: string) {
-    setThickness(nextThickness);
-    setThicknessTouched(true);
-  }
-
   function calculationDimensionLabel(calculation: StoredTubeCalculation) {
     if (calculation.family === "round_tube") {
       return `Ø ${calculation.outerDiameter} × ${calculation.thickness} mm`;
@@ -886,40 +881,8 @@ export function PublicTubeWeightCalculator({
   });
   const currentFamily = familyOptions.find((option) => option.value === family) ?? familyOptions[0];
   const currentStandard = standardOptions.find((option) => option.value === standard) ?? standardOptions[0];
-  const standardAssist =
-    standard === "geometric" ? null : standardThicknessAssist[standard];
-  const primaryDimensionValue =
-    family === "round_tube" ? parseNumber(outerDiameter) : parseNumber(width);
-  const canShowStandardAssist =
-    standardAssist != null && primaryDimensionValue != null && primaryDimensionValue > 0;
-
-  function commercialSuggestionLabel(candidateThickness: string) {
-    if (family === "round_tube") {
-      return `Ø ${outerDiameter} × ${candidateThickness}`;
-    }
-    if (family === "square_tube") {
-      return `${width} × ${width} × ${candidateThickness}`;
-    }
-    const parsedHeight = parseNumber(height);
-    return parsedHeight != null && parsedHeight > 0
-      ? `${width} × ${height} × ${candidateThickness}`
-      : `B ${width} × t ${candidateThickness}`;
-  }
-
   const inputClass =
     "mt-1 min-h-11 w-full rounded-lg border border-[#cfd9d5] bg-white px-2.5 py-1.5 text-sm font-semibold tabular-nums text-[#1d2824] outline-none transition-colors hover:border-[#8eb5a6] focus-visible:border-[#24745d] focus-visible:ring-2 focus-visible:ring-[#b5ddcd] sm:min-h-10";
-  const selectionBase =
-    "inline-flex min-w-0 items-center justify-center rounded-xl border transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15815a] active:scale-[0.98]";
-  const selectionIdle =
-    "border-[#cbdad3] bg-white text-[#23473a] hover:border-[#55977b] hover:bg-[#f0f7f3]";
-  // Compact high-frequency controls; keep larger mobile touch targets.
-  const compactSegmentBase =
-    "inline-flex min-w-0 items-center justify-center rounded-lg border border-transparent font-semibold transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15815a] active:scale-[0.98]";
-  const compactSegmentActive =
-    "bg-[#123d34] text-white shadow-[0_1px_3px_rgba(18,61,52,0.18)]";
-  const compactSegmentIdle =
-    "text-[#426055] hover:bg-white hover:text-[#123d34]";
-
   // Preserve all reference/source HTML and device conveniences for people and
   // crawlers, but make them opt-in on the Italian public inline-bill experience.
   // Native <details> is not SEO cloaking: the content is equally available to
@@ -1102,67 +1065,18 @@ export function PublicTubeWeightCalculator({
           <CalculatorDimensionDiscovery items={availableDimensions} locale={locale}
             compact onChoose={applyDiscoveredDimension} />
           <div data-cockpit-controls className={styles.toolbarControls}>
-              <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.04fr)]">
-              <section aria-labelledby="calculator-standard">
-                <div className="mb-1.5 flex items-center justify-between gap-2">
-                  <h2 id="calculator-standard" className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-[#52615b]">
-                    {t("Norma")}
-                  </h2>
-                  <span className="text-xs font-semibold text-[#52615b]">
-                    {t(standard === "geometric" ? "Geometria libera" : "Massa da norma")}
-                  </span>
-                </div>
-                <div role="group" aria-label={t("Norma")} className="inline-flex w-full max-w-full gap-1 rounded-xl border border-[#dce7e1] bg-[#f3f7f5] p-1 sm:w-fit">
-                  {standardOptions.map((option) => {
-                    const selected = standard === option.value;
-                    return (
-                      <button
-                        key={option.value}
-                        type="button"
-                        aria-pressed={selected}
-                        aria-label={t(option.label)}
-                        title={t(option.label)}
-                        onClick={() => handleStandardChange(option.value)}
-                        className={`${compactSegmentBase} min-h-11 flex-1 px-2 text-center text-[11px] leading-tight sm:min-h-9 sm:flex-none sm:px-4 sm:text-xs ${selected ? compactSegmentActive : compactSegmentIdle}`}
-                      >
-                        <span className="sm:hidden">{option.value === "geometric"
-                          ? ({it:"Libero",en:"Free",de:"Frei",fr:"Libre",es:"Libre"} as const)[locale]
-                          : t(option.label)}</span>
-                        <span className="hidden sm:inline">{t(option.label)}</span>
-                        <span className="sr-only"> — {t(option.description)}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
-
-              <section aria-labelledby="calculator-shape">
-                <div className="mb-1.5 flex items-center justify-between gap-2">
-                  <h2 id="calculator-shape" className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-[#52615b]">
-                    {t("Sagoma")}
-                  </h2>
-                  <span className="text-xs font-semibold text-[#52615b]">{t(currentFamily.description)}</span>
-                </div>
-                <div role="group" aria-label={t("Sagoma")} className="inline-flex w-full max-w-full gap-1 rounded-xl border border-[#dce7e1] bg-[#f3f7f5] p-1 sm:w-fit">
-                  {familyOptions.map((option) => {
-                    const selected = family === option.value;
-                    return (
-                      <button
-                        key={option.value}
-                        type="button"
-                        aria-pressed={selected}
-                        onClick={() => setFamily(option.value)}
-                        className={`${compactSegmentBase} group min-h-11 flex-1 gap-1.5 px-1.5 text-[11px] leading-tight sm:min-h-10 sm:flex-none sm:px-3 sm:text-xs ${selected ? compactSegmentActive : compactSegmentIdle}`}
-                      >
-                        <ShapeGraphic family={option.value} className={selected ? "h-5 w-5 shrink-0 text-white" : "h-5 w-5 shrink-0 text-[#426055]"} />
-                        <span className="text-[11px] font-bold leading-tight sm:text-xs">{t(option.short)}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
+              <div className="flex min-w-0 flex-wrap items-end gap-2.5">
+                <label className="min-w-[150px] flex-1 text-[10px] font-bold uppercase tracking-wide text-[#52615b] sm:max-w-[210px]">{t("Norma")}
+                  <select aria-label={t("Norma")} value={standard} onChange={(event) => handleStandardChange(event.target.value as StandardValue)} className="mt-1 h-10 w-full rounded-lg border border-[#cfdfd6] bg-white px-2.5 text-xs font-semibold text-[#173f34]">
+                    {standardOptions.map((option) => <option key={option.value} value={option.value}>{t(option.label)}</option>)}
+                  </select>
+                </label>
+                <label className="min-w-[150px] flex-1 text-[10px] font-bold uppercase tracking-wide text-[#52615b] sm:max-w-[210px]">{t("Sagoma")}
+                  <select aria-label={t("Sagoma")} value={family} onChange={(event) => setFamily(event.target.value as TubeFamily)} className="mt-1 h-10 w-full rounded-lg border border-[#cfdfd6] bg-white px-2.5 text-xs font-semibold text-[#173f34]">
+                    {familyOptions.map((option) => <option key={option.value} value={option.value}>{t(option.short)}</option>)}
+                  </select>
+                </label>
               </div>
-
 
           </div>
         </div>
@@ -1243,69 +1157,24 @@ export function PublicTubeWeightCalculator({
                     ) : null}
                   </div>
 
-                  {canShowStandardAssist && standardAssist ? (
-                    <details className="group/assist mt-1.5 min-w-0 text-[#617369]">
-                      <summary className="flex min-h-9 w-fit cursor-pointer list-none items-center gap-1.5 rounded-lg px-1.5 text-[11px] font-medium hover:bg-[#f1f7f3] hover:text-[#235e45] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15815a] [&::-webkit-details-marker]:hidden">
-                        <span aria-hidden="true" className="text-[10px] transition-transform group-open/assist:rotate-180">⌄</span>
-                        <span>{t("Spessori suggeriti")} · {currentStandard.label}</span>
-                      </summary>
-                      <div className="mt-1 rounded-xl border border-[#e1e9e5] bg-[#f9fbfa] p-2">
-                        <p className="mb-1.5 text-[11px] text-[#62756b]">
-                          {t("preferito")} {standardAssist.preferred} mm
-                        </p>
-                        <div className="flex min-w-0 gap-1.5 overflow-x-auto pb-1">
-                          {standardAssist.options.map((candidate) => {
-                            const selected = near(parseNumber(thickness), parseNumber(candidate));
-                            const preferred = candidate === standardAssist.preferred;
-                            return (
-                              <button
-                                key={candidate}
-                                type="button"
-                                aria-pressed={selected}
-                                aria-label={`${commercialSuggestionLabel(candidate)} mm${preferred ? `, ${t("spessore commerciale preferito")}` : ""}`}
-                                onClick={() => applyCommercialThickness(candidate)}
-                                className={`${selectionBase} min-h-11 shrink-0 px-2.5 py-2 text-xs font-semibold ${selected ? "school-selected-control" : selectionIdle}`}
-                              >
-                                {commercialSuggestionLabel(candidate)}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    </details>
-                  ) : null}
-
                   <div data-cockpit-length-quantity className={styles.lengthQuantity}>
                     <div>
                       <div className="mb-1 flex items-center justify-between gap-2">
                         <span className="text-[10px] font-bold text-[#52615b]">{t("Lunghezza barra")}</span>
                         <span className="text-xs text-[#52615b]">m</span>
                       </div>
-                      <div role="group" aria-label={t("Lunghezza barra")} className="flex w-fit max-w-full items-center gap-1 rounded-xl border border-[#dce7e1] bg-[#f3f7f5] p-1">
-                        {lengthPresets.map((preset) => (
-                          <button
-                            key={preset}
-                            type="button"
-                            aria-pressed={length === preset}
-                            onClick={() => setLength(preset)}
-                            className={`${compactSegmentBase} min-h-11 w-11 shrink-0 text-xs sm:min-h-9 sm:w-9 ${length === preset ? compactSegmentActive : compactSegmentIdle}`}
-                          >
-                            {preset}
-                          </button>
-                        ))}
-                        <input
-                          value={length}
-                          onChange={(event) => setLength(event.target.value)}
-                          inputMode="decimal"
-                          aria-label={t("Lunghezza barra personalizzata")}
-                          className="h-11 w-12 min-w-0 shrink-0 rounded-lg border border-[#d0dfd6] bg-white px-1 text-center text-xs font-semibold text-[#1d2824] outline-none transition-colors focus:border-[#438d7a] focus:ring-2 focus:ring-[#b5ddcd] sm:h-9"
-                        />
+                      <div className="flex w-fit items-center gap-1.5">
+                        <select aria-label={t("Lunghezza barra")} value={lengthPresets.includes(length) ? length : "custom"} onChange={(event) => { if (event.target.value !== "custom") setLength(event.target.value); }} className="h-10 w-[90px] rounded-lg border border-[#d0dfd6] bg-white px-2 text-xs font-semibold text-[#173f34]">
+                          {lengthPresets.map((preset) => <option key={preset} value={preset}>{preset} m</option>)}
+                          <option value="custom">{t("Personalizzata")}</option>
+                        </select>
+                        <input value={length} onChange={(event) => setLength(event.target.value)} inputMode="decimal" aria-label={t("Lunghezza barra personalizzata")} className="h-10 w-[66px] rounded-lg border border-[#d0dfd6] bg-white px-1 text-center text-xs font-semibold text-[#1d2824]" />
                       </div>
                     </div>
 
                     <div className="text-xs font-bold text-[#52615b]">
                       <label htmlFor="tube-calculator-quantity">{t("Numero barre")}</label>
-                      <div className="mt-1 grid w-full max-w-[216px] grid-cols-[44px_minmax(36px,1fr)_44px] gap-1 rounded-xl border border-[#dce7e1] bg-[#f3f7f5] p-1 sm:grid-cols-[36px_minmax(36px,1fr)_36px]">
+                      <div className="mt-1 grid w-fit grid-cols-[36px_52px_36px] gap-1 rounded-xl border border-[#dce7e1] bg-[#f3f7f5] p-1">
                         <button
                           type="button"
                           aria-label={t("Riduci di una barra")}
