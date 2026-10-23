@@ -1,0 +1,116 @@
+name: TRUST-C2G3C Migration Reconciliation & Protected Rebuild
+
+on:
+  push:
+    branches:
+      - audit/trust-audit1c2g3c-migration-release-20261023
+    paths:
+      - "scripts/trust_c2g3c_migration_reconciliation.py"
+      - "scripts/test_trust_c2g3c_migration_reconciliation.py"
+      - "supabase/audits/20261023_trust_c2g3c_catalog_and_ledger_snapshot.json"
+      - "supabase/tests/trust_c2g3c_behavioral_parity.sql"
+      - "docs/security/trust-audit1c2g3c-migration-reconciliation.md"
+      - ".github/workflows/trust-c2g3c-protected-rebuild.yml"
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        required: true
+        default: audit
+        description: "audit = offline verification; isolated_rebuild = ephemeral Docker ONLY"
+        options:
+          - audit
+          - isolated_rebuild
+      approval:
+        type: string
+        required: false
+        description: "For isolated_rebuild type TRUST_C2G3C_EPHEMERAL_REBUILD"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: trust-c2g3c-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  catalog:
+    name: Offline Catalog & Ledger Reconciliation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Unit regression for known/unknown drift and no auto repair
+        run: python -m unittest discover -s scripts -p 'test_trust_c2g3c_migration_reconciliation.py' -v
+      - name: Produce offline drift report, explicitly not release approval
+        run: |
+          python scripts/trust_c2g3c_migration_reconciliation.py --report trust-c2g3c-report.json
+          python - <<'PY'
+          import json
+          r=json.load(open("trust-c2g3c-report.json"))
+          assert r["catalog"]["same_definition"] == 25
+          assert len(r["catalog"]["text_differences"]) == 2
+          assert r["catalog"]["scoped_behavioral_probe_pass"] is True
+          assert r["migrations"]["canonical_repo_files_present"] == 8
+          assert r["release_ready"] is False
+          assert r["automatic_schema_migration_repair_allowed"] is False
+          print("Dated evidence accepted; NO-GO release. No DB credentials or writes.")
+          PY
+
+  isolated-clean-rebuild:
+    name: Manually Approved Ephemeral Supabase Clean Rebuild (No Remote DB)
+    # This workflow_dispatch can only run from main after code integration.
+    # Strictly NEVER connects to production or staging and never touches migration ledger.
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'isolated_rebuild' && inputs.approval == 'TRUST_C2G3C_EPHEMERAL_REBUILD' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Assert isolated main and explicit approval before Docker
+        env:
+          APPROVAL: ${{ inputs.approval }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = 'refs/heads/main'
+          test "$APPROVAL" = 'TRUST_C2G3C_EPHEMERAL_REBUILD'
+          test "$GITHUB_REPOSITORY" = 'ctimaru/steel-sales-ai'
+          test -f supabase/ci/p0_pre_worker_baseline.sql
+          test -f supabase/ci/p0_staging_baseline.sql
+          test ! -f supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          test ! -f supabase/migrations/20260908000001_ci_staging_baseline.sql
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.118.0
+      - name: Inject existing historical baselines into this runner ONLY
+        run: |
+          cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          cp supabase/ci/p0_staging_baseline.sql supabase/migrations/20260908000001_ci_staging_baseline.sql
+      - name: Start isolated local services and replay all migrations
+        run: |
+          set -euo pipefail
+          supabase start
+          supabase db reset --local
+      - name: Validate TRUST SQL on ephemeral local database
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -X -v ON_ERROR_STOP=1 \
+            -f supabase/tests/trust_c2g3c_behavioral_parity.sql
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -X -v ON_ERROR_STOP=1 \
+            -f supabase/tests/trust_audit1c2g2_rights_use_matrix.sql
+          supabase db lint --local --level warning
+      - name: Remove local containers, volumes and injected migration baselines
+        if: always()
+        run: |
+          supabase stop --no-backup || true
+          rm -f supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          rm -f supabase/migrations/20260908000001_ci_staging_baseline.sql
