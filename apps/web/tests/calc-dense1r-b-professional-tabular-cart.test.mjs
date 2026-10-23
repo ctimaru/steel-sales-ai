@@ -13,8 +13,8 @@ test("DENSE1R-B compact technical bill is a tabular editor, not a series of tall
    assert.equal(out.diagnostics?.filter(d=>d.category===ts.DiagnosticCategory.Error).length??0,0);
  }
  for(const token of ["data-distinta-tabular-row","data-distinta-grid-header",
-   "data-distinta-row-actions","data-inline-quantity","data-save-quick-quantity",
-   "calculateBuyerDistintaLine(line)","editInlineDistintaLine(liveState.current, id, { quantity: value })",
+   "data-distinta-row-actions","data-inline-quantity","data-inline-bar-length","data-save-quick-quantity",
+   "calculateBuyerDistintaLine(line)","editInlineDistintaLine(liveState.current, id, { quantity: value, barLengthM })",
    "hasPendingQuantities()","data-create-inline-private-rfq","pruneBuyerTargets(result.state, current)"])
    assert.ok(row.includes(token),token);
  assert.match(row,/compact visible=\{ready/);
