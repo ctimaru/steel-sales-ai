@@ -398,6 +398,12 @@ export function CalculatorInlineDistintaExperience({
               const quickValue = quickQuantities[line.id] ?? line.quantity;
               const quickLength = quickLengths[line.id] ?? line.barLengthM;
               const quickChanged = quickValue !== line.quantity || line.quantityMode === "bars" && quickLength !== line.barLengthM;
+              // Draft-only calculation: preserve the canonical bill until explicit Save.
+              const previewResult = quickChanged
+                ? editInlineDistintaLine(state, line.id, { quantity: quickValue, barLengthM: quickLength }) : null;
+              const previewLine = previewResult?.ok ? previewResult.state.lines.find(item => item.id === line.id) : null;
+              const preview = previewLine ? calculateBuyerDistintaLine(previewLine) : null;
+              const previewLabel = { it: "Anteprima", en: "Preview", de: "Vorschau", fr: "Aperçu", es: "Vista previa" }[locale];
               return <article key={line.id} data-distinta-compact-row data-distinta-tabular-row
                 className={styles.row} aria-label={c.row + " " + (index + 1) + ": " + line.description}>
                 <div className={styles.mainRow}>
@@ -458,6 +464,12 @@ export function CalculatorInlineDistintaExperience({
 
                   </div>
                 </div>
+                {quickChanged ? <p data-inline-draft-preview aria-live="polite"
+                  className="mt-1 truncate px-1 text-[10px] font-semibold leading-4 text-[#23644d]">
+                  {preview?.complete
+                    ? `${previewLabel} · ${number(preview.meters, 2)} m · ${number(preview.tonnes, 4)} t`
+                    : `${previewLabel} · ${c.invalid}`}
+                </p> : null}
                 {quickChanged ? <button type="button" data-save-quick-quantity
                   onClick={() => saveQuickQuantity(line.id)}
                   className={styles.saveQuantity}>{c.saveQuantity}</button> : null}
