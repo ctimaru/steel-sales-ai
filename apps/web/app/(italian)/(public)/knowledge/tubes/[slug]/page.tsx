@@ -113,7 +113,17 @@ export async function generateMetadata({
 
   const size = dimensionLabel(dimension);
   const product = familyName(dimension.product_family);
-  const title = "Peso " + product + " " + size + ": " + formatNumber(dimension.weight_kg_m) + " kg/m";
+  // GSC 2026-10-01..21: limit CTR title experiment to high-position IT dimension pages.
+  // Preserve certified-reference kg/m in the title; avoid generic keyword stuffing.
+  const ctrPilotSlugs = new Set([
+    "tondo-114-3x6-02", "quadro-120x120x10",
+    "quadro-250x250x8", "rettangolare-200x100x6",
+  ]);
+  const title = ctrPilotSlugs.has(dimension.dimension_slug)
+    ? "Peso " + product + " " + size + " | " + formatNumber(dimension.weight_kg_m) + " kg/m e barre"
+    : "Peso " + product + " " + size + ": " + formatNumber(dimension.weight_kg_m) + " kg/m";
+
+
   const description =
     "Peso di riferimento per " +
     product +
@@ -437,6 +447,15 @@ export default async function TubeDimensionPage({
               : "La compatibilità con EN 10219 o EN 10210 non va dedotta dalla sola geometria. Confronta sempre le norme di prodotto e la documentazione della fornitura."}
           </p>
         </div>
+        {["en10210", "en10219", "en10216-2"].includes(provenance.standard ?? "") && (
+          <p className="mt-3 text-sm text-[#315a48]">
+            Approfondisci la norma del documento:{" "}
+            <Link href={`/knowledge/norme/${provenance.standard.replace("en102", "en-102")}`}
+              className="font-semibold underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2">
+              {sourceStandardLabel(provenance.standard, "it")} →
+            </Link>
+          </p>
+        )}
         <a
           href={dimension.source_url}
           target="_blank"
