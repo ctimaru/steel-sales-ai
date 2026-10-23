@@ -1,0 +1,55 @@
+name: CALC-DENSE2 PRIVATE.3 — Production Authenticated Visual Acceptance
+
+on:
+  workflow_dispatch:
+    inputs:
+      approval:
+        description: "Type CALC_DENSE2_PRIVATE3_SYNTHETIC_READ_ONLY to inspect only reserved QA accounts"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: calc-dense2-private3-production-readonly
+  cancel-in-progress: false
+
+jobs:
+  chrome-auth-readonly:
+    name: Real authenticated private calculator / 390+1440 / read-only
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: production-qa
+    timeout-minutes: 25
+    env:
+      CI: "true"
+      CALC_DENSE2_PRIVATE3_APPROVAL: ${{ inputs.approval }}
+    steps:
+      - name: Require explicit synthetic-only owner authorization
+        shell: bash
+        run: |
+          test "$CALC_DENSE2_PRIVATE3_APPROVAL" = "CALC_DENSE2_PRIVATE3_SYNTHETIC_READ_ONLY"
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install temporary Chrome test dependencies
+        working-directory: apps/web
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chrome
+      - name: Authenticate reserved personas and check private calculator with zero app mutations
+        working-directory: apps/web
+        timeout-minutes: 15
+        env:
+          RQG32_COMPANY_A_PASSWORD: ${{ secrets.RQG32_COMPANY_A_PASSWORD }}
+          RQG32_COMPANY_B_PASSWORD: ${{ secrets.RQG32_COMPANY_B_PASSWORD }}
+          RQG32_VIEWER_PASSWORD: ${{ secrets.RQG32_VIEWER_PASSWORD }}
+        run: node tests/calc-dense2-private3-production-auth-readonly.mjs
+      # No screenshots, videos, traces, credentials, cookies, RFQ creation or artifacts.
