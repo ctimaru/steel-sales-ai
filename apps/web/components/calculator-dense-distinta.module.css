@@ -31,13 +31,13 @@
 
 /* CALC-PROD1A.3G — quiet, legible precision editing without taller rows. */
 .row:focus-within{background:#f3f9f5}
-.quantity input:hover,.lengthControl input:hover{border-color:#7da991}
-.quantity input:focus-visible,.lengthControl input:focus-visible{
+.quantity input:hover,.lengthInput:hover{border-color:#7da991}
+.quantity input:focus-visible,.lengthInput:focus-visible{
   outline:2px solid #198158;outline-offset:1px;border-color:#198158
 }
 .lengthControl{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;gap:3px;
   margin-left:3px;color:#436a53;font-size:10px;font-weight:700;white-space:nowrap}
-.lengthControl input{box-sizing:border-box;width:42px;height:28px;min-width:0;border:1px solid #aecdbb;
+.lengthInput{box-sizing:border-box;width:42px;height:28px;min-width:0;border:1px solid #aecdbb;
   border-radius:6px;background:#fff;padding:0 3px;text-align:center;color:#173e2d;
   font-size:11px;font-weight:750;font-variant-numeric:tabular-nums}
 .actions{overflow:visible}
