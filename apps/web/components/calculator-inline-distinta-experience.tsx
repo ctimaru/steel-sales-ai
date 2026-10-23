@@ -419,10 +419,9 @@ export function CalculatorInlineDistintaExperience({
                       {line.quantityMode === "bars" ? c.bars : line.quantityMode === "meters" ? c.meters : c.tonnes}
                       {line.quantityMode === "bars" ? " × " + number(computed.barLengthM, 2) + " m" : ""}
                     </span>
-                  </div>
-                  {line.quantityMode === "bars" ? <label className="flex min-w-0 items-center gap-1 text-[11px] font-semibold text-[#315846] sm:gap-1.5">
-                    <span className="shrink-0">{c.barLength}</span>
-                    <input data-inline-bar-length type="text" inputMode="decimal" className="min-h-9 w-14 min-w-0 rounded-md border border-[#b8cfc3] bg-white px-1.5 text-center text-xs text-[#143b2d] sm:w-16"
+                  {line.quantityMode === "bars" ? <label className="mt-0.5 flex min-w-0 items-center justify-center gap-1 text-[10px] font-semibold text-[#315846]">
+                    <span className="sr-only">{c.barLength}</span>
+                    <input data-inline-bar-length type="text" inputMode="decimal" className="h-6 w-10 min-w-0 rounded-md border border-[#b8cfc3] bg-white px-1 text-center text-[11px] text-[#143b2d]"
                       aria-label={c.barLength + " " + c.row.toLowerCase() + " " + (index + 1)} value={quickLength} disabled={editing}
                       onChange={event => setQuickLengths(current => ({ ...current, [line.id]: event.target.value }))}
                       onKeyDown={event => {
@@ -430,6 +429,7 @@ export function CalculatorInlineDistintaExperience({
                         else if (event.key === "Escape") setQuickLengths(current => { const next={...current}; delete next[line.id]; return next; });
                       }}/><span>m</span>
                   </label> : null}
+                  </div>
                   <div className={styles.metrics} title={"kg/m: "+number(computed.weightKgM,3)}>
                     <strong>{number(computed.tonnes, 4)} t</strong>
                     <span>{number(computed.meters, 2)} m · {number(computed.weightKgM, 2)} kg/m</span>
