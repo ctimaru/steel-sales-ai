@@ -21,9 +21,9 @@ import {
 } from "@/lib/tube-seo";
 
 const baseMetadata: Metadata = {
-  title: "Calcolo peso tubo acciaio: kg/m, barra e tonnellate",
+  title: "Calcolo peso tubi acciaio | Tondi, quadri e rettangolari",
   description:
-    "Calcolatore pubblico per tubi strutturali in acciaio: massa lineare secondo EN 10210 o EN 10219, oppure calcolo geometrico libero. Ottieni kg/m, peso barra e tonnellate.",
+    "Calcola il peso dei tubi in acciaio al metro (kg/m), per barra e in tonnellate. Tubolari tondi, quadri e rettangolari: EN 10210, EN 10219 o geometria libera.",
   alternates: {
     canonical: absoluteUrl("/knowledge/tubes"),
     languages: {
@@ -227,6 +227,14 @@ export default async function PublicTubeWeightsPage({
       <div className="flex justify-end" aria-label="Selezione lingua calcolatore">
         <CalculatorPageLanguageSelector locale="it" />
       </div>
+      <section aria-labelledby="seo-ita1-calcolo-peso" className="rounded-xl border border-[#c7ded3] bg-[#f6faf7] px-4 py-3 text-[#173e31] sm:px-5">
+        <h1 id="seo-ita1-calcolo-peso" className="text-lg font-semibold">Calcolo peso tubi in acciaio al metro: tondi, quadri e rettangolari</h1>
+        <p className="mt-1 text-sm leading-6 text-[#52675a]">
+          Inserisci diametro o lati, spessore, lunghezza e numero di barre per calcolare kg/m,
+          peso per barra e tonnellate. Scegli EN 10210, EN 10219 oppure il calcolo geometrico libero.
+          Le masse sono teoriche: verifica sempre la documentazione di fornitura.
+        </p>
+      </section>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(calculatorJsonLd) }}
