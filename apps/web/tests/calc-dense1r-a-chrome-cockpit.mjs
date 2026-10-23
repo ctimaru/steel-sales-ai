@@ -33,8 +33,11 @@ try {
       assert.ok(boxes.every(Boolean),"Compact norm and shape selectors must render at 320px");
       assert.ok(boxes.every(box=>box.width>=100&&box.height>=44),
         "Selectors must remain readable and touch-accessible at 320px");
-      assert.ok(boxes[0].x+boxes[0].width<=boxes[1].x+2,
-        "Norm and shape selectors must not overlap at 320px");
+      const overlapX=Math.min(boxes[0].x+boxes[0].width,boxes[1].x+boxes[1].width)-Math.max(boxes[0].x,boxes[1].x);
+      const overlapY=Math.min(boxes[0].y+boxes[0].height,boxes[1].y+boxes[1].height)-Math.max(boxes[0].y,boxes[1].y);
+      assert.ok(overlapX<=2||overlapY<=2,
+        "Norm and shape selectors must not visually overlap at 320px");
+      assert.ok(boxes[1].y>=boxes[0].y-2,"Shape selector remains after norm selector");
       const kgBar=await root.locator('[data-cockpit-kpis] > div').first().locator('p').nth(1).boundingBox();
       assert.ok(kgBar && kgBar.height<24,"kg/bar should stay on one line at 320px");
     }
