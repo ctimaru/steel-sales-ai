@@ -21,8 +21,8 @@ test("DENSE1C: compact grid and sticky drawer footer keep one canonical RFQ acti
   }
   for (const marker of [
     "data-distinta-compact-grid", "data-distinta-compact-row", "data-distinta-grid-header",
-    "data-inline-quantity", "data-save-quick-quantity", "data-distinta-sticky-footer",
-    "editInlineDistintaLine(liveState.current, id, { quantity: value })",
+    "data-inline-quantity", "data-inline-bar-length", "data-save-quick-quantity", "data-distinta-sticky-footer",
+    "editInlineDistintaLine(liveState.current, id, { quantity: value, barLengthM })",
     "hasPendingQuantities()", "onClick={copyBill}",
   ]) assert.ok(component.includes(marker), marker);
   assert.equal(component.split("data-create-inline-private-rfq").length - 1, 1);
