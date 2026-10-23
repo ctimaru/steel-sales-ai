@@ -1,6 +1,6 @@
 # TRUST-AUDIT1C.2G.3E — Controlled Migration Promotion & Network E2E Acceptance
 
-**Date:** 2026-10-23. **Status:** staged DDL PASS; production pending positive acceptance and stack integration.
+**Date:** 2026-10-23. **Status:** staging + production DDL PASS; synthetic positive Docker Network E2E PASS; real-JWT/source-live acceptance and stacked PR merge still OPEN.
 
 ## Rationale
 The single-purpose C2G.3D migration fixes 3 existing PL/pgSQL errors: two undefined `min(uuid)` aggregates used for unambiguous facility selection and one ambiguity in daily Network batch counter variables. A strict lint of 41 reported functions showed zero error diagnostics in local Docker. This workstream now prepares a safe *staging-first* promotion and tests the real permission boundaries without claiming legal source rights.
@@ -13,7 +13,7 @@ The single-purpose C2G.3D migration fixes 3 existing PL/pgSQL errors: two undefi
 - Ordinary authenticated caller of the worker-only `netlaunch2_commit_daily` was refused.
 - Under a staged synthetic `claimed` Network batch and simulated service_role, `netlaunch2_commit_daily` **correctly rejected unapproved source** (SQLSTATE 42501); all inserts/updates rolled back.
 - Staging currently has **0 discovery candidates**, **0 Network batch runs**, **4 sources unreviewed/disabled** and **no licensed source entry** matching the hard-coded required Wikidata source ID. Therefore a *positive real source E2E in staging is currently impossible without introducing a licensed source or a synthetic isolated fixture*. This is a **blocked acceptance dimension**, not a bug in the migration.
-- Production has **162 discovery candidates, 8 existing Network runs**, but none were used as testing fixtures. Production migration **NOT applied** by C2G3E.
+- Production had **162 discovery candidates, 8 completed Network runs and zero active runs**. Following positive isolated acceptance, this same forward-only function patch was applied with migration ledger version **\`20261023130312\`**. No production candidate, run, source right or quarantined checksum was used as a fixture or modified.
 
 ## Positive synthetic Network E2E (Docker only)
 `supabase/tests/trust_c2g3e_synthetic_network_positive_LOCAL_ONLY.sql` inserts only synthetic QA data into ephemeral Docker with transaction rollback:
@@ -32,8 +32,8 @@ The positive fixture only verifies the SQL flow with synthetic conditions. It do
 - Staging denial SQL persisted in `supabase/tests/trust_c2g3e_staging_unlicensed_worker_denial.sql`, already tested with rollback.
 
 ## Release decision
-**STAGING FUNCTION PROMOTION PASS; PRODUCTION REMAINS NO-GO** until:
-1. Positive synthetic Docker E2E and cleanup PASS;
+**STAGING + PRODUCTION FUNCTION PROMOTION PASS; FULL NETWORK PRODUCT RELEASE REMAINS NO-GO** until:
+1. **PASS:** positive synthetic Docker E2E and cleanup [GitHub Actions #39957551363](https://github.com/ctimaru/steel-sales-ai/actions/runs/39957551363);
 2. source governance and company enrichment behavior confirmed in a controlled environment with valid fixtures and no legal hold;
 3. explicit migration review/commit and stack PR #861 through #889 integration readiness;
 4. production readiness/rollback of function definitions and original grants assessed;
@@ -41,3 +41,13 @@ The positive fixture only verifies the SQL flow with synthetic conditions. It do
 6. source reuse rights/AI/premium Network remains blocked absent documented approval.
 
 Avoid setting `approved` flags in hosted databases merely to make tests green. Do not rewrite historical migration versions, publish sourced text or erase quarantined evidence.
+
+## Final promotion and audit checkpoint — 2026-10-23
+
+- **First isolated Docker E2E**: the fixture encountered an existing Wikidata URL with a different ID in the historical baseline; unique source URL constraint correctly rejected duplicate insertion. Test-only fixture updated to re-use the record inside a rolled-back Docker transaction. No Network production code change required.
+- **Second isolated Docker E2E [#39957551363](https://github.com/ctimaru/steel-sales-ai/actions/runs/39957551363): SUCCESS** including full SQL replay, synthetic batch execution and Docker cleanup. The fake source-review exists *only* inside a rolled-back local Docker transaction and is not evidence of commercial rights.
+- **Staging migration:** ledger `20261023124810` and 3/3 SQL body contracts PASS; nonowner and unlicensed source denial PASS.
+- **Production migration:** ledger `20261023130312` for the same named forward-only correction. Migration/contract PASS. Three repaired function definitions have **identical MD5 fingerprints** across staging and production after deployment. This is ordinary textual equivalence for the three functions, not schema-wide approval.
+- **Production safety snapshot:** 162 crawler candidates, 8 completed Network runs, 0 claimed active runs, 12 held checksums, 0 rights decisions. No source data, crawler batches, profiles or permissions changed by testing. Normal authenticated user still denied worker RPC (SQLSTATE 42501).
+- **One-time Docker approval label removed** after successful run; no new expensive test is implicitly authorized.
+- **Open:** positive P3 with true Superadmin session, Railway worker real batch with legitimately licensed source, integration/merge from PR #861 through #889, Vercel/Chrome rights console JWT testing, source-specific rights clearance, and differing historic migration version reconciliation. The version numbers in hosted ledgers must never be rewritten solely to match the Git filename.
