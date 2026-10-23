@@ -8,6 +8,6 @@ test("acquisition route requires platform owner and is non-indexable",()=>{
  assert.match(page,/robots: \{ index: false, follow: false \}/);
 });
 test("no synthetic or client-stored analytics counts are shown",()=>{
- assert.match(page,/gsc: null, ga4: null, events: null/);
- assert.doesNotMatch(page,/process\.env|NEXT_PUBLIC_|localStorage|fetch\(/);
+ assert.match(page,/await loadOrganicAcquisitionSnapshot\(\)/);
+ assert.doesNotMatch(page,/NEXT_PUBLIC_|localStorage|fetch\(/);
 });
