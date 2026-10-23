@@ -437,6 +437,15 @@ export default async function TubeDimensionPage({
               : "La compatibilità con EN 10219 o EN 10210 non va dedotta dalla sola geometria. Confronta sempre le norme di prodotto e la documentazione della fornitura."}
           </p>
         </div>
+        {["en10210", "en10219", "en10216-2"].includes(provenance.standard ?? "") && (
+          <p className="mt-3 text-sm text-[#315a48]">
+            Approfondisci la norma del documento:{" "}
+            <Link href={`/knowledge/norme/${provenance.standard.replace("en102", "en-102")}`}
+              className="font-semibold underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2">
+              {sourceStandardLabel(provenance.standard, "it")} →
+            </Link>
+          </p>
+        )}
         <a
           href={dimension.source_url}
           target="_blank"
