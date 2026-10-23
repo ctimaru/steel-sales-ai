@@ -44,6 +44,8 @@ jobs:
           fetch-depth: 0
       - name: Test safe preflight logic
         run: python3 -m unittest discover -s scripts -p test_trust_c2g3b_stack_preflight.py -v
+      - name: Validate real-JWT Chrome test source (no credentials)
+        run: node --check apps/web/tests/trust-c2g3b-real-jwt-negative-chrome.mjs
       - name: Report merge and migration readiness (not a release approval)
         run: python3 scripts/trust_c2g3b_stack_preflight.py --json
 
