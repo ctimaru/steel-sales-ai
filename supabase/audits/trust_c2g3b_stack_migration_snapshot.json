@@ -1,0 +1,109 @@
+{
+  "audit": "TRUST-AUDIT1C.2G.3B",
+  "captured_on": "2026-10-23",
+  "repository": "ctimaru/steel-sales-ai",
+  "source": "Read-only Supabase migration ledger and GitHub compare queries",
+  "trust_stack_prs": [
+    861,
+    867,
+    869,
+    870,
+    872,
+    873,
+    874,
+    876,
+    880
+  ],
+  "upstream_pr_861_main_divergence": {
+    "ahead_by": 8,
+    "behind_by": 6,
+    "merge_state": "behind"
+  },
+  "production_migrations": [
+    [
+      "20261022153144",
+      "trust_audit1c2c_restrict_quarantined_derivatives"
+    ],
+    [
+      "20261022155021",
+      "trust_audit1c2d_retired_source_privileged_read_gate"
+    ],
+    [
+      "20261022160734",
+      "trust_audit1c2e_checksum_reingest_quarantine"
+    ],
+    [
+      "20261023090236",
+      "trust_audit1c2g_private_source_provenance_readiness"
+    ],
+    [
+      "20261023090328",
+      "trust_audit1c2g_orphan_source_holds_queue"
+    ],
+    [
+      "20261023092823",
+      "trust_audit1c2g1_automated_source_evidence_links"
+    ],
+    [
+      "20261023101229",
+      "trust_audit1c2g2_rights_use_matrix"
+    ],
+    [
+      "20261023103723",
+      "trust_audit1c2g3_superadmin_rights_rpc"
+    ]
+  ],
+  "staging_migrations": [
+    [
+      "20261022153103",
+      "trust_audit1c2c_restrict_quarantined_derivatives"
+    ],
+    [
+      "20261022154722",
+      "trust_audit1c2d_inactive_list_read_gate"
+    ],
+    [
+      "20261022154931",
+      "trust_audit1c2d_nonrecursive_read_policy_repair"
+    ],
+    [
+      "20261022160611",
+      "trust_audit1c2e_checksum_reingest_quarantine"
+    ],
+    [
+      "20261023090159",
+      "trust_audit1c2g_private_source_provenance_readiness"
+    ],
+    [
+      "20261023090323",
+      "trust_audit1c2g_orphan_source_holds_queue"
+    ],
+    [
+      "20261023092821",
+      "trust_audit1c2g1_automated_source_evidence_links"
+    ],
+    [
+      "20261023101227",
+      "trust_audit1c2g2_rights_use_matrix"
+    ],
+    [
+      "20261023103643",
+      "trust_audit1c2g3_superadmin_rights_rpc"
+    ]
+  ],
+  "no_permitted_side_effects": [
+    "No merge",
+    "No Vercel deploy",
+    "No database reset",
+    "No migration history rewrite",
+    "No impersonation",
+    "No production data deletion"
+  ],
+  "acceptance_gates": {
+    "real_signed_jwt_owner": "OPEN",
+    "real_signed_jwt_nonowner": "OPEN",
+    "prod_preview": "CANCELED",
+    "strict_clean_rebuild": "OPEN",
+    "production_data_policy": "NOT_PUBLISHED"
+  }
+}
