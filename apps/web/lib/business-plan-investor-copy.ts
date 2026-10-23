@@ -231,7 +231,7 @@ const en = {
       cards: [
         [
           "Founder",
-          "Founder with 4 years of direct commercial sales experience at Alessio Tubi, operating inside the Italian steel-tube market and building Smart Steel Sales from first-hand sector workflows and recurring commercial friction.",
+          "Founder with 4 years of direct commercial sales experience in the steel-tube sector, operating inside the Italian steel-tube market and building Smart Steel Sales from first-hand sector workflows and recurring commercial friction.",
         ],
         [
           "Founder-market fit",
@@ -489,7 +489,7 @@ const it = {
       cards: [
         [
           "Founder",
-          "Founder con 4 anni di esperienza commerciale diretta nella vendita presso Alessio Tubi, operando nel mercato italiano del tubo d'acciaio e costruendo Smart Steel Sales a partire da workflow e frizioni commerciali osservati direttamente nel settore.",
+          "Founder con 4 anni di esperienza commerciale diretta nel settore dei tubi in acciaio, operando nel mercato italiano del tubo d'acciaio e costruendo Smart Steel Sales a partire da workflow e frizioni commerciali osservati direttamente nel settore.",
         ],
         [
           "Founder-market fit",

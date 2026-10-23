@@ -85,12 +85,28 @@ export async function getPrivateLabPriceListExplorerVersion(
   }
 
   const rows = Array.isArray(data) ? (data as PriceListCatalogEntry[]) : [];
-  return rows[0] ?? null;
+  const version = rows[0] ?? null;
+  if (!version) return null;
+
+  // TRUST-AUDIT1C.2B: a withdrawn/inactive commercial source must not be
+  // browsable in the private UI, even by the Platform Owner.
+  // Fail closed when the underlying list or its permissions are unavailable.
+  const { data: activeList, error: statusError } = await supabase
+    .from("price_lists")
+    .select("id")
+    .eq("id", version.price_list_id)
+    .eq("status", "active")
+    .maybeSingle();
+  if (statusError || !activeList) return null;
+  return version;
 }
 
 export async function getPrivateLabPriceListExplorerItems(
   versionId: string,
 ) {
+  if (!(await getPrivateLabPriceListExplorerVersion(versionId))) {
+    return [] as PriceListExplorerItem[];
+  }
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("pl1_private_lab_explorer_items", {
     p_version_id: versionId,
