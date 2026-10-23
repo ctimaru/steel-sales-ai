@@ -42,11 +42,25 @@ try{
     await page.getByRole("button",{name:"Accedi",exact:true}).click();
     await page.waitForURL(u=>u.origin===SITE&&u.pathname!=="/login",{timeout:90000});
     loginAllowed=false;
+    // Password authentication alone does not imply active company membership.
+    const afterLogin=new URL(page.url()).pathname;
+    const setupRoutes=new Set(["/register","/registration/status","/onboarding","/legal/accept","/staff/access"]);
+    if(canWrite&&setupRoutes.has(afterLogin)){
+      console.error("CALC-DENSE2 PRIVATE.3 BLOCKED",actor,width,
+        "synthetic workspace prerequisites missing",afterLogin);
+      throw new Error("SYNTHETIC_COMPANY_WORKSPACE_NOT_READY: "+actor+
+        " redirected after login to "+afterLogin+
+        "; inspect active membership, registration and legal acceptance in authorized QA provisioning. Do not bypass production access policy.");
+    }
     const result=await page.goto(SITE+"/rfq-hub/distinta",{waitUntil:"domcontentloaded",timeout:90000});
     assert.ok(result&&result.status()<500,"Private route returned server error");
     const path=new URL(page.url()).pathname;
     if(canWrite){
-      assert.equal(path,"/rfq-hub/distinta","Company writer must reach private builder");
+      if(path!=="/rfq-hub/distinta"){
+        console.error("CALC-DENSE2 PRIVATE.3 ACCESS BLOCKED",actor,width,"redirect",path);
+        throw new Error("PRIVATE_WORKSPACE_ROLE_NOT_VERIFIED: "+actor+
+          " redirected to "+path+"; require active organization membership with write role.");
+      }
       const shell=page.locator("[data-private-calculator-shell]");
       const cockpit=shell.locator("#calcolatore-pesi");
       await cockpit.waitFor({state:"visible",timeout:45000});
