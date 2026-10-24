@@ -1,0 +1,136 @@
+name: SEC-P0 Staging Global Search Real JWT Acceptance
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_ref:
+        description: "Enter exact Supabase STAGING project reference"
+        required: true
+        type: string
+      mode:
+        description: "preflight read-only, accept creates and cleans synthetic fixtures, cleanup removes reserved QA fixtures"
+        required: true
+        default: preflight
+        type: choice
+        options:
+          - preflight
+          - accept
+          - cleanup
+      approval:
+        description: "Use mode-specific approval: STAGING_READY2B_READ_ONLY / STAGING_READY2B_TEST_SYNTHETIC_ONLY / STAGING_READY2B_CLEAN_RESERVED_ONLY"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-ready2b-hosted-qa
+  cancel-in-progress: false
+
+jobs:
+  isolated-staging-global-search:
+    name: Real JWT / two tenants / staging Worker
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    env:
+      CI: "true"
+      RESEND_API_KEY: ""
+      STAGING_READY2B_SUPABASE_URL: https://lwrrrphakpbjhbzljqhn.supabase.co
+      STAGING_READY1_DB_URL: ${{ secrets.STAGING_READY1_DB_URL }}
+      REQUESTED_PROJECT_REF: ${{ inputs.project_ref }}
+      REQUESTED_RUN_MODE: ${{ inputs.mode == 'preflight' && 'plan' || 'apply' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Confirm main, exact project, mode and intent
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/main"
+          test "$REQUESTED_PROJECT_REF" = "lwrrrphakpbjhbzljqhn"
+          case "${{ inputs.mode }}:${{ inputs.approval }}" in
+            preflight:STAGING_READY2B_READ_ONLY) ;;
+            accept:STAGING_READY2B_TEST_SYNTHETIC_ONLY) ;;
+            cleanup:STAGING_READY2B_CLEAN_RESERVED_ONLY) ;;
+            *) echo "::error::Mode-specific approval missing"; exit 1 ;;
+          esac
+      - name: Verify exact protected staging Postgres target
+        id: target
+        run: python3 scripts/staging-ready1-target-guard.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install test dependencies
+        working-directory: apps/web
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-package-lock playwright@1.56.1
+      - name: Check hosted acceptance contracts
+        working-directory: apps/web
+        run: node --test tests/staging-ready2b-contract.test.mjs
+      - name: Inspect staging Auth directory (read-only)
+        if: inputs.mode == 'preflight' || inputs.mode == 'accept'
+        working-directory: apps/web
+        env:
+          STAGING_READY2B_AUTH_SECRET_KEY: ${{ secrets.STAGING_READY2B_AUTH_SECRET_KEY }}
+        run: node tests/staging-ready2b-fixtures.mjs preflight
+      - name: Create three reserved synthetic GoTrue identities
+        if: inputs.mode == 'accept'
+        working-directory: apps/web
+        env:
+          STAGING_READY2B_AUTH_SECRET_KEY: ${{ secrets.STAGING_READY2B_AUTH_SECRET_KEY }}
+        run: node tests/staging-ready2b-fixtures.mjs setup
+      - name: Seed two staging companies and private RFQs
+        if: inputs.mode == 'accept'
+        run: |
+          set -euo pipefail
+          test -f "$RUNNER_TEMP/sr2b-vars.psql"
+          psql "$STAGING_READY1_DB_URL" -X --no-psqlrc -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/sr2b-vars.psql" -f supabase/tests/staging_ready2b_seed.sql
+      - name: Assert dedicated staging Worker target
+        env:
+          STAGING_WORKER_URL: https://steel-sales-worker-staging-staging.up.railway.app
+          STAGING_WORKER_INTERNAL_TOKEN: ${{ secrets.STAGING_WORKER_INTERNAL_TOKEN }}
+          RAILWAY_ENVIRONMENT_NAME: staging
+          RAILWAY_STAGING_PROJECT_ID: b63be52c-f857-45ff-9b8e-5dbfb8914524
+          RAILWAY_STAGING_SERVICE_ID: af56d07a-247c-4330-89e1-a5e7761951e1
+          RAILWAY_STAGING_ENVIRONMENT_ID: c7eb5e21-f385-4319-b35b-6e6bd04396a3
+        run: python3 scripts/sec-p0-staging-worker-guard.py
+      - name: Real-JWT A/B staging Worker search isolation
+        if: inputs.mode == 'accept'
+        working-directory: apps/web
+        env:
+          STAGING_WORKER_URL: https://steel-sales-worker-staging-staging.up.railway.app
+          STAGING_WORKER_INTERNAL_TOKEN: ${{ secrets.STAGING_WORKER_INTERNAL_TOKEN }}
+          STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+        run: node tests/sec-p0-staging-global-search-jwt.mjs
+      - name: Remove only reserved application fixtures
+        if: always() && steps.target.outcome == 'success' && (inputs.mode == 'accept' || inputs.mode == 'cleanup')
+        id: cleanup_sql
+        run: |
+          set -euo pipefail
+          psql "$STAGING_READY1_DB_URL" -X --no-psqlrc -v ON_ERROR_STOP=1 \
+            -f supabase/tests/staging_ready2b_cleanup.sql
+      - name: Delete exact reserved GoTrue identities
+        if: always() && steps.cleanup_sql.outcome == 'success'
+        working-directory: apps/web
+        env:
+          STAGING_READY2B_AUTH_SECRET_KEY: ${{ secrets.STAGING_READY2B_AUTH_SECRET_KEY }}
+        run: node tests/staging-ready2b-fixtures.mjs cleanup
+      - name: Verify staging cleanup
+        if: always() && steps.cleanup_sql.outcome == 'success'
+        run: |
+          set -euo pipefail
+          result="$(psql "$STAGING_READY1_DB_URL" -X --no-psqlrc -t -A -v ON_ERROR_STOP=1 \
+            -c "SELECT (SELECT count(*) FROM auth.users) = 0 AND
+              (SELECT count(*) FROM public.organizations
+               WHERE slug IN ('sr2b-company-a','sr2b-company-b')) = 0")"
+          test "$result" = "t"
+          echo "STAGING-READY2B clean test identities and organizations confirmed"
+      - name: Delete ephemeral runner credential files
+        if: always()
+        run: |
+          rm -f "$RUNNER_TEMP/sr2b-personas.json" "$RUNNER_TEMP/sr2b-vars.psql"
