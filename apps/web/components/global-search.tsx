@@ -54,12 +54,12 @@ function formatDate(value: string | null) {
 }
 
 function formatNumber(value: number | null) {
-  if (value === null || !Number.isFinite(value)) return null;
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
   return value.toLocaleString("it-IT", { maximumFractionDigits: 3 });
 }
 
 function formatPrice(result: GlobalSearchResult) {
-  if (result.price_value === null) return null;
+  if (typeof result.price_value !== "number" || !Number.isFinite(result.price_value)) return null;
   const currency = result.currency === "EUR" ? "€" : result.currency ?? "";
   const unit = result.price_unit ? `/${result.price_unit.toLowerCase()}` : "";
   return `${currency} ${result.price_value.toLocaleString("it-IT", { maximumFractionDigits: 2 })}${unit}`.trim();
