@@ -40,15 +40,19 @@ export default async function DashboardPage({
   // The Network navigation can remain available as an upgrade/onboarding
   // entry, but its protected feed and inquiries require an actual entitlement.
   // Newly registered companies must never crash their normal Workspace.
+  // A transient entitlement lookup must never crash a user's first workspace
+  // visit. Fail closed: missing access state means Network remains locked.
   const networkEntitled = networkEnabled
-    ? (await getNetworkAccessState(context.organizationId)).can_access_network
+    ? await getNetworkAccessState(context.organizationId)
+        .then((access) => access.can_access_network === true)
+        .catch(() => false)
     : false;
   const isAdmin = context.role === "admin";
   const canWrite = canWriteWorkspace(context.role);
 
   const [setup, commercial, received, activity, sector, procurement, pulse, marketplace, networkCatalog] = await Promise.all([
     isAdmin
-      ? getCompanySetupState(context.organizationId)
+      ? getCompanySetupState(context.organizationId).catch(() => null)
       : Promise.resolve(null),
     getDashboardData(),
     networkEntitled
