@@ -274,7 +274,9 @@ async def process_job(job_id: UUID) -> None:
 
 def require_worker_token(x_worker_token: str | None) -> None:
     expected = os.getenv("WORKER_INTERNAL_TOKEN")
-    if expected and x_worker_token != expected:
+    if not expected:
+        raise HTTPException(status_code=503, detail="Worker authentication is not configured.")
+    if x_worker_token != expected:
         raise HTTPException(status_code=401, detail="Invalid worker token.")
 
 
