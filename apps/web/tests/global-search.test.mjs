@@ -136,3 +136,17 @@ test("sales surfaces avoid infrastructure terminology", () => {
   assert.match(dashboard, /movimenti commerciali/i);
   assert.match(dashboard, /Cosa richiede attenzione/);
 });
+
+
+test("optional search geometry is formatted only when numeric", () => {
+  assert.match(component, /typeof value !== "number" \|\| !Number\.isFinite\(value\)/);
+  for (const field of ["outer_diameter_mm", "width_mm", "height_mm", "thickness_mm", "length_mm"]) {
+    assert.match(component, new RegExp("formatNumber\\(result\\." + field + "\\)"));
+  }
+  for (const fact of ["diameter", "width", "height", "thickness", "length"]) {
+    assert.match(component, new RegExp(fact + " !== null"));
+  }
+  assert.doesNotMatch(component, /outer_diameter_mm !== null \? /);
+  assert.doesNotMatch(component, /thickness_mm !== null \? /);
+  assert.doesNotMatch(component, /length_mm !== null \? /);
+});
