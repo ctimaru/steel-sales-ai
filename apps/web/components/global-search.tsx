@@ -277,8 +277,8 @@ export function GlobalSearch({ initialQuery = "", scope = "all" }: { initialQuer
               ? reference.resolution_status
               : null;
             return (
-              <Card key={result.result_id} className="p-5">
-                <div className="flex flex-col gap-4 lg:flex-row lg:justify-between">
+              <Card key={result.result_id} className="border-[#dce2df] p-3 sm:p-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge tone={typeTone(result.result_type)}>{typeLabel(result.result_type)}</Badge>
@@ -294,18 +294,18 @@ export function GlobalSearch({ initialQuery = "", scope = "all" }: { initialQuer
                         </Badge>
                       ) : null}
                     </div>
-                    <h3 className="mt-3 text-base font-semibold text-[#1d2824]">{result.title}</h3>
+                    <h3 className="mt-2 text-sm font-semibold leading-5 text-[#1d2824] sm:text-base">{result.title}</h3>
                     {result.subtitle ? <p className="mt-1 text-sm text-[#66736e]">{result.subtitle}</p> : null}
                     {facts.length ? (
-                      <div className="mt-3 flex flex-wrap gap-2">
+                      <div className="mt-2 flex flex-wrap gap-1.5">
                         {facts.map((fact) => <Badge key={fact} tone="blue">{fact}</Badge>)}
                       </div>
                     ) : null}
                     {result.snippet ? <p className="mt-4 line-clamp-4 whitespace-pre-line text-sm leading-6 text-[#43524c]">{result.snippet}</p> : null}
                     {result.source_filename ? <p className="mt-3 truncate text-xs text-[#66736e]">Fonte: {result.source_filename}</p> : null}
                   </div>
-                  <div className="flex shrink-0 flex-row items-start gap-2 lg:flex-col lg:items-end">
-                    <span className="rounded-lg border border-[#dce2df] bg-[#f6f8f7] px-2.5 py-1.5 text-xs font-semibold text-[#43524c]">
+                  <div className="flex shrink-0 flex-wrap items-center gap-1.5 sm:max-w-[220px] sm:justify-end">
+                    <span className="rounded-md border border-[#dce2df] bg-[#f6f8f7] px-2 py-1 text-[11px] font-medium text-[#43524c]">
                       {target ? "Riferimento alla fonte" : result.result_type === "company" ? "Scheda CRM" : "Fonte diretta non disponibile"}
                     </span>
                     {customerTarget ? (
