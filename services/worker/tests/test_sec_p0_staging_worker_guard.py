@@ -13,7 +13,7 @@ BASE = dict(
     RAILWAY_STAGING_SERVICE_ID="staging-service",
     RAILWAY_STAGING_ENVIRONMENT_ID="staging-env",
     STAGING_WORKER_URL="https://staging-worker.example.invalid",
-    STAGING_WORKER_INTERNAL_TOKEN="dummy-test-token",
+    STAGING_WORKER_INTERNAL_TOKEN="dummy",
 )
 
 def test_valid_staging_config():
