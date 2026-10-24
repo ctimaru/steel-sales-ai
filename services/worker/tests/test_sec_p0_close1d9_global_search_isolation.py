@@ -57,7 +57,8 @@ def test_global_search_isolation_over_http(monkeypatch):
             "actor_user_id": str(UUID("00000000-0000-4000-8000-000000000103")),
             "query": "S355J2H", "types": ["rfq"]
         }, headers={"x-worker-token": "synthetic-ci-only-worker-token"})
-        assert unauthorized.status_code in (403, 404)
+        assert unauthorized.status_code == 400
+        assert "results" not in unauthorized.json()
         anonymous = client.post("/v1/global-search", json={
             "actor_user_id": A, "query": "S355J2H", "types": ["rfq"]
         }, headers={"x-worker-token": "bad"})
