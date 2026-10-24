@@ -188,17 +188,21 @@ class GlobalSearchService:
         model: dict[str, object] | None = None
         retrieval: dict[str, object] | None = None
         if include_documents:
-            semantic = await search_knowledge(
-                owner_id=request.actor_user_id,
-                query=request.query,
-                match_count=min(request.limit, 50),
-                candidate_count=max(120, min(250, request.limit * 6)),
-                entity_filters=entity_filters,
-                commercial_filters=commercial_filters,
-                document_filters=document_filters,
-                infer_role=filters.item_role is None,
-                repository=self.repo,
-            )
+            # The optional document model must not hide authorized structured hits.
+            try:
+                semantic = await search_knowledge(
+                    owner_id=request.actor_user_id,
+                    query=request.query,
+                    match_count=min(request.limit, 50),
+                    candidate_count=max(120, min(250, request.limit * 6)),
+                    entity_filters=entity_filters,
+                    commercial_filters=commercial_filters,
+                    document_filters=document_filters,
+                    infer_role=filters.item_role is None,
+                    repository=self.repo,
+                )
+            except EmbeddingConfigurationError:
+                semantic = {"results": [], "model": None, "retrieval": None}
             model = semantic.get("model") if isinstance(semantic.get("model"), dict) else None
             retrieval = semantic.get("retrieval") if isinstance(semantic.get("retrieval"), dict) else None
             for row in semantic.get("results", []):
