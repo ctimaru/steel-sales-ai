@@ -235,7 +235,19 @@ export function GlobalSearch({ initialQuery = "", scope = "all" }: { initialQuer
       </Card>
 
       {pending ? <p role="status" className="text-xs font-medium text-[#53665b]">Ricerca privata in corso…</p> : null}
-      {state.status === "error" ? <Card role="alert" className="border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">{state.message}</Card> : null}
+      {state.status === "error" ? (
+        <Card role="alert" className="border-rose-200 bg-rose-50 p-3 text-sm text-rose-800 sm:p-4">
+          <p className="font-semibold">Ricerca temporaneamente non disponibile</p>
+          <p className="mt-1">{state.message}</p>
+          <p className="mt-2 text-xs">Non sono stati restituiti risultati verificati. Puoi riprovare la ricerca o limitarla alle attività commerciali.</p>
+          <Link
+            href={commercialSearchHref(query, "activities")}
+            className="mt-2 inline-flex rounded-md border border-rose-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-rose-800 hover:bg-rose-100"
+          >
+            Cerca nelle attività →
+          </Link>
+        </Card>
+      ) : null}
 
       {state.status === "success" ? (
         <div className="space-y-4">
