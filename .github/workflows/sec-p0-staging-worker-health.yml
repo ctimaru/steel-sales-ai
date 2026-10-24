@@ -1,0 +1,25 @@
+name: SEC-P0 Staging Worker HTTP Health
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/sec-p0-staging-worker-health.yml"
+      - "services/worker/app/market.py"
+      - "services/worker/tests/test_sec_p0_market_key_precedence.py"
+
+permissions:
+  contents: read
+
+jobs:
+  staging-health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify exact staging HTTP endpoint
+        run: |
+          set -euo pipefail
+          url="https://steel-sales-worker-staging-staging.up.railway.app/health"
+          response="$(curl --fail --silent --show-error --location --max-time 25 --retry 2 --retry-delay 2 "$url")"
+          printf '%s' "$response" | python3 -c 'import sys,json; body=json.load(sys.stdin); assert body.get("status")=="ok", "unexpected staging health response"'
+          echo "SEC-P0 Railway staging /health PASS"

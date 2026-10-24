@@ -27,10 +27,10 @@ class MarketDataError(RuntimeError):
 
 def _configuration() -> tuple[str, str]:
     supabase_url = os.getenv("SUPABASE_URL", "").rstrip("/")
-    service_role_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+    service_role_key = os.getenv("SUPABASE_SECRET_KEY") or os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
     if not supabase_url or not service_role_key:
         raise MarketConfigurationError(
-            "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for market data."
+            "SUPABASE_URL and SUPABASE_SECRET_KEY (or legacy service role key) are required for market data."
         )
     return supabase_url, service_role_key
 
