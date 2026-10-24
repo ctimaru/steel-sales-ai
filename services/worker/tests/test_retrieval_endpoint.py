@@ -27,7 +27,7 @@ def test_hybrid_search_endpoint_forwards_typed_filters(monkeypatch) -> None:
 
     monkeypatch.setattr(retrieval_api, "search_knowledge", fake_search_knowledge)
     monkeypatch.setenv("WORKER_STORAGE_MODE", "supabase")
-    monkeypatch.delenv("WORKER_INTERNAL_TOKEN", raising=False)
+    monkeypatch.setenv("WORKER_INTERNAL_TOKEN", "synthetic-ci-only-worker-token")
 
     response = client.post(
         "/v1/knowledge/search",
@@ -69,7 +69,7 @@ def test_hybrid_search_endpoint_forwards_typed_filters(monkeypatch) -> None:
 
 def test_hybrid_search_endpoint_rejects_candidate_pool_smaller_than_limit(monkeypatch) -> None:
     monkeypatch.setenv("WORKER_STORAGE_MODE", "supabase")
-    monkeypatch.delenv("WORKER_INTERNAL_TOKEN", raising=False)
+    monkeypatch.setenv("WORKER_INTERNAL_TOKEN", "synthetic-ci-only-worker-token")
 
     response = client.post(
         "/v1/knowledge/search",
@@ -86,7 +86,7 @@ def test_hybrid_search_endpoint_rejects_candidate_pool_smaller_than_limit(monkey
 
 def test_hybrid_search_endpoint_rejects_inverted_document_dates(monkeypatch) -> None:
     monkeypatch.setenv("WORKER_STORAGE_MODE", "supabase")
-    monkeypatch.delenv("WORKER_INTERNAL_TOKEN", raising=False)
+    monkeypatch.setenv("WORKER_INTERNAL_TOKEN", "synthetic-ci-only-worker-token")
 
     response = client.post(
         "/v1/knowledge/search",
