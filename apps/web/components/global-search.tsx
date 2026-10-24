@@ -66,15 +66,18 @@ function formatPrice(result: GlobalSearchResult) {
 }
 
 function technicalFacts(result: GlobalSearchResult) {
+  const diameter = formatNumber(result.outer_diameter_mm);
+  const width = formatNumber(result.width_mm);
+  const height = formatNumber(result.height_mm);
+  const thickness = formatNumber(result.thickness_mm);
+  const length = formatNumber(result.length_mm);
   return [
     result.grade,
     result.standard,
-    result.outer_diameter_mm !== null ? `Ø ${formatNumber(result.outer_diameter_mm)} mm` : null,
-    result.width_mm !== null && result.height_mm !== null
-      ? `${formatNumber(result.width_mm)} × ${formatNumber(result.height_mm)} mm`
-      : null,
-    result.thickness_mm !== null ? `t ${formatNumber(result.thickness_mm)} mm` : null,
-    result.length_mm !== null ? `L ${formatNumber(result.length_mm)} mm` : null,
+    diameter !== null ? `Ø ${diameter} mm` : null,
+    width !== null && height !== null ? `${width} × ${height} mm` : null,
+    thickness !== null ? `t ${thickness} mm` : null,
+    length !== null ? `L ${length} mm` : null,
     formatPrice(result),
   ].filter(Boolean) as string[];
 }
