@@ -37,6 +37,18 @@ const bad=await post(a,"invalid-token");
 assert.equal(bad.status,401,"Invalid service token must fail closed");
 for(const [actor,own,foreign] of [[a,"SR2B BUYER A PRIVATE RFQ","SR2B TRADER B PRIVATE RFQ"],[b,"SR2B TRADER B PRIVATE RFQ","SR2B BUYER A PRIVATE RFQ"]]){
  const response=await post(actor,token);
+ if (response.status !== 200) {
+   const body = await response.json().catch(() => ({}));
+   const detail = typeof body?.detail === "string" ? body.detail : "";
+   // Classify without printing database responses, SQL, account IDs or credentials.
+   const category = /PGRST202|schema cache|Could not find the function/i.test(detail) ? "rpc_missing" :
+     /permission denied|42501/i.test(detail) ? "permission_denied" :
+     /Active organization access|organization_memberships/i.test(detail) ? "membership" :
+     /p1_global_structured_search_bridge_v2/i.test(detail) ? "search_rpc" :
+     /Supabase worker persistence|backend secret/i.test(detail) ? "backend_configuration" :
+     "unknown";
+   console.error("SEC-P0 staging search diagnostic", "http="+response.status, "category="+category);
+ }
  assert.equal(response.status,200,"Staging Worker search must succeed (HTTP "+response.status+")");
  const body=await response.json();
  const titles=(body.results||[]).map(x=>x.title||"");
