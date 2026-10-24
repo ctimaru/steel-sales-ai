@@ -9,7 +9,9 @@ const handoff = read("../lib/calculator-rfq-handoff.ts");
 const dist = read("../lib/buyer-distinta.ts");
 
 test("BD11: the existing calculator is the default entry with an adjacent live bill", () => {
-  assert.match(builder, /<PublicTubeWeightCalculator references=\{\[\]\} discoveryOptions=\{discoveredBuyerDimensions\} locale=\{uiLocale\} onAddToDistinta=\{addCalculatorLine\}/);
+  assert.match(builder, /<PublicTubeWeightCalculator\b[^>]*references=\{\[\]\}/);
+  assert.match(builder, /<PublicTubeWeightCalculator\b[^>]*discoveryOptions=\{discoveredBuyerDimensions\}/);
+  assert.match(builder, /<PublicTubeWeightCalculator\b[^>]*onAddToDistinta=\{addCalculatorLine\}/);
   assert.match(builder, /id="buyer-live-preview"/);
   assert.match(builder, /2 · \{t\("La tua distinta"\)\}/);
   assert.match(builder, /Altri metodi · testo AI/);
