@@ -132,6 +132,21 @@ function sourceTarget(result: GlobalSearchResult) {
   return null;
 }
 
+function searchGeometryForCalculator(result: GlobalSearchResult) {
+  const n = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v) && v > 0 && v < 100000;
+  const standard = result.standard?.trim().toUpperCase().replace(/\\s+/g, " ");
+  if (standard !== "EN 10219" && standard !== "EN 10210") return null;
+  const t = result.thickness_mm;
+  if (!n(t)) return null;
+  const d = result.outer_diameter_mm, w = result.width_mm, h = result.height_mm;
+  let family: "round_tube" | "square_tube" | "rectangular_tube";
+  if (n(d) && !n(w) && !n(h) && d > 2*t) family = "round_tube";
+  else if (!n(d) && n(w) && (!n(h) || w === h) && w > 2*t) family = "square_tube";
+  else if (!n(d) && n(w) && n(h) && w !== h && Math.min(w,h) > 2*t) family = "rectangular_tube";
+  else return null;
+  return { family, standard: standard === "EN 10219" ? "en10219" : "en10210", outerDiameter: family === "round_tube" ? String(d) : "", width: family !== "round_tube" ? String(w) : "", height: family === "rectangular_tube" ? String(h) : "", thickness: String(t) };
+}
+
 export function GlobalSearch({ initialQuery = "", scope = "all" }: { initialQuery?: string; scope?: CommercialSearchScope }) {
   const [state, formAction, pending] = useActionState(globalSearch, initialState);
   const [query, setQuery] = useState(initialQuery);
@@ -284,6 +299,7 @@ export function GlobalSearch({ initialQuery = "", scope = "all" }: { initialQuer
             const target = sourceTarget(result);
             const customerTarget = companyTarget(result);
             const entity = entityTarget(result);
+            const calcPrefill = searchGeometryForCalculator(result);
             const reference = sharedReference(result);
             const referenceStatus = typeof reference?.resolution_status === "string"
               ? reference.resolution_status
@@ -320,6 +336,18 @@ export function GlobalSearch({ initialQuery = "", scope = "all" }: { initialQuer
                     <span className="rounded-md border border-[#dce2df] bg-[#f6f8f7] px-2 py-1 text-[11px] font-medium text-[#43524c]">
                       {target ? "Riferimento alla fonte" : result.result_type === "company" ? "Scheda CRM" : "Fonte diretta non disponibile"}
                     </span>
+                    {calcPrefill ? (
+                      <button type="button"
+                        onClick={() => {
+                          try {
+                            window.sessionStorage.setItem("sss:search-calc-prefill:v1", JSON.stringify({ version: 1, createdAt: Date.now(), ...calcPrefill }));
+                            window.location.assign(appRoutes.rfqHub.createDistinta);
+                          } catch { window.location.assign(appRoutes.rfqHub.createDistinta); }
+                        }}
+                        className="rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-900 hover:bg-emerald-100">
+                        Completa in calcolatrice →
+                      </button>
+                    ) : null}
                     {customerTarget ? (
                       <Link
                         href={customerTarget}

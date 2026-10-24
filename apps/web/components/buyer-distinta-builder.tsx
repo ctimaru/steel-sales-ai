@@ -113,6 +113,34 @@ export function BuyerDistintaBuilder({
   const [intakeMode, setIntakeMode] = useState<RfqAiIntakeMode>("manual");
   const [quickQuery, setQuickQuery] = useState("");
   const [quickGrade, setQuickGrade] = useState("");
+  const [searchCalculatorPrefill, setSearchCalculatorPrefill] = useState<import("@/components/public-tube-weight-calculator").PublicTubeCalculatorInitialValues | null>(null);
+  useEffect(() => {
+    // Tab-scoped and one-shot: no RFQ, customer or source metadata moves across routes.
+    const key = "sss:search-calc-prefill:v1";
+    let raw: string | null = null;
+    try { raw = window.sessionStorage.getItem(key); window.sessionStorage.removeItem(key); } catch { return; }
+    if (!raw || raw.length > 1200) return;
+    try {
+      const item = JSON.parse(raw) as Record<string, unknown>;
+      const dim = (v: unknown) => typeof v === "string" && /^\\d+(?:\\.\\d+)?$/.test(v) && Number(v) > 0 && Number(v) < 100000;
+      if (item.version !== 1 || typeof item.createdAt !== "number" || !Number.isFinite(item.createdAt) || Date.now() - item.createdAt > 600000 || item.createdAt > Date.now() + 1000) return;
+      if (!["round_tube","square_tube","rectangular_tube"].includes(String(item.family)) ||
+          !["en10210","en10219"].includes(String(item.standard)) || !dim(item.thickness)) return;
+      const t = Number(item.thickness);
+      if (item.family === "round_tube" && (!dim(item.outerDiameter) || Number(item.outerDiameter) <= 2*t)) return;
+      if (item.family !== "round_tube" && (!dim(item.width) || Number(item.width) <= 2*t)) return;
+      if (item.family === "rectangular_tube" && (!dim(item.height) || Number(item.height) <= 2*t)) return;
+      setSearchCalculatorPrefill({
+        family: item.family as "round_tube" | "square_tube" | "rectangular_tube",
+        standard: item.standard as "en10210" | "en10219",
+        outerDiameter: item.family === "round_tube" ? String(item.outerDiameter) : undefined,
+        width: item.family !== "round_tube" ? String(item.width) : undefined,
+        height: item.family === "rectangular_tube" ? String(item.height) : undefined,
+        thickness: String(item.thickness),
+      });
+    } catch { /* An invalid search prefill is ignored, never saved. */ }
+  }, []);
+
   const [quickAddedCount, setQuickAddedCount] = useState(0);
   const [compactMode, setCompactMode] = useState(true);
   // CALC-NEXT1D: the private draft uses the same intentional-access cart
@@ -929,7 +957,7 @@ export function BuyerDistintaBuilder({
                 </div>
               </details>
             </div>
-            <PublicTubeWeightCalculator references={[]} discoveryOptions={discoveredBuyerDimensions} locale={uiLocale} onAddToDistinta={addCalculatorLine}
+            <PublicTubeWeightCalculator key={searchCalculatorPrefill ? "search-prefill" : "default"} initialValues={searchCalculatorPrefill ?? undefined} references={[]} discoveryOptions={discoveredBuyerDimensions} locale={uiLocale} onAddToDistinta={addCalculatorLine}
               canAddToDistinta={draftReady && !restoreCandidate && (lines.length < 500 || initialEmptyRow)} />
             <p role="status" aria-live="polite" className="mt-2 text-xs font-semibold text-[#1d5748]">
               {quickAddedCount > 0 ? `${quickAddedCount} ${quickAddedCount === 1 ? "articolo nel carrello" : "articoli nel carrello"} · aprilo quando vuoi.` : "Il peso teorico si aggiorna mentre scrivi; nessuna RFQ viene inviata automaticamente."}
