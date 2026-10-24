@@ -29,7 +29,7 @@ const login = async persona => {
 const post = async(actorUserId,authorization)=>fetch(worker+"/v1/global-search",{
  method:"POST",
  headers:{"content-type":"application/json","x-worker-token":authorization},
- body:JSON.stringify({actor_user_id:actorUserId,query:"SR2B PRIVATE RFQ",types:["rfq"],limit:20}),
+ body:JSON.stringify({actor_user_id:actorUserId,query:"PRIVATE RFQ",types:["rfq"],limit:20}),
  signal:AbortSignal.timeout(25000)
 });
 const a=await login(identities[0]); const b=await login(identities[1]);
