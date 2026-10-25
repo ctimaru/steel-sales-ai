@@ -25,8 +25,8 @@ test("HOME-CONV1A starts with a real public calculator, not account registration
   assert.match(hero, /source=home&surface=hero#calcolatore-pesi/);
   assert.match(header, /data-home-primary-cta/);
   assert.match(header, /sticky top-0 z-40/);
-  assert.match(header, /bg-\\[#071713\\] text-white/);
-  assert.doesNotMatch(header, /backdrop-blur-sm|bg-\\[#071713\\]\\/95/);
+  assert.match(header, /bg-\[#071713\] text-white/);
+  assert.doesNotMatch(header, /backdrop-blur-sm|bg-\[#071713\]\/95/);
   assert.match(header, /"\/en\/knowledge\/tubes"/);
   assert.match(header, /"\/knowledge\/tubes\?source=home/);
   assert.match(hero, /Strumenti pubblici senza account/);
