@@ -134,7 +134,7 @@ function sourceTarget(result: GlobalSearchResult) {
 
 function searchGeometryForCalculator(result: GlobalSearchResult) {
   const n = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v) && v > 0 && v < 100000;
-  const standard = result.standard?.trim().toUpperCase().replace(/\\s+/g, " ");
+  const standard = result.standard?.trim().toUpperCase().replace(/\s+/g, " ");
   if (standard !== "EN 10219" && standard !== "EN 10210") return null;
   const t = result.thickness_mm;
   if (!n(t)) return null;
@@ -347,6 +347,13 @@ export function GlobalSearch({ initialQuery = "", scope = "all" }: { initialQuer
                         className="rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-900 hover:bg-emerald-100">
                         Completa in calcolatrice →
                       </button>
+                    ) : null}
+                    {!calcPrefill && ["product", "rfq", "offer"].includes(result.result_type) ? (
+                      <Link href={appRoutes.rfqHub.createDistinta}
+                        className="rounded-md border border-[#dce2df] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#43524c] hover:bg-[#f6f8f7]"
+                        title="Dati tecnici incompleti o norma non supportata: apri la calcolatrice e inserisci le misure verificate">
+                        Inserisci misure in calcolatrice →
+                      </Link>
                     ) : null}
                     {customerTarget ? (
                       <Link
