@@ -202,6 +202,10 @@ class GlobalSearchService:
                     repository=self.repo,
                 )
             except EmbeddingConfigurationError:
+                # Only optional document retrieval may degrade. A document-only
+                # request must still explain why its requested source is unavailable.
+                if requested_types == ["document"]:
+                    raise
                 semantic = {"results": [], "model": None, "retrieval": None}
             model = semantic.get("model") if isinstance(semantic.get("model"), dict) else None
             retrieval = semantic.get("retrieval") if isinstance(semantic.get("retrieval"), dict) else None

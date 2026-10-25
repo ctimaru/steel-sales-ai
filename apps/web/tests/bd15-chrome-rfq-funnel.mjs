@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
+import { checkDeferredClientReadiness, waitForBuilderReady } from "./bd15-chrome-hydration-readiness.mjs";
 
 const origin = process.env.DEMOTEST23_WEB_URL;
 assert.equal(origin, "http://127.0.0.1:3000", "BD15 prohibits nonlocal Next.js");
@@ -16,7 +17,13 @@ const temp = process.env.RUNNER_TEMP;
 assert.ok(temp, "BD15 requires ephemeral GitHub runner files");
 const buyer = JSON.parse(readFileSync(path.join(temp, "demotest23-personas.json"), "utf8")).find(p => p.id === "buyer");
 assert.ok(buyer?.email && buyer?.password);
-const browser = await chromium.launch({ channel: "chrome", headless: true });
+// A disposable local checkout may use its installed Chromium. CI keeps the
+// real Chrome channel, and the nonlocal-origin guards above always apply.
+const browserExecutable = process.env.DEMOTEST23_BROWSER_EXECUTABLE;
+const browser = await chromium.launch({
+  ...(browserExecutable ? { executablePath: browserExecutable } : { channel: "chrome" }),
+  headless: true,
+});
 const checks = [];
 async function step(label, fn) {
   try { await fn(); checks.push(label); console.log("BD15 CHROME PASS", label); }
@@ -36,6 +43,7 @@ async function noOverflow(page, label) {
   assert.ok(!state.body.includes("Application error: a server-side exception"), label + " server crash");
 }
 async function fillTwoTubularLines(page) {
+  await waitForBuilderReady(page);
   const calc = page.locator("#calcolatore-pesi");
   const bill = page.locator("#buyer-live-preview");
   await calc.waitFor({ state: "visible", timeout: 60000 });
@@ -76,6 +84,10 @@ async function login(page) {
     .waitFor({ state: "visible", timeout: 60000 });
 }
 try {
+  const deferred = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, locale: "it-IT" });
+  const deferredPage = await deferred.newPage();
+  await step("SSR controls wait for hydration and draft/calculator restoration", () => checkDeferredClientReadiness(deferredPage));
+  await deferred.close();
   const anon = await browser.newContext({ viewport:{width:390,height:844}, isMobile:true, locale:"it-IT" });
   const a = await anon.newPage();
   await step("public anonymous two-line calculator and copy-only RFQ path", async () => {
@@ -96,6 +108,7 @@ try {
     await step("buyer local GoTrue login " + width, () => login(page));
     await step("create mixed-EN 10210/10219 bill with one-click rows " + width, async () => {
       await goto(page, "/rfq-hub/distinta");
+      await waitForBuilderReady(page);
       await page.getByLabel("Titolo distinta").fill("BD15 E2E LOCAL " + width);
       await page.locator("[data-private-calculator-grade] details > summary").click();
       await page.getByLabel("Grado acciaio · facoltativo ora").fill("S355J2H");

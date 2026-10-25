@@ -5,6 +5,7 @@ from typing import Any, Protocol
 from uuid import UUID
 
 from .embeddings import (
+    EmbeddingConfigurationError,
     EmbeddingProvider,
     EmbeddingProviderError,
     HuggingFaceEmbeddingProvider,
@@ -217,7 +218,7 @@ async def search_knowledge(
     repo = repository or WorkerRepository()
     model = await repo.get_active_embedding_model()
     if not model:
-        raise RuntimeError("No active embedding model is configured.")
+        raise EmbeddingConfigurationError("No active embedding model is configured.")
 
     model_key = str(model["model_key"])
     model_name = str(model["model_name"])

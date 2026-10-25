@@ -985,6 +985,8 @@ export function PublicTubeWeightCalculator({
   return (
     <div
       className="space-y-3"
+      inert={!retentionReady}
+      aria-busy={!retentionReady}
       onChangeCapture={(event) => {
         // Commercial rate edits are ephemeral: do not count them as a change
         // to geometry or emit a weight-calculation engagement signal.
@@ -994,6 +996,7 @@ export function PublicTubeWeightCalculator({
     >
       <section
         id="calcolatore-pesi"
+        data-calculator-ready={retentionReady ? "true" : "false"}
         className="flex scroll-mt-20 flex-col overflow-hidden rounded-xl border border-[#cddbd6] bg-white shadow-[0_8px_28px_rgba(11,47,39,0.05)]"
       >
         <header data-cockpit-header className={styles.header}>
