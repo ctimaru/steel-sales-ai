@@ -1,0 +1,203 @@
+name: FLOW1 Hosted Existing QA Acceptance
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_ref:
+        description: Exact approved Supabase staging project reference
+        required: true
+        type: string
+      preview_url:
+        description: Exact isolated preview URL attested for this acceptance
+        required: true
+        type: string
+      mode:
+        description: Read-only preflight or acceptance using existing QA identities
+        required: true
+        default: preflight
+        type: choice
+        options:
+          - preflight
+          - accept
+      approval:
+        description: FLOW1_HOSTED_READ_ONLY or FLOW1_HOSTED_EXISTING_QA_ONLY
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-ready2b-hosted-qa
+  cancel-in-progress: false
+
+jobs:
+  existing-qa-acceptance:
+    name: Existing staging QA / isolated preview / no supplier sends
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI: "true"
+      RESEND_API_KEY: ""
+      STAGING_READY2B_SUPABASE_URL: https://lwrrrphakpbjhbzljqhn.supabase.co
+      STAGING_READY1_DB_URL: ${{ secrets.STAGING_READY1_DB_URL }}
+      REQUESTED_PROJECT_REF: ${{ inputs.project_ref }}
+      REQUESTED_RUN_MODE: ${{ inputs.mode == 'preflight' && 'plan' || 'apply' }}
+      FLOW1_HOSTED_PREVIEW_URL: ${{ inputs.preview_url }}
+      FLOW1_HOSTED_MODE: ${{ inputs.mode }}
+      FLOW1_HOSTED_APPROVAL: ${{ inputs.approval }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate manual main run and exact attested preview
+        id: intent
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os
+          import re
+          import sys
+
+          # Root attested READY preview dpl_6LQEzvGc3x9dD9MdPBStAQCkjS9g:
+          # qa/sec-p0-close1d16c-isolated-vercel-staging, app SHA 584cdf9ac16d9e1b911a80110f6c478193741952.
+          ATTESTED_PREVIEW_URL = "https://steel-sales-ik587c5yr-ctimaru-5113.vercel.app"
+          preview = os.environ.get("FLOW1_HOSTED_PREVIEW_URL", "")
+          allowed = {
+              "preflight": "FLOW1_HOSTED_READ_ONLY",
+              "accept": "FLOW1_HOSTED_EXISTING_QA_ONLY",
+          }
+          mode = os.environ.get("FLOW1_HOSTED_MODE", "")
+          checks = (
+              os.environ.get("GITHUB_REF") == "refs/heads/main",
+              os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch",
+              os.environ.get("REQUESTED_PROJECT_REF") == "lwrrrphakpbjhbzljqhn",
+              mode in allowed,
+              os.environ.get("FLOW1_HOSTED_APPROVAL") == allowed.get(mode),
+              re.fullmatch(r"https://steel-sales-[a-z0-9]+-ctimaru-5113\.vercel\.app", preview) is not None,
+              preview == ATTESTED_PREVIEW_URL,
+          )
+          if not all(checks):
+              print("::error::Hosted acceptance requires manual main, exact staging and attested preview, and mode-specific intent")
+              sys.exit(1)
+          print("Verified manual staging acceptance and exact attested preview")
+          PY
+      - name: Verify protected staging database target
+        id: target
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/staging-ready1-target-guard.py
+          python3 - <<'PY'
+          import os
+          import sys
+          from pathlib import Path
+
+          values = [line.partition("=")[2] for line in Path(os.environ["GITHUB_ENV"]).read_text().splitlines()
+                    if line.startswith("STAGING_READY1_DB_URL=")]
+          if not values or not values[-1]:
+              print("::error::Normalized staging credential was not registered")
+              sys.exit(1)
+          escaped = values[-1].replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
+          print("::add-mask::" + escaped)
+          PY
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install locked web dependencies
+        working-directory: apps/web
+        run: npm ci --no-audit --no-fund
+      - name: Verify hosted acceptance guards
+        working-directory: apps/web
+        run: node --test tests/product-flow1-hosted-contract.test.mjs
+      - name: Read-only existing QA and namespace preflight with private baseline capture
+        id: baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          psql "$STAGING_READY1_DB_URL" -X --no-psqlrc -qAt -F ' ' -v ON_ERROR_STOP=1 \
+            -f supabase/tests/product_flow1_hosted_preflight.sql \
+            > "$RUNNER_TEMP/flow1-hosted-baseline.counts" 2> "$RUNNER_TEMP/flow1-hosted-preflight.log"
+          read -r flow1_auth_users_before flow1_legal_acceptances_before < "$RUNNER_TEMP/flow1-hosted-baseline.counts"
+          [[ "$flow1_auth_users_before" =~ ^[0-9]+$ ]]
+          [[ "$flow1_legal_acceptances_before" =~ ^[0-9]+$ ]]
+          printf '\\set flow1_auth_users_before %s\n\\set flow1_legal_acceptances_before %s\n' \
+            "$flow1_auth_users_before" "$flow1_legal_acceptances_before" \
+            > "$RUNNER_TEMP/flow1-hosted-baseline.psql"
+          echo "Existing QA preflight passed; Auth and legal baseline retained privately"
+      - name: Verify acceptance credentials exist before creating fixtures
+        if: inputs.mode == 'accept'
+        env:
+          FLOW1_AUTH_KEY_PRESENT: ${{ secrets.STAGING_READY2B_AUTH_SECRET_KEY != '' }}
+          FLOW1_PUBLIC_KEY_PRESENT: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY != '' }}
+          FLOW1_VERCEL_BYPASS_PRESENT: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET != '' }}
+        run: |
+          set -euo pipefail
+          test "$FLOW1_AUTH_KEY_PRESENT" = "true"
+          test "$FLOW1_PUBLIC_KEY_PRESENT" = "true"
+          test "$FLOW1_VERCEL_BYPASS_PRESENT" = "true"
+          echo "Required acceptance credentials are configured"
+      - name: Install acceptance-only Playwright and Google Chrome
+        if: inputs.mode == 'accept'
+        working-directory: apps/web
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chrome
+      - name: Seed only isolated application fixtures using existing QA identities
+        if: inputs.mode == 'accept'
+        id: seed
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          test -f "$RUNNER_TEMP/flow1-hosted-baseline.psql"
+          psql "$STAGING_READY1_DB_URL" -X --no-psqlrc -q -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/flow1-hosted-baseline.psql" \
+            -f supabase/tests/product_flow1_hosted_seed.sql \
+            > "$RUNNER_TEMP/flow1-hosted-seed.log" 2>&1
+          echo "Isolated application fixtures seeded; existing Auth and legal records preserved"
+      - name: Real hosted Chrome search, private RFQs and tenant denial on desktop and mobile
+        if: inputs.mode == 'accept'
+        working-directory: apps/web
+        timeout-minutes: 15
+        env:
+          STAGING_READY2B_AUTH_SECRET_KEY: ${{ secrets.STAGING_READY2B_AUTH_SECRET_KEY }}
+          STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+          UI4_VERCEL_BYPASS: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: node tests/product-flow1-hosted-browser.mjs
+      - name: Assert private RFQs, complete quantities, no sends and unchanged Auth identity counts
+        if: inputs.mode == 'accept'
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          psql "$STAGING_READY1_DB_URL" -X --no-psqlrc -q -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/flow1-hosted-baseline.psql" \
+            -f supabase/tests/product_flow1_hosted_assert.sql \
+            > "$RUNNER_TEMP/flow1-hosted-assert.log" 2>&1
+          echo "Hosted application invariants passed; no supplier sends"
+      - name: Clean only seeded application namespace and verify Auth and legal preservation
+        if: always() && steps.target.outcome == 'success' && steps.seed.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          python3 scripts/staging-ready1-target-guard.py
+          test -f "$RUNNER_TEMP/flow1-hosted-baseline.psql"
+          psql "$STAGING_READY1_DB_URL" -X --no-psqlrc -q -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/flow1-hosted-baseline.psql" \
+            -f supabase/tests/product_flow1_hosted_cleanup.sql \
+            > "$RUNNER_TEMP/flow1-hosted-cleanup.log" 2>&1
+          echo "Isolated application namespace removed; existing Auth identities and legal records preserved"
+      # Do not upload logs, traces, screenshots, cookies, storageState or credentials.
+      - name: Delete private runner baselines and diagnostics
+        if: always()
+        shell: bash
+        run: |
+          rm -f "$RUNNER_TEMP/flow1-hosted-baseline.counts" "$RUNNER_TEMP/flow1-hosted-baseline.psql" \
+            "$RUNNER_TEMP/flow1-hosted-preflight.log" "$RUNNER_TEMP/flow1-hosted-seed.log" \
+            "$RUNNER_TEMP/flow1-hosted-assert.log" "$RUNNER_TEMP/flow1-hosted-cleanup.log"
