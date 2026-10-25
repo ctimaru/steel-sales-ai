@@ -27,3 +27,7 @@ The old 640×427 WebP (6,170 bytes) is intentionally extremely compressed and vi
 ## Rollback
 
 Revert only the WebP CSS media override and delete unused HQ image; CINE1D remains the proven fallback. Retain no external asset dependencies.
+
+## CI path guard
+
+The original PERF2.1 mobile workflow did not trigger on changes to cinematic CSS or local posters; HOME-CINE1E adds precise path filters for public cinematic assets. Chrome public visual QA now asserts computed-image choice at every 320/390/768/1440 breakpoint. This ensures no stale small desktop image or accidental high-resolution mobile background.
