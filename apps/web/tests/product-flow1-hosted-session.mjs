@@ -74,12 +74,22 @@ export async function openHostedSession(label, config = hostedConfig()) {
   let closed = false;
   async function close() {
     if (closed) return;
-    closed = true;
     try {
       if (hasSession) {
-        const result = await api.auth.signOut({ scope: "local" });
-        requireCondition(!result.error, "FLOW1_HOSTED_LOCAL_LOGOUT_FAILED");
+        let revoked = false;
+        // A transient cleanup failure must not silently leave a refresh session.
+        for (let attempt = 0; attempt < 2 && !revoked; attempt += 1) {
+          try {
+            const result = await api.auth.signOut({ scope: "local" });
+            revoked = !result.error;
+          } catch {
+            // Retry once, with the same session and local scope only.
+          }
+        }
+        requireCondition(revoked, "FLOW1_HOSTED_LOCAL_LOGOUT_FAILED");
       }
+      hasSession = false;
+      closed = true;
     } catch {
       throw new Error("FLOW1_HOSTED_LOCAL_LOGOUT_FAILED");
     } finally {
@@ -164,7 +174,11 @@ export async function openHostedSession(label, config = hostedConfig()) {
       close,
     });
   } catch (error) {
-    await close().catch(() => {});
+    try {
+      await close();
+    } catch {
+      throw new HostedSessionCheckError("FLOW1_HOSTED_INITIALIZATION_CLEANUP_FAILED");
+    }
     // SDK/network errors may contain token-bearing URLs: never propagate them.
     if (error instanceof HostedSessionCheckError) throw error;
     throw new Error("FLOW1_HOSTED_SESSION_FAILED");
