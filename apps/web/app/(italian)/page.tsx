@@ -1,5 +1,7 @@
 import { PublicHomeNavigation } from "@/components/public-home-navigation";
 import { PublicCinematicHero } from "@/components/public-cinematic-hero";
+import { PublicSteelGeometryProof } from "@/components/public-steel-geometry-proof";
+import cineStyles from "@/components/public-cinematic-continuity.module.css";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -122,7 +124,9 @@ export default function PublicHomePage() {
 
       <PublicIntelligencePillars />
 
-      <section className="border-b border-[#dce2df] bg-white">
+      <PublicSteelGeometryProof locale="it" />
+
+      <section className={cineStyles.toolSection}>
         <div className="mx-auto max-w-[1120px] px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-sm">
@@ -135,12 +139,12 @@ export default function PublicHomePage() {
               </p>
             </div>
 
-            <div className="grid flex-1 gap-px overflow-hidden rounded-xl border border-[#dce2df] bg-[#dce2df] sm:grid-cols-2 lg:max-w-4xl lg:grid-cols-4">
+            <div className={`${cineStyles.toolShelf} grid flex-1 gap-px overflow-hidden rounded-xl border sm:grid-cols-2 lg:max-w-4xl lg:grid-cols-4`}>
               {publicTools.map((tool) => (
                 <Link
                   key={tool.label}
                   href={tool.href}
-                  className="bg-white px-4 py-3.5 transition hover:bg-[#f7faf8]"
+                  className={`${cineStyles.toolTile} bg-white px-4 py-3.5 transition hover:bg-[#f7faf8]`}
                 >
                   <p className="text-sm font-semibold text-[#173f35]">{tool.label}</p>
                   <p className="mt-1 text-xs leading-5 text-[#66736e]">{tool.description}</p>
@@ -151,7 +155,7 @@ export default function PublicHomePage() {
         </div>
       </section>
 
-      <section id="aziende" className="bg-[#f2f4f3]">
+      <section id="aziende" className={cineStyles.companySection}>
         <div className="mx-auto max-w-[920px] px-4 py-11 sm:px-6 sm:py-14 lg:px-8">
           <div className="max-w-2xl">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">La tua azienda</p>
@@ -163,7 +167,7 @@ export default function PublicHomePage() {
             </p>
           </div>
 
-          <div className="mt-6">
+          <div className={`${cineStyles.companyLookup} mt-6`}>
             <DeferredPublicCompanyLookup />
           </div>
 

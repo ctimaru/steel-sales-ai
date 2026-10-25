@@ -1,4 +1,5 @@
 import Link from "next/link";
+import cineStyles from "./public-cinematic-continuity.module.css";
 
 /**
  * HOME-SI4 — Public onboarding and trust explainer.
@@ -14,7 +15,7 @@ const steps = [
 
 export function PublicRegistrationTrust() {
   return (
-    <section id="registrazione" aria-labelledby="home-registration-title" className="border-t border-[#dce5e0] bg-white">
+    <section id="registrazione" aria-labelledby="home-registration-title" className={`${cineStyles.trustSection} border-t border-[#dce5e0]`}>
       <div className="mx-auto max-w-[1120px] px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)] lg:items-end">
           <div className="max-w-2xl">
@@ -39,10 +40,10 @@ export function PublicRegistrationTrust() {
           </div>
         </div>
 
-        <ol aria-label="Come avviene la registrazione aziendale" className="mt-6 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <ol aria-label="Come avviene la registrazione aziendale" className={`${cineStyles.trustSteps} mt-6 grid gap-2 sm:grid-cols-2 lg:grid-cols-4`}>
           {steps.map((step) => (
-            <li key={step.number} className="flex min-w-0 gap-3 rounded-xl border border-[#dce5e0] bg-[#f8faf9] px-3.5 py-3">
-              <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#e6f3ed] text-xs font-extrabold text-[#123b34]">{step.number}</span>
+            <li key={step.number} className={`${cineStyles.trustStep} flex min-w-0 gap-3 rounded-xl border px-3.5 py-3`}>
+              <span aria-hidden="true" className={`${cineStyles.trustStepNumber} flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-extrabold text-[#123b34]`}>{step.number}</span>
               <div className="min-w-0">
                 <h3 className="text-xs font-bold text-[#123b34]">{step.title}</h3>
                 <p className="mt-1 text-xs leading-5 text-[#52615b]">{step.detail}</p>
@@ -51,7 +52,7 @@ export function PublicRegistrationTrust() {
           ))}
         </ol>
 
-        <div className="mt-5 flex flex-col gap-3 rounded-xl border border-[#cbdcd3] bg-[#edf5f2] px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className={`${cineStyles.trustDisclosure} mt-5 flex flex-col gap-3 rounded-xl border px-4 py-4 sm:flex-row sm:items-center sm:justify-between`}>
           <p className="max-w-[720px] text-xs leading-5 text-[#36574c]">
             <strong className="text-[#123b34]">Profilo aziendale e Network premium sono separati.</strong>{" "}
             La registrazione non abilita automaticamente la directory completa.

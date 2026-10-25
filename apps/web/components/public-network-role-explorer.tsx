@@ -1,4 +1,5 @@
 import Link from "next/link";
+import cineStyles from "./public-cinematic-continuity.module.css";
 
 type PersonaKey = "merchant" | "user" | "processor" | "producer";
 
@@ -65,7 +66,7 @@ export function PublicNetworkRoleExplorer() {
   return (
     <section
       id="network"
-      className="perf21-network-explorer border-b border-[#dce2df] bg-white"
+      className={`${cineStyles.networkSection} perf21-network-explorer border-b border-[#dce2df]`}
       aria-labelledby="network-value-title"
       aria-label="Network per Produttori, Commercianti, Terzisti e Utilizzatori"
     >
@@ -97,7 +98,7 @@ export function PublicNetworkRoleExplorer() {
           <legend className="text-xs font-semibold text-[#66736e]">Tu che azienda sei?</legend>
           <div className="mt-2 flex flex-wrap gap-2">
             {order.map((key) => (
-              <label key={key} className="cursor-pointer">
+              <label key={key} className={`${cineStyles.networkRole} cursor-pointer`}>
                 <input
                   className="peer sr-only"
                   type="radio"
@@ -121,7 +122,7 @@ export function PublicNetworkRoleExplorer() {
               key={key}
               id={`network-persona-${key}`}
               data-network-persona={key}
-              className="perf21-network-panel mt-5 rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-5 sm:p-6"
+              className={`${cineStyles.networkPanel} perf21-network-panel mt-5 rounded-2xl border p-5 sm:p-6`}
               role="region"
               aria-label={persona.question}
             >

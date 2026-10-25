@@ -1,5 +1,7 @@
 import { PublicHomeNavigation } from "@/components/public-home-navigation";
 import { PublicCinematicHero } from "@/components/public-cinematic-hero";
+import { PublicCinematicAccessBand, PublicSteelGeometryProof } from "@/components/public-steel-geometry-proof";
+import cineStyles from "@/components/public-cinematic-continuity.module.css";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -98,13 +100,13 @@ export default function EnglishHomePage() {
 
       <PublicCinematicHero locale="en" />
 
-      <section className="bg-white" aria-labelledby="en-workflows">
+      <section className={cineStyles.enWorkflow} aria-labelledby="en-workflows">
         <div className="mx-auto max-w-[1120px] px-4 py-14 sm:px-6 lg:px-8">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Purpose-built for B2B</p>
           <h2 id="en-workflows" className="mt-2 max-w-2xl text-3xl font-semibold tracking-tight text-[#123b34]">From a steel requirement to a better-informed decision.</h2>
           <div className="mt-7 grid gap-4 md:grid-cols-3">
             {workflows.map((item) => (
-              <article key={item.index} className="rounded-2xl border border-[#dce5e0] bg-[#f8faf8] p-6">
+              <article key={item.index} className={`${cineStyles.enWorkflowCard} border p-6`}>
                 <span className="text-xs font-extrabold text-[#1f6b5a]">{item.index}</span>
                 <h3 className="mt-3 text-lg font-bold text-[#123b34]">{item.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-[#52615b]">{item.description}</p>
@@ -114,7 +116,9 @@ export default function EnglishHomePage() {
         </div>
       </section>
 
-      <section className="bg-[#f2f4f3]" aria-labelledby="en-network-heading">
+      <PublicSteelGeometryProof locale="en" />
+
+      <section className={cineStyles.enNetwork} aria-labelledby="en-network-heading">
         <div className="mx-auto max-w-[1120px] px-4 py-14 sm:px-6 lg:px-8">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">The steel supply chain</p>
           <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
@@ -123,7 +127,7 @@ export default function EnglishHomePage() {
           </div>
           <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {roles.map((role) => (
-              <article key={role.title} className="rounded-xl border border-[#dce5e0] bg-white px-5 py-6">
+              <article key={role.title} className={`${cineStyles.enNetworkCard} border px-5 py-6`}>
                 <h3 className="font-bold text-[#123b34]">{role.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-[#52615b]">{role.description}</p>
               </article>
@@ -135,7 +139,7 @@ export default function EnglishHomePage() {
         </div>
       </section>
 
-      <section className="bg-white" aria-labelledby="en-knowledge-heading">
+      <section className={cineStyles.enKnowledge} aria-labelledby="en-knowledge-heading">
         <div className="mx-auto flex max-w-[1120px] flex-col gap-6 px-4 py-14 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
           <div className="max-w-2xl">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Open knowledge</p>
@@ -145,6 +149,8 @@ export default function EnglishHomePage() {
           <Link href="/en/knowledge" className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-xl border border-[#b9c9c2] bg-white px-6 text-sm font-bold text-[#123b34] hover:bg-[#edf5f1]">Explore Steel Knowledge →</Link>
         </div>
       </section>
+
+      <PublicCinematicAccessBand locale="en" />
 
       <PublicContactSection locale="en" />
 
