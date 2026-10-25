@@ -4,6 +4,7 @@ import test from "node:test";
 
 const read = (path) => fs.readFileSync(new URL(path, import.meta.url), "utf8");
 const hero = read("../components/public-cinematic-hero.tsx");
+const header = read("../components/public-home-header.tsx");
 const css = read("../components/public-cinematic-hero.module.css");
 const continuity = read("../components/public-cinematic-continuity.module.css");
 const it = read("../app/page.tsx");
@@ -32,8 +33,8 @@ test("HOME-CINE1D preserves truthful workflow and public-first bilingual CTAs", 
   assert.match(en, /<PublicCinematicHero locale="en" \/>/);
   assert.match(hero, /builder: "\/distinta"/);
   assert.match(hero, /builder: "\/en\/distinta"/);
-  assert.match(hero, /register: "\/register"/);
-  assert.match(hero, /register: "\/en\/register"/);
+  assert.match(header, /"\/register"/);
+  assert.match(header, /"\/en\/register"/);
   assert.match(hero, /Illustrativo — non sono dati reali/);
   assert.match(hero, /Illustrative — not live data/);
   assert.match(hero, /registrazione, verifica e abilitazione/);

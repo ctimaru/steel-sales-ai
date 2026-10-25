@@ -5,6 +5,7 @@ import test from "node:test";
 const root = new URL("../", import.meta.url);
 const css = readFileSync(new URL("components/public-cinematic-hero.module.css", root), "utf8");
 const hero = readFileSync(new URL("components/public-cinematic-hero.tsx", root), "utf8");
+const header = readFileSync(new URL("components/public-home-header.tsx", root), "utf8");
 const small = statSync(new URL("public/home-cine1a-steel.webp", root)).size;
 const large = statSync(new URL("public/home-cine1e-steel-desktop.webp", root)).size;
 
@@ -30,8 +31,8 @@ test("HOME-CINE1E keeps high-resolution photo desktop-only and honors reduced da
 test("HOME-CINE1E is purely decorative and preserves genuine public conversions", () => {
   assert.match(hero, /builder: "\/distinta"/);
   assert.match(hero, /builder: "\/en\/distinta"/);
-  assert.match(hero, /register: "\/register"/);
-  assert.match(hero, /register: "\/en\/register"/);
+  assert.match(header, /"\/register"/);
+  assert.match(header, /"\/en\/register"/);
   assert.match(hero, /Illustrativo — non sono dati reali/);
   assert.doesNotMatch(hero, /"use client"|<video|autoplay|<canvas|three\.js|fetch\s*\(/i);
   assert.doesNotMatch(css, /url\(https?:\/\//);

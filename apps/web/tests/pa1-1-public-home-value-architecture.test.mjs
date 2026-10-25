@@ -7,6 +7,7 @@ const home = fs.readFileSync(
   "utf8",
 );
 const hero = fs.readFileSync(new URL("../components/public-cinematic-hero.tsx", import.meta.url), "utf8");
+const header = fs.readFileSync(new URL("../components/public-home-header.tsx", import.meta.url), "utf8");
 const network = fs.readFileSync(
   new URL("../components/public-network-role-explorer.tsx", import.meta.url),
   "utf8",
@@ -44,7 +45,7 @@ test("PA1.1 public-value architecture remains intact after PA1.2 adds real compa
 
 test("PA1.1 aligns the public home with the current brand palette", () => {
   assert.match(showcase, /bg-\[#123b34\]/);
-  assert.match(home, /platform-primary/);
+  assert.match(header, /bg-\[#0b7852\]/);
   assert.doesNotMatch(home, /#2f6fed/);
   assert.doesNotMatch(home, /#245ed1/);
 });

@@ -1,0 +1,18 @@
+/* HOME-CONV1A: force accessible foreground on dark public navigation.
+   Some global color normalization tokens override dynamic Tailwind arbitrary
+   color classes. Keep these rules scoped to the dark public header only. */
+.darkDesktopLink {
+  color: #d2e9db !important;
+  -webkit-text-fill-color: #d2e9db;
+}
+.darkMobileLink {
+  color: #d4e8da !important;
+  -webkit-text-fill-color: #d4e8da;
+}
+.darkDesktopLink:hover,
+.darkDesktopLink:focus-visible,
+.darkMobileLink:hover,
+.darkMobileLink:focus-visible {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff;
+}

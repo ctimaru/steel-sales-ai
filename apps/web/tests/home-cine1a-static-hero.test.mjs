@@ -4,6 +4,7 @@ import test from "node:test";
 
 const read = (relative) => readFileSync(new URL(relative, import.meta.url), "utf8");
 const hero = read("../components/public-cinematic-hero.tsx");
+const header = read("../components/public-home-header.tsx");
 const css = read("../components/public-cinematic-hero.module.css");
 const it = read("../app/page.tsx");
 const en = read("../app/en/page.tsx");
@@ -13,7 +14,7 @@ test("HOME-CINE1A hero is shared across IT/EN and preserves static SEO", () => {
   assert.match(en, /<PublicCinematicHero locale="en" \/>/);
   for (const home of [it, en]) {
     assert.match(home, /export const dynamic = "force-static"/);
-    assert.match(home, /<PublicHomeNavigation/);
+    assert.match(home, /<PublicHomeHeader/);
     assert.doesNotMatch(home, /<PublicProductPreview \/>/);
   }
   assert.match(hero, /aria-labelledby="home-cinematic-title"/);
@@ -23,10 +24,12 @@ test("HOME-CINE1A hero is shared across IT/EN and preserves static SEO", () => {
 });
 
 test("HOME-CINE1A differentiates public utilities and gated company access", () => {
-  for (const href of ['builder: "/distinta"', 'builder: "/en/distinta"', 'register: "/register"', 'register: "/en/register"', '"#network"', '"/en/network"']) {
+  for (const href of ['builder: "/distinta"', 'builder: "/en/distinta"', '"#network"', '"/en/network"']) {
     assert.ok(hero.includes(href), "Missing safe route: " + href);
   }
   assert.match(hero, /source=home&surface=hero#calcolatore-pesi/);
+  assert.match(header, /"\/register"/);
+  assert.match(header, /"\/en\/register"/);
   assert.match(hero, /Strumenti pubblici senza account/);
   assert.match(hero, /Company workspaces are subject to registration/);
   assert.match(hero, /Illustrativo — non sono dati reali/);

@@ -1,13 +1,11 @@
-import { PublicHomeNavigation } from "@/components/public-home-navigation";
+import { PublicHomeHeader } from "@/components/public-home-header";
 import { PublicCinematicHero } from "@/components/public-cinematic-hero";
 import { PublicCinematicAccessBand, PublicSteelGeometryProof } from "@/components/public-steel-geometry-proof";
 import cineStyles from "@/components/public-cinematic-continuity.module.css";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { ProductBrand } from "@/components/product-brand";
 import { PublicContactSection } from "@/components/public-contact-section";
-import { PublicPageLanguageSelector } from "@/components/calculator-page-language-selector";
 import { absoluteUrl } from "@/lib/site";
 
 export const dynamic = "force-static";
@@ -83,20 +81,7 @@ export default function EnglishHomePage() {
     <main lang="en" className="min-h-screen bg-[#f2f4f3] text-[#1d2824]">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
 
-      <header className="border-b border-[#234536] bg-[#071713] text-white">
-        <div className="mx-auto flex min-h-[72px] max-w-[1180px] items-center justify-between gap-2 px-3 sm:px-6 lg:px-8">
-          <ProductBrand href="/en" compact inverse />
-          <div className="flex shrink-0 items-center gap-2">
-            <PublicPageLanguageSelector locale="en" surface="home"/>
-            <Link href="/en/login" className="hidden min-h-11 items-center justify-center px-2 text-xs font-semibold text-[#d0e7d9] hover:text-white sm:inline-flex">Sign in</Link>
-            <Link href="/en/register" className="platform-primary inline-flex min-h-11 items-center justify-center rounded-xl px-3 text-xs font-bold sm:px-4 sm:text-sm">
-              <span className="sm:hidden">Join</span>
-              <span className="hidden sm:inline">Register company</span>
-            </Link>
-          </div>
-        </div>
-        <PublicHomeNavigation locale="en" theme="dark" />
-      </header>
+      <PublicHomeHeader locale="en" />
 
       <PublicCinematicHero locale="en" />
 

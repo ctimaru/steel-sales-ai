@@ -91,12 +91,53 @@ try {
           viewport.name + " section clipped: " + JSON.stringify(g));
       }
 
-      const heroLinks = page.getByRole("link", { name: /Registra la tua azienda/i });
-      check(await heroLinks.count() >= 1, "Registration CTA not present");
-      check(await heroLinks.first().getAttribute("href") === "/register", "Registration CTA points elsewhere");
-      const publicDistinta = page.getByRole("link", { name: "Crea una distinta gratis" });
-      check(await publicDistinta.count() === 1, "No public builder CTA");
+      // HOME-CONV1A: a public calculator is the first action, even after scrolling.
+      // Company sign-in/registration share one native, keyboard-accessible menu.
+      const publicHeader = page.locator("header").first();
+      const stickyCalculator = publicHeader.locator('[data-home-primary-cta]');
+      const expectedCalculator = "/knowledge/tubes?source=home&surface=header#calcolatore-pesi";
+      check(await stickyCalculator.count() === 1, "Persistent calculator CTA missing");
+      check(await stickyCalculator.getAttribute("href") === expectedCalculator, "Header calculator destination changed");
+      const hero = page.locator('section[aria-labelledby="home-cinematic-title"]');
+      check(await hero.getByRole("link", { name: "Apri calcolatrice" }).getAttribute("href")
+        === "/knowledge/tubes?source=home&surface=hero#calcolatore-pesi",
+        "Hero calculator must be the first direct action");
+      const publicDistinta = hero.getByRole("link", { name: "Crea una distinta gratis" });
+      check(await publicDistinta.count() === 1, "No public builder second step");
       check(await publicDistinta.getAttribute("href") === "/distinta", "Builder CTA is not public");
+      const account = publicHeader.locator('nav[aria-label="Area aziende"] details');
+      const accountSummary = account.locator("summary");
+      check(await accountSummary.count() === 1, "Area aziende access menu missing");
+      await accountSummary.click();
+      check(await account.locator('a[href="/login"]').count() === 1, "Company login menu item missing");
+      check(await account.locator('a[href="/register"]').count() === 1, "Company registration menu item missing");
+      await accountSummary.click();
+      const language = publicHeader.locator('nav[aria-label="Seleziona lingua del sito"]');
+      check(await language.count() === 1, "Compact locale selector missing");
+      check(await language.locator("summary").innerText() === "IT", "Home locale should display compact IT code");
+      await page.evaluate(() => window.scrollTo(0, 450));
+      const stickyRect = await stickyCalculator.boundingBox();
+      check(Boolean(stickyRect && stickyRect.y >= 0 && stickyRect.y < 90),
+        viewport.name + " calculator action not sticky after scroll");
+      await page.evaluate(() => window.scrollTo(0, 0));
+
+      if (viewport.width === 320) {
+        // Explicit narrow English first-fold acceptance. Catch width regressions
+        // before unrelated downstream visual and investor checks.
+        const englishNarrow = await page.goto(BASE + "/en", { waitUntil: "domcontentloaded", timeout: 50000 });
+        check(englishNarrow?.status() === 200, "CONV1A English 320 homepage unavailable");
+        const enNarrow = await page.evaluate(() => ({
+          width: document.documentElement.clientWidth,
+          scroll: document.documentElement.scrollWidth,
+        }));
+        check(enNarrow.scroll <= enNarrow.width + 12,
+          "CONV1A English 320 first-fold overflow: " + JSON.stringify(enNarrow));
+        const enPrimary = page.locator("header").first().locator("[data-home-primary-cta]");
+        check((await enPrimary.innerText()).trim().startsWith("Calc"), "CONV1A English mobile calculator label missing");
+        check(await enPrimary.getAttribute("href") === "/en/knowledge/tubes",
+          "CONV1A English 320 calculator must remain public");
+        await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 50000 });
+      }
 
       const networkLinks = await page.locator('a[href="/network"], a[href="/rfq-hub"], a[href="/platform"]').count();
       assert.equal(networkLinks, 0, "Public page must not link users into private data");
@@ -120,9 +161,19 @@ try {
         const english = await page.goto(BASE + "/en", { waitUntil: "domcontentloaded", timeout: 50000 });
         check(english?.status() === 200, "CINE1C English homepage unavailable");
         check(await page.locator("#steel-tools-proof").count() === 1, "CINE1C English product proof missing");
+        const enHeader = page.locator("header").first();
+        check(await enHeader.locator('[data-home-primary-cta]').getAttribute("href") === "/en/knowledge/tubes",
+          "EN persistent calculator not linked to public English calculator");
+        const enCompany = enHeader.locator('nav[aria-label="Company account"] details');
+        await enCompany.locator("summary").click();
+        check(await enCompany.locator('a[href="/en/login"]').count() === 1, "English sign-in missing");
+        check(await enCompany.locator('a[href="/en/register"]').count() === 1, "English registration missing");
+        await enCompany.locator("summary").click();
+        check(await enHeader.locator('nav[aria-label="Choose website language"] summary').innerText() === "EN",
+          "English locale must stay compact");
         check(await page.getByRole("heading", { name: "Your company. A governed workspace." }).count() === 1,
           "CINE1C English trusted access panel missing");
-        check(await page.getByRole("link", { name: "Open tube calculator" }).getAttribute("href")
+        check(await page.locator("#steel-tools-proof").getByRole("link", { name: "Open tube calculator" }).getAttribute("href")
           === "/en/knowledge/tubes", "CINE1C EN calculator route mismatch");
         const enOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
         check(enOverflow <= 12, "CINE1C EN overflow: " + enOverflow);
@@ -207,7 +258,14 @@ try {
         console.log("HOME-SI5 AXE", JSON.stringify({
           viewport: viewport.name,
           totalViolations: axe.violations.length,
-          seriousOrCritical: severe.map((item) => ({ id: item.id, impact: item.impact, nodes: item.nodes.length })),
+          seriousOrCritical: severe.map((item) => ({
+            id: item.id, impact: item.impact, nodes: item.nodes.length,
+            // Diagnostic only: public static homepage elements, never private user content.
+            affected: item.nodes.slice(0, 5).map((node) => ({
+              target: node.target, html: node.html.slice(0, 180),
+              reason: node.failureSummary?.slice(0, 180),
+            })),
+          })),
           other: axe.violations.filter((item) => item.impact !== "critical" && item.impact !== "serious")
             .map((item) => ({ id: item.id, impact: item.impact, nodes: item.nodes.length })),
         }));

@@ -1,17 +1,15 @@
-import { PublicHomeNavigation } from "@/components/public-home-navigation";
+import { PublicHomeHeader } from "@/components/public-home-header";
 import { PublicCinematicHero } from "@/components/public-cinematic-hero";
 import { PublicSteelGeometryProof } from "@/components/public-steel-geometry-proof";
 import cineStyles from "@/components/public-cinematic-continuity.module.css";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { ProductBrand } from "@/components/product-brand";
 import { PublicNetworkRoleExplorer } from "@/components/public-network-role-explorer";
 import { DeferredPublicCompanyLookup } from "@/components/deferred-public-company-lookup";
 import { PublicIntelligencePillars } from "@/components/public-intelligence-showcase";
 import { PublicRegistrationTrust } from "@/components/public-registration-trust";
 import { PublicContactSection } from "@/components/public-contact-section";
-import { PublicPageLanguageSelector } from "@/components/calculator-page-language-selector";
 import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -94,29 +92,7 @@ export default function PublicHomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
       />
 
-      <header className="border-b border-[#234536] bg-[#071713] text-white">
-        <div className="mx-auto flex min-h-[72px] max-w-[1180px] items-center justify-between gap-2 px-3 sm:px-6 lg:px-8">
-          <div className="hidden min-w-0 sm:block">
-            <ProductBrand href="/" inverse />
-          </div>
-          <div className="min-w-0 sm:hidden">
-            <ProductBrand href="/" compact showDescriptor={false} markOnly />
-          </div>
-
-          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-            <PublicPageLanguageSelector locale="it" surface="home"/>
-            <Link href="/login" className="inline-flex min-h-11 items-center justify-center rounded-xl px-2.5 text-sm font-semibold text-[#d0e7d9] hover:bg-[#193a2c] hover:text-white sm:px-3">
-              Accedi
-            </Link>
-            <Link href="/register" className="platform-primary inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-xl px-3 text-xs font-semibold sm:px-4 sm:text-sm">
-              <span className="sm:hidden">Registrati</span>
-              <span className="hidden sm:inline">Registra azienda</span>
-            </Link>
-          </div>
-        </div>
-
-        <PublicHomeNavigation locale="it" theme="dark" />
-      </header>
+      <PublicHomeHeader locale="it" />
 
       <PublicCinematicHero locale="it" />
 

@@ -4,6 +4,7 @@ import test from "node:test";
 
 const read = (file) => fs.readFileSync(new URL(file, import.meta.url), "utf8");
 const hero = read("../components/public-cinematic-hero.tsx");
+const header = read("../components/public-home-header.tsx");
 const css = read("../components/public-cinematic-hero.module.css");
 const it = read("../app/page.tsx");
 const en = read("../app/en/page.tsx");
@@ -55,8 +56,8 @@ test("HOME-CINE1B motion is CSS-only, decorative, performance-scoped, and access
 test("HOME-CINE1B preserves public-first conversion and privacy boundaries", () => {
   assert.match(hero, /builder: "\/distinta"/);
   assert.match(hero, /builder: "\/en\/distinta"/);
-  assert.match(hero, /register: "\/register"/);
-  assert.match(hero, /register: "\/en\/register"/);
+  assert.match(header, /"\/register"/);
+  assert.match(header, /"\/en\/register"/);
   assert.match(hero, /source=home&surface=hero#calcolatore-pesi/);
   assert.match(hero, /registrazione, verifica e abilitazione/);
   assert.match(hero, /workspaces are subject to registration, review and access permissions/);

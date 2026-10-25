@@ -9,8 +9,8 @@ import styles from "./public-cinematic-hero.module.css";
 export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
   const en = locale === "en";
   const links = en
-    ? { builder: "/en/distinta", register: "/en/register", calculator: "/en/knowledge/tubes", knowledge: "/en/knowledge", network: "/en/network" }
-    : { builder: "/distinta", register: "/register", calculator: "/knowledge/tubes?source=home&surface=hero#calcolatore-pesi", knowledge: "/knowledge", network: "#network" };
+    ? { builder: "/en/distinta", calculator: "/en/knowledge/tubes", knowledge: "/en/knowledge", network: "/en/network" }
+    : { builder: "/distinta", calculator: "/knowledge/tubes?source=home&surface=hero#calcolatore-pesi", knowledge: "/knowledge", network: "#network" };
 
   return (
     <>
@@ -57,15 +57,15 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
           </h1>
           <p className={styles.description}>
             {en
-              ? "From technical specifications to new business connections. Discover steel knowledge, build your RFQ bill and explore a more intelligent commercial ecosystem."
-              : "Dalle specifiche tecniche alle nuove connessioni commerciali. Calcola, crea distinte ed esplora un ecosistema più intelligente per il business dell’acciaio."}
+              ? "Start with the tube calculator: choose your dimensions, check theoretical weight, then build a clear RFQ bill. From technical requirements to business connections."
+              : "Inizia dalla calcolatrice: scegli le dimensioni, verifica il peso teorico e crea la tua distinta. Dalle specifiche tecniche alle nuove opportunità commerciali."}
           </p>
           <div className={styles.actions}>
-            <Link href={links.builder} className={styles.primary}>
-              {en ? "Create a free RFQ bill" : "Crea una distinta gratis"} <span aria-hidden="true">↗</span>
+            <Link href={links.calculator} className={styles.primary}>
+              {en ? "Open tube calculator" : "Apri calcolatrice"} <span aria-hidden="true">↗</span>
             </Link>
-            <Link href={links.register} className={styles.secondary}>
-              {en ? "Register your company" : "Registra la tua azienda"} <span aria-hidden="true">→</span>
+            <Link href={links.builder} className={styles.secondary}>
+              {en ? "Create a free RFQ bill" : "Crea una distinta gratis"} <span aria-hidden="true">→</span>
             </Link>
           </div>
           <p className={styles.caveat}>
@@ -74,7 +74,7 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
               : "Strumenti pubblici senza account. I workspace aziendali richiedono registrazione, verifica e abilitazione."}
           </p>
           <nav className={styles.quickLinks} aria-label={en ? "Discover public tools" : "Esplora gli strumenti pubblici"}>
-            <Link href={links.calculator}>{en ? "Tube calculator" : "Calcolo pesi"}</Link>
+            <Link href="#steel-tools-proof">{en ? "How it works" : "Come funziona"}</Link>
             <Link href={links.network}>Network</Link>
             <Link href={links.knowledge}>{en ? "Steel knowledge" : "Scuola"}</Link>
           </nav>
