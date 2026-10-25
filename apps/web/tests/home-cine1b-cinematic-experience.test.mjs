@@ -10,7 +10,7 @@ const en = read("../app/en/page.tsx");
 const packageFile = JSON.parse(read("../package.json"));
 
 test("HOME-CINE1B introduces a true cinematic progression without new runtime dependencies", () => {
-  assert.match(hero, /<PublicCinematicHero/);
+  assert.match(hero, /export function PublicCinematicHero/);
   assert.match(hero, /className=\{styles\.intelligenceOverlay\}/);
   assert.match(hero, /className=\{styles\.workflowTrack\}/);
   assert.match(hero, /className=\{styles\.bridge\}/);
