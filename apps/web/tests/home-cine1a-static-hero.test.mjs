@@ -33,12 +33,12 @@ test("HOME-CINE1A differentiates public utilities and gated company access", () 
   assert.doesNotMatch(hero, /href="\/network"|href="\/rfq-hub"|service_role|createClient|fetch\s*\(|useEffect|useState|<video/i);
 });
 
-test("HOME-CINE1A is responsive, motion-respectful and requires no binary assets", () => {
+test("HOME-CINE1A is responsive, motion-respectful and uses a tiny local, owned photo asset", () => {
   for (const fragment of ["max-width: 980px", "max-width: 700px", "max-width: 390px", "prefers-reduced-motion: reduce", "focus-visible", "min-height: 48px"]) {
     assert.ok(css.includes(fragment), "Missing responsive/a11y contract: " + fragment);
   }
   assert.match(hero, /<svg/);
-  assert.match(css, /home-cine1a-steel\\.webp/);
+  assert.match(css, /home-cine1a-steel\.webp/);
   assert.match(css, /background-position: 74% bottom/);
   assert.match(css, /background: #0c7751/);
   assert.doesNotMatch(hero, /next\/image|<img|<iframe|autoplay/);
