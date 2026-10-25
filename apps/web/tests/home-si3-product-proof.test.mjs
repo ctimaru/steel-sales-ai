@@ -4,6 +4,7 @@ import test from "node:test";
 
 const read = (file) => fs.readFileSync(new URL(file, import.meta.url), "utf8");
 const home = read("../app/page.tsx");
+const hero = read("../components/public-cinematic-hero.tsx");
 const showcase = read("../components/public-intelligence-showcase.tsx");
 const routes = read("../lib/routes.ts");
 const rfqPage = read("../app/(workspace)/marketplace/rfq-hub/page.tsx");
@@ -11,7 +12,8 @@ const network = read("../app/(workspace)/network/page.tsx");
 const school = read("../app/(public)/knowledge/page.tsx");
 
 test("HOME-SI3 grounds the preview in genuine RFQ Hub labels, without tenant data", () => {
-  assert.match(home, /<PublicProductPreview \/>/);
+  assert.match(home, /<PublicCinematicHero locale="it" \/>/);
+  assert.match(hero, /Illustrativo — non sono dati reali/);
   assert.match(showcase, /export function PublicProductPreview/);
   assert.match(showcase, /Nuova distinta/);
   for (const label of ["Distinte salvate", "Campagne RFQ", "Offerte ricevute", "Purchase Order"]) {
@@ -49,7 +51,7 @@ test("HOME-SI3 links only to real public routes or safe registration, never a pr
 
 test("HOME-SI3 keeps the homepage static and the initial Network discoverable", () => {
   assert.match(home, /export const dynamic = "force-static"/);
-  assert.match(home, /<PublicProductPreview \/>[\s\S]*<PublicNetworkRoleExplorer \/>[\s\S]*<PublicIntelligencePillars \/>[\s\S]*Prima utilità, poi prodotto/);
+  assert.match(home, /<PublicCinematicHero locale="it" \/>[\s\S]*<PublicNetworkRoleExplorer \/>[\s\S]*<PublicIntelligencePillars \/>[\s\S]*Prima utilità, poi prodotto/);
   for (const part of [home, showcase]) {
     assert.doesNotMatch(part, /"use client"|useEffect|useState|fetch\s*\(|createClient|cookies\s*\(|getUser\s*\(|next\/image|<Image|<video|<iframe/);
   }
