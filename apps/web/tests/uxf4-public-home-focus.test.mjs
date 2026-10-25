@@ -16,7 +16,7 @@ test("UXF4 preserves public discovery links in both desktop and mobile header", 
   assert.match(publicNav, /surface=header#calcolatore-pesi/);
   assert.match(publicNav, /Calcolo pesi/);
   assert.match(home, /href="\/distinta"/);
-  assert.match(home, /href="\/azienda"/);
+  assert.match(publicNav, /href: "\/azienda"/);
   assert.doesNotMatch(home, />\s*Calcolatore\s*</);
 });
 
