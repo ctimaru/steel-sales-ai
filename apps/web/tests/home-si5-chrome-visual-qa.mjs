@@ -129,6 +129,34 @@ try {
         await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 50000 });
       }
 
+      // HOME-CINE1D — ensure photographic composition never hides the action.
+      const visualRhythm = await page.evaluate(() => {
+        const title = document.getElementById("home-cinematic-title");
+        const hero = title?.closest("section");
+        const primary = hero?.querySelector('a[href="/distinta"]');
+        const rect = title?.getBoundingClientRect();
+        const action = primary?.getBoundingClientRect();
+        const heroRect = hero?.getBoundingClientRect();
+        return {
+          headingWidth: Math.round(rect?.width || 0),
+          headingRight: Math.round(rect?.right || 0),
+          actionBottom: Math.round(action?.bottom || 0),
+          actionWidth: Math.round(action?.width || 0),
+          heroHeight: Math.round(heroRect?.height || 0),
+          headingSize: title ? parseFloat(getComputedStyle(title).fontSize) : 0,
+        };
+      });
+      check(visualRhythm.headingWidth > 0 && visualRhythm.actionWidth >= 130,
+        viewport.name + " hero typography or tool CTA lost: " + JSON.stringify(visualRhythm));
+      if (viewport.width === 1440) {
+        check(visualRhythm.headingSize <= 86 && visualRhythm.heroHeight <= 705,
+          "CINE1D desktop composition regressed: " + JSON.stringify(visualRhythm));
+      }
+      if (viewport.width <= 390) {
+        check(visualRhythm.headingSize <= 42 && visualRhythm.actionBottom <= viewport.height + 20,
+          "CINE1D mobile first CTA not visible: " + JSON.stringify(visualRhythm));
+      }
+
       const h1 = await page.locator("h1").count();
       assert.equal(h1, 1, "Homepage must have one H1");
 
