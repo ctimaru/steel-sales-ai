@@ -122,7 +122,7 @@ export function BuyerDistintaBuilder({
     if (!raw || raw.length > 1200) return;
     try {
       const item = JSON.parse(raw) as Record<string, unknown>;
-      const dim = (v: unknown) => typeof v === "string" && /^\\d+(?:\\.\\d+)?$/.test(v) && Number(v) > 0 && Number(v) < 100000;
+      const dim = (v: unknown) => typeof v === "string" && /^\d+(?:\.\d+)?$/.test(v) && Number(v) > 0 && Number(v) < 100000;
       if (item.version !== 1 || typeof item.createdAt !== "number" || !Number.isFinite(item.createdAt) || Date.now() - item.createdAt > 600000 || item.createdAt > Date.now() + 1000) return;
       if (!["round_tube","square_tube","rectangular_tube"].includes(String(item.family)) ||
           !["en10210","en10219"].includes(String(item.standard)) || !dim(item.thickness)) return;
