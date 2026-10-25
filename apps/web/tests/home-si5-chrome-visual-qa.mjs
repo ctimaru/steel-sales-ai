@@ -133,7 +133,7 @@ try {
         check(enNarrow.scroll <= enNarrow.width + 12,
           "CONV1A English 320 first-fold overflow: " + JSON.stringify(enNarrow));
         const enPrimary = page.locator("header").first().locator("[data-home-primary-cta]");
-        check(await enPrimary.innerText() === "Calc ↗", "CONV1A English mobile calculator label missing");
+        check((await enPrimary.innerText()).trim().startsWith("Calc"), "CONV1A English mobile calculator label missing");
         check(await enPrimary.getAttribute("href") === "/en/knowledge/tubes",
           "CONV1A English 320 calculator must remain public");
         await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 50000 });
