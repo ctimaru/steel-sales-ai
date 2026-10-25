@@ -6,6 +6,7 @@ const globals = fs.readFileSync(new URL("../app/globals.css", import.meta.url), 
 const brand = fs.readFileSync(new URL("../components/product-brand.tsx", import.meta.url), "utf8");
 const identity = fs.readFileSync(new URL("../lib/product-identity.ts", import.meta.url), "utf8");
 const publicHome = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+const homeHeader = fs.readFileSync(new URL("../components/public-home-header.tsx", import.meta.url), "utf8");
 const cinematicHero = fs.readFileSync(new URL("../components/public-cinematic-hero.tsx", import.meta.url), "utf8");
 const companyShell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
 const platformShell = fs.readFileSync(new URL("../components/platform-shell.tsx", import.meta.url), "utf8");
@@ -38,7 +39,8 @@ test("UI1 brand remains lightweight and rebrandable from one identity contract",
 });
 
 test("UI1 applies the same product identity to public, Company and Platform contexts", () => {
-  assert.match(publicHome, /ProductBrand/);
+  assert.match(publicHome, /PublicHomeHeader/);
+  assert.match(homeHeader, /ProductBrand/);
   assert.match(companyShell, /ProductBrand/);
   assert.match(platformShell, /ProductBrand/);
 });
