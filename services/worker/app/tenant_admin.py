@@ -11,8 +11,9 @@ from uuid import UUID
 import httpx
 from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel, Field
-from supabase import create_client
-from supabase.lib.client_options import ClientOptions
+from supabase_auth import SyncGoTrueClient
+
+from .supabase_credentials import SupabaseCredentialError, get_supabase_admin_key, supabase_admin_headers
 
 from .repository import RepositoryConfigurationError
 
@@ -100,14 +101,16 @@ def _redirect_with_invitation(
 class TenantAdminService:
     def __init__(self) -> None:
         self.base_url = os.getenv("SUPABASE_URL", "").rstrip("/")
-        self.key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+        try:
+            self.key = get_supabase_admin_key()
+        except SupabaseCredentialError as exc:
+            raise RepositoryConfigurationError("Supabase backend credentials are not configured.") from exc
         if not self.base_url or not self.key:
             raise RepositoryConfigurationError(
-                "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required."
+                "SUPABASE_URL and backend credentials are required."
             )
         self.headers = {
-            "Authorization": f"Bearer {self.key}",
-            "apikey": self.key,
+            **supabase_admin_headers(self.key),
             "Content-Type": "application/json",
         }
 
@@ -309,8 +312,12 @@ class TenantAdminService:
             pass
 
     def _auth_client(self):
-        options = ClientOptions(auto_refresh_token=False, persist_session=False)
-        return create_client(self.base_url, self.key, options=options)
+        return SyncGoTrueClient(
+            url=f"{self.base_url}/auth/v1",
+            headers=supabase_admin_headers(self.key),
+            auto_refresh_token=False,
+            persist_session=False,
+        )
 
     async def _send_auth_invite(
         self,
@@ -323,7 +330,7 @@ class TenantAdminService:
 
         if existing_identity:
             def send_magic_link() -> None:
-                client.auth.sign_in_with_otp(
+                client.sign_in_with_otp(
                     {
                         "email": email,
                         "options": {
@@ -344,9 +351,9 @@ class TenantAdminService:
 
         def send_invite() -> None:
             if invite_options:
-                client.auth.admin.invite_user_by_email(email, invite_options)
+                client.admin.invite_user_by_email(email, invite_options)
             else:
-                client.auth.admin.invite_user_by_email(email)
+                client.admin.invite_user_by_email(email)
 
         await asyncio.to_thread(send_invite)
         return "invite"

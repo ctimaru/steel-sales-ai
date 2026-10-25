@@ -15,6 +15,8 @@ import httpx
 from fastapi import APIRouter, Header, HTTPException, Query
 from fastapi.responses import StreamingResponse
 
+from .supabase_credentials import SupabaseCredentialError, get_supabase_admin_key, supabase_admin_headers
+
 CONTRACT = "p0.10-v1"
 BUCKET_NAME = os.getenv("SUPABASE_UPLOAD_BUCKET", "commercial-uploads")
 ARCHIVE_CHUNK_SIZE = 1024 * 1024
@@ -32,7 +34,10 @@ def _require_ops_token(x_worker_token: str | None) -> None:
 
 def _supabase_config() -> tuple[str, str]:
     base_url = os.getenv("SUPABASE_URL", "").rstrip("/")
-    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
+    try:
+        key = get_supabase_admin_key()
+    except SupabaseCredentialError as exc:
+        raise HTTPException(status_code=503, detail="Data lifecycle backend is not configured.") from exc
     if not base_url or not key:
         raise HTTPException(status_code=503, detail="Data lifecycle backend is not configured.")
     return base_url, key
@@ -41,8 +46,7 @@ def _supabase_config() -> tuple[str, str]:
 def _service_headers(*, content_type: str = "application/json") -> dict[str, str]:
     _, key = _supabase_config()
     return {
-        "Authorization": f"Bearer {key}",
-        "apikey": key,
+        **supabase_admin_headers(key),
         "Content-Type": content_type,
     }
 

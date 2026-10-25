@@ -7,7 +7,9 @@ from uuid import UUID
 
 from fastapi import APIRouter, Header, HTTPException
 from pydantic import BaseModel
-from supabase import ClientOptions, create_client
+from storage3 import SyncStorageClient
+
+from .supabase_credentials import supabase_admin_headers
 
 from .bulk_import import _require_worker_token
 from .repository import RepositoryConfigurationError, RepositoryError, WorkerRepository
@@ -36,12 +38,8 @@ class EvidenceResponse(BaseModel):
 class EvidenceService:
     def __init__(self) -> None:
         self.repo = WorkerRepository()
-        self.base_url = os.getenv("SUPABASE_URL", "").rstrip("/")
-        self.key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
-        if not self.base_url or not self.key:
-            raise RepositoryConfigurationError(
-                "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required."
-            )
+        self.base_url = self.repo.base_url
+        self.key = self.repo.key
 
     async def _active_membership(self, actor_user_id: UUID) -> dict[str, object]:
         rows = await self.repo._request(
@@ -57,8 +55,10 @@ class EvidenceService:
         return rows[0]
 
     def _storage_client(self):
-        options = ClientOptions(auto_refresh_token=False, persist_session=False)
-        return create_client(self.base_url, self.key, options=options).storage.from_(BUCKET_NAME)
+        # Avoid supabase-py's default Bearer header: sb_secret_ is an API key, not a JWT.
+        return SyncStorageClient(
+            f"{self.base_url}/storage/v1/", supabase_admin_headers(self.key)
+        ).from_(BUCKET_NAME)
 
     async def resolve(self, observation_id: int, actor_user_id: UUID) -> dict[str, object]:
         membership = await self._active_membership(actor_user_id)

@@ -7,6 +7,8 @@ from uuid import UUID
 
 import httpx
 
+from .supabase_credentials import SupabaseCredentialError, get_supabase_admin_key, supabase_admin_headers
+
 
 class QueryConfigurationError(RuntimeError):
     pass
@@ -14,10 +16,13 @@ class QueryConfigurationError(RuntimeError):
 
 def _configuration() -> tuple[str, str]:
     supabase_url = os.getenv("SUPABASE_URL", "").rstrip("/")
-    service_role_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+    try:
+        service_role_key = get_supabase_admin_key()
+    except SupabaseCredentialError as exc:
+        raise QueryConfigurationError("Supabase backend credentials are not configured.") from exc
     if not supabase_url or not service_role_key:
         raise QueryConfigurationError(
-            "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for database queries."
+            "SUPABASE_URL and backend credentials are required for database queries."
         )
     return supabase_url, service_role_key
 
@@ -25,8 +30,7 @@ def _configuration() -> tuple[str, str]:
 async def _rpc_rows(function_name: str, payload: dict[str, object]) -> list[dict[str, Any]]:
     supabase_url, service_role_key = _configuration()
     headers = {
-        "Authorization": f"Bearer {service_role_key}",
-        "apikey": service_role_key,
+        **supabase_admin_headers(service_role_key),
         "Content-Type": "application/json",
     }
     endpoint = f"{supabase_url}/rest/v1/rpc/{function_name}"

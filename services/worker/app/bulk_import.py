@@ -11,7 +11,9 @@ from uuid import UUID, uuid4
 
 from fastapi import APIRouter, BackgroundTasks, Header, HTTPException, status
 from pydantic import BaseModel, Field, model_validator
-from supabase import ClientOptions, create_client
+from storage3 import SyncStorageClient
+
+from .supabase_credentials import supabase_admin_headers
 
 from .knowledge_ingest import build_knowledge_document
 from .parser_v31 import ParserInput, ParserV31Adapter
@@ -100,8 +102,10 @@ class RetryBatchResponse(BaseModel):
 
 
 def _require_worker_token(x_worker_token: str | None) -> None:
-    expected = os.getenv("WORKER_INTERNAL_TOKEN")
-    if expected and x_worker_token != expected:
+    expected = os.getenv("WORKER_INTERNAL_TOKEN", "").strip()
+    if not expected:
+        raise HTTPException(status_code=503, detail="Worker internal token is not configured.")
+    if x_worker_token != expected:
         raise HTTPException(status_code=401, detail="Invalid worker token.")
 
 
@@ -118,18 +122,10 @@ def _storage_path(*, organization_id: UUID, batch_id: UUID, item_id: UUID, filen
 
 class BulkImportService:
     def __init__(self) -> None:
-        self.base_url = os.getenv("SUPABASE_URL", "").rstrip("/")
-        self.key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
-        if not self.base_url or not self.key:
-            raise RepositoryConfigurationError(
-                "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required."
-            )
         self.repo = WorkerRepository()
-        self.headers = {
-            "Authorization": f"Bearer {self.key}",
-            "apikey": self.key,
-            "Content-Type": "application/json",
-        }
+        self.base_url = self.repo.base_url
+        self.key = self.repo.key
+        self.headers = dict(self.repo.headers)
 
     async def _request(
         self,
@@ -184,8 +180,10 @@ class BulkImportService:
         return rows[0] if rows else None
 
     def _storage_client(self):
-        options = ClientOptions(auto_refresh_token=False, persist_session=False)
-        return create_client(self.base_url, self.key, options=options).storage.from_(BUCKET_NAME)
+        # Avoid supabase-py's default Bearer header: sb_secret_ is an API key, not a JWT.
+        return SyncStorageClient(
+            f"{self.base_url}/storage/v1/", supabase_admin_headers(self.key)
+        ).from_(BUCKET_NAME)
 
     async def _signed_upload_token(self, path: str) -> str:
         def create() -> object:

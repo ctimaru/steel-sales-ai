@@ -19,7 +19,8 @@ Python/FastAPI service for document ingestion and commercial extraction.
 Required production environment:
 
 - `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY` (server-side only; never expose to the browser)
+- `SUPABASE_SECRET_KEY` (preferred backend-only key; never expose to the browser)
+- `SUPABASE_SERVICE_ROLE_KEY` (temporary legacy fallback during verified cutover)
 - `SUPABASE_UPLOAD_BUCKET=commercial-uploads`
 - `WORKER_INTERNAL_TOKEN`
 
@@ -35,6 +36,12 @@ The web app calls the worker through the server-side variables:
 - `WORKER_INTERNAL_TOKEN`
 
 The token must be configured in Railway and Vercel, never in client-side code.
+
+The API consumers use the shared credential resolver; new `sb_secret_` keys are
+sent as `apikey`, not as a Bearer JWT. Migrating the API does not retire legacy
+keys used by operator scripts, Edge Functions or CI. Follow the
+[SEC-P0 closure dossier](../../docs/security/sec-p0-launch-closure-20261025.md)
+before revocation.
 
 ## Railway
 

@@ -16,6 +16,8 @@ from uuid import UUID, uuid4
 import httpx
 from fastapi import APIRouter, FastAPI, Header, HTTPException, Request
 
+from .supabase_credentials import SupabaseCredentialError, get_supabase_admin_key, supabase_admin_headers
+
 TRACE_HEADER = "X-Trace-ID"
 CONTRACT = "p0.9-v1"
 MAX_ERROR_LENGTH = 500
@@ -104,7 +106,10 @@ def _structured_log(event: dict[str, Any]) -> None:
 
 def _supabase_config() -> tuple[str, str] | None:
     base_url = os.getenv("SUPABASE_URL", "").rstrip("/")
-    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
+    try:
+        key = get_supabase_admin_key()
+    except SupabaseCredentialError:
+        return None
     if not base_url or not key:
         return None
     return base_url, key
@@ -116,8 +121,7 @@ async def _persist_event(event: dict[str, Any]) -> None:
         return
     base_url, key = config
     headers = {
-        "Authorization": f"Bearer {key}",
-        "apikey": key,
+        **supabase_admin_headers(key),
         "Content-Type": "application/json",
         "Prefer": "return=minimal",
     }
@@ -267,8 +271,7 @@ async def _supabase_request(method: str, path: str, *, json_body: Any = None) ->
         raise HTTPException(status_code=503, detail="Observability persistence is not configured.")
     base_url, key = config
     headers = {
-        "Authorization": f"Bearer {key}",
-        "apikey": key,
+        **supabase_admin_headers(key),
         "Content-Type": "application/json",
     }
     try:

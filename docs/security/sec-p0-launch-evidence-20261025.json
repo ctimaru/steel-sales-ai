@@ -1,0 +1,240 @@
+{
+  "contract": "sec-p0-launch-evidence-v1",
+  "observed_date_utc": "2026-10-25",
+  "source_commit": "a113e142a1bdd96dbae4855b095ce563fdbeb860",
+  "production_modified": false,
+  "incident_closed": false,
+  "credential_values_included": false,
+  "migration_ledger_counts": {
+    "production": 476,
+    "staging": 452,
+    "repository": 439
+  },
+  "version_collision": [
+    {
+      "version": "20261005130000",
+      "production": "pl1_5_wc31_weight_update_join_fix",
+      "staging": "pl1_5_padana_full_import_promotion"
+    }
+  ],
+  "staging_migrations_not_in_main": [
+    {
+      "version": "20260908000000",
+      "name": "ci_pre_worker_baseline"
+    },
+    {
+      "version": "20260908000001",
+      "name": "ci_staging_baseline"
+    },
+    {
+      "version": "20261022085100",
+      "name": "dash_next1c4b_crm_relationship_ledger"
+    },
+    {
+      "version": "20261022152008",
+      "name": "trust_restrict_superseded_knowledge_reads"
+    },
+    {
+      "version": "20261022153103",
+      "name": "trust_audit1c2c_restrict_quarantined_derivatives"
+    },
+    {
+      "version": "20261022154722",
+      "name": "trust_audit1c2d_inactive_list_read_gate"
+    },
+    {
+      "version": "20261022154931",
+      "name": "trust_audit1c2d_nonrecursive_read_policy_repair"
+    },
+    {
+      "version": "20261022160611",
+      "name": "trust_audit1c2e_checksum_reingest_quarantine"
+    },
+    {
+      "version": "20261023090159",
+      "name": "trust_audit1c2g_private_source_provenance_readiness"
+    },
+    {
+      "version": "20261023090323",
+      "name": "trust_audit1c2g_orphan_source_holds_queue"
+    },
+    {
+      "version": "20261023092821",
+      "name": "trust_audit1c2g1_automated_source_evidence_links"
+    },
+    {
+      "version": "20261023101227",
+      "name": "trust_audit1c2g2_rights_use_matrix"
+    },
+    {
+      "version": "20261023103643",
+      "name": "trust_audit1c2g3_superadmin_rights_rpc"
+    },
+    {
+      "version": "20261023124810",
+      "name": "trust_audit1c2g3d_network_plpgsql_lint_fixes"
+    }
+  ],
+  "current_rpc_catalog": {
+    "production": [
+      {
+        "name": "data_lifecycle_health",
+        "arguments": "",
+        "security_definer": true,
+        "definition_sha256": "2c192a877dc65d86f514933b25bddd5bc53044a528cc490587060e384b438a4b",
+        "anon_execute": false,
+        "authenticated_execute": false,
+        "service_role_execute": true
+      },
+      {
+        "name": "p1_global_structured_search_bridge_v2",
+        "arguments": "p_organization_id uuid, p_query text, p_types text[], p_filters jsonb, p_limit integer",
+        "security_definer": false,
+        "definition_sha256": "3c1236590f09114ef986f0b2c04912423532e445fe9bfdaf935e423c59afd409",
+        "anon_execute": false,
+        "authenticated_execute": false,
+        "service_role_execute": true
+      },
+      {
+        "name": "pl1_private_lab_explorer_items",
+        "arguments": "p_version_id uuid",
+        "security_definer": true,
+        "definition_sha256": "698316a9531754beab1894e315da4fe650b9299bbb3b532c31dd04ea719c5613",
+        "anon_execute": false,
+        "authenticated_execute": true,
+        "service_role_execute": true
+      },
+      {
+        "name": "pl1_private_lab_explorer_version",
+        "arguments": "p_version_id uuid",
+        "security_definer": true,
+        "definition_sha256": "1524a89cb361763d964ef63c30b42c50151a4abdc5cc2cf225e0f75fb94942f1",
+        "anon_execute": false,
+        "authenticated_execute": true,
+        "service_role_execute": true
+      },
+      {
+        "name": "platform_access_context",
+        "arguments": "",
+        "security_definer": true,
+        "definition_sha256": "c52445b10be75f14d098193b9c78141bf9ce29ee5d8705ad84c29c0a2a8958ce",
+        "anon_execute": false,
+        "authenticated_execute": true,
+        "service_role_execute": true
+      },
+      {
+        "name": "tenant_export_manifest",
+        "arguments": "p_organization_id uuid",
+        "security_definer": true,
+        "definition_sha256": "f17b94f97433208c9c51d8668b466849078bddcc95d7daf551db82686723d00c",
+        "anon_execute": false,
+        "authenticated_execute": false,
+        "service_role_execute": true
+      }
+    ],
+    "staging": [
+      {
+        "name": "data_lifecycle_health",
+        "arguments": "",
+        "security_definer": true,
+        "definition_sha256": "2c192a877dc65d86f514933b25bddd5bc53044a528cc490587060e384b438a4b",
+        "anon_execute": false,
+        "authenticated_execute": false,
+        "service_role_execute": true
+      },
+      {
+        "name": "p1_global_structured_search_bridge_v2",
+        "arguments": "p_organization_id uuid, p_query text, p_types text[], p_filters jsonb, p_limit integer",
+        "security_definer": false,
+        "definition_sha256": "3b7770fc18d2ae75e98bc2ebaad1cba4337fb5f63c68d0e81ae421f664fdad6e",
+        "anon_execute": false,
+        "authenticated_execute": false,
+        "service_role_execute": true
+      },
+      {
+        "name": "pl1_private_lab_explorer_items",
+        "arguments": "p_version_id uuid",
+        "security_definer": true,
+        "definition_sha256": "698316a9531754beab1894e315da4fe650b9299bbb3b532c31dd04ea719c5613",
+        "anon_execute": false,
+        "authenticated_execute": true,
+        "service_role_execute": true
+      },
+      {
+        "name": "pl1_private_lab_explorer_version",
+        "arguments": "p_version_id uuid",
+        "security_definer": true,
+        "definition_sha256": "1524a89cb361763d964ef63c30b42c50151a4abdc5cc2cf225e0f75fb94942f1",
+        "anon_execute": false,
+        "authenticated_execute": true,
+        "service_role_execute": true
+      },
+      {
+        "name": "platform_access_context",
+        "arguments": "",
+        "security_definer": true,
+        "definition_sha256": "c52445b10be75f14d098193b9c78141bf9ce29ee5d8705ad84c29c0a2a8958ce",
+        "anon_execute": false,
+        "authenticated_execute": true,
+        "service_role_execute": true
+      },
+      {
+        "name": "tenant_export_manifest",
+        "arguments": "p_organization_id uuid",
+        "security_definer": true,
+        "definition_sha256": "f17b94f97433208c9c51d8668b466849078bddcc95d7daf551db82686723d00c",
+        "anon_execute": false,
+        "authenticated_execute": false,
+        "service_role_execute": true
+      }
+    ]
+  },
+  "security_advisors": {
+    "production": [
+      {
+        "name": "rls_enabled_no_policy",
+        "severity": "INFO",
+        "count": 101,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+      },
+      {
+        "name": "anon_security_definer_function_executable",
+        "severity": "WARN",
+        "count": 11,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0028_anon_security_definer_function_executable"
+      },
+      {
+        "name": "authenticated_security_definer_function_executable",
+        "severity": "WARN",
+        "count": 76,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable"
+      },
+      {
+        "name": "auth_leaked_password_protection",
+        "severity": "WARN",
+        "count": 1,
+        "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection"
+      }
+    ],
+    "staging": [
+      {
+        "name": "rls_enabled_no_policy",
+        "severity": "INFO",
+        "count": 104,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+      },
+      {
+        "name": "authenticated_security_definer_function_executable",
+        "severity": "WARN",
+        "count": 66,
+        "remediation": "https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable"
+      },
+      {
+        "name": "auth_leaked_password_protection",
+        "severity": "WARN",
+        "count": 1,
+        "remediation": "https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection"
+      }
+    ]
+  }
+}
