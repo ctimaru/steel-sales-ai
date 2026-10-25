@@ -103,6 +103,29 @@ try {
       const h1 = await page.locator("h1").count();
       assert.equal(h1, 1, "Homepage must have one H1");
 
+      // HOME-CINE1B: verify the actual computed animations, not just source CSS.
+      // This QA browser has reducedMotion='reduce' by default for screenshot determinism.
+      const readCinematicMotion = () => page.locator('[data-home-cine-motion]').evaluateAll((nodes) =>
+        nodes.map((node) => ({
+          layer: node.getAttribute('data-home-cine-motion'),
+          animation: window.getComputedStyle(node).animationName,
+        }))
+      );
+      const quietMotion = await readCinematicMotion();
+      check(quietMotion.length === 3, viewport.name + " is missing a cinematic layer");
+      check(quietMotion.every((layer) => layer.animation === "none"),
+        viewport.name + " failed reduced-motion gate: " + JSON.stringify(quietMotion));
+      if (viewport.width === 1440) {
+        await page.emulateMedia({ reducedMotion: "no-preference" });
+        const desktopMotion = await readCinematicMotion();
+        check(desktopMotion.every((layer) => layer.animation !== "none"),
+          "Desktop opt-in cinematics not present: " + JSON.stringify(desktopMotion));
+        await page.emulateMedia({ reducedMotion: "reduce" });
+        const restored = await readCinematicMotion();
+        check(restored.every((layer) => layer.animation === "none"),
+          "Cinematic motion remained after reduce: " + JSON.stringify(restored));
+      }
+
       if (viewport.width === 390 || viewport.width === 1440) {
         const axe = await new AxeBuilder({ page })
           .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
