@@ -157,6 +157,22 @@ try {
           "CINE1D mobile first CTA not visible: " + JSON.stringify(visualRhythm));
       }
 
+      // HOME-CINE1E: verify actual media-query selection at 320/390/768/1440.
+      // Keep the 6KB poster on mobile/tablet; load the 47KB sharp version on desktop.
+      const photoBackground = await page.locator('[data-home-cine-motion="photo"]').evaluate(
+        (node) => getComputedStyle(node).backgroundImage
+      );
+      const photoWanted = viewport.width >= 1024
+        ? "/home-cine1e-steel-desktop.webp"
+        : "/home-cine1a-steel.webp";
+      check(photoBackground.includes(photoWanted),
+        "CINE1E missing expected responsive hero image at " + viewport.width);
+      const photoForbidden = viewport.width >= 1024
+        ? "/home-cine1a-steel.webp"
+        : "/home-cine1e-steel-desktop.webp";
+      check(!photoBackground.includes(photoForbidden),
+        "CINE1E asset selection leaks extra image on " + viewport.width);
+
       const h1 = await page.locator("h1").count();
       assert.equal(h1, 1, "Homepage must have one H1");
 
