@@ -55,7 +55,7 @@ async function fillTwoTubularLines(page) {
   await page.getByRole("dialog",{name:"Carrello della distinta privata"})
     .getByRole("button",{name:/Chiudi/}).click();
   assert.equal(await bill.count(),0,"Drawer must close before next calculation");
-  await calc.getByRole("button", { name: /EN 10210/ }).click();
+  await calc.getByRole("combobox", { name: "Norma" }).selectOption("en10210");
   await add.click();
   await trigger.click();
   await page.waitForFunction(() =>
