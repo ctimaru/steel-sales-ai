@@ -81,19 +81,19 @@ export default function EnglishHomePage() {
     <main lang="en" className="min-h-screen bg-[#f2f4f3] text-[#1d2824]">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
 
-      <header className="border-b border-[#dce5e0] bg-white">
+      <header className="border-b border-[#234536] bg-[#071713] text-white">
         <div className="mx-auto flex min-h-[72px] max-w-[1180px] items-center justify-between gap-2 px-3 sm:px-6 lg:px-8">
-          <ProductBrand href="/en" compact />
+          <ProductBrand href="/en" compact inverse />
           <div className="flex shrink-0 items-center gap-2">
             <PublicPageLanguageSelector locale="en" surface="home"/>
-            <Link href="/en/login" className="hidden min-h-11 items-center justify-center px-2 text-xs font-semibold text-[#52615b] hover:text-[#123b34] sm:inline-flex">Sign in</Link>
+            <Link href="/en/login" className="hidden min-h-11 items-center justify-center px-2 text-xs font-semibold text-[#d0e7d9] hover:text-white sm:inline-flex">Sign in</Link>
             <Link href="/en/register" className="platform-primary inline-flex min-h-11 items-center justify-center rounded-xl px-3 text-xs font-bold sm:px-4 sm:text-sm">
               <span className="sm:hidden">Join</span>
               <span className="hidden sm:inline">Register company</span>
             </Link>
           </div>
         </div>
-        <PublicHomeNavigation locale="en" />
+        <PublicHomeNavigation locale="en" theme="dark" />
       </header>
 
       <PublicCinematicHero locale="en" />
