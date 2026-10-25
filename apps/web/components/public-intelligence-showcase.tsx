@@ -1,4 +1,5 @@
 import Link from "next/link";
+import cineStyles from "./public-cinematic-continuity.module.css";
 
 /**
  * HOME-SI3: public, static product explainer.
@@ -101,7 +102,7 @@ export function PublicIntelligencePillars() {
     <section
       id="intelligence"
       aria-labelledby="home-intelligence-title"
-      className="border-b border-[#dce5e0] bg-[#f6f8f7]"
+      className={`${cineStyles.intelligenceSection} border-b border-[#dce5e0]`}
     >
       <div className="mx-auto max-w-[1180px] px-4 py-11 sm:px-6 sm:py-14 lg:px-8">
         <div className="max-w-2xl">
@@ -117,7 +118,7 @@ export function PublicIntelligencePillars() {
         </div>
 
         <div className="mt-6 grid gap-3 md:grid-cols-3">
-          <article className="flex min-w-0 flex-col rounded-2xl border border-[#cbdcd3] bg-white p-5 shadow-[0_2px_12px_rgba(18,59,52,0.04)]">
+          <article className={`${cineStyles.pillar} flex min-w-0 flex-col border p-5`}>
             <div className="flex items-center justify-between gap-2">
               <span className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[#1f6b5a]">01 · Procurement Intelligence</span>
               <span className="rounded-full bg-[#e8f0f4] px-2.5 py-1 text-[10px] font-semibold text-[#315c74]">Workspace</span>
@@ -135,7 +136,7 @@ export function PublicIntelligencePillars() {
             </Link>
           </article>
 
-          <article className="flex min-w-0 flex-col rounded-2xl border border-[#cbdcd3] bg-white p-5 shadow-[0_2px_12px_rgba(18,59,52,0.04)]">
+          <article className={`${cineStyles.pillar} flex min-w-0 flex-col border p-5`}>
             <div className="flex items-center justify-between gap-2">
               <span className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[#315c74]">02 · Network Intelligence</span>
               <span className="rounded-full bg-[#e8f0f4] px-2.5 py-1 text-[10px] font-semibold text-[#315c74]">Privato</span>
@@ -153,7 +154,7 @@ export function PublicIntelligencePillars() {
             </Link>
           </article>
 
-          <article className="flex min-w-0 flex-col rounded-2xl border border-[#cbdcd3] bg-white p-5 shadow-[0_2px_12px_rgba(18,59,52,0.04)]">
+          <article className={`${cineStyles.pillar} flex min-w-0 flex-col border p-5`}>
             <div className="flex items-center justify-between gap-2">
               <span className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[#895028]">03 · Steel Knowledge</span>
               <span className="rounded-full bg-[#ddf5ec] px-2.5 py-1 text-[10px] font-semibold text-[#123b34]">Pubblico</span>
