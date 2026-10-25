@@ -13,6 +13,7 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
     : { builder: "/distinta", register: "/register", calculator: "/knowledge/tubes?source=home&surface=hero#calcolatore-pesi", knowledge: "/knowledge", network: "#network" };
 
   return (
+    <>
     <section aria-labelledby="home-cinematic-title" className={styles.hero}>
       <div className={styles.ambient} aria-hidden="true" />
       <div className={styles.intelligenceOverlay} aria-hidden="true">
@@ -107,5 +108,6 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
         </ol>
       </div>
     </section>
+    </>
   );
 }
