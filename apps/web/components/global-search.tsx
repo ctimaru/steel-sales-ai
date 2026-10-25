@@ -348,6 +348,13 @@ export function GlobalSearch({ initialQuery = "", scope = "all" }: { initialQuer
                         Completa in calcolatrice →
                       </button>
                     ) : null}
+                    {!calcPrefill && ["product", "rfq", "offer"].includes(result.result_type) ? (
+                      <Link href={appRoutes.rfqHub.createDistinta}
+                        className="rounded-md border border-[#dce2df] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#43524c] hover:bg-[#f6f8f7]"
+                        title="Dati tecnici incompleti o norma non supportata: apri la calcolatrice e inserisci le misure verificate">
+                        Inserisci misure in calcolatrice →
+                      </Link>
+                    ) : null}
                     {customerTarget ? (
                       <Link
                         href={customerTarget}
