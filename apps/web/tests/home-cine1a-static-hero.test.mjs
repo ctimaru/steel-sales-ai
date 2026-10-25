@@ -39,7 +39,7 @@ test("HOME-CINE1A is responsive, motion-respectful and uses a tiny local, owned 
   }
   assert.match(hero, /<svg/);
   assert.match(css, /home-cine1a-steel\.webp/);
-  assert.match(css, /background-position: 74% bottom/);
+  assert.match(css, /background-position: center, 74% bottom, center/);
   assert.match(css, /background: #0c7751/);
   assert.doesNotMatch(hero, /next\/image|<img|<iframe|autoplay/);
   assert.doesNotMatch(hero, /src="https?:\/\/|href="https?:\/\//);
