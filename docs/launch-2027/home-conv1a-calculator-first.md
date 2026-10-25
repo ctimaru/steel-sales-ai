@@ -39,3 +39,6 @@ After launch compare public `calculator_opened` allowlisted telemetry by source/
 - Corrected a Chrome locator mistakenly selecting the language disclosure instead of company access.
 - 320px English test revealed 18px horizontal overflow in the long mobile “Calculate” label; shortened visual label to “Calc” while preserving the full screen-reader label.
 - Next Chrome pass verified 320px page widths but detected 3 severe contrast nodes at 390px after introducing a translucent sticky header; changed header to an opaque steel-dark background (#071713), removed backdrop blur and added per-element Axe diagnostics. This strengthens actual contrast without weakening the WCAG gate. Await new Chrome and Lighthouse evidence before release.
+
+### Actual Axe finding — resolved in scoped CSS
+Chrome HOME-SI5 identified precisely three mobile navigation links (`Distinta`, `Trova aziende`, `Network`) that computed to #0f1720 on background #071713 despite a dynamic Tailwind text class. Introduced dedicated scoped `public-home-navigation.module.css` with forced light foreground #d4e8da on mobile, #d2e9db on desktop, and white on hover/focus. The WCAG gate remains unchanged. This is a functional contrast fix, not a screenshot-only workaround.
