@@ -4,6 +4,7 @@ import test from "node:test";
 
 const publicNav = fs.readFileSync(new URL("../components/public-home-navigation.tsx", import.meta.url), "utf8");
 const home = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+const header = fs.readFileSync(new URL("../components/public-home-header.tsx", import.meta.url), "utf8");
 const hero = fs.readFileSync(new URL("../components/public-cinematic-hero.tsx", import.meta.url), "utf8");
 const proxy = fs.readFileSync(new URL("../lib/supabase/proxy.ts", import.meta.url), "utf8");
 const showcase = fs.readFileSync(new URL("../components/public-intelligence-showcase.tsx", import.meta.url), "utf8");
@@ -20,7 +21,8 @@ test("HOME-SI2 establishes a truthful AI-ready hero without claiming autonomous 
 });
 
 test("HOME-SI2 prioritizes conversion but preserves free utilities and role exploration", () => {
-  assert.match(hero, /register: "\/register"/);
+  assert.match(header, /"\/register"/);
+  assert.match(hero, /Apri calcolatrice/);
   assert.match(home, /href="\/distinta"/);
   assert.match(home, /href="\/knowledge"/);
   assert.match(publicNav, /href: "\/azienda"/);
@@ -32,8 +34,9 @@ test("HOME-SI2 keeps public navigation and registration accessible on narrow scr
   assert.match(publicNav, /Navigazione mobile/);
   assert.match(publicNav, /xl:hidden/);
   assert.doesNotMatch(publicNav, /overflow-x-auto/);
-  assert.match(home, /<span className="sm:hidden">Registrati<\/span>/);
-  assert.match(home, /min-h-11/);
+  assert.match(header, /Area aziende/);
+  assert.match(header, /Registra azienda/);
+  assert.match(header, /min-h-11/);
   assert.match(hero, /aria-labelledby="home-cinematic-title"/);
 });
 

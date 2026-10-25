@@ -3,6 +3,7 @@ import fs from "node:fs";
 import test from "node:test";
 
 const publicNav = fs.readFileSync(new URL("../components/public-home-navigation.tsx", import.meta.url), "utf8");
+const publicHeader = fs.readFileSync(new URL("../components/public-home-header.tsx", import.meta.url), "utf8");
 const home = fs.readFileSync(
   new URL("../app/page.tsx", import.meta.url),
   "utf8",
@@ -36,11 +37,11 @@ const migration = fs.readFileSync(
 test("WC5 keeps the calculator discoverable from hero, header and Scuola section", () => {
   assert.match(home, /Calcolo pesi/);
   assert.match(hero, /source=home&surface=hero#calcolatore-pesi/);
-  assert.match(publicNav, /source=home&surface=header#calcolatore-pesi/);
+  assert.match(publicHeader, /source=home&surface=header#calcolatore-pesi/);
   assert.match(home, /source=home&surface=school_section#calcolatore-pesi/);
   assert.match(publicNav, /Navigazione mobile/);
-  assert.doesNotMatch(home, />Calcolatore</);
-  assert.match(publicNav, /Calcolo pesi/);
+  assert.match(publicHeader, /Apri calcolatrice/);
+  assert.match(publicNav, /Distinta/);
 });
 
 test("WC5 keeps Scuola discovery visible on desktop, mobile and Scuola home", () => {
