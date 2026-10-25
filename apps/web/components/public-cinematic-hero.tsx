@@ -15,8 +15,8 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
   return (
     <>
     <section aria-labelledby="home-cinematic-title" className={styles.hero}>
-      <div className={styles.ambient} aria-hidden="true" />
-      <div className={styles.intelligenceOverlay} aria-hidden="true">
+      <div className={styles.ambient} data-home-cine-motion="photo" aria-hidden="true" />
+      <div className={styles.intelligenceOverlay} data-home-cine-motion="network" aria-hidden="true">
         <svg viewBox="0 0 560 410" xmlns="http://www.w3.org/2000/svg" fill="none" focusable="false">
           <defs>
             <linearGradient id="cine1b-network" x1="12" y1="0" x2="480" y2="360" gradientUnits="userSpaceOnUse">
@@ -83,7 +83,7 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
           <span className={styles.captionKicker}>01 / 03</span>
           <span>{en ? "MATERIAL · DATA · CONNECTIONS" : "MATERIA · DATI · CONNESSIONI"}</span>
         </div>
-        <div className={styles.productHint} aria-hidden="true">
+        <div className={styles.productHint} data-home-cine-motion="product" aria-hidden="true">
           <span className={styles.hintLabel}>{en ? "PLATFORM CONCEPT" : "CONCEPT DI PIATTAFORMA"}</span>
           <strong>{en ? "From a bill to an RFQ" : "Dalla distinta alla RFQ"}</strong>
           <div className={styles.workflowTrack}>
