@@ -531,6 +531,10 @@
   .specHead strong { font-size: 12px; }
   .specFields > span { min-height: 26px; }
 }
+/* Tablet is a one-column reading experience: avoid overlay/card collisions. */
+@media (min-width: 701px) and (max-width: 1023px) {
+  .intelligenceOverlay, .productHint { display: none; }
+}
 @media (max-width: 980px) {
   .hero::after { background: linear-gradient(90deg, #04120f 0%, rgba(4, 18, 15, .99) 30%, rgba(4, 18, 15, .76) 65%, rgba(4, 18, 15, .32) 100%); }
 }

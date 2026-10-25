@@ -18,3 +18,7 @@ The monumental factory hall shown in references 1 and 2 is **not** yet replicate
 3. Axe zero serious/critical at 390/1440, keyboard focus on new proof CTA.
 4. Three mobile Lighthouse samples vs 94/94/95 baseline, mean LCP ~2.72s, CLS 0; investigate >3 score points or mean LCP +150ms.
 5. Visual compare Preview with four founder references at desktop and mobile; do not invent a fidelity score. Do not merge pending visual approval.
+
+## Browser visual correction — tablet 768px
+
+The first genuine fullPage GitHub Chrome capture on PR #945 showed globe labels and proof card covering the text paragraph at **768px** despite automated no-overflow/Axe passing. This is an actual visual hierarchy defect. Fixed by hiding both decorative overlays between **701 and 1023px**; tablets retain cinematic metal photo and intact calculator CTA. Desktop at >=1024px keeps globe and HTML product proof; <=700px already had the simpler mobile composition. Compare the new artifact before closing the visual gate.

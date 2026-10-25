@@ -15,6 +15,8 @@ test("CINE2A.2 photograph and geographic network remain separate from live produ
   assert.match(css, /background-size: cover, auto 112%, cover/);
   assert.match(css, /\.intelligenceOverlay, \.productHint \{ display: none; \}/);
   assert.match(css, /prefers-reduced-motion: reduce/);
+  assert.match(css, /@media \(min-width: 701px\) and \(max-width: 1023px\)/);
+  assert.match(css, /\.intelligenceOverlay, \.productHint \{ display: none; \}/);
   assert.match(css, /prefers-reduced-data: reduce/);
 });
 
