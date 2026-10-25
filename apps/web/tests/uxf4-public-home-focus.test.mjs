@@ -4,6 +4,7 @@ import test from "node:test";
 
 const publicNav = fs.readFileSync(new URL("../components/public-home-navigation.tsx", import.meta.url), "utf8");
 const home = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+const hero = fs.readFileSync(new URL("../components/public-cinematic-hero.tsx", import.meta.url), "utf8");
 const network = fs.readFileSync(
   new URL("../components/public-network-role-explorer.tsx", import.meta.url),
   "utf8",
@@ -20,16 +21,16 @@ test("UXF4 preserves public discovery links in both desktop and mobile header", 
 });
 
 test("UXF4 prioritizes registration while keeping a no-account utility CTA", () => {
-  assert.match(home, /href="\/register" className="platform-primary inline-flex min-h-12/);
-  assert.match(home, /Registra la tua azienda/);
-  assert.match(home, /Crea distinta gratis/);
-  assert.match(home, /href="\/knowledge\/tubes\?source=home&surface=hero#calcolatore-pesi"/);
-  assert.match(home, /Utile anche senza account/);
+  assert.match(hero, /register: "\/register"/);
+  assert.match(hero, /Registra la tua azienda/);
+  assert.match(hero, /Crea una distinta gratis/);
+  assert.match(hero, /source=home&surface=hero#calcolatore-pesi/);
+  assert.match(hero, /Strumenti pubblici senza account/);
   assert.doesNotMatch(home, /bg-\[#438d7a\]/);
 });
 
 test("UXF4 keeps a focused homepage value path and existing public sections", () => {
-  assert.match(home, /Super Intelligence Ready/);
+  assert.match(hero, /Super Intelligence Ready/);
   assert.match(home, /Prima utilità, poi prodotto/);
   assert.match(home, /id="aziende"/);
   assert.match(home, /<PublicNetworkRoleExplorer \/>/);
