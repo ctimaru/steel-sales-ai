@@ -1,0 +1,211 @@
+name: FLOW1 Search to Supplier Response Acceptance
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/product-flow1-e2e.yml"
+      - "apps/web/tests/product-flow1-*.mjs"
+      - "apps/web/tests/product-flow1-*.cjs"
+      - "apps/web/tests/demotest23-seed-auth.mjs"
+      - "apps/web/tests/rfqh14-2-prepare-portal.mjs"
+      - "apps/web/components/**"
+      - "apps/web/lib/**"
+      - "apps/web/app/**/commercial/**"
+      - "apps/web/app/**/search/**"
+      - "apps/web/app/**/distinta/**"
+      - "apps/web/app/**/login/**"
+      - "apps/web/app/**/rfq-hub/**"
+      - "apps/web/app/**/rfq/respond/**"
+      - "apps/web/app/api/**"
+      - "apps/web/package.json"
+      - "apps/web/package-lock.json"
+      - "services/worker/app/**"
+      - "services/worker/tests/**"
+      - "services/worker/pyproject.toml"
+      - "supabase/config.toml"
+      - "supabase/migrations/**"
+      - "supabase/ci/**"
+      - "supabase/tests/product_flow1_local_search_seed.sql"
+      - "supabase/tests/demotest2_3_chrome_seed.sql"
+      - "supabase/tests/rfqh14_2_chrome_procurement_seed.sql"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  search-to-response:
+    name: Real Worker and Chrome / desktop and mobile / local mail transport
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CI: "true"
+      DEMOTEST23_WEB_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      WORKER_URL: http://127.0.0.1:8001
+      WORKER_STORAGE_MODE: supabase
+      COMPANY_DISCOVERY_ENABLED: "false"
+      SEMANTIC_INDEX_ENABLED: "false"
+      CRAWL_IT3_ENABLED: "false"
+      HF_TOKEN: ""
+      FLOW1_LOCAL_PROVIDER: "true"
+      RESEND_API_KEY: flow1-local-synthetic
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: services/worker/pyproject.toml
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Install Worker, Next.js and Google Chrome stable
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/flow1-worker-venv"
+          "$RUNNER_TEMP/flow1-worker-venv/bin/python" -m pip install -e 'services/worker[test]'
+          npm ci --prefix apps/web --no-audit --no-fund
+          cd apps/web
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chrome
+      - name: CI-only historical baselines and disposable local Supabase
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          cp supabase/ci/p0_staging_baseline.sql supabase/migrations/20260908000001_ci_staging_baseline.sql
+          supabase start > "$RUNNER_TEMP/flow1-supabase-start.log" 2>&1
+          supabase db reset --local > "$RUNNER_TEMP/flow1-supabase-reset.log" 2>&1
+          echo "Disposable local Supabase ready"
+      - name: Capture local keys and create ephemeral internal secrets privately
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          supabase status -o env > "$RUNNER_TEMP/demotest23-local.env"
+          source "$RUNNER_TEMP/demotest23-local.env"
+          test -n "$ANON_KEY"
+          test -n "$SERVICE_ROLE_KEY"
+          echo "::add-mask::$ANON_KEY"
+          echo "::add-mask::$SERVICE_ROLE_KEY"
+          echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+          flow1_worker_token="$(openssl rand -hex 32)"
+          flow1_invite_secret="$(openssl rand -hex 32)"
+          echo "::add-mask::$flow1_worker_token"
+          echo "::add-mask::$flow1_invite_secret"
+          echo "WORKER_INTERNAL_TOKEN=$flow1_worker_token" >> "$GITHUB_ENV"
+          echo "RFQ_INVITE_SECRET=$flow1_invite_secret" >> "$GITHUB_ENV"
+      - name: Create five real local GoTrue users
+        working-directory: apps/web
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/demotest23-local.env"
+          DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+            SUPABASE_URL=http://127.0.0.1:54321 \
+            node tests/demotest23-seed-auth.mjs
+      - name: Seed four isolated tenants and real structured search without an active model
+        env:
+          PGPASSWORD: postgres
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/demotest23-psql-vars.sql" \
+            -f supabase/tests/demotest2_3_chrome_seed.sql \
+            -f supabase/tests/product_flow1_local_search_seed.sql
+      - name: Generate local-only supplier portal fixture capabilities
+        working-directory: apps/web
+        run: node tests/rfqh14-2-prepare-portal.mjs
+      - name: Seed supplier contact fixture without provider sends
+        env:
+          PGPASSWORD: postgres
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/demotest23-psql-vars.sql" \
+            -f "$RUNNER_TEMP/rfqh14-2-psql-vars.sql" \
+            -f supabase/tests/rfqh14_2_chrome_procurement_seed.sql
+      - name: Start real local Worker with local database credentials
+        working-directory: services/worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          source "$RUNNER_TEMP/demotest23-local.env"
+          SUPABASE_URL=http://127.0.0.1:54321 \
+            SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+            nohup setsid "$RUNNER_TEMP/flow1-worker-venv/bin/python" -m uvicorn app.server:app \
+              --host 127.0.0.1 --port 8001 --no-access-log \
+              > "$RUNNER_TEMP/flow1-worker.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/flow1-worker.pid"
+          for attempt in $(seq 1 60); do
+            if curl --silent --show-error --fail --max-time 3 http://127.0.0.1:8001/health > /dev/null 2>&1; then
+              echo "Local Worker ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Local Worker startup failed; private logs are not published"
+          exit 1
+      - name: Accept real Worker HTTP fallback, tenant isolation and configuration errors
+        working-directory: apps/web
+        run: node tests/product-flow1-worker-runtime.mjs
+      - name: Verify local provider capture guards
+        working-directory: apps/web
+        run: node --test tests/product-flow1-local-provider.test.mjs
+      - name: Start dedicated Next.js with local-only provider preload
+        working-directory: apps/web
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          NODE_OPTIONS="--require=$GITHUB_WORKSPACE/apps/web/tests/product-flow1-local-provider.cjs" \
+            nohup setsid npm run dev -- --hostname 127.0.0.1 --port 3000 \
+              > "$RUNNER_TEMP/flow1-next.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/flow1-next.pid"
+          for attempt in $(seq 1 60); do
+            if curl --silent --show-error --fail --location --max-time 8 http://127.0.0.1:3000/login > /dev/null 2>&1; then
+              echo "Dedicated local Next.js ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Local Next.js startup failed; private logs are not published"
+          exit 1
+      - name: Chrome desktop 1440 and mobile 390 complete Search to Supplier Response
+        working-directory: apps/web
+        timeout-minutes: 20
+        run: node tests/product-flow1-chrome-journey.mjs
+      # Raw logs and provider captures can contain capability URLs. Never upload them.
+      - name: Stop local processes and destroy temporary data and capabilities
+        if: always()
+        shell: bash
+        run: |
+          for process_file in "$RUNNER_TEMP/flow1-next.pid" "$RUNNER_TEMP/flow1-worker.pid"; do
+            if [ -f "$process_file" ]; then
+              process_id="$(cat "$process_file")"
+              if [[ "$process_id" =~ ^[0-9]+$ ]]; then
+                kill -- "-$process_id" 2>/dev/null || kill "$process_id" 2>/dev/null || true
+              fi
+            fi
+          done
+          supabase stop --no-backup > /dev/null 2>&1 || true
+          rm -f "$RUNNER_TEMP/demotest23-personas.json" "$RUNNER_TEMP/demotest23-psql-vars.sql" \
+            "$RUNNER_TEMP/demotest23-local.env" "$RUNNER_TEMP/rfqh14-2-tokens.json" \
+            "$RUNNER_TEMP/rfqh14-2-psql-vars.sql" "$RUNNER_TEMP/product-flow1-provider.jsonl" \
+            "$RUNNER_TEMP/flow1-next.log" "$RUNNER_TEMP/flow1-worker.log" \
+            "$RUNNER_TEMP/flow1-supabase-start.log" "$RUNNER_TEMP/flow1-supabase-reset.log" \
+            "$RUNNER_TEMP/flow1-next.pid" "$RUNNER_TEMP/flow1-worker.pid"

@@ -168,6 +168,22 @@ jobs:
         run: |
           psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
             -v ON_ERROR_STOP=1 -f supabase/tests/bd15_acceptance_no_send.sql
+      - name: "BD15 — Reset only the two verified local browser fixtures"
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 -f supabase/tests/bd15_reset_local_browser_fixture.sql
+      - name: "BD15 — Consecutive second Chrome run on the same commit"
+        working-directory: apps/web
+        timeout-minutes: 15
+        run: node tests/bd15-chrome-rfq-funnel.mjs
+      - name: "BD15 — Assert second run preserved private RFQs, mixed EN and zero dispatch"
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 -f supabase/tests/bd15_acceptance_no_send.sql
       - name: "RFQH14.2b — Seed pending second-user PO approval (LOCAL DB)"
         env:
           PGPASSWORD: postgres

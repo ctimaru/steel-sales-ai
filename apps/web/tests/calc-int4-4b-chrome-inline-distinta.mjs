@@ -19,8 +19,12 @@ try {
     assert.equal(response?.status(), 200);
     assert.equal(await page.locator("html").getAttribute("lang"), "it");
     const calculator = page.locator("#calcolatore-pesi");
+    await page.locator('#calcolatore-pesi[data-calculator-ready="true"]')
+      .waitFor({state:"visible"});
     const finder=page.locator('[data-testid="calculator-dimension-discovery"]');
     await finder.getByRole("searchbox").fill("zz_unavailable_123");
+    await finder.getByText(/Nessun risultato|Nessuna misura pubblicata/)
+      .waitFor({state:"visible"});
     assert.match(await finder.innerText(),/Nessun risultato|Nessuna misura pubblicata/);
     await finder.getByRole("searchbox").fill("");
     assert.ok(await calculator.locator("svg[aria-label]").count()>0,"Mobile section preview exposed");
