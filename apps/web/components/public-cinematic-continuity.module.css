@@ -21,10 +21,10 @@
   display: grid;
   grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
   align-items: center;
-  gap: clamp(22px, 5vw, 60px);
+  gap: clamp(20px, 4vw, 48px);
   max-width: 1180px;
   margin: 0 auto;
-  padding: 56px 32px;
+  padding: 48px 32px;
 }
 .kicker, .accessKicker {
   margin: 0 0 13px;
@@ -38,7 +38,7 @@
   max-width: 560px;
   margin: 0;
   color: #effef6;
-  font-size: clamp(26px, 3.3vw, 43px);
+  font-size: clamp(26px, 3vw, 39px);
   line-height: 1.1;
   letter-spacing: -.052em;
   font-weight: 720;
@@ -46,7 +46,7 @@
 }
 .proofDescription {
   max-width: 550px;
-  margin: 16px 0 0;
+  margin: 13px 0 0;
   color: #c4dfd1;
   font-size: 13px;
   line-height: 1.8;
@@ -106,8 +106,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 42px;
-  padding: 10px 17px;
+  min-height: 39px;
+  padding: 9px 16px;
   border-bottom: 1px solid rgba(134, 214, 166, .25);
   color: #cff3dc;
   font-size: 10px;
@@ -132,7 +132,7 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
-  padding: 14px;
+  padding: 12px;
 }
 .shapeCard {
   display: flex;
@@ -148,7 +148,7 @@
 }
 .shapeSvg {
   width: min(100%, 132px);
-  height: 89px;
+  height: 82px;
 }
 .shapeCard strong {
   margin-top: 2px;
@@ -162,8 +162,8 @@
   font-size: 10px;
 }
 .process {
-  margin: 0 14px 14px;
-  padding: 12px 14px;
+  margin: 0 12px 12px;
+  padding: 10px 12px;
   border: 1px solid rgba(110, 194, 149, .27);
   border-radius: 9px;
   background: rgba(3, 18, 13, .52);
@@ -246,8 +246,8 @@
    native inputs; styling changes never require client state. */
 .networkSection {
   position: relative;
-  background: radial-gradient(ellipse 70% 130% at 97% 3%, #e3f2e8 0%, #f5faf7 65%, #fff 100%);
-  border-top: 3px solid #13764c;
+  background: linear-gradient(180deg, #e7f2ea 0%, #f7faf7 22%, #ffffff 92%);
+  border-top: 2px solid #13764c;
 }
 .networkSection::before, .intelligenceSection::before, .trustSection::before {
   position: absolute;
@@ -274,10 +274,10 @@
 }
 .intelligenceSection .pillar {
   border-color: #bbd6c7;
-  border-top: 3px solid #318764;
-  border-radius: 11px;
+  border-top: 2px solid #318764;
+  border-radius: 10px;
   background: #fff;
-  box-shadow: 0 8px 23px rgba(13, 63, 39, .047);
+  box-shadow: 0 5px 20px rgba(13, 63, 39, .042);
 }
 .toolSection {
   position: relative;
@@ -336,7 +336,7 @@
 }
 .enWorkflow .enWorkflowCard, .enNetwork .enNetworkCard {
   border-color: #bcd5c5;
-  border-top: 3px solid #378862;
+  border-top: 2px solid #378862;
   border-radius: 11px;
   background: #fff;
   box-shadow: 0 6px 18px rgba(18, 72, 43, .04);
