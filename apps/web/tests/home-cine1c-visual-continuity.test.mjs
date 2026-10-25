@@ -58,7 +58,8 @@ test("HOME-CINE1C uses no hydrated motion, remote media, new runtime or fake KPI
 });
 
 test("HOME-CINE1C retains original useful headings, roles and access disclosures", () => {
-  for (const title of ["Tre forme di intelligence. Un solo ecosistema.", "Prima utilità, poi prodotto.", "Cercala per nome o Partita IVA."]) assert.ok(it.includes(title));
+  assert.match(pillars, /Tre forme di intelligence. Un solo ecosistema./);
+  for (const title of ["Prima utilità, poi prodotto.", "Cercala per nome o Partita IVA."]) assert.ok(it.includes(title));
   for (const title of ["From a steel requirement to a better-informed decision.", "One network, four business profiles.", "Technical knowledge should be easier to find."]) assert.ok(en.includes(title));
   for (const role of ["Commerciante", "Produttore", "Terzista", "Utilizzatore"]) assert.match(network, new RegExp(role));
   assert.match(network, /type="radio"/);
