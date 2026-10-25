@@ -21,6 +21,7 @@ const workspaceLayout = fs.readFileSync(
 const robots = fs.readFileSync(new URL("../app/robots.ts", import.meta.url), "utf8");
 const sitemap = fs.readFileSync(new URL("../app/sitemap.ts", import.meta.url), "utf8");
 const root = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+const hero = fs.readFileSync(new URL("../components/public-cinematic-hero.tsx", import.meta.url), "utf8");
 const nav = fs.readFileSync(new URL("../components/workspace-navigation.tsx", import.meta.url), "utf8");
 const shell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
 const schoolHome = fs.readFileSync(new URL("../app/(workspace)/school/page.tsx", import.meta.url), "utf8");
@@ -61,7 +62,7 @@ test("K1 establishes metadata and canonical URLs for public Knowledge", () => {
 test("K1 makes public Knowledge discoverable from the product while preserving private data boundaries", () => {
   assert.match(root, /href="\/knowledge"/);
   assert.match(root, /Scuola/);
-  assert.match(root, /Utile anche senza account/);
+  assert.match(hero, /Strumenti pubblici senza account/);
   assert.match(schoolHome, /appRoutes\.knowledge\.catalog/);
   assert.match(schoolHome, /Catalogo completo/);
   assert.match(nav, /label: "Scuola"/);

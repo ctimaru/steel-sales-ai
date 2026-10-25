@@ -3,6 +3,7 @@ import fs from "node:fs";
 import test from "node:test";
 
 const home = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+const nav = fs.readFileSync(new URL("../components/public-home-navigation.tsx", import.meta.url), "utf8");
 const schoolLayout = fs.readFileSync(
   new URL("../app/(public)/knowledge/layout.tsx", import.meta.url),
   "utf8",
@@ -93,6 +94,6 @@ test("PA1.6 adds truthful supported structured data around the acquisition path"
 });
 
 test("PA1.6 keeps the home acquisition CTA on the governed company route", () => {
-  assert.match(home, /href="\/azienda"/);
-  assert.match(home, /Trova o rivendica la tua azienda/);
+  assert.match(nav, /href: "\/azienda"/);
+  assert.match(home, /Cercala per nome o Partita IVA/);
 });

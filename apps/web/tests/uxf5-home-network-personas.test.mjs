@@ -3,15 +3,17 @@ import fs from "node:fs";
 import test from "node:test";
 
 const home = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+const hero = fs.readFileSync(new URL("../components/public-cinematic-hero.tsx", import.meta.url), "utf8");
 const network = fs.readFileSync(
   new URL("../components/public-network-role-explorer.tsx", import.meta.url),
   "utf8",
 );
 
 test("UXF5 puts the Network value explorer directly after the public hero", () => {
+  assert.match(hero, /surface=hero#calcolatore-pesi/);
   assert.match(
     home,
-    /surface=hero#calcolatore-pesi[\s\S]*<PublicNetworkRoleExplorer \/>[\s\S]*Prima utilità, poi prodotto/,
+    /<PublicCinematicHero locale="it" \/>[\s\S]*<PublicNetworkRoleExplorer \/>[\s\S]*Prima utilità, poi prodotto/,
   );
 });
 

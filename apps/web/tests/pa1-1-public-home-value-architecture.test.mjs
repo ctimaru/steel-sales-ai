@@ -6,6 +6,7 @@ const home = fs.readFileSync(
   new URL("../app/page.tsx", import.meta.url),
   "utf8",
 );
+const hero = fs.readFileSync(new URL("../components/public-cinematic-hero.tsx", import.meta.url), "utf8");
 const network = fs.readFileSync(
   new URL("../components/public-network-role-explorer.tsx", import.meta.url),
   "utf8",
@@ -16,8 +17,8 @@ const showcase = fs.readFileSync(
 );
 
 test("PA1.1 public home leads with value before login", () => {
-  assert.match(home, /L’intelligenza che connette/);
-  assert.match(home, /Utile anche senza account/);
+  assert.match(hero, /L’acciaio ha una/);
+  assert.match(hero, /Strumenti pubblici senza account/);
   assert.match(home, /Prima utilità, poi prodotto/);
   assert.match(home, /Cercala per nome o Partita IVA/);
   assert.match(network, /Produttori/);
@@ -30,11 +31,11 @@ test("PA1.1 exposes real public Scuola entry points", () => {
   assert.match(home, /href: "\/knowledge\/tubes\?source=home&surface=school_section#calcolatore-pesi"/);
   assert.match(home, /href: "\/knowledge\/norme"/);
   assert.match(home, /href: "\/knowledge\/gradi"/);
-  assert.match(home, /Apri Scuola/);
+  assert.match(hero, /Scuola/);
 });
 
 test("PA1.1 public-value architecture remains intact after PA1.2 adds real company lookup", () => {
-  assert.match(home, /Trova o rivendica la tua azienda/);
+  assert.match(home, /Cercala per nome o Partita IVA/);
   assert.match(home, /<DeferredPublicCompanyLookup \/>/);
   assert.match(home, /La ricerca pubblica serve solo a riconoscere l&apos;identità aziendale/);
   assert.match(network, /Privato · Premium/);

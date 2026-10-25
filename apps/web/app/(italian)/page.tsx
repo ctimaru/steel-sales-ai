@@ -1,11 +1,12 @@
 import { PublicHomeNavigation } from "@/components/public-home-navigation";
+import { PublicCinematicHero } from "@/components/public-cinematic-hero";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ProductBrand } from "@/components/product-brand";
 import { PublicNetworkRoleExplorer } from "@/components/public-network-role-explorer";
 import { DeferredPublicCompanyLookup } from "@/components/deferred-public-company-lookup";
-import { PublicIntelligencePillars, PublicProductPreview } from "@/components/public-intelligence-showcase";
+import { PublicIntelligencePillars } from "@/components/public-intelligence-showcase";
 import { PublicRegistrationTrust } from "@/components/public-registration-trust";
 import { PublicContactSection } from "@/components/public-contact-section";
 import { PublicPageLanguageSelector } from "@/components/calculator-page-language-selector";
@@ -91,10 +92,10 @@ export default function PublicHomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
       />
 
-      <header className="border-b border-[#dce5e0] bg-white">
+      <header className="border-b border-[#234536] bg-[#071713] text-white">
         <div className="mx-auto flex min-h-[72px] max-w-[1180px] items-center justify-between gap-2 px-3 sm:px-6 lg:px-8">
           <div className="hidden min-w-0 sm:block">
-            <ProductBrand href="/" />
+            <ProductBrand href="/" inverse />
           </div>
           <div className="min-w-0 sm:hidden">
             <ProductBrand href="/" compact showDescriptor={false} markOnly />
@@ -102,7 +103,7 @@ export default function PublicHomePage() {
 
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <PublicPageLanguageSelector locale="it" surface="home"/>
-            <Link href="/login" className="inline-flex min-h-11 items-center justify-center rounded-xl px-2.5 text-sm font-semibold text-[#36574c] hover:bg-[#f2f4f3] sm:px-3">
+            <Link href="/login" className="inline-flex min-h-11 items-center justify-center rounded-xl px-2.5 text-sm font-semibold text-[#d0e7d9] hover:bg-[#193a2c] hover:text-white sm:px-3">
               Accedi
             </Link>
             <Link href="/register" className="platform-primary inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-xl px-3 text-xs font-semibold sm:px-4 sm:text-sm">
@@ -112,52 +113,10 @@ export default function PublicHomePage() {
           </div>
         </div>
 
-        <PublicHomeNavigation locale="it" />
+        <PublicHomeNavigation locale="it" theme="dark" />
       </header>
 
-      <section aria-labelledby="home-hero-title" className="relative isolate overflow-hidden border-b border-[#dce5e0] bg-[#f6f8f7]">
-        <div aria-hidden="true" className="pointer-events-none absolute -right-40 -top-56 h-[560px] w-[560px] rounded-full bg-[radial-gradient(circle,rgba(31,107,90,0.12),transparent_68%)]" />
-        <div className="relative mx-auto grid max-w-[1180px] gap-10 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:items-center lg:gap-12 lg:px-8 lg:py-20">
-          <div className="max-w-[660px]">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="inline-flex min-h-8 items-center gap-2 rounded-full border border-[#b9d7cb] bg-[#e6f3ed] px-3 text-[10px] font-extrabold uppercase tracking-[0.13em] text-[#123b34] sm:text-[11px]">
-                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#1f6b5a]" />
-                Super Intelligence Ready
-              </span>
-              <span className="text-xs font-medium text-[#52615b]">Intelligence per l’industria steel &amp; tube</span>
-            </div>
-
-            <h1 id="home-hero-title" className="mt-6 max-w-[700px] text-[2.5rem] font-semibold leading-[1.08] tracking-[-0.045em] text-[#123b34] sm:text-[3.3rem] lg:text-[3.65rem]">
-              L’intelligenza che connette
-              <span className="block text-[#315c74]">il business dell’acciaio.</span>
-            </h1>
-            <p className="mt-5 max-w-[590px] text-base leading-7 text-[#475569] sm:text-lg sm:leading-8">
-              Distinte tecniche, richieste d’offerta multi-fornitore, confronto delle offerte e relazioni di filiera: un ambiente progettato per chi acquista e vende acciaio.
-            </p>
-
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Link href="/register" className="platform-primary inline-flex min-h-12 items-center justify-center rounded-xl px-6 text-sm font-bold shadow-[0_8px_20px_rgba(18,59,52,0.10)]">
-                Registra la tua azienda
-                <span aria-hidden="true" className="ml-2">→</span>
-              </Link>
-              <Link href="/distinta" className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#b9c9c2] bg-white px-6 text-sm font-bold text-[#123b34] hover:border-[#1f6b5a] hover:bg-[#edf5f1]">
-                Crea distinta gratis
-              </Link>
-            </div>
-            <p className="mt-3 text-xs leading-5 text-[#52615b]">
-              Strumenti pubblici senza account. Le funzioni aziendali richiedono registrazione e approvazione.
-            </p>
-            <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-[#dbe6df] pt-5 text-xs font-semibold text-[#1f6b5a]">
-              <span className="font-medium text-[#52615b]">Utile anche senza account</span>
-              <Link href="/knowledge/tubes?source=home&surface=hero#calcolatore-pesi" className="underline decoration-[#a9c8bb] underline-offset-4 hover:text-[#123b34]">Calcolo pesi</Link>
-              <Link href="/knowledge" className="underline decoration-[#a9c8bb] underline-offset-4 hover:text-[#123b34]">Apri Scuola</Link>
-              <Link href="/azienda" className="underline decoration-[#a9c8bb] underline-offset-4 hover:text-[#123b34]">Trova o rivendica la tua azienda</Link>
-            </div>
-          </div>
-
-          <PublicProductPreview />
-        </div>
-      </section>
+      <PublicCinematicHero locale="it" />
 
       <PublicNetworkRoleExplorer />
 
