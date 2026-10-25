@@ -138,7 +138,10 @@ Official references:
 
 Until the platform is upgraded:
 
-- schema is reproducible from the committed `supabase/migrations` chain;
+- schema recovery from the committed `supabase/migrations` chain is currently
+  blocked by unresolved historical baseline dependencies; assisted CI is not a
+  successful strict rebuild. See the [25 October launch-security checkpoint](security/sec-p0-launch-closure-20261025.md)
+  and [SUPA-LEDGER5F](architecture/supa-ledger5f-historical-foundation-candidate.md);
 - application code is reproducible from GitHub;
 - tenant-authoritative data can be exported as a P0.10 ZIP;
 - raw Storage source objects are included in that tenant ZIP;

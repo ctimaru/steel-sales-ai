@@ -10,6 +10,8 @@ from uuid import UUID
 
 import httpx
 
+from .supabase_credentials import SupabaseCredentialError, get_supabase_admin_key, supabase_admin_headers
+
 
 EUROSTAT_SOURCE_KEY = "eurostat_it_c242_ppi_domestic"
 ECB_SOURCE_KEY = "ecb_eurusd_monthly"
@@ -27,7 +29,10 @@ class MarketDataError(RuntimeError):
 
 def _configuration() -> tuple[str, str]:
     supabase_url = os.getenv("SUPABASE_URL", "").rstrip("/")
-    service_role_key = os.getenv("SUPABASE_SECRET_KEY") or os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+    try:
+        service_role_key = get_supabase_admin_key()
+    except SupabaseCredentialError as exc:
+        raise MarketConfigurationError("Supabase backend credentials are not configured.") from exc
     if not supabase_url or not service_role_key:
         raise MarketConfigurationError(
             "SUPABASE_URL and SUPABASE_SECRET_KEY (or legacy service role key) are required for market data."
@@ -174,8 +179,7 @@ class MarketRepository:
     def __init__(self) -> None:
         self.base_url, self.key = _configuration()
         self.headers = {
-            "Authorization": f"Bearer {self.key}",
-            "apikey": self.key,
+            **supabase_admin_headers(self.key),
             "Content-Type": "application/json",
         }
 

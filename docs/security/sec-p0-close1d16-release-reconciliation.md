@@ -6,7 +6,7 @@
 - Backend service URL: `https://steel-sales-worker-staging-staging.up.railway.app`. Do not use its internal token in any client-side code.
 
 ## Schema divergence (not approved for production)
-`public.p1_global_structured_search_bridge_v2(uuid,text,text[],jsonb,integer)` was created directly on staging to restore a missing RPC. The existing versioned `p1_global_structured_search` is not the same function. Staging SQL smoke and privileges were verified (service_role EXECUTE, anon/authenticated denied). **The exact deployed SQL is not yet stored in a reviewed repository migration.**
+`public.p1_global_structured_search_bridge_v2(uuid,text,text[],jsonb,integer)` was created directly on staging to restore a missing RPC. The existing versioned `p1_global_structured_search` is not the same function. Staging SQL smoke and privileges were verified (service_role EXECUTE, anon/authenticated denied). **Source reconciliation was subsequently merged in PR #917 at commit `0bc3e1b4c43c40d6bcb8e602d43377f3f253ecad`, under staging ledger version `20261024133532`. This does not prove production equivalence or a clean rebuild.**
 
 Gate before future promotion: obtain authoritative deployed `pg_get_functiondef` from staging using a privileged, reviewed channel; compare it against a proposed migration; verify grants, SECURITY INVOKER, tenant isolation, schema dependencies, migration ledger and clean rebuild; only then approve an explicitly controlled production rollout. Never assume a similarly named migration is equivalent.
 
@@ -22,3 +22,12 @@ Gate before future promotion: obtain authoritative deployed `pg_get_functiondef`
 Production and staging Railway currently track `main`; merging non-runtime changes can cause deployment checks/builds. Keep deploys controlled, batch merges and verify both environments' newest deployed SHA and runtime health. Do not change production keys or promote staging RPC without a separate reviewed and approved release gate.
 
 SEC-P0 issue #866 remains OPEN until browser integration acceptance and migration reconciliation are complete.
+
+## 25 October checkpoint
+
+Historical manual browser A/B acceptance and cleanup were recorded in #866 on
+24 October. Fresh catalog inspection still finds different production and staging
+implementations of the same search RPC. See the current
+[launch closure dossier](sec-p0-launch-closure-20261025.md) for the consumer
+inventory, credential-retirement gates, new API compatibility correction and
+database/Storage recovery blockers. The incident remains OPEN.

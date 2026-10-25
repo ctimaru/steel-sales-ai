@@ -775,8 +775,10 @@ def parse_price_list_pdf(payload: bytes, *, adapter_key: str = "padana_ptc") -> 
 
 
 def _require_worker_token(x_worker_token: str | None) -> None:
-    expected = os.getenv("WORKER_INTERNAL_TOKEN")
-    if expected and x_worker_token != expected:
+    expected = os.getenv("WORKER_INTERNAL_TOKEN", "").strip()
+    if not expected:
+        raise HTTPException(status_code=503, detail="Worker internal token is not configured.")
+    if x_worker_token != expected:
         raise HTTPException(status_code=401, detail="Invalid worker token.")
 
 
