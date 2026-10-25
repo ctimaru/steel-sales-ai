@@ -13,7 +13,7 @@ const platformHome = fs.readFileSync(new URL("../app/(platform)/platform/page.ts
 const legacyAdmin = fs.readFileSync(new URL("../app/(workspace)/admin/registrations/page.tsx", import.meta.url), "utf8");
 
 test("UX1 separates public, company and platform entry points", () => {
-  assert.match(root, /Trova o rivendica la tua azienda/);
+  assert.match(root, /Cercala per nome o Partita IVA/);
   assert.match(root, /export const dynamic = "force-static"/);
   assert.match(proxy, /if \(!error && data\.user\)/);
   assert.match(proxy, /target\.pathname = "\/dashboard"/);

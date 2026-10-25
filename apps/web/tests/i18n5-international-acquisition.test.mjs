@@ -6,6 +6,7 @@ const read = name => readFileSync(new URL(name, import.meta.url), "utf8");
 const handoff = read("../components/english-conversion-handoff.tsx");
 const shell = read("../components/english-public-subpage.tsx");
 const home = read("../app/en/page.tsx");
+const hero = read("../components/public-cinematic-hero.tsx");
 const registration = read("../app/register/page.tsx");
 
 test("I18N5 puts a registration and sign-in handoff on every shared English public subpage", () => {
@@ -15,7 +16,8 @@ test("I18N5 puts a registration and sign-in handoff on every shared English publ
   assert.match(shell, /href="\/en\/register"/);
   assert.match(shell, /href="\/en\/login"/);
   assert.match(home, /href="\/en\/login"/);
-  assert.match(home, /Register your company/);
+  assert.match(home, /<PublicCinematicHero locale="en" \/>/);
+  assert.match(hero, /Register your company/);
 });
 
 test("I18N5 keeps realistic and explicit locale, company verification and privacy gates", () => {

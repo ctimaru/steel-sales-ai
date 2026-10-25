@@ -22,6 +22,7 @@ const publicSchool = read("../app/(public)/knowledge/page.tsx");
 const login = read("../app/login/page.tsx");
 const register = read("../app/register/page.tsx");
 const home = read("../app/page.tsx");
+const hero = read("../components/public-cinematic-hero.tsx");
 
 test("UXF1 constrains the shared application shells", () => {
   assert.match(appShell, /mvp-focus-shell/);
@@ -70,9 +71,9 @@ test("UXF1 removes split-screen distraction from auth entry", () => {
 });
 
 test("UXF1 keeps free utilities accessible in the intelligence-first public homepage", () => {
-  assert.match(home, /Super Intelligence Ready/);
-  assert.match(home, /Registra la tua azienda/);
-  assert.match(home, /Crea distinta gratis/);
+  assert.match(hero, /Super Intelligence Ready/);
+  assert.match(hero, /Registra la tua azienda/);
+  assert.match(hero, /Crea una distinta gratis/);
   assert.match(home, /Calcolo pesi/);
   assert.match(home, /max-w-\[1180px\]/);
 });

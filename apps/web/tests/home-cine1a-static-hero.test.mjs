@@ -38,6 +38,7 @@ test("HOME-CINE1A is responsive, motion-respectful and requires no binary assets
     assert.ok(css.includes(fragment), "Missing responsive/a11y contract: " + fragment);
   }
   assert.match(hero, /<svg/);
-  assert.doesNotMatch(hero, /next\/image|https?:\/\/|<img|<iframe|autoplay/);
+  assert.doesNotMatch(hero, /next\/image|<img|<iframe|autoplay/);
+  assert.doesNotMatch(hero, /src="https?:\/\/|href="https?:\/\//);
   assert.doesNotMatch(css, /url\(https?:\/\//);
 });

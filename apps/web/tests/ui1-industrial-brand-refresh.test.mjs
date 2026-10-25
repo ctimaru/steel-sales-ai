@@ -6,6 +6,7 @@ const globals = fs.readFileSync(new URL("../app/globals.css", import.meta.url), 
 const brand = fs.readFileSync(new URL("../components/product-brand.tsx", import.meta.url), "utf8");
 const identity = fs.readFileSync(new URL("../lib/product-identity.ts", import.meta.url), "utf8");
 const publicHome = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+const cinematicHero = fs.readFileSync(new URL("../components/public-cinematic-hero.tsx", import.meta.url), "utf8");
 const companyShell = fs.readFileSync(new URL("../components/app-shell.tsx", import.meta.url), "utf8");
 const platformShell = fs.readFileSync(new URL("../components/platform-shell.tsx", import.meta.url), "utf8");
 const dashboard = fs.readFileSync(new URL("../app/(workspace)/dashboard/page.tsx", import.meta.url), "utf8");
@@ -45,9 +46,10 @@ test("UI1 applies the same product identity to public, Company and Platform cont
 test("UI1 keeps the public landing fast and asset-light", () => {
   assert.doesNotMatch(publicHome, /<img|next\/image|video|iframe/i);
   assert.doesNotMatch(publicHome, /animate-|transition-all/);
-  assert.match(publicHome, /L’intelligenza che connette/);
-  assert.match(publicHome, /Super Intelligence Ready/);
-  assert.match(publicHome, /Utile anche senza account/);
+  assert.match(publicHome, /<PublicCinematicHero locale="it" \/>/);
+  assert.match(cinematicHero, /L’acciaio ha una/);
+  assert.match(cinematicHero, /Super Intelligence Ready/);
+  assert.match(cinematicHero, /Strumenti pubblici senza account/);
 });
 
 test("PF1 keeps Company Home task-dense without duplicating macro navigation", () => {
