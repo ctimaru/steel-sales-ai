@@ -17,31 +17,51 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
     <section aria-labelledby="home-cinematic-title" className={styles.hero}>
       <div className={styles.ambient} data-home-cine-motion="photo" aria-hidden="true" />
       <div className={styles.intelligenceOverlay} data-home-cine-motion="network" aria-hidden="true">
-        <svg viewBox="0 0 560 410" xmlns="http://www.w3.org/2000/svg" fill="none" focusable="false">
+        <svg className={styles.globe} viewBox="0 0 480 410" xmlns="http://www.w3.org/2000/svg" fill="none" focusable="false">
           <defs>
-            <linearGradient id="cine1b-network" x1="12" y1="0" x2="480" y2="360" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#64FFBE" stopOpacity=".08" />
-              <stop offset=".48" stopColor="#64FFBE" stopOpacity=".72" />
-              <stop offset="1" stopColor="#64FFBE" stopOpacity=".12" />
+            <radialGradient id="cine2a2-globe-fill" cx="0" cy="0" r="1" gradientTransform="translate(240 202) rotate(90) scale(181 195)" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#2DEDA2" stopOpacity=".18" />
+              <stop offset="1" stopColor="#002719" stopOpacity="0" />
+            </radialGradient>
+            <linearGradient id="cine2a2-arc" x1="74" y1="324" x2="418" y2="90" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#A5FFE0" stopOpacity=".08" />
+              <stop offset=".56" stopColor="#8CFFD2" stopOpacity=".8" />
+              <stop offset="1" stopColor="#A5FFE0" stopOpacity=".12" />
             </linearGradient>
           </defs>
-          <g stroke="url(#cine1b-network)" strokeWidth="1.2">
-            <path d="M38 275 129 159 254 210 377 87 499 153 441 333 280 359 38 275Z" />
-            <path d="M129 159 441 333M254 210 499 153M377 87 280 359" strokeDasharray="5 10" />
+          <ellipse cx="244" cy="211" rx="174" ry="165" fill="url(#cine2a2-globe-fill)" />
+          <ellipse cx="244" cy="211" rx="172" ry="164" stroke="#79E9B7" strokeOpacity=".42" />
+          <ellipse cx="244" cy="211" rx="103" ry="164" stroke="#79E9B7" strokeOpacity=".19" />
+          <ellipse cx="244" cy="211" rx="38" ry="164" stroke="#79E9B7" strokeOpacity=".11" />
+          <path d="M76 158Q242 190 414 158M72 216Q242 239 416 216M91 274Q243 308 398 274" stroke="#83F5C4" strokeOpacity=".2" />
+          <path d="M117 90Q242 152 371 90M107 320Q241 272 382 320" stroke="#85D5B3" strokeOpacity=".15" />
+          <g stroke="#8CF9C8" strokeOpacity=".34" strokeWidth="1">
+            <path d="m166 150 24-18 35 8 24 28-18 12-12 35-23 9-26-31-26-3-10-18 32-22Z" />
+            <path d="m235 234 31-18 29 23 4 32-23 28-12 36-21-20-2-35-15-27 9-19Z" />
+            <path d="m264 126 35-14 48 19 24 25-13 31-32 8-13 22-23-19-25 2-20-25 19-49Z" />
+            <path d="m125 223 21 8 14 30-9 27-20-15-13-29Z" />
           </g>
-          <g fill="#84FFD3">
-            <circle cx="38" cy="275" r="3" />
-            <circle cx="129" cy="159" r="3" />
-            <circle cx="254" cy="210" r="4" className={styles.networkPulse} />
-            <circle cx="377" cy="87" r="3" />
-            <circle cx="499" cy="153" r="4" className={styles.networkPulse} />
-            <circle cx="441" cy="333" r="3" />
-            <circle cx="280" cy="359" r="3" />
+          <g stroke="url(#cine2a2-arc)" strokeWidth="1.3">
+            <path d="M110 269Q218 91 365 142" />
+            <path d="M140 154Q268 318 379 214" />
+            <path d="M170 303Q306 109 398 244" strokeDasharray="4 8" />
           </g>
-          <circle cx="254" cy="210" r="17" stroke="#70EDBB" strokeOpacity=".25" />
-          <circle cx="499" cy="153" r="21" stroke="#70EDBB" strokeOpacity=".19" />
+          <g fill="#B3FFDA">
+            <circle cx="110" cy="269" r="3" />
+            <circle cx="140" cy="154" r="3" />
+            <circle cx="365" cy="142" r="4" className={styles.networkPulse} />
+            <circle cx="379" cy="214" r="3" />
+            <circle cx="170" cy="303" r="3" />
+            <circle cx="398" cy="244" r="4" className={styles.networkPulse} />
+            <circle cx="255" cy="181" r="3.5" className={styles.networkPulse} />
+          </g>
+          <circle cx="365" cy="142" r="17" stroke="#8FFFD1" strokeOpacity=".3" />
+          <circle cx="255" cy="181" r="20" stroke="#8FFFD1" strokeOpacity=".24" />
         </svg>
-        <span className={styles.networkLabel}>{en ? "CONNECTED INDUSTRY" : "FILIERA CONNESSA"}</span>
+        <span className={styles.orbitBadge + " " + styles.orbitCompany}>{en ? "COMPANIES" : "AZIENDE"}</span>
+        <span className={styles.orbitBadge + " " + styles.orbitKnowledge}>{en ? "KNOWLEDGE" : "CONOSCENZA"}</span>
+        <span className={styles.orbitBadge + " " + styles.orbitOpportunity}>{en ? "OPPORTUNITIES" : "OPPORTUNITÀ"}</span>
+        <span className={styles.networkLabel}>{en ? "CONNECTED STEEL INDUSTRY" : "FILIERA CONNESSA"}</span>
       </div>
 
       <div className={styles.container}>
@@ -83,19 +103,38 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
           <span className={styles.captionKicker}>01 / 03</span>
           <span>{en ? "MATERIAL · DATA · CONNECTIONS" : "MATERIA · DATI · CONNESSIONI"}</span>
         </div>
-        <div className={styles.productHint} data-home-cine-motion="product" aria-hidden="true">
-          <span className={styles.hintLabel}>{en ? "PLATFORM CONCEPT" : "CONCEPT DI PIATTAFORMA"}</span>
-          <strong>{en ? "From a bill to an RFQ" : "Dalla distinta alla RFQ"}</strong>
-          <div className={styles.workflowTrack}>
+        <aside className={styles.productHint} data-home-cine-motion="product" aria-label={en ? "Illustrative tube calculator preview" : "Anteprima illustrativa calcolatrice tubi"}>
+          <span className={styles.hintLabel}>{en ? "TECHNICAL CALCULATOR" : "CALCOLATRICE TECNICA"}</span>
+          <div className={styles.specHead}>
+            <span className={styles.specIcon} aria-hidden="true">
+              <svg viewBox="0 0 56 56" fill="none" focusable="false">
+                <circle cx="25" cy="24" r="15" stroke="#BAFFE1" strokeWidth="4" />
+                <circle cx="25" cy="24" r="9" stroke="#59CF98" strokeWidth="1" strokeDasharray="3 3" />
+                <path d="M32 37h16v13H32z" stroke="#8CF1C0" strokeWidth="2" />
+              </svg>
+            </span>
+            <div>
+              <strong>{en ? "Steel tube weight" : "Peso tubi in acciaio"}</strong>
+              <span className={styles.specFamily}>CHS · SHS · RHS</span>
+            </div>
+          </div>
+          <div className={styles.specFields} aria-label={en ? "Calculator steps" : "Passaggi calcolatrice"}>
+            <span><b>01</b> {en ? "Choose geometry" : "Scegli geometria"}</span>
+            <span><b>02</b> {en ? "Enter dimensions" : "Inserisci dimensioni"}</span>
+            <span><b>03</b> {en ? "Calculate weight" : "Calcola peso"}</span>
+          </div>
+          <Link href={links.calculator} className={styles.hintCta}>
+            {en ? "Open real calculator" : "Apri la calcolatrice"} <span aria-hidden="true">↗</span>
+          </Link>
+          <div className={styles.workflowTrack} aria-hidden="true">
             <span><b>01</b>{en ? "Bill" : "Distinta"}</span>
             <i aria-hidden="true">›</i>
             <span><b>02</b>RFQ</span>
             <i aria-hidden="true">›</i>
             <span><b>03</b>{en ? "Offers" : "Offerte"}</span>
           </div>
-          <span className={styles.hintFlow}>{en ? "Technical input · Controlled workflow" : "Dati tecnici · Processo governato"}</span>
           <span className={styles.hintFooter}>{en ? "Illustrative — not live data" : "Illustrativo — non sono dati reali"}</span>
-        </div>
+        </aside>
       </div>
     </section>
     <section className={styles.bridge} aria-label={en ? "From material to business intelligence" : "Dalla materia all'intelligenza commerciale"}>

@@ -445,3 +445,98 @@
       linear-gradient(118deg, #061310 16%, #0c241d 68%, #061310 100%);
   }
 }
+
+/* HOME-CINE2A.2: real steel is larger; technical UI remains real HTML.
+   No image containing fake text/figures is ever deployed. */
+@media (min-width: 1024px) {
+  .ambient {
+    background-size: cover, auto 112%, cover;
+    background-position: center, right 51%, center;
+  }
+}
+.hero::after {
+  background:
+    linear-gradient(90deg, #04120f 0%, rgba(4, 18, 15, .97) 19%, rgba(4, 18, 15, .82) 39%, rgba(4, 18, 15, .28) 66%, rgba(4, 18, 15, .04) 100%),
+    linear-gradient(0deg, rgba(4, 18, 13, .76) 0%, transparent 29%, rgba(4, 18, 13, .04) 70%, rgba(4, 18, 13, .38) 100%);
+}
+.intelligenceOverlay {
+  top: 8%;
+  right: 11%;
+  width: min(36vw, 430px);
+  aspect-ratio: 480 / 410;
+  opacity: .81;
+}
+.globe { filter: drop-shadow(0 0 16px rgba(70, 211, 146, .12)); }
+.orbitBadge {
+  position: absolute;
+  padding: 6px 9px;
+  color: #ddffe9;
+  background: rgba(2, 21, 15, .78);
+  border: 1px solid rgba(111, 237, 171, .52);
+  border-radius: 5px;
+  box-shadow: 0 0 18px rgba(11, 130, 79, .12);
+  font-size: 9px;
+  font-weight: 750;
+  line-height: 1.35;
+  letter-spacing: .08em;
+}
+.orbitCompany { top: 15%; left: 19%; }
+.orbitKnowledge { bottom: 22%; left: 4%; }
+.orbitOpportunity { top: 31%; right: -8%; }
+.productHint {
+  right: 30px;
+  bottom: 75px;
+  width: 264px;
+  padding: 14px;
+  gap: 8px;
+  border-color: rgba(136, 243, 192, .63);
+  background: linear-gradient(145deg, rgba(4, 27, 22, .97), rgba(6, 32, 26, .95));
+  box-shadow: 0 18px 42px rgba(0, 10, 8, .59);
+}
+.specHead { display: flex; align-items: center; gap: 9px; }
+.specHead > div { display: flex; min-width: 0; flex-direction: column; gap: 4px; }
+.specIcon {
+  width: 54px; height: 54px; flex: none;
+  border: 1px solid rgba(151, 237, 197, .25);
+  border-radius: 9px;
+  background: linear-gradient(135deg, rgba(60, 134, 105, .26), rgba(3, 28, 23, .9));
+}
+.specIcon svg { width: 100%; height: 100%; }
+.specHead strong { color: #f5fff9; font-size: 13px; line-height: 1.28; }
+.specFamily { color: #a9dac5; font-size: 10px; font-weight: 650; }
+.specFields { display: grid; gap: 0; border-block: 1px solid rgba(156, 234, 195, .17); }
+.specFields > span {
+  display: flex; gap: 10px; min-height: 29px; align-items: center;
+  color: #d6f0e2; font-size: 10px;
+}
+.specFields > span + span { border-top: 1px solid rgba(148, 227, 190, .1); }
+.specFields b { color: #72deb0; font-weight: 800; }
+.hintCta {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 12px; min-height: 44px;
+  padding: 10px 11px; border-radius: 8px; border: 1px solid #46cc92;
+  background: #0b7852; color: #fff;
+  font-size: 11px; font-weight: 750; text-decoration: none;
+}
+.hintCta:hover { background: #065b3d; }
+.hintCta:focus-visible { outline: 3px solid #baffdb; outline-offset: 3px; }
+.productHint .workflowTrack { gap: 4px; margin: 0; }
+.productHint .workflowTrack span { gap: 3px; padding: 5px 4px; font-size: 9px; }
+.productHint .workflowTrack b { font-size: 9px; }
+.productHint .hintFooter { margin-top: 0; padding-top: 5px; }
+@media (min-width: 701px) and (max-width: 1180px) {
+  .intelligenceOverlay { right: 6%; width: min(38vw, 370px); }
+  .orbitOpportunity { right: 0; }
+  .productHint { width: 228px; right: 20px; bottom: 67px; padding: 11px; }
+  .specHead strong { font-size: 12px; }
+  .specFields > span { min-height: 26px; }
+}
+@media (max-width: 980px) {
+  .hero::after { background: linear-gradient(90deg, #04120f 0%, rgba(4, 18, 15, .99) 30%, rgba(4, 18, 15, .76) 65%, rgba(4, 18, 15, .32) 100%); }
+}
+@media (max-width: 700px) {
+  .hero::after {
+    background: linear-gradient(to bottom, #04120f 0%, rgba(4, 18, 15, .97) 31%, rgba(4, 18, 15, .7) 57%, rgba(4, 18, 15, .13) 83%, rgba(4, 18, 15, .55) 100%);
+  }
+  .intelligenceOverlay, .productHint { display: none; }
+}
