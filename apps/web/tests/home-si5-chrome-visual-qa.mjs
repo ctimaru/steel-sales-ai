@@ -58,7 +58,7 @@ try {
     try {
       const response = await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 50000 });
       assert.equal(response?.status(), 200, viewport.name + " homepage should return HTTP 200");
-      await page.getByRole("heading", { name: /L.intelligenza che connette/i }).waitFor();
+      await page.getByRole("heading", { name: /L.acciaio ha una nuova intelligenza/i }).waitFor();
       const expected = [
         "La filiera steel, utile in base al tuo ruolo.",
         "Tre forme di intelligence. Un solo ecosistema.",
@@ -74,7 +74,7 @@ try {
         const dom = document.documentElement;
         const actualWidth = dom.clientWidth;
         const pageWidth = dom.scrollWidth;
-        const sections = ["home-hero-title", "network", "intelligence", "aziende", "registrazione"];
+        const sections = ["home-cinematic-title", "network", "intelligence", "aziende", "registrazione"];
         const geometry = sections.map((id) => {
           const el = document.getElementById(id);
           if (!el) return { id, missing: true };
@@ -94,7 +94,7 @@ try {
       const heroLinks = page.getByRole("link", { name: /Registra la tua azienda/i });
       check(await heroLinks.count() >= 1, "Registration CTA not present");
       check(await heroLinks.first().getAttribute("href") === "/register", "Registration CTA points elsewhere");
-      const publicDistinta = page.getByRole("link", { name: "Crea distinta gratis" });
+      const publicDistinta = page.getByRole("link", { name: "Crea una distinta gratis" });
       check(await publicDistinta.count() === 1, "No public builder CTA");
       check(await publicDistinta.getAttribute("href") === "/distinta", "Builder CTA is not public");
 
