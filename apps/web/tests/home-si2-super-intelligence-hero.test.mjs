@@ -23,7 +23,7 @@ test("HOME-SI2 prioritizes conversion but preserves free utilities and role expl
   assert.match(hero, /register: "\/register"/);
   assert.match(home, /href="\/distinta"/);
   assert.match(home, /href="\/knowledge"/);
-  assert.match(home, /href="\/azienda"/);
+  assert.match(publicNav, /href: "\/azienda"/);
   assert.match(home, /<PublicNetworkRoleExplorer \/>/);
   assert.match(home, /<DeferredPublicCompanyLookup \/>/);
 });
