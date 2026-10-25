@@ -92,10 +92,10 @@ export default function PublicHomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteJsonLd) }}
       />
 
-      <header className="border-b border-[#dce5e0] bg-white">
+      <header className="border-b border-[#234536] bg-[#071713] text-white">
         <div className="mx-auto flex min-h-[72px] max-w-[1180px] items-center justify-between gap-2 px-3 sm:px-6 lg:px-8">
           <div className="hidden min-w-0 sm:block">
-            <ProductBrand href="/" />
+            <ProductBrand href="/" inverse />
           </div>
           <div className="min-w-0 sm:hidden">
             <ProductBrand href="/" compact showDescriptor={false} markOnly />
@@ -103,7 +103,7 @@ export default function PublicHomePage() {
 
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <PublicPageLanguageSelector locale="it" surface="home"/>
-            <Link href="/login" className="inline-flex min-h-11 items-center justify-center rounded-xl px-2.5 text-sm font-semibold text-[#36574c] hover:bg-[#f2f4f3] sm:px-3">
+            <Link href="/login" className="inline-flex min-h-11 items-center justify-center rounded-xl px-2.5 text-sm font-semibold text-[#d0e7d9] hover:bg-[#193a2c] hover:text-white sm:px-3">
               Accedi
             </Link>
             <Link href="/register" className="platform-primary inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-xl px-3 text-xs font-semibold sm:px-4 sm:text-sm">
@@ -113,7 +113,7 @@ export default function PublicHomePage() {
           </div>
         </div>
 
-        <PublicHomeNavigation locale="it" />
+        <PublicHomeNavigation locale="it" theme="dark" />
       </header>
 
       <PublicCinematicHero locale="it" />
