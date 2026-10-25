@@ -485,7 +485,7 @@
 .orbitOpportunity { top: 31%; right: -8%; }
 .productHint {
   right: 30px;
-  bottom: 75px;
+  bottom: 144px;
   width: 264px;
   padding: 14px;
   gap: 8px;
@@ -527,7 +527,7 @@
 @media (min-width: 701px) and (max-width: 1180px) {
   .intelligenceOverlay { right: 6%; width: min(38vw, 370px); }
   .orbitOpportunity { right: 0; }
-  .productHint { width: 228px; right: 20px; bottom: 67px; padding: 11px; }
+  .productHint { width: 228px; right: 20px; bottom: 122px; padding: 11px; }
   .specHead strong { font-size: 12px; }
   .specFields > span { min-height: 26px; }
 }
