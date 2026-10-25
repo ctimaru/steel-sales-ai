@@ -77,5 +77,5 @@ test("UXF1 keeps free utilities accessible in the intelligence-first public home
   assert.match(hero, /Apri calcolatrice/);
   assert.match(hero, /Crea una distinta gratis/);
   assert.match(home, /Calcolo pesi/);
-  assert.match(home, /max-w-\[1180px\]/);
+  assert.match(header, /max-w-\[1180px\]/);
 });
