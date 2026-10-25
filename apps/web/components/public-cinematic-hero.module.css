@@ -425,3 +425,23 @@
 @media print {
   .ambient, .intelligenceOverlay, .networkPulse, .productHint { animation: none !important; transform: none !important; }
 }
+
+/* HOME-CINE1E: premium sharpness for wide screens only.
+   1360 × 907 WebP is 47,276 bytes; mobile/tablet retain the 6,170-byte poster.
+   Override only image layers so CINE1D framing, motion and CTA geometry stay intact. */
+@media (min-width: 1024px) {
+  .ambient {
+    background-image:
+      radial-gradient(ellipse 50% 72% at 78% 44%, rgba(25, 158, 109, .12), transparent 72%),
+      url('/home-cine1e-steel-desktop.webp'),
+      linear-gradient(118deg, #061310 16%, #0c241d 68%, #061310 100%);
+  }
+}
+@media (min-width: 1024px) and (prefers-reduced-data: reduce) {
+  .ambient {
+    background-image:
+      radial-gradient(ellipse 50% 72% at 78% 44%, rgba(25, 158, 109, .12), transparent 72%),
+      url('/home-cine1a-steel.webp'),
+      linear-gradient(118deg, #061310 16%, #0c241d 68%, #061310 100%);
+  }
+}
