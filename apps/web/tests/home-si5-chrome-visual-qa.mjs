@@ -105,7 +105,7 @@ try {
       const publicDistinta = hero.getByRole("link", { name: "Crea una distinta gratis" });
       check(await publicDistinta.count() === 1, "No public builder second step");
       check(await publicDistinta.getAttribute("href") === "/distinta", "Builder CTA is not public");
-      const account = publicHeader.locator("details").first();
+      const account = publicHeader.locator('nav[aria-label="Area aziende"] details');
       const accountSummary = account.locator("summary");
       check(await accountSummary.count() === 1, "Area aziende access menu missing");
       await accountSummary.click();
@@ -155,7 +155,7 @@ try {
           "English locale must stay compact");
         check(await page.getByRole("heading", { name: "Your company. A governed workspace." }).count() === 1,
           "CINE1C English trusted access panel missing");
-        check(await page.getByRole("link", { name: "Open tube calculator" }).getAttribute("href")
+        check(await page.locator("#steel-tools-proof").getByRole("link", { name: "Open tube calculator" }).getAttribute("href")
           === "/en/knowledge/tubes", "CINE1C EN calculator route mismatch");
         const enOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
         check(enOverflow <= 12, "CINE1C EN overflow: " + enOverflow);
