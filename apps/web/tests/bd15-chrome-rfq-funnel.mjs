@@ -97,6 +97,7 @@ try {
     await step("create mixed-EN 10210/10219 bill with one-click rows " + width, async () => {
       await goto(page, "/rfq-hub/distinta");
       await page.getByLabel("Titolo distinta").fill("BD15 E2E LOCAL " + width);
+      await page.locator("[data-private-calculator-grade] details > summary").click();
       await page.getByLabel("Grado acciaio · facoltativo ora").fill("S355J2H");
       const { bill } = await fillTwoTubularLines(page);
       const btn = bill.getByRole("button", { name: /Crea RFQ privata/ });
