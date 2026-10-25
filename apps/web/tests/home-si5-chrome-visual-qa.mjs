@@ -121,6 +121,24 @@ try {
         viewport.name + " calculator action not sticky after scroll");
       await page.evaluate(() => window.scrollTo(0, 0));
 
+      if (viewport.width === 320) {
+        // Explicit narrow English first-fold acceptance. Catch width regressions
+        // before unrelated downstream visual and investor checks.
+        const englishNarrow = await page.goto(BASE + "/en", { waitUntil: "domcontentloaded", timeout: 50000 });
+        check(englishNarrow?.status() === 200, "CONV1A English 320 homepage unavailable");
+        const enNarrow = await page.evaluate(() => ({
+          width: document.documentElement.clientWidth,
+          scroll: document.documentElement.scrollWidth,
+        }));
+        check(enNarrow.scroll <= enNarrow.width + 12,
+          "CONV1A English 320 first-fold overflow: " + JSON.stringify(enNarrow));
+        const enPrimary = page.locator("header").first().locator("[data-home-primary-cta]");
+        check(await enPrimary.innerText() === "Calc ↗", "CONV1A English mobile calculator label missing");
+        check(await enPrimary.getAttribute("href") === "/en/knowledge/tubes",
+          "CONV1A English 320 calculator must remain public");
+        await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 50000 });
+      }
+
       const networkLinks = await page.locator('a[href="/network"], a[href="/rfq-hub"], a[href="/platform"]').count();
       assert.equal(networkLinks, 0, "Public page must not link users into private data");
       // HOME-CINE1C: the industrial technical showcase must remain navigable
