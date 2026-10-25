@@ -107,8 +107,24 @@ try {
     await step("one action persists bill and opens private draft RFQ " + width, async () => {
       await page.locator("#buyer-live-preview").getByRole("button",{name:/Crea RFQ privata/}).click();
       await page.waitForURL(url => /^\/rfq-hub\/[0-9a-f-]{36}$/.test(url.pathname),{timeout:60000});
-      await page.getByRole("heading",{name:"BD15 E2E LOCAL "+width,exact:true})
-        .waitFor({state:"visible",timeout:60000});
+      try {
+        await page.getByRole("heading",{name:"BD15 E2E LOCAL "+width,exact:true})
+          .waitFor({state:"visible",timeout:60000});
+      } catch (error) {
+        // FLOW1C.2 / #751: diagnose the actual persisted RFQ page rather than
+        // weakening the saved-title assertion or introducing arbitrary sleeps.
+        // Only fixture-local page structure, headings and bounded status labels;
+        // never dump browser storage, cookies, credentials or commercial text.
+        const diagnostic = await page.evaluate(() => ({
+          pathname: window.location.pathname,
+          headings: Array.from(document.querySelectorAll("h1,h2,h3"))
+            .map(node => (node.textContent || "").trim().slice(0,100)).slice(0,12),
+          serverError: document.body.innerText.includes("Application error: a server-side exception"),
+          expectedTitleVisible: document.body.innerText.includes("BD15 E2E LOCAL"),
+        }));
+        console.error("BD15 FLOW1C2 local RFQ navigation diagnostic", JSON.stringify(diagnostic));
+        throw error;
+      }
       const body = await page.locator("body").innerText();
       assert.match(body,/RFQ privata · preparazione/i);
       assert.match(body,/La RFQ è ancora privata/);
