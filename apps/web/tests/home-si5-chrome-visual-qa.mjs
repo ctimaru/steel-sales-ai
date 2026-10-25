@@ -100,6 +100,35 @@ try {
 
       const networkLinks = await page.locator('a[href="/network"], a[href="/rfq-hub"], a[href="/platform"]').count();
       assert.equal(networkLinks, 0, "Public page must not link users into private data");
+      // HOME-CINE1C: the industrial technical showcase must remain navigable
+      // and safe at every viewport, without privileged RFQ/Network links.
+      const geometryProof = page.locator("#steel-tools-proof");
+      check(await geometryProof.count() === 1, viewport.name + " geometry proof missing");
+      for (const family of ["CHS", "SHS", "RHS"]) {
+        check(await geometryProof.getByText(family, { exact: true }).count() === 1,
+          viewport.name + " missing public geometric family " + family);
+      }
+      check(await geometryProof.getByRole("link", { name: "Apri il calcolatore" }).getAttribute("href")
+        === "/knowledge/tubes?source=home&surface=school_section#calcolatore-pesi",
+        "CINE1C calculator attribution changed");
+      check(await geometryProof.getByRole("link", { name: "Crea una distinta" }).getAttribute("href")
+        === "/distinta", "CINE1C builder must remain public");
+      check(await page.locator("#registrazione").count() === 1,
+        viewport.name + " existing IT trust section missing");
+
+      if (viewport.width === 390 || viewport.width === 1440) {
+        const english = await page.goto(BASE + "/en", { waitUntil: "domcontentloaded", timeout: 50000 });
+        check(english?.status() === 200, "CINE1C English homepage unavailable");
+        check(await page.locator("#steel-tools-proof").count() === 1, "CINE1C English product proof missing");
+        check(await page.getByRole("heading", { name: "Your company. A governed workspace." }).count() === 1,
+          "CINE1C English trusted access panel missing");
+        check(await page.getByRole("link", { name: "Open tube calculator" }).getAttribute("href")
+          === "/en/knowledge/tubes", "CINE1C EN calculator route mismatch");
+        const enOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+        check(enOverflow <= 12, "CINE1C EN overflow: " + enOverflow);
+        await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 50000 });
+      }
+
       const h1 = await page.locator("h1").count();
       assert.equal(h1, 1, "Homepage must have one H1");
 
