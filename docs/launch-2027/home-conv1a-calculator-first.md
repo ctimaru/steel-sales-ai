@@ -33,3 +33,9 @@ The locale picker is visually oversized, and access to the account uses two sepa
 ## Measuring conversion later
 
 After launch compare public `calculator_opened` allowlisted telemetry by source/surface; don't invent click conversion rates. The source labels header vs hero already exist. No tracking without the user's allowed consent mechanisms. A/B testing should be a separate, controlled step.
+
+## CI UX remediation (2026-10-25)
+
+- Corrected a Chrome locator mistakenly selecting the language disclosure instead of company access.
+- 320px English test revealed 18px horizontal overflow in the long mobile “Calculate” label; shortened visual label to “Calc” while preserving the full screen-reader label.
+- Next Chrome pass verified 320px page widths but detected 3 severe contrast nodes at 390px after introducing a translucent sticky header; changed header to an opaque steel-dark background (#071713), removed backdrop blur and added per-element Axe diagnostics. This strengthens actual contrast without weakening the WCAG gate. Await new Chrome and Lighthouse evidence before release.

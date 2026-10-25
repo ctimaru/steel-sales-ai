@@ -240,7 +240,14 @@ try {
         console.log("HOME-SI5 AXE", JSON.stringify({
           viewport: viewport.name,
           totalViolations: axe.violations.length,
-          seriousOrCritical: severe.map((item) => ({ id: item.id, impact: item.impact, nodes: item.nodes.length })),
+          seriousOrCritical: severe.map((item) => ({
+            id: item.id, impact: item.impact, nodes: item.nodes.length,
+            // Diagnostic only: public static homepage elements, never private user content.
+            affected: item.nodes.slice(0, 5).map((node) => ({
+              target: node.target, html: node.html.slice(0, 180),
+              reason: node.failureSummary?.slice(0, 180),
+            })),
+          })),
           other: axe.violations.filter((item) => item.impact !== "critical" && item.impact !== "serious")
             .map((item) => ({ id: item.id, impact: item.impact, nodes: item.nodes.length })),
         }));

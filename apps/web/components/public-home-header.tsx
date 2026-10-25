@@ -18,7 +18,7 @@ export function PublicHomeHeader({ locale }: { locale: "it" | "en" }) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-[#234536] bg-[#071713]/95 text-white backdrop-blur-sm">
+      <header className="sticky top-0 z-40 border-b border-[#234536] bg-[#071713] text-white">
         <div className="mx-auto flex min-h-[64px] max-w-[1180px] items-center justify-between gap-2 px-3 sm:min-h-[70px] sm:px-6 lg:px-8">
           <div className="hidden min-w-0 shrink sm:block">
             <ProductBrand href={en ? "/en" : "/"} inverse />
