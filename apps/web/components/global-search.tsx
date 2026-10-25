@@ -134,7 +134,7 @@ function sourceTarget(result: GlobalSearchResult) {
 
 function searchGeometryForCalculator(result: GlobalSearchResult) {
   const n = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v) && v > 0 && v < 100000;
-  const standard = result.standard?.trim().toUpperCase().replace(/\\s+/g, " ");
+  const standard = result.standard?.trim().toUpperCase().replace(/\s+/g, " ");
   if (standard !== "EN 10219" && standard !== "EN 10210") return null;
   const t = result.thickness_mm;
   if (!n(t)) return null;
