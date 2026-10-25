@@ -7,6 +7,7 @@ const home = fs.readFileSync(
   new URL("../app/page.tsx", import.meta.url),
   "utf8",
 );
+const hero = fs.readFileSync(new URL("../components/public-cinematic-hero.tsx", import.meta.url), "utf8");
 const network = fs.readFileSync(
   new URL("../components/public-network-role-explorer.tsx", import.meta.url),
   "utf8",
@@ -34,7 +35,7 @@ const migration = fs.readFileSync(
 
 test("WC5 keeps the calculator discoverable from hero, header and Scuola section", () => {
   assert.match(home, /Calcolo pesi/);
-  assert.match(home, /source=home&surface=hero#calcolatore-pesi/);
+  assert.match(hero, /source=home&surface=hero#calcolatore-pesi/);
   assert.match(publicNav, /source=home&surface=header#calcolatore-pesi/);
   assert.match(home, /source=home&surface=school_section#calcolatore-pesi/);
   assert.match(publicNav, /Navigazione mobile/);
