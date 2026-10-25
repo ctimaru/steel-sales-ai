@@ -21,15 +21,17 @@ The dedicated `product-flow1-e2e.yml` workflow uses throwaway local Supabase, fi
 
 The provider preload is **test-only**, in a separate Next process. It requires exact local URLs, a synthetic key and two allowlisted `example.test` recipients; it rejects external fetch destinations and redirects. Capability URLs stay in a mode-0600 ephemeral file, never logs or artifacts. These tests prove application dispatch through a simulated transport; they do not prove delivery to a real mailbox.
 
-BD15 remains separate with `RESEND_API_KEY` empty and its original 72 m/title assertions and zero-send SQL acceptance. Its new helper holds client scripts, verifies inert SSR controls, releases scripts, then verifies title and quantity survive a hydrated render. This closes the observed pre-readiness input window; it does not establish the root cause of every historical intermittent BD15 failure.
+BD15 remains separate with `RESEND_API_KEY` empty and its original 72 m/title assertions and zero-send SQL acceptance. Its new helper holds client scripts, verifies inert SSR controls, releases scripts, then verifies title and quantity survive a hydrated render. The multi-account workflow runs BD15 twice on the same commit, with zero-send SQL acceptance after each. Between runs, a guarded local-only reset removes exactly the two verified synthetic campaigns and their source bills, preserving all other fixtures. This closes the observed pre-readiness input window; it does not establish the root cause of every historical intermittent BD15 failure.
 
 ## Evidence from the 25 October 2026 local run
 
 - Worker suite: **370 passed**, including eight real-retrieval regression cases.
-- Web suite before the final browser-helper adjustment: **2147 passed**. Strengthened provider transport guard test subsequently passed separately.
+- Web suite: **2147 passed**, including the strengthened provider transport guard. Typecheck passed.
 - Deferred-client browser regression: **390 and 1440 passed**.
 - Actual Worker/PostgREST runtime: **buyer and producer passed**, with no active embedding model.
 - Complete local browser journey: **16 checks passed**, 1440/390, four captured synthetic invitations and zero external email.
+- BD15: **two consecutive local runs passed**, 14 checks each, with the original zero-send SQL passing after each; the guarded fixture reset also passed against the disposable database.
+- Initial PR commit `5705248`: [P0](https://github.com/ctimaru/steel-sales-ai/actions/runs/40206130058), [complete Google Chrome journey](https://github.com/ctimaru/steel-sales-ai/actions/runs/40206129970), [multi-account Chrome / BD15](https://github.com/ctimaru/steel-sales-ai/actions/runs/40206129973) and contrast checks passed. Mobile acceptance found a test reading autocomplete immediately after filling; it now waits for calculator readiness and the actual empty-result message, preserving the assertion and all quantity checks. Final-commit CI remains required.
 
 Local browser used installed Chromium and Node 24; CI pins Node 22 and the Google Chrome channel. Local Docker's Auth health command received a proxy 403; local startup used `--ignore-health-check`, then the real Auth health endpoint returned 200 and all five real user logins succeeded. This workaround is not enabled in CI or hosted environments.
 

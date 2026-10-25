@@ -18,8 +18,12 @@ export async function checkDeferredClientReadiness(page) {
   let releaseScripts;
   const scriptsReady = new Promise(resolve => { releaseScripts = resolve; });
   const deferScript = async route => {
+    if (!["127.0.0.1", "localhost", "[::1]"].includes(new URL(route.request().url()).hostname)) {
+      await route.abort();
+      return;
+    }
     if (route.request().resourceType() === "script") await scriptsReady;
-    await route.continue();
+    await route.fallback();
   };
   await page.route("**/*", deferScript);
   try {
