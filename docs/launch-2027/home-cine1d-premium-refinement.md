@@ -30,3 +30,7 @@ Source of truth: the original **Steel Awakening + Living Steel Network + Intelli
 ## Next measured decision
 
 If the user still sees unacceptable softness on large screens, independently test a local original high-resolution WebP with mobile/desktop media strategy, document rights and a strict responsive image budget, and compare Lighthouse. Do not silently replace optimized imagery during this typography/layout refinement.
+
+## CI finding and corrective change
+
+Initial Chrome HOME-SI5 measured desktop hero content forcing 805px despite the 660px minimum (multi-line heading at 77px computed font size). The release gate correctly failed. HOME-CINE1D.1 corrects actual typography, rather than relaxing the acceptance threshold: desktop title ~64px via `clamp(3rem, 4.45vw, 4.95rem)` and smooth tablet/mobile breakpoints. Re-test the 1440px hero height ≤705px, CTA and photo before approval.

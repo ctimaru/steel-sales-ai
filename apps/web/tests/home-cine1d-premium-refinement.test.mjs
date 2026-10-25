@@ -19,7 +19,7 @@ test("HOME-CINE1D gives realistic steel room without changing the already optimi
   assert.match(css, /min-height: 660px/);
   assert.match(css, /min-height: 764px/);
   assert.match(css, /min-height: 790px/);
-  assert.match(css, /font-size: clamp\(3\.2rem, 5\.35vw, 5\.35rem\)/);
+  assert.match(css, /font-size: clamp\(3rem, 4\.45vw, 4\.95rem\)/);
   assert.match(css, /max-width: 575px/);
   assert.match(css, /width: 242px/);
   assert.match(css, /min-height: 76px/);
