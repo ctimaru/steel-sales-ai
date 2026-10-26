@@ -1299,9 +1299,9 @@ export function PublicTubeWeightCalculator({
                     <span className="ml-1 text-[10px] text-white/85">m</span>
                   </p>
                 </div>
-                <div className="min-w-0 rounded-lg bg-white/8 px-2 py-1.5">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/85">{t("Peso totale")}</p>
-                  <p className="metric-number mt-1 break-words text-base font-semibold tabular-nums">
+                <div className="min-w-0 rounded-lg border border-[#56b88f]/60 bg-[#15533b] px-2 py-1.5" data-calc-total-weight>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#d6ffe9]">{t("Peso totale")}</p>
+                  <p className="metric-number mt-1 break-words text-lg font-bold tabular-nums text-white">
                     {values.totalTonnes == null ? "—" : formatOutput(values.totalTonnes, 4)}
                     <span className="ml-1 text-[10px] text-white/85">t</span>
                   </p>
@@ -1356,7 +1356,7 @@ export function PublicTubeWeightCalculator({
                 {sectionFacts.map(fact => <div key={fact.key}><dt>{fact.label}</dt>
                   <dd data-section-value={fact.key}>{fact.value}<small> {fact.unit}</small></dd></div>)}
               </dl> : null}
-              <section data-commercial-targets className="mt-3 rounded-xl border border-[#386c52] bg-[#0a2f23] p-2.5">
+              <section data-commercial-targets className="mt-3 rounded-xl border border-[#4b9774] bg-[#0a2f23] p-3 shadow-[inset_0_1px_0_rgba(159,255,209,0.07)]">
                 <p className="mb-2 text-xs font-bold text-[#dff9eb]">{commercialLabels.heading}</p>
                 <div role="group" aria-label={commercialLabels.heading} className="grid grid-cols-3 gap-1.5">
                   {(["metres", "tonnes", "price"] as const).map((mode) => (
