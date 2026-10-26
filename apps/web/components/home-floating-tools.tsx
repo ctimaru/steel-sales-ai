@@ -69,6 +69,7 @@ export function HomeFloatingTools({ locale }: { locale: "it" | "en" }) {
   useEffect(() => {
     const dock = dockRef.current;
     if (!dock) return;
+    let documentReady = document.readyState !== "loading";
     const update = () => {
       const bounds = dock.getBoundingClientRect();
       let offset = 0;
@@ -81,7 +82,9 @@ export function HomeFloatingTools({ locale }: { locale: "it" | "en" }) {
         }
       });
       dock.style.setProperty("--consent-offset", `${offset}px`);
-      dock.dataset.positioned = "true";
+      // The cookie UI follows the page content in the streamed document.
+      // Wait for parsing before revealing a dock positioned against that UI.
+      if (documentReady) dock.dataset.positioned = "true";
     };
     const resize = new ResizeObserver(update);
     const observe = () => {
@@ -93,10 +96,13 @@ export function HomeFloatingTools({ locale }: { locale: "it" | "en" }) {
       update();
     };
     const mutations = new MutationObserver(observe);
+    const parsed = () => { documentReady = true; observe(); };
     mutations.observe(document.body, { childList: true, subtree: true });
     window.addEventListener("resize", update);
+    document.addEventListener("DOMContentLoaded", parsed, { once: true });
     observe();
     return () => {
+      document.removeEventListener("DOMContentLoaded", parsed);
       mutations.disconnect();
       resize.disconnect();
       window.removeEventListener("resize", update);

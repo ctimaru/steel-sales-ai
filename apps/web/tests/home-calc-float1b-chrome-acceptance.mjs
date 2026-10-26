@@ -31,6 +31,13 @@ try {
       }).observe({type: "layout-shift", buffered: true});
     });
     const page = await context.newPage();
+    if (locale === "it" && width === 320) {
+      // Exercise streamed HTML/late hydration on a genuine slow connection.
+      const network = await context.newCDPSession(page);
+      await network.send("Network.enable");
+      await network.send("Network.emulateNetworkConditions", { offline:false, latency:100,
+        downloadThroughput:200_000, uploadThroughput:100_000 });
+    }
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
     await page.goto(origin + (locale === "it" ? "/" : "/en"), { waitUntil: "domcontentloaded" });

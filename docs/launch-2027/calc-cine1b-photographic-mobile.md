@@ -39,6 +39,8 @@ The home floating dock is also narrower, with 11px labels and 15px icons; its
 44px touch targets stay intact. The modal header and close button have less
 visual bulk. Existing cookie avoidance, safe-area handling, native modal focus,
 Escape behavior and retained calculator/bill state are preserved.
+The dock remains hidden until the streamed document has been parsed, so its
+initial placement includes the cookie UI rendered after the page content.
 
 ## Acceptance
 
