@@ -22,7 +22,7 @@ test("WC4.1 makes the calculator the first-screen utility", () => {
 
 test("WC4.1 compacts standards and shape into native selectors", () => {
   assert.match(calculator, /<select aria-label=\{t\("Norma"\)\} value=\{standard\}/);
-  assert.match(calculator, /<select aria-label=\{t\("Sagoma"\)\} value=\{family\}/);
+  assert.match(calculator, /data-calc-shape-buttons/);
   assert.match(calculator, /handleStandardChange\(event.target.value as StandardValue\)/);
   assert.match(calculator, /setFamily\(option.value as TubeFamily\)/);
   assert.doesNotMatch(calculator, /group flex min-h-14 flex-col/);
