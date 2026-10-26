@@ -10,6 +10,9 @@ interaction remain unchanged.
 
 The public result panel now contains a semantic definition list of external
 dimensions, wall thickness, internal diameter for round tubes, and section area.
+Mass, totals and the primary bill action precede these section facts, so adding
+a line stays within the existing condensed desktop work surface and requires
+less scrolling on mobile.
 Area comes directly from the shared calculation engine, including normative
 corner radii for square/rectangular sections. The round internal diameter is
 derived from the validated input as D − 2t. Invalid calculations show dashes;
@@ -17,7 +20,8 @@ they do not leave plausible geometry facts behind.
 
 Actual bar length and quantity appear beside the existing mass summary. That
 context preserves fractional input precision rather than silently rounding the
-quantity to whole bars. Existing kg/m, kg/bar, total metres and total tonnes,
+quantity to whole bars; bar units use localized singular/plural forms.
+Existing kg/m, kg/bar, total metres and total tonnes,
 copy serialization, bill handoff and validation keep their existing owners.
 
 On wide desktop containers the section facts form compact aligned rows. Mobile

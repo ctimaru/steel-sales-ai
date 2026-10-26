@@ -1283,10 +1283,6 @@ export function PublicTubeWeightCalculator({
           >
             <div className="shrink-0 border-b border-white/10 px-3 py-2.5">
               {!inEmbeddedBuilder ? <h2 className={cinematic.resultTitle}>{cine.results}</h2> : null}
-              {!inEmbeddedBuilder ? <dl className={cinematic.geometry} data-cinematic-geometry>
-                {sectionFacts.map(fact => <div key={fact.key}><dt>{fact.label}</dt>
-                  <dd data-section-value={fact.key}>{fact.value}<small> {fact.unit}</small></dd></div>)}
-              </dl> : null}
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/85">
@@ -1301,7 +1297,7 @@ export function PublicTubeWeightCalculator({
               </div>
 
               {!inEmbeddedBuilder ? <p className={cinematic.resultContext} data-cinematic-context>
-                {values.error || values.l == null || values.qty == null ? "—" : `${formatOutput(values.l, 20)} m · ${formatOutput(values.qty, 20)} ${cine.bars}`}
+                {values.error || values.l == null || values.qty == null ? "—" : `${formatOutput(values.l, 20)} m · ${formatOutput(values.qty, 20)} ${values.qty === 1 ? cine.bar : cine.bars}`}
               </p> : null}
               <div data-cockpit-kpis className="mt-2 grid grid-cols-3 gap-1.5">
                 <div className="min-w-0 rounded-lg bg-white/8 px-2 py-1.5">
@@ -1371,6 +1367,10 @@ export function PublicTubeWeightCalculator({
                 <svg aria-hidden="true" className={cinematic.actionIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="8" y="8" width="12" height="13" rx="2" /><path d="M16 8V3H4v13h4" strokeLinejoin="round" /></svg>
                 {cine.copy}
               </button> : null}
+              {!inEmbeddedBuilder ? <dl className={cinematic.geometry} data-cinematic-geometry>
+                {sectionFacts.map(fact => <div key={fact.key}><dt>{fact.label}</dt>
+                  <dd data-section-value={fact.key}>{fact.value}<small> {fact.unit}</small></dd></div>)}
+              </dl> : null}
               <CalculatorCommercialPricing weightKgM={values.error ? null : values.kgM} locale={locale}
                 onChooseBuyerTarget={onChooseBuyerTarget} />
 

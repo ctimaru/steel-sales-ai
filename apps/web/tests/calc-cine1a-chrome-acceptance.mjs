@@ -39,6 +39,8 @@ try {
   assert.match(await root.locator('[data-cinematic-context]').innerText(),/12 m · 3 /);
   if(locale==='it'&&width===390) {
    const customLength=root.locator('[data-cockpit-length-quantity] > div:first-child input');
+   await root.locator('#tube-calculator-quantity').fill('1');
+   assert.match(await root.locator('[data-cinematic-context]').innerText(),/12 m · 1 barra$/,'Singular quantity uses the singular unit');
    await customLength.fill('12.345');await root.locator('#tube-calculator-quantity').fill('2.5');
    assert.match(await root.locator('[data-cinematic-context]').innerText(),/12,345 m · 2,5 /,'Visible context must not round away valid input precision');
    await customLength.fill('12');await root.locator('#tube-calculator-quantity').fill('3');
@@ -52,7 +54,12 @@ try {
   if(containerWidth>=1000) {
    assert.ok(left.x+left.width<=stage.x+2 && stage.x+stage.width<=right.x+2,'Three independent desktop columns');
    assert.ok(Math.abs(left.y-right.y)<3,'Controls and results align');
+   const action=await root.locator('[data-cockpit-add]').boundingBox();
+   const toolbar=await root.locator('[data-cockpit-toolbar]').boundingBox();
+   assert.ok(action.y-toolbar.y<430,'Primary bill action stays inside the existing condensed desktop work surface');
   }
+  const [primary,geometry]=await Promise.all([root.locator('[data-cockpit-add]'),root.locator('[data-cinematic-geometry]')].map(e=>e.boundingBox()));
+  assert.ok(primary.y+primary.height<=geometry.y,'Primary action precedes secondary section facts at every width');
   for(const input of await fields.all()) {
    const styles=await input.evaluate(e=>({color:getComputedStyle(e).webkitTextFillColor || getComputedStyle(e).color,bg:getComputedStyle(e).backgroundColor}));
    assert.ok(contrast(styles.color,styles.bg)>=4.5,'Input numbers must meet WCAG text contrast');
