@@ -134,6 +134,21 @@ export default async function EnglishTubeWeightsPage({ searchParams }: { searchP
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="mx-auto max-w-[1120px] px-4 py-10 sm:px-6 lg:px-8">
+        <section aria-labelledby="hollow-section-search-guide" className="mb-5 rounded-xl border border-[#c9dfd1] bg-[#f7faf8] px-4 py-3 text-[#183d30] sm:px-5">
+          <h2 id="hollow-section-search-guide" className="text-base font-semibold">
+            Hollow section weight and cross-sectional area calculator
+          </h2>
+          <p className="mt-1 text-sm leading-6 text-[#53695d]">
+            Calculate circular hollow section (CHS), rectangular hollow section (RHS) and square hollow section (SHS) mass in kg/m.
+            For a round tube, area A = π × t × (D − t) mm². For a sharp-corner rectangular tube,
+            A = B × H − (B − 2t) × (H − 2t) mm². Multiply area by 0.00785 to obtain theoretical kg/m
+            for steel density 7,850 kg/m³. EN 10210 and EN 10219 calculations account for nominal corner geometry.
+          </p>
+          <p className="mt-2 text-xs leading-5 text-[#53695d]">
+            Enter outside dimensions and wall thickness below, then choose bar length and quantity.
+            Formulas are nominal estimates, not certified product weights.
+          </p>
+        </section>
         <CalculatorRegionSwitch locale="en" initialRegion="eu" requestedRegion={calculatorRegionFromQuery(params)}
           usInitialValues={usPipeSeedFromQuery(params)}
           references={references} initialValues={initialValues}
