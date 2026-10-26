@@ -58,7 +58,7 @@
   position:relative; isolation:isolate; display:flex; order:3; min-width:0;
   flex-direction:column; justify-content:space-between; overflow:hidden;
   min-height:290px; padding:14px; border:1px solid #357459; border-radius:13px;
-  background:linear-gradient(180deg,#061c17b8,#031b15eb),url('/home-cine2a2b-factory-mobile.webp') center/cover;
+  background:linear-gradient(180deg,#09271f,#031b15);
 }
 .stage::before { content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
   background-image:linear-gradient(#65dba20c 1px,transparent 1px),linear-gradient(90deg,#65dba20c 1px,transparent 1px);
@@ -93,7 +93,7 @@
 @container steel-calculator (min-width:1000px) {
   .root [data-cockpit-toolbar] { grid-template-columns:minmax(0,1fr) minmax(0,1.4fr); }
   .root [data-cockpit-workspace] { grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,.95fr); }
-  .stage { grid-column:auto; order:2; min-height:370px; background-image:linear-gradient(180deg,#051c17a6,#031b15eb),url('/home-cine2a2b-factory-desktop.webp'); }
+  .stage { grid-column:auto; order:2; min-height:370px; }
   .root [data-cockpit-results] { order:3; }
   .stage [data-cockpit-preview] figure > svg { max-width:330px; max-height:290px; }
   .root [data-cockpit-kpis] { grid-template-columns:minmax(0,1fr); gap:6px; }
@@ -132,4 +132,40 @@
 .root:global(#calcolatore-pesi) [data-testid="calculator-dimension-discovery"] details > div :is(button,input,select):focus-visible,
 .root:global(#calcolatore-pesi) [data-commercial-price] :is(button,summary,input):focus-visible {
   outline-color:#176141;
+}
+/* CINE1B: the photograph follows the family; the live diagram keeps exact
+   entered dimensions separate from illustrative metalwork. No animated media. */
+.productPhoto { position:relative; margin:12px -14px 8px; aspect-ratio:3/2; background:#03140f; }
+.productPhoto picture,.productPhoto img { display:block; width:100%; height:100%; }
+.productPhoto img { object-fit:cover; }
+.photoNote { position:absolute; inset:auto 0 0; padding:7px 10px; color:#d8eee2; background:#031710ed; font-size:10px; line-height:1.5; }
+.stage .technicalInset [data-cockpit-preview] { flex:auto; }
+.stage .technicalInset figure { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); align-items:center; gap:8px; }
+.stage .technicalInset figure > svg { max-width:190px; max-height:150px; margin:0 auto; }
+.stage .technicalInset figcaption { grid-template-columns:minmax(0,1fr); margin:0; padding:0; border:0; }
+.stage .technicalInset figcaption span { padding:7px 4px; font-size:11px; }
+.stage .sectionMetric { margin-top:8px; padding-top:9px; }
+@container steel-calculator (max-width:679px) {
+  .root [data-cockpit-header] { padding:10px 12px; gap:6px; }
+  .root [data-cockpit-header] h1,.root [data-cockpit-header] h2 { font-size:19px; }
+  .root [data-cockpit-header] button { min-height:44px; padding:4px 8px; font-size:11px; border:4px solid transparent; background-clip:padding-box; }
+  .root [data-cockpit-toolbar] { padding:8px; gap:8px; }
+  .root [data-cockpit-workspace] { padding:8px; gap:8px; }
+  .root [data-cockpit-fields] { padding:10px; }
+  .root [data-cockpit-controls] select { padding-inline:7px; font-size:11px; }
+  .root [data-cockpit-fields] [data-cockpit-length-quantity] { gap:7px; margin-top:8px; }
+  .root [data-cockpit-length-quantity] button { border:5px solid transparent; background-clip:padding-box; font-size:15px; }
+  .root [data-cockpit-results] > div:first-child { padding:10px; }
+  .root [data-cockpit-add] { min-height:44px; margin-top:8px; padding:7px 10px; font-size:12px; }
+  .copy { min-height:44px; margin-top:6px; padding:6px 10px; font-size:11px; border:4px solid transparent; background-clip:padding-box; }
+  .resultTitle { font-size:17px; margin-bottom:8px; }
+  .stage { padding:10px; min-height:0; }
+  .productPhoto { margin:8px -10px; }
+  .stage .technicalInset figure > svg { max-height:130px; }
+}
+@container steel-calculator (min-width:360px) and (max-width:679px) {
+  .root [data-cockpit-fields] [data-cockpit-length-quantity] { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+  .root [data-cockpit-length-quantity] > div:first-child select { width:76px; padding-inline:3px; font-size:11px; }
+  .root [data-cockpit-length-quantity] > div:first-child input { width:48px; }
+  .root [data-cockpit-length-quantity] > div:last-child > div { grid-template-columns:44px minmax(30px,1fr) 44px; width:100%; gap:0; padding:0; }
 }

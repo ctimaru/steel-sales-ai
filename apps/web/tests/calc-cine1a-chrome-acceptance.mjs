@@ -46,6 +46,24 @@ try {
   await fields.first().focus();
   const focus=await fields.first().evaluate(e=>({color:getComputedStyle(e).outlineColor,bg:getComputedStyle(e).backgroundColor}));
   assert.ok(contrast(focus.color,focus.bg)>=3,'Keyboard focus stays visible on the dark fields');
+  async function assertProductPhoto(family) {
+   const photo=root.locator(`[data-cinematic-product="${family}_tube"] img`);
+   await photo.scrollIntoViewIfNeeded();
+   await photo.evaluate(e=>e.decode());
+   const details=await photo.evaluate(e=>({src:e.currentSrc,width:e.naturalWidth,alt:e.alt}));
+   assert.match(details.src,new RegExp(`/calculator/tube-${family}-(384|768)\\.webp$`));
+   assert.ok(details.width>0,'Selected family artwork loads successfully');
+   assert.equal(details.alt,'','Decorative photo does not duplicate the live diagram');
+  }
+  await assertProductPhoto('round');
+  if(containerWidth<680) {
+   const add=await root.locator('[data-cockpit-add]').boundingBox();
+   assert.ok(add.height>=44&&add.height<=46,'Mobile primary button is compact with a usable touch target');
+   const copy=await root.locator('[data-cinematic-copy]').boundingBox();
+   assert.ok(copy.height>=44&&copy.height<=46,'Mobile copy control keeps a small visual surface within a 44px target');
+   const control=await root.locator('[data-cockpit-length-quantity] button').first().evaluate(e=>({height:e.getBoundingClientRect().height,border:parseFloat(getComputedStyle(e).borderTopWidth)}));
+   assert.ok(control.height>=44&&control.border>=5,'Quantity controls retain a touch area around the smaller painted button');
+  }
   await root.screenshot({path:`${output}/${locale}-${width}-round.png`});
   if([390,1440].includes(width)) {
    const result=await new AxeBuilder({page}).include('#calcolatore-pesi').analyze();
@@ -53,9 +71,13 @@ try {
   }
   await root.locator('[data-cockpit-add]').click();
   await shape.selectOption('square_tube');await fields.nth(0).fill('120');await fields.nth(1).fill('6.3');
+  await assertProductPhoto('square');
+  if(locale==='it')await root.screenshot({path:`${output}/${locale}-${width}-square.png`});
   assert.match(await root.locator('[data-cinematic-stage] svg[role="img"]').getAttribute('aria-label'),/120/);
   await root.locator('[data-cockpit-add]').click();
   await shape.selectOption('rectangular_tube');await fields.nth(0).fill('140');await fields.nth(1).fill('80');await fields.nth(2).fill('5');
+  await assertProductPhoto('rectangular');
+  if(locale==='it')await root.screenshot({path:`${output}/${locale}-${width}-rectangular.png`});
   assert.match(await root.locator('[data-cinematic-stage] svg[role="img"]').getAttribute('aria-label'),/140/);
   await root.locator('[data-cockpit-add]').click();
   if(locale==='it' && width===1440) {
@@ -75,6 +97,7 @@ try {
   // Invalid dimensions must never leave a plausible-looking technical drawing.
   await fields.nth(0).fill('1');
   assert.equal(await root.locator('[data-cinematic-stage] svg').count(),0);
+  assert.equal(await root.locator('[data-cinematic-product]').count(),0,'Invalid geometry suppresses illustrative product as well');
   assert.equal(await root.locator('[data-cockpit-add]').isDisabled(),true);
   await fields.nth(0).fill('140');
   const standard=root.locator('[data-cockpit-controls] select').first();

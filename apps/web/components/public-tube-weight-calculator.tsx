@@ -1246,7 +1246,21 @@ export function PublicTubeWeightCalculator({
               <div className={cinematic.stageHeading}>
                 <span>{cine.visual}</span><strong>{t(currentStandard.label)}</strong>
               </div>
-              {values.error ? <p role="status" className={cinematic.invalid}>{t(values.error)}</p> : sectionDiagram}
+              {values.error ? <p role="status" className={cinematic.invalid}>{t(values.error)}</p> : <>
+                <div className={cinematic.productPhoto} data-cinematic-product={family}>
+                  <picture>
+                    <source media="(prefers-reduced-data: reduce)" srcSet={`/calculator/tube-${family.replace("_tube", "")}-384.webp`} />
+                    {/* Small, local, decorative artwork. Live dimensions remain in the technical diagram below. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`/calculator/tube-${family.replace("_tube", "")}-768.webp`}
+                      srcSet={`/calculator/tube-${family.replace("_tube", "")}-384.webp 384w, /calculator/tube-${family.replace("_tube", "")}-768.webp 768w`}
+                      sizes="(max-width: 679px) 100vw, (max-width: 1100px) 90vw, 450px"
+                      width={768} height={512} alt="" loading="lazy" decoding="async" />
+                  </picture>
+                  <span className={cinematic.photoNote}>{cine.illustration}</span>
+                </div>
+                <div className={cinematic.technicalInset}>{sectionDiagram}</div>
+              </>}
               <div className={cinematic.sectionMetric}>
                 <span>{cine.area}</span>
                 <strong>{values.areaMm2 == null ? "—" : formatOutput(values.areaMm2, 2)} <small>mm²</small></strong>

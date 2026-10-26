@@ -19,6 +19,7 @@ on:
       - "apps/web/tests/home-calc-float*"
       - "apps/web/components/calculator-cinematic.module.css"
       - "apps/web/lib/calculator-cinematic-copy.ts"
+      - "apps/web/public/calculator/tube-*.webp"
       - "apps/web/tests/calc-cine1a-*"
       - "apps/web/components/deferred-public-company-lookup.tsx"
       - "apps/web/tests/perf2-1-*"
