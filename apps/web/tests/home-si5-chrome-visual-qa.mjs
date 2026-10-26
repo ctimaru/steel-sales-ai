@@ -102,6 +102,27 @@ try {
       check(await hero.getByRole("link", { name: "Apri calcolatrice" }).getAttribute("href")
         === "/knowledge/tubes?source=home&surface=hero#calcolatore-pesi",
         "Hero calculator must be the first direct action");
+      // HOME-CINE2A.2B.1: don't call mobile CTA visible just because the
+      // anchor exists: first-visit consent must not paint over its tap target.
+      if (viewport.width <= 390) {
+        const primaryHeroAction = hero.getByRole("link", { name: "Apri calcolatrice" });
+        const actionRect = await primaryHeroAction.boundingBox();
+        check(Boolean(actionRect && actionRect.y >= 0 &&
+          actionRect.y + actionRect.height <= viewport.height),
+          viewport.name + " calculator CTA outside the initial viewport: " + JSON.stringify(actionRect));
+        const cookiePanel = page.getByTestId("mobile-cookie-consent");
+        // Analytics may be disabled in some local configurations. When enabled,
+        // check genuine geometry against the actual rendered first-visit layer.
+        if (await cookiePanel.isVisible()) {
+          const consentRect = await cookiePanel.boundingBox();
+          check(Boolean(actionRect && consentRect &&
+            (actionRect.y + actionRect.height + 8 <= consentRect.y ||
+              actionRect.x + actionRect.width <= consentRect.x ||
+              consentRect.x + consentRect.width <= actionRect.x)),
+            viewport.name + " first-visit consent overlaps calculator CTA: " +
+              JSON.stringify({ actionRect, consentRect }));
+        }
+      }
       const publicDistinta = hero.getByRole("link", { name: "Crea una distinta gratis" });
       check(await publicDistinta.count() === 1, "No public builder second step");
       check(await publicDistinta.getAttribute("href") === "/distinta", "Builder CTA is not public");
@@ -208,21 +229,22 @@ try {
           "CINE1D mobile first CTA not visible: " + JSON.stringify(visualRhythm));
       }
 
-      // HOME-CINE1E: verify actual media-query selection at 320/390/768/1440.
-      // Keep the 6KB poster on mobile/tablet; load the 47KB sharp version on desktop.
+      // HOME-CINE2A.2B: verify computed image selection at 320/390/768/1440.
+      // Mobile uses the 14.9KB factory photo; tablet/desktop the 79.7KB one.
+      // Reduced-data devices fall back to the original 6KB poster.
       const photoBackground = await page.locator('[data-home-cine-motion="photo"]').evaluate(
         (node) => getComputedStyle(node).backgroundImage
       );
-      const photoWanted = viewport.width >= 1024
-        ? "/home-cine1e-steel-desktop.webp"
-        : "/home-cine1a-steel.webp";
+      const photoWanted = viewport.width >= 701
+        ? "/home-cine2a2b-factory-desktop.webp"
+        : "/home-cine2a2b-factory-mobile.webp";
       check(photoBackground.includes(photoWanted),
-        "CINE1E missing expected responsive hero image at " + viewport.width);
-      const photoForbidden = viewport.width >= 1024
-        ? "/home-cine1a-steel.webp"
-        : "/home-cine1e-steel-desktop.webp";
+        "CINE2A.2B responsive factory hero missing at " + viewport.width + ": " + photoBackground);
+      const photoForbidden = viewport.width >= 701
+        ? "/home-cine2a2b-factory-mobile.webp"
+        : "/home-cine2a2b-factory-desktop.webp";
       check(!photoBackground.includes(photoForbidden),
-        "CINE1E asset selection leaks extra image on " + viewport.width);
+        "CINE2A.2B duplicate/wrong photo layer at " + viewport.width);
 
       const h1 = await page.locator("h1").count();
       assert.equal(h1, 1, "Homepage must have one H1");
