@@ -11,7 +11,7 @@ The source PNG is 1672×941 and depicts a spacious steel industrial hall with st
 ### Production-ready candidates
 
 - `apps/web/public/home-cine2a2b-factory-desktop.webp`: 1536×865, **79,680 bytes**, WebP. SHA256 `efefe29a7e81d77a470bfaf0bb8098598ef39f6dda78a665131d4d40233b2ddb`.
-- `apps/web/public/home-cine2a2b-factory-mobile.webp`: 600×338, **14,860 bytes**, WebP. SHA256 `ac8e6462c64ccb492ee836915a4a48ebd4ee491dc612df691326fa26fa6beb9c`.
+- `apps/web/public/home-cine2a2b-factory-mobile.webp`: 560×315, **10,714 bytes**, WebP. SHA256 `c271b00b2e6e409a6d0eb46bb7635047b3633378e56d7d5478f109d1fa4afa3c`.
 - A **6,170-byte existing poster** is retained for `prefers-reduced-data`. All poster selection is via responsive CSS; no JS, LCP preload, videos or external network requests.
 - Independent SVG globe and real HTML calculator proof stay in the same document; the new image replaces background only. No extra framework or library.
 

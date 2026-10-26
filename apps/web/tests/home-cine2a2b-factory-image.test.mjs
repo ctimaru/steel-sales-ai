@@ -10,7 +10,7 @@ const m = new URL("public/home-cine2a2b-factory-mobile.webp", root);
 
 test("CINE2A.2B image assets are valid and within performance budgets", () => {
   assert.equal(statSync(d).size, 79680);
-  assert.equal(statSync(m).size, 14860);
+  assert.equal(statSync(m).size, 10714);
   assert.ok(statSync(d).size <= 80000);
   assert.ok(statSync(m).size <= 15000);
   for (const file of [d,m]) {
