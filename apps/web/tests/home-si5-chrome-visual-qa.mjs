@@ -102,6 +102,27 @@ try {
       check(await hero.getByRole("link", { name: "Apri calcolatrice" }).getAttribute("href")
         === "/knowledge/tubes?source=home&surface=hero#calcolatore-pesi",
         "Hero calculator must be the first direct action");
+      // HOME-CINE2A.2B.1: don't call mobile CTA visible just because the
+      // anchor exists: first-visit consent must not paint over its tap target.
+      if (viewport.width <= 390) {
+        const primaryHeroAction = hero.getByRole("link", { name: "Apri calcolatrice" });
+        const actionRect = await primaryHeroAction.boundingBox();
+        check(Boolean(actionRect && actionRect.y >= 0 &&
+          actionRect.y + actionRect.height <= viewport.height),
+          viewport.name + " calculator CTA outside the initial viewport: " + JSON.stringify(actionRect));
+        const cookiePanel = page.getByTestId("mobile-cookie-consent");
+        // Analytics may be disabled in some local configurations. When enabled,
+        // check genuine geometry against the actual rendered first-visit layer.
+        if (await cookiePanel.isVisible()) {
+          const consentRect = await cookiePanel.boundingBox();
+          check(Boolean(actionRect && consentRect &&
+            (actionRect.y + actionRect.height + 8 <= consentRect.y ||
+              actionRect.x + actionRect.width <= consentRect.x ||
+              consentRect.x + consentRect.width <= actionRect.x)),
+            viewport.name + " first-visit consent overlaps calculator CTA: " +
+              JSON.stringify({ actionRect, consentRect }));
+        }
+      }
       const publicDistinta = hero.getByRole("link", { name: "Crea una distinta gratis" });
       check(await publicDistinta.count() === 1, "No public builder second step");
       check(await publicDistinta.getAttribute("href") === "/distinta", "Builder CTA is not public");
