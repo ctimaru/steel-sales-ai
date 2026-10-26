@@ -1,0 +1,186 @@
+/* HOME-CINE2A.3 — one cinematic photographic rail, no JS, zero fake data. */
+.section {
+  position: relative;
+  isolation: isolate;
+  border-block: 1px solid #235542;
+  background: radial-gradient(ellipse 90% 85% at 80% 0%, rgba(28, 104, 70, .19), transparent 75%),
+    linear-gradient(180deg, #071813, #0b221b 66%, #071914);
+  color: #f0fff5;
+}
+.inner {
+  width: 100%;
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 29px clamp(16px, 3.15vw, 48px) 39px;
+}
+.intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+  margin-bottom: 19px;
+}
+.kicker {
+  margin: 0 0 8px;
+  color: #94e8ba;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: .13em;
+  line-height: 1.45;
+}
+.heading {
+  margin: 0;
+  color: #f3fff8;
+  font-size: clamp(1.3rem, 2.3vw, 2rem);
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -.045em;
+}
+.mobileHint {
+  display: none;
+  color: #b6e7cd;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .08em;
+  white-space: nowrap;
+}
+.rail {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(9px, 1vw, 16px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.card { min-width: 0; }
+.cardLink {
+  display: flex;
+  min-width: 0;
+  min-height: 275px;
+  height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #2f6650;
+  border-radius: 12px;
+  background: linear-gradient(154deg, #0d2b22, #061711);
+  box-shadow: 0 11px 26px rgba(0, 7, 5, .2);
+  color: #f0fff5;
+  text-decoration: none;
+  transition: border-color .15s ease, transform .15s ease;
+}
+.cardLink:hover { border-color: #81e9b7; transform: translateY(-2px); }
+.cardLink:focus-visible {
+  outline: 3px solid #baffdc;
+  outline-offset: 4px;
+}
+.photoFrame {
+  position: relative;
+  flex: none;
+  display: block;
+  width: 100%;
+  aspect-ratio: 2.5 / 1;
+  overflow: hidden;
+  background: linear-gradient(135deg, #18392e, #041a13);
+}
+.photoFrame::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(0deg, rgba(7, 28, 20, .21), transparent 64%);
+}
+.photoAtlas {
+  position: absolute;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: 500%;
+  max-width: none;
+  object-fit: fill;
+}
+.cardContent {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 14px 13px 13px;
+}
+.number, .access {
+  display: inline-flex;
+  min-height: 18px;
+  align-items: center;
+  margin-bottom: 6px;
+  color: #9fd9ba;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .09em;
+  line-height: 1.3;
+}
+.access { color: #c4ebd1; }
+.title {
+  display: block;
+  color: #f8fff9;
+  font-size: clamp(13px, 1.2vw, 16px);
+  line-height: 1.3;
+  font-weight: 750;
+}
+.copy {
+  display: block;
+  margin-top: 6px;
+  color: #bfd8c9;
+  font-size: 11px;
+  line-height: 1.55;
+}
+.action {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 12px;
+  color: #8af6bb;
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.4;
+}
+.cardLink:hover .action { color: #c1ffe1; }
+@media (max-width: 1199px) {
+  .rail {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(215px, 29vw);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 4px;
+    padding: 5px 4px 16px;
+    scrollbar-color: #38795a transparent;
+    scrollbar-width: thin;
+  }
+  .card { scroll-snap-align: start; }
+  .mobileHint { display: inline; }
+}
+@media (max-width: 699px) {
+  .inner { padding: 25px 0 28px; }
+  .intro { padding-inline: 20px; align-items: flex-end; }
+  .heading { max-width: 240px; }
+  .rail {
+    grid-auto-columns: minmax(210px, 76vw);
+    padding-inline: 20px;
+    scroll-padding-inline: 20px;
+  }
+  .cardLink { min-height: 265px; }
+  .mobileHint { max-width: 100px; white-space: normal; text-align: right; }
+}
+@media (max-width: 359px) {
+  .intro { padding-inline: 16px; }
+  .rail { grid-auto-columns: minmax(216px, 78vw); padding-inline: 16px; scroll-padding-inline: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rail { scroll-behavior: auto; }
+  .cardLink { transition: none; }
+  .cardLink:hover { transform: none; }
+}
