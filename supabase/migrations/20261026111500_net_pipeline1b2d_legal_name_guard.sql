@@ -1,5 +1,4 @@
--- NET-PIPELINE1B.2D: prevent malformed crawler-extracted legal names from auto-publishing.
--- No company publication; function replacement only. Feature flag stays disabled.
+-- Hold malformed names such as usasrl. and metalplastsrl.; publisher remains disabled.
 create or replace function private.net_pipeline1b2_eligibility(p_id uuid)
 returns jsonb language plpgsql stable security definer set search_path=''
 as $$
@@ -16,21 +15,7 @@ begin
     when d.review_status<>'pending_review' then 'not_pending'
     when d.governance_status<>'approved_company_data' or d.governance_reviewed_by is null then 'source_governance_not_approved'
     when d.match_company_id is not null or existing_count>0 then 'existing_identity_or_domain_collision'
-    when lower(trim(d.legal_name)) ~ '^[[:alnum:]]+(srl|spa)[.]
-    when d.personal_data_detected or cardinality(d.personal_data_fields)>0 then 'personal_data_hold'
-    when cardinality(d.quality_flags)>0 then 'quality_flags_hold'
-    when nullif(trim(d.legal_name),'') is null or nullif(trim(d.canonical_domain),'') is null
-        or nullif(trim(d.country_code),'') is null or nullif(trim(d.source_url),'') is null then 'missing_required_fields'
-    when lower(split_part(split_part(d.source_url,'/',3),':',1))
-         not in (lower(d.canonical_domain),'www.'||lower(d.canonical_domain)) then 'official_domain_mismatch'
-    when lower(split_part(split_part(d.website_url,'/',3),':',1))
-         not in (lower(d.canonical_domain),'www.'||lower(d.canonical_domain)) then 'website_domain_mismatch'
-    when d.country_code<>'IT' then 'country_not_yet_covered'
-    else null end;
-  return jsonb_build_object('eligible',reason is null,'reason',coalesce(reason,'eligible_minimal_preview'),
-    'candidate_id',d.id,'matched_catalog_domains',existing_count);
-end;$$;
- then 'malformed_extracted_legal_name'
+    when lower(trim(d.legal_name)) ~ '^[[:alnum:]]+(srl|spa)[.]$' then 'malformed_extracted_legal_name'
     when d.personal_data_detected or cardinality(d.personal_data_fields)>0 then 'personal_data_hold'
     when cardinality(d.quality_flags)>0 then 'quality_flags_hold'
     when nullif(trim(d.legal_name),'') is null or nullif(trim(d.canonical_domain),'') is null
