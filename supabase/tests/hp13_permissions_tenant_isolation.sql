@@ -293,7 +293,13 @@ select pg_temp.hp13_assert(
         -- or exact published region; no private memory, PII, candidate data,
         -- verification writes, claim changes or browser table grants.
         'net_europe1c_region_search',
-        'net_europe1c_region_coverage'
+        'net_europe1c_region_coverage',
+        -- NET-PIPELINE1B.2: platform discovery.read-guarded bounded dry-run;
+        -- no candidate PII exposed to anonymous callers.
+        'net_pipeline1b2_preview_batch',
+        -- NET-PIPELINE1B.2: guarded platform-only one-candidate publication;
+        -- feature flag defaults OFF, source/domain validation, audit ledger.
+        'net_pipeline1b2_publish_one'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
