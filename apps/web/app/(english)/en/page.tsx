@@ -1,5 +1,6 @@
 import { PublicHomeHeader } from "@/components/public-home-header";
 import { PublicCinematicHero } from "@/components/public-cinematic-hero";
+import { PublicPhotographicToolRail } from "@/components/public-photographic-tool-rail";
 import { PublicCinematicAccessBand, PublicSteelGeometryProof } from "@/components/public-steel-geometry-proof";
 import cineStyles from "@/components/public-cinematic-continuity.module.css";
 import type { Metadata } from "next";
@@ -84,6 +85,8 @@ export default function EnglishHomePage() {
       <PublicHomeHeader locale="en" />
 
       <PublicCinematicHero locale="en" />
+
+      <PublicPhotographicToolRail locale="en" />
 
       <section className={cineStyles.enWorkflow} aria-labelledby="en-workflows">
         <div className="mx-auto max-w-[1120px] px-4 py-14 sm:px-6 lg:px-8">
