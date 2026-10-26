@@ -151,7 +151,7 @@ try {
       await page.locator('#calcolatore-pesi[data-calculator-ready="true"]').waitFor({ timeout: 60000 });
       const calc = page.locator("#calcolatore-pesi");
       assert.equal(await calc.getByRole("combobox", { name: "Norma", exact: true }).inputValue(), "en10219");
-      assert.equal(await calc.getByRole("combobox", { name: "Sagoma", exact: true }).inputValue(), "round_tube");
+      assert.equal(await calc.locator('[data-calc-shape-buttons] button').first().getAttribute('aria-pressed'), "true");
       assert.equal(Number(await calc.getByLabel("Diametro D", { exact: true }).inputValue()), 60.3);
       assert.equal(Number(await calc.getByLabel("Spessore t", { exact: true }).inputValue()), 3.2);
     });
