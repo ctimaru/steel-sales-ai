@@ -43,6 +43,9 @@ try {
    const styles=await input.evaluate(e=>({color:getComputedStyle(e).webkitTextFillColor || getComputedStyle(e).color,bg:getComputedStyle(e).backgroundColor}));
    assert.ok(contrast(styles.color,styles.bg)>=4.5,'Input numbers must meet WCAG text contrast');
   }
+  await fields.first().focus();
+  const focus=await fields.first().evaluate(e=>({color:getComputedStyle(e).outlineColor,bg:getComputedStyle(e).backgroundColor}));
+  assert.ok(contrast(focus.color,focus.bg)>=3,'Keyboard focus stays visible on the dark fields');
   await root.screenshot({path:`${output}/${locale}-${width}-round.png`});
   if([390,1440].includes(width)) {
    const result=await new AxeBuilder({page}).include('#calcolatore-pesi').analyze();

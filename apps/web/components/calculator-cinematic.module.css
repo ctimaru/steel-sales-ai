@@ -123,3 +123,13 @@
   -webkit-text-fill-color:#04291b !important;
 }
 .root:global(#calcolatore-pesi) [data-cockpit-add]:hover { background-color:#65edbd !important; }
+/* Keep keyboard focus visible against the dark panels. Light popovers retain
+   a dark outline so their controls remain distinguishable on white. */
+.root:global(#calcolatore-pesi) :is(button,a,summary,input,select):focus-visible {
+  outline:3px solid #75f4bd; outline-offset:3px;
+}
+.root:global(#calcolatore-pesi) [data-dense-discovery-popover] :is(button,a,input,select):focus-visible,
+.root:global(#calcolatore-pesi) [data-testid="calculator-dimension-discovery"] details > div :is(button,input,select):focus-visible,
+.root:global(#calcolatore-pesi) [data-commercial-price] :is(button,summary,input):focus-visible {
+  outline-color:#176141;
+}
