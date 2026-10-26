@@ -44,6 +44,7 @@ try{
     await root.getByText(/Masse je|Poids par|Peso por|Gewicht je/i).first().waitFor({state:"visible"});
     assert.ok(await root.locator('svg[role="img"]').count()>0,"Proportional diagram remains available on desktop");
     assert.match(await root.innerText(),/Favoriten|Favoris|Favoritos/i);
+    await root.locator("[data-commercial-targets] button").nth(1).click();
     assert.match(await root.innerText(),/Zieltonnen|Tonnes cibles|Toneladas objetivo/i);
     assert.match(await root.innerText(),/kg\/m/);
     assert.equal(await root.getByRole("button",{name:c.bill}).isDisabled(),false);
