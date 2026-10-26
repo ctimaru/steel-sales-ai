@@ -26,6 +26,19 @@ function check(condition, reason) {
   assert.ok(condition, reason);
 }
 
+function contrastRatio(foreground, background) {
+  const luminance = (color) => {
+    const channels = color.match(/[\d.]+/g)?.map(Number);
+    check(channels && channels.length >= 3, "Expected a computed RGB color");
+    check(channels.length < 4 || channels[3] === 1, "Contrast check requires opaque colors");
+    return channels.slice(0, 3).map((value) => value / 255)
+      .map((value) => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4)
+      .reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index], 0);
+  };
+  const first = luminance(foreground), second = luminance(background);
+  return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
+}
+
 async function setup(width, height) {
   const context = await browser.newContext({
     viewport: { width, height },
@@ -462,9 +475,8 @@ try {
           });
           assert.equal(actual.tag, "BUTTON", "RFQ transfer must be an explicit action");
           assert.equal(actual.disabled, false, "RFQ transfer must be enabled for valid data");
-          assert.equal(actual.color, "rgb(18, 59, 52)", "Unreadable RFQ link label");
-          assert.equal(actual.fill, "rgb(18, 59, 52)", "Unreadable RFQ link in Safari");
-          assert.equal(actual.background, "rgb(227, 244, 235)", "RFQ link background");
+          check(contrastRatio(actual.color, actual.background) >= 4.5, "RFQ action label must meet WCAG contrast");
+          check(contrastRatio(actual.fill, actual.background) >= 4.5, "RFQ action Safari text fill must meet WCAG contrast");
           check(actual.height >= 44 && actual.width >= 44, "RFQ link touch target");
           check(actual.scroll <= actual.viewport + 12, "Tube calculator horizontal overflow");
           const styles = await copy.evaluate((element) => ({

@@ -31,6 +31,13 @@ try {
       }).observe({type: "layout-shift", buffered: true});
     });
     const page = await context.newPage();
+    if (locale === "it" && width === 320) {
+      // Exercise streamed HTML/late hydration on a genuine slow connection.
+      const network = await context.newCDPSession(page);
+      await network.send("Network.enable");
+      await network.send("Network.emulateNetworkConditions", { offline:false, latency:100,
+        downloadThroughput:200_000, uploadThroughput:100_000 });
+    }
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
     await page.goto(origin + (locale === "it" ? "/" : "/en"), { waitUntil: "domcontentloaded" });
@@ -38,6 +45,12 @@ try {
     const weights = dock.getByRole("button", { name: locale === "it" ? "Pesi e Norme" : "Weights & Standards" });
     const request = dock.getByRole("button", { name: locale === "it" ? "Crea una richiesta" : "Create an RFQ" });
     await weights.waitFor({ state: "visible" });
+    if (width <= 700) {
+      const compact = await dock.evaluate(node => ({width:node.getBoundingClientRect().width,height:node.getBoundingClientRect().height}));
+      assert.ok(compact.width <= 300 && compact.height <= 51, "Mobile floating buttons are sized for the viewport");
+      const target = await weights.boundingBox();
+      assert.ok(target.height >= 44, "Compact painted button retains its touch area");
+    }
     assert.equal(await page.locator("iframe").count(), 0, "No tool loaded before intent");
     await noCookieCollision(page, '[data-testid="mobile-cookie-consent"]');
     await page.screenshot({ path: `${artifacts}/${locale}-${width}-consent.png` });
