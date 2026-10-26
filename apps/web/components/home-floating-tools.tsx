@@ -81,6 +81,7 @@ export function HomeFloatingTools({ locale }: { locale: "it" | "en" }) {
         }
       });
       dock.style.setProperty("--consent-offset", `${offset}px`);
+      dock.dataset.positioned = "true";
     };
     const resize = new ResizeObserver(update);
     const observe = () => {

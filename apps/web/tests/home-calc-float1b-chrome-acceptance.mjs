@@ -20,6 +20,16 @@ try {
   for (const locale of ["it", "en"]) for (const width of [320, 390, 768, 1440]) {
     const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: "reduce" });
     await context.route("**/*", route => route.request().url().startsWith(origin + "/") ? route.continue() : route.abort());
+    await context.addInitScript(() => {
+      window.__floatDockShifts = [];
+      new PerformanceObserver(list => {
+        for (const entry of list.getEntries()) {
+          if (!entry.hadRecentInput && entry.sources?.some(s => s.node?.matches?.('[data-testid="home-floating-dock"]'))) {
+            window.__floatDockShifts.push(entry.value);
+          }
+        }
+      }).observe({type: "layout-shift", buffered: true});
+    });
     const page = await context.newPage();
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
@@ -31,6 +41,7 @@ try {
     assert.equal(await page.locator("iframe").count(), 0, "No tool loaded before intent");
     await noCookieCollision(page, '[data-testid="mobile-cookie-consent"]');
     await page.screenshot({ path: `${artifacts}/${locale}-${width}-consent.png` });
+    assert.deepEqual(await page.evaluate(() => window.__floatDockShifts), [], "No initial dock layout shift");
     // Deliberate UI consent; never force a click through the banner.
     await page.getByTestId("mobile-cookie-consent").getByRole("button", {
       name: locale === "it" ? "Accetta necessari" : "Essential only", exact: true,

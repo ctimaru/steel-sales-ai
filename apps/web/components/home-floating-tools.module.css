@@ -1,4 +1,5 @@
 .dock {
+  visibility: hidden;
   position: fixed;
   z-index: 70;
   bottom: max(20px, env(safe-area-inset-bottom), var(--consent-offset, 0px));
@@ -16,6 +17,7 @@
   box-shadow: 0 16px 48px rgba(1, 13, 10, .36), 0 0 24px rgba(45, 214, 132, .14);
   backdrop-filter: blur(16px);
 }
+.dock[data-positioned="true"] { visibility: visible; }
 .action {
   display: inline-flex;
   align-items: center;
@@ -57,7 +59,7 @@
 .panel[open] { display: flex; flex-direction: column; }
 .panel::backdrop { background: rgba(1, 13, 10, .74); }
 .dockItem { display: flex; align-items: center; min-width: 0; }
-.fullPage { margin-left: auto; padding: 12px; color: #d9ffe9; font-size: 12px; text-decoration: underline; }
+.fullPage { display: inline-flex; align-items: center; min-height: 44px; margin-left: auto; padding: 12px; color: #d9ffe9; font-size: 12px; text-decoration: underline; }
 .fullPage:focus-visible { outline: 3px solid #a9ffd1; outline-offset: -3px; }
 .loading { margin: 0; padding: 12px; color: #14372b; background: #f2f4f3; }
 .panelHeader {
