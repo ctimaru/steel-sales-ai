@@ -46,6 +46,9 @@ try {
   const [left,stage,right]=await Promise.all(['[data-cockpit-fields]','[data-cinematic-stage]','[data-cockpit-results]'].map(s=>root.locator(s).boundingBox()));
   assert.ok(left&&stage&&right);
   const containerWidth=await root.evaluate(e=>e.parentElement.clientWidth);
+  for(const label of await root.locator('[data-cockpit-kpis] > div > p:first-child').all()) {
+   assert.equal(await label.evaluate(e=>e.scrollWidth>e.clientWidth+1),false,'Translated result labels must fit their tiles, including German at 320px');
+  }
   if(containerWidth>=1000) {
    assert.ok(left.x+left.width<=stage.x+2 && stage.x+stage.width<=right.x+2,'Three independent desktop columns');
    assert.ok(Math.abs(left.y-right.y)<3,'Controls and results align');

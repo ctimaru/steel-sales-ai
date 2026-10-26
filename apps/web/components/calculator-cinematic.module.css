@@ -142,6 +142,7 @@
 .geometry dd { margin:4px 0 0; color:#f0fff7; font-size:13px; line-height:1.4; font-weight:700; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
 .geometry small { font-size:10px; font-weight:500; color:#bdd8ca; white-space:nowrap; }
 .resultContext { margin:5px 0 0; color:#bedcca; font-size:11px; font-variant-numeric:tabular-nums; }
+.root [data-cockpit-kpis] > div > p:first-child { overflow-wrap:anywhere; hyphens:auto; }
 .actionIcon { width:18px; height:18px; flex-shrink:0; }
 .root [data-cockpit-add],.copy { gap:8px; }
 .copy { display:flex; align-items:center; justify-content:center; }

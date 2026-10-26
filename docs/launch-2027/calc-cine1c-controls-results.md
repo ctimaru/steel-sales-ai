@@ -22,7 +22,9 @@ copy serialization, bill handoff and validation keep their existing owners.
 
 On wide desktop containers the section facts form compact aligned rows. Mobile
 and narrower floating containers use a two-column grid, with short labels and
-small icons. The compact mobile primary and secondary button dimensions from
+small icons. Long translated KPI words can wrap inside their tiles, including
+German at 320px, without clipping or widening the page. The compact mobile
+primary and secondary button dimensions from
 CINE1B remain intact. Copy and bill actions gain decorative document/cart icons
 without changing their accessible labels or handlers.
 
