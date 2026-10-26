@@ -34,7 +34,7 @@ try{
     }
     const root=page.locator("#calcolatore-pesi");
     // CALC-INT3E.7: the same full cockpit used by IT/EN, no reduced select-only widget.
-    await root.locator('select').filter({has:page.locator('option[value="rectangular_tube"]')}).selectOption("rectangular_tube");
+    await root.locator('[data-calc-shape-buttons] button').nth(2).click();
     await root.locator('select').filter({has:page.locator('option[value="en10210"]')}).selectOption("en10210");
     const width=root.getByRole("textbox",{name:c.width});
     await width.fill("155,5");
@@ -64,7 +64,7 @@ try{
     assert.match(robots??"",/noindex/i);
     await page.goto(BASE+route,{waitUntil:"domcontentloaded",timeout:60000});
     const section=page.locator("#calcolatore-pesi");
-    await section.locator('select').filter({has:page.locator('option[value="square_tube"]')}).selectOption("square_tube");
+    await section.locator('[data-calc-shape-buttons] button').nth(1).click();
     await section.getByRole("button",{name:c.bill}).click();
     const inline=page.locator("#distinta-inline-dialog");
     if (await page.locator('[data-testid="mobile-cookie-consent"] > button').isVisible())
