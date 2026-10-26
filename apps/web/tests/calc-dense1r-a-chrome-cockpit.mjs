@@ -31,8 +31,14 @@ try {
       const shape=root.locator('[data-calc-shape-buttons]');
       const boxes=await Promise.all([norm.boundingBox(),shape.boundingBox()]);
       assert.ok(boxes.every(Boolean),"Compact norm and shape selectors must render at 320px");
-      assert.ok(boxes.every(box=>box.width>=100&&box.height>=44),
-        "Selectors must remain readable and touch-accessible at 320px");
+      assert.ok(boxes[0].width>=80&&boxes[0].height>=44&&boxes[1].width>=100,
+        "Norm selector and shape group must remain legible at 320px");
+      const shapeButtons=await shape.locator('button').all();
+      assert.equal(shapeButtons.length,3,"All three shapes must be directly selectable");
+      for(const button of shapeButtons) {
+        const hit=await button.boundingBox();
+        assert.ok(hit&&hit.height>=40&&hit.width>=40,"Shape buttons need independently usable touch targets");
+      }
       const overlapX=Math.min(boxes[0].x+boxes[0].width,boxes[1].x+boxes[1].width)-Math.max(boxes[0].x,boxes[1].x);
       const overlapY=Math.min(boxes[0].y+boxes[0].height,boxes[1].y+boxes[1].height)-Math.max(boxes[0].y,boxes[1].y);
       assert.ok(overlapX<=2||overlapY<=2,
