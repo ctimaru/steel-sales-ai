@@ -13,7 +13,7 @@ create table if not exists private.net_pipeline1b2l_source_rights (
     decision <> 'allowed_minimal'
     or (evidence_url ~* '^https://' and length(trim(coalesce(rationale,'')))>=12
         and reviewed_by is not null and reviewed_at is not null)
-);
+));
 revoke all on private.net_pipeline1b2l_source_rights from public,anon,authenticated;
 create or replace view private.net_pipeline1b2l_bulk_qualification
 with (security_invoker=true) as
