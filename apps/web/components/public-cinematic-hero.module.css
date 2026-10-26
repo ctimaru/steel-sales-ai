@@ -544,3 +544,42 @@
   }
   .intelligenceOverlay, .productHint { display: none; }
 }
+
+/* HOME-CINE2A.2B — original generated industrial hall.
+   Image contains no baked-in UI, weights, brands, text or buttons. */
+.ambient {
+  background-image:
+    radial-gradient(ellipse 50% 72% at 78% 44%, rgba(25, 158, 109, .12), transparent 72%),
+    url('/home-cine2a2b-factory-mobile.webp'),
+    linear-gradient(118deg, #061310 16%, #0c241d 68%, #061310 100%);
+}
+@media (min-width: 701px) {
+  .ambient {
+    background-image:
+      radial-gradient(ellipse 50% 72% at 78% 44%, rgba(25, 158, 109, .12), transparent 72%),
+      url('/home-cine2a2b-factory-desktop.webp'),
+      linear-gradient(118deg, #061310 16%, #0c241d 68%, #061310 100%);
+    background-position: center, right center, center;
+    background-size: cover, auto 100%, cover;
+  }
+}
+@media (min-width: 1024px) {
+  .ambient {
+    background-position: center, right 51%, center;
+    background-size: cover, auto 112%, cover;
+  }
+}
+@media (max-width: 700px) {
+  .ambient {
+    background-position: center, 74% bottom, center;
+    background-size: cover, auto 69%, cover;
+  }
+}
+@media (prefers-reduced-data: reduce) {
+  .ambient {
+    background-image:
+      radial-gradient(ellipse 50% 72% at 78% 44%, rgba(25, 158, 109, .12), transparent 72%),
+      url('/home-cine1a-steel.webp'),
+      linear-gradient(118deg, #061310 16%, #0c241d 68%, #061310 100%);
+  }
+}

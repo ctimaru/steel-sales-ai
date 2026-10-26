@@ -22,3 +22,6 @@ The monumental factory hall shown in references 1 and 2 is **not** yet replicate
 ## Browser visual correction — tablet 768px
 
 The first genuine fullPage GitHub Chrome capture on PR #945 showed globe labels and proof card covering the text paragraph at **768px** despite automated no-overflow/Axe passing. This is an actual visual hierarchy defect. Fixed by hiding both decorative overlays between **701 and 1023px**; tablets retain cinematic metal photo and intact calculator CTA. Desktop at >=1024px keeps globe and HTML product proof; <=700px already had the simpler mobile composition. Compare the new artifact before closing the visual gate.
+
+## HOME-CINE2A.2B factory visual candidate (2026-10-26)
+Generated **image-only** monumental industrial hall, original and synthetic, NOT documentation of a particular factory. The new assets are locally bundled and gated in `home-cine2a2b-factory-asset.md`; industrial scene visual approval and three-sample Lighthouse on the new imagery are pending. No fake baked-in UI or numbers.
