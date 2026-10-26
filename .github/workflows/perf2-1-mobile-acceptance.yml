@@ -17,6 +17,9 @@ on:
       - "apps/web/tests/home-si5-*"
       - "apps/web/components/home-floating-tools*"
       - "apps/web/tests/home-calc-float*"
+      - "apps/web/components/calculator-cinematic.module.css"
+      - "apps/web/lib/calculator-cinematic-copy.ts"
+      - "apps/web/tests/calc-cine1a-*"
       - "apps/web/components/deferred-public-company-lookup.tsx"
       - "apps/web/tests/perf2-1-*"
       - "apps/web/tests/school-growth1e-*"
@@ -129,6 +132,16 @@ jobs:
         run: node tests/school-unify1-chrome-five-hubs.mjs
       - name: SCHOOL-GROWTH1E Chrome Scuola SEO / contrast / images (mobile and desktop)
         run: node tests/school-growth1e-chrome-acceptance.mjs
+      - name: CALC-CINE1A five-language cinematic calculator, real shapes and bill
+        run: node tests/calc-cine1a-chrome-acceptance.mjs
+      - name: Upload CALC-CINE1A calculator screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calc-cine1a-five-language-cockpit
+          path: /tmp/calc-cine1a
+          if-no-files-found: error
+          retention-days: 7
       - name: HOME-CALC-FLOAT1B bilingual floating tools functional acceptance
         run: node tests/home-calc-float1b-chrome-acceptance.mjs
       - name: Upload HOME-CALC-FLOAT1B real tool screenshots

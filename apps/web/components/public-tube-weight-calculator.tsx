@@ -9,6 +9,8 @@ import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
 import { CalculatorCommercialPricing } from "@/components/calculator-commercial-pricing";
 import { CalculatorDimensionDiscovery } from "@/components/calculator-dimension-discovery";
 import styles from "./calculator-dense-cockpit.module.css";
+import cinematic from "./calculator-cinematic.module.css";
+import { calculatorCinematicCopy } from "@/lib/calculator-cinematic-copy";
 import {
   dimensionNumber, dimensionsFromPublicReferences, type CalculatorDimension,
 } from "@/lib/calculator-dimension-discovery";
@@ -450,7 +452,7 @@ export function PublicTubeWeightCalculator({
   /** In-place RFQ bill composer; does not queue or navigate. */
   onAddToDistinta?: (item: CalculatorRfqItem) => boolean;
   canAddToDistinta?: boolean;
-  /** Keep the original public two-column calculator UX, even when adding in place. */
+  /** Keep the public calculator layout when adding to the in-place bill. */
   inlinePublicDistinta?: boolean;
   inlineBillCount?: number;
   onOpenInlineBill?: () => void;
@@ -461,6 +463,7 @@ export function PublicTubeWeightCalculator({
   const inEmbeddedBuilder = Boolean(onAddToDistinta) && !inlinePublicDistinta;
   const t = (text: string) => tubeCalculatorText(text, locale);
   const inlineCopy = localizedInlineBill(locale);
+  const cine = calculatorCinematicCopy[locale];
   const formatOutput = (value: number, digits = 3) => formatNumber(value, digits, locale);
   const initialStandard = initialValues?.standard ?? "en10219";
   const [standard, setStandard] = useState<StandardValue>(initialStandard);
@@ -982,9 +985,34 @@ export function PublicTubeWeightCalculator({
     </>
   );
 
+  async function copyCurrentResult() {
+    if (!currentSnapshot) return;
+    try {
+      await copyTextToClipboard(resultText(currentSnapshot));
+      setActionFeedback(t("Risultato copiato."));
+    } catch {
+      setActionFeedback(t("Copia non riuscita: controlla i permessi degli appunti."));
+    }
+  }
+  const sectionDiagram = (
+    <div data-cockpit-preview className={styles.preview}>
+      <div className="min-w-0">
+        <ParametricShapeDiagram
+          family={family}
+          outerDiameter={outerDiameter}
+          width={width}
+          height={height}
+          thickness={thickness}
+          standard={standard}
+          locale={locale}
+        />
+      </div>
+    </div>
+  );
+
   return (
     <div
-      className="space-y-3"
+      className={inEmbeddedBuilder ? "space-y-3" : `space-y-3 ${cinematic.shell}`}
       inert={!retentionReady}
       aria-busy={!retentionReady}
       onChangeCapture={(event) => {
@@ -997,14 +1025,17 @@ export function PublicTubeWeightCalculator({
       <section
         id="calcolatore-pesi"
         data-calculator-ready={retentionReady ? "true" : "false"}
-        className="flex scroll-mt-20 flex-col overflow-hidden rounded-xl border border-[#cddbd6] bg-white shadow-[0_8px_28px_rgba(11,47,39,0.05)]"
+        data-calc-cine1a={inEmbeddedBuilder ? undefined : "true"}
+        className={`flex scroll-mt-20 flex-col overflow-hidden rounded-xl border border-[#cddbd6] bg-white shadow-[0_8px_28px_rgba(11,47,39,0.05)] ${inEmbeddedBuilder ? "" : cinematic.root}`}
       >
         <header data-cockpit-header className={styles.header}>
           <div className="min-w-0">
+            {!inEmbeddedBuilder ? <p className={cinematic.eyebrow}>{cine.eyebrow}</p> : null}
             <div className="flex items-center gap-2">
               {inEmbeddedBuilder || locale === "de" || locale === "fr" || locale === "es" ? <h2 className="text-sm font-bold text-[#15372f] sm:text-base">{t("Peso tubo acciaio")}</h2> : <h1 className="text-sm font-bold text-[#15372f] sm:text-base">{t("Peso tubo acciaio")}</h1>}
               <span className="school-badge hidden lg:inline-flex">{t("Gratis")}</span>
             </div>
+            {!inEmbeddedBuilder ? <p className={cinematic.description}>{cine.description}</p> : null}
           </div>
           {inlinePublicDistinta && inlineBillCount > 0 ? (
             <button type="button" className={styles.cartShortcut} onClick={onOpenInlineBill} aria-haspopup="dialog">
@@ -1210,11 +1241,24 @@ export function PublicTubeWeightCalculator({
             </div>
           </div>
 
+          {!inEmbeddedBuilder ? (
+            <div data-cinematic-stage className={cinematic.stage}>
+              <div className={cinematic.stageHeading}>
+                <span>{cine.visual}</span><strong>{currentStandard.label}</strong>
+              </div>
+              {values.error ? <p role="status" className={cinematic.invalid}>{t(values.error)}</p> : sectionDiagram}
+              <div className={cinematic.sectionMetric}>
+                <span>{cine.area}</span>
+                <strong>{values.areaMm2 == null ? "—" : formatOutput(values.areaMm2, 2)} <small>mm²</small></strong>
+              </div>
+            </div>
+          ) : null}
           <aside
             data-cockpit-results
             className={`tube-calculator-result ${styles.results}`}
           >
             <div className="shrink-0 border-b border-white/10 px-3 py-2.5">
+              {!inEmbeddedBuilder ? <h2 className={cinematic.resultTitle}>{cine.results}</h2> : null}
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/85">
@@ -1225,20 +1269,7 @@ export function PublicTubeWeightCalculator({
                     <span className="ml-1 text-base font-semibold tracking-normal text-white/85">kg/m</span>
                   </p>
                 </div>
-                <div data-cockpit-preview className={styles.preview}>
-                <div className="min-w-0">
-                  <ParametricShapeDiagram
-                    family={family}
-                    outerDiameter={outerDiameter}
-                    width={width}
-                    height={height}
-                    thickness={thickness}
-                    standard={standard}
-                    locale={locale}
-                  />
-                </div>
-
-                </div>
+                {inEmbeddedBuilder ? sectionDiagram : null}
               </div>
 
               <div data-cockpit-kpis className="mt-2 grid grid-cols-3 gap-1.5">
@@ -1303,6 +1334,10 @@ export function PublicTubeWeightCalculator({
                   : "Gratuito · nessun login richiesto. Il grado acciaio resta da confermare.")}
               </p>
 
+              {!inEmbeddedBuilder ? <button type="button" onClick={copyCurrentResult}
+                disabled={!currentSnapshot} className={cinematic.copy} data-cinematic-copy>
+                {cine.copy}
+              </button> : null}
               <CalculatorCommercialPricing weightKgM={values.error ? null : values.kgM} locale={locale}
                 onChooseBuyerTarget={onChooseBuyerTarget} />
 
@@ -1339,15 +1374,7 @@ export function PublicTubeWeightCalculator({
                 <button
                   type="button"
                   disabled={!currentSnapshot}
-                  onClick={async () => {
-                    if (!currentSnapshot) return;
-                    try {
-                      await copyTextToClipboard(resultText(currentSnapshot));
-                      setActionFeedback("Risultato copiato.");
-                    } catch {
-                      setActionFeedback(t("Copia non riuscita: controlla i permessi degli appunti."));
-                    }
-                  }}
+                  onClick={copyCurrentResult}
                   className="tube-calculator-copy-action min-h-11 rounded-xl border border-white/30 bg-white/10 px-2 py-2 text-xs font-bold text-white hover:bg-white/15 disabled:opacity-40 sm:text-xs"
                 >
                   {t("Copia risultato")}

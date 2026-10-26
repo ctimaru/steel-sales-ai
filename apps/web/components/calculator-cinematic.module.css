@@ -1,0 +1,125 @@
+/* CALC-CINE1A: public presentation only. The private compact workbench and
+   all calculator state, validation, mass and handoff contracts are unchanged. */
+.shell { container: steel-calculator / inline-size; min-width:0; }
+.root {
+  color:#e4f6ed;
+  border:1px solid #29644f;
+  border-radius:18px;
+  background:#061b15;
+  box-shadow:0 16px 44px #03120d24;
+  color-scheme:dark;
+}
+.root [data-cockpit-header] {
+  padding:16px 18px;
+  border-color:#23533f;
+  background:linear-gradient(110deg,#071e17,#0b3326);
+}
+.eyebrow { margin:0 0 5px; color:#77e8b6; font-size:10px; font-weight:800; letter-spacing:.15em; text-transform:uppercase; }
+.root [data-cockpit-header] h1,.root [data-cockpit-header] h2 { color:#f1fff7; font-size:22px; line-height:1.2; }
+.description { margin:6px 0 0; color:#b5d3c4; font-size:12px; line-height:1.5; }
+.root [data-cockpit-header] button { color:#dcffec; background:#103c2b; border-color:#397455; }
+.root [data-cockpit-toolbar] { gap:12px; padding:12px 16px; background:#09251c; border-color:#295542; }
+.root [data-cockpit-controls] > div { flex-wrap:nowrap; }
+.root [data-cockpit-controls] label { min-width:0; max-width:none; color:#bddacc; }
+.root [data-cockpit-controls] select,
+.root [data-cockpit-fields] input,
+.root [data-cockpit-fields] select,
+.root [data-testid="calculator-dimension-discovery"] input[type="search"] {
+  min-height:44px; border-color:#38644f; background:#061c15; color:#edfff5;
+  border-radius:9px; font-variant-numeric:tabular-nums;
+}
+.root [data-testid="calculator-dimension-discovery"] input::placeholder { color:#9ab6a7; opacity:1; }
+.root [data-testid="calculator-dimension-discovery"] > div > details > summary { background:#103729; color:#d7f7e6; border-color:#38644f; }
+.root [data-cockpit-fields] input:focus-visible,
+.root [data-cockpit-fields] select:focus-visible,
+.root [data-cockpit-controls] select:focus-visible { outline:2px solid #63eeb0; outline-offset:2px; }
+.root [data-cockpit-workspace] { grid-template-columns:minmax(0,1fr); gap:12px; padding:12px; align-items:stretch; }
+.root [data-cockpit-fields] { padding:14px; border:1px solid #2a5945; border-radius:13px; background:#071f17; }
+.root [data-cockpit-fields] label,.root [data-cockpit-fields] h2,
+.root [data-cockpit-fields] span { color:#c0dacd; }
+.root [data-cockpit-fields] button { background:#123b2c; color:#d6f6e5; }
+.root [data-cockpit-fields] [data-cockpit-length-quantity] { grid-template-columns:minmax(0,1fr); }
+.root [data-cockpit-fields] [data-cockpit-length-quantity] > div:last-child > div { background:#0d2c20; border-color:#2a5945; }
+.root [data-cockpit-fields] details { background:#0d3023; border-color:#315d48; }
+.root [data-cockpit-fields] summary { color:#c8efda; }
+.root [data-cockpit-fields] > div > div > span { color:#b1cfbe; }
+.root [data-cockpit-results] { order:2; border:1px solid #2b624a; border-radius:13px; background:#08271c; }
+.resultTitle { margin:0 0 12px; color:#f0fff6; font-size:19px; font-weight:750; }
+.root [data-cockpit-results] > div:first-child { border:0; padding:14px; }
+.root [data-cockpit-results] :global(.metric-number) { color:#f0fff7; }
+.root [data-cockpit-results] [aria-live="polite"]:global(.metric-number) { color:#64f3b5; font-size:32px; line-height:1.15; }
+.root [data-cockpit-kpis] > div { border:1px solid #28553f; background:#103525; }
+.root [data-cockpit-add] { min-height:48px; margin-top:12px; color:#04291b; background:#24e1a0; border-color:#61f1b8; border-radius:9px; }
+.root [data-cockpit-add]:hover { background:#65edbd; }
+.copy { display:block; width:100%; min-height:44px; margin-top:10px; padding:10px; border:1px solid #4a8669; border-radius:9px; background:#0a2b1f; color:#e1f9ec; font-size:12px; font-weight:700; cursor:pointer; }
+.copy:focus-visible { outline:2px solid #75f4bd; outline-offset:3px; }
+.copy:disabled { opacity:.5; cursor:not-allowed; }
+.stage {
+  position:relative; isolation:isolate; display:flex; order:3; min-width:0;
+  flex-direction:column; justify-content:space-between; overflow:hidden;
+  min-height:290px; padding:14px; border:1px solid #357459; border-radius:13px;
+  background:linear-gradient(180deg,#061c17b8,#031b15eb),url('/home-cine2a2b-factory-mobile.webp') center/cover;
+}
+.stage::before { content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
+  background-image:linear-gradient(#65dba20c 1px,transparent 1px),linear-gradient(90deg,#65dba20c 1px,transparent 1px);
+  background-size:28px 28px;
+}
+.stageHeading { display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px; color:#bfe8d2; font-size:10px; line-height:1.5; }
+.stageHeading strong { color:#83f1be; font-size:11px; }
+.stage [data-cockpit-preview] { width:100%; flex:1 1 auto; align-self:center; }
+.stage [data-cockpit-preview] figure { padding:0; border:0; background:transparent; }
+.stage [data-cockpit-preview] figure > svg { width:100%; max-width:330px; max-height:320px; margin:8px auto; filter:drop-shadow(0 10px 20px #02100c); }
+.stage [data-cockpit-preview] figure > svg > circle:first-of-type,
+.stage [data-cockpit-preview] figure > svg > rect:first-of-type { fill:#accabe; stroke:#82f6be; }
+.stage [data-cockpit-preview] figure > svg > circle:nth-of-type(2),
+.stage [data-cockpit-preview] figure > svg > rect:nth-of-type(2) { fill:#05231b; stroke:#477f67; }
+.stage [data-cockpit-preview] svg text { fill:#e2fff0; }
+.stage [data-cockpit-preview] svg g { stroke:#69d8a3; }
+.stage [data-cockpit-preview] svg > line { stroke:#8df8c1; }
+.stage [data-cockpit-preview] figcaption { display:grid; gap:4px; padding:9px 0 0; border-color:#34644e; }
+.stage [data-cockpit-preview] figcaption span { padding:8px 4px; background:#06251ee8; color:#d9f4e5; font-size:10px; border:1px solid #356349; border-radius:7px; text-align:center; }
+.sectionMetric { display:flex; align-items:baseline; flex-wrap:wrap; justify-content:space-between; gap:8px; margin-top:12px; padding-top:12px; border-top:1px solid #3d6b52; color:#c9e6d4; font-size:11px; }
+.sectionMetric strong { color:#8cf6be; font-size:17px; font-variant-numeric:tabular-nums; }
+.sectionMetric small { font-size:11px; font-weight:500; }
+.invalid { color:#ffe4a6; font-size:13px; line-height:1.6; }
+.root [data-cockpit-details] { background:#071f16; border-color:#2d5842; }
+.root [data-cockpit-details] details { background:#0c2d20; }
+/* Layout follows the calculator's real width: full page, iframe and sidebar. */
+@container steel-calculator (min-width:680px) {
+  .root [data-cockpit-workspace] { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+  .stage { grid-column:1/-1; }
+  .stage [data-cockpit-preview] figure > svg { max-width:270px; max-height:230px; }
+}
+@container steel-calculator (min-width:1000px) {
+  .root [data-cockpit-toolbar] { grid-template-columns:minmax(0,1fr) minmax(0,1.4fr); }
+  .root [data-cockpit-workspace] { grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,.95fr); }
+  .stage { grid-column:auto; order:2; min-height:370px; background-image:linear-gradient(180deg,#051c17a6,#031b15eb),url('/home-cine2a2b-factory-desktop.webp'); }
+  .root [data-cockpit-results] { order:3; }
+  .stage [data-cockpit-preview] figure > svg { max-width:330px; max-height:290px; }
+  .root [data-cockpit-kpis] { grid-template-columns:minmax(0,1fr); gap:6px; }
+  .root [data-cockpit-kpis] > div { display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:45px; }
+  .root [data-cockpit-kpis] > div > p { margin:0; }
+  .root [data-cockpit-kpis] > div > p:first-child { font-size:9px; }
+  .root [data-cockpit-kpis] > div > p:nth-of-type(2) { white-space:nowrap; font-size:16px; }
+}
+@container steel-calculator (max-width:399px) {
+  .root [data-cockpit-header] { padding:12px; }
+  .root [data-cockpit-header] h1,.root [data-cockpit-header] h2 { font-size:19px; }
+  .description { font-size:11px; }
+  .root [data-cockpit-toolbar] { padding:10px; }
+  .root [data-cockpit-workspace] { padding:8px; gap:8px; }
+  .root [data-cockpit-fields] { padding:10px; }
+  .root [data-cockpit-results] [aria-live="polite"]:global(.metric-number) { font-size:28px; }
+}
+@media (prefers-reduced-data:reduce) {
+  .stage { background-image:linear-gradient(145deg,#0d3527,#041912); }
+}
+/* The legacy palette bridge uses !important and semantic input colors.
+   Scope overrides to this public skin; white pricing/search popovers and the
+   private workbench continue to use their existing color contracts. */
+.root [data-cockpit-fields] { --text-primary:#edfff5; }
+.root:global(#calcolatore-pesi) [data-cockpit-add] {
+  background-color:#24e1a0 !important; color:#04291b !important;
+  -webkit-text-fill-color:#04291b !important;
+}
+.root:global(#calcolatore-pesi) [data-cockpit-add]:hover { background-color:#65edbd !important; }
