@@ -73,6 +73,11 @@ try {
   await fields.nth(0).fill('1');
   assert.equal(await root.locator('[data-cinematic-stage] svg').count(),0);
   assert.equal(await root.locator('[data-cockpit-add]').isDisabled(),true);
+  await fields.nth(0).fill('140');
+  const standard=root.locator('[data-cockpit-controls] select').first();
+  await standard.selectOption('geometric');
+  assert.equal(await root.locator('[data-cinematic-stage] strong').first().innerText(),
+   await standard.evaluate(e=>e.selectedOptions[0].textContent),'Free-calculation stage label follows the selected language');
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   assert.deepEqual(errors,[]);
   console.log('CALC-CINE1A PASS',locale,width,'layout, contrast, real mass, 3 shapes, copy, bill and invalid geometry');

@@ -1244,7 +1244,7 @@ export function PublicTubeWeightCalculator({
           {!inEmbeddedBuilder ? (
             <div data-cinematic-stage className={cinematic.stage}>
               <div className={cinematic.stageHeading}>
-                <span>{cine.visual}</span><strong>{currentStandard.label}</strong>
+                <span>{cine.visual}</span><strong>{t(currentStandard.label)}</strong>
               </div>
               {values.error ? <p role="status" className={cinematic.invalid}>{t(values.error)}</p> : sectionDiagram}
               <div className={cinematic.sectionMetric}>
