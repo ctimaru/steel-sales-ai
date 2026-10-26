@@ -514,3 +514,53 @@ async def market_price_overlay_query(
         return await get_price_market_overlay(**request.model_dump(exclude_none=True))
     except (MarketConfigurationError, MarketDataError, RuntimeError) as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+class NetworkPublisherRequest(BaseModel):
+    publish: bool = False
+    limit: int = Field(default=3, ge=1, le=10)
+
+
+@app.post("/v1/network/publisher/run")
+async def run_network_publisher(
+    request: NetworkPublisherRequest,
+    x_worker_token: Annotated[str | None, Header()] = None,
+) -> dict[str, object]:
+    """Manually invoked, token-protected Network publisher (dry-run by default).
+
+    Never schedule this endpoint until the source-rights and visibility
+    acceptance gates are independently verified. A database kill-switch
+    separately blocks all publishing.
+    """
+    require_worker_token(x_worker_token)
+    if request.publish and os.getenv("NETWORK_PUBLISHER_LIVE_ALLOWED") != "true":
+        raise HTTPException(status_code=403, detail="Live Network publishing disabled on worker.")
+    from .network_publisher import run as execute_publisher
+    try:
+        return await asyncio.to_thread(
+            execute_publisher, publish=request.publish, limit=request.limit
+        )
+    except (RuntimeError, ValueError, httpx.HTTPError) as exc:
+        logging.getLogger(__name__).exception("Network publisher call failed")
+        raise HTTPException(status_code=503, detail="Network publisher unavailable.") from exc
+
+
+class NetworkBulkQualificationRequest(BaseModel):
+    offset: int = Field(default=0, ge=0, le=1000000)
+    limit: int = Field(default=500, ge=1, le=1000)
+
+
+@app.post("/v1/network/bulk/qualification")
+async def network_bulk_qualification(
+    request: NetworkBulkQualificationRequest,
+    x_worker_token: Annotated[str | None, Header()] = None,
+) -> dict[str, object]:
+    """Read-only private 434+ lead qualification report; no publication."""
+    require_worker_token(x_worker_token)
+    from .network_bulk_qualification import fetch_bulk_qualification
+    try:
+        return await asyncio.to_thread(
+            fetch_bulk_qualification, offset=request.offset, limit=request.limit
+        )
+    except (RuntimeError, ValueError, httpx.HTTPError) as exc:
+        logging.getLogger(__name__).exception("Network bulk qualification failed")
+        raise HTTPException(status_code=503, detail="Network bulk qualification unavailable.") from exc
