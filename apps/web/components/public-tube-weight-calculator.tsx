@@ -1009,6 +1009,15 @@ export function PublicTubeWeightCalculator({
       </div>
     </div>
   );
+  const sectionNumber = (value: number | null) => values.error || value == null ? "—" : formatOutput(value, 2);
+  const sectionFacts = [
+    {key:"outer", label:family === "round_tube" ? t("Diametro D") : family === "square_tube" ? t("Lato B") : cine.outerSize,
+      value:values.error ? "—" : family === "round_tube" ? sectionNumber(values.d) : family === "square_tube" ? sectionNumber(values.b) : `${sectionNumber(values.b)} × ${sectionNumber(values.h)}`, unit:"mm"},
+    {key:"wall", label:t("Spessore t"), value:sectionNumber(values.t), unit:"mm"},
+    ...(family === "round_tube" ? [{key:"inner", label:cine.innerDiameter,
+      value:sectionNumber(values.d == null || values.t == null ? null : values.d - 2 * values.t), unit:"mm"}] : []),
+    {key:"area", label:cine.area, value:sectionNumber(values.areaMm2), unit:"mm²"},
+  ];
 
   return (
     <div
@@ -1048,12 +1057,12 @@ export function PublicTubeWeightCalculator({
             compact onChoose={applyDiscoveredDimension} />
           <div data-cockpit-controls className={styles.toolbarControls}>
               <div className="flex min-w-0 flex-wrap items-end gap-2.5">
-                <label className="min-w-[150px] flex-1 text-[10px] font-bold uppercase tracking-wide text-[#52615b] sm:max-w-[210px]">{t("Norma")}
+                <label className="min-w-[150px] flex-1 text-[10px] font-bold uppercase tracking-wide text-[#52615b] sm:max-w-[210px]">{!inEmbeddedBuilder ? <span aria-hidden="true" className={cinematic.step}>1</span> : null}{t("Norma")}
                   <select aria-label={t("Norma")} value={standard} onChange={(event) => handleStandardChange(event.target.value as StandardValue)} className="mt-1 h-11 sm:h-10 w-full rounded-lg border border-[#cfdfd6] bg-white px-2.5 text-xs font-semibold text-[#173f34]">
                     {standardOptions.map((option) => <option key={option.value} value={option.value}>{t(option.label)}</option>)}
                   </select>
                 </label>
-                <label className="min-w-[150px] flex-1 text-[10px] font-bold uppercase tracking-wide text-[#52615b] sm:max-w-[210px]">{t("Sagoma")}
+                <label className="min-w-[150px] flex-1 text-[10px] font-bold uppercase tracking-wide text-[#52615b] sm:max-w-[210px]">{!inEmbeddedBuilder ? <span aria-hidden="true" className={cinematic.step}>2</span> : null}{t("Sagoma")}
                   <select aria-label={t("Sagoma")} value={family} onChange={(event) => setFamily(event.target.value as TubeFamily)} className="mt-1 h-11 sm:h-10 w-full rounded-lg border border-[#cfdfd6] bg-white px-2.5 text-xs font-semibold text-[#173f34]">
                     {familyOptions.map((option) => <option key={option.value} value={option.value}>{t(option.short)}</option>)}
                   </select>
@@ -1072,7 +1081,7 @@ export function PublicTubeWeightCalculator({
                 <div className="min-w-0">
                   <div className="mb-1.5 flex items-center justify-between gap-2">
                     <h2 id="calculator-measures" className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-[#52615b]">
-                      {t("Misure")}
+                      {!inEmbeddedBuilder ? <span aria-hidden="true" className={cinematic.step}>3</span> : null}{t("Misure")}
                     </h2>
                     <span className="text-xs text-[#52615b]">mm</span>
                   </div>
@@ -1139,6 +1148,7 @@ export function PublicTubeWeightCalculator({
                     ) : null}
                   </div>
 
+                  {!inEmbeddedBuilder ? <h3 className={cinematic.inputHeading}><span aria-hidden="true" className={cinematic.step}>4</span>{cine.lengthQuantity}</h3> : null}
                   <div data-cockpit-length-quantity className={styles.lengthQuantity}>
                     <div>
                       <div className="mb-1 flex items-center justify-between gap-2">
@@ -1273,6 +1283,10 @@ export function PublicTubeWeightCalculator({
           >
             <div className="shrink-0 border-b border-white/10 px-3 py-2.5">
               {!inEmbeddedBuilder ? <h2 className={cinematic.resultTitle}>{cine.results}</h2> : null}
+              {!inEmbeddedBuilder ? <dl className={cinematic.geometry} data-cinematic-geometry>
+                {sectionFacts.map(fact => <div key={fact.key}><dt>{fact.label}</dt>
+                  <dd data-section-value={fact.key}>{fact.value}<small> {fact.unit}</small></dd></div>)}
+              </dl> : null}
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/85">
@@ -1286,6 +1300,9 @@ export function PublicTubeWeightCalculator({
                 {inEmbeddedBuilder ? sectionDiagram : null}
               </div>
 
+              {!inEmbeddedBuilder ? <p className={cinematic.resultContext} data-cinematic-context>
+                {values.error || values.l == null || values.qty == null ? "—" : `${formatOutput(values.l, 20)} m · ${formatOutput(values.qty, 20)} ${cine.bars}`}
+              </p> : null}
               <div data-cockpit-kpis className="mt-2 grid grid-cols-3 gap-1.5">
                 <div className="min-w-0 rounded-lg bg-white/8 px-2 py-1.5">
                   <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/85">{t("Peso per barra")}</p>
@@ -1340,6 +1357,7 @@ export function PublicTubeWeightCalculator({
                 data-cockpit-add
                 className="tube-calculator-rfq-link mt-1.5 inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-[#c3e5d5] bg-[#e3f4eb] px-3 py-2 text-center text-sm font-bold leading-snug text-[#123b34] transition-colors hover:border-[#98d6b6] hover:bg-[#ccebdc] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50"
               >
+                {!inEmbeddedBuilder ? <svg aria-hidden="true" className={cinematic.actionIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 4h2l2 12h12l2-9H6M9 20h.01M18 20h.01" strokeLinecap="round" strokeLinejoin="round" /></svg> : null}
                 {t(onAddToDistinta ? "＋ Aggiungi alla distinta" : "Aggiungi questa misura alla distinta →")}
               </button>
               <p className="mt-1 text-[11px] leading-4 text-white/85">
@@ -1350,6 +1368,7 @@ export function PublicTubeWeightCalculator({
 
               {!inEmbeddedBuilder ? <button type="button" onClick={copyCurrentResult}
                 disabled={!currentSnapshot} className={cinematic.copy} data-cinematic-copy>
+                <svg aria-hidden="true" className={cinematic.actionIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="8" y="8" width="12" height="13" rx="2" /><path d="M16 8V3H4v13h4" strokeLinejoin="round" /></svg>
                 {cine.copy}
               </button> : null}
               <CalculatorCommercialPricing weightKgM={values.error ? null : values.kgM} locale={locale}

@@ -133,6 +133,33 @@
 .root:global(#calcolatore-pesi) [data-commercial-price] :is(button,summary,input):focus-visible {
   outline-color:#176141;
 }
+/* CINE1C: concrete section data and an ordered input path. */
+.step { display:inline-flex; align-items:center; justify-content:center; width:18px; height:18px; margin-right:6px; border:1px solid #428c68; border-radius:50%; background:#103d2a; color:#a5f4cb; font-size:10px; font-weight:750; letter-spacing:0; }
+.inputHeading { margin:14px 0 6px; color:#c0dacd; font-size:11px; font-weight:700; }
+.geometry { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; margin:0 0 14px; }
+.geometry > div { min-width:0; padding:8px; border:1px solid #285b43; border-radius:7px; background:#0a2018; }
+.geometry dt { color:#b9d6c7; font-size:10px; line-height:1.4; }
+.geometry dd { margin:4px 0 0; color:#f0fff7; font-size:13px; line-height:1.4; font-weight:700; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+.geometry small { font-size:10px; font-weight:500; color:#bdd8ca; white-space:nowrap; }
+.resultContext { margin:5px 0 0; color:#bedcca; font-size:11px; font-variant-numeric:tabular-nums; }
+.actionIcon { width:18px; height:18px; flex-shrink:0; }
+.root [data-cockpit-add],.copy { gap:8px; }
+.copy { display:flex; align-items:center; justify-content:center; }
+@container steel-calculator (min-width:1000px) {
+  .geometry { grid-template-columns:minmax(0,1fr); gap:0; border:1px solid #285b43; border-radius:9px; overflow:hidden; }
+  .geometry > div { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px; border:0; border-bottom:1px solid #214533; border-radius:0; }
+  .geometry > div:last-child { border-bottom:0; }
+  .geometry dd { flex-shrink:0; margin:0; }
+}
+@container steel-calculator (max-width:679px) {
+  .step { width:16px; height:16px; font-size:9px; margin-right:5px; }
+  .inputHeading { margin-top:10px; }
+  .geometry { gap:5px; margin-bottom:10px; }
+  .geometry > div { padding:6px 7px; }
+  .geometry dt { font-size:10px; }
+  .geometry dd { margin-top:3px; font-size:12px; }
+  .actionIcon { width:16px; height:16px; }
+}
 /* CINE1B: the photograph follows the family; the live diagram keeps exact
    entered dimensions separate from illustrative metalwork. No animated media. */
 .productPhoto { position:relative; margin:12px -14px 8px; aspect-ratio:3/2; background:#03140f; }

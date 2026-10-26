@@ -32,6 +32,17 @@ try {
   await root.locator('#tube-calculator-quantity').fill('3');
   const mass=root.locator('[data-cockpit-results] [aria-live="polite"].metric-number');
   assert.match(await mass.innerText(),/31[,.]626\s*kg\/m/,'Real engine output, not the illustrative reference number');
+  const sectionValue=key=>root.locator(`[data-section-value="${key}"]`);
+  assert.match(await sectionValue('outer').innerText(),/168[,.]3\s*mm/);
+  assert.match(await sectionValue('inner').innerText(),/152[,.]3\s*mm/,'Internal diameter follows the actual outside diameter and wall');
+  assert.equal((await sectionValue('area').innerText()).replace(/[^\d]/g,''),'402878','Known CHS area is 4028.78 mm² in every locale');
+  assert.match(await root.locator('[data-cinematic-context]').innerText(),/12 m · 3 /);
+  if(locale==='it'&&width===390) {
+   const customLength=root.locator('[data-cockpit-length-quantity] > div:first-child input');
+   await customLength.fill('12.345');await root.locator('#tube-calculator-quantity').fill('2.5');
+   assert.match(await root.locator('[data-cinematic-context]').innerText(),/12,345 m · 2,5 /,'Visible context must not round away valid input precision');
+   await customLength.fill('12');await root.locator('#tube-calculator-quantity').fill('3');
+  }
   const [left,stage,right]=await Promise.all(['[data-cockpit-fields]','[data-cinematic-stage]','[data-cockpit-results]'].map(s=>root.locator(s).boundingBox()));
   assert.ok(left&&stage&&right);
   const containerWidth=await root.evaluate(e=>e.parentElement.clientWidth);
@@ -71,11 +82,15 @@ try {
   }
   await root.locator('[data-cockpit-add]').click();
   await shape.selectOption('square_tube');await fields.nth(0).fill('120');await fields.nth(1).fill('6.3');
+  assert.equal(await sectionValue('inner').count(),0,'CHS internal diameter is not presented for square sections');
+  assert.match(await sectionValue('outer').innerText(),/120\s*mm/);
   await assertProductPhoto('square');
   if(locale==='it')await root.screenshot({path:`${output}/${locale}-${width}-square.png`});
   assert.match(await root.locator('[data-cinematic-stage] svg[role="img"]').getAttribute('aria-label'),/120/);
   await root.locator('[data-cockpit-add]').click();
   await shape.selectOption('rectangular_tube');await fields.nth(0).fill('140');await fields.nth(1).fill('80');await fields.nth(2).fill('5');
+  assert.match(await sectionValue('outer').innerText(),/140 × 80\s*mm/);
+  assert.equal((await sectionValue('area').innerText()).replace(/[^\d]/g,''),'203562','RHS area uses normative corner radii');
   await assertProductPhoto('rectangular');
   if(locale==='it')await root.screenshot({path:`${output}/${locale}-${width}-rectangular.png`});
   assert.match(await root.locator('[data-cinematic-stage] svg[role="img"]').getAttribute('aria-label'),/140/);
@@ -98,6 +113,7 @@ try {
   await fields.nth(0).fill('1');
   assert.equal(await root.locator('[data-cinematic-stage] svg').count(),0);
   assert.equal(await root.locator('[data-cinematic-product]').count(),0,'Invalid geometry suppresses illustrative product as well');
+  for(const fact of await root.locator('[data-section-value]').all())assert.match(await fact.innerText(),/^—/,'Invalid geometry must not present plausible result facts');
   assert.equal(await root.locator('[data-cockpit-add]').isDisabled(),true);
   await fields.nth(0).fill('140');
   const standard=root.locator('[data-cockpit-controls] select').first();
