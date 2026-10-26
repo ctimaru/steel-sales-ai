@@ -67,7 +67,7 @@ test("CALC-UX4: pricing controls are fully translated and source of truth follow
 });
 
 test("CALC-UX4: pricing is only inside EU result preview; not in RFQ, clipboard, analytics, storage or URL",()=>{
-  assert.match(calculator,/CalculatorCommercialPricing weightKgM=\{values.error \? null : values.kgM\} locale=\{locale\}/);
+  assert.match(calculator,/<CalculatorCommercialPricing weightKgM=\{values.error \? null : values.kgM\} locale=\{locale\}/);
   assert.match(calculator,/closest\("\[data-commercial-price\]"\)/);
   assert.match(calculator,/onChangeCapture/);
   assert.doesNotMatch(ui,/fetch\(|localStorage|sessionStorage|URLSearchParams|trackProductEvent|trackInternationalRfq|calculatorRfqFromValues|navigator.clipboard|onAddToDistinta/);
@@ -80,7 +80,7 @@ test("CALC-UX4: compact accessible selectors replace redundant assist", () => {
   assert.doesNotMatch(calculator, /group\/assist|commercialSuggestionLabel/);
   assert.match(calculator, /<CalculatorDimensionDiscovery/);
   assert.match(calculator, /<select aria-label=\{t\("Norma"\)\} value=\{standard\}/);
-  assert.match(calculator, /<select aria-label=\{t\("Sagoma"\)\} value=\{family\}/);
+  assert.match(calculator, /data-calc-shape-buttons/);
   assert.match(calculator, /focus-visible:ring-2/);
   assert.match(calculator, /aria-label=\{t\("Lunghezza barra personalizzata"\)\}/);
 });

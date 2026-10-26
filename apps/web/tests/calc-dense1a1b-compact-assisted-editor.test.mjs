@@ -25,7 +25,7 @@ test("DENSE1A: compact editor and responsive result preserve core controls", () 
     "tube-calculator-result",
     "mt-2 grid grid-cols-3 gap-1.5",
     "onAddToDistinta(item)",
-    "<details open={targetDisclosureOpen} onToggle=",
+    "data-commercial-targets",
     "setThicknessTouched(true)",
   ]) assert.ok(calculator.includes(marker), marker);
   assert.ok(pricing.includes("<details data-commercial-price"));

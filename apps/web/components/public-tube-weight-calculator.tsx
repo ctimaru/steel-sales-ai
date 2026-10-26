@@ -464,6 +464,13 @@ export function PublicTubeWeightCalculator({
   const t = (text: string) => tubeCalculatorText(text, locale);
   const inlineCopy = localizedInlineBill(locale);
   const cine = calculatorCinematicCopy[locale];
+  const commercialLabels = {
+    it: {heading:"Obiettivo della richiesta",price:"Prezzo €",metres:"Modifica barre e lunghezza a sinistra."},
+    en: {heading:"Request target",price:"Price €",metres:"Edit bars and length on the left."},
+    de: {heading:"Anfrageziel",price:"Preis €",metres:"Stäbe und Länge links anpassen."},
+    fr: {heading:"Objectif de la demande",price:"Prix €",metres:"Modifiez les barres et la longueur à gauche."},
+    es: {heading:"Objetivo de la solicitud",price:"Precio €",metres:"Modifica las barras y la longitud a la izquierda."},
+  }[locale];
   const formatOutput = (value: number, digits = 3) => formatNumber(value, digits, locale);
   const initialStandard = initialValues?.standard ?? "en10219";
   const [standard, setStandard] = useState<StandardValue>(initialStandard);
@@ -478,7 +485,7 @@ export function PublicTubeWeightCalculator({
   const [length, setLength] = useState(initialValues?.length ?? "12");
   const [quantity, setQuantity] = useState(initialValues?.quantity ?? "1");
   const [targetTonnes, setTargetTonnes] = useState(initialValues?.targetTonnes ?? "");
-  const [targetDisclosureOpen, setTargetDisclosureOpen] = useState(Boolean(initialValues?.targetTonnes?.trim()));
+  const [commercialTargetMode, setCommercialTargetMode] = useState<"metres" | "tonnes" | "price">(initialValues?.targetTonnes?.trim() ? "tonnes" : "metres");
   const [density, setDensity] = useState(initialValues?.density ?? "7850");
   // These stateful device conveniences remain available in the collapsed panel
   // BELOW the calculator, independently of the removed language controls.
@@ -1062,11 +1069,23 @@ export function PublicTubeWeightCalculator({
                     {standardOptions.map((option) => <option key={option.value} value={option.value}>{t(option.label)}</option>)}
                   </select>
                 </label>
-                <label className="min-w-[150px] flex-1 text-[10px] font-bold uppercase tracking-wide text-[#52615b] sm:max-w-[210px]">{!inEmbeddedBuilder ? <span aria-hidden="true" className={cinematic.step}>2</span> : null}{t("Sagoma")}
-                  <select aria-label={t("Sagoma")} value={family} onChange={(event) => setFamily(event.target.value as TubeFamily)} className="mt-1 h-11 sm:h-10 w-full rounded-lg border border-[#cfdfd6] bg-white px-2.5 text-xs font-semibold text-[#173f34]">
-                    {familyOptions.map((option) => <option key={option.value} value={option.value}>{t(option.short)}</option>)}
-                  </select>
-                </label>
+                <div role="group" aria-label={t("Sagoma")} className="min-w-0 flex-[2]">
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-white/85">{!inEmbeddedBuilder ? <span aria-hidden="true" className={cinematic.step}>2</span> : null}{t("Sagoma")}</p>
+                  <div className="mt-1 grid grid-cols-3 gap-1.5" data-calc-shape-buttons>
+                    {familyOptions.map((option) => (
+                      <button key={option.value} type="button" aria-pressed={family === option.value}
+                        onClick={() => setFamily(option.value as TubeFamily)}
+                        className="flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-lg border border-[#356b53] bg-[#0b3023] px-1.5 py-2 text-[11px] font-semibold text-[#d8f9e8] transition-colors hover:bg-[#18503a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#75f4bd] aria-pressed:border-[#65f0b4] aria-pressed:bg-[#216c4b] aria-pressed:text-white">
+                        <svg aria-hidden="true" viewBox="0 0 28 28" className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.8">
+                          {option.value === "round_tube" ? <circle cx="14" cy="14" r="10" /> :
+                            option.value === "square_tube" ? <rect x="4" y="4" width="20" height="20" rx="1" /> :
+                            <rect x="2" y="7" width="24" height="14" rx="1" />}
+                        </svg>
+                        <span className="truncate">{t(option.short)}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
 
           </div>
@@ -1200,40 +1219,6 @@ export function PublicTubeWeightCalculator({
                       </div>
                     </div>
                   </div>
-
-                  <details open={targetDisclosureOpen} onToggle={(event) => setTargetDisclosureOpen(event.currentTarget.open)} className="group/tonnes mt-2 rounded-lg border border-[#bed3cb] bg-[#edf5f2] px-2.5 py-1.5">
-                    <summary className="flex min-h-11 cursor-pointer items-center justify-between text-[11px] font-semibold text-[#1f5a43] sm:min-h-9 focus-visible:outline-2 focus-visible:outline-[#15815a]">
-                      {t("Parti dalle tonnellate · Tonnellate target")} <span aria-hidden="true" className="transition-transform group-open/tonnes:rotate-180">⌄</span>
-                    </summary>
-                    <div className="border-t border-[#bed3cb] pt-2">
-                    <div className="grid grid-cols-1 items-end gap-2 sm:grid-cols-[1fr_auto]">
-                      <label className="text-[10px] font-bold text-[#52615b]">
-                        {t("Parti dalle tonnellate · Tonnellate target")}
-                        <input
-                          value={targetTonnes}
-                          onChange={(event) => setTargetTonnes(event.target.value)}
-                          inputMode="decimal"
-                          placeholder={t("es. 25")}
-                          className={inputClass}
-                        />
-                      </label>
-                      <button
-                        type="button"
-                        disabled={values.targetBars == null}
-                        onClick={() => {
-                          if (values.targetBars != null) setQuantity(String(values.targetBars));
-                        }}
-                        className="school-primary-action min-h-11 w-full px-3 py-2 text-xs transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#15815a] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-                      >
-                        {t("Usa barre suggerite")}
-                      </button>
-                    </div>
-                    <p className="sr-only">
-                      {t("Barre necessarie")}: {values.targetBars ?? "—"}. {t("Tonnellate reali")}: {values.targetActualTonnes ?? "—"}.
-                      {t("Per lavorare con barre intere arrotondiamo sempre per eccesso.")}
-                    </p>
-                    </div>
-                  </details>
 
                   {values.error ? (
                     <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-800">
@@ -1371,8 +1356,39 @@ export function PublicTubeWeightCalculator({
                 {sectionFacts.map(fact => <div key={fact.key}><dt>{fact.label}</dt>
                   <dd data-section-value={fact.key}>{fact.value}<small> {fact.unit}</small></dd></div>)}
               </dl> : null}
-              <CalculatorCommercialPricing weightKgM={values.error ? null : values.kgM} locale={locale}
-                onChooseBuyerTarget={onChooseBuyerTarget} />
+              <section data-commercial-targets className="mt-3 rounded-xl border border-[#386c52] bg-[#0a2f23] p-2.5">
+                <p className="mb-2 text-xs font-bold text-[#dff9eb]">{commercialLabels.heading}</p>
+                <div role="group" aria-label={commercialLabels.heading} className="grid grid-cols-3 gap-1.5">
+                  {(["metres", "tonnes", "price"] as const).map((mode) => (
+                    <button key={mode} type="button" aria-pressed={commercialTargetMode === mode}
+                      onClick={() => setCommercialTargetMode(mode)}
+                      className="min-h-10 rounded-lg border border-[#416a56] px-1 text-[11px] font-semibold text-[#e1f5e9] aria-pressed:border-[#54e8a5] aria-pressed:bg-[#246c4c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#75f4bd]">
+                      {mode === "metres" ? t("Metri totali") : mode === "tonnes" ? t("Parti dalle tonnellate · Tonnellate target") : commercialLabels.price}
+                    </button>
+                  ))}
+                </div>
+                {commercialTargetMode === "metres" ? (
+                  <p className="mt-2 text-[11px] leading-5 text-[#cee5d8]"> {t("Metri totali")}: <strong>{values.totalMeters == null ? "—" : formatOutput(values.totalMeters, 2)} m</strong>. {t("Numero barre")}: <strong>{quantity}</strong>. {commercialLabels.metres}</p>
+                ) : null}
+                {commercialTargetMode === "tonnes" ? (
+                  <div className="mt-2" data-commercial-tonnes>
+                    <label className="block text-[11px] font-semibold text-[#d9f6e6]">{t("Parti dalle tonnellate · Tonnellate target")}
+                      <input value={targetTonnes} onChange={(event) => setTargetTonnes(event.target.value)}
+                        inputMode="decimal" placeholder={t("es. 25")} className={inputClass} />
+                    </label>
+                    <p className="mt-2 text-xs text-[#d9f6e6]">{t("Barre necessarie")}: <strong>{values.targetBars ?? "—"}</strong> · {t("Tonnellate reali")}: <strong>{values.targetActualTonnes == null ? "—" : formatOutput(values.targetActualTonnes, 4)} t</strong></p>
+                    <button type="button" disabled={values.targetBars == null}
+                      onClick={() => { if (values.targetBars != null) setQuantity(String(values.targetBars)); }}
+                      className="mt-2 min-h-11 w-full rounded-lg bg-[#30dda0] px-3 text-xs font-bold text-[#063022] disabled:opacity-50">
+                      {t("Usa barre suggerite")}
+                    </button>
+                    <p className="mt-1 text-[10px] text-[#c1decc]">{t("Per lavorare con barre intere arrotondiamo sempre per eccesso.")}</p>
+                  </div>
+                ) : null}
+                {commercialTargetMode === "price" ? (
+                  <div className="mt-2"><CalculatorCommercialPricing weightKgM={values.error ? null : values.kgM} locale={locale} onChooseBuyerTarget={onChooseBuyerTarget} /></div>
+                ) : null}
+              </section>
 
               {values.targetBars != null ? (
                 <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs">

@@ -25,9 +25,9 @@ try {
   const consent=page.getByTestId('mobile-cookie-consent');
   if(await consent.isVisible())await consent.locator('button').nth(1).click();
   assert.equal(await root.getAttribute('data-calc-cine1a'),'true');
-  const shape=root.locator('[data-cockpit-controls] select').nth(1);
+  const shape=family=>root.locator(`[data-calc-shape-buttons] button`).nth(family==='round_tube'?0:family==='square_tube'?1:2);
   const fields=root.locator('[data-cockpit-measurements] input');
-  await shape.selectOption('round_tube');
+  await shape('round_tube').click();
   await fields.nth(0).fill('168.3');await fields.nth(1).fill('8');
   await root.locator('#tube-calculator-quantity').fill('3');
   const mass=root.locator('[data-cockpit-results] [aria-live="polite"].metric-number');
@@ -91,14 +91,14 @@ try {
    assert.deepEqual(result.violations.filter(v=>['serious','critical'].includes(v.impact)).map(v=>({id:v.id,targets:v.nodes.map(n=>n.target)})),[]);
   }
   await root.locator('[data-cockpit-add]').click();
-  await shape.selectOption('square_tube');await fields.nth(0).fill('120');await fields.nth(1).fill('6.3');
+  await shape('square_tube').click();await fields.nth(0).fill('120');await fields.nth(1).fill('6.3');
   assert.equal(await sectionValue('inner').count(),0,'CHS internal diameter is not presented for square sections');
   assert.match(await sectionValue('outer').innerText(),/120\s*mm/);
   await assertProductPhoto('square');
   if(locale==='it')await root.screenshot({path:`${output}/${locale}-${width}-square.png`});
   assert.match(await root.locator('[data-cinematic-stage] svg[role="img"]').getAttribute('aria-label'),/120/);
   await root.locator('[data-cockpit-add]').click();
-  await shape.selectOption('rectangular_tube');await fields.nth(0).fill('140');await fields.nth(1).fill('80');await fields.nth(2).fill('5');
+  await shape('rectangular_tube').click();await fields.nth(0).fill('140');await fields.nth(1).fill('80');await fields.nth(2).fill('5');
   assert.match(await sectionValue('outer').innerText(),/140 × 80\s*mm/);
   assert.equal((await sectionValue('area').innerText()).replace(/[^\d]/g,''),'203562','RHS area uses normative corner radii');
   await assertProductPhoto('rectangular');
@@ -106,6 +106,19 @@ try {
   assert.match(await root.locator('[data-cinematic-stage] svg[role="img"]').getAttribute('aria-label'),/140/);
   await root.locator('[data-cockpit-add]').click();
   if(locale==='it' && width===1440) {
+   const targets=root.locator('[data-commercial-targets]');
+   assert.equal(await targets.locator('button').count(),3,'Three commercial modes');
+   assert.equal(await targets.locator('button').first().getAttribute('aria-pressed'),'true','Metres default');
+   await targets.locator('button').nth(1).click();
+   await root.locator('[data-commercial-tonnes] input').fill('1');
+   const suggestion=Number((await root.locator('[data-commercial-tonnes] strong').first().innerText()).trim());
+   assert.ok(suggestion>=1,'Tonnage produces rounded-up whole bars');
+   await root.locator('[data-commercial-tonnes] button').click();
+   assert.equal(await root.locator('#tube-calculator-quantity').inputValue(),String(suggestion),'Suggested bars reuse canonical quantity state');
+   await root.locator('#tube-calculator-quantity').fill('3');
+   await targets.locator('button').nth(2).click();
+   assert.equal(await targets.locator('button').nth(2).getAttribute('aria-pressed'),'true','Price selected');
+
    await root.locator('[data-commercial-price] summary').click();
    await root.locator('[data-commercial-price] input').first().fill('850');
   }

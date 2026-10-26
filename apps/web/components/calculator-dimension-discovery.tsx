@@ -145,7 +145,7 @@ export function CalculatorDimensionDiscovery({
           aria-describedby={resultsId+"-hint"}
           className="min-h-11 w-full min-w-0 rounded-lg border border-[#b8d6c8] bg-white px-3 text-sm text-[#173e30] outline-none focus-visible:ring-2 focus-visible:ring-[#1f6b5a] sm:min-h-10"/>
       </label>
-      <details className={compact ? "group/filter relative min-w-0 shrink-0" : "group/filter w-full shrink-0 sm:w-auto"}>
+      {!compact ? <details className={compact ? "group/filter relative min-w-0 shrink-0" : "group/filter w-full shrink-0 sm:w-auto"}>
         <summary className={compact ? "flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-[#b8d6c8] bg-white px-2 text-[11px] font-semibold text-[#23513e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#16714c]" : "flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-[#b8d6c8] bg-white px-3 text-xs font-semibold text-[#23513e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#16714c] sm:min-h-10"}>
           {c.filters}{activeFilters ? " · 1+" : ""}<span aria-hidden="true" className="transition-transform group-open/filter:rotate-180">⌄</span>
         </summary>
@@ -169,7 +169,7 @@ export function CalculatorDimensionDiscovery({
             </select>
           </label>
         </div>
-      </details>
+      </details> : null}
     </div>
     <span id={resultsId+"-hint"} className="sr-only">{c.enterHint}</span>
     {showResults ? <div data-dense-discovery-popover className={compact ? "absolute left-0 top-[calc(100%+6px)] z-[70] w-[min(410px,calc(100vw-24px))] max-w-[calc(100vw-24px)] rounded-xl border border-[#bad6c5] bg-white p-1.5 shadow-[0_16px_36px_rgba(12,42,29,.2)]" : "mt-1.5 rounded-lg border border-[#d0e2d7] bg-white p-2"}>

@@ -45,7 +45,7 @@ test("WC2 keeps the SVG accessible and responsive", () => {
 });
 
 test("WC2 preserves accessible shape selection and keyboard native focus", () => {
-  assert.match(calculator, /<select aria-label=\{t\("Sagoma"\)\} value=\{family\}/);
-  assert.match(calculator, /setFamily\(event.target.value as TubeFamily\)/);
+  assert.match(calculator, /data-calc-shape-buttons/);
+  assert.match(calculator, /setFamily\(option.value as TubeFamily\)/);
   assert.match(calculator, /focus-visible:ring-2/);
 });

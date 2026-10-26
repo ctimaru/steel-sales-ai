@@ -125,11 +125,11 @@ try {
           (focus.shadow !== "none" && focus.shadow.length > 5),
           tag + ": no visible keyboard focus indicator");
         // Verify the actual shared shape state through native selection.
-        const shape = calc.locator('select').filter({ has: page.locator('option[value="round_tube"]') }).first();
-        await shape.selectOption("square_tube");
-        assert.equal(await shape.inputValue(), "square_tube");
-        await shape.selectOption("round_tube");
-        assert.equal(await shape.inputValue(), "round_tube");
+        const shapes = calc.locator('[data-calc-shape-buttons] button');
+        await shapes.nth(1).click();
+        assert.equal(await shapes.nth(1).getAttribute('aria-pressed'), "true");
+        await shapes.nth(0).click();
+        assert.equal(await shapes.nth(0).getAttribute('aria-pressed'), "true");
         assert.ok(await calc.locator(".tube-calculator-rfq-link").isEnabled(),
           tag + ": theoretical RFQ handoff disappeared");
 
