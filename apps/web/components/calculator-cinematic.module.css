@@ -103,7 +103,7 @@
   .root [data-cockpit-kpis] > div > p:nth-of-type(2) { white-space:nowrap; font-size:16px; }
 }
 @container steel-calculator (max-width:399px) {
-  .root [data-cockpit-header] { padding:12px; }
+  .root [data-cockpit-header] { padding:12px; flex-wrap:wrap; }
   .root [data-cockpit-header] h1,.root [data-cockpit-header] h2 { font-size:19px; }
   .description { font-size:11px; }
   .root [data-cockpit-toolbar] { padding:10px; }
