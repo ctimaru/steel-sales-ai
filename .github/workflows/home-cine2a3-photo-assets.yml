@@ -1,0 +1,43 @@
+name: HOME-CINE2A.3 Photo Asset Build
+on:
+  push:
+    branches:
+      - feat/home-cine2a3-five-photographic-tools
+    paths:
+      - .github/workflows/home-cine2a3-photo-assets.yml
+      - apps/web/scripts/build-home-cine2a3-atlas.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: home-cine2a3-asset-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  photo-asset:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Generate curated local photo-only atlas
+        run: |
+          python -m pip install --disable-pip-version-check Pillow==11.3.0
+          python apps/web/scripts/build-home-cine2a3-atlas.py
+      - name: Commit photo-only WebP to the feature branch
+        run: |
+          set -euo pipefail
+          git add apps/web/public/home-cine2a3-five-photo-atlas.webp
+          if git diff --cached --quiet; then
+            echo "Image unchanged; nothing to commit"
+            exit 0
+          fi
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -m "asset(home-cine2a3): five licensed steel-industry photos in one local WebP"
+          git push origin "HEAD:$GITHUB_REF_NAME"
