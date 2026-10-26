@@ -106,7 +106,19 @@ try {
   assert.match(await root.locator('[data-cinematic-stage] svg[role="img"]').getAttribute('aria-label'),/140/);
   await root.locator('[data-cockpit-add]').click();
   if(locale==='it' && width===1440) {
-   await root.locator('[data-commercial-targets] button').nth(2).click();
+   const targets=root.locator('[data-commercial-targets]');
+   assert.equal(await targets.locator('button').count(),3,'Three commercial modes');
+   assert.equal(await targets.locator('button').first().getAttribute('aria-pressed'),'true','Metres default');
+   await targets.locator('button').nth(1).click();
+   await root.locator('[data-commercial-tonnes] input').fill('1');
+   const suggestion=Number((await root.locator('[data-commercial-tonnes] strong').first().innerText()).trim());
+   assert.ok(suggestion>=1,'Tonnage produces rounded-up whole bars');
+   await root.locator('[data-commercial-tonnes] button').click();
+   assert.equal(await root.locator('#tube-calculator-quantity').inputValue(),String(suggestion),'Suggested bars reuse canonical quantity state');
+   await root.locator('#tube-calculator-quantity').fill('3');
+   await targets.locator('button').nth(2).click();
+   assert.equal(await targets.locator('button').nth(2).getAttribute('aria-pressed'),'true','Price selected');
+
    await root.locator('[data-commercial-price] summary').click();
    await root.locator('[data-commercial-price] input').first().fill('850');
   }
