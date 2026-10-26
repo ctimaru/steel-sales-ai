@@ -80,7 +80,7 @@ test("CALC-UX4: compact accessible selectors replace redundant assist", () => {
   assert.doesNotMatch(calculator, /group\/assist|commercialSuggestionLabel/);
   assert.match(calculator, /<CalculatorDimensionDiscovery/);
   assert.match(calculator, /<select aria-label=\{t\("Norma"\)\} value=\{standard\}/);
-  assert.match(calculator, /<select aria-label=\{t\("Sagoma"\)\} value=\{family\}/);
+  assert.match(calculator, /data-calc-shape-buttons/);
   assert.match(calculator, /focus-visible:ring-2/);
   assert.match(calculator, /aria-label=\{t\("Lunghezza barra personalizzata"\)\}/);
 });
