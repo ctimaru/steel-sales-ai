@@ -1347,15 +1347,6 @@ export function PublicTubeWeightCalculator({
                   : "Gratuito · nessun login richiesto. Il grado acciaio resta da confermare.")}
               </p>
 
-              {!inEmbeddedBuilder ? <button type="button" onClick={copyCurrentResult}
-                disabled={!currentSnapshot} className={cinematic.copy} data-cinematic-copy>
-                <svg aria-hidden="true" className={cinematic.actionIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="8" y="8" width="12" height="13" rx="2" /><path d="M16 8V3H4v13h4" strokeLinejoin="round" /></svg>
-                {cine.copy}
-              </button> : null}
-              {!inEmbeddedBuilder ? <dl className={cinematic.geometry} data-cinematic-geometry>
-                {sectionFacts.map(fact => <div key={fact.key}><dt>{fact.label}</dt>
-                  <dd data-section-value={fact.key}>{fact.value}<small> {fact.unit}</small></dd></div>)}
-              </dl> : null}
               <section data-commercial-targets className="mt-3 rounded-xl border border-[#4b9774] bg-[#0a2f23] p-3 shadow-[inset_0_1px_0_rgba(159,255,209,0.07)]">
                 <p className="mb-2 text-xs font-bold text-[#dff9eb]">{commercialLabels.heading}</p>
                 <div role="group" aria-label={commercialLabels.heading} className="grid grid-cols-3 gap-1.5">
@@ -1389,6 +1380,17 @@ export function PublicTubeWeightCalculator({
                   <div className="mt-2"><CalculatorCommercialPricing weightKgM={values.error ? null : values.kgM} locale={locale} onChooseBuyerTarget={onChooseBuyerTarget} /></div>
                 ) : null}
               </section>
+
+
+              {!inEmbeddedBuilder ? <button type="button" onClick={copyCurrentResult}
+                disabled={!currentSnapshot} className={cinematic.copy} data-cinematic-copy>
+                <svg aria-hidden="true" className={cinematic.actionIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="8" y="8" width="12" height="13" rx="2" /><path d="M16 8V3H4v13h4" strokeLinejoin="round" /></svg>
+                {cine.copy}
+              </button> : null}
+              {!inEmbeddedBuilder ? <dl className={cinematic.geometry} data-cinematic-geometry>
+                {sectionFacts.map(fact => <div key={fact.key}><dt>{fact.label}</dt>
+                  <dd data-section-value={fact.key}>{fact.value}<small> {fact.unit}</small></dd></div>)}
+              </dl> : null}
 
               {values.targetBars != null ? (
                 <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs">
