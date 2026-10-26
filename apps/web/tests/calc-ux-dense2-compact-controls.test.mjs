@@ -7,7 +7,7 @@ const calculator = readFileSync(new URL("../components/public-tube-weight-calcul
 test("CALC-UX DENSE2 groups standard and shape without changing state handlers", () => {
   assert.match(calculator, /<select aria-label=\{t\("Norma"\)\} value=\{standard\}/);
   assert.match(calculator, /handleStandardChange\(event\.target\.value as StandardValue\)/);
-  assert.match(calculator, /<select aria-label=\{t\("Sagoma"\)\} value=\{family\}/);
+  assert.match(calculator, /data-calc-shape-buttons/);
   assert.match(calculator, /setFamily\(option\.value as TubeFamily\)/);
 });
 
