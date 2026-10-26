@@ -15,6 +15,8 @@ on:
       - "apps/web/components/public-registration-trust.tsx"
       - "apps/web/components/google-analytics-consent.tsx"
       - "apps/web/tests/home-si5-*"
+      - "apps/web/components/home-floating-tools*"
+      - "apps/web/tests/home-calc-float*"
       - "apps/web/components/deferred-public-company-lookup.tsx"
       - "apps/web/tests/perf2-1-*"
       - "apps/web/tests/school-growth1e-*"
@@ -127,6 +129,16 @@ jobs:
         run: node tests/school-unify1-chrome-five-hubs.mjs
       - name: SCHOOL-GROWTH1E Chrome Scuola SEO / contrast / images (mobile and desktop)
         run: node tests/school-growth1e-chrome-acceptance.mjs
+      - name: HOME-CALC-FLOAT1B bilingual floating tools functional acceptance
+        run: node tests/home-calc-float1b-chrome-acceptance.mjs
+      - name: Upload HOME-CALC-FLOAT1B real tool screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: home-calc-float1b-acceptance
+          path: /tmp/home-calc-float1b
+          if-no-files-found: error
+          retention-days: 7
       - name: Chrome keyboard / no-JS / lazy lookup / consent acceptance
         run: node tests/perf2-1-chrome-mobile.mjs
       - name: CALC-UX3 Chrome IT/EN 320–1440px contrast / focus / touch QA

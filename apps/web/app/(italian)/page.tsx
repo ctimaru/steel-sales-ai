@@ -1,5 +1,6 @@
 import { PublicHomeHeader } from "@/components/public-home-header";
 import { PublicCinematicHero } from "@/components/public-cinematic-hero";
+import { HomeFloatingTools } from "@/components/home-floating-tools";
 import { PublicSteelGeometryProof } from "@/components/public-steel-geometry-proof";
 import cineStyles from "@/components/public-cinematic-continuity.module.css";
 import type { Metadata } from "next";
@@ -95,6 +96,8 @@ export default function PublicHomePage() {
       <PublicHomeHeader locale="it" />
 
       <PublicCinematicHero locale="it" />
+
+      <HomeFloatingTools locale="it" />
 
       <PublicNetworkRoleExplorer />
 
