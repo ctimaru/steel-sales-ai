@@ -28,7 +28,7 @@ try {
     assert.ok(fieldsBox.y>=toolbarBox.y+toolbarBox.height-3,"Toolbar first");
     if(width===320) {
       const norm=root.locator('[data-cockpit-controls] select[aria-label="Norma"]');
-      const shape=root.locator('[data-cockpit-controls] select[aria-label="Sagoma"]');
+      const shape=root.locator('[data-calc-shape-buttons]');
       const boxes=await Promise.all([norm.boundingBox(),shape.boundingBox()]);
       assert.ok(boxes.every(Boolean),"Compact norm and shape selectors must render at 320px");
       assert.ok(boxes.every(box=>box.width>=100&&box.height>=44),
