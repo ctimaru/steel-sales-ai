@@ -583,3 +583,17 @@
       linear-gradient(118deg, #061310 16%, #0c241d 68%, #061310 100%);
   }
 }
+
+
+/* HOME-CINE2A.2B.1 — A 320px first visit must keep the real calculator action
+   above the fixed, legally required consent choices. Only reorder existing
+   semantic content; do not suppress consent, shorten disclosures or add JS. */
+@media (max-width: 359px) {
+  .copy { display: flex; flex-direction: column; align-items: stretch; }
+  .eyebrow { order: 0; }
+  .title { order: 1; margin-top: 15px; font-size: 2.3rem; line-height: 1.06; }
+  .actions { order: 2; margin-top: 15px; }
+  .description { order: 3; margin-top: 16px; }
+  .caveat { order: 4; }
+  .quickLinks { order: 5; }
+}
