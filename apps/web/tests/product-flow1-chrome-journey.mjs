@@ -245,6 +245,8 @@ try {
     for (const [index, person] of [producer, trader].entries()) {
       await step(person.id + " anonymous isolated response and submit " + width, async () => {
         const guest = await context(width);
+        let releasePortalScripts = () => {};
+        let portalStage = "capability";
         try {
           const portal = await guest.newPage();
           const email = index === 0 ? "rfqh14-producer@example.test" : "rfqh14-trader@example.test";
@@ -266,7 +268,28 @@ try {
             assert.equal(Number(line.quantity), lineIndex === 0 ? 3 : 2, "Supplier API must preserve requested quantities");
             assert.equal(Number(line.bar_length_m), lineIndex === 0 ? 6 : 12, "Supplier API must preserve bar lengths");
           }
-          await visit(portal, invite.invitePath);
+          const prices = portal.locator('input[placeholder="es. 760"]');
+          portalStage = "navigation";
+          if (width === 390 && index === 1) {
+            // Hold real Next chunks: a supplier arriving before hydration must
+            // not be able to enter a price that React will silently discard.
+            const gate = new Promise(resolve => { releasePortalScripts = resolve; });
+            await portal.route(origin + "/_next/**/*.js*", async route => {
+              await gate;
+              await route.continue();
+            });
+            const response = await portal.goto(origin + invite.invitePath, { waitUntil: "commit", timeout: 90000 });
+            assert.ok(response && response.status() < 500, "Cold supplier page must render");
+            await prices.first().waitFor({state:"visible"});
+            portalStage = "cold-input-protection";
+            await prices.first().focus();
+            await portal.keyboard.type("999");
+            assert.equal(await prices.first().inputValue(), "", "Unhydrated supplier price must not accept input");
+            releasePortalScripts();
+          } else {
+            await visit(portal, invite.invitePath);
+          }
+          await portal.locator('[data-supplier-response-ready="true"]').waitFor({state:"visible",timeout:60000});
           await portal.getByRole("heading", { name: title, exact: true }).waitFor({ timeout: 60000 });
           const body = await portal.locator("body").innerText();
           assert.match(body, /EN 10219/);
@@ -276,16 +299,23 @@ try {
           assert.ok(!body.includes(index === 0 ? trader.name : producer.name), "Competing supplier identity must remain private");
           assert.ok(!/\b900\b/.test(body), "Private buyer target must not reach supplier");
           if (index === 1) assert.ok(!/\b735\b|\b755\b/.test(body), "Competing supplier prices must remain private");
-          const prices = portal.locator('input[placeholder="es. 760"]');
+          portalStage = "fill-prices";
           assert.equal(await prices.count(), 2, "Supplier must receive both original lines");
           await prices.nth(0).fill(index === 0 ? "735" : "760");
           await prices.nth(1).fill(index === 0 ? "755" : "780");
+          assert.equal(await prices.nth(0).inputValue(), index === 0 ? "735" : "760", "First supplier price survives editing the second row");
+          portalStage = "save-draft";
           await portal.getByRole("button", { name: "Salva bozza", exact: true }).click();
           await portal.getByText("Bozza salvata.", { exact: true }).waitFor({ timeout: 45000 });
+          portalStage = "submit-offer";
           await portal.getByRole("button", { name: "Invia offerta", exact: true }).click();
           await portal.getByText(/Offerta inviata al buyer|submitted/i).first().waitFor({ timeout: 45000 });
           await usable(portal);
-        } finally { await guest.close(); }
+        } catch (error) {
+          // Fixed phase only; never emit URLs, capabilities, form values or raw errors.
+          console.error("FLOW1 LOCAL PORTAL PHASE", person.id, width, portalStage);
+          throw error;
+        } finally { releasePortalScripts(); await guest.close(); }
       });
     }
     await step("buyer compares complete offers without losing request context " + width, async () => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 
 import {
   declineSupplierQuote,
@@ -130,6 +130,10 @@ export function RfqSupplierResponseForm({
   uploadUrl: string;
 }) {
   const router = useRouter();
+  // SSR fields must not accept edits before React owns the draft. Otherwise a
+  // price entered during a slow hydration can be replaced by initial state.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => { setHydrated(true); }, []);
   const quoteLineById = useMemo(
     () => new Map((quote?.lines ?? []).map((line) => [line.line_id, line])),
     [quote?.lines],
@@ -286,7 +290,8 @@ export function RfqSupplierResponseForm({
   }
 
   return (
-    <section className="rounded-3xl border border-[#cddbd6] bg-white">
+    <section className="rounded-3xl border border-[#cddbd6] bg-white"
+      inert={!hydrated} aria-busy={!hydrated} data-supplier-response-ready={hydrated ? "true" : "false"}>
       <div className="border-b border-[#e5ebe8] px-5 py-5 sm:px-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>

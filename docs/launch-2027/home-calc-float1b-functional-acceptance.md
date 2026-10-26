@@ -35,3 +35,20 @@ Production Next.js build and typecheck pass. All 483 existing frontend test file
 - CI/Preview status and Lighthouse samples are recorded in the PR after execution.
 - Authenticated private RFQ creation and live provider email are not exercised by this credential-free dock test. Same-origin browser cookies are neither replaced nor exported. Existing business-flow acceptance remains separate.
 - Preview review and integration of the parent PR #949 remain separate from this stacked change. No production deployment is performed by local acceptance.
+
+## Release follow-up: supplier draft readiness
+
+The final integration run failed at the mobile trader offer step. Its original
+sanitized log does not identify the exact substep. A controlled probe using the
+real supplier form independently reproduced lost input: with Next chunks held,
+typing 760 before hydration and then editing the second price after hydration
+left the first price empty. The corrected form rejects pre-hydration edits and
+retains 760/780 once ready. No server action or live capability was used by the
+local probe; its temporary route was removed.
+
+The supplier form now exposes readiness and remains inert until React owns its
+draft. FLOW1 awaits readiness for every supplier, delays real Next chunks for the
+mobile trader, attempts an early edit, then verifies retained prices and completes
+the actual local save/submit/comparison flow. Failures report a fixed phase label
+without URLs, capabilities, form values or raw Playwright errors. The existing
+supplier portal unit suite and typecheck pass; final CI evidence is in PR #949.
