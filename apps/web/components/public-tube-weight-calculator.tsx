@@ -464,6 +464,13 @@ export function PublicTubeWeightCalculator({
   const t = (text: string) => tubeCalculatorText(text, locale);
   const inlineCopy = localizedInlineBill(locale);
   const cine = calculatorCinematicCopy[locale];
+  const commercialLabels = {
+    it: {heading:"Obiettivo della richiesta",price:"Prezzo €",metres:"Modifica barre e lunghezza a sinistra."},
+    en: {heading:"Request target",price:"Price €",metres:"Edit bars and length on the left."},
+    de: {heading:"Anfrageziel",price:"Preis €",metres:"Stäbe und Länge links anpassen."},
+    fr: {heading:"Objectif de la demande",price:"Prix €",metres:"Modifiez les barres et la longueur à gauche."},
+    es: {heading:"Objetivo de la solicitud",price:"Precio €",metres:"Modifica las barras y la longitud a la izquierda."},
+  }[locale];
   const formatOutput = (value: number, digits = 3) => formatNumber(value, digits, locale);
   const initialStandard = initialValues?.standard ?? "en10219";
   const [standard, setStandard] = useState<StandardValue>(initialStandard);
@@ -1350,18 +1357,18 @@ export function PublicTubeWeightCalculator({
                   <dd data-section-value={fact.key}>{fact.value}<small> {fact.unit}</small></dd></div>)}
               </dl> : null}
               <section data-commercial-targets className="mt-3 rounded-xl border border-[#386c52] bg-[#0a2f23] p-2.5">
-                <p className="mb-2 text-xs font-bold text-[#dff9eb]">Obiettivo della richiesta</p>
-                <div role="group" aria-label="Obiettivo della richiesta" className="grid grid-cols-3 gap-1.5">
+                <p className="mb-2 text-xs font-bold text-[#dff9eb]">{commercialLabels.heading}</p>
+                <div role="group" aria-label={commercialLabels.heading} className="grid grid-cols-3 gap-1.5">
                   {(["metres", "tonnes", "price"] as const).map((mode) => (
                     <button key={mode} type="button" aria-pressed={commercialTargetMode === mode}
                       onClick={() => setCommercialTargetMode(mode)}
                       className="min-h-10 rounded-lg border border-[#416a56] px-1 text-[11px] font-semibold text-[#e1f5e9] aria-pressed:border-[#54e8a5] aria-pressed:bg-[#246c4c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#75f4bd]">
-                      {mode === "metres" ? t("Metri totali") : mode === "tonnes" ? t("Tonnellate target") : "Prezzo €"}
+                      {mode === "metres" ? t("Metri totali") : mode === "tonnes" ? t("Parti dalle tonnellate · Tonnellate target") : commercialLabels.price}
                     </button>
                   ))}
                 </div>
                 {commercialTargetMode === "metres" ? (
-                  <p className="mt-2 text-[11px] leading-5 text-[#cee5d8]"> {t("Metri totali")}: <strong>{values.totalMeters == null ? "—" : formatOutput(values.totalMeters, 2)} m</strong>. {t("Numero barre")}: <strong>{quantity}</strong>. Modifica barre e lunghezza a sinistra.</p>
+                  <p className="mt-2 text-[11px] leading-5 text-[#cee5d8]"> {t("Metri totali")}: <strong>{values.totalMeters == null ? "—" : formatOutput(values.totalMeters, 2)} m</strong>. {t("Numero barre")}: <strong>{quantity}</strong>. {commercialLabels.metres}</p>
                 ) : null}
                 {commercialTargetMode === "tonnes" ? (
                   <div className="mt-2" data-commercial-tonnes>
@@ -1379,7 +1386,7 @@ export function PublicTubeWeightCalculator({
                   </div>
                 ) : null}
                 {commercialTargetMode === "price" ? (
-                  <div className="mt-2">PRICE_COMPONENT</div>
+                  <div className="mt-2"><CalculatorCommercialPricing weightKgM={values.error ? null : values.kgM} locale={locale} onChooseBuyerTarget={onChooseBuyerTarget} /></div>
                 ) : null}
               </section>
 
