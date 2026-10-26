@@ -543,3 +543,24 @@ async def run_network_publisher(
         logging.getLogger(__name__).exception("Network publisher call failed")
         raise HTTPException(status_code=503, detail="Network publisher unavailable.") from exc
 
+
+class NetworkBulkQualificationRequest(BaseModel):
+    offset: int = Field(default=0, ge=0, le=1000000)
+    limit: int = Field(default=500, ge=1, le=1000)
+
+
+@app.post("/v1/network/bulk/qualification")
+async def network_bulk_qualification(
+    request: NetworkBulkQualificationRequest,
+    x_worker_token: Annotated[str | None, Header()] = None,
+) -> dict[str, object]:
+    """Read-only private 434+ lead qualification report; no publication."""
+    require_worker_token(x_worker_token)
+    from .network_bulk_qualification import fetch_bulk_qualification
+    try:
+        return await asyncio.to_thread(
+            fetch_bulk_qualification, offset=request.offset, limit=request.limit
+        )
+    except (RuntimeError, ValueError, httpx.HTTPError) as exc:
+        logging.getLogger(__name__).exception("Network bulk qualification failed")
+        raise HTTPException(status_code=503, detail="Network bulk qualification unavailable.") from exc
