@@ -465,11 +465,11 @@ export function PublicTubeWeightCalculator({
   const inlineCopy = localizedInlineBill(locale);
   const cine = calculatorCinematicCopy[locale];
   const commercialLabels = {
-    it: {heading:"Obiettivo della richiesta",price:"Prezzo €",metres:"Modifica barre e lunghezza a sinistra."},
-    en: {heading:"Request target",price:"Price €",metres:"Edit bars and length on the left."},
-    de: {heading:"Anfrageziel",price:"Preis €",metres:"Stäbe und Länge links anpassen."},
-    fr: {heading:"Objectif de la demande",price:"Prix €",metres:"Modifiez les barres et la longueur à gauche."},
-    es: {heading:"Objetivo de la solicitud",price:"Precio €",metres:"Modifica las barras y la longitud a la izquierda."},
+    it: {heading:"Obiettivo della richiesta",tonnes:"Tonnellate",price:"Prezzo €",metres:"Modifica barre e lunghezza a sinistra."},
+    en: {heading:"Request target",tonnes:"Tonnes",price:"Price €",metres:"Edit bars and length on the left."},
+    de: {heading:"Anfrageziel",tonnes:"Tonnen",price:"Preis €",metres:"Stäbe und Länge links anpassen."},
+    fr: {heading:"Objectif de la demande",tonnes:"Tonnes",price:"Prix €",metres:"Modifiez les barres et la longueur à gauche."},
+    es: {heading:"Objetivo de la solicitud",tonnes:"Toneladas",price:"Precio €",metres:"Modifica las barras y la longitud a la izquierda."},
   }[locale];
   const formatOutput = (value: number, digits = 3) => formatNumber(value, digits, locale);
   const initialStandard = initialValues?.standard ?? "en10219";
@@ -1362,8 +1362,8 @@ export function PublicTubeWeightCalculator({
                   {(["metres", "tonnes", "price"] as const).map((mode) => (
                     <button key={mode} type="button" aria-pressed={commercialTargetMode === mode}
                       onClick={() => setCommercialTargetMode(mode)}
-                      className="min-h-10 rounded-lg border border-[#416a56] px-1 text-[11px] font-semibold text-[#e1f5e9] aria-pressed:border-[#54e8a5] aria-pressed:bg-[#246c4c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#75f4bd]">
-                      {mode === "metres" ? t("Metri totali") : mode === "tonnes" ? t("Parti dalle tonnellate · Tonnellate target") : commercialLabels.price}
+                      className="min-h-11 min-w-0 rounded-lg border border-[#416a56] px-1 text-[11px] font-semibold text-[#e1f5e9] aria-pressed:border-[#54e8a5] aria-pressed:bg-[#246c4c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#75f4bd]">
+                      {mode === "metres" ? t("Metri totali") : mode === "tonnes" ? commercialLabels.tonnes : commercialLabels.price}
                     </button>
                   ))}
                 </div>
