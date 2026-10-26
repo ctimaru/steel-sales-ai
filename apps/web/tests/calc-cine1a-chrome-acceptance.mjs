@@ -25,7 +25,7 @@ try {
   const consent=page.getByTestId('mobile-cookie-consent');
   if(await consent.isVisible())await consent.locator('button').nth(1).click();
   assert.equal(await root.getAttribute('data-calc-cine1a'),'true');
-  const shape=family=>root.locator(`[data-calc-shape-buttons] button`).filter({has:root.locator('svg')}).nth(family==='round_tube'?0:family==='square_tube'?1:2);
+  const shape=family=>root.locator(`[data-calc-shape-buttons] button`).nth(family==='round_tube'?0:family==='square_tube'?1:2);
   const fields=root.locator('[data-cockpit-measurements] input');
   await shape('round_tube').click();
   await fields.nth(0).fill('168.3');await fields.nth(1).fill('8');
@@ -106,6 +106,7 @@ try {
   assert.match(await root.locator('[data-cinematic-stage] svg[role="img"]').getAttribute('aria-label'),/140/);
   await root.locator('[data-cockpit-add]').click();
   if(locale==='it' && width===1440) {
+   await root.locator('[data-commercial-targets] button').nth(2).click();
    await root.locator('[data-commercial-price] summary').click();
    await root.locator('[data-commercial-price] input').first().fill('850');
   }
