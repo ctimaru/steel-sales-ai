@@ -100,19 +100,16 @@
   .dock, .panel { scroll-behavior: auto; }
 }
 
-/* HOME-CINE2A.8G.1: hero CTAs already serve both tools in the first fold.
-   Hide the duplicate fixed dock only while a narrow viewport is on the hero. */
-@media (max-width: 700px) {
-  .dock[data-positioned="true"]:not([data-beyond-hero="true"]) {
-    visibility: hidden;
-    pointer-events: none;
-  }
-}
 
-/* An explicit state wins over the initial hidden rule when exiting hero. */
+/* HOME-CINE2A.8G.1: mobile tool dock is in normal document flow directly
+   AFTER the hero; it cannot overlay the hero, consent or a first-visit CTA. */
 @media (max-width: 700px) {
-  .dock[data-positioned="true"][data-beyond-hero="true"] {
-    visibility: visible;
-    pointer-events: auto;
+  .dock {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    margin: 12px auto;
+    max-width: calc(100vw - 24px);
   }
 }
