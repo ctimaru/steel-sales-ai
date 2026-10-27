@@ -86,15 +86,28 @@ export function RfqAiTextReview({
     setConfirmed((previous) => ({ ...previous, [candidate.candidateId]: false }));
   }
 
-  function applyQuickAnswer(candidate: RfqAiLineCandidate, field: "thicknessMm" | "lengthMm") {
+  function applyQuickAnswer(candidate: RfqAiLineCandidate, field: "thicknessMm" | "lengthMm" | "standard" | "grade" | "quantity" | "quantityUnit") {
     const response = (quickAnswers[candidate.candidateId] ?? "").trim();
+    if (field === "standard" || field === "quantityUnit" || field === "grade") {
+      const valid = field === "standard" ? ["EN 10219", "EN 10210"].includes(response) :
+        field === "quantityUnit" ? ["PZ", "M", "T"].includes(response) :
+        /^S(?:235|275|355|420|460)(?:JR|J0|J2|K2|NH|NL|MH|ML|H)?$/i.test(response);
+      if (!valid) {
+        setQuickErrors((old) => ({ ...old, [candidate.candidateId]: "Seleziona o inserisci un valore valido." }));
+        return;
+      }
+      change(candidate, { [field]: field === "grade" ? response.toUpperCase() : response });
+      setQuickAnswers((old) => ({ ...old, [candidate.candidateId]: "" }));
+      setQuickErrors((old) => ({ ...old, [candidate.candidateId]: "" }));
+      return;
+    }
     // Explicit decimal input only: never interpret incidental prose as a dimension.
     if (!/^(?:\d{1,4})(?:[.,]\d{1,3})?$/.test(response) || Number(response.replace(",", ".")) <= 0) {
       setQuickErrors((old) => ({ ...old, [candidate.candidateId]: "Indica un numero positivo in millimetri o metri (es. 5 oppure 6,5)." }));
       return;
     }
     const number = Number(response.replace(",", "."));
-    change(candidate, field === "lengthMm" ? { lengthMm: String(number * 1000) } : { thicknessMm: response });
+    change(candidate, field === "lengthMm" ? { lengthMm: String(number * 1000) } : field === "quantity" ? { quantity: response } : { thicknessMm: response });
     setLengthDisplay((old) => field === "lengthMm" ? ({ ...old, [candidate.candidateId]: response }) : old);
     setQuickAnswers((old) => ({ ...old, [candidate.candidateId]: "" }));
     setQuickErrors((old) => ({ ...old, [candidate.candidateId]: "" }));
@@ -138,9 +151,10 @@ export function RfqAiTextReview({
         const shape = shapeOf(source);
         const missingQuestions = missingFieldQuestions(source, shape);
         const absent = (value: unknown) => value === null || value === undefined || String(value).trim() === "";
-        const nextQuickField: "thicknessMm" | "lengthMm" | null =
+        const nextQuickField: "thicknessMm" | "lengthMm" | "standard" | "grade" | "quantity" | "quantityUnit" | null =
           shape !== "unknown" && absent(source.thicknessMm) ? "thicknessMm" :
-          shape !== "unknown" && absent(source.lengthMm) && /^(BARRE|PZ|PEZZI|PEZZO)$/i.test(String(source.quantityUnit ?? "")) ? "lengthMm" : null;
+          shape !== "unknown" && absent(source.lengthMm) && /^(BARRE|PZ|PEZZI|PEZZO)$/i.test(String(source.quantityUnit ?? "")) ? "lengthMm" :
+          absent(source.standard) ? "standard" : absent(source.grade) ? "grade" : absent(source.quantity) ? "quantity" : absent(source.quantityUnit) ? "quantityUnit" : null;
 
         const hasHardGeometryIssue = candidate.issues.some((issue) =>
           issue.code === "invalid_geometry" || issue.code === "ambiguous_geometry" ||
@@ -171,14 +185,24 @@ export function RfqAiTextReview({
               <div className="rounded-xl border border-[#b9d8c7] bg-[#f3faf6] p-3" data-rfqai-quick-reply>
                 <p className="text-xs font-semibold text-[#144e37]">Assistente · Completiamo un dato alla volta</p>
                 <label className="mt-2 block text-sm font-medium text-[#173f34]" htmlFor={`rfqai-reply-${candidate.candidateId}`}>
-                  {nextQuickField === "thicknessMm" ? "Qual è lo spessore in millimetri?" : "Qual è la lunghezza di ogni barra in metri?"}
+                  {nextQuickField === "thicknessMm" ? "Qual è lo spessore in millimetri?" : nextQuickField === "lengthMm" ? "Qual è la lunghezza di ogni barra in metri?" : nextQuickField === "standard" ? "Qual è la norma richiesta?" : nextQuickField === "grade" ? "Qual è il grado di acciaio?" : nextQuickField === "quantity" ? "Quanta quantità serve?" : "La quantità è in barre, metri o tonnellate?"}
                 </label>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  <input id={`rfqai-reply-${candidate.candidateId}`} type="text" inputMode="decimal"
-                    className="min-h-11 min-w-0 flex-1 rounded-lg border border-[#9fbcae] bg-white px-3 text-base text-[#173f34]"
-                    value={quickAnswers[candidate.candidateId] ?? ""}
-                    placeholder={nextQuickField === "thicknessMm" ? "Es. 5" : "Es. 6"}
-                    onChange={(event) => { setQuickAnswers((old) => ({ ...old, [candidate.candidateId]: event.target.value })); setQuickErrors((old) => ({ ...old, [candidate.candidateId]: "" })); }} />
+                  {nextQuickField === "standard" || nextQuickField === "quantityUnit" ? (
+                    <select id={`rfqai-reply-${candidate.candidateId}`} className="min-h-11 min-w-0 flex-1 rounded-lg border border-[#9fbcae] bg-white px-3 text-base text-[#173f34]"
+                      value={quickAnswers[candidate.candidateId] ?? ""}
+                      onChange={(event) => setQuickAnswers((old) => ({ ...old, [candidate.candidateId]: event.target.value }))}>
+                      <option value="">Seleziona…</option>
+                      {(nextQuickField === "standard" ? [["EN 10219", "EN 10219"], ["EN 10210", "EN 10210"]] :
+                        [["PZ", "Barre / pezzi"], ["M", "Metri"], ["T", "Tonnellate"]]).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                    </select>
+                  ) : (
+                    <input id={`rfqai-reply-${candidate.candidateId}`} type="text" inputMode={nextQuickField === "grade" ? "text" : "decimal"}
+                      className="min-h-11 min-w-0 flex-1 rounded-lg border border-[#9fbcae] bg-white px-3 text-base text-[#173f34]"
+                      value={quickAnswers[candidate.candidateId] ?? ""}
+                      placeholder={nextQuickField === "thicknessMm" ? "Es. 5" : nextQuickField === "lengthMm" ? "Es. 6" : nextQuickField === "grade" ? "Es. S355J2H" : "Es. 40"}
+                      onChange={(event) => { setQuickAnswers((old) => ({ ...old, [candidate.candidateId]: event.target.value })); setQuickErrors((old) => ({ ...old, [candidate.candidateId]: "" })); }} />
+                  )}
                   <button type="button" className="rfqai2-primary-link" onClick={() => applyQuickAnswer(candidate, nextQuickField)}>Applica risposta</button>
                 </div>
                 {quickErrors[candidate.candidateId] ? <p role="alert" className="rfqai3-warning">{quickErrors[candidate.candidateId]}</p> : null}
