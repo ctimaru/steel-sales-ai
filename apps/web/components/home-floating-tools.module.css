@@ -99,3 +99,12 @@
 @media (prefers-reduced-motion: reduce) {
   .dock, .panel { scroll-behavior: auto; }
 }
+
+/* HOME-CINE2A.8G.1: hero CTAs already serve both tools in the first fold.
+   Hide the duplicate fixed dock only while a narrow viewport is on the hero. */
+@media (max-width: 700px) {
+  .dock[data-positioned="true"]:not([data-beyond-hero="true"]) {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
