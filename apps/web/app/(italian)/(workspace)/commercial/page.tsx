@@ -6,6 +6,7 @@ import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-u
 import { Badge } from "@/components/ui/badge";
 import { getDashboardData } from "@/lib/commercial-data";
 import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
+import { CommercialCalculatorQuickAccess } from "@/components/commercial-calculator-quick-access";
 import { CommercialUnifiedWorklist } from "@/components/commercial-unified-worklist";
 import type { CommercialOperationsTab } from "@/components/commercial-campaign-operations";
 import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
@@ -106,7 +107,7 @@ export default async function CommercialHomePage({
   const allowedTabs: CommercialOperationsTab[] = ["compare", "negotiate", "award", "po"];
   const tab: CommercialOperationsTab = allowedTabs.includes(params.tab as CommercialOperationsTab) ? params.tab as CommercialOperationsTab : "compare";
   const composing = canWrite && params.compose === "1";
-  const [commercial, procurement, unified, catalogOptions, networkContext] = await Promise.all([
+  const [commercial, procurement, unified, catalogOptions, networkContext, calculatorReferences] = await Promise.all([
     getDashboardData(),
     canWrite
       ? createClient().then((db) => db.rpc("rfqh10_procurement_inbox", { p_limit: 4 }))
@@ -120,6 +121,7 @@ export default async function CommercialHomePage({
     composing ? listBuyerDistintaPublicDimensions().then(buildBuyerDistintaCatalogOptions) : Promise.resolve(null),
     // Explicit GET-only handoff; invalid/locked Network ids never trigger a profile read.
     getCommercialNetworkContext(context.organizationId, params.network),
+    listPublicTubeDimensionPages(),
   ]);
   const [prospect, possibleCompanies, inquiries] = networkContext
     ? await Promise.all([
@@ -184,6 +186,8 @@ export default async function CommercialHomePage({
           </>
         }
       />
+
+      <CommercialCalculatorQuickAccess references={calculatorReferences} />
 
       {networkContext ? (
         <section
