@@ -37,3 +37,20 @@ test("DENSE1R-A no leaked price or auto dispatched RFQ in merged discovery",()=>
   assert.ok(calculator.includes("<CalculatorCommercialPricing"));
   assert.ok(calculator.includes("data-commercial-tonnes"));
 });
+
+test("CALC-PARITY public and embedded calculators retain one shared commercial workflow", () => {
+  // The embedded builder may reduce visual decoration, but geometry, targets
+  // and Distinta handoff must remain inside the single shared calculator.
+  assert.match(calculator,/const inEmbeddedBuilder = Boolean\(onAddToDistinta\) && !inlinePublicDistinta/);
+  for (const token of ["data-calc-shape-buttons","data-commercial-targets",
+    "data-commercial-tonnes","data-calc-total-weight","data-cockpit-add"])
+    assert.equal(calculator.split(token).length-1,1,"Shared feature must not fork: "+token);
+  assert.ok(calculator.includes("onClick={() => setCommercialTargetMode(mode)}"));
+  assert.ok(calculator.includes("onClick={() => setFamily(option.value as TubeFamily)}"));
+  assert.ok(calculator.includes("onAddToDistinta(item)"));
+  assert.ok(calculator.includes("inEmbeddedBuilder ? sectionDiagram : null"));
+  assert.ok(calculator.includes("!inEmbeddedBuilder ? ("),
+    "Only the decorative cinematic stage may be omitted in embedded mode");
+  assert.ok(calculator.indexOf("data-commercial-targets")>calculator.indexOf("data-cockpit-add"));
+  assert.ok(calculator.indexOf("data-commercial-targets")<calculator.indexOf("data-cinematic-geometry"));
+});
