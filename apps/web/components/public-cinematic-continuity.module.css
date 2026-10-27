@@ -372,3 +372,21 @@
 @media (prefers-reduced-motion: reduce) {
   .toolShelf .toolTile { transition: none; }
 }
+
+/* HOME-CINE2A.8F: geometry is a compact technical proof, not another hero. */
+.proofInner { padding-block: 34px; gap: clamp(16px, 2.8vw, 34px); }
+.proofTitle { font-size: clamp(23px, 2.4vw, 32px); }
+.proofDescription { margin-top: 10px; }
+.proofActions { margin-top: 15px; }
+.toolSection .toolShelf { max-width: 550px; }
+@media (max-width: 600px) {
+  .proofInner { padding-block: 28px; }
+  .proofActions { gap: 7px; }
+  .proofPrimary, .proofSecondary { min-height: 44px; }
+}
+
+/* 8F: supporting quick-access shelf reads as slim utility navigation. */
+.toolSection .toolShelf .toolTile { padding: 11px 13px; }
+.toolSection .toolShelf .toolTile p:first-child { font-size: 12px; }
+.toolSection .toolShelf .toolTile p + p { font-size: 10px; line-height: 1.45; }
+@media (min-width: 1024px) { .toolSection .toolShelf { max-width: 680px; } }
