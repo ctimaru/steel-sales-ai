@@ -102,3 +102,13 @@ test("RFQAI2 preserves export/authorization contracts, mobile usability and no f
   assert.match(documentation, /No AI, upload, webhook or parser execution/);
   assert.match(chooser, /Nessuna casella è collegata/);
 });
+
+test("RFQAI example is explicit, editable and does not trigger inference", () => {
+  assert.match(chooser, /SAMPLE_RFQ_TEXT = "Cerco 40 tubi quadri 100×100×5 S355J2H EN 10219, lunghezza 6 m ciascuno\."/);
+  assert.match(chooser, /Inserisci esempio/);
+  assert.match(chooser, /setTextDraft\(SAMPLE_RFQ_TEXT\)/);
+  assert.match(chooser, /setTextResult\(null\)/);
+  assert.match(chooser, /setTextError\(""\)/);
+  assert.match(chooser, /disabled=\{textPending\}/);
+  assert.match(chooser, /onClick=\{analyzeText\}/);
+});
