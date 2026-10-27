@@ -1,0 +1,67 @@
+name: HOME-CINE2A.8B Free Visual Acceptance
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "apps/web/components/public-cinematic-hero*"
+      - "apps/web/components/home-cinematic-tools*"
+      - "apps/web/app/(italian)/page.tsx"
+      - "apps/web/app/(english)/en/page.tsx"
+      - "apps/web/tests/home-cine2a8b-visual.mjs"
+      - ".github/workflows/home-cine2a8b-visual.yml"
+  push:
+    branches: [main]
+    paths:
+      - "apps/web/components/public-cinematic-hero*"
+      - "apps/web/components/home-cinematic-tools*"
+      - "apps/web/tests/home-cine2a8b-visual.mjs"
+      - ".github/workflows/home-cine2a8b-visual.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  public-visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: apps/web
+    env:
+      CI: "true"
+      HOME_VISUAL_BASE_URL: http://127.0.0.1:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install dependencies and pinned Playwright
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Build local production application
+        run: npm run build
+      - name: Start disposable public site
+        run: |
+          npm run start -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/home-cine2a8b-next.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/home-cine2a8b-next.pid"
+          for i in $(seq 1 90); do
+            if curl -fsS -o /dev/null http://127.0.0.1:3000/; then exit 0; fi
+            sleep 2
+          done
+          cat "$RUNNER_TEMP/home-cine2a8b-next.log"
+          exit 1
+      - name: Capture IT/EN at 320, 390, 768, 1440 pixels
+        run: node tests/home-cine2a8b-visual.mjs
+      - name: Upload screenshots and report (also on failure)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: home-cine2a8b-visual-${{ github.run_id }}
+          path: apps/web/artifacts/home-cine2a-8b/
+          if-no-files-found: warn
+          retention-days: 14
