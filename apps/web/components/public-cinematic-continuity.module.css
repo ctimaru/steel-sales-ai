@@ -384,3 +384,9 @@
   .proofActions { gap: 7px; }
   .proofPrimary, .proofSecondary { min-height: 44px; }
 }
+
+/* 8F: supporting quick-access shelf reads as slim utility navigation. */
+.toolSection .toolShelf .toolTile { padding: 11px 13px; }
+.toolSection .toolShelf .toolTile p:first-child { font-size: 12px; }
+.toolSection .toolShelf .toolTile p + p { font-size: 10px; line-height: 1.45; }
+@media (min-width: 1024px) { .toolSection .toolShelf { max-width: 680px; } }
