@@ -19,7 +19,7 @@ test("I18N5 puts a registration and sign-in handoff on every shared English publ
   assert.match(header, /"\/en\/login"/);
   assert.match(home, /<PublicCinematicHero locale="en" \/>/);
   assert.match(header, /Register company/);
-  assert.match(hero, /Open tube calculator/);
+  assert.match(hero, /Standards & weights/);
 });
 
 test("I18N5 keeps realistic and explicit locale, company verification and privacy gates", () => {
