@@ -59,3 +59,19 @@
   .card { transition: none; }
   .card:hover { transform: none; }
 }
+
+/* HOME-CINE2A.8D: purely decorative product-shaped evidence, zero runtime assets. */
+.miniature{display:block;position:relative;width:100%;height:95px;max-width:250px;padding:9px 12px;border:1px solid rgba(159,232,189,.24);border-radius:9px;background:linear-gradient(140deg,#123d2e,#071d17);overflow:hidden;box-shadow:inset 0 1px rgba(193,255,214,.09)}
+.miniTop{display:flex;gap:4px;padding-bottom:8px;border-bottom:1px solid rgba(151,217,175,.18)}
+.miniTop i{width:4px;height:4px;border-radius:50%;background:#74b796}
+.miniCalculator{display:flex;gap:14px;align-items:center;padding-top:13px}
+.miniShapes{display:flex;align-items:center;gap:9px}.miniShapes i{display:block;width:23px;height:23px;border:3px solid #8fe6b6;box-shadow:2px 2px 0 #315f49}
+.miniShapes i:first-child{border-radius:50%}.miniShapes i:nth-child(2){border-radius:3px}.miniShapes i:nth-child(3){width:31px;height:20px;border-radius:3px}
+.miniLines{display:grid;gap:5px;flex:1}.miniLines i{height:5px;border-radius:3px;background:#387959}.miniLines i:nth-child(2){width:70%}.miniLines i:nth-child(3){width:85%;background:#6cca96}
+.miniBill{display:grid;gap:6px;padding-top:10px}.miniBill span{height:9px;border:1px solid #377357;border-radius:2px;background:linear-gradient(90deg,#82d4a5 0 17%,transparent 17% 62%,#326a4c 62%)}
+.miniNetwork{position:relative;height:62px;background:linear-gradient(24deg,transparent 46%,rgba(126,213,159,.23) 48%,rgba(126,213,159,.23) 50%,transparent 52%),linear-gradient(-21deg,transparent 46%,rgba(126,213,159,.25) 48%,rgba(126,213,159,.25) 50%,transparent 52%)}
+.miniNetwork i{position:absolute;width:13px;height:13px;border:2px solid #9ae6b7;border-radius:50%;background:#235f40}.miniNetwork i:nth-child(1){left:12%;top:16%}.miniNetwork i:nth-child(2){left:48%;top:29%}.miniNetwork i:nth-child(3){right:14%;top:12%}.miniNetwork i:nth-child(4){left:29%;bottom:4%}.miniNetwork i:nth-child(5){right:26%;bottom:2%}
+.miniInbox{display:grid;gap:5px;padding-top:9px}.miniInbox span{position:relative;display:block;height:15px;border-radius:3px;border:1px solid #366e51;background:linear-gradient(90deg,#7dcc9e 0 8%,transparent 8% 14%,#35664a 14% 55%,transparent 55%)}.miniInbox span:nth-child(2){opacity:.73}.miniInbox span:nth-child(3){opacity:.49}
+.miniKnowledge{display:flex;gap:9px;padding-top:10px}.miniKnowledge span{display:block;flex:1;height:49px;border:1px solid #44795c;border-radius:2px;background:repeating-linear-gradient(to bottom,transparent 0 10px,rgba(137,218,164,.43) 11px 12px);border-top:5px solid #8bd5a8}.miniKnowledge span:nth-child(2){opacity:.78}.miniKnowledge span:nth-child(3){opacity:.55}
+@media(max-width:560px){.miniature{grid-column:1;grid-row:2;width:46px;height:48px;padding:5px}.miniTop{display:none}.miniCalculator,.miniBill,.miniNetwork,.miniInbox,.miniKnowledge{transform:scale(.48);transform-origin:top left;width:180px;height:88px;padding-top:8px}.miniNetwork{width:85px}.miniCalculator{gap:5px}.miniShapes{gap:4px}.miniShapes i{width:18px;height:18px}.miniShapes i:nth-child(3){width:24px;height:16px}.miniLines{display:none}}
+@media(max-width:359px){.miniature{width:40px;height:44px}}
