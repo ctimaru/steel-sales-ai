@@ -384,6 +384,23 @@ export default async function CommercialHomePage({
         </section>
       ) : null}
 
+      {canWrite ? (
+        <section aria-labelledby="commercial-ai-first-heading" className="rounded-2xl border border-[#b4d7c5] bg-white p-3 sm:p-4" data-testid="commercial-ai-first">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#246c53]">Assistente commerciale AI</p>
+              <h2 id="commercial-ai-first-heading" className="mt-1 text-lg font-semibold leading-snug text-[#173f35]">Che materiale stai cercando?</h2>
+              <p className="mt-1 text-xs leading-5 text-[#53665b]">Descrivi il tubo che ti serve. Ti aiutiamo a completare i dettagli e prepariamo una distinta da verificare.</p>
+            </div>
+            <Link href={appRoutes.commercial.home + "?compose=1#commercial-ai-intake"}
+              data-testid="commercial-ai-first-cta"
+              className="app-primary inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
+              Parla con l’assistente →
+            </Link>
+          </div>
+        </section>
+      ) : null}
+
       <section aria-labelledby="commercial-today" className="rounded-xl border border-[#dce2df] bg-white px-3 py-2.5 sm:px-4" data-testid="commercial-compact-actions">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <div className="min-w-0 sm:mr-1">
