@@ -485,7 +485,11 @@ export function PublicTubeWeightCalculator({
   const [length, setLength] = useState(initialValues?.length ?? "12");
   const [quantity, setQuantity] = useState(initialValues?.quantity ?? "1");
   const [targetTonnes, setTargetTonnes] = useState(initialValues?.targetTonnes ?? "");
-  const [commercialTargetMode, setCommercialTargetMode] = useState<"metres" | "tonnes" | "price">(initialValues?.targetTonnes?.trim() ? "tonnes" : "metres");
+  const [commercialQuantity, setCommercialQuantity] = useState<{ mode: "metres" | "tonnes"; raw: string } | null>(
+    initialValues?.targetTonnes?.trim() ? { mode: "tonnes", raw: initialValues.targetTonnes } : null,
+  );
+  const [commercialPriceUnit, setCommercialPriceUnit] = useState<"metres" | "tonnes">("tonnes");
+  const [commercialPrice, setCommercialPrice] = useState("");
   const [density, setDensity] = useState(initialValues?.density ?? "7850");
   // These stateful device conveniences remain available in the collapsed panel
   // BELOW the calculator, independently of the removed language controls.
@@ -584,6 +588,29 @@ export function PublicTubeWeightCalculator({
       exactReference, deltaPercent, error,
     };
   }, [outerDiameter, width, height, thickness, length, quantity, targetTonnes, density, family, standard, references]);
+
+  // A commercial target does not silently change bar counts or the RFQ bill.
+  const commercialWeight = !values.error && values.kgM != null && values.kgM > 0 ? values.kgM : null;
+  const commercialTargetNumber = commercialQuantity ? parseNumber(commercialQuantity.raw) : null;
+  const commercialMetres = commercialQuantity
+    ? commercialWeight == null || commercialTargetNumber == null || commercialTargetNumber < 0 ? null
+      : commercialQuantity.mode === "metres" ? commercialTargetNumber : commercialTargetNumber * 1000 / commercialWeight
+    : values.totalMeters;
+  const commercialTonnes = commercialQuantity
+    ? commercialWeight == null || commercialTargetNumber == null || commercialTargetNumber < 0 ? null
+      : commercialQuantity.mode === "tonnes" ? commercialTargetNumber : commercialTargetNumber * commercialWeight / 1000
+    : !values.error ? values.totalTonnes : null;
+  const commercialParsedPrice = commercialPrice.trim() ? parseNumber(commercialPrice) : null;
+  const commercialTotal = commercialParsedPrice != null && commercialParsedPrice >= 0
+    ? (commercialPriceUnit === "metres" ? commercialMetres : commercialTonnes) == null
+      ? null : commercialParsedPrice * (commercialPriceUnit === "metres" ? commercialMetres! : commercialTonnes!)
+    : null;
+  const commercialNumber = (value: number | null, decimals: number) =>
+    value == null || !Number.isFinite(value) ? "" : String(Number(value.toFixed(decimals))).replace(".", ",");
+  const commercialShownMetres = commercialQuantity?.mode === "metres"
+    ? commercialQuantity.raw : commercialNumber(commercialMetres, 3);
+  const commercialShownTonnes = commercialQuantity?.mode === "tonnes"
+    ? commercialQuantity.raw : commercialNumber(commercialTonnes, 6);
 
   const currentSnapshot = useMemo<StoredTubeCalculation | null>(() => {
     if (
@@ -1347,38 +1374,48 @@ export function PublicTubeWeightCalculator({
                   : "Gratuito · nessun login richiesto. Il grado acciaio resta da confermare.")}
               </p>
 
-              <section data-commercial-targets className="mt-3 rounded-xl border border-[#4b9774] bg-[#0a2f23] p-3 shadow-[inset_0_1px_0_rgba(159,255,209,0.07)]">
+              <section data-commercial-targets className="mt-3 rounded-xl border border-[#4b9774] bg-[#0a2f23] p-3">
                 <p className="mb-2 text-xs font-bold text-[#dff9eb]">{commercialLabels.heading}</p>
-                <div role="group" aria-label={commercialLabels.heading} className="grid grid-cols-3 gap-1.5">
-                  {(["metres", "tonnes", "price"] as const).map((mode) => (
-                    <button key={mode} type="button" aria-pressed={commercialTargetMode === mode}
-                      onClick={() => setCommercialTargetMode(mode)}
-                      className="min-h-11 min-w-0 rounded-lg border border-[#416a56] px-1 text-[11px] font-semibold text-[#e1f5e9] aria-pressed:border-[#54e8a5] aria-pressed:bg-[#246c4c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#75f4bd]">
-                      {mode === "metres" ? t("Metri totali") : mode === "tonnes" ? commercialLabels.tonnes : commercialLabels.price}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="min-w-0 text-[11px] font-semibold text-[#d9f6e6]">
+                    <span className="mb-1 block">{t("Metri totali")}</span>
+                    <span className="flex items-center gap-1 rounded-lg border border-[#416a56] bg-[#123f30] px-2 focus-within:border-[#54e8a5]">
+                      <input aria-label={t("Metri totali")} inputMode="decimal" value={commercialShownMetres}
+                        onChange={(event) => setCommercialQuantity({ mode: "metres", raw: event.target.value })}
+                        className="min-w-0 w-full bg-transparent py-2 text-sm font-semibold tabular-nums text-white outline-none" />
+                      <span className="text-[#cee5d8]">m</span>
+                    </span>
+                  </label>
+                  <label className="min-w-0 text-[11px] font-semibold text-[#d9f6e6]">
+                    <span className="mb-1 block">{commercialLabels.tonnes}</span>
+                    <span className="flex items-center gap-1 rounded-lg border border-[#416a56] bg-[#123f30] px-2 focus-within:border-[#54e8a5]">
+                      <input aria-label={commercialLabels.tonnes} inputMode="decimal" value={commercialShownTonnes}
+                        onChange={(event) => setCommercialQuantity({ mode: "tonnes", raw: event.target.value })}
+                        className="min-w-0 w-full bg-transparent py-2 text-sm font-semibold tabular-nums text-white outline-none" />
+                      <span className="text-[#cee5d8]">t</span>
+                    </span>
+                  </label>
                 </div>
-                {commercialTargetMode === "metres" ? (
-                  <p className="mt-2 text-[11px] leading-5 text-[#cee5d8]"> {t("Metri totali")}: <strong>{values.totalMeters == null ? "—" : formatOutput(values.totalMeters, 2)} m</strong>. {t("Numero barre")}: <strong>{quantity}</strong>. {commercialLabels.metres}</p>
-                ) : null}
-                {commercialTargetMode === "tonnes" ? (
-                  <div className="mt-2" data-commercial-tonnes>
-                    <label className="block text-[11px] font-semibold text-[#d9f6e6]">{t("Parti dalle tonnellate · Tonnellate target")}
-                      <input value={targetTonnes} onChange={(event) => setTargetTonnes(event.target.value)}
-                        inputMode="decimal" placeholder={t("es. 25")} className={inputClass} />
-                    </label>
-                    <p className="mt-2 text-xs text-[#d9f6e6]">{t("Barre necessarie")}: <strong>{values.targetBars ?? "—"}</strong> · {t("Tonnellate reali")}: <strong>{values.targetActualTonnes == null ? "—" : formatOutput(values.targetActualTonnes, 4)} t</strong></p>
-                    <button type="button" disabled={values.targetBars == null}
-                      onClick={() => { if (values.targetBars != null) setQuantity(String(values.targetBars)); }}
-                      className="mt-2 min-h-11 w-full rounded-lg bg-[#30dda0] px-3 text-xs font-bold text-[#063022] disabled:opacity-50">
-                      {t("Usa barre suggerite")}
-                    </button>
-                    <p className="mt-1 text-[10px] text-[#c1decc]">{t("Per lavorare con barre intere arrotondiamo sempre per eccesso.")}</p>
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-[11px] font-semibold text-[#d9f6e6]">{commercialLabels.price}</span>
+                  <div className="inline-flex rounded-lg border border-[#416a56] p-0.5" role="group" aria-label={commercialLabels.price}>
+                    {(["metres", "tonnes"] as const).map((unit) => (
+                      <button key={unit} type="button" aria-pressed={commercialPriceUnit === unit}
+                        onClick={() => setCommercialPriceUnit(unit)}
+                        className={"rounded-md px-2 py-1 text-[11px] font-semibold " + (commercialPriceUnit === unit ? "bg-[#287b57] text-white" : "text-[#cee5d8]")}>
+                        {unit === "metres" ? "€/m" : "€/t"}
+                      </button>
+                    ))}
                   </div>
-                ) : null}
-                {commercialTargetMode === "price" ? (
-                  <div className="mt-2"><CalculatorCommercialPricing weightKgM={values.error ? null : values.kgM} locale={locale} onChooseBuyerTarget={onChooseBuyerTarget} /></div>
-                ) : null}
+                </div>
+                <input aria-label={commercialLabels.price} inputMode="decimal" value={commercialPrice}
+                  onChange={(event) => setCommercialPrice(event.target.value)}
+                  placeholder="0,00" className="mt-1 w-full rounded-lg border border-[#416a56] bg-[#123f30] px-2 py-2 text-sm font-semibold text-white outline-none focus:border-[#54e8a5]" />
+                <div className="mt-2 rounded-lg bg-white/10 px-3 py-2" aria-live="polite">
+                  <p className="text-[10px] text-[#cee5d8]">{({it:"Valore totale target",en:"Target total",de:"Zielgesamtwert",fr:"Valeur cible totale",es:"Valor total objetivo"} as const)[locale]}</p>
+                  <p className="text-lg font-bold tabular-nums text-white">{commercialTotal == null ? "—" : new Intl.NumberFormat(locale === "en" ? "en-GB" : locale, { style: "currency", currency: "EUR" }).format(commercialTotal)}</p>
+                </div>
+                {commercialWeight == null ? <p className="mt-1 text-[10px] text-[#cee5d8]">{({it:"Seleziona una geometria valida per convertire metri e tonnellate.",en:"Select valid dimensions to convert metres and tonnes.",de:"Gültige Abmessungen für die Umrechnung wählen.",fr:"Sélectionnez des dimensions valides pour convertir.",es:"Selecciona dimensiones válidas para convertir."} as const)[locale]}</p> : null}
               </section>
 
 
