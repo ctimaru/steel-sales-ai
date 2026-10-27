@@ -20,12 +20,10 @@ try {
     // the floating cart. Never bypass consent or force clicks behind it.
     await page.locator('[data-testid="mobile-cookie-consent"]')
       .getByRole("button",{name:"Accetta necessari"}).click();
-    // DENSE1A: secondary pricing is an explicit, accessible disclosure.
-    await calculator.locator("[data-commercial-targets] button").nth(2).click();
-    await calculator.locator("[data-commercial-price] summary").click();
-    const eurT=calculator.getByLabel("Prezzo €/ton");
-    const eurM=calculator.getByLabel("Prezzo €/m");
-    await eurT.fill("850");
+    // CALC-TARGET1: compact private pricing is visible without old mode tabs.
+    const targets=calculator.locator("[data-commercial-targets]");
+    await targets.getByRole("button",{name:"€/t"}).click();
+    await targets.getByRole("textbox",{name:"Prezzo €"}).fill("850");
     assert.equal(await calculator.locator("[data-target-opt-in]").isEnabled(),true);
     assert.equal(await bill.locator("[data-buyer-target]").count(),0);
     assert.equal(await page.evaluate(()=>sessionStorage.getItem("sss:inline-distinta:v1")),null);

@@ -86,7 +86,7 @@ test("4.4C price never appears in 4.4A session or public copy and is never sent"
   assert.match(experience,/onChooseBuyerTarget=\{chooseBuyerTarget\}/);
   assert.match(experience,/setTargets\(current => pruneBuyerTargets/);
   assert.match(experience,/buildBuyerDistintaPlainText\(c.quoteTitle, calculated\)/);
-  assert.match(publicCalc,/onChooseBuyerTarget=\{onChooseBuyerTarget\}/);
+  assert.match(publicCalc,/commercialPriceUnit/);
   assert.match(pricingComponent,/data-target-opt-in/);
   for(const file of [src,pricingComponent]){
     assert.doesNotMatch(file,/fetch\(|localStorage|document.cookie|trackProductEvent|sendBuyerDistinta|createBuyerRfqCampaign/);

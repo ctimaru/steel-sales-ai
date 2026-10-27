@@ -67,7 +67,7 @@ test("CALC-UX4: pricing controls are fully translated and source of truth follow
 });
 
 test("CALC-UX4: pricing is only inside EU result preview; not in RFQ, clipboard, analytics, storage or URL",()=>{
-  assert.match(calculator,/<CalculatorCommercialPricing weightKgM=\{values.error \? null : values.kgM\} locale=\{locale\}/);
+  assert.match(calculator,/commercialWeight = !values.error && values.kgM/);
   assert.match(calculator,/closest\("\[data-commercial-price\]"\)/);
   assert.match(calculator,/onChangeCapture/);
   assert.doesNotMatch(ui,/fetch\(|localStorage|sessionStorage|URLSearchParams|trackProductEvent|trackInternationalRfq|calculatorRfqFromValues|navigator.clipboard|onAddToDistinta/);
