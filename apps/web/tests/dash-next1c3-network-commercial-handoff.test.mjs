@@ -103,7 +103,7 @@ test("NEXT1C.3 Dashboard offers one-click Commerciale handoff and keeps profile 
 
 test("NEXT1C.3 Commerciale displays context only on entitlement + revalidated public company", () => {
   assert.match(commercial, /getCommercialNetworkContext\(context\.organizationId, params\.network\)/);
-  assert.match(commercial, /\[commercial, procurement, unified, catalogOptions, networkContext\] = await Promise\.all/);
+  assert.match(commercial, /\[commercial, procurement, unified, catalogOptions, networkContext, calculatorReferences\] = await Promise\.all/);
   assert.match(commercial, /networkContext \? \(/);
   assert.match(commercial, /data-testid="commercial-network-context"/);
   assert.match(commercial, /Rimuovi contesto/);
