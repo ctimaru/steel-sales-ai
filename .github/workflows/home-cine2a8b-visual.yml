@@ -8,6 +8,8 @@ on:
       - "apps/web/components/home-cinematic-tools*"
       - "apps/web/app/(italian)/page.tsx"
       - "apps/web/app/(english)/en/page.tsx"
+      - "apps/web/components/home-calculator-embed-style.tsx"
+      - "apps/web/app/**/calculator-embed/page.tsx"
       - "apps/web/tests/home-cine2a8b-visual.mjs"
       - ".github/workflows/home-cine2a8b-visual.yml"
   push:
@@ -15,6 +17,8 @@ on:
     paths:
       - "apps/web/components/public-cinematic-hero*"
       - "apps/web/components/home-cinematic-tools*"
+      - "apps/web/components/home-calculator-embed-style.tsx"
+      - "apps/web/app/**/calculator-embed/page.tsx"
       - "apps/web/tests/home-cine2a8b-visual.mjs"
       - ".github/workflows/home-cine2a8b-visual.yml"
 
