@@ -77,8 +77,8 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
           </h1>
           <p className={styles.description}>
             {en
-              ? "Start with the tube calculator: choose your dimensions, check theoretical weight, then build a clear RFQ bill. From technical requirements to business connections."
-              : "Inizia dalla calcolatrice: scegli le dimensioni, verifica il peso teorico e crea la tua distinta. Dalle specifiche tecniche alle nuove opportunità commerciali."}
+              ? "From dimensions and theoretical weight to RFQ bills and commercial opportunities. One connected workflow."
+              : "Dalle dimensioni al peso teorico, dalla distinta alle opportunità commerciali. Tutto in un unico percorso."}
           </p>
           <div className={styles.actions}>
             <Link href={links.calculator} className={styles.primary}>
@@ -118,10 +118,10 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
               <span className={styles.specFamily}>CHS · SHS · RHS</span>
             </div>
           </div>
-          <div className={styles.specFields} aria-label={en ? "Calculator steps" : "Passaggi calcolatrice"}>
-            <span><b>01</b> {en ? "Choose geometry" : "Scegli geometria"}</span>
-            <span><b>02</b> {en ? "Enter dimensions" : "Inserisci dimensioni"}</span>
-            <span><b>03</b> {en ? "Calculate weight" : "Calcola peso"}</span>
+          <div className={styles.specFields} aria-label={en ? "Calculator capabilities" : "Funzioni calcolatrice"}>
+            <span><b>01</b> {en ? "Standards & geometry" : "Norme e geometria"}</span>
+            <span><b>02</b> {en ? "Theoretical weight" : "Peso teorico"}</span>
+            <span><b>03</b> {en ? "RFQ bill ready" : "Distinta pronta per RFQ"}</span>
           </div>
           <div className={styles.workflowTrack} aria-hidden="true">
             <span><b>01</b>{en ? "Bill" : "Distinta"}</span>
