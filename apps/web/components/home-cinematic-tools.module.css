@@ -20,3 +20,33 @@
 @media(max-width:850px){.inner{padding:42px 22px}.heading{align-items:start;flex-direction:column;gap:12px}.gallery{grid-template-columns:repeat(2,minmax(0,1fr))}.card,.card:nth-child(4),.card:nth-child(5){grid-column:span 1;min-height:235px}}
 @media(max-width:560px){.inner{padding:37px 18px}.gallery{grid-template-columns:1fr;gap:10px}.card,.card:nth-child(4),.card:nth-child(5){min-height:0;padding:17px}.mark{width:42px;height:42px;font-size:24px}.cardBody{margin:10px 0 13px}.cardBody strong{font-size:19px}.heading h2{font-size:29px}}
 @media(prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
+
+/* HOME-CINE2A.6: compact tablet tiles, readable 320px gallery, touch
+   affordances and no hover-only feedback. */
+@media (min-width: 561px) and (max-width: 850px) {
+  .gallery { gap: 10px; }
+  .card { padding: 17px; min-height: 218px; }
+  .cardBody strong { font-size: 19px; }
+}
+@media (max-width: 560px) {
+  .inner { padding: 36px 16px 40px; }
+  .heading { gap: 10px; margin-bottom: 20px; }
+  .heading>p { font-size: 12px; }
+  .card { display: grid; grid-template-columns: 46px minmax(0,1fr); grid-template-rows: auto auto auto; align-items: center; column-gap: 13px; row-gap: 8px; }
+  .cardTop { grid-column: 1 / -1; }
+  .mark { grid-column: 1; grid-row: 2; }
+  .cardBody { grid-column: 2; grid-row: 2; margin: 0; }
+  .cardFoot { grid-column: 1 / -1; grid-row: 3; }
+  .description { max-width: none; font-size: 11px; }
+}
+@media (max-width: 359px) {
+  .inner { padding-inline: 12px; }
+  .heading h2 { font-size: 26px; }
+  .card { padding: 14px; column-gap: 10px; }
+  .cardBody strong { font-size: 17px; overflow-wrap: anywhere; }
+  .cardTop { letter-spacing: .04em; }
+}
+@media (hover: none) {
+  .card:hover { transform: none; }
+  .card:active { border-color: #a5f0c8; }
+}
