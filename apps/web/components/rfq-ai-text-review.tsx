@@ -200,7 +200,7 @@ export function RfqAiTextReview({
                 <p className="mt-2 text-xs text-[#436554]">Aggiorna solo questo articolo. Gli altri campi restano invariati; la conferma finale è sempre manuale.</p>
               </div>
             ) : null}
-            <details className="mt-3 rounded-xl border border-[#cbded3] bg-white p-3" defaultOpen={!nextQuickField} data-rfqai-technical-details>
+            <details className="mt-3 rounded-xl border border-[#cbded3] bg-white p-3" open={!nextQuickField} data-rfqai-technical-details>
               <summary className="cursor-pointer text-sm font-semibold text-[#184d36] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#236b4a]">
                 Verifica e modifica tutti i dati tecnici
               </summary>
