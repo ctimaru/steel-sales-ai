@@ -80,7 +80,14 @@ try {
           );
           await page.waitForFunction(() =>
             document.querySelector('[data-testid="home-floating-dock"]')?.getAttribute("data-beyond-hero") === "true");
-          assert.equal(await dock.isVisible(), true, "Dock must reappear after hero");
+          const dockState = await dock.evaluate(el => {
+            const b = el.getBoundingClientRect();
+            return { visibility: getComputedStyle(el).visibility, display: getComputedStyle(el).display,
+              positioned: el.dataset.positioned, beyondHero: el.dataset.beyondHero,
+              rect: { top: b.top, bottom: b.bottom, left: b.left, right: b.right },
+              consentOffset: getComputedStyle(el).getPropertyValue("--consent-offset") };
+          });
+          assert.ok(await dock.isVisible(), "Dock must reappear after hero: " + JSON.stringify(dockState));
           await page.evaluate(() => window.scrollTo(0, 0));
           await page.waitForFunction(() =>
             document.querySelector('[data-testid="home-floating-dock"]')?.getAttribute("data-beyond-hero") === "false");
