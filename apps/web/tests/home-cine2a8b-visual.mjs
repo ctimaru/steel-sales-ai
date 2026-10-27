@@ -53,6 +53,28 @@ try {
         assert.ok(cta && cta.width > 80 && cta.height >= 44 &&
           cta.x >= -2 && cta.x + cta.width <= viewport.width + 2,
           "Primary CTA clipped or too small");
+        // HOME-CINE2A.8G.1: do not cover primary hero actions or consent
+        // on first visit; keep quick tools discoverable after leaving hero.
+        if (viewport.width <= 390) {
+          const dock = page.locator('[data-testid="home-floating-dock"]');
+          await page.waitForFunction(() => {
+            const el = document.querySelector('[data-testid="home-floating-dock"]');
+            return el?.getAttribute("data-positioned") === "true";
+          });
+          assert.equal(await dock.getAttribute("data-beyond-hero"), "false",
+            "Dock must be suppressed while mobile hero is visible");
+          assert.equal(await dock.isVisible(), false,
+            "Fixed dock must not overlap the mobile first viewport");
+          await page.locator('section[aria-labelledby="home-cinematic-title"]').evaluate(
+            el => window.scrollTo({ top: el.getBoundingClientRect().bottom + window.scrollY + 10 }),
+          );
+          await page.waitForFunction(() =>
+            document.querySelector('[data-testid="home-floating-dock"]')?.getAttribute("data-beyond-hero") === "true");
+          assert.equal(await dock.isVisible(), true, "Dock must reappear after hero");
+          await page.evaluate(() => window.scrollTo(0, 0));
+          await page.waitForFunction(() =>
+            document.querySelector('[data-testid="home-floating-dock"]')?.getAttribute("data-beyond-hero") === "false");
+        }
         const name = locale + "-" + viewport.name;
         await page.screenshot({ path: path.join(output, name + ".png"), fullPage: true, animations: "disabled" });
         report.push({ name, url, status: "pass", cards: 5, href, ...metrics });
