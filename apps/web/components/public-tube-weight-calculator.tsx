@@ -1402,7 +1402,7 @@ export function PublicTubeWeightCalculator({
                     {(["metres", "tonnes"] as const).map((unit) => (
                       <button key={unit} type="button" aria-pressed={commercialPriceUnit === unit}
                         onClick={() => setCommercialPriceUnit(unit)}
-                        className={"rounded-md px-2 py-1 text-[11px] font-semibold " + (commercialPriceUnit === unit ? "bg-[#287b57] text-white" : "text-[#cee5d8]")}>
+                        className={"min-h-11 rounded-md px-3 py-2 text-[11px] font-semibold " + (commercialPriceUnit === unit ? "bg-[#287b57] text-white" : "text-[#cee5d8]")}>
                         {unit === "metres" ? "€/m" : "€/t"}
                       </button>
                     ))}
