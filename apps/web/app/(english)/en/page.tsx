@@ -1,3 +1,4 @@
+import { HomeCinematicTools } from "@/components/home-cinematic-tools";
 import { PublicHomeHeader } from "@/components/public-home-header";
 import { PublicCinematicHero } from "@/components/public-cinematic-hero";
 import { HomeFloatingTools } from "@/components/home-floating-tools";
@@ -103,6 +104,8 @@ export default function EnglishHomePage() {
           </div>
         </div>
       </section>
+
+      <HomeCinematicTools locale="en" />
 
       <PublicSteelGeometryProof locale="en" />
 
