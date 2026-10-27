@@ -89,7 +89,7 @@ export function RfqAiTextReview({
   function applyQuickAnswer(candidate: RfqAiLineCandidate, field: "thicknessMm" | "lengthMm") {
     const response = (quickAnswers[candidate.candidateId] ?? "").trim();
     // Explicit decimal input only: never interpret incidental prose as a dimension.
-    if (!/^(?:\\d{1,4})(?:[.,]\\d{1,3})?$/.test(response) || Number(response.replace(",", ".")) <= 0) {
+    if (!/^(?:\d{1,4})(?:[.,]\d{1,3})?$/.test(response) || Number(response.replace(",", ".")) <= 0) {
       setQuickErrors((old) => ({ ...old, [candidate.candidateId]: "Indica un numero positivo in millimetri o metri (es. 5 oppure 6,5)." }));
       return;
     }
