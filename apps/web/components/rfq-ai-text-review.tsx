@@ -19,6 +19,26 @@ function shapeOf(raw: RfqAiRawLine): TubeShape {
   return "unknown";
 }
 
+/**
+ * Explain only fields genuinely absent from the current extraction.
+ * This is deterministic review guidance, not AI-generated geometry.
+ */
+function missingFieldQuestions(raw: RfqAiRawLine, shape: TubeShape): string[] {
+  const missing = (value: unknown) => value === null || value === undefined || String(value).trim() === "";
+  const questions: string[] = [];
+  if (shape === "unknown") questions.push("Qual è la forma del tubo: tondo, quadro o rettangolare?");
+  if (shape === "round" && missing(raw.outerDiameterMm)) questions.push("Qual è il diametro esterno in mm?");
+  if ((shape === "square" || shape === "rectangular") && missing(raw.widthMm)) questions.push("Qual è il lato o la larghezza in mm?");
+  if (shape === "rectangular" && missing(raw.heightMm)) questions.push("Qual è l'altezza in mm?");
+  if (missing(raw.thicknessMm)) questions.push("Qual è lo spessore in mm?");
+  if (missing(raw.standard)) questions.push("Qual è la norma richiesta (EN 10219 o EN 10210)?");
+  if (missing(raw.grade)) questions.push("Qual è il grado dell'acciaio?");
+  if (missing(raw.quantity)) questions.push("Qual è la quantità richiesta?");
+  if (missing(raw.quantityUnit)) questions.push("La quantità è in barre, metri o tonnellate?");
+  if (missing(raw.lengthMm) && /^(BARRE|PZ|PEZZI|PEZZO)$/i.test(String(raw.quantityUnit ?? ""))) questions.push("Qual è la lunghezza di ogni barra in metri?");
+  return questions;
+}
+
 function shown(value: unknown) {
   return value === null || value === undefined ? "" : String(value);
 }
@@ -100,6 +120,7 @@ export function RfqAiTextReview({
         const editable = canConfirm(candidate);
         const source = raw[candidate.candidateId] ?? {};
         const shape = shapeOf(source);
+        const missingQuestions = missingFieldQuestions(source, shape);
         const hasHardGeometryIssue = candidate.issues.some((issue) =>
           issue.code === "invalid_geometry" || issue.code === "ambiguous_geometry" ||
           issue.code === "missing_dimensions"
@@ -116,6 +137,15 @@ export function RfqAiTextReview({
             ) : (
               <p className="rfqai3-warning">Nessun estratto testuale verificabile: ricrea l'articolo nel configuratore manuale.</p>
             )}
+            {missingQuestions.length > 0 ? (
+              <div className="rfqai3-warning" role="group" aria-label="Domande per completare l'articolo" data-rfqai-missing-questions>
+                <strong>Per completare questo articolo</strong>
+                <p>Rispondi solo alle informazioni mancanti, usando i campi sottostanti. Nessun valore viene inventato.</p>
+                <ul>
+                  {missingQuestions.map((question) => <li key={question}>{question}</li>)}
+                </ul>
+              </div>
+            ) : null}
             <div className="rfqai3-candidate-grid">
               <label className="rfqai3-geometry-wide">Sezione del tubo
                 <select value={shape} aria-label="Forma del tubo"
