@@ -108,3 +108,11 @@
     pointer-events: none;
   }
 }
+
+/* An explicit state wins over the initial hidden rule when exiting hero. */
+@media (max-width: 700px) {
+  .dock[data-positioned="true"][data-beyond-hero="true"] {
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
