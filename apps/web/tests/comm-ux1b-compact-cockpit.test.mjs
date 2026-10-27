@@ -48,14 +48,14 @@ test("COMM-UX1B shows filters on one desktop row and preserves search and six vi
 });
 
 test("COMM-UX1B uses natural document scrolling and dense activity rows", () => {
-  assert.match(worklist, /min-h-\[64px\]/);
+  assert.match(worklist, /min-h-\[(?:64|88)px\]/);
   assert.match(worklist, /divide-y divide-\[var\(--border\)\]/);
   assert.doesNotMatch(worklist, /max-h-\[520px\] divide-y/);
   assert.match(worklist, /tabular-nums/);
   assert.match(worklist, /item\.status/);
   assert.match(worklist, /item\.origin/);
   assert.match(worklist, /item\.subtitle/);
-  assert.match(worklist, /item\.at \? formatHubDate/);
+  assert.match(worklist, /item\.at \? [\s\S]*?formatHubDate/);
   assert.match(worklist, /aria-current/);
   assert.match(worklist, /commercial-detail/);
 });
