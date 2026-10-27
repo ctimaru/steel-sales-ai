@@ -244,17 +244,22 @@ export async function CommercialUnifiedWorklist({
               {filtered.map((item) => (
                 <Link key={item.key} href={route(view, query, item.key, data.paging?.page ?? page, data.paging?.currentCursor)}
                   aria-current={item.key === active?.key ? "true" : undefined}
-                  className={"flex min-h-[64px] items-center justify-between gap-2 px-3 py-2 transition hover:bg-[var(--brand-primary-soft)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] " +
+                  className={"flex min-h-[88px] items-center justify-between gap-3 px-3 py-3 transition hover:bg-[var(--brand-primary-soft)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] " +
                     (item.key === active?.key ? "bg-[var(--brand-primary-soft)]" : "")}>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[10px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">{itemType(item)} · {item.origin}</p>
-                    <p className="mt-0.5 truncate text-sm font-semibold text-[var(--brand-deep)]">{item.title}</p>
-                    <p className="truncate text-xs text-[var(--text-secondary)]">{item.subtitle}</p>
+                  <div className="min-w-0 flex-1 space-y-1" data-testid="commercial-smart-deal-card">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                      <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--brand-primary)]">{itemType(item)}</p>
+                      <span aria-hidden="true" className="text-[var(--text-secondary)]">·</span>
+                      <span className="truncate text-[10px] text-[var(--text-secondary)]">{item.origin}</span>
+                    </div>
+                    <p className="line-clamp-2 text-sm font-semibold leading-5 text-[var(--brand-deep)]">{item.title}</p>
+                    <p className="line-clamp-2 text-xs leading-4 text-[var(--text-secondary)]">{item.subtitle}</p>
+                    <div className="flex flex-wrap items-center gap-2 pt-0.5">
+                      <span className="rounded-md border border-[var(--border)] bg-[var(--surface-secondary)] px-2 py-0.5 text-[11px] font-semibold text-[var(--brand-deep)]">{item.status}</span>
+                      {item.at ? <time className="text-[10px] tabular-nums text-[var(--text-secondary)]">{formatHubDate(item.at)}</time> : null}
+                    </div>
                   </div>
-                  <div className="flex max-w-[30%] shrink-0 flex-col items-end gap-1 text-right">
-                    <span className="whitespace-nowrap text-[10px] tabular-nums text-[var(--text-secondary)]">{item.at ? formatHubDate(item.at) : "→"}</span>
-                    <span className="max-w-full truncate text-[11px] font-medium text-[var(--brand-primary)]">{item.status}</span>
-                  </div>
+                  <span aria-hidden="true" className="shrink-0 rounded-lg border border-[var(--border)] px-2 py-1 text-xs font-semibold text-[var(--brand-primary)]">Apri →</span>
                 </Link>
               ))}
             </div>
