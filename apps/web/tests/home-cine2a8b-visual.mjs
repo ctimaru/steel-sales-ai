@@ -53,44 +53,24 @@ try {
         assert.ok(cta && cta.width > 80 && cta.height >= 44 &&
           cta.x >= -2 && cta.x + cta.width <= viewport.width + 2,
           "Primary CTA clipped or too small");
-        // HOME-CINE2A.8G.1: do not cover primary hero actions or consent
-        // on first visit; keep quick tools discoverable after leaving hero.
+        // HOME-CINE2A.8G.1: the mobile dock is a non-overlaying quick-access
+        // band after the hero, not fixed on top of the primary CTA or consent.
         if (viewport.width <= 390) {
           const dock = page.locator('[data-testid="home-floating-dock"]');
-          await page.waitForFunction(() => {
-            const el = document.querySelector('[data-testid="home-floating-dock"]');
-            return el?.getAttribute("data-positioned") === "true";
-          });
-          assert.equal(await dock.getAttribute("data-beyond-hero"), "false",
-            "Dock must be suppressed while mobile hero is visible");
-          assert.equal(await dock.isVisible(), false,
-            "Fixed dock must not overlap the mobile first viewport");
-          // Give the visitor an explicit, non-tracking choice before checking
-          // the persistent dock: the initial consent overlay can fill the
-          // vertical space reserved for it and intentionally takes priority.
-          const consent = page.locator('[data-testid="mobile-cookie-consent"]');
-          if (await consent.isVisible()) {
-            await consent.getByRole("button", {
-              name: locale === "it" ? "Accetta necessari" : "Essential only", exact: true,
-            }).click();
-            await consent.waitFor({ state: "hidden" });
-          }
-          await page.locator('section[aria-labelledby="home-cinematic-title"]').evaluate(
-            el => window.scrollTo({ top: el.getBoundingClientRect().bottom + window.scrollY + 10 }),
-          );
           await page.waitForFunction(() =>
-            document.querySelector('[data-testid="home-floating-dock"]')?.getAttribute("data-beyond-hero") === "true");
-          const dockState = await dock.evaluate(el => {
-            const b = el.getBoundingClientRect();
-            return { visibility: getComputedStyle(el).visibility, display: getComputedStyle(el).display,
-              positioned: el.dataset.positioned, beyondHero: el.dataset.beyondHero,
-              rect: { top: b.top, bottom: b.bottom, left: b.left, right: b.right },
-              consentOffset: getComputedStyle(el).getPropertyValue("--consent-offset") };
+            document.querySelector('[data-testid="home-floating-dock"]')?.getAttribute("data-positioned") === "true");
+          const positions = await page.evaluate(() => {
+            const hero = document.querySelector('section[aria-labelledby="home-cinematic-title"]');
+            const dock = document.querySelector('[data-testid="home-floating-dock"]');
+            const h = hero.getBoundingClientRect(), d = dock.getBoundingClientRect();
+            return { heroBottom: h.bottom, dockTop: d.top, position: getComputedStyle(dock).position };
           });
-          assert.ok(await dock.isVisible(), "Dock must reappear after hero: " + JSON.stringify(dockState));
+          assert.equal(positions.position, "relative", "Mobile dock must not be fixed");
+          assert.ok(positions.dockTop >= positions.heroBottom - 2,
+            "Dock must follow hero without overlay: " + JSON.stringify(positions));
+          await dock.scrollIntoViewIfNeeded();
+          assert.ok(await dock.isVisible(), "Both tools must remain discoverable below hero");
           await page.evaluate(() => window.scrollTo(0, 0));
-          await page.waitForFunction(() =>
-            document.querySelector('[data-testid="home-floating-dock"]')?.getAttribute("data-beyond-hero") === "false");
         }
         const name = locale + "-" + viewport.name;
         await page.screenshot({ path: path.join(output, name + ".png"), fullPage: true, animations: "disabled" });
