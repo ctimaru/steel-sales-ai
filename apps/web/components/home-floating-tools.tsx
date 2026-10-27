@@ -118,8 +118,13 @@ export function HomeFloatingTools({ locale }: { locale: "it" | "en" }) {
     const hero = document.querySelector<HTMLElement>('section[aria-labelledby="home-cinematic-title"]');
     const update = () => {
       const compact = window.matchMedia("(max-width: 700px)").matches;
-      dock.dataset.beyondHero = !compact || !hero || hero.getBoundingClientRect().bottom <= 0
-        ? "true" : "false";
+      const beyond = !compact || !hero || hero.getBoundingClientRect().bottom <= 0;
+      dock.dataset.beyondHero = beyond ? "true" : "false";
+      // Keep the original parser/consent positioning gate authoritative.
+      // Inline visibility avoids a stale CSS visibility state on hydration.
+      if (dock.dataset.positioned === "true") {
+        dock.style.visibility = beyond ? "visible" : "hidden";
+      }
     };
     const observer = hero ? new IntersectionObserver(update, { threshold: 0 }) : null;
     if (hero) observer?.observe(hero);
