@@ -152,11 +152,16 @@ export function RfqAiIntakeUx({
           <div className="rfqai2-capture-panel" aria-label="Preparazione testo per estrazione AI">
             <div className="rfqai2-panel-heading">
               <div>
-                <p className="rfqai2-panel-kicker">RFQAI3 · Free Text Intelligence</p>
-                <h4>Scrivi o incolla la richiesta commerciale</h4>
+                <p className="rfqai2-panel-kicker">Smart Steel Sales · Assistente commerciale</p>
+                <h4>{textResult ? "Completiamo insieme la tua richiesta" : "Ciao, dimmi quale materiale stai cercando"}</h4>
               </div>
               <span className="rfqai2-panel-status">Revisione obbligatoria</span>
             </div>
+            <details open={!textResult} className="rounded-xl border border-[#cbded3] bg-white p-3" data-rfqai-original-request>
+              <summary className="cursor-pointer text-sm font-semibold text-[#164b35]">
+                {textResult ? "Visualizza o modifica la richiesta originale" : "Scrivi o incolla la richiesta"}
+              </summary>
+              <div className="mt-3">
             <label htmlFor="rfqai2-text-input" className="rfqai2-field-label">
               Testo della richiesta
             </label>
@@ -194,6 +199,8 @@ export function RfqAiIntakeUx({
               </button>
             </div>
             {textError ? <p role="alert" className="rfqai3-warning">{textError}</p> : null}
+              </div>
+            </details>
             {textResult ? (
               <RfqAiTextReview
                 result={textResult}
