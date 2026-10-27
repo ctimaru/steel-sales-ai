@@ -21,7 +21,7 @@ test("CALC-UX3.1B parses the calculator without altering its commercial transfer
     "data-calc-shape-buttons", "aria-pressed={family === option.value}",
     "onClick={() => setFamily(option.value as TubeFamily)}",
     'data-commercial-targets', 'commercialShownTonnes',
-    'values.targetBars', 'setQuantity(String(values.targetBars))',
+    'values.targetBars', 'setCommercialQuantity({ mode: "tonnes", raw: event.target.value })',
     'commercialWeight = !values.error && values.kgM',
     'setCommercialPrice(event.target.value)',
   ]) assert.ok(calculator.includes(marker),marker);
