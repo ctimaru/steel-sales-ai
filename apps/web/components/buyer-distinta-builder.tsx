@@ -110,7 +110,7 @@ export function BuyerDistintaBuilder({
   const [documents, setDocuments] = useState<BuyerDistintaDocumentRequirements>(emptyBuyerDocumentRequirements);
   const [previewDraft, setPreviewDraft] = useState<GuidedTubeDraft | null>(null);
   const [wizardRestoreSerial, setWizardRestoreSerial] = useState(0);
-  const [intakeMode, setIntakeMode] = useState<RfqAiIntakeMode>("manual");
+  const [intakeMode, setIntakeMode] = useState<RfqAiIntakeMode>(returnToCommercial && workspace ? "text" : "manual");
   const [quickQuery, setQuickQuery] = useState("");
   const [quickGrade, setQuickGrade] = useState("");
   const [searchCalculatorPrefill, setSearchCalculatorPrefill] = useState<import("@/components/public-tube-weight-calculator").PublicTubeCalculatorInitialValues | null>(null);
@@ -967,8 +967,8 @@ export function BuyerDistintaBuilder({
             <p role="status" aria-live="polite" className="mt-2 text-xs font-semibold text-[#1d5748]">
               {quickAddedCount > 0 ? `${quickAddedCount} ${quickAddedCount === 1 ? "articolo nel carrello" : "articoli nel carrello"} · aprilo quando vuoi.` : "Il peso teorico si aggiorna mentre scrivi; nessuna RFQ viene inviata automaticamente."}
             </p>
-            <details className="mt-4 rounded-xl border border-[#d5e1db] bg-white">
-              <summary className="flex min-h-11 cursor-pointer items-center px-3 text-xs font-bold text-[#1d5748]">{t("Altri metodi · testo AI, configuratore assistito e ricerca catalogo")}</summary>
+            <details id="commercial-ai-intake" open={returnToCommercial && workspace} className="mt-4 scroll-mt-28 rounded-xl border border-[#d5e1db] bg-white">
+              <summary className="flex min-h-11 cursor-pointer items-center px-3 text-xs font-bold text-[#1d5748]">{returnToCommercial && workspace ? "Assistente AI · descrivi il materiale, prepara la distinta" : t("Altri metodi · testo AI, configuratore assistito e ricerca catalogo")}</summary>
               <div className="border-t border-[#d5e1db] p-2 sm:p-3">
             <RfqAiIntakeUx
               mode={intakeMode}
