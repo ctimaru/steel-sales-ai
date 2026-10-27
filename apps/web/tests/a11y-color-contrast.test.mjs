@@ -39,8 +39,8 @@ test("primary public CTA meets WCAG AA with white text", () => {
   assert.ok(contrast("#ffffff", "#185247") >= 4.5);
   assert.match(globals, /\.platform-primary \{/);
   assert.ok(contrast("#ffffff", "#0b7852") >= 4.5);
-  assert.match(header, /bg-\[#0b7852\]/);
-  assert.match(header, /data-home-primary-cta/);
+  assert.match(hero, /href=\{links\.calculator\} className=\{styles\.primary\}/);
+  assert.doesNotMatch(header, /data-home-primary-cta/);
 });
 
 test("legacy low-contrast public utility colors are remapped to accessible muted text", () => {
