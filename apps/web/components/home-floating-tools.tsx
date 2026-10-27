@@ -35,6 +35,10 @@ export function HomeFloatingTools({ locale }: { locale: "it" | "en" }) {
     ? { weights: "/en/knowledge/tubes", request: "/en/distinta" }
     : { weights: "/knowledge/tubes#calcolatore-pesi", request: "/distinta" };
 
+  const embeddedHrefs = locale === "en"
+    ? { weights: "/en/calculator-embed", request: "/en/distinta" }
+    : { weights: "/calculator-embed", request: "/distinta" };
+
   function open(tool: Tool, button: HTMLButtonElement) {
     lastTrigger.current = button;
     setVisited((previous) => previous.includes(tool) ? previous : [...previous, tool]);
@@ -165,7 +169,7 @@ export function HomeFloatingTools({ locale }: { locale: "it" | "en" }) {
               type="button" onClick={dismiss} aria-label={t.dismiss}>✕</button>
           </header>
           {!loaded[tool] ? <p role="status" className={styles.loading}>{t.loading}</p> : null}
-          <iframe className={styles.frame} title={t[tool]} src={hrefs[tool]} loading="lazy"
+          <iframe className={styles.frame} title={t[tool]} src={embeddedHrefs[tool]} loading="lazy"
             onLoad={event => frameLoaded(tool, event.currentTarget)} />
         </dialog>
       ))}

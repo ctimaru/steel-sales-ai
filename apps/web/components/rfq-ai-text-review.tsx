@@ -101,13 +101,21 @@ export function RfqAiTextReview({
       setQuickErrors((old) => ({ ...old, [candidate.candidateId]: "" }));
       return;
     }
-    // Explicit decimal input only: never interpret incidental prose as a dimension.
-    if (!/^(?:\d{1,4})(?:[.,]\d{1,3})?$/.test(response) || Number(response.replace(",", ".")) <= 0) {
+    // Only the active question determines meaning. Reject unrelated prose.
+    const normalized = response.toLowerCase().trim();
+    const words: Record<string, string> = { uno: "1", una: "1", due: "2", tre: "3", quattro: "4", cinque: "5", sei: "6", sette: "7", otto: "8", nove: "9", dieci: "10", dodici: "12" };
+    const numberPhrase = normalized.replace(/^(?:sono|vorrei|mi servono|direi)\s+/i, "").trim();
+    const matcher = field === "lengthMm" ? /^(\d{1,4}(?:[.,]\d{1,3})?|[a-z]+)\s*(?:m|metri|metro)?$/i :
+      field === "thicknessMm" ? /^(\d{1,4}(?:[.,]\d{1,3})?|[a-z]+)\s*(?:mm|millimetri|millimetro)?$/i :
+      /^(\d{1,4}(?:[.,]\d{1,3})?|[a-z]+)\s*(?:barre|barra|pezzi|pezzo|pz|metri|metro|m|tonnellate|tonnellata|t)?$/i;
+    const match = numberPhrase.match(matcher);
+    const parsed = match ? (words[match[1]] ?? match[1]) : "";
+    if (!/^(?:\d{1,4})(?:[.,]\d{1,3})?$/.test(parsed) || Number(parsed.replace(",", ".")) <= 0) {
       setQuickErrors((old) => ({ ...old, [candidate.candidateId]: "Indica un numero positivo in millimetri o metri (es. 5 oppure 6,5)." }));
       return;
     }
-    const number = Number(response.replace(",", "."));
-    change(candidate, field === "lengthMm" ? { lengthMm: String(number * 1000) } : field === "quantity" ? { quantity: response } : { thicknessMm: response });
+    const number = Number(parsed.replace(",", "."));
+    change(candidate, field === "lengthMm" ? { lengthMm: String(number * 1000) } : field === "quantity" ? { quantity: parsed, ...(/\s*(?:barre|barra|pezzi|pezzo|pz)$/i.test(numberPhrase) ? { quantityUnit: "PZ" } : /\s*(?:metri|metro|m)$/i.test(numberPhrase) ? { quantityUnit: "M" } : /\s*(?:tonnellate|tonnellata|t)$/i.test(numberPhrase) ? { quantityUnit: "T" } : {}) } : { thicknessMm: parsed });
     setLengthDisplay((old) => field === "lengthMm" ? ({ ...old, [candidate.candidateId]: response }) : old);
     setQuickAnswers((old) => ({ ...old, [candidate.candidateId]: "" }));
     setQuickErrors((old) => ({ ...old, [candidate.candidateId]: "" }));
@@ -166,6 +174,21 @@ export function RfqAiTextReview({
               <strong>{i + 1}. {candidate.proposedLine.description || "Geometria non riconosciuta"}</strong>
               <span>{candidate.status === "invalid" ? "Dati non validi" :
                 candidate.status === "needs_review" ? "Da completare" : "Da verificare"}</span>
+            </div>
+            <div className="mt-3 rounded-xl border border-[#cbded3] bg-white p-3" data-rfqai-commercial-summary aria-label={"Sintesi commerciale articolo " + (i + 1)}>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <strong className="text-sm text-[#144e37]">Sintesi commerciale</strong>
+                <span className="text-xs font-semibold text-[#56675f]">{editable ? "Pronto alla conferma" : "Da completare"}</span>
+              </div>
+              <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-3">
+                <div><dt className="text-xs text-[#56675f]">Geometria</dt><dd className="font-medium text-[#153d2c]">{candidate.proposedLine.description || "Da definire"}</dd></div>
+                <div><dt className="text-xs text-[#56675f]">Norma</dt><dd className="font-medium text-[#153d2c]">{shown(source.standard) || "Da definire"}</dd></div>
+                <div><dt className="text-xs text-[#56675f]">Qualità</dt><dd className="font-medium text-[#153d2c]">{shown(source.grade) || "Da definire"}</dd></div>
+                <div><dt className="text-xs text-[#56675f]">Quantità</dt><dd className="font-medium text-[#153d2c]">{shown(source.quantity) || "Da definire"} {shown(source.quantityUnit)}</dd></div>
+                <div><dt className="text-xs text-[#56675f]">Lunghezza barra</dt><dd className="font-medium text-[#153d2c]">{source.lengthMm === null || source.lengthMm === undefined || source.lengthMm === "" ? "Da definire" : (Number(String(source.lengthMm).replace(",", ".")) / 1000).toLocaleString("it-IT") + " m"}</dd></div>
+                <div><dt className="text-xs text-[#56675f]">Peso teorico</dt><dd className="font-medium text-[#153d2c]">{editable ? candidate.proposedLine.weightKgM + " kg/m" : "Da verificare"}</dd></div>
+              </dl>
+              {missingQuestions.length ? <p className="mt-2 text-xs text-[#79511e]" data-rfqai-summary-missing>{missingQuestions.length} {missingQuestions.length === 1 ? "informazione mancante" : "informazioni mancanti"} · completa la richiesta prima della conferma</p> : null}
             </div>
             {candidate.sourceExcerpt ? (
               <p className="rfqai3-source" title="Testo originale">Fonte: “{candidate.sourceExcerpt}”</p>
