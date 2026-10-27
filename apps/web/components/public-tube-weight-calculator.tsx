@@ -601,6 +601,12 @@ export function PublicTubeWeightCalculator({
       : commercialQuantity.mode === "tonnes" ? commercialTargetNumber : commercialTargetNumber * commercialWeight / 1000
     : !values.error ? values.totalTonnes : null;
   const commercialParsedPrice = commercialPrice.trim() ? parseCommercialRate(commercialPrice, locale) : null;
+  // Price fields share one last-edited source. The opposite basis is derived
+  // from the canonical calculated kg/m, avoiding effects and rounding drift.
+  const commercialPricePerMetre = commercialParsedPrice == null || commercialWeight == null
+    ? null : commercialPriceUnit === "metres" ? commercialParsedPrice : commercialParsedPrice * commercialWeight / 1000;
+  const commercialPricePerTonne = commercialParsedPrice == null || commercialWeight == null
+    ? null : commercialPriceUnit === "tonnes" ? commercialParsedPrice : commercialParsedPrice * 1000 / commercialWeight;
   const commercialTotal = commercialParsedPrice != null && commercialParsedPrice >= 0
     ? (commercialPriceUnit === "metres" ? commercialMetres : commercialTonnes) == null
       ? null : commercialParsedPrice * (commercialPriceUnit === "metres" ? commercialMetres! : commercialTonnes!)
@@ -1396,21 +1402,29 @@ export function PublicTubeWeightCalculator({
                     </span>
                   </label>
                 </div>
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-[11px] font-semibold text-[#d9f6e6]">{commercialLabels.price}</span>
-                  <div className="inline-flex rounded-lg border border-[#416a56] p-0.5" role="group" aria-label={commercialLabels.price}>
-                    {(["metres", "tonnes"] as const).map((unit) => (
-                      <button key={unit} type="button" aria-pressed={commercialPriceUnit === unit}
-                        onClick={() => setCommercialPriceUnit(unit)}
-                        className={"min-h-11 rounded-md px-3 py-2 text-[11px] font-semibold " + (commercialPriceUnit === unit ? "bg-[#287b57] text-white" : "text-[#cee5d8]")}>
-                        {unit === "metres" ? "€/m" : "€/t"}
-                      </button>
-                    ))}
-                  </div>
+                <div className="mt-3 grid grid-cols-2 gap-2" data-commercial-price-fields>
+                  {(["metres", "tonnes"] as const).map((unit) => (
+                    <label key={unit} className="min-w-0 text-[11px] font-semibold text-[#d9f6e6]">
+                      <span className="mb-1 block">{unit === "metres" ? "€/m" : "€/t"}</span>
+                      <input type="text" inputMode="decimal" autoComplete="off"
+                        aria-label={unit === "metres" ? "Prezzo €/m" : "Prezzo €/t"}
+                        value={commercialPriceUnit === unit ? commercialPrice : commercialNumber(
+                          unit === "metres" ? commercialPricePerMetre : commercialPricePerTonne, 4)}
+                        onChange={(event) => {
+                          setCommercialPriceUnit(unit);
+                          setCommercialPrice(event.target.value);
+                        }}
+                        placeholder={commercialWeight == null ? "—" : "0,00"}
+                        aria-invalid={commercialPrice.trim().length > 0 && commercialParsedPrice === null && commercialPriceUnit === unit}
+                        className="w-full min-w-0 rounded-lg border border-[#416a56] bg-[#123f30] px-2 py-2 text-sm font-semibold tabular-nums text-white outline-none focus:border-[#54e8a5] focus-visible:ring-2 focus-visible:ring-[#54e8a5]" />
+                    </label>
+                  ))}
                 </div>
-                <input aria-label={commercialLabels.price} inputMode="decimal" value={commercialPrice}
-                  onChange={(event) => setCommercialPrice(event.target.value)}
-                  placeholder="0,00" className="mt-1 w-full rounded-lg border border-[#416a56] bg-[#123f30] px-2 py-2 text-sm font-semibold text-white outline-none focus:border-[#54e8a5]" />
+                <p className="mt-1 text-[10px] text-[#cee5d8]">{({
+                  it:"Prezzi collegati tramite il peso teorico kg/m.",en:"Prices linked using theoretical kg/m.",
+                  de:"Preise anhand des theoretischen kg/m verbunden.",fr:"Prix liés selon le poids théorique kg/m.",
+                  es:"Precios vinculados mediante el peso teórico kg/m."
+                } as const)[locale]}</p>
                 <div className="mt-2 rounded-lg bg-white/10 px-3 py-2" aria-live="polite">
                   <p className="text-[10px] text-[#cee5d8]">{({it:"Valore totale target",en:"Target total",de:"Zielgesamtwert",fr:"Valeur cible totale",es:"Valor total objetivo"} as const)[locale]}</p>
                   <p className="text-lg font-bold tabular-nums text-white">{commercialTotal == null ? "—" : new Intl.NumberFormat(locale === "en" ? "en-GB" : locale, { style: "currency", currency: "EUR" }).format(commercialTotal)}</p>

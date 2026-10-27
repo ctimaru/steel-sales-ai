@@ -22,8 +22,8 @@ try {
       .getByRole("button",{name:"Accetta necessari"}).click();
     // CALC-TARGET1: compact private pricing is visible without old mode tabs.
     const targets=calculator.locator("[data-commercial-targets]");
-    await targets.getByRole("button",{name:"€/t"}).click();
-    await targets.getByRole("textbox",{name:"Prezzo €"}).fill("850");
+    await targets.getByRole("textbox",{name:"Prezzo €/t"}).fill("850");
+    assert.notEqual(await targets.getByRole("textbox",{name:"Prezzo €/m"}).inputValue(),"");
     assert.equal(await calculator.locator("[data-target-opt-in]").isEnabled(),true);
     assert.equal(await bill.locator("[data-buyer-target]").count(),0);
     assert.equal(await page.evaluate(()=>sessionStorage.getItem("sss:inline-distinta:v1")),null);
