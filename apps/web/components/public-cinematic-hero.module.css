@@ -671,3 +671,17 @@
   .description { order: 3; }
   .primary, .secondary { flex-basis: 100%; }
 }
+
+/* HOME-CINE2A.7 — motion is ambient only; content and CTA never animate in. */
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) and (prefers-reduced-data: no-preference) {
+  .ambient { animation-duration: 28s; }
+  .intelligenceOverlay { animation-duration: 18s; }
+  .networkPulse { animation-duration: 9s; }
+  .productHint { animation-duration: 18s; }
+}
+@media (max-width: 1023px), (hover: none), (prefers-reduced-motion: reduce), (prefers-reduced-data: reduce) {
+  .ambient, .intelligenceOverlay, .networkPulse, .productHint { animation: none !important; transform: none !important; }
+}
+@media (hover: none) {
+  .primary:hover, .secondary:hover { transform: none; }
+}
