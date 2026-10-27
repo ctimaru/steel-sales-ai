@@ -495,6 +495,35 @@ export default async function CommercialHomePage({
         </section>
       ) : null}
 
+      <nav aria-label="Vista rapida delle trattative" data-testid="commercial-cockpit-tabs"
+        className="rounded-2xl border border-[#d5e3dc] bg-white px-3 py-3 sm:px-4">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#246c53]">Cockpit operativo</p>
+            <h2 className="text-sm font-semibold text-[#173f35]">Le tue trattative, in un unico posto</h2>
+          </div>
+          <Link href={appRoutes.commercial.home + "#commercial-worklist"} className="text-xs font-semibold text-[#246c53] hover:underline">Apri tutte →</Link>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {([
+            ["all", "Tutte"],
+            ["received", "Ricevute"],
+            ["sent", "Inviate"],
+            ["offers", "Offerte"],
+            ["orders", "Ordini"],
+            ["drafts", "Bozze"],
+          ] as const).map(([quickView, label]) => (
+            <Link key={quickView} href={appRoutes.commercial.home + (quickView === "all" ? "" : "?view=" + quickView) + "#commercial-worklist"}
+              aria-current={view === quickView ? "page" : undefined}
+              className={view === quickView
+                ? "inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-3 text-xs font-semibold text-white"
+                : "inline-flex min-h-10 items-center rounded-lg border border-[#d5dfda] bg-white px-3 text-xs font-semibold text-[#173f35] hover:bg-[#edf5f2]"}>
+              {label}
+            </Link>
+          ))}
+        </div>
+      </nav>
+
       <CommercialUnifiedWorklist
         data={displayedUnified}
         page={page}
