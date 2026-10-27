@@ -44,6 +44,7 @@ try{
     await root.getByText(/Masse je|Poids par|Peso por|Gewicht je/i).first().waitFor({state:"visible"});
     assert.ok(await root.locator('svg[role="img"]').count()>0,"Proportional diagram remains available on desktop");
     assert.match(await root.innerText(),/Favoriten|Favoris|Favoritos/i);
+    // Two quantity inputs plus the two synchronized price inputs (€/m and €/t).
     assert.equal(await root.locator("[data-commercial-targets] input").count(),4);
     assert.match(await root.innerText(),/Tonnen|Tonnes|Toneladas/i);
     assert.match(await root.innerText(),/kg\/m/);
