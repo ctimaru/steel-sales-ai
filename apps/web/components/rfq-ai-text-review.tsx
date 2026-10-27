@@ -57,6 +57,8 @@ export function RfqAiTextReview({
   const [lengthDisplay, setLengthDisplay] = useState<Record<string, string>>({});
   const [confirmed, setConfirmed] = useState<Record<string, boolean>>({});
   const [transferError, setTransferError] = useState("");
+  const [quickAnswers, setQuickAnswers] = useState<Record<string, string>>({});
+  const [quickErrors, setQuickErrors] = useState<Record<string, string>>({});
 
   function change(candidate: RfqAiLineCandidate, patch: Partial<RfqAiRawLine>) {
     const nextRaw = { ...raw[candidate.candidateId], ...patch };
@@ -82,6 +84,20 @@ export function RfqAiTextReview({
     }
     setCandidates((previous) => previous.map((row) => row.candidateId === candidate.candidateId ? next : row));
     setConfirmed((previous) => ({ ...previous, [candidate.candidateId]: false }));
+  }
+
+  function applyQuickAnswer(candidate: RfqAiLineCandidate, field: "thicknessMm" | "lengthMm") {
+    const response = (quickAnswers[candidate.candidateId] ?? "").trim();
+    // Explicit decimal input only: never interpret incidental prose as a dimension.
+    if (!/^(?:\\d{1,4})(?:[.,]\\d{1,3})?$/.test(response) || Number(response.replace(",", ".")) <= 0) {
+      setQuickErrors((old) => ({ ...old, [candidate.candidateId]: "Indica un numero positivo in millimetri o metri (es. 5 oppure 6,5)." }));
+      return;
+    }
+    const number = Number(response.replace(",", "."));
+    change(candidate, field === "lengthMm" ? { lengthMm: String(number * 1000) } : { thicknessMm: response });
+    setLengthDisplay((old) => field === "lengthMm" ? ({ ...old, [candidate.candidateId]: response }) : old);
+    setQuickAnswers((old) => ({ ...old, [candidate.candidateId]: "" }));
+    setQuickErrors((old) => ({ ...old, [candidate.candidateId]: "" }));
   }
 
   function canConfirm(row: RfqAiLineCandidate) {
@@ -121,6 +137,11 @@ export function RfqAiTextReview({
         const source = raw[candidate.candidateId] ?? {};
         const shape = shapeOf(source);
         const missingQuestions = missingFieldQuestions(source, shape);
+        const absent = (value: unknown) => value === null || value === undefined || String(value).trim() === "";
+        const nextQuickField: "thicknessMm" | "lengthMm" | null =
+          shape !== "unknown" && absent(source.thicknessMm) ? "thicknessMm" :
+          shape !== "unknown" && absent(source.lengthMm) && /^(BARRE|PZ|PEZZI|PEZZO)$/i.test(String(source.quantityUnit ?? "")) ? "lengthMm" : null;
+
         const hasHardGeometryIssue = candidate.issues.some((issue) =>
           issue.code === "invalid_geometry" || issue.code === "ambiguous_geometry" ||
           issue.code === "missing_dimensions"
@@ -144,6 +165,24 @@ export function RfqAiTextReview({
                 <ul>
                   {missingQuestions.map((question) => <li key={question}>{question}</li>)}
                 </ul>
+              </div>
+            ) : null}
+            {nextQuickField ? (
+              <div className="rounded-xl border border-[#b9d8c7] bg-[#f3faf6] p-3" data-rfqai-quick-reply>
+                <p className="text-xs font-semibold text-[#144e37]">Assistente · Completiamo un dato alla volta</p>
+                <label className="mt-2 block text-sm font-medium text-[#173f34]" htmlFor={`rfqai-reply-${candidate.candidateId}`}>
+                  {nextQuickField === "thicknessMm" ? "Qual è lo spessore in millimetri?" : "Qual è la lunghezza di ogni barra in metri?"}
+                </label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <input id={`rfqai-reply-${candidate.candidateId}`} type="text" inputMode="decimal"
+                    className="min-h-11 min-w-0 flex-1 rounded-lg border border-[#9fbcae] bg-white px-3 text-base text-[#173f34]"
+                    value={quickAnswers[candidate.candidateId] ?? ""}
+                    placeholder={nextQuickField === "thicknessMm" ? "Es. 5" : "Es. 6"}
+                    onChange={(event) => { setQuickAnswers((old) => ({ ...old, [candidate.candidateId]: event.target.value })); setQuickErrors((old) => ({ ...old, [candidate.candidateId]: "" })); }} />
+                  <button type="button" className="rfqai2-primary-link" onClick={() => applyQuickAnswer(candidate, nextQuickField)}>Applica risposta</button>
+                </div>
+                {quickErrors[candidate.candidateId] ? <p role="alert" className="rfqai3-warning">{quickErrors[candidate.candidateId]}</p> : null}
+                <p className="mt-2 text-xs text-[#436554]">Aggiorna solo questo articolo. Gli altri campi restano invariati; la conferma finale è sempre manuale.</p>
               </div>
             ) : null}
             <div className="rfqai3-candidate-grid">
