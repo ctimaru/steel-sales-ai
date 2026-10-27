@@ -13,6 +13,8 @@ async function noCookieCollision(page, selector) {
   await page.waitForFunction(selector => {
     const dock = document.querySelector('[data-testid="home-floating-dock"]');
     const a = dock.getBoundingClientRect();
+    // Flow-positioned mobile actions cannot overlay the viewport as a floating dock.
+    if (getComputedStyle(dock).position !== "fixed") return true;
     if (getComputedStyle(dock).visibility === "hidden" || getComputedStyle(dock).display === "none") return true;
     const b = document.querySelector(selector)?.getBoundingClientRect();
     return b && (a.bottom <= b.top || a.right <= b.left || a.left >= b.right);
