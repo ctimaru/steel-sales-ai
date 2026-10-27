@@ -32,7 +32,7 @@ test("CINE2A.2B selects distinct factory images responsively", () => {
 test("CINE2A.2B photo cannot replace working HTML calculator or invent measures", () => {
   assert.match(hero, /href=\{links\.calculator\} className=\{styles\.primary\}/);
   assert.match(hero, /href=\{links\.builder\} className=\{styles\.secondary\}/);
-  assert.match(hero, /href=\{links\.calculator\} className=\{styles\.hintCta\}/);
+  assert.doesNotMatch(hero, /href=\{links\.calculator\} className=\{styles\.hintCta\}/);
   assert.match(hero, /Illustrativo — non sono dati reali/);
   assert.doesNotMatch(hero, /<video|<canvas|<iframe|useState\(|useEffect\(/);
 });
