@@ -53,6 +53,25 @@ try {
         assert.ok(cta && cta.width > 80 && cta.height >= 44 &&
           cta.x >= -2 && cta.x + cta.width <= viewport.width + 2,
           "Primary CTA clipped or too small");
+        // HOME-CINE2A.8G.1: the mobile dock is a non-overlaying quick-access
+        // band after the hero, not fixed on top of the primary CTA or consent.
+        if (viewport.width <= 390) {
+          const dock = page.locator('[data-testid="home-floating-dock"]');
+          await page.waitForFunction(() =>
+            document.querySelector('[data-testid="home-floating-dock"]')?.getAttribute("data-positioned") === "true");
+          const positions = await page.evaluate(() => {
+            const hero = document.querySelector('section[aria-labelledby="home-cinematic-title"]');
+            const dock = document.querySelector('[data-testid="home-floating-dock"]');
+            const h = hero.getBoundingClientRect(), d = dock.getBoundingClientRect();
+            return { heroBottom: h.bottom, dockTop: d.top, position: getComputedStyle(dock).position };
+          });
+          assert.equal(positions.position, "relative", "Mobile dock must not be fixed");
+          assert.ok(positions.dockTop >= positions.heroBottom - 2,
+            "Dock must follow hero without overlay: " + JSON.stringify(positions));
+          await dock.scrollIntoViewIfNeeded();
+          assert.ok(await dock.isVisible(), "Both tools must remain discoverable below hero");
+          await page.evaluate(() => window.scrollTo(0, 0));
+        }
         const name = locale + "-" + viewport.name;
         await page.screenshot({ path: path.join(output, name + ".png"), fullPage: true, animations: "disabled" });
         report.push({ name, url, status: "pass", cards: 5, href, ...metrics });
