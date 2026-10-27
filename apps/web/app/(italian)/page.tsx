@@ -43,16 +43,6 @@ export const dynamic = "force-static";
 
 const publicTools = [
   {
-    label: "Calcolo pesi",
-    description: "kg/m, peso barra e tonnellaggio.",
-    href: "/knowledge/tubes?source=home&surface=school_section#calcolatore-pesi",
-  },
-  {
-    label: "Crea distinta",
-    description: "Target €/t, €/m e copia pronta per l'email.",
-    href: "/distinta",
-  },
-  {
     label: "Norme",
     description: "Standard, prodotti e riferimenti.",
     href: "/knowledge/norme",
@@ -112,16 +102,16 @@ export default function PublicHomePage() {
         <div className="mx-auto max-w-[1120px] px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div className="max-w-sm">
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Strumenti pubblici · senza account</p>
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Approfondimenti tecnici · accesso libero</p>
               <h2 className="mt-1.5 text-xl font-semibold tracking-tight text-[#1d2824]">
-                Prima utilità, poi prodotto.
+                Norme e materiali, quando servono.
               </h2>
               <p className="mt-2 text-xs leading-5 text-[#52615b]">
-                Calcola, consulta o prepara una distinta. Puoi iniziare subito, senza registrarti.
+                Consulta i riferimenti tecnici dopo aver esplorato gli strumenti.
               </p>
             </div>
 
-            <div className={`${cineStyles.toolShelf} grid flex-1 gap-px overflow-hidden rounded-xl border sm:grid-cols-2 lg:max-w-4xl lg:grid-cols-4`}>
+            <div className={`${cineStyles.toolShelf} grid flex-1 gap-px overflow-hidden rounded-xl border sm:grid-cols-2 lg:max-w-xl lg:grid-cols-2`}>
               {publicTools.map((tool) => (
                 <Link
                   key={tool.label}
