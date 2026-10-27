@@ -33,7 +33,7 @@ test("CALC-INT4.4B preserves calculator first-screen 2 columns, commercial prici
   assert.match(calculator,/const inEmbeddedBuilder = Boolean\(onAddToDistinta\) && !inlinePublicDistinta/);
   assert.match(calculator,/data-cockpit-workspace/);
   assert.match(calculator,/inEmbeddedBuilder \|\| locale === "de"/);
-  assert.match(calculator,/<CalculatorCommercialPricing/);
+  assert.match(calculator,/data-commercial-targets/);
   assert.match(calculator,/!inEmbeddedBuilder \? <details className="group\/extra/);
   assert.match(calculator,/!inEmbeddedBuilder && \(locale === "it" \|\| locale === "en"/);
   assert.match(calculator,/!inEmbeddedBuilder && !inlinePublicDistinta \? \(\s*<details/);
