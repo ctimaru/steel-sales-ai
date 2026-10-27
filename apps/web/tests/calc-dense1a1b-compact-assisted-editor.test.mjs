@@ -30,7 +30,7 @@ test("DENSE1A: compact editor and responsive result preserve core controls", () 
   ]) assert.ok(calculator.includes(marker), marker);
   assert.ok(pricing.includes("<details data-commercial-price"));
   assert.ok(pricing.includes("onChooseBuyerTarget({ basis: source.basis, raw: source.raw, weightKgM })"));
-  assert.ok(privateTargetChrome.includes('[data-commercial-price] summary'));
+  assert.ok(privateTargetChrome.includes('[data-commercial-targets]'));
 });
 
 test("DENSE1B: instant discovery starts collapsed and selects only explicitly", () => {

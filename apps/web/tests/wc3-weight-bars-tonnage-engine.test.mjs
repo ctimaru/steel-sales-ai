@@ -23,13 +23,12 @@ test("WC3 calculates whole-bar requirements from a target tonnage", () => {
   assert.match(calculator, /const targetActualTonnes = targetActualKg != null \? targetActualKg \/ 1000 : null/);
 });
 
-test("WC3 exposes a target-tonnage commercial workflow", () => {
-  assert.match(calculator, /Parti dalle tonnellate/);
-  assert.match(calculator, /Tonnellate target/);
-  assert.match(calculator, /Barre necessarie/);
-  assert.match(calculator, /Tonnellate reali/);
-  assert.match(calculator, /Usa barre suggerite/);
-  assert.match(calculator, /arrotondiamo sempre per eccesso/);
+test("WC3 exposes linked commercial metres and tonnage without mutating bars", () => {
+  assert.match(calculator, /commercialShownMetres/);
+  assert.match(calculator, /commercialShownTonnes/);
+  assert.match(calculator, /setCommercialQuantity/);
+  assert.match(calculator, /commercialWeight/);
+  assert.match(calculator, /const targetBarsExact =/);
 });
 
 test("WC3 lets users adjust bar quantity without retyping the field", () => {

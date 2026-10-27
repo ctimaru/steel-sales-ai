@@ -34,8 +34,8 @@ test("DENSE1R-A no leaked price or auto dispatched RFQ in merged discovery",()=>
     assert.ok(!finder.includes(forbidden),"finder must stay local: "+forbidden);
   assert.ok(calculator.includes("handleStandardChange(event.target.value as StandardValue)"));
   assert.ok(calculator.includes("setFamily(option.value as TubeFamily)"));
-  assert.ok(calculator.includes("<CalculatorCommercialPricing"));
-  assert.ok(calculator.includes("data-commercial-tonnes"));
+  assert.ok(calculator.includes("commercialTotal"));
+  assert.ok(calculator.includes("commercialShownTonnes"));
 });
 
 test("CALC-PARITY public and embedded calculators retain one shared commercial workflow", () => {
@@ -43,9 +43,9 @@ test("CALC-PARITY public and embedded calculators retain one shared commercial w
   // and Distinta handoff must remain inside the single shared calculator.
   assert.match(calculator,/const inEmbeddedBuilder = Boolean\(onAddToDistinta\) && !inlinePublicDistinta/);
   for (const token of ["data-calc-shape-buttons","data-commercial-targets",
-    "data-commercial-tonnes","data-calc-total-weight","data-cockpit-add"])
+    "data-calc-total-weight","data-cockpit-add"])
     assert.equal(calculator.split(token).length-1,1,"Shared feature must not fork: "+token);
-  assert.ok(calculator.includes("onClick={() => setCommercialTargetMode(mode)}"));
+  assert.ok(calculator.includes("onClick={() => setCommercialPriceUnit(unit)}"));
   assert.ok(calculator.includes("onClick={() => setFamily(option.value as TubeFamily)}"));
   assert.ok(calculator.includes("onAddToDistinta(item)"));
   assert.ok(calculator.includes("inEmbeddedBuilder ? sectionDiagram : null"));

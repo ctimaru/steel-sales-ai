@@ -107,20 +107,16 @@ try {
   await root.locator('[data-cockpit-add]').click();
   if(locale==='it' && width===1440) {
    const targets=root.locator('[data-commercial-targets]');
-   assert.equal(await targets.locator('button').count(),3,'Three commercial modes');
-   assert.equal(await targets.locator('button').first().getAttribute('aria-pressed'),'true','Metres default');
-   await targets.locator('button').nth(1).click();
-   await root.locator('[data-commercial-tonnes] input').fill('1');
-   const suggestion=Number((await root.locator('[data-commercial-tonnes] strong').first().innerText()).trim());
-   assert.ok(suggestion>=1,'Tonnage produces rounded-up whole bars');
-   await root.locator('[data-commercial-tonnes] button').click();
-   assert.equal(await root.locator('#tube-calculator-quantity').inputValue(),String(suggestion),'Suggested bars reuse canonical quantity state');
-   await root.locator('#tube-calculator-quantity').fill('3');
-   await targets.locator('button').nth(2).click();
-   assert.equal(await targets.locator('button').nth(2).getAttribute('aria-pressed'),'true','Price selected');
+   const metres=targets.getByRole('textbox',{name:'Metri totali'});
+   const tonnes=targets.getByRole('textbox',{name:'Tonnellate'});
+   await metres.fill('12');
+   assert.ok(Number((await tonnes.inputValue()).replace(',','.'))>0,'Metres must derive tonnes from real kg/m');
+   await tonnes.fill('1');
+   assert.ok(Number((await metres.inputValue()).replace(',','.'))>0,'Tonnes must derive metres from real kg/m');
+   await targets.getByRole('button',{name:'€/t'}).click();
+   await targets.getByRole('textbox',{name:'Prezzo €'}).fill('850');
+   assert.match(await targets.locator('[aria-live="polite"]').innerText(),/850/,'Target amount updates from tonne price');
 
-   await root.locator('[data-commercial-price] summary').click();
-   await root.locator('[data-commercial-price] input').first().fill('850');
   }
   await root.locator('[data-cinematic-copy]').click();
   const copied=await page.evaluate(()=>navigator.clipboard.readText());
