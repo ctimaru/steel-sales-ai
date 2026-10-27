@@ -72,6 +72,43 @@ try {
           assert.ok(await dock.isVisible(), "Both tools must remain discoverable below hero");
           await page.evaluate(() => window.scrollTo(0, 0));
         }
+        // HOME-CALC-EMBED3: real modal, not just a static homepage capture.
+        // Check shared calculator geometry inside the actual modal iframe.
+        if ([390, 1440].includes(viewport.width)) {
+          const dock = page.getByTestId("home-floating-dock");
+          await dock.getByRole("button", {
+            name: locale === "it" ? "Pesi e Norme" : "Weights & Standards",
+          }).click();
+          const modal = page.locator("#home-floating-weights");
+          await modal.waitFor({ state: "visible" });
+          const frame = modal.locator("iframe");
+          await frame.waitFor({ state: "attached" });
+          assert.equal(await frame.getAttribute("src"),
+            locale === "it" ? "/calculator-embed" : "/en/calculator-embed",
+            "Modal must load the embedded surface, not the whole School");
+          const inner = page.frameLocator("#home-floating-weights iframe");
+          await inner.locator("[data-calculator-embed]").waitFor({ state: "attached", timeout: 60000 });
+          await inner.locator("#calcolatore-pesi").waitFor({ state: "visible", timeout: 60000 });
+          assert.equal(await inner.locator("[data-cockpit-workspace] [data-cockpit-fields]").count(), 1);
+          assert.equal(await inner.locator("[data-cockpit-workspace] [data-cockpit-results]").count(), 1);
+          assert.equal(await inner.locator("[data-cockpit-workspace] [data-cockpit-preview]").count(), 1);
+          assert.equal(await inner.locator("header nav, [data-testid=calculator-editorial-disclosure]").count(), 0,
+            "Embedded calculator must not carry a second site menu/editorial page");
+          const embedded = await inner.locator("[data-calculator-embed]").evaluate((el) => ({
+            width: document.documentElement.clientWidth,
+            scrollWidth: document.documentElement.scrollWidth,
+            workspaceColumns: getComputedStyle(el.querySelector("[data-cockpit-workspace]")).gridTemplateColumns,
+          }));
+          assert.ok(embedded.scrollWidth <= embedded.width + 12,
+            "Embedded calculator has horizontal overflow: " + JSON.stringify(embedded));
+          const modalName = locale + "-" + viewport.name + "-calculator-modal";
+          await page.screenshot({
+            path: path.join(output, modalName + ".png"), animations: "disabled",
+          });
+          report.push({ name: modalName, status: "pass", ...embedded });
+          await modal.getByRole("button", { name: locale === "it" ? "Chiudi strumento" : "Close tool" }).click();
+          await modal.waitFor({ state: "hidden" });
+        }
         const name = locale + "-" + viewport.name;
         await page.screenshot({ path: path.join(output, name + ".png"), fullPage: true, animations: "disabled" });
         report.push({ name, url, status: "pass", cards: 5, href, ...metrics });
