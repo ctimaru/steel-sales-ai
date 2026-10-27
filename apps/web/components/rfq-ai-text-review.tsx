@@ -172,15 +172,6 @@ export function RfqAiTextReview({
             ) : (
               <p className="rfqai3-warning">Nessun estratto testuale verificabile: ricrea l'articolo nel configuratore manuale.</p>
             )}
-            {missingQuestions.length > 0 ? (
-              <div className="rfqai3-warning" role="group" aria-label="Domande per completare l'articolo" data-rfqai-missing-questions>
-                <strong>Per completare questo articolo</strong>
-                <p>Rispondi solo alle informazioni mancanti, usando i campi sottostanti. Nessun valore viene inventato.</p>
-                <ul>
-                  {missingQuestions.map((question) => <li key={question}>{question}</li>)}
-                </ul>
-              </div>
-            ) : null}
             {nextQuickField ? (
               <div className="rounded-xl border border-[#b9d8c7] bg-[#f3faf6] p-3" data-rfqai-quick-reply>
                 <p className="text-xs font-semibold text-[#144e37]">Assistente · Completiamo un dato alla volta</p>
@@ -207,6 +198,20 @@ export function RfqAiTextReview({
                 </div>
                 {quickErrors[candidate.candidateId] ? <p role="alert" className="rfqai3-warning">{quickErrors[candidate.candidateId]}</p> : null}
                 <p className="mt-2 text-xs text-[#436554]">Aggiorna solo questo articolo. Gli altri campi restano invariati; la conferma finale è sempre manuale.</p>
+              </div>
+            ) : null}
+            <details className="mt-3 rounded-xl border border-[#cbded3] bg-white p-3" open={!nextQuickField} data-rfqai-technical-details>
+              <summary className="cursor-pointer text-sm font-semibold text-[#184d36] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#236b4a]">
+                Verifica e modifica tutti i dati tecnici
+              </summary>
+              <p className="mt-2 text-xs text-[#52675a]">I dati riconosciuti restano modificabili. Le informazioni mancanti non vengono stimate.</p>
+            {missingQuestions.length > 0 ? (
+              <div className="rfqai3-warning" role="group" aria-label="Domande per completare l'articolo" data-rfqai-missing-questions>
+                <strong>Per completare questo articolo</strong>
+                <p>Rispondi solo alle informazioni mancanti, usando i campi sottostanti. Nessun valore viene inventato.</p>
+                <ul>
+                  {missingQuestions.map((question) => <li key={question}>{question}</li>)}
+                </ul>
               </div>
             ) : null}
             <div className="rfqai3-candidate-grid">
@@ -318,6 +323,7 @@ export function RfqAiTextReview({
                 <strong>{candidate.proposedLine.weightKgM || "—"} kg/m</strong>
               </div>
             </div>
+            </details>
             {candidate.issues.length ? (
               <ul className="rfqai3-issues" aria-label="Elementi da verificare">
                 {candidate.issues.map((issue, j) => <li key={j}>
