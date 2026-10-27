@@ -45,7 +45,7 @@ test("PA1.1 public-value architecture remains intact after PA1.2 adds real compa
 
 test("PA1.1 aligns the public home with the current brand palette", () => {
   assert.match(showcase, /bg-\[#123b34\]/);
-  assert.match(header, /bg-\[#0b7852\]/);
+  assert.match(hero, /href=\{links\.calculator\} className=\{styles\.primary\}/);
   assert.doesNotMatch(home, /#2f6fed/);
   assert.doesNotMatch(home, /#245ed1/);
 });
