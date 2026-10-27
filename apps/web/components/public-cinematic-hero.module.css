@@ -685,3 +685,33 @@
 @media (hover: none) {
   .primary:hover, .secondary:hover { transform: none; }
 }
+
+/* HOME-CINE2A.8E — first viewport: prioritize the calculator CTA, without
+   touching the legally required cookie controls or removing useful links. */
+@media (max-width: 700px) {
+  .container { padding-top: 24px; padding-bottom: 74px; }
+  .eyebrow { gap: 6px; line-height: 1.35; }
+  .title { margin-top: 12px; line-height: 1.035; }
+  .description { margin-top: 11px; font-size: 13px; line-height: 1.45; }
+  .actions { margin-top: 14px; gap: 8px; }
+  .primary, .secondary { min-height: 46px; padding: 10px 13px; }
+  .caveat { margin-top: 9px; line-height: 1.45; }
+  .quickLinks { margin-top: 11px; padding-top: 9px; gap: 8px 13px; }
+  .visualCaption { bottom: 13px; font-size: 8px; }
+}
+@media (max-width: 390px) {
+  .container { padding: 20px 16px 65px; }
+  .title { margin-top: 10px; font-size: clamp(2.08rem, 9.5vw, 2.3rem); }
+  .description { margin-top: 9px; }
+  .actions { margin-top: 12px; }
+  .quickLinks { margin-top: 9px; }
+}
+@media (max-width: 359px) {
+  .copy { display: flex; flex-direction: column; align-items: stretch; }
+  .eyebrow { order: 0; }
+  .title { order: 1; }
+  .actions { order: 2; margin-top: 12px; }
+  .description { order: 3; margin-top: 13px; }
+  .caveat { order: 4; }
+  .quickLinks { order: 5; }
+}
