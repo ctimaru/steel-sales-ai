@@ -72,6 +72,27 @@ export function HomeCalculatorEmbedStyle() {
     }
     [data-calculator-embed] [data-cockpit-kpis] > div { min-height:42px; }
   }
+  /* Embed-only: never truncate the steel shape labels at 390px or 1440px. */
+  [data-calculator-embed] [data-calc-shape-buttons] button {
+    min-width:0;
+    gap:3px;
+    padding-inline:3px;
+  }
+  [data-calculator-embed] [data-calc-shape-buttons] button span {
+    min-width:0;
+    overflow:visible;
+    text-overflow:clip;
+    white-space:nowrap;
+  }
+  @media(max-width:1199px) {
+    [data-calculator-embed] [data-calc-shape-buttons] button svg {
+      display:none;
+    }
+    [data-calculator-embed] [data-calc-shape-buttons] button span {
+      font-size:clamp(9px,2.6vw,12px);
+      letter-spacing:-.02em;
+    }
+  }
   @media(max-width:699px) {
     [data-calculator-embed] [data-cockpit-workspace] { padding:6px; gap:6px; }
     [data-calculator-embed] [data-cockpit-fields] { padding:9px; }
