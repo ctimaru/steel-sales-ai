@@ -148,6 +148,19 @@ async function SelectedDetail({
           {canWrite ? "Continua →" : "Apri dettaglio →"}
         </Link>
       </section>
+      <section aria-labelledby="commercial-deal-memory-heading" data-testid="commercial-deal-memory-entry"
+        className="rounded-xl border border-[var(--border)] bg-white p-3 sm:p-4">
+        <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--brand-primary)]">Commercial Intelligence</p>
+        <h4 id="commercial-deal-memory-heading" className="mt-1 text-sm font-semibold text-[var(--brand-deep)]">Cerca nella memoria commerciale</h4>
+        <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
+          Consulta conversazioni e informazioni già disponibili nel workspace. La ricerca nell’assistente è manuale:
+          questa trattativa non viene condivisa o analizzata automaticamente.
+        </p>
+        <Link href={appRoutes.commercial.assistant}
+          className="mt-3 inline-flex min-h-10 items-center rounded-lg border border-[var(--border-strong)] px-3 text-xs font-semibold text-[var(--brand-deep)] hover:bg-[var(--brand-primary-soft)]">
+          Apri assistente commerciale →
+        </Link>
+      </section>
       {item.campaignId ? (
         <CommercialCampaignOperations
           rfqId={item.campaignId}
