@@ -109,35 +109,6 @@ export function HomeFloatingTools({ locale }: { locale: "it" | "en" }) {
     };
   }, []);
 
-  // HOME-CINE2A.8G.1: the hero already provides both real tool actions.
-  // On narrow screens, show the persistent dock only after leaving the hero.
-  // Keep it available below the fold and leave native consent controls intact.
-  useEffect(() => {
-    const dock = dockRef.current;
-    if (!dock) return;
-    const hero = document.querySelector<HTMLElement>('section[aria-labelledby="home-cinematic-title"]');
-    const update = () => {
-      const compact = window.matchMedia("(max-width: 700px)").matches;
-      const beyond = !compact || !hero || hero.getBoundingClientRect().bottom <= 0;
-      dock.dataset.beyondHero = beyond ? "true" : "false";
-      // Keep the original parser/consent positioning gate authoritative.
-      // Inline visibility avoids a stale CSS visibility state on hydration.
-      if (dock.dataset.positioned === "true") {
-        dock.style.visibility = beyond ? "visible" : "hidden";
-      }
-    };
-    const observer = hero ? new IntersectionObserver(update, { threshold: 0 }) : null;
-    if (hero) observer?.observe(hero);
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    update();
-    return () => {
-      observer?.disconnect();
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-    };
-  }, []);
-
   function frameLoaded(tool: Tool, frame: HTMLIFrameElement) {
     frameCleanup.current[tool]?.();
     setLoaded(previous => ({ ...previous, [tool]: true }));
