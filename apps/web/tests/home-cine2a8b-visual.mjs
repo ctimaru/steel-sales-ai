@@ -65,6 +65,16 @@ try {
             "Dock must be suppressed while mobile hero is visible");
           assert.equal(await dock.isVisible(), false,
             "Fixed dock must not overlap the mobile first viewport");
+          // Give the visitor an explicit, non-tracking choice before checking
+          // the persistent dock: the initial consent overlay can fill the
+          // vertical space reserved for it and intentionally takes priority.
+          const consent = page.locator('[data-testid="mobile-cookie-consent"]');
+          if (await consent.isVisible()) {
+            await consent.getByRole("button", {
+              name: locale === "it" ? "Accetta necessari" : "Essential only", exact: true,
+            }).click();
+            await consent.waitFor({ state: "hidden" });
+          }
           await page.locator('section[aria-labelledby="home-cinematic-title"]').evaluate(
             el => window.scrollTo({ top: el.getBoundingClientRect().bottom + window.scrollY + 10 }),
           );
