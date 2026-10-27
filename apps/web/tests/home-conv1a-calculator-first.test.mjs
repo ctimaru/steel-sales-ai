@@ -73,5 +73,5 @@ test("HOME-CONV1A is lightweight, readable and available at all breakpoints", ()
   assert.match(workflow, /apps\/web\/app\/\(italian\)\/\*\*/);
   assert.match(workflow, /apps\/web\/app\/\(english\)\/\*\*/);
   assert.match(read("./home-si5-chrome-visual-qa.mjs"), /HOME-CONV1A/);
-  assert.match(read("./home-si5-chrome-visual-qa.mjs"), /calculator action not sticky after scroll/);
+  assert.match(read("./home-si5-chrome-visual-qa.mjs"), /Mobile quick tools must follow hero in normal flow/);
 });
