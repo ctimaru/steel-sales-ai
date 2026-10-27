@@ -11,7 +11,11 @@ const browser = await chromium.launch({ headless: true,
   ...(process.env.FLOAT1B_CHROMIUM ? { executablePath: process.env.FLOAT1B_CHROMIUM } : { channel: "chrome" }) });
 async function noCookieCollision(page, selector) {
   await page.waitForFunction(selector => {
-    const a = document.querySelector('[data-testid="home-floating-dock"]').getBoundingClientRect();
+    const dock = document.querySelector('[data-testid="home-floating-dock"]');
+    const a = dock.getBoundingClientRect();
+    // Flow-positioned mobile actions cannot overlay the viewport as a floating dock.
+    if (getComputedStyle(dock).position !== "fixed") return true;
+    if (getComputedStyle(dock).visibility === "hidden" || getComputedStyle(dock).display === "none") return true;
     const b = document.querySelector(selector)?.getBoundingClientRect();
     return b && (a.bottom <= b.top || a.right <= b.left || a.left >= b.right);
   }, selector);
@@ -60,6 +64,8 @@ try {
       name: locale === "it" ? "Accetta necessari" : "Essential only", exact: true,
     }).click();
     await noCookieCollision(page, '[data-testid="privacy-reopen-button"]');
+    // Mobile quick tools are intentionally in normal flow after the hero.
+    if (width <= 700) await dock.scrollIntoViewIfNeeded();
     await weights.click();
     const dialog = page.locator("#home-floating-weights");
     await page.waitForFunction(() => document.querySelector("#home-floating-weights")?.matches(":modal"));
