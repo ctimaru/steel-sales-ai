@@ -597,3 +597,44 @@
   .caveat { order: 4; }
   .quickLinks { order: 5; }
 }
+
+/* HOME-CINE2A.3/4 — one readable photographic focal point and quiet product proof. */
+@media (min-width: 1024px) {
+  .hero::after {
+    background:
+      linear-gradient(90deg, #04120f 0%, rgba(4,18,15,.96) 21%, rgba(4,18,15,.75) 43%, rgba(4,18,15,.17) 70%, rgba(4,18,15,.04) 100%),
+      linear-gradient(0deg, rgba(4,18,13,.75), transparent 33%, rgba(4,18,13,.26));
+  }
+  .ambient { background-position: center, right 50%, center; background-size: cover, auto 106%, cover; }
+  .copy { max-width: 550px; }
+  .intelligenceOverlay { opacity: .49; right: 8%; width: min(32vw, 390px); }
+  .productHint {
+    right: 36px;
+    bottom: 108px;
+    width: 272px;
+    gap: 11px;
+    padding: 19px 18px 16px;
+    border-radius: 15px;
+    border-color: rgba(154,231,190,.38);
+    background: linear-gradient(145deg, rgba(4,26,21,.96), rgba(6,32,26,.91));
+    box-shadow: 0 16px 42px rgba(0,10,8,.45);
+  }
+}
+.productHint .specFields { padding: 5px 0; }
+.productHint .specFields > span { min-height: 32px; font-size: 11px; }
+.productHint .workflowTrack { margin-top: 2px; }
+.productHint .workflowTrack span { background: rgba(28,82,57,.14); }
+@media (min-width: 701px) and (max-width: 1023px) {
+  .hero { min-height: 610px; }
+  .container { min-height: 610px; }
+  .ambient { background-position: center, right center, center; background-size: cover, auto 98%, cover; }
+  .hero::after { background: linear-gradient(90deg, #04120f 0%, rgba(4,18,15,.94) 42%, rgba(4,18,15,.48) 100%); }
+}
+@media (max-width: 700px) {
+  .hero::after { background: linear-gradient(to bottom, #04120f 0%, rgba(4,18,15,.98) 34%, rgba(4,18,15,.72) 60%, rgba(4,18,15,.28) 86%, rgba(4,18,15,.64) 100%); }
+  .ambient { background-position: center, 75% bottom, center; background-size: cover, auto 64%, cover; }
+  .copy { max-width: 100%; }
+}
+@media (prefers-reduced-motion: reduce), (prefers-reduced-data: reduce) {
+  .productHint, .ambient, .intelligenceOverlay { animation: none !important; }
+}
