@@ -82,7 +82,7 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
           </p>
           <div className={styles.actions}>
             <Link href={links.calculator} className={styles.primary}>
-              {en ? "Open tube calculator" : "Apri calcolatrice"} <span aria-hidden="true">↗</span>
+              {en ? "Standards & weights" : "Norme e pesi"} <span aria-hidden="true">↗</span>
             </Link>
             <Link href={links.builder} className={styles.secondary}>
               {en ? "Create a free RFQ bill" : "Crea una distinta gratis"} <span aria-hidden="true">→</span>
@@ -103,7 +103,7 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
           <span className={styles.captionKicker}>01 / 03</span>
           <span>{en ? "MATERIAL · DATA · CONNECTIONS" : "MATERIA · DATI · CONNESSIONI"}</span>
         </div>
-        <aside className={styles.productHint} data-home-cine-motion="product" aria-label={en ? "Illustrative tube calculator preview" : "Anteprima illustrativa calcolatrice tubi"}>
+        <aside className={styles.productHint} data-home-cine-motion="product" aria-label={en ? "Illustrative technical workflow preview" : "Anteprima illustrativa del percorso tecnico"}>
           <span className={styles.hintLabel}>{en ? "TECHNICAL CALCULATOR" : "CALCOLATRICE TECNICA"}</span>
           <div className={styles.specHead}>
             <span className={styles.specIcon} aria-hidden="true">
@@ -123,9 +123,6 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
             <span><b>02</b> {en ? "Enter dimensions" : "Inserisci dimensioni"}</span>
             <span><b>03</b> {en ? "Calculate weight" : "Calcola peso"}</span>
           </div>
-          <Link href={links.calculator} className={styles.hintCta}>
-            {en ? "Open real calculator" : "Apri la calcolatrice"} <span aria-hidden="true">↗</span>
-          </Link>
           <div className={styles.workflowTrack} aria-hidden="true">
             <span><b>01</b>{en ? "Bill" : "Distinta"}</span>
             <i aria-hidden="true">›</i>

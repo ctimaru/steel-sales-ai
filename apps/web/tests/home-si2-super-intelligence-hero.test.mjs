@@ -22,7 +22,7 @@ test("HOME-SI2 establishes a truthful AI-ready hero without claiming autonomous 
 
 test("HOME-SI2 prioritizes conversion but preserves free utilities and role exploration", () => {
   assert.match(header, /"\/register"/);
-  assert.match(hero, /Apri calcolatrice/);
+  assert.match(hero, /Norme e pesi/);
   assert.match(home, /href="\/distinta"/);
   assert.match(home, /href="\/knowledge"/);
   assert.match(publicNav, /href: "\/azienda"/);

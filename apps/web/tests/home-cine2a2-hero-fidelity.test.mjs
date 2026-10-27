@@ -22,14 +22,14 @@ test("CINE2A.2 photograph and geographic network remain separate from live produ
 
 test("CINE2A.2 product proof links to the actual public calculator and shows no fake weights", () => {
   assert.match(hero, /<aside className=\{styles\.productHint\}/);
-  assert.match(hero, /href=\{links\.calculator\} className=\{styles\.hintCta\}/);
+  assert.doesNotMatch(hero, /href=\{links\.calculator\} className=\{styles\.hintCta\}/);
   assert.match(hero, /href=\{links\.calculator\} className=\{styles\.primary\}/);
   assert.match(hero, /href=\{links\.builder\} className=\{styles\.secondary\}/);
   assert.match(hero, /CHS · SHS · RHS/);
   assert.match(hero, /Illustrativo — non sono dati reali/);
   assert.match(hero, /Illustrative — not live data/);
   assert.match(hero, /Company workspaces are subject to registration/);
-  assert.match(header, /data-home-primary-cta/);
+  assert.doesNotMatch(header, /data-home-primary-cta/);
   assert.doesNotMatch(hero, /10,000\+|100\+|31\.51\s*kg|168\.3\s*mm|8\.0\s*mm|<iframe|<video|<canvas|useEffect|useState|fetch\s*\(/i);
   assert.doesNotMatch(css, /url\(https?:\/\//);
   assert.ok(statSync(new URL("../public/home-cine1e-steel-desktop.webp", import.meta.url)).size <= 55_000);
