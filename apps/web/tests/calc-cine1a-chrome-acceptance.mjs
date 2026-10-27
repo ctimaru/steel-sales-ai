@@ -115,6 +115,11 @@ try {
    assert.ok(Number((await metres.inputValue()).replace(',','.'))>0,'Tonnes must derive metres from real kg/m');
    await targets.getByRole('textbox',{name:'Prezzo €/t'}).fill('850');
    assert.notEqual(await targets.getByRole('textbox',{name:'Prezzo €/m'}).inputValue(),'');
+   const initialPerMetre=Number((await targets.getByRole('textbox',{name:'Prezzo €/m'}).inputValue()).replace(',','.'));
+   assert.ok(initialPerMetre>0,'Tonne price converts to positive €/m');
+   await targets.getByRole('textbox',{name:'Prezzo €/m'}).fill('25');
+   assert.ok(Number((await targets.getByRole('textbox',{name:'Prezzo €/t'}).inputValue()).replace(',','.'))>0,'Metre price converts to positive €/t');
+   await targets.getByRole('textbox',{name:'Prezzo €/t'}).fill('850');
    assert.match(await targets.locator('[aria-live="polite"]').innerText(),/850/,'Target amount updates from tonne price');
 
   }
