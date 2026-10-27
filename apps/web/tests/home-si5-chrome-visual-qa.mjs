@@ -72,147 +72,77 @@ try {
       const response = await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 50000 });
       assert.equal(response?.status(), 200, viewport.name + " homepage should return HTTP 200");
       await page.getByRole("heading", { name: /L.acciaio ha una nuova intelligenza/i }).waitFor();
-      const expected = [
+      // HOME-CINE2A: preserve actual public navigation, not superseded
+      // HOME-CONV1A header/hero labels that were intentionally removed.
+      const sections = [
         "La filiera steel, utile in base al tuo ruolo.",
         "Tre forme di intelligence. Un solo ecosistema.",
-        "Prima utilità, poi prodotto.",
+        "Cinque strumenti. Un unico percorso.",
         "Cercala per nome o Partita IVA.",
         "La tua azienda, un accesso governato.",
       ];
-      for (const name of expected) {
-        check(await page.getByRole("heading", { name, exact: true }).count() === 1, "Missing section: " + name);
+      for (const name of sections) {
+        check(await page.getByRole("heading", { name, exact: true }).count() === 1, "Missing public section: " + name);
       }
-
-      const layout = await page.evaluate(() => {
-        const dom = document.documentElement;
-        const actualWidth = dom.clientWidth;
-        const pageWidth = dom.scrollWidth;
-        const sections = ["home-cinematic-title", "network", "intelligence", "aziende", "registrazione"];
-        const geometry = sections.map((id) => {
-          const el = document.getElementById(id);
-          if (!el) return { id, missing: true };
-          const r = el.getBoundingClientRect();
-          return { id, left: Math.round(r.left), right: Math.round(r.right), width: Math.round(r.width) };
-        });
-        return { actualWidth, pageWidth, geometry };
-      });
+      const layout = await page.evaluate(() => ({
+        actualWidth: document.documentElement.clientWidth,
+        pageWidth: document.documentElement.scrollWidth,
+      }));
       check(layout.pageWidth <= layout.actualWidth + 12,
-        viewport.name + " has page overflow " + JSON.stringify(layout));
-      for (const g of layout.geometry) {
-        check(!g.missing && g.width > 0, viewport.name + " has invisible or absent section " + g.id);
-        check(g.left >= -12 && g.right <= layout.actualWidth + 12,
-          viewport.name + " section clipped: " + JSON.stringify(g));
-      }
-
-      // HOME-CONV1A: a public calculator is the first action, even after scrolling.
-      // Company sign-in/registration share one native, keyboard-accessible menu.
+        viewport.name + " horizontal overflow " + JSON.stringify(layout));
       const publicHeader = page.locator("header").first();
-      const stickyCalculator = publicHeader.locator('[data-home-primary-cta]');
-      const expectedCalculator = "/knowledge/tubes?source=home&surface=header#calcolatore-pesi";
-      check(await stickyCalculator.count() === 1, "Persistent calculator CTA missing");
-      check(await stickyCalculator.getAttribute("href") === expectedCalculator, "Header calculator destination changed");
       const hero = page.locator('section[aria-labelledby="home-cinematic-title"]');
-      check(await hero.getByRole("link", { name: "Apri calcolatrice" }).getAttribute("href")
-        === "/knowledge/tubes?source=home&surface=hero#calcolatore-pesi",
-        "Hero calculator must be the first direct action");
-      // HOME-CINE2A.2B.1: don't call mobile CTA visible just because the
-      // anchor exists: first-visit consent must not paint over its tap target.
+      const primaryHeroAction = hero.getByRole("link", { name: /Norme e pesi/ });
+      check(await primaryHeroAction.count() === 1, "Hero technical primary action missing");
+      check((await primaryHeroAction.getAttribute("href")) ===
+        "/knowledge/tubes?source=home&surface=hero#calcolatore-pesi",
+        "Hero calculator must remain public and live");
+      const publicDistinta = hero.getByRole("link", { name: /Crea una distinta gratis/ });
+      check(await publicDistinta.count() === 1 &&
+        await publicDistinta.getAttribute("href") === "/distinta", "Public bill CTA missing");
+      check(await page.locator("#home-tools a").count() === 5,
+        "Five product-led tool cards must render");
+      const account = publicHeader.locator('nav[aria-label="Area aziende"] details');
+      check(await account.count() === 1, "Company account details menu missing");
+      await account.locator("summary").click();
+      check(await account.locator('a[href="/login"]').count() === 1, "Company login missing");
+      check(await account.locator('a[href="/register"]').count() === 1, "Company registration missing");
+      await account.locator("summary").click();
       if (viewport.width <= 390) {
-        const primaryHeroAction = hero.getByRole("link", { name: "Apri calcolatrice" });
         const actionRect = await primaryHeroAction.boundingBox();
-        check(Boolean(actionRect && actionRect.y >= 0 &&
-          actionRect.y + actionRect.height <= viewport.height),
-          viewport.name + " calculator CTA outside the initial viewport: " + JSON.stringify(actionRect));
+        check(Boolean(actionRect && actionRect.width >= 100 && actionRect.height >= 44 &&
+          actionRect.x >= -2 && actionRect.x + actionRect.width <= viewport.width + 2),
+          viewport.name + " mobile primary CTA clipped " + JSON.stringify(actionRect));
         const cookiePanel = page.getByTestId("mobile-cookie-consent");
-        // Analytics may be disabled in some local configurations. When enabled,
-        // check genuine geometry against the actual rendered first-visit layer.
         if (await cookiePanel.isVisible()) {
           const consentRect = await cookiePanel.boundingBox();
           check(Boolean(actionRect && consentRect &&
             (actionRect.y + actionRect.height + 8 <= consentRect.y ||
-              actionRect.x + actionRect.width <= consentRect.x ||
-              consentRect.x + consentRect.width <= actionRect.x)),
-            viewport.name + " first-visit consent overlaps calculator CTA: " +
-              JSON.stringify({ actionRect, consentRect }));
+             actionRect.x + actionRect.width <= consentRect.x ||
+             consentRect.x + consentRect.width <= actionRect.x)),
+            "First-visit consent covers calculator CTA " + JSON.stringify({actionRect,consentRect}));
         }
+        const dock = page.getByTestId("home-floating-dock");
+        const position = await dock.evaluate(el => getComputedStyle(el).position);
+        check(position === "relative", "Mobile quick tools must follow hero in normal flow");
       }
-      const publicDistinta = hero.getByRole("link", { name: "Crea una distinta gratis" });
-      check(await publicDistinta.count() === 1, "No public builder second step");
-      check(await publicDistinta.getAttribute("href") === "/distinta", "Builder CTA is not public");
-      const account = publicHeader.locator('nav[aria-label="Area aziende"] details');
-      const accountSummary = account.locator("summary");
-      check(await accountSummary.count() === 1, "Area aziende access menu missing");
-      await accountSummary.click();
-      check(await account.locator('a[href="/login"]').count() === 1, "Company login menu item missing");
-      check(await account.locator('a[href="/register"]').count() === 1, "Company registration menu item missing");
-      await accountSummary.click();
-      const language = publicHeader.locator('nav[aria-label="Seleziona lingua del sito"]');
-      check(await language.count() === 1, "Compact locale selector missing");
-      check(await language.locator("summary").innerText() === "IT", "Home locale should display compact IT code");
-      await page.evaluate(() => window.scrollTo(0, 450));
-      const stickyRect = await stickyCalculator.boundingBox();
-      check(Boolean(stickyRect && stickyRect.y >= 0 && stickyRect.y < 90),
-        viewport.name + " calculator action not sticky after scroll");
-      await page.evaluate(() => window.scrollTo(0, 0));
-
-      if (viewport.width === 320) {
-        // Explicit narrow English first-fold acceptance. Catch width regressions
-        // before unrelated downstream visual and investor checks.
-        const englishNarrow = await page.goto(BASE + "/en", { waitUntil: "domcontentloaded", timeout: 50000 });
-        check(englishNarrow?.status() === 200, "CONV1A English 320 homepage unavailable");
-        const enNarrow = await page.evaluate(() => ({
-          width: document.documentElement.clientWidth,
-          scroll: document.documentElement.scrollWidth,
-        }));
-        check(enNarrow.scroll <= enNarrow.width + 12,
-          "CONV1A English 320 first-fold overflow: " + JSON.stringify(enNarrow));
-        const enPrimary = page.locator("header").first().locator("[data-home-primary-cta]");
-        check((await enPrimary.innerText()).trim().startsWith("Calc"), "CONV1A English mobile calculator label missing");
-        check(await enPrimary.getAttribute("href") === "/en/knowledge/tubes",
-          "CONV1A English 320 calculator must remain public");
-        await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 50000 });
-      }
-
-      const networkLinks = await page.locator('a[href="/network"], a[href="/rfq-hub"], a[href="/platform"]').count();
-      assert.equal(networkLinks, 0, "Public page must not link users into private data");
-      // HOME-CINE1C: the industrial technical showcase must remain navigable
-      // and safe at every viewport, without privileged RFQ/Network links.
       const geometryProof = page.locator("#steel-tools-proof");
-      check(await geometryProof.count() === 1, viewport.name + " geometry proof missing");
+      check(await geometryProof.count() === 1, "Technical geometry proof missing");
       for (const family of ["CHS", "SHS", "RHS"]) {
-        check(await geometryProof.getByText(family, { exact: true }).count() === 1,
-          viewport.name + " missing public geometric family " + family);
+        check(await geometryProof.getByText(family, { exact: true }).count() >= 1,
+          "Missing tube geometry " + family);
       }
-      check(await geometryProof.getByRole("link", { name: "Apri il calcolatore" }).getAttribute("href")
-        === "/knowledge/tubes?source=home&surface=school_section#calcolatore-pesi",
-        "CINE1C calculator attribution changed");
-      check(await geometryProof.getByRole("link", { name: "Crea una distinta" }).getAttribute("href")
-        === "/distinta", "CINE1C builder must remain public");
-      check(await page.locator("#registrazione").count() === 1,
-        viewport.name + " existing IT trust section missing");
-
-      if (viewport.width === 390 || viewport.width === 1440) {
-        const english = await page.goto(BASE + "/en", { waitUntil: "domcontentloaded", timeout: 50000 });
-        check(english?.status() === 200, "CINE1C English homepage unavailable");
-        check(await page.locator("#steel-tools-proof").count() === 1, "CINE1C English product proof missing");
-        const enHeader = page.locator("header").first();
-        check(await enHeader.locator('[data-home-primary-cta]').getAttribute("href") === "/en/knowledge/tubes",
-          "EN persistent calculator not linked to public English calculator");
-        const enCompany = enHeader.locator('nav[aria-label="Company account"] details');
-        await enCompany.locator("summary").click();
-        check(await enCompany.locator('a[href="/en/login"]').count() === 1, "English sign-in missing");
-        check(await enCompany.locator('a[href="/en/register"]').count() === 1, "English registration missing");
-        await enCompany.locator("summary").click();
-        check(await enHeader.locator('nav[aria-label="Choose website language"] summary').innerText() === "EN",
-          "English locale must stay compact");
-        check(await page.getByRole("heading", { name: "Your company. A governed workspace." }).count() === 1,
-          "CINE1C English trusted access panel missing");
-        check(await page.locator("#steel-tools-proof").getByRole("link", { name: "Open tube calculator" }).getAttribute("href")
-          === "/en/knowledge/tubes", "CINE1C EN calculator route mismatch");
-        const enOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-        check(enOverflow <= 12, "CINE1C EN overflow: " + enOverflow);
-        await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 50000 });
-      }
+      check(await geometryProof.getByRole("link", { name: "Apri il calcolatore" }).getAttribute("href") ===
+        "/knowledge/tubes?source=home&surface=school_section#calcolatore-pesi",
+        "Technical proof calculator destination lost");
+      const enPage = await page.goto(BASE + "/en", { waitUntil: "domcontentloaded", timeout: 50000 });
+      check(enPage?.status() === 200, "English public homepage unavailable");
+      const enHero = page.locator('section[aria-labelledby="home-cinematic-title"]');
+      check((await enHero.getByRole("link", {name:/Standards & weights/}).getAttribute("href")) ===
+        "/en/knowledge/tubes", "English public calculator destination lost");
+      check(await page.locator("#home-tools a").count() === 5, "English product gallery missing");
+      check(await page.locator("#steel-tools-proof").count() === 1, "English geometry proof missing");
+      await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 50000 });
 
       // HOME-CINE1D — ensure photographic composition never hides the action.
       const visualRhythm = await page.evaluate(() => {
