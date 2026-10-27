@@ -99,3 +99,17 @@
 @media (prefers-reduced-motion: reduce) {
   .dock, .panel { scroll-behavior: auto; }
 }
+
+
+/* HOME-CINE2A.8G.1: mobile tool dock is in normal document flow directly
+   AFTER the hero; it cannot overlay the hero, consent or a first-visit CTA. */
+@media (max-width: 700px) {
+  .dock {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    margin: 12px auto;
+    max-width: calc(100vw - 24px);
+  }
+}
