@@ -550,8 +550,8 @@ export function CalculatorInlineDistintaExperience({
                 <p className="mt-2 text-xs leading-5 text-[#315746]">{c.guestDescription}</p>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
                   <Link className={cn(actionClasses({ variant: "default" }), "min-h-12 rounded-lg px-4 text-center")}
-                    href="/register" onClick={() => trackCalculatorFunnel("registration_click", locale)}>{c.registerCompany}</Link>
-                  <Link className={action + " min-h-12 text-center text-sm"} href={"/login?next="+encodeURIComponent(CALCULATOR_ROUTES[locale])} onClick={() => trackCalculatorFunnel("login_click", locale)}>{c.loginResume}</Link>
+                    target="_top" href="/register" onClick={() => trackCalculatorFunnel("registration_click", locale)}>{c.registerCompany}</Link>
+                  <Link className={action + " min-h-12 text-center text-sm"} target="_top" href={"/login?next="+encodeURIComponent(CALCULATOR_ROUTES[locale])} onClick={() => trackCalculatorFunnel("login_click", locale)}>{c.loginResume}</Link>
                 </div>
                 <button type="button" className={action + " mt-3 w-full sm:w-auto"} onClick={copyBill}>{c.copyBill}</button>
                 {!storageAvailable ? <p className="mt-2 text-xs font-semibold text-[#8b472c]">{c.noStorage}</p> : null}
@@ -559,8 +559,8 @@ export function CalculatorInlineDistintaExperience({
             ) : null}
             {rfqAccess === "needs-company" ? (
               <div className="mt-3 flex flex-wrap gap-2">
-                <Link href="/register" className={action}>{c.completeCompany}</Link>
-                <Link href="/registration/status" className={action}>{c.activation}</Link>
+                <Link target="_top" href="/register" className={action}>{c.completeCompany}</Link>
+                <Link target="_top" href="/registration/status" className={action}>{c.activation}</Link>
               </div>
             ) : null}
             {createdRfq ? <Link href={appRoutes.rfqHub.campaign(createdRfq)} className={action+" mt-3"}>{c.openHub}</Link> : null}
