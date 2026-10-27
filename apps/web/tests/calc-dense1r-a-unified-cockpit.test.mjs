@@ -45,7 +45,8 @@ test("CALC-PARITY public and embedded calculators retain one shared commercial w
   for (const token of ["data-calc-shape-buttons","data-commercial-targets",
     "data-calc-total-weight","data-cockpit-add"])
     assert.equal(calculator.split(token).length-1,1,"Shared feature must not fork: "+token);
-  assert.ok(calculator.includes("onClick={() => setCommercialPriceUnit(unit)}"));
+  assert.ok(calculator.includes("setCommercialPriceUnit(unit);"));
+  assert.ok(calculator.includes("data-commercial-price-fields"));
   assert.ok(calculator.includes("onClick={() => setFamily(option.value as TubeFamily)}"));
   assert.ok(calculator.includes("onAddToDistinta(item)"));
   assert.ok(calculator.includes("inEmbeddedBuilder ? sectionDiagram : null"));
