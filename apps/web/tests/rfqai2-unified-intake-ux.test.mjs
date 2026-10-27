@@ -26,7 +26,7 @@ test("RFQAI2 offers four distinct selectable creation modes around one editor", 
 });
 
 test("RFQAI2 reuses BD10 wizard and keeps preview in exactly one place", () => {
-  assert.match(builder, /const \[intakeMode, setIntakeMode\] = useState<RfqAiIntakeMode>\("manual"\)/);
+  assert.match(builder, /const \[intakeMode, setIntakeMode\] = useState<RfqAiIntakeMode>\(returnToCommercial && workspace \? "text" : "manual"\)/);
   assert.match(builder, /<RfqAiIntakeUx[\s\S]*?mode=\{intakeMode\}[\s\S]*?onModeChange=\{setIntakeMode\}/);
   assert.match(builder, /workspace=\{workspace\}/);
   assert.match(builder, /authenticated=\{authenticated\}/);
