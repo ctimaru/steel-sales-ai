@@ -128,6 +128,26 @@ async function SelectedDetail({
           ) : null}
         </div>
       )}
+      <section aria-labelledby="commercial-deal-next-step" data-testid="commercial-deal-next-step"
+        className="rounded-xl border border-[#b5d7c3] bg-[#f3f9f5] p-3 sm:p-4">
+        <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#246c53]">Prossimo passo</p>
+        <h4 id="commercial-deal-next-step" className="mt-1 text-sm font-semibold text-[#173f35]">
+          {canWrite ? "Continua questa trattativa" : "Consulta la trattativa"}
+        </h4>
+        <p className="mt-1 text-xs leading-5 text-[#52685b]">
+          {item.kind === "campaign"
+            ? "Apri la RFQ per verificare risposte e destinatari prima di ogni decisione."
+            : item.kind === "quote"
+              ? "Apri la risposta e verifica condizioni e materiale prima di procedere."
+              : item.kind === "purchase-order"
+                ? "Consulta l’ordine e i documenti della trattativa."
+                : "Apri il dettaglio originale per continuare senza creare copie della richiesta."}
+        </p>
+        <Link href={item.href}
+          className="mt-3 inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-4 text-xs font-semibold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
+          {canWrite ? "Continua →" : "Apri dettaglio →"}
+        </Link>
+      </section>
       {item.campaignId ? (
         <CommercialCampaignOperations
           rfqId={item.campaignId}
