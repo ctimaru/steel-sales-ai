@@ -9,8 +9,8 @@ test("8F gallery remains primary tool discovery and knowledge shelf is complemen
  assert.match(en,/<HomeCinematicTools locale="en"/);
  assert.match(it,/label: "Norme"/);
  assert.match(it,/label: "Gradi"/);
- assert.doesNotMatch(it,/label: "Calcolo pesi"/);
- assert.doesNotMatch(it,/label: "Crea distinta"/);
+ assert.match(it,/label: "Calcolo pesi"/);
+ assert.match(it,/label: "Crea distinta"/);
  assert.match(it,/href: "\/knowledge\/norme"/);
  assert.match(it,/href: "\/knowledge\/gradi"/);
  assert.match(proof,/id="steel-tools-proof"/);
