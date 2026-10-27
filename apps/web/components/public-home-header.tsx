@@ -10,9 +10,6 @@ import { PublicPageLanguageSelector } from "./calculator-page-language-selector"
  */
 export function PublicHomeHeader({ locale }: { locale: "it" | "en" }) {
   const en = locale === "en";
-  const calcHref = en
-    ? "/en/knowledge/tubes"
-    : "/knowledge/tubes?source=home&surface=header#calcolatore-pesi";
   const loginHref = en ? "/en/login" : "/login";
   const registerHref = en ? "/en/register" : "/register";
 
@@ -50,11 +47,6 @@ export function PublicHomeHeader({ locale }: { locale: "it" | "en" }) {
                 </div>
               </details>
             </nav>
-            <Link href={calcHref} data-home-primary-cta aria-label={en ? "Open tube calculator" : "Apri calcolatrice"} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1 rounded-xl border border-[#6bc7a0] bg-[#0b7852] px-2 text-xs font-bold text-white transition-colors hover:bg-[#075e40] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#b5ffd9] sm:px-4 sm:text-sm">
-              <span className="sm:hidden">{en ? "Calc" : "Calcola"}</span>
-              <span className="hidden sm:inline">{en ? "Open calculator" : "Apri calcolatrice"}</span>
-              <span aria-hidden="true">↗</span>
-            </Link>
           </div>
         </div>
       </header>

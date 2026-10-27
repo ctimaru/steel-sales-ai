@@ -37,10 +37,10 @@ const migration = fs.readFileSync(
 test("WC5 keeps the calculator discoverable from hero, header and Scuola section", () => {
   assert.match(home, /Calcolo pesi/);
   assert.match(hero, /source=home&surface=hero#calcolatore-pesi/);
-  assert.match(publicHeader, /source=home&surface=header#calcolatore-pesi/);
+  assert.doesNotMatch(publicHeader, /source=home&surface=header#calcolatore-pesi/);
   assert.match(home, /source=home&surface=school_section#calcolatore-pesi/);
   assert.match(publicNav, /Navigazione mobile/);
-  assert.match(publicHeader, /Apri calcolatrice/);
+  assert.doesNotMatch(publicHeader, /Apri calcolatrice/);
   assert.match(publicNav, /Distinta/);
 });
 

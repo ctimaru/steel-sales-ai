@@ -14,8 +14,8 @@ const network = fs.readFileSync(
 test("UXF4 preserves public discovery links in both desktop and mobile header", () => {
   assert.match(home, /<PublicHomeHeader locale="it"/);
   assert.match(publicNav, /Navigazione mobile/);
-  assert.match(header, /surface=header#calcolatore-pesi/);
-  assert.match(header, /Apri calcolatrice/);
+  assert.match(hero, /surface=hero#calcolatore-pesi/);
+  assert.doesNotMatch(header, /Apri calcolatrice/);
   assert.match(home, /href="\/distinta"/);
   assert.match(publicNav, /href: "\/azienda"/);
   assert.doesNotMatch(home, />\s*Calcolatore\s*</);
@@ -24,7 +24,7 @@ test("UXF4 preserves public discovery links in both desktop and mobile header", 
 test("UXF4 prioritizes registration while keeping a no-account utility CTA", () => {
   assert.match(header, /"\/register"/);
   assert.match(header, /Registra azienda/);
-  assert.match(hero, /Apri calcolatrice/);
+  assert.match(hero, /Norme e pesi/);
   assert.match(hero, /Crea una distinta gratis/);
   assert.match(hero, /source=home&surface=hero#calcolatore-pesi/);
   assert.match(hero, /Strumenti pubblici senza account/);

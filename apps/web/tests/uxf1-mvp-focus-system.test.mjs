@@ -74,7 +74,7 @@ test("UXF1 removes split-screen distraction from auth entry", () => {
 test("UXF1 keeps free utilities accessible in the intelligence-first public homepage", () => {
   assert.match(hero, /Super Intelligence Ready/);
   assert.match(header, /Registra azienda/);
-  assert.match(hero, /Apri calcolatrice/);
+  assert.match(hero, /Norme e pesi/);
   assert.match(hero, /Crea una distinta gratis/);
   assert.match(home, /Calcolo pesi/);
   assert.match(header, /max-w-\[1180px\]/);
