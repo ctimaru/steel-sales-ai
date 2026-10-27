@@ -638,3 +638,36 @@
 @media (prefers-reduced-motion: reduce), (prefers-reduced-data: reduce) {
   .productHint, .ambient, .intelligenceOverlay { animation: none !important; }
 }
+
+/* HOME-CINE2A.6: preserve a clear single-column hero and the first action
+   on compact viewports; no layout-dependent client code. */
+@media (min-width: 701px) and (max-width: 1023px) {
+  .container { padding: 48px 30px 70px; align-items: flex-start; }
+  .copy { max-width: min(550px, 78%); }
+  .title { font-size: clamp(2.7rem, 5.1vw, 3.85rem); }
+  .description { max-width: 450px; }
+  .actions { gap: 10px; }
+  .visualCaption { bottom: 18px; }
+}
+@media (max-width: 700px) {
+  .hero, .container { min-height: 0; }
+  .container { padding: 36px 19px 115px; }
+  .title { font-size: clamp(2.35rem, 9vw, 3.25rem); overflow-wrap: break-word; }
+  .description { line-height: 1.58; }
+  .actions { align-items: stretch; }
+  .primary, .secondary { flex: 1 1 100%; min-height: 48px; }
+  .quickLinks { margin-top: 16px; }
+  .ambient { background-position: center, 73% bottom, center; background-size: cover, auto 62%, cover; }
+  .visualCaption { font-size: 8px; text-align: right; }
+}
+@media (max-width: 390px) {
+  .hero, .container { min-height: 0; }
+  .container { padding: 30px 16px 108px; }
+  .title { font-size: clamp(2.18rem, 10vw, 2.43rem); }
+  .eyebrow { letter-spacing: .08em; }
+}
+@media (max-width: 359px) {
+  .actions { order: 2; }
+  .description { order: 3; }
+  .primary, .secondary { flex-basis: 100%; }
+}
