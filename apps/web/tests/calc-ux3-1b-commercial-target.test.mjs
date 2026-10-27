@@ -20,10 +20,10 @@ test("CALC-UX3.1B parses the calculator without altering its commercial transfer
     "onAddToDistinta(item)", "data-cockpit-add",
     "data-calc-shape-buttons", "aria-pressed={family === option.value}",
     "onClick={() => setFamily(option.value as TubeFamily)}",
-    'data-commercial-targets', 'data-commercial-tonnes',
+    'data-commercial-targets', 'commercialShownTonnes',
     'values.targetBars', 'setQuantity(String(values.targetBars))',
-    '<CalculatorCommercialPricing weightKgM={values.error ? null : values.kgM}',
-    'onChooseBuyerTarget={onChooseBuyerTarget}',
+    'commercialWeight = !values.error && values.kgM',
+    'setCommercialPrice(event.target.value)',
   ]) assert.ok(calculator.includes(marker),marker);
   assert.ok(!calculator.includes("PRICE_COMPONENT"),"No temporary placeholder in commercial price tab");
   assert.ok(!calculator.includes("targetDisclosureOpen"),"Old tonnage disclosure removed");
