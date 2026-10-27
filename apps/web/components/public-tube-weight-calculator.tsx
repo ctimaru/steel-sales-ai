@@ -6,7 +6,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { calculatorRfqFromValues, enqueueCalculatorRfq, type CalculatorRfqItem } from "@/lib/calculator-rfq-handoff";
 import { tubeCalculatorText, type TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
 import { CalculatorInstallGuide } from "@/components/calculator-install-guide";
-import { CalculatorCommercialPricing } from "@/components/calculator-commercial-pricing";
+import { parseCommercialRate } from "@/lib/calculator-commercial-pricing";
 import { CalculatorDimensionDiscovery } from "@/components/calculator-dimension-discovery";
 import styles from "./calculator-dense-cockpit.module.css";
 import cinematic from "./calculator-cinematic.module.css";
@@ -600,7 +600,7 @@ export function PublicTubeWeightCalculator({
     ? commercialWeight == null || commercialTargetNumber == null || commercialTargetNumber < 0 ? null
       : commercialQuantity.mode === "tonnes" ? commercialTargetNumber : commercialTargetNumber * commercialWeight / 1000
     : !values.error ? values.totalTonnes : null;
-  const commercialParsedPrice = commercialPrice.trim() ? parseNumber(commercialPrice) : null;
+  const commercialParsedPrice = commercialPrice.trim() ? parseCommercialRate(commercialPrice, locale) : null;
   const commercialTotal = commercialParsedPrice != null && commercialParsedPrice >= 0
     ? (commercialPriceUnit === "metres" ? commercialMetres : commercialTonnes) == null
       ? null : commercialParsedPrice * (commercialPriceUnit === "metres" ? commercialMetres! : commercialTonnes!)
@@ -1415,6 +1415,17 @@ export function PublicTubeWeightCalculator({
                   <p className="text-[10px] text-[#cee5d8]">{({it:"Valore totale target",en:"Target total",de:"Zielgesamtwert",fr:"Valeur cible totale",es:"Valor total objetivo"} as const)[locale]}</p>
                   <p className="text-lg font-bold tabular-nums text-white">{commercialTotal == null ? "—" : new Intl.NumberFormat(locale === "en" ? "en-GB" : locale, { style: "currency", currency: "EUR" }).format(commercialTotal)}</p>
                 </div>
+                {onChooseBuyerTarget ? (
+                  <button type="button" data-target-opt-in
+                    disabled={commercialWeight == null || commercialParsedPrice == null || commercialParsedPrice <= 0 || commercialTotal == null}
+                    onClick={() => {
+                      if (commercialWeight == null || commercialParsedPrice == null || commercialParsedPrice <= 0 || commercialTotal == null) return;
+                      onChooseBuyerTarget({ basis: commercialPriceUnit === "tonnes" ? "tonne" : "metre", raw: commercialPrice, weightKgM: commercialWeight });
+                    }}
+                    className="mt-2 min-h-11 w-full rounded-lg border border-[#62c59a] px-2 py-2 text-xs font-bold text-white disabled:opacity-50">
+                    {({it:"Usa come target interno → scegli la riga",en:"Use as private target → select a line",de:"Als privaten Zielpreis nutzen → Position wählen",fr:"Utiliser comme prix cible privé → choisir la ligne",es:"Usar como objetivo privado → elegir línea"} as const)[locale]}
+                  </button>
+                ) : null}
                 {commercialWeight == null ? <p className="mt-1 text-[10px] text-[#cee5d8]">{({it:"Seleziona una geometria valida per convertire metri e tonnellate.",en:"Select valid dimensions to convert metres and tonnes.",de:"Gültige Abmessungen für die Umrechnung wählen.",fr:"Sélectionnez des dimensions valides pour convertir.",es:"Selecciona dimensiones válidas para convertir."} as const)[locale]}</p> : null}
               </section>
 
