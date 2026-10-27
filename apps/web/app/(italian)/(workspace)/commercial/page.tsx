@@ -457,7 +457,14 @@ export default async function CommercialHomePage({
                 </p>
               ) : null}
             </div>
-            <Link href={appRoutes.commercial.home + "#commercial-worklist"} className="app-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold">Chiudi editor</Link>
+            {canWrite ? (
+             <Link href={appRoutes.commercial.home + "?compose=1#commercial-ai-intake"}
+               className="inline-flex min-h-10 items-center rounded-lg border border-[#a9cbb9] bg-[#edf7f1] px-3 text-xs font-semibold text-[#175640] hover:bg-[#dcefe4]"
+               data-testid="commercial-ai-intake-link">
+               Assistente AI · prepara distinta
+             </Link>
+           ) : null}
+           <Link href={appRoutes.commercial.home + "#commercial-worklist"} className="app-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold">Chiudi editor</Link>
           </div>
           <BuyerDistintaBuilder
             workspace
