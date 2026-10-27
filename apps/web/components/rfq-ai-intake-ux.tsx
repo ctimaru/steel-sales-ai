@@ -16,6 +16,7 @@ import { appRoutes } from "@/lib/routes";
  */
 export type RfqAiIntakeMode = "manual" | "text" | "file" | "email";
 const MAX_TEXT_CHARS = 12_000;
+const SAMPLE_RFQ_TEXT = "Cerco 40 tubi quadri 100×100×5 S355J2H EN 10219, lunghezza 6 m ciascuno.";
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
 const ALLOWED_EXTENSIONS = [".xlsx", ".xls", ".pdf", ".eml"] as const;
 const options: { mode: RfqAiIntakeMode; name: string; meta: string }[] = [
@@ -169,6 +170,14 @@ export function RfqAiIntakeUx({
               spellCheck={false}
               className="rfqai2-textarea"
             />
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs text-[#56675f]">Non sai come iniziare? Prova una richiesta tipo.</span>
+              <button type="button" className="rfqai2-secondary-action"
+                disabled={textPending}
+                onClick={() => { extractionVersion.current += 1; setTextDraft(SAMPLE_RFQ_TEXT); setTextResult(null); setTextError(""); }}>
+                Inserisci esempio
+              </button>
+            </div>
             <div className="rfqai2-field-footer">
               <span>Puoi incollare più articoli e condizioni commerciali.</span>
               <span>{textDraft.length.toLocaleString("it-IT")} / {MAX_TEXT_CHARS.toLocaleString("it-IT")} caratteri</span>
