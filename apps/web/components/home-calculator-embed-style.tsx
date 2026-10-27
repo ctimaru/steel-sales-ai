@@ -29,6 +29,49 @@ export function HomeCalculatorEmbedStyle() {
       max-height:210px; width:100%;
     }
   }
+  /* EMBED4 — hierarchy is measured within the actual modal, not the page. */
+  [data-calculator-embed] [data-cockpit-workspace] {
+    align-items:start;
+  }
+  [data-calculator-embed] [data-cockpit-workspace] > * {
+    min-width:0;
+  }
+  [data-calculator-embed] [data-cockpit-preview] figure > svg {
+    display:block;
+    max-width:100%;
+    height:auto;
+    margin-inline:auto;
+  }
+  [data-calculator-embed] [data-cockpit-kpis] > div > p:last-child {
+    font-variant-numeric:tabular-nums;
+  }
+  [data-calculator-embed] [data-cockpit-results] [aria-live="polite"] {
+    overflow-wrap:normal;
+  }
+  [data-calculator-embed] [data-cockpit-add] {
+    min-height:46px;
+  }
+  @media(min-width:1000px) {
+    [data-calculator-embed] [data-cockpit-workspace] {
+      grid-template-columns:minmax(250px,1.03fr) minmax(280px,1.07fr) minmax(250px,.94fr);
+    }
+    [data-calculator-embed] [data-cockpit-workspace] > [data-cockpit-fields],
+    [data-calculator-embed] [data-cockpit-workspace] > [data-cockpit-results] {
+      align-self:stretch;
+    }
+    [data-calculator-embed] [data-cockpit-workspace] [data-cockpit-preview] figure > svg {
+      max-height:192px;
+    }
+    [data-calculator-embed] [data-cockpit-kpis] > div {
+      min-height:39px;
+    }
+  }
+  @media(min-width:700px) and (max-width:999px) {
+    [data-calculator-embed] [data-cockpit-workspace] {
+      grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+    [data-calculator-embed] [data-cockpit-kpis] > div { min-height:42px; }
+  }
   @media(max-width:699px) {
     [data-calculator-embed] [data-cockpit-workspace] { padding:6px; gap:6px; }
     [data-calculator-embed] [data-cockpit-fields] { padding:9px; }
