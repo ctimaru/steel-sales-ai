@@ -8,7 +8,7 @@ test("RFQAI conversational experience progressively reveals full technical edito
   const grid=source.indexOf('className="rfqai3-candidate-grid"');
   const issues=source.indexOf('{candidate.issues.length ? (');
   assert.ok(prompt>0 && prompt<details && details<grid && grid<issues);
-  assert.match(source,/defaultOpen=\{!nextQuickField\}/);
+  assert.match(source,/open=\{!nextQuickField\}/);
   assert.match(source,/Verifica e modifica tutti i dati tecnici/);
   assert.match(source,/data-rfqai-missing-questions/);
   assert.match(source,/calculateBuyerDistintaLine\(row\.proposedLine\)\.complete/);
