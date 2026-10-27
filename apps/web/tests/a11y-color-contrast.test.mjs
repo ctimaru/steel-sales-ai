@@ -4,6 +4,7 @@ import test from "node:test";
 
 const globals = fs.readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
 const home = fs.readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+const hero = fs.readFileSync(new URL("../components/public-cinematic-hero.tsx", import.meta.url), "utf8");
 const header = fs.readFileSync(new URL("../components/public-home-header.tsx", import.meta.url), "utf8");
 
 function channel(value) {
