@@ -212,9 +212,7 @@ export default async function CommercialHomePage({
         </div>
       </section>
       <div data-testid="comm-cine13-first-workspace" className="relative z-10 -mt-5 px-2 sm:px-5">
-
-      <CommercialAiCompanion canWrite={canWrite} />
-
+        <CommercialAiCompanion canWrite={canWrite} />
       </div>
 
 
@@ -227,11 +225,10 @@ export default async function CommercialHomePage({
         {networkAvailable ? <Link href={appRoutes.network.directory} className="inline-flex min-h-9 items-center rounded-lg px-3 font-semibold text-[#175640] hover:bg-[#edf5ef]">Network</Link> : null}
       </nav>
 
-      <section aria-labelledby="commercial-today" id="commercial-today" className="scroll-mt-28 rounded-2xl border border-[#dce8df] bg-[#f8fbf9] px-4 py-4 sm:px-5" data-testid="commercial-compact-actions">
-        <h2 className="mb-2 text-sm font-semibold text-[#173f35]">Attività da gestire oggi</h2>
+      <section aria-labelledby="commercial-today-heading" id="commercial-today" className="scroll-mt-28 rounded-2xl border border-[#dce8df] bg-[#f8fbf9] px-4 py-4 sm:px-5" data-testid="commercial-compact-actions">
+        <h2 id="commercial-today-heading" className="mb-2 text-sm font-semibold text-[#173f35]">Cosa richiede attenzione</h2>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs" data-testid="commercial-compact-attention">
           <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-[#173f35]">Cosa richiede attenzione</h3>
             <Link href={appRoutes.rfqHub.inbox} className="font-semibold text-[#246c53] underline-offset-2 hover:underline">Apri inbox →</Link>
           </div>
           {!canWrite ? (
@@ -302,9 +299,7 @@ export default async function CommercialHomePage({
 
 
       <section id="commercial-tool-access" aria-label="Calcolo tecnico e distinta" className="scroll-mt-28">
-
-      <CommercialCalculatorQuickAccess references={calculatorReferences} />
-
+        <CommercialCalculatorQuickAccess references={calculatorReferences} />
       </section>
       {(networkContext || showProspects) ? (
         <section id="commercial-relations" aria-label="Relazioni dal Network" className="scroll-mt-28 space-y-3">
@@ -511,9 +506,9 @@ export default async function CommercialHomePage({
         </section>
       ) : null}
 
-      <details id="commercial-tools-panel" className="group scroll-mt-28 overflow-hidden rounded-[22px] border border-[#dce8df] bg-white p-4 sm:p-5">
+      <details id="commercial-memory-panel" className="group scroll-mt-28 overflow-hidden rounded-[22px] border border-[#dce8df] bg-white p-4 sm:p-5">
         <summary className="flex min-h-11 cursor-pointer select-none items-center text-base font-semibold text-[#175640] marker:text-[#175640]">
-          Memoria commerciale, storico e strumenti avanzati
+          Memoria commerciale e storico · Approfondisci
         </summary>
         <div className="space-y-4 pt-4">
       <section className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-4 sm:p-5">
@@ -626,6 +621,15 @@ export default async function CommercialHomePage({
           </div>
         )}
       </section>
+
+        </div>
+      </details>
+
+      <details id="commercial-tools-panel" className="group scroll-mt-28 overflow-hidden rounded-[22px] border border-[#dce8df] bg-white p-4 sm:p-5">
+        <summary className="flex min-h-11 cursor-pointer select-none items-center text-base font-semibold text-[#175640] marker:text-[#175640]">
+          Strumenti e intelligence avanzata · Apri
+        </summary>
+        <div className="space-y-4 pt-4">
 
       <section aria-labelledby="commercial-tools">
         <FocusSectionHeader
