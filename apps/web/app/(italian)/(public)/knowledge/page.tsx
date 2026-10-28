@@ -48,6 +48,7 @@ export default function KnowledgeHomePage() {
             <p className="mt-5 max-w-xl text-sm leading-7 text-[#d2e4d9] sm:text-base">
               Norme, materiali e geometrie dei tubi. Risposte tecniche chiare, da consultare liberamente.
             </p>
+            <p className="mt-3 text-xs leading-5 text-[#b4cebf]">La Scuola è aperta a tutti e separata dai dati commerciali privati.</p>
             <div className="mt-7 flex flex-wrap gap-2">
               <Link href="#ricerca-tecnica" className="inline-flex min-h-11 items-center rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-[#143b2d] transition hover:bg-[#e4f2e9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
                 Cerca una norma o un materiale <span aria-hidden="true" className="ml-2">→</span>
