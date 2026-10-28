@@ -449,8 +449,8 @@ select set_config('request.jwt.claim.role','authenticated',true);
 
 select pg_temp.p56a_assert_raises(
   $$select public.prod_next1e_set_analytics_preference(
-    '00000000-0000-0000-0000-000000005612'::uuid,'granted','synthetic-only-ci')$$,
-  'Analytics collection is not authorized'
+    '00000000-0000-0000-0000-000000005612'::uuid,'granted','synthetic-only-ci')$,
+  'Not an eligible organization member'
 );
 select public.prod_next1e_set_analytics_preference(
   '00000000-0000-0000-0000-000000005610'::uuid,'granted','synthetic-only-ci'
