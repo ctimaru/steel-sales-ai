@@ -76,7 +76,7 @@ test("sales navigation uses stable macros with contextual tools and avatar drawe
   }
   assert.match(shell, /WorkspaceContextNavigation/);
   assert.match(shell, /WorkspaceProfileMenu/);
-  for (const label of ["Norme", "Gradi", "Calcolo pesi", "Dati e fonti"]) {
+  for (const label of ["Norme", "Materiali", "Professore", "Dati e fonti"]) {
     assert.match(shell + navigation, new RegExp(label));
   }
   assert.match(shell, /label: "Analisi"/);
