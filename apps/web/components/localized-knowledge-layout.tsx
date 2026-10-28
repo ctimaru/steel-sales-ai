@@ -16,8 +16,8 @@ export function LocalizedKnowledgeLayout({
        <SchoolPageLanguageSelector locale={locale}/>
      </div>
    </header>
-   <div className="mx-auto max-w-[1180px] space-y-6 px-4 py-7 sm:px-6 sm:py-10 lg:px-8">
-     <SchoolUnifiedNavigation locale={locale} scope="public"/>
+   <div className="mx-auto max-w-[1180px] space-y-5 px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
+     <SchoolUnifiedNavigation locale={locale} scope="public" compact activeHref={localizedKnowledgePath(locale,kind)}/>
      <nav aria-label="Technical knowledge breadcrumbs" className="flex flex-wrap items-center gap-2 text-xs font-bold text-[#174b3c]">
        <Link href={SCHOOL_HUB_ROUTES[locale]} className="underline underline-offset-4">{ui.school}</Link>
        <span aria-hidden="true">/</span>

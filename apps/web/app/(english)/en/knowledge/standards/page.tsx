@@ -76,19 +76,20 @@ export default async function EnglishStandardsIndex({
   return (
     <EnglishPublicSubpage
       eyebrow="Steel Knowledge · Published standards"
-      title="Steel tube standards, explained in English."
-      description="Explore the scope of European steel tube standards, understand the difference between structural and pressure applications, and prepare clearer technical enquiries. These are concise editorial guides, not reproductions of official standards."
+      title="Steel tube standards, explained."
+      description="Understand EN steel tube standards for structures, pressure applications and clearer RFQs. Editorial guidance, not official standard text."
       italianHref="/knowledge/norme"
       englishHref={canonical}
+      schoolKnowledgeEditorial
     >
       {!query ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} /> : null}
-      <div className="mx-auto max-w-[1120px] space-y-9 px-4 py-12 sm:px-6 lg:px-8">
-        <form action={canonical} method="get" role="search" className="flex max-w-2xl flex-col gap-3 rounded-2xl border border-[#dce5e0] bg-white p-5 sm:flex-row sm:items-end">
+      <div className="mx-auto max-w-[1120px] space-y-6 px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
+        <form action={canonical} method="get" role="search" id="school-catalog-search" className="flex scroll-mt-24 flex-col gap-3 rounded-[20px] border border-[#d3e1d7] bg-white p-4 sm:flex-row sm:items-end sm:p-5">
           <label htmlFor="standards-en-search" className="flex-1 text-xs font-bold text-[#123b34]">
             Search by code or product family
             <input id="standards-en-search" name="q" defaultValue={query} placeholder="e.g. EN 10219, welded, pressure…" className="mt-2 block min-h-11 w-full rounded-lg border border-[#bbcfc5] px-3 text-base" />
           </label>
-          <button type="submit" className="min-h-11 rounded-xl bg-[#123b34] px-6 text-sm font-bold text-white">Search standards</button>
+          <button type="submit" className="min-h-11 rounded-xl bg-[#174b3c] px-5 text-sm font-bold text-white transition hover:bg-[#246c50] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">Search standards</button>
           {query ? <Link href={canonical} className="inline-flex min-h-11 items-center text-sm font-bold text-[#1f6b5a]">Clear</Link> : null}
         </form>
         {visible.length ? groups.map((group) => {
@@ -98,13 +99,13 @@ export default async function EnglishStandardsIndex({
             <section key={group.key}>
               <h2 className="text-2xl font-semibold text-[#123b34]">{group.name}</h2>
               <p className="mt-2 text-sm leading-6 text-[#52615b]">{group.intro}</p>
-              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 {items.map((item) => (
-                  <Link key={item.slug} href={`${canonical}/${item.slug}`} className="rounded-2xl border border-[#dce5e0] bg-white p-5 transition hover:border-[#7fb3a0] hover:shadow-sm">
+                  <Link key={item.slug} href={`${canonical}/${item.slug}`} className="group flex h-full flex-col rounded-[18px] border border-[#d7e3da] bg-white p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[#86b39b] hover:shadow-[0_16px_30px_-25px_#174b3c] motion-reduce:transform-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">
                     <p className="text-xs font-bold tracking-wide text-[#1f6b5a]">{item.code}</p>
                     <h3 className="mt-2 text-lg font-bold text-[#123b34]">{item.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-[#52615b]">{item.summary}</p>
-                    <p className="mt-4 text-xs font-bold text-[#1f6b5a]">Read standard guide →</p>
+                    <p className="mt-2 mb-4 flex-1 text-sm leading-6 text-[#52615b]">{item.summary}</p>
+                    <p className="mt-auto border-t border-[#e6ede8] pt-3 text-xs font-bold text-[#1f6b5a]">Read standard guide →</p>
                   </Link>
                 ))}
               </div>

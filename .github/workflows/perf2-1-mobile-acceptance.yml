@@ -133,6 +133,16 @@ jobs:
         run: node tests/school-unify1-chrome-five-hubs.mjs
       - name: SCHOOL-GROWTH1E Chrome Scuola SEO / contrast / images (mobile and desktop)
         run: node tests/school-growth1e-chrome-acceptance.mjs
+      - name: SCHOOL-UX4 international catalog Chrome visual acceptance
+        run: node tests/school-ux4-chrome-local.mjs
+      - name: Upload SCHOOL-UX4 public catalog screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: school-ux4-international-catalog-chrome
+          path: apps/web/test-results/school-ux4/*.png
+          if-no-files-found: warn
+          retention-days: 3
       - name: CALC-CINE1A five-language cinematic calculator, real shapes and bill
         run: node tests/calc-cine1a-chrome-acceptance.mjs
       - name: Upload CALC-CINE1A calculator screenshots

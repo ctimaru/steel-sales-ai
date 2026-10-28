@@ -96,19 +96,20 @@ export default async function EnglishGradeDetail({ params }: PageProps) {
       description={copy.summary}
       italianHref={`/knowledge/gradi/${copy.slug}`}
       englishHref={path}
+      schoolKnowledgeEditorial
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
-      <div className="mx-auto max-w-[1120px] space-y-8 px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1120px] space-y-6 px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
         <nav aria-label="Knowledge breadcrumbs" className="flex flex-wrap items-center gap-2 text-xs font-semibold text-[#1f6b5a]">
           <Link href="/en/knowledge">Knowledge</Link><span aria-hidden="true">/</span>
           <Link href="/en/knowledge/grades">Grades</Link><span aria-hidden="true">/</span>
           <span className="text-[#52615b]">{copy.designation}</span>
         </nav>
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_290px]">
-          <article className="space-y-7 rounded-2xl border border-[#dce5e0] bg-white p-6 sm:p-8">
+        <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_290px]">
+          <article className="space-y-8 rounded-[22px] border border-[#dce6df] bg-white px-5 py-7 sm:px-9 sm:py-9">
             <section>
               <h2 className="text-xl font-bold text-[#123b34]">Understanding the designation</h2>
-              <p className="mt-3 text-sm leading-7 text-[#52615b]">{copy.designationMeaning}</p>
+              <p className="mt-3 max-w-[72ch] text-[15px] leading-8 text-[#465c4f] sm:text-base">{copy.designationMeaning}</p>
             </section>
             <section>
               <h2 className="text-xl font-bold text-[#123b34]">Writing a reliable purchasing specification</h2>
@@ -120,7 +121,7 @@ export default async function EnglishGradeDetail({ params }: PageProps) {
             </section>
           </article>
           <aside className="space-y-4">
-            <div className="rounded-2xl border border-[#dce5e0] bg-white p-5">
+            <div className="rounded-[18px] border border-[#dce6df] bg-white p-5">
               <h2 className="text-base font-bold text-[#123b34]">Published material record</h2>
               <dl className="mt-3 space-y-2 text-xs leading-6 text-[#52615b]">
                 <div><dt className="font-semibold">Designation</dt><dd>{published.designation}</dd></div>
