@@ -39,7 +39,7 @@ test("K3 catalog is organized by user intent instead of a flat technical dump", 
   assert.match(indexPage, /Profilati cavi strutturali/);
   assert.match(indexPage, /Tubi per impieghi in pressione/);
   assert.match(indexPage, /Acqua e liquidi acquosi/);
-  assert.match(indexPage, /Cerca per codice o argomento/);
+  assert.match(indexPage, /Cerca la norma che ti serve/);
   assert.match(indexPage, /Rivista/);
   assert.match(indexPage, /application_category/);
 });

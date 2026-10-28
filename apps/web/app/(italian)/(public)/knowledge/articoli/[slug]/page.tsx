@@ -128,7 +128,7 @@ export default async function SchoolArticlePage({
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+    <div className="mx-auto max-w-[1080px] space-y-5 px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
@@ -147,6 +147,7 @@ export default async function SchoolArticlePage({
       </nav>
 
       <SchoolHero
+        reading
         eyebrow={article.category}
         title={article.title}
         description={<>{article.lead}</>}
@@ -156,10 +157,10 @@ export default async function SchoolArticlePage({
         ]}
       />
 
-      <figure className="school-card overflow-hidden">
+      <figure className="overflow-hidden rounded-[22px] border border-[#d7e3da] bg-white">
         <Image src={article.visual.src} alt={article.visual.alt} width={1200} height={675}
           unoptimized sizes="(max-width: 1024px) 100vw, 960px"
-          priority className="aspect-video h-auto w-full object-cover" />
+          priority className="aspect-[16/8] h-auto w-full object-cover sm:aspect-[16/7]" />
         <figcaption className="border-t border-[#dce8e1] px-5 py-3 text-xs leading-5 text-[#52615b]">
           {article.visual.caption}
         </figcaption>
@@ -273,15 +274,15 @@ export default async function SchoolArticlePage({
         </section>
       ) : null}
 
-      <article className="space-y-6">
+      <article className="space-y-8 rounded-[22px] border border-[#dce6df] bg-white px-5 py-7 sm:px-10 sm:py-10" aria-label="Contenuto dell’articolo">
         {article.sections.map((section) => (
-          <section key={section.heading} className="school-card p-6 sm:p-8">
+          <section key={section.heading} className="border-b border-[#e3eae4] pb-8 last:border-b-0 last:pb-0">
             <h2 className="text-2xl font-semibold tracking-tight text-[#1d2824]">
               {section.heading}
             </h2>
-            <div className="mt-4 space-y-4">
+            <div className="mt-4 max-w-[72ch] space-y-4">
               {section.paragraphs.map((paragraph) => (
-                <p key={paragraph} className="text-base leading-8 text-[#4f5e58]">
+                <p key={paragraph} className="text-[15px] leading-8 text-[#445b4e] sm:text-base">
                   {paragraph}
                 </p>
               ))}

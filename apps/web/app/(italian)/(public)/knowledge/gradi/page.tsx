@@ -83,7 +83,7 @@ function GradeCard({ grade }: { grade: PublicKnowledgeGradeSummary }) {
   return (
     <Link
       href={`/knowledge/gradi/${grade.slug}`}
-      className="group rounded-2xl border border-[#dce2df] bg-white p-5 transition hover:border-[#b8d2c8] hover:shadow-sm"
+      className="group flex h-full flex-col rounded-[18px] border border-[#d7e3da] bg-white p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[#86b39b] hover:shadow-[0_16px_30px_-25px_#174b3c] motion-reduce:transform-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]"
     >
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -102,11 +102,11 @@ function GradeCard({ grade }: { grade: PublicKnowledgeGradeSummary }) {
         ) : null}
       </div>
 
-      <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#66736e]">
+      <p className="mt-3 mb-4 line-clamp-3 text-sm leading-6 text-[#52645a]">
         {grade.seo_description}
       </p>
 
-      <div className="mt-5 flex items-center justify-between gap-3 text-xs">
+      <div className="mt-auto flex items-center justify-between gap-3 border-t border-[#e6ede8] pt-3 text-xs">
         <span className="text-[#66736e]">Rivista {formatReviewDate(grade.last_reviewed_at)}</span>
         <span className="font-semibold text-[#1a5144]">Apri scheda →</span>
       </div>
@@ -148,7 +148,7 @@ export default async function GradesIndexPage({
   };
 
   return (
-    <div className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+    <div className="mx-auto max-w-[1180px] space-y-6 px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -163,7 +163,7 @@ export default async function GradesIndexPage({
 
       <SchoolHero
         eyebrow="Catalogo gradi"
-        title="Trova il materiale partendo dall’impiego, dalla sigla o dal numero materiale"
+        title="Ogni acciaio ha una sigla. Scopri cosa significa."
         description={
           <>
             Le schede spiegano come leggere una designazione, a quali norme risulta collegata e quali materiali
@@ -173,17 +173,47 @@ export default async function GradesIndexPage({
         }
         badges={["Pubblico", `${grades.length} schede`]}
         compact
+        editorial
+        action={{ href: "#school-catalog-search", label: "Cerca nel catalogo" }}
+        secondaryAction={{ href: "/knowledge/norme", label: "Esplora le norme" }}
       />
 
+      <section id="school-catalog-search" className="scroll-mt-20 rounded-[20px] border border-[#d3e1d7] bg-white p-4 sm:p-5" aria-label="Ricerca catalogo tecnico">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#256449]">RICERCA RAPIDA</p>
+            <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">Cerca un grado di acciaio</h2>
+            <p className="mt-1 text-xs leading-5 text-[#52665c]">
+              Esempi: P265GH, 1.0425, S355J2H, EN 10217-1.
+            </p>
+          </div>
+          <form method="get" role="search" aria-label="Cerca un grado di acciaio" className="flex w-full max-w-xl items-end gap-2">
+            <label htmlFor="school-grades-query" className="sr-only">Cerca un grado di acciaio</label>
+            <input
+              id="school-grades-query"
+              name="q"
+              type="search"
+              maxLength={100}
+              defaultValue={query}
+              placeholder="Cerca P265GH, 1.0425, EN 10217-1..."
+              className="h-11 min-w-0 flex-1 rounded-xl border border-[#c6d7cd] bg-white px-3 text-sm text-[#1b352b] outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246b52]"
+            />
+            <button type="submit" className="school-primary-action h-11">
+              Cerca
+            </button>
+          </form>
+        </div>
+      </section>
+
       {!query ? (
-        <section className="grid gap-4 md:grid-cols-3" aria-label="Percorsi del catalogo gradi">
+        <section className="grid gap-3 md:grid-cols-3" aria-label="Percorsi del catalogo gradi">
           {gradeGroups.map((group) => {
             const count = grades.filter((grade) => group.slugs.some((slug) => slug === grade.slug)).length;
             return (
               <a
                 key={group.key}
                 href={`#${group.anchor}`}
-                className="rounded-2xl border border-[#d9e8e2] bg-[#f6f8f7] p-5 transition hover:border-[#b8d2c8]"
+                className="rounded-[18px] border border-[#d7e3da] bg-white p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[#81ad94] hover:shadow-[0_14px_25px_-23px_#174b3c] motion-reduce:transform-none"
               >
                 <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
                   {count ? `${count} schede` : "In sviluppo"}
@@ -195,29 +225,6 @@ export default async function GradesIndexPage({
           })}
         </section>
       ) : null}
-
-      <section className="rounded-3xl border border-[#dce2df] bg-white p-5 sm:p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Ricerca</p>
-            <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">Cerca grado, materiale o norma</h2>
-            <p className="mt-1 text-sm text-[#66736e]">
-              Esempi: P265GH, 1.0425, S355J2H, EN 10217-1.
-            </p>
-          </div>
-          <form className="flex w-full max-w-xl gap-2">
-            <input
-              name="q"
-              defaultValue={query}
-              placeholder="Cerca P265GH, 1.0425, EN 10217-1..."
-              className="h-11 min-w-0 flex-1 rounded-xl border border-[#dbe5f1] px-3 text-sm outline-none focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8]"
-            />
-            <button className="school-primary-action h-11">
-              Cerca
-            </button>
-          </form>
-        </div>
-      </section>
 
       {grades.length ? (
         <div className="space-y-10">

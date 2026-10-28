@@ -133,7 +133,7 @@ export default async function StandardDetailPage({
     : null;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+    <div className="mx-auto max-w-[1080px] space-y-5 px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
@@ -158,8 +158,9 @@ export default async function StandardDetailPage({
         <span>{standard.code}</span>
       </nav>
 
-      <article className="space-y-8">
+      <article className="space-y-5">
         <SchoolHero
+          reading
           eyebrow={standard.standard_system ?? "Norma tecnica"}
           title={standard.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, "")}
           description={<>{standard.intro}</>}
@@ -202,10 +203,10 @@ export default async function StandardDetailPage({
           ) : null}
         </section>
 
-        <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+        <section className="rounded-[20px] border border-[#dce6df] bg-white p-5 sm:p-7">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Cosa tratta</p>
           <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">Ambito della {standard.code}</h2>
-          <p className="mt-4 whitespace-pre-line text-sm leading-7 text-[#66736e]">{standard.what_it_covers}</p>
+          <p className="mt-4 max-w-[74ch] whitespace-pre-line text-[15px] leading-8 text-[#465c4f]">{standard.what_it_covers}</p>
 
           {standard.how_to_read ? (
             <>
@@ -225,14 +226,14 @@ export default async function StandardDetailPage({
         </section>
 
         {standard.editorial_sections.map((section, index) => (
-          <section key={section.heading + index} className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+          <section key={section.heading + index} className="rounded-[20px] border border-[#dce6df] bg-white p-5 sm:p-7">
             <h2 className="text-2xl font-semibold text-[#1d2824]">{section.heading}</h2>
-            <p className="mt-3 whitespace-pre-line text-sm leading-7 text-[#66736e]">{section.body}</p>
+            <p className="mt-3 max-w-[74ch] whitespace-pre-line text-[15px] leading-8 text-[#465c4f]">{section.body}</p>
           </section>
         ))}
 
         {standard.related_standard_pages.length ? (
-          <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+          <section className="rounded-[20px] border border-[#dce6df] bg-white p-5 sm:p-7">
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Norme correlate</p>
             <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">Confronta il riferimento vicino</h2>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -315,7 +316,7 @@ export default async function StandardDetailPage({
         ) : null}
 
         {standard.faq.length ? (
-          <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+          <section className="rounded-[20px] border border-[#dce6df] bg-white p-5 sm:p-7">
             <h2 className="text-2xl font-semibold text-[#1d2824]">Domande frequenti</h2>
             <div className="mt-4 divide-y divide-[#e8eef7]">
               {standard.faq.map((item, index) => (
@@ -328,7 +329,7 @@ export default async function StandardDetailPage({
           </section>
         ) : null}
 
-        <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+        <section className="rounded-[20px] border border-[#dce6df] bg-white p-5 sm:p-7">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Fonti</p>

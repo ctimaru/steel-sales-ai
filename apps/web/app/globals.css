@@ -474,6 +474,14 @@ textarea {
   font-weight: 700;
 }
 
+/* SCHOOL-UX2: the landing has its own compact School topic navigation.
+   Hide duplicate global topic links only on that landing, not on detail pages.
+   The skip link and account actions remain available. */
+.school-shell:has(#school-cine-heading) [data-school-global-topic],
+.school-shell:has(#school-cine-heading) [data-school-mobile-topics] {
+  display: none !important;
+}
+
 .school-primary-action,
 .school-secondary-action {
   display: inline-flex;
