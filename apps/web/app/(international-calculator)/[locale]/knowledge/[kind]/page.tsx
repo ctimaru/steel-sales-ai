@@ -2,6 +2,7 @@ import type {Metadata} from "next";
 import Link from "next/link";
 import {notFound} from "next/navigation";
 import {LocalizedKnowledgeLayout} from "@/components/localized-knowledge-layout";
+import {SchoolHero} from "@/components/school-ui";
 import {SchoolTechnicalGlossary} from "@/components/school-technical-editorial-trust";
 import {TECHNICAL_EDITORIAL_COPY} from "@/lib/school-technical-editorial-trust";
 import {MARKET_TECHNICAL_RECORDS,MARKET_TECHNICAL_UI,localizedKnowledgePath,type KnowledgeMarketLocale} from "@/lib/localized-steel-knowledge";
@@ -59,12 +60,16 @@ export default async function TechnicalKnowledgeIndex({params,searchParams}:Para
    }))}};
  return <LocalizedKnowledgeLayout locale={locale} kind={scope}>
    {!search?<script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(jsonLd).replace(/</g,"\\u003c")}}/>:null}
-   <section>
-     <p className="text-xs font-extrabold uppercase tracking-[.12em] text-[#1e694e]">Smart Steel School · {locale.toUpperCase()}</p>
-     <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#173f35] sm:text-4xl">{title}</h1>
-     <p className="mt-3 max-w-3xl text-sm leading-7 text-[#52615b]">{scope==="standards"?ui.leadStd:ui.leadGrade}</p>
-   </section>
-   <form method="get" action={path} role="search" className="flex flex-col gap-3 rounded-2xl border border-[#d3e2d9] bg-white p-4 sm:flex-row sm:items-end">
+   <SchoolHero
+     editorial
+     eyebrow={"Smart Steel School · "+locale.toUpperCase()}
+     title={title}
+     description={<>{scope==="standards"?ui.leadStd:ui.leadGrade}</>}
+     badges={[ui.publicRecord]}
+     action={{href:"#school-localized-search",label:scope==="standards"?ui.search:ui.searchGrade}}
+     secondaryAction={{href:localizedKnowledgePath(locale,scope==="standards"?"grades":"standards"),label:scope==="standards"?ui.grades:ui.standards}}
+   />
+   <form id="school-localized-search" method="get" action={path} role="search" className="flex scroll-mt-24 flex-col gap-3 rounded-[20px] border border-[#d3e2d9] bg-white p-4 sm:flex-row sm:items-end sm:p-5">
      <label htmlFor={"school-tech-search-"+locale+"-"+scope} className="min-w-0 flex-1 text-sm font-bold text-[#365247]">
        {scope==="standards"?ui.search:ui.searchGrade}
        <input id={"school-tech-search-"+locale+"-"+scope} type="search" name="q" maxLength={100} defaultValue={search}
@@ -74,13 +79,13 @@ export default async function TechnicalKnowledgeIndex({params,searchParams}:Para
      <button type="submit" className="school-primary-action">{ui.go}</button>
      {search?<Link href={path} className="school-secondary-action">{ui.clear}</Link>:null}
    </form>
-   {visible.length?<section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label={title}>
+   {visible.length?<section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3" aria-label={title}>
      {visible.map(item=><Link key={item.slug} href={localizedKnowledgePath(locale,scope,item.slug)}
-       className="group flex min-h-[194px] flex-col rounded-2xl border border-[#d0e0d6] bg-white p-5 transition hover:border-[#92b9a6] hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">
+       className="group flex h-full min-h-[180px] flex-col rounded-[18px] border border-[#d7e3da] bg-white p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[#86b39b] hover:shadow-[0_16px_30px_-25px_#174b3c] motion-reduce:transform-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">
        <p className="text-xs font-extrabold text-[#1d6a4e]">{item.code}</p>
        <h2 className="mt-3 text-lg font-semibold text-[#153d31]">{item.title}</h2>
        <p className="mt-2 flex-1 text-sm leading-6 text-[#52615b]">{item.summary}</p>
-       <span className="mt-3 text-sm font-bold text-[#174b3c]">{ui.read} →</span>
+       <span className="mt-auto border-t border-[#e6ede8] pt-3 text-sm font-bold text-[#174b3c]">{ui.read} →</span>
      </Link>)}
    </section>:<p role="status" className="rounded-xl border border-[#d0e0d6] bg-white p-6 text-sm text-[#52615b]">{ui.noResults}. {ui.empty}</p>}
    <SchoolTechnicalGlossary locale={locale}/>
