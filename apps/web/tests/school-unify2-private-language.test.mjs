@@ -4,7 +4,7 @@ import test from "node:test";
 const read=p=>readFileSync(new URL(p,import.meta.url),"utf8");
 const paths={
   copy:"../lib/school-workspace-i18n.ts",switch:"../components/school-private-language-switch.tsx",
-  hub:"../components/school-localized-workspace-home.tsx",home:"../app/(workspace)/school/page.tsx",
+  hub:"../components/school-localized-workspace-home.tsx",firstViewport:"../components/school-workspace-first-viewport.tsx",home:"../app/(workspace)/school/page.tsx",
   quick:"../components/school-quick-access.tsx",ref:"../components/school-private-reference-index.tsx",
   standards:"../app/(workspace)/school/norme/page.tsx",grades:"../app/(workspace)/school/gradi/page.tsx",
   explorer:"../app/(workspace)/school/explorer/page.tsx",search:"../components/knowledge-explorer.tsx",
@@ -30,7 +30,8 @@ test("SCHOOL-UNIFY2 localized private navigation and shortcuts retain locale wit
  assert.match(source.switch,/SchoolPrivateTopbar/);
  for(const href of ["/school/norme","/school/gradi","/school/explorer"])assert.ok(source.hub.includes(href));
  assert.match(source.hub,/CALCULATOR_ROUTES\[locale\]/);
- assert.match(source.hub,/name="lang" value=\{locale\}/);
+ assert.match(source.hub,/SchoolWorkspaceFirstViewport locale=\{locale\}/);
+ assert.match(source.firstViewport,/name="lang" value=\{locale\}/);
  assert.match(source.quick,/schoolWorkspaceHref\(tool.href,locale\)/);
  assert.match(source.quick,/schoolWorkspaceHref\(item.href,locale\)/);
  assert.match(source.quick,/SCHOOL_PRIVATE_COPY\[locale\]/);
