@@ -30,6 +30,15 @@ test("explicit copy-and-open handoff routes only after clipboard success",()=>{
  const copy=readFileSync(new URL("../components/commercial-deal-fact-brief-copy.tsx",import.meta.url),"utf8");
  assert.match(copy,/onClick=\{\(\) => void copyFacts\(true\)\}/);
  assert.match(copy,/if \(openAssistant\) router\.push\(appRoutes\.commercial\.assistant\)/);
- assert.ok(copy.indexOf("await navigator.clipboard.writeText(text)") < copy.indexOf("if (openAssistant) router.push"));
+ assert.ok(copy.indexOf("await navigator.clipboard.writeText(contextText)") < copy.indexOf("if (openAssistant) router.push"));
  assert.match(copy,/Copia e apri assistente/);
+});
+
+test("editable question and exact preview make copied facts transparent",()=>{
+ const copy=readFileSync(new URL("../components/commercial-deal-fact-brief-copy.tsx",import.meta.url),"utf8");
+ assert.match(copy,/value=\{question\} onChange=/);
+ assert.match(copy,/maxLength=\{500\}/);
+ assert.match(copy,/Anteprima esatta del contesto da copiare/);
+ assert.match(copy,/\{contextText\}/);
+ assert.match(copy,/if \(!question\.trim\(\)\)/);
 });
