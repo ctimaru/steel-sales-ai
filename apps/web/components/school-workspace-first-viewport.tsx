@@ -15,10 +15,13 @@ const titles: Record<SchoolWorkspaceLocale, string> = {
 };
 const professor: Record<SchoolWorkspaceLocale, string> = {
   it: "Chiedi al professore",
-  en: "Ask the professor",
-  de: "Den Professor fragen",
-  fr: "Demander au professeur",
-  es: "Pregunta al profesor",
+  en: "Ask the professor (Italian)",
+  de: "Professor fragen (Italienisch)",
+  fr: "Demander au professeur (italien)",
+  es: "Pregunta al profesor (italiano)",
+};
+const measures: Record<SchoolWorkspaceLocale, string> = {
+  it: "Barre", en: "Bars", de: "Stangen", fr: "Barres", es: "Barras",
 };
 const lookupLabels: Record<SchoolWorkspaceLocale, string> = {
   it: "Hai già una norma o un grado?",
@@ -108,7 +111,7 @@ export function SchoolWorkspaceFirstViewport({locale}:{locale: SchoolWorkspaceLo
             className="mt-1.5 text-xl font-semibold tracking-tight text-[#163a2e] sm:text-2xl">{calculatorLabels[locale]}</h2>
           <p className="mt-2 max-w-lg text-sm leading-6 text-[#52645a]">{t.calcHint}</p>
           <div className="mt-4 flex flex-wrap gap-1.5" aria-label={t.calculator}>
-            {["kg/m","Barre","t"].map(value=><span key={value}
+            {["kg/m",measures[locale],"t"].map(value=><span key={value}
               className="rounded-lg border border-[#cedfd2] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#245442]">{value}</span>)}
           </div>
         </div>
