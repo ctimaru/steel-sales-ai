@@ -168,7 +168,7 @@ export default async function CommercialHomePage({
   ];
 
   return (
-    <FocusPage compact className="max-w-[1480px]">
+    <FocusPage compact className={"max-w-[1480px] " + cinematic.page}>
       <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
       <section aria-label="Commerciale Smart Steel Sales" data-testid="comm-cine1-hero"
         className={"relative isolate overflow-hidden rounded-[28px] border border-[#174437] bg-[#082f28] text-white shadow-[0_24px_75px_-35px_rgba(4,39,30,0.9)] " + cinematic.hero}>
