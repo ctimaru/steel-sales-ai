@@ -296,7 +296,7 @@ export async function CommercialUnifiedWorklist({
                 <Link key={item.key} href={route(view, query, item.key, data.paging?.page ?? page, data.paging?.currentCursor)}
                   aria-current={item.key === active?.key ? "true" : undefined}
                   className={"flex min-h-[88px] items-center justify-between gap-3 border-l-[3px] px-3 py-3 transition hover:bg-[#f3f8f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] " +
-                    (item.key === active?.key ? "border-l-[#175640] bg-[#edf6f0]" : "border-l-transparent")}}>
+                    (item.key === active?.key ? "border-l-[#175640] bg-[#edf6f0]" : "border-l-transparent")}>
                   <div className="min-w-0 flex-1 space-y-1" data-testid="commercial-smart-deal-card">
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                       <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--brand-primary)]">{itemType(item)}</p>
