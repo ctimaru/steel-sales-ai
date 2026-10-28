@@ -171,42 +171,32 @@ export default async function CommercialHomePage({
     <FocusPage compact className={"max-w-[1480px] " + cinematic.page}>
       <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
       <section aria-label="Commerciale Smart Steel Sales" data-testid="comm-cine1-hero"
-        className={"relative isolate overflow-hidden rounded-[28px] border border-[#174437] bg-[#082f28] text-white shadow-[0_24px_75px_-35px_rgba(4,39,30,0.9)] " + cinematic.hero}>
-                <div className={"grid min-h-[190px] gap-6 px-6 py-7 sm:px-9 sm:py-8 lg:min-h-[240px] lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,0.85fr)] lg:items-center lg:gap-8 lg:px-10 lg:py-8 " + cinematic.heroGrid}>
-          <div className="relative z-10 max-w-[690px]">
-            <div className="inline-flex items-center gap-2 border-b border-[#7dad91]/50 pb-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#add4bb]">
-              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#9fe4b5]" />
+        className={"relative isolate overflow-hidden border border-[#174437] bg-[#082f28] text-white shadow-[0_24px_75px_-35px_rgba(4,39,30,0.9)] " + cinematic.hero}>
+        <div className={"grid min-h-[290px] gap-6 px-5 pb-9 pt-7 sm:px-9 sm:pb-10 sm:pt-9 lg:min-h-[328px] lg:items-center lg:px-11 lg:py-9 " + cinematic.heroGrid}>
+          <div className="relative z-10 min-w-0 max-w-[670px]">
+            <div className="inline-flex items-center gap-2 border-b border-[#7dad91]/50 pb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#add4bb]">
+              <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#9fe4b5]" />
               Smart Steel Sales / Commercial Intelligence
             </div>
-            <h1 className={"mt-4 max-w-[650px] text-[clamp(2rem,3.9vw,3.45rem)] font-semibold leading-[1.05] tracking-[-0.045em] text-white " + cinematic.heroTitle}>
+            <h1 className={"mt-4 max-w-[650px] text-[clamp(2rem,3.8vw,3.5rem)] font-semibold leading-[1.06] tracking-[-0.05em] text-white " + cinematic.heroTitle}>
               Le tue trattative.<br /><span className="text-[#b4dec2]">Un’unica visione.</span>
             </h1>
-            <p className="mt-3 max-w-[480px] text-sm leading-6 text-[#d2e7db]">
-              Dal materiale che cerchi alla trattativa conclusa. Richieste, offerte e ordini in un solo spazio, con la tua intelligenza commerciale.
+            <p className="mt-3 max-w-[475px] text-sm leading-6 text-[#d2e7db]">
+              Dal materiale che cerchi alla trattativa conclusa. Richieste, offerte e ordini in un solo spazio.
             </p>
-            <p className="mt-4 flex items-center gap-2 text-[11px] font-medium text-[#b8d8c6]">
-              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#a0ddba]" />
+            <div aria-label="Il tuo centro operativo" className={"mt-5 max-w-[510px] " + cinematic.heroMetrics}>
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#a9d7bc]">Il tuo centro operativo</p>
+              <dl className="grid grid-cols-3 gap-2">
+                <div><dd className="text-lg font-semibold tabular-nums text-white">{operational.rfqs}</dd><dt className="text-[10px] text-[#c6ddce]">Richieste</dt></div>
+                <div><dd className="text-lg font-semibold tabular-nums text-white">{operational.offers}</dd><dt className="text-[10px] text-[#c6ddce]">Offerte</dt></div>
+                <div><dd className="text-lg font-semibold tabular-nums text-white">{operational.orders}</dd><dt className="text-[10px] text-[#c6ddce]">Ordini</dt></div>
+              </dl>
+            </div>
+            <p className="mt-4 flex flex-wrap items-center gap-2 text-[11px] font-medium text-[#b8d8c6]">
+              <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#a0ddba]" />
               {mode === "live" ? "Dati live" : mode === "demo" ? "Modalità demo" : "Dati in attesa di associazione"}
               <span aria-hidden="true" className="mx-1 text-white/30">/</span> Workspace privato
             </p>
-          </div>
-          <div className="relative z-10 hidden min-w-0 lg:block" aria-label="Panoramica commerciale">
-            <div aria-hidden="true" className="absolute -inset-5 -z-10 rounded-[32px] border border-white/[0.08] bg-white/[0.035] blur-[1px]" />
-            <div className={"overflow-hidden rounded-2xl border border-white/20 bg-[#f5faf6] text-[#173f35] shadow-[0_30px_80px_-32px_rgba(0,0,0,0.7)] " + cinematic.heroPanel}>
-              <div className="flex items-center justify-between border-b border-[#deebe1] px-5 py-4">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#47715a]">Il tuo centro operativo</p>
-                  <p className="mt-1 text-base font-semibold tracking-tight text-[#173f35]">Tutto sotto controllo.</p>
-                </div>
-                <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#dcece1] text-lg text-[#175640]">✦</span>
-              </div>
-              <div className="grid grid-cols-3 divide-x divide-[#deebe1] border-b border-[#deebe1]">
-                <div className="px-3 py-5 text-center"><p className="text-2xl font-semibold tabular-nums text-[#173f35]">{operational.rfqs}</p><p className="mt-1 text-[10px] font-medium text-[#587163]">Richieste</p></div>
-                <div className="px-3 py-5 text-center"><p className="text-2xl font-semibold tabular-nums text-[#173f35]">{operational.offers}</p><p className="mt-1 text-[10px] font-medium text-[#587163]">Offerte</p></div>
-                <div className="px-3 py-5 text-center"><p className="text-2xl font-semibold tabular-nums text-[#173f35]">{operational.orders}</p><p className="mt-1 text-[10px] font-medium text-[#587163]">Ordini</p></div>
-              </div>
-            </div>
-            <p className="mt-3 text-right text-[10px] uppercase tracking-[0.16em] text-[#a7ceb6]">RFQ → Offerta → Ordine</p>
           </div>
         </div>
       </section>
