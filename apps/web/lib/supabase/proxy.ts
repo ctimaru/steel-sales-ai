@@ -2,6 +2,9 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 function schoolPathForPublicKnowledge(pathname: string) {
+  // Editorial articles are always public and have no private /school/articoli mirror.
+  // Do not silently turn published guide links into authenticated 404s.
+  if (pathname === "/knowledge/articoli" || pathname.startsWith("/knowledge/articoli/")) return null;
   if (pathname === "/knowledge") return "/school/catalogo";
   if (pathname.startsWith("/knowledge/")) {
     return "/school" + pathname.slice("/knowledge".length);
