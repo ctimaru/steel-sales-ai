@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { SchoolAssistantEntry } from "@/components/school-assistant-entry";
 import { FocusPage } from "@/components/focus-ui";
 import { PilotEvent } from "@/components/pilot-event";
 import { SchoolPrivateTopbar } from "@/components/school-private-language-switch";
 import { SchoolQuickAccess } from "@/components/school-quick-access";
 import { SchoolWorkspaceFirstViewport } from "@/components/school-workspace-first-viewport";
 import { SchoolTechnicalSections } from "@/components/school-unified-experience";
-import { SchoolUnifiedNavigation, SchoolConversionPath } from "@/components/school-unified-navigation";
+import { SchoolConversionPath } from "@/components/school-unified-navigation";
 import { CALCULATOR_ROUTES } from "@/lib/international-calculator-landing";
 import { schoolWorkspaceHref, SCHOOL_PRIVATE_COPY, type SchoolWorkspaceLocale } from "@/lib/school-workspace-i18n";
 
@@ -16,7 +15,6 @@ const privateCards = (locale:SchoolWorkspaceLocale) => {
     {label:"01 · CHS / SHS / RHS",title:c.calculator,description:c.calcHint,href:locale==="it"?schoolWorkspaceHref("/school/tubes",locale):CALCULATOR_ROUTES[locale],isPublic:locale!=="it"},
     {label:"02 · EN",title:c.standards,description:c.searchHint,href:schoolWorkspaceHref("/school/norme",locale),isPublic:false},
     {label:"03 · S355",title:c.grades,description:c.searchHint,href:schoolWorkspaceHref("/school/gradi",locale),isPublic:false},
-    {label:"04 · PRIVATE",title:c.docs,description:c.docsHint,href:schoolWorkspaceHref("/school/explorer",locale),isPublic:false},
   ];
 };
 
@@ -28,9 +26,7 @@ export function SchoolLocalizedWorkspaceHome({locale}:{locale:SchoolWorkspaceLoc
   return <div lang={locale}><FocusPage compact className="max-w-[1180px] px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
     <PilotEvent eventName="school_home_viewed" metadata={{surface:"school_home"}} />
     <SchoolPrivateTopbar locale={locale} compact/>
-    <SchoolUnifiedNavigation locale={locale} scope="workspace" compact/>
     <SchoolWorkspaceFirstViewport locale={locale}/>
-    <SchoolAssistantEntry locale={locale}/>
     <SchoolConversionPath locale={locale}/>
     <details className="group rounded-[20px] border border-[#d5e3da] bg-white px-4 py-4 sm:px-5">
       <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-[#174b3c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c] [&::-webkit-details-marker]:hidden">
@@ -38,7 +34,7 @@ export function SchoolLocalizedWorkspaceHome({locale}:{locale:SchoolWorkspaceLoc
       </summary>
       <div className="mt-4 space-y-4">
         <SchoolTechnicalSections locale={locale}/>
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {privateCards(locale).map(item=><Link key={item.href} href={item.href}
             data-testid="school-private-tool-card" className="group flex min-h-[138px] flex-col rounded-[18px] border border-[#d4e2d8] bg-[#fafcfb] p-4 transition hover:border-[#8bb7a3] hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">
             <span className="text-[11px] font-bold uppercase tracking-[.1em] text-[#2b7356]">{item.label}</span>
@@ -50,16 +46,5 @@ export function SchoolLocalizedWorkspaceHome({locale}:{locale:SchoolWorkspaceLoc
       </div>
     </details>
     <SchoolQuickAccess locale={locale}/>
-    <section aria-labelledby="school-private-documents" className="rounded-[20px] border border-[#d7e2db] bg-[#f5f8f6] px-5 py-5 sm:px-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="school-kicker">{c.kicker}</p>
-          <h2 id="school-private-documents" className="mt-1 text-lg font-semibold text-[#1b4632]">{c.docs}</h2>
-          <p className="mt-1 max-w-2xl text-sm leading-6 text-[#52645a]">{c.docsHint}</p>
-          <p className="mt-1 text-xs leading-5 text-[#52645a]">{c.sourceDisclosure}</p>
-        </div>
-        <Link href={schoolWorkspaceHref("/school/explorer",locale)} className="school-primary-action">{c.docsAction} →</Link>
-      </div>
-    </section>
   </FocusPage></div>;
 }
