@@ -26,6 +26,8 @@ export function SchoolLocalizedWorkspaceHome({locale}:{locale:SchoolWorkspaceLoc
     <SchoolPrivateTopbar locale={locale}/>
     <SchoolUnifiedNavigation locale={locale} scope="workspace"/>
     <section className="grid items-center gap-5 overflow-hidden rounded-[28px] bg-[#102921] px-6 py-9 text-white sm:px-9 sm:py-11 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]" aria-label={c.welcome}>
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-cover bg-[position:72%_center] opacity-65" style={{backgroundImage:"url('/home-cine1a-steel.webp')"}} />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(9,31,23,.97)_0%,rgba(9,31,23,.86)_55%,rgba(9,31,23,.50)_100%)]" />
       <div className="space-y-3">
         <p className="text-xs font-extrabold uppercase tracking-[.12em] text-[#a6d4ba]">{c.brand} · Smart Steel Sales</p>
         <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">{c.welcome}</h1>
