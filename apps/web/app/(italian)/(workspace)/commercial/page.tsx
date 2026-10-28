@@ -169,32 +169,63 @@ export default async function CommercialHomePage({
     <FocusPage compact className="max-w-[1480px]">
       <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
       <section aria-label="Commerciale Smart Steel Sales" data-testid="comm-cine1-hero"
-        className="relative isolate overflow-hidden rounded-[22px] border border-[#174437] bg-[#082f28] px-5 py-5 text-white shadow-[0_16px_40px_-28px_rgba(4,39,30,0.8)] sm:px-7 sm:py-6">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_85%_15%,rgba(103,159,133,0.38),transparent_38%),linear-gradient(117deg,#05261f_3%,#0b4437_61%,#164b40_100%)]" />
-        <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-0 h-full w-[50%] -skew-x-12 border-l border-white/10 bg-[linear-gradient(90deg,transparent,rgba(206,225,216,0.07),transparent)]" />
-        <div className="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-[670px]">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#a8d2bb]">Smart Steel Sales · Commercial Workspace</p>
-            <h1 className="mt-2 text-[clamp(1.5rem,2.5vw,2.25rem)] font-semibold leading-tight tracking-tight text-white">
-              Le tue trattative. Un’unica visione.
+        className="relative isolate overflow-hidden rounded-[28px] border border-[#174437] bg-[#082f28] text-white shadow-[0_24px_75px_-35px_rgba(4,39,30,0.9)]">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_79%_42%,rgba(69,150,113,0.34),transparent_54%),linear-gradient(115deg,#041d19_0%,#083d31_58%,#123d35_100%)]" />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 opacity-30 [background-image:linear-gradient(rgba(208,242,220,0.09)_1px,transparent_1px),linear-gradient(90deg,rgba(208,242,220,0.09)_1px,transparent_1px)] [background-size:52px_52px] [mask-image:linear-gradient(90deg,transparent,black)]" />
+        <div className="grid min-h-[340px] gap-8 px-6 py-8 sm:px-9 sm:py-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,0.85fr)] lg:items-center lg:gap-10 lg:px-12 lg:py-12">
+          <div className="relative z-10 max-w-[690px]">
+            <div className="inline-flex items-center gap-2 border-b border-[#7dad91]/50 pb-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#add4bb]">
+              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#9fe4b5]" />
+              Smart Steel Sales / Commercial Intelligence
+            </div>
+            <h1 className="mt-7 max-w-[650px] text-[clamp(2.35rem,4.4vw,4.7rem)] font-semibold leading-[1.05] tracking-[-0.045em] text-white">
+              Le tue trattative.<br /><span className="text-[#b4dec2]">Un’unica visione.</span>
             </h1>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-[#d3e6db]">
-              RFQ, offerte e ordini nello stesso flusso. L’intelligenza commerciale resta al tuo fianco, senza interrompere il lavoro.
+            <p className="mt-5 max-w-[480px] text-[15px] leading-7 text-[#d2e7db]">
+              Dal materiale che cerchi alla trattativa conclusa. Richieste, offerte e ordini in un solo spazio, con la tua intelligenza commerciale.
             </p>
-            <span className="mt-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-medium text-white">
+            <div className="mt-7 flex flex-wrap items-center gap-3">
+              {canWrite ? <Link href={appRoutes.commercial.home + "?compose=1#commercial-ai-intake"}
+                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#d4f0df] px-5 text-sm font-bold text-[#103b2d] shadow-[0_8px_30px_-15px_rgba(168,230,190,0.7)] transition hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+                + Nuova richiesta
+              </Link> : null}
+              <Link href={appRoutes.commercial.home + "#commercial-worklist"}
+                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/30 px-4 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+                Le mie trattative →
+              </Link>
+            </div>
+            <p className="mt-7 flex items-center gap-2 text-[11px] font-medium text-[#b8d8c6]">
               <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#a0ddba]" />
               {mode === "live" ? "Dati live" : mode === "demo" ? "Modalità demo" : "Dati in attesa di associazione"}
-            </span>
+              <span aria-hidden="true" className="mx-1 text-white/30">/</span> Workspace privato
+            </p>
           </div>
-          <div className="flex flex-wrap gap-2 lg:justify-end">
-            {canWrite ? <Link href={appRoutes.commercial.home + "?compose=1#commercial-ai-intake"}
-              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#d4f0df] px-4 text-xs font-bold text-[#103b2d] hover:bg-white">
-              + Nuova richiesta
-            </Link> : null}
-            <Link href={appRoutes.commercial.home + "#commercial-worklist"}
-              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/35 bg-white/10 px-4 text-xs font-semibold text-white hover:bg-white/20">
-              Le mie trattative →
-            </Link>
+          <div className="relative z-10 min-w-0" aria-label="Panoramica commerciale">
+            <div aria-hidden="true" className="absolute -inset-5 -z-10 rounded-[32px] border border-white/[0.08] bg-white/[0.035] blur-[1px]" />
+            <div className="overflow-hidden rounded-2xl border border-white/20 bg-[#f5faf6] text-[#173f35] shadow-[0_30px_80px_-32px_rgba(0,0,0,0.7)]">
+              <div className="flex items-center justify-between border-b border-[#deebe1] px-5 py-4">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#47715a]">Il tuo centro operativo</p>
+                  <p className="mt-1 text-base font-semibold tracking-tight text-[#173f35]">Tutto sotto controllo.</p>
+                </div>
+                <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#dcece1] text-lg text-[#175640]">✦</span>
+              </div>
+              <div className="grid grid-cols-3 divide-x divide-[#deebe1] border-b border-[#deebe1]">
+                <div className="px-3 py-5 text-center"><p className="text-2xl font-semibold tabular-nums text-[#173f35]">{operational.rfqs}</p><p className="mt-1 text-[10px] font-medium text-[#587163]">Richieste</p></div>
+                <div className="px-3 py-5 text-center"><p className="text-2xl font-semibold tabular-nums text-[#173f35]">{operational.offers}</p><p className="mt-1 text-[10px] font-medium text-[#587163]">Offerte</p></div>
+                <div className="px-3 py-5 text-center"><p className="text-2xl font-semibold tabular-nums text-[#173f35]">{operational.orders}</p><p className="mt-1 text-[10px] font-medium text-[#587163]">Ordini</p></div>
+              </div>
+              <div className="px-5 py-4">
+                <div className="flex items-start gap-3 rounded-xl bg-[#e5f1e8] p-3">
+                  <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#175640] text-white">✦</span>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-[#173f35]">Intelligenza commerciale</p>
+                    <p className="mt-1 text-xs leading-5 text-[#52695c]">Apri una trattativa per analizzarla con il contesto disponibile, senza inventare dati.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p className="mt-3 text-right text-[10px] uppercase tracking-[0.16em] text-[#a7ceb6]">RFQ → Offerta → Ordine</p>
           </div>
         </div>
       </section>
