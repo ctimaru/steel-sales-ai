@@ -105,6 +105,37 @@
 .worklist :global(#commercial-detail) {
   scrollbar-color: #afcbbc transparent;
 }
+
+/* One visual grammar for the existing page surfaces; no new panels or layout wrappers. */
+.page :global([data-testid="commercial-cockpit-tabs"]) {
+  scrollbar-width: thin;
+  border-color: #d6e5db;
+}
+.page :global(#commercial-today),
+.page :global(#commercial-tool-access),
+.page :global(#commercial-memory-panel),
+.page :global(#commercial-tools-panel) {
+  border: 1px solid #d6e5db;
+  border-radius: 18px;
+  box-shadow: 0 10px 34px -32px rgba(6,50,34,.22);
+}
+.page :global(#commercial-today) {
+  background: #f8fbf9;
+}
+.page :global(#commercial-memory-panel),
+.page :global(#commercial-tools-panel) {
+  background: #fff;
+}
+.page :global(#commercial-memory-panel summary),
+.page :global(#commercial-tools-panel summary) {
+  letter-spacing: -.015em;
+}
+.page :global(#commercial-memory-panel summary:focus-visible),
+.page :global(#commercial-tools-panel summary:focus-visible) {
+  outline: 2px solid #175640;
+  outline-offset: 3px;
+}
+
 @media (min-width: 1024px) {
   .heroGrid { grid-template-columns: minmax(0,1.27fr) minmax(310px,.73fr); }
   .heroPanel { max-width: 375px; margin-left: auto; }
