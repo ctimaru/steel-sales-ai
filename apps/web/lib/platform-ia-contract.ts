@@ -172,6 +172,7 @@ export const PLATFORM_IA_ROUTE_INVENTORY = [
   { path: "/platform/product-analytics", module: "productAnalytics" },
   { path: "/platform/feed-insights", module: "productAnalytics" },
   { path: "/platform/pilot", module: "pilot" },
+  { path: "/platform/pilot/readiness", module: "pilot" },
   { path: "/platform/business-plan", module: "businessPlan" },
   { path: "/platform/business-plan/details", module: "businessPlan" },
   { path: "/platform/business-plan/market-sizing", module: "businessPlan" },

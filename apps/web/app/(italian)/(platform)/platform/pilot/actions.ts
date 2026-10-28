@@ -37,7 +37,7 @@ export async function startMarketplacePilot(formData: FormData) {
   });
 
   if (error) redirect(pilotPath("error", safeErrorMessage(error, "Operazione pilot non completata. Aggiorna la pagina e riprova.")));
-  await finish("Pilot P5.6 avviato. Il cohort resta vuoto finché non selezioni aziende reali.");
+  await finish("Finestra P5.6 preparatoria registrata. Nessun pilot reale o tracking abilitato.");
 }
 
 export async function addMarketplacePilotParticipant(formData: FormData) {
