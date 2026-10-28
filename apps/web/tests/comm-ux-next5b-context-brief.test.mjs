@@ -17,7 +17,7 @@ test("selected deal fact brief uses only grounded visible fields without automat
 test("copy to assistant requires manual action and exposes provenance caveat",()=>{
  const copy=readFileSync(new URL("../components/commercial-deal-fact-brief-copy.tsx",import.meta.url),"utf8");
  assert.match(copy,/"use client"/);
- assert.match(copy,/onClick=\{copyFacts\}/);
+ assert.match(copy,/onClick=\{\(\) => void copyFacts\(\)\}/);
  assert.match(copy,/navigator\.clipboard\.writeText/);
  assert.match(copy,/Non dedurre offerte, email o documenti/);
  assert.match(copy,/aria-live="polite"/);
