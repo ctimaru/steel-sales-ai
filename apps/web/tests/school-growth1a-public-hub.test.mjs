@@ -41,7 +41,7 @@ test("SCHOOL-GROWTH1A preserves conversion, trust and Network privacy", () => {
 test("SCHOOL-GROWTH1A uses the shared high-contrast action contract and a lightweight schematic", () => {
   assert.match(page, /school-primary-action/);
   assert.match(page, /school-secondary-action/);
-  assert.match(page, /<svg aria-hidden="true"/);
-  assert.match(page, /non in scala/);
+  assert.match(page, /home-cine1a-steel\\.webp/);
+  assert.match(page, /SchoolJourney locale="it"/);
   assert.match(page, /focus-visible:outline-2/);
 });
