@@ -66,3 +66,10 @@ test("NEXT6 uses only already visible linked activity facts and never invents li
  assert.match(copy,/Attività collegate: non disponibili in questo riepilogo/);
  assert.match(copy,/verificare il dettaglio originale/);
 });
+
+test("NEXT6 source lookup is explicit and evidence-bound",()=>{
+ const copy=readFileSync(new URL("../components/commercial-deal-fact-brief-copy.tsx",import.meta.url),"utf8");
+ assert.match(copy,/Cerca nelle email e nei documenti disponibili le offerte/);
+ assert.match(copy,/cita le fonti e indica cosa non è verificabile/);
+ assert.match(copy,/if \(contextText\.length > 1000\)/);
+});
