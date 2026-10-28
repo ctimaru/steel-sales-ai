@@ -32,6 +32,8 @@ try {
    assert.equal(await page.locator('form[action="/school/norme"]').count(),1,locale+" standard search in first viewport");
    assert.equal(await page.locator('form[action="/school/gradi"]').count(),1,locale+" grade search in first viewport");
    assert.equal(await page.locator('#school-private-calculator-heading').count(),1,locale+" first viewport calculator");
+   const professorHref=locale==="it"?"/school/professore":"/school/professore?lang="+locale;
+   assert.equal(await hero.locator('a[href="'+professorHref+'"]').count(),1,locale+" authenticated professor path");
    const heroRect=await hero.boundingBox();
    const searchRect=await page.locator('#school-private-search').boundingBox();
    assert.ok(heroRect && searchRect && searchRect.y>=heroRect.y+heroRect.height-1,locale+" search follows hero");
@@ -56,6 +58,12 @@ try {
    }
    assert.ok(dim.scroll<=dim.viewport+12,locale+" mobile overflow "+JSON.stringify(dim));
    await page.screenshot({path:dir+"/"+locale+"-"+width+".png",fullPage:true,animations:"disabled"});
+   if(locale==="it") {
+     const professorResponse=await page.goto(base+"/school/professore",{waitUntil:"domcontentloaded",timeout:60000});
+     assert.equal(professorResponse?.status(),200,"authenticated professor route in demo mode");
+     assert.ok((await page.locator("h1").first().textContent()||"").includes("Ciao, cosa vuoi capire?"));
+     await page.screenshot({path:dir+"/professor-authenticated-"+width+".png",animations:"disabled"});
+   }
    console.log("SCHOOL-UNIFY2 CHROME PASS",locale,width);
   }
   await context.close();
