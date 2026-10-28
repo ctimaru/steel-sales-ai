@@ -27,7 +27,8 @@ export default async function SchoolPage({searchParams}:{searchParams:Promise<{l
       <SchoolPrivateTopbar locale="it"/>
       <SchoolUnifiedNavigation locale="it" scope="workspace" />
       <section aria-labelledby="school-workspace-cine-heading" className="relative isolate overflow-hidden rounded-[28px] bg-[#102921] text-white shadow-[0_24px_64px_-40px_rgba(9,36,26,.8)]">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_85%_20%,rgba(92,154,121,.25),transparent_52%),linear-gradient(125deg,#102921_15%,#193b30_62%,#0a1c17)]" />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-cover bg-[position:72%_center] opacity-65" style={{backgroundImage:"url('/home-cine1a-steel.webp')"}} />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(9,31,23,.96)_0%,rgba(9,31,23,.89)_47%,rgba(9,31,23,.43)_100%)]" />
         <div className="relative grid items-center gap-6 px-6 py-8 sm:px-9 sm:py-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,.8fr)]">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[.18em] text-[#a6d4ba]">Smart Steel Sales / School</p>
