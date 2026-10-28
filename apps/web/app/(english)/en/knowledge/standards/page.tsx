@@ -76,8 +76,8 @@ export default async function EnglishStandardsIndex({
   return (
     <EnglishPublicSubpage
       eyebrow="Steel Knowledge · Published standards"
-      title="Steel tube standards, explained in English."
-      description="Explore the scope of European steel tube standards, understand the difference between structural and pressure applications, and prepare clearer technical enquiries. These are concise editorial guides, not reproductions of official standards."
+      title="Steel tube standards, explained."
+      description="Understand EN steel tube standards for structures, pressure applications and clearer RFQs. Editorial guidance, not official standard text."
       italianHref="/knowledge/norme"
       englishHref={canonical}
       schoolKnowledgeEditorial
