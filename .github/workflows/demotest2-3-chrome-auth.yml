@@ -7,6 +7,7 @@ on:
       - "apps/web/tests/comm-ux1c-chrome-search.mjs"
       - "apps/web/tests/comm-ux1-chrome-auth.mjs"
       - "apps/web/tests/rfqh14-2-*.mjs"
+      - "apps/web/tests/prod-next1c-*.mjs"
       - "apps/web/tests/bd15-*.mjs"
       - "apps/web/tests/bd18-*.mjs"
       - "supabase/tests/bd15_*.sql"
@@ -204,6 +205,16 @@ jobs:
             -v ON_ERROR_STOP=1 \
             -f "$RUNNER_TEMP/demotest23-psql-vars.sql" \
             -f supabase/tests/rfqh14_2b_assert_po_browser.sql
+      - name: "PROD-NEXT1.C — Strict buyer/supplier/viewer activation evidence (LOCAL only)"
+        working-directory: apps/web
+        run: node tests/prod-next1c-summarize-journey.mjs
+      - name: "PROD-NEXT1.C — Upload scrubbed synthetic timings (never live customer metrics)"
+        uses: actions/upload-artifact@v4
+        with:
+          name: prod-next1c-synthetic-journey
+          path: ${{ runner.temp }}/prod-next1c-evidence/*.json
+          if-no-files-found: error
+          retention-days: 7
       - name: Local Next.js render diagnostics after Chrome failure
         if: failure()
         shell: bash
