@@ -10,6 +10,7 @@ const scenarios = {
     ["buyer local GoTrue login ", 2],
     ["create mixed-EN 10210/10219 bill with one-click rows ", 2],
     ["one action persists bill and opens private draft RFQ ", 2],
+    ["viewer denied same browser-created buyer RFQ ", 2],
     ["bulk select and add 2 previous suppliers in one click ", 2],
     ["review exact recipients and cancel without dispatch ", 2],
     ["real-send guarded when mail provider disabled ", 2],
