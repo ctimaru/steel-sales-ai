@@ -23,7 +23,7 @@ test("COMMERCIAL-UNIFY2 is one Commerciale page with filters, query and in-place
   assert.match(worklist, /Ordini/);
   assert.match(worklist, /Bozze/);
   assert.match(worklist, /commercialHref\(view, query, key\)/);
-  assert.match(worklist, /Dettaglio nella stessa pagina/);
+  assert.match(worklist, /Trattativa selezionata/);
   assert.match(worklist, /role="search"/);
   assert.match(worklist, /commercial-worklist-q/);
   assert.match(worklist, /getOperationalEntityData/);
