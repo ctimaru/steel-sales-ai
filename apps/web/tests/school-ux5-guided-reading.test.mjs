@@ -49,3 +49,13 @@ test("SCHOOL-UX5 English and localized guides retain source evidence", () => {
   assert.ok(intl.includes("SchoolTechnicalGlossary"));
   assert.ok(intl.includes("uniqueSources.map"));
 });
+
+test("SCHOOL-UX5 browser QA distinguishes absent K2 publication data from live reading guides", () => {
+  const browser = read("./school-ux5-chrome-reading.mjs");
+  assert.match(browser, /hasPublishedDataset/);
+  assert.match(browser, /publishedRecordRequired: true/);
+  assert.match(browser, /publishedRecordRequired: false/);
+  assert.match(browser, /assert\.equal\(response\?\.status\(\), 404/);
+  assert.match(browser, /assert\.equal\(response\?\.status\(\), 200/);
+  assert.ok(browser.includes("await nav.locator(") && browser.includes(".first().click()"));
+});

@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { getDashboardData } from "@/lib/commercial-data";
 import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
 import { CommercialCalculatorQuickAccess } from "@/components/commercial-calculator-quick-access";
+import { CommercialAiCompanion } from "@/components/commercial-ai-companion";
+import cinematic from "@/components/commercial-cinematic.module.css";
 import { CommercialUnifiedWorklist } from "@/components/commercial-unified-worklist";
 import type { CommercialOperationsTab } from "@/components/commercial-campaign-operations";
 import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
@@ -166,40 +168,138 @@ export default async function CommercialHomePage({
   ];
 
   return (
-    <FocusPage compact className="max-w-[1480px]">
+    <FocusPage compact className={"max-w-[1480px] " + cinematic.page}>
       <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
       <section aria-label="Commerciale Smart Steel Sales" data-testid="comm-cine1-hero"
-        className="relative isolate overflow-hidden rounded-[22px] border border-[#174437] bg-[#082f28] px-5 py-5 text-white shadow-[0_16px_40px_-28px_rgba(4,39,30,0.8)] sm:px-7 sm:py-6">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_85%_15%,rgba(103,159,133,0.38),transparent_38%),linear-gradient(117deg,#05261f_3%,#0b4437_61%,#164b40_100%)]" />
-        <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-0 h-full w-[50%] -skew-x-12 border-l border-white/10 bg-[linear-gradient(90deg,transparent,rgba(206,225,216,0.07),transparent)]" />
-        <div className="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-[670px]">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#a8d2bb]">Smart Steel Sales · Commercial Workspace</p>
-            <h1 className="mt-2 text-[clamp(1.5rem,2.5vw,2.25rem)] font-semibold leading-tight tracking-tight text-white">
-              Le tue trattative. Un’unica visione.
+        className={"relative isolate overflow-hidden border border-[#174437] bg-[#082f28] text-white shadow-[0_24px_75px_-35px_rgba(4,39,30,0.9)] " + cinematic.hero}>
+        <div className={"grid gap-6 px-5 pb-7 pt-6 sm:min-h-[290px] sm:px-9 sm:pb-10 sm:pt-9 lg:min-h-[328px] lg:items-center lg:px-11 lg:py-9 " + cinematic.heroGrid}>
+          <div className="relative z-10 min-w-0 max-w-[670px]">
+            <div className="inline-flex items-center gap-2 border-b border-[#7dad91]/50 pb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#add4bb]">
+              <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#9fe4b5]" />
+              Smart Steel Sales / Commercial Intelligence
+            </div>
+            <h1 className={"mt-4 max-w-[650px] text-[clamp(2rem,3.8vw,3.5rem)] font-semibold leading-[1.06] tracking-[-0.05em] text-white " + cinematic.heroTitle}>
+              Le tue trattative.<br /><span className="text-[#b4dec2]">Un’unica visione.</span>
             </h1>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-[#d3e6db]">
-              RFQ, offerte e ordini nello stesso flusso. L’intelligenza commerciale resta al tuo fianco, senza interrompere il lavoro.
+            <p className="mt-3 hidden max-w-[475px] text-sm leading-6 text-[#d2e7db] sm:block">
+              Dal materiale che cerchi alla trattativa conclusa. Richieste, offerte e ordini in un solo spazio.
             </p>
-            <span className="mt-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-medium text-white">
-              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#a0ddba]" />
+            <p className="mt-2 text-[13px] leading-5 text-[#d2e7db] sm:hidden">Richieste, offerte e ordini in un unico spazio.</p>
+            <div aria-label="Il tuo centro operativo" className={"mt-5 hidden max-w-[510px] sm:block " + cinematic.heroMetrics}>
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#a9d7bc]">Il tuo centro operativo</p>
+              <dl className="grid grid-cols-3 gap-2">
+                <div><dt className="text-[10px] text-[#c6ddce]">Richieste</dt><dd className="text-lg font-semibold tabular-nums text-white">{operational.rfqs}</dd></div>
+                <div><dt className="text-[10px] text-[#c6ddce]">Offerte</dt><dd className="text-lg font-semibold tabular-nums text-white">{operational.offers}</dd></div>
+                <div><dt className="text-[10px] text-[#c6ddce]">Ordini</dt><dd className="text-lg font-semibold tabular-nums text-white">{operational.orders}</dd></div>
+              </dl>
+            </div>
+            <p className="mt-4 hidden flex-wrap items-center gap-2 text-[11px] font-medium text-[#b8d8c6] sm:flex">
+              <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#a0ddba]" />
               {mode === "live" ? "Dati live" : mode === "demo" ? "Modalità demo" : "Dati in attesa di associazione"}
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-2 lg:justify-end">
-            {canWrite ? <Link href={appRoutes.commercial.home + "?compose=1#commercial-ai-intake"}
-              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#d4f0df] px-4 text-xs font-bold text-[#103b2d] hover:bg-white">
-              + Nuova richiesta
-            </Link> : null}
-            <Link href={appRoutes.commercial.home + "#commercial-worklist"}
-              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/35 bg-white/10 px-4 text-xs font-semibold text-white hover:bg-white/20">
-              Le mie trattative →
-            </Link>
+              <span aria-hidden="true" className="mx-1 text-white/30">/</span> Workspace privato
+            </p>
           </div>
         </div>
       </section>
+      <div data-testid="comm-cine13-first-workspace" className="relative z-10 -mt-4 px-2 sm:-mt-5 sm:px-5">
+        <CommercialAiCompanion canWrite={canWrite} />
+      </div>
 
-      <CommercialCalculatorQuickAccess references={calculatorReferences} />
+
+      <nav aria-label="Sezioni del Commerciale" data-testid="commercial-cockpit-tabs"
+        className="flex flex-wrap items-center gap-1.5 overflow-x-auto border-b border-[#dce9e0] pb-3 pt-1 text-xs sm:gap-2">
+        <span className="mr-2 shrink-0 font-bold uppercase tracking-[0.12em] text-[#64796c]">Vai a</span>
+        <a href="#commercial-today" className="inline-flex min-h-9 items-center rounded-lg px-3 font-semibold text-[#175640] hover:bg-[#edf5ef]">Priorità</a>
+        <a href="#commercial-worklist" className="inline-flex min-h-9 items-center rounded-lg px-3 font-semibold text-[#175640] hover:bg-[#edf5ef]">Trattative</a>
+        <a href="#commercial-tools-panel" className="inline-flex min-h-9 items-center rounded-lg px-3 font-semibold text-[#175640] hover:bg-[#edf5ef]">Strumenti</a>
+        {networkAvailable ? (
+          <>
+            <Link href={appRoutes.commercial.home + "?prospects=1#commercial-prospects"}
+              className="inline-flex min-h-9 items-center rounded-lg px-3 font-semibold text-[#175640] hover:bg-[#edf5ef]">Aziende da seguire →</Link>
+            <Link href={appRoutes.network.directory}
+              className="inline-flex min-h-9 items-center rounded-lg px-3 font-semibold text-[#175640] hover:bg-[#edf5ef]">Network</Link>
+          </>
+        ) : null}
+      </nav>
+
+      <section aria-labelledby="commercial-today-heading" id="commercial-today" className="scroll-mt-28 rounded-2xl border border-[#dce8df] bg-[#f8fbf9] px-4 py-4 sm:px-5" data-testid="commercial-compact-actions">
+        <h2 id="commercial-today-heading" className="mb-2 text-sm font-semibold text-[#173f35]">Cosa richiede attenzione</h2>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs" data-testid="commercial-compact-attention">
+          <div className="flex items-center gap-2">
+            <Link href={appRoutes.rfqHub.inbox} className="font-semibold text-[#246c53] underline-offset-2 hover:underline">Apri inbox →</Link>
+          </div>
+          {!canWrite ? (
+            <p className="text-[#53665b]">Consultazione in sola lettura; azioni riservate ai ruoli autorizzati.</p>
+          ) : procurementPayload === null ? (
+            <p className="text-[#53665b]">Priorità non disponibili al momento. Puoi comunque aprire le tue RFQ.</p>
+          ) : actionableRfqs.length ? (
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+              {actionableRfqs.slice(0, 2).map((item) => (
+                <Link key={item.rfq_id} href={appRoutes.rfqHub.campaign(item.rfq_id!)}
+                  className="inline-flex min-h-9 max-w-full items-center gap-2 rounded-md border border-[#d6e5dd] bg-[#f7faf8] px-2.5 py-1.5 font-medium text-[#173f35] hover:border-[#8db9a2]">
+                  <span className="max-w-[19rem] truncate">{item.headline || "RFQ da gestire"}</span><span aria-hidden="true">→</span>
+                </Link>
+              ))}
+              {actionableRfqs.length > 2 ? (
+                <Link href={appRoutes.rfqHub.inbox} className="font-semibold text-[#246c53]">Altre priorità →</Link>
+              ) : null}
+            </div>
+          ) : (
+            <p className="text-[#53665b]">{attentionTotal === 0 ? "Nessuna azione buyer in sospeso." : "Controlla l’inbox per eventuali altre azioni."}</p>
+          )}
+        </div>
+      </section>
+
+      {composing && catalogOptions ? (
+        <section id="commercial-compose" aria-labelledby="commercial-compose-heading" className="scroll-mt-36 space-y-3 rounded-2xl border border-[var(--border-strong)] bg-white p-3 sm:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--brand-primary)]">La tua nuova richiesta</p>
+              <h2 id="commercial-compose-heading" className="text-lg font-semibold text-[var(--brand-deep)]">Crea distinta e RFQ senza lasciare Commerciale</h2>
+              <p className="mt-1 text-xs text-[var(--text-secondary)]">La creazione genera una bozza privata. Nessun invio ai fornitori avviene automaticamente.</p>
+              {networkContext ? (
+                <p className="mt-1 text-xs font-medium leading-5 text-[#175640]" data-testid="commercial-network-draft-disclaimer">
+                  Provenienza: Network · {networkContext.name}. Compila la distinta e scegli i destinatari manualmente: questo contesto non precompila, collega né invia richieste all’azienda.
+                </p>
+              ) : null}
+            </div>
+            {canWrite ? (
+             <Link href={appRoutes.commercial.home + "?compose=1#commercial-ai-intake"}
+               className="inline-flex min-h-10 items-center rounded-lg border border-[#a9cbb9] bg-[#edf7f1] px-3 text-xs font-semibold text-[#175640] hover:bg-[#dcefe4]"
+               data-testid="commercial-ai-intake-link">
+               Assistente AI · prepara distinta
+             </Link>
+           ) : null}
+           <Link href={appRoutes.commercial.home + "#commercial-worklist"} className="app-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold">Chiudi editor</Link>
+          </div>
+          <BuyerDistintaBuilder
+            workspace
+            authenticated
+            returnToCommercial
+            userId={context.userId}
+            organizationId={context.organizationId}
+            emailConfigured={Boolean(process.env.RESEND_API_KEY)}
+            catalogOptions={catalogOptions}
+          />
+        </section>
+      ) : null}
+
+      <CommercialUnifiedWorklist
+        data={displayedUnified}
+        page={page}
+        selected={selected}
+        query={query}
+        view={view}
+        canWrite={canWrite}
+        tab={tab}
+      />
+
+
+      <section id="commercial-tool-access" aria-label="Calcolo tecnico e distinta" className="scroll-mt-28 rounded-2xl border border-[#e1eae4] bg-white px-4 py-3 sm:px-5">
+        <CommercialCalculatorQuickAccess references={calculatorReferences} />
+      </section>
+      {(networkContext || showProspects) ? (
+        <section id="commercial-relations" aria-label="Relazioni dal Network" className="scroll-mt-28 space-y-3">
 
       {networkContext ? (
         <section
@@ -400,155 +500,12 @@ export default async function CommercialHomePage({
         </section>
       ) : null}
 
-      {canWrite ? (
-        <section aria-labelledby="commercial-ai-first-heading" className="rounded-2xl border border-[#d5e6dd] bg-[#f5faf7] p-3 sm:p-4" data-testid="commercial-ai-first">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#246c53]">Assistente commerciale AI</p>
-              <h2 id="commercial-ai-first-heading" className="mt-1 text-lg font-semibold leading-snug text-[#173f35]">Che materiale stai cercando?</h2>
-              <p className="mt-1 text-xs leading-5 text-[#53665b]">Descrivi il tubo che ti serve. Ti aiutiamo a completare i dettagli e prepariamo una distinta da verificare.</p>
-            </div>
-            <Link href={appRoutes.commercial.home + "?compose=1#commercial-ai-intake"}
-              data-testid="commercial-ai-first-cta"
-              className="app-primary inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
-              Parla con l’assistente →
-            </Link>
-          </div>
         </section>
       ) : null}
 
-      <section aria-labelledby="commercial-today" className="rounded-xl border border-[#dce2df] bg-white px-3 py-2.5 sm:px-4" data-testid="commercial-compact-actions">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <div className="min-w-0 sm:mr-1">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-[#246c53]">Le tue attività</p>
-            <h2 id="commercial-today" className="text-sm font-semibold text-[#173f35]">Che cosa vuoi fare oggi?</h2>
-          </div>
-          {canWrite ? (
-            <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
-              className="app-primary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
-              + Nuova richiesta
-            </Link>
-          ) : null}
-          <Link href={appRoutes.commercial.home + "#commercial-worklist"}
-            className="inline-flex min-h-10 items-center rounded-lg border border-[#d5dfda] px-3 text-xs font-semibold text-[#173f35] hover:bg-[#edf5f2]">
-            RFQ e offerte →
-          </Link>
-          {networkAvailable ? (
-            <Link href={appRoutes.commercial.home + "?prospects=1#commercial-prospects"}
-              className="inline-flex min-h-10 items-center rounded-lg border border-[#d5dfda] px-3 text-xs font-semibold text-[#173f35] hover:bg-[#edf5f2]">
-              Aziende da seguire →
-            </Link>
-          ) : null}
-          {networkAvailable ? (
-            <Link href={appRoutes.network.directory}
-              className="inline-flex min-h-10 items-center rounded-lg border border-[#d5dfda] px-3 text-xs font-semibold text-[#173f35] hover:bg-[#edf5f2]">
-              Trova aziende →
-            </Link>
-          ) : null}
-        </div>
-        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-[#e5ece8] pt-2 text-xs" data-testid="commercial-compact-attention">
-          <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-[#173f35]">Cosa richiede attenzione</h3>
-            <Link href={appRoutes.rfqHub.inbox} className="font-semibold text-[#246c53] underline-offset-2 hover:underline">Apri inbox →</Link>
-          </div>
-          {!canWrite ? (
-            <p className="text-[#53665b]">Consultazione in sola lettura; azioni riservate ai ruoli autorizzati.</p>
-          ) : procurementPayload === null ? (
-            <p className="text-[#53665b]">Priorità non disponibili al momento. Puoi comunque aprire le tue RFQ.</p>
-          ) : actionableRfqs.length ? (
-            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
-              {actionableRfqs.slice(0, 2).map((item) => (
-                <Link key={item.rfq_id} href={appRoutes.rfqHub.campaign(item.rfq_id!)}
-                  className="inline-flex min-h-9 max-w-full items-center gap-2 rounded-md border border-[#d6e5dd] bg-[#f7faf8] px-2.5 py-1.5 font-medium text-[#173f35] hover:border-[#8db9a2]">
-                  <span className="max-w-[19rem] truncate">{item.headline || "RFQ da gestire"}</span><span aria-hidden="true">→</span>
-                </Link>
-              ))}
-              {actionableRfqs.length > 2 ? (
-                <Link href={appRoutes.rfqHub.inbox} className="font-semibold text-[#246c53]">Altre priorità →</Link>
-              ) : null}
-            </div>
-          ) : (
-            <p className="text-[#53665b]">{attentionTotal === 0 ? "Nessuna azione buyer in sospeso." : "Controlla l’inbox per eventuali altre azioni."}</p>
-          )}
-        </div>
-      </section>
-
-      {composing && catalogOptions ? (
-        <section id="commercial-compose" aria-labelledby="commercial-compose-heading" className="scroll-mt-36 space-y-3 rounded-2xl border border-[var(--border-strong)] bg-white p-3 sm:p-5">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--brand-primary)]">La tua nuova richiesta</p>
-              <h2 id="commercial-compose-heading" className="text-lg font-semibold text-[var(--brand-deep)]">Crea distinta e RFQ senza lasciare Commerciale</h2>
-              <p className="mt-1 text-xs text-[var(--text-secondary)]">La creazione genera una bozza privata. Nessun invio ai fornitori avviene automaticamente.</p>
-              {networkContext ? (
-                <p className="mt-1 text-xs font-medium leading-5 text-[#175640]" data-testid="commercial-network-draft-disclaimer">
-                  Provenienza: Network · {networkContext.name}. Compila la distinta e scegli i destinatari manualmente: questo contesto non precompila, collega né invia richieste all’azienda.
-                </p>
-              ) : null}
-            </div>
-            {canWrite ? (
-             <Link href={appRoutes.commercial.home + "?compose=1#commercial-ai-intake"}
-               className="inline-flex min-h-10 items-center rounded-lg border border-[#a9cbb9] bg-[#edf7f1] px-3 text-xs font-semibold text-[#175640] hover:bg-[#dcefe4]"
-               data-testid="commercial-ai-intake-link">
-               Assistente AI · prepara distinta
-             </Link>
-           ) : null}
-           <Link href={appRoutes.commercial.home + "#commercial-worklist"} className="app-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold">Chiudi editor</Link>
-          </div>
-          <BuyerDistintaBuilder
-            workspace
-            authenticated
-            returnToCommercial
-            userId={context.userId}
-            organizationId={context.organizationId}
-            emailConfigured={Boolean(process.env.RESEND_API_KEY)}
-            catalogOptions={catalogOptions}
-          />
-        </section>
-      ) : null}
-
-      <nav aria-label="Vista rapida delle trattative" data-testid="commercial-cockpit-tabs"
-        className="rounded-2xl border border-[#d5e3dc] bg-white px-3 py-3 shadow-[0_10px_30px_-26px_rgba(6,52,39,0.45)] sm:px-4">
-        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#246c53]">Cockpit operativo</p>
-            <h2 className="text-sm font-semibold text-[#173f35]">Le tue trattative, in un unico posto</h2>
-          </div>
-          <Link href={appRoutes.commercial.home + "#commercial-worklist"} className="text-xs font-semibold text-[#246c53] hover:underline">Apri tutte →</Link>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {([
-            ["all", "Tutte"],
-            ["received", "Ricevute"],
-            ["sent", "Inviate"],
-            ["offers", "Offerte"],
-            ["orders", "Ordini"],
-            ["drafts", "Bozze"],
-          ] as const).map(([quickView, label]) => (
-            <Link key={quickView} href={appRoutes.commercial.home + (quickView === "all" ? "" : "?view=" + quickView) + "#commercial-worklist"}
-              aria-current={view === quickView ? "page" : undefined}
-              className={view === quickView
-                ? "inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-3 text-xs font-semibold text-white"
-                : "inline-flex min-h-10 items-center rounded-lg border border-[#d5dfda] bg-white px-3 text-xs font-semibold text-[#173f35] hover:bg-[#edf5f2]"}>
-              {label}
-            </Link>
-          ))}
-        </div>
-      </nav>
-
-      <CommercialUnifiedWorklist
-        data={displayedUnified}
-        page={page}
-        selected={selected}
-        query={query}
-        view={view}
-        canWrite={canWrite}
-        tab={tab}
-      />
-
-      <details className="rounded-2xl border border-[var(--border)] bg-white p-3 sm:p-4">
-        <summary className="min-h-10 cursor-pointer select-none text-sm font-semibold text-[var(--brand-deep)]">
-          Storico, memoria commerciale e intelligence · Apri approfondimenti
+      <details id="commercial-memory-panel" className="group scroll-mt-28 overflow-hidden rounded-[22px] border border-[#dce8df] bg-white p-4 sm:p-5">
+        <summary className="flex min-h-11 cursor-pointer select-none items-center text-base font-semibold text-[#175640] marker:text-[#175640]">
+          Memoria commerciale e storico · Approfondisci
         </summary>
         <div className="space-y-4 pt-4">
       <section className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-4 sm:p-5">
@@ -662,6 +619,15 @@ export default async function CommercialHomePage({
         )}
       </section>
 
+        </div>
+      </details>
+
+      <details id="commercial-tools-panel" className="group scroll-mt-28 overflow-hidden rounded-[22px] border border-[#dce8df] bg-white p-4 sm:p-5">
+        <summary className="flex min-h-11 cursor-pointer select-none items-center text-base font-semibold text-[#175640] marker:text-[#175640]">
+          Strumenti e intelligence avanzata · Apri
+        </summary>
+        <div className="space-y-4 pt-4">
+
       <section aria-labelledby="commercial-tools">
         <FocusSectionHeader
           eyebrow="Approfondisci"
@@ -721,7 +687,7 @@ export default async function CommercialHomePage({
         </div>
       </details>
 
-      <p className="rounded-xl border border-[#d9e8e2] bg-[#f3f7f5] px-4 py-3 text-xs leading-5 text-[#52615b]">
+      <p className="px-2 pb-2 text-[11px] leading-5 text-[#647568]">
         Commerciale riunisce i tuoi flussi di lavoro, ma i confini dei dati restano distinti: la memoria privata, le RFQ buyer, il Network e il Marketplace non condividono automaticamente prezzi, contatti o documenti.
       </p>
     </FocusPage>

@@ -194,7 +194,7 @@ try {
     if (p.id === "buyerViewer" || p.id === personas[0].id) {
       await step(p.id + " COMMERCIAL-UNIFY2 one-page cockpit", async () => {
         await navigate(page, "/commercial");
-        await page.getByRole("heading", { name: "Richieste, offerte e ordini" })
+        await page.getByRole("heading", { name: "Le mie trattative", exact: true })
           .waitFor({ state: "visible", timeout: 60000 });
         assert.equal(
           await page.getByRole("navigation", { name: "Navigazione principale" })
@@ -207,8 +207,11 @@ try {
         await page.waitForURL((url) => url.pathname === "/commercial" && url.searchParams.get("view") === "sent");
         assert.equal(await page.locator("#commercial-worklist").count(), 1);
         if (p.id === "buyerViewer") {
-          assert.equal(await page.getByRole("link", { name: "+ Nuova distinta" }).count(), 0);
+          assert.equal(await page.getByTestId("comm-cine11-prompt").count(), 0,
+            "Viewer has no RFQ composition privileges");
         } else {
+          assert.equal(await page.getByTestId("comm-cine11-prompt").count(), 1,
+            "Writer has exactly one governed RFQ intake");
           // COMMERCIAL-UNIFY2C.2: every composed tab uses real, RLS-scoped
           // stream pagination. An unavailable source must never masquerade
           // as an empty company history.

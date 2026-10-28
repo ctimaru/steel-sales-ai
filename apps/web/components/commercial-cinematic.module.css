@@ -1,0 +1,173 @@
+/* COMM-CINE14 — visual continuity with the approved public cinematic hero.
+   Reuses existing local, compressed industrial photographs. No network images.
+   These scoped styles alter presentation only; RFQ and authorization stay in their components. */
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #082f28;
+  border-radius: 24px;
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(95deg, #061d17 0%, rgba(6,29,23,.95) 34%, rgba(6,29,23,.69) 64%, rgba(6,29,23,.32) 100%),
+    url("/home-cine2a2b-factory-desktop.webp");
+  background-position: center, 78% center;
+  background-size: cover, cover;
+  background-repeat: no-repeat;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(3,21,16,.06), rgba(3,21,16,.28)),
+    repeating-linear-gradient(90deg, transparent 0, transparent 79px, rgba(217,250,227,.025) 80px);
+}
+.heroGrid {
+  position: relative;
+  z-index: 2;
+}
+.heroTitle {
+  max-width: 11.5em;
+  text-wrap: balance;
+  font-kerning: normal;
+}
+.heroMetrics {
+  border-top: 1px solid rgba(187,230,204,.26);
+  padding-top: 12px;
+  max-width: 480px;
+}
+.heroMetrics dl { margin: 0; }
+.heroMetrics dl > div {
+  min-width: 0;
+  padding-right: 8px;
+}
+.heroMetrics dl > div + div {
+  border-left: 1px solid rgba(196,234,212,.21);
+  padding-left: 13px;
+}
+.heroMetrics dd { margin: 0; font-variant-numeric: tabular-nums; }
+.heroMetrics dt { margin: 0; }
+.companion {
+  border-color: #d0e1d6;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 14px 48px -38px rgba(13,63,41,.28);
+}
+.companionTitle { text-wrap: balance; }
+.companionForm {
+  border: 1px solid #d9e8dd;
+  border-radius: 16px;
+  background: #f7faf8;
+  padding: 12px;
+}
+.companionForm textarea {
+  background: #fff;
+  min-height: 96px;
+  line-height: 1.6;
+}
+.companionForm textarea:focus-visible {
+  outline: 2px solid #175640;
+  outline-offset: 2px;
+}
+.companionShortcuts > * {
+  border-radius: 10px;
+  min-height: 42px;
+}
+.worklist {
+  --comm-cine14-outline: #d6e5db;
+  --comm-cine14-ink: #143b2d;
+}
+.worklist :global([data-testid="comm-cine9-workspace-heading"]) {
+  border-radius: 18px;
+  background: linear-gradient(110deg, #f6faf7, #edf5ef);
+  box-shadow: none;
+}
+.worklist :global([data-testid="commercial-compact-filters"]) {
+  border-color: var(--comm-cine14-outline);
+  box-shadow: none;
+}
+.worklist :global([data-testid="commercial-list-pane"]),
+.worklist :global(#commercial-detail) {
+  border-color: var(--comm-cine14-outline);
+  border-radius: 18px;
+  box-shadow: 0 12px 38px -32px rgba(5,42,29,.42);
+}
+.worklist :global([data-testid="commercial-list-pane"] > div:first-child) {
+  background: #f9fcfa;
+}
+.worklist :global([data-testid="commercial-smart-deal-card"]) {
+  min-width: 0;
+}
+.worklist :global([data-testid="commercial-smart-deal-card"] p) {
+  overflow-wrap: anywhere;
+}
+.worklist :global(#commercial-detail) {
+  scrollbar-color: #afcbbc transparent;
+}
+
+/* One visual grammar for the existing page surfaces; no new panels or layout wrappers. */
+.page :global([data-testid="commercial-cockpit-tabs"]) {
+  scrollbar-width: thin;
+  border-color: #d6e5db;
+}
+.page :global(#commercial-today),
+.page :global(#commercial-tool-access),
+.page :global(#commercial-memory-panel),
+.page :global(#commercial-tools-panel) {
+  border: 1px solid #d6e5db;
+  border-radius: 18px;
+  box-shadow: 0 10px 34px -32px rgba(6,50,34,.22);
+}
+.page :global(#commercial-today) {
+  background: #f8fbf9;
+}
+.page :global(#commercial-memory-panel),
+.page :global(#commercial-tools-panel) {
+  background: #fff;
+}
+.page :global(#commercial-memory-panel summary),
+.page :global(#commercial-tools-panel summary) {
+  letter-spacing: -.015em;
+}
+.page :global(#commercial-memory-panel summary:focus-visible),
+.page :global(#commercial-tools-panel summary:focus-visible) {
+  outline: 2px solid #175640;
+  outline-offset: 3px;
+}
+
+@media (min-width: 1024px) {
+  .heroGrid { grid-template-columns: minmax(0,1.04fr) minmax(0,.96fr); }
+  .companionForm { flex: 0 0 min(39%, 420px); max-width: 420px; }
+}
+@media (max-width: 1023px) {
+  .hero::before { background-position: center, 63% center; }
+}
+@media (max-width: 640px) {
+  .hero { border-radius: 18px; }
+  .heroTitle { font-size: clamp(1.625rem, 7vw, 1.95rem); line-height: 1.07; max-width: 12.8em; }
+  .heroGrid { min-height: 0; }
+  .hero::before {
+    background-image:
+      linear-gradient(90deg, rgba(5,24,19,.98) 0%, rgba(5,24,19,.87) 52%, rgba(5,24,19,.67) 100%),
+      url("/home-cine2a2b-factory-mobile.webp");
+    background-position: center, 72% 50%;
+  }
+  .hero::after { opacity: .35; }
+  .heroTitle { max-width: 12.8em; line-height: 1.07; }
+  .companion { border-radius: 16px; }
+  .companionForm { width: 100%; }
+  .worklist :global([data-testid="commercial-list-pane"]),
+  .worklist :global(#commercial-detail) { border-radius: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero *, .companion *, .worklist * { scroll-behavior: auto; }
+}

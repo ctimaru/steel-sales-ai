@@ -208,8 +208,11 @@ export function RfqSupplierResponseForm({
         return;
       }
 
+      // Keep the edited prices in this client draft after saving. Refreshing
+      // the server tree here can remount the form with an earlier snapshot,
+      // so an immediate "Invia offerta" may re-save blank quoted prices.
+      // The submission path refreshes after successful finalization.
       setFeedback("Bozza salvata.");
-      router.refresh();
     });
   }
 
