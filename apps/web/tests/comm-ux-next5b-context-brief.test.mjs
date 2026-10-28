@@ -10,7 +10,7 @@ test("selected deal fact brief uses only grounded visible fields without automat
  assert.match(src,/item\.origin/);
  assert.match(src,/non vengono dedotti da questa sintesi/);
  assert.match(src,/href=\{appRoutes\.commercial\.assistant\}/);
- assert.match(src,/<CommercialDealFactBriefCopy kind=\{item\.kind\} dealId=\{item\.id\}/);
+ assert.match(src,/<CommercialDealFactBriefCopy key=\{item\.key\} kind=\{item\.kind\} dealId=\{item\.id\}/);
  assert.doesNotMatch(src,/href=\{[^}]*encodeURIComponent\(item\./);
 });
 
