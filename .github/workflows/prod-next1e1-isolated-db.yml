@@ -1,0 +1,55 @@
+name: PROD-NEXT1.E1 Isolated Database Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/20261028190000_prod_next1e1_pilot_governance_privacy.sql'
+      - 'supabase/tests/prod_next1e1_pilot_governance.sql'
+      - 'supabase/tests/p5_6a_pilot_cohort_activation.sql'
+      - 'supabase/tests/p5_6b_end_to_end_telemetry.sql'
+      - '.github/workflows/prod-next1e1-isolated-db.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-supabase:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.118.0
+      - name: Inject historical baselines in disposable CI checkout only
+        run: |
+          cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          cp supabase/ci/p0_staging_baseline.sql supabase/migrations/20260908000001_ci_staging_baseline.sql
+      - name: Start fresh local database and apply migration history
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase start > "$RUNNER_TEMP/prod-next1e1-start.log" 2>&1
+          if ! supabase db reset --local > "$RUNNER_TEMP/prod-next1e1-reset.log" 2>&1; then
+            echo "::error::Disposable migration reset failed; checking SQL/migration error excerpts"
+            grep -E -i '(^|[[:space:]])(error:|error |failed|migration [0-9])' "$RUNNER_TEMP/prod-next1e1-reset.log" | tail -n 20 || true
+            exit 1
+          fi
+          echo "Disposable local database migration reset succeeded"
+      - name: Execute pilot authorization and tenant isolation SQL suites
+        shell: bash
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          for test in prod_next1e1_pilot_governance.sql p5_6a_pilot_cohort_activation.sql p5_6b_end_to_end_telemetry.sql; do
+            psql -X --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
+              --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
+          done
+      - name: Stop and destroy disposable local database
+        if: always()
+        run: |
+          supabase stop --no-backup >/dev/null 2>&1 || true
+          rm -f "$RUNNER_TEMP/prod-next1e1-start.log" "$RUNNER_TEMP/prod-next1e1-reset.log"
