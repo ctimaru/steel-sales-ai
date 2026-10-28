@@ -22,7 +22,7 @@ test("SCHOOL-CINE1 keeps a consistent first-viewport identity on public and priv
 test("SCHOOL-CINE1 preserves public editorial routes and private boundaries", () => {
   assert.match(italianPublic, /href="#ricerca-tecnica"/);
   assert.match(italianPublic, /id="ricerca-tecnica"/);
-  assert.match(italianPublic, /href="#approfondimenti"/);
+  assert.match(italianPublic, /href="\/knowledge\/professore"/);
   assert.match(italianPublic, /id="approfondimenti"/);
   assert.match(englishPublic, /\/en\/knowledge\/tubes/);
   assert.match(internationalPublic, /generateStaticParams/);
