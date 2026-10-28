@@ -57,56 +57,50 @@ export default function KnowledgeHomePage() {
         </div>
       </section>
 
-      <section id="strumenti" className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]" aria-labelledby="school-tools-heading">
-        <div className="school-card flex flex-col justify-between gap-5 border-[#b6d5c6] bg-[#f7faf8] p-5 sm:p-7">
-          <div>
-            <p className="school-kicker">Strumento principale</p>
-            <h2 id="school-tools-heading" className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824] sm:text-3xl">Calcola peso, barre e tonnellate</h2>
-            <p className="mt-3 max-w-xl text-sm leading-7 text-[#43554b]">
-              Tubi tondi, quadri e rettangolari. EN 10210, EN 10219 e geometria libera: passa dai kg/m alla distinta nello stesso flusso.
-            </p>
+      <section id="strumenti" className="grid items-stretch gap-3 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,.88fr)]" aria-label="Trova risposte e strumenti">
+        <div id="ricerca-tecnica" className="rounded-[22px] border border-[#d9e3dc] bg-white p-5 sm:p-6" aria-labelledby="school-search-heading">
+          <p className="school-kicker">RICERCA TECNICA</p>
+          <h2 id="school-search-heading" className="mt-1.5 text-xl font-semibold tracking-tight text-[#163a2e] sm:text-2xl">Hai già una norma o un grado?</h2>
+          <p className="mt-1.5 text-sm leading-6 text-[#52645a]">Cerca un riferimento tecnico nei cataloghi della School.</p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <form action="/knowledge/norme" method="get" role="search" aria-label="Cerca norme tecniche">
+              <label htmlFor="school-standard-q" className="mb-1.5 block text-xs font-semibold text-[#365247]">Norma tecnica</label>
+              <div className="flex min-w-0 gap-1.5">
+                <input id="school-standard-q" name="q" type="search" required maxLength={64} placeholder="EN 10219" className="min-h-11 min-w-0 w-full flex-1 rounded-xl border border-[#c5d5cb] bg-white px-3 text-sm text-[#1d2824] placeholder:text-[#697a70] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]" />
+                <button type="submit" className="school-primary-action !min-w-11 shrink-0 !px-3" aria-label="Cerca norma tecnica">→</button>
+              </div>
+            </form>
+            <form action="/knowledge/gradi" method="get" role="search" aria-label="Cerca gradi di acciaio">
+              <label htmlFor="school-grade-q" className="mb-1.5 block text-xs font-semibold text-[#365247]">Grado di acciaio</label>
+              <div className="flex min-w-0 gap-1.5">
+                <input id="school-grade-q" name="q" type="search" required maxLength={64} placeholder="S355J2H" className="min-h-11 min-w-0 w-full flex-1 rounded-xl border border-[#c5d5cb] bg-white px-3 text-sm text-[#1d2824] placeholder:text-[#697a70] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]" />
+                <button type="submit" className="school-primary-action !min-w-11 shrink-0 !px-3" aria-label="Cerca grado di acciaio">→</button>
+              </div>
+            </form>
           </div>
+          <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[#e5ede7] pt-3 text-xs">
+            <span className="mr-1 font-medium text-[#607267]">Prova subito</span>
+            <Link href="/knowledge/norme?q=EN%2010210" className="rounded-lg bg-[#eef4f0] px-2.5 py-1.5 font-semibold text-[#184638] hover:bg-[#e0ede4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">EN 10210 ↗</Link>
+            <Link href="/knowledge/gradi?q=S355J2H" className="rounded-lg bg-[#eef4f0] px-2.5 py-1.5 font-semibold text-[#184638] hover:bg-[#e0ede4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">S355J2H ↗</Link>
+          </div>
+        </div>
+
+        <div className="flex flex-col justify-between rounded-[22px] border border-[#cddfd3] bg-[#eef5ef] p-5 sm:p-6" aria-labelledby="school-tools-heading">
           <div>
-            <div className="mb-4 grid grid-cols-3 gap-2">
+            <p className="school-kicker">CALCOLATORE PESI</p>
+            <h2 id="school-tools-heading" className="mt-1.5 text-xl font-semibold tracking-tight text-[#163a2e] sm:text-2xl">Calcola peso, barre e tonnellate</h2>
+            <p className="mt-2 max-w-lg text-sm leading-6 text-[#52645a]">Da CHS, SHS e RHS a kg/m, barre e tonnellate: EN 10210, EN 10219 e geometria libera.</p>
+            <div className="mt-4 flex flex-wrap gap-1.5" aria-label="Funzioni del calcolatore">
               {[
                 ["kg/m", "Massa lineare"],
                 ["Barre", "Lunghezza e quantità"],
                 ["t", "Tonnellaggio"],
-              ].map(([value, label]) => (
-                <div key={value} className="rounded-xl border border-[#d1dfd7] bg-white px-3 py-3">
-                  <p className="text-base font-bold text-[#184638]">{value}</p>
-                  <p className="mt-1 text-xs leading-4 text-[#506157]">{label}</p>
-                </div>
-              ))}
+              ].map(([value,label]) => <span key={value} title={label} className="rounded-lg border border-[#cedfd2] bg-white px-2.5 py-1.5 text-xs font-semibold text-[#245442]">{value}</span>)}
             </div>
-            <Link href="/knowledge/tubes?source=school&surface=home_card#calcolatore-pesi" className="school-primary-action">
-              Calcola e crea la distinta <span aria-hidden="true" className="ml-2">→</span>
-            </Link>
           </div>
-        </div>
-
-        <div id="ricerca-tecnica" className="school-card p-5 sm:p-7" aria-labelledby="school-search-heading">
-          <p className="school-kicker">Ricerca tecnica</p>
-          <h2 id="school-search-heading" className="mt-2 text-xl font-semibold text-[#1d2824]">Hai già una sigla?</h2>
-          <p className="mt-2 text-sm leading-6 text-[#506157]">Cerca direttamente nei cataloghi verificabili. Sono due ricerche distinte: scegli cosa vuoi consultare.</p>
-          <form action="/knowledge/norme" method="get" role="search" aria-label="Cerca norme tecniche" className="mt-5">
-            <label htmlFor="school-standard-q" className="block text-xs font-bold text-[#365247]">Norma tecnica</label>
-            <div className="mt-2 flex gap-2">
-              <input id="school-standard-q" name="q" type="search" required maxLength={64} placeholder="Es. EN 10219" className="min-h-11 min-w-0 flex-1 rounded-xl border border-[#b8cac0] bg-white px-3 text-sm text-[#1d2824] placeholder:text-[#66756c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]" />
-              <button type="submit" className="school-primary-action shrink-0">Cerca</button>
-            </div>
-          </form>
-          <form action="/knowledge/gradi" method="get" role="search" aria-label="Cerca gradi di acciaio" className="mt-4">
-            <label htmlFor="school-grade-q" className="block text-xs font-bold text-[#365247]">Grado di acciaio</label>
-            <div className="mt-2 flex gap-2">
-              <input id="school-grade-q" name="q" type="search" required maxLength={64} placeholder="Es. P235TR2" className="min-h-11 min-w-0 flex-1 rounded-xl border border-[#b8cac0] bg-white px-3 text-sm text-[#1d2824] placeholder:text-[#66756c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]" />
-              <button type="submit" className="school-secondary-action shrink-0">Cerca</button>
-            </div>
-          </form>
-          <div className="mt-5 flex flex-wrap gap-2" aria-label="Esempi di ricerche">
-            <Link href="/knowledge/norme?q=EN%2010210" className="rounded-lg border border-[#b8cac0] bg-[#f2f7f4] px-3 py-2 text-xs font-semibold text-[#184638] hover:bg-[#e5f0e9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">EN 10210 ↗</Link>
-            <Link href="/knowledge/gradi?q=S355J2H" className="rounded-lg border border-[#b8cac0] bg-[#f2f7f4] px-3 py-2 text-xs font-semibold text-[#184638] hover:bg-[#e5f0e9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">S355J2H ↗</Link>
-          </div>
+          <Link href="/knowledge/tubes?source=school&surface=home_card#calcolatore-pesi" className="school-primary-action mt-4 w-full self-start sm:w-auto">
+            Calcola e crea la distinta <span aria-hidden="true" className="ml-2">→</span>
+          </Link>
         </div>
       </section>
 
