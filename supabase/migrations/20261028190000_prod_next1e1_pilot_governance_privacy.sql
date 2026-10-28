@@ -173,6 +173,32 @@ $$;
 revoke all on function public.prod_next1e_review_admission(uuid,text,text,text,text) from public,anon;
 grant execute on function public.prod_next1e_review_admission(uuid,text,text,text,text) to authenticated;
 
+
+-- Append-only legal preference receipts (not commercial analytics telemetry).
+create table public.pilot_activation_preference_receipts (
+  receipt_id bigint generated always as identity primary key,
+  organization_id uuid not null references public.organizations(id) on delete restrict,
+  user_id uuid not null references auth.users(id) on delete restrict,
+  purpose text not null default 'activation_analytics' check (purpose='activation_analytics'),
+  decision text not null check (decision in ('granted','denied')),
+  notice_version text not null check (char_length(notice_version) between 1 and 80),
+  decided_at timestamptz not null default clock_timestamp()
+);
+create index pilot_activation_preference_receipts_actor_idx
+  on public.pilot_activation_preference_receipts (user_id,organization_id,decided_at desc);
+alter table public.pilot_activation_preference_receipts enable row level security;
+revoke all on public.pilot_activation_preference_receipts from public,anon,authenticated;
+grant select,insert on public.pilot_activation_preference_receipts to postgres,service_role;
+create or replace function private.prod_next1e_reject_receipt_mutation()
+returns trigger language plpgsql security definer set search_path='' as $
+begin
+  raise exception 'Pilot privacy receipt ledger is append-only' using errcode='42501';
+end $;
+revoke all on function private.prod_next1e_reject_receipt_mutation() from public,anon,authenticated;
+create trigger prod_next1e_preference_receipts_append_only
+before update or delete on public.pilot_activation_preference_receipts
+for each row execute function private.prod_next1e_reject_receipt_mutation();
+
 -- A person may withdraw analytics permission even after loss of membership.
 -- Granting is impossible while the launch gate is closed.
 create or replace function private.prod_next1e_preference_impl(
@@ -217,6 +243,12 @@ begin
     case when p_decision='denied' then 'withdrawn' else p_notice_version end)
   on conflict (organization_id,user_id,purpose) do update set
     decision=excluded.decision,notice_version=excluded.notice_version,decided_at=clock_timestamp();
+  insert into public.pilot_activation_preference_receipts(
+    organization_id,user_id,decision,notice_version
+  ) values(
+    p_organization_id,v_actor,p_decision,
+    case when p_decision='denied' then 'withdrawn' else p_notice_version end
+  );
   return jsonb_build_object('decision',p_decision);
 end; $$;
 revoke all on function private.prod_next1e_preference_impl(uuid,text,text) from public,anon;
