@@ -25,12 +25,12 @@ export function SchoolLocalizedWorkspaceHome({locale}:{locale:SchoolWorkspaceLoc
     <PilotEvent eventName="school_home_viewed" metadata={{surface:"school_home"}} />
     <SchoolPrivateTopbar locale={locale}/>
     <SchoolUnifiedNavigation locale={locale} scope="workspace"/>
-    <section className="grid items-center gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]" aria-label={c.welcome}>
+    <section className="grid items-center gap-5 overflow-hidden rounded-[28px] bg-[#102921] px-6 py-9 text-white sm:px-9 sm:py-11 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]" aria-label={c.welcome}>
       <div className="space-y-3">
-        <p className="text-xs font-extrabold uppercase tracking-[.12em] text-[#1a5144]">{c.brand} · Smart Steel Sales</p>
-        <h1 className="text-3xl font-semibold tracking-tight text-[#173f35] sm:text-4xl">{c.welcome}</h1>
-        <p className="max-w-2xl text-sm leading-7 text-[#52615b] sm:text-base">{c.intro}</p>
-        <p className="text-xs leading-6 text-[#52615b]">{c.sourceDisclosure}</p>
+        <p className="text-xs font-extrabold uppercase tracking-[.12em] text-[#a6d4ba]">{c.brand} · Smart Steel Sales</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">{c.welcome}</h1>
+        <p className="max-w-2xl text-sm leading-7 text-[#d2e4d9] sm:text-base">{c.intro}</p>
+        <p className="text-xs leading-6 text-[#b4cbbb]">{c.sourceDisclosure}</p>
       </div>
       <SchoolTechnicalSections locale={locale}/>
     </section>
