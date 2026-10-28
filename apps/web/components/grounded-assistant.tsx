@@ -179,12 +179,14 @@ export function GroundedAssistant() {
           <div data-testid="commercial-assistant-context-review" className="mx-5 mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm sm:mx-6">
             <p className="font-semibold text-emerald-900">Contesto della trattativa pronto per la revisione</p>
             <p className="mt-1 text-xs text-emerald-800">Nessun dato è stato inviato all’AI. Controlla il testo e scegli se usarlo nella domanda.</p>
-            <pre className="mt-3 max-h-48 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-white p-3 text-xs text-slate-700">{incomingDraft}</pre>
+            <label htmlFor="commercial-context-edit" className="mt-3 block text-xs font-semibold text-emerald-900">Rivedi e modifica il contesto</label>
+            <textarea id="commercial-context-edit" value={incomingDraft} onChange={(event) => setIncomingDraft(event.target.value)} rows={6} className="mt-1 w-full resize-y rounded-lg border border-emerald-300 bg-white p-3 text-xs leading-5 text-slate-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]" />
+            <p className="mt-1 text-right text-[11px] text-emerald-900">{incomingDraft.length} / 1000 caratteri</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {incomingDraft.length <= 1000 ? (
+              {incomingDraft.trim().length >= 2 && incomingDraft.length <= 1000 ? (
                 <button type="button" onClick={() => { setQuery(incomingDraft); setIncomingDraft(null); }} className="rounded-lg bg-[#175640] px-3 py-2 text-xs font-semibold text-white">Usa questo contesto</button>
               ) : (
-                <p role="alert" className="text-xs font-medium text-amber-900">Contesto troppo lungo per la domanda (massimo 1000 caratteri). Riduci le informazioni nella scheda prima di continuare: nessun testo verrà tagliato automaticamente.</p>
+                <p role="alert" className="text-xs font-medium text-amber-900">Modifica il testo qui sopra: la domanda richiede da 2 a 1000 caratteri. Nessun testo verrà tagliato automaticamente.</p>
               )}
               <button type="button" onClick={() => setIncomingDraft(null)} className="rounded-lg border border-emerald-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700">Scarta</button>
             </div>
