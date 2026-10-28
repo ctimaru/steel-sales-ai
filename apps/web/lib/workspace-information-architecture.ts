@@ -146,6 +146,8 @@ function networkContext(pathname: string): WorkspaceContextKey {
 }
 
 function knowledgeContext(pathname: string): WorkspaceContextKey {
+  if (isPath(pathname, appRoutes.knowledge.professor) || isPath(pathname, appRoutes.knowledge.assistant)) return "knowledge:professor";
+  if (isPath(pathname, appRoutes.knowledge.guides)) return "knowledge:guides";
   if (
     isAnyPath(pathname, [
       appRoutes.knowledge.explorer,
