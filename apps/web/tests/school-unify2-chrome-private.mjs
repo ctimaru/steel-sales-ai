@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { chromium } from "playwright";
 const base="http://127.0.0.1:3000",dir="/tmp/school-unify2";
-const copy={it:"L’acciaio, spiegato bene.",en:"Your private steel technical workspace",de:"Ihr privater technischer Arbeitsbereich",fr:"Votre espace technique privé",es:"Tu espacio técnico privado"};
+const copy={it:"L’acciaio, spiegato bene.",en:"Steel, explained clearly.",de:"Stahlwissen, einfach erklärt.",fr:"L’acier, expliqué simplement.",es:"El acero, explicado con claridad."};
 await fs.mkdir(dir,{recursive:true});
 const browser=await chromium.launch({headless:true,channel:"chrome"});
 try {
@@ -26,10 +26,19 @@ try {
    const menu=page.locator('nav[aria-label]:has(details)').filter({has:page.locator('a[href^="/school?lang="]')}).first();
    assert.equal(await menu.count(),1,locale+" private language switch");
    for(const target of ["en","de","fr","es"])assert.ok(await menu.locator('a[href="/school?lang='+target+'"]').count(),locale+" missing "+target);
+   const hero=page.locator('section[aria-labelledby="school-workspace-cine-heading"]');
+   assert.equal(await hero.count(),1,locale+" one cinematic hero");
+   assert.ok((await hero.getAttribute("class")||"").includes("rounded-[24px]"),locale+" public hero radius");
+   assert.equal(await page.locator('form[action="/school/norme"]').count(),1,locale+" standard search in first viewport");
+   assert.equal(await page.locator('form[action="/school/gradi"]').count(),1,locale+" grade search in first viewport");
+   assert.equal(await page.locator('#school-private-calculator-heading').count(),1,locale+" first viewport calculator");
+   const heroRect=await hero.boundingBox();
+   const searchRect=await page.locator('#school-private-search').boundingBox();
+   assert.ok(heroRect && searchRect && searchRect.y>=heroRect.y+heroRect.height-1,locale+" search follows hero");
    if(locale!=="it"){
      assert.ok(await page.locator('div[lang="'+locale+'"] h1').count()>0,locale+" accessible language subtree");
-     const cards=page.locator('section[aria-labelledby="school-private-tools"] a[href]');
-     assert.equal(await cards.count(),4,locale+" four private School cards");
+     const cards=page.locator('[data-testid="school-private-tool-card"]');
+     assert.equal(await cards.count(),4,locale+" four secondary private School cards");
      assert.equal(await cards.filter({has:page.locator("h3")}).count(),4);
      assert.ok(await page.locator('form[action="/school/norme"] input[name="lang"][value="'+locale+'"]').count()>0,locale+" standards preserves language");
      assert.ok(await page.locator('form[action="/school/gradi"] input[name="lang"][value="'+locale+'"]').count()>0,locale+" grades preserves language");
