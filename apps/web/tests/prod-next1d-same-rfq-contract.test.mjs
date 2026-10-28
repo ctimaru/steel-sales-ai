@@ -17,6 +17,9 @@ test("PROD-NEXT1.D uses the existing browser-created 1440 RFQ, not a new synthet
     assert.ok(source.includes("buyer_rfq_campaigns"));
   }
   assert.ok(launch.includes("source_distinta_id"));
+  const buyerE2e = file("apps/web/tests/bd15-chrome-rfq-funnel.mjs");
+  assert.ok(buyerE2e.includes("viewer denied same browser-created buyer RFQ"));
+  assert.ok(buyerE2e.includes("viewerContext = await browser.newContext"));
   assert.ok(launch.includes("rfqh3_launch_campaign"));
   assert.ok(!launch.includes("insert into public.buyer_rfq_campaigns"));
   assert.ok(browser.includes('const id=readFileSync(path.join(temp,"prod-next1d-rfq-id.txt")'));
