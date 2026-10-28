@@ -94,3 +94,10 @@ test("deal switching isolates context and provenance identifies partial evidence
  assert.match(action,/Altri articoli disponibili nel dettaglio originale/);
  assert.match(action,/Articoli mostrati nel riepilogo/);
 });
+
+test("NEXT6 relationship evidence comes only from authorized detail links",()=>{
+ const action=readFileSync(new URL("../app/(italian)/(workspace)/assistant/deal-context-actions.ts",import.meta.url),"utf8");
+ assert.match(action,/detail\.relationshipLinks\.slice\(0, 3\)/);
+ assert.match(action,/detail\.conversationHref/);
+ assert.match(action,/collegamento disponibile nel dettaglio/);
+});
