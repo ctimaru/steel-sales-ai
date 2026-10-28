@@ -52,5 +52,7 @@ test("assistant reviews handoff before any AI submission",()=>{
  assert.match(assistant,/Nessun dato è stato inviato all’AI/);
  assert.match(assistant,/Usa questo contesto/);
  assert.match(assistant,/Scarta/);
- assert.match(assistant,/setQuery\(incomingDraft\.slice\(0, 1000\)\)/);
+ assert.match(assistant,/incomingDraft\.length <= 1000/);
+ assert.match(assistant,/setQuery\(incomingDraft\)/);
+ assert.match(assistant,/nessun testo verrà tagliato automaticamente/);
 });
