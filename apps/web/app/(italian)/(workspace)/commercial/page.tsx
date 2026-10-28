@@ -57,6 +57,12 @@ const coreTools = [
     description: "Interroga la memoria commerciale mantenendo fonti e provenienza.",
     meta: "AI privata",
   },
+  {
+    href: appRoutes.commercial.knowledgeExplorer,
+    title: "Memoria documentale",
+    description: "Ricerca riservata su documenti, offerte e ordini, con fonti e permessi aziendali.",
+    meta: "Memoria privata",
+  },
 ] as const;
 
 const intelligenceGroups = [
