@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
+import { createSyntheticRecorder } from "./prod-next1c-synthetic-evidence.mjs";
 
 const base = (process.env.DEMOTEST23_WEB_URL ?? "").replace(/\/$/, "");
 const temp = process.env.RUNNER_TEMP;
@@ -16,11 +17,14 @@ const personas = JSON.parse(readFileSync(path.join(temp, "demotest23-personas.js
 assert.equal(personas.length, 5);
 const browser = await chromium.launch({ headless: true, channel: "chrome" });
 const checks = [];
+const recorder = createSyntheticRecorder("demotest23");
 
 async function step(label, fn) {
+  const started = Date.now();
   try {
     await fn();
     checks.push({ label, status: "PASS" });
+    recorder.recordPassedStep(label, Date.now() - started);
     console.log("CHROME AUTH PASS", label);
   } catch (error) {
     console.error("CHROME AUTH FAIL", label, error instanceof Error ? error.message : String(error));
@@ -481,6 +485,7 @@ try {
   });
   await mobile.close();
 
+  recorder.save(checks.length);
   console.log("DEMOTEST2.3 CHROME PASS", checks.length, "browser checks; 5 REAL GoTrue sessions; 4 companies; no production data");
 } finally {
   await browser.close();
