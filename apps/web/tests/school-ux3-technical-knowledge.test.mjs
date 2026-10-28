@@ -27,7 +27,7 @@ test("SCHOOL-UX3 exposes catalog search ahead of category discovery, preserving 
     assert.ok(page.indexOf('id="school-catalog-search"') < page.indexOf('{!query ? ('), "search comes before category cards");
     assert.match(page, /method="get" role="search"/);
     assert.match(page, /name="q"/);
-    assert.match(page, new RegExp(listFn + "\\\\(query\\\\)"));
+    assert.ok(page.includes(`${listFn}(query)`), "catalog keeps its real search backend");
     assert.match(page, /robotsForParameterizedPage/);
     assert.match(page, /last_reviewed_at/);
     assert.match(page, /school-catalog-search/);
