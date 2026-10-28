@@ -4,6 +4,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { SchoolHero } from "@/components/school-ui";
+import { SchoolReadingIndex } from "@/components/school-reading-index";
 import { getSchoolArticle, schoolArticles } from "@/lib/school-articles";
 import { absoluteUrl } from "@/lib/site";
 
@@ -166,8 +167,16 @@ export default async function SchoolArticlePage({
         </figcaption>
       </figure>
 
+      <SchoolReadingIndex locale="it" entries={[
+        ...(article.timeline?.length ? [{ id: "article-timeline", label: "Le tappe essenziali" }] : []),
+        ...(article.processFlows?.length ? [{ id: "article-process-flows", label: "Processi produttivi" }] : []),
+        ...(article.comparison?.length ? [{ id: "article-process-comparison", label: "Confronto saldato / seamless" }] : []),
+        ...article.sections.map((section, index) => ({ id: `article-section-${index + 1}`, label: section.heading })),
+        { id: "article-sources", label: "Fonti consultate" },
+      ]} />
+
       {article.timeline?.length ? (
-        <section className="school-card p-6 sm:p-8" aria-labelledby="article-timeline">
+        <section className="school-card p-6 sm:p-8" id="article-timeline" aria-labelledby="article-timeline">
           <p className="school-kicker">Timeline</p>
           <h2 id="article-timeline" className="mt-2 text-2xl font-semibold text-[#1d2824]">
             Le tappe essenziali
@@ -185,7 +194,7 @@ export default async function SchoolArticlePage({
       ) : null}
 
       {article.processFlows?.length ? (
-        <section className="space-y-5" aria-labelledby="article-process-flows">
+        <section className="space-y-5" id="article-process-flows" aria-labelledby="article-process-flows">
           <div className="school-card p-6 sm:p-8">
             <p className="school-kicker">Processi produttivi</p>
             <h2 id="article-process-flows" className="mt-2 text-2xl font-semibold text-[#1d2824]">
@@ -221,7 +230,7 @@ export default async function SchoolArticlePage({
       ) : null}
 
       {article.comparison?.length ? (
-        <section className="school-card p-6 sm:p-8" aria-labelledby="article-process-comparison">
+        <section className="school-card p-6 sm:p-8" id="article-process-comparison" aria-labelledby="article-process-comparison">
           <p className="school-kicker">Confronto</p>
           <h2 id="article-process-comparison" className="mt-2 text-2xl font-semibold text-[#1d2824]">
             Saldato vs seamless: cosa cambia davvero
@@ -275,8 +284,8 @@ export default async function SchoolArticlePage({
       ) : null}
 
       <article className="space-y-8 rounded-[22px] border border-[#dce6df] bg-white px-5 py-7 sm:px-10 sm:py-10" aria-label="Contenuto dell’articolo">
-        {article.sections.map((section) => (
-          <section key={section.heading} className="border-b border-[#e3eae4] pb-8 last:border-b-0 last:pb-0">
+        {article.sections.map((section, index) => (
+          <section id={`article-section-${index + 1}`} key={section.heading} className="scroll-mt-24 border-b border-[#e3eae4] pb-8 last:border-b-0 last:pb-0">
             <h2 className="text-2xl font-semibold tracking-tight text-[#1d2824]">
               {section.heading}
             </h2>
@@ -329,7 +338,7 @@ export default async function SchoolArticlePage({
         </section>
       ) : null}
 
-      <section className="school-muted-card p-6 sm:p-8" aria-labelledby="article-sources">
+      <section className="school-muted-card p-6 sm:p-8" id="article-sources" aria-labelledby="article-sources">
         <p className="school-kicker">Fonti e revisione</p>
         <h2 id="article-sources" className="mt-2 text-2xl font-semibold text-[#1d2824]">
           Fonti consultate
