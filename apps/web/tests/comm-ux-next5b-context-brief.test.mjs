@@ -25,3 +25,11 @@ test("copy to assistant requires manual action and exposes provenance caveat",()
  assert.match(copy,/Domanda: " \+ question/);
  assert.match(copy,/setQuestion\(option\)/);
 });
+
+test("explicit copy-and-open handoff routes only after clipboard success",()=>{
+ const copy=readFileSync(new URL("../components/commercial-deal-fact-brief-copy.tsx",import.meta.url),"utf8");
+ assert.match(copy,/onClick=\{\(\) => void copyFacts\(true\)\}/);
+ assert.match(copy,/if \(openAssistant\) router\.push\(appRoutes\.commercial\.assistant\)/);
+ assert.ok(copy.indexOf("await navigator.clipboard.writeText(text)") < copy.indexOf("if (openAssistant) router.push"));
+ assert.match(copy,/Copia e apri assistente/);
+});
