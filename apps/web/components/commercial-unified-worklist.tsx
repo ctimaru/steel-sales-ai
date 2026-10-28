@@ -169,7 +169,7 @@ async function SelectedDetail({
             Questi dati provengono dalla voce selezionata. Eventuali offerte, messaggi o documenti vanno verificati nel dettaglio originale: non vengono dedotti da questa sintesi.
           </p>
         </div>
-        <CommercialDealFactBriefCopy kind={item.kind} dealId={item.id} status={detail?.status ?? item.status} title={item.title} origin={item.origin}
+        <CommercialDealFactBriefCopy key={item.key} kind={item.kind} dealId={item.id} status={detail?.status ?? item.status} title={item.title} origin={item.origin}
           relatedActivities={related.slice(0, 4).map((entry) => ({ kind: itemType(entry), status: entry.status }))} />
         <Link href={appRoutes.commercial.assistant}
           className="mt-3 inline-flex min-h-10 items-center rounded-lg border border-[var(--border-strong)] px-3 text-xs font-semibold text-[var(--brand-deep)] hover:bg-[var(--brand-primary-soft)]">
