@@ -99,7 +99,7 @@ export function SchoolUnifiedNavigation({locale,scope,compact=false,activeHref}:
   const t=translations[locale];
   const entries=schoolNavigationItems(locale,scope);
   const compactEntries = activeHref ? [...entries.filter(item=>item.href===activeHref),...entries.filter(item=>item.href!==activeHref)] : entries;
-  if (scope==="public" && compact) return <nav aria-label={t.navigate} lang={locale}
+  if (compact) return <nav aria-label={t.navigate} lang={locale}
     className="rounded-2xl border border-[#d6e2d9] bg-white px-2 py-2 shadow-[0_2px_12px_-10px_rgba(18,60,45,.4)] sm:px-3">
     <div className="flex min-w-0 items-center gap-2 sm:gap-3">
       <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -110,10 +110,13 @@ export function SchoolUnifiedNavigation({locale,scope,compact=false,activeHref}:
           {item.label}
         </Link>)}
       </div>
-      <Link href={schoolWorkspaceHref("/school",locale)}
+      {scope==="public" ? <Link href={schoolWorkspaceHref("/school",locale)}
         className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-xl border border-[#c9ddd1] bg-[#f8faf8] px-3 text-xs font-semibold text-[#174b3c] transition hover:bg-[#edf5f0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">
         <span className="hidden sm:inline">{t.enter}</span><span className="sm:hidden">{t.documents}</span><span aria-hidden="true">↗</span>
-      </Link>
+      </Link> : <Link href={SCHOOL_HUB_ROUTES[locale]} hrefLang={locale}
+        className="inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-xl border border-[#c9ddd1] bg-[#f8faf8] px-3 text-xs font-semibold text-[#174b3c] transition hover:bg-[#edf5f0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">
+        {t.publicLabel} <span aria-hidden="true">↗</span>
+      </Link>}
     </div>
   </nav>;
   return <nav aria-label={t.navigate} lang={locale}
