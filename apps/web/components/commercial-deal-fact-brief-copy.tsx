@@ -3,18 +3,22 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { appRoutes } from "@/lib/routes";
+import { loadAuthorizedDealEvidence } from "@/app/(workspace)/assistant/deal-context-actions";
 
 type DealFactBriefProps = {
   kind: string;
+  dealId: string;
   status: string;
   title: string;
   origin: string;
   relatedActivities?: ReadonlyArray<{ kind: string; status: string }>;
 };
 
-export function CommercialDealFactBriefCopy({ kind, status, title, origin, relatedActivities = [] }: DealFactBriefProps) {
+export function CommercialDealFactBriefCopy({ kind, dealId, status, title, origin, relatedActivities = [] }: DealFactBriefProps) {
   const router = useRouter();
   const [feedback, setFeedback] = useState("");
+  const [verifiedFacts, setVerifiedFacts] = useState<string[]>([]);
+  const [loadingFacts, setLoadingFacts] = useState(false);
   const [question, setQuestion] = useState("Quali informazioni dobbiamo verificare prima del prossimo passo?");
   const contextText = [
       "Contesto della trattativa (dati mostrati nella scheda):",
@@ -23,9 +27,20 @@ export function CommercialDealFactBriefCopy({ kind, status, title, origin, relat
       "Oggetto: " + title,
       "Origine: " + origin,
       ...(relatedActivities.length ? ["Attività collegate visibili nella scheda:", ...relatedActivities.slice(0, 4).map((entry) => "- " + entry.kind + " · " + entry.status)] : ["Attività collegate: non disponibili in questo riepilogo; verificare il dettaglio originale."]),
+      ...verifiedFacts,
       "Domanda: " + question.trim(),
       "Non dedurre offerte, email o documenti non presenti in questi dati.",
     ].join("\n");
+  async function verifyEvidence() {
+    setLoadingFacts(true);
+    setVerifiedFacts([]);
+    try {
+      const result = await loadAuthorizedDealEvidence(kind, dealId);
+      if (result.ok) { setVerifiedFacts(result.facts); setFeedback("Evidenze autorizzate recuperate. Controlla l’anteprima prima di continuare."); }
+      else setFeedback(result.message);
+    } catch { setFeedback("Verifica delle evidenze non disponibile."); }
+    finally { setLoadingFacts(false); }
+  }
   async function copyFacts(openAssistant = false) {
     if (openAssistant) {
       if (contextText.length > 1000) { setFeedback("Contesto superiore a 1000 caratteri. Riduci la domanda o le informazioni prima di continuare."); return; }
@@ -63,6 +78,10 @@ export function CommercialDealFactBriefCopy({ kind, status, title, origin, relat
               : "rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--brand-primary-soft)]"}>{option}</button>
         ))}
       </div>
+      {dealId && <button type="button" disabled={loadingFacts} onClick={() => void verifyEvidence()}
+        className="rounded-lg border border-[var(--border-strong)] bg-white px-3 py-2 text-xs font-semibold text-[var(--brand-deep)] disabled:opacity-50">
+        {loadingFacts ? "Verifico le evidenze..." : "Recupera dati verificati della trattativa"}
+      </button>}
       <label htmlFor="commercial-deal-ai-question" className="block text-[11px] font-semibold text-[var(--brand-deep)]">Personalizza la domanda</label>
       <textarea id="commercial-deal-ai-question" value={question} onChange={(event) => { setQuestion(event.target.value); setFeedback(""); }} rows={2} maxLength={500}
         className="w-full resize-y rounded-lg border border-[var(--border-strong)] bg-white p-2.5 text-xs text-[var(--brand-deep)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]" />
