@@ -181,7 +181,11 @@ export function GroundedAssistant() {
             <p className="mt-1 text-xs text-emerald-800">Nessun dato è stato inviato all’AI. Controlla il testo e scegli se usarlo nella domanda.</p>
             <pre className="mt-3 max-h-48 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-white p-3 text-xs text-slate-700">{incomingDraft}</pre>
             <div className="mt-3 flex flex-wrap gap-2">
-              <button type="button" onClick={() => { setQuery(incomingDraft.slice(0, 1000)); setIncomingDraft(null); }} className="rounded-lg bg-[#175640] px-3 py-2 text-xs font-semibold text-white">Usa questo contesto</button>
+              {incomingDraft.length <= 1000 ? (
+                <button type="button" onClick={() => { setQuery(incomingDraft); setIncomingDraft(null); }} className="rounded-lg bg-[#175640] px-3 py-2 text-xs font-semibold text-white">Usa questo contesto</button>
+              ) : (
+                <p role="alert" className="text-xs font-medium text-amber-900">Contesto troppo lungo per la domanda (massimo 1000 caratteri). Riduci le informazioni nella scheda prima di continuare: nessun testo verrà tagliato automaticamente.</p>
+              )}
               <button type="button" onClick={() => setIncomingDraft(null)} className="rounded-lg border border-emerald-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700">Scarta</button>
             </div>
           </div>
