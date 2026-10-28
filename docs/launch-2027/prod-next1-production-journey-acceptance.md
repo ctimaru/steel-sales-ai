@@ -50,3 +50,23 @@ After first GitHub CI: run the manual production read-only workflow on the deplo
 - [Production read-only run 40721314462](https://github.com/ctimaru/steel-sales-ai/actions/runs/40721314462): `I18N4 HTTP`, `CALC-INT3E.5 HTTP`, `DEMOTEST2.4 HTTP` all **PASS**. Chrome reached `/en/knowledge/tubes` and the native standard selector checks, then stopped on an old assertion requiring a visible `Copy result` action while its parent native disclosure was closed. **Overall workflow FAIL**; do not classify complete.
 - Fix: targeted Chrome check now opens the actual `<details>` with `button.tube-calculator-copy-action`, waits for visible/enabled action, and still does not click the button or write to production. English standards are exercised through the real combobox `en10210` / `en10219`.
 - Latest production read-only Chrome and P0 CI are pending; update the status here and in #1021 after the rerun. Do not call issue #1017 fixed until browser completes across desktop and mobile.
+
+## PROD-NEXT1.C — Authenticated Commercial Journey evidence contract
+
+The existing **DEMOTEST2.3** workflow uses five genuine but synthetic local GoTrue identities in four isolated companies, a disposable Supabase database and local Next.js only. It executes the real screens; it does **not** contact production or send RFQ/PO email. The phase runs, in order:
+
+1. **Commercial auth & RLS:** viewer forbidden to compose or read buyer-private RFQs; buyers/traders/producers blocked from unrelated private tenants.
+2. **Calculator → Distinta → draft RFQ:** two structural norms (EN 10219 + EN 10210) in a private 72 m bill, persisted RFQ, two selected suppliers, reviewed but not externally dispatched; 390 and 1440 px repeated twice.
+3. **Quote:** buyer receives producer's local-only quote; source unit prices 735/755 retained before and after draft save, normalized submission accepted; competing trader does not see producer prices.
+4. **PO:** independent buyer organization member approves issuance, owner cannot self-approve, immutable PO version issued, supplier confirms version through isolated capability, buyer sees confirmed result; SQL proof of no provider messages.
+
+**New evidence:** each browser script records only approved milestone keys with synthetic step durations through `prod-next1c-synthetic-evidence.mjs`. The final `prod-next1c-summarize-journey.mjs` fails closed unless *all* expected milestones exist, then uploads an artifact `prod-next1c-synthetic-journey` with stage counts and median synthetic step durations only. It must run after immutable PO SQL assertions. No credentials, business names, raw labels, tokenized URLs, quote content or customer telemetry appear in that artifact.
+
+**Activation metric definitions for future consented real pilot** (not yet observed):
+- `first_valid_bill`: user has at least one technically valid line; not a calculator page view.
+- `first_private_rfq_draft`: authenticated campaign persisted with valid Distinta; not a CTA click.
+- `supplier_match_reviewed`: selected recipients reviewed; no actual dispatch implied.
+- `first_qualified_quote`: normalized quote successfully submitted for an authorized RFQ; not an unsaved price entry.
+- `first_po_confirmation`: authorized supplier confirms immutable PO version; not just PO preview.
+
+**Current data classification:** synthetic QA only, no customer observations; **real activation/retention baselines not available**. Consent, workspace boundaries and legal pilot gate must be evaluated before any real-customer collection.
