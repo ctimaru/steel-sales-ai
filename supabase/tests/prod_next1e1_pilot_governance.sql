@@ -13,6 +13,7 @@ begin
   if has_table_privilege('anon','public.pilot_activation_admissions','SELECT')
     or has_table_privilege('authenticated','public.pilot_activation_admissions','SELECT')
     or has_table_privilege('authenticated','public.pilot_activation_preferences','SELECT')
+    or has_table_privilege('authenticated','public.pilot_activation_preference_receipts','SELECT')
     or has_table_privilege('authenticated','private.pilot_activation_release_gate','UPDATE')
     or has_function_privilege('anon','public.prod_next1e_review_admission(uuid,text,text,text,text)','EXECUTE')
     or has_function_privilege('anon','public.prod_next1e_set_analytics_preference(uuid,text,text)','EXECUTE')
@@ -24,6 +25,9 @@ begin
     where tgname='prod_next1e_guard_activation' and tgenabled='O'
   ) then
     raise exception 'E1 FAIL: P5.6 database activation trigger missing';
+  end if;
+  if not exists(select 1 from pg_trigger where tgname='prod_next1e_preference_receipts_append_only' and tgenabled='O') then
+    raise exception 'E1 FAIL: receipt immutable trigger missing';
   end if;
   raise notice 'PROD-NEXT1.E1 PASS: no live telemetry, restricted rows, activation trigger installed';
 end $check$;
