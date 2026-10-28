@@ -28,7 +28,7 @@ test("SCHOOL-UNIFY2 localized private navigation and shortcuts retain locale wit
  assert.match(source.home,/SchoolLocalizedWorkspaceHome locale=\{locale\}/);
  assert.match(source.home,/<SchoolJourney locale="it" workspace/);
  assert.match(source.switch,/SchoolPrivateTopbar/);
- for(const href of ["/school/norme","/school/gradi","/school/explorer"])assert.ok(source.hub.includes(href));
+ for(const href of ["/school/norme","/school/gradi"])assert.ok(source.hub.includes(href));
  assert.match(source.hub,/CALCULATOR_ROUTES\[locale\]/);
  assert.match(source.hub,/SchoolWorkspaceFirstViewport locale=\{locale\}/);
  assert.match(source.firstViewport,/name="lang" value=\{locale\}/);
@@ -49,10 +49,10 @@ test("SCHOOL-UNIFY2 only published public reference sources, clearly label nontr
  assert.match(source.gradeDetail,/SchoolPrivateReferenceDetailBanner/);
 });
 test("SCHOOL-UNIFY2 existing document search server action and tenant context remain unchanged",()=>{
- assert.match(source.explorer,/KnowledgeExplorer locale=\{locale\}/);
- assert.match(source.explorer,/force-dynamic/);
+ assert.match(source.explorer,/redirect\(appRoutes\.commercial\.knowledgeExplorer\)/);
+ assert.match(read("../app/(workspace)/commercial/knowledge/page.tsx"), /force-dynamic/);
  assert.match(source.search,/useActionState\(searchKnowledge, initialState\)/);
  assert.match(source.search,/explorerLabels\[locale\]/);
  assert.match(source.search,/sourceTarget\(lead\)/);
- assert.doesNotMatch(source.explorer,/createPublicSupabaseClient/);
+ assert.doesNotMatch(source.explorer,/createPublicSupabaseClient|service_role/);
 });
