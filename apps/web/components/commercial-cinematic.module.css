@@ -40,14 +40,22 @@
   text-wrap: balance;
   font-kerning: normal;
 }
-.heroPanel {
-  border-radius: 16px;
-  border: 1px solid rgba(218,241,226,.58);
-  box-shadow: 0 18px 44px -24px rgba(0,0,0,.58);
+.heroMetrics {
+  border-top: 1px solid rgba(187,230,204,.26);
+  padding-top: 12px;
+  max-width: 480px;
 }
-.heroMetric {
-  font-variant-numeric: tabular-nums;
+.heroMetrics dl { margin: 0; }
+.heroMetrics dl > div {
+  min-width: 0;
+  padding-right: 8px;
 }
+.heroMetrics dl > div + div {
+  border-left: 1px solid rgba(196,234,212,.21);
+  padding-left: 13px;
+}
+.heroMetrics dd { margin: 0; font-variant-numeric: tabular-nums; }
+.heroMetrics dt { margin: 0; }
 .companion {
   border-color: #d0e1d6;
   border-radius: 22px;
@@ -137,8 +145,7 @@
 }
 
 @media (min-width: 1024px) {
-  .heroGrid { grid-template-columns: minmax(0,1.27fr) minmax(310px,.73fr); }
-  .heroPanel { max-width: 375px; margin-left: auto; }
+  .heroGrid { grid-template-columns: minmax(0,1.04fr) minmax(0,.96fr); }
   .companionForm { flex: 0 0 min(39%, 420px); max-width: 420px; }
 }
 @media (max-width: 1023px) {
