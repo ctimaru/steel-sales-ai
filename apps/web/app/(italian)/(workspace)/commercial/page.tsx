@@ -8,6 +8,7 @@ import { getDashboardData } from "@/lib/commercial-data";
 import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
 import { CommercialCalculatorQuickAccess } from "@/components/commercial-calculator-quick-access";
 import { CommercialAiCompanion } from "@/components/commercial-ai-companion";
+import cinematic from "@/components/commercial-cinematic.module.css";
 import { CommercialUnifiedWorklist } from "@/components/commercial-unified-worklist";
 import type { CommercialOperationsTab } from "@/components/commercial-campaign-operations";
 import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
@@ -170,16 +171,14 @@ export default async function CommercialHomePage({
     <FocusPage compact className="max-w-[1480px]">
       <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
       <section aria-label="Commerciale Smart Steel Sales" data-testid="comm-cine1-hero"
-        className="relative isolate overflow-hidden rounded-[28px] border border-[#174437] bg-[#082f28] text-white shadow-[0_24px_75px_-35px_rgba(4,39,30,0.9)]">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_79%_42%,rgba(69,150,113,0.34),transparent_54%),linear-gradient(115deg,#041d19_0%,#083d31_58%,#123d35_100%)]" />
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 opacity-30 [background-image:linear-gradient(rgba(208,242,220,0.09)_1px,transparent_1px),linear-gradient(90deg,rgba(208,242,220,0.09)_1px,transparent_1px)] [background-size:52px_52px] [mask-image:linear-gradient(90deg,transparent,black)]" />
-        <div className="grid min-h-[190px] gap-6 px-6 py-7 sm:px-9 sm:py-8 lg:min-h-[240px] lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,0.85fr)] lg:items-center lg:gap-8 lg:px-10 lg:py-8">
+        className={"relative isolate overflow-hidden rounded-[28px] border border-[#174437] bg-[#082f28] text-white shadow-[0_24px_75px_-35px_rgba(4,39,30,0.9)] " + cinematic.hero}>
+                <div className={"grid min-h-[190px] gap-6 px-6 py-7 sm:px-9 sm:py-8 lg:min-h-[240px] lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,0.85fr)] lg:items-center lg:gap-8 lg:px-10 lg:py-8 " + cinematic.heroGrid}>
           <div className="relative z-10 max-w-[690px]">
             <div className="inline-flex items-center gap-2 border-b border-[#7dad91]/50 pb-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#add4bb]">
               <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#9fe4b5]" />
               Smart Steel Sales / Commercial Intelligence
             </div>
-            <h1 className="mt-4 max-w-[650px] text-[clamp(2rem,3.9vw,3.45rem)] font-semibold leading-[1.05] tracking-[-0.045em] text-white">
+            <h1 className={"mt-4 max-w-[650px] text-[clamp(2rem,3.9vw,3.45rem)] font-semibold leading-[1.05] tracking-[-0.045em] text-white " + cinematic.heroTitle}>
               Le tue trattative.<br /><span className="text-[#b4dec2]">Un’unica visione.</span>
             </h1>
             <p className="mt-3 max-w-[480px] text-sm leading-6 text-[#d2e7db]">
@@ -193,7 +192,7 @@ export default async function CommercialHomePage({
           </div>
           <div className="relative z-10 hidden min-w-0 lg:block" aria-label="Panoramica commerciale">
             <div aria-hidden="true" className="absolute -inset-5 -z-10 rounded-[32px] border border-white/[0.08] bg-white/[0.035] blur-[1px]" />
-            <div className="overflow-hidden rounded-2xl border border-white/20 bg-[#f5faf6] text-[#173f35] shadow-[0_30px_80px_-32px_rgba(0,0,0,0.7)]">
+            <div className={"overflow-hidden rounded-2xl border border-white/20 bg-[#f5faf6] text-[#173f35] shadow-[0_30px_80px_-32px_rgba(0,0,0,0.7)] " + cinematic.heroPanel}>
               <div className="flex items-center justify-between border-b border-[#deebe1] px-5 py-4">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#47715a]">Il tuo centro operativo</p>
