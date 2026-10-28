@@ -13,7 +13,7 @@ const layout = read("../app/(workspace)/school/layout.tsx");
 const schoolCopy = read("../lib/school-workspace-i18n.ts");
 
 test("PF5 makes the weight calculator the primary School tool", () => {
-  assert.match(school, /Il toolbox tecnico per acciaio e tubi/);
+  assert.match(school, /L’acciaio, spiegato bene/);
   assert.match(school, /Strumento principale/);
   assert.match(school, /Calcolo pesi tubo/);
   assert.match(school, /kg\/m/);

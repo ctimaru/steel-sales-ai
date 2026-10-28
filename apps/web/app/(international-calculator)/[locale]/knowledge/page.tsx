@@ -89,21 +89,23 @@ export default async function LocalizedSchoolHome({params}:{params:Promise<{loca
     </header>
     <div id="school-main" className="mx-auto max-w-[1180px] space-y-7 px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
       <SchoolUnifiedNavigation locale={locale} scope="public" />
-      <section className="grid items-center gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]"
+      <section className="relative grid items-center gap-6 overflow-hidden rounded-[28px] bg-[#102921] px-6 py-9 text-white sm:px-9 sm:py-11 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]"
         aria-label="Smart Steel School">
-        <div>
-          <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-[#1a5144]">{t.eyebrow}</p>
-          <h1 className="mt-4 max-w-3xl text-3xl font-semibold tracking-tight text-[#173f35] sm:text-[2.65rem]">{t.title}</h1>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-[#506157] sm:text-base">{t.lead}</p>
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-cover bg-[position:72%_center] opacity-65" style={{backgroundImage:"url('/home-cine1a-steel.webp')"}} />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(9,31,23,.97)_0%,rgba(9,31,23,.86)_55%,rgba(9,31,23,.50)_100%)]" />
+        <div className="relative z-10">
+          <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-[#a6d4ba]">{t.eyebrow}</p>
+          <h1 className="mt-4 max-w-3xl text-3xl font-semibold tracking-tight text-white sm:text-[2.65rem]">{t.title}</h1>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-[#d2e4d9] sm:text-base">{t.lead}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             {[t.free,t.privacy].map(label=><span key={label}
-              className="rounded-full border border-[#c7d9cd] bg-white px-3 py-1.5 text-xs font-semibold text-[#174b3c]">{label}</span>)}
+              className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-semibold text-[#e5f3e9]">{label}</span>)}
           </div>
           <Link href={"/"+locale+"/knowledge/tubes"} className="school-primary-action mt-5">
             {t.calculator} <span aria-hidden="true">→</span>
           </Link>
         </div>
-        <SchoolTechnicalSections locale={locale}/>
+        <div className="relative z-10"><SchoolTechnicalSections locale={locale}/></div>
       </section>
       <SchoolJourney locale={locale}/>
       <SchoolInternationalReferences locale={locale}/>
