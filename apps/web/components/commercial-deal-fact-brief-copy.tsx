@@ -15,18 +15,22 @@ export function CommercialDealFactBriefCopy({ kind, status, title, origin }: Dea
   const router = useRouter();
   const [feedback, setFeedback] = useState("");
   const [question, setQuestion] = useState("Quali informazioni dobbiamo verificare prima del prossimo passo?");
-  async function copyFacts(openAssistant = false) {
-    const text = [
+  const contextText = [
       "Contesto della trattativa (dati mostrati nella scheda):",
       "Tipo: " + kind,
       "Stato: " + status,
       "Oggetto: " + title,
       "Origine: " + origin,
-      "Domanda: " + question,
+      "Domanda: " + question.trim(),
       "Non dedurre offerte, email o documenti non presenti in questi dati.",
     ].join("\n");
+  async function copyFacts(openAssistant = false) {
+    if (!question.trim()) {
+      setFeedback("Inserisci una domanda prima di copiare il contesto.");
+      return;
+    }
     try {
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(contextText);
       setFeedback("Contesto copiato. Incollalo nell’assistente solo se desideri condividerlo.");
       if (openAssistant) router.push(appRoutes.commercial.assistant);
     } catch {
@@ -48,6 +52,13 @@ export function CommercialDealFactBriefCopy({ kind, status, title, origin }: Dea
               : "rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-xs text-[var(--text-secondary)] hover:bg-[var(--brand-primary-soft)]"}>{option}</button>
         ))}
       </div>
+      <label htmlFor="commercial-deal-ai-question" className="block text-[11px] font-semibold text-[var(--brand-deep)]">Personalizza la domanda</label>
+      <textarea id="commercial-deal-ai-question" value={question} onChange={(event) => { setQuestion(event.target.value); setFeedback(""); }} rows={2} maxLength={500}
+        className="w-full resize-y rounded-lg border border-[var(--border-strong)] bg-white p-2.5 text-xs text-[var(--brand-deep)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]" />
+      <details className="rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2.5 text-xs">
+        <summary className="cursor-pointer font-semibold text-[var(--brand-deep)]">Anteprima esatta del contesto da copiare</summary>
+        <pre className="mt-2 whitespace-pre-wrap break-words text-[var(--text-secondary)]">{contextText}</pre>
+      </details>
       <div className="flex flex-wrap items-center gap-2">
       <button type="button" onClick={() => void copyFacts()}
         className="inline-flex min-h-10 items-center rounded-lg border border-[var(--border-strong)] bg-white px-3 text-xs font-semibold text-[var(--brand-deep)] hover:bg-[var(--brand-primary-soft)]">
