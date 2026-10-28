@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
+import { createSyntheticRecorder } from "./prod-next1c-synthetic-evidence.mjs";
 import { checkDeferredClientReadiness, waitForBuilderReady } from "./bd15-chrome-hydration-readiness.mjs";
 
 const origin = process.env.DEMOTEST23_WEB_URL;
@@ -25,8 +26,10 @@ const browser = await chromium.launch({
   headless: true,
 });
 const checks = [];
+const recorder = createSyntheticRecorder("bd15");
 async function step(label, fn) {
-  try { await fn(); checks.push(label); console.log("BD15 CHROME PASS", label); }
+  const started = Date.now();
+  try { await fn(); checks.push(label); recorder.recordPassedStep(label, Date.now() - started); console.log("BD15 CHROME PASS", label); }
   catch (e) { console.error("BD15 CHROME FAIL", label, String(e?.message ?? e).slice(0,900)); throw e; }
 }
 async function goto(page, route) {
@@ -192,6 +195,7 @@ try {
     });
     await ctx.close();
   }
+  recorder.save(checks.length);
   console.log("BD15 E2E CHROME PASS",checks.length,
     "isolated checks; anonymous + real buyer; 390/1440; no provider email and no Marketplace publish");
 } finally {
