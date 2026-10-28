@@ -93,8 +93,14 @@ async function checkContext(label, viewport, mobile) {
       assert.equal(await norm.inputValue(), "en10210", "EN 10210 selection did not apply");
       await norm.selectOption("en10219");
       assert.equal(await norm.inputValue(), "en10219", "EN 10219 selection did not apply");
-      assert.ok(await calc.getByRole("button", {name:"Copy result",exact:true}).count() > 0,
-        "English copy action missing");
+      // PROD-NEXT1.B: the compact cockpit keeps the copy control in a
+      // native <details> disclosure. Browser roles do not expose closed content.
+      const copyAction = calc.locator("button.tube-calculator-copy-action");
+      assert.equal(await copyAction.count(), 1, "English copy action missing from DOM");
+      const copyDisclosure = copyAction.locator("xpath=ancestor::details[1]");
+      await copyDisclosure.locator("summary").click();
+      await copyAction.waitFor({ state: "visible", timeout: 12000 });
+      assert.ok(await copyAction.isEnabled(), "English copy action not available after expanding tools");
       // Production smoke checks deployed main, which may still have the old
       // link until this PR merges; local Chrome E2E gates the new transfer.
       // The calculator now uses a localized inline-distinta CTA. Check its
