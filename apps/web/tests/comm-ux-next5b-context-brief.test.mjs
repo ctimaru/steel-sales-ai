@@ -10,7 +10,7 @@ test("selected deal fact brief uses only grounded visible fields without automat
  assert.match(src,/item\.origin/);
  assert.match(src,/non vengono dedotti da questa sintesi/);
  assert.match(src,/href=\{appRoutes\.commercial\.assistant\}/);
- assert.match(src,/<CommercialDealFactBriefCopy kind=\{itemType\(item\)\}/);
+ assert.match(src,/<CommercialDealFactBriefCopy kind=\{item\.kind\} dealId=\{item\.id\}/);
  assert.doesNotMatch(src,/href=\{[^}]*encodeURIComponent\(item\./);
 });
 
@@ -72,4 +72,17 @@ test("NEXT6 source lookup is explicit and evidence-bound",()=>{
  assert.match(copy,/Cerca nelle email e nei documenti disponibili le offerte/);
  assert.match(copy,/cita le fonti e indica cosa non è verificabile/);
  assert.match(copy,/if \(contextText\.length > 1000\)/);
+});
+
+test("NEXT6 authorized evidence lookup requires auth and canonical ID",()=>{
+ const action=readFileSync(new URL("../app/(italian)/(workspace)/assistant/deal-context-actions.ts",import.meta.url),"utf8");
+ const copy=readFileSync(new URL("../components/commercial-deal-fact-brief-copy.tsx",import.meta.url),"utf8");
+ assert.match(action,/supabase\.auth\.getUser\(\)/);
+ assert.match(action,/uuid\.test\(id\)/);
+ assert.match(action,/getOperationalEntityData\(operationalKind, id\)/);
+ assert.match(action,/detail\.mode !== "live"/);
+ assert.match(action,/detail\.lines\.slice\(0, 3\)/);
+ assert.match(copy,/loadAuthorizedDealEvidence\(kind, dealId\)/);
+ assert.match(copy,/onClick=\{\(\) => void verifyEvidence\(\)\}/);
+ assert.match(copy,/setVerifiedFacts\(result\.facts\)/);
 });
