@@ -28,6 +28,7 @@ export function CommercialDealFactBriefCopy({ kind, status, title, origin, relat
     ].join("\n");
   async function copyFacts(openAssistant = false) {
     if (openAssistant) {
+      if (contextText.length > 1000) { setFeedback("Contesto superiore a 1000 caratteri. Riduci la domanda o le informazioni prima di continuare."); return; }
       if (!question.trim()) { setFeedback("Inserisci una domanda prima di continuare."); return; }
       try {
         sessionStorage.setItem("sss:commercial-assistant-draft:v1", JSON.stringify({ text: contextText, createdAt: Date.now() }));
@@ -42,7 +43,6 @@ export function CommercialDealFactBriefCopy({ kind, status, title, origin, relat
     try {
       await navigator.clipboard.writeText(contextText);
       setFeedback("Contesto copiato. Incollalo nell’assistente solo se desideri condividerlo.");
-      if (openAssistant) router.push(appRoutes.commercial.assistant);
     } catch {
       setFeedback("Copia non disponibile. Puoi consultare i dati direttamente nella scheda.");
     }
@@ -55,6 +55,7 @@ export function CommercialDealFactBriefCopy({ kind, status, title, origin, relat
           "Quali informazioni dobbiamo verificare prima del prossimo passo?",
           "Quali condizioni commerciali mancano per valutare questa trattativa?",
           "Quali dati tecnici servono per preparare una risposta accurata?",
+          "Cerca nelle email e nei documenti disponibili le offerte relative a questa richiesta: cita le fonti e indica cosa non è verificabile.",
         ].map((option) => (
           <button key={option} type="button" onClick={() => { setQuestion(option); setFeedback(""); }} aria-pressed={question === option}
             className={question === option
