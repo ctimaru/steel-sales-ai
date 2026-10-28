@@ -50,8 +50,8 @@ export default function KnowledgeHomePage() {
             <Link href="#ricerca-tecnica" className="school-primary-action min-h-11 !rounded-xl !border-[#39876a] !bg-[#247455] !px-5 !text-white transition hover:!bg-[#2c8461] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
               Cerca una norma o un materiale <span aria-hidden="true" className="ml-2">→</span>
             </Link>
-            <Link href="#approfondimenti" className="inline-flex min-h-11 items-center rounded-xl border border-white/40 px-4 py-2 text-sm font-semibold !text-white transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-              Esplora le guide <span aria-hidden="true" className="ml-2">↗</span>
+            <Link href="/knowledge/professore" className="inline-flex min-h-11 items-center rounded-xl border border-white/40 px-4 py-2 text-sm font-semibold !text-white transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+              Chiedi al professore <span aria-hidden="true" className="ml-2">↗</span>
             </Link>
           </div>
         </div>
