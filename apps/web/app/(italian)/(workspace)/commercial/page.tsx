@@ -173,7 +173,7 @@ export default async function CommercialHomePage({
         className="relative isolate overflow-hidden rounded-[28px] border border-[#174437] bg-[#082f28] text-white shadow-[0_24px_75px_-35px_rgba(4,39,30,0.9)]">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_79%_42%,rgba(69,150,113,0.34),transparent_54%),linear-gradient(115deg,#041d19_0%,#083d31_58%,#123d35_100%)]" />
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 opacity-30 [background-image:linear-gradient(rgba(208,242,220,0.09)_1px,transparent_1px),linear-gradient(90deg,rgba(208,242,220,0.09)_1px,transparent_1px)] [background-size:52px_52px] [mask-image:linear-gradient(90deg,transparent,black)]" />
-        <div className="grid min-h-[220px] gap-6 px-6 py-7 sm:px-9 sm:py-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,0.85fr)] lg:items-center lg:gap-8 lg:px-10 lg:py-8">
+        <div className="grid min-h-[190px] gap-6 px-6 py-7 sm:px-9 sm:py-8 lg:min-h-[240px] lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,0.85fr)] lg:items-center lg:gap-8 lg:px-10 lg:py-8">
           <div className="relative z-10 max-w-[690px]">
             <div className="inline-flex items-center gap-2 border-b border-[#7dad91]/50 pb-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#add4bb]">
               <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#9fe4b5]" />
@@ -191,7 +191,7 @@ export default async function CommercialHomePage({
               <span aria-hidden="true" className="mx-1 text-white/30">/</span> Workspace privato
             </p>
           </div>
-          <div className="relative z-10 min-w-0" aria-label="Panoramica commerciale">
+          <div className="relative z-10 hidden min-w-0 lg:block" aria-label="Panoramica commerciale">
             <div aria-hidden="true" className="absolute -inset-5 -z-10 rounded-[32px] border border-white/[0.08] bg-white/[0.035] blur-[1px]" />
             <div className="overflow-hidden rounded-2xl border border-white/20 bg-[#f5faf6] text-[#173f35] shadow-[0_30px_80px_-32px_rgba(0,0,0,0.7)]">
               <div className="flex items-center justify-between border-b border-[#deebe1] px-5 py-4">
@@ -211,7 +211,7 @@ export default async function CommercialHomePage({
           </div>
         </div>
       </section>
-      <div data-testid="comm-cine13-first-workspace" className="relative z-10 -mt-5 px-2 sm:px-5">
+      <div data-testid="comm-cine13-first-workspace" className="relative z-10 -mt-4 px-2 sm:-mt-5 sm:px-5">
         <CommercialAiCompanion canWrite={canWrite} />
       </div>
 
@@ -298,7 +298,7 @@ export default async function CommercialHomePage({
       />
 
 
-      <section id="commercial-tool-access" aria-label="Calcolo tecnico e distinta" className="scroll-mt-28">
+      <section id="commercial-tool-access" aria-label="Calcolo tecnico e distinta" className="scroll-mt-28 rounded-2xl border border-[#e1eae4] bg-white px-4 py-3 sm:px-5">
         <CommercialCalculatorQuickAccess references={calculatorReferences} />
       </section>
       {(networkContext || showProspects) ? (
