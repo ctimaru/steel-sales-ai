@@ -1,4 +1,5 @@
 import Link from "next/link";
+import cinematic from "@/components/commercial-cinematic.module.css";
 import { CommercialDealFactBriefCopy } from "@/components/commercial-deal-fact-brief-copy";
 import { CommercialDealQuickActions } from "@/components/commercial-deal-quick-actions";
 
@@ -226,12 +227,19 @@ export async function CommercialUnifiedWorklist({
     : [];
 
   return (
-    <section id="commercial-worklist" aria-labelledby="commercial-worklist-title" data-testid="comm-cine2-deal-cockpit" className="scroll-mt-28 space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--brand-primary)]">Cockpit commerciale · Trattative e intelligence</p>
-          <h2 id="commercial-worklist-title" className="mt-0.5 text-lg font-semibold text-[var(--brand-deep)]">Le mie trattative</h2>
-          <p className="mt-1 text-xs text-[var(--text-secondary)]">Richieste, offerte e ordini in un unico flusso. Seleziona una voce per lavorare nel dettaglio senza cambiare pagina.</p>
+    <section id="commercial-worklist" aria-labelledby="commercial-worklist-title" data-testid="comm-cine2-deal-cockpit" className={"scroll-mt-28 space-y-4 " + cinematic.worklist}>
+      <div data-testid="comm-cine9-workspace-heading" className="relative overflow-hidden rounded-[24px] border border-[#d8e8dc] bg-[#f5faf6] px-5 py-5 sm:px-7 sm:py-6">
+        <div aria-hidden="true" className="pointer-events-none absolute -right-14 -top-24 h-64 w-64 rounded-full bg-[#d8eadb]/65 blur-3xl" />
+        <div className="relative flex flex-wrap items-end justify-between gap-4">
+          <div className="max-w-[660px]">
+            <p className="text-[10px] font-bold uppercase tracking-[0.19em] text-[#386b50]">Il tuo spazio di lavoro / Deal cockpit</p>
+            <h2 id="commercial-worklist-title" className="mt-2 text-[clamp(1.6rem,2.55vw,2.45rem)] font-semibold leading-[1.12] tracking-[-0.035em] text-[#123c2f]">Le mie trattative</h2>
+            <p className="mt-3 max-w-[520px] text-sm leading-6 text-[#52695d]">Ogni richiesta, offerta e ordine ha il suo contesto. Seleziona una trattativa per lavorarci senza perdere il filo.</p>
+          </div>
+          <div className="flex items-center gap-2 rounded-full border border-[#c7dece] bg-white/80 px-3 py-2 text-xs font-semibold text-[#276147]">
+            <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#4d9567]" />
+            {data.paging?.exact && data.paging.total !== null ? data.paging.total : filtered.length} attività in questa vista
+          </div>
         </div>
       </div>
 
@@ -252,8 +260,8 @@ export async function CommercialUnifiedWorklist({
         </p>
       ) : null}
 
-      <div className="flex min-w-0 flex-col gap-2 lg:flex-row lg:items-center" data-testid="commercial-compact-filters">
-        <nav aria-label="Filtra attività commerciali" className="flex min-w-0 shrink-0 gap-0.5 overflow-x-auto rounded-lg border border-[var(--border)] bg-white p-1">
+      <div className="flex min-w-0 flex-col gap-3 rounded-2xl border border-[#e1eae4] bg-white p-3 shadow-[0_12px_36px_-32px_rgba(4,46,32,0.4)] lg:flex-row lg:items-center" data-testid="commercial-compact-filters">
+        <nav aria-label="Filtra attività commerciali" className="flex min-w-0 shrink-0 gap-0.5 overflow-x-auto rounded-xl bg-[#eef5f0] p-1">
           {views.map(({ key, title }) => (
             <Link key={key} href={commercialHref(key, query)} aria-current={key === view ? "page" : undefined}
               className={"inline-flex min-h-10 shrink-0 items-center rounded-md px-2.5 text-xs font-semibold transition " +
@@ -282,10 +290,10 @@ export async function CommercialUnifiedWorklist({
         </Link>
       </div>
 
-      <div className={active ? "grid min-w-0 items-start gap-3 lg:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)] 2xl:grid-cols-[minmax(0,1.3fr)_minmax(380px,0.9fr)]" : "grid min-w-0 gap-3"} data-testid="comm-cine2-split-view">
-        <div data-testid="commercial-list-pane" className={(active ? "hidden lg:block " : "") + "min-w-0 overflow-hidden rounded-2xl border border-[#dce7e0] bg-white shadow-[0_12px_32px_-28px_rgba(4,46,32,0.45)]"}>
-          <div className="flex items-center justify-between border-b border-[var(--border)] px-3 py-2.5">
-            <p className="text-xs font-semibold text-[var(--brand-deep)]">Trattative e attività</p>
+      <div className={active ? "grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)] 2xl:grid-cols-[minmax(0,1.3fr)_minmax(380px,0.9fr)]" : "grid min-w-0 gap-4"} data-testid="comm-cine2-split-view">
+        <div data-testid="commercial-list-pane" className={(active ? "hidden lg:block " : "") + "min-w-0 overflow-hidden rounded-[22px] border border-[#dce7e0] bg-white shadow-[0_18px_55px_-40px_rgba(4,46,32,0.50)]"}>
+          <div className="flex items-center justify-between border-b border-[#e0ebe3] bg-[#fafdfa] px-5 py-4">
+            <p className="text-sm font-semibold tracking-tight text-[#173f35]">Trattative e attività</p>
             <span className="text-xs tabular-nums text-[var(--text-secondary)]">{data.paging?.exact && data.paging.total !== null
               ? data.paging.total + " totali"
               : filtered.length + " visualizzate"}</span>
@@ -295,7 +303,7 @@ export async function CommercialUnifiedWorklist({
               {filtered.map((item) => (
                 <Link key={item.key} href={route(view, query, item.key, data.paging?.page ?? page, data.paging?.currentCursor)}
                   aria-current={item.key === active?.key ? "true" : undefined}
-                  className={"flex min-h-[88px] items-center justify-between gap-3 border-l-[3px] px-3 py-3 transition hover:bg-[#f3f8f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] " +
+                  className={"group flex min-h-[88px] items-center justify-between gap-3 border-l-[3px] px-4 py-3 transition hover:bg-[#f3f8f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] " +
                     (item.key === active?.key ? "border-l-[#175640] bg-[#edf6f0]" : "border-l-transparent")}>
                   <div className="min-w-0 flex-1 space-y-1" data-testid="commercial-smart-deal-card">
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
@@ -343,9 +351,9 @@ export async function CommercialUnifiedWorklist({
 
         {active ? (
           <aside id="commercial-detail" aria-label="Dettaglio attività selezionata" tabIndex={-1}
-            className="scroll-mt-24 min-w-0 max-w-full rounded-2xl border border-[#c9ded0] bg-white p-3 shadow-[0_16px_36px_-30px_rgba(4,46,32,0.5)] sm:scroll-mt-36 sm:p-4 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
+            className="scroll-mt-24 min-w-0 max-w-full rounded-[22px] border border-[#c9ded0] bg-white p-4 shadow-[0_22px_60px_-38px_rgba(4,46,32,0.55)] sm:scroll-mt-36 sm:p-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-[var(--brand-deep)]">Trattativa selezionata</h3>
+              <div><p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#4e7a60]">Workspace / Dettaglio</p><h3 className="mt-1 text-base font-semibold tracking-tight text-[#173f35]">Trattativa selezionata</h3></div>
               <Link href={isStreamView(view) ? mergedCommercialHref(view, query, data.paging?.currentCursor ?? undefined) : commercialPageHref(view, query, page)} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold">
                 Chiudi <span aria-hidden="true" className="ml-1">×</span>
               </Link>

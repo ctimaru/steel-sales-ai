@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { consumeCommercialAiTextHandoff } from "@/lib/commercial-ai-intake-handoff";
 import { analyzeRfqAiFreeText } from "@/app/(workspace)/rfq-hub/distinta/ai-actions";
 import { RfqAiTextReview } from "@/components/rfq-ai-text-review";
 import type { RfqAiTextDraftResult } from "@/lib/rfq-ai-free-text";
@@ -43,6 +44,15 @@ export function RfqAiIntakeUx({
   const [textError, setTextError] = useState("");
   const [textResult, setTextResult] = useState<RfqAiTextDraftResult | null>(null);
   const extractionVersion = useRef(0);
+  useEffect(() => {
+    if (!workspace || mode !== "text") return;
+    const draft = consumeCommercialAiTextHandoff(MAX_TEXT_CHARS);
+    if (!draft) return;
+    extractionVersion.current += 1;
+    setTextDraft(draft);
+    setTextResult(null);
+    setTextError("");
+  }, [workspace, mode]);
   async function analyzeText() {
     if (textPending || !workspace || !textDraft.trim()) return;
     const version = ++extractionVersion.current;

@@ -54,6 +54,25 @@ async function noHorizontalPageOverflow(page, label) {
     label + " horizontal overflow " + sizes.scroll + " > " + sizes.client);
 }
 
+// COMM-CINE16: computed-browser visual acceptance on local, synthetic account data only.
+async function verifyCinematic(page, label) {
+  const hero = page.getByTestId("comm-cine1-hero");
+  const companion = page.getByTestId("commercial-ai-first");
+  const worklist = page.getByTestId("comm-cine2-deal-cockpit");
+  assert.equal(await hero.count(), 1, label + ": one industrial hero");
+  assert.equal(await companion.count(), 1, label + ": one AI companion");
+  assert.equal(await worklist.count(), 1, label + ": one worklist");
+  assert.equal(await hero.getByRole("heading", { level: 1 }).count(), 1);
+  assert.equal(await companion.getByRole("heading", { name: "Ciao, cosa stai cercando oggi?" }).count(), 1);
+  assert.equal(await hero.locator("dt").count(), 3, label + ": three accessible real-data counters");
+  const background = await hero.evaluate(el => getComputedStyle(el, "::before").backgroundImage);
+  assert.match(background, /home-cine2a2b-factory-(desktop|mobile)\.webp/, label + ": factory poster is rendered");
+  const bounds = await Promise.all([hero.boundingBox(), companion.boundingBox(), worklist.boundingBox()]);
+  assert.ok(bounds.every(Boolean), label + ": all core surfaces must render");
+  assert.ok(bounds[0].y < bounds[1].y && bounds[1].y < bounds[2].y, label + ": cinematic content must precede deals");
+  await noHorizontalPageOverflow(page, label);
+}
+
 try {
   // Exactly five real GoTrue sessions: one viewer and four independent tenants.
   for (const p of personas) {
@@ -62,7 +81,8 @@ try {
     try {
       await signIn(page, p);
       await verifyArea(page, "/commercial", "Attività");
-      await page.getByRole("heading", { name: "Richieste, offerte e ordini" })
+      await verifyCinematic(page, "Commerciale desktop " + p.id);
+      await page.getByRole("heading", { name: "Le mie trattative" })
         .waitFor({ state: "visible", timeout: 60000 });
       assert.equal(await page.locator('[data-testid="commercial-compact-actions"]').count(), 1);
       assert.equal(await page.locator('[data-testid="commercial-compact-attention"]').count(), 1);
@@ -87,17 +107,20 @@ try {
       assert.ok(actionsRect && listRect && listRect.y > actionsRect.y,
         "Compact action strip precedes worklist");
       assert.ok(actionsRect.height < 220, "Desktop action strip must remain compact");
+      const companion = page.getByTestId("commercial-ai-first");
+      assert.equal(await companion.count(), 1, "One cinematic AI companion, never duplicated");
+      const aiPrompt = companion.getByTestId("comm-cine11-prompt");
       if (p.id === "buyerViewer") {
-        assert.equal(await actions.getByRole("link", { name: /Nuova richiesta/ }).count(), 0,
-          "Viewer must not gain a create action");
+        assert.equal(await aiPrompt.count(), 0, "Viewer must not gain RFQ compose access");
       } else {
-        const create = actions.getByRole("link", { name: /Nuova richiesta/ });
-        assert.equal(await create.count(), 1, "One primary CTA must be offered to writers");
-        const primaryColors = await create.evaluate(el => ({
+        assert.equal(await aiPrompt.count(), 1, "Writer gets exactly one AI intake form");
+        const create = companion.getByRole("button", { name: /Prepara la distinta/ });
+        assert.equal(await create.count(), 1, "One primary create action must be offered to writers");
+        const colors = await create.evaluate(el => ({
           color: getComputedStyle(el).color, fill: getComputedStyle(el).webkitTextFillColor,
         }));
-        assert.equal(primaryColors.color, "rgb(255, 255, 255)", "Solid create CTA must use white text");
-        assert.equal(primaryColors.fill, "rgb(255, 255, 255)", "Solid create CTA WebKit fill must be white");
+        assert.equal(colors.color, "rgb(255, 255, 255)", "Solid create CTA must have white text");
+        assert.equal(colors.fill, "rgb(255, 255, 255)", "Solid create CTA WebKit fill must be white");
       }
       assert.equal(await page.getByRole("link", { name: "+ Nuova distinta" }).count(), 0,
         "Duplicate create action must not return");
@@ -110,6 +133,9 @@ try {
       console.log("COMM-UX1 PASS desktop navigation, compact layout and tenant:", p.id);
       if (p.id === "buyer") {
         await page.screenshot({ path: path.join(screenshotsDir, "commercial-owner-desktop.png"),
+          fullPage: false, animations: "disabled" });
+        await page.locator("#commercial-worklist").scrollIntoViewIfNeeded();
+        await page.screenshot({ path: path.join(screenshotsDir, "commercial-owner-deals-desktop.png"),
           fullPage: false, animations: "disabled" });
       }
       // Every specialist page retains a correctly highlighted area.
@@ -146,9 +172,10 @@ try {
     try {
       await signIn(page, p);
       const nav = await verifyArea(page, "/commercial", "Attività");
-      await page.getByRole("heading", { name: "Richieste, offerte e ordini" })
+      await page.getByRole("heading", { name: "Le mie trattative" })
         .waitFor({ state: "visible", timeout: 60000 });
       await noHorizontalPageOverflow(page, "Commerciale 390px " + id);
+      await verifyCinematic(page, "Commerciale mobile 390px " + id);
       assert.equal(await page.locator('[data-testid="commercial-compact-filters"]').count(), 1);
       const f = page.locator("#commercial-worklist");
       assert.equal(await f.getByRole("searchbox").count(), 1);
@@ -158,7 +185,9 @@ try {
       await noHorizontalPageOverflow(page, "Analisi 390px " + id);
       await open(page, "/commercial");
       if (id === "buyerViewer") {
-        assert.equal(await page.getByRole("link", { name: /Nuova richiesta/ }).count(), 0);
+        assert.equal(await page.getByTestId("comm-cine11-prompt").count(), 0);
+      } else {
+        assert.equal(await page.getByTestId("comm-cine11-prompt").count(), 1);
       }
       await page.screenshot({ path: path.join(screenshotsDir, "commercial-" + id + "-mobile.png"),
         fullPage: false, animations: "disabled" });
@@ -166,6 +195,22 @@ try {
     } finally {
       await context.close();
     }
+  }
+  // Narrowest supported mobile: ensure the industrial hero and AI form do not overflow.
+  const buyer = personas.find(person => person.id === "buyer");
+  const narrow = await browser.newContext({
+    viewport: { width: 320, height: 720 }, isMobile: true,
+    deviceScaleFactor: 2, locale: "it-IT", reducedMotion: "reduce",
+  });
+  try {
+    const page = await narrow.newPage();
+    await signIn(page, buyer);
+    await open(page, "/commercial");
+    await verifyCinematic(page, "Commerciale mobile 320px buyer");
+    await page.screenshot({ path: path.join(screenshotsDir, "commercial-owner-mobile-320.png"),
+      fullPage: false, animations: "disabled" });
+  } finally {
+    await narrow.close();
   }
 } finally {
   await browser.close();
