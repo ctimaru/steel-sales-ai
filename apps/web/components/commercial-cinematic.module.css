@@ -1,0 +1,133 @@
+/* COMM-CINE14 — visual continuity with the approved public cinematic hero.
+   Reuses existing local, compressed industrial photographs. No network images.
+   These scoped styles alter presentation only; RFQ and authorization stay in their components. */
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #082f28;
+  border-radius: 24px;
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(95deg, #061d17 0%, rgba(6,29,23,.95) 34%, rgba(6,29,23,.69) 64%, rgba(6,29,23,.32) 100%),
+    url("/home-cine2a2b-factory-desktop.webp");
+  background-position: center, 78% center;
+  background-size: cover, cover;
+  background-repeat: no-repeat;
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(3,21,16,.06), rgba(3,21,16,.28)),
+    repeating-linear-gradient(90deg, transparent 0, transparent 79px, rgba(217,250,227,.025) 80px);
+}
+.heroGrid {
+  position: relative;
+  z-index: 2;
+}
+.heroTitle {
+  max-width: 11.5em;
+  text-wrap: balance;
+  font-kerning: normal;
+}
+.heroPanel {
+  border-radius: 16px;
+  border: 1px solid rgba(218,241,226,.58);
+  box-shadow: 0 18px 44px -24px rgba(0,0,0,.58);
+}
+.heroMetric {
+  font-variant-numeric: tabular-nums;
+}
+.companion {
+  border-color: #d0e1d6;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 14px 48px -38px rgba(13,63,41,.28);
+}
+.companionTitle { text-wrap: balance; }
+.companionForm {
+  border: 1px solid #d9e8dd;
+  border-radius: 16px;
+  background: #f7faf8;
+  padding: 12px;
+}
+.companionForm textarea {
+  background: #fff;
+  min-height: 96px;
+  line-height: 1.6;
+}
+.companionForm textarea:focus-visible {
+  outline: 2px solid #175640;
+  outline-offset: 2px;
+}
+.companionShortcuts > * {
+  border-radius: 10px;
+  min-height: 42px;
+}
+.worklist {
+  --comm-cine14-outline: #d6e5db;
+  --comm-cine14-ink: #143b2d;
+}
+.worklist :global([data-testid="comm-cine9-workspace-heading"]) {
+  border-radius: 18px;
+  background: linear-gradient(110deg, #f6faf7, #edf5ef);
+  box-shadow: none;
+}
+.worklist :global([data-testid="commercial-compact-filters"]) {
+  border-color: var(--comm-cine14-outline);
+  box-shadow: none;
+}
+.worklist :global([data-testid="commercial-list-pane"]),
+.worklist :global(#commercial-detail) {
+  border-color: var(--comm-cine14-outline);
+  border-radius: 18px;
+  box-shadow: 0 12px 38px -32px rgba(5,42,29,.42);
+}
+.worklist :global([data-testid="commercial-list-pane"] > div:first-child) {
+  background: #f9fcfa;
+}
+.worklist :global([data-testid="commercial-smart-deal-card"]) {
+  min-width: 0;
+}
+.worklist :global([data-testid="commercial-smart-deal-card"] p) {
+  overflow-wrap: anywhere;
+}
+.worklist :global(#commercial-detail) {
+  scrollbar-color: #afcbbc transparent;
+}
+@media (min-width: 1024px) {
+  .heroGrid { grid-template-columns: minmax(0,1.27fr) minmax(310px,.73fr); }
+  .heroPanel { max-width: 375px; margin-left: auto; }
+  .companionForm { flex: 0 0 min(39%, 420px); max-width: 420px; }
+}
+@media (max-width: 1023px) {
+  .hero::before { background-position: center, 63% center; }
+}
+@media (max-width: 640px) {
+  .hero { border-radius: 18px; }
+  .hero::before {
+    background-image:
+      linear-gradient(90deg, rgba(5,24,19,.98) 0%, rgba(5,24,19,.87) 52%, rgba(5,24,19,.67) 100%),
+      url("/home-cine2a2b-factory-mobile.webp");
+    background-position: center, 72% 50%;
+  }
+  .hero::after { opacity: .35; }
+  .heroTitle { max-width: 13em; line-height: 1.06; }
+  .companion { border-radius: 16px; }
+  .companionForm { width: 100%; }
+  .worklist :global([data-testid="commercial-list-pane"]),
+  .worklist :global(#commercial-detail) { border-radius: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero *, .companion *, .worklist * { scroll-behavior: auto; }
+}
