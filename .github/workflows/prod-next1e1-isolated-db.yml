@@ -31,7 +31,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          supabase start > "$RUNNER_TEMP/prod-next1e1-start.log" 2>&1
+          if ! supabase start > "$RUNNER_TEMP/prod-next1e1-start.log" 2>&1; then
+            echo "::error::Supabase local startup failed before migrations"
+            grep -E -i 'error|failed|timeout|docker|download|pull' "$RUNNER_TEMP/prod-next1e1-start.log" | tail -n 24 || true
+            docker info --format 'Docker daemon={{.ServerVersion}}' || true
+            exit 1
+          fi
           if ! supabase db reset --local > "$RUNNER_TEMP/prod-next1e1-reset.log" 2>&1; then
             echo "::error::Disposable migration reset failed; checking SQL/migration error excerpts"
             grep -E -i '(^|[[:space:]])(error:|error |failed|migration [0-9])' "$RUNNER_TEMP/prod-next1e1-reset.log" | tail -n 20 || true
