@@ -27,8 +27,11 @@ export async function loadAuthorizedDealEvidence(kind: string, id: string): Prom
     "Tipo: " + detail.kind,
     "Stato registrato: " + detail.status,
     "Articoli visibili: " + detail.lines.length,
+    "Articoli mostrati nel riepilogo: " + Math.min(detail.lines.length, 3),
+    "Tracciabilità: " + detail.lines.filter((line) => line.sourceObservationId !== null).length + " righe con riferimento a osservazione commerciale.",
     ...detail.lines.slice(0, 3).map((line) =>
       "Articolo: " + line.product.slice(0, 110) + " | " + line.quantity.slice(0, 45)),
   ];
+  if (detail.lines.length > 3) facts.push("Altri articoli disponibili nel dettaglio originale; non inclusi in questo riepilogo.");
   return { ok: true, facts };
 }
