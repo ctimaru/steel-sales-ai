@@ -6,7 +6,12 @@ const source = readFileSync(new URL("../app/(italian)/(workspace)/commercial/pag
 
 test("COMM-CINE1 unifies commercial visual hierarchy without losing essential workflows", () => {
   assert.match(source, /data-testid="comm-cine1-hero"/);
-  assert.match(source, /Le tue trattative\. Un’unica visione\./);
+  assert.match(source, /Le tue trattative\./);
+  assert.match(source, /Un’unica visione\./);
+  assert.match(source, /Il tuo centro operativo/);
+  assert.match(source, /operational\.rfqs/);
+  assert.match(source, /operational\.offers/);
+  assert.match(source, /operational\.orders/);
   assert.match(source, /bg-\[#082f28\]/);
   assert.match(source, /max-w-\[1480px\]/);
   assert.match(source, /\?compose=1#commercial-ai-intake/);
