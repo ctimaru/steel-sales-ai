@@ -9,9 +9,10 @@ type DealFactBriefProps = {
   status: string;
   title: string;
   origin: string;
+  relatedActivities?: ReadonlyArray<{ kind: string; status: string }>;
 };
 
-export function CommercialDealFactBriefCopy({ kind, status, title, origin }: DealFactBriefProps) {
+export function CommercialDealFactBriefCopy({ kind, status, title, origin, relatedActivities = [] }: DealFactBriefProps) {
   const router = useRouter();
   const [feedback, setFeedback] = useState("");
   const [question, setQuestion] = useState("Quali informazioni dobbiamo verificare prima del prossimo passo?");
@@ -21,6 +22,7 @@ export function CommercialDealFactBriefCopy({ kind, status, title, origin }: Dea
       "Stato: " + status,
       "Oggetto: " + title,
       "Origine: " + origin,
+      ...(relatedActivities.length ? ["Attività collegate visibili nella scheda:", ...relatedActivities.slice(0, 4).map((entry) => "- " + entry.kind + " · " + entry.status)] : ["Attività collegate: non disponibili in questo riepilogo; verificare il dettaglio originale."]),
       "Domanda: " + question.trim(),
       "Non dedurre offerte, email o documenti non presenti in questi dati.",
     ].join("\n");
