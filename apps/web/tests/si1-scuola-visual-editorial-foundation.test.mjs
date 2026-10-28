@@ -18,7 +18,8 @@ const globals = fs.readFileSync(new URL("../app/globals.css", import.meta.url), 
 const sitemap = fs.readFileSync(new URL("../app/sitemap.ts", import.meta.url), "utf8");
 
 test("SI1 gives every top-level Scuola section the same hero grammar", () => {
-  for (const source of [home, standards, grades, articlesIndex]) {
+  assert.match(home, /school-cine-heading/);
+  for (const source of [standards, grades, articlesIndex]) {
     assert.match(source, /SchoolHero/);
   }
   assert.doesNotMatch(tubes, /SchoolHero/);
