@@ -9,6 +9,7 @@ type SchoolHeroProps = {
   compact?: boolean;
   /** Only the public editorial hubs use this photographic variant; detail pages keep their original technical hierarchy. */
   editorial?: boolean;
+  reading?: boolean;
   action?: { href: string; label: string };
   secondaryAction?: { href: string; label: string };
 };
@@ -20,6 +21,7 @@ export function SchoolHero({
   badges = [],
   compact = false,
   editorial = false,
+  reading = false,
   action,
   secondaryAction,
 }: SchoolHeroProps) {
@@ -42,8 +44,8 @@ export function SchoolHero({
     </header>
   );
   return (
-    <header className="school-hero mvp-focus-header">
-      <div className="school-hero-accent" aria-hidden="true" />
+    <header className={reading ? "school-hero rounded-[22px] border border-[#dae6de] bg-white px-6 py-7 sm:px-9 sm:py-9" : "school-hero mvp-focus-header"}>
+      {!reading ? <div className="school-hero-accent" aria-hidden="true" /> : null}
       <div className={compact ? "px-0 py-1" : "px-0 py-1"}>
         <div className="flex flex-wrap items-center gap-2">
           <span className="school-eyebrow">{eyebrow}</span>
@@ -56,13 +58,13 @@ export function SchoolHero({
         <h1
           className={
             compact
-              ? "mt-4 max-w-3xl text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-4xl"
+              ? "mt-3 max-w-3xl text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-4xl"
               : "mt-4 max-w-3xl text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-[2.65rem]"
           }
         >
           {title}
         </h1>
-        <div className="mt-3 max-w-2xl text-sm leading-7 text-[#5d6a65] sm:text-base">
+        <div className={reading ? "mt-4 max-w-[72ch] text-base leading-8 text-[#465c4f]" : "mt-3 max-w-2xl text-sm leading-7 text-[#5d6a65] sm:text-base"}>
           {description}
         </div>
       </div>
