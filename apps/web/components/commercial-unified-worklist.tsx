@@ -1,4 +1,5 @@
 import Link from "next/link";
+import cinematic from "@/components/commercial-cinematic.module.css";
 import { CommercialDealFactBriefCopy } from "@/components/commercial-deal-fact-brief-copy";
 import { CommercialDealQuickActions } from "@/components/commercial-deal-quick-actions";
 
@@ -226,13 +227,13 @@ export async function CommercialUnifiedWorklist({
     : [];
 
   return (
-    <section id="commercial-worklist" aria-labelledby="commercial-worklist-title" data-testid="comm-cine2-deal-cockpit" className="scroll-mt-28 space-y-5">
+    <section id="commercial-worklist" aria-labelledby="commercial-worklist-title" data-testid="comm-cine2-deal-cockpit" className={"scroll-mt-28 space-y-4 " + cinematic.worklist}>
       <div data-testid="comm-cine9-workspace-heading" className="relative overflow-hidden rounded-[24px] border border-[#d8e8dc] bg-[#f5faf6] px-5 py-5 sm:px-7 sm:py-6">
         <div aria-hidden="true" className="pointer-events-none absolute -right-14 -top-24 h-64 w-64 rounded-full bg-[#d8eadb]/65 blur-3xl" />
         <div className="relative flex flex-wrap items-end justify-between gap-4">
           <div className="max-w-[660px]">
             <p className="text-[10px] font-bold uppercase tracking-[0.19em] text-[#386b50]">Il tuo spazio di lavoro / Deal cockpit</p>
-            <h2 id="commercial-worklist-title" className="mt-2 text-[clamp(1.65rem,2.8vw,2.7rem)] font-semibold leading-[1.12] tracking-[-0.035em] text-[#123c2f]">Le mie trattative</h2>
+            <h2 id="commercial-worklist-title" className="mt-2 text-[clamp(1.6rem,2.55vw,2.45rem)] font-semibold leading-[1.12] tracking-[-0.035em] text-[#123c2f]">Le mie trattative</h2>
             <p className="mt-3 max-w-[520px] text-sm leading-6 text-[#52695d]">Ogni richiesta, offerta e ordine ha il suo contesto. Seleziona una trattativa per lavorarci senza perdere il filo.</p>
           </div>
           <div className="flex items-center gap-2 rounded-full border border-[#c7dece] bg-white/80 px-3 py-2 text-xs font-semibold text-[#276147]">
@@ -302,7 +303,7 @@ export async function CommercialUnifiedWorklist({
               {filtered.map((item) => (
                 <Link key={item.key} href={route(view, query, item.key, data.paging?.page ?? page, data.paging?.currentCursor)}
                   aria-current={item.key === active?.key ? "true" : undefined}
-                  className={"group flex min-h-[96px] items-center justify-between gap-3 border-l-[3px] px-4 py-3.5 transition hover:bg-[#f3f8f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] " +
+                  className={"group flex min-h-[88px] items-center justify-between gap-3 border-l-[3px] px-4 py-3 transition hover:bg-[#f3f8f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] " +
                     (item.key === active?.key ? "border-l-[#175640] bg-[#edf6f0]" : "border-l-transparent")}>
                   <div className="min-w-0 flex-1 space-y-1" data-testid="commercial-smart-deal-card">
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
