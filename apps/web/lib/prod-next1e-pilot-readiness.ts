@@ -61,9 +61,10 @@ export function evaluatePilot2027Admission(
   organizationId: string,
   technicalReady: boolean,
   env: NodeJS.ProcessEnv = process.env,
+  asOf: Date = new Date(),
 ) {
   const evidence = readApprovedOrganization(organizationId, env);
-  const now = Date.now();
+  const now = asOf.getTime();
   const evidenceWindowValid = Boolean(
     evidence &&
     typeof evidence.approved_at === "string" &&
