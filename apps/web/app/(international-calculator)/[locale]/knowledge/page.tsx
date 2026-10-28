@@ -93,7 +93,7 @@ export default async function LocalizedSchoolHome({params}:{params:Promise<{loca
         aria-label="Smart Steel School">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-cover bg-[position:72%_center] opacity-65" style={{backgroundImage:"url('/home-cine1a-steel.webp')"}} />
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(9,31,23,.97)_0%,rgba(9,31,23,.86)_55%,rgba(9,31,23,.50)_100%)]" />
-        <div>
+        <div className="relative z-10">
           <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-[#a6d4ba]">{t.eyebrow}</p>
           <h1 className="mt-4 max-w-3xl text-3xl font-semibold tracking-tight text-white sm:text-[2.65rem]">{t.title}</h1>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-[#d2e4d9] sm:text-base">{t.lead}</p>
@@ -105,7 +105,7 @@ export default async function LocalizedSchoolHome({params}:{params:Promise<{loca
             {t.calculator} <span aria-hidden="true">→</span>
           </Link>
         </div>
-        <SchoolTechnicalSections locale={locale}/>
+        <div className="relative z-10"><SchoolTechnicalSections locale={locale}/></div>
       </section>
       <SchoolJourney locale={locale}/>
       <SchoolInternationalReferences locale={locale}/>
