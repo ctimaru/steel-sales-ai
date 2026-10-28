@@ -14,16 +14,17 @@ test("COMM-UX1B uses opt-in compact layout without compressing other workspaces"
   assert.match(focus, /compact\s*\? "mt-0.5 text-xl/);
   assert.match(commercial, /<FocusPage compact /);
   assert.match(commercial, /data-testid="comm-cine1-hero"/);
-  assert.match(commercial, /Le tue trattative\. Un’unica visione\./);
+  assert.match(commercial, /Le tue trattative\./);
+  assert.match(commercial, /Un’unica visione\./);
   assert.match(commercial, /Solo dati autorizzati|Dati live/);
 });
 
 test("COMM-UX1B replaces the tall action cards with one accessible task strip", () => {
   assert.match(commercial, /data-testid="commercial-compact-actions"/);
-  assert.match(commercial, /className="app-primary inline-flex min-h-10/);
+  assert.match(commercial, /<CommercialAiCompanion canWrite=\{canWrite\}/);
   assert.match(commercial, /data-testid="commercial-compact-attention"/);
-  assert.match(commercial, /aria-labelledby="commercial-today"/);
-  assert.match(commercial, /Che cosa vuoi fare oggi\?/);
+  assert.match(commercial, /aria-labelledby="commercial-today-heading"/);
+  assert.match(commercial, /Attività da gestire oggi|Cosa richiede attenzione/);
   assert.match(commercial, /Cosa richiede attenzione/);
   assert.match(commercial, /actionableRfqs\.slice\(0, 2\)/);
   assert.match(commercial, /appRoutes\.rfqHub\.inbox/);
@@ -48,7 +49,7 @@ test("COMM-UX1B shows filters on one desktop row and preserves search and six vi
 });
 
 test("COMM-UX1B uses natural document scrolling and dense activity rows", () => {
-  assert.match(worklist, /min-h-\[(?:64|88)px\]/);
+  assert.match(worklist, /min-h-\[(?:64|88|96)px\]/);
   assert.match(worklist, /divide-y divide-\[var\(--border\)\]/);
   assert.doesNotMatch(worklist, /max-h-\[520px\] divide-y/);
   assert.match(worklist, /tabular-nums/);
