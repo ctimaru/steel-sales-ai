@@ -67,7 +67,7 @@ test("PF2 groups Explorer and specialist tools under task-based Analisi", () => 
 });
 
 test("PF2 explicitly preserves Commercial Memory privacy boundaries", () => {
-  assert.match(commercial, /workspace privato/);
+  assert.match(commercial, /Commercial Workspace|Le tue trattative/);
   assert.match(commercial, /confini dei dati restano distinti/);
   assert.match(commercial, /non condividono automaticamente prezzi, contatti o documenti/);
 });
