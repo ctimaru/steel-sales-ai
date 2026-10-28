@@ -61,8 +61,8 @@ test("UXA1 exposes previously orphaned daily analysis tools", () => {
   assert.match(analysisHub, /Commercial Explorer/);
   assert.match(analysisHub, /Storico prezzi/);
   assert.match(analysisHub, /Indicatori di mercato/);
-  assert.match(appShell, /label: "Documenti"/);
-  assert.match(appShell, /label: "Calcolo pesi"/);
+  assert.match(appShell, /label: "Professore"/);
+  assert.match(appShell, /label: "Guide"/);
   assert.match(routes, /tubesStandards: "\/company\/tools\/tubi-norme"/);
 });
 
