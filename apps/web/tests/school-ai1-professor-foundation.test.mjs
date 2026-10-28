@@ -43,3 +43,15 @@ test("SCHOOL-AI1 displays citations, limitations and existing tools without impl
   assert.match(tutor, /href="\/school\/assistant"/);
   assert.match(tutor, /focus-visible:outline-2/);
 });
+
+test("SCHOOL-AI1 redirects open questions to verified editorial pages, not invented answers", () => {
+  const topics = read("../lib/school-tutor-topics.mjs");
+  const articles = read("../lib/school-articles.ts");
+  assert.match(tutor, /matchSchoolTutorTopic\(text\)/);
+  assert.match(tutor, /state === "topic"/);
+  for (const slug of ["come-si-producono-tubi-acciaio", "storia-tubi-acciaio", "produttori-tubi-europa"]) {
+    assert.ok(topics.includes("/knowledge/articoli/" + slug));
+    assert.ok(articles.includes('slug: "' + slug + '"'));
+  }
+  assert.doesNotMatch(topics, /AI_GATEWAY_API_KEY|generateText|fetch\(/);
+});
