@@ -74,6 +74,8 @@ export default function EnglishKnowledgePage() {
     >
       <div className="mx-auto max-w-[1120px] px-4 pt-6 sm:px-6 lg:px-8"><SchoolUnifiedNavigation locale="en" scope="public" /></div>
       <section className="mx-auto mt-6 grid max-w-[1120px] items-center gap-4 overflow-hidden rounded-[28px] bg-[#102921] px-6 py-9 text-white sm:px-9 sm:py-11 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]" aria-label="Steel sections technical overview">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-cover bg-[position:72%_center] opacity-65" style={{backgroundImage:"url('/home-cine1a-steel.webp')"}} />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(9,31,23,.97)_0%,rgba(9,31,23,.86)_55%,rgba(9,31,23,.50)_100%)]" />
         <div className="p-3 sm:p-6">
           <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#a6d4ba]">Smart Steel School</p>
           <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">Steel, explained clearly.</h2>
