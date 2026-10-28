@@ -226,7 +226,7 @@ export default async function PlatformPilotPage({
             Apri la finestra P5.6
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
-            L&apos;avvio crea soltanto la finestra di pilot e il ledger di controllo.
+            La preparazione crea soltanto una finestra amministrativa e il ledger di controllo.
             Nessuna azienda viene attivata automaticamente.
           </p>
           <form
@@ -247,7 +247,7 @@ export default async function PlatformPilotPage({
               className="h-11 rounded-xl border border-[#d7dfdb] px-3 text-sm"
             />
             <button className="platform-primary h-11 rounded-xl px-5 text-sm font-semibold">
-              Avvia pilot
+              Crea finestra preparatoria
             </button>
           </form>
         </section>
