@@ -27,7 +27,7 @@ export function CommercialAiCompanion({ canWrite }: { canWrite: boolean }) {
     <section aria-labelledby="commercial-ai-first-heading" data-testid="commercial-ai-first"
       className={"relative isolate overflow-hidden rounded-[26px] border border-[#d7e8dd] bg-white p-4 shadow-[0_20px_60px_-44px_rgba(8,55,39,0.45)] sm:p-6 " + cinematic.companion}>
       <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-24 -z-10 h-72 w-72 rounded-full bg-[#e6f3e9] blur-3xl" />
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
         <div className="flex min-w-0 items-start gap-4">
           <div aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#174f3a] text-xl text-white shadow-[0_10px_24px_-16px_rgba(5,47,34,0.8)] sm:h-12 sm:w-12">✦</div>
           <div className="max-w-[630px]">

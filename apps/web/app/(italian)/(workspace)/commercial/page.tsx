@@ -172,7 +172,7 @@ export default async function CommercialHomePage({
       <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
       <section aria-label="Commerciale Smart Steel Sales" data-testid="comm-cine1-hero"
         className={"relative isolate overflow-hidden border border-[#174437] bg-[#082f28] text-white shadow-[0_24px_75px_-35px_rgba(4,39,30,0.9)] " + cinematic.hero}>
-        <div className={"grid min-h-[290px] gap-6 px-5 pb-9 pt-7 sm:px-9 sm:pb-10 sm:pt-9 lg:min-h-[328px] lg:items-center lg:px-11 lg:py-9 " + cinematic.heroGrid}>
+        <div className={"grid gap-6 px-5 pb-7 pt-6 sm:min-h-[290px] sm:px-9 sm:pb-10 sm:pt-9 lg:min-h-[328px] lg:items-center lg:px-11 lg:py-9 " + cinematic.heroGrid}>
           <div className="relative z-10 min-w-0 max-w-[670px]">
             <div className="inline-flex items-center gap-2 border-b border-[#7dad91]/50 pb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#add4bb]">
               <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#9fe4b5]" />
@@ -181,10 +181,11 @@ export default async function CommercialHomePage({
             <h1 className={"mt-4 max-w-[650px] text-[clamp(2rem,3.8vw,3.5rem)] font-semibold leading-[1.06] tracking-[-0.05em] text-white " + cinematic.heroTitle}>
               Le tue trattative.<br /><span className="text-[#b4dec2]">Un’unica visione.</span>
             </h1>
-            <p className="mt-3 max-w-[475px] text-sm leading-6 text-[#d2e7db]">
+            <p className="mt-3 hidden max-w-[475px] text-sm leading-6 text-[#d2e7db] sm:block">
               Dal materiale che cerchi alla trattativa conclusa. Richieste, offerte e ordini in un solo spazio.
             </p>
-            <div aria-label="Il tuo centro operativo" className={"mt-5 max-w-[510px] " + cinematic.heroMetrics}>
+            <p className="mt-2 text-[13px] leading-5 text-[#d2e7db] sm:hidden">Richieste, offerte e ordini in un unico spazio.</p>
+            <div aria-label="Il tuo centro operativo" className={"mt-5 hidden max-w-[510px] sm:block " + cinematic.heroMetrics}>
               <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#a9d7bc]">Il tuo centro operativo</p>
               <dl className="grid grid-cols-3 gap-2">
                 <div><dt className="text-[10px] text-[#c6ddce]">Richieste</dt><dd className="text-lg font-semibold tabular-nums text-white">{operational.rfqs}</dd></div>
