@@ -83,7 +83,7 @@ function StandardCard({ standard }: { standard: PublicKnowledgeStandardSummary }
   return (
     <Link
       href={`/knowledge/norme/${standard.slug}`}
-      className="group rounded-2xl border border-[#dce2df] bg-white p-5 transition hover:border-[#b8d2c8] hover:shadow-sm"
+      className="group flex h-full flex-col rounded-[18px] border border-[#d7e3da] bg-white p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[#86b39b] hover:shadow-[0_16px_30px_-25px_#174b3c] motion-reduce:transform-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]"
     >
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -99,7 +99,7 @@ function StandardCard({ standard }: { standard: PublicKnowledgeStandardSummary }
         ) : null}
       </div>
 
-      <p className="mt-3 line-clamp-3 text-sm leading-6 text-[#66736e]">
+      <p className="mt-3 mb-4 line-clamp-3 text-sm leading-6 text-[#52645a]">
         {standard.seo_description}
       </p>
 
@@ -111,7 +111,7 @@ function StandardCard({ standard }: { standard: PublicKnowledgeStandardSummary }
         ))}
       </div>
 
-      <div className="mt-5 flex items-center justify-between gap-3 text-xs">
+      <div className="mt-auto flex items-center justify-between gap-3 border-t border-[#e6ede8] pt-3 text-xs">
         <span className="text-[#66736e]">Rivista {formatReviewDate(standard.last_reviewed_at)}</span>
         <span className="font-semibold text-[#1a5144]">Apri scheda →</span>
       </div>
@@ -158,7 +158,7 @@ export default async function StandardsIndexPage({
   };
 
   return (
-    <div className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+    <div className="mx-auto max-w-[1180px] space-y-6 px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -173,7 +173,7 @@ export default async function StandardsIndexPage({
 
       <SchoolHero
         eyebrow="Catalogo norme"
-        title="Trova la norma partendo dal tipo di prodotto o dall’impiego"
+        title="Norme tecniche, senza confusione."
         description={
           <>
             Le schede spiegano cosa tratta ogni norma, come leggere le sue parti e come si collega ai materiali
@@ -183,10 +183,40 @@ export default async function StandardsIndexPage({
         }
         badges={["Pubblico", `${standards.length} schede`]}
         compact
+        editorial
+        action={{ href: "#school-catalog-search", label: "Cerca nel catalogo" }}
+        secondaryAction={{ href: "/knowledge/gradi", label: "Esplora i materiali" }}
       />
 
+      <section id="school-catalog-search" className="scroll-mt-20 rounded-[20px] border border-[#d3e1d7] bg-white p-4 sm:p-5" aria-label="Ricerca catalogo tecnico">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#256449]">RICERCA RAPIDA</p>
+            <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">Cerca la norma che ti serve</h2>
+            <p className="mt-1 text-xs leading-5 text-[#52665c]">
+              Esempi: EN 10219, pressione, temperatura elevata, acqua.
+            </p>
+          </div>
+          <form method="get" role="search" aria-label="Cerca la norma che ti serve" className="flex w-full max-w-xl items-end gap-2">
+            <label htmlFor="school-standards-query" className="sr-only">Cerca la norma che ti serve</label>
+            <input
+              id="school-standards-query"
+              name="q"
+              type="search"
+              maxLength={100}
+              defaultValue={query}
+              placeholder="Cerca EN 10219, pressione, acqua..."
+              className="h-11 min-w-0 flex-1 rounded-xl border border-[#c6d7cd] bg-white px-3 text-sm text-[#1b352b] outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246b52]"
+            />
+            <button type="submit" className="school-primary-action h-11">
+              Cerca
+            </button>
+          </form>
+        </div>
+      </section>
+
       {!query ? (
-        <section className="grid gap-4 md:grid-cols-3" aria-label="Percorsi del catalogo">
+        <section className="grid gap-3 md:grid-cols-3" aria-label="Percorsi del catalogo">
           {categoryOrder.map((category) => {
             const copy = categoryCopy[category];
             const count = standards.filter((standard) => standard.application_category === category).length;
@@ -194,7 +224,7 @@ export default async function StandardsIndexPage({
               <a
                 key={category}
                 href={`#${copy.anchor}`}
-                className="rounded-2xl border border-[#d9e8e2] bg-[#f6f8f7] p-5 transition hover:border-[#b8d2c8]"
+                className="rounded-[18px] border border-[#d7e3da] bg-white p-4 transition duration-200 hover:-translate-y-0.5 hover:border-[#81ad94] hover:shadow-[0_14px_25px_-23px_#174b3c] motion-reduce:transform-none"
               >
                 <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
                   {count ? `${count} schede` : "In sviluppo"}
@@ -206,29 +236,6 @@ export default async function StandardsIndexPage({
           })}
         </section>
       ) : null}
-
-      <section className="rounded-3xl border border-[#dce2df] bg-white p-5 sm:p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#66736e]">Ricerca</p>
-            <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">Cerca per codice o argomento</h2>
-            <p className="mt-1 text-sm text-[#66736e]">
-              Esempi: EN 10219, pressione, temperatura elevata, acqua.
-            </p>
-          </div>
-          <form className="flex w-full max-w-xl gap-2">
-            <input
-              name="q"
-              defaultValue={query}
-              placeholder="Cerca EN 10219, pressione, acqua..."
-              className="h-11 min-w-0 flex-1 rounded-xl border border-[#dbe5f1] px-3 text-sm outline-none focus:border-[#b8d2c8] focus:ring-4 focus:ring-[#e1ece8]"
-            />
-            <button className="school-primary-action h-11">
-              Cerca
-            </button>
-          </form>
-        </div>
-      </section>
 
       {standards.length ? (
         <div className="space-y-10">
