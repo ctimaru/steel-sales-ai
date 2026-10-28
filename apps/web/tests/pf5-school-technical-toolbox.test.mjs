@@ -32,10 +32,8 @@ test("PF5 puts standards and grades search directly on School home", () => {
 });
 
 test("PF5 keeps technical catalogs and private company documents distinct", () => {
-  assert.match(school, /Catalogo completo/);
-  assert.match(school, /Solo area aziendale/);
-  assert.match(school, /documenti restano privati/);
-  assert.match(school, /appRoutes\.knowledge\.explorer/);
+  assert.match(school, /SchoolTechnicalSections/);
+  assert.doesNotMatch(school, /knowledge\.explorer|school-private-documents/);
   assert.doesNotMatch(firstViewport, /appRoutes\.knowledge\.explorer|supabase/);
 });
 
@@ -55,7 +53,7 @@ test("PF5 simplifies authenticated School navigation around daily technical jobs
   const end = shell.indexOf("function roleLabel", start);
   const block = shell.slice(start, end);
 
-  for (const label of ["Home", "Calcolo pesi", "Norme", "Gradi", "Documenti"]) {
+  for (const label of ["Scuola", "Professore", "Norme", "Materiali", "Guide"]) {
     assert.match(block, new RegExp(`label: "${label}"`));
   }
   assert.doesNotMatch(block, /Knowledge Explorer/);
