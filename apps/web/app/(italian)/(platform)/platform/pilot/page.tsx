@@ -99,7 +99,7 @@ function ParticipantActions({ participant }: { participant: PilotParticipant }) 
           <button
             name="action"
             value="activate"
-            disabled={!readiness.ready || true}
+            disabled
             className="rounded-xl bg-[#1a5144] px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:bg-[#b8c6c0]"
           >
             Attivazione bloccata · E1
@@ -124,7 +124,7 @@ function ParticipantActions({ participant }: { participant: PilotParticipant }) 
           <button
             name="action"
             value="resume"
-            disabled={!readiness.ready || true}
+            disabled
             className="rounded-xl bg-[#1a5144] px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:bg-[#b8c6c0]"
           >
             Riattivazione bloccata · E1
