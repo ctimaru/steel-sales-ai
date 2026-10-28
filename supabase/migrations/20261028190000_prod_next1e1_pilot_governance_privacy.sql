@@ -307,12 +307,17 @@ begin
       'notice_version',p.notice_version,
       'decided_at',p.decided_at
     ) order by o.name)
-    from public.organization_memberships m
+    from (
+      select m.organization_id from public.organization_memberships m
+        where m.user_id=v_actor and m.status='active'
+      union
+      select p.organization_id from public.pilot_activation_preferences p
+        where p.user_id=v_actor and p.purpose='activation_analytics'
+    ) m
     join public.organizations o on o.id=m.organization_id
     left join public.pilot_activation_preferences p
       on p.organization_id=m.organization_id and p.user_id=v_actor
         and p.purpose='activation_analytics'
-    where m.user_id=v_actor and m.status='active'
   ),'[]'::jsonb));
 end; $$;
 revoke all on function private.prod_next1e_my_privacy_impl() from public,anon;
