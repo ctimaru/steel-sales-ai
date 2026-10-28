@@ -37,12 +37,11 @@ export function SchoolReadingIndex({
         <p className="text-[11px] font-bold uppercase tracking-[.12em] text-[#21553f]">{t.eyebrow}</p>
         <p className="text-xs text-[#607267]">{t.hint}</p>
       </div>
-      <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]" role="list">
+      <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
         {entries.map(({ id, label }, index) => (
           <a
             key={id}
             href={`#${id}`}
-            role="listitem"
             className="inline-flex min-h-10 max-w-[240px] shrink-0 items-center gap-2 rounded-xl border border-[#d8e6db] bg-[#f5f8f5] px-3 py-2 text-left text-xs font-semibold text-[#224c39] transition hover:border-[#a9ceb8] hover:bg-[#eaf3ec] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]"
           >
             <span aria-hidden="true" className="font-mono text-[10px] text-[#5b826d]">{String(index + 1).padStart(2, "0")}</span>
