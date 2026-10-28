@@ -89,8 +89,10 @@ export default async function LocalizedSchoolHome({params}:{params:Promise<{loca
     </header>
     <div id="school-main" className="mx-auto max-w-[1180px] space-y-7 px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
       <SchoolUnifiedNavigation locale={locale} scope="public" />
-      <section className="grid items-center gap-6 overflow-hidden rounded-[28px] bg-[#102921] px-6 py-9 text-white sm:px-9 sm:py-11 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]"
+      <section className="relative grid items-center gap-6 overflow-hidden rounded-[28px] bg-[#102921] px-6 py-9 text-white sm:px-9 sm:py-11 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]"
         aria-label="Smart Steel School">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-cover bg-[position:72%_center] opacity-65" style={{backgroundImage:"url('/home-cine1a-steel.webp')"}} />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(9,31,23,.97)_0%,rgba(9,31,23,.86)_55%,rgba(9,31,23,.50)_100%)]" />
         <div>
           <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-[#a6d4ba]">{t.eyebrow}</p>
           <h1 className="mt-4 max-w-3xl text-3xl font-semibold tracking-tight text-white sm:text-[2.65rem]">{t.title}</h1>
