@@ -143,16 +143,6 @@ jobs:
           path: apps/web/test-results/school-ux4/*.png
           if-no-files-found: warn
           retention-days: 3
-      - name: SCHOOL-UX5 Chrome guided technical reading navigation
-        run: node tests/school-ux5-chrome-reading.mjs
-      - name: Upload SCHOOL-UX5 reading navigation screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: school-ux5-guided-reading-chrome
-          path: apps/web/test-results/school-ux5/*.png
-          if-no-files-found: warn
-          retention-days: 3
       - name: SCHOOL-AI1 Professor public source-boundary & visual acceptance
         run: node tests/school-ai1-chrome-professor.mjs
       - name: Upload SCHOOL-AI1 Professor screenshots
@@ -161,6 +151,16 @@ jobs:
         with:
           name: school-ai1-professor-chrome
           path: apps/web/test-results/school-ai1/*.png
+          if-no-files-found: warn
+          retention-days: 3
+      - name: SCHOOL-UX5 Chrome guided technical reading navigation
+        run: node tests/school-ux5-chrome-reading.mjs
+      - name: Upload SCHOOL-UX5 reading navigation screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: school-ux5-guided-reading-chrome
+          path: apps/web/test-results/school-ux5/*.png
           if-no-files-found: warn
           retention-days: 3
       - name: CALC-CINE1A five-language cinematic calculator, real shapes and bill
