@@ -27,7 +27,12 @@ export default async function SchoolPage({searchParams}:{searchParams:Promise<{l
       <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-[#174b3c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c] [&::-webkit-details-marker]:hidden">
         Altre risorse tecniche <span aria-hidden="true" className="text-base transition group-open:rotate-45">+</span>
       </summary>
-      <div className="mt-4"><SchoolTechnicalSections locale="it"/></div>
+      <div className="mt-4 space-y-3">
+        <SchoolTechnicalSections locale="it"/>
+        <Link href={appRoutes.knowledge.catalog} className="inline-flex min-h-10 items-center rounded-xl border border-[#c4dccc] bg-[#f4f9f5] px-4 text-xs font-semibold text-[#174b3c] hover:bg-[#e8f3eb]">
+          Catalogo completo <span className="ml-2" aria-hidden="true">→</span>
+        </Link>
+      </div>
     </details>
     <SchoolQuickAccess locale="it"/>
     <section aria-labelledby="school-private-documents" className="rounded-[20px] border border-[#d7e2db] bg-[#f5f8f6] px-5 py-5 sm:px-6">
