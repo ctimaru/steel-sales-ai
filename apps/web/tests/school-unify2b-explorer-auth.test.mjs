@@ -44,7 +44,8 @@ test("SCHOOL-UNIFY2B never translates the raw source or changes worker request s
  assert.match(action,/owner_id: ownerId/);
  assert.match(action,/commercial_filters: commercialFilters/);
  assert.match(action,/document_filters: documentFilters/);
- assert.match(privatePage,/<KnowledgeExplorer locale=\{locale\}/);
+ assert.match(privatePage,/redirect\(appRoutes\.commercial\.knowledgeExplorer\)/);
+ assert.match(read("../app/(workspace)/commercial/knowledge/page.tsx"), /<KnowledgeExplorer locale="it"/);
  assert.match(layout,/privateNoIndexRobots/);
 });
 test("SCHOOL-UNIFY2B authenticated CI is opt-in, existing synthetic users only, zero production search writes",()=>{
