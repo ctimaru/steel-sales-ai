@@ -58,3 +58,11 @@ test("assistant reviews handoff before any AI submission",()=>{
  assert.match(assistant,/id="commercial-context-edit"/);
  assert.match(assistant,/setIncomingDraft\(event\.target\.value\)/);
 });
+
+test("NEXT6 uses only already visible linked activity facts and never invents linked offers",()=>{
+ const copy=readFileSync(new URL("../components/commercial-deal-fact-brief-copy.tsx",import.meta.url),"utf8");
+ assert.match(src,/relatedActivities=\{related\.slice\(0, 4\)\.map/);
+ assert.match(copy,/relatedActivities\.slice\(0, 4\)\.map/);
+ assert.match(copy,/Attività collegate: non disponibili in questo riepilogo/);
+ assert.match(copy,/verificare il dettaglio originale/);
+});
