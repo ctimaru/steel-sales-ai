@@ -30,6 +30,12 @@ export function CommercialCalculatorQuickAccess({ references }: { references: Pu
     };
   }, [open]);
 
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener("sss:open-commercial-calculator", onOpen);
+    return () => window.removeEventListener("sss:open-commercial-calculator", onOpen);
+  }, []);
+
   return (
     <section data-commercial-calculator-access className="flex flex-wrap items-center gap-2">
       <button ref={triggerRef} type="button" onClick={() => setOpen(true)}
