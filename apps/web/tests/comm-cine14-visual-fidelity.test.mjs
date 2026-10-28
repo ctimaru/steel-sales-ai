@@ -17,7 +17,11 @@ test("COMM-CINE14 uses existing local industrial posters for both desktop and mo
   assert.match(page, /cinematic\.hero/);
   assert.match(page, /cinematic\.heroGrid/);
   assert.match(page, /cinematic\.heroTitle/);
-  assert.match(page, /cinematic\.heroPanel/);
+  assert.match(page, /cinematic\.heroMetrics/);
+  assert.doesNotMatch(page, /cinematic\.heroPanel/);
+  assert.match(page, /operational\.rfqs/);
+  assert.match(page, /operational\.offers/);
+  assert.match(page, /operational\.orders/);
 });
 
 test("COMM-CINE14 standardizes real workspace surfaces without adding sections or changing permissions", () => {
