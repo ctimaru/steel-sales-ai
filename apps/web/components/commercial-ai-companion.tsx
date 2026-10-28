@@ -52,6 +52,10 @@ export function CommercialAiCompanion({ canWrite }: { canWrite: boolean }) {
               Prepara la distinta →
             </button>
             <p className="text-[11px] leading-4 text-[#5c7063]">Il testo passa alla bozza privata. L’analisi parte solo dopo la tua conferma.</p>
+            <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
+              className="inline-flex min-h-9 items-center text-xs font-semibold text-[#175640] underline underline-offset-4">
+              Preferisci compilare manualmente?
+            </Link>
           </form>
         ) : null}
       </div>
