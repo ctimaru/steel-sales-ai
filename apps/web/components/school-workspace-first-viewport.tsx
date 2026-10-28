@@ -43,6 +43,8 @@ export function SchoolWorkspaceFirstViewport({locale}:{locale: SchoolWorkspaceLo
   const calculatorHref = locale === "it"
     ? "/school/tubes?source=school&surface=home_card#calcolatore-pesi"
     : CALCULATOR_ROUTES[locale] + "?source=school&surface=home_card#calcolatore-pesi";
+  const shortcutHref = (path: "/school/norme" | "/school/gradi", query: string) =>
+    schoolWorkspaceHref(path, locale) + (locale==="it"?"?":"&") + "q=" + encodeURIComponent(query);
   return <>
     <section aria-labelledby="school-workspace-cine-heading"
       className="relative isolate overflow-hidden rounded-[24px] bg-[#102921] text-white">
@@ -92,9 +94,9 @@ export function SchoolWorkspaceFirstViewport({locale}:{locale: SchoolWorkspaceLo
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[#e5ede7] pt-3 text-xs">
           <span className="font-medium text-[#607267]">{t.listed}</span>
-          <Link href={schoolWorkspaceHref("/school/norme",locale)+"?q=EN%2010210".replace("?","&")}
+          <Link href={shortcutHref("/school/norme","EN 10210")}
             className="rounded-lg bg-[#eef4f0] px-2.5 py-1.5 font-semibold text-[#184638] hover:bg-[#e0ede4]">EN 10210 ↗</Link>
-          <Link href={schoolWorkspaceHref("/school/gradi",locale)+"?q=S355J2H".replace("?","&")}
+          <Link href={shortcutHref("/school/gradi","S355J2H")}
             className="rounded-lg bg-[#eef4f0] px-2.5 py-1.5 font-semibold text-[#184638] hover:bg-[#e0ede4]">S355J2H ↗</Link>
         </div>
       </div>
