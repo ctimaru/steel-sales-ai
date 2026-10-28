@@ -18,6 +18,9 @@ test("PROD-NEXT1.B English calculator tests the current native norm selector and
   assert.match(englishSmoke, /selectOption\("en10210"\)/);
   assert.match(englishSmoke, /selectOption\("en10219"\)/);
   assert.doesNotMatch(englishSmoke, /getByRole\("button", \{name:"EN 10219"\}\)/);
+  assert.match(englishSmoke, /button\.tube-calculator-copy-action/);
+  assert.match(englishSmoke, /xpath=ancestor::details\[1\]/);
+  assert.match(englishSmoke, /copyAction\.waitFor\(\{ state: "visible"/);
 });
 
 test("PROD-NEXT1.A treats Commerciale as private in the public sitemap and anonymous HTTP/Chrome", () => {
