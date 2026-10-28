@@ -31,7 +31,7 @@ test("SCHOOL-PRIVATE-PARITY makes search and calculator immediately available, k
   assert.ok(shared.includes('schoolWorkspaceHref(path, locale)'));
   assert.ok(shared.includes('"/school/tubes?source=school&surface=home_card#calcolatore-pesi"'));
   assert.ok(shared.includes("CALCULATOR_ROUTES[locale]"));
-  assert.ok(shared.includes('href="/knowledge/professore"'));
+  assert.ok(shared.includes('schoolWorkspaceHref("/school/professore",locale)'));
   assert.ok(privateHome.includes("appRoutes.knowledge.explorer"));
   assert.ok(internationalHome.includes('schoolWorkspaceHref("/school/explorer",locale)'));
   assert.match(topbar, /compact\?:boolean/);
@@ -45,4 +45,13 @@ test("SCHOOL-PRIVATE-PARITY does not duplicate a public Company CTA or leak priv
   assert.doesNotMatch(shared, /getWorkspaceContext|supabase|service_role|organizationId|fetch\(/);
   assert.ok(privateHome.includes("SchoolPrivateTopbar"));
   assert.ok(internationalHome.includes("SchoolPrivateTopbar"));
+});
+
+test("SCHOOL-PRIVATE-PARITY renders a logged-in Professor route without private data access", () => {
+  const professor = read("../app/(workspace)/school/professore/page.tsx");
+  assert.match(professor, /SchoolTechnicalTutor/);
+  assert.match(professor, /privateNoIndexRobots/);
+  assert.match(professor, /SchoolPrivateTopbar/);
+  assert.match(professor, /SchoolUnifiedNavigation/);
+  assert.doesNotMatch(professor, /getWorkspaceContext|supabase|service_role|company_records/);
 });
