@@ -86,3 +86,11 @@ test("NEXT6 authorized evidence lookup requires auth and canonical ID",()=>{
  assert.match(copy,/onClick=\{\(\) => void verifyEvidence\(\)\}/);
  assert.match(copy,/setVerifiedFacts\(result\.facts\)/);
 });
+
+test("deal switching isolates context and provenance identifies partial evidence",()=>{
+ const action=readFileSync(new URL("../app/(italian)/(workspace)/assistant/deal-context-actions.ts",import.meta.url),"utf8");
+ assert.match(src,/CommercialDealFactBriefCopy key=\{item\.key\}/);
+ assert.match(action,/sourceObservationId !== null/);
+ assert.match(action,/Altri articoli disponibili nel dettaglio originale/);
+ assert.match(action,/Articoli mostrati nel riepilogo/);
+});
