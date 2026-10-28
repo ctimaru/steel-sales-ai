@@ -153,7 +153,7 @@
 }
 @media (max-width: 640px) {
   .hero { border-radius: 18px; }
-  .heroTitle { font-size: clamp(1.75rem, 7.2vw, 2.05rem); line-height: 1.08; max-width: 12.8em; }
+  .heroTitle { font-size: clamp(1.625rem, 7vw, 1.95rem); line-height: 1.07; max-width: 12.8em; }
   .heroGrid { min-height: 0; }
   .hero::before {
     background-image:
@@ -162,7 +162,7 @@
     background-position: center, 72% 50%;
   }
   .hero::after { opacity: .35; }
-  .heroTitle { max-width: 12.8em; line-height: 1.08; }
+  .heroTitle { max-width: 12.8em; line-height: 1.07; }
   .companion { border-radius: 16px; }
   .companionForm { width: 100%; }
   .worklist :global([data-testid="commercial-list-pane"]),

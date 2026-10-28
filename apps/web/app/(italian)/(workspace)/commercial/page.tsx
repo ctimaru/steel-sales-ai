@@ -193,7 +193,7 @@ export default async function CommercialHomePage({
                 <div><dt className="text-[10px] text-[#c6ddce]">Ordini</dt><dd className="text-lg font-semibold tabular-nums text-white">{operational.orders}</dd></div>
               </dl>
             </div>
-            <p className="mt-4 flex flex-wrap items-center gap-2 text-[11px] font-medium text-[#b8d8c6]">
+            <p className="mt-4 hidden flex-wrap items-center gap-2 text-[11px] font-medium text-[#b8d8c6] sm:flex">
               <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#a0ddba]" />
               {mode === "live" ? "Dati live" : mode === "demo" ? "Modalità demo" : "Dati in attesa di associazione"}
               <span aria-hidden="true" className="mx-1 text-white/30">/</span> Workspace privato

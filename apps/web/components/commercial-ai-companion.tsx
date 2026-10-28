@@ -35,7 +35,10 @@ export function CommercialAiCompanion({ canWrite }: { canWrite: boolean }) {
             <h2 id="commercial-ai-first-heading" className={"mt-2 text-[clamp(1.45rem,2.2vw,2.25rem)] font-semibold leading-[1.13] tracking-[-0.04em] text-[#143f30] " + cinematic.companionTitle}>
               Ciao, cosa stai cercando oggi?
             </h2>
-            <p className="mt-2 text-sm leading-6 text-[#5c7063]">
+            <p className="mt-2 text-sm leading-6 text-[#5c7063] sm:hidden">
+              Descrivi il materiale. Confermerai ogni richiesta prima dell’invio.
+            </p>
+            <p className="mt-2 hidden text-sm leading-6 text-[#5c7063] sm:block">
               Parti dal materiale, dalla calcolatrice o dalle tue trattative. Scegli tu cosa aprire: nessuna richiesta viene inviata automaticamente.
             </p>
           </div>

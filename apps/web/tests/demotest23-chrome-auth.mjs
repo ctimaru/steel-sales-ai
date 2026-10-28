@@ -212,7 +212,6 @@ try {
         } else {
           assert.equal(await page.getByTestId("comm-cine11-prompt").count(), 1,
             "Writer has exactly one governed RFQ intake");
-        } else {
           // COMMERCIAL-UNIFY2C.2: every composed tab uses real, RLS-scoped
           // stream pagination. An unavailable source must never masquerade
           // as an empty company history.
