@@ -84,8 +84,15 @@ async function checkContext(label, viewport, mobile) {
       // calculator that is already in production, without writing data.
       const calc = page.locator("#calcolatore-pesi");
       assert.ok(await calc.count(), "Shared English calculator missing");
-      assert.ok(await calc.getByRole("button", {name:"EN 10219"}).count() > 0,
-        "Standard selection missing");
+      // PROD-NEXT1.B: the shared calculator uses a native accessible select,
+      // not the retired EN 10219 button. Exercise the two real standard modes.
+      const norm = calc.getByRole("combobox", { name: "Standard", exact: true });
+      await norm.waitFor({ state: "visible", timeout: 12000 });
+      assert.equal(await norm.count(), 1, "Shared standard selector missing");
+      await norm.selectOption("en10210");
+      assert.equal(await norm.inputValue(), "en10210", "EN 10210 selection did not apply");
+      await norm.selectOption("en10219");
+      assert.equal(await norm.inputValue(), "en10219", "EN 10219 selection did not apply");
       assert.ok(await calc.getByRole("button", {name:"Copy result",exact:true}).count() > 0,
         "English copy action missing");
       // Production smoke checks deployed main, which may still have the old
