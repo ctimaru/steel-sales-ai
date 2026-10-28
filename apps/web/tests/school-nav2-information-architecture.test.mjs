@@ -1,0 +1,44 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+const read=(path)=>fs.readFileSync(new URL(path,import.meta.url),"utf8");
+const shell=read("../components/app-shell.tsx");
+const home=read("../app/(workspace)/school/page.tsx");
+const intl=read("../components/school-localized-workspace-home.tsx");
+const professor=read("../app/(workspace)/school/professore/page.tsx");
+const assistant=read("../app/(workspace)/school/assistant/page.tsx");
+const nav=read("../components/school-unified-navigation.tsx");
+const recent=read("../components/school-quick-access.tsx");
+const proxy=read("../lib/supabase/proxy.ts");
+const routes=read("../lib/routes.ts");
+const commercial=read("../app/(workspace)/commercial/knowledge/page.tsx");
+const legacy=read("../app/(workspace)/school/explorer/page.tsx");
+const publicTop=read("../components/school-private-language-switch.tsx");
+const guide=read("../app/(workspace)/school/guide/page.tsx");
+const ia=read("../lib/workspace-information-architecture.ts");
+test("SCHOOL-NAV2 uses AppShell as the only private contextual navigation",()=>{
+  for(const label of ["Scuola","Professore","Norme","Materiali","Guide"])assert.ok(shell.includes('label: "'+label+'"'));
+  const list=shell.slice(shell.indexOf("const knowledgeNav"),shell.indexOf("function roleLabel"));
+  assert.doesNotMatch(list,/Documenti|Calcolo pesi|knowledge:explorer/);
+  for(const page of [home,intl,professor,assistant])assert.doesNotMatch(page,/<SchoolUnifiedNavigation/);
+  assert.match(ia,/knowledge:professor/);
+  assert.match(ia,/knowledge:guides/);
+  assert.match(guide,/SchoolArticlesPage/);
+});
+test("SCHOOL-NAV2 keeps private documents in Commerciale only, never deletes data",()=>{
+  assert.match(routes,/knowledgeExplorer: "\/commercial\/knowledge"/);
+  assert.match(commercial,/<KnowledgeExplorer locale="it"/);
+  assert.match(legacy,/redirect\(appRoutes\.commercial\.knowledgeExplorer\)/);
+  assert.match(recent,/isSchoolLearningPath\(item.href\)/);
+  assert.doesNotMatch(recent,/Documenti aziendali|school\/explorer/);
+  for(const page of [home,intl])assert.doesNotMatch(page,/school-private-documents|knowledge\.explorer|\/school\/explorer/);
+  assert.doesNotMatch(nav,/\{label:t\.documents,href:schoolWorkspaceHref\("\/school\/explorer"/);
+  assert.match(commercial,/documenti, offerte e ordini/i);
+});
+test("SCHOOL-NAV2 public switch avoids auth redirects, articles stay published",()=>{
+  assert.match(publicTop,/public=1/);
+  assert.match(proxy,/pathname === "\/knowledge\/articoli"/);
+  assert.match(proxy,/pathname\.startsWith\("\/knowledge\/articoli\/"\)/);
+  assert.match(proxy,/searchParams\.get\("public"\) !== "1"/);
+  assert.match(guide,/privateNoIndexRobots/);
+});
