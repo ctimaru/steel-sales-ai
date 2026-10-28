@@ -30,7 +30,7 @@ test("SCHOOL-UNIFY1 public and workspace share diagrams and navigation, keep pri
   assert.match(italian,/<SchoolPageLanguageSelector locale="it"/);
   assert.match(workspace,/<SchoolJourney locale="it" workspace/);
   assert.match(workspace,/<SchoolTechnicalSections locale="it"/);
-  assert.match(workspace,/appRoutes\.knowledge\.explorer/);
+  assert.doesNotMatch(workspace,/appRoutes\.knowledge\.explorer/);
   assert.match(shared,/workspace \? \[/);
   assert.match(shared,/href:"\/school\/norme"/);
   assert.match(shared,/href:"\/school\/gradi"/);
