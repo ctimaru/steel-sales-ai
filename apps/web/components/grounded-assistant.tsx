@@ -142,6 +142,23 @@ function EvidenceDrawer({ item, onClose }: { item: P1AssistantEvidence | null; o
 export function GroundedAssistant() {
   const [state, formAction, pending] = useActionState(askP1Assistant, initialState);
   const [query, setQuery] = useState("");
+  const [incomingDraft, setIncomingDraft] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const key = "sss:commercial-assistant-draft:v1";
+      const raw = sessionStorage.getItem(key);
+      if (!raw) return;
+      sessionStorage.removeItem(key);
+      const draft: unknown = JSON.parse(raw);
+      if (!draft || typeof draft !== "object") return;
+      const value = draft as { text?: unknown; createdAt?: unknown };
+      if (typeof value.text !== "string" || typeof value.createdAt !== "number") return;
+      if (Date.now() - value.createdAt > 10 * 60 * 1000 || value.createdAt > Date.now()) return;
+      if (!value.text.trim() || value.text.length > 4000) return;
+      setIncomingDraft(value.text);
+    } catch { /* Invalid/blocked session storage: continue without draft. */ }
+  }, []);
   const [selectedEvidence, setSelectedEvidence] = useState<P1AssistantEvidence | null>(null);
 
   useEffect(() => {
@@ -158,6 +175,17 @@ export function GroundedAssistant() {
             Le risposte restano collegate alle fonti usate. Tocca una citazione [S#] per vedere il passaggio e aprire il documento o la conversazione originale.
           </p>
         </div>
+        {incomingDraft ? (
+          <div data-testid="commercial-assistant-context-review" className="mx-5 mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm sm:mx-6">
+            <p className="font-semibold text-emerald-900">Contesto della trattativa pronto per la revisione</p>
+            <p className="mt-1 text-xs text-emerald-800">Nessun dato è stato inviato all’AI. Controlla il testo e scegli se usarlo nella domanda.</p>
+            <pre className="mt-3 max-h-48 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-white p-3 text-xs text-slate-700">{incomingDraft}</pre>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button type="button" onClick={() => { setQuery(incomingDraft.slice(0, 1000)); setIncomingDraft(null); }} className="rounded-lg bg-[#175640] px-3 py-2 text-xs font-semibold text-white">Usa questo contesto</button>
+              <button type="button" onClick={() => setIncomingDraft(null)} className="rounded-lg border border-emerald-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700">Scarta</button>
+            </div>
+          </div>
+        ) : null}
         <form action={formAction} className="space-y-4 p-5 sm:p-6">
           <textarea
             name="query"
