@@ -113,10 +113,16 @@ try {
     });
     if (name === "producer") {
       await step("producer submits local quote in browser with normalized prices",async()=>{
+        // Playwright may edit SSR input markup before React event handlers mount.
+        // This explicit gate matches the user-visible inert hydration contract.
+        await page.locator('[data-supplier-response-ready="true"]')
+          .waitFor({state:"attached",timeout:60000});
         const prices=page.locator('input[placeholder="es. 760"]');
         assert.equal(await prices.count(),2,"Expected mixed two-line RFQ");
         await prices.nth(0).fill("735");
         await prices.nth(1).fill("755");
+        assert.equal(await prices.nth(0).inputValue(),"735","First price captured after hydration");
+        assert.equal(await prices.nth(1).inputValue(),"755","Second price captured after hydration");
         await page.getByRole("button",{name:"Salva bozza"}).click();
         await page.getByText("Bozza salvata.",{exact:true})
           .waitFor({state:"visible",timeout:45000});
