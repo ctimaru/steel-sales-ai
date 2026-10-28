@@ -23,6 +23,7 @@ const knowledgeHome = fs.readFileSync(
   new URL("../app/(workspace)/school/page.tsx", import.meta.url),
   "utf8",
 );
+const schoolViewport = fs.readFileSync(new URL("../components/school-workspace-first-viewport.tsx", import.meta.url), "utf8");
 const globals = fs.readFileSync(
   new URL("../app/globals.css", import.meta.url),
   "utf8",
@@ -90,9 +91,10 @@ test("UXA2 makes Commerciale a first-class landing instead of a random child rou
   assert.match(commercialHome, /Company 360/);
   assert.match(commercialHome, /Prezzi & mercato/);
   assert.match(commercialHome, /Opportunità commerciali/);
-  assert.match(knowledgeHome, /L’acciaio, spiegato bene/);
-  assert.match(knowledgeHome, /Calcolo pesi tubo/);
-  assert.match(knowledgeHome, /Documenti aziendali/);
+  assert.match(knowledgeHome, /SchoolWorkspaceFirstViewport/);
+  assert.match(schoolViewport, /L’acciaio, spiegato bene/);
+  assert.match(schoolViewport, /Calcola peso, barre e tonnellate/);
+  assert.match(knowledgeHome, /documenti restano privati/);
   assert.match(knowledgeHome, /Catalogo completo/);
 });
 
