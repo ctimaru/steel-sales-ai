@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { appRoutes } from "@/lib/routes";
 
 type DealFactBriefProps = {
   kind: string;
@@ -10,9 +12,10 @@ type DealFactBriefProps = {
 };
 
 export function CommercialDealFactBriefCopy({ kind, status, title, origin }: DealFactBriefProps) {
+  const router = useRouter();
   const [feedback, setFeedback] = useState("");
   const [question, setQuestion] = useState("Quali informazioni dobbiamo verificare prima del prossimo passo?");
-  async function copyFacts() {
+  async function copyFacts(openAssistant = false) {
     const text = [
       "Contesto della trattativa (dati mostrati nella scheda):",
       "Tipo: " + kind,
@@ -25,6 +28,7 @@ export function CommercialDealFactBriefCopy({ kind, status, title, origin }: Dea
     try {
       await navigator.clipboard.writeText(text);
       setFeedback("Contesto copiato. Incollalo nell’assistente solo se desideri condividerlo.");
+      if (openAssistant) router.push(appRoutes.commercial.assistant);
     } catch {
       setFeedback("Copia non disponibile. Puoi consultare i dati direttamente nella scheda.");
     }
@@ -45,9 +49,13 @@ export function CommercialDealFactBriefCopy({ kind, status, title, origin }: Dea
         ))}
       </div>
       <div className="flex flex-wrap items-center gap-2">
-      <button type="button" onClick={copyFacts}
+      <button type="button" onClick={() => void copyFacts()}
         className="inline-flex min-h-10 items-center rounded-lg border border-[var(--border-strong)] bg-white px-3 text-xs font-semibold text-[var(--brand-deep)] hover:bg-[var(--brand-primary-soft)]">
         Copia contesto per l’assistente
+      </button>
+      <button type="button" onClick={() => void copyFacts(true)}
+        className="inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-3 text-xs font-semibold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
+        Copia e apri assistente →
       </button>
       <p role="status" aria-live="polite" className="text-xs text-[var(--text-secondary)]">{feedback}</p>
       </div>
