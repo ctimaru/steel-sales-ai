@@ -17,6 +17,7 @@ export function EnglishPublicSubpage({
   calculatorLanguageMenu = false,
   knowledgeLanguageMenu = false,
   compactMobileHero = false,
+  schoolKnowledgeEditorial = false,
 }: {
   eyebrow: string;
   title: string;
@@ -30,6 +31,8 @@ export function EnglishPublicSubpage({
   knowledgeLanguageMenu?: boolean;
   /** Short public RFQ intro on mobile; other English pages unchanged. */
   compactMobileHero?: boolean;
+  /** Opt-in photographic School hero; other English product routes keep their original layout. */
+  schoolKnowledgeEditorial?: boolean;
 }) {
   return (
     <main lang="en" className="min-h-screen bg-[#f2f4f3] text-[#1d2824]">
@@ -63,12 +66,13 @@ export function EnglishPublicSubpage({
         </nav>
       </header>
 
-      <section className="border-b border-[#dce5e0] bg-[#f6f8f7]">
-        <div data-rfq-hero={compactMobileHero ? "true" : undefined} className={compactMobileHero ? "mx-auto max-w-[1120px] px-4 py-3 sm:px-6 sm:py-20 lg:px-8" : "mx-auto max-w-[1120px] px-4 py-14 sm:px-6 sm:py-20 lg:px-8"}>
-          <Link href="/en" className="text-xs font-semibold text-[#1f6b5a] underline underline-offset-4">← Smart Steel Sales</Link>
-          <p className={compactMobileHero ? "mt-2 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[#1a5144] sm:mt-7 sm:text-xs" : "mt-7 text-xs font-extrabold uppercase tracking-[0.14em] text-[#1a5144]"}>{eyebrow}</p>
-          <h1 className={compactMobileHero ? "mt-1 max-w-3xl text-xl font-semibold leading-tight tracking-tight text-[#123b34] sm:mt-3 sm:text-5xl" : "mt-3 max-w-3xl text-4xl font-semibold leading-[1.12] tracking-[-0.045em] text-[#123b34] sm:text-5xl"}>{title}</h1>
-          <p className={compactMobileHero ? "mt-2 line-clamp-2 max-w-3xl text-xs leading-5 text-[#52615b] sm:mt-5 sm:line-clamp-none sm:text-base sm:leading-8" : "mt-5 max-w-3xl text-base leading-8 text-[#52615b]"}>{description}</p>
+      <section className={schoolKnowledgeEditorial ? "relative isolate mx-auto mt-4 max-w-[1120px] overflow-hidden rounded-[24px] bg-[#102921] text-white sm:mt-6" : "border-b border-[#dce5e0] bg-[#f6f8f7]"}>
+        {schoolKnowledgeEditorial ? <><div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-cover bg-[position:72%_center] opacity-65" style={{backgroundImage:"url('/home-cine1a-steel.webp')"}}/><div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(8,31,23,.98)_0%,rgba(8,31,23,.92)_53%,rgba(8,31,23,.42)_100%)]"/></> : null}
+        <div data-rfq-hero={compactMobileHero ? "true" : undefined} className={schoolKnowledgeEditorial ? "relative z-10 mx-auto max-w-[1120px] px-6 py-8 sm:px-9 sm:py-9" : compactMobileHero ? "mx-auto max-w-[1120px] px-4 py-3 sm:px-6 sm:py-20 lg:px-8" : "mx-auto max-w-[1120px] px-4 py-14 sm:px-6 sm:py-20 lg:px-8"}>
+          <Link href="/en" className={schoolKnowledgeEditorial ? "text-xs font-semibold text-[#c3e3d0] underline underline-offset-4" : "text-xs font-semibold text-[#1f6b5a] underline underline-offset-4"}>← Smart Steel Sales</Link>
+          <p className={schoolKnowledgeEditorial ? "mt-4 text-[11px] font-bold uppercase tracking-[.16em] text-[#b4deca]" : compactMobileHero ? "mt-2 text-[10px] font-extrabold uppercase tracking-[0.1em] text-[#1a5144] sm:mt-7 sm:text-xs" : "mt-7 text-xs font-extrabold uppercase tracking-[0.14em] text-[#1a5144]"}>{eyebrow}</p>
+          <h1 className={schoolKnowledgeEditorial ? "mt-3 max-w-3xl text-[2rem] font-semibold leading-[1.12] tracking-[-.04em] text-white sm:text-[2.7rem]" : compactMobileHero ? "mt-1 max-w-3xl text-xl font-semibold leading-tight tracking-tight text-[#123b34] sm:mt-3 sm:text-5xl" : "mt-3 max-w-3xl text-4xl font-semibold leading-[1.12] tracking-[-0.045em] text-[#123b34] sm:text-5xl"}>{title}</h1>
+          <p className={schoolKnowledgeEditorial ? "mt-3 max-w-[65ch] text-sm leading-7 text-[#e0eee5] sm:text-[15px]" : compactMobileHero ? "mt-2 line-clamp-2 max-w-3xl text-xs leading-5 text-[#52615b] sm:mt-5 sm:line-clamp-none sm:text-base sm:leading-8" : "mt-5 max-w-3xl text-base leading-8 text-[#52615b]"}>{description}</p>
         </div>
       </section>
 
