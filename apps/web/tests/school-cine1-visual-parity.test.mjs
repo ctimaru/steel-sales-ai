@@ -31,3 +31,10 @@ test("SCHOOL-CINE1 preserves public editorial routes and private boundaries", ()
   assert.match(internationalPrivate, /schoolWorkspaceHref/);
   assert.doesNotMatch(internationalPublic, /href="\/school\/explorer"/);
 });
+
+test("SCHOOL-CINE1G reuses a local industrial photo across five School surfaces", () => {
+  for (const [name, page] of Object.entries({ italianPublic, englishPublic, internationalPublic, italianPrivate, internationalPrivate })) {
+    assert.match(page, /home-cine1a-steel\.webp/, name);
+    assert.match(page, /pointer-events-none absolute inset-0/, name);
+  }
+});
