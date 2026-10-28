@@ -19,7 +19,7 @@ Validate the **deployed** public-to-private commercial journey after COMM-CINE #
 
 | Stage | Environment | Action | Gate | Status |
 | --- | --- | --- | --- | --- |
-| A1 Home/School/Network/Calculator/Distinta | Production GET/HEAD | Check 200/canonical/copy/first viewport; no write | `demotest2-4-production-smoke.yml` | Not executed in PROD-NEXT1 |
+| A1 Home/School/Network/Calculator/Distinta | Production GET/HEAD | Check 200/canonical/copy/first viewport; no write | `demotest2-4-production-smoke.yml` | HTTP checks passed in run 40721314462; Chrome follow-up rerunning |
 | A2 Anonymous Commerciale | Production GET/HEAD | `/commercial` must redirect to `/login` without exposing workspace; exclude from sitemap | `demotest24-production-http.mjs`, `demotest24-production-chrome.mjs` | Added to checks; CI pending |
 | B1 English EN norm selection | Production anonymous Chrome | Change real select EN 10219 → EN 10210 → EN 10219; confirm options and receipt | `i18n4-production-seo-chrome.mjs` | Updated stale test; run pending |
 | B2 Calculator → Distinta (no RFQ send) | Production anonymous Chrome | Confirm weight results and explicit bill CTA | Existing production smoke | Run pending |
@@ -44,3 +44,9 @@ Validate the **deployed** public-to-private commercial journey after COMM-CINE #
 ## Next execution
 
 After first GitHub CI: run the manual production read-only workflow on the deployed commit and capture screenshots, then resolve/reclassify #1017 based on true select interaction. In parallel audit the synthetic post-submit price retention #1016; report evidence to Notion and #1021. Only then prioritize COMM-INTELLIGENCE1.
+
+## Execution evidence — 2026-10-28
+
+- [Production read-only run 40721314462](https://github.com/ctimaru/steel-sales-ai/actions/runs/40721314462): `I18N4 HTTP`, `CALC-INT3E.5 HTTP`, `DEMOTEST2.4 HTTP` all **PASS**. Chrome reached `/en/knowledge/tubes` and the native standard selector checks, then stopped on an old assertion requiring a visible `Copy result` action while its parent native disclosure was closed. **Overall workflow FAIL**; do not classify complete.
+- Fix: targeted Chrome check now opens the actual `<details>` with `button.tube-calculator-copy-action`, waits for visible/enabled action, and still does not click the button or write to production. English standards are exercised through the real combobox `en10210` / `en10219`.
+- Latest production read-only Chrome and P0 CI are pending; update the status here and in #1021 after the rerun. Do not call issue #1017 fixed until browser completes across desktop and mobile.
