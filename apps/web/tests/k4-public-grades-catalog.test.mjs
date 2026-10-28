@@ -43,7 +43,7 @@ test("K4 grade catalog is organized by user intent and supports standard-code di
   assert.match(indexPage, /Pressione e temperatura elevata/);
   assert.match(indexPage, /Pressione a temperatura ambiente/);
   assert.match(indexPage, /Profilati cavi strutturali/);
-  assert.match(indexPage, /Cerca grado, materiale o norma/);
+  assert.match(indexPage, /Cerca un grado di acciaio/);
   assert.match(indexPage, /EN 10217-1/);
   assert.match(indexPage, /Rivista/);
 });
