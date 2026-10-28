@@ -80,7 +80,7 @@ try {
     ["/login","login form read-only"],
     ["/register","registration form read-only"],
   ]) await publicPage(desktop.page, path, "desktop " + name);
-  for (const path of ["/dashboard","/rfq-hub","/marketplace","/platform"]) {
+  for (const path of ["/dashboard","/commercial","/rfq-hub","/marketplace","/platform"]) {
     await desktop.page.goto(BASE + path, { waitUntil: "domcontentloaded", timeout: 90000 });
     await desktop.page.waitForURL(u => u.pathname === "/login", { timeout: 30000 });
     await desktop.page.getByRole("heading", { name: "Accedi al tuo workspace" })
