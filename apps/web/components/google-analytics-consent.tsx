@@ -226,6 +226,7 @@ export function GoogleAnalyticsConsent({
     }
   }
 
+  const compactSchoolConsent = pathname.startsWith("/knowledge");
   const showPanel = consent === null || settingsOpen;
   const currentLabel =
     consent === "granted"
@@ -242,7 +243,7 @@ export function GoogleAnalyticsConsent({
           aria-label={localizedConsent?.title ?? (english ? "Cookies and privacy" : "Cookie e privacy")}
           aria-modal="false"
           data-testid="mobile-cookie-consent"
-          className="fixed bottom-[max(0.5rem,env(safe-area-inset-bottom))] left-2 right-2 z-[100] ml-auto max-w-[560px] rounded-2xl border border-[#c9d8d2] bg-white/98 p-3 shadow-[0_12px_36px_rgba(17,54,45,0.14)] backdrop-blur sm:bottom-4 sm:left-auto sm:right-4 sm:p-4"
+          className={"fixed bottom-[max(0.5rem,env(safe-area-inset-bottom))] left-2 right-2 z-[100] ml-auto rounded-2xl border border-[#c9d8d2] bg-white/98 p-3 shadow-[0_12px_36px_rgba(17,54,45,0.14)] backdrop-blur sm:bottom-4 sm:left-auto sm:right-4 "+(compactSchoolConsent?"max-w-[420px]":"max-w-[560px] sm:p-4")}
         >
           <button
             type="button"
@@ -267,7 +268,7 @@ export function GoogleAnalyticsConsent({
               {localizedConsent?.short ?? (english ? "We use essential cookies. Google Analytics may send cookieless signals; analytics cookies are enabled only with your consent on public pages." : "Usiamo cookie necessari. Google Analytics invia segnali senza cookie; solo se accetti abilitiamo i cookie statistici sulle pagine pubbliche.")}
             </p>
             <p className="mt-1.5 hidden max-w-lg text-xs leading-5 text-[#52615b] sm:block">
-              {localizedConsent?.desktop ?? (english ? "We use essential cookies and Google Analytics Consent Mode. Before your choice, analytics remains cookieless; accepting enables full analytics cookies on public pages only." : "Usiamo cookie necessari per il sito e Google Analytics in Consent Mode. Prima della tua scelta Analytics resta senza cookie; se accetti, abiliti la misurazione statistica completa sulle sole pagine pubbliche.")}
+              {compactSchoolConsent ? (localizedConsent?.short ?? (english ? "We use essential cookies. Analytics cookies require your consent." : "Usiamo cookie necessari. I cookie statistici si attivano solo con il tuo consenso.")) : (localizedConsent?.desktop ?? (english ? "We use essential cookies and Google Analytics Consent Mode. Before your choice, analytics remains cookieless; accepting enables full analytics cookies on public pages only." : "Usiamo cookie necessari per il sito e Google Analytics in Consent Mode. Prima della tua scelta Analytics resta senza cookie; se accetti, abiliti la misurazione statistica completa sulle sole pagine pubbliche."))}
             </p>
             <p className="mt-1 text-[11px] leading-5 text-[#718078] sm:mt-2">
               <Link href="/privacy" hrefLang="it" className="font-semibold text-[#1a5144] underline underline-offset-4">

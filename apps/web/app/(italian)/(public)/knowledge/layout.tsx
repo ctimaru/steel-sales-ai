@@ -36,6 +36,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
             <ProductBrand href="/" />
             <Link
               href="/knowledge"
+              data-school-global-topic="true"
               className="hidden border-l border-[#dce2df] pl-5 text-sm font-semibold text-[#43524c] hover:text-[#173f35] sm:block"
             >
               Scuola
@@ -45,24 +46,28 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
           <nav className="flex items-center gap-2" aria-label="Navigazione Scuola">
             <Link
               href="/knowledge/articoli"
+              data-school-global-topic="true"
               className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#4f5e58] hover:bg-[#eef2f0] hover:text-[#173f35] md:inline-flex"
             >
               Articoli
             </Link>
             <Link
               href="/knowledge/norme"
+              data-school-global-topic="true"
               className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#4f5e58] hover:bg-[#eef2f0] hover:text-[#173f35] md:inline-flex"
             >
               Norme
             </Link>
             <Link
               href="/knowledge/gradi"
+              data-school-global-topic="true"
               className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#4f5e58] hover:bg-[#eef2f0] hover:text-[#173f35] lg:inline-flex"
             >
               Gradi
             </Link>
             <Link
               href="/knowledge/tubes?source=school&surface=nav#calcolatore-pesi"
+              data-school-global-topic="true"
               aria-label="Calcolo pesi · Pesi & dimensioni"
               className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#4f5e58] hover:bg-[#eef2f0] hover:text-[#173f35] lg:inline-flex"
             >
@@ -71,6 +76,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
             </Link>
             <Link
               href="/distinta"
+              data-school-global-topic="true"
               className="hidden rounded-xl px-3 py-2 text-sm font-semibold text-[#4f5e58] hover:bg-[#eef2f0] hover:text-[#173f35] xl:inline-flex"
             >
               Listini
@@ -81,7 +87,7 @@ export default function PublicKnowledgeLayout({ children }: { children: ReactNod
             </Link>
           </nav>
         </div>
-        <div className="border-t border-[#e2e7e4] bg-[#f7f8f7] md:hidden">
+        <div data-school-mobile-topics="true" className="border-t border-[#e2e7e4] bg-[#f7f8f7] md:hidden">
           <nav
             className="mx-auto flex max-w-[1180px] gap-2 overflow-x-auto px-4 py-2.5 sm:px-6"
             aria-label="Sezioni Scuola"
