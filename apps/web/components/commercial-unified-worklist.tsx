@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CommercialDealFactBriefCopy } from "@/components/commercial-deal-fact-brief-copy";
+import { CommercialDealQuickActions } from "@/components/commercial-deal-quick-actions";
 
 import { getOperationalEntityData } from "@/lib/commercial-data";
 import { isStreamView, mergedCommercialHref } from "@/lib/commercial-unified-streams";
@@ -149,6 +150,7 @@ async function SelectedDetail({
           {canWrite ? "Continua →" : "Apri dettaglio →"}
         </Link>
       </section>
+      <CommercialDealQuickActions canWrite={canWrite} composeHref={appRoutes.commercial.home + "?compose=1#commercial-compose"} originalHref={item.href} />
       <section aria-labelledby="commercial-deal-memory-heading" data-testid="commercial-deal-memory-entry"
         className="overflow-hidden rounded-2xl border border-[#c9e1d3] bg-[#f3faf5]">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#dbece1] px-3 py-3 sm:px-4">
