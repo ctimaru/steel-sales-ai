@@ -49,7 +49,7 @@ export default function SchoolArticlesPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl space-y-10 px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+    <div className="mx-auto max-w-[1180px] space-y-6 px-4 py-5 sm:px-6 sm:py-7 lg:px-8">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -63,7 +63,7 @@ export default function SchoolArticlesPage() {
 
       <SchoolHero
         eyebrow="Articoli"
-        title="Capire il settore, non solo consultare tabelle"
+        title="Dentro il mondo dei tubi."
         description={
           <>
             Storia del tubo, processi produttivi, geografia industriale e cultura tecnica.
@@ -73,6 +73,9 @@ export default function SchoolArticlesPage() {
         }
         badges={["Pubblico", `${schoolArticles.length} articoli`]}
         compact
+        editorial
+        action={{ href: "#school-articles-list", label: "Esplora gli articoli" }}
+        secondaryAction={{ href: "/knowledge/norme", label: "Consulta le norme" }}
       />
 
       <section aria-labelledby="school-articles-list">
@@ -83,27 +86,27 @@ export default function SchoolArticlesPage() {
           </h2>
         </div>
 
-        <div className="mt-6 grid gap-5 lg:grid-cols-2">
-          {schoolArticles.map((article) => (
+        <div className="mt-4 grid gap-3 lg:grid-cols-2">
+          {schoolArticles.map((article, index) => (
             <Link
               key={article.slug}
               href={`/knowledge/articoli/${article.slug}`}
-              className="group school-card flex h-full flex-col overflow-hidden transition hover:-translate-y-0.5 hover:border-[#9fbfb3] hover:shadow-sm"
+              className={"group flex h-full flex-col overflow-hidden rounded-[20px] border border-[#d9e5dc] bg-white transition duration-200 hover:-translate-y-0.5 hover:border-[#93b7a1] hover:shadow-[0_16px_32px_-25px_#174b3c] motion-reduce:transform-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c] "+(index===0?"lg:col-span-2 lg:grid lg:grid-cols-[minmax(0,1.05fr)_minmax(0,.95fr)]":"")}
             >
               <Image src={article.visual.src} alt={article.visual.alt} width={1200} height={675}
                 unoptimized sizes="(max-width: 1024px) 100vw, 50vw"
-                className="aspect-video h-auto w-full border-b border-[#dce9e1] object-cover" />
-              <div className="flex flex-1 flex-col p-6">
+                className={"aspect-video h-auto w-full border-b border-[#dce9e1] object-cover "+(index===0?"lg:h-full lg:min-h-[300px] lg:border-b-0 lg:border-r lg:border-[#dce9e1]":"")} />
+              <div className="flex flex-1 flex-col justify-center p-5 sm:p-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <span className="school-eyebrow">{article.category}</span>
                 <span className="text-xs font-semibold text-[#68736f]">
                   {article.readMinutes} min
                 </span>
               </div>
-              <h3 className="mt-4 text-2xl font-semibold tracking-tight text-[#1d2824]">
+              <h3 className="mt-3 text-xl font-semibold tracking-tight text-[#1d2824] sm:text-2xl">
                 {article.title}
               </h3>
-              <p className="mt-3 flex-1 text-sm leading-7 text-[#5d6a65]">
+              <p className="mt-2 flex-1 text-sm leading-6 text-[#52645a]">
                 {article.description}
               </p>
               <div className="mt-6 flex items-center justify-between gap-3 border-t border-[#e2e7e4] pt-4">
