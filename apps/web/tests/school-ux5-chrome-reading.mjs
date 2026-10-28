@@ -3,11 +3,18 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { chromium } from "playwright";
 const base = "http://127.0.0.1:3000";
+// PERF2.1 intentionally builds Next without a Supabase connection. Technical
+// standard detail pages are K2 publication-gated, not static editorial pages.
+// A configured, seeded acceptance environment MUST still verify 200 + anchors.
+const hasPublishedDataset = Boolean(
+  process.env.NEXT_PUBLIC_SUPABASE_URL &&
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+);
 const pages = [
-  { locale: "it", path: "/knowledge/articoli/come-si-producono-tubi-acciaio" },
-  { locale: "it", path: "/knowledge/norme/en-10219" },
-  { locale: "en", path: "/en/knowledge/standards/en-10219" },
-  { locale: "de", path: "/de/knowledge/standards/en-10219" },
+  { locale: "it", path: "/knowledge/articoli/come-si-producono-tubi-acciaio", publishedRecordRequired: false },
+  { locale: "it", path: "/knowledge/norme/en-10219", publishedRecordRequired: true },
+  { locale: "en", path: "/en/knowledge/standards/en-10219", publishedRecordRequired: true },
+  { locale: "de", path: "/de/knowledge/standards/en-10219", publishedRecordRequired: true },
 ];
 await fs.mkdir("test-results/school-ux5", { recursive: true });
 const browser = await chromium.launch({ headless: true, channel: "chrome" });
@@ -25,7 +32,16 @@ try {
     for (const entry of pages) {
       const tag = entry.locale + "-" + entry.path.split("/").at(-1) + "-" + width;
       const response = await page.goto(base + entry.path, { waitUntil: "domcontentloaded", timeout: 60000 });
-      assert.equal(response?.status(), 200, tag + " HTTP");
+      if (entry.publishedRecordRequired && !hasPublishedDataset) {
+        // A missing published K2 record MUST remain a 404 (never a fabricated
+        // guide); absence of DB in this workflow is not a visual regression.
+        assert.equal(response?.status(), 404, tag + " unpublished K2 record must stay unavailable");
+        assert.equal(await page.getByText("EN 10219", { exact: true }).count(), 0,
+          tag + " no unpublished standards detail may leak");
+        console.log("SCHOOL-UX5 PUBLICATION GATE PASS", tag, "404 without K2 dataset; anchor test requires seeded K2");
+        continue;
+      }
+      assert.equal(response?.status(), 200, tag + " published page HTTP");
       const nav = page.locator('nav:has(a[href^="#"])').filter({ has: page.locator('a[href^="#"]') }).first();
       await nav.waitFor({ state: "visible", timeout: 20000 });
       const hrefs = await nav.locator('a[href^="#"]').evaluateAll(links => links.map(n => n.getAttribute("href")));
