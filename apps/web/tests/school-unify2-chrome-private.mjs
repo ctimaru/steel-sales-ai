@@ -83,6 +83,7 @@ try {
  }
  const oldBookmark=await page.goto(base+"/school/explorer?lang=fr",{waitUntil:"domcontentloaded"});
  assert.equal(oldBookmark?.status(),200,"old bookmark resolves to a protected Commercial route");
+ await page.waitForURL(u=>u.pathname==="/commercial/knowledge",{timeout:15000});
  assert.ok(page.url().includes("/commercial/knowledge"),"legacy bookmark redirects to Commercial Memory");
  await context.close();
 }finally{await browser.close();}
