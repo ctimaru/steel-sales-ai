@@ -19,5 +19,8 @@ test("RFQH14.2 browser verifies both prices survive draft save before attempting
   assert.match(browser, /First quoted price must survive draft save/);
   assert.match(browser, /Second quoted price must survive draft save/);
   assert.match(browser, /inputValue\(\)/);
+  assert.match(browser, /data-supplier-response-ready/);
+  assert.match(browser, /First price captured after hydration/);
+  assert.match(browser, /Second price captured after hydration/);
   assert.match(browser, /Offerta inviata\|submitted/);
 });
