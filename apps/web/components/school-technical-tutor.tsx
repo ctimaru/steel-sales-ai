@@ -107,7 +107,7 @@ export function SchoolTechnicalTutor() {
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[.16em] text-[#b9dfc7]">Smart Steel School · Professore tecnico</p>
             <h1 id="school-professor-title" className="mt-2 text-3xl font-semibold tracking-[-.04em] text-white sm:text-[2.6rem]">Ciao, cosa vuoi capire?</h1>
-            <p className="mt-3 max-w-[62ch] text-sm leading-7 text-[#dfefe4]">Partiamo dalle fonti pubblicate. Chiedimi una norma o un grado di acciaio: ti accompagno alle spiegazioni e agli strumenti giusti.</p>
+            <p className="mt-3 max-w-[62ch] text-sm leading-7 text-[#dfefe4]">Chiedimi di norme, acciai o tubi. Partiamo insieme dalle fonti pubblicate.</p>
           </div>
         </div>
       </div>
@@ -116,10 +116,10 @@ export function SchoolTechnicalTutor() {
           <label htmlFor="tutor-question" className="block text-sm font-semibold text-[#244d3c]">La tua domanda</label>
           <div className="flex flex-col gap-2 sm:flex-row">
             <input id="tutor-question" type="search" maxLength={500} value={draft}
-              onChange={event => setDraft(event.target.value)} placeholder="Es. Qual è la differenza tra EN 10210 e EN 10219?"
+              onChange={event => setDraft(event.target.value)} placeholder="Es. Che cos’è EN 10219?"
               className="min-h-12 min-w-0 flex-1 rounded-xl border border-[#bfd3c5] bg-white px-4 text-[15px] text-[#1a3027] placeholder:text-[#6a7b70] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#247455]" />
             <button type="submit" disabled={!draft.trim() || state === "loading"}
-              className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-xl bg-[#176747] px-5 text-sm font-bold text-white transition hover:bg-[#23583f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c] disabled:cursor-not-allowed disabled:opacity-50">
+              className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-xl bg-[#176747] px-5 text-sm font-bold text-white transition hover:bg-[#23583f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c] disabled:cursor-not-allowed disabled:bg-[#dce8df] disabled:text-[#28543c] disabled:hover:bg-[#dce8df]">
               {state === "loading" ? "Consulto le fonti…" : "Chiedi al professore"} <span aria-hidden="true" className="ml-2">→</span>
             </button>
           </div>
