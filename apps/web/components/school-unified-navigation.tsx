@@ -93,8 +93,8 @@ function schoolNavigationItems(locale:CalculatorSiteLocale,scope:Scope){
 
 /** Same interface contract on all five public hubs and private School home.
  * The final workspace entry is clearly gated by the existing login and RLS. */
-export function SchoolUnifiedNavigation({locale,scope,compact=false}:{
-  locale:CalculatorSiteLocale;scope:Scope;compact?:boolean;
+export function SchoolUnifiedNavigation({locale,scope,compact=false,activeHref}:{
+  locale:CalculatorSiteLocale;scope:Scope;compact?:boolean;activeHref?:string;
 }){
   const t=translations[locale];
   const entries=schoolNavigationItems(locale,scope);
@@ -103,9 +103,9 @@ export function SchoolUnifiedNavigation({locale,scope,compact=false}:{
     <div className="flex min-w-0 items-center gap-2 sm:gap-3">
       <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {entries.map((item,index)=><Link key={item.href} href={item.href}
-          aria-current={index===0?"page":undefined}
+          aria-current={(activeHref ? item.href === activeHref : index===0)?"page":undefined}
           className={"inline-flex min-h-10 shrink-0 items-center rounded-xl px-3 text-[13px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c] "+
-          (index===0?"bg-[#e6f1e9] text-[#164532]":"text-[#3e574b] hover:bg-[#f1f5f2] hover:text-[#123b2e]")}>
+          ((activeHref ? item.href === activeHref : index===0)?"bg-[#e6f1e9] text-[#164532]":"text-[#3e574b] hover:bg-[#f1f5f2] hover:text-[#123b2e]")}>
           {item.label}
         </Link>)}
       </div>
