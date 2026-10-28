@@ -61,7 +61,7 @@ test("SCHOOL-UX4 respects editorial source, reading and compliance boundaries", 
 test("SCHOOL-UX4 keeps consent choices but uses compact copy throughout public knowledge locales", () => {
   const consent = read("../components/google-analytics-consent.tsx");
   assert.match(consent, /const compactSchoolConsent/);
-  assert.match(consent, /\(en\|de\|fr\|es\)/);
+  assert.ok(consent.includes("(?:en|de|fr|es)"));
   assert.match(consent, /localizedConsent\?\.short/);
-  assert.match(consent, /Accetta necessari|Accept|Nur notwendige|Essential only/);
+  assert.match(consent, /const showPanel = consent === null \|\| settingsOpen/);
 });
