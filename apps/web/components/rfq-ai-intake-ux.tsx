@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useRef, useState, type ChangeEvent, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { analyzeRfqAiFreeText } from "@/app/(workspace)/rfq-hub/distinta/ai-actions";
 import { RfqAiTextReview } from "@/components/rfq-ai-text-review";
 import type { RfqAiTextDraftResult } from "@/lib/rfq-ai-free-text";
@@ -43,6 +43,22 @@ export function RfqAiIntakeUx({
   const [textError, setTextError] = useState("");
   const [textResult, setTextResult] = useState<RfqAiTextDraftResult | null>(null);
   const extractionVersion = useRef(0);
+  useEffect(() => {
+    if (!workspace || mode !== "text") return;
+    try {
+      const key = "sss:commercial-ai-intake-handoff";
+      const draft = sessionStorage.getItem(key);
+      if (draft === null) return;
+      sessionStorage.removeItem(key);
+      if (!draft.trim()) return;
+      extractionVersion.current += 1;
+      setTextDraft(draft.slice(0, MAX_TEXT_CHARS));
+      setTextResult(null);
+      setTextError("");
+    } catch {
+      // Browsers may disallow session storage; the manual field remains available.
+    }
+  }, [workspace, mode]);
   async function analyzeText() {
     if (textPending || !workspace || !textDraft.trim()) return;
     const version = ++extractionVersion.current;
