@@ -153,6 +153,16 @@ jobs:
           path: apps/web/test-results/school-ux5/*.png
           if-no-files-found: warn
           retention-days: 3
+      - name: SCHOOL-AI1 Professor public source-boundary & visual acceptance
+        run: node tests/school-ai1-chrome-professor.mjs
+      - name: Upload SCHOOL-AI1 Professor screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: school-ai1-professor-chrome
+          path: apps/web/test-results/school-ai1/*.png
+          if-no-files-found: warn
+          retention-days: 3
       - name: CALC-CINE1A five-language cinematic calculator, real shapes and bill
         run: node tests/calc-cine1a-chrome-acceptance.mjs
       - name: Upload CALC-CINE1A calculator screenshots
