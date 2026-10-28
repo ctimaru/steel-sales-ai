@@ -65,8 +65,9 @@ select public.rfqh3_launch_campaign(
 );
 reset role;
 
+select set_config('prod_next1d.rfq_id', :'next1d_rfq_id',true);
 do $verify$
-declare v_id uuid := :'next1d_rfq_id'::uuid;
+declare v_id uuid := current_setting('prod_next1d.rfq_id')::uuid;
 begin
   if (select count(*) from public.buyer_rfq_dispatches
       where rfq_id=v_id and status='queued' and provider_message_id is null)<>2
