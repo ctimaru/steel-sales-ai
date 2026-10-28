@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {SchoolAssistantEntry} from "@/components/school-assistant-entry";
 
-import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
+import { FocusPage, FocusSectionHeader } from "@/components/focus-ui";
 import { PilotEvent } from "@/components/pilot-event";
 import { SchoolQuickAccess } from "@/components/school-quick-access";
 import { SchoolJourney, SchoolTechnicalSections } from "@/components/school-unified-experience";
@@ -26,30 +26,23 @@ export default async function SchoolPage({searchParams}:{searchParams:Promise<{l
       <PilotEvent eventName="school_home_viewed" metadata={{ surface: "school_home" }} />
       <SchoolPrivateTopbar locale="it"/>
       <SchoolUnifiedNavigation locale="it" scope="workspace" />
-      <FocusHeader
-        eyebrow="Scuola"
-        title="Il toolbox tecnico per acciaio e tubi"
-        description={
-          <>
-            Calcola prima, cerca la norma o il grado quando serve, approfondisci solo dopo.
-            <span className="mt-2 block text-xs font-semibold text-[#5d6a65]">
-              Strumenti tecnici e cataloghi pubblici · documenti aziendali separati
-            </span>
-          </>
-        }
-      />
-
-      <section className="grid items-center gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.78fr)]" aria-label="Scuola tecnica e lingue">
-        <div className="rounded-3xl border border-[#dce2df] bg-white p-5 sm:p-6">
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Scuola Smart Steel Sales</p>
-          <h2 className="mt-2 text-xl font-semibold text-[#173f35]">Stessi strumenti, un'unica esperienza</h2>
-          <p className="mt-2 max-w-lg text-sm leading-7 text-[#506157]">La conoscenza tecnica è pubblica e consultabile in cinque lingue. I documenti aziendali restano nel workspace riservato.</p>
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <span className="text-xs font-semibold text-[#174b3c]">IT · Workspace</span>
-            <Link href="/knowledge" className="school-secondary-action">Apri la Scuola pubblica →</Link>
+      <section aria-labelledby="school-workspace-cine-heading" className="relative isolate overflow-hidden rounded-[28px] bg-[#102921] text-white shadow-[0_24px_64px_-40px_rgba(9,36,26,.8)]">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-cover bg-[position:72%_center] opacity-65" style={{backgroundImage:"url('/home-cine1a-steel.webp')"}} />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(9,31,23,.96)_0%,rgba(9,31,23,.89)_47%,rgba(9,31,23,.43)_100%)]" />
+        <div className="relative grid items-center gap-6 px-6 py-8 sm:px-9 sm:py-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,.8fr)]">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[.18em] text-[#a6d4ba]">Smart Steel Sales / School</p>
+            <h1 id="school-workspace-cine-heading" className="mt-4 text-3xl font-semibold leading-tight tracking-[-.04em] text-white sm:text-4xl">L’acciaio, spiegato bene.</h1>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-[#d2e4d9]">Norme, materiali e geometrie. Studia un argomento o approfondisci con l’assistente tecnico, mantenendo separati i documenti aziendali.</p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              <Link href="/school/assistant" className="inline-flex min-h-11 items-center rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-[#143b2d] transition hover:bg-[#e4f2e9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Chiedi all’assistente <span aria-hidden="true" className="ml-2">→</span></Link>
+              <Link href="/school/norme" className="inline-flex min-h-11 items-center rounded-xl border border-white/35 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Esplora le norme</Link>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-white/15 bg-white/5 p-3 backdrop-blur-sm">
+            <SchoolTechnicalSections locale="it"/>
           </div>
         </div>
-        <SchoolTechnicalSections locale="it"/>
       </section>
       <SchoolAssistantEntry locale="it"/>
       <SchoolJourney locale="it" workspace />

@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { chromium } from "playwright";
 const base="http://127.0.0.1:3000",dir="/tmp/school-unify2";
-const copy={it:"Il toolbox tecnico per acciaio e tubi",en:"Your private steel technical workspace",de:"Ihr privater technischer Arbeitsbereich",fr:"Votre espace technique privé",es:"Tu espacio técnico privado"};
+const copy={it:"L’acciaio, spiegato bene.",en:"Your private steel technical workspace",de:"Ihr privater technischer Arbeitsbereich",fr:"Votre espace technique privé",es:"Tu espacio técnico privado"};
 await fs.mkdir(dir,{recursive:true});
 const browser=await chromium.launch({headless:true,channel:"chrome"});
 try {

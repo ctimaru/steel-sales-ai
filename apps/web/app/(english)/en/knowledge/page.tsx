@@ -73,13 +73,15 @@ export default function EnglishKnowledgePage() {
       knowledgeLanguageMenu
     >
       <div className="mx-auto max-w-[1120px] px-4 pt-6 sm:px-6 lg:px-8"><SchoolUnifiedNavigation locale="en" scope="public" /></div>
-      <section className="mx-auto grid max-w-[1120px] items-center gap-4 px-4 pt-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] lg:px-8" aria-label="Steel sections technical overview">
-        <div className="rounded-3xl border border-[#cddfd5] bg-white p-6">
-          <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#1a5144]">Smart Steel School</p>
-          <h2 className="mt-2 text-2xl font-semibold text-[#123b34]">One consistent technical workspace</h2>
-          <p className="mt-3 text-sm leading-7 text-[#52615b]">Explore the same tools and reference categories as the Italian School. Public information remains separate from private company documents.</p>
+      <section className="relative isolate mx-auto mt-6 grid max-w-[1120px] items-center gap-4 overflow-hidden rounded-[28px] bg-[#102921] px-6 py-9 text-white sm:px-9 sm:py-11 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]" aria-label="Steel sections technical overview">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-cover bg-[position:72%_center] opacity-65" style={{backgroundImage:"url('/home-cine1a-steel.webp')"}} />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(9,31,23,.97)_0%,rgba(9,31,23,.86)_55%,rgba(9,31,23,.50)_100%)]" />
+        <div className="relative z-10 p-3 sm:p-6">
+          <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#a6d4ba]">Smart Steel School</p>
+          <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white sm:text-4xl">Steel, explained clearly.</h2>
+          <p className="mt-3 text-sm leading-7 text-[#d2e4d9]">Explore the same tools and reference categories as the Italian School. Public information remains separate from private company documents.</p>
         </div>
-        <SchoolTechnicalSections locale="en"/>
+        <div className="relative z-10"><SchoolTechnicalSections locale="en"/></div>
       </section>
       <div className="mx-auto max-w-[1120px] px-4 pt-8 sm:px-6 lg:px-8"><SchoolJourney locale="en"/></div>
       <div className="mx-auto max-w-[1120px] px-4 pt-5 sm:px-6 lg:px-8"><SchoolConversionPath locale="en"/></div>

@@ -66,7 +66,7 @@ test("K1 makes public Knowledge discoverable from the product while preserving p
   assert.match(schoolHome, /appRoutes\.knowledge\.catalog/);
   assert.match(schoolHome, /Catalogo completo/);
   assert.match(nav, /label: "Scuola"/);
-  assert.match(publicKnowledge, /consultabile senza account/);
+  assert.match(publicKnowledge, /Risposte tecniche chiare, da consultare liberamente/);
   assert.match(publicKnowledge, /separat[oa] dai dati commerciali privati/);
   assert.match(routes, /tubesStandards: "\/company\/tools\/tubi-norme"/);
 });

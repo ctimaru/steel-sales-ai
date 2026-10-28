@@ -3,7 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { FocusPage } from "@/components/focus-ui";
-import { SchoolHero } from "@/components/school-ui";
 import { SchoolPageLanguageSelector } from "@/components/calculator-page-language-selector";
 import { SchoolJourney } from "@/components/school-unified-experience";
 import { SchoolUnifiedNavigation, SchoolConversionPath } from "@/components/school-unified-navigation";
@@ -27,42 +26,6 @@ export const metadata: Metadata = {
   },
 };
 
-/** Original decorative SVG: cross-sections are schematic, not dimensioned drawings. */
-function TubeSectionIllustration() {
-  return (
-    <div className="relative overflow-hidden rounded-3xl border border-[#c9dfd4] bg-[#e9f3ee] p-4 sm:p-5" aria-label="Illustrazione schematica di sezioni tubolari tonde, quadre e rettangolari">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-[#174b3c]">Geometrie dei tubi</p>
-        <span className="rounded-lg border border-[#bdd8c9] bg-white/90 px-2.5 py-1 font-mono text-[10px] font-semibold text-[#174b3c]">CHS / SHS / RHS</span>
-      </div>
-      <svg aria-hidden="true" focusable="false" viewBox="0 0 360 205" className="mt-3 h-auto w-full" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="schoolTubeSteel" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#cce5d8" />
-            <stop offset="1" stopColor="#80baa2" />
-          </linearGradient>
-        </defs>
-        <g stroke="#c9ded3" strokeWidth="1" opacity=".85">
-          <path d="M0 31H360M0 74H360M0 117H360M0 160H360" />
-          <path d="M40 0V205M100 0V205M160 0V205M220 0V205M280 0V205M340 0V205" />
-        </g>
-        <circle cx="73" cy="94" r="46" fill="url(#schoolTubeSteel)" stroke="#195845" strokeWidth="3" />
-        <circle cx="73" cy="94" r="30" fill="#edf6f1" stroke="#195845" strokeWidth="2" />
-        <rect x="147" y="51" width="87" height="87" rx="8" fill="url(#schoolTubeSteel)" stroke="#195845" strokeWidth="3" />
-        <rect x="161" y="65" width="59" height="59" rx="3" fill="#edf6f1" stroke="#195845" strokeWidth="2" />
-        <rect x="254" y="62" width="99" height="64" rx="7" fill="url(#schoolTubeSteel)" stroke="#195845" strokeWidth="3" />
-        <rect x="268" y="76" width="71" height="36" rx="2" fill="#edf6f1" stroke="#195845" strokeWidth="2" />
-        <g fill="#174b3c" fontSize="12" fontWeight="700" textAnchor="middle">
-          <text x="73" y="167">Tondo</text>
-          <text x="190" y="167">Quadro</text>
-          <text x="303" y="167">Rettangolare</text>
-        </g>
-      </svg>
-      <p className="mt-1 text-xs leading-5 text-[#405a4e]">Sezioni illustrative, non in scala. Calcola i valori inserendo norma e dimensioni reali.</p>
-    </div>
-  );
-}
-
 export default function KnowledgeHomePage() {
   return (
     <FocusPage className="px-4 py-7 sm:px-6 sm:py-9 lg:px-8">
@@ -73,30 +36,37 @@ export default function KnowledgeHomePage() {
 
       <SchoolUnifiedNavigation locale="it" scope="public" />
 
-      <section className="grid items-center gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]" aria-label="Benvenuto nella Scuola">
-        <div>
-          <SchoolHero
-            eyebrow="Scuola Smart Steel Sales"
-            title="La tua officina tecnica per tubi e acciaio"
-            description={
-              <>
-                Parti dal problema concreto: calcola un peso, consulta una norma o un grado e approfondisci i processi produttivi.
-                La Scuola è consultabile senza account ed è separata dai dati commerciali privati delle aziende.
-              </>
-            }
-            badges={["Pubblica e gratuita", "Norme · Materiali · Calcoli"]}
-            compact
-          />
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Link href="/knowledge/tubes?source=school&surface=home_card#calcolatore-pesi" className="school-primary-action">
-              Apri il calcolatore <span aria-hidden="true" className="ml-2">↗</span>
-            </Link>
-            <Link href="#ricerca-tecnica" className="school-secondary-action">
-              Cerca norma o grado
-            </Link>
+      <section className="relative isolate overflow-hidden rounded-[28px] bg-[#102921] text-white shadow-[0_24px_64px_-40px_rgba(9,36,26,.8)]" aria-labelledby="school-cine-heading">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-cover bg-[position:72%_center] opacity-65" style={{backgroundImage:"url('/home-cine1a-steel.webp')"}} />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(9,31,23,.96)_0%,rgba(9,31,23,.89)_47%,rgba(9,31,23,.43)_100%)]" />
+        <div className="relative grid min-h-[330px] items-center gap-4 px-6 py-9 sm:px-10 sm:py-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,.8fr)]">
+          <div className="max-w-2xl">
+            <p className="text-[11px] font-bold uppercase tracking-[.18em] text-[#a6d4ba]">Smart Steel Sales / School</p>
+            <h1 id="school-cine-heading" className="mt-5 max-w-xl text-4xl font-semibold leading-[1.07] tracking-[-.045em] text-white sm:text-5xl lg:text-[3.5rem]">
+              L’acciaio, spiegato bene.
+            </h1>
+            <p className="mt-5 max-w-xl text-sm leading-7 text-[#d2e4d9] sm:text-base">
+              Norme, materiali e geometrie dei tubi. Risposte tecniche chiare, da consultare liberamente.
+            </p>
+            <p className="mt-3 text-xs leading-5 text-[#b4cebf]">La Scuola è aperta a tutti e separata dai dati commerciali privati.</p>
+            <div className="mt-7 flex flex-wrap gap-2">
+              <Link href="#ricerca-tecnica" className="inline-flex min-h-11 items-center rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-[#143b2d] transition hover:bg-[#e4f2e9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                Cerca una norma o un materiale <span aria-hidden="true" className="ml-2">→</span>
+              </Link>
+              <Link href="#approfondimenti" className="inline-flex min-h-11 items-center rounded-xl border border-white/35 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                Esplora le guide
+              </Link>
+            </div>
+          </div>
+          <div className="relative hidden min-h-52 items-center justify-center lg:flex" aria-hidden="true">
+            <div className="absolute h-56 w-56 rounded-full border border-[#a8d0b5]/20 bg-[#87c6a1]/5 blur-sm" />
+            <div className="relative flex items-end gap-3 opacity-90 [filter:drop-shadow(12px_24px_22px_rgba(0,0,0,.4))]">
+              <div className="h-36 w-28 rounded-[55px] border-[17px] border-[#97bbab] bg-[#0b261c] shadow-[inset_8px_4px_13px_rgba(0,0,0,.6),7px_5px_0_#436e59]" />
+              <div className="h-36 w-28 rounded-[14px] border-[16px] border-[#a4c8b5] bg-[#0b261c] shadow-[inset_8px_4px_13px_rgba(0,0,0,.6),7px_5px_0_#436e59]" />
+              <div className="h-28 w-36 rounded-[12px] border-[15px] border-[#779b8a] bg-[#0b261c] shadow-[inset_8px_4px_13px_rgba(0,0,0,.6),7px_5px_0_#436e59]" />
+            </div>
           </div>
         </div>
-        <TubeSectionIllustration />
       </section>
 
       <section id="strumenti" className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]" aria-labelledby="school-tools-heading">
@@ -169,15 +139,15 @@ export default function KnowledgeHomePage() {
             <Link
               key={article.slug}
               href={"/knowledge/articoli/" + article.slug}
-              className="school-card group flex h-full flex-col overflow-hidden transition hover:border-[#86b4a0] hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]"
+              className="school-card group flex h-full flex-col overflow-hidden rounded-[22px] border-[#d9e4dd] bg-white transition duration-300 hover:-translate-y-1 hover:border-[#86b4a0] hover:shadow-[0_18px_36px_-28px_rgba(15,50,35,.65)] motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]"
             >
               <div className="relative overflow-hidden border-b border-[#dce9e1] bg-[#edf5f0]">
                 <Image src={article.visual.src} alt={article.visual.alt} width={1200} height={675}
                   unoptimized sizes="(max-width: 768px) 100vw, 33vw"
-                  className="aspect-video h-auto w-full object-cover" />
-                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-[#f7fbf8]/95 px-5 py-2.5">
-                  <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-[#184638]">{article.category}</span>
-                  <span aria-hidden="true" className="font-mono text-sm font-bold text-[#6a947e]">{String(index + 1).padStart(2, "0")}</span>
+                  className="aspect-video h-auto w-full object-cover transition-transform duration-500 group-hover:scale-[1.035] motion-reduce:transform-none motion-reduce:transition-none" />
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 border-t border-white/15 bg-[#112c23]/90 px-5 py-2.5 backdrop-blur-sm">
+                  <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-[#e5f2e8]">{article.category}</span>
+                  <span aria-hidden="true" className="font-mono text-sm font-bold text-[#b8d9c4]">{String(index + 1).padStart(2, "0")}</span>
                 </div>
               </div>
               <div className="flex flex-1 flex-col p-5">

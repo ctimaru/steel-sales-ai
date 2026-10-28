@@ -90,7 +90,7 @@ test("UXA2 makes Commerciale a first-class landing instead of a random child rou
   assert.match(commercialHome, /Company 360/);
   assert.match(commercialHome, /Prezzi & mercato/);
   assert.match(commercialHome, /Opportunità commerciali/);
-  assert.match(knowledgeHome, /Il toolbox tecnico per acciaio e tubi/);
+  assert.match(knowledgeHome, /L’acciaio, spiegato bene/);
   assert.match(knowledgeHome, /Calcolo pesi tubo/);
   assert.match(knowledgeHome, /Documenti aziendali/);
   assert.match(knowledgeHome, /Catalogo completo/);
