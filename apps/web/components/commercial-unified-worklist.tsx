@@ -156,6 +156,18 @@ async function SelectedDetail({
           Consulta conversazioni e informazioni già disponibili nel workspace. La ricerca nell’assistente è manuale:
           questa trattativa non viene condivisa o analizzata automaticamente.
         </p>
+        <div data-testid="commercial-deal-fact-brief" className="mt-3 rounded-lg bg-[var(--surface-subtle)] p-3">
+          <p className="text-[11px] font-semibold text-[var(--brand-deep)]">Contesto verificabile della scheda</p>
+          <dl className="mt-2 grid gap-1.5 text-xs sm:grid-cols-2">
+            <div><dt className="text-[var(--text-secondary)]">Tipo</dt><dd className="break-words font-medium">{itemType(item)}</dd></div>
+            <div><dt className="text-[var(--text-secondary)]">Stato registrato</dt><dd className="break-words font-medium">{detail?.status ?? item.status}</dd></div>
+            <div><dt className="text-[var(--text-secondary)]">Oggetto</dt><dd className="break-words font-medium">{item.title}</dd></div>
+            <div><dt className="text-[var(--text-secondary)]">Origine</dt><dd className="break-words font-medium">{item.origin}</dd></div>
+          </dl>
+          <p className="mt-2 text-[11px] text-[var(--text-secondary)]">
+            Questi dati provengono dalla voce selezionata. Eventuali offerte, messaggi o documenti vanno verificati nel dettaglio originale: non vengono dedotti da questa sintesi.
+          </p>
+        </div>
         <Link href={appRoutes.commercial.assistant}
           className="mt-3 inline-flex min-h-10 items-center rounded-lg border border-[var(--border-strong)] px-3 text-xs font-semibold text-[var(--brand-deep)] hover:bg-[var(--brand-primary-soft)]">
           Apri assistente commerciale →
