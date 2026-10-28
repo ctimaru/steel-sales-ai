@@ -104,7 +104,7 @@ export function SchoolJourney({locale,workspace=false}:{
     {...copy.it.cards[0],href:"/school/tubes?source=school&surface=home_card#calcolatore-pesi"},
     {...copy.it.cards[1],href:"/school/norme"},
     {...copy.it.cards[2],href:"/school/gradi"},
-    {...copy.it.cards[3],title:"Biblioteca pubblica",description:"Articoli originali aperti a tutti, separati dai tuoi documenti aziendali.",href:"/knowledge/articoli"},
+    {...copy.it.cards[3],title:"Biblioteca pubblica",description:"Articoli originali aperti a tutti, con fonti verificabili.",href:"/knowledge/articoli"},
   ] : c.cards;
   return <section aria-labelledby="school-unified-journey" className="space-y-4">
     <div>
