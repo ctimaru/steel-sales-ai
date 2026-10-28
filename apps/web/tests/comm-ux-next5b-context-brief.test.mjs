@@ -26,12 +26,13 @@ test("copy to assistant requires manual action and exposes provenance caveat",()
  assert.match(copy,/setQuestion\(option\)/);
 });
 
-test("explicit copy-and-open handoff routes only after clipboard success",()=>{
+test("same-tab context handoff is explicit and does not use clipboard or URL",()=>{
  const copy=readFileSync(new URL("../components/commercial-deal-fact-brief-copy.tsx",import.meta.url),"utf8");
  assert.match(copy,/onClick=\{\(\) => void copyFacts\(true\)\}/);
- assert.match(copy,/if \(openAssistant\) router\.push\(appRoutes\.commercial\.assistant\)/);
- assert.ok(copy.indexOf("await navigator.clipboard.writeText(contextText)") < copy.indexOf("if (openAssistant) router.push"));
- assert.match(copy,/Copia e apri assistente/);
+ assert.match(copy,/sessionStorage\.setItem\("sss:commercial-assistant-draft:v1"/);
+ assert.match(copy,/router\.push\(appRoutes\.commercial\.assistant\)/);
+ assert.match(copy,/Prepara nell’assistente/);
+ assert.doesNotMatch(copy,/encodeURIComponent\(contextText\)/);
 });
 
 test("editable question and exact preview make copied facts transparent",()=>{
@@ -41,4 +42,15 @@ test("editable question and exact preview make copied facts transparent",()=>{
  assert.match(copy,/Anteprima esatta del contesto da copiare/);
  assert.match(copy,/\{contextText\}/);
  assert.match(copy,/if \(!question\.trim\(\)\)/);
+});
+
+test("assistant reviews handoff before any AI submission",()=>{
+ const assistant=readFileSync(new URL("../components/grounded-assistant.tsx",import.meta.url),"utf8");
+ assert.match(assistant,/sessionStorage\.getItem\(key\)/);
+ assert.match(assistant,/sessionStorage\.removeItem\(key\)/);
+ assert.match(assistant,/commercial-assistant-context-review/);
+ assert.match(assistant,/Nessun dato è stato inviato all’AI/);
+ assert.match(assistant,/Usa questo contesto/);
+ assert.match(assistant,/Scarta/);
+ assert.match(assistant,/setQuery\(incomingDraft\.slice\(0, 1000\)\)/);
 });
