@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 
 import { EnglishPublicSubpage } from "@/components/english-public-subpage";
+import { SchoolReadingIndex } from "@/components/school-reading-index";
 import {
   englishGrades,
   englishStandardForSlug,
@@ -109,17 +110,22 @@ export default async function EnglishStandardDetail({ params }: PageProps) {
           <Link href="/en/knowledge/standards">Standards</Link><span aria-hidden="true">/</span>
           <span className="text-[#52615b]">{copy.code}</span>
         </nav>
+        <SchoolReadingIndex locale="en" entries={[
+          { id: "en-standard-part-1", label: `What ${copy.code} covers` },
+          { id: "en-standard-part-2", label: "Specifying a technical RFQ" },
+          { id: "en-standard-part-3", label: "Important distinctions" },
+        ]} />
         <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_290px]">
           <article className="space-y-8 rounded-[22px] border border-[#dce6df] bg-white px-5 py-7 sm:px-9 sm:py-9">
-            <section>
+            <section id="en-standard-part-1" className="scroll-mt-24">
               <h2 className="text-xl font-bold text-[#123b34]">What does {copy.code} cover?</h2>
               <p className="mt-3 max-w-[72ch] text-[15px] leading-8 text-[#465c4f] sm:text-base">{copy.covers}</p>
             </section>
-            <section>
+            <section id="en-standard-part-2" className="scroll-mt-24">
               <h2 className="text-xl font-bold text-[#123b34]">How to specify it in a steel RFQ</h2>
               <p className="mt-3 text-sm leading-7 text-[#52615b]">{copy.procurement}</p>
             </section>
-            <section>
+            <section id="en-standard-part-3" className="scroll-mt-24">
               <h2 className="text-xl font-bold text-[#123b34]">Important distinctions</h2>
               <p className="mt-3 text-sm leading-7 text-[#52615b]">{copy.distinction}</p>
             </section>

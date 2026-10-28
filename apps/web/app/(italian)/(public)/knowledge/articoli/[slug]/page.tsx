@@ -4,6 +4,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { SchoolHero } from "@/components/school-ui";
+import { SchoolReadingIndex } from "@/components/school-reading-index";
 import { getSchoolArticle, schoolArticles } from "@/lib/school-articles";
 import { absoluteUrl } from "@/lib/site";
 
@@ -166,6 +167,14 @@ export default async function SchoolArticlePage({
         </figcaption>
       </figure>
 
+      <SchoolReadingIndex locale="it" entries={[
+        ...(article.timeline?.length ? [{ id: "article-timeline", label: "Le tappe essenziali" }] : []),
+        ...(article.processFlows?.length ? [{ id: "article-process-flows", label: "Processi produttivi" }] : []),
+        ...(article.comparison?.length ? [{ id: "article-process-comparison", label: "Confronto saldato / seamless" }] : []),
+        ...article.sections.map((section, index) => ({ id: `article-section-${index + 1}`, label: section.heading })),
+        { id: "article-sources", label: "Fonti consultate" },
+      ]} />
+
       {article.timeline?.length ? (
         <section className="school-card p-6 sm:p-8" aria-labelledby="article-timeline">
           <p className="school-kicker">Timeline</p>
@@ -275,8 +284,8 @@ export default async function SchoolArticlePage({
       ) : null}
 
       <article className="space-y-8 rounded-[22px] border border-[#dce6df] bg-white px-5 py-7 sm:px-10 sm:py-10" aria-label="Contenuto dell’articolo">
-        {article.sections.map((section) => (
-          <section key={section.heading} className="border-b border-[#e3eae4] pb-8 last:border-b-0 last:pb-0">
+        {article.sections.map((section, index) => (
+          <section id={`article-section-${index + 1}`} key={section.heading} className="scroll-mt-24 border-b border-[#e3eae4] pb-8 last:border-b-0 last:pb-0">
             <h2 className="text-2xl font-semibold tracking-tight text-[#1d2824]">
               {section.heading}
             </h2>
