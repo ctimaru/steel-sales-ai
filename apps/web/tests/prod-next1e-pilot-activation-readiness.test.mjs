@@ -13,6 +13,7 @@ const transpiled = ts.transpileModule(source, {compilerOptions:{
 const {evaluatePilot2027Admission,PILOT_2027_METRICS,PILOT_2027_REAL_METRICS_ENABLED} =
   await import("data:text/javascript;base64,"+Buffer.from(transpiled).toString("base64"));
 
+const checkPilot = (org, ready, env) => evaluatePilot2027Admission(org, ready, env, new Date("2026-10-28T12:00:00Z"));
 const id="00000000-0000-0000-0000-000000023301";
 const evidence={
   organization_id:id,
@@ -29,31 +30,31 @@ const evidence={
 const env={PILOT_2027_ACTIVATION_ENABLED:"enabled",PILOT_2027_APPROVALS_JSON:JSON.stringify([evidence])};
 
 test("PROD-NEXT1.E defaults fail-closed for unknown or unsupported organizations",()=>{
-  assert.equal(evaluatePilot2027Admission(id,true,{}).ready,false);
-  assert.equal(evaluatePilot2027Admission(id,true,{PILOT_2027_ACTIVATION_ENABLED:"enabled"}).ready,false);
-  assert.equal(evaluatePilot2027Admission("invalid",true,env).ready,false);
-  assert.equal(evaluatePilot2027Admission("00000000-0000-0000-0000-000000023302",true,env).ready,false);
-  assert.equal(evaluatePilot2027Admission(id,false,env).ready,false);
-  assert.equal(evaluatePilot2027Admission(id,true,{...env,PILOT_2027_APPROVALS_JSON:"invalid json"}).ready,false);
-  assert.equal(evaluatePilot2027Admission(id,true,{...env,PILOT_2027_APPROVALS_JSON:JSON.stringify([evidence,evidence])}).ready,false);
+  assert.equal(checkPilot(id,true,{}).ready,false);
+  assert.equal(checkPilot(id,true,{PILOT_2027_ACTIVATION_ENABLED:"enabled"}).ready,false);
+  assert.equal(checkPilot("invalid",true,env).ready,false);
+  assert.equal(checkPilot("00000000-0000-0000-0000-000000023302",true,env).ready,false);
+  assert.equal(checkPilot(id,false,env).ready,false);
+  assert.equal(checkPilot(id,true,{...env,PILOT_2027_APPROVALS_JSON:"invalid json"}).ready,false);
+  assert.equal(checkPilot(id,true,{...env,PILOT_2027_APPROVALS_JSON:JSON.stringify([evidence,evidence])}).ready,false);
 });
 
 test("PROD-NEXT1.E requires every signed approval and a current evidence window",()=>{
-  assert.equal(evaluatePilot2027Admission(id,true,env).ready,true);
+  assert.equal(checkPilot(id,true,env).ready,true);
   for(const key of ["signed_pilot_agreement_ref","approved_privacy_notice_ref","lawful_basis_review_ref",
     "data_retention_and_deletion_ref","backup_restore_drill_ref","support_and_incident_plan_ref","founder_approval_ref"]){
     const incomplete={...evidence,[key]:""};
-    assert.equal(evaluatePilot2027Admission(id,true,{
+    assert.equal(checkPilot(id,true,{
       ...env,PILOT_2027_APPROVALS_JSON:JSON.stringify([incomplete])
     }).ready,false,"Missing approval must block: "+key);
   }
-  assert.equal(evaluatePilot2027Admission(id,true,{
+  assert.equal(checkPilot(id,true,{
     ...env,PILOT_2027_APPROVALS_JSON:JSON.stringify([{...evidence,expires_at:"2026-10-27T00:00:00Z"}])
   }).ready,false);
-  assert.equal(evaluatePilot2027Admission(id,true,{
+  assert.equal(checkPilot(id,true,{
     ...env,PILOT_2027_APPROVALS_JSON:JSON.stringify([{...evidence,expires_at:"2027-06-28T10:00:00Z"}])
   }).ready,false);
-  assert.equal(evaluatePilot2027Admission(id,true,{...env,PILOT_2027_ACTIVATION_ENABLED:"false"}).ready,false);
+  assert.equal(checkPilot(id,true,{...env,PILOT_2027_ACTIVATION_ENABLED:"false"}).ready,false);
 });
 
 test("PROD-NEXT1.E guards activate/resume on server side and superadmin only",()=>{
