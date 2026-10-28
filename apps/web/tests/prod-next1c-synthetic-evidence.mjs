@@ -103,7 +103,11 @@ export function summarizeSyntheticJourney(evidenceDir) {
       milestones: counts,
       step_duration_ms_median: Object.fromEntries(Object.entries(times).map(([key, values]) => {
         const sorted = [...values].sort((a,b) => a-b);
-        return [key, sorted[Math.floor(sorted.length / 2)]];
+        const mid = Math.floor(sorted.length / 2);
+        const median = sorted.length % 2 === 0
+          ? Math.round((sorted[mid - 1] + sorted[mid]) / 2)
+          : sorted[mid];
+        return [key, median];
       })),
     };
   }
