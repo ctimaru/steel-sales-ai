@@ -1,7 +1,7 @@
 import Link from "next/link";
 import {SchoolAssistantEntry} from "@/components/school-assistant-entry";
 
-import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
+import { FocusPage, FocusSectionHeader } from "@/components/focus-ui";
 import { PilotEvent } from "@/components/pilot-event";
 import { SchoolQuickAccess } from "@/components/school-quick-access";
 import { SchoolJourney, SchoolTechnicalSections } from "@/components/school-unified-experience";
