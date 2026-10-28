@@ -8,6 +8,7 @@ const nav = fs.readFileSync(new URL("../components/workspace-navigation.tsx", im
 const proxy = fs.readFileSync(new URL("../lib/supabase/proxy.ts", import.meta.url), "utf8");
 const robots = fs.readFileSync(new URL("../app/robots.ts", import.meta.url), "utf8");
 const schoolHome = fs.readFileSync(new URL("../app/(workspace)/school/page.tsx", import.meta.url), "utf8");
+const schoolViewport = fs.readFileSync(new URL("../components/school-workspace-first-viewport.tsx", import.meta.url), "utf8");
 const publicLayout = fs.readFileSync(new URL("../app/(public)/knowledge/layout.tsx", import.meta.url), "utf8");
 
 const schoolWrappers = [
@@ -30,8 +31,9 @@ test("UXA2B renames the authenticated macro-space to Scuola", () => {
   assert.match(nav, /label: "Scuola"/);
   assert.doesNotMatch(nav, /label: "Knowledge"/);
   assert.match(routes, /workspace: "\/school"/);
-  assert.match(schoolHome, />\s*Scuola\s*</);
-  assert.match(schoolHome, /L’acciaio, spiegato bene/);
+  assert.match(schoolHome, /SchoolPrivateTopbar/);
+  assert.match(schoolHome, /SchoolWorkspaceFirstViewport/);
+  assert.match(schoolViewport, /L’acciaio, spiegato bene/);
 });
 
 test("UXA2B keeps Scuola contextual navigation inside authenticated routes", () => {

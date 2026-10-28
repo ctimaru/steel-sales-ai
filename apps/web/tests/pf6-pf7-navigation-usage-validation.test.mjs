@@ -18,6 +18,7 @@ const marketplace = read("../app/(workspace)/marketplace/page.tsx");
 const opportunity = read("../app/(workspace)/marketplace/opportunities/[id]/page.tsx");
 const rfqHub = read("../app/(workspace)/marketplace/rfq-hub/page.tsx");
 const school = read("../app/(workspace)/school/page.tsx");
+const schoolFirstViewport = read("../components/school-workspace-first-viewport.tsx");
 const schoolTubes = read("../app/(workspace)/school/tubes/page.tsx");
 const schoolStandards = read("../app/(workspace)/school/norme/page.tsx");
 const schoolGrades = read("../app/(workspace)/school/gradi/page.tsx");
@@ -31,11 +32,13 @@ test("PF6 aligns focused page hierarchy across the five macro-spaces", () => {
   for (const source of [home, commercial, network, marketplace]) {
     assert.match(source, source === commercial ? /data-testid="comm-cine1-hero"/ : /FocusHeader/);
   }
-  assert.match(school, /school-workspace-cine-heading/);
+  assert.match(school, /SchoolWorkspaceFirstViewport locale="it"/);
+  assert.match(schoolFirstViewport, /school-workspace-cine-heading/);
   assert.match(home, /<h2 id="dashboard-pulse-heading"|<DashboardSteelPulse state=\{pulse\} \/>/);
-  for (const source of [commercial, network, marketplace, school]) {
+  for (const source of [commercial, network, marketplace]) {
     assert.match(source, /FocusSectionHeader/);
   }
+  assert.match(school, /<FocusPage compact/);
   assert.match(emptyState, /app-primary/);
   assert.match(emptyState, /app-secondary/);
 });

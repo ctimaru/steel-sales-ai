@@ -30,15 +30,15 @@ export function SchoolPrivateLanguageSwitch({locale,pathname="/school"}:{
     </details>
   </nav>;
 }
-export function SchoolPrivateTopbar({locale,pathname="/school"}:{
-  locale:SchoolWorkspaceLocale;pathname?:string;
+export function SchoolPrivateTopbar({locale,pathname="/school",compact=false}:{
+  locale:SchoolWorkspaceLocale;pathname?:string;compact?:boolean;
 }){
   const c=SCHOOL_PRIVATE_COPY[locale];
-  return <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#d5e4db] bg-[#f7faf8] px-4 py-3 sm:px-5">
+  return <div className={compact?"flex flex-wrap items-center justify-between gap-2 px-1 py-1":"flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#d5e4db] bg-[#f7faf8] px-4 py-3 sm:px-5"}>
     <span className="text-xs font-bold uppercase tracking-[.1em] text-[#174b3c]">{c.kicker} · Smart Steel Sales</span>
     <div className="flex flex-wrap items-center gap-3">
       <SchoolPrivateLanguageSwitch locale={locale} pathname={pathname}/>
-      <Link href={SCHOOL_HUB_ROUTES[locale]} hrefLang={locale} className="school-secondary-action">{c.publicLabel} ↗</Link>
+      {!compact ? <Link href={SCHOOL_HUB_ROUTES[locale]} hrefLang={locale} className="school-secondary-action">{c.publicLabel} ↗</Link> : null}
     </div>
   </div>;
 }

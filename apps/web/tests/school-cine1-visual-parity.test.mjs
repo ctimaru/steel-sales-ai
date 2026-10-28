@@ -9,13 +9,18 @@ const englishPublic = read("../app/(english)/en/knowledge/page.tsx");
 const internationalPublic = read("../app/(international-calculator)/[locale]/knowledge/page.tsx");
 const italianPrivate = read("../app/(italian)/(workspace)/school/page.tsx");
 const internationalPrivate = read("../components/school-localized-workspace-home.tsx");
+const sharedPrivateHero = read("../components/school-workspace-first-viewport.tsx");
 
 test("SCHOOL-CINE1 keeps a consistent first-viewport identity on public and private school", () => {
-  for (const [name, page] of Object.entries({ italianPublic, englishPublic, internationalPublic, italianPrivate, internationalPrivate })) {
+  for (const [name, page] of Object.entries({ italianPublic, englishPublic, internationalPublic, sharedPrivateHero })) {
     assert.match(page, /bg-\[#102921\]/, name);
     assert.match(page, /text-white/, name);
+    assert.match(page, /SchoolTechnicalSections|CHS|rounded-\[55px\]|school-private-calculator-heading/, name);
+  }
+  for (const [name, page] of Object.entries({ italianPrivate, internationalPrivate })) {
     assert.match(page, /SchoolUnifiedNavigation/, name);
-    assert.match(page, /SchoolTechnicalSections|CHS|rounded-\[55px\]/, name);
+    assert.match(page, /SchoolWorkspaceFirstViewport/, name);
+    assert.match(page, /SchoolTechnicalSections/, name);
   }
 });
 
@@ -33,8 +38,9 @@ test("SCHOOL-CINE1 preserves public editorial routes and private boundaries", ()
 });
 
 test("SCHOOL-CINE1G reuses a local industrial photo across five School surfaces", () => {
-  for (const [name, page] of Object.entries({ italianPublic, englishPublic, internationalPublic, italianPrivate, internationalPrivate })) {
+  for (const [name, page] of Object.entries({ italianPublic, englishPublic, internationalPublic, sharedPrivateHero })) {
     assert.match(page, /home-cine1a-steel\.webp/, name);
     assert.match(page, /pointer-events-none absolute inset-0/, name);
   }
+  for (const page of [italianPrivate, internationalPrivate]) assert.match(page, /SchoolWorkspaceFirstViewport/);
 });

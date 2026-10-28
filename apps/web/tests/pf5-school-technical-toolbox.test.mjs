@@ -7,36 +7,36 @@ function read(path) {
 }
 
 const school = read("../app/(workspace)/school/page.tsx");
+const firstViewport = read("../components/school-workspace-first-viewport.tsx");
 const shell = read("../components/app-shell.tsx");
 const quick = read("../components/school-quick-access.tsx");
 const layout = read("../app/(workspace)/school/layout.tsx");
 const schoolCopy = read("../lib/school-workspace-i18n.ts");
 
 test("PF5 makes the weight calculator the primary School tool", () => {
-  assert.match(school, /L’acciaio, spiegato bene/);
-  assert.match(school, /Strumento principale/);
-  assert.match(school, /Calcolo pesi tubo/);
-  assert.match(school, /kg\/m/);
-  assert.match(school, /peso barra/i);
-  assert.match(school, /Tonnellate/);
-  assert.match(school, /appRoutes\.knowledge\.schoolTubes/);
+  assert.match(school, /SchoolWorkspaceFirstViewport/);
+  assert.match(firstViewport, /L’acciaio, spiegato bene/);
+  assert.match(firstViewport, /school-private-calculator-heading/);
+  assert.match(firstViewport, /kg\/m/);
+  assert.match(firstViewport, /CALCULATOR_ROUTES\[locale\]/);
+  assert.match(firstViewport, /\/school\/tubes\?source=school/);
 });
 
 test("PF5 puts standards and grades search directly on School home", () => {
-  assert.match(school, /Ricerca tecnica/);
-  assert.match(school, /action=\{appRoutes\.knowledge\.schoolStandards\}/);
-  assert.match(school, /action=\{appRoutes\.knowledge\.schoolGrades\}/);
-  assert.match(school, /type="search"/);
-  assert.match(school, /EN 10219/);
-  assert.match(school, /S355J2H/);
+  assert.match(firstViewport, /school-private-search/);
+  assert.match(firstViewport, /action=\{"\/school\/"\+group\}/);
+  assert.match(firstViewport, /\["norme","gradi"\]/);
+  assert.match(firstViewport, /type="search"/);
+  assert.match(firstViewport, /EN 10219/);
+  assert.match(firstViewport, /S355J2H/);
 });
 
 test("PF5 keeps technical catalogs and private company documents distinct", () => {
-  assert.match(school, /Vai direttamente al riferimento tecnico/);
   assert.match(school, /Catalogo completo/);
-  assert.match(school, /Documenti aziendali/);
-  assert.match(school, /knowledge privata/);
+  assert.match(school, /Solo area aziendale/);
+  assert.match(school, /documenti restano privati/);
   assert.match(school, /appRoutes\.knowledge\.explorer/);
+  assert.doesNotMatch(firstViewport, /appRoutes\.knowledge\.explorer|supabase/);
 });
 
 test("PF5 persists recent and favorite School tools locally without a database dependency", () => {

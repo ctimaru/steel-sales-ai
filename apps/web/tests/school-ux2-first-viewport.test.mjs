@@ -27,7 +27,8 @@ test("SCHOOL-UX2 exposes useful technical actions above article content", () => 
 });
 
 test("SCHOOL-UX2 keeps original public/private routes and single-line navigation", () => {
-  assert.match(navigation, /scope==="public" && compact/);
+  assert.match(navigation, /if \(compact\) return/);
+  assert.match(navigation, /scope==="public" \?/);
   assert.match(navigation, /overflow-x-auto/);
   assert.match(navigation, /schoolWorkspaceHref\("\/school",locale\)/);
   assert.match(home, /canonical: absoluteUrl\("\/knowledge"\)/);

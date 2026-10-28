@@ -18,6 +18,7 @@ const commercial = read("../app/(workspace)/commercial/page.tsx");
 const network = read("../app/(workspace)/network/page.tsx");
 const marketplace = read("../app/(workspace)/marketplace/page.tsx");
 const school = read("../app/(workspace)/school/page.tsx");
+const schoolViewport = read("../components/school-workspace-first-viewport.tsx");
 const publicSchool = read("../app/(public)/knowledge/page.tsx");
 const login = read("../app/login/page.tsx");
 const register = read("../app/register/page.tsx");
@@ -55,7 +56,8 @@ test("UXF1 focuses the main workspace entry points", () => {
   assert.match(commercial, /Cerca nella Commercial Memory/);
   assert.match(network, /Trova aziende steel/);
   assert.match(marketplace, /title="Compra o vendi, in un unico spazio"/);
-  assert.match(school, /Strumento principale/);
+  assert.match(school, /SchoolWorkspaceFirstViewport/);
+  assert.match(schoolViewport, /school-private-calculator-heading/);
 });
 
 test("UXF1 makes public School calculator-first and progressive", () => {
