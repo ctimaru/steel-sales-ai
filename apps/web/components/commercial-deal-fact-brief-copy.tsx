@@ -25,6 +25,14 @@ export function CommercialDealFactBriefCopy({ kind, status, title, origin }: Dea
       "Non dedurre offerte, email o documenti non presenti in questi dati.",
     ].join("\n");
   async function copyFacts(openAssistant = false) {
+    if (openAssistant) {
+      if (!question.trim()) { setFeedback("Inserisci una domanda prima di continuare."); return; }
+      try {
+        sessionStorage.setItem("sss:commercial-assistant-draft:v1", JSON.stringify({ text: contextText, createdAt: Date.now() }));
+        router.push(appRoutes.commercial.assistant);
+      } catch { setFeedback("Non è possibile preparare il contesto in questa sessione."); }
+      return;
+    }
     if (!question.trim()) {
       setFeedback("Inserisci una domanda prima di copiare il contesto.");
       return;
@@ -66,7 +74,7 @@ export function CommercialDealFactBriefCopy({ kind, status, title, origin }: Dea
       </button>
       <button type="button" onClick={() => void copyFacts(true)}
         className="inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-3 text-xs font-semibold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
-        Copia e apri assistente →
+        Prepara nell’assistente →
       </button>
       <p role="status" aria-live="polite" className="text-xs text-[var(--text-secondary)]">{feedback}</p>
       </div>
