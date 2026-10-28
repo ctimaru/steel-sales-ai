@@ -97,7 +97,7 @@ export default async function LocalizedSchoolHome({params}:{params:Promise<{loca
           <p className="mt-4 max-w-2xl text-sm leading-7 text-[#d2e4d9] sm:text-base">{t.lead}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             {[t.free,t.privacy].map(label=><span key={label}
-              className="rounded-full border border-[#c7d9cd] bg-white px-3 py-1.5 text-xs font-semibold text-[#174b3c]">{label}</span>)}
+              className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-semibold text-[#e5f3e9]">{label}</span>)}
           </div>
           <Link href={"/"+locale+"/knowledge/tubes"} className="school-primary-action mt-5">
             {t.calculator} <span aria-hidden="true">→</span>
