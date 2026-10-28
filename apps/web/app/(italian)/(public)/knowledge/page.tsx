@@ -137,15 +137,15 @@ export default function KnowledgeHomePage() {
             <Link
               key={article.slug}
               href={"/knowledge/articoli/" + article.slug}
-              className="school-card group flex h-full flex-col overflow-hidden transition hover:border-[#86b4a0] hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]"
+              className="school-card group flex h-full flex-col overflow-hidden rounded-[22px] border-[#d9e4dd] bg-white transition duration-300 hover:-translate-y-1 hover:border-[#86b4a0] hover:shadow-[0_18px_36px_-28px_rgba(15,50,35,.65)] motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]"
             >
               <div className="relative overflow-hidden border-b border-[#dce9e1] bg-[#edf5f0]">
                 <Image src={article.visual.src} alt={article.visual.alt} width={1200} height={675}
                   unoptimized sizes="(max-width: 768px) 100vw, 33vw"
-                  className="aspect-video h-auto w-full object-cover" />
-                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-[#f7fbf8]/95 px-5 py-2.5">
-                  <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-[#184638]">{article.category}</span>
-                  <span aria-hidden="true" className="font-mono text-sm font-bold text-[#6a947e]">{String(index + 1).padStart(2, "0")}</span>
+                  className="aspect-video h-auto w-full object-cover transition-transform duration-500 group-hover:scale-[1.035] motion-reduce:transform-none motion-reduce:transition-none" />
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 border-t border-white/15 bg-[#112c23]/90 px-5 py-2.5 backdrop-blur-sm">
+                  <span className="text-xs font-extrabold uppercase tracking-[0.1em] text-[#e5f2e8]">{article.category}</span>
+                  <span aria-hidden="true" className="font-mono text-sm font-bold text-[#b8d9c4]">{String(index + 1).padStart(2, "0")}</span>
                 </div>
               </div>
               <div className="flex flex-1 flex-col p-5">
