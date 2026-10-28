@@ -39,6 +39,8 @@ test("SCHOOL-UX4 retains published-only search and canonicals across five langua
   assert.match(localizedIndex, /\s+editorial/);
   assert.match(localizedLayout, /activeHref=\{localizedKnowledgePath\(locale,kind\)\}/);
   assert.match(navigation, /aria-current=\{\(activeHref/);
+  assert.match(navigation, /const compactEntries = activeHref/);
+  assert.match(navigation, /compactEntries\.map/);
 });
 
 test("SCHOOL-UX4 respects editorial source, reading and compliance boundaries", () => {
@@ -54,4 +56,12 @@ test("SCHOOL-UX4 respects editorial source, reading and compliance boundaries", 
   assert.match(localizedDetail, /SchoolTechnicalGlossary/);
   assert.match(localizedDetail, /uniqueSources\.map/);
   assert.match(localizedDetail, /"@type":"TechArticle"/);
+});
+
+test("SCHOOL-UX4 keeps consent choices but uses compact copy throughout public knowledge locales", () => {
+  const consent = read("../components/google-analytics-consent.tsx");
+  assert.match(consent, /const compactSchoolConsent/);
+  assert.match(consent, /\(en\|de\|fr\|es\)/);
+  assert.match(consent, /localizedConsent\?\.short/);
+  assert.match(consent, /Accetta necessari|Accept|Nur notwendige|Essential only/);
 });
