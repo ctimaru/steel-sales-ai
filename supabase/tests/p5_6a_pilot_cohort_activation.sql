@@ -251,6 +251,29 @@ select pg_temp.p56a_assert(
   'candidate admission must preserve readiness blockers instead of fabricating activation'
 );
 
+-- Synthetic CI fixture: deny real activation by default before local-only setup.
+select pg_temp.p56a_assert_raises(
+  format('select public.p5_6a_transition_participant(%L::uuid,%L)',
+    :'buyer_candidate'::jsonb->>'participant_id','activate'),
+  'real company pilot not authorized'
+);
+reset role;
+update private.pilot_activation_release_gate
+set enabled=true,legal_approved=true,restore_approved=true,support_approved=true,
+    approved_at=clock_timestamp(),approved_notice_version='synthetic-only-ci'
+where singleton=true;
+insert into public.pilot_activation_admissions (
+ organization_id,state,legal_basis_reference,notice_version,terms_version,verified_by,approved_by
+)
+select distinct organization_id,'approved','synthetic-only-ci','synthetic-only-ci','synthetic-only-ci',
+  :'superadmin_id'::uuid,:'superadmin_id'::uuid
+from public.marketplace_pilot_participants
+where id in ((:'buyer_candidate'::jsonb->>'participant_id')::uuid,
+             (:'supplier_candidate'::jsonb->>'participant_id')::uuid);
+set local role authenticated;
+select set_config('request.jwt.claim.sub',:'superadmin_id',true);
+select set_config('request.jwt.claim.role','authenticated',true);
+
 select public.p5_6a_transition_participant(
   (:'buyer_candidate'::jsonb->>'participant_id')::uuid,'activate'
 ) as buyer_active \gset
