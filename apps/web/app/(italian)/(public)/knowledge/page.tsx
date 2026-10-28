@@ -36,7 +36,7 @@ export default function KnowledgeHomePage() {
 
       <SchoolUnifiedNavigation locale="it" scope="public" compact />
 
-      <section aria-labelledby="school-cine-heading" className="relative isolate overflow-hidden rounded-[24px] bg-[#0b241b] text-white">
+      <section aria-labelledby="school-cine-heading" className="relative isolate overflow-hidden rounded-[24px] bg-[#102921] text-white">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-cover bg-[position:72%_center] opacity-70" style={{backgroundImage:"url('/home-cine1a-steel.webp')"}} />
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(7,29,21,.98)_0%,rgba(7,29,21,.94)_37%,rgba(7,29,21,.60)_73%,rgba(7,29,21,.28)_100%)]" />
         <div className="relative flex min-h-[292px] max-w-3xl flex-col justify-center px-6 py-9 sm:px-10 sm:py-10 lg:py-11">
@@ -87,7 +87,7 @@ export default function KnowledgeHomePage() {
 
         <div className="flex flex-col justify-between rounded-[22px] border border-[#cddfd3] bg-[#eef5ef] p-5 sm:p-6" aria-labelledby="school-tools-heading">
           <div>
-            <p className="school-kicker">CALCOLATORE PESI</p>
+            <p className="school-kicker">Strumento principale · Calcolatore pesi</p>
             <h2 id="school-tools-heading" className="mt-1.5 text-xl font-semibold tracking-tight text-[#163a2e] sm:text-2xl">Calcola peso, barre e tonnellate</h2>
             <p className="mt-2 max-w-lg text-sm leading-6 text-[#52645a]">Da CHS, SHS e RHS a kg/m, barre e tonnellate: EN 10210, EN 10219 e geometria libera.</p>
             <div className="mt-4 flex flex-wrap gap-1.5" aria-label="Funzioni del calcolatore">
