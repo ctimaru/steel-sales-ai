@@ -190,7 +190,7 @@ function commercialContext(pathname: string): WorkspaceContextKey {
   if (isAnyPath(pathname, [appRoutes.commercial.assistant, legacyRoutes.assistant])) {
     return "commercial:assistant";
   }
-  if (isAnyPath(pathname, [appRoutes.commercial.explorer, legacyRoutes.explorer])) {
+  if (isAnyPath(pathname, [appRoutes.commercial.explorer, appRoutes.commercial.knowledgeExplorer, legacyRoutes.explorer])) {
     return "commercial:intelligence:explorer";
   }
   if (isAnyPath(pathname, [appRoutes.commercial.priceIntelligence, legacyRoutes.priceIntelligence])) {
