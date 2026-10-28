@@ -434,36 +434,9 @@ export default async function CommercialHomePage({
 
       <CommercialAiCompanion canWrite={canWrite} />
 
-      <section aria-labelledby="commercial-today" className="rounded-xl border border-[#dce2df] bg-white px-3 py-2.5 sm:px-4" data-testid="commercial-compact-actions">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <div className="min-w-0 sm:mr-1">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-[#246c53]">Le tue attività</p>
-            <h2 id="commercial-today" className="text-sm font-semibold text-[#173f35]">Che cosa vuoi fare oggi?</h2>
-          </div>
-          {canWrite ? (
-            <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
-              className="app-primary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
-              + Nuova richiesta
-            </Link>
-          ) : null}
-          <Link href={appRoutes.commercial.home + "#commercial-worklist"}
-            className="inline-flex min-h-10 items-center rounded-lg border border-[#d5dfda] px-3 text-xs font-semibold text-[#173f35] hover:bg-[#edf5f2]">
-            RFQ e offerte →
-          </Link>
-          {networkAvailable ? (
-            <Link href={appRoutes.commercial.home + "?prospects=1#commercial-prospects"}
-              className="inline-flex min-h-10 items-center rounded-lg border border-[#d5dfda] px-3 text-xs font-semibold text-[#173f35] hover:bg-[#edf5f2]">
-              Aziende da seguire →
-            </Link>
-          ) : null}
-          {networkAvailable ? (
-            <Link href={appRoutes.network.directory}
-              className="inline-flex min-h-10 items-center rounded-lg border border-[#d5dfda] px-3 text-xs font-semibold text-[#173f35] hover:bg-[#edf5f2]">
-              Trova aziende →
-            </Link>
-          ) : null}
-        </div>
-        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-[#e5ece8] pt-2 text-xs" data-testid="commercial-compact-attention">
+      <section aria-labelledby="commercial-today" className="rounded-xl border border-[#dce2df] bg-white px-3 py-3 sm:px-4" data-testid="commercial-compact-actions">
+        <h2 id="commercial-today" className="sr-only">Attività da gestire oggi</h2>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs" data-testid="commercial-compact-attention">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-[#173f35]">Cosa richiede attenzione</h3>
             <Link href={appRoutes.rfqHub.inbox} className="font-semibold text-[#246c53] underline-offset-2 hover:underline">Apri inbox →</Link>
