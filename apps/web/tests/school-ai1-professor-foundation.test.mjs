@@ -59,6 +59,6 @@ test("SCHOOL-AI1 redirects open questions to verified editorial pages, not inven
 test("SCHOOL-AI1 disabled call to action stays legible and mobile introduction stays concise", () => {
   assert.match(tutor, /disabled:bg-\[#dce8df\]/);
   assert.match(tutor, /disabled:text-\[#28543c\]/);
-  assert.doesNotMatch(tutor, /disabled:opacity-50/);
+  assert.doesNotMatch(tutor, /disabled:cursor-not-allowed disabled:opacity-50/);
   assert.match(tutor, /Partiamo insieme dalle fonti pubblicate/);
 });
