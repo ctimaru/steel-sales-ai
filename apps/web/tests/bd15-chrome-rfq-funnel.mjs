@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
+import { createSyntheticRecorder } from "./prod-next1c-synthetic-evidence.mjs";
 import { checkDeferredClientReadiness, waitForBuilderReady } from "./bd15-chrome-hydration-readiness.mjs";
 
 const origin = process.env.DEMOTEST23_WEB_URL;
@@ -16,6 +17,8 @@ assert.equal(process.env.RESEND_API_KEY ?? "", "", "BD15 prohibits a real email 
 const temp = process.env.RUNNER_TEMP;
 assert.ok(temp, "BD15 requires ephemeral GitHub runner files");
 const buyer = JSON.parse(readFileSync(path.join(temp, "demotest23-personas.json"), "utf8")).find(p => p.id === "buyer");
+const viewer = JSON.parse(readFileSync(path.join(temp, "demotest23-personas.json"), "utf8")).find(p => p.id === "buyerViewer");
+assert.ok(viewer?.email && viewer?.password && viewer.org === buyer.org);
 assert.ok(buyer?.email && buyer?.password);
 // A disposable local checkout may use its installed Chromium. CI keeps the
 // real Chrome channel, and the nonlocal-origin guards above always apply.
@@ -25,8 +28,10 @@ const browser = await chromium.launch({
   headless: true,
 });
 const checks = [];
+const recorder = createSyntheticRecorder("bd15");
 async function step(label, fn) {
-  try { await fn(); checks.push(label); console.log("BD15 CHROME PASS", label); }
+  const started = Date.now();
+  try { await fn(); checks.push(label); recorder.recordPassedStep(label, Date.now() - started); console.log("BD15 CHROME PASS", label); }
   catch (e) { console.error("BD15 CHROME FAIL", label, String(e?.message ?? e).slice(0,900)); throw e; }
 }
 async function goto(page, route) {
@@ -74,13 +79,13 @@ async function fillTwoTubularLines(page) {
   assert.match(summary, /72(?:[,.]0+)? m/);
   return { calc, bill };
 }
-async function login(page) {
+async function login(page, person = buyer) {
   await goto(page, "/login");
-  await page.locator('input[name="email"]').fill(buyer.email);
-  await page.locator('input[name="password"]').fill(buyer.password);
+  await page.locator('input[name="email"]').fill(person.email);
+  await page.locator('input[name="password"]').fill(person.password);
   await page.getByRole("button", { name: "Accedi", exact: true }).click();
   await page.waitForURL(url => url.pathname === "/dashboard", { timeout: 90000 });
-  await page.getByRole("heading", { name: "Oggi in " + buyer.name, exact: true })
+  await page.getByRole("heading", { name: "Oggi in " + person.name, exact: true })
     .waitFor({ state: "visible", timeout: 60000 });
 }
 try {
@@ -147,6 +152,29 @@ try {
       assert.ok(!body.includes("Pubblicato nel Marketplace"),"Accidental Marketplace publication");
       await noOverflow(page,"new RFQ draft "+width);
     });
+    await step("viewer denied same browser-created buyer RFQ " + width, async () => {
+      const rfqRoute = new URL(page.url()).pathname;
+      assert.match(rfqRoute, /^\/rfq-hub\/[0-9a-f-]{36}$/);
+      const viewerContext = await browser.newContext({
+        viewport:{width:1440,height:900},locale:"it-IT"
+      });
+      try {
+        const viewerPage = await viewerContext.newPage();
+        await login(viewerPage, viewer);
+        const result=await viewerPage.goto(origin+rfqRoute,{
+          waitUntil:"domcontentloaded",timeout:90000
+        });
+        assert.ok(result && result.status()<500,"Viewer read route failed unexpectedly");
+        await viewerPage.waitForFunction(title=>{
+          const txt=document.body.innerText;
+          return !txt.includes("Caricamento workspace") &&
+            (txt.includes(title)||/404|non trovata|not found|could not be found/i.test(txt));
+        },"BD15 E2E LOCAL "+width,{timeout:60000});
+        const body=await viewerPage.locator("body").innerText();
+        assert.ok(!body.includes("BD15 E2E LOCAL "+width),
+          "Read-only viewer accessed owner-only newly created RFQ");
+      } finally { await viewerContext.close(); }
+    });
     await step("bulk select and add 2 previous suppliers in one click " + width, async () => {
       const first = page.getByRole("checkbox",{name:/Seleziona DEMO Steel Manufacturing/});
       const second = page.getByRole("checkbox",{name:/Seleziona DEMO Tubes Trading/});
@@ -192,6 +220,7 @@ try {
     });
     await ctx.close();
   }
+  recorder.save(checks.length);
   console.log("BD15 E2E CHROME PASS",checks.length,
     "isolated checks; anonymous + real buyer; 390/1440; no provider email and no Marketplace publish");
 } finally {

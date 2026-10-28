@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
+import { createSyntheticRecorder } from "./prod-next1c-synthetic-evidence.mjs";
 
 const origin = process.env.DEMOTEST23_WEB_URL;
 assert.equal(origin, "http://127.0.0.1:3000", "External Next URL prohibited");
@@ -21,15 +22,18 @@ const trader = personas.find(p => p.id === "trader");
 assert.ok(buyer && producer && trader && tokens.producer.token && tokens.trader.token);
 const rfqPath = "/rfq-hub/" + buyer.rfq;
 const checks = [];
+const recorder = createSyntheticRecorder("rfqh14_quote");
 const browser = await chromium.launch({ headless: true, channel: "chrome" });
 
 const redact = x => String(x).replaceAll(tokens.producer.token, "[private producer token]")
   .replaceAll(tokens.trader.token, "[private trader token]");
 
 async function step(label, fn) {
+  const started = Date.now();
   try {
     await fn();
     checks.push(label);
+    recorder.recordPassedStep(label, Date.now() - started);
     console.log("RFQH14.2 Chrome PASS", label);
   } catch (error) {
     console.error("RFQH14.2 Chrome FAIL", label, redact(error instanceof Error ? error.message : error));
@@ -205,6 +209,7 @@ try {
     await mctx.close();
   }
 
+  recorder.save(checks.length);
   console.log("RFQH14.2 CHROME PASS",checks.length,
     "checks, ephemeral GoTrue identities, supplier quote submitted locally, no Vercel traffic");
 } finally {

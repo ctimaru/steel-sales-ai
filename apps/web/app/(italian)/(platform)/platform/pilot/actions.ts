@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requirePlatformSuperadmin } from "@/lib/platform-admin";
+import { evaluatePilot2027Admission } from "@/lib/prod-next1e-pilot-readiness";
+import { getMarketplacePilotControl } from "@/lib/platform-pilot";
 import { createClient } from "@/lib/supabase/server";
 
 function pilotPath(key?: "message" | "error", message?: string) {
@@ -71,6 +73,21 @@ export async function transitionMarketplacePilotParticipant(formData: FormData) 
     !["activate", "resume", "pause", "complete", "remove"].includes(action)
   ) {
     redirect(pilotPath("error", "Azione pilot non valida."));
+  }
+
+  // Server-side gate: UI-disabled buttons alone never authorize activation.
+  // Pausing/removing existing participants must remain possible during NO-GO.
+  if (action === "activate" || action === "resume") {
+    const control = await getMarketplacePilotControl();
+    const participant = control.participants.find((item) => item.participant_id === participantId);
+    if (!participant) redirect(pilotPath("error", "Partecipante pilot non trovato."));
+    const admission = evaluatePilot2027Admission(
+      participant.organization_id,
+      participant.readiness.ready,
+    );
+    if (!admission.ready) {
+      redirect(pilotPath("error", "Pilot 2027 non autorizzato: verificare accordi, privacy, restore, supporto e approvazione aziendale."));
+    }
   }
 
   const supabase = await createClient();
