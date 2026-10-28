@@ -6,6 +6,7 @@ select id as next1d_rfq_id,source_distinta_id as next1d_distinta_id
 from public.buyer_rfq_campaigns where title='BD15 E2E LOCAL 1440'
 \gset
 select set_config('prod_next1d.rfq_id',:'next1d_rfq_id',true);
+select set_config('prod_next1d.approver_uid',:'buyerViewer_user_id',true);
 do $guard$
 declare v_rfq uuid := current_setting('prod_next1d.rfq_id')::uuid;
 begin
@@ -16,7 +17,7 @@ begin
    then raise exception 'Single-RFQ unexpectedly sent outbound RFQ email'; end if;
  if (select count(*) from public.organization_memberships
       where organization_id='00000000-0000-0000-0000-000000023301'::uuid
-      and user_id=:'buyerViewer_user_id'::uuid and role='admin' and status='active')<>1
+      and user_id=current_setting('prod_next1d.approver_uid')::uuid and role='admin' and status='active')<>1
    then raise exception 'Prior browser PO test must have promoted separate viewer to admin approver'; end if;
 end $guard$;
 
