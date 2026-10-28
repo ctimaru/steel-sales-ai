@@ -75,7 +75,9 @@ export const appRoutes = {
   knowledge: {
     workspace: "/school",
     assistant: "/school/assistant",
-    explorer: "/school/explorer",
+    professor: "/school/professore",
+    guides: "/school/guide",
+    explorer: "/school/explorer", // Legacy redirect to Commercial Memory, not a School entry point
     catalog: "/school/catalogo",
     schoolStandards: "/school/norme",
     schoolStandard: (slug: string) => `/school/norme/${slug}`,
