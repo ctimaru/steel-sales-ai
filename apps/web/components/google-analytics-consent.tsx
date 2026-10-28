@@ -226,7 +226,7 @@ export function GoogleAnalyticsConsent({
     }
   }
 
-  const compactSchoolConsent = pathname.startsWith("/knowledge");
+  const compactSchoolConsent = /^\/(?:knowledge|(?:en|de|fr|es)\/knowledge)(?:\/|$)/.test(pathname);
   const showPanel = consent === null || settingsOpen;
   const currentLabel =
     consent === "granted"
