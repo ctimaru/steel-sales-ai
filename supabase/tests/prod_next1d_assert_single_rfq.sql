@@ -1,7 +1,7 @@
 -- PROD-NEXT1.D: read-only SQL proof from ONE browser-created Distinta through PO.
 -- Ephemeral localhost 127.0.0.1:54322 only, after both Chrome stages.
 \set ON_ERROR_STOP on
-begin;
+begin transaction read only;
 select set_config('prod_next1d.rfq_id',(
   select id::text from public.buyer_rfq_campaigns
   where title='BD15 E2E LOCAL 1440'
@@ -44,7 +44,7 @@ begin
         and decided_by=current_setting('prod_next1d.approver_uid')::uuid)<>1
     then raise exception 'Single-RFQ requires separate-person PO approval consumed'; end if;
   if (select count(*) from public.buyer_purchase_order_versions
-      where rfq_id=v_rfq and version_number=1
+      where rfq_id=v_rfq and version_no=1
         and length(snapshot_sha256)=64 and provider_message_id is null)<>1
     then raise exception 'Single-RFQ expected immutable unsent PO version v1'; end if;
   if (select count(*) from public.buyer_purchase_order_supplier_responses
