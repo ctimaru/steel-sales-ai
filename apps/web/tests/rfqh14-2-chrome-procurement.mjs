@@ -120,6 +120,8 @@ try {
         await page.getByRole("button",{name:"Salva bozza"}).click();
         await page.getByText("Bozza salvata.",{exact:true})
           .waitFor({state:"visible",timeout:45000});
+        assert.equal(await prices.nth(0).inputValue(),"735","First quoted price must survive draft save");
+        assert.equal(await prices.nth(1).inputValue(),"755","Second quoted price must survive draft save");
         await page.getByRole("button",{name:"Invia offerta"}).click();
         await page.getByText(/Offerta inviata|submitted/i).first()
           .waitFor({state:"visible",timeout:45000});
