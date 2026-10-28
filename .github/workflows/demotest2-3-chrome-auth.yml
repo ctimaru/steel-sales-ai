@@ -8,6 +8,8 @@ on:
       - "apps/web/tests/comm-ux1-chrome-auth.mjs"
       - "apps/web/tests/rfqh14-2-*.mjs"
       - "apps/web/tests/prod-next1c-*.mjs"
+      - "apps/web/tests/prod-next1d-*.mjs"
+      - "supabase/tests/prod_next1d_*.sql"
       - "apps/web/tests/bd15-*.mjs"
       - "apps/web/tests/bd18-*.mjs"
       - "supabase/tests/bd15_*.sql"
@@ -205,6 +207,57 @@ jobs:
             -v ON_ERROR_STOP=1 \
             -f "$RUNNER_TEMP/demotest23-psql-vars.sql" \
             -f supabase/tests/rfqh14_2b_assert_po_browser.sql
+      - name: "PROD-NEXT1.D — Generate fresh local-only supplier tokens for BD15 RFQ"
+        working-directory: apps/web
+        run: node tests/prod-next1d-prepare-portal.mjs
+      - name: "PROD-NEXT1.D — Launch the exact Chrome-created private RFQ using business RPC"
+        env:
+          PGPASSWORD: postgres
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/demotest23-psql-vars.sql" \
+            -f "$RUNNER_TEMP/prod-next1d-psql-vars.sql" \
+            -f supabase/tests/prod_next1d_launch_saved_rfq.sql
+          umask 077
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 -At -c \
+            "select id from public.buyer_rfq_campaigns where title='BD15 E2E LOCAL 1440'" \
+            > "$RUNNER_TEMP/prod-next1d-rfq-id.txt"
+          test "$(wc -l < "$RUNNER_TEMP/prod-next1d-rfq-id.txt")" -eq 1
+      - name: "PROD-NEXT1.D — Real Chrome supplier quotation on the SAME RFQ"
+        working-directory: apps/web
+        timeout-minutes: 12
+        run: node tests/prod-next1d-chrome-single-rfq.mjs quote
+      - name: "PROD-NEXT1.D — Prepare award and independent approval on SAME RFQ"
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/demotest23-psql-vars.sql" \
+            -f supabase/tests/prod_next1d_prepare_po_approval.sql
+      - name: "PROD-NEXT1.D — Real Chrome 2nd-person approval, PO issue and supplier confirmation"
+        working-directory: apps/web
+        timeout-minutes: 15
+        run: node tests/prod-next1d-chrome-single-rfq.mjs po
+      - name: "PROD-NEXT1.D — SQL identity/price/authorization/provenance proof on SAME RFQ"
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/demotest23-psql-vars.sql" \
+            -f supabase/tests/prod_next1d_assert_single_rfq.sql
+      - name: "PROD-NEXT1.D — Upload safe same-RFQ synthetic milestone receipt"
+        uses: actions/upload-artifact@v4
+        with:
+          name: prod-next1d-single-rfq-qa
+          path: ${{ runner.temp }}/prod-next1d-single-rfq-proof.json
+          if-no-files-found: error
+          retention-days: 7
       - name: "PROD-NEXT1.C — Strict buyer/supplier/viewer activation evidence (LOCAL only)"
         working-directory: apps/web
         run: node tests/prod-next1c-summarize-journey.mjs
