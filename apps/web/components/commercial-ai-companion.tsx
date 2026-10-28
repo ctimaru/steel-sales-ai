@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { appRoutes } from "@/lib/routes";
+import cinematic from "@/components/commercial-cinematic.module.css";
 
 /** COMM-CINE10: grounded entry points, not a simulated chatbot. */
 export function CommercialAiCompanion({ canWrite }: { canWrite: boolean }) {
@@ -24,14 +25,14 @@ export function CommercialAiCompanion({ canWrite }: { canWrite: boolean }) {
   }
   return (
     <section aria-labelledby="commercial-ai-first-heading" data-testid="commercial-ai-first"
-      className="relative isolate overflow-hidden rounded-[26px] border border-[#d7e8dd] bg-white p-5 shadow-[0_20px_60px_-44px_rgba(8,55,39,0.45)] sm:p-7">
+      className={"relative isolate overflow-hidden rounded-[26px] border border-[#d7e8dd] bg-white p-4 shadow-[0_20px_60px_-44px_rgba(8,55,39,0.45)] sm:p-6 " + cinematic.companion}>
       <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-24 -z-10 h-72 w-72 rounded-full bg-[#e6f3e9] blur-3xl" />
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
         <div className="flex min-w-0 items-start gap-4">
-          <div aria-hidden="true" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#174f3a] text-2xl text-white shadow-[0_14px_30px_-16px_rgba(5,47,34,0.8)]">✦</div>
+          <div aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#174f3a] text-xl text-white shadow-[0_10px_24px_-16px_rgba(5,47,34,0.8)] sm:h-12 sm:w-12">✦</div>
           <div className="max-w-[630px]">
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#3e7957]">Il tuo assistente commerciale</p>
-            <h2 id="commercial-ai-first-heading" className="mt-2 text-[clamp(1.5rem,2.6vw,2.5rem)] font-semibold leading-tight tracking-[-0.035em] text-[#143f30]">
+            <h2 id="commercial-ai-first-heading" className={"mt-2 text-[clamp(1.45rem,2.2vw,2.25rem)] font-semibold leading-[1.13] tracking-[-0.04em] text-[#143f30] " + cinematic.companionTitle}>
               Ciao, cosa stai cercando oggi?
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#5c7063]">
@@ -40,7 +41,7 @@ export function CommercialAiCompanion({ canWrite }: { canWrite: boolean }) {
           </div>
         </div>
         {canWrite ? (
-          <form onSubmit={startRequest} data-testid="comm-cine11-prompt" className="w-full max-w-[390px] space-y-2">
+          <form onSubmit={startRequest} data-testid="comm-cine11-prompt" className={"w-full max-w-[420px] space-y-2 " + cinematic.companionForm}>
             <label htmlFor="commercial-ai-companion-input" className="text-xs font-semibold text-[#34674c]">Descrivi il materiale</label>
             <textarea id="commercial-ai-companion-input" value={request} maxLength={12000} rows={3}
               onChange={(event) => setRequest(event.target.value)}
@@ -59,7 +60,7 @@ export function CommercialAiCompanion({ canWrite }: { canWrite: boolean }) {
           </form>
         ) : null}
       </div>
-      <div className="mt-6 grid gap-2 border-t border-[#e0ebe3] pt-5 sm:grid-cols-3">
+      <div className={"mt-4 grid gap-2 border-t border-[#e0ebe3] pt-4 sm:grid-cols-3 " + cinematic.companionShortcuts}>
         <button type="button" onClick={() => window.dispatchEvent(new Event("sss:open-commercial-calculator"))}
           className="flex min-h-12 items-center justify-between rounded-xl border border-[#d9e8de] bg-[#f7fbf8] px-4 text-left text-sm font-semibold text-[#175640] transition hover:bg-[#e9f4ec] focus-visible:outline-2 focus-visible:outline-offset-2">
           Calcola il peso <span aria-hidden="true">↗</span>
