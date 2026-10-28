@@ -73,8 +73,8 @@ export default async function EnglishGradesIndex({
   return (
     <EnglishPublicSubpage
       eyebrow="Steel Knowledge · Published grades"
-      title="Understand steel grade designations before you buy."
-      description="Learn what common structural and pressure-tube steel grades mean, how their specifications differ and why a grade alone never proves interchangeability or product compliance."
+      title="Understand steel grades."
+      description="Understand structural and pressure-tube grades, their differences and limits. A grade alone never confirms product compliance."
       italianHref="/knowledge/gradi"
       englishHref={canonical}
       schoolKnowledgeEditorial
