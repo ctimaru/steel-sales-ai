@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { parseSteelAssistantInput } from "@/lib/school-assistant-intent.mjs";
+import { matchSchoolTutorTopic } from "@/lib/school-tutor-topics.mjs";
 
 type PublicCitation = { url: string; label: string; role: string };
 type PublicEvidence = {
@@ -12,11 +13,13 @@ type PublicEvidence = {
   citations: PublicCitation[];
   provenance: { status: "k2_published"; k2LastReviewedAt: string };
 };
-type LookupState = "idle" | "loading" | "ready" | "need_code" | "no_evidence" | "error";
+type LookupState = "idle" | "loading" | "ready" | "topic" | "need_code" | "no_evidence" | "error";
+type TutorTopic = { id: string; title: string; description: string; href: string };
 
 const examples = [
   "Qual è la differenza tra EN 10210 e EN 10219?",
   "Cosa indica S355J2H?",
+  "Come si producono i tubi saldati e senza saldatura?",
   "Cosa specifica EN 10216-2?",
 ];
 const safeUrl = (url: unknown) => typeof url === "string" && /^https:\/\//i.test(url) ? url : null;
@@ -40,6 +43,7 @@ export function SchoolTechnicalTutor() {
   const [question, setQuestion] = useState("");
   const [state, setState] = useState<LookupState>("idle");
   const [items, setItems] = useState<PublicEvidence[]>([]);
+  const [topic, setTopic] = useState<TutorTopic | null>(null);
   const pending = useRef<AbortController | null>(null);
   useEffect(() => () => pending.current?.abort(), []);
 
@@ -51,10 +55,13 @@ export function SchoolTechnicalTutor() {
     pending.current = controller;
     setQuestion(text);
     setItems([]);
+    setTopic(null);
     setDraft("");
     const codes = parseSteelAssistantInput(text).codes.slice(0, 2);
     if (!codes.length) {
-      setState("need_code");
+      const guide = matchSchoolTutorTopic(text);
+      setTopic(guide);
+      setState(guide ? "topic" : "need_code");
       return;
     }
     setState("loading");
@@ -133,6 +140,12 @@ export function SchoolTechnicalTutor() {
         <p className="text-[11px] font-bold uppercase tracking-[.12em] text-[#2b7150]">Consultazione tecnica</p>
         <h2 className="mt-2 text-lg font-semibold text-[#173c2d]">{question}</h2>
         {state === "loading" ? <p className="mt-3 text-sm text-[#536b5e]">Verifico i riferimenti pubblicati…</p> : null}
+        {state === "topic" && topic ? <div className="mt-4 rounded-[18px] border border-[#d2e3d6] bg-[#f4f8f5] p-4">
+          <p className="text-xs font-bold uppercase tracking-[.1em] text-[#246548]">Percorso di approfondimento</p>
+          <h3 className="mt-2 text-lg font-semibold text-[#194330]">{topic.title}</h3>
+          <p className="mt-2 max-w-[68ch] text-sm leading-6 text-[#52695a]">{topic.description}</p>
+          <Link href={topic.href} className="mt-4 inline-flex min-h-10 items-center rounded-xl bg-[#176747] px-4 text-sm font-bold text-white hover:bg-[#23583f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">Apri la guida con fonti →</Link>
+        </div> : null}
         {state === "need_code" ? <p className="mt-3 text-sm leading-6 text-[#536b5e]">Per questa prima versione indicami una norma precisa (per esempio EN 10219) o una designazione completa (per esempio S355J2H). Non deduco sigle o requisiti mancanti.</p> : null}
         {state === "no_evidence" ? <p className="mt-3 text-sm leading-6 text-[#536b5e]">Non ho trovato schede pubblicate verificabili per questi codici. Non significa che la norma o il materiale non esistano: puoi cercare direttamente nel catalogo.</p> : null}
         {state === "error" ? <p className="mt-3 text-sm leading-6 text-[#536b5e]">Le fonti non sono disponibili in questo momento. Non presenterò spiegazioni tecniche senza riscontro.</p> : null}
