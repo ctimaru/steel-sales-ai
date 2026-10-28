@@ -21,4 +21,7 @@ test("copy to assistant requires manual action and exposes provenance caveat",()
  assert.match(copy,/navigator\.clipboard\.writeText/);
  assert.match(copy,/Non dedurre offerte, email o documenti/);
  assert.match(copy,/aria-live="polite"/);
+ assert.match(copy,/aria-pressed=\{question === option\}/);
+ assert.match(copy,/Domanda: " \+ question/);
+ assert.match(copy,/setQuestion\(option\)/);
 });
