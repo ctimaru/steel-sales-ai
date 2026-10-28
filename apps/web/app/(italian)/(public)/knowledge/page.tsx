@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 
 export default function KnowledgeHomePage() {
   return (
-    <FocusPage className="px-4 py-7 sm:px-6 sm:py-9 lg:px-8">
+    <FocusPage compact className="px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs font-semibold text-[#405a4e]">Risorse tecniche pubbliche · accesso gratuito</p>
         <SchoolPageLanguageSelector locale="it" />
