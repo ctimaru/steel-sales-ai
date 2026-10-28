@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { PilotEvent } from "@/components/pilot-event";
-import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
+import { FocusPage, FocusSectionHeader } from "@/components/focus-ui";
 import { Badge } from "@/components/ui/badge";
 import { getDashboardData } from "@/lib/commercial-data";
 import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
@@ -166,26 +166,38 @@ export default async function CommercialHomePage({
   ];
 
   return (
-    <FocusPage compact className="max-w-[1280px]">
+    <FocusPage compact className="max-w-[1480px]">
       <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
-      <FocusHeader
-        compact
-        eyebrow="Commerciale"
-        title="Tutto il lavoro commerciale, in un unico posto"
-        description={
-          <>
-            La memoria commerciale della tua azienda: RFQ, offerte, ordini e opportunità,
-            nel workspace privato della tua organizzazione.
-            <span className="ml-2 inline-block text-xs font-semibold text-[#5d6a65]">
-              {mode === "live"
-                ? "Dati live"
-                : mode === "demo"
-                  ? "Modalità demo"
-                  : "Dati in attesa di associazione"}
+      <section aria-label="Commerciale Smart Steel Sales" data-testid="comm-cine1-hero"
+        className="relative isolate overflow-hidden rounded-[22px] border border-[#174437] bg-[#082f28] px-5 py-5 text-white shadow-[0_16px_40px_-28px_rgba(4,39,30,0.8)] sm:px-7 sm:py-6">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_85%_15%,rgba(103,159,133,0.38),transparent_38%),linear-gradient(117deg,#05261f_3%,#0b4437_61%,#164b40_100%)]" />
+        <div aria-hidden="true" className="pointer-events-none absolute -right-20 top-0 h-full w-[50%] -skew-x-12 border-l border-white/10 bg-[linear-gradient(90deg,transparent,rgba(206,225,216,0.07),transparent)]" />
+        <div className="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-[670px]">
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#a8d2bb]">Smart Steel Sales · Commercial Workspace</p>
+            <h1 className="mt-2 text-[clamp(1.5rem,2.5vw,2.25rem)] font-semibold leading-tight tracking-tight text-white">
+              Le tue trattative. Un’unica visione.
+            </h1>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-[#d3e6db]">
+              RFQ, offerte e ordini nello stesso flusso. L’intelligenza commerciale resta al tuo fianco, senza interrompere il lavoro.
+            </p>
+            <span className="mt-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-medium text-white">
+              <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[#a0ddba]" />
+              {mode === "live" ? "Dati live" : mode === "demo" ? "Modalità demo" : "Dati in attesa di associazione"}
             </span>
-          </>
-        }
-      />
+          </div>
+          <div className="flex flex-wrap gap-2 lg:justify-end">
+            {canWrite ? <Link href={appRoutes.commercial.home + "?compose=1#commercial-ai-intake"}
+              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#d4f0df] px-4 text-xs font-bold text-[#103b2d] hover:bg-white">
+              + Nuova richiesta
+            </Link> : null}
+            <Link href={appRoutes.commercial.home + "#commercial-worklist"}
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/35 bg-white/10 px-4 text-xs font-semibold text-white hover:bg-white/20">
+              Le mie trattative →
+            </Link>
+          </div>
+        </div>
+      </section>
 
       <CommercialCalculatorQuickAccess references={calculatorReferences} />
 
@@ -389,7 +401,7 @@ export default async function CommercialHomePage({
       ) : null}
 
       {canWrite ? (
-        <section aria-labelledby="commercial-ai-first-heading" className="rounded-2xl border border-[#b4d7c5] bg-white p-3 sm:p-4" data-testid="commercial-ai-first">
+        <section aria-labelledby="commercial-ai-first-heading" className="rounded-2xl border border-[#d5e6dd] bg-[#f5faf7] p-3 sm:p-4" data-testid="commercial-ai-first">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#246c53]">Assistente commerciale AI</p>
@@ -496,7 +508,7 @@ export default async function CommercialHomePage({
       ) : null}
 
       <nav aria-label="Vista rapida delle trattative" data-testid="commercial-cockpit-tabs"
-        className="rounded-2xl border border-[#d5e3dc] bg-white px-3 py-3 sm:px-4">
+        className="rounded-2xl border border-[#d5e3dc] bg-white px-3 py-3 shadow-[0_10px_30px_-26px_rgba(6,52,39,0.45)] sm:px-4">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#246c53]">Cockpit operativo</p>

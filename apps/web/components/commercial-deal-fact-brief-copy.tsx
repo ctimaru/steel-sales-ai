@@ -63,9 +63,9 @@ export function CommercialDealFactBriefCopy({ kind, dealId, status, title, origi
     }
   }
   return (
-    <div className="mt-3 space-y-2" data-testid="commercial-deal-copy-brief">
-      <p className="text-[11px] font-semibold text-[var(--brand-deep)]">Che cosa vuoi approfondire?</p>
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Domanda per l’assistente">
+    <div className="space-y-2" data-testid="commercial-deal-copy-brief">
+      <p className="text-[11px] font-semibold text-[var(--brand-deep)]">Chiedi alla tua intelligence</p>
+      <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2" role="group" aria-label="Domanda per l’assistente">
         {[
           "Quali informazioni dobbiamo verificare prima del prossimo passo?",
           "Quali condizioni commerciali mancano per valutare questa trattativa?",
@@ -86,7 +86,7 @@ export function CommercialDealFactBriefCopy({ kind, dealId, status, title, origi
       <textarea id="commercial-deal-ai-question" value={question} onChange={(event) => { setQuestion(event.target.value); setFeedback(""); }} rows={2} maxLength={500}
         className="w-full resize-y rounded-lg border border-[var(--border-strong)] bg-white p-2.5 text-xs text-[var(--brand-deep)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]" />
       <details className="rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2.5 text-xs">
-        <summary className="cursor-pointer font-semibold text-[var(--brand-deep)]">Anteprima esatta del contesto da copiare</summary>
+        <summary className="cursor-pointer font-semibold text-[var(--brand-deep)]">Controlla il contesto da condividere</summary>
         <pre className="mt-2 whitespace-pre-wrap break-words text-[var(--text-secondary)]">{contextText}</pre>
       </details>
       <div className="flex flex-wrap items-center gap-2">

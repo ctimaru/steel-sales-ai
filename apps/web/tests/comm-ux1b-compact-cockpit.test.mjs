@@ -13,9 +13,9 @@ test("COMM-UX1B uses opt-in compact layout without compressing other workspaces"
   assert.match(focus, /compact \? "space-y-4" : "space-y-7"/);
   assert.match(focus, /compact\s*\? "mt-0.5 text-xl/);
   assert.match(commercial, /<FocusPage compact /);
-  assert.match(commercial, /<FocusHeader\s+compact/);
-  assert.match(commercial, /Tutto il lavoro commerciale, in un unico posto/);
-  assert.match(commercial, /workspace privato della tua organizzazione/);
+  assert.match(commercial, /data-testid="comm-cine1-hero"/);
+  assert.match(commercial, /Le tue trattative\. Un’unica visione\./);
+  assert.match(commercial, /Solo dati autorizzati|Dati live/);
 });
 
 test("COMM-UX1B replaces the tall action cards with one accessible task strip", () => {
