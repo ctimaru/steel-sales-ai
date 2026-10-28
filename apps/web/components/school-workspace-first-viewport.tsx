@@ -64,7 +64,7 @@ export function SchoolWorkspaceFirstViewport({locale}:{locale: SchoolWorkspaceLo
           <a href="#school-private-search" className="school-primary-action min-h-11 !rounded-xl !border-[#39876a] !bg-[#247455] !px-5 !text-white transition hover:!bg-[#2c8461] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
             {t.search} <span aria-hidden="true" className="ml-2">→</span>
           </a>
-          <Link href="/knowledge/professore"
+          <Link href={schoolWorkspaceHref("/school/professore",locale)}
             className="inline-flex min-h-11 items-center rounded-xl border border-white/40 px-4 py-2 text-sm font-semibold !text-white transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
             {professor[locale]} <span aria-hidden="true" className="ml-2">↗</span>
           </Link>
