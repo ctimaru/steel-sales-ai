@@ -31,4 +31,39 @@ begin
   end if;
   raise notice 'PROD-NEXT1.E1 PASS: no live telemetry, restricted rows, activation trigger installed';
 end $check$;
+
+-- A fabricated authenticated user must not read the Platform ledger or record
+-- another company's preference. These checks run read-only and rollback.
+set local role authenticated;
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000000001',true);
+select set_config('request.jwt.claim.role','authenticated',true);
+do $unauthorized$
+declare v_blocked boolean := false; v jsonb;
+begin
+  begin
+    perform public.prod_next1e_governance();
+  exception when sqlstate '42501' then
+    v_blocked := true;
+  end;
+  if not v_blocked then
+    raise exception 'E1 FAIL: non-Superadmin read of pilot admission registry';
+  end if;
+  v := public.prod_next1e_my_privacy();
+  if jsonb_array_length(v->'organizations') <> 0 then
+    raise exception 'E1 FAIL: user sees another organization privacy preference';
+  end if;
+  v_blocked := false;
+  begin
+    perform public.prod_next1e_set_analytics_preference(
+      '00000000-0000-0000-0000-000000000002'::uuid,
+      'denied','withdrawn'
+    );
+  exception when sqlstate '42501' then
+    v_blocked := true;
+  end;
+  if not v_blocked then
+    raise exception 'E1 FAIL: unauthorized cross-tenant privacy write';
+  end if;
+end $unauthorized$;
+reset role;
 rollback;
