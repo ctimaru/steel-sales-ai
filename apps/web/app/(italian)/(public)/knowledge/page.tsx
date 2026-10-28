@@ -34,37 +34,25 @@ export default function KnowledgeHomePage() {
         <SchoolPageLanguageSelector locale="it" />
       </div>
 
-      <SchoolUnifiedNavigation locale="it" scope="public" />
+      <SchoolUnifiedNavigation locale="it" scope="public" compact />
 
-      <section className="relative isolate overflow-hidden rounded-[28px] bg-[#102921] text-white shadow-[0_24px_64px_-40px_rgba(9,36,26,.8)]" aria-labelledby="school-cine-heading">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-cover bg-[position:72%_center] opacity-65" style={{backgroundImage:"url('/home-cine1a-steel.webp')"}} />
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(9,31,23,.96)_0%,rgba(9,31,23,.89)_47%,rgba(9,31,23,.43)_100%)]" />
-        <div className="relative grid min-h-[330px] items-center gap-4 px-6 py-9 sm:px-10 sm:py-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,.8fr)]">
-          <div className="max-w-2xl">
-            <p className="text-[11px] font-bold uppercase tracking-[.18em] text-[#a6d4ba]">Smart Steel Sales / School</p>
-            <h1 id="school-cine-heading" className="mt-5 max-w-xl text-4xl font-semibold leading-[1.07] tracking-[-.045em] text-white sm:text-5xl lg:text-[3.5rem]">
-              L’acciaio, spiegato bene.
-            </h1>
-            <p className="mt-5 max-w-xl text-sm leading-7 text-[#d2e4d9] sm:text-base">
-              Norme, materiali e geometrie dei tubi. Risposte tecniche chiare, da consultare liberamente.
-            </p>
-            <p className="mt-3 text-xs leading-5 text-[#b4cebf]">La Scuola è aperta a tutti e separata dai dati commerciali privati.</p>
-            <div className="mt-7 flex flex-wrap gap-2">
-              <Link href="#ricerca-tecnica" className="inline-flex min-h-11 items-center rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-[#143b2d] transition hover:bg-[#e4f2e9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-                Cerca una norma o un materiale <span aria-hidden="true" className="ml-2">→</span>
-              </Link>
-              <Link href="#approfondimenti" className="inline-flex min-h-11 items-center rounded-xl border border-white/35 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-                Esplora le guide
-              </Link>
-            </div>
-          </div>
-          <div className="relative hidden min-h-52 items-center justify-center lg:flex" aria-hidden="true">
-            <div className="absolute h-56 w-56 rounded-full border border-[#a8d0b5]/20 bg-[#87c6a1]/5 blur-sm" />
-            <div className="relative flex items-end gap-3 opacity-90 [filter:drop-shadow(12px_24px_22px_rgba(0,0,0,.4))]">
-              <div className="h-36 w-28 rounded-[55px] border-[17px] border-[#97bbab] bg-[#0b261c] shadow-[inset_8px_4px_13px_rgba(0,0,0,.6),7px_5px_0_#436e59]" />
-              <div className="h-36 w-28 rounded-[14px] border-[16px] border-[#a4c8b5] bg-[#0b261c] shadow-[inset_8px_4px_13px_rgba(0,0,0,.6),7px_5px_0_#436e59]" />
-              <div className="h-28 w-36 rounded-[12px] border-[15px] border-[#779b8a] bg-[#0b261c] shadow-[inset_8px_4px_13px_rgba(0,0,0,.6),7px_5px_0_#436e59]" />
-            </div>
+      <section aria-labelledby="school-cine-heading" className="relative isolate overflow-hidden rounded-[24px] bg-[#0b241b] text-white">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-cover bg-[position:72%_center] opacity-70" style={{backgroundImage:"url('/home-cine1a-steel.webp')"}} />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(7,29,21,.98)_0%,rgba(7,29,21,.94)_37%,rgba(7,29,21,.60)_73%,rgba(7,29,21,.28)_100%)]" />
+        <div className="relative flex min-h-[292px] max-w-3xl flex-col justify-center px-6 py-9 sm:px-10 sm:py-10 lg:py-11">
+          <p className="text-[11px] font-bold uppercase tracking-[.17em] text-[#b3ddc4]">SMART STEEL SALES / SCHOOL</p>
+          <h1 id="school-cine-heading" className="mt-3 max-w-2xl text-[2.35rem] font-semibold leading-[1.1] tracking-[-.045em] text-white sm:text-[3.15rem]">L’acciaio, spiegato bene.</h1>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-[#e0ece4] sm:text-[15px]">
+            Norme, materiali e geometrie dei tubi. Risposte tecniche chiare, da consultare liberamente.
+          </p>
+          <p className="mt-2 text-xs leading-5 text-[#b4cebf]">La Scuola è aperta a tutti e separata dai dati commerciali privati.</p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Link href="#ricerca-tecnica" className="school-primary-action min-h-11 !rounded-xl !border-[#39876a] !bg-[#247455] !px-5 !text-white transition hover:!bg-[#2c8461] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+              Cerca una norma o un materiale <span aria-hidden="true" className="ml-2">→</span>
+            </Link>
+            <Link href="#approfondimenti" className="inline-flex min-h-11 items-center rounded-xl border border-white/40 px-4 py-2 text-sm font-semibold !text-white transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+              Esplora le guide <span aria-hidden="true" className="ml-2">↗</span>
+            </Link>
           </div>
         </div>
       </section>
