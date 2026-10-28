@@ -190,10 +190,10 @@ alter table public.pilot_activation_preference_receipts enable row level securit
 revoke all on public.pilot_activation_preference_receipts from public,anon,authenticated;
 grant select,insert on public.pilot_activation_preference_receipts to postgres,service_role;
 create or replace function private.prod_next1e_reject_receipt_mutation()
-returns trigger language plpgsql security definer set search_path='' as $
+returns trigger language plpgsql security definer set search_path='' as $$
 begin
   raise exception 'Pilot privacy receipt ledger is append-only' using errcode='42501';
-end $;
+end $$;
 revoke all on function private.prod_next1e_reject_receipt_mutation() from public,anon,authenticated;
 create trigger prod_next1e_preference_receipts_append_only
 before update or delete on public.pilot_activation_preference_receipts
