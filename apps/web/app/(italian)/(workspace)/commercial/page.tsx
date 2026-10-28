@@ -187,9 +187,9 @@ export default async function CommercialHomePage({
             <div aria-label="Il tuo centro operativo" className={"mt-5 max-w-[510px] " + cinematic.heroMetrics}>
               <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#a9d7bc]">Il tuo centro operativo</p>
               <dl className="grid grid-cols-3 gap-2">
-                <div><dd className="text-lg font-semibold tabular-nums text-white">{operational.rfqs}</dd><dt className="text-[10px] text-[#c6ddce]">Richieste</dt></div>
-                <div><dd className="text-lg font-semibold tabular-nums text-white">{operational.offers}</dd><dt className="text-[10px] text-[#c6ddce]">Offerte</dt></div>
-                <div><dd className="text-lg font-semibold tabular-nums text-white">{operational.orders}</dd><dt className="text-[10px] text-[#c6ddce]">Ordini</dt></div>
+                <div><dt className="text-[10px] text-[#c6ddce]">Richieste</dt><dd className="text-lg font-semibold tabular-nums text-white">{operational.rfqs}</dd></div>
+                <div><dt className="text-[10px] text-[#c6ddce]">Offerte</dt><dd className="text-lg font-semibold tabular-nums text-white">{operational.offers}</dd></div>
+                <div><dt className="text-[10px] text-[#c6ddce]">Ordini</dt><dd className="text-lg font-semibold tabular-nums text-white">{operational.orders}</dd></div>
               </dl>
             </div>
             <p className="mt-4 flex flex-wrap items-center gap-2 text-[11px] font-medium text-[#b8d8c6]">
