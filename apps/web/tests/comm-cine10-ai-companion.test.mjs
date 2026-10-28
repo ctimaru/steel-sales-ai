@@ -17,5 +17,7 @@ test("COMM-CINE10 offers only real user-triggered commercial entry points", () =
   assert.match(component, /appRoutes\.commercial\.assistant/);
   assert.match(component, /appRoutes\.commercial\.home/);
   assert.match(component, /canWrite \? \(/);
+  assert.match(component, /comm-cine11-prompt/);
+  assert.match(component, /sss:commercial-ai-intake-handoff/);
   assert.match(component, /nessuna richiesta viene inviata automaticamente/i);
 });
