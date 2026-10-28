@@ -44,6 +44,8 @@ export type WorkspaceContextKey =
   | "marketplace:responses"
   | "marketplace:new"
   | "knowledge:home"
+  | "knowledge:professor"
+  | "knowledge:guides"
   | "knowledge:explorer"
   | "knowledge:catalog"
   | "knowledge:standards"
