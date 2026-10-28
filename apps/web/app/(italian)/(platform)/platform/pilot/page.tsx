@@ -1,4 +1,6 @@
 import { requirePlatformSuperadmin } from "@/lib/platform-admin";
+import { evaluatePilot2027Admission } from "@/lib/prod-next1e-pilot-readiness";
+import { ProdNext1ePilotActivationDashboard } from "@/components/prod-next1e-pilot-activation-dashboard";
 import {
   getMarketplacePilotControl,
   getMarketplacePilotTelemetry,
@@ -87,7 +89,7 @@ function ReadinessDetails({ readiness }: { readiness: PilotReadiness }) {
   );
 }
 
-function ParticipantActions({ participant }: { participant: PilotParticipant }) {
+function ParticipantActions({ participant, admissionReady }: { participant: PilotParticipant; admissionReady: boolean }) {
   const readiness = participant.readiness;
 
   return (
@@ -98,7 +100,7 @@ function ParticipantActions({ participant }: { participant: PilotParticipant }) 
           <button
             name="action"
             value="activate"
-            disabled={!readiness.ready}
+            disabled={!readiness.ready || !admissionReady}
             className="rounded-xl bg-[#1a5144] px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:bg-[#b8c6c0]"
           >
             Attiva
@@ -123,7 +125,7 @@ function ParticipantActions({ participant }: { participant: PilotParticipant }) 
           <button
             name="action"
             value="resume"
-            disabled={!readiness.ready}
+            disabled={!readiness.ready || !admissionReady}
             className="rounded-xl bg-[#1a5144] px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:bg-[#b8c6c0]"
           >
             Riattiva
@@ -173,6 +175,22 @@ export default async function PlatformPilotPage({
   const candidatesOutsideCohort = control.candidate_organizations.filter(
     (candidate) => !candidate.participant,
   );
+  const pilotAdmissions = control.participants.map(participant => {
+    const evaluation = evaluatePilot2027Admission(
+      participant.organization_id, participant.readiness.ready,
+    );
+    return {
+      participantId: participant.participant_id,
+      label: participant.organization_name,
+      role: participant.participant_role,
+      status: participant.status,
+      admitted: evaluation.ready,
+      checks: evaluation.checks,
+    };
+  });
+  const pilotAdmissionByParticipant = new Map(
+    pilotAdmissions.map(item => [item.participantId, item.admitted]),
+  );
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -188,6 +206,8 @@ export default async function PlatformPilotPage({
           riceve soltanto l&apos;entitlement globale pilot già previsto da P5.3.
         </p>
       </section>
+
+      <ProdNext1ePilotActivationDashboard companies={pilotAdmissions} />
 
       {params.message ? (
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-800">
@@ -503,7 +523,7 @@ export default async function PlatformPilotPage({
                         activation cycle {participant.activation_cycle}
                       </p>
                     </div>
-                    <ParticipantActions participant={participant} />
+                    <ParticipantActions participant={participant} admissionReady={pilotAdmissionByParticipant.get(participant.participant_id) === true} />
                   </article>
                 ))
               )}
