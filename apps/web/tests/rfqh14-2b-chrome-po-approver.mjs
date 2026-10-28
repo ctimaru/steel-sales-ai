@@ -9,6 +9,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
+import { createSyntheticRecorder } from "./prod-next1c-synthetic-evidence.mjs";
 
 const origin = process.env.DEMOTEST23_WEB_URL;
 assert.equal(origin, "http://127.0.0.1:3000", "RFQH14.2b external frontend prohibited");
@@ -27,10 +28,13 @@ const rfqRoute = "/rfq-hub/" + buyer.rfq;
 
 const browser = await chromium.launch({headless:true,channel:"chrome"});
 const checks = [];
+const recorder = createSyntheticRecorder("rfqh14_po");
 async function step(name,run){
+  const started = Date.now();
   try {
     await run();
     checks.push(name);
+    recorder.recordPassedStep(name, Date.now() - started);
     console.log("RFQH14.2b Chrome PASS",name);
   }catch(err){
     // Do not print raw URLs or trace: PO capability links are confidential.
@@ -173,6 +177,7 @@ try {
   });
 
   // No supplier token, RFQ customer data, secrets, screenshots or traces leave this runner.
+  recorder.save(checks.length);
   console.log("RFQH14.2b CHROME PASS",checks.length,
     "browser checks; independent UI approval, exact PO, supplier confirmation; LOCAL ONLY");
 } finally {
