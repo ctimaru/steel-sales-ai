@@ -12,6 +12,7 @@ export const EVENT_RULES = Object.freeze({
     ["buyer_login", /^buyer local GoTrue login (390|1440)$/],
     ["bill_ready", /^create mixed-EN 10210\/10219 bill with one-click rows (390|1440)$/],
     ["private_rfq_created", /^one action persists bill and opens private draft RFQ (390|1440)$/],
+    ["same_rfq_viewer_denied", /^viewer denied same browser-created buyer RFQ (390|1440)$/],
     ["suppliers_selected", /^bulk select and add 2 previous suppliers in one click (390|1440)$/],
     ["dispatch_reviewed", /^review exact recipients and cancel without dispatch (390|1440)$/],
     ["outbound_blocked", /^real-send guarded when mail provider disabled (390|1440)$/],
@@ -71,7 +72,7 @@ export function createSyntheticRecorder(phase, env = process.env) {
 }
 
 const REQUIRED = Object.freeze({
-  bd15: { buyer_login: 2, bill_ready: 2, private_rfq_created: 2, suppliers_selected: 2, dispatch_reviewed: 2, outbound_blocked: 2 },
+  bd15: { buyer_login: 2, bill_ready: 2, private_rfq_created: 2, same_rfq_viewer_denied: 2, suppliers_selected: 2, dispatch_reviewed: 2, outbound_blocked: 2 },
   rfqh14_quote: { anonymous_denied: 1, quote_submitted: 1, supplier_isolation: 1, buyer_sees_quote: 1, tenant_denied: 2 },
   rfqh14_po: { self_approval_denied: 1, po_blocked_until_approved: 1, independent_approval: 1, po_issued: 1, supplier_po_confirmed: 1, buyer_sees_po: 1 },
   demotest23: { viewer_denied_owner_rfq: 1, cross_tenant_denied: 5 },
