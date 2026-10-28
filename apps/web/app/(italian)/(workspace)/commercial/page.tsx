@@ -222,7 +222,14 @@ export default async function CommercialHomePage({
         <a href="#commercial-today" className="inline-flex min-h-9 items-center rounded-lg px-3 font-semibold text-[#175640] hover:bg-[#edf5ef]">Priorità</a>
         <a href="#commercial-worklist" className="inline-flex min-h-9 items-center rounded-lg px-3 font-semibold text-[#175640] hover:bg-[#edf5ef]">Trattative</a>
         <a href="#commercial-tools-panel" className="inline-flex min-h-9 items-center rounded-lg px-3 font-semibold text-[#175640] hover:bg-[#edf5ef]">Strumenti</a>
-        {networkAvailable ? <Link href={appRoutes.network.directory} className="inline-flex min-h-9 items-center rounded-lg px-3 font-semibold text-[#175640] hover:bg-[#edf5ef]">Network</Link> : null}
+        {networkAvailable ? (
+          <>
+            <Link href={appRoutes.commercial.home + "?prospects=1#commercial-prospects"}
+              className="inline-flex min-h-9 items-center rounded-lg px-3 font-semibold text-[#175640] hover:bg-[#edf5ef]">Aziende da seguire →</Link>
+            <Link href={appRoutes.network.directory}
+              className="inline-flex min-h-9 items-center rounded-lg px-3 font-semibold text-[#175640] hover:bg-[#edf5ef]">Network</Link>
+          </>
+        ) : null}
       </nav>
 
       <section aria-labelledby="commercial-today-heading" id="commercial-today" className="scroll-mt-28 rounded-2xl border border-[#dce8df] bg-[#f8fbf9] px-4 py-4 sm:px-5" data-testid="commercial-compact-actions">
