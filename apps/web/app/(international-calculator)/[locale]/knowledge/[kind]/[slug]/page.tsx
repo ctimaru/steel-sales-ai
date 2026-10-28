@@ -3,6 +3,7 @@ import Link from "next/link";
 import {notFound} from "next/navigation";
 import {cache} from "react";
 import {LocalizedKnowledgeLayout} from "@/components/localized-knowledge-layout";
+import {SchoolHero} from "@/components/school-ui";
 import {SchoolEditorialTrust,SchoolTechnicalGlossary} from "@/components/school-technical-editorial-trust";
 import {TECHNICAL_RELATED_SLUGS,SCHOOL_EDITORIAL_DRAFT_DATE} from "@/lib/school-technical-editorial-trust";
 import {MARKET_TECHNICAL_RECORDS,MARKET_TECHNICAL_UI,localizedKnowledgeGuide,localizedKnowledgePath,type KnowledgeMarketLocale} from "@/lib/localized-steel-knowledge";
@@ -74,19 +75,21 @@ export default async function LocalizedTechnicalDetail({params}:Params){
  ]};
  return <LocalizedKnowledgeLayout locale={locale} kind={group}>
    <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(jsonLd).replace(/</g,"\\u003c")}}/>
-   <header>
-     <p className="text-xs font-extrabold uppercase tracking-[.12em] text-[#1d6a4e]">{group==="standards"?ui.standards:ui.grades} · {locale.toUpperCase()}</p>
-     <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#173f35] sm:text-4xl">{copy.code}: {copy.title}</h1>
-     <p className="mt-4 max-w-3xl text-sm leading-7 text-[#52615b]">{copy.summary}</p>
-   </header>
-   <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(255px,0.42fr)]">
-     <article className="space-y-6 rounded-2xl border border-[#d0e0d6] bg-white p-5 sm:p-8">
+   <SchoolHero
+     reading
+     eyebrow={group==="standards"?ui.standards:ui.grades}
+     title={copy.code+": "+copy.title}
+     description={<>{copy.summary}</>}
+     badges={[ui.publicRecord]}
+   />
+   <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(255px,0.42fr)]">
+     <article className="space-y-8 rounded-[22px] border border-[#dce6df] bg-white px-5 py-7 sm:px-9 sm:py-9">
        <section><h2 className="text-lg font-bold text-[#173f35]">{group==="standards"?ui.scope:ui.meaning}</h2>
-         <p className="mt-2 text-sm leading-7 text-[#52615b]">{copy.covers}</p></section>
+         <p className="mt-3 max-w-[72ch] text-[15px] leading-8 text-[#465c4f] sm:text-base">{copy.covers}</p></section>
        <section><h2 className="text-lg font-bold text-[#173f35]">{ui.request}</h2>
-         <p className="mt-2 text-sm leading-7 text-[#52615b]">{copy.request}</p></section>
+         <p className="mt-3 max-w-[72ch] text-[15px] leading-8 text-[#465c4f] sm:text-base">{copy.request}</p></section>
        <section><h2 className="text-lg font-bold text-[#173f35]">{ui.warning}</h2>
-         <p className="mt-2 text-sm leading-7 text-[#52615b]">{copy.caution}</p></section>
+         <p className="mt-3 max-w-[72ch] text-[15px] leading-8 text-[#465c4f] sm:text-base">{copy.caution}</p></section>
      </article>
      <aside className="space-y-4">
        <SchoolEditorialTrust locale={locale} recordLastReviewed={published.last_reviewed_at} sourceUrl={copy.source}/>
