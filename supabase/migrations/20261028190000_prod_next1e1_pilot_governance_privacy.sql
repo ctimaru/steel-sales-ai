@@ -258,3 +258,36 @@ revoke all on function public.prod_next1e_governance() from public,anon;
 grant execute on function public.prod_next1e_governance() to authenticated;
 
 -- No SQL insert/telemetry RPC exists in this foundation; all five KPIs remain UNKNOWN.
+
+-- Privacy self-service read: only active memberships and the caller's own choice.
+create or replace function private.prod_next1e_my_privacy_impl()
+returns jsonb language plpgsql stable security definer set search_path='' as $$
+declare v_actor uuid := auth.uid();
+begin
+  if v_actor is null then
+    raise exception 'Authentication required' using errcode='42501';
+  end if;
+  return jsonb_build_object('live_gate','NO-GO','organizations',coalesce((
+    select jsonb_agg(jsonb_build_object(
+      'organization_id',m.organization_id,
+      'organization_name',o.name,
+      'decision',p.decision,
+      'notice_version',p.notice_version,
+      'decided_at',p.decided_at
+    ) order by o.name)
+    from public.organization_memberships m
+    join public.organizations o on o.id=m.organization_id
+    left join public.pilot_activation_preferences p
+      on p.organization_id=m.organization_id and p.user_id=v_actor
+        and p.purpose='activation_analytics'
+    where m.user_id=v_actor and m.status='active'
+  ),'[]'::jsonb));
+end; $$;
+revoke all on function private.prod_next1e_my_privacy_impl() from public,anon;
+grant execute on function private.prod_next1e_my_privacy_impl() to authenticated;
+create or replace function public.prod_next1e_my_privacy()
+returns jsonb language sql stable security invoker set search_path='' as $$
+  select private.prod_next1e_my_privacy_impl();
+$$;
+revoke all on function public.prod_next1e_my_privacy() from public,anon;
+grant execute on function public.prod_next1e_my_privacy() to authenticated;
