@@ -440,4 +440,45 @@ select pg_temp.p56a_assert(
   'P5.6A foreign-key hardening indexes must exist'
 );
 
+
+-- PROD-NEXT1.E1: all changes below are confined to this disposable SQL transaction.
+-- Test a valid user's versioned opt-in, withdrawal and immutable receipts.
+set local role authenticated;
+select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-000000005601',true);
+select set_config('request.jwt.claim.role','authenticated',true);
+
+select pg_temp.p56a_assert_raises(
+  $$select public.prod_next1e_set_analytics_preference(
+    '00000000-0000-0000-0000-000000005612'::uuid,'granted','synthetic-only-ci')$$,
+  'Analytics collection is not authorized'
+);
+select public.prod_next1e_set_analytics_preference(
+  '00000000-0000-0000-0000-000000005610'::uuid,'granted','synthetic-only-ci'
+);
+select public.prod_next1e_set_analytics_preference(
+  '00000000-0000-0000-0000-000000005610'::uuid,'denied','withdrawn'
+);
+select pg_temp.p56a_assert(
+  (
+    public.prod_next1e_my_privacy()->'organizations'
+  ) @> '[{"organization_id":"00000000-0000-0000-0000-000000005610","decision":"denied"}]'::jsonb,
+  'withdrawal must be visible only to the authenticated organization member'
+);
+reset role;
+select pg_temp.p56a_assert(
+  (select count(*) from public.pilot_activation_preference_receipts
+     where user_id='00000000-0000-0000-0000-000000005601'::uuid
+       and organization_id='00000000-0000-0000-0000-000000005610'::uuid)=2
+  and
+  (select decision from public.pilot_activation_preferences
+     where user_id='00000000-0000-0000-0000-000000005601'::uuid
+       and organization_id='00000000-0000-0000-0000-000000005610'::uuid)='denied',
+  'grant and revocation must create two immutable receipts with final opt-out'
+);
+select pg_temp.p56a_assert_raises(
+  $$delete from public.pilot_activation_preference_receipts
+    where user_id='00000000-0000-0000-0000-000000005601'::uuid$$,
+  'append-only'
+);
+
 rollback;
