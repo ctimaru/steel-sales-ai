@@ -73,30 +73,35 @@ export default function KnowledgeHomePage() {
 
       <SchoolUnifiedNavigation locale="it" scope="public" />
 
-      <section className="grid items-center gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]" aria-label="Benvenuto nella Scuola">
-        <div>
-          <SchoolHero
-            eyebrow="Scuola Smart Steel Sales"
-            title="La tua officina tecnica per tubi e acciaio"
-            description={
-              <>
-                Parti dal problema concreto: calcola un peso, consulta una norma o un grado e approfondisci i processi produttivi.
-                La Scuola è consultabile senza account ed è separata dai dati commerciali privati delle aziende.
-              </>
-            }
-            badges={["Pubblica e gratuita", "Norme · Materiali · Calcoli"]}
-            compact
-          />
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Link href="/knowledge/tubes?source=school&surface=home_card#calcolatore-pesi" className="school-primary-action">
-              Apri il calcolatore <span aria-hidden="true" className="ml-2">↗</span>
-            </Link>
-            <Link href="#ricerca-tecnica" className="school-secondary-action">
-              Cerca norma o grado
-            </Link>
+      <section className="relative isolate overflow-hidden rounded-[28px] bg-[#102921] text-white shadow-[0_24px_64px_-40px_rgba(9,36,26,.8)]" aria-labelledby="school-cine-heading">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_85%_22%,rgba(92,154,121,.25),transparent_48%),linear-gradient(125deg,#102921_15%,#193b30_62%,#0a1c17)]" />
+        <div className="relative grid min-h-[330px] items-center gap-4 px-6 py-9 sm:px-10 sm:py-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,.8fr)]">
+          <div className="max-w-2xl">
+            <p className="text-[11px] font-bold uppercase tracking-[.18em] text-[#a6d4ba]">Smart Steel Sales / School</p>
+            <h1 id="school-cine-heading" className="mt-5 max-w-xl text-4xl font-semibold leading-[1.07] tracking-[-.045em] text-white sm:text-5xl lg:text-[3.5rem]">
+              L’acciaio, spiegato bene.
+            </h1>
+            <p className="mt-5 max-w-xl text-sm leading-7 text-[#d2e4d9] sm:text-base">
+              Norme, materiali e geometrie dei tubi. Risposte tecniche chiare, da consultare liberamente.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-2">
+              <Link href="#ricerca-tecnica" className="inline-flex min-h-11 items-center rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-[#143b2d] transition hover:bg-[#e4f2e9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                Cerca una norma o un materiale <span aria-hidden="true" className="ml-2">→</span>
+              </Link>
+              <Link href="#approfondimenti" className="inline-flex min-h-11 items-center rounded-xl border border-white/35 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                Esplora le guide
+              </Link>
+            </div>
+          </div>
+          <div className="relative hidden min-h-52 items-center justify-center lg:flex" aria-hidden="true">
+            <div className="absolute h-56 w-56 rounded-full border border-[#a8d0b5]/20 bg-[#87c6a1]/5 blur-sm" />
+            <div className="relative flex items-end gap-3 opacity-90 [filter:drop-shadow(12px_24px_22px_rgba(0,0,0,.4))]">
+              <div className="h-36 w-28 rounded-[55px] border-[17px] border-[#97bbab] bg-[#0b261c] shadow-[inset_8px_4px_13px_rgba(0,0,0,.6),7px_5px_0_#436e59]" />
+              <div className="h-36 w-28 rounded-[14px] border-[16px] border-[#a4c8b5] bg-[#0b261c] shadow-[inset_8px_4px_13px_rgba(0,0,0,.6),7px_5px_0_#436e59]" />
+              <div className="h-28 w-36 rounded-[12px] border-[15px] border-[#779b8a] bg-[#0b261c] shadow-[inset_8px_4px_13px_rgba(0,0,0,.6),7px_5px_0_#436e59]" />
+            </div>
           </div>
         </div>
-        <TubeSectionIllustration />
       </section>
 
       <section id="strumenti" className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]" aria-labelledby="school-tools-heading">
