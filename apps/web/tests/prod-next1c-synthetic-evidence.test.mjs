@@ -80,6 +80,8 @@ test("PROD-NEXT1.C writes only whitelisted synthetic metrics and enforces every 
     assert.equal(summary.live_customer_metrics_collected, false);
     assert.equal(summary.external_provider_sends, 0);
     assert.equal(summary.checks.bd15.milestones.private_rfq_created, 2);
+    assert.equal(summary.checks.bd15.step_duration_ms_median.private_rfq_created, 101,
+      "Median of two observations must average them, not choose upper middle");
     assert.equal(summary.checks.rfqh14_quote.milestones.tenant_denied, 2);
     assert.equal(summary.checks.rfqh14_po.milestones.po_issued, 1);
     assert.equal(summary.checks.demotest23.milestones.cross_tenant_denied, 5);
