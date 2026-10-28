@@ -91,7 +91,7 @@ const sitemap = await readOnly("/sitemap.xml");
 assert.equal(sitemap.status, 200);
 assert.match(sitemap.content, /<urlset|<sitemapindex/i);
 assert.ok(sitemap.content.includes("https://www.smartsteelsales.com/knowledge"));
-for (const privatePath of ["/dashboard", "/rfq-hub", "/platform", "/marketplace", "/login", "/register"]) {
+for (const privatePath of ["/dashboard", "/commercial", "/rfq-hub", "/platform", "/marketplace", "/login", "/register"]) {
   assert.ok(!sitemap.content.includes("https://www.smartsteelsales.com" + privatePath),
     privatePath + " must not appear in public sitemap");
 }
@@ -100,7 +100,7 @@ pass("sitemap contains only indexable resources for named private surfaces");
 // Production authorization must fail CLOSED for brand-new anonymous requests.
 // A Next streaming shell or a 200 with private content can never be a PASS.
 for (const path of [
-  "/dashboard", "/rfq-hub",
+  "/dashboard", "/commercial", "/rfq-hub",
   "/rfq-hub/00000000-0000-0000-0000-000000099999",
   "/marketplace", "/platform", "/company/profile", "/notifications",
 ]) {
