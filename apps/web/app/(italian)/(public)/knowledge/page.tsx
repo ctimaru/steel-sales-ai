@@ -3,7 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { FocusPage } from "@/components/focus-ui";
-import { SchoolHero } from "@/components/school-ui";
 import { SchoolPageLanguageSelector } from "@/components/calculator-page-language-selector";
 import { SchoolJourney } from "@/components/school-unified-experience";
 import { SchoolUnifiedNavigation, SchoolConversionPath } from "@/components/school-unified-navigation";
@@ -26,42 +25,6 @@ export const metadata: Metadata = {
     type: "website",
   },
 };
-
-/** Original decorative SVG: cross-sections are schematic, not dimensioned drawings. */
-function TubeSectionIllustration() {
-  return (
-    <div className="relative overflow-hidden rounded-3xl border border-[#c9dfd4] bg-[#e9f3ee] p-4 sm:p-5" aria-label="Illustrazione schematica di sezioni tubolari tonde, quadre e rettangolari">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-[#174b3c]">Geometrie dei tubi</p>
-        <span className="rounded-lg border border-[#bdd8c9] bg-white/90 px-2.5 py-1 font-mono text-[10px] font-semibold text-[#174b3c]">CHS / SHS / RHS</span>
-      </div>
-      <svg aria-hidden="true" focusable="false" viewBox="0 0 360 205" className="mt-3 h-auto w-full" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="schoolTubeSteel" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#cce5d8" />
-            <stop offset="1" stopColor="#80baa2" />
-          </linearGradient>
-        </defs>
-        <g stroke="#c9ded3" strokeWidth="1" opacity=".85">
-          <path d="M0 31H360M0 74H360M0 117H360M0 160H360" />
-          <path d="M40 0V205M100 0V205M160 0V205M220 0V205M280 0V205M340 0V205" />
-        </g>
-        <circle cx="73" cy="94" r="46" fill="url(#schoolTubeSteel)" stroke="#195845" strokeWidth="3" />
-        <circle cx="73" cy="94" r="30" fill="#edf6f1" stroke="#195845" strokeWidth="2" />
-        <rect x="147" y="51" width="87" height="87" rx="8" fill="url(#schoolTubeSteel)" stroke="#195845" strokeWidth="3" />
-        <rect x="161" y="65" width="59" height="59" rx="3" fill="#edf6f1" stroke="#195845" strokeWidth="2" />
-        <rect x="254" y="62" width="99" height="64" rx="7" fill="url(#schoolTubeSteel)" stroke="#195845" strokeWidth="3" />
-        <rect x="268" y="76" width="71" height="36" rx="2" fill="#edf6f1" stroke="#195845" strokeWidth="2" />
-        <g fill="#174b3c" fontSize="12" fontWeight="700" textAnchor="middle">
-          <text x="73" y="167">Tondo</text>
-          <text x="190" y="167">Quadro</text>
-          <text x="303" y="167">Rettangolare</text>
-        </g>
-      </svg>
-      <p className="mt-1 text-xs leading-5 text-[#405a4e]">Sezioni illustrative, non in scala. Calcola i valori inserendo norma e dimensioni reali.</p>
-    </div>
-  );
-}
 
 export default function KnowledgeHomePage() {
   return (
