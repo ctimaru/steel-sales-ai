@@ -57,7 +57,7 @@ test("K1 Knowledge is a public technical discovery surface", () => {
   assert.match(sharedSchool, /href:"\/knowledge\/norme"/);
   assert.match(sharedSchool, /href:"\/knowledge\/gradi"/);
   assert.match(knowledge, /schoolArticles\.slice\(0, 3\)/);
-  assert.match(knowledge, /Pubblica e gratuita/);
+  assert.match(knowledge, /accesso gratuito/);
   assert.match(knowledgeLayout, /PublicSessionAction/);
   assert.match(publicSessionAction, /authenticated \? "Workspace" : "Accedi"/);
   assert.match(knowledgeLayout, /Trova azienda/);
