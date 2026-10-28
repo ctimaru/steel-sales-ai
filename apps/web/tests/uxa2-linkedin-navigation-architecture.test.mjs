@@ -94,8 +94,8 @@ test("UXA2 makes Commerciale a first-class landing instead of a random child rou
   assert.match(knowledgeHome, /SchoolWorkspaceFirstViewport/);
   assert.match(schoolViewport, /L’acciaio, spiegato bene/);
   assert.match(schoolViewport, /Calcola peso, barre e tonnellate/);
-  assert.match(knowledgeHome, /documenti restano privati/);
-  assert.match(knowledgeHome, /Catalogo completo/);
+  assert.doesNotMatch(knowledgeHome, /documenti restano privati|school-private-documents/);
+  assert.match(knowledgeHome, /SchoolTechnicalSections/);
 });
 
 test("UXA2 keeps contextual subnavigation scoped to the active macro-space", () => {
