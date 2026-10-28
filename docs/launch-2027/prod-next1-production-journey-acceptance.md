@@ -70,3 +70,29 @@ The existing **DEMOTEST2.3** workflow uses five genuine but synthetic local GoTr
 - `first_po_confirmation`: authorized supplier confirms immutable PO version; not just PO preview.
 
 **Current data classification:** synthetic QA only, no customer observations; **real activation/retention baselines not available**. Consent, workspace boundaries and legal pilot gate must be evaluated before any real-customer collection.
+
+## PROD-NEXT1.D — One continuous RFQ identity: IMPLEMENTED / CI ACCEPTANCE PENDING
+
+**Runbook:** `.github/workflows/demotest2-3-chrome-auth.yml` executes the linked journey after its existing four-tenant/PO tests, against **one RFQ created by real BD15 Chrome** (`BD15 E2E LOCAL 1440`). It does not seed a replacement RFQ or borrow the unrelated RFQH14.2 fixture.
+
+1. Buyer creates mixed EN10219/EN10210 two-line private Distinta via Chrome and persists RFQ with two selected suppliers. At this point the original viewer, still a `viewer`, is denied access to **that just-created RFQ**; screenshots, URLs, session cookies and credentials are not exported.
+2. Local SQL verifies the exact stored campaign + Distinta source and 2 selected supplier organizations. Existing `rfqh3_launch_campaign` RPC queues two ephemeral token hashes; no external provider configuration, no email/Marketplace publish.
+3. Producer accepts only his own local supplier invitation; real Chrome saves quote prices EUR/t 735 and 755, verifies they survive save, submits. Buyer sees the quote on **same RFQ**; trader cannot see competing quote; authenticated trader cannot see buyer private campaign.
+4. Existing business RPCs, with synthetic buyer's authenticated Postgres claim, prepare award against the **same** RFQ and require an independent approver. **Important scope:** the award/PO terms/approval request are prepared through real application RPCs from local SQL, not manual Chrome form entry.
+5. Browser signs in independent approver, records approval, owner issues immutable version 1 PO, supplier confirms the exact version, owner sees confirmed status — all on the same RFQ from Step 1.
+6. Read-only SQL transaction fails unless Distinta source, two norms, quote line prices and normalization, separate-person approval, one PO v1 and supplier response all share **one RFQ identifier**; both RFQ/PO external provider messages must be zero.
+
+A successful run will upload `prod-next1d-single-rfq-qa`, containing only explicitly authored milestone names and disposable CI timings; no RFQ UUID, capability token, mail address, price content, identity or secret. Until the linked Chrome and SQL gates pass, label this **implemented, not accepted**.
+
+### Real-activation measurement: PILOT-GATED, NOT ENABLED
+
+We will not instrument production commercial contents or treat synthetic CI as customer traction. Before any live pilot metrics can be turned on, all of these must be independently approved and recorded against L27.5:
+
+- Documented pilot agreement, privacy notice/lawful basis, applicable DPA, data-retention/erasure and consent mechanism aligned with existing Consent Mode v2. No undisclosed monitoring.
+- Explicit founder/superadmin GO for named pilot cohort, verified organization membership/role, support channel, backup/restore validation, and an opt-out/kill switch.
+- Use a minimal, allow-listed **event vocabulary** only: `valid_bill_created`, `private_rfq_draft_saved`, `supplier_selection_reviewed`, `qualified_quote_submitted`, `po_confirmed`. Server-confirmed state change is required — never count a click or page view as conversion.
+- Absolutely no emails, names, prices, material descriptions, RFQ identifiers, supplier contact data, prompt text, quote bodies, capability URLs, JWTs or IP addresses in event properties. Where authorization and consent are missing, **record nothing**.
+- Report separate denominators: eligible pilot organizations/users who opted in, valid-bill creators, private RFQ creators, qualified quote receivers and confirmed POs; segment by permission only in privacy-safe aggregates with small-group suppression.
+- Real activation dashboard must clearly label **real opt-in pilot** versus **synthetic test** counts. Do not backfill synthetic events as live conversions.
+
+**Pilot metrics GO/NO-GO remains NO-GO**. This work only creates the acceptance fixture and metric governance contract; it does not enable new live customer tracking.
