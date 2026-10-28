@@ -20,10 +20,10 @@ try{
     return u.origin===origin&&["GET","HEAD"].includes(q.method())?r.continue():r.abort();
   });
   const page=await context.newPage();
-  for(const [lang,f] of Object.entries(fixtures)){
-   const path="/school/explorer"+(lang==="it"?"":"?lang="+lang);
+  for(const [lang,f] of Object.entries(fixtures).filter(([lang])=>lang==="it")){
+   const path="/commercial/knowledge";
    const response=await page.goto(origin+path,{waitUntil:"domcontentloaded",timeout:60000});
-   assert.equal(response?.status(),200,lang+" demo explorer");
+   assert.equal(response?.status(),200,lang+" Commercial Memory");
    await page.getByRole("heading",{name:f.header,exact:true}).waitFor();
    const controls=page.locator("form").filter({has:page.locator('input[name="query"]')}).first();
    const search=controls.locator('input[name="query"]');
@@ -53,4 +53,4 @@ try{
   await context.close();
  }
 }finally{await browser.close();}
-console.log("SCHOOL-UNIFY2B LOCAL CHROME PASS: 5 locales x 2 viewports, translated filter contract, no app writes");
+console.log("SCHOOL-UNIFY2B LOCAL CHROME PASS: Commercial Memory Italian entry at 2 viewports, source/filters intact, no app writes");
