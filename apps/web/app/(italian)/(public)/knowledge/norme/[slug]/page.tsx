@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 
 import { SchoolHero } from "@/components/school-ui";
+import { SchoolReadingIndex } from "@/components/school-reading-index";
 
 import {
   applicationCategoryLabel,
@@ -172,6 +173,11 @@ export default async function StandardDetailPage({
           ]}
         />
 
+        <SchoolReadingIndex locale="it" entries={[
+          { id: "standard-reading-main", label: "Ambito della norma" },
+          ...standard.editorial_sections.map((section, index) => ({ id: `standard-reading-section-${index + 1}`, label: section.heading })),
+        ]} />
+
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {standard.issuing_body ? (
             <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
@@ -203,7 +209,7 @@ export default async function StandardDetailPage({
           ) : null}
         </section>
 
-        <section className="rounded-[20px] border border-[#dce6df] bg-white p-5 sm:p-7">
+        <section id="standard-reading-main" className="scroll-mt-24 rounded-[20px] border border-[#dce6df] bg-white p-5 sm:p-7">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Cosa tratta</p>
           <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">Ambito della {standard.code}</h2>
           <p className="mt-4 max-w-[74ch] whitespace-pre-line text-[15px] leading-8 text-[#465c4f]">{standard.what_it_covers}</p>
@@ -226,7 +232,7 @@ export default async function StandardDetailPage({
         </section>
 
         {standard.editorial_sections.map((section, index) => (
-          <section key={section.heading + index} className="rounded-[20px] border border-[#dce6df] bg-white p-5 sm:p-7">
+          <section id={`standard-reading-section-${index + 1}`} key={section.heading + index} className="scroll-mt-24 rounded-[20px] border border-[#dce6df] bg-white p-5 sm:p-7">
             <h2 className="text-2xl font-semibold text-[#1d2824]">{section.heading}</h2>
             <p className="mt-3 max-w-[74ch] whitespace-pre-line text-[15px] leading-8 text-[#465c4f]">{section.body}</p>
           </section>

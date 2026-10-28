@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 
 import { EnglishPublicSubpage } from "@/components/english-public-subpage";
+import { SchoolReadingIndex } from "@/components/school-reading-index";
 import {
   englishGradeForSlug,
   englishStandards,
@@ -105,17 +106,22 @@ export default async function EnglishGradeDetail({ params }: PageProps) {
           <Link href="/en/knowledge/grades">Grades</Link><span aria-hidden="true">/</span>
           <span className="text-[#52615b]">{copy.designation}</span>
         </nav>
+        <SchoolReadingIndex locale="en" entries={[
+          { id: "en-grade-part-1", label: "Understanding the designation" },
+          { id: "en-grade-part-2", label: "Purchasing specification" },
+          { id: "en-grade-part-3", label: "Grade differences" },
+        ]} />
         <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_290px]">
           <article className="space-y-8 rounded-[22px] border border-[#dce6df] bg-white px-5 py-7 sm:px-9 sm:py-9">
-            <section>
+            <section id="en-grade-part-1" className="scroll-mt-24">
               <h2 className="text-xl font-bold text-[#123b34]">Understanding the designation</h2>
               <p className="mt-3 max-w-[72ch] text-[15px] leading-8 text-[#465c4f] sm:text-base">{copy.designationMeaning}</p>
             </section>
-            <section>
+            <section id="en-grade-part-2" className="scroll-mt-24">
               <h2 className="text-xl font-bold text-[#123b34]">Writing a reliable purchasing specification</h2>
               <p className="mt-3 text-sm leading-7 text-[#52615b]">{copy.procurement}</p>
             </section>
-            <section>
+            <section id="en-grade-part-3" className="scroll-mt-24">
               <h2 className="text-xl font-bold text-[#123b34]">Do similar grades mean the same thing?</h2>
               <p className="mt-3 text-sm leading-7 text-[#52615b]">{copy.difference}</p>
             </section>

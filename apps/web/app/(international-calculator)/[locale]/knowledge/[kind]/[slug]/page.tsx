@@ -4,6 +4,7 @@ import {notFound} from "next/navigation";
 import {cache} from "react";
 import {LocalizedKnowledgeLayout} from "@/components/localized-knowledge-layout";
 import {SchoolHero} from "@/components/school-ui";
+import {SchoolReadingIndex} from "@/components/school-reading-index";
 import {SchoolEditorialTrust,SchoolTechnicalGlossary} from "@/components/school-technical-editorial-trust";
 import {TECHNICAL_RELATED_SLUGS,SCHOOL_EDITORIAL_DRAFT_DATE} from "@/lib/school-technical-editorial-trust";
 import {MARKET_TECHNICAL_RECORDS,MARKET_TECHNICAL_UI,localizedKnowledgeGuide,localizedKnowledgePath,type KnowledgeMarketLocale} from "@/lib/localized-steel-knowledge";
@@ -82,13 +83,18 @@ export default async function LocalizedTechnicalDetail({params}:Params){
      description={<>{copy.summary}</>}
      badges={[ui.publicRecord]}
    />
+   <SchoolReadingIndex locale={locale} entries={[
+     { id: "localized-reading-part-1", label: group==="standards"?ui.scope:ui.meaning },
+     { id: "localized-reading-part-2", label: ui.request },
+     { id: "localized-reading-part-3", label: ui.warning },
+   ]}/>
    <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(255px,0.42fr)]">
      <article className="space-y-8 rounded-[22px] border border-[#dce6df] bg-white px-5 py-7 sm:px-9 sm:py-9">
-       <section><h2 className="text-lg font-bold text-[#173f35]">{group==="standards"?ui.scope:ui.meaning}</h2>
+       <section id="localized-reading-part-1" className="scroll-mt-24"><h2 className="text-lg font-bold text-[#173f35]">{group==="standards"?ui.scope:ui.meaning}</h2>
          <p className="mt-3 max-w-[72ch] text-[15px] leading-8 text-[#465c4f] sm:text-base">{copy.covers}</p></section>
-       <section><h2 className="text-lg font-bold text-[#173f35]">{ui.request}</h2>
+       <section id="localized-reading-part-2" className="scroll-mt-24"><h2 className="text-lg font-bold text-[#173f35]">{ui.request}</h2>
          <p className="mt-3 max-w-[72ch] text-[15px] leading-8 text-[#465c4f] sm:text-base">{copy.request}</p></section>
-       <section><h2 className="text-lg font-bold text-[#173f35]">{ui.warning}</h2>
+       <section id="localized-reading-part-3" className="scroll-mt-24"><h2 className="text-lg font-bold text-[#173f35]">{ui.warning}</h2>
          <p className="mt-3 max-w-[72ch] text-[15px] leading-8 text-[#465c4f] sm:text-base">{copy.caution}</p></section>
      </article>
      <aside className="space-y-4">
