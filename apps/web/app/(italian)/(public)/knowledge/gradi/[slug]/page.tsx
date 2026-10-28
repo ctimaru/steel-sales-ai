@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 
 import { SchoolHero } from "@/components/school-ui";
+import { SchoolReadingIndex } from "@/components/school-reading-index";
 
 import {
   applicabilityLabel,
@@ -171,6 +172,11 @@ export default async function GradeDetailPage({
           ]}
         />
 
+        <SchoolReadingIndex locale="it" entries={[
+          { id: "grade-reading-main", label: "Come leggere la designazione" },
+          ...grade.editorial_sections.map((section, index) => ({ id: `grade-reading-section-${index + 1}`, label: section.heading })),
+        ]} />
+
         <section className="grid gap-4 sm:grid-cols-3">
           <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
             <p className="school-meta-label">Designazione</p>
@@ -189,7 +195,7 @@ export default async function GradeDetailPage({
           </div>
         </section>
 
-        <section className="rounded-[20px] border border-[#dce6df] bg-white p-5 sm:p-7">
+        <section id="grade-reading-main" className="scroll-mt-24 rounded-[20px] border border-[#dce6df] bg-white p-5 sm:p-7">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Designazione</p>
           <h2 className="mt-2 text-2xl font-semibold text-[#1d2824]">Come leggere {grade.designation}</h2>
           <p className="mt-4 max-w-[74ch] whitespace-pre-line text-[15px] leading-8 text-[#465c4f]">
@@ -207,7 +213,7 @@ export default async function GradeDetailPage({
         </section>
 
         {grade.editorial_sections.map((section, index) => (
-          <section key={section.heading + index} className="rounded-[20px] border border-[#dce6df] bg-white p-5 sm:p-7">
+          <section id={`grade-reading-section-${index + 1}`} key={section.heading + index} className="scroll-mt-24 rounded-[20px] border border-[#dce6df] bg-white p-5 sm:p-7">
             <h2 className="text-2xl font-semibold text-[#1d2824]">{section.heading}</h2>
             <p className="mt-3 max-w-[74ch] whitespace-pre-line text-[15px] leading-8 text-[#465c4f]">{section.body}</p>
           </section>
