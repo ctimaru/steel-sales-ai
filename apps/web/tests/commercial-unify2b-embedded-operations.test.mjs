@@ -13,7 +13,7 @@ test("COMMERCIAL-UNIFY2B keeps all four governed RFQ activities in the same Comm
   assert.match(page, /tab=\{tab\}/);
   assert.match(worklist, /<CommercialCampaignOperations/);
   assert.match(worklist, /rfqId=\{item\.campaignId\}/);
-  assert.match(worklist, /active\.campaignId \? "grid min-w-0 gap-3"/);
+  assert.match(worklist, /data-testid="comm-cine2-split-view"/);
   assert.match(operations, /Confronta offerte/);
   assert.match(operations, /Negozia/);
   assert.match(operations, /Aggiudica/);

@@ -34,7 +34,7 @@ test("COMMERCIAL-UNIFY1 retains deep links but resolves private procurement with
 });
 
 test("COMMERCIAL-UNIFY1 puts workflow, live buyer actions and Network entry before historical drilldowns", () => {
-  assert.match(commercial, /Tutto il lavoro commerciale, in un unico posto/);
+  assert.match(commercial, /Le tue trattative\. Un’unica visione\./);
   assert.match(commercial, /Che cosa vuoi fare oggi\?/);
   assert.ok(commercial.indexOf('aria-labelledby="commercial-today"') < commercial.indexOf("Cerca nella Commercial Memory"));
   assert.match(commercial, /rfqh10_procurement_inbox/);

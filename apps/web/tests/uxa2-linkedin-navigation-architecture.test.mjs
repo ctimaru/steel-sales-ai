@@ -83,7 +83,7 @@ test("UXA2 makes Commerciale a first-class landing instead of a random child rou
   assert.match(routes, /home: "\/commercial"/);
   assert.match(nav, /href: appRoutes\.commercial\.home/);
   assert.match(nav, /href: appRoutes\.knowledge\.workspace/);
-  assert.match(commercialHome, /La memoria commerciale della tua azienda/);
+  assert.match(commercialHome, /Le tue trattative\. Un’unica visione\./);
   assert.match(commercialHome, /Cerca nella Commercial Memory/);
   assert.match(commercialHome, /Product 360/);
   assert.match(commercialHome, /Company 360/);

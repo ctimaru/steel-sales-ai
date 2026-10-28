@@ -29,7 +29,7 @@ test("PF6 aligns focused page hierarchy across the five macro-spaces", () => {
   assert.match(focusUi, /export function FocusSectionHeader/);
   assert.match(focusUi, /space-y-7/);
   for (const source of [home, commercial, network, marketplace, school]) {
-    assert.match(source, /FocusHeader/);
+    assert.match(source, source === commercial ? /data-testid="comm-cine1-hero"/ : /FocusHeader/);
   }
   assert.match(home, /<h2 id="dashboard-pulse-heading"|<DashboardSteelPulse state=\{pulse\} \/>/);
   for (const source of [commercial, network, marketplace, school]) {
