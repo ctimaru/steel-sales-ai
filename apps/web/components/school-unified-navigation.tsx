@@ -23,7 +23,7 @@ const translations={
     enter:"Area aziendale",publicLabel:"Scuola pubblica",
     pathway:"Dalla conoscenza alla richiesta",step1:"Consulta",step2:"Calcola",step3:"Prepara la distinta",
     hint:"Una richiesta precisa nasce da misure, norma e grado verificati. La distinta prepara i dati per una RFQ; non invia automaticamente una richiesta.",
-    next:"Crea la distinta",privacy:"I documenti aziendali restano riservati.",
+    next:"Crea la distinta",privacy:"Consulta sempre le fonti tecniche originali.",
   },
   en:{public:"Open School",private:"Company workspace",navigate:"School navigation",
     home:"School",calculator:"Calculator",standards:"Standards",grades:"Grades",assistant:"Assistant",
@@ -31,7 +31,7 @@ const translations={
     enter:"Company workspace",publicLabel:"Public School",
     pathway:"From knowledge to a structured enquiry",step1:"Explore",step2:"Calculate",step3:"Prepare a bill",
     hint:"Verify dimensions, standard and grade before preparing your RFQ. A bill captures requirements; it does not submit an order automatically.",
-    next:"Create an RFQ bill",privacy:"Company documents remain private.",
+    next:"Create an RFQ bill",privacy:"Always consult the original technical sources.",
   },
   de:{public:"Öffentliche Stahlschule",private:"Firmen-Workspace",navigate:"Navigation Stahlschule",
     home:"Stahlschule",calculator:"Rechner",standards:"Normen",grades:"Werkstoffe",assistant:"Assistent",
@@ -39,7 +39,7 @@ const translations={
     enter:"Firmen-Workspace",publicLabel:"Öffentliche Stahlschule",
     pathway:"Vom Fachwissen zur Anfrage",step1:"Informieren",step2:"Berechnen",step3:"Stückliste erstellen",
     hint:"Maße, Norm und Stahlgüte vor der Anfrage prüfen. Eine Stückliste erfasst Angaben, versendet aber keine Bestellung.",
-    next:"Stückliste erstellen",privacy:"Firmendokumente bleiben privat.",
+    next:"Stückliste erstellen",privacy:"Originalquellen prüfen.",
   },
   fr:{public:"École publique",private:"Espace entreprise",navigate:"Navigation de l’École",
     home:"École",calculator:"Calculateur",standards:"Normes",grades:"Nuances",assistant:"Assistant",
@@ -47,7 +47,7 @@ const translations={
     enter:"Espace entreprise",publicLabel:"École publique",
     pathway:"Du savoir à la demande de prix",step1:"Consulter",step2:"Calculer",step3:"Créer la liste",
     hint:"Vérifiez les dimensions, la norme et la nuance. La liste prépare la demande, sans envoyer automatiquement une commande.",
-    next:"Créer la liste",privacy:"Les documents d’entreprise restent privés.",
+    next:"Créer la liste",privacy:"Vérifiez les sources originales.",
   },
   es:{public:"Escuela pública",private:"Espacio empresarial",navigate:"Navegación de la Escuela",
     home:"Escuela",calculator:"Calculadora",standards:"Normas",grades:"Calidades",assistant:"Asistente",
@@ -55,7 +55,7 @@ const translations={
     enter:"Espacio empresarial",publicLabel:"Escuela pública",
     pathway:"Del conocimiento a la solicitud",step1:"Consultar",step2:"Calcular",step3:"Preparar lista",
     hint:"Comprueba las dimensiones, norma y calidad antes de solicitar oferta. La lista organiza los requisitos, no envía un pedido.",
-    next:"Crear lista de oferta",privacy:"Los documentos de empresa siguen privados.",
+    next:"Crear lista de oferta",privacy:"Comprueba las fuentes originales.",
   },
 } as const;
 
@@ -63,14 +63,11 @@ function schoolNavigationItems(locale:CalculatorSiteLocale,scope:Scope){
   const t=translations[locale];
   if(scope==="workspace") return [
     {label:t.home,href:schoolWorkspaceHref("/school",locale)},
-    {label:t.assistant,href:schoolWorkspaceHref("/school/assistant",locale)},
-    {label:t.calculator,href:locale==="it"?"/school/tubes?source=school&surface=school_nav":calculatorFromSchool(locale)},
+    {label:"Professore",href:schoolWorkspaceHref("/school/professore",locale)},
     {label:t.standards,href:schoolWorkspaceHref("/school/norme",locale)},
     {label:t.grades,href:schoolWorkspaceHref("/school/gradi",locale)},
-    {label:t.documents,href:schoolWorkspaceHref("/school/explorer",locale)},
-    {label:t.bill,href:billRoute[locale]},
-  ];
-  const other=locale==="it"?[
+    {label:t.guides,href:schoolWorkspaceHref("/school/guide",locale)},
+  ];  const other=locale==="it"?[
     {label:t.standards,href:"/knowledge/norme"},
     {label:t.grades,href:"/knowledge/gradi"},
     {label:t.guides,href:"/knowledge/articoli"},
