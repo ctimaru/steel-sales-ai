@@ -38,10 +38,10 @@ test("SCHOOL-GROWTH1A preserves conversion, trust and Network privacy", () => {
   assert.doesNotMatch(page, /<img[^>]+src="https?:/);
 });
 
-test("SCHOOL-GROWTH1A uses the shared high-contrast action contract and a lightweight schematic", () => {
+test("SCHOOL-GROWTH1A uses the shared high-contrast action contract and verified industrial photography", () => {
   assert.match(page, /school-primary-action/);
   assert.match(page, /school-secondary-action/);
-  assert.match(page, /home-cine1a-steel\\.webp/);
+  assert.match(page, /home-cine1a-steel\.webp/);
   assert.match(page, /SchoolJourney locale="it"/);
   assert.match(page, /focus-visible:outline-2/);
 });
