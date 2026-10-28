@@ -150,31 +150,32 @@ async function SelectedDetail({
         </Link>
       </section>
       <section aria-labelledby="commercial-deal-memory-heading" data-testid="commercial-deal-memory-entry"
-        className="rounded-xl border border-[var(--border)] bg-white p-3 sm:p-4">
-        <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--brand-primary)]">Commercial Intelligence</p>
-        <h4 id="commercial-deal-memory-heading" className="mt-1 text-sm font-semibold text-[var(--brand-deep)]">Cerca nella memoria commerciale</h4>
-        <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
-          Consulta conversazioni e informazioni già disponibili nel workspace. La ricerca nell’assistente è manuale:
-          questa trattativa non viene condivisa o analizzata automaticamente.
-        </p>
-        <div data-testid="commercial-deal-fact-brief" className="mt-3 rounded-lg bg-[var(--surface-subtle)] p-3">
-          <p className="text-[11px] font-semibold text-[var(--brand-deep)]">Contesto verificabile della scheda</p>
-          <dl className="mt-2 grid gap-1.5 text-xs sm:grid-cols-2">
-            <div><dt className="text-[var(--text-secondary)]">Tipo</dt><dd className="break-words font-medium">{itemType(item)}</dd></div>
-            <div><dt className="text-[var(--text-secondary)]">Stato registrato</dt><dd className="break-words font-medium">{detail?.status ?? item.status}</dd></div>
-            <div><dt className="text-[var(--text-secondary)]">Oggetto</dt><dd className="break-words font-medium">{item.title}</dd></div>
-            <div><dt className="text-[var(--text-secondary)]">Origine</dt><dd className="break-words font-medium">{item.origin}</dd></div>
-          </dl>
-          <p className="mt-2 text-[11px] text-[var(--text-secondary)]">
-            Questi dati provengono dalla voce selezionata. Eventuali offerte, messaggi o documenti vanno verificati nel dettaglio originale: non vengono dedotti da questa sintesi.
-          </p>
+        className="overflow-hidden rounded-2xl border border-[#c9e1d3] bg-[#f3faf5]">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#dbece1] px-3 py-3 sm:px-4">
+          <div className="flex items-center gap-2">
+            <span aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#175640] text-sm text-white">✦</span>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#246c53]">Commercial Intelligence</p>
+              <h4 id="commercial-deal-memory-heading" className="text-sm font-semibold text-[#173f35]">Analizza questa trattativa</h4>
+            </div>
+          </div>
+          <span className="text-[10px] font-medium text-[#52685b]">Solo dati autorizzati</span>
         </div>
-        <CommercialDealFactBriefCopy key={item.key} kind={item.kind} dealId={item.id} status={detail?.status ?? item.status} title={item.title} origin={item.origin}
-          relatedActivities={related.slice(0, 4).map((entry) => ({ kind: itemType(entry), status: entry.status }))} />
-        <Link href={appRoutes.commercial.assistant}
-          className="mt-3 inline-flex min-h-10 items-center rounded-lg border border-[var(--border-strong)] px-3 text-xs font-semibold text-[var(--brand-deep)] hover:bg-[var(--brand-primary-soft)]">
-          Apri assistente commerciale →
-        </Link>
+        <div className="space-y-3 px-3 py-3 sm:px-4">
+          <CommercialDealFactBriefCopy key={item.key} kind={item.kind} dealId={item.id}
+            status={detail?.status ?? item.status} title={item.title} origin={item.origin}
+            relatedActivities={related.slice(0, 4).map((entry) => ({ kind: itemType(entry), status: entry.status }))} />
+          <details data-testid="commercial-deal-fact-brief" className="border-t border-[#dbece1] pt-2 text-xs">
+            <summary className="cursor-pointer font-semibold text-[#175640]">Dati di partenza della scheda</summary>
+            <dl className="mt-2 grid gap-2 sm:grid-cols-2">
+              <div><dt className="text-[#52685b]">Tipo</dt><dd className="font-medium text-[#173f35]">{itemType(item)}</dd></div>
+              <div><dt className="text-[#52685b]">Stato</dt><dd className="font-medium text-[#173f35]">{detail?.status ?? item.status}</dd></div>
+              <div><dt className="text-[#52685b]">Oggetto</dt><dd className="break-words font-medium text-[#173f35]">{item.title}</dd></div>
+              <div><dt className="text-[#52685b]">Origine</dt><dd className="font-medium text-[#173f35]">{item.origin}</dd></div>
+            </dl>
+            <p className="mt-2 text-[11px] text-[#52685b]">Le offerte, i messaggi e i documenti non presenti non vengono dedotti da questa sintesi.</p>
+          </details>
+        </div>
       </section>
       {item.campaignId ? (
         <CommercialCampaignOperations
