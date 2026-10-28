@@ -40,7 +40,7 @@ export function SchoolLocalizedWorkspaceHome({locale}:{locale:SchoolWorkspaceLoc
         <SchoolTechnicalSections locale={locale}/>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {privateCards(locale).map(item=><Link key={item.href} href={item.href}
-            className="group flex min-h-[138px] flex-col rounded-[18px] border border-[#d4e2d8] bg-[#fafcfb] p-4 transition hover:border-[#8bb7a3] hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">
+            data-testid="school-private-tool-card" className="group flex min-h-[138px] flex-col rounded-[18px] border border-[#d4e2d8] bg-[#fafcfb] p-4 transition hover:border-[#8bb7a3] hover:shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">
             <span className="text-[11px] font-bold uppercase tracking-[.1em] text-[#2b7356]">{item.label}</span>
             <h3 className="mt-2 text-sm font-semibold text-[#173f35]">{item.title}</h3>
             <p className="mt-2 flex-1 text-xs leading-5 text-[#506157]">{item.description}</p>
