@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { PilotEvent } from "@/components/pilot-event";
-import { FocusHeader, FocusPage, FocusSectionHeader } from "@/components/focus-ui";
+import { FocusPage, FocusSectionHeader } from "@/components/focus-ui";
 import { Badge } from "@/components/ui/badge";
 import { getDashboardData } from "@/lib/commercial-data";
 import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
@@ -166,7 +166,7 @@ export default async function CommercialHomePage({
   ];
 
   return (
-    <FocusPage compact className="max-w-[1480px]" >
+    <FocusPage compact className="max-w-[1480px]">
       <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
       <section aria-label="Commerciale Smart Steel Sales" data-testid="comm-cine1-hero"
         className="relative isolate overflow-hidden rounded-[22px] border border-[#174437] bg-[#082f28] px-5 py-5 text-white shadow-[0_16px_40px_-28px_rgba(4,39,30,0.8)] sm:px-7 sm:py-6">
