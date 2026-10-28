@@ -176,7 +176,7 @@ export default async function SchoolArticlePage({
       ]} />
 
       {article.timeline?.length ? (
-        <section className="school-card p-6 sm:p-8" id="article-timeline" aria-labelledby="article-timeline">
+        <section className="school-card p-6 sm:p-8" aria-labelledby="article-timeline">
           <p className="school-kicker">Timeline</p>
           <h2 id="article-timeline" className="mt-2 text-2xl font-semibold text-[#1d2824]">
             Le tappe essenziali
@@ -194,7 +194,7 @@ export default async function SchoolArticlePage({
       ) : null}
 
       {article.processFlows?.length ? (
-        <section className="space-y-5" id="article-process-flows" aria-labelledby="article-process-flows">
+        <section className="space-y-5" aria-labelledby="article-process-flows">
           <div className="school-card p-6 sm:p-8">
             <p className="school-kicker">Processi produttivi</p>
             <h2 id="article-process-flows" className="mt-2 text-2xl font-semibold text-[#1d2824]">
@@ -230,7 +230,7 @@ export default async function SchoolArticlePage({
       ) : null}
 
       {article.comparison?.length ? (
-        <section className="school-card p-6 sm:p-8" id="article-process-comparison" aria-labelledby="article-process-comparison">
+        <section className="school-card p-6 sm:p-8" aria-labelledby="article-process-comparison">
           <p className="school-kicker">Confronto</p>
           <h2 id="article-process-comparison" className="mt-2 text-2xl font-semibold text-[#1d2824]">
             Saldato vs seamless: cosa cambia davvero
@@ -338,7 +338,7 @@ export default async function SchoolArticlePage({
         </section>
       ) : null}
 
-      <section className="school-muted-card p-6 sm:p-8" id="article-sources" aria-labelledby="article-sources">
+      <section className="school-muted-card p-6 sm:p-8" aria-labelledby="article-sources">
         <p className="school-kicker">Fonti e revisione</p>
         <h2 id="article-sources" className="mt-2 text-2xl font-semibold text-[#1d2824]">
           Fonti consultate
