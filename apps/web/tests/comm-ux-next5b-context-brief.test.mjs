@@ -39,7 +39,7 @@ test("editable question and exact preview make copied facts transparent",()=>{
  const copy=readFileSync(new URL("../components/commercial-deal-fact-brief-copy.tsx",import.meta.url),"utf8");
  assert.match(copy,/value=\{question\} onChange=/);
  assert.match(copy,/maxLength=\{500\}/);
- assert.match(copy,/Anteprima esatta del contesto da copiare/);
+ assert.match(copy,/Controlla il contesto da condividere/);
  assert.match(copy,/\{contextText\}/);
  assert.match(copy,/if \(!question\.trim\(\)\)/);
 });
