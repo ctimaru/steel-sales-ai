@@ -1,0 +1,38 @@
+name: PROD-NEXT1.E3B Offline Backup & Restore Contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/tools/e3b_production_backup.py'
+      - 'supabase/tools/e3b_isolated_restore.py'
+      - 'supabase/tools/test_e3b_operator_backup.py'
+      - '.github/workflows/prod-next1e3b-backup-contract.yml'
+      - 'docs/operations/prod-next1e3b-real-backup-storage-evidence.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Verify Python syntax
+        run: python3 -m py_compile supabase/tools/e3b_production_backup.py supabase/tools/e3b_isolated_restore.py supabase/tools/test_e3b_operator_backup.py
+      - name: Run synthetic-only archive and isolation tests
+        env:
+          CI: "true"
+          GITHUB_ACTIONS: "true"
+        run: python3 -m unittest discover -s supabase/tools -p 'test_e3b_*.py' -v
+      - name: Prove workflow carries no source credential or data export
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -E 'service_role|SUPABASE_DB_PASSWORD|aws s3 cp|supabase db dump|e3b_production_backup.py --' \
+              .github/workflows/prod-next1e3b-backup-contract.yml
+          echo 'E3.B offline-only PASS. No production bytes exported.'
