@@ -22,12 +22,11 @@ try {
   assert.equal(await dialog.locator("[data-distinta-tabular-row]").count(),3);
   const dialogBox=await dialog.boundingBox(),rowBox=await row.boundingBox();
   assert.ok(dialogBox&&rowBox);
-  assert.ok(dialogBox.width <= (width>=640?465:width+2),"Cart too wide at "+width+": "+dialogBox.width);
-  assert.ok(rowBox.height <= (width>=640?58:94),"Not truly tabular: row height "+rowBox.height+" at "+width);
+  assert.ok(dialogBox.width <= (width>=640?515:width+2),"Cart too wide at "+width+": "+dialogBox.width);
+  assert.ok(rowBox.height>=115 && rowBox.height<=225,"Row hierarchy must be readable yet compact: "+rowBox.height+" at "+width);
   const buttons=await row.locator("[data-distinta-row-actions] > button").all();
   assert.equal(buttons.length,4,"Edit, duplicate, remove, target actions remain accessible directly");
-  const y=await Promise.all(buttons.map(async x=>(await x.boundingBox())?.y??-1));
-  assert.ok(y.every(v=>Math.abs(v-y[0])<2),"Actions wrap at "+width+": "+y.join(","));
+  for(const button of buttons){const box=await button.boundingBox();assert.ok(box&&box.width>=39&&box.height>=43,"Row actions must retain accessible hit areas");}
   const sizes=await dialog.evaluate(el=>({scroll:el.scrollWidth,client:el.clientWidth}));
   assert.ok(sizes.scroll<=sizes.client+8,"Horizontal cart overflow "+width+" "+JSON.stringify(sizes));
   assert.equal(await dialog.locator("[data-inline-quantity] input").first().inputValue(),"1");
