@@ -40,7 +40,7 @@ test("SCHOOL-AI1 displays citations, limitations and existing tools without impl
   assert.match(tutor, /non invia RFQ/);
   assert.match(tutor, /href="\/knowledge\/norme"/);
   assert.match(tutor, /href="\/knowledge\/gradi"/);
-  assert.match(tutor, /href="\/school\/assistant"/);
+  assert.doesNotMatch(tutor, /href="\/school\/assistant"/); // One teacher entry; legacy assistant implementation remains isolated.
   assert.match(tutor, /focus-visible:outline-2/);
 });
 
