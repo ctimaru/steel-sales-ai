@@ -162,12 +162,19 @@ def restore_db(directory: Path, manifest: dict) -> None:
     pg_env["PGUSER"] = require_env("E3B_RESTORE_PGUSER")
     pg_env["PGPASSWORD"] = require_env("E3B_RESTORE_PGPASSWORD")
     pg_env["PGPORT"] = require_env("E3B_RESTORE_PGPORT")
-    # Refuse to restore into nonempty database; no --clean and no CREATE DATABASE.
-    non_system = run_checked(["psql", "-X", "-A", "-t", "-c",
-        "select count(*) from pg_namespace where nspname not like 'pg_%' "
-        "and nspname not in ('public','information_schema');"], environment=pg_env)
-    if non_system != "0":
-        raise RuntimeError("Destination contains schemas; refusing non-disposable restore")
+    # Require a *fresh* isolated Supabase baseline with managed Auth/Storage
+    # schemas already provisioned, but zero customer/app data. Reject a database
+    # where app objects have already been installed. No --clean or CREATE DATABASE.
+    preflight = run_checked(["psql", "-X", "-A", "-t", "-c",
+        "select (to_regclass('auth.users') is not null)::text || ',' || "
+        "(to_regclass('storage.objects') is not null)::text || ',' || "
+        "(select count(*) from auth.users)::text || ',' || "
+        "(select count(*) from storage.objects)::text || ',' || "
+        "(select count(*) from storage.buckets)::text || ',' || "
+        "(select count(*) from pg_tables where schemaname='public' "
+        "and tablename <> 'spatial_ref_sys')::text;"], environment=pg_env)
+    if preflight != "true,true,0,0,0,0":
+        raise RuntimeError("Destination is not an empty isolated Supabase baseline")
     # Restore only into independently provisioned compatible Supabase PostgreSQL.
     # Auth/Storage are separately managed schemas; validate their data imports in
     # a dedicated disposable environment before expecting a real production recovery.
@@ -180,9 +187,11 @@ def restore_db(directory: Path, manifest: dict) -> None:
     run_checked(args, environment=pg_env)
     # Migration ledger is evidence only; global drift #780 forbids repair/replay.
     rows = run_checked(["psql", "-X", "-A", "-t", "-c",
-                        "select count(*) from storage.objects;"], environment=pg_env)
-    if int(rows) != len(manifest["objects"]):
-        raise RuntimeError("Restored Storage metadata row count does not match manifest")
+        "select (select count(*) from storage.objects)::text || ',' || "
+        "(select count(*) from auth.users)::text;"], environment=pg_env)
+    expected = str(len(manifest["objects"])) + "," + str(manifest["auth_users_count"])
+    if rows != expected:
+        raise RuntimeError("Restored Auth users or Storage metadata differ from sealed manifest")
 
 
 def main() -> int:
