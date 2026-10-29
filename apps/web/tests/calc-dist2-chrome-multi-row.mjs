@@ -36,8 +36,17 @@ try {
       for(let index=1;index<10;index++) {
         await duplicate.click();
         assert.equal(await rows.count(),index+1,"Duplicate line "+(index+1));
+        if(index===4) {
+          assert.equal(await grid.getAttribute("data-distinta-multi-row-mode"),"compact");
+          await drawer.locator("#distinta-inline-lines").evaluate(el=>{el.scrollTop=0;});
+          await drawer.screenshot({path:out+"/"+locale+"-"+width+"-5-top.png",animations:"disabled"});
+        }
       }
       assert.equal(await grid.getAttribute("data-distinta-multi-row-mode"),"compact");
+      await drawer.locator("#distinta-inline-lines").evaluate(el=>{el.scrollTop=0;});
+      const toolbar=drawer.locator("[data-distinta-batch-toolbar]");
+      await toolbar.scrollIntoViewIfNeeded();
+      await drawer.screenshot({path:out+"/"+locale+"-"+width+"-10-top.png",animations:"disabled"});
       const detailsToggle=drawer.locator("[data-distinta-toggle-density]");
       assert.equal(await detailsToggle.count(),1);
       assert.equal(await drawer.locator("[data-distinta-batch-toolbar]").count(),1);
@@ -76,7 +85,8 @@ try {
       assert.equal(await rfq.isDisabled(),true,"Open private target editor blocks stale snapshot");
       await rowButtons.nth(3).click();
       assert.equal(await rfq.isDisabled(),false);
-      await drawer.screenshot({path:out+"/"+locale+"-"+width+"-10-compact.png",animations:"disabled"});
+      // Bottom image confirms the fixed footer while the long bill scrolls.
+      await drawer.screenshot({path:out+"/"+locale+"-"+width+"-10-scrolled.png",animations:"disabled"});
       await detailsToggle.click();
       assert.equal(await grid.getAttribute("data-distinta-multi-row-mode"),"detailed");
       assert.ok((await rows.first().boundingBox()).height>rowSize.height,
