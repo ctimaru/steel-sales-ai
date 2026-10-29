@@ -40,7 +40,7 @@ export default async function RfqSavedDistinteArchive({
   const context = await getWorkspaceContext();
   const supabase = await createClient();
   let request=supabase.from("buyer_distintas")
-    .select("id,title,owner_user_id,created_at,line_count,total_tonnes,archived_at",{count:"exact"})
+    .select("id,title,owner_user_id,created_at,line_count,total_tonnes,archived_at", { count: "exact" })
     .eq("organization_id", context.organizationId);
   if(mode==="active") request=request.is("archived_at",null);
   else request=request.not("archived_at","is",null);
@@ -48,7 +48,7 @@ export default async function RfqSavedDistinteArchive({
   const {data,error,count}=await request
     .order("created_at",{ascending:false})
     .order("id",{ascending:false})
-    .range((page-1)*PAGE_SIZE,page*PAGE_SIZE-1);
+    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
   const pages = count === null ? 1 : Math.max(1, Math.ceil(count / PAGE_SIZE));
 
   return (
