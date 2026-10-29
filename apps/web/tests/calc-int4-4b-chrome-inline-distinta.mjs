@@ -60,7 +60,7 @@ try {
     assert.match(await bill.innerText(), /S355J2H/);
     assert.match(await bill.innerText(), /60(?:[,.]0+)? m/);
 
-    await bill.getByRole("button",{name:/Chiudi/}).click();
+    await bill.locator('[data-cart-back="true"]').click();
     await calculator.getByRole("combobox", { name: "Norma" }).selectOption("en10210");
     await calculator.getByRole("button",{name:/Aggiungi alla distinta/}).click();
     await trigger.click();
