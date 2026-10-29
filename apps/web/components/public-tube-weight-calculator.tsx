@@ -1090,7 +1090,7 @@ export function PublicTubeWeightCalculator({
           <div className="min-w-0">
             {!inEmbeddedBuilder ? <p className={cinematic.eyebrow}>{cine.eyebrow}</p> : null}
             <div className="flex items-center gap-2">
-              {inEmbeddedBuilder || locale === "de" || locale === "fr" || locale === "es" ? <h2 className="text-sm font-bold text-[#15372f] sm:text-base">{t("Peso tubo acciaio")}</h2> : <h1 className="text-sm font-bold text-[#15372f] sm:text-base">{t("Peso tubo acciaio")}</h1>}
+              {inEmbeddedBuilder || locale === "en" || locale === "de" || locale === "fr" || locale === "es" ? <h2 className="text-sm font-bold text-[#15372f] sm:text-base">{t("Peso tubo acciaio")}</h2> : <h1 className="text-sm font-bold text-[#15372f] sm:text-base">{t("Peso tubo acciaio")}</h1>}
               <span className="school-badge hidden lg:inline-flex">{t("Gratis")}</span>
             </div>
             {!inEmbeddedBuilder ? <p className={cinematic.description}>{cine.description}</p> : null}
