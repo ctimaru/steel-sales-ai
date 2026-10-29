@@ -1228,7 +1228,7 @@ export function PublicTubeWeightCalculator({
                           {lengthPresets.map((preset) => (
                             <button type="button" key={preset} aria-pressed={length === preset}
                               onClick={() => setLength(preset)}
-                              className="min-h-9 rounded-lg border border-[#38644f] px-2 text-xs font-semibold aria-pressed:border-[#65f0b4] aria-pressed:bg-[#216c4b] aria-pressed:text-white">{preset} m</button>
+                              className="min-h-11 sm:min-h-9 rounded-lg border border-[#38644f] px-2 text-xs font-semibold aria-pressed:border-[#65f0b4] aria-pressed:bg-[#216c4b] aria-pressed:text-white">{preset} m</button>
                           ))}
                         </div>
                       </div>
