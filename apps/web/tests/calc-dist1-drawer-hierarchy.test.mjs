@@ -20,6 +20,9 @@ test("CALC-DIST1: technical drawer is one shared modal with its own back control
     "data-distinta-count-badge","data-cart-back","role=\"dialog\" aria-modal=\"true\""])
     assert.ok((shell+cart).includes(mark),mark);
   assert.ok(shellCss.includes("width:min(510px,95vw)"));
+  assert.ok(shellCss.includes("height:auto"));
+  assert.ok(shellCss.includes("align-self:center"));
+  assert.ok(shellCss.includes("max-height:calc(100dvh - 225px)"));
   assert.ok(shellCss.includes(".dialogCompact .header"));
   assert.match(shell,/event\.key === "Escape"/);
   assert.match(shell,/restoreFocusRef/);
