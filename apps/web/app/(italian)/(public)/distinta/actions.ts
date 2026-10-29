@@ -99,6 +99,12 @@ export async function saveBuyerDistinta(
     return { ok: false, error: "Accedi per salvare la distinta." };
   }
 
+  // CALC-DIST3: named private snapshots must have bounded, human-readable titles.
+  if (typeof input.title !== "string" || !input.title.trim()
+      || input.title.trim().length > 120 || /[\x00-\x1f\x7f]/.test(input.title)) {
+    return { ok: false, error: "Inserisci un nome distinta valido (massimo 120 caratteri)." };
+  }
+
   if (!Array.isArray(input.lines) || input.lines.length < 1 || input.lines.length > 500) {
     return { ok: false, error: "La distinta deve contenere da 1 a 500 righe." };
   }
