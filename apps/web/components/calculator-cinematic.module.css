@@ -399,3 +399,18 @@
   background:#1a6044;
   color:#eefff6;
 }
+
+@container steel-calculator (max-width:400px) {
+  /* Long translations must never turn the primary copy control into a 2-line
+     oversized touch target. Two 44px rows are clearer on narrow phones. */
+  .root [data-calc-copy-actions] {
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    gap:6px;
+  }
+  .root [data-calc-copy-actions] > button {
+    width:100%;
+    min-height:44px;
+    white-space:nowrap;
+  }
+}
