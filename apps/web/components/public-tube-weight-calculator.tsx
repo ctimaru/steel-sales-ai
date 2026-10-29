@@ -1377,7 +1377,7 @@ export function PublicTubeWeightCalculator({
                   </picture>
                   <span className={cinematic.photoNote}>{cine.illustration}</span>
                 </div>
-                <div className={cinematic.technicalInset}>{sectionDiagram}</div>
+                <div className={cinematic.technicalInset} aria-hidden="true">{sectionDiagram}</div>
               </>}
               <div className={cinematic.sectionMetric}>
                 <span>{cine.area}</span>
