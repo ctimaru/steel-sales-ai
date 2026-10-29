@@ -13,7 +13,7 @@ test("SCHOOL-QA3 — the same teacher illustration is now visible on mobile and 
   assert.match(tutor, /function TeacherPortrait\(\{ state, className \}/);
   assert.match(tutor, /data-testid="school-qa3-mobile-portrait"/);
   assert.match(tutor, /sm:hidden/);
-  assert.match(tutor, /<TeacherPortrait state=\{state\} className="h-12 w-12"\/>/);
+  assert.match(tutor, /<TeacherPortrait state=\{state\} className="h-\[72px\] w-\[72px\] shrink-0 translate-y-1"\/>/);
   assert.match(tutor, /<TeacherPortrait state=\{state\} className="h-\[155px\] w-\[155px\]"\/>/);
   assert.match(tutor, /motion-safe:animate-pulse/);
   assert.doesNotMatch(tutor, /new Image\(|SpeechRecognition|speechSynthesis|requestAnimationFrame/);
