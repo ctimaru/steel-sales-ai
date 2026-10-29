@@ -62,7 +62,22 @@ async function verifyCinematic(page, label) {
   assert.equal(await hero.count(), 1, label + ": one industrial hero");
   assert.equal(await companion.count(), 1, label + ": one AI companion");
   assert.equal(await worklist.count(), 1, label + ": one worklist");
-  assert.equal(await hero.getByRole("heading", { level: 1 }).count(), 1);
+  // A streamed server page can expose hero/worklist containers before its
+  // heading joins the accessibility tree. Wait for the actual accessible title.
+  const heroHeading=hero.getByRole("heading",{level:1});
+  try { await heroHeading.waitFor({state:"visible",timeout:30000}); }
+  catch(err) {
+    const state=await hero.evaluate(el=>({
+      headings:[...el.querySelectorAll("h1,h2")].map(h=>({
+        tag:h.tagName,hidden:h.getAttribute("aria-hidden"),
+        display:getComputedStyle(h).display,visibility:getComputedStyle(h).visibility,
+        text:h.textContent?.slice(0,120)})),
+      hiddenAncestors:[...document.querySelectorAll("[aria-hidden='true'],[inert]")]
+        .filter(h=>h.contains(el)).map(h=>h.tagName+"#"+h.id).slice(0,6)
+    }));
+    throw new Error("Commerciale hero heading accessibility not ready: "+JSON.stringify(state),{cause:err});
+  }
+  assert.equal(await heroHeading.count(),1);
   assert.equal(await companion.getByRole("heading", { name: "Ciao, cosa stai cercando oggi?" }).count(), 1);
   assert.equal(await hero.locator("dt").count(), 3, label + ": three accessible real-data counters");
   const background = await hero.evaluate(el => getComputedStyle(el, "::before").backgroundImage);
