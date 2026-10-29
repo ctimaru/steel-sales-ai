@@ -10,6 +10,7 @@ const entry=read("../components/commercial-calculator-quick-access.tsx");
 const styles=read("../components/calculator-dense-distinta.module.css");
 const publicCart=read("./calc-dist1-chrome-drawer.mjs");
 const mixed=read("./calc-dist2-chrome-mixed-materials.mjs");
+const dispatch=read("../components/rfq-dispatch-panel.tsx");
 
 test("CALC-DIST3: all changes are syntactically valid and five languages have named private save and supplier preparation",()=>{
   for(const source of [panel,server,entry]) {
@@ -53,9 +54,10 @@ test("CALC-DIST3: shorter cards retain 44px touch controls and existing heteroge
   assert.match(styles,/\.row\s*\{\s*min-width:0; padding:8px 10px/);
   assert.match(styles,/\.action,\.actionDanger,\.actionTarget\s*\{[\s\S]*?height:44px/);
   assert.match(styles,/\.rowsBatch \.row \{ padding:6px 9px/);
-  for(const t of ["three","shapes"]) { // syntax-guarded fixtures below
-    assert.ok(t.length>0);
-  }
   assert.ok(mixed.includes("8 different real geometry configurations")||mixed.includes("heterogeneous materials"));
   assert.ok(mixed.includes("targetEurT"));
+  // Supplier delivery is a later step gated by explicit recipient review.
+  assert.ok(dispatch.includes("confirmChecked"));
+  assert.ok(dispatch.includes("suppliers.length < 1"));
+  assert.ok(dispatch.includes("expectedSupplierIds: suppliers.map"));
 });
