@@ -33,16 +33,17 @@ test("WC4 supports explicit favorites", () => {
   assert.match(calculator, /WC4_MAX_FAVORITES = 8/);
   assert.match(calculator, /favoriteCalculations/);
   assert.match(calculator, /currentIsFavorite/);
-  assert.match(calculator, /Aggiungi ai preferiti/);
-  assert.match(calculator, /Preferito ★/);
+  assert.match(calculator, /data-calc-save-favorite/);
+  assert.match(calculator, /saved:"★ Salvato"/);
+  assert.match(calculator, /writeStoredCalculations\(WC4_FAVORITES_KEY, next\)/);
   assert.match(calculator, /aria-pressed=\{currentIsFavorite\}/);
 });
 
 test("WC4 can copy a commercial result and a shareable URL", () => {
   assert.match(calculator, /copyTextToClipboard/);
   assert.match(calculator, /Smart Steel Sales/);
-  assert.match(calculator, /Copia risultato/);
-  assert.match(calculator, /Copia link/);
+  assert.match(calculator, /data-cinematic-copy/);
+  assert.match(calculator, /data-calc-copy-link/);
   assert.match(calculator, /params\.set\("standard", calculation\.standard\)/);
   assert.match(calculator, /params\.set\("family", calculation\.family\)/);
   assert.match(calculator, /params\.set\("thickness", calculation\.thickness\)/);
