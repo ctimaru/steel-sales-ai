@@ -34,8 +34,8 @@ export function SchoolPrivateTopbar({locale,pathname="/school",compact=false}:{
   locale:SchoolWorkspaceLocale;pathname?:string;compact?:boolean;
 }){
   const c=SCHOOL_PRIVATE_COPY[locale];
-  return <div className={compact?"flex flex-wrap items-center justify-between gap-2 px-1 py-1":"flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#d5e4db] bg-[#f7faf8] px-4 py-3 sm:px-5"}>
-    <span className="text-xs font-bold uppercase tracking-[.1em] text-[#174b3c]">{c.kicker} · Smart Steel Sales</span>
+  return <div className={compact?"flex flex-wrap items-center justify-end gap-2 px-0 py-0.5":"flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#d5e4db] bg-[#f7faf8] px-4 py-3 sm:px-5"}>
+    <span className={compact?"sr-only":"text-xs font-bold uppercase tracking-[.1em] text-[#174b3c]"}>{c.kicker} · Smart Steel Sales</span>
     <div className="flex flex-wrap items-center gap-3">
       <SchoolPrivateLanguageSwitch locale={locale} pathname={pathname}/>
       <Link href={SCHOOL_HUB_ROUTES[locale] + (SCHOOL_HUB_ROUTES[locale].includes("?") ? "&" : "?") + "public=1"} hrefLang={locale}
