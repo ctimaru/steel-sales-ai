@@ -16,8 +16,10 @@ function extractSimpleFunction(name, nextMarker) {
 
 test("SEO-GROWTH2.A: GA4 is enabled only on Vercel production, not preview or dev", () => {
   assert.match(site, /process\.env\.VERCEL_ENV === "production"/);
-  assert.match(site, /const googleAnalyticsId = isProductionDeployment/);
-  assert.match(site, /\{googleAnalyticsId \? \(/);
+  assert.match(site, /const googleAnalyticsId =/);
+  assert.match(site, /\{isProductionDeployment \? \(/);
+  // Consent UI remains testable on preview; only the external transport is gated.
+  assert.match(site, /<GoogleAnalyticsConsent measurementId=\{googleAnalyticsId\}/);
   assert.match(site, /<GoogleAnalyticsConsent measurementId=\{googleAnalyticsId\}/);
   assert.match(site, /"consent", "default"/);
   assert.match(site, /analytics_storage: "denied"/);
