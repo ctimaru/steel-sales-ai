@@ -28,6 +28,9 @@ try {
    for(const target of ["en","de","fr","es"])assert.ok(await menu.locator('a[href="/school?lang='+target+'"]').count(),locale+" missing "+target);
    const hero=page.locator('section[aria-labelledby="school-workspace-cine-heading"]');
    assert.equal(await hero.count(),1,locale+" one cinematic hero");
+   assert.equal(await hero.locator('[data-testid="school-ux6-professor-entry"]').count(),1,locale+" exactly one featured teacher entry");
+   const heroHeight=(await hero.boundingBox())?.height??0;
+   assert.ok(heroHeight>160&&heroHeight<(width===390?365:290),locale+" compact hero height "+heroHeight);
    assert.ok((await hero.getAttribute("class")||"").includes("rounded-[24px]"),locale+" public hero radius");
    assert.equal(await page.locator('form[action="/school/norme"]').count(),1,locale+" standard search in first viewport");
    assert.equal(await page.locator('form[action="/school/gradi"]').count(),1,locale+" grade search in first viewport");
@@ -39,9 +42,8 @@ try {
    assert.ok(heroRect && searchRect && searchRect.y>=heroRect.y+heroRect.height-1,locale+" search follows hero");
    if(locale!=="it"){
      assert.ok(await page.locator('div[lang="'+locale+'"] h1').count()>0,locale+" accessible language subtree");
-     const cards=page.locator('[data-testid="school-private-tool-card"]');
-     assert.equal(await cards.count(),3,locale+" three learning cards");
-     assert.equal(await cards.filter({has:page.locator("h3")}).count(),3);
+     assert.equal(await page.locator('[data-testid="school-private-tool-card"]').count(),0,locale+" no duplicate calculator/search cards");
+     assert.equal(await page.locator('[data-testid="school-ux6-personal-resources"]').count(),1,locale+" personal resources in optional disclosure");
      assert.ok(await page.locator('form[action="/school/norme"] input[name="lang"][value="'+locale+'"]').count()>0,locale+" standards preserves language");
      assert.ok(await page.locator('form[action="/school/gradi"] input[name="lang"][value="'+locale+'"]').count()>0,locale+" grades preserves language");
      assert.equal(await page.locator('a[href*="/school/explorer"]').count(),0,locale+" no commercial document link");

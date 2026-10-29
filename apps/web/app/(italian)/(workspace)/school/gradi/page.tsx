@@ -1,4 +1,3 @@
-import GradesIndexPage from "@/app/(public)/knowledge/gradi/page";
 import { PilotEvent } from "@/components/pilot-event";
 import { SchoolPrivateReferenceIndex } from "@/components/school-private-reference-index";
 import { schoolWorkspaceLocale } from "@/lib/school-workspace-i18n";
@@ -18,9 +17,7 @@ export default async function SchoolGradesPage({
           metadata={{ surface: "school_grades", format: "grade" }}
         />
       ) : null}
-      {locale==="it"
-        ? <GradesIndexPage searchParams={Promise.resolve(params)} />
-        : <SchoolPrivateReferenceIndex locale={locale} kind="gradi" query={params.q??""}/>}
+      <SchoolPrivateReferenceIndex locale={locale} kind="gradi" query={params.q??""}/>
     </>
   );
 }
