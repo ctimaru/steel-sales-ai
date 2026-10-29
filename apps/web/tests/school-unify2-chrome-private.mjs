@@ -63,7 +63,7 @@ try {
    if(locale==="it") {
      const professorResponse=await page.goto(base+"/school/professore",{waitUntil:"domcontentloaded",timeout:60000});
      assert.equal(professorResponse?.status(),200,"authenticated professor route in demo mode");
-     assert.ok((await page.locator("h1").first().textContent()||"").includes("Ciao, cosa vuoi capire?"));
+     assert.ok((await page.locator("h1").first().textContent()||"").includes("Come posso aiutarti?"));
      assert.equal(await page.locator('[data-testid="school-qa3-mobile-portrait"]').isVisible(),width===390,"mobile professor portrait responsive state");
      assert.equal(await page.locator('[data-testid="school-qa3-prompt-suggestions"]').getByRole("button").count(),2,"compact authenticated first prompts");
      const teacherMain=page.locator("main").filter({has:page.locator('[data-testid="school-tutor3-presence"]')}).last();
