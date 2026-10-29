@@ -205,7 +205,8 @@ try {
       assert.equal(await page.locator('[data-dist4-row] [data-distinta-id="'+copyId+'"]').count(),0,
         "Active duplicate must not appear in archived view");
       await archivedRow.locator("[data-action-archive]").click();
-      await archivedRow.getByText("Distinta ripristinata.").waitFor({timeout:30000});
+      // Restoration removes this row from the archived view; no transient toast dependency.
+      await archivedRow.waitFor({state:"detached",timeout:30000});
       await page.locator("[data-dist4-active-tab]").click();
       await page.waitForURL(u=>u.searchParams.get("view")!== "archived",{timeout:30000});
       await page.locator('[data-dist4-row] [data-distinta-id="'+distinctId+'"]').waitFor({timeout:30000});
