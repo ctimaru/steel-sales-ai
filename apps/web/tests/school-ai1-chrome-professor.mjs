@@ -32,6 +32,12 @@ try {
     const res = await page.goto(base + path, { waitUntil: "domcontentloaded", timeout: 60000 });
     assert.equal(res?.status(), 200, "public route " + width);
     assert.equal(await page.locator("h1").count(), 1, "one headline");
+    const illustration = await page.request.get(base + "/school-professor-art1.svg");
+    assert.equal(illustration.status(), 200, "premium illustration asset reachable at " + width);
+    assert.match(illustration.headers()["content-type"] ?? "", /image\/svg\+xml/, "SVG served with image MIME type");
+    assert.equal(await page.locator('svg image[href="/school-professor-art1.svg"]').count(), 2,
+      "both responsive teacher instances share one original SVG asset");
+    assert.equal(await page.locator("h1").first().textContent(), "Come posso aiutarti?");
     await page.screenshot({ path: out + "/professor-" + width + "-initial.png", animations: "disabled" });
     const samples = page.locator('[data-testid="school-qa3-prompt-suggestions"]');
     assert.equal(await samples.getByRole("button").count(), 2, "two initial visible sample prompts at "+width);
