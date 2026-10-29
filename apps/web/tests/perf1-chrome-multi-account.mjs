@@ -61,9 +61,9 @@ try {
   await check("anonymous mobile homepage remains public", async () => {
     assert.equal(await openHome(anonPage), "/");
     const text = await pageText(anonPage);
-    assert.ok(text.includes("L’intelligenza che connette"));
-    assert.ok(text.includes("Crea distinta"));
-    assert.ok(text.includes("Trova o rivendica la tua azienda"));
+    assert.ok(text.includes("L’acciaio ha una"), "Current cinematic homepage hero missing");
+    assert.ok(text.includes("Crea una distinta gratis"), "Public bill CTA missing");
+    assert.ok(text.includes("Cercala per nome o Partita IVA."), "Company lookup section missing");
   });
   await check("anonymous is denied dashboard and Platform console", async () => {
     await visit(anonPage, "/dashboard");
@@ -80,10 +80,10 @@ try {
       url: base,
     }]);
     assert.equal(await openHome(anonPage), "/");
-    await anonPage.getByRole("heading", { name: /L.intelligenza che connette/i })
+    await anonPage.getByRole("heading", { name: /L.acciaio ha una/i })
       .waitFor({ state: "visible", timeout: 40000 });
     const text = await pageText(anonPage);
-    assert.ok(text.includes("Trova o rivendica la tua azienda"),
+    assert.ok(text.includes("Cercala per nome o Partita IVA."),
       "Invalid cookie returned non-home content: " + text.slice(0, 260));
     await anon.clearCookies();
   });
