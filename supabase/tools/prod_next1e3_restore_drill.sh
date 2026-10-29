@@ -66,15 +66,23 @@ SQL
 SCHEMA_CREATED=1
 
 EXPECTED="$(psql_local "$SOURCE" -At -c "select md5(string_agg(sequence_id::text||':'||decision||':'||classification,'|' order by sequence_id)) from $FIXTURE_SCHEMA.receipts")"
-pg_dump -h "$HOST" -p "$PORT" -U "$USER" -d "$SOURCE" \
+# GitHub runners ship pg_dump 16 while Supabase runs Postgres 17.
+# Official disposable client container avoids host package repositories.
+docker run --rm --network host \
+  --user "$(id -u):$(id -g)" -e PGPASSWORD=postgres \
+  -v "$TEMP_DIR:/synthetic-only" postgres:17 \
+  pg_dump -h "$HOST" -p "$PORT" -U "$USER" -d "$SOURCE" \
   --format=custom --no-owner --no-acl --schema="$FIXTURE_SCHEMA" \
-  --file="$TEMP_DIR/synthetic-only.backup"
-[[ -s "$TEMP_DIR/synthetic-only.backup" ]] || exit 1
+  --file="/synthetic-only/fixture.backup"
+[[ -s "$TEMP_DIR/fixture.backup" ]] || exit 1
 
 createdb -h "$HOST" -p "$PORT" -U "$USER" -T template0 "$TARGET"
 TARGET_CREATED=1
-pg_restore -h "$HOST" -p "$PORT" -U "$USER" -d "$TARGET" \
-  --no-owner --no-acl --exit-on-error "$TEMP_DIR/synthetic-only.backup"
+docker run --rm --network host \
+  --user "$(id -u):$(id -g)" -e PGPASSWORD=postgres \
+  -v "$TEMP_DIR:/synthetic-only:ro" postgres:17 \
+  pg_restore -h "$HOST" -p "$PORT" -U "$USER" -d "$TARGET" \
+  --no-owner --no-acl --exit-on-error "/synthetic-only/fixture.backup"
 RESTORED="$(psql_local "$TARGET" -At -c "select md5(string_agg(sequence_id::text||':'||decision||':'||classification,'|' order by sequence_id)) from $FIXTURE_SCHEMA.receipts")"
 COUNT="$(psql_local "$TARGET" -At -c "select count(*) from $FIXTURE_SCHEMA.receipts")"
 [[ "$EXPECTED" == "$RESTORED" && "$COUNT" == "2" ]] || {
