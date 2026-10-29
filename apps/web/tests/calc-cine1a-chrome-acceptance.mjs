@@ -126,7 +126,9 @@ try {
   await root.locator('[data-cinematic-copy]').click();
   const copied=await page.evaluate(()=>navigator.clipboard.readText());
   assert.doesNotMatch(copied,/850/,'Copy results excludes ephemeral commercial prices');
-  assert.match(copied,/EN 10219/);assert.match(copied,/140/);assert.match(copied,/36/);
+  assert.match(copied,/EN 10219/);assert.match(copied,/140/);
+  const copiedBars=await root.locator('#tube-calculator-quantity').inputValue();
+  assert.ok(copied.includes(`${copiedBars} `),'Copied calculation follows the live full-bar quantity, not stale 36m');
   const saved=await page.evaluate(()=>JSON.parse(sessionStorage.getItem('sss:inline-distinta:v1')));
   assert.equal(saved.lines.length,3,'All three shapes retained without duplication');
   assert.ok(saved.lines.every(line=>line.targetEurT===''),'No private price introduced by the new presentation');
