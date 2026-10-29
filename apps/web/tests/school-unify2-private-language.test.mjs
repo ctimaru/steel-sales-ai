@@ -26,7 +26,8 @@ test("SCHOOL-UNIFY2 allowlists language and stays under authenticated workspace 
 });
 test("SCHOOL-UNIFY2 localized private navigation and shortcuts retain locale without rewriting existing IT home",()=>{
  assert.match(source.home,/SchoolLocalizedWorkspaceHome locale=\{locale\}/);
- assert.match(source.home,/<SchoolJourney locale="it" workspace/);
+ assert.doesNotMatch(source.home, /<SchoolJourney locale="it" workspace/);
+ assert.match(source.home, /SchoolWorkspaceFirstViewport locale="it"/);
  assert.match(source.switch,/SchoolPrivateTopbar/);
  for(const href of ["/school/norme","/school/gradi"])assert.ok(source.hub.includes(href));
  assert.match(source.hub,/CALCULATOR_ROUTES\[locale\]/);
