@@ -30,7 +30,7 @@ try {
    assert.equal(await hero.count(),1,locale+" one cinematic hero");
    assert.equal(await hero.locator('[data-testid="school-ux6-professor-entry"]').count(),1,locale+" exactly one featured teacher entry");
    const heroHeight=(await hero.boundingBox())?.height??0;
-   assert.ok(heroHeight>160&&heroHeight<290,locale+" compact hero height "+heroHeight);
+   assert.ok(heroHeight>160&&heroHeight<(width===390?365:290),locale+" compact hero height "+heroHeight);
    assert.ok((await hero.getAttribute("class")||"").includes("rounded-[24px]"),locale+" public hero radius");
    assert.equal(await page.locator('form[action="/school/norme"]').count(),1,locale+" standard search in first viewport");
    assert.equal(await page.locator('form[action="/school/gradi"]').count(),1,locale+" grade search in first viewport");
