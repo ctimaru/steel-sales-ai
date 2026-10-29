@@ -70,7 +70,7 @@ export function SchoolWorkspaceFirstViewport({locale}:{locale: SchoolWorkspaceLo
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-cover bg-[position:72%_center] opacity-70"
         style={{backgroundImage:"url('/home-cine1a-steel.webp')"}} />
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(7,29,21,.98)_0%,rgba(7,29,21,.94)_43%,rgba(7,29,21,.63)_77%,rgba(7,29,21,.32)_100%)]" />
-      <div className="relative flex min-h-[204px] max-w-3xl flex-col justify-center px-5 py-5 sm:px-8 sm:py-7">
+      <div className="relative flex min-h-[204px] max-w-3xl flex-col justify-center px-5 py-4 sm:px-8 sm:py-6">
         <p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#b3ddc4]">SMART STEEL SALES / SCHOOL</p>
         <h1 id="school-workspace-cine-heading"
           className="mt-2 max-w-2xl text-[2rem] font-semibold leading-[1.1] tracking-[-.045em] text-white sm:text-[2.5rem]">{titles[locale]}</h1>
@@ -82,8 +82,8 @@ export function SchoolWorkspaceFirstViewport({locale}:{locale: SchoolWorkspaceLo
             {professor[locale]} <span aria-hidden="true" className="ml-1.5">→</span>
           </Link>
           <a href="#school-private-search"
-            className="inline-flex min-h-11 items-center rounded-xl border border-white/35 px-3 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
-            {t.search} <span aria-hidden="true" className="ml-1.5">↓</span>
+            className="inline-flex min-h-11 items-center rounded-xl border border-white/30 px-2.5 text-xs font-semibold text-white transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+            {t.searchAction} <span aria-hidden="true" className="ml-1.5">↓</span>
           </a>
         </div>
       </div>
