@@ -9,6 +9,8 @@ const calculator=load("../components/public-tube-weight-calculator.tsx");
 const words=load("../lib/tube-calculator-locale.ts");
 const engine=load("../lib/international-tube-mass.ts");
 const css=load("../app/globals.css");
+const cinematic=load("../components/calculator-cinematic.module.css");
+const dense=load("../components/calculator-dense-cockpit.module.css");
 const switcher=load("../components/calculator-region-switch.tsx");
 
 test("I18N7 IT/EN share the same canonical standard-based estimator and catalogue",()=>{
@@ -45,11 +47,13 @@ test("I18N7 localized public controls provide copy and an RFQ bill destination",
 });
 
 test("I18N7 copy, favourite and RFQ CTAs enforce visible foreground under global CSS",()=>{
-  for(const cls of ["tube-calculator-copy-action","tube-calculator-favourite-selected","tube-calculator-rfq-link"]){
-    assert.match(calculator,new RegExp(cls));
-    assert.match(css,new RegExp("#calcolatore-pesi \\."+cls));
-  }
-  assert.match(css,/#calcolatore-pesi \.tube-calculator-copy-action \{[^}]*-webkit-text-fill-color: #ffffff !important/s);
+  assert.match(calculator,/data-cinematic-copy/);
+  assert.match(calculator,/data-calc-copy-link/);
+  assert.match(calculator,/data-calc-save-favorite/);
+  assert.ok(cinematic.includes(".root [data-calc-copy-actions] .copy"));
+  assert.ok(cinematic.includes('.root [data-calc-save-favorite][aria-pressed="true"]'));
+  assert.ok(dense.includes(".detailStrip"));
+  assert.match(calculator,/tube-calculator-rfq-link/);
   assert.match(css,/#calcolatore-pesi \.tube-calculator-rfq-link \{[^}]*-webkit-text-fill-color: #123b34 !important/s);
   assert.match(calculator,/locale=\{locale\}/);
 });

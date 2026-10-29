@@ -141,8 +141,10 @@ function readStoredCalculations(key: string) {
 function writeStoredCalculations(key: string, calculations: StoredTubeCalculation[]) {
   try {
     window.localStorage.setItem(key, JSON.stringify(calculations));
+    return true;
   } catch {
-    // Retention is optional: calculator functionality must survive blocked storage.
+    // A blocked browser must not report a favorite as successfully persisted.
+    return false;
   }
 }
 
@@ -696,6 +698,7 @@ export function PublicTubeWeightCalculator({
     setThickness(calculation.thickness);
     setThicknessTouched(true);
     setLength(calculation.length);
+    setCommercialQuantity(null);
     setQuantity(calculation.quantity);
     setTargetTonnes(calculation.targetTonnes);
     setDensity(calculation.density);
@@ -766,8 +769,9 @@ export function PublicTubeWeightCalculator({
   }
 
   function saveFavorites(next: StoredTubeCalculation[]) {
+    if (!writeStoredCalculations(WC4_FAVORITES_KEY, next)) return false;
     setFavoriteCalculations(next);
-    writeStoredCalculations(WC4_FAVORITES_KEY, next);
+    return true;
   }
 
   useEffect(() => {
@@ -834,6 +838,24 @@ export function PublicTubeWeightCalculator({
 
   const currentIsFavorite =
     currentSnapshot != null && favoriteCalculations.some((item) => item.key === currentSnapshot.key);
+
+  const utilityCopy = ({
+    it: { link:"Copia link", copied:"Link copiato.", saved:"★ Salvato", save:"☆ Salva", added:"Calcolo salvato nei preferiti.", removed:"Calcolo rimosso dai preferiti.", storage:"Impossibile salvare i preferiti su questo browser.", local:"I preferiti rimangono su questo dispositivo." },
+    en: { link:"Copy link", copied:"Link copied.", saved:"★ Saved", save:"☆ Save", added:"Calculation saved to favorites.", removed:"Calculation removed from favorites.", storage:"This browser cannot save favorites.", local:"Favorites stay on this device." },
+    de: { link:"Link kopieren", copied:"Link kopiert.", saved:"★ Gespeichert", save:"☆ Speichern", added:"Berechnung in Favoriten gespeichert.", removed:"Berechnung aus Favoriten entfernt.", storage:"Dieser Browser kann keine Favoriten speichern.", local:"Favoriten bleiben auf diesem Gerät." },
+    fr: { link:"Copier le lien", copied:"Lien copié.", saved:"★ Enregistré", save:"☆ Enregistrer", added:"Calcul ajouté aux favoris.", removed:"Calcul retiré des favoris.", storage:"Impossible d'enregistrer les favoris dans ce navigateur.", local:"Les favoris restent sur cet appareil." },
+    es: { link:"Copiar enlace", copied:"Enlace copiado.", saved:"★ Guardado", save:"☆ Guardar", added:"Cálculo guardado en favoritos.", removed:"Cálculo eliminado de favoritos.", storage:"Este navegador no permite guardar favoritos.", local:"Los favoritos permanecen en este dispositivo." },
+  } as const)[locale];
+
+  function toggleFavorite() {
+    if (!currentSnapshot) return;
+    const next = currentIsFavorite
+      ? favoriteCalculations.filter((item) => item.key !== currentSnapshot.key)
+      : [{ ...currentSnapshot, savedAt:new Date().toISOString() },
+          ...favoriteCalculations.filter((item) => item.key !== currentSnapshot.key)].slice(0,WC4_MAX_FAVORITES);
+    const saved = saveFavorites(next);
+    setActionFeedback(!saved ? utilityCopy.storage : currentIsFavorite ? utilityCopy.removed : utilityCopy.added);
+  }
 
   useEffect(() => {
     if (!retentionReady || !calculatorSaved || !currentSnapshot) return;
@@ -1379,10 +1401,7 @@ export function PublicTubeWeightCalculator({
                 </div>
                 <div className={cinematic.technicalInset} aria-hidden="true">{sectionDiagram}</div>
               </>}
-              <div className={cinematic.sectionMetric}>
-                <span>{cine.area}</span>
-                <strong>{values.areaMm2 == null ? "—" : formatOutput(values.areaMm2, 2)} <small>mm²</small></strong>
-              </div>
+              {/* Area is already in the live result technical facts above; no duplicate gallery footer. */}
             </div>
           ) : null}
           <aside
@@ -1476,11 +1495,28 @@ export function PublicTubeWeightCalculator({
 
 
 
-              {!inEmbeddedBuilder ? <button type="button" onClick={copyCurrentResult}
-                disabled={!currentSnapshot} className={cinematic.copy} data-cinematic-copy>
-                <svg aria-hidden="true" className={cinematic.actionIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="8" y="8" width="12" height="13" rx="2" /><path d="M16 8V3H4v13h4" strokeLinejoin="round" /></svg>
-                {cine.copy}
-              </button> : null}
+              {!inEmbeddedBuilder ? (
+                <div data-calc-copy-actions className="mt-2 flex flex-wrap gap-2">
+                  <button type="button" onClick={copyCurrentResult}
+                    disabled={!currentSnapshot} className={cinematic.copy} data-cinematic-copy>
+                    <svg aria-hidden="true" className={cinematic.actionIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="8" y="8" width="12" height="13" rx="2" /><path d="M16 8V3H4v13h4" strokeLinejoin="round" /></svg>
+                    {cine.copy}
+                  </button>
+                  <button type="button" data-calc-copy-link disabled={!currentSnapshot}
+                    onClick={async () => {
+                      if (!currentSnapshot) return;
+                      try {
+                        await copyTextToClipboard(shareUrl(currentSnapshot));
+                        setActionFeedback(utilityCopy.copied);
+                      } catch {
+                        setActionFeedback(t("Copia non riuscita: controlla i permessi degli appunti."));
+                      }
+                    }}
+                    className="inline-flex min-h-11 flex-1 basis-[112px] items-center justify-center gap-2 rounded-lg border border-[#427a60] bg-[#0d3528] px-3 py-2 text-xs font-bold text-[#e0f9eb] hover:bg-[#164733] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#75f4bd] disabled:opacity-50">
+                    {utilityCopy.link}
+                  </button>
+                </div>
+              ) : null}
               {!inEmbeddedBuilder ? <dl className={cinematic.geometry} data-cinematic-geometry>
                 {sectionFacts.map(fact => <div key={fact.key}><dt>{fact.label}</dt>
                   <dd data-section-value={fact.key}>{fact.value}<small> {fact.unit}</small></dd></div>)}
@@ -1511,66 +1547,9 @@ export function PublicTubeWeightCalculator({
           </aside>
         </div>
         <div data-cockpit-details className={styles.detailStrip}>
-              {!inEmbeddedBuilder ? <details className="group/extra mt-1 rounded-lg border border-white/15 px-2 py-1.5">
-                <summary className="flex min-h-11 cursor-pointer items-center justify-between text-[11px] font-semibold text-white sm:min-h-9 focus-visible:outline-2 focus-visible:outline-white">
-                  {t("Copia risultato")} · {t("Copia link")} · ★ <span aria-hidden="true" className="transition-transform group-open/extra:rotate-180">⌄</span>
-                </summary>
-                <div className="grid grid-cols-2 gap-1.5 border-t border-white/15 pt-2 sm:grid-cols-3">
-                <button
-                  type="button"
-                  disabled={!currentSnapshot}
-                  onClick={copyCurrentResult}
-                  className="tube-calculator-copy-action min-h-11 rounded-xl border border-white/30 bg-white/10 px-2 py-2 text-xs font-bold text-white hover:bg-white/15 disabled:opacity-40 sm:text-xs"
-                >
-                  {t("Copia risultato")}
-                </button>
-                <button
-                  type="button"
-                  disabled={!currentSnapshot}
-                  onClick={async () => {
-                    if (!currentSnapshot) return;
-                    try {
-                      await copyTextToClipboard(shareUrl(currentSnapshot));
-                      setActionFeedback("Link condivisibile copiato.");
-                    } catch {
-                      setActionFeedback(t("Copia non riuscita: controlla i permessi degli appunti."));
-                    }
-                  }}
-                  className="min-h-11 rounded-xl border border-white/30 bg-white/10 px-2 py-2 text-xs font-bold text-white hover:bg-white/15 disabled:opacity-40"
-                >
-                  {t("Copia link")}
-                </button>
-                <button
-                  type="button"
-                  disabled={!currentSnapshot}
-                  aria-pressed={currentIsFavorite}
-                  onClick={() => {
-                    if (!currentSnapshot) return;
-                    if (currentIsFavorite) {
-                      saveFavorites(favoriteCalculations.filter((item) => item.key !== currentSnapshot.key));
-                      setActionFeedback("Rimosso dai preferiti.");
-                    } else {
-                      const next = [
-                        { ...currentSnapshot, savedAt: new Date().toISOString() },
-                        ...favoriteCalculations.filter((item) => item.key !== currentSnapshot.key),
-                      ].slice(0, WC4_MAX_FAVORITES);
-                      saveFavorites(next);
-                      setActionFeedback("Calcolo aggiunto ai preferiti.");
-                    }
-                  }}
-                  className={
-                    currentIsFavorite
-                      ? "tube-calculator-favourite-selected col-span-2 min-h-11 rounded-xl border border-white bg-white px-2 py-2 text-xs font-bold sm:col-span-1 text-[#123d34] sm:text-xs"
-                      : "col-span-2 min-h-11 rounded-xl border border-white/30 bg-white/10 px-2 py-2 text-xs font-bold text-white hover:bg-white/15 disabled:opacity-40 sm:col-span-1"
-                  }
-                >
-                  {t(currentIsFavorite ? "Preferito ★" : "Aggiungi ai preferiti ☆")}
-                </button>
-                </div>
-              </details> : null}
-              <details className="mt-2 rounded-xl border border-white/10 bg-white/5">
-                <summary className="flex min-h-11 cursor-pointer items-center px-3 py-2 text-xs font-bold">
-                  {t("Metodo e provenienza")}
+              <details className="group min-w-0 rounded-xl border border-white/15 bg-white/5">
+                <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-2 px-3 py-2 text-xs font-bold">
+                  <span>{t("Metodo e provenienza")}</span><span aria-hidden="true" className="text-[#b5daca] group-open:rotate-180">⌄</span>
                 </summary>
                 <div className="border-t border-white/10 px-3 py-2 text-xs leading-5 text-white/85">
                   {standard === "geometric" ? (
@@ -1610,11 +1589,14 @@ export function PublicTubeWeightCalculator({
                   <p className="mt-1">{t("Area sezione:")} {values.areaMm2 == null ? "—" : `${formatOutput(values.areaMm2, 2)} mm²`}</p>
                 </div>
               </details>
-              <details className="mt-2 rounded-xl border border-white/10 bg-white/5">
-                <summary className="flex min-h-11 cursor-pointer items-center px-3 py-2 text-xs font-bold">
-                  {t("Ultimi calcoli e preferiti")}
-                </summary>
-                <div className="grid gap-3 border-t border-white/10 p-2.5 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+              <section data-calc-library className="min-w-0 rounded-xl border border-white/15 bg-white/5">
+                <div className="flex items-start gap-2 px-2">
+                  <details className="group min-w-0 flex-1">
+                    <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-2 px-1 text-xs font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#75f4bd]">
+                      {t("Ultimi calcoli e preferiti")}
+                      <span aria-hidden="true" className="shrink-0 text-[#b5daca] group-open:rotate-180">⌄</span>
+                    </summary>
+                    <div className="grid gap-3 border-t border-white/10 py-2.5 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                   <div>
                     <div className="flex items-center justify-between">
                       <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-white/85">{t("Ultimi calcoli")}</p>
@@ -1633,7 +1615,7 @@ export function PublicTubeWeightCalculator({
                       ) : null}
                     </div>
                     <div className="mt-1.5 space-y-1">
-                      {recentCalculations.length ? recentCalculations.slice(0, 4).map((calculation) => (
+                      {recentCalculations.length ? recentCalculations.map((calculation) => (
                         <button
                           type="button"
                           key={`${calculation.key}-${calculation.savedAt}`}
@@ -1641,7 +1623,7 @@ export function PublicTubeWeightCalculator({
                           className="block min-h-11 w-full rounded-lg bg-white/8 px-2 py-2 text-left text-xs hover:bg-white/12"
                         >
                           <span className="block truncate font-bold">{calculationStandardLabel(calculation)} · {calculationDimensionLabel(calculation)}</span>
-                          <span className="text-white/85">{formatOutput(calculation.kgM, 3)} kg/m · {t("Ripristina")}</span>
+                          <span className="block text-white/85">{calculation.quantity} {t("barre")} × {calculation.length} m · {t("Ripristina")}</span>
                         </button>
                       )) : (
                         <p className="text-[10px] text-white/85">{t("Nessun calcolo recente.")}</p>
@@ -1652,19 +1634,25 @@ export function PublicTubeWeightCalculator({
                   <div>
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-white/85">{t("Preferiti")}</p>
                     <div className="mt-1.5 space-y-1">
-                      {favoriteCalculations.length ? favoriteCalculations.slice(0, 4).map((calculation) => (
+                      {favoriteCalculations.length ? favoriteCalculations.map((calculation) => (
                         <div key={calculation.key} className="flex items-center gap-1 rounded-lg bg-white/8 p-1">
                           <button
                             type="button"
+                            data-calc-restore-favorite
                             onClick={() => restoreCalculation(calculation)}
                             className="min-h-11 min-w-0 flex-1 px-1.5 py-2 text-left text-xs"
                           >
                             <span className="block truncate font-bold">{calculationStandardLabel(calculation)} · {calculationDimensionLabel(calculation)}</span>
+                            <span className="block text-white/85">{calculation.quantity} {t("barre")} × {calculation.length} m</span>
                           </button>
                           <button
                             type="button"
+                            data-calc-remove-favorite
                             aria-label={`${t("Rimuovi")} ${calculationDimensionLabel(calculation)} ${t("dai preferiti")}`}
-                            onClick={() => saveFavorites(favoriteCalculations.filter((item) => item.key !== calculation.key))}
+                            onClick={() => {
+                              const saved = saveFavorites(favoriteCalculations.filter((item) => item.key !== calculation.key));
+                              setActionFeedback(saved ? utilityCopy.removed : utilityCopy.storage);
+                            }}
                             className="min-h-11 min-w-11 rounded-md px-2 py-2 text-xs font-bold hover:bg-white/10"
                           >
                             ×
@@ -1675,8 +1663,20 @@ export function PublicTubeWeightCalculator({
                       )}
                     </div>
                   </div>
+                    </div>
+                  </details>
+                  <button type="button" data-calc-save-favorite
+                    disabled={!retentionReady || !currentSnapshot}
+                    aria-pressed={currentIsFavorite}
+                    aria-label={currentIsFavorite ? utilityCopy.saved : utilityCopy.save}
+                    title={utilityCopy.local}
+                    onClick={toggleFavorite}
+                    className="mt-1 inline-flex min-h-11 shrink-0 items-center justify-center rounded-lg border border-[#548c70] bg-[#123d2c] px-2.5 py-2 text-xs font-bold text-[#e8fff2] hover:bg-[#20543e] aria-pressed:border-[#72edb5] aria-pressed:bg-[#22583f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#75f4bd] disabled:cursor-not-allowed disabled:opacity-50">
+                    {currentIsFavorite ? utilityCopy.saved : utilityCopy.save}
+                  </button>
                 </div>
-              </details>
+                <p className="px-3 pb-2 text-[10px] text-[#badbc8]">{utilityCopy.local}</p>
+              </section>
         </div>
       </section>
 

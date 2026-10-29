@@ -34,7 +34,8 @@ test("CALC-INT4.4B preserves calculator first-screen 2 columns, commercial prici
   assert.match(calculator,/data-cockpit-workspace/);
   assert.match(calculator,/inEmbeddedBuilder \|\| locale === "de"/);
   assert.match(calculator,/data-commercial-targets/);
-  assert.match(calculator,/!inEmbeddedBuilder \? <details className="group\/extra/);
+  assert.match(calculator,/!inEmbeddedBuilder \? \(\s*<div data-calc-copy-actions/);
+  assert.match(calculator,/data-calc-library/);
   assert.match(calculator,/!inEmbeddedBuilder && \(locale === "it" \|\| locale === "en"/);
   assert.match(calculator,/!inEmbeddedBuilder && !inlinePublicDistinta \? \(\s*<details/);
   assert.match(calculator,/inlinePublicDistinta && inlineBillCount > 0/);
