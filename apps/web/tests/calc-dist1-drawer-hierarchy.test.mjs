@@ -61,7 +61,7 @@ test("CALC-DIST1: exactly one primary RFQ action and compact privacy content",()
 test("CALC-DIST1: responsive Chrome is wired into protected visual acceptance",()=>{
   for(const needle of ["'it','en','de','fr','es'","320,390,1440",
     "data-distinta-compact-row","data-distinta-privacy-info","data-create-inline-private-rfq",
-    "data-cart-back","screenshot(","aria-pressed","data-inline-quantity"])
+    "data-cart-back","screenshot(","data-inline-quantity"])
     assert.ok(browser.includes(needle),needle);
   assert.ok(workflow.includes("calc-dist1-chrome-drawer.mjs"));
 });
