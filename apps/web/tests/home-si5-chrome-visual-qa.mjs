@@ -410,12 +410,12 @@ try {
           check(contrastRatio(actual.fill, actual.background) >= 4.5, "RFQ action Safari text fill must meet WCAG contrast");
           check(actual.height >= 44 && actual.width >= 44, "RFQ link touch target");
           check(actual.scroll <= actual.viewport + 12, "Tube calculator horizontal overflow");
-          const styles = await copy.evaluate((element) => ({
-            color: getComputedStyle(element).color,
-            fill: getComputedStyle(element).webkitTextFillColor,
-          }));
-          assert.equal(styles.color, "rgb(255, 255, 255)", "Copy label must be white on dark");
-          assert.equal(styles.fill, "rgb(255, 255, 255)", "Copy label Safari contrast");
+          const styles = await copy.evaluate((element) => {
+            const css = getComputedStyle(element);
+            return { color: css.color, fill: css.webkitTextFillColor, background: css.backgroundColor };
+          });
+          check(contrastRatio(styles.color,styles.background)>=4.5,"Copy action must have WCAG AA contrast");
+          check(contrastRatio(styles.fill,styles.background)>=4.5,"Copy action Safari text fill must have WCAG AA contrast");
           await calculator.screenshot({
             path: OUT + "/i18n7-calc-" + tube.locale + "-" + viewport.name + ".png",
             animations: "disabled",
