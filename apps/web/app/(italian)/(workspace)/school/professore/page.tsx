@@ -16,7 +16,7 @@ export default async function SchoolWorkspaceProfessorPage({searchParams}:{
   searchParams:Promise<{lang?:string}>;
 }) {
   const locale=schoolWorkspaceLocale((await searchParams).lang);
-  return <main className="mx-auto max-w-[1180px] space-y-4 px-4 py-4 sm:px-6 sm:py-6">
+  return <main className="mx-auto max-w-[1100px] space-y-3 px-3 py-2 sm:px-5 sm:py-4">
     <SchoolPrivateTopbar locale={locale} pathname="/school/professore" compact/>
     {locale!=="it" ? <p className="rounded-xl border border-[#d7e3da] bg-[#f5f8f6] px-4 py-3 text-xs leading-5 text-[#355849]">Il Professore pubblico è attualmente disponibile in italiano. La lingua del workspace non modifica le fonti né i dati aziendali.</p> : null}
     <SchoolTechnicalTutor/>

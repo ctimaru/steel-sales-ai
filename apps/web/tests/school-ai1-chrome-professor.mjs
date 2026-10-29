@@ -39,6 +39,12 @@ try {
     await page.locator("#tutor-question").fill("Mi spieghi EN 10219?");
     await page.getByRole("button", { name: /Chiedi al professore/ }).click();
     await page.getByText("Fixture — published standard").waitFor();
+    await page.getByText("In breve · Riferimento pubblicato").waitFor();
+    assert.equal(await page.getByRole("link", {name: /Apri l'assistente aziendale/}).count(),0,"no competing tutor journey");
+    const detail=page.getByText("Fixture technical context; not a normative statement.");
+    assert.equal(await detail.isVisible(),false,"longer technical context starts collapsed");
+    await page.getByText("Approfondisci il contesto tecnico").click();
+    assert.equal(await detail.isVisible(),true,"learner can expand published technical context");
     assert.equal(queries.length, 1);
     assert.equal(queries[0].q, "en10219");
     assert.equal(queries[0].locale, "it");
