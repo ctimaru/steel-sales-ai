@@ -50,9 +50,9 @@ test("I18N7 copy, favourite and RFQ CTAs enforce visible foreground under global
   assert.match(calculator,/data-cinematic-copy/);
   assert.match(calculator,/data-calc-copy-link/);
   assert.match(calculator,/data-calc-save-favorite/);
-  assert.match(cinematic,/\\.root \\[data-calc-copy-actions\\] \\.copy/);
-  assert.match(cinematic,/\\.root \\[data-calc-save-favorite\\]\\[aria-pressed="true"\\]/);
-  assert.match(dense,/\\.detailStrip/);
+  assert.ok(cinematic.includes(".root [data-calc-copy-actions] .copy"));
+  assert.ok(cinematic.includes('.root [data-calc-save-favorite][aria-pressed="true"]'));
+  assert.ok(dense.includes(".detailStrip"));
   assert.match(calculator,/tube-calculator-rfq-link/);
   assert.match(css,/#calcolatore-pesi \.tube-calculator-rfq-link \{[^}]*-webkit-text-fill-color: #123b34 !important/s);
   assert.match(calculator,/locale=\{locale\}/);
