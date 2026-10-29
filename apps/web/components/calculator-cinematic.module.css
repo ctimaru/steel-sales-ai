@@ -244,3 +244,17 @@
   /* Override the obsolete 48px field that accompanied the removed length selector. */
   .root [data-cockpit-length-quantity] > div:first-child input { width:78px; }
 }
+@container steel-calculator (min-width:1000px) {
+  /* The live section must remain a compact orientation cue beside kg/m:
+     its former 112px height pushed the primary RFQ action below the fold. */
+  .root [data-cockpit-results] [data-cockpit-preview] {
+    width:70px;
+    flex:0 0 70px;
+  }
+  .root [data-cockpit-results] [data-cockpit-preview] figure > svg {
+    max-width:70px;
+    max-height:68px;
+  }
+  .root [data-cockpit-results] .resultTitle { margin-bottom:7px; }
+  .root [data-cockpit-results] > div:first-child { padding-block:10px; }
+}
