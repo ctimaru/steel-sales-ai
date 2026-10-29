@@ -104,7 +104,8 @@ test("CALC-UX2 remains no-login, no-catalog writes, no automatic dispatch and pr
   assert.doesNotMatch(calculator,/enqueueCalculatorRfq[^\n]*fetch/);
   assert.match(itPage,/canonical: absoluteUrl\("\/distinta"\)/);
   assert.match(enPage,/canonical: absoluteUrl\("\/en\/distinta"\)/);
-  assert.match(calculator,/Copy result|Copia risultato/);
+  assert.match(calculator,/data-cinematic-copy/);
+  assert.match(calculator,/copyCurrentResult/);
   assert.match(enCopy,/No RFQ has been sent/);
   assert.match(en,/RFQ_BILL_TEXT\[locale\]/);
   assert.match(it,/Nessuna RFQ è stata inviata/);
