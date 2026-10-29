@@ -27,7 +27,7 @@ test("CALC-DIST2: one canonical Distinta editor supports compact batches without
 
 test("CALC-DIST2: open editors and quick drafts disable clipboard and RFQ until resolved",()=>{
   assert.match(cart,/hasUnsavedEdits = hasUnsavedQuantity \|\| editingId !== null \|\| editingTargetId !== null/);
-  assert.match(cart,/disabled=\{hasUnsavedEdits\} onClick=\{copyBill\}/);
+  assert.match(cart,/disabled=\{hasUnsavedEdits \|\| rfqPending\} onClick=\{copyBill\}/);
   assert.match(cart,/disabled=\{rfqPending \|\| Boolean\(createdRfq\) \|\| !ready \|\| hasUnsavedEdits\}/);
   assert.match(cart,/if \(hasPendingQuantities\(\) \|\| editingId !== null \|\| editingTargetId !== null\)/);
   assert.match(cart,/disabled=\{count >= INLINE_DISTINTA_MAX_LINES \|\| quickChanged \|\| editing \|\| editingTargetId === line.id\}/);
