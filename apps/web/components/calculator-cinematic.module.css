@@ -369,3 +369,33 @@
   border-color:#ffc078;
   outline-color:#ffc078;
 }
+
+/* CALC-UX6 — avoid repeating section area, copy buttons or favorite controls. */
+@container steel-calculator (min-width:680px) {
+  .stage { grid-template-rows:auto minmax(0,1fr); }
+}
+.root [data-calc-copy-actions] .copy {
+  flex:1 1 148px;
+  width:auto;
+  min-width:0;
+  margin:0;
+  border-radius:9px;
+}
+.root [data-calc-copy-actions] > button {
+  min-height:44px;
+  font-variant-numeric:tabular-nums;
+}
+.root [data-cockpit-details] > details,
+.root [data-cockpit-details] > section {
+  background:#0b2d21;
+  border-color:#35644e;
+}
+.root [data-cockpit-details] > details[open],
+.root [data-cockpit-details] [data-calc-library] details[open] {
+  background:#103627;
+}
+.root [data-cockpit-details] summary { color:#e2f8ec; }
+.root [data-calc-save-favorite][aria-pressed="true"] {
+  background:#1a6044;
+  color:#eefff6;
+}
