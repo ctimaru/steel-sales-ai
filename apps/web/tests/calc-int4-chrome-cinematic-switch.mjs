@@ -31,9 +31,12 @@ try {
     const us=group.getByRole("button",{name:/USA/i});
     assert.equal(await eu.getAttribute("aria-pressed"),"true");
     assert.equal(await us.getAttribute("aria-pressed"),"false");
-    // The first input can now be the dimension-discovery search, which is not geometry.\n    // Verify the actual controlled EU dimension field across the region switch.\n    const original=page.locator("#calcolatore-pesi [data-cockpit-measurements] input").first();
+    // The first input can now be the dimension-discovery search, which is not geometry.
+    // Verify the actual controlled EU dimension field across the region switch.
+    const original=page.locator("#calcolatore-pesi [data-cockpit-measurements] input").first();
     await original.waitFor({state:"visible"});
-    await original.fill("153.9");\n    assert.equal(await original.inputValue(),"153.9","EU diameter should be edited before switching");
+    await original.fill("153.9");
+    assert.equal(await original.inputValue(),"153.9","EU diameter should be edited before switching");
     await us.click();
     assert.equal(page.url(),BASE+spec.url,"Switch must not navigate or change canonical URL");
     assert.equal(await us.getAttribute("aria-pressed"),"true");
