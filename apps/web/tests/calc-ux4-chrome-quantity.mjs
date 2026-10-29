@@ -29,15 +29,17 @@ try {
     assert.equal(await targets.locator("[data-commercial-rounding]").count(),0);
     assert.ok(Number((await tonnes.inputValue()).replace(",","."))>.63);
     const action=root.locator("[data-cockpit-add]");
-    assert.match(await action.innerText(),/4/);
-    assert.match(await action.innerText(),/48/);
+    const orderSummary=root.locator("[data-effective-order-summary]");
+    assert.match(await orderSummary.innerText(),/4/);
+    assert.match(await orderSummary.innerText(),/48/);
+    if(width>=640) assert.match(await action.innerText(),/4/);
     await targets.getByRole("textbox",{name:"Prezzo €/m"}).fill("12,30");
     // Non-overrounded input maps to the exact actual total.
     assert.match(await targets.locator("[aria-live='polite']").innerText(),/590/);
     await metres.fill("49");
     assert.equal(await root.locator("#tube-calculator-quantity").inputValue(),"5");
     assert.match(await targets.locator("[data-commercial-rounding]").innerText(),/60/);
-    assert.match(await action.innerText(),/60/);
+    assert.match(await orderSummary.innerText(),/60/);
     await metres.fill("48");
     await action.click();
     const bill=await page.evaluate(()=>sessionStorage.getItem("sss:inline-distinta:v1"));
