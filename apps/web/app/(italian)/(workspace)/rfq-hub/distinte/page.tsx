@@ -44,12 +44,7 @@ export default async function RfqSavedDistinteArchive({
     .eq("organization_id",context.organizationId);
   if(mode==="active") request=request.is("archived_at",null);
   else request=request.not("archived_at","is",null);
-  if(query) request=request.ilike("title","%"+query.replace(/[\\%_]/g,"\\  const { data, error, count } = await supabase.from("buyer_distintas")
-    .select("id,title,owner_user_id,created_at,line_count,total_tonnes", { count: "exact" })
-    .eq("organization_id", context.organizationId)
-    .order("created_at", { ascending: false })
-    .order("id", { ascending: false })
-    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);")+"%");
+  if(query) request=request.ilike("title","%"+query.replace(/[%_]/g,"")+"%");
   const {data,error,count}=await request
     .order("created_at",{ascending:false})
     .order("id",{ascending:false})
