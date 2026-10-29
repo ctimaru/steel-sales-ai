@@ -4,10 +4,8 @@
 alter table public.buyer_distintas
   add column if not exists archived_at timestamptz null;
 
-alter table public.buyer_distintas
-  add constraint buyer_distintas_title_length_valid
-  check (char_length(btrim(title)) between 1 and 120)
-  not valid;
+-- Older snapshots can have titles longer than the new editor limit.
+-- Server actions validate NEW titles without blocking archive/restore of legacy rows.
 
 create index if not exists buyer_distintas_owner_archive_created_idx
   on public.buyer_distintas(owner_user_id,organization_id,archived_at,created_at desc,id);
