@@ -73,6 +73,7 @@ on:
       - "apps/web/tests/calc-ux5-*"
       - "apps/web/tests/calc-ux6-*"
       - "apps/web/tests/calc-dist1-*"
+      - "apps/web/tests/calc-dist2-*"
       - "apps/web/components/calculator-dense-distinta.module.css"
       - "apps/web/components/technical-cart-shell.module.css"
       - "apps/web/lib/calculator-commercial-quantity.ts"
@@ -180,6 +181,16 @@ jobs:
         run: node tests/calc-ux6-chrome-utilities.mjs
       - name: CALC-DIST1 shared drawer visual hierarchy, rows and RFQ integrity
         run: node tests/calc-dist1-chrome-drawer.mjs
+      - name: CALC-DIST2 5–10 line density, quick edits and RFQ guard
+        run: node tests/calc-dist2-chrome-multi-row.mjs
+      - name: Upload CALC-DIST2 multi-row snapshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calc-dist2-multi-row-visual-qa
+          path: /tmp/calc-dist2-visual/*.png
+          if-no-files-found: warn
+          retention-days: 7
       - name: Upload CALC-DIST1 compact cart screenshots
         if: always()
         uses: actions/upload-artifact@v4
