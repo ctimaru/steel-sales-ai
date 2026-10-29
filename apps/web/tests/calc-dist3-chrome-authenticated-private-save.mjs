@@ -191,12 +191,26 @@ try {
         throw new Error("Archive not accepted. UI="+JSON.stringify(status)+" DB archived="+Boolean(db?.[0]?.archived_at),{cause:e});
       }
       await page.goto(URL_ROOT+"/rfq-hub/distinte?q="+encodeURIComponent(renamedTitle),{waitUntil:"domcontentloaded"});
-      assert.equal(await page.locator("[data-dist4-row]").count(),0,"Archived bill absent in active list");
+      // Search matches the active duplicate "Copia di ..." as well as the
+      // original. Assert by immutable snapshot ID, never the result count.
+      await page.locator("[data-dist4-row]").first().waitFor({state:"visible",timeout:30000});
+      assert.equal(await page.locator('[data-dist4-row] [data-distinta-id="'+distinctId+'"]').count(),0,
+        "Archived original must be absent from active results");
+      assert.equal(await page.locator('[data-dist4-row] [data-distinta-id="'+copyId+'"]').count(),1,
+        "Independent duplicate stays active");
       await page.locator("[data-dist4-archived-tab]").click();
-      assert.equal(await page.locator("[data-dist4-row]").count(),1);
-      await page.locator("[data-dist4-row] [data-action-archive]").click();
+      await page.waitForURL(u=>u.searchParams.get("view")==="archived",{timeout:30000});
+      const archivedRow=page.locator('[data-dist4-row] [data-distinta-id="'+distinctId+'"]');
+      await archivedRow.waitFor({state:"visible",timeout:30000});
+      assert.equal(await page.locator('[data-dist4-row] [data-distinta-id="'+copyId+'"]').count(),0,
+        "Active duplicate must not appear in archived view");
+      await archivedRow.locator("[data-action-archive]").click();
+      await archivedRow.getByText("Distinta ripristinata.").waitFor({timeout:30000});
       await page.locator("[data-dist4-active-tab]").click();
-      assert.equal(await page.locator("[data-dist4-row]").count(),1,"Restored bill visible in active view");
+      await page.waitForURL(u=>u.searchParams.get("view")!== "archived",{timeout:30000});
+      await page.locator('[data-dist4-row] [data-distinta-id="'+distinctId+'"]').waitFor({timeout:30000});
+      assert.equal(await page.locator('[data-dist4-row] [data-distinta-id="'+copyId+'"]').count(),1,
+        "Duplicate remains unchanged after original restoration");
       const restored=await readRows(buyerDb.from("buyer_distintas")
         .select("id,archived_at,title").eq("id",distinctId));
       assert.equal(restored[0].id,distinctId);
