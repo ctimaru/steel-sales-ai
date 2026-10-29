@@ -1,0 +1,72 @@
+name: CALC-DIST2 Multi-Row Distinta Acceptance
+
+on:
+  pull_request:
+    paths:
+      - "apps/web/components/calculator-inline-distinta-experience.tsx"
+      - "apps/web/components/calculator-dense-distinta.module.css"
+      - "apps/web/tests/calc-dist2-*"
+      - ".github/workflows/calc-dist2-multi-row-acceptance.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  multi-row:
+    name: Isolated 10-row visual & workflow guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: apps/web
+    env:
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install verified frontend and Chrome dependencies
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chrome
+      - name: CALC-DIST2 state and integration assertions
+        run: node --test tests/calc-dist2-multi-row.test.mjs tests/calc-dense1c-professional-distinta-grid.test.mjs
+      - name: Compile production Next app
+        run: npm run build
+      - name: Start isolated local app
+        run: |
+          set -euo pipefail
+          nohup npm run start -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/calc-dist2-next.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/calc-dist2-next.pid"
+          for attempt in $(seq 1 50); do
+            if curl --fail --silent http://127.0.0.1:3000/ > /dev/null; then exit 0; fi
+            sleep 2
+          done
+          tail -n 70 "$RUNNER_TEMP/calc-dist2-next.log"
+          exit 1
+      - name: CALC-DIST1 baseline drawer visual smoke
+        run: node tests/calc-dist1-chrome-drawer.mjs
+      - name: CALC-DIST2 5–10 row density and commercial handoff safety
+        run: node tests/calc-dist2-chrome-multi-row.mjs
+      - name: Upload isolated screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calc-dist2-isolated-visual
+          path: |
+            /tmp/calc-dist1-visual/*.png
+            /tmp/calc-dist2-visual/*.png
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Stop local server
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/calc-dist2-next.pid" ]; then
+            kill "$(cat "$RUNNER_TEMP/calc-dist2-next.pid")" 2>/dev/null || true
+          fi
