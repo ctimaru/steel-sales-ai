@@ -201,7 +201,7 @@ export function SchoolTechnicalTutor() {
                   ] as const).map(option => {
                     const selected = followUp?.evidenceId === item.id && followUp.kind === option.kind;
                     return <button key={option.kind} type="button"
-                      aria-expanded={selected} aria-controls={"tutor-followup-" + item.id}
+                      aria-expanded={selected} aria-controls={selected ? "tutor-followup-" + item.id : undefined}
                       onClick={() => setFollowUp(selected ? null : { evidenceId: item.id, kind: option.kind })}
                       className={selected
                         ? "min-h-10 rounded-xl border border-[#247455] bg-[#e9f4ed] px-3 text-xs font-bold text-[#194f38] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]"
