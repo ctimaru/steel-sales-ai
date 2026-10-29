@@ -49,13 +49,18 @@ test("UXA2B keeps Scuola contextual navigation inside authenticated routes", () 
   assert.match(nav, /pathname\.startsWith\(appRoutes\.knowledge\.workspace \+ "\/"\)/);
 });
 
-test("UXA2B mirrors every public technical route inside the authenticated Scuola shell", () => {
-  for (const wrapper of schoolWrappers) {
-    assert.match(
-      wrapper,
-      /(?:export \{ default \} from|import .* from) "@\/app\/\(public\)\/knowledge/,
-    );
+test("UXA2B preserves public technical wrappers, and uses published K2 indexes for School Norme/Gradi", () => {
+  const publicImport = /(?:export \{ default \} from|import .* from) "@\/app\/\(public\)\/knowledge/;
+  for (const [index, wrapper] of schoolWrappers.entries()) {
+    if (index===1 || index===3) {
+      assert.match(wrapper, /SchoolPrivateReferenceIndex/, "authenticated index "+index);
+    } else {
+      assert.match(wrapper, publicImport, "public reference wrapper "+index);
+    }
   }
+  const privateIndex=fs.readFileSync(new URL("../components/school-private-reference-index.tsx",import.meta.url),"utf8");
+  assert.match(privateIndex,/listPublicStandards\(\)/);
+  assert.match(privateIndex,/listPublicGrades\(\)/);
 });
 
 test("UXA2B redirects authenticated public-Knowledge navigation back into Scuola", () => {
