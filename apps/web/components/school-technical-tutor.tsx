@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { parseSteelAssistantInput } from "@/lib/school-assistant-intent.mjs";
 import { matchSchoolTutorTopic } from "@/lib/school-tutor-topics.mjs";
+import styles from "./school-professor-presence.module.css";
 
 type PublicCitation = { url: string; label: string; role: string };
 type PublicEvidence = {
@@ -40,21 +41,16 @@ function validEvidence(value: unknown): PublicEvidence[] {
 
 /** One original teacher illustration reused on mobile and desktop, without any new media or AI. */
 function TeacherPortrait({ state, className }: { state: LookupState; className: string }) {
-  return (<svg viewBox="0 0 180 180" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="90" cy="77" r="62" fill="#366B50" stroke="#A9D2B8" strokeOpacity=".5"/>
-              <path d="M36 154c5-31 24-45 54-45s49 14 54 45" fill="#D3E9DD"/>
-              <path d="m72 110 18 18 18-18-5-8H77l-5 8Z" fill="#B4D8BF"/>
-              <path d="M64 63c0-22 10-37 26-37s26 15 26 37v13c0 23-12 40-26 40S64 99 64 76V63Z" fill="#EBC7A7"/>
-              <path d="M60 70c-2-31 10-49 32-49 20 0 33 17 28 46l-5-9c-2-15-10-23-21-23-7 0-16 9-30 9l-4 26Z" fill="#20392E"/>
-              <path d="M67 73h18m10 0h18M85 73h10" stroke="#20392E" strokeWidth="4" strokeLinecap="round"/>
-              {state === "loading"
-                ? <path d="M83 95h14" stroke="#985E46" strokeWidth="2.5" strokeLinecap="round"/>
-                : state === "ready" || state === "topic"
-                  ? <path d="M81 94q9 9 18 0" stroke="#985E46" strokeWidth="2.5" strokeLinecap="round"/>
-                  : <path d="M83 95c4 3 10 3 14 0" stroke="#985E46" strokeWidth="2.5" strokeLinecap="round"/>}
-              <path d="m69 126 20 24 21-24" stroke="#356A4E" strokeWidth="4" strokeLinejoin="round"/>
-              <path d="M34 156h112" stroke="#A9D2B8" strokeWidth="3" strokeLinecap="round"/>
-            </svg>);
+  return (<svg viewBox="0 0 180 180" className={`${className} ${styles.portrait} ${state === "loading" ? styles.consulting : ""}`} fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    {/* SCHOOL-ART1: same single lightweight vector asset on mobile and desktop. */}
+    <image href="/school-professor-art1.svg" width="180" height="180" />
+    {/* Preserve the three restrained presence expressions, not animated lip-sync. */}
+    {state === "loading"
+      ? <path d="M85 107q7 2 15 0" stroke="#8D5B49" strokeWidth="2.2" strokeLinecap="round"/>
+      : state === "ready" || state === "topic"
+        ? <path d="M82 104q10 11 20 0" stroke="#895340" strokeWidth="2.2" strokeLinecap="round"/>
+        : <path d="M83 107q9 6 18 0" stroke="#895340" strokeWidth="2.2" strokeLinecap="round"/>}
+  </svg>);
 }
 
 /** Public foundation: raw questions remain in the browser, only recognized codes reach public K2. */
