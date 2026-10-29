@@ -52,7 +52,7 @@ try {
    assert.equal(await label.evaluate(e=>e.scrollWidth>e.clientWidth+1),false,'Translated result labels must fit their tiles, including German at 320px');
   }
   if(containerWidth>=1000) {
-   assert.ok(left.x+left.width<=stage.x+2 && stage.x+stage.width<=right.x+2,'Three independent desktop columns');
+   assert.ok(left.x+left.width<=right.x+2 && stage.y>=right.y+right.height-2,'Balanced two-column cockpit, secondary stage below');
    assert.ok(Math.abs(left.y-right.y)<3,'Controls and results align');
    const action=await root.locator('[data-cockpit-add]').boundingBox();
    const toolbar=await root.locator('[data-cockpit-toolbar]').boundingBox();
@@ -120,7 +120,7 @@ try {
    await targets.getByRole('textbox',{name:'Prezzo €/m'}).fill('25');
    assert.ok(Number((await targets.getByRole('textbox',{name:'Prezzo €/t'}).inputValue()).replace(',','.'))>0,'Metre price converts to positive €/t');
    await targets.getByRole('textbox',{name:'Prezzo €/t'}).fill('850');
-   assert.match(await targets.locator('[aria-live="polite"]').innerText(),/850/,'Target amount updates from tonne price');
+   assert.ok(Number((await targets.locator('[aria-live="polite"]').innerText()).replace(/[^0-9,]/g,'').replace(',','.'))>850,'Total uses full-bar actual quantity');
 
   }
   await root.locator('[data-cinematic-copy]').click();
