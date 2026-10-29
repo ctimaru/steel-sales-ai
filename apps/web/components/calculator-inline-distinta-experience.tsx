@@ -76,6 +76,15 @@ export function CalculatorInlineDistintaExperience({
 }) {
   const router = useRouter();
   const c = localizedInlineBill(locale);
+  // Compact drawer copy is presentational only; the RFQ and private target
+  // business contracts remain in the existing shared five-language strings.
+  const drawerCopy = ({
+    it: { back:"Torna alla calcolatrice", quantity:"Quantità", safety:"I target economici restano privati", more:"Dettagli privacy", help:"Come funziona la RFQ privata", actions:"Azioni riga" },
+    en: { back:"Back to calculator", quantity:"Quantity", safety:"Commercial targets stay private", more:"Privacy details", help:"How private RFQs work", actions:"Line actions" },
+    de: { back:"Zurück zum Rechner", quantity:"Menge", safety:"Preisziele bleiben privat", more:"Datenschutzdetails", help:"So funktionieren private Anfragen", actions:"Zeilenaktionen" },
+    fr: { back:"Retour à la calculatrice", quantity:"Quantité", safety:"Les objectifs de prix restent privés", more:"Détails de confidentialité", help:"Fonctionnement des demandes privées", actions:"Actions de ligne" },
+    es: { back:"Volver a la calculadora", quantity:"Cantidad", safety:"Los precios objetivo siguen siendo privados", more:"Detalles de privacidad", help:"Cómo funcionan las solicitudes privadas", actions:"Acciones de línea" },
+  } as const)[locale];
   const number = (value: number | null, digits: number) =>
     value === null || !Number.isFinite(value) ? "—" :
       value.toLocaleString({it:"it-IT",en:"en-GB",de:"de-DE",fr:"fr-FR",es:"es-ES"}[locale], {
@@ -347,7 +356,8 @@ export function CalculatorInlineDistintaExperience({
       <TechnicalCartShell
         compact visible={ready && count > 0} open={open}
         onOpen={() => setOpen(true)} onClose={() => setOpen(false)}
-        count={count} title={c.title} eyebrow={c.eyebrow} closeLabel={c.close}
+        count={count} title={c.title} eyebrow={c.eyebrow} closeLabel={drawerCopy.back}
+         countLabel={(count === 1 ? c.row : c.lines).toLowerCase()}
         summary={`${number(totals?.totalMeters ?? null, 2)} m · ${number(totals?.totalTonnes ?? null, 3)} t`}
         dialogId="distinta-inline-dialog" titleId="distinta-inline-title" bodyId="distinta-inline-lines"
         triggerTestId="calculator-cart-trigger" overlayTestId="calculator-cart-overlay"
@@ -360,13 +370,13 @@ export function CalculatorInlineDistintaExperience({
             <span className="shrink-0 rounded-md bg-[#eef6f0] px-2 py-1 text-xs font-bold text-[#285a43]">{count} {c.lines}</span>
           </div>
           {hasUnsavedQuantity ? <p role="status" className="text-[11px] font-semibold text-[#915421]">{c.unsavedQuantity}</p> : null}
-          <div className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-2">
-            <button type="button" className={cn(actionClasses({variant:"secondary",size:"sm"}),"min-h-11 rounded-lg px-2 text-xs sm:text-sm")}
+          <div data-distinta-footer-actions className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-2">
+            <button type="button" className={cn(actionClasses({variant:"secondary",size:"sm"}),"min-h-11 rounded-lg border border-[#a6cdb6] bg-white px-2 text-xs font-semibold text-[#1a533b] sm:text-sm")}
               disabled={hasUnsavedQuantity} onClick={copyBill} aria-label={c.copyBill}>
               <span className="sm:hidden">{c.shortCopy}</span><span className="hidden sm:inline">{c.copyBill}</span>
             </button>
             <button type="button" data-create-inline-private-rfq
-              className={cn(actionClasses({variant:"default"}),"min-h-11 rounded-lg px-2 text-xs sm:text-sm")}
+              className={cn(actionClasses({variant:"default"}),"min-h-11 rounded-lg !bg-[#16694b] px-2 text-xs font-bold !text-white hover:!bg-[#0e5137] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f9c69] sm:text-sm")}
               disabled={rfqPending || Boolean(createdRfq) || !ready || hasUnsavedQuantity}
               aria-label={createdRfq ? c.rfqCreated : rfqPending ? c.rfqPending : c.createRfqButton}
               onClick={() => { void createPrivateRfq(); }}>
@@ -378,8 +388,8 @@ export function CalculatorInlineDistintaExperience({
           </div>
           {rfqError ? <p role="alert" className="text-xs font-semibold text-[#9b442a]">{rfqError}</p> : null}
         </div>}>
-                {message ? <p role="status" aria-live="polite"
-                  className="mb-3 rounded-lg border border-[#c7e3d2] bg-[#edf8f0] px-3 py-2 text-xs font-semibold text-[#215a40]">
+                {message ? <p data-distinta-feedback role="status" aria-live="polite"
+                  className="mb-2 rounded-md border-l-[3px] border-[#2b9b65] bg-[#e5f4e9] px-2 py-1.5 text-[11px] font-semibold text-[#215a40]">
                   {message}
                 </p> : null}
           {pendingTarget ? (
@@ -390,9 +400,7 @@ export function CalculatorInlineDistintaExperience({
             </div>
           ) : null}
 
-          <div data-distinta-grid-header className={styles.gridHeader} aria-hidden="true">
-            <span>{c.oneItem}</span><span>{c.quantity}</span><span>{c.tonnes}</span><span>•••</span>
-          </div>
+          {/* Each self-contained article identifies its own metrics; no cramped table labels. */}
           <div data-distinta-compact-grid className={styles.rows}>
             {state.lines.map((line, index) => {
               const computed = calculateBuyerDistintaLine(line);
@@ -416,6 +424,7 @@ export function CalculatorInlineDistintaExperience({
                     <span>{line.standard}{line.grade ? " · "+line.grade : " · "+c.gradePending}</span>
                   </div>
                   <div data-inline-quantity className={styles.quantity}>
+                    <span className={styles.fieldLabel}>{line.quantityMode === "bars" ? c.bars : drawerCopy.quantity}</span>
                     <input type="text" inputMode={line.quantityMode === "bars" ? "numeric" : "decimal"}
                       value={quickValue} maxLength={45} disabled={editing}
                       aria-label={c.quantity + " " + c.row.toLowerCase() + " " + (index + 1)}
@@ -431,10 +440,11 @@ export function CalculatorInlineDistintaExperience({
                     </span>
                   </div>
                   <div className={styles.metrics} title={"kg/m: "+number(computed.weightKgM,3)}>
-                    <strong>{number(computed.tonnes, 4)} t</strong>
-                    <span>{number(computed.meters, 2)} m · {number(computed.weightKgM, 2)} kg/m</span>
+                    <div><span className={styles.fieldLabel}>{c.meters}</span><strong>{number(computed.meters, 2)} m</strong></div>
+                    <div><span className={styles.fieldLabel}>{c.tonnes}</span><strong>{number(computed.tonnes, 4)} t</strong></div>
+                    <span className={styles.weightLine}>{number(computed.weightKgM, 2)} kg/m</span>
                   </div>
-                  <div data-distinta-row-actions className={styles.actions}>
+                  <div data-distinta-row-actions className={styles.actions} role="group" aria-label={drawerCopy.actions + " " + (index + 1)}>
                     <button type="button" className={styles.action} title={editing ? c.close : c.edit}
                       aria-label={editing ? c.close : c.edit}
                       aria-expanded={editing} aria-controls={editing ? "distinta-inline-edit-" + line.id : undefined}
@@ -443,14 +453,14 @@ export function CalculatorInlineDistintaExperience({
                       disabled={count >= INLINE_DISTINTA_MAX_LINES}
                       aria-label={c.duplicateLine + " " + c.row.toLowerCase() + " " + (index + 1)}
                       onClick={() => commit(duplicateInlineDistintaLine(liveState.current, line.id, makeId()))}>⧉</button>
-                    <button type="button" className={styles.action} title={c.remove}
+                    <button type="button" className={styles.actionDanger} title={c.remove}
                       aria-label={c.remove + " " + c.row.toLowerCase() + " " + (index + 1)}
                       onClick={() => {
                         if (commit(removeInlineDistintaLine(liveState.current, line.id)) && editing) {
                           setEditingId(null); setDraft(null);
                         }
                       }}>×</button>
-                    <button type="button" className={styles.action} title={privateTarget ? c.editTarget : c.setTarget}
+                    <button type="button" className={styles.actionTarget} title={privateTarget ? c.editTarget : c.setTarget}
                       aria-label={privateTarget ? c.editTarget : c.setTarget}
                       aria-expanded={editingTargetId === line.id}
                       aria-controls={editingTargetId === line.id ? `private-target-edit-${line.id}` : undefined}
@@ -529,13 +539,18 @@ export function CalculatorInlineDistintaExperience({
             })}
           </div>
 
-          <p className="mt-3 rounded-lg bg-[#f2f8f4] px-3 py-2 text-[11px] leading-4 text-[#486858]">{c.targetSafety}</p>
+          <details data-distinta-privacy-info className="mt-3 rounded-lg border border-[#d1e5d7] bg-[#eaf5ed] text-[11px] text-[#365d47]">
+            <summary className="flex min-h-10 cursor-pointer items-center justify-between gap-2 px-3 font-semibold focus-visible:outline-2 focus-visible:outline-[#187b51]">
+              {drawerCopy.safety} <span aria-hidden="true">ⓘ</span>
+            </summary>
+            <p className="border-t border-[#d1e5d7] px-3 py-2 leading-5">{c.targetSafety}</p>
+          </details>
           <section id="distinta-inline-rfq" aria-label={c.privateRfq} className="mt-2 scroll-mt-24">
             <details data-distinta-rfq-help
               open={Boolean(createdRfq) || Object.keys(targets).length > 0 || (rfqAccess !== null && rfqAccess !== "ready")}
               className="rounded-lg border border-[#c5decf] bg-white">
               <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-2 px-3 py-2 text-xs font-bold text-[#21563c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#16724e]">
-                {c.privateRfq} <span aria-hidden="true">ⓘ</span>
+                {drawerCopy.help} <span aria-hidden="true">ⓘ</span>
               </summary>
               <div className="border-t border-[#e0ece5] px-3 py-3">
                 <p className="text-xs leading-5 text-[#4a6756]">{c.rfqIntro}</p>
