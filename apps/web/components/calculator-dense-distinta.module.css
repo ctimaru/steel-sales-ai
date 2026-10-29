@@ -1,67 +1,98 @@
-/* CALC-DENSE1R-B — professional high-density technical bill. */
-.rows{display:grid;gap:2px}
-.gridHeader,.mainRow{display:grid;grid-template-columns:minmax(0,1fr) 62px 79px 120px;gap:4px;align-items:center}
-.gridHeader{padding:0 4px 5px;color:#527260;font-size:10px;font-weight:800;border-bottom:1px solid #d7e6db}
-.gridHeader span:last-child{text-align:center}
-.row{min-width:0;padding:3px 4px;border-bottom:1px solid #e2ebe5;background:#fff}
-.row:nth-child(even){background:#f8fbf9}
-.mainRow{min-height:44px}
-.description,.quantity,.metrics{min-width:0}
-.description strong{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:#183c2e;line-height:17px}
-.description span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;line-height:15px;color:#577361}
-.quantity input{display:block;width:100%;min-width:0;height:36px;padding:0 5px;border:1px solid #aecdbb;border-radius:6px;background:#fff;color:#173e2d;text-align:center;font-variant-numeric:tabular-nums;font-size:13px;font-weight:750}
-.quantity input:focus-visible,.action:focus-visible,.saveQuantity:focus-visible{outline:2px solid #198158;outline-offset:2px}
-.metrics{text-align:right;font-variant-numeric:tabular-nums}
-.metrics strong{display:block;color:#173d2d;font-size:11px;line-height:17px;white-space:nowrap}
-.metrics span{display:block;color:#527463;font-size:9px;line-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.actions{display:flex;gap:2px;align-items:center;justify-content:flex-end;min-width:0}
-.action{display:inline-flex;align-items:center;justify-content:center;flex:0 0 28px;width:28px;height:36px;padding:0;border:1px solid #d4e4d9;border-radius:6px;background:#f0f8f3;color:#15583b;font-size:16px;font-weight:750;cursor:pointer}
-.action:hover{background:#daeee2;border-color:#9ecbb2}
-.action:disabled{opacity:.4;cursor:not-allowed}
-.saveQuantity{display:block;width:100%;min-height:40px;margin:3px 0 0;padding:5px 8px;border-radius:6px;background:#145a41;color:white;font-size:12px;font-weight:700}
-@media (max-width:639px){
- .gridHeader{display:none}
- .mainRow{grid-template-columns:minmax(0,1fr) 65px 84px;row-gap:2px;column-gap:6px;min-height:0}
- .description strong{font-size:12px}
- .quantity input{height:36px}
- .actions{grid-column:1/-1;justify-content:flex-start;gap:6px}
- .action{flex-basis:42px;width:42px;height:42px}
- .row{padding:3px 5px}
+/* CALC-DIST1 — calm technical-commercial cart, same semantics as the canonical bill.
+   Responsive to the compact 510px drawer, not just to the outer page viewport. */
+.rows { display:grid; gap:9px; }
+.gridHeader { display:none; }
+.row {
+  min-width:0; padding:12px; border:1px solid #c7dfd0; border-radius:12px;
+  background:#fff; box-shadow:0 2px 7px rgba(12,52,33,.035);
 }
-
-/* CALC-PROD1A.3G — quiet, legible precision editing without taller rows. */
-.row:focus-within{background:#f3f9f5}
-.quantity input:hover,.lengthInput:hover{border-color:#7da991}
-.quantity input:focus-visible,.lengthInput:focus-visible{
-  outline:2px solid #198158;outline-offset:1px;border-color:#198158
+.row:focus-within { background:#f9fdfb; border-color:#79b797; }
+.mainRow {
+  display:grid; min-width:0;
+  grid-template-columns:minmax(80px,.8fr) minmax(0,2.1fr);
+  gap:10px 12px; align-items:start;
 }
-.lengthControl{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;gap:3px;
-  margin-left:3px;color:#436a53;font-size:10px;font-weight:700;white-space:nowrap}
-.lengthInput{box-sizing:border-box;width:42px;height:28px;min-width:0;border:1px solid #aecdbb;
-  border-radius:6px;background:#fff;padding:0 3px;text-align:center;color:#173e2d;
-  font-size:11px;font-weight:750;font-variant-numeric:tabular-nums}
-.actions{overflow:visible}
-.actions .action{transition:background-color 120ms ease,border-color 120ms ease}
-@media (max-width:639px){
- .lengthControl{margin-left:auto}
- .row:focus-within{background:#f3f9f5}
- .actions .action{border-color:#c6dfd0;background:#f0f8f3}
+.description { grid-column:1/-1; min-width:0; border-bottom:1px solid #e1ede5; padding-bottom:9px; }
+.description strong {
+  display:block; font-size:14px; font-weight:800; line-height:1.35;
+  color:#143d2a; overflow-wrap:anywhere;
 }
-@media (prefers-reduced-motion:reduce){
- .actions .action{transition:none}
+.description span {
+  display:block; margin-top:3px; font-size:11px; line-height:1.45;
+  color:#537360; overflow-wrap:anywhere;
 }
-
-/* CALC-PROD1A.3G.2 — restrained thumb-sized tools on narrow phones. */
-@media (max-width:639px){
- .actions{display:flex;flex-wrap:nowrap;align-items:center;justify-content:flex-start;gap:4px;
-   padding-top:1px}
- .actions .action{flex:0 0 40px;width:40px;height:40px;border-radius:7px}
- .lengthControl{flex:0 0 auto;gap:3px;margin-left:auto}
- .lengthInput{width:46px;height:34px;font-size:12px}
- .row{padding-block:4px}
+.fieldLabel {
+  display:block; margin-bottom:4px; color:#51735f;
+  font-size:10px; font-weight:750; line-height:1.3;
 }
-@media (max-width:359px){
- .actions{gap:3px}
- .actions .action{flex-basis:38px;width:38px;height:40px}
- .lengthInput{width:40px}
+.quantity { min-width:0; }
+.quantity input {
+  box-sizing:border-box; display:block; width:100%; min-width:0;
+  height:44px; padding:0 7px;
+  border:1px solid #a6cdb5; border-radius:8px; background:#f7fcf9;
+  color:#103d2a; text-align:center;
+  font-variant-numeric:tabular-nums; font-size:15px; font-weight:800;
+}
+.metrics {
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
+  min-width:0; gap:4px 8px; font-variant-numeric:tabular-nums;
+}
+.metrics > div { min-width:0; }
+.metrics strong {
+  display:block; color:#15442f; font-size:13px; line-height:1.8;
+  font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.weightLine { grid-column:1/-1; font-size:10px; color:#527261; text-align:right; }
+.actions {
+  display:flex; grid-column:1/-1; flex-wrap:wrap;
+  align-items:center; gap:6px; min-width:0;
+  padding-top:9px; border-top:1px solid #e1ede5;
+}
+.action,.actionDanger,.actionTarget {
+  display:inline-flex; flex:0 0 44px; align-items:center; justify-content:center;
+  box-sizing:border-box; width:44px; height:44px; padding:0;
+  border:1px solid #c0dcca; border-radius:9px;
+  background:#edf7f1; color:#17583e; font-size:17px; font-weight:800;
+  cursor:pointer;
+}
+.action:hover,.actionTarget:hover { background:#def1e5; border-color:#77b795; }
+.actionDanger {
+  margin-right:auto; border-color:#efd1c9; background:#fff6f3; color:#9b4532;
+}
+.actionDanger:hover { background:#fbe8e1; border-color:#dfa99a; }
+.actionTarget { border-color:#badbc9; background:#e5f3ea; color:#185d43; }
+.action:disabled,.actionDanger:disabled,.actionTarget:disabled { opacity:.4; cursor:not-allowed; }
+.quantity input:focus-visible,.lengthInput:focus-visible,
+.action:focus-visible,.actionDanger:focus-visible,.actionTarget:focus-visible,
+.saveQuantity:focus-visible {
+  outline:2px solid #198158; outline-offset:2px; border-color:#198158;
+}
+.lengthControl {
+  display:inline-flex; flex:0 0 auto; align-items:center; justify-content:center;
+  gap:5px; margin-left:0; color:#436a53; font-size:11px; font-weight:700;
+  white-space:nowrap;
+}
+.lengthInput {
+  box-sizing:border-box; width:48px; height:40px; min-width:0;
+  border:1px solid #aecdbb; border-radius:8px; background:#fff;
+  padding:0 4px; text-align:center; color:#173e2d;
+  font-size:12px; font-weight:800; font-variant-numeric:tabular-nums;
+}
+.quantity input:hover,.lengthInput:hover { border-color:#7da991; }
+.saveQuantity {
+  display:block; width:100%; min-height:44px; margin:8px 0 0;
+  padding:8px 10px; border-radius:8px;
+  background:#176e4d; color:white; font-size:12px; font-weight:800;
+}
+@media (max-width:359px) {
+  .row { padding:10px; }
+  .mainRow { grid-template-columns:minmax(70px,.75fr) minmax(0,2.2fr); gap:8px; }
+  .metrics { gap:3px; }
+  .metrics strong { font-size:12px; }
+  .actions { gap:5px; }
+  .action,.actionDanger,.actionTarget { flex-basis:40px; width:40px; height:44px; }
+  .lengthInput { width:43px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .action,.actionDanger,.actionTarget { transition:none; }
 }

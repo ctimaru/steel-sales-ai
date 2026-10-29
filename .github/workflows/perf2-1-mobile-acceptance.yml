@@ -72,6 +72,9 @@ on:
       - "apps/web/tests/calc-ux4-*"
       - "apps/web/tests/calc-ux5-*"
       - "apps/web/tests/calc-ux6-*"
+      - "apps/web/tests/calc-dist1-*"
+      - "apps/web/components/calculator-dense-distinta.module.css"
+      - "apps/web/components/technical-cart-shell.module.css"
       - "apps/web/lib/calculator-commercial-quantity.ts"
       - "apps/web/tests/i18n8-*"
       - "apps/web/tests/bd11-*"
@@ -175,6 +178,16 @@ jobs:
         run: node tests/calc-ux5-chrome-visual-signoff.mjs
       - name: CALC-UX6 compact footer, persistent favorites and copy utilities
         run: node tests/calc-ux6-chrome-utilities.mjs
+      - name: CALC-DIST1 shared drawer visual hierarchy, rows and RFQ integrity
+        run: node tests/calc-dist1-chrome-drawer.mjs
+      - name: Upload CALC-DIST1 compact cart screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calc-dist1-drawer-visual-qa
+          path: /tmp/calc-dist1-visual/*.png
+          if-no-files-found: warn
+          retention-days: 7
       - name: Upload CALC-UX6 utility and favorites screenshots
         if: always()
         uses: actions/upload-artifact@v4

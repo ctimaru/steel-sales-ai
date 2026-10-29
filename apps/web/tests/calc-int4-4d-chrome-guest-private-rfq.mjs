@@ -27,7 +27,7 @@ try {
   await bill.locator("article").first().waitFor({state:"visible"});
   assert.equal(await bill.locator("[data-create-inline-private-rfq]").count(),1);
   assert.equal(await bill.getByRole("checkbox",{name:/Includi i target buyer/}).count(),0);
-  await bill.getByRole("button",{name:/Chiudi/}).click();
+  await bill.locator('[data-cart-back="true"]').click();
   // DENSE1A: pricing is intentionally secondary and opens on demand.
   await calculator.locator("[data-commercial-targets]").getByRole("textbox",{name:"Prezzo €/t"}).fill("850");
   await calculator.locator("[data-target-opt-in]").click();

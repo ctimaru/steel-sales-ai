@@ -19,6 +19,8 @@ type TechnicalCartShellProps = {
   eyebrow: string;
   summary: string;
   closeLabel: string;
+  /** Human-readable singular/plural count label for compact technical drawer. */
+  countLabel?: string;
   dialogId: string;
   titleId: string;
   bodyId?: string;
@@ -38,7 +40,7 @@ type TechnicalCartShellProps = {
 };
 
 export function TechnicalCartShell({
-  visible, open, onOpen, onClose, count, title, eyebrow, summary, closeLabel,
+  visible, open, onOpen, onClose, count, title, eyebrow, summary, closeLabel, countLabel,
   dialogId, titleId, bodyId, dialogAriaLabel, triggerTestId, overlayTestId,
   wide = false, compact = false, restoreFocusRef, pendingFocusRowRef, children, footer,
 }: TechnicalCartShellProps) {
@@ -116,15 +118,20 @@ export function TechnicalCartShell({
           <div id={dialogId} role="dialog" aria-modal="true" ref={dialogRef}
             aria-labelledby={dialogAriaLabel ? undefined : titleId}
             aria-label={dialogAriaLabel}
-            tabIndex={-1} className={wide ? styles.dialogWide : compact ? styles.dialogCompact : styles.dialog}>
+            tabIndex={-1} className={wide ? styles.dialogWide : compact ? styles.dialogCompact : styles.dialog}
+             data-technical-cart-variant={compact ? "compact" : wide ? "wide" : "default"}>
             <div className={styles.header}>
               <div className={styles.headingContent}>
                 <p className={styles.eyebrow}>{eyebrow}</p>
-                <h2 id={titleId} className={styles.heading}>{title} · {count}</h2>
-                <p className={styles.summary}>{summary}</p>
+                <div className={styles.titleLine}>
+                  <h2 id={titleId} className={styles.heading}>{title}{compact ? "" : " · " + count}</h2>
+                  {compact ? <span data-distinta-count-badge className={styles.countBadge}>{count} {countLabel}</span> : null}
+                </div>
+                <p data-technical-cart-summary className={styles.summary}>{summary}</p>
               </div>
-              <button type="button" onClick={onClose} className={styles.close}>
-                {closeLabel} ×
+              <button type="button" onClick={onClose} className={styles.close}
+                aria-label={closeLabel} title={closeLabel} data-cart-back={compact ? "true" : undefined}>
+                {compact ? <span aria-hidden="true">←</span> : <>{closeLabel} ×</>}
               </button>
             </div>
             <div id={bodyId} className={styles.body}>{children}</div>

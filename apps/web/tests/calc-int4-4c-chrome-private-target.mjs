@@ -33,7 +33,7 @@ try {
     await bill.locator("article").first().waitFor({state:"visible"});
     assert.equal(await bill.locator("[data-buyer-target]").count(),0,
       "Adding a tube may never automatically import the quick price.");
-    await bill.getByRole("button",{name:/Chiudi/}).click();
+    await bill.locator('[data-cart-back="true"]').click();
     await calculator.locator("[data-target-opt-in]").click();
     assert.equal(await bill.locator("[data-target-pending]").count(),1);
     assert.equal(await bill.locator("[data-buyer-target]").count(),0);
