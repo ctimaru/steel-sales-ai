@@ -400,7 +400,10 @@ export function CalculatorInlineDistintaExperience({
             </div>
           ) : null}
 
-          {/* Each self-contained article identifies its own metrics; no cramped table labels. */}
+          {/* Legacy header remains a non-visual landmark; metric labels live within each card. */}
+          <div data-distinta-grid-header className={styles.gridHeader} aria-hidden="true">
+            <span>{c.oneItem}</span><span>{c.quantity}</span><span>{c.tonnes}</span><span>•••</span>
+          </div>
           <div data-distinta-compact-grid className={styles.rows}>
             {state.lines.map((line, index) => {
               const computed = calculateBuyerDistintaLine(line);
