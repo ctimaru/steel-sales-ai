@@ -1552,9 +1552,6 @@ export function PublicTubeWeightCalculator({
                   <span>{t("Metodo e provenienza")}</span><span aria-hidden="true" className="text-[#b5daca] group-open:rotate-180">⌄</span>
                 </summary>
                 <div className="border-t border-white/10 px-3 py-2 text-xs leading-5 text-white/85">
-                  {t("Metodo e provenienza")}
-                </summary>
-                <div className="border-t border-white/10 px-3 py-2 text-xs leading-5 text-white/85">
                   {standard === "geometric" ? (
                     <>
                       <p className="font-semibold text-white">{t("Riferimento tecnico trovato")}</p>
